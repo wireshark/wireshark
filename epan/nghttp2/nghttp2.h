@@ -27,7 +27,7 @@
 
 #include "config.h"
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -69,7 +69,7 @@ extern "C" {
 
 struct nghttp2_session;
 /**
- * @struct
+ * @typedef
  *
  * The primary structure to hold the resources needed for a HTTP/2
  * session.  The details of this structure are intentionally hidden
@@ -188,7 +188,7 @@ typedef struct {
  *
  * The length of :macro:`NGHTTP2_CLIENT_CONNECTION_HEADER`.
  */
-#define NGHTTP2_CLIENT_CONNECTION_HEADER_LEN    \
+#define NGHTTP2_CLIENT_CONNECTION_HEADER_LEN                                   \
   NGHTTP2_CLIENT_CONNECTION_PREFACE_LEN
 
 /**
@@ -588,7 +588,11 @@ typedef enum {
   /**
    * INADEQUATE_SECURITY
    */
-  NGHTTP2_INADEQUATE_SECURITY = 0x0c
+  NGHTTP2_INADEQUATE_SECURITY = 0x0c,
+  /**
+   * HTTP_1_1_REQUIRED
+   */
+  NGHTTP2_HTTP_1_1_REQUIRED = 0x0d
 } nghttp2_error_code;
 
 /**
@@ -618,7 +622,6 @@ typedef struct {
    */
   uint8_t reserved;
 } nghttp2_frame_hd;
-
 
 /**
  * @union
@@ -679,10 +682,9 @@ typedef enum {
  * :enum:`NGHTTP2_ERR_CALLBACK_FAILURE` will signal the entire session
  * failure.
  */
-typedef ssize_t (*nghttp2_data_source_read_callback)
-(nghttp2_session *session, int32_t stream_id,
- uint8_t *buf, size_t length, uint32_t *data_flags,
- nghttp2_data_source *source, void *user_data);
+typedef ssize_t (*nghttp2_data_source_read_callback)(
+    nghttp2_session *session, int32_t stream_id, uint8_t *buf, size_t length,
+    uint32_t *data_flags, nghttp2_data_source *source, void *user_data);
 
 /**
  * @struct
@@ -1111,9 +1113,9 @@ typedef union {
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_send_callback()`.
  */
-typedef ssize_t (*nghttp2_send_callback)
-(nghttp2_session *session,
- const uint8_t *data, size_t length, int flags, void *user_data);
+typedef ssize_t (*nghttp2_send_callback)(nghttp2_session *session,
+                                         const uint8_t *data, size_t length,
+                                         int flags, void *user_data);
 
 /**
  * @functypedef
@@ -1139,9 +1141,9 @@ typedef ssize_t (*nghttp2_send_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_recv_callback()`.
  */
-typedef ssize_t (*nghttp2_recv_callback)
-(nghttp2_session *session,
- uint8_t *buf, size_t length, int flags, void *user_data);
+typedef ssize_t (*nghttp2_recv_callback)(nghttp2_session *session, uint8_t *buf,
+                                         size_t length, int flags,
+                                         void *user_data);
 
 /**
  * @functypedef
@@ -1177,8 +1179,9 @@ typedef ssize_t (*nghttp2_recv_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_frame_recv_callback()`.
  */
-typedef int (*nghttp2_on_frame_recv_callback)
-(nghttp2_session *session, const nghttp2_frame *frame, void *user_data);
+typedef int (*nghttp2_on_frame_recv_callback)(nghttp2_session *session,
+                                              const nghttp2_frame *frame,
+                                              void *user_data);
 
 /**
  * @functypedef
@@ -1204,9 +1207,9 @@ typedef int (*nghttp2_on_frame_recv_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_invalid_frame_recv_callback()`.
  */
-typedef int (*nghttp2_on_invalid_frame_recv_callback)
-(nghttp2_session *session, const nghttp2_frame *frame,
- uint32_t error_code, void *user_data);
+typedef int (*nghttp2_on_invalid_frame_recv_callback)(
+    nghttp2_session *session, const nghttp2_frame *frame, uint32_t error_code,
+    void *user_data);
 
 /**
  * @functypedef
@@ -1238,9 +1241,11 @@ typedef int (*nghttp2_on_invalid_frame_recv_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_data_chunk_recv_callback()`.
  */
-typedef int (*nghttp2_on_data_chunk_recv_callback)
-(nghttp2_session *session, uint8_t flags, int32_t stream_id,
- const uint8_t *data, size_t len, void *user_data);
+typedef int (*nghttp2_on_data_chunk_recv_callback)(nghttp2_session *session,
+                                                   uint8_t flags,
+                                                   int32_t stream_id,
+                                                   const uint8_t *data,
+                                                   size_t len, void *user_data);
 
 /**
  * @functypedef
@@ -1258,8 +1263,9 @@ typedef int (*nghttp2_on_data_chunk_recv_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_before_frame_send_callback()`.
  */
-typedef int (*nghttp2_before_frame_send_callback)
-(nghttp2_session *session, const nghttp2_frame *frame, void *user_data);
+typedef int (*nghttp2_before_frame_send_callback)(nghttp2_session *session,
+                                                  const nghttp2_frame *frame,
+                                                  void *user_data);
 
 /**
  * @functypedef
@@ -1276,8 +1282,9 @@ typedef int (*nghttp2_before_frame_send_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_frame_send_callback()`.
  */
-typedef int (*nghttp2_on_frame_send_callback)
-(nghttp2_session *session, const nghttp2_frame *frame, void *user_data);
+typedef int (*nghttp2_on_frame_send_callback)(nghttp2_session *session,
+                                              const nghttp2_frame *frame,
+                                              void *user_data);
 
 /**
  * @functypedef
@@ -1297,9 +1304,10 @@ typedef int (*nghttp2_on_frame_send_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_frame_not_send_callback()`.
  */
-typedef int (*nghttp2_on_frame_not_send_callback)
-(nghttp2_session *session, const nghttp2_frame *frame, int lib_error_code,
- void *user_data);
+typedef int (*nghttp2_on_frame_not_send_callback)(nghttp2_session *session,
+                                                  const nghttp2_frame *frame,
+                                                  int lib_error_code,
+                                                  void *user_data);
 
 /**
  * @functypedef
@@ -1323,9 +1331,10 @@ typedef int (*nghttp2_on_frame_not_send_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_stream_close_callback()`.
  */
-typedef int (*nghttp2_on_stream_close_callback)
-(nghttp2_session *session, int32_t stream_id, uint32_t error_code,
- void *user_data);
+typedef int (*nghttp2_on_stream_close_callback)(nghttp2_session *session,
+                                                int32_t stream_id,
+                                                uint32_t error_code,
+                                                void *user_data);
 
 /**
  * @functypedef
@@ -1351,8 +1360,9 @@ typedef int (*nghttp2_on_stream_close_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_begin_headers_callback()`.
  */
-typedef int (*nghttp2_on_begin_headers_callback)
-(nghttp2_session *session, const nghttp2_frame *frame, void *user_data);
+typedef int (*nghttp2_on_begin_headers_callback)(nghttp2_session *session,
+                                                 const nghttp2_frame *frame,
+                                                 void *user_data);
 
 /**
  * @functypedef
@@ -1385,6 +1395,11 @@ typedef int (*nghttp2_on_begin_headers_callback)
  * `nghttp2_check_header_value()` provide simple validation against
  * HTTP2 header field construction rule.
  *
+ * HTTP/2 specification requires that pseudo header fields (header
+ * field starting with ':') must appear in front of regular header
+ * fields.  The library does not validate this requirement.  The
+ * application must check them if it matters.
+ *
  * If the application uses `nghttp2_session_mem_recv()`, it can return
  * :enum:`NGHTTP2_ERR_PAUSE` to make `nghttp2_session_mem_recv()`
  * return without processing further input bytes.  The memory pointed
@@ -1415,13 +1430,11 @@ typedef int (*nghttp2_on_begin_headers_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_header_callback()`.
  */
-typedef int (*nghttp2_on_header_callback)
-(nghttp2_session *session,
- const nghttp2_frame *frame,
- const uint8_t *name, size_t namelen,
- const uint8_t *value, size_t valuelen,
- uint8_t flags,
- void *user_data);
+typedef int (*nghttp2_on_header_callback)(nghttp2_session *session,
+                                          const nghttp2_frame *frame,
+                                          const uint8_t *name, size_t namelen,
+                                          const uint8_t *value, size_t valuelen,
+                                          uint8_t flags, void *user_data);
 
 /**
  * @functypedef
@@ -1440,11 +1453,10 @@ typedef int (*nghttp2_on_header_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_select_padding_callback()`.
  */
-typedef ssize_t (*nghttp2_select_padding_callback)
-(nghttp2_session *session,
- const nghttp2_frame *frame,
- size_t max_payloadlen,
- void *user_data);
+typedef ssize_t (*nghttp2_select_padding_callback)(nghttp2_session *session,
+                                                   const nghttp2_frame *frame,
+                                                   size_t max_payloadlen,
+                                                   void *user_data);
 
 /**
  * @functypedef
@@ -1470,12 +1482,10 @@ typedef ssize_t (*nghttp2_select_padding_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_data_source_read_length_callback()`.
  */
-typedef ssize_t (*nghttp2_data_source_read_length_callback)
-(nghttp2_session *session, uint8_t frame_type, int32_t stream_id,
- int32_t session_remote_window_size,
- int32_t stream_remote_window_size,
- uint32_t remote_max_frame_size,
- void *user_data);
+typedef ssize_t (*nghttp2_data_source_read_length_callback)(
+    nghttp2_session *session, uint8_t frame_type, int32_t stream_id,
+    int32_t session_remote_window_size, int32_t stream_remote_window_size,
+    uint32_t remote_max_frame_size, void *user_data);
 
 /**
  * @functypedef
@@ -1499,13 +1509,14 @@ typedef ssize_t (*nghttp2_data_source_read_length_callback)
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_begin_frame_callback()`.
  */
-typedef int (*nghttp2_on_begin_frame_callback)
-(nghttp2_session *session, const nghttp2_frame_hd *hd, void *user_data);
+typedef int (*nghttp2_on_begin_frame_callback)(nghttp2_session *session,
+                                               const nghttp2_frame_hd *hd,
+                                               void *user_data);
 
 struct nghttp2_session_callbacks;
 
 /**
- * @struct
+ * @typedef
  *
  * Callback functions for :type:`nghttp2_session`.  The details of
  * this structure are intentionally hidden from the public API.
@@ -1539,7 +1550,6 @@ int nghttp2_session_callbacks_new(nghttp2_session_callbacks **callbacks_ptr);
  */
 void nghttp2_session_callbacks_del(nghttp2_session_callbacks *callbacks);
 
-
 /**
  * @function
  *
@@ -1548,8 +1558,8 @@ void nghttp2_session_callbacks_del(nghttp2_session_callbacks *callbacks);
  * uses solely `nghttp2_session_mem_send()` to serialize data to
  * transmit.
  */
-void nghttp2_session_callbacks_set_send_callback
-(nghttp2_session_callbacks *cbs, nghttp2_send_callback send_callback);
+void nghttp2_session_callbacks_set_send_callback(
+    nghttp2_session_callbacks *cbs, nghttp2_send_callback send_callback);
 
 /**
  * @function
@@ -1559,8 +1569,8 @@ void nghttp2_session_callbacks_set_send_callback
  * application uses solely `nghttp2_session_mem_recv()` to process
  * received data.
  */
-void nghttp2_session_callbacks_set_recv_callback
-(nghttp2_session_callbacks *cbs, nghttp2_recv_callback recv_callback);
+void nghttp2_session_callbacks_set_recv_callback(
+    nghttp2_session_callbacks *cbs, nghttp2_recv_callback recv_callback);
 
 /**
  * @function
@@ -1568,9 +1578,9 @@ void nghttp2_session_callbacks_set_recv_callback
  * Sets callback function invoked by `nghttp2_session_recv()` when a
  * frame is received.
  */
-void nghttp2_session_callbacks_set_on_frame_recv_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_frame_recv_callback on_frame_recv_callback);
+void nghttp2_session_callbacks_set_on_frame_recv_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_frame_recv_callback on_frame_recv_callback);
 
 /**
  * @function
@@ -1578,9 +1588,9 @@ void nghttp2_session_callbacks_set_on_frame_recv_callback
  * Sets callback function invoked by `nghttp2_session_recv()` when an
  * invalid non-DATA frame is received.
  */
-void nghttp2_session_callbacks_set_on_invalid_frame_recv_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_invalid_frame_recv_callback on_invalid_frame_recv_callback);
+void nghttp2_session_callbacks_set_on_invalid_frame_recv_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_invalid_frame_recv_callback on_invalid_frame_recv_callback);
 
 /**
  * @function
@@ -1588,27 +1598,27 @@ void nghttp2_session_callbacks_set_on_invalid_frame_recv_callback
  * Sets callback function invoked when a chunk of data in DATA frame
  * is received.
  */
-void nghttp2_session_callbacks_set_on_data_chunk_recv_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_data_chunk_recv_callback on_data_chunk_recv_callback);
+void nghttp2_session_callbacks_set_on_data_chunk_recv_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_data_chunk_recv_callback on_data_chunk_recv_callback);
 
 /**
  * @function
  *
  * Sets callback function invoked before a non-DATA frame is sent.
  */
-void nghttp2_session_callbacks_set_before_frame_send_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_before_frame_send_callback before_frame_send_callback);
+void nghttp2_session_callbacks_set_before_frame_send_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_before_frame_send_callback before_frame_send_callback);
 
 /**
  * @function
  *
  * Sets callback function invoked after a frame is sent.
  */
-void nghttp2_session_callbacks_set_on_frame_send_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_frame_send_callback on_frame_send_callback);
+void nghttp2_session_callbacks_set_on_frame_send_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_frame_send_callback on_frame_send_callback);
 
 /**
  * @function
@@ -1616,18 +1626,18 @@ void nghttp2_session_callbacks_set_on_frame_send_callback
  * Sets callback function invoked when a non-DATA frame is not sent
  * because of an error.
  */
-void nghttp2_session_callbacks_set_on_frame_not_send_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_frame_not_send_callback on_frame_not_send_callback);
+void nghttp2_session_callbacks_set_on_frame_not_send_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_frame_not_send_callback on_frame_not_send_callback);
 
 /**
  * @function
  *
  * Sets callback function invoked when the stream is closed.
  */
-void nghttp2_session_callbacks_set_on_stream_close_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_stream_close_callback on_stream_close_callback);
+void nghttp2_session_callbacks_set_on_stream_close_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_stream_close_callback on_stream_close_callback);
 
 /**
  * @function
@@ -1635,9 +1645,9 @@ void nghttp2_session_callbacks_set_on_stream_close_callback
  * Sets callback function invoked when the reception of header block
  * in HEADERS or PUSH_PROMISE is started.
  */
-void nghttp2_session_callbacks_set_on_begin_headers_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_begin_headers_callback on_begin_headers_callback);
+void nghttp2_session_callbacks_set_on_begin_headers_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_begin_headers_callback on_begin_headers_callback);
 
 /**
  * @function
@@ -1645,9 +1655,9 @@ void nghttp2_session_callbacks_set_on_begin_headers_callback
  * Sets callback function invoked when a header name/value pair is
  * received.
  */
-void nghttp2_session_callbacks_set_on_header_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_header_callback on_header_callback);
+void nghttp2_session_callbacks_set_on_header_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_header_callback on_header_callback);
 
 /**
  * @function
@@ -1656,9 +1666,9 @@ void nghttp2_session_callbacks_set_on_header_callback
  * how many padding bytes are required for the transmission of the
  * given frame.
  */
-void nghttp2_session_callbacks_set_select_padding_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_select_padding_callback select_padding_callback);
+void nghttp2_session_callbacks_set_select_padding_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_select_padding_callback select_padding_callback);
 
 /**
  * @function
@@ -1666,23 +1676,23 @@ void nghttp2_session_callbacks_set_select_padding_callback
  * Sets callback function determine the length allowed in
  * :type:`nghttp2_data_source_read_callback`.
  */
-void nghttp2_session_callbacks_set_data_source_read_length_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_data_source_read_length_callback data_source_read_length_callback);
+void nghttp2_session_callbacks_set_data_source_read_length_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_data_source_read_length_callback data_source_read_length_callback);
 
 /**
  * @function
  *
  * Sets callback function invoked when a frame header is received.
  */
-void nghttp2_session_callbacks_set_on_begin_frame_callback
-(nghttp2_session_callbacks *cbs,
- nghttp2_on_begin_frame_callback on_begin_frame_callback);
+void nghttp2_session_callbacks_set_on_begin_frame_callback(
+    nghttp2_session_callbacks *cbs,
+    nghttp2_on_begin_frame_callback on_begin_frame_callback);
 
 struct nghttp2_option;
 
 /**
- * @struct
+ * @typedef
  *
  * Configuration options for :type:`nghttp2_session`.  The details of
  * this structure are intentionally hidden from the public API.
@@ -1834,8 +1844,7 @@ int nghttp2_session_server_new(nghttp2_session **session_ptr,
  */
 int nghttp2_session_client_new2(nghttp2_session **session_ptr,
                                 const nghttp2_session_callbacks *callbacks,
-                                void *user_data,
-                                const nghttp2_option *option);
+                                void *user_data, const nghttp2_option *option);
 
 /**
  * @function
@@ -1860,8 +1869,7 @@ int nghttp2_session_client_new2(nghttp2_session **session_ptr,
  */
 int nghttp2_session_server_new2(nghttp2_session **session_ptr,
                                 const nghttp2_session_callbacks *callbacks,
-                                void *user_data,
-                                const nghttp2_option *option);
+                                void *user_data, const nghttp2_option *option);
 
 /**
  * @function
@@ -2051,8 +2059,8 @@ int nghttp2_session_recv(nghttp2_session *session);
  *     when |session| was configured as server and
  *     `nghttp2_option_set_recv_client_preface()` is used.
  */
-ssize_t nghttp2_session_mem_recv(nghttp2_session *session,
-                                 const uint8_t *in, size_t inlen);
+ssize_t nghttp2_session_mem_recv(nghttp2_session *session, const uint8_t *in,
+                                 size_t inlen);
 
 /**
  * @function
@@ -2106,7 +2114,7 @@ int nghttp2_session_want_write(nghttp2_session *session);
  * ``NULL``.  If the stream does not exist, this function returns
  * ``NULL``.
  */
-void* nghttp2_session_get_stream_user_data(nghttp2_session *session,
+void *nghttp2_session_get_stream_user_data(nghttp2_session *session,
                                            int32_t stream_id);
 
 /**
@@ -2153,8 +2161,9 @@ size_t nghttp2_session_get_outbound_queue_size(nghttp2_session *session);
  *
  * This function returns -1 if it fails.
  */
-int32_t nghttp2_session_get_stream_effective_recv_data_length
-(nghttp2_session *session, int32_t stream_id);
+int32_t
+nghttp2_session_get_stream_effective_recv_data_length(nghttp2_session *session,
+                                                      int32_t stream_id);
 
 /**
  * @function
@@ -2166,8 +2175,9 @@ int32_t nghttp2_session_get_stream_effective_recv_data_length
  *
  * This function returns -1 if it fails.
  */
-int32_t nghttp2_session_get_stream_effective_local_window_size
-(nghttp2_session *session, int32_t stream_id);
+int32_t
+nghttp2_session_get_stream_effective_local_window_size(nghttp2_session *session,
+                                                       int32_t stream_id);
 
 /**
  * @function
@@ -2183,8 +2193,8 @@ int32_t nghttp2_session_get_stream_effective_local_window_size
  *
  * This function returns -1 if it fails.
  */
-int32_t nghttp2_session_get_effective_recv_data_length
-(nghttp2_session *session);
+int32_t
+nghttp2_session_get_effective_recv_data_length(nghttp2_session *session);
 
 /**
  * @function
@@ -2196,8 +2206,8 @@ int32_t nghttp2_session_get_effective_recv_data_length
  *
  * This function returns -1 if it fails.
  */
-int32_t nghttp2_session_get_effective_local_window_size
-(nghttp2_session *session);
+int32_t
+nghttp2_session_get_effective_local_window_size(nghttp2_session *session);
 
 /**
  * @function
@@ -2213,7 +2223,7 @@ int32_t nghttp2_session_get_effective_local_window_size
  *
  * This function returns -1 if it fails.
  */
-int32_t nghttp2_session_get_stream_remote_window_size(nghttp2_session* session,
+int32_t nghttp2_session_get_stream_remote_window_size(nghttp2_session *session,
                                                       int32_t stream_id);
 
 /**
@@ -2223,7 +2233,7 @@ int32_t nghttp2_session_get_stream_remote_window_size(nghttp2_session* session,
  *
  * This function always succeeds.
  */
-int32_t nghttp2_session_get_remote_window_size(nghttp2_session* session);
+int32_t nghttp2_session_get_remote_window_size(nghttp2_session *session);
 
 /**
  * @function
@@ -2231,7 +2241,7 @@ int32_t nghttp2_session_get_remote_window_size(nghttp2_session* session);
  * Returns 1 if local peer half closed the given stream |stream_id|.
  * Returns 0 if it did not.  Returns -1 if no such stream exists.
  */
-int nghttp2_session_get_stream_local_close(nghttp2_session* session,
+int nghttp2_session_get_stream_local_close(nghttp2_session *session,
                                            int32_t stream_id);
 
 /**
@@ -2240,7 +2250,7 @@ int nghttp2_session_get_stream_local_close(nghttp2_session* session,
  * Returns 1 if remote peer half closed the given stream |stream_id|.
  * Returns 0 if it did not.  Returns -1 if no such stream exists.
  */
-int nghttp2_session_get_stream_remote_close(nghttp2_session* session,
+int nghttp2_session_get_stream_remote_close(nghttp2_session *session,
                                             int32_t stream_id);
 
 /**
@@ -2248,8 +2258,10 @@ int nghttp2_session_get_stream_remote_close(nghttp2_session* session,
  *
  * Signals the session so that the connection should be terminated.
  *
- * The last stream ID is the ID of a stream for which
- * :type:`nghttp2_on_frame_recv_callback` was called most recently.
+ * The last stream ID is the minimum value between the stream ID of a
+ * stream for which :type:`nghttp2_on_frame_recv_callback` was called
+ * most recently and the last stream ID we have sent to the peer
+ * previously.
  *
  * The |error_code| is the error code of this GOAWAY frame.  The
  * pre-defined error code is one of :enum:`nghttp2_error_code`.
@@ -2277,13 +2289,24 @@ int nghttp2_session_terminate_session(nghttp2_session *session,
  *
  * This function behaves like `nghttp2_session_terminate_session()`,
  * but the last stream ID can be specified by the application for fine
- * grained control of stream.
+ * grained control of stream.  The HTTP/2 specification does not allow
+ * last_stream_id to be increased.  So the actual value sent as
+ * last_stream_id is the minimum value between the given
+ * |last_stream_id| and the last_stream_id we have previously sent to
+ * the peer.
+ *
+ * The |last_stream_id| is peer's stream ID or 0.  So if |session| is
+ * initialized as client, |last_stream_id| must be even or 0.  If
+ * |session| is initialized as server, |last_stream_id| must be odd or
+ * 0.
  *
  * This function returns 0 if it succeeds, or one of the following
  * negative error codes:
  *
  * :enum:`NGHTTP2_ERR_NOMEM`
  *     Out of memory.
+ * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
+ *     The |last_stream_id| is invalid.
  */
 int nghttp2_session_terminate_session2(nghttp2_session *session,
                                        int32_t last_stream_id,
@@ -2359,8 +2382,7 @@ int nghttp2_session_consume(nghttp2_session *session, int32_t stream_id,
  */
 int nghttp2_session_upgrade(nghttp2_session *session,
                             const uint8_t *settings_payload,
-                            size_t settings_payloadlen,
-                            void *stream_user_data);
+                            size_t settings_payloadlen, void *stream_user_data);
 
 /**
  * @function
@@ -2383,8 +2405,7 @@ int nghttp2_session_upgrade(nghttp2_session *session,
  * :enum:`NGHTTP2_ERR_INSUFF_BUFSIZE`
  *     The provided |buflen| size is too small to hold the output.
  */
-ssize_t nghttp2_pack_settings_payload(uint8_t *buf,
-                                      size_t buflen,
+ssize_t nghttp2_pack_settings_payload(uint8_t *buf, size_t buflen,
                                       const nghttp2_settings_entry *iv,
                                       size_t niv);
 
@@ -2394,7 +2415,7 @@ ssize_t nghttp2_pack_settings_payload(uint8_t *buf,
  * Returns string describing the |lib_error_code|.  The
  * |lib_error_code| must be one of the :enum:`nghttp2_error`.
  */
-const char* nghttp2_strerror(int lib_error_code);
+const char *nghttp2_strerror(int lib_error_code);
 
 /**
  * @function
@@ -2535,8 +2556,7 @@ int32_t nghttp2_submit_request(nghttp2_session *session,
  * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
  *     The |stream_id| is 0.
  */
-int nghttp2_submit_response(nghttp2_session *session,
-                            int32_t stream_id,
+int nghttp2_submit_response(nghttp2_session *session, int32_t stream_id,
                             const nghttp2_nv *nva, size_t nvlen,
                             const nghttp2_data_provider *data_prd);
 
@@ -2709,8 +2729,7 @@ int nghttp2_submit_priority(nghttp2_session *session, uint8_t flags,
  *     The |stream_id| is 0.
  */
 int nghttp2_submit_rst_stream(nghttp2_session *session, uint8_t flags,
-                              int32_t stream_id,
-                              uint32_t error_code);
+                              int32_t stream_id, uint32_t error_code);
 
 /**
  * @function
@@ -2747,7 +2766,6 @@ int nghttp2_submit_rst_stream(nghttp2_session *session, uint8_t flags,
  */
 int nghttp2_submit_settings(nghttp2_session *session, uint8_t flags,
                             const nghttp2_settings_entry *iv, size_t niv);
-
 
 /**
  * @function
@@ -2791,7 +2809,8 @@ int nghttp2_submit_settings(nghttp2_session *session, uint8_t flags,
  *     No stream ID is available because maximum stream ID was
  *     reached.
  * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
- *     The |stream_id| is 0.
+ *     The |stream_id| is 0; The |stream_id| does not designate stream
+ *     that peer initiated.
  *
  * .. warning::
  *
@@ -2803,8 +2822,8 @@ int nghttp2_submit_settings(nghttp2_session *session, uint8_t flags,
  *
  */
 int32_t nghttp2_submit_push_promise(nghttp2_session *session, uint8_t flags,
-                                    int32_t stream_id,
-                                    const nghttp2_nv *nva, size_t nvlen,
+                                    int32_t stream_id, const nghttp2_nv *nva,
+                                    size_t nvlen,
                                     void *promised_stream_user_data);
 
 /**
@@ -2842,6 +2861,17 @@ int nghttp2_submit_ping(nghttp2_session *session, uint8_t flags,
  * The |flags| is currently ignored and should be
  * :enum:`NGHTTP2_FLAG_NONE`.
  *
+ * The |last_stream_id| is peer's stream ID or 0.  So if |session| is
+ * initialized as client, |last_stream_id| must be even or 0.  If
+ * |session| is initialized as server, |last_stream_id| must be odd or
+ * 0.
+ *
+ * The HTTP/2 specification says last_stream_id must not be increased
+ * from the value previously sent.  So the actual value sent as
+ * last_stream_id is the minimum value between the given
+ * |last_stream_id| and the last_stream_id previously sent to the
+ * peer.
+ *
  * If the |opaque_data| is not ``NULL`` and |opaque_data_len| is not
  * zero, those data will be sent as additional debug data.  The
  * library makes a copy of the memory region pointed by |opaque_data|
@@ -2849,23 +2879,17 @@ int nghttp2_submit_ping(nghttp2_session *session, uint8_t flags,
  * keep this memory after the return of this function.  If the
  * |opaque_data_len| is 0, the |opaque_data| could be ``NULL``.
  *
- * To shutdown gracefully, first send GOAWAY with ``last_stream_id =
- * (1u << 31) - 1``.  After 1 RTT, call either
- * `nghttp2_submit_goaway()`, `nghttp2_session_terminate_session()` or
- * `nghttp2_session_terminate_session2()`.  The latter 2 will close
- * HTTP/2 session immediately after transmission of the frame.
- *
  * This function returns 0 if it succeeds, or one of the following
  * negative error codes:
  *
  * :enum:`NGHTTP2_ERR_NOMEM`
  *     Out of memory.
  * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
- *     The |opaque_data_len| is too large.
+ *     The |opaque_data_len| is too large; the |last_stream_id| is
+ *     invalid.
  */
 int nghttp2_submit_goaway(nghttp2_session *session, uint8_t flags,
-                          int32_t last_stream_id,
-                          uint32_t error_code,
+                          int32_t last_stream_id, uint32_t error_code,
                           const uint8_t *opaque_data, size_t opaque_data_len);
 
 /**
@@ -2935,8 +2959,7 @@ int nghttp2_submit_window_update(nghttp2_session *session, uint8_t flags,
  *     |origin_len| is is too large.
  */
 int nghttp2_submit_altsvc(nghttp2_session *session, uint8_t flags,
-                          int32_t stream_id,
-                          uint32_t max_age, uint16_t port,
+                          int32_t stream_id, uint32_t max_age, uint16_t port,
                           const uint8_t *protocol_id, size_t protocol_id_len,
                           const uint8_t *host, size_t host_len,
                           const uint8_t *origin, size_t origin_len);
@@ -3056,7 +3079,7 @@ int nghttp2_check_header_value(const uint8_t *value, size_t len);
 struct nghttp2_hd_deflater;
 
 /**
- * @struct
+ * @typedef
  *
  * HPACK deflater object.
  */
@@ -3141,9 +3164,9 @@ int nghttp2_hd_deflate_change_table_size(nghttp2_hd_deflater *deflater,
  * :enum:`NGHTTP2_ERR_INSUFF_BUFSIZE`
  *     The provided |buflen| size is too small to hold the output.
  */
-ssize_t nghttp2_hd_deflate_hd(nghttp2_hd_deflater *deflater,
-                              uint8_t *buf, size_t buflen,
-                              const nghttp2_nv *nva, size_t nvlen);
+ssize_t nghttp2_hd_deflate_hd(nghttp2_hd_deflater *deflater, uint8_t *buf,
+                              size_t buflen, const nghttp2_nv *nva,
+                              size_t nvlen);
 
 /**
  * @function
@@ -3157,7 +3180,7 @@ size_t nghttp2_hd_deflate_bound(nghttp2_hd_deflater *deflater,
 struct nghttp2_hd_inflater;
 
 /**
- * @struct
+ * @typedef
  *
  * HPACK inflater object.
  */
@@ -3300,9 +3323,9 @@ typedef enum {
  *     }
  *
  */
-ssize_t nghttp2_hd_inflate_hd(nghttp2_hd_inflater *inflater,
-                              nghttp2_nv *nv_out, int *inflate_flags,
-                              uint8_t *in, size_t inlen, int in_final);
+ssize_t nghttp2_hd_inflate_hd(nghttp2_hd_inflater *inflater, nghttp2_nv *nv_out,
+                              int *inflate_flags, uint8_t *in, size_t inlen,
+                              int in_final);
 
 /**
  * @function

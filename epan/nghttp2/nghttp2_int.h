@@ -26,7 +26,7 @@
 #define NGHTTP2_INT_H
 
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif /* HAVE_CONFIG_H */
 
 /* Macros, types and constants for internal use */
@@ -34,7 +34,9 @@
 #ifdef DEBUGBUILD
 #define DEBUGF(x) x
 #else
-#define DEBUGF(x) do { } while(0)
+#define DEBUGF(x)                                                              \
+  do {                                                                         \
+  } while (0)
 #endif
 
 typedef int (*nghttp2_compar)(const void *lhs, const void *rhs);

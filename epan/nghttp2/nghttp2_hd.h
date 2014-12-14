@@ -26,7 +26,7 @@
 #define NGHTTP2_HD_H
 
 #ifdef HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif /* HAVE_CONFIG_H */
 
 #include <nghttp2.h>
@@ -183,9 +183,8 @@ struct nghttp2_hd_inflater {
  * NGHTTP2_ERR_NOMEM
  *     Out of memory.
  */
-int nghttp2_hd_entry_init(nghttp2_hd_entry *ent, uint8_t flags,
-                          uint8_t *name, size_t namelen,
-                          uint8_t *value, size_t valuelen,
+int nghttp2_hd_entry_init(nghttp2_hd_entry *ent, uint8_t flags, uint8_t *name,
+                          size_t namelen, uint8_t *value, size_t valuelen,
                           uint32_t name_hash, uint32_t value_hash);
 
 void nghttp2_hd_entry_free(nghttp2_hd_entry *ent);
@@ -248,8 +247,8 @@ void nghttp2_hd_deflate_free(nghttp2_hd_deflater *deflater);
  *     Out of buffer space.
  */
 int nghttp2_hd_deflate_hd_bufs(nghttp2_hd_deflater *deflater,
-                               nghttp2_bufs *bufs,
-                               const nghttp2_nv *nva, size_t nvlen);
+                               nghttp2_bufs *bufs, const nghttp2_nv *nva,
+                               size_t nvlen);
 
 /*
  * Initializes |inflater| for inflating name/values pairs.
@@ -279,13 +278,13 @@ int nghttp2_hd_emit_newname_block(nghttp2_bufs *bufs, nghttp2_nv *nv,
 int nghttp2_hd_emit_table_size(nghttp2_bufs *bufs, size_t table_size);
 
 /* For unittesting purpose */
-nghttp2_hd_entry* nghttp2_hd_table_get(nghttp2_hd_context *context,
+nghttp2_hd_entry *nghttp2_hd_table_get(nghttp2_hd_context *context,
                                        size_t index);
 
 /* For unittesting purpose */
 ssize_t nghttp2_hd_decode_length(uint32_t *res, size_t *shift_ptr, int *final,
-                                 uint32_t initial, size_t shift,
-                                 uint8_t *in, uint8_t *last, size_t prefix);
+                                 uint32_t initial, size_t shift, uint8_t *in,
+                                 uint8_t *last, size_t prefix);
 
 /* Huffman encoding/decoding functions */
 
@@ -310,8 +309,8 @@ size_t nghttp2_hd_huff_encode_count(const uint8_t *src, size_t len);
  * NGHTTP2_ERR_BUFFER_ERROR
  *     Out of buffer space.
  */
-int nghttp2_hd_huff_encode(nghttp2_bufs *bufs,
-                           const uint8_t *src, size_t srclen);
+int nghttp2_hd_huff_encode(nghttp2_bufs *bufs, const uint8_t *src,
+                           size_t srclen);
 
 void nghttp2_hd_huff_decode_context_init(nghttp2_hd_huff_decode_context *ctx);
 
@@ -339,7 +338,7 @@ void nghttp2_hd_huff_decode_context_init(nghttp2_hd_huff_decode_context *ctx);
  *     Decoding process has failed.
  */
 ssize_t nghttp2_hd_huff_decode(nghttp2_hd_huff_decode_context *ctx,
-                               nghttp2_bufs *bufs,
-                               const uint8_t *src, size_t srclen, int final);
+                               nghttp2_bufs *bufs, const uint8_t *src,
+                               size_t srclen, int final);
 
 #endif /* NGHTTP2_HD_H */
