@@ -329,11 +329,16 @@ guint32 msgtype;
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									&(private_data->ad_type));
+#.TYPE_ATTR
+AuthorizationData/_item/ad-type STRINGS=VALS(krb5_ad_types)
 
 #.FN_BODY AuthorizationData/_item/ad-data
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
 	switch(private_data->ad_type){
+	case KRB5_AD_WIN2K_PAC:
+		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_krb5_AD_WIN2K_PAC);
+		break;
 	case KRB5_AD_IF_RELEVANT:
 		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_IF_RELEVANT);
 		break;

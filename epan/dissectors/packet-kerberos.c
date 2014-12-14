@@ -151,6 +151,34 @@ static gint hf_krb_gssapi_c_flag_sequence = -1;
 static gint hf_krb_gssapi_c_flag_conf = -1;
 static gint hf_krb_gssapi_c_flag_integ = -1;
 static gint hf_krb_gssapi_c_flag_dce_style = -1;
+static gint hf_krb_midl_version = -1;
+static gint hf_krb_midl_hdr_len = -1;
+static gint hf_krb_midl_fill_bytes = -1;
+static gint hf_krb_midl_blob_len = -1;
+static gint hf_krb_pac_signature_type = -1;
+static gint hf_krb_pac_signature_signature = -1;
+static gint hf_krb_w2k_pac_entries = -1;
+static gint hf_krb_w2k_pac_version = -1;
+static gint hf_krb_w2k_pac_type = -1;
+static gint hf_krb_w2k_pac_size = -1;
+static gint hf_krb_w2k_pac_offset = -1;
+static gint hf_krb_pac_clientid = -1;
+static gint hf_krb_pac_namelen = -1;
+static gint hf_krb_pac_clientname = -1;
+static gint hf_krb_pac_logon_info = -1;
+static gint hf_krb_pac_credential_type = -1;
+static gint hf_krb_pac_s4u_delegation_info = -1;
+static gint hf_krb_pac_upn_dns_info = -1;
+static gint hf_krb_pac_upn_flags = -1;
+static gint hf_krb_pac_upn_dns_offset = -1;
+static gint hf_krb_pac_upn_dns_len = -1;
+static gint hf_krb_pac_upn_upn_offset = -1;
+static gint hf_krb_pac_upn_upn_len = -1;
+static gint hf_krb_pac_upn_upn_name = -1;
+static gint hf_krb_pac_upn_dns_name = -1;
+static gint hf_krb_pac_server_checksum = -1;
+static gint hf_krb_pac_privsvr_checksum = -1;
+static gint hf_krb_pac_client_info_type = -1;
 
 /*--- Included file: packet-kerberos-hf.c ---*/
 #line 1 "../../asn1/kerberos/packet-kerberos-hf.c"
@@ -320,12 +348,20 @@ static int hf_kerberos_KDCOptions_renew = -1;
 static int hf_kerberos_KDCOptions_validate = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 147 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 175 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
 static gint ett_krb_recordmark = -1;
-
+static gint ett_krb_pac = -1;
+static gint ett_krb_pac_drep = -1;
+static gint ett_krb_pac_midl_blob = -1;
+static gint ett_krb_pac_logon_info = -1;
+static gint ett_krb_pac_s4u_delegation_info = -1;
+static gint ett_krb_pac_upn_dns_info = -1;
+static gint ett_krb_pac_server_checksum = -1;
+static gint ett_krb_pac_privsvr_checksum = -1;
+static gint ett_krb_pac_client_info_type = -1;
 
 /*--- Included file: packet-kerberos-ett.c ---*/
 #line 1 "../../asn1/kerberos/packet-kerberos-ett.c"
@@ -384,7 +420,7 @@ static gint ett_kerberos_KERB_PA_PAC_REQUEST = -1;
 static gint ett_kerberos_ChangePasswdData = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 153 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 189 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -413,7 +449,7 @@ static gboolean gbl_do_col_info;
 #define KERBEROS_ADDR_TYPE_IPV6  24
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 166 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 202 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -1324,7 +1360,6 @@ static const value_string krb5_error_codes[] = {
 };
 
 
-#if 0
 #define PAC_LOGON_INFO		1
 #define PAC_CREDENTIAL_TYPE	2
 #define PAC_SERVER_CHECKSUM	6
@@ -1343,7 +1378,7 @@ static const value_string w2k_pac_types[] = {
 	{ 0, NULL },
 };
 
-
+#if 0
 static const value_string krb5_princ_types[] = {
 	{ KRB5_NT_UNKNOWN              , "Unknown" },
 	{ KRB5_NT_PRINCIPAL            , "Principal" },
@@ -1480,7 +1515,7 @@ static const value_string krb5_checksum_types[] = {
 #define KRB5_AD_OSF_DCE_PKI_CERTID		66
 #define KRB5_AD_WIN2K_PAC				128
 #define KRB5_AD_SIGNTICKET			0xffffffef
-#if 0
+
 static const value_string krb5_ad_types[] = {
 	{ KRB5_AD_IF_RELEVANT	  		, "AD-IF-RELEVANT" },
 	{ KRB5_AD_INTENDED_FOR_SERVER		, "AD-Intended-For-Server" },
@@ -1497,7 +1532,7 @@ static const value_string krb5_ad_types[] = {
 	{ KRB5_AD_SIGNTICKET			, "AD-SignTicket" },
 	{ 0	, NULL },
 };
-
+#if 0
 static const value_string krb5_transited_types[] = {
 	{ 1                           , "DOMAIN-X500-COMPRESS" },
 	{ 0                           , NULL }
@@ -1902,6 +1937,323 @@ dissect_krb5_PW_SALT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	return offset;
 }
 
+static int
+dissect_krb5_PAC_DREP(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 *drep)
+{
+	proto_tree *tree;
+	guint8 val;
+
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 16, ett_krb_pac_drep, NULL, "DREP");
+
+	val = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, val>>4);
+
+	offset++;
+
+	if (drep) {
+		*drep = val;
+	}
+
+	return offset;
+}
+
+/* This might be some sort of header that MIDL generates when creating
+ * marshalling/unmarshalling code for blobs that are not to be transported
+ * ontop of DCERPC and where the DREP fields specifying things such as
+ * endianess and similar are not available.
+ */
+static int
+dissect_krb5_PAC_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 *drep, asn1_ctx_t *actx _U_)
+{
+	proto_tree *tree;
+
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 16, ett_krb_pac_midl_blob, NULL, "MES header");
+
+	/* modified DREP field that is used for stuff that is transporetd ontop
+	   of non dcerpc
+	*/
+	proto_tree_add_item(tree, hf_krb_midl_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset++;
+
+	offset = dissect_krb5_PAC_DREP(tree, tvb, offset, drep);
+
+
+	proto_tree_add_item(tree, hf_krb_midl_hdr_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_krb_midl_fill_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* length of blob that follows */
+	proto_tree_add_item(tree, hf_krb_midl_blob_len, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_item *item;
+	proto_tree *tree;
+	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
+	static dcerpc_info di;      /* fake dcerpc_info struct */
+	static dcerpc_call_value call_data;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_logon_info, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_logon_info);
+
+	/* skip the first 16 bytes, they are some magic created by the idl
+	 * compiler   the first 4 bytes might be flags?
+	 */
+	offset = dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
+
+	/* the PAC_LOGON_INFO blob */
+	/* fake whatever state the dcerpc runtime support needs */
+	di.conformant_run=0;
+	/* we need di->call_data->flags.NDR64 == 0 */
+	di.call_data=&call_data;
+	init_ndr_pointer_list(&di);
+	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
+									netlogon_dissect_PAC_LOGON_INFO, NDR_POINTER_UNIQUE,
+									"PAC_LOGON_INFO:", -1);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx)
+{
+	proto_item *item;
+	proto_tree *tree;
+	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
+	static dcerpc_info di;      /* fake dcerpc_info struct */
+	static dcerpc_call_value call_data;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_s4u_delegation_info, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_s4u_delegation_info);
+
+	/* skip the first 16 bytes, they are some magic created by the idl
+	 * compiler   the first 4 bytes might be flags?
+	 */
+	offset = dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
+
+
+	/* the S4U_DELEGATION_INFO blob. See [MS-PAC] */
+	/* fake whatever state the dcerpc runtime support needs */
+	di.conformant_run=0;
+	/* we need di->call_data->flags.NDR64 == 0 */
+	di.call_data=&call_data;
+	init_ndr_pointer_list(&di);
+	offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, &di, drep,
+									netlogon_dissect_PAC_S4U_DELEGATION_INFO, NDR_POINTER_UNIQUE,
+									"PAC_S4U_DELEGATION_INFO:", -1);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_item *item;
+	proto_tree *tree;
+	guint16 dns_offset, dns_len;
+	guint16 upn_offset, upn_len;
+	const char *dn;
+	int dn_len;
+	guint16 bc;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_upn_dns_info, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_upn_dns_info);
+
+	/* upn */
+	upn_len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_upn_upn_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset+=2;
+	upn_offset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_upn_upn_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset+=2;
+
+	/* dns */
+	dns_len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_upn_dns_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset+=2;
+	dns_offset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_krb_pac_upn_dns_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset+=2;
+
+	/* flags */
+	proto_tree_add_item(tree, hf_krb_pac_upn_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+	/* upn */
+	offset = upn_offset;
+	dn_len = upn_len;
+	bc = tvb_reported_length_remaining(tvb, offset);
+	dn = get_unicode_or_ascii_string(tvb, &offset, TRUE, &dn_len, TRUE, TRUE, &bc);
+	proto_tree_add_string(tree, hf_krb_pac_upn_upn_name, tvb, upn_offset, upn_len, dn);
+
+	/* dns */
+	offset = dns_offset;
+	dn_len = dns_len;
+	bc = tvb_reported_length_remaining(tvb, offset);
+	dn = get_unicode_or_ascii_string(tvb, &offset, TRUE, &dn_len, TRUE, TRUE, &bc);
+	proto_tree_add_string(tree, hf_krb_pac_upn_dns_name, tvb, dns_offset, dns_len, dn);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_CREDENTIAL_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_tree_add_item(parent_tree, hf_krb_pac_credential_type, tvb, offset, -1, ENC_NA);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_SERVER_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_item *item;
+	proto_tree *tree;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_server_checksum, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_server_checksum);
+
+	/* signature type */
+	proto_tree_add_item(tree, hf_krb_pac_signature_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	/* signature data */
+	proto_tree_add_item(tree, hf_krb_pac_signature_signature, tvb, offset, -1, ENC_NA);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_PRIVSVR_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_item *item;
+	proto_tree *tree;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_privsvr_checksum, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_privsvr_checksum);
+
+	/* signature type */
+	proto_tree_add_item(tree, hf_krb_pac_signature_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset+=4;
+
+	/* signature data */
+	proto_tree_add_item(tree, hf_krb_pac_signature_signature, tvb, offset, -1, ENC_NA);
+
+	return offset;
+}
+
+static int
+dissect_krb5_PAC_CLIENT_INFO_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+{
+	proto_item *item;
+	proto_tree *tree;
+	guint16 namelen;
+
+	item = proto_tree_add_item(parent_tree, hf_krb_pac_client_info_type, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_krb_pac_client_info_type);
+
+	/* clientid */
+	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_krb_pac_clientid);
+
+	/* name length */
+	namelen=tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_krb_pac_namelen, tvb, offset, 2, namelen);
+	offset+=2;
+
+	/* client name */
+	proto_tree_add_item(tree, hf_krb_pac_clientname, tvb, offset, namelen, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+	offset+=namelen;
+
+	return offset;
+}
+
+static int
+dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx)
+{
+	guint32 pac_type;
+	guint32 pac_size;
+	guint32 pac_offset;
+	proto_item *it=NULL;
+	proto_tree *tr=NULL;
+	tvbuff_t *next_tvb;
+
+	/* type of pac data */
+	pac_type=tvb_get_letohl(tvb, offset);
+	it=proto_tree_add_uint(tree, hf_krb_w2k_pac_type, tvb, offset, 4, pac_type);
+	tr=proto_item_add_subtree(it, ett_krb_pac);
+
+	offset += 4;
+
+	/* size of pac data */
+	pac_size=tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tr, hf_krb_w2k_pac_size, tvb, offset, 4, pac_size);
+	offset += 4;
+
+	/* offset to pac data */
+	pac_offset=tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tr, hf_krb_w2k_pac_offset, tvb, offset, 4, pac_offset);
+	offset += 8;
+
+	next_tvb=tvb_new_subset(tvb, pac_offset, pac_size, pac_size);
+	switch(pac_type){
+	case PAC_LOGON_INFO:
+		dissect_krb5_PAC_LOGON_INFO(tr, next_tvb, 0, actx);
+		break;
+	case PAC_CREDENTIAL_TYPE:
+		dissect_krb5_PAC_CREDENTIAL_TYPE(tr, next_tvb, 0, actx);
+		break;
+	case PAC_SERVER_CHECKSUM:
+		dissect_krb5_PAC_SERVER_CHECKSUM(tr, next_tvb, 0, actx);
+		break;
+	case PAC_PRIVSVR_CHECKSUM:
+		dissect_krb5_PAC_PRIVSVR_CHECKSUM(tr, next_tvb, 0, actx);
+		break;
+	case PAC_CLIENT_INFO_TYPE:
+		dissect_krb5_PAC_CLIENT_INFO_TYPE(tr, next_tvb, 0, actx);
+		break;
+	case PAC_S4U_DELEGATION_INFO:
+		dissect_krb5_PAC_S4U_DELEGATION_INFO(tr, next_tvb, 0, actx);
+		break;
+	case PAC_UPN_DNS_INFO:
+		dissect_krb5_PAC_UPN_DNS_INFO(tr, next_tvb, 0, actx);
+		break;
+
+	default:
+		break;
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_AD_WIN2K_PAC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
+{
+	guint32 entries;
+	guint32 version;
+	guint32 i;
+
+	/* first in the PAC structure comes the number of entries */
+	entries=tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_krb_w2k_pac_entries, tvb, offset, 4, entries);
+	offset += 4;
+
+	/* second comes the version */
+	version=tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_krb_w2k_pac_version, tvb, offset, 4, version);
+	offset += 4;
+
+	for(i=0;i<entries;i++){
+		offset=dissect_krb5_AD_WIN2K_PAC_struct(tree, tvb, offset, actx);
+	}
+
+	return offset;
+}
+
 
 /*--- Included file: packet-kerberos-fn.c ---*/
 #line 1 "../../asn1/kerberos/packet-kerberos-fn.c"
@@ -2281,7 +2633,6 @@ dissect_kerberos_T_ad_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 									&(private_data->ad_type));
 
 
-
   return offset;
 }
 
@@ -2289,10 +2640,13 @@ dissect_kerberos_T_ad_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_kerberos_T_ad_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 334 "../../asn1/kerberos/kerberos.cnf"
+#line 336 "../../asn1/kerberos/kerberos.cnf"
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
 	switch(private_data->ad_type){
+	case KRB5_AD_WIN2K_PAC:
+		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_krb5_AD_WIN2K_PAC);
+		break;
 	case KRB5_AD_IF_RELEVANT:
 		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_IF_RELEVANT);
 		break;
@@ -2435,7 +2789,7 @@ static const value_string kerberos_ADDR_TYPE_vals[] = {
 
 static int
 dissect_kerberos_ADDR_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 345 "../../asn1/kerberos/kerberos.cnf"
+#line 350 "../../asn1/kerberos/kerberos.cnf"
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &(private_data->addr_type));
@@ -2866,7 +3220,7 @@ static const ber_sequence_t KDC_REQ_BODY_sequence[] = {
 
 static int
 dissect_kerberos_KDC_REQ_BODY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 349 "../../asn1/kerberos/kerberos.cnf"
+#line 354 "../../asn1/kerberos/kerberos.cnf"
 	conversation_t *conversation;
 
 	/*
@@ -3118,7 +3472,7 @@ dissect_kerberos_AP_REP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_kerberos_T_kRB_SAFE_BODY_user_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 372 "../../asn1/kerberos/kerberos.cnf"
+#line 377 "../../asn1/kerberos/kerberos.cnf"
 	tvbuff_t *new_tvb;
 	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
 	if (new_tvb) {
@@ -3440,7 +3794,7 @@ dissect_kerberos_EncAPRepPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_kerberos_T_encKrbPrivPart_user_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 379 "../../asn1/kerberos/kerberos.cnf"
+#line 384 "../../asn1/kerberos/kerberos.cnf"
 	tvbuff_t *new_tvb;
 	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
 	if (new_tvb) {
@@ -3913,7 +4267,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1655 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2007 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -4209,6 +4563,90 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_gssapi_dlglen, {
 		"DlgLen", "kerberos.gssapi.dlglen", FT_UINT16, BASE_DEC,
 		NULL, 0, "GSSAPI DlgLen", HFILL }},
+	{ &hf_krb_midl_blob_len, {
+		"Blob Length", "kerberos.midl_blob_len", FT_UINT64, BASE_DEC,
+		NULL, 0, "Length of NDR encoded data that follows", HFILL }},
+	{ &hf_krb_midl_fill_bytes, {
+		"Fill bytes", "kerberos.midl.fill_bytes", FT_UINT32, BASE_HEX,
+		NULL, 0, "Just some fill bytes", HFILL }},
+	{ &hf_krb_midl_version, {
+	"Version", "kerberos.midl.version", FT_UINT8, BASE_DEC,
+	NULL, 0, "Version of pickling", HFILL }},
+	{ &hf_krb_midl_hdr_len, {
+		"HDR Length", "kerberos.midl.hdr_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of header", HFILL }},
+	{ &hf_krb_pac_signature_type, {
+		"Type", "kerberos.pac.signature.type", FT_INT32, BASE_DEC,
+		NULL, 0, "PAC Signature Type", HFILL }},
+	{ &hf_krb_pac_signature_signature, {
+		"Signature", "kerberos.pac.signature.signature", FT_BYTES, BASE_NONE,
+		NULL, 0, "A PAC signature blob", HFILL }},
+	{ &hf_krb_w2k_pac_entries, {
+		"Num Entries", "kerberos.pac.entries", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of W2k PAC entries", HFILL }},
+	{ &hf_krb_w2k_pac_version, {
+		"Version", "kerberos.pac.version", FT_UINT32, BASE_DEC,
+		NULL, 0, "Version of PAC structures", HFILL }},
+	{ &hf_krb_w2k_pac_type, {
+		"Type", "kerberos.pac.type", FT_UINT32, BASE_DEC,
+		VALS(w2k_pac_types), 0, "Type of W2k PAC entry", HFILL }},
+	{ &hf_krb_w2k_pac_size, {
+		"Size", "kerberos.pac.size", FT_UINT32, BASE_DEC,
+		NULL, 0, "Size of W2k PAC entry", HFILL }},
+	{ &hf_krb_w2k_pac_offset, {
+		"Offset", "kerberos.pac.offset", FT_UINT32, BASE_DEC,
+		NULL, 0, "Offset to W2k PAC entry", HFILL }},
+	{ &hf_krb_pac_clientid, {
+		"ClientID", "kerberos.pac.clientid", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		NULL, 0, "ClientID Timestamp", HFILL }},
+	{ &hf_krb_pac_namelen, {
+		"Name Length", "kerberos.pac.namelen", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of client name", HFILL }},
+	{ &hf_krb_pac_clientname, {
+		"Name", "kerberos.pac.name", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of the Client in the PAC structure", HFILL }},
+	{ &hf_krb_pac_logon_info, {
+		"PAC_LOGON_INFO", "kerberos.pac_logon_info", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_LOGON_INFO structure", HFILL }},
+	{ &hf_krb_pac_credential_type, {
+		"PAC_CREDENTIAL_TYPE", "kerberos.pac_credential_type", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_CREDENTIAL_TYPE structure", HFILL }},
+	{ &hf_krb_pac_server_checksum, {
+		"PAC_SERVER_CHECKSUM", "kerberos.pac_server_checksum", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_SERVER_CHECKSUM structure", HFILL }},
+	{ &hf_krb_pac_privsvr_checksum, {
+		"PAC_PRIVSVR_CHECKSUM", "kerberos.pac_privsvr_checksum", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_PRIVSVR_CHECKSUM structure", HFILL }},
+	{ &hf_krb_pac_client_info_type, {
+		"PAC_CLIENT_INFO_TYPE", "kerberos.pac_client_info_type", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_CLIENT_INFO_TYPE structure", HFILL }},
+	{ &hf_krb_pac_s4u_delegation_info, {
+		"PAC_S4U_DELEGATION_INFO", "kerberos.pac_s4u_delegation_info", FT_BYTES, BASE_NONE,
+		NULL, 0, "PAC_S4U_DELEGATION_INFO structure", HFILL }},
+	{ &hf_krb_pac_upn_dns_info, {
+		"UPN_DNS_INFO", "kerberos.pac_upn_dns_info", FT_BYTES, BASE_NONE,
+		NULL, 0, "UPN_DNS_INFO structure", HFILL }},
+	{ &hf_krb_pac_upn_flags, {
+		"Flags", "kerberos.pac.upn.flags", FT_UINT32, BASE_HEX,
+		NULL, 0, "UPN flags", HFILL }},
+	{ &hf_krb_pac_upn_dns_offset, {
+		"DNS Offset", "kerberos.pac.upn.dns_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pac_upn_dns_len, {
+		"DNS Len", "kerberos.pac.upn.dns_len", FT_UINT16, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pac_upn_upn_offset, {
+		"UPN Offset", "kerberos.pac.upn.upn_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pac_upn_upn_len, {
+		"UPN Len", "kerberos.pac.upn.upn_len", FT_UINT16, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pac_upn_upn_name, {
+		"UPN Name", "kerberos.pac.upn.upn_name", FT_STRING, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pac_upn_dns_name, {
+		"DNS Name", "kerberos.pac.upn.dns_name", FT_STRING, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 
 
 /*--- Included file: packet-kerberos-hfarr.c ---*/
@@ -4315,7 +4753,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
     { &hf_kerberos_ad_type,
       { "ad-type", "kerberos.ad_type",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, VALS(krb5_ad_types), 0,
         NULL, HFILL }},
     { &hf_kerberos_ad_data,
       { "ad-data", "kerberos.ad_data",
@@ -4867,13 +5305,22 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 1952 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2388 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
 	static gint *ett[] = {
 		&ett_kerberos,
 		&ett_krb_recordmark,
+		&ett_krb_pac,
+		&ett_krb_pac_drep,
+		&ett_krb_pac_midl_blob,
+		&ett_krb_pac_logon_info,
+		&ett_krb_pac_s4u_delegation_info,
+		&ett_krb_pac_upn_dns_info,
+		&ett_krb_pac_server_checksum,
+		&ett_krb_pac_privsvr_checksum,
+		&ett_krb_pac_client_info_type,
 
 /*--- Included file: packet-kerberos-ettarr.c ---*/
 #line 1 "../../asn1/kerberos/packet-kerberos-ettarr.c"
@@ -4932,7 +5379,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 1959 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2404 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
