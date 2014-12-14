@@ -26,6 +26,7 @@
 #include "ui/utf8_entities.h"
 
 #include "qt_ui_utils.h"
+#include "wireshark_application.h"
 
 #include <QMessageBox>
 #include <QTextCodec>
@@ -111,11 +112,12 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
         return;
     }
 
-    if (!parent) {
+    if (!parent || !wsApp->isInitialized()) {
         message_queue_ << msg_pair;
         if (type > max_severity_) {
             max_severity_ = type;
         }
+        setText(QString());
         return;
     }
 
@@ -222,7 +224,7 @@ void SimpleDialog::displayQueuedMessages(QWidget *parent)
 
 int SimpleDialog::exec()
 {
-    if (!parentWidget()) {
+    if (!parentWidget() || text().isEmpty()) {
         return 0;
     }
 

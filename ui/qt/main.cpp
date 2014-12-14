@@ -796,7 +796,6 @@ int main(int argc, char *argv[])
     // Init the main window (and splash)
     main_w = new(MainWindow);
     main_w->show();
-    SimpleDialog::displayQueuedMessages(main_w);
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
     main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
@@ -1335,6 +1334,7 @@ int main(int argc, char *argv[])
 //    w->setEnabled(true);
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
+    SimpleDialog::displayQueuedMessages(main_w);
 
     /* user could specify filename, or display filter, or both */
     if (!cf_name.isEmpty()) {
