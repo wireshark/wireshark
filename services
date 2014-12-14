@@ -8525,6 +8525,7 @@ aol-3            5193/udp # AmericaOnline3 [Bruce_Mackey] [Bruce_Mackey]
 cpscomm          5194/tcp # CipherPoint Config Service [CipherPoint] [CipherPoint] 2010-03-03
 ampl-lic         5195/tcp # The protocol is used by a license server and client programs to control use of program licenses that float to networked machines [AMPL_Optimization] [David_M_Gay] 2012-05-25
 ampl-tableproxy  5196/tcp # The protocol is used by two programs that exchange "table" data used in the AMPL modeling language [AMPL_Optimization] [David_M_Gay] 2012-05-25
+tunstall-lwp     5197/tcp # Tunstall Lone worker device interface [Tunstall_Healthcare_UK_Ltd] [Robert_Moore] 2014-12-10
 targus-getdata   5200/tcp # TARGUS GetData [John_Keaveney] [John_Keaveney]
 targus-getdata   5200/udp # TARGUS GetData [John_Keaveney] [John_Keaveney]
 targus-getdata1  5201/tcp # TARGUS GetData 1 [John_Keaveney] [John_Keaveney]

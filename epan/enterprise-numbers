@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-12-06)
+(last updated 2014-12-14)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -26806,9 +26806,9 @@ Decimal
     Ing. Roman Roiss
       rr&voxtronic.com
 6713
-  EIZO NANAO CORPORATION
-    Hiroki Seki
-      seki&dev.nanao.co.jp
+  EIZO
+    Philipp Liebmann
+      philipp.liebmann&eizo.com
 6714
   Banco Santander Central Hispano
     Raul Lopez Marin
@@ -29958,7 +29958,7 @@ Decimal
     Stefan Drees
       sdrees&acm.org
 7501
-  BKtel Systems GmbH
+  BKtel communications GmbH (Systems)
     Juergen Anhorn
       anhorn&bktel.com
 7502
@@ -35119,8 +35119,8 @@ Decimal
       don&prisa.com
 8791
   ivv GmbH
-    Herr Heinrich Rode
-      Heinrich.Rode&ivv-Verbund.de
+    Markus-Alexander Matthe
+      markus-alexander.matthe&ivv.de
 8792
   Axes India Ltd
     N.SankarNarayanan
@@ -51359,8 +51359,8 @@ Decimal
       chris&venngo.com
 12951
   VerizonWireless
-    Peter Nelson
-      peter.nelson&verizonwireless.com
+    Joe Convery
+      joe.convery&verizonwireless.com
 12952
   warpFactor Inc.
     Doug Grove
@@ -57227,9 +57227,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Manfred Dengjel
       manfred.dengjel&continentale.de
 14418
-  Ciagri-Centro de Informatica na Agricultura
+  Centro de Tecnologia da Informação "Luiz de Queiroz"
     Fabio Rogero
-      frogero&ciagri.usp.br
+      frogero&usp.br
 14419
   EMIGRATUS Communications Inc.
     Sid Siddiqui
@@ -73531,7 +73531,7 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     General Counsel, Legal Department
       isabelle.vasseur&swift.com
 18495
-  GRAU Data Storage AG
+  GRAU DATA  AG
     Werner Stephan
       werner.stephan&graudata.com
 18496
@@ -155006,8 +155006,8 @@ Decentralization / Helenic Public Administra
       admin&nitech.ac.jp
 38856
   Login People
-    Florence Dubois
-      florence.dubois&loginpeople.com
+    R&D team
+      dev&loginpeople.com
 38857
   VASONA NETWORKS
     Tali Harash
@@ -155402,8 +155402,8 @@ Decentralization / Helenic Public Administra
       holger.jakob&informatio.ch
 38955
   Wire and Wireless Co., Ltd.
-    Mitsuhiro Nakamura
-      nakamura&wi2.co.jp
+    Naoto Komatsu
+      tech&wi2.co.jp
 38956
   HOERBIGER Deutschland Holding GmbH
     Helmut Ritter
@@ -162411,7 +162411,7 @@ Decentralization / Helenic Public Administra
 40707
   Aleturo Group
     Stefan Unterweger
-      ca&aleturo.com
+      91.95744&chiffre.aleturo.com
 40708
   Rhythm Engineering, LLC
     Steve Penrod
@@ -178305,7 +178305,7 @@ Decentralization / Helenic Public Administra
     Tuomas RIihimäki
       pen.iana&iudex.fi
 44681
-  Ajuntament de València
+  Ajuntament de Valencia
     Pedro Belenguer
       pbelenguer&valencia.es
 44682
@@ -179044,6 +179044,362 @@ Decentralization / Helenic Public Administra
   Bay Area Regional Medical Center
     Mark Albright
       malbright&barmc.us
+44866
+  Benedikt Frenzel Systems
+    Benedikt FRENZEL
+      pen&bfr.name
+44867
+  Etic Telecom
+    Mickael Chazaux
+      mickael.chazaux&etictelecom.com
+44868
+  Earthling Interactive
+    Dan Stevens
+      stevens&earthlinginteractive.com
+44869
+  Zen Solutions Limited
+    Colin Foster
+      who.is&zen.net.nz
+44870
+  JSC "SKB Electronmash"
+    Mamut Naum Ilyich
+      skbelectronmash&ukr.net
+44871
+  Universidad de Cuenca
+    María José Torres Maldonado
+      mariajose.torres&ucuenca.edu.ec
+44872
+  FiberLabs Inc.
+    Yoshinori Mimura
+      oidadmin&fiberlabs.co.jp
+44873
+  CJSC «INTERSET»
+    Andrey Tumanian
+      atfreebox&gmail.com
+44874
+  Instytut Matematyczny Polskiej Akademii Nauk
+    Tomasz Zajdel
+      tzajdel&impan.pl
+44875
+  Reykjavikurborg
+    Tomas Gudmundsson
+      hostmaster&reykjavik.is
+44876
+  Hrvatska poštanska banka, dioničko društvo
+    Marijan Žužić 
+      marijan.zuzic&hpb.hr
+44877
+  IMMA Inc.
+    Svyatoslav Noskov
+      snoskov&imma.ru
+44878
+  Datcent Technology Co.,Ltd. 
+    ShuQiang Li
+      lishuqiang&datcent.com
+44879
+  Cunz RaD Ltd.
+    Sascha Cunz
+      sascha&cunz-rad.com
+44880
+  Harte & Lyne Limited
+    James B. Byrne
+      support&harte-lyne.ca
+44881
+  ikara
+    Koji Araki
+      araki.koji&ikara.jp
+44882
+  Techno-com
+    Maxim Melnikov
+      melnikovmv&bk.ru
+44883
+  Iw1BI
+    Domenico Casarino
+      domenico.casarino&gmail.com
+44884
+  OneVision Software AG
+    Christian Zietlow
+      it&onevision.com
+44885
+  Baltech AG
+    Robert Hölzl
+      robert.hoelzl&baltech.de
+44886
+  Gainspeed, Inc.
+    Ram Prasad
+      ram&gainspeed.com
+44887
+  The Kansas City Railway Company
+    Michael Chung
+      KCSInfoSec&KCSouthern.com
+44888
+  klolik.org
+    Bartłomiej Korupczyński
+      klolik79&gmail.com
+44889
+  Denver Public Library
+    Heath Young
+      hyoung&denverlibrary.org
+44890
+  BKtel Photonics SAS
+    Cyril Le Goas
+      legoas&bktel.com
+44891
+  Xero
+    David Garner
+      david.garner&xero.com
+44892
+  Primum Health IT S.L.
+    David de Mena García
+      info&primum.es
+44893
+  Software Diversions, Inc.
+    S. Colin Leister
+      colin&softwarediversions.com
+44894
+  Napatech
+    Alex Agerholm
+      aa&napatech.com
+44895
+  Bitcraze AB
+    Arnaud Taffanel
+      arnaud&bitcraze.se
+44896
+  Secureloin
+    Teguh P. Alko
+      chain&rop.io
+44897
+  Vista Oncology
+    Callie Hills
+      callieh&vista-oncology.com
+44898
+  Insignis
+    Roberto da T. Goncalves
+      roberto.goncalves&insignis.com.br
+44899
+  Code L7
+    Alvin Garcia Chaves
+      alvin.garcia&code-l7.co
+44900
+  ReminderMedia
+    Information Technology
+      systems&remindermedia.com
+44901
+  Xiamen Sunwe Technology CO.,Ltd
+    Decai Zhang
+      zhangdc&china-sunwe.com
+44902
+  ShareTech Information Co., LTD.
+    Lois Hsieh
+      ting&sharetech.com.tw
+44903
+  Stratech Systems Limited
+    Nurra Trog
+      nurra_farhana_mahat&StratechSystems.com
+44904
+  Media Stream Co., LTD.
+    Kevin Lee
+      gklee&media-stream.co.kr
+44905
+  NightTrade Group, Inc.
+    Martin Estok IV
+      martin.estok&nighttrade.org
+44906
+  TBDD, LTD
+    Aleksandr Vavilin
+      vavilin&tcobdd.ru
+44907
+  nVisionIT Pty Ltd
+    Stephen Jordaan
+      stephenj&nvisionit.co.za
+44908
+  CARTIERE DEL GARDA
+    Tonidandel Flavio
+      flavio.tonidandel&lecta.com
+44909
+  sys-pro GmbH
+    Joachim Adler
+      joachim.adler&sys-pro.de
+44910
+  ST-Vitrinen Trautmann GmbH & Co. KG
+    Arne Schlueter
+      schlueter&st-vitrinen.de
+44911
+  Alpha ENGINEERING Tunisia
+    Taher AMMARI
+      taher.ammari&alpha-engineering.net
+44912
+  2Be-FFICIENT
+    Haga Rakotoharivelo
+      haga&2befficient.fr
+44913
+  RedSocks B.V.
+    Rick Hofstede
+      rick.hofstede&redsocks.nl
+44914
+  Genting Casinos UK
+    Iain Smith
+      iain.smith&gentinguk.com
+44915
+  Silex Industrial Automation Ltd.
+    Márton Ughy
+      marton.ughy&silex.hu
+44916
+  MJog Limited
+    Mark Howells
+      mark.howells&mjog.com
+44917
+  LMpro GmbH
+    Bernd Ahlfeld
+      bahlfeld&lmpro.de
+44918
+  Nethix S.r.l
+    Andrea Girardi
+      a.girardi&nethix.com
+44919
+  Avisi B.V
+    Jeroen Veldhorst
+      j.h.veldhorst&avisi.nl
+44920
+  Argyle Security Inc
+    Neal Horman
+      nhorman&argylesecurity.com
+44921
+  Exele
+    Dane Overfield
+      dane&exele.com
+44922
+  Echo Technology Solutions
+    Sejo Jahic
+      support-echots&echots.com
+44923
+  Remco ICT
+    R. Peters
+      remco&remco-ict.nl
+44924
+  AllSeen Alliance, Inc.
+    Philip DesAutels
+      info&allseenalliance.org
+44925
+  East Kent Hospitals University Foundation Trust
+    Mark Williams
+      mark.williams28&nhs.net
+44926
+  Amdocs Network Solutions
+    Christopher Coote
+      christopher.coote&amdocs.com
+44927
+  SyS LLC.
+    Sergey Randitskiy
+      rsa&systemco.ru
+44928
+  Caligare, s.r.o.
+    Jan Nejman
+      nejman&caligare.com
+44929
+  NetKnights GmbH
+    Cornelius Kölbel
+      cornelius.koelbel&netknights.it
+44930
+  Fisher Investments
+    Security Administrator
+      security.administrator&fi.com
+44931
+  SyncWise Systems & Technology
+    Aurel Chiriac
+      aurel.chiriac&syncwise.ro
+44932
+  Panasonic System Communications Company of North America
+    Ildar Nizami
+      ildar.nizami&us.panasonic.com
+44933
+  In Ardua Petit
+    Tim Hedtke
+      thedtke&inarduapetit.org
+44934
+  G-RAY
+    heleihua
+      leihua_he&ultrasilicom.com
+44935
+  Digital Telecommunication Systems WA PTY LTD
+    Justin Swain
+      justin_swain&iinet.net.au
+44936
+  Stratech iVision Pte. Ltd
+    LOW CHENG SENG
+      LOW_Cheng_Seng&stratechsystems.com
+44937
+  Inoventica technologies
+    Mike Kogan
+      regs&inoventica-tech.ru
+44938
+  Charité - Universitätsmedizin Berlin
+    Frank Kiess
+      frank.kiess&charite.de
+44939
+  AVA-PETER Ltd.
+    Pavel Finogeev
+      finogeev-pk&avaclinic.ru
+44940
+  Nemiroff
+    Aleksey Rud
+      aleksey.rud&nemiroff.pro
+44941
+  GCP German Cathodic Protection GmbH & Co. KG
+    Torsten Krebs
+      krebs&gcp.de
+44942
+  Stadt Duelmen
+    Peer Wulff
+      it&duelmen.de
+44943
+  Inlink OÜ
+    Ilvar Oja
+      iana&inlink.ee
+44944
+  Rock Flow Dynamics
+    George Zhilyakov
+      george.zhilyakov&rfdyn.com
+44945
+  TEKTELIC Communications Inc.
+    David Tholl
+      dtholl&tektelic.com
+44946
+  Danish Railway (DSB)
+    Finn Fleron
+      IT-Infrastruktur&dsb.dk
+44947
+  Internet Security Research Group
+    Josh Aas
+      josh&letsencrypt.org
+44948
+  Pacific Institute for the Mathematical Sciences
+    Ian Allison
+      iana&pims.math.ca
+44949
+  NJK Aviation AG
+    Nicholas John Koch
+      koch&njk.aero
+44950
+  automation-engineering
+    Dmitriy Murashov
+      dmitriy.murashov&automation-engineering.ru
+44951
+  SSR Engineering, Inc.
+    Kevin Miller
+      kmiller&ssreng.com
+44952
+  AC/ BC Electrical Company
+    Bob Crnogorac
+      bobacbc&bell.net
+44953
+  Flat World Resource Technologies Limited.
+    Stephen Van
+      stephen1w&yeah.net
+44954
+  Keweon
+    Torsten Jahnke
+      keweon&outlook.com
 
 
 End of Document
