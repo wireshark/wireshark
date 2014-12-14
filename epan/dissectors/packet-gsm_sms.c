@@ -125,6 +125,7 @@ static gint hf_gsm_sms_tp_udhi = -1;
 static gint hf_gsm_sms_tp_rd = -1;
 static gint hf_gsm_sms_tp_srq = -1;
 static gint hf_gsm_sms_text = -1;
+static gint hf_gsm_sms_body = -1;
 static gint hf_gsm_sms_tp_fail_cause = -1;
 #if 0
 static gint hf_gsm_sms_tp_scts = -1;
@@ -607,12 +608,11 @@ static const value_string pid_message_type_vals[] = {
    {0,      NULL }
 };
 
-static guint8
+static void
 dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
 {
     proto_item  *item;
     proto_tree  *subtree;
-    guint8 msg_type = 0xff;
 
     item = proto_tree_add_item(tree, hf_gsm_sms_tp_pid, tvb, offset, 1, ENC_BIG_ENDIAN);
     subtree = proto_item_add_subtree(item, ett_pid);
@@ -636,7 +636,6 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
     case 1:
         proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_format_subsequent_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        msg_type = tvb_get_guint8(tvb, offset) & 0x3f;
         break;
 
     case 2:
@@ -649,7 +648,6 @@ dis_field_pid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct)
         proto_tree_add_item(subtree, hf_gsm_sms_tp_pid_sc_specific, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     }
-    return msg_type;
 }
 
 /* 9.2.3.10 */
@@ -682,7 +680,7 @@ static const true_false_string tfs_message_coding = { "8 bit data", "GSM 7 bit d
 static const true_false_string tfs_compressed_not_compressed = { "Compressed", "Not compressed"};
 static const true_false_string tfs_message_class_defined = { "Defined below", "Reserved, no message class"};
 
-static guint8
+static void
 dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     gboolean *seven_bit, gboolean *eight_bit, gboolean *ucs2, gboolean *compressed)
 {
@@ -691,7 +689,6 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
     gboolean     default_5_bits;
     gboolean     default_3_bits;
     gboolean     default_data;
-    guint8       msg_class = 0xff;
 
     *seven_bit  = FALSE;
     *eight_bit  = FALSE;
@@ -712,7 +709,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         proto_tree_add_item(subtree, hf_gsm_sms_gsm_7_bit_default_alphabet, tvb, offset, 1, ENC_NA);
 
         *seven_bit = TRUE;
-        return msg_class;
+        return;
     }
 
     default_5_bits = FALSE;
@@ -730,7 +727,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         break;
 
     case 2:
-        return msg_class;
+        return;
 
     case 3:
         switch ((oct & 0x30) >> 4)
@@ -776,7 +773,6 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_character_set, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_class, tvb, offset, 1, ENC_BIG_ENDIAN);
-        msg_class = tvb_get_guint8(tvb, offset) & 0x03;
     }
     else if (default_3_bits)
     {
@@ -790,9 +786,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_reserved08, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_coding, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(subtree, hf_gsm_sms_dcs_message_class, tvb, offset, 1, ENC_BIG_ENDIAN);
-        msg_class = tvb_get_guint8(tvb, offset) & 0x03;
     }
-    return msg_class;
 }
 
 static void
@@ -1947,8 +1941,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             {
                 if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_dst,sm_tvb, pinfo, subtree))
                 {
-                    proto_tree_add_expert_format(subtree, pinfo, &ei_gsm_sms_short_data, sm_tvb, 0, -1,
-                                             "Short Message body");
+                    proto_tree_add_item(subtree, hf_gsm_sms_body, tvb, offset, length, ENC_NA);
                 }
             }
         }
@@ -2040,8 +2033,6 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     gboolean       ucs2;
     gboolean       compressed;
     gboolean       udhi;
-    guint8         msg_type;
-    guint8         msg_class;
 
     saved_offset = offset;
     length = tvb_reported_length_remaining(tvb, offset);
@@ -2061,12 +2052,12 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     oct = tvb_get_guint8(tvb, offset);
 
-    msg_type = dis_field_pid(tvb, tree, offset, oct);
+    dis_field_pid(tvb, tree, offset, oct);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
 
-    msg_class = dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
+    dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
 
     offset++;
     dis_field_scts(tvb, pinfo, tree, &offset);
@@ -2079,17 +2070,6 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     if (udl > 0)
     {
         offset++;
-
-        if ((msg_type == 0x3f) && (msg_class == 2))
-        {
-            /* This is a (U)SIM Data Download Class 2 message */
-            /* Use STK packing */
-            if (data == NULL)
-            {
-                data = wmem_new(wmem_packet_scope(), gsm_sms_data_t);
-            }
-            data->stk_packing_required = TRUE;
-        }
 
         dis_field_ud(tvb, pinfo, tree, offset, length - (offset - saved_offset), udhi, udl,
             seven_bit, eight_bit, ucs2, compressed, data);
@@ -2825,6 +2805,11 @@ proto_register_gsm_sms(void)
                 FT_STRING, STR_UNICODE, NULL, 0x00,
                 "The text of the SMS", HFILL }
             },
+            { &hf_gsm_sms_body,
+              { "SMS body", "gsm_sms.sms_body",
+                FT_BYTES, BASE_NONE, NULL, 0x00,
+                NULL, HFILL }
+            },
             { &hf_gsm_sms_tp_fail_cause,
               { "TP-Failure-Cause (TP-FCS)", "gsm_sms.tp-fcs",
                 FT_UINT8, BASE_HEX_DEC|BASE_RANGE_STRING, RVALS(gsm_sms_tp_failure_cause_values), 0x0,
@@ -2932,7 +2917,7 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_dcs_character_set,
               { "Character Set", "gsm_sms.dcs.character_set",
-                FT_UINT8, BASE_HEX, VALS(dcs_character_set_vals), 0xC0,
+                FT_UINT8, BASE_HEX, VALS(dcs_character_set_vals), 0x0C,
                 NULL, HFILL }
             },
             { &hf_gsm_sms_dcs_message_class,
