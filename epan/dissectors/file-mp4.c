@@ -223,7 +223,7 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
     vol = tvb_get_guint8(tvb, offset);
     fract_dec = tvb_get_guint8(tvb, offset+1);
-    rate += make_fract(fract_dec);
+    vol += make_fract(fract_dec);
     proto_tree_add_double_format_value(tree, hf_mp4_mvhd_vol,
             tvb, offset, 4, vol, "%f", vol);
     offset += 2;
