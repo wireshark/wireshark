@@ -505,7 +505,7 @@ dissect_mp4_stsd_body(tvbuff_t *tvb, gint offset, gint len,
     offset += 3;
 
     entry_cnt = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_mp4_dref_entry_cnt,
+    proto_tree_add_item(tree, hf_mp4_stsd_entry_cnt,
             tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
