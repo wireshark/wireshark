@@ -972,6 +972,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
     msp->last_frame_time=pinfo->fd->abs_ts;
     msp->flags=0;
     wmem_tree_insert32(multisegment_pdus, seq, (void *)msp);
+    /*g_warning("pdu_store_sequencenumber_of_next_pdu: seq %u", seq);*/
     return msp;
 }
 
@@ -1915,6 +1916,18 @@ again:
             return;
         }
 
+        /* The above code only finds retransmission if the PDU boundaries and the seq coinside I think
+         * If we have sequience analysis active use the TCP_A_RETRANSMISSION flag.
+         * XXXX Could the above code be improved?
+         */
+        if((tcpd->ta) && ((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION)){
+            const char* str = "Retransmitted ";
+            nbytes = tvb_reported_length_remaining(tvb, offset);
+            proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
+                nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
+                plurality(nbytes, "", "s"));
+            return;
+        }
         /* Else, find the most previous PDU starting before this sequence number */
         msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
     }
