@@ -168,6 +168,8 @@ Wireshark and TShark will display incorrect delta times in some cases.
 The 64-bit version of Wireshark will leak memory on Windows when the display
 depth is set to 16 bits (ws-buglink:9914[])
 
+Wireshark should let you work with multiple capture files. (ws-buglink:10488[])
+
 == Getting Help
 
 Community support is available on http://ask.wireshark.org/[Wireshark's
