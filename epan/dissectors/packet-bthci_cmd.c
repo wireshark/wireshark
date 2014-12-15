@@ -1941,7 +1941,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             break;
 
         case 0x0005: /* Create Connection */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1990,36 +1990,36 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             break;
 
         case 0x0008: /* Create Connection Cancel Request */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             break;
 
         case 0x0009: /* Accept Connection Request */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             break;
 
         case 0x000a: /* Reject Connection Request */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             break;
 
         case 0x000b: /* Link Key Request Reply */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset, 16, ENC_NA);
             offset+=16;
             break;
 
         case 0x000c: /* Link Key Request Negative Reply */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             break;
 
         case 0x000d: /* PIN Code Request Reply */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_pin_code_length ,tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2028,7 +2028,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             break;
 
         case 0x000e: /* PIN Code Request Negative Reply */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             break;
 
         case 0x000f: /* Change Connection Packet Type */
@@ -2067,7 +2067,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             break;
 
         case 0x0019: /* Remote Name Request */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2083,7 +2083,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             break;
 
         case 0x001a: /* Remote Name Request Cancel */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             break;
 
         case 0x001c: /* Read Remote Extended Features */
@@ -2099,7 +2099,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
                 proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset+=2;
             } else {
-                offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+                offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             }
 
             proto_tree_add_item(tree, hf_bthci_cmd_transmit_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2135,7 +2135,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             offset+=2;
             break;
         case 0x002a: /* Reject Synchronous Connection Request */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2151,7 +2151,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             break;
 
         case 0x002b: /* IO Capability Response */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_io_capability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2162,7 +2162,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
             break;
 
         case 0x0034: /* IO Capability Request Negative Reply */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             break;
@@ -2171,18 +2171,18 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         case 0x002d: /* User Confirmation Request Negative Reply */
         case 0x002f: /* User Passkey Request Negative Reply */
         case 0x0033: /* Remote OOB Data Request Negative Reply */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             break;
 
         case 0x002e: /* User Passkey Request Reply */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_passkey, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset+=4;
             break;
 
         case 0x0030: /* Remote OOB Data Request Reply */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_hash_c, tvb, offset, 16, ENC_NA);
             offset+=16;
@@ -2331,7 +2331,7 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
             break;
 
         case 0x000b: /* Switch Role */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2494,7 +2494,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                             break;
 
                         case 0x02:
-                            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+                            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
                             break;
 
                         default:
@@ -2525,7 +2525,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                             break;
 
                         case 0x02:
-                            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+                            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
                             proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                             offset++;
@@ -2549,7 +2549,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         case 0x000d: /* Read Stored Link Key */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_read_all_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2561,14 +2561,14 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             offset += 1;
 
             for (i = 0; i < num8; i++) {
-                offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+                offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
                 proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset, 16, ENC_NA);
                 offset += 16;
             }
             break;
 
         case 0x0012: /* Delete Stored Link Key */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_delete_all_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -2859,7 +2859,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             break;
 
         case 0x0060: /* Send Keypress Notification */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
 
             proto_tree_add_item(tree, hf_bthci_cmd_notification_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
@@ -3139,7 +3139,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0005: /* LE Set Random Address */
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             break;
 
         case 0x0006: /* LE Set Advertising Parameters */
@@ -3155,7 +3155,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_le_direct_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             proto_tree_add_item(tree, hf_bthci_cmd_le_advts_channel_map_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_le_advts_channel_map_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_bthci_cmd_le_advts_channel_map_3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3212,7 +3212,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             offset++;
             proto_tree_add_item(tree, hf_bthci_cmd_le_peer_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             proto_tree_add_item(tree, hf_bthci_cmd_le_own_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             item = proto_tree_add_item(tree, hf_bthci_cmd_le_con_interval_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3239,7 +3239,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x0012: /* LE Remove Device From White List */
             proto_tree_add_item(tree, hf_bthci_cmd_le_address_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
-            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_bthci_cmd_bd_addr, tree, tvb, offset);
             break;
 
         case 0x0013: /* LE Connection Update */
@@ -5160,7 +5160,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case 0x0C: /* BD_ADDR */
             /* From CSS v3.pdf */
-            offset = dissect_bd_addr(hf_btcommon_eir_ad_bd_addr, tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_btcommon_eir_ad_bd_addr, tree, tvb, offset);
 
             break;
 
@@ -5206,7 +5206,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case 0x18: /* Random Target Address */
             end_offset = offset + length;
             while (offset < end_offset) {
-                offset = dissect_bd_addr(hf_btcommon_eir_ad_bd_addr, entry_tree, tvb, offset, NULL);
+                offset = dissect_bd_addr(hf_btcommon_eir_ad_bd_addr, entry_tree, tvb, offset);
             }
 
             break;
@@ -5228,7 +5228,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_le_bd_addr_type, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            offset = dissect_bd_addr(hf_btcommon_eir_ad_bd_addr, entry_tree, tvb, offset, NULL);
+            offset = dissect_bd_addr(hf_btcommon_eir_ad_bd_addr, entry_tree, tvb, offset);
 
             break;
         case 0x1C: /* LE Role */

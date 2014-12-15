@@ -202,7 +202,7 @@ void proto_reg_handoff_btle(void);
 
 
 gint
-dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 *bdaddr)
+dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint8 bd_addr[6];
 
@@ -215,9 +215,6 @@ dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset, g
 
     proto_tree_add_ether(tree, hf_bd_addr, tvb, offset, 6, bd_addr);
     offset += 6;
-
-    if (bdaddr)
-        memcpy(bdaddr, bd_addr, 6);
 
     return offset;
 }
@@ -408,15 +405,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x00: /* ADV_IND */
         case 0x02: /* ADV_NONCONN_IND */
         case 0x06: /* ADV_SCAN_IND */
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
-
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
-
-            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
-            SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 10, "broadcast");
-            SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 10, "broadcast");
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
             if (tvb_length_remaining(tvb, offset) > 3) {
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_length_remaining(tvb, offset) - 3);
@@ -427,41 +416,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             break;
         case 0x01: /* ADV_DIRECT_IND */
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
-            offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset, dst_bd_addr);
-
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
-
-            SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
+            offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset);
 
             break;
         case 0x03: /* SCAN_REQ */
-            offset = dissect_bd_addr(hf_scanning_address, btle_tree, tvb, offset, src_bd_addr);
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, dst_bd_addr);
-
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
-
-            SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
+            offset = dissect_bd_addr(hf_scanning_address, btle_tree, tvb, offset);
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
             break;
         case 0x04: /* SCAN_RSP */
-            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
-
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
-
-            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
-            SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 10, "broadcast");
-            SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 10, "broadcast");
+            offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
             sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);

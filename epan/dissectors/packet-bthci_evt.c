@@ -888,6 +888,28 @@ static const value_string evt_air_mode_vals[] = {
 void proto_register_bthci_evt(void);
 void proto_reg_handoff_bthci_evt(void);
 
+static int
+dissect_bthci_evt_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+        proto_tree *tree, guint8 *bdaddr)
+{
+    guint8 bd_addr[6];
+
+    bd_addr[5] = tvb_get_guint8(tvb, offset);
+    bd_addr[4] = tvb_get_guint8(tvb, offset + 1);
+    bd_addr[3] = tvb_get_guint8(tvb, offset + 2);
+    bd_addr[2] = tvb_get_guint8(tvb, offset + 3);
+    bd_addr[1] = tvb_get_guint8(tvb, offset + 4);
+    bd_addr[0] = tvb_get_guint8(tvb, offset + 5);
+
+    if (bdaddr)
+        memcpy(bdaddr, bd_addr, 6);
+
+    proto_tree_add_ether(tree, hf_bthci_evt_bd_addr, tvb, offset, 6, bd_addr);
+    offset += 6;
+
+    return offset;
+}
+
 static void bthci_evt_vendor_prompt(packet_info *pinfo _U_, gchar* result)
 {
     g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor as");
@@ -974,7 +996,7 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
     if (!pinfo->fd->flags.visited && hci_data != NULL && status == 0x00) {
         wmem_tree_key_t    key[5];
         guint32            k_interface_id;
@@ -1026,7 +1048,7 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_bthci_evt_conn_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
     offset += 3;
@@ -1210,25 +1232,25 @@ dissect_bthci_evt_lmp_features(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 }
 
 static int
-dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_pin_code_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_link_key_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_link_key, tvb, offset, 16, ENC_NA);
     offset += 16;
@@ -1240,7 +1262,7 @@ dissect_bthci_evt_link_key_notification(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     guint8 evt_num_keys;
 
@@ -1249,7 +1271,7 @@ dissect_bthci_evt_return_link_keys(tvbuff_t *tvb, int offset, packet_info *pinfo
     offset += 1;
 
     while (evt_num_keys--) {
-        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+        offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
         proto_tree_add_item(tree, hf_bthci_evt_link_key, tvb, offset, 16, ENC_NA);
         offset += 16;
@@ -1282,7 +1304,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
 
     proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
     if (!pinfo->fd->flags.visited && hci_data != NULL) {
@@ -1394,12 +1416,12 @@ dissect_bthci_evt_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 static int
-dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_role_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(            tvb, offset, pinfo, tree, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_role,   tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1617,9 +1639,9 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 }
 
 static int
-dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_page_scan_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1628,9 +1650,9 @@ dissect_bthci_evt_page_scan_mode_change(tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_page_scan_repetition_mode_change(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1649,7 +1671,7 @@ dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset,
     offset += 1;
 
     for (num = 0; num < evt_num_responses; num++) {
-        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, (num == 0) ? bd_addr : NULL);
+        offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, (num == 0) ? bd_addr : NULL);
 
         proto_tree_add_item(tree, hf_bthci_evt_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
@@ -1672,17 +1694,17 @@ dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_bthci_evt_io_capability_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_io_capability_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_io_capability,     tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1697,9 +1719,9 @@ dissect_bthci_evt_io_capability_response(tvbuff_t *tvb, int offset, packet_info 
 }
 
 static int
-dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_numeric_value, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -1708,36 +1730,36 @@ dissect_bthci_evt_user_confirmation_request(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dissect_bthci_evt_user_passkey_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_passkey_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_remote_oob_data_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_remote_oob_data_request(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_simple_pairing_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_simple_pairing_complete(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     return offset;
 }
 
 static int
-dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_passkey, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -1746,9 +1768,9 @@ dissect_bthci_evt_user_passkey_notification(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
     proto_tree_add_item(tree, hf_bthci_evt_notification_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1759,7 +1781,7 @@ dissect_bthci_evt_keypress_notification(tvbuff_t *tvb, int offset, packet_info *
 static int
 dissect_bthci_evt_remote_host_sup_feat_notification(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
     offset = dissect_bthci_evt_lmp_features(tvb, offset, pinfo, tree, 0);
 
     return offset;
@@ -1798,7 +1820,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type,          tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+            offset = dissect_bthci_evt_bd_addr(                                   tvb, offset, pinfo, tree, bd_addr);
 
             item = proto_tree_add_item(tree, hf_bthci_evt_le_con_interval,        tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_item_append_text(item, " (%g msec)", tvb_get_letohs(tvb, offset)*1.25);
@@ -1867,7 +1889,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 offset += 1;
                 proto_tree_add_item(tree, hf_bthci_evt_le_peer_address_type,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
-                offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+                offset = dissect_bthci_evt_bd_addr(                               tvb, offset, pinfo, tree, bd_addr);
                 length = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_bthci_evt_data_length,               tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
@@ -2226,7 +2248,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+            offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
             if (!pinfo->fd->flags.visited && hci_data != NULL && local_addr) {
                 wmem_tree_key_t            key[4];
                 guint32                    k_interface_id;
@@ -3195,7 +3217,7 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
     connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
     offset += 2;
 
-    offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, bd_addr);
+    offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
 
     proto_tree_add_item(tree, hf_bthci_evt_sync_link_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -3391,7 +3413,7 @@ dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
     offset += 1;
 
     for (num = 0; num < evt_num_responses; num++) {
-        offset = dissect_bd_addr(hf_bthci_evt_bd_addr, tree, tvb, offset, NULL);
+        offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, NULL);
 
         proto_tree_add_item(tree, hf_bthci_evt_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
