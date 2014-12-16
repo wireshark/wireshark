@@ -68,12 +68,13 @@ static int hf_mip_rext_i = -1;
 static int hf_mip_rext_reserved = -1;
 static int hf_mip_rext_tstamp = -1;
 static int hf_mip_rev_reserved = -1;
+static int hf_mip_flags2 = -1;
 static int hf_mip_rev_a = -1;
 static int hf_mip_rev_i = -1;
-/* static int hf_mip_rev_reserved2 = -1; */
+static int hf_mip_rev_reserved2 = -1;
 static int hf_mip_ack_reserved = -1;
 static int hf_mip_ack_i = -1;
-/* static int hf_mip_ack_reserved2 = -1; */
+static int hf_mip_ack_reserved2 = -1;
 static int hf_mip_hda = -1;
 static int hf_mip_fda = -1;
 static int hf_mip_revid = -1;
@@ -926,7 +927,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       static const int * mip_flags[] = {
         &hf_mip_rev_a,
         &hf_mip_rev_i,
-        &hf_mip_rev_reserved,
+        &hf_mip_rev_reserved2,
         NULL
       };
 
@@ -942,7 +943,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset++;
 
       /* flags */
-      proto_tree_add_bitmask(mip_tree, tvb, offset, hf_mip_flags, ett_mip_flags, mip_flags, ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask(mip_tree, tvb, offset, hf_mip_flags2, ett_mip_flags, mip_flags, ENC_BIG_ENDIAN);
       offset += 2;
 
       /* home address */
@@ -969,7 +970,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
       static const int * mip_flags[] = {
         &hf_mip_ack_i,
-        &hf_mip_ack_reserved,
+        &hf_mip_ack_reserved2,
         NULL
       };
 
@@ -985,7 +986,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset++;
 
       /* flags */
-      proto_tree_add_bitmask(mip_tree, tvb, offset, hf_mip_flags, ett_mip_flags, mip_flags, ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask(mip_tree, tvb, offset, hf_mip_flags2, ett_mip_flags, mip_flags, ENC_BIG_ENDIAN);
       offset += 2;
 
       /* home address */
@@ -1023,7 +1024,6 @@ void proto_register_mip(void)
     },
     { &hf_mip_s,
       {"Simultaneous Bindings",           "mip.s",
-
        FT_BOOLEAN, 8, NULL, 128,
        "Simultaneous Bindings Allowed", HFILL }
     },
@@ -1153,6 +1153,11 @@ void proto_register_mip(void)
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL}
     },
+    { &hf_mip_flags2,
+      {"Flags", "mip.flags2",
+       FT_UINT16, BASE_HEX, NULL, 0x0,
+       NULL, HFILL}
+    },
     { &hf_mip_rev_a,
       { "Home Agent",               "mip.rev.a",
         FT_BOOLEAN, 16, NULL, 32768,
@@ -1163,12 +1168,12 @@ void proto_register_mip(void)
         FT_BOOLEAN, 16, NULL, 16384,
         "Inform Mobile Node", HFILL }
     },
-#if 0
+
     { &hf_mip_rev_reserved2,
       { "Reserved",                 "mip.rev.reserved2",
         FT_UINT16, BASE_HEX, NULL, 0x3fff,
         NULL, HFILL}},
-#endif
+
     { &hf_mip_hda,
       { "Home Domain Address",      "mip.rev.hda",
         FT_IPv4, BASE_NONE, NULL, 0,
@@ -1194,12 +1199,11 @@ void proto_register_mip(void)
         FT_BOOLEAN, 16, NULL, 32768,
         "Inform Mobile Node", HFILL }
     },
-#if 0
     { &hf_mip_ack_reserved2,
       { "Reserved",                 "mip.ack.reserved2",
         FT_UINT16, BASE_HEX, NULL, 0x7fff,
         NULL, HFILL}},
-#endif
+
     { &hf_mip_dhaext_stype,
       { "DynHA Ext SubType",        "mip.ext.dynha.subtype",
         FT_UINT8, BASE_DEC, VALS(mip_dhaext_stypes), 0,
