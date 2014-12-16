@@ -101,7 +101,7 @@ static gint ett_mdshdr_trlr = -1;
 
 static dissector_handle_t data_handle, fc_dissector_handle;
 
-static gboolean decode_if_zero_etype = TRUE;
+static gboolean decode_if_zero_etype = FALSE;
 
 static const value_string sof_vals[] = {
     {MDSHDR_SOFc1,               "SOFc1"},
