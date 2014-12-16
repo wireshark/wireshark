@@ -400,10 +400,10 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
         filter_string_fwd = g_strdup_printf(
             "(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
             ip_version,
-            ep_address_to_str(&(selected_stream_fwd->src_addr)),
+            address_to_str(wmem_packet_scope(), &(selected_stream_fwd->src_addr)),
             selected_stream_fwd->src_port,
             ip_version,
-            ep_address_to_str(&(selected_stream_fwd->dest_addr)),
+            address_to_str(wmem_packet_scope(), &(selected_stream_fwd->dest_addr)),
             selected_stream_fwd->dest_port,
             selected_stream_fwd->ssrc);
 
@@ -420,10 +420,10 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
         filter_string_rev = g_strdup_printf(
             "(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
             ip_version,
-            ep_address_to_str(&(selected_stream_rev->src_addr)),
+            address_to_str(wmem_packet_scope(), &(selected_stream_rev->src_addr)),
             selected_stream_rev->src_port,
             ip_version,
-            ep_address_to_str(&(selected_stream_rev->dest_addr)),
+            address_to_str(wmem_packet_scope(), &(selected_stream_rev->dest_addr)),
             selected_stream_rev->dest_port,
             selected_stream_rev->ssrc);
 
@@ -691,10 +691,10 @@ add_to_list_store(rtp_stream_info_t* strinfo)
     data[2] = g_strdup(ep_address_to_display(&(strinfo->dest_addr)));
     data[3] = NULL;
     data[4] = g_strdup_printf("0x%X", strinfo->ssrc);
-    if (strinfo->info_payload_type_str != NULL) {
-        data[5] = g_strdup(strinfo->info_payload_type_str);
+    if (strinfo->payload_type_name != NULL) {
+        data[5] = g_strdup(strinfo->payload_type_name);
     } else {
-        data[5] = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext,
+        data[5] = g_strdup(val_to_str_ext(strinfo->payload_type, &rtp_payload_type_short_vals_ext,
             "Unknown (%u)"));
     }
     data[6] = NULL;
@@ -731,7 +731,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
                 RTP_COL_DST_PORT, strinfo->dest_port,
                 RTP_COL_SSRC, data[4],
                 RTP_COL_PAYLOAD, data[5],
-                RTP_COL_PACKETS, strinfo->npackets,
+                RTP_COL_PACKETS, strinfo->packet_count,
                 RTP_COL_LOST, data[7],
                 RTP_COL_MAX_DELTA, strinfo->rtp_stats.max_delta,
                 RTP_COL_MAX_JITTER, strinfo->rtp_stats.max_jitter,

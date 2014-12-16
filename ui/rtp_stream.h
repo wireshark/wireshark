@@ -35,7 +35,7 @@
 /****************************************************************************/
 /* type for storing rtp frame information */
 typedef struct st_rtp_sample_header {
-    guint32 rec_time;       /**< milliseconds since start of recording */
+    double rec_time;        /**< milliseconds since start of recording */
     guint16 frame_length;   /**< number of bytes in *frame */
 } rtp_sample_header_t;
 
@@ -55,22 +55,28 @@ typedef struct _rtp_stream_info {
     address         dest_addr;
     guint32         dest_port;
     guint32         ssrc;
-    guint8          pt;
-    const gchar    *info_payload_type_str;
-    guint32         npackets;
 
-    guint32         first_frame_num; /**< frame number of first frame */
+    guint8          payload_type; /**< Numeric payload type */
+    gchar          *payload_type_name; /**< Payload type name */
+    gboolean        is_srtp;
+
+    guint32         packet_count;
+    gboolean        end_stream; /**< Used to track streams across payload types */
+    int             rtp_event;
+
+    guint16         call_num; /**< Used to match call_num in voip_calls_info_t */
     guint32         setup_frame_number; /**< frame number of setup message */
-    /* start of recording (GMT) of this stream */
-    guint32         start_sec;  /**< seconds */
-    guint32         start_usec; /**< microseconds */
-    gboolean        tag_vlan_error;
-    guint32         start_rel_sec; /**< start stream rel seconds */
-    guint32         start_rel_usec; /**< start stream rel microseconds */
-    guint32         stop_rel_sec; /**< stop stream rel seconds */
-    guint32         stop_rel_usec; /**< stop stream rel microseconds */
-    gboolean        tag_diffserv_error;
+    /* Start and stop packets needed for .num and .abs_ts */
+    frame_data     *start_fd;
+    frame_data     *stop_fd;
+    nstime_t        start_rel_time;     /**< relative start time from pinfo */
+    nstime_t        stop_rel_time;      /**< relative stop time from pinfo */
     guint16         vlan_id;
+    gboolean        tag_vlan_error;
+    gboolean        tag_diffserv_error;
+
+    gboolean        decode; /**< Decode this stream */
+    GList          *rtp_packet_list; /**< List of RTP rtp_packet_t */
 
     tap_rtp_stat_t  rtp_stats;  /**< here goes the RTP statistics info */
     gboolean        problem;    /**< if the streams had wrong sequence numbers or wrong timerstamps */

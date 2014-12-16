@@ -84,15 +84,15 @@ rtp_streams_stat_draw(void *arg _U_)
         strinfo = (rtp_stream_info_t*)(list->data);
 
         /* payload type */
-        if (strinfo->pt > 95) {
-        if (strinfo->info_payload_type_str != NULL) {
-            payload_type = g_strdup(strinfo->info_payload_type_str);
+        if (strinfo->payload_type > 95) {
+        if (strinfo->payload_type_name != NULL) {
+            payload_type = g_strdup(strinfo->payload_type_name);
         }else{
-            payload_type = g_strdup_printf("Unknown(%u)", strinfo->pt);
+            payload_type = g_strdup_printf("Unknown(%u)", strinfo->payload_type);
         }
 
         }else{
-            payload_type = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_vals_ext,
+            payload_type = g_strdup(val_to_str_ext(strinfo->payload_type, &rtp_payload_type_vals_ext,
                 "Unknown (%u)"));
         }
 
@@ -113,7 +113,7 @@ rtp_streams_stat_draw(void *arg _U_)
             strinfo->dest_port,
             strinfo->ssrc,
             payload_type,
-            strinfo->npackets,
+            strinfo->packet_count,
             lost, perc,
             strinfo->rtp_stats.max_delta,
             strinfo->rtp_stats.max_jitter,

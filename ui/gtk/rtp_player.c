@@ -66,7 +66,9 @@
 
 #include <codecs/codecs.h>
 
-#include "../globals.h"
+#include "globals.h"
+
+#include "ui/rtp_stream.h"
 #include "ui/simple_dialog.h"
 #include "ui/voip_calls.h"
 
@@ -153,28 +155,10 @@ static PortAudioStream *pa_stream;
 static PaStream *pa_stream;
 #endif /* PORTAUDIO_API_1 */
 
-/* defines a RTP stream */
-typedef struct _rtp_stream_info {
-	address src_addr;
-	guint16 src_port;
-	address dest_addr;
-	guint16 dest_port;
-	guint32 ssrc;
-	guint32 first_frame_number; /* first RTP frame for the stream */
-	double start_time;			/* RTP stream start time in ms */
-	nstime_t start_time_abs;
-	gboolean play;
-	guint16 call_num;
-	GList*  rtp_packets_list; /* List of RTP packets in the stream */
-	guint32 num_packets;
-} rtp_stream_info_t;
-
-
 /* defines the RTP streams to be played in an audio channel */
 typedef struct _rtp_channel_info {
-	double start_time;			/* RTP stream start time in ms */
 	nstime_t start_time_abs;
-	double end_time;			/* RTP stream end time in ms */
+	nstime_t stop_time_abs;
 	GArray *samples;			/* the array with decoded audio */
 	guint16 call_num;
 	gboolean selected;
@@ -268,20 +252,20 @@ static void
 rtp_stream_value_destroy(gpointer rsi_arg)
 {
 	rtp_stream_info_t *rsi = (rtp_stream_info_t *)rsi_arg;
-	GList*  rtp_packets_list;
+	GList*  rtp_packet_list;
 	rtp_packet_t *rp;
 
-	rtp_packets_list = g_list_first(rsi->rtp_packets_list);
-	while (rtp_packets_list)
+	rtp_packet_list = g_list_first(rsi->rtp_packet_list);
+	while (rtp_packet_list)
 	{
-		rp = (rtp_packet_t *)rtp_packets_list->data;
+		rp = (rtp_packet_t *)rtp_packet_list->data;
 
 		g_free(rp->info);
 		g_free(rp->payload_data);
 		g_free(rp);
 		rp = NULL;
 
-		rtp_packets_list = g_list_next(rtp_packets_list);
+		rtp_packet_list = g_list_next(rtp_packet_list);
 	}
 	g_free((void *)(rsi->src_addr.data));
 	g_free((void *)(rsi->dest_addr.data));
@@ -378,19 +362,14 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 
 	/* if it is not in the hash table, create a new stream */
 	if (stream_info==NULL) {
-		stream_info = g_new(rtp_stream_info_t,1);
+		stream_info = g_new0(rtp_stream_info_t, 1);
 		COPY_ADDRESS(&(stream_info->src_addr), &(pinfo->src));
 		stream_info->src_port = pinfo->srcport;
 		COPY_ADDRESS(&(stream_info->dest_addr), &(pinfo->dst));
 		stream_info->dest_port = pinfo->destport;
 		stream_info->ssrc = rtp_info->info_sync_src;
-		stream_info->rtp_packets_list = NULL;
-		stream_info->first_frame_number = pinfo->fd->num;
-		stream_info->start_time = nstime_to_msec(&pinfo->rel_ts);
-		stream_info->start_time_abs = pinfo->fd->abs_ts;
-		stream_info->call_num = 0;
-		stream_info->play = FALSE;
-		stream_info->num_packets = 0;
+		stream_info->start_fd = pinfo->fd;
+		stream_info->start_rel_time = pinfo->rel_ts;
 
 		g_hash_table_insert(rtp_streams_hash, g_strdup(key_str->str), stream_info);
 
@@ -399,14 +378,14 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 	}
 
 	/* increment the number of packets in this stream, this is used for the progress bar and statistics */
-	stream_info->num_packets++;
+    stream_info->packet_count++;
 
 	/* Add the RTP packet to the list */
-	new_rtp_packet = g_new(rtp_packet_t,1);
+    new_rtp_packet = g_new0(rtp_packet_t, 1);
 	new_rtp_packet->info = (struct _rtp_info *)g_malloc(sizeof(struct _rtp_info));
 
 	memcpy(new_rtp_packet->info, rtp_info, sizeof(struct _rtp_info));
-	new_rtp_packet->arrive_offset = nstime_to_msec(&pinfo->rel_ts) - stream_info->start_time;
+    new_rtp_packet->arrive_offset = nstime_to_msec(&pinfo->rel_ts) - nstime_to_msec(&stream_info->start_rel_time);
 	/* copy the RTP payload to the rtp_packet to be decoded later */
 	if (rtp_info->info_all_data_present && (rtp_info->info_payload_len != 0)) {
 		new_rtp_packet->payload_data = (guint8 *)g_malloc(rtp_info->info_payload_len);
@@ -415,7 +394,7 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 		new_rtp_packet->payload_data = NULL;
 	}
 
-	stream_info->rtp_packets_list = g_list_append(stream_info->rtp_packets_list, new_rtp_packet);
+    stream_info->rtp_packet_list = g_list_append(stream_info->rtp_packet_list, new_rtp_packet);
 
 	g_string_free(key_str, TRUE);
 }
@@ -435,14 +414,14 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 	/* Reset the "to be play" value because the user can close and reopen the RTP Player window
 	 * and the streams are not reset in that case
 	 */
-	rsi->play = FALSE;
+    rsi->decode = FALSE;
 
 	/* and associate the RTP stream with a call using the first RTP packet in the stream */
 	graph_list = g_queue_peek_nth_link(voip_calls->graph_analysis->items, 0);
 	while (graph_list)
 	{
 		graph_item = (seq_analysis_item_t *)graph_list->data;
-		if (rsi->first_frame_number == graph_item->fd->num) {
+		if (rsi->start_fd->num == graph_item->fd->num) {
 			rsi->call_num = graph_item->conv_num;
 			/* if it is in the graph list, then check if the voip_call is selected */
 			voip_calls_list = g_queue_peek_nth_link(voip_calls->callsinfos, 0);
@@ -450,8 +429,8 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 			{
 				tmp_voip_call = (voip_calls_info_t *)voip_calls_list->data;
 				if ( (tmp_voip_call->call_num == rsi->call_num) && (tmp_voip_call->selected == TRUE) ) {
-					rsi->play = TRUE;
-					total_packets += rsi->num_packets;
+					rsi->decode = TRUE;
+					total_packets += rsi->packet_count;
 					break;
 				}
 				voip_calls_list = g_list_next(voip_calls_list);
@@ -467,10 +446,10 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
  * RTP player from the "RTP Analysis" window
  */
 static void
-mark_all_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U_)
+mark_all_rtp_stream_to_decode(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U_)
 {
-	rsi->play = TRUE;
-	total_packets += rsi->num_packets;
+    rsi->decode = TRUE;
+    total_packets += rsi->packet_count;
 }
 
 /****************************************************************************/
@@ -551,7 +530,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 	GString *key_str = NULL;
 	rtp_channel_info_t *rci;
 	gboolean first = TRUE;
-	GList*  rtp_packets_list;
+	GList*  rtp_packet_list;
 	rtp_packet_t *rp;
 
 	int i;
@@ -577,6 +556,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 	SAMPLE *out_buff = NULL;
 	sample_t silence;
 	sample_t sample;
+	nstime_t sample_delta;
 	guint8 status;
 	guint32 start_timestamp;
 	GHashTable *decoders_hash = NULL;
@@ -590,7 +570,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 	silence.status = S_NORMAL;
 
 	/* skip it if we are not going to play it */
-	if (rsi->play == FALSE) {
+	if (rsi->decode == FALSE) {
 		return;
 	}
 
@@ -611,44 +591,25 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 	}
 
 	/* lookup for this stream in the channel hash table */
-	rci =  (rtp_channel_info_t *)g_hash_table_lookup( rtp_channels_hash, key_str->str);
+	rci = (rtp_channel_info_t *)g_hash_table_lookup( rtp_channels_hash, key_str->str);
 
 	/* ..if it is not in the hash, create an entry */
 	if (rci == NULL) {
-		rci = g_new(rtp_channel_info_t,1);
+		rci = g_new0(rtp_channel_info_t, 1);
 		rci->call_num = rsi->call_num;
-		rci->start_time = rsi->start_time;
-		rci->start_time_abs = rsi->start_time_abs;
-		rci->end_time = rsi->start_time;
-		rci->selected = FALSE;
-		rci->frame_index = 0;
-		rci->drop_by_jitter_buff = 0;
-		rci->out_of_seq = 0;
-		rci->wrong_timestamp = 0;
-		rci->max_frame_index = 0;
+		rci->start_time_abs = rsi->start_fd->abs_ts;
+		rci->stop_time_abs = rsi->start_fd->abs_ts;
 		rci->samples = g_array_new (FALSE, FALSE, sizeof(sample_t));
-		rci->check_bt = NULL;
-		rci->separator = NULL;
-		rci->draw_area = NULL;
-#if GTK_CHECK_VERSION(2,22,0)
-		rci->surface = NULL;
-#else
-		rci->pixmap = NULL;
-#endif
-		rci->h_scrollbar_adjustment = NULL;
-		rci->cursor_pixbuf = NULL;
-		rci->cursor_prev = 0;
-		rci->cursor_catch = FALSE;
 		rci->first_stream = rsi;
-		rci->num_packets = rsi->num_packets;
+		rci->num_packets = rsi->packet_count;
 		g_hash_table_insert(rtp_channels_hash, g_strdup(key_str->str), rci);
 	} else {
 		/* Add silence between the two streams if needed */
-		silence_frames = (gint32)( ((rsi->start_time - rci->end_time)/1000)*sample_rate );
+		silence_frames = (gint32)((nstime_to_msec(&rsi->start_fd->abs_ts) - nstime_to_msec(&rci->stop_time_abs)) * sample_rate);
 		for (i = 0; i< silence_frames; i++) {
 			g_array_append_val(rci->samples, silence);
 		}
-		rci->num_packets += rsi->num_packets;
+		rci->num_packets += rsi->packet_count;
 	}
 
 	/* decode the RTP stream */
@@ -677,8 +638,8 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 
 	status = S_NORMAL;
 
-	rtp_packets_list = g_list_first(rsi->rtp_packets_list);
-	while (rtp_packets_list)
+	rtp_packet_list = g_list_first(rsi->rtp_packet_list);
+	while (rtp_packet_list)
 	{
 
 		if (progbar_count >= progbar_nextstep) {
@@ -692,7 +653,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 		}
 
 
-		rp = (rtp_packet_t *)rtp_packets_list->data;
+		rp = (rtp_packet_t *)rtp_packet_list->data;
 		if (first == TRUE) {
 /* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
 /* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
@@ -820,11 +781,13 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 			g_free(out_buff);
 			out_buff = NULL;
 		}
-		rtp_packets_list = g_list_next (rtp_packets_list);
+		rtp_packet_list = g_list_next (rtp_packet_list);
 		progbar_count++;
 	}
 	rci->max_frame_index = rci->samples->len;
-	rci->end_time = rci->start_time + ((double)rci->samples->len/sample_rate)*1000;
+	sample_delta.secs = rci->samples->len / sample_rate;
+	sample_delta.nsecs = (rci->samples->len % sample_rate) * 1000000000;
+	nstime_sum(&rci->stop_time_abs, &rci->start_time_abs, &sample_delta);
 
 	g_string_free(key_str, TRUE);
 	g_hash_table_destroy(decoders_hash);
@@ -1115,22 +1078,26 @@ init_rtp_channels_vals(void)
 
 	/* if the two channels are to be played, then we need to sync both based on the start/end time of each one */
 	} else {
-		rpci->max_frame_index = (guint32)(sample_rate/1000) * (guint32)(MAX(rpci->rci[0]->end_time, rpci->rci[1]->end_time) -
-							(guint32)MIN(rpci->rci[0]->start_time, rpci->rci[1]->start_time));
+		double start_time_0 = nstime_to_msec(&rpci->rci[0]->start_time_abs);
+		double start_time_1 = nstime_to_msec(&rpci->rci[1]->start_time_abs);
+		double stop_time_0 = nstime_to_msec(&rpci->rci[0]->stop_time_abs);
+		double stop_time_1 = nstime_to_msec(&rpci->rci[1]->stop_time_abs);
+		rpci->max_frame_index = (guint32)(sample_rate/1000) * (guint32)(MAX(stop_time_0, stop_time_1) -
+							(guint32)MIN(start_time_0, start_time_1));
 
-		if (rpci->rci[0]->start_time < rpci->rci[1]->start_time) {
+		if (nstime_cmp(&rpci->rci[0]->start_time_abs, &rpci->rci[1]->start_time_abs) < 0) {
 			rpci->start_index[0] = 0;
-			rpci->start_index[1] = (guint32)(sample_rate/1000) * (guint32)(rpci->rci[1]->start_time - rpci->rci[0]->start_time);
+			rpci->start_index[1] = (guint32)(sample_rate/1000) * (guint32)(start_time_1 - start_time_0);
 		} else {
 			rpci->start_index[1] = 0;
-			rpci->start_index[0] = (guint32)(sample_rate/1000) * (guint32)(rpci->rci[0]->start_time - rpci->rci[1]->start_time);
+			rpci->start_index[0] = (guint32)(sample_rate/1000) * (guint32)(start_time_0 - start_time_1);
 		}
 
-		if (rpci->rci[0]->end_time < rpci->rci[1]->end_time) {
-			rpci->end_index[0] = rpci->max_frame_index - ((guint32)(sample_rate/1000) * (guint32)(rpci->rci[1]->end_time - rpci->rci[0]->end_time));
+		if (nstime_cmp(&rpci->rci[0]->stop_time_abs, &rpci->rci[1]->stop_time_abs) < 0) {
+			rpci->end_index[0] = rpci->max_frame_index - ((guint32)(sample_rate/1000) * (guint32)(stop_time_1 - stop_time_0));
 			rpci->end_index[1] = rpci->max_frame_index;
 		} else {
-			rpci->end_index[1] = rpci->max_frame_index - ((guint32)(sample_rate/1000) * (guint32)(rpci->rci[0]->end_time - rpci->rci[1]->end_time));
+			rpci->end_index[1] = rpci->max_frame_index - ((guint32)(sample_rate/1000) * (guint32)(stop_time_0 - stop_time_1));
 			rpci->end_index[0] = rpci->max_frame_index;
 		}
 	}
@@ -1301,7 +1268,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 	pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica,Sans,Bold 7"));
 
 	/* calculated the pixel offset to display integer seconds */
-	offset = ((double)rci->start_time/1000 - floor((double)rci->start_time/1000))*sample_rate/MULT;
+	offset = (nstime_to_sec(&rci->start_time_abs) - floor(nstime_to_sec(&rci->start_time_abs)))*sample_rate/MULT;
 
 	cr = cairo_create (rci->surface);
 	cairo_set_line_width (cr, 1.0);
@@ -1408,7 +1375,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 				timestamp = localtime(&seconds);
 				g_snprintf(label_string, MAX_TIME_LABEL, "%02d:%02d:%02d", timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
 			} else {
-				g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(rci->start_time/1000) + i*MULT/sample_rate);
+				g_snprintf(label_string, MAX_TIME_LABEL, "%.0f s", floor(nstime_to_sec(&rci->start_time_abs)) + i*MULT/sample_rate);
 			}
 
 			pango_layout_set_text(small_layout, label_string, -1);
@@ -1652,18 +1619,18 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 	};
 #endif
 
-    static GdkRGBA col[MAX_NUM_COL_CONV+1] = {
-        /* Red, Green, Blue Alpha */
-        {0.0039, 0.0039, 1.0000, 1.0},
-        {0.5664, 0.6289, 0.5664, 1.0},
-        {1.0000, 0.6289, 0.4805, 1.0},
-        {1.0000, 0.7148, 0.7578, 1.0},
-        {0.9805, 0.9805, 0.8242, 1.0},
-        {1.0000, 1.0000, 0.2031, 1.0},
-        {0.4023, 0.8046, 0.6680, 1.0},
-        {0.8789, 1.0000, 1.0000, 1.0},
-        {0.6914, 0.7695, 0.8710, 1.0},
-        {0.8281, 0.8281, 0.8281, 1.0},
+	static GdkRGBA col[MAX_NUM_COL_CONV+1] = {
+		/* Red, Green, Blue Alpha */
+		{0.0039, 0.0039, 1.0000, 1.0},
+		{0.5664, 0.6289, 0.5664, 1.0},
+		{1.0000, 0.6289, 0.4805, 1.0},
+		{1.0000, 0.7148, 0.7578, 1.0},
+		{0.9805, 0.9805, 0.8242, 1.0},
+		{1.0000, 1.0000, 0.2031, 1.0},
+		{0.4023, 0.8046, 0.6680, 1.0},
+		{0.8789, 1.0000, 1.0000, 1.0},
+		{0.6914, 0.7695, 0.8710, 1.0},
+		{0.8281, 0.8281, 0.8281, 1.0},
 	};
 
 #if GTK_CHECK_VERSION(2,22,0)
@@ -2215,7 +2182,7 @@ decode_streams(void)
 		if (voip_calls)
 			g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_rtp_stream_to_play, NULL);
 		else
-			g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_all_rtp_stream_to_play, NULL);
+			g_hash_table_foreach( rtp_streams_hash, (GHFunc)mark_all_rtp_stream_to_decode, NULL);
 	}
 
 	/* Decode the RTP streams and add them to the RTP channels to be played */
@@ -2388,7 +2355,7 @@ rtp_player_dlg_create(void)
 	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH, 0);
 
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-        gtk_box_pack_start(GTK_BOX(main_vb), main_scrolled_window, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), main_scrolled_window, TRUE, TRUE, 0);
 
 	channels_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_set_border_width (GTK_CONTAINER (channels_vb), 2);

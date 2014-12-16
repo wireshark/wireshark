@@ -62,6 +62,7 @@
 #include "epan/rtp_pt.h"
 
 #include "ui/alert_box.h"
+#include "ui/rtp_stream.h"
 #include "ui/simple_dialog.h"
 #include "ui/tap-sequence-analysis.h"
 #include "ui/ui_util.h"
@@ -151,28 +152,6 @@ typedef struct _h245_labels {
     gint8 labels_count;
     graph_str labels[H245_MAX];
 } h245_labels_t;
-
-/* defines a RTP stream */
-typedef struct _voip_rtp_stream_info {
-    address src_addr;
-    guint16 src_port;
-    address dest_addr;
-    guint16 dest_port;
-    guint32 ssrc;
-    guint32 pt;
-    gchar *pt_str;
-    gboolean is_srtp;
-    guint32 npackets;
-    gboolean end_stream;
-
-    guint32 setup_frame_number; /* frame number of setup message */
-    /* The frame_data struct holds the frame number and timing information needed. */
-    frame_data *start_fd;
-    nstime_t start_rel_ts;
-    frame_data *stop_fd;
-    nstime_t stop_rel_ts;
-    gint32 rtp_event;
-} voip_rtp_stream_info_t;
 
 static void actrace_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
 static void h225_calls_init_tap(voip_calls_tapinfo_t *tap_id_base);
@@ -273,7 +252,7 @@ void
 voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
 {
     voip_calls_info_t *callsinfo;
-    voip_rtp_stream_info_t *strinfo;
+    rtp_stream_info_t *strinfo;
     GList *list = NULL;
 
     /* free the data items first */
@@ -310,8 +289,8 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     list = g_list_first(tapinfo->rtp_stream_list);
     while(list)
     {
-        strinfo = (voip_rtp_stream_info_t *)list->data;
-        g_free(strinfo->pt_str);
+        strinfo = (rtp_stream_info_t *)list->data;
+        g_free(strinfo->payload_type_name);
         list = g_list_next(list);
     }
     g_list_free(tapinfo->rtp_stream_list);
@@ -595,8 +574,8 @@ static gboolean
 rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void const *rtp_info_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
-    voip_rtp_stream_info_t *tmp_listinfo;
-    voip_rtp_stream_info_t *strinfo = NULL;
+    rtp_stream_info_t *tmp_listinfo;
+    rtp_stream_info_t *strinfo = NULL;
     GList *list;
     struct _rtp_conversation_info *p_conv_data = NULL;
 
@@ -615,15 +594,15 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     list = g_list_first(tapinfo->rtp_stream_list);
     while (list)
     {
-        tmp_listinfo=(voip_rtp_stream_info_t *)list->data;
+        tmp_listinfo=(rtp_stream_info_t *)list->data;
         if ( (tmp_listinfo->setup_frame_number == rtp_info->info_setup_frame_num)
                 && (tmp_listinfo->ssrc == rtp_info->info_sync_src) && (tmp_listinfo->end_stream == FALSE)) {
             /* if the payload type has changed, we mark the stream as finished to create a new one
                this is to show multiple payload changes in the Graph for example for DTMF RFC2833 */
-            if ( tmp_listinfo->pt != rtp_info->info_payload_type ) {
+            if ( tmp_listinfo->payload_type != rtp_info->info_payload_type ) {
                 tmp_listinfo->end_stream = TRUE;
             } else {
-                strinfo = (voip_rtp_stream_info_t*)(list->data);
+                strinfo = (rtp_stream_info_t*)(list->data);
                 break;
             }
         }
@@ -637,40 +616,39 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
 
     /* not in the list? then create a new entry */
     if (strinfo==NULL) {
-        strinfo = (voip_rtp_stream_info_t *)g_malloc(sizeof(voip_rtp_stream_info_t));
+        strinfo = (rtp_stream_info_t *)g_malloc(sizeof(rtp_stream_info_t));
         COPY_ADDRESS(&(strinfo->src_addr), &(pinfo->src));
         strinfo->src_port = pinfo->srcport;
         COPY_ADDRESS(&(strinfo->dest_addr), &(pinfo->dst));
         strinfo->dest_port = pinfo->destport;
         strinfo->ssrc = rtp_info->info_sync_src;
         strinfo->end_stream = FALSE;
-        strinfo->pt = rtp_info->info_payload_type;
-        strinfo->pt_str = NULL;
+        strinfo->payload_type = rtp_info->info_payload_type;
+        strinfo->payload_type_name = NULL;
         strinfo->is_srtp = rtp_info->info_is_srtp;
         /* if it is dynamic payload, let use the conv data to see if it is defined */
-        if ( (strinfo->pt >= PT_UNDF_96) && (strinfo->pt <= PT_UNDF_127) ) {
+        if ( (strinfo->payload_type >= PT_UNDF_96) && (strinfo->payload_type <= PT_UNDF_127) ) {
             /* Use existing packet info if available */
             p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
             if (p_conv_data && p_conv_data->rtp_dyn_payload) {
-                const gchar *encoding_name = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, strinfo->pt);
+                const gchar *encoding_name = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, strinfo->payload_type);
                 if (encoding_name) {
-                    strinfo->pt_str = g_strdup(encoding_name);
+                    strinfo->payload_type_name = g_strdup(encoding_name);
                 }
             }
         }
-        if (!strinfo->pt_str) strinfo->pt_str = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext, "%u"));
-        strinfo->npackets = 0;
+        if (!strinfo->payload_type_name) strinfo->payload_type_name = g_strdup(val_to_str_ext(strinfo->payload_type, &rtp_payload_type_short_vals_ext, "%u"));
+        strinfo->packet_count = 0;
         strinfo->start_fd = pinfo->fd;
-        strinfo->start_rel_ts = pinfo->rel_ts;
+        strinfo->start_rel_time = pinfo->rel_ts;
         strinfo->setup_frame_number = rtp_info->info_setup_frame_num;
         strinfo->rtp_event = -1;
         tapinfo->rtp_stream_list = g_list_prepend(tapinfo->rtp_stream_list, strinfo);
     }
 
     /* Add the info to the existing RTP stream */
-    strinfo->npackets++;
+    strinfo->packet_count++;
     strinfo->stop_fd = pinfo->fd;
-    strinfo->stop_rel_ts = pinfo->rel_ts;
 
     /* process RTP Event */
     if (tapinfo->rtp_evt_frame_num == pinfo->fd->num) {
@@ -692,7 +670,7 @@ rtp_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
     GList *rtp_streams_list;
-    voip_rtp_stream_info_t *rtp_listinfo;
+    rtp_stream_info_t *rtp_listinfo;
     /* GList *voip_calls_graph_list; */
     seq_analysis_item_t *gai = NULL;
     seq_analysis_item_t *new_gai;
@@ -704,7 +682,7 @@ rtp_draw(void *tap_offset_ptr)
     rtp_streams_list = g_list_first(tapinfo->rtp_stream_list);
     while (rtp_streams_list)
     {
-        rtp_listinfo = (voip_rtp_stream_info_t *)rtp_streams_list->data;
+        rtp_listinfo = (rtp_stream_info_t *)rtp_streams_list->data;
 
         /* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
         /* voip_calls_graph_list = g_list_first(tapinfo->graph_analysis->list); */
@@ -712,15 +690,16 @@ rtp_draw(void *tap_offset_ptr)
             gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &rtp_listinfo->setup_frame_number);
         }
         if(gai != NULL) {
+            const char *comment_fmt = "%s, %u packets. Duration: %u.%03us SSRC: 0x%X";
             /* Found the setup frame*/
             conv_num = gai->conv_num;
             /* if RTP was already in the Graph, just update the comment information */
             gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, &rtp_listinfo->start_fd->num);
             if (gai != NULL) {
-                duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_ts) - nstime_to_msec(&rtp_listinfo->start_rel_ts));
+                duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
                 g_free(gai->comment);
-                gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
-                        (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
+                gai->comment = g_strdup_printf(comment_fmt,
+                        (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
                         duration/1000,(duration%1000), rtp_listinfo->ssrc);
             } else {
                 new_gai = (seq_analysis_item_t *)g_malloc(sizeof(seq_analysis_item_t));
@@ -729,14 +708,14 @@ rtp_draw(void *tap_offset_ptr)
                 COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
                 new_gai->port_src = rtp_listinfo->src_port;
                 new_gai->port_dst = rtp_listinfo->dest_port;
-                duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_ts) - nstime_to_msec(&rtp_listinfo->start_rel_ts));
+                duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
                 new_gai->frame_label = g_strdup_printf("%s (%s) %s",
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP",
-                        rtp_listinfo->pt_str,
+                        rtp_listinfo->payload_type_name,
                         (rtp_listinfo->rtp_event == -1)?
                         "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
-                new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
-                        (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
+                new_gai->comment = g_strdup_printf(comment_fmt,
+                        (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
                         duration/1000,(duration%1000), rtp_listinfo->ssrc);
                 new_gai->conv_num = conv_num;
                 set_fd_time(tapinfo->session, new_gai->fd, time_str);
@@ -760,7 +739,7 @@ rtp_packet_draw(void *tap_offset_ptr)
 {
 	voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_rtp_);
 	GList *rtp_streams_list;
-	voip_rtp_stream_info_t *rtp_listinfo;
+    rtp_stream_info_t *rtp_listinfo;
 	GList *voip_calls_graph_list;
 	guint item;
 	seq_analysis_item_t *gai;
@@ -813,7 +792,7 @@ rtp_packet_draw(void *tap_offset_ptr)
 						duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
 						new_gai->frame_label = g_strdup_printf("%s (%s) %s",
 										       (rtp_listinfo->is_srtp)?"SRTP":"RTP",
-										       rtp_listinfo->pt_str,
+                                               rtp_listinfo->payload_type_str,
 										       (rtp_listinfo->rtp_event == -1)?
 										         "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
 						new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
@@ -2895,7 +2874,7 @@ h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     }
 
     add_to_graph(tapinfo, pinfo, edt, cmd->str ? cmd->str : "unknown Msg",
-            ep_strdup_printf("TrxId = %u, CtxId = %.8x",cmd->trx->id,cmd->ctx->id),
+            wmem_strdup_printf(wmem_packet_scope(), "TrxId = %u, CtxId = %.8x",cmd->trx->id,cmd->ctx->id),
             callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
     ++(tapinfo->npackets);
