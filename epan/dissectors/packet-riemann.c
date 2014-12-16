@@ -442,7 +442,7 @@ riemann_dissect_event(packet_info *pinfo, proto_tree *riemann_tree,
             break;
         case FN_EVENT_METRIC_D:
             VERIFY_WIRE_FORMAT("Event.metric_d", WIRE_DOUBLE);
-            proto_tree_add_item(riemann_tree, hf_riemann_event_metric_d, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(event_tree, hf_riemann_event_metric_d, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             len = 8;
             break;
         case FN_EVENT_METRIC_F:
