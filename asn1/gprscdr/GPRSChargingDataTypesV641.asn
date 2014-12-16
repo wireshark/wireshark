@@ -503,19 +503,19 @@ ChangeOfCharConditionV651	::= SEQUENCE
 	changeCondition				[5] ChangeConditionV651,
 	changeTime					[6] TimeStamp
 }
-ChangeOfMBMSCondition	::= SEQUENCE
-{
+--ChangeOfMBMSCondition	::= SEQUENCE
+--{
 	--
 	-- Used in MBMS record
 	--
-	qosRequested				[1] QoSInformation OPTIONAL,
-	qosNegotiated				[2] QoSInformation OPTIONAL,
-	dataVolumeMBMSUplink		[3] DataVolumeMBMS OPTIONAL,
-	dataVolumeMBMSDownlink		[4] DataVolumeMBMS,
-	changeCondition				[5] ChangeConditionV651,
-	changeTime					[6] TimeStamp,
-	failureHandlingContinue		[7] FailureHandlingContinue OPTIONAL
-}
+--	qosRequested				[1] QoSInformation OPTIONAL,
+--	qosNegotiated				[2] QoSInformation OPTIONAL,
+--	dataVolumeMBMSUplink		[3] DataVolumeMBMS OPTIONAL,
+--	dataVolumeMBMSDownlink		[4] DataVolumeMBMS,
+--	changeCondition				[5] ChangeConditionV651,
+--	changeTime					[6] TimeStamp,
+--	failureHandlingContinue		[7] FailureHandlingContinue OPTIONAL
+--}
 ChangeOfServiceConditionV651	::= SEQUENCE
 {
 	--

@@ -24,6 +24,8 @@ ServiceContextID
 ChangeLocationV651
 CTEID
 DataVolumeMBMS
+SubscriberEquipmentNumber
+SubscriberEquipmentType
 # 6.4 If these are needed MBMS asn1 should be added.
 SGSNMBMSRecord
 GGSNMBMSRecord
