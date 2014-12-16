@@ -2575,7 +2575,7 @@ proto_register_rdm(void)
 
 		{ &hf_rdm_pd_parameter_id,
 			{ "ID", "rdm.pd.parameter.id",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
+				FT_UINT16, BASE_HEX, VALS(rdm_param_id_vals), 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_parameter_pdl_size,
