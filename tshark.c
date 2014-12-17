@@ -3120,7 +3120,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         cmdarg_err("Capture files can't be written in that format.");
         break;
 
-      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_UNWRITABLE_ENCAP:
       case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
         cmdarg_err("The capture file being read can't be written as a "
           "\"%s\" file.", wtap_file_type_subtype_short_string(out_file_type));
@@ -3242,7 +3242,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               /* Error writing to a capture file */
               switch (err) {
 
-              case WTAP_ERR_UNSUPPORTED_ENCAP:
+              case WTAP_ERR_UNWRITABLE_ENCAP:
                 /*
                  * This is a problem with the particular frame we're writing
                  * and the file type and subtype we're writing; note that,
@@ -3325,7 +3325,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
             /* Error writing to a capture file */
             switch (err) {
 
-            case WTAP_ERR_UNSUPPORTED_ENCAP:
+            case WTAP_ERR_UNWRITABLE_ENCAP:
               /*
                * This is a problem with the particular frame we're writing
                * and the file type and subtype we're writing; note that,
@@ -3411,7 +3411,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       g_free(err_info);
       break;
 
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_UNWRITABLE_ENCAP:
       cmdarg_err("The file \"%s\" has a packet with a network type that TShark doesn't support.\n(%s)",
                  cf->filename, err_info);
       g_free(err_info);
@@ -4165,7 +4165,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       errmsg = "TShark doesn't support writing capture files in that format.";
       break;
 
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_UNWRITABLE_ENCAP:
       if (for_writing) {
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                    "TShark can't save this capture as a \"%s\" file.",

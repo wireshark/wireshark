@@ -143,7 +143,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             errmsg = "TShark doesn't support writing capture files in that format.";
             break;
 
-        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_UNWRITABLE_ENCAP:
             if (for_writing)
                 errmsg = "TShark can't save this capture in that format.";
             else {

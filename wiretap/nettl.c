@@ -646,7 +646,7 @@ int nettl_dump_can_write_encap(int encap)
                 case WTAP_ENCAP_NETTL_UNKNOWN:
                         return 0;
                 default:
-                        return WTAP_ERR_UNSUPPORTED_ENCAP;
+                        return WTAP_ERR_UNWRITABLE_ENCAP;
         }
 }
 
@@ -764,7 +764,7 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 #endif
                 default:
                         /* found one we don't support */
-                        *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+                        *err = WTAP_ERR_UNWRITABLE_ENCAP;
                         return FALSE;
         }
 

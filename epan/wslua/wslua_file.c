@@ -1918,7 +1918,7 @@ static int
 wslua_filehandler_can_write_encap(int encap, void* data)
 {
     FileHandler fh = (FileHandler)(data);
-    int retval = WTAP_ERR_UNSUPPORTED_ENCAP;
+    int retval = WTAP_ERR_UNWRITABLE_ENCAP;
     lua_State* L = NULL;
 
     INIT_FILEHANDLER_ROUTINE(can_write_encap,WTAP_ERR_INTERNAL);
@@ -1927,19 +1927,19 @@ wslua_filehandler_can_write_encap(int encap, void* data)
 
     switch ( lua_pcall(L,1,1,1) ) {
         case 0:
-            retval = wslua_optboolint(L,-1,WTAP_ERR_UNSUPPORTED_ENCAP);
+            retval = wslua_optboolint(L,-1,WTAP_ERR_UNWRITABLE_ENCAP);
             break;
         CASE_ERROR("can_write_encap")
     }
 
     END_FILEHANDLER_ROUTINE();
 
-    /* the retval we got was either a 1 for true, 0 for false, or WTAP_ERR_UNSUPPORTED_ENCAP;
+    /* the retval we got was either a 1 for true, 0 for false, or WTAP_ERR_UNWRITABLE_ENCAP;
        but can_write_encap() expects 0 to be true/yes */
     if (retval == 1) {
         retval = 0;
     } else if (retval == 0) {
-        retval = WTAP_ERR_UNSUPPORTED_ENCAP;
+        retval = WTAP_ERR_UNWRITABLE_ENCAP;
     }
 
     return retval;

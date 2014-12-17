@@ -2791,7 +2791,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
                   int_data->snap_len);
 
     if (int_data->link_type == (guint16)-1) {
-        *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+        *err = WTAP_ERR_UNWRITABLE_ENCAP;
         return FALSE;
     }
 
@@ -3834,7 +3834,7 @@ int pcapng_dump_can_write_encap(int wtap_encap)
 
     /* Make sure we can figure out this DLT type */
     if (wtap_wtap_encap_to_pcap_encap(wtap_encap) == -1)
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
 
     return 0;
 }

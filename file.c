@@ -747,7 +747,7 @@ cf_read(capture_file *cf, gboolean reloading)
       g_free(err_info);
       break;
 
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_UNWRITABLE_ENCAP:
       simple_error_message_box(
                  "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
                  err_info);
@@ -1526,7 +1526,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         display_basename = g_filename_display_basename(in_files[i].filename);
         switch (read_err) {
 
-        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_UNWRITABLE_ENCAP:
           simple_error_message_box(
                      "The capture file %s has a packet with a network type that Wireshark doesn't support.\n(%s)",
                      display_basename, err_info);
@@ -1571,7 +1571,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       /* Wiretap error. */
       switch (write_err) {
 
-      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_UNWRITABLE_ENCAP:
         /*
          * This is a problem with the particular frame we're writing and
          * the file type and subtype we're writing; note that, and report
@@ -1728,7 +1728,7 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
     display_basename = g_filename_display_basename(cf->filename);
     switch (err) {
 
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_UNWRITABLE_ENCAP:
       simple_error_message_box("The file \"%s\" has a packet with a network type that Wireshark doesn't support.\n(%s)",
                  display_basename, err_info);
       g_free(err_info);
@@ -4150,7 +4150,7 @@ save_record(capture_file *cf, frame_data *fdata,
       /* Wiretap error. */
       switch (err) {
 
-      case WTAP_ERR_UNSUPPORTED_ENCAP:
+      case WTAP_ERR_UNWRITABLE_ENCAP:
         /*
          * This is a problem with the particular frame we're writing and
          * the file type and subtype we're writing; note that, and report
@@ -4488,7 +4488,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
       g_free(err_info);
       break;
 
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_UNWRITABLE_ENCAP:
       simple_error_message_box(
                  "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
                  err_info);
@@ -5026,7 +5026,7 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
             "Wireshark doesn't support writing capture files in that format.");
       break;
 
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
+    case WTAP_ERR_UNWRITABLE_ENCAP:
       if (for_writing) {
         simple_error_message_box("Wireshark can't save this capture in that format.");
       } else {

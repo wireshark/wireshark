@@ -314,7 +314,7 @@ int logcat_text_brief_dump_can_write_encap(int encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         return 0;
     default:
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 
@@ -328,7 +328,7 @@ int logcat_text_process_dump_can_write_encap(int encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         return 0;
     default:
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 
@@ -342,7 +342,7 @@ int logcat_text_tag_dump_can_write_encap(int encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         return 0;
     default:
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 
@@ -356,7 +356,7 @@ int logcat_text_time_dump_can_write_encap(int encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         return 0;
     default:
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 
@@ -370,7 +370,7 @@ int logcat_text_thread_dump_can_write_encap(int encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         return 0;
     default:
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 
@@ -384,7 +384,7 @@ int logcat_text_threadtime_dump_can_write_encap(int encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         return 0;
     default:
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 
@@ -398,7 +398,7 @@ int logcat_text_long_dump_can_write_encap(int encap) {
     case WTAP_ENCAP_WIRESHARK_UPPER_PDU:
         return 0;
     default:
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 

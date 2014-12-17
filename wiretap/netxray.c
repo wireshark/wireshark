@@ -1690,7 +1690,7 @@ netxray_dump_can_write_encap_1_1(int encap)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
 	if (wtap_encap_to_netxray_1_1_encap(encap) == -1)
-		return WTAP_ERR_UNSUPPORTED_ENCAP;
+		return WTAP_ERR_UNWRITABLE_ENCAP;
 
 	return 0;
 }
@@ -1867,7 +1867,7 @@ netxray_dump_can_write_encap_2_0(int encap)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
 	if (wtap_encap_to_netxray_2_0_encap(encap) == -1)
-		return WTAP_ERR_UNSUPPORTED_ENCAP;
+		return WTAP_ERR_UNWRITABLE_ENCAP;
 
 	return 0;
 }

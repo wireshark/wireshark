@@ -59,7 +59,7 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	 */
 	if (!wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, &err, &err_info)) {
 		switch (err) {
-			case WTAP_ERR_UNSUPPORTED_ENCAP:
+			case WTAP_ERR_UNWRITABLE_ENCAP:
 			case WTAP_ERR_BAD_FILE:
 				g_free(err_info);
 				break;

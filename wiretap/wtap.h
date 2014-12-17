@@ -1684,7 +1684,7 @@ int wtap_register_encap_type(const char* name, const char* short_name);
 #define WTAP_ERR_UNSUPPORTED_FILE_TYPE         -7
     /** Wiretap can't save files in the specified format */
 
-#define WTAP_ERR_UNSUPPORTED_ENCAP             -8
+#define WTAP_ERR_UNWRITABLE_ENCAP              -8
     /** Wiretap can't read or save files in the specified format with the
        specified encapsulation */
 

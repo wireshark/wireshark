@@ -245,7 +245,7 @@ int btsnoop_dump_can_write_encap(int encap)
 
     /* XXX - for now we only support WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR and WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
     if (encap != WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR && encap != WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR)
-        return WTAP_ERR_UNSUPPORTED_ENCAP;
+        return WTAP_ERR_UNWRITABLE_ENCAP;
 
     return 0;
 }

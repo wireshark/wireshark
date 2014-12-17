@@ -726,7 +726,7 @@ int lanalyzer_dump_can_write_encap(int encap)
 
       if ( encap != WTAP_ENCAP_ETHERNET
         && encap != WTAP_ENCAP_TOKEN_RING )
-                  return WTAP_ERR_UNSUPPORTED_ENCAP;
+                  return WTAP_ERR_UNWRITABLE_ENCAP;
       /*
        * printf("lanalyzer_dump_can_write_encap(%d)\n",encap);
        */

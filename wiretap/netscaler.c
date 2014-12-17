@@ -1606,7 +1606,7 @@ int nstrace_10_dump_can_write_encap(int encap)
     if (encap == WTAP_ENCAP_NSTRACE_1_0)
         return 0;
 
-    return WTAP_ERR_UNSUPPORTED_ENCAP;
+    return WTAP_ERR_UNWRITABLE_ENCAP;
 }
 
 
@@ -1617,7 +1617,7 @@ int nstrace_20_dump_can_write_encap(int encap)
     if (encap == WTAP_ENCAP_NSTRACE_2_0)
         return 0;
 
-    return WTAP_ERR_UNSUPPORTED_ENCAP;
+    return WTAP_ERR_UNWRITABLE_ENCAP;
 }
 
 /* Returns 0 if we could write the specified encapsulation type,
@@ -1627,7 +1627,7 @@ int nstrace_30_dump_can_write_encap(int encap)
     if (encap == WTAP_ENCAP_NSTRACE_3_0)
         return 0;
 
-    return WTAP_ERR_UNSUPPORTED_ENCAP;
+    return WTAP_ERR_UNWRITABLE_ENCAP;
 }
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on

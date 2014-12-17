@@ -715,7 +715,7 @@ int erf_dump_can_write_encap(int encap)
     return 0;
 
   if (wtap_wtap_encap_to_erf_encap(encap) == -1)
-    return WTAP_ERR_UNSUPPORTED_ENCAP;
+    return WTAP_ERR_UNWRITABLE_ENCAP;
 
   return 0;
 }

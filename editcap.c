@@ -1251,7 +1251,7 @@ main(int argc, char *argv[])
                 wtap_strerror(err));
         switch (err) {
         case WTAP_ERR_UNSUPPORTED:
-        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_UNWRITABLE_ENCAP:
         case WTAP_ERR_BAD_FILE:
             fprintf(stderr, "(%s)\n", err_info);
             g_free(err_info);
@@ -1640,7 +1640,7 @@ main(int argc, char *argv[])
 
                 if (!wtap_dump(pdh, phdr, buf, &err)) {
                     switch (err) {
-                    case WTAP_ERR_UNSUPPORTED_ENCAP:
+                    case WTAP_ERR_UNWRITABLE_ENCAP:
                         /*
                          * This is a problem with the particular frame we're
                          * writing and the file type and subtype we're
@@ -1689,7 +1689,7 @@ main(int argc, char *argv[])
                     argv[optind], wtap_strerror(err));
             switch (err) {
             case WTAP_ERR_UNSUPPORTED:
-            case WTAP_ERR_UNSUPPORTED_ENCAP:
+            case WTAP_ERR_UNWRITABLE_ENCAP:
             case WTAP_ERR_BAD_FILE:
                 fprintf(stderr, "(%s)\n", err_info);
                 g_free(err_info);

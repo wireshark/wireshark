@@ -575,7 +575,7 @@ catapult_dct2000_dump_can_write_encap(int encap)
 
         default:
             /* But don't write to any other formats... */
-            return WTAP_ERR_UNSUPPORTED_ENCAP;
+            return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 

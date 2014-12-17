@@ -257,7 +257,7 @@ main(int argc, char *argv[])
         switch (err) {
 
         case WTAP_ERR_UNSUPPORTED:
-        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_UNWRITABLE_ENCAP:
         case WTAP_ERR_BAD_FILE:
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);

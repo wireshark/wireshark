@@ -942,7 +942,7 @@ int netmon_dump_can_write_encap_1_x(int encap)
 	 * format.
 	 */
 	if (encap < 0 || (unsigned) encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
-		return WTAP_ERR_UNSUPPORTED_ENCAP;
+		return WTAP_ERR_UNWRITABLE_ENCAP;
 
 	return 0;
 }
@@ -957,7 +957,7 @@ int netmon_dump_can_write_encap_2_x(int encap)
 		return 0;
 
 	if (encap < 0 || (unsigned) encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
-		return WTAP_ERR_UNSUPPORTED_ENCAP;
+		return WTAP_ERR_UNWRITABLE_ENCAP;
 
 	return 0;
 }
@@ -1052,7 +1052,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			/*
 			 * No.  Fail.
 			 */
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err = WTAP_ERR_UNWRITABLE_ENCAP;
 			return FALSE;
 		}
 

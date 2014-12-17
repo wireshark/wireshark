@@ -385,7 +385,7 @@ int eyesdn_dump_can_write_encap(int encap)
 		return 0;
 
 	default:
-		return WTAP_ERR_UNSUPPORTED_ENCAP;
+		return WTAP_ERR_UNWRITABLE_ENCAP;
 	}
 }
 
@@ -467,7 +467,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 		break;
 
 	default:
-		*err=WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err=WTAP_ERR_UNWRITABLE_ENCAP;
 		return FALSE;
 	}
 

@@ -399,7 +399,7 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 		/*
 		 * That encapsulation type is not supported.  Fail.
 		 */
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNWRITABLE_ENCAP;
 		return FALSE;
 	}
 
@@ -458,7 +458,7 @@ k12text_dump_can_write_encap(int encap)
 	case WTAP_ENCAP_MTP2:
 	case WTAP_ENCAP_ATM_PDUS:
 	default:
-		return WTAP_ERR_UNSUPPORTED_ENCAP;
+		return WTAP_ERR_UNWRITABLE_ENCAP;
     }
 }
 

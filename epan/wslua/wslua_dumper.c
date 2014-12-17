@@ -228,7 +228,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
                        wtap_file_type_subtype_string(filetype));
             break;
 
-        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_UNWRITABLE_ENCAP:
             luaL_error(L,"Files of file type %s don't support encapsulation %s",
                        wtap_file_type_subtype_string(filetype),
                        wtap_encap_short_string(encap));
@@ -372,7 +372,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
                        wtap_file_type_subtype_string(filetype));
             break;
 
-        case WTAP_ERR_UNSUPPORTED_ENCAP:
+        case WTAP_ERR_UNWRITABLE_ENCAP:
             luaL_error(L,"Files of file type %s don't support encapsulation %s",
                        wtap_file_type_subtype_string(filetype),
                        wtap_encap_short_string(encap));
