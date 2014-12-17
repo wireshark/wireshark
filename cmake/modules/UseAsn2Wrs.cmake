@@ -1,7 +1,8 @@
 # - Convert ASN.1 file into C source and header files that can be used to create a wireshark dissector
 
 MACRO(ASN2WRS)
-	find_package(Asn2Wrs REQUIRED)
+	include(LocatePythonModule)
+	locate_python_module(asn2wrs REQUIRED PATHS ${CMAKE_SOURCE_DIR}/tools)
 
 	set( DISSECTOR ${CMAKE_SOURCE_DIR}/epan/dissectors/packet-${PROTOCOL_NAME}.c )
 
@@ -24,7 +25,7 @@ MACRO(ASN2WRS)
 	ADD_CUSTOM_COMMAND(
 		OUTPUT packet-${PROTOCOL_NAME}.c
 		COMMAND ${PYTHON_EXECUTABLE}
-		  ${ASN2WRS_EXECUTABLE}
+		  ${PY_ASN2WRS}
 		  ${A2W_FLAGS}
 		  ${PROTO_OPT}
 		  -c ${CMAKE_CURRENT_SOURCE_DIR}/${PROTOCOL_NAME}.cnf
@@ -33,7 +34,7 @@ MACRO(ASN2WRS)
 		  ${A2W_OUTPUT_DIR}
 		  ${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
 		DEPENDS
-		  ${ASN2WRS_EXECUTABLE}
+		  ${PY_ASN2WRS}
 		  ${SRC_FILES}
 		  ${EXTRA_CNF}
 	)
@@ -42,7 +43,7 @@ MACRO(ASN2WRS)
 		ADD_CUSTOM_COMMAND(
 			OUTPUT ${_asn2wrs_export_file}
 			COMMAND ${PYTHON_EXECUTABLE}
-			  ${ASN2WRS_EXECUTABLE}
+			  ${PY_ASN2WRS}
 			  -E
 			  ${A2W_FLAGS}
 			  ${PROTO_OPT}
@@ -50,7 +51,7 @@ MACRO(ASN2WRS)
 			  -D ${CMAKE_CURRENT_SOURCE_DIR}
 			  ${EXT_ASN_FILE_LIST} ${ASN_FILE_LIST} ${EXT_ASN_FILE_LIST_LATE}
 			DEPENDS
-			  ${ASN2WRS_EXECUTABLE}
+			  ${PY_ASN2WRS}
 			  ${SRC_FILES}
 			  ${EXPORT_DEPENDS}
 		)
