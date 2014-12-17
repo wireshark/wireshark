@@ -141,8 +141,8 @@ bytes_junk \174[A-F0-9][A-F0-9\040][A-F0-9\040][A-F0-9\040]\174
 byte [a-f0-9][a-f0-9]\174
 end_bytes \015?\012\015?\012
 eth ETHER
- /* mtp2 MTP-L2 ;; XXX: Not supported until it's determined how to fill in the pseudo_header req'd by packet-mtp2 */
- /* sscop SSCOP ;; XXX: Not supported until it's determined how to fill in the pseudo_header req'd by packet-atm  */
+mtp2 MTP-L2
+sscop SSCOP
 sscfnni SSCF
 hdlc HDLC
 
@@ -162,11 +162,11 @@ hdlc HDLC
 <M2N>{comma}  { BEGIN(NS); }
 <NS>{threedigits} { SET_NS(yytext); BEGIN(ENCAP);}
 <ENCAP>{eth} {g_encap = WTAP_ENCAP_ETHERNET; BEGIN(STARTBYTES); }
- /* <ENCAP>{mtp2} {g_encap = WTAP_ENCAP_MTP2; BEGIN(STARTBYTES); }      Not supported as yet */
- /* <ENCAP>{sscop} {g_encap = WTAP_ENCAP_ATM_PDUS; BEGIN(STARTBYTES); } Not supported as yet */
+<ENCAP>{mtp2} {g_encap = WTAP_ENCAP_MTP2; BEGIN(STARTBYTES); }
+<ENCAP>{sscop} {g_encap = WTAP_ENCAP_ATM_PDUS; BEGIN(STARTBYTES); }
 <ENCAP>{sscfnni} {g_encap = WTAP_ENCAP_MTP3; BEGIN(STARTBYTES); }
 <ENCAP>{hdlc} {g_encap = WTAP_ENCAP_CHDLC; BEGIN(STARTBYTES); }
-<ENCAP,STARTBYTES>{start_bytes} { BEGIN(BYTE); }
+<ENCAP,STARTBYTES>{start_bytes} { fprintf(stderr, "OUCH: %s\b", yytext); BEGIN(BYTE); }
 <BYTE>{byte} { ADD_BYTE(yytext); }
 <BYTE>{bytes_junk} ;
 <BYTE>{end_bytes} { FINALIZE_FRAME(); yyterminate(); }
@@ -182,8 +182,8 @@ static void finalize_frame(void) {
 
 /* Fill in pkthdr */
 
-static void
-k12text_set_headers(struct wtap_pkthdr *phdr)
+static gboolean
+k12text_set_headers(struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
 	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
@@ -204,18 +204,24 @@ k12text_set_headers(struct wtap_pkthdr *phdr)
 	    case WTAP_ENCAP_CHDLC:
 		    /* no pseudo_header to fill in for these types */
 		    break;
-#if 0
 	    case WTAP_ENCAP_MTP2:      /* not (yet) supported		*/
+		    /* XXX: I don't know how to fill in the		*/
+		    /* pseudo_header for these types.			*/
+		    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		    *err_info = g_strdup("k12text: MTP2 packets not yet supported");
+		    return FALSE;
 	    case WTAP_ENCAP_ATM_PDUS:  /* not (yet) supported		*/
 		    /* XXX: I don't know how to fill in the		*/
-		    /* pseudo_header for these types. So: The Lexer	*/
-		    /* has recognition for these types commented	*/
-		    /* out ....						*/
-		    break;
-#endif
+		    /* pseudo_header for these types.			*/
+		    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		    *err_info = g_strdup("k12text: SSCOP packets not yet supported");
+		    return FALSE;
 	    default:
-		    break;
+		    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		    *err_info = g_strdup("k12text: unknown encapsulation type");
+		    return FALSE;
 	}
+	return TRUE;
 }
 
 /* Note: k12text_reset is called each time data is to be processed from	*/
@@ -281,7 +287,8 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	*data_offset = k12text->next_frame_offset;       /* file position for beginning of this frame   */
 	k12text->next_frame_offset += file_bytes_read;   /* file position after end of this frame       */
 
-	k12text_set_headers(&wth->phdr);
+	if (!k12text_set_headers(&wth->phdr, err, err_info))
+		return FALSE;
 
 	ws_buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(ws_buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
@@ -311,7 +318,8 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 		return FALSE;
 	}
 
-	k12text_set_headers(phdr);
+	if (!k12text_set_headers(phdr, err, err_info))
+		return FALSE;
 
 	ws_buffer_assure_space(buf, phdr->caplen);
 	memcpy(ws_buffer_start_ptr(buf), bb, phdr->caplen);
