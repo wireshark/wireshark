@@ -884,7 +884,8 @@ process_cap_file(wtap *wth, const char *filename)
         if ((phdr->pkt_encap > 0) && (phdr->pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
           cf_info.encap_counts[phdr->pkt_encap] += 1;
         } else {
-          fprintf(stderr, "capinfos: Unknown per-packet encapsulation: %d [frame number: %d]\n", phdr->pkt_encap, packet);
+          fprintf(stderr, "capinfos: Unknown per-packet encapsulation %d in frame %u of file \"%s\"\n",
+                  phdr->pkt_encap, packet, filename);
         }
       }
     }
