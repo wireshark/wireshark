@@ -23,4 +23,4 @@
 find_package(Wireshark ${Wireshark_FIND_VERSION} QUIET NO_MODULE PATHS $ENV{HOME} /opt/Wireshark)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(WiresharkCONFIG_MODE)
+find_package_handle_standard_args(Wireshark CONFIG_MODE)
