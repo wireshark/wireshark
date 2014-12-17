@@ -19,6 +19,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  open_routines@Base 1.12.0~rc1
  register_all_wiretap_modules@Base 1.12.0~rc1
  register_pcapng_block_type_handler@Base 1.99.0
+ register_pcapng_option_handler@Base 1.99.2
  wtap_buf_ptr@Base 1.9.1
  wtap_cleareof@Base 1.9.1
  wtap_close@Base 1.9.1
@@ -71,6 +72,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_open_offline@Base 1.9.1
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1
  wtap_phdr@Base 1.9.1
+ wtap_phdr_cleanup@Base 1.99.2
+ wtap_phdr_init@Base 1.99.2
  wtap_read@Base 1.9.1
  wtap_read_bytes@Base 1.99.1
  wtap_read_bytes_or_eof@Base 1.99.1

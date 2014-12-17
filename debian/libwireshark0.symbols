@@ -260,6 +260,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_ber_object_identifier@Base 1.9.1
  dissect_ber_object_identifier_str@Base 1.9.1
  dissect_ber_octet_string@Base 1.9.1
+ dissect_ber_real@Base 1.99.2
  dissect_ber_relative_oid@Base 1.12.0~rc1
  dissect_ber_relative_oid_str@Base 1.12.0~rc1
  dissect_ber_restricted_string@Base 1.9.1
@@ -518,6 +519,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_conversation@Base 1.9.1
  find_dissector@Base 1.9.1
  find_dissector_table@Base 1.9.1
+ find_heur_dissector_list@Base 1.99.2
  find_or_create_conversation@Base 1.9.1
  find_protocol_by_id@Base 1.9.1
  find_sid_name@Base 1.9.1
@@ -714,6 +716,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  have_tap_listener@Base 1.12.0~rc1
  heur_dissector_add@Base 1.9.1
  heur_dissector_delete@Base 1.9.1
+ heur_dissector_table_foreach@Base 1.99.2
  hex_str_to_bytes@Base 1.9.1
  hex_str_to_bytes_encoding@Base 1.12.0~rc1
  hf_frame_arrival_time@Base 1.9.1
@@ -937,9 +940,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tracking_interesting_fields@Base 1.9.1
  proto_tree_add_ascii_7bits_item@Base 1.12.0~rc1
  proto_tree_add_bitmask@Base 1.9.1
- proto_tree_add_bitmask_with_flags@1.99.1
  proto_tree_add_bitmask_len@Base 1.9.1
  proto_tree_add_bitmask_text@Base 1.9.1
+ proto_tree_add_bitmask_with_flags@Base 1.99.2
  proto_tree_add_bits_item@Base 1.9.1
  proto_tree_add_bits_ret_val@Base 1.9.1
  proto_tree_add_boolean@Base 1.9.1
@@ -1213,6 +1216,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_accept_reject@Base 1.9.1
  tfs_accepted_not_accepted@Base 1.9.1
  tfs_ack_nack@Base 1.9.1
+ tfs_acknowledged_not_acknowledged@Base 1.99.2
  tfs_active_inactive@Base 1.9.1
  tfs_allocated_by_receiver_sender@Base 1.99.1
  tfs_allow_block@Base 1.9.1
