@@ -727,7 +727,9 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
         cvse_3gpp2_type = tvb_get_ntohs(tvb, cvse_local_offset);
         /* XXX: THE3GPP2 CVSE type is followed by a 2 byte length field ? - No ?*/
         /*  ... */
-        /* THE3GPP2 CVSE Value */
+        /* THE3GPP2 CVSE Value http://www.3gpp2.org/public_html/X/VSA-VSE.cfm X.S0011
+         * http://www.3gpp2.org/Public_html/specs/X.S0011-002-E_v1.0_091116.pdf Chapter 4.1.4 GRE CVSE
+         */
        if(cvse_3gpp2_type == GRE_KEY_EXT){
            proto_tree_add_item(ext_tree, hf_mip_cvse_3gpp2_grekey, tvb, cvse_local_offset + 2, ext_len - 6, ENC_BIG_ENDIAN);
        }
