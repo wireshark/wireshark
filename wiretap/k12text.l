@@ -207,17 +207,17 @@ k12text_set_headers(struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 	    case WTAP_ENCAP_MTP2:      /* not (yet) supported		*/
 		    /* XXX: I don't know how to fill in the		*/
 		    /* pseudo_header for these types.			*/
-		    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		    *err = WTAP_ERR_UNSUPPORTED;
 		    *err_info = g_strdup("k12text: MTP2 packets not yet supported");
 		    return FALSE;
 	    case WTAP_ENCAP_ATM_PDUS:  /* not (yet) supported		*/
 		    /* XXX: I don't know how to fill in the		*/
 		    /* pseudo_header for these types.			*/
-		    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		    *err = WTAP_ERR_UNSUPPORTED;
 		    *err_info = g_strdup("k12text: SSCOP packets not yet supported");
 		    return FALSE;
 	    default:
-		    *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		    *err = WTAP_ERR_UNSUPPORTED;
 		    *err_info = g_strdup("k12text: unknown encapsulation type");
 		    return FALSE;
 	}

@@ -237,7 +237,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	hdr.network = pletoh16(&hdr.network);
 	if (hdr.network >= NUM_NETMON_ENCAPS
 	    || netmon_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
 		    hdr.network);
 		return WTAP_OPEN_ERROR;
@@ -669,7 +669,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			network &= 0x0FFF;
 			pkt_encap = wtap_pcap_encap_to_wtap_encap(network);
 			if (pkt_encap == WTAP_ENCAP_UNKNOWN) {
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf("netmon: converted pcap network type %u unknown or unsupported",
 				    network);
 				return FAILURE;
@@ -680,7 +680,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 			 */
 			pkt_encap = netmon_encap[network];
 			if (pkt_encap == WTAP_ENCAP_UNKNOWN) {
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
 				    network);
 				return FAILURE;
@@ -734,7 +734,7 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 				return RETRY;
 
 			default:
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
 				    network);
 				return FAILURE;

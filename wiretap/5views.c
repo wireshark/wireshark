@@ -162,7 +162,7 @@ _5views_open(wtap *wth, int *err, gchar **err_info)
 		break;
 */
 	default:
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("5views: network type %u unknown or unsupported",
 		    Capture_Header.Info_Header.FileType);
 		return WTAP_OPEN_ERROR;

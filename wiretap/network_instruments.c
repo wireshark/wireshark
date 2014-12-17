@@ -209,14 +209,14 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
 
     /* check the packet's magic number */
     if (packet_header.packet_magic != observer_packet_magic) {
-        *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+        *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("Observer: unsupported packet version %ul", packet_header.packet_magic);
         return WTAP_OPEN_ERROR;
     }
 
     /* check the data link type */
     if (observer_to_wtap_encap(packet_header.network_type) == WTAP_ENCAP_UNKNOWN) {
-        *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+        *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("Observer: network type %u unknown or unsupported", packet_header.network_type);
         return WTAP_OPEN_ERROR;
     }
