@@ -70,6 +70,12 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 		case FT_IPv4:
 		case FT_IPv6:
 		case FT_IPXNET:
+		case FT_INT40:		/* XXX - should be able to compare with INT */
+		case FT_UINT40:		/* XXX - should be able to compare with INT */
+		case FT_INT48:		/* XXX - should be able to compare with INT */
+		case FT_UINT48:		/* XXX - should be able to compare with INT */
+		case FT_INT56:		/* XXX - should be able to compare with INT */
+		case FT_UINT56:		/* XXX - should be able to compare with INT */
 		case FT_INT64:		/* XXX - should be able to compare with INT */
 		case FT_UINT64:		/* XXX - should be able to compare with INT */
 		case FT_EUI64:		/* XXX - should be able to compare with INT */
@@ -175,7 +181,7 @@ mk_uint64_fvalue(guint64 val)
 	fvalue_t *fv;
 
 	fv = fvalue_new(FT_UINT64);
-	fvalue_set_integer64(fv, val);
+	fvalue_set_uinteger64(fv, val);
 
 	return fv;
 }
@@ -224,11 +230,17 @@ mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, char *s)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
 		case FT_UINT64:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
 			break;
 
@@ -352,11 +364,17 @@ is_bytes_type(enum ftenum type)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
 		case FT_UINT64:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
 		case FT_PCRE:
 		case FT_EUI64:

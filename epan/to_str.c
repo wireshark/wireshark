@@ -75,6 +75,15 @@ word_to_hex(char *out, guint16 word)
 }
 
 char *
+word_to_hex_punct(char *out, guint16 word, char punct)
+{
+	out = byte_to_hex(out, word >> 8);
+	*out++ = punct;
+	out = byte_to_hex(out, word);
+	return out;
+}
+
+char *
 word_to_hex_npad(char *out, guint16 word)
 {
 	if (word >= 0x1000)
@@ -90,23 +99,34 @@ word_to_hex_npad(char *out, guint16 word)
 char *
 dword_to_hex(char *out, guint32 dword)
 {
-	out = byte_to_hex(out, dword >> 24);
-	out = byte_to_hex(out, dword >> 16);
-	out = byte_to_hex(out, dword >>  8);
-	out = byte_to_hex(out, dword);
+	out = word_to_hex(out, dword >> 16);
+	out = word_to_hex(out, dword);
 	return out;
 }
 
 char *
 dword_to_hex_punct(char *out, guint32 dword, char punct)
 {
-	out = byte_to_hex(out, dword >> 24);
+	out = word_to_hex_punct(out, dword >> 16, punct);
 	*out++ = punct;
-	out = byte_to_hex(out, dword >> 16);
+	out = word_to_hex_punct(out, dword, punct);
+	return out;
+}
+
+char *
+qword_to_hex(char *out, guint64 qword)
+{
+	out = dword_to_hex(out, qword >> 32);
+	out = dword_to_hex(out, qword & 0xffffffff);
+	return out;
+}
+
+char *
+qword_to_hex_punct(char *out, guint64 qword, char punct)
+{
+	out = dword_to_hex_punct(out, qword >> 32, punct);
 	*out++ = punct;
-	out = byte_to_hex(out, dword >>  8);
-	*out++ = punct;
-	out = byte_to_hex(out, dword);
+	out = dword_to_hex_punct(out, qword & 0xffffffff, punct);
 	return out;
 }
 
@@ -229,6 +249,7 @@ bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int bd_len)
 static int
 guint32_to_str_buf_len(const guint32 u)
 {
+	/* ((2^32)-1) == 2147483647 */
 	if (u >= 1000000000)return 10;
 	if (u >= 100000000) return 9;
 	if (u >= 10000000)  return 8;
@@ -238,6 +259,33 @@ guint32_to_str_buf_len(const guint32 u)
 	if (u >= 1000)      return 4;
 	if (u >= 100)       return 3;
 	if (u >= 10)        return 2;
+
+	return 1;
+}
+
+static int
+guint64_to_str_buf_len(const guint64 u)
+{
+	/* ((2^64)-1) == 18446744073709551615 */
+
+	if (u >= 1000000000000000000) return 19;
+	if (u >= 100000000000000000)  return 18;
+	if (u >= 10000000000000000)   return 17;
+	if (u >= 1000000000000000)    return 16;
+	if (u >= 100000000000000)     return 15;
+	if (u >= 10000000000000)      return 14;
+	if (u >= 1000000000000)       return 13;
+	if (u >= 100000000000)        return 12;
+	if (u >= 10000000000)         return 11;
+	if (u >= 1000000000)          return 10;
+	if (u >= 100000000)           return 9;
+	if (u >= 10000000)            return 8;
+	if (u >= 1000000)             return 7;
+	if (u >= 100000)              return 6;
+	if (u >= 10000)               return 5;
+	if (u >= 1000)                return 4;
+	if (u >= 100)                 return 3;
+	if (u >= 10)                  return 2;
 
 	return 1;
 }
@@ -292,6 +340,23 @@ guint32_to_str_buf(guint32 u, gchar *buf, int buf_len)
 	*--bp = '\0';
 
 	uint_to_str_back(bp, u);
+}
+
+void
+guint64_to_str_buf(guint64 u, gchar *buf, int buf_len)
+{
+	int str_len = guint64_to_str_buf_len(u)+1;
+
+	gchar *bp = &buf[str_len];
+
+	if (buf_len < str_len) {
+		g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
+		return;
+	}
+
+	*--bp = '\0';
+
+	uint64_to_str_back(bp, u);
 }
 
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
@@ -1111,10 +1176,43 @@ oct_to_str_back(char *ptr, guint32 value)
 }
 
 char *
+oct64_to_str_back(char *ptr, guint64 value)
+{
+	while (value) {
+		*(--ptr) = '0' + (value & 0x7);
+		value >>= 3;
+	}
+
+	*(--ptr) = '0';
+	return ptr;
+}
+
+char *
 hex_to_str_back(char *ptr, int len, guint32 value)
 {
 	do {
 		*(--ptr) = low_nibble_of_octet_to_hex(value);
+		value >>= 4;
+		len--;
+	} while (value);
+
+	/* pad */
+	while (len > 0) {
+		*(--ptr) = '0';
+		len--;
+	}
+
+	*(--ptr) = 'x';
+	*(--ptr) = '0';
+
+	return ptr;
+}
+
+char *
+hex64_to_str_back(char *ptr, int len, guint64 value)
+{
+	do {
+		*(--ptr) = low_nibble_of_octet_to_hex(value & 0xF);
 		value >>= 4;
 		len--;
 	} while (value);
@@ -1156,11 +1254,56 @@ uint_to_str_back(char *ptr, guint32 value)
 }
 
 char *
+uint64_to_str_back(char *ptr, guint64 value)
+{
+	char const *p;
+
+	/* special case */
+	if (value == 0)
+		*(--ptr) = '0';
+
+	while (value >= 10) {
+		p = fast_strings[100 + (value % 100)];
+
+		value /= 100;
+
+		*(--ptr) = p[2];
+		*(--ptr) = p[1];
+	}
+
+	/* value will be 0..9, so using '& 0xF' is safe, and faster than '% 10' */
+	if (value)
+		*(--ptr) = (value & 0xF) | '0';
+
+	return ptr;
+}
+
+char *
 uint_to_str_back_len(char *ptr, guint32 value, int len)
 {
 	char *new_ptr;
 
 	new_ptr = uint_to_str_back(ptr, value);
+
+	/* substract from len number of generated characters */
+	len -= (int)(ptr - new_ptr);
+
+	/* pad remaining with '0' */
+	while (len > 0)
+	{
+		*(--new_ptr) = '0';
+		len--;
+	}
+
+	return new_ptr;
+}
+
+char *
+uint64_to_str_back_len(char *ptr, guint64 value, int len)
+{
+	char *new_ptr;
+
+	new_ptr = uint64_to_str_back(ptr, value);
 
 	/* substract from len number of generated characters */
 	len -= (int)(ptr - new_ptr);
@@ -1183,6 +1326,18 @@ int_to_str_back(char *ptr, gint32 value)
 		*(--ptr) = '-';
 	} else
 		ptr = uint_to_str_back(ptr, value);
+
+	return ptr;
+}
+
+char *
+int64_to_str_back(char *ptr, gint64 value)
+{
+	if (value < 0) {
+		ptr = uint64_to_str_back(ptr, -value);
+		*(--ptr) = '-';
+	} else
+		ptr = uint64_to_str_back(ptr, value);
 
 	return ptr;
 }

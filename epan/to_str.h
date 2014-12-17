@@ -80,6 +80,7 @@ WS_DLL_PUBLIC void	display_signed_time(gchar *, int, const gint32, gint32, const
 WS_DLL_PUBLIC void	display_epoch_time(gchar *, int, const time_t,  gint32, const to_str_time_res_t);
 
 extern void	guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
+extern void	guint64_to_str_buf(guint64 u, gchar *buf, int buf_len);
 
 WS_DLL_PUBLIC gchar*	rel_time_to_str(wmem_allocator_t *scope, const nstime_t*);
 WS_DLL_PUBLIC gchar*	rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t*);

@@ -93,6 +93,18 @@ same_ftype(const enum ftenum ftype)
 		case FT_UINT32:
 			return FT_UINT32;
 
+    case FT_INT40:
+    case FT_INT48:
+    case FT_INT56:
+		case FT_INT64:
+      return FT_INT64;
+
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
+		case FT_UINT64:
+      return FT_UINT64;
+
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
@@ -111,8 +123,6 @@ same_ftype(const enum ftenum ftype)
 			return FT_OID;
 
 		/* XXX: the folowing are unqiue for now */
-		case FT_INT64:
-		case FT_UINT64:
 		case FT_IPv4:
 		case FT_IPv6:
 
@@ -540,12 +550,18 @@ fvalue_set_sinteger(fvalue_t *fv, gint32 value)
 	fv->ftype->set_value_sinteger(fv, value);
 }
 
+void
+fvalue_set_uinteger64(fvalue_t *fv, guint64 value)
+{
+	g_assert(fv->ftype->set_value_uinteger64);
+	fv->ftype->set_value_uinteger64(fv, value);
+}
 
 void
-fvalue_set_integer64(fvalue_t *fv, guint64 value)
+fvalue_set_sinteger64(fvalue_t *fv, gint64 value)
 {
-	g_assert(fv->ftype->set_value_integer64);
-	fv->ftype->set_value_integer64(fv, value);
+	g_assert(fv->ftype->set_value_sinteger64);
+	fv->ftype->set_value_sinteger64(fv, value);
 }
 
 void
@@ -577,12 +593,18 @@ fvalue_get_sinteger(fvalue_t *fv)
 	return fv->ftype->get_value_sinteger(fv);
 }
 
-
 guint64
-fvalue_get_integer64(fvalue_t *fv)
+fvalue_get_uinteger64(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_integer64);
-	return fv->ftype->get_value_integer64(fv);
+	g_assert(fv->ftype->get_value_uinteger64);
+	return fv->ftype->get_value_uinteger64(fv);
+}
+
+gint64
+fvalue_get_sinteger64(fvalue_t *fv)
+{
+	g_assert(fv->ftype->get_value_sinteger64);
+	return fv->ftype->get_value_sinteger64(fv);
 }
 
 double

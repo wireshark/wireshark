@@ -194,9 +194,25 @@ update_io_graph_item(io_graph_item_t *items, int idx, packet_info *pinfo, epan_d
                 item->int_tot += new_int;
                 item->fields++;
                 break;
+            case FT_UINT40:
+            case FT_UINT48:
+            case FT_UINT56:
             case FT_UINT64:
+                new_int64 = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
+                if ((new_int64 > item->int_max) || (item->fields == 0)) {
+                    item->int_max = new_int64;
+                }
+                if ((new_int64 < item->int_min) || (item->fields == 0)) {
+                    item->int_min = new_int64;
+                }
+                item->int_tot += new_int64;
+                item->fields++;
+                break;
+            case FT_INT40:
+            case FT_INT48:
+            case FT_INT56:
             case FT_INT64:
-                new_int64 = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                new_int64 = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
                 if ((new_int64 > item->int_max) || (item->fields == 0)) {
                     item->int_max = new_int64;
                 }

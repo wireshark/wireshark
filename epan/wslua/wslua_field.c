@@ -109,11 +109,11 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 lua_pushnumber(L,(lua_Number)(fvalue_get_floating(&(fi->ws_fi->value))));
                 return 1;
         case FT_INT64: {
-                pushInt64(L,(Int64)(fvalue_get_integer64(&(fi->ws_fi->value))));
+                pushInt64(L,(Int64)(fvalue_get_sinteger64(&(fi->ws_fi->value))));
                 return 1;
             }
         case FT_UINT64: {
-                pushUInt64(L,fvalue_get_integer64(&(fi->ws_fi->value)));
+                pushUInt64(L,fvalue_get_uinteger64(&(fi->ws_fi->value)));
                 return 1;
             }
         case FT_ETHER: {

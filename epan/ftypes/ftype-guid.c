@@ -146,13 +146,15 @@ ftype_register_guid(void)
         NULL,                /* set_value_tvbuff */
         NULL,                /* set_value_uinteger */
         NULL,                /* set_value_sinteger */
-        NULL,                /* set_value_integer64 */
+        NULL,                /* set_value_uinteger64 */
+        NULL,                /* set_value_sinteger64 */
         NULL,                /* set_value_floating */
 
         value_get,           /* get_value */
         NULL,                /* get_value_uinteger */
         NULL,                /* get_value_sinteger */
-        NULL,                /* get_value_integer64 */
+        NULL,		     /* get_value_uinteger64 */
+        NULL,		     /* get_value_sinteger64 */
         NULL,                /* get_value_floating */
 
         cmp_eq,

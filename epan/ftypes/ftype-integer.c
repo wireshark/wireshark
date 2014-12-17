@@ -65,7 +65,7 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		   guint32 max)
 {
 	unsigned long value;
-	char    *endptr;
+	char	*endptr;
 
 	if (strchr (s, '-') && strtol(s, NULL, 0) < 0) {
 		/*
@@ -257,7 +257,7 @@ uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *
 static gboolean
 ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
-	guint32 	val;
+	guint32 val;
 	gboolean	known;
 
 	/*
@@ -361,26 +361,39 @@ cmp_bitwise_and(const fvalue_t *a, const fvalue_t *b)
 static void
 int64_fvalue_new(fvalue_t *fv)
 {
-	fv->value.integer64 = 0;
+	fv->value.uinteger64 = 0;
 }
 
 static void
-set_integer64(fvalue_t *fv, guint64 value)
+set_uinteger64(fvalue_t *fv, guint64 value)
 {
-	fv->value.integer64 = value;
+	fv->value.uinteger64 = value;
+}
+
+static void
+set_sinteger64(fvalue_t *fv, gint64 value)
+{
+	fv->value.sinteger64 = value;
 }
 
 static guint64
-get_integer64(fvalue_t *fv)
+get_uinteger64(fvalue_t *fv)
 {
-	return fv->value.integer64;
+	return fv->value.uinteger64;
+}
+
+static gint64
+get_sinteger64(fvalue_t *fv)
+{
+	return fv->value.sinteger64;
 }
 
 static gboolean
-uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+_uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
+		   guint64 max)
 {
 	guint64 value;
-	char    *endptr;
+	char	*endptr;
 
 	if (strchr (s, '-') && g_ascii_strtoll(s, NULL, 0) < 0) {
 		/*
@@ -417,12 +430,43 @@ uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 		return FALSE;
 	}
 
-	fv->value.integer64 = value;
+	if (value > max) {
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" too big for this field, maximum %" G_GINT64_MODIFIER "u.", s, max);
+		return FALSE;
+	}
+
+	fv->value.uinteger64 = value;
 	return TRUE;
 }
 
 static gboolean
-sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+{
+	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXUINT64);
+}
+
+static gboolean
+uint56_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+{
+	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0xFFFFFFFFFFFFFF);
+}
+
+static gboolean
+uint48_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+{
+	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0xFFFFFFFFFFFF);
+}
+
+static gboolean
+uint40_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+{
+	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0xFFFFFFFFFF);
+}
+
+static gboolean
+_sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
+		   gint64 max, gint64 min)
 {
 	gint64 value;
 	char   *endptr;
@@ -465,8 +509,42 @@ sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 		return FALSE;
 	}
 
-	fv->value.integer64 = (guint64)value;
+	if (value > max) {
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" too big for this field, maximum %" G_GINT64_MODIFIER "u.", s, max);
+		return FALSE;
+	} else if (value < min) {
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" too small for this field, maximum %" G_GINT64_MODIFIER "u.", s, max);
+		return FALSE;
+	}
+
+	fv->value.sinteger64 = (guint64)value;
 	return TRUE;
+}
+
+static gboolean
+sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+{
+	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXINT64, G_MININT64);
+}
+
+static gboolean
+sint56_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+{
+	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0x7FFFFFFFFFFFFF, -0x80000000000000);
+}
+
+static gboolean
+sint48_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+{
+	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0x7FFFFFFFFFFF, -0x800000000000);
+}
+
+static gboolean
+sint40_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+{
+	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0x7FFFFFFFFF, -0x8000000000);
 }
 
 static int
@@ -478,7 +556,15 @@ integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	sprintf(buf, "%" G_GINT64_MODIFIER "d", (gint64)fv->value.integer64);
+	guint64 val;
+
+	if (fv->value.sinteger < 0) {
+		*buf++ = '-';
+		val = -fv->value.sinteger;
+	} else
+		val = fv->value.sinteger;
+
+	guint64_to_str_buf(val, buf, 20);
 }
 
 static int
@@ -490,73 +576,73 @@ uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	sprintf(buf, "%" G_GINT64_MODIFIER "u", fv->value.integer64);
+	guint64_to_str_buf(fv->value.uinteger, buf, 21);
 }
 
 static gboolean
 cmp_eq64(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.integer64 == b->value.integer64;
+	return a->value.uinteger64 == b->value.uinteger64;
 }
 
 static gboolean
 cmp_ne64(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.integer64 != b->value.integer64;
+	return a->value.uinteger64 != b->value.uinteger64;
 }
 
 static gboolean
 u_cmp_gt64(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.integer64 > b->value.integer64;
+	return a->value.uinteger64 > b->value.uinteger64;
 }
 
 static gboolean
 u_cmp_ge64(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.integer64 >= b->value.integer64;
+	return a->value.uinteger64 >= b->value.uinteger64;
 }
 
 static gboolean
 u_cmp_lt64(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.integer64 < b->value.integer64;
+	return a->value.uinteger64 < b->value.uinteger64;
 }
 
 static gboolean
 u_cmp_le64(const fvalue_t *a, const fvalue_t *b)
 {
-	return a->value.integer64 <= b->value.integer64;
+	return a->value.uinteger64 <= b->value.uinteger64;
 }
 
 static gboolean
 s_cmp_gt64(const fvalue_t *a, const fvalue_t *b)
 {
-	return (gint64)a->value.integer64 > (gint64)b->value.integer64;
+	return (gint64)a->value.sinteger64 > (gint64)b->value.sinteger64;
 }
 
 static gboolean
 s_cmp_ge64(const fvalue_t *a, const fvalue_t *b)
 {
-	return (gint64)a->value.integer64 >= (gint64)b->value.integer64;
+	return (gint64)a->value.sinteger64 >= (gint64)b->value.sinteger64;
 }
 
 static gboolean
 s_cmp_lt64(const fvalue_t *a, const fvalue_t *b)
 {
-	return (gint64)a->value.integer64 < (gint64)b->value.integer64;
+	return (gint64)a->value.sinteger64 < (gint64)b->value.sinteger64;
 }
 
 static gboolean
 s_cmp_le64(const fvalue_t *a, const fvalue_t *b)
 {
-	return (gint64)a->value.integer64 <= (gint64)b->value.integer64;
+	return (gint64)a->value.sinteger64 <= (gint64)b->value.sinteger64;
 }
 
 static gboolean
 cmp_bitwise_and64(const fvalue_t *a, const fvalue_t *b)
 {
-	return ((a->value.integer64 & b->value.integer64) != 0);
+	return ((a->value.uinteger64 & b->value.uinteger64) != 0);
 }
 
 /* BOOLEAN-specific */
@@ -674,13 +760,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		set_uinteger,		/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_uinteger,		/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -716,13 +804,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -756,15 +846,17 @@ ftype_register_integers(void)
 		NULL,				/* set_value_time */
 		NULL,				/* set_value_string */
 		NULL,				/* set_value_tvbuff */
-		set_uinteger,			/* set_value_integer */
+		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -800,13 +892,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -821,6 +915,138 @@ ftype_register_integers(void)
 
 		NULL,				/* len */
 		NULL,				/* slice */
+	};
+	static ftype_t uint40_type = {
+		FT_UINT40,			/* ftype */
+		"FT_UINT40",			/* name */
+		"Unsigned integer, 5 bytes",	/* pretty_name */
+		5,				/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		uint40_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		uinteger64_to_repr,		/* val_to_string_repr */
+		uinteger64_repr_len,		/* len_string_repr */
+
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		set_uinteger64,			/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		get_uinteger64,			/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		u_cmp_gt64,
+		u_cmp_ge64,
+		u_cmp_lt64,
+		u_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
+	};
+	static ftype_t uint48_type = {
+		FT_UINT48,			/* ftype */
+		"FT_UINT48",			/* name */
+		"Unsigned integer, 6 bytes",	/* pretty_name */
+		6,				/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		uint48_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		uinteger64_to_repr,		/* val_to_string_repr */
+		uinteger64_repr_len,		/* len_string_repr */
+
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		set_uinteger64,			/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		get_uinteger64,			/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		u_cmp_gt64,
+		u_cmp_ge64,
+		u_cmp_lt64,
+		u_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
+	};
+	static ftype_t uint56_type = {
+		FT_UINT56,			/* ftype */
+		"FT_UINT56",			/* name */
+		"Unsigned integer, 7 bytes",	/* pretty_name */
+		7,				/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		uint56_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		uinteger64_to_repr,		/* val_to_string_repr */
+		uinteger64_repr_len,		/* len_string_repr */
+
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		set_uinteger64,			/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		get_uinteger64,			/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		u_cmp_gt64,
+		u_cmp_ge64,
+		u_cmp_lt64,
+		u_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
 	};
 	static ftype_t uint64_type = {
 		FT_UINT64,			/* ftype */
@@ -842,13 +1068,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		set_integer64,			/* set_value_integer64 */
+		set_uinteger64,			/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		get_integer64,			/* get_value_integer64 */
+		get_uinteger64,			/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq64,
@@ -884,13 +1112,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		set_sinteger,			/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -926,13 +1156,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		set_sinteger,			/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -968,13 +1200,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		set_sinteger,			/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_integer */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -1010,13 +1244,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		set_sinteger,			/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		get_sinteger,			/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -1031,6 +1267,138 @@ ftype_register_integers(void)
 
 		NULL,				/* len */
 		NULL,				/* slice */
+	};
+	static ftype_t int40_type = {
+		FT_INT40,			/* ftype */
+		"FT_INT40",			/* name */
+		"Signed integer, 5 bytes",	/* pretty_name */
+		5,				/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		sint40_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		integer64_to_repr,		/* val_to_string_repr */
+		integer64_repr_len,		/* len_string_repr */
+
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		NULL,				/* set_value_uinteger64 */
+		set_sinteger64,			/* set_value_sinteger64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		NULL,				/* get_value_uinteger64 */
+		get_sinteger64,			/* get_value_sinteger64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		s_cmp_gt64,
+		s_cmp_ge64,
+		s_cmp_lt64,
+		s_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
+	};
+	static ftype_t int48_type = {
+		FT_INT48,			/* ftype */
+		"FT_INT48",			/* name */
+		"Signed integer, 6 bytes",	/* pretty_name */
+		6,				/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		sint48_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		integer64_to_repr,		/* val_to_string_repr */
+		integer64_repr_len,		/* len_string_repr */
+
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		NULL,				/* set_value_uinteger64 */
+		set_sinteger64,			/* set_value_sinteger64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		NULL,				/* get_value_uinteger64 */
+		get_sinteger64,			/* get_value_sinteger64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		s_cmp_gt64,
+		s_cmp_ge64,
+		s_cmp_lt64,
+		s_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
+	};
+	static ftype_t int56_type = {
+		FT_INT56,			/* ftype */
+		"FT_INT56",			/* name */
+		"Signed integer, 7 bytes",	/* pretty_name */
+		7,				/* wire_size */
+		int64_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
+		sint56_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		integer64_to_repr,		/* val_to_string_repr */
+		integer64_repr_len,		/* len_string_repr */
+
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		NULL,				/* set_value_uinteger64 */
+		set_sinteger64,			/* set_value_sinteger64 */
+		NULL,				/* set_value_floating */
+
+		NULL,				/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		NULL,				/* get_value_uinteger64 */
+		get_sinteger64,			/* get_value_sinteger64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq64,
+		cmp_ne64,
+		s_cmp_gt64,
+		s_cmp_ge64,
+		s_cmp_lt64,
+		s_cmp_le64,
+		cmp_bitwise_and64,
+		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
+
+		NULL,
+		NULL,
 	};
 	static ftype_t int64_type = {
 		FT_INT64,			/* ftype */
@@ -1052,13 +1420,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		set_integer64,			/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		set_sinteger64,			/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		get_integer64,			/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		get_sinteger64,			/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq64,
@@ -1094,13 +1464,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		set_integer64,			/* set_value_integer64 */
+		set_uinteger64,			/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		get_integer64,			/* get_value_integer64 */
+		get_uinteger64,			/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		bool_eq,			/* cmp_eq */
@@ -1137,13 +1509,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -1180,13 +1554,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -1223,13 +1599,15 @@ ftype_register_integers(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		set_integer64,			/* set_value_integer64 */
+		set_uinteger64,			/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		get_integer64,			/* get_value_integer64 */
+		get_uinteger64,			/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq64,
@@ -1250,11 +1628,17 @@ ftype_register_integers(void)
 	ftype_register(FT_UINT16, &uint16_type);
 	ftype_register(FT_UINT24, &uint24_type);
 	ftype_register(FT_UINT32, &uint32_type);
+	ftype_register(FT_UINT40, &uint40_type);
+	ftype_register(FT_UINT48, &uint48_type);
+	ftype_register(FT_UINT56, &uint56_type);
 	ftype_register(FT_UINT64, &uint64_type);
 	ftype_register(FT_INT8, &int8_type);
 	ftype_register(FT_INT16, &int16_type);
 	ftype_register(FT_INT24, &int24_type);
 	ftype_register(FT_INT32, &int32_type);
+	ftype_register(FT_INT40, &int40_type);
+	ftype_register(FT_INT48, &int48_type);
+	ftype_register(FT_INT56, &int56_type);
 	ftype_register(FT_INT64, &int64_type);
 	ftype_register(FT_BOOLEAN, &boolean_type);
 	ftype_register(FT_IPXNET, &ipxnet_type);

@@ -154,19 +154,25 @@ struct ptvcursor {
 	}
 
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
+static const char *hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo);
 
 static void label_mark_truncated(char *label_str, gsize name_pos);
 #define LABEL_MARK_TRUNCATED_START(label_str) label_mark_truncated(label_str, 0)
 
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed);
+static void fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed);
 
 static const char *hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[32], guint32 value);
+static const char *hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[32], guint64 value);
 static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
+static const char *hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[32], guint64 value);
 static const char *hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
+static const char *hfinfo_number_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value);
 static const char *hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
+static const char *hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value);
 
 static const char* hfinfo_uint64_format(const header_field_info *hfinfo);
 static const char* hfinfo_int64_format(const header_field_info *hfinfo);
@@ -251,6 +257,8 @@ static void
 proto_tree_set_int(field_info *fi, gint32 value);
 static void
 proto_tree_set_uint64(field_info *fi, guint64 value);
+static void
+proto_tree_set_int64(field_info *fi, gint64 value);
 static void
 proto_tree_set_eui64(field_info *fi, const guint64 value);
 static void
@@ -1684,6 +1692,9 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				get_uint_value(tree, tvb, start, length, encoding));
 			break;
 
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
 		case FT_UINT64:
 			/*
 			 * Map all non-zero values to little-endian for
@@ -1710,6 +1721,9 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				get_int_value(tree, tvb, start, length, encoding));
 			break;
 
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
 			/*
 			 * Map all non-zero values to little-endian for
@@ -3033,30 +3047,6 @@ proto_tree_set_system_id_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint len
 	proto_tree_set_system_id(fi, tvb_get_ptr(tvb, start, length), length);
 }
 
-static void
-proto_tree_set_uint64(field_info *fi, guint64 value)
-{
-	header_field_info *hfinfo;
-	guint64		   integer;
-	gint		   no_of_bits;
-
-	hfinfo = fi->hfinfo;
-	integer = value;
-
-	if (hfinfo->bitmask) {
-		/* Mask out irrelevant portions */
-		integer &= hfinfo->bitmask;
-
-		/* Shift bits */
-		integer >>= hfinfo_bitshift(hfinfo);
-
-		no_of_bits = ws_count_ones(hfinfo->bitmask);
-		integer = ws_sign_ext64(integer, no_of_bits);
-	}
-
-	fvalue_set_integer64(&fi->value, integer);
-}
-
 /* Add a FT_STRING, FT_STRINGZ, or FT_STRINGZPAD to a proto_tree. Creates
  * own copy of string, and frees it when the proto_tree is destroyed. */
 proto_item *
@@ -3559,20 +3549,29 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 	fvalue_set_uinteger(&fi->value, integer);
 }
 
-/* Add FT_UINT64 to a proto_tree */
+/* Add FT_UINT{40,48,56,64} to a proto_tree */
 proto_item *
 proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		      gint length, guint64 value)
 {
-	proto_item	  *pi;
+	proto_item	  *pi = NULL;
 	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_UINT64);
+	switch (hfinfo->type) {
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
+		case FT_UINT64:
+		case FT_FRAMENUM:
+			pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
+			proto_tree_set_uint64(PNODE_FINFO(pi), value);
+			break;
 
-	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
-	proto_tree_set_uint64(PNODE_FINFO(pi), value);
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+	}
 
 	return pi;
 }
@@ -3613,6 +3612,31 @@ proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	}
 
 	return pi;
+}
+
+/* Set the FT_UINT{40,48,56,64} value */
+static void
+proto_tree_set_uint64(field_info *fi, guint64 value)
+{
+	header_field_info *hfinfo;
+	guint64		   integer;
+	gint		   no_of_bits;
+
+	hfinfo = fi->hfinfo;
+	integer = value;
+
+	if (hfinfo->bitmask) {
+		/* Mask out irrelevant portions */
+		integer &= hfinfo->bitmask;
+
+		/* Shift bits */
+		integer >>= hfinfo_bitshift(hfinfo);
+
+		no_of_bits = ws_count_ones(hfinfo->bitmask);
+		integer = ws_sign_ext64(integer, no_of_bits);
+	}
+
+	fvalue_set_uinteger64(&fi->value, integer);
 }
 
 /* Add FT_INT{8,16,24,32} to a proto_tree */
@@ -3704,20 +3728,28 @@ proto_tree_set_int(field_info *fi, gint32 value)
 	fvalue_set_sinteger(&fi->value, integer);
 }
 
-/* Add FT_INT64 to a proto_tree */
+/* Add FT_INT{40,48,56,64} to a proto_tree */
 proto_item *
 proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		     gint length, gint64 value)
 {
-	proto_item	  *pi;
+	proto_item	  *pi = NULL;
 	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_INT64);
+	switch (hfinfo->type) {
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
+		case FT_INT64:
+			pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
+			proto_tree_set_int64(PNODE_FINFO(pi), value);
+			break;
 
-	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
-	proto_tree_set_uint64(PNODE_FINFO(pi), (guint64)value);
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+	}
 
 	return pi;
 }
@@ -3740,6 +3772,31 @@ proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return pi;
 }
 
+/* Set the FT_INT{40,48,56,64} value */
+static void
+proto_tree_set_int64(field_info *fi, gint64 value)
+{
+	header_field_info *hfinfo;
+	guint64		   integer;
+	gint		   no_of_bits;
+
+	hfinfo = fi->hfinfo;
+	integer = value;
+
+	if (hfinfo->bitmask) {
+		/* Mask out irrelevant portions */
+		integer &= hfinfo->bitmask;
+
+		/* Shift bits */
+		integer >>= hfinfo_bitshift(hfinfo);
+
+		no_of_bits = ws_count_ones(hfinfo->bitmask);
+		integer = ws_sign_ext64(integer, no_of_bits);
+	}
+
+	fvalue_set_sinteger64(&fi->value, integer);
+}
+
 proto_item *
 proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   gint start, gint length, gint64 value,
@@ -3759,6 +3816,7 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	return pi;
 }
+
 /* Add a FT_EUI64 to a proto_tree */
 proto_item *
 proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
@@ -3819,7 +3877,7 @@ proto_tree_add_eui64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_eui64(field_info *fi, const guint64 value)
 {
-	fvalue_set_integer64(&fi->value, value);
+	fvalue_set_uinteger64(&fi->value, value);
 }
 static void
 proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint encoding)
@@ -4079,7 +4137,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 			if (IS_FT_UINT(hf->type))
 				val = fvalue_get_uinteger(&fi->value);
 			else
-				val = fvalue_get_integer64(&fi->value);
+				val = fvalue_get_uinteger64(&fi->value);
 
 			val <<= hfinfo_bitshift(hf);
 
@@ -4173,6 +4231,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 		 gchar *result, gchar *expr, const int size)
 {
 	guint32            number;
+	guint64            number64;
 	guint8            *bytes;
 	ipv4_addr         *ipv4;
 	struct e_in6_addr *ipv6;
@@ -4259,276 +4318,315 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 				switch (hfinfo->type) {
 
-				case FT_NONE: /* Nothing to add */
-					if (offset_r == 0) {
-						result[0] = '\0';
-					} else if (result[offset_r-1] == ',') {
-						result[offset_r-1] = '\0';
-					}
-					break;
-
-				case FT_PROTOCOL:
-					/* prevent multiple "yes" entries by setting result directly */
-					g_strlcpy(result, "Yes", size);
-					break;
-
-				case FT_UINT_BYTES:
-				case FT_BYTES:
-					bytes = (guint8 *)fvalue_get(&finfo->value);
-					if (bytes) {
-						switch(hfinfo->display)
-						{
-						case SEP_DOT:
-							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
-							break;
-						case SEP_DASH:
-							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
-							break;
-						case SEP_COLON:
-							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
-							break;
-						case SEP_SPACE:
-							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
-							break;
-						case BASE_NONE:
-						default:
-							if (prefs.display_byte_fields_with_spaces)
-							{
-								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
-							}
-							else
-							{
-								str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
-							}
-							break;
+					case FT_NONE: /* Nothing to add */
+						if (offset_r == 0) {
+							result[0] = '\0';
+						} else if (result[offset_r-1] == ',') {
+							result[offset_r-1] = '\0';
 						}
-						offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-						wmem_free(NULL, str);
-					}
-					else {
-						offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
-					}
-					break;
+						break;
 
-				case FT_ABSOLUTE_TIME:
-					tmpbuf = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&finfo->value), (absolute_time_display_e)hfinfo->display, TRUE);
-					offset_r += protoo_strlcpy(result+offset_r,
+					case FT_PROTOCOL:
+						/* prevent multiple "yes" entries by setting result directly */
+						g_strlcpy(result, "Yes", size);
+						break;
+
+					case FT_UINT_BYTES:
+					case FT_BYTES:
+						bytes = (guint8 *)fvalue_get(&finfo->value);
+						if (bytes) {
+							switch(hfinfo->display)
+							{
+							case SEP_DOT:
+								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
+								break;
+							case SEP_DASH:
+								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
+								break;
+							case SEP_COLON:
+								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
+								break;
+							case SEP_SPACE:
+								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
+								break;
+							case BASE_NONE:
+							default:
+								if (prefs.display_byte_fields_with_spaces)
+								{
+									str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
+								}
+								else
+								{
+									str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
+								}
+								break;
+							}
+							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+							wmem_free(NULL, str);
+						}
+						else {
+							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
+						}
+						break;
+
+					case FT_ABSOLUTE_TIME:
+						tmpbuf = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&finfo->value), (absolute_time_display_e)hfinfo->display, TRUE);
+						offset_r += protoo_strlcpy(result+offset_r,
 								tmpbuf,
 								size-offset_r);
-					wmem_free(NULL, tmpbuf);
-					break;
+						wmem_free(NULL, tmpbuf);
+						break;
 
-				case FT_RELATIVE_TIME:
-					tmpbuf = rel_time_to_secs_str(NULL, (const nstime_t *)fvalue_get(&finfo->value));
-					offset_r += protoo_strlcpy(result+offset_r,
+					case FT_RELATIVE_TIME:
+						tmpbuf = rel_time_to_secs_str(NULL, (const nstime_t *)fvalue_get(&finfo->value));
+						offset_r += protoo_strlcpy(result+offset_r,
 								tmpbuf,
 								size-offset_r);
-					wmem_free(NULL, tmpbuf);
-					break;
+						wmem_free(NULL, tmpbuf);
+						break;
 
-				case FT_BOOLEAN:
-					number = fvalue_get_uinteger(&finfo->value);
-					tfstring = (const true_false_string *)&tfs_true_false;
-					if (hfinfo->strings) {
-						tfstring = (const struct true_false_string*) hfinfo->strings;
-					}
-					offset_r += protoo_strlcpy(result+offset_r,
+					case FT_BOOLEAN:
+						number = fvalue_get_uinteger(&finfo->value);
+						tfstring = (const true_false_string *)&tfs_true_false;
+						if (hfinfo->strings) {
+							tfstring = (const struct true_false_string*) hfinfo->strings;
+						}
+						offset_r += protoo_strlcpy(result+offset_r,
 								number ?
-									tfstring->true_string :
-									tfstring->false_string, size-offset_r);
+								tfstring->true_string :
+								tfstring->false_string, size-offset_r);
 
-					offset_e += protoo_strlcpy(expr+offset_e,
+						offset_e += protoo_strlcpy(expr+offset_e,
 								number ? "1" : "0", size-offset_e);
-					break;
+						break;
 
-				/* XXX - make these just FT_NUMBER? */
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-				case FT_FRAMENUM:
-					hf_str_val = NULL;
-					number = IS_FT_INT(hfinfo->type) ?
+						/* XXX - make these just FT_NUMBER? */
+					case FT_INT8:
+					case FT_INT16:
+					case FT_INT24:
+					case FT_INT32:
+					case FT_UINT8:
+					case FT_UINT16:
+					case FT_UINT24:
+					case FT_UINT32:
+					case FT_FRAMENUM:
+						hf_str_val = NULL;
+						number = IS_FT_INT(hfinfo->type) ?
 							(guint32) fvalue_get_sinteger(&finfo->value) :
 							fvalue_get_uinteger(&finfo->value);
 
-					if ((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_CUSTOM) {
-						gchar tmp[ITEM_LABEL_LENGTH];
-						custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+						if ((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_CUSTOM) {
+							gchar tmp[ITEM_LABEL_LENGTH];
+							custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
 
-						DISSECTOR_ASSERT(fmtfunc);
-						fmtfunc(tmp, number);
+							DISSECTOR_ASSERT(fmtfunc);
+							fmtfunc(tmp, number);
 
-						offset_r += protoo_strlcpy(result+offset_r, tmp, size-offset_r);
+							offset_r += protoo_strlcpy(result+offset_r, tmp, size-offset_r);
 
-					} else if (hfinfo->strings) {
-						number_out = hf_str_val = hf_try_val_to_str(number, hfinfo);
+						} else if (hfinfo->strings) {
+							number_out = hf_str_val = hf_try_val_to_str(number, hfinfo);
 
-						if (!number_out)
-							number_out = hfinfo_number_value_format_display(hfinfo, BASE_DEC, number_buf, number);
+							if (!number_out)
+								number_out = hfinfo_number_value_format_display(hfinfo, BASE_DEC, number_buf, number);
 
-						offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
+							offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 
-					} else {
-						number_out = hfinfo_number_value_format(hfinfo, number_buf, number);
+						} else {
+							number_out = hfinfo_number_value_format(hfinfo, number_buf, number);
 
-						offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
-					}
+							offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
+						}
 
-					if (hf_str_val && (hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_NONE) {
-						g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
-					} else {
-						number_out = hfinfo_numeric_value_format(hfinfo, number_buf, number);
+						if (hf_str_val && (hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_NONE) {
+							g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
+						} else {
+							number_out = hfinfo_numeric_value_format(hfinfo, number_buf, number);
 
-						g_strlcpy(expr+offset_e, number_out, size-offset_e);
-					}
+							g_strlcpy(expr+offset_e, number_out, size-offset_e);
+						}
 
-					offset_e = (int)strlen(expr);
-					break;
+						offset_e = (int)strlen(expr);
+						break;
 
-				case FT_INT64:
-					/* XXX: Should handle BASE_CUSTOM ? */
-					g_snprintf(result+offset_r, size-offset_r,
-						"%" G_GINT64_MODIFIER "d",
-						fvalue_get_integer64(&finfo->value));
-					offset_r = (int)strlen(result);
-					break;
-				case FT_UINT64:
-					g_snprintf(result+offset_r, size-offset_r,
-					/* XXX: Should handle BASE_CUSTOM ? */
-						"%" G_GINT64_MODIFIER "u",
-						fvalue_get_integer64(&finfo->value));
-					offset_r = (int)strlen(result);
-					break;
-				case FT_EUI64:
-					str = eui64_to_str(NULL, fvalue_get_integer64(&finfo->value));
-					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-					wmem_free(NULL, str);
-					break;
+					case FT_INT40:
+					case FT_INT48:
+					case FT_INT56:
+					case FT_INT64:
+					case FT_UINT40:
+					case FT_UINT48:
+					case FT_UINT56:
+					case FT_UINT64:
+						hf_str_val = NULL;
+						number64 = IS_FT_INT(hfinfo->type) ?
+							(guint64) fvalue_get_sinteger64(&finfo->value) :
+							fvalue_get_uinteger64(&finfo->value);
 
-				case FT_IPv4:
-					ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
-					n_addr = ipv4_get_net_order_addr(ipv4);
-					SET_ADDRESS (&addr, AT_IPv4, 4, &n_addr);
-					address_to_str_buf(&addr, result+offset_r, size-offset_r);
-					offset_r = (int)strlen(result);
-					break;
+						if ((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_CUSTOM) {
+							gchar tmp[ITEM_LABEL_LENGTH];
+							custom_fmt_func_64_t fmtfunc64 = (custom_fmt_func_64_t)hfinfo->strings;
 
-				case FT_IPv6:
-					ipv6 = (struct e_in6_addr *)fvalue_get(&finfo->value);
-					SET_ADDRESS (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
-					address_to_str_buf(&addr, result+offset_r, size-offset_r);
-					offset_r = (int)strlen(result);
-					break;
+							DISSECTOR_ASSERT(fmtfunc64);
+							fmtfunc64(tmp, number64);
+							offset_r += protoo_strlcpy(result+offset_r, tmp, size-offset_r);
+						} else if (hfinfo->strings) {
+							number_out = hf_str_val = hf_try_val64_to_str(number64, hfinfo);
 
-				case FT_FCWWN:
-					SET_ADDRESS (&addr, AT_FCWWN, FCWWN_ADDR_LEN, fvalue_get(&finfo->value));
-					address_to_str_buf(&addr, result+offset_r, size-offset_r);
-					offset_r = (int)strlen(result);
-					break;
+							if (!number_out)
+								number_out = hfinfo_number_value_format_display64(hfinfo, BASE_DEC, number_buf, number64);
 
-				case FT_ETHER:
-					SET_ADDRESS (&addr, AT_ETHER, FT_ETHER_LEN, fvalue_get(&finfo->value));
-					address_to_str_buf(&addr, result+offset_r, size-offset_r);
-					offset_r = (int)strlen(result);
-					break;
+							offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
 
-				case FT_GUID:
-					str = guid_to_str(NULL, (e_guid_t *)fvalue_get(&finfo->value));
-					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-					wmem_free(NULL, str);
-					break;
+						} else {
+							number_out = hfinfo_number_value_format64(hfinfo, number_buf, number64);
 
-				case FT_REL_OID:
-					bytes = (guint8 *)fvalue_get(&finfo->value);
-					str = rel_oid_resolved_from_encoded(NULL, bytes, fvalue_length(&finfo->value));
-					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-					wmem_free(NULL, str);
+							offset_r += protoo_strlcpy(result+offset_r, number_out, size-offset_r);
+						}
 
-					str = rel_oid_encoded2string(NULL, bytes, fvalue_length(&finfo->value));
-					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
-					wmem_free(NULL, str);
-					break;
+						if (hf_str_val && (hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_NONE) {
+							g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
+						} else {
+							number_out = hfinfo_numeric_value_format64(hfinfo, number_buf, number64);
 
-				case FT_OID:
-					bytes = (guint8 *)fvalue_get(&finfo->value);
-					str = oid_resolved_from_encoded(NULL, bytes, fvalue_length(&finfo->value));
-					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-					wmem_free(NULL, str);
+							g_strlcpy(expr+offset_e, number_out, size-offset_e);
+						}
 
-					str = oid_encoded2string(NULL, bytes, fvalue_length(&finfo->value));
-					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
-					wmem_free(NULL, str);
-					break;
+						offset_e = (int)strlen(expr);
+						break;
 
-				case FT_SYSTEM_ID:
-					bytes = (guint8 *)fvalue_get(&finfo->value);
-					str = print_system_id(NULL, bytes, fvalue_length(&finfo->value));
-					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
-					wmem_free(NULL, str);
-					break;
+					case FT_EUI64:
+						str = eui64_to_str(NULL, fvalue_get_uinteger64(&finfo->value));
+						offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+						wmem_free(NULL, str);
+						break;
 
-				case FT_FLOAT:
-					g_snprintf(result+offset_r, size-offset_r,
-						"%." G_STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
-					offset_r = (int)strlen(result);
-					break;
+					case FT_IPv4:
+						ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
+						n_addr = ipv4_get_net_order_addr(ipv4);
+						SET_ADDRESS (&addr, AT_IPv4, 4, &n_addr);
+						address_to_str_buf(&addr, result+offset_r, size-offset_r);
+						offset_r = (int)strlen(result);
+						break;
 
-				case FT_DOUBLE:
-					g_snprintf(result+offset_r, size-offset_r,
-						"%." G_STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
-					offset_r = (int)strlen(result);
-					break;
+					case FT_IPv6:
+						ipv6 = (struct e_in6_addr *)fvalue_get(&finfo->value);
+						SET_ADDRESS (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
+						address_to_str_buf(&addr, result+offset_r, size-offset_r);
+						offset_r = (int)strlen(result);
+						break;
 
-				case FT_STRING:
-				case FT_STRINGZ:
-				case FT_UINT_STRING:
-				case FT_STRINGZPAD:
-					bytes = (guint8 *)fvalue_get(&finfo->value);
-					offset_r += protoo_strlcpy(result+offset_r,
+					case FT_FCWWN:
+						SET_ADDRESS (&addr, AT_FCWWN, FCWWN_ADDR_LEN, fvalue_get(&finfo->value));
+						address_to_str_buf(&addr, result+offset_r, size-offset_r);
+						offset_r = (int)strlen(result);
+						break;
+
+					case FT_ETHER:
+						SET_ADDRESS (&addr, AT_ETHER, FT_ETHER_LEN, fvalue_get(&finfo->value));
+						address_to_str_buf(&addr, result+offset_r, size-offset_r);
+						offset_r = (int)strlen(result);
+						break;
+
+					case FT_GUID:
+						str = guid_to_str(NULL, (e_guid_t *)fvalue_get(&finfo->value));
+						offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+						wmem_free(NULL, str);
+						break;
+
+					case FT_REL_OID:
+						bytes = (guint8 *)fvalue_get(&finfo->value);
+						str = rel_oid_resolved_from_encoded(NULL, bytes, fvalue_length(&finfo->value));
+						offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+						wmem_free(NULL, str);
+
+						str = rel_oid_encoded2string(NULL, bytes, fvalue_length(&finfo->value));
+						offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+						wmem_free(NULL, str);
+						break;
+
+					case FT_OID:
+						bytes = (guint8 *)fvalue_get(&finfo->value);
+						str = oid_resolved_from_encoded(NULL, bytes, fvalue_length(&finfo->value));
+						offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+						wmem_free(NULL, str);
+
+						str = oid_encoded2string(NULL, bytes, fvalue_length(&finfo->value));
+						offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+						wmem_free(NULL, str);
+						break;
+
+					case FT_SYSTEM_ID:
+						bytes = (guint8 *)fvalue_get(&finfo->value);
+						str = print_system_id(NULL, bytes, fvalue_length(&finfo->value));
+						offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+						offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+						wmem_free(NULL, str);
+						break;
+
+					case FT_FLOAT:
+						g_snprintf(result+offset_r, size-offset_r,
+								"%." G_STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
+						offset_r = (int)strlen(result);
+						break;
+
+					case FT_DOUBLE:
+						g_snprintf(result+offset_r, size-offset_r,
+								"%." G_STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
+						offset_r = (int)strlen(result);
+						break;
+
+					case FT_STRING:
+					case FT_STRINGZ:
+					case FT_UINT_STRING:
+					case FT_STRINGZPAD:
+						bytes = (guint8 *)fvalue_get(&finfo->value);
+						offset_r += protoo_strlcpy(result+offset_r,
 								hfinfo_format_text(hfinfo, bytes),
 								size-offset_r);
-					break;
+						break;
 
-				case FT_IPXNET: /*XXX really No column custom ?*/
-				case FT_PCRE:
-				default:
-					g_error("hfinfo->type %d (%s) not handled\n",
-							hfinfo->type,
-							ftype_name(hfinfo->type));
-					DISSECTOR_ASSERT_NOT_REACHED();
-					break;
+					case FT_IPXNET: /*XXX really No column custom ?*/
+					case FT_PCRE:
+					default:
+						g_error("hfinfo->type %d (%s) not handled\n",
+								hfinfo->type,
+								ftype_name(hfinfo->type));
+						DISSECTOR_ASSERT_NOT_REACHED();
+						break;
 				}
 				i++;
 			}
 
 			switch (hfinfo->type) {
 
-			case FT_BOOLEAN:
-			case FT_UINT8:
-			case FT_UINT16:
-			case FT_UINT24:
-			case FT_UINT32:
-			case FT_FRAMENUM:
-			case FT_INT8:
-			case FT_INT16:
-			case FT_INT24:
-			case FT_INT32:
-			case FT_OID:
-			case FT_REL_OID:
-			case FT_SYSTEM_ID:
-				/* for these types, "expr" is filled in the loop above */
-				break;
+				case FT_BOOLEAN:
+				case FT_UINT8:
+				case FT_UINT16:
+				case FT_UINT24:
+				case FT_UINT32:
+				case FT_UINT40:
+				case FT_UINT48:
+				case FT_UINT56:
+				case FT_UINT64:
+				case FT_FRAMENUM:
+				case FT_INT8:
+				case FT_INT16:
+				case FT_INT24:
+				case FT_INT32:
+				case FT_INT40:
+				case FT_INT48:
+				case FT_INT56:
+				case FT_INT64:
+				case FT_OID:
+				case FT_REL_OID:
+				case FT_SYSTEM_ID:
+					/* for these types, "expr" is filled in the loop above */
+					break;
 
-			default:
-				/* for all others, just copy "result" to "expr" */
-				g_strlcpy(expr, result, size);
-				break;
+				default:
+					/* for all others, just copy "result" to "expr" */
+					g_strlcpy(expr, result, size);
+					break;
 			}
 
 			if (!abbrev) {
@@ -5528,11 +5626,17 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		    (hfinfo->type == FT_UINT16)   ||
 		    (hfinfo->type == FT_UINT24)   ||
 		    (hfinfo->type == FT_UINT32)   ||
+		    (hfinfo->type == FT_UINT40)   ||
+		    (hfinfo->type == FT_UINT48)   ||
+		    (hfinfo->type == FT_UINT56)   ||
 		    (hfinfo->type == FT_UINT64)   ||
 		    (hfinfo->type == FT_INT8)     ||
 		    (hfinfo->type == FT_INT16)    ||
 		    (hfinfo->type == FT_INT24)    ||
 		    (hfinfo->type == FT_INT32)    ||
+		    (hfinfo->type == FT_INT40)    ||
+		    (hfinfo->type == FT_INT48)    ||
+		    (hfinfo->type == FT_INT56)    ||
 		    (hfinfo->type == FT_INT64)    ||
 		    (hfinfo->type == FT_BOOLEAN)  ||
 		    (hfinfo->type == FT_PROTOCOL) ))
@@ -5600,6 +5704,9 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
 			/*	Hexadecimal and octal are, in printf() and everywhere
 			 *	else, unsigned so don't allow dissectors to register a
@@ -5622,6 +5729,9 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
 		case FT_UINT64:
 			/*  Require integral types (other than frame number,
 			 *  which is always displayed in decimal) to have a
@@ -6110,8 +6220,15 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			fill_label_number(fi, label_str, FALSE);
 			break;
 
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
 		case FT_UINT64:
-			fill_label_number64(fi, label_str, FALSE);
+			if (hfinfo->bitmask) {
+				fill_label_bitfield64(fi, label_str, FALSE);
+			} else {
+				fill_label_number64(fi, label_str, FALSE);
+			}
 			break;
 
 		case FT_INT8:
@@ -6125,8 +6242,15 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			}
 			break;
 
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
-			fill_label_number64(fi, label_str, TRUE);
+			if (hfinfo->bitmask) {
+				fill_label_bitfield64(fi, label_str, TRUE);
+			} else {
+				fill_label_number64(fi, label_str, TRUE);
+			}
 			break;
 
 		case FT_FLOAT:
@@ -6277,7 +6401,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_EUI64:
-			integer64 = fvalue_get_integer64(&fi->value);
+			integer64 = fvalue_get_uinteger64(&fi->value);
 			addr_str = eui64_to_str(NULL, integer64);
 			tmp = (char*)eui64_to_display(NULL, integer64);
 			label_fill_descr(label_str, 0, hfinfo, tmp, addr_str);
@@ -6315,7 +6439,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 		tfstring = (const struct true_false_string*) hfinfo->strings;
 	}
 
-	value = fvalue_get_integer64(&fi->value);
+	value = fvalue_get_uinteger64(&fi->value);
 	if (hfinfo->bitmask) {
 		/* Figure out the bit width */
 		bitwidth = hfinfo_bitwidth(hfinfo);
@@ -6438,6 +6562,62 @@ fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed)
 }
 
 static void
+fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed)
+{
+	char       *p;
+	int         bitfield_byte_length, bitwidth;
+	guint64     unshifted_value;
+	guint64     value;
+
+	char        buf[32];
+	const char *out;
+
+	header_field_info *hfinfo = fi->hfinfo;
+
+	/* Figure out the bit width */
+	bitwidth = hfinfo_bitwidth(hfinfo);
+
+	/* Un-shift bits */
+	if (is_signed)
+		unshifted_value = fvalue_get_sinteger64(&fi->value);
+	else
+		unshifted_value = fvalue_get_uinteger64(&fi->value);
+
+	value = unshifted_value;
+	if (hfinfo->bitmask) {
+		unshifted_value <<= hfinfo_bitshift(hfinfo); /* XXX 64-bit function needed? */
+	}
+
+	/* Create the bitfield first */
+	p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
+	bitfield_byte_length = (int) (p - label_str);
+
+	/* Fill in the textual info using stored (shifted) value */
+	if (hfinfo->display == BASE_CUSTOM) {
+		gchar tmp[ITEM_LABEL_LENGTH];
+		const custom_fmt_func_64_t fmtfunc64 = (const custom_fmt_func_64_t)hfinfo->strings;
+
+		DISSECTOR_ASSERT(fmtfunc64);
+		fmtfunc64(tmp, value);
+		label_fill(label_str, bitfield_byte_length, hfinfo, tmp);
+	}
+	else if (hfinfo->strings) {
+		const char *val_str = hf_try_val64_to_str_const(value, hfinfo, "Unknown");
+
+		out = hfinfo_number_vals_format64(hfinfo, buf, value);
+		if (out == NULL) /* BASE_NONE so don't put integer in descr */
+			label_fill(label_str, bitfield_byte_length, hfinfo, val_str);
+		else
+			label_fill_descr(label_str, bitfield_byte_length, hfinfo, val_str, out);
+	}
+	else {
+		out = hfinfo_number_value_format64(hfinfo, buf, value);
+
+		label_fill(label_str, bitfield_byte_length, hfinfo, out);
+	}
+}
+
+static void
 fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 {
 	header_field_info *hfinfo = fi->hfinfo;
@@ -6490,7 +6670,7 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 	else
 		format = hfinfo_uint64_format(hfinfo);
 
-	value = fvalue_get_integer64(&fi->value);
+	value = fvalue_get_uinteger64(&fi->value);
 
 	/* Format the temporary string */
 	if (IS_BASE_DUAL(hfinfo->display))
@@ -6545,6 +6725,22 @@ hfinfo_bitwidth(const header_field_info *hfinfo)
 		case FT_INT32:
 			bitwidth = 32;
 			break;
+		case FT_UINT40:
+		case FT_INT40:
+			bitwidth = 40;
+			break;
+		case FT_UINT48:
+		case FT_INT48:
+			bitwidth = 48;
+			break;
+		case FT_UINT56:
+		case FT_INT56:
+			bitwidth = 56;
+			break;
+		case FT_UINT64:
+		case FT_INT64:
+			bitwidth = 64;
+			break;
 		case FT_BOOLEAN:
 			bitwidth = hfinfo->display; /* hacky? :) */
 			break;
@@ -6574,6 +6770,22 @@ _hfinfo_type_hex_octet(int type)
 		case FT_UINT32:
 		case FT_INT32:
 			return 8;
+
+		case FT_UINT40:
+		case FT_INT40:
+			return 10;
+
+		case FT_UINT48:
+		case FT_INT48:
+			return 12;
+
+		case FT_UINT56:
+		case FT_INT56:
+			return 14;
+
+		case FT_UINT64:
+		case FT_INT64:
+			return 16;
 
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
@@ -6624,6 +6836,47 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 }
 
 static const char *
+hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[32], guint64 value)
+{
+	char *ptr = &buf[31];
+	gboolean isint = IS_FT_INT(hfinfo->type);
+
+	*ptr = '\0';
+	/* Properly format value */
+		switch (display) {
+			case BASE_DEC:
+				return isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
+
+			case BASE_DEC_HEX:
+				*(--ptr) = ')';
+				ptr = hex64_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+				*(--ptr) = '(';
+				*(--ptr) = ' ';
+				ptr = isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
+				return ptr;
+
+			case BASE_OCT:
+				return oct64_to_str_back(ptr, value);
+
+			case BASE_HEX:
+				return hex64_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+
+			case BASE_HEX_DEC:
+				*(--ptr) = ')';
+				ptr = isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
+				*(--ptr) = '(';
+				*(--ptr) = ' ';
+				ptr = hex64_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+				return ptr;
+
+			default:
+				DISSECTOR_ASSERT_NOT_REACHED();
+				;
+		}
+	return ptr;
+}
+
+static const char *
 hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
 	int display = hfinfo->display;
@@ -6636,6 +6889,21 @@ hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint3
 	}
 
 	return hfinfo_number_value_format_display(hfinfo, display, buf, value);
+}
+
+static const char *
+hfinfo_number_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value)
+{
+	int display = hfinfo->display;
+
+	if (hfinfo->type == FT_FRAMENUM) {
+		/*
+		 * Frame numbers are always displayed in decimal.
+		 */
+		display = BASE_DEC;
+	}
+
+	return hfinfo_number_value_format_display64(hfinfo, display, buf, value);
 }
 
 static const char *
@@ -6670,6 +6938,37 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint
 }
 
 static const char *
+hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value)
+{
+	/* Get the underlying BASE_ value */
+	int display = hfinfo->display & FIELD_DISPLAY_E_MASK;
+
+	if (hfinfo->type == FT_FRAMENUM) {
+		/*
+		 * Frame numbers are always displayed in decimal.
+		 */
+		display = BASE_DEC;
+	}
+
+	switch (display) {
+		case BASE_NONE:
+		/* case BASE_DEC: */
+		case BASE_DEC_HEX:
+		case BASE_OCT: /* XXX, why we're changing BASE_OCT to BASE_DEC? */
+		case BASE_CUSTOM:
+			display = BASE_DEC;
+			break;
+
+		/* case BASE_HEX: */
+		case BASE_HEX_DEC:
+			display = BASE_HEX;
+			break;
+	}
+
+	return hfinfo_number_value_format_display64(hfinfo, display, buf, value);
+}
+
+static const char *
 hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value)
 {
 	/* Get the underlying BASE_ value */
@@ -6684,6 +6983,23 @@ hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32
 		display = BASE_HEX;
 
 	return hfinfo_number_value_format_display(hfinfo, display, buf, value);
+}
+
+static const char *
+hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[32], guint64 value)
+{
+	/* Get the underlying BASE_ value */
+	int display = hfinfo->display & FIELD_DISPLAY_E_MASK;
+
+	if (display == BASE_NONE)
+		return NULL;
+
+	if (display == BASE_DEC_HEX)
+		display = BASE_DEC;
+	if (display == BASE_HEX_DEC)
+		display = BASE_HEX;
+
+	return hfinfo_number_value_format_display64(hfinfo, display, buf, value);
 }
 
 static const char *
@@ -7116,11 +7432,17 @@ proto_registrar_dump_values(void)
 			     hfinfo->type == FT_UINT16 ||
 			     hfinfo->type == FT_UINT24 ||
 			     hfinfo->type == FT_UINT32 ||
+			     hfinfo->type == FT_UINT40 ||
+			     hfinfo->type == FT_UINT48 ||
+			     hfinfo->type == FT_UINT56 ||
 			     hfinfo->type == FT_UINT64 ||
 			     hfinfo->type == FT_INT8   ||
 			     hfinfo->type == FT_INT16  ||
 			     hfinfo->type == FT_INT24  ||
 			     hfinfo->type == FT_INT32  ||
+			     hfinfo->type == FT_INT40  ||
+			     hfinfo->type == FT_INT48  ||
+			     hfinfo->type == FT_INT56  ||
 			     hfinfo->type == FT_INT64)) {
 
 				if (hfinfo->display & BASE_RANGE_STRING) {
@@ -7291,11 +7613,17 @@ proto_registrar_dump_fields(void)
 			    hfinfo->type == FT_UINT16 ||
 			    hfinfo->type == FT_UINT24 ||
 			    hfinfo->type == FT_UINT32 ||
+			    hfinfo->type == FT_UINT40 ||
+			    hfinfo->type == FT_UINT48 ||
+			    hfinfo->type == FT_UINT56 ||
 			    hfinfo->type == FT_UINT64 ||
 			    hfinfo->type == FT_INT8   ||
 			    hfinfo->type == FT_INT16  ||
 			    hfinfo->type == FT_INT24  ||
 			    hfinfo->type == FT_INT32  ||
+			    hfinfo->type == FT_INT40 ||
+			    hfinfo->type == FT_INT48 ||
+			    hfinfo->type == FT_INT56 ||
 			    hfinfo->type == FT_INT64) {
 
 				switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
@@ -7361,48 +7689,6 @@ proto_registrar_dump_ftypes(void)
 	for (fte = 0; fte < FT_NUM_TYPES; fte++) {
 		printf("%s\t%s\n", ftype_name((ftenum_t)fte), ftype_pretty_name((ftenum_t)fte));
 	}
-}
-
-static const char *
-hfinfo_numeric_format(const header_field_info *hfinfo)
-{
-	const char *format = NULL;
-
-	/* Get the underlying BASE_ value */
-	switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
-		case BASE_DEC:
-		case BASE_DEC_HEX:
-		case BASE_OCT: /* I'm lazy */
-		case BASE_CUSTOM:
-			switch (hfinfo->type) {
-				case FT_UINT64:
-					format = "%s == %" G_GINT64_MODIFIER "u";
-					break;
-				case FT_INT64:
-					format = "%s == %" G_GINT64_MODIFIER "d";
-					break;
-				default:
-					DISSECTOR_ASSERT_NOT_REACHED();
-					;
-			}
-			break;
-		case BASE_HEX:
-		case BASE_HEX_DEC:
-			switch (hfinfo->type) {
-				case FT_UINT64:
-				case FT_INT64:
-					format = "%s == 0x%016" G_GINT64_MODIFIER "x";
-					break;
-				default:
-					DISSECTOR_ASSERT_NOT_REACHED();
-					;
-			}
-			break;
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			;
-	}
-	return format;
 }
 
 /* This function indicates whether it's possible to construct a
@@ -7512,14 +7798,30 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			}
 			break;
 
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
+			is_signed_num = TRUE;
+			/* FALLTHRU */
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
 		case FT_UINT64:
 			if (filter != NULL) {
-				const char *format = hfinfo_numeric_format(hfinfo);
+				guint64 number;
 
-				*filter = wmem_strdup_printf(NULL, format,
-					hfinfo->abbrev,
-					fvalue_get_integer64(&finfo->value));
+				char buf [64];
+				const char *out;
+
+				if (is_signed_num)
+					number = fvalue_get_sinteger64(&finfo->value);
+				else
+					number = fvalue_get_uinteger64(&finfo->value);
+
+				out = hfinfo_numeric_value_format64(hfinfo, buf, number);
+
+				*filter = wmem_strdup_printf(NULL, "%s == %s", hfinfo->abbrev, out);
 			}
 			break;
 
@@ -7704,6 +8006,21 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			tvb_get_ntohl(tvb, offset);
 			available_bits = 0xFFFFFFFF;
 			break;
+		case 5:
+			value = encoding ? tvb_get_letoh40(tvb, offset) :
+			tvb_get_ntoh40(tvb, offset);
+			available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFF);
+			break;
+		case 6:
+			value = encoding ? tvb_get_letoh48(tvb, offset) :
+			tvb_get_ntoh48(tvb, offset);
+			available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFF);
+			break;
+		case 7:
+			value = encoding ? tvb_get_letoh56(tvb, offset) :
+			tvb_get_ntoh56(tvb, offset);
+			available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF);
+			break;
 		case 8:
 			value = encoding ? tvb_get_letoh64(tvb, offset) :
 			tvb_get_ntoh64(tvb, offset);
@@ -7742,6 +8059,14 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		case FT_UINT24:
 		case FT_INT32:
 		case FT_UINT32:
+		case FT_INT40:
+		case FT_UINT40:
+		case FT_INT48:
+		case FT_UINT48:
+		case FT_INT56:
+		case FT_UINT56:
+		case FT_INT64:
+		case FT_UINT64:
 			if (hf->display == BASE_CUSTOM) {
 				gchar lbl[ITEM_LABEL_LENGTH];
 				const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hf->strings;
@@ -8029,6 +8354,9 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
 			value = ws_sign_ext64(value, no_of_bits);
 			break;
@@ -8074,11 +8402,17 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		fill_label_number(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
+	case FT_UINT40:
+	case FT_UINT48:
+	case FT_UINT56:
 	case FT_UINT64:
 		pi = proto_tree_add_uint64(tree, hfindex, tvb, offset, length, value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
+	case FT_INT40:
+	case FT_INT48:
+	case FT_INT56:
 	case FT_INT64:
 		pi = proto_tree_add_int64(tree, hfindex, tvb, offset, length, (gint64)value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, TRUE);
@@ -8173,6 +8507,9 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
 		case FT_INT64:
 			value = ws_sign_ext64(value, no_of_bits);
 			break;
@@ -8234,11 +8571,17 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 		fill_label_number(PITEM_FINFO(pi), lbl_str, TRUE);
 		break;
 
+	case FT_UINT40:
+	case FT_UINT48:
+	case FT_UINT56:
 	case FT_UINT64:
 		pi = proto_tree_add_uint64(tree, hfindex, tvb, octet_offset, octet_length, value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, FALSE);
 		break;
 
+	case FT_INT40:
+	case FT_INT48:
+	case FT_INT56:
 	case FT_INT64:
 		pi = proto_tree_add_int64(tree, hfindex, tvb, octet_offset, octet_length, (gint64)value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, TRUE);
@@ -8359,6 +8702,9 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 						  "%s: %s", str, value_str);
 		break;
 
+	case FT_UINT40:
+	case FT_UINT48:
+	case FT_UINT56:
 	case FT_UINT64:
 		return proto_tree_add_uint64_format(tree, hfindex, tvb, offset, length, *(guint64 *)value_ptr,
 						    "%s: %s", str, value_str);
@@ -8372,6 +8718,9 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 						 "%s: %s", str, value_str);
 		break;
 
+	case FT_INT40:
+	case FT_INT48:
+	case FT_INT56:
 	case FT_INT64:
 		return proto_tree_add_int64_format(tree, hfindex, tvb, offset, length, *(gint64 *)value_ptr,
 						   "%s: %s", str, value_str);
@@ -8442,6 +8791,36 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hfindex,
 }
 
 proto_item *
+proto_tree_add_uint64_bits_format_value(proto_tree *tree, const int hfindex,
+				      tvbuff_t *tvb, const guint bit_offset,
+				      const gint no_of_bits, guint64 value,
+				      const char *format, ...)
+{
+	va_list ap;
+	gchar  *dst;
+	header_field_info *hf_field;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
+
+	switch (hf_field->type) {
+		case FT_UINT40:
+		case FT_UINT48:
+		case FT_UINT56:
+		case FT_UINT64:
+			break;
+
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			return NULL;
+			break;
+	}
+
+	CREATE_VALUE_STRING(dst, format, ap);
+
+	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
+}
+
+proto_item *
 proto_tree_add_float_bits_format_value(proto_tree *tree, const int hfindex,
 				       tvbuff_t *tvb, const guint bit_offset,
 				       const gint no_of_bits, float value,
@@ -8491,6 +8870,36 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hfindex,
 }
 
 proto_item *
+proto_tree_add_int64_bits_format_value(proto_tree *tree, const int hfindex,
+				     tvbuff_t *tvb, const guint bit_offset,
+				     const gint no_of_bits, gint64 value,
+				     const char *format, ...)
+{
+	va_list ap;
+	gchar  *dst;
+	header_field_info *hf_field;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
+
+	switch (hf_field->type) {
+		case FT_INT40:
+		case FT_INT48:
+		case FT_INT56:
+		case FT_INT64:
+			break;
+
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			return NULL;
+			break;
+	}
+
+	CREATE_VALUE_STRING(dst, format, ap);
+
+	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
+}
+
+proto_item *
 proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hfindex,
 					 tvbuff_t *tvb, const guint bit_offset,
 					 const gint no_of_bits, guint32 value,
@@ -8503,6 +8912,25 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hfindex,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	DISSECTOR_ASSERT_FIELD_TYPE(hf_field, FT_BOOLEAN);
+
+	CREATE_VALUE_STRING(dst, format, ap);
+
+	return proto_tree_add_bits_format_value(tree, hfindex, tvb, bit_offset, no_of_bits, &value, dst);
+}
+
+proto_item *
+proto_tree_add_boolean_bits_format_value64(proto_tree *tree, const int hfindex,
+					 tvbuff_t *tvb, const guint bit_offset,
+					 const gint no_of_bits, guint64 value,
+					 const char *format, ...)
+{
+	va_list ap;
+	gchar  *dst;
+	header_field_info *hf_field;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
+
+	DISSECTOR_ASSERT(hf_field->type == FT_BOOLEAN);
 
 	CREATE_VALUE_STRING(dst, format, ap);
 

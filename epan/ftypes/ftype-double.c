@@ -176,13 +176,15 @@ ftype_register_double(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_snteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		double_fvalue_set_floating,	/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		value_get_floating,		/* get_value_floating */
 
 		cmp_eq,
@@ -219,13 +221,15 @@ ftype_register_double(void)
 		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_uinteger64 */
+		NULL,				/* set_value_sinteger64 */
 		double_fvalue_set_floating,	/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_snteger */
-		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_uinteger64 */
+		NULL,				/* get_value_sinteger64 */
 		value_get_floating,		/* get_value_floating */
 
 		cmp_eq,

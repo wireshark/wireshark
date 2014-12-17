@@ -40,11 +40,17 @@ enum ftenum {
 	FT_UINT16,
 	FT_UINT24,	/* really a UINT32, but displayed as 3 hex-digits if FD_HEX*/
 	FT_UINT32,
+	FT_UINT40,	/* really a UINT64, but displayed as 10 hex-digits if FD_HEX*/
+	FT_UINT48,	/* really a UINT64, but displayed as 12 hex-digits if FD_HEX*/
+	FT_UINT56,	/* really a UINT64, but displayed as 14 hex-digits if FD_HEX*/
 	FT_UINT64,
 	FT_INT8,
 	FT_INT16,
 	FT_INT24,	/* same as for UINT24 */
 	FT_INT32,
+	FT_INT40, /* same as for UINT40 */
+	FT_INT48, /* same as for UINT48 */
+	FT_INT56, /* same as for UINT56 */
 	FT_INT64,
 	FT_FLOAT,
 	FT_DOUBLE,
@@ -73,8 +79,8 @@ enum ftenum {
 	FT_NUM_TYPES /* last item number plus one */
 };
 
-#define IS_FT_INT(ft)    ((ft)==FT_INT8||(ft)==FT_INT16||(ft)==FT_INT24||(ft)==FT_INT32||(ft)==FT_INT64)
-#define IS_FT_UINT(ft)   ((ft)==FT_UINT8||(ft)==FT_UINT16||(ft)==FT_UINT24||(ft)==FT_UINT32||(ft)==FT_UINT64||(ft)==FT_FRAMENUM)
+#define IS_FT_INT(ft)    ((ft)==FT_INT8||(ft)==FT_INT16||(ft)==FT_INT24||(ft)==FT_INT32||(ft)==FT_INT40||(ft)==FT_INT48||(ft)==FT_INT56||(ft)==FT_INT64)
+#define IS_FT_UINT(ft)   ((ft)==FT_UINT8||(ft)==FT_UINT16||(ft)==FT_UINT24||(ft)==FT_UINT32||(ft)==FT_UINT40||(ft)==FT_UINT48||(ft)==FT_UINT56||(ft)==FT_UINT64||(ft)==FT_FRAMENUM)
 #define IS_FT_TIME(ft)   ((ft)==FT_ABSOLUTE_TIME||(ft)==FT_RELATIVE_TIME)
 #define IS_FT_STRING(ft) ((ft)==FT_STRING||(ft)==FT_STRINGZ||(ft)==FT_STRINGZPAD)
 
@@ -86,7 +92,7 @@ enum ftenum {
 #define FT_IPXNET_LEN       4
 #define FT_EUI64_LEN        8
 #define FT_AX25_ADDR_LEN    7
-#define FT_VINES_ADDR_LEN	6
+#define FT_VINES_ADDR_LEN	  6
 #define FT_FCWWN_LEN        8
 
 typedef enum ftenum ftenum_t;
@@ -185,6 +191,8 @@ typedef struct _fvalue_t {
 		guint32		uinteger;
 		gint32		sinteger;
 		guint64		integer64;
+		guint64		uinteger64;
+		gint64		sinteger64;
 		gdouble		floating;
 		gchar		*string;
 		guchar		*ustring;
@@ -273,7 +281,10 @@ void
 fvalue_set_sinteger(fvalue_t *fv, gint32 value);
 
 void
-fvalue_set_integer64(fvalue_t *fv, guint64 value);
+fvalue_set_uinteger64(fvalue_t *fv, guint64 value);
+
+void
+fvalue_set_sinteger64(fvalue_t *fv, gint64 value);
 
 void
 fvalue_set_floating(fvalue_t *fv, gdouble value);
@@ -290,7 +301,11 @@ fvalue_get_sinteger(fvalue_t *fv);
 
 WS_DLL_PUBLIC
 guint64
-fvalue_get_integer64(fvalue_t *fv);
+fvalue_get_uinteger64(fvalue_t *fv);
+
+WS_DLL_PUBLIC
+gint64
+fvalue_get_sinteger64(fvalue_t *fv);
 
 WS_DLL_PUBLIC double
 fvalue_get_floating(fvalue_t *fv);

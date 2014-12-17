@@ -1348,9 +1348,12 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                     g_string_append(label_s, val_to_str_const(svalue, cVALS(hfinfo->strings), "Unknown"));
                                 }
                                 break;
+                            case FT_INT40: /* XXX: Shouldn't these be as smart as FT_INT{8,16,24,32}? */
+                            case FT_INT48:
+                            case FT_INT56:
                             case FT_INT64:
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
-                                svalue64 = (gint64)fvalue_get_integer64(&finfo->value);
+                                svalue64 = (gint64)fvalue_get_sinteger64(&finfo->value);
                                 if (hfinfo->display & BASE_VAL64_STRING) {
                                     g_string_append(label_s, val64_to_str_const(svalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
                                 }
@@ -1359,6 +1362,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                             case FT_UINT16:
                             case FT_UINT24:
                             case FT_UINT32:
+                                DISSECTOR_ASSERT(!hfinfo->bitmask);
                                 uvalue = fvalue_get_uinteger(&finfo->value);
                                 if (!hfinfo->bitmask && hfinfo->display & BASE_RANGE_STRING) {
                                     g_string_append(label_s, rval_to_str_const(uvalue, RVALS(hfinfo->strings), "Unknown"));
@@ -1368,9 +1372,12 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                                     g_string_append(label_s, val_to_str_const(uvalue, cVALS(hfinfo->strings), "Unknown"));
                                 }
                                 break;
+                            case FT_UINT40: /* XXX: Shouldn't these be as smart as FT_INT{8,16,24,32}? */
+                            case FT_UINT48:
+                            case FT_UINT56:
                             case FT_UINT64:
                                 DISSECTOR_ASSERT(!hfinfo->bitmask);
-                                uvalue64 = fvalue_get_integer64(&finfo->value);
+                                uvalue64 = fvalue_get_uinteger64(&finfo->value);
                                 if (hfinfo->display & BASE_VAL64_STRING) {
                                     g_string_append(label_s, val64_to_str_const(uvalue64, (const val64_string *)(hfinfo->strings), "Unknown"));
                                 }

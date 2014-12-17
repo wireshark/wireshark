@@ -82,6 +82,9 @@ struct expert_field;
 #define TFS(x)	(const struct true_false_string*)(x)
 
 typedef void (*custom_fmt_func_t)(gchar *, guint32);
+
+typedef void (*custom_fmt_func_64_t)(gchar *, guint64);
+
 /** Make a custom format function pointer look like a void pointer. Used to set header_field_info.strings.
  *
  * We cast to gsize first, which 1) is guaranteed to be wide enough to

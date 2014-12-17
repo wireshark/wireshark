@@ -172,8 +172,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_UINT32:
                     it->counter += fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
                     break;
+                case FT_UINT40:
+                case FT_UINT48:
+                case FT_UINT56:
                 case FT_UINT64:
-                    it->counter += fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    it->counter += fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_INT8:
                 case FT_INT16:
@@ -181,8 +184,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_INT32:
                     it->counter += fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
                     break;
+                case FT_INT40:
+                case FT_INT48:
+                case FT_INT56:
                 case FT_INT64:
-                    it->counter += (gint64)fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    it->counter += (gint64)fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
                     break;
                 case FT_FLOAT:
                     it->float_counter +=
@@ -226,8 +232,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                         it->counter = val;
                     }
                     break;
+                case FT_UINT40:
+                case FT_UINT48:
+                case FT_UINT56:
                 case FT_UINT64:
-                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
                     if ((it->frames == 1 && i == 0) || (val < it->counter)) {
                         it->counter = val;
                     }
@@ -241,8 +250,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                         it->counter = val;
                     }
                     break;
+                case FT_INT40:
+                case FT_INT48:
+                case FT_INT56:
                 case FT_INT64:
-                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
                     if ((it->frames == 1 && i == 0) || ((gint64)val < (gint64)it->counter)) {
                         it->counter = val;
                     }
@@ -295,8 +307,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                     if (val > it->counter)
                         it->counter = val;
                     break;
+                case FT_UINT40:
+                case FT_UINT48:
+                case FT_UINT56:
                 case FT_UINT64:
-                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
                     if (val > it->counter)
                         it->counter = val;
                     break;
@@ -308,8 +323,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                     if ((gint32)val > (gint32)it->counter)
                         it->counter = val;
                     break;
+                case FT_INT40:
+                case FT_INT48:
+                case FT_INT56:
                 case FT_INT64:
-                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
                     if ((gint64)val > (gint64)it->counter)
                         it->counter = val;
                     break;
@@ -356,9 +374,11 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                     val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
                     it->counter += val;
                     break;
+                case FT_UINT40:
+                case FT_UINT48:
+                case FT_UINT56:
                 case FT_UINT64:
-                case FT_INT64:
-                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    val = fvalue_get_uinteger64(&((field_info *)gp->pdata[i])->value);
                     it->counter += val;
                     break;
                 case FT_INT8:
@@ -366,6 +386,13 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
                 case FT_INT24:
                 case FT_INT32:
                     val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    it->counter += val;
+                    break;
+                case FT_INT40:
+                case FT_INT48:
+                case FT_INT56:
+                case FT_INT64:
+                    val = fvalue_get_sinteger64(&((field_info *)gp->pdata[i])->value);
                     it->counter += val;
                     break;
                 case FT_FLOAT:
