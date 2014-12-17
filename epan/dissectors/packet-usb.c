@@ -172,6 +172,9 @@ static int hf_usb_bFunctionSubClass = -1;
 static int hf_usb_bFunctionProtocol = -1;
 static int hf_usb_iFunction = -1;
 static int hf_usb_data_fragment = -1;
+static int hf_usb_src = -1;
+static int hf_usb_dst = -1;
+static int hf_usb_addr = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
@@ -1124,7 +1127,6 @@ static void clear_usb_conv_tmp_data(usb_conv_info_t *usb_conv_info)
     }
 }
 
- 
 conversation_t *
 get_usb_conversation(packet_info *pinfo,
                      address *src_addr, address *dst_addr,
@@ -1172,10 +1174,10 @@ get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num)
 static const char* usb_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
     if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_USB))
-        return "usb.sa";
+        return "usb.src";
 
     if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_USB))
-        return "usb.da";
+        return "usb.dst";
 
     if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_USB))
         return "usb.addr";
@@ -2770,7 +2772,6 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
                 usb_conv_info = get_usb_conv_info(conversation);
                 usb_conv_info->usb_trans_info = usb_trans_info;
-                
             }
             else {
                 /* the recipient is "other" or "reserved"
@@ -3106,11 +3107,14 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 /* Set the usb_address_t fields based on the direction of the urb */
 void
-usb_set_addr(packet_info *pinfo, guint16 bus_id, guint16 device_address,
+usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id, guint16 device_address,
              int endpoint, gboolean req)
 {
+    proto_item     *sub_item;
     usb_address_t  *src_addr = wmem_new(pinfo->pool, usb_address_t),
                    *dst_addr = wmem_new(pinfo->pool, usb_address_t);
+    guint8         *str_src_addr;
+    guint8         *str_dst_addr;
 
     if (req) {
         /* request */
@@ -3135,6 +3139,21 @@ usb_set_addr(packet_info *pinfo, guint16 bus_id, guint16 device_address,
     pinfo->ptype = PT_USB;
     pinfo->srcport = src_addr->endpoint;
     pinfo->destport = dst_addr->endpoint;
+
+    str_src_addr = address_to_str(wmem_packet_scope(), &pinfo->src);
+    str_dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
+
+    sub_item = proto_tree_add_string(tree, hf_usb_src, tvb, 0, 0, str_src_addr);
+    PROTO_ITEM_SET_GENERATED(sub_item);
+
+    sub_item = proto_tree_add_string(tree, hf_usb_addr, tvb, 0, 0, str_src_addr);
+    PROTO_ITEM_SET_HIDDEN(sub_item);
+
+    sub_item = proto_tree_add_string(tree, hf_usb_dst, tvb, 0, 0, str_dst_addr);
+    PROTO_ITEM_SET_GENERATED(sub_item);
+
+    sub_item = proto_tree_add_string(tree, hf_usb_addr, tvb, 0, 0, str_dst_addr);
+    PROTO_ITEM_SET_HIDDEN(sub_item);
 }
 
 
@@ -3439,17 +3458,17 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     else
         return; /* invalid USB pseudo header */
 
-    usb_set_addr(pinfo, bus_id, device_address, endpoint,
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
+    urb_tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
+    tree = proto_item_add_subtree(urb_tree_ti, usb_hdr);
+
+    usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint,
                  (urb_type == URB_SUBMIT));
 
     conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, pinfo->destport);
     usb_conv_info = get_usb_conv_info(conversation);
     clear_usb_conv_tmp_data(usb_conv_info);
 
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
-    urb_tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
-    tree = proto_item_add_subtree(urb_tree_ti, usb_hdr);
 
     if (header_info & USB_HEADER_IS_LINUX) {
         proto_item_set_len(urb_tree_ti, (header_info&USB_HEADER_IS_64_BYTES) ? 64 : 48);
@@ -4255,6 +4274,21 @@ proto_register_usb(void)
           { "Data Fragment",
             "usb.data_fragment", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
+        { &hf_usb_src,
+            { "Source",                              "usb.src",
+            FT_STRING, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_usb_dst,
+            { "Destination",                         "usb.dst",
+            FT_STRING, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_usb_addr,
+            { "Source or Destination",               "usb.addr",
+            FT_STRING, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }
+        }
    };
 
     static gint *usb_subtrees[] = {

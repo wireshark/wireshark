@@ -414,14 +414,14 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
     src_addr = address_to_str(NULL, &conv_item->src_address);
     dst_addr = address_to_str(NULL, &conv_item->dst_address);
 
-    if (conv_item->src_address.type == AT_STRINGZ) {
+    if (conv_item->src_address.type == AT_STRINGZ || conv_item->src_address.type == AT_USB) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", src_addr);
         wmem_free(NULL, src_addr);
         src_addr = new_addr;
     }
-    if (conv_item->dst_address.type == AT_STRINGZ) {
+    if (conv_item->dst_address.type == AT_STRINGZ || conv_item->src_address.type == AT_USB) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", dst_addr);
@@ -564,7 +564,7 @@ const char *get_hostlist_filter(hostlist_talker_t *host)
 
     sport=ct_port_to_str(host->ptype, host->port);
     src_addr = address_to_str(NULL, &host->myaddress);
-    if (host->myaddress.type == AT_STRINGZ) {
+    if (host->myaddress.type == AT_STRINGZ || host->myaddress.type == AT_USB) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", src_addr);

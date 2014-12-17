@@ -239,7 +239,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 
 
 void
-usb_set_addr(packet_info *pinfo, guint16 bus_id, guint16 device_address,
+usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id, guint16 device_address,
              int endpoint, gboolean req);
 
 usb_trans_info_t

@@ -1113,8 +1113,8 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
 }
 
 static conversation_t
-*get_mausb_conversation(packet_info *pinfo, guint16 handle,
-                        gboolean is_data, gboolean req)
+*get_mausb_conversation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                        guint16 handle, gboolean is_data, gboolean req)
 {
     conversation_t *conversation = NULL;
     guint16 device_address;
@@ -1127,7 +1127,7 @@ static conversation_t
         endpoint = mausb_ep_handle_ep_num(handle);
         bus_num = mausb_ep_handle_bus_num(handle);
 
-        usb_set_addr(pinfo, bus_num, device_address, endpoint, req);
+        usb_set_addr(tree, tvb, pinfo, bus_num, device_address, endpoint, req);
         conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst,
                                             pinfo->srcport, pinfo->destport);
     }
@@ -1228,7 +1228,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Once we have the endpoint/device handle,
      * we can find the right conversation */
-    conversation = get_mausb_conversation(pinfo, header.handle,
+    conversation = get_mausb_conversation(mausb_tree, tvb, pinfo, header.handle,
                                           mausb_is_data_pkt(&header),
                                           mausb_is_from_host(&header));
 
