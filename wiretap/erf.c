@@ -467,7 +467,7 @@ static int erf_read_header(FILE_T fh,
     case ERF_TYPE_TCP_FLOW_COUNTER:
       /* unsupported, continue with default: */
     default:
-      *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+      *err = WTAP_ERR_UNSUPPORTED;
       *err_info = g_strdup_printf("erf: unknown record encapsulation %u",
                                   erf_header->type);
       return FALSE;

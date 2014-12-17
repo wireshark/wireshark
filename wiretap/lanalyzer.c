@@ -412,7 +412,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 						wth->file_encap = WTAP_ENCAP_TOKEN_RING;
 						break;
 					default:
-						*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+						*err = WTAP_ERR_UNSUPPORTED;
 						*err_info = g_strdup_printf("lanalyzer: board type %u unknown",
 						    board_type);
 						return -1;

@@ -318,7 +318,7 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
     }
     if (mediaSubType >= NUM_PEEKTAGGED_ENCAPS
         || peektagged_encap[mediaSubType] == WTAP_ENCAP_UNKNOWN) {
-	*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+	*err = WTAP_ERR_UNSUPPORTED;
 	*err_info = g_strdup_printf("peektagged: network type %u unknown or unsupported",
 	    mediaSubType);
 	return -1;

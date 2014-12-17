@@ -245,7 +245,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 
 	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network);
 	if (file_encap == WTAP_ENCAP_UNKNOWN) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
 		    hdr.network);
 		return -1;

@@ -386,7 +386,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	if (is_shomiti) {
 		if (hdr.network >= NUM_SHOMITI_ENCAPS
 		    || shomiti_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("snoop: Shomiti network type %u unknown or unsupported",
 			    hdr.network);
 			return -1;
@@ -398,7 +398,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	} else if (hdr.network & SNOOP_PRIVATE_BIT) {
 		if ((hdr.network^SNOOP_PRIVATE_BIT) >= NUM_SNOOP_PRIVATE_ENCAPS
 		    || snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT] == WTAP_ENCAP_UNKNOWN) {
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("snoop: private network type %u unknown or unsupported",
 			    hdr.network);
 			return -1;
@@ -410,7 +410,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	} else {
 		if (hdr.network >= NUM_SNOOP_ENCAPS
 		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("snoop: network type %u unknown or unsupported",
 			    hdr.network);
 			return -1;

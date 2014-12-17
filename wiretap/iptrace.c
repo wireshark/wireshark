@@ -142,7 +142,7 @@ iptrace_read_rec_1_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	pkt_hdr.if_type = header[28];
 	phdr->pkt_encap = wtap_encap_ift(pkt_hdr.if_type);
 	if (phdr->pkt_encap == WTAP_ENCAP_UNKNOWN) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
 		return FALSE;
@@ -337,7 +337,7 @@ iptrace_read_rec_2_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	 * that we don't handle?
 	 */
 	if (phdr->pkt_encap == WTAP_ENCAP_UNKNOWN) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
 		return FALSE;
