@@ -59,7 +59,10 @@ col_setup(column_info *cinfo, const gint num_cols)
   cinfo->col_title             = g_new(gchar*, num_cols);
   cinfo->col_custom_field      = g_new(gchar*, num_cols);
   cinfo->col_custom_occurrence = g_new(gint, num_cols);
-  cinfo->col_custom_field_id   = g_new(int, num_cols);
+  cinfo->col_custom_field_ids  = g_new(GSList *, num_cols);
+  for (i = 0; i < num_cols; i++) {
+    cinfo->col_custom_field_ids[i] = NULL;
+  }
   cinfo->col_custom_dfilter    = g_new(struct epan_dfilter*, num_cols);
   cinfo->col_data              = g_new(const gchar*, num_cols);
   cinfo->col_buf               = g_new(gchar*, num_cols);
@@ -71,6 +74,12 @@ col_setup(column_info *cinfo, const gint num_cols)
     cinfo->col_first[i] = -1;
     cinfo->col_last[i] = -1;
   }
+}
+
+static void
+col_custom_field_ids_free(gpointer data)
+{
+    g_free(data);
 }
 
 /* Cleanup all the data structures for constructing column data; undoes
@@ -87,6 +96,8 @@ col_cleanup(column_info *cinfo)
     dfilter_free(cinfo->col_custom_dfilter[i]);
     g_free(cinfo->col_buf[i]);
     g_free(cinfo->col_expr.col_expr_val[i]);
+    if (cinfo->col_custom_field_ids[i])
+        g_slist_free_full(cinfo->col_custom_field_ids[i], col_custom_field_ids_free);
   }
 
   g_free(cinfo->col_fmt);
@@ -96,7 +107,7 @@ col_cleanup(column_info *cinfo)
   g_free(cinfo->col_title);
   g_free(cinfo->col_custom_field);
   g_free(cinfo->col_custom_occurrence);
-  g_free(cinfo->col_custom_field_id);
+  g_free(cinfo->col_custom_field_ids);
   g_free(cinfo->col_custom_dfilter);
   /*
    * XXX - MSVC doesn't correctly handle the "const" qualifier; it thinks
@@ -290,9 +301,9 @@ void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
     if (cinfo->fmt_matx[i][COL_CUSTOM] &&
         cinfo->col_custom_field[i] &&
-        cinfo->col_custom_field_id[i] != -1) {
-       cinfo->col_data[i] = cinfo->col_buf[i];
-       cinfo->col_expr.col_expr[i] = epan_custom_set(edt, cinfo->col_custom_field_id[i],
+        cinfo->col_custom_field_ids[i]) {
+        cinfo->col_data[i] = cinfo->col_buf[i];
+        cinfo->col_expr.col_expr[i] = epan_custom_set(edt, cinfo->col_custom_field_ids[i],
                                      cinfo->col_custom_occurrence[i],
                                      cinfo->col_buf[i],
                                      cinfo->col_expr.col_expr_val[i],
@@ -311,14 +322,38 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 
   for (i = cinfo->col_first[COL_CUSTOM];
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
+    int i_list = 0;
 
-    cinfo->col_custom_field_id[i] = -1;
+    if (cinfo->col_custom_field_ids[i])
+        g_slist_free_full(cinfo->col_custom_field_ids[i], col_custom_field_ids_free);
+
+    cinfo->col_custom_field_ids[i] = NULL;
+
     if (cinfo->fmt_matx[i][COL_CUSTOM] &&
         cinfo->col_custom_dfilter[i]) {
       epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
       if (cinfo->col_custom_field) {
-        header_field_info* hfinfo = proto_registrar_get_byname(cinfo->col_custom_field[i]);
-        cinfo->col_custom_field_id[i] = hfinfo ? hfinfo->id : -1;
+        gchar  **fields;
+        gchar   *field;
+        int      i_field = 0;
+
+        fields = g_strsplit(cinfo->col_custom_field[i], " || ", -1);
+
+        while((field = fields[i_field++])) {
+            int id;
+
+            header_field_info* hfinfo = proto_registrar_get_byname(field);
+            id = hfinfo ? hfinfo->id : -1;
+            if (id >= 0) {
+                int *idx;
+
+                idx = g_new(int, 1);
+                *idx = id;
+                cinfo->col_custom_field_ids[i] = g_slist_insert(cinfo->col_custom_field_ids[i], idx, i_list);
+                i_list += 1;
+            }
+        }
+        g_strfreev(fields);
       }
     }
   }

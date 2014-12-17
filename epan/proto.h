@@ -2427,7 +2427,7 @@ proto_check_field_name(const gchar *field_name);
  @param expr the filter expression
  @param size the size of the string buffer */
 const gchar *
-proto_custom_set(proto_tree* tree, const int field_id,
+proto_custom_set(proto_tree* tree, GSList *field_id,
                              gint occurrence,
                              gchar *result,
                              gchar *expr, const int size );

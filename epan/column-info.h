@@ -54,7 +54,7 @@ struct epan_column_info {
   gchar             **col_title;            /**< Column titles */
   gchar             **col_custom_field;     /**< Custom column field */
   gint               *col_custom_occurrence;/**< Custom column field occurrence */
-  gint               *col_custom_field_id;  /**< Custom column field id */
+  GSList            **col_custom_field_ids; /**< Custom column field id */
   struct epan_dfilter **col_custom_dfilter; /**< Compiled custom column field */
   const gchar       **col_data;             /**< Column data */
   gchar             **col_buf;              /**< Buffer into which to copy data for column */
