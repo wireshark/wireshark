@@ -118,13 +118,13 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
         case WTAP_ERR_FILE_UNKNOWN_FORMAT:
             /* Seen only when opening a capture file for reading. */
-            errmsg = "The file \"%s\" isn't a capture file in a format TShark understands.";
+            errmsg = "The file \"%s\" isn't a capture file in a format Wireshark understands.";
             break;
 
         case WTAP_ERR_UNSUPPORTED:
             /* Seen only when opening a capture file for reading. */
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                       "The file \"%%s\" contains record data that TShark doesn't support.\n"
+                       "The file \"%%s\" contains record data that Wireshark doesn't support.\n"
                        "(%s)", err_info);
             g_free(err_info);
             errmsg = errmsg_errno;
@@ -140,15 +140,15 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
         case WTAP_ERR_UNWRITABLE_FILE_TYPE:
             /* Seen only when opening a capture file for writing. */
-            errmsg = "TShark doesn't support writing capture files in that format.";
+            errmsg = "Wireshark doesn't support writing capture files in that format.";
             break;
 
         case WTAP_ERR_UNWRITABLE_ENCAP:
             if (for_writing)
-                errmsg = "TShark can't save this capture in that format.";
+                errmsg = "Wireshark can't save this capture in that format.";
             else {
                 g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                           "The file \"%%s\" is a capture for a network type that TShark doesn't support.\n"
+                           "The file \"%%s\" is a capture for a network type that Wireshark doesn't support.\n"
                            "(%s)", err_info);
                 g_free(err_info);
                 errmsg = errmsg_errno;
@@ -157,9 +157,9 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
             if (for_writing)
-                errmsg = "TShark can't save this capture in that format.";
+                errmsg = "Wireshark can't save this capture in that format.";
             else
-                errmsg = "The file \"%s\" is a capture for a network type that TShark doesn't support.";
+                errmsg = "The file \"%s\" is a capture for a network type that Wireshark doesn't support.";
             break;
 
         case WTAP_ERR_BAD_FILE:
