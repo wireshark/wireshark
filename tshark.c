@@ -3116,7 +3116,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* We couldn't set up to write to the capture file. */
       switch (err) {
 
-      case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+      case WTAP_ERR_UNWRITABLE_FILE_TYPE:
         cmdarg_err("Capture files can't be written in that format.");
         break;
 
@@ -4160,7 +4160,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       errmsg = errmsg_errno;
       break;
 
-    case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+    case WTAP_ERR_UNWRITABLE_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
       errmsg = "TShark doesn't support writing capture files in that format.";
       break;

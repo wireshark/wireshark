@@ -2225,7 +2225,7 @@ wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int 
 {
 	if (!wtap_dump_can_open(file_type_subtype)) {
 		/* Invalid type, or type we don't know how to write. */
-		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
 		return FALSE;
 	}
 

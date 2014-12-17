@@ -1845,7 +1845,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             nstrace->page_offset += (guint16) phdr->caplen;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
-            *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+            *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
         }
 
@@ -1860,7 +1860,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     case NSPR_HEADER_VERSION206:
         if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         {
-            *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+            *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
@@ -1889,11 +1889,11 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     case NSPR_HEADER_VERSION300:
         if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
         {
-            *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+            *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
         {
-            *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+            *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
         } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0)
         {

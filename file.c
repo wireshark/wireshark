@@ -5020,7 +5020,7 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
             display_basename, wtap_file_type_subtype_string(file_type));
       break;
 
-    case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+    case WTAP_ERR_UNWRITABLE_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
       simple_error_message_box(
             "Wireshark doesn't support writing capture files in that format.");

@@ -409,7 +409,7 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err)
     default:
         /* We should never get here - our open routine
            should only get called for the types above. */
-        *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+        *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
         return FALSE;
     }
 
@@ -451,7 +451,7 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
     default:
         /* We should never get here - our open routine
            should only get called for the types above. */
-        *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+        *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
         return FALSE;
     }
 

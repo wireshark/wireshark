@@ -532,7 +532,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
                 return FALSE;
             }
         } else {
-            *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+            *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
         }
     }

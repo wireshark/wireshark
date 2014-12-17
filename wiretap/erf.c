@@ -730,7 +730,7 @@ int erf_dump_open(wtap_dumper *wdh, int *err)
       wdh->tsprecision = WTAP_TSPREC_NSEC;
       break;
     default:
-      *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+      *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
       return FALSE;
       break;
   }

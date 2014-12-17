@@ -831,7 +831,7 @@ static const char *wtap_errlist[] = {
 	/* WTAP_ERR_CANT_OPEN */
 	NULL,
 
-	/* WTAP_ERR_UNSUPPORTED_FILE_TYPE */
+	/* WTAP_ERR_UNWRITABLE_FILE_TYPE */
 	"Files can't be saved in that format",
 
 	/* WTAP_ERR_UNWRITABLE_ENCAP */

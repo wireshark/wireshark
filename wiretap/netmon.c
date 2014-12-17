@@ -1038,7 +1038,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	default:
 		/* We should never get here - our open routine
 		   should only get called for the types above. */
-		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
 		return FALSE;
 	}
 
@@ -1143,7 +1143,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	default:
 		/* We should never get here - our open routine
 		   should only get called for the types above. */
-		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
 		return FALSE;
 	}
 
@@ -1296,7 +1296,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 		/* We should never get here - our open routine
 		   should only get called for the types above. */
 		if (err != NULL)
-			*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+			*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
 		return FALSE;
 	}
 	if (!wtap_dump_file_write(wdh, magicp, magic_size, err))

@@ -223,7 +223,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     if (! d ) {
         /* WSLUA_ERROR("Error while opening file for writing"); */
         switch (err) {
-        case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+        case WTAP_ERR_UNWRITABLE_FILE_TYPE:
             luaL_error(L,"Files of file type %s cannot be written",
                        wtap_file_type_subtype_string(filetype));
             break;
@@ -367,7 +367,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
     if (! d ) {
         switch (err) {
-        case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
+        case WTAP_ERR_UNWRITABLE_FILE_TYPE:
             luaL_error(L,"Files of file type %s cannot be written",
                        wtap_file_type_subtype_string(filetype));
             break;

@@ -851,7 +851,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	default:
 		/* We should never get here - our open routine
 		   should only get called for the types above. */
-		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
 		return FALSE;
 	}
 
@@ -982,7 +982,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		/* We should never get here - our open routine
 		   should only get called for the types above. */
 		g_assert_not_reached();
-		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
 		return FALSE;
 	}
 
