@@ -4174,8 +4174,8 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" isn't a capture file in a format TShark understands.\n"
-               "(%s)", err_info);
+                 "The file \"%%s\" contains record data that TShark doesn't support.\n"
+                 "(%s)", err_info);
       g_free(err_info);
       errmsg = errmsg_errno;
       break;
