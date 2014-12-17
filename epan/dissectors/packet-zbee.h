@@ -681,10 +681,6 @@
 #define ZBEE_MFG_CODE_ABB                   0x10eb
 #define ZBEE_MFG_CODE_SONY                  0x10ec
 #define ZBEE_MFG_CODE_GENUS                 0x10ed
-#define ZBEE_MFG_CODE_EMBEDDED              0x10ea
-#define ZBEE_MFG_CODE_ABB                   0x10eb
-#define ZBEE_MFG_CODE_SONY                  0x10ec
-#define ZBEE_MFG_CODE_GENUS                 0x10ed
 #define ZBEE_MFG_CODE_UNIVERSAL1            0x10ee
 #define ZBEE_MFG_CODE_UNIVERSAL2            0x10ef
 #define ZBEE_MFG_CODE_METRUM                0x10f0

@@ -1674,7 +1674,7 @@ dissect_zcl_ke_suite2_certificate(tvbuff_t *tvb, proto_tree *tree, guint *offset
     proto_tree_add_item(tree, hf_zbee_zcl_ke_cert_issuer, tvb, *offset, 8, ENC_NA);
     *offset += 8;
 
-    valid_from_time.secs = tvb_get_ntoh40(tvb, *offset);
+    valid_from_time.secs = (time_t)tvb_get_ntoh40(tvb, *offset);
     valid_from_time.nsecs = 0;
     proto_tree_add_time(tree, hf_zbee_zcl_ke_cert_valid_from, tvb, *offset, 5, &valid_from_time);
     *offset += 5;
