@@ -254,7 +254,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	hdr.network = pletohs(&hdr.network);
 	if (hdr.network >= NUM_NETMON_ENCAPS
 	    || netmon_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
 		    hdr.network);
 		return -1;
@@ -866,7 +866,7 @@ netmon_read_rec_trailer(FILE_T fh, int trlr_size, int *err, gchar **err_info)
 		network &= 0x0FFF;
 		pkt_encap = wtap_pcap_encap_to_wtap_encap(network);
 		if (pkt_encap == WTAP_ENCAP_UNKNOWN) {
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("netmon: converted pcap network type %u unknown or unsupported",
 			    network);
 			return -1;	/* error */
@@ -877,7 +877,7 @@ netmon_read_rec_trailer(FILE_T fh, int trlr_size, int *err, gchar **err_info)
 		 */
 		pkt_encap = netmon_encap[network];
 		if (pkt_encap == WTAP_ENCAP_UNKNOWN) {
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
 			    network);
 			return -1;	/* error */
@@ -902,7 +902,7 @@ netmon_read_rec_trailer(FILE_T fh, int trlr_size, int *err, gchar **err_info)
 			return 0;
 
 		default:
-			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
 			    network);
 			return -1;	/* error */

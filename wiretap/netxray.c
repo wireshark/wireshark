@@ -480,7 +480,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	if (network_type >= NUM_NETXRAY_ENCAPS
 	    || netxray_encap[network_type] == WTAP_ENCAP_UNKNOWN) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("netxray: network type %u (%u) unknown or unsupported",
 		    network_type, hdr.network_plus);
 		return -1;
@@ -742,7 +742,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 					break;
 
 				default:
-					*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+					*err = WTAP_ERR_UNSUPPORTED;
 					*err_info = g_strdup_printf("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
 					   hdr.wan_hdlc_subsub_captype);
 					return -1;
@@ -764,7 +764,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				break;
 
 			default:
-				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf("netxray: WAN capture subtype 0x%02x unknown or unsupported",
 				   hdr.captype);
 				return -1;

@@ -216,7 +216,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.ts.nsecs = 0;
 
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
 		return FALSE;
@@ -437,7 +437,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
  * reported easily back to the Wireshark develoer.
 
 	if (wth->phdr.pkt_encap == WTAP_ENCAP_UNKNOWN) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    pkt_hdr.if_type);
 		return FALSE;
