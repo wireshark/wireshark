@@ -3272,7 +3272,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                         wtap_file_type_subtype_short_string(out_file_type));
                 break;
 
-              case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+              case WTAP_ERR_UNWRITABLE_REC_TYPE:
                 /*
                  * This is a problem with the particular record we're writing
                  * and the file type and subtype we're writing; note that,
@@ -3381,7 +3381,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                       wtap_file_type_subtype_short_string(out_file_type));
               break;
 
-            case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+            case WTAP_ERR_UNWRITABLE_REC_TYPE:
               /*
                * This is a problem with the particular record we're writing
                * and the file type and subtype we're writing; note that,

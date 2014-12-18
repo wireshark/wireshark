@@ -1737,7 +1737,7 @@ netxray_dump_1_1(wtap_dumper *wdh,
 
 	/* We can only write packet records. */
 	if (phdr->rec_type != REC_TYPE_PACKET) {
-		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
 		return FALSE;
 	}
 
@@ -1916,7 +1916,7 @@ netxray_dump_2_0(wtap_dumper *wdh,
 
 	/* We can only write packet records. */
 	if (phdr->rec_type != REC_TYPE_PACKET) {
-		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
 		return FALSE;
 	}
 

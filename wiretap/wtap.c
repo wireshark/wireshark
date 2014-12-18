@@ -882,7 +882,7 @@ static const char *wtap_errlist[] = {
 	/* WTAP_ERR_CHECK_WSLUA */
 	NULL,
 
-	/* WTAP_ERR_REC_TYPE_UNSUPPORTED */
+	/* WTAP_ERR_UNWRITABLE_REC_TYPE */
 	"That record type cannot be written in that format",
 
 	/* WTAP_ERR_UNWRITABLE_REC_DATA */

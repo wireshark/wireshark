@@ -1736,7 +1736,7 @@ int wtap_register_encap_type(const char* name, const char* short_name);
     /** Not really an error: the file type being checked is from a Lua
         plugin, so that the code will call wslua_can_write_encap() instead if it gets this */
 
-#define WTAP_ERR_REC_TYPE_UNSUPPORTED         -24
+#define WTAP_ERR_UNWRITABLE_REC_TYPE          -24
     /** Specified record type can't be written to that file type */
 
 #define WTAP_ERR_UNWRITABLE_REC_DATA          -25

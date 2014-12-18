@@ -1667,7 +1667,7 @@ main(int argc, char *argv[])
                                 wtap_file_type_subtype_string(out_file_type_subtype));
                         break;
 
-                    case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+                    case WTAP_ERR_UNWRITABLE_REC_TYPE:
                         /*
                          * This is a problem with the particular record we're
                          * writing and the file type and subtype we're

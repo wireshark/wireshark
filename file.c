@@ -1599,7 +1599,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         g_free(display_basename);
         break;
 
-      case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+      case WTAP_ERR_UNWRITABLE_REC_TYPE:
         /*
          * This is a problem with the particular record we're writing and
          * the file type and subtype we're writing; note that, and report
@@ -4203,7 +4203,7 @@ save_record(capture_file *cf, frame_data *fdata,
                       fdata->num, wtap_file_type_subtype_string(args->file_type));
         break;
 
-      case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+      case WTAP_ERR_UNWRITABLE_REC_TYPE:
         /*
          * This is a problem with the particular record we're writing and
          * the file type and subtype we're writing; note that, and report

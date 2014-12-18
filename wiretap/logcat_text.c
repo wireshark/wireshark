@@ -428,7 +428,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
 
     /* We can only write packet records. */
     if (phdr->rec_type != REC_TYPE_PACKET) {
-        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
         return FALSE;
     }
 
