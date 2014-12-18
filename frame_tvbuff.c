@@ -58,8 +58,8 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	 * frame_tvb->tvb.length + frame_tvb->offset?
 	 */
 	if (!wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, &err, &err_info)) {
+		/* XXX - report error! */
 		switch (err) {
-			case WTAP_ERR_UNWRITABLE_ENCAP:
 			case WTAP_ERR_BAD_FILE:
 				g_free(err_info);
 				break;

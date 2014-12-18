@@ -1012,12 +1012,6 @@ load_cap_file(capture_file *cf)
                 g_free(err_info);
                 break;
 
-            case WTAP_ERR_UNWRITABLE_ENCAP:
-                cmdarg_err("The file \"%s\" has a packet with a network type that Rawshark doesn't support.\n(%s)",
-                           cf->filename, err_info);
-                g_free(err_info);
-                break;
-
             case WTAP_ERR_SHORT_READ:
                 cmdarg_err("The file \"%s\" appears to have been cut short in the middle of a packet.",
                            cf->filename);

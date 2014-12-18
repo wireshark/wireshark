@@ -144,15 +144,8 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             break;
 
         case WTAP_ERR_UNWRITABLE_ENCAP:
-            if (for_writing)
-                errmsg = "Wireshark can't save this capture in that format.";
-            else {
-                g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                           "The file \"%%s\" is a capture for a network type that Wireshark doesn't support.\n"
-                           "(%s)", err_info);
-                g_free(err_info);
-                errmsg = errmsg_errno;
-            }
+            /* Seen only when opening a capture file for writing. */
+            errmsg = "Wireshark can't save this capture in that format.";
             break;
 
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:

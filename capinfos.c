@@ -905,10 +905,8 @@ process_cap_file(wtap *wth, const char *filename)
         break;
 
       case WTAP_ERR_UNSUPPORTED:
-      case WTAP_ERR_UNWRITABLE_ENCAP:
       case WTAP_ERR_BAD_FILE:
       case WTAP_ERR_DECOMPRESS:
-      case WTAP_ERR_UNWRITABLE_REC_DATA:
         fprintf(stderr, "(%s)\n", err_info);
         g_free(err_info);
         /* fallthrough */
@@ -1486,10 +1484,8 @@ main(int argc, char *argv[])
       switch (err) {
 
         case WTAP_ERR_UNSUPPORTED:
-        case WTAP_ERR_UNWRITABLE_ENCAP:
         case WTAP_ERR_BAD_FILE:
         case WTAP_ERR_DECOMPRESS:
-        case WTAP_ERR_UNWRITABLE_REC_DATA:
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);
           break;

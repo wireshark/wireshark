@@ -747,13 +747,6 @@ cf_read(capture_file *cf, gboolean reloading)
       g_free(err_info);
       break;
 
-    case WTAP_ERR_UNWRITABLE_ENCAP:
-      simple_error_message_box(
-                 "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
-                 err_info);
-      g_free(err_info);
-      break;
-
     case WTAP_ERR_SHORT_READ:
       simple_error_message_box(
                  "The capture file appears to have been cut short"
@@ -1526,13 +1519,6 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         display_basename = g_filename_display_basename(in_files[i].filename);
         switch (read_err) {
 
-        case WTAP_ERR_UNWRITABLE_ENCAP:
-          simple_error_message_box(
-                     "The capture file %s has a packet with a network type that Wireshark doesn't support.\n(%s)",
-                     display_basename, err_info);
-          g_free(err_info);
-          break;
-
         case WTAP_ERR_SHORT_READ:
           simple_error_message_box(
                      "The capture file %s appears to have been cut short"
@@ -1757,12 +1743,6 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
   if (!wtap_seek_read(cf->wth, fdata->file_off, phdr, buf, &err, &err_info)) {
     display_basename = g_filename_display_basename(cf->filename);
     switch (err) {
-
-    case WTAP_ERR_UNWRITABLE_ENCAP:
-      simple_error_message_box("The file \"%s\" has a packet with a network type that Wireshark doesn't support.\n(%s)",
-                 display_basename, err_info);
-      g_free(err_info);
-      break;
 
     case WTAP_ERR_BAD_FILE:
       simple_error_message_box("An error occurred while reading from the file \"%s\": %s.\n(%s)",
@@ -4543,13 +4523,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
       g_free(err_info);
       break;
 
-    case WTAP_ERR_UNWRITABLE_ENCAP:
-      simple_error_message_box(
-                 "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
-                 err_info);
-      g_free(err_info);
-      break;
-
     case WTAP_ERR_SHORT_READ:
       simple_error_message_box(
                  "The capture file appears to have been cut short"
@@ -5082,15 +5055,8 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
       break;
 
     case WTAP_ERR_UNWRITABLE_ENCAP:
-      if (for_writing) {
-        simple_error_message_box("Wireshark can't save this capture in that format.");
-      } else {
-        simple_error_message_box(
-              "The file \"%s\" is a capture for a network type that Wireshark doesn't support.\n"
-              "(%s)",
-              display_basename, err_info);
-        g_free(err_info);
-      }
+      /* Seen only when opening a capture file for writing. */
+      simple_error_message_box("Wireshark can't save this capture in that format.");
       break;
 
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:

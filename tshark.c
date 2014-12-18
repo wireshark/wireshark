@@ -3469,12 +3469,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       g_free(err_info);
       break;
 
-    case WTAP_ERR_UNWRITABLE_ENCAP:
-      cmdarg_err("The file \"%s\" has a packet with a network type that TShark doesn't support.\n(%s)",
-                 cf->filename, err_info);
-      g_free(err_info);
-      break;
-
     case WTAP_ERR_SHORT_READ:
       cmdarg_err("The file \"%s\" appears to have been cut short in the middle of a packet.",
                  cf->filename);
@@ -4224,16 +4218,10 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       break;
 
     case WTAP_ERR_UNWRITABLE_ENCAP:
-      if (for_writing) {
-        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                   "TShark can't save this capture as a \"%s\" file.",
-                   wtap_file_type_subtype_short_string(file_type));
-      } else {
-        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" is a capture for a network type that TShark doesn't support.\n"
-                 "(%s)", err_info);
-        g_free(err_info);
-      }
+      /* Seen only when opening a capture file for writing. */
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                 "TShark can't save this capture as a \"%s\" file.",
+                 wtap_file_type_subtype_short_string(file_type));
       errmsg = errmsg_errno;
       break;
 
