@@ -1276,6 +1276,7 @@ EXTRA_DIST = \
 	cmake/modules/FindSETCAP.cmake		\
 	cmake/modules/FindSH.cmake		\
 	cmake/modules/FindSMI.cmake		\
+	cmake/modules/FindWireshark.cmake	\
 	cmake/modules/FindWSWinLibs.cmake	\
 	cmake/modules/FindXMLLINT.cmake		\
 	cmake/modules/FindXSLTPROC.cmake	\
@@ -1283,6 +1284,7 @@ EXTRA_DIST = \
 	cmake/modules/FindYAPP.cmake		\
 	cmake/modules/FindZLIB.cmake		\
 	cmake/modules/LICENSE.txt		\
+	cmake/modules/LocatePythonModule.cmake	\
 	cmake/modules/UseABICheck.cmake		\
 	cmake/modules/UseAsn2Wrs.cmake		\
 	cmake/modules/UseCheckAPI.cmake		\
