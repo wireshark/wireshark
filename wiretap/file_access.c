@@ -726,6 +726,9 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	gboolean use_stdin = FALSE;
 	gchar *extension;
 
+	*err = 0;
+	*err_info = NULL;
+
 	init_open_routines();
 
 	/* open standard input if filename is '-' */
@@ -2318,6 +2321,8 @@ gboolean
 wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	  const guint8 *pd, int *err, gchar **err_info)
 {
+	*err = 0;
+	*err_info = NULL;
 	return (wdh->subtype_write)(wdh, phdr, pd, err, err_info);
 }
 

@@ -622,15 +622,8 @@ main(int argc, char **argv)
 
 		/* XXX - report errors! */
 		if (!wtap_dump(dump, &pkthdr, &buffer[0], &err, &err_info)) {
-			switch (err) {
-
-			case WTAP_ERR_UNWRITABLE_REC_DATA:
+			if (err_info != NULL)
 				g_free(err_info);
-				break;
-
-			default:
-				break;
-			}
 		}
 	}
 

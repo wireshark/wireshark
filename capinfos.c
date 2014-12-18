@@ -896,22 +896,17 @@ process_cap_file(wtap *wth, const char *filename)
     fprintf(stderr,
         "capinfos: An error occurred after reading %u packets from \"%s\": %s.\n",
         packet, filename, wtap_strerror(err));
-    switch (err) {
-
-      case WTAP_ERR_SHORT_READ:
+    if (err == WTAP_ERR_SHORT_READ) {
+        /* Don't give up completely with this one. */
         status = 1;
         fprintf(stderr,
           "  (will continue anyway, checksums might be incorrect)\n");
-        break;
+    } else {
+        if (err_info != NULL) {
+            fprintf(stderr, "(%s)\n", err_info);
+            g_free(err_info);
+        }
 
-      case WTAP_ERR_UNSUPPORTED:
-      case WTAP_ERR_BAD_FILE:
-      case WTAP_ERR_DECOMPRESS:
-        fprintf(stderr, "(%s)\n", err_info);
-        g_free(err_info);
-        /* fallthrough */
-
-      default:
         g_free(cf_info.encap_counts);
         return 1;
     }
@@ -1481,14 +1476,9 @@ main(int argc, char *argv[])
     if (!wth) {
       fprintf(stderr, "capinfos: Can't open %s: %s\n", argv[opt],
           wtap_strerror(err));
-      switch (err) {
-
-        case WTAP_ERR_UNSUPPORTED:
-        case WTAP_ERR_BAD_FILE:
-        case WTAP_ERR_DECOMPRESS:
-          fprintf(stderr, "(%s)\n", err_info);
-          g_free(err_info);
-          break;
+      if (err_info != NULL) {
+        fprintf(stderr, "(%s)\n", err_info);
+        g_free(err_info);
       }
       overall_error_status = 1; /* remember that an error has occurred */
       if (!continue_after_wtap_open_offline_failure)

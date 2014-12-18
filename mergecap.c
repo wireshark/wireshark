@@ -374,13 +374,9 @@ main(int argc, char *argv[])
                            &open_err, &err_info, &err_fileno)) {
     fprintf(stderr, "mergecap: Can't open %s: %s\n", argv[optind + err_fileno],
             wtap_strerror(open_err));
-    switch (open_err) {
-
-    case WTAP_ERR_UNSUPPORTED:
-    case WTAP_ERR_BAD_FILE:
+    if (err_info != NULL) {
       fprintf(stderr, "(%s)\n", err_info);
       g_free(err_info);
-      break;
     }
     return 2;
   }
@@ -542,13 +538,9 @@ main(int argc, char *argv[])
       if (in_files[i].state == GOT_ERROR) {
         fprintf(stderr, "mergecap: Error reading %s: %s\n",
                 in_files[i].filename, wtap_strerror(read_err));
-        switch (read_err) {
-
-        case WTAP_ERR_UNSUPPORTED:
-        case WTAP_ERR_BAD_FILE:
+        if (err_info != NULL) {
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);
-          break;
         }
       }
     }
@@ -599,7 +591,7 @@ main(int argc, char *argv[])
       fprintf(stderr, "mergecap: Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
               in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
               wtap_file_type_subtype_string(file_type),
-              write_err_info);
+              write_err_info != NULL ? write_err_info : "no information supplied");
       g_free(write_err_info);
       break;
 

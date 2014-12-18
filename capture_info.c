@@ -125,7 +125,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             /* Seen only when opening a capture file for reading. */
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" contains record data that Wireshark doesn't support.\n"
-                       "(%s)", err_info);
+                       "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             errmsg = errmsg_errno;
             break;
@@ -159,7 +159,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             /* Seen only when opening a capture file for reading. */
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" appears to be damaged or corrupt.\n"
-                       "(%s)", err_info);
+                       "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             errmsg = errmsg_errno;
             break;
@@ -183,7 +183,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
         case WTAP_ERR_DECOMPRESS:
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The compressed file \"%%s\" appears to be damaged or corrupt.\n"
-                       "(%s)", err_info);
+                       "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             errmsg = errmsg_errno;
             break;

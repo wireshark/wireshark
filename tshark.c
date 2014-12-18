@@ -3300,7 +3300,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                         "Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
                         framenum, cf->filename,
                         wtap_file_type_subtype_short_string(out_file_type),
-                        err_info);
+                        err_info != NULL ? err_info : "no information supplied");
                 g_free(err_info);
                 break;
 
@@ -3403,7 +3403,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                       "Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
                       framenum, cf->filename,
                       wtap_file_type_subtype_short_string(out_file_type),
-                      err_info);
+                      err_info != NULL ? err_info : "no information supplied");
               g_free(err_info);
               break;
 
@@ -3465,7 +3465,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     case WTAP_ERR_UNSUPPORTED:
       cmdarg_err("The file \"%s\" contains record data that TShark doesn't support.\n(%s)",
-                 cf->filename, err_info);
+                 cf->filename,
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -3476,13 +3477,15 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     case WTAP_ERR_BAD_FILE:
       cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
-                 cf->filename, err_info);
+                 cf->filename,
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
     case WTAP_ERR_DECOMPRESS:
       cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n"
-                 "(%s)", cf->filename, err_info);
+                 "(%s)", cf->filename,
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -4199,7 +4202,8 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       /* Seen only when opening a capture file for reading. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The file \"%%s\" contains record data that TShark doesn't support.\n"
-                 "(%s)", err_info);
+                 "(%s)",
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       errmsg = errmsg_errno;
       break;
@@ -4238,8 +4242,9 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
     case WTAP_ERR_BAD_FILE:
       /* Seen only when opening a capture file for reading. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-               "The file \"%%s\" appears to be damaged or corrupt.\n"
-               "(%s)", err_info);
+                 "The file \"%%s\" appears to be damaged or corrupt.\n"
+                 "(%s)",
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       errmsg = errmsg_errno;
       break;
@@ -4268,7 +4273,8 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       /* Seen only when opening a capture file for reading. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The compressed file \"%%s\" appears to be damaged or corrupt.\n"
-                 "(%s)", err_info);
+                 "(%s)",
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       errmsg = errmsg_errno;
       break;

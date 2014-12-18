@@ -121,13 +121,9 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
             fprintf(stderr,
                     "reordercap: An error occurred while re-reading \"%s\": %s.\n",
                     infile, wtap_strerror(err));
-            switch (err) {
-
-            case WTAP_ERR_UNSUPPORTED:
-            case WTAP_ERR_BAD_FILE:
+            if (err_info != NULL) {
                 fprintf(stderr, "(%s)\n", err_info);
                 g_free(err_info);
-                break;
             }
             exit(1);
         }
@@ -140,18 +136,11 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
 
     /* Dump frame to outfile */
     if (!wtap_dump(pdh, phdr, ws_buffer_start_ptr(buf), &err, &err_info)) {
-        switch (err) {
-
-        case WTAP_ERR_UNWRITABLE_REC_DATA:
-            fprintf(stderr, "reordercap: Error (%s) writing frame to outfile (%s)\n",
-                    wtap_strerror(err), err_info);
+        fprintf(stderr, "reordercap: Error (%s) writing frame to outfile\n",
+                wtap_strerror(err));
+        if (err_info != NULL) {
+            fprintf(stderr, "(%s)\n", err_info);
             g_free(err_info);
-            break;
-
-        default:
-            fprintf(stderr, "reordercap: Error (%s) writing frame to outfile\n",
-                    wtap_strerror(err));
-            break;
         }
         exit(1);
     }
@@ -293,13 +282,9 @@ main(int argc, char *argv[])
     if (wth == NULL) {
         fprintf(stderr, "reordercap: Can't open %s: %s\n", infile,
                 wtap_strerror(err));
-        switch (err) {
-
-        case WTAP_ERR_UNSUPPORTED:
-        case WTAP_ERR_BAD_FILE:
+        if (err_info != NULL) {
             fprintf(stderr, "(%s)\n", err_info);
             g_free(err_info);
-            break;
         }
         exit(1);
     }
@@ -349,13 +334,9 @@ main(int argc, char *argv[])
       fprintf(stderr,
               "reordercap: An error occurred while reading \"%s\": %s.\n",
               infile, wtap_strerror(err));
-      switch (err) {
-
-      case WTAP_ERR_UNSUPPORTED:
-      case WTAP_ERR_BAD_FILE:
+      if (err_info != NULL) {
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);
-          break;
       }
     }
 

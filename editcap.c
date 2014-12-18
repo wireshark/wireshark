@@ -1249,12 +1249,9 @@ main(int argc, char *argv[])
     if (!wth) {
         fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],
                 wtap_strerror(err));
-        switch (err) {
-        case WTAP_ERR_UNSUPPORTED:
-        case WTAP_ERR_BAD_FILE:
+        if (err_info != NULL) {
             fprintf(stderr, "(%s)\n", err_info);
             g_free(err_info);
-            break;
         }
         exit(2);
     }
@@ -1689,7 +1686,7 @@ main(int argc, char *argv[])
                                 "editcap: Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
                                 read_count, argv[optind],
                                 wtap_file_type_subtype_string(out_file_type_subtype),
-                                err_info);
+                                err_info != NULL ? err_info : "no information supplied");
                         g_free(err_info);
                         break;
 
@@ -1714,12 +1711,9 @@ main(int argc, char *argv[])
             fprintf(stderr,
                     "editcap: An error occurred while reading \"%s\": %s.\n",
                     argv[optind], wtap_strerror(err));
-            switch (err) {
-            case WTAP_ERR_UNSUPPORTED:
-            case WTAP_ERR_BAD_FILE:
+            if (err_info != NULL) {
                 fprintf(stderr, "(%s)\n", err_info);
                 g_free(err_info);
-                break;
             }
         }
 

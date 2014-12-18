@@ -254,13 +254,9 @@ main(int argc, char *argv[])
       else {
         fprintf(stderr, "captype: Can't open %s: %s\n", argv[i],
                 wtap_strerror(err));
-        switch (err) {
-
-        case WTAP_ERR_UNSUPPORTED:
-        case WTAP_ERR_BAD_FILE:
+        if (err_info != NULL) {
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);
-          break;
         }
         overall_error_status = 1; /* remember that an error has occurred */
       }

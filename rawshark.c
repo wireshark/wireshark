@@ -1008,7 +1008,8 @@ load_cap_file(capture_file *cf)
 
             case WTAP_ERR_UNSUPPORTED:
                 cmdarg_err("The file \"%s\" contains record data that Rawshark doesn't support.\n(%s)",
-                           cf->filename, err_info);
+                           cf->filename,
+                           err_info != NULL ? err_info : "no information supplied");
                 g_free(err_info);
                 break;
 
@@ -1019,13 +1020,15 @@ load_cap_file(capture_file *cf)
 
             case WTAP_ERR_BAD_FILE:
                 cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
-                           cf->filename, err_info);
+                           cf->filename,
+                           err_info != NULL ? err_info : "no information supplied");
                 g_free(err_info);
                 break;
 
             case WTAP_ERR_DECOMPRESS:
                 cmdarg_err("The compressed file \"%s\" appears to be damaged or corrupt.\n(%s)",
-                           cf->filename, err_info);
+                           cf->filename,
+                           err_info != NULL ? err_info : "no information supplied");
                 g_free(err_info);
                 break;
 

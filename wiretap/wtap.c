@@ -1050,6 +1050,8 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	wth->phdr.pkt_encap = wth->file_encap;
 	wth->phdr.pkt_tsprec = wth->file_tsprec;
 
+	*err = 0;
+	*err_info = NULL;
 	if (!wth->subtype_read(wth, err, err_info, data_offset)) {
 		/*
 		 * If we didn't get an error indication, we read

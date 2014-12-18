@@ -743,7 +743,7 @@ cf_read(capture_file *cf, gboolean reloading)
     case WTAP_ERR_UNSUPPORTED:
       simple_error_message_box(
                  "The capture file contains record data that Wireshark doesn't support.\n(%s)",
-                 err_info);
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -756,14 +756,14 @@ cf_read(capture_file *cf, gboolean reloading)
     case WTAP_ERR_BAD_FILE:
       simple_error_message_box(
                  "The capture file appears to be damaged or corrupt.\n(%s)",
-                 err_info);
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
     case WTAP_ERR_DECOMPRESS:
       simple_error_message_box(
-                 "The compressed capture file appears to be damaged or corrupt.\n"
-                 "(%s)", err_info);
+                 "The compressed capture file appears to be damaged or corrupt.\n",
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -887,10 +887,14 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   } else if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box instead? */
-    g_warning("Error \"%s\" while reading: \"%s\" (\"%s\")",
-        wtap_strerror(*err), err_info, cf->filename);
-    g_free(err_info);
-
+    if (err_info != NULL) {
+      g_warning("Error \"%s\" while reading \"%s\" (\"%s\")",
+                wtap_strerror(*err), cf->filename, err_info);
+      g_free(err_info);
+    } else {
+      g_warning("Error \"%s\" while reading \"%s\"",
+                wtap_strerror(*err), cf->filename);
+    }
     return CF_READ_ERROR;
   } else
     return CF_READ_OK;
@@ -992,10 +996,14 @@ cf_finish_tail(capture_file *cf, int *err)
   if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */
-
-    g_warning("Error \"%s\" while reading: \"%s\" (\"%s\")",
-        wtap_strerror(*err), err_info, cf->filename);
-    g_free(err_info);
+    if (err_info != NULL) {
+      g_warning("Error \"%s\" while reading \"%s\" (\"%s\")",
+                wtap_strerror(*err), cf->filename, err_info);
+      g_free(err_info);
+    } else {
+      g_warning("Error \"%s\" while reading \"%s\"",
+                wtap_strerror(*err), cf->filename);
+    }
     return CF_READ_ERROR;
   } else {
     return CF_READ_OK;
@@ -1535,7 +1543,8 @@ cf_merge_files(char **out_filenamep, int in_file_count,
         case WTAP_ERR_DECOMPRESS:
           simple_error_message_box(
                      "The compressed capture file %s appears to be damaged or corrupt.\n"
-                     "(%s)", display_basename, err_info);
+                     "(%s)", display_basename,
+                     err_info != NULL ? err_info : "no information supplied");
           g_free(err_info);
           break;
 
@@ -1610,7 +1619,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
                       "Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)",
                       in_file ? in_file->packet_num : 0, display_basename,
                       wtap_file_type_subtype_string(file_type),
-                      write_err_info);
+                      write_err_info != NULL ? write_err_info : "no information supplied");
         g_free(write_err_info);
         g_free(display_basename);
         break;
@@ -1746,7 +1755,8 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
 
     case WTAP_ERR_BAD_FILE:
       simple_error_message_box("An error occurred while reading from the file \"%s\": %s.\n(%s)",
-                 display_basename, wtap_strerror(err), err_info);
+                 display_basename, wtap_strerror(err),
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -4203,7 +4213,7 @@ save_record(capture_file *cf, frame_data *fdata,
         simple_error_message_box(
                       "Record %u has data that can't be saved in a \"%s\" file.\n(%s)",
                       fdata->num, wtap_file_type_subtype_string(args->file_type),
-                      err_info);
+                      err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
         break;
 
@@ -4519,7 +4529,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     case WTAP_ERR_UNSUPPORTED:
       simple_error_message_box(
                  "The capture file contains record data that Wireshark doesn't support.\n(%s)",
-                 err_info);
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -4532,14 +4542,15 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     case WTAP_ERR_BAD_FILE:
       simple_error_message_box(
                  "The capture file appears to be damaged or corrupt.\n(%s)",
-                 err_info);
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
     case WTAP_ERR_DECOMPRESS:
       simple_error_message_box(
                  "The compressed capture file appears to be damaged or corrupt.\n"
-                 "(%s)", err_info);
+                 "(%s)",
+                 err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -5036,7 +5047,8 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
       simple_error_message_box(
             "The file \"%s\" contains record data that Wireshark doesn't support.\n",
             "(%s)",
-            display_basename, err_info);
+            display_basename,
+            err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -5075,7 +5087,8 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
       simple_error_message_box(
             "The file \"%s\" appears to be damaged or corrupt.\n"
             "(%s)",
-            display_basename, err_info);
+            display_basename,
+            err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
@@ -5112,7 +5125,8 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_DECOMPRESS:
       simple_error_message_box(
             "The compressed file \"%s\" appears to be damaged or corrupt.\n"
-            "(%s)", display_basename, err_info);
+            "(%s)", display_basename,
+            err_info != NULL ? err_info : "no information supplied");
       g_free(err_info);
       break;
 
