@@ -29,6 +29,7 @@
 
 #include <string.h>
 
+#include <glib.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #if GTK_CHECK_VERSION(3,0,0)
@@ -342,10 +343,15 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
   GtkTreeSelection *selection;
   GtkTreeIter iter;
   gchar* prefix;
-  gchar* prefix_start;
+  gchar* prefix_start = NULL;
   gboolean stop_propagation = FALSE;
   guint k;
-  gchar ckey;
+  guint32 ckey = '\0';
+  gint string_buf_len;
+  gchar string_buf[6]; /* g_unichar_to_utf8 needs 6 bytes to convert a single
+                          char to a code point. (ISO/IEC 10646 defines this
+                          maximum byte length, RFC 3629 changed this to 4) */
+  gchar *key_string = NULL;
   gint pos;
 
   w_toplevel = gtk_widget_get_toplevel(filter_te);
@@ -353,11 +359,18 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
   popup_win = (GtkWidget *)g_object_get_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY);
 
   k = event->keyval;
-  ckey = event->string[0];
+  if (k != GDK_KEY_VoidSymbol) {
+    ckey = gdk_keyval_to_unicode(k);
+    string_buf_len = g_unichar_to_utf8(ckey, string_buf);
+    key_string =
+      g_locale_from_utf8(string_buf, string_buf_len, NULL, NULL, NULL);
+  }
+  if (!key_string)
+    key_string = g_strdup("");
 
   /* If the pressed key is SHIFT then we have nothing to do with the pressed key. */
   if( k == GDK_Shift_L || k == GDK_Shift_R)
-    return FALSE;
+    goto exit;
 
   if (popup_win)
     gtk_widget_show(popup_win);
@@ -420,14 +433,13 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
         gtk_widget_destroy (popup_win);
       }
 
-      name_with_period = g_strconcat(prefix, event->string, NULL);
+      name_with_period = g_strconcat(prefix, key_string, NULL);
       popup_win = filter_autocomplete_new(filter_te, name_with_period, FALSE, &stop_propagation);
       g_object_set_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY, popup_win);
 
       g_free(name_with_period);
-      g_free(prefix_start);
 
-      return stop_propagation;
+      goto exit;
     }
   } else if(k==GDK_BackSpace && !popup_win) {
 
@@ -443,11 +455,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
       }
     }
 
-    g_free(prefix_start);
-
-    return FALSE;
+    goto exit;
   } else if(g_ascii_isalnum(ckey) && !popup_win) {
-    gchar *name = g_strconcat(prefix, event->string, NULL);
+    gchar *name = g_strconcat(prefix, key_string, NULL);
 
     if( !strchr(name, '.') && is_protocol_name_being_typed(filter_te, (int) strlen(name)) ) {
       popup_win = filter_autocomplete_new(filter_te, name, TRUE, &stop_propagation);
@@ -455,16 +465,14 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
     }
 
     g_free(name);
-    g_free(prefix_start);
 
-    return stop_propagation;
+    goto exit;
   }
 
   /* If the popup window hasn't been constructed yet then we have nothing to do */
   if( !popup_win ) {
-    g_free(prefix_start);
-
-    return FALSE;
+    stop_propagation = FALSE;
+    goto exit;
   }
 
 
@@ -507,10 +515,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
         gtk_tree_path_free(path);
       }
 
-      g_free(prefix_start);
-
       /* stop event propagation */
-      return TRUE;
+      stop_propagation = TRUE;
+      goto exit;
 
     case GDK_Page_Up:
     case GDK_Up:
@@ -547,10 +554,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
         gtk_tree_path_free(path);
       }
 
-      g_free(prefix_start);
-
       /* stop event propagation */
-      return TRUE;
+      stop_propagation = TRUE;
+      goto exit;
     }
 
 
@@ -571,9 +577,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
           autocomplete_protocol_string(filter_te, value);
           g_free(value);
         }
-	if(k != GDK_space) {
-	  stop_propagation = TRUE;    /* stop event propagation */
-	}
+        if(k != GDK_space) {
+          stop_propagation = TRUE;    /* stop event propagation */
+        }
       }
 
       /* Lose popup */
@@ -588,7 +594,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
     default: {
       gchar* updated_str;
 
-      updated_str = g_strconcat(prefix, event->string, NULL);
+      updated_str = g_strconcat(prefix, key_string, NULL);
       if( !autocompletion_list_lookup(filter_te, popup_win, treeview, updated_str, &stop_propagation) ) {
         /* function returned false, ie the list is empty -> close popup  */
         gtk_widget_destroy(popup_win);
@@ -600,7 +606,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
 
   }
 
+exit:
   g_free(prefix_start);
+  g_free(key_string);
 
   return stop_propagation;
 }
