@@ -31,16 +31,34 @@
 GList *color_conv_filter_list = NULL;
 
 
-void register_color_conversation_filter(const char *name, is_color_conv_valid_func is_filter_valid, build_color_conv_string_func build_filter_string) {
+void register_color_conversation_filter(const char *proto_name, const char *display_name,
+                                        is_color_conv_valid_func is_filter_valid, build_color_conv_string_func build_filter_string) {
     color_conversation_filter_t *entry;
 
     entry = (color_conversation_filter_t *)g_malloc(sizeof(color_conversation_filter_t));
 
-    entry->name                 = name;
+    entry->proto_name           = proto_name;
+    entry->display_name         = display_name;
     entry->is_filter_valid      = is_filter_valid;
     entry->build_filter_string  = build_filter_string;
 
     color_conv_filter_list = g_list_append(color_conv_filter_list, entry);
+}
+
+struct color_conversation_filter_s* find_color_conversation_filter(const char *name)
+{
+    GList *list_entry = color_conv_filter_list;
+    color_conversation_filter_t* color_filter;
+
+    while (list_entry != NULL) {
+        color_filter = (color_conversation_filter_t*)list_entry->data;
+        if (!strcmp(color_filter->proto_name, name))
+            return color_filter;
+
+        list_entry = g_list_next(list_entry);
+    }
+
+    return NULL;
 }
 
 /*

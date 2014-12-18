@@ -1016,7 +1016,7 @@ proto_register_eth(void)
   eth_tap = register_tap("eth");
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet, NULL);
-  register_color_conversation_filter("Ethernet", eth_color_filter_valid, eth_build_color_filter);
+  register_color_conversation_filter("eth", "Ethernet", eth_color_filter_valid, eth_build_color_filter);
 }
 
 void

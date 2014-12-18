@@ -5977,7 +5977,7 @@ proto_register_tcp(void)
     register_decode_as(&tcp_da);
 
     register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_hostlist_packet, tcpip_hostlist_prefix);
-    register_color_conversation_filter("TCP", tcp_color_filter_valid, tcp_build_color_filter);
+    register_color_conversation_filter("tcp", "TCP", tcp_color_filter_valid, tcp_build_color_filter);
 }
 
 void

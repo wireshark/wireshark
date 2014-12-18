@@ -39,16 +39,19 @@ typedef gboolean (*is_color_conv_valid_func)(packet_info *pinfo);
     Filter needs to be freed after use */
 typedef gchar* (*build_color_conv_string_func)(packet_info *pinfo);
 
+#define MAX_NUM_COLOR_CONVERSATION_COLORS       10
 
 /** register a dissector filter */
-WS_DLL_PUBLIC void register_color_conversation_filter(const char *name, is_color_conv_valid_func is_filter_valid, build_color_conv_string_func build_filter_string);
+WS_DLL_PUBLIC void register_color_conversation_filter(const char *proto_name, const char *display_name,
+                                                      is_color_conv_valid_func is_filter_valid, build_color_conv_string_func build_filter_string);
 
-
+WS_DLL_PUBLIC struct color_conversation_filter_s* find_color_conversation_filter(const char *proto_name);
 
 /*** THE FOLLOWING SHOULD NOT BE USED BY ANY DISSECTORS!!! ***/
 
 typedef struct color_conversation_filter_s {
-    const char *                    name;
+    const char *                    proto_name;
+    const char *                    display_name;
     is_color_conv_valid_func        is_filter_valid;
     build_color_conv_string_func    build_filter_string;
 } color_conversation_filter_t;

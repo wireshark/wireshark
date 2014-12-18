@@ -3031,7 +3031,7 @@ proto_register_ipv6(void)
     register_decode_as(&ipv6_next_header_da);
 
     register_conversation_table(proto_ipv6, TRUE, ipv6_conversation_packet, ipv6_hostlist_packet, NULL);
-    register_color_conversation_filter("IPv6", ipv6_color_filter_valid, ipv6_build_color_filter);
+    register_color_conversation_filter("ipv6", "IPv6", ipv6_color_filter_valid, ipv6_build_color_filter);
 }
 
 void

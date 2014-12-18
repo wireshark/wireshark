@@ -5107,7 +5107,7 @@ proto_register_dcom_cba_acco (void)
     proto_ICBAAccoSync = proto_register_protocol ("ICBAAccoSync", "ICBAAccoSync", "cba_acco_sync");
     proto_register_subtree_array (ett5, array_length (ett5));
 
-    register_color_conversation_filter("PN-CBA", cba_color_filter_valid, cba_build_color_filter);
+    register_color_conversation_filter("cba", "PN-CBA", cba_color_filter_valid, cba_build_color_filter);
 }
 
 

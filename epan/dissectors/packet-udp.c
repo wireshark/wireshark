@@ -1020,7 +1020,7 @@ proto_register_udp(void)
 
   register_decode_as(&udp_da);
   register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet, udpip_hostlist_prefix);
-  register_color_conversation_filter("UDP", udp_color_filter_valid, udp_build_color_filter);
+  register_color_conversation_filter("udp", "UDP", udp_color_filter_valid, udp_build_color_filter);
 
   register_init_routine(udp_init);
 

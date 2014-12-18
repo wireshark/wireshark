@@ -3094,7 +3094,7 @@ proto_register_ip(void)
 
   register_decode_as(&ip_da);
   register_conversation_table(proto_ip, TRUE, ip_conversation_packet, ip_hostlist_packet, NULL);
-  register_color_conversation_filter("IPv4", ip_color_filter_valid, ip_build_color_filter);
+  register_color_conversation_filter("ip", "IPv4", ip_color_filter_valid, ip_build_color_filter);
 }
 
 void
