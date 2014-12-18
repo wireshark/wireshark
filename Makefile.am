@@ -727,6 +727,7 @@ MAINTAINERCLEANFILES =		\
 	ylwrap
 
 EXTRA_DIST = \
+	.mailmap		\
 	INSTALL.configure	\
 	Makefile.am.inc		\
 	Makefile.common		\
