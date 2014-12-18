@@ -60,20 +60,6 @@ static wmem_tree_t *localhost_bdaddr        = NULL;
 
 static int bluetooth_tap = -1;
 
-static const value_string bluetooth_type_vals[] = {
-    {HCI_H4_TYPE_CMD, "HCI Command"},
-    {HCI_H4_TYPE_ACL, "ACL Data"},
-    {HCI_H4_TYPE_SCO, "SCO Data"},
-    {HCI_H4_TYPE_EVT, "HCI Event"},
-    {0, NULL }
-};
-static const value_string bluetooth_direction_vals[] = {
-    {P2P_DIR_SENT,        "Sent"},
-    {P2P_DIR_RECV,        "Rcvd"},
-    {P2P_DIR_UNKNOWN,     "Unspecified"},
-    {0, NULL}
-};
-
 static const value_string bluetooth_uuid_vals[] = {
     /* Protocol Identifiers - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
     { 0x0001,   "SDP" },
