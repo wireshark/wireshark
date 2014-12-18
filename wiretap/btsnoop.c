@@ -309,7 +309,7 @@ static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
     guint8 flags = 0;
 
     if (!btsnoop_lookup_flags(*pd, pseudo_header->p2p.sent, &flags)) {
-        *err = WTAP_ERR_UNSUPPORTED;
+        *err = WTAP_ERR_UNSUPPORTED_ENCAP;
         return FALSE;
     }
 

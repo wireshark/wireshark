@@ -373,7 +373,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
         tag = (const char *) (pd + 6 * 4 + 1);
         log = tag + strlen(tag) + 1;
     } else {
-        *err = WTAP_ERR_UNSUPPORTED;
+        *err = WTAP_ERR_UNSUPPORTED_ENCAP;
         return FALSE;
     }
 
