@@ -1292,6 +1292,8 @@ EXTRA_DIST = \
 	cmake/modules/UseMakeDissectorReg.cmake	\
 	cmake/modules/UseMakeTapReg.cmake	\
 	cmake/modules/UseWinLibs.cmake		\
+	cmake/modules/WiresharkConfig.cmake.in	\
+	cmake/modules/WiresharkConfigVersion.cmake.in \
 	cmake/modules/gmxTestLargeFiles.cmake	\
 	cmake/modules/readme.txt		\
 	ui/win32/Makefile.nmake			\
