@@ -103,7 +103,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     char        stream_window_title[256];
     gboolean is_tcp = FALSE;
 
-    proto_get_frame_protocols(cfile.edt->pi.layers, NULL, &is_tcp, NULL, NULL, NULL);
+    is_tcp = proto_is_frame_protocol(cfile.edt->pi.layers, "tcp");
 
     if (!is_tcp) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

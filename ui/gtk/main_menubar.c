@@ -4602,23 +4602,18 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-    packet_info *pi;
-    wmem_list_frame_t* protos;
     GList      *list_entry = dissector_filter_list;
     GList      *color_list_entry = color_conv_filter_list;
     guint       i          = 0;
     gboolean    properties = FALSE;
     const char *abbrev     = NULL;
     char       *prev_abbrev;
-    int proto_id;
-    const char* proto_name;
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
        avoiding needless looping through huge lists for marked, ignored,
        or time-referenced packets. */
-    gboolean is_ssl = epan_dissect_packet_contains_field(cf->edt, "ssl");
     gboolean frame_selected = cf->current_frame != NULL;
         /* A frame is selected */
     gboolean have_marked = frame_selected && cf->marked_count > 0;
@@ -4635,33 +4630,8 @@ set_menus_for_selected_packet(capture_file *cf)
            we have at least one time reference frame, and either there's more
            than one time reference frame or the current frame isn't a
            time reference frame). (XXX - why check frame_selected?) */
-
     if (cf->edt)
-    {
-        pi = &cf->edt->pi;
-        protos = wmem_list_head(pi->layers);
-
-        /* walk the list of a available protocols in the packet to
-           figure out if any of them affect context sensitivity */
-        while (protos != NULL)
-        {
-            proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-            proto_name = proto_get_protocol_filter_name(proto_id);
-
-            if ((!strcmp(proto_name, "ip")) ||
-                (!strcmp(proto_name, "ipv6"))) {
-                is_ip = TRUE;
-            } else if (!strcmp(proto_name, "tcp")) {
-                is_tcp = TRUE;
-            } else if (!strcmp(proto_name, "udp")) {
-                is_udp = TRUE;
-            } else if (!strcmp(proto_name, "sctp")) {
-                is_sctp = TRUE;
-            }
-
-            protos = wmem_list_frame_next(protos);
-        }
-    }
+        proto_get_frame_protocols(cf->edt->pi.layers, &is_ip, &is_tcp, &is_udp, &is_sctp, &is_ssl);
 
     if (cf->edt && cf->edt->tree) {
         GPtrArray          *ga;

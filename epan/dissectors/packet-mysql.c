@@ -2222,7 +2222,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	}
 #endif
 
-	proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
+	is_ssl = proto_is_frame_protocol(pinfo->layers, "ssl");
 
 	if (is_response) {
 		if (packet_number == 0 ) {
@@ -2264,11 +2264,11 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	gboolean is_ssl = FALSE;
+	gboolean is_ssl;
 	conversation_t  *conversation;
 	mysql_conn_data_t  *conn_data;
 
-	proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
+	is_ssl = proto_is_frame_protocol(pinfo->layers, "ssl");
 
 	/* Check there is already a conversation */
 	conversation = find_or_create_conversation(pinfo);

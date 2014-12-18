@@ -94,7 +94,7 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
     GString *msg;
     gboolean is_udp = FALSE;
 
-    proto_get_frame_protocols(cfile.edt->pi.layers, NULL, NULL, &is_udp, NULL, NULL);
+    is_udp = proto_is_frame_protocol(cfile.edt->pi.layers, "udp");
 
     if (!is_udp) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

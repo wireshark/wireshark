@@ -809,7 +809,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	proto_get_frame_protocols(pinfo->layers, NULL, NULL, NULL, NULL, &is_ssl);
+	is_ssl = proto_is_frame_protocol(pinfo->layers, "ssl");
 
 	stat_info = wmem_new(wmem_packet_scope(), http_info_value_t);
 	stat_info->framenum = pinfo->fd->num;
