@@ -498,6 +498,7 @@ main(int argc, char **argv)
 	struct wtap_pkthdr	pkthdr;
 	union wtap_pseudo_header *ps_header = &pkthdr.pseudo_header;
 	int 			i, j, len_this_pkt, len_random, err;
+	gchar                   *err_info;
 	guint8			buffer[65536];
 
 	int			opt;
@@ -619,7 +620,18 @@ main(int argc, char **argv)
 			}
 		}
 
-		wtap_dump(dump, &pkthdr, &buffer[0], &err);
+		/* XXX - report errors! */
+		if (!wtap_dump(dump, &pkthdr, &buffer[0], &err, &err_info)) {
+			switch (err) {
+
+			case WTAP_ERR_UNWRITABLE_REC_DATA:
+				g_free(err_info);
+				break;
+
+			default:
+				break;
+			}
+		}
 	}
 
 	wtap_dump_close(dump, &err);

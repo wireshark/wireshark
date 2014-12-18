@@ -625,7 +625,7 @@ static void my_timersub(const struct timeval *a,
  *---------------------------------------------------*/
 static gboolean lanalyzer_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const guint8 *pd, int *err)
+	const guint8 *pd, int *err, gchar **err_info _U_)
 {
       double x;
       int    i;

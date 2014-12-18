@@ -1249,7 +1249,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 }
 
 static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                         const guint8 *pd, int *err) {
+                         const guint8 *pd, int *err, gchar **err_info _U_) {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     guint32 len;

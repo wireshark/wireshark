@@ -106,7 +106,7 @@ static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
 static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
-static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, const guint8 *pd, int *err);
+static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, const guint8 *pd, int *err, gchar **err_info);
 static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
 
 
@@ -351,7 +351,7 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean _5views_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const guint8 *pd, int *err)
+	const guint8 *pd, int *err, gchar **err_info _U_)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_TimeStamped_Header HeaderFrame;

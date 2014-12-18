@@ -1948,7 +1948,7 @@ wslua_filehandler_can_write_encap(int encap, void* data)
 /* some declarations */
 static gboolean
 wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                      const guint8 *pd, int *err);
+                      const guint8 *pd, int *err, gchar **err_info);
 static gboolean
 wslua_filehandler_dump_close(wtap_dumper *wdh, int *err);
 
@@ -2019,7 +2019,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
 */
 static gboolean
 wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                      const guint8 *pd, int *err)
+                      const guint8 *pd, int *err, gchar **err_info _U_)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
     int retval = -1;

@@ -3238,7 +3238,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
              filter, so, if we're writing to a capture file, write
              this packet out. */
           if (pdh != NULL) {
-            if (!wtap_dump(pdh, &phdr, ws_buffer_start_ptr(&buf), &err)) {
+            if (!wtap_dump(pdh, &phdr, ws_buffer_start_ptr(&buf), &err, &err_info)) {
               /* Error writing to a capture file */
               switch (err) {
 
@@ -3270,6 +3270,38 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                         "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
                         framenum, cf->filename,
                         wtap_file_type_subtype_short_string(out_file_type));
+                break;
+
+              case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+                /*
+                 * This is a problem with the particular record we're writing
+                 * and the file type and subtype we're writing; note that,
+                 * and report the record number and file type/subtype.
+                 *
+                 * XXX - framenum is not necessarily the record number in
+                 * the input file if there was a read filter.
+                 */
+                fprintf(stderr,
+                        "Record %u of \"%s\" has a record type that can't be saved in a \"%s\" file.\n",
+                        framenum, cf->filename,
+                        wtap_file_type_subtype_short_string(out_file_type));
+                break;
+
+              case WTAP_ERR_UNWRITABLE_REC_DATA:
+                /*
+                 * This is a problem with the particular record we're writing
+                 * and the file type and subtype we're writing; note that,
+                 * and report the record number and file type/subtype.
+                 *
+                 * XXX - framenum is not necessarily the record number in
+                 * the input file if there was a read filter.
+                 */
+                fprintf(stderr,
+                        "Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
+                        framenum, cf->filename,
+                        wtap_file_type_subtype_short_string(out_file_type),
+                        err_info);
+                g_free(err_info);
                 break;
 
               default:
@@ -3321,7 +3353,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
            filter, so, if we're writing to a capture file, write
            this packet out. */
         if (pdh != NULL) {
-          if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err)) {
+          if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err, &err_info)) {
             /* Error writing to a capture file */
             switch (err) {
 
@@ -3347,6 +3379,32 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                       "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
                       framenum, cf->filename,
                       wtap_file_type_subtype_short_string(out_file_type));
+              break;
+
+            case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+              /*
+               * This is a problem with the particular record we're writing
+               * and the file type and subtype we're writing; note that,
+               * and report the record number and file type/subtype.
+               */
+              fprintf(stderr,
+                      "Record %u of \"%s\" has a record type that can't be saved in a \"%s\" file.\n",
+                      framenum, cf->filename,
+                      wtap_file_type_subtype_short_string(out_file_type));
+              break;
+
+            case WTAP_ERR_UNWRITABLE_REC_DATA:
+              /*
+               * This is a problem with the particular record we're writing
+               * and the file type and subtype we're writing; note that,
+               * and report the record number and file type/subtype.
+               */
+              fprintf(stderr,
+                      "Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
+                      framenum, cf->filename,
+                      wtap_file_type_subtype_short_string(out_file_type),
+                      err_info);
+              g_free(err_info);
               break;
 
             default:

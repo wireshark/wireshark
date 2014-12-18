@@ -3694,7 +3694,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
 
 static gboolean pcapng_dump(wtap_dumper *wdh,
                             const struct wtap_pkthdr *phdr,
-                            const guint8 *pd, int *err)
+                            const guint8 *pd, int *err, gchar **err_info _U_)
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 #ifdef HAVE_PLUGINS

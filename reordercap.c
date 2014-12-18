@@ -126,6 +126,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
             case WTAP_ERR_UNSUPPORTED:
             case WTAP_ERR_UNWRITABLE_ENCAP:
             case WTAP_ERR_BAD_FILE:
+            case WTAP_ERR_UNWRITABLE_REC_DATA:
                 fprintf(stderr, "(%s)\n", err_info);
                 g_free(err_info);
                 break;
@@ -140,9 +141,20 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh,
     phdr->ts = frame->time;
 
     /* Dump frame to outfile */
-    if (!wtap_dump(pdh, phdr, ws_buffer_start_ptr(buf), &err)) {
-        fprintf(stderr, "reordercap: Error (%s) writing frame to outfile\n",
-                wtap_strerror(err));
+    if (!wtap_dump(pdh, phdr, ws_buffer_start_ptr(buf), &err, &err_info)) {
+        switch (err) {
+
+        case WTAP_ERR_UNWRITABLE_REC_DATA:
+            fprintf(stderr, "reordercap: Error (%s) writing frame to outfile (%s)\n",
+                    wtap_strerror(err), err_info);
+            g_free(err_info);
+            break;
+
+        default:
+            fprintf(stderr, "reordercap: Error (%s) writing frame to outfile\n",
+                    wtap_strerror(err));
+            break;
+        }
         exit(1);
     }
 }
@@ -288,6 +300,7 @@ main(int argc, char *argv[])
         case WTAP_ERR_UNSUPPORTED:
         case WTAP_ERR_UNWRITABLE_ENCAP:
         case WTAP_ERR_BAD_FILE:
+        case WTAP_ERR_UNWRITABLE_REC_DATA:
             fprintf(stderr, "(%s)\n", err_info);
             g_free(err_info);
             break;
@@ -345,6 +358,7 @@ main(int argc, char *argv[])
       case WTAP_ERR_UNSUPPORTED:
       case WTAP_ERR_UNWRITABLE_ENCAP:
       case WTAP_ERR_BAD_FILE:
+      case WTAP_ERR_UNWRITABLE_REC_DATA:
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);
           break;

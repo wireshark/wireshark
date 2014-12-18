@@ -46,6 +46,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     exp_pdu_t  *exp_pdu_tap_data = (exp_pdu_t *)tapdata;
     struct wtap_pkthdr pkthdr;
     int err;
+    gchar *err_info;
     int buffer_len;
     guint8 *packet_buf;
 
@@ -71,8 +72,18 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
 
     /* XXX: should the pkthdr.pseudo_header be set to the pinfo's pseudo-header? */
+    /* XXX: report errors! */
+    if (!wtap_dump(exp_pdu_tap_data->wdh, &pkthdr, packet_buf, &err, &err_info)) {
+        switch (err) {
 
-    wtap_dump(exp_pdu_tap_data->wdh, &pkthdr, packet_buf, &err);
+        case WTAP_ERR_UNWRITABLE_REC_DATA:
+            g_free(err_info);
+            break;
+
+        default:
+            break;
+        }
+    }
 
     g_free(packet_buf);
     g_free(pkthdr.opt_comment);

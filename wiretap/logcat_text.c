@@ -404,7 +404,7 @@ int logcat_text_long_dump_can_write_encap(int encap) {
 
 static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err)
+    const guint8 *pd, int *err, gchar **err_info)
 {
     gchar                          *buf;
     gint                            length;
@@ -474,7 +474,9 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
             msg_pre_skip = 1 + (gint) strlen(tag) + 1;
             msg_begin = msg_payload + msg_pre_skip;
         } else {
-            *err = WTAP_ERR_UNSUPPORTED;
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+            *err_info = g_strdup_printf("logcat: version %d isn't supported",
+                                        logcat_version);
             return FALSE;
         }
 

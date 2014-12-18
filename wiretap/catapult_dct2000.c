@@ -111,7 +111,7 @@ static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 static void catapult_dct2000_close(wtap *wth);
 
 static gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                                      const guint8 *pd, int *err);
+                                      const guint8 *pd, int *err, gchar **err_info);
 
 
 /************************************************************/
@@ -586,7 +586,7 @@ catapult_dct2000_dump_can_write_encap(int encap)
 
 static gboolean
 catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                      const guint8 *pd, int *err)
+                      const guint8 *pd, int *err, gchar **err_info _U_)
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     guint32 n;

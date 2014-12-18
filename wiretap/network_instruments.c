@@ -108,7 +108,7 @@ static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_f
 static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
     int current_offset_from_packet_header, int *err, char **err_info);
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err);
+    const guint8 *pd, int *err, gchar **err_info);
 static gint observer_to_wtap_encap(int observer_encap);
 static gint wtap_to_observer_encap(int wtap_encap);
 
@@ -668,7 +668,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd,
-    int *err)
+    int *err, gchar **err_info _U_)
 {
     observer_dump_private_state * private_state = NULL;
     packet_entry_header           packet_header;

@@ -301,6 +301,7 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
     struct wtap_pkthdr pkthdr;
     double ts;
     int err;
+    gchar *err_info;
 
     if (!d) return 0;
 
@@ -335,9 +336,20 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
     /* TODO: Can we get access to pinfo->pkt_comment here somehow? We
      * should be copying it to pkthdr.opt_comment if we can. */
 
-    if (! wtap_dump(d, &pkthdr, ba->data, &err)) {
-        luaL_error(L,"error while dumping: %s",
-                   wtap_strerror(err));
+    if (! wtap_dump(d, &pkthdr, ba->data, &err, &err_info)) {
+        switch (err) {
+
+        case WTAP_ERR_UNWRITABLE_REC_DATA:
+            luaL_error(L,"error while dumping: %s (%s)",
+                       wtap_strerror(err), err_info);
+            g_free(err_info);
+            break;
+
+        default:
+            luaL_error(L,"error while dumping: %s",
+                       wtap_strerror(err));
+            break;
+        }
     }
 
     return 0;
@@ -402,6 +414,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     tvbuff_t* tvb;
     struct data_source *data_src;
     int err = 0;
+    gchar *err_info;
 
     if (!d) return 0;
 
@@ -432,9 +445,20 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
 
     data = (const guchar *)tvb_memdup(wmem_packet_scope(),tvb,0,pkthdr.caplen);
 
-    if (! wtap_dump(d, &pkthdr, data, &err)) {
-        luaL_error(L,"error while dumping: %s",
-                   wtap_strerror(err));
+    if (! wtap_dump(d, &pkthdr, data, &err, &err_info)) {
+        switch (err) {
+
+        case WTAP_ERR_UNWRITABLE_REC_DATA:
+            luaL_error(L,"error while dumping: %s (%s)",
+                       wtap_strerror(err), err_info);
+            g_free(err_info);
+            break;
+
+        default:
+            luaL_error(L,"error while dumping: %s",
+                       wtap_strerror(err));
+            break;
+        }
     }
 
     return 0;

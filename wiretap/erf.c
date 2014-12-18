@@ -592,7 +592,8 @@ static gboolean erf_dump(
     wtap_dumper                    *wdh,
     const struct wtap_pkthdr       *phdr,
     const guint8                   *pd,
-    int                            *err)
+    int                            *err,
+    gchar                          **err_info _U_)
 {
   const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
   union wtap_pseudo_header other_phdr;

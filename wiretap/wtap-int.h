@@ -95,7 +95,7 @@ typedef void *WFILE_T;
 
 typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
                                        const struct wtap_pkthdr*,
-                                       const guint8*, int*);
+                                       const guint8*, int*, gchar**);
 typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 
 struct wtap_dumper {

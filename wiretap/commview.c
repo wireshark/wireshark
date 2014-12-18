@@ -86,7 +86,7 @@ static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
 static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 				     int *err, gchar **err_info);
 static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
-			      const guint8 *pd, int *err);
+			      const guint8 *pd, int *err, gchar **err_info);
 
 wtap_open_return_val commview_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -314,7 +314,7 @@ gboolean commview_dump_open(wtap_dumper *wdh, int *err _U_)
  * Returns TRUE on success, FALSE on failure. */
 static gboolean commview_dump(wtap_dumper *wdh,
 			      const struct wtap_pkthdr *phdr,
-			      const guint8 *pd, int *err)
+			      const guint8 *pd, int *err, gchar **err_info _U_)
 {
 	commview_header_t cv_hdr;
 	struct tm *tm;

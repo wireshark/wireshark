@@ -67,7 +67,7 @@ static gboolean libpcap_seek_read(wtap *wth, gint64 seek_off,
 static gboolean libpcap_read_packet(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err);
+    const guint8 *pd, int *err, gchar **err_info);
 static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 
@@ -889,7 +889,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean libpcap_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
-	const guint8 *pd, int *err)
+	const guint8 *pd, int *err, gchar **err_info _U_)
 {
 	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	struct pcaprec_ss990915_hdr rec_hdr;

@@ -356,7 +356,7 @@ esc_write(wtap_dumper *wdh, const guint8 *buf, int len, int *err)
 
 static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const struct wtap_pkthdr *phdr,
-			    const guint8 *pd, int *err);
+			    const guint8 *pd, int *err, gchar **err_info);
 
 gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err)
 {
@@ -393,7 +393,7 @@ int eyesdn_dump_can_write_encap(int encap)
  *    Returns TRUE on success, FALSE on failure. */
 static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const struct wtap_pkthdr *phdr,
-			    const guint8 *pd, int *err)
+			    const guint8 *pd, int *err, gchar **err_info _U_)
 {
 	static const guint8 start_flag = 0xff;
 	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;

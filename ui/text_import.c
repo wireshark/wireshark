@@ -523,6 +523,7 @@ write_current_packet (void)
             /* Write the packet */
             struct wtap_pkthdr pkthdr;
             int err;
+            gchar *err_info;
 
             memset(&pkthdr, 0, sizeof(struct wtap_pkthdr));
 
@@ -535,7 +536,18 @@ write_current_packet (void)
             pkthdr.pack_flags |= direction;
             pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
 
-            wtap_dump(wdh, &pkthdr, packet_buf, &err);
+            /* XXX - report errors! */
+            if (!wtap_dump(wdh, &pkthdr, packet_buf, &err, &err_info)) {
+                switch (err) {
+
+                case WTAP_ERR_UNWRITABLE_REC_DATA:
+                    g_free(err_info);
+                    break;
+
+                default:
+                    break;
+                }
+            }
         }
     }
 

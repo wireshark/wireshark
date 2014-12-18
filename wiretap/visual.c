@@ -165,7 +165,7 @@ static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
 static gboolean visual_read_packet(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err);
+    const guint8 *pd, int *err, gchar **err_info);
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
 static void visual_dump_free(wtap_dumper *wdh);
 
@@ -642,7 +642,7 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err)
 /* Write a packet to a Visual dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err)
+    const guint8 *pd, int *err, gchar **err_info _U_)
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;

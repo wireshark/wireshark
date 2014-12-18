@@ -640,7 +640,7 @@ static gboolean nstrace_set_start_time(wtap *wth);
 static guint64 ns_hrtime2nsec(guint32 tm);
 
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-                             const guint8 *pd, int *err);
+                             const guint8 *pd, int *err, gchar **err_info);
 
 
 /*
@@ -1784,7 +1784,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err)
+    const guint8 *pd, int *err, gchar **err_info _U_)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 

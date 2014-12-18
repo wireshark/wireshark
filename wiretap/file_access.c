@@ -2316,9 +2316,9 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compress
 
 gboolean
 wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	  const guint8 *pd, int *err)
+	  const guint8 *pd, int *err, gchar **err_info)
 {
-	return (wdh->subtype_write)(wdh, phdr, pd, err);
+	return (wdh->subtype_write)(wdh, phdr, pd, err, err_info);
 }
 
 void

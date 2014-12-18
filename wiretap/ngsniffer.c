@@ -528,7 +528,7 @@ static int fix_pseudo_header(int encap, Buffer *buf, int len,
 static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err);
+    const guint8 *pd, int *err, gchar **err_info);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
     unsigned char * outbuf, size_t outlen, int *err, gchar **err_info );
@@ -1993,7 +1993,7 @@ ngsniffer_dump_open(wtap_dumper *wdh, int *err)
    Returns TRUE on success, FALSE on failure. */
 static gboolean
 ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	       const guint8 *pd, int *err)
+	       const guint8 *pd, int *err, gchar **err_info _U_)
 {
 	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	ngsniffer_dump_t *ngsniffer = (ngsniffer_dump_t *)wdh->priv;

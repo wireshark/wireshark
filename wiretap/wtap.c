@@ -883,7 +883,10 @@ static const char *wtap_errlist[] = {
 	NULL,
 
 	/* WTAP_ERR_REC_TYPE_UNSUPPORTED */
-	"That record type cannot be written in that format"
+	"That record type cannot be written in that format",
+
+	/* WTAP_ERR_UNWRITABLE_REC_DATA */
+	"That record can't be written in that format"
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 

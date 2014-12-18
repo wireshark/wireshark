@@ -254,7 +254,7 @@ main(int argc, char *argv[])
   struct wtap_pkthdr *phdr, snap_phdr;
   wtap_dumper        *pdh;
   int                 open_err, read_err = 0, write_err, close_err;
-  gchar              *err_info;
+  gchar              *err_info, *write_err_info;
   int                 err_fileno;
   char               *out_filename       = NULL;
   gboolean            got_read_error     = FALSE, got_write_error = FALSE;
@@ -379,6 +379,7 @@ main(int argc, char *argv[])
     case WTAP_ERR_UNSUPPORTED:
     case WTAP_ERR_UNWRITABLE_ENCAP:
     case WTAP_ERR_BAD_FILE:
+    case WTAP_ERR_UNWRITABLE_REC_DATA:
       fprintf(stderr, "(%s)\n", err_info);
       g_free(err_info);
       break;
@@ -515,7 +516,7 @@ main(int argc, char *argv[])
       phdr = &snap_phdr;
     }
 
-    if (!wtap_dump(pdh, phdr, wtap_buf_ptr(in_file->wth), &write_err)) {
+    if (!wtap_dump(pdh, phdr, wtap_buf_ptr(in_file->wth), &write_err, &write_err_info)) {
       got_write_error = TRUE;
       break;
     }
@@ -548,6 +549,7 @@ main(int argc, char *argv[])
         case WTAP_ERR_UNSUPPORTED:
         case WTAP_ERR_UNWRITABLE_ENCAP:
         case WTAP_ERR_BAD_FILE:
+        case WTAP_ERR_UNWRITABLE_REC_DATA:
           fprintf(stderr, "(%s)\n", err_info);
           g_free(err_info);
           break;
@@ -576,9 +578,33 @@ main(int argc, char *argv[])
        * the file type and subtype we're wwriting; note that, and
        * report the frame number and file type/subtype.
        */
-      fprintf(stderr, "mergecap: Frame %u of \"%s\" is too large for a \"%s\" file\n.",
+      fprintf(stderr, "mergecap: Frame %u of \"%s\" is too large for a \"%s\" file.\n",
               in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
               wtap_file_type_subtype_string(file_type));
+      break;
+
+    case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+      /*
+       * This is a problem with the particular record we're writing and
+       * the file type and subtype we're wwriting; note that, and
+       * report the record number and file type/subtype.
+       */
+      fprintf(stderr, "mergecap: Record %u of \"%s\" has a record type that can't be saved in a \"%s\" file.\n",
+              in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
+              wtap_file_type_subtype_string(file_type));
+      break;
+
+    case WTAP_ERR_UNWRITABLE_REC_DATA:
+      /*
+       * This is a problem with the particular record we're writing and
+       * the file type and subtype we're wwriting; note that, and
+       * report the record number and file type/subtype.
+       */
+      fprintf(stderr, "mergecap: Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
+              in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
+              wtap_file_type_subtype_string(file_type),
+              write_err_info);
+      g_free(write_err_info);
       break;
 
     default:

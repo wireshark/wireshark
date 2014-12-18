@@ -1562,7 +1562,8 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
 
 
 WS_DLL_PUBLIC
-gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const guint8 *, int *err);
+gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const guint8 *,
+     int *err, gchar **err_info);
 WS_DLL_PUBLIC
 void wtap_dump_flush(wtap_dumper *);
 WS_DLL_PUBLIC
@@ -1737,6 +1738,9 @@ int wtap_register_encap_type(const char* name, const char* short_name);
 
 #define WTAP_ERR_REC_TYPE_UNSUPPORTED         -24
     /** Specified record type can't be written to that file type */
+
+#define WTAP_ERR_UNWRITABLE_REC_DATA          -25
+    /** Something in the record data can't be written to that file type */
 
 #ifdef __cplusplus
 }

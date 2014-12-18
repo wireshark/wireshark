@@ -1253,6 +1253,7 @@ main(int argc, char *argv[])
         case WTAP_ERR_UNSUPPORTED:
         case WTAP_ERR_UNWRITABLE_ENCAP:
         case WTAP_ERR_BAD_FILE:
+        case WTAP_ERR_UNWRITABLE_REC_DATA:
             fprintf(stderr, "(%s)\n", err_info);
             g_free(err_info);
             break;
@@ -1638,7 +1639,7 @@ main(int argc, char *argv[])
                     }
                 }
 
-                if (!wtap_dump(pdh, phdr, buf, &err)) {
+                if (!wtap_dump(pdh, phdr, buf, &err, &err_info)) {
                     switch (err) {
                     case WTAP_ERR_UNWRITABLE_ENCAP:
                         /*
@@ -1648,7 +1649,7 @@ main(int argc, char *argv[])
                          * and file type/subtype.
                          */
                         fprintf(stderr,
-                                "editcap: Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file\n.",
+                                "editcap: Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
                                 read_count, argv[optind],
                                 wtap_file_type_subtype_string(out_file_type_subtype));
                         break;
@@ -1661,9 +1662,37 @@ main(int argc, char *argv[])
                          * and file type/subtype.
                          */
                         fprintf(stderr,
-                                "editcap: Frame %u of \"%s\" is too large for a \"%s\" file\n.",
+                                "editcap: Frame %u of \"%s\" is too large for a \"%s\" file.\n",
                                 read_count, argv[optind],
                                 wtap_file_type_subtype_string(out_file_type_subtype));
+                        break;
+
+                    case WTAP_ERR_REC_TYPE_UNSUPPORTED:
+                        /*
+                         * This is a problem with the particular record we're
+                         * writing and the file type and subtype we're
+                         * writing; note that, and report the record number
+                         * and file type/subtype.
+                         */
+                        fprintf(stderr,
+                                "editcap: Record %u of \"%s\" has a record type that can't be saved in a \"%s\" file.\n",
+                                read_count, argv[optind],
+                                wtap_file_type_subtype_string(out_file_type_subtype));
+                        break;
+
+                    case WTAP_ERR_UNWRITABLE_REC_DATA:
+                        /*
+                         * This is a problem with the particular record we're
+                         * writing and the file type and subtype we're
+                         * writing; note that, and report the record number
+                         * and file type/subtype.
+                         */
+                        fprintf(stderr,
+                                "editcap: Record %u of \"%s\" has data that can't be saved in a \"%s\" file.\n(%s)\n",
+                                read_count, argv[optind],
+                                wtap_file_type_subtype_string(out_file_type_subtype),
+                                err_info);
+                        g_free(err_info);
                         break;
 
                     default:
@@ -1691,6 +1720,7 @@ main(int argc, char *argv[])
             case WTAP_ERR_UNSUPPORTED:
             case WTAP_ERR_UNWRITABLE_ENCAP:
             case WTAP_ERR_BAD_FILE:
+            case WTAP_ERR_UNWRITABLE_REC_DATA:
                 fprintf(stderr, "(%s)\n", err_info);
                 g_free(err_info);
                 break;

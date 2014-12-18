@@ -412,11 +412,11 @@ static void netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr,
     Buffer *buf);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err);
+    const guint8 *pd, int *err, gchar **err_info);
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
 static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err);
+    const guint8 *pd, int *err, gchar **err_info);
 static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
 
 wtap_open_return_val
@@ -1728,7 +1728,7 @@ netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 static gboolean
 netxray_dump_1_1(wtap_dumper *wdh,
 		 const struct wtap_pkthdr *phdr,
-		 const guint8 *pd, int *err)
+		 const guint8 *pd, int *err, gchar **err_info _U_)
 {
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
 	guint64 timestamp;
@@ -1906,7 +1906,7 @@ netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
 static gboolean
 netxray_dump_2_0(wtap_dumper *wdh,
 		 const struct wtap_pkthdr *phdr,
-		 const guint8 *pd, int *err)
+		 const guint8 *pd, int *err, gchar **err_info _U_)
 {
 	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;

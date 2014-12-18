@@ -281,10 +281,10 @@ static guint8 btsnoop_lookup_flags(guint8 hci_type, gboolean sent, guint8 *flags
     return FALSE;
 }
 
-static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
+static gboolean btsnoop_format_partial_rec_hdr(
     const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header,
-    const guint8 *pd, int *err,
+    const guint8 *pd, int *err, gchar **err_info,
     struct btsnooprec_hdr *rec_hdr)
 {
     gint64 ts_usec;
@@ -292,7 +292,10 @@ static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
     guint8 flags = 0;
 
     if (!btsnoop_lookup_flags(*pd, pseudo_header->p2p.sent, &flags)) {
-        *err = WTAP_ERR_UNSUPPORTED;
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+        *err_info = g_strdup_printf("btsnoop: hci_type 0x%02x for %s data isn't supported",
+                                    *pd,
+                                    pseudo_header->p2p.sent ? "sent" : "received");
         return FALSE;
     }
 
@@ -310,7 +313,7 @@ static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
 /* FIXME: How do we support multiple backends?*/
 static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err)
+    const guint8 *pd, int *err, gchar **err_info)
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
@@ -330,7 +333,8 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
         return FALSE;
     }
 
-    if (!btsnoop_dump_partial_rec_hdr(wdh, phdr, pseudo_header, pd, err, &rec_hdr))
+    if (!btsnoop_format_partial_rec_hdr(phdr, pseudo_header, pd, err, err_info,
+                                        &rec_hdr))
         return FALSE;
 
     rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen-1);
@@ -354,7 +358,7 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
 
 static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
-    const guint8 *pd, int *err)
+    const guint8 *pd, int *err, gchar **err_info)
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
@@ -371,7 +375,8 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
         return FALSE;
     }
 
-    if (!btsnoop_dump_partial_rec_hdr(wdh, phdr, pseudo_header, pd, err, &rec_hdr))
+    if (!btsnoop_format_partial_rec_hdr(phdr, pseudo_header, pd, err, err_info,
+                                        &rec_hdr))
         return FALSE;
 
     rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen);
