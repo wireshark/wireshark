@@ -7510,7 +7510,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 	while (*fields) {
 		guint64 present_bits;
 		PROTO_REGISTRAR_GET_NTH(**fields,hf);
-		DISSECTOR_ASSERT(hf->bitmask != 0);
+		DISSECTOR_ASSERT_HINT(hf->bitmask != 0, hf->abbrev);
 
 		/* Skip fields that aren't fully present */
 		present_bits = available_bits & hf->bitmask;
