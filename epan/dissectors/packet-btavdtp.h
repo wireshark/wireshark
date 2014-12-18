@@ -43,8 +43,8 @@ typedef struct _bta2dp_codec_info_t {
 } bta2dp_codec_info_t;
 
 typedef struct _btvdp_codec_info_t {
-    dissector_handle_t  codec_dissector;
-    gint                content_protection_type;
+    dissector_handle_t   codec_dissector;
+    gint                 content_protection_type;
 } btvdp_codec_info_t;
 
 #endif

@@ -299,6 +299,8 @@ static int hf_bta2dp_codec                              = -1;
 static int hf_bta2dp_vendor_id                          = -1;
 static int hf_bta2dp_vendor_codec_id                    = -1;
 static int hf_bta2dp_content_protection                 = -1;
+static int hf_bta2dp_stream_start_in_frame              = -1;
+static int hf_bta2dp_stream_end_in_frame                = -1;
 static int hf_bta2dp_stream_number                      = -1;
 static int hf_bta2dp_l_bit                              = -1;
 static int hf_bta2dp_cp_bit                             = -1;
@@ -332,7 +334,12 @@ static gint ett_btvdp_cph_scms_t                = -1;
 static int hf_btvdp_acp_seid                           = -1;
 static int hf_btvdp_int_seid                           = -1;
 static int hf_btvdp_codec                              = -1;
+static int hf_btvdp_vendor_id                          = -1;
+static int hf_btvdp_vendor_codec_id                    = -1;
 static int hf_btvdp_content_protection                 = -1;
+static int hf_btvdp_stream_start_in_frame              = -1;
+static int hf_btvdp_stream_end_in_frame                = -1;
+static int hf_btvdp_stream_number                      = -1;
 static int hf_btvdp_l_bit                              = -1;
 static int hf_btvdp_cp_bit                             = -1;
 static int hf_btvdp_reserved                           = -1;
@@ -525,12 +532,16 @@ typedef struct _sep_data_t {
     guint8    acp_seid;
     guint8    int_seid;
     gint      content_protection_type;
+    guint32   stream_start_in_frame;
+    guint32   stream_end_in_frame;
     guint32   stream_number;
     media_packet_info_t  *previous_media_packet_info;
     media_packet_info_t  *current_media_packet_info;
 } sep_data_t;
 
 typedef struct _media_stream_number_value_t {
+    guint32      stream_start_in_frame;
+    guint32      stream_end_in_frame;
     guint32      stream_number;
 } media_stream_number_value_t;
 
@@ -1390,10 +1401,20 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sep_data.acp_seid     = channels_info->sep->seid;
                 sep_data.int_seid     = channels_info->sep->int_seid;
                 sep_data.content_protection_type = channels_info->sep->content_protection_type;
+                sep_data.stream_start_in_frame   = 0;
+                sep_data.stream_end_in_frame     = 0;
 
                 media_stream_number_value = (media_stream_number_value_t *) wmem_tree_lookup32_le(channels_info->stream_numbers, frame_number - 1);
                 if (media_stream_number_value) {
-                    sep_data.stream_number = media_stream_number_value->stream_number;
+                    sep_data.stream_number         = media_stream_number_value->stream_number;
+                    if (media_stream_number_value->stream_start_in_frame == 0)
+                        media_stream_number_value->stream_start_in_frame = pinfo->fd->num;
+
+                    if (!pinfo->fd->flags.visited)
+                        media_stream_number_value->stream_end_in_frame = pinfo->fd->num;
+
+                    sep_data.stream_start_in_frame = media_stream_number_value->stream_start_in_frame;
+                    sep_data.stream_end_in_frame   = media_stream_number_value->stream_end_in_frame;
                 } else {
                     sep_data.stream_number = 1;
                 }
@@ -1481,12 +1502,24 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector_with_data(bta2dp_handle, next_tvb, pinfo, tree, &sep_data);
             } else if (channels_info->sep->media_type == MEDIA_TYPE_VIDEO) {
-                sep_data_t  sep_data;
+                sep_data_t                    sep_data;
+                media_stream_number_value_t  *media_stream_number_value;
 
-                sep_data.codec    = channels_info->sep->codec;
-                sep_data.acp_seid = channels_info->sep->seid;
-                sep_data.int_seid = channels_info->sep->int_seid;
+                sep_data.codec        = channels_info->sep->codec;
+                sep_data.vendor_id    = channels_info->sep->vendor_id;
+                sep_data.vendor_codec = channels_info->sep->vendor_codec;
+                sep_data.acp_seid     = channels_info->sep->seid;
+                sep_data.int_seid     = channels_info->sep->int_seid;
                 sep_data.content_protection_type = channels_info->sep->content_protection_type;
+                sep_data.stream_start_in_frame   = 0;
+                sep_data.stream_end_in_frame     = 0;
+
+                media_stream_number_value = (media_stream_number_value_t *) wmem_tree_lookup32_le(channels_info->stream_numbers, frame_number - 1);
+                if (media_stream_number_value) {
+                    sep_data.stream_number = media_stream_number_value->stream_number;
+                } else {
+                    sep_data.stream_number = 1;
+                }
 
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector_with_data(btvdp_handle, next_tvb, pinfo, tree, &sep_data);
@@ -1792,6 +1825,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 media_stream_number_value = wmem_new(wmem_file_scope(), media_stream_number_value_t);
                 media_stream_number_value->stream_number = stream_number + 1;
+                media_stream_number_value->stream_start_in_frame = 0;
+                media_stream_number_value->stream_end_in_frame = 0;
 
                 wmem_tree_insert32(channels_info->stream_numbers, frame_number, media_stream_number_value);
             }
@@ -2790,6 +2825,8 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     sep_data.int_seid = 0;
     sep_data.previous_media_packet_info = NULL;
     sep_data.current_media_packet_info = NULL;
+    sep_data.stream_start_in_frame = 0;
+    sep_data.stream_end_in_frame = 0;
     sep_data.stream_number = 1;
     sep_data.vendor_id = 0;
     sep_data.vendor_codec = 0;
@@ -2859,6 +2896,16 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (sep_data.content_protection_type > 0) {
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_content_protection, tvb, 0, 0, sep_data.content_protection_type);
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
+
+    if (sep_data.stream_start_in_frame > 0) {
+        pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_stream_start_in_frame, tvb, 0, 0, sep_data.stream_start_in_frame);
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
+
+    if (sep_data.stream_end_in_frame > 0) {
+        pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_stream_end_in_frame, tvb, 0, 0, sep_data.stream_end_in_frame);
         PROTO_ITEM_SET_GENERATED(pitem);
     }
 
@@ -2942,11 +2989,21 @@ proto_register_bta2dp(void)
             FT_UINT16, BASE_HEX, VALS(content_protection_type_vals), 0x0000,
             NULL, HFILL }
         },
+        { &hf_bta2dp_stream_start_in_frame,
+            { "Stream Start in Frame",           "bta2dp.stream_start_in_frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bta2dp_stream_end_in_frame,
+            { "Stream End in Frame",           "bta2dp.stream_end_in_frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_bta2dp_stream_number,
             { "Stream Number",                   "bta2dp.stream_number",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
-        },
+        }
     };
 
     static gint *ett[] = {
@@ -3013,6 +3070,8 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     sep_data.int_seid = 0;
     sep_data.previous_media_packet_info = NULL;
     sep_data.current_media_packet_info = NULL;
+    sep_data.stream_start_in_frame = 0;
+    sep_data.stream_end_in_frame = 0;
     sep_data.stream_number = 1;
     sep_data.vendor_id = 0;
     sep_data.vendor_codec = 0;
@@ -3069,10 +3128,31 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_codec, tvb, 0, 0, sep_data.codec);
     PROTO_ITEM_SET_GENERATED(pitem);
 
+    if (sep_data.codec == 0xFF) { /* Vendor Specific Codec */
+        pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_vendor_id, tvb, 0, 0, sep_data.vendor_id);
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_vendor_codec_id, tvb, 0, 0, sep_data.vendor_codec);
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
+
     if (sep_data.content_protection_type > 0) {
         pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_content_protection, tvb, 0, 0, sep_data.content_protection_type);
         PROTO_ITEM_SET_GENERATED(pitem);
     }
+
+    if (sep_data.stream_start_in_frame > 0) {
+        pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_stream_start_in_frame, tvb, 0, 0, sep_data.stream_start_in_frame);
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
+
+    if (sep_data.stream_end_in_frame > 0) {
+        pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_stream_end_in_frame, tvb, 0, 0, sep_data.stream_end_in_frame);
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
+
+    pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_stream_number, tvb, 0, 0, sep_data.stream_number);
+    PROTO_ITEM_SET_GENERATED(pitem);
 
     switch (sep_data.codec) {
         case CODEC_H263_BASELINE:
@@ -3087,6 +3167,13 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     btvdp_codec_info.codec_dissector = codec_dissector;
     btvdp_codec_info.content_protection_type = sep_data.content_protection_type;
+
+#if RTP_PLAYER_WORKAROUND == TRUE
+    /* XXX: Workaround to get multiple RTP streams, because converation are too
+       weak to recognize Bluetooth streams (key is: guint32 interface_id, guint32 adapter_id, guint32 chandle, guint32 cid, guint32 direction -> guint32 stream_number) */
+    pinfo->srcport = sep_data.stream_number;
+    pinfo->destport = sep_data.stream_number;
+#endif
 
     bluetooth_add_address(pinfo, &pinfo->net_dst, 0, "BT VDP", pinfo->fd->num, TRUE, &btvdp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
@@ -3117,11 +3204,36 @@ proto_register_btvdp(void)
             FT_UINT8, BASE_HEX, VALS(media_codec_video_type_vals), 0x00,
             NULL, HFILL }
         },
+        { &hf_btvdp_vendor_id,
+            { "Vendor ID",                       "btvdp.codec.vendor.vendor_id",
+            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btvdp_vendor_codec_id,
+            { "Vendor Codec",                    "btvdp.codec.vendor.codec_id",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_btvdp_content_protection,
             { "Content Protection",              "btvdp.content_protection",
             FT_UINT16, BASE_HEX, VALS(content_protection_type_vals), 0x0000,
             NULL, HFILL }
-        }
+        },
+        { &hf_btvdp_stream_start_in_frame,
+            { "Stream Start in Frame",           "btvdp.stream_start_in_frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btvdp_stream_end_in_frame,
+            { "Stream End in Frame",             "btvdp.stream_end_in_frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btvdp_stream_number,
+            { "Stream Number",                   "btvdp.stream_number",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
