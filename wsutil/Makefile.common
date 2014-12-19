@@ -51,7 +51,6 @@ LIBWSUTIL_SRC = 	\
 	des.c		\
 	eax.c		\
 	filesystem.c	\
-	floor.c		\
 	g711.c		\
 	glib_version_info.c \
 	md4.c		\
@@ -104,7 +103,6 @@ libwsutil_nonrepl_INCLUDES = \
 	des.h		\
 	eax.h		\
 	filesystem.h	\
-	floor.h		\
 	g711.h		\
 	glib_version_info.h \
 	md4.h		\
