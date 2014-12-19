@@ -29,7 +29,7 @@ function(LOCATE_PYTHON_MODULE module)
 
 		# Use the (native) python impl module to find the location of the requested module
 		execute_process(COMMAND "${PYTHON_EXECUTABLE}" "-c"
-			"import imp; print imp.find_module('${module}')[1]"
+			"import imp; print(imp.find_module('${module}')[1])"
 			RESULT_VARIABLE _${module}_status
 			OUTPUT_VARIABLE _${module}_location
 			ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
