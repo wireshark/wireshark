@@ -1204,7 +1204,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   mtp3_tap->addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
   SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_opc);
 
-  mtp3_tap->si_code = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
+  mtp3_tap->mtp3_si_code = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
   mtp3_tap->size = 0;
 
   tap_queue_packet(m3ua_tap, pinfo, mtp3_tap);

@@ -53,7 +53,7 @@ typedef struct _mtp3_addr_pc_t {
 typedef struct _mtp3_tap_rec_t {
   mtp3_addr_pc_t	addr_opc;
   mtp3_addr_pc_t	addr_dpc;
-  guint8		si_code;
+  guint8		mtp3_si_code;
   guint16		size;
 } mtp3_tap_rec_t;
 
