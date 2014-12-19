@@ -245,6 +245,10 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item_append_text(pitem, " ms");
     PROTO_ITEM_SET_GENERATED(pitem);
 
+    if (info && info->configuration && info->configuration_length > 0) {
+/* TODO: display current codec configuration */
+    }
+
     if (info && info->previous_media_packet_info && info->current_media_packet_info) {
         nstime_t  delta;
 

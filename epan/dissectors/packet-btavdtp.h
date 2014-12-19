@@ -37,6 +37,8 @@ typedef struct _media_packet_info_t {
 
 typedef struct _bta2dp_codec_info_t {
     dissector_handle_t    codec_dissector;
+    guint8                configuration_length;
+    guint8               *configuration;
     gint                  content_protection_type;
     media_packet_info_t  *previous_media_packet_info;
     media_packet_info_t  *current_media_packet_info;

@@ -520,6 +520,8 @@ typedef struct _sep_entry_t {
     gint           codec;
     guint32        vendor_id;
     guint16        vendor_codec;
+    guint8         configuration_length;
+    guint8        *configuration;
     gint           content_protection_type;
 
     enum sep_state state;
@@ -529,6 +531,8 @@ typedef struct _sep_data_t {
     gint      codec;
     guint32   vendor_id;
     guint16   vendor_codec;
+    guint8    configuration_length;
+    guint8   *configuration;
     guint8    acp_seid;
     guint8    int_seid;
     gint      content_protection_type;
@@ -991,7 +995,9 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto
 static gint
 dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, gint offset, gint *codec,
-        gint *content_protection_type, guint32 *vendor_id, guint16 *vendor_codec)
+        gint *content_protection_type, guint32 *vendor_id,
+        guint16 *vendor_codec, guint32 *configuration_offset,
+        guint8 *configuration_length)
 {
     proto_item  *pitem                                        = NULL;
     proto_item  *ptree                                        = NULL;
@@ -1018,6 +1024,12 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
 
     if (vendor_codec)
         *vendor_codec = 0;
+
+    if (configuration_length)
+        *configuration_length = 0;
+
+    if (configuration_offset)
+        *configuration_offset = 0;
 
     while (tvb_length_remaining(tvb, offset) > 0) {
         service_category = tvb_get_guint8(tvb, offset);
@@ -1066,6 +1078,11 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 losc -= 1;
                 break;
             case SERVICE_CATEGORY_MEDIA_CODEC:
+                if (configuration_length)
+                    *configuration_length = losc;
+                if (configuration_offset)
+                    *configuration_offset = offset;
+
                 media_type = tvb_get_guint8(tvb, offset) >> 4;
                 proto_tree_add_item(service_tree, hf_btavdtp_media_codec_media_type, tvb, offset, 1, ENC_NA);
                 proto_tree_add_item(service_tree, hf_btavdtp_media_codec_rfa , tvb, offset, 1, ENC_NA);
@@ -1272,6 +1289,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32          seid;
     gint             codec = -1;
     gint             content_protection_type = 0;
+    guint32          configuration_offset;
+    guint8           configuration_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVDTP");
 
@@ -1403,6 +1422,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sep_data.content_protection_type = channels_info->sep->content_protection_type;
                 sep_data.stream_start_in_frame   = 0;
                 sep_data.stream_end_in_frame     = 0;
+                sep_data.configuration_length    = channels_info->sep->configuration_length;
+                sep_data.configuration           = channels_info->sep->configuration;
 
                 media_stream_number_value = (media_stream_number_value_t *) wmem_tree_lookup32_le(channels_info->stream_numbers, frame_number - 1);
                 if (media_stream_number_value) {
@@ -1513,6 +1534,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sep_data.content_protection_type = channels_info->sep->content_protection_type;
                 sep_data.stream_start_in_frame   = 0;
                 sep_data.stream_end_in_frame     = 0;
+                sep_data.configuration_length    = channels_info->sep->configuration_length;
+                sep_data.configuration           = channels_info->sep->configuration;
 
                 media_stream_number_value = (media_stream_number_value_t *) wmem_tree_lookup32_le(channels_info->stream_numbers, frame_number - 1);
                 if (media_stream_number_value) {
@@ -1605,7 +1628,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
                 break;
             }
-            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL, NULL, NULL);
+            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL, NULL, NULL, NULL, NULL);
             break;
         case SIGNAL_ID_SET_CONFIGURATION:
             if (message_type == MESSAGE_TYPE_COMMAND) {
@@ -1621,7 +1644,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         SEID_INT, 0, &int_seid, interface_id,
                         adapter_id, chandle, frame_number);
                 offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset,
-                        &codec, &content_protection_type, &vendor_id, &vendor_codec);
+                        &codec, &content_protection_type, &vendor_id,
+                        &vendor_codec, &configuration_offset, &configuration_length);
 
                 if (!pinfo->fd->flags.visited) {
                     key[0].length = 1;
@@ -1645,6 +1669,11 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         sep->vendor_codec = vendor_codec;
                         sep->content_protection_type = content_protection_type;
                         sep->int_seid = int_seid;
+                        if (configuration_length > 0) {
+                            sep->configuration_length = configuration_length;
+                            sep->configuration = (guint8 *) tvb_memdup(wmem_file_scope(),
+                                    tvb, configuration_offset, configuration_length);
+                        }
 
                         if (direction == P2P_DIR_SENT)
                             reverse_direction = P2P_DIR_RECV;
@@ -1690,7 +1719,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
                 break;
             }
-            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL, NULL, NULL);
+            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL, NULL, NULL, NULL, NULL);
             break;
         case SIGNAL_ID_RECONFIGURE:
             if (message_type == MESSAGE_TYPE_COMMAND) {
@@ -1701,7 +1730,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         SEID_ACP, 0, &seid, interface_id,
                         adapter_id, chandle, frame_number);
                 offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset,
-                        &codec, &content_protection_type, &vendor_id, &vendor_codec);
+                        &codec, &content_protection_type, &vendor_id,
+                        &vendor_codec, &configuration_offset, &configuration_length);
 
                 if (!pinfo->fd->flags.visited) {
                     key[0].length = 1;
@@ -1724,6 +1754,11 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         sep->vendor_id = vendor_id;
                         sep->vendor_codec = vendor_codec;
                         sep->content_protection_type = content_protection_type;
+                        if (configuration_length > 0) {
+                            sep->configuration_length = configuration_length;
+                            sep->configuration = (guint8 *) tvb_memdup(wmem_file_scope(),
+                                    tvb, configuration_offset, configuration_length);
+                        }
                     }
                 }
 
@@ -2723,53 +2758,93 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     aptx_tree = proto_item_add_subtree(aptx_item, ett_aptx);
 
     proto_tree_add_item(aptx_tree, hf_aptx_data, tvb, 0, -1, ENC_NA);
-    {
-    /*       expected_speed_data = (frame_length * frequency) / (sbc_subbands * sbc_blocks);
+
+    while (info && info->configuration && info->configuration_length >= 9) {
+        gboolean fail = FALSE;
+        gdouble expected_speed_data;
+        gdouble frame_duration;
+        gdouble frame_length = 2 * 2 * 4;
+        gint number_of_channels;
+        gint frequency;
+        gint sample_bits;
+
+        switch (info->configuration[8] >> 4) {
+        case 0x01:
+            frequency = 48000;
+            break;
+        case 0x02:
+            frequency = 44100;
+            break;
+        case 0x04:
+            frequency = 32000;
+            break;
+        case 0x08:
+            frequency = 16000;
+            break;
+        default:
+            fail = TRUE;
+        }
+
+        if (fail)
+            break;
+
+        switch (info->configuration[8] & 0x0F) {
+        case 0x01:
+        case 0x02:
+        case 0x04:
+            number_of_channels = 2;
+            break;
+        case 0x08:
+            number_of_channels = 1;
+            break;
+        default:
+            fail = TRUE;
+        }
+
+        if (fail)
+            break;
+
+        sample_bits = 16;
+
+        expected_speed_data = frequency * (sample_bits / 8.0) * number_of_channels;
         frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
-        cummulative_frame_duration += frame_duration;*/
-    double expected_speed_data;
-    double frame_duration;
-    double frame_length = 2 * 2 * 4;
 
-    /* INT 32 = 2 channels * 4 *4
-     OUT 4 (2*2)*/
+        cummulative_frame_duration = (tvb_reported_length(tvb) / 4.0) * frame_duration;
 
-    expected_speed_data = 48000.0 * (16.0 / 8.0) * 2.0;
-    frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
-
-    cummulative_frame_duration = (tvb_reported_length(tvb) / 4.0) * frame_duration;
-    }
-    pitem = proto_tree_add_double(aptx_tree, hf_aptx_cummulative_frame_duration, tvb, 0, 0, cummulative_frame_duration);
-    proto_item_append_text(pitem, " ms");
-    PROTO_ITEM_SET_GENERATED(pitem);
-
-    if (info && info->previous_media_packet_info && info->current_media_packet_info) {
-        nstime_t  delta;
-
-        nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->abs_ts);
-        pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time, tvb, 0, 0, nstime_to_msec(&delta));
+        pitem = proto_tree_add_double(aptx_tree, hf_aptx_cummulative_frame_duration, tvb, 0, 0, cummulative_frame_duration);
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        pitem = proto_tree_add_double(aptx_tree, hf_aptx_avrcp_song_position, tvb, 0, 0, info->previous_media_packet_info->avrcp_song_position);
-        proto_item_append_text(pitem, " ms");
-        PROTO_ITEM_SET_GENERATED(pitem);
+        if (info && info->previous_media_packet_info && info->current_media_packet_info) {
+            nstime_t  delta;
 
-        nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->first_abs_ts);
-        pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time_from_the_beginning, tvb, 0, 0, nstime_to_msec(&delta));
-        proto_item_append_text(pitem, " ms");
-        PROTO_ITEM_SET_GENERATED(pitem);
+            nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->abs_ts);
+            pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time, tvb, 0, 0, nstime_to_msec(&delta));
+            proto_item_append_text(pitem, " ms");
+            PROTO_ITEM_SET_GENERATED(pitem);
 
-        if (!pinfo->fd->flags.visited)
-            info->current_media_packet_info->cummulative_frame_duration += cummulative_frame_duration;
+            pitem = proto_tree_add_double(aptx_tree, hf_aptx_avrcp_song_position, tvb, 0, 0, info->previous_media_packet_info->avrcp_song_position);
+            proto_item_append_text(pitem, " ms");
+            PROTO_ITEM_SET_GENERATED(pitem);
 
-        pitem = proto_tree_add_double(aptx_tree, hf_aptx_cummulative_duration, tvb, 0, 0, info->previous_media_packet_info->cummulative_frame_duration);
-        proto_item_append_text(pitem, " ms");
-        PROTO_ITEM_SET_GENERATED(pitem);
+            nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->first_abs_ts);
+            pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time_from_the_beginning, tvb, 0, 0, nstime_to_msec(&delta));
+            proto_item_append_text(pitem, " ms");
+            PROTO_ITEM_SET_GENERATED(pitem);
 
-        pitem = proto_tree_add_double(aptx_tree, hf_aptx_diff, tvb, 0, 0, info->previous_media_packet_info->cummulative_frame_duration - nstime_to_msec(&delta));
-        proto_item_append_text(pitem, " ms");
-        PROTO_ITEM_SET_GENERATED(pitem);
+            if (!pinfo->fd->flags.visited)
+                info->current_media_packet_info->cummulative_frame_duration += cummulative_frame_duration;
+
+            pitem = proto_tree_add_double(aptx_tree, hf_aptx_cummulative_duration, tvb, 0, 0, info->previous_media_packet_info->cummulative_frame_duration);
+            proto_item_append_text(pitem, " ms");
+            PROTO_ITEM_SET_GENERATED(pitem);
+
+            pitem = proto_tree_add_double(aptx_tree, hf_aptx_diff, tvb, 0, 0, info->previous_media_packet_info->cummulative_frame_duration - nstime_to_msec(&delta));
+            proto_item_append_text(pitem, " ms");
+            PROTO_ITEM_SET_GENERATED(pitem);
+        }
+
+        break;
     }
 
     return tvb_reported_length(tvb);
@@ -2854,6 +2929,8 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     sep_data.stream_number = 1;
     sep_data.vendor_id = 0;
     sep_data.vendor_codec = 0;
+    sep_data.configuration_length = 0;
+    sep_data.configuration = NULL;
 
     if (force_a2dp_scms_t || force_a2dp_codec != CODEC_DEFAULT) {
         if (force_a2dp_scms_t)
@@ -2954,8 +3031,10 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
     }
 
-    bta2dp_codec_info.codec_dissector = codec_dissector;
-    bta2dp_codec_info.content_protection_type = sep_data.content_protection_type;
+    bta2dp_codec_info.codec_dissector            = codec_dissector;
+    bta2dp_codec_info.configuration_length       = sep_data.configuration_length;
+    bta2dp_codec_info.configuration              = sep_data.configuration;
+    bta2dp_codec_info.content_protection_type    = sep_data.content_protection_type;
     bta2dp_codec_info.previous_media_packet_info = sep_data.previous_media_packet_info;
     bta2dp_codec_info.current_media_packet_info  = sep_data.current_media_packet_info;
 
@@ -3099,6 +3178,8 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     sep_data.stream_number = 1;
     sep_data.vendor_id = 0;
     sep_data.vendor_codec = 0;
+    sep_data.configuration_length = 0;
+    sep_data.configuration = NULL;
 
     if (force_vdp_scms_t || force_vdp_codec) {
         if (force_vdp_scms_t)
