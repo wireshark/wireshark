@@ -1000,7 +1000,7 @@ sub struct {
 		}
 	    }
 	    when ('field') { }
-	    default { die("unrecognized field $_\n"); }
+	    default { die("unrecognized field: $_\n"); }
 	}
 
 	my $type = $e->att('type');
