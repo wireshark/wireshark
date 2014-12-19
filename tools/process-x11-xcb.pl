@@ -765,7 +765,7 @@ sub dissect_element($$$$$;$$)
                     $length += $align - $length % $align;
                 }
                 if ($adjustlength) {
-                    say $impl $indent.'length = (length + '.($align-1).' & ~'.($align-1).';';
+                    say $impl $indent.'length = ((length + '.($align-1).') & ~'.($align-1).');';
                 }
             }
 	}
