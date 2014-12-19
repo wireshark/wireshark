@@ -2658,7 +2658,7 @@ static void
 pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
 {
     p_add_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0, ar );
-    pinfo->profinet_type = 10;
+    p_add_proto_data(pinfo->pool, pinfo, proto_pn_io, 0, GUINT_TO_POINTER(10));
 
     if (tree) {
         proto_item *item;
@@ -9488,16 +9488,19 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 pn_io_ar_conv_valid(packet_info *pinfo)
 {
-    return (pinfo->profinet_type == 10);
+    void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
+
+    return ((profinet_type != NULL) && (GPOINTER_TO_UINT(profinet_type) == 10));
 }
 
 static const gchar *
 pn_io_ar_conv_filter(packet_info *pinfo)
 {
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
+    void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
     char      *buf;
 
-    if ((pinfo->profinet_type != 10) || (ar == NULL)) {
+    if ((profinet_type == NULL) || (GPOINTER_TO_UINT(profinet_type) != 10) || (ar == NULL)) {
         return NULL;
     }
 
@@ -9515,9 +9518,10 @@ static const gchar *
 pn_io_ar_conv_data_filter(packet_info *pinfo)
 {
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
+    void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
     char      *buf;
 
-    if ((pinfo->profinet_type != 10) || (ar == NULL)) {
+    if ((profinet_type == NULL) || (GPOINTER_TO_UINT(profinet_type) != 10) || (ar == NULL)) {
         return NULL;
     }
     if (ar->arType == 0x0010) /* IOCARSingle using RT_CLASS_3 */

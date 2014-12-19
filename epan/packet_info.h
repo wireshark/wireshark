@@ -153,7 +153,6 @@ typedef struct _packet_info {
   wmem_list_t *layers;      /**< layers of each protocol */
   guint8 curr_layer_num;       /**< The current "depth" or layer number in the current frame */
   guint16 link_number;
-  guint16 profinet_type;        /**< the type of PROFINET packet (0: not a PROFINET packet) */
 
   guint16 clnp_srcref;          /**< clnp/cotp source reference (can't use srcport, this would confuse tpkt) */
   guint16 clnp_dstref;          /**< clnp/cotp destination reference (can't use dstport, this would confuse tpkt) */

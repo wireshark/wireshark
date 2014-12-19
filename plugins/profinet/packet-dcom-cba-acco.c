@@ -340,17 +340,20 @@ const true_false_string acco_flags_set_truth = { "Set", "Not set" };
 static gboolean
 cba_color_filter_valid(packet_info *pinfo)
 {
-    return ((pinfo->profinet_type != 0) && (pinfo->profinet_type < 10));
+    void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
+
+    return ((profinet_type != NULL) && (GPOINTER_TO_UINT(profinet_type) < 10));
 }
 
 static gchar*
 cba_build_color_filter(packet_info *pinfo)
 {
     gboolean is_tcp = proto_is_frame_protocol(pinfo->layers, "tcp");
+    void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
 
     if ((pinfo->net_src.type == AT_IPv4) && (pinfo->net_dst.type == AT_IPv4) && is_tcp) {
         /* IPv4 */
-        switch(pinfo->profinet_type) {
+        switch(GPOINTER_TO_UINT(profinet_type)) {
         case 1:
             return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
                 ip_to_str( (const guint8 *)pinfo->net_dst.data),
@@ -1146,7 +1149,7 @@ dissect_ICBAAccoServer_SetActivation_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
@@ -1191,7 +1194,7 @@ dissect_ICBAAccoServerSRT_Disconnect_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 3;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
@@ -1236,7 +1239,7 @@ dissect_ICBAAccoServerSRT_SetActivation_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 3;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
@@ -1301,7 +1304,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, di, drep,
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
@@ -1453,7 +1456,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, di, drep,
                        hf_cba_acco_conn_consumer, szCons, u32MaxConsLen);
@@ -1631,7 +1634,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
     offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, di, drep,
                         hf_cba_acco_server_first_connect, &u8FirstConnect);
@@ -1715,7 +1718,7 @@ dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                         hf_cba_acco_count, &u32Count);
@@ -1782,7 +1785,7 @@ dissect_ICBAAccoServer_Disconnect_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
@@ -1835,7 +1838,7 @@ dissect_ICBAAccoServerSRT_Disconnect_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 4;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                         hf_cba_acco_count, &u32Count);
@@ -1876,7 +1879,7 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, di, drep,
         hf_cba_acco_conn_consumer, szStr, u32MaxStr);
@@ -1911,7 +1914,7 @@ dissect_ICBAAccoServer_DisconnectMe_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                     &u32HResult);
@@ -1947,7 +1950,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 4;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, di, drep,
         hf_cba_acco_conn_consumer, szStr, u32MaxStr);
@@ -1982,7 +1985,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 3;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                     &u32HResult);
@@ -2011,7 +2014,7 @@ dissect_ICBAAccoServer_Ping_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                     &u32HResult);
@@ -2039,7 +2042,7 @@ dissect_ICBAAccoServer_SetActivation_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
     offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, di, drep,
                         hf_cba_acco_conn_state, &u8State);
@@ -2081,7 +2084,7 @@ dissect_ICBAAccoServerSRT_SetActivation_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 4;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
     offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, di, drep,
                         hf_cba_acco_conn_state, &u8State);
@@ -2119,7 +2122,7 @@ dissect_ICBAAccoServer_Ping_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, di, drep,
         hf_cba_acco_conn_consumer, szStr, u32MaxStr);
@@ -2163,7 +2166,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 4;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
     /* szCons */
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, di, drep,
@@ -2298,7 +2301,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 3;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
     offset = dissect_dcom_BOOLEAN(tvb, offset, pinfo, tree, di, drep,
                         hf_cba_acco_server_first_connect, &u8FirstConnect);
@@ -2393,7 +2396,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 4;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                         hf_cba_acco_count, &u32Count);
@@ -2452,7 +2455,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 3;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
@@ -2528,7 +2531,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 4;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
                         hf_cba_acco_prov_crid, &u32ProvCRID);
@@ -2686,7 +2689,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 3;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
     offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, di, drep,
                         &u32Pointer);
@@ -3243,7 +3246,7 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
     /* length */
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
@@ -3275,7 +3278,7 @@ dissect_ICBAAccoCallback_OnDataChanged_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                     &u32HResult);
@@ -3298,7 +3301,7 @@ dissect_ICBAAccoCallback_Gnip_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 3;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(3));
 
     return offset;
 }
@@ -3316,7 +3319,7 @@ dissect_ICBAAccoCallback_Gnip_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 4;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(4));
 
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, di, drep,
                     &u32HResult);
@@ -3343,7 +3346,7 @@ dissect_ICBAAccoServer2_GetConnectionData_rqst(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 2;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(2));
 
     offset = dissect_dcom_LPWSTR(tvb, offset, pinfo, tree, di, drep,
         hf_cba_acco_conn_consumer, szStr, u32MaxStr);
@@ -3386,7 +3389,7 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);
-    pinfo->profinet_type = 1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0, GUINT_TO_POINTER(1));
 
     /* length */
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, di, drep,
@@ -5068,6 +5071,7 @@ proto_register_dcom_cba_acco (void)
     proto_register_subtree_array (ett5, array_length (ett5));
 
     /* XXX - just pick a protocol to register the expert info in */
+    /* XXX - also, just pick a protocol to use proto_data for */
     expert_cba_acco = expert_register_protocol(proto_ICBAAccoMgt);
     expert_register_field_array(expert_cba_acco, ei, array_length(ei));
 
