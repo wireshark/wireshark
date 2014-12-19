@@ -16266,6 +16266,28 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
     }
 
+  switch (fcs_len)
+    {
+      case 0: /* Definitely has no FCS */
+        has_fcs = FALSE;
+        break;
+
+      case 4: /* Definitely has an FCS */
+        has_fcs = TRUE;
+        break;
+
+      case -2: /* Data frames have no FCS, other frames have an FCS */
+        if (FCF_FRAME_TYPE (fcf) == DATA_FRAME)
+          has_fcs = FALSE;
+        else
+          has_fcs = TRUE;
+        break;
+
+      default: /* Don't know - use "wlan_check_fcs" */
+        has_fcs = wlan_check_fcs;
+        break;
+    }
+
   /*
    * Decode the part of the frame header that isn't the same for all
    * frame types.
@@ -16487,6 +16509,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           set_src_addr_cols(pinfo, src, "TA");
           if (tree) {
             guint16 sta_info;
+            guint8 len_fcs = 0;
             proto_tree *dialog_token_tree;
             proto_item *dialog_token_item;
             proto_tree *sta_info_tree;
@@ -16512,7 +16535,11 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, offset, 1, ENC_NA);
             offset++;
 
-            while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            /* Check if there is FCS in the packet */
+            if(has_fcs){
+              len_fcs = 4;
+            }
+            while (tvb_reported_length_remaining(tvb, offset) > len_fcs) {
               sta_info_item = proto_tree_add_item(hdr_tree, hf_ieee80211_vht_ndp_annc_sta_info,
                                                   tvb, offset, 2, ENC_NA);
               sta_info_tree = proto_item_add_subtree(sta_info_item, ett_vht_ndp_annc_sta_info_tree);
@@ -17133,27 +17160,6 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   len = tvb_captured_length_remaining(tvb, hdr_len);
   reported_len = tvb_reported_length_remaining(tvb, hdr_len);
 
-  switch (fcs_len)
-    {
-      case 0: /* Definitely has no FCS */
-        has_fcs = FALSE;
-        break;
-
-      case 4: /* Definitely has an FCS */
-        has_fcs = TRUE;
-        break;
-
-      case -2: /* Data frames have no FCS, other frames have an FCS */
-        if (FCF_FRAME_TYPE (fcf) == DATA_FRAME)
-          has_fcs = FALSE;
-        else
-          has_fcs = TRUE;
-        break;
-
-      default: /* Don't know - use "wlan_check_fcs" */
-        has_fcs = wlan_check_fcs;
-        break;
-    }
   if (has_fcs)
     {
       /*
