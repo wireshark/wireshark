@@ -85,8 +85,9 @@ call_file_record_end_routine(gpointer routine, gpointer dummy _U_)
 	(*func)();
 }
 
-static void
-dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+/* XXX - "packet comment" is passed into dissector as data, but currently doesn't have a use */
+static int
+dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_item  *volatile ti = NULL;
 	guint	     cap_len = 0, frame_len = 0;
@@ -184,7 +185,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
 		proto_tree_add_text (tree, tvb, 0, -1, "This record is marked as ignored");
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	/* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
@@ -311,6 +312,8 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		g_slist_free(pinfo->frame_end_routines);
 		pinfo->frame_end_routines = NULL;
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -382,7 +385,7 @@ proto_register_file(void)
 	proto_file = proto_register_protocol("File", "File", "file");
 	proto_register_field_array(proto_file, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("file",dissect_file_record,proto_file);
+	new_register_dissector("file",dissect_file_record,proto_file);
 
 	/* You can't disable dissection of "Frame", as that would be
 	   tantamount to not doing any dissection whatsoever. */

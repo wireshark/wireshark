@@ -31,6 +31,7 @@
 
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
+#include <epan/epan_dissect.h>
 
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
@@ -38,7 +39,7 @@
 
 /* Main entry point to the tap */
 static int
-export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
 {
     const exp_pdu_data_t *exp_pdu_data = (const exp_pdu_data_t *)data;
     exp_pdu_t  *exp_pdu_tap_data = (exp_pdu_t *)tapdata;
@@ -66,7 +67,12 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     pkthdr.len       = exp_pdu_data->tvb_reported_length + exp_pdu_data->tlv_buffer_len;
 
     pkthdr.pkt_encap = exp_pdu_tap_data->pkt_encap;
-    pkthdr.opt_comment = g_strdup(pinfo->pkt_comment);
+
+    if (pinfo->fd->flags.has_user_comment)
+        pkthdr.opt_comment = g_strdup(epan_get_user_comment(edt->session, pinfo->fd));
+    else if (pinfo->fd->flags.has_phdr_comment)
+        pkthdr.opt_comment = g_strdup(pinfo->phdr->opt_comment);
+
     pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
 
     /* XXX: should the pkthdr.pseudo_header be set to the pinfo's pseudo-header? */

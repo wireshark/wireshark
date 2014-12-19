@@ -176,12 +176,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	proto_tree  *comments_tree;
 	proto_item  *item;
 	const gchar *cap_plurality, *frame_plurality;
-	int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+	frame_data_t *fr_data = (frame_data_t*)data;
 
 	tree=parent_tree;
-	if (data != NULL) {
-		file_type_subtype = GPOINTER_TO_INT(data);
-	}
 
 	switch (pinfo->phdr->rec_type) {
 
@@ -251,14 +248,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		break;
 	}
 
-	if (pinfo->pkt_comment) {
+	if (fr_data && fr_data->pkt_comment) {
 		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
 		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, 0,
-							                   pinfo->pkt_comment, "%s",
-							                   pinfo->pkt_comment);
+							                   fr_data->pkt_comment, "%s",
+							                   fr_data->pkt_comment);
 		expert_add_info_format(pinfo, comment_item, &ei_comments_text,
-					                       "%s",  pinfo->pkt_comment);
+					                       "%s",  fr_data->pkt_comment);
 
 
 	}
@@ -507,13 +504,21 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 			case REC_TYPE_FT_SPECIFIC_EVENT:
 			case REC_TYPE_FT_SPECIFIC_REPORT:
-				if (!dissector_try_uint(wtap_fts_rec_dissector_table, file_type_subtype,
-							tvb, pinfo, parent_tree)) {
+				{
+					int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
 
-					col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-					col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-						     file_type_subtype);
-					call_dissector(data_handle,tvb, pinfo, parent_tree);
+					if (fr_data) {
+						file_type_subtype = fr_data->file_type_subtype;
+					}
+
+					if (!dissector_try_uint(wtap_fts_rec_dissector_table, file_type_subtype,
+								tvb, pinfo, parent_tree)) {
+
+						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
+							     file_type_subtype);
+						call_dissector(data_handle,tvb, pinfo, parent_tree);
+					}
 				}
 				break;
 			}

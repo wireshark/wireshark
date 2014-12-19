@@ -473,6 +473,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_free@Base 1.12.0~rc1
  epan_get_compiled_version_info@Base 1.9.1
  epan_get_runtime_version_info@Base 1.9.1
+ epan_get_user_comment@Base 1.99.2
  epan_get_version@Base 1.9.1
  epan_init@Base 1.9.1
  epan_memmem@Base 1.9.1

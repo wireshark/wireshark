@@ -132,7 +132,7 @@ typedef struct epan_session epan_t;
 
 WS_DLL_PUBLIC epan_t *epan_new(void);
 
-const char *epan_get_user_comment(const epan_t *session, const frame_data *fd);
+WS_DLL_PUBLIC const char *epan_get_user_comment(const epan_t *session, const frame_data *fd);
 
 const char *epan_get_interface_name(const epan_t *session, guint32 interface_id);
 

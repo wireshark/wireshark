@@ -595,6 +595,13 @@ extern void free_data_sources(packet_info *pinfo);
  */
 WS_DLL_PUBLIC void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame_num);
 
+/* Structure passed to the frame dissector */
+typedef struct frame_data_s
+{
+    int file_type_subtype;
+    const gchar  *pkt_comment; /**< NULL if not available */
+} frame_data_t;
+
 /*
  * Dissectors should never modify the record data.
  */

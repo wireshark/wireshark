@@ -431,6 +431,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
     struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
 	const char *volatile record_type;
+	frame_data_t frame_dissector_data;
 
 	switch (phdr->rec_type) {
 
@@ -485,9 +486,12 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 
 	/* pkt comment use first user, later from phdr */
 	if (fd->flags.has_user_comment)
-		edt->pi.pkt_comment = epan_get_user_comment(edt->session, fd);
+		frame_dissector_data.pkt_comment = epan_get_user_comment(edt->session, fd);
 	else if (fd->flags.has_phdr_comment)
-		edt->pi.pkt_comment = phdr->opt_comment;
+		frame_dissector_data.pkt_comment = phdr->opt_comment;
+	else
+		frame_dissector_data.pkt_comment = NULL;
+	frame_dissector_data.file_type_subtype = file_type_subtype;
 
 	EP_CHECK_CANARY(("before dissecting record %d",fd->num));
 
@@ -499,7 +503,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		 * sub-dissector can throw, dissect_frame() itself may throw
 		 * a ReportedBoundsError in bizarre cases. Thus, we catch the exception
 		 * in this function. */
-		call_dissector_with_data(frame_handle, edt->tvb, &edt->pi, edt->tree, GINT_TO_POINTER(file_type_subtype));
+		call_dissector_with_data(frame_handle, edt->tvb, &edt->pi, edt->tree, &frame_dissector_data);
 	}
 	CATCH(BoundsError) {
 		g_assert_not_reached();
@@ -547,15 +551,20 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 
 	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
 
-	/* pkt comment use first user, later from phdr */
-	if (fd->flags.has_user_comment)
-		edt->pi.pkt_comment = epan_get_user_comment(edt->session, fd);
-	else if (fd->flags.has_phdr_comment)
-		edt->pi.pkt_comment = phdr->opt_comment;
 
 	EP_CHECK_CANARY(("before dissecting file %d",fd->num));
 
 	TRY {
+		const gchar *pkt_comment;
+
+		/* pkt comment use first user, later from phdr */
+		if (fd->flags.has_user_comment)
+			pkt_comment = epan_get_user_comment(edt->session, fd);
+		else if (fd->flags.has_phdr_comment)
+			pkt_comment = phdr->opt_comment;
+		else
+			pkt_comment = NULL;
+
 		/* Add this tvbuffer into the data_src list */
 		add_new_data_source(&edt->pi, edt->tvb, "File");
 
@@ -563,7 +572,7 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 		 * sub-dissector can throw, dissect_frame() itself may throw
 		 * a ReportedBoundsError in bizarre cases. Thus, we catch the exception
 		 * in this function. */
-		call_dissector(file_handle, edt->tvb, &edt->pi, edt->tree);
+		call_dissector_with_data(file_handle, edt->tvb, &edt->pi, edt->tree, (void*)pkt_comment);
 
 	}
 	CATCH(BoundsError) {
