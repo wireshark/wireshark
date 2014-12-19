@@ -123,6 +123,9 @@ void filter_te_syntax_check_cb(GtkWidget *widget, gpointer user_data _U_);
 /** Only validate a single field entry. */
 #define E_FILT_FIELD_NAME_ONLY_KEY  "filter_field_name_only"
 
+/** Only validate a multi field entry. */
+#define E_FILT_MULTI_FIELD_NAME_ONLY_KEY  "filter_multi_field_name_only"
+
 /** Update statusbar when changing the filter entry. */
 #define E_FILT_FIELD_USE_STATUSBAR_KEY "filter_field_use_statusbar"
 

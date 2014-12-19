@@ -1347,6 +1347,28 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
         statusbar_pop_filter_msg();
     }
 
+    if (strval && g_object_get_data(G_OBJECT(w), E_FILT_MULTI_FIELD_NAME_ONLY_KEY)) {
+        gchar  **fields;
+        guint    i_field = 0;
+
+        fields = g_regex_split_simple(" *([^ ]+) *(?:(?:\\|\\|)|(?:or))? *",
+                strval, G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
+
+        for (i_field =0; i_field < g_strv_length(fields); i_field += 1) {
+            if (fields[i_field] && *fields[i_field]) {
+                c = proto_check_field_name(fields[i_field]);
+                if (c != 0) {
+                    colorize_filter_te_as_invalid(w);
+                    if (use_statusbar)
+                        statusbar_push_filter_msg(" Invalid filter");
+                    g_strfreev(fields);
+                    return;
+                }
+            }
+        }
+        g_strfreev(fields);
+    }
+
     /* colorize filter string entry */
     if (g_object_get_data(G_OBJECT(w), E_FILT_FIELD_NAME_ONLY_KEY) &&
         strval && (c = proto_check_field_name(strval)) != 0)

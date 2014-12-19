@@ -340,23 +340,26 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
       epan_dissect_prime_dfilter(edt, cinfo->col_custom_dfilter[i]);
       if (cinfo->col_custom_field) {
         gchar  **fields;
-        gchar   *field;
-        int      i_field = 0;
+        guint    i_field = 0;
 
-        fields = g_strsplit(cinfo->col_custom_field[i], " || ", -1);
+        fields = g_regex_split_simple(" *([^ ]+) *(?:(?:\\|\\|)|(?:or))? *",
+                cinfo->col_custom_field[i], G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
 
-        while((field = fields[i_field++])) {
-            int id;
+        for (i_field =0; i_field < g_strv_length(fields); i_field += 1) {
+            if (fields[i_field] && *fields[i_field]) {
+                int id;
 
-            header_field_info* hfinfo = proto_registrar_get_byname(field);
-            id = hfinfo ? hfinfo->id : -1;
-            if (id >= 0) {
-                int *idx;
+                header_field_info* hfinfo = proto_registrar_get_byname(fields[i_field]);
+                id = hfinfo ? hfinfo->id : -1;
+                if (id >= 0) {
+                    int *idx;
 
-                idx = g_new(int, 1);
-                *idx = id;
-                cinfo->col_custom_field_ids[i] = g_slist_insert(cinfo->col_custom_field_ids[i], idx, i_list);
-                i_list += 1;
+                    idx = g_new(int, 1);
+                    *idx = id;
+                    cinfo->col_custom_field_ids[i] =
+                            g_slist_insert(cinfo->col_custom_field_ids[i], idx, i_list);
+                    i_list += 1;
+                }
             }
         }
         g_strfreev(fields);
