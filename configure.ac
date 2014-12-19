@@ -2736,6 +2736,7 @@ AC_SUBST(STRPTIME_LO)
 AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(mmap mprotect sysconf)
+AC_CHECK_FUNCS(floorl)
 
 dnl blank for now, but will be used in future
 AC_SUBST(wireshark_SUBDIRS)
