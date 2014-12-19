@@ -5231,6 +5231,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             proto_item_set_end(aitem, tvb, foffset);
             /* End of NameorID */
             foffset = commonarguments(tvb, pinfo, ndps_tree, foffset);
+            break;
         case 0x00000014:    /* Startup PA */
             proto_tree_add_item(ndps_tree, hf_ndps_session, tvb, foffset, 4, ENC_BIG_ENDIAN);
             foffset += 4;
