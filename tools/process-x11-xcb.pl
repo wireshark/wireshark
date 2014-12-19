@@ -1000,6 +1000,7 @@ sub struct {
 		}
 	    }
 	    when ('field') { }
+	    when ('switch') { } # New field in xcbproto/src/xinput.xml
 	    default { die("unrecognized field: $_\n"); }
 	}
 
