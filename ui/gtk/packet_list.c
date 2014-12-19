@@ -599,6 +599,12 @@ packet_list_column_button_pressed_cb (GtkWidget *widget, GdkEvent *event, gpoint
 	return popup_menu_handler (widget, event, menu);
 }
 
+static gboolean packet_list_recreate_delayed(gpointer user_data _U_)
+{
+	packet_list_recreate();
+	return FALSE;
+}
+
 static void
 column_dnd_changed_cb(GtkTreeView *tree_view, gpointer data _U_)
 {
@@ -634,7 +640,9 @@ column_dnd_changed_cb(GtkTreeView *tree_view, gpointer data _U_)
 		prefs_main_write();
 	}
 
-	packet_list_recreate();
+	/* The columns widget is part of the packets list, delay destruction to
+	 * avoid triggering a use-after-free (maybe a GTK3 bug?) */
+	g_idle_add(packet_list_recreate_delayed, NULL);
 }
 
 static GtkWidget *
