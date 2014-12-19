@@ -166,7 +166,7 @@ hdlc HDLC
 <ENCAP>{sscop} {g_encap = WTAP_ENCAP_ATM_PDUS; BEGIN(STARTBYTES); }
 <ENCAP>{sscfnni} {g_encap = WTAP_ENCAP_MTP3; BEGIN(STARTBYTES); }
 <ENCAP>{hdlc} {g_encap = WTAP_ENCAP_CHDLC; BEGIN(STARTBYTES); }
-<ENCAP,STARTBYTES>{start_bytes} { fprintf(stderr, "OUCH: %s\b", yytext); BEGIN(BYTE); }
+<ENCAP,STARTBYTES>{start_bytes} { BEGIN(BYTE); }
 <BYTE>{byte} { ADD_BYTE(yytext); }
 <BYTE>{bytes_junk} ;
 <BYTE>{end_bytes} { FINALIZE_FRAME(); yyterminate(); }
