@@ -56,7 +56,6 @@
 
 #define STRLEN	80
 
-#define AX25_ADDR_LEN		 7 /* length of an AX.25 address */
 #define AX25_HEADER_SIZE	15 /* length of src_addr + dst_addr + cntl */
 #define AX25_MAX_DIGIS		 8
 
@@ -177,11 +176,9 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	/* step over src addr point at either 1st via addr or control byte */
 	offset += AX25_ADDR_LEN;
 
-	proto_item_append_text( ti, ", Src: %s (%s), Dst: %s (%s)",
-		get_ax25_name( src_addr ),
-		ax25_to_str( src_addr ),
-		get_ax25_name( dst_addr ),
-		ax25_to_str( dst_addr ) );
+	proto_item_append_text( ti, ", Src: %s, Dst: %s",
+		address_to_str(wmem_packet_scope(), &pinfo->src),
+		address_to_str(wmem_packet_scope(), &pinfo->dst));
 
 	/* decode the cmd/resp field */
 	/* v2cmdresp = '.'; */

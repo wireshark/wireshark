@@ -1862,7 +1862,7 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
       pinfo->cinfo->col_expr.col_expr[col] = "ax25.src";
     else
       pinfo->cinfo->col_expr.col_expr[col] = "ax25.dst";
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ax25_to_str((const guint8 *)addr->data), COL_MAX_LEN);
+    address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     break;
 
   case AT_ETHER:

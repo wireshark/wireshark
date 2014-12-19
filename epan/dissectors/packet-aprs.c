@@ -44,7 +44,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#define AX25_ADDR_LEN		7  /* length of an AX.25 address */
+#include <epan/wmem/wmem.h>
+#include <epan/to_str.h>
+
 #define STRLEN	100
 
 void proto_register_aprs(void);

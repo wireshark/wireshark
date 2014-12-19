@@ -388,9 +388,16 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
     return ip_to_str(ad);
   }
   if (ARP_HW_IS_AX25(type, ad_len)) {
+    {
     /* AX.25 address */
-    return get_ax25_name(ad);
-    /*return ax25_to_str(ad);*/
+    address addr;
+
+    addr.type = AT_AX25;
+    addr.len  = AX25_ADDR_LEN;
+    addr.data = ad;
+
+    return address_to_str(wmem_packet_scope(), &addr);
+    }
   }
   return bytes_to_ep_str(ad, ad_len);
 }

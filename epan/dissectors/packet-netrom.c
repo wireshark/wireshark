@@ -54,8 +54,6 @@ void proto_reg_handoff_netrom(void);
 
 #define STRLEN 80
 
-#define AX25_ADDR_LEN		   7	/* length of an AX.25 address */
-
 #define NETROM_MIN_SIZE		   7	/* minumum payload for a routing packet */
 #define NETROM_HEADER_SIZE	  20	/* minumum payload for a normal packet */
 
@@ -244,11 +242,9 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* create display subtree for the protocol */
 
 		ti = proto_tree_add_protocol_format( tree, proto_netrom, tvb, 0, NETROM_HEADER_SIZE,
-			"NET/ROM, Src: %s (%s), Dst: %s (%s)",
-			get_ax25_name( src_addr ),
-			ax25_to_str( src_addr ),
-			get_ax25_name( dst_addr ),
-			ax25_to_str( dst_addr ) );
+			"NET/ROM, Src: %s, Dst: %s",
+			address_to_str(wmem_packet_scope(), &pinfo->src),
+			address_to_str(wmem_packet_scope(), &pinfo->dst));
 
 		netrom_tree = proto_item_add_subtree( ti, ett_netrom );
 
