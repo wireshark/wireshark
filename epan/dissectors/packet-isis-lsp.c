@@ -218,6 +218,10 @@ static int hf_isis_lsp_rt_capable_trees_maximum_nof_trees_to_compute = -1;
 static int hf_isis_lsp_rt_capable_interested_vlans_vlan_start_id = -1;
 static int hf_isis_lsp_rt_capable_nickname_nickname_priority = -1;
 static int hf_isis_lsp_ext_is_reachability_metric = -1;
+static int hf_isis_lsp_ext_is_reachability_subclvs_len = -1;
+static int hf_isis_lsp_ext_is_reachability_code = -1;
+static int hf_isis_lsp_ext_is_reachability_len = -1;
+static int hf_isis_lsp_ext_is_reachability_value = -1;
 static int hf_isis_lsp_default_metric = -1;
 static int hf_isis_lsp_ext_ip_reachability_distribution = -1;
 static int hf_isis_lsp_maximum_link_bandwidth = -1;
@@ -291,6 +295,7 @@ static gint ett_isis_lsp_clv_area_addr = -1;
 static gint ett_isis_lsp_clv_is_neighbors = -1;
 static gint ett_isis_lsp_clv_ext_is_reachability = -1; /* CLV 22 */
 static gint ett_isis_lsp_part_of_clv_ext_is_reachability = -1;
+static gint ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv = -1;
 static gint ett_isis_lsp_subclv_admin_group = -1;
 static gint ett_isis_lsp_subclv_unrsv_bw = -1;
 static gint ett_isis_lsp_subclv_spb_link_metric = -1;
@@ -361,6 +366,42 @@ static const value_string isis_lsp_sr_alg_vals[] = {
     { ISIS_SR_ALG_SPF, "Shortest Path First (SPF)" },
     { 0, NULL }
 };
+
+/*
+http://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml#isis-tlv-codepoints-22-23-141-222-223
+*/
+static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
+    { 3, "Administrative group (color)" },
+    { 4, "Link Local/Remote Identifiers" },
+    { 6, "IPv4 interface address" },
+    { 8, "IPv4 neighbor address" },
+    { 9, "Maximum link bandwidth" },
+    { 10, "Maximum reservable link bandwidth" },
+    { 11, "Unreserved bandwidth" },
+    { 12, "IPv6 Interface Address" },
+    { 13, "IPv6 Neighbor Address" },
+    { 14, "Extended Administrative Group" },
+    { 18, "TE Default metric" },
+    { 19, "Link-attributes" },
+    { 20, "Link Protection Type" },
+    { 21, "Interface Switching Capability Descriptor" },
+    { 22, "Bandwidth Constraints" },
+    { 23, "Unconstrained TE LSP Count (sub-)TLV" },
+    { 24, "remote AS number" },
+    { 25, "IPv4 remote ASBR Identifier" },
+    { 26, "IPv6 remote ASBR Identifier" },
+    { 27, "Interface Adjustment Capability Descriptor (IACD)" },
+    { 28, "MTU" },
+    { 29, "SPB-Metric" },
+    { 30, "SPB-A-OALG" },
+    { 250, "Reserved for Cisco-specific extensions" },
+    { 251, "Reserved for Cisco-specific extensions" },
+    { 252, "Reserved for Cisco-specific extensions" },
+    { 253, "Reserved for Cisco-specific extensions" },
+    { 254, "Reserved for Cisco-specific extensions" },
+    { 0, NULL }
+};
+
 /*
  * Name: dissect_lsp_mt_id()
  *
@@ -2133,12 +2174,13 @@ dissect_subclv_spb_link_metric(tvbuff_t *tvb, packet_info *pinfo,
  * Output:
  *   void, but we will add to proto tree if !NULL.
  */
+
 static void
 dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
     int offset, int id_length _U_, int length)
 {
-    proto_item *ti;
-    proto_tree *ntree = NULL;
+    proto_item *ti, *ti_subclvs_len, *ti_subclvs;
+    proto_tree *ntree = NULL, *subtree;
     guint      subclvs_len;
     guint      len, i;
     guint      clv_code, clv_len;
@@ -2152,57 +2194,54 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 
         proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_metric, tvb, offset+7, 3, ENC_BIG_ENDIAN);
 
+        ti_subclvs_len = proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_subclvs_len, tvb, offset+10, 1, ENC_BIG_ENDIAN);
+
         subclvs_len = tvb_get_guint8(tvb, offset+10);
         if (subclvs_len == 0) {
-            proto_tree_add_text (ntree, tvb, offset+10, 1, "no sub-TLVs present");
+            proto_item_append_text(ti_subclvs_len, " (no sub-TLVs present)");
         }
         else {
             i = 0;
             while (i < subclvs_len) {
+                subtree = proto_tree_add_subtree(ntree, tvb, offset+11, 0, ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv, &ti_subclvs, "subTLV");
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_code, tvb, offset+11+i, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, offset+12+i, 1, ENC_BIG_ENDIAN);
                 clv_code = tvb_get_guint8(tvb, offset+11+i);
                 clv_len  = tvb_get_guint8(tvb, offset+12+i);
+                proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str(clv_code, isis_lsp_ext_is_reachability_code_vals, "Unknown"), clv_code, clv_len);
+                proto_item_set_len(ti_subclvs, clv_len+2);
                 switch (clv_code) {
                 case 3 :
-                    dissect_subclv_admin_group(tvb, ntree, offset+13+i);
+                    dissect_subclv_admin_group(tvb, subtree, offset+13+i);
                     break;
                 case 4 :
-                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_link_local_identifier, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_link_remote_identifier, tvb, offset+17+i, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_local_identifier, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_remote_identifier, tvb, offset+17+i, 4, ENC_BIG_ENDIAN);
                     break;
                 case 6 :
-                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
                     break;
                 case 8 :
-                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
                     break;
                 case 9 :
-                    dissect_subclv_max_bw (tvb, ntree, offset+13+i);
+                    dissect_subclv_max_bw(tvb, subtree, offset+13+i);
                     break;
                 case 10:
-                    dissect_subclv_rsv_bw (tvb, ntree, offset+13+i);
+                    dissect_subclv_rsv_bw(tvb, subtree, offset+13+i);
                     break;
                 case 11:
-                    dissect_subclv_unrsv_bw (tvb, ntree, offset+13+i);
+                    dissect_subclv_unrsv_bw(tvb, subtree, offset+13+i);
                     break;
                 case 18:
-                    proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, tvb, offset+13+i, 5, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, tvb, offset+13+i, 5, ENC_BIG_ENDIAN);
                     break;
                 case 29:
-                    dissect_subclv_spb_link_metric(tvb, pinfo, ntree,
+                    dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
                         offset+13+i, clv_code, clv_len);
                     break;
-                case 250:
-                case 251:
-                case 252:
-                case 253:
-                case 254:
-                    proto_tree_add_text (ntree, tvb, offset+13+i, clv_len+2,
-                        "Unknown Cisco specific extensions: code %d, length %d",
-                        clv_code, clv_len );
-                    break;
-                default :
-                    proto_tree_add_text (ntree, tvb, offset+13+i, clv_len+2,
-                        "Unknown sub-CLV: code %d, length %d", clv_code, clv_len );
+                default:
+                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, offset+13+i, clv_len, ENC_NA);
                     break;
                 }
                 i += clv_len + 2;
@@ -3468,6 +3507,26 @@ proto_register_isis_lsp(void)
               FT_UINT24, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_ext_is_reachability_subclvs_len,
+            { "SubCLV Length", "isis.lsp.ext_is_reachability.subclvs_length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_code,
+            { "Code", "isis.lsp.ext_is_reachability.code",
+              FT_UINT8, BASE_DEC, VALS(isis_lsp_ext_is_reachability_code_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_len,
+            { "Length", "isis.lsp.ext_is_reachability.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_value,
+            { "Value", "isis.lsp.ext_is_reachability.value",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
         { &hf_isis_lsp_ext_is_reachability_link_local_identifier,
             { "Link Local Identifier", "isis.lsp.ext_is_reachability.link_local_identifier",
               FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3713,6 +3772,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_is_neighbors,
         &ett_isis_lsp_clv_ext_is_reachability, /* CLV 22 */
         &ett_isis_lsp_part_of_clv_ext_is_reachability,
+        &ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv,
         &ett_isis_lsp_subclv_admin_group,
         &ett_isis_lsp_subclv_unrsv_bw,
         &ett_isis_lsp_subclv_spb_link_metric,
