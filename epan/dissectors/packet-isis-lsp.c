@@ -905,7 +905,6 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
  * @param tree the tree to append this item
  * @param offset the offset in the tvb
  * @param tlv_len the length of tlv
- * @return void
  */
 static void
 dissect_lsp_sr_sid_label_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
