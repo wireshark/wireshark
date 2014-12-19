@@ -4,6 +4,8 @@
 # X11 dissector, into header files declaring field-index
 # values and field definitions for those fields.
 #
+# Instructions for using this script are in epan/dissectors/README.X11
+#
 # Copyright 2000, Christophe Tronche <ch.tronche[AT]computer.org>
 #
 # Wireshark - Network traffic analyzer

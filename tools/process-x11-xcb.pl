@@ -4,6 +4,8 @@
 # X11 dissector. Creates header files containing code to
 # dissect X11 extensions.
 #
+# Instructions for using this script are in epan/dissectors/README.X11
+#
 # Copyright 2008, 2009, 2013, 2014 Open Text Corporation <pharris[AT]opentext.com>
 #
 # Wireshark - Network traffic analyzer
