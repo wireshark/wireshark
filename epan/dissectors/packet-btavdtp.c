@@ -1612,6 +1612,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 guint32  int_seid;
                 guint32  vendor_id;
                 guint16  vendor_codec;
+                guint32  reverse_direction;
 
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
                         SEID_ACP, 0, &seid, interface_id,
@@ -1622,27 +1623,48 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset,
                         &codec, &content_protection_type, &vendor_id, &vendor_codec);
 
-                key[0].length = 1;
-                key[0].key    = &interface_id;
-                key[1].length = 1;
-                key[1].key    = &adapter_id;
-                key[2].length = 1;
-                key[2].key    = &chandle;
-                key[3].length = 1;
-                key[3].key    = &direction;
-                key[4].length = 1;
-                key[4].key    = &seid;
-                key[5].length = 0;
-                key[5].key    = NULL;
+                if (!pinfo->fd->flags.visited) {
+                    key[0].length = 1;
+                    key[0].key    = &interface_id;
+                    key[1].length = 1;
+                    key[1].key    = &adapter_id;
+                    key[2].length = 1;
+                    key[2].key    = &chandle;
+                    key[3].length = 1;
+                    key[3].key    = &direction;
+                    key[4].length = 1;
+                    key[4].key    = &seid;
+                    key[5].length = 0;
+                    key[5].key    = NULL;
 
-                subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
-                sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
-                if (sep) {
-                    sep->codec = codec;
-                    sep->vendor_id = vendor_id;
-                    sep->vendor_codec = vendor_codec;
-                    sep->content_protection_type = content_protection_type;
-                    sep->int_seid = int_seid;
+                    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
+                    sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+                    if (sep) {
+                        sep->codec = codec;
+                        sep->vendor_id = vendor_id;
+                        sep->vendor_codec = vendor_codec;
+                        sep->content_protection_type = content_protection_type;
+                        sep->int_seid = int_seid;
+
+                        if (direction == P2P_DIR_SENT)
+                            reverse_direction = P2P_DIR_RECV;
+                        else if (direction == P2P_DIR_RECV)
+                            reverse_direction = P2P_DIR_SENT;
+                        else
+                            reverse_direction = P2P_DIR_UNKNOWN;
+
+                        key[3].length = 1;
+                        key[3].key    = &reverse_direction;
+                        key[4].length = 1;
+                        key[4].key    = &int_seid;
+                        key[5].length = 1;
+                        key[5].key    = &frame_number;
+                        key[6].length = 0;
+                        key[6].key    = NULL;
+
+                        wmem_tree_insert32_array(sep_list, key, sep);
+                    }
+
                 }
 
                 break;
@@ -1681,26 +1703,28 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset,
                         &codec, &content_protection_type, &vendor_id, &vendor_codec);
 
-                key[0].length = 1;
-                key[0].key    = &interface_id;
-                key[1].length = 1;
-                key[1].key    = &adapter_id;
-                key[2].length = 1;
-                key[2].key    = &chandle;
-                key[3].length = 1;
-                key[3].key    = &direction;
-                key[4].length = 1;
-                key[4].key    = &seid;
-                key[5].length = 0;
-                key[5].key    = NULL;
+                if (!pinfo->fd->flags.visited) {
+                    key[0].length = 1;
+                    key[0].key    = &interface_id;
+                    key[1].length = 1;
+                    key[1].key    = &adapter_id;
+                    key[2].length = 1;
+                    key[2].key    = &chandle;
+                    key[3].length = 1;
+                    key[3].key    = &direction;
+                    key[4].length = 1;
+                    key[4].key    = &seid;
+                    key[5].length = 0;
+                    key[5].key    = NULL;
 
-                subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
-                sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
-                if (sep) {
-                    sep->codec = codec;
-                    sep->vendor_id = vendor_id;
-                    sep->vendor_codec = vendor_codec;
-                    sep->content_protection_type = content_protection_type;
+                    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
+                    sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+                    if (sep) {
+                        sep->codec = codec;
+                        sep->vendor_id = vendor_id;
+                        sep->vendor_codec = vendor_codec;
+                        sep->content_protection_type = content_protection_type;
+                    }
                 }
 
                 break;
