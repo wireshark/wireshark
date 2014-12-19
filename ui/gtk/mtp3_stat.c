@@ -238,7 +238,7 @@ mtp3_stat_packet(
     const mtp3_tap_rec_t  *data_p = (const mtp3_tap_rec_t *)data;
     int                    i;
 
-    if (data_p->si_code >= MTP3_NUM_SI_CODE)
+    if (data_p->mtp3_si_code >= MTP3_NUM_SI_CODE)
     {
         /*
          * we thought this si_code was not used ?
@@ -279,8 +279,8 @@ mtp3_stat_packet(
 
     (*stat_p)[i].addr_opc = data_p->addr_opc;
     (*stat_p)[i].addr_dpc = data_p->addr_dpc;
-    (*stat_p)[i].si_code[data_p->si_code].num_msus++;
-    (*stat_p)[i].si_code[data_p->si_code].size += data_p->size;
+    (*stat_p)[i].si_code[data_p->mtp3_si_code].num_msus++;
+    (*stat_p)[i].si_code[data_p->mtp3_si_code].size += data_p->size;
 
     return(TRUE);
 }
