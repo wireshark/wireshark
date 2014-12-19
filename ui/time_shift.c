@@ -33,6 +33,8 @@
 
 #include "ui/ui_util.h"
 
+#include "wsutil/floor.h"
+
 #define SHIFT_POS               0
 #define SHIFT_NEG               1
 #define SHIFT_SETTOZERO         1
