@@ -433,7 +433,8 @@ fi
 
 #
 # If we have SDKs available, the default target OS is the major version
-# of the one we're running; get that and strip off the third component.
+# of the one we're running; get that and strip off the third component
+# if present.
 #
 for i in /Developer/SDKs \
     /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs \
@@ -441,7 +442,7 @@ for i in /Developer/SDKs \
 do
     if [ -d "$i" ]
     then
-        min_osx_target=`sw_vers -productVersion | sed 's/\([[0-9]]*\).\([[0-9]]*\).[[0-9]]*/\1.\2/'`
+        min_osx_target=`sw_vers -productVersion | sed 's/\([0-9]*\)\.\([0-9]*\)\.[0-9]*/\1.\2/'`
         break
     fi
 done
