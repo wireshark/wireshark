@@ -567,7 +567,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		key.keyblock.keytype=ek->keytype;
 		key.keyblock.keyvalue.length=ek->keylength;
 		key.keyblock.keyvalue.data=ek->keyvalue;
-		ret = krb5_crypto_init(krb5_ctx, &(key.keyblock), (krb5_enctype)0, &crypto);
+		ret = krb5_crypto_init(krb5_ctx, &(key.keyblock), ENCTYPE_NULL, &crypto);
 		if(ret){
 			return NULL;
 		}
