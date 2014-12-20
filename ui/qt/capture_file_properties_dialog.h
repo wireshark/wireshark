@@ -72,9 +72,6 @@ private:
     Ui::SummaryDialog *ui;
     capture_file *cap_file_;
 
-    QPushButton *refresh_button_;
-    QPushButton *copy_comment_button_;
-
     QString timeToString(time_t ti_time);
     QString summaryToHtml();
 
