@@ -172,8 +172,8 @@ static gchar*
 eth_build_color_filter(packet_info *pinfo)
 {
     return g_strdup_printf("eth.addr eq %s and eth.addr eq %s",
-                ether_to_str( (const guint8 *)pinfo->dl_src.data),
-                ether_to_str( (const guint8 *)pinfo->dl_dst.data));
+                address_to_str(wmem_packet_scope(), &pinfo->dl_src),
+                address_to_str(wmem_packet_scope(), &pinfo->dl_dst));
 }
 
 
@@ -381,8 +381,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         ehdr->type, ehdr->type);
     ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
         "Ethernet Unknown, Src: %s (%s), Dst: %s (%s)",
-        src_addr_name, ether_to_str(src_addr),
-        dst_addr_name, ether_to_str(dst_addr));
+        src_addr_name, address_to_str(wmem_packet_scope(), &pinfo->src),
+        dst_addr_name, address_to_str(wmem_packet_scope(), &pinfo->dst));
     fh_tree = proto_item_add_subtree(ti, ett_ether);
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst_addr);
     if (addr_item)
@@ -492,8 +492,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         if (PTREE_DATA(parent_tree)->visible) {
             ti = proto_tree_add_protocol_format(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
                 "Ethernet II, Src: %s (%s), Dst: %s (%s)",
-                src_addr_name, ether_to_str(src_addr),
-                dst_addr_name, ether_to_str(dst_addr));
+                src_addr_name, address_to_str(wmem_packet_scope(), &pinfo->src),
+                dst_addr_name, address_to_str(wmem_packet_scope(), &pinfo->dst));
       }
       else {
             ti = proto_tree_add_item(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE, ENC_NA);

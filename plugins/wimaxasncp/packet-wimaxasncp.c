@@ -674,7 +674,7 @@ static void wimaxasncp_proto_tree_add_ether_value(
 
     p = tvb_get_ptr(tvb, offset, length);
     ether_name = get_ether_name(p);
-    ether_str = ether_to_str(p);
+    ether_str = tvb_ether_to_str(tvb, offset);
 
     proto_tree_add_ether_format(
         tree, hf_value,

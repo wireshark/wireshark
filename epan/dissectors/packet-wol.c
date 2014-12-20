@@ -80,6 +80,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     guint8       *mac;
     const guint8 *passwd;
     guint64       qword;
+    address      mac_addr;
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -165,9 +166,10 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     col_clear(pinfo->cinfo, COL_INFO);
 
    */
+    SET_ADDRESS(&mac_addr, AT_ETHER, 6, mac);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "MagicPacket for %s (%s)",
-        get_ether_name(mac), ether_to_str(mac));
+        get_ether_name(mac), address_to_str(wmem_packet_scope(), &mac_addr));
 
     /* NOTE: ether-wake uses a dotted-decimal format for specifying a
         * 4-byte password or an Ethernet mac address format for specifying
@@ -227,7 +229,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 /* create display subtree for the protocol */
         ti = proto_tree_add_item(tree, proto_wol, tvb, 0, len, ENC_NA);
         proto_item_append_text(ti, ", MAC: %s (%s)", get_ether_name(mac),
-            ether_to_str(mac));
+            address_to_str(wmem_packet_scope(), &mac_addr));
         if ( passwd )
             proto_item_append_text(ti, ", password: %s", passwd);
         wol_tree = proto_item_add_subtree(ti, ett_wol);
@@ -238,7 +240,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 /* Continue adding tree items to process the packet here */
         mac_tree = proto_tree_add_subtree_format(wol_tree, tvb, 6, 96,
             ett_wol_macblock, NULL, "MAC: %s (%s)",
-            get_ether_name(mac), ether_to_str(mac));
+            get_ether_name(mac), address_to_str(wmem_packet_scope(), &mac_addr));
         for ( offset = 6; offset < 102; offset += 6 )
             proto_tree_add_ether(mac_tree, hf_wol_mac, tvb, offset, 6, mac);
 

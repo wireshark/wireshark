@@ -2664,12 +2664,16 @@ pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
         proto_item *item;
         proto_item *sub_item;
         proto_tree *sub_tree;
+        address   controllermac_addr, devicemac_addr;
+
+        SET_ADDRESS(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
+        SET_ADDRESS(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
 
         sub_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_pn_io_ar_info, &sub_item,
             "ARUUID:%s ContrMAC:%s ContrAlRef:0x%x DevMAC:%s DevAlRef:0x%x InCR:0x%x OutCR=0x%x",
             guid_to_ep_str((const e_guid_t*) &ar->aruuid),
-            ether_to_str((const guint8 *)ar->controllermac), ar->controlleralarmref,
-            ether_to_str((const guint8 *)ar->devicemac), ar->devicealarmref,
+            address_to_str(wmem_packet_scope(), &controllermac_addr), ar->controlleralarmref,
+            address_to_str(wmem_packet_scope(), &devicemac_addr), ar->devicealarmref,
             ar->inputframeid, ar->outputframeid);
         PROTO_ITEM_SET_GENERATED(sub_item);
 
@@ -9499,18 +9503,22 @@ pn_io_ar_conv_filter(packet_info *pinfo)
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
     char      *buf;
+    address   controllermac_addr, devicemac_addr;
 
     if ((profinet_type == NULL) || (GPOINTER_TO_UINT(profinet_type) != 10) || (ar == NULL)) {
         return NULL;
     }
+
+    SET_ADDRESS(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
+    SET_ADDRESS(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
 
     buf = g_strdup_printf(
         "pn_io.ar_uuid == %s || "                                   /* ARUUID */
         "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "   /* Alarm CR (contr -> dev) */
         "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",      /* Alarm CR (dev -> contr) */
         guid_to_ep_str((const e_guid_t*) &ar->aruuid),
-        ar->controlleralarmref, ether_to_str((const guint8 *)ar->controllermac),
-        ar->devicealarmref, ether_to_str((const guint8 *)ar->devicemac));
+        ar->controlleralarmref, address_to_str(wmem_packet_scope(), &controllermac_addr),
+        ar->devicealarmref, address_to_str(wmem_packet_scope(), &devicemac_addr));
     return buf;
 }
 
@@ -9519,11 +9527,18 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
 {
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
-    char      *buf;
+    char      *buf, *controllermac_str, *devicemac_str;
+    address   controllermac_addr, devicemac_addr;
 
     if ((profinet_type == NULL) || (GPOINTER_TO_UINT(profinet_type) != 10) || (ar == NULL)) {
         return NULL;
     }
+
+    SET_ADDRESS(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
+    SET_ADDRESS(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
+
+    controllermac_str = address_to_str(wmem_packet_scope(), &controllermac_addr);
+    devicemac_str = address_to_str(wmem_packet_scope(), &devicemac_addr);
     if (ar->arType == 0x0010) /* IOCARSingle using RT_CLASS_3 */
     {
         buf = g_strdup_printf(
@@ -9533,8 +9548,8 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
             "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",              /* Alarm CR (dev -> contr) */
             guid_to_ep_str((const e_guid_t*) &ar->aruuid),
             ar->inputframeid, ar->outputframeid,
-            ar->controlleralarmref, ether_to_str((const guint8 *)ar->controllermac),
-            ar->devicealarmref, ether_to_str((const guint8 *)ar->devicemac));
+            ar->controlleralarmref, controllermac_str,
+            ar->devicealarmref, devicemac_str);
     }
     else
     {
@@ -9545,10 +9560,10 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
             "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "           /* Alarm CR (contr -> dev) */
             "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",              /* Alarm CR (dev -> contr) */
             guid_to_ep_str((const e_guid_t*) &ar->aruuid),
-            ar->inputframeid, ether_to_str((const guint8 *)ar->devicemac), ether_to_str((const guint8 *)ar->controllermac),
-            ar->outputframeid, ether_to_str((const guint8 *)ar->controllermac), ether_to_str((const guint8 *)ar->devicemac),
-            ar->controlleralarmref, ether_to_str((const guint8 *)ar->controllermac),
-            ar->devicealarmref, ether_to_str((const guint8 *)ar->devicemac));
+            ar->inputframeid, devicemac_str, controllermac_str,
+            ar->outputframeid, controllermac_str, devicemac_str,
+            ar->controlleralarmref, controllermac_str,
+            ar->devicealarmref, devicemac_str);
     }
     return buf;
 }

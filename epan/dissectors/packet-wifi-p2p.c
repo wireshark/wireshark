@@ -421,11 +421,9 @@ static void dissect_wifi_p2p_capability(proto_item *tlv_root,
 static void dissect_device_id(proto_item *tlv_root, proto_item *tlv_item,
                               tvbuff_t *tvb, int offset)
 {
-  guint8 addr[6];
   proto_tree_add_item(tlv_root, hf_p2p_attr_device_id, tvb,
                       offset + 3, 6, ENC_NA);
-  tvb_memcpy(tvb, addr, offset + 3, 6);
-  proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
+  proto_item_append_text(tlv_item, ": %s", tvb_ether_to_str(tvb, offset+3));
 }
 
 static void dissect_group_owner_intent(proto_item *tlv_root,
@@ -622,11 +620,9 @@ static void dissect_intended_interface_addr(proto_item *tlv_root,
                                             proto_item *tlv_item,
                                             tvbuff_t *tvb, int offset)
 {
-  guint8 addr[6];
   proto_tree_add_item(tlv_root, hf_p2p_attr_intended_interface_addr, tvb,
                       offset + 3, 6, ENC_NA);
-  tvb_memcpy(tvb, addr, offset + 3, 6);
-  proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
+  proto_item_append_text(tlv_item, ": %s", tvb_ether_to_str(tvb, offset + 3));
 }
 
 static void dissect_extended_listen_timing(proto_item *tlv_root,
@@ -649,13 +645,11 @@ static void dissect_wifi_p2p_group_id(proto_item *tlv_root,
                                       int offset, guint16 slen)
 {
   int s_offset;
-  guint8 addr[6];
 
   s_offset = offset + 3;
   proto_tree_add_item(tlv_root, hf_p2p_attr_p2p_group_id_dev_addr, tvb,
                       s_offset, 6, ENC_NA);
-  tvb_memcpy(tvb, addr, offset + 3, 6);
-  proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
+  proto_item_append_text(tlv_item, ": %s", tvb_ether_to_str(tvb, offset + 3));
   s_offset += 6;
   proto_tree_add_item(tlv_root, hf_p2p_attr_p2p_group_id_ssid, tvb,
                       s_offset, offset + 3 + slen - s_offset, ENC_ASCII|ENC_NA);
@@ -667,7 +661,6 @@ static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
                                          int offset, guint16 slen)
 {
   int s_offset;
-  guint8 addr[6];
 
   if (slen != 6) {
     expert_add_info_format(pinfo, tlv_item, &ei_wifi_p2p_attr_len, "Invalid ethernet address");
@@ -677,8 +670,7 @@ static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
   s_offset = offset + 3;
   proto_tree_add_item(tlv_root, hf_p2p_attr_p2p_group_bssid, tvb,
                       s_offset, 6, ENC_NA);
-  tvb_memcpy(tvb, addr, offset + 3, 6);
-  proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
+  proto_item_append_text(tlv_item, ": %s", tvb_ether_to_str(tvb, offset + 3));
 }
 
 static void dissect_notice_of_absence(packet_info *pinfo, proto_item *tlv_root,

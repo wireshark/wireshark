@@ -1451,6 +1451,7 @@ eth_addr_resolve(hashether_t *tp) {
     } else {
         guint         mask;
         gchar        *name;
+        address       ether_addr;
 
         /* Unknown name.  Try looking for it in the well-known-address
            tables for well-known address ranges smaller than 2^24. */
@@ -1548,7 +1549,8 @@ eth_addr_resolve(hashether_t *tp) {
         }
 
         /* No match whatsoever. */
-        g_snprintf(tp->resolved_name, MAXNAMELEN, "%s", ether_to_str(addr));
+        SET_ADDRESS(&ether_addr, AT_ETHER, 6, addr);
+        g_snprintf(tp->resolved_name, MAXNAMELEN, "%s", address_to_str(wmem_packet_scope(), &ether_addr));
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
     }

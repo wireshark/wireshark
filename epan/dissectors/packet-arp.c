@@ -695,13 +695,17 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
   if (result != NULL) {
     proto_tree *duplicate_tree;
     proto_item *ti;
+    address mac_addr, result_mac_addr;
+
+    SET_ADDRESS(&mac_addr, AT_ETHER, 6, mac);
+    SET_ADDRESS(&result_mac_addr, AT_ETHER, 6, result->mac);
 
     /* Create subtree */
     duplicate_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_arp_duplicate_address, &ti,
                                                 "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
                                                 arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
-                                                ether_to_str(mac),
-                                                ether_to_str(result->mac),
+                                                address_to_str(wmem_packet_scope(), &mac_addr),
+                                                address_to_str(wmem_packet_scope(), &result_mac_addr),
                                                 result->frame_num);
     PROTO_ITEM_SET_GENERATED(ti);
 

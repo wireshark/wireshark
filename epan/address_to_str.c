@@ -77,15 +77,6 @@ ip6_to_str_buf_len(const guchar* src, char *buf, size_t buf_len);
 /* Wrapper for the most common case of asking
  * for a string using a colon as the hex-digit separator.
  */
-/* XXX FIXME
-remove this one later when every call has been converted to ep_address_to_str()
-*/
-const gchar *
-ether_to_str(const guint8 *ad)
-{
-    return bytestring_to_ep_str(ad, 6, ':');
-}
-
 const gchar *
 tvb_ether_to_str(tvbuff_t *tvb, const gint offset)
 {

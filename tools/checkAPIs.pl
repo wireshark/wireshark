@@ -1466,7 +1466,6 @@ my @TvbPtrAPIs = (
         'proto_tree_add_bytes_format_value',
         'proto_tree_add_ether',
         # Use the tvb_* version of these:
-        'ether_to_str',
         'ip_to_str',
         'ip6_to_str',
         'fc_to_str',

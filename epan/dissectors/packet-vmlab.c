@@ -127,7 +127,7 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 6;
 
     proto_item_append_text(ti, ", Src: %s (%s), Dst: %s (%s)",
-                           get_ether_name(src_addr), ether_to_str(src_addr), get_ether_name(dst_addr), ether_to_str(dst_addr));
+                           get_ether_name(src_addr), tvb_ether_to_str(tvb, offset-6), get_ether_name(dst_addr), tvb_ether_to_str(tvb, offset-12));
 
     /* Encapsulated Ethertype is also part of the block*/
     encap_proto = tvb_get_ntohs(tvb, offset);

@@ -70,16 +70,17 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree  *ans_tree = NULL;
 	guint16      sender_id;
 	guint32      seq_num;
-	guint8       team_id[6];
+	address      team_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Intel ANS probe");
 
 	seq_num = tvb_get_ntohl(tvb, 4);
 	sender_id = tvb_get_ntohs(tvb, 8);
-	tvb_memcpy(tvb, team_id, 10, 6);
+
+	SET_ADDRESS(&team_id, AT_ETHER, 6, tvb_get_ptr(tvb, 10, 6));
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence: %u, Sender ID %u, Team ID %s",
-		seq_num, sender_id, ether_to_str(team_id));
+		seq_num, sender_id, address_to_str(wmem_packet_scope(), &team_id));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ans, tvb, 0, -1, ENC_NA);

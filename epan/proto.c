@@ -6053,9 +6053,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_ETHER:
 			bytes = (guint8 *)fvalue_get(&fi->value);
+
+			addr.type = AT_ETHER;
+			addr.len  = 6;
+			addr.data = bytes;
+
 			label_fill_descr(label_str, 0, hfinfo,
 				   get_ether_name(bytes),
-				   ether_to_str(bytes));
+				   address_to_str(wmem_packet_scope(), &addr ));
 			break;
 
 		case FT_IPv4:

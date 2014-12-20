@@ -482,7 +482,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  escape_string@Base 1.9.1
  escape_string_len@Base 1.9.1
  esp_sa_record_add_from_dissector@Base 1.12.0~rc1
- ether_to_str@Base 1.9.1
  etype_vals@Base 1.9.1
  eui64_to_str@Base 1.9.1
  ex_opt_add@Base 1.9.1
