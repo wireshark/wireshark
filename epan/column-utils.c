@@ -77,9 +77,19 @@ col_setup(column_info *cinfo, const gint num_cols)
 }
 
 static void
-col_custom_field_ids_free(gpointer data)
+col_custom_ids_free_wrapper(gpointer data, gpointer user_data _U_)
 {
-    g_free(data);
+  g_free(data);
+}
+
+static void
+col_custom_field_ids_free(column_info *cinfo, int col)
+{
+  if (cinfo->col_custom_field_ids[col] != NULL) {
+    g_slist_foreach(cinfo->col_custom_field_ids[col], col_custom_ids_free_wrapper, NULL);
+    g_slist_free(cinfo->col_custom_field_ids[col]);
+  }
+  cinfo->col_custom_field_ids[col] = NULL;
 }
 
 /* Cleanup all the data structures for constructing column data; undoes
@@ -96,8 +106,7 @@ col_cleanup(column_info *cinfo)
     dfilter_free(cinfo->col_custom_dfilter[i]);
     g_free(cinfo->col_buf[i]);
     g_free(cinfo->col_expr.col_expr_val[i]);
-    if (cinfo->col_custom_field_ids[i])
-        g_slist_free_full(cinfo->col_custom_field_ids[i], col_custom_field_ids_free);
+    col_custom_field_ids_free(cinfo, i);
   }
 
   g_free(cinfo->col_fmt);
@@ -324,10 +333,7 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
     int i_list = 0;
 
-    if (cinfo->col_custom_field_ids[i])
-        g_slist_free_full(cinfo->col_custom_field_ids[i], col_custom_field_ids_free);
-
-    cinfo->col_custom_field_ids[i] = NULL;
+    col_custom_field_ids_free(cinfo, i);
 
     if (cinfo->fmt_matx[i][COL_CUSTOM] &&
         cinfo->col_custom_dfilter[i]) {
