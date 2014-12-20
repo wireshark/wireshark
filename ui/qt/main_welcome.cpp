@@ -46,15 +46,9 @@ MainWelcome::MainWelcome(QWidget *parent) :
     splash_overlay_(NULL)
 
 {
-//    QGridLayout *grid = new QGridLayout(this);
-//    QVBoxLayout *column;
-//    QLabel *heading;
-
     welcome_ui_->setupUi(this);
 
-    welcome_ui_->mainWelcomeBanner->setText("Wireshark<br><small>" VERSION "</small>");
-
-    task_list_ = welcome_ui_->taskList;
+    welcome_ui_->mainWelcomeBanner->setText("Welcome to Wireshark " VERSION "");
     recent_files_ = welcome_ui_->recentList;
 
     setStyleSheet(QString(
@@ -67,11 +61,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       " }"
                       "QListWidget {"
                       "  border: 0;"
-//                      "  border: 1px dotted blue;"
                       "}"
-//                      "QListWidget::focus {"
-//                      "  border: 1px dotted palette(mid);"
-//                      "}"
                       "QListWidget::item::hover {"
                       "  background-color: #%3;"
                       "  color: #%4;"
@@ -82,44 +72,28 @@ MainWelcome::MainWelcome(QWidget *parent) :
                       "}"
                       "QTreeWidget {"
                       "  border: 0;"
-//                      "  border: 1px dotted green;"
                       "}"
-//                      "QTreeWidget::focus {"
-//                      "  border: 1px dotted palette(mid);"
-//                      "  background-color: palette(midlight);"
-//                      "}"
                       )
                       .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Text color
                       .arg(tango_sky_blue_4,  6, 16, QChar('0'))   // Selected background
-                      .arg(tango_sky_blue_1, 6, 16, QChar('0'))   // Hover background
+                      .arg(tango_sky_blue_1, 6, 16, QChar('0'))    // Hover background
                       .arg(tango_aluminium_6, 6, 16, QChar('0'))   // Hover foreground
                 );
 
+    QString title_ss = QString(
+                "QLabel {"
+                "  color: #%1;"
+                "}"
+                )
+            .arg(tango_aluminium_4, 6, 16, QChar('0'));   // Text color
+    welcome_ui_->captureLabel->setStyleSheet(title_ss);
+    welcome_ui_->recentLabel->setStyleSheet(title_ss);
+    welcome_ui_->helpLabel->setStyleSheet(title_ss);
+
 #ifdef Q_OS_MAC
     recent_files_->setAttribute(Qt::WA_MacShowFocusRect, false);
-    welcome_ui_->taskList->setAttribute(Qt::WA_MacShowFocusRect, false);
     welcome_ui_->interfaceTree->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
-
-    task_list_->setMinimumWidth((task_list_->fontMetrics().height() * 7) // 2 + 1.5 + 1.5 + <mystery_width/> em
-                                + task_list_->fontMetrics().width(QString("live packets from your network")));
-    task_list_->setStyleSheet(QString(
-                                  "QListWidget {"
-                                  "  margin-right: 2em;"
-                                  "}"
-                                  "QListWidget::item {"
-                                  "  padding: 1.5em;"
-                                  "  margin-bottom: 1em;"
-                                  "  border-radius: 0.5em;"
-                                  "  border: 1px solid #%1;"
-                                  "}"
-                                  "QListWidget::item::selected {"
-                                  "  border: 1px solid #%2;"
-                                  "}"
-                                  )
-                              .arg(tango_sky_blue_4, 6, 16, QChar('0'))   // Default border
-                              .arg(tango_sky_blue_4,  6, 16, QChar('0'))   // Selected border
-                              );
 
     recent_files_->setStyleSheet(
             "QListWidget::item {"
@@ -137,7 +111,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(destroySplashOverlay()));
-    connect(task_list_, SIGNAL(itemSelectionChanged()), this, SLOT(showTask()));
     connect(welcome_ui_->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
             this, SLOT(interfaceDoubleClicked(QTreeWidgetItem*,int)));
     connect(welcome_ui_->interfaceTree, SIGNAL(interfaceUpdated(const char*,bool)),
@@ -152,8 +125,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
             this, SIGNAL(startCapture()));
     connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
     updateRecentFiles();
-
-    task_list_->setCurrentRow(0);
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     // This crashes with Qt 4.8.3 on OS X.
@@ -177,10 +148,6 @@ void MainWelcome::destroySplashOverlay()
 #endif
     delete splash_overlay_;
     splash_overlay_ = NULL;
-}
-
-void MainWelcome::showTask() {
-    welcome_ui_->taskStack->setCurrentIndex(task_list_->currentRow());
 }
 
 void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int column)
@@ -232,6 +199,8 @@ void MainWelcome::updateRecentFiles() {
     while (recent_files_->count() > (int) prefs.gui_recent_files_count_max) {
         recent_files_->takeItem(recent_files_->count());
     }
+    welcome_ui_->recentLabel->setVisible(recent_files_->count() > 0);
+    welcome_ui_->recentList->setVisible(recent_files_->count() > 0);
 }
 
 void MainWelcome::openRecentItem(QListWidgetItem *item) {

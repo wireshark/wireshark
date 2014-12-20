@@ -49,7 +49,6 @@ private:
     SplashOverlay *splash_overlay_;
     // QListWidget doesn't activate items when the return or enter keys are pressed on OS X.
     // We may want to subclass it at some point.
-    QListWidget *task_list_;
     QListWidget *recent_files_;
 //    MWOverlay *overlay;
 
@@ -63,7 +62,6 @@ signals:
 
 private slots:
     void destroySplashOverlay();
-    void showTask();
     void interfaceDoubleClicked(QTreeWidgetItem *item, int column);
     void updateRecentFiles();
     void openRecentItem(QListWidgetItem *item);
