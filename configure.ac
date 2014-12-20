@@ -507,6 +507,23 @@ AC_SUBST(OSX_MIN_VERSION)
 AC_SYS_LARGEFILE
 
 #
+# Look for math functions; use libm if necessary.
+#
+AC_SEARCH_LIBS(floor, m)
+AC_SEARCH_LIBS(ceil, m)
+AC_SEARCH_LIBS(exp, m)
+AC_SEARCH_LIBS(log, m)
+AC_SEARCH_LIBS(log10, m)
+AC_SEARCH_LIBS(floorl, m,
+  [
+    FLOORL_LO=""
+    AC_DEFINE(HAVE_FLOORL, 1, [Define if you have the floorl function.])
+  ],
+  FLOORL_LO="floorl.lo")
+AC_SUBST(FLOORL_LO)
+
+
+#
 # GUI toolkit options
 #
 AC_ARG_WITH([qt],
@@ -2647,14 +2664,6 @@ AC_C_BIGENDIAN
 # Checks whether "-traditional" is needed when using "ioctl".
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
-
-AC_CHECK_FUNC(floorl,
-  [
-    FLOORL_LO=""
-    AC_DEFINE(HAVE_FLOORL, 1, [Define if you have the floorl function.])
-  ],
-  FLOORL_LO="floorl.lo")
-AC_SUBST(FLOORL_LO)
 
 AC_CHECK_FUNC(getopt,
   [

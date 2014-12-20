@@ -414,8 +414,7 @@ wireshark_common_ldadd = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
-	@GLIB_LIBS@			\
-	-lm
+	@GLIB_LIBS@
 
 if HAVE_Qt
 wireshark_SOURCES = $(WIRESHARK_COMMON_SRC)
@@ -487,8 +486,8 @@ tshark_LDADD = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@		\
-	-lm
+	@LIBSMI_LDFLAGS@
+
 tshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 if ENABLE_STATIC
@@ -514,8 +513,8 @@ tfshark_LDADD = \
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@		\
-	-lm
+	@LIBSMI_LDFLAGS@
+
 tfshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 if ENABLE_STATIC
@@ -544,15 +543,15 @@ rawshark_LDADD = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@		\
-	-lm
+	@LIBSMI_LDFLAGS@
+
 rawshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@			\
-	-lm
+	@GLIB_LIBS@
+
 # Don't turn on -Werror for text2pcap: its source includes text2pcap-scanner.c
 # which is generated (and therefore not always clean).
 # We could generate text2pcap.o as a library with -Werror but for now it
@@ -604,8 +603,8 @@ randpkt_LDADD = \
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@			\
-	-lm
+	@ADNS_LIBS@
+
 randpkt_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries and plugin flags with which to link dftest.
@@ -625,8 +624,8 @@ dftest_LDADD = \
 	@KRB5_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@		\
-	-lm
+	@LIBSMI_LDFLAGS@
+
 dftest_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 echld_test_LDADD = \
@@ -638,8 +637,7 @@ echld_test_LDADD = \
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@			\
-	-lm
+	@ADNS_LIBS@
 
 echld_test_DEPENDENCIES = \
 	echld/libechld.la \
