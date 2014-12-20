@@ -71,6 +71,8 @@ libwsutil_sse42_la_SOURCES = \
 libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) @CFLAGS_SSE42@
 
 EXTRA_libwsutil_la_SOURCES=	\
+	floor.c			\
+	floor.h			\
 	inet_aton.c		\
 	inet_aton.h		\
 	inet_ntop.c		\
