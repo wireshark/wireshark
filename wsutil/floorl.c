@@ -31,19 +31,8 @@
 long double
 floorl(long double x)
 {
-#ifdef (__GNUC__)
-  /*
-   * Handle platforms where GCC has the builtin but the platform's
-   * headers (including the headers used with GCC!) don't define
-   * floorl() to use it.
-   *
-   * XXX - are there any such platforms?
-   */
-  __builtin_floorl(x);
-#else
   /* Not perfect, but probably the best workaround available */
   return floor((double)x);
-#endif
 }
 
 #endif /* !HAVE_FLOORL */
