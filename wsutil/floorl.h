@@ -1,5 +1,5 @@
 /* floorl.h
- * 
+ *
  * Declares floorl function for systems that do not provide it
  *
  * Wireshark - Network traffic analyzer
