@@ -66,6 +66,9 @@
 /* Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later) */
 #cmakedefine HAVE_GEOIP_V6 1
 
+/* Define if you have the 'floorl' function. */
+#cmakedefine HAVE_FLOORL 1
+
 /* Define to 1 if you have the `gethostbyname2' function. */
 #cmakedefine HAVE_GETHOSTBYNAME2 1
 
@@ -284,6 +287,9 @@
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H 1
 
+/* Define if you have the 'strptime' function. */
+#cmakedefine HAVE_STRPTIME 1
+
 /* Define if st_flags field exists in struct stat */
 #cmakedefine HAVE_ST_FLAGS 1
 
@@ -337,9 +343,6 @@
 
 /* Define if inet/v6defs.h needs to be included */
 #cmakedefine NEED_INET_V6DEFS_H 1
-
-/* Define if strptime.h needs to be included */
-#cmakedefine NEED_STRPTIME_H 1
 
 /* Name of package */
 #cmakedefine PACKAGE

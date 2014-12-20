@@ -79,6 +79,7 @@ set(CMAKE_REQUIRED_LIBRARIES %{CMAKE_DL_LIBS})
 check_function_exists("dladdr"           HAVE_DLADDR)
 cmake_pop_check_state()
 
+check_function_exists("floorl"           HAVE_FLOORL)
 check_function_exists("gethostbyname2"   HAVE_GETHOSTBYNAME2)
 check_function_exists("getopt"           HAVE_GETOPT)
 check_function_exists("getprotobynumber" HAVE_GETPROTOBYNUMBER)
