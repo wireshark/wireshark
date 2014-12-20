@@ -279,8 +279,8 @@ mtp3_stat_packet(
 
     (*stat_p)[i].addr_opc = data_p->addr_opc;
     (*stat_p)[i].addr_dpc = data_p->addr_dpc;
-    (*stat_p)[i].si_code[data_p->mtp3_si_code].num_msus++;
-    (*stat_p)[i].si_code[data_p->mtp3_si_code].size += data_p->size;
+    (*stat_p)[i].mtp3_si_code[data_p->mtp3_si_code].num_msus++;
+    (*stat_p)[i].mtp3_si_code[data_p->mtp3_si_code].size += data_p->size;
 
     return(TRUE);
 }
@@ -322,8 +322,8 @@ mtp3_stat_draw(
              * should generally be preferred when inserting rows in a sorted list store.
              */
              avg = 0.0f;
-             if ((*stat_p)[i].si_code[j].num_msus !=0){
-                 avg = (float)(*stat_p)[i].si_code[j].size/(float)(*stat_p)[i].si_code[j].num_msus;
+             if ((*stat_p)[i].mtp3_si_code[j].num_msus !=0){
+                 avg = (float)(*stat_p)[i].mtp3_si_code[j].size/(float)(*stat_p)[i].mtp3_si_code[j].num_msus;
              }
 
 
@@ -331,8 +331,8 @@ mtp3_stat_draw(
                OPC_COLUMN,       dlg.entries[0],
                DPC_COLUMN,       dlg.entries[1],
                SI_COLUMN,        mtp3_service_indicator_code_short_vals[j].strptr,
-               NUM_MSUS_COLUMN,  (*stat_p)[i].si_code[j].num_msus,
-               NUM_BYTES_COLUMN, (*stat_p)[i].si_code[j].size,
+               NUM_MSUS_COLUMN,  (*stat_p)[i].mtp3_si_code[j].num_msus,
+               NUM_BYTES_COLUMN, (*stat_p)[i].mtp3_si_code[j].size,
                AVG_BYTES_COLUMN, avg,
                -1);
         }

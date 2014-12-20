@@ -233,8 +233,8 @@ mtp3_sum_draw(
 
         while (j < mtp3_num_used)
         {
-            num_msus += mtp3_stat[j].si_code[i].num_msus;
-            num_bytes += mtp3_stat[j].si_code[i].size;
+            num_msus += mtp3_stat[j].mtp3_si_code[i].num_msus;
+            num_bytes += mtp3_stat[j].mtp3_si_code[i].size;
 
             j++;
         }

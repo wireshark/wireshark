@@ -38,7 +38,7 @@ typedef struct _mtp3_stat_si_code_t {
 typedef struct _mtp3_stat_t {
     mtp3_addr_pc_t		addr_opc;
     mtp3_addr_pc_t		addr_dpc;
-    mtp3_stat_si_code_t		si_code[MTP3_NUM_SI_CODE];
+    mtp3_stat_si_code_t		mtp3_si_code[MTP3_NUM_SI_CODE];
 } mtp3_stat_t;
 
 /*
