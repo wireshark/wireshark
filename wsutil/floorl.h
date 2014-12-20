@@ -1,6 +1,6 @@
-/* floor.c
+/* floorl.h
  * 
- * Provides floor functions for systems that do not provide them
+ * Declares floorl function for systems that do not provide it
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
