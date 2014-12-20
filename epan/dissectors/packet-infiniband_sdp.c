@@ -532,7 +532,9 @@ proto_reg_handoff_ib_sdp(void)
         int i;
 
         for (i = 0; i < 2; i++) {
-            if (gPREF_TYPE[i] == 0) {   /* LID */
+            if (gPREF_ID[i][0] == '\0') {
+                error_occured = TRUE;
+            } else if (gPREF_TYPE[i] == 0) {   /* LID */
                 errno = 0;  /* reset any previous error indicators */
                 *((guint16*)manual_addr_data[i]) = (guint16)strtoul(gPREF_ID[i], &not_parsed, 0);
                 if (errno || *not_parsed != '\0') {
