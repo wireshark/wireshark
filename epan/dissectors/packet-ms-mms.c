@@ -358,9 +358,9 @@ static gint dissect_msmms_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint        offset                    = 0;
-    proto_item *ti                        = NULL;
-    proto_tree *msmms_tree                = NULL;
-    proto_tree *msmms_common_command_tree = NULL;
+    proto_item *ti;
+    proto_tree *msmms_tree;
+    proto_tree *msmms_common_command_tree;
     guint32     sequence_number;
     guint16     command_id;
     guint16     command_dir;
@@ -397,11 +397,8 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Create MSMMS control protocol tree */
-    if (tree)
-    {
-        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
-        msmms_tree = proto_item_add_subtree(ti, ett_msmms_command);
-    }
+    ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
+    msmms_tree = proto_item_add_subtree(ti, ett_msmms_command);
 
 
     /* Read command ID and direction now so can give common command header a
@@ -414,17 +411,14 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     /* Common command header */
 
     /* Add a tree for common header */
-    if (tree)
-    {
-        ti =  proto_tree_add_string_format(msmms_tree, hf_msmms_command_common_header, tvb, offset, -1,
-                                           "",
-                                           "%s (to %s)",
-                                           (command_dir == TO_SERVER) ?
-                                                val_to_str_const(command_id, to_server_command_vals, "Unknown") :
-                                                val_to_str_const(command_id, to_client_command_vals, "Unknown"),
-                                           (command_dir == TO_SERVER) ? "server" : "client");
-        msmms_common_command_tree = proto_item_add_subtree(ti, ett_msmms_command_common_header);
-    }
+    ti =  proto_tree_add_string_format(msmms_tree, hf_msmms_command_common_header, tvb, offset, -1,
+            "",
+            "%s (to %s)",
+            (command_dir == TO_SERVER) ?
+            val_to_str_const(command_id, to_server_command_vals, "Unknown") :
+            val_to_str_const(command_id, to_client_command_vals, "Unknown"),
+            (command_dir == TO_SERVER) ? "server" : "client");
+    msmms_common_command_tree = proto_item_add_subtree(ti, ett_msmms_command_common_header);
 
     /* Format of 1st 4 bytes unknown.  May be version... */
     offset += 4;
@@ -571,19 +565,16 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 /* Parse the only known UDP command (0x01) */
 static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti         = NULL;
-    proto_tree *msmms_tree = NULL;
+    proto_item *ti;
+    proto_tree *msmms_tree;
     gint        offset     = 0;
 
     /* Set protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
 
     /* Create MSMMS data protocol tree */
-    if (tree)
-    {
-        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
-        msmms_tree = proto_item_add_subtree(ti, ett_msmms_data);
-    }
+    ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
+    msmms_tree = proto_item_add_subtree(ti, ett_msmms_data);
 
     /* Header ID */
     proto_tree_add_item(msmms_tree, hf_msmms_data_header_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -618,8 +609,8 @@ static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, pr
 static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint        offset = 0;
-    proto_item  *ti = NULL;
-    proto_tree  *msmms_tree = NULL;
+    proto_item  *ti;
+    proto_tree  *msmms_tree;
     proto_tree  *msmms_data_timing_pair = NULL;
     guint32     sequence_number;
     guint16     packet_length;
@@ -666,11 +657,8 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Create MSMMS data protocol tree */
-    if (tree)
-    {
-        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
-        msmms_tree = proto_item_add_subtree(ti, ett_msmms_data);
-    }
+    ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
+    msmms_tree = proto_item_add_subtree(ti, ett_msmms_data);
 
     /* Sequence number */
     sequence_number = tvb_get_letohl(tvb, offset);
@@ -704,11 +692,8 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Parse UDP Timing packet pair headers if present */
     if (value == 0x01)
     {
-        if (msmms_tree)
-        {
-            ti =  proto_tree_add_string(msmms_tree, hf_msmms_data_timing_pair, tvb, offset, 8, "");
-            msmms_data_timing_pair = proto_item_add_subtree(ti, ett_msmms_data_timing_packet_pair);
-        }
+        ti =  proto_tree_add_string(msmms_tree, hf_msmms_data_timing_pair, tvb, offset, 8, "");
+        msmms_data_timing_pair = proto_item_add_subtree(ti, ett_msmms_data_timing_packet_pair);
 
         proto_tree_add_item(msmms_data_timing_pair, hf_msmms_data_timing_pair_seqno, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
