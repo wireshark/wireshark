@@ -42,6 +42,7 @@
  * RFC 5949, Fast Handovers for Proxy Mobile IPv6
  * RFC 6275, Mobility Support in IPv6 (Obsoletes RFC 3775).
  * RFC 6602, Bulk Binding Update Support for Proxy Mobile IPv6
+ * RFC 6757, Access Network Identifier (ANI) Option for Proxy Mobile IPv6
  *
  */
 
@@ -3105,46 +3106,28 @@ static const value_string mip6_opt_acc_net_id_sub_opt_op_id_type[] = {
     {  2,    "Realm of the operator"},
     {  0,    NULL}
 };
-static float degrees_covert_fixed_to_float(guint value)
-{
-    guint mantissa=0,exponent=0, sign=0, position=0, mask = 1,*ptrNumber = NULL, i ;
-    float floatNumber =0;
-    ptrNumber = (guint *) &floatNumber;
 
-    if(!value)
+static float degrees_convert_fixed_to_float(guint value)
+{
+    if (!value)
         return 0;
 
-    /* If negative number save sign bit and take 2' complement*/
-    if(value & 0x800000) /* Input value is 24 bit number*/
-    {
-        value -= 1;
-        value ^= -1;
-        sign = 1;
+    /*
+     * RFC 6757 section 3.1.2.
+     * two's complement, fixed point number with 9 whole bits
+     */
+
+    /* If high bit of 24 bit number, process as negative number */
+    if (value & 0x800000) {
+        return ((float)(0x1000000 - value)) / -32768.0f;
+    } else {
+        return ((float)value) / 32768.0f;
     }
-
-    /* Find position of left most 1*/
-    for(i=0;i<24;i++)
-    {
-        if(value & mask )
-            position = i;
-        mask = (mask << 1);
-    }
-
-    mantissa = (value << (32 - position - 8 -1));
-    mantissa &= 0x007FFFFF;
-
-    if(sign)
-        mantissa = (mantissa | 0x80000000);
-
-    exponent = (position - 15 +127) << 23;
-
-    *ptrNumber = (mantissa | exponent);/* club mantissa, exponent and sign*/
-    return floatNumber;
 }
 
 static void degrees_base_custom(gchar *str, guint degrees)
 {
-    g_snprintf(str, ITEM_LABEL_LENGTH, "%f", degrees_covert_fixed_to_float(degrees) );
+    g_snprintf(str, ITEM_LABEL_LENGTH, "%f", degrees_convert_fixed_to_float(degrees) );
 }
 
 static void
