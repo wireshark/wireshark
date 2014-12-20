@@ -199,8 +199,7 @@ void MainWelcome::updateRecentFiles() {
     while (recent_files_->count() > (int) prefs.gui_recent_files_count_max) {
         recent_files_->takeItem(recent_files_->count());
     }
-    welcome_ui_->recentLabel->setVisible(recent_files_->count() > 0);
-    welcome_ui_->recentList->setVisible(recent_files_->count() > 0);
+    welcome_ui_->openFrame->setVisible(recent_files_->count() > 0);
 }
 
 void MainWelcome::openRecentItem(QListWidgetItem *item) {

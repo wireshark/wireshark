@@ -56,23 +56,56 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="recentLabel">
-        <property name="text">
-         <string>&lt;h2&gt;Open&lt;/h2&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QListWidget" name="recentList">
+       <widget class="AccordionFrame" name="openFrame">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-          <horstretch>1</horstretch>
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
           <verstretch>2</verstretch>
          </sizepolicy>
         </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
         </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="recentLabel">
+           <property name="text">
+            <string>&lt;h2&gt;Open&lt;/h2&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QListWidget" name="recentList">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+             <horstretch>1</horstretch>
+             <verstretch>2</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
@@ -233,6 +266,12 @@ a:hover {
    <class>CaptureFilterCombo</class>
    <extends>QComboBox</extends>
    <header>capture_filter_combo.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AccordionFrame</class>
+   <extends>QFrame</extends>
+   <header>accordion_frame.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
