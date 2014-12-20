@@ -1351,7 +1351,7 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
         gchar  **fields;
         guint    i_field = 0;
 
-        fields = g_regex_split_simple(" *([^ ]+) *(?:(?:\\|\\|)|(?:or))? *",
+        fields = g_regex_split_simple(" *([^ \\|]+) *(?:(?:\\|\\|)|(?:or))? *",
                 strval, G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
 
         for (i_field =0; i_field < g_strv_length(fields); i_field += 1) {

@@ -342,7 +342,7 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
         gchar  **fields;
         guint    i_field = 0;
 
-        fields = g_regex_split_simple(" *([^ ]+) *(?:(?:\\|\\|)|(?:or))? *",
+        fields = g_regex_split_simple(" *([^ \\|]+) *(?:(?:\\|\\|)|(?:or))? *",
                 cinfo->col_custom_field[i], G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
 
         for (i_field =0; i_field < g_strv_length(fields); i_field += 1) {
