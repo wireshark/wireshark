@@ -30,13 +30,10 @@
 
 #include "config.h"
 
-#include <epan/prefs.h>
-
-#include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 
 #include "packet-tcp.h"

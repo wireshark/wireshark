@@ -25,8 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-
 #define PNAME  "Canon BJNP"
 #define PSNAME "BJNP"
 #define PFNAME "bjnp"

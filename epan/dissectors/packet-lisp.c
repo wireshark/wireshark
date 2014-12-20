@@ -31,8 +31,6 @@
 #include <epan/afn.h>
 #include <epan/ipv6-utils.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_lisp(void);
 void proto_reg_handoff_lisp(void);
 

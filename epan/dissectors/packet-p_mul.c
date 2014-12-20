@@ -35,14 +35,14 @@
 
 #include "config.h"
 
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
-#include <string.h>
 
 #include "packet-cdt.h"
 #include "packet-ber.h"

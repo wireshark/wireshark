@@ -27,11 +27,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/stats_tree.h>

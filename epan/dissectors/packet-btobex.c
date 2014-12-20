@@ -29,8 +29,6 @@
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-bluetooth.h"
 #include "packet-btrfcomm.h"
 #include "packet-btl2cap.h"

@@ -23,11 +23,7 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-
 #define ETHERNET_INTERFACE      1
 #define WLAN_INTERFACE          2
 

@@ -26,19 +26,17 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/prefs.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-#include "packet-frame.h"
-#include "packet-osi.h"
-#include "packet-osi-options.h"
 #include <epan/nlpid.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include "packet-frame.h"
+#include "packet-osi.h"
+#include "packet-osi-options.h"
 
 void proto_register_cotp(void);
 void proto_register_cltp(void);

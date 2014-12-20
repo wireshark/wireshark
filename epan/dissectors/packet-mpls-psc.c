@@ -28,10 +28,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <packet-ip.h>
+#include "packet-ip.h"
 
 void proto_register_mpls_psc(void);
 void proto_reg_handoff_mpls_psc(void);

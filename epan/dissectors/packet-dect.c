@@ -38,12 +38,8 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/wmem/wmem.h>
-
 #define ETHERTYPE_DECT 0x2323
 
 #define DECT_PACKET_INFO_LEN 11

@@ -32,12 +32,9 @@
 #include <string.h>
 #include <math.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include "packet-rtacser.h"
 #include <epan/conversation.h>

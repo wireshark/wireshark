@@ -29,17 +29,14 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <wsutil/str_util.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
+
 #include <epan/prefs.h>
+#include <epan/expert.h>
+#include <wsutil/str_util.h>
 #include "packet-alcap.h"
 #include "packet-mtp3.h"
-#include <epan/dissectors/packet-isup.h>
-#include <epan/expert.h>
+#include "packet-isup.h"
 
 void proto_register_alcap(void);
 void proto_reg_handoff_alcap(void);

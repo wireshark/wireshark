@@ -40,11 +40,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
 #include <epan/to_str.h>

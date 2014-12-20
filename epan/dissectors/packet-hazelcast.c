@@ -34,7 +34,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <packet-tcp.h>
+#include "packet-tcp.h"
 
 void proto_register_hazelcast(void);
 void proto_reg_handoff_hazelcast(void);

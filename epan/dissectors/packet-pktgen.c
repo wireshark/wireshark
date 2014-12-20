@@ -29,8 +29,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 void proto_register_pktgen(void);

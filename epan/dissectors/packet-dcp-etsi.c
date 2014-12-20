@@ -26,13 +26,13 @@
 
 #include "config.h"
 
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/crc16-tvb.h>
 #include <epan/reedsolomon.h>
-#include <epan/wmem/wmem.h>
-#include <string.h>
 
 /* forward reference */
 void proto_register_dcp_etsi(void);

@@ -48,23 +48,20 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-x509af.h>
-#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
-#include "packet-ssl-utils.h"
-#include <wsutil/file_util.h>
 #include <epan/uat.h>
 #include <epan/sctpppids.h>
 #include <epan/exported_pdu.h>
+#include <wsutil/file_util.h>
+#include "packet-x509af.h"
+#include "packet-ssl-utils.h"
 
 void proto_register_dtls(void);
 

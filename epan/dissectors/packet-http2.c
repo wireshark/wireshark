@@ -40,8 +40,6 @@
 
 #include <stdio.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

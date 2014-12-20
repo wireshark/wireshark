@@ -64,7 +64,6 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/crc16-tvb.h>
 #include "packet-rtacser.h"
 

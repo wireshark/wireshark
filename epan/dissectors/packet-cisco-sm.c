@@ -37,8 +37,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 #define MESSAGE_TYPE_START              0

@@ -24,8 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 #define CMPP_FIX_HEADER_LENGTH  12
 #define CMPP_DELIVER_REPORT_LEN 71

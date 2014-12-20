@@ -31,11 +31,8 @@
 #include <stdio.h>
 #endif
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/reassemble.h>
-#include <epan/wmem/wmem.h>
 #include "packet-wap.h"
 #include "packet-wtp.h"
 #include "packet-wsp.h"

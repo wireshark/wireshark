@@ -54,11 +54,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <wsutil/md5.h>
-#include <wsutil/sha1.h>
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
@@ -66,8 +61,8 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/proto.h>
-#include <epan/wmem/wmem.h>
+#include <wsutil/md5.h>
+#include <wsutil/sha1.h>
 
 #include "packet-l2tp.h"
 

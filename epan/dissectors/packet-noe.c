@@ -23,11 +23,7 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "epan/packet.h"
-#include <epan/wmem/wmem.h>
-
 void proto_register_noe(void);
 void proto_reg_handoff_noe(void);
 

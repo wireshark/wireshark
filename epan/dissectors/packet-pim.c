@@ -23,14 +23,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/afn.h>
 #include <epan/prefs.h>
 #include <epan/in_cksum.h>
-#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 #include "packet-igmp.h"
 

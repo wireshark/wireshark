@@ -40,8 +40,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 #define ETHER_TYPE_BOFL 0x8102

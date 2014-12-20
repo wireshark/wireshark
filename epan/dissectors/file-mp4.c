@@ -32,9 +32,9 @@
 #include "config.h"
 
 #include <math.h>
-#include <glib.h>
-#include <epan/expert.h>
+
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #define MAKE_TYPE_VAL(a, b, c, d)   ((a)<<24 | (b)<<16 | (c)<<8 | (d))
 

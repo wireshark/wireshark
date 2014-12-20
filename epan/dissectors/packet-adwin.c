@@ -24,12 +24,9 @@
 #include "config.h"
 
 /* includes needed for wireshark */
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-
 void proto_reg_handoff_adwin(void);
 void proto_register_adwin(void);
 

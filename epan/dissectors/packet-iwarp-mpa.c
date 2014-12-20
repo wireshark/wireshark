@@ -28,12 +28,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/expert.h>
 #include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
+#include "packet-tcp.h"
 
 void proto_register_mpa(void);
 void proto_reg_handoff_mpa(void);

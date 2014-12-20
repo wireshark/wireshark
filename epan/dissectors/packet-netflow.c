@@ -121,15 +121,14 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
 #include <epan/sminmpec.h>
 #include <epan/to_str.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-udp.h>
-#include "packet-ntp.h"
 #include <epan/expert.h>
+#include "packet-tcp.h"
+#include "packet-udp.h"
+#include "packet-ntp.h"
 
 void proto_register_netflow(void);
 void proto_reg_handoff_netflow(void);

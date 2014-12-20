@@ -27,10 +27,9 @@
  */
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-usb.h>
 #include <epan/prefs.h>
+#include "packet-usb.h"
 
 static int proto_ccid = -1;
 

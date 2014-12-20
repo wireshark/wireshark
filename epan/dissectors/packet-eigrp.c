@@ -26,14 +26,12 @@
  */
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/guid-utils.h>
 #include <epan/addr_resolv.h>
 #include <epan/atalk-utils.h>
 #include <epan/addr_and_mask.h>
 #include <epan/ipproto.h>
-#include <epan/tfs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 

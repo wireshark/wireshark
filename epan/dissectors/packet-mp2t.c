@@ -26,14 +26,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
 #include <epan/rtp_pt.h>
 
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>

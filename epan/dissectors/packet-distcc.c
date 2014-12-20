@@ -29,8 +29,6 @@
 #include <string.h>
 #include <time.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>

@@ -38,25 +38,21 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/strutil.h>
-#include <epan/tfs.h>
-#include <epan/dissectors/packet-udp.h>
-#include <epan/dissectors/packet-frame.h>
 
 #include <wsutil/crc8.h>
 #include <wsutil/crc16.h>
 
-#include <string.h>
-
+#include "packet-udp.h"
+#include "packet-frame.h"
 
 /* General definitions */
 

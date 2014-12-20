@@ -29,12 +29,8 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_sita(void);
 void proto_reg_handoff_sita(void);
 

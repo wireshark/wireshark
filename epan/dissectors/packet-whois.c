@@ -22,10 +22,8 @@
  */
 
 #include "config.h"
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #define WHOIS_PORT      43  /* This is the registered IANA port (nicname) */

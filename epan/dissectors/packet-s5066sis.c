@@ -25,10 +25,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-tcp.h> /* For tcp_dissect_pdus() */
+#include "packet-tcp.h" /* For tcp_dissect_pdus() */
 
 /* Forward reference */
 /* Register functions */

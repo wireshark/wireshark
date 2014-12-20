@@ -39,7 +39,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <glib.h>
 #include <epan/etypes.h>
 
 /** Value declarations for CFM EOAM (IEEE 802.1ag) dissection */

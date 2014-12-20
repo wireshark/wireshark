@@ -27,11 +27,10 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#include <packet-dcc.h>
+#include "packet-dcc.h"
 
 void proto_register_dcc(void);
 void proto_reg_handoff_dcc(void);

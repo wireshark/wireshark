@@ -38,19 +38,15 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
-#include <address.h>
+#include <epan/address.h>
 #include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include "packet-mtp3.h"

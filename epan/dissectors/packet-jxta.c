@@ -33,18 +33,14 @@
 
 #define G_LOG_DOMAIN "jxta"
 
-#include <glib.h>
-
-#include <wsutil/str_util.h>
-
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
+#include <wsutil/str_util.h>
 
 #include "packet-jxta.h"
 

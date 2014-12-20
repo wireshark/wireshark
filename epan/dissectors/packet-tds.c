@@ -146,8 +146,6 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
@@ -155,7 +153,6 @@
 #include <epan/show_exception.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #define TDS_QUERY_PKT        1

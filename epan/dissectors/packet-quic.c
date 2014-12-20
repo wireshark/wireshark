@@ -29,8 +29,6 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 */
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 

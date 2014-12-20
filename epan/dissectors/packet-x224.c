@@ -24,13 +24,10 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #include "packet-tpkt.h"
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_x224(void);
 void proto_reg_handoff_x224(void);
 

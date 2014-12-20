@@ -27,7 +27,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "packet-ipx.h"
 #include "packet-sll.h"
@@ -40,8 +39,6 @@
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_ipx(void);
 void proto_reg_handoff_ipx(void);
 

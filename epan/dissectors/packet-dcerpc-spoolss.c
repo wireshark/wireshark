@@ -29,11 +29,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <string.h>
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-spoolss.h"

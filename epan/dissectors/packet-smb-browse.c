@@ -27,12 +27,10 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/dissectors/packet-smb.h>
 
+#include "packet-smb.h"
 #include "packet-smb-browse.h"
 #include "packet-dcerpc.h"
 

@@ -38,8 +38,6 @@
 
 #include "packet-mtp3.h"
 #include "packet-sccp.h"
-#include <epan/wmem/wmem.h>
-
 void proto_register_sua(void);
 void proto_reg_handoff_sua(void);
 

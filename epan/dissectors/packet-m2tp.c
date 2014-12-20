@@ -29,8 +29,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 #define M2TP_PAYLOAD_PROTOCOL_ID                       99    /* s-link, not IANA-registered */

@@ -27,9 +27,10 @@
 
 #include "config.h"
 
+#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-tcp.h> /* For tcp_dissect_pdus() */
+#include "packet-tcp.h" /* For tcp_dissect_pdus() */
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>
 #include <wiretap/wtap.h>

@@ -27,12 +27,12 @@
 
 #include "config.h"
 
+#include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
-#include <epan/wmem/wmem.h>
-#include <packet-tcp.h>
+#include "packet-tcp.h"
 
 void proto_register_reload_framing(void);
 void proto_reg_handoff_reload_framing(void);

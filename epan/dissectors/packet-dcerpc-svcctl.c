@@ -25,9 +25,7 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-svcctl.h"
 #include "packet-dcerpc-nt.h"

@@ -30,12 +30,11 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <math.h>
+
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/nlpid.h>
-
-#include <math.h>
 
 #define IDRP_PROTO "ISO/IEC 10747 (1993): Inter Domain Routing Protocol "
 

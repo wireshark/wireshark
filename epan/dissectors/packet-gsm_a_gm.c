@@ -80,8 +80,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
-
+#include <epan/ipproto.h>
 #include "packet-bssap.h"
 #include "packet-sccp.h"
 #include "packet-ber.h"
@@ -89,7 +88,6 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-ppp.h"
-#include "ipproto.h"
 #include "packet-gsm_map.h"
 
 void proto_register_gsm_a_gm(void);

@@ -29,16 +29,13 @@
 
 #include <stdlib.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <wsutil/base64.h>
-#include <epan/dissectors/packet-ssl.h>
+#include "packet-ssl.h"
 
 /* RFC 2821 */
 #define TCP_PORT_SMTP      25

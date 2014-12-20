@@ -24,8 +24,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
@@ -34,7 +32,6 @@
 #include <epan/ip_opts.h>
 #include <epan/follow.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/show_exception.h>
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>

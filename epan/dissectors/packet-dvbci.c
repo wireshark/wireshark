@@ -31,24 +31,22 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/circuit.h>
 #include <epan/dvb_chartbl.h>
-#include <epan/packet.h>
 #include <epan/exported_pdu.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-dvbci.h>
-#include <epan/dissectors/packet-mpeg-descriptor.h>
-#include <epan/dissectors/packet-mpeg-sect.h>
-#include <epan/dissectors/packet-mpeg-pmt.h>
-#include <epan/dissectors/packet-x509af.h>
-#include <epan/dissectors/packet-x509ce.h>
-
+#include "packet-dvbci.h"
+#include "packet-mpeg-descriptor.h"
+#include "packet-mpeg-sect.h"
+#include "packet-mpeg-pmt.h"
+#include "packet-x509af.h"
+#include "packet-x509ce.h"
 #include "packet-ber.h"
 
 #ifdef HAVE_LIBGCRYPT

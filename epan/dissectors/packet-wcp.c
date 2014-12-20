@@ -97,14 +97,12 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <glib.h>
 #include <string.h>
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include <epan/circuit.h>
-#include <epan/wmem/wmem.h>
 #include <epan/etypes.h>
 #include <epan/nlpid.h>
 #include <epan/expert.h>

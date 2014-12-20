@@ -23,14 +23,11 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <epan/packet.h>
+#include <epan/prefs.h>
 
-#include "epan/packet.h"
-#include "epan/prefs.h"
-
-#include "epan/dissectors/packet-rtp.h"
-#include "epan/dissectors/packet-rtcp.h"
-
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
 #include "packet-uaudp.h"
 
 void proto_register_ua_msg(void);

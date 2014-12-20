@@ -50,18 +50,17 @@
 #include <epan/exceptions.h>
 #include <epan/stats_tree.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
+#include <epan/sctpppids.h>
+#include <epan/circuit.h>
+#include <epan/reassemble.h>
+#include <epan/to_str.h>
 #include <wsutil/str_util.h>
-#include <prefs.h>
 #include "packet-q931.h"
 #include "packet-isup.h"
 #include "packet-e164.h"
 #include "packet-charging_ase.h"
-#include <epan/sctpppids.h>
-#include <epan/wmem/wmem.h>
-#include <epan/circuit.h>
-#include <epan/reassemble.h>
-#include <epan/to_str.h>
-#include <packet-mtp3.h>
+#include "packet-mtp3.h"
 
 void proto_register_isup(void);
 void proto_reg_handoff_isup(void);

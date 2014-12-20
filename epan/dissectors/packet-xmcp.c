@@ -30,16 +30,13 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
-#include <packet-tcp.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
+#include "packet-tcp.h"
 
 void proto_register_xmcp(void);
 

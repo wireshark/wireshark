@@ -44,7 +44,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 #include <epan/asn1.h>

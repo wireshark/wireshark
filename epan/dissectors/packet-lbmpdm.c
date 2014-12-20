@@ -23,10 +23,8 @@
  */
 
 #include "config.h"
-#include <glib.h>
 #include <epan/packet.h>
 #include <wsutil/nstime.h>
-#include <epan/wmem/wmem.h>
 #include "packet-lbm.h"
 
 /* Magic number for message header to check if data is big-endian or little-endian. */

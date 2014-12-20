@@ -53,8 +53,8 @@
 
 #include <string.h>
 
-#include <epan/prefs.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/exceptions.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
@@ -62,7 +62,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/sctpppids.h>
 #include <epan/uat.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/conversation_table.h>
 #include <epan/show_exception.h>

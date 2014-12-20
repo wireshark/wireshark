@@ -24,12 +24,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <wsutil/crc32.h>
 #include <epan/crc32-tvb.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 

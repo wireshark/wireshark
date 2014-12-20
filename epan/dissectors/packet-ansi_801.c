@@ -35,11 +35,9 @@
 
 #include <stdlib.h>
 
-#include <glib.h>
 #include <math.h>
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 
 void proto_register_ansi_801(void);

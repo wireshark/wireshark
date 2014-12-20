@@ -29,8 +29,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/slow_protocol_subtypes.h>

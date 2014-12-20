@@ -23,13 +23,9 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-sscop.h"
 #include "packet-gsm_a_common.h"
 

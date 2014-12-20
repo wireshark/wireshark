@@ -26,12 +26,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"

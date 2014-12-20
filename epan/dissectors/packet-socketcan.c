@@ -27,10 +27,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <prefs.h>
+#include <epan/prefs.h>
 #include <wiretap/wtap.h>
 
 #include "packet-sll.h"

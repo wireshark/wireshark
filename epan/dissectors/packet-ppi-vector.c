@@ -31,8 +31,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include "packet-ppi-geolocation-common.h"

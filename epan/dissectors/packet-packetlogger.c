@@ -27,7 +27,7 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
-#include <packet-bluetooth.h>
+#include "packet-bluetooth.h"
 
 void proto_register_packetlogger(void);
 void proto_reg_handoff_packetlogger(void);

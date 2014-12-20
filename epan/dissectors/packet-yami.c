@@ -32,7 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 void proto_reg_handoff_yami(void);
 void proto_register_yami(void);

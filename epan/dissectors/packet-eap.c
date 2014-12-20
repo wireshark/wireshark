@@ -23,12 +23,10 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/ppptypes.h>
 #include <epan/reassemble.h>
-#include <epan/wmem/wmem.h>
 #include <epan/eap.h>
 #include <epan/expert.h>
 

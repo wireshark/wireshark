@@ -27,9 +27,9 @@
 
 #include "config.h"
 
+#include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/packet.h>
 
 #define UDP_PORT_GENEVE  6081
 #define GENEVE_VER 0

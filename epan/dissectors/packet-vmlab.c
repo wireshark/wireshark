@@ -41,9 +41,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/addr_resolv.h>
 #include <epan/packet.h>
+#include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 
 void proto_register_vmlab(void);

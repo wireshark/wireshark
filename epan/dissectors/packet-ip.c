@@ -28,8 +28,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
@@ -49,7 +47,6 @@
 #include <epan/nlpid.h>
 #include <epan/ax25_pids.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 #include <wiretap/erf.h>
 

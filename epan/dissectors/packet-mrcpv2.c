@@ -39,10 +39,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <glib.h>
-
+#include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 #include <wsutil/str_util.h>
 

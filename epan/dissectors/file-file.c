@@ -27,12 +27,8 @@
 #include <windows.h>
 #endif
 
-#include <glib.h>
-
-#include <wsutil/md5.h>
-
-#include <epan/epan.h>
 #include <epan/packet.h>
+#include <epan/epan.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/timestamp.h>
@@ -40,6 +36,7 @@
 #include <epan/to_str.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <wsutil/md5.h>
 
 #include "color.h"
 #include "color_filters.h"

@@ -27,8 +27,6 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/uat.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 

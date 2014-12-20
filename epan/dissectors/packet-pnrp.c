@@ -32,8 +32,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 #define PROTONAME "Peer Name Resolution Protocol"

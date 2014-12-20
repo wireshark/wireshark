@@ -25,10 +25,7 @@
 
 #include <stdlib.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include "packet-tcp.h"
 

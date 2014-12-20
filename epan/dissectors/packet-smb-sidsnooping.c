@@ -25,16 +25,14 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <epan/packet_info.h>
+
+#include <epan/packet.h>
 #include <epan/epan_dissect.h>
-#include <epan/proto.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/strutil.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
-#include "register.h"
-#include <epan/dissectors/packet-smb.h>
+#include "packet-smb.h"
 #include "packet-smb-sidsnooping.h"
 
 void proto_register_smb_sidsnooping(void);

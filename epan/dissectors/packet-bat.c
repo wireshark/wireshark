@@ -27,8 +27,6 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_bat(void);
 void proto_reg_handoff_bat(void);
 

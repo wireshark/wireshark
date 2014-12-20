@@ -45,8 +45,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/ptvcursor.h>
@@ -54,7 +52,6 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/frequency-utils.h>
-#include <epan/wmem/wmem.h>
 #include <wsutil/pint.h>
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */

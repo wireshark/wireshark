@@ -31,7 +31,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>

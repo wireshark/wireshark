@@ -24,8 +24,6 @@
 
 #include "config.h"
 
-
-
 #include "packet-rpc.h"
 #include "packet-ypxfr.h"
 

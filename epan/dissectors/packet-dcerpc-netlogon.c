@@ -24,17 +24,14 @@
 
 #include "config.h"
 
-
-#include <glib.h>
 #include <string.h>
 
+#include <epan/packet.h>
 #include <wsutil/rc4.h>
 #include <wsutil/md4.h>
 #include <wsutil/md5.h>
 #include <wsutil/des.h>
 
-#include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 /* for dissect_mscldap_string */
 #include "packet-ldap.h"
 #include "packet-dcerpc.h"

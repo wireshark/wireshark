@@ -38,12 +38,9 @@
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <wiretap/wtap.h>
 
 #include "packet-q708.h"
@@ -120,7 +117,8 @@ typedef enum {
 static gint itu_pc_structure   = ITU_PC_STRUCTURE_NONE;
 static gint japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
 
-#include <packet-mtp3.h>
+#include "packet-mtp3.h"
+
 gint mtp3_standard = ITU_STANDARD;
 gboolean mtp3_heuristic_standard = FALSE;
 

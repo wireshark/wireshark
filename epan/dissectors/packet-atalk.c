@@ -25,22 +25,18 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/packet.h>
 #include <string.h>
 
+#include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 #include <epan/aftypes.h>
 #include <epan/arcnet_pids.h>
 #include <epan/atalk-utils.h>
 #include <epan/conversation.h>
-#include <wiretap/wtap.h>
-
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/wmem/wmem.h>
-
+#include <wiretap/wtap.h>
 #include "packet-atalk.h"
 #include "packet-afp.h"
 

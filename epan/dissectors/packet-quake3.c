@@ -38,7 +38,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>

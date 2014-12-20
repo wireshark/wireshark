@@ -27,11 +27,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 void proto_register_llrp(void);
 void proto_reg_handoff_llrp(void);

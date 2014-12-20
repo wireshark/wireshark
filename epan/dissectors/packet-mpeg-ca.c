@@ -23,11 +23,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/dissectors/packet-mpeg-sect.h>
-
+#include "packet-mpeg-sect.h"
 #include "packet-mpeg-descriptor.h"
 
 void proto_register_mpeg_ca(void);

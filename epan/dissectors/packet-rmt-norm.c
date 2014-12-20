@@ -39,14 +39,11 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <math.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-rmt-common.h"
 
 void proto_register_norm(void);

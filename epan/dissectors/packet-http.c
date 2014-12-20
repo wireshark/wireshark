@@ -34,22 +34,19 @@
 #include <string.h>
 #include <errno.h>
 
-#include <glib.h>
-#include <epan/conversation.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
-#include <wsutil/base64.h>
-#include <epan/stats_tree.h>
-#include <epan/to_str.h>
-
-#include <epan/req_resp_hdrs.h>
-#include "packet-http.h"
-#include "packet-tcp.h"
-#include "packet-ssl.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/wmem/wmem.h>
+#include <epan/conversation.h>
+#include <epan/strutil.h>
+#include <epan/stats_tree.h>
+#include <epan/to_str.h>
+#include <epan/req_resp_hdrs.h>
+#include <wsutil/base64.h>
+#include "packet-http.h"
+#include "packet-tcp.h"
+#include "packet-ssl.h"
 
 typedef enum _http_type {
 	HTTP_REQUEST,

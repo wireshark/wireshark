@@ -23,13 +23,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <glib/gprintf.h>
-
 #include <string.h>
 
+#include <glib/gprintf.h>
+
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #include "packet-t38.h"

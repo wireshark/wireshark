@@ -32,7 +32,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>
 

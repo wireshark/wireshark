@@ -24,8 +24,6 @@
 
 #include "config.h"
 
-
-
 #include "packet-rpc.h"
 
 void proto_register_rstat(void);

@@ -31,8 +31,6 @@
 
 #include <stdlib.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 

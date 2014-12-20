@@ -67,7 +67,6 @@
 #include <epan/tap.h>
 #include <epan/epan_dissect.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 
 /* un-comment the following as well as this line in conversation.c, to enable debug printing */

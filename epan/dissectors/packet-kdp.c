@@ -26,8 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <glib.h>
-
 void proto_register_kdp(void);
 void proto_reg_handoff_kdp(void);
 

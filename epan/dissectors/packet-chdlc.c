@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <wsutil/pint.h>
 #include <epan/etypes.h>

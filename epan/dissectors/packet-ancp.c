@@ -30,10 +30,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
+#include "packet-tcp.h"
 
 #define ANCP_PORT 6068 /* The ANCP TCP port:draft-ietf-ancp-protocol-09.txt */
 

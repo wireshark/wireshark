@@ -26,9 +26,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <wsutil/filesystem.h>
 #include <epan/packet.h>
+#include <wsutil/filesystem.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 

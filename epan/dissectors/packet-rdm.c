@@ -42,9 +42,8 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-rdm.h>
+#include "packet-rdm.h"
 
 void proto_register_rdm(void);
 

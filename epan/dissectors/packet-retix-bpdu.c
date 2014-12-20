@@ -26,7 +26,6 @@
 
 #if 0
 #endif
-#include <glib.h>
 #include <epan/packet.h>
 #if 0
 #include <epan/llcsaps.h>

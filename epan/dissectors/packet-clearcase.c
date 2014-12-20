@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-
+#include <epan/packet.h>
 
 #include "packet-rpc.h"
 #include "packet-clearcase.h"

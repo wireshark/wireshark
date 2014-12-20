@@ -73,7 +73,6 @@
 #include <epan/packet.h>
 #include <wsutil/pint.h>
 
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>

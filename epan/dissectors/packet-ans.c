@@ -43,11 +43,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <etypes.h>
+#include <epan/etypes.h>
 
 void proto_register_ans(void);
 void proto_reg_handoff_ans(void);

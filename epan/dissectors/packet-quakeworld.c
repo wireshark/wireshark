@@ -27,15 +27,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_quakeworld(void);
 
 static int proto_quakeworld = -1;

@@ -26,13 +26,10 @@
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>    /* req'd for packet-zbee-security.h */
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 

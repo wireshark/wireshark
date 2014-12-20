@@ -31,8 +31,6 @@
 #include <stdio.h>
 #endif
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include "packet-wap.h"
 #include "packet-wtls.h"

@@ -30,8 +30,6 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/strutil.h>
 

@@ -75,11 +75,8 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 #ifndef HAVE_INET_ATON
 #include <wsutil/inet_aton.h>

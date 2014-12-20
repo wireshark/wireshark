@@ -29,8 +29,6 @@
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 #include <wsutil/str_util.h>
 
 #include "packet-ber.h"

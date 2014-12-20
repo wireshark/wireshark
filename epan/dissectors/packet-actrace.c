@@ -28,8 +28,6 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include "packet-actrace.h"
-#include <epan/wmem/wmem.h>
-
 #define UDP_PORT_ACTRACE 2428
 
 #define NOT_ACTRACE  0

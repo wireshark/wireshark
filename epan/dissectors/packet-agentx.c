@@ -29,7 +29,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 static guint global_agentx_tcp_port = 705;
 

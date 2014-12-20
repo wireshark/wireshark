@@ -27,8 +27,6 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-ieee80211.h"
 
 void proto_register_ieee80211_prism(void);

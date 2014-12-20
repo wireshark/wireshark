@@ -26,15 +26,12 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
-#include <epan/dissectors/packet-xml.h>
-
-#include <packet-xmpp.h>
-#include <packet-xmpp-utils.h>
-#include <packet-xmpp-conference.h>
+#include "packet-xml.h"
+#include "packet-xmpp.h"
+#include "packet-xmpp-utils.h"
+#include "packet-xmpp-conference.h"
 
 
 static void xmpp_conf_desc(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);

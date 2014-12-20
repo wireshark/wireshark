@@ -27,10 +27,9 @@
 */
 
 #include "config.h"
-#include <glib.h>
 #include <epan/packet.h>
-#include <packet-ip.h>
-#include <epan/dissectors/packet-bfd.h>
+#include "packet-ip.h"
+#include "packet-bfd.h"
 
 void proto_register_mplstp_lock(void);
 void proto_register_mplstp_fm(void);

@@ -43,19 +43,16 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
 #include <epan/reassemble.h>
-#include <epan/dissectors/packet-x509if.h>
-#include <epan/dissectors/packet-x509af.h>
-#include <epan/dissectors/packet-isakmp.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include "packet-x509if.h"
+#include "packet-x509af.h"
+#include "packet-isakmp.h"
 
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>

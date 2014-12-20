@@ -29,13 +29,11 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 #define PROTO_TAG_HiSLIP    "HiSLIP"
 #define FRAME_HEADER_LEN    16

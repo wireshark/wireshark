@@ -22,17 +22,15 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <string.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
-#include <epan/wmem/wmem.h>
 #include "packet-dcerpc.h"
 #include "packet-smb-sidsnooping.h"
 #include "packet-windows-common.h"
-#include <epan/dissectors/packet-smb.h>	/* for "sid_name_snooping" */
+#include "packet-smb.h"	/* for "sid_name_snooping" */
 
 static int hf_nt_sec_desc_revision = -1;
 static int hf_nt_sec_desc_type_owner_defaulted = -1;

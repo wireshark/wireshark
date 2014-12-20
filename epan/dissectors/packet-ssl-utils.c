@@ -31,19 +31,19 @@
 #endif
 
 #include <stdlib.h>
-#include "packet-ssl-utils.h"
-#include "packet-ssl.h"
 
-#include <epan/emem.h>
+#include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipv6-utils.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-x509af.h>
-#include "packet-x509if.h"
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
+#include "packet-x509af.h"
+#include "packet-x509if.h"
+#include "packet-ssl-utils.h"
+#include "packet-ssl.h"
 
 /*
  * Lookup tables

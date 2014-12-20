@@ -21,12 +21,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "config.h"
 
-#include <glib.h>
-#include <config.h>
-#include <epan/prefs.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
+#include <epan/prefs.h>
+#include "packet-tcp.h"
 
 void proto_register_pdc(void);
 void proto_reg_handoff_pdc(void);

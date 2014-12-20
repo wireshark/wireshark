@@ -25,10 +25,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <epan/arptypes.h>
 #include <epan/packet.h>
+#include <epan/arptypes.h>
 #include <wiretap/wtap.h>
 
 #include "packet-netlink.h"

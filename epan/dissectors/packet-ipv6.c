@@ -27,7 +27,6 @@
 #include "config.h"
 
 #include <math.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
@@ -45,7 +44,6 @@
 #include <epan/arcnet_pids.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 #include <epan/tap.h>
 #include <wiretap/erf.h>

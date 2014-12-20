@@ -25,11 +25,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/emem.h>
 #include <epan/lapd_sapi.h>
 #include <epan/prefs.h>
 

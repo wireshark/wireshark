@@ -32,13 +32,10 @@
 
 #include <string.h>
 
-#include <glib.h>
-
-#include <epan/circuit.h>
 #include <epan/packet.h>
+#include <epan/circuit.h>
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/aftypes.h>

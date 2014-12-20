@@ -25,14 +25,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/conversation.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
+#include "packet-tcp.h"
 
 void proto_register_kafka(void);
 void proto_reg_handoff_kafka(void);

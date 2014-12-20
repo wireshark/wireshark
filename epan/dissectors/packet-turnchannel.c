@@ -31,10 +31,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <packet-tcp.h>
+#include "packet-tcp.h"
 
 void proto_register_turnchannel(void);
 void proto_reg_handoff_turnchannel(void);

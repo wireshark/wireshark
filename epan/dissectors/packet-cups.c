@@ -23,9 +23,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <wsutil/str_util.h>
 #include <epan/packet.h>
+#include <wsutil/str_util.h>
 
 /**********************************************************************/
 

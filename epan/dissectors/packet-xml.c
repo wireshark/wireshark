@@ -34,18 +34,14 @@
 #include <string.h>
 #include <errno.h>
 
-#include <glib.h>
-
-#include <wsutil/str_util.h>
-#include <wsutil/report_err.h>
-
-#include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 #include <epan/dtd.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/garrayfix.h>
+#include <wsutil/str_util.h>
+#include <wsutil/report_err.h>
 
 #include "packet-xml.h"
 

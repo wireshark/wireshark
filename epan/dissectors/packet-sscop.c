@@ -24,9 +24,8 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <prefs.h>
+#include <epan/prefs.h>
 #include "packet-sscop.h"
 
 void proto_register_sscop(void);

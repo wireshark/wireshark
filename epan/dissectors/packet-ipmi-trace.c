@@ -24,11 +24,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/dissectors/packet-ipmi.h>
 #include <wiretap/wtap.h>
+#include "packet-ipmi.h"
 
 /*
  * See

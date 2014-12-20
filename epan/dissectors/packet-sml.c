@@ -30,7 +30,6 @@ Short description of the SML protocol on the SML Wireshark Wiki page:  http://wi
 */
 
 #include "config.h"
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/crc16-tvb.h>

@@ -26,13 +26,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-#include <epan/dissectors/packet-smb.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
@@ -40,10 +36,10 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 
+#include "packet-windows-common.h"
+#include "packet-smb.h"
 #include "packet-ipx.h"
 #include "packet-idp.h"
-
-#include "packet-windows-common.h"
 #include "packet-smb.h"
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"

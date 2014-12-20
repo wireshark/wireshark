@@ -29,12 +29,10 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 #define TCP_PORT_BEEP 10288

@@ -32,12 +32,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_iso7816(void);
 void proto_reg_handoff_iso7816(void);
 

@@ -25,15 +25,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
-#include <epan/wmem/wmem.h>
-
 
 #define XTP_VERSION_4	0x001
 

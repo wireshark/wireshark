@@ -25,15 +25,12 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/ax25_pids.h>
 #include <epan/llcsaps.h>
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/nlpid.h>
 #include <epan/x264_prt_id.h>

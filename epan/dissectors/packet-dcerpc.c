@@ -31,23 +31,20 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-dcerpc.h>
-#include <epan/dissectors/packet-dcerpc-nt.h>
+#include "packet-tcp.h"
+#include "packet-dcerpc.h"
+#include "packet-dcerpc-nt.h"
 
 void proto_register_dcerpc(void);
 void proto_reg_handoff_dcerpc(void);

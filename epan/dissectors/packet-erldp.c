@@ -29,10 +29,8 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/wmem/wmem.h>
-
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-epmd.h>
+#include "packet-tcp.h"
+#include "packet-epmd.h"
 
 #define ERL_PASS_THROUGH      'p'
 

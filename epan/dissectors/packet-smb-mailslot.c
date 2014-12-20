@@ -27,10 +27,8 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/dissectors/packet-smb.h>
+#include "packet-smb.h"
 #include "packet-smb-mailslot.h"
 #include "packet-smb-browse.h"
 #include "packet-smb-pipe.h"

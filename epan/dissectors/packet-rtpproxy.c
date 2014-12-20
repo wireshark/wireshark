@@ -29,10 +29,9 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <glib.h>
 
-#include <epan/address.h>
 #include <epan/packet.h>
+#include <epan/address.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>

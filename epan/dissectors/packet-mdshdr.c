@@ -23,10 +23,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <etypes.h>
+#include <epan/etypes.h>
 #include <epan/prefs.h>
 #include "packet-fc.h"
 

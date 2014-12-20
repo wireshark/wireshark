@@ -44,8 +44,6 @@
 #include <unistd.h>
 #endif
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>

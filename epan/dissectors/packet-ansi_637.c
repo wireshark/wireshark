@@ -39,11 +39,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
-#include <epan/tfs.h>
 
 #include "packet-gsm_sms.h"
 #include "packet-ansi_a.h"

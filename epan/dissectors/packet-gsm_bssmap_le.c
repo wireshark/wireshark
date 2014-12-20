@@ -26,13 +26,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-bssap.h"
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"

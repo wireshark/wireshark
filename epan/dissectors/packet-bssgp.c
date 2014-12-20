@@ -25,10 +25,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <prefs.h>
+#include <epan/prefs.h>
 #include <epan/asn1.h>
 
 #include "packet-bssgp.h"

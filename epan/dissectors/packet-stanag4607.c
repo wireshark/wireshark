@@ -19,11 +19,8 @@
 #include "config.h"
 
 #include <math.h>
-#include <glib.h>
-
-#include <epan/expert.h>
 #include <epan/packet.h>
-#include <epan/proto.h>
+#include <epan/expert.h>
 
 #include <wiretap/stanag4607.h>
 

@@ -30,18 +30,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <glib.h>
-
-#include <wsutil/file_util.h>
-
-#include <epan/exceptions.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
-#include <wsutil/filesystem.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
+#include <wsutil/filesystem.h>
+#include <wsutil/file_util.h>
+#include "packet-tcp.h"
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 

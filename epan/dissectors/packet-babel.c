@@ -23,12 +23,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_babel(void);
 void proto_reg_handoff_babel(void);
 

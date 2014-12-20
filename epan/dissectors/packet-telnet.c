@@ -28,11 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
 #include "packet-tn3270.h"

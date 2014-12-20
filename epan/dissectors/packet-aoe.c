@@ -19,12 +19,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
-#include <etypes.h>
+#include <epan/etypes.h>
 
 void proto_register_aoe(void);
 void proto_reg_handoff_aoe(void);

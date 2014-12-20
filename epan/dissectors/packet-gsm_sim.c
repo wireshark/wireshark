@@ -26,10 +26,7 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/lapd_sapi.h>
 
 void proto_register_gsm_sim(void);

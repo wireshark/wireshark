@@ -23,12 +23,10 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/packet.h>
-#include <epan/prefs.h>
-#include "wmem/wmem.h"
 #include <stdio.h>
 
+#include <epan/packet.h>
+#include <epan/prefs.h>
 void proto_register_asterix(void);
 void proto_reg_handoff_asterix(void);
 

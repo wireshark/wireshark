@@ -34,15 +34,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <wsutil/md5.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/md5.h>
 
 #include "packet-tacacs.h"
 

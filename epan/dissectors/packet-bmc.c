@@ -23,8 +23,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <wsutil/bitswap.h>
 #include <epan/asn1.h> /* needed for packet-gsm_map.h */

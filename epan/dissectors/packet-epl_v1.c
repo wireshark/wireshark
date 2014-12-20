@@ -32,11 +32,8 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/emem.h>
-
 void proto_register_epl_v1(void);
 void proto_reg_handoff_epl_v1(void);
 

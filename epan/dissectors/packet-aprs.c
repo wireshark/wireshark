@@ -42,12 +42,8 @@
 #include <string.h>
 #include <math.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
-
 #define AX25_ADDR_LEN		7  /* length of an AX.25 address */
 #define STRLEN	100
 

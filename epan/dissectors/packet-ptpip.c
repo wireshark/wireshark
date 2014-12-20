@@ -33,7 +33,6 @@
  *        Future work should include splitting this into 2 so that the PTP layer may be used again for PTP/USB.
  */
 #include "config.h"
-#include <glib.h>
 #include <epan/packet.h>
 #include "packet-ptpip.h"
 

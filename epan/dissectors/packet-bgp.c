@@ -58,20 +58,17 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/addr_and_mask.h>
 #include <epan/show_exception.h>
 #include <epan/afn.h>
-#include <epan/dissectors/packet-ldp.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/to_str.h>
-#include <packet-ip.h>
+#include "packet-ip.h"
+#include "packet-ldp.h"
 
 void proto_register_bgp(void);
 void proto_reg_handoff_bgp(void);

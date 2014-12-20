@@ -23,12 +23,10 @@
  */
 
 #include "config.h"
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 #include "packet-lbm.h"
 #include "packet-lbttcp.h"

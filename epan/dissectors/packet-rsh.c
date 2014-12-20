@@ -28,12 +28,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <wsutil/str_util.h>
 
 /* The rsh protocol uses TCP port 512 per its IANA assignment */

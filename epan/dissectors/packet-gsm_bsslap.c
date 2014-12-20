@@ -25,8 +25,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 #include "packet-gsm_a_common.h"

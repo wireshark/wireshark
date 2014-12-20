@@ -25,7 +25,6 @@
 
 #include "config.h"
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include "packet-mq.h"
 

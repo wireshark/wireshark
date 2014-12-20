@@ -71,10 +71,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>

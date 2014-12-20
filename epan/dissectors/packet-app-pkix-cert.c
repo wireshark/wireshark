@@ -28,11 +28,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-x509af.h>
+#include "packet-x509af.h"
 
 
 void proto_register_cert(void);

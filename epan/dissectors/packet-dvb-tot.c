@@ -23,10 +23,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/dissectors/packet-mpeg-sect.h>
+#include "packet-mpeg-sect.h"
 
 #include "packet-mpeg-descriptor.h"
 

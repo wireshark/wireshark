@@ -25,8 +25,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
@@ -40,7 +38,6 @@
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
 

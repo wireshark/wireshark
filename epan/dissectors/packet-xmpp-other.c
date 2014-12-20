@@ -26,16 +26,11 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-
-#include <epan/dissectors/packet-xml.h>
-
-#include <packet-xmpp-utils.h>
-#include <packet-xmpp.h>
-#include <packet-xmpp-other.h>
+#include "packet-xml.h"
+#include "packet-xmpp-utils.h"
+#include "packet-xmpp.h"
+#include "packet-xmpp-other.h"
 
 static void xmpp_disco_items_item(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo, xmpp_element_t *element);
 

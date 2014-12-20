@@ -23,10 +23,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <ipproto.h>
+#include <epan/ipproto.h>
 
 void proto_register_ax4000(void);
 void proto_reg_handoff_ax4000(void);

@@ -23,14 +23,14 @@
  */
 
 #include "config.h"
-#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/uat.h>
 #include <epan/address.h>
 #include <epan/conversation.h>
+#include "packet-tcp.h"
 #include "packet-lbm.h"
 
 void proto_register_lbmpdm_tcp(void);

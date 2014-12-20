@@ -61,13 +61,9 @@
 
 #include <string.h>
 
-#include <glib.h>
-
-#include <epan/wmem/wmem.h>
-#include <epan/decode_as.h>
 #include <epan/packet.h>
+#include <epan/decode_as.h>
 #include <epan/exceptions.h>
-#include <wsutil/pint.h>
 #include <epan/crc16-tvb.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
@@ -75,6 +71,7 @@
 #include <epan/uat.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
+#include <wsutil/pint.h>
 
 /* Use libgcrypt for cipher libraries. */
 #ifdef HAVE_LIBGCRYPT

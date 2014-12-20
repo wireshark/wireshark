@@ -28,8 +28,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/oui.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-wap.h"
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"

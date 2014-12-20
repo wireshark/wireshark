@@ -30,17 +30,14 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <stdio.h>
 #include <string.h>
 
-#include <wsutil/file_util.h>
-#include <wsutil/report_err.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/wmem/wmem.h>
+#include <wsutil/file_util.h>
+#include <wsutil/report_err.h>
+#include "packet-tcp.h"
 
 void proto_register_etch(void);
 void proto_reg_handoff_etch(void);

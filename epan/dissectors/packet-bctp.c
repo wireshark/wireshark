@@ -27,7 +27,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #define PNAME  "BCTP Q.1990"

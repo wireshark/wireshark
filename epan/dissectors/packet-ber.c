@@ -59,8 +59,6 @@
 
 #include <stdio.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/strutil.h>
@@ -71,7 +69,6 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 #include <wiretap/wtap.h>
 

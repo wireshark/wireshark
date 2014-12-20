@@ -23,7 +23,6 @@
 
 #include "config.h"
 
-
 #include "packet-rpc.h"
 #include "packet-stat-notify.h"
 

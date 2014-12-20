@@ -36,13 +36,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include "packet-scsi.h"
-#include <epan/wmem/wmem.h>
 #include <epan/range.h>
 #include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>

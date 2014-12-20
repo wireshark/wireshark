@@ -35,15 +35,11 @@
 #include <string.h>
 #include <math.h>
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/proto.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/value_string.h>
 #include <epan/strutil.h>
 #include "packet-mq.h"
-#include "wmem/wmem.h"
 
 void proto_register_mqpcf(void);
 void proto_reg_handoff_mqpcf(void);

@@ -25,13 +25,11 @@
 
 #include "config.h"
 
-#include <epan/aftypes.h>
 #include <epan/packet.h>
+#include <epan/aftypes.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 #include <wiretap/wtap.h>
 
 #include "packet-frame.h"

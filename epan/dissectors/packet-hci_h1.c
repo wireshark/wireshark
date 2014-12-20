@@ -24,7 +24,6 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/wmem/wmem.h>
 #include <wiretap/wtap.h>
 
 #include "packet-bluetooth.h"

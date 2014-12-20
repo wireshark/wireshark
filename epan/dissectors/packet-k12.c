@@ -23,20 +23,18 @@
 */
 #include "config.h"
 
-#include <errno.h>
-#include <glib.h>
 #include <string.h>
-#include <wsutil/str_util.h>
+#include <errno.h>
+
 #include <epan/packet.h>
-#include <wsutil/pint.h>
 #include <epan/conversation.h>
-#include <prefs.h>
-#include <wiretap/wtap.h>
-#include <epan/emem.h>
-#include <epan/wmem/wmem.h>
+#include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <wiretap/wtap.h>
+#include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 #include "packet-sscop.h"
 #include "packet-umts_fp.h"
 

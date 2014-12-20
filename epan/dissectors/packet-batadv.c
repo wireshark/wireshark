@@ -28,7 +28,6 @@
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
 #include <epan/reassemble.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 
 /* Start content from packet-batadv.h */

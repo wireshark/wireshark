@@ -24,8 +24,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-mac-lte.h"
 
 void proto_register_mac_lte_framed(void);

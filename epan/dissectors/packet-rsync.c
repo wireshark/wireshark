@@ -28,12 +28,9 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 
 void proto_register_rsync(void);

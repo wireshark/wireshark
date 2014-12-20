@@ -26,13 +26,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
-
 /*
  * See
  *

@@ -26,7 +26,6 @@
 
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
 
 /*  Function declarations */

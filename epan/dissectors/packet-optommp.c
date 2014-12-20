@@ -23,13 +23,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/proto.h>
-#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
+#include "packet-tcp.h"
 
 #define OPTO_FRAME_HEADER_LEN 8
 #define OPTOMMP_DEST_ID 0x0000

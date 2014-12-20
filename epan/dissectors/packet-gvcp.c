@@ -28,7 +28,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 
 #define GVCP_MIN_PACKET_SIZE     8

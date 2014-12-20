@@ -25,12 +25,9 @@
 
 #include "config.h"
 
+#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-
-#include <glib.h>
-
-#include <epan/packet.h>
 
 void proto_register_bvlc(void);
 void proto_reg_handoff_bvlc(void);

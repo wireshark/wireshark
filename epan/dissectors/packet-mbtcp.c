@@ -74,7 +74,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include "packet-mbtcp.h"
 #include "packet-rtacser.h"

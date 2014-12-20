@@ -24,18 +24,15 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tvbparse.h>
 #include <epan/strutil.h>
 
-#include <epan/dissectors/packet-xml.h>
-
-#include <packet-xmpp.h>
-#include <packet-xmpp-core.h>
-#include <packet-xmpp-utils.h>
+#include "packet-xml.h"
+#include "packet-xmpp.h"
+#include "packet-xmpp-core.h"
+#include "packet-xmpp-utils.h"
 
 
 void

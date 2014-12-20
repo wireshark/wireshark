@@ -67,23 +67,21 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 
-#include <epan/dissectors/packet-windows-common.h>
-#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/expert.h>
 #include <epan/dissector_filters.h>
 #include <epan/show_exception.h>
 
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 
+#include "packet-windows-common.h"
 #include "packet-tcp.h"
+#include "packet-dcerpc.h"
 #include "packet-mq.h"
 
 void proto_register_mq(void);

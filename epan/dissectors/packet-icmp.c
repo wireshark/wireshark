@@ -33,22 +33,19 @@
 #include "config.h"
 
 #include <stdlib.h>
-
-#include <glib.h>
 #include <time.h>
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
 #include <epan/to_str.h>
+#include <epan/conversation.h>
+#include <epan/tap.h>
+#include <epan/ipproto.h>
 
 #include "packet-ip.h"
 #include "packet-icmp.h"
-#include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-#include <epan/tap.h>
 
 void proto_register_icmp(void);
 void proto_reg_handoff_icmp(void);

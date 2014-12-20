@@ -81,8 +81,6 @@
 #include <string.h>
 #include <math.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
@@ -99,7 +97,6 @@
 #include <wsutil/crc32.h>
 #include <epan/crc32-tvb.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/expert.h>
 #include <epan/conversation_table.h>

@@ -23,15 +23,13 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 
 #include <epan/sminmpec.h>
-#include <epan/dissectors/packet-ieee80211.h>
+#include "packet-ieee80211.h"
 
 void proto_register_capwap_control(void);
 void proto_reg_handoff_capwap(void);

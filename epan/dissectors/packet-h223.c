@@ -23,12 +23,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/wmem/wmem.h>
-#include <wsutil/bitswap.h>
+#include <string.h>
+
+#include <epan/packet.h>
 #include <epan/circuit.h>
 #include <epan/conversation.h>
-#include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/stream.h>
 #include <epan/reassemble.h>
@@ -36,12 +35,11 @@
 #include <epan/iax2_codec_type.h>
 #include <epan/show_exception.h>
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-h245.h>
-#include <epan/dissectors/packet-iax2.h>
+#include <wsutil/bitswap.h>
 
+#include "packet-h245.h"
+#include "packet-iax2.h"
 #include "packet-h223.h"
-
-#include <string.h>
 
 /* #define DEBUG_H223 */
 

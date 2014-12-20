@@ -23,15 +23,14 @@
  */
 
 #include "config.h"
-#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/uat.h>
-#include <epan/wmem/wmem.h>
 #include <epan/address.h>
 #include <epan/to_str.h>
 #include <epan/conversation.h>
+#include "packet-tcp.h"
 #include "packet-lbm.h"
 #include "packet-lbttcp.h"
 

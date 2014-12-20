@@ -42,24 +42,20 @@
 
 #include <stdlib.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/sctpppids.h>
-#include <epan/dissectors/packet-tpkt.h>
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-per.h>
-#include <epan/dissectors/packet-h245.h>
-#include <epan/dissectors/packet-ip.h>
-#include <epan/dissectors/packet-ber.h>
-
 #include <epan/gcp.h>
 #include <epan/tap.h>
+#include "packet-tpkt.h"
+#include "packet-per.h"
+#include "packet-h245.h"
+#include "packet-ip.h"
+#include "packet-ber.h"
 
 void proto_register_megaco(void);
 void proto_reg_handoff_megaco(void);

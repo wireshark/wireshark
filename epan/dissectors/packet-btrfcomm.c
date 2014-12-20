@@ -35,7 +35,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 
 #include "packet-bluetooth.h"

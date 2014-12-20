@@ -27,21 +27,18 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include <epan/to_str.h>
 #include <epan/show_exception.h>
 
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-dcerpc.h>
-#include <epan/dissectors/packet-gssapi.h>
+#include "packet-ber.h"
+#include "packet-dcerpc.h"
+#include "packet-gssapi.h"
 
 void proto_register_gssapi(void);
 void proto_reg_handoff_gssapi(void);

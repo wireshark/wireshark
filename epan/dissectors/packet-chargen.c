@@ -26,11 +26,7 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-
 #define CHARGEN_PORT_UDP 19
 #define CHARGEN_PORT_TCP 19
 

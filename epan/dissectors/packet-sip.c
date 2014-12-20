@@ -33,13 +33,10 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/req_resp_hdrs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>

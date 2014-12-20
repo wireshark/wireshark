@@ -30,8 +30,6 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
@@ -43,7 +41,7 @@
 #include <epan/afn.h>
 #include <epan/in_cksum.h>
 #include <epan/iana_snap_pid.h>
-#include <epan/dissectors/packet-llc.h>
+#include "packet-llc.h"
 #include "packet-nhrp.h"
 
 void proto_register_nhrp(void);

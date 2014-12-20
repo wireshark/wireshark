@@ -51,16 +51,12 @@
 #include <assert.h>
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
-
 
 #include "packet-x11-keysymdef.h"
 #include "packet-x11.h"

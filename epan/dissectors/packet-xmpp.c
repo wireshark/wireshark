@@ -26,19 +26,15 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 
-#include <epan/dissectors/packet-xml.h>
-
-#include <packet-xmpp-utils.h>
-#include <packet-xmpp.h>
-#include <packet-xmpp-core.h>
-#include <packet-xmpp-jingle.h>
+#include "packet-xmpp-utils.h"
+#include "packet-xmpp.h"
+#include "packet-xmpp-core.h"
+#include "packet-xmpp-jingle.h"
+#include "packet-xml.h"
 
 #define XMPP_PORT 5222
 

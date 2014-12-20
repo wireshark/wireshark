@@ -25,7 +25,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
@@ -36,8 +35,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
-#include <epan/wmem/wmem.h>
-
 #include <epan/sctpppids.h>
 #include <epan/lapd_sapi.h>
 #include "packet-tpkt.h"

@@ -34,16 +34,13 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/conversation.h>
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-ssl.h>
+#include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include "packet-tcp.h"
+#include "packet-ssl.h"
 
 #ifdef HAVE_LIBZ
 #include <zlib.h>

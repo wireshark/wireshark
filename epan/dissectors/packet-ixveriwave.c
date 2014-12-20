@@ -24,13 +24,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/crc32-tvb.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-eth.h"
 
 void proto_register_ixveriwave(void);

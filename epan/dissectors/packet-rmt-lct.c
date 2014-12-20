@@ -38,13 +38,11 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <math.h>
 
 #include <epan/packet.h>
 #include <epan/params.h>
 #include <epan/strutil.h>
-
-#include <math.h>
 
 #include "packet-rmt-common.h"
 

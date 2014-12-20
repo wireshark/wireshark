@@ -33,8 +33,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
@@ -43,7 +41,6 @@
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 
 #include "packet-ber.h"

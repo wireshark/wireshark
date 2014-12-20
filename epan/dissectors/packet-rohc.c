@@ -30,16 +30,12 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/rtp_pt.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-rohc.h"
 
 void proto_register_rohc(void);

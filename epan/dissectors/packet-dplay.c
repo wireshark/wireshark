@@ -25,10 +25,10 @@
 
 #include "config.h"
 
-#include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-#include <epan/aftypes.h>
 #include <string.h>
+
+#include <epan/packet.h>
+#include <epan/aftypes.h>
 
 /* function declarations */
 void proto_register_dplay(void);

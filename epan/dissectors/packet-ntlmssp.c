@@ -30,22 +30,18 @@
 #endif
 #include <string.h>
 
-#include <glib.h>
-
+#include <epan/packet.h>
+#include <epan/exceptions.h>
+#include <epan/asn1.h>
+#include <epan/prefs.h>
+#include <epan/tap.h>
+#include <epan/expert.h>
+#include <epan/show_exception.h>
 #include <wsutil/rc4.h>
 #include <wsutil/md4.h>
 #include <wsutil/md5.h>
 #include <wsutil/des.h>
 #include <wsutil/crc32.h>
-
-#include <epan/packet.h>
-#include <epan/exceptions.h>
-#include <epan/asn1.h>
-#include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
-#include <epan/tap.h>
-#include <epan/expert.h>
-#include <epan/show_exception.h>
 
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"

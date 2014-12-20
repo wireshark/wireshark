@@ -29,7 +29,6 @@
 #if HAVE_WINSOCK2_H
     #include <winsock2.h>
 #endif
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/address.h>
 #include <epan/strutil.h>
@@ -38,8 +37,6 @@
 #include <epan/stats_tree.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/value_string.h>
-#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 #ifndef HAVE_INET_ATON
     #include <wsutil/inet_aton.h>

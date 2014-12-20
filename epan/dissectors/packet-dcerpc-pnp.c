@@ -24,7 +24,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-pnp.h"

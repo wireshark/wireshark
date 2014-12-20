@@ -24,15 +24,13 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-#include <stdlib.h>
-#include <errno.h>
 
 #include "packet-infiniband.h"
 

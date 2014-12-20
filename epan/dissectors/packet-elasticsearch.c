@@ -21,9 +21,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "config.h"
-#include "packet-tcp.h"
+
+#include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/proto.h>
+#include "packet-tcp.h"
 
 #define ELASTICSEARCH_DISCOVERY_PORT 54328
 #define ELASTICSEARCH_BINARY_PORT 9300

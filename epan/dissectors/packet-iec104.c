@@ -31,14 +31,12 @@
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
 #include <math.h> /* floor */
 
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/wmem/wmem.h>
+#include "packet-tcp.h"
 
 void proto_register_iec104apci(void);
 void proto_register_iec104asdu(void);

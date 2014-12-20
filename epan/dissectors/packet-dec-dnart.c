@@ -47,9 +47,7 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 

@@ -32,8 +32,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
 #include <epan/prefs.h>
@@ -42,7 +40,6 @@
 #include <epan/tap.h>
 #include <epan/tap-voip.h>
 #include <epan/stats_tree.h>
-#include <epan/wmem/wmem.h>
 #include <wsutil/str_util.h>
 
 #include "packet-rdt.h"

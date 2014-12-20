@@ -33,14 +33,10 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-sprt.h"
 
 void proto_register_sprt(void);

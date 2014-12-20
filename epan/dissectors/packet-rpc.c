@@ -25,8 +25,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <string.h>
 
 #include <epan/packet.h>
@@ -34,7 +32,6 @@
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>

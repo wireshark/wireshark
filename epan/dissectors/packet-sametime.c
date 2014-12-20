@@ -24,11 +24,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
+#include "packet-tcp.h"
 
 #define DEFAULT_SAMETIME_PORT 1533
 

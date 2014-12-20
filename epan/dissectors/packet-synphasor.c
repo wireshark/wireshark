@@ -24,16 +24,14 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <math.h>
+
+#include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/crc16-tvb.h>
-#include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 #include "packet-rtacser.h"
-
-#include <math.h>
 
 #define PROTOCOL_NAME	    "IEEE C37.118 Synchrophasor Protocol"
 #define PROTOCOL_SHORT_NAME "SYNCHROPHASOR"

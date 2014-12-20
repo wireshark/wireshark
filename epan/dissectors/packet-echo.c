@@ -27,7 +27,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #define ECHO_PORT  7

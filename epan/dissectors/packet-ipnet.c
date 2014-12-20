@@ -22,10 +22,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <epan/aftypes.h>
 #include <epan/packet.h>
+#include <epan/aftypes.h>
 #include <wiretap/wtap.h>
 
 void proto_register_ipnet(void);

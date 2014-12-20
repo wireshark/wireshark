@@ -28,14 +28,10 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-
-#include <epan/wmem/wmem.h>
 
 #include "packet-tcp.h"
 

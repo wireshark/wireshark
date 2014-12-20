@@ -56,8 +56,6 @@ F = 16-bit CRC
 #include "packet-rtacser.h"
 #include <epan/to_str.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>

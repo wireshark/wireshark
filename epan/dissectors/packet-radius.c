@@ -57,22 +57,19 @@
 #include <string.h>
 #include <errno.h>
 
-#include <glib.h>
-
-#include <wsutil/report_err.h>
-#include <wsutil/md5.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
-#include <wsutil/filesystem.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
 #include <epan/garrayfix.h>
-#include <epan/wmem/wmem.h>
+#include <wsutil/filesystem.h>
+#include <wsutil/report_err.h>
+#include <wsutil/md5.h>
+
 
 #include "packet-radius.h"
 

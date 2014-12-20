@@ -26,12 +26,10 @@
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include <epan/addr_resolv.h>
-#include <epan/wmem/wmem.h>
 #include "packet-arp.h"
 #include <epan/etypes.h>
 #include <epan/arcnet_pids.h>

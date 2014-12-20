@@ -25,11 +25,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <wsutil/pint.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include "packet-ppp.h"
 #include <epan/ppptypes.h>
 #include <epan/etypes.h>

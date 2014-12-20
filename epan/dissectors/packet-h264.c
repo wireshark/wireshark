@@ -32,15 +32,11 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-h264.h"
 
 void proto_register_h264(void);

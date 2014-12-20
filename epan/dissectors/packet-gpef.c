@@ -24,7 +24,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "packet-windows-common.h"
 #include <epan/asn1.h>

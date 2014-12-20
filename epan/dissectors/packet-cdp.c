@@ -23,13 +23,10 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/in_cksum.h>
-#include <epan/wmem/wmem.h>
-
 #include <epan/oui.h>
 #include <epan/nlpid.h>
 

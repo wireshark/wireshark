@@ -83,26 +83,22 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
-#include <epan/wmem/wmem.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-x509af.h>
-#include <epan/dissectors/packet-ocsp.h>
 #include <epan/tap.h>
-#include <wsutil/filesystem.h>
 #include <epan/expert.h>
-#include "packet-ssl.h"
-#include "packet-ssl-utils.h"
-#include <wsutil/file_util.h>
 #include <epan/uat.h>
 #include <epan/exported_pdu.h>
+#include <wsutil/filesystem.h>
+#include <wsutil/file_util.h>
+#include "packet-tcp.h"
+#include "packet-x509af.h"
+#include "packet-ocsp.h"
+#include "packet-ssl.h"
+#include "packet-ssl-utils.h"
 
 void proto_register_ssl(void);
 

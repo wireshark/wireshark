@@ -39,8 +39,6 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 
 /* Forward declaration we need below */

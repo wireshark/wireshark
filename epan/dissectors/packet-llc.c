@@ -23,10 +23,8 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <epan/to_str.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>

@@ -24,26 +24,20 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-
-#include <epan/dissectors/packet-xml.h>
-
-#include <packet-xmpp-utils.h>
-#include <packet-xmpp.h>
-#include <packet-xmpp-core.h>
-#include <packet-xmpp-jingle.h>
-#include <packet-xmpp-other.h>
-#include <packet-xmpp-gtalk.h>
-#include <packet-xmpp-conference.h>
-
 #include <epan/strutil.h>
+#include <epan/tvbparse.h>
 
-#include "epan/tvbparse.h"
+#include "packet-xml.h"
+#include "packet-xmpp-utils.h"
+#include "packet-xmpp.h"
+#include "packet-xmpp-core.h"
+#include "packet-xmpp-jingle.h"
+#include "packet-xmpp-other.h"
+#include "packet-xmpp-gtalk.h"
+#include "packet-xmpp-conference.h"
 
 tvbparse_wanted_t *want_ignore;
 tvbparse_wanted_t *want_stream_end_tag;

@@ -47,11 +47,8 @@
 
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/address.h>
-#include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>

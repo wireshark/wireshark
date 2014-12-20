@@ -25,11 +25,9 @@
 
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/to_str.h>
+#include "packet-tcp.h"
 
 /* Forward declarations */
 void proto_register_adwin_config(void);

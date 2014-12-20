@@ -23,13 +23,13 @@
  */
 
 #include "config.h"
-#include "packet-tcp.h"
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/afn.h>
 #include <epan/ipv6-utils.h>
 #include <epan/expert.h>
+#include "packet-tcp.h"
 
 void proto_register_lisp_tcp(void);
 void proto_reg_handoff_lisp_tcp(void);

@@ -27,13 +27,9 @@
 
 #include <math.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <epan/wmem/wmem.h>
-
 #include <epan/tvbparse.h>
 
 #include "packet-ntp.h"

@@ -40,8 +40,6 @@
 #include <string.h>
 #include <math.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
@@ -49,8 +47,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
-#include <epan/wmem/wmem.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 /* The digest is up to 32 bytes long */
 #define DIGEST_LEN 32

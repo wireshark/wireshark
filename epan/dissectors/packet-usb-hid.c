@@ -21,9 +21,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/packet.h>
 #include <string.h>
+
+#include <epan/packet.h>
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
 

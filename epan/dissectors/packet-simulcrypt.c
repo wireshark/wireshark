@@ -32,10 +32,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
+#include "packet-tcp.h"
 
 #define PROTO_TAG_SIMULCRYPT            "SIMULCRYPT"
 #define CA_SYSTEM_ID_MIKEY              0x9999  /* CA_system_ID corresponding to MIKEY ECM */

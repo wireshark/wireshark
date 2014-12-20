@@ -26,8 +26,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/to_str.h>

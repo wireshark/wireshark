@@ -25,12 +25,11 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/wmem/wmem.h>
 #include "packet-ssl.h"
-
-#include <stdio.h>
 
 void proto_register_imap(void);
 void proto_reg_handoff_imap(void);

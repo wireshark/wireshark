@@ -46,9 +46,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/strutil.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
-#include <epan/tfs.h>
 #include <epan/to_str.h>
 
 #include "packet-mtp3.h"

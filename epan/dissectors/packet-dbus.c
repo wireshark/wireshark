@@ -30,7 +30,7 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 void proto_register_dbus(void);
 void proto_reg_handoff_dbus(void);

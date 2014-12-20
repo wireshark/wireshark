@@ -30,8 +30,6 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/wmem/wmem.h>
-
 #include "packet-bluetooth.h"
 
 static int proto_hci_h4 = -1;

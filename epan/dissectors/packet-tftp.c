@@ -40,11 +40,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <stdlib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/range.h>
 #include <epan/prefs.h>

@@ -110,8 +110,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include "packet-arp.h"
@@ -123,8 +121,6 @@
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/wmem/wmem.h>
-
 void proto_register_bootp(void);
 void proto_reg_handoff_bootp(void);
 

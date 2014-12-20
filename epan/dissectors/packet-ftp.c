@@ -30,12 +30,10 @@
 #include <stdlib.h>
 
 #include <string.h>
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 
 void proto_register_ftp(void);

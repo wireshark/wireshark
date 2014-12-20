@@ -24,7 +24,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/llcsaps.h>
 #include <epan/ppptypes.h>

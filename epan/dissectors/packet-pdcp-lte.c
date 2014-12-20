@@ -26,13 +26,10 @@
 
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <epan/wmem/wmem.h>
-
 #include <epan/uat.h>
 
 #ifdef HAVE_LIBGCRYPT

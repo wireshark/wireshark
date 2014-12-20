@@ -30,7 +30,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "packet-diffserv-mpls-common.h"
 

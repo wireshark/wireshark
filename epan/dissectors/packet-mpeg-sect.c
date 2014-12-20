@@ -23,13 +23,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-mpeg-sect.h>
+#include "packet-mpeg-sect.h"
 
 void proto_register_mpeg_sect(void);
 

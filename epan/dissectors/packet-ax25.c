@@ -44,17 +44,13 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/to_str.h>
-#include <epan/wmem/wmem.h>
 #include <epan/xdlc.h>
 #include <epan/ax25_pids.h>
 #include <epan/ipproto.h>
-#include <packet-ip.h>
-
+#include "packet-ip.h"
 #include "packet-ax25.h"
 #include "packet-netrom.h"
 
