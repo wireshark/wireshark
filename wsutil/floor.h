@@ -26,6 +26,5 @@
 #include <glib.h>
 
 #ifndef HAVE_FLOORL
-
-
+long double floorl(long double x);
 #endif
