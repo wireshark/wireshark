@@ -24,8 +24,8 @@
 
 #include <epan/wmem/wmem.h>
 
-#include <packet-usb.h>
-#include <packet-ubertooth.h>
+#include "packet-usb.h"
+#include "packet-ubertooth.h"
 
 #define BLUETOOTH_DATA_SRC 0
 #define BLUETOOTH_DATA_DST 1
