@@ -107,7 +107,7 @@
 #include "ui/alert_box.h"
 #include "ui/console.h"
 #include "ui/decode_as_utils.h"
-#include "ui/filters.h"
+#include "filter_files.h"
 #include "ui/main_statusbar.h"
 #include "ui/persfilepath_opt.h"
 #include "ui/preference_utils.h"

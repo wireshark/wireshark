@@ -195,6 +195,7 @@ SOURCES_WS_C = \
     ../../extcap_parser.c \
     ../../file.c  \
     ../../fileset.c \
+    ../../filter_files.c \
     ../../frame_tvbuff.c \
     ../../summary.c \
     ../../sync_pipe_write.c

@@ -43,6 +43,8 @@
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"
 
+#include "filter_files.h"
+
 static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_pipe);
 
 
@@ -279,6 +281,60 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
     }
     *colonp = ':'; /* put the colon back */
     return TRUE;
+}
+
+static gboolean get_filter_arguments(capture_options* capture_opts, const char* arg)
+{
+    char* colonp;
+    char* val;
+    char* filter_exp = NULL;
+
+    colonp = strchr(arg, ':');
+    if (colonp) {
+        val = colonp;
+        *val = '\0';
+        val++;
+        if (strcmp(arg, "predef") == 0) {
+            GList* filterItem;
+
+            filterItem = get_filter_list_first(CFILTER_LIST);
+            while (filterItem != NULL) {
+                filter_def *filterDef;
+
+                filterDef = (filter_def*)filterItem->data;
+                if (strcmp(val, filterDef->name) == 0) {
+                    filter_exp = g_strdup(filterDef->strval);
+                    break;
+                }
+                filterItem = filterItem->next;
+            }
+        }
+    }
+
+    if (filter_exp == NULL) {
+        /* No filter expression found yet; fallback to previous implemention
+           and assume the arg contains a filter expression */
+        if (colonp) {
+            *colonp = ':';      /* restore colon */
+        }
+        filter_exp = g_strdup(arg);
+    }
+
+    if (capture_opts->ifaces->len > 0) {
+        interface_options interface_opts;
+
+        interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
+        capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
+        g_free(interface_opts.cfilter);
+        interface_opts.cfilter = filter_exp;
+        g_array_append_val(capture_opts->ifaces, interface_opts);
+        return TRUE;
+    }
+    else {
+        g_free(capture_opts->default_options.cfilter);
+        capture_opts->default_options.cfilter = filter_exp;
+        return TRUE;
+    }
 }
 
 /*
@@ -711,18 +767,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->autostop_packets = get_positive_int(optarg_str_p, "packet count");
         break;
     case 'f':        /* capture filter */
-        if (capture_opts->ifaces->len > 0) {
-            interface_options interface_opts;
-
-            interface_opts = g_array_index(capture_opts->ifaces, interface_options, capture_opts->ifaces->len - 1);
-            capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, capture_opts->ifaces->len - 1);
-            g_free(interface_opts.cfilter);
-            interface_opts.cfilter = g_strdup(optarg_str_p);
-            g_array_append_val(capture_opts->ifaces, interface_opts);
-        } else {
-            g_free(capture_opts->default_options.cfilter);
-            capture_opts->default_options.cfilter = g_strdup(optarg_str_p);
-        }
+        get_filter_arguments(capture_opts, optarg_str_p);
         break;
     case 'g':        /* enable group read access on the capture file(s) */
         capture_opts->group_read_access = TRUE;

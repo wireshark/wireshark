@@ -46,7 +46,8 @@ Usage: wireshark [options] ... [ <infile> ]
 
 Capture interface:
   -i <interface>           name or idx of interface (def: first non-loopback)
-  -f <capture filter>      packet filter in libpcap filter syntax
+  -f <capfilter|predef:>   packet filter in libpcap filter syntax or
+                           predef:filtername - predefined filtername from GUI
   -s <snaplen>             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
   -k                       start capturing immediately (def: do nothing)

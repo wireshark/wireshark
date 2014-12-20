@@ -31,7 +31,7 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 
-#include "ui/filters.h"
+#include "filter_files.h"
 
 /*
  * Old filter file name.

@@ -60,7 +60,7 @@
 #endif
 
 #include "ui/capture.h"
-#include "ui/filters.h"
+#include "filter_files.h"
 #include "ui/capture_globals.h"
 #include "ui/software_update.h"
 #include "ui/last_open_dir.h"

@@ -65,12 +65,14 @@ WIRESHARK_COMMON_SRC =	\
 	capture_opts.c	\
 	file.c		\
 	fileset.c	\
+	filter_files.c \
 	summary.c
 
 # corresponding headers
 WIRESHARK_COMMON_INCLUDES =	\
 	capture_info.h	\
 	capture_opts.h	\
+	filter_files.h \
 	globals.h	\
 	log.h		\
 	summary.h	\
@@ -80,6 +82,7 @@ WIRESHARK_COMMON_INCLUDES =	\
 tshark_SOURCES =	\
 	$(SHARK_COMMON_SRC)	\
 	capture_opts.c		\
+	filter_files.c		\
 	tshark.c
 
 # tfshark specifics
@@ -165,6 +168,7 @@ dumpcap_SOURCES =	\
 	capture_stop_conditions.c	\
 	conditions.c	\
 	dumpcap.c	\
+	filter_files.c	\
 	pcapio.c	\
 	ringbuffer.c	\
 	sync_pipe_write.c

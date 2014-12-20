@@ -342,6 +342,10 @@ the interface specified by the last B<-i> option occurring before
 this option.  If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
 
+Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture Filters,
+can be used by prefixing the argument with "predef:".
+Example: B<-f "predef:MyPredefinedHostOnlyFilter">
+
 =item -F  E<lt>file formatE<gt>
 
 Set the file format of the output capture file written using the B<-w>

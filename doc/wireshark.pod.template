@@ -347,6 +347,10 @@ the interface specified by the last B<-i> option occurring before
 this option.  If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
 
+Pre-defined capture filter names, as shown in the GUI menu item Capture->Capture Filters,
+can be used by prefixing the argument with "predef:".
+Example: B<-f "predef:MyPredefinedHostOnlyFilter">
+
 =item -g  E<lt>packet numberE<gt>
 
 After reading in a capture file using the B<-r> flag, go to the given I<packet number>.

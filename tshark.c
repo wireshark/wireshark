@@ -87,6 +87,7 @@
 #include "ui/ui_util.h"
 #include "ui/cli/tshark-tap.h"
 #include "register.h"
+#include "filter_files.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
@@ -971,10 +972,12 @@ main(int argc, char *argv[])
 
   char                *gpf_path, *pf_path;
   char                *gdp_path, *dp_path;
+  char                *cf_path;
   int                  gpf_open_errno, gpf_read_errno;
   int                  pf_open_errno, pf_read_errno;
   int                  gdp_open_errno, gdp_read_errno;
   int                  dp_open_errno, dp_read_errno;
+  int                  cf_open_errno;
   int                  err;
   volatile int         exit_status = 0;
 #ifdef HAVE_LIBPCAP
@@ -1319,6 +1322,13 @@ main(int argc, char *argv[])
     }
     g_free(pf_path);
     pf_path = NULL;
+  }
+
+  read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
+  if (cf_path != NULL) {
+      cmdarg_err("Could not open your capture filter file\n\"%s\": %s.",
+          cf_path, g_strerror(cf_open_errno));
+      g_free(cf_path);
   }
 
   /* Read the disabled protocols file. */
