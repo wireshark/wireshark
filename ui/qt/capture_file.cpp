@@ -41,8 +41,6 @@ capture_file cfile;
 //   - Base filename
 //   - Full filename
 
-#include <QDebug>
-
 CaptureFile::CaptureFile(QObject *parent, capture_file *cap_file) :
     QObject(parent),
     cap_file_(cap_file)
@@ -89,12 +87,10 @@ void CaptureFile::captureCallback(gint event, capture_session *cap_session, gpoi
 
 void CaptureFile::captureFileEvent(int event, gpointer data)
 {
-    qDebug() << "=cfe" << event << data;
     switch(event) {
     case(cf_cb_file_opened):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Opened");
         cap_file_ = (capture_file *) data;
-        qDebug() << "=cfe fo" << cap_file_;
         emit captureFileOpened();
         break;
     case(cf_cb_file_closing):
@@ -103,7 +99,6 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         break;
     case(cf_cb_file_closed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
-        qDebug() << "=cfe fc" << cap_file_;
         emit captureFileClosed();
         cap_file_ = NULL;
         break;
@@ -152,7 +147,6 @@ void CaptureFile::captureEvent(int event, capture_session *cap_session)
     Q_UNUSED(event)
     Q_UNUSED(cap_session)
 #else
-    qDebug() << "=ce" << event << cap_session->cf;
     switch(event) {
     case(capture_cb_capture_prepared):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
