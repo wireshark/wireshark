@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <math.h>
+
 #include "wsutil/floorl.h"
 
 #ifndef HAVE_FLOORL
