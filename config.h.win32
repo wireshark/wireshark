@@ -86,6 +86,9 @@
  */
 #define WS_MSVC_NORETURN	__declspec(noreturn)
 
+/* Define if you have the floorl function. */
+#define HAVE_FLOORL 1
+
 /* Define if you have the gethostbyname2 function.  */
 /* #undef HAVE_GETHOSTBYNAME2 */
 
