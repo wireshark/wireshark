@@ -41,7 +41,7 @@
 
 CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget *parent, capture_file *cf) :
     QDialog(parent),
-    ui(new Ui::SummaryDialog),
+    ui(new Ui::CaptureFilePropertiesDialog),
     cap_file_(cf)
 {
     ui->setupUi(this);

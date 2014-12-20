@@ -45,7 +45,7 @@
 #include <QDialog>
 
 namespace Ui {
-class SummaryDialog;
+class CaptureFilePropertiesDialog;
 }
 
 class QAbstractButton;
@@ -69,7 +69,7 @@ protected slots:
 
 
 private:
-    Ui::SummaryDialog *ui;
+    Ui::CaptureFilePropertiesDialog *ui;
     capture_file *cap_file_;
 
     QString timeToString(time_t ti_time);
