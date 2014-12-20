@@ -361,9 +361,9 @@ fi
 
 #
 # The default target OS is the major version of the one we're running;
-# get that and strip off the third component.
+# get that and strip off the third component if present.
 #
-min_osx_target=`sw_vers -productVersion | sed 's/\([[0-9]]*\).\([[0-9]]*\).[[0-9]]*/\1.\2/'`
+min_osx_target=`sw_vers -productVersion | sed 's/\([0-9]*\)\.\([0-9]*\)\.[0-9]*/\1.\2/'`
 
 #
 # Parse command-line flags:
