@@ -33,7 +33,9 @@
 
 #include "ui/ui_util.h"
 
-#include "wsutil/floor.h"
+#ifndef HAVE_FLOORL
+# include "wsutil/floor.h"
+#endif
 
 #define SHIFT_POS               0
 #define SHIFT_NEG               1

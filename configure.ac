@@ -2648,6 +2648,14 @@ AC_C_BIGENDIAN
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
 
+AC_CHECK_FUNC(floorl,
+  [
+    FLOORL_LO=""
+    AC_DEFINE(HAVE_FLOORL, 1, [Define if you have the floorl function.])
+  ],
+  FLOORL_LO="floorl.lo")
+AC_SUBST(FLOORL_LO)
+
 AC_CHECK_FUNC(getopt,
   [
     GETOPT_LO=""
@@ -2736,7 +2744,6 @@ AC_SUBST(STRPTIME_LO)
 AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(mmap mprotect sysconf)
-AC_CHECK_FUNCS(floorl)
 
 dnl blank for now, but will be used in future
 AC_SUBST(wireshark_SUBDIRS)

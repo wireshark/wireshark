@@ -21,10 +21,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef __FLOORL_H__
+#define __FLOORL_H__
+
 #include "config.h"
 
-#include <glib.h>
+#include "ws_symbol_export.h"
 
-#ifndef HAVE_FLOORL
-long double floorl(long double x);
-#endif
+/*
+ * Version of "floorl()", for the benefit of OSes that don't have it.
+ */
+WS_DLL_PUBLIC long double floorl(long double x);
+
+#endif /* __FLOORL_H__ */

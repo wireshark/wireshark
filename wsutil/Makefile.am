@@ -31,6 +31,7 @@ libwsutil_abi_INCLUDES = 	\
 # Optional objects that I know how to build. These will be
 # linked into libwsutil if necessary.
 wsutil_optional_objects = \
+	@FLOORL_LO@		\
 	@GETOPT_LO@		\
 	@INET_ATON_LO@		\
 	@INET_NTOP_LO@		\
