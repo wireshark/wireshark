@@ -203,6 +203,11 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  * @param op Any binary operator.
  * @param b  The second integer.
  */
+#define __DISSECTOR_ASSERT_CMPINT(a, op, b, type, fmt) \
+  (REPORT_DISSECTOR_BUG( \
+    ep_strdup_printf("%s:%u: failed assertion "#a" "#op" "#b" ("fmt" "#op" "fmt")", \
+     __FILE__, __LINE__, (type)a, (type)b)))
+
 #define DISSECTOR_ASSERT_CMPINT(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
    __DISSECTOR_ASSERT_CMPINT (a, op, b, gint64, "%"G_GINT64_MODIFIER"d"))) \
@@ -225,11 +230,6 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
   ((void) ((a op b) ? (void)0 : \
    __DISSECTOR_ASSERT_CMPINT (a, op, b, guint64, "0x%"G_GINT64_MODIFIER"X"))) \
   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(a op b)
-
-#define __DISSECTOR_ASSERT_CMPINT(a, op, b, type, fmt) \
-  (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: failed assertion "#a" "#op" "#b" ("fmt" "#op" "fmt")", \
-     __FILE__, __LINE__, (type)a, (type)b)))
 
 /*
  * The encoding of a field of a particular type may involve more
