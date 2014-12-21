@@ -92,7 +92,6 @@ void CaptureFilePropertiesDialog::updateWidgets()
 {
     QPushButton *refresh_bt = ui->buttonBox->button(QDialogButtonBox::Reset);
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
-    QPushButton *copy_bt = ui->buttonBox->button(QDialogButtonBox::Apply);
 
     if (!cap_file_) {
         if (refresh_bt) {
@@ -101,9 +100,6 @@ void CaptureFilePropertiesDialog::updateWidgets()
         ui->commentsTextEdit->setReadOnly(true);
         if (save_bt) {
             save_bt->setEnabled(false);
-        }
-        if (copy_bt) {
-            copy_bt->setEnabled(false);
         }
         return;
     }
