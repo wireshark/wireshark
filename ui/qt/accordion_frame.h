@@ -35,8 +35,6 @@ public:
 
 signals:
 
-public slots:
-
 private:
     int frame_height_;
     QPropertyAnimation *animation_;

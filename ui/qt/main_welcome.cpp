@@ -95,6 +95,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     welcome_ui_->interfaceTree->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 
+    welcome_ui_->openFrame->hide();
     recent_files_->setStyleSheet(
             "QListWidget::item {"
             "  padding-top: 0.2em;"
@@ -199,7 +200,11 @@ void MainWelcome::updateRecentFiles() {
     while (recent_files_->count() > (int) prefs.gui_recent_files_count_max) {
         recent_files_->takeItem(recent_files_->count());
     }
-    welcome_ui_->openFrame->setVisible(recent_files_->count() > 0);
+    if (recent_files_->count() > 0) {
+        welcome_ui_->openFrame->animatedShow();
+    } else {
+        welcome_ui_->openFrame->animatedHide();
+    }
 }
 
 void MainWelcome::openRecentItem(QListWidgetItem *item) {
