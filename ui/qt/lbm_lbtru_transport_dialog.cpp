@@ -1396,7 +1396,7 @@ void LBMLBTRUTransportDialogInfo::processPacket(const packet_info * pinfo, const
             {
                 LBMLBTRUSourceEntry * source = NULL;
                 LBMLBTRUSourceMapIterator it;
-                QString src_address = QString(address_to_str(wmem_packet_scope(), &(pinfo->src)));
+                QString src_address = QString(ep_address_to_str(&(pinfo->src)));
 
                 it = m_sources.find(src_address);
                 if (m_sources.end() == it)
@@ -1425,7 +1425,7 @@ void LBMLBTRUTransportDialogInfo::processPacket(const packet_info * pinfo, const
             {
                 LBMLBTRUReceiverEntry * receiver = NULL;
                 LBMLBTRUReceiverMapIterator it;
-                QString src_address = QString(address_to_str(wmem_packet_scope(), &(pinfo->src)));
+                QString src_address = QString(ep_address_to_str(&(pinfo->src)));
 
                 it = m_receivers.find(src_address);
                 if (m_receivers.end() == it)

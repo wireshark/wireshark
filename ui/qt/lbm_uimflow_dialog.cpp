@@ -142,10 +142,10 @@ static gboolean lbm_uimflow_add_to_graph(seq_analysis_info_t * seq_info, packet_
     {
         item->comment = g_strdup_printf("%" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " <-> %" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " [%" G_GUINT64_FORMAT "]",
             epa.stream_info.dest.domain,
-            address_to_str(wmem_packet_scope(), &(epa.stream_info.dest.addr)),
+            ep_address_to_str(&(epa.stream_info.dest.addr)),
             epa.stream_info.dest.port,
             epb.stream_info.dest.domain,
-            address_to_str(wmem_packet_scope(), &(epb.stream_info.dest.addr)),
+            ep_address_to_str(&(epb.stream_info.dest.addr)),
             epb.stream_info.dest.port,
             stream_info->channel);
     }

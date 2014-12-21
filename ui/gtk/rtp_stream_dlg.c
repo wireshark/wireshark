@@ -400,10 +400,10 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
         filter_string_fwd = g_strdup_printf(
             "(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
             ip_version,
-            address_to_str(wmem_packet_scope(), &(selected_stream_fwd->src_addr)),
+            ep_address_to_str(&(selected_stream_fwd->src_addr)),
             selected_stream_fwd->src_port,
             ip_version,
-            address_to_str(wmem_packet_scope(), &(selected_stream_fwd->dest_addr)),
+            ep_address_to_str(&(selected_stream_fwd->dest_addr)),
             selected_stream_fwd->dest_port,
             selected_stream_fwd->ssrc);
 
@@ -420,10 +420,10 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
         filter_string_rev = g_strdup_printf(
             "(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
             ip_version,
-            address_to_str(wmem_packet_scope(), &(selected_stream_rev->src_addr)),
+            ep_address_to_str(&(selected_stream_rev->src_addr)),
             selected_stream_rev->src_port,
             ip_version,
-            address_to_str(wmem_packet_scope(), &(selected_stream_rev->dest_addr)),
+            ep_address_to_str(&(selected_stream_rev->dest_addr)),
             selected_stream_rev->dest_port,
             selected_stream_rev->ssrc);
 

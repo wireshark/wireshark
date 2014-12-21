@@ -89,10 +89,10 @@ LBMSubstreamEntry::LBMSubstreamEntry(guint64 channel, guint32 substream_id, cons
     m_item(NULL)
 {
     m_endpoint_a = QString("%1:%2")
-        .arg(address_to_str(wmem_packet_scope(), source_address))
+        .arg(ep_address_to_str(source_address))
         .arg(source_port);
     m_endpoint_b = QString("%1:%2")
-        .arg(address_to_str(wmem_packet_scope(), destination_address))
+        .arg(ep_address_to_str(destination_address))
         .arg(destination_port);
 }
 
@@ -199,7 +199,7 @@ QString LBMStreamEntry::formatEndpoint(const lbm_uim_stream_endpoint_t * endpoin
     {
         return QString("%1:%2:%3")
                .arg(endpoint->stream_info.dest.domain)
-               .arg(address_to_str(wmem_packet_scope(), &(endpoint->stream_info.dest.addr)))
+               .arg(ep_address_to_str(&(endpoint->stream_info.dest.addr)))
                .arg(endpoint->stream_info.dest.port);
     }
 }
