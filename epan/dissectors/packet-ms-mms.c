@@ -841,17 +841,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(tree, hf_msmms_command_password_type_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    /* Server version string.
-       The string length is in units of 2-octet values; make sure it won't
-       overflow if we double it to count octets, by making sure the top
-       bit isn't set (as that could make it be treated as negative) and
-       the bit below that isn't set (as that would mean that, when we
-       double it, it could be treated as negative).
-
-       Throw a ReportedBoundsError if it's too big, as that probably
-       means it's bogus and runs past the end of the packet. */
-    if (server_version_length & 0xC0000000)
-        THROW(ReportedBoundsError);
+    /* Server version string. */
     if (server_version_length > 1)
     {
         server_version = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, server_version_length*2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
@@ -867,10 +857,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     offset += (server_version_length*2);
 
 
-    /* Tool version string.  Do the same check as we did for the
-       server version string. */
-    if (tool_version_length & 0xC0000000)
-        THROW(ReportedBoundsError);
+    /* Tool version string. */
     if (tool_version_length > 1)
     {
         proto_tree_add_item(tree, hf_msmms_command_tool_version, tvb,
@@ -879,10 +866,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
     offset += (tool_version_length*2);
 
-    /* Download update player url string.  Do the same check as we
-       did for the server version string. */
-    if (download_update_player_length & 0xC0000000)
-        THROW(ReportedBoundsError);
+    /* Download update player url string. */
     if (download_update_player_length > 1)
     {
         proto_tree_add_item(tree, hf_msmms_command_update_url, tvb,
@@ -891,10 +875,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
     offset += (download_update_player_length*2);
 
-    /* Password encryption type string.  Do the same check as we
-       did for the server version string. */
-    if (password_encryption_type_length & 0xC0000000)
-        THROW(ReportedBoundsError);
+    /* Password encryption type string. */
     if (password_encryption_type_length > 1)
     {
         proto_tree_add_item(tree, hf_msmms_command_password_type, tvb,
