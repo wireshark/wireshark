@@ -4440,7 +4440,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             }
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
                 flags = tvb_get_guint8(tvb, offset+l+7);
-                if (flags&0x10) {
+                if (flags&0x20) {
                     proto_item_append_text(ti,  " (Node-id)");
                     proto_item_append_text(ti2, " (Node-id)");
                 }
@@ -4485,7 +4485,7 @@ dissect_rsvp_ero_rro_subobjects(proto_tree *ti, proto_tree *rsvp_object_tree,
             }
             if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
                 flags = tvb_get_guint8(tvb, offset+l+19);
-                if (flags&0x10) {
+                if (flags&0x20) {
                     proto_item_append_text(ti,  " (Node-id)");
                     proto_item_append_text(ti2, " (Node-id)");
                 }
@@ -8306,7 +8306,7 @@ proto_register_rsvp(void)
 
         {&hf_rsvp_rro_flags_node_address,
          { "Address Specifies a Node-id Address", "rsvp.rro.flags.node_address",
-           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+           FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
            NULL, HFILL }
         },
 
