@@ -401,19 +401,10 @@ ib_addr_to_str_buf( const address *addr, gchar *buf, int buf_len){
     }
 }
 
-/* XXX FIXME
-remove this one later when every call has been converted to ep_address_to_str()
-*/
-const gchar *
-fc_to_str(const guint8 *ad)
-{
-    return bytestring_to_ep_str (ad, 3, '.');
-}
-
 const gchar *
 tvb_fc_to_str(tvbuff_t *tvb, const gint offset)
 {
-    return bytestring_to_ep_str (tvb_get_ptr(tvb, offset, 3), 3, '.');
+    return bytestring_to_str(wmem_packet_scope(),  tvb_get_ptr(tvb, offset, 3), 3, '.');
 }
 
 /* FC Network Header Network Address Authority Identifiers */

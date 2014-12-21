@@ -1468,7 +1468,6 @@ my @TvbPtrAPIs = (
         # Use the tvb_* version of these:
         'ip_to_str',
         'ip6_to_str',
-        'fc_to_str',
         'fcwwn_to_str',
         # Use tvb_bytes_to_str[_punct] instead of:
         'bytes_to_str',

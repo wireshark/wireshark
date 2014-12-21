@@ -57,7 +57,6 @@ WS_DLL_PUBLIC const gchar*	tvb_ether_to_str(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC const gchar*	ip_to_str(const guint8 *);
 WS_DLL_PUBLIC const gchar*	tvb_ip_to_str(tvbuff_t *tvb, const gint offset);
 void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
-extern const gchar*	fc_to_str(const guint8 *);
 extern gchar*	fcwwn_to_str (const guint8 *);
 WS_DLL_PUBLIC const gchar*	tvb_fc_to_str(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gchar*	tvb_fcwwn_to_str (tvbuff_t *tvb, const gint offset);

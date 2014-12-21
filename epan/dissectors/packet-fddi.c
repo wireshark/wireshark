@@ -464,11 +464,6 @@ proto_register_fddi(void)
 {
   static hf_register_info hf[] = {
 
-    /*
-     * XXX - we want this guy to have his own private formatting
-     * routine, using "fc_to_str()"; if "fc_to_str()" returns
-     * NULL, just show the hex value, else show the string.
-     */
     { &hf_fddi_fc,
       { "Frame Control", "fddi.fc", FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},

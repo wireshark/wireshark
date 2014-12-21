@@ -142,6 +142,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         offset = 0;
     guint8 server;
     fc_ct_preamble cthdr;
+    address addr;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC_CT");
@@ -188,8 +189,9 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         proto_tree_add_item (fcct_tree, hf_fcct_revision, tvb, offset++,
                              sizeof (guint8), ENC_BIG_ENDIAN);
+        SET_ADDRESS(&addr, AT_FC, 3, &in_id);
         proto_tree_add_string (fcct_tree, hf_fcct_inid, tvb, offset, 3,
-                               fc_to_str ((guint8 *)&in_id));
+                               address_to_str(wmem_packet_scope(), &addr));
         offset += 3; /* sizeof FC address */
 
         proto_tree_add_item (fcct_tree, hf_fcct_gstype, tvb, offset++,

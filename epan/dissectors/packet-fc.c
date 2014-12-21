@@ -742,6 +742,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     guint32 frag_id, frag_size;
     guint8 df_ctl, seq_id;
     guint32 f_ctl;
+    address addr;
 
     guint32 param, exchange_key;
     guint16 real_seqcnt;
@@ -954,19 +955,21 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* XXX - use "fc_wka_vals[]" on this? */
+    SET_ADDRESS(&addr, AT_FC, 3, fchdr.d_id.data);
     proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
-                           fc_to_str ((const guint8 *)fchdr.d_id.data));
+                           address_to_str(wmem_packet_scope(), &addr));
     hidden_item = proto_tree_add_string (fc_tree, hf_fc_id, tvb, offset+1, 3,
-                                         fc_to_str ((const guint8 *)fchdr.d_id.data));
+                                         address_to_str(wmem_packet_scope(), &addr));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr.cs_ctl);
 
     /* XXX - use "fc_wka_vals[]" on this? */
+    SET_ADDRESS(&addr, AT_FC, 3, fchdr.s_id.data);
     proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
-                           fc_to_str ((const guint8 *)fchdr.s_id.data));
+                           address_to_str(wmem_packet_scope(), &addr));
     hidden_item = proto_tree_add_string (fc_tree, hf_fc_id, tvb, offset+5, 3,
-                                         fc_to_str ((const guint8 *)fchdr.s_id.data));
+                                         address_to_str(wmem_packet_scope(), &addr));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     if (ftype == FC_FTYPE_LINKCTL) {
