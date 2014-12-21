@@ -1550,7 +1550,7 @@ eth_addr_resolve(hashether_t *tp) {
 
         /* No match whatsoever. */
         SET_ADDRESS(&ether_addr, AT_ETHER, 6, addr);
-        g_snprintf(tp->resolved_name, MAXNAMELEN, "%s", address_to_str(wmem_packet_scope(), &ether_addr));
+        g_snprintf(tp->resolved_name, MAXNAMELEN, "%s", ep_address_to_str(&ether_addr));
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
     }

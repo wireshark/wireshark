@@ -6060,7 +6060,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 			label_fill_descr(label_str, 0, hfinfo,
 				   get_ether_name(bytes),
-				   address_to_str(wmem_packet_scope(), &addr ));
+				   ep_address_to_str( &addr ));
 			break;
 
 		case FT_IPv4:
