@@ -232,6 +232,49 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(a op b)
 
 /*
+ * This is similar to DISSECTOR_ASSERT(hfinfo->type == type) except that
+ * it will report the name of the field with the wrong type as well as
+ * the type.
+ *
+ * @param hfinfo  The hfinfo for the field being tested
+ * @param type    The type it's expected to have
+ */
+#define __DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, t) \
+  (REPORT_DISSECTOR_BUG( \
+    ep_strdup_printf("%s:%u: field %s is not of type "#t, \
+     __FILE__, __LINE__, (hfinfo)->abbrev)))
+
+#define DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, t)  \
+  ((void) (((hfinfo)->type == t) ? (void)0 : \
+   __DISSECTOR_ASSERT_FIELD_TYPE ((hfinfo), t))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT((hfinfo)->type == t)
+
+#define DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo)  \
+  ((void) (((hfinfo)->type == FT_ABSOLUTE_TIME || \
+            (hfinfo)->type == FT_RELATIVE_TIME) ? (void)0 : \
+   __DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME ((hfinfo)))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT((hfinfo)->type == FT_ABSOLUTE_TIME || \
+                                           (hfinfo)->type == FT_RELATIVE_TIME)
+
+#define __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo) \
+  (REPORT_DISSECTOR_BUG( \
+    ep_strdup_printf("%s:%u: field %s is not of type FT_STRING, FT_STRINGZ, or FT_STRINGZPAD", \
+     __FILE__, __LINE__, (hfinfo)->abbrev)))
+
+#define DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo)  \
+  ((void) (((hfinfo)->type == FT_STRING || (hfinfo)->type == FT_STRINGZ || \
+            (hfinfo)->type == FT_STRINGZPAD) ? (void)0 : \
+   __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING ((hfinfo)))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT((hfinfo)->type == FT_STRING || \
+                                           (hfinfo)->type == FT_STRINGZ || \
+                                           (hfinfo)->type == FT_STRINGZPAD)
+
+#define __DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo) \
+  (REPORT_DISSECTOR_BUG( \
+    ep_strdup_printf("%s:%u: field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME", \
+     __FILE__, __LINE__, (hfinfo)->abbrev)))
+
+/*
  * The encoding of a field of a particular type may involve more
  * than just whether it's big-endian or little-endian and its size.
  *
