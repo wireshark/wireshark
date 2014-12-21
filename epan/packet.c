@@ -1812,7 +1812,7 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 
 	/* Make sure the registration is unique */
 	if(g_hash_table_lookup( dissector_tables, name )) {
-		g_error("The filter name %s (%s) is already registered - do you use a buggy plugin?", name, ui_name);
+		g_error("The dissector table %s (%s) is already registered - are you using a buggy plugin?", name, ui_name);
 	}
 
 	/* Create and register the dissector table for this name; returns */
@@ -2210,7 +2210,9 @@ register_heur_dissector_list(const char *name)
 	heur_dissector_list_t sub_dissectors;
 
 	/* Make sure the registration is unique */
-	g_assert(g_hash_table_lookup(heur_dissector_lists, name) == NULL);
+	if (g_hash_table_lookup(heur_dissector_lists, name) != NULL) {
+		g_error("The heuristic dissector list %s is already registered - are you using a buggy plugin?", name);
+	}
 
 	sub_dissectors = g_slice_new(struct heur_dissector_list);
 	sub_dissectors->list = NULL;	/* initially empty */
