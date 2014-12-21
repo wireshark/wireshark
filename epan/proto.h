@@ -137,6 +137,18 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  * @param expression expression to test in the assertion
  */
 
+#define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
+
+#define __DISSECTOR_ASSERT(expression, file, lineno)  \
+  (REPORT_DISSECTOR_BUG( \
+    ep_strdup_printf("%s:%u: failed assertion \"%s\"", \
+     file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
+
+#define __DISSECTOR_ASSERT_HINT(expression, file, lineno, hint)  \
+  (REPORT_DISSECTOR_BUG( \
+    ep_strdup_printf("%s:%u: failed assertion \"%s\" (%s)", \
+     file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression), hint)))
+
 #define DISSECTOR_ASSERT(expression)  \
   ((void) ((expression) ? (void)0 : \
    __DISSECTOR_ASSERT (expression, __FILE__, __LINE__))) \
@@ -218,18 +230,6 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
   (REPORT_DISSECTOR_BUG( \
     ep_strdup_printf("%s:%u: failed assertion "#a" "#op" "#b" ("fmt" "#op" "fmt")", \
      __FILE__, __LINE__, (type)a, (type)b)))
-
-#define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
-
-#define __DISSECTOR_ASSERT(expression, file, lineno)  \
-  (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: failed assertion \"%s\"", \
-     file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
-
-#define __DISSECTOR_ASSERT_HINT(expression, file, lineno, hint)  \
-  (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: failed assertion \"%s\" (%s)", \
-     file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression), hint)))
 
 /*
  * The encoding of a field of a particular type may involve more
