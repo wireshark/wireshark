@@ -438,6 +438,7 @@ sub is_from_other_protocol_whitelist {
 	if (($proto_filename eq "packet-rtcp.c") && (index($_[0], "srtcp") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-rtp.c") && (index($_[0], "srtp") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-dcom-cba-acco.c") && (index($_[0], "cba") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-dcom-cba.c") && (index($_[0], "cba") >= 0)) {return 1;}
 
 	#XXX - HACK to get around nested "s in field name
 	if (($proto_filename eq "packet-gsm_sim.c") && (index($_[0], "e\\") >= 0)) {return 1;}
