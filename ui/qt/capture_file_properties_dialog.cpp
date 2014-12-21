@@ -98,8 +98,6 @@ void CaptureFilePropertiesDialog::updateWidgets()
         if (refresh_bt) {
             refresh_bt->setEnabled(false);
         }
-        ui->detailsTextEdit->clear();
-        ui->commentsTextEdit->clear();
         ui->commentsTextEdit->setReadOnly(true);
         if (save_bt) {
             save_bt->setEnabled(false);
