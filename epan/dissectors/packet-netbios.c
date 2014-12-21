@@ -1062,7 +1062,7 @@ static guint32 (*const dissect_netb[])(tvbuff_t *, packet_info *, int, proto_tre
 
 static heur_dissector_list_t netbios_heur_subdissector_list;
 
-void
+static void
 dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	heur_dtbl_entry_t *hdtbl_entry;

@@ -38,7 +38,5 @@ extern int get_netbios_name(tvbuff_t *tvb, int offset,
 extern const char *netbios_name_type_descr(int name_type);
 extern void netbios_add_name( const char* label, tvbuff_t *tvb, int offset,
     proto_tree *tree);
-extern void dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree);
 
 #endif
