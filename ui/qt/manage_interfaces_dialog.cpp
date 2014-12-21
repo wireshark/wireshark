@@ -548,13 +548,15 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
         monitor_mode = prefs_capture_device_monitor_mode(if_string);
         caps = capture_get_if_capabilities(if_string, monitor_mode, NULL, main_window_update);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
+            address addr_str;
             if (ips != 0) {
                 g_string_append(ip_str, "\n");
             }
             addr = (if_addr_t *)curr_addr->data;
             switch (addr->ifat_type) {
             case IF_AT_IPv4:
-                g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
+                SET_ADDRESS(&addr_str, AT_IPv4, 4, &addr->addr.ip4_addr);
+                g_string_append(ip_str, ep_address_to_str(&addr_str));
                 break;
             case IF_AT_IPv6:
                 g_string_append(ip_str,  ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));

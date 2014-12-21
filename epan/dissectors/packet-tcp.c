@@ -643,8 +643,8 @@ tcp_build_color_filter(packet_info *pinfo)
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* TCP over IPv4 */
         return g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-            ip_to_str( (const guint8 *)pinfo->net_src.data),
-            ip_to_str( (const guint8 *)pinfo->net_dst.data),
+            address_to_str(wmem_packet_scope(), &pinfo->net_src),
+            address_to_str(wmem_packet_scope(), &pinfo->net_dst),
             pinfo->srcport, pinfo->destport );
     }
 
@@ -3505,9 +3505,9 @@ rvbd_probe_decode_version_type(const guint8 vt, guint8 *ver, guint8 *type)
 }
 
 static void
-rvbd_probe_resp_add_info(proto_item *pitem, packet_info *pinfo, guint32 ip, guint16 port)
+rvbd_probe_resp_add_info(proto_item *pitem, packet_info *pinfo, tvbuff_t *tvb, int ip_offset, guint16 port)
 {
-    proto_item_append_text(pitem, ", Server Steelhead: %s:%u", ip_to_str((guint8 *)&ip), port);
+    proto_item_append_text(pitem, ", Server Steelhead: %s:%u", tvb_ip_to_str(tvb, ip_offset), port);
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "SA+, ");
 }
@@ -3568,7 +3568,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                                 offset + PROBE_V1_APPLI_VERSION_OFFSET, 2,
                                 ENC_BIG_ENDIAN);
 
-            proto_item_append_text(pitem, ", CSH IP: %s", ip_to_str((guint8 *)&ip));
+            proto_item_append_text(pitem, ", CSH IP: %s", tvb_ip_to_str(tvb, offset + PROBE_V1_PROBER_OFFSET));
 
             {
                 /* Small look-ahead hack to distinguish S+ from S+* */
@@ -3589,7 +3589,6 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
            break;
 
         case PROBE_RESPONSE:
-            ip = tvb_get_ipv4(tvb, offset + PROBE_V1_PROXY_ADDR_OFFSET);
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy, tvb,
                                 offset + PROBE_V1_PROXY_ADDR_OFFSET, 4, ENC_BIG_ENDIAN);
 
@@ -3597,7 +3596,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy_port, tvb,
                                 offset + PROBE_V1_PROXY_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            rvbd_probe_resp_add_info(pitem, pinfo, ip, port);
+            rvbd_probe_resp_add_info(pitem, pinfo, tvb, offset + PROBE_V1_PROXY_ADDR_OFFSET, port);
             break;
 
         case PROBE_RESPONSE_SH:
@@ -3606,7 +3605,6 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                                 offset + PROBE_V1_SH_CLIENT_ADDR_OFFSET, 4,
                                 ENC_BIG_ENDIAN);
 
-            ip = tvb_get_ipv4(tvb, offset + PROBE_V1_SH_PROXY_ADDR_OFFSET);
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy, tvb,
                                 offset + PROBE_V1_SH_PROXY_ADDR_OFFSET, 4, ENC_BIG_ENDIAN);
 
@@ -3614,7 +3612,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy_port, tvb,
                                 offset + PROBE_V1_SH_PROXY_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
-            rvbd_probe_resp_add_info(pitem, pinfo, ip, port);
+            rvbd_probe_resp_add_info(pitem, pinfo, tvb, offset + PROBE_V1_SH_PROXY_ADDR_OFFSET, port);
             break;
         }
     }
@@ -3786,8 +3784,8 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                         tvb, offset + TRPY_DST_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
     proto_item_append_text(pitem, "%s:%u -> %s:%u",
-                           ip_to_str((guint8 *)&src), sport,
-                           ip_to_str((guint8 *)&dst), dport);
+                           tvb_ip_to_str(tvb, offset + TRPY_SRC_ADDR_OFFSET), sport,
+                           tvb_ip_to_str(tvb, offset + TRPY_DST_ADDR_OFFSET), dport);
 
     /* Client port only set on SYN: optlen == 18 */
     if ((flags & RVBD_FLAGS_TRPY_OOB) && (optlen > TCPOLEN_RVBD_TRPY_MIN))

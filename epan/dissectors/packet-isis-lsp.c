@@ -487,10 +487,10 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 
             if(found_mask) {
               ti = proto_tree_add_ipv4_format_value( tree, hf_isis_lsp_ip_reachability_ipv4_prefix, tvb, offset, 12,
-                src, "%s/%d", ip_to_str((guint8*)&src), prefix_len );
+                src, "%s/%d", tvb_ip_to_str(tvb, offset+4), prefix_len );
             } else {
               ti = proto_tree_add_ipv4_format_value( tree, hf_isis_lsp_ip_reachability_ipv4_prefix, tvb, offset, 12,
-                src, "%s mask %s", ip_to_str((guint8*)&src), tvb_ip_to_str(tvb, offset+8));
+                src, "%s mask %s", tvb_ip_to_str(tvb, offset+4), tvb_ip_to_str(tvb, offset+8));
             };
 
             ntree = proto_item_add_subtree(ti, ett_isis_lsp_clv_ip_reachability);
@@ -592,11 +592,10 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
     guint      bit_length;
     int        byte_length;
     guint8     prefix [4];
+    address    prefix_addr;
     guint      len,i;
     guint      subclvs_len;
     guint      clv_code, clv_len;
-
-    if (!tree) return;
 
     while (length > 0) {
         ctrl_info = tvb_get_guint8(tvb, offset+4);
@@ -615,8 +614,9 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
         subtree = proto_tree_add_subtree(tree, tvb, offset, 5+byte_length+subclvs_len,
                             ett_isis_lsp_part_of_clv_ext_ip_reachability, NULL, "Ext. IP Reachability");
 
+        SET_ADDRESS(&prefix_addr, AT_IPv4, 4, prefix);
         proto_tree_add_ipv4_format_value(subtree, hf_isis_lsp_ext_ip_reachability_ipv4_prefix, tvb, offset+5, byte_length,
-                             tvb_get_ntohl(tvb, offset+5), "%s/%u", ip_to_str (prefix), bit_length);
+                             tvb_get_ntohl(tvb, offset+5), "%s/%u", address_to_str(wmem_packet_scope(), &prefix_addr), bit_length);
         proto_tree_add_item(subtree, hf_isis_lsp_ext_ip_reachability_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_isis_lsp_ext_ip_reachability_distribution, tvb, offset+4, 1, ENC_NA);
 

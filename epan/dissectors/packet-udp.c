@@ -389,8 +389,8 @@ udp_build_color_filter(packet_info *pinfo)
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* UDP over IPv4 */
         return g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-            ip_to_str( (const guint8 *)pinfo->net_src.data),
-            ip_to_str( (const guint8 *)pinfo->net_dst.data),
+            address_to_str(wmem_packet_scope(), &pinfo->net_src),
+            address_to_str(wmem_packet_scope(), &pinfo->net_dst),
             pinfo->srcport, pinfo->destport );
     }
 

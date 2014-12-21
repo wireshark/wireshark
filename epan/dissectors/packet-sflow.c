@@ -321,13 +321,6 @@ struct sflow_address_type {
     int hf_addr_v6;
 };
 
-struct sflow_address_details {
-    int addr_type;              /* ADDR_TYPE_IPV4 | ADDR_TYPE_IPV6 */
-    union {
-        guint8 v4[4];
-        guint8 v6[16];
-    } agent_address;
-};
 
 /* Initialize the protocol and registered fields */
 static int proto_sflow = -1;
@@ -725,7 +718,7 @@ static gint
 dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, gint offset,
                                struct sflow_address_type *hf_type,
-                               struct sflow_address_details *addr_detail) {
+                               address *addr) {
     guint32 addr_type;
     int len;
 
@@ -755,14 +748,13 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
                                      offset - 4, 4, "Unknown address type (%u)", addr_type);
     }
 
-    if (addr_detail) {
-        addr_detail->addr_type = addr_type;
+    if (addr) {
         switch (len) {
         case 4:
-            tvb_memcpy(tvb, addr_detail->agent_address.v4, offset, len);
+            TVB_SET_ADDRESS(addr, AT_IPv4, tvb, offset, len);
             break;
         case 16:
-            tvb_memcpy(tvb, addr_detail->agent_address.v6, offset, len);
+            TVB_SET_ADDRESS(addr, AT_IPv6, tvb, offset, len);
             break;
         }
     }
@@ -2250,7 +2242,8 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item                   *ti;
     proto_tree                   *sflow_245_tree;
     guint32                       version, sub_agent_id, seqnum;
-    struct sflow_address_details  addr_details;
+    address                       addr_details;
+    int                           sflow_addr_type;
     struct sflow_address_type     addr_type;
 
     guint32        numsamples;
@@ -2273,11 +2266,16 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
        /* Unknown version; assume it's not an sFlow packet. */
        return 0;
     }
-    addr_details.addr_type = tvb_get_ntohl(tvb, offset + 4);
-    switch (addr_details.addr_type) {
+    sflow_addr_type = tvb_get_ntohl(tvb, offset + 4);
+    switch (sflow_addr_type) {
         case ADDR_TYPE_UNKNOWN:
+            addr_details.type = AT_NONE;
+            break;
         case ADDR_TYPE_IPV4:
+            addr_details.type = AT_IPv4;
+            break;
         case ADDR_TYPE_IPV6:
+            addr_details.type = AT_IPv6;
             break;
 
         default:
@@ -2302,15 +2300,12 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     offset = dissect_sflow_245_address_type(tvb, pinfo, sflow_245_tree, offset,
                                             &addr_type, &addr_details);
-    switch (addr_details.addr_type) {
+    switch (sflow_addr_type) {
         case ADDR_TYPE_UNKNOWN:
             break;
         case ADDR_TYPE_IPV4:
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", ip_to_str(addr_details.agent_address.v4));
-            break;
         case ADDR_TYPE_IPV6:
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s",
-                    ip6_to_str((struct e_in6_addr *) addr_details.agent_address.v6));
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", agent %s", address_to_str(wmem_packet_scope(), &addr_details));
             break;
     }
 

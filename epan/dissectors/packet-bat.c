@@ -268,13 +268,9 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	if (tree) {
 		proto_item *ti;
 
-		if (PTREE_DATA(tree)->visible) {
-			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE,
+		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE,
 							    "B.A.T.M.A.N., Orig: %s (%s)",
-							    get_hostname(orig), ip_to_str((const guint8 *)batman_packeth->orig.data));
-		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE, ENC_NA);
-		}
+							    get_hostname(orig), address_to_str(wmem_packet_scope(), &batman_packeth->orig));
 		bat_batman_tree = proto_item_add_subtree(ti, ett_bat_batman);
 	}
 
@@ -481,19 +477,15 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
-		     get_hostname(sender_ip), ip_to_str((const guint8 *)vis_packeth->sender_ip.data));
+		     get_hostname(sender_ip), address_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
 
 	/* Set tree info */
 	if (tree) {
 		proto_item *ti;
 
-		if (PTREE_DATA(tree)->visible) {
-			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE,
+		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE,
 							    "B.A.T.M.A.N. Vis, Src: %s (%s)",
-							    get_hostname(sender_ip), ip_to_str((const guint8 *)vis_packeth->sender_ip.data));
-		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE, ENC_NA);
-		}
+							    get_hostname(sender_ip), address_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
 		bat_vis_tree = proto_item_add_subtree(ti, ett_bat_vis);
 
 		/* items */
@@ -562,14 +554,10 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		proto_item *ti;
 		proto_tree *bat_vis_entry_tree;
 
-		if (PTREE_DATA(tree)->visible) {
-			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
+		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
 							    "VIS Entry: [%s] %s (%s)",
 							    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
-							    get_hostname(ip), ip_to_str((const guint8 *)vis_datah->ip.data));
-		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 7, ENC_NA);
-		}
+							    get_hostname(ip), address_to_str(wmem_packet_scope(), &vis_datah->ip));
 		bat_vis_entry_tree = proto_item_add_subtree(ti, ett_bat_vis_entry);
 
 		proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_data_type, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -614,19 +602,15 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
-		     get_hostname(sender_ip), ip_to_str((const guint8 *)vis_packeth->sender_ip.data));
+		     get_hostname(sender_ip), address_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
 
 	/* Set tree info */
 	if (tree) {
 		proto_item *ti;
 
-		if (PTREE_DATA(tree)->visible) {
-			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE,
+		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE,
 							    "B.A.T.M.A.N. Vis, Src: %s (%s)",
-							    get_hostname(sender_ip), ip_to_str((const guint8 *)vis_packeth->sender_ip.data));
-		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE, ENC_NA);
-		}
+							    get_hostname(sender_ip), address_to_str(wmem_packet_scope(), &vis_packeth->sender_ip));
 		bat_vis_tree = proto_item_add_subtree(ti, ett_bat_vis);
 
 		/* items */
@@ -695,14 +679,10 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		proto_item *ti;
 		proto_tree *bat_vis_entry_tree;
 
-		if (PTREE_DATA(tree)->visible) {
-			ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
+		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
 							    "VIS Entry: [%s] %s (%s)",
 							    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
-							    get_hostname(ip), ip_to_str((const guint8 *)vis_datah->ip.data));
-		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 7, ENC_NA);
-		}
+							    get_hostname(ip), address_to_str(wmem_packet_scope(), &vis_datah->ip));
 		bat_vis_entry_tree = proto_item_add_subtree(ti, ett_bat_vis_entry);
 
 		proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_data_type, tvb, 0, 1, ENC_BIG_ENDIAN);

@@ -352,16 +352,14 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 				switch (family) {
 					case WINSOCK_AF_INET: {
 						guint16 port;
-						guint32	addr;
 
 						port = tvb_get_ntohs(tvb,offset+2);
 						proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
-						tvb, offset+2,2,port);
-						addr = tvb_get_ipv4(tvb,offset+4);
-						proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
-						tvb, offset+4,4,addr);
+											tvb, offset+2,2,port);
+						proto_tree_add_item(sockaddr_tree, hf_dtpt_sockaddr_address,
+											tvb, offset+4,4,ENC_BIG_ENDIAN);
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+8, 8, ENC_NA);
-						proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&addr), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(tvb,offset+4), port);
 					}
 					break;
 				}
@@ -376,17 +374,15 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 				switch (family) {
 					case WINSOCK_AF_INET: {
 						guint16 port;
-						guint32	addr;
 
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+4, 4, ENC_NA);
 						port = tvb_get_ntohs(tvb,offset+8);
 						proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
 							tvb, offset+8,2,port);
-						addr = tvb_get_ipv4(tvb,offset+10);
-						proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
-							tvb, offset+10,4,addr);
+						proto_tree_add_item(sockaddr_tree, hf_dtpt_sockaddr_address,
+							tvb, offset+10,4,ENC_BIG_ENDIAN);
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+14, 16, ENC_NA);
-						proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&addr), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(tvb,offset+10), port);
 					}
 					break;
 				}

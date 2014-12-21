@@ -1001,10 +1001,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
                     {
                         const gchar *ipstr;
+                        address addr;
                         guint32 ip;
                         guint16 port;
                         ip = tvb_get_ipv4(tvb, offset+4) ^ g_htonl(magic_cookie_first_word);
-                        ipstr = ip_to_str((guint8*)&ip);
+                        SET_ADDRESS(&addr, AT_IPv4, 4, &ip);
+                        ipstr = address_to_str(wmem_packet_scope(), &addr);
                         port = tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16);
                         proto_item_append_text(att_tree, ": %s:%d", ipstr, port);
                         col_append_fstr(

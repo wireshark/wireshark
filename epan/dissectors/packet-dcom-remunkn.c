@@ -180,7 +180,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
         /* add interface instance to database (we currently only handle IPv4) */
         if(pinfo->net_src.type == AT_IPv4) {
             dcom_interface_new(pinfo,
-                               (guint8 *)pinfo->net_src.data,
+                               &pinfo->net_src,
                                &iid, oxid, oid, &ipid);
         }
 

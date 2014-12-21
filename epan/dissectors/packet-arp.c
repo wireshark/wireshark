@@ -379,20 +379,20 @@ tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
 static const gchar *
 arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
 {
+  address addr;
+
   if (ad_len == 0)
     return "<No address>";
   if (ARP_PRO_IS_IPv4(type, ad_len)) {
     /* IPv4 address.  */
-    return ip_to_str(ad);
+    SET_ADDRESS(&addr, AT_IPv4, 4, ad);
+
+    return address_to_str(wmem_packet_scope(), &addr);
   }
   if (ARP_HW_IS_AX25(type, ad_len)) {
     {
     /* AX.25 address */
-    address addr;
-
-    addr.type = AT_AX25;
-    addr.len  = AX25_ADDR_LEN;
-    addr.data = ad;
+    SET_ADDRESS(&addr, AT_AX25, AX25_ADDR_LEN, ad);
 
     return address_to_str(wmem_packet_scope(), &addr);
     }

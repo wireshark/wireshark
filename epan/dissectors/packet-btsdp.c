@@ -2280,8 +2280,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             switch (attribute) {
                 case 0x306:
                     proto_tree_add_item(next_tree, hf_wap_network_address, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    value = tvb_get_ntohl(tvb, offset);
-                    wmem_strbuf_append(info_buf, ip_to_str((guint8 *)&value));
+                    wmem_strbuf_append(info_buf, tvb_ip_to_str(tvb, offset));
                     break;
                 case 0x307:
                     proto_tree_add_item(next_tree, hf_wap_gateway, tvb, offset, 1, ENC_BIG_ENDIAN);

@@ -596,7 +596,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv4_value(
 
     ip = tvb_get_ipv4(tvb, offset);
     hostname = get_hostname(ip);
-    ip_str = ip_to_str((guint8 *)&ip);
+    ip_str = tvb_ip_to_str(tvb, offset);
 
     proto_tree_add_ipv4_format(
         tree, hf_value,
@@ -1563,7 +1563,7 @@ static void wimaxasncp_dissect_tlv_value(
 
                     proto_item_append_text(
                         item, " - %s (%s)",
-                        get_hostname(ip), ip_to_str((guint8 *)&ip));
+                        get_hostname(ip), tvb_ip_to_str(tvb, offset));
 
                     offset += 4;
 
@@ -1574,13 +1574,12 @@ static void wimaxasncp_dissect_tlv_value(
 
                     ip = tvb_get_ipv4(tvb, offset);
 
-                    s = ip_to_str((guint8 *)&ip);
+                    s = tvb_ip_to_str(tvb, offset);
 
-                    proto_tree_add_ipv4_format_value(
+                    proto_tree_add_item(
                         ip_address_mask_tree,
                         tlv_info->hf_ipv4_mask,
-                        tvb, offset, 4, ip,
-                        "%s", s);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
 
                     proto_item_append_text(
                         item, " / %s", s);

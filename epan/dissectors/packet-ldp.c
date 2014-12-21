@@ -897,18 +897,6 @@ static const true_false_string tlv_upstr_sbit_vals = {
 #define PW_PSN_PW_INGRESS_RECV_FAULT    0x8
 #define PW_PSN_PW_EGRESS_TRANS_FAULT    0x10
 
-/* Define storage class for a string handler function
- * with a const guint8 * argument, and returning a const gchar *
- */
-typedef const gchar *(string_handler_func)(const guint8 *);
-
-/* Default handler for address to string conversion */
-static const gchar *
-default_str_handler(const guint8 * bytes _U_)
-{
-    return "<Support for this Address Family not implemented>";
-}
-
 static void
 dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, int *interface_parameters_hf[]);
 
@@ -968,9 +956,10 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
     guint16     op_length = tvb_get_bits16(tvb, ((offset+8)*8), 16, ENC_BIG_ENDIAN);
     guint8      addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
     guint8      intparam_len, aai_type = 0;
-    string_handler_func *str_handler = default_str_handler;
     const char *str;
     guint8 gen_fec_id_len = 0;
+    address_type addr_type;
+    address      addr_str;
 
     val_tree=proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_tlv_val, NULL, "FEC Elements");
 
@@ -998,11 +987,11 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             switch(family) {
             case AFNUM_INET: /*IPv4*/
                 addr_size=4;
-                str_handler=ip_to_str;
+                addr_type = AT_IPv4;
                 break;
             case AFNUM_INET6: /*IPv6*/
                 addr_size=16;
-                str_handler = (string_handler_func *) ip6_to_str;
+                addr_type = AT_IPv6;
                 break;
             default:
                 implemented=0;
@@ -1053,7 +1042,8 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             if ( prefix_len % 8 )
                 addr[ax-1] = addr[ax-1]&(0xFF<<(8-prefix_len%8));
 
-            str = str_handler((const guint8 *)addr);
+            SET_ADDRESS(&addr_str, addr_type, addr_size, addr);
+            str = address_to_str(wmem_packet_scope(), &addr_str);
             proto_tree_add_string_format(fec_tree, hf_ldp_tlv_fec_pfval, tvb, offset, prefix_len_octets,
                                          str, "Prefix: %s", str);
 
@@ -1073,11 +1063,11 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             switch(family) {
             case AFNUM_INET: /*IPv4*/
                 addr_size=4;
-                str_handler=ip_to_str;
+                addr_type = AT_IPv4;
                 break;
             case AFNUM_INET6: /*IPv6*/
                 addr_size=16;
-                str_handler = (string_handler_func *) ip6_to_str;
+                addr_type = AT_IPv6;
                 break;
             default:
                 implemented=0;
@@ -1125,7 +1115,8 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             for(ax=0; ax+1 <= host_len; ax++)
                 addr[ax]=tvb_get_guint8(tvb, offset+ax);
 
-            str = str_handler((const guint8 *)addr);
+            SET_ADDRESS(&addr_str, addr_type, addr_size, addr);
+            str = address_to_str(wmem_packet_scope(), &addr_str);
             proto_tree_add_string_format(fec_tree, hf_ldp_tlv_fec_hoval, tvb, offset, host_len,
                                          str, "Address: %s", str);
 
@@ -1373,8 +1364,9 @@ dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
     proto_tree *val_tree;
     guint16     family, ix;
     guint8      addr_size, *addr;
-    string_handler_func *str_handler = default_str_handler;
     const char *str;
+    address_type addr_type;
+    address      addr_str;
 
     if ( rem < 2 ) {
         proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem,
@@ -1389,11 +1381,11 @@ dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
     switch(family) {
     case AFNUM_INET: /*IPv4*/
         addr_size=4;
-        str_handler=ip_to_str;
+        addr_type = AT_IPv4;
         break;
     case AFNUM_INET6: /*IPv6*/
         addr_size=16;
-        str_handler = (string_handler_func *) ip6_to_str;
+        addr_type = AT_IPv6;
         break;
     default:
         proto_tree_add_expert(tree, pinfo, &ei_ldp_address_family_not_implemented, tvb, offset+2, rem-2);
@@ -1411,7 +1403,8 @@ dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
              == NULL)
             break;
 
-        str = str_handler((const guint8 *)addr);
+        SET_ADDRESS(&addr_str, addr_type, addr_size, addr);
+        str = address_to_str(wmem_packet_scope(), &addr_str);
         proto_tree_add_string_format(val_tree,
                                      hf_ldp_tlv_addrl_addr, tvb, offset, addr_size, str,
                                      "Address %u: %s", ix, str);
@@ -1436,7 +1429,7 @@ dissect_tlv_path_vector(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_t
         proto_tree_add_ipv4_format(val_tree,
                                    hf_ldp_tlv_pv_lsrid, tvb, offset, 4,
                                    addr, "LSR Id %u: %s", ix,
-                                   ip_to_str((guint8 *)&addr));
+                                   tvb_ip_to_str(tvb, offset));
     }
     if (rem)
         proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing TLV: Extra data at end of path vector");

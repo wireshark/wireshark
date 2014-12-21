@@ -593,7 +593,6 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 {
 	proto_tree* tree;
 	guint16 num;
-	guint32 maddr;
 	int offset;
 	unsigned char type;
 
@@ -610,12 +609,11 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 	/* group address */
 	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-	maddr = tvb_get_ipv4(tvb, offset);
-	if (! maddr) {
+	if (!tvb_get_ipv4(tvb, offset)) {
 		col_append_str(pinfo->cinfo, COL_INFO, ", general");
 	} else {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s",
-			ip_to_str((guint8*)&maddr));
+			tvb_ip_to_str(tvb, offset));
 	}
 	offset +=4;
 
@@ -648,7 +646,6 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 {
 	proto_tree* tree;
 	guint8 tsecs;
-	guint32 maddr;
 	int offset;
 	unsigned char type;
 
@@ -667,20 +664,19 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	/* group address */
 	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-	maddr = tvb_get_ipv4(tvb, offset);
-	if (! maddr) {
+	if (! tvb_get_ipv4(tvb, offset)) {
 		col_append_str(pinfo->cinfo, COL_INFO, ", general");
 	} else {
 		switch(type)
 		{
 		case IGMP_V2_LEAVE_GROUP:
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", ip_to_str((guint8*)&maddr));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_ip_to_str(tvb, offset));
 			break;
 		case IGMP_V1_HOST_MEMBERSHIP_QUERY:
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s", ip_to_str((guint8*)&maddr));
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s", tvb_ip_to_str(tvb, offset));
 			break;
 		default: /* IGMP_V2_MEMBERSHIP_REPORT is the only case left */
-			col_append_fstr(pinfo->cinfo, COL_INFO, " group %s", ip_to_str((guint8*)&maddr));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " group %s", tvb_ip_to_str(tvb, offset));
 			break;
 		}
 	}

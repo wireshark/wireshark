@@ -166,7 +166,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			guint32 len;
 			unsigned char *ptr;
 
-			host=ip_to_str((const guint8 *)pinfo->dst.data);
+			host=address_to_str(wmem_packet_scope(), &pinfo->dst);
 			len=tvb_get_ntohl(tvb, offset);
 			if (len >= ITEM_LABEL_LENGTH)
 				THROW(ReportedBoundsError);

@@ -742,7 +742,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ip6_to_str@Base 1.9.1
  ip_checksum@Base 1.99.0
  ip_checksum_tvb@Base 1.99.0
- ip_to_str@Base 1.9.1
  ipopt_type_class_vals@Base 1.9.1
  ipopt_type_number_vals@Base 1.9.1
  ipprotostr@Base 1.9.1

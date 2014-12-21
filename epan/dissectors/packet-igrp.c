@@ -157,6 +157,7 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network)
 {
   guint8 *ptr_addr,addr[5];
+  address ip_addr;
 
   addr[0]=network;
   addr[1]=tvb_get_guint8(tvb,0);
@@ -167,8 +168,9 @@ static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, gu
   ptr_addr=addr;
   if (network==0) ptr_addr=&addr[1];
 
+  SET_ADDRESS(&ip_addr, AT_IPv4, 4, ptr_addr);
   igrp_vektor_tree = proto_tree_add_subtree_format(igrp_vektor_tree, tvb, 0 ,14,
-                                                   ett_igrp_net, NULL, "Entry for network %s", ip_to_str(ptr_addr));
+                                                   ett_igrp_net, NULL, "Entry for network %s", address_to_str(wmem_packet_scope(), &ip_addr));
   proto_tree_add_ipv4(igrp_vektor_tree, hf_igrp_network, tvb, 0, 3, *((guint32*)ptr_addr));
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_delay, tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(igrp_vektor_tree, hf_igrp_bandwidth, tvb, 6, 3, ENC_BIG_ENDIAN);

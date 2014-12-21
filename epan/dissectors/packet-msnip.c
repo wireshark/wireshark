@@ -96,7 +96,6 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		proto_tree *tree;
 		proto_item *item;
 		guint8 rec_type;
-		guint32 maddr;
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_groups,
@@ -112,14 +111,12 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		offset += 3;
 
 		/* multicast group */
-		maddr = tvb_get_ipv4(tvb, offset);
-		proto_tree_add_ipv4(tree, hf_maddr, tvb, offset, 4,
-			maddr);
+		proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		if (item) {
 			proto_item_set_text(item,"Group: %s %s",
-				ip_to_str((guint8 *)&maddr),
+				tvb_ip_to_str(tvb, offset-4),
 				val_to_str(rec_type, msnip_rec_types,
 					"Unknown Type:0x%02x"));
 
@@ -174,7 +171,6 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	while (count--) {
 		proto_tree *tree;
 		proto_item *item;
-		guint32 maddr;
 		guint8 masklen;
 		int old_offset = offset;
 
@@ -183,9 +179,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		tree = proto_item_add_subtree(item, ett_groups);
 
 		/* multicast group */
-		maddr = tvb_get_ipv4(tvb, offset);
-		proto_tree_add_ipv4(tree, hf_maddr, tvb, offset, 4,
-			maddr);
+		proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* mask length */
@@ -199,7 +193,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 
 		if (item) {
 			proto_item_set_text(item,"Group: %s/%d",
-				ip_to_str((guint8 *)&maddr), masklen);
+				tvb_ip_to_str(tvb, offset - 8), masklen);
 
 			proto_item_set_len(item, offset-old_offset);
 		}

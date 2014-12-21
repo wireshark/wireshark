@@ -548,8 +548,8 @@ static gchar*
 ip_build_color_filter(packet_info *pinfo)
 {
     return g_strdup_printf("ip.addr eq %s and ip.addr eq %s",
-                ip_to_str( (const guint8 *)pinfo->net_src.data),
-                ip_to_str( (const guint8 *)pinfo->net_dst.data));
+                address_to_str(wmem_packet_scope(), &pinfo->net_src),
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst));
 }
 
 /*
@@ -1167,7 +1167,7 @@ dissect_option_route(proto_tree *tree, tvbuff_t *tvb, int offset, int hf,
   if (next)
     proto_tree_add_ipv4_format_value(tree, hf, tvb, offset, 4, route,
                                      "%s <- (next)",
-                                     ip_to_str((gchar *)&route));
+                                     tvb_ip_to_str(tvb, offset));
   else
     proto_tree_add_ipv4(tree, hf, tvb, offset, 4, route);
   ti = proto_tree_add_string(tree, hf_host, tvb, offset, 4, get_hostname(route));
@@ -2234,7 +2234,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     src_host = get_hostname(addr);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Src: %s (%s)", src_host,
-                             ip_to_str((const guint8 *)iph->ip_src.data));
+                             address_to_str(wmem_packet_scope(), &iph->ip_src));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
     item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
@@ -2302,10 +2302,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       cur_rt = tvb_get_ipv4(tvb, offset + 16);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst: %s (%s)", dst_host,
-                             ip_to_str((const guint8 *)iph->ip_dst.data));
+                             address_to_str(wmem_packet_scope(), &iph->ip_dst));
       if (dst_off)
         proto_item_append_text(ti, ", Via: %s (%s)", get_hostname(cur_rt),
-                               ip_to_str((gchar *)&cur_rt));
+                               tvb_ip_to_str(tvb, offset + 16));
     }
 
     if (dst_off) {

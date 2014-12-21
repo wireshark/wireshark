@@ -4161,7 +4161,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	guchar             oct;
 	struct e_in6_addr  ipv6_addrx;
 	int                link_dir;
-	guint32            ipv4_addrx;
 	proto_item        *pco_item;
 	proto_tree        *pco_tree;
 
@@ -4259,9 +4258,8 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x000C:
 			case 0x000D:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
-					ipv4_addrx = tvb_get_ipv4(tvb, curr_offset);
 					proto_tree_add_text(pco_tree, tvb, curr_offset, 4, "IPv4: %s",
-										ip_to_str((guint8 *)&ipv4_addrx));
+										tvb_ip_to_str(tvb, curr_offset));
 				}
 				break;
 			case 0x000E:

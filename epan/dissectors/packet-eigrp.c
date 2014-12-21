@@ -1072,15 +1072,18 @@ dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
             addr_len = 4; /* assure we can exit the loop */
 
         } else {
+            address addr;
+
             proto_tree_add_item(tree, hf_eigrp_ipv4_prefixlen, tvb, offset, 1,
                                 ENC_BIG_ENDIAN);
             offset += 1;
+            SET_ADDRESS(&addr, AT_IPv4, 4, ip_addr);
             ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len,
-                                         "Destination: %s", ip_to_str(ip_addr));
+                                         "Destination: %s", address_to_str(wmem_packet_scope(), &addr));
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',
-                                   ip_to_str(ip_addr), length);
+                                   address_to_str(wmem_packet_scope(), &addr), length);
 
             if (unreachable) {
                 expert_add_info(pinfo, ti_dst, &ei_eigrp_unreachable);

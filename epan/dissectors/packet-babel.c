@@ -104,10 +104,18 @@ static const unsigned char v4prefix[16] =
 static const char *
 format_address(const unsigned char *prefix)
 {
+    address addr;
+
     if (prefix == NULL)
         return "corrupt";
     else if (memcmp(prefix, v4prefix, 12) == 0)
-        return ip_to_str(prefix + 12);
+    {
+        addr.type = AT_IPv4;
+        addr.len  = 4;
+        addr.data = prefix + 12;
+
+        return address_to_str(wmem_packet_scope(), &addr);
+    }
     else
         return ip6_to_str((const struct e_in6_addr*)prefix);
 }

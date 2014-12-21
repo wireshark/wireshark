@@ -263,7 +263,7 @@ void dcom_interface_dump(void) {
 
 	for(machines = dcom_machines; machines != NULL; machines = g_list_next(machines)) {
 		machine = (dcom_machine_t *)machines->data;
-		g_warning("Machine(#%4u): IP:%s", machine->first_packet, ip_to_str(machine->ip));
+		g_warning("Machine(#%4u): IP:%s", machine->first_packet, address_to_str(wmem_packet_scope(), &machine->ip));
 
 		for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
 			object = (dcom_object_t *)objects->data;
@@ -280,7 +280,7 @@ void dcom_interface_dump(void) {
 }
 #endif
 
-dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const guint8 *ip _U_, e_uuid_t *ipid)
+dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const address *addr _U_, e_uuid_t *ipid)
 {
 	dcom_interface_t *interf;
 	GList *interfaces;
@@ -303,7 +303,7 @@ dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const guint8 *ip _
 }
 
 
-dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid)
+dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid)
 {
 	GList *dcom_iter;
 	dcom_machine_t *machine;
@@ -335,7 +335,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uui
 	dcom_iter = dcom_machines;
 	while(dcom_iter != NULL) {
 		machine = (dcom_machine_t *)dcom_iter->data;
-		if(memcmp(machine->ip, ip, 4) == 0) {
+		if(CMP_ADDRESS(&machine->ip, addr) == 0) {
 			break;
 		}
 		dcom_iter = g_list_next(dcom_iter);
@@ -344,7 +344,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uui
 	/* create new machine if not found */
 	if(dcom_iter == NULL) {
 		machine = g_new(dcom_machine_t,1);
-		memcpy(machine->ip, ip, 4);
+		COPY_ADDRESS(&machine->ip, addr);
 		machine->objects = NULL;
 		machine->first_packet = pinfo->fd->num;
 		dcom_machines = g_list_append(dcom_machines, machine);
@@ -1816,9 +1816,13 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					first_ip = curr_ip;
 				} else {
 					if(first_ip != curr_ip) {
+						address first_ip_addr, curr_ip_addr;
+
+						SET_ADDRESS(&first_ip_addr, AT_IPv4, 4, &first_ip);
+						SET_ADDRESS(&curr_ip_addr, AT_IPv4, 4, &curr_ip);
 						expert_add_info_format(pinfo, pi, &ei_dcom_dualstringarray_mult_ip,
 								       "DUALSTRINGARRAY: multiple IP's %s %s",
-								       ip_to_str( (guint8 *) &first_ip), ip_to_str( (guint8 *) &curr_ip));
+								       address_to_str(wmem_packet_scope(), &first_ip_addr), address_to_str(wmem_packet_scope(), &curr_ip_addr));
 					}
 				}
 			}
@@ -2072,8 +2076,11 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	if(u32Flags == 0x1 || u32Flags == 0x2) {
 		/* add interface instance to database (we currently only handle IPv4) */
 		if(pinfo->net_src.type == AT_IPv4) {
+			address addr;
+
+			SET_ADDRESS(&addr, AT_IPv4, 4, ip);
 			dcom_if = dcom_interface_new(pinfo,
-						     (guint8 *) ip,
+						     &addr,
 						     &iid, oxid, oid, &ipid);
 		}
 	}
@@ -2170,6 +2177,7 @@ static void dcom_reinit( void) {
 					objects->data = NULL; /* for good measure */
 				}
 				g_list_free(machine->objects);
+				g_free((void*)machine->ip.data);
 				machine->objects = NULL; /* for good measure */
 			}
 

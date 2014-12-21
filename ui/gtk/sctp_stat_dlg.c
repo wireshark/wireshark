@@ -462,58 +462,67 @@ sctp_stat_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 		GList   *srclist, *dstlist;
 		struct sockaddr_in *infosrc;
 		struct sockaddr_in *infodst;
+		address addr;
 
 		srclist = g_list_first(selected_stream->addr1);
 		infosrc = (struct sockaddr_in *)(srclist->data);
+		SET_ADDRESS(&addr, AT_IPv4, 4, &(infosrc->sin_addr.s_addr));
 		gstring = g_string_new(g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && (ip.src==%s",
 			selected_stream->port1, selected_stream->port2,
-			ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr))));
+			ep_address_to_str(&addr)));
 		srclist= g_list_next(srclist);
 
 		while (srclist)
 		{
 			infosrc = (struct sockaddr_in *)(srclist->data);
-			str = g_strdup_printf("|| ip.src==%s",ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
+			SET_ADDRESS(&addr, AT_IPv4, 4, &(infosrc->sin_addr.s_addr));
+			str = g_strdup_printf("|| ip.src==%s", ep_address_to_str(&addr));
 			g_string_append(gstring, str);
 			srclist = g_list_next(srclist);
 		}
 		dstlist = g_list_first(selected_stream->addr2);
 		infodst = (struct sockaddr_in *)(dstlist->data);
-		str = g_strdup_printf(") && (ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+		SET_ADDRESS(&addr, AT_IPv4, 4, &(infodst->sin_addr.s_addr));
+		str = g_strdup_printf(") && (ip.dst==%s", ep_address_to_str(&addr));
 		g_string_append(gstring, str);
 		dstlist = g_list_next(dstlist);
 		while (dstlist)
 		{
 			infodst = (struct sockaddr_in *)(dstlist->data);
-			str = g_strdup_printf("|| ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+			SET_ADDRESS(&addr, AT_IPv4, 4, &(infodst->sin_addr.s_addr));
+			str = g_strdup_printf("|| ip.dst==%s", ep_address_to_str(&addr));
 			g_string_append(gstring, str);
 			dstlist = g_list_next(dstlist);
 		}
 		srclist = g_list_first(selected_stream->addr1);
 		infosrc = (struct sockaddr_in *)(srclist->data);
+		SET_ADDRESS(&addr, AT_IPv4, 4, &(infosrc->sin_addr.s_addr));
 		str = g_strdup_printf(")) || (sctp.dstport==%u && sctp.srcport==%u && (ip.dst==%s",
 			selected_stream->port1, selected_stream->port2,
-			ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
+			ep_address_to_str(&addr));
 		g_string_append(gstring, str);
 		srclist = g_list_next(srclist);
 
 		while (srclist)
 		{
 			infosrc = (struct sockaddr_in *)(srclist->data);
-			str = g_strdup_printf("|| ip.dst==%s",ip_to_str((const guint8 *)&(infosrc->sin_addr.s_addr)));
+			SET_ADDRESS(&addr, AT_IPv4, 4, &(infosrc->sin_addr.s_addr));
+			str = g_strdup_printf("|| ip.dst==%s", ep_address_to_str(&addr));
 			g_string_append(gstring, str);
 			srclist= g_list_next(srclist);
 		}
 
 		dstlist = g_list_first(selected_stream->addr2);
 		infodst = (struct sockaddr_in *)(dstlist->data);
-		str = g_strdup_printf(") && (ip.src==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+		SET_ADDRESS(&addr, AT_IPv4, 4, &(infodst->sin_addr.s_addr));
+		str = g_strdup_printf(") && (ip.src==%s", ep_address_to_str(&addr));
 		g_string_append(gstring, str);
 		dstlist = g_list_next(dstlist);
 		while (dstlist)
 		{
 			infodst = (struct sockaddr_in *)(dstlist->data);
-			str = g_strdup_printf("|| ip.src==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
+			SET_ADDRESS(&addr, AT_IPv4, 4, &(infodst->sin_addr.s_addr));
+			str = g_strdup_printf("|| ip.src==%s", ep_address_to_str(&addr));
 			g_string_append(gstring, str);
 			dstlist = g_list_next(dstlist);
 		}

@@ -1104,7 +1104,6 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint16 tempShort;
 	guint32 dataLen = 0;
 	const char *strPtr=NULL;
-	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
 
@@ -1177,15 +1176,14 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		switch(addr_family){
 		case AFNUM_INET:
 			if (dataLen == 6){
-				ip_addr = tvb_get_ipv4(tvb, offset);
-				strPtr = ip_to_str((guint8 *)&ip_addr);
+				strPtr = tvb_ip_to_str(tvb, offset);
 			}else{
 				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
 					"Invalid Chassis ID Length (%u) for Type (%s, %s), expected (6)", dataLen, val_to_str_const(tlvsubType, chassis_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
 				return -1;
 			}
 
-			proto_tree_add_ipv4(chassis_tree, hf_chassis_id_ip4, tvb, offset, 4, ip_addr);
+			proto_tree_add_item(chassis_tree, hf_chassis_id_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 			break;
 		case AFNUM_INET6:
@@ -1264,7 +1262,6 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	guint16 tempShort;
 	guint32 dataLen = 0;
 	const char *strPtr=NULL;
-	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
 
@@ -1333,15 +1330,14 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		switch(addr_family){
 		case AFNUM_INET:
 			if (dataLen == 6){
-				ip_addr = tvb_get_ipv4(tvb, offset);
-				strPtr = ip_to_str((guint8 *)&ip_addr);
+				strPtr = tvb_ip_to_str(tvb, offset);
 			}else{
 				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
 					"Invalid Port ID Length (%u) for Type (%s, %s), expected (6)", dataLen, val_to_str_const(tlvsubType, port_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
 				return -1;
 			}
 
-			proto_tree_add_ipv4(port_tree, hf_port_id_ip4, tvb, offset, 4, ip_addr);
+			proto_tree_add_item(port_tree, hf_port_id_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 			break;
 		case AFNUM_INET6:

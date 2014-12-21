@@ -131,7 +131,7 @@ void SCTPAssocAnalyseDialog::fillTabs()
             store = (address *)(list->data);
             if (store->type != AT_NONE) {
                 if (store->type == AT_IPv4) {
-                    ui->listWidgetEP1->addItem(QString("%1").arg(ip_to_str((const guint8 *)(store->data))));
+                    ui->listWidgetEP1->addItem(QString("%1").arg(ep_address_to_str(store)));
                 } else if (store->type == AT_IPv6) {
                     ui->listWidgetEP1->addItem(QString("%1").arg(ip6_to_str((const struct e_in6_addr *)(store->data))));
                 }
@@ -185,7 +185,7 @@ void SCTPAssocAnalyseDialog::fillTabs()
             store = (address *)(list->data);
             if (store->type != AT_NONE) {
                 if (store->type == AT_IPv4) {
-                    ui->listWidgetEP2->addItem(QString("%1").arg(ip_to_str((const guint8 *)(store->data))));
+                    ui->listWidgetEP2->addItem(QString("%1").arg(ep_address_to_str(store)));
                 } else if (store->type == AT_IPv6) {
                     ui->listWidgetEP2->addItem(QString("%1").arg(ip6_to_str((const struct e_in6_addr *)(store->data))));
                 }

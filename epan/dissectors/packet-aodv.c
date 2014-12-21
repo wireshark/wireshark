@@ -202,10 +202,10 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     guint8             flags;
     guint8             hop_count;
     guint32            rreq_id;
-    guint32            dest_addr_v4;
+    const gchar       *dest_addr_v4;
     struct e_in6_addr  dest_addr_v6;
     guint32            dest_seqno;
-    guint32            orig_addr_v4;
+    const gchar       *orig_addr_v4;
     struct e_in6_addr  orig_addr_v6;
     guint32            orig_seqno;
     int                extlen;
@@ -255,15 +255,13 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                         ip6_to_str(&dest_addr_v6));
         offset += INET6_ADDRLEN;
     } else {
-        dest_addr_v4 = tvb_get_ipv4(tvb, offset);
+        dest_addr_v4 = tvb_ip_to_str(tvb, offset);
         if (aodv_tree) {
-            proto_tree_add_ipv4(aodv_tree, hf_aodv_dest_ip, tvb, offset, 4,
-                                dest_addr_v4);
-            proto_item_append_text(ti, ", Dest IP: %s",
-                                   ip_to_str((guint8 *)&dest_addr_v4));
+            proto_tree_add_item(aodv_tree, hf_aodv_dest_ip, tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            proto_item_append_text(ti, ", Dest IP: %s", dest_addr_v4);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s",
-                        ip_to_str((guint8 *)&dest_addr_v4));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s", dest_addr_v4);
         offset += 4;
     }
 
@@ -284,15 +282,13 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                     ip6_to_str(&orig_addr_v6));
         offset += INET6_ADDRLEN;
     } else {
-        orig_addr_v4 = tvb_get_ipv4(tvb, offset);
+        orig_addr_v4 = tvb_ip_to_str(tvb, offset);
         if (aodv_tree) {
-            proto_tree_add_ipv4(aodv_tree, hf_aodv_orig_ip, tvb, offset, 4,
-                                orig_addr_v4);
-            proto_item_append_text(ti, ", Orig IP: %s",
-                                   ip_to_str((guint8 *)&orig_addr_v4));
+            proto_tree_add_item(aodv_tree, hf_aodv_orig_ip, tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            proto_item_append_text(ti, ", Orig IP: %s", orig_addr_v4);
         }
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s",
-                    ip_to_str((guint8 *)&orig_addr_v4));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s", orig_addr_v4);
         offset += 4;
     }
 
@@ -320,10 +316,10 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     guint8             flags;
     guint8             prefix_sz;
     guint8             hop_count;
-    guint32            dest_addr_v4;
+    const gchar       *dest_addr_v4;
     struct e_in6_addr  dest_addr_v6;
     guint32            dest_seqno;
-    guint32            orig_addr_v4;
+    const gchar       *orig_addr_v4;
     struct e_in6_addr  orig_addr_v6;
     guint32            lifetime;
     int                extlen;
@@ -367,15 +363,13 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                         ip6_to_str(&dest_addr_v6));
         offset += INET6_ADDRLEN;
     } else {
-        dest_addr_v4 = tvb_get_ipv4(tvb, offset);
+        dest_addr_v4 = tvb_ip_to_str(tvb, offset);
         if (aodv_tree) {
-            proto_tree_add_ipv4(aodv_tree, hf_aodv_dest_ip, tvb, offset, 4,
-                                dest_addr_v4);
-            proto_item_append_text(ti, ", Dest IP: %s",
-                                   ip_to_str((guint8 *)&dest_addr_v4));
+            proto_tree_add_item(aodv_tree, hf_aodv_dest_ip, tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            proto_item_append_text(ti, ", Dest IP: %s", dest_addr_v4);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s",
-                        ip_to_str((guint8 *)&dest_addr_v4));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s", dest_addr_v4);
         offset += 4;
     }
 
@@ -397,15 +391,13 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
                         ip6_to_str(&orig_addr_v6));
         offset += INET6_ADDRLEN;
     } else {
-        orig_addr_v4 = tvb_get_ipv4(tvb, offset);
+        orig_addr_v4 = tvb_ip_to_str(tvb, offset);
         if (aodv_tree) {
-            proto_tree_add_ipv4(aodv_tree, hf_aodv_orig_ip, tvb, offset, 4,
-                                orig_addr_v4);
-            proto_item_append_text(ti, ", Orig IP: %s",
-                                   ip_to_str((guint8 *)&orig_addr_v4));
+            proto_tree_add_item(aodv_tree, hf_aodv_orig_ip, tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
+            proto_item_append_text(ti, ", Orig IP: %s", orig_addr_v4);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s",
-                        ip_to_str((guint8 *)&orig_addr_v4));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s", orig_addr_v4);
         offset += 4;
     }
 

@@ -1167,7 +1167,7 @@ static void
 dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, guint16 length, guint16 num,
                   proto_tree *tree)
 {
-    guint32     tlvt, tlvl, ip_addr;
+    guint32     tlvt, tlvl;
     proto_tree *etree = NULL;
     char const *ttext = NULL;
 
@@ -1196,11 +1196,10 @@ dissect_nrgyz_tlv(tvbuff_t *tvb, packet_info* pinfo, int offset, guint16 length,
                     );
                 break;
             case TYPE_NRGYZ_REPLYTO:
-                ip_addr = tvb_get_ipv4(tvb, offset + 12);
                 etree  = proto_tree_add_subtree_format(tree, tvb, offset,
                                          tlvl, ett_cdp_nrgyz_tlv, NULL, "EnergyWise %s: %s port %u",
                                          ttext,
-                                         ip_to_str((guint8 *)&ip_addr),
+                                         tvb_ip_to_str(tvb, offset + 12),
                                          tvb_get_ntohs(tvb, offset + 10)
                     );
                 break;

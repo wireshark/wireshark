@@ -606,11 +606,10 @@ dissect_device_remote_func(tvbuff_t *tvb,
                            packet_info *pinfo,
                            proto_tree *tree, void* data _U_)
 {
-    guint32 addr, port;
+    guint32 port;
     const gchar *addrstr;
 
-    addr   = tvb_get_ipv4(tvb, offset);
-    addrstr = ip_to_str((guint8 *)&addr);
+    addrstr = tvb_ip_to_str(tvb, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_vxi11_core_host_addr, offset);
 
     port   = tvb_get_ntohl(tvb, offset);

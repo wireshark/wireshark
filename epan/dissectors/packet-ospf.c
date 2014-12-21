@@ -2247,7 +2247,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
             proto_tree_add_item(tlv_tree, hf_ospf_v2_grace_ip, tvb, offset + 4,
                                 tlv_length, ENC_BIG_ENDIAN);
             proto_item_set_text(tree_item, "Restart IP: %s (%s)",
-                                get_hostname(restart_ip), ip_to_str((guint8 *)&restart_ip));
+                                get_hostname(restart_ip), tvb_ip_to_str(tvb, offset + 4));
             break;
         default:
             proto_item_set_text(tree_item, "Unknown grace-LSA TLV");

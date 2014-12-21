@@ -83,19 +83,6 @@ tvb_ether_to_str(tvbuff_t *tvb, const gint offset)
     return bytestring_to_ep_str(tvb_get_ptr(tvb, offset, 6), 6, ':');
 }
 
-/*
- This function is very fast and this function is called a lot.
- XXX update the ep_address_to_str stuff to use this function.
-*/
-const gchar *
-ip_to_str(const guint8 *ad) {
-    gchar *buf;
-
-    buf=(gchar *)ep_alloc(MAX_IP_STR_LEN);
-    ip_to_str_buf(ad, buf, MAX_IP_STR_LEN);
-    return buf;
-}
-
 #define IPV4_LENGTH 4
 const gchar *
 tvb_ip_to_str(tvbuff_t *tvb, const gint offset)

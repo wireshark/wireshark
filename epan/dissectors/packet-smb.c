@@ -987,9 +987,9 @@ const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 		if (	cmd == SMB_COM_READ_ANDX ||
 			cmd == SMB_COM_READ ||
 			cmd == SMB2_COM_READ) {
-			buf = ip_to_str((const guint8 *)pinfo->src.data);
+			buf = address_to_str(wmem_packet_scope(), &pinfo->src);
 		} else {
-			buf = ip_to_str((const guint8 *)pinfo->dst.data);
+			buf = address_to_str(wmem_packet_scope(), &pinfo->dst);
 		}
 	} else {
 		if (	cmd == SMB_COM_READ_ANDX ||

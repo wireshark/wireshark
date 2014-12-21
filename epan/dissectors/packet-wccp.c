@@ -752,7 +752,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    hf_cache_ip, tvb, offset, 4,
                                    ipaddr,
                                    "Web Cache %d IP Address: %s", i,
-                                   ip_to_str((guint8 *)&ipaddr));
+                                   tvb_ip_to_str(tvb, offset));
         offset += 4;
       }
       for (i = 0; i < 256; i += 4) {

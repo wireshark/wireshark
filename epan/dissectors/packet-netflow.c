@@ -6226,10 +6226,12 @@ static const gchar   *
 getprefix(const guint32 *addr, int prefix)
 {
     guint32 gprefix;
+    address prefix_addr;
 
     gprefix = *addr & g_htonl((0xffffffff << (32 - prefix)));
 
-    return (ip_to_str((const guint8 *)&gprefix));
+    SET_ADDRESS(&prefix_addr, AT_IPv4, 4, &gprefix);
+    return address_to_str(wmem_packet_scope(), &prefix_addr);
 }
 
 /* Called whenever a new capture is loaded, a complete redissection is done, a pref is changed, & etc */

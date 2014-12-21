@@ -4352,9 +4352,9 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 				case FT_IPv4:
 					ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
 					n_addr = ipv4_get_net_order_addr(ipv4);
-					offset_r += protoo_strlcpy(result+offset_r,
-								ip_to_str((guint8 *)&n_addr),
-								size-offset_r);
+					SET_ADDRESS (&addr, AT_IPv4, 4, &n_addr);
+					address_to_str_buf(&addr, result+offset_r, size-offset_r);
+					offset_r = (int)strlen(result);
 					break;
 
 				case FT_IPv6:
@@ -6063,9 +6063,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_IPv4:
 			ipv4 = (ipv4_addr *)fvalue_get(&fi->value);
 			n_addr = ipv4_get_net_order_addr(ipv4);
+
+			addr.type = AT_IPv4;
+			addr.len  = 4;
+			addr.data = &n_addr;
+
 			label_fill_descr(label_str, 0, hfinfo,
 				   get_hostname(n_addr),
-				   ip_to_str((guint8*)&n_addr));
+				   ep_address_to_str(&addr ));
 			break;
 
 		case FT_IPv6:

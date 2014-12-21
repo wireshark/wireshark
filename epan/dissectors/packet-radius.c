@@ -366,7 +366,7 @@ static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, p
 		proto_tree_add_ipv4_format_value(tree, hf_radius_framed_ip_address,
 					   tvb, 0, len, ip, "%s", str);
 	} else {
-		str = ip_to_str((guint8 *)&ip);
+		str = tvb_ip_to_str(tvb, 0);
 		proto_tree_add_ipv4_format_value(tree, hf_radius_framed_ip_address,
 					   tvb, 0, len, ip, "%s (%s)",
 					   get_hostname(ip), str);
@@ -397,7 +397,7 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packe
 		proto_tree_add_ipv4_format_value(tree, hf_radius_login_ip_host,
 					   tvb, 0, len, ip, "%s", str);
 	} else {
-		str = ip_to_str((guint8 *)&ip);
+		str = tvb_ip_to_str(tvb, 0);
 		proto_tree_add_ipv4_format_value(tree, hf_radius_login_ip_host,
 					   tvb, 0, len, ip, "%s (%s)",
 					   get_hostname(ip), str);
@@ -447,7 +447,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	srcportq=tvb_get_guint8(tvb, 20);
 
 	if (srcip || srclen || srcportq) {
-		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", ip_to_str((guint8 *) &srcip), srclen);
+		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", tvb_ip_to_str(tvb, 4), srclen);
 		if (srcportq)
 			wmem_strbuf_append_printf(filterstr, " srcport %s %d",
 				val_to_str(srcportq, ascenddf_portq, "%u"), srcport);
@@ -459,7 +459,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	dstportq=tvb_get_guint8(tvb, 21);
 
 	if (dstip || dstlen || dstportq) {
-		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", ip_to_str((guint8 *) &dstip), dstlen);
+		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", tvb_ip_to_str(tvb, 8), dstlen);
 		if (dstportq)
 			wmem_strbuf_append_printf(filterstr, " dstport %s %d",
 				val_to_str(dstportq, ascenddf_portq, "%u"), dstport);

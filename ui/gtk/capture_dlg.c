@@ -1218,6 +1218,7 @@ insert_new_rows(GList *list)
   GtkTreeView       *if_cb;
   GtkTreeModel      *model;
   link_row          *linkr     = NULL;
+  address           addr_str;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
@@ -1289,7 +1290,8 @@ insert_new_rows(GList *list)
 
       switch (addr->ifat_type) {
         case IF_AT_IPv4:
-          g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
+          SET_ADDRESS(&addr_str, AT_IPv4, 4, &addr->addr.ip4_addr);
+          g_string_append(ip_str, ep_address_to_str(&addr_str));
           break;
         case IF_AT_IPv6:
           g_string_append(ip_str,  ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));

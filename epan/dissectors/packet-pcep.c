@@ -1221,7 +1221,6 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
 {
     proto_tree *pcep_subobj_unnumb_interfaceID;
     proto_item *ti;
-    guint32     router_ID;
     guint32     interface_ID;
 
     ti = proto_tree_add_item(pcep_subobj_tree, hf_PCEPF_SUBOBJ_UNNUM_INTERFACEID, tvb, offset, length, ENC_NA);
@@ -1233,9 +1232,8 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, packet_info *pin
         return;
     }
 
-    router_ID = tvb_get_ipv4(tvb, offset+4);
     interface_ID = tvb_get_ntohl(tvb, offset+8);
-    proto_item_append_text(ti, ": %s:%u", ip_to_str ((guint8 *) &router_ID),
+    proto_item_append_text(ti, ": %s:%u", tvb_ip_to_str (tvb, offset+4),
                            interface_ID);
 
     switch (obj_class) {

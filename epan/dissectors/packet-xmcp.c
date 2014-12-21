@@ -637,11 +637,9 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       if (attr_length != 8) {
         expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv4 address");
       } else {
-        guint32 ip;
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv4, tvb,
                             (offset+4), 4, ENC_BIG_ENDIAN);
-        ip = tvb_get_ipv4(tvb, (offset+4));
-        proto_item_append_text(attr_tree, ": %s:%u", ip_to_str((guint8 *)&ip),
+        proto_item_append_text(attr_tree, ": %s:%u", tvb_ip_to_str(tvb, offset+4),
                                tvb_get_ntohs(tvb, (offset+2)));
       }
       break;

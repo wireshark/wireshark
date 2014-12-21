@@ -106,7 +106,6 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_item *ti;
 	guint8	version, type;
 	guint16	id, cport;
-	guint32	caddr, saddr;
 
 	static const int * tpcp_flags[] = {
 		&hf_tpcp_flags_tcp,
@@ -144,10 +143,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	proto_tree_add_uint_format_value(tpcp_tree, hf_tpcp_cport, tvb, 6, 2, cport,
 					 "%s", ep_udp_port_to_display(cport));
 
-	caddr = tvb_get_ntohl(tvb, 8);
 	proto_tree_add_item(tpcp_tree, hf_tpcp_caddr, tvb, 8, 4, ENC_BIG_ENDIAN);
-
-	saddr = tvb_get_ntohl(tvb, 12);
 	proto_tree_add_item(tpcp_tree, hf_tpcp_saddr, tvb, 12, 4, ENC_BIG_ENDIAN);
 
 	if (version == TPCP_VER_2) {
@@ -160,8 +156,8 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			val_to_str_const(type, type_vals, "Unknown"),
 			id,
 			ep_udp_port_to_display(cport),
-			ip_to_str((guint8 *)&caddr),
-			ip_to_str((guint8 *)&saddr));
+			tvb_ip_to_str(tvb, 8),
+			tvb_ip_to_str(tvb, 12));
 
 	if (version == TPCP_VER_1)
 		return TPCP_VER_1_LENGTH;

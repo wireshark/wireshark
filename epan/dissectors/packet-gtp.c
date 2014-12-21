@@ -3906,7 +3906,6 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     guint16            length;
     guint8             pdp_typ, pdp_org;
-    guint32            addr_ipv4;
     struct e_in6_addr  addr_ipv6;
     proto_tree        *ext_tree_user;
     proto_item        *te;
@@ -3934,9 +3933,8 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     } else if (length > 2) {
         switch (pdp_typ) {
         case 0x21:
-            addr_ipv4 = tvb_get_ipv4(tvb, offset + 5);
-            proto_tree_add_ipv4(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, addr_ipv4);
-            proto_item_append_text(te, " : %s", ip_to_str((guint8 *) & addr_ipv4));
+            proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(te, " : %s", tvb_ip_to_str(tvb, offset + 5));
             break;
         case 0x57:
             tvb_get_ipv6(tvb, offset + 5, &addr_ipv6);
@@ -3944,11 +3942,10 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
             proto_item_append_text(te, " : %s", ip6_to_str((struct e_in6_addr *) &addr_ipv6));
             break;
         case 0x8d:
-            addr_ipv4 = tvb_get_ipv4(tvb, offset + 5);
-            proto_tree_add_ipv4(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, addr_ipv4);
+            proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
             tvb_get_ipv6(tvb, offset + 9, &addr_ipv6);
             proto_tree_add_ipv6(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 16, (guint8 *) & addr_ipv6);
-            proto_item_append_text(te, " : %s / %s", ip_to_str((guint8 *) & addr_ipv4),
+            proto_item_append_text(te, " : %s / %s", tvb_ip_to_str(tvb, offset + 5),
                                    ip6_to_str((struct e_in6_addr *) &addr_ipv6));
             break;
         }
@@ -5006,7 +5003,6 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 
     guint8             addr_type, addr_len;
     guint16            length;
-    guint32            addr_ipv4;
     struct e_in6_addr  addr_ipv6;
     proto_tree        *ext_tree_gsn_addr;
     proto_item        *te;
@@ -5018,9 +5014,8 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     switch (length) {
     case 4:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
-        addr_ipv4 = tvb_get_ipv4(tvb, offset + 3);
-        proto_item_append_text(te, "%s", ip_to_str((guint8 *) & addr_ipv4));
-        proto_tree_add_ipv4(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 3, 4, addr_ipv4);
+        proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 3));
         break;
     case 5:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_information_element_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
@@ -5028,9 +5023,8 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
         proto_tree_add_uint(ext_tree_gsn_addr, hf_gtp_gsn_addr_type, tvb, offset + 3, 1, addr_type);
         addr_len = tvb_get_guint8(tvb, offset + 3) & 0x3F;
         proto_tree_add_uint(ext_tree_gsn_addr, hf_gtp_gsn_addr_len, tvb, offset + 3, 1, addr_len);
-        addr_ipv4 = tvb_get_ipv4(tvb, offset + 4);
-        proto_item_append_text(te, "%s", ip_to_str((guint8 *) & addr_ipv4));
-        proto_tree_add_ipv4(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 4, 4, addr_ipv4);
+        proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 4));
         break;
     case 16:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
@@ -5044,7 +5038,7 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
         proto_tree_add_uint(ext_tree_gsn_addr, hf_gtp_gsn_addr_type, tvb, offset + 3, 1, addr_type);
         addr_len = tvb_get_guint8(tvb, offset + 3) & 0x3F;
         proto_tree_add_uint(ext_tree_gsn_addr, hf_gtp_gsn_addr_len, tvb, offset + 3, 1, addr_len);
-        tvb_get_ipv6(tvb, offset + 4, &addr_ipv6);
+            tvb_get_ipv6(tvb, offset + 4, &addr_ipv6);
         proto_item_append_text(te, "%s", ip6_to_str((struct e_in6_addr *) &addr_ipv6));
         proto_tree_add_ipv6(ext_tree_gsn_addr, hf_gtp_gsn_ipv6, tvb, offset + 4, 16, (guint8 *) & addr_ipv6);
         break;
@@ -5146,7 +5140,7 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
     guint16            length, port1, port2, tos;
     guint8             tft_flags, tft_code, no_packet_filters, i, pf_eval, pf_len, pf_content_id, proto;
     guint              pf_offset;
-    guint32            mask_ipv4, addr_ipv4, ipsec_id, label;
+    guint32            ipsec_id, label;
     struct e_in6_addr  addr_ipv6, mask_ipv6;
     proto_tree        *ext_tree_tft, *ext_tree_tft_pf, *ext_tree_tft_flags;
     proto_item        *tee, *pf_item;
@@ -5193,10 +5187,8 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
                 switch (pf_content_id) {
                     /* address IPv4 and mask = 8 bytes */
                 case 0x10:
-                    addr_ipv4 = tvb_get_ipv4(tvb, offset + pf_offset + 1);
-                    mask_ipv4 = tvb_get_ipv4(tvb, offset + pf_offset + 5);
-                    proto_item_set_text(pf_item, "ID 0x10: IPv4/mask: %s/%s", ip_to_str((guint8 *) & addr_ipv4),
-                                        ip_to_str((guint8 *) & mask_ipv4));
+                    proto_item_set_text(pf_item, "ID 0x10: IPv4/mask: %s/%s", tvb_ip_to_str(tvb, offset + pf_offset + 1),
+                                        tvb_ip_to_str(tvb, offset + pf_offset + 5));
                     proto_item_set_len(pf_item, 9);
                     pf_offset += 9;
                     break;
@@ -5468,7 +5460,6 @@ decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 {
 
     guint16            length;
-    guint32            addr_ipv4;
     struct e_in6_addr  addr_ipv6;
     proto_tree        *ext_tree_chrg_addr;
     proto_item        *te;
@@ -5482,9 +5473,8 @@ decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     switch (length) {
     case 4:
-        addr_ipv4 = tvb_get_ipv4(tvb, offset + 3);
-        proto_item_append_text(te, "%s", ip_to_str((guint8 *) & addr_ipv4));
-        proto_tree_add_ipv4(ext_tree_chrg_addr, hf_gtp_chrg_ipv4, tvb, offset + 3, 4, addr_ipv4);
+        proto_tree_add_item(ext_tree_chrg_addr, hf_gtp_chrg_ipv4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 3));
         break;
     case 16:
         tvb_get_ipv6(tvb, offset + 3, &addr_ipv6);
@@ -7794,7 +7784,6 @@ decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 {
 
     guint16            length;
-    guint32            addr_ipv4;
     struct e_in6_addr  addr_ipv6;
     proto_tree        *ext_tree_node_addr;
     proto_item        *te;
@@ -7808,9 +7797,8 @@ decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     switch (length) {
     case 4:
-        addr_ipv4 = tvb_get_ipv4(tvb, offset + 3);
-        proto_item_append_text(te, "%s", ip_to_str((guint8 *) & addr_ipv4));
-        proto_tree_add_ipv4(ext_tree_node_addr, hf_gtp_node_ipv4, tvb, offset + 3, 4, addr_ipv4);
+        proto_tree_add_item(ext_tree_node_addr, hf_gtp_node_ipv4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 3));
         break;
     case 16:
         tvb_get_ipv6(tvb, offset + 3, &addr_ipv6);

@@ -354,28 +354,28 @@ cba_build_color_filter(packet_info *pinfo)
         switch(GPOINTER_TO_UINT(profinet_type)) {
         case 1:
             return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
-                ip_to_str( (const guint8 *)pinfo->net_dst.data),
-                ip_to_str( (const guint8 *)pinfo->net_src.data),
-                ip_to_str( (const guint8 *)pinfo->net_src.data),
-                ip_to_str( (const guint8 *)pinfo->net_dst.data));
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst),
+                address_to_str(wmem_packet_scope(), &pinfo->net_src),
+                address_to_str(wmem_packet_scope(), &pinfo->net_src),
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst));
         case 2:
             return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
-                ip_to_str( (const guint8 *)pinfo->net_src.data),
-                ip_to_str( (const guint8 *)pinfo->net_dst.data),
-                ip_to_str( (const guint8 *)pinfo->net_dst.data),
-                ip_to_str( (const guint8 *)pinfo->net_src.data));
+                address_to_str(wmem_packet_scope(), &pinfo->net_src),
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst),
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst),
+                address_to_str(wmem_packet_scope(), &pinfo->net_src));
         case 3:
             return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
-                ip_to_str( (const guint8 *)pinfo->net_dst.data),
-                ip_to_str( (const guint8 *)pinfo->net_src.data),
-                ip_to_str( (const guint8 *)pinfo->net_src.data),
-                ip_to_str( (const guint8 *)pinfo->net_dst.data));
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst),
+                address_to_str(wmem_packet_scope(), &pinfo->net_src),
+                address_to_str(wmem_packet_scope(), &pinfo->net_src),
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst));
         case 4:
             return g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
-                ip_to_str( (const guint8 *)pinfo->net_src.data),
-                ip_to_str( (const guint8 *)pinfo->net_dst.data),
-                ip_to_str( (const guint8 *)pinfo->net_dst.data),
-                ip_to_str( (const guint8 *)pinfo->net_src.data));
+                address_to_str(wmem_packet_scope(), &pinfo->net_src),
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst),
+                address_to_str(wmem_packet_scope(), &pinfo->net_dst),
+                address_to_str(wmem_packet_scope(), &pinfo->net_src));
         default:
             return NULL;
         }
@@ -420,11 +420,13 @@ cba_object_dump(void)
     cba_pdev_t  *pdev;
     cba_ldev_t  *ldev;
     cba_frame_t *frame;
+    address     addr;
 
 
     for(pdevs = cba_pdevs; pdevs != NULL; pdevs = g_list_next(pdevs)) {
         pdev = pdevs->data;
-        g_warning("PDev #%5u: %s IFs:%u", pdev->first_packet, ip_to_str(pdev->ip),
+        SET_ADDRESS(&addr, AT_IPv4, 4, pdev->ip);
+        g_warning("PDev #%5u: %s IFs:%u", pdev->first_packet, address_to_str(wmem_packet_scope(), &addr),
             pdev->object ? g_list_length(pdev->object->interfaces) : 0);
 
         for(ldevs = pdev->ldevs; ldevs != NULL; ldevs = g_list_next(ldevs)) {
@@ -465,22 +467,22 @@ cba_object_dump(void)
 
 
 cba_pdev_t *
-cba_pdev_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid)
+cba_pdev_find(packet_info *pinfo, const address *addr, e_uuid_t *ipid)
 {
     cba_pdev_t       *pdev;
     dcom_interface_t *interf;
 
 
-    interf = dcom_interface_find(pinfo, ip, ipid);
+    interf = dcom_interface_find(pinfo, addr, ipid);
     if (interf != NULL) {
         pdev = (cba_pdev_t *)interf->parent->private_data;
         if (pdev == NULL) {
             expert_add_info_format(pinfo, NULL, &ei_cba_acco_pdev_find, "pdev_find: no pdev for IP:%s IPID:%s",
-                ip_to_str(ip), guids_resolve_uuid_to_str(ipid));
+                address_to_str(wmem_packet_scope(), addr), guids_resolve_uuid_to_str(ipid));
         }
     } else {
         expert_add_info_format(pinfo, NULL, &ei_cba_acco_pdev_find_unknown_interface, "pdev_find: unknown interface of IP:%s IPID:%s",
-            ip_to_str(ip), guids_resolve_uuid_to_str(ipid));
+            address_to_str(wmem_packet_scope(), addr), guids_resolve_uuid_to_str(ipid));
         pdev = NULL;
     }
 
@@ -489,7 +491,7 @@ cba_pdev_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid)
 
 
 cba_pdev_t *
-cba_pdev_add(packet_info *pinfo, const guint8 *ip)
+cba_pdev_add(packet_info *pinfo, const address *addr)
 {
     GList      *cba_iter;
     cba_pdev_t *pdev;
@@ -498,14 +500,14 @@ cba_pdev_add(packet_info *pinfo, const guint8 *ip)
     /* find pdev */
     for(cba_iter = cba_pdevs; cba_iter != NULL; cba_iter = g_list_next(cba_iter)) {
         pdev = (cba_pdev_t *)cba_iter->data;
-        if (memcmp(pdev->ip, ip, 4) == 0) {
+        if (memcmp(pdev->ip, addr->data, 4) == 0) {
             return pdev;
         }
     }
 
     /* not found, create a new */
     pdev = (cba_pdev_t *)wmem_alloc(wmem_file_scope(), sizeof(cba_pdev_t));
-    memcpy( (void *) (pdev->ip), ip, 4);
+    memcpy( (void *) (pdev->ip), addr->data, 4);
     pdev->first_packet = pinfo->fd->num;
     pdev->ldevs        = NULL;
     pdev->object       = NULL;
@@ -589,12 +591,12 @@ cba_ldev_add(packet_info *pinfo, cba_pdev_t *pdev, const char *name)
 
 
 cba_ldev_t *
-cba_ldev_find(packet_info *pinfo, const void *ip, e_uuid_t *ipid) {
+cba_ldev_find(packet_info *pinfo, const address *addr, e_uuid_t *ipid) {
     dcom_interface_t *interf;
     cba_ldev_t       *ldev;
 
 
-    interf = dcom_interface_find(pinfo, (const guint8 *)ip, ipid);
+    interf = dcom_interface_find(pinfo, addr, ipid);
     if (interf != NULL) {
         ldev = (cba_ldev_t *)interf->private_data;
 
@@ -603,11 +605,11 @@ cba_ldev_find(packet_info *pinfo, const void *ip, e_uuid_t *ipid) {
         }
         if (ldev == NULL) {
             expert_add_info_format(pinfo, NULL, &ei_cba_acco_ldev_unknown, "Unknown LDev of %s",
-                ip_to_str((const guint8 *)ip));
+                address_to_str(wmem_packet_scope(), addr));
         }
     } else {
         expert_add_info_format(pinfo, NULL, &ei_cba_acco_ipid_unknown, "Unknown IPID of %s",
-            ip_to_str((const guint8 *)ip));
+            address_to_str(wmem_packet_scope(), addr));
         ldev = NULL;
     }
 
@@ -623,6 +625,7 @@ cba_acco_add(packet_info *pinfo, const char *acco)
     guint32     ip;
     cba_pdev_t *pdev;
     cba_ldev_t *ldev;
+    address    addr;
 
 
     ip_str = g_strdup(acco);
@@ -638,7 +641,8 @@ cba_acco_add(packet_info *pinfo, const char *acco)
         return NULL;
     }
 
-    pdev = cba_pdev_add(pinfo, (guint8 *) &ip);
+    SET_ADDRESS(&addr, AT_IPv4, 4, &ip);
+    pdev = cba_pdev_add(pinfo, &addr);
     delim++;
 
     ldev = cba_ldev_add(pinfo, pdev, delim);
@@ -1298,7 +1302,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
     /* get corresponding provider ldev */
-    prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
@@ -1450,7 +1454,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
     /* get corresponding provider ldev */
-    prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
@@ -1724,7 +1728,7 @@ dissect_ICBAAccoServer_Disconnect_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, di, drep,
                         &u32ArraySize);
 
-    prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     /* link connection infos to the call */
     if (prov_ldev != NULL) {
@@ -1873,7 +1877,7 @@ dissect_ICBAAccoServer_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
     /* get corresponding provider ldev */
-    prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
@@ -1944,7 +1948,7 @@ dissect_ICBAAccoServerSRT_DisconnectMe_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
     /* get corresponding provider ldev */
-    prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
@@ -2160,7 +2164,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
     /* get corresponding provider ldev */
-    prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
@@ -2390,7 +2394,7 @@ dissect_ICBAAccoServerSRT_DisconnectCR_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
     /* get corresponding provider ldev */
-    prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
@@ -2525,7 +2529,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
     /* get corresponding provider ldev */
-    prov_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    prov_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_srt_call, tvb, offset, 0, TRUE);
     PROTO_ITEM_SET_GENERATED(item);
@@ -3240,7 +3244,7 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
 
     /* get corresponding provider ldev */
-    cons_ldev = cba_ldev_find(pinfo, pinfo->net_dst.data, &di->call_data->object_uuid);
+    cons_ldev = cba_ldev_find(pinfo, &pinfo->net_dst, &di->call_data->object_uuid);
 
     item = proto_tree_add_boolean (tree, hf_cba_acco_dcom_call, tvb, offset, 0, FALSE);
     PROTO_ITEM_SET_GENERATED(item);

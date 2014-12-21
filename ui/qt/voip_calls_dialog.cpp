@@ -405,7 +405,7 @@ void VoipCallsDialog::prepareFilter()
                         h245_add = (h245_address_t *)listb->data;
                         g_string_append_printf(filter_string_fwd,
                             " || (ip.addr == %s && tcp.port == %d && h245)",
-                            ip_to_str((guint8 *)(h245_add->h245_address.data)), h245_add->h245_port);
+                            ep_address_to_str(&h245_add->h245_address), h245_add->h245_port);
                         listb = g_list_next(listb);
                     }
                     g_string_append_printf(filter_string_fwd, ")");

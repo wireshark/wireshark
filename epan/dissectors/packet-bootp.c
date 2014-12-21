@@ -4932,7 +4932,6 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 {
 	int	      suboptoff	    = optoff;
 	guint8	      subopt, subopt_len;
-	guint32	      ipv4addr;
 	guint8	      prov_type, fetch_tgt, timer_val;
 	guint16	      sec_tcm;
 	proto_tree   *pkt_s_tree;
@@ -4964,9 +4963,8 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 			expert_add_info(pinfo, vti, &ei_bootp_missing_subopt_value);
 			return (optend);
 		}
-		ipv4addr = tvb_get_ipv4(tvb, suboptoff);
 		proto_item_append_text(vti, "%s (%u byte%s%s)",
-				       ip_to_str((guint8 *)&ipv4addr),
+				       tvb_ip_to_str(tvb, suboptoff),
 				       subopt_len,
 				       plurality(subopt_len, "", "s"),
 				       subopt_len != 4 ? " [Invalid]" : "");
@@ -4993,9 +4991,8 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				expert_add_info(pinfo, vti, &ei_bootp_missing_subopt_value);
 				return (optend);
 			}
-			ipv4addr = tvb_get_ipv4(tvb, suboptoff);
 			proto_item_append_text(vti, "%s (%u byte%s%s)",
-					       ip_to_str((guint8 *)&ipv4addr),
+					       tvb_ip_to_str(tvb, suboptoff),
 					       subopt_len,
 					       plurality(subopt_len, "", "s"),
 					       subopt_len != 5 ? " [Invalid]" : "");
