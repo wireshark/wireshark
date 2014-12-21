@@ -254,7 +254,7 @@ main(int argc, char *argv[])
   struct wtap_pkthdr *phdr, snap_phdr;
   wtap_dumper        *pdh;
   int                 open_err, read_err = 0, write_err, close_err;
-  gchar              *err_info, *write_err_info;
+  gchar              *err_info, *write_err_info = NULL;
   int                 err_fileno;
   char               *out_filename       = NULL;
   gboolean            got_read_error     = FALSE, got_write_error = FALSE;

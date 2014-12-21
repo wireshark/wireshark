@@ -1249,7 +1249,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   int              out_fd;
   wtap_dumper     *pdh;
   int              open_err, read_err, write_err, close_err;
-  gchar           *err_info, *write_err_info;
+  gchar           *err_info, *write_err_info = NULL;
   int              err_fileno;
   int              i;
   gboolean         got_read_error     = FALSE, got_write_error = FALSE;
