@@ -203,10 +203,10 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     guint8             hop_count;
     guint32            rreq_id;
     const gchar       *dest_addr_v4;
-    struct e_in6_addr  dest_addr_v6;
+    const gchar       *dest_addr_v6;
     guint32            dest_seqno;
     const gchar       *orig_addr_v4;
-    struct e_in6_addr  orig_addr_v6;
+    const gchar       *orig_addr_v6;
     guint32            orig_seqno;
     int                extlen;
     static const int * aodv_flags[] = {
@@ -244,15 +244,13 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 4;
 
     if (is_ipv6) {
-        tvb_get_ipv6(tvb, offset, &dest_addr_v6);
+        dest_addr_v6 = tvb_ip6_to_str(tvb, offset);
         if (aodv_tree) {
-            proto_tree_add_ipv6(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
-                                INET6_ADDRLEN, (guint8 *)&dest_addr_v6);
-            proto_item_append_text(ti, ", Dest IP: %s",
-                                   ip6_to_str(&dest_addr_v6));
+            proto_tree_add_item(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
+                                INET6_ADDRLEN, ENC_NA);
+            proto_item_append_text(ti, ", Dest IP: %s", dest_addr_v6);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s",
-                        ip6_to_str(&dest_addr_v6));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s", dest_addr_v6);
         offset += INET6_ADDRLEN;
     } else {
         dest_addr_v4 = tvb_ip_to_str(tvb, offset);
@@ -271,15 +269,13 @@ dissect_aodv_rreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 4;
 
     if (is_ipv6) {
-        tvb_get_ipv6(tvb, offset, &orig_addr_v6);
+        orig_addr_v6 = tvb_ip6_to_str(tvb, offset);
         if (aodv_tree) {
-            proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
-                                INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
-            proto_item_append_text(ti, ", Orig IP: %s",
-                                   ip6_to_str(&orig_addr_v6));
+            proto_tree_add_item(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
+                                INET6_ADDRLEN, ENC_NA);
+            proto_item_append_text(ti, ", Orig IP: %s", orig_addr_v6);
         }
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s",
-                    ip6_to_str(&orig_addr_v6));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s", orig_addr_v6);
         offset += INET6_ADDRLEN;
     } else {
         orig_addr_v4 = tvb_ip_to_str(tvb, offset);
@@ -317,10 +313,10 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     guint8             prefix_sz;
     guint8             hop_count;
     const gchar       *dest_addr_v4;
-    struct e_in6_addr  dest_addr_v6;
+    const gchar       *dest_addr_v6;
     guint32            dest_seqno;
     const gchar       *orig_addr_v4;
-    struct e_in6_addr  orig_addr_v6;
+    const gchar       *orig_addr_v6;
     guint32            lifetime;
     int                extlen;
     static const int * aodv_flags[] = {
@@ -351,16 +347,14 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 1;
 
     if (is_ipv6) {
-        tvb_get_ipv6(tvb, offset, &dest_addr_v6);
+        dest_addr_v6 = tvb_ip6_to_str(tvb, offset);
         if (aodv_tree) {
-            proto_tree_add_ipv6(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
-                                INET6_ADDRLEN, (guint8 *)&dest_addr_v6);
-            proto_item_append_text(ti, ", Dest IP: %s",
-                                   ip6_to_str(&dest_addr_v6));
+            proto_tree_add_item(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
+                                INET6_ADDRLEN, ENC_NA);
+            proto_item_append_text(ti, ", Dest IP: %s", dest_addr_v6);
         }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s",
-                        ip6_to_str(&dest_addr_v6));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s", dest_addr_v6);
         offset += INET6_ADDRLEN;
     } else {
         dest_addr_v4 = tvb_ip_to_str(tvb, offset);
@@ -380,15 +374,13 @@ dissect_aodv_rrep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
     offset += 4;
 
     if (is_ipv6) {
-        tvb_get_ipv6(tvb, offset, &orig_addr_v6);
+        orig_addr_v6 = tvb_ip6_to_str(tvb, offset);
         if (aodv_tree) {
-            proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
-                                INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
-            proto_item_append_text(ti, ", Orig IP: %s",
-                                   ip6_to_str(&orig_addr_v6));
+            proto_tree_add_item(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
+                                INET6_ADDRLEN, ENC_NA);
+            proto_item_append_text(ti, ", Orig IP: %s", orig_addr_v6);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s",
-                        ip6_to_str(&orig_addr_v6));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s", orig_addr_v6);
         offset += INET6_ADDRLEN;
     } else {
         orig_addr_v4 = tvb_ip_to_str(tvb, offset);
@@ -487,8 +479,8 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
     guint32            rreq_id;
     guint32            dest_seqno;
     guint32            orig_seqno;
-    struct e_in6_addr  dest_addr_v6;
-    struct e_in6_addr  orig_addr_v6;
+    const gchar       *dest_addr_v6;
+    const gchar       *orig_addr_v6;
     int                extlen;
     static const int * aodv_flags[] = {
         &hf_aodv_flags_rreq_join,
@@ -534,29 +526,26 @@ dissect_aodv_draft_01_v6_rreq(tvbuff_t *tvb, packet_info *pinfo,
                             orig_seqno);
     offset += 4;
 
-    tvb_get_ipv6(tvb, offset, &dest_addr_v6);
+    dest_addr_v6 = tvb_ip6_to_str(tvb, offset);
     if (aodv_tree) {
-        proto_tree_add_ipv6(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
-                            INET6_ADDRLEN, (guint8 *)&dest_addr_v6);
-        proto_item_append_text(ti, ", Dest IP: %s",
-                               ip6_to_str(&dest_addr_v6));
+        proto_tree_add_item(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
+                            INET6_ADDRLEN, ENC_NA);
+        proto_item_append_text(ti, ", Dest IP: %s", dest_addr_v6);
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s",
-                        ip6_to_str(&dest_addr_v6));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s", dest_addr_v6);
     offset += INET6_ADDRLEN;
 
-    tvb_get_ipv6(tvb, offset, &orig_addr_v6);
+    orig_addr_v6 = tvb_ip6_to_str(tvb, offset);
     if (aodv_tree) {
-        proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
-                            INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
-        proto_item_append_text(ti, ", Orig IP: %s",
-                               ip6_to_str(&orig_addr_v6));
+        proto_tree_add_item(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
+                            INET6_ADDRLEN, ENC_NA);
+        proto_item_append_text(ti, ", Orig IP: %s", orig_addr_v6);
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO,
                         ", O: %s Id=%u Hcnt=%u DSN=%u OSN=%u",
-                        ip6_to_str(&orig_addr_v6),
+                        orig_addr_v6,
                         rreq_id,
                         hop_count,
                         dest_seqno,
@@ -578,8 +567,8 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
     guint8             prefix_sz;
     guint8             hop_count;
     guint32            dest_seqno;
-    struct e_in6_addr  dest_addr_v6;
-    struct e_in6_addr  orig_addr_v6;
+    const gchar       *dest_addr_v6;
+    const gchar       *orig_addr_v6;
     guint32            lifetime;
     int                extlen;
     static const int * aodv_flags[] = {
@@ -612,28 +601,24 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
                             dest_seqno);
     offset += 4;
 
-    tvb_get_ipv6(tvb, offset, &dest_addr_v6);
+    dest_addr_v6 = tvb_ip6_to_str(tvb, offset);
     if (aodv_tree) {
-        proto_tree_add_ipv6(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
-                            INET6_ADDRLEN, (guint8 *)&dest_addr_v6);
-        proto_item_append_text(ti, ", Dest IP: %s",
-                               ip6_to_str(&dest_addr_v6));
+        proto_tree_add_item(aodv_tree, hf_aodv_dest_ipv6, tvb, offset,
+                            INET6_ADDRLEN, ENC_NA);
+        proto_item_append_text(ti, ", Dest IP: %s", dest_addr_v6);
     }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s",
-                        ip6_to_str(&dest_addr_v6));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", D: %s", dest_addr_v6);
     offset += INET6_ADDRLEN;
 
-    tvb_get_ipv6(tvb, offset, &orig_addr_v6);
+    orig_addr_v6 = tvb_ip6_to_str(tvb, offset);
     if (aodv_tree) {
-        proto_tree_add_ipv6(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
-                            INET6_ADDRLEN, (guint8 *)&orig_addr_v6);
-        proto_item_append_text(ti, ", Orig IP: %s",
-                               ip6_to_str(&orig_addr_v6));
+        proto_tree_add_item(aodv_tree, hf_aodv_orig_ipv6, tvb, offset,
+                            INET6_ADDRLEN, ENC_NA);
+        proto_item_append_text(ti, ", Orig IP: %s", orig_addr_v6);
     }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s",
-                        ip6_to_str(&orig_addr_v6));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", O: %s", orig_addr_v6);
     offset += INET6_ADDRLEN;
 
     lifetime = tvb_get_ntohl(tvb, offset);
@@ -643,7 +628,7 @@ dissect_aodv_draft_01_v6_rrep(tvbuff_t *tvb, packet_info *pinfo,
         proto_item_append_text(ti, ", Lifetime=%u", lifetime);
     }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Hcnt=%u DSN=%u Lifetime=%u",
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Hcnt=%u DSN=%u Lifetime=%u",
                         hop_count,
                         dest_seqno,
                         lifetime);

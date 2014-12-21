@@ -94,32 +94,6 @@ tvb_ip_to_str(tvbuff_t *tvb, const gint offset)
     return buf;
 }
 
-/* XXX FIXME
-remove this one later when every call has been converted to ep_address_to_str()
-*/
-const gchar *
-ip6_to_str(const struct e_in6_addr *ad) {
-    gchar *str;
-
-    str=(gchar *)ep_alloc(MAX_IP6_STR_LEN);
-    ip6_to_str_buf(ad, str);
-    return str;
-}
-/* XXX FIXME
-This exists solely for a single call from ui/iface_lists.c,
-scan_local_interfaces(), and gcc's -fstrict-aliasing. The iface_lists.c
-code should be change to used a different type for its ip6 address,
-so that this function is no longer needed.
-*/
-const gchar *
-ip6_guint8_to_str(const guint8 *ad) {
-    gchar *str;
-
-    str=(gchar *)ep_alloc(MAX_IP6_STR_LEN);
-    ip6_to_str_buf_len((const guchar*)ad, str, MAX_IP6_STR_LEN);
-    return str;
-}
-
 #define IPV6_LENGTH 16
 const gchar *
 tvb_ip6_to_str(tvbuff_t *tvb, const gint offset)

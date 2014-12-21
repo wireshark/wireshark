@@ -1832,6 +1832,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 guint8 prefix_len;
                 guint8 route_preference;
                 struct e_in6_addr prefix;
+                address prefix_addr;
 
                 /* Prefix Len */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_prefix_len, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
@@ -1871,7 +1872,8 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                         memset(&prefix, 0, sizeof(prefix));
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_prefix, tvb, opt_offset, 8, prefix.bytes);
-                        proto_item_append_text(ti, " %s/%d", ip6_to_str(&prefix), prefix_len);
+                        SET_ADDRESS(&prefix_addr, AT_IPv6, 16, prefix.bytes);
+                        proto_item_append_text(ti, " %s/%d", address_to_str(wmem_packet_scope(), &prefix_addr), prefix_len);
                         opt_offset += 8;
                         break;
                     case 24:
@@ -2136,6 +2138,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 guint8 context_id;
                 guint8 context_len;
                 struct e_in6_addr context_prefix;
+                address context_prefix_addr;
 
                 /* Context Length */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6co_context_length, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
@@ -2168,7 +2171,8 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     case 16:
                         tvb_memcpy(tvb, (guint8 *)&context_prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_6co_context_prefix, tvb, opt_offset, 8, context_prefix.bytes);
-                        proto_item_append_text(ti, " %s/%d", ip6_to_str(&context_prefix), context_len);
+                        SET_ADDRESS(&context_prefix_addr, AT_IPv6, 16, context_prefix.bytes);
+                        proto_item_append_text(ti, " %s/%d", address_to_str(wmem_packet_scope(), &context_prefix_addr), context_len);
                         opt_offset += 8;
                         break;
                     case 24:
@@ -2295,6 +2299,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
             case RPL_OPT_ROUTING: {
                 guint8 prefix_len;
                 struct e_in6_addr prefix;
+                address prefix_addr;
 
                 /* Prefix length */
                 prefix_len = tvb_get_guint8(tvb, opt_offset);
@@ -2329,7 +2334,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                         memset(&prefix, 0, sizeof(prefix));
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_route_prefix, tvb, opt_offset, 8, prefix.bytes);
-                        proto_item_append_text(ti, " %s/%d", ip6_to_str(&prefix), prefix_len);
+                        SET_ADDRESS(&prefix_addr, AT_IPv6, 16, prefix.bytes);
+                        proto_item_append_text(ti, " %s/%d", address_to_str(wmem_packet_scope(), &prefix_addr), prefix_len);
                         opt_offset += 8;
                         break;
                     case 22:
@@ -2394,6 +2400,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
             case RPL_OPT_TARGET: {
                 guint8              prefix_len;
                 struct e_in6_addr   target_prefix;
+                address target_prefix_addr;
 
                 /* Flag */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_flag, tvb, opt_offset, 1, ENC_NA);
@@ -2414,7 +2421,8 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                         memset(&target_prefix, 0, sizeof(target_prefix));
                         tvb_memcpy(tvb, (guint8 *)&target_prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_target_prefix, tvb, opt_offset, 8, target_prefix.bytes);
-                        proto_item_append_text(ti, " %s/%d", ip6_to_str(&target_prefix), prefix_len);
+                        SET_ADDRESS(&target_prefix_addr, AT_IPv6, 16, target_prefix.bytes);
+                        proto_item_append_text(ti, " %s/%d", address_to_str(wmem_packet_scope(), &target_prefix_addr), prefix_len);
                         opt_offset += 8;
                         break;
                     case 18:
@@ -3145,7 +3153,6 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
     while(mldr_offset < (int)tvb_reported_length(tvb) ) {
         guint8 aux_data_len, record_type;
         guint16 i, nb_sources;
-        struct e_in6_addr multicast_address;
 
         ti_mar = proto_tree_add_item(tree, hf_icmpv6_mldr_mar, tvb, mldr_offset, -1, ENC_NA);
         mar_tree = proto_item_add_subtree(ti_mar, ett_icmpv6_mar);
@@ -3167,7 +3174,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 
         /* Multicast Address */
         proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_multicast_address, tvb, mldr_offset, 16, ENC_NA);
-        tvb_get_ipv6(tvb, mldr_offset, &multicast_address);
+        proto_item_append_text(ti_mar, " %s: %s", val_to_str(record_type, mldr_record_type_val,"Unknown Record Type (%d)"), tvb_ip6_to_str(tvb, mldr_offset));
         mldr_offset += 16;
 
         /* Source Address */
@@ -3185,7 +3192,6 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 
         /* Multicast Address Record Length */
         proto_item_set_len(ti_mar, 4 + 16 + (16 * nb_sources) + (aux_data_len * 4));
-        proto_item_append_text(ti_mar, " %s: %s", val_to_str(record_type, mldr_record_type_val,"Unknown Record Type (%d)"), ip6_to_str(&multicast_address));
 
     }
     return mldr_offset;

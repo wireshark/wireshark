@@ -432,8 +432,8 @@ static gchar*
 ipv6_build_color_filter(packet_info *pinfo)
 {
     return g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
-                ip6_to_str((const struct e_in6_addr *)pinfo->net_src.data),
-                ip6_to_str((const struct e_in6_addr *)pinfo->net_dst.data));
+                address_to_str(pinfo->pool, &pinfo->net_src),
+                address_to_str(pinfo->pool, &pinfo->net_dst));
 }
 
 static const fragment_items ipv6_frag_items = {
@@ -1847,6 +1847,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8        *mac_addr;
     const char    *name;
     dissector_handle_t nxt_handle;
+    address        addr;
 
     /* Provide as much IPv4 header information as possible as some dissectors
        in the ip.proto dissector table may need it */
@@ -1926,7 +1927,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_HIDDEN(ti);
         name = ep_address_to_display(&pinfo->src);
         if (ipv6_summary_in_tree) {
-            proto_item_append_text(ipv6_item, ", Src: %s (%s)", name, ip6_to_str(&ipv6.ip6_src));
+            SET_ADDRESS(&addr, AT_IPv6, 16, ipv6.ip6_src.bytes);
+            proto_item_append_text(ipv6_item, ", Src: %s (%s)", name, address_to_str(wmem_packet_scope(), &addr));
         }
         ti = proto_tree_add_string(ipv6_tree, hf_ipv6_src_host, tvb,
                                    offset + (int)offsetof(struct ip6_hdr, ip6_src),
@@ -2013,7 +2015,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_HIDDEN(ti);
         name = ep_address_to_display(&pinfo->dst);
         if (ipv6_summary_in_tree) {
-            proto_item_append_text(ipv6_item, ", Dst: %s (%s)", name, ip6_to_str(&ipv6.ip6_dst));
+            SET_ADDRESS(&addr, AT_IPv6, 16, ipv6.ip6_dst.bytes);
+            proto_item_append_text(ipv6_item, ", Dst: %s (%s)", name, address_to_str(wmem_packet_scope(), &addr));
         }
         ti = proto_tree_add_string(ipv6_tree, hf_ipv6_dst_host, tvb,
                                    offset + (int)offsetof(struct ip6_hdr, ip6_dst),

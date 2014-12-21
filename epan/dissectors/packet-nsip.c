@@ -383,7 +383,6 @@ decode_iei_bvci(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 static proto_item *
 decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree * element_tree) {
   guint16 udp_port;
-  struct e_in6_addr ip6_addr;
   proto_item *tf;
   proto_tree *field_tree;
 
@@ -402,12 +401,11 @@ decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree 
 
       break;
     case NSIP_IP_VERSION_6:
-      tvb_get_ipv6(bi->tvb, bi->offset, &ip6_addr);
       proto_tree_add_item(field_tree, hf_nsip_ip_address_ipv6, bi->tvb,
                           bi->offset, element->address_length,
                           ENC_NA);
       proto_item_append_text(tf, ": IP address: %s",
-                             ip6_to_str((struct e_in6_addr *)&ip6_addr));
+                             tvb_ip6_to_str(bi->tvb, bi->offset));
       break;
     default:
       ;

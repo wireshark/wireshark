@@ -1788,6 +1788,7 @@ decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb,
 {
     proto_tree          *prefix_tree;
     struct e_in6_addr   addr;     /* IPv6 address                       */
+    address             addr_str;
     int                 plen;     /* prefix length                      */
     int                 length;   /* number of octets needed for prefix */
 
@@ -1801,9 +1802,10 @@ decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb,
     }
 
     /* put prefix into protocol tree */
+    SET_ADDRESS(&addr_str, AT_IPv6, 16, addr.bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
-            ip6_to_str(&addr), plen);
+            address_to_str(wmem_packet_scope(), &addr_str), plen);
     proto_tree_add_uint_format(prefix_tree, hf_bgp_prefix_length, tvb, offset, 1, plen, "%s prefix length: %u",
         tag, plen);
     proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 1, length,
@@ -1817,6 +1819,7 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
 {
     proto_tree        *prefix_tree;
     struct e_in6_addr addr;     /* IPv6 address                       */
+    address           addr_str;
     int               plen;     /* prefix length                      */
     int               length;   /* number of octets needed for prefix */
     int               poffset_place = 1;
@@ -1837,16 +1840,17 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
     }
 
     /* put prefix into protocol tree */
+    SET_ADDRESS(&addr_str, AT_IPv6, 16, addr.bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
-            ip6_to_str(&addr), plen);
+            address_to_str(wmem_packet_scope(), &addr_str), plen);
     proto_tree_add_item(prefix_tree, hf_bgp_flowspec_nlri_ipv6_pref_len, tvb, offset + plength_place, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(prefix_tree, hf_bgp_flowspec_nlri_ipv6_pref_offset, tvb, offset + poffset_place, 1, ENC_BIG_ENDIAN);
     proto_tree_add_ipv6(prefix_tree, hf_addr, tvb, offset + 2, length,
             addr.bytes);
     if (parent_item != NULL)
       proto_item_append_text(parent_item, " (%s/%u)",
-                             ip6_to_str(&addr), plen);
+                             address_to_str(wmem_packet_scope(), &addr_str), plen);
     return(2 + length);
 }
 
@@ -2620,7 +2624,6 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbu
 {
     int                 length;                         /* length of the address in byte */
     guint16             rd_type;                        /* Route Distinguisher type     */
-    struct e_in6_addr   ip6addr;                        /* IPv6 address                 */
 
     switch (afi) {
         case AFNUM_INET:
@@ -2695,9 +2698,8 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbu
                 case SAFNUM_MPLS_LABEL:
                 case SAFNUM_ENCAPSULATION:
                 case SAFNUM_TUNNEL:
-                    length = 16 ;
-                    tvb_get_ipv6(tvb, offset, &ip6addr);
-                    wmem_strbuf_append_printf(strbuf, "%s", ip6_to_str(&ip6addr));
+                    length = 16;
+                    wmem_strbuf_append_printf(strbuf, "%s", tvb_ip6_to_str(tvb, offset));
                     break;
                 case SAFNUM_LAB_VPNUNICAST:
                 case SAFNUM_LAB_VPNMULCAST:
@@ -2706,27 +2708,24 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbu
                     switch (rd_type) {
                         case FORMAT_AS2_LOC:
                             length = 8 + 16;
-                            tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
                             wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
                                                       tvb_get_ntohs(tvb, offset + 2),
                                                       tvb_get_ntohl(tvb, offset + 4),
-                                                      ip6_to_str(&ip6addr));
+                                                      tvb_ip6_to_str(tvb, offset + 8)); /* Next Hop */
                             break;
                         case FORMAT_IP_LOC:
                             length = 8 + 16;
-                            tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
                             wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%s:%u IPv6=%s",
                                                       tvb_ip_to_str(tvb, offset + 2), /* IP part of the RD */
                                                       tvb_get_ntohs(tvb, offset + 6),
-                                                      ip6_to_str(&ip6addr));
+                                                      tvb_ip6_to_str(tvb, offset + 8)); /* Next Hop */
                             break ;
                         case FORMAT_AS4_LOC:
                             length = 8 + 16;
-                            tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
                             wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
                                                       tvb_get_ntohl(tvb, offset + 2),
                                                       tvb_get_ntohs(tvb, offset + 6),
-                                                      ip6_to_str(&ip6addr));
+                                                      tvb_ip6_to_str(tvb, offset + 8)); /* Next Hop */
                             break ;
                         default:
                             length = 0 ;
@@ -4118,8 +4117,6 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         break;
 
                     case FORMAT_IP_LOC: /* Code borrowed from the decode_prefix4 function */
-                        tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 2, 4);
-
                         length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr2.addr_bytes, plen);
                         if (length < 0) {
                             proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
@@ -4238,11 +4235,12 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
 
                 /* XXX - break off IPv6 into its own field */
+                SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
                 proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                     (offset + length) - start_offset,
                                     wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s, IPv6=%s/%u",
                                     wmem_strbuf_get_str(stack_strbuf),
-                                    ip6_to_str(&ip6addr), plen);
+                                    address_to_str(wmem_packet_scope(), &addr), plen);
                 total_length = (1 + labnum * 3) + length;
                 break;
             case SAFNUM_ENCAPSULATION:
@@ -4254,12 +4252,11 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     return -1;
                 }
                 offset += 1;
-                tvb_get_ipv6(tvb, offset, &ip6addr);
 
                 proto_tree_add_text(tree, tvb, offset,
                                          offset + 16,
                                          "Endpoint Address: %s",
-                                         ip6_to_str(&ip6addr));
+                                         tvb_ip6_to_str(tvb, offset));
 
                 total_length = 17; /* length(1 octet) + address(16 octets) */
                 break;
@@ -4281,10 +4278,11 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                         tag, plen + 16);
                     return -1;
                 }
+                SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
                 proto_tree_add_text(tree, tvb, start_offset,
                                     (offset + length) - start_offset,
                                     "Tunnel Identifier=0x%x IPv6=%s/%u",
-                                    tnl_id, ip6_to_str(&ip6addr), plen);
+                                    tnl_id, address_to_str(wmem_packet_scope(), &addr), plen);
                 total_length = (1 + 2) + length; /* length field + Tunnel Id + IPv4 len */
                 break;
 
@@ -4324,19 +4322,18 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         }
 
                         /* XXX - break up into multiple fields */
+                        SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
                         proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
                                             wmem_strbuf_get_str(stack_strbuf),
                                             tvb_get_ntohs(tvb, offset + 2),
                                             tvb_get_ntohl(tvb, offset + 4),
-                                            ip6_to_str(&ip6addr), plen);
+                                            address_to_str(wmem_packet_scope(), &addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
 
                     case FORMAT_IP_LOC:
-                        tvb_memcpy(tvb, ip4addr.addr_bytes, offset + 2, 4);
-
                         length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
                         if (length < 0) {
                             proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
@@ -4346,14 +4343,14 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         }
 
                         /* XXX - break up into multiple fields */
-                        SET_ADDRESS(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
+                        SET_ADDRESS(&addr, AT_IPv6, 16, &ip6addr);
                         proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s RD=%s:%u, IPv6=%s/%u",
                                             wmem_strbuf_get_str(stack_strbuf),
-                                            address_to_str(wmem_packet_scope(), &addr),
+                                            tvb_ip_to_str(tvb, offset + 2),
                                             tvb_get_ntohs(tvb, offset + 6),
-                                            ip6_to_str(&ip6addr), plen);
+                                            address_to_str(wmem_packet_scope(), &addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
 
@@ -4367,6 +4364,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         }
 
                         /* XXX - break up into multiple fields */
+                        SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
                         proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             "Label Stack=%s RD=%u.%u:%u, IPv6=%s/%u",
@@ -4374,7 +4372,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                             tvb_get_ntohs(tvb, offset + 2),
                                             tvb_get_ntohs(tvb, offset + 4),
                                             tvb_get_ntohs(tvb, offset + 6),
-                                            ip6_to_str(&ip6addr), plen);
+                                            address_to_str(wmem_packet_scope(), &addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
                     default:

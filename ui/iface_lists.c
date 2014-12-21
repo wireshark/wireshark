@@ -201,7 +201,8 @@ scan_local_interfaces(void (*update_cb)(void))
                         break;
                     case IF_AT_IPv6:
                         memcpy(temp_addr->addr.ip6_addr, addr->addr.ip6_addr, sizeof(addr->addr));
-                        g_string_append(ip_str,  ip6_guint8_to_str(addr->addr.ip6_addr));
+                        SET_ADDRESS(&addr_str, AT_IPv6, 16, addr->addr.ip6_addr);
+                        g_string_append(ip_str, ep_address_to_str(&addr_str));
                         break;
                     default:
                         /* In case we add non-IP addresses */

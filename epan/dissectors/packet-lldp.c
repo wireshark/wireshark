@@ -1104,7 +1104,6 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint16 tempShort;
 	guint32 dataLen = 0;
 	const char *strPtr=NULL;
-	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
 
 	proto_tree	*chassis_tree = NULL;
@@ -1188,15 +1187,14 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		case AFNUM_INET6:
 			if  (dataLen == 18){
-				tvb_get_ipv6(tvb, offset, &ip6_addr);
-				strPtr = ip6_to_str(&ip6_addr);
+				strPtr = tvb_ip6_to_str(tvb, offset);
 			}else{
 				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
 					"Invalid Chassis ID Length (%u) for Type (%s, %s), expected (18)", dataLen, val_to_str_const(tlvsubType, chassis_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
 				return -1;
 			}
 
-			proto_tree_add_ipv6(chassis_tree, hf_chassis_id_ip6, tvb, offset, 16, ip6_addr.bytes);
+			proto_tree_add_item(chassis_tree, hf_chassis_id_ip6, tvb, offset, 16, ENC_NA);
 
 			break;
 		default:
@@ -1262,7 +1260,6 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	guint16 tempShort;
 	guint32 dataLen = 0;
 	const char *strPtr=NULL;
-	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
 
 	proto_tree	*port_tree = NULL;
@@ -1342,15 +1339,14 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			break;
 		case AFNUM_INET6:
 			if  (dataLen == 18){
-				tvb_get_ipv6(tvb, offset, &ip6_addr);
-				strPtr = ip6_to_str(&ip6_addr);
+				strPtr = tvb_ip6_to_str(tvb, offset);
 			}else{
 				expert_add_info_format(pinfo, lf, &ei_lldp_bad_length,
 					"Invalid Port ID Length (%u) for Type (%s, %s), expected (18)", dataLen, val_to_str_const(tlvsubType, port_id_subtypes, ""), val_to_str_const(addr_family, afn_vals, ""));
 				return -1;
 			}
 
-			proto_tree_add_ipv6(port_tree, hf_port_id_ip6, tvb, offset, 16, ip6_addr.bytes);
+			proto_tree_add_item(port_tree, hf_port_id_ip6, tvb, offset, 16, ENC_NA);
 
 			break;
 		default:

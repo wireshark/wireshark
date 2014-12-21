@@ -3037,6 +3037,7 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
 
     int bytes_to_process;
     struct e_in6_addr prefix;
+    address addr;
 
     bytes_to_process=((prefix_length+31)/32)*4;
 
@@ -3056,8 +3057,9 @@ static void dissect_ospf_v3_address_prefix(tvbuff_t *tvb, int offset, int prefix
         }
     }
     if (address_family == OSPF_AF_6) {
+        SET_ADDRESS(&addr, AT_IPv6, 16, prefix.bytes);
         proto_tree_add_text(tree, tvb, offset, bytes_to_process,
-                            "Address Prefix: %s", ip6_to_str(&prefix));
+                            "Address Prefix: %s", address_to_str(wmem_packet_scope(), &addr));
     } else {
         proto_tree_add_text(tree, tvb, offset, bytes_to_process,
                             "Address Prefix: %s", tvb_ip_to_str(tvb, offset));

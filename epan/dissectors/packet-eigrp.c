@@ -1115,6 +1115,7 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     guint8             length;
     int                addr_len;
     struct e_in6_addr  addr;
+    address            addr_str;
     proto_item        *ti_prefixlen, *ti_dst;
     int                first = TRUE;
 
@@ -1136,12 +1137,13 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                 addr_len++;
             }
 
+            SET_ADDRESS(&addr_str, AT_IPv6, 16, addr.bytes);
             ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len,
-                                         "Destination: %s", ip6_to_str(&addr));
+                                         "Destination: %s", address_to_str(wmem_packet_scope(), &addr_str));
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',
-                                   ip6_to_str(&addr), length);
+                                   address_to_str(wmem_packet_scope(), &addr_str), length);
 
             if (unreachable) {
                 expert_add_info(pinfo, ti_dst, &ei_eigrp_unreachable);

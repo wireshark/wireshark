@@ -653,7 +653,7 @@ static guint32 dissect_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load, guint32 
     struct e_in6_addr ipv6_address;
 
     tvb_get_ipv6(tvb, offset+7, &ipv6_address);
-    ip_str = ip6_to_str(&ipv6_address);
+    ip_str = tvb_ip6_to_str(tvb, offset+7);
 
     lab_len = tvb_get_guint8(tvb, offset+23);
 

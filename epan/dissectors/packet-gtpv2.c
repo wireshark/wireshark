@@ -1633,7 +1633,6 @@ static void
 dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
     int               offset = 0;
-    struct e_in6_addr ipv6_address;
 
     if (length == 4)
     {
@@ -1643,8 +1642,7 @@ dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     else if (length == 16)
     {
         proto_tree_add_item(tree, hf_gtpv2_ip_address_ipv6, tvb, offset, length, ENC_NA);
-        tvb_get_ipv6(tvb, offset, &ipv6_address);
-        proto_item_append_text(item, "IPv6 %s", ip6_to_str(&ipv6_address));
+        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
     }
 }
 /*

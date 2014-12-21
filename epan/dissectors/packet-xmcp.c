@@ -647,11 +647,9 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       if (attr_length != 20) {
         expert_add_info_format(pinfo, attr_tree, &ei_xmcp_attr_length_bad, "Malformed IPv6 address");
       } else {
-        struct e_in6_addr ipv6;
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv6, tvb,
                             (offset+4), 16, ENC_NA);
-        tvb_get_ipv6(tvb, (offset+4), &ipv6);
-        proto_item_append_text(attr_tree, ": [%s]:%u", ip6_to_str(&ipv6),
+        proto_item_append_text(attr_tree, ": [%s]:%u", tvb_ip6_to_str(tvb, (offset+4)),
                                tvb_get_ntohs(tvb, (offset+2)));
       }
       break;

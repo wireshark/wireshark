@@ -117,7 +117,13 @@ format_address(const unsigned char *prefix)
         return address_to_str(wmem_packet_scope(), &addr);
     }
     else
-        return ip6_to_str((const struct e_in6_addr*)prefix);
+    {
+        addr.type = AT_IPv6;
+        addr.len  = 16;
+        addr.data = prefix;
+
+        return address_to_str(wmem_packet_scope(), &addr);
+    }
 }
 
 static const char *

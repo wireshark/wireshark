@@ -491,10 +491,8 @@ add_to_clist(sctp_addr_chunk* sac)
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
 
-    if (sac->addr->type == AT_IPv4) {
+    if ((sac->addr->type == AT_IPv4) || (sac->addr->type == AT_IPv6)) {
         g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ep_address_to_str(sac->addr));
-    } else if (sac->addr->type == AT_IPv6) {
-        g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ip6_to_str((const struct e_in6_addr *)(sac->addr->data)));
     } else {
         g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", "NONE");
     }

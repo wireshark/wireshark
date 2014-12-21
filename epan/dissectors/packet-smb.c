@@ -994,9 +994,9 @@ const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 		if (	cmd == SMB_COM_READ_ANDX ||
 			cmd == SMB_COM_READ ||
 			cmd == SMB2_COM_READ) {
-			buf = ip6_to_str((const struct e_in6_addr *)pinfo->src.data);
+			buf = address_to_str(wmem_packet_scope(), &pinfo->src);
 		} else {
-			buf = ip6_to_str((const struct e_in6_addr *)pinfo->dst.data);
+			buf = address_to_str(wmem_packet_scope(), &pinfo->dst);
 		}
 	}
 

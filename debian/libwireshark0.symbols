@@ -738,8 +738,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ieee802a_add_oui@Base 1.9.1
  in_cksum@Base 1.9.1
  incomplete_tcp_stream@Base 1.9.1
- ip6_guint8_to_str@Base 1.12.0~rc1
- ip6_to_str@Base 1.9.1
  ip_checksum@Base 1.99.0
  ip_checksum_tvb@Base 1.99.0
  ipopt_type_class_vals@Base 1.9.1

@@ -633,7 +633,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
 
     tvb_get_ipv6(tvb, offset, &ip);
     hostname = get_hostname6(&ip);
-    ip_str = ip6_to_str(&ip);
+    ip_str = tvb_ip6_to_str(tvb, offset);
 
     proto_tree_add_ipv6_format(
         tree, hf_value,
@@ -1482,8 +1482,6 @@ static void wimaxasncp_dissect_tlv_value(
                 while (offset < tvb_length(tvb))
                 {
                     proto_tree        *ip_address_mask_tree;
-                    struct e_in6_addr  ip;
-                    const gchar       *s;
 
                     ip_address_mask_tree = proto_tree_add_subtree(
                         ip_address_mask_list_tree, tvb, offset, 32,
@@ -1493,8 +1491,6 @@ static void wimaxasncp_dissect_tlv_value(
                      * address
                      * --------------------------------------------------------
                      */
-
-                    tvb_get_ipv6(tvb, offset, &ip);
 
                     proto_tree_add_item(
                         ip_address_mask_tree,
@@ -1513,16 +1509,10 @@ static void wimaxasncp_dissect_tlv_value(
                      * mask
                      * --------------------------------------------------------
                      */
-
-                    tvb_get_ipv6(tvb, offset, &ip);
-
-                    s = ip6_to_str(&ip);
-
-                    proto_tree_add_ipv6_format_value(
+                    proto_tree_add_item(
                         ip_address_mask_tree,
                         tlv_info->hf_ipv6_mask,
-                        tvb, offset, 16, (const guint8*)&ip,
-                        "%s", s);
+                        tvb, offset, 16, ENC_NA);
 
                     /* too long to display ?
                     proto_item_append_text(

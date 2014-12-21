@@ -273,14 +273,11 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 
 			store = (address *)(list->data);
 			if (store->type != AT_NONE) {
-				if (store->type == AT_IPv4)
+				if ((store->type == AT_IPv4) || (store->type == AT_IPv6))
 				{
-					g_snprintf(field[0], 30, "%s", ep_address_to_str(store));
+					g_snprintf(field[0], 40, "%s", ep_address_to_str(store));
 				}
-				else if (store->type == AT_IPv6)
-				{
-					g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
-				}
+
 				list_store = GTK_LIST_STORE(
 					gtk_tree_view_get_model(GTK_TREE_VIEW(u_data->analyse_nb->page2->clist))); /* Get store */
 
@@ -355,14 +352,11 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 
 			store = (address *)(list->data);
 			if (store->type != AT_NONE) {
-				if (store->type == AT_IPv4)
+				if ((store->type == AT_IPv4) || (store->type == AT_IPv6))
 				{
-					g_snprintf(field[0], 30, "%s", ep_address_to_str(store));
+					g_snprintf(field[0], 40, "%s", ep_address_to_str(store));
 				}
-				else if (store->type == AT_IPv6)
-				{
-					g_snprintf(field[0], 40, "%s", ip6_to_str((const struct e_in6_addr *)(store->data)));
-				}
+
 				list_store = GTK_LIST_STORE(
 					gtk_tree_view_get_model(GTK_TREE_VIEW(u_data->analyse_nb->page3->clist))); /* Get store */
 

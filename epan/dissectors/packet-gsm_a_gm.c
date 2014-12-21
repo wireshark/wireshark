@@ -4159,7 +4159,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	guint32            curr_offset;
 	guint              curr_len;
 	guchar             oct;
-	struct e_in6_addr  ipv6_addrx;
 	int                link_dir;
 	proto_item        *pco_item;
 	proto_tree        *pco_tree;
@@ -4222,8 +4221,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0003:
 			case 0x0007:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
-					tvb_get_ipv6(tvb, curr_offset, &ipv6_addrx);
-					proto_tree_add_text(pco_tree, tvb, curr_offset, 16, "IPv6: %s", ip6_to_str(&ipv6_addrx));
+					proto_tree_add_text(pco_tree, tvb, curr_offset, 16, "IPv6: %s", tvb_ip6_to_str(tvb, curr_offset));
 				}
 				break;
 			case 0x0002:
@@ -4248,8 +4246,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x0008:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
-					tvb_get_ipv6(tvb, curr_offset, &ipv6_addrx);
-					proto_tree_add_text(pco_tree, tvb, curr_offset, 16, "IPv6: %s", ip6_to_str(&ipv6_addrx));
+					proto_tree_add_text(pco_tree, tvb, curr_offset, 16, "IPv6: %s", tvb_ip6_to_str(tvb, curr_offset));
 					oct = tvb_get_guint8(tvb, curr_offset+16);
 					proto_tree_add_text(pco_tree, tvb, curr_offset+16, 1, "Prefix length: %u", oct);
 				}

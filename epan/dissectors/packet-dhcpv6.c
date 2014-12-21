@@ -1923,7 +1923,6 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item        *ti;
     guint8             msgtype;
     gboolean           at_end;
-    struct e_in6_addr  in6;
 
     msgtype = tvb_get_guint8(tvb, off);
 
@@ -1955,8 +1954,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           expert_add_info_format(pinfo, previous_pi, &ei_dhcpv6_error_hopcount, "hopcount is not correctly incremented by 1 (expected : %d, actual : %d)", hpi.hopcount + 1, previous_hopcount);
         }
         hpi.relay_message_previously_detected = TRUE;
-        tvb_get_ipv6(tvb, off + 2, &in6);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", ip6_to_str(&in6));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", tvb_ip6_to_str(tvb, off + 2));
         off += 34;
     } else {
         /* Check the inner hopcount equals 0 */

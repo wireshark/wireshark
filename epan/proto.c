@@ -6075,9 +6075,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_IPv6:
 			bytes = (guint8 *)fvalue_get(&fi->value);
+
+			addr.type = AT_IPv6;
+			addr.len  = 16;
+			addr.data = bytes;
+
 			label_fill_descr(label_str, 0, hfinfo,
 				   get_hostname6((struct e_in6_addr *)bytes),
-				   ip6_to_str((struct e_in6_addr*)bytes));
+				   ep_address_to_str(&addr));
 			break;
 
 		case FT_GUID:

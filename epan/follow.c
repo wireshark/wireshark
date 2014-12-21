@@ -146,8 +146,8 @@ build_follow_conv_filter( packet_info *pi ) {
     /* UDP over IPv6 */
     buf = g_strdup_printf(
             "(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-            ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
-            ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
+            address_to_str(pi->pool, &pi->net_src),
+            address_to_str(pi->pool, &pi->net_dst),
             pi->srcport, pi->destport );
     len = 16;
     is_ipv6 = TRUE;

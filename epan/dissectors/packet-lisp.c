@@ -515,7 +515,6 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
 {
     const gchar       *notset_str = "not set";
     const gchar       *addr_str;
-    struct e_in6_addr  locator_v6;
     guint8             lcaf_type;
     guint32            iid, asn;
     guint16            cur_len;
@@ -529,9 +528,8 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
             addr_str   = tvb_ip_to_str(tvb, offset);
             return addr_str;
         case AFNUM_INET6:
-            tvb_get_ipv6(tvb, offset, &locator_v6);
             *addr_len  = INET6_ADDRLEN;
-            addr_str   = ip6_to_str(&locator_v6);
+            addr_str   = tvb_ip6_to_str(tvb, offset);
             return addr_str;
         case AFNUM_LCAF:
             get_lcaf_data(tvb, offset, &lcaf_type, addr_len);

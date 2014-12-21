@@ -256,7 +256,6 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	guint32		bid, cid, leasetm, msgc;
 	proto_tree	*p_tree, *v_tree;
 	proto_item	*pti, *vti;
-	struct e_in6_addr in6;
 
 	/* XXX */
 	if (off >= eoff)
@@ -316,12 +315,11 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 			break;
 		case 3:		/* IPv6 */
 			if (paramlen - 1 > 0) {
-				tvb_get_ipv6(tvb, off + 4, &in6);
 				proto_tree_add_item(v_tree,
 				    hf_rsip_parameter_address_ipv6, tvb,
 				    off + 4, paramlen - 1, ENC_NA);
 				proto_item_append_text(pti, ": %s",
-				    ip6_to_str(&in6));
+				    tvb_ip6_to_str(tvb, off + 4));
 			} else
 				proto_item_append_text(pti,
 				    ": Any IPv6 Address");

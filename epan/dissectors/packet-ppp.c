@@ -3593,22 +3593,26 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     case 2:
     {
         struct e_in6_addr *ad = wmem_new0(wmem_packet_scope(),struct e_in6_addr);
+        address addr;
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
+        SET_ADDRESS(&addr, AT_IPv6, 16, ad->bytes);
         proto_tree_add_ipv6_format(field_tree, hf_vsncp_pdn_ipv6, tvb, offset + 3, length - 3, ad->bytes,
             "%s: %s", val_to_str_const(pdnaddtype, vsncp_pdntype_vals, "Unknown"),
-            ip6_to_str(ad));
+            address_to_str(wmem_packet_scope(), &addr));
         break;
     }
 
     case 3:
     {
         struct e_in6_addr *ad = wmem_new0(wmem_packet_scope(), struct e_in6_addr);
+        address addr;
 
         tvb_memcpy(tvb, &ad->bytes[8], offset + 3, 8);
+        SET_ADDRESS(&addr, AT_IPv6, 16, ad->bytes);
         proto_tree_add_ipv6_format(field_tree, hf_vsncp_pdn_ipv6, tvb, offset + 3, length - 3, ad->bytes,
             "%s: %s", val_to_str_const(pdnaddtype, vsncp_pdntype_vals, "Unknown"),
-            ip6_to_str(ad));
+            address_to_str(wmem_packet_scope(), &addr));
         proto_tree_add_ipv4_format(field_tree, hf_vsncp_pdn_ipv4, tvb, offset + 11, length - 11,
             tvb_get_ntohl(tvb, offset + 11), "%s: %s", val_to_str_const(pdnaddtype, vsncp_pdntype_vals, "Unknown"),
             tvb_ip_to_str(tvb, offset + 11));

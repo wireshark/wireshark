@@ -482,7 +482,8 @@ set_ip_addr_label(GSList *addr_list, GtkWidget *ip_lb, guint selected_ip_addr)
       break;
 
     case IF_AT_IPv6:
-      addr_str = ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr);
+      SET_ADDRESS(&addr_address, AT_IPv6, 16, addr->addr.ip6_addr);
+      addr_str = ep_address_to_str(&addr_address);
       break;
 
     default:

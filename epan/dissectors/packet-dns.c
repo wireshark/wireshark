@@ -2559,6 +2559,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int                a6_offset;
       int                suf_offset;
       struct e_in6_addr  suffix;
+      address            suffix_addr;
 
       a6_offset = cur_offset;
       pre_len = tvb_get_guint8(tvb, cur_offset);
@@ -2585,9 +2586,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       name_out = format_text(pname, strlen(pname));
 
       if (cinfo != NULL) {
+        SET_ADDRESS(&suffix_addr, AT_IPv6, 16, suffix.bytes);
         col_append_fstr(cinfo, COL_INFO, " %d %s %s",
                         pre_len,
-                        ip6_to_str(&suffix),
+                        address_to_str(wmem_packet_scope(), &suffix_addr),
                         name_out);
       }
 
@@ -2602,7 +2604,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       proto_item_append_text(trr, ", addr %d %s %s",
                              pre_len,
-                             ip6_to_str(&suffix),
+                             address_to_str(wmem_packet_scope(), &suffix_addr),
                              name_out);
 
     }

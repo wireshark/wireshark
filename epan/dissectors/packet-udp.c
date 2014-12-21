@@ -397,8 +397,8 @@ udp_build_color_filter(packet_info *pinfo)
     if( pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6 ) {
         /* UDP over IPv6 */
         return g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-            ip6_to_str((const struct e_in6_addr *)pinfo->net_src.data),
-            ip6_to_str((const struct e_in6_addr *)pinfo->net_dst.data),
+            address_to_str(pinfo->pool, &pinfo->net_src),
+            address_to_str(pinfo->pool, &pinfo->net_dst),
             pinfo->srcport, pinfo->destport );
     }
 
