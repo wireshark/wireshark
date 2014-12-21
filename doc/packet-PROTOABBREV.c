@@ -29,16 +29,14 @@
 #include "config.h"
 
 #if 0
-/* Include only as needed */
+/* "System" includes used only as needed */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 ...
 #endif
 
-#include <glib.h>
-
-#include <epan/packet.h>
+#include <epan/packet.h>   /* Should be first Wireshark include (other than config.h)
 #include <epan/expert.h>   /* Include only as needed */
 #include <epan/prefs.h>    /* Include only as needed */
 
