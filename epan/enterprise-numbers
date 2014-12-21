@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-12-14)
+(last updated 2014-12-19)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -2086,9 +2086,9 @@ Decimal
     Joe Raby
       raby&filenet.com
 518
-  NFT-Ericsson
-    Kjetil Donasen
-      +47 2 84 24 00
+  Kongsberg Gruppen ASA (previous was 'NFT-Ericsson')
+    Helge Andre Sundt
+      helge.sundt&kongsberg.com
 519
   Dun & Bradstreet
     Mark Sugarman
@@ -32183,8 +32183,8 @@ Decimal
       shil&neu-alpine.com
 8057
   CESNET
-    Milan Sova
-      sova&cesnet.cz
+    CESNET masters team
+      masters&cesnet.cz
 8058
   MessageVine
     Yair Halevi
@@ -111280,9 +111280,9 @@ Decentralization / Helenic Public Administra
     Christophe SIMON
       titof3000&hotmail.com
 27925
-  OPTOPOL Technology S.A. (previous was 'medi.com J. Jaronski T. Licznerski sp. j.')
+  Canon Ophthalmic Technologies Sp. z o.o. (previous was 'OPTOPOL Technology S.A.')
     Patryk Woźniak
-      p.wozniak&optopol.com.pl
+      p.wozniak&canon-ot.com.pl
 27926
   Future Voice Technology
     Daniel Cooper
@@ -128249,8 +128249,8 @@ Decentralization / Helenic Public Administra
       steven.mai&computacenter.com
 32167
   REDCOM Laboratories, Inc
-    James P Hanley
-      jhanley&REDCOM.com
+    Daniel J Hazekamp
+      it&REDCOM.com
 32168
   Fiber-Span
     James Stewart
@@ -134469,8 +134469,8 @@ Decentralization / Helenic Public Administra
       finn.berthelsen&cobham.com
 33722
   MC SECURITY Co., Ltd.
-    Jonghee Park
-      jhpark&mcsecurity.co.jp
+    Sachio Ohnishi
+      s.ohnishi&mcsecurity.co.jp
 33723
   laurentum.de
     Wolfgang Lorenz
@@ -141685,9 +141685,9 @@ Decentralization / Helenic Public Administra
     Yvan BARTHÉLEMY
       ybarthelemy&direct-streams.com
 35526
-  ikt.werk GbR
+  Foundata GmbH (previous was 'ikt.werk GbR')
     Andreas Wolf
-      info&ikt-werk.de
+      mail&foundata.net
 35527
   FlexRadio Systems
     Stephen Hicks
@@ -148673,9 +148673,9 @@ Decentralization / Helenic Public Administra
     Dane Westvik
       danew&nosheds.com
 37273
-  Crocodile RCS Ltd
+  Acision Ltd
     Paul Pankhurst
-      paul&crocodile-rcs.com
+      paul.pankhurst&acision.com
 37274
   Infratel, Inc.
     Artem Bozhenov
@@ -178473,9 +178473,9 @@ Decentralization / Helenic Public Administra
     Sven Koepfer
       iana&wallmedien.de
 44723
-  Orange Business Services 
-    Ahmed KHALLAF
-      ahmed.khallaf&orange.com
+  Unassigned
+    Removed 2014-12-16
+      
 44724
   LLC "ITTech"
     Andrey Kravchenko
@@ -179400,6 +179400,178 @@ Decentralization / Helenic Public Administra
   Keweon
     Torsten Jahnke
       keweon&outlook.com
+44955
+  Connexo Tecnologia e Comunicação EIRELI
+    Hely Firmino de Sousa
+      hely.sousa&connexo.com.br
+44956
+  Savvi Inc.
+    Jay Fenton
+      ops&savvi.io
+44957
+  Robotron Datenbank-Software GmbH
+    Marco Friebe
+      marco.friebe&robotron.de
+44958
+  mse GmbH
+    René Büdinger
+      rbuedinger&mse-gruppe.de
+44959
+  Carl Berberich GmbH
+    Colin Rust
+      colin.rust&berberich.de
+44960
+  Craltech Electrónica, S.L.
+    Cristobal Campoy
+      soft&craltech.com
+44961
+  Valley Medical Center, PLLC
+    Jake Hinkelman
+      internalit&valleymedicalcenter.com
+44962
+  Foreman Instrumentation And Controls 
+    Kevin Kirmse
+      kdkirmse&syntemp.com
+44963
+  gueux.org
+    Félix Sipma
+      admin&gueux.org
+44964
+  Vivid Orange Limited
+    Matthew Keay
+      matthewkeay&vividorange.co.uk
+44965
+  pascher.IT
+    Peter Pascher
+      info&pascher.it
+44966
+  Jingtu Printing Systems Co., Ltd
+    Zongxiong Nishino
+      hzx&jtprint.cn
+44967
+  Beijing Heweinet Technology Co.,Ltd (北京和维网通科技有限公司)
+    Chen Xuedong (陈学栋)
+      chenxd&heweinet.com
+44968
+  May China
+    Scott Flowers
+      scott.flowers&gmail.com
+44969
+  CLINICA DE CANCER Y ENFERMEDADES DE LA SANGRE, CSP
+    MARIA DEL C. BLAS
+      clinicadecancerdrvazquez&hotmail.com
+44970
+  Thread Group, Inc.
+    Martin Turon
+      mturon&nestlabs.com
+44971
+  Compen Embedded Software
+    Pieter Compen
+      pieter&compen.net
+44972
+  Alameda Hospital
+    LouAnn Raucher
+      lraucher&alamedahealthsystem.org
+44973
+  Kantar Media France SAS
+    Tanguy MILLET
+      tanguy.millet&kantarmedia.com
+44974
+  Sonos, Inc.
+    Jonathan Wenocur
+      jonathan.wenocur&sonos.com
+44975
+  FlexCoders Ltd
+    Steven David West
+      iana&flexcoders.co.uk
+44976
+  Onegini
+    Stein Welberg
+      stein&onegini.com
+44977
+  Reduxio Systems
+    Jacob Cherian
+      jacob&reduxio.com
+44978
+  Istria, soluciones de criptografía, S. A.
+    Luis Recuerda Santiago
+      luis.recuerda&istria-cripto.com
+44979
+  Tsmart Inc.
+    Ahn, Byung-Keun
+      bkahn&tsmartall.com
+44980
+  MEDiA LiNK Co.,Ltd.
+    Yukihiro Taniguchi
+      yukihiro.taniguchi&medialink-ml.co.jp
+44981
+  LLC "PromIT"
+    Gluhov Alexey
+      personal&promit-ek.ru
+44982
+  INNEXIV, INC.
+    Muhammad Hassan
+      mhassan&innexiv.com
+44983
+  ARTIS GmbH
+    Dirk Lange
+      dirk.lange&artis.marposs.com
+44984
+  EPAM Systems
+    Alexander Aleksiuk
+      aliaksandr_aleksiuk&epam.com
+44985
+  Tecnologias Corporativas SC
+    Jonathan Salazar Santos
+      jonanx779&hotmail.com
+44986
+  Taglio LLC
+    GW Habraken
+      gw&tagliosc.com
+44987
+  Temple University
+    Ramana Chamarty
+      rchamart&temple.edu
+44988
+  Nxtera Ltd
+    David Adcock
+      dave.adcock&nxtera.com
+44989
+  Multi Parts Supply USA, Inc.
+    Nathan Brown
+      nathan.brown&multiparts.net
+44990
+  TONGFANG INDUSTRIAL CO.,LTD
+    li dong
+      zdyzlidong&126.com
+44991
+  Ameriprise Financial
+    Robert Buerck
+      Robert.L.Buerck&ampf.com
+44992
+  Amscreen Group Limited
+    James Denkaat
+      jdenkaat&amscreen.co.uk
+44993
+  BCP Co.
+    vahid gilassi
+      vahidgilassi&yahoo.com
+44994
+  Umbrellium Ltd.
+    Samuel Mulube
+      sam&umbrellium.co.uk
+44995
+  Regional Cancer Care Associates, Little Silver Division
+    Debbie Wolf
+      dmayo&hemoncnj.com
+44996
+  JMP Group Inc.
+    Charles Yao
+      cyao&jmpg.com
+44997
+  Emery Telcom
+    Josh Galvez
+      noc&emerytelcom.com
 
 
 End of Document

@@ -3933,8 +3933,8 @@ mfserver         2266/tcp # M-Files Server [Samppa_Lahtinen] [Samppa_Lahtinen] 2
 mfserver         2266/udp # M-files Server [Samppa_Lahtinen] [Samppa_Lahtinen] 2004-06
 ontobroker       2267/tcp # OntoBroker [Dr_Michael_Erdmann] [Dr_Michael_Erdmann] 2004-12
 ontobroker       2267/udp # OntoBroker [Dr_Michael_Erdmann] [Dr_Michael_Erdmann] 2004-12
-amt              2268/tcp # AMT [Tom_Pusateri] [Tom_Pusateri] 2004-12
-amt              2268/udp # AMT [Tom_Pusateri] [Tom_Pusateri] 2004-12
+amt              2268/tcp # AMT [IESG] [IETF_Chair] 2004-12 2014-12-17 [RFC-ietf-mboned-auto-multicast-18]
+amt              2268/udp # AMT [IESG] [IETF_Chair] 2004-12 2014-12-17 [RFC-ietf-mboned-auto-multicast-18]
 mikey            2269/tcp # MIKEY [Karl_Norrman] [Karl_Norrman] 2004-12
 mikey            2269/udp # MIKEY [Karl_Norrman] [Karl_Norrman] 2004-12
 starschool       2270/tcp # starSchool [Adam_Ernst] [Adam_Ernst] 2004-12
@@ -7872,6 +7872,7 @@ matrix-vnet      4360/tcp # Matrix VNet Communication ProtocolIANA assigned this
 matrix_vnet      4360/tcp # Matrix VNet Communication Protocol [Rehan_Mahmood] [Rehan_Mahmood] 2009-03-18 This entry is an alias to "matrix-vnet".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 nacnl            4361/udp # NavCom Discovery and Control Port [Yilei_Jia] [Yilei_Jia] 2009-03-18
 afore-vdp-disc   4362/udp # AFORE vNode Discovery protocol [Michael_Richardson] [Michael_Richardson] 2011-02-08
+shadowstream     4366/udp # ShadowStream System [StorageCraft_Technology_Corporation] [David_McConkie] 2014-12-17
 wxbrief          4368/tcp # WeatherBrief Direct [Kim_Alan_Waggoner] [Kim_Alan_Waggoner] 2006-11
 wxbrief          4368/udp # WeatherBrief Direct [Kim_Alan_Waggoner] [Kim_Alan_Waggoner] 2006-11
 epmd             4369/tcp # Erlang Port Mapper Daemon [Erlang] [Erlang]
@@ -10527,6 +10528,7 @@ netiq-voipa     10116/tcp # NetIQ VoIP Assessor [Gary_Weichinger] [Gary_Weiching
 netiq-voipa     10116/udp # NetIQ VoIP Assessor [Gary_Weichinger] [Gary_Weichinger]
 iqrm            10117/tcp # NetIQ IQCResource Managament Svc [Michael_Sharpe] [Michael_Sharpe] 2010-09-14
 iqrm            10117/udp # NetIQ IQCResource Managament Svc [Michael_Sharpe] [Michael_Sharpe] 2010-09-14
+cimple          10125/tcp # HotLink CIMple REST API [HotLink_Corporation] [Richard_Offer] 2014-12-18
 bmc-perf-sd     10128/tcp # BMC-PERFORM-SERVICE DAEMON [Portnoy_Boxman] [Portnoy_Boxman]
 bmc-perf-sd     10128/udp # BMC-PERFORM-SERVICE DAEMON [Portnoy_Boxman] [Portnoy_Boxman]
 bmc-gms         10129/tcp # BMC General Manager Server [Dima_Seliverstov] [Dima_Seliverstov] 2009-07-28
