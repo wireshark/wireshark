@@ -6930,7 +6930,7 @@ proto_register_bgp(void)
         { "ORFEntry PrefixMask length upper bound", "bgp.route_refresh.orf.entry.prefixmask_upper", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_route_refresh_orf_entry_ip,
-        { "ORFEntry IP address", "bgp.route_refresh.orf.entry.ip", FT_UINT8, BASE_DEC,
+        { "ORFEntry IP address", "bgp.route_refresh.orf.entry.ip", FT_IPv4, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
 
         /* Capability */
