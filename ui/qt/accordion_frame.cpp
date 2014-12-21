@@ -26,10 +26,13 @@
 
 #include "ui/util.h"
 
+#include <QLayout>
+
 const int duration_ = 150;
 
 AccordionFrame::AccordionFrame(QWidget *parent) :
-    QFrame(parent)
+    QFrame(parent),
+    frame_height_(0)
 {
     QString subframe_style(
 //                ".QFrame {"
@@ -43,7 +46,6 @@ AccordionFrame::AccordionFrame(QWidget *parent) :
                 "}"
                 );
     setStyleSheet(subframe_style);
-    frame_height_ = height();
     animation_ = new QPropertyAnimation(this, "maximumHeight");
     animation_->setDuration(duration_);
     animation_->setEasingCurve(QEasingCurve::InOutQuad);
@@ -61,14 +63,12 @@ void AccordionFrame::animatedShow()
         QWidget *parent = parentWidget();
 
         if (parent && parent->layout()) {
-            // Show this widget, tell our parent to calculate our size, and hide
-            // ourselves. We might need to call
-            // parent->layout()->update(); parent->layout()->activate();
-            // or
-            // parent->layout()->invalidate();
-            // as well
+            // Force our parent layout to update its geometry. There are a number
+            // of ways of doing this. Calling invalidate + activate seems to
+            // be the best.
             show();
-            parent->adjustSize();
+            parent->layout()->invalidate(); // Calls parent->layout()->update()
+            parent->layout()->activate(); // Calculates sizes then calls parent->updateGeometry()
             frame_height_ = height();
             hide();
         }
