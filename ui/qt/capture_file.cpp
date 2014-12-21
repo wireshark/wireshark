@@ -35,15 +35,18 @@ capture_file cfile;
 
 #include "ui/capture.h"
 
+#include <QFileInfo>
+
 // To do:
-// - Add isValid or isOpen methods instead of checking capFile() for NULL.
 // - Add getters and (if needed) setters:
-//   - Base filename
 //   - Full filename
+
+QString CaptureFile::no_capture_file_ = QObject::tr("[no capture file]");
 
 CaptureFile::CaptureFile(QObject *parent, capture_file *cap_file) :
     QObject(parent),
-    cap_file_(cap_file)
+    cap_file_(cap_file),
+    file_title_(no_capture_file_)
 {
 #ifdef HAVE_LIBPCAP
     capture_callback_add(captureCallback, (gpointer) this);
@@ -54,6 +57,21 @@ CaptureFile::CaptureFile(QObject *parent, capture_file *cap_file) :
 CaptureFile::~CaptureFile()
 {
     cf_callback_remove(captureFileCallback, this);
+}
+
+bool CaptureFile::isValid() const
+{
+    if (cap_file_ && cap_file_->state != FILE_CLOSED) { // XXX FILE_READ_IN_PROGRESS as well?
+        return true;
+    }
+    return false;
+}
+
+void CaptureFile::retapPackets()
+{
+    if (cap_file_) {
+        cf_retap_packets(cap_file_);
+    }
 }
 
 capture_file *CaptureFile::globalCapFile()
@@ -89,18 +107,24 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
 {
     switch(event) {
     case(cf_cb_file_opened):
+    {
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Opened");
         cap_file_ = (capture_file *) data;
+        QFileInfo cfi(QString::fromUtf8(cap_file_->filename));
+        file_title_ = cfi.baseName();
         emit captureFileOpened();
         break;
+    }
     case(cf_cb_file_closing):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
+        file_title_.append(tr(" [closed]"));
         emit captureFileClosing();
         break;
     case(cf_cb_file_closed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
         emit captureFileClosed();
         cap_file_ = NULL;
+        file_title_ = no_capture_file_;
         break;
     case(cf_cb_file_read_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");

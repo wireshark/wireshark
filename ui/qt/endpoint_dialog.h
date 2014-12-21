@@ -68,13 +68,13 @@ public:
      * @param cli_proto_id If valid, add this protocol and bring it to the front.
      * @param filter Display filter to apply.
      */
-    explicit EndpointDialog(QWidget *parent = 0, capture_file *cf = NULL, int cli_proto_id = -1, const char *filter = NULL);
+    explicit EndpointDialog(QWidget *parent, CaptureFile &cf, int cli_proto_id = -1, const char *filter = NULL);
     ~EndpointDialog();
 
 signals:
 
 public slots:
-    void setCaptureFile(capture_file *cf);
+    void captureFileClosing();
 
 private:
 #ifdef HAVE_GEOIP

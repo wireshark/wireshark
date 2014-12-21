@@ -56,11 +56,11 @@ public:
      * @param cli_proto_id If valid, add this protocol and bring it to the front.
      * @param filter Display filter to apply.
      */
-    explicit ConversationDialog(QWidget *parent = 0, capture_file *cf = NULL, int cli_proto_id = -1, const char *filter = NULL);
+    explicit ConversationDialog(QWidget *parent, CaptureFile &cf, int cli_proto_id = -1, const char *filter = NULL);
     ~ConversationDialog();
 
 public slots:
-    void setCaptureFile(capture_file *cf);
+    void captureFileClosing();
 
 signals:
     void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);

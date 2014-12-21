@@ -57,7 +57,7 @@
 // - Misleading bps calculation https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8703
 
 const QString table_name_ = QObject::tr("Conversation");
-ConversationDialog::ConversationDialog(QWidget *parent, capture_file *cf, int cli_proto_id, const char *filter) :
+ConversationDialog::ConversationDialog(QWidget *parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
     follow_bt_ = buttonBox()->addButton(tr("Follow Stream..."), QDialogButtonBox::ActionRole);
@@ -96,9 +96,7 @@ ConversationDialog::ConversationDialog(QWidget *parent, capture_file *cf, int cl
     updateWidgets();
     itemSelectionChanged();
 
-    if (cap_file_) {
-        cf_retap_packets(cap_file_);
-    }
+    cap_file_.retapPackets();
 }
 
 ConversationDialog::~ConversationDialog()
@@ -120,21 +118,21 @@ ConversationDialog::~ConversationDialog()
     }
 }
 
-void ConversationDialog::setCaptureFile(capture_file *cf)
+void ConversationDialog::captureFileClosing()
 {
-    if (!cf) { // We only want to know when the file closes.
-        cap_file_ = NULL;
-        for (int i = 0; i < trafficTableTabWidget()->count(); i++) {
-            ConversationTreeWidget *cur_tree = qobject_cast<ConversationTreeWidget *>(trafficTableTabWidget()->widget(i));
-            remove_tap_listener(cur_tree->trafficTreeHash());
-            disconnect(cur_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-                    this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
-        }
-        displayFilterCheckBox()->setEnabled(false);
-        enabledTypesPushButton()->setEnabled(false);
-        follow_bt_->setEnabled(false);
-        graph_bt_->setEnabled(false);
+    // Keep the dialog around but disable any controls that depend
+    // on a live capture file.
+    for (int i = 0; i < trafficTableTabWidget()->count(); i++) {
+        ConversationTreeWidget *cur_tree = qobject_cast<ConversationTreeWidget *>(trafficTableTabWidget()->widget(i));
+        remove_tap_listener(cur_tree->trafficTreeHash());
+        disconnect(cur_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+                   this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
     }
+    displayFilterCheckBox()->setEnabled(false);
+    enabledTypesPushButton()->setEnabled(false);
+    follow_bt_->setEnabled(false);
+    graph_bt_->setEnabled(false);
+    TrafficTableDialog::captureFileClosing();
 }
 
 bool ConversationDialog::addTrafficTable(register_ct_t* table)
@@ -165,7 +163,7 @@ bool ConversationDialog::addTrafficTable(register_ct_t* table)
     QByteArray filter_utf8;
     const char *filter = NULL;
     if (displayFilterCheckBox()->isChecked()) {
-        filter = cap_file_->dfilter;
+        filter = cap_file_.capFile()->dfilter;
     } else if (!filter_.isEmpty()) {
         filter_utf8 = filter_.toUtf8();
         filter = filter_utf8.constData();
@@ -200,7 +198,7 @@ conv_item_t *ConversationDialog::currentConversation()
 
 void ConversationDialog::followStream()
 {
-    if (!cap_file_) {
+    if (read_only_) {
         return;
     }
 
@@ -233,7 +231,7 @@ void ConversationDialog::followStream()
 
 void ConversationDialog::graphTcp()
 {
-    if (!cap_file_) {
+    if (read_only_) {
         return;
     }
 
@@ -261,7 +259,7 @@ void ConversationDialog::itemSelectionChanged()
     bool follow_enable = false, graph_enable = false;
     conv_item_t *conv_item = currentConversation();
 
-    if (cap_file_ && conv_item) {
+    if (!read_only_ && conv_item) {
         switch (conv_item->ptype) {
         case PT_TCP:
             graph_enable = true;
@@ -287,14 +285,14 @@ void ConversationDialog::on_nameResolutionCheckBox_toggled(bool checked)
 
 void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
 {
-    if (!cap_file_) {
+    if (read_only_) {
         return;
     }
 
     QByteArray filter_utf8;
     const char *filter = NULL;
     if (checked) {
-        filter = cap_file_->dfilter;
+        filter = cap_file_.capFile()->dfilter;
     } else if (!filter_.isEmpty()) {
         filter_utf8 = filter_.toUtf8();
         filter = filter_utf8.constData();
@@ -304,7 +302,7 @@ void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
         set_tap_dfilter(trafficTableTabWidget()->widget(i), filter);
     }
 
-    cf_retap_packets(cap_file_);
+    cap_file_.retapPackets();
 }
 
 void ConversationDialog::on_buttonBox_helpRequested()

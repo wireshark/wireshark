@@ -2297,15 +2297,13 @@ void MainWindow::on_actionStatisticsCollectd_triggered()
 
 void MainWindow::statCommandConversations(const char *arg, void *userdata)
 {
-    ConversationDialog *conv_dialog = new ConversationDialog(this, capture_file_.capFile(), GPOINTER_TO_INT(userdata), arg);
+    ConversationDialog *conv_dialog = new ConversationDialog(this, capture_file_, GPOINTER_TO_INT(userdata), arg);
     connect(conv_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
             this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
     connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
             this, SLOT(openFollowStreamDialog(follow_type_t)));
     connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
             this, SLOT(openTcpStreamDialog(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            conv_dialog, SLOT(setCaptureFile(capture_file*)));
     conv_dialog->show();
 }
 
@@ -2316,15 +2314,13 @@ void MainWindow::on_actionStatisticsConversations_triggered()
 
 void MainWindow::statCommandEndpoints(const char *arg, void *userdata)
 {
-    EndpointDialog *endp_dialog = new EndpointDialog(this, capture_file_.capFile(), GPOINTER_TO_INT(userdata), arg);
+    EndpointDialog *endp_dialog = new EndpointDialog(this, capture_file_, GPOINTER_TO_INT(userdata), arg);
     connect(endp_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
             this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
     connect(endp_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
             this, SLOT(openFollowStreamDialog(follow_type_t)));
     connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
             this, SLOT(openTcpStreamDialog(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            endp_dialog, SLOT(setCaptureFile(capture_file*)));
     endp_dialog->show();
 }
 

@@ -51,6 +51,7 @@
 #include "ui/software_update.h"
 #include "ui/last_open_dir.h"
 #include "ui/recent_utils.h"
+#include "ui/utf8_entities.h"
 
 #ifdef _WIN32
 #  include "ui/win32/console_win32.h"
@@ -80,6 +81,12 @@ WiresharkApplication *wsApp = NULL;
 static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items_;
+
+QString WiresharkApplication::application_name_ = QString("Wireshark");
+QString WiresharkApplication::window_title_separator_ = QString::fromUtf8(UTF8_MIDDLE_DOT);
+QString WiresharkApplication::window_title_prefix_ = QString("%1 %2")
+        .arg(WiresharkApplication::application_name_)
+        .arg(WiresharkApplication::window_title_separator_);
 
 void
 topic_action(topic_action_e action)

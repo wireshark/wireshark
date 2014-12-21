@@ -30,6 +30,7 @@
 
 #include "ui/follow.h"
 
+#include "capture_file.h"
 #include "filter_action.h"
 
 #include <QPushButton>
@@ -102,11 +103,11 @@ public:
      * @param filter Display filter to apply.
      * @param table_name If valid, add this protocol and bring it to the front.
      */
-    explicit TrafficTableDialog(QWidget *parent = 0, capture_file *cf = NULL, const char *filter = NULL, const QString &table_name = tr("Unknown"));
+    explicit TrafficTableDialog(QWidget *parent, CaptureFile &cf, const char *filter = NULL, const QString &table_name = tr("Unknown"));
     ~TrafficTableDialog();
 
 public slots:
-    virtual void setCaptureFile(capture_file *cf) { Q_UNUSED(cf) }
+    virtual void captureFileClosing();
 
 signals:
     void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
@@ -116,7 +117,8 @@ signals:
 protected:
     Ui::TrafficTableDialog *ui;
 
-    capture_file *cap_file_;
+    CaptureFile &cap_file_;
+    bool read_only_;
     QString filter_;
     QMenu traffic_type_menu_;
     QPushButton *copy_bt_;
@@ -139,7 +141,9 @@ protected slots:
     void updateWidgets();
 
 private:
+    void setWindowTitle();
     QList<QVariant> curTreeRowData(int row) const;
+    QString window_name_;
 
 private slots:
     void on_nameResolutionCheckBox_toggled(bool checked);

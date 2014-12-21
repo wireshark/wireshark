@@ -93,6 +93,9 @@ public:
     bool isInitialized() { return initialized_; }
     const QIcon &normalIcon() const { return normal_icon_; }
     const QIcon &captureIcon() const { return capture_icon_; }
+    const QString &applicationName() const { return application_name_; }
+    const QString &windowTitleSeparator() const { return window_title_separator_; }
+    const QString &windowTitlePrefix() const { return window_title_prefix_; }
 
     QTranslator translator;
     QTranslator translatorQt;
@@ -108,6 +111,9 @@ private:
     QSocketNotifier *if_notifier_;
     QIcon normal_icon_;
     QIcon capture_icon_;
+    static QString application_name_;
+    static QString window_title_separator_;
+    static QString window_title_prefix_;
 
 protected:
     bool event(QEvent *event);
@@ -127,25 +133,6 @@ signals:
     void preferencesChanged();
     void addressResolutionChanged();
     void fieldsChanged();
-
-#if 0
-    void captureCapturePrepared(capture_session *cap_session);
-    void captureCaptureUpdateStarted(capture_session *cap_session);
-    void captureCaptureUpdateContinue(capture_session *cap_session);
-    void captureCaptureUpdateFinished(capture_session *cap_session);
-    void captureCaptureFixedStarted(capture_session *cap_session);
-    void captureCaptureFixedFinished(capture_session *cap_session);
-    void captureCaptureStopping(capture_session *cap_session);
-    void captureCaptureFailed(capture_session *cap_session);
-#endif
-
-#if 0
-    void captureFileOpened(const capture_file *cf);
-    void captureFileReadStarted(const capture_file *cf);
-    void captureFileReadFinished(const capture_file *cf);
-    void captureFileClosing(const capture_file *cf);
-    void captureFileClosed(const capture_file *cf);
-#endif
 
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
 

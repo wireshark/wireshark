@@ -49,17 +49,19 @@
 // - Columns don't resize correctly.
 // - Closing the capture file clears conversation data.
 
-TrafficTableDialog::TrafficTableDialog(QWidget *parent, capture_file *cf, const char *filter, const QString &table_name) :
+TrafficTableDialog::TrafficTableDialog(QWidget *parent, CaptureFile &cf, const char *filter, const QString &table_name) :
     QDialog(parent),
     ui(new Ui::TrafficTableDialog),
     cap_file_(cf),
+    read_only_(false),
     filter_(filter)
 {
     ui->setupUi(this);
-    setAttribute(Qt::WA_DeleteOnClose, true);
+//    setAttribute(Qt::WA_DeleteOnClose, true);
 
-    setWindowTitle(tr("Wireshark: %1s").arg(table_name));
-    ui->enabledTypesPushButton->setText(tr("%1 Types").arg(table_name));
+    window_name_ = QString("%1s").arg(table_name);
+    setWindowTitle();
+    ui->enabledTypesPushButton->setText(tr("%1 Types").arg(window_name_));
 
     // XXX Use recent settings instead
     if (parent) {
@@ -83,12 +85,18 @@ TrafficTableDialog::TrafficTableDialog(QWidget *parent, capture_file *cf, const 
 
     connect(ui->trafficTableTabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(itemSelectionChanged()));
-
+    connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
 }
 
 TrafficTableDialog::~TrafficTableDialog()
 {
     delete ui;
+}
+
+void TrafficTableDialog::captureFileClosing()
+{
+    setWindowTitle();
+    read_only_ = true;
 }
 
 const QList<int> TrafficTableDialog::defaultProtos() const
@@ -150,14 +158,14 @@ void TrafficTableDialog::on_nameResolutionCheckBox_toggled(bool checked)
 
 void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
 {
-    if (!cap_file_) {
+    if (!cap_file_.isValid()) {
         return;
     }
 
     QByteArray filter_utf8;
     const char *filter = NULL;
     if (checked) {
-        filter = cap_file_->dfilter;
+        filter = cap_file_.capFile()->dfilter;
     } else if (!filter_.isEmpty()) {
         filter_utf8 = filter_.toUtf8();
         filter = filter_utf8.constData();
@@ -167,7 +175,7 @@ void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
         set_tap_dfilter(ui->trafficTableTabWidget->widget(i), filter);
     }
 
-    cf_retap_packets(cap_file_);
+    cap_file_.retapPackets();
 }
 
 void TrafficTableDialog::setTabText(QWidget *tree, const QString &text)
@@ -197,9 +205,7 @@ void TrafficTableDialog::toggleTable()
     }
 
     if (new_table) {
-        if (cap_file_) {
-            cf_retap_packets(cap_file_);
-        }
+        cap_file_.retapPackets();
     }
 }
 
@@ -218,6 +224,16 @@ void TrafficTableDialog::updateWidgets()
     }
     ui->trafficTableTabWidget->setCurrentWidget(cur_w);
     ui->trafficTableTabWidget->setUpdatesEnabled(true);
+}
+
+void TrafficTableDialog::setWindowTitle()
+{
+    QDialog::setWindowTitle(tr("%1 %2 %3 %4")
+                   .arg(wsApp->windowTitlePrefix())
+                   .arg(window_name_)
+                   .arg(wsApp->windowTitleSeparator())
+                   .arg(cap_file_.fileTitle())
+                   );
 }
 
 QList<QVariant> TrafficTableDialog::curTreeRowData(int row) const

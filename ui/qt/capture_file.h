@@ -40,6 +40,23 @@ public:
 
     capture_file *capFile() const { return cap_file_; }
     void setCapFile(capture_file *cap_file) { cap_file_ = cap_file; }
+    /** Check capture file validity
+     *
+     * @return true if the file is open, readable, and tappable. false if the file
+     * is closed.
+     */
+    bool isValid() const;
+
+    /** Return a filename suitable for use in a window title.
+     *
+     * @return One of: the basename of the capture file without an extension,
+     *  the basename followed by "[closed]", or "[no capture file]".
+     */
+    const QString & fileTitle() { return file_title_; }
+
+    /** Retap the capture file
+     */
+    void retapPackets();
 
     // XXX This shouldn't be needed.
     static capture_file *globalCapFile();
@@ -73,7 +90,10 @@ private:
     void captureFileEvent(int event, gpointer data);
     void captureEvent(int event, capture_session *cap_session);
 
+    static QString no_capture_file_;
+
     capture_file *cap_file_;
+    QString file_title_;
 };
 
 #endif // CAPTURE_FILE_H

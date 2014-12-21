@@ -41,7 +41,7 @@
 #include <QUrl>
 
 const QString table_name_ = QObject::tr("Endpoint");
-EndpointDialog::EndpointDialog(QWidget *parent, capture_file *cf, int cli_proto_id, const char *filter) :
+EndpointDialog::EndpointDialog(QWidget *parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
 #ifdef HAVE_GEOIP
@@ -82,9 +82,7 @@ EndpointDialog::EndpointDialog(QWidget *parent, capture_file *cf, int cli_proto_
 #endif
     itemSelectionChanged();
 
-    if (cap_file_) {
-        cf_retap_packets(cap_file_);
-    }
+    cap_file_.retapPackets();
 }
 
 EndpointDialog::~EndpointDialog()
@@ -106,19 +104,19 @@ EndpointDialog::~EndpointDialog()
     }
 }
 
-void EndpointDialog::setCaptureFile(capture_file *cf)
+void EndpointDialog::captureFileClosing()
 {
-    if (!cf) { // We only want to know when the file closes.
-        cap_file_ = NULL;
-        for (int i = 0; i < trafficTableTabWidget()->count(); i++) {
-            EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->widget(i));
-            remove_tap_listener(cur_tree->trafficTreeHash());
-            disconnect(cur_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
-                    this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
-        }
-        displayFilterCheckBox()->setEnabled(false);
-        enabledTypesPushButton()->setEnabled(false);
+    // Keep the dialog around but disable any controls that depend
+    // on a live capture file.
+    for (int i = 0; i < trafficTableTabWidget()->count(); i++) {
+        EndpointTreeWidget *cur_tree = qobject_cast<EndpointTreeWidget *>(trafficTableTabWidget()->widget(i));
+        remove_tap_listener(cur_tree->trafficTreeHash());
+        disconnect(cur_tree, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+                   this, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
     }
+    displayFilterCheckBox()->setEnabled(false);
+    enabledTypesPushButton()->setEnabled(false);
+    TrafficTableDialog::captureFileClosing();
 }
 
 bool EndpointDialog::addTrafficTable(register_ct_t *table)
@@ -149,7 +147,7 @@ bool EndpointDialog::addTrafficTable(register_ct_t *table)
     QByteArray filter_utf8;
     const char *filter = NULL;
     if (displayFilterCheckBox()->isChecked()) {
-        filter = cap_file_->dfilter;
+        filter = cap_file_.capFile()->dfilter;
     } else if (!filter_.isEmpty()) {
         filter_utf8 = filter_.toUtf8();
         filter = filter_utf8.constData();
