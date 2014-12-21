@@ -5908,7 +5908,7 @@ proto_register_tcp(void)
     /* subdissector code */
     subdissector_table = register_dissector_table("tcp.port",
         "TCP port", FT_UINT16, BASE_DEC);
-    register_heur_dissector_list("tcp", &heur_subdissector_list);
+    heur_subdissector_list = register_heur_dissector_list("tcp");
 
     /* Register configuration preferences */
     tcp_module = prefs_register_protocol(proto_tcp, NULL);

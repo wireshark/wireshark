@@ -341,8 +341,11 @@ WS_DLL_PUBLIC ftenum_t dissector_table_get_type(dissector_table_t dissector_tabl
 /* List of "heuristic" dissectors (which get handed a packet, look at it,
    and either recognize it as being for their protocol, dissect it, and
    return TRUE, or don't recognize it and return FALSE) to be called
-   by another dissector. */
-typedef GSList *heur_dissector_list_t;
+   by another dissector.
+
+   This is opaque outside of "packet.c". */
+struct heur_dissector_list;
+typedef struct heur_dissector_list *heur_dissector_list_t;
 
 
 typedef struct {
@@ -358,8 +361,7 @@ typedef struct {
  * @param name the name of this protocol
  * @param list the list of heuristic sub-dissectors to be registered
  */
-WS_DLL_PUBLIC void register_heur_dissector_list(const char *name,
-    heur_dissector_list_t *list);
+WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list(const char *name);
 
 typedef void (*DATFunc_heur) (const gchar *table_name,
     heur_dtbl_entry_t *entry, gpointer user_data);
@@ -412,7 +414,7 @@ WS_DLL_PUBLIC gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissect
  * @param name name of the dissector table
  * @return pointer to the table on success, NULL if no such table exists
  */
-WS_DLL_PUBLIC heur_dissector_list_t *find_heur_dissector_list(const char *name);
+WS_DLL_PUBLIC heur_dissector_list_t find_heur_dissector_list(const char *name);
 
 /** Add a sub-dissector to a heuristic dissector list.
  *  Call this in the proto_handoff function of the sub-dissector.

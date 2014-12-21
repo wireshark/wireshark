@@ -4085,7 +4085,7 @@ proto_register_sccp(void)
 
   sccp_ssn_dissector_table = register_dissector_table("sccp.ssn", "SCCP SSN", FT_UINT8, BASE_DEC);
 
-  register_heur_dissector_list("sccp", &heur_subdissector_list);
+  heur_subdissector_list = register_heur_dissector_list("sccp");
 
   sccp_module = prefs_register_protocol(proto_sccp, proto_reg_handoff_sccp);
 

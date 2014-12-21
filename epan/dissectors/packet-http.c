@@ -3228,7 +3228,7 @@ proto_register_http(void)
 	 * this table using the standard heur_dissector_add()
 	 * function.
 	 */
-	register_heur_dissector_list("http", &heur_subdissector_list);
+	heur_subdissector_list = register_heur_dissector_list("http");
 
 	/*
 	 * Register for tapping

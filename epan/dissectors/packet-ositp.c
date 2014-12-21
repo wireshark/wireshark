@@ -2441,10 +2441,10 @@ void proto_register_cotp(void)
                                  "settings.", &cotp_decode_atn);
 
   /* subdissector code in inactive subset */
-  register_heur_dissector_list("cotp_is", &cotp_is_heur_subdissector_list);
+  cotp_is_heur_subdissector_list = register_heur_dissector_list("cotp_is");
 
   /* other COTP/ISO 8473 subdissectors */
-  register_heur_dissector_list("cotp", &cotp_heur_subdissector_list);
+  cotp_heur_subdissector_list = register_heur_dissector_list("cotp");
 
   /* XXX - what about CLTP and proto_cltp? */
   new_register_dissector("ositp", dissect_ositp, proto_cotp);
@@ -2471,7 +2471,7 @@ void proto_register_cltp(void)
   proto_register_field_array(proto_cltp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_heur_dissector_list("cltp", &cltp_heur_subdissector_list);
+  cltp_heur_subdissector_list = register_heur_dissector_list("cltp");
 }
 
 void

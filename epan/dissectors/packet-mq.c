@@ -4733,7 +4733,7 @@ void proto_register_mq(void)
     proto_register_field_array(proto_mq, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_heur_dissector_list("mq", &mq_heur_subdissector_list);
+    mq_heur_subdissector_list = register_heur_dissector_list("mq");
     register_init_routine(mq_init);
 
     mq_module = prefs_register_protocol(proto_mq, NULL);

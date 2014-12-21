@@ -100,7 +100,7 @@ proto_register_media(void)
         "media"         /* abbrev */
         );
     new_register_dissector("media", dissect_media, proto_media);
-    register_heur_dissector_list("media", &heur_subdissector_list);
+    heur_subdissector_list = register_heur_dissector_list("media");
     proto_register_field_array(proto_media, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

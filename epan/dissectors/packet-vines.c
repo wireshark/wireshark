@@ -990,8 +990,7 @@ proto_register_vines_ipc(void)
 	proto_register_field_array(proto_vines_ipc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_heur_dissector_list("vines_ipc",
-	    &vines_ipc_heur_subdissector_list);
+	vines_ipc_heur_subdissector_list = register_heur_dissector_list("vines_ipc");
 }
 
 void
@@ -1157,8 +1156,7 @@ proto_register_vines_spp(void)
 	proto_register_field_array(proto_vines_spp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_heur_dissector_list("vines_spp",
-	    &vines_spp_heur_subdissector_list);
+	vines_spp_heur_subdissector_list = register_heur_dissector_list("vines_spp");
 }
 
 void

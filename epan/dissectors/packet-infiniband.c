@@ -7463,8 +7463,8 @@ void proto_register_infiniband(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* register the subdissector tables */
-    register_heur_dissector_list("infiniband.payload", &heur_dissectors_payload);
-    register_heur_dissector_list("infiniband.mad.cm.private", &heur_dissectors_cm_private);
+    heur_dissectors_payload = register_heur_dissector_list("infiniband.payload");
+    heur_dissectors_cm_private = register_heur_dissector_list("infiniband.mad.cm.private");
 
     /* register dissection preferences */
     infiniband_module = prefs_register_protocol(proto_infiniband, proto_reg_handoff_infiniband);

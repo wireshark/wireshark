@@ -3997,8 +3997,8 @@ proto_register_epl(void)
 	proto_epl = proto_register_protocol("Ethernet POWERLINK", "EPL", "epl");
 
 	/* subdissector code */
-	register_heur_dissector_list("epl", &heur_epl_subdissector_list);
-	register_heur_dissector_list("epl_data", &heur_epl_data_subdissector_list);
+	heur_epl_subdissector_list = register_heur_dissector_list("epl");
+	heur_epl_data_subdissector_list = register_heur_dissector_list("epl_data");
 
 	/* Registering protocol to be called by another dissector */
 	epl_handle = new_register_dissector("epl", dissect_epl, proto_epl);

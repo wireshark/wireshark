@@ -1514,7 +1514,7 @@ proto_register_mp2t(void)
     expert_mp2t = expert_register_protocol(proto_mp2t);
     expert_register_field_array(expert_mp2t, ei, array_length(ei));
 
-    register_heur_dissector_list("mp2t.pid", &heur_subdissector_list);
+    heur_subdissector_list = register_heur_dissector_list("mp2t.pid");
     /* Register init of processing of fragmented DEPI packets */
     register_init_routine(mp2t_init);
 }

@@ -987,7 +987,7 @@ proto_register_pn_rt(void)
                                    &pnio_desegment);
 
     /* register heuristics anchor for payload dissectors */
-    register_heur_dissector_list("pn_rt", &heur_subdissector_list);
+    heur_subdissector_list = register_heur_dissector_list("pn_rt");
 
     init_pn (proto_pn_rt);
     register_init_routine(pnio_defragment_init);

@@ -5945,7 +5945,7 @@ void proto_register_sip(void)
     prefs_register_obsolete_preference(sip_module, "tcp.port");
 
     register_init_routine(&sip_init_protocol);
-    register_heur_dissector_list("sip", &heur_subdissector_list);
+    heur_subdissector_list = register_heur_dissector_list("sip");
     /* Register for tapping */
     sip_tap = register_tap("sip");
 

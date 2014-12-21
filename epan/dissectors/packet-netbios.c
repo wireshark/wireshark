@@ -1465,7 +1465,7 @@ proto_register_netbios(void)
 	expert_register_field_array(expert_netbios, ei, array_length(ei));
 
 
-	register_heur_dissector_list("netbios", &netbios_heur_subdissector_list);
+	netbios_heur_subdissector_list = register_heur_dissector_list("netbios");
 
 	netbios_module = prefs_register_protocol(proto_netbios, NULL);
 	prefs_register_bool_preference(netbios_module, "defragment",

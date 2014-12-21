@@ -945,8 +945,8 @@ proto_register_eth(void)
   expert_register_field_array(expert_eth, ei, array_length(ei));
 
   /* subdissector code */
-  register_heur_dissector_list("eth", &heur_subdissector_list);
-  register_heur_dissector_list("eth.trailer", &eth_trailer_subdissector_list);
+  heur_subdissector_list = register_heur_dissector_list("eth");
+  eth_trailer_subdissector_list = register_heur_dissector_list("eth.trailer");
 
   /* Register configuration preferences */
   eth_module = prefs_register_protocol(proto_eth, NULL);

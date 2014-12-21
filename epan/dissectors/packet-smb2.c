@@ -8448,7 +8448,7 @@ proto_register_smb2(void)
 				       "Whether the export object functionality will take the full path file name as file identifier",
 				       &eosmb2_take_name_as_fid);
 
-	register_heur_dissector_list("smb2_heur_subdissectors", &smb2_heur_subdissector_list);
+	smb2_heur_subdissector_list = register_heur_dissector_list("smb2_heur_subdissectors");
 	smb2_tap = register_tap("smb2");
 	smb2_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
 

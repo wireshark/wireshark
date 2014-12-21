@@ -106,6 +106,10 @@ static GHashTable *dissector_tables = NULL;
  */
 static GHashTable *registered_dissectors = NULL;
 
+struct heur_dissector_list {
+	GSList		*list;
+};
+
 static GHashTable *heur_dissector_lists = NULL;
 
 static void
@@ -1878,10 +1882,10 @@ get_dissector_table_param(const char *name)
 }
 
 /* Finds a heuristic dissector table by table name. */
-heur_dissector_list_t *
+heur_dissector_list_t
 find_heur_dissector_list(const char *name)
 {
-	return (heur_dissector_list_t *)g_hash_table_lookup(heur_dissector_lists, name);
+	return (heur_dissector_list_t)g_hash_table_lookup(heur_dissector_lists, name);
 }
 
 gboolean
@@ -1892,7 +1896,7 @@ has_heur_dissector_list(const gchar *name) {
 void
 heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto)
 {
-	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
+	heur_dissector_list_t sub_dissectors = find_heur_dissector_list(name);
 	const char            *proto_name;
 	heur_dtbl_entry_t     *hdtbl_entry;
 
@@ -1921,7 +1925,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto
 	hdtbl_entry->enabled   = TRUE;
 
 	/* do the table insertion */
-	*sub_dissectors = g_slist_prepend(*sub_dissectors, (gpointer)hdtbl_entry);
+	sub_dissectors->list = g_slist_prepend(sub_dissectors->list, (gpointer)hdtbl_entry);
 }
 
 
@@ -1937,7 +1941,7 @@ find_matching_heur_dissector( gconstpointer a, gconstpointer b) {
 
 void
 heur_dissector_delete(const char *name, heur_dissector_t dissector, const int proto) {
-	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
+	heur_dissector_list_t  sub_dissectors = find_heur_dissector_list(name);
 	heur_dtbl_entry_t      hdtbl_entry;
 	GSList                *found_entry;
 
@@ -1948,18 +1952,18 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 
 	hdtbl_entry.protocol  = find_protocol_by_id(proto);
 
-	found_entry = g_slist_find_custom(*sub_dissectors, (gpointer) &hdtbl_entry, find_matching_heur_dissector);
+	found_entry = g_slist_find_custom(sub_dissectors->list, (gpointer) &hdtbl_entry, find_matching_heur_dissector);
 
 	if (found_entry) {
 		g_free(((heur_dtbl_entry_t *)(found_entry->data))->list_name);
 		g_slice_free(heur_dtbl_entry_t, found_entry->data);
-		*sub_dissectors = g_slist_delete_link(*sub_dissectors, found_entry);
+		sub_dissectors->list = g_slist_delete_link(sub_dissectors->list, found_entry);
 	}
 }
 
 void
 heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const int proto, const gboolean enabled) {
-	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
+	heur_dissector_list_t  sub_dissectors = find_heur_dissector_list(name);
 	GSList                *found_entry;
 	heur_dtbl_entry_t      hdtbl_entry;
 
@@ -1970,7 +1974,7 @@ heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const i
 
 	hdtbl_entry.protocol  = find_protocol_by_id(proto);
 
-	found_entry = g_slist_find_custom(*sub_dissectors, (gpointer) &hdtbl_entry, find_matching_heur_dissector);
+	found_entry = g_slist_find_custom(sub_dissectors->list, (gpointer) &hdtbl_entry, find_matching_heur_dissector);
 
 	if (found_entry) {
 		heur_dtbl_entry_t *hdtbl_entry_p;
@@ -2012,7 +2016,8 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	saved_layers_len = wmem_list_count(pinfo->layers);
 	*heur_dtbl_entry = NULL;
 
-	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
+	for (entry = sub_dissectors->list; entry != NULL;
+	    entry = g_slist_next(entry)) {
 		/* XXX - why set this now and above? */
 		pinfo->can_desegment = saved_can_desegment-(saved_can_desegment>0);
 		hdtbl_entry = (heur_dtbl_entry_t *)entry->data;
@@ -2100,12 +2105,12 @@ heur_dissector_table_foreach (const char  *table_name,
 			      gpointer     user_data)
 {
 	heur_dissector_foreach_info_t info;
-	heur_dissector_list_t        *list = find_heur_dissector_list(table_name);
+	heur_dissector_list_t         sub_dissectors = find_heur_dissector_list(table_name);
 
 	info.table_name    = table_name;
 	info.caller_func   = func;
 	info.caller_data   = user_data;
-        g_slist_foreach (*list, heur_dissector_table_foreach_func, &info);
+        g_slist_foreach (sub_dissectors->list, heur_dissector_table_foreach_func, &info);
 }
 
 /*
@@ -2199,15 +2204,19 @@ dissector_dump_heur_decodes(void)
 }
 
 
-void
-register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissectors)
+heur_dissector_list_t
+register_heur_dissector_list(const char *name)
 {
+	heur_dissector_list_t sub_dissectors;
+
 	/* Make sure the registration is unique */
 	g_assert(g_hash_table_lookup(heur_dissector_lists, name) == NULL);
 
-	*sub_dissectors = NULL;	/* initially empty */
+	sub_dissectors = g_slice_new(struct heur_dissector_list);
+	sub_dissectors->list = NULL;	/* initially empty */
 	g_hash_table_insert(heur_dissector_lists, (gpointer)name,
 			    (gpointer) sub_dissectors);
+	return sub_dissectors;
 }
 
 /*

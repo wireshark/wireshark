@@ -601,7 +601,7 @@ proto_register_websocket(void)
    * this table using the standard heur_dissector_add()
    * function.
    */
-  register_heur_dissector_list("ws", &heur_subdissector_list);
+  heur_subdissector_list = register_heur_dissector_list("ws");
 
   port_subdissector_table = register_dissector_table("ws.port",
       "TCP port for protocols using WebSocket", FT_UINT16, BASE_DEC);

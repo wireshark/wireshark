@@ -3411,7 +3411,7 @@ clean_up_and_exit:
 void
 proto_register_pipe_dcerpc(void)
 {
-	register_heur_dissector_list("smb_transact", &smb_transact_heur_subdissector_list);
+	smb_transact_heur_subdissector_list = register_heur_dissector_list("smb_transact");
 	register_init_routine(smb_dcerpc_reassembly_init);
 }
 

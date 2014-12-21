@@ -2470,7 +2470,7 @@ proto_register_sua(void)
                                  "Set the source and destination addresses to the PC or GT digits, depending on the routing indicator."
                                  "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.", &set_addresses);
 
-  register_heur_dissector_list("sua", &heur_subdissector_list);
+  heur_subdissector_list = register_heur_dissector_list("sua");
   sua_parameter_table = register_dissector_table("sua.prop.tags", "SUA Proprietary Tags", FT_UINT16, BASE_DEC);
   sua_tap = register_tap("sua");
 

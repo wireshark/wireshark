@@ -2813,8 +2813,8 @@ void proto_register_ieee802154(void)
 
     /* Register the subdissector list */
     panid_dissector_table = register_dissector_table(IEEE802154_PROTOABBREV_WPAN_PANID, "IEEE 802.15.4 PANID", FT_UINT16, BASE_HEX);
-    register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN, &ieee802154_heur_subdissector_list);
-    register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN_BEACON, &ieee802154_beacon_subdissector_list);
+    ieee802154_heur_subdissector_list = register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN);
+    ieee802154_beacon_subdissector_list = register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN_BEACON);
 
     /*  Register dissectors with Wireshark. */
     register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);

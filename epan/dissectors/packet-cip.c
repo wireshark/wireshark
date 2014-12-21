@@ -6921,7 +6921,7 @@ proto_register_cip(void)
 
    /* Register a heuristic dissector on the service of the message so objects
     * can override the dissector for common services */
-   register_heur_dissector_list("cip.sc", &heur_subdissector_service);
+   heur_subdissector_service = register_heur_dissector_list("cip.sc");
 
 } /* end of proto_register_cip() */
 

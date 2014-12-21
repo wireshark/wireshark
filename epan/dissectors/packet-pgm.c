@@ -1408,7 +1408,7 @@ proto_register_pgm(void)
 	/* subdissector code */
 	subdissector_table = register_dissector_table("pgm.port",
 						      "PGM port", FT_UINT16, BASE_DEC);
-	register_heur_dissector_list("pgm", &heur_subdissector_list);
+	heur_subdissector_list = register_heur_dissector_list("pgm");
 
 	/*
 	 * Register configuration preferences for UDP encapsulation

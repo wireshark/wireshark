@@ -1625,7 +1625,7 @@ proto_register_stun(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* heuristic subdissectors (used for the DATA field) */
-    register_heur_dissector_list("stun", &heur_subdissector_list);
+    heur_subdissector_list = register_heur_dissector_list("stun");
 
     new_register_dissector("stun-udp", dissect_stun_udp, proto_stun);
     new_register_dissector("stun-heur", dissect_stun_heur, proto_stun);

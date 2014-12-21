@@ -2796,7 +2796,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
             break;
     }
 
-    if (try_heuristics) {
+    if (try_heuristics && heur_subdissector_list) {
         ret = dissector_try_heuristic(heur_subdissector_list,
                 next_tvb, pinfo, parent, &hdtbl_entry, usb_conv_info);
         if (ret)
@@ -4301,13 +4301,13 @@ proto_register_usb(void)
 
     usb_bulk_dissector_table = register_dissector_table("usb.bulk",
         "USB bulk endpoint", FT_UINT8, BASE_DEC);
-    register_heur_dissector_list("usb.bulk", &heur_bulk_subdissector_list);
+    heur_bulk_subdissector_list = register_heur_dissector_list("usb.bulk");
     usb_control_dissector_table = register_dissector_table("usb.control",
         "USB control endpoint", FT_UINT8, BASE_DEC);
-    register_heur_dissector_list("usb.control", &heur_control_subdissector_list);
+    heur_control_subdissector_list = register_heur_dissector_list("usb.control");
     usb_interrupt_dissector_table = register_dissector_table("usb.interrupt",
         "USB interrupt endpoint", FT_UINT8, BASE_DEC);
-    register_heur_dissector_list("usb.interrupt", &heur_interrupt_subdissector_list);
+    heur_interrupt_subdissector_list = register_heur_dissector_list("usb.interrupt");
     usb_descriptor_dissector_table = register_dissector_table("usb.descriptor",
         "USB descriptor", FT_UINT8, BASE_DEC);
 

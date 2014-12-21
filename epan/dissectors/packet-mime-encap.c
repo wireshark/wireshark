@@ -58,7 +58,7 @@ proto_register_mime_encap(void)
 	proto_mime_encap = proto_register_protocol("MIME file", "MIME_FILE", "mime_dlt");
 
 	register_dissector("mime_dlt", dissect_mime_encap, proto_mime_encap);
-	register_heur_dissector_list("wtap_file", &heur_subdissector_list);
+	heur_subdissector_list = register_heur_dissector_list("wtap_file");
 }
 
 void

@@ -3051,7 +3051,7 @@ proto_register_ip(void)
   /* subdissector code */
   ip_dissector_table = register_dissector_table("ip.proto", "IP protocol",
                                                 FT_UINT8, BASE_DEC);
-  register_heur_dissector_list("ip", &heur_subdissector_list);
+  heur_subdissector_list = register_heur_dissector_list("ip");
 
   /* Register configuration options */
   ip_module = prefs_register_protocol(proto_ip, NULL);

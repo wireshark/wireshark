@@ -985,8 +985,7 @@ proto_register_udp(void)
 /* subdissector code */
   udp_dissector_table = register_dissector_table("udp.port",
                                                  "UDP port", FT_UINT16, BASE_DEC);
-  register_heur_dissector_list("udp", &heur_subdissector_list);
-  register_heur_dissector_list("udplite", &heur_subdissector_list);
+  heur_subdissector_list = register_heur_dissector_list("udp");
 
   /* Register configuration preferences */
   udp_module = prefs_register_protocol(proto_udp, NULL);

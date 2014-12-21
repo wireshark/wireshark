@@ -1916,7 +1916,7 @@ proto_register_dtls(void)
   ssl_debug_printf("proto_register_dtls: registered tap %s:%d\n",
                    "dtls", dtls_tap);
 
-  register_heur_dissector_list("dtls", &heur_subdissector_list);
+  heur_subdissector_list = register_heur_dissector_list("dtls");
 }
 
 
