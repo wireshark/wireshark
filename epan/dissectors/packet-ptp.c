@@ -49,7 +49,8 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
-
+#include <epan/expert.h>
+#include <epan/exceptions.h>
 
 /**********************************************************/
 /* Port definition's for PTP                              */
@@ -1557,6 +1558,9 @@ static gint ett_ptp_as_sig_tlv_flags = -1;
 static gint ett_ptp_v2_priority = -1; */
 static gint ett_ptp_v2_transportspecific = -1;
 
+static expert_field ei_ptp_v2_msg_len_too_large = EI_INIT;
+static expert_field ei_ptp_v2_msg_len_too_small = EI_INIT;
+
 /* END Definitions and fields for PTPv2 dissection. */
 
 
@@ -2356,7 +2360,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
     guint16 temp;
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item  *ti, *transportspecific_ti, *flags_ti, *managementData_ti, *clockType_ti, *protocolAddress_ti;
+    proto_item  *ti = NULL, *msg_len_item = NULL, *transportspecific_ti, *flags_ti, *managementData_ti, *clockType_ti, *protocolAddress_ti;
     proto_tree  *ptp_tree, *ptp_transportspecific_tree, *ptp_flags_tree, *ptp_managementData_tree,
                 *ptp_clockType_tree, *ptp_protocolAddress_tree;
 
@@ -2368,6 +2372,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
     /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
     ptp_v2_messageid = 0x0F & tvb_get_guint8 (tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET);
+
+    msg_len = tvb_get_ntohs(tvb, PTP_V2_MESSAGE_LENGTH_OFFSET);
 
     /* Extend  Info column with managementId */
     /* Create and set the string for "Info" column */
@@ -2439,9 +2445,31 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_versionptp, tvb, PTP_V2_VERSIONPTP_OFFSET, 1, ENC_BIG_ENDIAN);
 
-        msg_len = tvb_get_ntohs(tvb, PTP_V2_MESSAGE_LENGTH_OFFSET);
-        proto_tree_add_item(ptp_tree,
+        msg_len_item = proto_tree_add_item(ptp_tree,
             hf_ptp_v2_messagelength, tvb, PTP_V2_MESSAGE_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
+   }
+
+   /*
+    * Sanity-check the message length.
+    */
+   if (msg_len > tvb_reported_length(tvb)) {
+       /* Bogus message length - runs past the end of the packet */
+       expert_add_info(pinfo, msg_len_item, &ei_ptp_v2_msg_len_too_large);
+       msg_len = tvb_reported_length(tvb);
+   } else if (msg_len < PTP_V2_MESSAGE_LENGTH_OFFSET + 2) {
+       /* Bogus message length - not long enough to include the message length field */
+       expert_add_info(pinfo, msg_len_item, &ei_ptp_v2_msg_len_too_small);
+       THROW(ReportedBoundsError);
+   } else {
+       /*
+        * Set the length of this tvbuff to the message length, chopping
+        * off extra data.
+        */
+       set_actual_length(tvb, msg_len);
+       proto_item_set_len(ti, msg_len);
+   }
+
+   if (tree) {
 
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_domainnumber, tvb, PTP_V2_DOMAIN_NUMBER_OFFSET, 1, ENC_BIG_ENDIAN);
@@ -5930,6 +5958,13 @@ proto_register_ptp(void)
         &ett_ptp_as_sig_tlv_flags,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_ptp_v2_msg_len_too_large, { "ptp.v2.msg_len_too_large", PI_MALFORMED, PI_ERROR, "Message length goes past the end of the packet", EXPFILL }},
+        { &ei_ptp_v2_msg_len_too_small, { "ptp.v2.msg_len_too_small", PI_MALFORMED, PI_ERROR, "Message length too short to include the message length field", EXPFILL }},
+    };
+
+    expert_module_t* expert_ptp;
+
 /* Register the protocol name and description */
     proto_ptp = proto_register_protocol("Precision Time Protocol (IEEE1588)",
                                         "PTP", "ptp");
@@ -5937,6 +5972,9 @@ proto_register_ptp(void)
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ptp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_ptp = expert_register_protocol(proto_ptp);
+    expert_register_field_array(expert_ptp, ei, array_length(ei));
 }
 
 void
