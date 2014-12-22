@@ -31,6 +31,7 @@
 
 #include "config.h"
 
+#include <math.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
