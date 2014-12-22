@@ -2020,6 +2020,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                     callsinfo->to_identity=g_strdup(pi->dialedDigits);
                     tmp_h323info->requestSeqNum = pi->requestSeqNum;
                 }
+                /* Fall Through */
             case 19: /* LCF */
                 if (strlen(pi->dialedDigits))
                     comment = g_strdup_printf("H225 RAS dialedDigits: %s", pi->dialedDigits);
