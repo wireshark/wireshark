@@ -183,6 +183,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(flagtree, hf_ns_activity_natpcb_zombie, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(flagtree, hf_ns_activity_lbstats_sync, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(flagtree, hf_ns_activity_stats_req, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+		/* fall through to next case */
 
 	case NSPR_HEADER_VERSION205:
 
@@ -193,7 +194,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(dst_vmname_len){
 			proto_tree_add_item(ns_tree,hf_ns_dst_vm,tvb,pnstr->data_offset+src_vmname_len,dst_vmname_len,ENC_ASCII|ENC_NA);
 			}
-
+		/* fall through to next case */
 
 	case NSPR_HEADER_VERSION204:
 
@@ -224,6 +225,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_boolean(flagtree, hf_ns_clflags_dfd, tvb, flagoffset, 1, flagval);
 		proto_tree_add_boolean(flagtree, hf_ns_clflags_fr, tvb, flagoffset, 1, flagval);
 		proto_tree_add_boolean(flagtree, hf_ns_clflags_fp, tvb, flagoffset, 1, flagval);
+		/* fall through to next case */
 
 	case NSPR_HEADER_VERSION203:
 		proto_tree_add_item(ns_tree, hf_ns_coreid, tvb, pnstr->coreid_offset, 2, ENC_LITTLE_ENDIAN);
