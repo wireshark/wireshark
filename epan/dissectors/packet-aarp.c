@@ -108,8 +108,8 @@ tvb_atalkid_to_str(tvbuff_t *tvb, gint offset)
   gchar *cur;
 
   cur=(gchar *)wmem_alloc(wmem_packet_scope(), 16);
-  node=tvb_get_guint8(tvb, offset)<<8|tvb_get_guint8(tvb, offset+1);
-  g_snprintf(cur, 16, "%d.%d",node,tvb_get_guint8(tvb, offset+2));
+  node=tvb_get_guint8(tvb, offset+1)<<8|tvb_get_guint8(tvb, offset+2);
+  g_snprintf(cur, 16, "%d.%d",node,tvb_get_guint8(tvb, offset+3));
   return cur;
 }
 
