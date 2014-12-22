@@ -41,7 +41,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** @file
+/**
  * "testy, virtual(-izable) buffer".  They are testy in that they get mad when
  * an attempt is made to access data beyond the bounds of their array. In that
  * case, they throw an exception.

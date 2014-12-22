@@ -753,7 +753,7 @@ fReadPropertyMultipleRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subt
  *  listOfReadAccessResults SEQUENCE OF ReadAccessResult
  * }
  * @param tvb the tv buffer of the current data
- * @parma pinfo
+ * @param pinfo
  * @param tree the tree to append this item to
  * @param offset the offset in the tvb
  * @return offset modified

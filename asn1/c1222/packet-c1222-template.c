@@ -705,7 +705,7 @@ get_ber_len_size(guint32 n)
  *
  * \param ptr points to the buffer to be written
  * \param n is the length to be BER encoded
- * \maxsize is the maximum number of bytes we're allowed to write
+ * \param maxsize is the maximum number of bytes we're allowed to write
  * \returns length of encoded value in bytes
  */
 static int

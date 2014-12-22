@@ -1149,9 +1149,7 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
  * \param       secs    Returns the 'time_t' equivalent
  * \param       nsecs   Returns the additional nano-seconds
  *
- * \return              Whether time is specified relative or absolute
- * \retval      TRUE    Relative time
- * \retval      FALSE   Absolute time
+ * \return              Whether time is specified relative (TRUE) or absolute (FALSE)
  */
 static gboolean
 smpp_mktime(const char *datestr, time_t *secs, int *nsecs)

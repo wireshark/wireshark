@@ -648,7 +648,7 @@ static const value_string eigrp_saf_srv2string[] = {
  * Dissect the Parameter TLV, which is used to convey metric weights and the
  * hold time.
  *
- * @usage
+ * @brief
  * Note the addition of K6 for the new extended metrics, and does not apply to
  * older TLV packet formats.
  */

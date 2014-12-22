@@ -31,7 +31,7 @@
 void proto_reg_handoff_ceph(void);
 void proto_register_ceph(void);
 
-/** Extending the Ceph Dissector.
+/* Extending the Ceph Dissector.
  *
  * Hello, this is a quick overview of the insertion points in the Ceph dissector
  * it is assumed that you know how dissectors work in general (if not please

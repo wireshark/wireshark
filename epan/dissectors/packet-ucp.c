@@ -710,9 +710,9 @@ ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
  * \param       endpkt  Returns pointer, indicating the end of the PDU
  *
  * \return              The state of this PDU
- * \retval      0               Definitely UCP
- * \retval      UCP_MALFORMED   ???
- * \retval      UCP_INV_CHK     Nice packet, but checksum doesn't add up...
+ *       0               Definitely UCP
+ *       UCP_MALFORMED   ???
+ *       UCP_INV_CHK     Nice packet, but checksum doesn't add up...
  */
 static int
 check_ucp(tvbuff_t *tvb, int *endpkt)

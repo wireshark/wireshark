@@ -29,7 +29,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** @file
+/** @file help_url.h
  * "Help" URLs.
  */
 

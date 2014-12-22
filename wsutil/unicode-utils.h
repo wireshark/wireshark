@@ -30,7 +30,8 @@
 #include <glib.h>
 
 /**
- * @file Unicode convenience routines.
+ * @file
+ * Unicode convenience routines.
  */
 
 WS_DLL_PUBLIC
