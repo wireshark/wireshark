@@ -9,7 +9,7 @@ MACRO(ADD_LEMON_FILES _sources )
 
       ADD_CUSTOM_COMMAND(
          OUTPUT
-	  ${_out}
+          ${_out}
          COMMAND lemon
            t=${_lemonpardir}/lempar.c
            ${_in}
