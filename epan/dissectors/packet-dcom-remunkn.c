@@ -28,7 +28,6 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcom.h"
-#include "guid-utils.h"
 
 void proto_register_remunk(void);
 void proto_reg_handoff_remunk(void);

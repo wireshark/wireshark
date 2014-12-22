@@ -28,9 +28,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/ipproto.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 
 #include <wiretap/catapult_dct2000.h>

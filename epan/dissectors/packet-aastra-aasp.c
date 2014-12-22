@@ -29,7 +29,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 /* commands id */
 #define BEGIN_BLOCK_DATA    0x80

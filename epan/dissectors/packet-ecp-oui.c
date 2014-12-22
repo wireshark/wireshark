@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/oui.h>
 #include <epan/addr_resolv.h>
 
 #include "packet-ieee802a.h"

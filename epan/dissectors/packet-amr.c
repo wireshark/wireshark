@@ -33,7 +33,6 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
-#include <epan/prefs.h>
 
 void proto_register_amr(void);
 void proto_reg_handoff_amr(void);

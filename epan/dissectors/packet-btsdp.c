@@ -34,8 +34,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
-#include <epan/ip_opts.h>
-#include <epan/strutil.h>
 #include <epan/to_str.h>
 
 #include "packet-bluetooth.h"

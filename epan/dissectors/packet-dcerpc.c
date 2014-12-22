@@ -29,16 +29,13 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
-#include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>

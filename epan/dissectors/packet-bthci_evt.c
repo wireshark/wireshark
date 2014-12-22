@@ -39,7 +39,6 @@
 #include <epan/decode_as.h>
 
 #include "packet-bluetooth.h"
-#include "packet-sdp.h"
 
 static dissector_handle_t bthci_cmd_handle;
 static dissector_handle_t bthci_evt_handle;

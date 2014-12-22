@@ -61,14 +61,10 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/strutil.h>
-#include <epan/to_str.h>
-#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/oids.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/asn1.h>
 #include <epan/decode_as.h>
 #include <wiretap/wtap.h>
 

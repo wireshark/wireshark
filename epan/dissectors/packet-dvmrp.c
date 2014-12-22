@@ -52,7 +52,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include "packet-igmp.h"
 

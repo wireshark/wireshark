@@ -29,7 +29,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/asn1.h>
 
 #include "packet-diameter.h"
 #include "packet-gsm_a_common.h"

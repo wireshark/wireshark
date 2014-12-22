@@ -47,7 +47,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/show_exception.h>

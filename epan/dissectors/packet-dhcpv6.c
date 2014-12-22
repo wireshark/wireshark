@@ -54,8 +54,6 @@
 
 #include <epan/packet.h>
 #include <epan/sminmpec.h>
-#include <epan/strutil.h>
-#include <epan/arptypes.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>

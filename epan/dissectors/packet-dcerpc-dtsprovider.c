@@ -28,7 +28,6 @@
 
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
-#include "packet-dcerpc-dce122.h"
 
 void proto_register_dtsprovider (void);
 void proto_reg_handoff_dtsprovider (void);

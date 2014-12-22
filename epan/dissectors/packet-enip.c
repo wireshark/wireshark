@@ -36,11 +36,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/dissector_filters.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
-#include <epan/ipv6-utils.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 #include "packet-cip.h"

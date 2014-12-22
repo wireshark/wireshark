@@ -54,7 +54,6 @@
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include "packet-ip.h"
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include "packet-dccp.h"

@@ -32,10 +32,8 @@
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
 
-#include "packet-bluetooth.h"
 #include "packet-btle.h"
 #include "packet-bthci_acl.h"
-#include "packet-ubertooth.h"
 
 static int proto_btle = -1;
 

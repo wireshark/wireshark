@@ -39,7 +39,6 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -49,7 +48,6 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 
-#include "packet-mtp3.h"
 #include "packet-rtp.h"
 #include "packet-bssap.h"
 #include "packet-ansi_a.h"

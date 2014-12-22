@@ -27,7 +27,6 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include "packet-dcerpc.h"
-#include "packet-dcerpc-nt.h"
 
 void proto_register_epm (void);
 void proto_reg_handoff_epm (void);

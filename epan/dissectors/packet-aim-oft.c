@@ -24,9 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 
-#include "packet-aim.h"
 
 void proto_register_aim_oft(void);
 void proto_reg_handoff_aim_oft(void);

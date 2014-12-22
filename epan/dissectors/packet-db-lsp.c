@@ -27,7 +27,6 @@
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/expert.h>
 
 #include "packet-tcp.h"
 #include "packet-x509af.h"

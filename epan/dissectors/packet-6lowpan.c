@@ -28,10 +28,8 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
-#include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
 #include "packet-ipv6.h"
-#include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
 void proto_register_6lowpan(void);
 void proto_reg_handoff_6lowpan(void);

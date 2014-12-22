@@ -28,7 +28,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <wiretap/wtap.h>
 
 #include "packet-bluetooth.h"
 

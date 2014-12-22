@@ -210,13 +210,10 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
-#include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>

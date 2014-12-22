@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 

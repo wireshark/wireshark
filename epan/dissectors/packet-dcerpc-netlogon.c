@@ -24,7 +24,6 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <wsutil/rc4.h>
@@ -38,7 +37,6 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-netlogon.h"
 #include "packet-windows-common.h"
-#include "packet-ntlmssp.h"
 #include "packet-dcerpc-lsa.h"
 /* for keytab format */
 #include <epan/asn1.h>

@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <epan/etypes.h>
 #include <epan/to_str.h>
 

@@ -25,8 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
-#include "packet-tcp.h"
 #include "packet-aim.h"
 
 void proto_register_aim_chat(void);

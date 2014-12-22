@@ -29,7 +29,6 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <math.h>
 
 #include <epan/packet.h>
@@ -37,7 +36,6 @@
 #include <epan/reassemble.h>
 #include "packet-tcp.h"
 #include "packet-rtacser.h"
-#include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/crc16-tvb.h>

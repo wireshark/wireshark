@@ -41,9 +41,6 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -51,7 +48,6 @@
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
-#include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 #include <epan/diam_dict.h>

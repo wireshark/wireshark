@@ -28,7 +28,6 @@
 #include "packet-erf.h"
 
 /*
-#include "wiretap/atm.h"
 */
 #include "wiretap/erf.h"
 

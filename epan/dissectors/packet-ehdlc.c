@@ -29,7 +29,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 #include <epan/xdlc.h>
 
 void proto_register_ehdlc(void);

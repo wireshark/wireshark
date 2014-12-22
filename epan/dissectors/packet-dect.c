@@ -36,10 +36,8 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/etypes.h>
 #define ETHERTYPE_DECT 0x2323
 
 #define DECT_PACKET_INFO_LEN 11

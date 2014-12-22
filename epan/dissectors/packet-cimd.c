@@ -34,7 +34,6 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
 #define CIMD_STX   0x02 /* Start of CIMD PDU */
 #define CIMD_ETX   0x03 /* End of CIMD PDU */
 #define CIMD_COLON 0x3A /* CIMD colon */

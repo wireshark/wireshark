@@ -24,7 +24,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include "packet-rpc.h"
 

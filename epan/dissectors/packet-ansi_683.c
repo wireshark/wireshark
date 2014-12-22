@@ -30,11 +30,9 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/to_str.h>
 
 void proto_register_ansi_683(void);
 void proto_reg_handoff_ansi_683(void);

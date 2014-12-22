@@ -28,8 +28,6 @@
 
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
-#include "packet-dcerpc-nt.h"
-#include "packet-windows-common.h"
 
 void proto_register_dcerpc_trksvr(void);
 void proto_reg_handoff_dcerpc_trksvr(void);

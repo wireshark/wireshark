@@ -27,7 +27,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include "packet-btl2cap.h"
 #include "packet-btsdp.h"
 
 enum {

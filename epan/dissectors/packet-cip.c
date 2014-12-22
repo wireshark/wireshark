@@ -41,7 +41,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include "packet-cip.h"
-#include "packet-enip.h"
 #include "packet-cipsafety.h"
 #include "packet-mbtcp.h"
 

@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 
 void proto_register_cpha(void);
 void proto_reg_handoff_cpha(void);

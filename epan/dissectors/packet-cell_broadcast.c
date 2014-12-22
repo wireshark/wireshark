@@ -33,7 +33,6 @@
 #include <epan/reassemble.h>
 
 #include "packet-gsm_map.h"
-#include "packet-gsm_sms.h"
 
 #include "packet-cell_broadcast.h"
 

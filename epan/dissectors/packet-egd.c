@@ -26,7 +26,6 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <epan/packet.h>
 
 #define EGD_PORT 18246 /* 0x4746 */

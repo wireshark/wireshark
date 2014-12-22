@@ -29,7 +29,6 @@
 
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
-#include "packet-dcerpc-dce122.h"
 
 void proto_register_llb (void);
 void proto_reg_handoff_llb (void);

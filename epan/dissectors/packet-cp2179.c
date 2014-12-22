@@ -52,13 +52,9 @@ F = 16-bit CRC
 
 #include "config.h"
 #include <epan/packet.h>
-#include "packet-tcp.h"
 #include "packet-rtacser.h"
-#include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include <epan/reassemble.h>
-#include <epan/expert.h>
 
 void proto_reg_handoff_cp2179(void);
 void proto_register_cp2179(void);

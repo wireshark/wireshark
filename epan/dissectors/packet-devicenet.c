@@ -30,7 +30,6 @@
 #include <epan/uat.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/reassemble.h>
 #include "packet-cip.h"
 
 void proto_register_devicenet(void);

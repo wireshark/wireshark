@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/crypt/wep-wpadefs.h>
 #include <epan/etypes.h>
 #include <epan/eapol_keydes_types.h>
 

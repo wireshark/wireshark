@@ -39,12 +39,9 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <math.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 
 #define STRLEN	100

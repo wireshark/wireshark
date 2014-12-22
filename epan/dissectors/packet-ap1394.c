@@ -25,7 +25,6 @@
 #include <epan/packet.h>
 #include <wsutil/pint.h>
 #include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 
 #include "packet-ap1394.h"
 #include <epan/etypes.h>

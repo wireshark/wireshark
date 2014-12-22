@@ -26,7 +26,6 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include "packet-tcp.h"
 
 void proto_register_ajp13(void);

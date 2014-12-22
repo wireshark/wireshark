@@ -36,12 +36,8 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <math.h>
 
 #include <epan/packet.h>
-#include <epan/address.h>
-#include <epan/addr_resolv.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

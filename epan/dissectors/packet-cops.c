@@ -54,16 +54,12 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include "packet-tcp.h"
 
 #include <epan/oids.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/asn1.h>
 #include "packet-ber.h"
 
 /* XXX - The "plain" COPS port (3288) can be overridden in the prefs.

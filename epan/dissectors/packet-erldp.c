@@ -25,10 +25,8 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include "packet-tcp.h"
 #include "packet-epmd.h"
 

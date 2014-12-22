@@ -27,7 +27,6 @@
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
-#include <epan/strutil.h>
 
 void proto_register_ayiya(void);
 void proto_reg_handoff_ayiya(void);

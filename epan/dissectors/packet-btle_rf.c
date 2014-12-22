@@ -27,7 +27,6 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
-#include "packet-bluetooth.h"
 #include "packet-btle.h"
 
 #define LE_DEWHITENED        0x0001
