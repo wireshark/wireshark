@@ -173,6 +173,7 @@ time_stamp(tvbuff_t *tvb, proto_tree *nasdaq_itch_tree, int id, int offset, int 
           break;
       case 5:
           ms = val *1000;
+          /* Fall Through */
       case 8: /* 0 86 400 000 */
           display = wmem_strdup_printf(wmem_packet_scope(), " %u (%02u:%02u:%02u.%03u)", val,
               ms/3600000, (ms % 3600000)/60000, (ms % 60000)/1000, ms %1000);
