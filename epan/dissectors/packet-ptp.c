@@ -719,7 +719,6 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_AN_GRANDMASTERCLOCKIDENTITY_OFFSET                   53
 #define PTP_V2_AN_LOCALSTEPSREMOVED_OFFSET                          61
 #define PTP_V2_AN_TIMESOURCE_OFFSET                                 63
-#define PTP_V2_AN_FCS_OFFSET                                        64
 #define PTP_V2_AN_TLV_OFFSET                                        64 /* TLV only used if message length is > 64 bytes */
 
 /* Announce TLV field offsets */
@@ -1315,7 +1314,6 @@ static int hf_ptp_v2_an_grandmasterclockaccuracy = -1;
 static int hf_ptp_v2_an_grandmasterclockvariance = -1;
 static int hf_ptp_v2_an_priority1 = -1;
 static int hf_ptp_v2_an_priority2 = -1;
-static int hf_ptp_v2_an_fcs = -1;
 
 /* Fields for PTP_Announce TLVs */
 static int hf_ptp_v2_an_tlv_tlvtype = -1;
@@ -2751,13 +2749,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
                         tlv_total_length += (tlv_length + PTP_V2_AN_TLV_DATA_OFFSET);
                     }
-                }
-                else
-                {
-
-                    proto_tree_add_item(ptp_tree, hf_ptp_v2_an_fcs, tvb,
-                        PTP_V2_AN_FCS_OFFSET, 4, ENC_BIG_ENDIAN);
-
                 }
 
                 break;
@@ -4958,11 +4949,6 @@ proto_register_ptp(void)
         { &hf_ptp_v2_an_priority2,
           { "priority2",           "ptp.v2.an.priority2",
             FT_UINT8, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_ptp_v2_an_fcs,
-          { "FCS",           "ptp.v2.an.fcs",
-            FT_UINT32, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
 
