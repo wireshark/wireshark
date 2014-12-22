@@ -172,8 +172,6 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(pushProfileName()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
-    connect(wsApp, SIGNAL(captureCaptureUpdateContinue(capture_session*)),
-            this, SLOT(updateCaptureStatistics(capture_session*)));
     connect(wsApp, SIGNAL(configurationProfileChanged(const gchar *)),
             this, SLOT(pushProfileName()));
     connect(&profile_status_, SIGNAL(mousePressedAt(QPoint,Qt::MouseButton)),
