@@ -240,6 +240,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
             {
               THROW (ReportedBoundsError);
             }
+          break;
         case EH_BP_UP:
           proto_tree_add_item (ehdr_tree, hf_docsis_key_seq, tvb, pos + 1, 1,
                                ENC_BIG_ENDIAN);

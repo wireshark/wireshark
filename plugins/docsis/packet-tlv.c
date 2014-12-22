@@ -772,6 +772,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
             break;
           case PHS_ERRORS:
             dissect_phs_err (tvb, phs_tree, pos, length);
+            break;
           case PHS_FIELD:
             proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
                                  length, ENC_NA);
