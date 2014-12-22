@@ -92,78 +92,78 @@ add_lemon_files(DFILTER_FILES
 )
 
 if (AUTOGEN_pidl)
-    # TODO
+	# TODO
 endif()
 
 if (AUTOGEN_dcerpc)
-  FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
-    set(PIDL_DISSECTOR_AUTOGEN_SRC
-	${PIDL_DISSECTOR_AUTOGEN_SRC}
-	dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
-    )
-  ENDFOREACH()
+	FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+		set(PIDL_DISSECTOR_AUTOGEN_SRC
+		${PIDL_DISSECTOR_AUTOGEN_SRC}
+		dissectors/dcerpc/${PROTOCOL_NAME}/packet-dcerpc-${PROTOCOL_NAME}.c
+	)
+	ENDFOREACH()
 
-  FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
-    SET(CUR_PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME})
-    SET(CUR_PROTO_C_FILE packet-dcerpc-${PROTOCOL_NAME}.c)
-    SET(CUR_PROTO_H_FILE packet-dcerpc-${PROTOCOL_NAME}.h)
-    ADD_CUSTOM_COMMAND(
-	OUTPUT
-	  ${CUR_PROTO_DIR}/${CUR_PROTO_C_FILE}
-	  ${CUR_PROTO_DIR}/${CUR_PROTO_H_FILE}
-	COMMAND
-	  idl2wrs ${PROTOCOL_NAME}
-	COMMAND
-	  ${CMAKE_COMMAND} -E copy_if_different ${CUR_PROTO_DIR}/${CUR_PROTO_C_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/${CUR_PROTO_C_FILE}
-	COMMAND
-	  ${CMAKE_COMMAND} -E copy_if_different ${CUR_PROTO_DIR}/${CUR_PROTO_H_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/${CUR_PROTO_H_FILE}
-	WORKING_DIRECTORY
-	  ${CUR_PROTO_DIR}
-	DEPENDS
-	  ${CUR_PROTO_DIR}/${PROTOCOL_NAME}.idl
-	  ${CUR_PROTO_DIR}/${PROTOCOL_NAME}.cnf
-	  ${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.c
-	  ${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.h
-    )
-  ENDFOREACH()
+	FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+		SET(CUR_PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/dcerpc/${PROTOCOL_NAME})
+		SET(CUR_PROTO_C_FILE packet-dcerpc-${PROTOCOL_NAME}.c)
+		SET(CUR_PROTO_H_FILE packet-dcerpc-${PROTOCOL_NAME}.h)
+		ADD_CUSTOM_COMMAND(
+			OUTPUT
+			${CUR_PROTO_DIR}/${CUR_PROTO_C_FILE}
+			${CUR_PROTO_DIR}/${CUR_PROTO_H_FILE}
+			COMMAND
+				idl2wrs ${PROTOCOL_NAME}
+			COMMAND
+				${CMAKE_COMMAND} -E copy_if_different ${CUR_PROTO_DIR}/${CUR_PROTO_C_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/${CUR_PROTO_C_FILE}
+			COMMAND
+				${CMAKE_COMMAND} -E copy_if_different ${CUR_PROTO_DIR}/${CUR_PROTO_H_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/dissectors/${CUR_PROTO_H_FILE}
+			WORKING_DIRECTORY
+				${CUR_PROTO_DIR}
+			DEPENDS
+				${CUR_PROTO_DIR}/${PROTOCOL_NAME}.idl
+				${CUR_PROTO_DIR}/${PROTOCOL_NAME}.cnf
+				${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.c
+				${CUR_PROTO_DIR}/packet-dcerpc-${PROTOCOL_NAME}-template.h
+		)
+	ENDFOREACH()
 else()
-  FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
-    set(PIDL_DISSECTOR_AUTOGEN_SRC
-	${PIDL_DISSECTOR_AUTOGEN_SRC}
-	dissectors/packet-dcerpc-${PROTOCOL_NAME}.c
-    )
-  ENDFOREACH()
+	FOREACH(PROTOCOL_NAME ${PIDL_DISSECTOR_AUTOGEN_NAMES})
+		set(PIDL_DISSECTOR_AUTOGEN_SRC
+		${PIDL_DISSECTOR_AUTOGEN_SRC}
+		dissectors/packet-dcerpc-${PROTOCOL_NAME}.c
+		)
+	ENDFOREACH()
 endif()
 
 ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
-    COMMAND ${PYTHON_EXECUTABLE}
-      ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
-      -o ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
-    DEPENDS
-      dissectors/packet-ncp2222.inc
-      ${CMAKE_SOURCE_DIR}/tools/ncp2222.py
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
+	COMMAND ${PYTHON_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/tools/ncp2222.py
+		-o ${CMAKE_CURRENT_BINARY_DIR}/packet-ncp2222.c
+	DEPENDS
+		dissectors/packet-ncp2222.inc
+		${CMAKE_SOURCE_DIR}/tools/ncp2222.py
 )
 
 ADD_CUSTOM_COMMAND(
-    OUTPUT
-       x11-dissector
-#      x11-declarations.h
-#      x11-enum.h
-#      x11-extension-errors.h
-#      x11-extension-implementation.h
-#      x11-fields
-#      x11-glx-render-enum.h
-#      x11-register-info.h
-    COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
-      <dissectors/x11-fields
-    COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
-    DEPENDS
-      dissectors/x11-fields
-      ${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
-      ${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
+	OUTPUT
+		x11-dissector
+#		x11-declarations.h
+#		x11-enum.h
+#		x11-extension-errors.h
+#		x11-extension-implementation.h
+#		x11-fields
+#		x11-glx-render-enum.h
+#		x11-register-info.h
+	COMMAND ${PERL_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
+		<dissectors/x11-fields
+	COMMAND ${PERL_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
+	DEPENDS
+		dissectors/x11-fields
+		${CMAKE_SOURCE_DIR}/tools/process-x11-fields.pl
+		${CMAKE_SOURCE_DIR}/tools/process-x11-xcb.pl
 )
 
 # Note that some dissectors are added in dissectors/dcerpc/CMakeLists.txt
@@ -1520,12 +1520,12 @@ set(NGHTTP2_FILES
 source_group(nghttp2 FILES ${NGHTTP2_FILES})
 
 ADD_CUSTOM_TARGET(
-    update-sminmpec
-    COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
-    DEPENDS
-      enterprise-numbers
-      ${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
+	update-sminmpec
+	COMMAND ${PERL_EXECUTABLE}
+		${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
+	DEPENDS
+		enterprise-numbers
+		${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
 )
 
 ADD_CUSTOM_COMMAND(
@@ -1686,11 +1686,11 @@ set(CLEAN_FILES
 )
 
 if (WERROR)
-    set_source_files_properties(
-	${CLEAN_FILES}
-	PROPERTIES
-	COMPILE_FLAGS -Werror
-    )
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
 endif()
 
 add_library(epan ${LINK_MODE_LIB}
