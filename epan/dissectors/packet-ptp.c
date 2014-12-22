@@ -1643,7 +1643,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti, *flags_ti, *time_ti, *time2_ti;
-    proto_tree *ptp_tree, *ptp_flags_tree, *ptp_time_tree, *ptp_time2_tree;
+    proto_tree *ptp_tree = NULL, *ptp_flags_tree, *ptp_time_tree, *ptp_time2_tree;
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv1");
