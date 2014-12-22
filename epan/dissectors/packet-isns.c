@@ -1138,6 +1138,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     case 64:
             proto_tree_add_expert_format(tree, pinfo, &ei_isns_portal_ip_addr, tvb, offset, -1,
                 "Broken iSNS implementation. The PG_PORTAL_IP_ADDRESS tag should be 16 bytes in length");
+            /* Fall Through */
     case 16:
             dissect_isns_attr_ip_address(tvb, offset, tree, hf_isns_pg_portal_ip_addr, tag, 16);
             break;
