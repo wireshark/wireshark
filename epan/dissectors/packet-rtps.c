@@ -4090,7 +4090,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
     case PID_TYPE2_CHECKSUM:
     case PID_RELIABILITY_ENABLED:
       expert_add_info(pinfo, parameter_item, &ei_rtps_parameter_not_decoded);
-
+      /* Fall Through */
     case PID_PAD:
       if (param_length > 0) {
         proto_tree_add_item(rtps_parameter_tree, hf_rtps_parameter_data, tvb,
