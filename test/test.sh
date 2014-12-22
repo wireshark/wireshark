@@ -30,12 +30,12 @@ RUN_SUITE=""
 PRINT_USAGE=0
 
 while getopts "chs:" OPTION ; do
-        case $OPTION in
-          c) USE_COLOR=0 ;;
-          h) PRINT_USAGE=1 ;;
-          s) RUN_SUITE="$OPTARG" ;;
-          *) echo "Unknown option: " $OPTION $OPTARG
-        esac
+	case $OPTION in
+		c) USE_COLOR=0 ;;
+		h) PRINT_USAGE=1 ;;
+		s) RUN_SUITE="$OPTARG" ;;
+		*) echo "Unknown option: " $OPTION $OPTARG
+	esac
 done
 
 shift $(( $OPTIND - 1 ))
@@ -80,10 +80,10 @@ HOME_PATH="$TEST_OUTDIR/home"
 CONF_PATH="$HOME_PATH/.wireshark"
 
 if [ "$WS_SYSTEM" == "Windows" ] ; then
-    HOME_ENV="APPDATA"
-    HOME_PATH="`cygpath -w $HOME_PATH`"
-    CONF_PATH="$HOME_PATH/Wireshark"
-    CAPTURE_DIR="`cygpath -w $CAPTURE_DIR`"
+	HOME_ENV="APPDATA"
+	HOME_PATH="`cygpath -w $HOME_PATH`"
+	CONF_PATH="$HOME_PATH/Wireshark"
+	CAPTURE_DIR="`cygpath -w $CAPTURE_DIR`"
 fi
 
 mkdir -p $CONF_PATH
@@ -130,7 +130,7 @@ test_step_prerequisites() {
 
 # Dump version information
 test_step_tshark_version() {
-        test_remark_add "Printing TShark version"
+	test_remark_add "Printing TShark version"
 	$TSHARK -v
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -173,38 +173,38 @@ test_set_output VERBOSE
 #test_suite_show "All" test_suite
 
 if [ -n "$RUN_SUITE" ] ; then
-        case $RUN_SUITE in
-          "all")
-            test_suite_run "All" test_suite
-            exit $? ;;
-	  "capture")
-            test_suite_run "Capture" capture_suite
-            exit $? ;;
-	  "clopts")
-	    test_suite_run "Command line options" clopt_suite
-            exit $? ;;
-	  "decryption")
-	    test_suite_run "Decryption" decryption_suite
-            exit $? ;;
-	  "fileformats")
-            test_suite_run "File formats" fileformats_suite
-            exit $? ;;
-	  "io")
-	    test_suite_run "File I/O" io_suite
-            exit $? ;;
-	  "nameres")
-	    test_suite_run "Name Resolution" name_resolution_suite
-            exit $? ;;
-	  "prerequisites")
-            test_suite_run "Prerequisites" prerequisites_suite
-            exit $? ;;
-	  "unittests")
-            test_suite_run "Unit tests" unittests_suite
-            exit $? ;;
-	  "wslua")
-            test_suite_run "Lua API" wslua_suite
-            exit $? ;;
-        esac
+	case $RUN_SUITE in
+		"all")
+			test_suite_run "All" test_suite
+			exit $? ;;
+		"capture")
+			test_suite_run "Capture" capture_suite
+			exit $? ;;
+		"clopts")
+			test_suite_run "Command line options" clopt_suite
+			exit $? ;;
+		"decryption")
+			test_suite_run "Decryption" decryption_suite
+			exit $? ;;
+		"fileformats")
+			test_suite_run "File formats" fileformats_suite
+			exit $? ;;
+		"io")
+			test_suite_run "File I/O" io_suite
+			exit $? ;;
+		"nameres")
+			test_suite_run "Name Resolution" name_resolution_suite
+			exit $? ;;
+		"prerequisites")
+			test_suite_run "Prerequisites" prerequisites_suite
+			exit $? ;;
+		"unittests")
+			test_suite_run "Unit tests" unittests_suite
+			exit $? ;;
+		"wslua")
+			test_suite_run "Lua API" wslua_suite
+			exit $? ;;
+	esac
 fi
 
 MENU_LEVEL=0
@@ -300,3 +300,14 @@ done
 
 	esac
 done
+
+# Editor modelines
+#
+# Local Variables:
+# sh-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# ex: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:

@@ -70,10 +70,10 @@ DUMPCAP=$WS_BIN_PATH/dumpcap
 # (e.g. start a web radio to generate some traffic :-)
 # an interfaces index (1 based) should do well for recent devbuilds
 if [ "$WS_SYSTEM" = "Windows" -a -z "$TRAFFIC_CAPTURE_IFACE" ] ; then
-        # Try to fetch the first Ethernet interface.
-        TRAFFIC_CAPTURE_IFACE=`$TSHARK -D 2>&1 | \
-                egrep 'Ethernet|Network Connection|VMware|Intel|Realtek' | \
-                head -1 | cut -c 1`
+	# Try to fetch the first Ethernet interface.
+	TRAFFIC_CAPTURE_IFACE=`$TSHARK -D 2>&1 | \
+		egrep 'Ethernet|Network Connection|VMware|Intel|Realtek' | \
+		head -1 | cut -c 1`
 fi
 TRAFFIC_CAPTURE_IFACE=${TRAFFIC_CAPTURE_IFACE:-1}
 
@@ -92,7 +92,7 @@ TRAFFIC_CAPTURE_PROMISC=-p
 #   are different than the cygwin named pipes).
 #
 if [ "$WS_SYSTEM" != "Windows" ] && which mkfifo &>/dev/null ; then
-    TEST_FIFO=1
+	TEST_FIFO=1
 fi
 
 # Tell Wireshark to quit after capuring packets.

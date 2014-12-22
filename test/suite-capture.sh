@@ -63,7 +63,7 @@ traffic_gen_ping() {
 	done
 	date
 	} > ./testout_ping.txt 2>&1 &
-        PING_PID=$!
+	PING_PID=$!
 }
 
 ping_cleanup() {
@@ -87,7 +87,7 @@ capture_step_10packets() {
 	date > ./testout.txt
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
-		-c 10  \
+		-c 10 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-f icmp \
 		>> ./testout.txt 2>&1
