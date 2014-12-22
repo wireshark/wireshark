@@ -1606,7 +1606,7 @@ static proto_tree *
 dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, guint length,
                                     gboolean even_length, gboolean called,
-                                    gboolean route_on_gt, sccp_decode_context_t* sccp_info)
+                                    sccp_decode_context_t* sccp_info)
 {
   guint offset = 0;
   guint8 odd_signal, even_signal;
@@ -1644,7 +1644,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
   digits_tree = proto_item_add_subtree(digits_item, called ? ett_sccp_called_gt_digits
                                        : ett_sccp_calling_gt_digits);
 
-  if (set_addresses && route_on_gt) {
+  if (set_addresses) {
     if (called) {
       SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 1+(int)strlen(gt_digits), gt_digits);
     } else {
@@ -1662,7 +1662,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
 
 static void
 dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length,
-                          guint8 gti, gboolean route_on_gt, gboolean called, sccp_decode_context_t* sccp_info)
+                          guint8 gti, gboolean called, sccp_decode_context_t* sccp_info)
 {
   proto_item *gt_item;
   proto_tree *gt_tree;
@@ -1751,7 +1751,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
   digits_tree = dissect_sccp_gt_address_information(signals_tvb, pinfo, gt_tree,
                                                     (length - offset),
-                                                    even, called, route_on_gt, sccp_info);
+                                                    even, called, sccp_info);
 
   /* Display the country code (if we can) */
   switch (np >> GT_NP_SHIFT) {
@@ -1982,7 +1982,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
       gt_tvb = tvb_new_subset_length(tvb, offset, (length - offset));
       dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
-                                (routing_ind == ROUTE_ON_GT), called, sccp_info);
+                                called, sccp_info);
     }
 
   } else if (decode_mtp3_standard == ANSI_STANDARD) {
@@ -2047,7 +2047,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
         return;
       gt_tvb = tvb_new_subset_length(tvb, offset, (length - offset));
       dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
-                                (routing_ind == ROUTE_ON_GT), called, sccp_info);
+                                called, sccp_info);
     }
 
   }
@@ -4112,7 +4112,7 @@ proto_register_sccp(void)
                                 users_uat);
 
   prefs_register_bool_preference(sccp_module, "set_addresses", "Set source and destination GT addresses",
-                                 "Set the source and destination addresses to the GT digits (if RI=GT)."
+                                 "Set the source and destination addresses to the GT digits (if present)."
                                  "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.",
                                  &set_addresses);
 
