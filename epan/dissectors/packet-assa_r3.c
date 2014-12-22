@@ -5464,7 +5464,7 @@ dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guint32 length _
           }
           else
           {
-            proto_tree_add_bitmask(mu_tree, payload_tvb, offset, hf_r3_upstreamfieldarray[paramType], ett_r3timezone, r3_timezonearray, ENC_LITTLE_ENDIAN);
+            proto_tree_add_bitmask(mu_tree, payload_tvb, offset, hf_r3_adduserparamtypearray[paramType], ett_r3timezone, r3_timezonearray, ENC_LITTLE_ENDIAN);
           }
         }
         break;
