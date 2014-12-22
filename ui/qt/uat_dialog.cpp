@@ -125,6 +125,7 @@ void UatDialog::keyPressEvent(QKeyEvent *evt)
         switch (evt->key()) {
         case Qt::Key_Escape:
             cur_line_edit_->setText(saved_string_pref_);
+            /* Fall Through */
         case Qt::Key_Enter:
         case Qt::Key_Return:
             stringPrefEditingFinished();
@@ -136,6 +137,7 @@ void UatDialog::keyPressEvent(QKeyEvent *evt)
         switch (evt->key()) {
         case Qt::Key_Escape:
             cur_combo_box_->setCurrentIndex(saved_combo_idx_);
+            /* Fall Through */
         case Qt::Key_Enter:
         case Qt::Key_Return:
             // XXX The combo box eats enter and return

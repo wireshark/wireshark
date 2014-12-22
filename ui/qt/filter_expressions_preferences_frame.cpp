@@ -130,6 +130,7 @@ void FilterExpressionsPreferencesFrame::keyPressEvent(QKeyEvent *evt)
         switch (evt->key()) {
         case Qt::Key_Escape:
             cur_line_edit_->setText(saved_col_string_);
+            /* Fall Through */
         case Qt::Key_Enter:
         case Qt::Key_Return:
             switch (cur_column_) {
