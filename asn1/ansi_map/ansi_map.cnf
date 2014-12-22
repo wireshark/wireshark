@@ -9,6 +9,7 @@
 DetectionPointType
 EnhancedPrivacyEncryptionReport
 MINExtension
+
 #.USE_VALS_EXT
 # AnnouncementCode-std-ann
 TriggerType
@@ -22,6 +23,8 @@ SignalQuality
 TerminalType
 
 #.NO_EMIT
+InvokeData
+ReturnData
 
 #.TYPE_RENAME
 
