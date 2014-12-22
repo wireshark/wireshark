@@ -1809,6 +1809,7 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
         case TDS_DATA_TYPE_XML:             /* XML (introduced in TDS 7.2) */
         case TDS_DATA_TYPE_UDT:             /* CLR-UDT (introduced in TDS 7.2) */
             *plp = TRUE;
+            /* Fall through */
         case TDS_DATA_TYPE_TEXT:            /* Text */
         case TDS_DATA_TYPE_IMAGE:           /* Image */
         case TDS_DATA_TYPE_NTEXT:           /* NText */
@@ -1916,6 +1917,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         proto_tree_add_expert_format(sub_tree, pinfo, &ei_tds_type_info_type_undecoded, tvb, *offset, length, "Data type %d not supported yet", data_type);
                         /* No point in continuing: we need to parse the full data_type to know where it ends */
                         THROW(ReportedBoundsError);
+                        break;
                     default:
                         /* no other data type sets plp = TRUE */
                         DISSECTOR_ASSERT_NOT_REACHED();
