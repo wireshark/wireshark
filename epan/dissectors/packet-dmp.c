@@ -36,6 +36,7 @@
 
 #include "config.h"
 
+#include <math.h>
 
 #include <epan/packet.h>
 #include <epan/to_str.h>

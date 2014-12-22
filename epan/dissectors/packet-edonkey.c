@@ -33,6 +33,7 @@
 
 #include "config.h"
 
+#include <stdlib.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
