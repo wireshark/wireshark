@@ -28,7 +28,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "wimax_mac.h"
 #include "crc.h"

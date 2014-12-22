@@ -24,14 +24,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
-#define DEBUG*/	/* for debug only*/
+#if 0
+#define DEBUG	/* for debug only*/
+#endif
 
 /* Include files */
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"

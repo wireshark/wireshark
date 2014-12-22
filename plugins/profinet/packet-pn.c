@@ -25,10 +25,9 @@
 
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/expert.h>
+#include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"
 

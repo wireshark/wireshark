@@ -24,10 +24,8 @@
 
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
 #include <epan/addr_resolv.h>
 #include <epan/color_dissector_filters.h>
 #include <epan/dissectors/packet-dcerpc.h>

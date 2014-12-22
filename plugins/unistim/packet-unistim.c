@@ -24,16 +24,15 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/address.h>
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>
-#include <string.h>
 #include "packet-unistim.h"
 #include "defines.h"
 #include "audio.h"

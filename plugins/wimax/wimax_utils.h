@@ -26,7 +26,6 @@
 #ifndef WIMAX_UTILS_H
 #define WIMAX_UTILS_H
 
-#include <glib.h>
 #include <epan/packet.h>
 
 extern guint get_service_type(void);

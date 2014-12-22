@@ -29,15 +29,13 @@
 
 #include <string.h>
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <wiretap/wtap.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/xdlc.h>
+#include <wiretap/wtap.h>
 
-#include "irda-appl.h"
 #include <epan/dissectors/packet-sll.h>
+#include "irda-appl.h"
 
 /*
  * This plugin dissects infrared data transmissions as defined by the IrDA

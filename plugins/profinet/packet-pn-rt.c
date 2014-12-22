@@ -31,8 +31,8 @@
 #include <epan/strutil.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/crc16-tvb.h>
+#include <epan/dissectors/packet-dcerpc.h>
 
 #include <wsutil/crc16.h>
 #include <wsutil/crc16-plain.h>

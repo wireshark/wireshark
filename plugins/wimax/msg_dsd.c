@@ -32,7 +32,6 @@
 #define DEBUG
 */
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"

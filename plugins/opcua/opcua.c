@@ -21,11 +21,10 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/prefs.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
+#include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/dissectors/packet-tcp.h>
 #include "opcua_transport_layer.h"
 #include "opcua_security_layer.h"
 #include "opcua_application_layer.h"

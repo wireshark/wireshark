@@ -24,10 +24,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
+#include <epan/dissectors/packet-tcp.h>
 #include "packet-gryphon.h"
 
 /*

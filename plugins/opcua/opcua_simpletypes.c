@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-windows-common.h>
@@ -30,7 +29,6 @@
 #include "opcua_hfindeces.h"
 #include "opcua_extensionobjectids.h"
 #include "opcua_statuscode.h"
-#include <epan/wmem/wmem.h>
 
 #define DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG           0x01
 #define DIAGNOSTICINFO_ENCODINGMASK_NAMESPACE_FLAG            0x02

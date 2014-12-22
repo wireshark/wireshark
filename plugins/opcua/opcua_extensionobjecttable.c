@@ -22,9 +22,7 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include "opcua_simpletypes.h"
 #include "opcua_complextypeparser.h"
 #include "opcua_extensionobjectids.h"

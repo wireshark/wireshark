@@ -22,9 +22,7 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcom.h>

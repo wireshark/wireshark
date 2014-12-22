@@ -30,7 +30,6 @@
 
 #define WIMAX_16E_2005
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
 #include "wimax_tlv.h"

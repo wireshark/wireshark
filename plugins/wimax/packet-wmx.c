@@ -29,11 +29,10 @@
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/address.h>
-#include <epan/wmem/wmem.h>
 #include "wimax_tlv.h"
 
 void proto_register_wimax(void);

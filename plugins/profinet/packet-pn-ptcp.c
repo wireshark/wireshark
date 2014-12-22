@@ -23,11 +23,9 @@
 
 #include "config.h"
 
-
-#include <glib.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/oui.h>
+#include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"
 

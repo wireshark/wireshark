@@ -31,18 +31,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <glib.h>
-
-#include <wsutil/report_err.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
-#include <wsutil/filesystem.h>
 #include <epan/eap.h>
+#include <wsutil/filesystem.h>
+#include <wsutil/report_err.h>
 
 #include "wimaxasncp_dict.h"
 

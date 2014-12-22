@@ -21,7 +21,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "opcua_simpletypes.h"
 #include "opcua_application_layer.h"

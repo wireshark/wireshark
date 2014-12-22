@@ -28,7 +28,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
 #include "wimax_compact_dlmap_ie_decoder.h"
