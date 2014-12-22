@@ -192,6 +192,7 @@ set(PIDL_DISSECTOR_SRC
 )
 
 set(ASN1_DISSECTOR_SRC
+	dissectors/packet-ansi_map.c
 	dissectors/packet-acp133.c
 	dissectors/packet-acse.c
 	dissectors/packet-ansi_tcap.c
@@ -281,7 +282,6 @@ set(ASN1_DISSECTOR_SRC
 )
 
 set(DIRTY_ASN1_DISSECTOR_SRC
-	dissectors/packet-ansi_map.c
 	dissectors/packet-coseventcomm.c
 	dissectors/packet-cosnaming.c
 	dissectors/packet-gsm_map.c

@@ -93,6 +93,7 @@ PIDL_DISSECTOR_INCLUDES = \
 # asn2wrs-generated ASN.1 dissectors without warnings.
 #
 ASN1_DISSECTOR_SRC = \
+	packet-ansi_map.c	\
 	packet-acp133.c	\
 	packet-acse.c	\
 	packet-ansi_tcap.c	\
@@ -195,7 +196,6 @@ ASN1_DISSECTOR_SRC = \
 # asn2wrs-generated ASN.1 dissectors with warnings.
 # and idl2wrs-generated dissectors
 DIRTY_ASN1_DISSECTOR_SRC = \
-	packet-ansi_map.c	\
 	packet-coseventcomm.c	\
 	packet-cosnaming.c	\
 	packet-gsm_map.c	\
