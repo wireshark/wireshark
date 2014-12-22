@@ -532,6 +532,7 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
         break;
     case FilterExpressionsChanged:
         emit filterExpressionsChanged();
+        break;
     case PreferencesChanged:
         emit preferencesChanged();
         break;
