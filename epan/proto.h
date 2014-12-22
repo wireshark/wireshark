@@ -249,6 +249,15 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
    __DISSECTOR_ASSERT_FIELD_TYPE ((hfinfo), t))) \
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT((hfinfo)->type == t)
 
+#define DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hfinfo)  \
+  ((void) ((IS_FT_INT((hfinfo)->type) || \
+            IS_FT_UINT((hfinfo)->type)) ? (void)0 : \
+   REPORT_DISSECTOR_BUG( \
+     ep_strdup_printf("%s:%u: field %s is not of an FT_{U}INTn type", \
+                       __FILE__, __LINE__, (hfinfo)->abbrev)))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(IS_FT_INT((hfinfo)->type) || \
+                                           IS_FT_UINT((hfinfo)->type))
+
 #define DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo)  \
   ((void) (((hfinfo)->type == FT_ABSOLUTE_TIME || \
             (hfinfo)->type == FT_RELATIVE_TIME) ? (void)0 : \

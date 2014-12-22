@@ -7628,7 +7628,7 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 	int                len;
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
-	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
+	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
 	len = ftype_length(hf->type);
 
 	if (parent_tree) {
@@ -7652,7 +7652,7 @@ proto_tree_add_bitmask_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, const 
 	int                len;
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
-	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
+	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
 	len = ftype_length(hf->type);
 
 	if (parent_tree) {
@@ -7688,7 +7688,7 @@ proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
 	guint32 decodable_value;
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr, hf);
-	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
+	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
 
 	decodable_offset = offset;
 	decodable_len = MIN(len, (guint) ftype_length(hf->type));
