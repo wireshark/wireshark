@@ -27,25 +27,20 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <glib.h>
-#include <glib/gprintf.h>
-
+#include <epan/packet.h>
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/to_str.h>
-#include <epan/tvbuff.h>
-#include <epan/packet.h>
-#include <ftypes/ftypes-int.h>
-#include <epan/emem.h>
 #include <epan/expert.h>
-
 #include <epan/packet-range.h>
 #include <epan/print.h>
-#include "version_info.h"
 #include <epan/charsets.h>
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-frame.h>
 #include <wsutil/filesystem.h>
+#include <ftypes/ftypes-int.h>
+
+#include "version_info.h"
 
 #define PDML_VERSION "0"
 #define PSML_VERSION "0"
