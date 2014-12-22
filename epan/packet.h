@@ -359,7 +359,6 @@ typedef struct {
  *  Call this in the parent dissectors proto_register function.
  *
  * @param name the name of this protocol
- * @param list the list of heuristic sub-dissectors to be registered
  */
 WS_DLL_PUBLIC heur_dissector_list_t register_heur_dissector_list(const char *name);
 
