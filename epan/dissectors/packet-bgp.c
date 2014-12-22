@@ -196,7 +196,7 @@ void proto_reg_handoff_bgp(void);
 #define BGPTYPE_PMSI_TUNNEL_ATTR   22 /* RFC6514 */
 #define BGPTYPE_TUNNEL_ENCAPS_ATTR 23 /* RFC5512 */
 #define BGPTYPE_AIGP               26 /* draft-ietf-idr-aigp-18 */
-#define BGPTYPE_LINK_STATE_ATTR    99 /* FIXME: draft-ietf-idr-ls-distribution-03 temp. value no IANA assignee yet */
+#define BGPTYPE_LINK_STATE_ATTR    29 /* draft-ietf-idr-ls-distribution */
 #define BGPTYPE_ATTR_SET          128 /* RFC6368           */
 
 /*EVPN Route Types */
@@ -2764,9 +2764,14 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbu
             } /* switch (safi) */
             break;
         case AFNUM_LINK_STATE:
-            wmem_strbuf_truncate(strbuf, 0);
-            wmem_strbuf_append_printf(strbuf, "BGP-LS Next Hop address");
-            length=nhlen;
+            length = nhlen;
+            if (nhlen == 4) {
+                wmem_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
+            } else if (nhlen == 16) {
+                wmem_strbuf_append(strbuf, tvb_ip6_to_str(tvb, offset));
+            } else {
+                wmem_strbuf_append(strbuf, "Unknown address");
+            }
             break;
         default:
             length = 0 ;
