@@ -46,7 +46,8 @@ QString CaptureFile::no_capture_file_ = QObject::tr("[no capture file]");
 CaptureFile::CaptureFile(QObject *parent, capture_file *cap_file) :
     QObject(parent),
     cap_file_(cap_file),
-    file_title_(no_capture_file_)
+    file_title_(no_capture_file_),
+    file_state_(QString())
 {
 #ifdef HAVE_LIBPCAP
     capture_callback_add(captureCallback, (gpointer) this);
@@ -117,14 +118,16 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
     }
     case(cf_cb_file_closing):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
-        file_title_.append(tr(" [closed]"));
+        file_state_ = tr(" [closing]");
         emit captureFileClosing();
         break;
     case(cf_cb_file_closed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
+        file_state_ = tr(" [closed]");
         emit captureFileClosed();
         cap_file_ = NULL;
         file_title_ = no_capture_file_;
+        file_state_ = QString();
         break;
     case(cf_cb_file_read_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");

@@ -50,9 +50,9 @@ public:
     /** Return a filename suitable for use in a window title.
      *
      * @return One of: the basename of the capture file without an extension,
-     *  the basename followed by "[closed]", or "[no capture file]".
+     *  the basename followed by "[closing", "[closed]", or "[no capture file]".
      */
-    const QString & fileTitle() { return file_title_; }
+    const QString fileTitle() { return file_title_ + file_state_; }
 
     /** Retap the capture file
      */
@@ -94,6 +94,7 @@ private:
 
     capture_file *cap_file_;
     QString file_title_;
+    QString file_state_;
 };
 
 #endif // CAPTURE_FILE_H

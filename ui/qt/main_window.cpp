@@ -1556,6 +1556,7 @@ void MainWindow::setTitlebarForCaptureFile()
             // XXX - on non-Mac platforms, put in the application
             // name?
             //
+            // XXX - Use setWindowModified
             gchar *window_name;
             setWindowFilePath(NULL);
             window_name = g_strdup_printf("Capturing from %s[*]", cf_get_tempfile_source(capture_file_.capFile())); //TODO : Fix Translate

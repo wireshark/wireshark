@@ -57,7 +57,7 @@
 // - Misleading bps calculation https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8703
 
 const QString table_name_ = QObject::tr("Conversation");
-ConversationDialog::ConversationDialog(QWidget *parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
+ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
     follow_bt_ = buttonBox()->addButton(tr("Follow Stream..."), QDialogButtonBox::ActionRole);
@@ -198,7 +198,7 @@ conv_item_t *ConversationDialog::currentConversation()
 
 void ConversationDialog::followStream()
 {
-    if (read_only_) {
+    if (file_closed_) {
         return;
     }
 
@@ -231,7 +231,7 @@ void ConversationDialog::followStream()
 
 void ConversationDialog::graphTcp()
 {
-    if (read_only_) {
+    if (file_closed_) {
         return;
     }
 
@@ -259,7 +259,7 @@ void ConversationDialog::itemSelectionChanged()
     bool follow_enable = false, graph_enable = false;
     conv_item_t *conv_item = currentConversation();
 
-    if (!read_only_ && conv_item) {
+    if (!file_closed_ && conv_item) {
         switch (conv_item->ptype) {
         case PT_TCP:
             graph_enable = true;
@@ -285,7 +285,7 @@ void ConversationDialog::on_nameResolutionCheckBox_toggled(bool checked)
 
 void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
 {
-    if (read_only_) {
+    if (file_closed_) {
         return;
     }
 

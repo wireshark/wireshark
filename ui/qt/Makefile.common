@@ -193,7 +193,8 @@ MOC_HDRS =	\
 	traffic_table_dialog.h	\
 	uat_dialog.h	\
 	voip_calls_dialog.h	\
-	wireshark_application.h
+	wireshark_application.h	\
+	wireshark_dialog.h
 
 
 #
@@ -392,7 +393,8 @@ WIRESHARK_QT_SRC =	\
 	traffic_table_dialog.cpp	\
 	uat_dialog.cpp	\
 	voip_calls_dialog.cpp	\
-	wireshark_application.cpp
+	wireshark_application.cpp	\
+	wireshark_dialog.cpp
 
 WIRESHARK_QT_TAP_SRC =	\
 	stats_tree_dialog.cpp

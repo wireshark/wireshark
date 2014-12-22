@@ -583,6 +583,7 @@ HEADERS += \
     syntax_line_edit.h \
     time_shift_dialog.h \
     wireshark_application.h \
+    wireshark_dialog.h \
 
 
 SOURCES += \
@@ -672,4 +673,5 @@ SOURCES += \
     traffic_table_dialog.cpp \
     uat_dialog.cpp \
     voip_calls_dialog.cpp \
-    wireshark_application.cpp
+    wireshark_application.cpp \
+    wireshark_dialog.cpp

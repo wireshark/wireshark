@@ -83,10 +83,7 @@ static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items_;
 
 QString WiresharkApplication::application_name_ = QString("Wireshark");
-QString WiresharkApplication::window_title_separator_ = QString::fromUtf8(UTF8_MIDDLE_DOT);
-QString WiresharkApplication::window_title_prefix_ = QString("%1 %2")
-        .arg(WiresharkApplication::application_name_)
-        .arg(WiresharkApplication::window_title_separator_);
+QString WiresharkApplication::window_title_separator_ = QString::fromUtf8(" " UTF8_MIDDLE_DOT " ");
 
 void
 topic_action(topic_action_e action)
@@ -375,7 +372,18 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 //    user_font_apply();
 
     /* Update menus with new recent values */
-//    menu_recent_read_finished();
+    //    menu_recent_read_finished();
+}
+
+const QString WiresharkApplication::windowTitleString(QStringList title_parts)
+{
+    QMutableStringListIterator tii(title_parts);
+    while (tii.hasNext()) {
+        QString ti = tii.next();
+        if (ti.isEmpty()) tii.remove();
+    }
+    title_parts.prepend(application_name_);
+    return title_parts.join(window_title_separator_);
 }
 
 void WiresharkApplication::setLastOpenDir(const char *dir_name)

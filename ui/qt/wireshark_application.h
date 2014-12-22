@@ -95,7 +95,8 @@ public:
     const QIcon &captureIcon() const { return capture_icon_; }
     const QString &applicationName() const { return application_name_; }
     const QString &windowTitleSeparator() const { return window_title_separator_; }
-    const QString &windowTitlePrefix() const { return window_title_prefix_; }
+    const QString windowTitleString(QStringList title_parts);
+    const QString windowTitleString(QString title_part) { return windowTitleString(QStringList() << title_part); }
 
     QTranslator translator;
     QTranslator translatorQt;
@@ -113,7 +114,6 @@ private:
     QIcon capture_icon_;
     static QString application_name_;
     static QString window_title_separator_;
-    static QString window_title_prefix_;
 
 protected:
     bool event(QEvent *event);

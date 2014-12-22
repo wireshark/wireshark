@@ -49,24 +49,22 @@
 // - Columns don't resize correctly.
 // - Closing the capture file clears conversation data.
 
-TrafficTableDialog::TrafficTableDialog(QWidget *parent, CaptureFile &cf, const char *filter, const QString &table_name) :
-    QDialog(parent),
+TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const char *filter, const QString &table_name) :
+    WiresharkDialog(parent, cf),
     ui(new Ui::TrafficTableDialog),
     cap_file_(cf),
-    read_only_(false),
+    file_closed_(false),
     filter_(filter)
 {
     ui->setupUi(this);
 //    setAttribute(Qt::WA_DeleteOnClose, true);
 
-    window_name_ = QString("%1s").arg(table_name);
-    setWindowTitle();
-    ui->enabledTypesPushButton->setText(tr("%1 Types").arg(window_name_));
+    QString window_name = QString("%1s").arg(table_name);
+    setWindowSubtitle(window_name);
+    ui->enabledTypesPushButton->setText(tr("%1 Types").arg(window_name));
 
     // XXX Use recent settings instead
-    if (parent) {
-        resize(parent->width(), parent->height() * 3 / 4);
-    }
+    resize(parent.width(), parent.height() * 3 / 4);
 
     QMenu *copy_menu = new QMenu();
     QAction *ca;
@@ -91,12 +89,6 @@ TrafficTableDialog::TrafficTableDialog(QWidget *parent, CaptureFile &cf, const c
 TrafficTableDialog::~TrafficTableDialog()
 {
     delete ui;
-}
-
-void TrafficTableDialog::captureFileClosing()
-{
-    setWindowTitle();
-    read_only_ = true;
 }
 
 const QList<int> TrafficTableDialog::defaultProtos() const
@@ -224,16 +216,6 @@ void TrafficTableDialog::updateWidgets()
     }
     ui->trafficTableTabWidget->setCurrentWidget(cur_w);
     ui->trafficTableTabWidget->setUpdatesEnabled(true);
-}
-
-void TrafficTableDialog::setWindowTitle()
-{
-    QDialog::setWindowTitle(tr("%1 %2 %3 %4")
-                   .arg(wsApp->windowTitlePrefix())
-                   .arg(window_name_)
-                   .arg(wsApp->windowTitleSeparator())
-                   .arg(cap_file_.fileTitle())
-                   );
 }
 
 QList<QVariant> TrafficTableDialog::curTreeRowData(int row) const

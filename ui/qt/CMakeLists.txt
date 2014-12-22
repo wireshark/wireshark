@@ -100,6 +100,7 @@ set(WIRESHARK_QT_HEADERS
 	uat_dialog.h
 	voip_calls_dialog.h
 	wireshark_application.h
+	wireshark_dialog.h
 )
 
 if(HAVE_PCAP_REMOTE)
@@ -199,6 +200,7 @@ set(WIRESHARK_QT_SRC
 	uat_dialog.cpp
 	voip_calls_dialog.cpp
 	wireshark_application.cpp
+	wireshark_dialog.cpp
 )
 
 if(HAVE_PCAP_REMOTE)

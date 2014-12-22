@@ -29,6 +29,7 @@
 #include "wsutil/str_util.h"
 #include "wsutil/ws_version_info.h"
 
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
 #include <QDateTime>
@@ -39,17 +40,14 @@
 // - Add file hashes
 // - Add formats (HTML, plain text, YAML)?
 
-CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget *parent, capture_file *cf) :
-    QDialog(parent),
-    ui(new Ui::CaptureFilePropertiesDialog),
-    cap_file_(cf)
+CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget &parent, CaptureFile &capture_file) :
+    WiresharkDialog(parent, capture_file),
+    ui(new Ui::CaptureFilePropertiesDialog)
 {
     ui->setupUi(this);
 
     // XXX Use recent settings instead
-    if (parent) {
-        resize(parent->width() * 2 / 3, parent->height());
-    }
+    resize(parent.width() * 2 / 3, parent.height());
 
     QPushButton *button = ui->buttonBox->button(QDialogButtonBox::Reset);
     if (button) {
@@ -66,11 +64,12 @@ CaptureFilePropertiesDialog::CaptureFilePropertiesDialog(QWidget *parent, captur
         button->setText(tr("Save Comments"));
     }
 
+    setWindowSubtitle(tr("Capture File Properties"));
     updateWidgets();
 }
 
 /*
- *            Slots
+ * Slots
  */
 
 CaptureFilePropertiesDialog::~CaptureFilePropertiesDialog()
@@ -80,20 +79,12 @@ CaptureFilePropertiesDialog::~CaptureFilePropertiesDialog()
 
 /**/
 
-void CaptureFilePropertiesDialog::setCaptureFile(capture_file *cf)
-{
-    if (!cf) { // We only want to know when the file closes.
-        cap_file_ = NULL;
-    }
-    updateWidgets();
-}
-
 void CaptureFilePropertiesDialog::updateWidgets()
 {
     QPushButton *refresh_bt = ui->buttonBox->button(QDialogButtonBox::Reset);
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
 
-    if (!cap_file_) {
+    if (file_closed_) {
         if (refresh_bt) {
             refresh_bt->setEnabled(false);
         }
@@ -104,12 +95,12 @@ void CaptureFilePropertiesDialog::updateWidgets()
         return;
     }
 
-    bool enable = wtap_dump_can_write(cap_file_->linktypes, WTAP_COMMENT_PER_SECTION);
+    bool enable = wtap_dump_can_write(cap_file_.capFile()->linktypes, WTAP_COMMENT_PER_SECTION);
     save_bt->setEnabled(enable);
     ui->commentsTextEdit->setEnabled(enable);
 
     ui->detailsTextEdit->setHtml(summaryToHtml());
-    ui->commentsTextEdit->setText(cf_read_shb_comment(cap_file_));
+    ui->commentsTextEdit->setText(cf_read_shb_comment(cap_file_.capFile()));
 }
 
 QString CaptureFilePropertiesDialog::timeToString(time_t ti_time)
@@ -145,11 +136,11 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     table_hheader25_tmpl = "<td width=\"25%\"><u>%1</u></td>";
     table_data_tmpl = "<td>%1</td>";
 
-    if (cap_file_) {
+    if (!file_closed_) {
         /* initial computations */
-        summary_fill_in(cap_file_, &summary);
+        summary_fill_in(cap_file_.capFile(), &summary);
 #ifdef HAVE_LIBPCAP
-        summary_fill_in_capture(cap_file_, &global_capture_opts, &summary);
+        summary_fill_in_capture(cap_file_.capFile(), &global_capture_opts, &summary);
 #endif
     }
 
@@ -514,14 +505,14 @@ void CaptureFilePropertiesDialog::on_buttonBox_helpRequested()
 
 void CaptureFilePropertiesDialog::on_buttonBox_accepted()
 {
-    if (!cap_file_ || !cap_file_->filename) {
+    if (file_closed_ || !cap_file_.capFile()->filename) {
         return;
     }
 
-    if (wtap_dump_can_write(cap_file_->linktypes, WTAP_COMMENT_PER_SECTION))
+    if (wtap_dump_can_write(cap_file_.capFile()->linktypes, WTAP_COMMENT_PER_SECTION))
     {
         gchar *str = qstring_strdup(ui->commentsTextEdit->toPlainText());
-        cf_update_capture_comment(cap_file_, str);
+        cf_update_capture_comment(cap_file_.capFile(), str);
         emit captureCommentChanged();
     }
 }

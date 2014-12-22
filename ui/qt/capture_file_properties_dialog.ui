@@ -16,9 +16,6 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle">
-   <string>Wireshark - Capture File Properties</string>
-  </property>
   <property name="windowIcon">
    <iconset resource="../../image/toolbar.qrc">
     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>

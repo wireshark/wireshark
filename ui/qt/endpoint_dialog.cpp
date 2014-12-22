@@ -41,7 +41,7 @@
 #include <QUrl>
 
 const QString table_name_ = QObject::tr("Endpoint");
-EndpointDialog::EndpointDialog(QWidget *parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
+EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id, const char *filter) :
     TrafficTableDialog(parent, cf, filter, table_name_)
 {
 #ifdef HAVE_GEOIP

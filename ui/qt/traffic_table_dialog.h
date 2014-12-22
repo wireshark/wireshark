@@ -32,6 +32,7 @@
 
 #include "capture_file.h"
 #include "filter_action.h"
+#include "wireshark_dialog.h"
 
 #include <QPushButton>
 #include <QCheckBox>
@@ -91,7 +92,7 @@ signals:
     void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
 };
 
-class TrafficTableDialog : public QDialog
+class TrafficTableDialog : public WiresharkDialog
 {
     Q_OBJECT
 
@@ -103,11 +104,10 @@ public:
      * @param filter Display filter to apply.
      * @param table_name If valid, add this protocol and bring it to the front.
      */
-    explicit TrafficTableDialog(QWidget *parent, CaptureFile &cf, const char *filter = NULL, const QString &table_name = tr("Unknown"));
+    explicit TrafficTableDialog(QWidget &parent, CaptureFile &cf, const char *filter = NULL, const QString &table_name = tr("Unknown"));
     ~TrafficTableDialog();
 
 public slots:
-    virtual void captureFileClosing();
 
 signals:
     void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
@@ -118,7 +118,7 @@ protected:
     Ui::TrafficTableDialog *ui;
 
     CaptureFile &cap_file_;
-    bool read_only_;
+    bool file_closed_;
     QString filter_;
     QMenu traffic_type_menu_;
     QPushButton *copy_bt_;
@@ -141,7 +141,6 @@ protected slots:
     void updateWidgets();
 
 private:
-    void setWindowTitle();
     QList<QVariant> curTreeRowData(int row) const;
     QString window_name_;
 

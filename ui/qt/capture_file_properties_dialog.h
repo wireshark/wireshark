@@ -26,10 +26,10 @@
 
 #include "config.h"
 
+#include <glib.h>
+
 #include <string.h>
 #include <time.h>
-
-#include "qt_ui_utils.h"
 
 #include <epan/strutil.h>
 #include <wiretap/wtap.h>
@@ -41,8 +41,9 @@
     #include "ui/capture_globals.h"
 #endif
 
+#include "wireshark_dialog.h"
+
 #include <QClipboard>
-#include <QDialog>
 
 namespace Ui {
 class CaptureFilePropertiesDialog;
@@ -50,16 +51,13 @@ class CaptureFilePropertiesDialog;
 
 class QAbstractButton;
 
-class CaptureFilePropertiesDialog : public QDialog
+class CaptureFilePropertiesDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit CaptureFilePropertiesDialog(QWidget *parent = 0, capture_file *cf = NULL);
+    explicit CaptureFilePropertiesDialog(QWidget &parent, CaptureFile& capture_file);
     ~CaptureFilePropertiesDialog();
-
-public slots:
-    void setCaptureFile(capture_file *cf);
 
 signals:
     void captureCommentChanged();
@@ -70,7 +68,6 @@ protected slots:
 
 private:
     Ui::CaptureFilePropertiesDialog *ui;
-    capture_file *cap_file_;
 
     QString timeToString(time_t ti_time);
     QString summaryToHtml();
