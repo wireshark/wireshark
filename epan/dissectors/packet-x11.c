@@ -61,6 +61,10 @@
 #include "packet-x11-keysymdef.h"
 #include "packet-x11.h"
 
+#ifndef HAVE_POPCOUNT
+# include "wsutil/popcount.h"
+#endif
+
 void proto_register_x11(void);
 void proto_reg_handoff_x11(void);
 
@@ -3201,21 +3205,6 @@ static void set_handler(const char *name, void (*func)(tvbuff_t *tvb, packet_inf
       if (genevent_info)
           g_hash_table_insert(genevent_table, (gpointer)name, (gpointer)genevent_info);
       g_hash_table_insert(reply_table, (gpointer)name, (gpointer)reply_info);
-}
-
-static int popcount(unsigned int mask)
-{
-#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
-      /* GCC 3.4 or newer */
-      return __builtin_popcount(mask);
-#else
-      /* HACKMEM 169 */
-      unsigned long y;
-
-      y = (mask >> 1) &033333333333;
-      y = mask - y - ((y >>1) & 033333333333);
-      return (((y + (y >> 3)) & 030707070707) % 077);
-#endif
 }
 
 #include "x11-extension-errors.h"

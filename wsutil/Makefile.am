@@ -36,6 +36,7 @@ wsutil_optional_objects = \
 	@INET_ATON_LO@		\
 	@INET_NTOP_LO@		\
 	@INET_PTON_LO@		\
+	@POPCOUNT_LO@		\
 	@STRPTIME_LO@
 
 if SSE42_SUPPORTED
@@ -79,6 +80,8 @@ EXTRA_libwsutil_la_SOURCES=	\
 	inet_ntop.c		\
 	inet_pton.c		\
 	inet_v6defs.h		\
+	popcount.c		\
+	popcount.h		\
 	strptime.c		\
 	strptime.h		\
 	wsgetopt.c		\

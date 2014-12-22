@@ -2750,6 +2750,14 @@ AC_CHECK_FUNC(strptime,
   STRPTIME_LO="strptime.lo")
 AC_SUBST(STRPTIME_LO)
 
+AC_CHECK_FUNC(popcount,
+  [
+    POPCOUNT_LO=""
+    AC_DEFINE(HAVE_POPCOUNT, 1, [Define if you have the popcount function.])
+  ],
+  POPCOUNT_LO="popcount.lo")
+AC_SUBST(POPCOUNT_LO)
+
 AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(mmap mprotect sysconf)
