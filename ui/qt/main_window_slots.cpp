@@ -254,6 +254,7 @@ void MainWindow::layoutPanes()
     case(layout_type_2):
     case(layout_type_1):
         extra_split_.setOrientation(Qt::Horizontal);
+        /* Fall Through */
     case(layout_type_5):
         master_split_.setOrientation(Qt::Vertical);
         break;
@@ -261,6 +262,7 @@ void MainWindow::layoutPanes()
     case(layout_type_4):
     case(layout_type_3):
         extra_split_.setOrientation(Qt::Vertical);
+        /* Fall Through */
     case(layout_type_6):
         master_split_.setOrientation(Qt::Horizontal);
         break;
