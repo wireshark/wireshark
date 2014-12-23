@@ -121,7 +121,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	if ((lang = getenv ("LANG")) != NULL)
 		g_string_append_printf(str, ", with locale %s", lang);
 	else
-		g_string_append(str, ", without locale");
+		g_string_append(str, ", with default locale");
 #endif
 
 	/* Additional application-dependent information */
