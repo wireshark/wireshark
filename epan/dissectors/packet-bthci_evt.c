@@ -445,7 +445,7 @@ static const value_string evt_code_vals[] = {
     {0xff, "Vendor-Specific"},
     {0, NULL}
 };
-static value_string_ext evt_code_vals_ext = VALUE_STRING_EXT_INIT(evt_code_vals);
+value_string_ext bthci_evt_evt_code_vals_ext = VALUE_STRING_EXT_INIT(evt_code_vals);
 
 static const value_string bthci_cmd_status_pending_vals[] = {
     {0x00, "Pending"},
@@ -3380,7 +3380,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     evt_code = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(bthci_evt_tree, " - %s", val_to_str_ext_const(evt_code, &evt_code_vals_ext, "Unknown 0x%08x"));
+    proto_item_append_text(bthci_evt_tree, " - %s", val_to_str_ext_const(evt_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x"));
     offset += 1;
 
     param_length = tvb_get_guint8(tvb, offset);
@@ -3390,7 +3390,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_EVT");
 
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(evt_code, &evt_code_vals_ext, "Unknown 0x%08x"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(evt_code, &bthci_evt_evt_code_vals_ext, "Unknown 0x%08x"));
 
     if (param_length > 0) {
         switch(evt_code) {
@@ -3704,7 +3704,7 @@ proto_register_bthci_evt(void)
     static hf_register_info hf[] = {
         { &hf_bthci_evt_code,
           { "Event Code",            "bthci_evt.code",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &evt_code_vals_ext, 0x0,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_evt_evt_code_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_param_length,

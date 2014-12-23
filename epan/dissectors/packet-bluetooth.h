@@ -82,6 +82,8 @@ extern const value_string bthci_cmd_page_scan_repetition_modes[];
 extern const value_string bthci_cmd_page_scan_period_modes[];
 extern const value_string bthci_cmd_notification_types[];
 
+extern value_string_ext  bthci_evt_evt_code_vals_ext;
+
 
 /* We support Bluetooth over various interfaces, interface_id and adapter_id
    is used to decode further payload. Case: there is a host. Host has X
@@ -185,6 +187,9 @@ extern guint32           max_disconnect_in_frame;
 
 extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb,
         gint offset, guint8 *bdaddr);
+
+extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, guint8 size, bluetooth_data_t *bluetooth_data);
 
 #endif
 

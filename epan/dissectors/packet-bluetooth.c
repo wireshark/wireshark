@@ -1031,6 +1031,58 @@ dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset, g
 }
 
 
+void
+save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        guint8 size, bluetooth_data_t *bluetooth_data)
+{
+    gint                    i = 0;
+    guint8                  length;
+    wmem_tree_key_t         key[4];
+    guint32                 k_interface_id;
+    guint32                 k_adapter_id;
+    guint32                 k_frame_number;
+    gchar                   *name;
+    localhost_name_entry_t  *localhost_name_entry;
+
+    if (!(!pinfo->fd->flags.visited && bluetooth_data)) return;
+
+    while (i < size) {
+        length = tvb_get_guint8(tvb, offset + i);
+        if (length == 0) break;
+
+        switch(tvb_get_guint8(tvb, offset + i + 1)) {
+        case 0x08: /* Device Name, shortened */
+        case 0x09: /* Device Name, full */
+            name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + i + 2, length - 1, ENC_ASCII);
+
+            k_interface_id = bluetooth_data->interface_id;
+            k_adapter_id = bluetooth_data->adapter_id;
+            k_frame_number = pinfo->fd->num;
+
+            key[0].length = 1;
+            key[0].key    = &k_interface_id;
+            key[1].length = 1;
+            key[1].key    = &k_adapter_id;
+            key[2].length = 1;
+            key[2].key    = &k_frame_number;
+            key[3].length = 0;
+            key[3].key    = NULL;
+
+            localhost_name_entry = (localhost_name_entry_t *) wmem_new(wmem_file_scope(), localhost_name_entry_t);
+            localhost_name_entry->interface_id = k_interface_id;
+            localhost_name_entry->adapter_id = k_adapter_id;
+            localhost_name_entry->name = wmem_strdup(wmem_file_scope(), name);
+
+            wmem_tree_insert32_array(bluetooth_data->localhost_name, key, localhost_name_entry);
+
+            break;
+        }
+
+        i += length + 1;
+    }
+}
+
+
 static const char* bluetooth_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter)
 {
     if (filter == CONV_FT_SRC_ADDRESS)
