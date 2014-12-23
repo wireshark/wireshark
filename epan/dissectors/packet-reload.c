@@ -33,6 +33,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include <epan/uat.h>
