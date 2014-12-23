@@ -151,14 +151,24 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 /* FALLTHROUGH */
         case FT_BYTES:
         case FT_UINT_BYTES:
-        case FT_GUID:
-        case FT_PROTOCOL:
-        case FT_OID: {
+        case FT_OID:
+            {
                 ByteArray ba = g_byte_array_new();
                 g_byte_array_append(ba, (const guint8 *)ep_tvb_memdup(fi->ds_tvb,fi->start,fi->length),fi->length);
                 pushByteArray(L,ba);
                 return 1;
             }
+        case FT_PROTOCOL:
+            {
+                ByteArray ba = g_byte_array_new();
+                tvbuff_t* tvb = (tvbuff_t *) fvalue_get(&(fi->value));
+                g_byte_array_append(ba, (const guint8 *)ep_tvb_memdup(tvb, 0,
+                                            tvb_length(tvb)), tvb_length(tvb));
+                pushByteArray(L,ba);
+                return 1;
+            }
+
+        case FT_GUID:
         default:
                 luaL_error(L,"FT_ not yet supported");
                 return 1;
@@ -169,14 +179,20 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
     /* The string representation of the field */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    if (!fi) {
-        return luaL_error(L,"Missing FieldInfo object");
-    }
-
     if (fi->value.ftype->val_to_string_repr) {
-        gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+        gchar* repr = NULL;
+
+        if (fi->hfinfo->type == FT_PROTOCOL || fi->hfinfo->type == FT_PCRE) {
+            repr = fvalue_to_string_repr(&fi->value,FTREPR_DFILTER,NULL);
+        }
+        else {
+            repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
+        }
+
         if (repr) {
             lua_pushstring(L,repr);
+            /* fvalue_to_string_repr() g_malloc's the string's buffer */
+            g_free(repr);
         }
         else {
             lua_pushstring(L,"(unknown)");
