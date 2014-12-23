@@ -28,6 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/llcsaps.h>
 
 void proto_register_gmrp(void);
 void proto_reg_handoff_gmrp(void);
