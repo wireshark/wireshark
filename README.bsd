@@ -12,18 +12,16 @@ Installing Wireshark on FreeBSD/OpenBSD/NetBSD/DragonFly BSD
 Wireshark requires a number of additional programs to function.
 Install the latest versions of the following programs before compiling:
 
-    atk
-    cairo
-    expat
-    gettext
-    glib2
-    glitz
-    gtk2 / gtk+2
-    jpeg
-    pango
+    glib (version 2.16.0 or later)
+    gtk2 (version 2.12.0 or later) or gtk3 or Qt
     pkgconfig
-    png
-    tiff
+    python (version 2.x or 3.x)
+
+(These programs may require additional dependencies)
+
+Additional programs can be used to enhance Wireshark's functionality.
+These can be found by typing ./configure --help or looking at the output
+at the end of running the configure script.
 
 The easiest way to install these is by using your operating system's
 ports or packages system.
@@ -32,7 +30,8 @@ ports or packages system.
 2. Compiling Wireshark
 -----------------------
 To compile Wireshark with the default options, run configure, make and
-make install (you may have to run "autogen.sh" first): 
+make install (you may have to run "autogen.sh" first):
+
      ./configure
      make
      make install
