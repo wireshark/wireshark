@@ -34,7 +34,7 @@ extern "C" {
 
 struct epan_dissect;
 
-/** @file
+/**
  *  Helper routines for column utility structures and routines.
  */
 
