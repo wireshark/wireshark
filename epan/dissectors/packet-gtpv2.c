@@ -36,7 +36,6 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-s1ap.h"
-#include "packet-ranap.h"
 #include "packet-bssgp.h"
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"

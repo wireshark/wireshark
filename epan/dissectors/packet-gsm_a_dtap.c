@@ -102,16 +102,13 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
-#include <epan/asn1.h>
 #include <epan/strutil.h>
 
 #include "packet-bssap.h"
-#include "packet-sccp.h"
 #include "packet-ber.h"
 #include "packet-q931.h"
 #include "packet-gsm_a_common.h"
 #include "packet-ppp.h"
-#include "packet-gsm_sms.h"
 #include "packet-isup.h"
 
 void proto_register_gsm_a_dtap(void);

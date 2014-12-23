@@ -33,7 +33,6 @@
 
 #include <epan/packet.h>
 #include <epan/ptvcursor.h>
-#include <epan/expert.h>
 void proto_register_hdcp(void);
 
 static int proto_hdcp  = -1;

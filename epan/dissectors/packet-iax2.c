@@ -30,17 +30,14 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/circuit.h>
 #include <epan/exceptions.h>
-#include <epan/to_str.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/aftypes.h>
 #include <epan/tap.h>
-#include <epan/tap-voip.h>
 
 #include "packet-iax2.h"
 #include <epan/iax2_codec_type.h>

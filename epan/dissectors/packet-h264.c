@@ -30,11 +30,9 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include "packet-h264.h"

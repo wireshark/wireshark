@@ -28,8 +28,6 @@
 
 /*****/
 #include <epan/packet.h>
-#include <epan/tvbuff-int.h>
-#include <epan/tvbparse.h>
 /*****/
 
 #include "packet-h248.h"
@@ -40,7 +38,6 @@ void proto_register_h248_annex_e(void);
 #define PSNAME "H248E"
 #define PFNAME "h248e"
 /*
-#include "packet-alcap.h"
 */
 static int proto_h248_annex_E = -1;
 

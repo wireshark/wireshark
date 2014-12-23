@@ -31,13 +31,11 @@
 #include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include <epan/reassemble.h>
-#include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/etypes.h>
 #include "packet-fc.h"
 #include "packet-fclctl.h"
 #include "packet-fcbls.h"
-#include <epan/tap.h>
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
 

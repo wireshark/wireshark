@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 
 #include "packet-rpc.h"
 #include "packet-fmp.h"

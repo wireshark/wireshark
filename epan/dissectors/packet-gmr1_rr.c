@@ -35,7 +35,6 @@
 #include <epan/packet.h>
 
 #include "packet-gmr1_common.h"
-#include "packet-gsm_sms.h"
 
 #include "packet-gmr1_rr.h"
 

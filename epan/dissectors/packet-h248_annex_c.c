@@ -25,7 +25,6 @@
 
 #include "config.h"
 
-#include <epan/wmem/wmem.h>
 
 #include "packet-h248.h"
 

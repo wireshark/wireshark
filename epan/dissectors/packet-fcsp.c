@@ -27,8 +27,6 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/etypes.h>
-#include "packet-fc.h"
 
 void proto_register_fcsp(void);
 

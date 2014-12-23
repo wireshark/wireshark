@@ -25,9 +25,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/etypes.h>
 #include "packet-fc.h"
 #include "packet-fcct.h"
 #include "packet-fcfzs.h"

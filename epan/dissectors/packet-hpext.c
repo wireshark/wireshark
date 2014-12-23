@@ -26,8 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/xdlc.h>
-#include <epan/etypes.h>
 #include <epan/llcsaps.h>
 #include "packet-hpext.h"
 

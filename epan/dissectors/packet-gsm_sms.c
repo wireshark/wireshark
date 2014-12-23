@@ -35,13 +35,11 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/to_str.h>
 #include "packet-gsm_sms.h"
 
 void proto_register_gsm_sms(void);

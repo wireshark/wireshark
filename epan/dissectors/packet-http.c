@@ -30,15 +30,12 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/stats_tree.h>
 #include <epan/to_str.h>
@@ -55,7 +52,6 @@ typedef enum _http_type {
 	HTTP_OTHERS
 } http_type_t;
 
-#include <epan/tap.h>
 
 void proto_register_http(void);
 void proto_reg_handoff_http(void);

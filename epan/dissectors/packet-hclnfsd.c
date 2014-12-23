@@ -25,12 +25,9 @@
 
 #include "config.h"
 
-#include <string.h>
 
-#include "packet-rpc.h"
 #include "packet-nfs.h"
 
-#include <epan/wmem/wmem.h>
 
 void proto_register_hclnfsd(void);
 void proto_reg_handoff_hclnfsd(void);

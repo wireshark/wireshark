@@ -74,17 +74,11 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/tap.h>
-#include <epan/asn1.h>
 #include <epan/ipproto.h>
-#include "packet-bssap.h"
-#include "packet-sccp.h"
 #include "packet-ber.h"
-#include "packet-q931.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-ppp.h"

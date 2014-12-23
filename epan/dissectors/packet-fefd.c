@@ -25,10 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 
-#include <epan/oui.h>
-#include <epan/nlpid.h>
 
 void proto_register_fefd(void);
 void proto_reg_handoff_fefd(void);

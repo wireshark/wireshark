@@ -50,7 +50,6 @@
 #include <epan/in_cksum.h>
 
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 
 #include <epan/rtp_pt.h>
 

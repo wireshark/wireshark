@@ -35,7 +35,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/expert.h>
 #include <epan/tvbparse.h>
 
 enum {

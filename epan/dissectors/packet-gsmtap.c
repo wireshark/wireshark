@@ -43,7 +43,6 @@
 #include <epan/packet.h>
 
 #include "packet-tetra.h"
-#include "packet-rrc.h"
 
 void proto_register_gsmtap(void);
 void proto_reg_handoff_gsmtap(void);

@@ -140,7 +140,6 @@ These are the structures you will see most often in EDP frames.
 
 #include "config.h"
 
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>

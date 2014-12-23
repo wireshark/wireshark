@@ -37,11 +37,9 @@
 #include "packet-isl.h"
 #include "packet-llc.h"
 #include "packet-sll.h"
-#include "packet-usb.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
 #include <epan/crc32-tvb.h>
-#include <epan/tap.h>
 #include <wiretap/erf.h>
 
 void proto_register_eth(void);

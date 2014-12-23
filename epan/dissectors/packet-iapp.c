@@ -25,7 +25,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/to_str.h>
 #include <epan/oui.h>
 
 void proto_register_iapp(void);

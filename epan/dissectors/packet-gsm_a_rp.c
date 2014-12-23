@@ -33,10 +33,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
-#include <epan/tap.h>
 
-#include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 
 void proto_register_gsm_a_rp(void);

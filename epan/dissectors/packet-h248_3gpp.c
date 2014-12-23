@@ -33,7 +33,6 @@ void proto_register_h248_3gpp(void);
 #define PSNAME "H2483GPP"
 #define PFNAME "h248.3gpp"
 
-#include "packet-isup.h"
 #include "packet-gsm_a_common.h"
 
 /*

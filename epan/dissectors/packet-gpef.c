@@ -28,7 +28,6 @@
 #include "packet-windows-common.h"
 #include <epan/asn1.h>
 #include "packet-x509af.h"
-#include "packet-x509if.h"
 
 void proto_register_gpef(void);
 

@@ -23,14 +23,12 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/circuit.h>
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
 #include <epan/stream.h>
-#include <epan/reassemble.h>
 #include <epan/golay.h>
 #include <epan/iax2_codec_type.h>
 #include <epan/show_exception.h>

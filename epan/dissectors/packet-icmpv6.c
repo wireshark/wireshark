@@ -35,10 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/in_cksum.h>
-#include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
-#include <epan/asn1.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>

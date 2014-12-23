@@ -25,7 +25,6 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/etypes.h>
 #include "packet-fc.h"
 #include "packet-fcct.h"
 

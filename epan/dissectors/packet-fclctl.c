@@ -24,8 +24,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/etypes.h>
-#include "packet-fc.h"
 #include "packet-fclctl.h"
 
 const value_string fc_lctl_proto_val[] = {

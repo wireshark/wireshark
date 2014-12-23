@@ -42,9 +42,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/expert.h>
-#include <epan/conversation.h>
-#include <epan/follow.h>
 
 #include <epan/nghttp2/nghttp2.h>
 

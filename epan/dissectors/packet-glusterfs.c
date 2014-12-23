@@ -35,7 +35,6 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/guid-utils.h>
 
 #include "packet-rpc.h"
 #include "packet-gluster.h"

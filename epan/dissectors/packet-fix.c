@@ -28,12 +28,10 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/conversation.h>
 
 #include "packet-tcp.h"
 #include "packet-ssl.h"

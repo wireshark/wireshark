@@ -27,7 +27,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
-#include <epan/circuit.h>
 
 void proto_register_gsm_um(void);
 void proto_reg_handoff_gsm_um(void);

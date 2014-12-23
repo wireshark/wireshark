@@ -32,8 +32,6 @@
 
 #include "config.h"
 
-#include <stdlib.h>
-#include <time.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>

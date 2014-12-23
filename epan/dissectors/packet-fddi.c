@@ -35,7 +35,6 @@
 #include "packet-fddi.h"
 #include "packet-llc.h"
 #include "packet-sflow.h"
-#include <epan/tap.h>
 
 #include <epan/addr_resolv.h>
 

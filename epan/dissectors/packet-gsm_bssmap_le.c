@@ -30,9 +30,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include "packet-bssap.h"
-#include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
-#include "packet-e212.h"
 
 void proto_register_gsm_bssmap_le(void);
 void proto_reg_handoff_gsm_bssmap_le(void);
