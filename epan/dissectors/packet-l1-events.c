@@ -31,7 +31,6 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/strutil.h>
 
 void proto_register_l1_events(void);
 void proto_reg_handoff_l1_events(void);

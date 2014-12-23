@@ -78,7 +78,6 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <math.h>
 
 #include <epan/packet.h>
@@ -94,9 +93,7 @@
 #include <epan/etypes.h>
 #include <epan/greproto.h>
 #include <epan/oui.h>
-#include <wsutil/crc32.h>
 #include <epan/crc32-tvb.h>
-#include <epan/tap.h>
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/expert.h>
 #include <epan/conversation_table.h>

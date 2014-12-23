@@ -55,7 +55,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/sminmpec.h>
 #include <epan/prefs.h>

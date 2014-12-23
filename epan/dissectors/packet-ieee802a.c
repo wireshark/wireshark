@@ -24,7 +24,6 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 #include <epan/etypes.h>
 
 #include "packet-ieee802a.h"

@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/expert.h>

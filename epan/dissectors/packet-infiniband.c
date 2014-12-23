@@ -25,16 +25,13 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include <wiretap/wtap.h>
 #include <epan/etypes.h>
 #include <epan/show_exception.h>
-#include <epan/to_str.h>
 #include <wiretap/erf.h>
 
 #include "packet-infiniband.h"

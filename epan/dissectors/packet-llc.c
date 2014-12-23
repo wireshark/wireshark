@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
@@ -41,7 +40,6 @@
 #include "packet-vines.h"
 #include "packet-sll.h"
 #include "packet-juniper.h"
-#include <epan/sna-utils.h>
 
 #include "packet-llc.h"
 

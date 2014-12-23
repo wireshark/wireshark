@@ -32,7 +32,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
-#include <epan/conversation.h>
 #include <epan/prefs.h>
 
 #include "packet-tcp.h"

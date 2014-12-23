@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/ipproto.h>
 
 void proto_register_ipvs_syncd(void);
 void proto_reg_handoff_ipvs_syncd(void);

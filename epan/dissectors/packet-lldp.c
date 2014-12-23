@@ -35,7 +35,6 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
-#include <epan/oui.h>
 #include <epan/afn.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>

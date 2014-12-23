@@ -24,7 +24,6 @@
 
 #include "config.h"
 #include <epan/packet.h>
-#include <wsutil/nstime.h>
 #include "packet-lbm.h"
 
 /* Magic number for message header to check if data is big-endian or little-endian. */

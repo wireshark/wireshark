@@ -29,7 +29,6 @@
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
-#include <epan/addr_resolv.h>
 
 
 /*

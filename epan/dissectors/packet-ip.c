@@ -27,13 +27,11 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
-#include <epan/prefs.h>
 #include <epan/conversation_table.h>
 #include <epan/color_dissector_filters.h>
 #include <epan/reassemble.h>
@@ -46,7 +44,6 @@
 #include <epan/in_cksum.h>
 #include <epan/nlpid.h>
 #include <epan/ax25_pids.h>
-#include <epan/tap.h>
 #include <epan/decode_as.h>
 #include <wiretap/erf.h>
 

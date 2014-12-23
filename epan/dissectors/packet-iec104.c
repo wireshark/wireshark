@@ -30,12 +30,10 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <math.h> /* floor */
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/strutil.h>
 #include "packet-tcp.h"
 
 void proto_register_iec104apci(void);

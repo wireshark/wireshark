@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"

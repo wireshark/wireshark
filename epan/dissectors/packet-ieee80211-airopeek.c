@@ -25,7 +25,6 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
-#include "packet-ieee80211.h"
 
 void proto_register_ieee80211_airopeek(void);
 void proto_reg_handoff_ieee80211_airopeek(void);

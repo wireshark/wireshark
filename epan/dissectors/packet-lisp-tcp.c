@@ -27,7 +27,6 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/afn.h>
-#include <epan/ipv6-utils.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 

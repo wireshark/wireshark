@@ -27,8 +27,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <wsutil/filesystem.h>
-#include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 
 void proto_register_lwapp(void);

@@ -25,11 +25,9 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/ppptypes.h>
 #include "packet-ppp.h"
-#include "packet-ip.h"
 #include "packet-juniper.h"
 #include <epan/nlpid.h>
 

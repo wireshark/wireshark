@@ -27,7 +27,6 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/crc32-tvb.h>
-#include "packet-eth.h"
 
 void proto_register_ixveriwave(void);
 void proto_reg_handoff_ixveriwave(void);

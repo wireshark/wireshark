@@ -29,9 +29,7 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/to_str.h>
-#include <epan/etypes.h>
 
-#include "packet-fc.h"
 #include "packet-ipfc.h"
 #include "packet-llc.h"
 

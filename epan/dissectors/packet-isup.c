@@ -52,7 +52,6 @@
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
-#include <epan/circuit.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 #include <wsutil/str_util.h>

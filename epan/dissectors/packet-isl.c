@@ -24,7 +24,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/etypes.h>
 #include <epan/show_exception.h>
 
 #include "packet-isl.h"

@@ -38,7 +38,6 @@
 #include "packet-ieee80211.h"
 #include "packet-ieee80211-radiotap.h"
 #include "packet-ieee80211-radiotap-iter.h"
-#include "packet-ieee80211-radiotap-defs.h"
 
 
 /* protocol */
