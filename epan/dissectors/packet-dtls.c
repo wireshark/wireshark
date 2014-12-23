@@ -49,6 +49,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
