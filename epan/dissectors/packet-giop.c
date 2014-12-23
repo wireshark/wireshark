@@ -4814,23 +4814,26 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 }
 
 static guint
-get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
+get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 
   MessageHeader header;
   guint message_size;
 
-  if (tvb_get_ntohl(tvb, 0) != GIOP_MAGIC_NUMBER)
+  if (tvb_reported_length_remaining(tvb, offset) < GIOP_HEADER_SIZE)
+    return 0;
+
+  if (tvb_get_ntohl(tvb, 0 + offset) != GIOP_MAGIC_NUMBER)
     return 0;
 
   /* Get minimal header information to determine endianness, size */
-  header.GIOP_version.minor = tvb_get_guint8(tvb, 5);
-  header.flags = tvb_get_guint8(tvb, 6);
+  header.GIOP_version.minor = tvb_get_guint8(tvb, 5 + offset);
+  header.flags = tvb_get_guint8(tvb, 6 + offset);
 
   if (is_big_endian (&header))
-    message_size = tvb_get_ntohl(tvb, 8);
+    message_size = tvb_get_ntohl(tvb, 8 + offset);
   else
-    message_size = tvb_get_letohl(tvb, 8);
+    message_size = tvb_get_letohl(tvb, 8 + offset);
 
   /* Make sure the size is reasonable, otherwise just take the header */
   if (message_size > GIOP_MAX_MESSAGE_SIZE)
