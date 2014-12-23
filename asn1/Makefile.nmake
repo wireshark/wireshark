@@ -44,9 +44,10 @@ BER_LIST= \
 	acse			\
 	ansi_map		\
 	ansi_tcap		\
-	atn-cm		\
-	atn-cpdlc	\
-	atn-ulcs	\
+	atn-cm			\
+	atn-cpdlc		\
+	atn-ulcs		\
+	c1222			\
 	camel			\
 	cdt			\
 	charging_ase		\
@@ -74,7 +75,7 @@ BER_LIST= \
 	logotypecertextn	\
 	mms			\
 	ns_cert_exts		\
-	novell_pkis			\
+	novell_pkis		\
 	ocsp			\
 	p1			\
 	p22			\
