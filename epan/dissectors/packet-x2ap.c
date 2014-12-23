@@ -36,7 +36,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
@@ -218,7 +217,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
-#line 57 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 56 "../../asn1/x2ap/packet-x2ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_x2ap = -1;
@@ -589,7 +588,7 @@ static int hf_x2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_x2ap_value = -1;                    /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-x2ap-hf.c ---*/
-#line 63 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 62 "../../asn1/x2ap/packet-x2ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_x2ap = -1;
@@ -757,7 +756,7 @@ static gint ett_x2ap_SuccessfulOutcome = -1;
 static gint ett_x2ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-x2ap-ett.c ---*/
-#line 68 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 67 "../../asn1/x2ap/packet-x2ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -6221,7 +6220,7 @@ static int dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 89 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 88 "../../asn1/x2ap/packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -7724,7 +7723,7 @@ void proto_register_x2ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 147 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 146 "../../asn1/x2ap/packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -7894,7 +7893,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 154 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 153 "../../asn1/x2ap/packet-x2ap-template.c"
   };
 
   module_t *x2ap_module;
@@ -8077,7 +8076,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 200 "../../asn1/x2ap/packet-x2ap-template.c"
+#line 199 "../../asn1/x2ap/packet-x2ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, x2ap_handle);

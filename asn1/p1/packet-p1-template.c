@@ -23,13 +23,12 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -42,7 +41,6 @@
 #include "packet-x509sat.h"
 
 #include "packet-p1.h"
-#include <epan/strutil.h>
 
 #define PNAME  "X.411 Message Transfer Service"
 #define PSNAME "P1"

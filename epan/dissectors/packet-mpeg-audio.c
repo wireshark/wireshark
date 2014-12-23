@@ -30,8 +30,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
@@ -66,7 +64,7 @@ static int hf_mpeg_audio_track = -1;              /* INTEGER_0_255 */
 static int hf_mpeg_audio_genre = -1;              /* T_genre */
 
 /*--- End of included file: packet-mpeg-audio-hf.c ---*/
-#line 35 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 33 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 
 /*--- Included file: packet-mpeg-audio-ett.c ---*/
 #line 1 "../../asn1/mpeg-audio/packet-mpeg-audio-ett.c"
@@ -74,7 +72,7 @@ static gint ett_mpeg_audio_Audio = -1;
 static gint ett_mpeg_audio_ID3v1 = -1;
 
 /*--- End of included file: packet-mpeg-audio-ett.c ---*/
-#line 36 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 34 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 
 /*--- Included file: packet-mpeg-audio-fn.c ---*/
 #line 1 "../../asn1/mpeg-audio/packet-mpeg-audio-fn.c"
@@ -445,7 +443,7 @@ dissect_mpeg_audio_ID3v1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 /*--- End of included file: packet-mpeg-audio-fn.c ---*/
-#line 37 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 35 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 
 void proto_register_mpeg_audio(void);
 void proto_reg_handoff_mpeg_audio(void);
@@ -654,7 +652,7 @@ proto_register_mpeg_audio(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 153 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 151 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio_data,
 			{ "Data", "mpeg-audio.data",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -678,7 +676,7 @@ proto_register_mpeg_audio(void)
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 170 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
+#line 168 "../../asn1/mpeg-audio/packet-mpeg-audio-template.c"
 	};
 
 	proto_mpeg_audio = proto_register_protocol(

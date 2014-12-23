@@ -23,23 +23,21 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/ipproto.h>
+#include <epan/strutil.h>
 
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 #include "packet-ber.h"
 #include "packet-ros.h"
 #include "packet-x509ce.h"
 
-#include <epan/strutil.h>
 
 #define PNAME  "X.519 Internet Directly Mapped Protocol"
 #define PSNAME "IDMP"

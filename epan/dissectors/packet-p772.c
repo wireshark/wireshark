@@ -31,7 +31,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
@@ -164,7 +163,7 @@ static int proto_p772 = -1;
 #define ub_data_size                   65535
 
 /*--- End of included file: packet-p772-val.h ---*/
-#line 50 "../../asn1/p772/packet-p772-template.c"
+#line 49 "../../asn1/p772/packet-p772-template.c"
 
 
 /*--- Included file: packet-p772-hf.c ---*/
@@ -250,7 +249,7 @@ static int hf_p772_Acp127NotificationType_acp127_pn = -1;
 static int hf_p772_Acp127NotificationType_acp127_tn = -1;
 
 /*--- End of included file: packet-p772-hf.c ---*/
-#line 52 "../../asn1/p772/packet-p772-template.c"
+#line 51 "../../asn1/p772/packet-p772-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p772 = -1;
@@ -286,7 +285,7 @@ static gint ett_p772_MMMessageParameters = -1;
 static gint ett_p772_Acp127NotificationType = -1;
 
 /*--- End of included file: packet-p772-ett.c ---*/
-#line 56 "../../asn1/p772/packet-p772-template.c"
+#line 55 "../../asn1/p772/packet-p772-template.c"
 
 
 /*--- Included file: packet-p772-fn.c ---*/
@@ -1291,7 +1290,7 @@ static int dissect_Acp127NotificationType_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-p772-fn.c ---*/
-#line 58 "../../asn1/p772/packet-p772-template.c"
+#line 57 "../../asn1/p772/packet-p772-template.c"
 
 
 /*
@@ -1642,7 +1641,7 @@ void proto_register_p772(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p772-hfarr.c ---*/
-#line 92 "../../asn1/p772/packet-p772-template.c"
+#line 91 "../../asn1/p772/packet-p772-template.c"
   };
 
   /* List of subtrees */
@@ -1680,7 +1679,7 @@ void proto_register_p772(void) {
     &ett_p772_Acp127NotificationType,
 
 /*--- End of included file: packet-p772-ettarr.c ---*/
-#line 98 "../../asn1/p772/packet-p772-template.c"
+#line 97 "../../asn1/p772/packet-p772-template.c"
   };
 
   /* Register protocol */
@@ -1734,7 +1733,7 @@ void proto_reg_handoff_p772(void) {
 
 
 /*--- End of included file: packet-p772-dis-tab.c ---*/
-#line 116 "../../asn1/p772/packet-p772-template.c"
+#line 115 "../../asn1/p772/packet-p772-template.c"
 
   register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_p772, proto_p772, "STANAG 4406");
 }

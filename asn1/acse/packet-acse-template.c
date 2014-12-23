@@ -33,15 +33,11 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
-
-#include <string.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"

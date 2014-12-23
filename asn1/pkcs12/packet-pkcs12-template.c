@@ -27,23 +27,21 @@
 
 #include "config.h"
 
-#include <glib.h>
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 #include "packet-pkcs12.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-cms.h"
-
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
 
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>

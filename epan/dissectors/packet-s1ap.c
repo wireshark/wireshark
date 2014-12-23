@@ -35,7 +35,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #include <epan/strutil.h>
@@ -362,7 +361,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 68 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 67 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
@@ -920,7 +919,7 @@ static int hf_s1ap_eHRPD_Sector_ID_01 = -1;       /* EHRPD_Sector_ID */
 static int hf_s1ap_eHRPDSectorLoadReportingResponse = -1;  /* EHRPDSectorLoadReportingResponse */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 75 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 74 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -1210,7 +1209,7 @@ static gint ett_s1ap_EHRPDCompositeAvailableCapacity = -1;
 static gint ett_s1ap_EHRPDMultiSectorLoadReportingResponseItem = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 88 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 87 "../../asn1/s1ap/packet-s1ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -10495,7 +10494,7 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 137 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 136 "../../asn1/s1ap/packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -10832,7 +10831,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 224 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 223 "../../asn1/s1ap/packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
@@ -13049,7 +13048,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 252 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 251 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -13340,7 +13339,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_EHRPDMultiSectorLoadReportingResponseItem,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 266 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 265 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;

@@ -34,7 +34,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
@@ -886,7 +885,7 @@ static int hf_rrlp_GANSSModelID_model7 = -1;
 static int hf_rrlp_GANSSModelID_model8 = -1;
 
 /*--- End of included file: packet-rrlp-hf.c ---*/
-#line 56 "../../asn1/rrlp/packet-rrlp-template.c"
+#line 55 "../../asn1/rrlp/packet-rrlp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rrlp = -1;
@@ -1147,7 +1146,7 @@ static gint ett_rrlp_GANSSModelID = -1;
 static gint ett_rrlp_AssistanceNeeded = -1;
 
 /*--- End of included file: packet-rrlp-ett.c ---*/
-#line 60 "../../asn1/rrlp/packet-rrlp-template.c"
+#line 59 "../../asn1/rrlp/packet-rrlp-template.c"
 
 /* Include constants */
 
@@ -1159,7 +1158,7 @@ static gint ett_rrlp_AssistanceNeeded = -1;
 #define maxGANSSAssistanceData         40
 
 /*--- End of included file: packet-rrlp-val.h ---*/
-#line 63 "../../asn1/rrlp/packet-rrlp-template.c"
+#line 62 "../../asn1/rrlp/packet-rrlp-template.c"
 
 
 
@@ -7155,7 +7154,7 @@ static int dissect_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 
 /*--- End of included file: packet-rrlp-fn.c ---*/
-#line 66 "../../asn1/rrlp/packet-rrlp-template.c"
+#line 65 "../../asn1/rrlp/packet-rrlp-template.c"
 
 
 /*--- proto_register_rrlp -------------------------------------------*/
@@ -10449,7 +10448,7 @@ void proto_register_rrlp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rrlp-hfarr.c ---*/
-#line 75 "../../asn1/rrlp/packet-rrlp-template.c"
+#line 74 "../../asn1/rrlp/packet-rrlp-template.c"
   };
 
   /* List of subtrees */
@@ -10712,7 +10711,7 @@ void proto_register_rrlp(void) {
     &ett_rrlp_AssistanceNeeded,
 
 /*--- End of included file: packet-rrlp-ettarr.c ---*/
-#line 81 "../../asn1/rrlp/packet-rrlp-template.c"
+#line 80 "../../asn1/rrlp/packet-rrlp-template.c"
   };
 
 

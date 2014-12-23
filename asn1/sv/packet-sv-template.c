@@ -23,14 +23,10 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
-
-#include <stdio.h>
-#include <string.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"

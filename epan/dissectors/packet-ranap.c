@@ -33,10 +33,8 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
-#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -409,7 +407,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-ranap-val.h ---*/
-#line 60 "../../asn1/ranap/packet-ranap-template.c"
+#line 58 "../../asn1/ranap/packet-ranap-template.c"
 
 void proto_register_ranap(void);
 void proto_reg_handoff_ranap(void);
@@ -1147,7 +1145,7 @@ static int hf_ranap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_valu
 static int hf_ranap_value = -1;                   /* T_value */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 77 "../../asn1/ranap/packet-ranap-template.c"
+#line 75 "../../asn1/ranap/packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -1483,7 +1481,7 @@ static gint ett_ranap_UnsuccessfulOutcome = -1;
 static gint ett_ranap_Outcome = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 84 "../../asn1/ranap/packet-ranap-template.c"
+#line 82 "../../asn1/ranap/packet-ranap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -4774,7 +4772,7 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 	PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	digit_str = dissect_e212_imsi(imsi_tvb, actx->pinfo, tree,  0, tvb_reported_length(imsi_tvb), FALSE);
 
-	sccp_info = (sccp_msg_info_t *)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_ranap, 0);
+	sccp_info = (sccp_msg_info_t *)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_ranap, actx->pinfo->curr_layer_num);
 
 	if ( sccp_info
 		 && sccp_info->data.co.assoc
@@ -13070,7 +13068,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 143 "../../asn1/ranap/packet-ranap-template.c"
+#line 141 "../../asn1/ranap/packet-ranap-template.c"
 
 static int
 dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -13171,7 +13169,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	/* Save the sccp_msg_info_t data (if present) because it can't be passed
 	   through function calls */
-	p_add_proto_data(pinfo->pool, pinfo, proto_ranap, 0, data);
+	p_add_proto_data(pinfo->pool, pinfo, proto_ranap, pinfo->curr_layer_num, data);
 
 	dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree, NULL);
 	if (sccp_msg_lcl) {
@@ -16122,7 +16120,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 326 "../../asn1/ranap/packet-ranap-template.c"
+#line 324 "../../asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -16459,7 +16457,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 334 "../../asn1/ranap/packet-ranap-template.c"
+#line 332 "../../asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -16842,7 +16840,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 384 "../../asn1/ranap/packet-ranap-template.c"
+#line 382 "../../asn1/ranap/packet-ranap-template.c"
 	} else {
 		dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}

@@ -44,16 +44,13 @@
 
 #include "config.h"
 
-#include <glib.h>
+#include <stdlib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/oids.h>
 #include <epan/expert.h>
-
-#include <stdlib.h>
-#include <string.h>
 
 #include <epan/asn1.h>
 #include "packet-ber.h"

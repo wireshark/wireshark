@@ -24,16 +24,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <wsutil/sha1.h>
-#include <wsutil/md5.h>
-
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
-
-#include <string.h>
+#include <wsutil/sha1.h>
+#include <wsutil/md5.h>
 
 #include "packet-ber.h"
 #include "packet-cms.h"

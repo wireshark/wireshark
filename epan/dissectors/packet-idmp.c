@@ -31,23 +31,21 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/wmem/wmem.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/ipproto.h>
+#include <epan/strutil.h>
 
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 #include "packet-ber.h"
 #include "packet-ros.h"
 #include "packet-x509ce.h"
 
-#include <epan/strutil.h>
 
 #define PNAME  "X.519 Internet Directly Mapped Protocol"
 #define PSNAME "IDMP"
@@ -173,7 +171,7 @@ static int hf_idmp_present = -1;                  /* INTEGER */
 static int hf_idmp_absent = -1;                   /* NULL */
 
 /*--- End of included file: packet-idmp-hf.c ---*/
-#line 132 "../../asn1/idmp/packet-idmp-template.c"
+#line 130 "../../asn1/idmp/packet-idmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_idmp = -1;
@@ -192,7 +190,7 @@ static gint ett_idmp_Code = -1;
 static gint ett_idmp_InvokeId = -1;
 
 /*--- End of included file: packet-idmp-ett.c ---*/
-#line 136 "../../asn1/idmp/packet-idmp-template.c"
+#line 134 "../../asn1/idmp/packet-idmp-template.c"
 
 
 /*--- Included file: packet-idmp-fn.c ---*/
@@ -620,7 +618,7 @@ dissect_idmp_IDM_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-idmp-fn.c ---*/
-#line 138 "../../asn1/idmp/packet-idmp-template.c"
+#line 136 "../../asn1/idmp/packet-idmp-template.c"
 
 void
 register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name)
@@ -931,7 +929,7 @@ void proto_register_idmp(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-idmp-hfarr.c ---*/
-#line 316 "../../asn1/idmp/packet-idmp-template.c"
+#line 314 "../../asn1/idmp/packet-idmp-template.c"
     };
 
     /* List of subtrees */
@@ -954,7 +952,7 @@ void proto_register_idmp(void)
     &ett_idmp_InvokeId,
 
 /*--- End of included file: packet-idmp-ettarr.c ---*/
-#line 324 "../../asn1/idmp/packet-idmp-template.c"
+#line 322 "../../asn1/idmp/packet-idmp-template.c"
     };
     module_t *idmp_module;
 

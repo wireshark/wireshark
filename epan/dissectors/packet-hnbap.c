@@ -33,9 +33,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <string.h>
-
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
@@ -114,7 +111,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-hnbap-val.h ---*/
-#line 52 "../../asn1/hnbap/packet-hnbap-template.c"
+#line 49 "../../asn1/hnbap/packet-hnbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_hnbap = -1;
@@ -260,7 +257,7 @@ static int hf_hnbap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_hnbap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-hnbap-hf.c ---*/
-#line 57 "../../asn1/hnbap/packet-hnbap-template.c"
+#line 54 "../../asn1/hnbap/packet-hnbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_hnbap = -1;
@@ -334,7 +331,7 @@ static gint ett_hnbap_SuccessfulOutcome = -1;
 static gint ett_hnbap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-hnbap-ett.c ---*/
-#line 62 "../../asn1/hnbap/packet-hnbap-template.c"
+#line 59 "../../asn1/hnbap/packet-hnbap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -2591,7 +2588,7 @@ static int dissect_HNBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-hnbap-fn.c ---*/
-#line 83 "../../asn1/hnbap/packet-hnbap-template.c"
+#line 80 "../../asn1/hnbap/packet-hnbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -3210,7 +3207,7 @@ module_t *hnbap_module;
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-hnbap-hfarr.c ---*/
-#line 153 "../../asn1/hnbap/packet-hnbap-template.c"
+#line 150 "../../asn1/hnbap/packet-hnbap-template.c"
   };
 
   /* List of subtrees */
@@ -3285,7 +3282,7 @@ module_t *hnbap_module;
     &ett_hnbap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-hnbap-ettarr.c ---*/
-#line 159 "../../asn1/hnbap/packet-hnbap-template.c"
+#line 156 "../../asn1/hnbap/packet-hnbap-template.c"
   };
 
 
@@ -3372,7 +3369,7 @@ proto_reg_handoff_hnbap(void)
 
 
 /*--- End of included file: packet-hnbap-dis-tab.c ---*/
-#line 196 "../../asn1/hnbap/packet-hnbap-template.c"
+#line 193 "../../asn1/hnbap/packet-hnbap-template.c"
 
         } else {
                 dissector_delete_uint("sctp.port", sctp_port, hnbap_handle);

@@ -31,24 +31,16 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <wsutil/rc4.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/conversation.h>
+#include <epan/asn1.h>
+#include <wsutil/rc4.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
-#include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-#include <epan/asn1.h>
-
-#include <string.h>
-
 #include "packet-ber.h"
-
 
 #define PNAME  "Simple Protected Negotiation"
 #define PSNAME "SPNEGO"

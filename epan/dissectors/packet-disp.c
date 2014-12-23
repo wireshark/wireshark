@@ -31,7 +31,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
@@ -183,7 +182,7 @@ static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
 static int hf_disp_shadowError = -1;              /* ShadowErrorData */
 
 /*--- End of included file: packet-disp-hf.c ---*/
-#line 67 "../../asn1/disp/packet-disp-template.c"
+#line 66 "../../asn1/disp/packet-disp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_disp = -1;
@@ -246,7 +245,7 @@ static gint ett_disp_ShadowError = -1;
 static gint ett_disp_T_signedShadowError = -1;
 
 /*--- End of included file: packet-disp-ett.c ---*/
-#line 71 "../../asn1/disp/packet-disp-template.c"
+#line 70 "../../asn1/disp/packet-disp-template.c"
 
 static expert_field ei_disp_unsupported_opcode = EI_INIT;
 static expert_field ei_disp_unsupported_errcode = EI_INIT;
@@ -1483,7 +1482,7 @@ static int dissect_ShadowingAgreementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-disp-fn.c ---*/
-#line 78 "../../asn1/disp/packet-disp-template.c"
+#line 77 "../../asn1/disp/packet-disp-template.c"
 
 /*
 * Dissect DISP PDUs inside a ROS PDUs
@@ -2041,7 +2040,7 @@ void proto_register_disp(void) {
         "ShadowErrorData", HFILL }},
 
 /*--- End of included file: packet-disp-hfarr.c ---*/
-#line 203 "../../asn1/disp/packet-disp-template.c"
+#line 202 "../../asn1/disp/packet-disp-template.c"
   };
 
   /* List of subtrees */
@@ -2106,7 +2105,7 @@ void proto_register_disp(void) {
     &ett_disp_T_signedShadowError,
 
 /*--- End of included file: packet-disp-ettarr.c ---*/
-#line 209 "../../asn1/disp/packet-disp-template.c"
+#line 208 "../../asn1/disp/packet-disp-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -2156,7 +2155,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 248 "../../asn1/disp/packet-disp-template.c"
+#line 247 "../../asn1/disp/packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 

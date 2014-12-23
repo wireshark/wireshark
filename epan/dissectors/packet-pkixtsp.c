@@ -31,7 +31,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
@@ -87,7 +86,7 @@ static int hf_pkixtsp_PKIFailureInfo_addInfoNotAvailable = -1;
 static int hf_pkixtsp_PKIFailureInfo_systemFailure = -1;
 
 /*--- End of included file: packet-pkixtsp-hf.c ---*/
-#line 46 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 45 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkixtsp = -1;
@@ -103,7 +102,7 @@ static gint ett_pkixtsp_TSTInfo = -1;
 static gint ett_pkixtsp_Accuracy = -1;
 
 /*--- End of included file: packet-pkixtsp-ett.c ---*/
-#line 50 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 49 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
 
 
 
@@ -362,7 +361,7 @@ static int dissect_TSTInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-pkixtsp-fn.c ---*/
-#line 53 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 52 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
 
 
 static int
@@ -542,7 +541,7 @@ void proto_register_pkixtsp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixtsp-hfarr.c ---*/
-#line 104 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 103 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
   };
 
   /* List of subtrees */
@@ -560,7 +559,7 @@ void proto_register_pkixtsp(void) {
     &ett_pkixtsp_Accuracy,
 
 /*--- End of included file: packet-pkixtsp-ettarr.c ---*/
-#line 110 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 109 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
   };
 
   /* Register protocol */
@@ -591,6 +590,6 @@ void proto_reg_handoff_pkixtsp(void) {
 
 
 /*--- End of included file: packet-pkixtsp-dis-tab.c ---*/
-#line 134 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 133 "../../asn1/pkixtsp/packet-pkixtsp-template.c"
 }
 

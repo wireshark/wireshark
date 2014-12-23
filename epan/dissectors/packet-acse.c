@@ -41,15 +41,11 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
-
-#include <string.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -189,7 +185,7 @@ static int hf_acse_ACSE_requirements_higher_level_association = -1;
 static int hf_acse_ACSE_requirements_nested_association = -1;
 
 /*--- End of included file: packet-acse-hf.c ---*/
-#line 72 "../../asn1/acse/packet-acse-template.c"
+#line 68 "../../asn1/acse/packet-acse-template.c"
 static gint hf_acse_user_data = -1;
 
 /* Initialize the subtree pointers */
@@ -234,7 +230,7 @@ static gint ett_acse_Authentication_value_other = -1;
 static gint ett_acse_Authentication_value = -1;
 
 /*--- End of included file: packet-acse-ett.c ---*/
-#line 77 "../../asn1/acse/packet-acse-template.c"
+#line 73 "../../asn1/acse/packet-acse-template.c"
 
 static expert_field ei_acse_dissector_not_available = EI_INIT;
 static expert_field ei_acse_malformed = EI_INIT;
@@ -1681,7 +1677,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 155 "../../asn1/acse/packet-acse-template.c"
+#line 151 "../../asn1/acse/packet-acse-template.c"
 
 
 /*
@@ -2232,7 +2228,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 273 "../../asn1/acse/packet-acse-template.c"
+#line 269 "../../asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2278,7 +2274,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 279 "../../asn1/acse/packet-acse-template.c"
+#line 275 "../../asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {

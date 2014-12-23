@@ -30,7 +30,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
 #include <epan/asn1.h>
@@ -68,7 +67,7 @@ static int hf_pkix1implicit_bmpString = -1;       /* BMPString */
 static int hf_pkix1implicit_utf8String = -1;      /* UTF8String */
 
 /*--- End of included file: packet-pkix1implicit-hf.c ---*/
-#line 44 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
+#line 43 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -82,7 +81,7 @@ static gint ett_pkix1implicit_T_noticeNumbers = -1;
 static gint ett_pkix1implicit_DisplayText = -1;
 
 /*--- End of included file: packet-pkix1implicit-ett.c ---*/
-#line 47 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
+#line 46 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
 
 
 int
@@ -306,7 +305,7 @@ static int dissect_UserNotice_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-pkix1implicit-fn.c ---*/
-#line 63 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
+#line 62 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
 
 
 /*--- proto_register_pkix1implicit ----------------------------------------------*/
@@ -379,7 +378,7 @@ void proto_register_pkix1implicit(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkix1implicit-hfarr.c ---*/
-#line 71 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
+#line 70 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
   };
 
   /* List of subtrees */
@@ -395,7 +394,7 @@ void proto_register_pkix1implicit(void) {
     &ett_pkix1implicit_DisplayText,
 
 /*--- End of included file: packet-pkix1implicit-ettarr.c ---*/
-#line 76 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
+#line 75 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
   };
 
   /* Register protocol */
@@ -451,6 +450,6 @@ void proto_reg_handoff_pkix1implicit(void) {
 
 
 /*--- End of included file: packet-pkix1implicit-dis-tab.c ---*/
-#line 91 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
+#line 90 "../../asn1/pkix1implicit/packet-pkix1implicit-template.c"
 }
 

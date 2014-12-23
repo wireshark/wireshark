@@ -33,16 +33,14 @@
  */
 #include "config.h"
 
-#include <glib.h>
+#include <stdlib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
-
-#include <stdlib.h>
-#include <string.h>
 
 #include "packet-ber.h"
 #include "packet-camel.h"

@@ -21,18 +21,14 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
-#include <string.h>
-
-#include <epan/dissectors/packet-per.h>
+#include "packet-per.h"
 #include "packet-ber.h"
 
 #include "packet-novell_pkis-hf.c"

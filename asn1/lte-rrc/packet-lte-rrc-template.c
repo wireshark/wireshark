@@ -27,15 +27,12 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include <stdlib.h>
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
 
 #include "packet-per.h"
 #include "packet-rrc.h"

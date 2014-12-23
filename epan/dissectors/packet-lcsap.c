@@ -34,13 +34,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/packet.h>
-
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
 
+#include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
@@ -112,7 +108,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lcsap-val.h ---*/
-#line 64 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 60 "../../asn1/lcsap/packet-lcsap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lcsap  =   -1;
@@ -235,7 +231,7 @@ static int hf_lcsap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_lcsap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-lcsap-hf.c ---*/
-#line 74 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 70 "../../asn1/lcsap/packet-lcsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_lcsap = -1;
@@ -290,7 +286,7 @@ static gint ett_lcsap_SuccessfulOutcome = -1;
 static gint ett_lcsap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-lcsap-ett.c ---*/
-#line 79 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 75 "../../asn1/lcsap/packet-lcsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -2206,7 +2202,7 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-lcsap-fn.c ---*/
-#line 192 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 188 "../../asn1/lcsap/packet-lcsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2305,7 +2301,7 @@ proto_reg_handoff_lcsap(void)
 
 
 /*--- End of included file: packet-lcsap-dis-tab.c ---*/
-#line 252 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 248 "../../asn1/lcsap/packet-lcsap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
@@ -2787,7 +2783,7 @@ void proto_register_lcsap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-lcsap-hfarr.c ---*/
-#line 297 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 293 "../../asn1/lcsap/packet-lcsap-template.c"
   };
 
   /* List of subtrees */
@@ -2843,7 +2839,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-lcsap-ettarr.c ---*/
-#line 303 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 299 "../../asn1/lcsap/packet-lcsap-template.c"
  };
 
   module_t *lcsap_module;

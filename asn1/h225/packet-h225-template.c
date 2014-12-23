@@ -32,22 +32,18 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-
-#include <string.h>
 
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/next_tvb.h>
 #include <epan/asn1.h>
+#include <epan/t35.h>
 #include <epan/tap.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"
-#include <epan/t35.h>
 #include <epan/h225-persistentdata.h>
 #include "packet-h235.h"
 #include "packet-h245.h"

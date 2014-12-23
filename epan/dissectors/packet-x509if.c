@@ -31,18 +31,16 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-dap.h"
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
-#include <epan/strutil.h>
-#include <epan/dissectors/packet-frame.h>
+#include "packet-frame.h"
 
 #define PNAME  "X.509 Information Framework"
 #define PSNAME "X509IF"
@@ -215,7 +213,7 @@ static int hf_x509if_AllowedSubset_oneLevel = -1;
 static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 /*--- End of included file: packet-x509if-hf.c ---*/
-#line 51 "../../asn1/x509if/packet-x509if-template.c"
+#line 49 "../../asn1/x509if/packet-x509if-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -296,7 +294,7 @@ static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType = -1;
 static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString = -1;
 
 /*--- End of included file: packet-x509if-ett.c ---*/
-#line 54 "../../asn1/x509if/packet-x509if-template.c"
+#line 52 "../../asn1/x509if/packet-x509if-template.c"
 
 static proto_tree *top_of_dn = NULL;
 static proto_tree *top_of_rdn = NULL;
@@ -2105,7 +2103,7 @@ static int dissect_HierarchyBelow_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-x509if-fn.c ---*/
-#line 90 "../../asn1/x509if/packet-x509if-template.c"
+#line 88 "../../asn1/x509if/packet-x509if-template.c"
 
 const char * x509if_get_last_dn(void)
 {
@@ -2771,7 +2769,7 @@ void proto_register_x509if(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509if-hfarr.c ---*/
-#line 135 "../../asn1/x509if/packet-x509if-template.c"
+#line 133 "../../asn1/x509if/packet-x509if-template.c"
   };
 
   /* List of subtrees */
@@ -2854,7 +2852,7 @@ void proto_register_x509if(void) {
     &ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString,
 
 /*--- End of included file: packet-x509if-ettarr.c ---*/
-#line 140 "../../asn1/x509if/packet-x509if-template.c"
+#line 138 "../../asn1/x509if/packet-x509if-template.c"
   };
 
   /* Register protocol */
@@ -2912,6 +2910,6 @@ void proto_reg_handoff_x509if(void) {
 
 
 /*--- End of included file: packet-x509if-dis-tab.c ---*/
-#line 159 "../../asn1/x509if/packet-x509if-template.c"
+#line 157 "../../asn1/x509if/packet-x509if-template.c"
 }
 

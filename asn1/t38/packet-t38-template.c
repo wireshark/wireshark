@@ -44,23 +44,19 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
-
-#include <string.h>
-
-#include "packet-t38.h"
+#include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include <epan/asn1.h>
+
+#include "packet-t38.h"
 #include "packet-per.h"
 #include "packet-tpkt.h"
-#include <epan/wmem/wmem.h>
-#include <epan/strutil.h>
 
 void proto_register_t38(void);
 

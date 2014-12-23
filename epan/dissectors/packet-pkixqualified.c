@@ -31,7 +31,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
 
@@ -76,7 +75,7 @@ static int hf_pkixqualified_nameRegistrationAuthorities = -1;  /* NameRegistrati
 static int hf_pkixqualified_NameRegistrationAuthorities_item = -1;  /* GeneralName */
 
 /*--- End of included file: packet-pkixqualified-hf.c ---*/
-#line 47 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 46 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -91,7 +90,7 @@ static gint ett_pkixqualified_SemanticsInformation = -1;
 static gint ett_pkixqualified_NameRegistrationAuthorities = -1;
 
 /*--- End of included file: packet-pkixqualified-ett.c ---*/
-#line 50 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 49 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
 
 static const char *object_identifier_id;
 
@@ -367,7 +366,7 @@ static int dissect_XmppAddr_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pkixqualified-fn.c ---*/
-#line 54 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 53 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
 
 
 /*--- proto_register_pkixqualified ----------------------------------------------*/
@@ -460,7 +459,7 @@ void proto_register_pkixqualified(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixqualified-hfarr.c ---*/
-#line 62 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 61 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
   };
 
   /* List of subtrees */
@@ -477,7 +476,7 @@ void proto_register_pkixqualified(void) {
     &ett_pkixqualified_NameRegistrationAuthorities,
 
 /*--- End of included file: packet-pkixqualified-ettarr.c ---*/
-#line 67 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 66 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
   };
 
   /* Register protocol */
@@ -508,6 +507,6 @@ void proto_reg_handoff_pkixqualified(void) {
 
 
 /*--- End of included file: packet-pkixqualified-dis-tab.c ---*/
-#line 82 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
+#line 81 "../../asn1/pkixqualified/packet-pkixqualified-template.c"
 }
 

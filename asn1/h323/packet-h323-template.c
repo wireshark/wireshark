@@ -23,11 +23,9 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
 
 #include "packet-per.h"
 #include "packet-h225.h"

@@ -31,13 +31,12 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
-#include <epan/wmem/wmem.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -50,7 +49,6 @@
 #include "packet-x509sat.h"
 
 #include "packet-p1.h"
-#include <epan/strutil.h>
 
 #define PNAME  "X.411 Message Transfer Service"
 #define PSNAME "P1"
@@ -639,7 +637,7 @@ static int hf_p1_G3FacsimileNonBasicParameters_jpeg = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-p1-hf.c ---*/
-#line 65 "../../asn1/p1/packet-p1-template.c"
+#line 63 "../../asn1/p1/packet-p1-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p1 = -1;
@@ -836,7 +834,7 @@ static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissio
 static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields = -1;
 
 /*--- End of included file: packet-p1-ett.c ---*/
-#line 76 "../../asn1/p1/packet-p1-template.c"
+#line 74 "../../asn1/p1/packet-p1-template.c"
 
 static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
 static expert_field ei_p1_unknown_standard_extension = EI_INIT;
@@ -894,7 +892,7 @@ static const value_string p3_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p1-table.c ---*/
-#line 90 "../../asn1/p1/packet-p1-template.c"
+#line 88 "../../asn1/p1/packet-p1-template.c"
 
 typedef struct p1_address_ctx {
 	gboolean do_address;
@@ -8420,7 +8418,7 @@ static int dissect_SecurityClassification_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-p1-fn.c ---*/
-#line 151 "../../asn1/p1/packet-p1-template.c"
+#line 149 "../../asn1/p1/packet-p1-template.c"
 
 
 /*--- Included file: packet-p1-table11.c ---*/
@@ -8452,7 +8450,7 @@ static const ros_opr_t p3_opr_tab[] = {
 
 
 /*--- End of included file: packet-p1-table11.c ---*/
-#line 153 "../../asn1/p1/packet-p1-template.c"
+#line 151 "../../asn1/p1/packet-p1-template.c"
 
 /*--- Included file: packet-p1-table21.c ---*/
 #line 1 "../../asn1/p1/packet-p1-table21.c"
@@ -8497,7 +8495,7 @@ static const ros_err_t p3_err_tab[] = {
 
 
 /*--- End of included file: packet-p1-table21.c ---*/
-#line 154 "../../asn1/p1/packet-p1-template.c"
+#line 152 "../../asn1/p1/packet-p1-template.c"
 
 static const ros_info_t p3_ros_info = {
   "P3",
@@ -10924,7 +10922,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 320 "../../asn1/p1/packet-p1-template.c"
+#line 318 "../../asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -11123,7 +11121,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 333 "../../asn1/p1/packet-p1-template.c"
+#line 331 "../../asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11172,7 +11170,7 @@ void proto_register_p1(void) {
   new_register_ber_syntax_dissector("ORName", proto_p1, dissect_ORName_PDU);
 
 /*--- End of included file: packet-p1-syn-reg.c ---*/
-#line 374 "../../asn1/p1/packet-p1-template.c"
+#line 372 "../../asn1/p1/packet-p1-template.c"
 }
 
 
@@ -11338,7 +11336,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 382 "../../asn1/p1/packet-p1-template.c"
+#line 380 "../../asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 

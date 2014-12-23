@@ -113,20 +113,16 @@ which ATN standard is supported ?
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/packet.h>
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-per.h>
-#include <epan/wmem/wmem.h>
-#include <epan/address.h>
-#include <epan/conversation.h>
-
-#include <stdio.h>
-#include <string.h>
 #ifndef _MSC_VER
 #include <stdint.h>
 #endif
 
+
+#include <epan/packet.h>
+#include <epan/address.h>
+#include <epan/conversation.h>
+#include "packet-ber.h"
+#include "packet-per.h"
 #include "packet-atn-ulcs.h"
 
 #define ATN_ACSE_PROTO "ICAO Doc9705 ULCS ACSE (ISO 8649/8650-1:1996)"

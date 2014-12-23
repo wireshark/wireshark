@@ -39,24 +39,16 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <wsutil/rc4.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/conversation.h>
+#include <epan/asn1.h>
+#include <wsutil/rc4.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
-#include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
-#include <epan/asn1.h>
-
-#include <string.h>
-
 #include "packet-ber.h"
-
 
 #define PNAME  "Simple Protected Negotiation"
 #define PSNAME "SPNEGO"
@@ -89,7 +81,7 @@ static int hf_spnego_krb5_cfx_rrc = -1;
 static int hf_spnego_krb5_cfx_seq = -1;
 
 
-/*--- Included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-hf.c ---*/
+/*--- Included file: packet-spnego-hf.c ---*/
 #line 1 "../../asn1/spnego/packet-spnego-hf.c"
 static int hf_spnego_negTokenInit = -1;           /* T_negTokenInit */
 static int hf_spnego_negTokenTarg = -1;           /* NegTokenTarg */
@@ -116,8 +108,8 @@ static int hf_spnego_ContextFlags_anonFlag = -1;
 static int hf_spnego_ContextFlags_confFlag = -1;
 static int hf_spnego_ContextFlags_integFlag = -1;
 
-/*--- End of included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-hf.c ---*/
-#line 84 "../../asn1/spnego/packet-spnego-template.c"
+/*--- End of included file: packet-spnego-hf.c ---*/
+#line 76 "../../asn1/spnego/packet-spnego-template.c"
 
 /* Global variables */
 static const char *MechType_oid;
@@ -132,7 +124,7 @@ static gint ett_spnego_krb5 = -1;
 static gint ett_spnego_krb5_cfx_flags = -1;
 
 
-/*--- Included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-ett.c ---*/
+/*--- Included file: packet-spnego-ett.c ---*/
 #line 1 "../../asn1/spnego/packet-spnego-ett.c"
 static gint ett_spnego_NegotiationToken = -1;
 static gint ett_spnego_MechTypeList = -1;
@@ -143,8 +135,8 @@ static gint ett_spnego_ContextFlags = -1;
 static gint ett_spnego_NegTokenTarg = -1;
 static gint ett_spnego_InitialContextToken_U = -1;
 
-/*--- End of included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-ett.c ---*/
-#line 98 "../../asn1/spnego/packet-spnego-template.c"
+/*--- End of included file: packet-spnego-ett.c ---*/
+#line 90 "../../asn1/spnego/packet-spnego-template.c"
 
 static expert_field ei_spnego_decrypted_keytype = EI_INIT;
 static expert_field ei_spnego_unknown_header = EI_INIT;
@@ -162,7 +154,7 @@ static int dissect_spnego_NegTokenInit2(gboolean implicit_tag, tvbuff_t *tvb,
                                         proto_tree *tree, int hf_index);
 
 
-/*--- Included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-fn.c ---*/
+/*--- Included file: packet-spnego-fn.c ---*/
 #line 1 "../../asn1/spnego/packet-spnego-fn.c"
 
 
@@ -562,8 +554,8 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-/*--- End of included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-fn.c ---*/
-#line 115 "../../asn1/spnego/packet-spnego-template.c"
+/*--- End of included file: packet-spnego-fn.c ---*/
+#line 107 "../../asn1/spnego/packet-spnego-template.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -1851,7 +1843,7 @@ void proto_register_spnego(void) {
 		    NULL, 0, "KRB5 Sequence Number", HFILL}},
 
 
-/*--- Included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-hfarr.c ---*/
+/*--- Included file: packet-spnego-hfarr.c ---*/
 #line 1 "../../asn1/spnego/packet-spnego-hfarr.c"
     { &hf_spnego_negTokenInit,
       { "negTokenInit", "spnego.negTokenInit_element",
@@ -1946,8 +1938,8 @@ void proto_register_spnego(void) {
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
 
-/*--- End of included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-hfarr.c ---*/
-#line 1402 "../../asn1/spnego/packet-spnego-template.c"
+/*--- End of included file: packet-spnego-hfarr.c ---*/
+#line 1394 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1958,7 +1950,7 @@ void proto_register_spnego(void) {
 		&ett_spnego_krb5_cfx_flags,
 
 
-/*--- Included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-ettarr.c ---*/
+/*--- Included file: packet-spnego-ettarr.c ---*/
 #line 1 "../../asn1/spnego/packet-spnego-ettarr.c"
     &ett_spnego_NegotiationToken,
     &ett_spnego_MechTypeList,
@@ -1969,8 +1961,8 @@ void proto_register_spnego(void) {
     &ett_spnego_NegTokenTarg,
     &ett_spnego_InitialContextToken_U,
 
-/*--- End of included file: /home/mmann/wireshark/asn1/spnego/packet-spnego-ettarr.c ---*/
-#line 1412 "../../asn1/spnego/packet-spnego-template.c"
+/*--- End of included file: packet-spnego-ettarr.c ---*/
+#line 1404 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	static ei_register_info ei[] = {

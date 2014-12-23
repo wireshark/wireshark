@@ -25,7 +25,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
@@ -34,7 +33,6 @@
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
 
-#include <string.h>
 #include "packet-ber.h"
 #include "packet-tcap.h"
 #include "packet-mtp3.h"

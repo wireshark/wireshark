@@ -24,11 +24,7 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
-
-#include <stdio.h>
-#include <string.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/sctpppids.h>

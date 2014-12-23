@@ -36,18 +36,14 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 
-#include <stdio.h>
-#include <string.h>
-
-#include <epan/dissectors/packet-per.h>
+#include "packet-per.h"
 #include "packet-tetra.h"
 
 #define PROTO_TAG_tetra	"TETRA"
@@ -688,7 +684,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 87 "../../asn1/tetra/packet-tetra-template.c"
+#line 83 "../../asn1/tetra/packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
@@ -973,7 +969,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 97 "../../asn1/tetra/packet-tetra-template.c"
+#line 93 "../../asn1/tetra/packet-tetra-template.c"
 
 static expert_field ei_tetra_channels_incorrect = EI_INIT;
 
@@ -8819,7 +8815,7 @@ static int dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 101 "../../asn1/tetra/packet-tetra-template.c"
+#line 97 "../../asn1/tetra/packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -11722,7 +11718,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 631 "../../asn1/tetra/packet-tetra-template.c"
+#line 627 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -12007,7 +12003,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 641 "../../asn1/tetra/packet-tetra-template.c"
+#line 637 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	static ei_register_info ei[] = {

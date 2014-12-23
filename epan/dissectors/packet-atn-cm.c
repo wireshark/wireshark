@@ -53,13 +53,11 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-per.h>
-
+#include "packet-ber.h"
+#include "packet-per.h"
 #include "packet-atn-ulcs.h"
 
 #define ATN_CM_PROTO "ICAO Doc9705 CM"
@@ -112,7 +110,7 @@ static int hf_atn_cm_hours = -1;                  /* Timehours */
 static int hf_atn_cm_minutes = -1;                /* Timeminutes */
 
 /*--- End of included file: packet-atn-cm-hf.c ---*/
-#line 63 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 61 "../../asn1/atn-cm/packet-atn-cm-template.c"
 
 
 /*--- Included file: packet-atn-cm-ett.c ---*/
@@ -134,7 +132,7 @@ static gint ett_atn_cm_ShortTsap = -1;
 static gint ett_atn_cm_Time = -1;
 
 /*--- End of included file: packet-atn-cm-ett.c ---*/
-#line 65 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 63 "../../asn1/atn-cm/packet-atn-cm-template.c"
 static gint ett_atn_cm = -1;
 
 
@@ -637,7 +635,7 @@ static int dissect_CMGroundMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-atn-cm-fn.c ---*/
-#line 68 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 66 "../../asn1/atn-cm/packet-atn-cm-template.c"
 static int proto_atn_cm = -1;
 
 static int
@@ -937,7 +935,7 @@ void proto_register_atn_cm (void)
         "Timeminutes", HFILL }},
 
 /*--- End of included file: packet-atn-cm-hfarr.c ---*/
-#line 203 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 201 "../../asn1/atn-cm/packet-atn-cm-template.c"
     };
 		static gint *ett[] = {
 
@@ -960,7 +958,7 @@ void proto_register_atn_cm (void)
     &ett_atn_cm_Time,
 
 /*--- End of included file: packet-atn-cm-ettarr.c ---*/
-#line 206 "../../asn1/atn-cm/packet-atn-cm-template.c"
+#line 204 "../../asn1/atn-cm/packet-atn-cm-template.c"
 			&ett_atn_cm
 		};
 

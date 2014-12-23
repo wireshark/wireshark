@@ -54,34 +54,29 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <glib.h>
-
-#include <wsutil/file_util.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/strutil.h>
-
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-kerberos.h>
-#include <epan/dissectors/packet-netbios.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-pkinit.h>
-#include <epan/dissectors/packet-cms.h>
-#include <epan/dissectors/packet-windows-common.h>
-
-#include <epan/dissectors/packet-dcerpc-netlogon.h>
-#include <epan/dissectors/packet-dcerpc.h>
-
-#include <epan/dissectors/packet-gssapi.h>
-#include <epan/dissectors/packet-smb-common.h>
-
+#include <wsutil/file_util.h>
 #include <wsutil/ws_diag_control.h>
+#include "packet-kerberos.h"
+#include "packet-netbios.h"
+#include "packet-tcp.h"
+#include "packet-ber.h"
+#include "packet-pkinit.h"
+#include "packet-cms.h"
+#include "packet-windows-common.h"
+
+#include "packet-dcerpc-netlogon.h"
+#include "packet-dcerpc.h"
+
+#include "packet-gssapi.h"
+#include "packet-smb-common.h"
+
 
 void proto_register_kerberos(void);
 void proto_reg_handoff_kerberos(void);

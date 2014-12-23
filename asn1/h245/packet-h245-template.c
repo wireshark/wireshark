@@ -32,21 +32,16 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/strutil.h>
-#include <wsutil/pint.h>
 #include <epan/addr_resolv.h>
-
-#include <string.h>
-
 #include <epan/prefs.h>
 #include <epan/t35.h>
-#include <epan/wmem/wmem.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
+#include <wsutil/pint.h>
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h323.h"

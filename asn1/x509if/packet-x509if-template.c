@@ -23,18 +23,16 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-dap.h"
 #include "packet-x509if.h"
 #include "packet-x509sat.h"
-#include <epan/strutil.h>
-#include <epan/dissectors/packet-frame.h>
+#include "packet-frame.h"
 
 #define PNAME  "X.509 Information Framework"
 #define PSNAME "X509IF"

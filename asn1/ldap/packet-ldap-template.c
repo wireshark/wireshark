@@ -82,26 +82,21 @@
 
 #include "config.h"
 
-#include <string.h>
-
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/oids.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
-#include <epan/dissectors/packet-frame.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-windows-common.h>
-#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include "packet-frame.h"
+#include "packet-tcp.h"
+#include "packet-windows-common.h"
+#include "packet-dcerpc.h"
 
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"

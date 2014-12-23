@@ -45,13 +45,11 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-per.h>
-
+#include "packet-ber.h"
+#include "packet-per.h"
 #include "packet-atn-ulcs.h"
 
 #define ATN_CM_PROTO "ICAO Doc9705 CM"

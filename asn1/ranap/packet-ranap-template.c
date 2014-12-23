@@ -25,10 +25,8 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 
-#include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>

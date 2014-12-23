@@ -62,34 +62,29 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <glib.h>
-
-#include <wsutil/file_util.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/strutil.h>
-
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-kerberos.h>
-#include <epan/dissectors/packet-netbios.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-pkinit.h>
-#include <epan/dissectors/packet-cms.h>
-#include <epan/dissectors/packet-windows-common.h>
-
-#include <epan/dissectors/packet-dcerpc-netlogon.h>
-#include <epan/dissectors/packet-dcerpc.h>
-
-#include <epan/dissectors/packet-gssapi.h>
-#include <epan/dissectors/packet-smb-common.h>
-
+#include <wsutil/file_util.h>
 #include <wsutil/ws_diag_control.h>
+#include "packet-kerberos.h"
+#include "packet-netbios.h"
+#include "packet-tcp.h"
+#include "packet-ber.h"
+#include "packet-pkinit.h"
+#include "packet-cms.h"
+#include "packet-windows-common.h"
+
+#include "packet-dcerpc-netlogon.h"
+#include "packet-dcerpc.h"
+
+#include "packet-gssapi.h"
+#include "packet-smb-common.h"
+
 
 void proto_register_kerberos(void);
 void proto_reg_handoff_kerberos(void);
@@ -348,7 +343,7 @@ static int hf_kerberos_KDCOptions_renew = -1;
 static int hf_kerberos_KDCOptions_validate = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 175 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 170 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -420,7 +415,7 @@ static gint ett_kerberos_KERB_PA_PAC_REQUEST = -1;
 static gint ett_kerberos_ChangePasswdData = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 189 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 184 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -449,7 +444,7 @@ static gboolean gbl_do_col_info;
 #define KERBEROS_ADDR_TYPE_IPV6  24
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 202 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 197 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -4267,7 +4262,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2007 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2002 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5305,7 +5300,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2388 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2383 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5379,7 +5374,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2404 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2399 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

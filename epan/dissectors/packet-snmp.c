@@ -50,16 +50,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#if 0
+#include <stdio.h>
 #define D(args) do {printf args; fflush(stdout); } while(0)
+#endif
 
 #include "config.h"
-
-#include <string.h>
-
-#include <glib.h>
-
-#include <wsutil/sha1.h>
-#include <wsutil/md5.h>
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
@@ -67,18 +63,16 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
-#include <epan/emem.h>
-#include <epan/wmem/wmem.h>
 #include <epan/next_tvb.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
-#include "packet-ipx.h"
-#include "packet-hpext.h"
 #include <epan/expert.h>
 #include <epan/oids.h>
-
+#include <wsutil/sha1.h>
+#include <wsutil/md5.h>
+#include "packet-ipx.h"
+#include "packet-hpext.h"
 #include "packet-ber.h"
-
 #include "packet-snmp.h"
 
 #ifdef HAVE_LIBGCRYPT
@@ -308,7 +302,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 237 "../../asn1/snmp/packet-snmp-template.c"
+#line 228 "../../asn1/snmp/packet-snmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_smux = -1;
@@ -348,7 +342,7 @@ static gint ett_snmp_SimpleOpen_U = -1;
 static gint ett_snmp_RReqPDU_U = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 253 "../../asn1/snmp/packet-snmp-template.c"
+#line 244 "../../asn1/snmp/packet-snmp-template.c"
 
 static expert_field ei_snmp_failed_decrypted_data_pdu = EI_INIT;
 static expert_field ei_snmp_decrypted_data_bad_formatted = EI_INIT;
@@ -3082,7 +3076,7 @@ static int dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1873 "../../asn1/snmp/packet-snmp-template.c"
+#line 1864 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3904,7 +3898,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2430 "../../asn1/snmp/packet-snmp-template.c"
+#line 2421 "../../asn1/snmp/packet-snmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -3944,7 +3938,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2446 "../../asn1/snmp/packet-snmp-template.c"
+#line 2437 "../../asn1/snmp/packet-snmp-template.c"
 	};
 	static ei_register_info ei[] = {
 		{ &ei_snmp_failed_decrypted_data_pdu, { "snmp.failed_decrypted_data_pdu", PI_MALFORMED, PI_WARN, "Failed to decrypt encryptedPDU", EXPFILL }},

@@ -33,12 +33,12 @@
 
 #include "config.h"
 
-#include "packet-h248.h"
+#include <packet.h>
 #include <epan/exceptions.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include "packet-tpkt.h"
 #include "packet-mtp3.h"
+#include "packet-h248.h"
 
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"

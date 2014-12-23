@@ -42,16 +42,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#if 0
+#include <stdio.h>
 #define D(args) do {printf args; fflush(stdout); } while(0)
+#endif
 
 #include "config.h"
-
-#include <string.h>
-
-#include <glib.h>
-
-#include <wsutil/sha1.h>
-#include <wsutil/md5.h>
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
@@ -59,18 +55,16 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
-#include <epan/emem.h>
-#include <epan/wmem/wmem.h>
 #include <epan/next_tvb.h>
 #include <epan/uat.h>
 #include <epan/asn1.h>
-#include "packet-ipx.h"
-#include "packet-hpext.h"
 #include <epan/expert.h>
 #include <epan/oids.h>
-
+#include <wsutil/sha1.h>
+#include <wsutil/md5.h>
+#include "packet-ipx.h"
+#include "packet-hpext.h"
 #include "packet-ber.h"
-
 #include "packet-snmp.h"
 
 #ifdef HAVE_LIBGCRYPT

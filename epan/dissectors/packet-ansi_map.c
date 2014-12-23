@@ -92,13 +92,11 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 #include "packet-ansi_map.h"
@@ -885,7 +883,7 @@ static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSyst
 static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 329 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 327 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -1145,7 +1143,7 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 361 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 359 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 static expert_field ei_ansi_map_nr_not_used = EI_INIT;
 static expert_field ei_ansi_map_unknown_invokeData_blob = EI_INIT;
@@ -15281,7 +15279,7 @@ dissect_ansi_map_QualificationRequest2Res(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3636 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3634 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -19131,7 +19129,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5293 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5291 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19392,7 +19390,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5326 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5324 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static ei_register_info ei[] = {

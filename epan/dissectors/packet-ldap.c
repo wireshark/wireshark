@@ -90,26 +90,21 @@
 
 #include "config.h"
 
-#include <string.h>
-
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <epan/oids.h>
 #include <epan/strutil.h>
 #include <epan/show_exception.h>
-#include <epan/dissectors/packet-frame.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-windows-common.h>
-#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include "packet-frame.h"
+#include "packet-tcp.h"
+#include "packet-windows-common.h"
+#include "packet-dcerpc.h"
 
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
@@ -346,7 +341,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 196 "../../asn1/ldap/packet-ldap-template.c"
+#line 191 "../../asn1/ldap/packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -418,7 +413,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 208 "../../asn1/ldap/packet-ldap-template.c"
+#line 203 "../../asn1/ldap/packet-ldap-template.c"
 
 static expert_field ei_ldap_exceeded_filter_length = EI_INIT;
 static expert_field ei_ldap_too_many_filter_elements = EI_INIT;
@@ -3820,7 +3815,7 @@ static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 886 "../../asn1/ldap/packet-ldap-template.c"
+#line 881 "../../asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -5736,7 +5731,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2233 "../../asn1/ldap/packet-ldap-template.c"
+#line 2228 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5810,7 +5805,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2247 "../../asn1/ldap/packet-ldap-template.c"
+#line 2242 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5976,7 +5971,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2396 "../../asn1/ldap/packet-ldap-template.c"
+#line 2391 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }

@@ -84,13 +84,11 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/asn1.h>
-#include <epan/wmem/wmem.h>
 
 #include "packet-ber.h"
 #include "packet-ansi_map.h"

@@ -32,16 +32,12 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-
-#include <string.h>
 
 #include <epan/asn1.h>
 #include <epan/oids.h>
@@ -180,7 +176,7 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 93 "../../asn1/pres/packet-pres-template.c"
+#line 89 "../../asn1/pres/packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
@@ -226,7 +222,7 @@ static gint ett_pres_User_session_requirements = -1;
 static gint ett_pres_UD_type = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 98 "../../asn1/pres/packet-pres-template.c"
+#line 94 "../../asn1/pres/packet-pres-template.c"
 
 static expert_field ei_pres_dissector_not_available = EI_INIT;
 static expert_field ei_pres_wrong_spdu_type = EI_INIT;
@@ -1362,7 +1358,7 @@ static int dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 227 "../../asn1/pres/packet-pres-template.c"
+#line 223 "../../asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1846,7 +1842,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 398 "../../asn1/pres/packet-pres-template.c"
+#line 394 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1893,7 +1889,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 404 "../../asn1/pres/packet-pres-template.c"
+#line 400 "../../asn1/pres/packet-pres-template.c"
   };
 
   static ei_register_info ei[] = {

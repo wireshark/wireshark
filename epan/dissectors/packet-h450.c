@@ -36,7 +36,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 
@@ -448,7 +447,7 @@ static int hf_h450_12_ssMWICallbackCall = -1;     /* NULL */
 static int hf_h450_12_ssCISilentMonitorPermitted = -1;  /* NULL */
 
 /*--- End of included file: packet-h450-hf.c ---*/
-#line 55 "../../asn1/h450/packet-h450-template.c"
+#line 54 "../../asn1/h450/packet-h450-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -626,7 +625,7 @@ static gint ett_h450_12_FeatureValues = -1;
 static gint ett_h450_12_FeatureControl = -1;
 
 /*--- End of included file: packet-h450-ett.c ---*/
-#line 58 "../../asn1/h450/packet-h450-template.c"
+#line 57 "../../asn1/h450/packet-h450-template.c"
 
 static expert_field ei_h450_unsupported_arg_type = EI_INIT;
 static expert_field ei_h450_unsupported_result_type = EI_INIT;
@@ -733,7 +732,7 @@ static const value_string h450_str_operation[] = {
   {  85, "cmnInform" },
 
 /*--- End of included file: packet-h450-table10.c ---*/
-#line 65 "../../asn1/h450/packet-h450-template.c"
+#line 64 "../../asn1/h450/packet-h450-template.c"
   {   0, NULL}
 };
 
@@ -821,7 +820,7 @@ static const value_string h450_str_error[] = {
 /* Unknown or empty loop list ERROR */
 
 /*--- End of included file: packet-h450-table20.c ---*/
-#line 70 "../../asn1/h450/packet-h450-template.c"
+#line 69 "../../asn1/h450/packet-h450-template.c"
   {   0, NULL}
 };
 
@@ -4486,7 +4485,7 @@ static int dissect_h450_12_CmnArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-h450-fn.c ---*/
-#line 79 "../../asn1/h450/packet-h450-template.c"
+#line 78 "../../asn1/h450/packet-h450-template.c"
 
 typedef struct _h450_op_t {
   gint32 opcode;
@@ -4595,7 +4594,7 @@ static const h450_op_t h450_op_tab[] = {
   /* cmnInform                */ {  85, dissect_h450_12_CmnArg_PDU, NULL },
 
 /*--- End of included file: packet-h450-table11.c ---*/
-#line 88 "../../asn1/h450/packet-h450-template.c"
+#line 87 "../../asn1/h450/packet-h450-template.c"
 };
 
 typedef struct _h450_err_t {
@@ -4687,7 +4686,7 @@ static const h450_err_t h450_err_tab[] = {
 /* Unknown or empty loop list ERROR */
 
 /*--- End of included file: packet-h450-table21.c ---*/
-#line 97 "../../asn1/h450/packet-h450-template.c"
+#line 96 "../../asn1/h450/packet-h450-template.c"
 };
 
 static const h450_op_t *get_op(gint32 opcode) {
@@ -6289,7 +6288,7 @@ void proto_register_h450(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-#line 266 "../../asn1/h450/packet-h450-template.c"
+#line 265 "../../asn1/h450/packet-h450-template.c"
   };
 
   /* List of subtrees */
@@ -6469,7 +6468,7 @@ void proto_register_h450(void) {
     &ett_h450_12_FeatureControl,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-#line 271 "../../asn1/h450/packet-h450-template.c"
+#line 270 "../../asn1/h450/packet-h450-template.c"
   };
 
   static ei_register_info ei[] = {

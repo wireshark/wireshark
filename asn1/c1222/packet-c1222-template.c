@@ -23,23 +23,16 @@
 
 #include "config.h"
 
-#include <glib.h>
-
-#include <wsutil/eax.h>
-
+#include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-tcp.h>
 #include <epan/uat.h>
 #include <epan/oids.h>
-
-#include <stdio.h>
-#include <string.h>
-
+#include <wsutil/eax.h>
+#include "packet-ber.h"
+#include "packet-tcp.h"
 #include "packet-c1222.h"
 
 #define PNAME  "ANSI C12.22"
