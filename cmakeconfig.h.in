@@ -242,6 +242,9 @@
 /* Define to 1 if you have the `pcap_set_tstamp_precision' function. */
 #cmakedefine HAVE_PCAP_SET_TSTAMP_PRECISION 1
 
+/* Define to 1 if you have the popcount function. */
+#cmakedefine HAVE_POPCOUNT 1
+
 /* Define to 1 if you have the <portaudio.h> header file. */
 #cmakedefine HAVE_PORTAUDIO_H 1
 

@@ -38,6 +38,12 @@ if(HAVE_SSE4_2)
 	)
 endif()
 
+if(NOT HAVE_POPCOUNT)
+	set( WSUTIL_POPCOUNT_FILES
+		popcount.c
+	)
+endif()
+
 set(WSUTIL_FILES
 	adler32.c
 	aes.c
@@ -89,6 +95,7 @@ set(WSUTIL_FILES
 	ws_version_info.c
 	${WSUTIL_PLATFORM_FILES}
 	${WSUTIL_SSE42_FILES}
+	${WSUTIL_POPCOUNT_FILES}
 )
 
 if(APPLE)
