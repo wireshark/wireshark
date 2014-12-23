@@ -28872,10 +28872,6 @@ BindingID_port = 0;
                         address_to_str(wmem_packet_scope(), &dst_addr),
                         BindingID_port);
 
-                    /* Set address for collection of DDI entries */
-                    COPY_ADDRESS(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
-                    nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = BindingID_port;
-
                     g_tree_insert(edch_flow_port_map, GINT_TO_POINTER((gint)umts_fp_conversation_info->com_context_id), nbap_edch_port_info);
                 }else{
 
@@ -28889,6 +28885,9 @@ BindingID_port = 0;
                     old_info->crnc_port[e_dch_macdflow_id] = BindingID_port;
                 }
 
+                /* Set address for collection of DDI entries */
+                COPY_ADDRESS(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
+                nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = BindingID_port;
 
                 set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 
