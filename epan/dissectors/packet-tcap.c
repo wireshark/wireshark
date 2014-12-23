@@ -1441,7 +1441,7 @@ static void dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static guint debug_level = 99;
 
 static void
-dbg(guint level, char* fmt, ...)
+dbg(guint level, const char* fmt, ...)
 {
   va_list ap;
 
@@ -1477,15 +1477,7 @@ tcaphash_begin_equal(gconstpointer k1, gconstpointer k2)
   const struct tcaphash_begin_info_key_t *key2 = (const struct tcaphash_begin_info_key_t *) k2;
 
   if (key1->hashKey == key2->hashKey) {
-
-    if ( ( (key1->opc_hash == key2->opc_hash) &&
-	   (key1->dpc_hash == key2->dpc_hash) &&
-	   (key1->tid == key2->tid) )
-	 ||
-	 ( (key1->opc_hash == key2->dpc_hash) &&
-	   (key1->dpc_hash == key2->opc_hash) &&
-	   (key1->tid == key2->tid) )
-	 )
+    if ( (key1->pc_hash == key2->pc_hash) && (key1->tid == key2->tid) )
       return TRUE;
   }
   return FALSE;
@@ -1544,13 +1536,7 @@ tcaphash_end_equal(gconstpointer k1, gconstpointer k2)
   const struct tcaphash_end_info_key_t *key2 = (const struct tcaphash_end_info_key_t *) k2;
 
   if (key1->hashKey == key2->hashKey) {
-    if ( ( (key1->opc_hash == key2->opc_hash) &&
-	   (key1->dpc_hash == key2->dpc_hash) &&
-	   (key1->tid == key2->tid) )
-	 ||
-	 ( (key1->opc_hash == key2->dpc_hash) &&
-	   (key1->dpc_hash == key2->opc_hash) &&
-	   (key1->tid == key2->tid) ) )
+    if ( (key1->pc_hash == key2->pc_hash) && (key1->tid == key2->tid) )
       return TRUE;
   }
   return FALSE;
@@ -1960,8 +1946,7 @@ new_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
 #endif
   p_new_tcaphash_begin_key->hashKey = p_tcaphash_begin_key->hashKey;
   p_new_tcaphash_begin_key->tid = p_tcaphash_begin_key->tid;
-  p_new_tcaphash_begin_key->opc_hash = p_tcaphash_begin_key->opc_hash;
-  p_new_tcaphash_begin_key->dpc_hash = p_tcaphash_begin_key->dpc_hash;
+  p_new_tcaphash_begin_key->pc_hash = p_tcaphash_begin_key->pc_hash;
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_begincall = (struct tcaphash_begincall_t *)g_malloc0(sizeof(struct tcaphash_begincall_t));
@@ -2052,8 +2037,7 @@ new_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
 #endif
   p_new_tcaphash_end_key->hashKey = p_tcaphash_end_key->hashKey;
   p_new_tcaphash_end_key->tid = p_tcaphash_end_key->tid;
-  p_new_tcaphash_end_key->opc_hash = p_tcaphash_end_key->opc_hash;
-  p_new_tcaphash_end_key->dpc_hash = p_tcaphash_end_key->dpc_hash;
+  p_new_tcaphash_end_key->pc_hash = p_tcaphash_end_key->pc_hash;
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_endcall = (struct tcaphash_endcall_t *)g_malloc0(sizeof(struct tcaphash_endcall_t));
@@ -2257,17 +2241,19 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *stat_item=NULL;
   proto_tree *stat_tree=NULL;
 
+#ifdef DEBUG_TCAPSRT
+  dbg(51,"src %s srcTid %lx dst %s ", address_to_str(wmem_packet_scope(), &pinfo->src), p_tcapsrt_info->src_tid, address_to_str(wmem_packet_scope(), &pinfo->dst));
+#endif
+
   /* prepare the key data */
   tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
   if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
-    tcaphash_begin_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-    tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+    tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
   } else {
-    /* Don't have MTP3 PCs (maybe we're over SUA?) */
-    tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
-    tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
+    /* Don't have MTP3 PCs (have SCCP GT ?) */
+    tcaphash_begin_key.pc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
   }
   tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
@@ -2275,7 +2261,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
   dbg(10,"\n Hbegin #%u ", pinfo->fd->num);
   dbg(11,"key %lx ",tcaphash_begin_key.hashKey);
-  dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
+  dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->src));
   dbg(51,"Tid %lx \n",tcaphash_begin_key.tid);
 #endif
 
@@ -2448,6 +2434,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *stat_tree=NULL;
 
 #ifdef DEBUG_TCAPSRT
+  dbg(51,"src %s srcTid %lx dst %s dstTid %lx ", address_to_str(wmem_packet_scope(), &pinfo->src), p_tcapsrt_info->src_tid, address_to_str(wmem_packet_scope(), &pinfo->dst), p_tcapsrt_info->dst_tid);
   dbg(10,"\n Hcont #%u ", pinfo->fd->num);
 #endif
 
@@ -2460,7 +2447,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tcaphash_cont_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
     tcaphash_cont_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   } else {
-    /* Don't have MTP3 PCs (maybe we're over SUA?) */
+    /* Don't have MTP3 PCs (have SCCP GT ?) */
     tcaphash_cont_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
     tcaphash_cont_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
   }
@@ -2468,7 +2455,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #ifdef DEBUG_TCAPSRT
   dbg(11,"Ckey %lx ", tcaphash_cont_key.hashKey);
-  dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
+  dbg(51,"addr %s %s ", address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
   dbg(51,"Tid %lx %lx \n",tcaphash_cont_key.src_tid, tcaphash_cont_key.dst_tid);
 #endif
   p_tcaphash_contcall = find_tcaphash_cont(&tcaphash_cont_key, pinfo);
@@ -2481,30 +2468,45 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
     dbg(12,"CnotFound ");
 #endif
-    /* Find the TCAP transaction according to the TC_BEGIN */
+    /* Find the TCAP transaction according to the TC_BEGIN (from dtid,dst) */
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
     if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
     {
       /* We have MTP3 PCs (so we can safely do this cast) */
-      tcaphash_begin_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-      tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+      tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
     } else {
-      /* Don't have MTP3 PCs (maybe we're over SUA?) */
-      tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
-      tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
+      /* Don't have MTP3 PCs (have SCCP GT ?) */
+      tcaphash_begin_key.pc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
     }
     tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Bkey %lx ", tcaphash_begin_key.hashKey);
-    dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
+    dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->dst));
     dbg(51,"Tid %lx \n",tcaphash_begin_key.tid);
 #endif
     p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo, FALSE);
     if(!p_tcaphash_begincall){
-        /* Do we have a continue from the same source? */
+/* can this actually happen? */
+#ifdef DEBUG_TCAPSRT
+        dbg(12,"BNotFound trying stid,src");
+#endif
+        /* Do we have a continue from the same source? (stid,src) */
         tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
+        if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+        {
+          /* We have MTP3 PCs (so we can safely do this cast) */
+          tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+        } else {
+          /* Don't have MTP3 PCs (have SCCP GT ?) */
+          tcaphash_begin_key.pc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+        }
         tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
+#ifdef DEBUG_TCAPSRT
+        dbg(11,"Bkey %lx ", tcaphash_begin_key.hashKey);
+        dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->src));
+        dbg(51,"Tid %lx \n",tcaphash_begin_key.tid);
+#endif
         p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo,FALSE);
     }
     if(p_tcaphash_begincall &&
@@ -2522,21 +2524,22 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       create_tcaphash_cont(&tcaphash_cont_key,
                            p_tcaphash_begincall->context);
 
+      /* Create END for (stid,src) */
       tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
       if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
       {
         /* We have MTP3 PCs (so we can safely do this cast) */
-        tcaphash_end_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-        tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+        tcaphash_end_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
       } else {
-        /* Don't have MTP3 PCs (maybe we're over SUA?) */
-        tcaphash_end_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
-        tcaphash_end_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
+        /* Don't have MTP3 PCs (have SCCP GT ?) */
+        tcaphash_end_key.pc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
       }
       tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
 #ifdef DEBUG_TCAPSRT
       dbg(10,"New Ekey %lx ",tcaphash_end_key.hashKey);
+      dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->src));
+      dbg(51,"Tid %lx ",tcaphash_end_key.tid);
       dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
 #endif
       create_tcaphash_end(&tcaphash_end_key,
@@ -2590,6 +2593,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *stat_tree=NULL;
 
 #ifdef DEBUG_TCAPSRT
+  dbg(51,"src %s dst %s dstTid %lx ", address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst), p_tcapsrt_info->dst_tid);
   dbg(10,"\n Hend #%u ", pinfo->fd->num);
 #endif
   /* look only for matching request, if matching conversation is available. */
@@ -2597,18 +2601,16 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
   {
     /* We have MTP3 PCs (so we can safely do this cast) */
-    tcaphash_end_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-    tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+    tcaphash_end_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   } else {
-    /* Don't have MTP3 PCs (maybe we're over SUA?) */
-    tcaphash_end_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
-    tcaphash_end_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
+    /* Don't have MTP3 PCs (have SCCP GT ?) */
+    tcaphash_end_key.pc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
   }
   tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
 #ifdef DEBUG_TCAPSRT
   dbg(11,"Ekey %lx ",tcaphash_end_key.hashKey);
-  dbg(11,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
+  dbg(11,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->dst));
   dbg(51,"Tid %lx ",tcaphash_end_key.tid);
 #endif
   p_tcaphash_endcall = find_tcaphash_end(&tcaphash_end_key, pinfo,TRUE);
@@ -2621,18 +2623,16 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
     {
       /* We have MTP3 PCs (so we can safely do this cast) */
-      tcaphash_begin_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-      tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+      tcaphash_begin_key.pc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
     } else {
-      /* Don't have MTP3 PCs (maybe we're over SUA?) */
-      tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
-      tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
+      /* Don't have MTP3 PCs (have SCCP GT ?) */
+      tcaphash_begin_key.pc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
     }
     tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Bkey %lx ", tcaphash_begin_key.hashKey);
-    dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
+    dbg(51,"addr %s ", address_to_str(wmem_packet_scope(), &pinfo->dst));
     dbg(51,"Tid %lx ",tcaphash_begin_key.tid);
 #endif
     p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo,FALSE);
@@ -2723,7 +2723,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tcaphash_ansi_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
     tcaphash_ansi_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   } else {
-    /* Don't have MTP3 PCs (maybe we're over SUA?) */
+    /* Don't have MTP3 PCs (have SCCP GT ?) */
     tcaphash_ansi_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
     tcaphash_ansi_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
   }
