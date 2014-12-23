@@ -54,7 +54,6 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/ws_version_info.h>
 
@@ -76,20 +75,6 @@
 #endif
 
 #include "version_info.h"
-
-static void
-show_version(GString *comp_info_str, GString *runtime_info_str)
-{
-    printf("Captype (Wireshark) %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-           get_ws_vcs_version_info(), get_copyright_info(),
-           comp_info_str->str, runtime_info_str->str);
-}
 
 static void
 print_usage(FILE *output)
@@ -219,7 +204,7 @@ main(int argc, char *argv[])
         break;
 
       case 'v':
-        show_version(comp_info_str, runtime_info_str);
+        show_version("Captype (Wireshark)", comp_info_str, runtime_info_str);
         g_string_free(comp_info_str, TRUE);
         g_string_free(runtime_info_str, TRUE);
         exit(0);

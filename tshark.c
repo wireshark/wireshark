@@ -75,7 +75,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_err.h>
-#include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/ws_version_info.h>
 
@@ -901,20 +900,6 @@ print_current_user(void) {
 }
 
 static void
-show_version(GString *comp_info_str, GString *runtime_info_str)
-{
-  printf("TShark (Wireshark) %s\n"
-         "\n"
-         "%s"
-         "\n"
-         "%s"
-         "\n"
-         "%s",
-         get_ws_vcs_version_info(), get_copyright_info(),
-         comp_info_str->str, runtime_info_str->str);
-}
-
-static void
 get_tshark_compiled_version_info(GString *str)
 {
   /* Capture libraries */
@@ -1619,7 +1604,7 @@ main(int argc, char *argv[])
       break;
     case 'v':         /* Show version and exit */
     {
-      show_version(comp_info_str, runtime_info_str);
+      show_version("TShark (Wireshark)", comp_info_str, runtime_info_str);
       g_string_free(comp_info_str, TRUE);
       g_string_free(runtime_info_str, TRUE);
       /* We don't really have to cleanup here, but it's a convenient way to test

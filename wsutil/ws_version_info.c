@@ -22,11 +22,29 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #include <glib.h>
 
 #include "version.h"
 
 #include <wsutil/ws_version_info.h>
+#include <wsutil/copyright_info.h>
+
+void
+show_version(const gchar *prog_name_str, GString *comp_info_str,
+	     GString *runtime_info_str)
+{
+	printf("%s %s\n"
+	       "\n"
+	       "%s"
+	       "\n"
+	       "%s"
+	       "\n"
+	       "%s",
+	       prog_name_str, get_ws_vcs_version_info(), get_copyright_info(),
+	       comp_info_str->str, runtime_info_str->str);
+}
 
 /*
  * Return a version number string for Wireshark, including, for builds

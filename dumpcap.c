@@ -72,7 +72,6 @@
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/copyright_info.h>
 #include <wsutil/ws_version_info.h>
 
 #ifndef HAVE_GETOPT
@@ -551,19 +550,6 @@ print_usage(FILE *output)
     fprintf(output, "\"Capture packets from interface eth0 until 60s passed into output.pcapng\"\n");
     fprintf(output, "\n");
     fprintf(output, "Use Ctrl-C to stop capturing at any time.\n");
-}
-
-static void
-show_version(GString *comp_info_str, GString *runtime_info_str)
-{
-    printf("Dumpcap (Wireshark) %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-           get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str, runtime_info_str->str);
 }
 
 /*
@@ -4581,7 +4567,7 @@ main(int argc, char *argv[])
             break;
         case 'v':        /* Show version and exit */
         {
-            show_version(comp_info_str, runtime_info_str);
+            show_version("Dumpcap (Wireshark)", comp_info_str, runtime_info_str);
             g_string_free(comp_info_str, TRUE);
             g_string_free(runtime_info_str, TRUE);
             exit_main(0);

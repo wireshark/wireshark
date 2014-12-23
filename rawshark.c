@@ -75,7 +75,6 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/plugins.h>
 #include <wsutil/report_err.h>
-#include <wsutil/copyright_info.h>
 
 #include "globals.h"
 #include <epan/packet.h>
@@ -421,20 +420,6 @@ set_link_type(const char *lt_arg) {
     return FALSE;
 }
 
-static void
-show_version(GString *comp_info_str, GString *runtime_info_str)
-{
-    printf("Rawshark (Wireshark) %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-           get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str,
-           runtime_info_str->str);
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -754,7 +739,7 @@ main(int argc, char *argv[])
                 break;
             case 'v':        /* Show version and exit */
             {
-                show_version(comp_info_str, runtime_info_str);
+                show_version("Rawshark (Wireshark)", comp_info_str, runtime_info_str);
                 g_string_free(comp_info_str, TRUE);
                 g_string_free(runtime_info_str, TRUE);
                 exit(0);

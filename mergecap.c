@@ -58,7 +58,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/ws_version_info.h>
 
@@ -73,20 +72,6 @@
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
-
-static void
-show_version(GString *comp_info_str, GString *runtime_info_str)
-{
-    printf("Mergecap (Wireshark) %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-           get_ws_vcs_version_info(), get_copyright_info(),
-           comp_info_str->str, runtime_info_str->str);
-}
 
 /*
  * Show the usage
@@ -329,7 +314,7 @@ main(int argc, char *argv[])
       break;
 
     case 'V':
-      show_version(comp_info_str, runtime_info_str);
+      show_version("Mergecap (Wireshark)", comp_info_str, runtime_info_str);
       g_string_free(comp_info_str, TRUE);
       g_string_free(runtime_info_str, TRUE);
       exit(0);

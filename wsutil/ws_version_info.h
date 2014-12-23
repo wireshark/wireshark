@@ -30,6 +30,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+WS_DLL_PUBLIC void show_version(const gchar *prog_name, GString *comp_info_str, GString *runtime_info_str);
+
 /*
  * Return a version number string for Wireshark, including, for builds
  * from a tree checked out from Wireshark's version control system,

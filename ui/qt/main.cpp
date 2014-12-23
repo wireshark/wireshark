@@ -281,21 +281,6 @@ print_usage(gboolean for_help_option) {
 #endif
 }
 
-// xxx copied from ../gtk/main.c
-static void
-show_version(void)
-{
-    printf("Wireshark %s\n"
-           "\n"
-           "%s"
-           "\n"
-           "%s"
-           "\n"
-           "%s",
-           get_ws_vcs_version_info(), get_copyright_info(), comp_info_str->str,
-           runtime_info_str->str);
-}
-
 /*
  * Report an error in command-line arguments.
  * Creates a console on Windows.
@@ -693,7 +678,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
                 create_console();
 #endif
-                show_version();
+                show_version("Wireshark", comp_info_str, runtime_info_str);
 #ifdef _WIN32
                 destroy_console();
 #endif
