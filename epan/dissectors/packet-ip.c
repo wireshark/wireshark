@@ -32,6 +32,7 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
+#include <epan/prefs.h>
 #include <epan/conversation_table.h>
 #include <epan/color_dissector_filters.h>
 #include <epan/reassemble.h>
