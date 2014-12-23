@@ -24,15 +24,11 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include "packet-null.h"
-#include <epan/atalk-utils.h>
 #include "packet-ip.h"
 #include "packet-ipv6.h"
-#include "packet-ipx.h"
-#include "packet-osi.h"
 #include "packet-ppp.h"
 #include <epan/etypes.h>
 #include <epan/aftypes.h>

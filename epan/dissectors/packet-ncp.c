@@ -42,17 +42,13 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "packet-ipx.h"
 #include "packet-tcp.h"
 #include "packet-ncp-int.h"
-#include <epan/reassemble.h>
-#include <epan/conversation.h>
 #include <epan/conversation_table.h>
-#include <epan/tap.h>
 
 void proto_register_ncp(void);
 void proto_reg_handoff_ncp(void);

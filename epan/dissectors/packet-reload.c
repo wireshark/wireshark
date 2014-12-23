@@ -33,15 +33,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
-#include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/expert.h>
 #include <epan/asn1.h>
 #include <epan/uat.h>
 #include <epan/to_str.h>
 #include "packet-x509af.h"
-#include "packet-tcp.h"
 #include "packet-ssl-utils.h"
 #include "packet-reload.h"
 

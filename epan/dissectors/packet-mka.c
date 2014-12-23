@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/etypes.h>
 #include <epan/expert.h>
 
 #define BASIC_PARAM_SET_TYPE         1

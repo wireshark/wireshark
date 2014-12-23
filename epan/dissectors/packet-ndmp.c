@@ -30,9 +30,7 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/expert.h>
 #include "packet-rpc.h"
 #include "packet-ndmp.h"

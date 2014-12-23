@@ -34,7 +34,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 
 void proto_register_felica(void);
 void proto_reg_handoff_felica(void);

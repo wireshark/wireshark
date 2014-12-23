@@ -41,7 +41,6 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/etypes.h>
-#include <epan/expert.h>
 #include <epan/show_exception.h>
 
 void proto_register_mint(void);

@@ -31,7 +31,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 void proto_register_omron_fins(void);
 void proto_reg_handoff_omron_fins(void);

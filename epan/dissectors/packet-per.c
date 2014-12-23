@@ -28,16 +28,13 @@ proper helper routines
 
 #include "config.h"
 
-#include <string.h>
 #include <math.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/oids.h>
 #include <epan/to_str.h>
-#include <epan/prefs.h>
 #include <epan/asn1.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 #include "packet-per.h"
 

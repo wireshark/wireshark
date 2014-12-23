@@ -23,10 +23,8 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
@@ -35,10 +33,8 @@
  * Optional include, for KASUMI support,
  * see header file for more information.
  * */
-#include <epan/crypt/kasumi.h>
 
 #include "packet-umts_fp.h"
-#include "packet-umts_mac.h"
 #include "packet-rlc.h"
 #include "packet-rrc.h"
 

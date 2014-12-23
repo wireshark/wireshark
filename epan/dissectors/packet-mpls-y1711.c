@@ -38,7 +38,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
 #include <epan/expert.h>
 
 #include "packet-mpls.h"

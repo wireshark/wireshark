@@ -28,7 +28,6 @@
 
 #include "config.h"
 #include <epan/packet.h>
-#include "packet-ip.h"
 #include "packet-bfd.h"
 
 void proto_register_mplstp_lock(void);

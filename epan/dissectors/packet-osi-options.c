@@ -29,8 +29,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/expert.h>
-#include <epan/nlpid.h>
 #include "packet-osi.h"
 #include "packet-osi-options.h"
 

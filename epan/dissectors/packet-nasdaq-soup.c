@@ -30,7 +30,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#include "packet-tcp.h"
 
 void proto_register_nasdaq_soup(void);
 void proto_reg_handoff_nasdaq_soup(void);

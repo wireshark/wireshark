@@ -28,10 +28,8 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 void proto_register_quakeworld(void);
 
 static int proto_quakeworld = -1;

@@ -54,7 +54,6 @@
 #include <epan/ipproto.h>
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
-#include <epan/expert.h>
 #include <epan/sminmpec.h>
 
 #include "packet-ntp.h"

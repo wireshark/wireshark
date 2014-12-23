@@ -34,7 +34,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/reassemble.h>
 #include <epan/etypes.h>
 void proto_register_mih(void);
 void proto_reg_handoff_mih(void);

@@ -26,9 +26,7 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <string.h>
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include "packet-tcp.h"
 
 #define RLOGIN_PORT 513

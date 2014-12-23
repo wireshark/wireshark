@@ -33,7 +33,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/nlpid.h>
 
 void proto_register_ndp(void);
 void proto_reg_handoff_ndp(void);

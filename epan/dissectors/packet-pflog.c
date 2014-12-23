@@ -35,7 +35,6 @@ http://www.openbsd.org/cgi-bin/cvsweb/src/sys/net/if_pflog.h
 #include <epan/packet.h>
 
 #include <epan/aftypes.h>
-#include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 

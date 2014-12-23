@@ -26,8 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 
 void proto_register_redbackli(void);
 void proto_reg_handoff_redbackli(void);

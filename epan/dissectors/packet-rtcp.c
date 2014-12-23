@@ -75,7 +75,6 @@
 
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/strutil.h>
 #include <epan/to_str.h>
 
 void proto_register_rtcp(void);

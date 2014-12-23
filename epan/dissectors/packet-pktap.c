@@ -27,7 +27,6 @@
 #include <epan/expert.h>
 #include <wsutil/pint.h>
 
-#include <wiretap/wtap.h>
 
 #include "packet-frame.h"
 #include "packet-eth.h"

@@ -24,7 +24,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 
 void proto_register_nntp(void);
 void proto_reg_handoff_nntp(void);

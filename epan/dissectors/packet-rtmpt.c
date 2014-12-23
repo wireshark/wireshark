@@ -68,13 +68,10 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <wsutil/pint.h>
 
-#include <epan/conversation.h>
-#include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include "packet-tcp.h"

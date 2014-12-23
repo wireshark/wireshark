@@ -31,7 +31,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
-#include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
@@ -39,7 +38,6 @@
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
-#include "packet-gsm_sms.h"
 #include "packet-usb.h"
 #include "packet-mbim.h"
 

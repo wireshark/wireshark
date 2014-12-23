@@ -41,8 +41,6 @@
 #include <math.h>
 
 #include <epan/packet.h>
-#include <epan/params.h>
-#include <epan/strutil.h>
 
 #include "packet-rmt-common.h"
 

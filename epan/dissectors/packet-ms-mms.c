@@ -37,10 +37,8 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 

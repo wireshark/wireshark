@@ -30,7 +30,6 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <wsutil/str_util.h>
 

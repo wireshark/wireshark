@@ -33,7 +33,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/ipproto.h>
 #include "packet-tcp.h"
 
 void proto_register_openvpn(void);

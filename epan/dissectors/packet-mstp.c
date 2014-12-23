@@ -33,10 +33,7 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/oui.h>
-#include <epan/llcsaps.h>
 #include <epan/expert.h>
-#include "packet-llc.h"
 #include "packet-mstp.h"
 
 void proto_register_mstp(void);

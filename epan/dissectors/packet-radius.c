@@ -54,7 +54,6 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <string.h>
 #include <errno.h>
 
 #include <epan/packet.h>
@@ -65,7 +64,6 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/addr_resolv.h>
-#include <epan/garrayfix.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_err.h>
 #include <wsutil/md5.h>

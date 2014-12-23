@@ -49,7 +49,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include "packet-tcp.h"
 
 void proto_register_ouch(void);
 void proto_reg_handoff_ouch(void);

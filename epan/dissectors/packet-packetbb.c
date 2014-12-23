@@ -25,12 +25,10 @@
  */
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/uat.h>
 
 void proto_reg_handoff_packetbb(void);
 void proto_register_packetbb(void);

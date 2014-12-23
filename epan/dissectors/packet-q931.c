@@ -25,10 +25,8 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
-#include <epan/strutil.h>
 #include <epan/nlpid.h>
 #include "packet-q931.h"
 #include "packet-e164.h"

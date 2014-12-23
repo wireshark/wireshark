@@ -25,7 +25,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/strutil.h>
 #include <epan/nlpid.h>
 #include "packet-juniper.h"
 

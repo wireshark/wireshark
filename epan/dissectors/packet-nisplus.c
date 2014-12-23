@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <time.h>
 
 #include "packet-rpc.h"
 #include "packet-nisplus.h"

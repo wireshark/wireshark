@@ -32,10 +32,8 @@
 #include <epan/prefs.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
-#include <epan/to_str.h>
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
-#include "packet-rpc.h"
 #include "packet-nfs.h"
 
 void proto_register_nfs(void);

@@ -57,7 +57,6 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
-#include <epan/addr_resolv.h>
 #include <epan/decode_as.h>
 
 #include "packet-ppp.h"

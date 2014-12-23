@@ -29,8 +29,6 @@
 #include <epan/afn.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
-#include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>

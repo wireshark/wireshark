@@ -28,7 +28,6 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
 

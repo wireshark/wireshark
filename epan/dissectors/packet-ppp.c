@@ -33,7 +33,6 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
-#include <epan/atalk-utils.h>
 #include "packet-chdlc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
@@ -44,7 +43,6 @@
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/oui.h>
-#include "packet-usb.h"
 #include "packet-sll.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"

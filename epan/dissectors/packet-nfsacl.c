@@ -25,9 +25,7 @@
 
 #include "config.h"
 
-#include <epan/wmem/wmem.h>
 
-#include "packet-rpc.h"
 #include "packet-nfs.h"
 
 void proto_register_nfsacl(void);

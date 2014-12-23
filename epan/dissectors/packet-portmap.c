@@ -29,8 +29,6 @@
 #include "packet-rpc.h"
 #include "packet-portmap.h"
 #include <epan/ipproto.h>
-#include <epan/conversation.h>
-#include <epan/packet_info.h>
 
 /*
  * See:

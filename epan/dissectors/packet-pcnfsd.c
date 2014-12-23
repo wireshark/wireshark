@@ -31,11 +31,9 @@ Protocol information comes from the book
 
 #include "config.h"
 
-#include <string.h>
 
 #include "packet-rpc.h"
 #include "packet-pcnfsd.h"
-#include <epan/wmem/wmem.h>
 
 void proto_register_pcnfsd(void);
 void proto_reg_handoff_pcnfsd(void);

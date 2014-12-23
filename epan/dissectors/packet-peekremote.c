@@ -54,7 +54,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#include <wiretap/wtap.h>
 
 void proto_register_peekremote(void);
 void proto_reg_handoff_peekremote(void);
