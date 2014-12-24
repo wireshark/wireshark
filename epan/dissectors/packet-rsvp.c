@@ -6816,7 +6816,7 @@ dissect_rsvp_juniper(proto_tree *ti _U_,
                 break;
             default:
                 proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_attrib_unknown, tvb,
-                    offset, l-2, ENC_BIG_ENDIAN);
+                    offset, l-2, ENC_NA);
                 offset += (l-2);
                 break;
             }
@@ -8946,7 +8946,7 @@ proto_register_rsvp(void)
 
         { &hf_rsvp_juniper_attrib_unknown,
          { "Unknown", "rsvp.juniper.attrib.unknown",
-           FT_UINT16, BASE_HEX, NULL, 0,
+           FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL
          }
         },
