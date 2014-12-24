@@ -1,14 +1,28 @@
 ----------------------------------------
 -- script-name: dns_dissector.lua
+--
 -- author: Hadriel Kaplan <hadrielk at yahoo dot com>
 -- Copyright (c) 2014, Hadriel Kaplan
 -- This code is in the Public Domain, or the BSD (3 clause) license if Public Domain does not apply
 -- in your country.
 --
+-- Version: 2.1
+--
+-- Changes since 2.0:
+--   * fixed a bug with default settings
+--   * added ability for command-line to overide defaults
+--
+-- Changes since 1.0:
+--   * made it use the new ProtoExpert class model for expert info
+--   * add a protocol column with the proto name
+--   * added heuristic dissector support
+--   * added preferences settings
+--   * removed byteArray2String(), and uses the new ByteArray:raw() method instead
+--
 -- BACKGROUND:
 -- This is an example Lua script for a protocol dissector. The purpose of this script is two-fold:
--- * To provide a reference tutorial for others writing Wireshark dissectors in Lua
--- * To test various functions being called in various ways, so this script can be used in the test-suites
+--   * To provide a reference tutorial for others writing Wireshark dissectors in Lua
+--   * To test various functions being called in various ways, so this script can be used in the test-suites
 -- I've tried to meet both of those goals, but it wasn't easy. No doubt some folks will wonder why some
 -- functions are called some way, or differently than previous invocations of the same function. I'm trying to
 -- to show both that it can be done numerous ways, but also I'm trying to test those numerous ways, and my more
@@ -35,21 +49,73 @@
 -- automagically do it without doing "Decode As ...".
 --
 ----------------------------------------
--- debug printer, set DEBUG to true to enable printing debug info
--- set DEBUG2 to true to enable really verbose printing
-local DEBUG, DEBUG2 = false, false
+-- do not modify this table
+local debug_level = {
+    DISABLED = 0,
+    LEVEL_1  = 1,
+    LEVEL_2  = 2
+}
+
+-- set this DEBUG to debug_level.LEVEL_1 to enable printing debug_level info
+-- set it to debug_level.LEVEL_2 to enable really verbose printing
+-- note: this will be overridden by user's preference settings
+local DEBUG = debug_level.LEVEL_1
+
+local default_settings =
+{
+    debug_level  = DEBUG,
+    port         = 65333,
+    heur_enabled = true,
+}
+
+-- for testing purposes, we want to be able to pass in changes to the defaults
+-- from the command line; because you can't set lua preferences from the command
+-- line using the '-o' switch (the preferences don't exist until this script is
+-- loaded, so the command line thinks they're invalid preferences being set)
+-- so we pass them in as command arguments insetad, and handle it here:
+local args={...} -- get passed-in args
+if args and #args > 0 then
+    for _, arg in ipairs(args) do
+        local name, value = arg:match("(.+)=(.+)")
+        if name and value then
+            if tonumber(value) then
+                value = tonumber(value)
+            elseif value == "true" or value == "TRUE" then
+                value = true
+            elseif value == "false" or value == "FALSE" then
+                value = false
+            elseif value == "DISABLED" then
+                value = debug_level.DISABLED
+            elseif value == "LEVEL_1" then
+                value = debug_level.LEVEL_1
+            elseif value == "LEVEL_2" then
+                value = debug_level.LEVEL_2
+            else
+                error("invalid commandline argument value")
+            end
+        else
+            error("invalid commandline argument syntax")
+        end
+
+        default_settings[name] = value
+    end
+end
 
 local dprint = function() end
 local dprint2 = function() end
-if DEBUG or DEBUG2 then
-    dprint = function(...)
-        print(table.concat({"Lua:", ...}," "))
-    end
+local function reset_debug_level()
+    if default_settings.debug_level > debug_level.DISABLED then
+        dprint = function(...)
+            print(table.concat({"Lua:", ...}," "))
+        end
 
-    if DEBUG2 then
-        dprint2 = dprint
+        if default_settings.debug_level > debug_level.LEVEL_1 then
+            dprint2 = dprint
+        end
     end
 end
+-- call it now
+reset_debug_level()
 
 dprint2("Wireshark version = ", get_version())
 dprint2("Lua version = ", _VERSION)
@@ -63,6 +129,11 @@ if major and tonumber(major) <= 1 and ((tonumber(minor) <= 10) or (tonumber(mino
         error(  "Sorry, but your Wireshark/Tshark version ("..get_version()..") is too old for this script!\n"..
                 "This script needs Wireshark/Tshark version 1.11.3 or higher.\n" )
 end
+
+-- more sanity checking
+-- verify we have the ProtoExpert class in wireshark, as that's the newest thing this file uses
+assert(ProtoExpert.new, "Wireshark does not have the ProtoExpert class, so it's too old - get the latest 1.11.3 or higher")
+
 ----------------------------------------
 
 
@@ -73,8 +144,8 @@ local dns = Proto("mydns","MyDNS Protocol")
 ----------------------------------------
 -- multiple ways to do the same thing: create a protocol field (but not register it yet)
 -- the abbreviation should always have "<myproto>." before the specific abbreviation, to avoid collisions
-local pf_trasaction_id      = ProtoField.new("Transaction ID", "mydns.trans_id", ftypes.UINT16)
-local pf_flags              = ProtoField.new("Flags", "mydns.flags", ftypes.UINT16, nil, base.HEX)
+local pf_trasaction_id      = ProtoField.new   ("Transaction ID", "mydns.trans_id", ftypes.UINT16)
+local pf_flags              = ProtoField.new   ("Flags", "mydns.flags", ftypes.UINT16, nil, base.HEX)
 local pf_num_questions      = ProtoField.uint16("mydns.num_questions", "Number of Questions")
 local pf_num_answers        = ProtoField.uint16("mydns.num_answers", "Number of Answer RRs")
 local pf_num_authority_rr   = ProtoField.uint16("mydns.num_authority_rr", "Number of Authority RRs")
@@ -84,15 +155,15 @@ local pf_num_additional_rr  = ProtoField.uint16("mydns.num_additional_rr", "Numb
 -- note the "base" argument becomes the size of the bitmask'ed field when ftypes.BOOLEAN is used
 -- the "mask" argument is which bits we want to use for this field (e.g., base=16 and mask=0x8000 means we want the top bit of a 16-bit field)
 -- again the following shows different ways of doing the same thing basically
-local pf_flag_response              = ProtoField.new("Response", "mydns.flags.response", ftypes.BOOLEAN, {"this is a response","this is a query"}, 16, 0x8000, "is the message a response?")
-local pf_flag_opcode                = ProtoField.new("Opcode", "mydns.flags.opcode", ftypes.UINT16, nil, base.DEC, 0x7800, "operation code")
-local pf_flag_authoritative         = ProtoField.new("Authoritative", "mydns.flags.authoritative", ftypes.BOOLEAN, nil, 16, 0x0400, "is the response authoritative?")
-local pf_flag_truncated             = ProtoField.bool("mydns.flags.truncated", "Truncated", 16, nil, 0x0200, "is the message truncated?")
-local pf_flag_recursion_desired     = ProtoField.bool("mydns.flags.recursion_desired", "Recursion desired", 16, {"yes","no"}, 0x0100, "do the query recursivley?")
-local pf_flag_recursion_available   = ProtoField.bool("mydns.flags.recursion_available", "Recursion available", 16, nil, 0x0080, "does the server support recursion?")
+local pf_flag_response              = ProtoField.new   ("Response", "mydns.flags.response", ftypes.BOOLEAN, {"this is a response","this is a query"}, 16, 0x8000, "is the message a response?")
+local pf_flag_opcode                = ProtoField.new   ("Opcode", "mydns.flags.opcode", ftypes.UINT16, nil, base.DEC, 0x7800, "operation code")
+local pf_flag_authoritative         = ProtoField.new   ("Authoritative", "mydns.flags.authoritative", ftypes.BOOLEAN, nil, 16, 0x0400, "is the response authoritative?")
+local pf_flag_truncated             = ProtoField.bool  ("mydns.flags.truncated", "Truncated", 16, nil, 0x0200, "is the message truncated?")
+local pf_flag_recursion_desired     = ProtoField.bool  ("mydns.flags.recursion_desired", "Recursion desired", 16, {"yes","no"}, 0x0100, "do the query recursivley?")
+local pf_flag_recursion_available   = ProtoField.bool  ("mydns.flags.recursion_available", "Recursion available", 16, nil, 0x0080, "does the server support recursion?")
 local pf_flag_z                     = ProtoField.uint16("mydns.flags.z", "World War Z - Reserved for future use", base.HEX, nil, 0x0040, "when is it the future?")
-local pf_flag_authenticated         = ProtoField.bool("mydns.flags.authenticated", "Authenticated", 16, {"yes","no"}, 0x0020, "did the server DNSSEC authenticate?")
-local pf_flag_checking_disabled     = ProtoField.bool("mydns.flags.checking_disabled", "Checking disabled", 16, nil, 0x0010)
+local pf_flag_authenticated         = ProtoField.bool  ("mydns.flags.authenticated", "Authenticated", 16, {"yes","no"}, 0x0020, "did the server DNSSEC authenticate?")
+local pf_flag_checking_disabled     = ProtoField.bool  ("mydns.flags.checking_disabled", "Checking disabled", 16, nil, 0x0010)
 
 -- no, these aren't all the DNS response codes - this is just an example
 local rcodes = {
@@ -133,7 +204,12 @@ dns.fields = { pf_trasaction_id, pf_flags,
     pf_query, pf_query_name, pf_query_name_len, pf_query_label_count, pf_query_type, pf_query_class }
 
 ----------------------------------------
--- create some expert info fields
+-- create some expert info fields (this is new functionality in 1.11.3)
+-- Expert info fields are very similar to proto fields: they're tied to our protocol,
+-- they're created in a similar way, and registered by setting a 'experts' field to
+-- a table of them just as proto fields were put into the 'dns.fields' above
+-- The old way of creating expert info was to just add it to the tree, but that
+-- didn't let the expert info be filterable in wireshark, whereas this way does
 local ef_query     = ProtoExpert.new("mydns.query.expert", "DNS query message",
                                      expert.group.REQUEST_CODE, expert.severity.CHAT)
 local ef_response  = ProtoExpert.new("mydns.response.expert", "DNS response message",
@@ -182,6 +258,57 @@ local function isResponse()
     return response_fieldinfo()
 end
 
+--------------------------------------------------------------------------------
+-- preferences handling stuff
+--------------------------------------------------------------------------------
+
+-- a "enum" table for our enum pref, as required by Pref.enum()
+-- having the "index" number makes ZERO sense, and is completely illogical
+-- but it's what the code has expected it to be for a long time. Ugh.
+local debug_pref_enum = {
+    { 1,  "Disabled", debug_level.DISABLED },
+    { 2,  "Level 1",  debug_level.LEVEL_1  },
+    { 3,  "Level 2",  debug_level.LEVEL_2  },
+}
+
+dns.prefs.debug = Pref.enum("Debug", default_settings.debug_level,
+                            "The debug printing level", debug_pref_enum)
+
+dns.prefs.port  = Pref.uint("Port number", default_settings.port,
+                            "The UDP port number for MyDNS")
+
+dns.prefs.heur  = Pref.bool("Heuristic enabled", default_settings.heur_enabled,
+                            "Whether heuristic dissection is enabled or not")
+
+----------------------------------------
+-- a function for handling prefs being changed
+function dns.prefs_changed()
+    dprint2("prefs_changed called")
+
+    default_settings.debug_level  = dns.prefs.debug
+    reset_debug_level()
+
+    default_settings.heur_enabled = dns.prefs.heur
+
+    if default_settings.port ~= dns.prefs.port then
+        -- remove old one, if not 0
+        if default_settings.port ~= 0 then
+            dprint2("removing MyDNS from port",default_settings.port)
+            DissectorTable.get("udp.port"):remove(default_settings.port, dns)
+        end
+        -- set our new default
+        default_settings.port = dns.prefs.port
+        -- add new one, if not 0
+        if default_settings.port ~= 0 then
+            dprint2("adding MyDNS to port",default_settings.port)
+            DissectorTable.get("udp.port"):add(default_settings.port, dns)
+        end
+    end
+
+end
+
+dprint2("MyDNS Prefs registered")
+
 
 ----------------------------------------
 ---- some constants for later use ----
@@ -191,9 +318,6 @@ local DNS_HDR_LEN = 12
 -- the smallest possible DNS query field size
 -- has to be at least a label length octet, label character, label null terminator, 2-bytes type and 2-bytes class
 local MIN_QUERY_LEN = 7
-
--- the UDP port number we want to associate with our protocol
-local MYDNS_PROTO_UDP_PORT = 65333
 
 ----------------------------------------
 -- some forward "declarations" of helper functions we use in the dissector
@@ -372,8 +496,7 @@ end
 ----------------------------------------
 -- we want to have our protocol dissection invoked for a specific UDP port,
 -- so get the udp dissector table and add our protocol to it
-local udp_encap_table = DissectorTable.get("udp.port")
-udp_encap_table:add(MYDNS_PROTO_UDP_PORT, dns)
+DissectorTable.get("udp.port"):add(default_settings.port, dns)
 
 ----------------------------------------
 -- we also want to add the heuristic dissector, for any UDP protocol
@@ -392,6 +515,11 @@ udp_encap_table:add(MYDNS_PROTO_UDP_PORT, dns)
 -- Note: this heuristic stuff is new in 1.11.3
 local function heur_dissect_dns(tvbuf,pktinfo,root)
     dprint2("heur_dissect_dns called")
+
+    -- if our preferences tell us not to do this, return false
+    if not default_settings.heur_enabled then
+        return false
+    end
 
     if tvbuf:len() < DNS_HDR_LEN then
         dprint("heur_dissect_dns: tvb shorter than DNS_HDR_LEN of:",DNS_HDR_LEN)
@@ -510,4 +638,3 @@ getQueryName = function (tvbr)
 
     return label_count, name, name:len() + 2
 end
-
