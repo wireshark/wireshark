@@ -35,6 +35,7 @@
 #include <epan/to_str.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/report_err.h>
 #include "packet-tcp.h"
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -805,7 +806,7 @@ void proto_register_tpncp(void) {
                                           "TPNCP", "tpncp");
     if(global_tpncp_load_db){
         if (init_tpncp_db() == -1) {
-            g_warning("Could not load tpncp.dat file, tpncp dissector will not work");
+            report_failure("tpncp: Could not load tpncp.dat file, tpncp dissector will not work");
             return;
         }
 
@@ -826,7 +827,7 @@ void proto_register_tpncp(void) {
         }
 
         CATCH_ALL {
-            g_warning("Corrupt tpncp.dat file, tpncp dissector will not work.");
+            report_failure("Corrupt tpncp.dat file, tpncp dissector will not work.");
         }
 
         ENDTRY;
@@ -840,11 +841,11 @@ void proto_register_tpncp(void) {
 
     /* See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9569 for some discussion on this as well */
     prefs_register_bool_preference(tpncp_module, "load_db",
-    "Whether to load DB or not, if DB not loaded dissector is passive",
-    "Whether to load the Data base or not, not loading the DB "
-    "dissaables the protocol, Wireshar has to be restarted for the"
-    "setting to take effect ",
-    &global_tpncp_load_db);
+                                   "Whether to load DB or not; if DB not loaded dissector is passive",
+                                   "Whether to load the Database or not; not loading the DB"
+                                   " disables the protocol; Wireshark has to be restarted for the"
+                                   " setting to take effect.",
+                                   &global_tpncp_load_db);
 
     prefs_register_uint_preference(tpncp_module, "tcp.trunkpack_port",
                                    "TPNCP \"well-known\" TrunkPack TCP Port",

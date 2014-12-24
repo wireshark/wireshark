@@ -23,10 +23,13 @@
 
 #include "config.h"
 
-
 #include "epan/packet.h"
 #include "epan/prefs.h"
+#if 0
+#include <epan/tap.h>
+#endif
 #include <epan/addr_resolv.h>
+#include <wsutil/report_err.h>
 
 #include "packet-uaudp.h"
 
@@ -481,7 +484,7 @@ void proto_reg_handoff_uasip(void)
         if (str_to_ip(pref_proxy_ipaddr_s, proxy_ipaddr)) {
             use_proxy_ipaddr = TRUE;
         } else {
-            g_warning("uasip: Invalid 'Proxy IP Address': \"%s\"", pref_proxy_ipaddr_s);
+            report_failure("uasip: Invalid 'Proxy IP Address': \"%s\"", pref_proxy_ipaddr_s);
         }
     }
 }

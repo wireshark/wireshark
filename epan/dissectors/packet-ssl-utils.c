@@ -31,6 +31,7 @@
 #endif
 
 #include <stdlib.h>
+#include <errno.h>
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
@@ -40,6 +41,7 @@
 #include <epan/asn1.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
+#include <wsutil/report_err.h>
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-ssl-utils.h"
@@ -4086,19 +4088,16 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
         assoc->handle = find_dissector("data");
     }
 
-    if (!assoc->handle) {
-        fprintf(stderr, "association_add() could not find handle for protocol:%s\n",protocol);
-    } else {
-        if (port) {
-            if (tcp)
-                dissector_add_uint("tcp.port", port, handle);
-            else
-                dissector_add_uint("udp.port", port, handle);
-        }
-        g_tree_insert(associations, assoc, assoc);
-
-        dissector_add_uint("sctp.port", port, handle);
+    DISSECTOR_ASSERT(assoc->handle != NULL);
+    if (port) {
+        if (tcp)
+            dissector_add_uint("tcp.port", port, handle);
+        else
+            dissector_add_uint("udp.port", port, handle);
     }
+    g_tree_insert(associations, assoc, assoc);
+
+    dissector_add_uint("sctp.port", port, handle);
 }
 
 void
@@ -4309,7 +4308,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
     /* try to load keys file first */
     fp = ws_fopen(uats->keyfile, "rb");
     if (!fp) {
-        fprintf(stderr, "Can't open file %s\n",uats->keyfile);
+        report_open_failure(uats->keyfile, errno, FALSE);
         return;
     }
 
@@ -4346,13 +4345,13 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
             char *err = NULL;
             private_key = ssl_load_pkcs12(fp, uats->password, &err);
             if (err) {
-                fprintf(stderr, "%s\n", err);
+                report_failure("%s\n", err);
                 g_free(err);
             }
         }
 
         if (!private_key) {
-            fprintf(stderr,"Can't load private key from %s\n", uats->keyfile);
+            report_failure("Can't load private key from %s\n", uats->keyfile);
             fclose(fp);
             return;
         }

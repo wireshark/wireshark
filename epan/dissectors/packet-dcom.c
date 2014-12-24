@@ -251,6 +251,7 @@ static const value_string dcom_boolean_flag_vals[] = {
 };
 #endif
 
+#ifdef DEBUG
 void dcom_interface_dump(void) {
 	dcom_machine_t *machine;
 	dcom_object_t *object;
@@ -277,7 +278,7 @@ void dcom_interface_dump(void) {
 		}
 	}
 }
-
+#endif
 
 dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const guint8 *ip _U_, e_uuid_t *ipid)
 {

@@ -360,7 +360,7 @@ read_hashed_symbols_from_dir(const char *dirname)
     ws_dir_close(dir);
     gbl_symbols_vs_ext_new();
   }else{
-    report_failure("%s", err_p->message);
+    report_failure("etch: %s", err_p->message);
     g_error_free(err_p);
   }
 }

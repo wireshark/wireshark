@@ -44,7 +44,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
 #include <epan/expert.h>
@@ -54,6 +53,8 @@
 #include <epan/sctpppids.h>
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
+#include <wsutil/filesystem.h>
+#include <wsutil/report_err.h>
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 #include "packet-e212.h"
@@ -1584,7 +1585,7 @@ build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 			break;
 
 		default:
-			fprintf(stderr,"Diameter Dictionary: AVP '%s' has a list of values but isn't of a 32-bit or shorter integral type\n",
+			report_failure("Diameter Dictionary: AVP '%s' has a list of values but isn't of a 32-bit or shorter integral type\n",
 				name);
 			return NULL;
 		}
@@ -1738,7 +1739,7 @@ dictionary_load(void)
 		/* try to get the parent type */
 
 		if (t->name == NULL) {
-			fprintf(stderr,"Diameter Dictionary: Invalid Type (empty name): parent==%s\n",
+			report_failure("Diameter Dictionary: Invalid Type (empty name): parent==%s\n",
 				t->parent ? t->parent : "(null)");
 			continue;
 		}
@@ -1789,7 +1790,7 @@ dictionary_load(void)
 			item[0].strptr = v->name;
 
 			if (v->name == NULL) {
-				fprintf(stderr,"Diameter Dictionary: Invalid Vendor (empty name): code==%d\n",v->code);
+				report_failure("Diameter Dictionary: Invalid Vendor (empty name): code==%d\n",v->code);
 				continue;
 			}
 
@@ -1814,7 +1815,7 @@ dictionary_load(void)
 	if ((c = d->cmds)) {
 		for (; c; c = c->next) {
 			if (c->vendor == NULL) {
-				fprintf(stderr,"Diameter Dictionary: Invalid Vendor (empty name) for command %s\n",
+				report_failure("Diameter Dictionary: Invalid Vendor (empty name) for command %s\n",
 					c->name ? c->name : "(null)");
 				continue;
 			}
@@ -1829,7 +1830,7 @@ dictionary_load(void)
 				/* Also add to all_cmds as used by RFC version */
 				g_array_append_val(all_cmds,item);
 			} else {
-				fprintf(stderr,"Diameter Dictionary: No Vendor: %s\n",c->vendor);
+				report_failure("Diameter Dictionary: No Vendor: %s\n",c->vendor);
 			}
 		}
 	}
@@ -1843,7 +1844,7 @@ dictionary_load(void)
 		void *avp_data = NULL;
 
 		if (a->name == NULL) {
-			fprintf(stderr,"Diameter Dictionary: Invalid AVP (empty name)\n");
+			report_failure("Diameter Dictionary: Invalid AVP (empty name)\n");
 			continue;
 		}
 
@@ -1856,7 +1857,7 @@ dictionary_load(void)
 
 			g_array_append_val(vnd->vs_avps,vndvs);
 		} else {
-			fprintf(stderr,"Diameter Dictionary: No Vendor: %s\n",vend);
+			report_failure("Diameter Dictionary: No Vendor: %s\n",vend);
 			vnd = &unknown_vendor;
 		}
 

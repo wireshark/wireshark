@@ -2820,10 +2820,8 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n", name, tvb_reported_leng
         default:
             proto_tree_add_expert_format(
                 tree, actx->pinfo, &ei_hf_field_not_integer_type, tvb, offset, len,
-                "dissect_ber_choice(): Was passed a HF field that was not integer type : %s",
-                hfinfo->abbrev);
-            g_warning("dissect_ber_choice(): frame:%u offset:%d Was passed a HF field that was not integer type : %s",
-                      actx->pinfo->fd->num, offset, hfinfo->abbrev);
+                "dissect_ber_choice(): frame:%u offset:%d Was passed an HF field that was not integer type : %s",
+                actx->pinfo->fd->num, offset, hfinfo->abbrev);
             return end_offset;
         }
     }

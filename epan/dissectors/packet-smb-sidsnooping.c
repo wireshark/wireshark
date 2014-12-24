@@ -28,6 +28,7 @@
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
+#include <wsutil/report_err.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-smb.h"
@@ -348,7 +349,7 @@ sid_snooping_init(void)
    disabling it now so that it won't cause wireshark to abort due to
    unknown hf fields
  */
-sid_name_snooping=0;
+sid_name_snooping=FALSE;
 
 	if(!sid_name_snooping){
 		return;
@@ -380,7 +381,7 @@ sid_name_snooping=0;
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
-		fprintf(stderr, "tshark: Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_policy_information tap: %s\n",
+		report_failure( "Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_policy_information tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		return;
@@ -394,7 +395,7 @@ sid_name_snooping=0;
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
-		fprintf(stderr, "tshark: Couldn't register proto_reg_handoff_smb_sidsnooping()/samr_query_dispinfo tap: %s\n",
+		report_failure( "Couldn't register proto_reg_handoff_smb_sidsnooping()/samr_query_dispinfo tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		return;

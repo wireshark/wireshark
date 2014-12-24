@@ -287,13 +287,14 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <wsutil/file_util.h>
+#include <wsutil/str_util.h>
+#include <wsutil/pint.h>
+#include <wsutil/report_err.h>
 
 #include "packet-giop.h"
 #include "packet-ziop.h"
 #include "packet-tcp.h"
-#include <wsutil/file_util.h>
-#include <wsutil/str_util.h>
-#include <wsutil/pint.h>
 
 void proto_register_giop(void);
 void proto_reg_handoff_giop(void);
@@ -1427,12 +1428,12 @@ static guint32 string_to_IOR(guchar *in, guint32 in_len, guint8 **out) {
     if ( g_ascii_isxdigit(in[i]) && g_ascii_isxdigit(in[i+1]) ) { /* hex ? */
 
       if ( (tmpval_msb = ws_xton(in[i])) < 0 ) {
-        g_warning("giop: Invalid value in IOR %i \n", tmpval_msb);
+        report_failure("giop: Invalid value in IOR %i", tmpval_msb);
 
       }
 
       if ( (tmpval_lsb = ws_xton(in[i+1])) < 0 ) {
-        g_warning("giop: Invalid value in IOR %i \n", tmpval_lsb);
+        report_failure("giop: Invalid value in IOR %i", tmpval_lsb);
       }
 
       tmpval = tmpval_msb << 4;
@@ -1488,7 +1489,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
 
   if (fp == NULL) {
     if (errno == EACCES)
-      fprintf(stderr, "Error opening file %s for reading: %s\n", name, g_strerror(errno));
+      report_open_failure(name, errno, FALSE);
     return;
   }
 
