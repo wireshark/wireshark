@@ -1,6 +1,5 @@
 /* packet-git.c
  * Routines for git packet dissection
- * RFC 1939
  * Copyright 2010, Jelmer Vernooij <jelmer@samba.org>
  *
  * Wireshark - Network traffic analyzer
