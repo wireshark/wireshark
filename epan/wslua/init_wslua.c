@@ -214,8 +214,11 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     lua_tvb = tvb;
     lua_pinfo = pinfo;
 
-    if (!tvb || !pinfo || !pinfo->heur_list_name || !pinfo->current_proto) {
-        report_failure("internal error in heur_dissect_lua: NULL packet info");
+    g_assert(tvb && pinfo);
+
+    if (!pinfo->heur_list_name || !pinfo->current_proto) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                "internal error in heur_dissect_lua: NULL list name or current proto");
         return FALSE;
     }
 
@@ -235,7 +238,8 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     if (!wslua_get_table(L, -1, pinfo->heur_list_name)) {
         /* this shouldn't happen */
         lua_settop(L,0);
-        report_failure("internal error in heur_dissect_lua: no %s heur list table", pinfo->heur_list_name);
+        proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                "internal error in heur_dissect_lua: no %s heur list table", pinfo->heur_list_name);
         return FALSE;
     }
 
@@ -243,7 +247,8 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     if (!wslua_get_field(L,-1,pinfo->current_proto)) {
         /* this shouldn't happen */
         lua_settop(L,0);
-        report_failure("internal error in heur_dissect_lua: no %s heuristic dissector for list %s",
+        proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                "internal error in heur_dissect_lua: no %s heuristic dissector for list %s",
                         pinfo->current_proto, pinfo->heur_list_name);
         return FALSE;
     }
@@ -256,7 +261,8 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     if (!lua_isfunction(L,-1)) {
         /* this shouldn't happen */
         lua_settop(L,0);
-        report_failure("internal error in heur_dissect_lua: %s heuristic dissector is not a function", pinfo->current_proto);
+        proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                "internal error in heur_dissect_lua: %s heuristic dissector is not a function", pinfo->current_proto);
         return FALSE;
     }
 
@@ -271,13 +277,15 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     push_TreeItem(L,lua_tree);
 
     if  ( lua_pcall(L,3,1,0) ) {
-        report_failure(" error calling %s heuristic dissector: %s", pinfo->current_proto, lua_tostring(L,-1));
+        proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                "Lua Error: error calling %s heuristic dissector: %s", pinfo->current_proto, lua_tostring(L,-1));
         lua_settop(L,0);
     } else {
         if (lua_isboolean(L, -1) || lua_isnil(L, -1)) {
             result = lua_toboolean(L, -1);
         } else {
-            report_failure(" invalid return value from Lua %s heuristic dissector", pinfo->current_proto);
+            proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
+                    "Lua Error: invalid return value from Lua %s heuristic dissector", pinfo->current_proto);
         }
         lua_pop(L, 1);
     }

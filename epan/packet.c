@@ -2352,6 +2352,8 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 		wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_id));
 	}
 
+	pinfo->heur_list_name = heur_dtbl_entry->list_name;
+
 	EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s", proto_get_protocol_filter_name(proto_id)));
 
 	/* call the dissector, as we have saved the result heuristic failure is an error */
