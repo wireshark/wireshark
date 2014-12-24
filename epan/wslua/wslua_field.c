@@ -141,6 +141,14 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 pushAddress(L,ipv6);
                 return 1;
             }
+        case FT_FCWWN: {
+                Address fcwwn = (Address)g_malloc(sizeof(address));
+                fcwwn->type = AT_FCWWN;
+                fcwwn->len = fi->ws_fi->length;
+                fcwwn->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
+                pushAddress(L,fcwwn);
+                return 1;
+            }
         case FT_IPXNET:{
                 Address ipx = (Address)g_malloc(sizeof(address));
                 ipx->type = AT_IPX;

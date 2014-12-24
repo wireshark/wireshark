@@ -2757,7 +2757,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                             proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset, idlen, ENC_NA|ENC_ASCII);
                         }
                     } else if (codeset == CODESET_BINARY && identifier_type == DEVID_TYPE_WWN) {
-                               proto_tree_add_string(evpd_tree, hf_scsi_wwn, tvb, offset, plen, tvb_fcwwn_to_str(tvb, offset));
+                            proto_tree_add_item(evpd_tree, hf_scsi_wwn, tvb, offset, plen, ENC_NA);
                     } else {
                         /*
                          * XXX - decode this based on the identifier type,
@@ -3405,7 +3405,7 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         offset += 1;
                                         proto_tree_add_bytes_format(cscd_desc_tree, hf_scsi_designator, tvb, offset, 20, NULL, "Designator (20 bytes, zero padded, used length %u)", des_len);
                                         if (code_set == CODESET_BINARY && des_type == DEVID_TYPE_WWN) { /* des_type 3 = WWN */
-                                                proto_tree_add_string(cscd_desc_tree, hf_scsi_wwn, tvb, offset, des_len, tvb_fcwwn_to_str(tvb, offset));
+                                                proto_tree_add_item(cscd_desc_tree, hf_scsi_wwn, tvb, offset, des_len, ENC_NA);
                                         }
                                         offset += 20;
                                         dev_tree = proto_tree_add_subtree(cscd_tree, tvb, offset, 4, ett_scsi_xcopy_dev_params, NULL, "Device type specific parameters");
@@ -7371,7 +7371,7 @@ proto_register_scsi(void)
       { &hf_scsi_recv_copy_inline_data_gran, { "Inline data granularity", "scsi.recv_copy.inline_data_gran", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_recv_copy_held_data_gran, { "Held data granularity", "scsi.recv_copy.held_data_gran", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_recv_copy_implemented_desc_list_len, { "Implemented description list length", "scsi.recv_copy.implemented_desc_list_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_scsi_wwn, { "WWN", "scsi.wwn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_scsi_wwn, { "WWN", "scsi.wwn", FT_FCWWN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_designator, { "Designator", "scsi.designator", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_segment_descriptor_length, { "Segment descriptor length (bytes)", "scsi.segment_descriptor_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_scsi_inline_data, { "Inline data", "scsi.inline_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},

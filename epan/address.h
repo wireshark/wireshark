@@ -46,6 +46,7 @@ typedef enum {
     AT_OSI,                /* OSI NSAP */
     AT_ARCNET,             /* ARCNET */
     AT_FC,                 /* Fibre Channel */
+    AT_FCWWN,              /* Fibre Channel WWN */
     AT_SS7PC,              /* SS7 Point Code */
     AT_STRINGZ,            /* null-terminated string */
     AT_EUI64,              /* IEEE EUI-64 */

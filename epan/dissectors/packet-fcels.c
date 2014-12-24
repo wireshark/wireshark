@@ -1194,10 +1194,8 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (cmnsvc_tree, hf_fcels_maxconseq, tvb, offset+12, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (cmnsvc_tree, hf_fcels_reloffset, tvb, offset+14, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (cmnsvc_tree, hf_fcels_edtov, tvb, offset+16, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_string (cmnsvc_tree, hf_fcels_npname, tvb, offset+20, 8,
-                               tvb_fcwwn_to_str (tvb, offset+20));
-        proto_tree_add_string (cmnsvc_tree, hf_fcels_fnname, tvb, offset+28, 8,
-                               tvb_fcwwn_to_str (tvb, offset+28));
+        proto_tree_add_item (cmnsvc_tree, hf_fcels_npname, tvb, offset+20, 8, ENC_NA);
+        proto_tree_add_item (cmnsvc_tree, hf_fcels_fnname, tvb, offset+28, 8, ENC_NA);
 
         /* Add subtree for class paramters */
         offset = 36;
@@ -1266,8 +1264,7 @@ dissect_fcels_logout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_string (logo_tree, hf_fcels_nportid, tvb, offset, 3,
                                tvb_fc_to_str (tvb, offset));
-        proto_tree_add_string (logo_tree, hf_fcels_npname, tvb, offset+3, 6,
-                               tvb_fcwwn_to_str (tvb, offset+3));
+        proto_tree_add_item (logo_tree, hf_fcels_npname, tvb, offset+3, 6, ENC_NA);
     }
 }
 
@@ -1411,10 +1408,8 @@ dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_string (adisc_tree, hf_fcels_hardaddr, tvb, offset, 3,
                                tvb_fc_to_str (tvb, offset));
-        proto_tree_add_string (adisc_tree, hf_fcels_npname, tvb, offset+3, 8,
-                               tvb_fcwwn_to_str (tvb, offset+3));
-        proto_tree_add_string (adisc_tree, hf_fcels_fnname, tvb, offset+11, 8,
-                               tvb_fcwwn_to_str (tvb, offset+11));
+        proto_tree_add_item (adisc_tree, hf_fcels_npname, tvb, offset+3, 8, ENC_NA);
+        proto_tree_add_item (adisc_tree, hf_fcels_fnname, tvb, offset+11, 8, ENC_NA);
         proto_tree_add_string (adisc_tree, hf_fcels_nportid, tvb, offset+20, 3,
                                tvb_fc_to_str (tvb, offset+20));
     }
@@ -1441,14 +1436,12 @@ dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                              offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_string (farp_tree, hf_fcels_resportid, tvb, offset+5,
                                3, tvb_fc_to_str (tvb, offset+5));
-        proto_tree_add_string (farp_tree, hf_fcels_npname, tvb, offset+8,
-                               8, tvb_fcwwn_to_str (tvb, offset+8));
-        proto_tree_add_string (farp_tree, hf_fcels_fnname, tvb, offset+16,
-                               8, tvb_fcwwn_to_str (tvb, offset+16));
-        proto_tree_add_string (farp_tree, hf_fcels_respname, tvb, offset+24,
-                               8, tvb_fcwwn_to_str (tvb, offset+24));
-        proto_tree_add_string (farp_tree, hf_fcels_respnname, tvb, offset+32,
-                               8, tvb_fcwwn_to_str (tvb, offset+32));
+        proto_tree_add_item (farp_tree, hf_fcels_npname, tvb, offset+8, 8, ENC_NA);
+        proto_tree_add_item (farp_tree, hf_fcels_fnname, tvb, offset+16, 8, ENC_NA);
+        proto_tree_add_item (farp_tree, hf_fcels_respname, tvb, offset+24,
+                               8, ENC_NA);
+        proto_tree_add_item (farp_tree, hf_fcels_respnname, tvb, offset+32,
+                               8, ENC_NA);
         proto_tree_add_item (farp_tree, hf_fcels_reqipaddr, tvb, offset+40,
                              16, ENC_NA);
         proto_tree_add_item (farp_tree, hf_fcels_respipaddr, tvb, offset+56,
@@ -1490,8 +1483,7 @@ dissect_fcels_rps (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item (rps_tree, hf_fcels_opcode, tvb, offset-3, 1, ENC_BIG_ENDIAN);
 
             if (flag & 0x2) {
-                proto_tree_add_string (rps_tree, hf_fcels_npname, tvb, offset+1,
-                                       8, tvb_fcwwn_to_str (tvb, offset+1));
+                proto_tree_add_item (rps_tree, hf_fcels_npname, tvb, offset+1, 8, ENC_NA);
             }
             else if (flag & 0x1) {
                 proto_tree_add_item (rps_tree, hf_fcels_rps_portnum, tvb,
@@ -1555,7 +1547,7 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
                 proto_tree_add_item(pb_tree, hf_fcels_rpl_physical_port, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_string(pb_tree, hf_fcels_rpl_port_identifier, tvb, offset+5, 3, tvb_fc_to_str (tvb, offset+5));
-                proto_tree_add_string(pb_tree, hf_fcels_rpl_port_name, tvb, offset+8, 8, tvb_fcwwn_to_str (tvb, offset+8));
+                proto_tree_add_item(pb_tree, hf_fcels_rpl_port_name, tvb, offset+8, 8, ENC_NA);
                 offset += 16;
             }
         }
@@ -1577,10 +1569,9 @@ dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_string (fan_tree, hf_fcels_fabricaddr, tvb, offset, 3,
                                tvb_fc_to_str (tvb, offset));
-        proto_tree_add_string (fan_tree, hf_fcels_fabricpname, tvb, offset+3,
-                               8, tvb_fcwwn_to_str (tvb, offset));
-        proto_tree_add_string (fan_tree, hf_fcels_fnname, tvb, offset+11, 8,
-                               tvb_fcwwn_to_str (tvb, offset+11));
+        proto_tree_add_item (fan_tree, hf_fcels_fabricpname, tvb, offset+3,
+                               8, ENC_NA);
+        proto_tree_add_item (fan_tree, hf_fcels_fnname, tvb, offset+11, 8, ENC_NA);
     }
 }
 
@@ -1896,10 +1887,8 @@ dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     proto_tree_add_item (cbind_tree, hf_fcels_cbind_ifcp_version, tvb, offset+7, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (cbind_tree, hf_fcels_cbind_userinfo, tvb, offset+8, 4, ENC_BIG_ENDIAN);
 
-    proto_tree_add_string (cbind_tree, hf_fcels_cbind_snpname, tvb, offset+12, 8,
-                           tvb_fcwwn_to_str (tvb, offset+12));
-    proto_tree_add_string (cbind_tree, hf_fcels_cbind_dnpname, tvb, offset+20, 8,
-                           tvb_fcwwn_to_str (tvb, offset+20));
+    proto_tree_add_item (cbind_tree, hf_fcels_cbind_snpname, tvb, offset+12, 8, ENC_NA);
+    proto_tree_add_item (cbind_tree, hf_fcels_cbind_dnpname, tvb, offset+20, 8, ENC_NA);
 
     switch(tvb_reported_length(tvb)){
     case 32: /* 28 byte Request + 4 bytes FC CRC */
@@ -1970,12 +1959,10 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_tree_add_item (rnid_tree, hf_fcels_spidlen, tvb, offset+7,
                                  1, ENC_BIG_ENDIAN);
             if (clen) {
-                proto_tree_add_string (rnid_tree, hf_fcels_npname, tvb,
-                                       offset+8, 8,
-                                       tvb_fcwwn_to_str (tvb, offset+8));
-                proto_tree_add_string (rnid_tree, hf_fcels_fnname, tvb,
-                                       offset+16, 8,
-                                       tvb_fcwwn_to_str (tvb, offset+16));
+                proto_tree_add_item (rnid_tree, hf_fcels_npname, tvb,
+                                       offset+8, 8, ENC_NA);
+                proto_tree_add_item (rnid_tree, hf_fcels_fnname, tvb,
+                                       offset+16, 8, ENC_NA);
             }
             if (tvb_get_guint8 (tvb, offset+4) == 0xDF) {
                 /* Decode the Specific Node ID Format as this is known */
@@ -2358,10 +2345,10 @@ proto_register_fcels (void)
         { &hf_fcels_edtov,
           {"E_D_TOV", "fcels.edtov", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_npname,
-          {"N_Port Port_Name", "fcels.npname", FT_STRING, BASE_NONE, NULL, 0x0,
+          {"N_Port Port_Name", "fcels.npname", FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
         { &hf_fcels_fnname,
-          {"Fabric/Node Name", "fcels.fnname", FT_STRING, BASE_NONE, NULL, 0x0,
+          {"Fabric/Node Name", "fcels.fnname", FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 #if 0
         { &hf_fcels_cls1param,
@@ -2412,7 +2399,7 @@ proto_register_fcels (void)
           {"Fabric Address", "fcels.faddr", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
            HFILL}},
         { &hf_fcels_fabricpname,
-          {"Fabric Port Name", "fcels.fpname", FT_STRING, BASE_NONE, NULL, 0x0,
+          {"Fabric Port Name", "fcels.fpname", FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
         { &hf_fcels_failedrcvr,
           {"Failed Receiver AL_PA", "fcels.faildrcvr", FT_UINT8, BASE_HEX, NULL,
@@ -2445,10 +2432,10 @@ proto_register_fcels (void)
           {"Responding Port ID", "fcels.resportid", FT_STRING, BASE_NONE,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_respname,
-          {"Responding Port Name", "fcels.respname", FT_STRING, BASE_NONE,
+          {"Responding Port Name", "fcels.respname", FT_FCWWN, BASE_NONE,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_respnname,
-          {"Responding Node Name", "fcels.respnname", FT_STRING, BASE_NONE,
+          {"Responding Node Name", "fcels.respnname", FT_FCWWN, BASE_NONE,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_reqipaddr,
           {"Requesting IP Address", "fcels.reqipaddr", FT_IPv6, BASE_NONE,
@@ -2549,10 +2536,10 @@ proto_register_fcels (void)
           {"UserInfo", "fcels.cbind.userinfo", FT_UINT32, BASE_HEX,
            NULL, 0x0, "Userinfo token", HFILL}},
         { &hf_fcels_cbind_snpname,
-          {"Source N_Port Port_Name", "fcels.cbind.snpname", FT_STRING, BASE_NONE, NULL, 0x0,
+          {"Source N_Port Port_Name", "fcels.cbind.snpname", FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
         { &hf_fcels_cbind_dnpname,
-          {"Destination N_Port Port_Name", "fcels.cbind.dnpname", FT_STRING, BASE_NONE, NULL, 0x0,
+          {"Destination N_Port Port_Name", "fcels.cbind.dnpname", FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
         { &hf_fcels_cbind_status,
           {"Status", "fcels.cbind.status", FT_UINT16, BASE_DEC,
@@ -2740,7 +2727,7 @@ proto_register_fcels (void)
       { &hf_fcels_rpl_index_of_i_port_block, { "Index of I Port Block", "fcels.rpl.index_of_i_port_block", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rpl_physical_port, { "Physical Port #", "fcels.rpl.physical_port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rpl_port_identifier, { "Port Identifier", "fcels.rpl.port_identifier", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_fcels_rpl_port_name, { "Port Name", "fcels.rpl.port_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_fcels_rpl_port_name, { "Port Name", "fcels.rpl.port_name", FT_FCWWN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rscn_page_len, { "Page Len", "fcels.rscn.page_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rscn_payload_len, { "Payload Len", "fcels.rscn.payload_len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rnft_max_size, { "Max Size", "fcels.rnft.max_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},

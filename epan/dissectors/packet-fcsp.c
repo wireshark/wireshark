@@ -233,8 +233,8 @@ static void dissect_fcsp_dhchap_challenge(tvbuff_t *tvb, proto_tree *tree)
         name_len = tvb_get_ntohs(tvb, offset+2);
 
         if (name_type == FC_AUTH_NAME_TYPE_WWN) {
-            proto_tree_add_string(tree, hf_auth_responder_wwn, tvb, offset+4,
-                                  8, tvb_fcwwn_to_str(tvb, offset+4));
+            proto_tree_add_item(tree, hf_auth_responder_wwn, tvb, offset+4,
+                                  8, ENC_NA);
         }
         else {
             proto_tree_add_item(tree, hf_auth_responder_name, tvb, offset+4,
@@ -322,8 +322,7 @@ static void dissect_fcsp_auth_negotiate(tvbuff_t *tvb, proto_tree *tree)
         name_len = tvb_get_ntohs(tvb, offset+2);
 
         if (name_type == FC_AUTH_NAME_TYPE_WWN) {
-            proto_tree_add_string(tree, hf_auth_initiator_wwn, tvb, offset+4, 8,
-                                  tvb_fcwwn_to_str(tvb, offset+4));
+            proto_tree_add_item(tree, hf_auth_initiator_wwn, tvb, offset+4, 8, ENC_NA);
         }
         else {
             proto_tree_add_item(tree, hf_auth_initiator_name, tvb, offset+4,
@@ -464,7 +463,7 @@ proto_register_fcsp(void)
 
         { &hf_auth_initiator_wwn,
           { "Initiator Name (WWN)", "fcsp.initwwn",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_FCWWN, BASE_NONE, NULL, 0x0,
             NULL, HFILL}},
 
         { &hf_auth_initiator_name,
@@ -499,7 +498,7 @@ proto_register_fcsp(void)
 
         { &hf_auth_responder_wwn,
           { "Responder Name (WWN)", "fcsp.rspwwn",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_FCWWN, BASE_NONE, NULL, 0x0,
             NULL, HFILL}},
 
         { &hf_auth_responder_name,

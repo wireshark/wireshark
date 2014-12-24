@@ -380,52 +380,56 @@ tvb_fc_to_str(tvbuff_t *tvb, const gint offset)
 #define FC_NH_NAA_CCITT_INDV    12  /* CCITT 60 bit individual address */
 #define FC_NH_NAA_CCITT_GRP     14  /* CCITT 60 bit group address */
 
-gchar *
-fcwwn_to_str (const guint8 *ad)
+static void
+fcwwn_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
 {
     int fmt;
     guint8 oui[6];
-    gchar *ethstr;
     gchar *ethptr;
 
-    if (ad == NULL) return NULL;
+    if (buf_len < 200) {  /* This is mostly for manufacturer name */
+        g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
+        return;
+    }
 
-    ethstr=(gchar *)ep_alloc(512);
-    ethptr = bytes_to_hexstr_punct(ethstr, ad, 8, ':'); /* 23 bytes */
-
-    fmt = (ad[0] & 0xF0) >> 4;
-
+    ethptr = bytes_to_hexstr_punct(buf, addrp, 8, ':'); /* 23 bytes */
+    fmt = (addrp[0] & 0xF0) >> 4;
     switch (fmt) {
 
     case FC_NH_NAA_IEEE:
     case FC_NH_NAA_IEEE_E:
-        memcpy (oui, &ad[2], 6);
+        memcpy (oui, &addrp[2], 6);
 
-        g_snprintf (ethptr, 512-23, " (%s)", get_manuf_name (oui));
+        g_snprintf (ethptr, buf_len-23, " (%s)", get_manuf_name (oui));
         break;
 
     case FC_NH_NAA_IEEE_R:
-        oui[0] = ((ad[0] & 0x0F) << 4) | ((ad[1] & 0xF0) >> 4);
-        oui[1] = ((ad[1] & 0x0F) << 4) | ((ad[2] & 0xF0) >> 4);
-        oui[2] = ((ad[2] & 0x0F) << 4) | ((ad[3] & 0xF0) >> 4);
-        oui[3] = ((ad[3] & 0x0F) << 4) | ((ad[4] & 0xF0) >> 4);
-        oui[4] = ((ad[4] & 0x0F) << 4) | ((ad[5] & 0xF0) >> 4);
-        oui[5] = ((ad[5] & 0x0F) << 4) | ((ad[6] & 0xF0) >> 4);
+        oui[0] = ((addrp[0] & 0x0F) << 4) | ((addrp[1] & 0xF0) >> 4);
+        oui[1] = ((addrp[1] & 0x0F) << 4) | ((addrp[2] & 0xF0) >> 4);
+        oui[2] = ((addrp[2] & 0x0F) << 4) | ((addrp[3] & 0xF0) >> 4);
+        oui[3] = ((addrp[3] & 0x0F) << 4) | ((addrp[4] & 0xF0) >> 4);
+        oui[4] = ((addrp[4] & 0x0F) << 4) | ((addrp[5] & 0xF0) >> 4);
+        oui[5] = ((addrp[5] & 0x0F) << 4) | ((addrp[6] & 0xF0) >> 4);
 
-        g_snprintf (ethptr, 512-23, " (%s)", get_manuf_name (oui));
+        g_snprintf (ethptr, buf_len-23, " (%s)", get_manuf_name (oui));
         break;
 
     default:
         *ethptr = '\0';
         break;
     }
-    return (ethstr);
 }
 
 gchar *
 tvb_fcwwn_to_str(tvbuff_t *tvb, const gint offset)
 {
-    return fcwwn_to_str (tvb_get_ptr(tvb, offset, 8));
+    gchar *buf;
+
+    buf=(gchar *)ep_alloc(512);
+
+    fcwwn_addr_to_str_buf(tvb_get_ptr(tvb, offset, FCWWN_ADDR_LEN), buf, 512);
+
+    return buf;
 }
 
 /*XXX FIXME the code below may be called very very frequently in the future.
@@ -515,6 +519,9 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
         break;
     case AT_FC: /* 9 bytes */
         tempptr = bytes_to_hexstr_punct(tempptr, (const guint8 *)addr->data, 3, '.'); /* 8 bytes */
+        break;
+    case AT_FCWWN:
+        fcwwn_addr_to_str_buf((const guint8 *)addr->data, buf, buf_len);
         break;
     case AT_SS7PC:
         mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);

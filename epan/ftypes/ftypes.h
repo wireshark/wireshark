@@ -69,6 +69,7 @@ enum ftenum {
 	FT_REL_OID,	/* RELATIVE-OID */
 	FT_SYSTEM_ID,
 	FT_STRINGZPAD,	/* for use with proto_tree_add_item() */
+	FT_FCWWN,
 	FT_NUM_TYPES /* last item number plus one */
 };
 
@@ -86,6 +87,7 @@ enum ftenum {
 #define FT_EUI64_LEN        8
 #define FT_AX25_ADDR_LEN    7
 #define FT_VINES_ADDR_LEN	6
+#define FT_FCWWN_LEN        8
 
 typedef enum ftenum ftenum_t;
 

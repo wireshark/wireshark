@@ -1466,7 +1466,6 @@ my @TvbPtrAPIs = (
         'proto_tree_add_bytes_format_value',
         'proto_tree_add_ether',
         # Use the tvb_* version of these:
-        'fcwwn_to_str',
         # Use tvb_bytes_to_str[_punct] instead of:
         'bytes_to_str',
         'bytes_to_str_punct',

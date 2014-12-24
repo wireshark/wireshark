@@ -74,10 +74,8 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          "IP Over FC Network_Header");
         ipfc_tree = proto_item_add_subtree (ti, ett_ipfc);
 
-        proto_tree_add_string (ipfc_tree, hf_ipfc_network_da, tvb, offset, 8,
-                               tvb_fcwwn_to_str (tvb, offset));
-        proto_tree_add_string (ipfc_tree, hf_ipfc_network_sa, tvb, offset+8, 8,
-                               tvb_fcwwn_to_str (tvb, offset+8));
+        proto_tree_add_item (ipfc_tree, hf_ipfc_network_da, tvb, offset, 8, ENC_NA);
+        proto_tree_add_item (ipfc_tree, hf_ipfc_network_sa, tvb, offset+8, 8, ENC_NA);
     }
 
     next_tvb = tvb_new_subset_remaining (tvb, 16);
@@ -97,10 +95,10 @@ proto_register_ipfc (void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_ipfc_network_da,
-          {"Network DA", "ipfc.nh.da", FT_STRING, BASE_NONE, NULL,
+          {"Network DA", "ipfc.nh.da", FT_FCWWN, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
         { &hf_ipfc_network_sa,
-          {"Network SA", "ipfc.nh.sa", FT_STRING, BASE_NONE, NULL,
+          {"Network SA", "ipfc.nh.sa", FT_FCWWN, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
     };
 

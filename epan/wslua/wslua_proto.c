@@ -491,6 +491,7 @@ static const wslua_ft_types_t ftenums[] = {
     {"ftypes.SYSTEM_ID", FT_SYSTEM_ID},
     {"ftypes.REL_OID", FT_REL_OID},
     {"ftypes.EUI64", FT_EUI64},
+    {"ftypes.FCWWN", FT_FCWWN},
     {NULL, FT_NONE}
 };
 
@@ -849,6 +850,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_SYSTEM_ID:
     case FT_REL_OID:
     case FT_EUI64:
+    case FT_VINES:
+    case FT_FCWWN:
         if (base != BASE_NONE) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be base.NONE");
             return 0;

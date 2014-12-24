@@ -186,6 +186,12 @@ ether_fvalue_set(fvalue_t *fv, const guint8 *value)
 }
 
 static void
+fcwwn_fvalue_set(fvalue_t *fv, const guint8 *value)
+{
+	common_fvalue_set(fv, value, FT_FCWWN_LEN);
+}
+
+static void
 oid_fvalue_set(fvalue_t *fv, GByteArray *value)
 {
 	/* Free up the old value, if we have one */
@@ -453,9 +459,33 @@ system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_valu
 		return TRUE;
 	}
 
-	/* XXX - need better validation of Vines address */
+	/* XXX - need better validation of OSI System-ID address */
 
 	logfunc("\"%s\" is not a valid OSI System-ID.", s);
+	return FALSE;
+}
+
+static gboolean
+fcwwn_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+{
+	/*
+	 * Don't log a message if this fails; we'll try looking it
+	 * up as another way if it does, and if that fails,
+	 * we'll log a message.
+	 */
+	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+		if (fv->value.bytes->len > FT_FCWWN_LEN) {
+			logfunc("\"%s\" contains too many bytes to be a valid FCWWN.",
+			    s);
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	/* XXX - need better validation of FCWWN address */
+
+	logfunc("\"%s\" is not a valid FCWWN.", s);
 	return FALSE;
 }
 
@@ -1008,6 +1038,49 @@ ftype_register_bytes(void)
 		slice,
 	};
 
+	static ftype_t fcwwc_type = {
+		FT_FCWWN,			/* ftype */
+		"FT_FCWWN",			/* name */
+		"Fibre Channel WWN",	/* pretty_name */
+		FT_FCWWN_LEN,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		fcwwn_from_unparsed,		/* val_from_unparsed */
+		NULL,				/* val_from_string */
+		bytes_to_repr,			/* val_to_string_repr */
+		bytes_repr_len,			/* len_string_repr */
+
+		NULL,				/* set_value_byte_array */
+		fcwwn_fvalue_set,		/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
+
+		value_get,			/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+		cmp_bitwise_and,
+		cmp_contains,
+		CMP_MATCHES,
+
+		len,
+		slice,
+	};
+
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_AX25, &ax25_type);
@@ -1016,4 +1089,5 @@ ftype_register_bytes(void)
 	ftype_register(FT_OID, &oid_type);
 	ftype_register(FT_REL_OID, &rel_oid_type);
 	ftype_register(FT_SYSTEM_ID, &system_id_type);
+	ftype_register(FT_FCWWN, &fcwwc_type);
 }

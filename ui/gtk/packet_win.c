@@ -641,9 +641,10 @@ not_supported:
 			FT_INT64, FT_UINT64,			; should work with FT_INT[8,16,24,32] code
 			FT_FLOAT, FT_DOUBLE,
 			FT_IPXNET, FT_IPv6, FT_ETHER,
-			FT_GUID, FT_OID, FT_SYSTEM_ID
+			FT_GUID, FT_OID, FT_SYSTEM_ID,
 			FT_UINT_STRING,
-			FT_ABSOLUTE_TIME, FT_RELATIVE_TIME
+			FT_ABSOLUTE_TIME, FT_RELATIVE_TIME,
+			FT_VINES, FT_FCWWN,
 		*/
 		fvalue_edit = gtk_entry_new();
 		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), "<not supported>");

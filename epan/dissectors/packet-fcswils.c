@@ -720,39 +720,36 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
 {
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    int          offset = 0;
-    const gchar *flags;
-    fcswils_elp  elp;
-
     /* Response i.e. SW_ACC for an ELP has the same format as the request */
     /* We skip the initial 4 bytes as we don't care about the opcode */
-    tvb_memcpy(tvb, (guint8 *)&elp, 4, FC_SWILS_ELP_SIZE);
-
-    elp.r_a_tov = g_ntohl(elp.r_a_tov);
-    elp.e_d_tov = g_ntohl(elp.e_d_tov);
-    elp.isl_flwctrl_mode = g_ntohs(elp.isl_flwctrl_mode);
-    elp.flw_ctrl_parmlen = g_ntohs(elp.flw_ctrl_parmlen);
+    int          offset = 4;
+    const gchar *flags;
+    guint32 r_a_tov;
+    guint32 e_d_tov;
+    guint16 isl_flwctrl_mode;
+    guint8  clsf_svcparm[6], cls1_svcparm[2], cls2_svcparm[2], cls3_svcparm[2];
 
     if (elp_tree) {
         offset += 4;
         proto_tree_add_item(elp_tree, hf_swils_elp_rev, tvb, offset++, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(elp_tree, hf_swils_elp_flags, tvb, offset, 2, ENC_NA);
         offset += 3;
+        r_a_tov = tvb_get_ntohl(tvb, offset);
         proto_tree_add_uint_format_value(elp_tree, hf_swils_elp_r_a_tov, tvb, offset, 4,
-                                   elp.r_a_tov, "%d msecs", elp.r_a_tov);
+                                   r_a_tov, "%d msecs", r_a_tov);
         offset += 4;
+        e_d_tov = tvb_get_ntohl(tvb, offset);
         proto_tree_add_uint_format_value(elp_tree, hf_swils_elp_e_d_tov, tvb, offset, 4,
-                                   elp.e_d_tov, "%d msecs", elp.e_d_tov);
+                                   e_d_tov, "%d msecs", e_d_tov);
         offset += 4;
-        proto_tree_add_string(elp_tree, hf_swils_elp_req_epn, tvb, offset, 8,
-                              fcwwn_to_str(elp.req_epname));
+        proto_tree_add_item(elp_tree, hf_swils_elp_req_epn, tvb, offset, 8, ENC_NA);
         offset += 8;
-        proto_tree_add_string(elp_tree, hf_swils_elp_req_esn, tvb, offset, 8,
-                              fcwwn_to_str(elp.req_sname));
+        proto_tree_add_item(elp_tree, hf_swils_elp_req_esn, tvb, offset, 8, ENC_NA);
         offset += 8;
 
-        if (elp.clsf_svcparm[0] & 0x80) {
-            if (elp.clsf_svcparm[4] & 0x20) {
+        tvb_memcpy(tvb, clsf_svcparm, offset, 6);
+        if (clsf_svcparm[0] & 0x80) {
+            if (clsf_svcparm[4] & 0x20) {
                 flags="Class F Valid | X_ID Interlock";
             } else {
                 flags="Class F Valid | No X_ID Interlk";
@@ -761,7 +758,7 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
             flags="Class F Invld";
         }
         proto_tree_add_bytes_format_value(elp_tree, hf_swils_elp_clsf_svcp, tvb, offset, 6,
-                                    &elp.clsf_svcparm[0], "(%s)", flags);
+                                    clsf_svcparm, "(%s)", flags);
         offset += 6;
 
         proto_tree_add_item(elp_tree, hf_swils_elp_clsf_rcvsz, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -773,7 +770,8 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
         proto_tree_add_item(elp_tree, hf_swils_elp_clsf_openseq, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 4;
 
-        if (elp.cls1_svcparm[0] & 0x80) {
+        tvb_memcpy(tvb, cls1_svcparm, offset, 2);
+        if (cls1_svcparm[0] & 0x80) {
 #define MAX_FLAGS_LEN 40
             char *flagsbuf;
             gint stroff, returned_length;
@@ -784,15 +782,15 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
             returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff,
                                          "Class 1 Valid");
             stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
-            if (elp.cls1_svcparm[0] & 0x40) {
+            if (cls1_svcparm[0] & 0x40) {
                 returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | IMX");
                 stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
-            if (elp.cls1_svcparm[0] & 0x20) {
+            if (cls1_svcparm[0] & 0x20) {
                 returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | IPS");
                 stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
-            if (elp.cls1_svcparm[0] & 0x10) {
+            if (cls1_svcparm[0] & 0x10) {
                 /*returned_length =*/ g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
             }
             flags=flagsbuf;
@@ -804,13 +802,14 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
         proto_tree_add_bytes_format_value(elp_tree, hf_swils_elp_cls1_svcp, tvb, offset, 2,
                                     NULL, "(%s)", flags);
         offset += 2;
-        if (elp.cls1_svcparm[0] & 0x80) {
+        if (cls1_svcparm[0] & 0x80) {
             proto_tree_add_item(elp_tree, hf_swils_elp_cls1_rcvsz, tvb, offset, 2, ENC_BIG_ENDIAN);
         }
         offset += 2;
 
-        if (elp.cls2_svcparm[0] & 0x80) {
-            if (elp.cls2_svcparm[0] & 0x08) {
+        tvb_memcpy(tvb, cls2_svcparm, offset, 2);
+        if (cls2_svcparm[0] & 0x80) {
+            if (cls2_svcparm[0] & 0x08) {
                 flags="Class 2 Valid | Seq Delivery";
             }
             else {
@@ -822,17 +821,18 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
         }
 
         proto_tree_add_bytes_format_value(elp_tree, hf_swils_elp_cls2_svcp, tvb, offset, 2,
-                                    &elp.cls2_svcparm[0],
+                                    cls2_svcparm,
                                     "(%s)", flags);
         offset += 2;
 
-        if (elp.cls2_svcparm[0] & 0x80) {
+        if (cls2_svcparm[0] & 0x80) {
             proto_tree_add_item(elp_tree, hf_swils_elp_cls2_rcvsz, tvb, offset, 2, ENC_BIG_ENDIAN);
         }
         offset += 2;
 
-        if (elp.cls3_svcparm[0] & 0x80) {
-            if (elp.cls3_svcparm[0] & 0x08) {
+        tvb_memcpy(tvb, cls3_svcparm, offset, 2);
+        if (cls3_svcparm[0] & 0x80) {
+            if (cls3_svcparm[0] & 0x08) {
                 flags="Class 3 Valid | Seq Delivery";
             }
             else {
@@ -843,17 +843,18 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
             flags="Class 3 Invld";
         }
         proto_tree_add_bytes_format_value(elp_tree, hf_swils_elp_cls3_svcp, tvb, offset, 2,
-                                    &elp.cls3_svcparm[0],
+                                    cls3_svcparm,
                                     "(%s)", flags);
         offset += 2;
 
-        if (elp.cls3_svcparm[0] & 0x80) {
+        if (cls3_svcparm[0] & 0x80) {
             proto_tree_add_item(elp_tree, hf_swils_elp_cls3_rcvsz, tvb, offset, 2, ENC_BIG_ENDIAN);
         }
         offset += 22;
 
+        isl_flwctrl_mode = tvb_get_ntohs(tvb, offset);
         proto_tree_add_string(elp_tree, hf_swils_elp_isl_fc_mode, tvb, offset, 2,
-                              val_to_str_const(elp.isl_flwctrl_mode, fcswils_elp_fc_val, "Vendor Unique"));
+                              val_to_str_const(isl_flwctrl_mode, fcswils_elp_fc_val, "Vendor Unique"));
         offset += 2;
         proto_tree_add_item(elp_tree, hf_swils_elp_fcplen, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -878,20 +879,20 @@ dissect_swils_efp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *efp_tree, guint
     proto_tree  *lrec_tree;
     proto_item  *rec_item;
     int          num_listrec = 0;
-    int          offset      = 0;
-    fcswils_efp  efp;
+    int          offset      = 1; /* Skip opcode */
+    guint8       reclen;
+    guint16      payload_len;
     guint8       rec_type;
 
+    reclen = tvb_get_guint8(tvb, offset);
+    rec_item = proto_tree_add_uint(efp_tree, hf_swils_efp_record_len, tvb, offset, 1, reclen);
     offset += 1;
-    efp.reclen = tvb_get_guint8(tvb, offset);
-    rec_item = proto_tree_add_uint(efp_tree, hf_swils_efp_record_len, tvb, offset, 1, efp.reclen);
-    offset += 1;
-    efp.payload_len = tvb_get_ntohs(tvb, offset);
-    if (efp.payload_len < FC_SWILS_EFP_SIZE) {
+    payload_len = tvb_get_ntohs(tvb, offset);
+    if (payload_len < FC_SWILS_EFP_SIZE) {
         proto_tree_add_uint_format_value(efp_tree, hf_swils_efp_payload_len,
-                                       tvb, offset, 2, efp.payload_len,
+                                       tvb, offset, 2, payload_len,
                                        "%u (bogus, must be >= %u)",
-                                       efp.payload_len, FC_SWILS_EFP_SIZE);
+                                       payload_len, FC_SWILS_EFP_SIZE);
         return;
     }
     proto_tree_add_item(efp_tree, hf_swils_efp_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -899,18 +900,16 @@ dissect_swils_efp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *efp_tree, guint
     proto_tree_add_item(efp_tree, hf_swils_efp_pswitch_pri, tvb,
                             offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    tvb_memcpy(tvb, efp.pswitch_name, offset, 8);
-    proto_tree_add_string(efp_tree, hf_swils_efp_pswitch_name, tvb, offset,
-                              8, fcwwn_to_str(efp.pswitch_name));
+    proto_tree_add_item(efp_tree, hf_swils_efp_pswitch_name, tvb, offset, 8, ENC_NA);
     offset += 8;
 
-    if (efp.reclen == 0) {
+    if (reclen == 0) {
         expert_add_info(pinfo, rec_item, &ei_swils_efp_record_len);
         return;
     }
     /* Add List Records now */
     if (efp_tree) {
-        num_listrec = (efp.payload_len - FC_SWILS_EFP_SIZE)/efp.reclen;
+        num_listrec = (payload_len - FC_SWILS_EFP_SIZE)/reclen;
         while (num_listrec-- > 0) {
             rec_type = tvb_get_guint8(tvb, offset);
             lrec_tree = proto_tree_add_subtree(efp_tree, tvb, offset, -1,
@@ -924,15 +923,14 @@ dissect_swils_efp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *efp_tree, guint
 
             case FC_SWILS_LRECTYPE_DOMAIN:
                 proto_tree_add_item(lrec_tree, hf_swils_efp_dom_id, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_string(lrec_tree, hf_swils_efp_switch_name, tvb, offset+8, 8,
-                                      tvb_fcwwn_to_str(tvb, offset+8));
+                proto_tree_add_item(lrec_tree, hf_swils_efp_switch_name, tvb, offset+8, 8, ENC_NA);
                 break;
 
             case FC_SWILS_LRECTYPE_MCAST:
                 proto_tree_add_item(lrec_tree, hf_swils_efp_mcast_grpno, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 break;
             }
-            offset += efp.reclen;
+            offset += reclen;
         }
     }
 }
@@ -944,8 +942,8 @@ dissect_swils_dia(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *dia_tree, g
     int offset = 0;
 
     if (dia_tree) {
-        proto_tree_add_string(dia_tree, hf_swils_dia_switch_name, tvb, offset+4,
-                              8, tvb_fcwwn_to_str(tvb, offset+4));
+        proto_tree_add_item(dia_tree, hf_swils_dia_switch_name, tvb, offset+4,
+                              8, ENC_NA);
     }
 }
 
@@ -960,8 +958,7 @@ dissect_swils_rdi(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rdi_tree, g
         plen = tvb_get_ntohs(tvb, offset+2);
 
         proto_tree_add_item(rdi_tree, hf_swils_rdi_payload_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_string(rdi_tree, hf_swils_rdi_req_sname, tvb, offset+4,
-                              8, tvb_fcwwn_to_str(tvb, offset+4));
+        proto_tree_add_item(rdi_tree, hf_swils_rdi_req_sname, tvb, offset+4, 8, ENC_NA);
 
         /* 12 is the length of the initial header and 4 is the size of each
          * domain request record.
@@ -1162,10 +1159,8 @@ dissect_swils_rscn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rscn_tree,
             proto_tree_add_item(dev_tree, hf_swils_rscn_portstate, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_string(dev_tree, hf_swils_rscn_portid, tvb, offset+1, 3,
                                   tvb_fc_to_str(tvb, offset+1));
-            proto_tree_add_string(dev_tree, hf_swils_rscn_pwwn, tvb, offset+4, 8,
-                                  tvb_fcwwn_to_str(tvb, offset+4));
-            proto_tree_add_string(dev_tree, hf_swils_rscn_nwwn, tvb, offset+12, 8,
-                                  tvb_fcwwn_to_str(tvb, offset+12));
+            proto_tree_add_item(dev_tree, hf_swils_rscn_pwwn, tvb, offset+4, 8, ENC_NA);
+            proto_tree_add_item(dev_tree, hf_swils_rscn_nwwn, tvb, offset+12, 8, ENC_NA);
             offset += 20;
         }
     }
@@ -1856,12 +1851,12 @@ proto_register_fcswils(void)
 
         { &hf_swils_elp_req_epn,
           {"Req Eport Name", "swils.elp.reqepn",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_elp_req_esn,
           {"Req Switch Name", "swils.elp.reqesn",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_elp_clsf_svcp,
@@ -1966,7 +1961,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_efp_switch_name,
           {"Switch Name", "swils.efp.sname",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_efp_mcast_grpno,
@@ -1998,12 +1993,12 @@ proto_register_fcswils(void)
 
         { &hf_swils_efp_pswitch_name,
           {"Principal Switch Name", "swils.efp.psname",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_dia_switch_name,
           {"Switch Name", "swils.dia.sname",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_rdi_payload_len,
@@ -2013,7 +2008,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_rdi_req_sname,
           {"Req Switch Name", "swils.rdi.reqsn",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
 #if 0
@@ -2150,12 +2145,12 @@ proto_register_fcswils(void)
 
         { &hf_swils_rscn_pwwn,
           {"Port WWN", "swils.rscn.pwwn",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_rscn_nwwn,
           {"Node WWN", "swils.rscn.nwwn",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_esc_swvendorid,

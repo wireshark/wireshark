@@ -349,8 +349,7 @@ static void
 dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
     if (tree) {
-        proto_tree_add_string (tree, hf_fcip_src_wwn, tvb, offset, 8,
-                               tvb_fcwwn_to_str (tvb, offset));
+        proto_tree_add_item (tree, hf_fcip_src_wwn, tvb, offset, 8, ENC_NA);
         proto_tree_add_item (tree, hf_fcip_src_entity_id, tvb, offset+8, 8,
                               ENC_NA);
         proto_tree_add_item (tree, hf_fcip_conn_nonce, tvb, offset+16, 8,
@@ -358,8 +357,7 @@ dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
         /* XXX - break out these flags */
         proto_tree_add_item (tree, hf_fcip_conn_flags, tvb, offset+24, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_fcip_conn_code, tvb, offset+26, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_string (tree, hf_fcip_dst_wwn, tvb, offset+30, 8,
-                               tvb_fcwwn_to_str (tvb, offset+30));
+        proto_tree_add_item (tree, hf_fcip_dst_wwn, tvb, offset+30, 8, ENC_NA);
         proto_tree_add_item (tree, hf_fcip_katov, tvb, offset+38, 4, ENC_BIG_ENDIAN);
     }
 }
@@ -595,10 +593,10 @@ proto_register_fcip (void)
           {"Pflags (1's Complement)", "fcip.pflagsc", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcip_src_wwn,
-          {"Source Fabric WWN", "fcip.srcwwn", FT_STRING, BASE_NONE,
+          {"Source Fabric WWN", "fcip.srcwwn", FT_FCWWN, BASE_NONE,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcip_dst_wwn,
-          {"Destination Fabric WWN", "fcip.dstwwn", FT_STRING, BASE_NONE,
+          {"Destination Fabric WWN", "fcip.dstwwn", FT_FCWWN, BASE_NONE,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcip_src_entity_id,
           {"FC/FCIP Entity Id", "fcip.srcid", FT_BYTES, BASE_NONE,

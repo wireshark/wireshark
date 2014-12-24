@@ -1048,10 +1048,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     if (df_ctl & FC_DFCTL_NH) {
         /* Yes - dissect it. */
         if (tree) {
-            proto_tree_add_string (fc_tree, hf_fc_nh_da, tvb, next_offset, 8,
-                                   fcwwn_to_str (tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 8, ENC_ASCII)));
-            proto_tree_add_string (fc_tree, hf_fc_nh_sa, tvb, offset+8, 8,
-                                   fcwwn_to_str (tvb_get_string_enc(wmem_packet_scope(), tvb, offset+8, 8, ENC_ASCII)));
+            proto_tree_add_item(fc_tree, hf_fc_nh_da, tvb, next_offset, 8, ENC_NA);
+            proto_tree_add_item(fc_tree, hf_fc_nh_sa, tvb, next_offset+8, 8, ENC_NA);
         }
         next_offset += 16;
     }
@@ -1455,10 +1453,10 @@ proto_register_fc(void)
           {"Reassembled Frame", "fc.reassembled", FT_BOOLEAN, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
         { &hf_fc_nh_da,
-          {"Network DA", "fc.nethdr.da", FT_STRING, BASE_NONE, NULL,
+          {"Network DA", "fc.nethdr.da", FT_FCWWN, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
         { &hf_fc_nh_sa,
-          {"Network SA", "fc.nethdr.sa", FT_STRING, BASE_NONE, NULL,
+          {"Network SA", "fc.nethdr.sa", FT_FCWWN, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
 
         /* Basic Link Svc field definitions */

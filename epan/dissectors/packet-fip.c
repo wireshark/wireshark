@@ -465,10 +465,8 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case FIP_DT_NAME:
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_name, &item);
-            text = tvb_fcwwn_to_str(desc_tvb, 4);
-            proto_tree_add_string(subtree, hf_fip_desc_name,
-                    desc_tvb, 4, 8, text);
-            proto_item_append_text(item, "%s", text);
+            proto_tree_add_item(subtree, hf_fip_desc_name, desc_tvb, 4, 8, ENC_NA);
+            proto_item_append_text(item, "%s", tvb_fcwwn_to_str(desc_tvb, 4));
             break;
         case FIP_DT_FAB:
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_fab, &item);
@@ -477,10 +475,8 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             text = tvb_fc_to_str(desc_tvb, 5);
             proto_tree_add_string(subtree, hf_fip_desc_fab_map, desc_tvb,
                     5, 3, text);
-            text = tvb_fcwwn_to_str(desc_tvb, 8);
-            proto_tree_add_string(subtree, hf_fip_desc_fab_name,
-                    desc_tvb, 8, 8, text);
-            proto_item_append_text(item, "%s", text);
+            proto_tree_add_item(subtree, hf_fip_desc_fab_name, desc_tvb, 8, 8, ENC_NA);
+            proto_item_append_text(item, "%s", tvb_fcwwn_to_str(desc_tvb, 8));
             break;
         case FIP_DT_FCOE_SIZE:
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_mdl, &item);
@@ -507,9 +503,8 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     2, 6, ENC_NA);
             proto_tree_add_item(subtree, hf_fip_desc_vn_fid, desc_tvb,
                     9, 3, ENC_BIG_ENDIAN);
-            text = tvb_fcwwn_to_str(desc_tvb, 12);
-            proto_tree_add_string(subtree, hf_fip_desc_vn_wwpn,
-                    desc_tvb, 12, 8, text);
+            proto_tree_add_item(subtree, hf_fip_desc_vn_wwpn,
+                    desc_tvb, 12, 8, ENC_NA);
             proto_item_append_text(item, "MAC %s  FC_ID %6.6x",
                     tvb_bytes_to_ep_str_punct(desc_tvb, 2, 6, ':'),
                     tvb_get_ntoh24(desc_tvb, 9));
@@ -668,7 +663,7 @@ proto_register_fip(void)
 
         { &hf_fip_desc_name,
           { "Switch or Node Name", "fip.name",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_FCWWN, BASE_NONE, NULL, 0,
             NULL, HFILL}},
 
         { &hf_fip_desc_fab_vfid,
@@ -683,7 +678,7 @@ proto_register_fip(void)
 
         { &hf_fip_desc_fab_name,
           { "Fabric Name", "fip.fab.name",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_FCWWN, BASE_NONE, NULL, 0,
             NULL, HFILL}},
 
         { &hf_fip_desc_fcoe_size,
@@ -703,7 +698,7 @@ proto_register_fip(void)
 
         { &hf_fip_desc_vn_wwpn,
           { "Port Name", "fip.vn.pwwn",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_FCWWN, BASE_NONE, NULL, 0,
             NULL, HFILL}},
 
         { &hf_fip_desc_fka,

@@ -226,6 +226,8 @@ proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr);
 static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
+proto_tree_set_fcwwn_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
+static void
 proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr);
 static void
 proto_tree_set_guid_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint encoding);
@@ -1756,6 +1758,14 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			proto_tree_set_ipv6_tvb(new_fi, tvb, start, length);
 			break;
 
+		case FT_FCWWN:
+			if (length != FT_FCWWN_LEN) {
+				length_error = length < FT_FCWWN_LEN ? TRUE : FALSE;
+				report_type_length_mismatch(tree, "an FCWWN address", length, length_error);
+			}
+			proto_tree_set_fcwwn_tvb(new_fi, tvb, start, length);
+			break;
+
 		case FT_AX25:
 			if (length != 7) {
 				length_error = length < 7 ? TRUE : FALSE;
@@ -2808,6 +2818,20 @@ static void
 proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
 {
 	proto_tree_set_ipv6(fi, tvb_get_ptr(tvb, start, length));
+}
+
+/* Set the FT_FCWWN value */
+static void
+proto_tree_set_fcwwn(field_info *fi, const guint8* value_ptr)
+{
+	DISSECTOR_ASSERT(value_ptr != NULL);
+	fvalue_set_bytes(&fi->value, value_ptr);
+}
+
+static void
+proto_tree_set_fcwwn_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
+{
+	proto_tree_set_fcwwn(fi, tvb_get_ptr(tvb, start, length));
 }
 
 /* Add a FT_GUID to a proto_tree */
@@ -4360,6 +4384,12 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 				case FT_IPv6:
 					ipv6 = (struct e_in6_addr *)fvalue_get(&finfo->value);
 					SET_ADDRESS (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
+					address_to_str_buf(&addr, result+offset_r, size-offset_r);
+					offset_r = (int)strlen(result);
+					break;
+
+				case FT_FCWWN:
+					SET_ADDRESS (&addr, AT_FCWWN, FCWWN_ADDR_LEN, fvalue_get(&finfo->value));
 					address_to_str_buf(&addr, result+offset_r, size-offset_r);
 					offset_r = (int)strlen(result);
 					break;
@@ -6083,6 +6113,16 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			label_fill_descr(label_str, 0, hfinfo,
 				   get_hostname6((struct e_in6_addr *)bytes),
 				   ep_address_to_str(&addr));
+			break;
+
+		case FT_FCWWN:
+			addr.type = AT_FCWWN;
+			addr.len  = FCWWN_ADDR_LEN;
+			addr.data = (guint8 *)fvalue_get(&fi->value);
+
+			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				   "%s: %s", hfinfo->name,
+				   ep_address_to_str( &addr ));
 			break;
 
 		case FT_GUID:

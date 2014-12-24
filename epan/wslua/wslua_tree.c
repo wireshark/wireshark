@@ -373,6 +373,8 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                 case FT_OID:
                 case FT_REL_OID:
                 case FT_SYSTEM_ID:
+                case FT_VINES:
+                case FT_FCWWN:
                 default:
                     luaL_error(L,"FT_ not yet supported");
                     return 0;

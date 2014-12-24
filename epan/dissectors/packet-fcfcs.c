@@ -136,8 +136,7 @@ dissect_fcfcs_giel (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                              numelem);
         offset += 4;
         for (i = 0; i < numelem; i++) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_ietype, tvb, offset+11, 1, ENC_BIG_ENDIAN);
             offset += 12;
         }
@@ -151,8 +150,7 @@ dissect_fcfcs_giet (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
             proto_tree_add_item (tree, hf_fcs_ietype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
@@ -167,8 +165,7 @@ dissect_fcfcs_gdid (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
             proto_tree_add_item (tree, hf_fcs_iedomainid, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -183,8 +180,7 @@ dissect_fcfcs_gmid (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
             proto_tree_add_string (tree, hf_fcs_mgmtid, tvb, offset+1, 3,
@@ -200,12 +196,10 @@ dissect_fcfcs_gfn (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
-            proto_tree_add_string (tree, hf_fcs_fabricname, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_fabricname, tvb, offset, 8, ENC_NA);
         }
     }
 }
@@ -217,8 +211,7 @@ dissect_fcfcs_gieln (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
             proto_tree_add_text (tree, tvb, offset, 1, "Name Length: %d",
@@ -237,8 +230,7 @@ dissect_fcfcs_gmal (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
             numelem = tvb_get_ntohl (tvb, offset);
@@ -265,8 +257,7 @@ dissect_fcfcs_gieil (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
             tot_len = tvb_get_guint8 (tvb, offset+3);
@@ -309,8 +300,7 @@ dissect_fcfcs_gpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
             numelem = tvb_get_ntohl (tvb, offset);
@@ -320,8 +310,7 @@ dissect_fcfcs_gpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             offset += 4;
 
             for (i = 0; i < numelem; i++) {
-                proto_tree_add_string (tree, hf_fcs_portname, tvb, offset, 8,
-                                       tvb_fcwwn_to_str (tvb, offset));
+                proto_tree_add_item (tree, hf_fcs_portname, tvb, offset, 8, ENC_NA);
                 proto_tree_add_item (tree, hf_fcs_portmodtype, tvb, offset+9,
                                      1, ENC_BIG_ENDIAN);
                 proto_tree_add_item (tree, hf_fcs_porttxtype, tvb, offset+10,
@@ -341,8 +330,7 @@ dissect_fcfcs_gpt (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_portname, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_portname, tvb, offset, 8, ENC_NA);
         }
         else {
             proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
@@ -357,8 +345,7 @@ dissect_fcfcs_gppn (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_portname, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_portname, tvb, offset, 8, ENC_NA);
         }
         else {
             proto_tree_add_item (tree, hf_fcs_physportnum, tvb, offset, 4, ENC_NA);
@@ -374,8 +361,7 @@ dissect_fcfcs_gapnl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_portname, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_portname, tvb, offset, 8, ENC_NA);
         }
         else {
             numelem = tvb_get_ntohl (tvb, offset);
@@ -384,8 +370,7 @@ dissect_fcfcs_gapnl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                  numelem);
             offset += 4;
             for (i = 0; i < numelem; i++) {
-                proto_tree_add_string (tree, hf_fcs_portname, tvb, offset, 8,
-                                       tvb_fcwwn_to_str (tvb, offset));
+                proto_tree_add_item (tree, hf_fcs_portname, tvb, offset, 8, ENC_NA);
                 proto_tree_add_item (tree, hf_fcs_portflags, tvb, offset+10,
                                      1, ENC_BIG_ENDIAN);
                 proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+11,
@@ -403,8 +388,7 @@ dissect_fcfcs_gps (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_portname, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_portname, tvb, offset, 8, ENC_NA);
         }
         else {
             proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
@@ -433,8 +417,8 @@ dissect_fcfcs_gplnl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                  numelem);
             offset += 4;
             for (i = 0; i < numelem; i++) {
-                proto_tree_add_string (tree, hf_fcs_platformnname, tvb, offset,
-                                       8, tvb_fcwwn_to_str (tvb, offset));
+                proto_tree_add_item (tree, hf_fcs_platformnname, tvb, offset,
+                                       8, ENC_NA);
                 offset += 8;
             }
         }
@@ -501,8 +485,7 @@ dissect_fcfcs_gnpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_platformnname, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_platformnname, tvb, offset, 8, ENC_NA);
         }
         else {
             len = tvb_get_guint8 (tvb, offset);
@@ -546,8 +529,7 @@ dissect_fcfcs_rieln (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
             len = tvb_get_guint8 (tvb, offset+8);
             proto_tree_add_text (tree, tvb, offset+8, 1,
                                  "Logical Name Length: %d", len);
@@ -589,8 +571,7 @@ dissect_fcfcs_rpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                  numelem);
             offset += 4;
             for (i = 0; i < numelem; i++) {
-                proto_tree_add_string (tree, hf_fcs_platformnname, tvb, offset,
-                                       8, tvb_fcwwn_to_str (tvb, offset));
+                proto_tree_add_item (tree, hf_fcs_platformnname, tvb, offset, 8, ENC_NA);
                 offset += 8;
             }
         }
@@ -609,8 +590,8 @@ dissect_fcfcs_rpln (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_uint (tree, hf_fcs_platformname_len, tvb, offset, 1, len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
-            proto_tree_add_string (tree, hf_fcs_platformnname, tvb, offset+256,
-                                   8, tvb_fcwwn_to_str (tvb, offset+256));
+            proto_tree_add_item (tree, hf_fcs_platformnname, tvb, offset+256,
+                                   8, ENC_NA);
         }
     }
 }
@@ -677,8 +658,7 @@ dissect_fcfcs_dpln (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
     if (tree) {
         if (isreq) {
-            proto_tree_add_string (tree, hf_fcs_platformnname, tvb, offset, 8,
-                                   tvb_fcwwn_to_str (tvb, offset));
+            proto_tree_add_item(tree, hf_fcs_platformnname, tvb, offset, 8, ENC_NA);
         }
     }
 }
@@ -981,7 +961,7 @@ proto_register_fcfcs (void)
           {"Opcode", "fcs.opcode", FT_UINT16, BASE_HEX,
            VALS (fc_fcs_opcode_val), 0x0, NULL, HFILL}},
         { &hf_fcs_iename,
-          {"Interconnect Element Name", "fcs.ie.name", FT_STRING, BASE_NONE,
+          {"Interconnect Element Name", "fcs.ie.name", FT_FCWWN, BASE_NONE,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcs_ietype,
           {"Interconnect Element Type", "fcs.ie.type", FT_UINT8, BASE_HEX,
@@ -993,7 +973,7 @@ proto_register_fcfcs (void)
           {"Interconnect Element Mgmt. ID", "fcs.ie.mgmtid", FT_STRING,
            BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_fcs_fabricname,
-          {"Interconnect Element Fabric Name", "fcs.ie.fname", FT_STRING,
+          {"Interconnect Element Fabric Name", "fcs.ie.fname", FT_FCWWN,
            BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_fcs_mgmtaddr,
           {"Interconnect Element Mgmt. Address", "fcs.ie.mgmtaddr", FT_STRING,
@@ -1008,7 +988,7 @@ proto_register_fcfcs (void)
           {"Model Name/Number", "fcs.modelname", FT_STRING, BASE_NONE, NULL,
            0x0, NULL, HFILL}},
         { &hf_fcs_portname,
-          {"Port Name", "fcs.port.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
+          {"Port Name", "fcs.port.name", FT_FCWWN, BASE_NONE, NULL, 0x0, NULL,
            HFILL}},
         { &hf_fcs_portmodtype,
           {"Port Module Type", "fcs.port.moduletype", FT_UINT8, BASE_HEX,
@@ -1035,7 +1015,7 @@ proto_register_fcfcs (void)
           {"Platform Name", "fcs.platform.name", FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
         { &hf_fcs_platformnname,
-          {"Platform Node Name", "fcs.platform.nodename", FT_STRING, BASE_NONE,
+          {"Platform Node Name", "fcs.platform.nodename", FT_FCWWN, BASE_NONE,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcs_platformtype,
           {"Platform Type", "fcs.platform.type", FT_UINT8, BASE_HEX,
