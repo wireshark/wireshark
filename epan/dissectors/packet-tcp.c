@@ -227,6 +227,7 @@ static int hf_tcp_option_mptcp_ipver = -1;
 static int hf_tcp_option_mptcp_ipv4 = -1;
 static int hf_tcp_option_mptcp_ipv6 = -1;
 static int hf_tcp_option_mptcp_port = -1;
+static int hf_tcp_option_tfo = -1;
 static int hf_tcp_option_fast_open = -1;
 static int hf_tcp_option_fast_open_cookie_request = -1;
 static int hf_tcp_option_fast_open_cookie = -1;
@@ -370,6 +371,7 @@ static gboolean tcp_exp_options_with_magic = TRUE;
 #define TCPOPT_QS               27      /* RFC4782 Quick-Start Response */
 #define TCPOPT_USER_TO          28      /* RFC5482 User Timeout Option */
 #define TCPOPT_MPTCP            30      /* RFC6824 Multipath TCP */
+#define TCPOPT_TFO              34      /* RFC7413 TCP Fast Open Cookie */
 #define TCPOPT_EXP_FD           0xfd    /* Experimental, reserved */
 #define TCPOPT_EXP_FE           0xfe    /* Experimental, reserved */
 /* Non IANA registered option numbers */
@@ -397,6 +399,7 @@ static gboolean tcp_exp_options_with_magic = TRUE;
 #define TCPOLEN_QS             8
 #define TCPOLEN_USER_TO        4
 #define TCPOLEN_MPTCP_MIN      8
+#define TCPOLEN_TFO_MIN        2
 #define TCPOLEN_RVBD_PROBE_MIN 3
 #define TCPOLEN_RVBD_TRPY_MIN 16
 #define TCPOLEN_EXP_MIN        2
@@ -448,6 +451,7 @@ static const value_string tcp_option_kind_vs[] = {
     { TCPOPT_USER_TO, "User Timeout Option" },
     { 29, "TCP Authentication Option" },
     { TCPOPT_MPTCP, "Multipath TCP" },
+    { TCPOPT_TFO, "TCP Fast Open Cookie" },
     { TCPOPT_RVBD_PROBE, "Riverbed Probe" },
     { TCPOPT_RVBD_TRPY, "Riverbed Transparancy" },
     { TCPOPT_EXP_FD, "RFC3692-style Experiment 1" },
@@ -2517,12 +2521,48 @@ tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
 }
 
 static void
+dissect_tcpopt_tfo_payload(tvbuff_t *tvb, int offset, guint optlen,
+    packet_info *pinfo, proto_tree *exp_tree)
+{
+    proto_item *hidden_item;
+
+    hidden_item = proto_tree_add_item(exp_tree, hf_tcp_option_fast_open,
+                                      tvb, offset, 2, ENC_NA);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    if (optlen == 2) {
+        /* Fast Open Cookie Request */
+        proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie_request,
+                            tvb, offset, 2, ENC_NA);
+        col_append_str(pinfo->cinfo, COL_INFO, " TFO=R");
+    } else if (optlen > 2) {
+        /* Fast Open Cookie */
+        proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie,
+                            tvb, offset + 2, optlen - 2, ENC_NA);
+        col_append_str(pinfo->cinfo, COL_INFO, " TFO=C");
+    }
+}
+
+static void
+dissect_tcpopt_tfo(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
+{
+    proto_item *item;
+    proto_tree *exp_tree;
+
+    item = proto_tree_add_item(opt_tree, hf_tcp_option_tfo, tvb,
+                               offset, optlen, ENC_NA);
+    exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
+    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+
+    dissect_tcpopt_tfo_payload(tvb, offset, optlen, pinfo, exp_tree);
+}
+static void
 dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     proto_item *item;
     proto_tree *exp_tree;
-    proto_item *hidden_item;
     guint16 magic;
 
     item = proto_tree_add_item(opt_tree, hf_tcp_option_exp, tvb,
@@ -2535,22 +2575,8 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         proto_tree_add_item(exp_tree, hf_tcp_option_exp_magic_number, tvb,
                             offset + 2, 2, ENC_BIG_ENDIAN);
         switch (magic) {
-        case 0xf989:
-            /* FF: draft-ietf-tcpm-fastopen-02, TCP Fast Open */
-            hidden_item = proto_tree_add_item(exp_tree, hf_tcp_option_fast_open,
-                                              tvb, offset + 2, 2, ENC_NA);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
-            if ((optlen - 2) == 2) {
-                /* Fast Open Cookie Request */
-                proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie_request,
-                                    tvb, offset + 2, 2, ENC_NA);
-                col_append_str(pinfo->cinfo, COL_INFO, " TFO=R");
-            } else if ((optlen - 2) > 2) {
-                /* Fast Open Cookie */
-                proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie,
-                                    tvb, offset + 4, optlen - 4, ENC_NA);
-                col_append_str(pinfo->cinfo, COL_INFO, " TFO=C");
-            }
+        case 0xf989:  /* RFC7413, TCP Fast Open */
+            dissect_tcpopt_tfo_payload(tvb, offset+2, optlen-2, pinfo, exp_tree);
             break;
         default:
             /* Unknown magic number */
@@ -3966,6 +3992,14 @@ static const ip_tcp_opt tcpopts[] = {
         OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_MPTCP_MIN,
         dissect_tcpopt_mptcp
+    },
+    {
+        TCPOPT_TFO,
+        "TCP Fast Open",
+        NULL,
+        OPT_LEN_VARIABLE_LENGTH,
+        TCPOLEN_TFO_MIN,
+        dissect_tcpopt_tfo
     },
     {
         TCPOPT_RVBD_PROBE,
@@ -5713,6 +5747,10 @@ proto_register_tcp(void)
         { &hf_tcp_option_rvbd_trpy_client_port,
           { "Out of band connection Client Port", "tcp.options.rvbd.trpy.client.port",
             FT_UINT16, BASE_DEC, NULL , 0x0, NULL, HFILL }},
+
+        { &hf_tcp_option_tfo,
+          { "Fast Open Cookie", "tcp.options.tfo", FT_NONE,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_fast_open,
           { "Fast Open", "tcp.options.tfo", FT_NONE,
