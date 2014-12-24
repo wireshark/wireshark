@@ -1347,6 +1347,7 @@ DISSECTOR_SRC = \
 	packet-zep.c		\
 	packet-ziop.c		\
 	packet-zrtp.c	\
+	packet-zvt.c	\
 	$(CUSTOM_DISSECTOR_SRC)
 
 #
