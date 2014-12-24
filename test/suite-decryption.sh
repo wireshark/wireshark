@@ -143,7 +143,7 @@ decryption_step_c1222() {
 		-o "c1222.baseoid:2.16.124.113620.1.22.0" \
 		-r "$CAPTURE_DIR/c1222_std_example8.pcap" \
 		-Tfields -e c1222.data \
-		| grep "00:10:4d:41:4e:55:46:41:43:54:55:52:45:52:20:53:4e:20:92" >  /dev/null 2>&1
+		| grep "00:10:4d:41:4e:55:46:41:43:54:55:52:45:52:20:53:4e:20:92" > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt C12.22 $RETURNVALUE"

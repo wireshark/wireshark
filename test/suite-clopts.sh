@@ -33,7 +33,7 @@ EXIT_ERROR=2
 test_single_char_options()
 {
 	#echo "command: "$1" opt1: "$2" opt2: "$3" opt3: "$4" opt4: "$5" opt5: "$6
-	$1 -$2  > ./testout.txt 2>&1
+	$1 -$2 > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $3 ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -158,14 +158,14 @@ clopts_step_existing_file() {
 
 # check exit status when reading a non-existing file
 clopts_step_nonexisting_file() {
-	$TSHARK -r ThisFileDontExist.pcap  > ./testout.txt 2>&1
+	$TSHARK -r ThisFileDontExist.pcap > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_ERROR ]; then
 		test_step_failed "exit status: $RETURNVALUE"
 	else
 		test_step_ok
 	fi
-	rm  ./testout.txt
+	rm ./testout.txt
 }
 
 
