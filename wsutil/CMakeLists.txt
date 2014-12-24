@@ -32,18 +32,6 @@ if(WIN32)
 	)
 ENDIF(WIN32)
 
-if(HAVE_SSE4_2)
-	set( WSUTIL_SSE42_FILES
-		ws_mempbrk_sse42.c
-	)
-endif()
-
-if(NOT HAVE_POPCOUNT)
-	set( WSUTIL_POPCOUNT_FILES
-		popcount.c
-	)
-endif()
-
 set(WSUTIL_FILES
 	adler32.c
 	aes.c
@@ -94,9 +82,15 @@ set(WSUTIL_FILES
 	ws_mempbrk_sse42.c
 	ws_version_info.c
 	${WSUTIL_PLATFORM_FILES}
-	${WSUTIL_SSE42_FILES}
-	${WSUTIL_POPCOUNT_FILES}
 )
+
+if(HAVE_SSE4_2)
+	set(WSUTIL_FILES ${WSUTIL_FILES} ws_mempbrk_sse42.c)
+endif()
+
+if(NOT HAVE_POPCOUNT)
+	set(WSUTIL_FILES ${WSUTIL_FILES} popcount.c)
+endif()
 
 if(APPLE)
 	#
