@@ -198,23 +198,26 @@ static int hf_tcp_option_rvbd_trpy_dst_port = -1;
 static int hf_tcp_option_rvbd_trpy_client_port = -1;
 
 static int hf_tcp_option_mptcp_flags = -1;
+static int hf_tcp_option_mptcp_backup_flag = -1;
+static int hf_tcp_option_mptcp_checksum_flag = -1;
 static int hf_tcp_option_mptcp_B_flag = -1;
-static int hf_tcp_option_mptcp_C_flag = -1;
-static int hf_tcp_option_mptcp_S_flag = -1;
+static int hf_tcp_option_mptcp_H_flag = -1;
 static int hf_tcp_option_mptcp_F_flag = -1;
 static int hf_tcp_option_mptcp_m_flag = -1;
 static int hf_tcp_option_mptcp_M_flag = -1;
 static int hf_tcp_option_mptcp_a_flag = -1;
 static int hf_tcp_option_mptcp_A_flag = -1;
+static int hf_tcp_option_mptcp_reserved_flag = -1;
 static int hf_tcp_option_mptcp_subtype = -1;
 static int hf_tcp_option_mptcp_version = -1;
+static int hf_tcp_option_mptcp_reserved = -1;
 static int hf_tcp_option_mptcp_address_id = -1;
 static int hf_tcp_option_mptcp_recv_token = -1;
 static int hf_tcp_option_mptcp_sender_key = -1;
 static int hf_tcp_option_mptcp_recv_key = -1;
 static int hf_tcp_option_mptcp_sender_rand = -1;
-static int hf_tcp_option_mptcp_sender_trunc_mac = -1;
-static int hf_tcp_option_mptcp_sender_mac = -1;
+static int hf_tcp_option_mptcp_sender_trunc_hmac = -1;
+static int hf_tcp_option_mptcp_sender_hmac = -1;
 static int hf_tcp_option_mptcp_data_ack = -1;
 static int hf_tcp_option_mptcp_data_seq_no = -1;
 static int hf_tcp_option_mptcp_subflow_seq_no = -1;
@@ -411,6 +414,7 @@ static gboolean tcp_exp_options_with_magic = TRUE;
 #define TCPOPT_MPTCP_REMOVE_ADDR   0x4    /* Multipath TCP Remove Address */
 #define TCPOPT_MPTCP_MP_PRIO       0x5    /* Multipath TCP Change Subflow Priority */
 #define TCPOPT_MPTCP_MP_FAIL       0x6    /* Multipath TCP Fallback */
+#define TCPOPT_MPTCP_MP_FASTCLOSE  0x7    /* Multipath TCP Fast Close */
 
 static const true_false_string tcp_option_user_to_granularity = {
   "Minutes", "Seconds"
@@ -485,6 +489,7 @@ static const value_string mptcp_subtype_vs[] = {
     { TCPOPT_MPTCP_REMOVE_ADDR, "Remove Address" },
     { TCPOPT_MPTCP_MP_PRIO, "Change Subflow Priority" },
     { TCPOPT_MPTCP_MP_FAIL, "TCP Fallback" },
+    { TCPOPT_MPTCP_MP_FASTCLOSE, "Fast Close" },
     { 0, NULL }
 };
 
@@ -498,6 +503,14 @@ static guint32 tcp_stream_count;
 #define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
 #define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
 #define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
+
+static const int *tcp_option_mptcp_capable_flags[] = {
+  &hf_tcp_option_mptcp_checksum_flag,
+  &hf_tcp_option_mptcp_B_flag,
+  &hf_tcp_option_mptcp_H_flag,
+  &hf_tcp_option_mptcp_reserved_flag,
+  NULL
+};
 
 static void
 tcp_src_prompt(packet_info *pinfo, gchar *result)
@@ -2800,9 +2813,9 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
 /*
  * The TCP Extensions for Multipath Operation with Multiple Addresses
- * are defined in draft-ietf-mptcp-multiaddressed-04
+ * are defined in RFC 6824
  *
- * <http://tools.ietf.org/html/draft-ief-mptcp-multiaddressed-04>
+ * <http://http://tools.ietf.org/html/rfc6824>
  *
  * Author: Andrei Maruseac <andrei.maruseac@intel.com>
  */
@@ -2815,7 +2828,6 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     proto_tree *mptcp_flags_tree;
     guint8 subtype;
-    guint8 indx;
     guint8 flags;
     guint8 ipver;
     int start_offset = offset;
@@ -2839,15 +2851,9 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                         offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
-            flags = tvb_get_guint8(tvb, offset);
-            ti = proto_tree_add_uint(mptcp_tree, hf_tcp_option_mptcp_flags, tvb,
-                        offset, 1, flags);
-            mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
-
-            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_C_flag,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_S_flag,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_flags,
+                         ett_tcp_option_mptcp, tcp_option_mptcp_capable_flags,
+                         ENC_BIG_ENDIAN);
             offset += 1;
 
             if (optlen == 12 || optlen == 20) {
@@ -2873,7 +2879,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                             ett_tcp_option_mptcp);
 
                     proto_tree_add_item(mptcp_flags_tree,
-                            hf_tcp_option_mptcp_B_flag, tvb, offset,
+                            hf_tcp_option_mptcp_backup_flag, tvb, offset,
                             1, ENC_BIG_ENDIAN);
                     offset += 1;
 
@@ -2901,7 +2907,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                             ett_tcp_option_mptcp);
 
                     proto_tree_add_item(mptcp_flags_tree,
-                            hf_tcp_option_mptcp_B_flag, tvb, offset,
+                            hf_tcp_option_mptcp_backup_flag, tvb, offset,
                             1, ENC_BIG_ENDIAN);
                     offset += 1;
 
@@ -2911,7 +2917,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                     offset += 1;
 
                     proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_sender_trunc_mac, tvb, offset,
+                            hf_tcp_option_mptcp_sender_trunc_hmac, tvb, offset,
                             8, ENC_BIG_ENDIAN);
                     offset += 8;
 
@@ -2921,13 +2927,15 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                     break;
 
                 case 24:
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_reserved, tvb, offset,
+                            2, ENC_BIG_ENDIAN);
                     offset += 2;
-                    for (indx = 0; indx < 5; indx++) {
-                        proto_tree_add_item(mptcp_tree,
-                                hf_tcp_option_mptcp_sender_mac, tvb, offset,
-                                4, ENC_BIG_ENDIAN);
-                        offset += 4;
-                    }
+
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_sender_hmac, tvb, offset,
+                                20, ENC_NA);
+                    /*offset += 20;*/
                     break;
 
                 default:
@@ -2938,6 +2946,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         case TCPOPT_MPTCP_DSS:
             offset += 1;
             flags = tvb_get_guint8(tvb, offset) & 0x1F;
+
             ti = proto_tree_add_uint(mptcp_tree, hf_tcp_option_mptcp_flags, tvb,
                             offset, 1, flags);
             mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
@@ -3046,7 +3055,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                             offset, 1, flags);
             mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
 
-            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_B_flag,
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_backup_flag,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
@@ -3057,10 +3066,21 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             break;
 
         case TCPOPT_MPTCP_MP_FAIL:
-            offset += 1;
-            offset += 1;
+            proto_tree_add_item(mptcp_tree,
+                    hf_tcp_option_mptcp_reserved, tvb, offset,2, ENC_BIG_ENDIAN);
+            offset += 2;
+
             proto_tree_add_item(mptcp_tree,
                     hf_tcp_option_mptcp_data_seq_no, tvb, offset, 8, ENC_BIG_ENDIAN);
+            break;
+
+        case TCPOPT_MPTCP_MP_FASTCLOSE:
+            proto_tree_add_item(mptcp_tree,
+                    hf_tcp_option_mptcp_reserved, tvb, offset,2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(mptcp_tree,
+                    hf_tcp_option_mptcp_recv_key, tvb, offset, 8, ENC_BIG_ENDIAN);
             break;
 
         default:
@@ -5369,19 +5389,27 @@ proto_register_tcp(void)
           { "Multipath TCP version", "tcp.options.mptcp.version", FT_UINT8,
             BASE_DEC, NULL, 0x0F, NULL, HFILL}},
 
+        { &hf_tcp_option_mptcp_reserved,
+          { "Reserved", "tcp.options.mptcp.reserved", FT_UINT16,
+            BASE_HEX, NULL, 0x0FFF, NULL, HFILL}},
+
         { &hf_tcp_option_mptcp_flags,
           { "Multipath TCP flags", "tcp.options.mptcp.flags", FT_UINT8,
             BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
-        { &hf_tcp_option_mptcp_B_flag,
+        { &hf_tcp_option_mptcp_backup_flag,
           { "Backup flag", "tcp.options.mptcp.backup.flag", FT_UINT8,
             BASE_DEC, NULL, 0x01, NULL, HFILL}},
 
-        { &hf_tcp_option_mptcp_C_flag,
+        { &hf_tcp_option_mptcp_checksum_flag,
           { "Checksum required", "tcp.options.mptcp.checksumreq.flags", FT_UINT8,
             BASE_DEC, NULL, 0x80, NULL, HFILL}},
 
-        { &hf_tcp_option_mptcp_S_flag,
+        { &hf_tcp_option_mptcp_B_flag,
+          { "Extensibility", "tcp.options.mptcp.extensibility.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x40, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_H_flag,
           { "Use HMAC-SHA1", "tcp.options.mptcp.sha1.flag", FT_UINT8,
             BASE_DEC, NULL, 0x01, NULL, HFILL}},
 
@@ -5405,6 +5433,10 @@ proto_register_tcp(void)
           { "Data ACK is present", "tcp.options.mptcp.dataackpresent.flag", FT_UINT8,
             BASE_DEC, NULL, 0x01, NULL, HFILL}},
 
+        { &hf_tcp_option_mptcp_reserved_flag,
+          { "Reserved", "tcp.options.mptcp.reserved.flag", FT_UINT8,
+            BASE_HEX, NULL, 0x3E, NULL, HFILL}},
+
         { &hf_tcp_option_mptcp_address_id,
           { "Multipath TCP Address ID", "tcp.options.mptcp.addrid", FT_UINT8,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -5425,13 +5457,13 @@ proto_register_tcp(void)
           { "Multipath TCP Sender's Random Number", "tcp.options.mptcp.sendrand", FT_UINT32,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        { &hf_tcp_option_mptcp_sender_trunc_mac,
-          { "Multipath TCP Sender's Truncated MAC", "tcp.options.mptcp.sendtruncmac", FT_UINT64,
+        { &hf_tcp_option_mptcp_sender_trunc_hmac,
+          { "Multipath TCP Sender's Truncated HMAC", "tcp.options.mptcp.sendtrunchmac", FT_UINT64,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        { &hf_tcp_option_mptcp_sender_mac,
-          { "Multipath TCP Sender's MAC", "tcp.options.mptcp.sendmac", FT_UINT32,
-            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        { &hf_tcp_option_mptcp_sender_hmac,
+          { "Multipath TCP Sender's HMAC", "tcp.options.mptcp.sendhmac", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_mptcp_data_ack,
           { "Multipath TCP Data ACK", "tcp.options.mptcp.dataack", FT_UINT64,
