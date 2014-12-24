@@ -363,13 +363,13 @@ static gboolean tcp_exp_options_with_magic = TRUE;
 #define TCPOPT_CCNEW            12
 #define TCPOPT_CCECHO           13
 #define TCPOPT_MD5              19      /* RFC2385 */
-#define TCPOPT_MPTCP            0x1e    /* Multipath TCP */
 #define TCPOPT_SCPS             20      /* SCPS Capabilities */
 #define TCPOPT_SNACK            21      /* SCPS SNACK */
 #define TCPOPT_RECBOUND         22      /* SCPS Record Boundary */
 #define TCPOPT_CORREXP          23      /* SCPS Corruption Experienced */
-#define TCPOPT_QS               27      /* RFC4782 */
-#define TCPOPT_USER_TO          28      /* RFC5482 */
+#define TCPOPT_QS               27      /* RFC4782 Quick-Start Response */
+#define TCPOPT_USER_TO          28      /* RFC5482 User Timeout Option */
+#define TCPOPT_MPTCP            30      /* RFC6824 Multipath TCP */
 #define TCPOPT_EXP_FD           0xfd    /* Experimental, reserved */
 #define TCPOPT_EXP_FE           0xfe    /* Experimental, reserved */
 /* Non IANA registered option numbers */
@@ -390,13 +390,13 @@ static gboolean tcp_exp_options_with_magic = TRUE;
 #define TCPOLEN_CCNEW          6
 #define TCPOLEN_CCECHO         6
 #define TCPOLEN_MD5           18
-#define TCPOLEN_MPTCP_MIN      8
 #define TCPOLEN_SCPS           4
 #define TCPOLEN_SNACK          6
 #define TCPOLEN_RECBOUND       2
 #define TCPOLEN_CORREXP        2
 #define TCPOLEN_QS             8
 #define TCPOLEN_USER_TO        4
+#define TCPOLEN_MPTCP_MIN      8
 #define TCPOLEN_RVBD_PROBE_MIN 3
 #define TCPOLEN_RVBD_TRPY_MIN 16
 #define TCPOLEN_EXP_MIN        2
@@ -3880,14 +3880,6 @@ static const ip_tcp_opt tcpopts[] = {
         dissect_tcpopt_timestamp
     },
     {
-        TCPOPT_MPTCP,
-        "Multipath TCP",
-        NULL,
-        OPT_LEN_VARIABLE_LENGTH,
-        TCPOLEN_MPTCP_MIN,
-        dissect_tcpopt_mptcp
-    },
-    {
         TCPOPT_CC,
         "CC",
         NULL,
@@ -3966,39 +3958,47 @@ static const ip_tcp_opt tcpopts[] = {
         OPT_LEN_FIXED_LENGTH,
         TCPOLEN_USER_TO,
         dissect_tcpopt_user_to
-  },
-  {
+    },
+    {
+        TCPOPT_MPTCP,
+        "Multipath TCP",
+        NULL,
+        OPT_LEN_VARIABLE_LENGTH,
+        TCPOLEN_MPTCP_MIN,
+        dissect_tcpopt_mptcp
+    },
+    {
         TCPOPT_RVBD_PROBE,
         "Riverbed Probe",
         NULL,
         OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_RVBD_PROBE_MIN,
         dissect_tcpopt_rvbd_probe
-  },
-  {
+    },
+    {
         TCPOPT_RVBD_TRPY,
         "Riverbed Transparency",
         NULL,
         OPT_LEN_FIXED_LENGTH,
         TCPOLEN_RVBD_TRPY_MIN,
         dissect_tcpopt_rvbd_trpy
-  },
-  {
+    },
+    {
         TCPOPT_EXP_FD,
         "Experimental",
         NULL,
         OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_EXP_MIN,
         dissect_tcpopt_exp
-  },
-  {
+    },
+    {
         TCPOPT_EXP_FE,
         "Experimental",
         NULL,
         OPT_LEN_VARIABLE_LENGTH,
         TCPOLEN_EXP_MIN,
         dissect_tcpopt_exp
-  }
+    }
 };
 
 #define N_TCP_OPTS  array_length(tcpopts)
