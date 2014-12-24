@@ -1907,9 +1907,17 @@ rsvp_init_protocol(void)
     rsvp_request_hash = g_hash_table_new(rsvp_hash, rsvp_equal);
 }
 
-static const char* rsvp_conv_get_filter_type(conv_item_t* conv _U_, conv_filter_type_e filter _U_)
+static const char* rsvp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter _U_)
 {
-    /* XXX - Not sure about this */
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_IPv4))
+        return "ip.src";
+
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_IPv4))
+        return "ip.dst";
+
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_IPv4))
+        return "ip.addr";
+
     return CONV_FILTER_INVALID;
 }
 
@@ -1929,7 +1937,10 @@ rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 static const char* rsvp_host_get_filter_type(hostlist_talker_t* host _U_, conv_filter_type_e filter)
 {
-    return rsvp_conv_get_filter_type(NULL, filter);
+    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_IPv4))
+        return "ip.addr";
+
+    return CONV_FILTER_INVALID;
 }
 
 static hostlist_dissector_info_t rsvp_host_dissector_info = {&rsvp_host_get_filter_type};
