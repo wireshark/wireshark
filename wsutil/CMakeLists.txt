@@ -24,11 +24,8 @@ include(UseABICheck)
 if(WIN32)
 	set(WSUTIL_PLATFORM_FILES
 		file_util.c
-		inet_aton.c
 		inet_ntop.c
 		inet_pton.c
-		strptime.c
-		wsgetopt.c
 	)
 ENDIF(WIN32)
 
@@ -88,8 +85,20 @@ if(HAVE_SSE4_2)
 	set(WSUTIL_FILES ${WSUTIL_FILES} ws_mempbrk_sse42.c)
 endif()
 
+if(NOT HAVE_GETOPT)
+	set(WSUTIL_FILES ${WSUTIL_FILES} wsgetopt.c)
+endif()
+
+if(NOT HAVE_INET_ATON)
+	set(WSUTIL_FILES ${WSUTIL_FILES} inet_aton.c)
+endif()
+
 if(NOT HAVE_POPCOUNT)
 	set(WSUTIL_FILES ${WSUTIL_FILES} popcount.c)
+endif()
+
+if(NOT HAVE_STRPTIME)
+	set(WSUTIL_FILES ${WSUTIL_FILES} strptime.c)
 endif()
 
 if(APPLE)
