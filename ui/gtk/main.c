@@ -40,7 +40,7 @@
 #include <unistd.h>
 #endif
 
-#ifndef HAVE_GETOPT
+#ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
 

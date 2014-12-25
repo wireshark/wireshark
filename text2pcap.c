@@ -133,7 +133,7 @@
 #include <zlib.h>      /* to get the libz version number */
 #endif
 
-#ifndef HAVE_GETOPT
+#ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
 

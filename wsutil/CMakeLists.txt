@@ -85,7 +85,7 @@ if(HAVE_SSE4_2)
 	set(WSUTIL_FILES ${WSUTIL_FILES} ws_mempbrk_sse42.c)
 endif()
 
-if(NOT HAVE_GETOPT)
+if(NOT HAVE_GETOPT_LONG)
 	set(WSUTIL_FILES ${WSUTIL_FILES} wsgetopt.c)
 endif()
 

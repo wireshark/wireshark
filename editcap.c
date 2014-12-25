@@ -64,7 +64,7 @@
 
 #include "wtap.h"
 
-#ifndef HAVE_GETOPT
+#ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
 

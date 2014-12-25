@@ -2665,10 +2665,10 @@ AC_C_BIGENDIAN
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
 
-AC_CHECK_FUNC(getopt,
+AC_CHECK_FUNC(getopt_long,
   [
     GETOPT_LO=""
-    AC_DEFINE(HAVE_GETOPT, 1, [Define to 1 if you have the getopt function.])
+    AC_DEFINE(HAVE_GETOPT_LONG, 1, [Define to 1 if you have the getopt_long function.])
   ],
   GETOPT_LO="wsgetopt.lo")
 AC_SUBST(GETOPT_LO)

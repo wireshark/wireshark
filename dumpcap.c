@@ -74,7 +74,7 @@
 #include <wsutil/crash_info.h>
 #include <wsutil/ws_version_info.h>
 
-#ifndef HAVE_GETOPT
+#ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
 
