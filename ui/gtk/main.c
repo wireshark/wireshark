@@ -60,7 +60,6 @@
 #include <wsutil/report_err.h>
 #include <wsutil/u3.h>
 #include <wsutil/copyright_info.h>
-#include <wsutil/os_version_info.h>
 #include <wsutil/ws_version_info.h>
 
 #include <wiretap/merge.h>
@@ -136,6 +135,7 @@
 #include "caputils/capture-wpcap.h"
 #include "caputils/capture_wpcap_packet.h"
 #include <tchar.h> /* Needed for Unicode */
+#include <wsutil/os_version_info.h>
 #include <wsutil/unicode-utils.h>
 #include <commctrl.h>
 #include <shellapi.h>

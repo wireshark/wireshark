@@ -88,7 +88,6 @@
 #include <wsutil/md5.h>
 #include <wsutil/plugins.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/os_version_info.h>
 #include <wsutil/ws_version_info.h>
 
 #include "version_info.h"

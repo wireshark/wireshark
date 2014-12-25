@@ -48,7 +48,6 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/os_version_info.h>
 #include <wsutil/ws_version_info.h>
 
 #include "version_info.h"

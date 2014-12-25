@@ -75,7 +75,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_err.h>
-#include <wsutil/os_version_info.h>
 #include <wsutil/ws_version_info.h>
 
 #include "globals.h"
@@ -114,6 +113,7 @@
 #include "caputils/capture_ifinfo.h"
 #ifdef _WIN32
 #include "caputils/capture-wpcap.h"
+#include <wsutil/os_version_info.h>
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 #include <capchild/capture_session.h>
