@@ -28,7 +28,6 @@ IF(WIN32)
     inet_ntop.c
     inet_pton.c
     strptime.c
-    wsgetopt.c
   )
 ENDIF(WIN32)
 
@@ -71,6 +70,10 @@ set(WSUTIL_FILES
   unicode-utils.c
   ${WSUTIL_PLATFORM_FILES}
 )
+
+if(NOT HAVE_GETOPT)
+	set(WSUTIL_FILES ${WSUTIL_FILES} wsgetopt.c)
+endif()
 
 set(wsutil_LIBS
   ${GMODULE2_LIBRARIES}
