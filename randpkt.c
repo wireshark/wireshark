@@ -27,6 +27,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
@@ -508,13 +512,17 @@ main(int argc, char **argv)
 	char			*produce_filename = NULL;
 	int			produce_max_bytes = 5000;
 	pkt_example		*example;
+	static const struct option long_options[] = {
+		{(char *)"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0 }
+	};
 
 #ifdef _WIN32
 	arg_list_utf_16to8(argc, argv);
 	create_app_running_mutex();
 #endif /* _WIN32 */
 
-	while ((opt = getopt(argc, argv, "b:c:ht:")) != -1) {
+	while ((opt = getopt_long(argc, argv, "b:c:ht:", long_options, NULL)) != -1) {
 		switch (opt) {
 			case 'b':	/* max bytes */
 				produce_max_bytes = atoi(optarg);
