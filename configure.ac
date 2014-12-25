@@ -2553,9 +2553,9 @@ AC_C_BIGENDIAN
 AC_PROG_GCC_TRADITIONAL
 
 GETOPT_LO=""
-AC_CHECK_FUNC(getopt,
+AC_CHECK_FUNC(getopt_long,
   [GETOPT_LO=""
-   AC_DEFINE(HAVE_GETOPT, 1, [Define to 1 if you have the getopt function.])
+   AC_DEFINE(HAVE_GETOPT_LONG, 1, [Define to 1 if you have the getopt_long function.])
   ],
   GETOPT_LO="wsgetopt.lo"
 )

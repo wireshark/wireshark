@@ -31,10 +31,12 @@
 
 #include <signal.h>
 
-#ifndef HAVE_GETOPT
-#  include "wsutil/wsgetopt.h"
-#else
-#  include <getopt.h>
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
+#ifndef HAVE_GETOPT_LONG
+#include "wsutil/wsgetopt.h"
 #endif
 
 #include <wsutil/crash_info.h>

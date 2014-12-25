@@ -81,7 +81,7 @@ check_function_exists("dladdr"           HAVE_DLADDR)
 cmake_pop_check_state()
 
 check_function_exists("gethostbyname2"   HAVE_GETHOSTBYNAME2)
-check_function_exists("getopt"           HAVE_GETOPT)
+check_function_exists("getopt_long"      HAVE_GETOPT_LONG)
 check_function_exists("getprotobynumber" HAVE_GETPROTOBYNUMBER)
 check_function_exists("inet_ntop"        HAVE_INET_NTOP_PROTO)
 check_function_exists("issetugid"        HAVE_ISSETUGID)

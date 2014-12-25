@@ -122,7 +122,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#ifndef HAVE_GETOPT
+#ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
 

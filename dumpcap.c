@@ -69,7 +69,7 @@
 
 #include <wsutil/crash_info.h>
 
-#ifndef HAVE_GETOPT
+#ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
 #endif
 
