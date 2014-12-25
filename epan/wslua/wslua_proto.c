@@ -2585,6 +2585,29 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
     }
 }
 
+WSLUA_METHOD DissectorTable_add_for_decode_as (lua_State *L) {
+    /*
+     Add the given `Proto` to the "Decode as..." list for this DissectorTable.
+     The passed-in `Proto` object's `dissector()` function is used for dissecting.
+
+     @since 1.99.1
+     */
+#define WSLUA_ARG_DissectorTable_add_for_decode_as_PROTO 2 /* The `Proto` to add. */
+    DissectorTable dt = checkDissectorTable(L,1);
+    Proto proto = checkProto(L, WSLUA_ARG_DissectorTable_add_for_decode_as_PROTO);
+    dissector_handle_t handle = NULL;
+
+    if (! proto->handle) {
+        proto->handle = new_register_dissector(proto->loname, dissect_lua, proto->hfid);
+    }
+
+    handle = proto->handle;
+
+    dissector_add_for_decode_as(dt->name, handle);
+
+    return 0;
+}
+
 /* XXX It would be nice to iterate and print which dissectors it has */
 WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
     /* Gets some debug information about the DissectorTable. */
@@ -2638,6 +2661,7 @@ WSLUA_METHODS DissectorTable_methods[] = {
     WSLUA_CLASS_FNREG(DissectorTable,remove_all),
     WSLUA_CLASS_FNREG(DissectorTable,try),
     WSLUA_CLASS_FNREG(DissectorTable,get_dissector),
+    WSLUA_CLASS_FNREG(DissectorTable,add_for_decode_as),
     { NULL, NULL }
 };
 
