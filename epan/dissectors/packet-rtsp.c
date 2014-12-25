@@ -37,7 +37,6 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
-#include <epan/tap.h>
 #include <epan/tap-voip.h>
 #include <epan/stats_tree.h>
 #include <wsutil/str_util.h>

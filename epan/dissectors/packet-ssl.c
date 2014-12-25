@@ -84,16 +84,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/reassemble.h>
-#include <epan/prefs.h>
 #include <epan/asn1.h>
 #include <epan/tap.h>
-#include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/exported_pdu.h>
-#include <wsutil/filesystem.h>
-#include <wsutil/file_util.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"
 #include "packet-ocsp.h"

@@ -24,10 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/etypes.h>
 #include <epan/addr_resolv.h>
-#include "packet-chdlc.h"
-#include "packet-ip.h"
 
 void proto_register_wfleet_hdlc(void);
 void proto_reg_handoff_wfleet_hdlc(void);

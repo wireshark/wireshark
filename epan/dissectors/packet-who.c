@@ -23,7 +23,6 @@
 
 #include "config.h"
 
-#include <time.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
 

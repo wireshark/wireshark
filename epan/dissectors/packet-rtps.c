@@ -54,7 +54,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/addr_resolv.h>
 #include "packet-rtps.h"
 
 void proto_register_rtps(void);

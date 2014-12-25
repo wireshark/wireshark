@@ -26,10 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/etypes.h>
 #include <epan/addr_resolv.h>
-#include <epan/tap.h>
-#include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>

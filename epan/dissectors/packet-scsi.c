@@ -80,7 +80,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
@@ -88,7 +87,6 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include "packet-scsi.h"
-#include "packet-fc.h"
 #include "packet-scsi-osd.h"
 #include "packet-scsi-mmc.h"
 #include "packet-scsi-sbc.h"

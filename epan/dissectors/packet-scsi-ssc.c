@@ -33,9 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/tap.h>
 #include "packet-scsi.h"
-#include "packet-fc.h"
 #include "packet-scsi-ssc.h"
 #include "packet-scsi-smc.h"
 

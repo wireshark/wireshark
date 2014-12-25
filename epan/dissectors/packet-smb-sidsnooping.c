@@ -24,12 +24,10 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
-#include <epan/strutil.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-smb.h"

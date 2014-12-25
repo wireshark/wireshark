@@ -26,15 +26,12 @@
 
 #include "config.h"
 
-#include <time.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
-#include <epan/tap.h>
 #include <epan/to_str.h>
 
-#include "packet-windows-common.h"
 #include "packet-netbios.h"
 
 #include "packet-tcp.h"

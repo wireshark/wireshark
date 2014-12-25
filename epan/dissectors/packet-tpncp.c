@@ -28,12 +28,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 #include <epan/to_str.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>

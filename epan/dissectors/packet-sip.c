@@ -37,14 +37,12 @@
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/req_resp_hdrs.h>
-#include <epan/strutil.h>
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 #include <epan/expert.h>
 
 #include <wsutil/str_util.h>
 
-#include "packet-tcp.h"
 #include "packet-ssl.h"
 
 #include "packet-isup.h"

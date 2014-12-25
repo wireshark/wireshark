@@ -28,7 +28,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
@@ -44,7 +43,6 @@
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
 #include "packet-smb-pipe.h"
-#include "packet-dcerpc.h"
 #include "packet-ntlmssp.h"
 #include "packet-smb2.h"
 

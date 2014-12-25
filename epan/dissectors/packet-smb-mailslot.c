@@ -25,13 +25,10 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include "packet-smb.h"
 #include "packet-smb-mailslot.h"
-#include "packet-smb-browse.h"
-#include "packet-smb-pipe.h"
 
 void proto_register_smb_mailslot(void);
 void proto_reg_handoff_smb_mailslot(void);

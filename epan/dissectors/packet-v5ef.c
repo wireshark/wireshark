@@ -33,8 +33,6 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
-#include <epan/xdlc.h>
-#include <epan/crc16-tvb.h>
 
 void proto_register_v5ef(void);
 

@@ -27,7 +27,6 @@
 #include <math.h>
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/crc16-tvb.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"

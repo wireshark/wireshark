@@ -34,7 +34,6 @@
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <epan/conversation.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
 

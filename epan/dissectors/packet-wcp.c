@@ -96,8 +96,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <string.h>
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>

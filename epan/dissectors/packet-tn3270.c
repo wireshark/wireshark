@@ -45,12 +45,9 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/address.h>
 #include <epan/conversation.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 
 #include "packet-tn3270.h"

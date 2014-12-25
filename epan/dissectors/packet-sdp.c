@@ -28,7 +28,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -49,7 +48,6 @@
 #include "packet-t38.h"
 #include "packet-msrp.h"
 #include "packet-sprt.h"
-#include "packet-per.h"
 #include "packet-h245.h"
 #include "packet-h264.h"
 #include "packet-mp4ves.h"

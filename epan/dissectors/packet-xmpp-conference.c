@@ -28,9 +28,7 @@
 
 #include <epan/packet.h>
 
-#include "packet-xml.h"
 #include "packet-xmpp.h"
-#include "packet-xmpp-utils.h"
 #include "packet-xmpp-conference.h"
 
 

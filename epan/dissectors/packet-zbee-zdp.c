@@ -26,7 +26,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/expert.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"

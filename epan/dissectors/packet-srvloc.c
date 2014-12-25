@@ -37,10 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <string.h>
-#include <time.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 #include <epan/expert.h>

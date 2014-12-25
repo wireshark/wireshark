@@ -31,7 +31,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/conversation.h>
 
 #include "packet-ziop.h"
 #include "packet-giop.h"

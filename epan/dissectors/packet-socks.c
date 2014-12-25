@@ -61,7 +61,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/conversation.h>
 
 #include "packet-tcp.h"
 #include "packet-udp.h"

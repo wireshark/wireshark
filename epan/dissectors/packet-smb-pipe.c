@@ -31,8 +31,6 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 
 #include "config.h"
 
-#include <time.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/to_str.h>
@@ -43,7 +41,6 @@ XXX  Fixme : shouldn't show [malformed frame] for long packets
 #include "packet-smb-browse.h"
 #include "packet-smb-common.h"
 #include "packet-windows-common.h"
-#include "packet-dcerpc.h"
 
 void proto_register_pipe_lanman(void);
 void proto_register_pipe_dcerpc(void);

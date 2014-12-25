@@ -24,10 +24,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/strutil.h>
 
-#include <epan/oui.h>
-#include <epan/nlpid.h>
 
 
 /*

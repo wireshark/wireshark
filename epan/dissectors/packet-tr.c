@@ -23,7 +23,6 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
@@ -34,7 +33,6 @@
 #include "packet-sflow.h"
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
-#include <epan/tap.h>
 void proto_register_tr(void);
 void proto_reg_handoff_tr(void);
 

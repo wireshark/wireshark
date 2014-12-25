@@ -27,7 +27,6 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
@@ -38,11 +37,9 @@
 
 #include "packet-udp.h"
 
-#include "packet-ip.h"
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/color_dissector_filters.h>
-#include <epan/tap.h>
 #include <epan/decode_as.h>
 
 void proto_register_udp(void);

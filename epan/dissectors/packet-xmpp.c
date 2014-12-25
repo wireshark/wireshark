@@ -24,17 +24,13 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 
-#include "packet-xmpp-utils.h"
 #include "packet-xmpp.h"
 #include "packet-xmpp-core.h"
-#include "packet-xmpp-jingle.h"
-#include "packet-xml.h"
 
 #define XMPP_PORT 5222
 

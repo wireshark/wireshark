@@ -31,7 +31,6 @@
 
 #include "packet-bluetooth.h"
 #include "packet-ubertooth.h"
-#include "packet-usb.h"
 
 static int proto_ubertooth = -1;
 

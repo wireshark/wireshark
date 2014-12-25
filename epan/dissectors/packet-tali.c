@@ -34,7 +34,6 @@
 
 #include "config.h"
 
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"

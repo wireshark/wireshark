@@ -25,11 +25,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/expert.h>
-#include <epan/tvbparse.h>
 #include <epan/strutil.h>
 
-#include "packet-xml.h"
 #include "packet-xmpp.h"
 #include "packet-xmpp-core.h"
 #include "packet-xmpp-utils.h"

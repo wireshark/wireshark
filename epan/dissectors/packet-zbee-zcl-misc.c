@@ -26,10 +26,8 @@
 /*  Include Files */
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/to_str.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"

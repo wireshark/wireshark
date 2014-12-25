@@ -28,11 +28,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
-#include <epan/ipproto.h>
 #include <epan/prefs.h>
 
-#include "packet-ip.h"
 #include <epan/tap.h>
 
 #define UDP_PORT_TEREDO 3544

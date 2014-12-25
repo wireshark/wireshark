@@ -26,12 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/expert.h>
-#include <epan/strutil.h>
-#include <epan/tvbparse.h>
 
-#include "packet-xml.h"
-#include "packet-xmpp-utils.h"
 #include "packet-xmpp.h"
 #include "packet-xmpp-core.h"
 #include "packet-xmpp-jingle.h"

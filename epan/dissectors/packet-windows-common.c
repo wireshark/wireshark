@@ -22,12 +22,10 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
-#include "packet-dcerpc.h"
 #include "packet-smb-sidsnooping.h"
 #include "packet-windows-common.h"
 #include "packet-smb.h"	/* for "sid_name_snooping" */

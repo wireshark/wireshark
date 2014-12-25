@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
@@ -33,11 +32,9 @@
 #include <epan/follow.h>
 #include <epan/prefs.h>
 #include <epan/show_exception.h>
-#include <epan/conversation.h>
 #include <epan/conversation_table.h>
 #include <epan/color_dissector_filters.h>
 #include <epan/reassemble.h>
-#include <epan/tap.h>
 #include <epan/decode_as.h>
 #include <epan/in_cksum.h>
 

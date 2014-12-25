@@ -24,7 +24,6 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
-#include <epan/reassemble.h>
 
 void proto_register_sysex(void);
 

@@ -25,14 +25,12 @@
 /*  Include Files */
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
-#include "packet-ieee802154.h"
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-security.h"

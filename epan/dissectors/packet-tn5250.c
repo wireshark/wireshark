@@ -33,7 +33,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/address.h>
 #include <epan/conversation.h>
 #include "packet-tn5250.h"
 

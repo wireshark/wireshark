@@ -23,7 +23,6 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/ax25_pids.h>

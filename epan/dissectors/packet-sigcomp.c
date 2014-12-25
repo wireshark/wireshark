@@ -33,7 +33,6 @@
 #include <math.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/sigcomp-udvm.h>

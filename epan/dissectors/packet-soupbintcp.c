@@ -57,7 +57,6 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/prefs.h>
 /* For tcp_dissect_pdus() */
 #include "packet-tcp.h"

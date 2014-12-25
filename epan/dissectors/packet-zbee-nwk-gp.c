@@ -30,16 +30,12 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
-#include <epan/addr_resolv.h>
-#include <epan/expert.h>
 #include <epan/uat.h>
-#include "packet-ieee802154.h"
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
 #include "packet-zbee-security.h"
 #include "packet-zbee-aps.h"
 #include "packet-zbee-zcl.h"
-#include <wsutil/wsgcrypt.h>
 
 void proto_register_zbee_nwk_gp(void);
 void proto_reg_handoff_zbee_nwk_gp(void);

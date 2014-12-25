@@ -30,8 +30,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/etypes.h>
-#include <epan/conversation.h>
 
 #include "packet-tcp.h"
 

@@ -32,7 +32,6 @@
 
 #include "packet-zbee.h"
 #include "packet-zbee-nwk.h"
-#include "packet-zbee-aps.h"
 #include "packet-zbee-zcl.h"
 
 /*************************

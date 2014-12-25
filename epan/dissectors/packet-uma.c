@@ -54,12 +54,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 #include "packet-bssap.h"
 #include "packet-gsm_a_common.h"
-#include "packet-gsm_map.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include "packet-e212.h"

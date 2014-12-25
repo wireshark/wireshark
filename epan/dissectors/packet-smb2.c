@@ -30,24 +30,20 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/aftypes.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 
 #include "packet-smb2.h"
-#include "packet-dcerpc.h"
 #include "packet-ntlmssp.h"
 #include "packet-kerberos.h"
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
-#include "packet-smb.h"
 #include "packet-dcerpc-nt.h"
 
 /* Use libgcrypt for cipher libraries. */

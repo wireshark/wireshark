@@ -27,8 +27,6 @@
 #include <epan/to_str.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
-#include <epan/ipv6-utils.h>
-#include <epan/ipv4.h>
 #include "packet-wccp.h"
 
 void proto_register_wccp(void);

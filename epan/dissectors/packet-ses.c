@@ -28,10 +28,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
-#include <epan/asn1.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
-#include <epan/show_exception.h>
 
 #include "packet-ber.h"
 #include "packet-ses.h"

@@ -28,7 +28,6 @@
 
 #include "packet-rpc.h"
 #include <epan/to_str.h>
-#include <epan/wmem/wmem.h>
 
 /*
  * For the protocol specifications, see

@@ -36,17 +36,14 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include <epan/uat.h>
-#include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
-#include <epan/address.h>
 #include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include "packet-mtp3.h"
@@ -54,7 +51,6 @@
 #include "packet-sccp.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
-#include "packet-frame.h"
 
 /* function prototypes */
 void proto_register_sccp(void);

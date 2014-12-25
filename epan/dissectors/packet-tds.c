@@ -144,12 +144,10 @@
 
 #include "config.h"
 
-#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
-#include <epan/strutil.h>
 #include <epan/show_exception.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>

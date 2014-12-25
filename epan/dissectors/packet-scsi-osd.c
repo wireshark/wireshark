@@ -28,10 +28,8 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/tap.h>
 #include <epan/expert.h>
 #include "packet-scsi.h"
-#include "packet-fc.h"
 #include "packet-scsi-osd.h"
 
 void proto_register_scsi_osd(void);

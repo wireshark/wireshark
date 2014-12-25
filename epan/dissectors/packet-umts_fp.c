@@ -34,8 +34,6 @@
 #include <wsutil/crc16-plain.h> /* For FP Payload CRC. */
 #include <wsutil/crc11.h> /* For FP EDCH header CRC. */
 
-#include "packet-umts_mac.h"
-#include "packet-rlc.h"
 #include "packet-umts_fp.h"
 #include "packet-nbap.h"
 #include "packet-rrc.h"

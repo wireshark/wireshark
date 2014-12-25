@@ -42,8 +42,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 #include <epan/sctpppids.h>      /* include V5UA payload protocol ID */
 
 void proto_register_v5ua(void);

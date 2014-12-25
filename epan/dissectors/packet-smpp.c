@@ -50,12 +50,9 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <time.h>
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/tap.h>
 #include <epan/stats_tree.h>
 
 #include <epan/prefs.h>

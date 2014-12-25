@@ -38,9 +38,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/tap.h>
 #include "packet-scsi.h"
-#include "packet-fc.h"
 #include "packet-scsi-sbc.h"
 
 void proto_register_scsi_sbc(void);
