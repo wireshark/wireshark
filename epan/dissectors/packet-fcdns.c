@@ -210,6 +210,18 @@ static header_field_info hfi_fcdns_zone_mbrid FCDNS_HFI_INIT =
           {"Member Identifier", "fcdns.zone.mbrid", FT_STRING, BASE_NONE, NULL,
            0x0, NULL, HFILL};
 
+static header_field_info hfi_fcdns_zone_mbrid_wwn FCDNS_HFI_INIT =
+          {"Member Identifier", "fcdns.zone.mbrid.wwn", FT_FCWWN, BASE_NONE, NULL,
+           0x0, NULL, HFILL};
+
+static header_field_info hfi_fcdns_zone_mbrid_uint FCDNS_HFI_INIT =
+          {"Member Identifier", "fcdns.zone.mbrid.uint", FT_UINT32, BASE_HEX, NULL,
+           0x0, NULL, HFILL};
+
+static header_field_info hfi_fcdns_zone_mbrid_fc FCDNS_HFI_INIT =
+          {"Member Identifier", "fcdns.zone.mbrid.fc", FT_BYTES, BASE_DOT, NULL,
+           0x0, NULL, HFILL};
+
 static header_field_info hfi_fcdns_id_length FCDNS_HFI_INIT =
           {"Identifier Length", "fcdns.id_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL,
            HFILL};
@@ -330,6 +342,7 @@ static gint ett_fc4flags = -1;
 static gint ett_fc4features = -1;
 
 static expert_field ei_fcdns_no_record_of_exchange = EI_INIT;
+static expert_field ei_fcdns_zone_mbrid = EI_INIT;
 
 typedef struct _fcdns_conv_key {
     guint32 conv_idx;
@@ -1245,44 +1258,37 @@ zonenm_to_str (tvbuff_t *tvb, gint offset)
 }
 
 static void
-dissect_fcdns_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
+dissect_fcdns_zone_mbr (tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree, int offset)
 {
     guint8 mbrtype;
     int idlen;
-    char dpbuf[2+8+1];
-    char *str;
+    proto_item* ti;
 
     mbrtype = tvb_get_guint8 (tvb, offset);
-    proto_tree_add_uint (zmbr_tree, &hfi_fcdns_zone_mbrtype, tvb,
+    ti = proto_tree_add_uint (zmbr_tree, &hfi_fcdns_zone_mbrtype, tvb,
                          offset, 1, mbrtype);
     proto_tree_add_item(zmbr_tree, &hfi_fcdns_zone_flags, tvb, offset+2, 1, ENC_NA);
     idlen = tvb_get_guint8 (tvb, offset+3);
-    proto_tree_add_uint(zmbr_tree, &hfi_fcdns_id_length, tvb, offset+3, 1, idlen);
+    proto_tree_add_item(zmbr_tree, &hfi_fcdns_id_length, tvb, offset+3, 1, ENC_NA);
     switch (mbrtype) {
     case FC_SWILS_ZONEMBR_WWN:
-        proto_tree_add_string (zmbr_tree, &hfi_fcdns_zone_mbrid, tvb,
-                               offset+4, 8,
-                               tvb_fcwwn_to_str (tvb, offset+4));
+        proto_tree_add_item (zmbr_tree, &hfi_fcdns_zone_mbrid_wwn, tvb,
+                               offset+4, 8, ENC_NA);
         break;
     case FC_SWILS_ZONEMBR_DP:
-        g_snprintf(dpbuf, sizeof(dpbuf), "0x%08x", tvb_get_ntohl (tvb, offset+4));
-        proto_tree_add_string (zmbr_tree, &hfi_fcdns_zone_mbrid, tvb,
-                               offset+4, 4, dpbuf);
+        proto_tree_add_item (zmbr_tree, &hfi_fcdns_zone_mbrid_uint, tvb,
+                               offset+4, 4, ENC_BIG_ENDIAN);
         break;
     case FC_SWILS_ZONEMBR_FCID:
-        proto_tree_add_string (zmbr_tree, &hfi_fcdns_zone_mbrid, tvb,
-                               offset+4, 4,
-                               tvb_fc_to_str (tvb, offset+5));
+        proto_tree_add_item (zmbr_tree, &hfi_fcdns_zone_mbrid_fc, tvb,
+                               offset+4, 3, ENC_NA);
         break;
     case FC_SWILS_ZONEMBR_ALIAS:
-        str = zonenm_to_str (tvb, offset+4);
         proto_tree_add_string (zmbr_tree, &hfi_fcdns_zone_mbrid, tvb,
-                               offset+4, idlen, str);
+                               offset+4, idlen, zonenm_to_str (tvb, offset+4));
         break;
     default:
-        proto_tree_add_string (zmbr_tree, &hfi_fcdns_zone_mbrid, tvb,
-                               offset+4, idlen,
-                               "Unknown member type format");
+        expert_add_info(pinfo, ti, &ei_fcdns_zone_mbrid);
 
     }
 }
@@ -1446,14 +1452,12 @@ dissect_fcdns_gept (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 }
 
 static void
-dissect_fcdns_gezm (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
+dissect_fcdns_gezm (tvbuff_t *tvb, packet_info* pinfo, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
     if (isreq) {
-        if (req_tree) {
-            dissect_fcdns_zone_mbr (tvb, req_tree, offset);
-        }
+        dissect_fcdns_zone_mbr (tvb, pinfo, req_tree, offset);
     }
     else {
         dissect_fcdns_swils_entries (tvb, req_tree, offset);
@@ -1786,7 +1790,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         dissect_fcdns_gept (tvb, fcdns_tree, isreq);
         break;
     case FCDNS_GE_ZM:
-        dissect_fcdns_gezm (tvb, fcdns_tree, isreq);
+        dissect_fcdns_gezm (tvb, pinfo, fcdns_tree, isreq);
         break;
     case FCDNS_GE_ZN:
         dissect_fcdns_gezn (tvb, fcdns_tree, isreq);
@@ -1848,6 +1852,9 @@ proto_register_fcdns (void)
         &hfi_fcdns_vendor,
         &hfi_fcdns_zone_mbrtype,
         &hfi_fcdns_zone_mbrid,
+        &hfi_fcdns_zone_mbrid_wwn,
+        &hfi_fcdns_zone_mbrid_uint,
+        &hfi_fcdns_zone_mbrid_fc,
         &hfi_fcdns_zonenm,
         &hfi_fcdns_portip,
         &hfi_fcdns_sw2_objfmt,
@@ -1887,6 +1894,7 @@ proto_register_fcdns (void)
 
     static ei_register_info ei[] = {
         { &ei_fcdns_no_record_of_exchange, { "fcdns.no_record_of_exchange", PI_UNDECODED, PI_WARN, "No record of Exchg. Unable to decode MSG_ACC/RJT", EXPFILL }},
+        { &ei_fcdns_zone_mbrid, { "fcdns.zone.mbrid.unknown_type", PI_PROTOCOL, PI_WARN, "Unknown member type format", EXPFILL }},
     };
 
     expert_module_t* expert_fcdns;

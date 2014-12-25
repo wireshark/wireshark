@@ -47,7 +47,9 @@ static int hf_fcfzs_zonenmlen              = -1;
 static int hf_fcfzs_zonename               = -1;
 static int hf_fcfzs_nummbrs                = -1;
 static int hf_fcfzs_nummbrentries          = -1;
-static int hf_fcfzs_mbrid                  = -1;
+static int hf_fcfzs_mbrid_fcwwn            = -1;
+static int hf_fcfzs_mbrid_fc               = -1;
+static int hf_fcfzs_mbrid_uint             = -1;
 /* static int hf_fcfzs_mbridlen               = -1; */
 static int hf_fcfzs_mbrtype                = -1;
 static int hf_fcfzs_reason                 = -1;
@@ -69,6 +71,7 @@ static gint ett_fcfzs_gzc_flags = -1;
 static gint ett_fcfzs_zone_state = -1;
 
 static expert_field ei_fcfzs_no_exchange = EI_INIT;
+static expert_field ei_fcfzs_mbrid = EI_INIT;
 
 typedef struct _fcfzs_conv_key {
     guint32 conv_idx;
@@ -119,9 +122,10 @@ fcfzs_init_protocol(void)
 
 /* Code to actually dissect the packets */
 static void
-dissect_fcfzs_zoneset(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_fcfzs_zoneset(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 {
     int numzones, nummbrs, i, j, len;
+    proto_item* ti;
 
     /* The zoneset structure has the following format */
     /* zoneset name (len[not including pad], name, pad),
@@ -131,7 +135,6 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, proto_tree *tree, int offset)
      *     for each zone mbr,
      *         zone mbr id type, zone mbr id (len, name, pad)
      */
-    if (tree) {
 
         /* Zoneset Name */
         len = tvb_get_guint8(tvb, offset);
@@ -162,61 +165,46 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, proto_tree *tree, int offset)
 
             offset += 4;
             for (j = 0; j < nummbrs; j++) {
-                proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 switch (tvb_get_guint8(tvb, offset)) {
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 8,
-                                          tvb_fcwwn_to_str(tvb, offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_fcwwn, tvb,
+                                          offset+4, 8, ENC_NA);
                     break;
                 case FC_FZS_ZONEMBR_DP:
-                    proto_tree_add_string_format(tree,
-                                                 hf_fcfzs_mbrid,
-                                                 tvb, offset+4, 3, " ",
-                                                 "0x%x",
-                                                 tvb_get_ntoh24(tvb,
-                                                                offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_uint,
+                                                 tvb, offset+4, 3, ENC_BIG_ENDIAN);
                     break;
                 case FC_FZS_ZONEMBR_FCID:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 4,
-                                          tvb_fc_to_str(tvb, offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_fc, tvb,
+                                          offset+4, 3, ENC_NA);
                     break;
                 case FC_FZS_ZONEMBR_PWWN_LUN:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 8,
-                                          tvb_fcwwn_to_str(tvb, offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_fcwwn, tvb,
+                                          offset+4, 8, ENC_NA);
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_lun, tvb,
                                         offset+8, 8, ENC_NA);
                     break;
                 case FC_FZS_ZONEMBR_DP_LUN:
-                    proto_tree_add_string_format(tree,
-                                                 hf_fcfzs_mbrid,
-                                                 tvb, offset+4, 3, " ",
-                                                 "0x%x",
-                                                 tvb_get_ntoh24(tvb,
-                                                                offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_uint,
+                                                 tvb, offset+4, 3, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_lun, tvb,
                                         offset+4, 8, ENC_NA);
                     break;
                 case FC_FZS_ZONEMBR_FCID_LUN:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 4,
-                                          tvb_fc_to_str(tvb, offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_fc, tvb,
+                                          offset+4, 3, ENC_NA);
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_lun, tvb,
                                         offset+4, 8, ENC_NA);
                     break;
                 default:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 8,
-                                          "Unknown member type format");
+                    expert_add_info(pinfo, ti, &ei_fcfzs_mbrid);
                 }
                 offset += 12;
             }
         }
-    }
 }
 
 
@@ -355,12 +343,12 @@ dissect_fcfzs_gzd(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 }
 
 static void
-dissect_fcfzs_gzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_gzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
 {
     int numrec, i, len;
     int offset = 16;            /* past the fc_ct header */
+    proto_item* ti;
 
-    if (tree) {
         if (isreq) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
@@ -375,91 +363,74 @@ dissect_fcfzs_gzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                 4, ENC_BIG_ENDIAN);
             offset += 4;
             for (i = 0; i < numrec; i++) {
-                proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
                 switch (tvb_get_guint8(tvb, offset)) {
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 8,
-                                          tvb_fcwwn_to_str(tvb, offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_fcwwn, tvb,
+                                          offset+4, 8, ENC_NA);
                     break;
                 case FC_FZS_ZONEMBR_DP:
-                    proto_tree_add_string_format(tree,
-                                                 hf_fcfzs_mbrid,
-                                                 tvb, offset+4, 3, " ",
-                                                 "0x%x",
-                                                 tvb_get_ntoh24(tvb,
-                                                                offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_uint,
+                                                 tvb, offset+4, 3, ENC_BIG_ENDIAN);
                     break;
                 case FC_FZS_ZONEMBR_FCID:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 4,
-                                          tvb_fc_to_str(tvb, offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_fc, tvb,
+                                          offset+4, 3, ENC_NA);
                     break;
                 default:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 8,
-                                          "Unknown member type format");
+                    expert_add_info(pinfo, ti, &ei_fcfzs_mbrid);
                 }
                 offset += 12;
             }
         }
-    }
 }
 
 static void
-dissect_fcfzs_gazs(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_gazs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
-    if (tree) {
-        if (!isreq) {
-            dissect_fcfzs_zoneset(tvb, tree, offset);
-        }
+    if (!isreq) {
+        dissect_fcfzs_zoneset(tvb, pinfo, tree, offset);
     }
 }
 
 static void
-dissect_fcfzs_gzs(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_gzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
     int len;
 
-    if (tree) {
-        if (isreq) {
-            len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                len, ENC_ASCII|ENC_NA);
-        }
-        else {
-            dissect_fcfzs_zoneset(tvb, tree, offset);
-        }
+    if (isreq) {
+        len = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
+                            1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
+                            len, ENC_ASCII|ENC_NA);
+    }
+    else {
+        dissect_fcfzs_zoneset(tvb, pinfo, tree, offset);
     }
 }
 
 static void
-dissect_fcfzs_adzs(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_adzs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
-    if (tree) {
-        if (isreq) {
-            dissect_fcfzs_zoneset(tvb, tree, offset);
-        }
+    if (isreq) {
+        dissect_fcfzs_zoneset(tvb, pinfo, tree, offset);
     }
 }
 
 static void
-dissect_fcfzs_azsd(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_azsd(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
 
-    if (tree) {
-        if (isreq) {
-            dissect_fcfzs_zoneset(tvb, tree, offset);
-        }
+    if (isreq) {
+        dissect_fcfzs_zoneset(tvb, pinfo, tree, offset);
     }
 }
 
@@ -488,12 +459,12 @@ dissect_fcfzs_dzs(tvbuff_t *tvb _U_, proto_tree *tree _U_, gboolean isreq _U_)
 }
 
 static void
-dissect_fcfzs_arzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
+dissect_fcfzs_arzm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gboolean isreq)
 {
     int numrec, i, len, plen;
     int offset = 16;            /* past the fc_ct header */
+    proto_item* ti;
 
-    if (tree) {
         if (isreq) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
@@ -508,36 +479,27 @@ dissect_fcfzs_arzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
 
             offset += len;
             for (i = 0; i < numrec; i++) {
-                proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
                 switch (tvb_get_guint8(tvb, offset)) {
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 8,
-                                          tvb_fcwwn_to_str(tvb, offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_fcwwn, tvb,
+                                          offset+4, 8, ENC_NA);
                     break;
                 case FC_FZS_ZONEMBR_DP:
-                    proto_tree_add_string_format(tree,
-                                                 hf_fcfzs_mbrid,
-                                                 tvb, offset+4, 3, " ",
-                                                 "0x%x",
-                                                 tvb_get_ntoh24(tvb,
-                                                                offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_uint,
+                                                 tvb, offset+4, 3, ENC_BIG_ENDIAN);
                     break;
                 case FC_FZS_ZONEMBR_FCID:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 4,
-                                          tvb_fc_to_str(tvb, offset+4));
+                    proto_tree_add_item(tree, hf_fcfzs_mbrid_fc, tvb,
+                                          offset+4, 3, ENC_NA);
                     break;
                 default:
-                    proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                          offset+4, 8,
-                                          "Unknown member type format");
+                    expert_add_info(pinfo, ti, &ei_fcfzs_mbrid);
                 }
                 offset += 12;
             }
         }
-    }
 }
 
 static void
@@ -719,19 +681,19 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         dissect_fcfzs_gzd(tvb, fcfzs_tree, isreq);
         break;
     case FC_FZS_GZM:
-        dissect_fcfzs_gzm(tvb, fcfzs_tree, isreq);
+        dissect_fcfzs_gzm(tvb, pinfo, fcfzs_tree, isreq);
         break;
     case FC_FZS_GAZS:
-        dissect_fcfzs_gazs(tvb, fcfzs_tree, isreq);
+        dissect_fcfzs_gazs(tvb, pinfo, fcfzs_tree, isreq);
         break;
     case FC_FZS_GZS:
-        dissect_fcfzs_gzs(tvb, fcfzs_tree, isreq);
+        dissect_fcfzs_gzs(tvb, pinfo, fcfzs_tree, isreq);
         break;
     case FC_FZS_ADZS:
-        dissect_fcfzs_adzs(tvb, fcfzs_tree, isreq);
+        dissect_fcfzs_adzs(tvb, pinfo, fcfzs_tree, isreq);
         break;
     case FC_FZS_AZSD:
-        dissect_fcfzs_azsd(tvb, fcfzs_tree, isreq);
+        dissect_fcfzs_azsd(tvb, pinfo, fcfzs_tree, isreq);
         break;
     case FC_FZS_AZS:
         dissect_fcfzs_arzs(tvb, fcfzs_tree, isreq);
@@ -740,13 +702,13 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         dissect_fcfzs_dzs(tvb, fcfzs_tree, isreq);
         break;
     case FC_FZS_AZM:
-        dissect_fcfzs_arzm(tvb, fcfzs_tree, isreq);
+        dissect_fcfzs_arzm(tvb, pinfo, fcfzs_tree, isreq);
         break;
     case FC_FZS_AZD:
         dissect_fcfzs_arzd(tvb, fcfzs_tree, isreq);
         break;
     case FC_FZS_RZM:
-        dissect_fcfzs_arzm(tvb, fcfzs_tree, isreq);
+        dissect_fcfzs_arzm(tvb, pinfo, fcfzs_tree, isreq);
         break;
     case FC_FZS_RZD:
         dissect_fcfzs_arzd(tvb, fcfzs_tree, isreq);
@@ -841,9 +803,19 @@ proto_register_fcfzs(void)
            NULL, HFILL}},
 #endif
 
-        { &hf_fcfzs_mbrid,
-          {"Zone Member Identifier", "fcfzs.zone.mbrid",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+        { &hf_fcfzs_mbrid_fcwwn,
+          {"Zone Member Identifier", "fcfzs.zone.mbrid.fcwwn",
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}},
+
+        { &hf_fcfzs_mbrid_fc,
+          {"Zone Member Identifier", "fcfzs.zone.mbrid.fc",
+           FT_BYTES, BASE_DOT, NULL, 0x0,
+           NULL, HFILL}},
+
+        { &hf_fcfzs_mbrid_uint,
+          {"Zone Member Identifier", "fcfzs.zone.mbrid.uint",
+           FT_UINT24, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_fcfzs_reason,
@@ -916,6 +888,7 @@ proto_register_fcfzs(void)
 
     static ei_register_info ei[] = {
         { &ei_fcfzs_no_exchange, { "fcfzs.no_exchange", PI_UNDECODED, PI_WARN, "No record of Exchg. Unable to decode", EXPFILL }},
+        { &ei_fcfzs_mbrid, { "fcfzs.mbrid.unknown_type", PI_PROTOCOL, PI_WARN, "Unknown member type format", EXPFILL }},
     };
 
     expert_module_t* expert_fcfzs;

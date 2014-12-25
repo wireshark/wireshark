@@ -123,6 +123,9 @@ static int hf_swils_zone_objtype          = -1;
 static int hf_swils_zone_mbrtype          = -1;
 static int hf_swils_zone_protocol         = -1;
 static int hf_swils_zone_mbrid            = -1;
+static int hf_swils_zone_mbrid_fcwwn      = -1;
+static int hf_swils_zone_mbrid_fc         = -1;
+static int hf_swils_zone_mbrid_uint       = -1;
 static int hf_swils_zone_status           = -1;
 static int hf_swils_zone_reason           = -1;
 static int hf_swils_aca_domainid          = -1;
@@ -202,6 +205,7 @@ static int hf_swils_lsupdate_flags = -1;
 
 static expert_field ei_swils_efp_record_len = EI_INIT;
 static expert_field ei_swils_no_exchange = EI_INIT;
+static expert_field ei_swils_zone_mbrid = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_fcswils             = -1;
@@ -1179,71 +1183,61 @@ dissect_swils_rscn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rscn_tree,
  */
 
 static void
-dissect_swils_zone_mbr(tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
+dissect_swils_zone_mbr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree, int offset)
 {
     guint8  mbrtype;
     int     idlen;
-    char    dpbuf[2+8+1];
-    char   *str;
+    proto_item* ti;
 
     mbrtype = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint(zmbr_tree, hf_swils_zone_mbrtype, tvb,
+    ti = proto_tree_add_uint(zmbr_tree, hf_swils_zone_mbrtype, tvb,
                         offset, 1, mbrtype);
     proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrflags, tvb, offset+2, 1, ENC_BIG_ENDIAN);
     idlen = tvb_get_guint8(tvb, offset+3);
     proto_tree_add_item(zmbr_tree, hf_swils_zone_mbr_identifier_length, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     switch (mbrtype) {
     case FC_SWILS_ZONEMBR_WWN:
-        proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
-                              offset+4, 8,
-                              tvb_fcwwn_to_str(tvb, offset+4));
+        proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_fcwwn, tvb,
+                              offset+4, 8, ENC_NA);
         break;
     case FC_SWILS_ZONEMBR_DP:
-        g_snprintf(dpbuf, sizeof(dpbuf), "0x%08x", tvb_get_ntohl(tvb, offset+4));
-        proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
-                              offset+4, 4, dpbuf);
+        proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_uint, tvb,
+                              offset+4, 4, ENC_BIG_ENDIAN);
         break;
     case FC_SWILS_ZONEMBR_FCID:
-        proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
-                              offset+4, 4,
-                              tvb_fc_to_str(tvb, offset+5));
+        proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_fc, tvb,
+                              offset+4, 3, ENC_NA);
         break;
     case FC_SWILS_ZONEMBR_ALIAS:
-        str = zonenm_to_str(tvb, offset+4);
         proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
-                              offset+4, idlen, str);
+                              offset+4, idlen, zonenm_to_str(tvb, offset+4));
         break;
     case FC_SWILS_ZONEMBR_WWN_LUN:
-        proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
-                              offset+4, 8,
-                              tvb_fcwwn_to_str(tvb, offset+4));
+        proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_fcwwn, tvb,
+                              offset+4, 8, ENC_NA);
         proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
                             offset+12, 8, ENC_NA);
         break;
     case FC_SWILS_ZONEMBR_DP_LUN:
-        g_snprintf(dpbuf, sizeof(dpbuf), "0x%08x", tvb_get_ntohl(tvb, offset+4));
-        proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
-                              offset+4, 4, dpbuf);
+        proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_uint, tvb,
+                              offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
                             offset+8, 8, ENC_NA);
         break;
     case FC_SWILS_ZONEMBR_FCID_LUN:
-        proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
-                              offset+4, 4,
-                              tvb_fc_to_str(tvb, offset+5));
+        proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_fc, tvb,
+                              offset+4, 3, ENC_NA);
         proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
                             offset+8, 8, ENC_NA);
         break;
     default:
-        proto_tree_add_string(zmbr_tree, hf_swils_zone_mbrid, tvb,
-                              offset+4, idlen,
-                              "Unknown member type format");
+        expert_add_info(pinfo, ti, &ei_swils_zone_mbrid);
 
     }
 }
 
 static void
-dissect_swils_zone_obj(tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
+dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree, int offset)
 {
     proto_tree *zmbr_tree;
     int         mbrlen, numrec, i, objtype;
@@ -1265,21 +1259,21 @@ dissect_swils_zone_obj(tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
     offset += 8 + ZONENAME_LEN(tvb, offset+4);
     for (i = 0; i < numrec; i++) {
         if (objtype == FC_SWILS_ZONEOBJ_ZONESET) {
-            dissect_swils_zone_obj(tvb, zobj_tree, offset);
+            dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
             offset += get_zoneobj_len(tvb, offset);
         }
         else {
             mbrlen = 4 + tvb_get_guint8(tvb, offset+3);
             zmbr_tree = proto_tree_add_subtree_format(zobj_tree, tvb, offset, mbrlen,
                                         ett_fcswils_zonembr, NULL, "Zone Member %d", i);
-            dissect_swils_zone_mbr(tvb, zmbr_tree, offset);
+            dissect_swils_zone_mbr(tvb, pinfo, zmbr_tree, offset);
             offset += mbrlen;
         }
     }
 }
 
 static void
-dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *mr_tree, guint8 isreq)
+dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo, proto_tree *mr_tree, guint8 isreq)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int         offset = 0;
@@ -1287,7 +1281,6 @@ dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *mr_tre
     int         numrec, i, zonesetlen, objlistlen, objlen;
     char       *str;
 
-    if (mr_tree) {
         if (isreq) {
             /* zonesetlen is the size of the zoneset including the zone name */
             zonesetlen = tvb_get_ntohs(tvb, offset+2);
@@ -1315,7 +1308,7 @@ dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *mr_tre
                     objlen = get_zoneobj_len(tvb, offset);
                     zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset+4, objlen,
                                                 ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
-                    dissect_swils_zone_obj(tvb, zobj_tree, offset);
+                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
                     offset += objlen;
                 }
             }
@@ -1341,7 +1334,7 @@ dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *mr_tre
                     objlen = get_zoneobj_len(tvb, offset);
                     zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset,
                                                 objlen, ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
-                    dissect_swils_zone_obj(tvb, zobj_tree, offset);
+                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
                     offset += objlen;
                 }
             }
@@ -1353,7 +1346,6 @@ dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *mr_tre
                                 offset+6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mr_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
-    }
 }
 
 static void
@@ -1415,7 +1407,6 @@ dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *sfc_tree, g
     int         numrec, i, zonesetlen, objlistlen, objlen;
     char       *str;
 
-    if (sfc_tree) {
         if (isreq) {
             proto_tree_add_item(sfc_tree, hf_swils_sfc_opcode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
@@ -1444,7 +1435,7 @@ dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *sfc_tree, g
                     objlen = get_zoneobj_len(tvb, offset);
                     zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset, objlen,
                                                 ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
-                    dissect_swils_zone_obj(tvb, zobj_tree, offset);
+                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
                     offset += objlen;
                 }
             }
@@ -1470,7 +1461,7 @@ dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *sfc_tree, g
                     objlen = get_zoneobj_len(tvb, offset);
                     zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset, objlen,
                                                 ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
-                    dissect_swils_zone_obj(tvb, zobj_tree, offset);
+                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
                     offset += objlen;
                 }
             }
@@ -1482,7 +1473,6 @@ dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *sfc_tree, g
                                 offset+6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sfc_tree, hf_swils_zone_vendor_unique, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
-    }
 }
 
 static void
@@ -2196,6 +2186,21 @@ proto_register_fcswils(void)
            FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}},
 
+        { &hf_swils_zone_mbrid_fcwwn,
+          {"Member Identifier", "swils.zone.mbrid.fcwwn",
+           FT_FCWWN, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}},
+
+        { &hf_swils_zone_mbrid_fc,
+          {"Member Identifier", "swils.zone.mbrid.fc",
+           FT_BYTES, BASE_DOT, NULL, 0x0,
+           NULL, HFILL}},
+
+        { &hf_swils_zone_mbrid_uint,
+          {"Member Identifier", "swils.zone.mbrid.uint",
+           FT_UINT32, BASE_HEX, NULL, 0x0,
+           NULL, HFILL}},
+
         { &hf_swils_zone_status,
           {"Zone Command Status", "swils.zone.status",
            FT_UINT8, BASE_HEX, VALS(fc_swils_mr_rsp_val), 0x0,
@@ -2514,6 +2519,7 @@ proto_register_fcswils(void)
     static ei_register_info ei[] = {
         { &ei_swils_efp_record_len, { "swils.efp.recordlen.zero", PI_UNDECODED, PI_NOTE, "Record length is zero", EXPFILL }},
         { &ei_swils_no_exchange, { "swils.no_exchange", PI_UNDECODED, PI_WARN, "No record of Exchg. Unable to decode", EXPFILL }},
+        { &ei_swils_zone_mbrid, { "swils.zone.mbrid.unknown_type", PI_PROTOCOL, PI_WARN, "Unknown member type format", EXPFILL }},
     };
 
     expert_module_t* expert_fcswils;
