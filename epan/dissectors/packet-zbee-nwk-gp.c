@@ -197,10 +197,12 @@ static int proto_zbee_nwk_gp = -1;
 /* GP NWK FC. */
 static int hf_zbee_nwk_gp_auto_commissioning = -1;
 static int hf_zbee_nwk_gp_fc_ext = -1;
+static int hf_zbee_nwk_gp_fcf = -1;
 static int hf_zbee_nwk_gp_frame_type = -1;
 static int hf_zbee_nwk_gp_proto_version = -1;
 
 /* GP NWK FC extension. */
+static int hf_zbee_nwk_gp_fc_ext_field = -1;
 static int hf_zbee_nwk_gp_fc_ext_app_id = -1;
 static int hf_zbee_nwk_gp_fc_ext_direction = -1;
 static int hf_zbee_nwk_gp_fc_ext_rx_after_tx = -1;
@@ -222,13 +224,16 @@ static int hf_zbee_nwk_gp_command_id = -1;
 
 /* Commissioning. */
 static int hf_zbee_nwk_gp_cmd_comm_device_id = -1;
+static int hf_zbee_nwk_gp_cmd_comm_ext_opt = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_encr = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_present = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ext_opt_key_type = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ext_opt_outgoing_counter = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ext_opt_sec_level_cap = -1;
+static int hf_zbee_nwk_gp_cmd_comm_security_key = -1;
 static int hf_zbee_nwk_gp_cmd_comm_gpd_sec_key_mic = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_ext_opt = -1;
+static int hf_zbee_nwk_gp_cmd_comm_opt = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_fixed_location = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_ms_ext_present = -1;
@@ -238,12 +243,14 @@ static int hf_zbee_nwk_gp_cmd_comm_opt_sec_key_req = -1;
 static int hf_zbee_nwk_gp_cmd_comm_outgoing_counter = -1;
 static int hf_zbee_nwk_gp_cmd_comm_manufacturer_greenpeak_dev_id = -1;
 static int hf_zbee_nwk_gp_cmd_comm_manufacturer_id = -1;
+static int hf_zbee_nwk_gp_cmd_comm_ms_ext = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext_crp = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext_gclp = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext_mip = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext_mmip = -1;
 
 /* Commissioning reply. */
+static int hf_zbee_nwk_gp_cmd_comm_rep_opt = -1;
 static int hf_zbee_nwk_gp_cmd_comm_rep_opt_key_encr = -1;
 static int hf_zbee_nwk_gp_cmd_comm_rep_opt_panid_present = -1;
 static int hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_key_present = -1;
@@ -255,10 +262,12 @@ static int hf_zbee_nwk_gp_cmd_comm_rep_pan_id = -1;
 static int hf_zbee_nwk_gp_cmd_attr_report_cluster_id = -1;
 
 /* Channel request. */
+static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour = -1;
 static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_1st = -1;
 static int hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_2nd = -1;
 
 /* Channel Configuration command. */
+static int hf_zbee_nwk_gp_cmd_operational_channel = -1;
 static int hf_zbee_nwk_gp_cmd_channel_configuration = -1;
 
 /* Move Color command. */
@@ -649,47 +658,51 @@ static guint
 dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
-    guint8 comm_options = 0;
+    guint8 comm_options;
     guint8 comm_ext_options = 0;
     guint8 ms_ext_options = 0;
     guint16 manufacturer_id = 0;
-    proto_item *ti = NULL;
-    proto_tree *field_tree = NULL;
+    static const int * options[] = {
+        &hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap,
+        &hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap,
+        &hf_zbee_nwk_gp_cmd_comm_opt_ms_ext_present,
+        &hf_zbee_nwk_gp_cmd_comm_opt_panid_req,
+        &hf_zbee_nwk_gp_cmd_comm_opt_sec_key_req,
+        &hf_zbee_nwk_gp_cmd_comm_opt_fixed_location,
+        &hf_zbee_nwk_gp_cmd_comm_opt_ext_opt,
+        NULL
+    };
+    static const int * ext_options[] = {
+        &hf_zbee_nwk_gp_cmd_comm_ext_opt_sec_level_cap,
+        &hf_zbee_nwk_gp_cmd_comm_ext_opt_key_type,
+        &hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_present,
+        &hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_encr,
+        &hf_zbee_nwk_gp_cmd_comm_ext_opt_outgoing_counter,
+        NULL
+    };
+    static const int * ms_ext[] = {
+        &hf_zbee_nwk_gp_cmd_comm_ms_ext_mip,
+        &hf_zbee_nwk_gp_cmd_comm_ms_ext_mmip,
+        &hf_zbee_nwk_gp_cmd_comm_ms_ext_gclp,
+        &hf_zbee_nwk_gp_cmd_comm_ms_ext_crp,
+        NULL
+    };
 
     /* Get Device ID and display it. */
     proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_device_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
     /* Get Options Field, build subtree and display the results. */
     comm_options = tvb_get_guint8(tvb, offset);
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 1, "Options Field: 0x%02x", comm_options);
-        field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_cmd_options);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_opt_mac_sec_num_cap, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_opt_ms_ext_present, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_opt_panid_req, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_opt_sec_key_req, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_opt_fixed_location, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_opt_ext_opt, tvb, offset, 1, ENC_NA);
-    }
-    offset += 1;
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_comm_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
+
     if (comm_options & ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_EXT_OPTIONS) {
         /* Get extended Options Field, build subtree and display the results. */
         comm_ext_options = tvb_get_guint8(tvb, offset);
-        if (tree) {
-            ti = proto_tree_add_text(tree, tvb, offset, 1, "Extended Options Field: 0x%02x", comm_ext_options);
-            field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_cmd_options);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ext_opt_sec_level_cap, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ext_opt_key_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_present, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_encr, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ext_opt_outgoing_counter, tvb, offset, 1, ENC_NA);
-        }
+        proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_comm_ext_opt, ett_zbee_nwk_cmd_options, ext_options, ENC_NA);
         offset += 1;
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_PRESENT) {
             /* Get security key and display it. */
-            proto_tree_add_text(tree, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, "Security Key: %s",
-                tvb_get_string_enc(wmem_packet_scope(), tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_ASCII));
+            proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_ASCII|ENC_NA);
             offset += NWK_CMD_SECURITY_KEY_LEN;
         }
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_ENCR) {
@@ -707,14 +720,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     if (comm_options & ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_MANUFACTURER_INFO) {
         /* Display MS extensions. */
         ms_ext_options = tvb_get_guint8(tvb, offset);
-        if (tree) {
-            ti = proto_tree_add_text(tree, tvb, offset, 1, "MS Extensions Field: 0x%02x", ms_ext_options);
-            field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_cmd_ms_ext);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ms_ext_mip, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ms_ext_mmip, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ms_ext_gclp, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_ms_ext_crp, tvb, offset, 1, ENC_NA);
-        }
+        proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_comm_ms_ext, ett_zbee_nwk_cmd_ms_ext, ms_ext, ENC_NA);
         offset += 1;
         if (ms_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MIP) {
             /* Get Manufacturer ID. */
@@ -755,19 +761,14 @@ static guint
 dissect_zbee_nwk_gp_cmd_channel_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
-    proto_item *ti;
-    proto_tree *field_tree;
+    static const int * channels[] = {
+        &hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_1st,
+        &hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_2nd,
+        NULL
+    };
 
     /* Get Command Options Field, build subtree and display the results. */
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 1, "Channel Toggling Behaviour: 0x%02x", tvb_get_guint8(tvb,
-            offset));
-        field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_cmd_options);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_1st, tvb, offset, 1,
-            ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_2nd, tvb, offset, 1,
-            ENC_LITTLE_ENDIAN);
-    }
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour, ett_zbee_nwk_cmd_options, channels, ENC_NA);
     offset += 1;
     return offset;
 } /* dissect_zbee_nwk_gp_cmd_channel_request */
@@ -791,15 +792,14 @@ static guint
 dissect_zbee_nwk_gp_cmd_channel_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
-    proto_item *ti;
-    proto_tree *field_tree;
+    static const int * channels[] = {
+        &hf_zbee_nwk_gp_cmd_channel_configuration,
+        NULL
+    };
 
     /* Get Command Options Field, build subtree and display the results. */
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 1, "Operational Channel: 0x%02x", tvb_get_guint8(tvb, offset));
-        field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_cmd_options);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_channel_configuration, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    }
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_operational_channel, ett_zbee_nwk_cmd_options, channels, ENC_NA);
+
     offset += 1;
     return offset;
 } /* dissect_zbee_nwk_gp_cmd_channel_configuration */
@@ -858,22 +858,22 @@ static guint
 dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     zbee_nwk_green_power_packet *packet _U_, guint offset)
 {
-    guint8 cr_options = 0;
-    proto_item *ti = NULL;
-    proto_tree *field_tree = NULL;
+    guint8 cr_options;
+
+    static const int * options[] = {
+        &hf_zbee_nwk_gp_cmd_comm_rep_opt_panid_present,
+        &hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_key_present,
+        &hf_zbee_nwk_gp_cmd_comm_rep_opt_key_encr,
+        &hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_level,
+        &hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_type,
+        NULL
+    };
 
     /* Get Options Field, build subtree and display the results. */
     cr_options = tvb_get_guint8(tvb, offset);
-    if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 1, "Options Field: 0x%02x", cr_options);
-        field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_cmd_options);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_rep_opt_panid_present, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_key_present, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_rep_opt_key_encr, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(field_tree, hf_zbee_nwk_gp_cmd_comm_rep_opt_sec_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    }
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_comm_rep_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
     offset += 1;
+
     /* Parse and display security Pan ID value. */
     if (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_PAN_ID_PRESENT) {
         proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_rep_pan_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -881,8 +881,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
     }
     /* Parse and display security key. */
     if (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT) {
-        proto_tree_add_text(tree, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, "Security Key: %s",
-            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_ASCII));
+        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_ASCII|ENC_NA);
         offset += NWK_CMD_SECURITY_KEY_LEN;
     }
     /* Parse and display security MIC. */
@@ -1247,12 +1246,26 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     guint8 *dec_buffer;
     guint8 *enc_buffer;
     guint8 fcf;
-    proto_tree *field_tree = NULL;
     proto_tree *nwk_tree = NULL;
     proto_item *proto_root = NULL;
     proto_item *ti = NULL;
     tvbuff_t *payload_tvb;
     zbee_nwk_green_power_packet packet;
+    static const int * fields[] = {
+        &hf_zbee_nwk_gp_frame_type,
+        &hf_zbee_nwk_gp_proto_version,
+        &hf_zbee_nwk_gp_auto_commissioning,
+        &hf_zbee_nwk_gp_fc_ext,
+        NULL
+    };
+    static const int * ext_fields[] = {
+        &hf_zbee_nwk_gp_fc_ext_app_id,
+        &hf_zbee_nwk_gp_fc_ext_sec_level,
+        &hf_zbee_nwk_gp_fc_ext_sec_key,
+        &hf_zbee_nwk_gp_fc_ext_rx_after_tx,
+        &hf_zbee_nwk_gp_fc_ext_direction,
+        NULL
+    };
 
     memset(&packet, 0, sizeof(packet));
     /* Add ourself to the protocol column, clear the info column and create the protocol tree. */
@@ -1268,44 +1281,25 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     fcf = tvb_get_guint8(tvb, offset);
     packet.frame_type = zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_FRAME_TYPE);
     packet.nwk_frame_control_extension = zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_CONTROL_EXTENSION);
+
     /* Display the FCF. */
-    if (tree) {
-        /* Create a subtree for the FCF. */
-        ti = proto_tree_add_text(nwk_tree, tvb, offset, 1, "Frame Control Field: %s (0x%02x)",
-            val_to_str(packet.frame_type, zbee_nwk_gp_frame_types, "Unknown Frame Type"), fcf);
-        field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_fcf);
-        proto_tree_add_uint(field_tree, hf_zbee_nwk_gp_frame_type, tvb, offset, 1, fcf & ZBEE_NWK_GP_FCF_FRAME_TYPE);
-        proto_tree_add_uint(field_tree, hf_zbee_nwk_gp_proto_version, tvb, offset, 1, fcf & ZBEE_NWK_GP_FCF_VERSION);
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_gp_auto_commissioning, tvb, offset, 1, fcf &
-            ZBEE_NWK_GP_FCF_AUTO_COMMISSIONING);
-        proto_tree_add_boolean(field_tree, hf_zbee_nwk_gp_fc_ext, tvb, offset, 1, fcf &
-            ZBEE_NWK_GP_FCF_CONTROL_EXTENSION);
-    }
+    ti = proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_fcf, ett_zbee_nwk_fcf, fields, ENC_NA);
+    proto_item_append_text(ti, " %s", val_to_str(packet.frame_type, zbee_nwk_gp_frame_types, "Unknown Frame Type"));
     offset += 1;
+
     /* Add the frame type to the info column and protocol root. */
-    if (tree) {
-        proto_item_append_text(proto_root, " %s", val_to_str(packet.frame_type, zbee_nwk_gp_frame_types,
-            "Unknown type"));
-    }
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet.frame_type, zbee_nwk_gp_frame_types,
-        "Reserved frame type"));
+    proto_item_append_text(proto_root, " %s", val_to_str(packet.frame_type, zbee_nwk_gp_frame_types, "Unknown type"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet.frame_type, zbee_nwk_gp_frame_types, "Reserved frame type"));
+
     if (packet.nwk_frame_control_extension) {
         /* Display ext FCF. */
         fcf = tvb_get_guint8(tvb, offset);
         packet.application_id = zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_EXT_APP_ID);
         packet.security_level = zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_EXT_SECURITY_LEVEL);
         packet.direction = zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_EXT_DIRECTION);
+
         /* Create a subtree for the extended FCF. */
-        if (tree) {
-            ti = proto_tree_add_text(nwk_tree, tvb, offset, 1, "Extended NWK Frame Control Field");
-            field_tree = proto_item_add_subtree(ti, ett_zbee_nwk_fcf_ext);
-            /* Add the fields. */
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_fc_ext_app_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_fc_ext_sec_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_fc_ext_sec_key, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_fc_ext_rx_after_tx, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(field_tree, hf_zbee_nwk_gp_fc_ext_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        }
+        proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_fc_ext_field, ett_zbee_nwk_fcf_ext, ext_fields, ENC_NA);
         offset += 1;
     }
     if ((packet.frame_type == ZBEE_NWK_GP_FCF_DATA && !packet.nwk_frame_control_extension) || (packet.frame_type ==
@@ -1493,6 +1487,10 @@ proto_register_zbee_nwk_gp(void)
             { "NWK Frame Extension", "zbee_nwk_gp.fc_extension", FT_BOOLEAN, 8, NULL, ZBEE_NWK_GP_FCF_CONTROL_EXTENSION,
                 NULL, HFILL }},
 
+        { &hf_zbee_nwk_gp_fcf,
+            { "Frame Control Field", "zbee_nwk_gp.fcf", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
         { &hf_zbee_nwk_gp_frame_type,
             { "Frame Type", "zbee_nwk_gp.frame_type", FT_UINT8, BASE_HEX, VALS(zbee_nwk_gp_frame_types),
                 ZBEE_NWK_GP_FCF_FRAME_TYPE, NULL, HFILL }},
@@ -1500,6 +1498,10 @@ proto_register_zbee_nwk_gp(void)
         { &hf_zbee_nwk_gp_proto_version,
             { "Protocol Version", "zbee_nwk_gp.proto_version", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_GP_FCF_VERSION, NULL,
                 HFILL }},
+
+        { &hf_zbee_nwk_gp_fc_ext_field,
+            { "Extended NWK Frame Control Field", "zbee_nwk_gp.fc_ext", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_fc_ext_app_id,
             { "Application ID", "zbee_nwk_gp.fc_ext_app_id", FT_UINT8, BASE_HEX, VALS(zbee_nwk_gp_app_id_names),
@@ -1564,12 +1566,19 @@ proto_register_zbee_nwk_gp(void)
             { "Security Level Capabilities", "zbee_nwk_gp.cmd.comm.ext_opt.seclevel_cap", FT_UINT8, BASE_HEX, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_SEC_LEVEL_CAP, NULL, HFILL }},
 
+        { &hf_zbee_nwk_gp_cmd_comm_security_key,
+            { "Security Key", "zbee_nwk_gp.cmd.comm.security_key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         { &hf_zbee_nwk_gp_cmd_comm_gpd_sec_key_mic,
             { "GPD Key MIC", "zbee_nwk_gp.cmd.comm.gpd_key_mic", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_opt_ext_opt,
             { "Extended Option Field", "zbee_nwk_gp.cmd.comm.opt.ext_opt_field", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_EXT_OPTIONS, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_comm_opt,
+            { "Options Field", "zbee_nwk_gp.cmd.comm.opt", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_opt_fixed_location,
             { "Fixed Location", "zbee_nwk_gp.cmd.comm.opt.fixed_location", FT_BOOLEAN, 8, NULL,
@@ -1595,6 +1604,10 @@ proto_register_zbee_nwk_gp(void)
             { "GP Security Key Request", "zbee_nwk_gp.cmd.comm.opt.seq_key_req", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_GP_SEC_KEY_REQ, NULL, HFILL }},
 
+        { &hf_zbee_nwk_gp_cmd_comm_ext_opt,
+            { "Extended Options Field", "zbee_nwk_gp.cmd.comm.ext_opt", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
         { &hf_zbee_nwk_gp_cmd_comm_ext_opt_outgoing_counter,
             { "GPD Outgoing present", "zbee_nwk_gp.cmd.comm.ext_opt.outgoing_counter", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_OUT_COUNTER, NULL, HFILL }},
@@ -1615,6 +1628,10 @@ proto_register_zbee_nwk_gp(void)
             { "GP commands list present", "zbee_nwk_gp.cmd.comm.ms_ext.gclp", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_GCLP , NULL, HFILL }},
 
+        { &hf_zbee_nwk_gp_cmd_comm_ms_ext,
+            { "MS Extensions Field", "zbee_nwk_gp.cmd.comm.ms_ext", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
         { &hf_zbee_nwk_gp_cmd_comm_ms_ext_mip,
             { "Manufacturer ID present", "zbee_nwk_gp.cmd.comm.ms_ext.mip", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_MS_EXT_MIP , NULL, HFILL }},
@@ -1626,6 +1643,10 @@ proto_register_zbee_nwk_gp(void)
         { &hf_zbee_nwk_gp_cmd_comm_rep_opt_key_encr,
             { "GPD Key Encryption", "zbee_nwk_gp.cmd.comm_reply.opt.sec_key_encr", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_KEY_ENCR, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_comm_rep_opt,
+            { "Options Field", "zbee_nwk_gp.cmd.comm_reply.opt", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_rep_opt_panid_present,
             { "PANID Present", "zbee_nwk_gp.cmd.comm_reply.opt.pan_id_present", FT_BOOLEAN, 8, NULL,
@@ -1650,6 +1671,10 @@ proto_register_zbee_nwk_gp(void)
             { "ZigBee Cluster ID", "zbee_nwk_gp.cmd.comm.attr_report", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names),
                 0x0, NULL, HFILL }},
 
+        { &hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour,
+            { "Channel Toggling Behaviour", "zbee_nwk_gp.cmd.ch_req", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
+
         { &hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_1st,
             { "Rx channel in the next attempt", "zbee_nwk_gp.cmd.ch_req.1st", FT_UINT8, BASE_HEX, NULL,
                 ZBEE_NWK_GP_CMD_CHANNEL_REQUEST_1ST, NULL, HFILL }},
@@ -1657,6 +1682,10 @@ proto_register_zbee_nwk_gp(void)
         { &hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour_2nd,
             { "Rx channel in the second next attempt", "zbee_nwk_gp.ch_req.2nd", FT_UINT8, BASE_HEX, NULL,
                 ZBEE_NWK_GP_CMD_CHANNEL_REQUEST_2ND, NULL, HFILL }},
+
+        { &hf_zbee_nwk_gp_cmd_operational_channel,
+            { "Operational Channel", "zbee_nwk_gp.cmd.configuration_ch", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_channel_configuration,
             { "Operation channel", "zbee_nwk_gp.cmd.configuration_ch.operation_ch", FT_UINT8, BASE_HEX, NULL,

@@ -52,42 +52,35 @@
 void
 zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version)
 {
-    proto_item      *ti = NULL;
+    proto_tree      *bind_tree;
+    proto_item      *ti;
     guint           len = 0;
 
-    guint64 src64;
-    guint8  src_ep;
-    guint16 cluster;
     guint8  mode;
-    guint64 dst64;
-    guint16 dst;
-    guint8  dst_ep;
 
     /* Add the source address. */
-    src64 = tvb_get_letoh64(tvb, *offset + len);
-    if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 0, "Bind {Src: %s", ep_eui64_to_display(src64));
-    len += (int)sizeof(guint64);
+    bind_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_zbee_zdp_bind_entry, &ti, "Bind");
+    proto_tree_add_item(bind_tree, hf_zbee_zdp_bind_src64, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    len += 8;
 
     /* Add the source endpoint. */
-    src_ep = tvb_get_guint8(tvb, *offset + len);
-    if (tree) proto_item_append_text(ti, ", Src Endpoint: %d", src_ep);
-    len += (int)sizeof(guint8);
+    proto_tree_add_item(bind_tree, hf_zbee_zdp_bind_src_ep, tvb, *offset + len, 1, ENC_LITTLE_ENDIAN);
+    len += 1;
 
     /* Add the cluster ID. */
     if (version >= ZBEE_VERSION_2007) {
-        cluster = tvb_get_letohs(tvb, *offset + len);
-        len += (int)sizeof(guint16);
+        proto_tree_add_item(bind_tree, hf_zbee_zdp_cluster, tvb, *offset + len, 2, ENC_LITTLE_ENDIAN);
+        len += 2;
     }
     else {
-        cluster = tvb_get_guint8(tvb, *offset + len);
-        len += (int)sizeof(guint8);
+        proto_tree_add_item(bind_tree, hf_zbee_zdp_cluster, tvb, *offset + len, 1, ENC_LITTLE_ENDIAN);
+        len += 1;
     }
-    if (tree) proto_item_append_text(ti, ", Cluster: %d", cluster);
 
     /* Get the destination address mode. */
     if (version >= ZBEE_VERSION_2007) {
         mode = tvb_get_guint8(tvb, *offset + len);
-        len += (int)sizeof(guint8);
+        len += 1;
     }
     else {
         /* Mode field doesn't exist and always uses unicast in 2003 & earlier. */
@@ -96,26 +89,17 @@ zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint
 
     /* Add the destination address. */
     if (mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
-        dst = tvb_get_letohs(tvb, *offset + len);
-        if (tree) proto_item_append_text(ti, ", Dst: 0x%04x}", dst);
-        len += (int)sizeof(guint16);
+        proto_tree_add_item(bind_tree, hf_zbee_zdp_bind_dst, tvb, *offset + len, 2, ENC_LITTLE_ENDIAN);
+        len += 2;
     }
     else if (mode == ZBEE_ZDP_ADDR_MODE_UNICAST) {
-        dst64 = tvb_get_letoh64(tvb, *offset + len);
-        if (tree) proto_item_append_text(ti, ", Dst: %s", ep_eui64_to_display(dst64));
-        len += (int)sizeof(guint64);
-
-        dst_ep = tvb_get_guint8(tvb, *offset + len);
-        if (tree) proto_item_append_text(ti, ", Dst Endpoint: %d}", dst_ep);
-        len += (int)sizeof(guint8);
-    }
-    else {
-        if (tree) proto_item_append_text(ti, "}");
+        proto_tree_add_item(bind_tree, hf_zbee_zdp_bind_dst64, tvb, *offset + len, 8, ENC_LITTLE_ENDIAN);
+        len += 8;
+        proto_tree_add_item(bind_tree, hf_zbee_zdp_bind_dst_ep, tvb, *offset + len, 1, ENC_LITTLE_ENDIAN);
+        len += 1;
     }
 
-    if (tree) {
-        proto_item_set_len(ti, len);
-    }
+    proto_item_set_len(ti, len);
     *offset += len;
 } /* zdp_parse_bind_table_entry */
 
@@ -242,7 +226,7 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         zbee_append_info(tree, pinfo, ", Dst: 0x%04x", dst);
     }
     else {
-        zbee_append_info(tree, pinfo, ", Dst: %s", eui64_to_str(dst64));
+        zbee_append_info(tree, pinfo, ", Dst: %s", ep_eui64_to_display(dst64));
     }
 
     /* Dump any leftover bytes. */
@@ -308,7 +292,7 @@ dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         zbee_append_info(tree, pinfo, ", Dst: 0x%04x", dst);
     }
     else {
-        zbee_append_info(tree, pinfo, ", Dst: %s", eui64_to_str(dst64));
+        zbee_append_info(tree, pinfo, ", Dst: %s", ep_eui64_to_display(dst64));
     }
 
     /* Dump any leftover bytes. */

@@ -1649,10 +1649,12 @@ static int hf_zbee_zcl_ota_payload_type = -1;
 static int hf_zbee_zcl_ota_query_jitter = -1;
 static int hf_zbee_zcl_ota_manufacturer_code = -1;
 static int hf_zbee_zcl_ota_image_type = -1;
+static int hf_zbee_zcl_ota_file_version = -1;
 static int hf_zbee_zcl_ota_file_version_appl_release = -1;
 static int hf_zbee_zcl_ota_file_version_appl_build = -1;
 static int hf_zbee_zcl_ota_file_version_stack_release = -1;
 static int hf_zbee_zcl_ota_file_version_stack_build = -1;
+static int hf_zbee_zcl_ota_field_ctrl = -1;
 static int hf_zbee_zcl_ota_field_ctrl_hw_ver_present = -1;
 static int hf_zbee_zcl_ota_field_ctrl_reserved = -1;
 static int hf_zbee_zcl_ota_hw_version = -1;
@@ -1850,18 +1852,16 @@ decode_zcl_ota_size_in_bytes(gchar *s, guint32 value)
 static void
 dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_tree  *sub_tree = NULL;
-    proto_item  *ti;
-    guint32     file_version;
+    static const int * file_version[] = {
+        &hf_zbee_zcl_ota_file_version_appl_release,
+        &hf_zbee_zcl_ota_file_version_appl_build,
+        &hf_zbee_zcl_ota_file_version_stack_release,
+        &hf_zbee_zcl_ota_file_version_stack_build,
+        NULL
+    };
 
     /* 'File Version' field present, retrieves it */
-    file_version = tvb_get_ntohl(tvb, *offset);
-    ti = proto_tree_add_text(tree, tvb, *offset, 4, "File Version: 0x%08x", file_version);
-    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_ota_file_version);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_appl_release, tvb, *offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_appl_build, tvb, *offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_stack_release, tvb, *offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_stack_build, tvb, *offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_ota_file_version, ett_zbee_zcl_ota_file_version, file_version, ENC_BIG_ENDIAN);
     *offset += 4;
 } /*dissect_zcl_ota_file_version_field*/
 
@@ -1881,19 +1881,19 @@ dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offse
 static guint8
 dissect_zcl_ota_field_ctrl_field(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_tree  *sub_tree = NULL;
-    proto_item  *ti;
-    guint8      field_ctrl;
+    guint8      field;
+    static const int * field_ctrl[] = {
+        &hf_zbee_zcl_ota_field_ctrl_hw_ver_present,
+        &hf_zbee_zcl_ota_field_ctrl_reserved,
+        NULL
+    };
 
     /* Retrieve 'Field Control' field */
-    field_ctrl = tvb_get_guint8(tvb, *offset);
-    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Field Control: 0x%02x", field_ctrl);
-    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_ota_field_ctrl);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_field_ctrl_hw_ver_present, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_field_ctrl_reserved, tvb, *offset, 1, ENC_NA);
+    field = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_ota_field_ctrl, ett_zbee_zcl_ota_field_ctrl, field_ctrl, ENC_BIG_ENDIAN);
     *offset += 1;
 
-    return field_ctrl;
+    return field;
 } /*dissect_zcl_ota_field_ctrl_field*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2581,6 +2581,11 @@ void proto_register_zbee_zcl_ota(void)
             RVALS(zbee_zcl_ota_image_type_names), 0x0, NULL, HFILL } },
 
 /* Begin FileVersion fields */
+
+        { &hf_zbee_zcl_ota_file_version,
+            { "File Version", "zbee_zcl_general.ota.file.version", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_ota_file_version_appl_release,
             { "Application Release", "zbee_zcl_general.ota.file.version.appl.release", FT_UINT32, BASE_DEC, NULL,
             ZBEE_ZCL_OTA_FILE_VERS_APPL_RELEASE, NULL, HFILL } },
@@ -2599,6 +2604,11 @@ void proto_register_zbee_zcl_ota(void)
 /* End FileVersion fields */
 
 /* Begin FieldControl fields */
+
+        { &hf_zbee_zcl_ota_field_ctrl,
+            { "Field Control", "zbee_zcl_general.ota.field_ctrl",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_ota_field_ctrl_hw_ver_present,
             { "Hardware Version", "zbee_zcl_general.ota.field_ctrl_hw_ver_present",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT, NULL, HFILL } },
@@ -2815,10 +2825,12 @@ static int proto_zbee_zcl_pwr_prof = -1;
 static int hf_zbee_zcl_pwr_prof_attr_id = -1;
 static int hf_zbee_zcl_pwr_prof_tot_prof_num = -1;
 static int hf_zbee_zcl_pwr_prof_multiple_sched = -1;
+static int hf_zbee_zcl_pwr_prof_energy_format = -1;
 static int hf_zbee_zcl_pwr_prof_energy_format_rdigit = -1;
 static int hf_zbee_zcl_pwr_prof_energy_format_ldigit = -1;
 static int hf_zbee_zcl_pwr_prof_energy_format_noleadingzero = -1;
 static int hf_zbee_zcl_pwr_prof_energy_remote = -1;
+static int hf_zbee_zcl_pwr_prof_sched_mode = -1;
 static int hf_zbee_zcl_pwr_prof_sched_mode_cheapest = -1;
 static int hf_zbee_zcl_pwr_prof_sched_mode_greenest = -1;
 static int hf_zbee_zcl_pwr_prof_sched_mode_reserved = -1;
@@ -2842,6 +2854,7 @@ static int hf_zbee_zcl_pwr_prof_pwr_prof_rem_ctrl = -1;
 static int hf_zbee_zcl_pwr_prof_pwr_prof_state = -1;
 static int hf_zbee_zcl_pwr_prof_start_after = -1;
 static int hf_zbee_zcl_pwr_prof_stop_before = -1;
+static int hf_zbee_zcl_pwr_prof_options = -1;
 static int hf_zbee_zcl_pwr_prof_options_01 = -1;
 static int hf_zbee_zcl_pwr_prof_options_res = -1;
 static int hf_zbee_zcl_pwr_prof_pwr_prof_stime = -1;
@@ -3425,16 +3438,14 @@ dissect_zcl_pwr_prof_pwrprofschedcontrsnotif(tvbuff_t *tvb, proto_tree *tree, gu
 static void
 dissect_zcl_pwr_prof_pwrprofpriceext(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_tree *sub_tree = NULL;
-    proto_item *ti;
-    guint8 options;
+    static const int * options[] = {
+        &hf_zbee_zcl_pwr_prof_options_01,
+        &hf_zbee_zcl_pwr_prof_options_res,
+        NULL
+    };
 
     /* Retrieve "Options" field */
-    options = tvb_get_guint8(tvb, *offset);
-    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Options: 0x%02x", options);
-    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_options);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_pwr_prof_options_01, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_pwr_prof_options_res, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_pwr_prof_options, ett_zbee_zcl_pwr_prof_options, options, ENC_NA);
     *offset += 1;
 
     /* Retrieve "Power Profile Id" field */
@@ -3467,9 +3478,18 @@ dissect_zcl_pwr_prof_pwrprofpriceext(tvbuff_t *tvb, proto_tree *tree, guint *off
 static void
 dissect_zcl_pwr_prof_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
-    guint8      value8;
+    static const int * format_fields[] = {
+        &hf_zbee_zcl_pwr_prof_energy_format_rdigit,
+        &hf_zbee_zcl_pwr_prof_energy_format_ldigit,
+        &hf_zbee_zcl_pwr_prof_energy_format_noleadingzero,
+        NULL
+    };
+    static const int * modes[] = {
+        &hf_zbee_zcl_pwr_prof_sched_mode_cheapest,
+        &hf_zbee_zcl_pwr_prof_sched_mode_greenest,
+        &hf_zbee_zcl_pwr_prof_sched_mode_reserved,
+        NULL
+    };
 
     /* Dissect attribute data type and data */
     switch ( attr_id )
@@ -3485,12 +3505,7 @@ dissect_zcl_pwr_prof_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
             break;
 
         case ZBEE_ZCL_ATTR_ID_PWR_PROF_ENERGY_FORMAT:
-            value8 = tvb_get_guint8(tvb, *offset);
-            ti = proto_tree_add_text(tree, tvb, *offset, 1, "Data: 0x%02x", value8);
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_en_format);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_pwr_prof_energy_format_rdigit, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_pwr_prof_energy_format_ldigit, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_pwr_prof_energy_format_noleadingzero, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_pwr_prof_energy_format, ett_zbee_zcl_pwr_prof_en_format, format_fields, ENC_NA);
             *offset += 1;
             break;
 
@@ -3500,12 +3515,7 @@ dissect_zcl_pwr_prof_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
             break;
 
         case ZBEE_ZCL_ATTR_ID_PWR_PROF_SCHED_MODE:
-            value8 = tvb_get_guint8(tvb, *offset);
-            ti = proto_tree_add_text(tree, tvb, *offset, 1, "Schedule Mode: 0x%02x", value8);
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_pwr_prof_sched_mode);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_pwr_prof_sched_mode_cheapest, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_pwr_prof_sched_mode_greenest, tvb, *offset, 1, ENC_NA);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_pwr_prof_sched_mode_reserved, tvb, *offset, 1, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_pwr_prof_sched_mode, ett_zbee_zcl_pwr_prof_sched_mode, modes, ENC_NA);
             *offset += 1;
             break;
 
@@ -3647,6 +3657,10 @@ proto_register_zbee_zcl_pwr_prof(void)
             TFS(&tfs_supported_not_supported), 0x0, NULL, HFILL } },
 
 /* Begin EnergyFormatting fields */
+        { &hf_zbee_zcl_pwr_prof_energy_format,
+            { "Data", "zbee_zcl_general.pwrprof.attr.energyformat",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_pwr_prof_energy_format_rdigit,
             { "Number of Digits to the right of the Decimal Point", "zbee_zcl_general.pwrprof.attr.energyformat.rdigit",
             FT_UINT8, BASE_DEC, NULL, ZBEE_ZCL_OPT_PWRPROF_NUM_R_DIGIT, NULL, HFILL } },
@@ -3665,6 +3679,10 @@ proto_register_zbee_zcl_pwr_prof(void)
             TFS(&tfs_enabled_disabled), 0x0, NULL, HFILL } },
 
 /* Begin ScheduleMode fields */
+        { &hf_zbee_zcl_pwr_prof_sched_mode,
+            { "Schedule Mode", "zbee_zcl_general.pwrprof.attr.schedmode",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_pwr_prof_sched_mode_cheapest,
             { "Schedule Mode Cheapest", "zbee_zcl_general.pwrprof.attr.schedmode.cheapest",
             FT_BOOLEAN, 8, TFS(&tfs_active_inactive), ZBEE_ZCL_OPT_PWRPROF_SCHED_CHEAPEST, NULL, HFILL } },
@@ -3763,6 +3781,10 @@ proto_register_zbee_zcl_pwr_prof(void)
             NULL, HFILL } },
 
 /* Begin Options fields */
+        { &hf_zbee_zcl_pwr_prof_options,
+            { "Options", "zbee_zcl_general.pwrprof.options", FT_UINT8, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_pwr_prof_options_01,
             { "PowerProfileStartTime Field Present", "zbee_zcl_general.pwrprof.options.01", FT_BOOLEAN, 8, TFS(&tfs_true_false),
             ZBEE_ZCL_OPT_PWRPROF_STIME_PRESENT, NULL, HFILL } },
@@ -3953,6 +3975,7 @@ static void dissect_zcl_appl_ctrl_attr_data             (proto_tree *tree, tvbuf
 static int proto_zbee_zcl_appl_ctrl = -1;
 
 static int hf_zbee_zcl_appl_ctrl_attr_id = -1;
+static int hf_zbee_zcl_appl_ctrl_time = -1;
 static int hf_zbee_zcl_appl_ctrl_time_mm = -1;
 static int hf_zbee_zcl_appl_ctrl_time_encoding_type = -1;
 static int hf_zbee_zcl_appl_ctrl_time_hh = -1;
@@ -3963,6 +3986,7 @@ static int hf_zbee_zcl_appl_ctrl_attr_func_id = -1;
 static int hf_zbee_zcl_appl_ctrl_attr_func_data_type = -1;
 static int hf_zbee_zcl_appl_ctrl_warning_id = -1;
 static int hf_zbee_zcl_appl_ctrl_appl_status = -1;
+static int hf_zbee_zcl_appl_ctrl_rem_en_flags_raw = -1;
 static int hf_zbee_zcl_appl_ctrl_rem_en_flags = -1;
 static int hf_zbee_zcl_appl_ctrl_status2 = -1;
 static int hf_zbee_zcl_appl_ctrl_status2_array = -1;
@@ -4310,20 +4334,18 @@ dissect_zcl_appl_ctrl_ovrl_warning(tvbuff_t *tvb, proto_tree *tree, guint *offse
 static void
 dissect_zcl_appl_ctrl_signal_state_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
-    guint8      flags;
+    static const int * flags[] = {
+        &hf_zbee_zcl_appl_ctrl_rem_en_flags,
+        &hf_zbee_zcl_appl_ctrl_status2,
+        NULL
+    };
 
     /* Retrieve "Appliance Status" field */
     proto_tree_add_item(tree, hf_zbee_zcl_appl_ctrl_appl_status, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Retrieve "Remote Enable" field */
-    flags = tvb_get_guint8(tvb, *offset);
-    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Remote Enable Flags: 0x%02x", flags);
-    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_appl_ctrl_flags);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_rem_en_flags, tvb, *offset, 1, ENC_NA);
-    proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_status2, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_appl_ctrl_rem_en_flags_raw, ett_zbee_zcl_appl_ctrl_flags, flags, ENC_NA);
     *offset += 1;
 
     /* Retrieve "Appliance Status 2" field */
@@ -4349,9 +4371,12 @@ dissect_zcl_appl_ctrl_signal_state_rsp(tvbuff_t *tvb, proto_tree *tree, guint *o
 static void
 dissect_zcl_appl_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
-    proto_item  *ti = NULL;
-    proto_tree  *sub_tree = NULL;
-    guint16     raw_time;
+    static const int * flags[] = {
+        &hf_zbee_zcl_appl_ctrl_time_mm,
+        &hf_zbee_zcl_appl_ctrl_time_encoding_type,
+        &hf_zbee_zcl_appl_ctrl_time_hh,
+        NULL
+    };
 
     /* Dissect attribute data type and data */
     switch (attr_id) {
@@ -4359,13 +4384,7 @@ dissect_zcl_appl_ctrl_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, 
         case ZBEE_ZCL_ATTR_ID_APPL_CTRL_START_TIME:
         case ZBEE_ZCL_ATTR_ID_APPL_CTRL_FINISH_TIME:
         case ZBEE_ZCL_ATTR_ID_APPL_CTRL_REMAINING_TIME:
-            raw_time = tvb_get_letohs(tvb, *offset);
-            ti = proto_tree_add_text(tree, tvb, *offset, 2, "Data: 0x%04x", raw_time);
-            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_appl_ctrl_time);
-
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_mm, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_encoding_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_ctrl_time_hh, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_appl_ctrl_time, ett_zbee_zcl_appl_ctrl_time, flags, ENC_LITTLE_ENDIAN);
             *offset += 2;
             break;
 
@@ -4399,6 +4418,10 @@ proto_register_zbee_zcl_appl_ctrl(void)
             { "Attribute", "zbee_zcl_general.applctrl.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_appl_ctrl_attr_names),
             0x0, NULL, HFILL } },
 
+        { &hf_zbee_zcl_appl_ctrl_time,
+            { "Data", "zbee_zcl_general.applctrl.time", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL } },
+
         { &hf_zbee_zcl_appl_ctrl_time_mm,
             { "Minutes", "zbee_zcl_general.applctrl.time.mm", FT_UINT16, BASE_DEC, NULL, ZBEE_ZCL_APPL_CTRL_TIME_MM,
             NULL, HFILL } },
@@ -4421,6 +4444,10 @@ proto_register_zbee_zcl_appl_ctrl(void)
 
         { &hf_zbee_zcl_appl_ctrl_appl_status,
             { "Appliance Status", "zbee_zcl_general.applctrl.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_appl_ctrl_appl_status_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_appl_ctrl_rem_en_flags_raw,
+            { "Remote Enable Flags", "zbee_zcl_general.applctrl.remote_enable_flags", FT_UINT8, BASE_HEX, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_appl_ctrl_rem_en_flags,

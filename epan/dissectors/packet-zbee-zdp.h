@@ -208,6 +208,7 @@ extern int hf_zbee_zdp_table_size;
 extern int hf_zbee_zdp_table_count;
 extern int hf_zbee_zdp_assoc_device_count;
 extern int hf_zbee_zdp_assoc_device;
+extern int hf_zbee_zdp_cache_address;
 
 /* Discovery indicies. */
 extern int hf_zbee_zdp_cache;
@@ -245,6 +246,27 @@ extern int hf_zbee_zdp_manager;
 extern int hf_zbee_zdp_tx_total;
 extern int hf_zbee_zdp_tx_fail;
 extern int hf_zbee_zdp_channel_count;
+extern int hf_zbee_zdp_channel_mask;
+extern int hf_zbee_zdp_channel_energy;
+extern int hf_zbee_zdp_pan_eui64;
+extern int hf_zbee_zdp_pan_uint;
+extern int hf_zbee_zdp_channel;
+extern int hf_zbee_zdp_nwk_desc_profile;
+extern int hf_zbee_zdp_profile_version;
+extern int hf_zbee_zdp_beacon;
+extern int hf_zbee_zdp_superframe;
+extern int hf_zbee_zdp_permit_joining;
+extern int hf_zbee_zdp_extended_pan;
+extern int hf_zbee_zdp_addr;
+extern int hf_zbee_zdp_table_entry_type;
+extern int hf_zbee_zdp_table_entry_idle_rx_0c;
+extern int hf_zbee_zdp_table_entry_relationship_70;
+extern int hf_zbee_zdp_table_entry_idle_rx_04;
+extern int hf_zbee_zdp_table_entry_relationship_18;
+extern int hf_zbee_zdp_depth;
+extern int hf_zbee_zdp_permit_joining_03;
+extern int hf_zbee_zdp_lqi;
+
 
 /* Routing Table */
 extern int hf_zbee_zdp_rtg;
@@ -265,6 +287,7 @@ extern gint ett_zbee_zdp_cinfo;
 extern gint ett_zbee_zdp_server;
 extern gint ett_zbee_zdp_simple_sizes;
 extern gint ett_zbee_zdp_bind;
+extern gint ett_zbee_zdp_bind_entry;
 extern gint ett_zbee_zdp_bind_end_in;
 extern gint ett_zbee_zdp_bind_end_out;
 extern gint ett_zbee_zdp_bind_source;
@@ -273,6 +296,8 @@ extern gint ett_zbee_zdp_nwk;
 extern gint ett_zbee_zdp_lqi;
 extern gint ett_zbee_zdp_rtg;
 extern gint ett_zbee_zdp_cache;
+extern gint ett_zbee_zdp_nwk_desc;
+extern gint ett_zbee_zdp_table_entry;
 
 /**************************************
  * Helper Functions
@@ -290,7 +315,7 @@ extern void     zdp_parse_simple_desc   (proto_tree *tree, gint ettindex, tvbuff
 extern void     zdp_parse_complex_desc  (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset, guint length);
 
 extern guint8   zdp_parse_status        (proto_tree *tree, tvbuff_t *tvb, guint *offset);
-extern guint32  zdp_parse_chanmask      (proto_tree *tree, tvbuff_t *tvb, guint *offset);
+extern guint32  zdp_parse_chanmask      (proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_channel);
 extern guint8   zdp_parse_cinfo         (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset);
 extern guint16  zdp_parse_server_flags  (proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offset);
 
@@ -330,7 +355,7 @@ extern void dissect_zbee_zdp_req_recover_bind_table (tvbuff_t *tvb, packet_info 
 extern void dissect_zbee_zdp_req_backup_source_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_recover_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-extern void dissect_zbee_zdp_req_mgmt_nwk_disc      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_req_mgmt_nwk_disc      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hf_channel);
 extern void dissect_zbee_zdp_req_mgmt_lqi           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_mgmt_rtg           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_mgmt_bind          (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

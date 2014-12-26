@@ -71,6 +71,7 @@ static int hf_zbee_zdp_status = -1;
        int hf_zbee_zdp_out_cluster = -1;
        int hf_zbee_zdp_assoc_device_count = -1;
        int hf_zbee_zdp_assoc_device = -1;
+       int hf_zbee_zdp_cache_address = -1;
 
 /* Capability information indicies. */
 static int hf_zbee_zdp_cinfo_alloc = -1;
@@ -155,6 +156,27 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_tx_total = -1;
        int hf_zbee_zdp_tx_fail = -1;
        int hf_zbee_zdp_channel_count = -1;
+       int hf_zbee_zdp_channel_mask = -1;
+       int hf_zbee_zdp_channel_energy = -1;
+       int hf_zbee_zdp_pan_eui64 = -1;
+       int hf_zbee_zdp_pan_uint = -1;
+       int hf_zbee_zdp_channel = -1;
+       int hf_zbee_zdp_nwk_desc_profile = -1;
+       int hf_zbee_zdp_profile_version = -1;
+       int hf_zbee_zdp_beacon = -1;
+       int hf_zbee_zdp_superframe = -1;
+       int hf_zbee_zdp_permit_joining = -1;
+       int hf_zbee_zdp_extended_pan = -1;
+       int hf_zbee_zdp_addr = -1;
+       int hf_zbee_zdp_table_entry_type = -1;
+       int hf_zbee_zdp_table_entry_idle_rx_0c = -1;
+       int hf_zbee_zdp_table_entry_relationship_70 = -1;
+       int hf_zbee_zdp_table_entry_idle_rx_04 = -1;
+       int hf_zbee_zdp_table_entry_relationship_18 = -1;
+       int hf_zbee_zdp_depth = -1;
+       int hf_zbee_zdp_permit_joining_03 = -1;
+       int hf_zbee_zdp_lqi = -1;
+static int hf_zbee_zdp_scan_channel = -1;
 
 /* Routing Table */
        int hf_zbee_zdp_rtg = -1;
@@ -177,6 +199,7 @@ static gint ett_zbee_zdp_node_out = -1;
        gint ett_zbee_zdp_server = -1;
        gint ett_zbee_zdp_simple_sizes = -1;
        gint ett_zbee_zdp_bind = -1;
+       gint ett_zbee_zdp_bind_entry = -1;
        gint ett_zbee_zdp_bind_end_in = -1;
        gint ett_zbee_zdp_bind_end_out = -1;
 static gint ett_zbee_zdp_bind_table = -1;
@@ -186,6 +209,8 @@ static gint ett_zbee_zdp_bind_table = -1;
        gint ett_zbee_zdp_lqi = -1;
        gint ett_zbee_zdp_rtg = -1;
        gint ett_zbee_zdp_cache = -1;
+       gint ett_zbee_zdp_nwk_desc = -1;
+       gint ett_zbee_zdp_table_entry = -1;
        gint ett_zbee_zdp_descriptor_capability_field = -1;
 
 /* Data dissector handle. */
@@ -313,6 +338,53 @@ const value_string zbee_zdp_rtg_status_vals[] = {
     { 0x03,  "Inactive" },
     { 0, NULL }
 };
+
+/* The reason this has it's own value_string and doesn't use
+   tfs_true_false, is that some hf_ fields use bitmasks larger
+   than 0x01, and it's intentional that those other values be
+   "Unknown" (which is what value_string will give us)
+ */
+const value_string zbee_zdp_true_false_plus_vals[] = {
+    { 0x00,  "False" },
+    { 0x01,  "True" },
+    { 0, NULL }
+};
+
+const value_string zbee_zdp_table_entry_type_vals[] = {
+    { 0x00,  "Coordinator" },
+    { 0x01,  "Router" },
+    { 0x02,  "End Device" },
+    { 0, NULL }
+};
+
+const value_string zbee_zdp_relationship_vals[] = {
+    { 0x00,  "Parent" },
+    { 0x01,  "Child" },
+    { 0x02,  "Sibling" },
+    { 0x03,  "None" },
+    { 0x04,  "Previous Child" },
+    { 0, NULL }
+};
+
+/*
+    if (tree) {
+        if (type == 0x00)       proto_item_append_text(ti, ", Type: Coordinator");
+        else if (type == 0x01)  proto_item_append_text(ti, ", Type: Router");
+        else if (type == 0x02)  proto_item_append_text(ti, ", Type: End Device");
+        else                    proto_item_append_text(ti, ", Type: Unknown");
+
+        if (idle_rx == 0x00)    proto_item_append_text(ti, ", Idle Rx: False");
+        else if (idle_rx==0x01) proto_item_append_text(ti, ", Idle Rx: True");
+        else                    proto_item_append_text(ti, ", Idle Rx: Unknown");
+
+        if (rel == 0x00)        proto_item_append_text(ti, ", Relationship: Parent");
+        else if (rel == 0x01)   proto_item_append_text(ti, ", Relationship: Child");
+        else if (rel == 0x02)   proto_item_append_text(ti, ", Relationship: Sibling");
+        else if (rel == 0x03)   proto_item_append_text(ti, ", Relationship: None");
+        else if (rel == 0x04)   proto_item_append_text(ti, ", Relationship: Previous Child");
+        else                    proto_item_append_text(ti, ", Relationship: Unknown");
+    }
+*/
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -556,7 +628,7 @@ zdp_parse_status(proto_tree *tree, tvbuff_t *tvb, guint *offset)
  *---------------------------------------------------------------
  */
 guint32
-zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset, int hf_channel)
 {
     int         i;
     guint32     mask;
@@ -565,7 +637,7 @@ zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, guint *offset)
     /* Get and display the channel mask. */
     mask = tvb_get_letohl(tvb, *offset);
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, *offset, (int)sizeof(guint32), "Channels: ");
+        ti = proto_tree_add_uint_format(tree, hf_channel, tvb, *offset, 4, mask, "Channels: ");
 
         /* Check if there are any channels to display. */
         if (mask==0) {
@@ -1155,7 +1227,7 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             dissect_zbee_zdp_req_recover_source_bind(zdp_tvb, pinfo, zdp_tree);
             break;
         case ZBEE_ZDP_REQ_MGMT_NWK_DISC:
-            dissect_zbee_zdp_req_mgmt_nwk_disc(zdp_tvb, pinfo, zdp_tree);
+            dissect_zbee_zdp_req_mgmt_nwk_disc(zdp_tvb, pinfo, zdp_tree, hf_zbee_zdp_scan_channel);
             break;
         case ZBEE_ZDP_REQ_MGMT_LQI:
             dissect_zbee_zdp_req_mgmt_lqi(zdp_tvb, pinfo, zdp_tree);
@@ -1384,6 +1456,10 @@ void proto_register_zbee_zdp(void)
         { &hf_zbee_zdp_table_count,
         { "Table Count",                "zbee_zdp.table_count", FT_UINT16, BASE_DEC, NULL, 0x0,
             "Number of table entries included in this message.", HFILL }},
+
+        { &hf_zbee_zdp_cache_address,
+        { "Cache Address",                "zbee_zdp.cache_address", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_zbee_zdp_in_count,
         { "Input Cluster Count",        "zbee_zdp.in_count", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1665,6 +1741,90 @@ void proto_register_zbee_zdp(void)
         { "Channel List Count",         "zbee_zdp.channel_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_zbee_zdp_channel_mask,
+        { "Channels",                   "zbee_zdp.channel_mask", FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_channel_energy,
+        { "Channel Energy",         "zbee_zdp.channel_energy", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_pan_eui64,
+        { "Pan",         "zbee_zdp.pan.eui64", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_pan_uint,
+        { "Pan",         "zbee_zdp.pan.uint", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_channel,
+        { "Channel",         "zbee_zdp.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_nwk_desc_profile,
+        { "Profile",         "zbee_zdp.profile", FT_UINT8, BASE_HEX, NULL, 0x0F,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_profile_version,
+        { "Version",         "zbee_zdp.profile_version", FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_beacon,
+        { "Beacon Order",         "zbee_zdp.beacon", FT_UINT8, BASE_DEC, NULL, 0x0F,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_superframe,
+        { "Superframe Order",         "zbee_zdp.superframe", FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_permit_joining,
+        { "Permit Joining",         "zbee_zdp.permit_joining", FT_UINT8, BASE_DEC, VALS(zbee_zdp_true_false_plus_vals), 0x01,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_permit_joining_03,
+        { "Permit Joining",         "zbee_zdp.permit_joining", FT_UINT8, BASE_DEC, VALS(zbee_zdp_true_false_plus_vals), 0x03,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_extended_pan,
+        { "Extended Pan",         "zbee_zdp.extended_pan", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_addr,
+        { "Addr",       "zbee_zdp.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_depth,
+        { "Depth",         "zbee_zdp.depth", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_lqi,
+        { "LQI",         "zbee_zdp.lqi", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_scan_channel,
+        { "Scan Channels",         "zbee_zdp.scan_channel", FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_table_entry_type,
+        { "Type",         "zbee_zdp.table_entry_type", FT_UINT8, BASE_DEC, VALS(zbee_zdp_table_entry_type_vals), 0x03,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_table_entry_idle_rx_0c,
+        { "Idle Rx",         "zbee_zdp.idle_rx", FT_UINT8, BASE_DEC, VALS(zbee_zdp_true_false_plus_vals), 0x0c,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_table_entry_idle_rx_04,
+        { "Idle Rx",         "zbee_zdp.idle_rx", FT_UINT8, BASE_DEC, VALS(zbee_zdp_true_false_plus_vals), 0x04,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_table_entry_relationship_18,
+        { "Relationship",         "zbee_zdp.relationship", FT_UINT8, BASE_DEC, VALS(zbee_zdp_relationship_vals), 0x18,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_table_entry_relationship_70,
+        { "Relationship",         "zbee_zdp.relationship", FT_UINT8, BASE_DEC, VALS(zbee_zdp_relationship_vals), 0x70,
+            NULL, HFILL }},
+
         { &hf_zbee_zdp_rtg,
         { "Routing Table",         "zbee_zdp.routing", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
@@ -1698,6 +1858,7 @@ void proto_register_zbee_zdp(void)
         &ett_zbee_zdp_server,
         &ett_zbee_zdp_simple_sizes,
         &ett_zbee_zdp_bind,
+        &ett_zbee_zdp_bind_entry,
         &ett_zbee_zdp_bind_end_in,
         &ett_zbee_zdp_bind_end_out,
         &ett_zbee_zdp_bind_table,
@@ -1707,6 +1868,8 @@ void proto_register_zbee_zdp(void)
         &ett_zbee_zdp_lqi,
         &ett_zbee_zdp_rtg,
         &ett_zbee_zdp_cache,
+        &ett_zbee_zdp_nwk_desc,
+        &ett_zbee_zdp_table_entry,
         &ett_zbee_zdp_descriptor_capability_field,
     };
 
