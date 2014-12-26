@@ -216,18 +216,26 @@ colorize_conversation_cb(color_conversation_filter_t* color_filter, int action_n
             color_filter = find_color_conversation_filter("tcp");
             if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                 filter = color_filter->build_filter_string(pi);
-            color_filter = find_color_conversation_filter("udp");
-            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                filter = color_filter->build_filter_string(pi);
-            color_filter = find_color_conversation_filter("ip");
-            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                filter = color_filter->build_filter_string(pi);
-            color_filter = find_color_conversation_filter("ipv6");
-            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                filter = color_filter->build_filter_string(pi);
-            color_filter = find_color_conversation_filter("eth");
-            if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-                filter = color_filter->build_filter_string(pi);
+            if (filter == NULL) {
+                color_filter = find_color_conversation_filter("udp");
+                if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+                    filter = color_filter->build_filter_string(pi);
+            }
+            if (filter == NULL) {
+                color_filter = find_color_conversation_filter("ip");
+                if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+                    filter = color_filter->build_filter_string(pi);
+            }
+            if (filter == NULL) {
+                color_filter = find_color_conversation_filter("ipv6");
+                if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+                    filter = color_filter->build_filter_string(pi);
+            }
+            if (filter == NULL) {
+                color_filter = find_color_conversation_filter("eth");
+                if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
+                    filter = color_filter->build_filter_string(pi);
+            }
             if( filter == NULL ) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unable to build conversation filter.");
                 return;
