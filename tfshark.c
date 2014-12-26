@@ -780,12 +780,22 @@ main(int argc, char *argv[])
   dfilter_t           *dfcode = NULL;
   e_prefs             *prefs_p;
   int                  log_flags;
-  int                  optind_initial;
   gchar               *output_only = NULL;
 
-/* the leading - ensures that getopt() does not permute the argv[] entries
-   we have to make sure that the first getopt() preserves the content of argv[]
-   for the subsequent getopt_long() call */
+/*
+ * The leading - ensures that getopt_long() does not permute the argv[] entries.
+ *
+ * We have to make sure that the first getopt_long() preserves the content
+ * of argv[] for the subsequent getopt_long() call.
+ *
+ * We use getopt_long() in both cases to ensure that we're using a routine
+ * whose permutation behavior we can control in the same fashion on all
+ * platforms, and so that, if we ever need to process a long argument before
+ * doing further initialization, we can do so.
+ *
+ * XXX - the behavior of a leading - is platform-dependent, so we shouldn't
+ * use it.
+ */
 #define OPTSTRING "-2C:d:e:E:hK:lo:O:qQr:R:S:t:T:u:vVxX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
@@ -831,11 +841,18 @@ main(int argc, char *argv[])
   /*
    * In order to have the -X opts assigned before the wslua machine starts
    * we need to call getopts before epan_init() gets called.
+   *
+   * In order to handle, for example, -o options, we also need to call it
+   * *after* epan_init() gets called, so that the dissectors have had a
+   * chance to register their preferences.
+   *
+   * XXX - can we do this all with one getopt_long() call, saving the
+   * arguments we can't handle until after initializing libwireshark,
+   * and then process them after initializing libwireshark?
    */
   opterr = 0;
-  optind_initial = optind;
 
-  while ((opt = getopt(argc, argv, optstring)) != -1) {
+  while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
     switch (opt) {
     case 'C':        /* Configuration Profile */
       if (profile_exists (optarg, FALSE)) {
@@ -875,11 +892,6 @@ main(int argc, char *argv[])
    */
   if (print_summary == -1)
     print_summary = (print_details || print_hex) ? FALSE : TRUE;
-
-  optind = optind_initial;
-  opterr = 1;
-
-
 
 /** Send All g_log messages to our own handler **/
 
@@ -1063,6 +1075,28 @@ main(int argc, char *argv[])
 
   output_fields = output_fields_new();
 
+  /*
+   * To reset the options parser, set optreset to 1 on platforms that
+   * have optreset (documented in *BSD and OS X, apparently present but
+   * not documented in Solaris - the Illumos repository seems to
+   * suggest that the first Solaris getopt_long(), at least as of 2004,
+   * was based on the NetBSD one, it had optreset) and set optind to 1,
+   * and set optind to 0 otherwise (documented as working in the GNU
+   * getopt_long().  Setting optind to 0 didn't originally work in the
+   * NetBSD one, but that was added later - we don't want to depend on
+   * it if we have optreset).
+   *
+   * Also reset opterr to 1, so that error messages are printed by
+   * getopt_long().
+   */
+#ifdef HAVE_OPTRESET
+  optreset = 1;
+  optind = 1;
+#else
+  optind = 0;
+#endif
+  opterr = 1;
+
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
@@ -1070,7 +1104,7 @@ main(int argc, char *argv[])
       perform_two_pass_analysis = TRUE;
       break;
     case 'C':
-      /* Configuration profile settings were already processed just ignore them this time*/
+      /* already processed; just ignore it now */
       break;
     case 'd':        /* Decode as rule */
       if (!add_decode_as(optarg))
@@ -1258,6 +1292,7 @@ main(int argc, char *argv[])
       /* already processed; just ignore it now */
       break;
     case 'X':
+      /* already processed; just ignore it now */
       break;
     case 'Y':
       dfilter = optarg;
