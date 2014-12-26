@@ -170,8 +170,8 @@ static gchar*
 eth_build_color_filter(packet_info *pinfo)
 {
     return g_strdup_printf("eth.addr eq %s and eth.addr eq %s",
-                address_to_str(wmem_packet_scope(), &pinfo->dl_src),
-                address_to_str(wmem_packet_scope(), &pinfo->dl_dst));
+                address_to_str(pinfo->pool, &pinfo->dl_src),
+                address_to_str(pinfo->pool, &pinfo->dl_dst));
 }
 
 

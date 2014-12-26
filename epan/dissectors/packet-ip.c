@@ -548,8 +548,8 @@ static gchar*
 ip_build_color_filter(packet_info *pinfo)
 {
     return g_strdup_printf("ip.addr eq %s and ip.addr eq %s",
-                address_to_str(wmem_packet_scope(), &pinfo->net_src),
-                address_to_str(wmem_packet_scope(), &pinfo->net_dst));
+                address_to_str(pinfo->pool, &pinfo->net_src),
+                address_to_str(pinfo->pool, &pinfo->net_dst));
 }
 
 /*
