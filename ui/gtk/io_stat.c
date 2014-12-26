@@ -52,7 +52,6 @@
 #include "ui/main_statusbar.h"
 
 #include "ui/gtk/old-gtk-compat.h"
-#include "ui/gtk/gui_utils.h"
 
 void register_tap_listener_gtk_iostat(void);
 

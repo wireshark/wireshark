@@ -32,7 +32,6 @@
 #include "ui/simple_dialog.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/old-gtk-compat.h"
-#include "ui/gtk/gui_utils.h"
 
 #include "wsutil/str_util.h"
 #include "epan/app_mem_usage.h"

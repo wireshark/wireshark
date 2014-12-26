@@ -378,7 +378,6 @@ void except_free(void *ptr)
 
 #ifdef KAZLIB_TEST_MAIN
 
-#include <stdio.h>
 
 static void cleanup(void *arg)
 {

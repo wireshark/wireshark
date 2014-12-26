@@ -169,7 +169,6 @@ npf_sys_is_running() {
 #include <grp.h>
 #endif
 
-#include <glib.h>
 #include <string.h>
 #include <errno.h>
 

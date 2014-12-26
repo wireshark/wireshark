@@ -53,7 +53,6 @@
 #include "ui/gtk/uat_gui.h"
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/file_dlg.h"
-#include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/packet_win.h"
 #include "simple_dialog.h"
 

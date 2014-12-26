@@ -81,7 +81,6 @@
 #include "ui/gtk/stock_icons.h"
 
 #include "ui/gtk/old-gtk-compat.h"
-#include "ui/gtk/gui_utils.h"
 
 static gboolean initialized = FALSE;
 

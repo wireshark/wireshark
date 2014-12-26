@@ -24,7 +24,6 @@
 
 #include <glib.h>
 #include "codecs.h"
-#include "config.h"
 
 #include "G711a/G711adecode.h"
 #include "G711u/G711udecode.h"

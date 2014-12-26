@@ -34,8 +34,8 @@
 #include "ui/util.h"
 
 #include "ui/gtk/pixmap_save.h"
-#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/file_dlg.h"
+#include "ui/gtk/gui_utils.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 #if GTK_CHECK_VERSION(2,22,0)

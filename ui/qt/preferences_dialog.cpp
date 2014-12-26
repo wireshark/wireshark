@@ -35,7 +35,6 @@
 #include <ui/preference_utils.h>
 #include <main_window.h>
 
-#include "module_preferences_scroll_area.h"
 #include "syntax_line_edit.h"
 #include "qt_ui_utils.h"
 #include "uat_dialog.h"

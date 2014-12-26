@@ -180,7 +180,6 @@ static void rrc_free_value(gpointer value ){
 }
 #include "packet-rrc-fn.c"
 
-#include "packet-rrc.h"
 
 
 static void

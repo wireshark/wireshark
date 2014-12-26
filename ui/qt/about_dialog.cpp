@@ -58,7 +58,6 @@
 #include <QTextStream>
 #include <QUrl>
 
-#include "wireshark_application.h"
 
 // To do:
 // - Tweak and enhance ui...

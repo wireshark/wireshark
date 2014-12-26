@@ -39,7 +39,6 @@
 #include <epan/charsets.h>
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
-#include <epan/charsets.h>
 
 #include "../file.h"
 #include "ui/alert_box.h"

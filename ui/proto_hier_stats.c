@@ -31,7 +31,6 @@
 #include <epan/epan_dissect.h>
 #include <wtap.h>
 
-#include <stdio.h>
 #include <string.h>
 #include <glib.h>
 

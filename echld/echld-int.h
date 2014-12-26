@@ -76,7 +76,6 @@
 #include "epan/prefs.h"
 #include "epan/ex-opt.h"
 #include "epan/funnel.h"
-#include "epan/prefs.h"
 #include "epan/timestamp.h"
 #include "epan/disabled_protos.h"
 #include "echld.h"

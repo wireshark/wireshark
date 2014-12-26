@@ -91,7 +91,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
-#include <epan/timestamp.h>
 #include <epan/ex-opt.h>
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>

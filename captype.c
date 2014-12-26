@@ -62,7 +62,6 @@
 
 #include "wtap.h"
 #include <wsutil/report_err.h>
-#include <wsutil/privileges.h>
 #include <wsutil/str_util.h>
 
 #ifdef _WIN32

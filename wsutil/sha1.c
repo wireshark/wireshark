@@ -339,7 +339,6 @@ void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 bu
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <glib.h>
 #include <errno.h>
 
 /*

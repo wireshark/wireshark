@@ -200,7 +200,6 @@ struct yyParser {
 typedef struct yyParser yyParser;
 
 #ifndef NDEBUG
-#include <stdio.h>
 static FILE *yyTraceFILE = 0;
 static char *yyTracePrompt = 0;
 #endif /* NDEBUG */

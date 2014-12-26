@@ -119,10 +119,6 @@
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
 
-#ifdef _WIN32
-#include <wsutil/unicode-utils.h>
-#endif /* _WIN32 */
-
 #if 0
 /*
  * This is the template for the decode as option; it is shared between the

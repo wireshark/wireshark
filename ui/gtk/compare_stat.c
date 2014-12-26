@@ -70,7 +70,6 @@
 #include "filter_dlg.h"
 #include "service_response_time_table.h"
 #include "gtkglobals.h"
-#include "gui_utils.h"
 #include "globals.h"
 
 /* Color settings */

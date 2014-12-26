@@ -34,7 +34,6 @@
 #include "ui/gtk/main.h"
 #include "ui/tap-sctp-analysis.h"
 #include "ui/gtk/sctp_stat_gtk.h"
-#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/stock_icons.h"
 
 static GtkWidget *sctp_error_dlg=NULL;

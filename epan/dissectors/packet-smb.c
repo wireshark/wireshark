@@ -39,7 +39,6 @@
 #include "packet-smb.h"
 #include "packet-ipx.h"
 #include "packet-idp.h"
-#include "packet-smb.h"
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
 #include "packet-smb-pipe.h"

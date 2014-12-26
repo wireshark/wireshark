@@ -101,7 +101,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
-#include <epan/timestamp.h>
 #include <epan/conversation_table.h>
 #include <epan/ex-opt.h>
 
@@ -118,7 +117,6 @@
 #endif /* _WIN32 */
 #include <capchild/capture_session.h>
 #include <capchild/capture_sync.h>
-#include "capture_opts.h"
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
 #include <epan/funnel.h>

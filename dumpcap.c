@@ -100,7 +100,6 @@
 #include "pcapio.h"
 
 #ifdef _WIN32
-#include "caputils/capture-wpcap.h"
 #include <wsutil/unicode-utils.h>
 #endif
 
