@@ -1891,7 +1891,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
   case 1:
     if (wccp_wccp_address_table.table_ipv4 == NULL)
       wccp_wccp_address_table.table_ipv4 = (guint32 *)
-        wmem_alloc(pinfo->pool, wccp_wccp_address_table.table_length * 4);
+        wmem_alloc0(pinfo->pool, wccp_wccp_address_table.table_length * 4);
     if (address_length != 4) {
       expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 4, but I found  %d for IPv4 addresses. Correcting this.",
@@ -1902,7 +1902,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset,
   case 2:
     if (wccp_wccp_address_table.table_ipv6 == NULL)
       wccp_wccp_address_table.table_ipv6 = (struct e_in6_addr *)
-        wmem_alloc(pinfo->pool, wccp_wccp_address_table.table_length * sizeof(struct e_in6_addr));
+        wmem_alloc0(pinfo->pool, wccp_wccp_address_table.table_length * sizeof(struct e_in6_addr));
     if (address_length != 16) {
       expert_add_info_format(pinfo, tf, &ei_wccp_length_bad,
                              "The Address length must be 16, but I found %d for IPv6 addresses.  Correcting this",
