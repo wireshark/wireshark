@@ -547,7 +547,6 @@ int main(int argc, char *argv[])
 
     QString locale;
     QString cf_name;
-    int optind_initial;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
 
     // In Qt 5, C strings are treated always as UTF-8 when converted to
@@ -610,21 +609,47 @@ int main(int argc, char *argv[])
     }
     wsApp->emitAppSignal(WiresharkApplication::StaticRecentFilesRead);
 
-
-    /* "pre-scan" the command line parameters, if we have "console only"
-       parameters.  We do this so we don't start Qt if we're only showing
-       command-line help or version information.
-
-        XXX - this pre-scan is done before we start Qt. That means that Qt
-       arguments have not been removed from the argument list; those arguments
-       begin with "--", and will be treated as an error by getopt().
-
-       We thus ignore errors - *and* set "opterr" to 0 to suppress the
-       error messages.*/
-
+    /*
+     * In order to have the -X opts assigned before the wslua machine starts
+     * we need to call getopt_long before epan_init() gets called.
+     *
+     * In addition, we process "console only" parameters (ones where we
+     * send output to the console and exit) here, so we don't start GTK+
+     * if we're only showing command-line help or version information.
+     *
+     * XXX - with the GTK+ version, this pre-scan was done before we started
+     * GTK+, so we hadn't run gtk_init() on the arguments.  That meant that
+     * GTK+ arguments had not been removed from the argument list; those
+     * arguments begin with "--", and would be treated as an error by
+     * getopt_long().
+     *
+     * We thus ignored errors - *and* set "opterr" to 0 to suppress the
+     * error messages.
+     *
+     * That's not the case here - the call to WiresharkApplication's
+     * constructor above does that (WiresharkApplication is a subclass
+     * of QApplication, and QApplication's constructor handles the Qt
+     * arguments).
+     *
+     * This means that there's some UI popped up before here.  Can we
+     * move the call to the constructor after here?
+     *
+     * In order to handle, for example, -o options, we also need to call it
+     * *after* epan_init() gets called, so that the dissectors have had a
+     * chance to register their preferences, so we have another getopt_long()
+     * call later.
+     *
+     * XXX - can we do this all with one getopt_long() call, saving the
+     * arguments we can't handle until after initializing libwireshark,
+     * and then process them after initializing libwireshark?
+     *
+     * Note that we don't want to initialize libwireshark until after the
+     * GUI is up, as that can take a while, and we want a window of some
+     * sort up to show progress while that's happening.
+     */
     opterr = 0;
-    optind_initial = optind;
-    while ((opt = getopt(argc, argv, optstring)) != -1) {
+
+    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
             case 'C':        /* Configuration Profile */
                 if (profile_exists (optarg, FALSE)) {
@@ -712,43 +737,6 @@ int main(int argc, char *argv[])
                       "Could not open recent file\n\"%s\": %s.",
                       rf_path, g_strerror(rf_open_errno));
     }
-
-
-    /* Set getopt index back to initial value, so it will start with the
-       first command line parameter again.  Also reset opterr to 1, so that
-       error messages are printed by getopt().
-
-       XXX - this seems to work on most platforms, but time will tell.
-       The Single UNIX Specification says "The getopt() function need
-       not be reentrant", so this isn't guaranteed to work.  The Mac
-       OS X 10.4[.x] getopt() man page says
-
-         In order to use getopt() to evaluate multiple sets of arguments, or to
-         evaluate a single set of arguments multiple times, the variable optreset
-         must be set to 1 before the second and each additional set of calls to
-         getopt(), and the variable optind must be reinitialized.
-
-           ...
-
-         The optreset variable was added to make it possible to call the getopt()
-         function multiple times.  This is an extension to the IEEE Std 1003.2
-         (``POSIX.2'') specification.
-
-       which I think comes from one of the other BSDs.
-
-       XXX - if we want to control all the command-line option errors, so
-       that we can display them where we choose (e.g., in a window), we'd
-       want to leave opterr as 0, and produce our own messages using optopt.
-       We'd have to check the value of optopt to see if it's a valid option
-       letter, in which case *presumably* the error is "this option requires
-       an argument but none was specified", or not a valid option letter,
-       in which case *presumably* the error is "this option isn't valid".
-       Some versions of getopt() let you supply a option string beginning
-       with ':', which means that getopt() will return ':' rather than '?'
-       for "this option requires an argument but none was specified", but
-       not all do. */
-    optind = optind_initial;
-    opterr = 1;
 
     // Initialize our language
     read_language_prefs();
@@ -855,6 +843,40 @@ int main(int argc, char *argv[])
 
     prefs_p = ws_app.readConfigurationFiles (&gdp_path, &dp_path);
 
+    /*
+     * To reset the options parser, set optreset to 1 on platforms that
+     * have optreset (documented in *BSD and OS X, apparently present but
+     * not documented in Solaris - the Illumos repository seems to
+     * suggest that the first Solaris getopt_long(), at least as of 2004,
+     * was based on the NetBSD one, it had optreset) and set optind to 1,
+     * and set optind to 0 otherwise (documented as working in the GNU
+     * getopt_long().  Setting optind to 0 didn't originally work in the
+     * NetBSD one, but that was added later - we don't want to depend on
+     * it if we have optreset).
+     *
+     * Also reset opterr to 1, so that error messages are printed by
+     * getopt_long().
+     *
+     * XXX - if we want to control all the command-line option errors, so
+     * that we can display them where we choose (e.g., in a window), we'd
+     * want to leave opterr as 0, and produce our own messages using optopt.
+     * We'd have to check the value of optopt to see if it's a valid option
+     * letter, in which case *presumably* the error is "this option requires
+     * an argument but none was specified", or not a valid option letter,
+     * in which case *presumably* the error is "this option isn't valid".
+     * Some versions of getopt() let you supply a option string beginning
+     * with ':', which means that getopt() will return ':' rather than '?'
+     * for "this option requires an argument but none was specified", but
+     * not all do.  But we're now using getopt_long() - what does it do?
+     */
+#ifdef HAVE_OPTRESET
+    optreset = 1;
+    optind = 1;
+#else
+    optind = 0;
+#endif
+    opterr = 1;
+
     /* Now get our args */
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
@@ -896,6 +918,8 @@ int main(int argc, char *argv[])
                 read_keytab_file(optarg);
             break;
 #endif
+
+        /*** all non capture option specific ***/
         case 'C':
             /* Configuration profile settings were already processed just ignore them this time*/
             break;
@@ -909,7 +933,12 @@ int main(int argc, char *argv[])
             /* Not supported yet */
             break;
         case 'l':        /* Automatic scrolling in live capture mode */
+#ifdef HAVE_LIBPCAP
             /* Not supported yet */
+#else
+            capture_option_specified = TRUE;
+            arg_error = TRUE;
+#endif
             break;
         case 'L':        /* Print list of link-layer types and exit */
 #ifdef HAVE_LIBPCAP
@@ -1055,7 +1084,7 @@ int main(int argc, char *argv[])
             }
             break;
         default:
-        case '?':
+        case '?':        /* Bad flag - print usage message */
             print_usage(FALSE);
             exit(0);
             break;

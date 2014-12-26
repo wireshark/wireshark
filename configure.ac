@@ -2669,6 +2669,25 @@ AC_CHECK_FUNC(getopt_long,
   [
     GETOPT_LO=""
     AC_DEFINE(HAVE_GETOPT_LONG, 1, [Define to 1 if you have the getopt_long function.])
+
+    #
+    # Do we have optreset?
+    #
+    AC_MSG_CHECKING(whether optreset is defined)
+    AC_TRY_LINK([],
+      [
+        extern int optreset;
+
+        return optreset;
+      ],
+      ac_cv_pcap_debug_defined=yes,
+      ac_cv_pcap_debug_defined=no)
+    if test "$ac_cv_pcap_debug_defined" = yes ; then
+      AC_MSG_RESULT(yes)
+      AC_DEFINE(HAVE_OPTRESET, 1, [Define to 1 if you have the optreset variable])
+    else
+      AC_MSG_RESULT(no)
+    fi
   ],
   GETOPT_LO="wsgetopt.lo")
 AC_SUBST(GETOPT_LO)
