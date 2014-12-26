@@ -2134,11 +2134,7 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
 
     conv = &g_array_index(ct->hash.conv_array, conv_item_t, idx);
 
-    /* Generate and apply a display filter to isolate the conversation. The
-     * TCP filter is a special case because it uses the stream identifier/index
-     * (tcp.stream, which is stored in conv_id) to ensure the filter results
-     * in a unique conversation even in the face of port reuse. All others use
-     * the address/port tuple.
+    /* Generate and apply a display filter to isolate the conversation.
      */
     switch (conv->ptype) {
     case PT_TCP:
