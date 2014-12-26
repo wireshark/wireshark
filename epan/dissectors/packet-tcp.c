@@ -3542,7 +3542,6 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                         offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
 
     if (ver == PROBE_VERSION_1) {
-        guint32 ip;
         guint16 port;
 
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_type1, tvb,
@@ -3555,7 +3554,6 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_reserved, tvb, offset + PROBE_V1_RESERVED_OFFSET, 1, ENC_BIG_ENDIAN);
 
-        ip = tvb_get_ipv4(tvb, offset + PROBE_V1_PROBER_OFFSET);
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_prober, tvb,
                             offset + PROBE_V1_PROBER_OFFSET, 4, ENC_BIG_ENDIAN);
 
@@ -3731,7 +3729,6 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree *flag_tree;
     proto_item *pitem;
     proto_item *flag_pi;
-    guint32 src, dst;
     guint16 sport, dport, flags;
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "TRPY, ");
@@ -3767,11 +3764,9 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_mode,
                         tvb, offset + TRPY_OPTIONS_OFFSET, 2, ENC_BIG_ENDIAN);
 
-    src = tvb_get_ipv4(tvb, offset + TRPY_SRC_ADDR_OFFSET);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_src,
                         tvb, offset + TRPY_SRC_ADDR_OFFSET, 4, ENC_BIG_ENDIAN);
 
-    dst = tvb_get_ipv4(tvb, offset + TRPY_DST_ADDR_OFFSET);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_dst,
                         tvb, offset + TRPY_DST_ADDR_OFFSET, 4, ENC_BIG_ENDIAN);
 

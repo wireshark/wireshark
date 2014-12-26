@@ -2661,9 +2661,9 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbu
                         case FORMAT_IP_LOC:
                             length = 12;
                             wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%s:%u IPv4=%s",
-                                                      tvb_get_ipv4(tvb, offset + 2), /* IP part of the RD */
+                                                      tvb_ip_to_str(tvb, offset + 2), /* IP part of the RD */
                                                       tvb_get_ntohs(tvb, offset + 6),
-                                                      tvb_get_ipv4(tvb, offset + 8)); /* Next Hop */
+                                                      tvb_ip_to_str(tvb, offset + 8)); /* Next Hop */
                             break ;
                         case FORMAT_AS4_LOC:
                             length = 12;
@@ -2671,7 +2671,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbu
                                                       tvb_get_ntohs(tvb, offset + 2),
                                                       tvb_get_ntohs(tvb, offset + 4),
                                                       tvb_get_ntohs(tvb, offset + 6),
-                                                      tvb_get_ipv4(tvb, offset + 8)); /* Next Hop   */
+                                                      tvb_ip_to_str(tvb, offset + 8)); /* Next Hop   */
                             break ;
                         default:
                             length = 0 ;
