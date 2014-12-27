@@ -150,6 +150,7 @@ followStrFilter(
   static char   filter[512];
   int           len     = 0;
   const gchar  *verp;
+  gchar        *udpfilter;
   gchar         ip0[MAX_IP6_STR_LEN];
   gchar         ip1[MAX_IP6_STR_LEN];
 
@@ -163,6 +164,10 @@ followStrFilter(
                      "tcp.stream eq %d", fp->index);
       break;
     case type_UDP:
+      udpfilter = build_follow_index_filter(UDP_STREAM);
+      len = g_snprintf(filter, sizeof filter,
+                     "%s", udpfilter);
+      g_free(udpfilter);
       break;
     }
   }
@@ -512,7 +517,7 @@ followDraw(
 
   g_assert(sizeof bin % BYTES_PER_LINE == 0);
 
-  if (fp->type == type_TCP)
+  if ((fp->type == type_TCP) || (fp->type == type_UDP))
   {
     static const guint8 ip_zero[MAX_IPADDR_LEN] = {0};
     follow_stats_t      stats;
@@ -888,17 +893,17 @@ followTcp(
   reset_tcp_reassembly();
   if (fp->index != G_MAXUINT32)
   {
-    if (!follow_tcp_index(fp->index))
+    if (!follow_index(TCP_STREAM, fp->index))
     {
-      followExit("Can't follow tcp index.");
+      followExit("Can't follow TCP index.");
     }
   }
   else
   {
-    if (!follow_tcp_addr(&fp->addr[0], fp->port[0],
-                         &fp->addr[1], fp->port[1]))
+    if (!follow_addr(TCP_STREAM, &fp->addr[0], fp->port[0],
+                     &fp->addr[1], fp->port[1]))
     {
-      followExit("Can't follow tcp address/port pairs.");
+      followExit("Can't follow TCP address/port pairs.");
     }
   }
 
@@ -910,7 +915,7 @@ followTcp(
   {
     followFree(fp);
     g_string_free(errp, TRUE);
-    followExit("Error registering tcp tap listener.");
+    followExit("Error registering TCP tap listener.");
   }
 }
 
@@ -932,9 +937,21 @@ followUdp(
   followArgRange(&opt_argp, fp);
   followArgDone(opt_argp);
 
+  reset_udp_follow();
   if (fp->index != G_MAXUINT32)
   {
-    followExit("UDP does not support index filters.");
+    if (!follow_index(UDP_STREAM, fp->index))
+    {
+      followExit("Can't follow UDP index.");
+    }
+  }
+  else
+  {
+    if (!follow_addr(UDP_STREAM, &fp->addr[0], fp->port[0],
+                     &fp->addr[1], fp->port[1]))
+    {
+      followExit("Can't follow UDP address/port pairs.");
+    }
   }
 
   followFileOpen(fp);
@@ -945,7 +962,7 @@ followUdp(
   {
     followFree(fp);
     g_string_free(errp, TRUE);
-    followExit("Error registering udp tap listner.");
+    followExit("Error registering UDP tap listner.");
   }
 }
 
@@ -967,6 +984,7 @@ followSsl(
   followArgRange(&opt_argp, fp);
   followArgDone(opt_argp);
 
+  reset_tcp_reassembly();
   if (fp->index == G_MAXUINT32)
   {
     followExit("SSL only supports index filters.");
@@ -980,7 +998,7 @@ followSsl(
   {
     followFree(fp);
     g_string_free(errp, TRUE);
-    followExit("Error registering ssl tap listener.");
+    followExit("Error registering SSL tap listener.");
   }
 }
 

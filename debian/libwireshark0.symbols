@@ -525,9 +525,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_sid_name@Base 1.9.1
  find_stream_circ@Base 1.9.1
  find_tap_id@Base 1.9.1
+ follow_addr@Base 1.99.2
+ follow_index@Base 1.99.2
  follow_stats@Base 1.9.1
- follow_tcp_addr@Base 1.9.1
- follow_tcp_index@Base 1.9.1
  format_text@Base 1.9.1
  format_text_chr@Base 1.12.0~rc1
  format_text_wsp@Base 1.9.1
@@ -654,7 +654,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_eth_hashtable@Base 1.12.0~rc1
  get_ether_name@Base 1.9.1
  get_export_pdu_tap_list@Base 1.99.0
- get_follow_tcp_index@Base 1.12.0~rc1
+ get_follow_index@Base 1.99.2
  get_host_ipaddr6@Base 1.9.1
  get_host_ipaddr@Base 1.9.1
  get_hostlist_filter@Base 1.99.0
@@ -679,6 +679,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_ts_23_038_7bits_string@Base 1.12.0~rc1
  get_ucs_2_string@Base 1.12.0~rc1
  get_ucs_4_string@Base 1.12.0~rc1
+ get_udp_conversation_data@Base 1.99.2
  get_udp_stream_count@Base 1.12.0~rc1
  get_unichar2_string@Base 1.12.0~rc1
  get_utf_16_string@Base 1.12.0~rc1
@@ -1084,6 +1085,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  reset_hostlist_table_data@Base 1.99.0
  reset_tap_listeners@Base 1.9.1
  reset_tcp_reassembly@Base 1.9.1
+ reset_udp_follow@Base 1.99.2
  rose_ctx_clean_data@Base 1.9.1
  rose_ctx_init@Base 1.9.1
  rpc_init_proc_table@Base 1.9.1

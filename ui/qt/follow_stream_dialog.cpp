@@ -27,6 +27,7 @@
 
 #include "epan/follow.h"
 #include "epan/dissectors/packet-tcp.h"
+#include "epan/dissectors/packet-udp.h"
 #include "epan/prefs.h"
 #include "epan/addr_resolv.h"
 #include "epan/charsets.h"
@@ -290,7 +291,7 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
 {
     if (stream_num >= 0) {
         updateWidgets(false);
-        follow_tcp_index(stream_num);
+        follow_index((follow_type_ == FOLLOW_TCP) ? TCP_STREAM : UDP_STREAM, stream_num);
         follow(QString(), true);
         updateWidgets();
     }
@@ -327,6 +328,7 @@ void FollowStreamDialog::resetStream()
     }
     g_list_free(follow_info_.payload);
     follow_info_.payload = NULL;
+    follow_info_.client_port = 0;
 }
 
 frs_return_t
@@ -840,7 +842,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
     return FRS_OK;
 }
 
-bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
+bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
 {
     int                 tmp_fd;
     QString             follow_filter;
@@ -880,7 +882,6 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         }
         break;
     case FOLLOW_UDP:
-        removeStreamControls();
         if (!is_udp) {
             QMessageBox::warning(this, tr("Error following stream."), tr("Please make sure you have a UDP packet selected."));
             return false;
@@ -902,10 +903,13 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         /* Create a new filter that matches all packets in the TCP stream,
            and set the display filter entry accordingly */
         reset_tcp_reassembly();
+    } else {
+        reset_udp_follow();
     }
 
-    if (use_tcp_index) {
-        follow_filter = gchar_free_to_qstring(build_follow_index_filter());
+    if (use_stream_index) {
+        follow_filter = gchar_free_to_qstring(
+            build_follow_index_filter((follow_type_ == FOLLOW_TCP) ? TCP_STREAM : UDP_STREAM));
     } else {
         follow_filter = gchar_free_to_qstring(build_follow_conv_filter(&cap_file_->edt->pi));
     }
@@ -967,7 +971,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         int stream_count = get_tcp_stream_count() - 1;
         ui->streamNumberSpinBox->blockSignals(true);
         ui->streamNumberSpinBox->setMaximum(stream_count);
-        ui->streamNumberSpinBox->setValue(get_follow_tcp_index());
+        ui->streamNumberSpinBox->setValue(get_follow_index(TCP_STREAM));
         ui->streamNumberSpinBox->blockSignals(false);
         ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
         ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
@@ -975,6 +979,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         break;
     }
     case FOLLOW_UDP:
+    {
         /* data will be passed via tap callback*/
         msg = register_tap_listener("udp_follow", &follow_info_,
                                     follow_filter.toUtf8().constData(),
@@ -985,7 +990,17 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
                                msg->str);
             return false;
         }
+
+        int stream_count = get_udp_stream_count() - 1;
+        ui->streamNumberSpinBox->blockSignals(true);
+        ui->streamNumberSpinBox->setMaximum(stream_count);
+        ui->streamNumberSpinBox->setValue(get_follow_index(UDP_STREAM));
+        ui->streamNumberSpinBox->blockSignals(false);
+        ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
+        ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
+
         break;
+    }
     case FOLLOW_SSL:
         /* we got ssl so we can follow */
         msg = register_tap_listener("ssl", &follow_info_,

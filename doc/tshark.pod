@@ -974,23 +974,26 @@ sent by the second node is prefixed with a tab to differentiate it from the
 data sent by the first node.
 
 I<prot> specifies the transport protocol.  It can be one of:
-  B<tcp>   TCP
-  B<udp>   UDP
-  B<ssl>   SSL
+
+  tcp   TCP
+  udp   UDP
+  ssl   SSL
 
 I<mode> specifies the output mode.  It can be one of:
-  B<ascii> ASCII output with dots for non-printable characters
-  B<hex>   Hexadecimal and ASCII data with offsets
-  B<raw>   Hexadecimal data
+
+  ascii ASCII output with dots for non-printable characters
+  hex   Hexadecimal and ASCII data with offsets
+  raw   Hexadecimal data
 
 Since the output in B<ascii> mode may contain newlines, the length of each section
 of output plus a newline precedes each section of output.
 
-I<filter> specifies the stream to be displayed.  UDP streams are selected with
-IP address plus port pairs.  TCP streams are selected with either the stream
-index or IP address plus port pairs.  For example:
-  B<ip-addr0>:B<port0>,B<ip-addr1>:B<port1>
-  B<tcp-stream-index>
+I<filter> specifies the stream to be displayed. UDP/TCP streams are selected
+with either the stream index or IP address plus port pairs. SSL streams are
+selected with the stream index. For example:
+
+  ip-addr0:port0,ip-addr1:port1
+  stream-index
 
 I<range> optionally specifies which "chunks" of the stream should be displayed.
 

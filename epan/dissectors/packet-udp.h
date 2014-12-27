@@ -23,6 +23,14 @@
 #ifndef __PACKET_UDP_H__
 #define __PACKET_UDP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#include "ws_symbol_export.h"
+
+#include <epan/conversation.h>
+
 /* UDP structs and definitions */
 typedef struct _e_udphdr {
   guint16 uh_sport;
@@ -97,5 +105,12 @@ WS_DLL_PUBLIC guint32 get_udp_stream_count(void);
 
 WS_DLL_PUBLIC void decode_udp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int, int);
+
+WS_DLL_PUBLIC struct udp_analysis *get_udp_conversation_data(conversation_t *,
+	packet_info *);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif

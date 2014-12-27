@@ -28,10 +28,7 @@ extern "C" {
 
 #include "ws_symbol_export.h"
 
-#ifndef __CONVERSATION_H__
 #include <epan/conversation.h>
-#endif
-
 #include <epan/wmem/wmem.h>
 
 /* TCP flags */

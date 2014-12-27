@@ -34,6 +34,12 @@ extern "C" {
 
 #define MAX_IPADDR_LEN	16
 
+typedef enum {
+  TCP_STREAM = 0,
+  UDP_STREAM,
+  MAX_STREAM
+} stream_type;
+
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_DLL_PUBLIC gboolean empty_tcp_stream;
 WS_DLL_PUBLIC gboolean incomplete_tcp_stream;
@@ -54,38 +60,41 @@ typedef struct _tcp_stream_chunk {
 WS_DLL_PUBLIC
 gchar* build_follow_conv_filter( packet_info * packet_info);
 
-/** Build a follow filter based on the current TCP stream index.
- * follow_tcp_index() must be called prior to calling this.
+/** Build a follow filter based on the current TCP/UDP stream index.
+ * follow_index() must be called prior to calling this.
  *
  * @return A filter that specifies the current stream. Must be g_free()d
  * the caller.
  */
 WS_DLL_PUBLIC
-gchar* build_follow_index_filter(void);
+gchar* build_follow_index_filter(stream_type stream);
 
 WS_DLL_PUBLIC
-gboolean follow_tcp_addr( const address *, guint, const address *, guint );
+gboolean follow_addr(stream_type, const address *, guint, const address *, guint );
 
-/** Select a TCP stream to follow via its index.
+/** Select a TCP/UDP stream to follow via its index.
  *
  * @param addr [in] The stream index to follow.
  * @return TRUE on success, FALSE on failure.
  */
 WS_DLL_PUBLIC
-gboolean follow_tcp_index( guint32 addr);
+gboolean follow_index(stream_type stream, guint32 addr);
 
-/** Get the current TCP index being followed.
+/** Get the current TCP/UDP index being followed.
  *
- * @return The current TCP index. The behavior is undefined
- * if no TCP stream is being followed.
+ * @return The current TCP/UDP index. The behavior is undefined
+ * if no TCP/UDP stream is being followed.
  */
 WS_DLL_PUBLIC
-guint32 get_follow_tcp_index(void);
+guint32 get_follow_index(stream_type stream);
 
 void reassemble_tcp( guint32, guint32, guint32, guint32, const char*, guint32,
                      int, address *, address *, guint, guint, guint32 );
 WS_DLL_PUBLIC
 void  reset_tcp_reassembly( void );
+
+WS_DLL_PUBLIC
+void reset_udp_follow(void);
 
 typedef struct {
 	guint8		ip_address[2][MAX_IPADDR_LEN];
