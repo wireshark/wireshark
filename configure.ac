@@ -239,6 +239,9 @@ AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 # the comments in acolocal.m4
 #
 PKG_PROG_PKG_CONFIG
+if test -z "$PKG_CONFIG"; then
+	AC_MSG_ERROR(I couldn't find pkg-config; make sure it's installed and in your path)
+fi
 
 AC_ARG_ENABLE(osx-deploy-target,
   AC_HELP_STRING( [--enable-osx-deploy-target],
