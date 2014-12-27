@@ -2298,17 +2298,17 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     memcpy(&addr, iph->ip_dst.data, 4);
     dst_host = get_hostname(addr);
-    if (dst_off)
-      cur_rt = tvb_get_ipv4(tvb, offset + 16);
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst: %s (%s)", dst_host,
                              address_to_str(wmem_packet_scope(), &iph->ip_dst));
-      if (dst_off)
-        proto_item_append_text(ti, ", Via: %s (%s)", get_hostname(cur_rt),
-                               tvb_ip_to_str(tvb, offset + 16));
     }
 
     if (dst_off) {
+      cur_rt = tvb_get_ipv4(tvb, offset + 16);
+      if (ip_summary_in_tree) {
+        proto_item_append_text(ti, ", Via: %s (%s)", get_hostname(cur_rt),
+                               tvb_ip_to_str(tvb, offset + 16));
+      }
       proto_tree_add_ipv4(ip_tree, hf_ip_cur_rt, tvb, offset + 16, 4, cur_rt);
       item = proto_tree_add_string(ip_tree, hf_ip_cur_rt_host, tvb,
                                    offset + 16, 4, get_hostname(cur_rt));
