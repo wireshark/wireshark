@@ -927,7 +927,7 @@ main(int argc, char *argv[])
   GString             *runtime_info_str;
   char                *init_progfile_dir_error;
   int                  opt;
-  struct option     long_options[] = {
+  struct option        long_options[] = {
     {(char *)"capture-comment", required_argument, NULL, LONGOPT_NUM_CAP_COMMENT },
     {0, 0, 0, 0 }
   };
