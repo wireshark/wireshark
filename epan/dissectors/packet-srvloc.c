@@ -143,6 +143,24 @@ static int hf_srvloc_url_url = -1;
 static int hf_srvloc_url_numauths = -1;
 static int hf_srvloc_add_ref_ip = -1;
 static int hf_srvloc_srvrply_svcname = -1;
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_srvloc_timestamp = -1;
+static int hf_srvloc_authentication_block = -1;
+static int hf_srvloc_transaction_id = -1;
+static int hf_srvloc_block_structure_descriptor = -1;
+static int hf_srvloc_communication_type = -1;
+static int hf_srvloc_language = -1;
+static int hf_srvloc_socket = -1;
+static int hf_srvloc_encoding = -1;
+static int hf_srvloc_node = -1;
+static int hf_srvloc_item = -1;
+static int hf_srvloc_service_type = -1;
+static int hf_srvloc_network = -1;
+static int hf_srvloc_service_type_count = -1;
+static int hf_srvloc_dialect = -1;
+static int hf_srvloc_authenticator_length = -1;
+static int hf_srvloc_protocol = -1;
+static int hf_srvloc_port = -1;
 
 
 static gint ett_srvloc = -1;
@@ -152,6 +170,7 @@ static gint ett_srvloc_flags = -1;
 static expert_field ei_srvloc_error = EI_INIT;
 static expert_field ei_srvloc_error_v2 = EI_INIT;
 static expert_field ei_srvloc_function_unknown = EI_INIT;
+static expert_field ei_srvloc_malformed = EI_INIT;
 
 static const true_false_string tfs_srvloc_flags_overflow = {
     "Message will not fit in datagram",
@@ -346,31 +365,14 @@ static const value_string charsets[] = {
 static int
 dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    struct tm   *stamp;
-    time_t      seconds;
-    double      floatsec;
     guint16     length;
 
-    seconds = (time_t)(tvb_get_ntohl(tvb, offset) - 2208988800u); /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
-    stamp = gmtime(&seconds);
-    if (stamp != NULL) {
-        floatsec = stamp->tm_sec + tvb_get_ntohl(tvb, offset + 4) / 4294967296.0;
-        proto_tree_add_text(tree, tvb, offset, 8,
-                            "Timestamp: %04d-%02d-%02d %02d:%02d:%07.4f UTC",
-                            stamp->tm_year + 1900, stamp->tm_mon + 1,
-                            stamp->tm_mday, stamp->tm_hour, stamp->tm_min,
-                            floatsec);
-    } else {
-        proto_tree_add_text(tree, tvb, offset, 8, "Timestamp not representable");
-    }
-    proto_tree_add_text(tree, tvb, offset + 8, 2, "Block Structure Descriptor: %u",
-                        tvb_get_ntohs(tvb, offset + 8));
+	proto_tree_add_item(tree, hf_srvloc_timestamp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srvloc_block_structure_descriptor, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
     length = tvb_get_ntohs(tvb, offset + 10);
-    proto_tree_add_text(tree, tvb, offset + 10, 2, "Authenticator length: %u",
-                        length);
+    proto_tree_add_item(tree, hf_srvloc_authenticator_length, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
     offset += 12;
-    proto_tree_add_text(tree, tvb, offset, length, "Authentication block: %s",
-                        tvb_format_text(tvb, offset, length));
+    proto_tree_add_item(tree, hf_srvloc_authentication_block, tvb, offset, length, ENC_NA|ENC_ASCII);
     offset += length;
     return offset;
 }
@@ -495,35 +497,36 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
  * svcname
  * svcaddr
 */
+static const value_string srvloc_svc[] = {
+    { 50, "TCP/UDP" },
+    { 54, "IPX" },
+    { 0, NULL }
+};
+
+static const value_string srvloc_ss[] = {
+    { 49, "Socket" },
+    { 50, "Datagram" },
+    { 0, NULL }
+};
+
+static const value_string srvloc_prot[] = {
+    { 54, "TCP" },
+    { 17, "UDP" },
+    { 1000, "IPX" },
+    { 0, NULL }
+};
+
 static void
-attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
+attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offset, int length,
     guint16 encoding)
 {
     const char *attr_type;
-    int     i, svc, ss, type_len, foffset=offset;
+    int     i, svc, type_len, foffset=offset;
     guint32 prot;
     const guint8  *byte_value;
     proto_tree  *srvloc_tree;
+    proto_item  *ti;
     char *tmp;
-
-    static const value_string srvloc_svc[] = {
-        { 50, "TCP/UDP" },
-        { 54, "IPX" },
-        { 0, NULL }
-    };
-
-    static const value_string srvloc_ss[] = {
-        { 49, "Socket" },
-        { 50, "Datagram" },
-        { 0, NULL }
-    };
-
-    static const value_string srvloc_prot[] = {
-        { 54, "TCP" },
-        { 17, "UDP" },
-        { 1000, "IPX" },
-        { 0, NULL }
-    };
 
     switch (encoding) {
 
@@ -532,8 +535,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
             offset += 2;
             /* If the length passed is longer then the actual payload then this must be an incomplete packet. */
             if (tvb_length_remaining(tvb, 4)<length) {
-                proto_tree_add_text(tree, tvb, offset, -1, "Status: Too much data to pass inside this protocol. Resubmit request using a streaming protocol like TCP.");
-                proto_tree_add_text(tree, tvb, offset, -1, "Note: Protocol dissection is aborted due to packet overflow. See overflow flag.");
+                proto_tree_add_expert(tree, pinfo, &ei_srvloc_malformed, tvb, offset, -1);
                 break;
             }
             /* Parse the attribute name */
@@ -557,25 +559,19 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                     srvloc_tree = proto_tree_add_subtree_format(tree, tvb, foffset, -1, ett_srvloc_attr, NULL, "Item %d", i);
 
                     svc = tvb_get_guint8(tvb, foffset+1);
-                                proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
-                                            "Service Type: %s", val_to_str_const(svc, srvloc_svc, "Unknown"));
-                    ss = tvb_get_guint8(tvb, foffset+5);
-                                proto_tree_add_text(srvloc_tree, tvb, foffset+5, 1,
-                                            "Communication Type: %s", val_to_str_const(ss, srvloc_ss, "Unknown"));
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_service_type, tvb, foffset+1, 1, ENC_NA);
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_communication_type, tvb, foffset+5, 1, ENC_NA);
                     foffset += 9;
                     if (svc == 50) {
                         if (tvb_get_guint8(tvb, foffset)==54) { /* TCP */
-                            prot = tvb_get_guint8(tvb, foffset);
-                            proto_tree_add_text(srvloc_tree, tvb, foffset, 1,
-                                    "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
+                            proto_tree_add_item(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 1, ENC_NA);
                             foffset += 2;
                         }
                         else
                         {
                             byte_value = unicode_to_bytes(tvb, foffset, 4, FALSE); /* UDP */
                             prot = (guint32)strtoul(byte_value, NULL, 10);
-                            proto_tree_add_text(srvloc_tree, tvb, foffset, 4,
-                                    "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
+                            proto_tree_add_uint(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 4, prot);
                             foffset += 4;
                         }
                     }
@@ -583,8 +579,8 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                     {
                         byte_value = unicode_to_bytes(tvb, foffset, 8, FALSE); /* IPX */
                         prot = (guint32)strtoul(byte_value, NULL, 10);
-                        proto_tree_add_text(srvloc_tree, tvb, foffset, 8,
-                                    "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
+                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 4, prot);
+                        proto_item_set_len(ti, 8);
                         foffset += 8;
                     }
                     if (svc == 50) {
@@ -593,19 +589,23 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                         proto_tree_add_ipv4(srvloc_tree, hf_srvloc_add_ref_ip, tvb, foffset+2, 16, prot);
                         byte_value = unicode_to_bytes(tvb, foffset+18, 8, FALSE); /* Port */
                         sscanf(byte_value,"%x",&prot);
-                        proto_tree_add_text(srvloc_tree, tvb, foffset+18, 8, "Port: %d", prot);
+                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_port, tvb, foffset+18, 4, prot);
+                        proto_item_set_len(ti, 8);
                     }
                     else
                     {
                         byte_value = unicode_to_bytes(tvb, foffset+2, 16, FALSE); /* IPX Network Address */
                         sscanf(byte_value,"%x",&prot);
-                        proto_tree_add_text(srvloc_tree, tvb, foffset+2, 16, "Network: %s", byte_value);
+                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_network, tvb, foffset+2, 4, prot);
+                        proto_item_set_len(ti, 16);
                         byte_value = unicode_to_bytes(tvb, foffset+18, 24, FALSE); /* IPX Node Address */
                         sscanf(byte_value,"%x",&prot);
-                        proto_tree_add_text(srvloc_tree, tvb, foffset+18, 24, "Node: %s", byte_value);
+                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_node, tvb, foffset+18, 4, prot);
+                        proto_item_set_len(ti, 24);
                         byte_value = unicode_to_bytes(tvb, foffset+42, 8, FALSE);  /* Socket */
                         sscanf(byte_value,"%x",&prot);
-                        proto_tree_add_text(srvloc_tree, tvb, foffset+42, 8, "Socket: %s", byte_value);
+                        ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_socket, tvb, foffset+42, 4, prot);
+                        proto_item_set_len(ti, 8);
                     }
                     i++;
                     foffset += 57;
@@ -630,17 +630,12 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
             srvloc_tree = proto_tree_add_subtree_format(tree, tvb, foffset, -1, ett_srvloc_attr, NULL, "Item %d", i);
 
             svc = tvb_get_guint8(tvb, foffset+1);
-                        proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
-                                    "Service Type: %s", val_to_str_const(svc, srvloc_svc, "Unknown"));
-            ss = tvb_get_guint8(tvb, foffset+3);
-                        proto_tree_add_text(srvloc_tree, tvb, foffset+3, 1,
-                                    "Communication Type: %s", val_to_str_const(ss, srvloc_ss, "Unknown"));
+            proto_tree_add_item(srvloc_tree, hf_srvloc_service_type, tvb, foffset+1, 1, ENC_NA);
+            proto_tree_add_item(srvloc_tree, hf_srvloc_communication_type, tvb, foffset+3, 1, ENC_NA);
             foffset += 5;
             if (svc == 50) {
                 if (tvb_get_guint8(tvb, foffset)==54) { /* TCP */
-                    prot = tvb_get_guint8(tvb, foffset);
-                    proto_tree_add_text(srvloc_tree, tvb, foffset, 1,
-                            "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 1, ENC_NA);
                     foffset += 1;
                 }
                 else
@@ -648,8 +643,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                     /* UDP */
                     byte_value = unicode_to_bytes(tvb, foffset, 2, FALSE); /* UDP */
                     prot = (guint32)strtoul(byte_value, NULL, 10);
-                    proto_tree_add_text(srvloc_tree, tvb, foffset, 2,
-                            "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 2, prot);
                     foffset += 2;
                 }
             }
@@ -657,8 +651,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
             {
                 byte_value = unicode_to_bytes(tvb, foffset, 4, FALSE); /* IPX */
                 prot = (guint32)strtoul(byte_value, NULL, 10);
-                proto_tree_add_text(srvloc_tree, tvb, foffset, 4,
-                            "Protocol: %s", val_to_str_const(prot, srvloc_prot, "Unknown"));
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_protocol, tvb, foffset, 4, prot);
                 foffset += 4;
             }
             if (svc == 50) {
@@ -667,19 +660,21 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 proto_tree_add_ipv4(srvloc_tree, hf_srvloc_add_ref_ip, tvb, foffset+1, 8, prot);
                 byte_value = unicode_to_bytes(tvb, foffset+9, 4, FALSE); /* Port */
                 sscanf(byte_value,"%x",&prot);
-                proto_tree_add_text(srvloc_tree, tvb, foffset+9, 4, "Port: %d", prot);
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_port, tvb, foffset+9, 4, prot);
             }
             else
             {
                 byte_value = unicode_to_bytes(tvb, foffset+1, 8, FALSE); /* IPX Network Address */
                 sscanf(byte_value,"%x",&prot);
-                proto_tree_add_text(srvloc_tree, tvb, foffset+1, 8, "Network: %s", byte_value);
+                ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_network, tvb, foffset+1, 4, prot);
+                proto_item_set_len(ti, 8);
                 byte_value = unicode_to_bytes(tvb, foffset+9, 12, FALSE); /* IPX Node Address */
                 sscanf(byte_value,"%x",&prot);
-                proto_tree_add_text(srvloc_tree, tvb, foffset+9, 12, "Node: %s", byte_value);
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_node, tvb, foffset+9, 4, prot);
+                proto_item_set_len(ti, 12);
                 byte_value = unicode_to_bytes(tvb, foffset+21, 4, FALSE);  /* Socket */
                 sscanf(byte_value,"%x",&prot);
-                proto_tree_add_text(srvloc_tree, tvb, foffset+21, 4, "Socket: %s", byte_value);
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_socket, tvb, foffset+21, 4, prot);
             }
             i++;
             foffset += 28;
@@ -723,7 +718,7 @@ attr_list2(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length, guin
         if  (c == ',') {
             cnt++; /* Attribute count */
             start[x] = 0;
-            proto_tree_add_text(attr_tree, tvb, offset, x, "Item %d: %s", cnt, start);
+            proto_tree_add_string_format(attr_tree, hf_srvloc_item, tvb, offset, x, start, "Item %d: %s", cnt, start);
             offset += x+1;
             start += x+1;
             /* reset string length */
@@ -738,7 +733,7 @@ attr_list2(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length, guin
     /* display anything remaining */
     if (x) {
         cnt++;
-        proto_tree_add_text(attr_tree, tvb, offset, x, "Item %d: %s", cnt, start);
+        proto_tree_add_string_format(attr_tree, hf_srvloc_item, tvb, offset, x, start, "Item %d: %s", cnt, start);
     }
 }
 
@@ -845,16 +840,11 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                             length);
         flags = tvb_get_guint8(tvb, offset + 4);
         proto_tree_add_bitmask(srvloc_tree, tvb, offset + 4, hf_srvloc_flags_v1, ett_srvloc_flags, v1_flags, ENC_NA);
-        proto_tree_add_text(srvloc_tree, tvb, offset + 5, 1, "Dialect: %u",
-                            tvb_get_guint8(tvb, offset + 5));
-        proto_tree_add_text(srvloc_tree, tvb, offset + 6, 2, "Language: %s",
-                            tvb_format_text(tvb, offset + 6, 2));
+        proto_tree_add_item(srvloc_tree, hf_srvloc_dialect, tvb, offset + 5, 1, ENC_NA);
+        proto_tree_add_item(srvloc_tree, hf_srvloc_language, tvb, offset + 6, 2, ENC_NA|ENC_ASCII);
         encoding = tvb_get_ntohs(tvb, offset + 8);
-        proto_tree_add_text(srvloc_tree, tvb, offset + 8, 2, "Encoding: %u (%s)",
-                            encoding,
-                            val_to_str_const(encoding, charsets, "Unknown"));
-        proto_tree_add_text(srvloc_tree, tvb, offset + 10, 2, "Transaction ID: %u",
-                            tvb_get_ntohs(tvb, offset + 10));
+        proto_tree_add_item(srvloc_tree, hf_srvloc_encoding, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(srvloc_tree, hf_srvloc_transaction_id, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
         /* added echo of XID to info colomn by Greg Morris 0ct 14, 2005 */
         col_append_fstr(pinfo->cinfo, COL_INFO, ", V1 Transaction ID - %u", tvb_get_ntohs(tvb, offset + 10));
 
@@ -970,7 +960,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
             if (length > 0) {
                 offset += 2;
-                attr_list(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, encoding);
+                attr_list(srvloc_tree, pinfo, hf_srvloc_attrrply_attrlist, tvb, offset, length, encoding);
                 offset += length;
                 if ( (flags & FLAG_A) == FLAG_A )
                     offset = dissect_authblk(tvb, offset, srvloc_tree);
@@ -1030,8 +1020,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             }
             offset += 2;
             count = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_text(srvloc_tree, tvb, offset, 2, "Service Type Count: %u",
-                                count);
+            proto_tree_add_item(srvloc_tree, hf_srvloc_service_type_count, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             while (count > 0) {
                 length = tvb_get_ntohs(tvb, offset);
@@ -1844,7 +1833,25 @@ proto_register_srvloc(void)
         { &hf_srvloc_srvrply_svcname,
           { "Service Name Value", "srvloc.srvrply.svcname", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
-        }
+        },
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_srvloc_timestamp, { "Timestamp", "srvloc.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_block_structure_descriptor, { "Block Structure Descriptor", "srvloc.block_structure_descriptor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_authenticator_length, { "Authenticator length", "srvloc.authenticator_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_authentication_block, { "Authentication block", "srvloc.authentication_block", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_service_type, { "Service Type", "srvloc.service_type", FT_UINT8, BASE_DEC, VALS(srvloc_svc), 0x0, NULL, HFILL }},
+      { &hf_srvloc_communication_type, { "Communication Type", "srvloc.communication_type", FT_UINT8, BASE_DEC, VALS(srvloc_ss), 0x0, NULL, HFILL }},
+      { &hf_srvloc_protocol, { "Protocol", "srvloc.protocol", FT_UINT32, BASE_DEC, VALS(srvloc_prot), 0x0, NULL, HFILL }},
+      { &hf_srvloc_port, { "Port", "srvloc.port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_network, { "Network", "srvloc.network", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_node, { "Node", "srvloc.node", FT_UINT32, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_socket, { "Socket", "srvloc.socket", FT_UINT32, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_item, { "Item", "srvloc.item", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_dialect, { "Dialect", "srvloc.dialect", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_language, { "Language", "srvloc.language", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_encoding, { "Encoding", "srvloc.encoding", FT_UINT16, BASE_DEC, VALS(charsets), 0x0, NULL, HFILL }},
+      { &hf_srvloc_transaction_id, { "Transaction ID", "srvloc.transaction_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_srvloc_service_type_count, { "Service Type Count", "srvloc.service_type_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -1856,6 +1863,8 @@ proto_register_srvloc(void)
         { &ei_srvloc_error, { "srvloc.err.expert", PI_RESPONSE_CODE, PI_ERROR, "Error", EXPFILL }},
         { &ei_srvloc_error_v2, { "srvloc.errv2.expert", PI_RESPONSE_CODE, PI_ERROR, "Error", EXPFILL }},
         { &ei_srvloc_function_unknown, { "srvloc.function.unknown", PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type", EXPFILL }},
+        { &ei_srvloc_malformed, { "srvloc.malformed", PI_MALFORMED, PI_ERROR, "Too much data to pass inside this protocol. Resubmit request using a streaming protocol like TCP. "
+                                                                              "Protocol dissection is aborted due to packet overflow. See overflow flag.", EXPFILL }},
     };
 
     module_t *srvloc_module;
