@@ -796,7 +796,8 @@ main(int argc, char *argv[])
   gchar               *output_only = NULL;
 
 /*
- * The leading - ensures that getopt_long() does not permute the argv[] entries.
+ * The leading + ensures that getopt_long() does not permute the argv[]
+ * entries.
  *
  * We have to make sure that the first getopt_long() preserves the content
  * of argv[] for the subsequent getopt_long() call.
@@ -806,10 +807,14 @@ main(int argc, char *argv[])
  * platforms, and so that, if we ever need to process a long argument before
  * doing further initialization, we can do so.
  *
- * XXX - the behavior of a leading - is platform-dependent, so we shouldn't
- * use it.
+ * Glibc and Solaris libc document that a leading + disables permutation
+ * of options, regardless of whether POSIXLY_CORRECT is set or not; *BSD
+ * and OS X don't document it, but do so anyway.
+ *
+ * We do *not* use a leading - because the behavior of a leading - is
+ * platform-dependent.
  */
-#define OPTSTRING "-2C:d:e:E:hK:lo:O:qQr:R:S:t:T:u:vVxX:Y:z:"
+#define OPTSTRING "+2C:d:e:E:hK:lo:O:qQr:R:S:t:T:u:vVxX:Y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
