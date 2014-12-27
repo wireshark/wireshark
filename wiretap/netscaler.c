@@ -215,9 +215,8 @@ typedef struct nspr_pktracefull_v10
 {
     nspr_headerdev_v10_t phd; /* performance header */
     guint8 fp_RelTimeHr[4];   /* High resolution relative time */
-    guint8 fp_Data[1];        /* packet data starts here */
 } nspr_pktracefull_v10_t;
-#define nspr_pktracefull_v10_s    (nspr_hdev_v10_s + 4)
+#define nspr_pktracefull_v10_s    ((guint32)(sizeof(nspr_pktracefull_v10_t)))
 
 /* new full packet trace structure v20 */
 typedef struct nspr_pktracefull_v20
@@ -225,9 +224,8 @@ typedef struct nspr_pktracefull_v20
     NSPR_HEADER3B_V20(fp);  /* long performance header */
     guint8 fp_DevNo;        /* Network Device (NIC) number */
     guint8 fp_RelTimeHr[4]; /* High resolution relative time */
-    guint8 fp_Data[4];      /* packet data starts here */
 } nspr_pktracefull_v20_t;
-#define nspr_pktracefull_v20_s    ((guint32)(sizeof(nspr_pktracefull_v20_t) - 4))
+#define nspr_pktracefull_v20_s    ((guint32)(sizeof(nspr_pktracefull_v20_t)))
 
 /* new full packet trace structure v21 */
 typedef struct nspr_pktracefull_v21
@@ -237,9 +235,8 @@ typedef struct nspr_pktracefull_v21
     guint8 fp_RelTimeHr[4]; /* High resolution relative time */
     guint8 fp_PcbDevNo[4];  /* PCB devno */
     guint8 fp_lPcbDevNo[4]; /* link PCB devno */
-    guint8 fp_Data[4];      /* packet data starts here */
 } nspr_pktracefull_v21_t;
-#define nspr_pktracefull_v21_s    ((guint32)(sizeof(nspr_pktracefull_v21_t) - 4))
+#define nspr_pktracefull_v21_s    ((guint32)(sizeof(nspr_pktracefull_v21_t)))
 
 /* new full packet trace structure v22 */
 typedef struct nspr_pktracefull_v22
@@ -250,9 +247,8 @@ typedef struct nspr_pktracefull_v22
     guint8 fp_PcbDevNo[4];  /* PCB devno */
     guint8 fp_lPcbDevNo[4]; /* link PCB devno */
     guint8 fp_VlanTag[2];   /* vlan tag */
-    guint8 fp_Data[2];      /* packet data starts here */
 } nspr_pktracefull_v22_t;
-#define nspr_pktracefull_v22_s    ((guint32)(sizeof(nspr_pktracefull_v22_t) - 2))
+#define nspr_pktracefull_v22_s    ((guint32)(sizeof(nspr_pktracefull_v22_t)))
 
 typedef struct nspr_pktracefull_v23
 {
@@ -263,9 +259,8 @@ typedef struct nspr_pktracefull_v23
     guint8 fp_lPcbDevNo[4]; /* link PCB devno */
     guint8 fp_VlanTag[2];   /* vlan tag */
     guint8 fp_Coreid[2];    /* coreid of the packet */
-    guint8 fp_Data[2];      /* packet data starts here */
 } nspr_pktracefull_v23_t;
-#define nspr_pktracefull_v23_s    ((guint32)(sizeof(nspr_pktracefull_v23_t) - 2))
+#define nspr_pktracefull_v23_s    ((guint32)(sizeof(nspr_pktracefull_v23_t)))
 
 /* New full packet trace structure v24 for cluster tracing */
 typedef struct nspr_pktracefull_v24
@@ -280,9 +275,8 @@ typedef struct nspr_pktracefull_v24
     guint8 fp_srcNodeId[2];  /* source node # */
     guint8 fp_destNodeId[2]; /* destination node # */
     guint8 fp_clFlags;       /* cluster flags */
-    guint8 fp_Data[2];       /* packet data starts here */
 } nspr_pktracefull_v24_t;
-#define nspr_pktracefull_v24_s    ((guint32)(sizeof(nspr_pktracefull_v24_t) - 4))
+#define nspr_pktracefull_v24_s    ((guint32)(sizeof(nspr_pktracefull_v24_t)))
 
 /* New full packet trace structure v25 for vm info tracing */
 typedef struct nspr_pktracefull_v25
@@ -299,11 +293,8 @@ typedef struct nspr_pktracefull_v25
     guint8 fp_clFlags;        /* cluster flags */
     guint8 fp_src_vmname_len; /* vm src info */
     guint8 fp_dst_vmname_len; /* vm src info */
-    guint8 fp_Data[4];        /* packet data starts here */
 } nspr_pktracefull_v25_t;
-#define nspr_pktracefull_v25_s    ((guint32)(sizeof(nspr_pktracefull_v25_t) - 4))
-#define fp_src_vmname    fp_Data
-#define fp_src_vmname    fp_Data
+#define nspr_pktracefull_v25_s    ((guint32)(sizeof(nspr_pktracefull_v25_t)))
 
 /* New full packet trace structure v26 for vm info tracing */
 typedef struct nspr_pktracefull_v26
@@ -323,9 +314,8 @@ typedef struct nspr_pktracefull_v26
     guint8 fp_reserved;
     guint8 fp_ns_activity[4];
     guint8 fp_reserved_32[12]; /* Adding more field to reduce wireshark changes every time */
-    guint8 fp_Data[4];         /* packet data starts here */
 } nspr_pktracefull_v26_t;
-#define nspr_pktracefull_v26_s    ((guint32)(sizeof(nspr_pktracefull_v26_t) - 4))
+#define nspr_pktracefull_v26_s    ((guint32)(sizeof(nspr_pktracefull_v26_t)))
 
 /* partial packet trace structure */
 typedef struct nspr_pktracepart_v10
@@ -334,9 +324,8 @@ typedef struct nspr_pktracepart_v10
     guint8 pp_RelTimeHr[4];   /* High resolution relative time */
     guint8 pp_PktSizeOrg[2];  /* Original packet size */
     guint8 pp_PktOffset[2];   /* starting offset in packet */
-    guint8 pp_Data[1];        /* packet data starts here */
 } nspr_pktracepart_v10_t;
-#define nspr_pktracepart_v10_s    (nspr_pktracefull_v10_s + 4)
+#define nspr_pktracepart_v10_s    ((guint32)(sizeof(nspr_pktracepart_v10_t)))
 
 /* new partial packet trace structure */
 typedef struct nspr_pktracepart_v20
@@ -346,9 +335,8 @@ typedef struct nspr_pktracepart_v20
     guint8 pp_RelTimeHr[4];  /* High resolution relative time */
     guint8 pp_PktSizeOrg[2]; /* Original packet size */
     guint8 pp_PktOffset[2];  /* starting offset in packet */
-    guint8 pp_Data[4];       /* packet data starts here */
 } nspr_pktracepart_v20_t;
-#define nspr_pktracepart_v20_s    ((guint32)(sizeof(nspr_pktracepart_v20_t) -4))
+#define nspr_pktracepart_v20_s    ((guint32)(sizeof(nspr_pktracepart_v20_t)))
 
 /* new partial packet trace structure */
 typedef struct nspr_pktracepart_v21
@@ -360,9 +348,8 @@ typedef struct nspr_pktracepart_v21
     guint8 pp_PktOffset[2];  /* starting offset in packet */
     guint8 pp_PcbDevNo[4];   /* PCB devno */
     guint8 pp_lPcbDevNo[4];  /* link PCB devno */
-    guint8 pp_Data[4];       /* packet data starts here */
 } nspr_pktracepart_v21_t;
-#define nspr_pktracepart_v21_s    ((guint32)(sizeof(nspr_pktracepart_v21_t) -4))
+#define nspr_pktracepart_v21_s    ((guint32)(sizeof(nspr_pktracepart_v21_t)))
 
 /* new partial packet trace structure v22 */
 typedef struct nspr_pktracepart_v22
@@ -375,9 +362,8 @@ typedef struct nspr_pktracepart_v22
     guint8 pp_PcbDevNo[4];   /* PCB devno */
     guint8 pp_lPcbDevNo[4];  /* link PCB devno */
     guint8 pp_VlanTag[2];    /* Vlan Tag */
-    guint8 pp_Data[2];       /* packet data starts here */
 } nspr_pktracepart_v22_t;
-#define nspr_pktracepart_v22_s    ((guint32)(sizeof(nspr_pktracepart_v22_t) -2))
+#define nspr_pktracepart_v22_s    ((guint32)(sizeof(nspr_pktracepart_v22_t)))
 
 typedef struct nspr_pktracepart_v23
 {
@@ -390,9 +376,8 @@ typedef struct nspr_pktracepart_v23
     guint8 pp_lPcbDevNo[4];  /* link PCB devno */
     guint8 pp_VlanTag[2];    /* vlan tag */
     guint8 pp_Coreid[2];     /* Coreid of the packet */
-    guint8 pp_Data[4];       /* packet data starts here */
 } nspr_pktracepart_v23_t;
-#define nspr_pktracepart_v23_s    ((guint32)(sizeof(nspr_pktracepart_v23_t) -4))
+#define nspr_pktracepart_v23_s    ((guint32)(sizeof(nspr_pktracepart_v23_t)))
 
 /* New partial packet trace structure v24 for cluster tracing */
 typedef struct nspr_pktracepart_v24
@@ -409,9 +394,8 @@ typedef struct nspr_pktracepart_v24
     guint8 pp_srcNodeId[2];  /* source node # */
     guint8 pp_destNodeId[2]; /* destination node # */
     guint8 pp_clFlags;       /* cluster flags */
-    guint8 pp_Data[4];       /* packet data starts here */
 } nspr_pktracepart_v24_t;
-#define nspr_pktracepart_v24_s    ((guint32)(sizeof(nspr_pktracepart_v24_t) -4))
+#define nspr_pktracepart_v24_s    ((guint32)(sizeof(nspr_pktracepart_v24_t)))
 
 /* New partial packet trace structure v25 for vm info tracing */
 typedef struct nspr_pktracepart_v25
@@ -430,12 +414,8 @@ typedef struct nspr_pktracepart_v25
     guint8 pp_clFlags;        /* cluster flags */
     guint8 pp_src_vmname_len; /* vm info */
     guint8 pp_dst_vmname_len; /* vm info */
-    guint8 pp_Data[4];        /* packet data starts here */
 } nspr_pktracepart_v25_t;
-#define nspr_pktracepart_v25_s    ((guint32)(sizeof(nspr_pktracepart_v25_t) -4))
-#define pp_src_vmname    pp_Data
-#define pp_dst_vmname    pp_Data
-
+#define nspr_pktracepart_v25_s    ((guint32)(sizeof(nspr_pktracepart_v25_t)))
 
 /* New full packet trace structure v30 for multipage spanning data */
 typedef struct  nspr_pktracefull_v30
@@ -456,11 +436,8 @@ typedef struct  nspr_pktracefull_v30
     guint8 fp_reserved[3];
     guint8 fp_ns_activity[4];
     guint8 fp_reserved_32[12];
-    guint8 fp_Data[0]; /* packet data starts here */
 } nspr_pktracefull_v30_t;
 #define nspr_pktracefull_v30_s  ((guint32)(sizeof(nspr_pktracefull_v30_t)))
-#define fp_src_vmname   fp_Data
-#define fp_dst_vmname   fp_Data
 
 /* New partial packet trace structure v26 for vm info tracing */
 typedef struct nspr_pktracepart_v26
@@ -482,11 +459,13 @@ typedef struct nspr_pktracepart_v26
     guint8 pp_reserved;
     guint8 pp_ns_activity[4];
     guint8 pp_reserved_32[12]; /* Adding more field to reduce wireshark changes every time */
-    guint8 pp_Data[4];         /* packet data starts here */
 } nspr_pktracepart_v26_t;
-#define nspr_pktracepart_v26_s    ((guint32)(sizeof(nspr_pktracepart_v26_t) -4))
+#define nspr_pktracepart_v26_s    ((guint32)(sizeof(nspr_pktracepart_v26_t)))
 
 #define myoffsetof(type,fieldname) (&(((type*)0)->fieldname))
+
+#define __TNDO(phdr,enumprefix,structname,hdrname)\
+    guint8 enumprefix##_##hdrname##_offset = (guint8)sizeof(nspr_##structname##_t);
 
 #define __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
     guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(myoffsetof(nspr_##structname##_t,structprefix##_##structfieldname));
@@ -505,7 +484,7 @@ typedef struct nspr_pktracepart_v26
     __TNV1L(phdr,enumprefix,structprefix,structname,dir,phd.ph_RecordType)\
     __TNV1O(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
     __TNV1L(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
-    __TNO(phdr,enumprefix,structprefix,structname,eth,Data)
+    __TNDO(phdr,enumprefix,structname,eth)
 
 #define TRACE_FULL_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
     (phdr)->len = pletoh16(&(fp)->nsprRecordSize);\
@@ -524,7 +503,7 @@ typedef struct nspr_pktracepart_v26
     __TNL(phdr,enumprefix,structprefix,structname,dir,RecordType)\
     __TNO(phdr,enumprefix,structprefix,structname,nicno,DevNo)\
     __TNL(phdr,enumprefix,structprefix,structname,nicno,DevNo)\
-    __TNO(phdr,enumprefix,structprefix,structname,eth,Data)
+    __TNDO(phdr,enumprefix,structname,eth)
 
 #define TRACE_V21_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
     TRACE_V20_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
@@ -549,7 +528,7 @@ typedef struct nspr_pktracepart_v26
     TRACE_V24_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
     __TNO(phdr,enumprefix,structprefix,structname,src_vmname_len,src_vmname_len)\
     __TNO(phdr,enumprefix,structprefix,structname,dst_vmname_len,dst_vmname_len)\
-    __TNO(phdr,enumprefix,structprefix,structname,data,Data)
+    __TNDO(phdr,enumprefix,structname,data)
 
 #define TRACE_V26_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
     TRACE_V25_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)\
@@ -579,6 +558,7 @@ typedef struct nspr_pktracepart_v26
 #undef __TNV1O
 #undef __TNV1L
 #undef __TNO
+#undef __TNDO
 #undef __TNL
 
 
@@ -901,6 +881,9 @@ static gboolean nstrace_set_start_time(wtap *wth)
         return nstrace_set_start_time_v20(wth);
     return FALSE;
 }
+
+#define __TNDO(phdr,enumprefix,structname,hdrname)\
+    (phdr)->pseudo_header.nstr.hdrname##_offset = enumprefix##_##hdrname##_offset;
 
 #define __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
     (phdr)->pseudo_header.nstr.hdrname##_offset = enumprefix##_##hdrname##_offset;
