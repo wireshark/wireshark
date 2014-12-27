@@ -5478,15 +5478,17 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
     /* uint16_t type; */
     proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     /* uint16_t length; */
     proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     switch (prop_type) {
     case OFPACPT_PACKET_IN_SLAVE:
     case OFPACPT_PACKET_IN_MASTER:
         /* uint32_t mask; */
-        ti = proto_tree_add_item(tree, hf_openflow_v5_async_config_prop_reason_packet_in_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_reason_packet_in_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
         pi_tree = proto_item_add_subtree(ti, ett_openflow_v5_async_config_prop_reason_packet_in_mask);
 
         proto_tree_add_item(pi_tree, hf_openflow_v5_async_config_prop_reason_packet_in_mask_table_miss, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5501,7 +5503,7 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     case OFPACPT_PORT_STATUS_SLAVE:
     case OFPACPT_PORT_STATUS_MASTER:
         /* uint32_t mask; */
-        ti = proto_tree_add_item(tree, hf_openflow_v5_async_config_prop_reason_port_status_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_reason_port_status_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
         ps_tree = proto_item_add_subtree(ti, ett_openflow_v5_async_config_prop_reason_port_status_mask);
 
         proto_tree_add_item(ps_tree, hf_openflow_v5_async_config_prop_reason_port_status_mask_add, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5513,7 +5515,7 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     case OFPACPT_FLOW_REMOVED_SLAVE:
     case OFPACPT_FLOW_REMOVED_MASTER:
         /* uint32_t mask; */
-        ti = proto_tree_add_item(tree, hf_openflow_v5_async_config_prop_reason_flow_removed_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_reason_flow_removed_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
         fr_tree = proto_item_add_subtree(ti, ett_openflow_v5_async_config_prop_reason_flow_removed_mask);
 
         proto_tree_add_item(fr_tree, hf_openflow_v5_async_config_prop_reason_flow_removed_mask_idle_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5528,7 +5530,7 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     case OFPACPT_ROLE_STATUS_SLAVE:
     case OFPACPT_ROLE_STATUS_MASTER:
         /* uint32_t mask; */
-        ti = proto_tree_add_item(tree, hf_openflow_v5_async_config_prop_reason_role_status_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_reason_role_status_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
         rs_tree = proto_item_add_subtree(ti, ett_openflow_v5_async_config_prop_reason_role_status_mask);
 
         proto_tree_add_item(rs_tree, hf_openflow_v5_async_config_prop_reason_role_status_mask_master_request, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5540,7 +5542,7 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     case OFPACPT_TABLE_STATUS_SLAVE:
     case OFPACPT_TABLE_STATUS_MASTER:
         /* uint32_t mask; */
-        ti = proto_tree_add_item(tree, hf_openflow_v5_async_config_prop_reason_table_status_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_reason_table_status_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
         ts_tree = proto_item_add_subtree(ti, ett_openflow_v5_async_config_prop_reason_table_status_mask);
 
         proto_tree_add_item(ts_tree, hf_openflow_v5_async_config_prop_reason_table_status_mask_vacancy_down, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5551,7 +5553,7 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     case OFPACPT_REQUESTFORWARD_SLAVE:
     case OFPACPT_REQUESTFORWARD_MASTER:
         /* uint32_t mask; */
-        ti = proto_tree_add_item(tree, hf_openflow_v5_async_config_prop_reason_requestforward_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_reason_requestforward_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
         rf_tree = proto_item_add_subtree(ti, ett_openflow_v5_async_config_prop_reason_requestforward_mask);
 
         proto_tree_add_item(rf_tree, hf_openflow_v5_async_config_prop_reason_requestforward_mask_group_mod, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5562,21 +5564,21 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     case OFPACPT_EXPERIMENTER_SLAVE:
     case OFPACPT_EXPERIMENTER_MASTER:
         /* uint32_t experimenter; */
-        proto_tree_add_item(tree, hf_openflow_v5_async_config_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
 
         /* uint32_t exp_type; */
-        proto_tree_add_item(tree, hf_openflow_v5_async_config_prop_experimenter_exp_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(prop_tree, hf_openflow_v5_async_config_prop_experimenter_exp_type, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
 
         /* uint32_t experimenter_data[0]; */
-        proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_async_config_prop_undecoded,
+        proto_tree_add_expert_format(prop_tree, pinfo, &ei_openflow_v5_async_config_prop_undecoded,
                                      tvb, offset, prop_len - 12, "Experimenter async config prop body.");
         offset += prop_len - 12;
         break;
 
     default:
-        proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_async_config_prop_undecoded,
+        proto_tree_add_expert_format(prop_tree, pinfo, &ei_openflow_v5_async_config_prop_undecoded,
                                      tvb, offset, prop_len - 4, "Unknown async config prop body.");
         offset += prop_len - 4;
         break;
