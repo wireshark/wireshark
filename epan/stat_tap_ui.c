@@ -85,7 +85,7 @@ process_stat_cmd_arg(char *optstr)
 
     for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
         sca=(stat_cmd_arg *)entry->data;
-        if(!strncmp(sca->cmd,optstr,strlen(optstr))){
+        if(!strncmp(sca->cmd,optstr,strlen(sca->cmd))){
             tr=(stat_requested *)g_malloc(sizeof (stat_requested));
             tr->sca = sca;
             tr->arg=g_strdup(optstr);
