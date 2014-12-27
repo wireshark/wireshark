@@ -2294,7 +2294,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   if (tree) {
     const char *dst_host;
-    guint32 cur_rt;
 
     memcpy(&addr, iph->ip_dst.data, 4);
     dst_host = get_hostname(addr);
@@ -2304,6 +2303,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
 
     if (dst_off) {
+      guint32 cur_rt;
+
       cur_rt = tvb_get_ipv4(tvb, offset + 16);
       if (ip_summary_in_tree) {
         proto_item_append_text(ti, ", Via: %s (%s)", get_hostname(cur_rt),
