@@ -234,6 +234,9 @@
 /* Define if python devel package available */
 #cmakedefine HAVE_PYTHON 1
 
+/* Define to 1 if you have the optreset variable */
+#cmakedefine HAVE_OPTRESET 1
+
 /* Define to 1 to enable remote capturing feature in WinPcap library */
 #cmakedefine HAVE_REMOTE 1
 
