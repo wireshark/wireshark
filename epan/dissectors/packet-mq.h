@@ -29,8 +29,7 @@
 #define GET_VALSV(A) mq_##A##_vals
 #define GET_VALSV2(A) GET_VALSV(A)
 #define DEF_VALSX(A) extern value_string GET_VALSV(A)[]
-/* XXX WTF: this is broken it's used to cast value_string array to char
-*  This Macro is used to cast a value_string to a const gchar *
+/* This Macro is used to cast a value_string to a const gchar *
 *  Used in value_string MQCFINT_Parse, because this value_string
 *  don't return a string for a specific value, but a value_string
 *  that can be used in another call to try_val_to_str
@@ -78,6 +77,7 @@ typedef struct _mq_parm_t
     guint32    mq_strucID ;
     guint32    mq_int_enc ;
     guint32    mq_str_enc ;
+    guint32    mq_FAPLvl  ;
     guint8     mq_ctlf1   ;
     guint8     mq_ctlf2   ;
     guint8     mq_opcode  ;
@@ -111,6 +111,8 @@ typedef struct _mq_parm_t
 #define MQ_MQAIT_ALL                      0
 #define MQ_MQAIT_CRL_LDAP                 1
 #define MQ_MQAIT_OCSP                     2
+#define MQ_MQAIT_IDPW_OS                  3
+#define MQ_MQAIT_IDPW_LDAP                4
 
 /* Buffer To Message Handle Options */
 #define MQ_MQBMHO_NONE                    0x00000000
@@ -829,6 +831,7 @@ typedef struct _mq_parm_t
 #define MQ_MQHC_UNASSOCIATED_HCONN        (-3)
 
 /* String Lengths */
+#define MQ_MQ_OPERATOR_MESSAGE_LENGTH     4
 #define MQ_MQ_ABEND_CODE_LENGTH           4
 #define MQ_MQ_ACCOUNTING_TOKEN_LENGTH     32
 #define MQ_MQ_APPL_DESC_LENGTH            64
@@ -857,6 +860,7 @@ typedef struct _mq_parm_t
 #define MQ_MQ_CHINIT_SERVICE_PARM_LENGTH  32
 #define MQ_MQ_CICS_FILE_NAME_LENGTH       8
 #define MQ_MQ_CLIENT_ID_LENGTH            23
+#define MQ_MQ_CLIENT_USER_ID_LENGTH       1024
 #define MQ_MQ_CLUSTER_NAME_LENGTH         48
 #define MQ_MQ_COMM_INFO_DESC_LENGTH       64
 #define MQ_MQ_COMM_INFO_NAME_LENGTH       48
@@ -866,6 +870,7 @@ typedef struct _mq_parm_t
 #define MQ_MQ_CORREL_ID_LENGTH            24
 #define MQ_MQ_CREATION_DATE_LENGTH        12
 #define MQ_MQ_CREATION_TIME_LENGTH        8
+#define MQ_MQ_CSP_PASSWORD_LENGTH         256
 #define MQ_MQ_DATE_LENGTH                 12
 #define MQ_MQ_DISTINGUISHED_NAME_LENGTH   1024
 #define MQ_MQ_DNS_GROUP_NAME_LENGTH       18
@@ -885,6 +890,9 @@ typedef struct _mq_parm_t
 #define MQ_MQ_INSTALLATION_PATH_LENGTH    256
 #define MQ_MQ_JAAS_CONFIG_LENGTH          1024
 #define MQ_MQ_LDAP_PASSWORD_LENGTH        32
+#define MQ_MQ_LDAP_BASE_DN_LENGTH         1024
+#define MQ_MQ_LDAP_FIELD_LENGTH           128
+#define MQ_MQ_LDAP_CLASS_LENGTH           128
 #define MQ_MQ_LISTENER_NAME_LENGTH        48
 #define MQ_MQ_LISTENER_DESC_LENGTH        64
 #define MQ_MQ_LOCAL_ADDRESS_LENGTH        48
@@ -893,12 +901,14 @@ typedef struct _mq_parm_t
 #define MQ_MQ_LUWID_LENGTH                16
 #define MQ_MQ_MAX_EXIT_NAME_LENGTH        128
 #define MQ_MQ_MAX_MCA_USER_ID_LENGTH      64
+#define MQ_MQ_MAX_LDAP_MCA_USER_ID_LENGTH 1024
 #define MQ_MQ_MAX_PROPERTY_NAME_LENGTH    4095
 #define MQ_MQ_MAX_USER_ID_LENGTH          64
 #define MQ_MQ_MCA_JOB_NAME_LENGTH         28
 #define MQ_MQ_MCA_NAME_LENGTH             20
 #define MQ_MQ_MCA_USER_DATA_LENGTH        32
 #define MQ_MQ_MCA_USER_ID_LENGTH          64
+#define MQ_MQ_LDAP_MCA_USER_ID_LENGTH     1024
 #define MQ_MQ_MFS_MAP_NAME_LENGTH         8
 #define MQ_MQ_MODE_NAME_LENGTH            8
 #define MQ_MQ_MSG_HEADER_LENGTH           4000
@@ -973,6 +983,7 @@ typedef struct _mq_parm_t
 #define MQ_MQ_CHLAUTH_DESC_LENGTH         64
 #define MQ_MQ_CUSTOM_LENGTH               128
 #define MQ_MQ_SUITE_B_SIZE                4
+#define MQ_MQ_CERT_LABEL_LENGTH           64
 
 /* Completion Codes */
 #define MQ_MQCC_OK                        0
@@ -1508,6 +1519,9 @@ typedef struct _mq_parm_t
 #define MQ_MQRC_CIPHER_SPEC_NOT_SUITE_B   2591
 #define MQ_MQRC_SUITE_B_ERROR             2592
 #define MQ_MQRC_CERT_VAL_POLICY_ERROR     2593
+#define MQ_MQRC_PASSWORD_PROTECTION_ERROR 2594
+#define MQ_MQRC_CSP_ERROR                 2595
+#define MQ_MQRC_CERT_LABEL_NOT_ALLOWED    2596
 #define MQ_MQRC_REOPEN_EXCL_INPUT_ERROR   6100
 #define MQ_MQRC_REOPEN_INQUIRE_ERROR      6101
 #define MQ_MQRC_REOPEN_SAVED_CONTEXT_ERR  6102
@@ -1747,7 +1761,8 @@ typedef struct _mq_parm_t
 #define MQ_MQCMDL_LEVEL_710               710
 #define MQ_MQCMDL_LEVEL_711               711
 #define MQ_MQCMDL_LEVEL_750               750
-#define MQ_MQCMDL_CURRENT_LEVEL           750
+#define MQ_MQCMDL_LEVEL_800               800
+#define MQ_MQCMDL_CURRENT_LEVEL           800
 
 /* Command Server Options */
 #define MQ_MQCSRV_CONVERT_NO              0
@@ -2101,11 +2116,13 @@ typedef struct _mq_parm_t
 #define MQ_MQCA_BASE_OBJECT_NAME          2002
 #define MQ_MQCA_BASE_Q_NAME               2002
 #define MQ_MQCA_BATCH_INTERFACE_ID        2068
+#define MQ_MQCA_CERT_LABEL                2121
 #define MQ_MQCA_CF_STRUC_DESC             2052
 #define MQ_MQCA_CF_STRUC_NAME             2039
 #define MQ_MQCA_CHANNEL_AUTO_DEF_EXIT     2026
 #define MQ_MQCA_CHILD                     2101
 #define MQ_MQCA_CHINIT_SERVICE_PARM       2076
+#define MQ_MQCA_CHLAUTH_DESC              2118
 #define MQ_MQCA_CICS_FILE_NAME            2060
 #define MQ_MQCA_CLUSTER_DATE              2037
 #define MQ_MQCA_CLUSTER_NAME              2029
@@ -2114,10 +2131,15 @@ typedef struct _mq_parm_t
 #define MQ_MQCA_CLUSTER_TIME              2038
 #define MQ_MQCA_CLUSTER_WORKLOAD_DATA     2034
 #define MQ_MQCA_CLUSTER_WORKLOAD_EXIT     2033
+#define MQ_MQCA_CLUS_CHL_NAME             2124
 #define MQ_MQCA_COMMAND_INPUT_Q_NAME      2003
 #define MQ_MQCA_COMMAND_REPLY_Q_NAME      2067
+#define MQ_MQCA_COMM_INFO_DESC            2111
+#define MQ_MQCA_COMM_INFO_NAME            2110
+#define MQ_MQCA_CONN_AUTH                 2125
 #define MQ_MQCA_CREATION_DATE             2004
 #define MQ_MQCA_CREATION_TIME             2005
+#define MQ_MQCA_CUSTOM                    2119
 #define MQ_MQCA_DEAD_LETTER_Q_NAME        2006
 #define MQ_MQCA_DEF_XMIT_Q_NAME           2025
 #define MQ_MQCA_DNS_GROUP                 2071
@@ -2125,12 +2147,24 @@ typedef struct _mq_parm_t
 #define MQ_MQCA_FIRST                     2001
 #define MQ_MQCA_IGQ_USER_ID               2041
 #define MQ_MQCA_INITIATION_Q_NAME         2008
+#define MQ_MQCA_INSTALLATION_DESC         2115
+#define MQ_MQCA_INSTALLATION_NAME         2116
+#define MQ_MQCA_INSTALLATION_PATH         2117
 #define MQ_MQCA_LAST                      4000
+#define MQ_MQCA_LAST_USED                 2135
+#define MQ_MQCA_LDAP_BASE_DN_GROUPS       2132
+#define MQ_MQCA_LDAP_BASE_DN_USERS        2126
+#define MQ_MQCA_LDAP_FIND_GROUP_FIELD     2135
+#define MQ_MQCA_LDAP_GROUP_ATTR_FIELD     2134
+#define MQ_MQCA_LDAP_GROUP_OBJECT_CLASS   2133
 #define MQ_MQCA_LDAP_PASSWORD             2048
+#define MQ_MQCA_LDAP_SHORT_USER_FIELD     2127
+#define MQ_MQCA_LDAP_USER_ATTR_FIELD      2129
 #define MQ_MQCA_LDAP_USER_NAME            2047
+#define MQ_MQCA_LDAP_USER_OBJECT_CLASS    2128
+#define MQ_MQCA_LU62_ARM_SUFFIX           2074
 #define MQ_MQCA_LU_GROUP_NAME             2072
 #define MQ_MQCA_LU_NAME                   2073
-#define MQ_MQCA_LU62_ARM_SUFFIX           2074
 #define MQ_MQCA_MODEL_DURABLE_Q           2096
 #define MQ_MQCA_MODEL_NON_DURABLE_Q       2097
 #define MQ_MQCA_MONITOR_Q_NAME            2066
@@ -2139,14 +2173,17 @@ typedef struct _mq_parm_t
 #define MQ_MQCA_NAMES                     2020
 #define MQ_MQCA_PARENT                    2102
 #define MQ_MQCA_PASS_TICKET_APPL          2086
+#define MQ_MQCA_POLICY_NAME               2112
 #define MQ_MQCA_PROCESS_DESC              2011
 #define MQ_MQCA_PROCESS_NAME              2012
+#define MQ_MQCA_QSG_CERT_LABEL            2131
+#define MQ_MQCA_QSG_NAME                  2040
 #define MQ_MQCA_Q_DESC                    2013
 #define MQ_MQCA_Q_MGR_DESC                2014
 #define MQ_MQCA_Q_MGR_IDENTIFIER          2032
 #define MQ_MQCA_Q_MGR_NAME                2015
 #define MQ_MQCA_Q_NAME                    2016
-#define MQ_MQCA_QSG_NAME                  2040
+#define MQ_MQCA_RECIPIENT_DN              2114
 #define MQ_MQCA_REMOTE_Q_MGR_NAME         2017
 #define MQ_MQCA_REMOTE_Q_NAME             2018
 #define MQ_MQCA_REPOSITORY_NAME           2035
@@ -2159,13 +2196,15 @@ typedef struct _mq_parm_t
 #define MQ_MQCA_SERVICE_START_COMMAND     2079
 #define MQ_MQCA_SERVICE_STOP_ARGS         2082
 #define MQ_MQCA_SERVICE_STOP_COMMAND      2081
-#define MQ_MQCA_STDERR_DESTINATION        2084
-#define MQ_MQCA_STDOUT_DESTINATION        2083
+#define MQ_MQCA_SIGNER_DN                 2113
+#define MQ_MQCA_SSL_CERT_ISSUER_NAME      2130
 #define MQ_MQCA_SSL_CRL_NAMELIST          2050
 #define MQ_MQCA_SSL_CRYPTO_HARDWARE       2051
 #define MQ_MQCA_SSL_KEY_LIBRARY           2069
 #define MQ_MQCA_SSL_KEY_MEMBER            2070
 #define MQ_MQCA_SSL_KEY_REPOSITORY        2049
+#define MQ_MQCA_STDERR_DESTINATION        2084
+#define MQ_MQCA_STDOUT_DESTINATION        2083
 #define MQ_MQCA_STORAGE_CLASS             2022
 #define MQ_MQCA_STORAGE_CLASS_DESC        2042
 #define MQ_MQCA_SYSTEM_LOG_Q_NAME         2065
@@ -2186,20 +2225,9 @@ typedef struct _mq_parm_t
 #define MQ_MQCA_XCF_GROUP_NAME            2043
 #define MQ_MQCA_XCF_MEMBER_NAME           2044
 #define MQ_MQCA_XMIT_Q_NAME               2024
-#define MQ_MQCA_COMM_INFO_NAME            2110
-#define MQ_MQCA_COMM_INFO_DESC            2111
-#define MQ_MQCA_POLICY_NAME               2112
-#define MQ_MQCA_SIGNER_DN                 2113
-#define MQ_MQCA_RECIPIENT_DN              2114
-#define MQ_MQCA_INSTALLATION_DESC         2115
-#define MQ_MQCA_INSTALLATION_NAME         2116
-#define MQ_MQCA_INSTALLATION_PATH         2117
-#define MQ_MQCA_CHLAUTH_DESC              2118
-#define MQ_MQCA_CUSTOM                    2119
-#define MQ_MQCA_XR_VERSION                2122
 #define MQ_MQCA_XR_SSL_CIPHER_SUITES      2123
+#define MQ_MQCA_XR_VERSION                2122
 #define MQ_MQCA_CLUS_CHL_NAME             2124
-#define MQ_MQCA_LAST_USED                 2124
 
 /* Integer Attribute Selectors */
 #define MQ_MQIA_ACCOUNTING_CONN_OVERRIDE  136
@@ -4184,12 +4212,13 @@ typedef struct _mq_parm_t
 #define MQ_MQAUTH_ALL_MQI                 (-3)
 
 /* Authority Options */
-#define MQ_MQAUTHOPT_CUMULATIVE           0x00000100
 #define MQ_MQAUTHOPT_ENTITY_EXPLICIT      0x00000001
 #define MQ_MQAUTHOPT_ENTITY_SET           0x00000002
+#define MQ_MQAUTHOPT_NAME_EXPLICIT        0x00000010
 #define MQ_MQAUTHOPT_NAME_ALL_MATCHING    0x00000020
 #define MQ_MQAUTHOPT_NAME_AS_WILDCARD     0x00000040
-#define MQ_MQAUTHOPT_NAME_EXPLICIT        0x00000010
+#define MQ_MQAUTHOPT_CUMULATIVE           0x00000100
+#define MQ_MQAUTHOPT_EXCLUDE_TEMP         0x00000200
 
 /* Bridge Types */
 #define MQ_MQBT_OTMA                      1
@@ -4840,10 +4869,10 @@ typedef struct _mq_parm_t
 
 #endif
 
-extern guint32 tvb_get_guint32_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep);
-extern guint16 tvb_get_guint16_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep);
-extern guint64 tvb_get_guint64_endian(tvbuff_t *a_tvb, gint a_iOffset, gint a_rep);
-extern gint32  strip_trailing_blanks(guint8 *a_str, guint32 a_size);
+extern gint32  strip_trailing_blanks(guint8 *a_str,
+                                     guint32 a_size);
+extern void    dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
+                                  guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse);
 
 DEF_VALSX(mqcc);
 
