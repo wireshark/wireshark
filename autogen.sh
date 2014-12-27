@@ -34,6 +34,7 @@ ACLOCAL=aclocal$AM_VERSION
 AUTOHEADER=autoheader
 AUTOMAKE=automake$AM_VERSION
 AUTOCONF=autoconf
+PKG_CONFIG=pkg-config
 
 # Check for python. Python did not support --version before version 2.5.
 # Until we require a version > 2.5, we should use -V.
@@ -117,6 +118,20 @@ _EOF_
   DIE="exit 1"
   ;;
 esac
+
+#
+# XXX - is there some minimum version for which we should be checking?
+#
+PCVER=`pkg-config --version`
+if test -z "$PCVER"; then
+  cat >&2 <<_EOF_
+
+	You must have pkg-config installed to compile $PROJECT.
+	Download the appropriate package for your distribution/OS,
+	or get the source tarball at http://pkgconfig.freedesktop.org/releases/
+_EOF_
+  DIE="exit 1"
+fi
 
 $DIE
 
