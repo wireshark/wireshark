@@ -41,6 +41,7 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/in_cksum.h>
 
 #include "packet-cdt.h"
 #include "packet-ber.h"
@@ -272,8 +273,8 @@ static const gchar *get_type (guint8 value)
 }
 
 
-/*Function checksum, found in ACP142 annex B-3 */
-static guint16 checksum (guint8 *buffer, gint len, gint offset)
+/* Function checksum, found in ACP 142 annex B04 */
+static guint16 checksum_acp142 (guint8 *buffer, gint len, gint offset)
 {
   guint16  c0 = 0, c1 = 0, ret, ctmp;
   gint16   cs;
@@ -284,10 +285,7 @@ static guint16 checksum (guint8 *buffer, gint len, gint offset)
     return 0;
   }
 
-  buffer[offset] = 0;
-  buffer[offset+1] = 0;
   ctmp = len - offset - 1;
-
   pls = buffer + len;
   hpp = buffer;
 
@@ -794,7 +792,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   gboolean       save_fragmented;
   guint32        message_id = 0, ip;
   guint16        no_dest = 0, count = 0, len, data_len = 0;
-  guint16        checksum1, checksum2;
+  guint16        checksum_calc, checksum_found;
   guint16        pdu_length, no_pdus = 0, seq_no = 0;
   guint8         pdu_type, *value, map = 0, fec_len;
   gint           i, tot_no_missing = 0, no_missing = 0, offset = 0;
@@ -910,9 +908,18 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   checksum_tree = proto_item_add_subtree (en, ett_checksum);
   len = tvb_length (tvb);
   value = (guint8 *)tvb_memdup (wmem_packet_scope(), tvb, 0, len);
-  checksum1 = checksum (value, len, offset);
-  checksum2 = tvb_get_ntohs (tvb, offset);
-  if (checksum1 == checksum2) {
+  if (len >= offset+2) {
+    value[offset] = 0;
+    value[offset+1] = 0;
+  }
+  checksum_found = tvb_get_ntohs (tvb, offset);
+  /* This computed IP checksum is network-byte-order, so convert to host-byte-order */
+  checksum_calc = g_ntohs (ip_checksum (value, len));
+  if (checksum_calc != checksum_found) {
+    guint16 checksum1 = checksum_acp142 (value, len, offset);
+    if (checksum1 == checksum_found) checksum_calc = checksum1;
+  }
+  if (checksum_calc == checksum_found) {
     proto_item_append_text (en, " (correct)");
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
                                  offset, 2, TRUE);
@@ -921,7 +928,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                                  offset, 2, FALSE);
     PROTO_ITEM_SET_GENERATED (en);
   } else {
-    proto_item_append_text (en, " (incorrect, should be 0x%04x)", checksum1);
+    proto_item_append_text (en, " (incorrect, should be 0x%04x)", checksum_calc);
     expert_add_info(pinfo, en, &ei_checksum_bad);
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
                                  offset, 2, FALSE);
