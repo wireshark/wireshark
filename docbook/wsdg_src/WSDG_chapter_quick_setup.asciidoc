@@ -131,7 +131,7 @@ OpenGL'' component is used to build the official 64-bit packages.
 
 Note that the Qt package also includes the Qt Creator IDE, which is useful
 for designing graphical components and includes an interactive debugger.
-You'll need to build wireshark using nmake before you'll be able to build the
+You'll need to build Wireshark using nmake before you'll be able to build the
 Wireshark project (uiqtWireshark.pro), however.
 
 You can also use Chocolatey to install Qt (there are packages for x86 & x64 and various MSVC compilers, e.g.
@@ -317,7 +317,8 @@ Make sure your repository path doesn't contain spaces.
 ==== Open a Visual Studio Command Prompt
 
 From the Start Menu (or Start Screen), navigate to the Visual Studio 2013 ->
-Visual Studio Tools directory and choose the Command Prompt appropriate for the build you wish to make, e.g. VS2013 x86 Native Tools Command Prompt for a 32 bit version.
+Visual Studio Tools directory and choose the Command Prompt appropriate for
+the build you wish to make, e.g. VS2013 x86 Native Tools Command Prompt for a 32 bit version.
 
 [TIP]
 .Pin the items to the Task Bar
@@ -330,7 +331,8 @@ All subsequent operations take place in this Command Prompt window.
 . Set environment variables to control the build.
 +
 --
-Set the following env vars, using paths and values suitable for your installation
+Set the following environment variables, using paths and values suitable for your installation:
+
 ----
 > set CYGWIN=nodosfilewarning
 > set WIRESHARK_BASE_DIR=C:\Development
@@ -382,6 +384,14 @@ Enter at the Visual Studio Command prompt line:
 This will check for the various tools needed to build Wireshark:
 
 ----
+
+Microsoft (R) Program Maintenance Utility Version 12.00.21005.1
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+ERROR: The contents of 'E:\Wireshark\Wireshark-win32-libs\current_tag.txt' is (unknown).
+It should be 2014-10-01.
+
 Checking for required applications:
         cl: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/BIN/cl
         link: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/BIN/link
@@ -395,13 +405,16 @@ Checking for required applications:
         peflags: /usr/bin/peflags
         perl: /usr/bin/perl
         C:\Python27\python.exe: /cygdrive/c/Python27/python.exe
-        C:\Qt\Qt5.3.0\msvc2013\bin\qmake: /cygdrive/c/Qt/Qt5.3.0/5.3/msvc2013/bin/qmake
+        C:\Qt\Qt5.3.0\5.3\msvc2013\bin\qmake: /cygdrive/c/Qt/Qt5.3.0/5.3/msvc2013/bin/qmake
         sed: /usr/bin/sed
         unzip: /usr/bin/unzip
         wget: /usr/bin/wget
 ----
 
-If you have problems with all the first three items (cl, link, nmake), check that you opened a Visual Studio Command Prompt <<ChSetupPrepareCommandCom>>.
+The "ERROR" at the start occurs because you haven't yet downloaded the third
+party libraries and it can be ignored at this stage.
+If you have problems with all the first three items (cl, link, nmake), check
+that you opened a Visual Studio Command Prompt <<ChSetupPrepareCommandCom>>.
 
 Unfortunately, the `link` command is defined both in Cygwin and in MSVC, each
 with completely different functionality. You'll need the MSVC link. If your link
