@@ -1214,7 +1214,7 @@ parse_token (token_t token, char *str)
                     tmp_str[1] = pkt_lnstart[i*3+1];
                     tmp_str[2] = '\0';
                     /* it is a valid convertable string */
-                    if (!g_ascii_isxdigit(tmp_str[0]) || !g_ascii_isxdigit(tmp_str[0])) {
+                    if (!g_ascii_isxdigit(tmp_str[0]) || !g_ascii_isxdigit(tmp_str[1])) {
                         break;
                     }
                     s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
