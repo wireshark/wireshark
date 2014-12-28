@@ -21008,6 +21008,7 @@
 70:B3:D5:48:C0:00/36	Integrat               # Integrated Systems Engineering, Inc.
 70:B3:D5:48:D0:00/36	OmegaBil               # OMEGA BILANCE SRL SOCIETA' UNIPERSONALE
 70:B3:D5:4A:A0:00/36	TwowayCo               # Twoway Communications, Inc.
+70:B3:D5:4B:B0:00/36	Plazma-T
 70:B3:D5:4C:10:00/36	QuercusT               # QUERCUS TECHNOLOGIES, S. L.
 70:B3:D5:4C:80:00/36	Hosokawa               # Hosokawa Micron Powder Systems
 70:B3:D5:4C:D0:00/36	PowerEle               # Power Electronics Espana, S.L.
@@ -21232,8 +21233,10 @@
 70:B3:D5:C6:D0:00/36	CyvizAs                # Cyviz AS
 70:B3:D5:C7:80:00/36	NetaElek               # NETA Elektronik AS
 70:B3:D5:C8:10:00/36	DspDesig               # DSP DESIGN
+70:B3:D5:C8:70:00/36	Siemens                # Siemens AG
 70:B3:D5:C8:D0:00/36	KstTechn               # KST Technology
 70:B3:D5:C9:60:00/36	UniDimen               # UNI DIMENXI SDN BHD
+70:B3:D5:C9:70:00/36	Csinfote               # CSINFOTEL
 70:B3:D5:C9:B0:00/36	TietoSwe               # Tieto Sweden AB
 70:B3:D5:CB:70:00/36	Hkc                    # HKC Limited
 70:B3:D5:CB:80:00/36	VertiTec               # Verti Tecnologia

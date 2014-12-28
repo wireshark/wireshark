@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-12-19)
+(last updated 2014-12-26)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -23286,9 +23286,9 @@ Decimal
     Jessica Landisman
       Jessica.Landisman&xcellenet.com
 5831
-  Cleondra GmbH
-    Christian Plattner
-      iana-oid&cleondra.ch
+  Cleondris GmbH
+    Fredi Hinz
+      noc&cleondris.ch
 5832
   Horgan.net
     Sean Horgan
@@ -53262,9 +53262,9 @@ Decimal
     Wojciech Zabolotny
       wzab&acn.waw.pl
 13427
-  Emerson Network Power (previously was 'Artesyn Technologies')
+  Artesyn Embedded Technologies (previously was 'Emerson Network Power ')
     Peter Langmann
-      peter.langmann&emerson.com
+      peter.langmann&artesyn.com
 13428
   JAPAN STORAGE BATTERY CO., Ltd.
     Yukio Tada
@@ -109645,9 +109645,9 @@ Technischen Universität Dresden
     Alexey Ivanov
       amis&amiga.org.ru
 27517
-  Secure Edge Srl
+  GT50 Srl (previous was 'Secure Edge Srl')
     Sandro Fontana
-      sfontana&secure-edge.com
+      sandro.fontana&gt50.org
 27518
   ProMedica Health System
     Mark Dailey
@@ -122033,8 +122033,8 @@ Decentralization / Helenic Public Administra
       dgm&ek3.com
 30613
   ATIS
-    Maria Estefania
-      mestefania&atis.org
+    Steve Barclay
+      sbarclay&atis.org
 30614
   Expandium SAS
     Rémy Chibois
@@ -140144,9 +140144,9 @@ Decentralization / Helenic Public Administra
     Carlton Davis
       cdavis&cablehdradio.net
 35141
-  Glenmere Industries
-    Andrew Wilcox
-      AndrewW&GlenmereInd.com
+  PSIGlenmere
+    Rudy Valencia
+      rudy.valencia&psiglenmere.com
 35142
   VX4.NET
     Christian Kahlo
@@ -143942,8 +143942,8 @@ Decentralization / Helenic Public Administra
       clc-iana&sparf.net
 36090
   Remote Instruments
-    Francis Tay
-      idomain&singnet.com.sg
+    Swee-Hong Tay
+      sweehong.tay&remote-instruments.com
 36091
   SIS Group Pty Ltd
     Luke Iggleden
@@ -174369,7 +174369,7 @@ Decentralization / Helenic Public Administra
     Sergey Mudrak
       sergey.mudrak&beeper.ru
 43697
-  JSC Bryansk Supply Company
+  JSC Tyumen Electricity sale company
     Ivan Toporkov 
       Ivan&elektro-32.ru
 43698
@@ -179491,7 +179491,7 @@ Decentralization / Helenic Public Administra
 44977
   Reduxio Systems
     Jacob Cherian
-      jacob&reduxio.com
+      standards&reduxio.com
 44978
   Istria, soluciones de criptografía, S. A.
     Luis Recuerda Santiago
@@ -179572,6 +179572,166 @@ Decentralization / Helenic Public Administra
   Emery Telcom
     Josh Galvez
       noc&emerytelcom.com
+44998
+  Sichuan Zero Gravity Technology CO.LTD
+    Yu HAN
+      hy&zg.hk
+44999
+  Ltd GoldLans
+    Andrii Bratanich
+      andrii.bratanich&gmail.com
+45000
+  Symbicon Ltd
+    Kalle Heikkinen
+      kalle.heikkinen&symbicon.fi
+45001
+  Northern Virginia Hematology Oncology Associates
+    Ronnie Owen
+      nurse&novahemonc.comcastbiz.net
+45002
+  CompuGroup Medical Polska sp. z o.o.
+    Dariusz Trochimiuk
+      netraad&cgmpolska.pl
+45003
+  Egag, LLC
+    Gage Hainer
+      ghainer&egagllc.com
+45004
+  SMARTRAC N.V. 
+    Sidnei Moreira
+      iana-pen&smartrac-group.com
+45005
+  Advanced Alloy Processing
+    James Wazorick
+      jwazorick&maincompanies.com
+45006
+  Wuestenrot poistovna, a.s. 
+    Ladislav Schramm
+      uit&wuestenrot.sk
+45007
+  Trial Software Laboratories, Inc.
+    Nobuhiro Haketa
+      iana_pen_registry_contact&trialsoftware.com
+45008
+  Things.Expert LLC
+    Daniel Tibor Fuchs
+      daniel.fuchs&things.expert
+45009
+  Thomas Hassall Anglican College
+    Werner Kasselman
+      wk&thac.nsw.edu.au
+45010
+  Youhua
+    Nision Wu
+      wujunjie&youhuatech.com
+45011
+  Ming Dynasty AvantLexa Firm
+    James Kendrick Sneckner
+      jamesthinkpad&gmail.com
+45012
+  Miraeson
+    SangHyun Baek
+      billy&miraeson.com
+45013
+  Beijing Gehua CATV Network Co.,Ltd.
+    Dongxi Wu
+      wudongxi&bgctv.com.cn
+45014
+  Andra sp. z o. o.
+    Piotr Szczerek
+      snmp&andra.com.pl
+45015
+  foo.sh
+    Timo Mäkinen
+      iana&foo.sh
+45016
+  Kouba & Partner
+    Martin Kouba
+      iana&kouba.at
+45017
+  I3 Comércio de Computadores Ltda Epp
+    Paschoal Mazziero Neto
+      paschoal&i3si.com.br
+45018
+  QualiStream
+    Romary Sonrier
+      rsonrier&qualistream.com
+45019
+  Infinite AI, Inc.
+    Derek Knutsen
+      dknutsen&infiniteai.com
+45020
+  Bitnasium Co., Ltd.
+    Utthawit Ratchatapoom
+      utthawit&gmail.com
+45021
+  Health Plan Partners LLC
+    Robert Butler
+      robert.butler&hpprx.com
+45022
+  digivod gmbh
+    Karsten Fourmont
+      k.fourmont&digivod.de
+45023
+  Chair Four Development Group LLC
+    Daniel Sutcliffe
+      dans&chairfour.com
+45024
+  BTS Software Solutions, LLC
+    Erich Izdepski
+      erich.izdepski&bts-s2.com
+45025
+  Fujitsu Hokuriku Systems Limited
+    Takiguchi Naruhito
+      takiguti&jp.fujitsu.com
+45026
+  Mynavi Corporation
+    Hiroaki Suzuki
+      suzuki.hiroaki&mynavi.jp
+45027
+  The Center For Mental Health
+    Jason Adragna
+      it&centermh.org
+45028
+  Debugo
+    Nicolas CHAUVENET
+      nicolas&debugo.fr
+45029
+  Fengyz Technology CO.,Ltd.
+    Yuanzhen Feng
+      fengyuanzhen.osb&vsc.com
+45030
+  Lagopus switch project
+    Yoshihiro Nakajima
+      ynaka&lagopus.org
+45031
+  JSC «Engineering Centre «Energoservice»
+    Vladimir Bovykin
+      f.orlov&ens.ru
+45032
+  JustNow
+    Jordi Cabré
+      jc.justnow&gmail.com
+45033
+  synyx GmbH & Co. KG
+    Marc Sommer
+      sommer&synyx.de
+45034
+  Millimetrica s.r.l.
+    Aldo Cagno
+      a.cagno&millimetrica.it
+45035
+  TelSIP Communication
+    Benoit Raymond
+      braymond&telsip.ca
+45036
+  NIC Hosting
+    Juraj LUTTER
+      juraj&lutter.sk
+45037
+  Hauke Bartsch
+    Hauke Bartsch
+      hbartsch&ucsd.edu
 
 
 End of Document
