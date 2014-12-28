@@ -26,7 +26,6 @@
 
 #include <glib.h>
 
-#include "version.h"
 
 #include <wsutil/ws_version_info.h>
 #include <wsutil/copyright_info.h>

@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include <wsutil/glib_version_info.h>
 

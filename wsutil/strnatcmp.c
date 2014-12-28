@@ -38,8 +38,6 @@
  * ws_ascii_XXX() to reflect this.
  */
 
-#include <string.h>
-#include <stdio.h>
 
 #include <glib.h>
 

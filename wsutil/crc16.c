@@ -33,7 +33,6 @@
 
 #include <glib.h>
 #include <wsutil/crc16.h>
-#include <wsutil/crc16-plain.h>
 
 
 /*****************************************************************/

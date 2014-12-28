@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include "str_util.h"
 
 int

@@ -30,7 +30,6 @@
 #include "config.h"
 
 #include <glib.h>
-#include <stdarg.h>
 #include "report_err.h"
 
 static void (*report_failure_func)(const char *, va_list);

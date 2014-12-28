@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include "type_util.h"
 
 /*

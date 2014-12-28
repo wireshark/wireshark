@@ -25,11 +25,9 @@
  *  2012-08-21 - C Elston - Split sha1_hmac function to allow incremental usage.
  */
 
-#include <string.h>
 #include <glib.h>
 
 #include "sha1.h"
-#include "file_util.h"
 
 #define GET_UINT32(n,b,i)                       \
 {                                               \

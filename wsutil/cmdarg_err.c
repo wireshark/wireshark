@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
 
 #include <wsutil/cmdarg_err.h>
 
