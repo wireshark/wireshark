@@ -41,6 +41,9 @@
 
 #include <errno.h>
 #include <stdio.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include "wsutil/filesystem.h"
 #include "wsutil/file_util.h"
 #include "wsutil/tempfile.h"
@@ -180,6 +183,9 @@ create_endpoint_geoip_map(const GArray *endp_array, gchar **err_str) {
         if (err_str) {
             *err_str = g_strdup("Unable to open GeoIP database");
         }
+        /* We can't write the map file, so close it and get rid of it */
+        fclose(out_file);
+        ws_unlink(map_filename);
         g_free(map_filename);
         fclose(tpl_file);
         return NULL;
