@@ -78,6 +78,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capt
 
     setAttribute(Qt::WA_DeleteOnClose, true);
     memset(&follow_info_, 0, sizeof(follow_info_));
+    follow_info_.show_type = SHOW_ASCII;
+    follow_info_.show_stream = BOTH_HOSTS;
+
 
     ui->teStreamContent->installEventFilter(this);
 
@@ -520,9 +523,6 @@ void
 FollowStreamDialog::followStream()
 {
     follow_stats_t stats;
-
-    follow_info_.show_type = SHOW_ASCII;
-    follow_info_.show_stream = BOTH_HOSTS;
 
     /* Stream to show */
     follow_stats(&stats);
