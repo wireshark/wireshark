@@ -855,7 +855,7 @@ proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_
                   /* symbol rate is 28 bits, only the upper 4 bits of this byte are used */
                   MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)>>4) / 10000.0;
     proto_tree_add_double_format_value(tree, hf_mpeg_descr_cable_delivery_symbol_rate,
-            tvb, offset, 4, symbol_rate, "%3.4f KSymbol/s", symbol_rate);
+            tvb, offset, 4, symbol_rate, "%3.4f MSymbol/s", symbol_rate);
     offset += 3;
     proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_fec_inner, tvb, offset, 1, ENC_BIG_ENDIAN);
 
