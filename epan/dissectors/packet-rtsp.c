@@ -683,7 +683,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     proto_tree   *rtsp_tree = NULL;
     proto_tree   *sub_tree  = NULL;
-    proto_item   *ti        = NULL;
+    proto_item   *ti_top    = NULL;
     const guchar *line;
     gint          next_offset;
     const guchar *linep, *lineend;
@@ -816,9 +816,9 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     orig_offset = offset;
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset, -1,
+        ti_top = proto_tree_add_item(tree, proto_rtsp, tvb, offset, -1,
             ENC_NA);
-        rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
+        rtsp_tree = proto_item_add_subtree(ti_top, ett_rtsp);
     }
 
     /*
@@ -1085,6 +1085,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                  */
                 if (colon_offset != -1)
                 {
+                    proto_item *ti;
                     /* Put the value into the protocol tree */
                     ti = proto_tree_add_string(rtsp_tree, hf_rtsp_X_Vig_Msisdn,tvb,
                                                offset, linelen ,
@@ -1217,8 +1218,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
              * Fix up the top-level item so that it doesn't
              * include the SDP stuff.
              */
-            if (ti != NULL)
-                proto_item_set_len(ti, offset);
+            if (ti_top != NULL)
+                proto_item_set_len(ti_top, offset);
 
             if (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR) {
                 /*
