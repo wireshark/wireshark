@@ -92,7 +92,7 @@ void FileSetDialog::addFile(fileset_entry *entry) {
     gchar *size_str;
 
     if (!entry) {
-        setWindowTitle(tr("Wireshark: No files in Set"));
+        setWindowTitle(wsApp->windowTitleString(tr("No files in Set")));
         fs_ui_->directoryLabel->setText(tr("No capture loaded"));
         fs_ui_->directoryLabel->setEnabled(false);
         return;
@@ -122,9 +122,9 @@ void FileSetDialog::addFile(fileset_entry *entry) {
     // Not perfect but better than nothing.
     entry_item->setTextAlignment(3, Qt::AlignRight);
 
-    setWindowTitle(QString(tr("Wireshark: %1 File%2 in Set"))
-                   .arg(fs_ui_->fileSetTree->topLevelItemCount())
-                   .arg(plurality(fs_ui_->fileSetTree->topLevelItemCount(), "", "s")));
+    setWindowTitle(wsApp->windowTitleString(tr("%1 File%2 in Set")
+                                            .arg(fs_ui_->fileSetTree->topLevelItemCount())
+                                            .arg(plurality(fs_ui_->fileSetTree->topLevelItemCount(), "", "s"))));
 
     dir_name = fileset_get_dirname();
     fs_ui_->directoryLabel->setText(dir_name);

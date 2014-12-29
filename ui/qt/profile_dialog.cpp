@@ -52,6 +52,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     const gchar *profile_name = get_profile_name();
 
     pd_ui_->setupUi(this);
+    setWindowTitle(wsApp->windowTitleString(tr("Configuration Profiles")));
     ok_button_ = pd_ui_->buttonBox->button(QDialogButtonBox::Ok);
 
     // XXX - Use NSImageNameAddTemplate and NSImageNameRemoveTemplate to set stock

@@ -10,9 +10,6 @@
     <height>475</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Wireshark: Preferences</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QSplitter" name="splitter">
@@ -203,6 +200,7 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

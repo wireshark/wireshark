@@ -10,9 +10,6 @@
     <height>300</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Wireshark: Packet Comment</string>
-  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
@@ -32,6 +29,7 @@
    </item>
   </layout>
  </widget>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

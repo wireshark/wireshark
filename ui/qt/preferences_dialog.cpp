@@ -38,6 +38,7 @@
 #include "syntax_line_edit.h"
 #include "qt_ui_utils.h"
 #include "uat_dialog.h"
+#include "wireshark_application.h"
 
 #include <QColorDialog>
 #include <QFileDialog>
@@ -271,6 +272,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     // Some classes depend on pref_ptr_to_pref_ so this MUST be called after
     // fill_advanced_prefs.
     pd_ui_->setupUi(this);
+    setWindowTitle(wsApp->windowTitleString(tr("Preferences")));
     pd_ui_->advancedTree->invisibleRootItem()->addChildren(tmp_item.takeChildren());
     QTreeWidgetItemIterator pref_it(pd_ui_->advancedTree, QTreeWidgetItemIterator::NoChildren);
     while (*pref_it) {
