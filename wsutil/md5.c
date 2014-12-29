@@ -27,6 +27,7 @@
 
 #include "config.h"
 
+#include <string.h>
 
 #include "pint.h"
 #include "md5.h"
