@@ -326,7 +326,7 @@ static int hf_bthci_cmd_test_packet_payload = -1;
 static int hf_bthci_cmd_parameter = -1;
 
 static expert_field ei_command_undecoded                              = EI_INIT;
-static expert_field ei_command_unknown                                = EI_INIT;
+static expert_field ei_command_unknown_command                        = EI_INIT;
 static expert_field ei_command_parameter_unexpected                   = EI_INIT;
 
 static dissector_table_t vendor_dissector_table;
@@ -1932,6 +1932,10 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
             offset += tvb_length_remaining(tvb, offset);
             break;
+
+        default:
+            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
     }
 
     return offset;
@@ -2073,6 +2077,10 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
         case 0x00e: /* Read Default Link Policy Setting */
             /* NOTE: No parameters */
             break;
+
+        default:
+            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
     }
 
     return offset;
@@ -2670,6 +2678,10 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
             offset += tvb_length_remaining(tvb, offset);
             break;
+
+        default:
+            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
     }
 
     return offset;
@@ -2696,6 +2708,10 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
         case 0x00B: /* Read Local Supported Codecs */
             /* NOTE: No parameters */
             break;
+
+        default:
+            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
     }
 
     return offset;
@@ -2747,15 +2763,19 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
             offset+=tvb_length_remaining(tvb, offset);
             break;
 
-        case 0x00D: /* Set Triggered Clock Capture */
+        case 0x000D: /* Set Triggered Clock Capture */
             /* NOTE: No parameters */
             break;
 
-        case 0x00C: /* Get MWS Transport Layer Configuration */
+        case 0x000C: /* Get MWS Transport Layer Configuration */
 /* TODO: Implement above cases */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
             offset += tvb_length_remaining(tvb, offset);
             break;
+
+        default:
+            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
     }
 
     return offset;
@@ -2790,10 +2810,14 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
             break;
 
         case 0x009: /* AMP Test */
-/* TODO: Implement above case */
+/* TODO: Implement above cases */
             proto_tree_add_expert(tree, pinfo, &ei_command_undecoded, tvb, offset, -1);
             offset += tvb_length_remaining(tvb, offset);
             break;
+
+        default:
+            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
     }
 
     return offset;
@@ -3011,6 +3035,10 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x01F: /* LE Test End */
             /* NOTE: No parameters */
             break;
+
+        default:
+            proto_tree_add_expert(tree, pinfo, &ei_command_unknown_command, tvb, offset, -1);
+            offset += tvb_length_remaining(tvb, offset);
     }
 
     return offset;
@@ -3177,7 +3205,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 break;
 
             default:
-                proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_unknown, tvb, 3, -1);
+                proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_unknown_command, tvb, 3, -1);
                 offset += tvb_length_remaining(tvb, offset);
                 break;
         }
@@ -4618,7 +4646,7 @@ proto_register_bthci_cmd(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_command_unknown,              { "bthci_cmd.expert.command.unknown.", PI_PROTOCOL, PI_WARN, "Unknown command", EXPFILL }},
+        { &ei_command_unknown_command,      { "bthci_cmd.expert.command.unknown_command", PI_PROTOCOL, PI_WARN, "Unknown command", EXPFILL }},
         { &ei_command_parameter_unexpected, { "bthci_cmd.expert.parameter.unexpected", PI_PROTOCOL, PI_WARN, "Unexpected command parameter", EXPFILL }},
         { &ei_command_undecoded,            { "bthci_cmd.expert.command.undecoded", PI_PROTOCOL, PI_UNDECODED, "Command undecoded", EXPFILL }}
     };
@@ -4864,7 +4892,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
             } else {
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
-                expert_add_info(pinfo, sub_item, &ei_command_unknown);
+                expert_add_info(pinfo, sub_item, &ei_command_unknown_command);
             }
 
             break;

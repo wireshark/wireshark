@@ -348,7 +348,8 @@ static int hf_usable_packet_types = -1;
 static int hf_changed_in_frame = -1;
 
 static expert_field ei_event_undecoded = EI_INIT;
-static expert_field ei_event_unknown   = EI_INIT;
+static expert_field ei_event_unknown_event = EI_INIT;
+static expert_field ei_event_unknown_command = EI_INIT;
 static expert_field ei_manufacturer_data_changed = EI_INIT;
 
 static dissector_table_t vendor_dissector_table;
@@ -3111,8 +3112,9 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         }
 
         default:
-            proto_tree_add_item(tree, hf_bthci_evt_ret_params, tvb, offset, -1, ENC_NA);
+            proto_tree_add_expert(tree, pinfo, &ei_event_unknown_command, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             offset += tvb_length_remaining(tvb, offset);
+
             break;
     }
 
@@ -3824,7 +3826,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             return tvb_captured_length(tvb);
 
         default:
-            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_unknown, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_unknown_event, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             offset += tvb_length_remaining(tvb, offset);
             break;
         }
@@ -5335,8 +5337,9 @@ proto_register_bthci_evt(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_event_undecoded,          { "bthci_evt.expert.event.undecoded", PI_PROTOCOL, PI_UNDECODED, "Event undecoded", EXPFILL }},
-        { &ei_event_unknown,            { "bthci_evt.expert.event.unknown", PI_PROTOCOL, PI_WARN, "Unknown event", EXPFILL }},
+        { &ei_event_undecoded,            { "bthci_evt.expert.event.undecoded",                 PI_PROTOCOL, PI_UNDECODED, "Event undecoded", EXPFILL }},
+        { &ei_event_unknown_event,        { "bthci_evt.expert.event.unknown_event",             PI_PROTOCOL, PI_WARN,      "Unknown event", EXPFILL }},
+        { &ei_event_unknown_command,      { "bthci_evt.expert.event.unknown_command",           PI_PROTOCOL, PI_WARN,      "Unknown command", EXPFILL }},
         { &ei_manufacturer_data_changed,  { "bthci_evt.expert.event.manufacturer_data_changed", PI_PROTOCOL, PI_WARN,      "Manufacturer data changed", EXPFILL }}
     };
 
