@@ -1599,7 +1599,6 @@ dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversat
         subtree = proto_item_add_subtree(ti, ett_common_client_message);
         proto_tree_add_item(subtree, hf_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-        offset += 2;
         proto_tree_add_item(tree, hf_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         proto_tree_add_item(tree, hf_data_sublist, tvb, offset, 4, ENC_LITTLE_ENDIAN);
