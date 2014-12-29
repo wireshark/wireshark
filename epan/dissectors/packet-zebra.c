@@ -139,7 +139,7 @@ static const value_string messages[] = {
 	{ ZEBRA_ROUTER_ID_ADD,			"Router ID Add" },
 	{ ZEBRA_ROUTER_ID_DELETE,		"Router ID Delete" },
 	{ ZEBRA_ROUTER_ID_UPDATE,		"Router ID Update" },
-	{ ZEBRA_HELLO,					"Hello" },
+	{ ZEBRA_HELLO,				"Hello" },
 	{ 0,					NULL },
 };
 
@@ -234,7 +234,7 @@ static const value_string families[] = {
 static const value_string safi[] = {
 	{ ZEBRA_SAFI_UNICAST,			"Unicast" },
 	{ ZEBRA_SAFI_MULTICAST,			"Multicast" },
-	{ ZEBRA_SAFI_RESERVED_3 ,		"Reserved" },
+	{ ZEBRA_SAFI_RESERVED_3,		"Reserved" },
 	{ ZEBRA_SAFI_MPLS_VPN,			"MPLS VPN" },
 	{ 0,					NULL },
 };
