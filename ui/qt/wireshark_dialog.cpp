@@ -46,16 +46,16 @@ WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
 {
     connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
     connect(&cap_file_, SIGNAL(captureFileClosed()), this, SLOT(captureFileClosing()));
-    setWindowTitle();
+    setWindowTitleFromSubtitle();
 }
 
 void WiresharkDialog::setWindowSubtitle(const QString &subtitle)
 {
     subtitle_ = subtitle;
-    setWindowTitle();
+    setWindowTitleFromSubtitle();
 }
 
-void WiresharkDialog::setWindowTitle()
+void WiresharkDialog::setWindowTitleFromSubtitle()
 {
     QString title = wsApp->windowTitleString(QStringList() << subtitle_ << cap_file_.fileTitle());
     QDialog::setWindowTitle(title);
@@ -63,13 +63,13 @@ void WiresharkDialog::setWindowTitle()
 
 void WiresharkDialog::updateWidgets()
 {
-    setWindowTitle();
+    setWindowTitleFromSubtitle();
 }
 
 void WiresharkDialog::captureFileClosing()
 {
     file_closed_ = true;
-    setWindowTitle();
+    setWindowTitleFromSubtitle();
     updateWidgets();
 }
 

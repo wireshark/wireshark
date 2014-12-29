@@ -50,7 +50,7 @@ protected slots:
 
 private:
     const QString &windowSubtitle() { return subtitle_; }
-    void setWindowTitle();
+    void setWindowTitleFromSubtitle();
 
     QString subtitle_;
 

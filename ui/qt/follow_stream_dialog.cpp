@@ -62,15 +62,14 @@
 // To do:
 // - Instead of calling QMessageBox, display the error message in the text
 //   box and disable the appropriate controls.
-// - Add stream number for UDP.
 // - Draw text by hand similar to ByteViewText. This would let us add
 //   extra information, e.g. a timestamp column and get rid of the data
 //   limit.
+// - Add a progress bar and connect captureCaptureUpdateContinue to it
 
-FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capture_file *cf) :
-    QDialog(parent),
+FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_type_t type) :
+    WiresharkDialog(parent, cf),
     ui(new Ui::FollowStreamDialog),
-    cap_file_(cf),
     follow_type_(type),
     truncated_(false),
     save_as_(false)
@@ -82,13 +81,10 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capt
     follow_info_.show_type = SHOW_ASCII;
     follow_info_.show_stream = BOTH_HOSTS;
 
-
     ui->teStreamContent->installEventFilter(this);
 
     // XXX Use recent settings instead
-    if (parent) {
-        resize(parent->width() * 2 / 3, parent->height());
-    }
+    resize(parent.width() * 2 / 3, parent.height());
 
     QComboBox *cbcs = ui->cbCharset;
     cbcs->blockSignals(true);
@@ -114,6 +110,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget *parent, follow_type_t type, capt
             this, SLOT(fillHintLabel(int)));
     connect(ui->teStreamContent, SIGNAL(mouseClickedOnTextCursorPosition(int)),
             this, SLOT(goToPacketForTextPos(int)));
+    connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
 
     fillHintLabel(-1);
 }
@@ -170,7 +167,7 @@ void FollowStreamDialog::fillHintLabel(int text_pos)
 void FollowStreamDialog::goToPacketForTextPos(int text_pos)
 {
     int pkt = -1;
-    if (!cap_file_) {
+    if (file_closed_) {
         return;
     }
 
@@ -186,14 +183,14 @@ void FollowStreamDialog::goToPacketForTextPos(int text_pos)
     }
 }
 
-void FollowStreamDialog::updateWidgets(bool enable)
+void FollowStreamDialog::updateWidgets(bool follow_in_progress)
 {
-    if (!cap_file_) {
+    bool enable = !follow_in_progress;
+    if (file_closed_) {
+        ui->teStreamContent->setEnabled(true);
         enable = false;
-        ui->streamNumberSpinBox->setToolTip(QString());
-        ui->streamNumberLabel->setToolTip(QString());
     }
-    ui->teStreamContent->setEnabled(enable);
+
     ui->cbDirections->setEnabled(enable);
     ui->cbCharset->setEnabled(enable);
     ui->streamNumberSpinBox->setEnabled(enable);
@@ -244,10 +241,9 @@ void FollowStreamDialog::helpButton()
 
 void FollowStreamDialog::filterOut()
 {
-
     emit updateFilter(filter_out_filter_, TRUE);
 
-    this->close();
+    close();
 }
 
 void FollowStreamDialog::on_cbDirections_currentIndexChanged(int index)
@@ -289,11 +285,13 @@ void FollowStreamDialog::on_leFind_returnPressed()
 
 void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
 {
+    if (file_closed_) return;
+
     if (stream_num >= 0) {
-        updateWidgets(false);
+        updateWidgets(true);
         follow_index((follow_type_ == FOLLOW_TCP) ? TCP_STREAM : UDP_STREAM, stream_num);
         follow(QString(), true);
-        updateWidgets();
+        updateWidgets(false);
     }
 }
 
@@ -595,14 +593,6 @@ void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 
     }
 }
 
-void FollowStreamDialog::setCaptureFile(capture_file *cf)
-{
-    if (!cf) { // We only want to know when the file closes.
-        cap_file_ = NULL;
-    }
-    updateWidgets();
-}
-
 // The following keyboard shortcuts should work (although
 // they may not work consistently depending on focus):
 // / (slash), Ctrl-F - Focus and highlight the search box
@@ -859,19 +849,19 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
 
     resetStream();
 
-    if (cap_file_ == NULL)
+    if (file_closed_)
     {
         QMessageBox::warning(this, tr("No capture file."), tr("Please make sure you have a capture file opened."));
         return false;
     }
 
-    if (cap_file_->edt == NULL)
+    if (cap_file_.capFile()->edt == NULL)
     {
         QMessageBox::warning(this, tr("Error following stream."), tr("Capture file invalid."));
         return false;
     }
 
-    proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
+    proto_get_frame_protocols(cap_file_.capFile()->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
 
     switch (follow_type_)
     {
@@ -890,7 +880,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     case FOLLOW_SSL:
         /* we got ssl so we can follow */
         removeStreamControls();
-        if (!epan_dissect_packet_contains_field(cap_file_->edt, "ssl")) {
+        if (!epan_dissect_packet_contains_field(cap_file_.capFile()->edt, "ssl")) {
             QMessageBox::critical(this, tr("Error following stream."),
                                tr("Please make sure you have an SSL packet selected."));
             return false;
@@ -911,7 +901,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
         follow_filter = gchar_free_to_qstring(
             build_follow_index_filter((follow_type_ == FOLLOW_TCP) ? TCP_STREAM : UDP_STREAM));
     } else {
-        follow_filter = gchar_free_to_qstring(build_follow_conv_filter(&cap_file_->edt->pi));
+        follow_filter = gchar_free_to_qstring(build_follow_conv_filter(&cap_file_.capFile()->edt->pi));
     }
     if (follow_filter.isEmpty()) {
         QMessageBox::warning(this,
@@ -1214,28 +1204,28 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
                 .arg(gchar_free_to_qstring(format_size(
                                                stats.bytes_written[0] + stats.bytes_written[1],
                      format_size_unit_bytes|format_size_prefix_si)));
-        this->setWindowTitle(QString("Follow TCP Stream (%1)").arg(follow_filter));
+        setWindowSubtitle(tr("Follow TCP Stream (%1)").arg(follow_filter));
         break;
     case FOLLOW_UDP:
         both_directions_string = QString("Entire conversation (%1)")
                 .arg(gchar_free_to_qstring(format_size(
                                                follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
                      format_size_unit_bytes|format_size_prefix_si)));
-        this->setWindowTitle(QString("Follow UDP Stream (%1)").arg(follow_filter));
+        setWindowSubtitle(tr("Follow UDP Stream (%1)").arg(follow_filter));
         break;
     case FOLLOW_SSL:
         both_directions_string = QString("Entire conversation (%1)")
                 .arg(gchar_free_to_qstring(format_size(
                                                follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
                      format_size_unit_bytes|format_size_prefix_si)));
-        this->setWindowTitle(QString("Follow SSL Stream (%1)").arg(follow_filter));
+        setWindowSubtitle(tr("Follow SSL Stream (%1)").arg(follow_filter));
         break;
     }
 
     ui->cbDirections->clear();
-    this->ui->cbDirections->addItem(both_directions_string);
-    this->ui->cbDirections->addItem(client_to_server_string);
-    this->ui->cbDirections->addItem(server_to_client_string);
+    ui->cbDirections->addItem(both_directions_string);
+    ui->cbDirections->addItem(client_to_server_string);
+    ui->cbDirections->addItem(server_to_client_string);
 
     followStream();
     fillHintLabel(-1);
@@ -1246,6 +1236,14 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     }
 
     return true;
+}
+
+void FollowStreamDialog::captureFileClosing()
+{
+    QString tooltip = tr("File closed.");
+    ui->streamNumberSpinBox->setToolTip(tooltip);
+    ui->streamNumberLabel->setToolTip(tooltip);
+    WiresharkDialog::captureFileClosing();
 }
 
 #define FLT_BUF_SIZE 1024

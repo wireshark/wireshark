@@ -1542,22 +1542,22 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
 
 void MainWindow::on_actionFileExportObjectsDICOM_triggered()
 {
-    new ExportObjectDialog(this, capture_file_.capFile(), ExportObjectDialog::Dicom);
+    new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Dicom);
 }
 
 void MainWindow::on_actionFileExportObjectsHTTP_triggered()
 {
-    new ExportObjectDialog(this, capture_file_.capFile(), ExportObjectDialog::Http);
+    new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Http);
 }
 
 void MainWindow::on_actionFileExportObjectsSMB_triggered()
 {
-    new ExportObjectDialog(this, capture_file_.capFile(), ExportObjectDialog::Smb);
+    new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Smb);
 }
 
 void MainWindow::on_actionFileExportObjectsTFTP_triggered()
 {
-    new ExportObjectDialog(this, capture_file_.capFile(), ExportObjectDialog::Tftp);
+    new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Tftp);
 }
 
 void MainWindow::on_actionFilePrint_triggered()
@@ -2034,7 +2034,7 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
 }
 
 void MainWindow::openFollowStreamDialog(follow_type_t type) {
-    FollowStreamDialog *fsd = new FollowStreamDialog(this, type, capture_file_.capFile());
+    FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
     connect(fsd, SIGNAL(updateFilter(QString&, bool)), this, SLOT(filterPackets(QString&, bool)));
     connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
 

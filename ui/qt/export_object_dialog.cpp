@@ -21,18 +21,18 @@
 
 #include "export_object_dialog.h"
 #include "ui_export_object_dialog.h"
+
+#include <ui/alert_box.h>
+
+#include <wsutil/filesystem.h>
+#include <wsutil/str_util.h>
+
 #include "wireshark_application.h"
 
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QMessageBox>
 #include <QFileDialog>
-
-#include <ui/alert_box.h>
-
-#include <wsutil/filesystem.h>
-
-#include <wsutil/str_util.h>
 
 extern "C" {
 
@@ -59,10 +59,9 @@ eo_reset(void *tapdata)
 
 } // extern "C"
 
-ExportObjectDialog::ExportObjectDialog(QWidget *parent, capture_file *cf, ObjectType object_type) :
-    QDialog(parent),
+ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, ObjectType object_type) :
+    WiresharkDialog(parent, cf),
     eo_ui_(new Ui::ExportObjectDialog),
-    cap_file_(cf),
     save_bt_(NULL),
     save_all_bt_(NULL),
     tap_name_(NULL),
@@ -110,14 +109,13 @@ ExportObjectDialog::ExportObjectDialog(QWidget *parent, capture_file *cf, Object
     save_all_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::SaveAll);
     close_bt = eo_ui_->buttonBox->button(QDialogButtonBox::Close);
 
-    this->setWindowTitle(QString(tr("Wireshark: %1 object list")).arg(name_));
+    setWindowTitle(wsApp->windowTitleString(QStringList() << tr("Export") << tr("%1 object list").arg(name_)));
 
     if (save_bt_) save_bt_->setEnabled(false);
     if (save_all_bt_) save_all_bt_->setEnabled(false);
     if (close_bt) close_bt->setDefault(true);
 
-    connect(wsApp, SIGNAL(captureFileClosing(const capture_file*)),
-            this, SLOT(captureFileClosing(const capture_file*)));
+    connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
 
     show();
     raise();
@@ -175,8 +173,6 @@ void ExportObjectDialog::show()
 {
     GString *error_msg;
 
-    if (!cap_file_) destroy(); // Assert?
-
     /* Data will be gathered via a tap callback */
     error_msg = register_tap_listener(tap_name_, (void *)&export_object_list_, NULL, 0,
                                       eo_reset,
@@ -195,7 +191,7 @@ void ExportObjectDialog::show()
     }
 
     QDialog::show();
-    cf_retap_packets(cap_file_);
+    cap_file_.retapPackets();
     eo_ui_->progressFrame->hide();
     for (int i = 0; i < eo_ui_->objectTree->columnCount(); i++)
         eo_ui_->objectTree->resizeColumnToContents(i);
@@ -207,11 +203,9 @@ void ExportObjectDialog::accept()
     // Don't close the dialog.
 }
 
-void ExportObjectDialog::captureFileClosing(const capture_file *cf)
+void ExportObjectDialog::captureFileClosing()
 {
-    if (cap_file_ && cf == cap_file_) {
-        close();
-    }
+    close();
 }
 
 void ExportObjectDialog::on_buttonBox_helpRequested()
@@ -231,8 +225,8 @@ void ExportObjectDialog::on_objectTree_currentItemChanged(QTreeWidgetItem *item,
     if (save_bt_) save_bt_->setEnabled(true);
 
     export_object_entry_t *entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
-    if (entry && cap_file_) {
-        cf_goto_frame(cap_file_, entry->pkt_num);
+    if (entry && !file_closed_) {
+        cf_goto_frame(cap_file_.capFile(), entry->pkt_num);
     }
 }
 

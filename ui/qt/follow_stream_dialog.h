@@ -36,7 +36,8 @@
 
 #include "ui/follow.h"
 
-#include <QDialog>
+#include "wireshark_dialog.h"
+
 #include <QFile>
 #include <QMap>
 #include <QPushButton>
@@ -60,18 +61,18 @@ namespace Ui {
 class FollowStreamDialog;
 }
 
-class FollowStreamDialog : public QDialog
+class FollowStreamDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit FollowStreamDialog(QWidget *parent = 0, follow_type_t type = FOLLOW_TCP, capture_file *cf = NULL);
+    explicit FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_type_t type = FOLLOW_TCP);
     ~FollowStreamDialog();
 
     bool follow(QString previous_filter = QString(), bool use_stream_index = false);
 
 public slots:
-    void setCaptureFile(capture_file *cf);
+    void captureFileClosing();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -102,7 +103,8 @@ signals:
 private:
     void removeStreamControls();
     void resetStream(void);
-    void updateWidgets(bool enable = true);
+    void updateWidgets(bool follow_in_progress);
+    void updateWidgets() { updateWidgets(false); } // Needed for WiresharkDialog?
     frs_return_t
     showBuffer(char *buffer, size_t nchars, gboolean is_from_server,
                 guint32 packet_num, guint32 *global_pos);
@@ -117,7 +119,6 @@ private:
 
     Ui::FollowStreamDialog  *ui;
 
-    capture_file            *cap_file_;
     QPushButton             *b_filter_out_;
     QPushButton             *b_find_;
     QPushButton             *b_print_;
