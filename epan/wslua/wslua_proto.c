@@ -27,8 +27,6 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
-
 /* WSLUA_MODULE Proto Functions for new protocols and dissectors
 
    The classes and functions in this chapter allow Lua scripts to create new
@@ -1324,12 +1322,13 @@ PROTOFIELD_OTHER(eui64,FT_EUI64)
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes). */
     ProtoField f = checkProtoField(L,1);
-    gchar* s = (gchar *)ep_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",
+    gchar* s = g_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",
                                          f->hfid,f->name,f->abbr,
                                          ftenum_to_string(f->type),
                                          base_to_string(f->base),
                                          f->vs,f->mask,f->blob);
     lua_pushstring(L,s);
+    g_free(s);
     return 1;
 }
 
@@ -1584,10 +1583,8 @@ WSLUA_METAMETHOD Proto__call(lua_State* L) { /* Creates a `Proto` object. */
 
 static int Proto__tostring(lua_State* L) {
     Proto proto = checkProto(L,1);
-    gchar* s;
 
-    s = ep_strdup_printf("Proto: %s",proto->name);
-    lua_pushstring(L,s);
+    lua_pushfstring(L, "Proto: %s", proto->name);
 
     return 1;
 }

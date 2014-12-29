@@ -27,8 +27,6 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
-
 /* WSLUA_MODULE Tree Adding information to the dissection tree */
 
 #include "wslua.h"
@@ -201,8 +199,8 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     tvbr = shiftTvbRange(L,1);
     if (!tvbr) {
         /* No TvbRange specified */
-        tvbr = ep_new(struct _wslua_tvbrange);
-        tvbr->tvb = ep_new(struct _wslua_tvb);
+        tvbr = wmem_new(wmem_packet_scope(), struct _wslua_tvbrange);
+        tvbr->tvb = wmem_new(wmem_packet_scope(), struct _wslua_tvb);
         tvbr->tvb->ws_tvb = lua_tvb;
         tvbr->offset = 0;
         tvbr->len = 0;
@@ -302,8 +300,8 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     tvbr = shiftTvbRange(L,1);
 
     if (!tvbr) {
-        tvbr = ep_new(struct _wslua_tvbrange);
-        tvbr->tvb = ep_new(struct _wslua_tvb);
+        tvbr = wmem_new(wmem_packet_scope(), struct _wslua_tvbrange);
+        tvbr->tvb = wmem_new(wmem_packet_scope(), struct _wslua_tvb);
         tvbr->tvb->ws_tvb = lua_tvb;
         tvbr->offset = 0;
         tvbr->len = 0;
@@ -608,10 +606,10 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
     tvbr = shiftTvbRange(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
 
     if (!tvbr) {
-        tvbr = ep_new(struct _wslua_tvbrange);
+        tvbr = wmem_new(wmem_packet_scope(), struct _wslua_tvbrange);
         tvbr->tvb = shiftTvb(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
         if (!tvbr->tvb) {
-            tvbr->tvb = ep_new(struct _wslua_tvb);
+            tvbr->tvb = wmem_new(wmem_packet_scope(), struct _wslua_tvb);
         }
         tvbr->tvb->ws_tvb = lua_tvb;
         tvbr->offset = 0;

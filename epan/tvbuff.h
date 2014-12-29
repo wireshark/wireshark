@@ -854,6 +854,12 @@ WS_DLL_PUBLIC gchar *tvb_bytes_to_ep_str(tvbuff_t *tvb, const gint offset,
     const gint len);
 
 /**
+ * Same as above, but using wmem memory management
+ */
+WS_DLL_PUBLIC gchar *tvb_bytes_to_wmem_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
+    const gint offset, const gint len);
+
+/**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
  * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either

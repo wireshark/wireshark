@@ -144,6 +144,13 @@ WS_DLL_PUBLIC gchar *ep_sctp_port_to_display(guint port);
 WS_DLL_PUBLIC
 const gchar *ep_address_to_display(const address *addr);
 
+/*
+ * wmem_address_to_display is the same as ep_address_to_display above, but
+ * using the wmem scope for memory management.
+ */
+WS_DLL_PUBLIC
+const gchar *wmem_address_to_display(wmem_allocator_t *allocator, const address *addr);
+
 /* get_addr_name_buf solves an address in the same way as ep_address_to_display above */
 /* The difference is that get_addr_name_buf takes as input a buffer, into which it puts */
 /* the result which is always NUL ('\0') terminated. The buffer should be large enough to */

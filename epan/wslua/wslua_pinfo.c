@@ -380,8 +380,11 @@ WSLUA_METHODS Address_methods[] = {
 
 WSLUA_METAMETHOD Address__tostring(lua_State* L) {
     Address addr = checkAddress(L,1);
+    const gchar *str = wmem_address_to_display(NULL, addr);
 
-    lua_pushstring(L,ep_address_to_display(addr));
+    lua_pushstring(L, str);
+
+    wmem_free(NULL, (void*) str);
 
     WSLUA_RETURN(1); /* The string representing the address. */
 }
@@ -837,7 +840,7 @@ static int PrivateTable__newindex(lua_State* L) {
     }
 
     if (string) {
-      g_hash_table_replace (priv->table, (gpointer) ep_strdup(name), (gpointer) ep_strdup(string));
+      g_hash_table_replace (priv->table, (gpointer) g_strdup(name), (gpointer) g_strdup(string));
     } else {
       g_hash_table_remove (priv->table, (gconstpointer) name);
     }
@@ -1059,7 +1062,7 @@ static int Pinfo_get_private(lua_State *L) {
     gboolean is_allocated = FALSE;
 
     if (!pinfo->ws_pinfo->private_table) {
-        pinfo->ws_pinfo->private_table = g_hash_table_new(g_str_hash,g_str_equal);
+        pinfo->ws_pinfo->private_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
         is_allocated = TRUE;
     }
 

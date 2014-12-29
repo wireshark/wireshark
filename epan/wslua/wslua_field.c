@@ -26,7 +26,6 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/ftypes/ftypes-int.h>
 

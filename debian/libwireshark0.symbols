@@ -76,6 +76,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  byte_array_equal@Base 1.9.1
  bytes_to_ep_str@Base 1.12.0~rc1
  bytes_to_ep_str_punct@Base 1.12.0~rc1
+ bytes_to_str@Base 1.99.2
  bytestring_to_ep_str@Base 1.12.0~rc1
  bytestring_to_str@Base 1.9.1
  call_ber_oid_callback@Base 1.9.1
@@ -1296,6 +1297,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_bytes_exist@Base 1.9.1
  tvb_bytes_to_ep_str@Base 1.12.0~rc1
  tvb_bytes_to_ep_str_punct@Base 1.12.0~rc1
+ tvb_bytes_to_wmem_str@Base 1.99.2
  tvb_captured_length@Base 1.12.0~rc1
  tvb_captured_length_remaining@Base 1.12.0~rc1
  tvb_child_uncompress@Base 1.12.0~rc1
@@ -1453,6 +1455,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  value_is_in_range@Base 1.9.1
  value_string_ext_free@Base 1.12.0~rc1
  value_string_ext_new@Base 1.9.1
+ wmem_address_to_display@Base 1.99.2
  wmem_alloc0@Base 1.9.1
  wmem_alloc@Base 1.9.1
  wmem_allocator_new@Base 1.9.1

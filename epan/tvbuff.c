@@ -3488,6 +3488,15 @@ tvb_bytes_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len)
 	return bytes_to_ep_str(ensure_contiguous(tvb, offset, len), len);
 }
 
+/*
+ * Same as tvb_bytes_to_ep_str but with wmem
+ */
+gchar *tvb_bytes_to_wmem_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
+    const gint offset, const gint len)
+{
+	return bytes_to_str(allocator, ensure_contiguous(tvb, offset, len), len);
+}
+
 /* Find a needle tvbuff within a haystack tvbuff. */
 gint
 tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const gint haystack_offset)

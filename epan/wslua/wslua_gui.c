@@ -361,13 +361,10 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Closes the progress dialog. */
 
 static int ProgDlg__tostring(lua_State* L) {
     ProgDlg pd = checkProgDlg(L,1);
-    char *str;
 
-    str = wmem_strdup_printf(NULL, "%sstopped",pd->stopped?"":"not ");
-    lua_pushstring(L, str);
-    wmem_free(NULL, str);
+    lua_pushfstring(L, "%sstopped",pd->stopped?"":"not ");
 
-    return 0;
+    WSLUA_RETURN(1); /* A string specifying whether the Progress Dialog has stopped or not. */
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */

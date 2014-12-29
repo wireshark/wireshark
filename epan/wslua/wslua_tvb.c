@@ -498,16 +498,16 @@ WSLUA_CONSTRUCTOR TvbRange_tvb (lua_State *L) {
 }
 
 WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
-	/* Convert the bytes of a `Tvb` into a string, to be used for debugging purposes as '...'
-       will be appended in case the string is too long. */
+	/* Convert the bytes of a `Tvb` into a string, to be used for debugging purposes, as '...'
+       will be appended if the string is too long. */
     Tvb tvb = checkTvb(L,1);
-    int len;
-    gchar* str;
+    int len = tvb_captured_length(tvb->ws_tvb);
+    char* str = tvb_bytes_to_wmem_str(NULL,tvb->ws_tvb,0,len);
 
-    len = tvb_captured_length(tvb->ws_tvb);
-    str = wmem_strdup_printf(NULL, "TVB(%i) : %s",len,tvb_bytes_to_ep_str(tvb->ws_tvb,0,len));
-    lua_pushstring(L,str);
+    lua_pushfstring(L, "TVB(%d) : %s", len, str);
+
     wmem_free(NULL, str);
+
     WSLUA_RETURN(1); /* The string. */
 }
 
@@ -1554,10 +1554,11 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
 
 
 WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
-	/* Converts the `TvbRange` into a string. As the string gets truncated
+	/* Converts the `TvbRange` into a string. Since the string gets truncated,
 	   you should use this only for debugging purposes
 	   or if what you want is to have a truncated string in the format 67:89:AB:... */
     TvbRange tvbr = checkTvbRange(L,1);
+    char* str = NULL;
 
     if (!(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1565,8 +1566,12 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
         return 0;
     }
 
-    lua_pushstring(L,tvb_bytes_to_ep_str(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len));
-    return 1;
+    str = tvb_bytes_to_wmem_str(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+
+    lua_pushstring(L,str);
+    wmem_free(NULL, str);
+
+    WSLUA_RETURN(1); /* A Lua hex string of the first 24 binary bytes in the `TvbRange`. */
 }
 
 WSLUA_METHODS TvbRange_methods[] = {

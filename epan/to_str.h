@@ -106,6 +106,11 @@ WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
  */
 WS_DLL_PUBLIC gchar *bytes_to_ep_str(const guint8 *bd, int bd_len);
 
+/**
+ * Same as above, but using wmem memory management.
+ */
+WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *allocator, const guint8 *bd, int bd_len);
+
 /** Turn an array of bytes into a string showing the bytes in hex,
  *  separated by a punctuation character.
  *

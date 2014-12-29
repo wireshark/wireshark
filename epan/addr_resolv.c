@@ -2903,6 +2903,28 @@ ep_address_to_display(const address *addr)
 }
 
 const gchar *
+wmem_address_to_display(wmem_allocator_t *allocator, const address *addr)
+{
+    gchar *str = NULL;
+    const gchar *result = solve_address_to_name(addr);
+
+    if (result != NULL) {
+        /* unlike ep_address_to_display(), we can't assume the lifetime of the address' members
+           is safe, so we allocate and copy */
+        str = wmem_strdup(allocator, result);
+    }
+    else if (addr->type == AT_NONE) {
+        str = wmem_strdup(allocator, "NONE");
+    }
+    else {
+        str = (gchar *) wmem_alloc(allocator, MAX_ADDR_STR_LEN);
+        address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
+    }
+
+    return str;
+}
+
+const gchar *
 get_addr_name(const address *addr)
 {
     guint32 ip4_addr;
