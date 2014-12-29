@@ -1562,8 +1562,6 @@ static void wimaxasncp_dissect_tlv_value(
                      * --------------------------------------------------------
                      */
 
-                    ip = tvb_get_ipv4(tvb, offset);
-
                     s = tvb_ip_to_str(tvb, offset);
 
                     proto_tree_add_item(
