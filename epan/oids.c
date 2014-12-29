@@ -1296,7 +1296,7 @@ void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
 	static const char* key_types[] = {"OID_KEY_TYPE_WRONG","OID_KEY_TYPE_INTEGER",
 										"OID_KEY_TYPE_FIXED_STRING","OID_KEY_TYPE_FIXED_BYTES","OID_KEY_TYPE_STRING",
 										"OID_KEY_TYPE_BYTES","OID_KEY_TYPE_NSAP","OID_KEY_TYPE_OID","OID_KEY_TYPE_IPADDR"};
-	proto_item* pi = proto_tree_add_text(tree,NULL,0,0,
+	proto_item* pi = proto_tree_add_debug_text(tree,NULL,0,0,
 	"OidInfo: Name='%s' sub-id=%u  kind=%s  hfid=%d",
 	oid_info->name ? oid_info->name : "",
 	oid_info->subid,
@@ -1306,7 +1306,7 @@ void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
 	oid_key_t* key;
 
 	for(key = oid_info->key; key; key = key->next) {
-		proto_tree_add_text(pt,NULL,0,0,
+		proto_tree_add_debug_text(pt,NULL,0,0,
 		"Key: name='%s' num_subids=%d type=%s",
 		key->name,
 		key->key_type <= OID_KEY_TYPE_IPADDR ? key_types[key->key_type] : "BROKEN"
@@ -1314,7 +1314,7 @@ void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
 	};
 
 	if (oid_info->parent) {
-		pi = proto_tree_add_text(pt,NULL,0,0,"Parent:");
+		pi = proto_tree_add_debug_text(pt,NULL,0,0,"Parent:");
 		pt = proto_item_add_subtree(pi,0);
 		add_oid_debug_subtree(oid_info->parent, pt);
 	}

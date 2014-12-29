@@ -718,8 +718,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
         PROTO_ITEM_SET_GENERATED(ctx_item);
 
         if (ctx->cmds) {
-            proto_item* history_item = proto_tree_add_text(ctx_tree,gcp_tvb,0,0,"[ Command History ]");
-            proto_tree* history_tree = proto_item_add_subtree(history_item,ids->ett.ctx_cmds);
+            proto_tree* history_tree = proto_tree_add_subtree(ctx_tree,gcp_tvb,0,0,ids->ett.ctx_cmds,NULL,"[ Command History ]");
 
             for (c = ctx->cmds; c; c = c->next) {
                 proto_item* cmd_item = proto_tree_add_uint(history_tree,ids->hf.ctx_cmd,gcp_tvb,0,0,c->cmd->msg->framenum);
@@ -732,8 +731,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
         }
 
         if (( ctx_term = ctx->terms.next )) {
-            proto_item* terms_item = proto_tree_add_text(ctx_tree,gcp_tvb,0,0,"[ Terminations Used ]");
-            proto_tree* terms_tree = proto_item_add_subtree(terms_item,ids->ett.ctx_terms);
+            proto_tree* terms_tree = proto_tree_add_subtree(ctx_tree,gcp_tvb,0,0,ids->ett.ctx_terms,NULL,"[ Terminations Used ]");
 
             for (; ctx_term; ctx_term = ctx_term->next ) {
                 if ( ctx_term->term && ctx_term->term->str) {
