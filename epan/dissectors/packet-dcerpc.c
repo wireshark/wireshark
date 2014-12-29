@@ -606,7 +606,8 @@ static expert_field ei_dcerpc_no_request_found = EI_INIT;
 static expert_field ei_dcerpc_context_change = EI_INIT;
 static expert_field ei_dcerpc_cn_ctx_id_no_bind = EI_INIT;
 static expert_field ei_dcerpc_bind_not_acknowledged = EI_INIT;
-
+static expert_field ei_dcerpc_verifier_unavailable = EI_INIT;
+static expert_field ei_dcerpc_invalid_pdu_authentication_attempt = EI_INIT;
 
 static GSList *decode_dcerpc_bindings = NULL;
 /*
@@ -1166,23 +1167,26 @@ static void dissect_auth_verf(tvbuff_t *auth_tvb, packet_info *pinfo,
         fn = auth_fns->resp_verf_fn;
         break;
 
+    default:
         /* Don't know how to handle authentication data in this
            pdu type. */
-
-    default:
-        g_warning("attempt to dissect %s pdu authentication data",
-                  val_to_str(hdr->ptype, pckt_vals, "Unknown (%u)"));
+        proto_tree_add_expert_format(tree, pinfo, &ei_dcerpc_invalid_pdu_authentication_attempt,
+                                     auth_tvb, 0, 0,
+                                     "Don't know how to dissect authentication data for %s pdu type",
+                                     val_to_str(hdr->ptype, pckt_vals, "Unknown (%u)"));
+        return;
         break;
     }
 
     if (fn)
         fn(auth_tvb, 0, pinfo, tree, &di, hdr->drep);
     else {
-        proto_tree_add_text(tree, auth_tvb, 0, hdr->auth_len,
-                            "%s Verifier",
-                            val_to_str(auth_info->auth_type,
-                                       authn_protocol_vals,
-                                       "Unknown (%u)"));
+        proto_tree_add_expert_format(tree, pinfo, &ei_dcerpc_verifier_unavailable,
+                                     auth_tvb, 0, hdr->auth_len,
+                                     "%s Verifier unavailable",
+                                     val_to_str(auth_info->auth_type,
+                                                authn_protocol_vals,
+                                                "Unknown (%u)"));
     }
 }
 
@@ -3181,7 +3185,8 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
  * as well in the future.
  */
 
-guint16 dcerpc_get_transport_salt(packet_info *pinfo)
+guint16
+dcerpc_get_transport_salt(packet_info *pinfo)
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
@@ -3195,7 +3200,8 @@ guint16 dcerpc_get_transport_salt(packet_info *pinfo)
     return 0;
 }
 
-void dcerpc_set_transport_salt(guint16 dcetransportsalt, packet_info *pinfo)
+void
+dcerpc_set_transport_salt(guint16 dcetransportsalt, packet_info *pinfo)
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
@@ -6334,6 +6340,8 @@ proto_register_dcerpc(void)
         { &ei_dcerpc_fragment_multiple, { "dcerpc.fragment_multiple", PI_SEQUENCE, PI_CHAT, "Multiple DCE/RPC fragments/PDU's in one packet", EXPFILL }},
         { &ei_dcerpc_context_change, { "dcerpc.context_change", PI_SEQUENCE, PI_CHAT, "Context change: %s", EXPFILL }},
         { &ei_dcerpc_bind_not_acknowledged, { "dcerpc.bind_not_acknowledged", PI_SEQUENCE, PI_WARN, "Bind not acknowledged", EXPFILL }},
+        { &ei_dcerpc_verifier_unavailable, { "dcerpc.verifier_unavailable", PI_UNDECODED, PI_WARN, NULL, EXPFILL }},
+        { &ei_dcerpc_invalid_pdu_authentication_attempt, { "dcerpc.invalid_pdu_authentication_attempt", PI_UNDECODED, PI_WARN, NULL, EXPFILL }},
     };
 
     /* Decode As handling */
