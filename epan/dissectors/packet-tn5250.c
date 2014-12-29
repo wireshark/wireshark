@@ -3027,7 +3027,7 @@ dissect_wcc(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     { NULL, 0, 0, 0, 0 }
   };
 
- tn5250_add_hf_items(tn5250_tree, tvb, offset, wcc_fields);
+  tn5250_add_hf_items(tn5250_tree, tvb, offset, wcc_fields);
 
   return 2;
 
@@ -3351,6 +3351,7 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
     switch (minor_structure) {
       case CW_BORDER_PRESENTATION:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, cwbp_fields);
+        break;
       case CW_TITLE_FOOTER:
         length = tvb_get_guint8(tvb,offset);
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset, cw_tf_fields);
@@ -3361,6 +3362,7 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
         proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_cw_tf_text, tvb, offset,
                             (length - 6), ENC_EBCDIC|ENC_NA);
         offset += (guint32)((length - 6));
+        break;
       default:
         done = 1;
         break;
