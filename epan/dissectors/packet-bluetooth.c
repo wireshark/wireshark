@@ -1002,6 +1002,12 @@ static const value_string bluetooth_company_id_vals[] = {
 };
 value_string_ext bluetooth_company_id_vals_ext = VALUE_STRING_EXT_INIT(bluetooth_company_id_vals);
 
+const value_string bluetooth_address_type_vals[] = {
+    { 0x00,  "Public" },
+    { 0x01,  "Random" },
+    { 0, NULL }
+};
+
 guint32 max_disconnect_in_frame = G_MAXUINT32;
 
 
@@ -1192,7 +1198,7 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     pinfo->ptype = PT_BLUETOOTH;
     get_conversation(pinfo, &pinfo->dl_src, &pinfo->dl_dst, pinfo->srcport, pinfo->destport);
 
-    main_item = proto_tree_add_item(tree, proto_bluetooth, tvb, 0, tvb_length(tvb), ENC_NA);
+    main_item = proto_tree_add_item(tree, proto_bluetooth, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_bluetooth);
 
     bluetooth_data = (bluetooth_data_t *) wmem_new(wmem_packet_scope(), bluetooth_data_t);
@@ -1260,7 +1266,7 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         call_dissector(data_handle, tvb, pinfo, tree);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void

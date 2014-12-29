@@ -84,6 +84,8 @@ extern const value_string bthci_cmd_notification_types[];
 
 extern value_string_ext  bthci_evt_evt_code_vals_ext;
 
+extern const value_string bluetooth_address_type_vals[];
+
 
 /* We support Bluetooth over various interfaces, interface_id and adapter_id
    is used to decode further payload. Case: there is a host. Host has X

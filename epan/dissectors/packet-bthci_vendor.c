@@ -314,12 +314,6 @@ static const value_string batch_scan_mode_vals[] = {
     { 0, NULL }
 };
 
-static const value_string address_type_vals[] = {
-    { 0x00,  "Public" },
-    { 0x01,  "Random" },
-    { 0, NULL }
-};
-
 static const value_string batch_scan_discard_rule_vals[] = {
     { 0x00,  "Old Items" },
     { 0x01,  "Lower RSSI Items" },
@@ -1270,7 +1264,7 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_le_batch_scan_address_type,
             { "Address Type",                              "bthci_vendor.broadcom.le.batch_scan.address_type",
-            FT_UINT8, BASE_HEX, VALS(address_type_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bluetooth_address_type_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_le_batch_scan_discard_rule,
@@ -1305,7 +1299,7 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_le_multi_advertising_address_type,
             { "Address Type",                              "bthci_vendor.broadcom.le.multi_advertising.address_type",
-            FT_UINT8, BASE_HEX, VALS(address_type_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(bluetooth_address_type_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_le_multi_advertising_type,
