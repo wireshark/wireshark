@@ -161,7 +161,7 @@ proto_register_openflow(void)
 
     /* Register the protocol name and description */
     proto_openflow = proto_register_protocol("OpenFlow",
-            "openflow", "openflow");
+            "OpenFlow", "openflow");
 
     new_register_dissector("openflow", dissect_openflow, proto_openflow);
 
@@ -174,7 +174,7 @@ proto_register_openflow(void)
 
     /* Register port preference */
     prefs_register_uint_preference(openflow_module, "tcp.port", "OpenFlow TCP port",
-                                   " OpenFlow TCP port (6653 is the IANA assigned port)",
+                                   "OpenFlow TCP port (6653 is the IANA assigned port)",
                                    10, &g_openflow_port);
 
     /* Register heuristic preference */
