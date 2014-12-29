@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include <string.h>
 #include <errno.h>
 
 #ifdef HAVE_SYS_UTSNAME_H
