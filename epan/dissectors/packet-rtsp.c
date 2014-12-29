@@ -494,7 +494,7 @@ static const char rtsp_real_tng[]          = "x-pn-tng/"; /* synonym for x-real-
 static const char rtsp_inter[]             = "interleaved=";
 
 static void
-rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
+rtsp_create_conversation(packet_info *pinfo, proto_item *pi,
                          const guchar *line_begin, size_t line_len,
                          gint rdt_feature_level)
 {
@@ -531,7 +531,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     else
     {
         /* Give up on unknown transport types */
-        expert_add_info(pinfo, ti, &ei_rtsp_unknown_transport_type);
+        expert_add_info(pinfo, pi, &ei_rtsp_unknown_transport_type);
         return;
     }
 
@@ -542,7 +542,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     if ((tmp = strstr(buf, rtsp_sps))) {
         tmp += strlen(rtsp_sps);
         if (sscanf(tmp, "%u-%u", &s_data_port, &s_mon_port) < 1) {
-            expert_add_info(pinfo, ti, &ei_rtsp_bad_server_port);
+            expert_add_info(pinfo, pi, &ei_rtsp_bad_server_port);
             return;
         }
     }
@@ -550,7 +550,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     if ((tmp = strstr(buf, rtsp_cps))) {
         tmp += strlen(rtsp_cps);
         if (sscanf(tmp, "%u-%u", &c_data_port, &c_mon_port) < 1) {
-            expert_add_info(pinfo, ti, &ei_rtsp_bad_client_port);
+            expert_add_info(pinfo, pi, &ei_rtsp_bad_client_port);
             return;
         }
     }
@@ -577,7 +577,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
         i = sscanf(tmp, "%u-%u", &s_data_chan, &s_mon_chan);
         if (i < 1)
         {
-            expert_add_info(pinfo, ti, &ei_rtsp_bad_interleaved_channel);
+            expert_add_info(pinfo, pi, &ei_rtsp_bad_interleaved_channel);
             return;
         }
 
@@ -1028,8 +1028,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             if (HDR_MATCHES(rtsp_transport))
             {
-                proto_item *ti;
-                ti = proto_tree_add_string(rtsp_tree, hf_rtsp_transport, tvb,
+                proto_item *pi;
+                pi = proto_tree_add_string(rtsp_tree, hf_rtsp_transport, tvb,
                                            offset, linelen,
                                            tvb_format_text(tvb, value_offset,
                                                            value_len));
@@ -1040,7 +1040,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
                  * a conversation that will be dissected
                  * with the appropriate dissector.
                  */
-                rtsp_create_conversation(pinfo, ti, line, linelen, rdt_feature_level);
+                rtsp_create_conversation(pinfo, pi, line, linelen, rdt_feature_level);
             } else if (HDR_MATCHES(rtsp_content_type))
             {
                 proto_tree_add_string(rtsp_tree, hf_rtsp_content_type,
