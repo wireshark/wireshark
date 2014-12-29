@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <string.h>
 
 #include "md4.h"
 
