@@ -21,6 +21,7 @@
  */
 
 #include "sober128.h"
+#include <string.h>             /* for memcpy */
 
 #define CONST64(n) n ## ULL
 
