@@ -23,6 +23,7 @@
 
 #include "config.h"
 
+#include <string.h>
 
 #include "rc4.h"
 
