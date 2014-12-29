@@ -93,7 +93,6 @@ public:
     bool isInitialized() { return initialized_; }
     const QIcon &normalIcon() const { return normal_icon_; }
     const QIcon &captureIcon() const { return capture_icon_; }
-    const QString &applicationName() const { return application_name_; }
     const QString &windowTitleSeparator() const { return window_title_separator_; }
     const QString windowTitleString(QStringList title_parts);
     const QString windowTitleString(QString title_part) { return windowTitleString(QStringList() << title_part); }
@@ -112,7 +111,6 @@ private:
     QSocketNotifier *if_notifier_;
     QIcon normal_icon_;
     QIcon capture_icon_;
-    static QString application_name_;
     static QString window_title_separator_;
 
 protected:

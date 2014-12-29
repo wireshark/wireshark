@@ -33,8 +33,8 @@
 #include "ui/tap-sequence-analysis.h"
 
 #include "qcustomplot.h"
+#include "wireshark_dialog.h"
 
-#include <QDialog>
 #include <QMenu>
 
 namespace Ui {
@@ -43,19 +43,16 @@ class SequenceDialog;
 
 class SequenceDiagram;
 
-class SequenceDialog : public QDialog
+class SequenceDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit SequenceDialog(QWidget *parent = 0, capture_file *cf = NULL, seq_analysis_info_t *sainfo = NULL);
+    explicit SequenceDialog(QWidget &parent, CaptureFile &cf, seq_analysis_info_t *sainfo = NULL);
     ~SequenceDialog();
 
 signals:
     void goToPacket(int packet_num);
-
-public slots:
-    void setCaptureFile(capture_file *cf);
 
 protected:
     void showEvent(QShowEvent *event);
@@ -64,6 +61,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
 
 private slots:
+    void updateWidgets();
     void hScrollBarChanged(int value);
     void vScrollBarChanged(int value);
     void xAxisChanged(QCPRange range);
@@ -91,7 +89,6 @@ private slots:
 private:
     Ui::SequenceDialog *ui;
     SequenceDiagram *seq_diagram_;
-    capture_file *cap_file_;
     seq_analysis_info_t *sainfo_;
     int num_items_;
     guint32 packet_num_;

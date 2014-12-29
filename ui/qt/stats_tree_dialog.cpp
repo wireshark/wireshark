@@ -44,9 +44,7 @@
 // - Add help
 // - Update to match bug 9452 / r53657
 
-#include <QDebug>
-
-const int item_col_     = 0;
+const int item_col_ = 0;
 
 const int expand_all_threshold_ = 100; // Arbitrary
 
@@ -72,15 +70,15 @@ public:
     }
 };
 
-StatsTreeDialog::StatsTreeDialog(QWidget *parent, capture_file *cf, const char *cfg_abbr) :
-    QDialog(parent),
+StatsTreeDialog::StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *cfg_abbr) :
+    WiresharkDialog(parent, cf),
     ui(new Ui::StatsTreeDialog),
     st_(NULL),
-    st_cfg_(NULL),
-    cap_file_(cf)
+    st_cfg_(NULL)
 {
     ui->setupUi(this);
     st_cfg_ = stats_tree_get_cfg_by_abbr(cfg_abbr);
+    memset(&cfg_pr_, 0, sizeof(struct _tree_cfg_pres));
 
     if (!st_cfg_) {
         QMessageBox::critical(this, tr("Configuration not found"),
@@ -110,35 +108,19 @@ StatsTreeDialog::~StatsTreeDialog()
     delete ui;
 }
 
-void StatsTreeDialog::setCaptureFile(capture_file *cf)
-{
-    if (!cf) { // We only want to know when the file closes.
-        cap_file_ = NULL;
-        ui->displayFilterLineEdit->setEnabled(false);
-        ui->applyFilterButton->setEnabled(false);
-    }
-}
-
 void StatsTreeDialog::fillTree()
 {
     GString *error_string;
-    if (!st_cfg_) return;
+    if (!st_cfg_ || file_closed_) return;
 
     gchar* display_name_temp = stats_tree_get_displayname(st_cfg_->name);
     QString display_name(display_name_temp);
     g_free(display_name_temp);
 
-    setWindowTitle(display_name + tr(" Stats Tree"));
+    // The GTK+ UI appends "Stats Tree" to the window title. If we do the same
+    // here we should expand the name completely, e.g. to "Statistics Tree".
+    setWindowSubtitle(display_name);
 
-    if (!cap_file_) return;
-
-    if (st_cfg_->in_use) {
-        QMessageBox::warning(this, tr("%1 already open").arg(display_name),
-                             tr("Each type of tree can only be generated one at time."));
-        reject();
-    }
-
-    st_cfg_->in_use = TRUE;
     st_cfg_->pr = &cfg_pr_;
     cfg_pr_.st_dlg = this;
 
@@ -174,13 +156,12 @@ void StatsTreeDialog::fillTree()
         reject();
     }
 
-    cf_retap_packets(cap_file_);
+    cf_retap_packets(cap_file_.capFile());
     drawTreeItems(st_);
 
     ui->statsTreeWidget->setSortingEnabled(true);
     remove_tap_listener(st_);
 
-    st_cfg_->in_use = FALSE;
     st_cfg_->pr = NULL;
 }
 
@@ -247,6 +228,14 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
 
     for (int count = 0; count<st->num_columns; count++) {
         st_dlg->ui->statsTreeWidget->resizeColumnToContents(count);
+    }
+}
+
+void StatsTreeDialog::updateWidgets()
+{
+    if (file_closed_) {
+        ui->displayFilterLineEdit->setEnabled(false);
+        ui->applyFilterButton->setEnabled(false);
     }
 }
 

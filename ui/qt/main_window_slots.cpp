@@ -2120,11 +2120,9 @@ void MainWindow::on_actionSCTPFilterThisAssociation_triggered()
 
 void MainWindow::on_actionStatisticsFlowGraph_triggered()
 {
-    SequenceDialog *sequence_dialog = new SequenceDialog(this, capture_file_.capFile());
+    SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
     connect(sequence_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            sequence_dialog, SLOT(setCaptureFile(capture_file*)));
     sequence_dialog->show();
 }
 
@@ -2165,11 +2163,9 @@ void MainWindow::on_actionStatisticsTcpStreamWindowScaling_triggered()
 
 void MainWindow::openStatisticsTreeDialog(const gchar *abbr)
 {
-    StatsTreeDialog *st_dialog = new StatsTreeDialog(this, capture_file_.capFile(), abbr);
+    StatsTreeDialog *st_dialog = new StatsTreeDialog(*this, capture_file_, abbr);
 //    connect(st_dialog, SIGNAL(goToPacket(int)),
 //            packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            st_dialog, SLOT(setCaptureFile(capture_file*)));
     st_dialog->show();
 }
 
@@ -2360,10 +2356,8 @@ void MainWindow::statCommandIOGraph(const char *arg, void *userdata)
 {
     Q_UNUSED(arg);
     Q_UNUSED(userdata);
-    IOGraphDialog *iog_dialog = new IOGraphDialog(this, capture_file_.capFile());
+    IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_);
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            iog_dialog, SLOT(setCaptureFile(capture_file*)));
     iog_dialog->show();
 }
 
@@ -2380,13 +2374,11 @@ void MainWindow::on_actionStatisticsSametime_triggered()
 
 void MainWindow::openVoipCallsDialog(bool all_flows)
 {
-    VoipCallsDialog *voip_calls_dialog = new VoipCallsDialog(this, capture_file_.capFile(), all_flows);
+    VoipCallsDialog *voip_calls_dialog = new VoipCallsDialog(*this, capture_file_, all_flows);
     connect(voip_calls_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
     connect(voip_calls_dialog, SIGNAL(updateFilter(QString&, bool)),
             this, SLOT(filterPackets(QString&, bool)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            voip_calls_dialog, SLOT(setCaptureFile(capture_file*)));
     voip_calls_dialog->show();
 }
 

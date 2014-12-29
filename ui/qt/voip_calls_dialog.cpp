@@ -157,13 +157,13 @@ public:
 
 };
 
-VoipCallsDialog::VoipCallsDialog(QWidget *parent, capture_file *cf, bool all_flows) :
-    QDialog(parent),
-    ui(new Ui::VoipCallsDialog),
-    cap_file_(cf)
+VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows) :
+    WiresharkDialog(parent, cf),
+    ui(new Ui::VoipCallsDialog)
 {
     ui->setupUi(this);
     ui->callTreeWidget->sortByColumn(start_time_col_, Qt::AscendingOrder);
+    setWindowSubtitle(all_flows ? tr("SIP Flows") : tr("VoIP Calls"));
 
     ctx_menu_.addActions(QList<QAction *>() << ui->actionSelect_All);
 
@@ -173,9 +173,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget *parent, capture_file *cf, bool all_flo
     player_button_->setIcon(StockIcon("media-playback-start"));
 
     // XXX Use recent settings instead
-    if (parent) {
-        resize(parent->width() * 4 / 5, parent->height() * 2 / 3);
-    }
+    resize(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
     memset (&tapinfo_, 0, sizeof(tapinfo_));
     tapinfo_.tap_packet = tapPacket;
@@ -191,10 +189,8 @@ VoipCallsDialog::VoipCallsDialog(QWidget *parent, capture_file *cf, bool all_flo
 
     updateWidgets();
 
-    if (cap_file_) {
-        tapinfo_.session = cap_file_->epan;
-        cf_retap_packets(cap_file_);
-    }
+    tapinfo_.session = cap_file_.capFile()->epan;
+    cap_file_.retapPackets();
 }
 
 VoipCallsDialog::~VoipCallsDialog()
@@ -205,15 +201,11 @@ VoipCallsDialog::~VoipCallsDialog()
     sequence_analysis_info_free(tapinfo_.graph_analysis);
 }
 
-void VoipCallsDialog::setCaptureFile(capture_file *cf)
+void VoipCallsDialog::captureFileClosing()
 {
-    if (!cf) { // We only want to know when the file closes.
-        voip_calls_remove_all_tap_listeners(&tapinfo_);
-        cap_file_ = NULL;
-        tapinfo_.session = NULL;
-    }
-    emit captureFileChanged(cap_file_);
-    updateWidgets();
+    voip_calls_remove_all_tap_listeners(&tapinfo_);
+    tapinfo_.session = NULL;
+    WiresharkDialog::captureFileClosing();
 }
 
 void VoipCallsDialog::contextMenuEvent(QContextMenuEvent *event)
@@ -436,7 +428,7 @@ void VoipCallsDialog::prepareFilter()
 
 void VoipCallsDialog::showSequence()
 {
-    if (!cap_file_) return;
+    if (file_closed_) return;
 
     QSet<guint16> selected_calls;
     foreach (QTreeWidgetItem *ti, ui->callTreeWidget->selectedItems()) {
@@ -452,12 +444,10 @@ void VoipCallsDialog::showSequence()
         cur_ga_item = g_list_next(cur_ga_item);
     }
 
-    SequenceDialog *sequence_dialog = new SequenceDialog(this, cap_file_, tapinfo_.graph_analysis);
+    SequenceDialog *sequence_dialog = new SequenceDialog(*parentWidget(), cap_file_, tapinfo_.graph_analysis);
     // XXX This goes away when we close the VoIP Calls dialog.
     connect(sequence_dialog, SIGNAL(goToPacket(int)),
             this, SIGNAL(goToPacket(int)));
-    connect(this, SIGNAL(captureFileChanged(capture_file*)),
-            sequence_dialog, SLOT(setCaptureFile(capture_file*)));
     sequence_dialog->show();
 }
 

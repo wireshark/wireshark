@@ -140,7 +140,7 @@ struct _stats_tree_cfg {
 	gchar*			tapname;
 	register_stat_group_t	stat_group;
 
-	gboolean in_use;
+    gboolean in_use; /* GTK+ only */
 	gboolean plugin;
 
 	/** dissector defined callbacks */

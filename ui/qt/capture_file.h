@@ -38,7 +38,7 @@ public:
     explicit CaptureFile(QObject *parent = 0, capture_file *cap_file = NULL);
     ~CaptureFile();
 
-    capture_file *capFile() const { return cap_file_; }
+    capture_file *capFile() const { return isValid() ? cap_file_ : NULL; }
     void setCapFile(capture_file *cap_file) { cap_file_ = cap_file; }
     /** Check capture file validity
      *

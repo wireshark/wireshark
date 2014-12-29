@@ -10,9 +10,6 @@
     <height>568</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Flow</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0,0,0">
    <item>
     <layout class="QGridLayout" name="gridLayout">
@@ -46,7 +43,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="hintLabel">
+    <widget class="ElidedLabel" name="hintLabel">
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
@@ -357,6 +354,11 @@
    <extends>QWidget</extends>
    <header>qcustomplot.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>elided_label.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

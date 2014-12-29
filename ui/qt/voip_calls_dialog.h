@@ -30,7 +30,8 @@
 
 #include "ui/voip_calls.h"
 
-#include <QDialog>
+#include "wireshark_dialog.h"
+
 #include <QMenu>
 
 class QAbstractButton;
@@ -41,16 +42,15 @@ class VoipCallsDialog;
 }
 
 class QTreeWidgetItem;
-class VoipCallsDialog : public QDialog
+class VoipCallsDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit VoipCallsDialog(QWidget *parent = 0, capture_file *cf = NULL, bool all_flows = false);
+    explicit VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows = false);
     ~VoipCallsDialog();
 
 public slots:
-    void setCaptureFile(capture_file *cf);
 
 signals:
     void updateFilter(QString &filter, bool force = false);
@@ -66,7 +66,6 @@ protected slots:
 private:
     Ui::VoipCallsDialog *ui;
 
-    capture_file *cap_file_;
     voip_calls_tapinfo_t tapinfo_;
     QPushButton *prepare_button_;
     QPushButton *sequence_button_;
@@ -84,6 +83,7 @@ private:
     void showSequence();
 
 private slots:
+    void captureFileClosing();
     void on_callTreeWidget_itemActivated(QTreeWidgetItem *item, int);
     void on_callTreeWidget_itemSelectionChanged();
     void on_actionSelect_All_triggered();

@@ -30,7 +30,7 @@
 
 #include "epan/stats_tree_priv.h"
 
-#include <QDialog>
+#include "wireshark_dialog.h"
 
 namespace Ui {
 class StatsTreeDialog;
@@ -41,17 +41,16 @@ struct _tree_cfg_pres {
     class StatsTreeDialog* st_dlg;
 };
 
-class StatsTreeDialog : public QDialog
+class StatsTreeDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit StatsTreeDialog(QWidget *parent = 0, capture_file *cf = NULL, const char *cfg_abbr = NULL);
+    explicit StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *cfg_abbr = NULL);
     ~StatsTreeDialog();
     static void setupNode(stat_node* node);
 
 public slots:
-    void setCaptureFile(capture_file *cf);
 
 private:
     Ui::StatsTreeDialog *ui;
@@ -59,13 +58,13 @@ private:
     struct _tree_cfg_pres cfg_pr_;
     stats_tree *st_;
     stats_tree_cfg *st_cfg_;
-    capture_file *cap_file_;
 
     void fillTree();
     static void resetTap(void *st_ptr);
     static void drawTreeItems(void *st_ptr);
 
 private slots:
+    void updateWidgets();
     void on_applyFilterButton_clicked();
     void on_actionCopyToClipboard_triggered();
     void on_actionSaveAs_triggered();

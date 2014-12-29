@@ -52,6 +52,7 @@
 // - We retap and redraw more than we should.
 // - Smoothing doesn't seem to match GTK+
 // - We don't register a tap listener ("-z io,stat", bottom of gtk/io_stat.c)
+// - Hovering over a graph when the file is closed clears the graph.
 
 // To do:
 // - Use scroll bars?
@@ -177,10 +178,9 @@ static void io_graph_free_cb(void* p) {
 
 Q_DECLARE_METATYPE(IOGraph *)
 
-IOGraphDialog::IOGraphDialog(QWidget *parent, capture_file *cf) :
-    QDialog(parent),
+IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
+    WiresharkDialog(parent, cf),
     ui(new Ui::IOGraphDialog),
-    cap_file_(cf),
     name_line_edit_(NULL),
     dfilter_line_edit_(NULL),
     yfield_line_edit_(NULL),
@@ -199,6 +199,7 @@ IOGraphDialog::IOGraphDialog(QWidget *parent, capture_file *cf) :
     auto_axes_(true)
 {
     ui->setupUi(this);
+    setWindowSubtitle(tr("IO Graphs"));
     setAttribute(Qt::WA_DeleteOnClose, true);
     QCustomPlot *iop = ui->ioPlot;
 
@@ -247,17 +248,10 @@ IOGraphDialog::IOGraphDialog(QWidget *parent, capture_file *cf) :
     iop->setMouseTracking(true);
     iop->setEnabled(true);
 
-    QString dlg_title = tr("Wireshark IO Graphs: ");
-    if (cap_file_) {
-        dlg_title += cf_get_display_name(cap_file_);
-    } else {
-        dlg_title += tr("No Capture Data");
-    }
-    setWindowTitle(dlg_title);
     QCPPlotTitle *title = new QCPPlotTitle(iop);
     iop->plotLayout()->insertRow(0);
     iop->plotLayout()->addElement(0, 0, title);
-    title->setText(dlg_title);
+    title->setText(tr("Wireshark IO Graphs: %1").arg(cap_file_.fileTitle()));
 
     tracer_ = new QCPItemTracer(iop);
     iop->addItem(tracer_);
@@ -441,11 +435,8 @@ void IOGraphDialog::syncGraphSettings(QTreeWidgetItem *item)
     }
 }
 
-void IOGraphDialog::setCaptureFile(capture_file *cf)
+void IOGraphDialog::updateWidgets()
 {
-    if (!cf) { // We only want to know when the file closes.
-        cap_file_ = NULL;
-    }
 }
 
 void IOGraphDialog::scheduleReplot(bool now)
@@ -826,7 +817,7 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
             if (interval_packet > 0) {
                 packet_num_ = (guint32) interval_packet;
                 msg = tr("%1 %2")
-                        .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
+                        .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
                         .arg(packet_num_);
                 val = " = " + QString::number(tracer_->position->value(), 'g', 4);
             }
@@ -948,15 +939,15 @@ void IOGraphDialog::updateStatistics()
 {
     if (!isVisible()) return;
 
-    if (need_retap_) {
+    if (need_retap_ && !file_closed_) {
         need_retap_ = false;
-        cf_retap_packets(cap_file_);
+        cap_file_.retapPackets();
         ui->ioPlot->setFocus();
     } else {
         if (need_recalc_) {
             need_recalc_ = false;
             need_replot_ = true;
-            emit recalcGraphData(cap_file_);
+            emit recalcGraphData(cap_file_.capFile());
             if (!tracer_->graph()) {
                 if (base_graph_ && base_graph_->data()->size() > 0) {
                     tracer_->setGraph(base_graph_);
@@ -1431,7 +1422,7 @@ void IOGraphDialog::on_actionMoveDown1_triggered()
 
 void IOGraphDialog::on_actionGoToPacket_triggered()
 {
-    if (tracer_->visible() && cap_file_ && packet_num_ > 0) {
+    if (tracer_->visible() && !file_closed_ && packet_num_ > 0) {
         emit goToPacket(packet_num_);
     }
 }
@@ -1477,8 +1468,8 @@ void IOGraphDialog::on_buttonBox_accepted()
             .arg(jpeg_filter);
 
     QString save_file = path.canonicalPath();
-    if (cap_file_) {
-        save_file += QString("/%1").arg(cf_get_display_name(cap_file_));
+    if (!file_closed_) {
+        save_file += QString("/%1").arg(cap_file_.fileTitle());
     }
     file_name = QFileDialog::getSaveFileName(this, tr("Wireshark: Save Graph As..."),
                                              save_file, filter, &extension);

@@ -45,10 +45,9 @@
 // - Create WSGraph subclasses with common behavior.
 // - Help button and text
 
-SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, seq_analysis_info_t *sainfo) :
-    QDialog(parent),
+SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, seq_analysis_info_t *sainfo) :
+    WiresharkDialog(parent, cf),
     ui(new Ui::SequenceDialog),
-    cap_file_(cf),
     sainfo_(sainfo),
     num_items_(0),
     packet_num_(0),
@@ -56,6 +55,7 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, seq_analysis_i
 {
     ui->setupUi(this);
     QCustomPlot *sp = ui->sequencePlot;
+    setWindowSubtitle(sainfo ? tr("Call Flow") : tr("Flow"));
 
     if (!sainfo_) {
         sainfo_ = sequence_analysis_info_new();
@@ -122,9 +122,7 @@ SequenceDialog::SequenceDialog(QWidget *parent, capture_file *cf, seq_analysis_i
     save_bt->setText(tr("Save As..."));
 
     // XXX Use recent settings instead
-    if (parent) {
-        resize(parent->width(), parent->height() * 4 / 5);
-    }
+    resize(parent.width(), parent.height() * 4 / 5);
 
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(hScrollBarChanged(int)));
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(vScrollBarChanged(int)));
@@ -148,11 +146,8 @@ SequenceDialog::~SequenceDialog()
     delete ui;
 }
 
-void SequenceDialog::setCaptureFile(capture_file *cf)
+void SequenceDialog::updateWidgets()
 {
-    if (!cf) { // We only want to know when the file closes.
-        cap_file_ = NULL;
-    }
 }
 
 void SequenceDialog::showEvent(QShowEvent *event)
@@ -315,7 +310,7 @@ void SequenceDialog::on_buttonBox_accepted()
             .arg(png_filter)
             .arg(bmp_filter)
             .arg(jpeg_filter);
-    if (cap_file_) {
+    if (!file_closed_) {
         filter.append(QString(";;%5").arg(ascii_filter));
     }
 
@@ -332,8 +327,8 @@ void SequenceDialog::on_buttonBox_accepted()
             save_ok = ui->sequencePlot->saveBmp(file_name);
         } else if (extension.compare(jpeg_filter) == 0) {
             save_ok = ui->sequencePlot->saveJpg(file_name);
-        } else if (extension.compare(ascii_filter) == 0 && cap_file_ && sainfo_) {
-            save_ok = sequence_analysis_dump_to_file(file_name.toUtf8().constData(), sainfo_, cap_file_, 0);
+        } else if (extension.compare(ascii_filter) == 0 && !file_closed_ && sainfo_) {
+            save_ok = sequence_analysis_dump_to_file(file_name.toUtf8().constData(), sainfo_, cap_file_.capFile(), 0);
         }
         // else error dialog?
         if (save_ok) {
@@ -345,7 +340,7 @@ void SequenceDialog::on_buttonBox_accepted()
 
 void SequenceDialog::fillDiagram()
 {
-    if (!sainfo_) return;
+    if (!sainfo_ || file_closed_) return;
 
     QCustomPlot *sp = ui->sequencePlot;
 
@@ -354,7 +349,7 @@ void SequenceDialog::fillDiagram()
     } else {
         seq_diagram_->clearData();
         sequence_analysis_list_free(sainfo_);
-        sequence_analysis_list_get(cap_file_, sainfo_);
+        sequence_analysis_list_get(cap_file_.capFile(), sainfo_);
         num_items_ = sequence_analysis_get_nodes(sainfo_);
         seq_diagram_->setData(sainfo_);
     }
@@ -431,7 +426,7 @@ void SequenceDialog::on_resetButton_clicked()
 
 void SequenceDialog::on_actionGoToPacket_triggered()
 {
-    if (cap_file_ && packet_num_ > 0) {
+    if (!file_closed_ && packet_num_ > 0) {
         emit goToPacket(packet_num_);
     }
 }
