@@ -47,6 +47,7 @@ static dissector_handle_t btle_handle;
 static dissector_handle_t data_handle;
 
 static dissector_table_t bluetooth_table;
+static dissector_table_t hci_vendor_table;
 
 static wmem_tree_t *chandle_sessions        = NULL;
 static wmem_tree_t *chandle_to_bdaddr       = NULL;
@@ -55,6 +56,7 @@ static wmem_tree_t *bdaddr_to_name          = NULL;
 static wmem_tree_t *bdaddr_to_role          = NULL;
 static wmem_tree_t *localhost_name          = NULL;
 static wmem_tree_t *localhost_bdaddr        = NULL;
+static wmem_tree_t *hci_vendors             = NULL;
 
 static int bluetooth_tap = -1;
 
@@ -1215,6 +1217,7 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     bluetooth_data->bdaddr_to_role               = bdaddr_to_role;
     bluetooth_data->localhost_bdaddr             = localhost_bdaddr;
     bluetooth_data->localhost_name               = localhost_name;
+    bluetooth_data->hci_vendors                  = hci_vendors;
 
     bluetooth_data->previous_protocol_data.data = data;
 
@@ -1327,6 +1330,9 @@ proto_register_bluetooth(void)
     bdaddr_to_role           = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     localhost_bdaddr         = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     localhost_name           = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    hci_vendors              = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+    hci_vendor_table = register_dissector_table("bluetooth.vendor", "HCI Vendor", FT_UINT16, BASE_HEX);
 
     bluetooth_tap = register_tap("bluetooth");
 

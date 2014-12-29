@@ -330,6 +330,7 @@ static expert_field ei_command_unknown                                = EI_INIT;
 static expert_field ei_command_parameter_unexpected                   = EI_INIT;
 
 static dissector_table_t vendor_dissector_table;
+static dissector_table_t hci_vendor_table;
 
 /* Initialize the subtree pointers */
 static gint ett_bthci_cmd = -1;
@@ -3117,7 +3118,28 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Vendor Command 0x%04X (opcode 0x%04X)", ocf, opcode);
 
-        dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, bluetooth_data);
+        if (!dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+            if (bluetooth_data) {
+                hci_vendor_data_t  *hci_vendor_data;
+                wmem_tree_key_t     key[3];
+                guint32             interface_id;
+                guint32             adapter_id;
+
+                interface_id = bluetooth_data->interface_id;
+                adapter_id   = bluetooth_data->adapter_id;
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 0;
+                key[2].key    = NULL;
+
+                hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
+                if (hci_vendor_data)
+                    dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, tree, TRUE, bluetooth_data);
+            }
+        }
 
         proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_parameter, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
 
@@ -4672,6 +4694,8 @@ proto_register_bthci_cmd(void)
 void
 proto_reg_handoff_bthci_cmd(void)
 {
+    hci_vendor_table = find_dissector_table("bluetooth.vendor");
+
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_CMD, bthci_cmd_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_COMMAND, bthci_cmd_handle);
 }

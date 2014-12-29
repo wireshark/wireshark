@@ -343,8 +343,6 @@ static const value_string le_filter_policy_vals[] = {
     { 0, NULL }
 };
 
-#define STATUS_SUCCESS  0x00
-
 void proto_register_bthci_vendor_broadcom(void);
 void proto_reg_handoff_bthci_vendor_broadcom(void);
 
@@ -1379,7 +1377,7 @@ proto_register_bthci_vendor_broadcom(void)
     opcode_vals[i_opcode].value = 0;
     opcode_vals[i_opcode].strptr = NULL;
 
-    proto_bthci_vendor_broadcom = proto_register_protocol("Bluetooth Broadcom HCI Command",
+    proto_bthci_vendor_broadcom = proto_register_protocol("Bluetooth Broadcom HCI",
             "HCI BROADCOM", "bthci_vendor.broadcom");
 
     bthci_vendor_broadcom_handle = new_register_dissector("bthci_vendor.broadcom", dissect_bthci_vendor_broadcom, proto_bthci_vendor_broadcom);
@@ -1396,6 +1394,7 @@ proto_reg_handoff_bthci_vendor_broadcom(void)
 {
     btcommon_ad_handle = find_dissector("btcommon.eir_ad.ad");
     dissector_add_for_decode_as("bthci_cmd.vendor", bthci_vendor_broadcom_handle);
+    dissector_add_uint("bluetooth.vendor", 0x000F, bthci_vendor_broadcom_handle);
 }
 
 /*

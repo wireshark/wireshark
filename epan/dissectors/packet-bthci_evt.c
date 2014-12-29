@@ -345,11 +345,14 @@ static int hf_bthci_evt_le_states_32 = -1;
 static int hf_bthci_evt_le_states_33 = -1;
 static int hf_bthci_evt_le_states_34 = -1;
 static int hf_usable_packet_types = -1;
+static int hf_changed_in_frame = -1;
 
 static expert_field ei_event_undecoded = EI_INIT;
 static expert_field ei_event_unknown   = EI_INIT;
+static expert_field ei_manufacturer_data_changed = EI_INIT;
 
 static dissector_table_t vendor_dissector_table;
+static dissector_table_t hci_vendor_table;
 
 /* Initialize the subtree pointers */
 static gint ett_bthci_evt = -1;
@@ -358,6 +361,7 @@ static gint ett_lmp_subtree = -1;
 static gint ett_ptype_subtree = -1;
 static gint ett_le_state_subtree = -1;
 static gint ett_le_channel_map = -1;
+static gint ett_expert = -1;
 
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
@@ -1519,7 +1523,28 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Command 0x%04X [(opcode 0x%04X])", opcode & 0x03ff, opcode);
 
-        dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, main_tree, TRUE, bluetooth_data);
+        if (!dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, main_tree, TRUE, bluetooth_data)) {
+            if (bluetooth_data) {
+                hci_vendor_data_t  *hci_vendor_data;
+                wmem_tree_key_t     key[3];
+                guint32             interface_id;
+                guint32             adapter_id;
+
+                interface_id = bluetooth_data->interface_id;
+                adapter_id   = bluetooth_data->adapter_id;
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 0;
+                key[2].key    = NULL;
+
+                hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
+                if (hci_vendor_data)
+                    dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, main_tree, TRUE, bluetooth_data);
+            }
+        }
 
         return tvb_captured_length(tvb);
     } else {
@@ -2002,6 +2027,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
     guint8       bd_addr[6];
     gboolean     local_addr = FALSE;
     gint         hfx;
+    guint16      status;
 
     proto_tree_add_item(tree, hf_bthci_evt_num_command_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -2037,7 +2063,28 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
     if (ogf == HCI_OGF_VENDOR_SPECIFIC) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Vendor Command 0x%04X [opcode 0x%04X])", opcode & 0x03ff, opcode);
 
-        dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, main_tree, TRUE, bluetooth_data);
+        if (!dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, main_tree, TRUE, bluetooth_data)) {
+            if (bluetooth_data) {
+                hci_vendor_data_t  *hci_vendor_data;
+                wmem_tree_key_t     key[3];
+                guint32             interface_id;
+                guint32             adapter_id;
+
+                interface_id = bluetooth_data->interface_id;
+                adapter_id   = bluetooth_data->adapter_id;
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 0;
+                key[2].key    = NULL;
+
+                hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
+                if (hci_vendor_data)
+                    dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, main_tree, TRUE, bluetooth_data);
+            }
+        }
 
         proto_tree_add_item(tree, hf_bthci_evt_ret_params, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
 
@@ -2631,24 +2678,99 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             offset += 1;
             break;
 
-        case 0x1001: /* Read Local Version Information */
+        case 0x1001: /* Read Local Version Information */ {
+            proto_item  *hci_revision_item;
+            proto_item  *manufacturer_item;
+            proto_item  *lmp_subversion_item;
+
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            status = tvb_get_guint8(tvb, offset);
             offset += 1;
 
             proto_tree_add_item(tree, hf_bthci_evt_hci_vers_nr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_bthci_evt_hci_revision, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            hci_revision_item = proto_tree_add_item(tree, hf_bthci_evt_hci_revision, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(tree, hf_bthci_evt_vers_nr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_bthci_evt_comp_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            manufacturer_item = proto_tree_add_item(tree, hf_bthci_evt_comp_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(tree, hf_bthci_evt_sub_vers_nr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            lmp_subversion_item = proto_tree_add_item(tree, hf_bthci_evt_sub_vers_nr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
+
+            if (status == STATUS_SUCCESS && bluetooth_data) {
+                hci_vendor_data_t  *hci_vendor_data;
+                wmem_tree_key_t     key[3];
+                guint32             interface_id;
+                guint32             adapter_id;
+                guint16             hci_revision;
+                guint16             manufacturer;
+                guint16             lmp_subversion;
+
+                interface_id = bluetooth_data->interface_id;
+                adapter_id   = bluetooth_data->adapter_id;
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 0;
+                key[2].key    = NULL;
+
+                hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
+
+                hci_revision = tvb_get_letohs(tvb, offset - 7);
+                manufacturer = tvb_get_letohs(tvb, offset - 4);
+                lmp_subversion = tvb_get_letohs(tvb, offset - 2);
+
+                if (hci_vendor_data) {
+                    proto_item  *sub_item;
+                    proto_tree  *sub_tree;
+
+                    if (manufacturer != hci_vendor_data->manufacturer) {
+                        expert_add_info(pinfo, manufacturer_item, &ei_manufacturer_data_changed);
+                        sub_tree = proto_item_add_subtree(manufacturer_item, ett_expert);
+                        sub_item = proto_tree_add_uint(sub_tree, hf_changed_in_frame, tvb, 0, 0, hci_vendor_data->change_in_frame);
+                        PROTO_ITEM_SET_GENERATED(sub_item);
+                    }
+
+                    if (hci_revision != hci_vendor_data->hci_revision) {
+                        expert_add_info(pinfo, hci_revision_item, &ei_manufacturer_data_changed);
+                        sub_tree = proto_item_add_subtree(hci_revision_item, ett_expert);
+                        sub_item = proto_tree_add_uint(sub_tree, hf_changed_in_frame, tvb, 0, 0, hci_vendor_data->change_in_frame);
+                        PROTO_ITEM_SET_GENERATED(sub_item);
+                    }
+
+                    if (lmp_subversion != hci_vendor_data->lmp_subversion) {
+                        expert_add_info(pinfo, lmp_subversion_item, &ei_manufacturer_data_changed);
+                        sub_tree = proto_item_add_subtree(lmp_subversion_item, ett_expert);
+                        sub_item = proto_tree_add_uint(sub_tree, hf_changed_in_frame, tvb, 0, 0, hci_vendor_data->change_in_frame);
+                        PROTO_ITEM_SET_GENERATED(sub_item);
+                    }
+                }
+
+                if (!pinfo->fd->flags.visited) {
+
+                    hci_vendor_data_t  *new_hci_vendor_data;
+
+                    new_hci_vendor_data = wmem_new(wmem_file_scope(), hci_vendor_data_t);
+                    new_hci_vendor_data->hci_revision = hci_revision;
+                    new_hci_vendor_data->manufacturer = manufacturer;
+                    new_hci_vendor_data->lmp_subversion = lmp_subversion;
+                    new_hci_vendor_data->change_in_frame = pinfo->fd->num;
+
+                    if (hci_vendor_data && hci_vendor_data->change_in_frame < pinfo->fd->num)
+                        new_hci_vendor_data->previous = hci_vendor_data;
+                    else
+                        new_hci_vendor_data->previous = NULL;
+
+                    wmem_tree_insert32_array(bluetooth_data->hci_vendors, key, new_hci_vendor_data);
+                }
+            }}
 
             break;
 
@@ -3674,7 +3796,28 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0xff: /* Vendor-Specific */
-            dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, bluetooth_data);
+            if (!dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+                if (bluetooth_data) {
+                    hci_vendor_data_t  *hci_vendor_data;
+                    wmem_tree_key_t     key[3];
+                    guint32             interface_id;
+                    guint32             adapter_id;
+
+                    interface_id = bluetooth_data->interface_id;
+                    adapter_id   = bluetooth_data->adapter_id;
+
+                    key[0].length = 1;
+                    key[0].key    = &interface_id;
+                    key[1].length = 1;
+                    key[1].key    = &adapter_id;
+                    key[2].length = 0;
+                    key[2].key    = NULL;
+
+                    hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
+                    if (hci_vendor_data)
+                        dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, tree, TRUE, bluetooth_data);
+                }
+            }
 
             proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_event_undecoded, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 
@@ -5183,12 +5326,18 @@ proto_register_bthci_evt(void)
           { "Usable Packet Types",                            "bthci_evt.usable_packet_types",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_changed_in_frame,
+            { "Change in Frame",                              "bthci_evt.change_in_frame",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         }
     };
 
     static ei_register_info ei[] = {
         { &ei_event_undecoded,          { "bthci_evt.expert.event.undecoded", PI_PROTOCOL, PI_UNDECODED, "Event undecoded", EXPFILL }},
-        { &ei_event_unknown,            { "bthci_evt.expert.event.unknown", PI_PROTOCOL, PI_WARN, "Unknown event", EXPFILL }}
+        { &ei_event_unknown,            { "bthci_evt.expert.event.unknown", PI_PROTOCOL, PI_WARN, "Unknown event", EXPFILL }},
+        { &ei_manufacturer_data_changed,  { "bthci_evt.expert.event.manufacturer_data_changed", PI_PROTOCOL, PI_WARN,      "Manufacturer data changed", EXPFILL }}
     };
 
     /* Setup protocol subtree array */
@@ -5198,7 +5347,8 @@ proto_register_bthci_evt(void)
         &ett_lmp_subtree,
         &ett_ptype_subtree,
         &ett_le_state_subtree,
-        &ett_le_channel_map
+        &ett_le_channel_map,
+        &ett_expert
     };
 
     /* Decode As handling */
@@ -5233,6 +5383,7 @@ void
 proto_reg_handoff_bthci_evt(void)
 {
     vendor_dissector_table = find_dissector_table("bthci_cmd.vendor");
+    hci_vendor_table = find_dissector_table("bluetooth.vendor");
 
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_EVT, bthci_evt_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_EVENT, bthci_evt_handle);

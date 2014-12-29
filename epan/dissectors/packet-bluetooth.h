@@ -86,6 +86,7 @@ extern value_string_ext  bthci_evt_evt_code_vals_ext;
 
 extern const value_string bluetooth_address_type_vals[];
 
+#define STATUS_SUCCESS 0x00
 
 /* We support Bluetooth over various interfaces, interface_id and adapter_id
    is used to decode further payload. Case: there is a host. Host has X
@@ -124,6 +125,7 @@ typedef struct _bluetooth_data_t {
     wmem_tree_t *bdaddr_to_role;
     wmem_tree_t *localhost_bdaddr;
     wmem_tree_t *localhost_name;
+    wmem_tree_t *hci_vendors;
 
     union {
         void              *data;
@@ -182,6 +184,13 @@ typedef struct _bluetooth_tap_data_t {
     guint32  adapter_id;
 } bluetooth_tap_data_t;
 
+typedef struct _hci_vendor_data_t {
+    guint16                     manufacturer;
+    guint16                     hci_revision;
+    guint16                     lmp_subversion;
+    guint32                     change_in_frame;
+    struct _hci_vendor_data_t  *previous;
+} hci_vendor_data_t;
 
 extern value_string_ext  bluetooth_uuid_vals_ext;
 extern value_string_ext  bluetooth_company_id_vals_ext;
