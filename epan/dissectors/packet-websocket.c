@@ -407,8 +407,10 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     masking_key = tvb_get_ptr(tvb, mask_offset, 4);
   }
 
-  tvb_payload = tvb_new_subset_remaining(tvb, payload_offset);
-  dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, opcode, payload_length, mask, masking_key);
+  if (payload_length > 0) {
+    tvb_payload = tvb_new_subset_remaining(tvb, payload_offset);
+    dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, opcode, payload_length, mask, masking_key);
+  }
 
   /* Call this function recursively, to see if we have enough data to parse another websocket message */
 
