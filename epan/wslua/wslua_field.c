@@ -175,11 +175,13 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 return 1;
             }
         case FT_NONE:
-                if (fi->ws_fi->length == 0) {
-                        lua_pushnil(L);
-                        return 1;
+                if (fi->ws_fi->length > 0 && fi->ws_fi->rep) {
+                    /* it has a length, but calling fvalue_get() on an FT_NONE asserts,
+                       so get the label instead (it's a FT_NONE, so a label is what it basically is) */
+                    lua_pushstring(L, fi->ws_fi->rep->representation);
+                    return 1;
                 }
-                /* FALLTHROUGH */
+                return 0;
         case FT_BYTES:
         case FT_UINT_BYTES:
         case FT_REL_OID:
