@@ -68,7 +68,7 @@ static gint hf_ucd_tlv_t_159_band_amc_allocation_threshold = -1;
 static gint hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap = -1;
 static gint hf_ucd_tlv_t_160_band_amc_release_threshold = -1;
 static gint hf_ucd_tlv_t_161_band_amc_allocation_timer = -1;
-static gint hf_ucd_tlv_t_162_band_amc_release_timer = -1;
+/* static gint hf_ucd_tlv_t_162_band_amc_release_timer = -1; */
 static gint hf_ucd_tlv_t_163_band_status_report_max_period = -1;
 static gint hf_ucd_tlv_t_164_band_amc_retry_timer = -1;
 static gint hf_ucd_tlv_t_171_harq_ack_delay_dl_burst = -1;
@@ -96,7 +96,7 @@ static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg = -1;
 static gint hf_ucd_tlv_t_196_tx_power_report_threshold_icqch = -1;
 static gint hf_ucd_tlv_t_196_tx_power_report_interval_icqch = -1;
 static gint hf_ucd_tlv_t_196_tx_power_report_a_p_avg_icqch = -1;
-static gint hf_ucd_tlv_t_197_normalized_cn_channel_sounding = -1;
+/* static gint hf_ucd_tlv_t_197_normalized_cn_channel_sounding = -1; */
 static gint hf_ucd_tlv_t_202_uplink_burst_profile_for_multiple_fec_types = -1;
 static gint hf_ucd_tlv_t_203_ul_pusc_subchannel_rotation = -1;
 static gint hf_ucd_tlv_t_205_relative_power_offset_ul_harq_burst = -1;
@@ -119,6 +119,11 @@ static gint hf_ucd_bandwidth_backoff_start = -1;
 static gint hf_ucd_bandwidth_backoff_end = -1;
 static gint hf_ucd_periodic_ranging_backoff_start = -1;
 static gint hf_ucd_periodic_ranging_backoff_end = -1;
+static gint hf_ucd_config_change_count = -1;
+static gint hf_ucd_ranging_backoff_start = -1;
+static gint hf_ucd_ranging_backoff_end = -1;
+static gint hf_ucd_request_backoff_start = -1;
+static gint hf_ucd_request_backoff_end = -1;
 
 /* static gint hf_ucd_unknown_type = -1; */
 static gint hf_ucd_invalid_tlv = -1;
@@ -223,49 +228,41 @@ static void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 	{	/* we are being asked for details */
 		proto_item *ucd_item;
 		proto_tree *ucd_tree;
-		guint ucd_config_change_count;
 		guint ucd_ranging_backoff_start;
 		guint ucd_ranging_backoff_end;
 		guint ucd_request_backoff_start;
 		guint ucd_request_backoff_end;
 
-		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
 		/* display MAC payload type UCD */
 		ucd_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_ucd_decoder, tvb, offset, -1, "Uplink Channel Descriptor (UCD)");
-		/* add MAC UCD subtree */
 		ucd_tree = proto_item_add_subtree(ucd_item, ett_mac_mgmt_msg_ucd_decoder);
+
 		/* Decode and display the Uplink Channel Descriptor (UCD) */
-		/* get the Configuration Change Count */
-		ucd_config_change_count = tvb_get_guint8(tvb, offset);
 		/* display the Configuration Change Count */
-		proto_tree_add_text(ucd_tree, tvb, offset, 1, "Configuration Change Count: %u", ucd_config_change_count);
-		/* move to next field */
+		proto_tree_add_item(ucd_tree, hf_ucd_config_change_count, tvb, offset, 1, ENC_NA);
 		offset++;
+
 		/* get the ranging backoff start */
 		ucd_ranging_backoff_start = tvb_get_guint8(tvb, offset);
-		/* display the ranging backoff start */
-		proto_tree_add_text(ucd_tree, tvb, offset, 1, "Ranging Backoff Start: 2^%u = %u", ucd_ranging_backoff_start, (1 << ucd_ranging_backoff_start));
-		/* move to next field */
+		proto_tree_add_uint_format_value(ucd_tree, hf_ucd_ranging_backoff_start, tvb, offset, 1, (1 << ucd_ranging_backoff_start), "2^%u = %u", ucd_ranging_backoff_start, (1 << ucd_ranging_backoff_start));
 		offset++;
+
 		/* get the ranging backoff end */
 		ucd_ranging_backoff_end = tvb_get_guint8(tvb, offset);
-		/* display the ranging backoff end */
-		proto_tree_add_text(ucd_tree, tvb, offset, 1, "Ranging Backoff End: 2^%u = %u", ucd_ranging_backoff_end, (1 << ucd_ranging_backoff_end));
-		/* move to next field */
+		proto_tree_add_uint_format_value(ucd_tree, hf_ucd_ranging_backoff_end, tvb, offset, 1, (1 << ucd_ranging_backoff_end), "2^%u = %u", ucd_ranging_backoff_end, (1 << ucd_ranging_backoff_end));
 		offset++;
+
 		/* get the request backoff start */
 		ucd_request_backoff_start = tvb_get_guint8(tvb, offset);
-		/* display the request backoff start */
-		proto_tree_add_text(ucd_tree, tvb, offset, 1, "Request Backoff Start: 2^%u = %u", ucd_request_backoff_start, (1 << ucd_request_backoff_start));
-		/* move to next field */
+		proto_tree_add_uint_format_value(ucd_tree, hf_ucd_request_backoff_start, tvb, offset, 1, (1 << ucd_request_backoff_start), "2^%u = %u", ucd_request_backoff_start, (1 << ucd_request_backoff_start));
 		offset++;
+
 		/* get the request backoff end */
 		ucd_request_backoff_end = tvb_get_guint8(tvb, offset);
-		/* display the request backoff end */
-		proto_tree_add_text(ucd_tree, tvb, offset, 1, "Request Backoff End: 2^%u = %u", ucd_request_backoff_end, (1 << ucd_request_backoff_end));
-		/* move to next field */
+		proto_tree_add_uint_format_value(ucd_tree, hf_ucd_request_backoff_end, tvb, offset, 1, (1 << ucd_request_backoff_end), "2^%u = %u", ucd_request_backoff_end, (1 << ucd_request_backoff_end));
 		offset++;
+
 		while(offset < tvb_len)
 		{
 			/* get the TLV information */
@@ -726,6 +723,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_ucd_tlv_t_162_band_amc_release_timer,
 			{
@@ -733,6 +731,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_ucd_tlv_t_164_band_amc_retry_timer,
 			{
@@ -890,6 +889,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_ucd_tlv_t_197_normalized_cn_channel_sounding,
 			{
@@ -897,6 +897,7 @@ void proto_register_mac_mgmt_msg_ucd(void)
 				FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_ucd_tlv_t_177_normalized_cn_override2,
 			{
@@ -1192,6 +1193,41 @@ void proto_register_mac_mgmt_msg_ucd(void)
 			&hf_ucd_periodic_ranging_backoff_end,
 			{
 				"Periodic Ranging Backoff End", "wmx.ucd.periodic_ranging_backoff_end",
+				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ucd_config_change_count,
+			{
+				"Configuration Change Count", "wmx.ucd.config_change_count",
+				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ucd_ranging_backoff_start,
+			{
+				"Ranging Backoff Start", "wmx.ucd.ranging_backoff_start",
+				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ucd_ranging_backoff_end,
+			{
+				"Ranging Backoff End", "wmx.ucd.ranging_backoff_end",
+				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ucd_request_backoff_start,
+			{
+				"Request Backoff Start", "wmx.ucd.request_backoff_start",
+				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+			}
+		},
+		{
+			&hf_ucd_request_backoff_end,
+			{
+				"Request Backoff End", "wmx.ucd.request_backoff_end",
 				FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},

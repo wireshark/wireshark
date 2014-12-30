@@ -29,6 +29,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "wimax_mac.h"
 #include "crc.h"
 #include "wimax_bits.h"
@@ -40,10 +41,13 @@ void proto_reg_handoff_mac_mgmt_msg_dlmap(void);
 
 #define MAC_MGMT_MSG_DLMAP 2
 
-#define XBIT(var, bits, desc) \
+#define XBIT_HF(bits, hf) \
+	proto_tree_add_bits_item(tree, hf, tvb, bit, bits, ENC_BIG_ENDIAN); bit += bits;
+
+#define XBIT_HF_VALUE(var, bits, hf) \
 	do { \
 	var = TVB_BIT_BITS(bit, tvb, bits); \
-	proto_tree_add_text(tree, tvb, BITHI(bit, bits), desc ": %d", var); \
+	proto_tree_add_bits_item(tree, hf, tvb, bit, bits, ENC_BIG_ENDIAN); \
 	bit += bits; \
 	} while(0)
 
@@ -52,13 +56,6 @@ void proto_reg_handoff_mac_mgmt_msg_dlmap(void);
 	var = TVB_BIT_BITS(bit, tvb, bits); \
 	proto_tree_add_uint(tree, hf, tvb, BITHI(bit,bits), var); \
 	bit += bits; \
-	} while(0)
-
-#define XNIB(var, nibs, desc) \
-	do { \
-	var = TVB_NIB_NIBS(nib, tvb, nibs); \
-	proto_tree_add_text(tree, tvb, NIBHI(nib, nibs), desc ": %d", var); \
-	nib += nibs; \
 	} while(0)
 
 #define VNIB(var, nibs, hf) \
@@ -256,7 +253,10 @@ static gint hf_dlmap_bsid = -1;
 static gint hf_dlmap_ofdma_sym = -1;
 /* static gint hf_dlmap_ie = -1; */
 static gint hf_dlmap_ie_diuc = -1;
+static gint hf_dlmap_ie_reserved_extended2_duic = -1;
+static gint hf_dlmap_ie_reserved_extended_duic = -1;
 static gint hf_dlmap_ie_diuc_ext = -1;
+static gint hf_dlmap_ie_diuc_ext2 = -1;
 static gint hf_dlmap_ie_length = -1;
 static gint hf_dlmap_ie_bitmap = -1;
 static gint hf_dlmap_ie_bitmap_cqi = -1;
@@ -311,6 +311,293 @@ static gint hf_308a_type = -1;
 static gint hf_308a_mult = -1;
 static gint hf_308a_rsv = -1;
 static gint hf_mac_header_compress_dlmap_crc = -1;
+static gint hf_crc16 = -1;
+static gint hf_padding = -1;
+static gint hf_cid_mask = -1;
+static gint hf_reserved = -1;
+
+/* Generated via "one time" script to help create filterable fields */
+static int hf_dlmap_rcid_ie_cid = -1;
+static int hf_dlmap_rcid_ie_prefix = -1;
+static int hf_dlmap_rcid_ie_cid11 = -1;
+static int hf_dlmap_rcid_ie_cid7 = -1;
+static int hf_dlmap_rcid_ie_cid3 = -1;
+static int hf_dlmap_dedicated_dl_control_length = -1;
+static int hf_dlmap_dedicated_dl_control_control_header = -1;
+static int hf_dlmap_dedicated_dl_control_num_sdma_layers = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_length = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_control_header_mimo_control_info = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_control_header_cqi_control_info = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_control_header_closed_mimo_control_info = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_n_layer = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_matrix = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_num_beamformed_streams = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_period = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_frame_offset = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_duration = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_allocation_index = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_cqich_num = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_feedback_type = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_antenna_grouping_index = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_num_stream = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_antenna_selection_index = -1;
+static int hf_dlmap_dedicated_mimo_dl_control_codebook_precoding_index = -1;
+static int hf_dlmap_n_sub_burst_isi = -1;
+static int hf_dlmap_harq_chase_n_ack_channel = -1;
+static int hf_dlmap_harq_chase_duration = -1;
+static int hf_dlmap_harq_chase_sub_burst_diuc_indicator = -1;
+static int hf_dlmap_reserved_uint = -1;
+static int hf_dlmap_harq_chase_diuc = -1;
+static int hf_dlmap_harq_chase_repetition_coding_indication = -1;
+static int hf_dlmap_harq_chase_acid = -1;
+static int hf_dlmap_harq_chase_ai_sn = -1;
+static int hf_dlmap_harq_chase_ack_disable = -1;
+static int hf_dlmap_harq_chase_dedicated_dl_control_indicator = -1;
+static int hf_dlmap_harq_chase_allocation_index = -1;
+static int hf_dlmap_harq_chase_period = -1;
+static int hf_dlmap_harq_chase_frame_offset = -1;
+static int hf_dlmap_harq_ir_ctc_n_ack_channel = -1;
+static int hf_dlmap_harq_ir_ctc_nep = -1;
+static int hf_dlmap_harq_ir_ctc_nsch = -1;
+static int hf_dlmap_harq_ir_ctc_spid = -1;
+static int hf_dlmap_harq_ir_ctc_acid = -1;
+static int hf_dlmap_harq_ir_ctc_ai_sn = -1;
+static int hf_dlmap_harq_ir_ctc_ack_disable = -1;
+static int hf_dlmap_harq_ir_ctc_dedicated_dl_control_indicator = -1;
+static int hf_dlmap_harq_ir_ctc_duration = -1;
+static int hf_dlmap_harq_ir_ctc_allocation_index = -1;
+static int hf_dlmap_harq_ir_ctc_period = -1;
+static int hf_dlmap_harq_ir_ctc_frame_offset = -1;
+static int hf_dlmap_harq_ir_cc_n_ack_channel = -1;
+static int hf_dlmap_harq_ir_cc_duration = -1;
+static int hf_dlmap_harq_ir_cc_sub_burst_diuc_indicator = -1;
+static int hf_dlmap_harq_ir_cc_diuc = -1;
+static int hf_dlmap_harq_ir_cc_repetition_coding_indication = -1;
+static int hf_dlmap_harq_ir_cc_acid = -1;
+static int hf_dlmap_harq_ir_cc_ai_sn = -1;
+static int hf_dlmap_harq_ir_cc_spid = -1;
+static int hf_dlmap_harq_ir_cc_ack_disable = -1;
+static int hf_dlmap_harq_ir_cc_dedicated_dl_control_indicator = -1;
+static int hf_dlmap_harq_ir_cc_allocation_index = -1;
+static int hf_dlmap_harq_ir_cc_period = -1;
+static int hf_dlmap_harq_ir_cc_frame_offset = -1;
+static int hf_dlmap_mimo_dl_chase_harq_n_ack_channel = -1;
+static int hf_dlmap_mimo_dl_chase_harq_mu_indicator = -1;
+static int hf_dlmap_mimo_dl_chase_harq_dedicated_mimo_dl_control_indicator = -1;
+static int hf_dlmap_mimo_dl_chase_harq_ack_disable = -1;
+static int hf_dlmap_mimo_dl_chase_harq_duration = -1;
+static int hf_dlmap_mimo_dl_chase_harq_diuc = -1;
+static int hf_dlmap_mimo_dl_chase_harq_repetition_coding_indication = -1;
+static int hf_dlmap_mimo_dl_chase_harq_acid = -1;
+static int hf_dlmap_mimo_dl_chase_harq_ai_sn = -1;
+static int hf_dlmap_mimo_dl_ir_harq_n_ack_channel = -1;
+static int hf_dlmap_mimo_dl_ir_harq_mu_indicator = -1;
+static int hf_dlmap_mimo_dl_ir_harq_dedicated_mimo_dl_control_indicator = -1;
+static int hf_dlmap_mimo_dl_ir_harq_ack_disable = -1;
+static int hf_dlmap_mimo_dl_ir_harq_nsch = -1;
+static int hf_dlmap_mimo_dl_ir_harq_nep = -1;
+static int hf_dlmap_mimo_dl_ir_harq_spid = -1;
+static int hf_dlmap_mimo_dl_ir_harq_acid = -1;
+static int hf_dlmap_mimo_dl_ir_harq_ai_sn = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_n_ack_channel = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_mu_indicator = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_dedicated_mimo_dl_control_indicator = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_ack_disable = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_duration = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_diuc = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_repetition_coding_indication = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_acid = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_ai_sn = -1;
+static int hf_dlmap_mimo_dl_ir_harq_cc_spid = -1;
+static int hf_dlmap_mimo_dl_stc_harq_n_ack_channel = -1;
+static int hf_dlmap_mimo_dl_stc_harq_tx_count = -1;
+static int hf_dlmap_mimo_dl_stc_harq_duration = -1;
+static int hf_dlmap_mimo_dl_stc_harq_sub_burst_offset_indication = -1;
+static int hf_dlmap_mimo_dl_stc_harq_sub_burst_offset = -1;
+static int hf_dlmap_mimo_dl_stc_harq_ack_disable = -1;
+static int hf_dlmap_mimo_dl_stc_harq_dedicated_mimo_dl_control_indicator = -1;
+static int hf_dlmap_mimo_dl_stc_harq_diuc = -1;
+static int hf_dlmap_mimo_dl_stc_harq_repetition_coding_indication = -1;
+static int hf_dlmap_mimo_dl_stc_harq_acid = -1;
+static int hf_dlmap_mbs_map_extended_2_diuc = -1;
+static int hf_dlmap_mbs_map_mbs_zone_identifier = -1;
+static int hf_dlmap_mbs_map_macro_diversity_enhanced = -1;
+static int hf_dlmap_mbs_map_permutation = -1;
+static int hf_dlmap_mbs_map_dl_permbase = -1;
+static int hf_dlmap_mbs_map_prbs_id = -1;
+static int hf_dlmap_mbs_map_ofdma_symbol_offset = -1;
+static int hf_dlmap_mbs_map_diuc_change_indication = -1;
+static int hf_dlmap_mbs_map_boosting = -1;
+static int hf_dlmap_mbs_map_diuc = -1;
+static int hf_dlmap_mbs_map_num_subchannels = -1;
+static int hf_dlmap_mbs_map_num_ofdma_symbols = -1;
+static int hf_dlmap_mbs_map_repetition_coding_indication = -1;
+static int hf_dlmap_mbs_map_cid = -1;
+static int hf_dlmap_mbs_map_ofdma_symbols_offset = -1;
+static int hf_dlmap_mbs_map_subchannel_offset = -1;
+static int hf_dlmap_mbs_map_slc_3_indication = -1;
+static int hf_dlmap_mbs_map_next_mbs_map_ie_frame_offset = -1;
+static int hf_dlmap_skip_extended_2_diuc = -1;
+static int hf_dlmap_skip_mode = -1;
+static int hf_dlmap_harq_dl_map_extended_2_diuc = -1;
+static int hf_dlmap_harq_dl_map_rcid_type = -1;
+static int hf_dlmap_harq_dl_map_boosting = -1;
+static int hf_dlmap_harq_dl_map_region_id_use_indicator = -1;
+static int hf_dlmap_harq_dl_map_ofdma_symbol_offset = -1;
+static int hf_dlmap_harq_dl_map_subchannel_offset = -1;
+static int hf_dlmap_harq_dl_map_number_of_ofdma_symbols = -1;
+static int hf_dlmap_harq_dl_map_number_of_subchannels = -1;
+static int hf_dlmap_harq_dl_map_rectangular_sub_burst_indicator = -1;
+static int hf_dlmap_harq_dl_map_region_id = -1;
+static int hf_dlmap_harq_dl_map_mode = -1;
+static int hf_dlmap_harq_dl_map_sub_burst_ie_length = -1;
+static int hf_dlmap_harq_dl_map_reserved_mode = -1;
+static int hf_dlmap_harq_ack_bitmap_data = -1;
+static int hf_dlmap_enhanced_dl_map_extended_2_diuc = -1;
+static int hf_dlmap_enhanced_dl_map_num_assignment = -1;
+static int hf_dlmap_enhanced_dl_map_n_cid = -1;
+static int hf_dlmap_enhanced_dl_map_cid = -1;
+static int hf_dlmap_enhanced_dl_map_diuc = -1;
+static int hf_dlmap_enhanced_dl_map_boosting = -1;
+static int hf_dlmap_enhanced_dl_map_repetition_coding_indication = -1;
+static int hf_dlmap_enhanced_dl_map_region_id = -1;
+static int hf_dlmap_aas_sdma_dl_extended_2_diuc = -1;
+static int hf_dlmap_aas_sdma_dl_rcid_type = -1;
+static int hf_dlmap_aas_sdma_dl_num_burst_region = -1;
+static int hf_dlmap_aas_sdma_dl_ofdma_symbol_offset = -1;
+static int hf_dlmap_aas_sdma_dl_subchannel_offset = -1;
+static int hf_dlmap_aas_sdma_dl_num_ofdma_triple_symbols = -1;
+static int hf_dlmap_aas_sdma_dl_num_subchannels = -1;
+static int hf_dlmap_aas_sdma_dl_number_of_users = -1;
+static int hf_dlmap_aas_sdma_dl_encoding_mode = -1;
+static int hf_dlmap_aas_sdma_dl_cqich_allocation = -1;
+static int hf_dlmap_aas_sdma_dl_ackch_allocation = -1;
+static int hf_dlmap_aas_sdma_dl_pilot_pattern_modifier = -1;
+static int hf_dlmap_aas_sdma_dl_preamble_modifier_index = -1;
+static int hf_dlmap_aas_sdma_dl_pilot_pattern = -1;
+static int hf_dlmap_aas_sdma_dl_diuc = -1;
+static int hf_dlmap_aas_sdma_dl_repetition_coding_indication = -1;
+static int hf_dlmap_aas_sdma_dl_ack_ch_index = -1;
+static int hf_dlmap_aas_sdma_dl_acid = -1;
+static int hf_dlmap_aas_sdma_dl_ai_sn = -1;
+static int hf_dlmap_aas_sdma_dl_nep = -1;
+static int hf_dlmap_aas_sdma_dl_nsch = -1;
+static int hf_dlmap_aas_sdma_dl_spid = -1;
+static int hf_dlmap_aas_sdma_dl_allocation_index = -1;
+static int hf_dlmap_aas_sdma_dl_period = -1;
+static int hf_dlmap_aas_sdma_dl_frame_offset = -1;
+static int hf_dlmap_aas_sdma_dl_duration = -1;
+static int hf_dlmap_channel_measurement_channel_nr = -1;
+static int hf_dlmap_channel_measurement_ofdma_symbol_offset = -1;
+static int hf_dlmap_channel_measurement_cid = -1;
+static int hf_dlmap_stc_zone_ofdma_symbol_offset = -1;
+static int hf_dlmap_stc_zone_permutations = -1;
+static int hf_dlmap_stc_zone_use_all_sc_indicator = -1;
+static int hf_dlmap_stc_zone_stc = -1;
+static int hf_dlmap_stc_zone_matrix_indicator = -1;
+static int hf_dlmap_stc_zone_dl_permbase = -1;
+static int hf_dlmap_stc_zone_prbs_id = -1;
+static int hf_dlmap_stc_zone_amc_type = -1;
+static int hf_dlmap_stc_zone_midamble_presence = -1;
+static int hf_dlmap_stc_zone_midamble_boosting = -1;
+static int hf_dlmap_stc_zone_2_3_antenna_select = -1;
+static int hf_dlmap_stc_zone_dedicated_pilots = -1;
+static int hf_dlmap_aas_dl_ofdma_symbol_offset = -1;
+static int hf_dlmap_aas_dl_permutation = -1;
+static int hf_dlmap_aas_dl_dl_permbase = -1;
+static int hf_dlmap_aas_dl_downlink_preamble_config = -1;
+static int hf_dlmap_aas_dl_preamble_type = -1;
+static int hf_dlmap_aas_dl_prbs_id = -1;
+static int hf_dlmap_aas_dl_diversity_map = -1;
+static int hf_dlmap_data_location_another_bs_segment = -1;
+static int hf_dlmap_data_location_another_bs_used_subchannels = -1;
+static int hf_dlmap_data_location_another_bs_diuc = -1;
+static int hf_dlmap_data_location_another_bs_frame_advance = -1;
+static int hf_dlmap_data_location_another_bs_ofdma_symbol_offset = -1;
+static int hf_dlmap_data_location_another_bs_subchannel_offset = -1;
+static int hf_dlmap_data_location_another_bs_boosting = -1;
+static int hf_dlmap_data_location_another_bs_preamble_index = -1;
+static int hf_dlmap_data_location_another_bs_num_ofdma_symbols = -1;
+static int hf_dlmap_data_location_another_bs_num_subchannels = -1;
+static int hf_dlmap_data_location_another_bs_repetition_coding_indication = -1;
+static int hf_dlmap_data_location_another_bs_cid = -1;
+static int hf_dlmap_harq_map_pointer_diuc = -1;
+static int hf_dlmap_harq_map_pointer_num_slots = -1;
+static int hf_dlmap_harq_map_pointer_repetition_coding_indication = -1;
+static int hf_dlmap_harq_map_pointer_map_version = -1;
+static int hf_dlmap_harq_map_pointer_idle_users = -1;
+static int hf_dlmap_harq_map_pointer_sleep_users = -1;
+static int hf_dlmap_harq_map_pointer_cid_mask_length = -1;
+static int hf_dlmap_phymod_dl_preamble_modifier_type = -1;
+static int hf_dlmap_phymod_dl_preamble_frequency_shift_index = -1;
+static int hf_dlmap_phymod_dl_preamble_time_shift_index = -1;
+static int hf_dlmap_phymod_dl_pilot_pattern_modifier = -1;
+static int hf_dlmap_phymod_dl_pilot_pattern_index = -1;
+static int hf_dlmap_broadcast_ctrl_ptr_dcd_ucd_transmission_frame = -1;
+static int hf_dlmap_broadcast_ctrl_ptr_skip_broadcast_system_update = -1;
+static int hf_dlmap_broadcast_ctrl_ptr_broadcast_system_update_type = -1;
+static int hf_dlmap_broadcast_ctrl_ptr_broadcast_system_update_transmission_frame = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_cid = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_diuc = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_segment = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_boosting = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_idcell = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_dl_permbase = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_prbs_id = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_repetition_coding_indication = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_used_subchannels = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_ofdma_symbol_offset = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_num_ofdma_symbols = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_subchannel_offset = -1;
+static int hf_dlmap_dl_pusc_burst_allocation_num_subchannels = -1;
+static int hf_dlmap_pusc_asca_alloc_diuc = -1;
+static int hf_dlmap_pusc_asca_alloc_short_basic_cid = -1;
+static int hf_dlmap_pusc_asca_alloc_ofdma_symbol_offset = -1;
+static int hf_dlmap_pusc_asca_alloc_subchannel_offset = -1;
+static int hf_dlmap_pusc_asca_alloc_num_ofdma_symbols = -1;
+static int hf_dlmap_pusc_asca_alloc_num_symbols = -1;
+static int hf_dlmap_pusc_asca_alloc_repetition_coding_information = -1;
+static int hf_dlmap_pusc_asca_alloc_permutation_id = -1;
+static int hf_dlmap_reduced_aas_num_ie = -1;
+static int hf_dlmap_reduced_aas_periodicity = -1;
+static int hf_dlmap_reduced_aas_cid_included = -1;
+static int hf_dlmap_reduced_aas_dcd_count_included = -1;
+static int hf_dlmap_reduced_aas_phy_modification_included = -1;
+static int hf_dlmap_reduced_aas_cqich_control_indicator = -1;
+static int hf_dlmap_reduced_aas_encoding_mode = -1;
+static int hf_dlmap_reduced_aas_separate_mcs_enabled = -1;
+static int hf_dlmap_reduced_aas_duration = -1;
+static int hf_dlmap_reduced_aas_diuc = -1;
+static int hf_dlmap_reduced_aas_repetition_coding_indication = -1;
+static int hf_dlmap_reduced_aas_cid = -1;
+static int hf_dlmap_reduced_aas_allocation_index = -1;
+static int hf_dlmap_reduced_aas_report_period = -1;
+static int hf_dlmap_reduced_aas_frame_offset = -1;
+static int hf_dlmap_reduced_aas_report_duration = -1;
+static int hf_dlmap_reduced_aas_cqi_measurement_type = -1;
+static int hf_dlmap_reduced_aas_dcd_count = -1;
+static int hf_dlmap_reduced_aas_preamble_select = -1;
+static int hf_dlmap_reduced_aas_preamble_shift_index = -1;
+static int hf_dlmap_reduced_aas_pilot_pattern_modifier = -1;
+static int hf_dlmap_reduced_aas_pilot_pattern_index = -1;
+static int hf_dlmap_reduced_aas_dl_frame_offset = -1;
+static int hf_dlmap_reduced_aas_zone_symbol_offset = -1;
+static int hf_dlmap_reduced_aas_ofdma_symbol_offset = -1;
+static int hf_dlmap_reduced_aas_subchannel_offset = -1;
+static int hf_dlmap_reduced_aas_num_ofdma_triple_symbol = -1;
+static int hf_dlmap_reduced_aas_num_subchannels = -1;
+static int hf_dlmap_reduced_aas_num_ofdma_symbols = -1;
+static int hf_dlmap_reduced_aas_diuc_nep = -1;
+static int hf_dlmap_reduced_aas_dl_harq_ack_bitmap = -1;
+static int hf_dlmap_reduced_aas_ack_allocation_index = -1;
+static int hf_dlmap_reduced_aas_acid = -1;
+static int hf_dlmap_reduced_aas_ai_sn = -1;
+static int hf_dlmap_reduced_aas_nsch = -1;
+static int hf_dlmap_reduced_aas_spid = -1;
+
+
+
+static expert_field ei_dlmap_not_implemented = EI_INIT;
 
 /********************************************************************
  * DL-MAP Miscellaneous IEs and TLVs
@@ -339,24 +626,23 @@ gint RCID_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb, gin
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, length), ett_286j, &ti, "RCID_IE");
 
 	if (RCID_Type_lcl == 0) {
-		XBIT(cid, 16, "CID");
+		XBIT_HF_VALUE(cid, 16, hf_dlmap_rcid_ie_cid);
 	} else {
-		proto_tree_add_text(tree, tvb, BITHI(bit,1), "Prefix: %d", Prefix);
-		bit++;
+		XBIT_HF_VALUE(Prefix, 1, hf_dlmap_rcid_ie_prefix);
 
 		if (Prefix == 1) {
 			/* RCID 11 */
-			XBIT(cid, 11, "CID11");
+			XBIT_HF_VALUE(cid, 11, hf_dlmap_rcid_ie_cid11);
 		} else {
 			if (RCID_Type_lcl == 1) {
 				/* RCID 11 */
-				XBIT(cid, 11, "CID11");
+				XBIT_HF_VALUE(cid, 11, hf_dlmap_rcid_ie_cid11);
 			} else if (RCID_Type_lcl == 2) {
 				/* RCID 7 */
-				XBIT(cid, 7, "CID7");
+				XBIT_HF_VALUE(cid, 7, hf_dlmap_rcid_ie_cid7);
 			} else if (RCID_Type_lcl == 3) {
 				/* RCID 3 */
-				XBIT(cid, 3, "CID3");
+				XBIT_HF_VALUE(cid, 3, hf_dlmap_rcid_ie_cid3);
 			}
 		}
 	}
@@ -385,34 +671,31 @@ static gint Dedicated_DL_Control_IE(proto_tree *diuc_tree, gint offset, gint len
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(nib, length+1), ett_286i, NULL, "Dedicated_DL_Control_IE");
 
-	proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Length: %d", length);
-	nib++;
-	nibble = TVB_NIB_NIBBLE(nib, tvb);
-	proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Control Header: %d", nibble);
-	nib++;
+	VNIB(length, 1, hf_dlmap_dedicated_dl_control_length);
+	VNIB(nibble, 1, hf_dlmap_dedicated_dl_control_control_header);
+
 	if ((nibble & 1) == 1) {
 		nibble = TVB_NIB_NIBBLE(nib, tvb);
-		proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Num SDMA Layers: %d", (nibble >> 2) & 0x3);
+		proto_tree_add_uint(tree, hf_dlmap_dedicated_dl_control_num_sdma_layers, tvb, NIBHI(nib,1), (nibble >> 2) & 0x3);
 		/* Bit padding */
 		if ((nib*4)+2 < (offset+length)*4) {
 			len = ((offset + length - nib) * 4) - 2;
-			proto_tree_add_text(tree, tvb, BITHI(nib*4, len), "Reserved bits");
+			proto_tree_add_bytes_format(tree, hf_reserved, tvb, BITHI(nib*4, len), NULL, "Reserved bits");
 		}
 	} else {
 		/* Nibble padding */
 		if (nib < offset+length) {
 			len = (offset + length) - nib;
-			proto_tree_add_text(tree, tvb, NIBHI(nib,len), "Reserved bits");
+			proto_tree_add_bytes_format(tree, hf_reserved, tvb, NIBHI(nib,len), NULL, "Reserved bits");
 		}
 	}
 	return (length + 1);
 }
 
-static gint Dedicated_MIMO_DL_Control_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint Dedicated_MIMO_DL_Control_IE(proto_tree *diuc_tree, gint offset, gint length _U_, tvbuff_t *tvb)
 {
 	/* offset of IE in bits, length is variable */
 	gint bit;
-	gint data;
 	proto_tree *tree;
 	gint mci, cqi, cmi, matrix = 0, pad, CQICH_num, mimo_mode;
 	gint j;
@@ -422,32 +705,32 @@ static gint Dedicated_MIMO_DL_Control_IE(proto_tree *diuc_tree, gint offset, gin
 	/* 8.4.5.3.21 table 286t */
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 1), ett_286t, NULL, "Dedicated MIMO DL Control IE");
 
-	XBIT(length, 5, "Length (nibbles)");
-	XBIT(mci, 1, "Control Header (MIMO Control Info)");
-	XBIT(cqi, 1, "Control Header (CQI Control Info)");
-	XBIT(cmi, 1, "Control Header (Closed MIMO Control Info)");
-	XBIT(N_layer, 2, "N_layer");
+	XBIT_HF_VALUE(length, 5, hf_dlmap_dedicated_mimo_dl_control_length);
+	XBIT_HF_VALUE(mci, 1, hf_dlmap_dedicated_mimo_dl_control_control_header_mimo_control_info);
+	XBIT_HF_VALUE(cqi, 1, hf_dlmap_dedicated_mimo_dl_control_control_header_cqi_control_info);
+	XBIT_HF_VALUE(cmi, 1, hf_dlmap_dedicated_mimo_dl_control_control_header_closed_mimo_control_info);
+	XBIT_HF_VALUE(N_layer, 2, hf_dlmap_dedicated_mimo_dl_control_n_layer);
 
 	/* MIMO Control Info */
 	if (mci == 1) {
-		XBIT(matrix, 2, "Matrix");
+		XBIT_HF_VALUE(matrix, 2, hf_dlmap_dedicated_mimo_dl_control_matrix);
 		if (STC_Zone_Dedicated_Pilots == 1) {
-			XBIT(data, 2, "Num_Beamformed_Streams");
+			XBIT_HF(2, hf_dlmap_dedicated_mimo_dl_control_num_beamformed_streams);
 		}
 	}
 
 	/* CQICH Control Info */
 	if (cqi == 1) {
-		XBIT(data, 3, "Period");
-		XBIT(data, 3, "Frame Offset");
-		XBIT(data, 4, "Duration");
+		XBIT_HF(3, hf_dlmap_dedicated_mimo_dl_control_period);
+		XBIT_HF(3, hf_dlmap_dedicated_mimo_dl_control_frame_offset);
+		XBIT_HF(4, hf_dlmap_dedicated_mimo_dl_control_duration);
 		for (j = 0; j < N_layer; j++) {
-			XBIT(data, 6, "Allocation Index");
+			XBIT_HF(6, hf_dlmap_dedicated_mimo_dl_control_allocation_index);
 		}
-		XBIT(CQICH_num, 2, "CQICH_Num");
+		XBIT_HF_VALUE(CQICH_num, 2, hf_dlmap_dedicated_mimo_dl_control_cqich_num);
 		for (j = 0; j < CQICH_num; j++) {
-			XBIT(data, 3, "Feedback type");
-			XBIT(data, 6, "Allocation index");
+			XBIT_HF(3, hf_dlmap_dedicated_mimo_dl_control_feedback_type);
+			XBIT_HF(6, hf_dlmap_dedicated_mimo_dl_control_allocation_index);
 		}
 	}
 
@@ -459,20 +742,20 @@ static gint Dedicated_MIMO_DL_Control_IE(proto_tree *diuc_tree, gint offset, gin
 			mimo_mode = STC_Zone_Matrix;
 		}
 		if (mimo_mode == 0 || mimo_mode == 1) {
-			XBIT(data, 3, "Antenna Grouping Index");
+			XBIT_HF(3, hf_dlmap_dedicated_mimo_dl_control_antenna_grouping_index);
 		} else if (mimo_mode == 2) {
-			XBIT(data, 2, "Num_stream");
-			XBIT(data, 3, "Antenna Selection Index");
+			XBIT_HF(2, hf_dlmap_dedicated_mimo_dl_control_num_stream);
+			XBIT_HF(3, hf_dlmap_dedicated_mimo_dl_control_antenna_selection_index);
 		} else if (mimo_mode == 3) {
-			XBIT(data, 2, "Num_stream");
-			XBIT(data, 6, "Codebook Precoding Index");
+			XBIT_HF(2, hf_dlmap_dedicated_mimo_dl_control_num_stream);
+			XBIT_HF(6, hf_dlmap_dedicated_mimo_dl_control_codebook_precoding_index);
 		}
 	}
 
 	/* padding to nibble */
 	pad = BIT_PADDING(bit,4);
 	if(pad){
-		proto_tree_add_text(tree, tvb, BITHI(bit,pad), "Padding: %d bits", pad);
+		proto_tree_add_bytes_format_value(tree, hf_padding, tvb, BITHI(bit,pad), NULL, "%d bits", pad);
 		bit += pad;
 	}
 
@@ -484,9 +767,8 @@ static gint DL_HARQ_Chase_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 	/* 8.4.5.3.21 DL_HARQ_Chase_sub_burst_IE */
 	/* offset of IE in nibbles, length is variable */
 	gint bit;
-	gint data;
 	proto_tree *tree;
-	gint nsub, ddci, dur, sbi, res, diuc, rci, ind, per, ofs;
+	gint nsub, ddci, dur, sbi;
 	gint j;
 
 	bit = NIB_TO_BIT(offset);
@@ -494,33 +776,33 @@ static gint DL_HARQ_Chase_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 	/* 8.4.5.3.21 table 286m */
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, length), ett_286m, NULL, "DL_HARQ_Chase_sub_burst_IE");
 
-	XBIT(nsub, 4, "N sub burst[ISI]");
-	XBIT(data, 4, "N ACK channel");
+	XBIT_HF_VALUE(nsub, 4, hf_dlmap_n_sub_burst_isi);
+	XBIT_HF(4, hf_dlmap_harq_chase_n_ack_channel);
 
 	nsub += 1;
 	for (j = 0; j < nsub; j++) {
 		bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
-		XBIT(dur, 10, "Duration");
-		XBIT(sbi, 1, "Sub-Burst DIUC Indicator");
-		XBIT(res, 1, "Reserved");
+		XBIT_HF_VALUE(dur, 10, hf_dlmap_harq_chase_duration);
+		XBIT_HF_VALUE(sbi, 1, hf_dlmap_harq_chase_sub_burst_diuc_indicator);
+		XBIT_HF(1, hf_dlmap_reserved_uint);
 
 		if (sbi == 1) {
-			XBIT(diuc, 4, "DIUC");
-			XBIT(rci, 2, "Repetition Coding Indication");
-			XBIT(res, 2, "Reserved");
+			XBIT_HF(4, hf_dlmap_harq_chase_diuc);
+			XBIT_HF(2, hf_dlmap_harq_chase_repetition_coding_indication);
+			XBIT_HF(2, hf_dlmap_reserved_uint);
 		}
 
-		XBIT(data, 4, "ACID");
-		XBIT(data, 1, "AI_SN");
-		XBIT(data, 1, "ACK disable");
-		XBIT(ddci, 2, "Dedicated DL Control Indicator");
+		XBIT_HF(4, hf_dlmap_harq_chase_acid);
+		XBIT_HF(1, hf_dlmap_harq_chase_ai_sn);
+		XBIT_HF(1, hf_dlmap_harq_chase_ack_disable);
+		XBIT_HF_VALUE(ddci, 2, hf_dlmap_harq_chase_dedicated_dl_control_indicator);
 
 		if ((ddci & 1) == 1) {
-			XBIT(dur, 4, "Duration (d)");
+			XBIT_HF_VALUE(dur, 4, hf_dlmap_harq_chase_duration);
 			if (dur != 0) {
-				XBIT(ind, 6, "Allocation Index");
-				XBIT(per, 3, "Period (p)");
-				XBIT(ofs, 3, "Frame offset");
+				XBIT_HF(6, hf_dlmap_harq_chase_allocation_index);
+				XBIT_HF(3, hf_dlmap_harq_chase_period);
+				XBIT_HF(3, hf_dlmap_harq_chase_frame_offset);
 			}
 		}
 
@@ -529,7 +811,7 @@ static gint DL_HARQ_Chase_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 		}
 	}
 
-	/* proto_tree_add_text(tree, tvb, BITHI(bit,4), "(DL HARQ Chase sub-burst IE)"); */
+	/* XBIT_HF(data, 4, "(DL HARQ Chase sub-burst IE)"); */
 	return (BIT_TO_NIB(bit) - offset);
 }
 
@@ -540,7 +822,7 @@ static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint
 	guint data;
 	proto_tree *tree;
 	proto_item *generic_item = NULL;
-	gint nsub, ddci, dur, ind, per, ofs;
+	gint nsub, ddci, dur;
 	gint j;
 	guint32 calculated_crc;
 
@@ -549,29 +831,29 @@ static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint
 	/* 8.4.5.3.21 table 286n */
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 4), ett_286n, NULL, "DL HARQ IR CTC sub-burst IE");
 
-	XBIT(nsub, 4, "N sub burst[ISI]");
-	XBIT(data, 4, "N ACK channel");
+	XBIT_HF_VALUE(nsub, 4, hf_dlmap_n_sub_burst_isi);
+	XBIT_HF(4, hf_dlmap_harq_ir_ctc_n_ack_channel);
 
 	nsub += 1;
 	for (j = 0; j < nsub; j++) {
 		bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
 
-		XBIT(data, 4, "N(EP)");
-		XBIT(data, 4, "N(SCH)");
-		XBIT(data, 2, "SPID");
-		XBIT(data, 4, "ACID");
-		XBIT(data, 1, "AI_SN");
-		XBIT(data, 1, "ACK disable");
-		XBIT(data, 2, "Reserved");
-		XBIT(ddci, 2, "Dedicated DL Control Indicator");
+		XBIT_HF(4, hf_dlmap_harq_ir_ctc_nep);
+		XBIT_HF(4, hf_dlmap_harq_ir_ctc_nsch);
+		XBIT_HF(2, hf_dlmap_harq_ir_ctc_spid);
+		XBIT_HF(4, hf_dlmap_harq_ir_ctc_acid);
+		XBIT_HF(1, hf_dlmap_harq_ir_ctc_ai_sn);
+		XBIT_HF(1, hf_dlmap_harq_ir_ctc_ack_disable);
+		XBIT_HF(2, hf_dlmap_reserved_uint);
+		XBIT_HF_VALUE(ddci, 2, hf_dlmap_harq_ir_ctc_dedicated_dl_control_indicator);
 
 		if ((ddci & 1) == 1) {
-			XBIT(dur, 4, "Duration (d)");
+			XBIT_HF_VALUE(dur, 4, hf_dlmap_harq_ir_ctc_duration);
 
 			if (dur != 0) {
-				XBIT(ind, 6, "Allocation Index");
-				XBIT(per, 3, "Period (p)");
-				XBIT(ofs, 3, "Frame offset");
+				XBIT_HF(6, hf_dlmap_harq_ir_ctc_allocation_index);
+				XBIT_HF(3, hf_dlmap_harq_ir_ctc_period);
+				XBIT_HF(3, hf_dlmap_harq_ir_ctc_frame_offset);
 			}
 		}
 		if ((ddci & 2) == 2) {
@@ -583,7 +865,7 @@ static gint DL_HARQ_IR_CTC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint
 	{
 		/* CRC-16 is always appended */
 		data = TVB_BIT_BITS(bit, tvb, 16);
-		generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+		generic_item = proto_tree_add_uint(tree, hf_crc16, tvb, BITHI(bit,16), data);
 		/* calculate the CRC */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		if (data != calculated_crc)
@@ -603,7 +885,7 @@ static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 	gint data;
 	proto_tree *tree;
 	proto_item *generic_item = NULL;
-	gint nsub, sbdi, ddci, dur, ind, per, ofs;
+	gint nsub, sbdi, ddci, dur;
 	gint j;
 	guint16 calculated_crc;
 
@@ -612,37 +894,37 @@ static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 	/* 8.4.5.3.21 table 286o */
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 4), ett_286o, NULL, "DL HARQ IR CC sub-burst IE");
 
-	XBIT(nsub, 4, "N sub burst[ISI]");
-	XBIT(data, 4, "N ACK channel");
+	XBIT_HF_VALUE(nsub, 4, hf_dlmap_n_sub_burst_isi);
+	XBIT_HF(4, hf_dlmap_harq_ir_cc_n_ack_channel);
 
 	nsub += 1;
 	for (j = 0; j < nsub; j++) {
 		bit += RCID_IE(tree, bit, length, tvb, RCID_Type) / 4;
 
-		XBIT(data, 10, "Duration");
-		XBIT(sbdi, 1, "Sub-Burst DIUC Indicator");
-		XBIT(data, 1, "Reserved");
+		XBIT_HF(10, hf_dlmap_harq_ir_cc_duration);
+		XBIT_HF_VALUE(sbdi, 1, hf_dlmap_harq_ir_cc_sub_burst_diuc_indicator);
+		XBIT_HF(1, hf_dlmap_reserved_uint);
 
 		if (sbdi) {
-			XBIT(data, 4, "DIUC");
-			XBIT(data, 2, "Repetition Coding Indication");
-			XBIT(data, 2, "Reserved");
+			XBIT_HF(4, hf_dlmap_harq_ir_cc_diuc);
+			XBIT_HF(2, hf_dlmap_harq_ir_cc_repetition_coding_indication);
+			XBIT_HF(2, hf_dlmap_reserved_uint);
 		}
 
-		XBIT(data, 4, "ACID");
-		XBIT(data, 1, "AI_SN");
-		XBIT(data, 2, "SPID");
-		XBIT(data, 1, "ACK disable");
-		XBIT(ddci, 2, "Dedicated DL Control Indicator");
-		XBIT(data, 2, "Reserved");
+		XBIT_HF(4, hf_dlmap_harq_ir_cc_acid);
+		XBIT_HF(1, hf_dlmap_harq_ir_cc_ai_sn);
+		XBIT_HF(2, hf_dlmap_harq_ir_cc_spid);
+		XBIT_HF(1, hf_dlmap_harq_ir_cc_ack_disable);
+		XBIT_HF_VALUE(ddci, 2, hf_dlmap_harq_ir_cc_dedicated_dl_control_indicator);
+		XBIT_HF(2, hf_dlmap_reserved_uint);
 
 		if (ddci & 1) {
-			XBIT(dur, 4, "Duration (d)");
+			XBIT_HF_VALUE(dur, 4, hf_dlmap_harq_ir_cc_duration);
 
 			if (dur != 0) {
-				XBIT(ind, 6, "Allocation Index");
-				XBIT(per, 3, "Period (p)");
-				XBIT(ofs, 3, "Frame offset");
+				XBIT_HF(6, hf_dlmap_harq_ir_cc_allocation_index);
+				XBIT_HF(3, hf_dlmap_harq_ir_cc_period);
+				XBIT_HF(3, hf_dlmap_harq_ir_cc_frame_offset);
 			}
 		}
 		if ((ddci & 2) == 2) {
@@ -654,7 +936,7 @@ static gint DL_HARQ_IR_CC_sub_burst_IE(proto_tree *diuc_tree, gint offset, gint 
 	{
 		/* CRC-16 is always appended */
 		data = TVB_BIT_BITS(bit, tvb, 16);
-		generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+		generic_item = proto_tree_add_uint(tree, hf_crc16, tvb, BITHI(bit,16), data);
 		/* calculate the CRC */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		if (data != calculated_crc)
@@ -683,37 +965,37 @@ static gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, 
 	/* 8.4.5.3.21 table 286p */
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 1), ett_286p, NULL, "MIMO DL Chase HARQ sub-burst IE");
 
-	XBIT(nsub, 4, "N sub burst[ISI]");
-	XBIT(data, 6, "N ACK channel");
+	XBIT_HF_VALUE(nsub, 4, hf_dlmap_n_sub_burst_isi);
+	XBIT_HF(6, hf_dlmap_mimo_dl_chase_harq_n_ack_channel);
 
 	nsub += 1;
 	for (j = 0; j < nsub; j++) {
-		XBIT(mui, 1, "MU Indicator");
-		XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
-		XBIT(akd, 1, "ACK Disable");
+		XBIT_HF_VALUE(mui, 1, hf_dlmap_mimo_dl_chase_harq_mu_indicator);
+		XBIT_HF_VALUE(dci, 1, hf_dlmap_mimo_dl_chase_harq_dedicated_mimo_dl_control_indicator);
+		XBIT_HF_VALUE(akd, 1, hf_dlmap_mimo_dl_chase_harq_ack_disable);
 		if (mui == 0) {
 			bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
 		}
 		if (dci == 1) {
 			bit += Dedicated_MIMO_DL_Control_IE(tree, bit, length, tvb);
 		}
-		XBIT(data, 10, "Duration");
+		XBIT_HF(10, hf_dlmap_mimo_dl_chase_harq_duration);
 		for (i = 0; i < N_layer; i++) {
 			if (mui == 1) {
 				bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
 			}
-			XBIT(data, 4, "DIUC");
-			XBIT(data, 2, "Repetition Coding Indication");
+			XBIT_HF(4, hf_dlmap_mimo_dl_chase_harq_diuc);
+			XBIT_HF(2, hf_dlmap_mimo_dl_chase_harq_repetition_coding_indication);
 			if (akd == 0) {
-				XBIT(data, 4, "ACID");
-				XBIT(data, 1, "AI_SN");
+				XBIT_HF(4, hf_dlmap_mimo_dl_chase_harq_acid);
+				XBIT_HF(1, hf_dlmap_mimo_dl_chase_harq_ai_sn);
 			}
 		}
 	}
 	/* Padding to nibble */
 	data = BIT_PADDING(bit, 4);
 	if (data) {
-		proto_tree_add_text(tree, tvb, BITHI(bit,data), "Padding: %d bits", data);
+		proto_tree_add_bytes_format_value(tree, hf_padding, tvb, BITHI(bit,data), NULL, "%d bits", data);
 		bit += data;
 	}
 
@@ -721,7 +1003,7 @@ static gint MIMO_DL_Chase_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, 
 	{
 		/* CRC-16 is always appended */
 		data = TVB_BIT_BITS(bit, tvb, 16);
-		generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+		generic_item = proto_tree_add_uint(tree, hf_crc16, tvb, BITHI(bit,16), data);
 		/* calculate the CRC */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		if (data != calculated_crc)
@@ -750,30 +1032,30 @@ static gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gin
 	/* 8.4.5.3.21 table 286q */
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 4), ett_286q, NULL, "MIMO DL IR HARQ sub-burst IE");
 
-	XBIT(nsub, 4, "N sub burst[ISI]");
-	XBIT(data, 6, "N ACK channel");
+	XBIT_HF_VALUE(nsub, 4, hf_dlmap_n_sub_burst_isi);
+	XBIT_HF(6, hf_dlmap_mimo_dl_ir_harq_n_ack_channel);
 
 	nsub += 1;
 	for (j = 0; j < nsub; j++) {
-		XBIT(mui, 1, "MU Indicator");
-		XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
-		XBIT(akd, 1, "ACK Disable");
+		XBIT_HF_VALUE(mui, 1, hf_dlmap_mimo_dl_ir_harq_mu_indicator);
+		XBIT_HF_VALUE(dci, 1, hf_dlmap_mimo_dl_ir_harq_dedicated_mimo_dl_control_indicator);
+		XBIT_HF_VALUE(akd, 1, hf_dlmap_mimo_dl_ir_harq_ack_disable);
 		if (mui == 0) {
 			bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
 		}
 		if (dci == 1) {
 			bit += Dedicated_MIMO_DL_Control_IE(tree, bit, length, tvb);
 		}
-		XBIT(data, 4, "N(SCH)");
+		XBIT_HF(4, hf_dlmap_mimo_dl_ir_harq_nsch);
 		for (i = 0; i < N_layer; i++) {
 			if (mui == 1) {
 				bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
 			}
-			XBIT(data, 4, "N(EP)");
+			XBIT_HF(4, hf_dlmap_mimo_dl_ir_harq_nep);
 			if (akd) {
-				XBIT(data, 2, "SPID");
-				XBIT(data, 4, "ACID");
-				XBIT(data, 1, "AI_SN");
+				XBIT_HF(2, hf_dlmap_mimo_dl_ir_harq_spid);
+				XBIT_HF(4, hf_dlmap_mimo_dl_ir_harq_acid);
+				XBIT_HF(1, hf_dlmap_mimo_dl_ir_harq_ai_sn);
 			}
 		}
 	}
@@ -782,7 +1064,7 @@ static gint MIMO_DL_IR_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gin
 	{
 		/* CRC-16 is always appended */
 		data = TVB_BIT_BITS(bit, tvb, 16);
-		generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+		generic_item = proto_tree_add_uint(tree, hf_crc16, tvb, BITHI(bit,16), data);
 		/* calculate the CRC */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		if (data != calculated_crc)
@@ -811,31 +1093,31 @@ static gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, gint offs
 	/* 8.4.5.3.21 table 286r */
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 1), ett_286r, NULL, "MIMO DL IR HARQ for CC sub-burst IE");
 
-	XBIT(nsub, 4, "N sub burst[ISI]");
-	XBIT(data, 6, "N ACK channel");
+	XBIT_HF_VALUE(nsub, 4, hf_dlmap_n_sub_burst_isi);
+	XBIT_HF(6, hf_dlmap_mimo_dl_ir_harq_cc_n_ack_channel);
 
 	nsub += 1;
 	for (j = 0; j < nsub; j++) {
-		XBIT(mui, 1, "MU Indicator");
-		XBIT(dci, 1, "Dedicated MIMO DL Control Indicator");
-		XBIT(akd, 1, "ACK Disable");
+		XBIT_HF_VALUE(mui, 1, hf_dlmap_mimo_dl_ir_harq_cc_mu_indicator);
+		XBIT_HF_VALUE(dci, 1, hf_dlmap_mimo_dl_ir_harq_cc_dedicated_mimo_dl_control_indicator);
+		XBIT_HF_VALUE(akd, 1, hf_dlmap_mimo_dl_ir_harq_cc_ack_disable);
 		if (mui == 0) {
 			bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
 		}
 		if (dci == 1) {
 			bit += Dedicated_MIMO_DL_Control_IE(tree, bit, length, tvb);
 		}
-		XBIT(data, 10, "Duration");
+		XBIT_HF(10, hf_dlmap_mimo_dl_ir_harq_cc_duration);
 		for (i = 0; i < N_layer; i++) {
 			if (mui == 1) {
 				bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
 			}
-			XBIT(data, 4, "DIUC");
-			XBIT(data, 2, "Repetition Coding Indication");
+			XBIT_HF(4, hf_dlmap_mimo_dl_ir_harq_cc_diuc);
+			XBIT_HF(2, hf_dlmap_mimo_dl_ir_harq_cc_repetition_coding_indication);
 			if (akd == 0) {
-				XBIT(data, 4, "ACID");
-				XBIT(data, 1, "AI_SN");
-				XBIT(data, 2, "SPID");
+				XBIT_HF(4, hf_dlmap_mimo_dl_ir_harq_cc_acid);
+				XBIT_HF(1, hf_dlmap_mimo_dl_ir_harq_cc_ai_sn);
+				XBIT_HF(2, hf_dlmap_mimo_dl_ir_harq_cc_spid);
 			}
 		}
 	}
@@ -844,7 +1126,7 @@ static gint MIMO_DL_IR_HARQ_for_CC_sub_burst_IE(proto_tree *diuc_tree, gint offs
 	{
 		/* CRC-16 is always appended */
 		data = TVB_BIT_BITS(bit, tvb, 16);
-		generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+		generic_item = proto_tree_add_uint(tree, hf_crc16, tvb, BITHI(bit,16), data);
 		/* calculate the CRC */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		if (data != calculated_crc)
@@ -873,30 +1155,30 @@ static gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gi
 	/* 8.4.5.3.21 table 286s */
 	tree = proto_tree_add_subtree(diuc_tree, tvb, BITHI(bit, 1), ett_286s, NULL, "MIMO DL STC HARQ sub-burst IE");
 
-	XBIT(nsub, 4, "N sub burst[ISI]");
-	XBIT(data, 6, "N ACK channel");
+	XBIT_HF_VALUE(nsub, 4, hf_dlmap_n_sub_burst_isi);
+	XBIT_HF(6, hf_dlmap_mimo_dl_stc_harq_n_ack_channel);
 
 	nsub += 1;
 	for (j = 0; j < nsub; j++) {
-		XBIT(txc, 2, "TX Count");
-		XBIT(data, 10, "Duration");
-		XBIT(sbi, 1, "Sub-burst offset indication");
-		XBIT(data, 3, "Reserved");
+		XBIT_HF_VALUE(txc, 2, hf_dlmap_mimo_dl_stc_harq_tx_count);
+		XBIT_HF(10, hf_dlmap_mimo_dl_stc_harq_duration);
+		XBIT_HF_VALUE(sbi, 1, hf_dlmap_mimo_dl_stc_harq_sub_burst_offset_indication);
+		XBIT_HF(3, hf_dlmap_reserved_uint);
 		if (sbi == 1) {
-			XBIT(data, 8, "Sub-burst offset");
+			XBIT_HF(8, hf_dlmap_mimo_dl_stc_harq_sub_burst_offset);
 		}
 		bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
-		XBIT(akd, 1, "ACK Disable");
+		XBIT_HF_VALUE(akd, 1, hf_dlmap_mimo_dl_stc_harq_ack_disable);
 		if (txc == 0) {
-			XBIT(dmci, 1, "Dedicated MIMO DL Control Indicator");
+			XBIT_HF_VALUE(dmci, 1, hf_dlmap_mimo_dl_stc_harq_dedicated_mimo_dl_control_indicator);
 			if (dmci == 1) {
 				bit += Dedicated_MIMO_DL_Control_IE(tree, bit, length, tvb);
 			}
-			XBIT(data, 4, "DIUC");
-			XBIT(data, 2, "Repetition coding Indication");
+			XBIT_HF(4, hf_dlmap_mimo_dl_stc_harq_diuc);
+			XBIT_HF(2, hf_dlmap_mimo_dl_stc_harq_repetition_coding_indication);
 		}
 		if (akd == 0) {
-			XBIT(data, 4, "ACID");
+			XBIT_HF(4, hf_dlmap_mimo_dl_stc_harq_acid);
 		}
 	}
 
@@ -904,7 +1186,7 @@ static gint MIMO_DL_STC_HARQ_sub_burst_IE(proto_tree *diuc_tree, gint offset, gi
 	{
 		/* CRC-16 is always appended */
 		data = TVB_BIT_BITS(bit, tvb, 16);
-		generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+		generic_item = proto_tree_add_uint(tree, hf_crc16, tvb, BITHI(bit,16), data);
 		/* calculate the CRC */
 		calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 		if (data != calculated_crc)
@@ -935,50 +1217,50 @@ static gint MBS_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286a, NULL, "MBS_MAP_IE");
 
-	XBIT(data, 4, "Extended-2 DIUC");
+	XBIT_HF(4, hf_dlmap_mbs_map_extended_2_diuc);
 	VBIT(data, 8, hf_dlmap_ie_length);
 
-	XBIT(data, 7, "MBS Zone identifier");
-	XBIT(mde, 1, "Macro diversity enhanced");
+	XBIT_HF(7, hf_dlmap_mbs_map_mbs_zone_identifier);
+	XBIT_HF_VALUE(mde, 1, hf_dlmap_mbs_map_macro_diversity_enhanced);
 	if (mde == 1)
 	{
-		XBIT(data, 2, "Permutation");
-		XBIT(data, 5, "DL_PermBase");
-		XBIT(data, 2, "PRBS_ID");
-		XBIT(data, 7, "OFDMA_Symbol_Offset");
-		XBIT(dci, 1, "DIUC_change_indication");
-		XBIT(data, 3, "Reserved");
+		XBIT_HF(2, hf_dlmap_mbs_map_permutation);
+		XBIT_HF(5, hf_dlmap_mbs_map_dl_permbase);
+		XBIT_HF(2, hf_dlmap_mbs_map_prbs_id);
+		XBIT_HF(7, hf_dlmap_mbs_map_ofdma_symbol_offset);
+		XBIT_HF_VALUE(dci, 1, hf_dlmap_mbs_map_diuc_change_indication);
+		XBIT_HF(3, hf_dlmap_reserved_uint);
 		if (dci == 1) {
-			XBIT(data, 3, "Reserved");
-			XBIT(data, 3, "Boosting");
-			XBIT(data, 4, "DIUC");
-			XBIT(data, 6, "No. Subchannels");
-			XBIT(data, 6, "No. OFDMA Symbols");
-			XBIT(data, 2, "Repetition Coding Indication");
+			XBIT_HF(3, hf_dlmap_reserved_uint);
+			XBIT_HF(3, hf_dlmap_mbs_map_boosting);
+			XBIT_HF(4, hf_dlmap_mbs_map_diuc);
+			XBIT_HF(6, hf_dlmap_mbs_map_num_subchannels);
+			XBIT_HF(6, hf_dlmap_mbs_map_num_ofdma_symbols);
+			XBIT_HF(2, hf_dlmap_mbs_map_repetition_coding_indication);
 		}
 	} else {
-		XBIT(data, 4, "DIUC");
-		XBIT(data, 16, "CID");
-		XBIT(data, 8, "OFDMA Symbols Offset");
-		XBIT(data, 6, "Subchannel offset");
-		XBIT(data, 3, "Boosting");
-		XBIT(s3i, 1, "SLC_3_indication");
-		XBIT(data, 6, "No. OFDMA Symbols");
-		XBIT(data, 6, "No. Subchannels");
-		XBIT(data, 2, "Repetition Coding Indication");
+		XBIT_HF(4, hf_dlmap_mbs_map_diuc);
+		XBIT_HF(16, hf_dlmap_mbs_map_cid);
+		XBIT_HF(8, hf_dlmap_mbs_map_ofdma_symbols_offset);
+		XBIT_HF(6, hf_dlmap_mbs_map_subchannel_offset);
+		XBIT_HF(3, hf_dlmap_mbs_map_boosting);
+		XBIT_HF_VALUE(s3i, 1, hf_dlmap_mbs_map_slc_3_indication);
+		XBIT_HF(6, hf_dlmap_mbs_map_num_ofdma_symbols);
+		XBIT_HF(6, hf_dlmap_mbs_map_num_subchannels);
+		XBIT_HF(2, hf_dlmap_mbs_map_repetition_coding_indication);
 		if (s3i == 1) {
-			XBIT(data, 8, "Next MBS_MAP_IE frame offset");
+			XBIT_HF(8, hf_dlmap_mbs_map_next_mbs_map_ie_frame_offset);
 		}
 	}
 	data = BIT_PADDING(bit, 4);
 	if (data) {
-		proto_tree_add_text(tree, tvb, BITHI(bit,data), "Padding: %d bits", data);
+		proto_tree_add_bytes_format_value(tree, hf_padding, tvb, BITHI(bit,data), NULL, "%d bits", data);
 		bit += data;
 	}
 	return BIT_TO_NIB(bit);
 }
 
-static gint HO_Anchor_Active_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint HO_Anchor_Active_DL_MAP_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* DL-MAP Extended-2 IE = 1 */
 	/* 8.4.5.3.14 [2] HO_Anchor_Active_DL-MAP_IE TODO 1.1 */
@@ -991,13 +1273,13 @@ static gint HO_Anchor_Active_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint 
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286c, NULL, "HO_Anchor_Active_DL_MAP_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length-3), "(not implemented)");
+	proto_tree_add_expert(diuc_tree, pinfo, &ei_dlmap_not_implemented, tvb, NIBHI(nib, length-3));
 	return nib;
 }
 
-static gint HO_Active_Anchor_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint HO_Active_Anchor_DL_MAP_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* DL-MAP Extended-2 IE = 2 */
 	/* 8.4.5.3.15 HO_Active_Anchor_DL_MAP_IE TODO 1.1 */
@@ -1010,13 +1292,13 @@ static gint HO_Active_Anchor_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint 
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286d, NULL, "HO_Active_Anchor_DL_MAP_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length-3), "(not implemented)");
+	proto_tree_add_expert(diuc_tree, pinfo, &ei_dlmap_not_implemented, tvb, NIBHI(nib, length-3));
 	return nib;
 }
 
-static gint HO_CID_Translation_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint HO_CID_Translation_MAP_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* DL-MAP Extended-2 IE = 3 */
 	/* 8.4.5.3.16 HO_CID_Translation_MAP_IE TODO 1.1 */
@@ -1029,13 +1311,13 @@ static gint HO_CID_Translation_MAP_IE(proto_tree *diuc_tree, gint offset, gint l
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286e, NULL, "CID_Translation_MAP_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length-3), "(not implemented)");
+	proto_tree_add_expert(diuc_tree, pinfo, &ei_dlmap_not_implemented, tvb, NIBHI(nib, length-3));
 	return nib;
 }
 
-static gint MIMO_in_another_BS_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_in_another_BS_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* DL-MAP Extended-2 IE = 4 */
 	/* 8.4.5.3.17 [2] MIMO_in_another_BS_IE (not implemented)*/
@@ -1048,13 +1330,13 @@ static gint MIMO_in_another_BS_IE(proto_tree *diuc_tree, gint offset, gint lengt
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286f, NULL, "MIMO_in_another_BS_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length-3), "(not implemented)");
+	proto_tree_add_expert(diuc_tree, pinfo, &ei_dlmap_not_implemented, tvb, NIBHI(nib, length-3));
 	return nib;
 }
 
-static gint Macro_MIMO_DL_Basic_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint Macro_MIMO_DL_Basic_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* dl-map extended-2 ie = 5 */
 	/* 8.4.5.3.18 [2] Macro-MIMO_DL_Basic_IE (not implemented) */
@@ -1067,9 +1349,9 @@ static gint Macro_MIMO_DL_Basic_IE(proto_tree *diuc_tree, gint offset, gint leng
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286g, NULL, "Macro_MIMO_DL_Basic_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length-3), "(not implemented)");
+	proto_tree_add_expert(diuc_tree, pinfo, &ei_dlmap_not_implemented, tvb, NIBHI(nib, length-3));
 	return nib;
 }
 
@@ -1086,11 +1368,11 @@ static gint Skip_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *t
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286k, NULL, "Skip_IE");
 
-	XBIT(data, 4, "Extended-2 DIUC");
+	XBIT_HF(4, hf_dlmap_skip_extended_2_diuc);
 	VBIT(data, 8, hf_dlmap_ie_length);
 
-	XBIT(data, 1, "Mode");
-	XBIT(data, 7, "Reserved");
+	XBIT_HF(1, hf_dlmap_skip_mode);
+	XBIT_HF(7, hf_dlmap_reserved_uint);
 
 	return BIT_TO_NIB(bit);
 }
@@ -1101,7 +1383,6 @@ static gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbu
 	/* 8.4.5.3.21 [2] HARQ_DL_MAP_IE */
 	/* offset of TLV in nibbles, length of TLV in nibbles */
 	gint bit;
-	gint data;
 	proto_tree *tree;
 	gint len, lastbit, rui, mode, sub_len, pad;
 
@@ -1109,39 +1390,39 @@ static gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbu
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286l, NULL, "HARQ_DL_MAP_IE");
 
-	XBIT(data, 4, "Extended-2 DIUC");
+	XBIT_HF(4, hf_dlmap_harq_dl_map_extended_2_diuc);
 	VBIT(len, 2, hf_dlmap_ie_length);
 
-	XBIT(RCID_Type, 2, "RCID_Type");
-	XBIT(data, 2, "Reserved");
+	XBIT_HF_VALUE(RCID_Type, 2, hf_dlmap_harq_dl_map_rcid_type);
+	XBIT_HF(2, hf_dlmap_reserved_uint);
 
 	/* while data remains */
 	length = NIB_TO_BIT(length);
 	/* Subtract extra nibble to be sure to stop in time. */
 	lastbit = bit + BYTE_TO_BIT(len) - 14 - 4;
 	while (bit < lastbit) {
-		XBIT(data, 3, "Boosting");
-		XBIT(rui, 1, "Region_ID use indicator");
+		XBIT_HF(3, hf_dlmap_harq_dl_map_boosting);
+		XBIT_HF_VALUE(rui, 1, hf_dlmap_harq_dl_map_region_id_use_indicator);
 
 		if (rui == 0) {
-			XBIT(data, 8, "OFDMA symbol offset");
-			XBIT(data, 7, "Subchannel offset");
-			XBIT(data, 7, "Number of OFDMA symbols");
-			XBIT(data, 7, "Number of subchannels");
+			XBIT_HF(8, hf_dlmap_harq_dl_map_ofdma_symbol_offset);
+			XBIT_HF(7, hf_dlmap_harq_dl_map_subchannel_offset);
+			XBIT_HF(7, hf_dlmap_harq_dl_map_number_of_ofdma_symbols);
+			XBIT_HF(7, hf_dlmap_harq_dl_map_number_of_subchannels);
 			if (include_cor2_changes)
 			{
-				XBIT(data, 1, "Rectangular Sub-Burst Indicator"); /* Implemented: "Rectangular Sub-Burst Indicator" field added */
-				XBIT(data, 2, "Reserved");   /* and "Reserved" field resized from 3 bits to 2 bits		 */
+				XBIT_HF(1, hf_dlmap_harq_dl_map_rectangular_sub_burst_indicator); /* Implemented: "Rectangular Sub-Burst Indicator" field added */
+				XBIT_HF(2, hf_dlmap_reserved_uint);   /* and "Reserved" field resized from 3 bits to 2 bits		 */
 			}
 			else
 			{
-				XBIT(data, 3, "Reserved");
+				XBIT_HF(3, hf_dlmap_reserved_uint);
 			}
 		} else {
-			XBIT(data, 8, "Region_ID");
+			XBIT_HF(8, hf_dlmap_harq_dl_map_region_id);
 		}
-		XBIT(mode, 4, "Mode");
-		XBIT(sub_len, 8, "Sub-burst IE Length");
+		XBIT_HF_VALUE(mode, 4, hf_dlmap_harq_dl_map_mode);
+		XBIT_HF_VALUE(sub_len, 8, hf_dlmap_harq_dl_map_sub_burst_ie_length);
 
 		/* 8.4.5.3.21 */
 		/* length of these are variable, each returns length in nibbles */
@@ -1160,7 +1441,7 @@ static gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbu
 		} else if (mode == 6) {
 			MIMO_DL_STC_HARQ_sub_burst_IE(tree, BIT_TO_NIB(bit), length, tvb);
 		} else {
-			proto_tree_add_text(tree, tvb, BITHI(bit,1), "(reserved Mode)");
+			proto_tree_add_bits_item(tree, hf_dlmap_harq_dl_map_reserved_mode, tvb, bit, 1, ENC_BIG_ENDIAN);
 			break; /* cannot continue */
 		}
 		bit += NIB_TO_BIT(sub_len);
@@ -1168,7 +1449,7 @@ static gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, tvbu
 
 	pad = NIB_TO_BIT(offset) + length - bit;
 	if (pad) {
-		proto_tree_add_text(tree, tvb, BITHI(bit,pad), "Padding: %d bits",pad);
+		proto_tree_add_bytes_format_value(tree, hf_padding, tvb, BITHI(bit,pad), NULL, "%d bits",pad);
 		bit += pad;
 	}
 
@@ -1188,10 +1469,10 @@ static gint HARQ_ACK_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286u, NULL, "HARQ_ACK_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
 
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib,length-3), "(bitmap data)");
+	proto_tree_add_item(diuc_tree, hf_dlmap_harq_ack_bitmap_data, tvb, NIBHI(nib,length-3), ENC_NA);
 
 	return nib;
 }
@@ -1211,27 +1492,27 @@ static gint Enhanced_DL_MAP_IE(proto_tree *diuc_tree, gint offset, gint length, 
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286v, NULL, "Enhanced_DL-MAP_IE");
 
-	XBIT(data, 4, "Extended-2 DIUC");
+	XBIT_HF(4, hf_dlmap_enhanced_dl_map_extended_2_diuc);
 	VBIT(data, 8, hf_dlmap_ie_length);
 
-	XBIT(numass, 4, "Num_Assignment");
+	XBIT_HF_VALUE(numass, 4, hf_dlmap_enhanced_dl_map_num_assignment);
 	for (i = 0; i < numass; i++) {
 		if (INC_CID == 1) {
-			XBIT(n_cid, 8, "N_CID");
+			XBIT_HF_VALUE(n_cid, 8, hf_dlmap_enhanced_dl_map_n_cid);
 			for (n = 0; n < n_cid; n++) {
-				XBIT(data, 16, "CID");
+				XBIT_HF(16, hf_dlmap_enhanced_dl_map_cid);
 			}
 		}
-		XBIT(data, 4, "DIUC");
-		XBIT(data, 3, "Boosting");
-		XBIT(data, 2, "Repetition Coding Indication");
-		XBIT(data, 8, "Region_ID");
-		XBIT(data, 3, "Reserved");
+		XBIT_HF(4, hf_dlmap_enhanced_dl_map_diuc);
+		XBIT_HF(3, hf_dlmap_enhanced_dl_map_boosting);
+		XBIT_HF(2, hf_dlmap_enhanced_dl_map_repetition_coding_indication);
+		XBIT_HF(8, hf_dlmap_enhanced_dl_map_region_id);
+		XBIT_HF(3, hf_dlmap_reserved_uint);
 	}
 	return BIT_TO_NIB(bit);
 }
 
-static gint Closed_loop_MIMO_DL_Enhanced_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint Closed_loop_MIMO_DL_Enhanced_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* DL-MAP Extended-2 IE = 0xA */
 	/* 8.4.5.3.24 Closed-loop MIMO DL Enhanced IE (not implemented) */
@@ -1244,9 +1525,9 @@ static gint Closed_loop_MIMO_DL_Enhanced_IE(proto_tree *diuc_tree, gint offset, 
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286w, NULL, "CL_MIMO_DL_Enhanced_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length-3), "(not implemented)");
+	proto_tree_add_expert(diuc_tree, pinfo, &ei_dlmap_not_implemented, tvb, NIBHI(nib, length-3));
 	return nib;
 }
 
@@ -1267,92 +1548,92 @@ static gint AAS_SDMA_DL_IE(proto_tree *diuc_tree, gint offset, gint length, tvbu
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_286y, NULL, "AAS_SDMA_DL_IE");
 
-	XBIT(data, 4, "Extended-2 DIUC");
+	XBIT_HF(4, hf_dlmap_aas_sdma_dl_extended_2_diuc);
 	VBIT(data, 8, hf_dlmap_ie_length);
 
-	XBIT(RCID_Type, 2, "RCID_Type");
-	XBIT(num_region, 4, "Num_Burst_Region");
-	XBIT(data, 2, "Reserved");
+	XBIT_HF_VALUE(RCID_Type, 2, hf_dlmap_aas_sdma_dl_rcid_type);
+	XBIT_HF_VALUE(num_region, 4, hf_dlmap_aas_sdma_dl_num_burst_region);
+	XBIT_HF(2, hf_dlmap_reserved_uint);
 	for (i = 0; i < num_region; i++) {
-		XBIT(data, 8, "OFDMA Symbol Offset");
+		XBIT_HF(8, hf_dlmap_aas_sdma_dl_ofdma_symbol_offset);
 		if (zone_permut == 0) {
-			XBIT(data, 8, "Subchannel offset");
-			XBIT(data, 5, "No. OFDMA triple symbols");
-			XBIT(data, 6, "No. subchannels");
+			XBIT_HF(8, hf_dlmap_aas_sdma_dl_subchannel_offset);
+			XBIT_HF(5, hf_dlmap_aas_sdma_dl_num_ofdma_triple_symbols);
+			XBIT_HF(6, hf_dlmap_aas_sdma_dl_num_subchannels);
 		} else {
-			XBIT(data, 6, "Subchannel offset");
-			XBIT(data, 7, "No. OFDMA triple symbols");
-			XBIT(data, 6, "No. subchannels");
+			XBIT_HF(6, hf_dlmap_aas_sdma_dl_subchannel_offset);
+			XBIT_HF(7, hf_dlmap_aas_sdma_dl_num_ofdma_triple_symbols);
+			XBIT_HF(6, hf_dlmap_aas_sdma_dl_num_subchannels);
 		}
-		XBIT(num_users, 3, "Number of Users");
-		XBIT(data, 2, "Reserved");
+		XBIT_HF_VALUE(num_users, 3, hf_dlmap_aas_sdma_dl_number_of_users);
+		XBIT_HF(2, hf_dlmap_reserved_uint);
 		for (j = 0; j < num_users; j++) {
 			bit += RCID_IE(tree, bit, length, tvb, RCID_Type);
-			XBIT(encoding_mode, 2, "Encoding Mode");
-			XBIT(cqich_alloc, 1, "CQICH Allocation");
-			XBIT(ackch_alloc, 1, "ACKCH Allocation");
-			XBIT(pilot_pattern, 1, "Pilot Pattern Modifier");
+			XBIT_HF_VALUE(encoding_mode, 2, hf_dlmap_aas_sdma_dl_encoding_mode);
+			XBIT_HF_VALUE(cqich_alloc, 1, hf_dlmap_aas_sdma_dl_cqich_allocation);
+			XBIT_HF_VALUE(ackch_alloc, 1, hf_dlmap_aas_sdma_dl_ackch_allocation);
+			XBIT_HF_VALUE(pilot_pattern, 1, hf_dlmap_aas_sdma_dl_pilot_pattern_modifier);
 			if (aas_preamble) {
-				XBIT(data, 4, "Preamble Modifier Index");
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_preamble_modifier_index);
 			}
 			if (pilot_pattern) {
-				XBIT(data, 2, "Pilot Pattern");
-				XBIT(data, 1, "Reserved");
+				XBIT_HF(2, hf_dlmap_aas_sdma_dl_pilot_pattern);
+				XBIT_HF(1, hf_dlmap_reserved_uint);
 			} else {
-				XBIT(data, 3, "Reserved");
+				XBIT_HF(3, hf_dlmap_reserved_uint);
 			}
 			if (encoding_mode == 0x0) {
-				XBIT(data, 4, "DIUC");
-				XBIT(data, 2, "Repetition Coding Indication");
-				XBIT(data, 2, "Reserved");
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_diuc);
+				XBIT_HF(2, hf_dlmap_aas_sdma_dl_repetition_coding_indication);
+				XBIT_HF(2, hf_dlmap_reserved_uint);
 			}
 			if (encoding_mode == 0x1) {
 				if (ackch_alloc) {
-					XBIT(data, 5, "ACK CH Index");
+					XBIT_HF(5, hf_dlmap_aas_sdma_dl_ack_ch_index);
 				} else {
-					XBIT(data, 1, "Reserved");
+					XBIT_HF(1, hf_dlmap_reserved_uint);
 				}
-				XBIT(data, 4, "DIUC");
-				XBIT(data, 2, "Repetition Coding Indication");
-				XBIT(data, 4, "ACID");
-				XBIT(data, 1, "AI_SN");
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_diuc);
+				XBIT_HF(2, hf_dlmap_aas_sdma_dl_repetition_coding_indication);
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_acid);
+				XBIT_HF(1, hf_dlmap_aas_sdma_dl_ai_sn);
 			}
 			if (encoding_mode == 0x2) {
 				if (ackch_alloc) {
-					XBIT(data, 5, "ACK CH Index");
+					XBIT_HF(5, hf_dlmap_aas_sdma_dl_ack_ch_index);
 				} else {
-					XBIT(data, 1, "Reserved");
+					XBIT_HF(1, hf_dlmap_reserved_uint);
 				}
-				XBIT(data, 4, "N(EP)");
-				XBIT(data, 4, "N(SCH)");
-				XBIT(data, 2, "SPID");
-				XBIT(data, 4, "ACID");
-				XBIT(data, 1, "AI_SN");
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_nep);
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_nsch);
+				XBIT_HF(2, hf_dlmap_aas_sdma_dl_spid);
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_acid);
+				XBIT_HF(1, hf_dlmap_aas_sdma_dl_ai_sn);
 			}
 			if (encoding_mode == 0x3) {
 				if (ackch_alloc) {
-					XBIT(data, 5, "ACK CH Index");
-					XBIT(data, 2, "Reserved");
+					XBIT_HF(5, hf_dlmap_aas_sdma_dl_ack_ch_index);
+					XBIT_HF(2, hf_dlmap_reserved_uint);
 				} else {
-					XBIT(data, 3, "Reserved");
+					XBIT_HF(3, hf_dlmap_reserved_uint);
 				}
-				XBIT(data, 4, "DIUC");
-				XBIT(data, 2, "Repetition Coding Indication");
-				XBIT(data, 2, "SPID");
-				XBIT(data, 4, "ACID");
-				XBIT(data, 1, "AI_SN");
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_diuc);
+				XBIT_HF(2, hf_dlmap_aas_sdma_dl_repetition_coding_indication);
+				XBIT_HF(2, hf_dlmap_aas_sdma_dl_spid);
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_acid);
+				XBIT_HF(1, hf_dlmap_aas_sdma_dl_ai_sn);
 			}
 			if (cqich_alloc) {
-				XBIT(data, 6, "Allocation Index");
-				XBIT(data, 3, "Period (p)");
-				XBIT(data, 3, "Frame offset");
-				XBIT(data, 4, "Duration (d)");
+				XBIT_HF(6, hf_dlmap_aas_sdma_dl_allocation_index);
+				XBIT_HF(3, hf_dlmap_aas_sdma_dl_period);
+				XBIT_HF(3, hf_dlmap_aas_sdma_dl_frame_offset);
+				XBIT_HF(4, hf_dlmap_aas_sdma_dl_duration);
 			}
 		}
 	}
 	data = BIT_PADDING(bit,4);
 	/* Should this be an optional field? Or do we want it, even if it has a length of zero? */
-	proto_tree_add_text(tree, tvb, BITHI(bit,data), "Padding: %d bits", data);
+	proto_tree_add_bytes_format_value(tree, hf_padding, tvb, BITHI(bit,data), NULL, "%d bits", data);
 	bit += data;
 
 	return BIT_TO_NIB(bit);
@@ -1380,11 +1661,9 @@ static gint Channel_Measurement_IE(proto_tree *diuc_tree, gint offset, gint leng
 	VNIB(data, 1, hf_dlmap_ie_diuc_ext);
 	VNIB(data, 1, hf_dlmap_ie_length);
 
-	XNIB(data, 2, "Channel Nr");
-	XNIB(data, 2, "OFDMA Symbol Offset");
-	data = TVB_NIB_WORD(nib, tvb);
-	proto_tree_add_text(tree, tvb, NIBHI(nib,4), "CID: %d", data);
-	nib += 4;
+	VNIB(data, 2, hf_dlmap_channel_measurement_channel_nr);
+	VNIB(data, 2, hf_dlmap_channel_measurement_ofdma_symbol_offset);
+	VNIB(data, 4, hf_dlmap_channel_measurement_cid);
 	return nib;
 }
 
@@ -1406,19 +1685,19 @@ static gint STC_Zone_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_
 	VBIT(data, 4, hf_dlmap_ie_diuc_ext);
 	VBIT(data, 4, hf_dlmap_ie_length);
 
-	XBIT(data, 8, "OFDMA Symbol Offset");
-	XBIT(data, 2, "Permutations");
-	XBIT(data, 1, "Use All SC indicator");
-	XBIT(data, 2, "STC");
-	XBIT(STC_Zone_Matrix, 2, "Matrix indicator");
-	XBIT(data, 5, "DL_PermBase");
-	XBIT(data, 2, "PRBS_ID");
-	XBIT(data, 2, "AMC type");
-	XBIT(data, 1, "Midamble Presence");
-	XBIT(data, 1, "Midamble Boosting");
-	XBIT(data, 1, "2/3 antenna select");
-	XBIT(STC_Zone_Dedicated_Pilots, 1, "Dedicated Pilots");
-	XBIT(data, 4, "Reserved");
+	XBIT_HF(8, hf_dlmap_stc_zone_ofdma_symbol_offset);
+	XBIT_HF(2, hf_dlmap_stc_zone_permutations);
+	XBIT_HF(1, hf_dlmap_stc_zone_use_all_sc_indicator);
+	XBIT_HF(2, hf_dlmap_stc_zone_stc);
+	XBIT_HF_VALUE(STC_Zone_Matrix, 2, hf_dlmap_stc_zone_matrix_indicator);
+	XBIT_HF(5, hf_dlmap_stc_zone_dl_permbase);
+	XBIT_HF(2, hf_dlmap_stc_zone_prbs_id);
+	XBIT_HF(2, hf_dlmap_stc_zone_amc_type);
+	XBIT_HF(1, hf_dlmap_stc_zone_midamble_presence);
+	XBIT_HF(1, hf_dlmap_stc_zone_midamble_boosting);
+	XBIT_HF(1, hf_dlmap_stc_zone_2_3_antenna_select);
+	XBIT_HF_VALUE(STC_Zone_Dedicated_Pilots, 1, hf_dlmap_stc_zone_dedicated_pilots);
+	XBIT_HF(4, hf_dlmap_reserved_uint);
 
 	return BIT_TO_NIB(bit);
 }
@@ -1439,14 +1718,14 @@ static gint AAS_DL_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t 
 	VBIT(data, 4, hf_dlmap_ie_diuc_ext);
 	VBIT(data, 4, hf_dlmap_ie_length);
 
-	XBIT(data, 8, "OFDMA Symbol Offset");
-	XBIT(data, 3, "Permutation");
-	XBIT(data, 6, "DL_PermBase");
-	XBIT(data, 2, "Downlink_preamble_config");
-	XBIT(data, 1, "Preamble type");
-	XBIT(data, 2, "PRBS_ID");
-	XBIT(data, 1, "Diversity Map");
-	XBIT(data, 1, "Reserved");
+	XBIT_HF(8, hf_dlmap_aas_dl_ofdma_symbol_offset);
+	XBIT_HF(3, hf_dlmap_aas_dl_permutation);
+	XBIT_HF(6, hf_dlmap_aas_dl_dl_permbase);
+	XBIT_HF(2, hf_dlmap_aas_dl_downlink_preamble_config);
+	XBIT_HF(1, hf_dlmap_aas_dl_preamble_type);
+	XBIT_HF(2, hf_dlmap_aas_dl_prbs_id);
+	XBIT_HF(1, hf_dlmap_aas_dl_diversity_map);
+	XBIT_HF(1, hf_dlmap_reserved_uint);
 
 	return BIT_TO_NIB(bit);
 }
@@ -1467,19 +1746,19 @@ static gint Data_location_in_another_BS_IE(proto_tree *diuc_tree, gint offset, g
 	VBIT(data, 4, hf_dlmap_ie_diuc_ext);
 	VBIT(data, 4, hf_dlmap_ie_length);
 
-	XBIT(data, 2, "Segment");
-	XBIT(data, 6, "Used subchannels");
-	XBIT(data, 4, "DIUC");
-	XBIT(data, 3, "Frame Advance");
-	XBIT(data, 1, "Reserved");
-	XBIT(data, 8, "OFDMA Symbol Offset");
-	XBIT(data, 6, "Subchannel Offset");
-	XBIT(data, 3, "Boosting");
-	XBIT(data, 7, "Preamble Index");
-	XBIT(data, 8, "No. OFDMA Symbols");
-	XBIT(data, 6, "No. Subchannels");
-	XBIT(data, 2, "Repetition Coding Indication");
-	XBIT(data, 16, "CID");
+	XBIT_HF(2, hf_dlmap_data_location_another_bs_segment);
+	XBIT_HF(6, hf_dlmap_data_location_another_bs_used_subchannels);
+	XBIT_HF(4, hf_dlmap_data_location_another_bs_diuc);
+	XBIT_HF(3, hf_dlmap_data_location_another_bs_frame_advance);
+	XBIT_HF(1, hf_dlmap_reserved_uint);
+	XBIT_HF(8, hf_dlmap_data_location_another_bs_ofdma_symbol_offset);
+	XBIT_HF(6, hf_dlmap_data_location_another_bs_subchannel_offset);
+	XBIT_HF(3, hf_dlmap_data_location_another_bs_boosting);
+	XBIT_HF(7, hf_dlmap_data_location_another_bs_preamble_index);
+	XBIT_HF(8, hf_dlmap_data_location_another_bs_num_ofdma_symbols);
+	XBIT_HF(6, hf_dlmap_data_location_another_bs_num_subchannels);
+	XBIT_HF(2, hf_dlmap_data_location_another_bs_repetition_coding_indication);
+	XBIT_HF(16, hf_dlmap_data_location_another_bs_cid);
 
 	return BIT_TO_NIB(bit);
 }
@@ -1505,7 +1784,7 @@ static gint CID_Switch_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuf
 	return nib;
 }
 
-static gint MIMO_DL_Basic_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_DL_Basic_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* DL-MAP Extended IE = 5 */
 	/* 8.4.5.3.8 MIMO_DL_Basic_IE (not implemented) */
@@ -1518,13 +1797,13 @@ static gint MIMO_DL_Basic_IE(proto_tree *diuc_tree, gint offset, gint length, tv
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_283, NULL, "MIMO_DL_Basic_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length-2), "(not implemented)");
+	proto_tree_add_expert(diuc_tree, pinfo, &ei_dlmap_not_implemented, tvb, NIBHI(nib, length-2));
 	return nib;
 }
 
-static gint MIMO_DL_Enhanced_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint MIMO_DL_Enhanced_IE(proto_tree *diuc_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* DL-MAP Extended IE = 6 */
 	/* 8.4.5.3.9 MIMO_DL_Enhanced_IE (not implemented) */
@@ -1537,9 +1816,9 @@ static gint MIMO_DL_Enhanced_IE(proto_tree *diuc_tree, gint offset, gint length,
 
 	tree = proto_tree_add_subtree(diuc_tree, tvb, NIBHI(offset, length), ett_284, NULL, "MIMO_DL_Enhanced_IE");
 
-	XNIB(data, 1, "Extended-2 DIUC");
+	VNIB(data, 1, hf_dlmap_ie_diuc_ext2);
 	VNIB(data, 2, hf_dlmap_ie_length);
-	proto_tree_add_text(diuc_tree, tvb, NIBHI(nib, length-2), "(not implemented)");
+	proto_tree_add_expert(diuc_tree, pinfo, &ei_dlmap_not_implemented, tvb, NIBHI(nib, length-2));
 	return nib;
 }
 
@@ -1551,7 +1830,7 @@ static gint HARQ_Map_Pointer_IE(proto_tree *diuc_tree, gint offset, gint length,
 	gint bit;
 	gint data;
 	proto_tree *tree;
-	gint length_in_bits, rep, map, diuc, slots, idle, sleep, mask_len;
+	gint length_in_bits, map, mask_len;
 
 	bit = NIB_TO_BIT(offset);
 
@@ -1562,29 +1841,29 @@ static gint HARQ_Map_Pointer_IE(proto_tree *diuc_tree, gint offset, gint length,
 
 	length_in_bits = NIB_TO_BIT(length-1);
 	while (bit < length_in_bits) {
-		XBIT(diuc, 4, "DIUC");
-		XBIT(slots, 8, "No. Slots");
-		XBIT(rep, 2, "Repetition Coding Indication");
-		XBIT(map, 2, "Map Version");
+		XBIT_HF(4, hf_dlmap_harq_map_pointer_diuc);
+		XBIT_HF(8, hf_dlmap_harq_map_pointer_num_slots);
+		XBIT_HF(2, hf_dlmap_harq_map_pointer_repetition_coding_indication);
+		XBIT_HF_VALUE(map, 2, hf_dlmap_harq_map_pointer_map_version);
 		if (map == 2) {
-			XBIT(idle, 1, "Idle users");
-			XBIT(sleep, 1, "Sleep users");
-			XBIT(mask_len, 2, "CID Mask Length");
+			XBIT_HF(1, hf_dlmap_harq_map_pointer_idle_users);
+			XBIT_HF(1, hf_dlmap_harq_map_pointer_sleep_users);
+			XBIT_HF_VALUE(mask_len, 2, hf_dlmap_harq_map_pointer_cid_mask_length);
 			if (mask_len == 0) {
 				/* 12 bits */
-				proto_tree_add_text(diuc_tree, tvb, BITHI(bit,12), "CID Mask: 12 bits");
+				proto_tree_add_bytes_format_value(diuc_tree, hf_cid_mask, tvb, BITHI(bit,12), NULL, "12 bits");
 				bit += 12;
 			} else if (mask_len == 1) {
 				/* 20 bits */
-				proto_tree_add_text(diuc_tree, tvb, BITHI(bit,20), "CID Mask: 20 bits");
+				proto_tree_add_bytes_format_value(diuc_tree, hf_cid_mask, tvb, BITHI(bit,20), NULL, "20 bits");
 				bit += 20;
 			} else if (mask_len == 2) {
 				/* 36 bits */
-				proto_tree_add_text(diuc_tree, tvb, BITHI(bit,36), "CID Mask: 36 bits");
+				proto_tree_add_bytes_format_value(diuc_tree, hf_cid_mask, tvb, BITHI(bit,36), NULL, "36 bits");
 				bit += 36;
 			} else if (mask_len == 3) {
 				/* 52 bits */
-				proto_tree_add_text(diuc_tree, tvb, BITHI(bit,52), "CID Mask: 52 bits");
+				proto_tree_add_bytes_format_value(diuc_tree, hf_cid_mask, tvb, BITHI(bit,52), NULL, "52 bits");
 				bit += 52;
 			}
 		}
@@ -1609,14 +1888,14 @@ static gint PHYMOD_DL_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff
 	VBIT(data, 4, hf_dlmap_ie_diuc_ext);
 	VBIT(data, 4, hf_dlmap_ie_length);
 
-	XBIT(pmt, 1, "Preamble Modifier Type");
+	XBIT_HF_VALUE(pmt, 1, hf_dlmap_phymod_dl_preamble_modifier_type);
 	if (pmt == 0) {
-		XBIT(data, 4, "Preamble frequency shift index");
+		XBIT_HF(4, hf_dlmap_phymod_dl_preamble_frequency_shift_index);
 	} else {
-		XBIT(data, 4, "Preamble Time Shift Index");
+		XBIT_HF(4, hf_dlmap_phymod_dl_preamble_time_shift_index);
 	}
-	XBIT(data, 1, "Pilot Pattern Modifier");
-	XBIT(data, 2, "Pilot Pattern Index");
+	XBIT_HF(1, hf_dlmap_phymod_dl_pilot_pattern_modifier);
+	XBIT_HF(2, hf_dlmap_phymod_dl_pilot_pattern_index);
 
 	return BIT_TO_NIB(bit);
 }
@@ -1638,11 +1917,11 @@ static gint Broadcast_Control_Pointer_IE(proto_tree *diuc_tree, gint offset, gin
 	VBIT(data, 4, hf_dlmap_ie_diuc_ext);
 	VBIT(data, 4, hf_dlmap_ie_length);
 
-	XBIT(data, 7, "DCD_UCD Transmission Frame");
-	XBIT(skip, 1, "Skip Broadcast_System_Update");
+	XBIT_HF(7, hf_dlmap_broadcast_ctrl_ptr_dcd_ucd_transmission_frame);
+	XBIT_HF_VALUE(skip, 1, hf_dlmap_broadcast_ctrl_ptr_skip_broadcast_system_update);
 	if (skip == 0) {
-		XBIT(data, 1, "Broadcast_System_Update_Type");
-		XBIT(data, 7, "Broadcast_System_Update_Transmission_Frame");
+		XBIT_HF(1, hf_dlmap_broadcast_ctrl_ptr_broadcast_system_update_type);
+		XBIT_HF(7, hf_dlmap_broadcast_ctrl_ptr_broadcast_system_update_transmission_frame);
 	}
 	return BIT_TO_NIB(bit);
 }
@@ -1663,21 +1942,21 @@ static gint DL_PUSC_Burst_Allocation_in_Other_Segment_IE(proto_tree *diuc_tree, 
 	VBIT(data, 4, hf_dlmap_ie_diuc_ext);
 	VBIT(data, 4, hf_dlmap_ie_length);
 
-	XBIT(data, 16, "CID");
-	XBIT(data, 4, "DIUC");
-	XBIT(data, 2, "Segment");
-	XBIT(data, 3, "Boosting");
-	XBIT(data, 5, "IDcell");
-	XBIT(data, 5, "DL_PermBase");
-	XBIT(data, 2, "PRBS_ID");
-	XBIT(data, 2, "Repetition coding indication");
-	XBIT(data, 6, "Used Subchannels");
-	XBIT(data, 8, "OFDMA symbol offset");
-	XBIT(data, 1, "Reserved");
-	XBIT(data, 7, "# OFDMA symbols");
-	XBIT(data, 6, "Subchannel offset");
-	XBIT(data, 6, "# subchannels");
-	XBIT(data, 7, "Reserved");
+	XBIT_HF(16, hf_dlmap_dl_pusc_burst_allocation_cid);
+	XBIT_HF(4, hf_dlmap_dl_pusc_burst_allocation_diuc);
+	XBIT_HF(2, hf_dlmap_dl_pusc_burst_allocation_segment);
+	XBIT_HF(3, hf_dlmap_dl_pusc_burst_allocation_boosting);
+	XBIT_HF(5, hf_dlmap_dl_pusc_burst_allocation_idcell);
+	XBIT_HF(5, hf_dlmap_dl_pusc_burst_allocation_dl_permbase);
+	XBIT_HF(2, hf_dlmap_dl_pusc_burst_allocation_prbs_id);
+	XBIT_HF(2, hf_dlmap_dl_pusc_burst_allocation_repetition_coding_indication);
+	XBIT_HF(6, hf_dlmap_dl_pusc_burst_allocation_used_subchannels);
+	XBIT_HF(8, hf_dlmap_dl_pusc_burst_allocation_ofdma_symbol_offset);
+	XBIT_HF(1, hf_dlmap_reserved_uint);
+	XBIT_HF(7, hf_dlmap_dl_pusc_burst_allocation_num_ofdma_symbols);
+	XBIT_HF(6, hf_dlmap_dl_pusc_burst_allocation_subchannel_offset);
+	XBIT_HF(6, hf_dlmap_dl_pusc_burst_allocation_num_subchannels);
+	XBIT_HF(7, hf_dlmap_reserved_uint);
 	return BIT_TO_NIB(bit);
 }
 
@@ -1696,15 +1975,15 @@ static gint PUSC_ASCA_Alloc_IE(proto_tree *diuc_tree, gint offset, gint length, 
 
 	VBIT(data, 4, hf_dlmap_ie_diuc_ext);
 	VBIT(data, 4, hf_dlmap_ie_length);
-	XBIT(data, 4, "DIUC");
-	XBIT(data, 12, "Short Basic CID");
-	XBIT(data, 8, "OFDMA Symbol offset");
-	XBIT(data, 6, "Subchannel offset");
-	XBIT(data, 7, "# OFDMA Symbols");
-	XBIT(data, 6, "# Symbols");
-	XBIT(data, 2, "Repetition Coding Information");
-	XBIT(data, 4, "Permutation ID");
-	XBIT(data, 7, "Reserved");
+	XBIT_HF(4, hf_dlmap_pusc_asca_alloc_diuc);
+	XBIT_HF(12, hf_dlmap_pusc_asca_alloc_short_basic_cid);
+	XBIT_HF(8, hf_dlmap_pusc_asca_alloc_ofdma_symbol_offset);
+	XBIT_HF(6, hf_dlmap_pusc_asca_alloc_subchannel_offset);
+	XBIT_HF(7, hf_dlmap_pusc_asca_alloc_num_ofdma_symbols);
+	XBIT_HF(6, hf_dlmap_pusc_asca_alloc_num_symbols);
+	XBIT_HF(2, hf_dlmap_pusc_asca_alloc_repetition_coding_information);
+	XBIT_HF(4, hf_dlmap_pusc_asca_alloc_permutation_id);
+	XBIT_HF(7, hf_dlmap_reserved_uint);
 
 	return BIT_TO_NIB(bit);
 }
@@ -1756,9 +2035,9 @@ static gint UL_interference_and_noise_level_IE(proto_tree *diuc_tree, gint offse
  * DL-MAP Plugin
  *******************************************************************/
 
-extern gint wimax_decode_ulmapc(proto_tree *base_tree, gint offset, gint length, tvbuff_t *tvb);
+extern gint wimax_decode_ulmapc(proto_tree *base_tree, packet_info* pinfo, gint offset, gint length, tvbuff_t *tvb);
 
-static gint dissect_dlmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb)
+static gint dissect_dlmap_ie(proto_tree *ie_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* decode a single DL-MAP IE and return the
 	 * length of the IE in nibbles
@@ -1805,23 +2084,23 @@ static gint dissect_dlmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbu
 				break;
 			case 0x01:
 				/* 8.4.5.3.14 HO_Anchor_Active_DL-MAP_IE */
-				nibble = HO_Anchor_Active_DL_MAP_IE(tree, nibble, len, tvb);
+				nibble = HO_Anchor_Active_DL_MAP_IE(tree, pinfo, nibble, len, tvb);
 				break;
 			case 0x02:
 				/* 8.4.5.3.15 HO_Active_Anchor_DL_MAP_IE */
-				nibble = HO_Active_Anchor_DL_MAP_IE(tree, nibble, len, tvb);
+				nibble = HO_Active_Anchor_DL_MAP_IE(tree, pinfo, nibble, len, tvb);
 				break;
 			case 0x03:
 				/* 8.4.5.3.16 HO_CID_Translation_MAP_IE */
-				nibble = HO_CID_Translation_MAP_IE(tree, nibble, len, tvb);
+				nibble = HO_CID_Translation_MAP_IE(tree, pinfo, nibble, len, tvb);
 				break;
 			case 0x04:
 				/* 8.4.5.3.17 MIMO_in_another_BS_IE */
-				nibble = MIMO_in_another_BS_IE(tree, nibble, len, tvb);
+				nibble = MIMO_in_another_BS_IE(tree, pinfo, nibble, len, tvb);
 				break;
 			case 0x05:
 				/* 8.4.5.3.18 Macro-MIMO_DL_Basic_IE */
-				nibble = Macro_MIMO_DL_Basic_IE(tree, nibble, len, tvb);
+				nibble = Macro_MIMO_DL_Basic_IE(tree, pinfo, nibble, len, tvb);
 				break;
 			case 0x06:
 				/* 8.4.5.3.20.2 Skip_IE */
@@ -1841,13 +2120,13 @@ static gint dissect_dlmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbu
 				break;
 			case 0x0a:
 				/* 8.4.5.3.24 Closed-loop MIMO DL Enhanced IE */
-				nibble = Closed_loop_MIMO_DL_Enhanced_IE(tree, nibble, len, tvb);
+				nibble = Closed_loop_MIMO_DL_Enhanced_IE(tree, pinfo, nibble, len, tvb);
 				break;
 			case 0x0b:
-				nibble = MIMO_DL_Basic_IE(tree, nibble, len, tvb);
+				nibble = MIMO_DL_Basic_IE(tree, pinfo, nibble, len, tvb);
 				break;
 			case 0x0c:
-				nibble = MIMO_DL_Enhanced_IE(tree, nibble, len, tvb);
+				nibble = MIMO_DL_Enhanced_IE(tree, pinfo, nibble, len, tvb);
 				break;
 
 			case 0x0e:
@@ -1855,7 +2134,7 @@ static gint dissect_dlmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbu
 				break;
 
 			default:
-				proto_tree_add_text(tree, tvb, NIBHI(nibble,len), "(reserved Extended-2 DIUC: %d)", ext2_diuc);
+				proto_tree_add_bytes_format(tree, hf_dlmap_ie_reserved_extended2_duic, tvb, NIBHI(nibble,len), NULL, "(reserved Extended-2 DIUC: %d)", ext2_diuc);
 				nibble += len;
 				break;
 
@@ -1925,7 +2204,7 @@ static gint dissect_dlmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbu
 				break;
 
 			default:
-				proto_tree_add_text(tree, tvb, NIBHI(nibble,len), "(reserved Extended DIUC: %d)", ext_diuc);
+				proto_tree_add_bytes_format(tree, hf_dlmap_ie_reserved_extended_duic, tvb, NIBHI(nibble,len), NULL, "(reserved Extended DIUC: %d)", ext_diuc);
 				nibble += len;
 				break;
 		}
@@ -2000,7 +2279,7 @@ static gint dissect_dlmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbu
 }
 
 
-static void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
+static void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
 {
 	/* 6.3.2.3.2 [2] DL-MAP table 16 */
 	guint offset = 0;
@@ -2042,11 +2321,11 @@ static void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo
 
 	nib = BYTE_TO_NIB(offset);
 	while (nib < ((tvb_len*2)-1)) {
-		nib += dissect_dlmap_ie(ie_tree, nib, tvb_len * 2, tvb);
+		nib += dissect_dlmap_ie(ie_tree, pinfo, nib, tvb_len * 2, tvb);
 	}
 	pad = NIB_PADDING(nib);
 	if (pad) {
-		proto_tree_add_text(dlmap_tree, tvb, NIBHI(nib,1), "Padding nibble");
+		proto_tree_add_bytes_format(dlmap_tree, hf_padding, tvb, NIBHI(nib,1), NULL, "Padding nibble");
 		nib++;
 	}
 }
@@ -2115,11 +2394,11 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 		/* length = BYTE_TO_NIB(mac_len - (int)sizeof(mac_crc) - 1); */ /* convert length to nibbles */
 
 		while (dl_ie_count--) {
-			nib += dissect_dlmap_ie(ie_tree, nib, tvb_len * 2, tvb);
+			nib += dissect_dlmap_ie(ie_tree, pinfo, nib, tvb_len * 2, tvb);
 		}
 		pad = NIB_PADDING(nib);
 		if (pad) {
-			proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Padding nibble");
+			proto_tree_add_bytes_format(tree, hf_padding, tvb, NIBHI(nib,1), NULL, "Padding nibble");
 			nib++;
 		}
 	}
@@ -2137,7 +2416,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed UL-MAP");
 
 		/* subtract 8 from lennib (CRC) */
-		wimax_decode_ulmapc(base_tree, nib, lennib - 8, tvb);
+		wimax_decode_ulmapc(base_tree, pinfo, nib, lennib - 8, tvb);
 	}
 
 	/* CRC is always appended */
@@ -2165,7 +2444,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 extern gint dissect_ulmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb);
 extern gint wimax_decode_ulmap_reduced_aas(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb);
 
-gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
+gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
 {
 	/* decode a SUB-DL-UL-MAP message 6.3.2.3.60 and return the length in bytes */
 	/* first three bits are 0x7, which following a compressed DL map indicates this message */
@@ -2208,7 +2487,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	/* DL-MAP IEs */
 	ie_tree = proto_tree_add_subtree(tree, tvb, NIBHI(nib,1), ett_109x_dl, NULL, "DL-MAP IEs");
 	for (i = 0; i < numie; i++) {
-		nib += dissect_dlmap_ie(ie_tree, nib, lennib - nib, tvb);
+		nib += dissect_dlmap_ie(ie_tree, pinfo, nib, lennib - nib, tvb);
 	}
 
 	data = TVB_NIB_BYTE(nib,tvb);
@@ -2227,13 +2506,13 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* padding */
 	if (nib & 1) {
-		proto_tree_add_text(tree, tvb, NIBHI(nib,1), "Padding Nibble");
+		proto_tree_add_bytes_format(tree, hf_padding, tvb, NIBHI(nib,1), NULL, "Padding Nibble");
 		nib++;
 	}
 
 	/* CRC-16 is always appended */
 	data = TVB_NIB_WORD(nib, tvb);
-	generic_item = proto_tree_add_text(tree, tvb, NIBHI(nib,4), "CRC-16: 0x%04x",data);
+	generic_item = proto_tree_add_uint(tree, hf_crc16, tvb, NIBHI(nib,4), data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, NIB_TO_BYTE(nib)), NIB_TO_BYTE(nib));
 	if (data != calculated_crc)
@@ -2278,87 +2557,87 @@ gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 	VBIT(data, 1, hf_308a_rsv);
 
 	if (mult) {
-		XBIT(numie, 8, "NUM IE");
+		XBIT_HF_VALUE(numie, 8, hf_dlmap_reduced_aas_num_ie);
 	}
 
 	for (i = 0; i < numie; i++) {
-		XBIT(data, 2, "Periodicity");
-		XBIT(cidi, 1, "CID Included");
-		XBIT(dcdi, 1, "DCD Count Included");
-		XBIT(phyi, 1, "PHY modification included");
-		XBIT(cqci, 1, "CQICH control indicator");
-		XBIT(data, 2, "Encoding Mode");
-		XBIT(smcs, 1, "Separate MCS Enabled");
+		XBIT_HF(2, hf_dlmap_reduced_aas_periodicity);
+		XBIT_HF_VALUE(cidi, 1, hf_dlmap_reduced_aas_cid_included);
+		XBIT_HF_VALUE(dcdi, 1, hf_dlmap_reduced_aas_dcd_count_included);
+		XBIT_HF_VALUE(phyi, 1, hf_dlmap_reduced_aas_phy_modification_included);
+		XBIT_HF_VALUE(cqci, 1, hf_dlmap_reduced_aas_cqich_control_indicator);
+		XBIT_HF(2, hf_dlmap_reduced_aas_encoding_mode);
+		XBIT_HF_VALUE(smcs, 1, hf_dlmap_reduced_aas_separate_mcs_enabled);
 
 		if (smcs) {
-			XBIT(data,10, "Duration");
-			XBIT(data, 4, "DIUC");
-			XBIT(data, 2, "Repetition Coding Indication");
+			XBIT_HF(10, hf_dlmap_reduced_aas_duration);
+			XBIT_HF(4, hf_dlmap_reduced_aas_diuc);
+			XBIT_HF(2, hf_dlmap_reduced_aas_repetition_coding_indication);
 		}
 		if (cidi) {
-			XBIT(data,16, "CID");
+			XBIT_HF(16, hf_dlmap_reduced_aas_cid);
 		}
 		if (cqci) {
-			XBIT(data, 6, "Allocation Index");
-			XBIT(data, 3, "Report Period");
-			XBIT(data, 3, "Frame Offset");
-			XBIT(data, 4, "Report Duration");
-			XBIT(data, 2, "CQI Measurement Type");
-			XBIT(data, 2, "Reserved");
+			XBIT_HF(6, hf_dlmap_reduced_aas_allocation_index);
+			XBIT_HF(3, hf_dlmap_reduced_aas_report_period);
+			XBIT_HF(3, hf_dlmap_reduced_aas_frame_offset);
+			XBIT_HF(4, hf_dlmap_reduced_aas_report_duration);
+			XBIT_HF(2, hf_dlmap_reduced_aas_cqi_measurement_type);
+			XBIT_HF(2, hf_dlmap_reserved_uint);
 		}
 		if (dcdi) {
-			XBIT(data, 8, "DCD Count");
+			XBIT_HF(8, hf_dlmap_reduced_aas_dcd_count);
 		}
 		if (phyi) {
-			XBIT(data, 1, "Preamble Select");
-			XBIT(data, 4, "Preamble Shift Index");
-			XBIT(data, 1, "Pilot Pattern Modifier");
-			XBIT(data, 2, "Pilot Pattern Index");
+			XBIT_HF(1, hf_dlmap_reduced_aas_preamble_select);
+			XBIT_HF(4, hf_dlmap_reduced_aas_preamble_shift_index);
+			XBIT_HF(1, hf_dlmap_reduced_aas_pilot_pattern_modifier);
+			XBIT_HF(2, hf_dlmap_reduced_aas_pilot_pattern_index);
 		}
-		XBIT(data, 3, "DL Frame Offset");
+		XBIT_HF(3, hf_dlmap_reduced_aas_dl_frame_offset);
 		if (fusc) {
-			XBIT(data, 8, "Zone Symbol Offset");
+			XBIT_HF(8, hf_dlmap_reduced_aas_zone_symbol_offset);
 		}
-		XBIT(data, 8, "OFDMA Symbol Offset");
+		XBIT_HF(8, hf_dlmap_reduced_aas_ofdma_symbol_offset);
 		if (tusc) {
-			XBIT(data, 8, "Subchannel Offset");
-			XBIT(data, 5, "No. OFDMA triple symbol");
-			XBIT(data, 6, "No. subchannels");
+			XBIT_HF(8, hf_dlmap_reduced_aas_subchannel_offset);
+			XBIT_HF(5, hf_dlmap_reduced_aas_num_ofdma_triple_symbol);
+			XBIT_HF(6, hf_dlmap_reduced_aas_num_subchannels);
 		} else {
-			XBIT(data, 6, "Subchannel Offset");
-			XBIT(data, 7, "No. OFDMA symbols");
-			XBIT(data, 6, "No. subchannels");
+			XBIT_HF(6, hf_dlmap_reduced_aas_subchannel_offset);
+			XBIT_HF(7, hf_dlmap_reduced_aas_num_ofdma_symbols);
+			XBIT_HF(6, hf_dlmap_reduced_aas_num_subchannels);
 		}
-		XBIT(data, 4, "DIUC/N(EP)");
+		XBIT_HF(4, hf_dlmap_reduced_aas_diuc_nep);
 		if (harq) {
-			XBIT(data, 1, "DL HARQ ACK bitmap");
-			XBIT(data, 6, "ACK Allocation Index");
-			XBIT(data, 4, "ACID");
-			XBIT(data, 1, "AI_SN");
+			XBIT_HF(1, hf_dlmap_reduced_aas_dl_harq_ack_bitmap);
+			XBIT_HF(6, hf_dlmap_reduced_aas_ack_allocation_index);
+			XBIT_HF(4, hf_dlmap_reduced_aas_acid);
+			XBIT_HF(1, hf_dlmap_reduced_aas_ai_sn);
 			if (ir_type) {
-				XBIT(data, 4, "N(SCH)");
-				XBIT(data, 2, "SPID");
-				XBIT(data, 2, "Reserved");
+				XBIT_HF(4, hf_dlmap_reduced_aas_nsch);
+				XBIT_HF(2, hf_dlmap_reduced_aas_spid);
+				XBIT_HF(2, hf_dlmap_reserved_uint);
 			}
 		}
-		XBIT(data, 2, "Repetition Coding Indication");
+		XBIT_HF(2, hf_dlmap_reduced_aas_repetition_coding_indication);
 		if (ulmap_appended) {
 			/* offset and length are in bits */
 			bit += wimax_decode_ulmap_reduced_aas(tree, offset, length*8, tvb);
 		}
-		XBIT(data, 3, "Reserved");
+		XBIT_HF(3, hf_dlmap_reserved_uint);
 	}
 
 	/* padding */
 	pad = BIT_PADDING(bit,8);
 	if (pad) {
-		proto_tree_add_text(tree, tvb, BITHI(bit,pad), "Padding: %d bits",pad);
+		proto_tree_add_bytes_format_value(tree, hf_padding, tvb, BITHI(bit,pad), NULL, "%d bits",pad);
 		bit += pad;
 	}
 
 	/* CRC-16 is always appended */
 	data = TVB_BIT_BITS(bit, tvb, 16);
-	generic_item = proto_tree_add_text(tree, tvb, BITHI(bit,16), "CRC-16: 0x%04x",data);
+	generic_item = proto_tree_add_uint(tree, hf_crc16, tvb, BITHI(bit,16), data);
 	/* calculate the CRC */
 	calculated_crc = wimax_mac_calc_crc16(tvb_get_ptr(tvb, 0, BIT_TO_BYTE(bit)), BIT_TO_BYTE(bit));
 	if (data != calculated_crc)
@@ -2439,6 +2718,27 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 			{
 				"Extended DIUC", "wmx.dlmap.ie.ext_diuc",
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_diuc_ext2,
+			{
+				"Extended-2 DIUC", "wmx.dlmap.ie.ext2_diuc",
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_reserved_extended2_duic,
+			{
+				"Reserved Extended-2 DIUC", "wmx.dlmap.ie.ext2_diuc_reserved",
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dlmap_ie_reserved_extended_duic,
+			{
+				"Reserved Extended DIUC", "wmx.dlmap.ie.ext_diuc_reserved",
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
@@ -2811,7 +3111,313 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				"CRC", "wmx.compress_dlmap_crc",
 				FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
-		}
+		},
+		{
+			&hf_crc16,
+			{
+				"CRC-16", "wmx.dlmap.crc16",
+				FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_padding,
+			{
+				"Padding", "wmx.dlmap.padding",
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_cid_mask,
+			{
+				"CID Mask", "wmx.dlmap.cid_mask",
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_reserved,
+			{
+				"Reserved", "wmx.dlmap.reserved",
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		/* Generated via "one time" script to help create filterable fields */
+		{ &hf_dlmap_rcid_ie_cid, { "CID", "wmx.dlmap.rcid_ie.cid", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_rcid_ie_prefix, { "Prefix", "wmx.dlmap.rcid_ie.prefix", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_rcid_ie_cid11, { "CID11", "wmx.dlmap.rcid_ie.cid11", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_rcid_ie_cid7, { "CID7", "wmx.dlmap.rcid_ie.cid7", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_rcid_ie_cid3, { "CID3", "wmx.dlmap.rcid_ie.cid3", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_dl_control_length, { "Length", "wmx.dlmap.dedicated_dl_control.length", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_dl_control_control_header, { "Control Header", "wmx.dlmap.dedicated_dl_control.control_header", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_dl_control_num_sdma_layers, { "Num SDMA Layers", "wmx.dlmap.dedicated_dl_control.num_sdma_layers", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_length, { "Length (nibbles)", "wmx.dlmap.dedicated_mimo_dl_control.length", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_control_header_mimo_control_info, { "Control Header (MIMO Control Info)", "wmx.dlmap.dedicated_mimo_dl_control.control_header_mimo_control_info", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_control_header_cqi_control_info, { "Control Header (CQI Control Info)", "wmx.dlmap.dedicated_mimo_dl_control.control_header_cqi_control_info", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_control_header_closed_mimo_control_info, { "Control Header (Closed MIMO Control Info)", "wmx.dlmap.dedicated_mimo_dl_control.control_header_closed_mimo_control_info", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_n_layer, { "N_layer", "wmx.dlmap.dedicated_mimo_dl_control.n_layer", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_matrix, { "Matrix", "wmx.dlmap.dedicated_mimo_dl_control.matrix", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_num_beamformed_streams, { "Num_Beamformed_Streams", "wmx.dlmap.dedicated_mimo_dl_control.num_beamformed_streams", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_period, { "Period", "wmx.dlmap.dedicated_mimo_dl_control.period", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_frame_offset, { "Frame Offset", "wmx.dlmap.dedicated_mimo_dl_control.frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_duration, { "Duration", "wmx.dlmap.dedicated_mimo_dl_control.duration", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_allocation_index, { "Allocation Index", "wmx.dlmap.dedicated_mimo_dl_control.allocation_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_cqich_num, { "CQICH_Num", "wmx.dlmap.dedicated_mimo_dl_control.cqich_num", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_feedback_type, { "Feedback type", "wmx.dlmap.dedicated_mimo_dl_control.feedback_type", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_antenna_grouping_index, { "Antenna Grouping Index", "wmx.dlmap.dedicated_mimo_dl_control.antenna_grouping_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_num_stream, { "Num_stream", "wmx.dlmap.dedicated_mimo_dl_control.num_stream", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_antenna_selection_index, { "Antenna Selection Index", "wmx.dlmap.dedicated_mimo_dl_control.antenna_selection_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dedicated_mimo_dl_control_codebook_precoding_index, { "Codebook Precoding Index", "wmx.dlmap.dedicated_mimo_dl_control.codebook_precoding_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_n_sub_burst_isi, { "N sub burst[ISI]", "wmx.dlmap.n_sub_burst_isi", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_n_ack_channel, { "N ACK channel", "wmx.dlmap.harq_chase.n_ack_channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_duration, { "Duration", "wmx.dlmap.harq_chase.duration", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_sub_burst_diuc_indicator, { "Sub-Burst DIUC Indicator", "wmx.dlmap.harq_chase.sub_burst_diuc_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reserved_uint, { "Reserved", "wmx.dlmap.reserved.uint", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_diuc, { "DIUC", "wmx.dlmap.harq_chase.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.harq_chase.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_acid, { "ACID", "wmx.dlmap.harq_chase.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_ai_sn, { "AI_SN", "wmx.dlmap.harq_chase.ai_sn", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_ack_disable, { "ACK disable", "wmx.dlmap.harq_chase.ack_disable", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_dedicated_dl_control_indicator, { "Dedicated DL Control Indicator", "wmx.dlmap.harq_chase.dedicated_dl_control_indicator", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_allocation_index, { "Allocation Index", "wmx.dlmap.harq_chase.allocation_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_period, { "Period (p)", "wmx.dlmap.harq_chase.period", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_chase_frame_offset, { "Frame offset", "wmx.dlmap.harq_chase.frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_n_ack_channel, { "N ACK channel", "wmx.dlmap.harq_ir_ctc.n_ack_channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_nep, { "N(EP)", "wmx.dlmap.harq_ir_ctc.n_ep", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_nsch, { "N(SCH)", "wmx.dlmap.harq_ir_ctc.n_sch", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_spid, { "SPID", "wmx.dlmap.harq_ir_ctc.spid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_acid, { "ACID", "wmx.dlmap.harq_ir_ctc.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_ai_sn, { "AI_SN", "wmx.dlmap.harq_ir_ctc.ai_sn", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_ack_disable, { "ACK disable", "wmx.dlmap.harq_ir_ctc.ack_disable", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_dedicated_dl_control_indicator, { "Dedicated DL Control Indicator", "wmx.dlmap.harq_ir_ctc.dedicated_dl_control_indicator", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_duration, { "Duration (d)", "wmx.dlmap.harq_ir_ctc.duration", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_allocation_index, { "Allocation Index", "wmx.dlmap.harq_ir_ctc.allocation_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_period, { "Period (p)", "wmx.dlmap.harq_ir_ctc.period", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_ctc_frame_offset, { "Frame offset", "wmx.dlmap.harq_ir_ctc.frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_n_ack_channel, { "N ACK channel", "wmx.dlmap.harq_ir_cc.n_ack_channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_duration, { "Duration", "wmx.dlmap.harq_ir_cc.duration", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_sub_burst_diuc_indicator, { "Sub-Burst DIUC Indicator", "wmx.dlmap.harq_ir_cc.sub_burst_diuc_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_diuc, { "DIUC", "wmx.dlmap.harq_ir_cc.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.harq_ir_cc.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_acid, { "ACID", "wmx.dlmap.harq_ir_cc.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_ai_sn, { "AI_SN", "wmx.dlmap.harq_ir_cc.ai_sn", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_spid, { "SPID", "wmx.dlmap.harq_ir_cc.spid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_ack_disable, { "ACK disable", "wmx.dlmap.harq_ir_cc.ack_disable", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_dedicated_dl_control_indicator, { "Dedicated DL Control Indicator", "wmx.dlmap.harq_ir_cc.dedicated_dl_control_indicator", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_allocation_index, { "Allocation Index", "wmx.dlmap.harq_ir_cc.allocation_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_period, { "Period (p)", "wmx.dlmap.harq_ir_cc.period", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ir_cc_frame_offset, { "Frame offset", "wmx.dlmap.harq_ir_cc.frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_n_ack_channel, { "N ACK channel", "wmx.dlmap.mimo_dl_chase_harq.n_ack_channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_mu_indicator, { "MU Indicator", "wmx.dlmap.mimo_dl_chase_harq.mu_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_dedicated_mimo_dl_control_indicator, { "Dedicated MIMO DL Control Indicator", "wmx.dlmap.mimo_dl_chase_harq.dedicated_mimo_dl_control_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_ack_disable, { "ACK Disable", "wmx.dlmap.mimo_dl_chase_harq.ack_disable", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_duration, { "Duration", "wmx.dlmap.mimo_dl_chase_harq.duration", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_diuc, { "DIUC", "wmx.dlmap.mimo_dl_chase_harq.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.mimo_dl_chase_harq.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_acid, { "ACID", "wmx.dlmap.mimo_dl_chase_harq.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_chase_harq_ai_sn, { "AI_SN", "wmx.dlmap.mimo_dl_chase_harq.ai_sn", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_n_ack_channel, { "N ACK channel", "wmx.dlmap.mimo_dl_ir_harq.n_ack_channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_mu_indicator, { "MU Indicator", "wmx.dlmap.mimo_dl_ir_harq.mu_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_dedicated_mimo_dl_control_indicator, { "Dedicated MIMO DL Control Indicator", "wmx.dlmap.mimo_dl_ir_harq.dedicated_mimo_dl_control_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_ack_disable, { "ACK Disable", "wmx.dlmap.mimo_dl_ir_harq.ack_disable", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_nsch, { "N(SCH)", "wmx.dlmap.mimo_dl_ir_harq.n_sch", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_nep, { "N(EP)", "wmx.dlmap.mimo_dl_ir_harq.n_ep", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_spid, { "SPID", "wmx.dlmap.mimo_dl_ir_harq.spid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_acid, { "ACID", "wmx.dlmap.mimo_dl_ir_harq.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_ai_sn, { "AI_SN", "wmx.dlmap.mimo_dl_ir_harq.ai_sn", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_n_ack_channel, { "N ACK channel", "wmx.dlmap.mimo_dl_ir_harq_cc.n_ack_channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_mu_indicator, { "MU Indicator", "wmx.dlmap.mimo_dl_ir_harq_cc.mu_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_dedicated_mimo_dl_control_indicator, { "Dedicated MIMO DL Control Indicator", "wmx.dlmap.mimo_dl_ir_harq_cc.dedicated_mimo_dl_control_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_ack_disable, { "ACK Disable", "wmx.dlmap.mimo_dl_ir_harq_cc.ack_disable", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_duration, { "Duration", "wmx.dlmap.mimo_dl_ir_harq_cc.duration", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_diuc, { "DIUC", "wmx.dlmap.mimo_dl_ir_harq_cc.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.mimo_dl_ir_harq_cc.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_acid, { "ACID", "wmx.dlmap.mimo_dl_ir_harq_cc.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_ai_sn, { "AI_SN", "wmx.dlmap.mimo_dl_ir_harq_cc.ai_sn", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_ir_harq_cc_spid, { "SPID", "wmx.dlmap.mimo_dl_ir_harq_cc.spid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_n_ack_channel, { "N ACK channel", "wmx.dlmap.mimo_dl_stc_harq.n_ack_channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_tx_count, { "TX Count", "wmx.dlmap.mimo_dl_stc_harq.tx_count", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_duration, { "Duration", "wmx.dlmap.mimo_dl_stc_harq.duration", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_sub_burst_offset_indication, { "Sub-burst offset indication", "wmx.dlmap.mimo_dl_stc_harq.sub_burst_offset_indication", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_sub_burst_offset, { "Sub-burst offset", "wmx.dlmap.mimo_dl_stc_harq.sub_burst_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_ack_disable, { "ACK Disable", "wmx.dlmap.mimo_dl_stc_harq.ack_disable", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_dedicated_mimo_dl_control_indicator, { "Dedicated MIMO DL Control Indicator", "wmx.dlmap.mimo_dl_stc_harq.dedicated_mimo_dl_control_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_diuc, { "DIUC", "wmx.dlmap.mimo_dl_stc_harq.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_repetition_coding_indication, { "Repetition coding Indication", "wmx.dlmap.mimo_dl_stc_harq.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mimo_dl_stc_harq_acid, { "ACID", "wmx.dlmap.mimo_dl_stc_harq.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_extended_2_diuc, { "Extended-2 DIUC", "wmx.dlmap.mbs_map.extended_2_diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_mbs_zone_identifier, { "MBS Zone identifier", "wmx.dlmap.mbs_map.mbs_zone_identifier", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_macro_diversity_enhanced, { "Macro diversity enhanced", "wmx.dlmap.mbs_map.macro_diversity_enhanced", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_permutation, { "Permutation", "wmx.dlmap.mbs_map.permutation", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_dl_permbase, { "DL_PermBase", "wmx.dlmap.mbs_map.dl_permbase", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_prbs_id, { "PRBS_ID", "wmx.dlmap.mbs_map.prbs_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_ofdma_symbol_offset, { "OFDMA_Symbol_Offset", "wmx.dlmap.mbs_map.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_diuc_change_indication, { "DIUC_change_indication", "wmx.dlmap.mbs_map.diuc_change_indication", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_boosting, { "Boosting", "wmx.dlmap.mbs_map.boosting", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_diuc, { "DIUC", "wmx.dlmap.mbs_map.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_num_subchannels, { "No. Subchannels", "wmx.dlmap.mbs_map.num_subchannels", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_num_ofdma_symbols, { "No. OFDMA Symbols", "wmx.dlmap.mbs_map.num_ofdma_symbols", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.mbs_map.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_cid, { "CID", "wmx.dlmap.mbs_map.cid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_ofdma_symbols_offset, { "OFDMA Symbols Offset", "wmx.dlmap.mbs_map.ofdma_symbols_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_subchannel_offset, { "Subchannel offset", "wmx.dlmap.mbs_map.subchannel_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_slc_3_indication, { "SLC_3_indication", "wmx.dlmap.mbs_map.slc_3_indication", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_mbs_map_next_mbs_map_ie_frame_offset, { "Next MBS_MAP_IE frame offset", "wmx.dlmap.mbs_map.next_mbs_map_ie_frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_skip_extended_2_diuc, { "Extended-2 DIUC", "wmx.dlmap.skip.extended_2_diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_skip_mode, { "Mode", "wmx.dlmap.skip.mode", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_extended_2_diuc, { "Extended-2 DIUC", "wmx.dlmap.harq_dl_map.extended_2_diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_rcid_type, { "RCID_Type", "wmx.dlmap.harq_dl_map.rcid_type", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_boosting, { "Boosting", "wmx.dlmap.harq_dl_map.boosting", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_region_id_use_indicator, { "Region_ID use indicator", "wmx.dlmap.harq_dl_map.region_id_use_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_ofdma_symbol_offset, { "OFDMA symbol offset", "wmx.dlmap.harq_dl_map.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_subchannel_offset, { "Subchannel offset", "wmx.dlmap.harq_dl_map.subchannel_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_number_of_ofdma_symbols, { "Number of OFDMA symbols", "wmx.dlmap.harq_dl_map.number_of_ofdma_symbols", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_number_of_subchannels, { "Number of subchannels", "wmx.dlmap.harq_dl_map.number_of_subchannels", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_rectangular_sub_burst_indicator, { "Rectangular Sub-Burst Indicator", "wmx.dlmap.harq_dl_map.rectangular_sub_burst_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_region_id, { "Region_ID", "wmx.dlmap.harq_dl_map.region_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_mode, { "Mode", "wmx.dlmap.harq_dl_map.mode", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_sub_burst_ie_length, { "Sub-burst IE Length", "wmx.dlmap.harq_dl_map.sub_burst_ie_length", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_dl_map_reserved_mode, { "Reserved Mode", "wmx.dlmap.harq_dl_map.reserved_mode", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_ack_bitmap_data, { "Bitmap data", "wmx.dlmap.harq_ack.bitmap_data", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_enhanced_dl_map_extended_2_diuc, { "Extended-2 DIUC", "wmx.dlmap.enhanced_dl_map.extended_2_diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_enhanced_dl_map_num_assignment, { "Num_Assignment", "wmx.dlmap.enhanced_dl_map.num_assignment", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_enhanced_dl_map_n_cid, { "N_CID", "wmx.dlmap.enhanced_dl_map.n_cid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_enhanced_dl_map_cid, { "CID", "wmx.dlmap.enhanced_dl_map.cid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_enhanced_dl_map_diuc, { "DIUC", "wmx.dlmap.enhanced_dl_map.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_enhanced_dl_map_boosting, { "Boosting", "wmx.dlmap.enhanced_dl_map.boosting", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_enhanced_dl_map_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.enhanced_dl_map.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_enhanced_dl_map_region_id, { "Region_ID", "wmx.dlmap.enhanced_dl_map.region_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_extended_2_diuc, { "Extended-2 DIUC", "wmx.dlmap.aas_sdma_dl.extended_2_diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_rcid_type, { "RCID_Type", "wmx.dlmap.aas_sdma_dl.rcid_type", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_num_burst_region, { "Num_Burst_Region", "wmx.dlmap.aas_sdma_dl.num_burst_region", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_ofdma_symbol_offset, { "OFDMA Symbol Offset", "wmx.dlmap.aas_sdma_dl.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_subchannel_offset, { "Subchannel offset", "wmx.dlmap.aas_sdma_dl.subchannel_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_num_ofdma_triple_symbols, { "No. OFDMA triple symbols", "wmx.dlmap.aas_sdma_dl.num_ofdma_triple_symbols", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_num_subchannels, { "No. subchannels", "wmx.dlmap.aas_sdma_dl.num_subchannels", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_number_of_users, { "Number of Users", "wmx.dlmap.aas_sdma_dl.number_of_users", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_encoding_mode, { "Encoding Mode", "wmx.dlmap.aas_sdma_dl.encoding_mode", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_cqich_allocation, { "CQICH Allocation", "wmx.dlmap.aas_sdma_dl.cqich_allocation", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_ackch_allocation, { "ACKCH Allocation", "wmx.dlmap.aas_sdma_dl.ackch_allocation", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_pilot_pattern_modifier, { "Pilot Pattern Modifier", "wmx.dlmap.aas_sdma_dl.pilot_pattern_modifier", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_preamble_modifier_index, { "Preamble Modifier Index", "wmx.dlmap.aas_sdma_dl.preamble_modifier_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_pilot_pattern, { "Pilot Pattern", "wmx.dlmap.aas_sdma_dl.pilot_pattern", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_diuc, { "DIUC", "wmx.dlmap.aas_sdma_dl.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.aas_sdma_dl.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_ack_ch_index, { "ACK CH Index", "wmx.dlmap.aas_sdma_dl.ack_ch_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_acid, { "ACID", "wmx.dlmap.aas_sdma_dl.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_ai_sn, { "AI_SN", "wmx.dlmap.aas_sdma_dl.ai_sn", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_nep, { "N(EP)", "wmx.dlmap.aas_sdma_dl.n_ep", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_nsch, { "N(SCH)", "wmx.dlmap.aas_sdma_dl.n_sch", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_spid, { "SPID", "wmx.dlmap.aas_sdma_dl.spid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_allocation_index, { "Allocation Index", "wmx.dlmap.aas_sdma_dl.allocation_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_period, { "Period (p)", "wmx.dlmap.aas_sdma_dl.period", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_frame_offset, { "Frame offset", "wmx.dlmap.aas_sdma_dl.frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_sdma_dl_duration, { "Duration (d)", "wmx.dlmap.aas_sdma_dl.duration", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_channel_measurement_channel_nr, { "Channel Nr", "wmx.dlmap.channel_measurement.channel_nr", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_channel_measurement_ofdma_symbol_offset, { "OFDMA Symbol Offset", "wmx.dlmap.channel_measurement.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_channel_measurement_cid, { "CID", "wmx.dlmap.channel_measurement.cid", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_ofdma_symbol_offset, { "OFDMA Symbol Offset", "wmx.dlmap.stc_zone.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_permutations, { "Permutations", "wmx.dlmap.stc_zone.permutations", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_use_all_sc_indicator, { "Use All SC indicator", "wmx.dlmap.stc_zone.use_all_sc_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_stc, { "STC", "wmx.dlmap.stc_zone.stc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_matrix_indicator, { "Matrix indicator", "wmx.dlmap.stc_zone.matrix_indicator", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_dl_permbase, { "DL_PermBase", "wmx.dlmap.stc_zone.dl_permbase", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_prbs_id, { "PRBS_ID", "wmx.dlmap.stc_zone.prbs_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_amc_type, { "AMC type", "wmx.dlmap.stc_zone.amc_type", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_midamble_presence, { "Midamble Presence", "wmx.dlmap.stc_zone.midamble_presence", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_midamble_boosting, { "Midamble Boosting", "wmx.dlmap.stc_zone.midamble_boosting", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_2_3_antenna_select, { "2/3 antenna select", "wmx.dlmap.stc_zone.2_3_antenna_select", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_stc_zone_dedicated_pilots, { "Dedicated Pilots", "wmx.dlmap.stc_zone.dedicated_pilots", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_dl_ofdma_symbol_offset, { "OFDMA Symbol Offset", "wmx.dlmap.aas_dl.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_dl_permutation, { "Permutation", "wmx.dlmap.aas_dl.permutation", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_dl_dl_permbase, { "DL_PermBase", "wmx.dlmap.aas_dl.dl_permbase", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_dl_downlink_preamble_config, { "Downlink_preamble_config", "wmx.dlmap.aas_dl.downlink_preamble_config", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_dl_preamble_type, { "Preamble type", "wmx.dlmap.aas_dl.preamble_type", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_dl_prbs_id, { "PRBS_ID", "wmx.dlmap.aas_dl.prbs_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_aas_dl_diversity_map, { "Diversity Map", "wmx.dlmap.aas_dl.diversity_map", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_segment, { "Segment", "wmx.dlmap.data_location_another_bs.segment", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_used_subchannels, { "Used subchannels", "wmx.dlmap.data_location_another_bs.used_subchannels", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_diuc, { "DIUC", "wmx.dlmap.data_location_another_bs.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_frame_advance, { "Frame Advance", "wmx.dlmap.data_location_another_bs.frame_advance", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_ofdma_symbol_offset, { "OFDMA Symbol Offset", "wmx.dlmap.data_location_another_bs.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_subchannel_offset, { "Subchannel Offset", "wmx.dlmap.data_location_another_bs.subchannel_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_boosting, { "Boosting", "wmx.dlmap.data_location_another_bs.boosting", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_preamble_index, { "Preamble Index", "wmx.dlmap.data_location_another_bs.preamble_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_num_ofdma_symbols, { "No. OFDMA Symbols", "wmx.dlmap.data_location_another_bs.num_ofdma_symbols", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_num_subchannels, { "No. Subchannels", "wmx.dlmap.data_location_another_bs.num_subchannels", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.data_location_another_bs.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_data_location_another_bs_cid, { "CID", "wmx.dlmap.data_location_another_bs.cid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_map_pointer_diuc, { "DIUC", "wmx.dlmap.harq_map_pointer.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_map_pointer_num_slots, { "No. Slots", "wmx.dlmap.harq_map_pointer.num_slots", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_map_pointer_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.harq_map_pointer.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_map_pointer_map_version, { "Map Version", "wmx.dlmap.harq_map_pointer.map_version", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_map_pointer_idle_users, { "Idle users", "wmx.dlmap.harq_map_pointer.idle_users", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_map_pointer_sleep_users, { "Sleep users", "wmx.dlmap.harq_map_pointer.sleep_users", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_harq_map_pointer_cid_mask_length, { "CID Mask Length", "wmx.dlmap.harq_map_pointer.cid_mask_length", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_phymod_dl_preamble_modifier_type, { "Preamble Modifier Type", "wmx.dlmap.phymod_dl.preamble_modifier_type", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_phymod_dl_preamble_frequency_shift_index, { "Preamble frequency shift index", "wmx.dlmap.phymod_dl.preamble_frequency_shift_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_phymod_dl_preamble_time_shift_index, { "Preamble Time Shift Index", "wmx.dlmap.phymod_dl.preamble_time_shift_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_phymod_dl_pilot_pattern_modifier, { "Pilot Pattern Modifier", "wmx.dlmap.phymod_dl.pilot_pattern_modifier", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_phymod_dl_pilot_pattern_index, { "Pilot Pattern Index", "wmx.dlmap.phymod_dl.pilot_pattern_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_broadcast_ctrl_ptr_dcd_ucd_transmission_frame, { "DCD_UCD Transmission Frame", "wmx.dlmap.broadcast_ctrl_ptr.dcd_ucd_transmission_frame", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_broadcast_ctrl_ptr_skip_broadcast_system_update, { "Skip Broadcast_System_Update", "wmx.dlmap.broadcast_ctrl_ptr.skip_broadcast_system_update", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_broadcast_ctrl_ptr_broadcast_system_update_type, { "Broadcast_System_Update_Type", "wmx.dlmap.broadcast_ctrl_ptr.broadcast_system_update_type", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_broadcast_ctrl_ptr_broadcast_system_update_transmission_frame, { "Broadcast_System_Update_Transmission_Frame", "wmx.dlmap.broadcast_ctrl_ptr.broadcast_system_update_transmission_frame", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_cid, { "CID", "wmx.dlmap.dl_pusc_burst_allocation.cid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_diuc, { "DIUC", "wmx.dlmap.dl_pusc_burst_allocation.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_segment, { "Segment", "wmx.dlmap.dl_pusc_burst_allocation.segment", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_boosting, { "Boosting", "wmx.dlmap.dl_pusc_burst_allocation.boosting", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_idcell, { "IDcell", "wmx.dlmap.dl_pusc_burst_allocation.idcell", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_dl_permbase, { "DL_PermBase", "wmx.dlmap.dl_pusc_burst_allocation.dl_permbase", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_prbs_id, { "PRBS_ID", "wmx.dlmap.dl_pusc_burst_allocation.prbs_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_repetition_coding_indication, { "Repetition coding indication", "wmx.dlmap.dl_pusc_burst_allocation.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_used_subchannels, { "Used Subchannels", "wmx.dlmap.dl_pusc_burst_allocation.used_subchannels", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_ofdma_symbol_offset, { "OFDMA symbol offset", "wmx.dlmap.dl_pusc_burst_allocation.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_num_ofdma_symbols, { "# OFDMA symbols", "wmx.dlmap.dl_pusc_burst_allocation.num_ofdma_symbols", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_subchannel_offset, { "Subchannel offset", "wmx.dlmap.dl_pusc_burst_allocation.subchannel_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_dl_pusc_burst_allocation_num_subchannels, { "# subchannels", "wmx.dlmap.dl_pusc_burst_allocation.num_subchannels", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_pusc_asca_alloc_diuc, { "DIUC", "wmx.dlmap.pusc_asca_alloc.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_pusc_asca_alloc_short_basic_cid, { "Short Basic CID", "wmx.dlmap.pusc_asca_alloc.short_basic_cid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_pusc_asca_alloc_ofdma_symbol_offset, { "OFDMA Symbol offset", "wmx.dlmap.pusc_asca_alloc.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_pusc_asca_alloc_subchannel_offset, { "Subchannel offset", "wmx.dlmap.pusc_asca_alloc.subchannel_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_pusc_asca_alloc_num_ofdma_symbols, { "# OFDMA Symbols", "wmx.dlmap.pusc_asca_alloc.num_ofdma_symbols", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_pusc_asca_alloc_num_symbols, { "# Symbols", "wmx.dlmap.pusc_asca_alloc.num_symbols", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_pusc_asca_alloc_repetition_coding_information, { "Repetition Coding Information", "wmx.dlmap.pusc_asca_alloc.repetition_coding_information", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_pusc_asca_alloc_permutation_id, { "Permutation ID", "wmx.dlmap.pusc_asca_alloc.permutation_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_num_ie, { "NUM IE", "wmx.dlmap.reduced_aas.num_ie", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_periodicity, { "Periodicity", "wmx.dlmap.reduced_aas.periodicity", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_cid_included, { "CID Included", "wmx.dlmap.reduced_aas.cid_included", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_dcd_count_included, { "DCD Count Included", "wmx.dlmap.reduced_aas.dcd_count_included", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_phy_modification_included, { "PHY modification included", "wmx.dlmap.reduced_aas.phy_modification_included", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_cqich_control_indicator, { "CQICH control indicator", "wmx.dlmap.reduced_aas.cqich_control_indicator", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_encoding_mode, { "Encoding Mode", "wmx.dlmap.reduced_aas.encoding_mode", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_separate_mcs_enabled, { "Separate MCS Enabled", "wmx.dlmap.reduced_aas.separate_mcs_enabled", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_duration, { "Duration", "wmx.dlmap.reduced_aas.duration", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_diuc, { "DIUC", "wmx.dlmap.reduced_aas.diuc", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_repetition_coding_indication, { "Repetition Coding Indication", "wmx.dlmap.reduced_aas.repetition_coding_indication", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_cid, { "CID", "wmx.dlmap.reduced_aas.cid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_allocation_index, { "Allocation Index", "wmx.dlmap.reduced_aas.allocation_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_report_period, { "Report Period", "wmx.dlmap.reduced_aas.report_period", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_frame_offset, { "Frame Offset", "wmx.dlmap.reduced_aas.frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_report_duration, { "Report Duration", "wmx.dlmap.reduced_aas.report_duration", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_cqi_measurement_type, { "CQI Measurement Type", "wmx.dlmap.reduced_aas.cqi_measurement_type", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_dcd_count, { "DCD Count", "wmx.dlmap.reduced_aas.dcd_count", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_preamble_select, { "Preamble Select", "wmx.dlmap.reduced_aas.preamble_select", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_preamble_shift_index, { "Preamble Shift Index", "wmx.dlmap.reduced_aas.preamble_shift_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_pilot_pattern_modifier, { "Pilot Pattern Modifier", "wmx.dlmap.reduced_aas.pilot_pattern_modifier", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_pilot_pattern_index, { "Pilot Pattern Index", "wmx.dlmap.reduced_aas.pilot_pattern_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_dl_frame_offset, { "DL Frame Offset", "wmx.dlmap.reduced_aas.dl_frame_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_zone_symbol_offset, { "Zone Symbol Offset", "wmx.dlmap.reduced_aas.zone_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_ofdma_symbol_offset, { "OFDMA Symbol Offset", "wmx.dlmap.reduced_aas.ofdma_symbol_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_subchannel_offset, { "Subchannel Offset", "wmx.dlmap.reduced_aas.subchannel_offset", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_num_ofdma_triple_symbol, { "No. OFDMA triple symbol", "wmx.dlmap.reduced_aas.num_ofdma_triple_symbol", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_num_subchannels, { "No. subchannels", "wmx.dlmap.reduced_aas.num_subchannels", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_num_ofdma_symbols, { "No. OFDMA symbols", "wmx.dlmap.reduced_aas.num_ofdma_symbols", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_diuc_nep, { "DIUC/N(EP)", "wmx.dlmap.reduced_aas.diuc_nep", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_dl_harq_ack_bitmap, { "DL HARQ ACK bitmap", "wmx.dlmap.reduced_aas.dl_harq_ack_bitmap", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_ack_allocation_index, { "ACK Allocation Index", "wmx.dlmap.reduced_aas.ack_allocation_index", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_acid, { "ACID", "wmx.dlmap.reduced_aas.acid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_ai_sn, { "AI_SN", "wmx.dlmap.reduced_aas.ai_sn", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_nsch, { "N(SCH)", "wmx.dlmap.reduced_aas.nsch", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+		{ &hf_dlmap_reduced_aas_spid, { "SPID", "wmx.dlmap.reduced_aas.spid", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},
 	};
 
 	/* Setup protocol subtree array */
@@ -2867,14 +3473,22 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 			&ett_308a,
 		};
 
-		proto_mac_mgmt_msg_dlmap_decoder = proto_register_protocol (
+	static ei_register_info ei[] = {
+		{ &ei_dlmap_not_implemented, { "wmx.dlmap.not_implemented", PI_UNDECODED, PI_WARN, "Not implemented", EXPFILL }},
+	};
+
+	expert_module_t* expert_mac_mgmt_msg_dlmap;
+
+	proto_mac_mgmt_msg_dlmap_decoder = proto_register_protocol (
 				"WiMax DLMAP Messages",	/* name */
 				"WiMax DLMAP",	/* short name */
 				"wmx.dlmap"	/* abbrev */
 				);
 
-		proto_register_field_array(proto_mac_mgmt_msg_dlmap_decoder, hf, array_length(hf));
-		proto_register_subtree_array(ett, array_length(ett));
+	proto_register_field_array(proto_mac_mgmt_msg_dlmap_decoder, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+	expert_mac_mgmt_msg_dlmap = expert_register_protocol(proto_mac_mgmt_msg_dlmap_decoder);
+	expert_register_field_array(expert_mac_mgmt_msg_dlmap, ei, array_length(ei));
 }
 
 void proto_reg_handoff_mac_mgmt_msg_dlmap(void)

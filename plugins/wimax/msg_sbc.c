@@ -66,6 +66,11 @@ static gint hf_sbc_mac_pdu_piggybacked = -1;
 static gint hf_sbc_mac_pdu_fsn = -1;
 static gint hf_sbc_mac_pdu_rsvd = -1;
 static gint hf_sbc_max_transmit_power = -1;
+static gint hf_sbc_bpsk = -1;
+static gint hf_sbc_qpsk = -1;
+static gint hf_sbc_qam16 = -1;
+static gint hf_sbc_qam64 = -1;
+static gint hf_sbc_current_transmitted_power = -1;
 static gint hf_sbc_ss_fft_sizes = -1;
 static gint hf_sbc_ss_fft_256 = -1;
 static gint hf_sbc_ss_fft_2048 = -1;
@@ -205,7 +210,7 @@ static gint hf_sbc_tlv_t_176 = -1;
 static gint hf_sbc_tlv_t_176_bit0 = -1;
 static gint hf_sbc_tlv_t_176_bit1 = -1;
 static gint hf_sbc_tlv_t_176_bit2 = -1;
-static gint hf_sbc_tlv_t_176_bit2_cor2 = -1;
+/* static gint hf_sbc_tlv_t_176_bit2_cor2 = -1; */
 static gint hf_sbc_tlv_t_176_bit3 = -1;
 static gint hf_sbc_tlv_t_176_bit4 = -1;
 static gint hf_sbc_tlv_t_176_bit5 = -1;
@@ -616,10 +621,10 @@ static void sbc_tlv_decoder(tlv_info_t* tlv_info, int ett, proto_tree* sbc_tree,
 			power_qpsk = (gfloat)(tvb_get_guint8(tvb, (offset + 1)) - 128) / 2;
 			power_qam16 = (gfloat)(tvb_get_guint8(tvb, (offset + 2)) - 128) / 2;
 			power_qam64 = (gfloat)(tvb_get_guint8(tvb, (offset + 3)) - 128) / 2;
-			proto_tree_add_text(tlv_tree, tvb, offset, 1, "BPSK: %.2f dBm", (gdouble)power_bpsk);
-			proto_tree_add_text(tlv_tree, tvb, (offset + 1), 1, "QPSK: %.2f dBm", (gdouble)power_qpsk);
-			proto_tree_add_text(tlv_tree, tvb, (offset + 2), 1, "QAM16: %.2f dBm", (gdouble)power_qam16);
-			proto_tree_add_text(tlv_tree, tvb, (offset + 3), 1, "QAM64: %.2f dBm", (gdouble)power_qam64);
+			proto_tree_add_float_format_value(tlv_tree, hf_sbc_bpsk, tvb, offset, 1, power_bpsk, "%.2f dBm", (gdouble)power_bpsk);
+			proto_tree_add_float_format_value(tlv_tree, hf_sbc_qpsk, tvb, (offset + 1), 1, power_qpsk, "%.2f dBm", (gdouble)power_qpsk);
+			proto_tree_add_float_format_value(tlv_tree, hf_sbc_qam16, tvb, (offset + 2), 1, power_qam16, "%.2f dBm", (gdouble)power_qam16);
+			proto_tree_add_float_format_value(tlv_tree, hf_sbc_qam64, tvb, (offset + 3), 1, power_qam64, "%.2f dBm", (gdouble)power_qam64);
 		break;
 		case SBC_REQ_CURR_TRANSMITTED_POWER:
 			/* add TLV subtree */
@@ -628,7 +633,7 @@ static void sbc_tlv_decoder(tlv_info_t* tlv_info, int ett, proto_tree* sbc_tree,
 			/* display the detail meanings of the TLV value */
 			value = tvb_get_guint8(tvb, offset);
 			current_power = (gfloat)(value - 128) / 2;
-			proto_tree_add_text(tlv_tree, tvb, offset, 1, "Current Transmitted Power: %.2f dBm (Value: 0x%x)", (gdouble)current_power, value);
+			proto_tree_add_float_format_value(tlv_tree, hf_sbc_current_transmitted_power, tvb, offset, 1, current_power, "%.2f dBm (Value: 0x%x)", (gdouble)current_power, value);
 		break;
 		case SBC_SS_FFT_SIZES:
 			/* add TLV subtree */
@@ -1585,6 +1590,7 @@ void proto_register_mac_mgmt_msg_sbc(void)
 				FT_BOOLEAN, 24, TFS(&tfs_supported), 0x4, NULL, HFILL
 			}
 		},
+#if 0
 		{
 			&hf_sbc_tlv_t_176_bit2_cor2,
 			{
@@ -1592,6 +1598,7 @@ void proto_register_mac_mgmt_msg_sbc(void)
 				FT_BOOLEAN, 24, TFS(&tfs_supported), 0x4, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_sbc_tlv_t_176_bit3,
 			{
@@ -1919,6 +1926,41 @@ void proto_register_mac_mgmt_msg_sbc(void)
 			{
 				"Maximum Transmit Power", "wmx.sbc.max_transmit_power",
 				FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL
+			}
+		},
+		{
+			&hf_sbc_bpsk,
+			{
+				"BPSK", "wmx.sbc.bpsk",
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_sbc_qpsk,
+			{
+				"QPSK", "wmx.sbc.qpsk",
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_sbc_qam16,
+			{
+				"QAM16", "wmx.sbc.qam16",
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_sbc_qam64,
+			{
+				"QAM64", "wmx.sbc.qam64",
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_sbc_current_transmitted_power,
+			{
+				"Current Transmitted Power", "wmx.sbc.current_transmitted_power",
+				FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{	/* 11.8.3.7.5 - 2 bytes */

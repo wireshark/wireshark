@@ -585,6 +585,7 @@ static gint hf_mac_header_generic_arq_fb_ie_seq_ack_map_2 = -1;
 static gint hf_mac_header_generic_arq_fb_ie_seq1_length_6 = -1;
 static gint hf_mac_header_generic_arq_fb_ie_seq2_length_6 = -1;
 static gint hf_mac_header_generic_arq_fb_ie_rsv = -1;
+static gint hf_mac_header_payload_fragment = -1;
 
 static expert_field ei_mac_crc_malformed = EI_INIT;
 static expert_field ei_mac_crc_missing = EI_INIT;
@@ -1087,7 +1088,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 				cid_vernier[cid_index]++;
 			}
 			/* Don't show reassembled packet until last fragment. */
-			proto_tree_add_text(tree, tvb, offset, frag_len, "Payload Fragment (%d bytes)", frag_len);
+			proto_tree_add_bytes_format(tree, hf_mac_header_payload_fragment, tvb, offset, frag_len, NULL, "Payload Fragment (%d bytes)", frag_len);
 
 			if (payload_frag && frag_type == LAST_FRAG)
 			{	/* defragmented completely */
@@ -1989,7 +1990,7 @@ void proto_register_mac_header_generic(void)
 			&hf_mac_header_generic_grant_mgmt_ext_pbr_tree,
 			{
 				"Scheduling Service Type (Default)",
-				"wimax.genericGrantSubhd.Default",
+				"wmx.genericGrantSubhd.Default",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL
 			}
@@ -2054,7 +2055,7 @@ void proto_register_mac_header_generic(void)
 			&hf_mac_header_generic_grant_mgmt_ext_rtps_tree,
 			{
 				"Scheduling Service Type (Extended rtPS)",
-				"wimax.genericGrantSubhd.ExtendedRTPS",
+				"wmx.genericGrantSubhd.ExtendedRTPS",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL
 			}
@@ -2213,7 +2214,15 @@ void proto_register_mac_header_generic(void)
 				FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_RSV_MASK,
 				NULL, HFILL
 			}
-		}
+		},
+		{
+			&hf_mac_header_payload_fragment,
+			{
+				"Payload Fragment", "wmx.payload_fragment",
+				FT_BYTES, BASE_NONE, NULL, 0x0,
+				NULL, HFILL
+			}
+		},
 	};
 
 	/* Setup protocol subtree array */

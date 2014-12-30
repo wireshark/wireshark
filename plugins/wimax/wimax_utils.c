@@ -31,6 +31,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 
@@ -688,6 +689,8 @@ static gint hf_common_tlv_vendor_specific_length = -1;
 static gint hf_common_tlv_vendor_specific_length_size = -1;
 static gint hf_common_tlv_vendor_specific_value = -1;
 static gint hf_common_current_transmitted_power = -1;
+
+static expert_field ei_common_tlv_info = EI_INIT;
 
 /* Register WiMax Utility Routines */
 void proto_register_wimax_utility_decoders(void)
@@ -1682,6 +1685,12 @@ void proto_register_wimax_utility_decoders(void)
 #endif
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_common_tlv_info, { "wmx.common_tlv.invalid", PI_PROTOCOL, PI_WARN, "Invalid TLV info", EXPFILL }},
+	};
+
+	expert_module_t* expert_wimax_utility;
+
 	if(proto_wimax_utility_decoders == -1)
 	{
 		proto_wimax_utility_decoders = proto_register_protocol (
@@ -1698,6 +1707,8 @@ void proto_register_wimax_utility_decoders(void)
 		proto_register_field_array(proto_wimax_utility_decoders, hf_snp, array_length(hf_snp));
 		proto_register_field_array(proto_wimax_utility_decoders, hf_pkm, array_length(hf_pkm));
 		proto_register_field_array(proto_wimax_utility_decoders, hf_common_tlv, array_length(hf_common_tlv));
+		expert_wimax_utility = expert_register_protocol(proto_wimax_utility_decoders);
+		expert_register_field_array(expert_wimax_utility, ei, array_length(ei));
 
 		eap_handle = find_dissector("eap");
 	}
@@ -3217,7 +3228,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
 		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Vendor Specific Info");
-		proto_tree_add_text(tree, tvb, 0, tvb_len, "Invalid TLV info");
+		proto_tree_add_expert(tree, pinfo, &ei_common_tlv_info, tvb, 0, tvb_len);
 		return;
 	}
 	/* process Vendor Specific Information (11.1.6) */
@@ -3260,7 +3271,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 				proto_tree_add_item(tree, hf_common_tlv_vendor_specific_length_size, tvb, (offset + 1), 1, ENC_BIG_ENDIAN);
 				if(get_tlv_size_of_length(&tlv_info))
 				{	/* display the multiple byte TLV length */
-					proto_tree_add_text(tree, tvb, (offset + 2), get_tlv_size_of_length(&tlv_info), "Vendor Specific Length: %u", get_tlv_size_of_length(&tlv_info));
+					proto_tree_add_uint(tree, hf_common_tlv_vendor_specific_length, tvb, (offset + 2), 1, get_tlv_size_of_length(&tlv_info));
 				}
 				else
 				{	/* length = 0 */
