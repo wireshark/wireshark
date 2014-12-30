@@ -146,9 +146,6 @@ void
 register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func, host_tap_prefix prefix_func)
 {
     register_ct_t *table;
-    GString *conv_cmd_str = g_string_new("conv,");
-    GString *host_cmd_str = g_string_new("");
-    stat_tap_ui ui_info;
 
     table = g_new(register_ct_t,1);
 
@@ -161,6 +158,17 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     table->prefix_func   = prefix_func;
 
     registered_ct_tables = g_slist_insert_sorted(registered_ct_tables, table, insert_sorted_by_table_name);
+}
+
+/* Set GUI fields for register_ct list */
+static void
+set_conv_gui_data(gpointer data, gpointer user_data)
+{
+    GString *conv_cmd_str = g_string_new("conv,");
+    stat_tap_ui ui_info;
+    register_ct_t *table = (register_ct_t*)data;
+
+    table->conv_gui_init = (conv_gui_init_cb)user_data;
 
     g_string_append(conv_cmd_str, proto_get_protocol_filter_name(table->proto_id));
     cmd_string_list_ = g_list_append(cmd_string_list_, conv_cmd_str->str);
@@ -173,6 +181,21 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, table);
     g_string_free(conv_cmd_str, FALSE);
+}
+
+void conversation_table_set_gui_info(conv_gui_init_cb init_cb)
+{
+    g_slist_foreach(registered_ct_tables, set_conv_gui_data, init_cb);
+}
+
+static void
+set_host_gui_data(gpointer data, gpointer user_data)
+{
+    GString *host_cmd_str = g_string_new("");
+    stat_tap_ui ui_info;
+    register_ct_t *table = (register_ct_t*)data;
+
+    table->host_gui_init = (host_gui_init_cb)user_data;
 
     g_string_printf(host_cmd_str, "%s,%s", (get_hostlist_prefix_func(table) != NULL) ? get_hostlist_prefix_func(table)() : "host",
                     proto_get_protocol_filter_name(table->proto_id));
@@ -185,26 +208,6 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, table);
     g_string_free(host_cmd_str, FALSE);
-}
-
-/* Set GUI fields for register_ct list */
-static void
-set_conv_gui_data(gpointer data, gpointer user_data)
-{
-    register_ct_t *table = (register_ct_t*)data;
-    table->conv_gui_init = (conv_gui_init_cb)user_data;
-}
-
-void conversation_table_set_gui_info(conv_gui_init_cb init_cb)
-{
-    g_slist_foreach(registered_ct_tables, set_conv_gui_data, init_cb);
-}
-
-static void
-set_host_gui_data(gpointer data, gpointer user_data)
-{
-    register_ct_t *table = (register_ct_t*)data;
-    table->host_gui_init = (host_gui_init_cb)user_data;
 }
 
 void hostlist_table_set_gui_info(host_gui_init_cb init_cb)
