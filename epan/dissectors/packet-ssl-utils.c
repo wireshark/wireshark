@@ -3413,6 +3413,7 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
 {
     gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
     size_t         tmp_size;
+    gcry_error_t   gret;
     gcry_sexp_t    rsa_priv_key = NULL;
     gint           i;
     int            ret;
@@ -3450,7 +3451,10 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
 
     /* convert each rsa parameter to mpi format*/
     for(i=0; i<RSA_PARS; i++) {
-      if (gcry_mpi_scan(&rsa_params[i], GCRYMPI_FMT_USG, rsa_datum[i].data, rsa_datum[i].size,&tmp_size) != 0) {
+      gret = gcry_mpi_scan(&rsa_params[i], GCRYMPI_FMT_USG, rsa_datum[i].data, rsa_datum[i].size,&tmp_size);
+      /* these buffers were allocated by gnutls_x509_privkey_export_rsa_raw() */
+      g_free(rsa_datum[i].data);
+      if (gret != 0) {
         ssl_debug_printf("ssl_load_key: can't convert m rsa param to int (size %d)\n", rsa_datum[i].size);
 #ifdef SSL_FAST
         g_free(rsa_params);
