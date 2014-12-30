@@ -102,6 +102,9 @@ CAPTURE_DIR="$TESTS_DIR/captures/"
 grep -q "#define HAVE_LUA 1" $SOURCE_DIR/config.h
 HAVE_LUA=$?
 
+HAVE_ICONV="False"
+hash iconv 2>/dev/null && HAVE_ICONV="True"
+
 # Display our environment
 
 ##printf "\n ------- Info =-----------------\n"

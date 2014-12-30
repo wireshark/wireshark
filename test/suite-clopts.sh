@@ -287,12 +287,31 @@ test_dump_glossary() {
 	fi
 }
 
+test_dump_glossary_utf8() {
+	if [ "$HAVE_ICONV" != "True" ] ; then
+		test_step_skipped
+		return
+	fi
+
+	$TSHARK -G $1 | iconv -f UTF-8 > /dev/null 2> ./testout.txt
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		if [ -s ./testout.txt ]; then
+			test_step_output_print ./testout.txt
+		fi
+		test_step_failed "exit status: $RETURNVALUE"
+	else
+		test_step_ok
+	fi
+}
+
 # check that dumping the glossaries succeeds (at least doesn't crash)
 # this catches extended value strings without the BASE_EXT_STRING flag
 # among other problems
 clopts_suite_dump_glossaries() {
 	for glossary in fields protocols values decodes defaultprefs currentprefs; do
 		test_step_add "Dumping $glossary glossary" "test_dump_glossary $glossary"
+		test_step_add "Testing $glossary output encoding" "test_dump_glossary_utf8 $glossary"
 	done
 }
 

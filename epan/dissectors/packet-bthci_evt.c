@@ -874,8 +874,11 @@ static const value_string evt_master_clock_accuray[] = {
     { 0, NULL }
 };
 
+/* XXX - Should be pulled from utf8_entities.h */
+#define UTF8_MICRO_SIGN "\xc2\xb5"      /* 181 / 0xb5 */
+
 static const value_string evt_air_mode_vals[] = {
-    { 0x00,  "\xb5-law log" },
+    { 0x00,  UTF8_MICRO_SIGN "-law log" },
     { 0x01,  "A-law log" },
     { 0x02,  "CVSD" },
     { 0x03,  "Transparent Data" },
