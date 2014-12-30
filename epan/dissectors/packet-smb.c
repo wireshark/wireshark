@@ -162,8 +162,8 @@ static int hf_smb_max_mpx_count = -1;
 static int hf_smb_max_vcs_num = -1;
 static int hf_smb_session_key = -1;
 static int hf_smb_server_timezone = -1;
-static int hf_smb_encryption_key_length = -1;
-static int hf_smb_encryption_key = -1;
+static int hf_smb_challenge_length = -1;
+static int hf_smb_challenge = -1;
 static int hf_smb_primary_domain = -1;
 static int hf_smb_server = -1;
 static int hf_smb_max_raw_buf_size = -1;
@@ -2257,7 +2257,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	const char *dn;
 	int         dn_len;
 	guint16     bc;
-	guint16     ekl          = 0;
+	guint16     chl          = 0;
 	guint32     caps         = 0;
 	gint16      tz;
 	const char *dialect_name = NULL;
@@ -2346,9 +2346,9 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		proto_tree_add_int_format_value(tree, hf_smb_server_timezone, tvb, offset, 2, tz, "%d min from UTC", tz);
 		offset += 2;
 
-		/* encryption key length */
-		ekl = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_encryption_key_length, tvb, offset, 2, ekl);
+		/* challenge length */
+		chl = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_challenge_length, tvb, offset, 2, chl);
 		offset += 2;
 
 		/* 2 reserved bytes */
@@ -2401,10 +2401,10 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			"%d min from UTC", tz);
 		offset += 2;
 
-		/* encryption key length */
-		ekl = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_encryption_key_length,
-			tvb, offset, 1, ekl);
+		/* challenge length */
+		chl = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_challenge_length,
+			tvb, offset, 1, chl);
 		offset += 1;
 
 		break;
@@ -2414,11 +2414,11 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	switch(wc) {
 	case 13:
-		/* challenge/response encryption key */
-		if (ekl) {
-			CHECK_BYTE_COUNT(ekl);
-			proto_tree_add_item(tree, hf_smb_encryption_key, tvb, offset, ekl, ENC_NA);
-			COUNT_BYTES(ekl);
+		/* encrypted challenge/response data */
+		if (chl) {
+			CHECK_BYTE_COUNT(chl);
+			proto_tree_add_item(tree, hf_smb_challenge, tvb, offset, chl, ENC_NA);
+			COUNT_BYTES(chl);
 		}
 
 		/*
@@ -2446,13 +2446,13 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	case 17:
 		if (!(caps & SERVER_CAP_EXTENDED_SECURITY)) {
-			/* challenge/response encryption key */
+			/* encrypted challenge/response data */
 			/* XXX - is this aligned on an even boundary? */
-			if (ekl) {
-				CHECK_BYTE_COUNT(ekl);
-				proto_tree_add_item(tree, hf_smb_encryption_key,
-					tvb, offset, ekl, ENC_NA);
-				COUNT_BYTES(ekl);
+			if (chl) {
+				CHECK_BYTE_COUNT(chl);
+				proto_tree_add_item(tree, hf_smb_challenge,
+					tvb, offset, chl, ENC_NA);
+				COUNT_BYTES(chl);
 			}
 
 			/* domain */
@@ -17953,13 +17953,13 @@ proto_register_smb(void)
 		{ "Server Time Zone", "smb.server_timezone", FT_INT16, BASE_DEC,
 		NULL, 0, "Current timezone at server.", HFILL }},
 
-	{ &hf_smb_encryption_key_length,
-		{ "Key Length", "smb.encryption_key_length", FT_UINT16, BASE_DEC,
-		NULL, 0, "Encryption key length (must be 0 if not LM2.1 dialect)", HFILL }},
+	{ &hf_smb_challenge_length,
+		{ "Challenge Length", "smb.challenge_length", FT_UINT16, BASE_DEC,
+		NULL, 0, "Challenge_length (must be 0 if not LM2.1 dialect)", HFILL }},
 
-	{ &hf_smb_encryption_key,
-		{ "Encryption Key", "smb.encryption_key", FT_BYTES, BASE_NONE,
-		NULL, 0, "Challenge/Response Encryption Key (for LM2.1 dialect)", HFILL }},
+	{ &hf_smb_challenge,
+		{ "Challenge", "smb.challenge", FT_BYTES, BASE_NONE,
+		NULL, 0, "Challenge Data (for LM2.1 dialect)", HFILL }},
 
 	{ &hf_smb_primary_domain,
 		{ "Primary Domain", "smb.primary_domain", FT_STRING, BASE_NONE,
