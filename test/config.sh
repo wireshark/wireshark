@@ -95,6 +95,9 @@ if [ "$WS_SYSTEM" == "Windows" ] ; then
 	CAPTURE_DIR="`cygpath -w $CAPTURE_DIR`"
 fi
 
+HAVE_ICONV="False"
+hash iconv 2>/dev/null && HAVE_ICONV="True"
+
 # Display our environment
 
 ##printf "\n ------- Info =-----------------\n"

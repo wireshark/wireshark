@@ -752,9 +752,12 @@ static const value_string evt_enable_values[] = {
     {0, NULL }
 };
 
+/* XXX - Should be pulled from utf8_entities.h */
+#define UTF8_MICRO_SIGN "\xc2\xb5"      /* 181 / 0xb5 */
+
 static const value_string evt_input_coding_values[] = {
     {0x0, "Linear" },
-    {0x1, "\xb5-law" },
+    {0x1, UTF8_MICRO_SIGN "-law" },
     {0x2, "A-law" },
     {0, NULL }
 };
@@ -786,7 +789,7 @@ static const value_string evt_country_code_values[] = {
 };
 
 static const value_string evt_air_mode_values[] = {
-    {0x0, "\xb5-law" },
+    {0x0, UTF8_MICRO_SIGN "-law" },
     {0x1, "A-law" },
     {0x2, "CVSD" },
     {0x3, "Transparent" },
