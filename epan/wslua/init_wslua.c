@@ -283,6 +283,8 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     } else {
         if (lua_isboolean(L, -1) || lua_isnil(L, -1)) {
             result = lua_toboolean(L, -1);
+        } else if (lua_type(L, -1) == LUA_TNUMBER) {
+            result = lua_tointeger(L,-1) != 0 ? TRUE : FALSE;
         } else {
             proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
                     "Lua Error: invalid return value from Lua %s heuristic dissector", pinfo->current_proto);

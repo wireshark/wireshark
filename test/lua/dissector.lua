@@ -66,6 +66,7 @@ local default_settings =
     debug_level  = DEBUG,
     port         = 65333,
     heur_enabled = true,
+    heur_regmode = 1,
 }
 
 -- for testing purposes, we want to be able to pass in changes to the defaults
@@ -584,7 +585,16 @@ local function heur_dissect_dns(tvbuf,pktinfo,root)
 end
 
 -- now register that heuristic dissector into the udp heuristic list
-dns:register_heuristic("udp",heur_dissect_dns)
+if default_settings.heur_regmode == 1 then
+    -- this is the "normal" way to register a heuristic: using a lua function
+    dns:register_heuristic("udp",heur_dissect_dns)
+elseif default_settings.heur_regmode == 2 then
+    -- this is to test the fix for bug 10695:
+    dns:register_heuristic("udp",dns.dissector)
+elseif default_settings.heur_regmode == 3 then
+    -- and this too is to test the fix for bug 10695:
+    dns:register_heuristic("udp", function (...) return dns.dissector(...); end )
+end
 
 -- We're done!
 -- our protocol (Proto) gets automatically registered after this script finishes loading

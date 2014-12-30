@@ -1635,6 +1635,13 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
        and dissect the packet (including setting TreeItem info and such) only if the payload is for it,
        before returning true or false.
 
+       Since version 1.99.1, this function also accepts a Dissector object as the second argument,
+       to allow re-using the same Lua code as the `function proto.dissector(...)`. In this case,
+       the Dissector must return a Lua number of the number of bytes consumed/parsed: if 0 is returned,
+       it will be treated the same as a `false` return for the heuristic; if a positive or negative
+       number is returned, then the it will be treated the same as a `true` return for the heuristic,
+       meaning the packet is for this protocol and no other heuristic will be tried.
+
        @since 1.11.3
      */
 #define WSLUA_ARG_Proto_register_heuristic_LISTNAME 2 /* The heuristic list name this function
@@ -1657,6 +1664,29 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
     if (!has_heur_dissector_list(listname)) {
         luaL_error(L, "there is no heuristic list for '%s'", listname);
         return 0;
+    }
+
+    /* we'll check if the second form of this function was called: when the second arg is
+       a Dissector obejct. The truth is we don't need the Dissector object to do this
+       form of registration, but someday we might... so we're using it as a boolean arg
+       right now and in the future might use it for other things in this registration.
+     */
+    if (isDissector(L, WSLUA_ARG_Proto_register_heuristic_FUNC)) {
+        /* retrieve the Dissector's Lua function... first get the table of all dissector funcs */
+        lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
+        /* then get the one for this Proto */
+        lua_getfield(L, -1, proto_name);
+
+        if (!lua_isfunction(L,-1)) {
+            /* this shouldn't be possible */
+            luaL_error(L,"Proto_register_heuristic: could not get lua function from lua_dissectors_table");
+            return 0;
+        }
+        /* replace the Dissector with the function */
+        lua_replace(L, WSLUA_ARG_Proto_register_heuristic_FUNC);
+        /* pop the lua_dissectors_table */
+        lua_pop(L, 1);
+        g_assert(top == lua_gettop(L));
     }
 
     /* heuristic functions are stored in a table in the registry; the registry has a

@@ -135,6 +135,19 @@ local lines = {
 -- dissector, then the first one by the heuristic, then the second one by
 -- a conversation match
 local numtests = 1 + #lines[1] + #lines[2] + #lines[3] + #lines[4]
+
+local hasHeuristic = true
+
+-- grab passed-in arguments
+local args = { ... }
+if #args > 0 then
+    for _, arg in ipairs(args) do
+        if arg == "no_heur" then
+            numtests = numtests - 1
+        end
+    end
+end
+
 print("going to run "..numtests.." tests")
 
 -- for an example of what we're reading through to verify, look at end of this file

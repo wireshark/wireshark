@@ -48,12 +48,50 @@ wslua_step_dissector_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testin.txt
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-1 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
 	# then run tshark again with the verification script. (it internally reads in testin.txt)
 	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat ./testin.txt
+		cat ./testout.txt
+		test_step_failed "subtest-1 didn't find pass marker"
+	fi
+
+	# run tshark with the dissector script again, but in mode 2.
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -V -X lua_script:$TESTS_DIR/lua/dissector.lua -X lua_script1:heur_regmode=2 > testin.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testin.txt
+		test_step_failed "subtest-1 exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# then run tshark again with the verification script. (it internally reads in testin.txt)
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua -X lua_script1:no_heur > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat ./testin.txt
+		cat ./testout.txt
+		test_step_failed "subtest-1 didn't find pass marker"
+	fi
+
+	# run tshark with the dissector script again, but in mode 3.
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -V -X lua_script:$TESTS_DIR/lua/dissector.lua -X lua_script1:heur_regmode=3 > testin.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testin.txt
+		test_step_failed "subtest-1 exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# then run tshark again with the verification script. (it internally reads in testin.txt)
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua -X lua_script1:no_heur > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		test_step_ok
 	else
