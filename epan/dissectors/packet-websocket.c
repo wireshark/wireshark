@@ -406,10 +406,13 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
   recurse_offset = payload_offset + payload_length;
   if (length > recurse_offset) {
-    recurse_length = dissect_websocket(tvb_new_subset_remaining(tvb, payload_offset+payload_length), pinfo, tree, data);
-    if (pinfo->desegment_len) pinfo->desegment_offset += recurse_offset;
+    recurse_length = dissect_websocket(tvb_new_subset_remaining(tvb, recurse_offset), pinfo, tree, data);
+    if (pinfo->desegment_len)
+      pinfo->desegment_offset += recurse_offset;
+
     return recurse_offset + recurse_length;
   }
+
   return recurse_offset;
 }
 
