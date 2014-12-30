@@ -105,6 +105,9 @@ CAPTURE_DIR="$TESTS_DIR/captures/"
 $TSHARK -v | grep -q "with Lua"
 HAVE_LUA=$?
 
+HAVE_ICONV="False"
+hash iconv 2>/dev/null && HAVE_ICONV="True"
+
 # Display our environment
 
 ##printf "\n ------- Info =-----------------\n"
