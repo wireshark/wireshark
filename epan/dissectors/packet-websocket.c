@@ -135,21 +135,18 @@ tvb_unmasked(tvbuff_t *tvb, const guint offset, guint payload_length, const guin
 {
 
   gchar        *data_unmask;
-  tvbuff_t     *tvb_unmask      = NULL;
   guint         i;
   const guint8 *data_mask;
   guint         unmasked_length = payload_length > MAX_UNMASKED_LEN ? MAX_UNMASKED_LEN : payload_length;
 
-  data_unmask = (gchar *)g_malloc(unmasked_length);
+  data_unmask = (gchar *)wmem_alloc(wmem_packet_scope(), unmasked_length);
   data_mask   = tvb_get_ptr(tvb, offset, unmasked_length);
   /* Unmasked(XOR) Data... */
   for(i=0; i < unmasked_length; i++) {
     data_unmask[i] = data_mask[i] ^ masking_key[i%4];
   }
 
-  tvb_unmask = tvb_new_real_data(data_unmask, unmasked_length, payload_length);
-  tvb_set_free_cb(tvb_unmask, g_free);
-  return tvb_unmask;
+  return tvb_new_real_data(data_unmask, unmasked_length, payload_length);
 }
 
 static int
