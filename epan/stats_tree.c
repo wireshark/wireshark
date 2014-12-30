@@ -261,12 +261,11 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
             stat_tree_packet_cb packet, stat_tree_init_cb init,
             stat_tree_cleanup_cb cleanup, register_stat_group_t stat_group)
 {
-    stats_tree_cfg *cfg = (stats_tree_cfg *)g_malloc( sizeof(stats_tree_cfg) );
+    stats_tree_cfg *cfg = (stats_tree_cfg *)g_malloc0( sizeof(stats_tree_cfg) );
 
     /* at the very least the abbrev and the packet function should be given */
     g_assert( tapname && abbr && packet );
 
-    cfg->plugin = FALSE;
     cfg->tapname = g_strdup(tapname);
     cfg->abbr = g_strdup(abbr);
     cfg->name = name ? g_strdup(name) : g_strdup(abbr);
@@ -278,16 +277,6 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
 
     cfg->flags = flags&~ST_FLG_MASK;
     cfg->st_flags = flags&ST_FLG_MASK;
-
-    /* these have to be filled in by implementations */
-    cfg->setup_node_pr = NULL;
-    cfg->new_tree_pr = NULL;
-    cfg->free_node_pr = NULL;
-    cfg->free_tree_pr = NULL;
-    cfg->draw_node = NULL;
-    cfg->draw_tree = NULL;
-    cfg->reset_node = NULL;
-    cfg->reset_tree = NULL;
 
     if (!registry) registry = g_hash_table_new(g_str_hash,g_str_equal);
 
@@ -327,7 +316,7 @@ stats_tree_register_plugin(const char *tapname, const char *abbr, const char *na
 extern stats_tree*
 stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
 {
-    stats_tree *st = (stats_tree *)g_malloc(sizeof(stats_tree));
+    stats_tree *st = (stats_tree *)g_malloc0(sizeof(stats_tree));
 
     st->cfg = cfg;
     st->pr = pr;
@@ -339,25 +328,15 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
     st->start = -1.0;
     st->elapsed = 0.0;
 
-    st->root.counter = 0;
-    st->root.total = 0;
     st->root.minvalue = G_MAXINT;
     st->root.maxvalue = G_MININT;
-    st->root.st_flags = 0;
 
     st->root.bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
     st->root.bt = st->root.bh;
-    st->root.bcount = 0;
-    st->root.max_burst = 0;
     st->root.burst_time = -1.0;
 
     st->root.name = stats_tree_get_displayname(cfg->name);
     st->root.st = st;
-    st->root.parent = NULL;
-    st->root.children = NULL;
-    st->root.next = NULL;
-    st->root.hash = NULL;
-    st->root.pr = NULL;
 
     st->st_flags = st->cfg->st_flags;
 
@@ -476,28 +455,20 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id,
           gboolean with_hash, gboolean as_parent_node)
 {
 
-    stat_node *node = (stat_node *)g_malloc (sizeof(stat_node));
+    stat_node *node = (stat_node *)g_malloc0(sizeof(stat_node));
     stat_node *last_chld = NULL;
 
-    node->counter = 0;
-    node->total = 0;
     node->minvalue = G_MAXINT;
     node->maxvalue = G_MININT;
     node->st_flags = parent_id?0:ST_FLG_ROOTCHILD;
 
     node->bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
     node->bt = node->bh;
-    node->bcount = 0;
-    node->max_burst = 0;
     node->burst_time = -1.0;
 
     node->name = g_strdup(name);
-    node->children = NULL;
-    node->next = NULL;
     node->st = (stats_tree*) st;
     node->hash = with_hash ? g_hash_table_new(g_str_hash,g_str_equal) : NULL;
-    node->parent = NULL;
-    node->rng  =  NULL;
 
     if (as_parent_node) {
         g_hash_table_insert(st->names,
@@ -1263,16 +1234,13 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
     stat_node *child;
     sortinfo si;
     gchar *full_path;
-    char fmt[16];
+    char fmt[16] = "%s%s%s";
 
     switch(format_type)
     {
     case ST_FORMAT_YAML:
         if (indent) {
             g_snprintf(fmt, (gulong)sizeof(fmt), "%%%ds%%s%%s", indent*4-2);
-        }
-        else {
-            strcpy(fmt, "%s%s%s");
         }
         g_string_append_printf(s, fmt, "", indent?"- ":"", "Description");
         g_string_append_printf(s, ": \"%s\"\n", values[0]);
