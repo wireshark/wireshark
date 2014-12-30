@@ -40,7 +40,7 @@ typedef struct _stat_cmd_arg {
     void* userdata;
 } stat_cmd_arg;
 
-static GSList *stat_cmd_arg_list=NULL;
+static GList *stat_cmd_arg_list=NULL;
 
 /* structure to keep track of what stats have been specified on the
    command line.
@@ -70,7 +70,7 @@ register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
     newsca->cmd=ui->cli_string;
     newsca->func=ui->tap_init_cb;
     newsca->userdata=userdata;
-    stat_cmd_arg_list=g_slist_insert_sorted(stat_cmd_arg_list, newsca, sort_by_name);
+    stat_cmd_arg_list=g_list_insert_sorted(stat_cmd_arg_list, newsca, sort_by_name);
 }
 
 /* **********************************************************************
@@ -79,11 +79,11 @@ register_stat_tap_ui(stat_tap_ui *ui, void *userdata)
 gboolean
 process_stat_cmd_arg(char *optstr)
 {
-    GSList *entry;
+    GList *entry;
     stat_cmd_arg *sca;
     stat_requested *tr;
 
-    for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
+    for(entry=g_list_last(stat_cmd_arg_list);entry;entry=g_list_previous(entry)){
         sca=(stat_cmd_arg *)entry->data;
         if(!strncmp(sca->cmd,optstr,strlen(sca->cmd))){
             tr=(stat_requested *)g_malloc(sizeof (stat_requested));
@@ -102,10 +102,10 @@ process_stat_cmd_arg(char *optstr)
 void
 list_stat_cmd_args(void)
 {
-    GSList *entry;
+    GList *entry;
     stat_cmd_arg *sca;
 
-    for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
+    for(entry=stat_cmd_arg_list;entry;entry=g_list_next(entry)){
         sca=(stat_cmd_arg *)entry->data;
         fprintf(stderr,"     %s\n",sca->cmd);
     }
