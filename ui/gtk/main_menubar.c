@@ -1043,6 +1043,7 @@ static const char *ui_desc_menubar =
 "      </menu>\n"
 "      <menuitem name='Collectd' action='/Statistics/collectd'/>\n"
 "      <menuitem name='Compare' action='/Statistics/compare'/>\n"
+"      <menuitem name= 'DNS' action='/Statistics/dns'/>\n"
 "      <menuitem name='FlowGraph' action='/Statistics/FlowGraph'/>\n"
 "      <menuitem name='HART-IP' action='/Statistics/hart_ip'/>\n"
 "      <menu name= 'HTTPMenu' action='/Statistics/HTTP'>\n"
@@ -1473,16 +1474,15 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/BACnet/bacapp_ip",                NULL,       "Packets sorted by IP",             NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/BACnet/bacapp_objectid",          NULL,       "Packets sorted by Object Type",    NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/BACnet/bacapp_service",           NULL,       "Packets sorted by Service",        NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-
    { "/Statistics/collectd",                        NULL,       "Collectd...",                      NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/compare",                         NULL,       "Compare...",                       NULL, NULL, G_CALLBACK(gtk_comparestat_cb) },
+   { "/Statistics/dns",                             NULL,       "DNS",                              NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/FlowGraph",       WIRESHARK_STOCK_FLOW_GRAPH, "Flo_w Graph...",                   NULL, NULL, G_CALLBACK(flow_graph_launch) },
    { "/Statistics/hart_ip",                         NULL,       "HART-IP",                          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/HTTP",                            NULL,       "HTTP",                             NULL, NULL, NULL },
    { "/Statistics/HTTP/http",                       NULL,       "Packet Counter",                   NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/HTTP/http_req",                   NULL,       "Requests",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/HTTP/http_srv",                   NULL,       "Load Distribution",                NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-
    { "/Statistics/ONC-RPC-Programs",                NULL,       "ONC-RPC Programs",                 NULL, NULL, G_CALLBACK(gtk_rpcprogs_cb) },
    { "/Statistics/Sametime",                        NULL,       "Sametime",                         NULL, NULL, NULL },
    { "/Statistics/Sametime/sametime",               NULL,       "Messages",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },

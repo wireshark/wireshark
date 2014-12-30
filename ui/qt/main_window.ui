@@ -434,6 +434,7 @@
     <addaction name="actionStatisticsANCP"/>
     <addaction name="menuBACnet"/>
     <addaction name="actionStatisticsCollectd"/>
+    <addaction name="actionStatisticsDNS"/>
     <addaction name="actionStatisticsFlowGraph"/>
     <addaction name="actionStatisticsHART_IP"/>
     <addaction name="menuHTTP"/>
@@ -1559,6 +1560,14 @@
     <string>Collectd statistics</string>
    </property>
   </action>
+  <action name="actionStatisticsDNS">
+   <property name="text">
+    <string>DNS</string>
+   </property>
+   <property name="toolTip">
+    <string>DNS statistics</string>
+   </property>
+  </action>
   <action name="actionStatisticsHART_IP">
    <property name="text">
     <string>HART-IP</string>
@@ -1606,7 +1615,7 @@
    <property name="toolTip">
     <string>Sametime statistics</string>
    </property>
-  </action>
+   </action>
   <action name="actionTelephonyISUPMessages">
    <property name="text">
     <string>&amp;ISUP Messages</string>

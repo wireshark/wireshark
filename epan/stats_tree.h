@@ -33,7 +33,7 @@
 
 #define STAT_TREE_ROOT "root"
 
-#define ST_FLG_AVERAGE      0x10000000  /* Calculate overages for nodes, rather than totals */
+#define ST_FLG_AVERAGE      0x10000000  /* Calculate averages for nodes, rather than totals */
 #define ST_FLG_ROOTCHILD    0x20000000  /* This node is a direct child of the root node */
 #define ST_FLG_DEF_NOEXPAND 0x01000000  /* This node should not be expanded by default */
 #define ST_FLG_SORT_DESC    0x00800000  /* When sorting, sort ascending instead of decending */

@@ -417,6 +417,7 @@ private slots:
     void statCommandIOGraph(const char *arg = NULL, void *userdata = NULL);
     void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();
+    void on_actionStatisticsDNS_triggered();
 
     void openVoipCallsDialog(bool all_flows = false);
     void on_actionTelephonyVoipCalls_triggered();

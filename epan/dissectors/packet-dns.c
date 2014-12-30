@@ -42,9 +42,67 @@
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/afn.h>
+#include <epan/tap.h>
+#include <epan/stats_tree.h>
 
 void proto_register_dns(void);
 void proto_reg_handoff_dns(void);
+
+struct DnsTap {
+    guint packet_qr;
+    guint packet_qtype;
+    guint packet_qclass;
+    guint packet_rcode;
+    guint packet_opcode;
+    guint payload_size;
+    guint qname_len;
+    guint qname_labels;
+    guint nquestions;
+    guint nanswers;
+    guint nauthorities;
+    guint nadditionals;
+};
+
+static int dns_tap = -1;
+
+static const guint8* st_str_packets = "Total Packets";
+static const guint8* st_str_packet_qr = "Query/Response";
+static const guint8* st_str_packet_qtypes = "Query Type";
+static const guint8* st_str_packet_qclasses = "Class";
+static const guint8* st_str_packet_rcodes = "rcode";
+static const guint8* st_str_packet_opcodes = "opcodes";
+static const guint8* st_str_packets_avg_size = "Payload size";
+static const guint8* st_str_query_stats = "Query Stats";
+static const guint8* st_str_query_qname_len = "Qname Len";
+static const guint8* st_str_query_domains = "Label Stats";
+static const guint8* st_str_query_domains_l1 = "1st Level";
+static const guint8* st_str_query_domains_l2 = "2nd Level";
+static const guint8* st_str_query_domains_l3 = "3rd Level";
+static const guint8* st_str_query_domains_lmore = "4th Level or more";
+static const guint8* st_str_response_stats = "Response Stats";
+static const guint8* st_str_response_nquestions = "no. of questions";
+static const guint8* st_str_response_nanswers = "no. of answers";
+static const guint8* st_str_response_nauthorities = "no. of authorities";
+static const guint8* st_str_response_nadditionals = "no. of additionals";
+static int st_node_packets = -1;
+static int st_node_packet_qr = -1;
+static int st_node_packet_qtypes = -1;
+static int st_node_packet_qclasses = -1;
+static int st_node_packet_rcodes = -1;
+static int st_node_packet_opcodes = -1;
+static int st_node_packets_avg_size = -1;
+static int st_node_query_stats = -1;
+static int st_node_query_qname_len = -1;
+static int st_node_query_domains = -1;
+static int st_node_query_domains_l1 = -1;
+static int st_node_query_domains_l2 = -1;
+static int st_node_query_domains_l3 = -1;
+static int st_node_query_domains_lmore = -1;
+static int st_node_response_stats = -1;
+static int st_node_response_nquestions = -1;
+static int st_node_response_nanswers = -1;
+static int st_node_response_nauthorities = -1;
+static int st_node_response_nadditionals = -1;
 
 static int proto_dns = -1;
 static int hf_dns_length = -1;
@@ -742,6 +800,11 @@ http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cnc
    which discuss them to some extent. */
 /* http://www.iana.org/assignments/dns-parameters (last updated 2014-08-12)*/
 
+static const value_string dns_qr_vals[] = {
+  { 0, "Query" },
+  { 1, "Response" },
+  { 0, NULL }
+};
 static const value_string dns_types_vals[] = {
   { 0,            "Unused"     },
   { T_A,          "A"          },
@@ -1003,6 +1066,27 @@ const value_string dns_classes[] = {
   {C_ANY,  "ANY"},
   {0,NULL}
 };
+
+
+/* This function counts how many '.' are in the string, plus 1, in order to count the number
+ * of labels
+ */
+guint
+qname_labels_count(const guchar* name, guint name_len)
+{
+    guint labels = 0;
+    unsigned i;
+
+    if (name_len > 1) {
+        /* it was not a Zero-length name */
+        for (i = 0; i < strlen(name); i++) {
+            if (name[i] == '.')
+                labels++;
+        }
+        labels++;
+    }
+    return labels;
+}
 
 /* This function returns the number of bytes consumed and the expanded string
  * in *name.
@@ -1280,7 +1364,6 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   int           type;
   int           dns_class;
   int           qu;
-  unsigned      i;
   const char   *type_name;
   int           data_start;
   guint16       labels;
@@ -1291,6 +1374,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   len = get_dns_name_type_class(tvb, offset, dns_data_offset, &name, &name_len,
     &type, &dns_class);
+
   if (is_mdns) {
     /* Split the QU flag and the class */
     qu = dns_class & C_QU;
@@ -1325,17 +1409,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, name_len, name_len > 1 ?  (guint32)strlen(name) : 0);
     PROTO_ITEM_SET_GENERATED(tq);
 
-    /* Count how many '.' are in the string, plus 1, in order to count the number
-       of labels */
-    labels = 0;
-    if (name_len > 1) {
-     /* it was not a Zero-length name */
-      for (i = 0; i < strlen(name); i++) {
-        if (name[i] == '.')
-          labels++;
-      }
-      labels++;
-    }
+    labels = qname_labels_count(name, name_len);
     tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, name_len, labels);
     PROTO_ITEM_SET_GENERATED(tq);
 
@@ -1652,6 +1726,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
   len = get_dns_name_type_class(tvb, offsetx, dns_data_offset, &name, &name_len,
                                 &dns_type, &dns_class);
+
   data_offset += len;
   cur_offset += len;
   if (is_mdns) {
@@ -3582,11 +3657,15 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   dns_conv_info_t   *dns_info;
   dns_transaction_t *dns_trans;
   wmem_tree_key_t    key[3];
+  struct DnsTap     *dns_stats;
+  guint              qtype = 0;
+  guint              qclass = 0;
+  const guchar      *name;
+  int                name_len;
 
   dns_data_offset = offset;
 
   col_clear(pinfo->cinfo, COL_INFO);
-
 
   /* To do: check for errs, etc. */
   id    = tvb_get_ntohs(tvb, offset + DNS_ID);
@@ -3809,12 +3888,28 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   cur_off = offset + DNS_HDRLEN;
 
+  /* Collect stats */
+  dns_stats = wmem_new0(wmem_packet_scope(), struct DnsTap);
+  dns_stats->packet_rcode = rcode;
+  dns_stats->packet_opcode = opcode;
+  dns_stats->packet_qr = flags >> 15;
+  get_dns_name_type_class(tvb, cur_off, dns_data_offset, &name, &name_len, &qtype, &qclass);
+  dns_stats->packet_qtype = qtype;
+  dns_stats->packet_qclass = qclass;
+  dns_stats->payload_size = tvb_captured_length(tvb);
+  dns_stats->nquestions = quest;
+  dns_stats->nanswers = ans;
+  dns_stats->nauthorities = auth;
+  dns_stats->nadditionals = add;
+
   if (quest > 0) {
     /* If this is a response, don't add information about the queries
        to the summary, just add information about the answers. */
     cur_off += dissect_query_records(tvb, cur_off, dns_data_offset, quest,
                                      (!(flags & F_RESPONSE) ? pinfo->cinfo : NULL),
                                      dns_tree, isupdate, is_mdns);
+    dns_stats->qname_len = name_len;
+    dns_stats->qname_labels = qname_labels_count(name, name_len);
   }
 
   if (ans > 0) {
@@ -3842,6 +3937,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                       NULL, dns_tree, "Additional records",
                                       pinfo, is_mdns);
   }
+  tap_queue_packet(dns_tap, pinfo, dns_stats);
 }
 
 static void
@@ -3909,6 +4005,76 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   return tvb_reported_length(tvb);
 }
 
+static void dns_stats_tree_init(stats_tree* st)
+{
+    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+    st_node_packet_qr = stats_tree_create_pivot(st, st_str_packet_qr, st_node_packets);
+    st_node_packet_qtypes = stats_tree_create_pivot(st, st_str_packet_qtypes, st_node_packets);
+    st_node_packet_qclasses = stats_tree_create_pivot(st, st_str_packet_qclasses, st_node_packets);
+    st_node_packet_rcodes = stats_tree_create_pivot(st, st_str_packet_rcodes, st_node_packets);
+    st_node_packet_opcodes = stats_tree_create_pivot(st, st_str_packet_opcodes, st_node_packets);
+    st_node_packets_avg_size = stats_tree_create_node(st, st_str_packets_avg_size, 0, FALSE);
+    st_node_query_stats = stats_tree_create_node(st, st_str_query_stats, 0, TRUE);
+    st_node_query_qname_len = stats_tree_create_node(st, st_str_query_qname_len, st_node_query_stats, FALSE);
+    st_node_query_domains = stats_tree_create_node(st, st_str_query_domains, st_node_query_stats, TRUE);
+    st_node_query_domains_l1 = stats_tree_create_node(st, st_str_query_domains_l1, st_node_query_domains, FALSE);
+    st_node_query_domains_l2 = stats_tree_create_node(st, st_str_query_domains_l2, st_node_query_domains, FALSE);
+    st_node_query_domains_l3 = stats_tree_create_node(st, st_str_query_domains_l3, st_node_query_domains, FALSE);
+    st_node_query_domains_lmore = stats_tree_create_node(st, st_str_query_domains_lmore, st_node_query_domains, FALSE);
+    st_node_response_stats = stats_tree_create_node(st, st_str_response_stats, 0, TRUE);
+    st_node_response_nquestions = stats_tree_create_node(st, st_str_response_nquestions,
+        st_node_response_stats, FALSE);
+    st_node_response_nanswers = stats_tree_create_node(st, st_str_response_nanswers,
+        st_node_response_stats, FALSE);
+    st_node_response_nauthorities = stats_tree_create_node(st, st_str_response_nauthorities,
+        st_node_response_stats, FALSE);
+    st_node_response_nadditionals = stats_tree_create_node(st, st_str_response_nadditionals,
+        st_node_response_stats, FALSE);
+}
+
+static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+{
+    struct DnsTap *pi = (struct DnsTap *)p;
+    tick_stat_node(st, st_str_packets, 0, FALSE);
+    stats_tree_tick_pivot(st, st_node_packet_qr,
+            val_to_str(pi->packet_qr, dns_qr_vals, "Unknown qr (%d)"));
+    stats_tree_tick_pivot(st, st_node_packet_qtypes,
+            val_to_str(pi->packet_qtype, dns_types_description_vals, "Unknown packet type (%d)"));
+    stats_tree_tick_pivot(st, st_node_packet_qclasses,
+            val_to_str(pi->packet_qclass, dns_classes, "Unknown class (%d)"));
+    stats_tree_tick_pivot(st, st_node_packet_rcodes,
+            val_to_str(pi->packet_rcode, rcode_vals, "Unknown rcode (%d)"));
+    stats_tree_tick_pivot(st, st_node_packet_opcodes,
+            val_to_str(pi->packet_opcode, opcode_vals, "Unknown opcode (%d)"));
+    avg_stat_node_add_value(st, st_str_packets_avg_size, 0, FALSE,
+            pi->payload_size);
+
+    /* split up stats for queries and responses */
+    if (pi->packet_qr == 0) {
+        avg_stat_node_add_value(st, st_str_query_qname_len, 0, FALSE, pi->qname_len);
+        switch(pi->qname_labels) {
+            case 1:
+                tick_stat_node(st, st_str_query_domains_l1, 0, FALSE);
+                break;
+            case 2:
+                tick_stat_node(st, st_str_query_domains_l2, 0, FALSE);
+                break;
+            case 3:
+                tick_stat_node(st, st_str_query_domains_l3, 0, FALSE);
+                break;
+            default:
+                tick_stat_node(st, st_str_query_domains_lmore, 0, FALSE);
+                break;
+        }
+    } else {
+        avg_stat_node_add_value(st, st_str_response_nquestions, 0, FALSE, pi->nquestions);
+        avg_stat_node_add_value(st, st_str_response_nanswers, 0, FALSE, pi->nanswers);
+        avg_stat_node_add_value(st, st_str_response_nauthorities, 0, FALSE, pi->nauthorities);
+        avg_stat_node_add_value(st, st_str_response_nadditionals, 0, FALSE, pi->nadditionals);
+    }
+    return 1;
+}
+
 void
 proto_reg_handoff_dns(void)
 {
@@ -3924,6 +4090,7 @@ proto_reg_handoff_dns(void)
   if (!Initialized) {
     dns_udp_handle = create_dissector_handle(dissect_dns_udp, proto_dns);
     dns_tcp_handle = new_create_dissector_handle(dissect_dns_tcp, proto_dns);
+    stats_tree_register("dns", "dns", "DNS", 0, dns_stats_tree_packet, dns_stats_tree_init, NULL);
     Initialized    = TRUE;
 
   } else {
@@ -5389,7 +5556,10 @@ proto_register_dns(void)
     &dns_use_for_addr_resolution);
 
   dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE);
+
+  dns_tap = register_tap("dns");
 }
+
 /*
  * Editor modelines
  *

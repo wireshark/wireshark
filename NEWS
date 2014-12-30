@@ -30,6 +30,12 @@ What's New
           + The VoIP Calls and SIP Flows dialogs have been added.
           + Support for HiDPI / Retina displays has been improved in the
             official packages.
+     * DNS stats:
+          + A new stats tree has been added to the Statistics menu. Now it
+            is possible to collect stats such as qtype/qclass distribution,
+            number of resource record per response section, and stats data
+            (min, max, avg) for values such as query name length or DNS
+            payload.
 
    The following features are new (or have been significantly updated)
    since version 1.12.0:

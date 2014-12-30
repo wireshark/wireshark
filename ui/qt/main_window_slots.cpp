@@ -2365,9 +2365,15 @@ void MainWindow::on_actionStatisticsIOGraph_triggered()
 {
     statCommandIOGraph(NULL, NULL);
 }
+
 void MainWindow::on_actionStatisticsSametime_triggered()
 {
     openStatisticsTreeDialog("sametime");
+}
+
+void MainWindow::on_actionStatisticsDNS_triggered()
+{
+    openStatisticsTreeDialog("dns");
 }
 
 // Telephony Menu

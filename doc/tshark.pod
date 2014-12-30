@@ -958,6 +958,11 @@ Several fields with same name within one diameter message are supported, e.g. I<
 
 Note: B<tshark -q> option is recommended to suppress default B<tshark> output.
 
+=item B<-z> dns,tree[,I<filter>]
+
+Create a summary of the captured DNS packets. General information are collected such as qtype and qclass distribution.
+For some data (as qname length or DNS payload) max, min and average values are also displayed.
+
 =item B<-z> endpoints,I<type>[,I<filter>]
 
 Create a table that lists all endpoints that could be seen in the
