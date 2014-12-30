@@ -310,7 +310,7 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   guint8        fin, opcode, mask;
   guint         length, short_length, payload_length, recurse_length;
   guint         payload_offset, mask_offset, recurse_offset;
-  proto_tree   *ws_tree     = NULL;
+  proto_tree   *ws_tree;
   const guint8 *masking_key = NULL;
   tvbuff_t     *tvb_payload;
 
@@ -365,10 +365,8 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WebSocket");
   col_set_str(pinfo->cinfo, COL_INFO, "WebSocket");
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_websocket, tvb, 0, payload_offset, ENC_NA);
-    ws_tree = proto_item_add_subtree(ti, ett_ws);
-  }
+  ti = proto_tree_add_item(tree, proto_websocket, tvb, 0, payload_offset, ENC_NA);
+  ws_tree = proto_item_add_subtree(ti, ett_ws);
 
   /* Flags */
   proto_tree_add_item(ws_tree, hf_ws_fin, tvb, 0, 1, ENC_NA);
