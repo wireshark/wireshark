@@ -2585,8 +2585,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       }
       name_out = format_text(pname, strlen(pname));
 
+      SET_ADDRESS(&suffix_addr, AT_IPv6, 16, suffix.bytes);
       if (cinfo != NULL) {
-        SET_ADDRESS(&suffix_addr, AT_IPv6, 16, suffix.bytes);
         col_append_fstr(cinfo, COL_INFO, " %d %s %s",
                         pre_len,
                         address_to_str(wmem_packet_scope(), &suffix_addr),
