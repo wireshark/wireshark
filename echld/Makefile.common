@@ -46,8 +46,7 @@ LIBECHLD_MORE_SRC = \
 	../conditions.c	\
 	../pcapio.c	\
 	../ringbuffer.c	\
-	../sync_pipe_write.c \
-	../version_info.c
+	../sync_pipe_write.c
 
 OTHER = \
 	../dumpcap.c
