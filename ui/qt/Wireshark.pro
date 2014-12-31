@@ -195,8 +195,7 @@ SOURCES_WS_C = \
     ../../fileset.c \
     ../../frame_tvbuff.c \
     ../../summary.c \
-    ../../sync_pipe_write.c \
-    ../../version_info.c
+    ../../sync_pipe_write.c
 
 win32:SOURCES_WS_C += \
     ../../ui/win32/console_win32.c \
