@@ -494,6 +494,7 @@ static const value_string evt_lmp_vers_nr[] = {
     {0x05, "3.0 + HS"},
     {0x06, "4.0"},
     {0x07, "4.1"},
+    {0x08, "4.2"},
     {0, NULL }
 };
 
@@ -509,6 +510,7 @@ static const value_string evt_hci_vers_nr[] = {
     {0x05, "3.0 + HS"},
     {0x06, "4.0"},
     {0x07, "4.1"},
+    {0x08, "4.2"},
     {0, NULL }
 };
 

@@ -132,6 +132,13 @@
 #define BTSDP_3D_GLASSES_UUID                           0x1138
 #define BTSDP_3D_SYNCHRONIZATION_UUID                   0x1139
 
+#define BTSDP_MULTI_PROFILE_UUID                        0x113A
+#define BTSDP_MULTI_PROFILE_SC_UUID                     0x113B
+
+#define BTSDP_CTN_ACCESS_SERVICE_UUID                   0x113C
+#define BTSDP_CTN_NOTIFICATION_SERVICE_UUID             0x113D
+#define BTSDP_CTN_SERVICE_UUID                          0x113E
+
 #define BTSDP_DID_SERVICE_UUID                          0x1200
 
 #define BTSDP_GENERIC_NETWORKING_SERVICE_UUID           0x1201

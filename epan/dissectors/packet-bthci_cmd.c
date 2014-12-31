@@ -388,6 +388,8 @@ static gint hf_btcommon_eir_ad_advertising_interval = -1;
 static gint hf_btcommon_eir_ad_appearance = -1;
 static gint hf_btcommon_eir_ad_hash_c = -1;
 static gint hf_btcommon_eir_ad_randomizer_r = -1;
+static gint hf_btcommon_eir_ad_le_secure_confirmation_value = -1;
+static gint hf_btcommon_eir_ad_le_secure_random_value = -1;
 static gint hf_btcommon_eir_ad_oob_flags_data_present = -1;
 static gint hf_btcommon_eir_ad_oob_flags_le_supported_host = -1;
 static gint hf_btcommon_eir_ad_oob_flags_le_bredr_support = -1;
@@ -1030,6 +1032,8 @@ static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x1F, "List of 32-bit Service Solicitation UUIDs" },
     {0x20, "Service Data - 32 bit UUID" },
     {0x21, "Service Data - 128 bit UUID" },
+    {0x22, "LE Secure Connections Confirmation Value" },
+    {0x23, "LE Secure Connections Random Value" },
     {0x3D, "3D Information Data" },
     {0xFF, "Manufacturer Specific" },
     {   0, NULL }
@@ -4976,6 +4980,14 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 1;
 
             break;
+        case 0x22: /* LE Secure Connections Confirmation Value" */
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_le_secure_confirmation_value, tvb, offset, 16, ENC_NA);
+
+            break;
+        case 0x23: /* LE Secure Connections Random Value" */
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_le_secure_random_value, tvb, offset, 16, ENC_NA);
+
+            break;
         case 0x3D: /* 3D Information Data */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_3ds_factory_test_mode, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_3ds_reserved, tvb, offset, 1, ENC_NA);
@@ -5466,6 +5478,16 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_randomizer_r,
           {"Randomizer R",                       "btcommon.eir_ad.entry.randomizer_r",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_le_secure_confirmation_value,
+          {"LE Secure Connections Confirmation Value", "btcommon.eir_ad.entry.le_secure_confirmation_value",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_le_secure_random_value,
+          {"LE Secure Connections Random Value", "btcommon.eir_ad.entry.le_secure_random_value",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },

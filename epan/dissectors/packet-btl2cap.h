@@ -36,6 +36,7 @@
 #define BTL2CAP_PSM_UDI_C_PLANE       0x001d
 #define BTL2CAP_PSM_ATT               0x001f
 #define BTL2CAP_PSM_3DS               0x0021
+#define BTL2CAP_PSM_LE_IPSP           0x0023
 
 #define BTL2CAP_DYNAMIC_PSM_START   0x1000
 

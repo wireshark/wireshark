@@ -115,6 +115,9 @@ static gint hf_service_attribute_id_pan_gn                                 = -1;
 static gint hf_service_attribute_id_pan_panu                               = -1;
 static gint hf_service_attribute_id_pbap                                   = -1;
 static gint hf_service_attribute_id_synch                                  = -1;
+static gint hf_service_attribute_id_ctn_as                                 = -1;
+static gint hf_service_attribute_id_ctn_ns                                 = -1;
+static gint hf_service_attribute_id_mps                                    = -1;
 static gint hf_did_specification_id                                        = -1;
 static gint hf_did_vendor_id                                               = -1;
 static gint hf_did_vendor_id_bluetooth_sig                                 = -1;
@@ -318,6 +321,83 @@ static gint hf_bpp_reference_printing_top_url                              = -1;
 static gint hf_bpp_direct_printing_top_url                                 = -1;
 static gint hf_bpp_device_name                                             = -1;
 static gint hf_bpp_printer_admin_rui_top_url                               = -1;
+static gint hf_ctn_instance_id                                             = -1;
+static gint hf_ctn_supported_features                                      = -1;
+static gint hf_ctn_supported_features_reserved                             = -1;
+static gint hf_ctn_supported_features_forward                              = -1;
+static gint hf_ctn_supported_features_delete                               = -1;
+static gint hf_ctn_supported_features_uploading                            = -1;
+static gint hf_ctn_supported_features_downloading                          = -1;
+static gint hf_ctn_supported_features_browsing                             = -1;
+static gint hf_ctn_supported_features_notification                         = -1;
+static gint hf_ctn_supported_features_account_management                   = -1;
+static gint hf_mps_mpsd_scenarios                                          = -1;
+static gint hf_mps_mpsd_scenarios_reserved                                 = -1;
+static gint hf_mps_mpsd_scenarios_37                                       = -1;
+static gint hf_mps_mpsd_scenarios_36                                       = -1;
+static gint hf_mps_mpsd_scenarios_35                                       = -1;
+static gint hf_mps_mpsd_scenarios_34                                       = -1;
+static gint hf_mps_mpsd_scenarios_33                                       = -1;
+static gint hf_mps_mpsd_scenarios_32                                       = -1;
+static gint hf_mps_mpsd_scenarios_31                                       = -1;
+static gint hf_mps_mpsd_scenarios_30                                       = -1;
+static gint hf_mps_mpsd_scenarios_29                                       = -1;
+static gint hf_mps_mpsd_scenarios_28                                       = -1;
+static gint hf_mps_mpsd_scenarios_27                                       = -1;
+static gint hf_mps_mpsd_scenarios_26                                       = -1;
+static gint hf_mps_mpsd_scenarios_25                                       = -1;
+static gint hf_mps_mpsd_scenarios_24                                       = -1;
+static gint hf_mps_mpsd_scenarios_23                                       = -1;
+static gint hf_mps_mpsd_scenarios_22                                       = -1;
+static gint hf_mps_mpsd_scenarios_21                                       = -1;
+static gint hf_mps_mpsd_scenarios_20                                       = -1;
+static gint hf_mps_mpsd_scenarios_19                                       = -1;
+static gint hf_mps_mpsd_scenarios_18                                       = -1;
+static gint hf_mps_mpsd_scenarios_17                                       = -1;
+static gint hf_mps_mpsd_scenarios_16                                       = -1;
+static gint hf_mps_mpsd_scenarios_15                                       = -1;
+static gint hf_mps_mpsd_scenarios_14                                       = -1;
+static gint hf_mps_mpsd_scenarios_13                                       = -1;
+static gint hf_mps_mpsd_scenarios_12                                       = -1;
+static gint hf_mps_mpsd_scenarios_11                                       = -1;
+static gint hf_mps_mpsd_scenarios_10                                       = -1;
+static gint hf_mps_mpsd_scenarios_9                                        = -1;
+static gint hf_mps_mpsd_scenarios_8                                        = -1;
+static gint hf_mps_mpsd_scenarios_7                                        = -1;
+static gint hf_mps_mpsd_scenarios_6                                        = -1;
+static gint hf_mps_mpsd_scenarios_5                                        = -1;
+static gint hf_mps_mpsd_scenarios_4                                        = -1;
+static gint hf_mps_mpsd_scenarios_3                                        = -1;
+static gint hf_mps_mpsd_scenarios_2                                        = -1;
+static gint hf_mps_mpsd_scenarios_1                                        = -1;
+static gint hf_mps_mpsd_scenarios_0                                        = -1;
+static gint hf_mps_mpmd_scenarios                                          = -1;
+static gint hf_mps_mpmd_scenarios_reserved                                 = -1;
+static gint hf_mps_mpmd_scenarios_18                                       = -1;
+static gint hf_mps_mpmd_scenarios_17                                       = -1;
+static gint hf_mps_mpmd_scenarios_16                                       = -1;
+static gint hf_mps_mpmd_scenarios_15                                       = -1;
+static gint hf_mps_mpmd_scenarios_14                                       = -1;
+static gint hf_mps_mpmd_scenarios_13                                       = -1;
+static gint hf_mps_mpmd_scenarios_12                                       = -1;
+static gint hf_mps_mpmd_scenarios_11                                       = -1;
+static gint hf_mps_mpmd_scenarios_10                                       = -1;
+static gint hf_mps_mpmd_scenarios_9                                        = -1;
+static gint hf_mps_mpmd_scenarios_8                                        = -1;
+static gint hf_mps_mpmd_scenarios_7                                        = -1;
+static gint hf_mps_mpmd_scenarios_6                                        = -1;
+static gint hf_mps_mpmd_scenarios_5                                        = -1;
+static gint hf_mps_mpmd_scenarios_4                                        = -1;
+static gint hf_mps_mpmd_scenarios_3                                        = -1;
+static gint hf_mps_mpmd_scenarios_2                                        = -1;
+static gint hf_mps_mpmd_scenarios_1                                        = -1;
+static gint hf_mps_mpmd_scenarios_0                                        = -1;
+
+static gint hf_mps_supported_profile_and_protocol_dependency               = -1;
+static gint hf_mps_supported_profile_and_protocol_dependency_reserved                       = -1;
+static gint hf_mps_supported_profile_and_protocol_dependency_dis_connection_order_behaviour = -1;
+static gint hf_mps_supported_profile_and_protocol_dependency_gavdp_requirements             = -1;
+static gint hf_mps_supported_profile_and_protocol_dependency_sniff_mode_during_streaming    = -1;
 
 static gint ett_btsdp                                     = -1;
 static gint ett_btsdp_ssr                                 = -1;
@@ -337,6 +417,95 @@ static gint ett_btsdp_supported_features_mdep_data_type   = -1;
 static gint ett_btsdp_supported_features_mdep_role        = -1;
 static gint ett_btsdp_supported_features_mdep_description = -1;
 static gint ett_btsdp_protocol                            = -1;
+
+static const int *hfx_ctn_supported_features[] = {
+    &hf_ctn_supported_features_reserved,
+    &hf_ctn_supported_features_forward,
+    &hf_ctn_supported_features_delete,
+    &hf_ctn_supported_features_uploading,
+    &hf_ctn_supported_features_downloading,
+    &hf_ctn_supported_features_browsing,
+    &hf_ctn_supported_features_notification,
+    &hf_ctn_supported_features_account_management,
+    NULL
+};
+
+static const int *hfx_mps_mpsd_scenarios[] = {
+    &hf_mps_mpsd_scenarios_reserved,
+    &hf_mps_mpsd_scenarios_37,
+    &hf_mps_mpsd_scenarios_36,
+    &hf_mps_mpsd_scenarios_35,
+    &hf_mps_mpsd_scenarios_34,
+    &hf_mps_mpsd_scenarios_33,
+    &hf_mps_mpsd_scenarios_32,
+    &hf_mps_mpsd_scenarios_31,
+    &hf_mps_mpsd_scenarios_30,
+    &hf_mps_mpsd_scenarios_29,
+    &hf_mps_mpsd_scenarios_28,
+    &hf_mps_mpsd_scenarios_27,
+    &hf_mps_mpsd_scenarios_26,
+    &hf_mps_mpsd_scenarios_25,
+    &hf_mps_mpsd_scenarios_24,
+    &hf_mps_mpsd_scenarios_23,
+    &hf_mps_mpsd_scenarios_22,
+    &hf_mps_mpsd_scenarios_21,
+    &hf_mps_mpsd_scenarios_20,
+    &hf_mps_mpsd_scenarios_19,
+    &hf_mps_mpsd_scenarios_18,
+    &hf_mps_mpsd_scenarios_17,
+    &hf_mps_mpsd_scenarios_16,
+    &hf_mps_mpsd_scenarios_15,
+    &hf_mps_mpsd_scenarios_14,
+    &hf_mps_mpsd_scenarios_13,
+    &hf_mps_mpsd_scenarios_12,
+    &hf_mps_mpsd_scenarios_11,
+    &hf_mps_mpsd_scenarios_10,
+    &hf_mps_mpsd_scenarios_9,
+    &hf_mps_mpsd_scenarios_8,
+    &hf_mps_mpsd_scenarios_7,
+    &hf_mps_mpsd_scenarios_6,
+    &hf_mps_mpsd_scenarios_5,
+    &hf_mps_mpsd_scenarios_4,
+    &hf_mps_mpsd_scenarios_3,
+    &hf_mps_mpsd_scenarios_2,
+    &hf_mps_mpsd_scenarios_1,
+    &hf_mps_mpsd_scenarios_0,
+    NULL
+};
+
+static const int *hfx_mps_mpmd_scenarios[] = {
+    &hf_mps_mpmd_scenarios_reserved,
+    &hf_mps_mpmd_scenarios_18,
+    &hf_mps_mpmd_scenarios_17,
+    &hf_mps_mpmd_scenarios_16,
+    &hf_mps_mpmd_scenarios_15,
+    &hf_mps_mpmd_scenarios_14,
+    &hf_mps_mpmd_scenarios_13,
+    &hf_mps_mpmd_scenarios_12,
+    &hf_mps_mpmd_scenarios_11,
+    &hf_mps_mpmd_scenarios_10,
+    &hf_mps_mpmd_scenarios_9,
+    &hf_mps_mpmd_scenarios_8,
+    &hf_mps_mpmd_scenarios_7,
+    &hf_mps_mpmd_scenarios_6,
+    &hf_mps_mpmd_scenarios_5,
+    &hf_mps_mpmd_scenarios_4,
+    &hf_mps_mpmd_scenarios_3,
+    &hf_mps_mpmd_scenarios_2,
+    &hf_mps_mpmd_scenarios_1,
+    &hf_mps_mpmd_scenarios_0,
+    NULL
+};
+
+
+
+static const int *hfx_mps_supported_profile_and_protocol_dependency[] = {
+    &hf_mps_supported_profile_and_protocol_dependency_reserved,
+    &hf_mps_supported_profile_and_protocol_dependency_dis_connection_order_behaviour,
+    &hf_mps_supported_profile_and_protocol_dependency_gavdp_requirements,
+    &hf_mps_supported_profile_and_protocol_dependency_sniff_mode_during_streaming,
+    NULL
+};
 
 static expert_field ei_btsdp_continuation_state_none = EI_INIT;
 static expert_field ei_btsdp_continuation_state_large = EI_INIT;
@@ -634,6 +803,24 @@ static const value_string vs_synch_attribute_id[] = {
     { 0, NULL }
 };
 
+static const value_string vs_mps_attribute_id[] = {
+    { 0x0200,  "Multiple Profiles - Single Device Supported Scenarios" },
+    { 0x0201,  "Multiple Profiles - Multiple Device Supported Scenarios" },
+    { 0x0202,  "Supported Profile and Protocol Dependency" },
+    { 0, NULL }
+};
+
+static const value_string vs_ctn_as_attribute_id[] = {
+    { 0x0315,  "Instance ID" },
+    { 0x0317,  "Supported Features" },
+    { 0, NULL }
+};
+
+static const value_string vs_ctn_ns_attribute_id[] = {
+    { 0x0317,  "Supported Features" },
+    { 0, NULL }
+};
+
 static const value_string did_vendor_id_source_vals[] = {
     { 0x0001,   "Bluetooth SIG" },
     { 0x0002,   "USB Implementer's Forum" },
@@ -793,7 +980,6 @@ static const value_string hid_country_code_vals[] = {
     { 35,   "Turkish-F" },
     { 0, NULL }
 };
-
 
 static const value_string descriptor_list_type_vals[] = {
     { 0x22,  "Report" },
@@ -1930,7 +2116,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint8         mdep_id;
     guint16        vendor_id_source;
     const guint8  *str_val;
-    guint16        supported_features;
+    guint32        supported_features;
     guint          i_feature;
     guint          i_protocol;
     guint16        psm;
@@ -2966,6 +3152,55 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     found = FALSE;
             }
             break;
+        case BTSDP_CTN_ACCESS_SERVICE_UUID:
+        case BTSDP_CTN_NOTIFICATION_SERVICE_UUID:
+            if (service_uuid.bt_uuid == BTSDP_CTN_NOTIFICATION_SERVICE_UUID && attribute != 0x317) {
+                found = FALSE;
+                break;
+            }
+            switch (attribute) {
+                case 0x315:
+                    proto_tree_add_item(next_tree, hf_ctn_instance_id, tvb, offset, 1, ENC_NA);
+                    value = tvb_get_guint8(tvb, offset);
+                    wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", value, value);
+
+                    break;
+                case 0x317:
+                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_ctn_supported_features, ett_btsdp_supported_features,  hfx_ctn_supported_features, ENC_NA);
+
+                    supported_features = tvb_get_ntohl(tvb, offset);
+                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s",
+                            (supported_features & 0x01) ? "AccountManager " : "",
+                            (supported_features & 0x02) ? "Notification " : "",
+                            (supported_features & 0x04) ? "Browsing " : "",
+                            (supported_features & 0x08) ? "Downloading " : "",
+                            (supported_features & 0x10) ? "Uploading " : "",
+                            (supported_features & 0x20) ? "Delete " : "",
+                            (supported_features & 0x40) ? "Forward " : "");
+                    break;
+                default:
+                    found = FALSE;
+            }
+            break;
+        case BTSDP_MULTI_PROFILE_UUID:
+        case BTSDP_MULTI_PROFILE_SC_UUID:
+            switch (attribute) {
+                case 0x200:
+                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_mpsd_scenarios, ett_btsdp_supported_features,  hfx_mps_mpsd_scenarios, ENC_NA);
+
+                    break;
+                case 0x201:
+                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_mpmd_scenarios, ett_btsdp_supported_features,  hfx_mps_mpmd_scenarios, ENC_NA);
+
+                    break;
+                case 0x202:
+                    proto_tree_add_bitmask(next_tree, tvb, offset, hf_mps_supported_profile_and_protocol_dependency, ett_btsdp_supported_features,  hfx_mps_supported_profile_and_protocol_dependency, ENC_NA);
+
+                    break;
+                default:
+                    found = FALSE;
+            }
+            break;
         default:
             found = FALSE;
     }
@@ -3425,6 +3660,22 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
             name_vals = vs_dun_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_dun;
             profile_speficic = "(DUN) ";
+            break;
+        case BTSDP_CTN_ACCESS_SERVICE_UUID:
+            name_vals = vs_ctn_as_attribute_id;
+            hfx_attribute_id = hf_service_attribute_id_ctn_as;
+            profile_speficic = "(CTN AS) ";
+            break;
+        case BTSDP_CTN_NOTIFICATION_SERVICE_UUID:
+            name_vals = vs_ctn_ns_attribute_id;
+            hfx_attribute_id = hf_service_attribute_id_ctn_ns;
+            profile_speficic = "(CTN NS) ";
+            break;
+        case BTSDP_MULTI_PROFILE_UUID:
+        case BTSDP_MULTI_PROFILE_SC_UUID:
+            name_vals = vs_mps_attribute_id;
+            hfx_attribute_id = hf_service_attribute_id_mps;
+            profile_speficic = "(MPS) ";
             break;
     }
 
@@ -4581,6 +4832,21 @@ proto_register_btsdp(void)
             FT_UINT16, BASE_HEX, VALS(vs_synch_attribute_id), 0,
             NULL, HFILL }
         },
+        { &hf_service_attribute_id_ctn_as,
+            { "Attribute ID",                    "btsdp.service.attribute",
+            FT_UINT16, BASE_HEX, VALS(vs_ctn_as_attribute_id), 0,
+            NULL, HFILL }
+        },
+        { &hf_service_attribute_id_ctn_ns,
+            { "Attribute ID",                    "btsdp.service.attribute",
+            FT_UINT16, BASE_HEX, VALS(vs_ctn_ns_attribute_id), 0,
+            NULL, HFILL }
+        },
+        { &hf_service_attribute_id_mps,
+            { "Attribute ID",                    "btsdp.service.attribute",
+            FT_UINT16, BASE_HEX, VALS(vs_mps_attribute_id), 0,
+            NULL, HFILL }
+        },
         { &hf_did_specification_id,
             { "Specification ID",                "btsdp.service.did.specification_id",
             FT_UINT16, BASE_HEX, NULL, 0,
@@ -5079,6 +5345,386 @@ proto_register_btsdp(void)
         { &hf_hfp_gw_network,
             { "Network",                                                  "btsdp.service.hfp.gw.network",
             FT_UINT8, BASE_HEX, VALS(hfp_gw_network_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_ctn_instance_id,
+            { "Instance ID",                     "btsdp.ctn.instance_id",
+            FT_UINT8, BASE_DEC_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features,
+            { "Supported Features",              "btsdp.ctn.supported_features",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features_reserved,
+            { "Reserved",                        "btsdp.ctn.supported_features.reserved",
+            FT_BOOLEAN, 32, NULL, 0xFFFFFF80,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features_forward,
+            { "Forward",                         "btsdp.ctn.supported_features.forward",
+            FT_BOOLEAN, 32, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features_delete,
+            { "Delete",                          "btsdp.ctn.supported_features.delete",
+            FT_BOOLEAN, 32, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features_uploading,
+            { "Uploading",                       "btsdp.ctn.supported_features.uploading",
+            FT_BOOLEAN, 32, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features_downloading,
+            { "Downloading",                     "btsdp.ctn.supported_features.downloading",
+            FT_BOOLEAN, 32, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features_browsing,
+            { "Browsing",                        "btsdp.ctn.supported_features.browsing",
+            FT_BOOLEAN, 32, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features_notification,
+            { "Notification",                    "btsdp.ctn.supported_features.notification",
+            FT_BOOLEAN, 32, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_ctn_supported_features_account_management,
+            { "Account Management",              "btsdp.ctn.supported_features.account_management",
+            FT_BOOLEAN, 32, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios,
+            { "Supported Profile and Protocol Dependency",                                                   "btsdp.mps.mpsd_scenarios",
+            FT_UINT64, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_reserved,
+            { "Reserved",                                                                                    "btsdp.mps.mpsd_scenarios.reserved",
+            FT_UINT64, BASE_HEX, NULL, 0xFFFFFFC000000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_37,
+            { "Phonebook Download during Audio Streaming (A2DP-SNK_PBAP-Client)",                            "btsdp.mps.mpsd_scenarios.37",
+            FT_BOOLEAN, 64, NULL, 0x0000002000000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_36,
+            { "Phonebook Download during Audio Streaming (A2DP-SRC_PBAP-Server)",                            "btsdp.mps.mpsd_scenarios.36",
+            FT_BOOLEAN, 64, NULL, 0x0000001000000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_35,
+            { "Data communication establishment in Personal Area Network during Audio Streaming (A2DP-SNK_PAN_PANU)",  "btsdp.mps.mpsd_scenarios.35",
+            FT_BOOLEAN, 64, NULL, 0x0000000800000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_34,
+            { "Data communication establishment in Personal Area Network during Audio Streaming (A2DP-SRC_PAN-NAP)",   "btsdp.mps.mpsd_scenarios.34",
+            FT_BOOLEAN, 64, NULL, 0x0000000400000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_33,
+            { "Start Audio Streaming during Data communication in Personal Area Network (A2DP-SNK_PAN-PANU)",          "btsdp.mps.mpsd_scenarios.33",
+            FT_BOOLEAN, 64, NULL, 0x0000000200000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_32,
+            { "Start Audio Streaming during Data communication in Personal Area Network (A2DP-SRC_PAN-NAP)",           "btsdp.mps.mpsd_scenarios.32",
+            FT_BOOLEAN, 64, NULL, 0x0000000100000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_31,
+            { "Incoming voice call during Data communication in Personal Area Network (HFP-HF_PAN-PANU)",              "btsdp.mps.mpsd_scenarios.31",
+            FT_BOOLEAN, 64, NULL, 0x0000000080000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_30,
+            { "Incoming voice call during Data communication in Personal Area Network (HFP-AG_PAN-NAP)",               "btsdp.mps.mpsd_scenarios.30",
+            FT_BOOLEAN, 64, NULL, 0x0000000040000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_29,
+            { "Outgoing voice call during Data communication in Personal Area Network (HFP-HF_PAN-PANU)",              "btsdp.mps.mpsd_scenarios.29",
+            FT_BOOLEAN, 64, NULL, 0x0000000020000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_28,
+            { "Outgoing voice call during Data communication in Personal Area Network (HFP-AG_PAN-NAP)",               "btsdp.mps.mpsd_scenarios.28",
+            FT_BOOLEAN, 64, NULL, 0x0000000010000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_27,
+            { "Data communication in Personal Area Network during active voice call (HFP-HF_PAN-PANU)",                "btsdp.mps.mpsd_scenarios.27",
+            FT_BOOLEAN, 64, NULL, 0x0000000008000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_26,
+            { "Data communication in Personal Area Network during active voice call (HFP-AG_PAN-NAP)",                 "btsdp.mps.mpsd_scenarios.26",
+            FT_BOOLEAN, 64, NULL, 0x0000000004000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_25,
+            { "Terminate voice call / data call during data communication and voice call (HFP-HF_DUN-DT)",             "btsdp.mps.mpsd_scenarios.25",
+            FT_BOOLEAN, 64, NULL, 0x0000000002000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_24,
+            { "Terminate voice call / data call during data communication and voice call (HFP-AG_DUN-GW)",             "btsdp.mps.mpsd_scenarios.24",
+            FT_BOOLEAN, 64, NULL, 0x0000000001000000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_23,
+            { "Data communication establishment under PSDM (DUN) during Audio Streaming (A2DP-SNK_DUN-DT)",            "btsdp.mps.mpsd_scenarios.23",
+            FT_BOOLEAN, 64, NULL, 0x0000000000800000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_22,
+            { "Data communication establishment under PSDM (DUN) during Audio Streaming (A2DP-SRC_DUN-GW)",            "btsdp.mps.mpsd_scenarios.22",
+            FT_BOOLEAN, 64, NULL, 0x0000000000400000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_21,
+            { "Start Audio Streaming during Data communication under PSDM (DUN) (A2DP-SNK_DUN-DT)",                    "btsdp.mps.mpsd_scenarios.21",
+            FT_BOOLEAN, 64, NULL, 0x0000000000200000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_20,
+            { "Start Audio Streaming during Data communication under PSDM (DUN) (A2DP-SRC_DUN-GW)",                    "btsdp.mps.mpsd_scenarios.20",
+            FT_BOOLEAN, 64, NULL, 0x0000000000100000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_19,
+            { "Incoming voice call during Data communication under PSDM (DUN) (HFP-HF_DUN-DT)",                        "btsdp.mps.mpsd_scenarios.19",
+            FT_BOOLEAN, 64, NULL, 0x0000000000080000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_18,
+            { "Incoming voice call during Data communication under PSDM (DUN) (HFP-AG_DUN-GW)",                        "btsdp.mps.mpsd_scenarios.18",
+            FT_BOOLEAN, 64, NULL, 0x0000000000040000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_17,
+            { "Outgoing voice call during Data communication under PSDM (DUN) (HFP-HF_DUN-DT)",                        "btsdp.mps.mpsd_scenarios.17",
+            FT_BOOLEAN, 64, NULL, 0x0000000000020000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_16,
+            { "Outgoing voice call during Data communication under PSDM (DUN) (HFP-AG_DUN-GW)",                        "btsdp.mps.mpsd_scenarios.16",
+            FT_BOOLEAN, 64, NULL, 0x0000000000010000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_15,
+            { "Data communication under PSDM (DUN) during active voice call (HFP-HF_DUN-DT)",                          "btsdp.mps.mpsd_scenarios.15",
+            FT_BOOLEAN, 64, NULL, 0x0000000000008000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_14,
+            { "Data communication under PSDM (DUN) during active voice call (HFP-AG_DUN-GW)",                          "btsdp.mps.mpsd_scenarios.14",
+            FT_BOOLEAN, 64, NULL, 0x0000000000004000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_13,
+            { "Suspend Audio Streaming after AVRCP Pause/Stop (HFP-HF_A2DP-SNK)",                            "btsdp.mps.mpsd_scenarios.13",
+            FT_BOOLEAN, 64, NULL, 0x0000000000002000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_12,
+            { "Suspend Audio Streaming after AVRCP Pause/Stop (HFP-AG_A2DP-SRC)",                            "btsdp.mps.mpsd_scenarios.12",
+            FT_BOOLEAN, 64, NULL, 0x0000000000001000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_11,
+            { "Start Audio Streaming after AVRCP Play Command (HFP-HF_A2DP-SNK)",                            "btsdp.mps.mpsd_scenarios.11",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000800,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_10,
+            { "Start Audio Streaming after AVRCP Play Command (HFP-AG_A2DP-SRC)",                            "btsdp.mps.mpsd_scenarios.10",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000400,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_9,
+            { "Press Play on Audio Player during active call (HFP-HF_A2DP-SNK)",                             "btsdp.mps.mpsd_scenarios.9",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000200,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_8,
+            { "Press Play on Audio Player during active call (HFP-AG_A2DP-SRC)",                             "btsdp.mps.mpsd_scenarios.8",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000100,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_7,
+            { "HFP call termination during AVP connection (HFP-HF_A2DP-SNK)",                                "btsdp.mps.mpsd_scenarios.7",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000080,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_6,
+            { "HFP call termination during AVP connection (HFP-AG_A2DP-SRC)",                                "btsdp.mps.mpsd_scenarios.6",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000040,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_5,
+            { "Reject/Ignore Incoming Call during Audio Streaming (HFP-HF_A2DP-SNK)",                        "btsdp.mps.mpsd_scenarios.5",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000020,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_4,
+            { "Reject/Ignore Incoming Call during Audio Streaming (HFP-AG_A2DP-SRC)",                        "btsdp.mps.mpsd_scenarios.4",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000010,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_3,
+            { "Outgoing Call during Audio Streaming (HFP-HF_A2DP-SNK)",                                      "btsdp.mps.mpsd_scenarios.3",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000008,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_2,
+            { "Outgoing Call during Audio Streaming (HFP-AG_A2DP-SRC)",                                      "btsdp.mps.mpsd_scenarios.2",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000004,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_1,
+            { "Answer Incoming Call during Audio Streaming (HFP-HF_A2DP-SNK)",                               "btsdp.mps.mpsd_scenarios.1",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000002,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpsd_scenarios_0,
+            { "Answer Incoming Call during Audio Streaming (HFP-AG_A2DP-SRC)",                               "btsdp.mps.mpsd_scenarios.0",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000001,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios,
+            { "Supported Profile and Protocol Dependency",                                                   "btsdp.mps.mpmd_scenarios",
+            FT_UINT64, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_reserved,
+            { "Reserved",                                                                                    "btsdp.mps.mpmd_scenarios.reserved",
+            FT_UINT64, BASE_HEX, NULL, 0xFFFFFFFFFFF80000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_18,
+            { "Start Packet data communication during Audio streaming (A2DP-SNK_AVRCP-CT_DUN-DT)",           "btsdp.mps.mpmd_scenarios.18",
+            FT_BOOLEAN, 64, NULL, 0x0000000000040000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_17,
+            { "Start Packet data communication during Audio streaming (A2DP-SRC_AVRCP-TG)",                  "btsdp.mps.mpmd_scenarios.17",
+            FT_BOOLEAN, 64, NULL, 0x0000000000020000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_16,
+            { "Start Audio streaming during Data communication under PSDM (A2DP-SNK_AVRCP-CT_DUN-DT)",       "btsdp.mps.mpmd_scenarios.16",
+            FT_BOOLEAN, 64, NULL, 0x0000000000010000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_15,
+            { "Start Audio streaming during Data communication under PSDM (A2DP-SRC_AVRCP-TG)",              "btsdp.mps.mpmd_scenarios.15",
+            FT_BOOLEAN, 64, NULL, 0x0000000000008000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_14,
+            { "Suspend Audio Streaming after AVRCP Pause/Stop (A2DP-SRC_AVRCP-TG)",                          "btsdp.mps.mpmd_scenarios.14",
+            FT_BOOLEAN, 64, NULL, 0x0000000000004000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_13,
+            { "Suspend Audio Streaming after AVRCP Pause/Stop (AVRCP-CT where the same device does not carry out the role of an A2DP SNK)",     "btsdp.mps.mpmd_scenarios.13",
+            FT_BOOLEAN, 64, NULL, 0x0000000000002000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_12,
+            { "Start Audio Streaming after AVRCP Play Command (A2DP-SRC_AVRCP-TG)",                                                             "btsdp.mps.mpmd_scenarios.12",
+            FT_BOOLEAN, 64, NULL, 0x0000000000001000,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_11,
+            { "Start Audio Streaming after AVRCP Play Command (AVRCP-CT where the same device does not carry out the role of an A2DP SNK)",     "btsdp.mps.mpmd_scenarios.11",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000800,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_10,
+            { "Press Play on Audio Player during active call (A2DP-SRC_AVRCP-TG)",                 "btsdp.mps.mpmd_scenarios.10",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000400,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_9,
+            { "Press Play on Audio Player during active call (HFP-HF_A2DP-SNK_AVRCP-CT)",          "btsdp.mps.mpmd_scenarios.9",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000200,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_8,
+            { "HFP Call termination during AVP connection (A2DP-SRC_AVRCP-TG)",                    "btsdp.mps.mpmd_scenarios.8",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000100,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_7,
+            { "HFP Call termination during AVP connection (HFP-HF_ A2DP-SNK_AVRCP-CT)",            "btsdp.mps.mpmd_scenarios.7",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000080,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_6,
+            { "HFP Call termination during AVP connection (HFP-AG)",                               "btsdp.mps.mpmd_scenarios.6",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000040,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_5,
+            { "Reject/Ignore Incoming Call during Audio Streaming (A2DP-SRC_AVRCP-TG)",            "btsdp.mps.mpmd_scenarios.5",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000020,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_4,
+            { "Reject/Ignore Incoming Call during Audio Streaming (HFP-HF_A2DP-SNK_AVRCP-CT)",     "btsdp.mps.mpmd_scenarios.4",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000010,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_3,
+            { "Outgoing Call during Audio Streaming (A2DP-SRC_AVRCP-TG)",                          "btsdp.mps.mpmd_scenarios.3",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000008,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_2,
+            { "Outgoing Call during Audio Streaming (HFP-HF_A2DP-SNK_AVRCP-CT)",                   "btsdp.mps.mpmd_scenarios.2",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000004,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_1,
+            { "Answer Incoming Call during Audio Streaming (A2DP-SRC_AVRCP-TG)",                   "btsdp.mps.mpmd_scenarios.1",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000002,
+            NULL, HFILL }
+        },
+        { &hf_mps_mpmd_scenarios_0,
+            { "Answer Incoming Call during Audio Streaming (HFP-HF_A2DP-SNK_AVRCP-CT)",            "btsdp.mps.mpmd_scenarios.0",
+            FT_BOOLEAN, 64, NULL, 0x0000000000000001,
+            NULL, HFILL }
+        },
+        { &hf_mps_supported_profile_and_protocol_dependency,
+            { "Supported Profile and Protocol Dependency",           "btsdp.mps.supported_profile_and_protocol_dependency",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_mps_supported_profile_and_protocol_dependency_reserved,
+            { "Reserved",                                  "btsdp.mps.supported_profile_and_protocol_dependency.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFFF8,
+            NULL, HFILL }
+        },
+        { &hf_mps_supported_profile_and_protocol_dependency_dis_connection_order_behaviour,
+            { "(Dis)Connection Order/Behaviour",           "btsdp.mps.supported_profile_and_protocol_dependency.dis_connection_order_behaviour",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_mps_supported_profile_and_protocol_dependency_gavdp_requirements,
+            { "GAVDP Requirements",                        "btsdp.mps.supported_profile_and_protocol_dependency.gavdp_requirements",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_mps_supported_profile_and_protocol_dependency_sniff_mode_during_streaming,
+            { "Sniff Mode During Streaming",               "btsdp.mps.supported_profile_and_protocol_dependency.sniff_mode_during_streaming",
+            FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
         { &hf_sdp_protocol_item,
@@ -5621,9 +6267,9 @@ proto_register_btsdp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_btsdp_continuation_state_none,  { "btsdp.expert.continuation_state_none",  PI_MALFORMED, PI_WARN, "There is no Continuation State", EXPFILL }},
-        { &ei_btsdp_continuation_state_large, { "btsdp.expert.continuation_state_large", PI_MALFORMED, PI_WARN, "Continuation State data is longer then 16", EXPFILL }},
-        { &ei_data_element_value_large,       { "btsdp.expert.data_element.value.large", PI_MALFORMED, PI_WARN, "Data size exceeds the length of payload", EXPFILL }},
+        { &ei_btsdp_continuation_state_none,  { "btsdp.expert.continuation_state_none",  PI_MALFORMED, PI_WARN,      "There is no Continuation State", EXPFILL }},
+        { &ei_btsdp_continuation_state_large, { "btsdp.expert.continuation_state_large", PI_MALFORMED, PI_WARN,      "Continuation State data is longer then 16", EXPFILL }},
+        { &ei_data_element_value_large,       { "btsdp.expert.data_element.value.large", PI_MALFORMED, PI_WARN,      "Data size exceeds the length of payload", EXPFILL }},
     };
 
     proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BT SDP", "btsdp");
