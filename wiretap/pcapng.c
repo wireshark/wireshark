@@ -2045,7 +2045,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                      */
                     memcpy(&wblock->data.if_stats.isb_filteraccept, option_content, sizeof(guint64));
                     if (pn->byte_swapped)
-                        wblock->data.if_stats.isb_ifdrop = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_filteraccept);
+                        wblock->data.if_stats.isb_filteraccept = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_filteraccept);
                     pcapng_debug1("pcapng_read_interface_statistics_block: isb_filteraccept %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_filteraccept);
                 } else {
                     pcapng_debug1("pcapng_read_interface_statistics_block: isb_filteraccept length %u not 8 as expected", oh.option_length);
@@ -2071,7 +2071,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                      */
                     memcpy(&wblock->data.if_stats.isb_usrdeliv, option_content, sizeof(guint64));
                     if (pn->byte_swapped)
-                        wblock->data.if_stats.isb_usrdeliv = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_osdrop);
+                        wblock->data.if_stats.isb_usrdeliv = GUINT64_SWAP_LE_BE(wblock->data.if_stats.isb_usrdeliv);
                     pcapng_debug1("pcapng_read_interface_statistics_block: isb_usrdeliv %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_usrdeliv);
                 } else {
                     pcapng_debug1("pcapng_read_interface_statistics_block: isb_usrdeliv length %u not 8 as expected", oh.option_length);
