@@ -4603,12 +4603,12 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
                                            "Ext Guaranteed bit rate for uplink: %u kbps", gd);
             }
-            if ((guar_ul_ext > 0x4a) && (max_ul_ext <= 0xba)) {
+            if ((guar_ul_ext > 0x4a) && (guar_ul_ext <= 0xba)) {
                 gd = 16 + (guar_ul_ext-0x4a);
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
                                            "Ext Guaranteed bit rate for uplink: %u Mbps", gd);
             }
-            if ((guar_ul_ext > 0xba) && (max_ul_ext <= 0xfa)) {
+            if ((guar_ul_ext > 0xba) && (guar_ul_ext <= 0xfa)) {
                 gd = 128 + (guar_ul_ext-0xba)*2;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
                                            "Ext Guaranteed bit rate for uplink: %u Mbps", gd);
