@@ -44,7 +44,9 @@
 #include <fcntl.h>
 #endif
 
+#ifndef _WIN32
 #include <signal.h>
+#endif
 
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
