@@ -88,7 +88,7 @@ reset_host_table_data(hostlist_table *hosts)
     } else {
         filter = hosts->filter;
     }
-    error_string = set_tap_dfilter (hosts, filter);
+    error_string = set_tap_dfilter (&hosts->hash, filter);
     if (error_string) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);

@@ -87,7 +87,7 @@ reset_ct_table_data(conversations_table *ct)
         filter = ct->filter;
     }
 
-    error_string = set_tap_dfilter (ct, filter);
+    error_string = set_tap_dfilter (&ct->hash, filter);
     if (error_string) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
         g_string_free(error_string, TRUE);
