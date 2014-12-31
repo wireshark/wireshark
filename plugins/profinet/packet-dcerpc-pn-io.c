@@ -679,6 +679,7 @@ static expert_field ei_pn_io_error_code2 = EI_INIT;
 static expert_field ei_pn_io_ar_info_not_found = EI_INIT;
 static expert_field ei_pn_io_iocr_type = EI_INIT;
 static expert_field ei_pn_io_frame_id = EI_INIT;
+static expert_field ei_pn_io_nr_of_tx_port_groups = EI_INIT;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -5958,10 +5959,12 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                              hf_pn_io_frame_details_reserved, &u8FrameDetails);
         /* TxPortGroup */
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
-                             hf_pn_io_nr_of_tx_port_groups, &u8NumberOfTxPortGroups);
+        u8NumberOfTxPortGroups = tvb_get_guint8(tvb, offset);
+        sub_item = proto_tree_add_uint(ir_frame_data_tree, hf_pn_io_nr_of_tx_port_groups,
+                             tvb, offset, 1, u8NumberOfTxPortGroups);
+        offset++;
         if ((u8NumberOfTxPortGroups > 21) || ((u8NumberOfTxPortGroups & 0x1) !=1)) {
-            proto_tree_add_text(ir_frame_data_tree, tvb, offset -1, 1, "Not allowed value of NumberOfTxPortGroups");
+            expert_add_info(pinfo, sub_item, &ei_pn_io_nr_of_tx_port_groups);
         }
 
         /* TxPortArray */
@@ -12044,6 +12047,7 @@ proto_register_pn_io (void)
         { &ei_pn_io_frame_id, { "pn_io.frame_id.changed", PI_UNDECODED, PI_WARN, "FrameID changed", EXPFILL }},
         { &ei_pn_io_iocr_type, { "pn_io.iocr_type.unknown", PI_UNDECODED, PI_WARN, "IOCRType undecoded!", EXPFILL }},
         { &ei_pn_io_localalarmref, { "pn_io.localalarmref.changed", PI_UNDECODED, PI_WARN, "AlarmCRBlockReq: local alarm ref changed", EXPFILL }},
+        { &ei_pn_io_nr_of_tx_port_groups, { "pn_io.nr_of_tx_port_groups.not_allowed", PI_PROTOCOL, PI_WARN, "Not allowed value of NumberOfTxPortGroups", EXPFILL }},
     };
 
     expert_module_t* expert_pn_io;
