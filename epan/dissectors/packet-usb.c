@@ -4319,7 +4319,7 @@ proto_register_usb(void)
     register_decode_as(&usb_product_da);
     register_decode_as(&usb_device_da);
 
-    register_conversation_table(proto_usb, TRUE, usb_conversation_packet, usb_hostlist_packet, NULL);
+    register_conversation_table(proto_usb, TRUE, usb_conversation_packet, usb_hostlist_packet);
 }
 
 void

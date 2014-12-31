@@ -25,5 +25,6 @@
 #include <epan/conversation_table.h>
 
 extern void init_iousers(struct register_ct* ct, const char *filter);
+extern void init_hostlists(struct register_ct* ct, const char *filter);
 
 #endif /* __TSHARK_TAP_H__ */

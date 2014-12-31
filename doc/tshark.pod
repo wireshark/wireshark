@@ -873,15 +873,22 @@ Create a table that lists all conversations that could be seen in the
 capture.  I<type> specifies the conversation endpoint types for which we
 want to generate the statistics; currently the supported ones are:
 
+  "bluetooth"  Bluetooth addresses
   "eth"   Ethernet addresses
   "fc"    Fibre Channel addresses
   "fddi"  FDDI addresses
   "ip"    IPv4 addresses
   "ipv6"  IPv6 addresses
   "ipx"   IPX addresses
+  "jxta"  JXTA message addresses
+  "ncp"   NCP connections
+  "rsvp"  RSVP connections
+  "sctp"  SCTP addresses
   "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
   "tr"    Token Ring addresses
+  "usb"   USB addresses
   "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "wlan"  IEEE 802.11 addresses
 
 If the optional I<filter> is specified, only those packets that match the
 filter will be used in the calculations.
@@ -950,6 +957,37 @@ Multiple diameter messages in one frame are supported.
 Several fields with same name within one diameter message are supported, e.g. I<diameter.Subscription-Id-Data> or I<diameter.Rating-Group>.
 
 Note: B<tshark -q> option is recommended to suppress default B<tshark> output.
+
+=item B<-z> endpoints,I<type>[,I<filter>]
+
+Create a table that lists all endpoints that could be seen in the
+capture.  I<type> specifies the endpoint types for which we
+want to generate the statistics; currently the supported ones are:
+
+  "bluetooth"  Bluetooth addresses
+  "eth"   Ethernet addresses
+  "fc"    Fibre Channel addresses
+  "fddi"  FDDI addresses
+  "ip"    IPv4 addresses
+  "ipv6"  IPv6 addresses
+  "ipx"   IPX addresses
+  "jxta"  JXTA message addresses
+  "ncp"   NCP connections
+  "rsvp"  RSVP connections
+  "sctp"  SCTP addresses
+  "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"    Token Ring addresses
+  "usb"   USB addresses
+  "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "wlan"  IEEE 802.11 addresses
+
+If the optional I<filter> is specified, only those packets that match the
+filter will be used in the calculations.
+
+The table is presented with one line for each conversation and displays
+the number of packets/bytes in each direction as well as the total
+number of packets/bytes.  The table is sorted according to the total
+number of frames.
 
 =item B<-z> expert[I<,error|,warn|,note|,chat>][I<,filter>]
 

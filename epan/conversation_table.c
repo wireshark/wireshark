@@ -40,7 +40,6 @@ struct register_ct {
     int proto_id;              /* protocol id (0-indexed) */
     tap_packet_cb conv_func;   /* function to be called for new incoming packets for conversation*/
     tap_packet_cb host_func;   /* function to be called for new incoming packets for hostlist */
-    host_tap_prefix prefix_func;  /* function to provide prefix if different than default (host) */
     conv_gui_init_cb conv_gui_init; /* GUI specific function to initialize conversation */
     host_gui_init_cb host_gui_init; /* GUI specific function to initialize hostlist */
 };
@@ -67,12 +66,6 @@ tap_packet_cb get_hostlist_packet_func(register_ct_t* ct)
 {
     return ct->host_func;
 }
-
-host_tap_prefix get_hostlist_prefix_func(register_ct_t* ct)
-{
-    return ct->prefix_func;
-}
-
 
 static GSList *registered_ct_tables = NULL;
 
@@ -102,7 +95,7 @@ dissector_hostlist_init(const char *opt_arg, void* userdata)
     GString *cmd_str = g_string_new("");
     const char *filter=NULL;
 
-    g_string_printf(cmd_str, "%s,%s,", (table->prefix_func != NULL) ? table->prefix_func() : "host", proto_get_protocol_filter_name(table->proto_id));
+    g_string_printf(cmd_str, "%s,%s,", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     if(!strncmp(opt_arg, cmd_str->str, cmd_str->len)){
         if (opt_arg[cmd_str->len] == ',') {
             filter = opt_arg + cmd_str->len + 1;
@@ -145,7 +138,7 @@ insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
 }
 
 void
-register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func, host_tap_prefix prefix_func)
+register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func)
 {
     register_ct_t *table;
 
@@ -157,7 +150,6 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
     table->host_func     = hostlist_func;
     table->conv_gui_init = NULL;
     table->host_gui_init = NULL;
-    table->prefix_func   = prefix_func;
 
     registered_ct_tables = g_slist_insert_sorted(registered_ct_tables, table, insert_sorted_by_table_name);
 }
@@ -199,8 +191,7 @@ set_host_gui_data(gpointer data, gpointer user_data)
 
     table->host_gui_init = (host_gui_init_cb)user_data;
 
-    g_string_printf(host_cmd_str, "%s,%s", (get_hostlist_prefix_func(table) != NULL) ? get_hostlist_prefix_func(table)() : "host",
-                    proto_get_protocol_filter_name(table->proto_id));
+    g_string_printf(host_cmd_str, "%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     ui_info.group = REGISTER_STAT_GROUP_ENDPOINT_LIST;
     ui_info.title = NULL;	/* construct this from the protocol info? */
     ui_info.cli_string = host_cmd_str->str;

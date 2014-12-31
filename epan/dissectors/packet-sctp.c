@@ -4959,7 +4959,7 @@ proto_register_sctp(void)
   register_decode_as(&sctp_da_port);
   register_decode_as(&sctp_da_ppi);
 
-  register_conversation_table(proto_sctp, FALSE, sctp_conversation_packet, sctp_hostlist_packet, NULL);
+  register_conversation_table(proto_sctp, FALSE, sctp_conversation_packet, sctp_hostlist_packet);
 }
 
 void

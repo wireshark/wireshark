@@ -2367,7 +2367,7 @@ void proto_register_jxta(void)
     prefs_register_bool_preference(jxta_module, "sctp.heuristic", "Try to discover JXTA in SCTP connections",
                                    "Enable to inspect SCTP connections for JXTA conversations.", &gSCTP_HEUR);
 
-    register_conversation_table(proto_jxta, TRUE, jxta_conversation_packet, jxta_hostlist_packet, NULL);
+    register_conversation_table(proto_jxta, TRUE, jxta_conversation_packet, jxta_hostlist_packet);
 }
 
 

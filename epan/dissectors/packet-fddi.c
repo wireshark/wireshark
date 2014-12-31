@@ -523,7 +523,7 @@ proto_register_fddi(void)
                                  &fddi_padding);
 
   fddi_tap = register_tap("fddi");
-  register_conversation_table(proto_fddi, TRUE, fddi_conversation_packet, fddi_hostlist_packet, NULL);
+  register_conversation_table(proto_fddi, TRUE, fddi_conversation_packet, fddi_hostlist_packet);
 }
 
 void

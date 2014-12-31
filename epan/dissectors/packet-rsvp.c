@@ -9234,7 +9234,7 @@ proto_register_rsvp(void)
     /* Initialization routine for RSVP conversations */
     register_init_routine(&rsvp_init_protocol);
 
-    register_conversation_table(proto_rsvp, TRUE, rsvp_conversation_packet, rsvp_hostlist_packet, NULL);
+    register_conversation_table(proto_rsvp, TRUE, rsvp_conversation_packet, rsvp_hostlist_packet);
 }
 
 void

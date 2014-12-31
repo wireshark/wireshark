@@ -1611,7 +1611,7 @@ proto_register_ipx(void)
 	register_postseq_cleanup_routine(&spx_postseq_cleanup);
 	ipx_tap=register_tap("ipx");
 
-	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet, ipx_hostlist_packet, NULL);
+	register_conversation_table(proto_ipx, TRUE, ipx_conversation_packet, ipx_hostlist_packet);
 }
 
 void

@@ -371,12 +371,6 @@ udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     return 1;
 }
 
-static const char*
-udpip_hostlist_prefix(void)
-{
-    return "endpoints";
-}
-
 static gboolean
 udp_color_filter_valid(packet_info *pinfo)
 {
@@ -1012,7 +1006,7 @@ proto_register_udp(void)
                                  &udplite_check_checksum);
 
   register_decode_as(&udp_da);
-  register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet, udpip_hostlist_prefix);
+  register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet);
   register_color_conversation_filter("udp", "UDP", udp_color_filter_valid, udp_build_color_filter);
 
   register_init_routine(udp_init);

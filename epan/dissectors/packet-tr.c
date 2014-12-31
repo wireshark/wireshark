@@ -803,7 +803,7 @@ proto_register_tr(void)
 	register_dissector("tr", dissect_tr, proto_tr);
 	tr_tap=register_tap("tr");
 
-	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_hostlist_packet, NULL);
+	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_hostlist_packet);
 }
 
 void

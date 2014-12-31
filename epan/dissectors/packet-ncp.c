@@ -1136,7 +1136,7 @@ proto_register_ncp(void)
     ncp_tap.hdr=register_tap("ncp");
     register_postseq_cleanup_routine(&mncp_postseq_cleanup);
 
-    register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet, ncp_hostlist_packet, NULL);
+    register_conversation_table(proto_ncp, FALSE, ncp_conversation_packet, ncp_hostlist_packet);
 }
 
 void

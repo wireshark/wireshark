@@ -1640,7 +1640,7 @@ proto_register_fc(void)
 
     fcsof_handle = register_dissector("fcsof", dissect_fcsof, proto_fcsof);
 
-    register_conversation_table(proto_fc, TRUE, fc_conversation_packet, fc_hostlist_packet, NULL);
+    register_conversation_table(proto_fc, TRUE, fc_conversation_packet, fc_hostlist_packet);
 }
 
 

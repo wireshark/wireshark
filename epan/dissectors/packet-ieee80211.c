@@ -26521,7 +26521,7 @@ proto_register_ieee80211 (void)
   register_init_routine(ieee80211_gas_reassembly_init);
 
   wlan_tap = register_tap("wlan");
-  register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet, wlan_hostlist_packet, NULL);
+  register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet, wlan_hostlist_packet);
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);

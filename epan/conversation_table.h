@@ -101,7 +101,6 @@ struct register_ct;
 typedef void (*conv_gui_init_cb)(struct register_ct* ct, const char *filter);
 
 typedef void (*host_gui_init_cb)(struct register_ct* host, const char *filter);
-typedef const char* (*host_tap_prefix)(void);
 
 /** Structure for information about a registered conversation */
 typedef struct register_ct register_ct_t;
@@ -144,15 +143,16 @@ typedef struct _hostlist_talker_t {
 
 } hostlist_talker_t;
 
+#define HOSTLIST_TAP_PREFIX     "endpoints"
+
 /** Register the conversation table for the conversation and endpoint windows.
  *
  * @param proto_id is the protocol with conversation
  * @param hide_ports hide the port columns
  * @param conv_packet_func the registered conversation tap name
  * @param hostlist_func the registered hostlist tap name
- * @param prefix_func the function if hostlist tap has diffent name than default ("host")
  */
-extern void register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func, host_tap_prefix prefix_func);
+extern void register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_cb conv_packet_func, tap_packet_cb hostlist_func);
 
 /** Should port columns be hidden?
  *
@@ -181,13 +181,6 @@ WS_DLL_PUBLIC tap_packet_cb get_conversation_packet_func(register_ct_t* ct);
  * @return tap function handler of conversation
  */
 WS_DLL_PUBLIC tap_packet_cb get_hostlist_packet_func(register_ct_t* ct);
-
-/** Get tap function handler from hostlist
- *
- * @param ct Registered conversation
- * @return tap function handler of conversation
- */
-WS_DLL_PUBLIC host_tap_prefix get_hostlist_prefix_func(register_ct_t* ct);
 
 /** get conversation from protocol ID
  *

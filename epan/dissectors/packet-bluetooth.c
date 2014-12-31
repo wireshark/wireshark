@@ -887,7 +887,7 @@ proto_register_bluetooth(void)
 
     bluetooth_tap = register_tap("bluetooth");
 
-    register_conversation_table(proto_bluetooth, TRUE, bluetooth_conversation_packet, bluetooth_hostlist_packet, NULL);
+    register_conversation_table(proto_bluetooth, TRUE, bluetooth_conversation_packet, bluetooth_hostlist_packet);
 }
 
 void

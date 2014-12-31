@@ -1353,8 +1353,7 @@ void hostlist_endpoint_cb(register_ct_t* table)
 {
     char cmd_str[50];
 
-    g_snprintf(cmd_str, 50, "%s,%s", (get_hostlist_prefix_func(table) != NULL) ? get_hostlist_prefix_func(table)() : "host",
-                    proto_get_protocol_filter_name(get_conversation_proto_id(table)));
+    g_snprintf(cmd_str, 50, "%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(get_conversation_proto_id(table)));
 
     dissector_hostlist_init(cmd_str, table);
 }

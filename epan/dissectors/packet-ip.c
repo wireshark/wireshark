@@ -3089,7 +3089,7 @@ proto_register_ip(void)
   ip_tap = register_tap("ip");
 
   register_decode_as(&ip_da);
-  register_conversation_table(proto_ip, TRUE, ip_conversation_packet, ip_hostlist_packet, NULL);
+  register_conversation_table(proto_ip, TRUE, ip_conversation_packet, ip_hostlist_packet);
   register_color_conversation_filter("ip", "IPv4", ip_color_filter_valid, ip_build_color_filter);
 }
 

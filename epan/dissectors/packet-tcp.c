@@ -625,12 +625,6 @@ tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     return 1;
 }
 
-static const char*
-tcpip_hostlist_prefix(void)
-{
-    return "endpoints";
-}
-
 static gboolean
 tcp_color_filter_valid(packet_info *pinfo)
 {
@@ -6001,7 +5995,7 @@ proto_register_tcp(void)
 
     register_decode_as(&tcp_da);
 
-    register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_hostlist_packet, tcpip_hostlist_prefix);
+    register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_hostlist_packet);
     register_color_conversation_filter("tcp", "TCP", tcp_color_filter_valid, tcp_build_color_filter);
 }
 
