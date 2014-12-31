@@ -164,7 +164,8 @@ void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
     }
 
     for (int i = 0; i < ui->trafficTableTabWidget->count(); i++) {
-        set_tap_dfilter(ui->trafficTableTabWidget->widget(i), filter);
+        TrafficTableTreeWidget *cur_tree = qobject_cast<TrafficTableTreeWidget *>(ui->trafficTableTabWidget->widget(i));
+        set_tap_dfilter(cur_tree->trafficTreeHash(), filter);
     }
 
     cap_file_.retapPackets();
