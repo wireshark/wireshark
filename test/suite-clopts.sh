@@ -296,8 +296,13 @@ test_dump_glossary_utf8() {
 		return
 	fi
 
+	SAVE_LANG=$LANG
+	LANG=en_US.UTF-8
+	export LANG
 	$TSHARK -G $1 | iconv -f UTF-8 > /dev/null 2> ./testout.txt
 	RETURNVALUE=$?
+	LANG=$SAVE_LANG
+	export LANG
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		if [ -s ./testout.txt ]; then
 			test_step_output_print ./testout.txt
