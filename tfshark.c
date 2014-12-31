@@ -851,7 +851,7 @@ main(int argc, char *argv[])
                                             epan_get_compiled_version_info);
 
   /* Get the run-time version information string */
-  runtime_info_str = get_runtime_version_info(tfshark_runtime_version_info);
+  runtime_info_str = get_runtime_version_info(get_tfshark_runtime_version_info);
 
   /* Add it to the information to be reported on a crash. */
   ws_add_crash_info("TFShark (Wireshark) %s\n"
