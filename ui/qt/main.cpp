@@ -27,7 +27,9 @@
 
 #include <glib.h>
 
+#ifdef Q_OS_UNIX
 #include <signal.h>
+#endif
 
 #ifdef HAVE_LIBZ
 #include <zlib.h>	/* to get the libz version number */
