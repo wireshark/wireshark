@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/to_str.h>
 #include <epan/conversation_table.h>
 #include <wiretap/wtap.h>
 
@@ -556,6 +557,12 @@ static const value_string bluetooth_uuid_vals[] = {
     { 0, NULL }
 };
 value_string_ext bluetooth_uuid_vals_ext = VALUE_STRING_EXT_INIT(bluetooth_uuid_vals);
+
+const custom_uuid_t custom_uuid[] = {
+    { {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Server" },
+    { {0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Client" },
+    { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, NULL},
+};
 
 
 /* Taken from https://www.bluetooth.org/technical/assignednumbers/identifiers.htm */
@@ -1164,6 +1171,61 @@ get_conversation(packet_info *pinfo,
                            pinfo->ptype,
                            src_endpoint, dst_endpoint, 0);
     return conversation;
+}
+
+uuid_t
+get_uuid(tvbuff_t *tvb, gint offset, gint size)
+{
+    uuid_t  uuid;
+
+    if (size != 2 && size != 16) {
+        uuid.bt_uuid = 0;
+        uuid.size = 0;
+
+        return uuid;
+    }
+
+    uuid.size = size;
+    tvb_memcpy(tvb, uuid.data, offset, size);
+
+    if (size == 2) {
+        uuid.bt_uuid = uuid.data[0] | uuid.data[1] << 8;
+    } else {
+        if (uuid.data[0] == 0x00 && uuid.data[1] == 0x00 &&
+                uuid.data[4]  == 0x00 && uuid.data[5]  == 0x00 && uuid.data[6]  == 0x10 &&
+                uuid.data[7]  == 0x00 && uuid.data[8]  == 0x80 && uuid.data[9]  == 0x00 &&
+                uuid.data[10] == 0x00 && uuid.data[11] == 0x80 && uuid.data[12] == 0x5F &&
+                uuid.data[13] == 0x9B && uuid.data[14] == 0x34 && uuid.data[15] == 0xFB)
+        uuid.bt_uuid = uuid.data[2] | uuid.data[3] << 8;
+    }
+
+    return uuid;
+}
+
+gchar *
+print_uuid(uuid_t *uuid)
+{
+    if (uuid->bt_uuid) {
+        return wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
+    } else {
+        guint i_uuid;
+
+        i_uuid = 0;
+        while (custom_uuid[i_uuid].name) {
+            if (custom_uuid[i_uuid].size != uuid->size) {
+                i_uuid += 1;
+                continue;
+            }
+
+            if (memcmp(uuid->data, custom_uuid[i_uuid].uuid, uuid->size) == 0) {
+                return wmem_strdup(wmem_packet_scope(), custom_uuid[i_uuid].name);
+            }
+
+            i_uuid += 1;
+        }
+
+        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+    }
 }
 
 

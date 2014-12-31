@@ -36,7 +36,6 @@
 #include <epan/etypes.h>
 #include <epan/to_str.h>
 
-#include "packet-bluetooth.h"
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
 
@@ -1022,12 +1021,6 @@ static const value_string vs_data_element_type[] = {
     { 0, NULL }
 };
 
-const custom_uuid_t custom_uuid[] = {
-    { {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Server" },
-    { {0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Client" },
-    { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, NULL},
-};
-
 extern value_string_ext ext_psm_vals;
 extern value_string_ext wap_mib_enum_vals_character_sets_ext;
 extern value_string_ext usb_langid_vals_ext;
@@ -1071,33 +1064,6 @@ get_specified_uuid(wmem_array_t  *uuid_array)
 
     memset(&uuid, 0, sizeof(uuid_t));
     return uuid;
-}
-
-
-static gchar *
-print_uuid(uuid_t *uuid)
-{
-    if (uuid->bt_uuid) {
-        return wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
-    } else {
-        guint i_uuid;
-
-        i_uuid = 0;
-        while (custom_uuid[i_uuid].name) {
-            if (custom_uuid[i_uuid].size != uuid->size) {
-                i_uuid += 1;
-                continue;
-            }
-
-            if (memcmp(uuid->data, custom_uuid[i_uuid].uuid, uuid->size) == 0) {
-                return wmem_strdup(wmem_packet_scope(), custom_uuid[i_uuid].name);
-            }
-
-            i_uuid += 1;
-        }
-
-        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
-    }
 }
 
 

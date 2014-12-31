@@ -88,6 +88,11 @@ extern const value_string bluetooth_address_type_vals[];
 
 #define STATUS_SUCCESS 0x00
 
+#define UUID_GATT_PRIMARY_SERVICE_DECLARATION    0x2800
+#define UUID_GATT_SECONDARY_SERVICE_DECLARATION  0x2801
+#define UUID_GATT_INCLUDE_DECLARATION            0x2802
+#define UUID_GATT_CHARACTERISTIC_DECLARATION     0x2803
+
 /* We support Bluetooth over various interfaces, interface_id and adapter_id
    is used to decode further payload. Case: there is a host. Host has X
    interfaces. Each interface has Y adapter. Each adapter has ACL handle or
@@ -192,12 +197,29 @@ typedef struct _hci_vendor_data_t {
     struct _hci_vendor_data_t  *previous;
 } hci_vendor_data_t;
 
+typedef struct _uuid_t {
+    guint16  bt_uuid;
+    guint8   size;
+    guint8   data[16];
+} uuid_t;
+
+typedef struct _custom_uuid_t {
+    const guint8  uuid[16];
+    const guint8  size;
+    const gchar  *name;
+} custom_uuid_t;
+
+extern const custom_uuid_t custom_uuid[];
+
 extern value_string_ext  bluetooth_uuid_vals_ext;
 extern value_string_ext  bluetooth_company_id_vals_ext;
 extern guint32           max_disconnect_in_frame;
 
 extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb,
         gint offset, guint8 *bdaddr);
+
+extern uuid_t  get_uuid(tvbuff_t *tvb, gint offset, gint size);
+extern gchar  *print_uuid(uuid_t *uuid);
 
 extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, guint8 size, bluetooth_data_t *bluetooth_data);

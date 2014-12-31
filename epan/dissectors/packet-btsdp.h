@@ -22,7 +22,7 @@
 #ifndef __PACKET_BTSDP_H__
 #define __PACKET_BTSDP_H__
 
-#include <epan/wmem/wmem.h>
+#include "packet-bluetooth.h"
 
 /*
  * Based on value provided by Bluetooth SIG:
@@ -166,12 +166,6 @@
 
 #define SDP_PSM_DEFAULT  1
 
-typedef struct _uuid_t {
-    guint16  bt_uuid;
-    guint8   size;
-    guint8   data[16];
-} uuid_t;
-
 /* This structure is passed to other dissectors
  * and contains information about the relation between service, PSM/server
  * channel, local/remote service. The btrfcomm and btl2cap dissectors
@@ -210,14 +204,6 @@ typedef struct _service_info_t {
     struct _service_info_t *parent_info;
 } service_info_t;
 
-
-typedef struct _custom_uuid_t {
-    const guint8  uuid[16];
-    const guint8  size;
-    const gchar  *name;
-} custom_uuid_t;
-
-extern const custom_uuid_t custom_uuid[];
 
 extern service_info_t* btsdp_get_service_info(wmem_tree_key_t* key);
 
