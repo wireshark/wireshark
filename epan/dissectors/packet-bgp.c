@@ -7076,7 +7076,7 @@ proto_register_bgp(void)
         { "Origin", "bgp.update.path_attribute.origin", FT_UINT8, BASE_DEC,
           VALS(bgpattr_origin), 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute,
-        { "Path Attribut", "bgp.update.path_attribute", FT_NONE, BASE_NONE,
+        { "Path Attribute", "bgp.update.path_attribute", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute_flags,
         { "Flags", "bgp.update.path_attribute.flags", FT_UINT8, BASE_HEX,
