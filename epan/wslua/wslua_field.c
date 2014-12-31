@@ -313,7 +313,7 @@ WSLUA_METAMETHOD FieldInfo__eq(lua_State* L) {
         return 0;
     }
 
-    if (l->ws_fi->start <= r->ws_fi->start && r->ws_fi->start + r->ws_fi->length <= l->ws_fi->start + r->ws_fi->length) {
+    if (l->ws_fi->start <= r->ws_fi->start && r->ws_fi->start + r->ws_fi->length <= l->ws_fi->start + l->ws_fi->length) {
         lua_pushboolean(L,1);
         return 1;
     } else {
@@ -329,7 +329,7 @@ WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
     if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
         WSLUA_ERROR(FieldInfo__le,"Data source must be the same for both fields");
 
-    if (r->ws_fi->start + r->ws_fi->length <= l->ws_fi->start + r->ws_fi->length) {
+    if (r->ws_fi->start + r->ws_fi->length <= l->ws_fi->start + l->ws_fi->length) {
         lua_pushboolean(L,1);
         return 1;
     } else {
