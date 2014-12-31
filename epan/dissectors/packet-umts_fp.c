@@ -4524,7 +4524,7 @@ umts_fp_init_protocol(void)
             switch (uat_umts_fp_ep_and_ch_records[i].channel_type) {
             case CHANNEL_RACH_FDD:
                 /* set up conversation info for RACH FDD channels */
-                umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+                umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Fill in the data */
                 umts_fp_conversation_info->iface_type        = (enum fp_interface_type)uat_umts_fp_ep_and_ch_records[i].interface_type;
                 umts_fp_conversation_info->division          = (enum division_type) uat_umts_fp_ep_and_ch_records[i].division;
