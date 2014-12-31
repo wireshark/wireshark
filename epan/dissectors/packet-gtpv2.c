@@ -3757,9 +3757,8 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_item(tree, hf_gtpv2_ik, tvb, offset, 16, ENC_NA);
     offset += 16;
 
-    if ( nr_qua )
-    {
-        offset = dissect_gtpv2_authentication_quadruplets(tvb, tree, offset, nr_qui);
+    if ( nr_qua ) {
+        offset = dissect_gtpv2_authentication_quadruplets(tvb, tree, offset, nr_qua);
     }
 
     if (nr_qui) {
