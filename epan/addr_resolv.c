@@ -50,12 +50,19 @@
  * code in tcpdump, to avoid those sorts of problems, and that was
  * picked up by tcpdump.org tcpdump.
  *
- * So, for now, we do not define AVOID_DNS_TIMEOUT.  If we get a
- * significantly more complaints about lookups taking a long time,
- * we can reconsider that decision.  (Note that tcpdump originally
- * added that for the benefit of systems using NIS to look up host
- * names; that might now be fixed in NIS implementations, for those
- * sites still using NIS rather than DNS for that....)
+ * So, for now, we do not use alarm() and SIGALRM to time out host name
+ * lookups.  If we get a lot of complaints about lookups taking a long time,
+ * we can reconsider that decision.  (Note that tcpdump originally added
+ * such a timeout mechanism that for the benefit of systems using NIS to
+ * look up host names; that might now be fixed in NIS implementations, for
+ * those sites still using NIS rather than DNS for that....  tcpdump no
+ * longer does that, for the same reasons that we don't.)
+ *
+ * If we're using an asynchronous DNS resolver, that shouldn't be an issue.
+ * If we're using a synchronous name lookup mechanism (which we'd do mainly
+ * to support resolving addresses and host names using more mechanisms than
+ * just DNS, such as NIS, NBNS, or Mr. Hosts File), we could do that in
+ * a separate thread, making it, in effect, asynchronous.
  */
 
 #ifdef HAVE_UNISTD_H
@@ -73,8 +80,6 @@
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-#include <signal.h>
 
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>     /* needed to define AF_ values on UNIX */
