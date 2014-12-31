@@ -307,15 +307,15 @@ WSLUA_METAMETHOD FieldInfo__eq(lua_State* L) {
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
-    if (l->ds_tvb != r->ds_tvb)
-        WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
-
-    if (l->start <= r->start && r->start + r->length <= l->start + r->length) {
+    /* it is not an error if their ds_tvb are different... they're just not equal */
+    if (l->ds_tvb == r->ds_tvb &&
+        l->start == r->start &&
+        r->length == l->length) {
         lua_pushboolean(L,1);
-        return 1;
     } else {
-        return 0;
+        lua_pushboolean(L,0);
     }
+    return 1;
 }
 
 WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
@@ -328,10 +328,10 @@ WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
 
     if (r->start + r->length <= l->start + r->length) {
         lua_pushboolean(L,1);
-        return 1;
     } else {
-        return 0;
+        lua_pushboolean(L,0);
     }
+    return 1;
 }
 
 WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
@@ -344,10 +344,10 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
 
     if ( r->start + r->length < l->start ) {
         lua_pushboolean(L,1);
-        return 1;
     } else {
-        return 0;
+        lua_pushboolean(L,0);
     }
+    return 1;
 }
 
 static int FieldInfo__gc(lua_State* L _U_) {
