@@ -50,6 +50,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  find_last_pathname_separator@Base 1.12.0~rc1
  format_size@Base 1.10.0
  get_basename@Base 1.12.0~rc1
+ get_compiled_version_info@Base 1.99.2
  get_compiler_info@Base 1.99.0
  get_copyright_info@Base 1.99.0
  get_cpu_info@Base 1.99.0
@@ -72,6 +73,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_profile_name@Base 1.12.0~rc1
  get_profiles_dir@Base 1.12.0~rc1
  get_progfile_dir@Base 1.12.0~rc1
+ get_runtime_version_info@Base 1.99.2
  get_systemfile_dir@Base 1.12.0~rc1
  get_tempfile_path@Base 1.12.0~rc1
  get_ws_vcs_version_info@Base 1.99.0
@@ -110,6 +112,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  nstime_to_sec@Base 1.12.0~rc1
  plugins_dump_all@Base 1.12.0~rc1
  plugins_get_descriptions@Base 1.12.0~rc1
+ popcount@Base 1.99.2
  printable_char_or_period@Base 1.99.0
  profile_exists@Base 1.12.0~rc1
  profile_store_persconffiles@Base 1.12.0~rc1
@@ -135,6 +138,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  sha1_hmac_update@Base 1.12.0~rc1
  sha1_starts@Base 1.12.0~rc1
  sha1_update@Base 1.12.0~rc1
+ show_version@Base 1.99.2
  sober128_add_entropy@Base 1.99.0
  sober128_read@Base 1.99.0
  sober128_start@Base 1.99.0
