@@ -2720,7 +2720,7 @@ prefs_clear_string_list(GList *sl)
  * If the string matches a "name" string in an entry, the value from that
  * entry is returned.
  *
- * Otherwise, if a string matches a "desctiption" string in an entry, the
+ * Otherwise, if a string matches a "description" string in an entry, the
  * value from that entry is returned; we do that for backwards compatibility,
  * as we used to have only a "name" string that was used both for command-line
  * and configuration-file values and in the GUI (which meant either that
