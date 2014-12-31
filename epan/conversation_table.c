@@ -85,9 +85,9 @@ dissector_conversation_init(const char *opt_arg, void* userdata)
 
     g_string_append(cmd_str, proto_get_protocol_filter_name(table->proto_id));
     if(!strncmp(opt_arg, cmd_str->str, cmd_str->len)){
-        filter = opt_arg + cmd_str->len;
-    } else {
-        filter = NULL;
+        if (opt_arg[cmd_str->len] == ',') {
+            filter = opt_arg + cmd_str->len + 1;
+        }
     }
     g_string_free(cmd_str, TRUE);
 
@@ -104,7 +104,9 @@ dissector_hostlist_init(const char *opt_arg, void* userdata)
 
     g_string_printf(cmd_str, "%s,%s,", (table->prefix_func != NULL) ? table->prefix_func() : "host", proto_get_protocol_filter_name(table->proto_id));
     if(!strncmp(opt_arg, cmd_str->str, cmd_str->len)){
-        filter=opt_arg+cmd_str->len;
+        if (opt_arg[cmd_str->len] == ',') {
+            filter = opt_arg + cmd_str->len + 1;
+        }
     } else {
         filter=NULL;
     }
