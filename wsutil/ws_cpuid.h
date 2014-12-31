@@ -28,19 +28,19 @@
  */
 
 #if defined(_MSC_VER)     /* MSVC */
-static int
+static gboolean
 ws_cpuid(guint32 *CPUInfo, guint32 selector)
 {
 	CPUInfo[0] = CPUInfo[1] = CPUInfo[2] = CPUInfo[3] = 0;
 	__cpuid((int *) CPUInfo, selector);
 	/* XXX, how to check if it's supported on MSVC? just in case clear all flags above */
-	return 1;
+	return TRUE;
 }
 
 #elif defined(__GNUC__)  /* GCC/clang */
 
 #if defined(__x86_64__)
-static inline int
+static inline gboolean
 ws_cpuid(guint32 *CPUInfo, int selector)
 {
 	__asm__ __volatile__("cpuid"
@@ -49,30 +49,30 @@ ws_cpuid(guint32 *CPUInfo, int selector)
 							"=c" (CPUInfo[2]),
 							"=d" (CPUInfo[3])
 						: "a"(selector));
-	return 1;
+	return TRUE;
 }
 #elif defined(__i386__)
-static int
+static gboolean
 ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
 	/* TODO: need a test if older proccesors have the cpuid instruction */
-	return 0;
+	return FALSE;
 }
 #elif
-static int
+static gboolean
 ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
 	/* Not x86, so no cpuid instruction */
-	return 0;
+	return FALSE;
 }
 #endif
 
 #else /* Other compilers */
 
-static int
+static gboolean
 ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
-	return 0;
+	return FALSE;
 }
 #endif
 
