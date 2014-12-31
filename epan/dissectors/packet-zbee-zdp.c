@@ -962,7 +962,7 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
 
     out_count = zbee_parse_uint(field_tree, hf_zbee_zdp_out_count, tvb, offset, (int)sizeof(guint8), NULL);
     if ((tree) && (out_count)) {
-        cluster_tree = proto_tree_add_subtree(field_tree, tvb, *offset, in_count*sizeof_cluster,
+        cluster_tree = proto_tree_add_subtree(field_tree, tvb, *offset, out_count*sizeof_cluster,
                                                 ett_zbee_zdp_node_out, NULL, "Output Cluster List");
     }
     for (i=0; (i<out_count) && tvb_bytes_exist(tvb, *offset, sizeof_cluster); i++) {
