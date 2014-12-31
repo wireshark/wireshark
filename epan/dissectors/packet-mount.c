@@ -299,11 +299,9 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			hf_mount_exportlist_directory, offset, &directory);
 	groups_offset = offset;
 
-	if (tree) {
-		groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, tvb,
-					offset, -1, ENC_NA);
-		groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
-	}
+	groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, tvb, offset, -1, ENC_NA);
+	groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
+
 
 	offset = dissect_rpc_list(tvb, pinfo, groups_tree, offset,
 		dissect_group, NULL);
