@@ -69,23 +69,6 @@ end_string(GString *str)
 }
 
 /*
- * Get the GLib version, and append it to the GString
- */
-void
-get_glib_version_info(GString *str)
-{
-	/* GLIB */
-	g_string_append(str, "with ");
-	g_string_append_printf(str,
-#ifdef GLIB_MAJOR_VERSION
-	    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
-	    GLIB_MICRO_VERSION);
-#else
-	    "GLib (version unknown)");
-#endif
-}
-
-/*
  * Get various library compile-time versions, put them in a GString,
  * and return the GString.
  *
@@ -116,7 +99,15 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 		g_string_append(str, ", ");
 	}
 
-	get_glib_version_info(str);
+	/* GLIB */
+	g_string_append(str, "with ");
+	g_string_append_printf(str,
+#ifdef GLIB_MAJOR_VERSION
+	    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+	    GLIB_MICRO_VERSION);
+#else
+	    "GLib (version unknown)");
+#endif
 
 	/* Additional application-dependent information */
 	if (append_info)
