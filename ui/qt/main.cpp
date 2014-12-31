@@ -571,17 +571,14 @@ int main(int argc, char *argv[])
     };
     static const char optstring[] = OPTSTRING;
 
-    /* Assemble the compile-time version information string */
-    comp_info_str = g_string_new("Compiled ");
-
-    // xxx qtshark
-    get_compiled_version_info(comp_info_str, get_wireshark_qt_compiled_info,
-                              get_gui_compiled_info);
+    /* Get the compile-time version information string */
+    // XXX qtshark
+    comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
+                                              get_gui_compiled_info);
 
     /* Assemble the run-time version information string */
-    runtime_info_str = g_string_new("Running ");
     // xxx qtshark
-    get_runtime_version_info(runtime_info_str, get_wireshark_runtime_info);
+    runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
     /* Add it to the information to be reported on a crash. */
     ws_add_crash_info("Wireshark %s\n"

@@ -249,13 +249,11 @@ main(int argc, char *argv[])
   create_app_running_mutex();
 #endif /* _WIN32 */
 
-  /* Assemble the compile-time version information string */
-  comp_info_str = g_string_new("Compiled ");
-  get_compiled_version_info(comp_info_str, NULL, get_mergecap_compiled_info);
+  /* Get the compile-time version information string */
+  comp_info_str = get_compiled_version_info(NULL, get_mergecap_compiled_info);
 
-  /* Assemble the run-time version information string */
-  runtime_info_str = g_string_new("Running ");
-  get_runtime_version_info(runtime_info_str, get_mergecap_runtime_info);
+  /* Get the run-time version information string */
+  runtime_info_str = get_runtime_version_info(get_mergecap_runtime_info);
 
   /* Add it to the information to be reported on a crash. */
   ws_add_crash_info("Mergecap (Wireshark) %s\n"

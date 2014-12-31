@@ -68,18 +68,26 @@ end_string(GString *str)
 }
 
 /*
- * Get various library compile-time versions and append them to
- * the specified GString.
+ * Get various library compile-time versions, put them in a GString,
+ * and return the GString.
  *
- * "additional_info" is called at the end to append any additional
- * information; this is required in order to, for example, put the
- * Portaudio information at the end of the string, as we currently
- * don't use Portaudio in TShark.
+ * "prepend_info" is called at the start to prepend any additional
+ * information before the standard library information.
+ *
+ * "append_info" is called at the end to append any additional
+ * information after the standard library information.  This is
+ * required in order to, for example, put the Portaudio information
+ * at the end of the string, as we currently don't use Portaudio in
+ * TShark.
  */
-void
-get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
+GString *
+get_compiled_version_info(void (*prepend_info)(GString *),
 			  void (*append_info)(GString *))
 {
+	GString *str;
+
+	str = g_string_new("Compiled ");
+
 	if (sizeof(str) == 4)
 		g_string_append(str, "(32-bit) ");
 	else
@@ -98,20 +106,28 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 	g_string_append(str, ".");
 
 	end_string(str);
+
+	return str;
 }
 
 /*
  * Get various library run-time versions, and the OS version, and append
  * them to the specified GString.
+ *
+ * "additional_info" is called at the end to append any additional
+ * information; this is required in order to, for example, put the
+ * Portaudio information at the end of the string, as we currently
+ * don't use Portaudio in TShark.
  */
-void
-get_runtime_version_info(GString *str, void (*additional_info)(GString *))
+GString *
+get_runtime_version_info(void (*additional_info)(GString *))
 {
+	GString *str;
 #ifndef _WIN32
 	gchar *lang;
 #endif
 
-	g_string_append(str, "on ");
+	str = g_string_new("Running on ");
 
 	get_os_version_info(str);
 
@@ -139,6 +155,8 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	get_compiler_info(str);
 
 	end_string(str);
+
+	return str;
 }
 
 void

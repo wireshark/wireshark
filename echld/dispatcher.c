@@ -482,11 +482,9 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 
 	error = init_progfile_dir(argv0, main);
 
-	comp_info_str = g_string_new("Compiled ");
-	get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+	comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
 
-	runtime_info_str = g_string_new("Running ");
-	get_runtime_version_info(runtime_info_str, NULL);
+	runtime_info_str = get_runtime_version_info(NULL);
 
 	version_long_str = g_strdup_printf("Echld %s\n%s\n%s\n%s",
 		get_ws_vcs_version_info(), get_copyright_info(),

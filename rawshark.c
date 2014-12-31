@@ -454,13 +454,11 @@ main(int argc, char *argv[])
 
     cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
 
-    /* Assemble the compile-time version information string */
-    comp_info_str = g_string_new("Compiled ");
-    get_compiled_version_info(comp_info_str, NULL, epan_get_compiled_version_info);
+    /* Get the compile-time version information string */
+    comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
 
-    /* Assemble the run-time version information string */
-    runtime_info_str = g_string_new("Running ");
-    get_runtime_version_info(runtime_info_str, NULL);
+    /* Get the run-time version information string */
+    runtime_info_str = get_runtime_version_info(NULL);
 
     /* Add it to the information to be reported on a crash. */
     ws_add_crash_info("Rawshark (Wireshark) %s\n"
