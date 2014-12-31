@@ -953,6 +953,114 @@ tvb_get_ntoh64(tvbuff_t *tvb, const gint offset)
 	return pntoh64(ptr);
 }
 
+guint16
+tvb_get_guint16(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohs(tvb, offset);
+	} else {
+		return tvb_get_ntohs(tvb, offset);
+	}
+}
+
+guint32
+tvb_get_guint24(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letoh24(tvb, offset);
+	} else {
+		return tvb_get_ntoh24(tvb, offset);
+	}
+}
+
+guint32
+tvb_get_guint32(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohl(tvb, offset);
+	} else {
+		return tvb_get_ntohl(tvb, offset);
+	}
+}
+
+guint64
+tvb_get_guint40(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letoh40(tvb, offset);
+	} else {
+		return tvb_get_ntoh40(tvb, offset);
+	}
+}
+
+gint64
+tvb_get_gint40(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohi40(tvb, offset);
+	} else {
+		return tvb_get_ntohi40(tvb, offset);
+	}
+}
+
+guint64
+tvb_get_guint48(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letoh48(tvb, offset);
+	} else {
+		return tvb_get_ntoh48(tvb, offset);
+	}
+}
+
+gint64
+tvb_get_gint48(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohi48(tvb, offset);
+	} else {
+		return tvb_get_ntohi48(tvb, offset);
+	}
+}
+
+guint64
+tvb_get_guint56(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letoh56(tvb, offset);
+	} else {
+		return tvb_get_ntoh56(tvb, offset);
+	}
+}
+
+gint64
+tvb_get_gint56(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohi56(tvb, offset);
+	} else {
+		return tvb_get_ntohi56(tvb, offset);
+	}
+}
+
+guint64
+tvb_get_guint64(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letoh64(tvb, offset);
+	} else {
+		return tvb_get_ntoh64(tvb, offset);
+	}
+}
+
+gfloat
+tvb_get_ieee_float(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohieee_float(tvb, offset);
+	} else {
+		return tvb_get_ntohieee_float(tvb, offset);
+	}
+}
+
+gdouble
+tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, const guint encoding) {
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return tvb_get_letohieee_double(tvb, offset);
+	} else {
+		return tvb_get_ntohieee_double(tvb, offset);
+	}
+}
+
 /*
  * Stuff for IEEE float handling on platforms that don't have IEEE
  * format as the native floating-point format.
@@ -1596,12 +1704,12 @@ tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid)
  * NOTE: to support code written when proto_tree_add_item() took a
  * gboolean as its last argument, with FALSE meaning "big-endian"
  * and TRUE meaning "little-endian", we treat any non-zero value of
- * "representation" as meaning "little-endian".
+ * "encoding" as meaning "little-endian".
  */
 void
-tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint representation)
+tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint encoding)
 {
-	if (representation) {
+	if (encoding) {
 		tvb_get_letohguid(tvb, offset, guid);
 	} else {
 		tvb_get_ntohguid(tvb, offset, guid);

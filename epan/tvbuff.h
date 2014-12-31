@@ -325,6 +325,19 @@ WS_DLL_PUBLIC gfloat tvb_get_letohieee_float(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gdouble tvb_get_letohieee_double(tvbuff_t *tvb,
     const gint offset);
 
+WS_DLL_PUBLIC guint16 tvb_get_guint16(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC guint32 tvb_get_guint24(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC guint32 tvb_get_guint32(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC guint64 tvb_get_guint40(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gint64 tvb_get_gint40(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC guint64 tvb_get_guint48(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gint64 tvb_get_gint48(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC guint64 tvb_get_guint56(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gint64 tvb_get_gint56(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC guint64 tvb_get_guint64(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gfloat tvb_get_ieee_float(tvbuff_t *tvb, const gint offset, const guint encoding);
+WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, const guint encoding);
+
 /*
  * Fetch 16-bit and 32-bit values in host byte order.
  * Used for some pseudo-headers in pcap/pcap-ng files, in which the
@@ -401,7 +414,7 @@ WS_DLL_PUBLIC void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC void tvb_get_letohguid(tvbuff_t *tvb, const gint offset,
     e_guid_t *guid);
 WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const gint offset,
-    e_guid_t *guid, const guint representation);
+    e_guid_t *guid, const guint encoding);
 
 /* Fetch a specified number of bits from bit offset in a tvb.  All of these
  * functions are equivalent, except for the type of the return value.  Note
