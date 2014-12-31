@@ -30,6 +30,29 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/*
+ * Get various library compile-time versions and append them to
+ * the specified GString.
+ *
+ * "prepend_info" is called at the start to prepend any additional
+ * information.
+ *
+ * "append_info" is called at the end to append any additional
+ * information; this is required in order to, for example, put the
+ * Portaudio information at the end of the string, as we currently
+ * don't use Portaudio in TShark.
+ */
+WS_DLL_PUBLIC void get_compiled_version_info(GString *str,
+    void (*prepend_info)(GString *),
+    void (*append_info)(GString *));
+
+/*
+ * Get various library run-time versions, and the OS version, and append
+ * them to the specified GString.
+ */
+WS_DLL_PUBLIC void get_runtime_version_info(GString *str,
+    void (*additional_info)(GString *));
+
 WS_DLL_PUBLIC void show_version(const gchar *prog_name, GString *comp_info_str, GString *runtime_info_str);
 
 /*

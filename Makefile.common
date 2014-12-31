@@ -44,7 +44,6 @@ SHARK_COMMON_SRC =	\
 	cfile.c			\
 	frame_tvbuff.c		\
 	sync_pipe_write.c	\
-	version_info.c		\
 	extcap.c		\
 	extcap_parser.c
 
@@ -58,7 +57,6 @@ SHARK_COMMON_INCLUDES =	\
 	fileset.h		\
 	frame_tvbuff.h		\
 	register.h		\
-	version_info.h		\
 	ws_symbol_export.h
 
 # wireshark specifics
@@ -101,8 +99,7 @@ rawshark_SOURCES =	\
 text2pcap_SOURCES = \
 	pcapio.c		\
 	text2pcap.c		\
-	text2pcap-scanner.l	\
-	version_info.c
+	text2pcap-scanner.l
 
 text2pcap_INCLUDES = \
 	pcapio.h \
@@ -110,28 +107,23 @@ text2pcap_INCLUDES = \
 
 # mergecap specifics
 mergecap_SOURCES = \
-	mergecap.c	\
-	version_info.c
+	mergecap.c
 
 # editcap specifics
 editcap_SOURCES = \
-	editcap.c	\
-	version_info.c
+	editcap.c
 
 # reordercap specifics
 reordercap_SOURCES = \
-	reordercap.c	\
-	version_info.c
+	reordercap.c
 
 # capinfos specifics
 capinfos_SOURCES = \
-	capinfos.c	\
-	version_info.c
+	capinfos.c
 
 # captype specifics
 captype_SOURCES = \
-	captype.c	\
-	version_info.c
+	captype.c
 
 # dftest specifics
 dftest_SOURCES =	\
@@ -149,8 +141,7 @@ dumpcap_SOURCES =	\
 	dumpcap.c	\
 	pcapio.c	\
 	ringbuffer.c	\
-	sync_pipe_write.c	\
-	version_info.c
+	sync_pipe_write.c
 
 # corresponding headers
 dumpcap_INCLUDES = \

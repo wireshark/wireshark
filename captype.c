@@ -72,8 +72,6 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
-#include "version_info.h"
-
 static void
 print_usage(FILE *output)
 {

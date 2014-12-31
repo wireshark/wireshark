@@ -38,8 +38,7 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
-
-#include "version_info.h"
+#include "wsutil/ws_version_info.h"
 
 /* XXX - We might want to switch this to a UAT */
 

@@ -91,7 +91,6 @@
 #include "register.h"
 #include "ringbuffer.h"
 #include "ui/util.h"
-#include "version_info.h"
 #include "log.h"
 
 #include "ui/alert_box.h"

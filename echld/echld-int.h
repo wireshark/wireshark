@@ -64,7 +64,6 @@
 #include <capchild/capture_session.h>
 #include <caputils/capture_ifinfo.h>
 #include <capchild/capture_sync.h>
-#include "version_info.h"
 #include "cfile.h"
 #include "wsutil/crash_info.h"
 #include "wsutil/privileges.h"

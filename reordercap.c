@@ -50,8 +50,6 @@
 #include <wsutil/crash_info.h>
 #include <wsutil/ws_version_info.h>
 
-#include "version_info.h"
-
 /* Show command-line usage */
 static void
 print_usage(FILE *output)

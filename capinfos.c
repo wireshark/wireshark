@@ -107,8 +107,6 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
-#include "version_info.h"
-
 /*
  * By default capinfos now continues processing
  * the next filename if and when wiretap detects

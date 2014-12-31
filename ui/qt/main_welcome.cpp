@@ -25,7 +25,7 @@
 
 #include <epan/prefs.h>
 
-#include "version_info.h"
+#include "wsutil/ws_version_info.h"
 
 #include "main_welcome.h"
 #include "ui_main_welcome.h"

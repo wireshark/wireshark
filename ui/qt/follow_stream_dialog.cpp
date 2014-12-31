@@ -41,12 +41,11 @@
 #include "wsutil/tempfile.h"
 #include "wsutil/file_util.h"
 #include "wsutil/str_util.h"
+#include "wsutil/ws_version_info.h"
 
 #include "ws_symbol_export.h"
 
 #include "color_utils.h"
-
-#include "version_info.h"
 
 #include "ui/follow.h"
 

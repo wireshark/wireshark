@@ -88,7 +88,6 @@
 #endif
 
 #include "ringbuffer.h"
-#include "version_info.h"
 
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"

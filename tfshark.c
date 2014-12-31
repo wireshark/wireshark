@@ -86,7 +86,6 @@
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
 #include "ui/util.h"
-#include "version_info.h"
 #include "register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>

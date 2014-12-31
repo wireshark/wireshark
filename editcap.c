@@ -90,8 +90,6 @@
 #include <wsutil/crash_info.h>
 #include <wsutil/ws_version_info.h>
 
-#include "version_info.h"
-
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
 
 /*

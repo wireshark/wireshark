@@ -996,7 +996,6 @@ set(SHARK_COMMON_SRC
 	cfile.c
 	frame_tvbuff.c
 	sync_pipe_write.c
-	version_info.c
 )
 
 # sources for external capture interfaces
@@ -1471,7 +1470,6 @@ if(BUILD_text2pcap)
 	set(text2pcap_CLEAN_FILES
 		text2pcap.c
 		pcapio.c
-		version_info.c
 	)
 	set(text2pcap_FILES
 		${text2pcap_CLEAN_FILES}
@@ -1494,7 +1492,6 @@ if(BUILD_mergecap)
 	)
 	set(mergecap_FILES
 		mergecap.c
-		version_info.c
 		image/mergecap.rc
 	)
 	add_executable(mergecap ${mergecap_FILES})
@@ -1511,7 +1508,6 @@ if(BUILD_reordercap)
 	)
 	set(reordercap_FILES
 		reordercap.c
-		version_info.c
 		image/reordercap.rc
 	)
 	add_executable(reordercap ${reordercap_FILES})
@@ -1530,7 +1526,6 @@ if(BUILD_capinfos)
 	)
 	set(capinfos_FILES
 		capinfos.c
-		version_info.c
 		image/capinfos.rc
 	)
 	add_executable(capinfos ${capinfos_FILES})
@@ -1548,7 +1543,6 @@ if(BUILD_captype)
 	)
 	set(captype_FILES
 		captype.c
-		version_info.c
 		image/captype.rc
 	)
 	add_executable(captype ${captype_FILES})
@@ -1565,7 +1559,6 @@ if(BUILD_editcap)
 	)
 	set(editcap_FILES
 		editcap.c
-		version_info.c
 		image/editcap.rc
 	)
 	add_executable(editcap ${editcap_FILES})
@@ -1597,7 +1590,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		pcapio.c
 		ringbuffer.c
 		sync_pipe_write.c
-		version_info.c
 		image/dumpcap.rc
 	)
 	add_executable(dumpcap ${dumpcap_FILES})

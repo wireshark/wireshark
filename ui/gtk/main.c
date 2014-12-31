@@ -101,7 +101,6 @@
 #include "../color_filters.h"
 #include "../register.h"
 #include "../ringbuffer.h"
-#include "../version_info.h"
 #include "../log.h"
 
 #include "gtk_iface_monitor.h"

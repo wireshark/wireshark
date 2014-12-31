@@ -142,7 +142,6 @@
 
 #include "pcapio.h"
 #include "text2pcap.h"
-#include "version_info.h"
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>

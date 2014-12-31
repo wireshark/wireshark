@@ -38,9 +38,8 @@
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-frame.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/ws_version_info.h>
 #include <ftypes/ftypes-int.h>
-
-#include "version_info.h"
 
 #define PDML_VERSION "0"
 #define PSML_VERSION "0"

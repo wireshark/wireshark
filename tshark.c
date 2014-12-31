@@ -96,7 +96,6 @@
 #include "ui/util.h"
 #include "ui/ui_util.h"
 #include "ui/cli/tshark-tap.h"
-#include "version_info.h"
 #include "register.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>

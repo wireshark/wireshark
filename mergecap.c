@@ -62,8 +62,6 @@
 
 #include <wiretap/merge.h>
 
-#include "version_info.h"
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
