@@ -1447,12 +1447,12 @@ sub checkAddTextCalls($$)
                 (($total_count > 50) && ($total_count <= 100) && ($percentage > 40)) ||
                 (($total_count > 100) && ($total_count <= 200) && ($percentage > 30)) ||
                 (($total_count > 200) && ($percentage > 20))) {
-                    printf "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
+                    printf STDERR "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
                         $filename, $add_text_count, $add_xxx_count, $percentage;
             }
         } else {
             if ($percentage > 50) {
-                printf "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
+                printf STDERR "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
                         $filename, $add_text_count, $add_xxx_count, $percentage;
             }
         }
@@ -1691,7 +1691,7 @@ sub check_ett_registration($$)
         }xgiom);
 
         if (!@ett_declarations) {
-                print "Found no etts in ".$filename."\n";
+                print STDERR "Found no etts in ".$filename."\n";
                 return;
         }
 
@@ -1720,7 +1720,7 @@ sub check_ett_registration($$)
         #print "Found this ett registration block in ".$filename.": ".join(',', @reg_blocks)."\n";
 
         if (@reg_blocks == 0) {
-                print "Hmm, found ".@reg_blocks." ett registration blocks in ".$filename."\n";
+                print STDERR "Hmm, found ".@reg_blocks." ett registration blocks in ".$filename."\n";
                 # For now...
                 return;
         }
