@@ -1,5 +1,5 @@
 /* ws_cpuid.h
- * Get the CPU info
+ * Get the CPU info on x86 processors that support it
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -51,12 +51,18 @@ ws_cpuid(guint32 *CPUInfo, int selector)
 						: "a"(selector));
 	return 1;
 }
-#else /* (__i386__) */
-
+#elif defined(__i386__)
 static int
 ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
 	/* TODO: need a test if older proccesors have the cpuid instruction */
+	return 0;
+}
+#elif
+static int
+ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
+{
+	/* Not x86, so no cpuid instruction */
 	return 0;
 }
 #endif
