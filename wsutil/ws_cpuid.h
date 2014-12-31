@@ -55,10 +55,32 @@ ws_cpuid(guint32 *CPUInfo, int selector)
 static gboolean
 ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
-	/* TODO: need a test if older proccesors have the cpuid instruction */
+	/*
+	 * TODO: need a test if older proccesors have the cpuid instruction.
+	 *
+	 * The correct way to test for this, according to the Intel64/IA-32
+	 * documentation from Intel, in section 17.1 "USING THE CPUID
+	 * INSTRUCTION", is to try to change the ID bit (bit 21) in
+	 * EFLAGS.  If it can be changed, the machine supports CPUID,
+	 * otherwise it doesn't.
+	 *
+	 * Some 486's, and all subsequent processors, support CPUID.
+	 *
+	 * For those who are curious, the way you distinguish between
+	 * an 80386 and an 80486 is to try to set the flag in EFLAGS
+	 * that causes unaligned accesses to fault - that's bit 18.
+	 * However, if the SMAP bit is set in CR4, that bit controls
+	 * whether explicit supervisor-mode access to user-mode pages
+	 * are allowed, so that should presumably only be done in a
+	 * very controlled environment, such as the system boot process.
+	 *
+	 * So, if you want to find out what type of CPU the system has,
+	 * it's probably best to ask the OS, if it supplies the result
+	 * of any CPU type testing it's done.
+	 */
 	return FALSE;
 }
-#elif
+#else /* not x86 */
 static gboolean
 ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
