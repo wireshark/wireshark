@@ -1397,7 +1397,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         PROTO_ITEM_SET_GENERATED(tree_item);
 
         if(AT_URI == pinfo->dst.type) {
-            tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_dst, tvb, 0, 0, wmem_strbuf_get_str(src_addr));
+            tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_dst, tvb, 0, 0, wmem_strbuf_get_str(dst_addr));
             PROTO_ITEM_SET_HIDDEN(tree_item);
             PROTO_ITEM_SET_GENERATED(tree_item);
             tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_addr, tvb, 0, 0, wmem_strbuf_get_str(dst_addr));
@@ -1939,7 +1939,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             nameID = tvb_get_ntohs(tvb, tree_offset);
             name_ti =
                 proto_tree_add_uint(jxta_elem_tree, hf_jxta_element2_nameid, tvb, tree_offset, 2, nameID);
-            if (namespaceID < names_count) {
+            if (nameID < names_count) {
                 proto_item_append_text(name_ti, " (%s)", names_table[nameID]);
             } else {
                 proto_item_append_text(name_ti, " * BAD *");
