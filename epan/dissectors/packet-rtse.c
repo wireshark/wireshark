@@ -301,7 +301,7 @@ dissect_rtse_T_open(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_rtse_T_t61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 115 "../../asn1/rtse/rtse.cnf"
+#line 116 "../../asn1/rtse/rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
                                             actx, tree, tvb, offset, hf_index,
@@ -319,7 +319,7 @@ dissect_rtse_T_t61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_rtse_T_octetString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 131 "../../asn1/rtse/rtse.cnf"
+#line 132 "../../asn1/rtse/rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &string);
@@ -358,7 +358,7 @@ dissect_rtse_CallingSSuserReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_rtse_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "../../asn1/rtse/rtse.cnf"
+#line 124 "../../asn1/rtse/rtse.cnf"
   tvbuff_t *string = NULL;
     offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
@@ -392,8 +392,9 @@ static const ber_sequence_t SessionConnectionIdentifier_sequence[] = {
 static int
 dissect_rtse_SessionConnectionIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 108 "../../asn1/rtse/rtse.cnf"
-  if(open_request)
+  if(open_request){
     col_append_str(actx->pinfo->cinfo, COL_INFO, "Recover");
+  }
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SessionConnectionIdentifier_sequence, hf_index, ett_rtse_SessionConnectionIdentifier);
 
@@ -509,7 +510,7 @@ static const value_string rtse_RefuseReason_vals[] = {
 
 static int
 dissect_rtse_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 155 "../../asn1/rtse/rtse.cnf"
+#line 156 "../../asn1/rtse/rtse.cnf"
   int reason = -1;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -569,7 +570,7 @@ static const ber_sequence_t RTORJapdu_set[] = {
 
 int
 dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 147 "../../asn1/rtse/rtse.cnf"
+#line 148 "../../asn1/rtse/rtse.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Refuse");
 
     offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
@@ -585,7 +586,7 @@ dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_rtse_RTTPapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 137 "../../asn1/rtse/rtse.cnf"
+#line 138 "../../asn1/rtse/rtse.cnf"
   int priority = -1;
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Turn-Please");
@@ -645,7 +646,7 @@ static const value_string rtse_AbortReason_vals[] = {
 
 static int
 dissect_rtse_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 171 "../../asn1/rtse/rtse.cnf"
+#line 172 "../../asn1/rtse/rtse.cnf"
   int reason = -1;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -693,7 +694,7 @@ static const ber_sequence_t RTABapdu_set[] = {
 
 int
 dissect_rtse_RTABapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 163 "../../asn1/rtse/rtse.cnf"
+#line 164 "../../asn1/rtse/rtse.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");
 
     offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,

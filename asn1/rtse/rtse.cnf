@@ -105,8 +105,9 @@ RTSE-apdus
   offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index, &app_proto);
 
 #.FN_BODY SessionConnectionIdentifier
-  if(open_request)
+  if(open_request){
     col_append_str(actx->pinfo->cinfo, COL_INFO, "Recover");
+  }
   %(DEFAULT_BODY)s
 
 #.END
