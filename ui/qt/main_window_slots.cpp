@@ -1434,7 +1434,7 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
     if (!capture_file_.capFile() || !capture_file_.capFile()->finfo_selected) return;
 
     file_name = QFileDialog::getSaveFileName(this,
-                                             tr("Wireshark: Export Selected Packet Bytes"),
+                                             wsApp->windowTitleString(tr("Export Selected Packet Bytes")),
                                              wsApp->lastOpenDir().canonicalPath(),
                                              tr("Raw data (*.bin *.dat *.raw);;Any File (*.*)")
                                              );
@@ -1500,8 +1500,8 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
         return;
     }
 
-    save_title.append(QString("Wireshark: Export SSL Session Keys (%1 key%2").
-            arg(keylist_len).arg(plurality(keylist_len, "", "s")));
+    save_title.append(wsApp->windowTitleString(tr("Export SSL Session Keys (%1 key%2").
+            arg(keylist_len).arg(plurality(keylist_len, "", "s"))));
     file_name = QFileDialog::getSaveFileName(this,
                                              save_title,
                                              wsApp->lastOpenDir().canonicalPath(),

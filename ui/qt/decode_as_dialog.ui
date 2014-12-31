@@ -10,9 +10,6 @@
     <height>460</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Wireshark: Decode As</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QTreeWidget" name="decodeAsTreeWidget">

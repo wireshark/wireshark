@@ -24,6 +24,7 @@
 #include "syntax_line_edit.h"
 #include "qt_ui_utils.h"
 #include "uat_dialog.h"
+#include "wireshark_application.h"
 
 #include <epan/prefs-int.h>
 
@@ -474,8 +475,7 @@ void ModulePreferencesScrollArea::filenamePushButtonPressed()
     pref_t *pref = filename_pb->property(pref_prop_).value<pref_t *>();
     if (!pref) return;
 
-    QString filename = QFileDialog::getSaveFileName(this,
-                                            QString(tr("Wireshark: ")) + pref->description,
+    QString filename = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(pref->title),
                                             pref->stashed_val.string);
 
     if (!filename.isEmpty()) {
@@ -493,8 +493,7 @@ void ModulePreferencesScrollArea::dirnamePushButtonPressed()
     pref_t *pref = dirname_pb->property(pref_prop_).value<pref_t *>();
     if (!pref) return;
 
-    QString dirname = QFileDialog::getExistingDirectory(this,
-                                                 QString(tr("Wireshark: ")) + pref->description,
+    QString dirname = QFileDialog::getExistingDirectory(this, wsApp->windowTitleString(pref->title),
                                                  pref->stashed_val.string);
 
     if (!dirname.isEmpty()) {

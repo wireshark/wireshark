@@ -101,6 +101,7 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     ui(new Ui::CaptureInterfacesDialog)
 {
     ui->setupUi(this);
+    setWindowTitle(wsApp->windowTitleString(tr("Capture Interfaces")));
 
     stat_timer_ = NULL;
     stat_cache_ = NULL;

@@ -194,7 +194,7 @@ void FontColorPreferencesFrame::changeColor(pref_t *pref)
 void FontColorPreferencesFrame::on_fontPushButton_clicked()
 {
     bool ok;
-    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, tr("Wireshark: Font"));
+    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, wsApp->windowTitleString(tr("Font")));
     if (ok) {
         g_free(pref_qt_gui_font_name_->stashed_val.string);
         pref_qt_gui_font_name_->stashed_val.string = qstring_strdup(new_font.toString());

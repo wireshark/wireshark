@@ -22,9 +22,6 @@
     <height>486</height>
    </size>
   </property>
-  <property name="windowTitle">
-   <string>Wireshark: Import from Hex Dump</string>
-  </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
@@ -456,6 +453,7 @@
    <header>syntax_line_edit.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

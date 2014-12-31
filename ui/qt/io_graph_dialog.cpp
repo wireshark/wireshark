@@ -26,6 +26,8 @@
 #include "epan/stats_tree_priv.h"
 #include "epan/uat-int.h"
 
+#include "ui/utf8_entities.h"
+
 #include "qt_ui_utils.h"
 #include "tango_colors.h"
 
@@ -1471,7 +1473,7 @@ void IOGraphDialog::on_buttonBox_accepted()
     if (!file_closed_) {
         save_file += QString("/%1").arg(cap_file_.fileTitle());
     }
-    file_name = QFileDialog::getSaveFileName(this, tr("Wireshark: Save Graph As..."),
+    file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
                                              save_file, filter, &extension);
 
     if (file_name.length() > 0) {

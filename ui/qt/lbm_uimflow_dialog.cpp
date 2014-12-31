@@ -32,6 +32,8 @@
 #include <epan/addr_resolv.h>
 #include <wsutil/nstime.h>
 
+#include "ui/utf8_entities.h"
+
 #include "wireshark_application.h"
 
 #include <QDir>
@@ -464,7 +466,7 @@ void LBMUIMFlowDialog::on_buttonBox_accepted(void)
         filter.append(QString(";;%5").arg(ascii_filter));
     }
 
-    file_name = QFileDialog::getSaveFileName(this, tr("Wireshark: Save Graph As..."),
+    file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
         path.canonicalPath(), filter, &extension);
 
     if (file_name.length() > 0)

@@ -23,6 +23,7 @@
 #include "ui_export_object_dialog.h"
 
 #include <ui/alert_box.h>
+#include <ui/utf8_entities.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/str_util.h>
@@ -256,7 +257,7 @@ void ExportObjectDialog::saveCurrentEntry()
     entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
     if (!entry) return;
 
-    file_name = QFileDialog::getSaveFileName(this, tr("Wireshark: Save Object As..."),
+    file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Object As" UTF8_HORIZONTAL_ELLIPSIS)),
                                              path.filePath(entry->filename));
 
     if (file_name.length() > 0) {
@@ -273,7 +274,7 @@ void ExportObjectDialog::saveAllEntries()
     QString file_path;
     bool all_saved = true;
 
-    file_path = QFileDialog::getSaveFileName(this, tr("Wireshark: Save All Objects In..."),
+    file_path = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save All Objects In" UTF8_HORIZONTAL_ELLIPSIS)),
                                              path.canonicalPath(), QString(), NULL,
                                              QFileDialog::ShowDirsOnly);
 

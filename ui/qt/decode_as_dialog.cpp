@@ -59,6 +59,7 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     selector_combo_box_(NULL)
 {
     ui->setupUi(this);
+    setWindowTitle(wsApp->windowTitleString(tr("Decode As" UTF8_HORIZONTAL_ELLIPSIS)));
     ui->deleteToolButton->setEnabled(false);
 
     GList *cur;

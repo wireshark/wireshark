@@ -214,7 +214,7 @@ void FollowStreamDialog::findText(bool go_back)
 
 void FollowStreamDialog::saveAs()
 {
-    QString file_name = QFileDialog::getSaveFileName(this, tr("Wireshark: Save stream content as"));
+    QString file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As" UTF8_HORIZONTAL_ELLIPSIS)));
     file_.setFileName(file_name);
     file_.open( QIODevice::WriteOnly );
     QTextStream out(&file_);

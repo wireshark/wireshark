@@ -25,8 +25,11 @@
 #include "file.h"
 
 #include "epan/stats_tree_priv.h"
-#include "wsutil/file_util.h"
+
 #include "ui/last_open_dir.h"
+#include "ui/utf8_entities.h"
+
+#include "wsutil/file_util.h"
 
 #include "wireshark_application.h"
 
@@ -262,7 +265,8 @@ void StatsTreeDialog::on_actionSaveAs_triggered()
     bool success= false;
     int last_errno;
 
-    QFileDialog SaveAsDialog(this, tr("Wireshark: Save stats tree as ..."), get_last_open_dir());
+    QFileDialog SaveAsDialog(this, wsApp->windowTitleString(tr("Save Statistics As" UTF8_HORIZONTAL_ELLIPSIS)),
+                                                            get_last_open_dir());
     SaveAsDialog.setNameFilter(tr("Plain text file (*.txt);;"
                                     "Comma separated values (*.csv);;"
                                     "XML document (*.xml);;"

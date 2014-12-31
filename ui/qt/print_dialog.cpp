@@ -82,6 +82,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf) :
     if (!cf) done(QDialog::Rejected); // ...or assert?
 
     pd_ui_->setupUi(this);
+    setWindowTitle(wsApp->windowTitleString(tr("Print")));
 
     pd_ui_->previewLayout->insertWidget(0, preview_, Qt::AlignTop);
 

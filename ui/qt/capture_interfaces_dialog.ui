@@ -10,9 +10,6 @@
     <height>435</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Wireshark: Capture interfaces</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_12">
    <item>
     <widget class="QTabWidget" name="tabWidget">
@@ -814,5 +811,6 @@ PLEASE NOTE: One option MUST be selected.</string>
    <header>capture_filter_combo.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections/>
 </ui>
