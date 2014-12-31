@@ -320,6 +320,8 @@
 #define AL_OBJ_CTLOP_BLK   0x0C01   /* 12 01 Control Relay Output Block */
 #define AL_OBJ_CTL_PCB     0x0C02   /* 12 02 Pattern Control Block */
 #define AL_OBJ_CTL_PMASK   0x0C03   /* 12 03 Pattern Mask */
+#define AL_OBJ_BOE_NOTIME  0x0D01   /* 13 01 Binary Output Command Event Without Time */
+#define AL_OBJ_BOE_TIME    0x0D02   /* 13 02 Binary Output Command Event With Time */
 
 #define AL_OBJCTLC_CODE    0x0F    /* Bit-Mask xxxx1111 for Control Code 'Code' */
 #define AL_OBJCTLC_MISC    0x30    /* Bit-Mask xx11xxxx for Control Code Queue (obsolete) and Clear Fields */
@@ -353,6 +355,12 @@
 #define AL_OBJCTL_STAT8    0x08    /* Request Not Accepted; Too many operations requested */
 #define AL_OBJCTL_STAT9    0x09    /* Request Not Accepted; Insufficient authorization */
 #define AL_OBJCTL_STAT10   0x0A    /* Request Not Accepted; Local automation proc active */
+#define AL_OBJCTL_STAT11   0x0B    /* Request Not Accepted; Processing limited */
+#define AL_OBJCTL_STAT12   0x0C    /* Request Not Accepted; Out of range value */
+#define AL_OBJCTL_STAT126  0x7E    /* Non Participating (NOP request) */
+#define AL_OBJCTL_STAT127  0x7F    /* Request Not Accepted; Undefined error */
+
+#define AL_OBJCTL_STATUS_MASK 0x7F
 
 /* Binary Output Quality Flags */
 #define AL_OBJ_BO_FLAG0    0x0001   /* Point Online (0=Offline; 1=Online) */
@@ -483,10 +491,18 @@
 #define AL_OBJ_AOC_16NT    0x2A02   /* 42 02 16-Bit Analog Output Event w/o Time */
 #define AL_OBJ_AOC_32T     0x2A03   /* 42 03 32-Bit Analog Output Event w/ Time */
 #define AL_OBJ_AOC_16T     0x2A04   /* 42 04 16-Bit Analog Output Event w/ Time */
-#define AL_OBJ_AOC_FLTNT   0x2A05   /* 42 05 32-Bit Floating Point Output Event w/o Time*/
-#define AL_OBJ_AOC_DBLNT   0x2A06   /* 42 06 64-Bit Floating Point Output Event w/o Time*/
-#define AL_OBJ_AOC_FLTT    0x2A07   /* 42 07 32-Bit Floating Point Output Event w/ Time*/
-#define AL_OBJ_AOC_DBLT    0x2A08   /* 42 08 64-Bit Floating Point Output Event w/ Time*/
+#define AL_OBJ_AOC_FLTNT   0x2A05   /* 42 05 32-Bit Floating Point Output Event w/o Time */
+#define AL_OBJ_AOC_DBLNT   0x2A06   /* 42 06 64-Bit Floating Point Output Event w/o Time */
+#define AL_OBJ_AOC_FLTT    0x2A07   /* 42 07 32-Bit Floating Point Output Event w/ Time */
+#define AL_OBJ_AOC_DBLT    0x2A08   /* 42 08 64-Bit Floating Point Output Event w/ Time */
+#define AL_OBJ_AOC_32EVNT  0x2B01   /* 43 01 32-Bit Analog Output Command Event w/o Time */
+#define AL_OBJ_AOC_16EVNT  0x2B02   /* 43 02 16-Bit Analog Output Command Event w/o Time */
+#define AL_OBJ_AOC_32EVTT  0x2B03   /* 43 03 32-Bit Analog Output Command Event w/ Time */
+#define AL_OBJ_AOC_16EVTT  0x2B04   /* 43 04 16-Bit Analog Output Command Event w/ Time */
+#define AL_OBJ_AOC_FLTEVNT 0x2B05   /* 43 05 32-Bit Floating Point Analog Output Command Event w/o Time */
+#define AL_OBJ_AOC_DBLEVNT 0x2B06   /* 43 06 64-Bit Floating PointAnalog Output Command Event w/o Time */
+#define AL_OBJ_AOC_FLTEVTT 0x2B07   /* 43 07 32-Bit Floating Point Analog Output Command Event w/ Time */
+#define AL_OBJ_AOC_DBLEVTT 0x2B08   /* 43 08 64-Bit Floating PointAnalog Output Command Event w/ Time */
 
 /* Analog Output Quality Flags */
 #define AL_OBJ_AO_FLAG0    0x0001   /* Point Online (0=Offline; 1=Online) */
@@ -625,6 +641,7 @@ static int hf_dnp3_al_index32 = -1;
 static int hf_dnp3_al_size8 = -1;
 static int hf_dnp3_al_size16 = -1;
 static int hf_dnp3_al_size32 = -1;
+static int hf_dnp3_bocs_bit = -1;
 
 /*static int hf_dnp3_al_objq = -1;
   static int hf_dnp3_al_nobj = -1; */
@@ -933,6 +950,8 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_CTLOP_BLK,  "Control Relay Output Block (Obj:12, Var:01)" },
   { AL_OBJ_CTL_PCB,    "Pattern Control Block (Obj:12, Var:02)" },
   { AL_OBJ_CTL_PMASK,  "Pattern Mask (Obj:12, Var:03)" },
+  { AL_OBJ_BOE_NOTIME, "Binary Command Event Without Time (Obj 13, Var:01)" },
+  { AL_OBJ_BOE_TIME,   "Binary Command Event With Time (Obj 13, Var:02)" },
   { AL_OBJ_CTR_ALL,    "Binary Counter Default Variation (Obj:20, Var:Default)" },
   { AL_OBJ_CTR_32,     "32-Bit Binary Counter (Obj:20, Var:01)" },
   { AL_OBJ_CTR_16,     "16-Bit Binary Counter (Obj:20, Var:02)" },
@@ -1017,6 +1036,14 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_AOC_DBLNT,  "64-Bit Floating Point Output Event w/o Time (Obj:42, Var:06)" },
   { AL_OBJ_AOC_FLTT,   "32-Bit Floating Point Output Event w/ Time (Obj:42, Var:07)" },
   { AL_OBJ_AOC_DBLT,   "64-Bit Floating Point Output Event w/ Time (Obj:42, Var:08)" },
+  { AL_OBJ_AOC_32EVNT, "32-Bit Analog Output Event w/o Time (Obj:43, Var:01)" },
+  { AL_OBJ_AOC_16EVNT, "16-Bit Analog Output Event w/o Time (Obj:43, Var:02)" },
+  { AL_OBJ_AOC_32EVTT, "32-Bit Analog Output Event with Time (Obj:43, Var:03)" },
+  { AL_OBJ_AOC_16EVTT, "16-Bit Analog Output Event with Time (Obj:43, Var:04)" },
+  { AL_OBJ_AOC_FLTEVNT,"32-Bit Floating Point Output Event w/o Time (Obj:43, Var:05)" },
+  { AL_OBJ_AOC_DBLEVNT,"64-Bit Floating Point Output Event w/o Time (Obj:43, Var:06)" },
+  { AL_OBJ_AOC_FLTEVTT,"32-Bit Floating Point Output Event w/ Time (Obj:43, Var:07)" },
+  { AL_OBJ_AOC_DBLEVTT,"64-Bit Floating Point Output Event w/ Time (Obj:43, Var:08)" },
   { AL_OBJ_TD_ALL,     "Time and Date Default Variations (Obj:50, Var:Default)" },
   { AL_OBJ_TD,         "Time and Date (Obj:50, Var:01)" },
   { AL_OBJ_TDI,        "Time and Date w/Interval (Obj:50, Var:02)" },
@@ -1087,6 +1114,10 @@ static const value_string dnp3_al_ctl_status_vals[] = {
   { AL_OBJCTL_STAT8,     "Req. Not Accepted; Too many operations" },
   { AL_OBJCTL_STAT9,     "Req. Not Accepted; Insufficient authorization" },
   { AL_OBJCTL_STAT10,    "Req. Not Accepted; Local automation proc active" },
+  { AL_OBJCTL_STAT11,    "Req. Not Accepted; Processing limited" },
+  { AL_OBJCTL_STAT12,    "Req. Not Accepted; Out of range value" },
+  { AL_OBJCTL_STAT126,   "Req. Not Accepted; Non-participating (NOP request)" },
+  { AL_OBJCTL_STAT127,   "Req. Not Accepted; Undefined error" },
   { 0, NULL }
 };
 static value_string_ext dnp3_al_ctl_status_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_ctl_status_vals);
@@ -1330,7 +1361,7 @@ typedef struct {
 /* The conversation sequence number */
 static guint seq_number = 0;
 
-/* Heuristically detect  DNP3 over TCP/UDP */
+/* Heuristically detect DNP3 over TCP/UDP */
 static gboolean dnp3_heuristics = FALSE;
 /* desegmentation of DNP3 over TCP */
 static gboolean dnp3_desegment = TRUE;
@@ -1400,7 +1431,7 @@ dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *a
   if (al_iin & AL_IIN_EBO)    comma_needed = add_item_text(tiin, "Event Buffer Overflow",              comma_needed);
   if (al_iin & AL_IIN_PIOOR)  comma_needed = add_item_text(tiin, "Parameters Invalid or Out of Range", comma_needed);
   if (al_iin & AL_IIN_OBJU)   comma_needed = add_item_text(tiin, "Requested Objects Unknown",          comma_needed);
-  if (al_iin & AL_IIN_FCNI)   /*comma_needed = */add_item_text(tiin, "Function code not implemented",     comma_needed);
+  if (al_iin & AL_IIN_FCNI)   /*comma_needed = */add_item_text(tiin, "Function code not implemented",  comma_needed);
   proto_item_append_text(tiin, " (0x%04x)", al_iin);
 
   /* If IIN indicates an abnormal condition, add expert info */
@@ -2134,9 +2165,80 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             data_pos += 1;
 
-
             proto_item_set_len(point_item, data_pos - offset);
 
+            offset = data_pos;
+            break;
+          }
+
+          case AL_OBJ_BOE_NOTIME: /* Binary Command Event (Obj:13, Var:01) */
+          case AL_OBJ_BOE_TIME:   /* Binary Command Event with time (Obj:13, Var:02) */
+          case AL_OBJ_AOC_32EVNT:   /* 32-bit Analog Command Event (Obj:43, Var:01) */
+          case AL_OBJ_AOC_16EVNT:   /* 16-bit Analog Command Event (Obj:43, Var:02) */
+          case AL_OBJ_AOC_32EVTT:   /* 32-bit Analog Command Event with time (Obj:43, Var:03) */
+          case AL_OBJ_AOC_16EVTT:   /* 16-bit Analog Command Event with time (Obj:43, Var:04) */
+          case AL_OBJ_AOC_FLTEVNT:   /* 32-bit Floating Point Analog Command Event (Obj:43, Var:05) */
+          case AL_OBJ_AOC_DBLEVNT:   /* 64-bit Floating Point Analog Command Event (Obj:43, Var:06) */
+          case AL_OBJ_AOC_FLTEVTT:   /* 32-bit Floating Point Analog Command Event with time (Obj:43, Var:07) */
+          case AL_OBJ_AOC_DBLEVTT:   /* 64-bit Floating Point Analog Command Event with time (Obj:43, Var:08) */
+          {
+            /* Get the status code */
+            al_ctlobj_stat = tvb_get_guint8(tvb, data_pos) & AL_OBJCTL_STATUS_MASK;
+            ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
+            proto_item_append_text(point_item, " [Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
+            proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+
+            /* Get the command value */
+            switch(al_obj)
+            {
+              case AL_OBJ_BOE_NOTIME:
+              case AL_OBJ_BOE_TIME:
+                proto_tree_add_item(point_tree, hf_dnp3_bocs_bit, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+                data_pos += 1;
+                break;
+              case AL_OBJ_AOC_32EVNT:
+              case AL_OBJ_AOC_32EVTT:
+                data_pos += 1; /* Step past status */
+                al_val_int32 = tvb_get_letohl(tvb, data_pos);
+                proto_item_append_text(point_item, ", Value: %d", al_val_int32);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+                break;
+              case AL_OBJ_AOC_16EVNT:
+              case AL_OBJ_AOC_16EVTT:
+                data_pos += 1; /* Step past status */
+                al_val_int16 = tvb_get_letohs(tvb, data_pos);
+                proto_item_append_text(point_item, ", Value: %d", al_val_int16);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                data_pos += 2;
+                break;
+              case AL_OBJ_AOC_FLTEVNT:
+              case AL_OBJ_AOC_FLTEVTT:
+                data_pos += 1; /* Step past status */
+                al_valflt = tvb_get_letohieee_float(tvb, data_pos);
+                proto_item_append_text(point_item, ", Value: %g", al_valflt);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+                data_pos += 4;
+                break;
+              case AL_OBJ_AOC_DBLEVNT:
+              case AL_OBJ_AOC_DBLEVTT:
+                data_pos += 1; /* Step past status */
+                al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
+                proto_item_append_text(point_item, ", Value: %g", al_valdbl);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, ENC_LITTLE_ENDIAN);
+                data_pos += 8;
+                break;
+            }
+
+            /* Get the timestamp */
+            if (al_obj & 0x02)
+            {
+                dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+                proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(wmem_packet_scope(), &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+                data_pos += 6;
+            }
+
+            proto_item_set_len(point_item, data_pos - offset);
             offset = data_pos;
             break;
           }
@@ -2175,7 +2277,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             }
 
             /* Get control status */
-            al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
+            al_ctlobj_stat = tvb_get_guint8(tvb, data_pos) & AL_OBJCTL_STATUS_MASK;
             ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
             proto_item_append_text(point_item, " [Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
             proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
@@ -3828,6 +3930,12 @@ proto_register_dnp3(void)
           "Object Size", HFILL }
     },
 
+    { &hf_dnp3_bocs_bit,
+      { "Commanded State", "dnp3.al.bocs",
+          FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x80,
+          "Binary Output Commanded state", HFILL }
+    },
+
     { &hf_dnp3_al_bit,
       { "Value (bit)", "dnp3.al.bit",
           FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x1,
@@ -3902,7 +4010,7 @@ proto_register_dnp3(void)
 
     { &hf_dnp3_al_ctrlstatus,
       { "Control Status", "dnp3.al.ctrlstatus",
-          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_ctl_status_vals_ext, 0xff,
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_ctl_status_vals_ext, AL_OBJCTL_STATUS_MASK,
           NULL, HFILL }
     },
 
