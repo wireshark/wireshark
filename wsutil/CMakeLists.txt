@@ -39,9 +39,7 @@ set(WSUTIL_FILES
 	cfutils.c
 	clopts_common.c
 	cmdarg_err.c
-	compiler_info.c
 	copyright_info.c
-	cpu_info.c
 	crash_info.c
 	crc10.c
 	crc16.c
@@ -55,10 +53,8 @@ set(WSUTIL_FILES
 	eax.c
 	filesystem.c
 	g711.c
-	glib_version_info.c
 	md4.c
 	md5.c
-	mem_info.c
 	mpeg-audio.c
 	nstime.c
 	os_version_info.c

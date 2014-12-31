@@ -26,16 +26,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <glib.h>
 
 #include <wsutil/ws_version_info.h>
 
+#include <wsutil/ws_cpuid.h>
 #include <wsutil/copyright_info.h>
-#include <wsutil/glib_version_info.h>
 #include <wsutil/os_version_info.h>
-#include <wsutil/compiler_info.h>
-#include <wsutil/cpu_info.h>
-#include <wsutil/mem_info.h>
 
 /*
  * If the string doesn't end with a newline, append one.
@@ -65,6 +66,23 @@ end_string(GString *str)
 		}
 		p = q + 1;
 	}
+}
+
+/*
+ * Get the GLib version, and append it to the GString
+ */
+void
+get_glib_version_info(GString *str)
+{
+	/* GLIB */
+	g_string_append(str, "with ");
+	g_string_append_printf(str,
+#ifdef GLIB_MAJOR_VERSION
+	    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+	    GLIB_MICRO_VERSION);
+#else
+	    "GLib (version unknown)");
+#endif
 }
 
 /*
@@ -108,6 +126,137 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 	end_string(str);
 
 	return str;
+}
+
+/*
+ * Get the CPU info, and append it to the GString
+ */
+static void
+get_cpu_info(GString *str _U_)
+{
+	guint32 CPUInfo[4];
+	char CPUBrandString[0x40];
+	unsigned nExIds;
+
+	/* http://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx */
+
+	/* Calling __cpuid with 0x80000000 as the InfoType argument*/
+	/* gets the number of valid extended IDs.*/
+	if (!ws_cpuid(CPUInfo, 0x80000000))
+		return;
+	nExIds = CPUInfo[0];
+
+	if( nExIds<0x80000005)
+		return;
+	memset(CPUBrandString, 0, sizeof(CPUBrandString));
+
+	/* Interpret CPU brand string.*/
+	ws_cpuid(CPUInfo, 0x80000002);
+	memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
+	ws_cpuid(CPUInfo, 0x80000003);
+	memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
+	ws_cpuid(CPUInfo, 0x80000004);
+	memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
+
+	g_string_append_printf(str, "\n%s", CPUBrandString);
+
+	if (ws_cpuid_sse42())
+		g_string_append(str, " (with SSE4.2)");
+}
+
+static void
+get_mem_info(GString *str _U_)
+{
+#ifdef _WIN32
+	MEMORYSTATUSEX statex;
+
+	statex.dwLength = sizeof (statex);
+
+	if (GlobalMemoryStatusEx(&statex))
+		g_string_append_printf(str, ", with ""%" G_GINT64_MODIFIER "d" "MB of physical memory.\n", statex.ullTotalPhys/(1024*1024));
+#endif
+}
+
+/*
+ * Get compiler information, and append it to the GString.
+ */
+static void
+get_compiler_info(GString *str)
+{
+	/*
+	 * See https://sourceforge.net/apps/mediawiki/predef/index.php?title=Compilers
+	 * information on various defined strings.
+	 *
+	 * GCC's __VERSION__ is a nice text string for humans to
+	 * read.  The page at sourceforge.net largely describes
+	 * numeric #defines that encode the version; if the compiler
+	 * doesn't also offer a nice printable string, we try prettifying
+	 * the number somehow.
+	 */
+#if defined(__GNUC__) && defined(__VERSION__)
+	/*
+	 * Clang and llvm-gcc also define __GNUC__ and __VERSION__;
+	 * distinguish between them.
+	 */
+#if defined(__clang__)
+	g_string_append_printf(str, "\n\nBuilt using clang %s.\n", __VERSION__);
+#elif defined(__llvm__)
+	g_string_append_printf(str, "\n\nBuilt using llvm-gcc %s.\n", __VERSION__);
+#else /* boring old GCC */
+	g_string_append_printf(str, "\n\nBuilt using gcc %s.\n", __VERSION__);
+#endif /* llvm */
+#elif defined(__HP_aCC)
+	g_string_append_printf(str, "\n\nBuilt using HP aCC %d.\n", __HP_aCC);
+#elif defined(__xlC__)
+	g_string_append_printf(str, "\n\nBuilt using IBM XL C %d.%d\n",
+	    (__xlC__ >> 8) & 0xFF, __xlC__ & 0xFF);
+#ifdef __IBMC__
+	if ((__IBMC__ % 10) != 0)
+		g_string_append_printf(str, " patch %d", __IBMC__ % 10);
+#endif /* __IBMC__ */
+	g_string_append_printf(str, "\n");
+#elif defined(__INTEL_COMPILER)
+	g_string_append_printf(str, "\n\nBuilt using Intel C %d.%d",
+	    __INTEL_COMPILER / 100, (__INTEL_COMPILER / 10) % 10);
+	if ((__INTEL_COMPILER % 10) != 0)
+		g_string_append_printf(str, " patch %d", __INTEL_COMPILER % 10);
+#ifdef __INTEL_COMPILER_BUILD_DATE
+	g_string_sprinta(str, ", compiler built %04d-%02d-%02d",
+	    __INTEL_COMPILER_BUILD_DATE / 10000,
+	    (__INTEL_COMPILER_BUILD_DATE / 100) % 100,
+	    __INTEL_COMPILER_BUILD_DATE % 100);
+#endif /* __INTEL_COMPILER_BUILD_DATE */
+	g_string_append_printf(str, "\n");
+#elif defined(_MSC_FULL_VER)
+# if _MSC_FULL_VER > 99999999
+	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+			       (_MSC_FULL_VER / 10000000) - 6,
+			       (_MSC_FULL_VER / 100000) % 100);
+#  if (_MSC_FULL_VER % 100000) != 0
+	g_string_append_printf(str, " build %d",
+			       _MSC_FULL_VER % 100000);
+#  endif
+# else
+	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+			       (_MSC_FULL_VER / 1000000) - 6,
+			       (_MSC_FULL_VER / 10000) % 100);
+#  if (_MSC_FULL_VER % 10000) != 0
+	g_string_append_printf(str, " build %d",
+			       _MSC_FULL_VER % 10000);
+#  endif
+# endif
+	g_string_append_printf(str, "\n");
+#elif defined(_MSC_VER)
+	/* _MSC_FULL_VER not defined, but _MSC_VER defined */
+	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d\n",
+	    (_MSC_VER / 100) - 6, _MSC_VER % 100);
+#elif defined(__SUNPRO_C)
+	g_string_append_printf(str, "\n\nBuilt using Sun C %d.%d",
+	    (__SUNPRO_C >> 8) & 0xF, (__SUNPRO_C >> 4) & 0xF);
+	if ((__SUNPRO_C & 0xF) != 0)
+		g_string_append_printf(str, " patch %d", __SUNPRO_C & 0xF);
+	g_string_append_printf(str, "\n");
+#endif
 }
 
 /*
