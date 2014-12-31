@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -263,21 +264,32 @@ GString *
 get_runtime_version_info(void (*additional_info)(GString *))
 {
 	GString *str;
-#ifndef _WIN32
 	gchar *lang;
-#endif
 
 	str = g_string_new("Running on ");
 
 	get_os_version_info(str);
 
-#ifndef _WIN32
-	/* Locale */
-	if ((lang = getenv ("LANG")) != NULL)
+	/*
+	 * Locale.
+	 *
+	 * This returns the C language's locale information; this
+	 * returns the locale that's actually in effect, even if
+	 * it doesn't happen to match the settings of any of the
+	 * locale environment variables.
+	 *
+	 * XXX - what happens on Windows?  If nobody's explicitly
+	 * overridden any of the environment variables, does this
+	 * reflect the locale settings in the OS?  If so, does
+	 * that include the code page?  (We're not using UTF-16
+	 * for output to files or the console; using code page
+	 * 65001, i.e. UTF-8, as your system code page probably
+	 * works best with Wireshark.)
+	 */
+	if ((lang = setlocale(LC_ALL, NULL)) != NULL)
 		g_string_append_printf(str, ", with locale %s", lang);
 	else
 		g_string_append(str, ", with default locale");
-#endif
 
 	/* Additional application-dependent information */
 	if (additional_info)
