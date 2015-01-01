@@ -22,16 +22,12 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <epan/epan_dissect.h>
-#include <epan/packet_info.h>
 #include <epan/tap.h>
-#include <epan/timestamp.h>
 #include <epan/stat_tap_ui.h>
-#include <epan/strutil.h>
 #include "globals.h"
 
 #define CALC_TYPE_FRAMES 0

@@ -43,19 +43,14 @@
 #include <gtk/gtk.h>
 
 #include <epan/ftypes/ftypes-int.h>
-#include <epan/to_str.h>
 
 #include "ui/simple_dialog.h"
 
-#include "ui/gtk/main.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/proto_dlg.h"
-#include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/dfilter_expr_dlg.h"
 #include "ui/gtk/proto_hier_tree_model.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 #define E_DFILTER_EXPR_TREE_KEY			"dfilter_expr_tree"
 #define E_DFILTER_EXPR_CURRENT_VAR_KEY		"dfilter_expr_current_var"

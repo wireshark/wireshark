@@ -35,10 +35,7 @@
 
 #include <gtk/gtk.h>
 
-#include "wsutil/filesystem.h"
-#include <epan/address.h>
 #include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 
 #include "../globals.h"
 #include <epan/stat_groups.h>
@@ -46,11 +43,9 @@
 
 #include "ui/gtk/mcast_stream_dlg.h"
 #include "ui/gtk/mcast_stream.h"
-#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
-#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/stock_icons.h"
 
 void register_tap_listener_mcast_stream_dlg(void);

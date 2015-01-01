@@ -26,7 +26,6 @@
  */
 
 #include "config.h"
-#include "ws_symbol_export.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

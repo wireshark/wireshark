@@ -40,8 +40,6 @@
 #include <epan/stats_tree_priv.h>
 
 #include "ui/simple_dialog.h"
-#include "../globals.h"
-#include <epan/stat_groups.h>
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
@@ -49,9 +47,8 @@
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/main.h"
 
-#include "ui/gtk/old-gtk-compat.h"
-
 #include "ui/gtk/gui_stat_menu.h"
+
 
 #ifdef _WIN32
 #define USE_WIN32_FILE_DIALOGS

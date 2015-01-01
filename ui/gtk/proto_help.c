@@ -33,14 +33,9 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include "ui/gtk/webbrowser.h"
 
 #include "../file.h"
 
-#include <epan/prefs.h>
-#include <wsutil/filesystem.h>
-#include <epan/strutil.h>
-#include <epan/proto.h>
 
 #include "ui/gtk/proto_help.h"
 

@@ -25,14 +25,11 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <string.h>
 #include <locale.h>
 
 #include <epan/rtp_pt.h>
-#include <epan/address.h>
 #include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 #include "wsutil/filesystem.h"
 
 #include "../globals.h"
@@ -43,15 +40,12 @@
 #include "ui/util.h"
 
 #include "ui/gtk/rtp_stream_dlg.h"
-#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/rtp_stream.h"
-#include "ui/rtp_analysis.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/old-gtk-compat.h"
 
 static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse button, and then";
 static const gchar FWD_ONLY_LABEL_TEXT[] = "Select a forward stream with Ctrl + left mouse button";

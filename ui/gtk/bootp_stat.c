@@ -27,10 +27,8 @@
 #include <string.h>
 
 #include <epan/packet_info.h>
-#include <epan/epan.h>
 #include <epan/tap.h>
 
-#include <epan/stat_groups.h>
 
 #include "ui/simple_dialog.h"
 
@@ -39,7 +37,6 @@
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/main.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_gtkdhcpstat(void);
 

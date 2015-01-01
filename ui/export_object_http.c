@@ -25,7 +25,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include <epan/dissectors/packet-http.h>
 #include <epan/tap.h>

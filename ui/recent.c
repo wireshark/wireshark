@@ -23,25 +23,20 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
 #include "capture_opts.h"
-#include <epan/epan.h>
 #include <wsutil/filesystem.h>
-#include <epan/emem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/column.h>
-#include <epan/timestamp.h>
 
 #include "ui/last_open_dir.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
-#include "ui/ui_util.h"
 
 #include <wsutil/u3.h>
 #include <wsutil/file_util.h>

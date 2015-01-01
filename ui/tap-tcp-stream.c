@@ -24,14 +24,12 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include <stdlib.h>
 
 #include <file.h>
 #include <frame_tvbuff.h>
 
-#include <epan/address.h>
 #include <epan/epan_dissect.h>
 #include <epan/packet.h>
 #include <epan/tap.h>

@@ -26,13 +26,9 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <wiretap/wtap.h>
-#include <epan/proto.h>
 
 #include <epan/funnel.h>
 #include <stdio.h>
-#include <epan/stat_tap_ui.h>
 
 void register_tap_listener_funnel(void);
 

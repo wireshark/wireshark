@@ -30,11 +30,9 @@
 #include <string.h>
 
 #include "epan/packet.h"
-#include "epan/packet_info.h"
 #include "epan/tap.h"
 #include "epan/value_string.h"
 #include "epan/stat_tap_ui.h"
-#include "epan/asn1.h"
 #include "epan/dissectors/packet-camel.h"
 
 void register_tap_listener_camelcounter(void);

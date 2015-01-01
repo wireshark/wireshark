@@ -22,7 +22,6 @@
 
 #include "config.h"
 #include <string.h>
-#include <stdarg.h>
 
 #include <gtk/gtk.h>
 
@@ -30,7 +29,6 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/old-gtk-compat.h"
 
 #include "wsutil/filesystem.h"
 

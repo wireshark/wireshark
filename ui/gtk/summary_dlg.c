@@ -23,17 +23,13 @@
 #include "config.h"
 
 #include <string.h>
-#include <time.h>
 
 #include <gtk/gtk.h>
 
-#include <epan/strutil.h>
 
-#include <wiretap/wtap.h>
 
 #include <wsutil/ws_version_info.h>
 
-#include "../globals.h"
 #include "../file.h"
 #include "../summary.h"
 

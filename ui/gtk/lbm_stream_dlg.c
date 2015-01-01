@@ -23,17 +23,12 @@
  */
 
 #include "config.h"
-#include <glib.h>
 #include <epan/to_str.h>
-#include <epan/funnel.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 #include <gtk/gtk.h>
-#include <epan/stat_groups.h>
 #include <ui/gtk/gui_utils.h>
 #include <ui/gtk/dlg_utils.h>
-#include <cfile.h>
 #include <globals.h>
 #include <epan/dissectors/packet-lbm.h>
 #include "lbm_stream_dlg.h"

@@ -29,11 +29,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <math.h>
 #include "globals.h"
 
-#include <epan/tap.h>
 #include <string.h>
 #include <epan/rtp_pt.h>
 #include <epan/addr_resolv.h>

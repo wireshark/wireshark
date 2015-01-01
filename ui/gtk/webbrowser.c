@@ -107,9 +107,6 @@
 
 #include <gtk/gtk.h>
 
-#include <wsutil/filesystem.h>
-#include <epan/prefs.h>
-
 #include "ui/simple_dialog.h"
 #include "ui/help_url.h"
 

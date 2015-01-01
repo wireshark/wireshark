@@ -24,12 +24,10 @@
 
 #include "config.h"
 
-#include <gtk/gtk.h>
 
 #include <stdlib.h>
 
 #include "globals.h"
-#include "wtap.h"
 #include "pcap-encap.h"
 
 #include "ui/simple_dialog.h"
@@ -46,7 +44,6 @@
 #include "ui/text_import.h"
 #include "ui/text_import_scanner.h"
 
-#include "file.h"
 #include "wsutil/file_util.h"
 #include "wsutil/tempfile.h"
 #include "wsutil/os_version_info.h"

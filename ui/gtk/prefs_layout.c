@@ -28,15 +28,12 @@
 
 #include "cfile.h"
 
-#include "ui/ui_util.h"
 
 #include "ui/gtk/prefs_layout.h"
-#include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/main_titlebar.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/dlg_utils.h"
 
 #include "layouts.h"
 

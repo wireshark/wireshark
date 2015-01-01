@@ -47,7 +47,6 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_wlanstat(void);
 

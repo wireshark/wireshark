@@ -27,7 +27,6 @@
 #include "globals.h"
 #include "pcap-encap.h"
 
-#include <epan/tap.h>
 #include <epan/exported_pdu.h>
 
 
@@ -39,7 +38,6 @@
 #include "ui/gtk/filter_autocomplete.h"
 #include "ui/gtk/stock_icons.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 #include "ui/tap_export_pdu.h"
 #include "ui/gtk/export_pdu_dlg.h"

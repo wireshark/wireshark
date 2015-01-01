@@ -22,18 +22,13 @@
  */
 
 #include "config.h"
-#include <stdio.h>
 #include <errno.h>
 
 #include <gtk/gtk.h>
 
-#include <epan/prefs.h>
 
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/text_page_utils.h"
-#include "ui/gtk/gtkglobals.h"
-#include "ui/gtk/gui_utils.h"
-#include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/webbrowser.h"
 
 

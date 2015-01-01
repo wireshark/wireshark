@@ -26,15 +26,12 @@
 #include <string.h>
 #include <errno.h>
 
-#include <glib.h>
 
 #include <epan/emem.h>
 #include <wsutil/filesystem.h>
-#include <epan/prefs.h>
 
 #include "profile.h"
 
-#include "ui/recent.h"
 #include "ui/simple_dialog.h"
 
 #include <wsutil/file_util.h>

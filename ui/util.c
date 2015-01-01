@@ -26,7 +26,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <errno.h>
 
 #ifdef HAVE_UNISTD_H

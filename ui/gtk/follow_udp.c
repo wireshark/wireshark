@@ -29,14 +29,12 @@
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
 #include <epan/follow.h>
-#include <epan/strutil.h>
 #include <epan/tap.h>
 
 #include <ui/simple_dialog.h>
 #include <ui/utf8_entities.h>
 
 #include "gtkglobals.h"
-#include "ui/follow.h"
 #include "ui/gtk/follow_stream.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/main.h"

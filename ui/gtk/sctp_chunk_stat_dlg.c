@@ -26,15 +26,11 @@
 
 #include <gtk/gtk.h>
 
-#include "wsutil/filesystem.h"
 #include "epan/to_str.h"
 
-#include "../globals.h"
 
-#include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/tap-sctp-analysis.h"
 #include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/stock_icons.h"
 

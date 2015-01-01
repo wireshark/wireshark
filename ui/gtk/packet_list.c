@@ -25,46 +25,32 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include <glib.h>
 
-#include <epan/column-info.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
-#include <epan/epan_dissect.h>
 #include <epan/column.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 
 #include "ui/main_statusbar.h"
 #include "ui/packet_list_utils.h"
 #include "ui/preference_utils.h"
-#include "ui/progress_dlg.h"
 #include "ui/recent.h"
-#include "ui/recent_utils.h"
-#include "ui/ui_util.h"
 
-#include "gui_utils.h"
 #include "packet_list_store.h"
 #include "ui/gtk/packet_list.h"
-#include "globals.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/packet_history.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/menus.h"
-#include "color.h"
 #include "color_filters.h"
 #include "ui/gtk/color_utils.h"
-#include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/packet_win.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/prefs_column.h"
-#include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/filter_autocomplete.h"

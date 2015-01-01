@@ -24,16 +24,11 @@
 #include "config.h"
 
 #include <string.h>
-#include <locale.h>
 
 #include <gtk/gtk.h>
 
-#include <epan/packet_info.h>
-#include <epan/to_str.h>
 #include <epan/addr_resolv.h>
-#include <epan/tap.h>
 
-#include "globals.h"
 
 #include <epan/stat_groups.h>
 
@@ -53,7 +48,6 @@
 #include "ui/gtk/follow_udp.h"
 #include "ui/gtk/keys.h"
 
-#include "old-gtk-compat.h"
 
 #define COL_STR_LEN 16
 #define CONV_PTR_KEY "conversations-pointer"

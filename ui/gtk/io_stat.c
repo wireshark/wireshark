@@ -23,25 +23,18 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <gtk/gtk.h>
 
 #include <epan/epan_dissect.h>
-#include <epan/packet_info.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
-#include <epan/strutil.h>
 
-#include <epan/stat_groups.h>
-#include "ui/alert_box.h"
 #include "ui/io_graph_item.h"
 #include "ui/simple_dialog.h"
 
-#include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/filter_dlg.h"
@@ -51,7 +44,6 @@
 #include "ui/gtk/filter_autocomplete.h"
 #include "ui/main_statusbar.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_gtk_iostat(void);
 

@@ -21,13 +21,11 @@
 
 #include "config.h"
 
-#include <time.h>
 
 #include <gtk/gtk.h>
 
 #include <epan/prefs.h>
 
-#include "../color.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"
 #include "capture_opts.h"

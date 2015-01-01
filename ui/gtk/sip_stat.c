@@ -28,20 +28,16 @@
 #include <gtk/gtk.h>
 
 #include <epan/packet_info.h>
-#include <epan/epan.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-sip.h>
 
 #include "ui/simple_dialog.h"
-#include "../globals.h"
-#include <epan/stat_groups.h>
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/main.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 #define SUM_STR_MAX  1024
 

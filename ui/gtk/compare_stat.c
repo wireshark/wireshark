@@ -32,41 +32,30 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#include <glib.h>
 #include <gtk/gtk.h>
 
 #include <wsutil/report_err.h>
 
-#include <epan/packet_info.h>
-#include <epan/epan.h>
-#include <epan/epan_dissect.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/to_str.h>
 #include <epan/tap.h>
-#include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/dissectors/packet-ip.h>
 #include <epan/in_cksum.h>
 
-#include <epan/stat_groups.h>
-#include "epan/timestats.h"
 
 #include "ui/simple_dialog.h"
 
-#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/filter_autocomplete.h"
 
 #include "gui_utils.h"
 #include "dlg_utils.h"
-#include "register.h"
-#include "main.h"
 #include "filter_dlg.h"
 #include "service_response_time_table.h"
 #include "gtkglobals.h"
@@ -75,10 +64,8 @@
 /* Color settings */
 #include "color.h"
 #include "color_filters.h"
-#include "color_dlg.h"
 #include "packet_list.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_gtkcomparestat(void);
 

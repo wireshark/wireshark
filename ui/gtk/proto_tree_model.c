@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include <glib.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/proto.h>

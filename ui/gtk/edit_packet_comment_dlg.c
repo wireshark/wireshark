@@ -27,20 +27,15 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/epan.h>
-#include <wsutil/filesystem.h>
 
 #include "ui/main_statusbar.h"
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/packet_list.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
-#include "ui/gtk/old-gtk-compat.h"
-#include "ui/gtk/summary_dlg.h"
 
 static GtkWidget *edit_or_add_pkt_comment_dlg = NULL;
 static GtkWidget *edit_or_add_capture_comment_dlg = NULL;

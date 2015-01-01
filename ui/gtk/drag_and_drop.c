@@ -23,13 +23,10 @@
 #include "config.h"
 
 #include <string.h>
-#include <stdio.h>
 
 #include <gtk/gtk.h>
 
-#include <epan/prefs.h>
 
-#include "ui/util.h"
 #include "../file.h"
 #ifdef HAVE_LIBPCAP
 #include "ui/capture.h"

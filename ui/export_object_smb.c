@@ -28,10 +28,8 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/dissectors/packet-smb.h>
 #include <epan/dissectors/packet-smb2.h>
 #include <epan/tap.h>
 

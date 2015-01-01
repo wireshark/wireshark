@@ -30,7 +30,6 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 
-#include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 
 #include <ui/export_object.h>

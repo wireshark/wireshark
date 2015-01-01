@@ -31,21 +31,15 @@
 
 #include "cfile.h"
 
-#include "ui/recent.h"
 
 #include "ui/gtk/prefs_gui.h"
-#include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/supported_protos_dlg.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/main_titlebar.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/packet_list.h"
-#include "ui/gtk/packet_panes.h"
 #include "ui/gtk/main_toolbar.h"
-#include "ui/gtk/font_utils.h"
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/main_welcome.h"
 

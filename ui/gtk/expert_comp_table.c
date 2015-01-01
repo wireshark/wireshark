@@ -27,15 +27,12 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
 
-#include <gtk/gtk.h>
 
 #include "epan/packet_info.h"
 #include "epan/strutil.h"
 
-#include <epan/expert.h>
 
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
@@ -50,7 +47,6 @@
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/stock_icons.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 const char  *packet = "Packet:";
 

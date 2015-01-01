@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include <glib.h>
 
 #include "proto_hier_tree_model.h"
 

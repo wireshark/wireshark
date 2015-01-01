@@ -28,26 +28,20 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include <gtk/gtk.h>
 
 #include <epan/packet_info.h>
-#include <epan/epan.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rpc.h>
 
-#include <epan/stat_groups.h>
-#include "../globals.h"
 
-#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 #define NANOSECS_PER_SEC 1000000000
 

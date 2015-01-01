@@ -37,7 +37,6 @@
 #include <epan/wmem/wmem.h>
 #include <epan/charsets.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 #include "packet_panes.h"
 

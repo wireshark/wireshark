@@ -23,9 +23,7 @@
 
 #include "config.h"
 
-#include <gtk/gtk.h>
 
-#include "../file.h"
 
 #include "ui/gtk/gui_stat_util.h"
 

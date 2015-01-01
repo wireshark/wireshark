@@ -26,13 +26,10 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/proto.h>
-#include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 
 #include "../globals.h"
-#include "ui/alert_box.h"
 #include "ui/main_statusbar.h"
 
 #include "ui/gtk/gui_utils.h"
@@ -40,11 +37,8 @@
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/prefs_dlg.h"
-#include "ui/gtk/keys.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/filter_autocomplete.h"
-#include "ui/gtk/old-gtk-compat.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY       "find_filter_te"

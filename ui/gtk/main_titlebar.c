@@ -26,7 +26,6 @@
 
 #include <gtk/gtk.h>
 
-#include "cfile.h"
 #include "file.h"
 
 #include "gtkglobals.h"

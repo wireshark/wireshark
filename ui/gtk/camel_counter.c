@@ -27,15 +27,12 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-#include <epan/epan.h>
 #include <epan/packet_info.h>
 #include <epan/value_string.h>
 #include <epan/tap.h>
 #include <epan/packet.h>
-#include <epan/asn1.h>
 #include <epan/dissectors/packet-camel.h>
 
-#include <epan/stat_groups.h>
 
 #include "ui/simple_dialog.h"
 
@@ -45,7 +42,6 @@
 #include "ui/gtk/gui_stat_util.h"
 #include "ui/gtk/tap_param_dlg.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 static void gtk_camelcounter_reset(void *phs);
 static int gtk_camelcounter_packet(void *phs,

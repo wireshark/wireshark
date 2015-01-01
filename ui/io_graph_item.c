@@ -24,10 +24,8 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include <epan/epan_dissect.h>
-#include <epan/packet_info.h>
 
 #include "ui/io_graph_item.h"
 

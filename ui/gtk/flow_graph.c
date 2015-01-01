@@ -26,25 +26,16 @@
 #include "config.h"
 #include <string.h>
 
-#include <gtk/gtk.h>
 
-#include <epan/epan.h>
 #include <epan/packet.h>
-#include <wsutil/filesystem.h>
 #include <epan/stat_tap_ui.h>
-#include <epan/to_str.h>
-#include <epan/strutil.h>
 
-#include <epan/stat_groups.h>
 
 #include "ui/gtk/graph_analysis.h"
-#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_flow_graph(void);
 

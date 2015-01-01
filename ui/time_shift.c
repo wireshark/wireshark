@@ -27,7 +27,6 @@
 #include <string.h>
 #include <math.h>
 
-#include <glib.h>
 
 #include "time_shift.h"
 

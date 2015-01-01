@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include "epan/packet_info.h"
-#include "epan/addr_resolv.h"
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include "epan/value_string.h"

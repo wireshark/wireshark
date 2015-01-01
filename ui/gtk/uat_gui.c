@@ -37,11 +37,9 @@
 #include "config.h"
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
 
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
 #if GTK_CHECK_VERSION(3,0,0)
 # include <gdk/gdkkeysyms-compat.h>
 #endif

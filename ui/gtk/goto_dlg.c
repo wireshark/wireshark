@@ -27,11 +27,9 @@
 
 #include <stdlib.h>
 
-#include <epan/proto.h>
 
 #include "../globals.h"
 #include "ui/simple_dialog.h"
-#include "ui/ui_util.h"
 
 #include "ui/gtk/goto_dlg.h"
 #include "ui/gtk/dlg_utils.h"

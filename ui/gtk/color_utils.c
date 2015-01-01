@@ -28,11 +28,8 @@
 
 #include "../color.h"
 
-#include "ui/simple_dialog.h"
 
-#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/color_utils.h"
-#include "ui/gtk/gtkglobals.h"
 #if 0
 static GdkColormap*	sys_cmap;
 static GdkColormap*	our_cmap = NULL;

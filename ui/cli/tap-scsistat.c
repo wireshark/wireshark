@@ -25,12 +25,10 @@
 
 #include <string.h>
 #include <epan/packet_info.h>
-#include <epan/epan.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-scsi.h>
-#include <epan/dissectors/packet-fc.h>
 #include <epan/dissectors/packet-scsi-sbc.h>
 #include <epan/dissectors/packet-scsi-ssc.h>
 #include <epan/dissectors/packet-scsi-smc.h>

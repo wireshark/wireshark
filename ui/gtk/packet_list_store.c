@@ -32,17 +32,14 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include <glib.h>
 
 #include "packet_list_store.h"
 
 #include "ui/progress_dlg.h"
 #include "ui/ui_util.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 #include <epan/epan_dissect.h>
-#include <epan/column-info.h>
 #include <epan/column.h>
 
 #include "color.h"

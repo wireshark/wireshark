@@ -24,9 +24,7 @@
 
 #include <errno.h>
 
-#include <glib.h>
 
-#include <epan/column-info.h>
 #include <epan/column.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>

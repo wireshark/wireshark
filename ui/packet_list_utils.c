@@ -24,12 +24,10 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include "packet_list_utils.h"
 
 #include <epan/column.h>
-#include <epan/proto.h>
 
 gboolean
 right_justify_column (gint col, capture_file *cf)

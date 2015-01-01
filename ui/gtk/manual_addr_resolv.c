@@ -35,7 +35,6 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/manual_addr_resolv.h"
-#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/packet_win.h"
 #include "simple_dialog.h"
 

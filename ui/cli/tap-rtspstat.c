@@ -33,7 +33,6 @@
 #include "epan/value_string.h"
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
-#include "register.h"
 #include <epan/dissectors/packet-rtsp.h>
 
 void register_tap_listener_rtspstat(void);

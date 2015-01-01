@@ -22,16 +22,11 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <tchar.h>
-#include <wchar.h>
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <io.h>
 #include <fcntl.h>
 
 #include <windows.h>
-#include <windowsx.h>
 #include <commdlg.h>
 #include <richedit.h>
 #include <strsafe.h>
@@ -41,19 +36,15 @@
 #include "wsutil/file_util.h"
 #include "wsutil/unicode-utils.h"
 
-#include "wiretap/merge.h"
 
 #include "wsutil/filesystem.h"
 #include "epan/addr_resolv.h"
 #include "epan/prefs.h"
-#include "epan/print.h"
 
-#include "color.h"
 #include "color_filters.h"
 
 #include "ui/alert_box.h"
 #include "ui/help_url.h"
-#include "ui/file_dialog.h"
 #include "ui/last_open_dir.h"
 #include "ui/simple_dialog.h"
 #include "ui/ssl_key_export.h"

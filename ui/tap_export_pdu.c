@@ -22,10 +22,8 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include "globals.h"
-#include "wtap.h"
 #include "pcap-encap.h"
 #include "wsutil/tempfile.h"
 #include "wsutil/os_version_info.h"

@@ -28,10 +28,8 @@
 
 #include "../globals.h"
 #include "ui/simple_dialog.h"
-#include "epan/packet-range.h"
 
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/range_utils.h"
 
 

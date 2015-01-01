@@ -30,11 +30,7 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/packet_info.h>
-#include <epan/to_str.h>
 #include <epan/addr_resolv.h>
-#include <epan/tap.h>
-#include <epan/strutil.h>
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>
 #include "epan/geoip_db.h"

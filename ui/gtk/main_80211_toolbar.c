@@ -26,22 +26,15 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
 
-#include "epan/prefs.h"
 
-#include "gtkglobals.h"
-#include "stock_icons.h"
 
-#include "main.h"
 #include "main_toolbar.h"
 
-#include "ui/recent.h"
-#include "ui/gtk/old-gtk-compat.h"
 #include "ui/ui_util.h"
 #include "ui/gtk/main_80211_toolbar.h"
 

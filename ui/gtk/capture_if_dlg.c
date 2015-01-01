@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <gtk/gtk.h>
 
 #ifdef HAVE_LIBPCAP
 

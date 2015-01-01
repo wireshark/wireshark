@@ -23,41 +23,28 @@
 
 #include <gtk/gtk.h>
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <wsutil/u3.h>
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
-#include <epan/tap.h>
-#include <epan/timestamp.h>
-#include <epan/etypes.h>
 #include <epan/dissector_filters.h>
 #include <epan/color_dissector_filters.h>
-#include <epan/strutil.h>
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 #include <epan/stats_tree_priv.h>
-#include <wsutil/filesystem.h>
-#include <epan/print.h>
 
-#include "cfile.h"
 #include "globals.h"
 #include "color_filters.h"
 
-#include <epan/stat_groups.h>
-#include "ui/iface_lists.h"
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
-#include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
 #include "ui/software_update.h"
-#include "ui/ui_util.h"
 #include "ui/utf8_entities.h"
 
 #include "ui/gtk/about_dlg.h"
@@ -91,22 +78,18 @@
 #include "ui/gtk/conversations_table.h"
 #include "ui/gtk/hostlist_table.h"
 #include "ui/gtk/packet_history.h"
-#include "ui/tap-sctp-analysis.h"
 #include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/firewall_dlg.h"
 #include "ui/gtk/macros_dlg.h"
-#include "epan/dissectors/packet-ssl-utils.h"
 #include "ui/gtk/export_sslkeys.h"
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/main_menubar_private.h"
-#include "ui/gtk/main_toolbar.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/uat_gui.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/manual_addr_resolv.h"
-#include "ui/gtk/proto_help.h"
 #include "ui/gtk/dissector_tables_dlg.h"
 #include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/time_shift_dlg.h"

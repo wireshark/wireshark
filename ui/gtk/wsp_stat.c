@@ -31,15 +31,12 @@
 #include <epan/dissectors/packet-wsp.h>
 
 #include "ui/simple_dialog.h"
-#include "../globals.h"
-#include <epan/stat_groups.h>
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/main.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_gtkwspstat(void);
 

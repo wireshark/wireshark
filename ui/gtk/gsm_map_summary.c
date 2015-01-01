@@ -29,22 +29,16 @@
 
 #include <gtk/gtk.h>
 
-#include <wiretap/wtap.h>
 
-#include <epan/epan.h>
 #include <epan/packet.h>
-#include <epan/packet_info.h>
 #include <epan/value_string.h>
-#include <epan/tap.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-gsm_map.h>
 
 #include <epan/stat_groups.h>
 #include "../globals.h"
-#include "../file.h"
 #include "../summary.h"
 
-#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gsm_map_stat.h"

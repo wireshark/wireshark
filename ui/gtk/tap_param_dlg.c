@@ -23,14 +23,11 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
 
-#include <epan/stat_tap_ui.h>
 
-#include "../file.h"
 #include "../globals.h"
 #include <epan/stat_groups.h>
 
@@ -43,7 +40,6 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/filter_autocomplete.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 typedef struct _tap_param_dlg_list_item {
     GtkWidget *dlg;

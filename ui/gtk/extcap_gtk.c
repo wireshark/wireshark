@@ -21,16 +21,13 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <string.h>
 
-#include <glib.h>
 #include <gtk/gtk.h>
 
 #include <ui/gtk/gui_utils.h>
 #include <wsutil/filesystem.h>
 
-#include <extcap_parser.h>
 #include "extcap_gtk.h"
 
 #include "log.h"

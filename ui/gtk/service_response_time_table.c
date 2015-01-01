@@ -24,8 +24,6 @@
 
 #include "config.h"
 
-#include <gtk/gtk.h>
-#include <stdio.h>
 
 #include "epan/packet_info.h"
 

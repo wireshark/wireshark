@@ -29,12 +29,9 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 #include <epan/prefs-int.h>
 #include <epan/epan_dissect.h>
-#include <epan/print.h>
 
-#include "file.h"
 #include "ui/preference_utils.h"
 
 #include "ui/gtk/main.h"
@@ -51,7 +48,6 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/uat_gui.h"
-#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/packet_win.h"
 #include "simple_dialog.h"

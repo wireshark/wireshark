@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <epan/epan.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 

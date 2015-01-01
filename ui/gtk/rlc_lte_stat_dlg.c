@@ -35,7 +35,6 @@
 #include "ui/gtk/gtkglobals.h"
 
 #include <epan/packet.h>
-#include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rlc-lte.h>
 
@@ -49,7 +48,6 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_rlc_lte_stat(void);
 

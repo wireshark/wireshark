@@ -24,12 +24,10 @@
 
 #include "config.h"
 #include <string.h>
-#include <stdio.h>
 #include <errno.h>
 
 #include <gtk/gtk.h>
 
-#include "wsutil/filesystem.h"
 
 #include "ui/simple_dialog.h"
 #include <wsutil/file_util.h>

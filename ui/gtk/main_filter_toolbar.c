@@ -26,15 +26,12 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
 
 #include "ui/recent.h"
-#include "ui/recent_utils.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 #include "filter_dlg.h"
 #include "filter_autocomplete.h"

@@ -21,14 +21,11 @@
  */
 
 #include "config.h"
-#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
 #include "epan/packet_info.h"
 #include "epan/tap.h"
-#include "epan/address.h"
-#include "epan/strutil.h"
 #include "epan/value_string.h"
 #include "ui/tap-sctp-analysis.h"
 

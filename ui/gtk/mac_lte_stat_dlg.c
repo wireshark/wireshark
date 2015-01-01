@@ -30,7 +30,6 @@
 #include "ui/gtk/gtkglobals.h"
 
 #include <epan/packet.h>
-#include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-mac-lte.h>
 
@@ -38,13 +37,11 @@
 #include <epan/stat_groups.h>
 
 #include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_mac_lte_stat(void);
 

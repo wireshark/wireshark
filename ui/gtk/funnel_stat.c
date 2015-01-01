@@ -36,7 +36,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
@@ -44,21 +43,16 @@
 #include <epan/prefs.h>
 #include <epan/funnel.h>
 
-#include "../file.h"
-#include <epan/stat_groups.h>
 #include "ui/progress_dlg.h"
 #include "../color_filters.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/tap_param_dlg.h"
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/gui_stat_menu.h"
-#include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/gtkglobals.h"
-#include "ui/gtk/old-gtk-compat.h"
 
 void register_tap_listener_gtkfunnel(void);
 

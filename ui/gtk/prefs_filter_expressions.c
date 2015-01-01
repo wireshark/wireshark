@@ -26,22 +26,11 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/prefs.h>
-#include <epan/column-info.h>
-#include <epan/column.h>
-#include <epan/strutil.h>
-#include <epan/filter_expressions.h>
 
-#include "../globals.h"
 
-#include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/packet_list.h"
-#include "ui/gtk/filter_dlg.h"
-#include "ui/gtk/filter_autocomplete.h"
 #include "ui/gtk/filter_expression_save_dlg.h"
 #include "ui/gtk/prefs_filter_expressions.h"
-#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/stock_icons.h"
 
 static void filter_expressions_list_new_cb(GtkWidget *, gpointer);

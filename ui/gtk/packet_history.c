@@ -22,12 +22,9 @@
 
 #include "config.h"
 
-#include <stdio.h>
 
 #include <gtk/gtk.h>
 
-#include "../file.h"
-#include "../globals.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/packet_history.h"

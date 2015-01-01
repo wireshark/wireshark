@@ -22,17 +22,14 @@
 
 #include "config.h"
 
-#include <stdio.h>
 
 #include "globals.h"
 #include "frame_tvbuff.h"
 #include "ui/proto_hier_stats.h"
 #include "ui/progress_dlg.h"
 #include <epan/epan_dissect.h>
-#include <wtap.h>
 
 #include <string.h>
-#include <glib.h>
 
 /* Update the progress bar this many times when scanning the packet list. */
 #define N_PROGBAR_UPDATES	100

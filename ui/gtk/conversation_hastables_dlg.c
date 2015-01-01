@@ -28,21 +28,13 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/epan.h>
-#include <wsutil/filesystem.h>
 #include <epan/conversation.h>
 
-#include "ui/main_statusbar.h"
 
 #include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/help_dlg.h"
-#include "ui/gtk/main.h"
-#include "ui/gtk/packet_list.h"
 #include "ui/gtk/conversation_hastables_dlg.h"
-#include "ui/gtk/old-gtk-compat.h"
 
 static GtkWidget *conversation_hastables_dlg_w = NULL;
 

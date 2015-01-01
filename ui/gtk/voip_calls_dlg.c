@@ -33,23 +33,16 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <string.h>
 
-#include <gtk/gtk.h>
 
-#include <epan/epan.h>
 #include <epan/packet.h>
-#include "wsutil/filesystem.h"
 #include <epan/stat_tap_ui.h>
-#include <epan/to_str.h>
-#include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-h225.h>
 #include <epan/dissectors/packet-h248.h>
 
 #include "../globals.h"
-#include <epan/stat_groups.h>
 
 #include "ui/voip_calls.h"
 

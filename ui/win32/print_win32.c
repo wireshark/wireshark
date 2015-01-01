@@ -26,12 +26,10 @@
  */
 
 #include <string.h>
-#include <stdio.h>
 
 #include <windows.h>
 #include <commdlg.h>
 
-#include <winspool.h>
 
 #include "print_win32.h"
 #include "wsutil/file_util.h"

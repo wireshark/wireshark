@@ -34,14 +34,12 @@
 #include "ui/gtk/color_dlg.h"
 #include "ui/gtk/color_utils.h"
 #include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/dfilter_expr_dlg.h"
 #include "ui/gtk/color_edit_dlg.h"
 #include "ui/gtk/filter_autocomplete.h"
 
-#include "ui/gtk/old-gtk-compat.h"
 
 
 /* Essentially:

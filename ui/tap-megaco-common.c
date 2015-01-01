@@ -28,15 +28,11 @@
 #include <string.h>
 
 #include <epan/packet_info.h>
-#include <epan/epan.h>
 #include <epan/value_string.h>
-#include <epan/tap.h>
 #include "epan/gcp.h"
 
 #include "epan/timestats.h"
-#include "file.h"
 #include "globals.h"
-#include <epan/stat_groups.h>
 
 #include "tap-megaco-common.h"
 

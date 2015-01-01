@@ -23,26 +23,19 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
 
-#include "wsutil/filesystem.h"
-#include <epan/strutil.h>
 
-#include "../globals.h"
-#include "ui/ui_util.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"
-#include "ui/tap-sctp-analysis.h"
 #include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/stock_icons.h"
 
 #define DEFAULT_PIXELS_PER_TICK 2

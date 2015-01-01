@@ -29,7 +29,6 @@
 #include "tap-sequence-analysis.h"
 
 #include "epan/addr_resolv.h"
-#include "epan/column-utils.h"
 #include "epan/packet.h"
 #include "epan/tap.h"
 #include "epan/dissectors/packet-tcp.h"

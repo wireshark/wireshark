@@ -23,15 +23,12 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "globals.h"
 
 #include <epan/packet.h>
-#include <cfile.h>
-#include <epan/proto.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/addr_resolv.h>

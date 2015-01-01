@@ -36,17 +36,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "epan/epan.h"
 #include "epan/epan_dissect.h"
 #include "epan/packet.h"
-#include "epan/tap.h"
-#include "epan/tap-voip.h"
 #include "epan/dissectors/packet-sip.h"
-#include "epan/dissectors/packet-mtp3.h"
-#include "epan/dissectors/packet-isup.h"
 #include "epan/dissectors/packet-h225.h"
 #include "epan/dissectors/packet-h245.h"
-#include "epan/dissectors/packet-q931.h"
 #include "epan/dissectors/packet-sdp.h"
 #include "epan/dissectors/packet-mgcp.h"
 #include "epan/dissectors/packet-actrace.h"
@@ -61,10 +55,8 @@
 #include "epan/dissectors/packet-iax2.h"
 #include "epan/rtp_pt.h"
 
-#include "ui/alert_box.h"
 #include "ui/rtp_stream.h"
 #include "ui/simple_dialog.h"
-#include "ui/tap-sequence-analysis.h"
 #include "ui/ui_util.h"
 #include "ui/voip_calls.h"
 
