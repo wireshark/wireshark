@@ -44,7 +44,7 @@ bin_PROGRAMS = \
 
 EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype editcap \
 	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark \
-	wireshark_cxx echld_test
+	echld_test
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
