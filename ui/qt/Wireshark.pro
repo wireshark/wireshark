@@ -210,6 +210,7 @@ FORMS += \
     capture_interfaces_dialog.ui \
     capture_preferences_frame.ui \
     column_preferences_frame.ui \
+    column_editor_frame.ui \
     compiled_filter_output.ui \
     decode_as_dialog.ui \
     export_object_dialog.ui \
@@ -262,6 +263,7 @@ HEADERS += $$HEADERS_WS_C \
     capture_interfaces_dialog.h \
     capture_preferences_frame.h \
     column_preferences_frame.h \
+    column_editor_frame.h \
     compiled_filter_output.h \
     conversation_dialog.h \
     decode_as_dialog.h \
@@ -602,6 +604,7 @@ SOURCES += \
     color_dialog.cpp \
     color_utils.cpp \
     column_preferences_frame.cpp \
+    column_editor_frame.cpp \
     compiled_filter_output.cpp \
     conversation_dialog.cpp \
     decode_as_dialog.cpp \

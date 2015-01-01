@@ -224,6 +224,7 @@ private slots:
     void redissectPackets();
     void recreatePacketList();
     void fieldsChanged();
+    void showColumnEditor(int column);
 
     void startInterfaceCapture(bool valid);
 
@@ -293,6 +294,7 @@ private slots:
     void on_actionEditTimeShift_triggered();
     void on_actionEditPacketComment_triggered();
     void on_actionEditConfigurationProfiles_triggered();
+    void showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane = PreferencesDialog::ppAppearance);
     void on_actionEditPreferences_triggered();
 
     void showHideMainWidgets(QAction *action);

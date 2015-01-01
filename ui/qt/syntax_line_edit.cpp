@@ -122,3 +122,19 @@ void SyntaxLineEdit::checkFieldName(QString field)
         checkDisplayFilter(field);
     }
 }
+
+void SyntaxLineEdit::checkInteger(QString number)
+{
+    if (number.isEmpty()) {
+        setSyntaxState(SyntaxLineEdit::Empty);
+        return;
+    }
+
+    bool ok;
+    text().toInt(&ok);
+    if (ok) {
+        setSyntaxState(SyntaxLineEdit::Valid);
+    } else {
+        setSyntaxState(SyntaxLineEdit::Invalid);
+    }
+}

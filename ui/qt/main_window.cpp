@@ -223,6 +223,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(QString&)),
             main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
+    main_ui_->columnEditorFrame->hide();
+
 #ifndef HAVE_LIBPCAP
     main_ui_->menuCapture->setEnabled(false);
 #endif
@@ -365,6 +367,11 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(redissectPackets()));
     connect(packet_list_, SIGNAL(packetSelectionChanged()),
             this, SLOT(setMenusForFollowStream()));
+    connect(packet_list_, SIGNAL(showPreferences(PreferencesDialog::PreferencesPane)),
+            this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
+    connect(packet_list_, SIGNAL(editColumn(int)), this, SLOT(showColumnEditor(int)));
+    connect(main_ui_->columnEditorFrame, SIGNAL(columnEdited()),
+            packet_list_, SLOT(redrawVisiblePackets()));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));

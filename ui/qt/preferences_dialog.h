@@ -48,7 +48,17 @@ class PreferencesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PreferencesDialog(QWidget *parent = 0);
+    // This, prefsTree, and stackedWidget must all correspond to each other.
+    enum PreferencesPane {
+        ppAppearance,
+        ppLayout,
+        ppColumn,
+        ppFontAndColor,
+        ppCapture,
+        ppFilterExpressions
+    };
+
+    explicit PreferencesDialog(QWidget *parent = 0, PreferencesPane start_pane = ppAppearance);
     ~PreferencesDialog();
     const QList<WiresharkApplication::AppSignal> appSignals() const { return app_signals_; }
 

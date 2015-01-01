@@ -39,14 +39,19 @@
 #include "qt_ui_utils.h"
 
 #include "ui/main_statusbar.h"
+#include "ui/packet_list_utils.h"
+#include "ui/preference_utils.h"
 #include "ui/recent.h"
 #include "ui/recent_utils.h"
 #include "ui/ui_util.h"
+#include "ui/utf8_entities.h"
 
 #include "wsutil/str_util.h"
 
 #include "frame_tvbuff.h"
 
+#include <QAction>
+#include <QActionGroup>
 #include <QContextMenuEvent>
 #include <QHeaderView>
 #include <QMessageBox>
@@ -225,6 +230,8 @@ packet_list_recent_write_all(FILE *rf) {
 }
 
 #define MIN_COL_WIDTH_STR "...."
+
+Q_DECLARE_METATYPE(PacketList::ColumnActions);
 
 PacketList::PacketList(QWidget *parent) :
     QTreeView(parent),
@@ -407,11 +414,16 @@ PacketList::PacketList(QWidget *parent) :
 //    "     <menuitem name='Print' action='/Print'/>\n"
 //    "     <menuitem name='ShowPacketinNewWindow' action='/ShowPacketinNewWindow'/>\n"
 
+    initHeaderContextMenu();
+
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
 
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePackets()));
+    header()->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(header(), SIGNAL(customContextMenuRequested(QPoint)),
+                SLOT(showHeaderMenu(QPoint)));
 }
 
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
@@ -570,6 +582,42 @@ void PacketList::setColumnVisibility()
     }
 }
 
+void PacketList::initHeaderContextMenu()
+{
+    header_ctx_menu_.clear();
+    header_actions_.clear();
+
+    // Leave these out for now since Qt doesn't have a "no sort" option
+    // and the user can sort by left-clicking on the header.
+//    header_actions_[] = header_ctx_menu_.addAction(tr("Sort Ascending"));
+//    header_actions_[] = header_ctx_menu_.addAction(tr("Sort Descending"));
+//    header_actions_[] = header_ctx_menu_.addAction(tr("Do Not Sort"));
+//    header_ctx_menu_.addSeparator();
+    header_actions_[caAlignLeft] = header_ctx_menu_.addAction(tr("Align Left"));
+    header_actions_[caAlignCenter] = header_ctx_menu_.addAction(tr("Align Center"));
+    header_actions_[caAlignRight] = header_ctx_menu_.addAction(tr("Align Right"));
+    header_ctx_menu_.addSeparator();
+    header_actions_[caColumnPreferences] = header_ctx_menu_.addAction(tr("Column Preferences" UTF8_HORIZONTAL_ELLIPSIS));
+    header_actions_[caEditColumn] = header_ctx_menu_.addAction(tr("Edit Column")); // XXX Create frame instead of dialog
+    header_actions_[caResizeToContents] = header_ctx_menu_.addAction(tr("Resize To Contents"));
+    header_actions_[caResolveNames] = header_ctx_menu_.addAction(tr("Resolve Names"));
+    header_ctx_menu_.addSeparator();
+//    header_actions_[caDisplayedColumns] = header_ctx_menu_.addAction(tr("Displayed Columns"));
+    show_hide_separator_ = header_ctx_menu_.addSeparator();
+//    header_actions_[caHideColumn] = header_ctx_menu_.addAction(tr("Hide This Column"));
+    header_actions_[caRemoveColumn] = header_ctx_menu_.addAction(tr("Remove This Column"));
+
+    foreach (ColumnActions ca, header_actions_.keys()) {
+        header_actions_[ca]->setData(qVariantFromValue(ca));
+        connect(header_actions_[ca], SIGNAL(triggered()), this, SLOT(headerMenuTriggered()));
+    }
+
+    checkable_actions_ = QList<ColumnActions>() << caAlignLeft << caAlignCenter << caAlignRight << caResolveNames;
+    foreach (ColumnActions ca, checkable_actions_) {
+        header_actions_[ca]->setCheckable(true);
+    }
+}
+
 // Redraw the packet list and detail
 void PacketList::redrawVisiblePackets() {
     if (!cap_file_) return;
@@ -579,12 +627,17 @@ void PacketList::redrawVisiblePackets() {
     }
 
     int row = currentIndex().row();
+
+    prefs.num_cols = g_list_length(prefs.col_list);
+    build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
+
     packet_list_model_->resetColumns();
     if (row > 0) {
         setCurrentIndex(packet_list_model_->index(row, 0));
     }
 
     update();
+    header()->update();
 }
 
 void PacketList::freeze()
@@ -920,6 +973,115 @@ void PacketList::unsetAllTimeReferences()
 void PacketList::addRelatedFrame(int related_frame)
 {
     related_packet_delegate_.addRelatedFrame(related_frame);
+}
+
+#include <QDebug>
+void PacketList::showHeaderMenu(QPoint pos)
+{
+    header_ctx_column_ = header()->logicalIndexAt(pos);
+    foreach (ColumnActions ca, checkable_actions_) {
+        header_actions_[ca]->setChecked(false);
+    }
+
+    switch (recent_get_column_xalign(header_ctx_column_)) {
+    case COLUMN_XALIGN_LEFT:
+        header_actions_[caAlignLeft]->setChecked(true);
+        break;
+    case COLUMN_XALIGN_CENTER:
+        header_actions_[caAlignCenter]->setChecked(true);\
+        break;
+    case COLUMN_XALIGN_RIGHT:
+        header_actions_[caAlignRight]->setChecked(true);
+        break;
+    default:
+        break;
+    }
+
+    bool can_resolve = resolve_column(header_ctx_column_, cap_file_);
+    header_actions_[caResolveNames]->setChecked(can_resolve && get_column_resolved(header_ctx_column_));
+    header_actions_[caResolveNames]->setEnabled(can_resolve);
+
+    foreach (QAction *action, show_hide_actions_) {
+        header_ctx_menu_.removeAction(action);
+        delete action;
+    }
+    show_hide_actions_.clear();
+    for (int i = 0; i < prefs.num_cols; i++) {
+        QAction *action = new QAction(get_column_title(i), &header_ctx_menu_);
+        action->setCheckable(true);
+        action->setChecked(get_column_visible(i));
+        action->setData(qVariantFromValue(i));
+        connect(action, SIGNAL(triggered()), this, SLOT(columnVisibilityTriggered()));
+        header_ctx_menu_.insertAction(show_hide_separator_, action);
+        show_hide_actions_ << action;
+    }
+
+    header_ctx_menu_.popup(header()->viewport()->mapToGlobal(pos));
+}
+
+void PacketList::headerMenuTriggered()
+{
+    QAction *ha = qobject_cast<QAction*>(sender());
+    if (!ha) return;
+
+    bool checked = ha->isChecked();
+    bool redraw = false;
+
+    switch(ha->data().value<ColumnActions>()) {
+    case caAlignLeft:
+        recent_set_column_xalign(header_ctx_column_, checked ? COLUMN_XALIGN_LEFT : COLUMN_XALIGN_DEFAULT);
+        break;
+    case caAlignCenter:
+        recent_set_column_xalign(header_ctx_column_, checked ? COLUMN_XALIGN_CENTER : COLUMN_XALIGN_DEFAULT);
+        break;
+    case caAlignRight:
+        recent_set_column_xalign(header_ctx_column_, checked ? COLUMN_XALIGN_RIGHT : COLUMN_XALIGN_DEFAULT);
+        break;
+    case caColumnPreferences:
+        emit showPreferences(PreferencesDialog::ppColumn);
+        break;
+    case caEditColumn:
+        emit editColumn(header_ctx_column_);
+        break;
+    case caResolveNames:
+        set_column_resolved(header_ctx_column_, checked);
+        redraw = true;
+    case caResizeToContents:
+        resizeColumnToContents(header_ctx_column_);
+        break;
+    case caDisplayedColumns:
+        // No-op
+        break;
+    case caHideColumn:
+        set_column_visible(header_ctx_column_, FALSE);
+        hideColumn(header_ctx_column_);
+        break;
+    case caRemoveColumn:
+        column_prefs_remove_nth(header_ctx_column_);
+        if (!prefs.gui_use_pref_save) {
+            prefs_main_write();
+        }
+        setColumnVisibility();
+        redraw = true;
+        break;
+    default:
+        break;
+    }
+
+    if (redraw) {
+        redrawVisiblePackets();
+    } else {
+        update();
+    }
+}
+
+void PacketList::columnVisibilityTriggered()
+{
+    QAction *ha = qobject_cast<QAction*>(sender());
+    if (!ha) return;
+
+    set_column_visible(ha->data().toInt(), ha->isChecked());
+    setColumnVisibility();
 }
 
 /*

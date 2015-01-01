@@ -27,7 +27,10 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -40,10 +43,7 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <item row="0" column="0">
+    <item>
      <widget class="AccordionFrame" name="goToFrame">
       <layout class="QHBoxLayout" name="goToHB">
        <property name="topMargin">
@@ -65,6 +65,7 @@
          </property>
         </spacer>
        </item>
+
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
@@ -89,10 +90,15 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
+
+    <item>
      <widget class="SearchFrame" name="searchFrame" native="true"/>
     </item>
-    <item row="2" column="0">
+       <item>
+        <widget class="ColumnEditorFrame" native="true"/>
+       </item>
+
+    <item>
      <widget class="QStackedWidget" name="mainStack">
       <property name="enabled">
        <bool>true</bool>
@@ -101,6 +107,7 @@
       <widget class="QWidget" name="packetPage"/>
      </widget>
     </item>
+
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -2234,6 +2241,12 @@
    <class>AccordionFrame</class>
    <extends>QFrame</extends>
    <header>accordion_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ColumnEditorFrame</class>
+   <extends>QFrame</extends>
+   <header>column_editor_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

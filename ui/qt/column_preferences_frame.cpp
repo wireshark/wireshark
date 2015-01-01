@@ -279,7 +279,7 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
         SyntaxLineEdit *syntax_edit = new SyntaxLineEdit();
         saved_col_string_ = item->text(custom_occurrence_col_);
         connect(syntax_edit, SIGNAL(textChanged(QString)),
-                this, SLOT(customOccurrenceTextChanged(QString)));
+                syntax_edit, SLOT(checkInteger(QString)));
         connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customOccurrenceEditingFinished()));
         editor = cur_line_edit_ = syntax_edit;
 
@@ -361,25 +361,6 @@ void ColumnPreferencesFrame::customFieldEditingFinished()
 
     item->setText(custom_field_col_, cur_line_edit_->text());
     ui->columnTreeWidget->removeItemWidget(item, custom_field_col_);
-}
-
-void ColumnPreferencesFrame::customOccurrenceTextChanged(QString)
-{
-    SyntaxLineEdit *syntax_edit = qobject_cast<SyntaxLineEdit *>(cur_line_edit_);
-    QTreeWidgetItem *item = ui->columnTreeWidget->currentItem();
-    if (!syntax_edit || !item) return;
-
-    if (syntax_edit->text().isEmpty()) {
-        syntax_edit->setSyntaxState(SyntaxLineEdit::Empty);
-    } else {
-        bool ok;
-        syntax_edit->text().toInt(&ok);
-        if (ok) {
-            syntax_edit->setSyntaxState(SyntaxLineEdit::Valid);
-        } else {
-            syntax_edit->setSyntaxState(SyntaxLineEdit::Invalid);
-        }
-    }
 }
 
 void ColumnPreferencesFrame::customOccurrenceEditingFinished()

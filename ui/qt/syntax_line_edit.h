@@ -44,6 +44,7 @@ public slots:
     // Built-in syntax checks. Connect textChanged to these as needed.
     void checkDisplayFilter(QString filter);
     void checkFieldName(QString field);
+    void checkInteger(QString number);
 
 private:
     SyntaxState syntax_state_;

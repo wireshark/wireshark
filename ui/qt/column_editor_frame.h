@@ -1,4 +1,4 @@
-/* search_frame.h
+/* column_editor_frame.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,55 +19,43 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef SEARCH_FRAME_H
-#define SEARCH_FRAME_H
-
-#include <config.h>
+#ifndef COLUMN_EDITOR_FRAME_H
+#define COLUMN_EDITOR_FRAME_H
 
 #include "accordion_frame.h"
 
-#include "cfile.h"
-
 namespace Ui {
-class SearchFrame;
+class ColumnEditorFrame;
 }
 
-class SearchFrame : public AccordionFrame
+class ColumnEditorFrame : public AccordionFrame
 {
     Q_OBJECT
 
 public:
-    explicit SearchFrame(QWidget *parent = 0);
-    ~SearchFrame();
-    void animatedShow();
-    void findNext();
-    void findPrevious();
-
-public slots:
-    void setCaptureFile(capture_file *cf);
-    void findFrameWithFilter(QString &filter);
+    explicit ColumnEditorFrame(QWidget *parent = 0);
+    ~ColumnEditorFrame();
+    void editColumn(int column);
 
 signals:
-    void pushFilterSyntaxStatus(QString&);
-
-protected:
-    void keyPressEvent(QKeyEvent *event);
-
-private:
-    void enableWidgets();
-
-    Ui::SearchFrame *sf_ui_;
-    capture_file *cap_file_;
+    void columnEdited();
 
 private slots:
-    void on_searchTypeComboBox_currentIndexChanged(int index);
-    void on_searchLineEdit_textChanged(const QString &search_string);
-    void on_findButton_clicked();
+    void on_typeComboBox_activated(int index);
+    void on_fieldNameLineEdit_textEdited(const QString &field);
+    void on_occurrenceLineEdit_textEdited(const QString &occurrence);
     void on_cancelButton_clicked();
-    void changeEvent(QEvent* event);
+    void on_okButton_clicked();
+
+private:
+    Ui::ColumnEditorFrame *ui;
+
+    int cur_column_;
+    QString saved_field_;
+    QString saved_occurrence_;
 };
 
-#endif // SEARCH_FRAME_H
+#endif // COLUMN_EDITOR_FRAME_H
 
 /*
  * Editor modelines

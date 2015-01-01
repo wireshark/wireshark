@@ -42,12 +42,12 @@
      </column>
      <column>
       <property name="text">
-       <string>Field name</string>
+       <string>Field Name</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Field occurrence</string>
+       <string>Field Occurrence</string>
       </property>
      </column>
     </widget>

@@ -260,7 +260,7 @@ const int capture_item_    = 1;
 // We store the saved and current preference values in the "Advanced" tree columns
 const int pref_ptr_col_ = 0;
 
-PreferencesDialog::PreferencesDialog(QWidget *parent) :
+PreferencesDialog::PreferencesDialog(QWidget *parent, PreferencesPane start_pane) :
     QDialog(parent),
     pd_ui_(new Ui::PreferencesDialog),
     cur_line_edit_(NULL),
@@ -285,7 +285,6 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     pd_ui_->splitter->setStretchFactor(1, 5);
 
     pd_ui_->prefsTree->invisibleRootItem()->child(appearance_item_)->setExpanded(true);
-    pd_ui_->prefsTree->setCurrentItem(pd_ui_->prefsTree->invisibleRootItem()->child(appearance_item_));
 
     bool disable_capture = true;
 #ifdef HAVE_LIBPCAP
@@ -300,15 +299,19 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 #endif /* HAVE_LIBPCAP */
     pd_ui_->prefsTree->invisibleRootItem()->child(capture_item_)->setDisabled(disable_capture);
 
-    // This assumes that the prefs tree and stacked widget contents exactly
-    // correspond to each other.
+    // PreferencesPane, prefsTree, and stackedWidget must all correspond to each other.
     QTreeWidgetItem *item = pd_ui_->prefsTree->itemAt(0,0);
+    QTreeWidgetItem *start_item = pd_ui_->prefsTree->invisibleRootItem()->child(0);
     item->setSelected(true);
     pd_ui_->stackedWidget->setCurrentIndex(0);
     for (int i = 0; i < pd_ui_->stackedWidget->count() && item; i++) {
         item->setData(0, Qt::UserRole, qVariantFromValue(pd_ui_->stackedWidget->widget(i)));
+        if (i == start_pane) {
+            start_item = item;
+        }
         item = pd_ui_->prefsTree->itemBelow(item);
     }
+    pd_ui_->prefsTree->setCurrentItem(start_item);
 
     // Printing prefs don't apply here.
     module_t *print_module = prefs_find_module("print");

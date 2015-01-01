@@ -1278,6 +1278,16 @@ void MainWindow::fieldsChanged()
     proto_free_deregistered_fields();
 }
 
+void MainWindow::showColumnEditor(int column)
+{
+    previous_focus_ = wsApp->focusWidget();
+    connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
+    main_ui_->goToFrame->animatedHide();
+    main_ui_->searchFrame->animatedHide();
+    main_ui_->columnEditorFrame->editColumn(column);
+    main_ui_->columnEditorFrame->animatedShow();
+}
+
 void MainWindow::setFeaturesEnabled(bool enabled)
 {
     main_ui_->menuBar->setEnabled(enabled);
@@ -1640,6 +1650,7 @@ void MainWindow::on_actionEditFindPacket_triggered()
     previous_focus_ = wsApp->focusWidget();
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
     main_ui_->goToFrame->animatedHide();
+    main_ui_->columnEditorFrame->animatedHide();
     if (main_ui_->searchFrame->isVisible()) {
         main_ui_->searchFrame->animatedHide();
     } else {
@@ -1745,9 +1756,9 @@ void MainWindow::on_actionEditConfigurationProfiles_triggered()
     cp_dialog.exec();
 }
 
-void MainWindow::on_actionEditPreferences_triggered()
+void MainWindow::showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane)
 {
-    PreferencesDialog pref_dialog;
+    PreferencesDialog pref_dialog(this, start_pane);
 
     pref_dialog.exec();
 
@@ -1756,6 +1767,11 @@ void MainWindow::on_actionEditPreferences_triggered()
     foreach (WiresharkApplication::AppSignal app_signal, pref_dialog.appSignals()) {
         wsApp->emitAppSignal(app_signal);
     }
+}
+
+void MainWindow::on_actionEditPreferences_triggered()
+{
+    showPreferencesDialog();
 }
 
 // View Menu
@@ -2527,6 +2543,7 @@ void MainWindow::on_actionGoGoToPacket_triggered() {
     connect(previous_focus_, SIGNAL(destroyed()), this, SLOT(resetPreviousFocus()));
 
     main_ui_->searchFrame->animatedHide();
+    main_ui_->columnEditorFrame->animatedHide();
     if (main_ui_->goToFrame->isVisible()) {
         main_ui_->goToFrame->animatedHide();
     } else {

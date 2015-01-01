@@ -63,7 +63,6 @@ private slots:
     void columnTitleEditingFinished();
     void columnTypeCurrentIndexChanged(int index);
     void customFieldEditingFinished();
-    void customOccurrenceTextChanged(QString);
     void customOccurrenceEditingFinished();
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
