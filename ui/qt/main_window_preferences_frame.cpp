@@ -229,9 +229,9 @@ void MainWindowPreferencesFrame::on_mainToolbarComboBox_currentIndexChanged(int 
 void MainWindowPreferencesFrame::on_languageComboBox_currentIndexChanged(int index)
 {
     if (language)
-        delete language;
+        g_free(language);
 
-    language = strdup(ui->languageComboBox->itemData(index).toString().toStdString().c_str());
+    language = g_strdup(ui->languageComboBox->itemData(index).toString().toStdString().c_str());
 }
 
 /*
