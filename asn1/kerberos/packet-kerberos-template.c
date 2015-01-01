@@ -231,9 +231,6 @@ gboolean krb_decrypt = FALSE;
 /* keytab filename */
 static const char *keytab_filename = "";
 
-WS_DLL_PUBLIC
-void read_keytab_file(const char *);
-
 void
 read_keytab_file_from_preferences(void)
 {

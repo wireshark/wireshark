@@ -90,6 +90,11 @@
 #include <epan/timestamp.h>
 #include <epan/conversation_table.h>
 
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+#include <epan/asn1.h>
+#include <epan/dissectors/packet-kerberos.h>
+#endif
+
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/plugins.h>
 

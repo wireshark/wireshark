@@ -89,6 +89,12 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/ex-opt.h>
+
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+#include <epan/asn1.h>
+#include <epan/dissectors/packet-kerberos.h>
+#endif
+
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
 

@@ -482,9 +482,6 @@ gboolean krb_decrypt = FALSE;
 /* keytab filename */
 static const char *keytab_filename = "";
 
-WS_DLL_PUBLIC
-void read_keytab_file(const char *);
-
 void
 read_keytab_file_from_preferences(void)
 {
@@ -4264,7 +4261,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2004 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2001 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5302,7 +5299,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2385 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2382 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5376,7 +5373,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2401 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2398 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

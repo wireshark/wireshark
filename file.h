@@ -703,11 +703,6 @@ guint32 cf_comment_types(capture_file *cf);
 void cf_set_frame_edited(capture_file *cf, frame_data *fd, struct wtap_pkthdr *phdr, guint8 *pd);
 #endif
 
-#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
-WS_DLL_PUBLIC
-void read_keytab_file(const char *);
-#endif
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

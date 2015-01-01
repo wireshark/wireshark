@@ -101,6 +101,9 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 extern gboolean krb_decrypt;
 
 WS_DLL_PUBLIC
+void read_keytab_file(const char *);
+
+WS_DLL_PUBLIC
 void read_keytab_file_from_preferences(void);
 
 #endif /* HAVE_KERBEROS */
@@ -112,7 +115,7 @@ void read_keytab_file_from_preferences(void);
 int dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-kerberos-exp.h ---*/
-#line 102 "../../asn1/kerberos/packet-kerberos-template.h"
+#line 105 "../../asn1/kerberos/packet-kerberos-template.h"
 
 #ifdef __cplusplus
 }

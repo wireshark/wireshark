@@ -105,6 +105,11 @@
 #include <epan/conversation_table.h>
 #include <epan/ex-opt.h>
 
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+#include <epan/asn1.h>
+#include <epan/dissectors/packet-kerberos.h>
+#endif
+
 #include "capture_opts.h"
 
 #include "caputils/capture-pcap-util.h"
