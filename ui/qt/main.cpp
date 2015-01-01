@@ -47,84 +47,46 @@
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
 #include <wsutil/report_err.h>
 #include <wsutil/u3.h>
-#include <wsutil/copyright_info.h>
 #include <wsutil/ws_version_info.h>
 
-#include <wiretap/merge.h>
-
-#include <epan/epan.h>
-#include <epan/epan_dissect.h>
-#include <epan/timestamp.h>
-#include <epan/packet.h>
-#include <epan/dfilter/dfilter.h>
-#include <epan/strutil.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
 #include <epan/ex-opt.h>
-#include <epan/funnel.h>
-#include <epan/expert.h>
-#include <epan/frequency-utils.h>
-#include <epan/prefs.h>
-#include <epan/prefs-int.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
-#include <epan/uat.h>
 #include <epan/column.h>
 #include <epan/disabled_protos.h>
-#include <epan/conversation_table.h>
-#include <epan/print.h>
 
 #ifdef HAVE_PLUGINS
 #include <codecs/codecs.h>
 #endif
 
 /* general (not Qt specific) */
-#include "file.h"
-#include "summary.h"
-#include "color.h"
 #include "color_filters.h"
-#include "register.h"
-#include "ringbuffer.h"
 #include "ui/util.h"
 #include "log.h"
 
 #include "ui/alert_box.h"
-#include "ui/capture_globals.h"
-#ifdef HAVE_LIBPCAP
-#  include "ui/capture_ui_utils.h"
-#endif
 #include "ui/console.h"
 #include "ui/iface_lists.h"
 #include "ui/language.h"
-#include "ui/main_statusbar.h"
 #include "ui/persfilepath_opt.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
-#include "ui/ui_util.h"
 
 #include "caputils/capture-pcap-util.h"
-
-#ifdef HAVE_LIBPCAP
-#  include "caputils/capture_ifinfo.h"
-#  include "ui/capture.h"
-#  include "capchild/capture_sync.h"
-#endif
 
 #ifdef _WIN32
 #  include "caputils/capture-wpcap.h"
 #  include "caputils/capture_wpcap_packet.h"
 #  include <tchar.h> /* Needed for Unicode */
+#  include <wsutil/file_util.h>
 #  include <wsutil/os_version_info.h>
-#  include <wsutil/unicode-utils.h>
-#  include <commctrl.h>
-#  include <shellapi.h>
 #endif /* _WIN32 */
 
 #ifdef HAVE_AIRPCAP
@@ -136,15 +98,10 @@
 
 #include "epan/crypt/airpdcap_ws.h"
 
-#include <QDateTime>
-#include <QLibraryInfo>
-#include <QLocale>
-#include <QMessageBox>
 #if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
 #include <QTextCodec>
 #endif
 
-#include "capture_file.h"
 #include "conversation_dialog.h"
 #include "endpoint_dialog.h"
 
