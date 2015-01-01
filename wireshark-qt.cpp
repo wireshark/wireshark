@@ -63,6 +63,7 @@
 #endif
 
 /* general (not Qt specific) */
+#include "file.h"
 #include "color.h"
 #include "color_filters.h"
 #include "ui/util.h"
