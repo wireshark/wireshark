@@ -627,7 +627,6 @@ SOURCES += \
     lbm_lbtru_transport_dialog.cpp \
     lbm_stream_dialog.cpp \
     lbm_uimflow_dialog.cpp \
-    main.cpp \
     main_status_bar.cpp \
     main_welcome.cpp \
     main_window.cpp \
@@ -673,4 +672,5 @@ SOURCES += \
     uat_dialog.cpp \
     voip_calls_dialog.cpp \
     wireshark_application.cpp \
-    wireshark_dialog.cpp
+    wireshark_dialog.cpp \
+    ../../wireshark-qt.cpp

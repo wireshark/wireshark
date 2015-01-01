@@ -158,7 +158,6 @@ set(WIRESHARK_QT_SRC
 	lbm_lbtru_transport_dialog.cpp
 	lbm_stream_dialog.cpp
 	lbm_uimflow_dialog.cpp
-	main.cpp
 	main_status_bar.cpp
 	main_welcome.cpp
 	main_window.cpp

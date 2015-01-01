@@ -268,7 +268,6 @@ EXTRA_DIST = \
 	$(QM_FILES)			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
-	main.cpp			\
 	Makefile.common			\
 	Makefile_custom.common		\
 	Wireshark.pro			\

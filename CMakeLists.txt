@@ -1142,6 +1142,9 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
 	)
+	if(BUILD_wireshark AND QT_FOUND)
+		set(WIRESHARK_SRC ${WIRESHARK_SRC} wireshark-qt.cpp)
+	endif()
 	set(wireshark_FILES
 		${WIRESHARK_SRC}
 		image/wireshark.rc

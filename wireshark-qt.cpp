@@ -21,10 +21,6 @@
 
 #include "config.h"
 
-#include "simple_dialog.h"
-#include "main_window.h"
-#include "wireshark_application.h"
-
 #include <glib.h>
 
 #ifdef Q_OS_UNIX
@@ -67,6 +63,7 @@
 #endif
 
 /* general (not Qt specific) */
+#include "color.h"
 #include "color_filters.h"
 #include "ui/util.h"
 #include "log.h"
@@ -78,6 +75,10 @@
 #include "ui/persfilepath_opt.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
+
+#include "ui/qt/simple_dialog.h"
+#include "ui/qt/main_window.h"
+#include "ui/qt/wireshark_application.h"
 
 #include "caputils/capture-pcap-util.h"
 
@@ -102,8 +103,8 @@
 #include <QTextCodec>
 #endif
 
-#include "conversation_dialog.h"
-#include "endpoint_dialog.h"
+#include "ui/qt/conversation_dialog.h"
+#include "ui/qt/endpoint_dialog.h"
 
 #ifdef HAVE_LIBPCAP
 capture_options global_capture_opts;
