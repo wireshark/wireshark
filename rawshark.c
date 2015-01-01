@@ -450,6 +450,9 @@ main(int argc, char *argv[])
 
     static const char    optstring[] = OPTSTRING_INIT;
 
+    /* Set the C-language locale to the native environment. */
+    setlocale(LC_ALL, "");
+
     cmdarg_err_init(rawshark_cmdarg_err, rawshark_cmdarg_err_cont);
 
     /* Get the compile-time version information string */
@@ -529,9 +532,6 @@ main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL);
-
-    /* Set the C-language locale to the native environment. */
-    setlocale(LC_ALL, "");
 
     prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                          &pf_open_errno, &pf_read_errno, &pf_path);

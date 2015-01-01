@@ -1016,6 +1016,9 @@ main(int argc, char *argv[])
 
   static const char    optstring[] = OPTSTRING;
 
+  /* Set the C-language locale to the native environment. */
+  setlocale(LC_ALL, "");
+
   cmdarg_err_init(failure_message, failure_message_cont);
 
 #ifdef _WIN32
@@ -1260,9 +1263,6 @@ main(int argc, char *argv[])
     }
     return 0;
   }
-
-  /* Set the C-language locale to the native environment. */
-  setlocale(LC_ALL, "");
 
   prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                      &pf_open_errno, &pf_read_errno, &pf_path);

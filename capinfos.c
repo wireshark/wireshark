@@ -1135,6 +1135,9 @@ main(int argc, char *argv[])
   size_t hash_bytes;
 #endif
 
+  /* Set the C-language locale to the native environment. */
+  setlocale(LC_ALL, "");
+
   /* Get the compile-time version information string */
   comp_info_str = get_compiled_version_info(NULL, get_capinfos_compiled_info);
 
@@ -1401,9 +1404,6 @@ main(int argc, char *argv[])
         break;
     }
   }
-
-  /* Set the C-language locale to the native environment. */
-  setlocale(LC_ALL, "");
 
   if ((argc - optind) < 1) {
     print_usage(stderr);
