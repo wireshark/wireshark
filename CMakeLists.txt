@@ -1142,9 +1142,6 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
 	)
-	if(BUILD_wireshark AND QT_FOUND)
-		set(WIRESHARK_SRC ${WIRESHARK_SRC} wireshark-qt.cpp)
-	endif()
 	set(wireshark_FILES
 		${WIRESHARK_SRC}
 		image/wireshark.rc
@@ -1347,7 +1344,7 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	)
 	# wireshark and wireshark-gtk share wireshark_FILES
 
-	add_executable(wireshark-gtk ${wireshark_FILES})
+	add_executable(wireshark-gtk ${wireshark_FILES} wireshark-qt.cpp)
 	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
 	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
