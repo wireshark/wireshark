@@ -999,7 +999,7 @@ static gint Mini_Subchannel_allocation_IE(proto_tree *uiuc_tree, gint offset, gi
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
-    guint index;
+    guint idx;
     proto_item *tree;
     gint j, M;
     const gint m_table[4] = { 2, 2, 3, 6 };
@@ -1011,8 +1011,8 @@ static gint Mini_Subchannel_allocation_IE(proto_tree *uiuc_tree, gint offset, gi
     XBIT_HF(4, hf_ulmap_mini_subcha_alloc_extended_2_uiuc);
     XBIT_HF(8, hf_ulmap_mini_subcha_alloc_length);
 
-    XBIT_HF_VALUE(index, 2, hf_ulmap_mini_subcha_alloc_ctype);
-    M = m_table[index];
+    XBIT_HF_VALUE(idx, 2, hf_ulmap_mini_subcha_alloc_ctype);
+    M = m_table[idx];
     XBIT_HF(6, hf_ulmap_mini_subcha_alloc_duration);
 
     for (j = 0; j < M; j++) {
