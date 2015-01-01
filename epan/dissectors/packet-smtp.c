@@ -576,14 +576,14 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           if ((session_state->auth_state != SMTP_AUTH_STATE_NONE) &&
               (pinfo->fd->num >= session_state->first_auth_frame) &&
               ((session_state->last_auth_frame == 0) || (pinfo->fd->num <= session_state->last_auth_frame))) {
-                 decrypt = tvb_get_ephemeral_string(tvb, loffset, linelen);
-                    if ((stmp_decryption_enabled) && (epan_base64_decode(decrypt) > 0)) {
-                        line = decrypt;
-                    } else {
-                        line = tvb_get_ptr(tvb, loffset, linelen);
-                    }
-          } else {
+            decrypt = tvb_get_ephemeral_string(tvb, loffset, linelen);
+            if ((stmp_decryption_enabled) && (epan_base64_decode(decrypt) > 0)) {
+              line = decrypt;
+            } else {
               line = tvb_get_ptr(tvb, loffset, linelen);
+            }
+          } else {
+            line = tvb_get_ptr(tvb, loffset, linelen);
           }
 
           linep = line;
