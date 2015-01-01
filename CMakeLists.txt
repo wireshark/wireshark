@@ -1270,7 +1270,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		cmake_policy(SET CMP0020 OLD)
 	endif()
 
-	add_executable(wireshark MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
+	add_executable(wireshark MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
 	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
 	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
@@ -1344,7 +1344,7 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	)
 	# wireshark and wireshark-gtk share wireshark_FILES
 
-	add_executable(wireshark-gtk ${wireshark_FILES} wireshark-qt.cpp)
+	add_executable(wireshark-gtk ${wireshark_FILES})
 	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
 	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
