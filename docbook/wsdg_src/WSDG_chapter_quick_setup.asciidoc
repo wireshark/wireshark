@@ -192,9 +192,13 @@ other packages are also used.
 
 ==== Install PowerShell
 
-If you are running Windows Vista you may need to install Windows Powershell 2.0.
-Later versions should also be supported.
-You can download it from https://www.microsoft.com/powershell[]
+PowerShell 2.0 or later is required for building Wireshark and the NSIS package.
+Windows 7 and later include compatible versions.
+
+If you are running Windows Vista and have thus far managed to not install
+PowerShell 2.0, either directly or via anything that requires it, you must now
+install PowerShell 2.0. You can download it from
+https://www.microsoft.com/powershell[]
 
 [[ChSetupChocolatey]]
 
