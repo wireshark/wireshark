@@ -38,9 +38,12 @@
 void proto_register_hpfeeds(void);
 void proto_reg_handoff_hpfeeds(void);
 
+static heur_dissector_list_t heur_subdissector_list;
+
 /* Preferences */
 static guint hpfeeds_port_pref = 0;
 static gboolean hpfeeds_desegment = TRUE;
+static gboolean try_heuristic = TRUE;
 
 static int proto_hpfeeds = -1;
 
@@ -98,25 +101,6 @@ static const value_string opcode_vals[] = {
     { 0,              NULL },
 };
 
-/*
-*
-* These values are the channel used by "most" spread and used honeypots
-* In case we have publish message in one of these channel we can decode
-* payload completely
-*
-*/
-static const value_string chan_vals[] = {
-    { CH_DIONAEA_CAPTURE, "dionaea.capture" },
-    { CH_DIONAEA_DCE, "dionaea.dcerpcrequests" },
-    { CH_DIONAEA_SHELLCODE, "dionaea.shellcodeprofiles" },
-    { CH_DIONAEA_UINQUE, "mwbinary.dionaea.sensorunique" },
-    { CH_DIONAEA_CONNECTIONS, "dionaea.connections" },
-    { CH_KIPPO_SESSIONS, "kippo.sessions" },
-    { CH_GEOLOC_EVENTS, "geoloc.events" },
-    { CH_GLASTOPF_EVENTS, "glastopf.events" },
-    { CH_EINVAL, NULL }
-};
-
 static void
 dissect_hpfeeds_error_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -169,49 +153,35 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint offset)
 {
     guint8 len = 0;
+    heur_dtbl_entry_t *hdtbl_entry;
     guint8 *strptr = NULL;
-    gint8 channel = CH_EINVAL;
-    tvbuff_t *json_tvb = NULL;
+    tvbuff_t *next_tvb;
 
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1,
-        ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len,
-        ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1,
-        ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    /* get the channel name as ephemeral string just to make an attempt
-    *  in order to decode more payload if channel is "well known"
-    */
+    /* get the channel name as ephemeral string to pass it to the json decoder */
     strptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-    proto_tree_add_item(tree, hf_hpfeeds_channel, tvb, offset, len,
-        ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_hpfeeds_channel, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
-    channel = str_to_val(strptr, chan_vals, CH_EINVAL);
-    switch (channel) {
-        case CH_DIONAEA_CAPTURE:
-        case CH_DIONAEA_DCE:
-        case CH_DIONAEA_SHELLCODE:
-        case CH_DIONAEA_UINQUE:
-        case CH_DIONAEA_CONNECTIONS:
-        case CH_KIPPO_SESSIONS:
-        case CH_GLASTOPF_EVENTS:
-        case CH_GEOLOC_EVENTS:
-            json_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector_with_data(json_hdl, json_tvb, pinfo, tree, strptr);
-        break;
-        default:
-            proto_tree_add_item(tree, hf_hpfeeds_payload, tvb, offset, -1,
-                ENC_NA);
-        break;
+
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    /* try the heuristic dissectors */
+    if (try_heuristic) {
+        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, strptr)) {
+            return;
+        }
     }
 
-
+    /* heuristic failed. Print remaining bytes as flat payload */
+    proto_tree_add_item(tree, hf_hpfeeds_payload, tvb, offset, -1, ENC_NA);
 }
 
 static void
@@ -300,7 +270,7 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         }
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -312,7 +282,7 @@ dissect_hpfeeds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     tcp_dissect_pdus(tvb, pinfo, tree, hpfeeds_desegment, HPFEEDS_HDR_LEN,
         get_hpfeeds_pdu_len, dissect_hpfeeds_pdu, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -413,6 +383,8 @@ proto_register_hpfeeds(void)
         "hpfeeds"       /* abbrev     */
         );
 
+    heur_subdissector_list = register_heur_dissector_list("hpfeeds");
+
     proto_register_field_array(proto_hpfeeds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_hpfeeds = expert_register_protocol(proto_hpfeeds);
@@ -432,6 +404,11 @@ proto_register_hpfeeds(void)
         "Dissector TCP port",
         "Set the TCP port for HPFEEDS messages",
         10, &hpfeeds_port_pref);
+
+    prefs_register_bool_preference(hpfeeds_module, "try_heuristic",
+        "Try heuristic sub-dissectors",
+        "Try to decode the payload using an heuristic sub-dissector",
+        &try_heuristic);
 }
 
 void

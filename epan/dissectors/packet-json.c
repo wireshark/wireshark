@@ -31,6 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
+#include <epan/jsmn/jsmn.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/unicode-utils.h>
@@ -39,6 +40,8 @@ void proto_register_json(void);
 void proto_reg_handoff_json(void);
 
 static dissector_handle_t json_handle;
+
+static int proto_json = -1;
 
 static gint ett_json = -1;
 static gint ett_json_array = -1;
@@ -154,7 +157,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	proto_item_set_len(ti, offset);
 
 	/* if we have some unparsed data, pass to data-text-lines dissector (?) */
-	if (tvb_length_remaining(tvb, offset) > 0) {
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		tvbuff_t *next_tvb;
 
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -164,7 +167,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)", data_name);
 	}
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
@@ -564,6 +567,25 @@ static void init_json_parser(void) {
 	/* XXX, heur? */
 }
 
+/* This function leverages the libjsmn to undestand if the payload is json or not
+*/
+static gboolean
+dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	guint len = tvb_captured_length(tvb);
+	guint8* buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, len, ENC_ASCII);
+
+	jsmn_parser p;
+	/* We expect no more than 1024 tokens */
+	jsmntok_t* t = (jsmntok_t*)wmem_alloc_array(wmem_packet_scope(), jsmntok_t, 1024);
+
+	jsmn_init(&p);
+	if (jsmn_parse(&p, buf, len, t, sizeof(t)/sizeof(t[0])) < 0) {
+		return FALSE;
+	}
+	return (dissect_json(tvb, pinfo, tree, data) != 0);
+}
+
 void
 proto_register_json(void)
 {
@@ -588,8 +610,6 @@ proto_register_json(void)
 	};
 #endif
 
-	int proto_json;
-
 	proto_json = proto_register_protocol("JavaScript Object Notation", "JSON", "json");
 	hfi_json = proto_registrar_get_nth(proto_json);
 
@@ -604,6 +624,8 @@ proto_register_json(void)
 void
 proto_reg_handoff_json(void)
 {
+	heur_dissector_add("hpfeeds", dissect_json_heur, proto_json);
+
 	dissector_add_string("media_type", "application/json", json_handle); /* RFC 4627 */
 	dissector_add_string("media_type", "application/json-rpc", json_handle); /* JSON-RPC over HTTP */
 	dissector_add_string("media_type", "application/jsonrequest", json_handle); /* JSON-RPC over HTTP */
