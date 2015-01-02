@@ -3313,6 +3313,10 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
 
     /* strip padding for GenericBlockCipher */
     if (decoder->cipher_suite->mode == MODE_CBC) {
+        if (inl < 1) { /* Should this check happen earlier? */
+            ssl_debug_printf("ssl_decrypt_record failed: input length %d too small\n", inl);
+            return -1;
+        }
         pad=out_str->data[inl-1];
         if (worklen <= pad) {
             ssl_debug_printf("ssl_decrypt_record failed: padding %d too large for work %d\n",
