@@ -21,6 +21,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This dissector analyses a multiplexed communication between a GSM modem and the host,
+ * whereby the multiplexing is based upon a variant of the specification 3G TS 27.010.
+ *
+ * The assigned DLT value is:
+ *   LINKTYPE_MUX27010  236     DLT_MUX27010
+ *
+ * A detailed description of the packet structure/LINKTYPE_MUX27010 can be found on:
+ *  http://www.tcpdump.org/linktypes/LINKTYPE_MUX27010.html
+ */
+
 #include "config.h"
 
 #include <epan/packet.h>
