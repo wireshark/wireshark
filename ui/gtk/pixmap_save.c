@@ -35,6 +35,7 @@
 
 #include "ui/gtk/pixmap_save.h"
 #include "ui/gtk/file_dlg.h"
+#include "ui/gtk/gui_utils.h"
 
 #if GTK_CHECK_VERSION(2,22,0)
 #if !GTK_CHECK_VERSION(3,0,0)
