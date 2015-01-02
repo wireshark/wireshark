@@ -23,7 +23,6 @@
 /*
 ** {======================================================
 ** Library for packing/unpacking structures.
-** $Id: struct.c,v 1.4 2012/07/04 18:54:29 roberto Exp $
 ** See Copyright Notice above.
 **
 ** Small changes were made by Hadriel Kaplan - those changes

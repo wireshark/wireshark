@@ -504,7 +504,7 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
     int len;
     gchar* str;
 
-    len = tvb_length(tvb->ws_tvb);
+    len = tvb_captured_length(tvb->ws_tvb);
     str = wmem_strdup_printf(NULL, "TVB(%i) : %s",len,tvb_bytes_to_ep_str(tvb->ws_tvb,0,len));
     lua_pushstring(L,str);
     wmem_free(NULL, str);
@@ -533,7 +533,7 @@ WSLUA_METHOD Tvb_len(lua_State* L) {
 	/* Obtain the actual (captured) length of a `Tvb`. */
     Tvb tvb = checkTvb(L,1);
 
-    lua_pushnumber(L,tvb_length(tvb->ws_tvb));
+    lua_pushnumber(L,tvb_captured_length(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The captured length of the `Tvb`. */
 }
 
@@ -581,12 +581,12 @@ gboolean push_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len) {
     }
 
     if (len == -1) {
-        len = tvb_length_remaining(ws_tvb,offset);
+        len = tvb_captured_length_remaining(ws_tvb,offset);
         if (len < 0) {
             luaL_error(L,"out of bounds");
             return FALSE;
         }
-    } else if ( (guint)(len + offset) > tvb_length(ws_tvb)) {
+    } else if ( (guint)(len + offset) > tvb_captured_length(ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
         return FALSE;
     }
@@ -635,18 +635,18 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
         return 0;
     }
 
-    if ((guint)offset > tvb_length(tvb->ws_tvb)) {
+    if ((guint)offset > tvb_captured_length(tvb->ws_tvb)) {
         WSLUA_OPTARG_ERROR(Tvb_raw,OFFSET,"offset beyond end of Tvb");
         return 0;
     }
 
     if (len == -1) {
-        len = tvb_length_remaining(tvb->ws_tvb,offset);
+        len = tvb_captured_length_remaining(tvb->ws_tvb,offset);
         if (len < 0) {
             luaL_error(L,"out of bounds");
             return FALSE;
         }
-    } else if ( (guint)(len + offset) > tvb_length(tvb->ws_tvb)) {
+    } else if ( (guint)(len + offset) > tvb_captured_length(tvb->ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
         return FALSE;
     }
@@ -1470,7 +1470,7 @@ static int TvbRange_uncompress(lua_State* L) {
     uncompr_tvb = tvb_child_uncompress(tvbr->tvb->ws_tvb, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
     if (uncompr_tvb) {
        add_new_data_source (lua_pinfo, uncompr_tvb, name);
-       if (push_TvbRange(L,uncompr_tvb,0,tvb_length(uncompr_tvb))) {
+       if (push_TvbRange(L,uncompr_tvb,0,tvb_captured_length(uncompr_tvb))) {
           WSLUA_RETURN(1); /* The TvbRange */
        }
     }
@@ -1531,18 +1531,18 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
         return 0;
     }
 
-    if ((guint)offset > tvb_length(tvbr->tvb->ws_tvb)) {
+    if ((guint)offset > tvb_captured_length(tvbr->tvb->ws_tvb)) {
         WSLUA_OPTARG_ERROR(Tvb_raw,OFFSET,"offset beyond end of Tvb");
         return 0;
     }
 
     if (len == -1) {
-        len = tvb_length_remaining(tvbr->tvb->ws_tvb,offset);
+        len = tvb_captured_length_remaining(tvbr->tvb->ws_tvb,offset);
         if (len < 0) {
             luaL_error(L,"out of bounds");
             return FALSE;
         }
-    } else if ( (guint)(len + offset) > tvb_length(tvbr->tvb->ws_tvb)) {
+    } else if ( (guint)(len + offset) > tvb_captured_length(tvbr->tvb->ws_tvb)) {
         luaL_error(L,"Range is out of bounds");
         return FALSE;
     }

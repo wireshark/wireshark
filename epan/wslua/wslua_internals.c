@@ -7,8 +7,6 @@
  *
  * (c) 2013, Hadriel Kaplan <hadrielk@yahoo.com>
  *
- * $Id: wslua_internals.c 47885 2013-02-25 22:05:28Z hadrielk $
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
