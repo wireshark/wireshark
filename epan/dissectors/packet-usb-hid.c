@@ -104,15 +104,15 @@ static int hf_usb_hid_bNumDescriptors = -1;
 static int hf_usb_hid_bDescriptorType = -1;
 static int hf_usb_hid_wDescriptorLength = -1;
 
-static const true_false_string tfs_mainitem_bit0 = {"Data", "Constant"};
-static const true_false_string tfs_mainitem_bit1 = {"Array", "Variable"};
-static const true_false_string tfs_mainitem_bit2 = {"Absolute", "Relative"};
-static const true_false_string tfs_mainitem_bit3 = {"No wrap", "Wrap"};
-static const true_false_string tfs_mainitem_bit4 = {"Linear", "Nonlinear"};
-static const true_false_string tfs_mainitem_bit5 = {"Preferred state", "No preferred state"};
-static const true_false_string tfs_mainitem_bit6 = {"No null position", "Null state"};
-static const true_false_string tfs_mainitem_bit7 = {"Non-volatile", "Volatile"};
-static const true_false_string tfs_mainitem_bit8 = {"Bit field", "Buffered bytes"};
+static const true_false_string tfs_mainitem_bit0 = {"Constant", "Data"};
+static const true_false_string tfs_mainitem_bit1 = {"Variable", "Array"};
+static const true_false_string tfs_mainitem_bit2 = {"Relative", "Absolute"};
+static const true_false_string tfs_mainitem_bit3 = {"Wrap", "No Wrap"};
+static const true_false_string tfs_mainitem_bit4 = {"Non Linear", "Linear"};
+static const true_false_string tfs_mainitem_bit5 = {"No Preferred", "Preferred State"};
+static const true_false_string tfs_mainitem_bit6 = {"Null state", "No Null position"};
+static const true_false_string tfs_mainitem_bit7 = {"Volatile", "Non Volatile"};
+static const true_false_string tfs_mainitem_bit8 = {"Buffered Bytes", "Bit Field"};
 
 
 struct usb_hid_global_state {
