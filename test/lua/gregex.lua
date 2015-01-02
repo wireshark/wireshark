@@ -20,6 +20,11 @@ for i,v in ipairs(args) do
   print(i.." = "..v)
 end
 
+-- save current locale and replace it with C-locale
+local old_locale = os.setlocale()
+print("Previous locale was '" .. old_locale .. "', setting it to C-locale now")
+os.setlocale("C")
+
 local function testing(...)
 	print("---- Testing "..tostring(...).." ----")
 end
@@ -277,7 +282,8 @@ do
   assert(nerr == 0, "Test failed!")
 end
 
-
+print("Resetting locale to: " .. old_locale)
+os.setlocale(old_locale)
 
 
 print("\n-----------------------------\n")
