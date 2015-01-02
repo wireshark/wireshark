@@ -223,12 +223,7 @@ static const value_string rach_gps_pos_cpi_vals[] = {
 static void
 rach_gps_pos_lat_fmt(gchar *s, guint32 v)
 {
-	gint32 sv;
-
-	if (v & (1<<18))
-		v |= 0xfff80000;
-
-	sv = v;
+	gint32 sv = v;
 
 	g_snprintf(s, ITEM_LABEL_LENGTH, "%.5f %s (%d)",
 	           abs(sv) / 2912.7f, sv < 0 ? "S" : "N", sv);
@@ -237,12 +232,7 @@ rach_gps_pos_lat_fmt(gchar *s, guint32 v)
 static void
 rach_gps_pos_long_fmt(gchar *s, guint32 v)
 {
-	gint32 sv;
-
-	if (v & (1<<19))
-		v |= 0xfff00000;
-
-	sv = v;
+	gint32 sv = v;
 
 	g_snprintf(s, ITEM_LABEL_LENGTH, "%.5f %s (%d)",
 	           abs(sv) / 2912.70555f, sv < 0 ? "W" : "E", sv);
@@ -260,7 +250,7 @@ dissect_gmr1_rach_gps_pos(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	/* Check for NULL */
 	lat = (tvb_get_ntohl(tvb, offset) >> 4) & 0x7ffff;
 	if (lat == 0x40000) {
-		proto_tree_add_uint_format(tree, hf_rach_gps_pos_lat, tvb, offset, 5, 0x40000, "NULL GPS Position");
+		proto_tree_add_int_format(tree, hf_rach_gps_pos_lat, tvb, offset, 5, 0x40000, "NULL GPS Position");
 		return;
 	}
 
@@ -593,12 +583,12 @@ proto_register_gmr1_rach(void)
 		},
 		{ &hf_rach_gps_pos_lat,
 		  { "Latitude", "gmr1.rach.gps_pos.latitude",
-		    FT_UINT24, BASE_CUSTOM, rach_gps_pos_lat_fmt, 0x7ffff0,
+		    FT_INT24, BASE_CUSTOM, rach_gps_pos_lat_fmt, 0x7ffff0,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_gps_pos_long,
 		  { "Longitude", "gmr1.rach.gps_pos.longitude",
-		    FT_UINT24, BASE_CUSTOM, rach_gps_pos_long_fmt, 0x0fffff,
+		    FT_INT24, BASE_CUSTOM, rach_gps_pos_long_fmt, 0x0fffff,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_mes_pwr_class,
