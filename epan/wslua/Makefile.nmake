@@ -59,7 +59,8 @@ wslua.lib	: $(OBJECTS) init.lua
 	link /lib /NODEFAULTLIB /out:wslua.lib $(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) wslua.lib *.pdb *.sbr init.lua taps_wslua.c declare_wslua.h register_wslua.c taps.txt
+	rm -f $(OBJECTS) wslua.lib  init.lua taps_wslua.c declare_wslua.h register_wslua.c taps.txt \
+	*.nativecodeanalysis.xml *.pdb *.sbr
 
 init_wslua.c: declare_wslua.h
 

@@ -60,7 +60,7 @@ clean :
 		wiretap-*.exp \
 		wiretap-*.dll \
 		wiretap-*.dll.manifest \
-		*.pdb *.sbr
+		*.nativecodeanalysis.xml *.pdb *.sbr
 
 #
 # We remove the generated files with "distclean" because one of them,

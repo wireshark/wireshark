@@ -43,7 +43,8 @@ libui.lib	: ..\config.h $(WIRESHARK_UI_OBJECTS)
 	link /lib /out:libui.lib $(WIRESHARK_UI_OBJECTS)
 
 clean:
-	rm -f $(WIRESHARK_UI_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib *.pdb *.sbr \
+	rm -f $(WIRESHARK_UI_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib \
+		*.nativecodeanalysis.xml *.pdb *.sbr \
 		doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
 	if exist html rmdir html
 

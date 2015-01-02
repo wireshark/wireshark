@@ -45,7 +45,7 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) $(RESOURCE) *.pdb *.sbr \
+	rm -f $(OBJECTS) $(RESOURCE) *.nativecodeanalysis.xml *.pdb *.sbr \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
 	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 

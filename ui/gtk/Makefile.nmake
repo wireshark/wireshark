@@ -145,7 +145,7 @@ pa_win_waveformat.obj: $(PORTAUDIO_DIR)\src\os\win\pa_win_waveformat.c
 !ENDIF
 
 clean:
-	rm -f $(WIRESHARK_LIBGTKUI_OBJECTS) libgtkui.lib *.pdb *.sbr \
+	rm -f $(WIRESHARK_LIBGTKUI_OBJECTS) libgtkui.lib *.nativecodeanalysis.xml *.pdb *.sbr \
 		doxygen.cfg html/*.* wireshark-tap-register-cache.pkl \
 		wireshark-tap-register.c-tmp
 	if exist html rmdir html

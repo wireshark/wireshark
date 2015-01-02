@@ -36,7 +36,8 @@ libcapchild.lib	: ..\config.h $(CAPCHILD_OBJECTS)
 	link /lib /out:libcapchild.lib $(CAPCHILD_OBJECTS)
 
 clean:
-	rm -f $(CAPCHILD_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libcapchild.lib *.pdb *.sbr \
+	rm -f $(CAPCHILD_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libcapchild.lib \
+		*.nativecodeanalysis.xml *.pdb *.sbr \
 		doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
 	if exist html rmdir html
 

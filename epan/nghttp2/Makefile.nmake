@@ -20,7 +20,7 @@ nghttp2.lib: $(OBJECTS)
 	link /lib /out:nghttp2.lib $(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) nghttp2.lib *.pdb *.sbr
+	rm -f $(OBJECTS) nghttp2.lib *.nativecodeanalysis.xml *.pdb *.sbr
 
 distclean: clean
 

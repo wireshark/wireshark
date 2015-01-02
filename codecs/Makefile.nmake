@@ -50,7 +50,7 @@ sbc.obj: sbc\sbc.c sbc\sbc_private.h
 	$(CC) $(CFLAGS) -Fd.\ -c sbc\sbc.c /Fo%|fF.obj
 
 clean:
-	rm -f $(LIBCODEC_OBJECTS) codecs.lib *.pdb *.sbr
+	rm -f $(LIBCODEC_OBJECTS) codecs.lib *.nativecodeanalysis.xml *.pdb *.sbr
 
 distclean: clean
 

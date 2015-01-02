@@ -21,7 +21,7 @@ ftypes.lib	: $(OBJECTS)
 	link /lib /out:ftypes.lib $(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) ftypes.lib *.pdb *.sbr
+	rm -f $(OBJECTS) ftypes.lib *.nativecodeanalysis.xml *.pdb *.sbr
 
 distclean: clean
 

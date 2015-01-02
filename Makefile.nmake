@@ -554,7 +554,7 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 
 clean-local:
 	rm -f $(wireshark_gtk_OBJECTS) $(tshark_OBJECTS) $(tfshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
-		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
+		$(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr *.exe.manifest \
 		capinfos.obj capinfos.exp capinfos.lib \
 		captype.obj captype.exp captype.lib \
 		editcap.obj editcap.exp editcap.lib \

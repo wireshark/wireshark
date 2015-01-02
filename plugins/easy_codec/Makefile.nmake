@@ -55,7 +55,7 @@ easy_codec_plugin.obj : easy_codec_plugin.c
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) $(RESOURCE) plugin.c  *.pdb *.sbr \
+	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.nativecodeanalysis.xml *.pdb *.sbr \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
 	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 

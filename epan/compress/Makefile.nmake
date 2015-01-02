@@ -20,7 +20,7 @@ lzxpress.lib: $(LZXPRESS_OBJECTS)
 	link /lib /out:lzxpress.lib $(LZXPRESS_OBJECTS)
 
 clean:
-	rm -f $(LZXPRESS_OBJECTS) lzxpress.lib *.pdb *.sbr
+	rm -f $(LZXPRESS_OBJECTS) lzxpress.lib *.nativecodeanalysis.xml *.pdb *.sbr
 
 distclean: clean
 

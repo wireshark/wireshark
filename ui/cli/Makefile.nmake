@@ -50,7 +50,7 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) ..\..\tools\make-tap-reg.py
 
 clean:
 	rm -f $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj libcliui.lib *.pdb \
-		*.sbr doxygen.cfg html/*.* tshark-tap-register-cache.pkl \
+		*.nativecodeanalysis.xml *.sbr doxygen.cfg html/*.* tshark-tap-register-cache.pkl \
 		tshark-tap-register.c-tmp
 	if exist html rmdir html
 

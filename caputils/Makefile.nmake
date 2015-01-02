@@ -41,7 +41,8 @@ libcaputils.lib	: ..\config.h $(CAPUTILS_OBJECTS)
 	link /lib /out:libcaputils.lib $(CAPUTILS_OBJECTS)
 
 clean:
-	rm -f $(CAPUTILS_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libcaputils.lib *.pdb *.sbr \
+	rm -f $(CAPUTILS_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libcaputils.lib \
+		*.nativecodeanalysis.xml *.pdb *.sbr \
 		doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
 	if exist html rmdir html
 

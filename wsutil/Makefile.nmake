@@ -56,7 +56,7 @@ clean:
 		libwsutil.exp \
 		libwsutil.dll \
 		libwsutil.dll.manifest \
-		*.pdb *.sbr
+		*.nativecodeanalysis.xml *.pdb *.sbr
 
 distclean: clean
 
