@@ -33,6 +33,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include "packet-gsm_a_common.h"
 
@@ -90,6 +91,8 @@ static int hf_gsm_a_rp_rp_message_reference = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_rp_msg = -1;
+
+static expert_field ei_gsm_a_rp_extraneous_data = EI_INIT;
 
 static dissector_handle_t gsm_sms_handle;	/* SMS TPDU */
 
@@ -157,7 +160,7 @@ de_rp_user_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
 	curr_offset += len;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rp_extraneous_data);
 
 	return(curr_offset - offset);
 }
@@ -221,7 +224,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 
 	curr_offset += len - (curr_offset - offset);
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rp_extraneous_data);
 
 	return(curr_offset - offset);
 }
@@ -261,7 +264,7 @@ rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_RP, DE_RP_USER_DATA, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rp_extraneous_data);
 }
 
 /*
@@ -287,7 +290,7 @@ rp_data_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_RP, DE_RP_USER_DATA, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rp_extraneous_data);
 }
 
 /*
@@ -305,7 +308,7 @@ rp_smma(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_RP, DE_RP_MESSAGE_REF, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rp_extraneous_data);
 }
 
 /*
@@ -327,7 +330,7 @@ rp_ack_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 
 	ELEM_OPT_TLV(0x41, GSM_A_PDU_TYPE_RP, DE_RP_USER_DATA, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rp_extraneous_data);
 }
 
 /*
@@ -349,7 +352,7 @@ rp_ack_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 
 	ELEM_OPT_TLV(0x41, GSM_A_PDU_TYPE_RP, DE_RP_USER_DATA, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rp_extraneous_data);
 }
 
 /*
@@ -373,7 +376,7 @@ rp_error_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 
 	ELEM_OPT_TLV(0x41, GSM_A_PDU_TYPE_RP, DE_RP_USER_DATA, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rp_extraneous_data);
 }
 
 /*
@@ -397,7 +400,7 @@ rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 
 	ELEM_OPT_TLV(0x41, GSM_A_PDU_TYPE_RP, DE_RP_USER_DATA, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rp_extraneous_data);
 }
 
 #define	NUM_GSM_RP_MSG (sizeof(gsm_rp_msg_strings)/sizeof(value_string))
@@ -519,6 +522,12 @@ proto_register_gsm_a_rp(void)
       { &hf_gsm_a_rp_message_elements, { "Message Elements", "gsm_a.rp.message_elements", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_gsm_a_rp_extraneous_data, { "gsm_a.rp.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+	};
+
+	expert_module_t* expert_gsm_a_rp;
+
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	1
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
@@ -543,12 +552,12 @@ proto_register_gsm_a_rp(void)
 
 	/* Register the protocol name and description */
 
-	proto_a_rp =
-		proto_register_protocol("GSM A-I/F RP", "GSM RP", "gsm_a.rp");
+	proto_a_rp = proto_register_protocol("GSM A-I/F RP", "GSM RP", "gsm_a.rp");
 
 	proto_register_field_array(proto_a_rp, hf, array_length(hf));
-
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_gsm_a_rp = expert_register_protocol(proto_a_rp);
+	expert_register_field_array(expert_gsm_a_rp, ei, array_length(ei));
 
 	register_dissector("gsm_a_rp", dissect_rp, proto_a_rp);
 }

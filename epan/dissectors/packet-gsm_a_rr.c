@@ -1084,6 +1084,7 @@ static expert_field ei_gsm_a_rr_ie_overrun = EI_INIT;
 static expert_field ei_gsm_a_rr_ie_underrun = EI_INIT;
 static expert_field ei_gsm_a_rr_data_not_dissected = EI_INIT;
 static expert_field ei_gsm_a_rr_unknown_version = EI_INIT;
+static expert_field ei_gsm_a_rr_extraneous_data = EI_INIT;
 
 static char a_bigbuf[1024];
 
@@ -8543,7 +8544,7 @@ dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* Starting Time  10.5.2.38  O TV 3 */
     ELEM_OPT_TV(0x7c, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -8636,7 +8637,7 @@ dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* 04 VGCS Ciphering Parameters VGCS Ciphering Parameters 10.5.2.42b O TLV 3-15     */
     ELEM_OPT_TLV(0x04,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_CIP_PAR, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8656,7 +8657,7 @@ dtap_rr_ass_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8676,7 +8677,7 @@ dtap_rr_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8705,7 +8706,7 @@ dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* 03 Multi-Rate configuration,     MultiRate configuration 10.5.2.21aa     O TLV 4-8 */
     ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8728,7 +8729,7 @@ dtap_rr_ch_mode_mod_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Channel Mode             10.5.2.6        M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8772,7 +8773,7 @@ dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     /* 62 Cell selection indicator after release of all TCH and SDCCH 10.5.2.1e O TLV 4-? */
     ELEM_OPT_TLV(0x77, GSM_A_PDU_TYPE_RR, DE_RR_CELL_SELECT_INDIC, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8798,7 +8799,7 @@ dtap_rr_cip_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET,
                        GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_RESP);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 /*
@@ -8817,7 +8818,7 @@ dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     /* Mobile Equipment Identity                10.5.1.4        O TLV */
     ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, "Mobile Equipment Identity");
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8839,7 +8840,7 @@ dtap_rr_mm_cm_change(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     /* 20 Mobile Station Classmark 3            10.5.1.7        C TLV 3-34 */
     ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_3, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8859,7 +8860,7 @@ dtap_rr_utran_classmark_change(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     /* UTRAN Classmark          10.5.2.7a       M LV 2-? */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_UTRAN_CM, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -8878,7 +8879,7 @@ dtap_rr_cm_enq(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     /* 10 Classmark Enquiry Mask        10.5.2.7c       O TLV 3 */
     ELEM_OPT_TLV(0x10, GSM_A_PDU_TYPE_RR, DE_RR_CM_ENQ_MASK, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -8922,7 +8923,7 @@ dtap_rr_conf_change_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* Channel Mode  10.5.2.6  O TV 2 */
     ELEM_OPT_TV(0x18,GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, " - Mode of Channel Set 8");
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -8946,7 +8947,7 @@ dtap_rr_conf_change_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* RR Cause  10.5.2.31  M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9005,7 +9006,7 @@ dtap_rr_dtm_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* 21 Channel Description C2 Channel Description 3 10.5.2.5c O TV 3 */
     ELEM_OPT_TV(0x21,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC3, " - Channel Description C2");
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9024,7 +9025,7 @@ dtap_rr_dtm_ass_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9046,7 +9047,7 @@ dtap_rr_dtm_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     /* DTM Information Details 10.5.2.11a M LV 4-n */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_DTM_INFO_DETAILS, NULL);
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9065,7 +9066,7 @@ dtap_rr_dtm_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* Wait indication 10.5.2.43 M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_WAIT_IND, " - DTM Wait Indication");
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9087,7 +9088,7 @@ dtap_rr_dtm_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* Channel Request Description 2 M LV 5-n */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_REQ_DESC2, NULL);
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9124,7 +9125,7 @@ dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     /* Channel Description 3  10.5.2.5c  O TV 3 */
     ELEM_OPT_TV(0x12,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC3, " - Channel Description C2");
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9151,7 +9152,7 @@ dtap_rr_gprs_sus_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     /* 01 Service Support                               10.5.2.57       O TV 2 */
     ELEM_OPT_TV_SHORT(0x01,GSM_A_PDU_TYPE_RR, DE_RR_SERV_SUP,NULL);
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -9287,7 +9288,7 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     /* Dedicated Service Information,   Dedicated Service Information 10.5.2.59 */
     ELEM_OPT_TV(0x51,GSM_A_PDU_TYPE_RR, DE_RR_DED_SERV_INF, NULL);
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -9307,7 +9308,7 @@ dtap_rr_inter_syst_to_utran_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info 
     /* UTRAN Classmark          10.5.2.51       M LV 2-? */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_RR, DE_RR_HO_TO_UTRAN_CMD, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /* 3GPP TS 24.008 version 4.7.0 Release 4
@@ -9329,7 +9330,7 @@ dtap_rr_ho_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* 77 Mobile Observed Time Difference       Mobile Time Difference 10.5.2.21a */
     ELEM_OPT_TLV(0x77,GSM_A_PDU_TYPE_RR, DE_RR_MOB_TIME_DIFF, " - Mobile Observed Time Difference");
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -9349,7 +9350,7 @@ dtap_rr_ho_fail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* RR Cause RR Cause 10.5.2.31 M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
 
@@ -9542,7 +9543,7 @@ dtap_rr_pkt_assign(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     /* 0x24 RR Packet Downlink Assignment Type 2 10.5.2.25e C TLV 3-n */
     ELEM_OPT_TLV(0x24, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS_TYPE2, NULL);
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9564,7 +9565,7 @@ dtap_rr_pkt_notif(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     /* 0x11 Mobile Identity 10.5.1.4 C TLV 3-11 */
     ELEM_OPT_TLV(0x11, GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9712,7 +9713,7 @@ dtap_rr_paging_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9731,7 +9732,7 @@ dtap_rr_partial_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* Channel Description  10.5.2.5  M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9754,7 +9755,7 @@ dtap_rr_phy_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TIMING_ADV, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -9772,7 +9773,7 @@ dtap_rr_rr_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CAUSE, NULL);
 
-    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
 /*
@@ -13110,6 +13111,7 @@ proto_register_gsm_a_rr(void)
         { &ei_gsm_a_rr_ie_underrun, { "gsm_a.rr.ie_underrun", PI_COMMENTS_GROUP, PI_NOTE, "IE under-runs stated length", EXPFILL }},
         { &ei_gsm_a_rr_data_not_dissected, { "gsm_a.rr.data_not_dissected", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
         { &ei_gsm_a_rr_unknown_version, { "gsm_a.rr.unknown_version", PI_PROTOCOL, PI_WARN, "Unknown version", EXPFILL }},
+        { &ei_gsm_a_rr_extraneous_data, { "gsm_a.rr.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
     };
 
     expert_module_t* expert_a_rr;

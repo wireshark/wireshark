@@ -26,11 +26,6 @@
 
 #include "ws_symbol_export.h"
 
-#define PER_NOT_DECODED_YET(x) \
-proto_tree_add_text(tree, tvb, 0, 0, "something unknown here [%s]",x); \
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[UNKNOWN PER: %s]", x); \
-tvb_get_guint8(tvb, 9999);
-
 typedef int (*per_type_fn)(tvbuff_t*, int, asn1_ctx_t*, proto_tree*, int);
 
 /* in all functions here, offset is guint32 and is
@@ -63,6 +58,8 @@ typedef struct _per_sequence_t {
 	int optional;
 	per_type_fn func;
 } per_sequence_t;
+
+WS_DLL_PUBLIC void dissect_per_not_decoded_yet(proto_tree* tree, packet_info* pinfo, tvbuff_t *tvb, const char* reason);
 
 WS_DLL_PUBLIC guint32 dissect_per_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 

@@ -220,6 +220,8 @@ static int hf_gsm_bssmap_le_message_elements = -1;
 static gint ett_bssmap_le_msg = -1;
 
 static expert_field ei_gsm_a_bssmap_le_not_decoded_yet = EI_INIT;
+static expert_field ei_gsm_a_bssmap_le_extraneous_data = EI_INIT;
+static expert_field ei_gsm_a_bssmap_le_missing_mandatory_element = EI_INIT;
 
 static dissector_handle_t gsm_bsslap_handle = NULL;
 
@@ -280,7 +282,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 
 	curr_offset += len;
 
-	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 
 	return(curr_offset - offset);
 }
@@ -758,9 +760,9 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	curr_len = len;
 
 	/* Location Type 9.1.1 M 3-n */
-	ELEM_MAND_TLV(BSSMAP_LE_LOCATION_TYPE, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_TYPE, NULL)
+	ELEM_MAND_TLV(BSSMAP_LE_LOCATION_TYPE, GSM_A_PDU_TYPE_BSSMAP, BE_LOC_TYPE, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element)
 	/* Cell Identifier 9.1.2 O 5-10 */
-	ELEM_MAND_TLV(BSSMAP_LE_CELL_IDENTIFIER, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
+	ELEM_MAND_TLV(BSSMAP_LE_CELL_IDENTIFIER, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
 	/* Classmark Information Type 3 9.1.3 O 3-14 */
 	ELEM_OPT_TLV(BSSMAP_LE_CLASSMARK_INFORMATION_TYPE_3, GSM_A_PDU_TYPE_BSSMAP, BE_CM_INFO_3, NULL);
 	/* LCS Client Type 9.1.4 C (note 3) 3-n */
@@ -774,7 +776,7 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	/* GPS Assistance Data 9.1.7 C (note 2) 3-n */
 	ELEM_OPT_TLV(BSSMAP_LE_REQUESTED_GPS_ASSISTANCE_DATA, GSM_A_PDU_TYPE_BSSMAP, BE_GPS_ASSIST_DATA, NULL);
 	/* APDU 9.1.8 O 3-n */
-	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
 	/* LCS Capability 9.1.9 O */
 	ELEM_OPT_TLV(BSSMAP_LE_LCS_CAPABILITY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAPABILITY, NULL);
 	/* Packet Measurement Report 9.1.10 O*/
@@ -790,7 +792,7 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	/* GANSS Assistance Data	9.1.15	C (note 5)	3-n */
 	ELEM_OPT_TLV(BSSMAP_LE_REQUESTED_GANSS_ASSISTANCE_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_REQ_GNSS_ASSIST_D, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 
 }
 
@@ -820,7 +822,7 @@ bssmap_le_perf_loc_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	/* GANSS Positioning Data	9.2.6	O	3-n */
 	ELEM_OPT_TLV(BSSMAP_LE_GANSS_POSITIONING_DATA, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_GANSS_POS_DATA, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 }
 
 /*
@@ -837,11 +839,11 @@ bssmap_le_connection_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	curr_len = len;
 
 	/* APDU 9.8.1 M 3-n */
-	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
 	/* Segmentation 9.8.2 */
 	ELEM_OPT_TLV(BSSMAP_LE_SEGMENTATION, BSSAP_PDU_TYPE_BSSMAP, BE_SEG, NULL);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 }
 
 /*
@@ -874,11 +876,11 @@ bssmap_le_perf_loc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	curr_len = len;
 
 	/* Cell Identifier 9.12.1 M */
-	ELEM_MAND_TLV(BSSMAP_LE_CELL_IDENTIFIER, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
+	ELEM_MAND_TLV(BSSMAP_LE_CELL_IDENTIFIER, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
 	/* APDU 9.1.8 O 3-n */
-	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
 
-	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 }
 
 static void (*bssmap_le_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
@@ -1175,6 +1177,8 @@ proto_register_gsm_bssmap_le(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_gsm_a_bssmap_le_not_decoded_yet, { "gsm_bssmap_le.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
+		{ &ei_gsm_a_bssmap_le_extraneous_data, { "gsm_bssmap_le.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+		{ &ei_gsm_a_bssmap_le_missing_mandatory_element, { "gsm_bssmap_le.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
 	};
 
 	/* Setup protocol subtree array */

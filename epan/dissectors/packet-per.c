@@ -82,6 +82,7 @@ static expert_field ei_per_choice_extension_unknown = EI_INIT;
 static expert_field ei_per_sequence_extension_unknown = EI_INIT;
 static expert_field ei_per_encoding_error = EI_INIT;
 static expert_field ei_per_oid_not_implemented = EI_INIT;
+static expert_field ei_per_undecoded = EI_INIT;
 
 static dissector_table_t per_oid_dissector_table    = NULL;
 
@@ -181,6 +182,13 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
 		sub_tvb = tvb_new_subset(tvb, boffset, actual_length, length);
 	}
 	return sub_tvb;
+}
+
+void dissect_per_not_decoded_yet(proto_tree* tree, packet_info* pinfo, tvbuff_t *tvb, const char* reason)
+{
+	proto_tree_add_expert_format(tree, pinfo, &ei_per_undecoded, tvb, 0, 0, "something unknown here [%s]",reason);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "[UNKNOWN PER: %s]", reason);
+	THROW(ReportedBoundsError);
 }
 
 /* 10 Encoding procedures -------------------------------------------------- */
@@ -338,7 +346,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 				}
 				else if (i==1 && val==3) { /* bits 8 and 7 both 1, so unconstrained */
 					*length = 0;
-					PER_NOT_DECODED_YET("10.9 Unconstrained");
+					dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "10.9 Unconstrained");
 					return offset;
 				}
 			} else {
@@ -371,7 +379,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 			return offset;
 		}
 		*length = 0;
-		PER_NOT_DECODED_YET("10.9 Unaligned");
+		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "10.9 Unaligned");
 		return offset;
 
 	}
@@ -398,7 +406,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		return offset;
 	}
 	*length = 0;
-	PER_NOT_DECODED_YET("10.9.3.8.1");
+	dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "10.9.3.8.1");
 	return offset;
 }
 
@@ -458,7 +466,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 			offset += 32;
 			break;
 		default:
-			PER_NOT_DECODED_YET("too long integer(per_normally_small_nonnegative_whole_number)");
+			dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too long integer(per_normally_small_nonnegative_whole_number)");
 			offset += 8*length_determinant;
 			*length = 0;
 			return offset;
@@ -809,7 +817,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 	BYTE_ALIGN_OFFSET(offset);
 
 	if(length>=1024){
-		PER_NOT_DECODED_YET("BMPString too long");
+		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "BMPString too long");
 		length=1024;
 	}
 
@@ -1074,7 +1082,7 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 	offset=dissect_per_length_determinant(tvb, offset, actx, tree,hf_per_integer_length, &length);
 	/* gassert here? */
 	if(length>4){
-PER_NOT_DECODED_YET("too long integer(per_integer)");
+		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too long integer(per_integer)");
 		length=4;
 	}
 
@@ -1127,7 +1135,7 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	offset=dissect_per_length_determinant(tvb, offset, actx, tree, -1, &length);
 	/* gassert here? */
 	if(length>8){
-PER_NOT_DECODED_YET("too long integer (64b)");
+		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too long integer (64b)");
 		length=8;
 	}
 
@@ -1705,7 +1713,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		proto_item_set_len(choice_item, BLEN(old_offset, offset));
 	} else {
 		if (!extension_flag) {
-			PER_NOT_DECODED_YET("unknown extension root index in choice");
+			dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "unknown extension root index in choice");
 		} else {
 			offset += ext_length * 8;
 			proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_choice_extension_unknown,
@@ -1815,7 +1823,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 		}
 	}
 	if (num_opts > SEQ_MAX_COMPONENTS) {
-		PER_NOT_DECODED_YET("too many optional/default components");
+		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too many optional/default components");
 	}
 
 	memset(optional_mask, 0, sizeof(optional_mask));
@@ -1851,7 +1859,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(sequence[i].func){
 				offset=sequence[i].func(tvb, offset, actx, tree, *sequence[i].p_id);
 			} else {
-				PER_NOT_DECODED_YET(index_get_field_name(sequence, i));
+				dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, index_get_field_name(sequence, i));
 			}
 		}
 	}
@@ -1882,7 +1890,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 		*/
 		num_extensions+=1;
 		if (num_extensions > 32) {
-			PER_NOT_DECODED_YET("too many extensions");
+			dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too many extensions");
 		}
 
 		extension_mask=0;
@@ -1949,7 +1957,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 						"Possible encoding error full length not decoded. Open type length %u ,decoded %u",length, length - (difference>>3));
 				}
 			} else {
-				PER_NOT_DECODED_YET(index_get_field_name(sequence, extension_index));
+				dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, index_get_field_name(sequence, extension_index));
 				offset+=length*8;
 			}
 		}
@@ -1976,7 +1984,7 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 		}
 	}
 	if (num_opts > SEQ_MAX_COMPONENTS) {
-		PER_NOT_DECODED_YET("too many optional/default components");
+		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too many optional/default components");
 	}
 
 	memset(optional_mask, 0, sizeof(optional_mask));
@@ -2008,7 +2016,7 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 		if(sequence[i].func){
 			offset=sequence[i].func(tvb, offset, actx, tree, *sequence[i].p_id);
 		} else {
-			PER_NOT_DECODED_YET(index_get_field_name(sequence, i));
+			dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, index_get_field_name(sequence, i));
 		}
 	}
 
@@ -2696,6 +2704,8 @@ proto_register_per(void)
 		  { "per.encoding_error", PI_MALFORMED, PI_WARN, "Encoding error", EXPFILL }},
         { &ei_per_oid_not_implemented,
           { "per.error.oid_not_implemented", PI_UNDECODED, PI_WARN, "PER: Dissector for OID not implemented. Contact Wireshark developers if you want this supported", EXPFILL }},
+        { &ei_per_undecoded,
+          { "per.error.undecoded", PI_UNDECODED, PI_WARN, "PER: Something unknown here", EXPFILL }},
 	};
 
 	module_t *per_module;

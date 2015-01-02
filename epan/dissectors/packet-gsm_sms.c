@@ -47,14 +47,6 @@ void proto_register_gsm_sms(void);
 #define MAX_SMS_FRAG_LEN      134
 
 /* PROTOTYPES/FORWARDS */
-
-#define EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
-    if ((edc_len) > (edc_max_len)) \
-    { \
-        proto_tree_add_expert(tree, pinfo, &ei_gsm_sms_extraneous_data, tvb, \
-            offset, (edc_len) - (edc_max_len)); \
-    }
-
 #define SHORT_DATA_CHECK(sdc_len, sdc_min_len) \
     if ((sdc_len) < (sdc_min_len)) \
     { \
@@ -251,7 +243,6 @@ static gint hf_gsm_sms_dis_field_udh_ascii_maskfc = -1;
 
 
 static expert_field ei_gsm_sms_short_data = EI_INIT;
-static expert_field ei_gsm_sms_extraneous_data = EI_INIT;
 static expert_field ei_gsm_sms_unexpected_data_length = EI_INIT;
 static expert_field ei_gsm_sms_message_dissector_not_implemented = EI_INIT;
 
@@ -3213,7 +3204,6 @@ proto_register_gsm_sms(void)
 
     static ei_register_info ei[] = {
         { &ei_gsm_sms_short_data, { "gsm_sms.short_data", PI_MALFORMED, PI_ERROR, "Short Data (?)", EXPFILL }},
-        { &ei_gsm_sms_extraneous_data, { "gsm_sms.extraneous_data", PI_PROTOCOL, PI_WARN, "Extraneous Data", EXPFILL }},
         { &ei_gsm_sms_unexpected_data_length, { "gsm_sms.unexpected_data_length", PI_MALFORMED, PI_ERROR, "Unexpected Data Length", EXPFILL }},
         { &ei_gsm_sms_message_dissector_not_implemented, { "gsm_sms.message_dissector_not_implemented", PI_UNDECODED, PI_WARN, "Message dissector not implemented", EXPFILL }},
     };

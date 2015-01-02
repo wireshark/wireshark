@@ -29,12 +29,6 @@
 #include <epan/asn1.h>
 #include "ws_symbol_export.h"
 
-#define BER_NOT_DECODED_YET(x) \
-proto_tree_add_text(tree, tvb, offset, 0, "something unknown here [%s]",x); \
-fprintf(stderr,"Not decoded yet in packet : %d  [%s]\n", pinfo->fd->num,x); \
-col_append_fstr(pinfo->cinfo, COL_INFO, "[UNKNOWN BER: %s]", x); \
-tvb_get_guint8(tvb, 9999);
-
 /* value for value and size constraints */
 #ifndef NO_BOUND
 #define NO_BOUND -1

@@ -732,6 +732,7 @@ static int hf_gsm_a_geo_loc_included_angle = -1;
 
 static expert_field ei_gsm_a_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_unknown_element = EI_INIT;
+static expert_field ei_gsm_a_unknown_pdu_type = EI_INIT;
 
 static char a_bigbuf[1024];
 
@@ -1238,7 +1239,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1323,7 +1324,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1414,7 +1415,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1495,7 +1496,7 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1573,7 +1574,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1643,7 +1644,7 @@ guint16 elem_t(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint8 i
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     (void)elem_ett;
     (void)elem_funcs;
@@ -1684,7 +1685,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     parm_len = tvb_get_guint8(tvb, curr_offset);
 
@@ -1752,7 +1753,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     parm_len = tvb_get_ntohs(tvb, curr_offset);
 
@@ -1821,7 +1822,7 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
     curr_offset = offset;
     consumed = 0;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
@@ -1879,7 +1880,7 @@ guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint p
 
     curr_offset = offset;
 
-    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs);
+    SET_ELEM_VARS(pdu_type, elem_names_ext, elem_ett, elem_funcs, &ei_gsm_a_unknown_pdu_type);
 
     elem_name = try_val_to_str_ext(idx, &elem_names_ext);
 
@@ -2352,7 +2353,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         break;
     }
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return (curr_offset - offset);
 }
@@ -2452,7 +2453,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     curr_offset++;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return (curr_offset - offset);
 }
@@ -3228,7 +3229,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
     /* translate to byte offset (we already know that we are on an octet boundary) */
     curr_offset = bit_offset >> 3;
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return len;
 }
@@ -3414,7 +3415,7 @@ de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_tree_add_item(tree, hf_gsm_a_lac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset += 2;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return (curr_offset - offset);
 }
@@ -3440,7 +3441,7 @@ de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     proto_tree_add_item(tree, hf_gsm_a_att, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return (curr_offset - offset);
 }
@@ -3472,7 +3473,7 @@ de_ps_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     proto_tree_add_item(tree, hf_gsm_a_nmo, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return (curr_offset - offset);
 }
@@ -3516,7 +3517,7 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     g_snprintf(add_string, string_len, " - %u PLMN%s",
         num_plmn, plurality(num_plmn, "", "s"));
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return (curr_offset - offset);
 }
@@ -3552,7 +3553,7 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset += 4;
 
-    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);
 
     return (curr_offset - offset);
 }
@@ -4506,6 +4507,7 @@ proto_register_gsm_a_common(void)
     static ei_register_info ei[] = {
         { &ei_gsm_a_extraneous_data, { "gsm_a.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
         { &ei_gsm_a_unknown_element, { "gsm_a.unknown_element", PI_PROTOCOL, PI_ERROR, "Unknown - aborting dissection", EXPFILL }},
+        { &ei_gsm_a_unknown_pdu_type, { "gsm_a.unknown_pdu_type", PI_PROTOCOL, PI_WARN, "Unknown PDU type", EXPFILL }},
     };
 
     expert_module_t* expert_a_common;

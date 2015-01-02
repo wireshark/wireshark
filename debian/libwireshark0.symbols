@@ -343,6 +343,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_per_enumerated@Base 1.9.1
  dissect_per_external_type@Base 1.9.1
  dissect_per_integer@Base 1.9.1
+ dissect_per_not_decoded_yet@Base 1.99.2
  dissect_per_null@Base 1.9.1
  dissect_per_object_identifier@Base 1.9.1
  dissect_per_object_identifier_str@Base 1.9.1

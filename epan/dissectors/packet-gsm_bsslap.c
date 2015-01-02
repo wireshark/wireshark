@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include "packet-gsm_a_common.h"
 
@@ -51,6 +52,8 @@ static int hf_gsm_bsslap_cell_id_disc = -1;
 /* Initialize the subtree pointers */
 static int ett_gsm_bsslap = -1;
 static int ett_bsslap_cell_list = -1;
+
+static expert_field ei_gsm_bsslap_missing_mandatory_element = EI_INIT;
 
 /* Table 5.1: Element Indentifier codes */
 #define BSSLAP_PARAM_TIMING_ADVANCE                  0x01
@@ -563,9 +566,9 @@ dissect_gsm_bsslap_ta_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
     curr_len = tvb_reported_length_remaining(tvb,offset);
 
     /* Cell Identity IE / 5.4 M TV 3 */
-    ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, "Serving Cell Identity");
+    ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, "Serving Cell Identity", ei_gsm_bsslap_missing_mandatory_element);
     /* Timing Advance IE / 5.2 M TV 2 */
-    ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, NULL, ei_gsm_bsslap_missing_mandatory_element);
     /* Measurement Report IE / 5.12 O TLV 18 */
     ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, " BSSLAP");
     /* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
@@ -592,7 +595,7 @@ dissect_gsm_bsslap_reject(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, i
     curr_len = tvb_reported_length_remaining(tvb,offset);
 
     /* Cause IE / 5.14 M TV 2 */
-    ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE, NULL, ei_gsm_bsslap_missing_mandatory_element);
 
     return;
 }
@@ -609,13 +612,13 @@ dissect_gsm_bsslap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
     curr_len = tvb_reported_length_remaining(tvb,offset);
 
     /* Cell Identity IE / 5.4 M TV 3 */
-    ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_CELL_IDENTITY, GSM_A_PDU_TYPE_COMMON, DE_CELL_ID, NULL, ei_gsm_bsslap_missing_mandatory_element);
     /* Timing Advance IE / 5.2 M TV 2 */
-    ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, NULL, ei_gsm_bsslap_missing_mandatory_element);
     /* Channel Description IE / 5.8 M TV 4 */
-    ELEM_MAND_TV(BSSLAP_PARAM_CHANNEL_DESCRIPTION,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC,NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_CHANNEL_DESCRIPTION,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL, ei_gsm_bsslap_missing_mandatory_element);
     /* Cause IE / 5.1 M TV 2 */
-    ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE, NULL, ei_gsm_bsslap_missing_mandatory_element);
     /* Measurement Report Measurement Report IE / 5.12 O TLV 18 */
     ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, " BSSLAP");
     /* Enhanced Measurement Report Enhanced Measurement Report IE / 5.18 O TLV 4-n */
@@ -657,7 +660,7 @@ dissect_gsm_bsslap_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
     curr_len = tvb_reported_length_remaining(tvb,offset);
 
     /* Cause IE / 5.14 M TV 2 */
-    ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE,NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_CAUSE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_CAUSE, NULL, ei_gsm_bsslap_missing_mandatory_element);
 
     return;
 }
@@ -673,7 +676,7 @@ dissect_gsm_bsslap_ta_layer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     curr_len = tvb_reported_length_remaining(tvb,offset);
 
     /* Timing Advance IE / 5.2 M TV 2 */
-    ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, NULL, ei_gsm_bsslap_missing_mandatory_element);
     /* Measurement Report IE / 5.12 O TLV 18 */
     ELEM_OPT_TLV(BSSLAP_PARAM_MEASUREMENT_REPORT, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_MEAS_REP, " BSSLAP");
     /* Enhanced Measurement Report IE / 5.18 O TLV 4-n */
@@ -694,9 +697,9 @@ dissect_gsm_bsslap_ms_pos_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     curr_len = tvb_reported_length_remaining(tvb,offset);
 
     /* RRLP flag IE / 5.15 M TV 2 */
-    ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_FLG,"flag");
+    ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_FLG, "flag", ei_gsm_bsslap_missing_mandatory_element);
     /* RRLP IE / 5.16 M TLV 3-n */
-    ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_IE,"RRLP Info");
+    ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_IE, "RRLP Info", ei_gsm_bsslap_missing_mandatory_element);
     return;
 }
 /* 4.2.10 MS Position Response   ETSI TS 148 071 V7.2.0 (2007-06) */
@@ -711,9 +714,9 @@ dissect_gsm_bsslap_ms_pos_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     curr_len = tvb_reported_length_remaining(tvb,offset);
 
     /* flag RRLP flag IE / 5.15 M TV 2  */
-    ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_FLG,"flag");
+    ELEM_MAND_TV(BSSLAP_PARAM_RRLP_FLAG, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_FLG, "flag", ei_gsm_bsslap_missing_mandatory_element);
     /* RRLP Info RRLP IE / 5.16 M TLV 3-n */
-    ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_IE,"RRLP Info");
+    ELEM_MAND_TV(BSSLAP_PARAM_RRLP_IE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_RRLP_IE, "RRLP Info", ei_gsm_bsslap_missing_mandatory_element);
     /* Timing Advance IE / 5.2 O TV 2 */
     ELEM_OPT_TV(BSSLAP_PARAM_TIMING_ADVANCE, GSM_A_PDU_TYPE_BSSLAP, DE_BLAP_TA, NULL);
     /* Measurement Report IE / 5.12 O TLV 18 */
@@ -754,9 +757,9 @@ dissect_gsm_bsslap_u_tdoa_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     curr_len = tvb_reported_length_remaining(tvb,offset);
 
     /* Channel Description IE 5.8 M TV 4 */
-    ELEM_MAND_TV(BSSLAP_PARAM_CHANNEL_DESCRIPTION,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL);
+    ELEM_MAND_TV(BSSLAP_PARAM_CHANNEL_DESCRIPTION,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, NULL, ei_gsm_bsslap_missing_mandatory_element);
     /* Serving Cell Identifier Cell Identifier IE 5.23 M TLV 4-n */
-    ELEM_MAND_TLV(BSSLAP_PARAM_SERVING_CELL_IDENTIFIER,GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
+    ELEM_MAND_TLV(BSSLAP_PARAM_SERVING_CELL_IDENTIFIER,GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL, ei_gsm_bsslap_missing_mandatory_element);
     /* Frequency List IE 5.20 C (note 3) TLV 3-n */
     ELEM_OPT_TLV(BSSLAP_PARAM_FREQUENCY_LIST, GSM_A_PDU_TYPE_RR, DE_RR_FREQ_LIST, NULL);
     /* Timing Advance IE 5.2 O TV 2 */
@@ -918,6 +921,12 @@ proto_register_gsm_bsslap(void)
         },
     };
 
+    static ei_register_info ei[] = {
+        { &ei_gsm_bsslap_missing_mandatory_element, { "gsm_bsslap.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
+    };
+
+    expert_module_t* expert_gsm_bsslap;
+
     /* Setup protocol subtree array */
 #define NUM_INDIVIDUAL_ELEMS    2
     gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSLAP_MSG +
@@ -949,6 +958,8 @@ proto_register_gsm_bsslap(void)
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_gsm_bsslap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_gsm_bsslap = expert_register_protocol(proto_gsm_bsslap);
+    expert_register_field_array(expert_gsm_bsslap, ei, array_length(ei));
 
     register_dissector("gsm_bsslap", dissect_gsm_bsslap, proto_gsm_bsslap);
 }
