@@ -369,7 +369,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fragment_head             *frag_msg  = NULL;
   tvbuff_t                  *next_tvb;
   guint8                    *decrypt   = NULL;
-  size_t                     decrypt_len;
+  size_t                     decrypt_len  = 0;
   guint8                    *base64_string   = NULL;
   guint8                     line_code[3];
 
@@ -868,10 +868,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, "Pass: %s", format_text(decrypt, decrypt_len));
         } else if (session_state->ntlm_rsp_frame == pinfo->fd->num) {
             decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
+            decrypt_len = linelen;
             if (stmp_decryption_enabled) {
-              if (ws_base64_decode_inplace(decrypt) == 0) {
+              if ((decrypt_len = ws_base64_decode_inplace(decrypt)) == 0) {
                 /* Go back to the original string */
                 decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset, linelen);
+                decrypt_len = linelen;
                 col_append_str(pinfo->cinfo, COL_INFO, format_text(decrypt, linelen));
                 proto_tree_add_item(smtp_tree, hf_smtp_command_line, tvb,
                                     loffset, linelen, ENC_ASCII|ENC_NA);
@@ -937,10 +939,12 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
             if (linelen >= 10) {
               decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset + 10, linelen - 10);
+              decrypt_len = linelen - 10;
               if (stmp_decryption_enabled) {
                 if ((decrypt_len = ws_base64_decode_inplace(decrypt)) == 0) {
                   /* Go back to the original string */
                   decrypt = tvb_get_string(wmem_packet_scope(), tvb, loffset + 10, linelen - 10);
+                  decrypt_len = linelen - 10;
                   col_append_str(pinfo->cinfo, COL_INFO,
                                  format_text(tvb_get_string(wmem_packet_scope(), tvb, loffset, 10), 10));
                   col_append_str(pinfo->cinfo, COL_INFO, format_text(decrypt, linelen - 10));
@@ -1117,6 +1121,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                   code);
 
             decrypt = NULL;
+            decrypt_len = 0;
             if (linelen >= 4) {
                 if ((stmp_decryption_enabled) && (code == 334)) {
                     decrypt = tvb_get_string(wmem_packet_scope(), tvb, offset + 4, linelen - 4);
