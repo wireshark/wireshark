@@ -58,8 +58,6 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
-#include "atm.h"
 #include "ngsniffer.h"
 
 /* Magic number in Sniffer files. */

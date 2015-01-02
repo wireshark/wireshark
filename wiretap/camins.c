@@ -60,11 +60,8 @@
 #include "config.h"
 
 #include <string.h>
-#include <glib.h>
-#include <wtap.h>
 #include <wtap-int.h>
 #include <file_wrappers.h>
-#include <wsutil/buffer.h>
 
 #include "camins.h"
 

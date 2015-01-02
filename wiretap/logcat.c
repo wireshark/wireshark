@@ -20,11 +20,9 @@
 #include "config.h"
 
 #include <string.h>
-#include <time.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
 
 #include "logcat.h"
 

@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
 #include "peektagged.h"
 
 /* CREDITS

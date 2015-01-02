@@ -19,12 +19,9 @@
 
 #include "config.h"
 #include "wtap-int.h"
-#include <wsutil/buffer.h>
 #include "pppdump.h"
 #include "file_wrappers.h"
 
-#include <glib.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>

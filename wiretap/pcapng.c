@@ -37,8 +37,6 @@
 #include "wtap-int.h"
 #include <epan/addr_resolv.h>
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
-#include "libpcap.h"
 #include "pcap-common.h"
 #include "pcap-encap.h"
 #include "pcapng.h"

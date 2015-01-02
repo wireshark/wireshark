@@ -21,7 +21,6 @@
 
 #include "config.h"
 
-#include <glib.h>
 #include <errno.h>
 
 #ifdef HAVE_SYS_STAT_H

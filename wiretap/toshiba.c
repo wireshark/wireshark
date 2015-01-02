@@ -20,11 +20,9 @@
 
 #include "config.h"
 #include "wtap-int.h"
-#include <wsutil/buffer.h>
 #include "toshiba.h"
 #include "file_wrappers.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

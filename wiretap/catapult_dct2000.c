@@ -25,7 +25,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
 
 #include "catapult_dct2000.h"
 

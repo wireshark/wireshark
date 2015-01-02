@@ -25,7 +25,6 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
 #include "visual.h"
 
 /*

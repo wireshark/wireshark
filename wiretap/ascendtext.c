@@ -20,11 +20,9 @@
 
 #include "config.h"
 #include "wtap-int.h"
-#include <wsutil/buffer.h>
 #include "ascendtext.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
-#include <wsutil/file_util.h>
 
 #include <errno.h>
 

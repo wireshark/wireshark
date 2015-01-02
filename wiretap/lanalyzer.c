@@ -23,7 +23,6 @@
 #include <errno.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
 #include "lanalyzer.h"
 
 /* The LANalyzer format is documented (at least in part) in Novell document

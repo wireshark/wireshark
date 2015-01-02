@@ -21,7 +21,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
 #include "hcidump.h"
 
 struct dump_hdr {

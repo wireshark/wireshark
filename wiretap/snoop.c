@@ -23,7 +23,6 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
 #include "atm.h"
 #include "snoop.h"
 /* See RFC 1761 for a description of the "snoop" file format. */

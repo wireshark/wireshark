@@ -27,15 +27,11 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 
-#include "wtap.h"
 #include "wtap-int.h"
-#include <wsutil/buffer.h>
 #include "file_wrappers.h"
 #include "packetlogger.h"
 

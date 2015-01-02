@@ -21,11 +21,9 @@
 #include "config.h"
 #include <errno.h>
 #include <string.h>
-#include <time.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include <wsutil/buffer.h>
 #include "5views.h"
 
 
