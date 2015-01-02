@@ -618,21 +618,18 @@ sub output_hf {
 	my $index;
 	my $key;
 
-	#add hfs to hash table to prevent against (accidental) duplicates
-	for ($index=0;$index<@proto_tree_list;$index++) {
-		if ($proto_tree_list[$index][1] eq "1") {
-			$hfs{$proto_tree_list[$index][3]} = $proto_tree_list[$index][3];
-		} elsif ($proto_tree_list[$index][1] eq "2") {
-			$eis{$proto_tree_list[$index][3]} = $proto_tree_list[$index][3];
-		}
-	}
-
 	open(FCO, ">", $fileName . ".hf");
 
 	print FCO "/* Generated from convert_proto_tree_add_text.pl */\n";
 
-	foreach $key (keys %hfs) {
-		print FCO "static int $key = -1;\n";
+	#add hfs to hash table to prevent against (accidental) duplicates
+	for ($index=0;$index<@proto_tree_list;$index++) {
+		if ($proto_tree_list[$index][1] eq "1") {
+			$hfs{$proto_tree_list[$index][3]} = $proto_tree_list[$index][3];
+			print FCO "static int $proto_tree_list[$index][3] = -1;\n";
+		} elsif ($proto_tree_list[$index][1] eq "2") {
+			$eis{$proto_tree_list[$index][3]} = $proto_tree_list[$index][3];
+		}
 	}
 
 	if (scalar keys %hfs > 0) {
