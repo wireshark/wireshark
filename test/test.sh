@@ -90,6 +90,7 @@ if [ "$WS_SYSTEM" == "Windows" ] ; then
 	HOME_PATH="`cygpath -w $HOME_PATH`"
 	CONF_PATH="$HOME_PATH/Wireshark"
 	CAPTURE_DIR="`cygpath -w $CAPTURE_DIR`"
+	TESTS_DIR="`cygpath -w $TESTS_DIR`"
 fi
 
 mkdir -p $CONF_PATH

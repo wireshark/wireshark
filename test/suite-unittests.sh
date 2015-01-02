@@ -64,7 +64,7 @@ set_dut() {
 	if [ "$SOURCE_DIR" = "$WS_BIN_PATH" -o "$WS_SYSTEM" = "Windows" ]; then
 		DUT=$SOURCE_DIR/epan/$1
 	else
-		# In out-of-tree builds, all bianries end up in the same folder
+		# In out-of-tree builds, all binaries end up in the same folder
 		# regardless of their path during in-tree builds, so we strip
 		# off any prefix part of the path (such as wmem/ for wmem_test)
 		DUT=$WS_BIN_PATH/${1##*/}
