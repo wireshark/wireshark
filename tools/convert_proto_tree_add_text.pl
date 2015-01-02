@@ -299,6 +299,21 @@ sub verify_line {
 				$errors++;
 			}
 		}
+		if (($proto_tree_item[9] eq "FT_UINT8") ||
+			($proto_tree_item[9] eq "FT_UINT16") ||
+			($proto_tree_item[9] eq "FT_UINT24") ||
+			($proto_tree_item[9] eq "FT_UINT32") ||
+			($proto_tree_item[9] eq "FT_UINT64") ||
+			($proto_tree_item[9] eq "FT_INT8") ||
+			($proto_tree_item[9] eq "FT_INT16") ||
+			($proto_tree_item[9] eq "FT_INT24") ||
+			($proto_tree_item[9] eq "FT_INT32") ||
+			($proto_tree_item[9] eq "FT_INT64")) {
+			if ($proto_tree_item[11] eq "BASE_NONE") {
+				print "$line_number: Interger type should not be BASE_NONE!\n";
+				$errors++;
+			}
+		}
 
 	} elsif ($proto_tree_item[1] eq "2") {
 		if (!($proto_tree_item[3] =~ /^ei_/)) {
