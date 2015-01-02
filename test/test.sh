@@ -62,10 +62,11 @@ FIN
 fi
 
 MYDIR=$(dirname $0)
-THISBINDIR=$(cd run && pwd)
-if [ -e $THISBINDIR/tshark -o -e $THISBINDIR/dumpcap -o -e $THISBINDIR/rawshark ]; then
-	WS_BIN_PATH=${WS_BIN_PATH:-$THISBINDIR}
-	WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$THISBINDIR}
+if [ -d run ]; then
+	if [ -e run/tshark -o -e run/dumpcap -o -e run/rawshark ]; then
+		WS_BIN_PATH=${WS_BIN_PATH:-$(cd run && pwd)}
+		WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$WS_BIN_PATH}
+	fi
 fi
 source $MYDIR/test-backend.sh
 source $MYDIR/config.sh
