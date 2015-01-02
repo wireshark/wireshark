@@ -1,6 +1,6 @@
 /* timestats.c
  * routines for time statistics
- * Copyrigth 2003 Lars Roland
+ * Copyright 2003 Lars Roland
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

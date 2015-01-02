@@ -94,7 +94,7 @@ static int hf_a21_mscid_market_id = -1;
 static int hf_a21_mscid_switch_number = -1;
 static int hf_a21_event = -1;
 static int hf_a21_additional_event_info = -1;
-static int hf_a21_allowed_foward_link_message = -1;
+static int hf_a21_allowed_forward_link_message = -1;
 
 
 static gint ett_a21 = -1;
@@ -479,7 +479,7 @@ dissect_a21_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	offset++;
 	if (length>1) {
 		if (event_id == 7) {
-			proto_tree_add_item(tree, hf_a21_allowed_foward_link_message, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_a21_allowed_forward_link_message, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/*offset += 2;*/
 		}
 		else {
@@ -558,7 +558,7 @@ dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, p
 		ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1 + length_len + length, ett_a21_ie, &ti,
 									"%s : ", val_to_str_const(ie_type, a21_element_type_vals, "Unknown"));
 
-		/* Octet 1-element identifie*/
+		/* Octet 1-element identifier */
 		proto_tree_add_item(ie_tree, hf_a21_element_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		proto_tree_add_item(ie_tree, hf_a21_gcsna_pdu_length, tvb, offset, length_len, ENC_BIG_ENDIAN);
@@ -799,8 +799,8 @@ void proto_register_a21(void)
 			  FT_UINT16, BASE_DEC, VALS(a21_additional_event_info_vals), 0x0,
 			  NULL, HFILL }
 		  },
-		  { &hf_a21_allowed_foward_link_message,
-			 {"Allowed Forward Link Messages", "a21.allowed_foward_link_message",
+		  { &hf_a21_allowed_forward_link_message,
+			 {"Allowed Forward Link Messages", "a21.allowed_forward_link_message",
 			  FT_UINT16, BASE_DEC, VALS(a21_additional_event_info_vals), 0x0,
 			  NULL, HFILL }
 		  },

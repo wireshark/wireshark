@@ -1157,7 +1157,7 @@ static const value_string nds_reply_errors[] = {
     { 0xffffff0c, "(-244) No Object Delete Rights" },
     { 0xffffff0b, "(-245) No Object Create Rights" },
     { 0xffffff0a, "(-246) No Property Delete Rights" },
-    { 0xffffff09, "(-247) No Property Create Rigths" },
+    { 0xffffff09, "(-247) No Property Create Rights" },
     { 0xffffff08, "(-248) No Property Write Rights" },
     { 0xffffff07, "(-249) No Propery Read Rights" },
     { 0xffffff06, "(-250) Temp Remap" },

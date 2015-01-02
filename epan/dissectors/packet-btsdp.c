@@ -5123,7 +5123,7 @@ proto_register_btsdp(void)
             NULL, HFILL }
         },
         { &hf_hcrp_device_location,
-            { "Sevice Location",                 "btsdp.hcrp.device_location",
+            { "Service Location",                 "btsdp.hcrp.device_location",
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },

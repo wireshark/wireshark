@@ -93,7 +93,7 @@ that it's not good enough to distinguish between two given protocols.
 
 Note: The heuristic code in a dissector *must not* cause an exception
       (before returning FALSE) as this will prevent following
-      heuristic dissector handoffs. In practce, this normally means
+      heuristic dissector handoffs. In practice, this normally means
       that a test should be done to verify that the required data is
       available in the tvb before fetching from the tvb. (See the
       example below).
