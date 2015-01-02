@@ -287,3 +287,16 @@ daintree_sna_process_hex_data(struct wtap_pkthdr *phdr, Buffer *buf,
 	memcpy(ws_buffer_start_ptr(buf), readData, bytes);
 	return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

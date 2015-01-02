@@ -119,30 +119,30 @@ static gboolean parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr,
    and "*err_info" to null or an additional error string. */
 static gint64 toshiba_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 {
-  int byte;
-  guint level = 0;
-  gint64 cur_off;
+	int byte;
+	guint level = 0;
+	gint64 cur_off;
 
-  while ((byte = file_getc(wth->fh)) != EOF) {
-    if (byte == toshiba_rec_magic[level]) {
-      level++;
-      if (level >= TOSHIBA_REC_MAGIC_SIZE) {
-	      /* note: we're leaving file pointer right after the magic characters */
-        cur_off = file_tell(wth->fh);
-        if (cur_off == -1) {
-          /* Error. */
-          *err = file_error(wth->fh, err_info);
-          return -1;
-        }
-        return cur_off + 1;
-      }
-    } else {
-      level = 0;
-    }
-  }
-  /* EOF or error. */
-  *err = file_error(wth->fh, err_info);
-  return -1;
+	while ((byte = file_getc(wth->fh)) != EOF) {
+		if (byte == toshiba_rec_magic[level]) {
+			level++;
+			if (level >= TOSHIBA_REC_MAGIC_SIZE) {
+				/* note: we're leaving file pointer right after the magic characters */
+				cur_off = file_tell(wth->fh);
+				if (cur_off == -1) {
+					/* Error. */
+					*err = file_error(wth->fh, err_info);
+					return -1;
+				}
+				return cur_off + 1;
+			}
+		} else {
+			level = 0;
+		}
+	}
+	/* EOF or error. */
+	*err = file_error(wth->fh, err_info);
+	return -1;
 }
 
 #define TOSHIBA_HEADER_LINES_TO_CHECK	200
@@ -429,3 +429,16 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset) {
 
 	return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

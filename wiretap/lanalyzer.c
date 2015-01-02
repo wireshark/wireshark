@@ -35,8 +35,8 @@
 /*    Record header format */
 
 typedef struct {
-	guint8	record_type[2];
-	guint8	record_length[2];
+      guint8	record_type[2];
+      guint8	record_length[2];
 } LA_RecordHeader;
 
 #define LA_RecordHeaderSize 4
@@ -278,286 +278,286 @@ static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
 wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
-	LA_RecordHeader rec_header;
-	char header_fixed[2];
-	char *comment;
-	char summary[210];
-	guint16 board_type, mxslc;
-	guint16 record_type, record_length;
-	guint8 cr_day, cr_month;
-	guint16 cr_year;
-	struct tm tm;
-	lanalyzer_t *lanalyzer;
+      LA_RecordHeader rec_header;
+      char header_fixed[2];
+      char *comment;
+      char summary[210];
+      guint16 board_type, mxslc;
+      guint16 record_type, record_length;
+      guint8 cr_day, cr_month;
+      guint16 cr_year;
+      struct tm tm;
+      lanalyzer_t *lanalyzer;
 
-	if (!wtap_read_bytes(wth->fh, &rec_header, LA_RecordHeaderSize,
-	    err, err_info)) {
-		if (*err != WTAP_ERR_SHORT_READ)
-			return WTAP_OPEN_ERROR;
-		return WTAP_OPEN_NOT_MINE;
-	}
-	record_type = pletoh16(rec_header.record_type);
-	record_length = pletoh16(rec_header.record_length); /* make sure to do this for while() loop */
+      if (!wtap_read_bytes(wth->fh, &rec_header, LA_RecordHeaderSize,
+                           err, err_info)) {
+            if (*err != WTAP_ERR_SHORT_READ)
+                  return WTAP_OPEN_ERROR;
+            return WTAP_OPEN_NOT_MINE;
+      }
+      record_type = pletoh16(rec_header.record_type);
+      record_length = pletoh16(rec_header.record_length); /* make sure to do this for while() loop */
 
-	if (record_type != RT_HeaderRegular && record_type != RT_HeaderCyclic) {
-		return WTAP_OPEN_NOT_MINE;
-	}
+      if (record_type != RT_HeaderRegular && record_type != RT_HeaderCyclic) {
+            return WTAP_OPEN_NOT_MINE;
+      }
 
-	/* Read the major and minor version numbers */
-	if (record_length < 2) {
-		/*
-		 * Not enough room for the major and minor version numbers.
-		 * Just treat that as a "not a LANalyzer file" indication.
-		 */
-		return WTAP_OPEN_NOT_MINE;
-	}
-	if (!wtap_read_bytes(wth->fh, &header_fixed, sizeof header_fixed,
-	    err, err_info)) {
-		if (*err != WTAP_ERR_SHORT_READ)
-			return WTAP_OPEN_ERROR;
-		return WTAP_OPEN_NOT_MINE;
-	}
-	record_length -= sizeof header_fixed;
+      /* Read the major and minor version numbers */
+      if (record_length < 2) {
+            /*
+             * Not enough room for the major and minor version numbers.
+             * Just treat that as a "not a LANalyzer file" indication.
+             */
+            return WTAP_OPEN_NOT_MINE;
+      }
+      if (!wtap_read_bytes(wth->fh, &header_fixed, sizeof header_fixed,
+                           err, err_info)) {
+            if (*err != WTAP_ERR_SHORT_READ)
+                  return WTAP_OPEN_ERROR;
+            return WTAP_OPEN_NOT_MINE;
+      }
+      record_length -= sizeof header_fixed;
 
-	if (record_length != 0) {
-		/* Read the rest of the record as a comment. */
-		comment = (char *)g_malloc(record_length + 1);
-		if (!wtap_read_bytes(wth->fh, comment, record_length,
-		    err, err_info)) {
-			if (*err != WTAP_ERR_SHORT_READ)
-				return WTAP_OPEN_ERROR;
-			return WTAP_OPEN_NOT_MINE;
-		}
-		comment[record_length] = '\0';
-		wth->shb_hdr.opt_comment = comment;
-	}
+      if (record_length != 0) {
+            /* Read the rest of the record as a comment. */
+            comment = (char *)g_malloc(record_length + 1);
+            if (!wtap_read_bytes(wth->fh, comment, record_length,
+                                 err, err_info)) {
+                  if (*err != WTAP_ERR_SHORT_READ)
+                        return WTAP_OPEN_ERROR;
+                  return WTAP_OPEN_NOT_MINE;
+            }
+            comment[record_length] = '\0';
+            wth->shb_hdr.opt_comment = comment;
+      }
 
-	/* If we made it this far, then the file is a LANAlyzer file.
-	 * Let's get some info from it. Note that we get wth->snapshot_length
-	 * from a record later in the file. */
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
-	lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));
-	wth->priv = (void *)lanalyzer;
-	wth->subtype_read = lanalyzer_read;
-	wth->subtype_seek_read = lanalyzer_seek_read;
-	wth->snapshot_length = 0;
-	wth->file_tsprec = WTAP_TSPREC_NSEC;
+      /* If we made it this far, then the file is a LANAlyzer file.
+       * Let's get some info from it. Note that we get wth->snapshot_length
+       * from a record later in the file. */
+      wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
+      lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));
+      wth->priv = (void *)lanalyzer;
+      wth->subtype_read = lanalyzer_read;
+      wth->subtype_seek_read = lanalyzer_seek_read;
+      wth->snapshot_length = 0;
+      wth->file_tsprec = WTAP_TSPREC_NSEC;
 
-	/* Read records until we find the start of packets */
-	while (1) {
-		if (!wtap_read_bytes_or_eof(wth->fh, &rec_header,
-		    LA_RecordHeaderSize, err, err_info)) {
-			if (*err == 0) {
-				/*
-				 * End of file and no packets;
-				 * accept this file.
-				 */
-				return WTAP_OPEN_MINE;
-			}
-			return WTAP_OPEN_ERROR;
-		}
+      /* Read records until we find the start of packets */
+      while (1) {
+            if (!wtap_read_bytes_or_eof(wth->fh, &rec_header,
+                                        LA_RecordHeaderSize, err, err_info)) {
+                  if (*err == 0) {
+                        /*
+                         * End of file and no packets;
+                         * accept this file.
+                         */
+                        return WTAP_OPEN_MINE;
+                  }
+                  return WTAP_OPEN_ERROR;
+            }
 
-		record_type = pletoh16(rec_header.record_type);
-		record_length = pletoh16(rec_header.record_length);
+            record_type = pletoh16(rec_header.record_type);
+            record_length = pletoh16(rec_header.record_length);
 
-		/*g_message("Record 0x%04X Length %d", record_type, record_length);*/
-		switch (record_type) {
-			/* Trace Summary Record */
-			case RT_Summary:
-				if (!wtap_read_bytes(wth->fh, summary,
-				    sizeof summary, err, err_info))
-					return WTAP_OPEN_ERROR;
+            /*g_message("Record 0x%04X Length %d", record_type, record_length);*/
+            switch (record_type) {
+                  /* Trace Summary Record */
+            case RT_Summary:
+                  if (!wtap_read_bytes(wth->fh, summary,
+                                       sizeof summary, err, err_info))
+                        return WTAP_OPEN_ERROR;
 
-				/* Assume that the date of the creation of the trace file
-				 * is the same date of the trace. Lanalyzer doesn't
-				 * store the creation date/time of the trace, but only of
-				 * the file. Unless you traced at 11:55 PM and saved at 00:05
-				 * AM, the assumption that trace.date == file.date is true.
-				 */
-				cr_day = summary[0];
-				cr_month = summary[1];
-				cr_year = pletoh16(&summary[2]);
-				/*g_message("Day %d Month %d Year %d (%04X)", cr_day, cr_month,
-						cr_year, cr_year);*/
+                  /* Assume that the date of the creation of the trace file
+                   * is the same date of the trace. Lanalyzer doesn't
+                   * store the creation date/time of the trace, but only of
+                   * the file. Unless you traced at 11:55 PM and saved at 00:05
+                   * AM, the assumption that trace.date == file.date is true.
+                   */
+                  cr_day = summary[0];
+                  cr_month = summary[1];
+                  cr_year = pletoh16(&summary[2]);
+                  /*g_message("Day %d Month %d Year %d (%04X)", cr_day, cr_month,
+                    cr_year, cr_year);*/
 
-				/* Get capture start time. I learned how to do
-				 * this from Guy's code in ngsniffer.c
-				 */
-				tm.tm_year = cr_year - 1900;
-				tm.tm_mon = cr_month - 1;
-				tm.tm_mday = cr_day;
-				tm.tm_hour = 0;
-				tm.tm_min = 0;
-				tm.tm_sec = 0;
-				tm.tm_isdst = -1;
-				lanalyzer->start = mktime(&tm);
-				/*g_message("Day %d Month %d Year %d", tm.tm_mday,
-						tm.tm_mon, tm.tm_year);*/
-				mxslc = pletoh16(&summary[30]);
-				wth->snapshot_length = mxslc;
+                  /* Get capture start time. I learned how to do
+                   * this from Guy's code in ngsniffer.c
+                   */
+                  tm.tm_year = cr_year - 1900;
+                  tm.tm_mon = cr_month - 1;
+                  tm.tm_mday = cr_day;
+                  tm.tm_hour = 0;
+                  tm.tm_min = 0;
+                  tm.tm_sec = 0;
+                  tm.tm_isdst = -1;
+                  lanalyzer->start = mktime(&tm);
+                  /*g_message("Day %d Month %d Year %d", tm.tm_mday,
+                    tm.tm_mon, tm.tm_year);*/
+                  mxslc = pletoh16(&summary[30]);
+                  wth->snapshot_length = mxslc;
 
-				board_type = pletoh16(&summary[188]);
-				switch (board_type) {
-					case BOARD_325:
-						wth->file_encap = WTAP_ENCAP_ETHERNET;
-						break;
-					case BOARD_325TR:
-						wth->file_encap = WTAP_ENCAP_TOKEN_RING;
-						break;
-					default:
-						*err = WTAP_ERR_UNSUPPORTED;
-						*err_info = g_strdup_printf("lanalyzer: board type %u unknown",
+                  board_type = pletoh16(&summary[188]);
+                  switch (board_type) {
+                  case BOARD_325:
+                        wth->file_encap = WTAP_ENCAP_ETHERNET;
+                        break;
+                  case BOARD_325TR:
+                        wth->file_encap = WTAP_ENCAP_TOKEN_RING;
+                        break;
+                  default:
+                        *err = WTAP_ERR_UNSUPPORTED;
+                        *err_info = g_strdup_printf("lanalyzer: board type %u unknown",
 						    board_type);
-						return WTAP_OPEN_ERROR;
-				}
-				break;
+                        return WTAP_OPEN_ERROR;
+                  }
+                  break;
 
-			/* Trace Packet Data Record */
-			case RT_PacketData:
-				/* Go back header number of bytes so that lanalyzer_read
-				 * can read this header */
-				if (file_seek(wth->fh, -LA_RecordHeaderSize, SEEK_CUR, err) == -1) {
-					return WTAP_OPEN_ERROR;
-				}
-				return WTAP_OPEN_MINE;
+                  /* Trace Packet Data Record */
+            case RT_PacketData:
+                  /* Go back header number of bytes so that lanalyzer_read
+                   * can read this header */
+                  if (file_seek(wth->fh, -LA_RecordHeaderSize, SEEK_CUR, err) == -1) {
+                        return WTAP_OPEN_ERROR;
+                  }
+                  return WTAP_OPEN_MINE;
 
-			default:
-				if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
-					return WTAP_OPEN_ERROR;
-				}
-				break;
-		}
-	}
+            default:
+                  if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
+                        return WTAP_OPEN_ERROR;
+                  }
+                  break;
+            }
+      }
 }
 
 #define DESCRIPTOR_LEN	32
 
 static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+                                            struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	char		LE_record_type[2];
-	char		LE_record_length[2];
-	guint16		record_type, record_length;
-	int		record_data_size;
-	int		packet_size;
-	gchar		descriptor[DESCRIPTOR_LEN];
-	lanalyzer_t	*lanalyzer;
-	guint16		time_low, time_med, time_high, true_size;
-	guint64		t;
-	time_t		tsecs;
+      char		LE_record_type[2];
+      char		LE_record_length[2];
+      guint16		record_type, record_length;
+      int		record_data_size;
+      int		packet_size;
+      gchar		descriptor[DESCRIPTOR_LEN];
+      lanalyzer_t	*lanalyzer;
+      guint16		time_low, time_med, time_high, true_size;
+      guint64		t;
+      time_t		tsecs;
 
-	/* read the record type and length. */
-	if (!wtap_read_bytes_or_eof(fh, LE_record_type, 2, err, err_info))
-		return FALSE;
-	if (!wtap_read_bytes(fh, LE_record_length, 2, err, err_info))
-		return FALSE;
+      /* read the record type and length. */
+      if (!wtap_read_bytes_or_eof(fh, LE_record_type, 2, err, err_info))
+            return FALSE;
+      if (!wtap_read_bytes(fh, LE_record_length, 2, err, err_info))
+            return FALSE;
 
-	record_type = pletoh16(LE_record_type);
-	record_length = pletoh16(LE_record_length);
+      record_type = pletoh16(LE_record_type);
+      record_length = pletoh16(LE_record_length);
 
-	/* Only Trace Packet Data Records should occur now that we're in
-	 * the middle of reading packets.  If any other record type exists
-	 * after a Trace Packet Data Record, mark it as an error. */
-	if (record_type != RT_PacketData) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("lanalyzer: record type %u seen after trace summary record",
-		    record_type);
-		return FALSE;
-	}
+      /* Only Trace Packet Data Records should occur now that we're in
+       * the middle of reading packets.  If any other record type exists
+       * after a Trace Packet Data Record, mark it as an error. */
+      if (record_type != RT_PacketData) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("lanalyzer: record type %u seen after trace summary record",
+                                        record_type);
+            return FALSE;
+      }
 
-	if (record_length < DESCRIPTOR_LEN) {
-		/*
-		 * Uh-oh, the record isn't big enough to even have a
-		 * descriptor.
-		 */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
-		    record_length);
-		return FALSE;
-	}
-	record_data_size = record_length - DESCRIPTOR_LEN;
+      if (record_length < DESCRIPTOR_LEN) {
+            /*
+             * Uh-oh, the record isn't big enough to even have a
+             * descriptor.
+             */
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
+                                        record_length);
+            return FALSE;
+      }
+      record_data_size = record_length - DESCRIPTOR_LEN;
 
-	/* Read the descriptor data */
-	if (!wtap_read_bytes(fh, descriptor, DESCRIPTOR_LEN, err, err_info))
-		return FALSE;
+      /* Read the descriptor data */
+      if (!wtap_read_bytes(fh, descriptor, DESCRIPTOR_LEN, err, err_info))
+            return FALSE;
 
-	true_size = pletoh16(&descriptor[4]);
-	packet_size = pletoh16(&descriptor[6]);
+      true_size = pletoh16(&descriptor[4]);
+      packet_size = pletoh16(&descriptor[6]);
 
-	/*
-	 * OK, is the frame data size greater than than what's left of the
-	 * record?
-	 */
-	if (packet_size > record_data_size) {
-		/*
-		 * Yes - treat this as an error.
-		 */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup("lanalyzer: Record length is less than packet size");
-		return FALSE;
-	}
+      /*
+       * OK, is the frame data size greater than than what's left of the
+       * record?
+       */
+      if (packet_size > record_data_size) {
+            /*
+             * Yes - treat this as an error.
+             */
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup("lanalyzer: Record length is less than packet size");
+            return FALSE;
+      }
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+      phdr->rec_type = REC_TYPE_PACKET;
+      phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
-	time_low = pletoh16(&descriptor[8]);
-	time_med = pletoh16(&descriptor[10]);
-	time_high = pletoh16(&descriptor[12]);
-	t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
+      time_low = pletoh16(&descriptor[8]);
+      time_med = pletoh16(&descriptor[10]);
+      time_high = pletoh16(&descriptor[12]);
+      t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
 	    (((guint64)time_high) << 32);
-	tsecs = (time_t) (t/2000000);
-	lanalyzer = (lanalyzer_t *)wth->priv;
-	phdr->ts.secs = tsecs + lanalyzer->start;
-	phdr->ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
+      tsecs = (time_t) (t/2000000);
+      lanalyzer = (lanalyzer_t *)wth->priv;
+      phdr->ts.secs = tsecs + lanalyzer->start;
+      phdr->ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
 
-	if (true_size - 4 >= packet_size) {
-		/*
-		 * It appears that the "true size" includes the FCS;
-		 * make it reflect the non-FCS size (the "packet size"
-		 * appears never to include the FCS, even if no slicing
-		 * is done).
-		 */
-		true_size -= 4;
-	}
-	phdr->len = true_size;
-	phdr->caplen = packet_size;
+      if (true_size - 4 >= packet_size) {
+            /*
+             * It appears that the "true size" includes the FCS;
+             * make it reflect the non-FCS size (the "packet size"
+             * appears never to include the FCS, even if no slicing
+             * is done).
+             */
+            true_size -= 4;
+      }
+      phdr->len = true_size;
+      phdr->caplen = packet_size;
 
-	switch (wth->file_encap) {
+      switch (wth->file_encap) {
 
-	case WTAP_ENCAP_ETHERNET:
-		/* We assume there's no FCS in this frame. */
-		phdr->pseudo_header.eth.fcs_len = 0;
-		break;
-	}
+      case WTAP_ENCAP_ETHERNET:
+            /* We assume there's no FCS in this frame. */
+            phdr->pseudo_header.eth.fcs_len = 0;
+            break;
+      }
 
-	/* Read the packet data */
-	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
+      /* Read the packet data */
+      return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
 /* Read the next packet */
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+                               gint64 *data_offset)
 {
-	*data_offset = file_tell(wth->fh);
+      *data_offset = file_tell(wth->fh);
 
-	/* Read the record  */
-	return lanalyzer_read_trace_record(wth, wth->fh, &wth->phdr,
-	    wth->frame_buffer, err, err_info);
+      /* Read the record  */
+      return lanalyzer_read_trace_record(wth, wth->fh, &wth->phdr,
+                                         wth->frame_buffer, err, err_info);
 }
 
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+                                    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+      if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+            return FALSE;
 
-	/* Read the record  */
-	if (!lanalyzer_read_trace_record(wth, wth->random_fh, phdr, buf,
-	    err, err_info)) {
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
+      /* Read the record  */
+      if (!lanalyzer_read_trace_record(wth, wth->random_fh, phdr, buf,
+                                       err, err_info)) {
+            if (*err == 0)
+                  *err = WTAP_ERR_SHORT_READ;
+            return FALSE;
+      }
+      return TRUE;
 }
 
 /*---------------------------------------------------
@@ -566,16 +566,16 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
  *---------------------------------------------------*/
 static gboolean s0write(wtap_dumper *wdh, size_t cnt, int *err)
 {
-	size_t snack;
+      size_t snack;
 
-	while (cnt) {
-		snack = cnt > 64 ? 64 : cnt;
+      while (cnt) {
+            snack = cnt > 64 ? 64 : cnt;
 
-		if (!wtap_dump_file_write(wdh, z64, snack, err))
-			return FALSE;
-		cnt -= snack;
-	}
-	return TRUE; /* ok */
+            if (!wtap_dump_file_write(wdh, z64, snack, err))
+                  return FALSE;
+            cnt -= snack;
+      }
+      return TRUE; /* ok */
 }
 
 /*---------------------------------------------------
@@ -584,7 +584,7 @@ static gboolean s0write(wtap_dumper *wdh, size_t cnt, int *err)
  *---------------------------------------------------*/
 static gboolean s8write(wtap_dumper *wdh, const guint8 s8, int *err)
 {
-	return wtap_dump_file_write(wdh, &s8, 1, err);
+      return wtap_dump_file_write(wdh, &s8, 1, err);
 }
 /*---------------------------------------------------
  * Returns TRUE on success, FALSE on error
@@ -592,7 +592,7 @@ static gboolean s8write(wtap_dumper *wdh, const guint8 s8, int *err)
  *---------------------------------------------------*/
 static gboolean s16write(wtap_dumper *wdh, const guint16 s16, int *err)
 {
-	return wtap_dump_file_write(wdh, &s16, 2, err);
+      return wtap_dump_file_write(wdh, &s16, 2, err);
 }
 /*---------------------------------------------------
  * Returns TRUE on success, FALSE on error
@@ -600,7 +600,7 @@ static gboolean s16write(wtap_dumper *wdh, const guint16 s16, int *err)
  *---------------------------------------------------*/
 static gboolean s32write(wtap_dumper *wdh, const guint32 s32, int *err)
 {
-	return wtap_dump_file_write(wdh, &s32, 4, err);
+      return wtap_dump_file_write(wdh, &s32, 4, err);
 }
 /*---------------------------------------------------
  *
@@ -916,3 +916,16 @@ static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err)
       lanalyzer_dump_header(wdh,err);
       return *err ? FALSE : TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 6
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=6 tabstop=8 expandtab:
+ * :indentSize=6:tabSize=8:noTabs=true:
+ */

@@ -85,7 +85,7 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
      *
      * It would be really cool to be able to configure the bitrate...
      */
-    tmp = ((guint64)(offset - mp2t->start_offset) * 8);	/* offset, in bits */
+    tmp = ((guint64)(offset - mp2t->start_offset) * 8); /* offset, in bits */
     phdr->ts.secs = (time_t)(tmp / MP2T_QAM256_BITRATE);
     phdr->ts.nsecs = (int)((tmp % MP2T_QAM256_BITRATE) * 1000000000 / MP2T_QAM256_BITRATE);
 
@@ -227,3 +227,16 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
 
     return WTAP_OPEN_MINE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

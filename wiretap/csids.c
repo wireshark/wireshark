@@ -41,7 +41,7 @@
  */
 
 typedef struct {
-	gboolean byteswapped;
+  gboolean byteswapped;
 } csids_t;
 
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
@@ -81,7 +81,7 @@ wtap_open_return_val csids_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_NOT_MINE;
   }
   if( hdr.zeropad != 0 || hdr.caplen == 0 ) {
-	return WTAP_OPEN_NOT_MINE;
+    return WTAP_OPEN_NOT_MINE;
   }
   hdr.seconds = pntoh32( &hdr.seconds );
   hdr.caplen = pntoh16( &hdr.caplen );
@@ -151,11 +151,11 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 /* Used to read packets in random-access fashion */
 static gboolean
 csids_seek_read(wtap *wth,
-		 gint64 seek_off,
-		 struct wtap_pkthdr *phdr,
-		 Buffer *buf,
-		 int *err,
-		 gchar **err_info)
+                gint64 seek_off,
+                struct wtap_pkthdr *phdr,
+                Buffer *buf,
+                int *err,
+                gchar **err_info)
 {
   csids_t *csids = (csids_t *)wth->priv;
 
@@ -206,3 +206,16 @@ csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
 
   return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -389,8 +389,8 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
 		 */
 		if(offset > pkt_len) {
 			*err = WTAP_ERR_BAD_FILE;
-                        *err_info = g_strdup("netscreen: too much hex-data");
-                        return FALSE;
+			*err_info = g_strdup("netscreen: too much hex-data");
+			return FALSE;
 		}
 	}
 
@@ -398,23 +398,23 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, const char *cap_int,
 	 * Determine the encapsulation type, based on the
 	 * first 4 characters of the interface name
 	 *
-	 * XXX  convert this to a 'case' structure when adding more
-	 *      (non-ethernet) interfacetypes
+	 * XXX	convert this to a 'case' structure when adding more
+	 *	(non-ethernet) interfacetypes
 	 */
 	if (strncmp(cap_int, "adsl", 4) == 0) {
-                /* The ADSL interface can be bridged with or without
-                 * PPP encapsulation. Check whether the first six bytes
-                 * of the hex data are the same as the destination mac
-                 * address in the header. If they are, assume ethernet
-                 * LinkLayer or else PPP
-                 */
-                g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
-                   pd[0], pd[1], pd[2], pd[3], pd[4], pd[5]);
-                if (strncmp(dststr, cap_dst, 12) == 0)
-		        phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
-                else
-		        phdr->pkt_encap = WTAP_ENCAP_PPP;
-                }
+		/* The ADSL interface can be bridged with or without
+		 * PPP encapsulation. Check whether the first six bytes
+		 * of the hex data are the same as the destination mac
+		 * address in the header. If they are, assume ethernet
+		 * LinkLayer or else PPP
+		 */
+		g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
+		   pd[0], pd[1], pd[2], pd[3], pd[4], pd[5]);
+		if (strncmp(dststr, cap_dst, 12) == 0)
+			phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
+		else
+			phdr->pkt_encap = WTAP_ENCAP_PPP;
+		}
 	else if (strncmp(cap_int, "seri", 4) == 0)
 		phdr->pkt_encap = WTAP_ENCAP_PPP;
 	else
@@ -476,3 +476,16 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 
 	return num_items_scanned;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

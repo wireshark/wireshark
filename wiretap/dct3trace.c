@@ -367,3 +367,16 @@ static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
 
 	return dct3trace_get_packet(wth->random_fh, phdr, buf, err, err_info);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

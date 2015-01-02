@@ -34,42 +34,42 @@
 
 /* Magic number in "btsnoop" files. */
 static const char btsnoop_magic[] = {
-	'b', 't', 's', 'n', 'o', 'o', 'p', '\0'
+    'b', 't', 's', 'n', 'o', 'o', 'p', '\0'
 };
 
 /* "btsnoop" file header (minus magic number). */
 struct btsnoop_hdr {
-	guint32	version;	/* version number (should be 1) */
-	guint32	datalink;	/* datalink type */
+    guint32     version;        /* version number (should be 1) */
+    guint32     datalink;       /* datalink type */
 };
 
 /* "btsnoop" record header. */
 struct btsnooprec_hdr {
-	guint32	orig_len;	/* actual length of packet */
-	guint32	incl_len;	/* number of octets captured in file */
-	guint32	flags;		/* packet flags */
-	guint32	cum_drops;	/* cumulative number of dropped packets */
-	gint64	ts_usec;	/* timestamp microseconds */
+    guint32     orig_len;       /* actual length of packet */
+    guint32     incl_len;       /* number of octets captured in file */
+    guint32     flags;          /* packet flags */
+    guint32     cum_drops;      /* cumulative number of dropped packets */
+    gint64      ts_usec;        /* timestamp microseconds */
 };
 
 /* H1 is unframed data with the packet type encoded in the flags field of capture header */
 /* It can be used for any datalink by placing logging above the datalink layer of HCI */
-#define KHciLoggerDatalinkTypeH1		1001
+#define KHciLoggerDatalinkTypeH1                1001
 /* H4 is the serial HCI with packet type encoded in the first byte of each packet */
-#define KHciLoggerDatalinkTypeH4		1002
+#define KHciLoggerDatalinkTypeH4                1002
 /* CSR's PPP derived bluecore serial protocol - in practice we log in H1 format after deframing */
-#define KHciLoggerDatalinkTypeBCSP		1003
+#define KHciLoggerDatalinkTypeBCSP              1003
 /* H5 is the official three wire serial protocol derived from BCSP*/
-#define KHciLoggerDatalinkTypeH5		1004
+#define KHciLoggerDatalinkTypeH5                1004
 /* Linux Monitor */
-#define KHciLoggerDatalinkLinuxMonitor	 2001
+#define KHciLoggerDatalinkLinuxMonitor   2001
 /* BlueZ 5 Simulator */
-#define KHciLoggerDatalinkBlueZ5Simulator	2002
+#define KHciLoggerDatalinkBlueZ5Simulator       2002
 
-#define KHciLoggerHostToController		0
-#define KHciLoggerControllerToHost		0x00000001
-#define KHciLoggerACLDataFrame			0
-#define KHciLoggerCommandOrEvent		0x00000002
+#define KHciLoggerHostToController              0
+#define KHciLoggerControllerToHost              0x00000001
+#define KHciLoggerACLDataFrame                  0
+#define KHciLoggerCommandOrEvent                0x00000002
 
 static const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset from symbian - unix time */
 
@@ -82,158 +82,158 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 
 wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
 {
-	char magic[sizeof btsnoop_magic];
-	struct btsnoop_hdr hdr;
+    char magic[sizeof btsnoop_magic];
+    struct btsnoop_hdr hdr;
 
-	int file_encap=WTAP_ENCAP_UNKNOWN;
+    int file_encap=WTAP_ENCAP_UNKNOWN;
 
-	/* Read in the string that should be at the start of a "btsnoop" file */
-	if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
-		if (*err != WTAP_ERR_SHORT_READ)
-			return WTAP_OPEN_ERROR;
-		return WTAP_OPEN_NOT_MINE;
-	}
+    /* Read in the string that should be at the start of a "btsnoop" file */
+    if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ)
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
+    }
 
-	if (memcmp(magic, btsnoop_magic, sizeof btsnoop_magic) != 0) {
-		return WTAP_OPEN_NOT_MINE;
-	}
+    if (memcmp(magic, btsnoop_magic, sizeof btsnoop_magic) != 0) {
+        return WTAP_OPEN_NOT_MINE;
+    }
 
-	/* Read the rest of the header. */
-	if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
-		return WTAP_OPEN_ERROR;
+    /* Read the rest of the header. */
+    if (!wtap_read_bytes(wth->fh, &hdr, sizeof hdr, err, err_info))
+        return WTAP_OPEN_ERROR;
 
-	/*
-	 * Make sure it's a version we support.
-	 */
-	hdr.version = g_ntohl(hdr.version);
-	if (hdr.version != 1) {
-		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("btsnoop: version %u unsupported", hdr.version);
-		return WTAP_OPEN_ERROR;
-	}
+    /*
+     * Make sure it's a version we support.
+     */
+    hdr.version = g_ntohl(hdr.version);
+    if (hdr.version != 1) {
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = g_strdup_printf("btsnoop: version %u unsupported", hdr.version);
+        return WTAP_OPEN_ERROR;
+    }
 
-	hdr.datalink = g_ntohl(hdr.datalink);
-	switch (hdr.datalink) {
-	case KHciLoggerDatalinkTypeH1:
-		file_encap=WTAP_ENCAP_BLUETOOTH_HCI;
-		break;
-	case KHciLoggerDatalinkTypeH4:
-		file_encap=WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
-		break;
-	case KHciLoggerDatalinkTypeBCSP:
-		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("btsnoop: BCSP capture logs unsupported");
-		return WTAP_OPEN_ERROR;
-	case KHciLoggerDatalinkTypeH5:
-		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("btsnoop: H5 capture logs unsupported");
-		return WTAP_OPEN_ERROR;
-	case KHciLoggerDatalinkLinuxMonitor:
-		file_encap=WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR;
-		break;
-	case KHciLoggerDatalinkBlueZ5Simulator:
-		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("btsnoop: BlueZ 5 Simulator capture logs unsupported");
-		return WTAP_OPEN_ERROR;
-	default:
-		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("btsnoop: datalink type %u unknown or unsupported", hdr.datalink);
-		return WTAP_OPEN_ERROR;
-	}
+    hdr.datalink = g_ntohl(hdr.datalink);
+    switch (hdr.datalink) {
+    case KHciLoggerDatalinkTypeH1:
+        file_encap=WTAP_ENCAP_BLUETOOTH_HCI;
+        break;
+    case KHciLoggerDatalinkTypeH4:
+        file_encap=WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
+        break;
+    case KHciLoggerDatalinkTypeBCSP:
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = g_strdup_printf("btsnoop: BCSP capture logs unsupported");
+        return WTAP_OPEN_ERROR;
+    case KHciLoggerDatalinkTypeH5:
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = g_strdup_printf("btsnoop: H5 capture logs unsupported");
+        return WTAP_OPEN_ERROR;
+    case KHciLoggerDatalinkLinuxMonitor:
+        file_encap=WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR;
+        break;
+    case KHciLoggerDatalinkBlueZ5Simulator:
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = g_strdup_printf("btsnoop: BlueZ 5 Simulator capture logs unsupported");
+        return WTAP_OPEN_ERROR;
+    default:
+        *err = WTAP_ERR_UNSUPPORTED;
+        *err_info = g_strdup_printf("btsnoop: datalink type %u unknown or unsupported", hdr.datalink);
+        return WTAP_OPEN_ERROR;
+    }
 
-	wth->subtype_read = btsnoop_read;
-	wth->subtype_seek_read = btsnoop_seek_read;
-	wth->file_encap = file_encap;
-	wth->snapshot_length = 0;	/* not available in header */
-	wth->file_tsprec = WTAP_TSPREC_USEC;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BTSNOOP;
-	return WTAP_OPEN_MINE;
+    wth->subtype_read = btsnoop_read;
+    wth->subtype_seek_read = btsnoop_seek_read;
+    wth->file_encap = file_encap;
+    wth->snapshot_length = 0;   /* not available in header */
+    wth->file_tsprec = WTAP_TSPREC_USEC;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BTSNOOP;
+    return WTAP_OPEN_MINE;
 }
 
 static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+                             gint64 *data_offset)
 {
-	*data_offset = file_tell(wth->fh);
+    *data_offset = file_tell(wth->fh);
 
-	return btsnoop_read_record(wth, wth->fh, &wth->phdr, wth->frame_buffer,
-	    err, err_info);
+    return btsnoop_read_record(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+                               err, err_info);
 }
 
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+                                  struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+        return FALSE;
 
-	return btsnoop_read_record(wth, wth->random_fh, phdr, buf, err, err_info);
+    return btsnoop_read_record(wth, wth->random_fh, phdr, buf, err, err_info);
 }
 
 static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+                                    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	struct btsnooprec_hdr hdr;
-	guint32 packet_size;
-	guint32 flags;
-	guint32 orig_size;
-	gint64 ts;
+    struct btsnooprec_hdr hdr;
+    guint32 packet_size;
+    guint32 flags;
+    guint32 orig_size;
+    gint64 ts;
 
-	/* Read record header. */
+    /* Read record header. */
 
-	if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
-		return FALSE;
+    if (!wtap_read_bytes_or_eof(fh, &hdr, sizeof hdr, err, err_info))
+        return FALSE;
 
-	packet_size = g_ntohl(hdr.incl_len);
-	orig_size = g_ntohl(hdr.orig_len);
-	flags = g_ntohl(hdr.flags);
-	if (packet_size > WTAP_MAX_PACKET_SIZE) {
-		/*
-		 * Probably a corrupt capture file; don't blow up trying
-		 * to allocate space for an immensely-large packet.
-		 */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("btsnoop: File has %u-byte packet, bigger than maximum of %u",
-		    packet_size, WTAP_MAX_PACKET_SIZE);
-		return FALSE;
-	}
+    packet_size = g_ntohl(hdr.incl_len);
+    orig_size = g_ntohl(hdr.orig_len);
+    flags = g_ntohl(hdr.flags);
+    if (packet_size > WTAP_MAX_PACKET_SIZE) {
+        /*
+         * Probably a corrupt capture file; don't blow up trying
+         * to allocate space for an immensely-large packet.
+         */
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("btsnoop: File has %u-byte packet, bigger than maximum of %u",
+                                    packet_size, WTAP_MAX_PACKET_SIZE);
+        return FALSE;
+    }
 
-	ts = GINT64_FROM_BE(hdr.ts_usec);
-	ts -= KUnixTimeBase;
+    ts = GINT64_FROM_BE(hdr.ts_usec);
+    ts -= KUnixTimeBase;
 
-	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->pkt_encap = wth->file_encap;
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-	phdr->ts.secs = (guint)(ts / 1000000);
-	phdr->ts.nsecs = (guint)((ts % 1000000) * 1000);
-	phdr->caplen = packet_size;
-	phdr->len = orig_size;
-	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
-	{
-		phdr->pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
-	} else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI) {
-		phdr->pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
-		if(flags & KHciLoggerCommandOrEvent)
-		{
-			if(phdr->pseudo_header.bthci.sent)
-			{
-				phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
-			}
-			else
-			{
-				phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
-			}
-		}
-		else
-		{
-			phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
-		}
-	} else  if (wth->file_encap == WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR) {
-		phdr->pseudo_header.btmon.opcode = flags & 0xFFFF;
-		phdr->pseudo_header.btmon.adapter_id = flags >> 16;
-	}
+    phdr->rec_type = REC_TYPE_PACKET;
+    phdr->pkt_encap = wth->file_encap;
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    phdr->ts.secs = (guint)(ts / 1000000);
+    phdr->ts.nsecs = (guint)((ts % 1000000) * 1000);
+    phdr->caplen = packet_size;
+    phdr->len = orig_size;
+    if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
+    {
+        phdr->pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+    } else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI) {
+        phdr->pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
+        if(flags & KHciLoggerCommandOrEvent)
+        {
+            if(phdr->pseudo_header.bthci.sent)
+            {
+                phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_COMMAND;
+            }
+            else
+            {
+                phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_EVENT;
+            }
+        }
+        else
+        {
+            phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
+        }
+    } else  if (wth->file_encap == WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR) {
+        phdr->pseudo_header.btmon.opcode = flags & 0xFFFF;
+        phdr->pseudo_header.btmon.adapter_id = flags >> 16;
+    }
 
 
-	/* Read packet data. */
-	return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
+    /* Read packet data. */
+    return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
 }
 
 /* Returns 0 if we could write the specified encapsulation type,
@@ -478,3 +478,16 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
 
     return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

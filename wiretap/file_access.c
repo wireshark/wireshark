@@ -1154,7 +1154,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP */
-        /* Gianluca Varenni suggests that we add "deprecated" to the description. */
+	/* Gianluca Varenni suggests that we add "deprecated" to the description. */
 	{ "Wireshark/tcpdump/... - pcap", "pcap", "pcap", "cap;dmp",
 	  FALSE, FALSE, 0,
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
@@ -2522,3 +2522,16 @@ wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 		}
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

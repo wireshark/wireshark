@@ -801,8 +801,8 @@ wtap_encap_requires_phdr(int encap) {
  * I2C link-layer on-disk format
  */
 struct i2c_file_hdr {
-    guint8 bus;
-    guint8 flags[4];
+	guint8 bus;
+	guint8 flags[4];
 };
 
 static gboolean
@@ -1065,8 +1065,8 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
  * This structure is 8 bytes long.
  */
 struct iso_rec {
-    gint32 error_count;
-    gint32 numdesc;
+	gint32 error_count;
+	gint32 numdesc;
 };
 
 /*
@@ -1077,53 +1077,53 @@ struct iso_rec {
  * The values are in *host* byte order.
  */
 struct linux_usb_phdr {
-    guint64 id;             /* urb id, to link submission and completion events */
-    guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E') */
-    guint8 transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
-    guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
-    guint8 device_address;  /* 0-127 */
-    guint16 bus_id;
-    gint8 setup_flag;       /* 0, if the urb setup header is meaningful */
-    gint8 data_flag;        /* 0, if urb data is present */
-    gint64 ts_sec;
-    gint32 ts_usec;
-    gint32 status;
-    guint32 urb_len;        /* whole len of urb this event refers to */
-    guint32 data_len;       /* amount of urb data really present in this event */
+	guint64 id;             /* urb id, to link submission and completion events */
+	guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E') */
+	guint8 transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
+	guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
+	guint8 device_address;  /* 0-127 */
+	guint16 bus_id;
+	gint8 setup_flag;       /* 0, if the urb setup header is meaningful */
+	gint8 data_flag;        /* 0, if urb data is present */
+	gint64 ts_sec;
+	gint32 ts_usec;
+	gint32 status;
+	guint32 urb_len;        /* whole len of urb this event refers to */
+	guint32 data_len;       /* amount of urb data really present in this event */
 
-    /*
-     * Packet-type-dependent data.
-     * USB setup information of setup_flag is true.
-     * Otherwise, some isochronous transfer information.
-     */
-    union {
-        guint8 data[8];
-        struct iso_rec iso;
-    } s;
+	/*
+	 * Packet-type-dependent data.
+	 * USB setup information of setup_flag is true.
+	 * Otherwise, some isochronous transfer information.
+	 */
+	union {
+		guint8 data[8];
+		struct iso_rec iso;
+	} s;
 
-    /*
-     * This data is provided by Linux 2.6.31 and later kernels.
-     *
-     * For WTAP_ENCAP_USB_LINUX, it's not in the pseudo-header, so
-     * the pseudo-header is always 48 bytes long, including the
-     * packet-type-dependent data.
-     *
-     * For WTAP_ENCAP_USB_LINUX_MMAPPED, the pseudo-header is always
-     * 64 bytes long, with the packet-type-dependent data preceding
-     * these last 16 bytes.  In pre-2.6.31 kernels, it's zero padding;
-     * in 2.6.31 and later, it's the following data.
-     */
-    gint32 interval;    /* only for Interrupt and Isochronous events */
-    gint32 start_frame; /* for Isochronous */
-    guint32 xfer_flags; /* copy of URB's transfer_flags */
-    guint32 ndesc;      /* actual number of isochronous descriptors */
+	/*
+	 * This data is provided by Linux 2.6.31 and later kernels.
+	 *
+	 * For WTAP_ENCAP_USB_LINUX, it's not in the pseudo-header, so
+	 * the pseudo-header is always 48 bytes long, including the
+	 * packet-type-dependent data.
+	 *
+	 * For WTAP_ENCAP_USB_LINUX_MMAPPED, the pseudo-header is always
+	 * 64 bytes long, with the packet-type-dependent data preceding
+	 * these last 16 bytes.  In pre-2.6.31 kernels, it's zero padding;
+	 * in 2.6.31 and later, it's the following data.
+	 */
+	gint32 interval;    /* only for Interrupt and Isochronous events */
+	gint32 start_frame; /* for Isochronous */
+	guint32 xfer_flags; /* copy of URB's transfer_flags */
+	guint32 ndesc;      /* actual number of isochronous descriptors */
 };
 
 struct linux_usb_isodesc {
-    gint32 iso_status;
-    guint32 iso_off;
-    guint32 iso_len;
-    guint32 _pad;
+	gint32 iso_status;
+	guint32 iso_off;
+	guint32 iso_len;
+	guint32 _pad;
 };
 
 /*
@@ -1134,11 +1134,11 @@ struct linux_usb_isodesc {
  * This structure is 8 bytes long.
  */
 struct usb_device_setup_hdr {
-    gint8 bmRequestType;
-    guint8 bRequest;
-    guint16 wValue;
-    guint16 wIndex;
-    guint16 wLength;
+	gint8 bmRequestType;
+	guint8 bRequest;
+	guint16 wValue;
+	guint16 wIndex;
+	guint16 wLength;
 };
 
 
@@ -1389,34 +1389,34 @@ pcap_read_ppp_pseudoheader(FILE_T fh,
 
 static gboolean
 pcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
-			      union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+			   union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
-  guint8 erf_hdr[sizeof(struct erf_phdr)];
+	guint8 erf_hdr[sizeof(struct erf_phdr)];
 
-  if (!wtap_read_bytes(fh, erf_hdr, sizeof(struct erf_phdr), err, err_info))
-    return FALSE;
-  pseudo_header->erf.phdr.ts = pletoh64(&erf_hdr[0]); /* timestamp */
-  pseudo_header->erf.phdr.type =  erf_hdr[8];
-  pseudo_header->erf.phdr.flags = erf_hdr[9];
-  pseudo_header->erf.phdr.rlen = pntoh16(&erf_hdr[10]);
-  pseudo_header->erf.phdr.lctr = pntoh16(&erf_hdr[12]);
-  pseudo_header->erf.phdr.wlen = pntoh16(&erf_hdr[14]);
+	if (!wtap_read_bytes(fh, erf_hdr, sizeof(struct erf_phdr), err, err_info))
+		return FALSE;
+	pseudo_header->erf.phdr.ts = pletoh64(&erf_hdr[0]); /* timestamp */
+	pseudo_header->erf.phdr.type =  erf_hdr[8];
+	pseudo_header->erf.phdr.flags = erf_hdr[9];
+	pseudo_header->erf.phdr.rlen = pntoh16(&erf_hdr[10]);
+	pseudo_header->erf.phdr.lctr = pntoh16(&erf_hdr[12]);
+	pseudo_header->erf.phdr.wlen = pntoh16(&erf_hdr[14]);
 
-  /* The high 32 bits of the timestamp contain the integer number of seconds
-   * while the lower 32 bits contain the binary fraction of the second.
-   * This allows an ultimate resolution of 1/(2^32) seconds, or approximately 233 picoseconds */
-  if (whdr) {
-    guint64 ts = pseudo_header->erf.phdr.ts;
-    whdr->ts.secs = (guint32) (ts >> 32);
-    ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
-    ts += (ts & 0x80000000) << 1; /* rounding */
-    whdr->ts.nsecs = ((guint32) (ts >> 32));
-    if ( whdr->ts.nsecs >= 1000000000) {
-      whdr->ts.nsecs -= 1000000000;
-      whdr->ts.secs += 1;
-    }
-  }
-  return TRUE;
+	/* The high 32 bits of the timestamp contain the integer number of seconds
+	 * while the lower 32 bits contain the binary fraction of the second.
+	 * This allows an ultimate resolution of 1/(2^32) seconds, or approximately 233 picoseconds */
+	if (whdr) {
+		guint64 ts = pseudo_header->erf.phdr.ts;
+		whdr->ts.secs = (guint32) (ts >> 32);
+		ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
+		ts += (ts & 0x80000000) << 1; /* rounding */
+		whdr->ts.nsecs = ((guint32) (ts >> 32));
+		if ( whdr->ts.nsecs >= 1000000000) {
+			whdr->ts.nsecs -= 1000000000;
+			whdr->ts.secs += 1;
+		}
+	}
+	return TRUE;
 }
 
 /*
@@ -1425,26 +1425,26 @@ pcap_read_erf_pseudoheader(FILE_T fh, struct wtap_pkthdr *whdr,
  */
 static gboolean
 pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-			   int *err, gchar **err_info, guint * psize)
+		       int *err, gchar **err_info, guint * psize)
 {
-  guint8 erf_exhdr[8];
-  guint64 erf_exhdr_sw;
-  int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
-  guint8 type;
-  *psize = 0;
-  if (pseudo_header->erf.phdr.type & 0x80){
-    do{
-      if (!wtap_read_bytes(fh, erf_exhdr, 8, err, err_info))
-	return FALSE;
-      type = erf_exhdr[0];
-      erf_exhdr_sw = pntoh64(erf_exhdr);
-      if (i < max)
-	memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
-      *psize += 8;
-      i++;
-    } while (type & 0x80);
-  }
-  return TRUE;
+	guint8 erf_exhdr[8];
+	guint64 erf_exhdr_sw;
+	int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+	guint8 type;
+	*psize = 0;
+	if (pseudo_header->erf.phdr.type & 0x80){
+		do{
+			if (!wtap_read_bytes(fh, erf_exhdr, 8, err, err_info))
+				return FALSE;
+			type = erf_exhdr[0];
+			erf_exhdr_sw = pntoh64(erf_exhdr);
+			if (i < max)
+				memcpy(&pseudo_header->erf.ehdr_list[i].ehdr, &erf_exhdr_sw, sizeof(erf_exhdr_sw));
+			*psize += 8;
+			i++;
+		} while (type & 0x80);
+	}
+	return TRUE;
 }
 
 /*
@@ -1453,39 +1453,39 @@ pcap_read_erf_exheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
  */
 static gboolean
 pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-			   int *err, gchar **err_info, guint * psize)
+			int *err, gchar **err_info, guint * psize)
 {
-  guint8 erf_subhdr[sizeof(union erf_subhdr)];
+	guint8 erf_subhdr[sizeof(union erf_subhdr)];
 
-  *psize=0;
-  switch(pseudo_header->erf.phdr.type & 0x7F) {
-  case ERF_TYPE_MC_HDLC:
-  case ERF_TYPE_MC_RAW:
-  case ERF_TYPE_MC_ATM:
-  case ERF_TYPE_MC_RAW_CHANNEL:
-  case ERF_TYPE_MC_AAL5:
-  case ERF_TYPE_MC_AAL2:
-  case ERF_TYPE_COLOR_MC_HDLC_POS:
-    /* Extract the Multi Channel header to include it in the pseudo header part */
-    if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_mc_header_t), err, err_info))
-      return FALSE;
-    pseudo_header->erf.subhdr.mc_hdr = pntoh32(&erf_subhdr[0]);
-    *psize = sizeof(erf_mc_header_t);
-    break;
-  case ERF_TYPE_ETH:
-  case ERF_TYPE_COLOR_ETH:
-  case ERF_TYPE_DSM_COLOR_ETH:
-    /* Extract the Ethernet additional header to include it in the pseudo header part */
-    if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_eth_header_t), err, err_info))
-      return FALSE;
-    pseudo_header->erf.subhdr.eth_hdr = pntoh16(&erf_subhdr[0]);
-    *psize = sizeof(erf_eth_header_t);
-    break;
-  default:
-    /* No optional pseudo header for this ERF type */
-    break;
-  }
-  return TRUE;
+	*psize=0;
+	switch(pseudo_header->erf.phdr.type & 0x7F) {
+	case ERF_TYPE_MC_HDLC:
+	case ERF_TYPE_MC_RAW:
+	case ERF_TYPE_MC_ATM:
+	case ERF_TYPE_MC_RAW_CHANNEL:
+	case ERF_TYPE_MC_AAL5:
+	case ERF_TYPE_MC_AAL2:
+	case ERF_TYPE_COLOR_MC_HDLC_POS:
+		/* Extract the Multi Channel header to include it in the pseudo header part */
+		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_mc_header_t), err, err_info))
+			return FALSE;
+		pseudo_header->erf.subhdr.mc_hdr = pntoh32(&erf_subhdr[0]);
+		*psize = sizeof(erf_mc_header_t);
+		break;
+	case ERF_TYPE_ETH:
+	case ERF_TYPE_COLOR_ETH:
+	case ERF_TYPE_DSM_COLOR_ETH:
+		/* Extract the Ethernet additional header to include it in the pseudo header part */
+		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_eth_header_t), err, err_info))
+			return FALSE;
+		pseudo_header->erf.subhdr.eth_hdr = pntoh16(&erf_subhdr[0]);
+		*psize = sizeof(erf_eth_header_t);
+		break;
+	default:
+		/* No optional pseudo header for this ERF type */
+		break;
+	}
+	return TRUE;
 }
 
 static gboolean
@@ -2167,3 +2167,16 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 	}
 	return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

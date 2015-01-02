@@ -197,7 +197,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 	int		usecs;
 	int		pkt_len;
 	guint8		channel, direction;
-        guint8		*pd;
+	guint8		*pd;
 
 	/* Our file pointer should be at the summary information header
 	 * for a packet. Read in that header and extract the useful
@@ -206,21 +206,21 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 	if (!esc_read(fh, hdr, EYESDN_HDR_LENGTH, err, err_info))
 		return FALSE;
 
-        /* extract information from header */
-        usecs = pntoh24(&hdr[0]);
+	/* extract information from header */
+	usecs = pntoh24(&hdr[0]);
 #ifdef TV64BITS
-        secs = hdr[3];
+	secs = hdr[3];
 #else
-        secs = 0;
+	secs = 0;
 #endif
-        secs = (secs << 8) | hdr[4];
-        secs = (secs << 8) | hdr[5];
-        secs = (secs << 8) | hdr[6];
-        secs = (secs << 8) | hdr[7];
+	secs = (secs << 8) | hdr[4];
+	secs = (secs << 8) | hdr[5];
+	secs = (secs << 8) | hdr[6];
+	secs = (secs << 8) | hdr[7];
 
-        channel = hdr[8];
-        direction = hdr[9];
-        pkt_len = pntoh16(&hdr[10]);
+	channel = hdr[8];
+	direction = hdr[9];
+	pkt_len = pntoh16(&hdr[10]);
 
 	switch(direction >> 1) {
 
@@ -492,3 +492,16 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 		return FALSE;
 	return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

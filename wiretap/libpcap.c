@@ -566,21 +566,21 @@ static int libpcap_try_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		ret++;
 	}
 
-        if (hdr->hdr.orig_len > 64*1024*1024) {
-                /*
-                 * In theory I guess the on-the-wire packet size can be
-                 * arbitrarily large, and it can certainly be larger than the
-                 * maximum snapshot length which bounds the snapshot size,
-                 * but any file claiming 64MB in a single packet is *probably*
-                 * corrupt, and treating them as such makes the heuristics
-                 * much more reliable. See, for example,
-                 *
-                 *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9634
-                 *
-                 * (64MB is an arbitrary size at this point).
-                 */
-                ret++;
-        }
+	if (hdr->hdr.orig_len > 64*1024*1024) {
+		/*
+		 * In theory I guess the on-the-wire packet size can be
+		 * arbitrarily large, and it can certainly be larger than the
+		 * maximum snapshot length which bounds the snapshot size,
+		 * but any file claiming 64MB in a single packet is *probably*
+		 * corrupt, and treating them as such makes the heuristics
+		 * much more reliable. See, for example,
+		 *
+		 *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9634
+		 *
+		 * (64MB is an arbitrary size at this point).
+		 */
+		ret++;
+	}
 
 	if (hdr->hdr.incl_len > wth->snapshot_length) {
 	        /*
@@ -995,6 +995,19 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 
 	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
-        wdh->bytes_dumped += phdr->caplen;
+	wdh->bytes_dumped += phdr->caplen;
 	return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

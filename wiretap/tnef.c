@@ -46,7 +46,7 @@ static gboolean tnef_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
      */
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("tnef: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
-				file_size, WTAP_MAX_PACKET_SIZE);
+                                file_size, WTAP_MAX_PACKET_SIZE);
     return FALSE;
   }
   packet_size = (int)file_size;
@@ -121,3 +121,16 @@ int tnef_open(wtap *wth, int *err, gchar **err_info)
 
   return WTAP_OPEN_MINE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

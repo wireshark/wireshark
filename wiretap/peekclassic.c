@@ -598,3 +598,16 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	/* read the packet data */
 	return wtap_read_packet_bytes(fh, buf, sliceLength, err, err_info);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

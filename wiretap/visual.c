@@ -215,28 +215,28 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
        XXX - should we use WTAP_ENCAP_PER_PACKET for that? */
     switch (pletoh16(&vfile_hdr.media_type))
     {
-    case  6:	/* ethernet-csmacd */
+    case  6:    /* ethernet-csmacd */
         encap = WTAP_ENCAP_ETHERNET;
         break;
 
-    case  9:	/* IEEE802.5 */
+    case  9:    /* IEEE802.5 */
         encap = WTAP_ENCAP_TOKEN_RING;
         break;
 
-    case 16:	/* lapb */
+    case 16:    /* lapb */
         encap = WTAP_ENCAP_LAPB;
         break;
 
-    case 22:	/* propPointToPointSerial */
-    case 118:	/* HDLC */
+    case 22:    /* propPointToPointSerial */
+    case 118:   /* HDLC */
         encap = WTAP_ENCAP_CHDLC_WITH_PHDR;
         break;
 
-    case 32:	/* frame-relay */
+    case 32:    /* frame-relay */
         encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
         break;
 
-    case 37:	/* ATM */
+    case 37:    /* ATM */
        encap = WTAP_ENCAP_ATM_PDUS;
        break;
 
@@ -633,7 +633,7 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err)
        just skip over it for now.  It will be created after all
        of the packets have been written. */
     if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
-	return FALSE;
+        return FALSE;
 
     return TRUE;
 }
@@ -793,7 +793,7 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 
     /* Write the magic number at the start of the file. */
     if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
-	return FALSE;
+        return FALSE;
     magicp = visual_magic;
     magic_size = sizeof visual_magic;
     if (!wtap_dump_file_write(wdh, magicp, magic_size, err))
@@ -862,3 +862,16 @@ static void visual_dump_free(wtap_dumper *wdh)
             g_free(visual->index_table);
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

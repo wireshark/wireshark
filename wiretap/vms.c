@@ -126,14 +126,14 @@ to handle them.
 /* Magic text to check for VMS-ness of file using possible utility names
  *
  */
-#define VMS_HDR_MAGIC_STR1	"TCPIPtrace"
-#define VMS_HDR_MAGIC_STR2	"TCPtrace"
-#define VMS_HDR_MAGIC_STR3	"INTERnet trace"
+#define VMS_HDR_MAGIC_STR1      "TCPIPtrace"
+#define VMS_HDR_MAGIC_STR2      "TCPtrace"
+#define VMS_HDR_MAGIC_STR3      "INTERnet trace"
 
 /* Magic text for start of packet */
-#define VMS_REC_MAGIC_STR1	VMS_HDR_MAGIC_STR1
-#define VMS_REC_MAGIC_STR2	VMS_HDR_MAGIC_STR2
-#define VMS_REC_MAGIC_STR3	VMS_HDR_MAGIC_STR3
+#define VMS_REC_MAGIC_STR1      VMS_HDR_MAGIC_STR1
+#define VMS_REC_MAGIC_STR2      VMS_HDR_MAGIC_STR2
+#define VMS_REC_MAGIC_STR3      VMS_HDR_MAGIC_STR3
 
 #define VMS_HEADER_LINES_TO_CHECK    200
 #define VMS_LINE_LENGTH              240
@@ -301,16 +301,16 @@ isdumpline( gchar *line )
     int i, j;
 
     while (*line && !g_ascii_isalnum(*line))
-	line++;
+        line++;
 
     for (j=0; j<4; j++) {
-	for (i=0; i<8; i++, line++)
-	    if (! g_ascii_isxdigit(*line))
-		return FALSE;
+        for (i=0; i<8; i++, line++)
+            if (! g_ascii_isxdigit(*line))
+                return FALSE;
 
-	for (i=0; i<3; i++, line++)
-	    if (*line != ' ')
-		return FALSE;
+        for (i=0; i<3; i++, line++)
+            if (*line != ' ')
+                return FALSE;
     }
 
     return g_ascii_isspace(*line);
@@ -322,9 +322,9 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
 {
     char   line[VMS_LINE_LENGTH + 1];
     int    num_items_scanned;
-    int	   pkt_len = 0;
-    int	   pktnum;
-    int	   csec = 101;
+    int    pkt_len = 0;
+    int    pktnum;
+    int    csec = 101;
     struct tm tm;
     char mon[4] = {'J', 'A', 'N', 0};
     gchar *p;
@@ -344,58 +344,58 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
     do {
         if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
             *err = file_error(fh, err_info);
-	    if ((*err == 0) && (csec != 101)) {
-		*err = WTAP_ERR_SHORT_READ;
+            if ((*err == 0) && (csec != 101)) {
+                *err = WTAP_ERR_SHORT_READ;
             }
             return FALSE;
         }
-	line[VMS_LINE_LENGTH] = '\0';
+        line[VMS_LINE_LENGTH] = '\0';
 
-	if ((csec == 101) && (p = strstr(line, "packet ")) != NULL
-	    && (! strstr(line, "could not save "))) {
-	    /* Find text in line starting with "packet ". */
+        if ((csec == 101) && (p = strstr(line, "packet ")) != NULL
+            && (! strstr(line, "could not save "))) {
+            /* Find text in line starting with "packet ". */
 
-	    /* First look for the Format 1 type sequencing */
-	    num_items_scanned = sscanf(p,
-				       "packet %9d at %2d-%3s-%4d %2d:%2d:%2d.%9d",
-				       &pktnum, &tm.tm_mday, mon,
-				       &tm.tm_year, &tm.tm_hour,
-				       &tm.tm_min, &tm.tm_sec, &csec);
-	    /* Next look for the Format 2 type sequencing */
-	    if (num_items_scanned != 8) {
-	      num_items_scanned = sscanf(p,
-					 "packet seq # = %9d at %2d-%3s-%4d %2d:%2d:%2d.%9d",
-					 &pktnum, &tm.tm_mday, mon,
-					 &tm.tm_year, &tm.tm_hour,
-					 &tm.tm_min, &tm.tm_sec, &csec);
-	    }
-	    /* if unknown format then exit with error        */
-	    /* We will need to add code to handle new format */
-	    if (num_items_scanned != 8) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("vms: header line not valid");
-		return FALSE;
-	    }
-	}
-	if ( (! pkt_len) && (p = strstr(line, "Length"))) {
-	    p += sizeof("Length ");
-	    while (*p && ! g_ascii_isdigit(*p))
-		p++;
+            /* First look for the Format 1 type sequencing */
+            num_items_scanned = sscanf(p,
+                                       "packet %9d at %2d-%3s-%4d %2d:%2d:%2d.%9d",
+                                       &pktnum, &tm.tm_mday, mon,
+                                       &tm.tm_year, &tm.tm_hour,
+                                       &tm.tm_min, &tm.tm_sec, &csec);
+            /* Next look for the Format 2 type sequencing */
+            if (num_items_scanned != 8) {
+              num_items_scanned = sscanf(p,
+                                         "packet seq # = %9d at %2d-%3s-%4d %2d:%2d:%2d.%9d",
+                                         &pktnum, &tm.tm_mday, mon,
+                                         &tm.tm_year, &tm.tm_hour,
+                                         &tm.tm_min, &tm.tm_sec, &csec);
+            }
+            /* if unknown format then exit with error        */
+            /* We will need to add code to handle new format */
+            if (num_items_scanned != 8) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("vms: header line not valid");
+                return FALSE;
+            }
+        }
+        if ( (! pkt_len) && (p = strstr(line, "Length"))) {
+            p += sizeof("Length ");
+            while (*p && ! g_ascii_isdigit(*p))
+                p++;
 
-	    if ( !*p ) {
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("vms: Length field not valid");
-		return FALSE;
-	    }
+            if ( !*p ) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("vms: Length field not valid");
+                return FALSE;
+            }
 
-	    pkt_len = atoi(p);
-	    break;
-	}
+            pkt_len = atoi(p);
+            break;
+        }
     } while (! isdumpline(line));
 
     p = strstr(months, mon);
     if (p)
-	tm.tm_mon = (int) (p - months) / 3;
+        tm.tm_mon = (int) (p - months) / 3;
     tm.tm_year -= 1900;
     tm.tm_isdst = -1;
 
@@ -412,34 +412,34 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
 
     /* Convert the ASCII hex dump to binary data */
     for (i = 0; i < pkt_len; i += 16) {
-	if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
-	    *err = file_error(fh, err_info);
-	    if (*err == 0) {
-		*err = WTAP_ERR_SHORT_READ;
-	    }
-	    return FALSE;
-	}
-	line[VMS_LINE_LENGTH] = '\0';
-	if (i == 0) {
-	    while (! isdumpline(line)) { /* advance to start of hex data */
-		if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
-		    *err = file_error(fh, err_info);
-		    if (*err == 0) {
-			*err = WTAP_ERR_SHORT_READ;
-		    }
-		    return FALSE;
-		}
-		line[VMS_LINE_LENGTH] = '\0';
-	    }
-	    while (line[offset] && !g_ascii_isxdigit(line[offset]))
-		offset++;
-	}
-	if (!parse_single_hex_dump_line(line, pd, i,
-					offset, pkt_len - i)) {
-	    *err = WTAP_ERR_BAD_FILE;
-	    *err_info = g_strdup_printf("vms: hex dump not valid");
-	    return FALSE;
-	}
+        if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
+            *err = file_error(fh, err_info);
+            if (*err == 0) {
+                *err = WTAP_ERR_SHORT_READ;
+            }
+            return FALSE;
+        }
+        line[VMS_LINE_LENGTH] = '\0';
+        if (i == 0) {
+            while (! isdumpline(line)) { /* advance to start of hex data */
+                if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
+                    *err = file_error(fh, err_info);
+                    if (*err == 0) {
+                        *err = WTAP_ERR_SHORT_READ;
+                    }
+                    return FALSE;
+                }
+                line[VMS_LINE_LENGTH] = '\0';
+            }
+            while (line[offset] && !g_ascii_isxdigit(line[offset]))
+                offset++;
+        }
+        if (!parse_single_hex_dump_line(line, pd, i,
+                                        offset, pkt_len - i)) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf("vms: hex dump not valid");
+            return FALSE;
+        }
     }
     /* Avoid TCPIPTRACE-W-BUFFERSFUL, TCPIPtrace could not save n packets.
      * errors.
@@ -448,13 +448,13 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
      * Wiretap API, we should parse those lines and return "n" as
      * a packet drop count. */
     if (!file_gets(line, VMS_LINE_LENGTH, fh)) {
-	*err = file_error(fh, err_info);
-	if (*err == 0) {
-	    /* There is no next line, so there's no "TCPIPtrace could not
-	     * save n packets" line; not an error. */
-	    return TRUE;
-	}
-	return FALSE;
+        *err = file_error(fh, err_info);
+        if (*err == 0) {
+            /* There is no next line, so there's no "TCPIPtrace could not
+             * save n packets" line; not an error. */
+            return TRUE;
+        }
+        return FALSE;
     }
     return TRUE;
 }
@@ -489,25 +489,38 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
 
     /* Get the byte_offset directly from the record */
     s = rec;
-    value = (int)strtoul(s + 45 + in_off, NULL, 16);	/* XXX - error check? */
+    value = (int)strtoul(s + 45 + in_off, NULL, 16);    /* XXX - error check? */
 
     if (value != byte_offset) {
-	return FALSE;
+        return FALSE;
     }
 
     if (remaining > 16)
-	remaining = 16;
+        remaining = 16;
 
     /* Read the octets right to left, as that is how they are displayed
      * in VMS.
      */
 
     for (i = 0; i < remaining; i++) {
-	lbuf[0] = rec[offsets[i] + in_off];
-	lbuf[1] = rec[offsets[i] + 1 + in_off];
+        lbuf[0] = rec[offsets[i] + in_off];
+        lbuf[1] = rec[offsets[i] + 1 + in_off];
 
-	buf[byte_offset + i] = (guint8) strtoul(lbuf, NULL, 16);
+        buf[byte_offset + i] = (guint8) strtoul(lbuf, NULL, 16);
     }
 
     return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
