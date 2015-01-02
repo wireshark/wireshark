@@ -1,7 +1,7 @@
 #!/bin/bash
-(shopt -s igncr) 2>/dev/null && shopt -s igncr; # comment is needed
-#                                               # hack for cygwin bash
-#                                               #  no-op for other
+(set -o igncr) 2>/dev/null && set -o igncr; # comment is needed
+#                                           # hack for cygwin bash
+#                                           #  no-op for other
 #
 # Test various command line testable aspects of the Wireshark tools
 #
@@ -28,6 +28,11 @@
 USE_COLOR=1
 RUN_SUITE=""
 PRINT_USAGE=0
+
+# Ensure cygwin bin dir is on the path if running under it
+if [[ $OSTYPE == "cygwin" ]]; then
+	PATH="/usr/bin:$PATH"
+fi
 
 while getopts "chs:" OPTION ; do
 	case $OPTION in
