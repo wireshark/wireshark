@@ -56,7 +56,7 @@ fi
 
 # Path to the Wireshark binaries, default to source dir if unset
 WS_BIN_PATH=${WS_BIN_PATH:-$SOURCE_DIR}
-WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$SOURCE_DIR}
+WS_QT_BIN_PATH=${WS_QT_BIN_PATH:-$WS_BIN_PATH}
 
 # Tweak the following to your liking.
 WIRESHARK=$WS_QT_BIN_PATH/wireshark
