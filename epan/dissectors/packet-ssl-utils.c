@@ -2558,6 +2558,10 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
 
     /* Now strip off the padding*/
     if(decoder->cipher_suite->block!=1) {
+        if (inl < 1) { /* Should this check happen earlier? */
+            ssl_debug_printf("ssl_decrypt_record failed: input length %d too small\n", inl);
+            return -1;
+        }
         pad=out_str->data[inl-1];
         worklen-=(pad+1);
         ssl_debug_printf("ssl_decrypt_record found padding %d final len %d\n",
