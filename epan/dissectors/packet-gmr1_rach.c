@@ -302,12 +302,6 @@ static const value_string rach_pd_vals[] = {
 static void
 rach_dialed_num_grp1234_fmt(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%03d", v);
-}
-
-static void
-rach_dialed_num_grp5_fmt(gchar *s, guint32 v)
-{
 	if (v <= 999) {
 		g_snprintf(s, ITEM_LABEL_LENGTH, "%03d", v);
 	} else if (v == 1023) {
@@ -316,17 +310,25 @@ rach_dialed_num_grp5_fmt(gchar *s, guint32 v)
 	} else if (v == 1022) {
 		g_snprintf(s, ITEM_LABEL_LENGTH,
 			"First two digits in the preceding group are valid, "
-			"and the third digit (i.e. 0) is padding(%d)", v);
+			"and the third digit (i.e. 0) is padding (%d)", v);
 	} else if (v == 1021) {
 		g_snprintf(s, ITEM_LABEL_LENGTH,
 			"First digit in the preceding group is valid, and "
-			"the second and third 0s are padding(%d)", v);
-	} else if (v >= 1100 && v <= 1199) {
+			"the second and third 0s are padding (%d)", v);
+	} else {
+		g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid (%d)", v);
+	}
+}
+
+static void
+rach_dialed_num_grp5_fmt(gchar *s, guint32 v)
+{
+	if (v >= 1100 && v <= 1199) {
 		g_snprintf(s, ITEM_LABEL_LENGTH, "%02d (%d)", v - 1100, v);
 	} else if (v >= 1200 && v <= 1209) {
 		g_snprintf(s, ITEM_LABEL_LENGTH, "%01d (%d)", v - 1200, v);
 	} else {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid (%d)", v);
+		rach_dialed_num_grp1234_fmt(s, v);
 	}
 }
 
@@ -362,7 +364,7 @@ static int
 _parse_dialed_number(gchar *s, int slen, tvbuff_t *tvb, int offset)
 {
 	guint16 grp[5];
-	int rv;
+	int rv, i, done;
 
 	grp[0] = ((tvb_get_guint8(tvb, offset+0) & 0x3f) << 4) |
 	         ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
@@ -375,29 +377,70 @@ _parse_dialed_number(gchar *s, int slen, tvbuff_t *tvb, int offset)
 	grp[4] = ((tvb_get_guint8(tvb, offset+5) & 0x3f) << 5) |
 	         ((tvb_get_guint8(tvb, offset+6) & 0xf8) >> 3);
 
-	rv = g_snprintf(s, slen, "%03d%03d%03d", grp[0], grp[1], grp[2]);
+	rv = 0;
+	done = 0;
 
-	if (grp[4] <= 999) {
-		rv += g_snprintf(s + rv, ITEM_LABEL_LENGTH,
-		                 "%03d%03d", grp[3], grp[4]);
-	} else if (grp[4] == 1023) {
-		rv += g_snprintf(s + rv, ITEM_LABEL_LENGTH,
-		                 "%03d", grp[3]);
-	} else if (grp[4] == 1022) {
-		rv += g_snprintf(s + rv, ITEM_LABEL_LENGTH,
-		                 "%02d", grp[3] / 10);
-	} else if (grp[4] == 1021) {
-		rv += g_snprintf(s + rv, ITEM_LABEL_LENGTH,
-		                 "%01d", grp[3] / 100);
-	} else if (grp[4] >= 1100 && grp[4] <= 1199) {
-		rv += g_snprintf(s + rv, ITEM_LABEL_LENGTH,
-		                 "%03d%02d", grp[3], grp[4] - 1100);
-	} else if (grp[4] >= 1200 && grp[4] <= 1209) {
-		rv += g_snprintf(s + rv, ITEM_LABEL_LENGTH,
-		                 "%03d%01d", grp[3], grp[4] - 1200);
-	} else {
-		rv += g_snprintf(s + rv, ITEM_LABEL_LENGTH,
-		                 "%03d%03d (Invalid)", grp[3], grp[4]);
+	for (i=0; i<4; i++)
+	{
+		if (grp[i+1] <= 999)
+		{
+			/* All digits of group are valid */
+			rv += g_snprintf(s + rv, slen - rv, "%03d", grp[i]);
+		}
+		else if (grp[i+1] == 1023)
+		{
+			/* Last group and all digits are valid */
+			rv += g_snprintf(s + rv, slen - rv, "%03d", grp[i]);
+			done = 1;
+			break;
+		}
+		else if (grp[i+1] == 1022)
+		{
+			/* Last group and first two digits are valid */
+			rv += g_snprintf(s + rv, slen - rv, "%02d", grp[i] / 10);
+			done = 1;
+			break;
+		}
+		else if (grp[i+1] == 1021)
+		{
+			/* Last group and first digit is valid */
+			rv += g_snprintf(s + rv, slen - rv, "%01d", grp[i] / 100);
+			done = 1;
+			break;
+		}
+		else if ((i==3) && (grp[i+1] >= 1100) && (grp[i+1] <= 1209))
+		{
+			/* All digits of group are valid */
+			rv += g_snprintf(s + rv, slen - rv, "%03d", grp[i]);
+		}
+		else
+		{
+			/* Invalid */
+			return g_snprintf(s, slen, "(Invalid)");
+		}
+	}
+
+	if (!done) {
+		if (grp[4] <= 999)
+		{
+			/* All digits are valid */
+			rv += g_snprintf(s + rv, slen - rv, "%03d", grp[4]);
+		}
+		else if (grp[4] >= 1100 && grp[4] <= 1199)
+		{
+			/* Only two digits are valid */
+			rv += g_snprintf(s + rv, slen - rv, "%02d", grp[4] - 1100);
+		}
+		else if (grp[4] >= 1200 && grp[4] <= 1209)
+		{
+			/* Only one digit is valid */
+			rv += g_snprintf(s + rv, slen - rv, "%01d", grp[4] - 1200);
+		}
+		else
+		{
+			/* Invalid */
+			return g_snprintf(s, slen, "(Invalid)");
+		}
 	}
 
 	return rv;
