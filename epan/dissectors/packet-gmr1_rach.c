@@ -245,12 +245,23 @@ rach_gps_pos_long_fmt(gchar *s, guint32 v)
 static void
 dissect_gmr1_rach_gps_pos(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 lat;
+	guint32 lat, lng;
 
 	/* Check for NULL */
-	lat = (tvb_get_ntohl(tvb, offset) >> 4) & 0x7ffff;
+		/* Spec says that NULL is latitude == 0x40000 and longitude
+		 * is random. But from real capture it seems that
+		 * longitude == 0x80000 and latitude random is also NULL pos */
+
+	lat = (tvb_get_ntohl(tvb, offset) >> 12) & 0x7ffff;
+	lng = tvb_get_ntohl(tvb, offset + 1) & 0xfffff;
+
 	if (lat == 0x40000) {
-		proto_tree_add_int_format(tree, hf_rach_gps_pos_lat, tvb, offset, 5, 0x40000, "NULL GPS Position");
+		proto_tree_add_int_format(tree, hf_rach_gps_pos_lat, tvb, offset, 5, lat,
+		                          "NULL GPS Position (latitude == 0x40000)");
+		return;
+	} else if (lng == 0x80000) {
+		proto_tree_add_int_format(tree, hf_rach_gps_pos_long, tvb, offset, 5, lng,
+		                          "NULL GPS Position (longitude == 0x80000)");
 		return;
 	}
 
