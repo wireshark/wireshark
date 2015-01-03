@@ -48,12 +48,14 @@ static int hf_gsm_bsslap_tfi = -1;
 static int hf_gsm_bsslap_poll_rep = -1;
 static int hf_gsm_bsslap_lac = -1;
 static int hf_gsm_bsslap_cell_id_disc = -1;
+static int hf_gsm_bsslap_encryption_key = -1;
 
 /* Initialize the subtree pointers */
 static int ett_gsm_bsslap = -1;
 static int ett_bsslap_cell_list = -1;
 
 static expert_field ei_gsm_bsslap_missing_mandatory_element = EI_INIT;
+static expert_field ei_gsm_bsslap_not_decoded_yet = EI_INIT;
 
 /* Table 5.1: Element Indentifier codes */
 #define BSSLAP_PARAM_TIMING_ADVANCE                  0x01
@@ -182,12 +184,12 @@ de_ta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, g
  */
 #if 0
 static guint16
-de_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
-    proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
 
 
     return(len);
@@ -315,7 +317,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
                 /* 3G Cell identification container 2 */
                 /* fall trough */
             default:
-                proto_tree_add_text(subtree,tvb, curr_offset, len,"Not decoded yet");
+                proto_tree_add_expert(subtree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
                 consumed = len;
                 break;
         }
@@ -335,12 +337,12 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
  * "RR short PD", "Message type" and "Short layer 2 header")...
  */
 static guint16
-de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_enh_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
-    proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
 
 
     return(len);
@@ -401,7 +403,7 @@ de_blap_enc_key(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     guint32 curr_offset;
 
     curr_offset = offset;
-    proto_tree_add_text(tree,tvb, curr_offset, 8,"Encryption Key (Kc)");
+    proto_tree_add_item(tree, hf_gsm_bsslap_encryption_key, tvb, curr_offset, 8, ENC_NA);
     curr_offset = curr_offset + 8;
 
     return(curr_offset - offset);
@@ -439,12 +441,12 @@ de_poll_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
  * padding bits (binary 0) as required to achieve 4 complete octets
  */
 static guint16
-de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_pkt_ch_desc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
     curr_offset = offset;
-    proto_tree_add_text(tree,tvb, curr_offset, len,"Not decoded yet");
+    proto_tree_add_expert(tree, pinfo, &ei_gsm_bsslap_not_decoded_yet, tvb, curr_offset, len);
 
 
     return(len);
@@ -919,10 +921,16 @@ proto_register_gsm_bsslap(void)
             FT_UINT8, BASE_DEC, VALS(gsm_a_bsslap_cell_id_disc_vals), 0xf,
             NULL, HFILL }
         },
+        { &hf_gsm_bsslap_encryption_key,
+            {"Encryption Key (Kc)", "gsm_bsslap.encryption_key",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static ei_register_info ei[] = {
         { &ei_gsm_bsslap_missing_mandatory_element, { "gsm_bsslap.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
+        { &ei_gsm_bsslap_not_decoded_yet, { "gsm_bsslap.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
     };
 
     expert_module_t* expert_gsm_bsslap;

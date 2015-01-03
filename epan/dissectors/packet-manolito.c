@@ -26,6 +26,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+
 void proto_register_manolito(void);
 void proto_reg_handoff_manolito(void);
 
@@ -37,9 +39,13 @@ static int hf_manolito_src = -1;
 static int hf_manolito_dest = -1;
 static int hf_manolito_options_short = -1;
 static int hf_manolito_options = -1;
+static int hf_manolito_string = -1;
+static int hf_manolito_integer = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_manolito = -1;
+
+static expert_field ei_manolito_type = EI_INIT;
 
 /* Code to actually dissect the packets */
 static void
@@ -176,8 +182,8 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (dtype == MANOLITO_STRING)
 			{
 				data[length] = 0;
-				proto_tree_add_text(manolito_tree, tvb, start,
-					offset - start, "%s (%s): %s",
+				proto_tree_add_string_format(manolito_tree, hf_manolito_string, tvb, start,
+					offset - start, data, "%s (%s): %s",
 					(char*)field_name_str, longname, data);
 			} else if (dtype == MANOLITO_INTEGER) {
 			 	int n = 0;
@@ -191,12 +197,13 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case 2: n += data[1] << ((length - 2) * 8);
 				case 1: n += data[0] << ((length - 1) * 8);
 				}
-				proto_tree_add_text(manolito_tree, tvb, start,
-					offset - start, "%s (%s): %d",
+				ti = proto_tree_add_uint_format(manolito_tree, hf_manolito_integer, tvb, start,
+					1, n, "%s (%s): %d",
 					(char*)field_name_str, longname, n);
+				proto_item_set_len(ti, offset - start);
 			} else {
-				proto_tree_add_text(manolito_tree, tvb, start,
-					offset - start, "unknown type %d", dtype);
+				proto_tree_add_expert_format(manolito_tree, pinfo, &ei_manolito_type,
+						tvb, start, offset - start, "Unknown type %d", dtype);
 			}
 
 		} while(offset < tvb_reported_length(tvb));
@@ -248,17 +255,34 @@ proto_register_manolito(void)
 		    FT_UINT32, BASE_HEX, NULL, 0,
 		    "Packet-dependent data", HFILL }
 		},
+		{ &hf_manolito_string,
+		  { "String field", "manolito.string",
+		    FT_STRING, BASE_NONE, NULL, 0,
+		    NULL, HFILL }
+		},
+		{ &hf_manolito_integer,
+		  { "Integer field", "manolito.integer",
+		    FT_UINT32, BASE_DEC, NULL, 0,
+		    NULL, HFILL }
+		},
 	};
 
 	static gint *ett[] = {
 		&ett_manolito,
 	};
 
-	proto_manolito = proto_register_protocol("Blubster/Piolet MANOLITO Protocol",
-	    "Manolito", "manolito");
+	static ei_register_info ei[] = {
+		{ &ei_manolito_type, { "manolito.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown type", EXPFILL }},
+	};
+
+	expert_module_t* expert_manolito;
+
+	proto_manolito = proto_register_protocol("Blubster/Piolet MANOLITO Protocol", "Manolito", "manolito");
 
 	proto_register_field_array(proto_manolito, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_manolito = expert_register_protocol(proto_manolito);
+	expert_register_field_array(expert_manolito, ei, array_length(ei));
 }
 
 

@@ -58,6 +58,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 
 #include "packet-rtp.h"
 
@@ -250,6 +251,7 @@ static gint ett_rtp_rfc2198_hdr = -1;
 
 /* SRTP fields */
 static int hf_srtp_encrypted_payload = -1;
+/* static int hf_srtp_null_encrypted_payload = -1; */
 static int hf_srtp_mki = -1;
 static int hf_srtp_auth_tag = -1;
 
@@ -260,6 +262,9 @@ static int hf_pkt_ccc_ts       = -1;
 
 /* PacketCable CCC field defining a sub tree */
 static gint ett_pkt_ccc = -1;
+
+static expert_field ei_rtp_fragment_unfinished = EI_INIT;
+static expert_field ei_rtp_padding_missing = EI_INIT;
 
 /* PacketCable CCC port preference */
 static guint global_pkt_ccc_udp_port = 0;
@@ -1413,7 +1418,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 #error Currently the srtp_info structure contains no cipher data, see packet-sdp.c adding dummy_srtp_info structure
         if (p_conv_data->srtp_info->encryption_algorithm==SRTP_ENC_ALG_NULL) {
             if (rtp_tree)
-                proto_tree_add_text(rtp_tree, newtvb, offset, payload_len, "SRTP Payload with NULL encryption");
+                proto_tree_add_item(rtp_tree, hf_srtp_null_encrypted_payload, newtvb, offset, payload_len, ENC_NA);
         }
         else
 #endif
@@ -1681,7 +1686,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 g_debug("\tUnfinished fragment");
 #endif
                 /* this fragment is never reassembled */
-                proto_tree_add_text( tree, tvb, deseg_offset, -1,"RTP fragment, unfinished");
+                proto_tree_add_expert(tree, pinfo, &ei_rtp_fragment_unfinished, tvb, deseg_offset, -1);
             }
         }
         else
@@ -2247,8 +2252,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
              * tree, and just put in a raw data
              * item.
              */
-            if ( tree ) proto_tree_add_text(rtp_tree, tvb, 0, 0,
-                "Frame has padding, but not all the frame data was captured");
+            proto_tree_add_expert(rtp_tree, pinfo, &ei_rtp_padding_missing, tvb, 0, 0);
             call_dissector(data_handle,
                 tvb_new_subset_remaining(tvb, offset),
                 pinfo, rtp_tree);
@@ -3570,6 +3574,13 @@ proto_register_rtp(void)
           FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
         },
+#if 0
+        {&hf_srtp_null_encrypted_payload,
+         {"SRTP Payload with NULL encryption", "srtp.null_enc_payload",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+        },
+#endif
         {&hf_srtp_mki,
          {"SRTP MKI", "srtp.mki",
           FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -3599,13 +3610,20 @@ proto_register_rtp(void)
         &ett_rtp_fragments
     };
 
-    module_t *rtp_module;
+    static ei_register_info ei[] = {
+        { &ei_rtp_fragment_unfinished, { "rtp.fragment_unfinished", PI_REASSEMBLE, PI_CHAT, "RTP fragment, unfinished", EXPFILL }},
+        { &ei_rtp_padding_missing, { "rtp.padding_missing", PI_MALFORMED, PI_ERROR, "Frame has padding, but not all the frame data was captured", EXPFILL }},
+    };
 
+    module_t *rtp_module;
+    expert_module_t *expert_rtp;
 
     proto_rtp = proto_register_protocol("Real-Time Transport Protocol",
                         "RTP", "rtp");
     proto_register_field_array(proto_rtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_rtp = expert_register_protocol(proto_rtp);
+    expert_register_field_array(expert_rtp, ei, array_length(ei));
 
     new_register_dissector("rtp", dissect_rtp, proto_rtp);
     register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);

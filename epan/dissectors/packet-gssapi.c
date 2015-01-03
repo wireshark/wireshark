@@ -27,6 +27,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
@@ -41,6 +42,9 @@ void proto_reg_handoff_gssapi(void);
 
 static int proto_gssapi = -1;
 
+static int hf_gssapi_token_object = -1;
+static int hf_gssapi_auth_verifier = -1;
+static int hf_gssapi_auth_credentials = -1;
 static int hf_gssapi_oid = -1;
 static int hf_gssapi_segments = -1;
 static int hf_gssapi_segment = -1;
@@ -56,6 +60,8 @@ static int hf_gssapi_reassembled_length = -1;
 static gint ett_gssapi = -1;
 static gint ett_gssapi_segment = -1;
 static gint ett_gssapi_segments = -1;
+
+static expert_field ei_gssapi_unknown_header = EI_INIT;
 
 static gboolean gssapi_reassembly = TRUE;
 
@@ -372,7 +378,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  }
 		  if (!oidvalue)
 		  {
-			  proto_tree_add_text(subtree, gss_tvb, start_offset, 0,
+			  proto_tree_add_expert_format(subtree, pinfo, &ei_gssapi_unknown_header, gss_tvb, start_offset, 0,
 					      "Unknown header (class=%d, pc=%d, tag=%d)",
 					      appclass, pc, tag);
 		    return_offset = tvb_length(gss_tvb);
@@ -441,8 +447,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if ((oidvalue == NULL) ||
 		    !proto_is_protocol_enabled(oidvalue->proto)) {
 			/* No dissector for this oid */
-			proto_tree_add_text(subtree, gss_tvb, oid_start_offset, -1,
-					    "Token object");
+			proto_tree_add_item(subtree, hf_gssapi_token_object, gss_tvb, oid_start_offset, -1, ENC_NA);
 
 			return_offset = tvb_length(gss_tvb);
 			goto done;
@@ -471,8 +476,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				else
 					return_offset = offset + len;
 			} else {
-				proto_tree_add_text(subtree, gss_tvb, offset, -1,
-				    "Authentication verifier");
+				proto_tree_add_item(subtree, hf_gssapi_auth_verifier, gss_tvb, offset, -1, ENC_NA);
 				return_offset = tvb_length(gss_tvb);
 			}
 		} else {
@@ -486,8 +490,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				else
 					return_offset = offset + len;
 			} else {
-				proto_tree_add_text(subtree, gss_tvb, offset, -1,
-				    "Authentication credentials");
+				proto_tree_add_item(subtree, hf_gssapi_auth_credentials, gss_tvb, offset, -1, ENC_NA);
 				return_offset = tvb_length(gss_tvb);
 			}
 		}
@@ -531,8 +534,17 @@ proto_register_gssapi(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_gssapi_oid,
-	    	{ "OID", "gss-api.OID", FT_STRING, BASE_NONE,
+		{ "OID", "gss-api.OID", FT_STRING, BASE_NONE,
 		  NULL, 0, "This is a GSS-API Object Identifier", HFILL }},
+	{ &hf_gssapi_token_object,
+		{ "Token object", "gss-api.token_object", FT_BYTES, BASE_NONE,
+		  NULL, 0, NULL, HFILL }},
+	{ &hf_gssapi_auth_verifier,
+		{ "Authentication verifier", "gss-api.auth_verifier", FT_BYTES, BASE_NONE,
+		  NULL, 0, NULL, HFILL }},
+	{ &hf_gssapi_auth_credentials,
+		{ "Authentication credentials", "gss-api.auth_credentials", FT_BYTES, BASE_NONE,
+		  NULL, 0, NULL, HFILL }},
 	{ &hf_gssapi_segment,
 		{ "GSSAPI Segment", "gss-api.segment", FT_FRAMENUM, BASE_NONE,
 		  NULL, 0x0, NULL, HFILL }},
@@ -570,7 +582,13 @@ proto_register_gssapi(void)
 		&ett_gssapi_segment,
 		&ett_gssapi_segments,
 	};
+
+	static ei_register_info ei[] = {
+		{ &ei_gssapi_unknown_header, { "gssapi.unknown_header", PI_PROTOCOL, PI_WARN, "Unknown header", EXPFILL }},
+	};
+
 	module_t *gssapi_module;
+	expert_module_t *expert_gssapi;
 
 	proto_gssapi = proto_register_protocol(
 		"GSS-API Generic Security Service Application Program Interface",
@@ -583,6 +601,8 @@ proto_register_gssapi(void)
 		&gssapi_reassembly);
 	proto_register_field_array(proto_gssapi, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_gssapi = expert_register_protocol(proto_gssapi);
+	expert_register_field_array(expert_gssapi, ei, array_length(ei));
 
 	register_dissector("gssapi", dissect_gssapi, proto_gssapi);
 	new_register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);

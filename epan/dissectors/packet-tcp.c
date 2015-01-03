@@ -2453,7 +2453,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 PROTO_ITEM_SET_GENERATED(item);
 #if 0
         } else {
-                item = proto_tree_add_text((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num),
+                item = proto_tree_add_expert_format((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num),
                                         tvb, offset, -1,
                     "PDU Size: %u cut short at %u",plen,captured_length_remaining);
                 PROTO_ITEM_SET_GENERATED(item);

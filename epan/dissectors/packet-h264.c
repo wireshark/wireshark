@@ -155,6 +155,7 @@ static int hf_h264_sei_ms_layer_desc_cb                    = -1;
 /* Microsoft Bitstream SEI */
 static int hf_h264_sei_ms_bitstream_ref_frame_cnt          = -1;
 static int hf_h264_sei_ms_bitstream_num_nalus              = -1;
+static int hf_h264_sei_iso_sec_info                        = -1;
 /* Microsoft Crop SEI */
 static int hf_h264_sei_ms_crop_num_data                    = -1;
 static int hf_h264_sei_ms_crop_info_type                   = -1;
@@ -251,10 +252,13 @@ static int ett_h264_par_AdditionalModesSupported           = -1;
 static int ett_h264_par_ProfileIOP                         = -1;
 static int ett_h264_ms_layer_description                   = -1;
 static int ett_h264_ms_crop_data                           = -1;
+static int ett_h264_ni_mtap                                = -1;
 
 static expert_field ei_h264_undecoded = EI_INIT;
 static expert_field ei_h264_ms_layout_wrong_length = EI_INIT;
 static expert_field ei_h264_bad_nal_length = EI_INIT;
+static expert_field ei_h264_nal_unit_type_reserved = EI_INIT;
+static expert_field ei_h264_nal_unit_type_unspecified = EI_INIT;
 
 /* The dynamic payload type range which will be dissected as H.264 */
 
@@ -1434,7 +1438,7 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     }
     else
     {
-        proto_tree_add_text(tree, tvb, offset, 16, "Unparsed iso_iec information");
+        proto_tree_add_item(tree, hf_h264_sei_iso_sec_info, tvb, offset, 16, ENC_NA);
     /*  for (i = 16; i < payloadSize; i++)
      *  user_data_payload_byte 5 b(8)
      */
@@ -2238,6 +2242,7 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     guint8      bit_offset = offset << 3;
     guint8      unit = 1;
     proto_item  *item;
+    proto_tree  *nimtap_tree;
 
     subtype = tvb_get_bits8(tvb, bit_offset, 5);
     j_flag  = tvb_get_bits8(tvb, bit_offset+5, 1);
@@ -2256,24 +2261,24 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
         /* Multi-Time Aggregation Packet (NI-MTAP) - RFC 6190 Section 4.7.1 */
         while (tvb_reported_length_remaining(tvb, offset) > 0)
         {
-            proto_tree_add_text(tree, tvb, offset, 1, "NI-MTAP Unit %d", unit++);
-            proto_tree_add_item(tree, hf_h264_nalu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+            nimtap_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1, ett_h264_ni_mtap, NULL, "NI-MTAP Unit %d", unit++);
+            proto_tree_add_item(nimtap_tree, hf_h264_nalu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
             nal_unit_size = tvb_get_ntohs(tvb, offset);
             size_offset = offset;
             offset += 2;
-            proto_tree_add_item(tree, hf_h264_ts_offset16, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(nimtap_tree, hf_h264_ts_offset16, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             /* If J flag is set then DON is present in packet */
             if (j_flag)
             {
-                proto_tree_add_item(tree, hf_h264_don, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(nimtap_tree, hf_h264_don, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
             if (nal_unit_size == 0 || tvb_reported_length_remaining(tvb, offset) < nal_unit_size)
             {
                 /* Throw an exception if the size is wrong and don't try to decode the rest of the packet. */
                 col_append_fstr(pinfo->cinfo, COL_INFO, "  [Bad NAL Length]");
-                item = proto_tree_add_expert (tree, pinfo, &ei_h264_bad_nal_length, tvb, size_offset, 2);
+                item = proto_tree_add_expert (nimtap_tree, pinfo, &ei_h264_bad_nal_length, tvb, size_offset, 2);
                 proto_item_append_text(item, " Size of %d, Remaining %d",
                         nal_unit_size, tvb_reported_length_remaining(tvb, offset));
                 offset += tvb_reported_length_remaining(tvb, offset);
@@ -2283,7 +2288,7 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
                 /* Make a new subset of the existing buffer for the NAL unit */
                 nalu_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), nal_unit_size);
                 /* Decode the NAL unit */
-                dissect_h264(nalu_tvb, pinfo, tree);
+                dissect_h264(nalu_tvb, pinfo, nimtap_tree);
                 offset += nal_unit_size;
             }
         }
@@ -2297,7 +2302,7 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 void
 dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_item *item;
+    proto_item *item, *nal_item;
     proto_tree *h264_nal_tree;
     gint        offset = 0;
     guint8      nal_unit_type;
@@ -2326,7 +2331,7 @@ startover:
     /* nal_ref_idc All u(2) */
     proto_tree_add_item(h264_nal_tree, hf_h264_nal_ref_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* nal_unit_type All u(5) */
-    proto_tree_add_item(h264_nal_tree, hf_h264_nal_unit_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    nal_item = proto_tree_add_item(h264_nal_tree, hf_h264_nal_unit_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     switch (nal_unit_type) {
@@ -2382,7 +2387,7 @@ startover:
     case 16:    /* Reserved */
     case 17:    /* Reserved */
     case 18:    /* Reserved */
-        proto_tree_add_text(h264_nal_tree, tvb, offset, -1, "Reserved NAL unit type");
+        expert_add_info(pinfo, nal_item, &ei_h264_nal_unit_type_reserved);
         break;
     case 19:    /* Coded slice of an auxiliary coded picture without partitioning */
         dissect_h264_slice_layer_without_partitioning_rbsp(tree, tvb, pinfo, offset);
@@ -2393,7 +2398,7 @@ startover:
     case 0: /* Unspecified */
     default:
         /* 24..31 Unspecified */
-        proto_tree_add_text(h264_nal_tree, tvb, offset, -1, "Unspecified NAL unit type");
+        expert_add_info(pinfo, nal_item, &ei_h264_nal_unit_type_unspecified);
         break;
     }
 }
@@ -3493,6 +3498,11 @@ proto_register_h264(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_h264_sei_iso_sec_info,
+            { "Unparsed iso_iec information", "h264.sei.iso_sec_info",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         /* MS Crop SEI */
         { &hf_h264_sei_ms_crop_num_data,
             { "Number of Data Entries", "h264.sei.ms.crop.num_data",
@@ -3657,13 +3667,16 @@ proto_register_h264(void)
         &ett_h264_par_AdditionalModesSupported,
         &ett_h264_par_ProfileIOP,
         &ett_h264_ms_layer_description,
-        &ett_h264_ms_crop_data
+        &ett_h264_ms_crop_data,
+        &ett_h264_ni_mtap
     };
 
     static ei_register_info ei[] = {
         { &ei_h264_undecoded, { "h264.undecoded", PI_UNDECODED, PI_WARN, "[Not decoded yet]", EXPFILL }},
         { &ei_h264_ms_layout_wrong_length, { "h264.ms_layout.wrong_length", PI_PROTOCOL, PI_WARN, "[Wrong Layer Description Table Length]", EXPFILL }},
         { &ei_h264_bad_nal_length, { "h264.bad_nalu_length", PI_MALFORMED, PI_ERROR, "[Bad NAL Unit Length]", EXPFILL }},
+        { &ei_h264_nal_unit_type_reserved, { "h264.nal_unit_type.reserved", PI_PROTOCOL, PI_WARN, "Reserved NAL unit type", EXPFILL }},
+        { &ei_h264_nal_unit_type_unspecified, { "h264.nal_unit_type.unspecified", PI_PROTOCOL, PI_WARN, "Unspecified NAL unit type", EXPFILL }},
     };
 
 /* Register the protocol name and description */

@@ -714,18 +714,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         ti = proto_tree_add_uint_format_value(stun_tree, hf_stun_type, tvb, 0, 2,
                                               msg_type, "0x%04x (%s %s)", msg_type, msg_method_str, msg_class_str);
         stun_type_tree = proto_item_add_subtree(ti, ett_stun_type);
-        proto_tree_add_uint(stun_type_tree, hf_stun_type_class, tvb, 0, 2, msg_type);
-        ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2, "%s (%d)", msg_class_str, msg_type_class);
-        PROTO_ITEM_SET_GENERATED(ti);
-        proto_tree_add_uint(stun_type_tree, hf_stun_type_method, tvb, 0, 2, msg_type);
-        ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2, "%s (0x%03x)", msg_method_str, msg_type_method);
-        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_uint(stun_type_tree, hf_stun_type_class, tvb, 0, 2, msg_type);
+        proto_item_append_text(ti, " %s (%d)", msg_class_str, msg_type_class);
+        ti = proto_tree_add_uint(stun_type_tree, hf_stun_type_method, tvb, 0, 2, msg_type);
+        proto_item_append_text(ti, " %s (0x%03x)", msg_method_str, msg_type_method);
         proto_tree_add_uint(stun_type_tree, hf_stun_type_method_assignment, tvb, 0, 2, msg_type);
-        ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2,
-                                 "%s (%d)",
-                                 val_to_str((msg_type & 0x2000) >> 13, assignments, "Unknown: 0x%x"),
-                                 (msg_type & 0x2000) >> 13);
-        PROTO_ITEM_SET_GENERATED(ti);
 
         proto_tree_add_item(stun_tree, hf_stun_length, tvb, 2, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(stun_tree, hf_stun_cookie, tvb, 4, 4, ENC_NA);
@@ -755,17 +748,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                          offset, 2, att_type);
                 att_type_tree = proto_item_add_subtree(ti, ett_stun_att_type);
                 proto_tree_add_uint(att_type_tree, hf_stun_att_type_comprehension, tvb, offset, 2, att_type);
-                ti = proto_tree_add_text(att_type_tree, tvb, offset, 2,
-                                         "%s (%d)",
-                                         val_to_str((att_type & 0x8000) >> 15, comprehensions, "Unknown: %d"),
-                                         (att_type & 0x8000) >> 15);
-                PROTO_ITEM_SET_GENERATED(ti);
                 proto_tree_add_uint(att_type_tree, hf_stun_att_type_assignment, tvb, offset, 2, att_type);
-                ti = proto_tree_add_text(att_type_tree, tvb, offset, 2,
-                                         "%s (%d)",
-                                         val_to_str((att_type & 0x4000) >> 14, assignments, "Unknown: %d"),
-                                         (att_type & 0x4000) >> 14);
-                PROTO_ITEM_SET_GENERATED(ti);
 
                 if ((offset+ATTR_HDR_LEN+att_length) > (STUN_HDR_LEN+msg_length)) {
                     proto_tree_add_uint_format_value(att_tree,
@@ -1314,7 +1297,7 @@ proto_register_stun(void)
         },
         { &hf_stun_type_method_assignment,
           { "Message Method Assignment", "stun.type.method-assignment", FT_UINT16,
-            BASE_HEX, NULL, 0x2000, NULL, HFILL }
+            BASE_HEX, VALS(assignments), 0x2000, NULL, HFILL }
         },
         { &hf_stun_length,
           { "Message Length", "stun.length", FT_UINT16,
@@ -1359,11 +1342,11 @@ proto_register_stun(void)
         },
         { &hf_stun_att_type_comprehension,
           { "Attribute Type Comprehension", "stun.att.type.comprehension", FT_UINT16,
-            BASE_HEX, NULL, 0x8000, NULL, HFILL }
+            BASE_HEX, VALS(comprehensions), 0x8000, NULL, HFILL }
         },
         { &hf_stun_att_type_assignment,
           { "Attribute Type Assignment", "stun.att.type.assignment", FT_UINT16,
-            BASE_HEX, NULL, 0x4000, NULL, HFILL }
+            BASE_HEX, VALS(assignments), 0x4000, NULL, HFILL }
         },
         { &hf_stun_att_length,
           { "Attribute Length", "stun.att.length", FT_UINT16,

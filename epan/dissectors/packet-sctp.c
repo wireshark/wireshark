@@ -1306,7 +1306,7 @@ sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
       ack_tree(t, acks_tree, tvb, pinfo);
 
   } /* else {
-       proto_tree_add_text(acks_tree, tvb, 0 , 0, "Assoc: %p vs %p ?? %ld",h,h->peer,tsn);
+       proto_tree_add_debug_text(acks_tree, tvb, 0 , 0, "Assoc: %p vs %p ?? %ld",h,h->peer,tsn);
        } */
 }
 

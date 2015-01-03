@@ -312,6 +312,8 @@ static int hf_sua_sequence_number_more_data_bit = -1;
 static int hf_sua_receive_sequence_number_reserved = -1;
 static int hf_sua_receive_sequence_number_number = -1;
 static int hf_sua_receive_sequence_number_spare_bit = -1;
+static int hf_sua_protocol_classes = -1;
+static int hf_sua_protocol_class_flags = -1;
 static int hf_sua_asp_capabilities_reserved = -1;
 static int hf_sua_asp_capabilities_reserved_bits = -1;
 static int hf_sua_asp_capabilities_a_bit =-1;
@@ -333,6 +335,7 @@ static int hf_sua_protocol_class_reserved = -1;
 static int hf_sua_return_on_error_bit = -1;
 static int hf_sua_protocol_class = -1;
 static int hf_sua_sequence_control = -1;
+static int hf_sua_first_remaining = -1;
 static int hf_sua_first_bit = -1;
 static int hf_sua_number_of_remaining_segments = -1;
 static int hf_sua_segmentation_reference = -1;
@@ -1109,17 +1112,17 @@ static const value_string interworking_values[] = {
 static void
 dissect_asp_capabilities_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  proto_item *protocol_classes_item;
-  proto_tree *protocol_classes_tree;
+  static const int * capabilities[] = {
+    &hf_sua_asp_capabilities_reserved_bits,
+    &hf_sua_asp_capabilities_a_bit,
+    &hf_sua_asp_capabilities_b_bit,
+    &hf_sua_asp_capabilities_c_bit,
+    &hf_sua_asp_capabilities_d_bit,
+    NULL
+   };
 
   proto_tree_add_item(parameter_tree, hf_sua_asp_capabilities_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH, ENC_NA);
-  protocol_classes_item = proto_tree_add_text(parameter_tree, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, "Protocol classes");
-  protocol_classes_tree = proto_item_add_subtree(protocol_classes_item, ett_sua_protcol_classes);
-  proto_tree_add_item(protocol_classes_tree, hf_sua_asp_capabilities_reserved_bits, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(protocol_classes_tree, hf_sua_asp_capabilities_a_bit, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(protocol_classes_tree, hf_sua_asp_capabilities_b_bit, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(protocol_classes_tree, hf_sua_asp_capabilities_c_bit, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(protocol_classes_tree, hf_sua_asp_capabilities_d_bit, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_bitmask(parameter_tree, parameter_tvb, PROTOCOL_CLASSES_OFFSET, hf_sua_protocol_classes, ett_sua_protcol_classes, capabilities, ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_sua_asp_capabilities_interworking, parameter_tvb, INTERWORKING_OFFSET, INTERWORKING_LENGTH, ENC_BIG_ENDIAN);
 }
 
@@ -1281,16 +1284,14 @@ static const true_false_string return_on_error_bit_value = {
 static void
 dissect_protocol_class_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_item *protocol_class_item;
-  proto_tree *protocol_class_tree;
+  static const int * capabilities[] = {
+    &hf_sua_return_on_error_bit,
+    &hf_sua_protocol_class,
+    NULL
+   };
 
   proto_tree_add_item(parameter_tree, hf_sua_protocol_class_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
-
-  protocol_class_item = proto_tree_add_text(parameter_tree, parameter_tvb, PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH, "Protocol Class");
-  protocol_class_tree = proto_item_add_subtree(protocol_class_item, ett_sua_return_on_error_bit_and_protocol_class);
-
-  proto_tree_add_item(protocol_class_tree, hf_sua_return_on_error_bit, parameter_tvb, PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(protocol_class_tree, hf_sua_protocol_class,      parameter_tvb, PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_bitmask(parameter_tree, parameter_tvb, PROTOCOL_CLASS_OFFSET, hf_sua_protocol_class_flags, ett_sua_return_on_error_bit_and_protocol_class, capabilities, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%d)", tvb_get_guint8(parameter_tvb, PROTOCOL_CLASS_OFFSET) & PROTOCOL_CLASS_MASK);
 }
 
@@ -1320,13 +1321,13 @@ static const true_false_string first_bit_value = {
 static void
 dissect_segmentation_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
-  proto_item *first_remaining_item;
-  proto_tree *first_remaining_tree;
+  static const int * first_remaining[] = {
+    &hf_sua_first_bit,
+    &hf_sua_number_of_remaining_segments,
+    NULL
+   };
 
-  first_remaining_item = proto_tree_add_text(parameter_tree, parameter_tvb, FIRST_REMAINING_OFFSET, FIRST_REMAINING_LENGTH, "First / Remaining");
-  first_remaining_tree = proto_item_add_subtree(first_remaining_item, ett_sua_first_remaining);
-  proto_tree_add_item(first_remaining_tree, hf_sua_first_bit,                    parameter_tvb, FIRST_REMAINING_OFFSET, FIRST_REMAINING_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(first_remaining_tree, hf_sua_number_of_remaining_segments, parameter_tvb, FIRST_REMAINING_OFFSET, FIRST_REMAINING_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_bitmask(parameter_tree, parameter_tvb, FIRST_REMAINING_OFFSET, hf_sua_first_remaining, ett_sua_first_remaining, first_remaining, ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_sua_segmentation_reference, parameter_tvb, SEGMENTATION_REFERENCE_OFFSET, SEGMENTATION_REFERENCE_LENGTH, ENC_BIG_ENDIAN);
 }
 
@@ -2218,10 +2219,10 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
           PROTO_ITEM_SET_GENERATED(assoc_item);
 #if 0
           assoc_tree = proto_item_add_subtree(assoc_item, ett_sua_assoc);
-          proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->calling_routing_ind);
-          proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->called_routing_ind);
-          proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "calling_ssn %u", assoc->calling_ssn);
-          proto_tree_add_text(assoc_tree, message_tvb, 0, 0, "called_ssn %u", assoc->called_ssn);
+          proto_tree_add_debug_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->calling_routing_ind);
+          proto_tree_add_debug_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->called_routing_ind);
+          proto_tree_add_debug_text(assoc_tree, message_tvb, 0, 0, "calling_ssn %u", assoc->calling_ssn);
+          proto_tree_add_debug_text(assoc_tree, message_tvb, 0, 0, "called_ssn %u", assoc->called_ssn);
 #endif /* 0 */
       }
 
@@ -2392,6 +2393,8 @@ proto_register_sua(void)
     { &hf_sua_receive_sequence_number_number,        { "Receive Sequence Number P(R)", "sua.receive_sequence_number_number",            FT_UINT8,   BASE_DEC,  NULL,                               SEQ_NUM_MASK,             NULL, HFILL } },
     { &hf_sua_receive_sequence_number_spare_bit,     { "Spare Bit",                    "sua.receive_sequence_number_spare_bit",         FT_UINT8,   BASE_DEC,  NULL,                               SPARE_BIT_MASK,           NULL, HFILL } },
     { &hf_sua_asp_capabilities_reserved,             { "Reserved",                     "sua.asp_capabilities_reserved",                 FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_protocol_classes,                      { "Protocol classes",             "sua.protocol_classes",                          FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_protocol_class_flags,                  { "Protocol class",               "sua.protocol_class_flags",                      FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_asp_capabilities_reserved_bits,        { "Reserved Bits",                "sua.asp_capabilities_reserved_bits",            FT_UINT8,   BASE_HEX,  NULL,                               RESERVED_BITS_MASK,       NULL, HFILL } },
     { &hf_sua_asp_capabilities_a_bit,                { "Protocol Class 3",             "sua.asp_capabilities_a_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),  A_BIT_MASK,               NULL, HFILL } },
     { &hf_sua_asp_capabilities_b_bit,                { "Protocol Class 2",             "sua.asp_capabilities_b_bit",                    FT_BOOLEAN, 8,         TFS(&tfs_supported_not_supported),  B_BIT_MASK,               NULL, HFILL } },
@@ -2412,6 +2415,7 @@ proto_register_sua(void)
     { &hf_sua_return_on_error_bit,                   { "Return On Error Bit",          "sua.protocol_class_return_on_error_bit",        FT_BOOLEAN, 8,         TFS(&return_on_error_bit_value),    RETURN_ON_ERROR_BIT_MASK, NULL, HFILL } },
     { &hf_sua_protocol_class,                        { "Protocol Class",               "sua.protocol_class_class",                      FT_UINT8,   BASE_DEC,  NULL,                               PROTOCOL_CLASS_MASK,      NULL, HFILL } },
     { &hf_sua_sequence_control,                      { "Sequence Control",             "sua.sequence_control_sequence_control",         FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_first_remaining,                       { "First / Remaining",            "sua.first_remaining",                           FT_UINT8,   BASE_HEX,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_first_bit,                             { "First Segment Bit",            "sua.segmentation_first_bit",                    FT_BOOLEAN, 8,         TFS(&first_bit_value),              FIRST_BIT_MASK,           NULL, HFILL } },
     { &hf_sua_number_of_remaining_segments,          { "Number of Remaining Segments", "sua.segmentation_number_of_remaining_segments", FT_UINT8,   BASE_DEC,  NULL,                               NUMBER_OF_SEGMENTS_MASK,  NULL, HFILL } },
     { &hf_sua_segmentation_reference,                { "Segmentation Reference",       "sua.segmentation_reference",                    FT_UINT24,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },

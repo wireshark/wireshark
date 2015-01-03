@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 void proto_register_gvrp(void);
 void proto_reg_handoff_gvrp(void);
@@ -35,13 +36,14 @@ static int hf_gvrp_attribute_type = -1;
 static int hf_gvrp_attribute_length = -1;
 static int hf_gvrp_attribute_event = -1;
 static int hf_gvrp_attribute_value = -1;
-/*static int hf_gvrp_end_of_mark = -1;*/
+static int hf_gvrp_end_of_mark = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gvrp = -1;
-/*static gint ett_gvrp_message = -1;
-static gint ett_gvrp_attribute_list = -1;
-static gint ett_gvrp_attribute = -1;*/
+static gint ett_gvrp_message = -1;
+static gint ett_gvrp_attribute = -1;
+
+static expert_field ei_gvrp_proto_id = EI_INIT;
 
 static dissector_handle_t data_handle;
 
@@ -90,8 +92,8 @@ static const value_string event_vals[] = {
 static void
 dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti;
-    proto_tree *gvrp_tree;
+    proto_item *ti, *id_item;
+    proto_tree *gvrp_tree, *msg_tree, *attr_tree;
     guint16     protocol_id;
     guint8      octet;
     int         msg_index;
@@ -103,57 +105,103 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_INFO, "GVRP");
 
-    if (tree)
+    ti = proto_tree_add_item(tree, proto_gvrp, tvb, 0, length, ENC_NA);
+    gvrp_tree = proto_item_add_subtree(ti, ett_gvrp);
+
+    /* Read in GARP protocol ID */
+    protocol_id = tvb_get_ntohs(tvb, GARP_PROTOCOL_ID);
+
+    id_item = proto_tree_add_uint_format_value(gvrp_tree, hf_gvrp_proto_id, tvb,
+                                GARP_PROTOCOL_ID, 2,
+                                protocol_id,
+                                "0x%04x (%s)",
+                                protocol_id,
+                                protocol_id == GARP_DEFAULT_PROTOCOL_ID ?
+                                    "GARP VLAN Registration Protocol" :
+                                    "Unknown Protocol");
+
+    /* Currently only one protocol ID is supported */
+    if (protocol_id != GARP_DEFAULT_PROTOCOL_ID)
     {
-        ti = proto_tree_add_item(tree, proto_gvrp, tvb, 0, length, ENC_NA);
+        expert_add_info(pinfo, id_item, &ei_gvrp_proto_id);
+        call_dissector(data_handle,
+            tvb_new_subset_remaining(tvb, GARP_PROTOCOL_ID + 2),
+            pinfo, tree);
+        return;
+    }
 
-        gvrp_tree = proto_item_add_subtree(ti, ett_gvrp);
+    offset += 2;
+    length -= 2;
 
-        /* Read in GARP protocol ID */
-        protocol_id = tvb_get_ntohs(tvb, GARP_PROTOCOL_ID);
+    msg_index = 0;
 
-        proto_tree_add_uint_format(gvrp_tree, hf_gvrp_proto_id, tvb,
-                                   GARP_PROTOCOL_ID, (int)sizeof(guint16),
-                                   protocol_id,
-                                   "Protocol Identifier: 0x%04x (%s)",
-                                   protocol_id,
-                                   protocol_id == GARP_DEFAULT_PROTOCOL_ID ?
-                                     "GARP VLAN Registration Protocol" :
-                                     "Unknown Protocol");
+    /* Begin to parse GARP messages */
+    while (length)
+    {
+        proto_item *msg_item;
+        int         msg_start = offset;
 
-        /* Currently only one protocol ID is supported */
-        if (protocol_id != GARP_DEFAULT_PROTOCOL_ID)
+        /* Read in attribute type. */
+        octet = tvb_get_guint8(tvb, offset);
+
+        /* Check for end of mark */
+        if (octet == GARP_END_OF_MARK)
         {
-            proto_tree_add_text(gvrp_tree, tvb, GARP_PROTOCOL_ID, (int)sizeof(guint16),
-                "   (Warning: this version of Wireshark only knows about protocol id = 1)");
-            call_dissector(data_handle,
-                tvb_new_subset_remaining(tvb, GARP_PROTOCOL_ID + (int)sizeof(guint16)),
+            /* End of GARP PDU */
+            if (msg_index)
+            {
+                proto_tree_add_item(gvrp_tree, hf_gvrp_end_of_mark, tvb, offset, 1, ENC_NA);
+                break;
+            }
+            else
+            {
+                call_dissector(data_handle,
+                    tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                return;
+            }
+        }
+
+        offset += 1;
+        length -= 1;
+
+        msg_tree = proto_tree_add_subtree_format(gvrp_tree, tvb, msg_start, -1, ett_gvrp_message, &msg_item,
+                                        "Message %d", msg_index + 1);
+
+        proto_tree_add_uint(msg_tree, hf_gvrp_attribute_type, tvb,
+                            msg_start, 1, octet);
+
+        /* GVRP only supports one attribute type. */
+        if (octet != GVRP_ATTRIBUTE_TYPE)
+        {
+            call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
                 pinfo, tree);
             return;
         }
 
-        offset += (int)sizeof(guint16);
-        length -= (int)sizeof(guint16);
+        attr_index = 0;
 
-        msg_index = 0;
-
-        /* Begin to parse GARP messages */
         while (length)
         {
-            proto_item *msg_item;
-            int         msg_start = offset;
+            int         attr_start = offset;
+            proto_item *attr_item;
 
-            /* Read in attribute type. */
+            /* Read in attribute length. */
             octet = tvb_get_guint8(tvb, offset);
 
             /* Check for end of mark */
             if (octet == GARP_END_OF_MARK)
             {
-                /* End of GARP PDU */
-                if (msg_index)
+                /* If at least one message has been already read,
+                    * check for another end of mark.
+                    */
+                if (attr_index)
                 {
-                    proto_tree_add_text(gvrp_tree, tvb, offset, (int)sizeof(guint8),
-                                        "End of mark");
+                    proto_tree_add_item(msg_tree, hf_gvrp_end_of_mark, tvb, offset, 1, ENC_NA);
+
+                    offset += 1;
+                    length -= 1;
+
+                    proto_item_set_len(msg_item, offset - msg_start);
                     break;
                 }
                 else
@@ -163,127 +211,74 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     return;
                 }
             }
-
-            offset += (int)sizeof(guint8);
-            length -= (int)sizeof(guint8);
-
-            msg_item = proto_tree_add_text(gvrp_tree, tvb, msg_start, -1,
-                                           "Message %d", msg_index + 1);
-
-            proto_tree_add_uint(gvrp_tree, hf_gvrp_attribute_type, tvb,
-                                msg_start, (int)sizeof(guint8), octet);
-
-            /* GVRP only supports one attribute type. */
-            if (octet != GVRP_ATTRIBUTE_TYPE)
+            else
             {
-                call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset),
-                    pinfo, tree);
-                return;
-            }
+                guint8 event;
 
-            attr_index = 0;
+                offset += 1;
+                length -= 1;
 
-            while (length)
-            {
-                int         attr_start = offset;
-                proto_item *attr_item;
+                attr_tree = proto_tree_add_subtree_format(msg_tree, tvb, attr_start, -1,
+                        ett_gvrp_attribute, &attr_item, "Attribute %d", attr_index + 1);
 
-                /* Read in attribute length. */
-                octet = tvb_get_guint8(tvb, offset);
+                proto_tree_add_uint(attr_tree, hf_gvrp_attribute_length,
+                        tvb, attr_start, 1, octet);
 
-                /* Check for end of mark */
-                if (octet == GARP_END_OF_MARK)
-                {
-                    /* If at least one message has been already read,
-                     * check for another end of mark.
-                     */
-                    if (attr_index)
-                    {
-                        proto_tree_add_text(gvrp_tree, tvb, offset,
-                                            (int)sizeof(guint8), "  End of mark");
+                /* Read in attribute event */
+                event = tvb_get_guint8(tvb, offset);
 
-                        offset += (int)sizeof(guint8);
-                        length -= (int)sizeof(guint8);
+                proto_tree_add_uint(attr_tree, hf_gvrp_attribute_event,
+                        tvb, offset, 1, event);
 
-                        proto_item_set_len(msg_item, offset - msg_start);
-                        break;
-                    }
-                    else
+                offset += 1;
+                length -= 1;
+
+                switch (event) {
+
+                case GVRP_EVENT_LEAVEALL:
+                    if (octet != GVRP_LENGTH_LEAVEALL)
                     {
                         call_dissector(data_handle,
-                            tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                            tvb_new_subset_remaining(tvb, offset), pinfo,
+                            tree);
                         return;
                     }
-                }
-                else
-                {
-                    guint8 event;
+                    break;
 
-                    offset += (int)sizeof(guint8);
-                    length -= (int)sizeof(guint8);
-
-                    attr_item = proto_tree_add_text(gvrp_tree, tvb,
-                         attr_start, -1, "  Attribute %d", attr_index + 1);
-
-                    proto_tree_add_uint(gvrp_tree, hf_gvrp_attribute_length,
-                         tvb, attr_start, (int)sizeof(guint8), octet);
-
-                    /* Read in attribute event */
-                    event = tvb_get_guint8(tvb, offset);
-
-                    proto_tree_add_uint(gvrp_tree, hf_gvrp_attribute_event,
-                         tvb, offset, (int)sizeof(guint8), event);
-
-                    offset += (int)sizeof(guint8);
-                    length -= (int)sizeof(guint8);
-
-                    switch (event) {
-
-                    case GVRP_EVENT_LEAVEALL:
-                        if (octet != GVRP_LENGTH_LEAVEALL)
-                        {
-                            call_dissector(data_handle,
-                                tvb_new_subset_remaining(tvb, offset), pinfo,
-                                tree);
-                            return;
-                        }
-                        break;
-
-                     case GVRP_EVENT_JOINEMPTY:
-                     case GVRP_EVENT_JOININ:
-                     case GVRP_EVENT_LEAVEEMPTY:
-                     case GVRP_EVENT_LEAVEIN:
-                     case GVRP_EVENT_EMPTY:
-                        if (octet != GVRP_LENGTH_NON_LEAVEALL)
-                        {
-                            call_dissector(data_handle,
-                                tvb_new_subset_remaining(tvb, offset),pinfo,
-                                tree);
-                            return;
-                        }
-
-                        /* Show attribute value */
-                        proto_tree_add_item(gvrp_tree, hf_gvrp_attribute_value,
-                            tvb, offset, (int)sizeof(guint16), ENC_BIG_ENDIAN);
-
-                        offset += (int)sizeof(guint16);
-                        length -= (int)sizeof (guint16);
-                        break;
-
-                     default:
+                    case GVRP_EVENT_JOINEMPTY:
+                    case GVRP_EVENT_JOININ:
+                    case GVRP_EVENT_LEAVEEMPTY:
+                    case GVRP_EVENT_LEAVEIN:
+                    case GVRP_EVENT_EMPTY:
+                    if (octet != GVRP_LENGTH_NON_LEAVEALL)
+                    {
                         call_dissector(data_handle,
-                            tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                            tvb_new_subset_remaining(tvb, offset),pinfo,
+                            tree);
                         return;
                     }
+
+                    /* Show attribute value */
+                    proto_tree_add_item(attr_tree, hf_gvrp_attribute_value,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+
+                    offset += 2;
+                    length -= 2;
+                    break;
+
+                    default:
+                    call_dissector(data_handle,
+                        tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                    return;
                 }
-
-                proto_item_set_len(attr_item, offset - attr_start);
-
-                attr_index++;
             }
 
-            msg_index++;
+            proto_item_set_len(attr_item, offset - attr_start);
+
+            attr_index++;
         }
+
+        msg_index++;
     }
 }
 
@@ -294,7 +289,7 @@ proto_register_gvrp(void)
 {
     static hf_register_info hf[] = {
         { &hf_gvrp_proto_id,
-          { "Protocol ID", "gvrp.protocol_id",
+          { "Protocol Identifier", "gvrp.protocol_id",
             FT_UINT16,      BASE_HEX,      NULL,  0x0,
             NULL, HFILL }
         },
@@ -316,22 +311,37 @@ proto_register_gvrp(void)
         { &hf_gvrp_attribute_value,
           { "Value",       "gvrp.attribute_value",
             FT_UINT16,       BASE_DEC,      NULL,  0x0,
-            NULL, HFILL }
-        }
+            NULL, HFILL },
+        },
+        { &hf_gvrp_end_of_mark,
+          { "End of Mark",       "gvrp.end_of_mark",
+            FT_NONE,       BASE_NONE,      NULL,  0x0,
+            NULL, HFILL },
+        },
     };
+
+    static ei_register_info ei[] = {
+        { &ei_gvrp_proto_id, { "gvrp.protocol_id.unknown", PI_PROTOCOL, PI_WARN, "Warning: this version of Wireshark only knows about protocol id = 1", EXPFILL }},
+    };
+
+    expert_module_t* expert_gvrp;
 
     static gint *ett[] = {
-        &ett_gvrp
+        &ett_gvrp,
+        &ett_gvrp_message,
+        &ett_gvrp_attribute,
     };
 
+
     /* Register the protocol name and description for GVRP */
-    proto_gvrp = proto_register_protocol("GARP VLAN Registration Protocol",
-                                         "GVRP", "gvrp");
+    proto_gvrp = proto_register_protocol("GARP VLAN Registration Protocol", "GVRP", "gvrp");
 
     /* Required function calls to register the header fields and subtrees
      * used by GVRP */
     proto_register_field_array(proto_gvrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_gvrp = expert_register_protocol(proto_gvrp);
+    expert_register_field_array(expert_gvrp, ei, array_length(ei));
 
     register_dissector("gvrp", dissect_gvrp, proto_gvrp);
 }

@@ -282,7 +282,7 @@ dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offse
         offset++;
 
         /* show the rest */
-        /*        tree2 = proto_tree_add_text(tree, tvb, offset, -1, "User Data"); */
+        /*        tree2 = proto_tree_add_subtree(tree, tvb, offset, -1, "User Data"); */
 
         if (tvb_length_remaining(tvb, offset) <= 0)
                 return offset;

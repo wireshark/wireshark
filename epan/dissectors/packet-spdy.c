@@ -236,6 +236,7 @@ static expert_field ei_spdy_mal_setting_frame = EI_INIT;
 static expert_field ei_spdy_invalid_rst_stream = EI_INIT;
 static expert_field ei_spdy_invalid_go_away = EI_INIT;
 static expert_field ei_spdy_invalid_frame_type = EI_INIT;
+static expert_field ei_spdy_reassembly_info = EI_INIT;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
@@ -814,7 +815,6 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
        */
       tvbuff_t *uncomp_tvb = NULL;
       proto_item *e_ti = NULL;
-      proto_item *ce_ti = NULL;
       proto_tree *e_tree = NULL;
 
       if (spdy_decompress_body &&
@@ -835,21 +835,23 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
         wmem_list_t *dflist = si->data_frames;
         wmem_list_frame_t *frame_item;
         spdy_data_frame_t *df;
-        guint32 framenum;
-        ce_ti = proto_tree_add_text(e_tree, data_tvb, 0,
-                                    tvb_reported_length(data_tvb),
-                                    "Assembled from %d frames in packet(s)",
-                                    si->num_data_frames);
-        framenum = 0;
+        guint32 framenum = 0;
+        wmem_strbuf_t *str_frames = wmem_strbuf_new(wmem_packet_scope(), "");
+
         frame_item = wmem_list_frame_next(wmem_list_head(dflist));
         while (frame_item != NULL) {
           df = (spdy_data_frame_t *)wmem_list_frame_data(frame_item);
           if (framenum != df->framenum) {
-            proto_item_append_text(ce_ti, " #%u", df->framenum);
+            wmem_strbuf_append_printf(str_frames, " #%u", df->framenum);
             framenum = df->framenum;
           }
           frame_item = wmem_list_frame_next(frame_item);
         }
+
+        proto_tree_add_expert_format(e_tree, pinfo, &ei_spdy_reassembly_info, data_tvb, 0,
+                                    tvb_reported_length(data_tvb),
+                                    "Assembled from %d frames in packet(s)%s",
+                                    si->num_data_frames, wmem_strbuf_get_str(str_frames));
       }
 
       if (uncomp_tvb != NULL) {
@@ -1894,6 +1896,7 @@ void proto_register_spdy(void)
     { &ei_spdy_invalid_rst_stream, { "spdy.rst_stream.invalid", PI_PROTOCOL, PI_WARN, "Invalid status code for RST_STREAM", EXPFILL }},
     { &ei_spdy_invalid_go_away, { "spdy.goaway.invalid", PI_PROTOCOL, PI_WARN, "Invalid status code for GOAWAY", EXPFILL }},
     { &ei_spdy_invalid_frame_type, { "spdy.type.invalid", PI_PROTOCOL, PI_WARN, "Invalid SPDY frame type", EXPFILL }},
+    { &ei_spdy_reassembly_info, { "spdy.reassembly_info", PI_REASSEMBLE, PI_CHAT, "Assembled from frames in packet(s)", EXPFILL }},
   };
 
   module_t *spdy_module;
