@@ -7842,9 +7842,9 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
                     dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                                     hf_pn_io_submodule_state_diag_info, &u16SubmoduleState);
                     dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
-                                    hf_pn_io_submodule_state_maintenance_demanded, &u16SubmoduleState);
-                    dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                                     hf_pn_io_submodule_state_maintenance_required, &u16SubmoduleState);
+                    dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
+                                    hf_pn_io_submodule_state_maintenance_demanded, &u16SubmoduleState);
                     dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                                     hf_pn_io_submodule_state_qualified_info, &u16SubmoduleState);
                     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
@@ -10642,14 +10642,14 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_qualified_info), 0x0008,
         NULL, HFILL }
     },
-    { &hf_pn_io_submodule_state_maintenance_required,
-      { "MaintenanceRequired", "pn_io.submodule_state.maintenance_required",
-        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_required), 0x0010,
-        NULL, HFILL }
-    },
     { &hf_pn_io_submodule_state_maintenance_demanded,
       { "MaintenanceDemanded", "pn_io.submodule_state.maintenance_demanded",
-        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_demanded), 0x0020,
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_demanded), 0x0010,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_submodule_state_maintenance_required,
+      { "MaintenanceRequired", "pn_io.submodule_state.maintenance_required",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_required), 0x0020,
         NULL, HFILL }
     },
     { &hf_pn_io_submodule_state_diag_info,
