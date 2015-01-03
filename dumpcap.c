@@ -2870,13 +2870,13 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     }
     if (ld->pdh) {
         if (capture_opts->use_pcapng) {
-            char appname[100];
-            GString             *os_info_str;
+            char    *appname;
+            GString *os_info_str;
 
             os_info_str = g_string_new("");
             get_os_version_info(os_info_str);
 
-            g_snprintf(appname, sizeof(appname), "Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
+            appname = g_strdup_printf("Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
             successful = pcapng_write_session_header_block(ld->pdh,
                                 (const char *)capture_opts->capture_comment,   /* Comment*/
                                 NULL,                        /* HW*/
@@ -2885,6 +2885,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                                 -1,                          /* section_length */
                                 &ld->bytes_written,
                                 &err);
+            g_free(appname);
 
             for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
                 interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
@@ -3363,13 +3364,13 @@ do_file_switch_or_stop(capture_options *capture_opts,
             /* File switch succeeded: reset the conditions */
             global_ld.bytes_written = 0;
             if (capture_opts->use_pcapng) {
-                char appname[100];
-                GString             *os_info_str;
+                char    *appname;
+                GString *os_info_str;
 
                 os_info_str = g_string_new("");
                 get_os_version_info(os_info_str);
 
-                g_snprintf(appname, sizeof(appname), "Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
+                appname = g_strdup_printf("Dumpcap (Wireshark) %s", get_ws_vcs_version_info());
                 successful = pcapng_write_session_header_block(global_ld.pdh,
                                 NULL,                        /* Comment */
                                 NULL,                        /* HW */
@@ -3378,6 +3379,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                                                                 -1,                          /* section_length */
                                 &(global_ld.bytes_written),
                                 &global_ld.err);
+                g_free(appname);
 
                 for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
                     interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
