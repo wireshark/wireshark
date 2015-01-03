@@ -4721,24 +4721,25 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     guint32 hours;
     guint32 minutes;
     guint32 seconds;
+    guint32 durations_seconds;
     proto_item *day_item, *sec_item;
 
     /* From 3GPP TS 29.061 17.7.7 MBMS-Session-Duration AVP */
     /* Bits: ssss ssss ssss ssss sddd dddd where s bits = seconds, d bits = days */
-    seconds = tvb_get_bits32(tvb, bit_offset, 17, ENC_BIG_ENDIAN);
+    durations_seconds = tvb_get_bits32(tvb, bit_offset, 17, ENC_BIG_ENDIAN);
     bit_offset += 17;
 
     days = tvb_get_bits32(tvb, bit_offset, 7, ENC_BIG_ENDIAN);
 
     /* The lowest value of this AVP (i.e. all 0:s) is reserved to indicate an indefinite value to denote sessions that are expected to be always-on. */
-    if ((seconds == 0) && (days == 0)) {
+    if ((durations_seconds == 0) && (days == 0)) {
         day_item = proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_days, tvb, offset, 3, ENC_BIG_ENDIAN);
         sec_item = proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_secs, tvb, offset, 3, ENC_BIG_ENDIAN);
         proto_item_append_text(item, "Indefinite (always-on)");
     } else {
-        hours = seconds / 3600;
-        minutes = (seconds % 3600) / 60;
-        seconds = (seconds % 3600) % 60;
+        hours = durations_seconds / 3600;
+        minutes = (durations_seconds % 3600) / 60;
+        seconds = (durations_seconds % 3600) % 60;
 
         day_item = proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_days, tvb, offset, 3, ENC_BIG_ENDIAN);
         sec_item = proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_secs, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -4750,7 +4751,7 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     if (days > 18) {
         expert_add_info(pinfo, day_item, &ei_gtpv2_mbms_session_duration_days);
     }
-    if (seconds > 86400) {
+    if (durations_seconds > 86400) {
         expert_add_info(pinfo, sec_item, &ei_gtpv2_mbms_session_duration_secs);
     }
 
