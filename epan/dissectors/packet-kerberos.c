@@ -879,6 +879,10 @@ clear_keytab(void) {
 	service_key_list = NULL;
 }
 
+#ifdef _WIN32
+#error "HAVE_LIBNETTLE defined"
+#endif
+
 static void
 read_keytab_file(const char *service_key_file)
 {
@@ -1028,6 +1032,16 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	g_free(decrypted_data);
 	return NULL;
 }
+
+#else
+
+#ifdef _WIN32
+#ifdef HAVE_KERBEROS
+#error "HAVE_KERBEROS defined, but none of HAVE_MIT_KERBEROS or HAVE_HEIMDAL_KERBEROS or HAVE_LIBNETTLE defined"
+#else
+#error "None of HAVE_KERBEROS, HAVE_MIT_KERBEROS or HAVE_HEIMDAL_KERBEROS or HAVE_LIBNETTLE defined"
+#endif
+#endif
 
 #endif	/* HAVE_MIT_KERBEROS / HAVE_HEIMDAL_KERBEROS / HAVE_LIBNETTLE */
 
@@ -4242,7 +4256,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1982 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1996 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5280,7 +5294,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2363 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2377 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5354,7 +5368,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2379 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2393 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
