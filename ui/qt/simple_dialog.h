@@ -22,7 +22,7 @@
 #ifndef SIMPLE_DIALOG_H
 #define SIMPLE_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <stdio.h>
 

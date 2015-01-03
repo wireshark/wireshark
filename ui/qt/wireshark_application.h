@@ -22,7 +22,7 @@
 #ifndef WIRESHARK_APPLICATION_H
 #define WIRESHARK_APPLICATION_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

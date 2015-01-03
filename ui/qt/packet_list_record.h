@@ -22,7 +22,7 @@
 #ifndef PACKET_LIST_RECORD_H
 #define PACKET_LIST_RECORD_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

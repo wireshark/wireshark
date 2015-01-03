@@ -22,7 +22,7 @@
 #ifndef PACKET_LIST_MODEL_H
 #define PACKET_LIST_MODEL_H
 
-#include "config.h"
+#include <config.h>
 
 #include <stdio.h>
 

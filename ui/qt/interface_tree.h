@@ -22,7 +22,7 @@
 #ifndef INTERFACE_TREE_H
 #define INTERFACE_TREE_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

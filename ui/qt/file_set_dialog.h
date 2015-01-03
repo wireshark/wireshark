@@ -22,7 +22,7 @@
 #ifndef FILE_SET_DIALOG_H
 #define FILE_SET_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

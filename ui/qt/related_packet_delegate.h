@@ -22,7 +22,7 @@
 #ifndef RELATED_PACKET_DELEGATE_H
 #define RELATED_PACKET_DELEGATE_H
 
-#include "config.h"
+#include <config.h>
 
 #include "epan/conversation.h"
 

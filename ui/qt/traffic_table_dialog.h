@@ -22,7 +22,7 @@
 #ifndef TRAFFIC_TABLE_DIALOG_H
 #define TRAFFIC_TABLE_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include "file.h"
 

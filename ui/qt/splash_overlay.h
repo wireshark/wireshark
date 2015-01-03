@@ -22,7 +22,7 @@
 #ifndef SPLASH_OVERLAY_H
 #define SPLASH_OVERLAY_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

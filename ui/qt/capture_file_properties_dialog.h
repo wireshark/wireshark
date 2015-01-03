@@ -24,7 +24,7 @@
 #ifndef CAPTURE_FILE_PROPERTIES_DIALOG_H
 #define CAPTURE_FILE_PROPERTIES_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

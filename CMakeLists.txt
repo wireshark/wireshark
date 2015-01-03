@@ -915,16 +915,6 @@ endif()
 set( VERSION ${PROJECT_VERSION} )
 set( configure_input "Built with CMake ${CMAKE_VERSION}" )
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
-
-if(NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-	# Try to run before anything else. Ideally we'd just use add_custom_command(... PRE_BUILD)
-	# but that only works for Visual Studio. As it is this likely has a race condition.
-	add_custom_target(clean_other_build_system_conflicts ALL
-		COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_SOURCE_DIR}/config.h
-		DEPENDS ${CMAKE_BINARY_DIR}/config.h ${CMAKE_BINARY_DIR}/version.h
-	)
-endif()
-
 set( IN_FILES
 	adns_dll.rc
 	capchild/doxygen.cfg.in

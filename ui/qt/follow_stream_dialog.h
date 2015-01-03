@@ -22,7 +22,7 @@
 #ifndef FOLLOW_STREAM_DIALOG_H
 #define FOLLOW_STREAM_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

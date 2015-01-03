@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 
@@ -28,7 +28,7 @@
 #endif
 
 #ifdef HAVE_LIBZ
-#include <zlib.h>	/* to get the libz version number */
+#include <zlib.h>       /* to get the libz version number */
 #endif
 
 #ifdef HAVE_GETOPT_H
@@ -407,7 +407,7 @@ int main(int argc, char *argv[])
     gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
-    WSADATA	       wsaData;
+    WSADATA            wsaData;
 #endif  /* _WIN32 */
 
     char                *rf_path;

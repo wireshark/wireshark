@@ -22,7 +22,7 @@
 #ifndef PREFERENCES_DIALOG_H
 #define PREFERENCES_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

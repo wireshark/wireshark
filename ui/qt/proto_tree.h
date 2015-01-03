@@ -22,7 +22,7 @@
 #ifndef PROTO_TREE_H
 #define PROTO_TREE_H
 
-#include "config.h"
+#include <config.h>
 
 #include <epan/proto.h>
 

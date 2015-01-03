@@ -23,7 +23,7 @@
 #ifndef CAPTURE_INTERFACES_DIALOG_H
 #define CAPTURE_INTERFACES_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #ifdef HAVE_LIBPCAP
 
