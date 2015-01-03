@@ -25,6 +25,7 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 
+#include "packet-ieee80211.h"
 
 void proto_register_wifi_display(void);
 
