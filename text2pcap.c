@@ -142,7 +142,6 @@
 
 #include "pcapio.h"
 #include "text2pcap.h"
-#include "version.h"
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -921,22 +920,21 @@ write_file_header (void)
     gboolean success;
 
     if (use_pcapng) {
-#ifdef GITVERSION
-        const char *appname = "text2pcap (" GITVERSION " from " GITBRANCH ")";
-#else
-        const char *appname = "text2pcap";
-#endif
-        char comment[100];
+        char *appname;
+        char *comment;
 
-        g_snprintf(comment, sizeof(comment), "Generated from input file %s.", input_filename);
+        appname = g_strdup_printf("text2pcap (Wireshark) %s", get_ws_vcs_version_info());
+        comment = g_strdup_printf("Generated from input file %s.", input_filename);
         success = pcapng_write_session_header_block(output_file,
                                                     comment,
-                                                    NULL,
-                                                    NULL,
+                                                    NULL,    /* HW */
+                                                    NULL,    /* OS */
                                                     appname,
-                                                    -1,
+                                                    -1,      /* section_length */
                                                     &bytes_written,
                                                     &err);
+        g_free(appname);
+        g_free(comment);
         if (success) {
             success = pcapng_write_interface_description_block(output_file,
                                                                NULL,
