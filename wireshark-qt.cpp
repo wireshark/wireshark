@@ -876,7 +876,8 @@ int main(int argc, char *argv[])
             arg_error = TRUE;
 #endif
             break;
-#ifdef HAVE_KERBEROS
+#if 0
+/* #ifdef HAVE_KERBEROS */
         case 'K':        /* Kerberos keytab file */
             read_keytab_file(optarg);
             break;
