@@ -107,7 +107,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     wtapng_iface_descriptions_t *idb_inf;
     wtapng_if_descr_t            int_data;
     GString                     *os_info_str;
-    char                         appname[100];
+    char                        *appname;
 
     /* Choose a random name for the temporary import buffer */
     import_file_fd = create_tempfile(&tmpname, "Wireshark_PDU_");
@@ -117,7 +117,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     os_info_str = g_string_new("");
     get_os_version_info(os_info_str);
 
-    g_snprintf(appname, sizeof(appname), "Wireshark %s", get_ws_vcs_version_info());
+    appname = g_strdup_printf("Wireshark %s", get_ws_vcs_version_info());
 
     shb_hdr = g_new(wtapng_section_t,1);
     shb_hdr->section_length = -1;
@@ -200,6 +200,8 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
 end:
     g_free(capfile_name);
+    g_free(shb_hdr);
+    g_free(appname);
 }
 
 gboolean

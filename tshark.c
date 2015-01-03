@@ -3094,7 +3094,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   guint        tap_flags;
   wtapng_section_t            *shb_hdr;
   wtapng_iface_descriptions_t *idb_inf;
-  char         appname[100];
+  char         *appname = NULL;
   struct wtap_pkthdr phdr;
   Buffer       buf;
   epan_dissect_t *edt = NULL;
@@ -3124,7 +3124,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
     /* If we don't have an application name add Tshark */
     if (shb_hdr->shb_user_appl == NULL) {
-        g_snprintf(appname, sizeof(appname), "TShark (Wireshark) %s", get_ws_vcs_version_info());
+        appname = g_strdup_printf("TShark (Wireshark) %s", get_ws_vcs_version_info());
         shb_hdr->shb_user_appl = appname;
     }
 
@@ -3337,6 +3337,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               }
               wtap_dump_close(pdh, &err);
               g_free(shb_hdr);
+              g_free(appname);
               exit(2);
             }
           }
@@ -3440,6 +3441,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
             }
             wtap_dump_close(pdh, &err);
             g_free(shb_hdr);
+            g_free(appname);
             exit(2);
           }
         }
@@ -3553,6 +3555,7 @@ out:
 
   g_free(save_file_string);
   g_free(shb_hdr);
+  g_free(appname);
 
   return err;
 }
