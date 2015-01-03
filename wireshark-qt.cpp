@@ -876,17 +876,6 @@ int main(int argc, char *argv[])
             arg_error = TRUE;
 #endif
             break;
-#ifdef _WIN32
-#ifdef HAVE_KERBEROS
-#ifndef HAVE_MIT_KERBEROS
-#ifdef HAVE_HEIMDAL_KERBEROS
-#error "HAVE_KERBEROS defined, HAVE_MIT_KERBEROS not defined, HAVE_HEIMDAL_KERBEROS defined"
-#else
-#error "HAVE_KERBEROS defined, neither HAVE_MIT_KERBEROS nor HAVE_HEIMDAL_KERBEROS defined"
-#endif /* HAVE_HEIMDAL_KERBEROS */
-#endif /* HAVE_MIT_KERBEROS */
-#endif /* HAVE_KERBEROS */
-#endif /* _WIN32 */
 #ifdef HAVE_KERBEROS
         case 'K':        /* Kerberos keytab file */
             read_keytab_file(optarg);
