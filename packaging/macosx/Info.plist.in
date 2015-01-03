@@ -47,7 +47,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
-                <!-- XXX - This dictionary needs a lot more entries -->
+		<!-- XXX - This dictionary needs a lot more entries -->
 	</array>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
