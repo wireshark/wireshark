@@ -59,10 +59,21 @@ static int hf_btatt_sign_counter = -1;
 static int hf_btatt_signature = -1;
 static int hf_btatt_attribute_data = -1;
 static int hf_btatt_handles_info = -1;
+static int hf_btatt_opcode_authentication_signature = -1;
+static int hf_btatt_opcode_command = -1;
+static int hf_btatt_opcode_method = -1;
+
+static const int *hfx_btatt_opcode[] = {
+    &hf_btatt_opcode_authentication_signature,
+    &hf_btatt_opcode_command,
+    &hf_btatt_opcode_method,
+    NULL
+};
 
 /* Initialize the subtree pointers */
 static gint ett_btatt = -1;
 static gint ett_btatt_list = -1;
+static gint ett_btatt_opcode = -1;
 
 static expert_field ei_btatt_uuid_format_unknown = EI_INIT;
 static expert_field ei_btatt_handle_too_few = EI_INIT;
@@ -172,7 +183,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             break;
     }
 
-    item = proto_tree_add_item(st, hf_btatt_opcode, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask_with_flags(st, tvb, offset, hf_btatt_opcode, ett_btatt_opcode,  hfx_btatt_opcode, ENC_NA, BMT_NO_APPEND);
     opcode = tvb_get_guint8(tvb, 0);
     offset++;
 
@@ -180,8 +191,9 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     switch (opcode) {
     case 0x01: /* Error Response */
-        proto_tree_add_item(st, hf_btatt_req_opcode_in_error, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset++;
+        proto_tree_add_bitmask_with_flags(st, tvb, offset, hf_btatt_req_opcode_in_error, ett_btatt_opcode,  hfx_btatt_opcode, ENC_NA, BMT_NO_APPEND);
+        offset += 1;
+
         proto_tree_add_item(st, hf_btatt_handle_in_error, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %s, Handle: 0x%04x",
                         val_to_str_const(tvb_get_guint8(tvb, offset+2), error_vals, "<unknown>"),
@@ -346,7 +358,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     case 0x0e: /* Multiple Read Request */
         if(tvb_length_remaining(tvb, offset) < 4) {
-            expert_add_info(pinfo, item, &ei_btatt_handle_too_few);
+            expert_add_info(pinfo, ti, &ei_btatt_handle_too_few);
             break;
         }
 
@@ -450,6 +462,21 @@ proto_register_btatt(void)
         {&hf_btatt_opcode,
             {"Opcode", "btatt.opcode",
             FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_opcode_authentication_signature,
+            {"Authentication Signature", "btatt.opcode.authentication_signature",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL}
+        },
+        {&hf_btatt_opcode_command,
+            {"Command", "btatt.opcode.command",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL}
+        },
+        {&hf_btatt_opcode_method,
+            {"Method", "btatt.opcode.method",
+            FT_UINT8, BASE_HEX, VALS(opcode_vals), 0x3F,
             NULL, HFILL}
         },
         {&hf_btatt_handles_info,
@@ -557,7 +584,8 @@ proto_register_btatt(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_btatt,
-        &ett_btatt_list
+        &ett_btatt_list,
+        &ett_btatt_opcode
     };
 
     static ei_register_info ei[] = {
