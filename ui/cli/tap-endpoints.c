@@ -46,7 +46,7 @@ endpoints_draw(void *arg)
 	hostlist_talker_t *host;
 	guint64 last_frames, max_frames;
 	guint i;
-	gboolean display_port = (!strncmp(iu->type, "TCP", 3) || !strncmp(iu->type, "UDP", 3)) ? TRUE : FALSE;
+	gboolean display_port = (!strncmp(iu->type, "TCP", 3) || !strncmp(iu->type, "UDP", 3) || !strncmp(iu->type, "SCTP", 4)) ? TRUE : FALSE;
 
 	printf("================================================================================\n");
 	printf("%s Endpoints\n", iu->type);
