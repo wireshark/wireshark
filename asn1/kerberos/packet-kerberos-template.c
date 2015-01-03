@@ -628,10 +628,6 @@ clear_keytab(void) {
 	service_key_list = NULL;
 }
 
-#ifdef _WIN32
-#error "HAVE_LIBNETTLE defined"
-#endif
-
 static void
 read_keytab_file(const char *service_key_file)
 {
@@ -781,16 +777,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 	g_free(decrypted_data);
 	return NULL;
 }
-
-#else
-
-#ifdef _WIN32
-#ifdef HAVE_KERBEROS
-#error "HAVE_KERBEROS defined, but none of HAVE_MIT_KERBEROS or HAVE_HEIMDAL_KERBEROS or HAVE_LIBNETTLE defined"
-#else
-#error "None of HAVE_KERBEROS, HAVE_MIT_KERBEROS or HAVE_HEIMDAL_KERBEROS or HAVE_LIBNETTLE defined"
-#endif
-#endif
 
 #endif	/* HAVE_MIT_KERBEROS / HAVE_HEIMDAL_KERBEROS / HAVE_LIBNETTLE */
 
