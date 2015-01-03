@@ -232,7 +232,7 @@ void SCTPGraphDialog::drawSACKGraph()
         myScatter.setBrush(Qt::blue);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
-        ui->sctpPlot->graph(graphcount)->setData(xg, yg);
+        ui->sctpPlot->graph(graphcount)->setData(xn, yn);
         typeStrings.insert(graphcount, QString(tr("NR Gap Ack")));
         graphcount++;
     }
