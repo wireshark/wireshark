@@ -1777,7 +1777,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     proto_tree_add_item(tree, hf_gtpv2_aopi,            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    if (length == 4) {
+    if (length == 5) {
         return;
     }
 
