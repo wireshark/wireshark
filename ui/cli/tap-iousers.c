@@ -45,6 +45,7 @@ iousers_draw(void *arg)
 	guint64 last_frames, max_frames;
 	struct tm * tm_time;
 	guint i;
+	gboolean display_ports = (!strncmp(iu->type, "TCP", 3) || !strncmp(iu->type, "UDP", 3) || !strncmp(iu->type, "SCTP", 4)) ? TRUE : FALSE;
 
 	printf("================================================================================\n");
 	printf("%s Conversations\n", iu->type);
@@ -53,21 +54,27 @@ iousers_draw(void *arg)
 	switch (timestamp_get_type()) {
 	case TS_ABSOLUTE:
 	case TS_UTC:
-		printf("                                               |       <-      | |       ->      | |     Total     | Absolute Time  |   Duration   |\n");
-		printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |\n");
+		printf("%s                                               |       <-      | |       ->      | |     Total     | Absolute Time  |   Duration   |\n",
+			display_ports ? "            " : "");
+		printf("%s                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |\n",
+			display_ports ? "            " : "");
 		break;
 	case TS_ABSOLUTE_WITH_YMD:
 	case TS_ABSOLUTE_WITH_YDOY:
 	case TS_UTC_WITH_YMD:
 	case TS_UTC_WITH_YDOY:
-		printf("                                               |       <-      | |       ->      | |     Total     | Absolute Date  |   Duration   |\n");
-		printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |     Start      |              |\n");
+		printf("%s                                               |       <-      | |       ->      | |     Total     | Absolute Date  |   Duration   |\n",
+			display_ports ? "            " : "");
+		printf("%s                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |     Start      |              |\n",
+			display_ports ? "            " : "");
 		break;
 	case TS_RELATIVE:
 	case TS_NOT_SET:
 	default:
-		printf("                                               |       <-      | |       ->      | |     Total     |    Relative    |   Duration   |\n");
-		printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |\n");
+		printf("%s                                               |       <-      | |       ->      | |     Total     |    Relative    |   Duration   |\n",
+			display_ports ? "            " : "");
+		printf("%s                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |      Start     |              |\n",
+			display_ports ? "            " : "");
 		break;
 	}
 
@@ -92,16 +99,37 @@ iousers_draw(void *arg)
 			tot_frames = iui->rx_frames + iui->tx_frames;
 
 			if (tot_frames == last_frames) {
-				printf("%-20s <-> %-20s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
-				       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
-				       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
-					/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
-					get_conversation_address(&iui->src_address, TRUE), get_conversation_address(&iui->dst_address, TRUE),
-					iui->tx_frames, iui->tx_bytes,
-					iui->rx_frames, iui->rx_bytes,
-					iui->tx_frames+iui->rx_frames,
-					iui->tx_bytes+iui->rx_bytes
-				);
+				if (display_ports) {
+					char *src, *dst;
+
+					/* XXX - TODO: make name / port resolution configurable (through gbl_resolv_flags?) */
+					src = wmem_strconcat(NULL, get_conversation_address(&iui->src_address, TRUE),
+						":", get_conversation_port(iui->src_port, iui->ptype, TRUE), NULL);
+					dst = wmem_strconcat(NULL, get_conversation_address(&iui->dst_address, TRUE),
+						":", get_conversation_port(iui->dst_port, iui->ptype, TRUE), NULL);
+					printf("%-26s <-> %-26s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
+					       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
+					       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
+						src, dst,
+						iui->tx_frames, iui->tx_bytes,
+						iui->rx_frames, iui->rx_bytes,
+						iui->tx_frames+iui->rx_frames,
+						iui->tx_bytes+iui->rx_bytes
+					);
+					wmem_free(NULL, src);
+					wmem_free(NULL, dst);
+				} else {
+					printf("%-20s <-> %-20s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
+					       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
+					       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
+						/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
+						get_conversation_address(&iui->src_address, TRUE), get_conversation_address(&iui->dst_address, TRUE),
+						iui->tx_frames, iui->tx_bytes,
+						iui->rx_frames, iui->rx_bytes,
+						iui->tx_frames+iui->rx_frames,
+						iui->tx_bytes+iui->rx_bytes
+					);
+				}
 
 				switch (timestamp_get_type()) {
 				case TS_ABSOLUTE:
