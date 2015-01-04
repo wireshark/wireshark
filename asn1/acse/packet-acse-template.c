@@ -75,7 +75,6 @@ static expert_field ei_acse_dissector_not_available = EI_INIT;
 static expert_field ei_acse_malformed = EI_INIT;
 static expert_field ei_acse_invalid_oid = EI_INIT;
 
-static const char *object_identifier_id;
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
 static guint32 indir_ref=0;
@@ -276,7 +275,7 @@ void proto_register_acse(void) {
 
   static ei_register_info ei[] = {
      { &ei_acse_dissector_not_available, { "acse.dissector_not_available", PI_UNDECODED, PI_WARN, "Dissector is not available", EXPFILL }},
-     { &ei_acse_malformed, { "acse._malformed", PI_MALFORMED, PI_ERROR, "Malformed packet", EXPFILL }},
+     { &ei_acse_malformed, { "acse.malformed", PI_MALFORMED, PI_ERROR, "Malformed packet", EXPFILL }},
      { &ei_acse_invalid_oid, { "acse.invalid_oid", PI_UNDECODED, PI_WARN, "Invalid OID", EXPFILL }},
   };
 

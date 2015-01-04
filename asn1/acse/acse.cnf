@@ -44,29 +44,39 @@ ACRQ-apdu/_untag/aSO-context-name	aCRQ_aSO_context_name
 PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_PARS Authentication-value-other/other-mechanism-name
-  FN_VARIANT = _str VAL_PTR = &object_identifier_id
+  FN_VARIANT = _str VAL_PTR = &actx->external.direct_reference
+
+#.FN_BODY Authentication-value-other/other-mechanism-name
+%(DEFAULT_BODY)s
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY Authentication-value-other/other-mechanism-value
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree, actx->private_data);
+  if (actx->external.direct_ref_present) {
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree, actx->private_data);
+  }
 
 #.FN_BODY PDV-list/presentation-data-values/simple-ASN1-type
 /*XXX not implemented yet */
 
 #.FN_BODY AARQ-apdu/_untag/aSO-context-name
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
-                                         hf_index, &object_identifier_id);
+                                         hf_index, &actx->external.direct_reference);
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY AARE-apdu/_untag/aSO-context-name
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
-                                         hf_index, &object_identifier_id);
+                                         hf_index, &actx->external.direct_reference);
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY ACRQ-apdu/_untag/aSO-context-name
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
-                                         hf_index, &object_identifier_id);
+                                         hf_index, &actx->external.direct_reference);
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY ACRP-apdu/_untag/aSO-context-name
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
-                                         hf_index, &object_identifier_id);
+                                         hf_index, &actx->external.direct_reference);
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY EXTERNALt/_untag/indirect-reference
   char *oid;
@@ -78,20 +88,29 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
   /* look up the indirect reference */
   if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
-    object_identifier_id = wmem_strdup(wmem_packet_scope(), oid);
+    actx->external.direct_reference = wmem_strdup(wmem_packet_scope(), oid);
+    actx->external.direct_ref_present = TRUE;
   }
 
   if(session)
 	session->pres_ctx_id = indir_ref;
 
 #.FN_PARS EXTERNALt/_untag/direct-reference
-  FN_VARIANT = _str VAL_PTR = &object_identifier_id
+  FN_VARIANT = _str VAL_PTR = &actx->external.direct_reference
+
+#.FN_BODY EXTERNALt/_untag/direct-reference
+%(DEFAULT_BODY)s
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY EXTERNALt/_untag/encoding/single-ASN1-type
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+  if (actx->external.direct_ref_present) {
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+  }
 
 #.FN_BODY EXTERNALt/_untag/encoding/octet-aligned
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+  if (actx->external.direct_ref_present) {
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+  }
 
 #.FN_BODY AARQ-apdu
   col_append_str(actx->pinfo->cinfo, COL_INFO, "A-Associate-Request");
