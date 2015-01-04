@@ -414,7 +414,14 @@
    However, we do need it for some headers that are shared between C and C++. */
 #define _U_ ${C_UNUSED}
 
-#  define INET6 1
+/* We don't bother checking for IPv6 support; the checks done in the
+   autoconf script are relics of a bygone age, where IPv6 support in
+   OSes was sometimes present by default, sometimes provided by
+   third-party add-ons, and sometimes completely absent, and where the
+   particular flavor of IPv6 support mattered to us.  We'll just wire it
+   on, unless and until that becomes an issue on platforms where people
+   use CMake. */
+#define INET6 1
 
 #if defined(_WIN32)
 
@@ -454,7 +461,6 @@
 #  define UNICODE 1
 #  define _UNICODE 1
 
-/*#  define INET6 1*/
 #  define NEED_INET_V6DEFS_H 1
 #  define NEED_STRPTIME_H 1
 #endif
