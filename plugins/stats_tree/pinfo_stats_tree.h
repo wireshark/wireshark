@@ -23,3 +23,5 @@
 */
 
 extern void register_pinfo_stat_trees(void);
+
+void plugin_register_tap_listener(void);
