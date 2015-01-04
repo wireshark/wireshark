@@ -56,9 +56,6 @@ static int ett_pkix1explicit_addressFamily = -1;
 /* Initialize the subtree pointers */
 #include "packet-pkix1explicit-ett.c"
 
-
-static const char *object_identifier_id;
-
 int
 dissect_pkix1explicit_Certificate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_x509af_Certificate(implicit_tag, tvb, offset, actx, tree, hf_index);
