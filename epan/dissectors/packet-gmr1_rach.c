@@ -107,10 +107,9 @@ static int hf_rach_gmprs_req_type_pag_resp = -1;
 static int hf_rach_gmprs_chan_needed = -1;
 
 
-static const value_string rach_prio_vals[] = {
-	{ 0, "Normal Call" },
-	{ 1, "Priority Call" },
-	{ 0, NULL }
+static const true_false_string rach_prio_tfs = {
+	"Priority Call",
+	"Normal Call"
 };
 
 static const value_string rach_est_cause_vals[] = {
@@ -251,10 +250,9 @@ dissect_gmr1_rach_kls1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 }
 
 
-static const value_string rach_gps_pos_cpi_vals[] = {
-	{ 0, "GPS position is old position" },
-	{ 1, "GPS position is current position" },
-	{ 0, NULL }
+static const true_false_string rach_gps_pos_cpi_tfs = {
+	"GPS position is current position",
+	"GPS position is old position"
 };
 
 static void
@@ -379,10 +377,19 @@ rach_gps_timestamp_fmt(gchar *s, guint32 v)
 	}
 }
 
-static const value_string rach_gci_vals[] = {
-	{ 0, "MES is not GPS capable" },
-	{ 1, "MES is GPS capable" },
-	{ 0, NULL }
+static const true_false_string rach_gci_tfs = {
+	"MES is GPS capable",
+	"MES is not GPS capable"
+};
+
+static const true_false_string rach_r_tfs = {
+	"Normal case",
+	"Retry (see specs for details)"
+};
+
+static const true_false_string rach_o_tfs = {
+	"Retry after failed optimal routing attempt",
+	"Normal case"
 };
 
 static const value_string rach_number_type_vals[] = {
@@ -933,7 +940,7 @@ proto_register_gmr1_rach(void)
 	static hf_register_info hf[] = {
 		{ &hf_rach_prio,
 		  { "Priority", "gmr1.rach.priority",
-		    FT_UINT8, BASE_DEC, VALS(rach_prio_vals), 0x01,
+		    FT_BOOLEAN, 8, TFS(&rach_prio_tfs), 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_est_cause,
@@ -979,7 +986,7 @@ proto_register_gmr1_rach(void)
 		},
 		{ &hf_rach_gps_pos_cpi,
 		  { "CPI", "gmr1.rach.gps_pos.cpi",
-		    FT_UINT8, BASE_DEC, VALS(rach_gps_pos_cpi_vals), 0x80,
+		    FT_BOOLEAN, 8, TFS(&rach_gps_pos_cpi_tfs), 0x80,
 		    "Current Position Indicator", HFILL }
 		},
 		{ &hf_rach_gps_pos_lat,
@@ -1059,17 +1066,17 @@ proto_register_gmr1_rach(void)
 		},
 		{ &hf_rach_gci,
 		  { "GCI", "gmr1.rach.gci",
-		    FT_UINT8, BASE_DEC, VALS(rach_gci_vals), 0x01,
+		    FT_BOOLEAN, 8, TFS(&rach_gci_tfs), 0x01,
 		    "GPS Capability Indicator", HFILL }
 		},
 		{ &hf_rach_r,
 		  { "R", "gmr1.rach.r",
-		    FT_UINT8, BASE_DEC, NULL, 0x02,
+		    FT_BOOLEAN, 8, TFS(&rach_r_tfs), 0x02,
 		    "See GMR 04.008 10.1.8 for full description" , HFILL }
 		},
 		{ &hf_rach_o,
 		  { "O", "gmr1.rach.o",
-		    FT_UINT8, BASE_DEC, NULL, 0x04,
+		    FT_BOOLEAN, 8, TFS(&rach_o_tfs), 0x04,
 		    "See GMR 04.008 10.1.8 for full description", HFILL }
 		},
 		{ &hf_rach_number_type,
