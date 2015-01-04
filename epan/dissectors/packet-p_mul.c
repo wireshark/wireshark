@@ -45,6 +45,7 @@
 
 #include "packet-cdt.h"
 #include "packet-ber.h"
+#include "packet-s5066sis.h"
 
 void proto_register_p_mul(void);
 void proto_reg_handoff_p_mul(void);
@@ -1624,6 +1625,7 @@ void proto_reg_handoff_p_mul (void)
   if (!p_mul_prefs_initialized) {
     p_mul_prefs_initialized = TRUE;
     data_handle = find_dissector ("data");
+    dissector_add_uint ("s5066sis.ctl.appid", S5066_CLIENT_S4406_ANNEX_E_TMI_1_P_MUL, p_mul_handle);
   } else {
     dissector_delete_uint_range ("udp.port", p_mul_port_range, p_mul_handle);
     g_free (p_mul_port_range);

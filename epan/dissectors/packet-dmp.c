@@ -49,6 +49,7 @@
 
 #include "packet-p1.h"
 #include "packet-p22.h"
+#include "packet-s5066sis.h"
 
 void proto_register_dmp(void);
 void proto_reg_handoff_dmp(void);
@@ -5060,6 +5061,7 @@ void proto_reg_handoff_dmp (void)
 
   if (!dmp_prefs_initialized) {
     dmp_prefs_initialized = TRUE;
+    dissector_add_uint ("s5066sis.ctl.appid", S5066_CLIENT_S4406_ANNEX_E_TMI_4_DMP, dmp_handle);
   } else {
     dissector_delete_uint_range ("udp.port", dmp_port_range, dmp_handle);
     g_free (dmp_port_range);

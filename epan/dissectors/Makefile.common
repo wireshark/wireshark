@@ -1632,6 +1632,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rwall.h	\
 	packet-rx.h		\
 	packet-s1ap.h	\
+	packet-s5066sis.h	\
 	packet-s7comm.h	\
 	packet-s7comm_szl_ids.h	\
 	packet-sccp.h	\
