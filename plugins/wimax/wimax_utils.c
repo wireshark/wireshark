@@ -78,7 +78,7 @@ guint get_service_type( void )
 	return scheduling_service_type;
 }
 
-void set_service_type( guint set_to )
+static void set_service_type( guint set_to )
 {
 	if( seen_a_service_type == 0 ){
 		scheduling_service_type = set_to;

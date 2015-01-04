@@ -34,6 +34,7 @@
 #include <epan/prefs.h>
 #include <epan/address.h>
 #include "wimax_tlv.h"
+#include "wimax_utils.h"
 
 void proto_register_wimax(void);
 

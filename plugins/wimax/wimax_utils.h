@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 
 extern guint get_service_type(void);
+extern gboolean is_down_link(packet_info *pinfo);
 extern void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
