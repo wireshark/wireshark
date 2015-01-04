@@ -1348,7 +1348,7 @@ tree_view_follow_link(field_info   *fi)
         cf_goto_frame(&cfile, fi->value.value.uinteger);
     }
     if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
-        url = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
+        url = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, fi->hfinfo->display, NULL);
         if(url){
             browser_open_url(url);
             g_free(url);

@@ -166,7 +166,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
             }
         case FT_STRING:
         case FT_STRINGZ: {
-                gchar* repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,NULL);
+                gchar* repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,BASE_NONE,NULL);
                 if (repr)
                     lua_pushstring(L,repr);
                 else
@@ -220,10 +220,10 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
         gchar* repr = NULL;
 
         if (fi->ws_fi->hfinfo->type == FT_PROTOCOL || fi->ws_fi->hfinfo->type == FT_PCRE) {
-            repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DFILTER,NULL);
+            repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DFILTER,BASE_NONE,NULL);
         }
         else {
-            repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,NULL);
+            repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,fi->ws_fi->hfinfo->display,NULL);
         }
 
         if (repr) {

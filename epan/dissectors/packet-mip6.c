@@ -1031,6 +1031,7 @@ static int hf_mip6_ni_cni = -1;
 
 static int hf_mip6_bad_auth = -1;
 
+static int hf_fmip6_lla = -1;
 static int hf_fmip6_lla_optcode = -1;
 
 static int hf_mip6_mnid_subtype = -1;
@@ -1979,7 +1980,7 @@ dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
     proto_tree *field_tree;
-    int         len, p;
+    int         len;
 
     field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
 
@@ -1988,13 +1989,10 @@ dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     proto_tree_add_item(field_tree, hf_fmip6_lla_optcode, tvb,
             offset + FMIP6_LLA_OPTCODE_OFF, FMIP6_LLA_OPTCODE_LEN, ENC_BIG_ENDIAN);
 
-    p = offset + FMIP6_LLA_LLA_OFF;
     len = optlen - FMIP6_LLA_LLA_OFF;
 
     if (len > 0) {
-        proto_tree_add_text(field_tree, tvb,
-                p, len, "Link-layer address: %s",
-                tvb_bytes_to_ep_str_punct(tvb, p, len, ':'));
+        proto_tree_add_item(field_tree, hf_fmip6_lla, tvb, offset + FMIP6_LLA_LLA_OFF, len, ENC_NA);
     }
 }
 
@@ -4379,6 +4377,12 @@ proto_register_mip6(void)
     { &hf_mip6_bad_auth,
       { "Authenticator", "mip6.bad.auth",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+
+    { &hf_fmip6_lla,
+      { "Link-layer address", "mip6.lla",
+        FT_BYTES, BASE_SEMICOLON, NULL, 0,
         NULL, HFILL }
     },
 

@@ -1262,8 +1262,7 @@ dissect_fcels_logout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             return;
         }
 
-        proto_tree_add_string (logo_tree, hf_fcels_nportid, tvb, offset, 3,
-                               tvb_fc_to_str (tvb, offset));
+        proto_tree_add_item (logo_tree, hf_fcels_nportid, tvb, offset, 3, ENC_NA);
         proto_tree_add_item (logo_tree, hf_fcels_npname, tvb, offset+3, 6, ENC_NA);
     }
 }
@@ -1286,8 +1285,7 @@ dissect_fcels_abtx (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
 
         proto_tree_add_item(abtx_tree, hf_fcels_recovery_qualifier_status, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_string (abtx_tree, hf_fcels_nportid, tvb, offset+5, 3,
-                               tvb_fc_to_str (tvb, offset+5));
+        proto_tree_add_item (abtx_tree, hf_fcels_nportid, tvb, offset+5, 3, ENC_NA);
         proto_tree_add_item (abtx_tree, hf_fcels_oxid, tvb, offset+8, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (abtx_tree, hf_fcels_rxid, tvb, offset+10, 2, ENC_BIG_ENDIAN);
     }
@@ -1309,8 +1307,7 @@ dissect_fcels_rsi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             return;
 
         proto_tree_add_item (rsi_tree, hf_fcels_recovqual, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_string (rsi_tree, hf_fcels_nportid, tvb, offset+1, 3,
-                               tvb_fc_to_str (tvb, offset+1));
+        proto_tree_add_item (rsi_tree, hf_fcels_nportid, tvb, offset+1, 3, ENC_NA);
         proto_tree_add_item (rsi_tree, hf_fcels_rxid, tvb, offset+4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (rsi_tree, hf_fcels_oxid, tvb, offset+6, 2, ENC_BIG_ENDIAN);
     }
@@ -1331,8 +1328,7 @@ dissect_fcels_rrq (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         if (!isreq)
             return;
 
-        proto_tree_add_string (rrq_tree, hf_fcels_nportid, tvb, offset+5, 3,
-                               tvb_fc_to_str (tvb, offset+5));
+        proto_tree_add_item (rrq_tree, hf_fcels_nportid, tvb, offset+5, 3, ENC_NA);
         proto_tree_add_item (rrq_tree, hf_fcels_oxid, tvb, offset+8, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (rrq_tree, hf_fcels_rxid, tvb, offset+10, 2, ENC_BIG_ENDIAN);
     }
@@ -1352,9 +1348,8 @@ dissect_fcels_rec (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (rec_tree, hf_fcels_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         if (isreq) {
-            proto_tree_add_string (rec_tree, hf_fcels_nportid, tvb,
-                                   offset+5, 3,
-                                   tvb_fc_to_str (tvb, offset+5));
+            proto_tree_add_item (rec_tree, hf_fcels_nportid, tvb,
+                                   offset+5, 3, ENC_NA);
             proto_tree_add_item (rec_tree, hf_fcels_oxid, tvb,
                                  offset+8, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item (rec_tree, hf_fcels_rxid, tvb,
@@ -1364,12 +1359,10 @@ dissect_fcels_rec (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                  offset+4, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item (rec_tree, hf_fcels_rxid, tvb,
                                  offset+6, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_string (rec_tree, hf_fcels_nportid, tvb,
-                                   offset+9, 3,
-                                   tvb_fc_to_str (tvb, offset+9));
-            proto_tree_add_string (rec_tree, hf_fcels_resportid, tvb,
-                                   offset+13, 3,
-                                   tvb_fc_to_str (tvb, offset+13));
+            proto_tree_add_item (rec_tree, hf_fcels_nportid, tvb,
+                                   offset+9, 3, ENC_NA);
+            proto_tree_add_item (rec_tree, hf_fcels_resportid, tvb,
+                                   offset+13, 3, ENC_NA);
             proto_tree_add_item (rec_tree, hf_fcels_rec_fc4, tvb,
                                  offset+16, 4, ENC_BIG_ENDIAN);
             proto_tree_add_bitmask (rec_tree, tvb, offset+20, hf_fcels_estat,
@@ -1406,12 +1399,10 @@ dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_item (adisc_tree, hf_fcels_opcode, tvb, offset-5, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_string (adisc_tree, hf_fcels_hardaddr, tvb, offset, 3,
-                               tvb_fc_to_str (tvb, offset));
+        proto_tree_add_item (adisc_tree, hf_fcels_hardaddr, tvb, offset, 3, ENC_NA);
         proto_tree_add_item (adisc_tree, hf_fcels_npname, tvb, offset+3, 8, ENC_NA);
         proto_tree_add_item (adisc_tree, hf_fcels_fnname, tvb, offset+11, 8, ENC_NA);
-        proto_tree_add_string (adisc_tree, hf_fcels_nportid, tvb, offset+20, 3,
-                               tvb_fc_to_str (tvb, offset+20));
+        proto_tree_add_item (adisc_tree, hf_fcels_nportid, tvb, offset+20, 3, ENC_NA);
     }
 
 }
@@ -1430,12 +1421,12 @@ dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_item (farp_tree, hf_fcels_farp_matchcodept,
                              tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_string (farp_tree, hf_fcels_nportid, tvb, offset+1,
-                               3, tvb_fc_to_str (tvb, offset+1));
+        proto_tree_add_item (farp_tree, hf_fcels_nportid, tvb, offset+1,
+                               3, ENC_NA);
         proto_tree_add_item (farp_tree, hf_fcels_farp_respaction, tvb,
                              offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_string (farp_tree, hf_fcels_resportid, tvb, offset+5,
-                               3, tvb_fc_to_str (tvb, offset+5));
+        proto_tree_add_item (farp_tree, hf_fcels_resportid, tvb, offset+5,
+                               3, ENC_NA);
         proto_tree_add_item (farp_tree, hf_fcels_npname, tvb, offset+8, 8, ENC_NA);
         proto_tree_add_item (farp_tree, hf_fcels_fnname, tvb, offset+16, 8, ENC_NA);
         proto_tree_add_item (farp_tree, hf_fcels_respname, tvb, offset+24,
@@ -1546,7 +1537,7 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                              ett_fcels_rplpb, NULL, "Port Block %u", loop);
 
                 proto_tree_add_item(pb_tree, hf_fcels_rpl_physical_port, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_string(pb_tree, hf_fcels_rpl_port_identifier, tvb, offset+5, 3, tvb_fc_to_str (tvb, offset+5));
+                proto_tree_add_item(pb_tree, hf_fcels_rpl_port_identifier, tvb, offset+5, 3, ENC_NA);
                 proto_tree_add_item(pb_tree, hf_fcels_rpl_port_name, tvb, offset+8, 8, ENC_NA);
                 offset += 16;
             }
@@ -1567,8 +1558,7 @@ dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_item (fan_tree, hf_fcels_opcode, tvb, offset-5, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_string (fan_tree, hf_fcels_fabricaddr, tvb, offset, 3,
-                               tvb_fc_to_str (tvb, offset));
+        proto_tree_add_item (fan_tree, hf_fcels_fabricaddr, tvb, offset, 3, ENC_NA);
         proto_tree_add_item (fan_tree, hf_fcels_fabricpname, tvb, offset+3,
                                8, ENC_NA);
         proto_tree_add_item (fan_tree, hf_fcels_fnname, tvb, offset+11, 8, ENC_NA);
@@ -1754,7 +1744,7 @@ dissect_fcels_prlilo_payload (tvbuff_t *tvb, packet_info *pinfo _U_,
             proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_service_parameter_response, tvb, offset+12, 4, ENC_BIG_ENDIAN);
         }
         else if (opcode == FC_ELS_TPRLO) {
-            proto_tree_add_string(svcpg_tree, hf_fcels_prlilo_3rd_party_n_port_id, tvb, offset+13, 3, tvb_fc_to_str (tvb, offset+13));
+            proto_tree_add_item(svcpg_tree, hf_fcels_prlilo_3rd_party_n_port_id, tvb, offset+13, 3, ENC_NA);
         }
     }
 }
@@ -1835,7 +1825,7 @@ dissect_fcels_srl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             return;
 
         proto_tree_add_item(srl_tree, hf_fcels_srl_flag, tvb, offset, 1, ENC_NA);
-        proto_tree_add_string(srl_tree, hf_fcels_srl_fl_port_addr, tvb, offset+1, 3, tvb_fc_to_str (tvb, offset+1));
+        proto_tree_add_item(srl_tree, hf_fcels_srl_fl_port_addr, tvb, offset+1, 3, ENC_NA);
     }
 }
 
@@ -2386,7 +2376,7 @@ proto_register_fcels (void)
           {"Open Seq Per Exchg", "fcels.logi.openseq", FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}},
         { &hf_fcels_nportid,
-          {"Originator S_ID", "fcels.portid", FT_STRING, BASE_NONE, NULL, 0x0,
+          {"Originator S_ID", "fcels.portid", FT_BYTES, BASE_DOT, NULL, 0x0,
            NULL, HFILL}},
         { &hf_fcels_oxid,
           {"OXID", "fcels.oxid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
@@ -2396,7 +2386,7 @@ proto_register_fcels (void)
           {"Recovery Qualifier", "fcels.rcovqual", FT_UINT8, BASE_HEX, NULL,
            0x0, NULL, HFILL}},
         { &hf_fcels_fabricaddr,
-          {"Fabric Address", "fcels.faddr", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
+          {"Fabric Address", "fcels.faddr", FT_BYTES, BASE_DOT, NULL, 0x0, NULL,
            HFILL}},
         { &hf_fcels_fabricpname,
           {"Fabric Port Name", "fcels.fpname", FT_FCWWN, BASE_NONE, NULL, 0x0,
@@ -2429,7 +2419,7 @@ proto_register_fcels (void)
           {"Responder Action", "fcels.respaction", FT_UINT8, BASE_HEX,
            VALS (fc_els_farp_respaction_val), 0x0, NULL, HFILL}},
         { &hf_fcels_resportid,
-          {"Responding Port ID", "fcels.resportid", FT_STRING, BASE_NONE,
+          {"Responding Port ID", "fcels.resportid", FT_BYTES, BASE_DOT,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_respname,
           {"Responding Port Name", "fcels.respname", FT_FCWWN, BASE_NONE,
@@ -2444,7 +2434,7 @@ proto_register_fcels (void)
           {"Responding IP Address", "fcels.respipaddr", FT_IPv6, BASE_NONE,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_hardaddr,
-          {"Hard Address of Originator", "fcels.hrdaddr", FT_STRING, BASE_NONE,
+          {"Hard Address of Originator", "fcels.hrdaddr", FT_BYTES, BASE_DOT,
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_rps_flag,
           {"Flag", "fcels.flag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
@@ -2726,7 +2716,7 @@ proto_register_fcels (void)
       { &hf_fcels_rpl_list_length, { "List Length", "fcels.rpl.list_length", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rpl_index_of_i_port_block, { "Index of I Port Block", "fcels.rpl.index_of_i_port_block", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rpl_physical_port, { "Physical Port #", "fcels.rpl.physical_port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_fcels_rpl_port_identifier, { "Port Identifier", "fcels.rpl.port_identifier", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_fcels_rpl_port_identifier, { "Port Identifier", "fcels.rpl.port_identifier", FT_BYTES, BASE_DOT, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rpl_port_name, { "Port Name", "fcels.rpl.port_name", FT_FCWWN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rscn_page_len, { "Page Len", "fcels.rscn.page_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rscn_payload_len, { "Payload Len", "fcels.rscn.payload_len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2745,11 +2735,11 @@ proto_register_fcels (void)
       { &hf_fcels_prlilo_3rd_party_originator_pa, { "3rd Party Originator PA", "fcels.prlilo.3rd_party_originator_pa", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_prlilo_responder_pa, { "Responder PA", "fcels.prlilo.responder_pa", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_prlilo_service_parameter_response, { "Service Parameter Response", "fcels.prlilo.service_parameter_response", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_fcels_prlilo_3rd_party_n_port_id, { "3rd Party N_Port Id", "fcels.prlilo.3rd_party_n_port_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_fcels_prlilo_3rd_party_n_port_id, { "3rd Party N_Port Id", "fcels.prlilo.3rd_party_n_port_id", FT_BYTES, BASE_DOT, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_lirr_regn_function, { "Regn. Function", "fcels.lirr.regn_function", FT_UINT8, BASE_HEX, VALS(fc_els_lirr_regfunc_val), 0x0, NULL, HFILL }},
       { &hf_fcels_lirr_regn_format, { "Regn. Format", "fcels.lirr.regn_format", FT_UINT8, BASE_HEX, VALS(fc_fc4_val), 0x0, NULL, HFILL }},
       { &hf_fcels_srl_flag, { "Flag", "fcels.srl.flag", FT_BOOLEAN, 8, TFS(&tfs_srl_flag), 0x01, NULL, HFILL }},
-      { &hf_fcels_srl_fl_port_addr, { "FL_Port Addr", "fcels.srl.fl_port_addr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_fcels_srl_fl_port_addr, { "FL_Port Addr", "fcels.srl.fl_port_addr", FT_BYTES, BASE_DOT, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rpsc_number_of_entries, { "Number of Entries", "fcels.rpsc.number_of_entries", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_fcels_rpsc_port_oper_speed, { "Port Oper Speed", "fcels.rpsc.port_oper_speed", FT_UINT16, BASE_HEX, VALS(fc_els_portspeed_val), 0x0, NULL, HFILL }},
       { &hf_fcels_common_identification_data_length, { "Common Identification Data Length", "fcels.common_identification_data_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

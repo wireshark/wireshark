@@ -98,13 +98,13 @@ guid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 }
 
 static int
-guid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+guid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
     return GUID_STR_LEN;
 }
 
 static void
-guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
     guid_to_str_buf(&fv->value.guid, buf, GUID_STR_LEN);
 }

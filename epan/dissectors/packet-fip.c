@@ -352,7 +352,6 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint       val;
     tvbuff_t   *desc_tvb;
     const char *info;
-    const char *text;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -458,10 +457,9 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case FIP_DT_MAP_OUI:
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_map, &item);
-            text = tvb_fc_to_str(desc_tvb, 5);
-            proto_tree_add_string(subtree, hf_fip_desc_map, desc_tvb,
-                    5, 3, text);
-            proto_item_append_text(item, "%s", text);
+            proto_tree_add_item(subtree, hf_fip_desc_map, desc_tvb,
+                    5, 3, ENC_NA);
+            proto_item_append_text(item, "%s", tvb_fc_to_str(desc_tvb, 5));
             break;
         case FIP_DT_NAME:
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_name, &item);
@@ -472,9 +470,8 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             subtree = fip_desc_type_len(fip_tree, desc_tvb, dtype, ett_fip_dt_fab, &item);
             proto_tree_add_item(subtree, hf_fip_desc_fab_vfid, desc_tvb,
                     2, 2, ENC_BIG_ENDIAN);
-            text = tvb_fc_to_str(desc_tvb, 5);
-            proto_tree_add_string(subtree, hf_fip_desc_fab_map, desc_tvb,
-                    5, 3, text);
+            proto_tree_add_item(subtree, hf_fip_desc_fab_map, desc_tvb,
+                    5, 3, ENC_NA);
             proto_tree_add_item(subtree, hf_fip_desc_fab_name, desc_tvb, 8, 8, ENC_NA);
             proto_item_append_text(item, "%s", tvb_fcwwn_to_str(desc_tvb, 8));
             break;
@@ -658,7 +655,7 @@ proto_register_fip(void)
 
         { &hf_fip_desc_map,
           { "FC-MAP-OUI", "fip.map",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_BYTES, BASE_DOT, NULL, 0,
             NULL, HFILL}},
 
         { &hf_fip_desc_name,
@@ -673,7 +670,7 @@ proto_register_fip(void)
 
         { &hf_fip_desc_fab_map,
           { "FC-MAP", "fip.fab.map",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_BYTES, BASE_DOT, NULL, 0,
             NULL, HFILL}},
 
         { &hf_fip_desc_fab_name,

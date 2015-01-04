@@ -1786,10 +1786,8 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
             *offset += 1;
 
-            attr_string = tvb_bytes_to_ep_str_punct(tvb, *offset, attr_uint, ':');
-            proto_item_append_text(tree, ", Octets: %s", attr_string);
-            proto_tree_add_string(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint,
-                            attr_string);
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint, ENC_NA);
+            proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_ep_str_punct(tvb, *offset, attr_uint, ':'));
 
             *offset += attr_uint;
             break;
@@ -1821,9 +1819,8 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
             *offset += 2;
 
-            attr_string = tvb_bytes_to_ep_str_punct(tvb, *offset, attr_uint, ':');
-            proto_item_append_text(tree, ", Octets: %s", attr_string);
-            proto_tree_add_string(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint, attr_string);
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint, ENC_NA);
+            proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_ep_str_punct(tvb, *offset, attr_uint, ':'));
 
             *offset += attr_uint;
             break;
@@ -2312,7 +2309,7 @@ void proto_register_zbee_zcl(void)
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_ostr,
-            { "Octet String",   "zbee_zcl.attr.ostr", FT_STRING, BASE_NONE, NULL, 0x0,
+            { "Octet String",   "zbee_zcl.attr.ostr", FT_BYTES, BASE_SEMICOLON, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_array_elements_type,

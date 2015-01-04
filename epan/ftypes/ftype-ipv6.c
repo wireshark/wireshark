@@ -77,7 +77,7 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 }
 
 static int
-ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	/*
 	 * 39 characters for "XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX".
@@ -86,7 +86,7 @@ ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 }
 
 static void
-ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	ip6_to_str_buf(&(fv->value.ipv6.addr), buf);
 }

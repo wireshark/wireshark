@@ -956,20 +956,16 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* XXX - use "fc_wka_vals[]" on this? */
     SET_ADDRESS(&addr, AT_FC, 3, fchdr.d_id.data);
-    proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
-                           address_to_str(wmem_packet_scope(), &addr));
-    hidden_item = proto_tree_add_string (fc_tree, hf_fc_id, tvb, offset+1, 3,
-                                         address_to_str(wmem_packet_scope(), &addr));
+    proto_tree_add_item(fc_tree, hf_fc_did, tvb, offset+1, 3, ENC_NA);
+    hidden_item = proto_tree_add_item (fc_tree, hf_fc_id, tvb, offset+1, 3, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr.cs_ctl);
 
     /* XXX - use "fc_wka_vals[]" on this? */
     SET_ADDRESS(&addr, AT_FC, 3, fchdr.s_id.data);
-    proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
-                           address_to_str(wmem_packet_scope(), &addr));
-    hidden_item = proto_tree_add_string (fc_tree, hf_fc_id, tvb, offset+5, 3,
-                                         address_to_str(wmem_packet_scope(), &addr));
+    proto_tree_add_item(fc_tree, hf_fc_sid, tvb, offset+5, 3, ENC_NA);
+    hidden_item = proto_tree_add_item (fc_tree, hf_fc_id, tvb, offset+5, 3, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     if (ftype == FC_FTYPE_LINKCTL) {
@@ -1415,16 +1411,16 @@ proto_register_fc(void)
           {"Frame type", "fc.ftype", FT_UINT8, BASE_HEX, VALS(fc_ftype_vals),
            0x0, "Derived Type", HFILL}},
         { &hf_fc_did,
-          { "Dest Addr", "fc.d_id", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Dest Addr", "fc.d_id", FT_BYTES, BASE_DOT, NULL, 0x0,
             "Destination Address", HFILL}},
         { &hf_fc_csctl,
           {"CS_CTL", "fc.cs_ctl", FT_UINT8, BASE_HEX, NULL, 0x0,
            NULL, HFILL}},
         { &hf_fc_sid,
-          {"Src Addr", "fc.s_id", FT_STRING, BASE_NONE, NULL, 0x0,
+          {"Src Addr", "fc.s_id", FT_BYTES, BASE_DOT, NULL, 0x0,
            "Source Address", HFILL}},
         { &hf_fc_id,
-          {"Addr", "fc.id", FT_STRING, BASE_NONE, NULL, 0x0,
+          {"Addr", "fc.id", FT_BYTES, BASE_DOT, NULL, 0x0,
            "Source or Destination Address", HFILL}},
         { &hf_fc_type,
           {"Type", "fc.type", FT_UINT8, BASE_HEX, VALS (fc_fc4_val), 0x0,

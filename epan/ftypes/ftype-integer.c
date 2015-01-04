@@ -224,13 +224,13 @@ sint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, L
 }
 
 static int
-integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 11;	/* enough for 12^31-1, in decimal */
 }
 
 static void
-integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	guint32 val;
 
@@ -244,13 +244,13 @@ integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static int
-uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 10;	/* enough for 2^32-1, in decimal */
 }
 
 static void
-uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	guint32_to_str_buf(fv->value.uinteger, buf, 11);
 }
@@ -281,13 +281,13 @@ ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 }
 
 static int
-ipxnet_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+ipxnet_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 2+8;	/* 0xXXXXXXXX */
 }
 
 static void
-ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	sprintf(buf, "0x%08x", fv->value.uinteger);
 }
@@ -470,25 +470,25 @@ sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 }
 
 static int
-integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 20;	/* enough for -2^63-1, in decimal */
 }
 
 static void
-integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	sprintf(buf, "%" G_GINT64_MODIFIER "d", fv->value.integer64);
 }
 
 static int
-uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+uinteger64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 20;	/* enough for 2^64-1, in decimal */
 }
 
 static void
-uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+uinteger64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	sprintf(buf, "%" G_GINT64_MODIFIER "u", fv->value.integer64);
 }
@@ -568,13 +568,13 @@ boolean_fvalue_new(fvalue_t *fv)
 }
 
 static int
-boolean_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+boolean_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 1;
 }
 
 static void
-boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	*buf++ = (fv->value.uinteger) ? '1' : '0';
 	*buf   = '\0';
@@ -628,13 +628,13 @@ eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 }
 
 static int
-eui64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+eui64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return 8*3-1;	/* XX:XX:XX:XX:XX:XX:XX:XX */
 }
 
 static void
-eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
   	guint8 *p_eui64 = (guint8 *)ep_alloc(8);
 

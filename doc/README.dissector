@@ -106,7 +106,7 @@ FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
                 FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EUI64,
                 FT_UINT_STRING, FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
                 FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID,
-                FT_REL_OID, FT_AX25, FT_VINES, FT_SYSTEM_ID, FT_FCWWN
+                FT_REL_OID, FT_AX25, FT_VINES, FT_SYSTEM_ID, FT_FC, FT_FCWWN
 
 FIELDDISPLAY    --For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
 
@@ -130,6 +130,12 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
                 --For FT_STRING, FT_STRINGZ and FT_UINT_STRING:
 
                   STR_ASCII or STR_UNICODE
+
+                --For FT_BYTES:
+
+                  BASE_DOT, BASE_DASH, or BASE_SEMICOLON to provide a
+                     separator between bytes.
+                  BASE_NONE has no separator between bytes
 
                 --For all other types:
 

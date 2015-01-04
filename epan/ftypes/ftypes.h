@@ -226,7 +226,7 @@ fvalue_from_string(ftenum_t ftype, const char *s, LogFunc logfunc);
  * The length DOES NOT include the terminating NUL. */
 WS_DLL_PUBLIC
 int
-fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
+fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display);
 
 /* Creates the string representation of the field value.
  * If given non-NULL 'buf', the string is written at the memory
@@ -237,9 +237,12 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype);
  * memory. if 'buf' was non-NULL, then the return value will be
  * 'buf'.
  *
+ * field_display parameter should be a BASE_ value (enum field_display_e)
+ * BASE_NONE should be used if field information isn't available.
+ *
  * Returns NULL if the string cannot be represented in the given rtype.*/
 WS_DLL_PUBLIC char *
-fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
+fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf);
 
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);

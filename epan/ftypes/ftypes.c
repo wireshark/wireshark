@@ -348,14 +348,14 @@ fvalue_length(fvalue_t *fv)
 }
 
 int
-fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype)
+fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	g_assert(fv->ftype->len_string_repr);
-	return fv->ftype->len_string_repr(fv, rtype);
+	return fv->ftype->len_string_repr(fv, rtype, field_display);
 }
 
 char *
-fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf)
 {
 	if (fv->ftype->val_to_string_repr == NULL) {
 		/* no value-to-string-representation function, so the value cannot be represented */
@@ -363,14 +363,14 @@ fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 	}
 	if (!buf) {
 		int len;
-		if ((len = fvalue_string_repr_len(fv, rtype)) >= 0) {
+		if ((len = fvalue_string_repr_len(fv, rtype, field_display)) >= 0) {
 			buf = (char *)g_malloc0(len + 1);
 		} else {
 			/* the value cannot be represented in the given representation type (rtype) */
 			return NULL;
 		}
 	}
-	fv->ftype->val_to_string_repr(fv, rtype, buf);
+	fv->ftype->val_to_string_repr(fv, rtype, field_display, buf);
 	return buf;
 }
 

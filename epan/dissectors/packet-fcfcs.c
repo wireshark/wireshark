@@ -183,8 +183,7 @@ dissect_fcfcs_gmid (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
         }
         else {
-            proto_tree_add_string (tree, hf_fcs_mgmtid, tvb, offset+1, 3,
-                                   tvb_fc_to_str (tvb, offset+1));
+            proto_tree_add_item (tree, hf_fcs_mgmtid, tvb, offset+1, 3, ENC_NA);
         }
     }
 }
@@ -970,8 +969,8 @@ proto_register_fcfcs (void)
           {"Interconnect Element Domain ID", "fcs.ie.domainid", FT_UINT8,
            BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_fcs_mgmtid,
-          {"Interconnect Element Mgmt. ID", "fcs.ie.mgmtid", FT_STRING,
-           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+          {"Interconnect Element Mgmt. ID", "fcs.ie.mgmtid", FT_BYTES,
+           BASE_DOT, NULL, 0x0, NULL, HFILL}},
         { &hf_fcs_fabricname,
           {"Interconnect Element Fabric Name", "fcs.ie.fname", FT_FCWWN,
            BASE_NONE, NULL, 0x0, NULL, HFILL}},

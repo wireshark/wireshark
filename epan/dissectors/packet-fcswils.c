@@ -1016,8 +1016,7 @@ dissect_swils_fspf_lsrechdr(tvbuff_t *tvb, proto_tree *tree, int offset)
 static void
 dissect_swils_fspf_ldrec(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    proto_tree_add_string(tree, hf_swils_ldrec_linkid, tvb, offset, 4,
-                          tvb_fc_to_str(tvb, offset+1));
+    proto_tree_add_item(tree, hf_swils_ldrec_linkid, tvb, offset+1, 3, ENC_NA);
     proto_tree_add_item(tree, hf_swils_ldrec_out_pidx, tvb, offset+5, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_swils_ldrec_nbr_pidx, tvb, offset+9, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_swils_ldrec_link_type, tvb, offset+12, 1, ENC_BIG_ENDIAN);
@@ -1138,8 +1137,8 @@ dissect_swils_rscn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rscn_tree,
                             1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rscn_tree, hf_swils_rscn_addrfmt, tvb, offset+4,
                             1, ENC_BIG_ENDIAN);
-        proto_tree_add_string(rscn_tree, hf_swils_rscn_affectedport, tvb,
-                              offset+5, 3, tvb_fc_to_str(tvb, offset+5));
+        proto_tree_add_item(rscn_tree, hf_swils_rscn_affectedport, tvb,
+                              offset+5, 3, ENC_NA);
         proto_tree_add_item(rscn_tree, hf_swils_rscn_detectfn, tvb,
                             offset+8, 4, ENC_BIG_ENDIAN);
         numrec = tvb_get_ntohl(tvb, offset+12);
@@ -1157,8 +1156,7 @@ dissect_swils_rscn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rscn_tree,
                                         ett_fcswils_rscn_dev, NULL, "Device Entry %d", i);
 
             proto_tree_add_item(dev_tree, hf_swils_rscn_portstate, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_string(dev_tree, hf_swils_rscn_portid, tvb, offset+1, 3,
-                                  tvb_fc_to_str(tvb, offset+1));
+            proto_tree_add_item(dev_tree, hf_swils_rscn_portid, tvb, offset+1, 3, ENC_NA);
             proto_tree_add_item(dev_tree, hf_swils_rscn_pwwn, tvb, offset+4, 8, ENC_NA);
             proto_tree_add_item(dev_tree, hf_swils_rscn_nwwn, tvb, offset+12, 8, ENC_NA);
             offset += 20;
@@ -2090,7 +2088,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_ldrec_linkid,
           {"Link ID", "swils.ldr.linkid",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_BYTES, BASE_DOT, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_ldrec_out_pidx,
@@ -2125,7 +2123,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_rscn_affectedport,
           {"Affected Port ID", "swils.rscn.affectedport",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_BYTES, BASE_DOT, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_rscn_detectfn,
@@ -2140,7 +2138,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_rscn_portid,
           {"Port Id", "swils.rscn.portid",
-           FT_STRING, BASE_NONE, NULL, 0x0,
+           FT_BYTES, BASE_DOT, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_rscn_pwwn,

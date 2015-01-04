@@ -1201,7 +1201,6 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
     guint8    options;
     guint16   u16len;
     guint8    frame_len;
-    guint8    *data_frame;
 
     static const int * part_opt[] = {
         &hf_zbee_zcl_part_opt_first_block,
@@ -1238,8 +1237,7 @@ static void dissect_zcl_part_trasfpartframe(tvbuff_t *tvb, proto_tree *tree, gui
     *offset += 1;
 
     /* Retrieve "PartitionedFrame" field */
-    data_frame = tvb_bytes_to_ep_str_punct(tvb, *offset, frame_len, ':');
-    proto_tree_add_string(tree, hf_zbee_zcl_part_part_frame, tvb, *offset, frame_len, data_frame);
+    proto_tree_add_item(tree, hf_zbee_zcl_part_part_frame, tvb, *offset, frame_len, ENC_NA);
     *offset += frame_len;
 
 } /*dissect_zcl_part_trasfpartframe*/
@@ -1457,7 +1455,7 @@ void proto_register_zbee_zcl_part(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_part_part_frame,
-            { "Partition Frame", "zbee_zcl_general.part.part_frame", FT_STRING, BASE_NONE, NULL,
+            { "Partition Frame", "zbee_zcl_general.part.part_frame", FT_BYTES, BASE_SEMICOLON, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_part_partitioned_cluster_id,
@@ -2155,7 +2153,6 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint8  status;
     guint8  data_size;
-    guint8  *image_data;
 
     /* Retrieve 'Status' field */
     status = tvb_get_guint8(tvb, *offset);
@@ -2184,8 +2181,7 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
         *offset += 1;
 
         /* Retrieve 'Image Data' field */
-        image_data = tvb_bytes_to_ep_str_punct(tvb, *offset, data_size, ':');
-        proto_tree_add_string(tree, hf_zbee_zcl_ota_image_data, tvb, *offset, data_size, image_data);
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_image_data, tvb, *offset, data_size, ENC_NA);
         *offset += data_size;
     }
     else if (status == ZBEE_ZCL_STAT_OTA_WAIT_FOR_DATA) {
@@ -2667,7 +2663,7 @@ void proto_register_zbee_zcl_ota(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_image_data,
-            { "Image Data", "zbee_zcl_general.ota.image.data", FT_STRING, BASE_NONE, NULL,
+            { "Image Data", "zbee_zcl_general.ota.image.data", FT_BYTES, BASE_SEMICOLON, NULL,
             0x00, NULL, HFILL } }
    };
 

@@ -56,15 +56,15 @@ bytes_fvalue_set(fvalue_t *fv, GByteArray *value)
 }
 
 static int
-bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
+bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	if (fv->value.bytes->len == 0) {
 		/* Empty array of bytes, so the representation
 		 * is an empty string. */
 		return 0;
 	} else {
-		/* 3 bytes for each byte of the byte "NN:" minus 1 byte
-		 * as there's no trailing ":". */
+		/* 3 bytes for each byte of the byte "NN<separator character>" minus 1 byte
+		 * as there's no trailing "<separator character>". */
 		return fv->value.bytes->len * 3 - 1;
 	}
 }
@@ -89,13 +89,13 @@ bytes_repr_len(fvalue_t *fv, ftrepr_t rtype _U_)
 #define OID_REPR_LEN(fv) (1 + REL_OID_REPR_LEN(fv))
 
 static int
-oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return OID_REPR_LEN(fv);
 }
 
 static void
-oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	const char* oid_str = oid_encoded2string(fv->value.bytes->data,fv->value.bytes->len);
 	/*
@@ -109,13 +109,13 @@ oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static int
-rel_oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+rel_oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
 	return REL_OID_REPR_LEN(fv);
 }
 
 static void
-rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
 	const char* oid_str = rel_oid_encoded2string(fv->value.bytes->data,fv->value.bytes->len);
 	/*
@@ -130,17 +130,18 @@ rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static void
-system_id_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+system_id_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf)
 {
-	print_system_id_buf(fv->value.bytes->data,fv->value.bytes->len, buf, bytes_repr_len(fv, rtype));
+	print_system_id_buf(fv->value.bytes->data,fv->value.bytes->len, buf, bytes_repr_len(fv, rtype, field_display));
 }
 
 static void
-bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 {
 	guint8 *c;
 	char *write_cursor;
 	unsigned int i;
+	char separator;
 
 	c = fv->value.bytes->data;
 	write_cursor = buf;
@@ -151,7 +152,21 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 			write_cursor += 2;
 		}
 		else {
-			sprintf(write_cursor, ":%02x", *c++);
+			switch(field_display)
+			{
+			case BASE_DOT:
+				separator = '.';
+				break;
+			case BASE_DASH:
+				separator = '-';
+				break;
+			case BASE_SEMICOLON:
+			case BASE_NONE:
+			default:
+				separator = ':';
+				break;
+			}
+			sprintf(write_cursor, "%c%02x", separator, *c++);
 			write_cursor += 3;
 		}
 	}
@@ -1038,7 +1053,7 @@ ftype_register_bytes(void)
 		slice,
 	};
 
-	static ftype_t fcwwc_type = {
+	static ftype_t fcwwn_type = {
 		FT_FCWWN,			/* ftype */
 		"FT_FCWWN",			/* name */
 		"Fibre Channel WWN",	/* pretty_name */
@@ -1089,5 +1104,5 @@ ftype_register_bytes(void)
 	ftype_register(FT_OID, &oid_type);
 	ftype_register(FT_REL_OID, &rel_oid_type);
 	ftype_register(FT_SYSTEM_ID, &system_id_type);
-	ftype_register(FT_FCWWN, &fcwwc_type);
+	ftype_register(FT_FCWWN, &fcwwn_type);
 }

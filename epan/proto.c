@@ -4268,9 +4268,30 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 				case FT_UINT_BYTES:
 				case FT_BYTES:
 					bytes = (guint8 *)fvalue_get(&finfo->value);
-					offset_r += protoo_strlcpy(result+offset_r,
+					switch(hfinfo->display)
+					{
+					case BASE_DOT:
+						offset_r += protoo_strlcpy(result+offset_r,
+							bytes ?  bytes_to_ep_str_punct(bytes, fvalue_length(&finfo->value), '.') : "<MISSING>",
+							size-offset_r);
+						break;
+					case BASE_DASH:
+						offset_r += protoo_strlcpy(result+offset_r,
+							bytes ?  bytes_to_ep_str_punct(bytes, fvalue_length(&finfo->value), '-') : "<MISSING>",
+							size-offset_r);
+						break;
+					case BASE_SEMICOLON:
+						offset_r += protoo_strlcpy(result+offset_r,
+							bytes ?  bytes_to_ep_str_punct(bytes, fvalue_length(&finfo->value), ':') : "<MISSING>",
+							size-offset_r);
+						break;
+					case BASE_NONE:
+					default:
+						offset_r += protoo_strlcpy(result+offset_r,
 							bytes ?  bytes_to_ep_str(bytes, fvalue_length(&finfo->value)) : "<MISSING>",
 							size-offset_r);
+						break;
+					}
 					break;
 
 				case FT_ABSOLUTE_TIME:
@@ -5610,6 +5631,30 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 						val_to_str(hfinfo->display, hf_display, "(Unknown: 0x%x)"));
 			}
 			break;
+		case FT_BYTES:
+			/*  Require bytes to have a "display type" that could
+			 *  add a character between displayed bytes.
+			 */
+			switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
+				case BASE_NONE:
+				case BASE_DOT:
+				case BASE_DASH:
+				case BASE_SEMICOLON:
+					break;
+				default:
+				g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, BASE_DOT, BASE_DASH, or BASE_SEMICOLON\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+			}
+			if (hfinfo->bitmask != 0)
+				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
+					hfinfo->name, hfinfo->abbrev,
+					ftype_name(hfinfo->type));
+			if (hfinfo->strings != NULL)
+				g_error("Field '%s' (%s) is an %s but has a strings value\n",
+					hfinfo->name, hfinfo->abbrev,
+					ftype_name(hfinfo->type));
+			break;
 
 		case FT_PROTOCOL:
 		case FT_FRAMENUM:
@@ -5958,7 +6003,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint32		   n_addr; /* network-order IPv4 address */
 	const gchar	  *name;
 	address		   addr;
-	char              *tmp;
+	char          *tmp;
 
 	if (!fi) {
 		if (label_str)
@@ -5982,8 +6027,26 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			label_fill(label_str, 0, hfinfo,
+			switch(hfinfo->display)
+			{
+			case BASE_DOT:
+				label_fill(label_str, 0, hfinfo,
+					(bytes) ? bytes_to_ep_str_punct(bytes, fvalue_length(&fi->value), '.') : "<MISSING>");
+				break;
+			case BASE_DASH:
+				label_fill(label_str, 0, hfinfo,
+					(bytes) ? bytes_to_ep_str_punct(bytes, fvalue_length(&fi->value), '-') : "<MISSING>");
+				break;
+			case BASE_SEMICOLON:
+				label_fill(label_str, 0, hfinfo,
+					(bytes) ? bytes_to_ep_str_punct(bytes, fvalue_length(&fi->value), ':') : "<MISSING>");
+				break;
+			case BASE_NONE:
+			default:
+				label_fill(label_str, 0, hfinfo,
 					(bytes) ? bytes_to_ep_str(bytes, fvalue_length(&fi->value)) : "<MISSING>");
+				break;
+			}
 			break;
 
 		/* Four types of integers to take care of:
@@ -7465,7 +7528,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			 */
 			if (filter != NULL) {
 				dfilter_len = fvalue_string_repr_len(&finfo->value,
-						FTREPR_DFILTER);
+						FTREPR_DFILTER, finfo->hfinfo->display);
 				dfilter_len += abbrev_len + 4 + 1;
 				*filter = (char *)ep_alloc0(dfilter_len);
 
@@ -7473,7 +7536,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				g_snprintf(*filter, dfilter_len, "%s == ",
 					hfinfo->abbrev);
 				fvalue_to_string_repr(&finfo->value,
-					FTREPR_DFILTER,
+					FTREPR_DFILTER, finfo->hfinfo->display,
 					&(*filter)[abbrev_len + 4]);
 			}
 			break;

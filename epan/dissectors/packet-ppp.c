@@ -5334,10 +5334,9 @@ dissect_ipv6cp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
-    guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+    guint length _U_, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    proto_tree_add_bytes_format_value(tree, hf_ipv6cp_interface_identifier, tvb, offset+2, length-2,
-        NULL, "%s", tvb_bytes_to_ep_str_punct(tvb, offset+2, 8, ':'));
+    proto_tree_add_item(tree, hf_ipv6cp_interface_identifier, tvb, offset+2, 8, ENC_NA);
 }
 
 void
@@ -6750,7 +6749,7 @@ proto_register_ipv6cp(void)
 {
     static hf_register_info hf[] = {
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_ipv6cp_interface_identifier, { "Interface Identifier", "ipv6cp.interface_identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ipv6cp_interface_identifier, { "Interface Identifier", "ipv6cp.interface_identifier", FT_BYTES, BASE_SEMICOLON, NULL, 0x0, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_ipv6cp,

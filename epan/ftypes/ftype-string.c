@@ -53,7 +53,7 @@ string_fvalue_set_string(fvalue_t *fv, const gchar *value)
 }
 
 static int
-string_repr_len(fvalue_t *fv, ftrepr_t rtype)
+string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
 	switch (rtype) {
 		case FTREPR_DISPLAY:
@@ -67,7 +67,7 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 }
 
 static void
-string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
+string_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf)
 {
 	switch (rtype) {
 		case FTREPR_DISPLAY:

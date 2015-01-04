@@ -494,7 +494,12 @@ typedef enum {
 /* String types */
 	STR_ASCII    = BASE_NONE, /**< shows non-printable ASCII characters as C-style escapes */
 	/* XXX, support for format_text_wsp() ? */
-	STR_UNICODE  = 7          /**< shows non-printable UNICODE characters as \\uXXXX (XXX for now non-printable characters display depends on UI) */
+	STR_UNICODE  = 7,         /**< shows non-printable UNICODE characters as \\uXXXX (XXX for now non-printable characters display depends on UI) */
+
+/* Byte types */
+	BASE_DOT = 8,       /**< hexadecimal bytes with a period (.) between each byte */
+	BASE_DASH  = 9,     /**< hexadecimal bytes with a dash (-) between each byte */
+	BASE_SEMICOLON  = 10, /**< hexadecimal bytes with a dash (:) between each byte */
 } field_display_e;
 
 /* Following constants have to be ORed with a field_display_e when dissector

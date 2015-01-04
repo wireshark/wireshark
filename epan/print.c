@@ -386,7 +386,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
             fputs("\" show=\"\" value=\"",  pdata->fh);
             break;
         default:
-            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
+            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, fi->hfinfo->display, NULL);
             if (dfilter_string != NULL) {
 
                 fputs("\" show=\"", pdata->fh);
@@ -1418,7 +1418,7 @@ gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
              * FT_NONE can be checked when using -T fields */
             return g_strdup("1");
         default:
-            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
+            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, fi->hfinfo->display, NULL);
             if (dfilter_string != NULL) {
                 return dfilter_string;
             } else {

@@ -1254,7 +1254,6 @@ static void
 dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint32 log_len;
-    guint8  *log_data;
 
     /* Retrieve 'UTCTime' field */
     proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_utc_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -1270,8 +1269,7 @@ dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Retrieve 'Log Payload' field */
-    log_data = tvb_bytes_to_ep_str_punct(tvb, *offset, log_len, ':');
-    proto_tree_add_string(tree, hf_zbee_zcl_appl_stats_log_payload, tvb, *offset, log_len, log_data);
+    proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_log_payload, tvb, *offset, log_len, ENC_NA);
     *offset += log_len;
 }/*dissect_zcl_appl_stats_log_rsp*/
 
@@ -1381,7 +1379,7 @@ proto_register_zbee_zcl_appl_stats(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_appl_stats_log_payload,
-            { "Log Payload", "zbee_zcl_ha.applstats.log.payload", FT_STRING, BASE_NONE, NULL,
+            { "Log Payload", "zbee_zcl_ha.applstats.log.payload", FT_BYTES, BASE_SEMICOLON, NULL,
             0x00, NULL, HFILL } },
 
     };

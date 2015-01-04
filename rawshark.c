@@ -1290,14 +1290,14 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
          * this field has an associated value,
          * e.g: ip.hdr_len
          */
-        fs_len = fvalue_string_repr_len(&finfo->value, FTREPR_DFILTER);
+        fs_len = fvalue_string_repr_len(&finfo->value, FTREPR_DFILTER, finfo->hfinfo->display);
         while (fs_buf_len < fs_len) {
             fs_buf_len *= 2;
             fs_buf = (char *)g_realloc(fs_buf, fs_buf_len + 1);
             fs_ptr = fs_buf;
         }
         fvalue_to_string_repr(&finfo->value,
-                              FTREPR_DFILTER,
+                              FTREPR_DFILTER, finfo->hfinfo->display,
                               fs_buf);
 
         /* String types are quoted. Remove them. */

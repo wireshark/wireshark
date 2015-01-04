@@ -1254,7 +1254,7 @@ proto_register_fcsbccs (void)
 
         { &hf_sbccs_logical_path,
           { "Logical Path", "fcsb3.logical_path",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_SEMICOLON, NULL, 0x0,
             NULL, HFILL}},
     };
 
