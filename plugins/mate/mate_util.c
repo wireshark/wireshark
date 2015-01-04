@@ -847,9 +847,9 @@ extern void merge_avpl(AVPL* dst, AVPL* src, gboolean copy_avps) {
 
 /**
  * merge_avpl:
- * @param name: the name of the new avpl.
- * @param avpl: the avpl from which to get the avps.
- * @param copy_avps: whether avps should be copied instead of referenced.
+ * @param name the name of the new avpl.
+ * @param avpl the avpl from which to get the avps.
+ * @param copy_avps whether avps should be copied instead of referenced.
  *
  * Creates a new avpl containing the same avps as the given avpl
  * It will either reference or copie the avps.
