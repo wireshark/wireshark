@@ -4281,7 +4281,15 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					case BASE_NONE:
 					default:
 						if (bytes) {
-							char* str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
+							char* str;
+							if (prefs.display_byte_fields_with_spaces)
+							{
+								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
+							}
+							else
+							{
+								str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
+							}
 							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
 							wmem_free(NULL, str);
 						} else {
@@ -6043,7 +6051,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 					break;
 				case BASE_NONE:
 				default:
-					str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&fi->value));
+					if (prefs.display_byte_fields_with_spaces)
+					{
+						str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
+					}
+					else
+					{
+						str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&fi->value));
+					}
 					break;
 				}
 				label_fill(label_str, 0, hfinfo, str);

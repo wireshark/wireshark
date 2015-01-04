@@ -203,6 +203,7 @@ typedef struct _e_prefs {
   guint        rtp_player_max_visible;
   guint        tap_update_interval;
   gboolean     display_hidden_proto_items;
+  gboolean     display_byte_fields_with_spaces;
   gpointer     filter_expressions;/* Actually points to &head */
   gboolean     gui_update_enabled;
   software_update_channel_e gui_update_channel;

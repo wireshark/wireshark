@@ -298,8 +298,7 @@ static gint body_type_8_over_8_dissection(guint8 data_length, proto_tree *device
     if (data_length > 4)
     {
         length = offset-start_offset;
-        proto_tree_add_bytes_format_value(devicenet_tree, hf_devicenet_data, tvb, offset, length,
-                            NULL, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, length, ' '));
+        proto_tree_add_item(devicenet_tree, hf_devicenet_data, tvb, offset, length, ENC_NA);
         offset += length;
     }
     return offset;
@@ -455,8 +454,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         message_id = can_id.id & MESSAGE_GROUP_1_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg1_vals, "Other Group 1 Message"));
 
-        proto_tree_add_bytes_format_value(devicenet_tree, hf_devicenet_data, tvb, offset, data_length,
-            NULL, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, data_length, ' '));
+        proto_tree_add_item(devicenet_tree, hf_devicenet_data, tvb, offset, data_length, ENC_NA);
     }
     /*
      * Message group 2
@@ -488,13 +486,11 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         case 0x3:
         case 0x4:
         case 0x5:
-            proto_tree_add_bytes_format_value(content_tree, hf_devicenet_data, tvb, offset, data_length,
-                NULL, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, data_length, ' '));
+            proto_tree_add_item(content_tree, hf_devicenet_data, tvb, offset, data_length, ENC_NA);
             break;
 
         case 0x6:
-            proto_tree_add_bytes_format_value(content_tree, hf_devicenet_data, tvb, offset, data_length,
-                NULL, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, data_length, ' '));
+            proto_tree_add_item(content_tree, hf_devicenet_data, tvb, offset, data_length, ENC_NA);
             break;
 
         case 0x7:
@@ -646,8 +642,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             default:
                 if(service_rr & CIP_SC_MASK)
                 {
-                    proto_tree_add_bytes_format_value(devicenet_tree, hf_devicenet_data, tvb, offset, data_length - 2,
-                        NULL, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, data_length - 2, ' '));
+                    proto_tree_add_item(devicenet_tree, hf_devicenet_data, tvb, offset, data_length - 2, ENC_NA);
                 }
                 else
                 {
@@ -672,8 +667,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                 body_type_16_over_16_dissection(data_length, content_tree, tvb, pinfo, offset);
                                 break;
                             default:
-                                proto_tree_add_bytes_format_value(content_tree, hf_devicenet_data, tvb, offset, data_length,
-                                    NULL, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, data_length, ' '));
+                                proto_tree_add_item(content_tree, hf_devicenet_data, tvb, offset, data_length, ENC_NA);
                                 break;
                             }
                         }

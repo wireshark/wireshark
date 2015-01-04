@@ -2564,6 +2564,11 @@ prefs_register_modules(void)
                                    "Display all hidden protocol items in the packet list.",
                                    &prefs.display_hidden_proto_items);
 
+    prefs_register_bool_preference(protocols_module, "display_byte_fields_with_spaces",
+                                   "Display byte fields with a space character between bytes",
+                                   "Display all byte fields with a space character between each byte in the packet list.",
+                                   &prefs.display_byte_fields_with_spaces);
+
     /* Obsolete preferences
      * These "modules" were reorganized/renamed to correspond to their GUI
      * configuration screen within the preferences dialog
@@ -3002,6 +3007,7 @@ pre_init_prefs(void)
     prefs.st_sort_defdescending = TRUE;
     prefs.st_sort_showfullname = FALSE;
     prefs.display_hidden_proto_items = FALSE;
+    prefs.display_byte_fields_with_spaces = FALSE;
 
     prefs_pre_initialized = TRUE;
 }
