@@ -44996,7 +44996,7 @@ const value_string sminmpec_values[] = {
     { 44973, "Kantar Media France SAS" },
     { 44974, "Sonos, Inc." },
     { 44975, "FlexCoders Ltd" },
-    { 44976, "Onegini" },
+    { 44976, "Onegini B.V." },
     { 44977, "Reduxio Systems" },
     { 44978, "Istria, soluciones de criptograf\0303\0255a, S. A." },
     { 44979, "Tsmart Inc." },
@@ -45058,6 +45058,18 @@ const value_string sminmpec_values[] = {
     { 45035, "TelSIP Communication" },
     { 45036, "NIC Hosting" },
     { 45037, "Hauke Bartsch" },
+    { 45038, "Enman" },
+    { 45039, "Central Bank of the Republic of Azerbaijan" },
+    { 45040, "BBH Media" },
+    { 45041, "Vieira Filho Tecnologia Eletronica" },
+    { 45042, "Officeworks Ltd" },
+    { 45043, "Argus Hosting, LLC" },
+    { 45044, "TangoRythm" },
+    { 45045, "DELNET" },
+    { 45046, "lpk" },
+    { 45047, "Crypto Software Chryselius" },
+    { 45048, "MARIA - DEBORA" },
+    { 45049, "Gudok LLC" },
     {    0, NULL}
 };
 
