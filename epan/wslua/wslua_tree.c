@@ -396,7 +396,14 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     } else {
         if (lua_gettop(L)) {
             const gchar* s = lua_tostring(L,1);
-            item = proto_tree_add_text(tree_item->tree, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,"%s",s);
+            const int hf = get_hf_wslua_text();
+            if (hf > -1) {
+                /* use proto_tree_add_none_format() instead? */
+                item = proto_tree_add_item(tree_item->tree, hf, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, ENC_NA);
+                proto_item_set_text(item, "%s", s);
+            } else {
+                luaL_error(L,"Internal error: hf_wslua_text not registered");
+            }
             lua_remove(L,1);
         } else {
             luaL_error(L,"Tree item ProtoField/Protocol handle is invalid (ProtoField/Proto not registered?)");

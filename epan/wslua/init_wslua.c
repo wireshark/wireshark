@@ -56,6 +56,10 @@ int lua_dissectors_table_ref = LUA_NOREF;
 int lua_heur_dissectors_table_ref = LUA_NOREF;
 
 static int proto_lua = -1;
+
+static int hf_wslua_fake = -1;
+static int hf_wslua_text = -1;
+
 static expert_field ei_lua_error = EI_INIT;
 
 static expert_field ei_lua_proto_checksum_comment = EI_INIT;
@@ -143,6 +147,11 @@ static int wslua_not_register_menu(lua_State* LS) {
     return 0;
 }
 
+/* a getter for wslua_tree.c's TreeItem_add_item_any() to use */
+int get_hf_wslua_text(void) {
+    return hf_wslua_text;
+}
+
 int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     int consumed_bytes = tvb_captured_length(tvb);
     lua_pinfo = pinfo;
@@ -150,7 +159,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 
     lua_tree = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
     lua_tree->tree = tree;
-    lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
+    lua_tree->item = proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA);
     lua_tree->expired = FALSE;
     PROTO_ITEM_SET_HIDDEN(lua_tree->item);
 
@@ -268,7 +277,7 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
 
     lua_tree = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
     lua_tree->tree = tree;
-    lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
+    lua_tree->item = proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA);
     lua_tree->expired = FALSE;
     PROTO_ITEM_SET_HIDDEN(lua_tree->item);
 
@@ -667,6 +676,16 @@ int wslua_init(register_cb cb, gpointer client_data) {
     expert_module_t* expert_lua;
     int file_count = 1;
 
+    static hf_register_info hf[] = {
+        { &hf_wslua_fake,
+          { "Wireshark Lua fake item",     "_ws.lua.fake",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "Fake internal item for Wireshark Lua", HFILL }},
+        { &hf_wslua_text,
+          { "Wireshark Lua text",     "_ws.lua.text",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    };
+
     static ei_register_info ei[] = {
         /* the following are created so we can continue to support the TreeItem_add_expert_info()
            function to Lua scripts. That function doesn't know what registered protocol to use,
@@ -766,6 +785,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     WSLUA_INIT(L);
 
     proto_lua = proto_register_protocol("Lua Dissection", "Lua Dissection", "_ws.lua");
+    proto_register_field_array(proto_lua, hf, array_length(hf));
     expert_lua = expert_register_protocol(proto_lua);
     expert_register_field_array(expert_lua, ei, array_length(ei));
 

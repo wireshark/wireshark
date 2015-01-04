@@ -702,6 +702,7 @@ extern void clear_outstanding_Column(void);
 extern void clear_outstanding_Columns(void);
 extern void clear_outstanding_PrivateTable(void);
 
+extern int get_hf_wslua_text(void);
 extern TreeItem* push_TreeItem(lua_State* L, TreeItem ti);
 extern void clear_outstanding_TreeItem(void);
 
