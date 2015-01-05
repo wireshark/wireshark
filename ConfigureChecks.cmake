@@ -153,9 +153,13 @@ endif()
 # be different from the system's printf since GLib can optionally use
 # its own printf implementation.)
 #
-if (CMAKE_CROSSCOMPILING)
+if (CMAKE_CROSSCOMPILING OR WIN32)
 	#
 	# Play it safe when cross-compiling.
+	#
+	# XXX - compiling and trying to run the test below appears
+	# to loop infinitely on Windows, and the locale is wrong in
+	# any case, so we don't do this on Window for now.
 	#
 	set(HAVE_GLIB_PRINTF_GROUPING FALSE)
 else()
