@@ -513,7 +513,6 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       break;
 
     case VP_ACK_TIME:
-      s = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(tree, hf_cotp_ack_time, tvb, offset, length, ENC_BIG_ENDIAN);
       offset += length;
       vp_length -= length;
@@ -539,7 +538,6 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       break;
 
     case VP_PRIORITY:
-      s = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(tree, hf_cotp_vp_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += length;
       vp_length -= length;
@@ -726,14 +724,12 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       break;
 
     case VP_VERSION_NR:
-      c1 = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_cotp_vp_version_nr, tvb, offset, 1, ENC_NA);
       offset += length;
       vp_length -= length;
       break;
 
     case VP_OPT_SEL:
-      c1 = tvb_get_guint8(tvb, offset) & 0x0F;
       switch (class_option) {
 
       case 1:
