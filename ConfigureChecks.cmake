@@ -116,28 +116,34 @@ check_symbol_exists(tzname "time.h" HAVE_TZNAME)
 
 # Check for stuff that isn't testable via the tests above
 #include(CheckCSourceCompiles)
-check_c_source_compiles(
-	"#include <linux/nl80211.h>
-	int main() {
-		enum nl80211_commands x = NL80211_CMD_SET_CHANNEL;
-	}"
-	HAVE_NL80211_CMD_SET_CHANNEL
-)
-check_c_source_compiles(
-	"#include <linux/nl80211.h>
-	int main() {
-		enum nl80211_protocol_features x = NL80211_PROTOCOL_FEATURE_SPLIT_WIPHY_DUMP;
-	}"
-	HAVE_NL80211_SPLIT_WIPHY_DUMP
-)
-check_c_source_compiles(
-	"#include <linux/nl80211.h>
-	int main() {
-		int x = NL80211_FREQUENCY_ATTR_MAX_TX_POWER;
-		x = NL80211_ATTR_SUPPORTED_IFTYPES;
-		x = NL80211_ATTR_SUPPORTED_COMMANDS;
-		x = NL80211_ATTR_WIPHY_FREQ;
-		x = NL80211_CHAN_NO_HT;
-	}"
-	HAVE_NL80211
-)
+
+#
+# *If* we found libnl, check if we can use nl80211 stuff with it.
+#
+if (NL_FOUND)
+	check_c_source_compiles(
+		"#include <linux/nl80211.h>
+		int main() {
+			int x = NL80211_FREQUENCY_ATTR_MAX_TX_POWER;
+			x = NL80211_ATTR_SUPPORTED_IFTYPES;
+			x = NL80211_ATTR_SUPPORTED_COMMANDS;
+			x = NL80211_ATTR_WIPHY_FREQ;
+			x = NL80211_CHAN_NO_HT;
+		}"
+		HAVE_NL80211
+	)
+	check_c_source_compiles(
+		"#include <linux/nl80211.h>
+		int main() {
+			enum nl80211_commands x = NL80211_CMD_SET_CHANNEL;
+		}"
+		HAVE_NL80211_CMD_SET_CHANNEL
+	)
+	check_c_source_compiles(
+		"#include <linux/nl80211.h>
+		int main() {
+			enum nl80211_protocol_features x = NL80211_PROTOCOL_FEATURE_SPLIT_WIPHY_DUMP;
+		}"
+		HAVE_NL80211_SPLIT_WIPHY_DUMP
+	)
+endif()
