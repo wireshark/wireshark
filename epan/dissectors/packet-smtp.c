@@ -1116,11 +1116,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 code);
 
             decrypt = NULL;
-            decrypt_len = 0;
             if (linelen >= 4) {
                 if ((smtp_decryption_enabled) && (code == 334)) {
                     decrypt = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, linelen - 4, ENC_ASCII);
-                    decrypt_len = linelen - 4;
                     if ((decrypt_len = ws_base64_decode_inplace(decrypt)) > 0) {
                       if (g_ascii_strncasecmp(decrypt, "NTLMSSP", 7) == 0) {
                         base64_string = tvb_get_string_enc(wmem_packet_scope(), tvb, loffset + 4, linelen - 4, ENC_ASCII);
