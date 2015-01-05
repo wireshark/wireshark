@@ -16944,14 +16944,18 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           break;
       }
 
-      TVB_SET_ADDRESS_HF(&pinfo->dl_src, AT_ETHER, tvb, src_offset, 6, hf_ieee80211_addr_sa);
+      src = tvb_get_ptr(tvb, src_offset, 6);
+      dst = tvb_get_ptr(tvb, dst_offset, 6);
+      bssid = tvb_get_ptr(tvb, bssid_offset, 6);
+
+      SET_ADDRESS_HF(&pinfo->dl_src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
       COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
-      TVB_SET_ADDRESS_HF(&pinfo->dl_dst, AT_ETHER, tvb, dst_offset, 6, hf_ieee80211_addr_da);
+      SET_ADDRESS_HF(&pinfo->dl_dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
       COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
 
       /* for tap */
 
-      TVB_SET_ADDRESS_HF(&whdr->bssid, AT_ETHER, tvb, bssid_offset, 6, hf_ieee80211_addr_bssid);
+      SET_ADDRESS_HF(&whdr->bssid, AT_ETHER, 6, bssid, hf_ieee80211_addr_bssid);
       COPY_ADDRESS_SHALLOW(&whdr->src, &pinfo->dl_src);
       COPY_ADDRESS_SHALLOW(&whdr->dst, &pinfo->dl_dst);
       whdr->type = frame_type_subtype;
