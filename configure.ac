@@ -1880,7 +1880,7 @@ CFLAGS="$ac_save_CFLAGS"
 LIBS="$ac_save_LIBS"
 if test "$ac_cv_glib_supports_printf_grouping" = yes ; then
   AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GLIB_PRINTF_GROUPING, 1, [Define if your printf() function supports thousands grouping.])
+  AC_DEFINE(HAVE_GLIB_PRINTF_GROUPING, 1, [Define if GLib's printf functions support thousands grouping.])
 else
   AC_MSG_RESULT(no)
 fi
