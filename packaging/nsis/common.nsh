@@ -3,6 +3,8 @@
 ; Name and version information
 ; ============================================================================
 
+!include "config.nsh"
+
 !if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 !define BITS 32
 !else

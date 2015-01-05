@@ -4,6 +4,7 @@ MAINTAINERCLEANFILES = \
 EXTRA_DIST = \
 	AdditionalTasksPage.ini \
 	common.nsh	\
+	config.nsh.in	\
 	Custom.nmake \
 	custom_diameter_xmls.txt \
 	custom_mibs.txt	\
