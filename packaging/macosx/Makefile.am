@@ -91,8 +91,8 @@ EXTRA_DIST = \
 	Wireshark_package.pmdoc/index.xml.in
 
 
-COPYING.txt: ../../COPYING
-	cp ../../COPYING $@
+COPYING.txt: $(top_srcdir)/COPYING
+	cp $(top_srcdir)/COPYING $@
 
 all: COPYING.txt
 
