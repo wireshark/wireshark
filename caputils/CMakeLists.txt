@@ -65,5 +65,6 @@ add_library(caputils STATIC
 	${CAPUTILS_SRC}
 )
 
-set_target_properties(caputils PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(caputils PROPERTIES FOLDER "CAPUTILS")
+set_target_properties(caputils PROPERTIES
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	FOLDER "Libs")

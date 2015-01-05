@@ -43,5 +43,6 @@ add_library(capchild STATIC
 	${CAPCHILD_SRC}
 )
 
-set_target_properties(capchild PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(capchild PROPERTIES FOLDER "CAPCHILD")
+set_target_properties(capchild PROPERTIES
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	FOLDER "Libs")

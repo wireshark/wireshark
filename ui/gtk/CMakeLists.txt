@@ -252,4 +252,6 @@ add_library(gtkui STATIC
 	${PLATFORM_UI_SRC}
 	wireshark-tap-register.c
 )
-set_target_properties(gtkui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(gtkui PROPERTIES
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	FOLDER "UI")

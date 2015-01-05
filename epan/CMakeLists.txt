@@ -1528,6 +1528,7 @@ ADD_CUSTOM_TARGET(
 		enterprise-numbers
 		${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
 )
+set_target_properties(update-sminmpec PROPERTIES FOLDER "tools")
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT	ps.c

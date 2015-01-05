@@ -36,5 +36,6 @@ endif()
 add_library(codecs STATIC
   ${CODECS_FILES}
 )
-set_target_properties(codecs PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-set_target_properties(codecs PROPERTIES FOLDER "codecs")
+set_target_properties(codecs PROPERTIES
+	LINK_FLAGS "${WS_LINK_FLAGS}"
+	FOLDER "Libs")
