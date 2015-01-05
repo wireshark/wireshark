@@ -194,7 +194,7 @@ static int hf_alljoyn_string_data = -1;         /* string characters */
 /* Protocol identifiers. */
 static int proto_AllJoyn_ardp = -1;  /* The top level. Entire AllJoyn Reliable Datagram Protocol. */
 
-#define ARDP_SYN_FIXED_HDR_LEN  22 /* Size of the fixed part for the ARDP connection packet header. */
+#define ARDP_SYN_FIXED_HDR_LEN  28 /* Size of the fixed part for the ARDP connection packet header. */
 #define ARDP_FIXED_HDR_LEN      34 /* Size of the fixed part for the ARDP header. */
 #define ARDP_DATA_LENGTH_OFFSET  6 /* Offset into the ARDP header for the data length. */
 #define ARDP_HEADER_LEN_OFFSET   1 /* Offset into the ARDP header for the actual length of the header. */
@@ -1478,6 +1478,7 @@ handle_message_body_parameters(tvbuff_t    *tvb,
  * @param pinfo contains information about the incoming packet.
  * @param offset is the offset into the packet to start processing.
  * @param message_tree is the subtree that any connect data items should be added to.
+ * @param is_ardp is true if this is an ARDP packet.
  * @returns the offset into the packet that has successfully been handled or
  *         the input offset value if it was not a message header body.
  */
@@ -1485,7 +1486,8 @@ static gint
 handle_message_header_body(tvbuff_t    *tvb,
                            packet_info *pinfo,
                            gint         offset,
-                           proto_item  *message_tree)
+                           proto_item  *message_tree,
+                           gboolean    is_ardp)
 {
     gint        remaining_packet_length;
     guint8     *signature;
@@ -1520,13 +1522,34 @@ handle_message_header_body(tvbuff_t    *tvb,
     body_length = get_uint32(tvb, offset + BODY_LENGTH_OFFSET, encoding);
     packet_length_needed = ROUND_TO_8BYTE(header_length) + body_length + MESSAGE_HEADER_LENGTH;
 
+    /* ARDP (UDP) packets can't be desegmented by Wireshark and it is normal to see them in
+     * fragments. Don't scare the user when they occur. Dissect as much as we easily can.
+     * It should be possible to desegment TCIP packets. If not then something is wrong so tell
+     * the user.
+     */
     if(packet_length_needed > remaining_packet_length) {
         if(!set_pinfo_desegment(pinfo, offset, packet_length_needed - remaining_packet_length)) {
-            col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Remaining packet length is %d. Expected %d",
-                remaining_packet_length, packet_length_needed);
-        }
+            if(!is_ardp) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Remaining packet length is %d. Expected %d",
+                    remaining_packet_length, packet_length_needed);
 
-        return offset + remaining_packet_length;
+                return offset + remaining_packet_length;
+            }
+
+            /* In this case we can't desegment but it is an ARDP message so we want to dissect
+             * at least the header. Therefore we fall through to the header parsing code if the packet size
+             * is greater than or equal to the header size. Otherwise we return and report what we know.
+             */
+            if (remaining_packet_length < header_length) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented ARDP message: Remaining packet length is %d. Expected %d",
+                    remaining_packet_length, packet_length_needed);
+                return offset + remaining_packet_length;
+            }
+        }
+        else {
+            /* In this case we can desegment */
+            return offset + remaining_packet_length;
+        }
     }
 
     /* Add a subtree/row for the header. */
@@ -1558,6 +1581,7 @@ handle_message_header_body(tvbuff_t    *tvb,
 
     proto_tree_add_item(header_tree, hf_alljoyn_mess_header_header_length, tvb, offset + HEADER_LENGTH_OFFSET, 4, encoding);
     offset += MESSAGE_HEADER_LENGTH;
+    packet_length_needed -= MESSAGE_HEADER_LENGTH;
 
     signature = handle_message_header_fields(tvb, pinfo, message_tree, encoding,
                                              offset, header_length, &signature_length);
@@ -1568,6 +1592,14 @@ handle_message_header_body(tvbuff_t    *tvb,
      * field and its (possible) padding.
      */
     offset += ROUND_TO_8BYTE(header_length);
+    packet_length_needed -= ROUND_TO_8BYTE(header_length);
+    remaining_packet_length = tvb_reported_length_remaining(tvb, offset);
+
+    if (packet_length_needed > remaining_packet_length) {
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Fragmented ARDP message or bad data: Remaining packet length is %d. Expected %d",
+            remaining_packet_length, packet_length_needed);
+        return offset + remaining_packet_length;
+    }
 
     if(body_length > 0 && signature != NULL && signature_length > 0) {
         offset = handle_message_body_parameters(tvb,
@@ -1683,7 +1715,7 @@ dissect_AllJoyn_message(tvbuff_t    *tvb,
             }
         }
 
-        offset = handle_message_header_body(tvb, pinfo, offset, message_tree);
+        offset = handle_message_header_body(tvb, pinfo, offset, message_tree, is_ardp);
     }
 
     return offset;
@@ -2103,12 +2135,14 @@ dissect_AllJoyn_name_server(tvbuff_t    *tvb,
 typedef struct _alljoyn_ardp_tree_data
 {
     gint offset;
-    gint syn;
-    gint ack;
-    gint eak;
-    gint rst;
-    gint nul;
-    gint sequence;
+    gboolean syn;
+    gboolean ack;
+    gboolean eak;
+    gboolean rst;
+    gboolean nul;
+    guint sequence;
+    guint start_sequence;
+    guint16 fragment_count;
     gint acknowledge;
     proto_tree *alljoyn_tree;
 } alljoyn_ardp_tree_data;
@@ -2133,11 +2167,11 @@ ardp_parse_header(tvbuff_t *tvb,
 
     flags = tvb_get_guint8(tvb, 0);
 
-    tree_data->syn = (flags & ARDP_SYN) != 0 ? 1 : 0;
-    tree_data->ack = (flags & ARDP_ACK) != 0 ? 1 : 0;
-    tree_data->eak = (flags & ARDP_EAK) != 0 ? 1 : 0;
-    tree_data->rst = (flags & ARDP_RST) != 0 ? 1 : 0;
-    tree_data->nul = (flags & ARDP_NUL) != 0 ? 1 : 0;
+    tree_data->syn = (flags & ARDP_SYN) != 0;
+    tree_data->ack = (flags & ARDP_ACK) != 0;
+    tree_data->eak = (flags & ARDP_EAK) != 0;
+    tree_data->rst = (flags & ARDP_RST) != 0;
+    tree_data->nul = (flags & ARDP_NUL) != 0;
 
     /* The packet length has to be ARDP_HEADER_LEN_OFFSET long or protocol_is_ardp() would
        have returned false. Length is expressed in words so multiply by 2. */
@@ -2219,9 +2253,11 @@ ardp_parse_header(tvbuff_t *tvb,
         tree_data->offset += 4;
 
         proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_fss, tvb, tree_data->offset, 4, ENC_BIG_ENDIAN);
+        tree_data->start_sequence = tvb_get_ntohl(tvb, tree_data->offset);
         tree_data->offset += 4;
 
         proto_tree_add_item(tree_data->alljoyn_tree, hf_ardp_fcnt, tvb, tree_data->offset, 2, ENC_BIG_ENDIAN);
+        tree_data->fragment_count = tvb_get_ntohs(tvb, tree_data->offset);
         tree_data->offset += 2;
 
         eaklen = header_length - ARDP_FIXED_HDR_LEN;
@@ -2297,9 +2333,10 @@ dissect_AllJoyn_ardp(tvbuff_t    *tvb,
                      proto_tree  *tree,
                      void *data   _U_)
 {
-    alljoyn_ardp_tree_data tree_data = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    alljoyn_ardp_tree_data tree_data = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     gint packet_length = tvb_reported_length(tvb);
     proto_item *alljoyn_item = NULL;
+    gboolean fragmentedPacket = FALSE;
 
     if(protocol_is_alljoyn_message(tvb, 0, FALSE)) {
         return dissect_AllJoyn_message(tvb, pinfo, tree, 0);
@@ -2330,8 +2367,12 @@ dissect_AllJoyn_ardp(tvbuff_t    *tvb,
     if(tree_data.offset < packet_length) {
         gint return_value = 0;
 
+        /* We have dissected the ARDP portion. Is the remainder an AllJoyn message? */
         if(protocol_is_alljoyn_message(tvb, tree_data.offset, TRUE)) {
             return_value = dissect_AllJoyn_message(tvb, pinfo, tree, tree_data.offset);
+        }
+        else {
+            fragmentedPacket = !tree_data.syn && (tree_data.sequence > tree_data.start_sequence);
         }
 
         /* return_value will be the offset into the successfully parsed
@@ -2368,6 +2409,12 @@ dissect_AllJoyn_ardp(tvbuff_t    *tvb,
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " SEQ: %10u", tree_data.sequence);
     col_append_fstr(pinfo->cinfo, COL_INFO, " ACK: %10u", tree_data.acknowledge);
+
+    if(fragmentedPacket) {
+        guint fragment = (tree_data.sequence - tree_data.start_sequence) + 1;
+
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Fragment %d of %d for a previous ALLJOYN message", fragment, tree_data.fragment_count);
+    }
 
     return tree_data.offset;
 }
