@@ -92,7 +92,7 @@ EXTRA_DIST = \
 
 
 COPYING.txt: ../../COPYING
-	cp $< $@
+	cp ../../COPYING $@
 
 all: COPYING.txt
 
