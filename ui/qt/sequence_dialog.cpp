@@ -357,12 +357,15 @@ void SequenceDialog::fillDiagram()
     }
 
     QFontMetrics vfm = QFontMetrics(sp->xAxis2->labelFont());
+    char* addr_str;
     node_label_w_ = 0;
     for (guint i = 0; i < sainfo_->num_nodes; i++) {
-        int label_w = vfm.width(ep_address_to_display(&(sainfo_->nodes[i])));
+        addr_str = (char*)address_to_display(NULL, &(sainfo_->nodes[i]));
+        int label_w = vfm.width(addr_str);
         if (node_label_w_ < label_w) {
             node_label_w_ = label_w;
         }
+        wmem_free(NULL, addr_str);
     }
     node_label_w_ = (node_label_w_ * 3 / 4) + one_em_;
 

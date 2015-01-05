@@ -94,18 +94,20 @@ iousers_draw(void *arg)
 
 		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
 			guint64 tot_frames;
+			char *src_addr, *dst_addr;
 
 			iui = &g_array_index(iu->hash.conv_array, conv_item_t, i);
 			tot_frames = iui->rx_frames + iui->tx_frames;
 
 			if (tot_frames == last_frames) {
+				/* XXX - TODO: make name / port resolution configurable (through gbl_resolv_flags?) */
+				src_addr = (char*)get_conversation_address(NULL, &iui->src_address, TRUE);
+				dst_addr = (char*)get_conversation_address(NULL, &iui->dst_address, TRUE);
 				if (display_ports) {
 					char *src, *dst;
-
-					/* XXX - TODO: make name / port resolution configurable (through gbl_resolv_flags?) */
-					src = wmem_strconcat(NULL, get_conversation_address(&iui->src_address, TRUE),
+					src = wmem_strconcat(NULL, src_addr,
 						":", get_conversation_port(iui->src_port, iui->ptype, TRUE), NULL);
-					dst = wmem_strconcat(NULL, get_conversation_address(&iui->dst_address, TRUE),
+					dst = wmem_strconcat(NULL, dst_addr,
 						":", get_conversation_port(iui->dst_port, iui->ptype, TRUE), NULL);
 					printf("%-26s <-> %-26s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
 					       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
@@ -122,14 +124,16 @@ iousers_draw(void *arg)
 					printf("%-20s <-> %-20s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
 					       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
 					       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
-						/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
-						get_conversation_address(&iui->src_address, TRUE), get_conversation_address(&iui->dst_address, TRUE),
+						src_addr, dst_addr,
 						iui->tx_frames, iui->tx_bytes,
 						iui->rx_frames, iui->rx_bytes,
 						iui->tx_frames+iui->rx_frames,
 						iui->tx_bytes+iui->rx_bytes
 					);
 				}
+
+				wmem_free(NULL, src_addr);
+				wmem_free(NULL, dst_addr);
 
 				switch (timestamp_get_type()) {
 				case TS_ABSOLUTE:

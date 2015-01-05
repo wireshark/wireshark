@@ -104,6 +104,7 @@ void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
     QVector<QString> key_labels, val_labels, com_labels;
     QFontMetrics com_fm(comment_axis_->tickLabelFont());
     int elide_w = com_fm.height() * max_comment_em_width_;
+    char* addr_str;
 
     for (GList *cur = g_queue_peek_nth_link(sainfo->items, 0); cur; cur = g_list_next(cur)) {
         seq_analysis_item_t *sai = (seq_analysis_item_t *) cur->data;
@@ -123,10 +124,13 @@ void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
 
     for (unsigned int i = 0; i < sainfo_->num_nodes; i++) {
         val_ticks.append(i);
-        val_labels.append(ep_address_to_display(&(sainfo_->nodes[i])));
+        addr_str = (char*)address_to_display(NULL, &(sainfo_->nodes[i]));
+        val_labels.append(addr_str);
         if (i % 2 == 0) {
             val_labels.last().append("\n");
         }
+
+        wmem_free(NULL, addr_str);
     }
     keyAxis()->setTickVector(key_ticks);
     keyAxis()->setTickVectorLabels(key_labels);

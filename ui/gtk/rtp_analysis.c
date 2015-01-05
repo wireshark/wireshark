@@ -865,24 +865,32 @@ static void
 dialog_graph_set_title(user_data_t* user_data)
 {
 	char            *title;
+	char *src_fwd_addr, *dst_fwd_addr, *src_rev_addr, *dst_rev_addr;
 
 	if (!user_data->dlg.dialog_graph.window) {
 		return;
 	}
 
+	src_fwd_addr = (char*)address_to_display(NULL, &(user_data->src_fwd));
+	dst_fwd_addr = (char*)address_to_display(NULL, &(user_data->dst_fwd));
+	src_rev_addr = (char*)address_to_display(NULL, &(user_data->src_rev));
+	dst_rev_addr = (char*)address_to_display(NULL, &(user_data->dst_rev));
 	title = g_strdup_printf("RTP Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
-			ep_address_to_display(&(user_data->src_fwd)),
+			src_fwd_addr,
 			user_data->port_src_fwd,
-			ep_address_to_display(&(user_data->dst_fwd)),
+			dst_fwd_addr,
 			user_data->port_dst_fwd,
-			ep_address_to_display(&(user_data->src_rev)),
+			src_rev_addr,
 			user_data->port_src_rev,
-			ep_address_to_display(&(user_data->dst_rev)),
+			dst_rev_addr,
 			user_data->port_dst_rev);
 
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
 	g_free(title);
-
+	wmem_free(NULL, src_fwd_addr);
+	wmem_free(NULL, dst_fwd_addr);
+	wmem_free(NULL, src_rev_addr);
+	wmem_free(NULL, dst_rev_addr);
 }
 
 
@@ -891,6 +899,7 @@ static void
 dialog_graph_reset(user_data_t* user_data)
 {
 	int i, j;
+	char *src_addr, *dst_addr;
 
 	user_data->dlg.dialog_graph.needs_redraw = TRUE;
 	for (i = 0; i < MAX_GRAPHS; i++) {
@@ -909,27 +918,33 @@ dialog_graph_reset(user_data_t* user_data)
 	for (i = 0; i < MAX_GRAPHS; i++) {
 		/* it is forward */
 		if (i < (MAX_GRAPHS/2)) {
+			src_addr = (char*)address_to_display(NULL, &(user_data->src_fwd));
+			dst_addr = (char*)address_to_display(NULL, &(user_data->dst_fwd));
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
 				   graph_descr[i],
-				   ep_address_to_display(&(user_data->src_fwd)),
+				   src_addr,
 				   user_data->port_src_fwd,
-				   ep_address_to_display(&(user_data->dst_fwd)),
+				   dst_addr,
 				   user_data->port_dst_fwd,
 				   user_data->ssrc_fwd);
 		/* it is reverse */
 		} else {
+			src_addr = (char*)address_to_display(NULL, &(user_data->src_rev));
+			dst_addr = (char*)address_to_display(NULL, &(user_data->dst_rev));
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
 				   graph_descr[i],
-				   ep_address_to_display(&(user_data->src_rev)),
+				   src_addr,
 				   user_data->port_src_rev,
-				   ep_address_to_display(&(user_data->dst_rev)),
+				   dst_addr,
 				   user_data->port_dst_rev,
 				   user_data->ssrc_rev);
 		}
+		wmem_free(NULL, src_addr);
+		wmem_free(NULL, dst_addr);
 	}
 
 	dialog_graph_set_title(user_data);
@@ -3531,9 +3546,7 @@ create_rtp_dialog(user_data_t* user_data)
 	gchar	   label_forward[150];
 	gchar	   label_forward_tree[150];
 	gchar	   label_reverse[150];
-
-	gchar	   str_src[16];
-	gchar	   str_dst[16];
+	char *src_addr, *dst_addr;
 
 	window = dlg_window_new("Wireshark: RTP Stream Analysis");  /* transient_for top_level */
 	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
@@ -3545,26 +3558,27 @@ create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	g_strlcpy(str_src, ep_address_to_display(&(user_data->src_fwd)), sizeof(str_src));
-	g_strlcpy(str_dst, ep_address_to_display(&(user_data->dst_fwd)), sizeof(str_dst));
-
+	src_addr = (char*)address_to_display(NULL, &(user_data->src_fwd));
+	dst_addr = (char*)address_to_display(NULL, &(user_data->dst_fwd));
 	g_snprintf(label_forward, sizeof(label_forward),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
-		str_src, user_data->port_src_fwd, str_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
+		src_addr, user_data->port_src_fwd, dst_addr, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 	g_snprintf(label_forward_tree, sizeof(label_forward_tree),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X \n"
 		"Note many things affects the accurasy of the analysis, use with caution",
-		str_src, user_data->port_src_fwd, str_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
+		src_addr, user_data->port_src_fwd, dst_addr, user_data->port_dst_fwd, user_data->ssrc_fwd);
+	wmem_free(NULL, src_addr);
+	wmem_free(NULL, dst_addr);
 
-
-	g_strlcpy(str_src, ep_address_to_display(&(user_data->src_rev)), sizeof(str_src));
-	g_strlcpy(str_dst, ep_address_to_display(&(user_data->dst_rev)), sizeof(str_dst));
-
+	src_addr = (char*)address_to_display(NULL, &(user_data->src_rev));
+	dst_addr = (char*)address_to_display(NULL, &(user_data->dst_rev));
 	g_snprintf(label_reverse, sizeof(label_reverse),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X \n"
 		"Note many things affects the accurasy of the analysis, use with caution",
-		str_src, user_data->port_src_rev, str_dst, user_data->port_dst_rev, user_data->ssrc_rev);
+		src_addr, user_data->port_src_rev, dst_addr, user_data->port_dst_rev, user_data->ssrc_rev);
+	wmem_free(NULL, src_addr);
+	wmem_free(NULL, dst_addr);
 
 	/* Start a notebook for flipping between sets of changes */
 	notebook = gtk_notebook_new();

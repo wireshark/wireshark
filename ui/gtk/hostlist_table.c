@@ -476,16 +476,19 @@ draw_hostlist_table_addresses(hostlist_table *hl)
 
     while (iter_valid) {
         hostlist_talker_t *host;
+        char* addr_str;
 
         gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, ENDP_INDEX_COLUMN, &idx, -1);
         host = &g_array_index(hl->hash.conv_array, hostlist_talker_t, idx);
 
+        addr_str = (char*)get_conversation_address(NULL, &host->myaddress, hl->resolve_names);
         gtk_list_store_set (store, &iter,
-                  ENDP_COLUMN_ADDR, get_conversation_address(&host->myaddress, hl->resolve_names),
+                  ENDP_COLUMN_ADDR, addr_str,
                   ENDP_COLUMN_PORT, get_conversation_port(host->port, host->ptype, hl->resolve_names),
                     -1);
 
         iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
+        wmem_free(NULL, addr_str);
     }
     gtk_tree_view_set_model(GTK_TREE_VIEW(hl->table), GTK_TREE_MODEL(store));
     g_object_unref(store);
@@ -551,6 +554,7 @@ draw_hostlist_table_data(hostlist_table *hl)
         }
         host->modified = FALSE;
         if (!iter_valid) {
+            char* addr_str;
 #ifdef HAVE_GEOIP
             char *geoip[ENDP_NUM_GEOIP_COLUMNS];
             guint j;
@@ -593,8 +597,9 @@ draw_hostlist_table_data(hostlist_table *hl)
             }
 #endif /* HAVE_GEOIP */
 
+            addr_str = (char*)get_conversation_address(NULL, &host->myaddress, hl->resolve_names);
             gtk_list_store_insert_with_values( store, &iter, G_MAXINT,
-                  ENDP_COLUMN_ADDR, get_conversation_address(&host->myaddress, hl->resolve_names),
+                  ENDP_COLUMN_ADDR, addr_str,
                   ENDP_COLUMN_PORT, get_conversation_port(host->port, host->ptype, hl->resolve_names),
                   ENDP_COLUMN_PACKETS,  host->tx_frames+host->rx_frames,
                   ENDP_COLUMN_BYTES,    host->tx_bytes+host->rx_bytes,
@@ -619,7 +624,7 @@ draw_hostlist_table_data(hostlist_table *hl)
 #endif
                   ENDP_INDEX_COLUMN,    idx,
                     -1);
-
+            wmem_free(NULL, addr_str);
 #ifdef HAVE_GEOIP
             for (j = 0; j < ENDP_NUM_GEOIP_COLUMNS; j++)
                 g_free(geoip[j]);

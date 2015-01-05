@@ -380,7 +380,7 @@ WSLUA_METHODS Address_methods[] = {
 
 WSLUA_METAMETHOD Address__tostring(lua_State* L) {
     Address addr = checkAddress(L,1);
-    const gchar *str = wmem_address_to_display(NULL, addr);
+    const gchar *str = address_to_display(NULL, addr);
 
     lua_pushstring(L, str);
 

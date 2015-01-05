@@ -557,6 +557,7 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
     rtp_stream_info_t* selected_stream;
     gboolean result = TRUE;
     gchar label_text[80];
+    char *src_addr, *dst_addr;
 
     /* Logic
      * nb_selected  path_currently_selected forward reverse  action           result
@@ -627,11 +628,13 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
         }
     }
 
+    src_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->src_addr));
+    dst_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->dest_addr));
     if (selected_stream_fwd) {
         g_snprintf(label_text, sizeof(label_text), "Forward: %s:%u -> %s:%u, SSRC=0x%X",
-            ep_address_to_display(&(selected_stream_fwd->src_addr)),
+            src_addr,
             selected_stream_fwd->src_port,
-            ep_address_to_display(&(selected_stream_fwd->dest_addr)),
+            dst_addr,
             selected_stream_fwd->dest_port,
             selected_stream_fwd->ssrc
         );
@@ -642,12 +645,16 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
         else
             gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
     }
+    wmem_free(NULL, src_addr);
+    wmem_free(NULL, dst_addr);
 
+    src_addr = (char*)address_to_display(NULL, &(selected_stream_rev->src_addr));
+    dst_addr = (char*)address_to_display(NULL, &(selected_stream_rev->dest_addr));
     if (selected_stream_rev) {
         g_snprintf(label_text, sizeof(label_text), "Reverse: %s:%u -> %s:%u, SSRC=0x%X",
-            ep_address_to_display(&(selected_stream_rev->src_addr)),
+            src_addr,
             selected_stream_rev->src_port,
-            ep_address_to_display(&(selected_stream_rev->dest_addr)),
+            dst_addr,
             selected_stream_rev->dest_port,
             selected_stream_rev->ssrc
         );
@@ -655,6 +662,8 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
     } else {
         gtk_label_set_text(GTK_LABEL(label_rev), REV_LABEL_TEXT);
     }
+    wmem_free(NULL, src_addr);
+    wmem_free(NULL, dst_addr);
 
     return result;
 }
@@ -673,6 +682,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
     double perc;
     int i;
     char *savelocale;
+    char *src_addr, *dst_addr;
 
     /* save the current locale */
     savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
@@ -680,9 +690,12 @@ add_to_list_store(rtp_stream_info_t* strinfo)
         in g_snprintf("%f") functions */
     setlocale(LC_NUMERIC, "C");
 
-    data[0] = g_strdup(ep_address_to_display(&(strinfo->src_addr)));
+    src_addr = (char*)address_to_display(NULL, &(strinfo->src_addr));
+    dst_addr = (char*)address_to_display(NULL, &(strinfo->dest_addr));
+
+    data[0] = g_strdup(src_addr);
     data[1] = NULL;
-    data[2] = g_strdup(ep_address_to_display(&(strinfo->dest_addr)));
+    data[2] = g_strdup(dst_addr);
     data[3] = NULL;
     data[4] = g_strdup_printf("0x%X", strinfo->ssrc);
     if (strinfo->payload_type_name != NULL) {
@@ -736,6 +749,8 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 
     for (i = 0; i < NUM_COLS-1; i++)
         g_free(data[i]);
+	wmem_free(NULL, src_addr);
+	wmem_free(NULL, dst_addr);
 
     /* Update the top label with the number of detected streams */
     g_snprintf(label_text, sizeof(label_text),

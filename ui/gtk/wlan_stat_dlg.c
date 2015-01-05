@@ -31,6 +31,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-ieee80211.h>
+#include <epan/conversation_table.h>
 #include <epan/strutil.h>
 
 #include "ui/recent.h"
@@ -359,8 +360,14 @@ static gboolean
 is_broadcast(const address *addr)
 {
 #if 0
+    gboolean cmp_addr;
+    char* addr_str = address_to_display(NULL, addr);
+
+    cmp_addr = (strcmp(addr_str, "Broadcast") == 0);
+    wmem_free(NULL, addr_str);
+
     /* doesn't work if MAC resolution is disable */
-    return strcmp(ep_address_to_display(addr), "Broadcast") == 0;
+    return cmp_addr;
 #endif
     return ADDRESSES_EQUAL(&broadcast, addr);
 }
@@ -478,7 +485,7 @@ static void
 wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 {
     wlan_details_ep_t *tmp;
-    char               addr[256], comment[256], percent[256];
+    char              *addr_str, comment[256], percent[256];
     gboolean           broadcast_flag, basestation_flag;
     float              f;
     GtkListStore      *store;
@@ -500,11 +507,8 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
             f = 0.0f;
         }
 
-        if (hs->resolve_names) {
-            g_strlcpy (addr, ep_address_to_display(&tmp->addr), sizeof(addr));
-        } else {
-            g_strlcpy (addr, ep_address_to_str(&tmp->addr), sizeof(addr));
-        }
+        addr_str = (char*)get_conversation_address(NULL, &tmp->addr, hs->resolve_names);
+
         if (basestation_flag) {
             g_strlcpy (comment, "Base station", sizeof(comment));
         } else {
@@ -517,7 +521,7 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
             tmp->iter_valid = TRUE;
         }
         gtk_list_store_set(store, &tmp->iter,
-                           ADDRESS_COLUMN, addr,
+                           ADDRESS_COLUMN, addr_str,
                            PERCENT_2_COLUMN, percent,
                            DATA_SENT_COLUMN, tmp->data_sent,
                            DATA_REC_COLUMN, tmp->data_received,
@@ -532,6 +536,7 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
                            -1);
 
         hs->num_details++;
+        wmem_free(NULL, addr_str);
     }
 }
 
@@ -541,7 +546,7 @@ wlanstat_draw(void *phs)
     wlanstat_t       *hs   = (wlanstat_t *)phs;
     wlan_ep_t        *list = hs->ep_list, *tmp;
     guint32           data = 0, other = 0;
-    char              bssid[256], channel[256], ssid[256], percent[256];
+    char             *bssid, channel[256], ssid[256], percent[256];
     float             f;
     GtkListStore     *store;
     GtkTreeSelection *sel;
@@ -567,11 +572,7 @@ wlanstat_draw(void *phs)
           tmp->type[0x05] - tmp->type[0x0B] - tmp->type[0x0C];
         f = (float)(((float)tmp->number_of_packets * 100.0) / hs->number_of_packets);
 
-        if (hs->resolve_names) {
-            g_strlcpy (bssid, ep_address_to_display(&tmp->bssid), sizeof(bssid));
-        } else {
-            g_strlcpy (bssid, ep_address_to_str(&tmp->bssid), sizeof(bssid));
-        }
+        bssid = (char*)get_conversation_address(NULL, &tmp->bssid, hs->resolve_names);
         if (tmp->stats.channel) {
             g_snprintf (channel, sizeof(channel), "%u", tmp->stats.channel);
         } else {
@@ -608,6 +609,7 @@ wlanstat_draw(void *phs)
                     -1);
 
         hs->num_entries++;
+        wmem_free(NULL, bssid);
     }
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->table));

@@ -505,6 +505,7 @@ void LBMUIMFlowDialog::fillDiagram(void)
 {
     QCustomPlot * sp = m_ui->sequencePlot;
     seq_analysis_info_t new_sa;
+    char* addr_str;
 
     new_sa = m_sequence_analysis;
     new_sa.items = g_queue_new();
@@ -520,11 +521,13 @@ void LBMUIMFlowDialog::fillDiagram(void)
     m_node_label_width = 0;
     for (guint i = 0; i < m_sequence_analysis.num_nodes; i++)
     {
-        int label_w = vfm.width(ep_address_to_display(&(m_sequence_analysis.nodes[i])));
+        addr_str = (char*)address_to_display(NULL, &(m_sequence_analysis.nodes[i]));
+        int label_w = vfm.width(addr_str);
         if (m_node_label_width < label_w)
         {
             m_node_label_width = label_w;
         }
+        wmem_free(NULL, addr_str);
     }
     m_node_label_width = (m_node_label_width * 3 / 4) + m_one_em;
 

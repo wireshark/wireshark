@@ -618,9 +618,13 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	}
 	/* Draw the node names on top and the division lines */
 	for (i=0; i<user_data->graph_info->num_nodes; i++) {
+		char* addr_str;
+
 		/* print the node identifiers */
 		/* XXX we assign 5 pixels per character in the node identity */
-		g_strlcpy(label_string, ep_address_to_display(&(user_data->graph_info->nodes[i])), NODE_WIDTH/5);
+		addr_str = (char*)address_to_display(NULL, &(user_data->graph_info->nodes[i]));
+		g_strlcpy(label_string, addr_str, NODE_WIDTH/5);
+		wmem_free(NULL, addr_str);
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #if GTK_CHECK_VERSION(2,22,0)

@@ -823,21 +823,31 @@ static void
 dialog_graph_set_title(user_data_t* user_data)
 {
 	char	*title;
+	char *src_fwd_addr, *dst_fwd_addr, *src_rev_addr, *dst_rev_addr;
 
 	if (!user_data->dlg.dialog_graph.window) {
 		return;
 	}
+
+	src_fwd_addr = (char*)address_to_display(NULL, &(user_data->ip_src_fwd));
+	dst_fwd_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_fwd));
+	src_rev_addr = (char*)address_to_display(NULL, &(user_data->ip_src_rev));
+	dst_rev_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_rev));
 	title = g_strdup_printf("IAX2 Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
-				ep_address_to_display(&(user_data->ip_src_fwd)),
+				src_fwd_addr,
 				user_data->port_src_fwd,
-				ep_address_to_display(&(user_data->ip_dst_fwd)),
+				dst_fwd_addr,
 				user_data->port_dst_fwd,
-				ep_address_to_display(&(user_data->ip_src_rev)),
+				src_rev_addr,
 				user_data->port_src_rev,
-				ep_address_to_display(&(user_data->ip_dst_rev)),
+				dst_rev_addr,
 				user_data->port_dst_rev);
 
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
+	wmem_free(NULL, src_fwd_addr);
+	wmem_free(NULL, dst_fwd_addr);
+	wmem_free(NULL, src_rev_addr);
+	wmem_free(NULL, dst_rev_addr);
 	g_free(title);
 
 }
@@ -848,6 +858,7 @@ static void
 dialog_graph_reset(user_data_t* user_data)
 {
 	int i, j;
+	char *src_addr, *dst_addr;
 
 	user_data->dlg.dialog_graph.needs_redraw = TRUE;
 	for (i = 0; i < MAX_GRAPHS; i++) {
@@ -866,25 +877,31 @@ dialog_graph_reset(user_data_t* user_data)
 	for (i = 0; i < MAX_GRAPHS; i++) {
 		/* it is forward */
 		if (i < 2) {
+			src_addr = (char*)address_to_display(NULL, &(user_data->ip_src_fwd));
+			dst_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_fwd));
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof (user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u",
 			graph_descr[i],
-			ep_address_to_display(&(user_data->ip_src_fwd)),
+			src_addr,
 			user_data->port_src_fwd,
-			ep_address_to_display(&(user_data->ip_dst_fwd)),
+			dst_addr,
 			user_data->port_dst_fwd);
 		/* it is reverse */
 		} else {
+			src_addr = (char*)address_to_display(NULL, &(user_data->ip_src_rev));
+			dst_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_rev));
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u",
 			graph_descr[i],
-			ep_address_to_display(&(user_data->ip_src_rev)),
+			src_addr,
 			user_data->port_src_rev,
-			ep_address_to_display(&(user_data->ip_dst_rev)),
+			dst_addr,
 			user_data->port_dst_rev);
 		}
+		wmem_free(NULL, src_addr);
+		wmem_free(NULL, dst_addr);
 	}
 
 	dialog_graph_set_title(user_data);
@@ -3319,8 +3336,7 @@ create_iax2_dialog(user_data_t* user_data)
 	gchar label_forward[150];
 	gchar label_reverse[150];
 
-	gchar str_ip_src[16];
-	gchar str_ip_dst[16];
+	char *src_addr, *dst_addr;
 
 	window = dlg_window_new("Wireshark: IAX2 Stream Analysis");  /* transient_for top_level */
 	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
@@ -3332,20 +3348,21 @@ create_iax2_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	g_strlcpy(str_ip_src, ep_address_to_display(&(user_data->ip_src_fwd)), 16);
-	g_strlcpy(str_ip_dst, ep_address_to_display(&(user_data->ip_dst_fwd)), 16);
-
+	src_addr = (char*)address_to_display(NULL, &(user_data->ip_src_fwd));
+	dst_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_fwd));
 	g_snprintf(label_forward, sizeof(label_forward),
 		"Analysing stream from  %s port %u  to  %s port %u  ",
-		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd);
+		src_addr, user_data->port_src_fwd, dst_addr, user_data->port_dst_fwd);
+	wmem_free(NULL, src_addr);
+	wmem_free(NULL, dst_addr);
 
-
-	g_strlcpy(str_ip_src, ep_address_to_display(&(user_data->ip_src_rev)), 16);
-	g_strlcpy(str_ip_dst, ep_address_to_display(&(user_data->ip_dst_rev)), 16);
-
+	src_addr = (char*)address_to_display(NULL, &(user_data->ip_src_rev));
+	dst_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_rev));
 	g_snprintf(label_reverse, sizeof(label_reverse),
 		"Analysing stream from  %s port %u  to  %s port %u  ",
-		str_ip_src, user_data->port_src_rev, str_ip_dst, user_data->port_dst_rev);
+		src_addr, user_data->port_src_rev, dst_addr, user_data->port_dst_rev);
+	wmem_free(NULL, src_addr);
+	wmem_free(NULL, dst_addr);
 
 	/* Start a notebook for flipping between sets of changes */
 	notebook = gtk_notebook_new();

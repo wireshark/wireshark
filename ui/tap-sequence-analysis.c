@@ -465,6 +465,7 @@ sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo
     char        src_port[8], dst_port[8];
     gchar      *time_str;
     GList      *list;
+    char       *addr_str;
 
     FILE  *of;
 
@@ -522,8 +523,9 @@ sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo
     /* Write the node names on top */
     for (i=0; i<display_nodes; i+=2) {
         /* print the node identifiers */
-        g_string_printf(label_string, "| %s",
-            ep_address_to_display(&(sainfo->nodes[i+first_node])));
+        addr_str = (char*)address_to_display(NULL, &(sainfo->nodes[i+first_node]));
+        g_string_printf(label_string, "| %s", addr_str);
+        wmem_free(NULL, addr_str);
         enlarge_string(label_string, NODE_CHARS_WIDTH*2, ' ');
         fprintf(of, "%s", label_string->str);
         g_string_printf(label_string, "| ");
@@ -539,8 +541,9 @@ sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo
     /* Write the node names on top */
     for (i=1; i<display_nodes; i+=2) {
         /* print the node identifiers */
-        g_string_printf(label_string, "| %s",
-            ep_address_to_display(&(sainfo->nodes[i+first_node])));
+        addr_str = (char*)address_to_display(NULL, &(sainfo->nodes[i+first_node]));
+        g_string_printf(label_string, "| %s", addr_str);
+        wmem_free(NULL, addr_str);
         if (label_string->len < NODE_CHARS_WIDTH)
         {
             enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');

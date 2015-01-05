@@ -65,6 +65,7 @@ rtp_streams_stat_draw(void *arg _U_)
     gint32 lost;
     double perc;
     char *savelocale;
+    char *src_addr, *dst_addr;
 
     printf("========================= RTP Streams ========================\n");
     printf("%15s %5s %15s %5s %10s %16s %5s %12s %15s %15s %15s %s\n","Src IP addr", "Port",  "Dest IP addr", "Port", "SSRC", "Payload", "Pkts", "Lost", "Max Delta(ms)", "Max Jitter(ms)", "Mean Jitter(ms)", "Problems?");
@@ -105,10 +106,12 @@ rtp_streams_stat_draw(void *arg _U_)
             perc = 0;
         }
 
+        src_addr = (char*)address_to_display(NULL, &(strinfo->src_addr));
+        dst_addr = (char*)address_to_display(NULL, &(strinfo->dest_addr));
         printf("%15s %5u %15s %5u 0x%08X %16s %5u %5d (%.1f%%) %15.2f %15.2f %15.2f %s\n",
-            ep_address_to_display(&(strinfo->src_addr)),
+            src_addr,
             strinfo->src_port,
-            ep_address_to_display(&(strinfo->dest_addr)),
+            dst_addr,
             strinfo->dest_port,
             strinfo->ssrc,
             payload_type,
@@ -122,7 +125,8 @@ rtp_streams_stat_draw(void *arg _U_)
         list = g_list_next(list);
 
         g_free(payload_type);
-
+        wmem_free(NULL, src_addr);
+        wmem_free(NULL, dst_addr);
     }
 
     printf("==============================================================\n");

@@ -74,17 +74,20 @@ public:
         if (!call_info) {
             return;
         }
+        char* addr_str;
 
         // XXX Pull digit count from capture file precision
         setText(start_time_col_, QString::number(nstime_to_sec(&(call_info->start_rel_ts)), 'f', 6));
         setText(stop_time_col_, QString::number(nstime_to_sec(&(call_info->stop_rel_ts)), 'f', 6));
-        setText(initial_speaker_col_, ep_address_to_display(&(call_info->initial_speaker)));
+        addr_str = (char*)address_to_display(NULL, &(call_info->initial_speaker));
+        setText(initial_speaker_col_, addr_str);
         setText(from_col_, call_info->from_identity);
         setText(to_col_, call_info->to_identity);
         setText(protocol_col_, ((call_info->protocol == VOIP_COMMON) && call_info->protocol_name) ?
                         call_info->protocol_name : voip_protocol_name[call_info->protocol]);
         setText(packets_col_, QString::number(call_info->npackets));
         setText(state_col_, voip_call_state_name[call_info->call_state]);
+        wmem_free(NULL, addr_str);
 
         /* Add comments based on the protocol */
         QString call_comments;

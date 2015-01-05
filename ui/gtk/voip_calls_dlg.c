@@ -437,14 +437,16 @@ add_to_list_store(voip_calls_info_t* strinfo)
 	isup_calls_info_t *isupinfo;
 	h323_calls_info_t *h323info;
 	gboolean flag = FALSE;
+	char* addr_str = (char*)address_to_display(NULL, &(strinfo->initial_speaker));
 
-	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", ep_address_to_display(&(strinfo->initial_speaker)));
+	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", addr_str);
 	g_snprintf(field[CALL_COL_FROM],            50, "%s", strinfo->from_identity);
 	g_snprintf(field[CALL_COL_TO],              50, "%s", strinfo->to_identity);
 	g_snprintf(field[CALL_COL_PROTOCOL],        15, "%s",
 		   ((strinfo->protocol==VOIP_COMMON)&&strinfo->protocol_name)?
 		       strinfo->protocol_name:voip_protocol_name[strinfo->protocol]);
 	g_snprintf(field[CALL_COL_STATE],           15, "%s", voip_call_state_name[strinfo->call_state]);
+	wmem_free(NULL, addr_str);
 
 	/* Add comments based on the protocol */
 	switch (strinfo->protocol) {

@@ -257,7 +257,7 @@ WS_DLL_PUBLIC void dissector_hostlist_init(const char *opt_arg, void* userdata);
  * @param resolve_names Enable name resolution.
  * @return An ep_allocated string representing the address.
  */
-WS_DLL_PUBLIC const char *get_conversation_address(address *addr, gboolean resolve_names);
+WS_DLL_PUBLIC const char *get_conversation_address(wmem_allocator_t *allocator, address *addr, gboolean resolve_names);
 
 /** Get the string representation of a port.
  *

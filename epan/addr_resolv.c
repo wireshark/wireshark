@@ -2882,28 +2882,7 @@ ep_sctp_port_to_display(guint port)
 } /* ep_sctp_port_to_display */
 
 const gchar *
-ep_address_to_display(const address *addr)
-{
-    const gchar *result;
-
-    result = solve_address_to_name(addr);
-
-    if (result != NULL)
-        return result;
-
-    /* if it gets here, either it is of type AT_NONE, */
-    /* or it should be solvable in address_to_str -unless addr->type is wrongly defined */
-
-    if (addr->type == AT_NONE){
-        return "NONE";
-    }
-
-    /* We need an ephemeral allocated string */
-    return ep_address_to_str(addr);
-}
-
-const gchar *
-wmem_address_to_display(wmem_allocator_t *allocator, const address *addr)
+address_to_display(wmem_allocator_t *allocator, const address *addr)
 {
     gchar *str = NULL;
     const gchar *result = solve_address_to_name(addr);
@@ -2954,15 +2933,6 @@ get_addr_name(const address *addr)
         return NULL;
     }
 }
-
-void
-get_addr_name_buf(const address *addr, gchar *buf, gsize size)
-{
-    const gchar *result = ep_address_to_display(addr);
-
-    g_strlcpy(buf, result, size);
-} /* get_addr_name_buf */
-
 
 gchar *
 get_ether_name(const guint8 *addr)

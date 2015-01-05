@@ -223,13 +223,17 @@ create_endpoint_geoip_map(const GArray *endp_array, gchar **err_str) {
          */
 
         if (lon && lat) {
+            char* addr_str;
+
             g_string_printf(tpl_entry, "%s", map_endpoint_opener);
 
             /* Longitude + latitude */
             g_string_append_printf(tpl_entry, "    'type': 'Feature', 'geometry': { 'type': 'Point', 'coordinates': [%s, %s] },\n", lon, lat);
 
             /* Address */
-            g_string_append_printf(tpl_entry, "    'properties': { 'title': '%s', ", ep_address_to_display(&endp_item->myaddress));
+            addr_str = (char*)address_to_display(NULL, &endp_item->myaddress);
+            g_string_append_printf(tpl_entry, "    'properties': { 'title': '%s', ", addr_str);
+            wmem_free(NULL, addr_str);
 
             /* Description */
 

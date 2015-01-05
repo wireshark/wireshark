@@ -1593,16 +1593,21 @@ draw_ct_table_addresses(conversations_table *ct)
 
     while (iter_valid) {
         conv_item_t *conv_item;
+		char *src_addr, *dst_addr;
 
         gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, CONV_INDEX_COLUMN, &idx, -1);
         conv_item = &g_array_index(ct->hash.conv_array, conv_item_t, idx);
+        src_addr = (char*)get_conversation_address(NULL, &conv_item->src_address, ct->resolve_names);
+        dst_addr = (char*)get_conversation_address(NULL, &conv_item->dst_address, ct->resolve_names);
         gtk_list_store_set (store, &iter,
-                  CONV_COLUMN_SRC_ADDR, get_conversation_address(&conv_item->src_address, ct->resolve_names),
+                  CONV_COLUMN_SRC_ADDR, src_addr,
                   CONV_COLUMN_SRC_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
-                  CONV_COLUMN_DST_ADDR, get_conversation_address(&conv_item->dst_address, ct->resolve_names),
+                  CONV_COLUMN_DST_ADDR, dst_addr,
                   CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->dst_port, conv_item->ptype, ct->resolve_names),
                     -1);
         iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
+        wmem_free(NULL, src_addr);
+        wmem_free(NULL, dst_addr);
     }
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(ct->table), GTK_TREE_MODEL(store));
@@ -1707,11 +1712,15 @@ draw_ct_table_data(conversations_table *ct)
                     CONV_COLUMN_BPS_BA,   rx_ptr,
                     -1);
         } else {
+            char *src_addr, *dst_addr;
+
+            src_addr = (char*)get_conversation_address(NULL, &conv_item->src_address, ct->resolve_names);
+            dst_addr = (char*)get_conversation_address(NULL, &conv_item->dst_address, ct->resolve_names);
             /* New row. All entries, including fixed ones */
             gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
-                    CONV_COLUMN_SRC_ADDR, get_conversation_address(&conv_item->src_address, ct->resolve_names),
+                    CONV_COLUMN_SRC_ADDR, src_addr,
                     CONV_COLUMN_SRC_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
-                    CONV_COLUMN_DST_ADDR, get_conversation_address(&conv_item->dst_address, ct->resolve_names),
+                    CONV_COLUMN_DST_ADDR, dst_addr,
                     CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->dst_port, conv_item->ptype, ct->resolve_names),
                     CONV_COLUMN_PACKETS,  conv_item->tx_frames+conv_item->rx_frames,
                     CONV_COLUMN_BYTES,    conv_item->tx_bytes+conv_item->rx_bytes,
@@ -1725,6 +1734,8 @@ draw_ct_table_data(conversations_table *ct)
                     CONV_COLUMN_BPS_BA,   rx_ptr,
                     CONV_INDEX_COLUMN,    idx,
                     -1);
+            wmem_free(NULL, src_addr);
+            wmem_free(NULL, dst_addr);
         }
 
         iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);

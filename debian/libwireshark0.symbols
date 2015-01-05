@@ -42,6 +42,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  add_ipv6_name@Base 1.9.1
  add_itu_tcap_subdissector@Base 1.9.1
  add_new_data_source@Base 1.9.1
+ address_to_display@Base 1.99.2
  address_to_str@Base 1.12.0~rc1
  address_to_str_buf@Base 1.9.1
  addresses_ports_reassembly_table_functions@Base 1.9.1
@@ -441,7 +442,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_v_short@Base 1.9.1
  emem_init@Base 1.9.1
  empty_tcp_stream@Base 1.9.1
- ep_address_to_display@Base 1.12.0~rc1
  ep_address_to_str@Base 1.9.1
  ep_alloc0@Base 1.9.1
  ep_alloc@Base 1.9.1
@@ -1455,7 +1455,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  value_is_in_range@Base 1.9.1
  value_string_ext_free@Base 1.12.0~rc1
  value_string_ext_new@Base 1.9.1
- wmem_address_to_display@Base 1.99.2
  wmem_alloc0@Base 1.9.1
  wmem_alloc@Base 1.9.1
  wmem_allocator_new@Base 1.9.1

@@ -127,10 +127,12 @@ void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	size_t sourcelen;
 	guint16 port;          /* UDP port */
 	guint16 padding;       /* 2 padding bytes */
+	char* addr_str = (char*)address_to_display(NULL, &(strinfo->dest_addr));
 
 	fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
-		ep_address_to_display(&(strinfo->dest_addr)),
+		addr_str,
 		strinfo->dest_port);
+	wmem_free(NULL, addr_str);
 
     start_sec = g_htonl(strinfo->start_fd->abs_ts.secs);
     start_usec = g_htonl(strinfo->start_fd->abs_ts.nsecs / 1000000);

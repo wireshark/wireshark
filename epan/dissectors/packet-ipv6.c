@@ -1925,7 +1925,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  offset + (int)offsetof(struct ip6_hdr, ip6_src),
                                  16, (guint8 *)&ipv6->ip6_src);
         PROTO_ITEM_SET_HIDDEN(ti);
-        name = ep_address_to_display(&pinfo->src);
+        name = address_to_display(wmem_packet_scope(), &pinfo->src);
         if (ipv6_summary_in_tree) {
             SET_ADDRESS(&addr, AT_IPv6, 16, ipv6->ip6_src.bytes);
             proto_item_append_text(ipv6_item, ", Src: %s (%s)", name, address_to_str(wmem_packet_scope(), &addr));
@@ -2013,7 +2013,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  offset + (int)offsetof(struct ip6_hdr, ip6_dst),
                                  16, (guint8 *)&ipv6->ip6_dst);
         PROTO_ITEM_SET_HIDDEN(ti);
-        name = ep_address_to_display(&pinfo->dst);
+        name = address_to_display(wmem_packet_scope(), &pinfo->dst);
         if (ipv6_summary_in_tree) {
             SET_ADDRESS(&addr, AT_IPv6, 16, ipv6->ip6_dst.bytes);
             proto_item_append_text(ipv6_item, ", Dst: %s (%s)", name, address_to_str(wmem_packet_scope(), &addr));

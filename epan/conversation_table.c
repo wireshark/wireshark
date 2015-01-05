@@ -332,12 +332,12 @@ void reset_hostlist_table_data(conv_hash_t *ch)
     ch->hashtable=NULL;
 }
 
-const char *get_conversation_address(address *addr, gboolean resolve_names)
+const char *get_conversation_address(wmem_allocator_t *allocator, address *addr, gboolean resolve_names)
 {
     if (resolve_names) {
-        return ep_address_to_display(addr);
+        return address_to_display(allocator, addr);
     } else {
-        return ep_address_to_str(addr);
+        return address_to_str(allocator, addr);
     }
 }
 

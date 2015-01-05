@@ -132,7 +132,8 @@ extern gchar *ep_dccp_port_to_display(guint port);
  */
 WS_DLL_PUBLIC gchar *ep_sctp_port_to_display(guint port);
 
-/* ep_address_to_display takes as input an "address", as defined in address.h */
+/*
+ * address_to_display takes as input an "address", as defined in address.h */
 /* it returns a string that contains: */
 /*  - if the address is of a type that can be translated into a name, and the user */
 /*    has activated name resolution, the translated name */
@@ -140,23 +141,8 @@ WS_DLL_PUBLIC gchar *ep_sctp_port_to_display(guint port);
 /*  - if the address is of any other type, the result of ep_address_to_str on the argument, */
 /*    which should be a string representation for the answer -e.g. "10.10.10.10" for IPv4 */
 /*    address 10.10.10.10 */
-
 WS_DLL_PUBLIC
-const gchar *ep_address_to_display(const address *addr);
-
-/*
- * wmem_address_to_display is the same as ep_address_to_display above, but
- * using the wmem scope for memory management.
- */
-WS_DLL_PUBLIC
-const gchar *wmem_address_to_display(wmem_allocator_t *allocator, const address *addr);
-
-/* get_addr_name_buf solves an address in the same way as ep_address_to_display above */
-/* The difference is that get_addr_name_buf takes as input a buffer, into which it puts */
-/* the result which is always NUL ('\0') terminated. The buffer should be large enough to */
-/* contain size characters including the terminator */
-
-void get_addr_name_buf(const address *addr, gchar *buf, gsize size);
+const gchar *address_to_display(wmem_allocator_t *allocator, const address *addr);
 
 const gchar *get_addr_name(const address *addr);
 

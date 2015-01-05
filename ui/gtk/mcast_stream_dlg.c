@@ -169,18 +169,24 @@ static void
 mcaststream_on_select_row(GtkTreeSelection *selection, gpointer data _U_)
 {
     gchar label_text[80];
+    char *src_addr, *dst_addr;
 
     if (gtk_tree_selection_get_selected(selection, NULL, &list_iter))
     {
+        src_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->src_addr));
+        dst_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->dest_addr));
         gtk_tree_model_get(GTK_TREE_MODEL(list_store), &list_iter, MC_COL_DATA, &selected_stream_fwd, -1);
         g_snprintf(label_text, sizeof(label_text), "Selected: %s:%u -> %s:%u",
-            ep_address_to_display(&(selected_stream_fwd->src_addr)),
+            src_addr,
             selected_stream_fwd->src_port,
-            ep_address_to_display(&(selected_stream_fwd->dest_addr)),
+            dst_addr,
             selected_stream_fwd->dest_port
         );
         gtk_label_set_text(GTK_LABEL(label_fwd), label_text);
         gtk_widget_set_sensitive(bt_filter, TRUE);
+
+        wmem_free(NULL, src_addr);
+        wmem_free(NULL, dst_addr);
     } else {
         selected_stream_fwd = NULL;
         gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
@@ -362,15 +368,19 @@ add_to_list_store(mcast_stream_info_t* strinfo)
     gchar *data[NUM_COLS];
     int    i;
     char  *savelocale;
+    char *src_addr, *dst_addr;
 
     /* save the current locale */
     savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
     /* switch to "C" locale to avoid problems with localized decimal separators
         in g_snprintf("%f") functions */
     setlocale(LC_NUMERIC, "C");
-    data[0] = g_strdup(ep_address_to_display(&(strinfo->src_addr)));
+
+    src_addr = (char*)address_to_display(NULL, &(strinfo->src_addr));
+    dst_addr = (char*)address_to_display(NULL, &(strinfo->dest_addr));
+    data[0] = g_strdup(src_addr);
     data[1] = g_strdup_printf("%u", strinfo->src_port);
-    data[2] = g_strdup(ep_address_to_display(&(strinfo->dest_addr)));
+    data[2] = g_strdup(dst_addr);
     data[3] = g_strdup_printf("%u", strinfo->dest_port);
     data[4] = g_strdup_printf("%u", strinfo->npackets);
     data[5] = g_strdup_printf("%u /s", strinfo->apackets);
@@ -407,6 +417,8 @@ add_to_list_store(mcast_stream_info_t* strinfo)
 
     for (i = 0; i < NUM_COLS-1; i++)
         g_free(data[i]);
+    wmem_free(NULL, src_addr);
+    wmem_free(NULL, dst_addr);
 
     /* Update the top label with the number of detected streams */
     g_snprintf(label_text, sizeof(label_text),
