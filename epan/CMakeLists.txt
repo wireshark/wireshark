@@ -580,6 +580,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-diffserv-mpls-common.c
 	dissectors/packet-dis.c
 	dissectors/packet-distcc.c
+	dissectors/packet-dji-uav.c
 	dissectors/packet-dlm3.c
 	dissectors/packet-dlsw.c
 	dissectors/packet-dmp.c
