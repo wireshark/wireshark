@@ -127,9 +127,9 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 			djiuav_trans->request_time=pinfo->fd->abs_ts;
 			djiuav_trans->seqno=seq_no;
 			djiuav_trans->command=packet_type;
-			wmem_map_insert(djiuav_info->pdus, GUINT_TO_POINTER(seq_no), (void *)djiuav_trans);
+			wmem_map_insert(djiuav_info->pdus, GUINT_TO_POINTER((guint)seq_no), (void *)djiuav_trans);
 		} else {
-			djiuav_trans=(djiuav_transaction_t *)wmem_map_lookup(djiuav_info->pdus, GUINT_TO_POINTER(seq_no));
+			djiuav_trans=(djiuav_transaction_t *)wmem_map_lookup(djiuav_info->pdus, GUINT_TO_POINTER((guint)seq_no));
 			if (djiuav_trans) {
 				/* Special case: djiuav seems to send 0x24 replies with seqno 0 and without a request */
 				if (djiuav_trans->reply_frame == 0)
@@ -137,7 +137,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 			}
 		}
 	} else {
-		djiuav_trans=(djiuav_transaction_t *)wmem_map_lookup(djiuav_info->pdus, GUINT_TO_POINTER(seq_no));
+		djiuav_trans=(djiuav_transaction_t *)wmem_map_lookup(djiuav_info->pdus, GUINT_TO_POINTER((guint)seq_no));
 	}
 
 	/* djiuav_trans may be 0 in case it's a reply without a matching request */
