@@ -126,6 +126,13 @@ check_c_source_compiles(
 check_c_source_compiles(
 	"#include <linux/nl80211.h>
 	int main() {
+		enum nl80211_protocol_features x = NL80211_PROTOCOL_FEATURE_SPLIT_WIPHY_DUMP;
+	}"
+	HAVE_NL80211_SPLIT_WIPHY_DUMP
+)
+check_c_source_compiles(
+	"#include <linux/nl80211.h>
+	int main() {
 		int x = NL80211_FREQUENCY_ATTR_MAX_TX_POWER;
 		x = NL80211_ATTR_SUPPORTED_IFTYPES;
 		x = NL80211_ATTR_SUPPORTED_COMMANDS;
@@ -134,4 +141,3 @@ check_c_source_compiles(
 	}"
 	HAVE_NL80211
 )
-
