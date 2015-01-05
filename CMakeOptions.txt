@@ -65,6 +65,9 @@ else()
 endif()
 option(ENABLE_CAP        "Build with Posix capabilities support" ON)
 option(ENABLE_CARES      "Build with c-ares support" ON)
+#
+# Libnl is Linux-specific.
+#
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	option(ENABLE_NETLINK    "Build with libnl support" ON)
 else()
