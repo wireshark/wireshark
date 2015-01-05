@@ -177,6 +177,7 @@ sctpstat_draw(void *phs)
 	sctp_ep_t* list = hs->ep_list, *tmp;
 	GtkListStore *store;
 	GtkTreeIter iter;
+	char *src_addr, *dst_addr;
 
 	/* Now print Message and Reason Counter Table */
 	/* clear list before printing */
@@ -185,11 +186,14 @@ sctpstat_draw(void *phs)
   	gtk_list_store_clear(store);
 
 	for(tmp = list ; tmp ; tmp=tmp->next) {
+		src_addr = (char*)address_to_str(NULL, &tmp->src);
+		dst_addr = (char*)address_to_str(NULL, &tmp->dst);
+
 		gtk_list_store_append(store, &iter);
 		gtk_list_store_set(store, &iter,
-		0,  ep_address_to_str(&tmp->src),
+		0,  src_addr,
 		1,  tmp->sport,
-		2,  ep_address_to_str(&tmp->dst),
+		2,  dst_addr,
 		3,  tmp->dport,
 		4,  tmp->chunk_count[SCTP_DATA_CHUNK_ID],
 		5,  tmp->chunk_count[SCTP_SACK_CHUNK_ID],
@@ -209,6 +213,8 @@ sctpstat_draw(void *phs)
 		19, tmp->chunk_count[OTHER_CHUNKS_INDEX],
 		-1
 		);
+		wmem_free(NULL, src_addr);
+		wmem_free(NULL, dst_addr);
 	}
 }
 

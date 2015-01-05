@@ -186,7 +186,7 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 				}
 				/* Output frame data.*/
 				printf("frame='%d' time='%f' src='%s' srcport='%d' dst='%s' dstport='%d' proto='diameter' msgnr='%d' is_request='%d' cmd='%d' req_frame='%d' ans_frame='%d' resp_time='%f' ",
-				       pinfo->fd->num, nstime_to_sec(&pinfo->fd->abs_ts), ep_address_to_str(&pinfo->src), pinfo->srcport, ep_address_to_str(&pinfo->dst), pinfo->destport, ds->diammsg_toprocess, is_request, cmd_code, req_frame, ans_frame, resp_time);
+				       pinfo->fd->num, nstime_to_sec(&pinfo->fd->abs_ts), address_to_str(pinfo->pool, &pinfo->src), pinfo->srcport, address_to_str(pinfo->pool, &pinfo->dst), pinfo->destport, ds->diammsg_toprocess, is_request, cmd_code, req_frame, ans_frame, resp_time);
 				/* Visit selected nodes of one diameter message.*/
 				tree_traverse_pre_order(current, diam_tree_to_csv, &ds);
 				/* End of message.*/

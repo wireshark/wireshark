@@ -6003,6 +6003,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint32		   n_addr; /* network-order IPv4 address */
 	const gchar	  *name;
 	address		   addr;
+	char		  *addr_str;
 	char          *tmp;
 
 	if (!fi) {
@@ -6126,9 +6127,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.len  = AX25_ADDR_LEN;
 			addr.data = (guint8 *)fvalue_get(&fi->value);
 
+			addr_str = (char*)address_to_str(NULL, &addr);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s", hfinfo->name,
-				   ep_address_to_str( &addr ));
+				   "%s: %s", hfinfo->name, addr_str);
+			wmem_free(NULL, addr_str);
 			break;
 
 		case FT_VINES:
@@ -6136,9 +6138,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.len  = VINES_ADDR_LEN;
 			addr.data = (guint8 *)fvalue_get(&fi->value);
 
+			addr_str = (char*)address_to_str(NULL, &addr);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s", hfinfo->name,
-				   ep_address_to_str( &addr ));
+				   "%s: %s", hfinfo->name, addr_str);
+			wmem_free(NULL, addr_str);
 			break;
 
 		case FT_ETHER:
@@ -6148,9 +6151,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.len  = 6;
 			addr.data = bytes;
 
+			addr_str = (char*)address_to_str(NULL, &addr);
 			label_fill_descr(label_str, 0, hfinfo,
-				   get_ether_name(bytes),
-				   ep_address_to_str( &addr ));
+				   get_ether_name(bytes), addr_str);
+			wmem_free(NULL, addr_str);
 			break;
 
 		case FT_IPv4:
@@ -6161,9 +6165,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.len  = 4;
 			addr.data = &n_addr;
 
+			addr_str = (char*)address_to_str(NULL, &addr);
 			label_fill_descr(label_str, 0, hfinfo,
-				   get_hostname(n_addr),
-				   ep_address_to_str(&addr ));
+				   get_hostname(n_addr), addr_str);
+			wmem_free(NULL, addr_str);
 			break;
 
 		case FT_IPv6:
@@ -6173,9 +6178,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.len  = 16;
 			addr.data = bytes;
 
+			addr_str = (char*)address_to_str(NULL, &addr);
 			label_fill_descr(label_str, 0, hfinfo,
 				   get_hostname6((struct e_in6_addr *)bytes),
-				   ep_address_to_str(&addr));
+				   addr_str);
+			wmem_free(NULL, addr_str);
 			break;
 
 		case FT_FCWWN:
@@ -6183,9 +6190,10 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.len  = FCWWN_ADDR_LEN;
 			addr.data = (guint8 *)fvalue_get(&fi->value);
 
+			addr_str = (char*)address_to_str(NULL, &addr);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s", hfinfo->name,
-				   ep_address_to_str( &addr ));
+				   "%s: %s", hfinfo->name, addr_str);
+			wmem_free(NULL, addr_str);
 			break;
 
 		case FT_GUID:

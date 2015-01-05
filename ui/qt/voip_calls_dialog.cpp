@@ -352,6 +352,7 @@ void VoipCallsDialog::prepareFilter()
     const h323_calls_info_t *h323info;
     const h245_address_t *h245_add = NULL;
     const gcp_ctx_t* ctx;
+    char* addr_str;
 
     if (filter_length < max_filter_length) {
         gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
@@ -398,10 +399,12 @@ void VoipCallsDialog::prepareFilter()
                     listb = g_list_first(h323info->h245_list);
                     while (listb) {
                         h245_add = (h245_address_t *)listb->data;
+                        addr_str = (char*)address_to_str(NULL, &h245_add->h245_address);
                         g_string_append_printf(filter_string_fwd,
                             " || (ip.addr == %s && tcp.port == %d && h245)",
-                            ep_address_to_str(&h245_add->h245_address), h245_add->h245_port);
+                            addr_str, h245_add->h245_port);
                         listb = g_list_next(listb);
+                        wmem_free(NULL, addr_str);
                     }
                     g_string_append_printf(filter_string_fwd, ")");
                     break;

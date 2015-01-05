@@ -28,6 +28,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "emem.h"
+#include "to_str.h"
 #include "conversation.h"
 
 /* define DEBUG_CONVERSATION for pretty debug printing */
@@ -677,8 +678,8 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	conversation_key *new_key;
 
 	DPRINT(("creating conversation for frame #%d: %s:%d -> %s:%d (ptype=%d)",
-		    setup_frame, ep_address_to_str(addr1), port1,
-		    ep_address_to_str(addr2), port2, ptype));
+		    setup_frame, address_to_str(wmem_packet_scope(), addr1), port1,
+		    address_to_str(wmem_packet_scope(), addr2), port2, ptype));
 
 	if (options & NO_ADDR2) {
 		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
@@ -767,10 +768,13 @@ conversation_set_port2(conversation_t *conv, const guint32 port)
 void
 conversation_set_addr2(conversation_t *conv, const address *addr)
 {
-   DISSECTOR_ASSERT_HINT(!(conv->options & CONVERSATION_TEMPLATE),
-            "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
+	char* addr_str;
+	DISSECTOR_ASSERT_HINT(!(conv->options & CONVERSATION_TEMPLATE),
+			"Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
 
-	DPRINT(("called for addr=%s",ep_address_to_str(addr)));
+	addr_str = address_to_str(NULL, addr);
+	DPRINT(("called for addr=%s", addr_str));
+	wmem_free(NULL, addr_str);
 
 	/*
 	 * If the address 2 value is not wildcarded, don't set it.
@@ -1330,8 +1334,8 @@ find_or_create_conversation(packet_info *pinfo)
 	conversation_t *conv=NULL;
 
 	DPRINT(("called for frame #%d: %s:%d -> %s:%d (ptype=%d)",
-		pinfo->fd->num, ep_address_to_str(&pinfo->src), pinfo->srcport,
-		ep_address_to_str(&pinfo->dst), pinfo->destport, pinfo->ptype));
+		pinfo->fd->num, address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
+		address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport, pinfo->ptype));
 	DINDENT();
 
 	/* Have we seen this conversation before? */

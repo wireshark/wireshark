@@ -282,7 +282,7 @@ tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset)
 
 /*
  This function is very fast and this function is called a lot.
- XXX update the ep_address_to_str stuff to use this function.
+ XXX update the address_to_str stuff to use this function.
 */
 gchar *
 eui64_to_str(const guint64 ad) {
@@ -451,16 +451,6 @@ address_to_str(wmem_allocator_t *scope, const address *addr)
     gchar *str;
 
     str=(gchar *)wmem_alloc(scope, MAX_ADDR_STR_LEN);
-    address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
-    return str;
-}
-
-gchar*
-ep_address_to_str(const address *addr)
-{
-    gchar *str;
-
-    str=(gchar *)ep_alloc(MAX_ADDR_STR_LEN);
     address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
     return str;
 }

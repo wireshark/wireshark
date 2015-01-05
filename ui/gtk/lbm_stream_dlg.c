@@ -85,6 +85,7 @@ static lbmc_stream_dlg_info_t * global_stream_dialog_info = NULL;
 static gchar * lbmc_stream_dlg_format_endpoint_ep(const lbm_uim_stream_endpoint_t * endpoint)
 {
     gchar * buf = NULL;
+    char* addr_str;
 
     if (endpoint->type == lbm_uim_instance_stream)
     {
@@ -92,11 +93,13 @@ static gchar * lbmc_stream_dlg_format_endpoint_ep(const lbm_uim_stream_endpoint_
     }
     else
     {
+        addr_str = (char*)address_to_str(NULL, &(endpoint->stream_info.dest.addr));
         buf = ep_strdup_printf(
             "%" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT,
             endpoint->stream_info.dest.domain,
-            ep_address_to_str(&(endpoint->stream_info.dest.addr)),
+            addr_str,
             endpoint->stream_info.dest.port);
+        wmem_free(NULL, addr_str);
     }
     return (buf);
 }
@@ -667,8 +670,8 @@ static gboolean lbmc_stream_dlg_tap_packet(void * tap_data, packet_info * pinfo,
 
         substream = (lbmc_stream_dlg_substream_entry_t *)g_malloc(sizeof(lbmc_stream_dlg_substream_entry_t));
         substream->substream_id = tapinfo->substream_id;
-        substream->endpoint_a = wmem_strdup_printf(wmem_file_scope(), "%s:%" G_GUINT16_FORMAT, ep_address_to_str(&(pinfo->src)), (guint16)pinfo->srcport);
-        substream->endpoint_b = wmem_strdup_printf(wmem_file_scope(), "%s:%" G_GUINT16_FORMAT, ep_address_to_str(&(pinfo->dst)), (guint16)pinfo->destport);
+        substream->endpoint_a = wmem_strdup_printf(wmem_file_scope(), "%s:%" G_GUINT16_FORMAT, address_to_str(pinfo->pool, &(pinfo->src)), (guint16)pinfo->srcport);
+        substream->endpoint_b = wmem_strdup_printf(wmem_file_scope(), "%s:%" G_GUINT16_FORMAT, address_to_str(pinfo->pool, &(pinfo->dst)), (guint16)pinfo->destport);
         substream->first_frame = (guint32)(~0);
         substream->last_frame = 0;
         substream->messages = 0;

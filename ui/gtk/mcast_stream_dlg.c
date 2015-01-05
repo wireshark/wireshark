@@ -136,6 +136,7 @@ mcaststream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 {
     gchar *filter_string_fwd;
     gchar  ip_version[3];
+    char *src_addr, *dst_addr;
 
     if (selected_stream_fwd == NULL)
         return;
@@ -145,17 +146,22 @@ mcaststream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
     } else {
         ip_version[0] = '\0';
     }
-    filter_string_fwd = g_strdup_printf(
+
+    src_addr = (char*)address_to_str(NULL, &(selected_stream_fwd->src_addr));
+    dst_addr = (char*)address_to_str(NULL, &(selected_stream_fwd->dest_addr));
+    filter_string_fwd = wmem_strdup_printf(NULL,
         "(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u)",
         ip_version,
-        ep_address_to_str(&(selected_stream_fwd->src_addr)),
+        src_addr,
         selected_stream_fwd->src_port,
         ip_version,
-        ep_address_to_str(&(selected_stream_fwd->dest_addr)),
+        dst_addr,
         selected_stream_fwd->dest_port);
 
     gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd);
-    g_free(filter_string_fwd);
+    wmem_free(NULL, filter_string_fwd);
+    wmem_free(NULL, src_addr);
+    wmem_free(NULL, dst_addr);
 
 #if 0
     main_filter_packets(&cfile, filter_string, FALSE);

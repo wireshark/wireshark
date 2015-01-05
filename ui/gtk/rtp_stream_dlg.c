@@ -380,6 +380,7 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
     gchar *filter_string_fwd = NULL;
     gchar *filter_string_rev = NULL;
     gchar ip_version[3];
+    char *src_addr, *dst_addr;
 
     if (selected_stream_fwd==NULL && selected_stream_rev==NULL)
         return;
@@ -391,17 +392,21 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
         } else {
             ip_version[0] = '\0';
         }
+        src_addr = (char*)address_to_str(NULL, &(selected_stream_fwd->src_addr));
+        dst_addr = (char*)address_to_str(NULL, &(selected_stream_fwd->dest_addr));
         filter_string_fwd = g_strdup_printf(
             "(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
             ip_version,
-            ep_address_to_str(&(selected_stream_fwd->src_addr)),
+            src_addr,
             selected_stream_fwd->src_port,
             ip_version,
-            ep_address_to_str(&(selected_stream_fwd->dest_addr)),
+            dst_addr,
             selected_stream_fwd->dest_port,
             selected_stream_fwd->ssrc);
 
         filter_string = filter_string_fwd;
+        wmem_free(NULL, src_addr);
+        wmem_free(NULL, dst_addr);
     }
 
     if (selected_stream_rev)
@@ -411,17 +416,21 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
         } else {
             ip_version[0] = '\0';
         }
+        src_addr = (char*)address_to_str(NULL, &(selected_stream_rev->src_addr));
+        dst_addr = (char*)address_to_str(NULL, &(selected_stream_rev->dest_addr));
         filter_string_rev = g_strdup_printf(
             "(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
             ip_version,
-            ep_address_to_str(&(selected_stream_rev->src_addr)),
+            src_addr,
             selected_stream_rev->src_port,
             ip_version,
-            ep_address_to_str(&(selected_stream_rev->dest_addr)),
+            dst_addr,
             selected_stream_rev->dest_port,
             selected_stream_rev->ssrc);
 
         filter_string = filter_string_rev;
+        wmem_free(NULL, src_addr);
+        wmem_free(NULL, dst_addr);
     }
 
     if ((selected_stream_fwd) && (selected_stream_rev))

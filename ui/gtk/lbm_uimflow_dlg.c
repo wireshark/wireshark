@@ -190,10 +190,10 @@ static int lbmc_uim_flow_graph_add_to_graph(packet_info * pinfo, const lbm_uim_s
     {
         item->comment = g_strdup_printf("%" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " <-> %" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " [%" G_GUINT64_FORMAT "]",
             epa.stream_info.dest.domain,
-            ep_address_to_str(&(epa.stream_info.dest.addr)),
+            address_to_str(pinfo->pool, &(epa.stream_info.dest.addr)),
             epa.stream_info.dest.port,
             epb.stream_info.dest.domain,
-            ep_address_to_str(&(epb.stream_info.dest.addr)),
+            address_to_str(pinfo->pool, &(epb.stream_info.dest.addr)),
             epb.stream_info.dest.port,
             stream_info->channel);
     }

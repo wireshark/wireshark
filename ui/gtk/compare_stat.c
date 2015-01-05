@@ -523,6 +523,7 @@ comparestat_draw(void *arg)
 	const gchar *statis_string;
 	frame_info *fInfo;
 	guint32 first_file_amount, second_file_amount;
+	char* addr_str;
 
 	/* initial steps, clear all data before start*/
 	cs->zebra_time.secs=0;
@@ -572,7 +573,9 @@ comparestat_draw(void *arg)
 	if(TTL_method&&cs->ip_ttl_list->len!=0){
 		g_string_printf(filter_str, "%s %i %s %i", "ip.ttl ==", g_array_index(cs->ip_ttl_list, guint8, 0), "|| ip.ttl ==", g_array_index(cs->ip_ttl_list, guint8, 1));
 	} else if(cs->eth_dst.len!=0&&cs->eth_src.len!=0){
-		g_string_printf(filter_str, "%s %s %s %s", "eth.dst==", ep_address_to_str(&cs->eth_dst), "|| eth.dst==", ep_address_to_str(&cs->eth_src));
+		addr_str = (char*)address_to_str(NULL, &cs->eth_dst);
+		g_string_printf(filter_str, "%s %s %s %s", "eth.dst==", addr_str, "|| eth.dst==", addr_str);
+		wmem_free(NULL, addr_str);
 	}
 	color_filters_set_tmp(COLOR_N, filter_str->str, FALSE);
 	packet_list_colorize_packets();

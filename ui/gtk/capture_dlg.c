@@ -1219,6 +1219,7 @@ insert_new_rows(GList *list)
   GtkTreeModel      *model;
   link_row          *linkr     = NULL;
   address           addr_str;
+  char*             temp_addr_str = NULL;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
@@ -1291,16 +1292,21 @@ insert_new_rows(GList *list)
       switch (addr->ifat_type) {
         case IF_AT_IPv4:
           SET_ADDRESS(&addr_str, AT_IPv4, 4, &addr->addr.ip4_addr);
-          g_string_append(ip_str, ep_address_to_str(&addr_str));
+          temp_addr_str = (char*)address_to_str(NULL, &addr_str);
+          g_string_append(ip_str, temp_addr_str);
           break;
         case IF_AT_IPv6:
           SET_ADDRESS(&addr_str, AT_IPv6, 16, addr->addr.ip6_addr);
-          g_string_append(ip_str, ep_address_to_str(&addr_str));
+          temp_addr_str = (char*)address_to_str(NULL, &addr_str);
+          g_string_append(ip_str, temp_addr_str);
           break;
         default:
           /* In case we add non-IP addresses */
+          temp_addr_str = NULL;
           break;
       }
+
+      wmem_free(NULL, temp_addr_str);
     } /* for curr_addr */
     linktype_count = 0;
     device.links = NULL;

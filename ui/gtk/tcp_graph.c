@@ -681,6 +681,7 @@ static void create_drawing_area(struct gtk_graph *g)
     char        *display_name;
     char         window_title[WINDOW_TITLE_LENGTH];
     GtkAllocation    widget_alloc;
+    char *src_addr, *dst_addr;
 #if 0
     /* Prep. to include the controls in the graph window */
     GtkWidget *frame;
@@ -691,15 +692,19 @@ static void create_drawing_area(struct gtk_graph *g)
 
     /* Set title of window with file + conversation details */
     display_name = cf_get_display_name(&cfile);
+    src_addr = (char*)address_to_str(NULL, &g->tg.src_address);
+    dst_addr = (char*)address_to_str(NULL, &g->tg.dst_address);
     g_snprintf(window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d " UTF8_RIGHTWARDS_ARROW " %s:%d",
                refnum,
                display_name,
-               ep_address_to_str(&g->tg.src_address),
+               src_addr,
                g->tg.src_port,
-               ep_address_to_str(&g->tg.dst_address),
+               dst_addr,
                g->tg.dst_port
     );
     g_free(display_name);
+    wmem_free(NULL, src_addr);
+    wmem_free(NULL, dst_addr);
     g->toplevel = dlg_window_new("Tcp Graph");
     gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
     gtk_widget_set_name(g->toplevel, "Test Graph");

@@ -1088,7 +1088,7 @@ decode_numeric_bitfield(const guint64 val, const guint64 mask, const int width,
 
 /*
    This function is very fast and this function is called a lot.
-   XXX update the ep_address_to_str stuff to use this function.
+   XXX update the address_to_str stuff to use this function.
    */
 void
 ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)

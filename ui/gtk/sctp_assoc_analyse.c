@@ -261,7 +261,7 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 		list = g_list_first(u_data->assoc->addr1);
 		while (list)
 		{
-			gchar	      field[1][MAX_ADDRESS_LEN];
+			gchar	     *field;
 			address	     *store;
 			GtkListStore *list_store;
 
@@ -269,14 +269,19 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 			if (store->type != AT_NONE) {
 				if ((store->type == AT_IPv4) || (store->type == AT_IPv6))
 				{
-					g_snprintf(field[0], 40, "%s", ep_address_to_str(store));
+					field = (gchar*)address_to_str(NULL, store);
+				}
+				else
+				{
+					field = NULL;
 				}
 
 				list_store = GTK_LIST_STORE(
 					gtk_tree_view_get_model(GTK_TREE_VIEW(u_data->analyse_nb->page2->clist))); /* Get store */
 
 				gtk_list_store_insert_with_values( list_store , NULL, G_MAXINT,
-									 0, field[0], -1);
+									 0, field, -1);
+				wmem_free(NULL, field);
 			}
 			list = g_list_next(list);
 		}
@@ -340,7 +345,7 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 		list = g_list_first(u_data->assoc->addr2);
 		while (list)
 		{
-			gchar	      field[1][MAX_ADDRESS_LEN];
+			gchar	     *field;
 			address	     *store;
 			GtkListStore *list_store;
 
@@ -348,14 +353,19 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 			if (store->type != AT_NONE) {
 				if ((store->type == AT_IPv4) || (store->type == AT_IPv6))
 				{
-					g_snprintf(field[0], 40, "%s", ep_address_to_str(store));
+					field = (gchar*)address_to_str(NULL, store);
+				}
+				else
+				{
+					field = NULL;
 				}
 
 				list_store = GTK_LIST_STORE(
 					gtk_tree_view_get_model(GTK_TREE_VIEW(u_data->analyse_nb->page3->clist))); /* Get store */
 
 				gtk_list_store_insert_with_values( list_store , NULL, G_MAXINT,
-									 0, field[0], -1);
+									 0, field, -1);
+				wmem_free(NULL, field);
 			}
 			list = g_list_next(list);
 		}
@@ -451,79 +461,91 @@ sctp_set_filter(GtkButton *button _U_, struct sctp_analyse *u_data)
 		struct sockaddr_in *infosrc;
 		struct sockaddr_in *infodst;
 		address addr;
+		char    *addr_str;
 
 		srclist = g_list_first(selected_stream->addr1);
 		infosrc = (struct sockaddr_in *)(srclist->data);
 		SET_ADDRESS(&addr, AT_IPv4, 4, &(infosrc->sin_addr.s_addr));
+		addr_str = (char*)address_to_str(NULL, &addr);
 		gstring = g_string_new(g_strdup_printf(
 					       "((sctp.srcport==%u && sctp.dstport==%u && (ip.src==%s",
 					       selected_stream->port1,
 					       selected_stream->port2,
-					       ep_address_to_str(&addr)));
+					       addr_str));
 		srclist = g_list_next(srclist);
+		wmem_free(NULL, addr_str);
 
 		while (srclist)
 		{
 			infosrc = (struct sockaddr_in *)(srclist->data);
 			SET_ADDRESS(&addr, AT_IPv4, 4, &(infosrc->sin_addr.s_addr));
-			str = g_strdup_printf("|| ip.src==%s",
-					      ep_address_to_str(&addr));
+			addr_str = (char*)address_to_str(NULL, &addr);
+			str = g_strdup_printf("|| ip.src==%s", addr_str);
 			g_string_append(gstring, str);
 			srclist = g_list_next(srclist);
+			wmem_free(NULL, addr_str);
 		}
 
 		dstlist = g_list_first(selected_stream->addr2);
 		infodst = (struct sockaddr_in *)(dstlist->data);
 		SET_ADDRESS(&addr, AT_IPv4, 4, &(infodst->sin_addr.s_addr));
-		str = g_strdup_printf(") && (ip.dst==%s",
-				      ep_address_to_str(&addr));
+		addr_str = (char*)address_to_str(NULL, &addr);
+		str = g_strdup_printf(") && (ip.dst==%s", addr_str);
 		g_string_append(gstring, str);
 		dstlist = g_list_next(dstlist);
+		wmem_free(NULL, addr_str);
+
 		while (dstlist)
 		{
 			infodst = (struct sockaddr_in *)(dstlist->data);
 			SET_ADDRESS(&addr, AT_IPv4, 4, &(infodst->sin_addr.s_addr));
-			str = g_strdup_printf("|| ip.dst==%s",
-					      ep_address_to_str(&addr));
+			addr_str = (char*)address_to_str(NULL, &addr);
+			str = g_strdup_printf("|| ip.dst==%s", addr_str);
 			g_string_append(gstring, str);
 			dstlist = g_list_next(dstlist);
+			wmem_free(NULL, addr_str);
 		}
 
 		srclist = g_list_first(selected_stream->addr1);
 		infosrc = (struct sockaddr_in *)(srclist->data);
 		SET_ADDRESS(&addr, AT_IPv4, 4, &(infosrc->sin_addr.s_addr));
+		addr_str = (char*)address_to_str(NULL, &addr);
 		str = g_strdup_printf(")) || (sctp.dstport==%u && sctp.srcport==%u && (ip.dst==%s",
 				      selected_stream->port1,
 				      selected_stream->port2,
-				      ep_address_to_str(&addr));
+				      addr_str);
 		g_string_append(gstring, str);
 		srclist = g_list_next(srclist);
+		wmem_free(NULL, addr_str);
 
 		while (srclist)
 		{
 			infosrc = (struct sockaddr_in *)(srclist->data);
 			SET_ADDRESS(&addr, AT_IPv4, 4, &(infosrc->sin_addr.s_addr));
-			str = g_strdup_printf("|| ip.dst==%s",
-					      ep_address_to_str(&addr));
+			addr_str = (char*)address_to_str(NULL, &addr);
+			str = g_strdup_printf("|| ip.dst==%s", addr_str);
 			g_string_append(gstring, str);
 			srclist = g_list_next(srclist);
+			wmem_free(NULL, addr_str);
 		}
 
 		dstlist = g_list_first(selected_stream->addr2);
 		infodst = (struct sockaddr_in *)(dstlist->data);
 		SET_ADDRESS(&addr, AT_IPv4, 4, &(infodst->sin_addr.s_addr));
-		str = g_strdup_printf(") && (ip.src==%s",
-				      ep_address_to_str(&addr));
+		addr_str = (char*)address_to_str(NULL, &addr);
+		str = g_strdup_printf(") && (ip.src==%s", addr_str);
 		g_string_append(gstring, str);
 		dstlist = g_list_next(dstlist);
+		wmem_free(NULL, addr_str);
 		while (dstlist)
 		{
 			infodst = (struct sockaddr_in *)(dstlist->data);
 			SET_ADDRESS(&addr, AT_IPv4, 4, &(infodst->sin_addr.s_addr));
-			str = g_strdup_printf("|| ip.src==%s",
-					      ep_address_to_str(&addr));
+			addr_str = (char*)address_to_str(NULL, &addr);
+			str = g_strdup_printf("|| ip.src==%s", addr_str);
 			g_string_append(gstring, str);
 			dstlist = g_list_next(dstlist);
+			wmem_free(NULL, addr_str);
 		}
 		str = g_strdup_printf(")))");
 		g_string_append(gstring, str);

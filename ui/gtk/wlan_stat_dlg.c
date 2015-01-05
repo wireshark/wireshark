@@ -756,6 +756,7 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
     GtkTreeIter       iter;
+    char             *addr_str;
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->table));
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
@@ -764,24 +765,26 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
 
     value = FILTER_EXTRA(callback_action);
 
+    addr_str = (char*)address_to_str(NULL, &ep->bssid);
     switch (value) {
     case VALUE_BSSID_ONLY:
-        str = g_strdup_printf("wlan.bssid==%s", ep_address_to_str(&ep->bssid));
+        str = g_strdup_printf("wlan.bssid==%s", addr_str);
         break;
     case VALUE_SSID_ONLY:
         str = g_strdup_printf("wlan_mgt.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
         break;
     case VALUE_BSSID_AND_SSID:
         str = g_strdup_printf("wlan.bssid==%s && wlan_mgt.ssid==\"%s\"",
-                      ep_address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
+                      addr_str, format_text(ep->stats.ssid, ep->stats.ssid_len));
         break;
     case VALUE_BSSID_OR_SSID:
         str = g_strdup_printf("wlan.bssid==%s || wlan_mgt.ssid==\"%s\"",
-                      ep_address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
+                      addr_str, format_text(ep->stats.ssid, ep->stats.ssid_len));
         break;
     default:
         g_assert_not_reached();
     }
+    wmem_free(NULL, addr_str);
 
     apply_selected_filter (callback_action, str);
 
@@ -797,17 +800,20 @@ wlan_details_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, gui
     GtkTreeSelection  *sel;
     GtkTreeModel      *model;
     GtkTreeIter        iter;
+    char              *addr_str;
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->details));
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
     gtk_tree_model_get (model, &iter, DETAILS_COLUMN, &ep, -1);
 
-    str = g_strdup_printf("wlan.addr==%s", ep_address_to_str(&ep->addr));
+    addr_str = (char*)address_to_str(NULL, &ep->addr);
+    str = g_strdup_printf("wlan.addr==%s", addr_str);
 
     apply_selected_filter (callback_action, str);
 
     g_free (str);
+    wmem_free(NULL, addr_str);
 }
 
 static gboolean

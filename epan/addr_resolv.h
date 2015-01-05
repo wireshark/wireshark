@@ -138,7 +138,7 @@ WS_DLL_PUBLIC gchar *ep_sctp_port_to_display(guint port);
 /*  - if the address is of a type that can be translated into a name, and the user */
 /*    has activated name resolution, the translated name */
 /*  - if the address is of type AT_NONE, a pointer to the string "NONE" */
-/*  - if the address is of any other type, the result of ep_address_to_str on the argument, */
+/*  - if the address is of any other type, the result of address_to_str on the argument, */
 /*    which should be a string representation for the answer -e.g. "10.10.10.10" for IPv4 */
 /*    address 10.10.10.10 */
 WS_DLL_PUBLIC

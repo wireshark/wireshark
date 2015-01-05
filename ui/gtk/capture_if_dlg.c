@@ -468,7 +468,7 @@ set_ip_addr_label(GSList *addr_list, GtkWidget *ip_lb, guint selected_ip_addr)
   GSList      *curr_addr;
   if_addr_t   *addr;
   address     addr_address;
-  const gchar *addr_str = NULL;
+  char       *addr_str = NULL;
 
   curr_addr = g_slist_nth(addr_list, selected_ip_addr);
   if (curr_addr) {
@@ -477,12 +477,12 @@ set_ip_addr_label(GSList *addr_list, GtkWidget *ip_lb, guint selected_ip_addr)
 
     case IF_AT_IPv4:
       SET_ADDRESS(&addr_address, AT_IPv4, 4, &addr->addr.ip4_addr);
-      addr_str = ep_address_to_str(&addr_address);
+      addr_str = (char*)address_to_str(NULL, &addr_address);
       break;
 
     case IF_AT_IPv6:
       SET_ADDRESS(&addr_address, AT_IPv6, 16, addr->addr.ip6_addr);
-      addr_str = ep_address_to_str(&addr_address);
+      addr_str = (char*)address_to_str(NULL, &addr_address);
       break;
 
     default:
@@ -496,6 +496,7 @@ set_ip_addr_label(GSList *addr_list, GtkWidget *ip_lb, guint selected_ip_addr)
   } else {
     gtk_label_set_text(GTK_LABEL(ip_lb), "none");
   }
+  wmem_free(NULL, addr_str);
   g_object_set_data(G_OBJECT(ip_lb), CAPTURE_IF_SELECTED_IP_ADDR, GINT_TO_POINTER(selected_ip_addr));
 
   return addr_str;

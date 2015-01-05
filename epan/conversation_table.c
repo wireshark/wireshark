@@ -406,24 +406,26 @@ ct_port_to_str(port_type ptype, guint32 port)
 
 const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction)
 {
-    char *sport, *dport;
+    char *sport, *dport, *src_addr, *dst_addr;
     const char *str = "INVALID";
 
     sport = ct_port_to_str(conv_item->ptype, conv_item->src_port);
     dport = ct_port_to_str(conv_item->ptype, conv_item->dst_port);
+    src_addr = address_to_str(NULL, &conv_item->src_address);
+    dst_addr = address_to_str(NULL, &conv_item->dst_address);
 
     switch(direction){
     case CONV_DIR_A_TO_FROM_B:
         /* A <-> B */
         str = ep_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
-                              ep_address_to_str(&conv_item->src_address),
+                              src_addr,
                               sport?" && ":"",
                               sport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
                               sport?"==":"",
                               sport?sport:"",
                               conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
-                              ep_address_to_str(&conv_item->dst_address),
+                              dst_addr,
                               dport?" && ":"",
                               dport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
                               dport?"==":"",
@@ -434,13 +436,13 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         /* A --> B */
         str = ep_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_SRC_ADDRESS),
-                              ep_address_to_str(&conv_item->src_address),
+                              src_addr,
                               sport?" && ":"",
                               sport?conversation_get_filter_name(conv_item,  CONV_FT_SRC_PORT):"",
                               sport?"==":"",
                               sport?sport:"",
                               conversation_get_filter_name(conv_item,  CONV_FT_DST_ADDRESS),
-                              ep_address_to_str(&conv_item->dst_address),
+                              dst_addr,
                               dport?" && ":"",
                               dport?conversation_get_filter_name(conv_item,  CONV_FT_DST_PORT):"",
                               dport?"==":"",
@@ -451,13 +453,13 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         /* A <-- B */
         str = ep_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_DST_ADDRESS),
-                              ep_address_to_str(&conv_item->src_address),
+                              src_addr,
                               sport?" && ":"",
                               sport?conversation_get_filter_name(conv_item,  CONV_FT_DST_PORT):"",
                               sport?"==":"",
                               sport?sport:"",
                               conversation_get_filter_name(conv_item,  CONV_FT_SRC_ADDRESS),
-                              ep_address_to_str(&conv_item->dst_address),
+                              dst_addr,
                               dport?" && ":"",
                               dport?conversation_get_filter_name(conv_item,  CONV_FT_SRC_PORT):"",
                               dport?"==":"",
@@ -468,7 +470,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         /* A <-> ANY */
         str = ep_strdup_printf("%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
-                              ep_address_to_str(&conv_item->src_address),
+                              src_addr,
                               sport?" && ":"",
                               sport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
                               sport?"==":"",
@@ -479,7 +481,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         /* A --> ANY */
         str = ep_strdup_printf("%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_SRC_ADDRESS),
-                              ep_address_to_str(&conv_item->src_address),
+                              src_addr,
                               sport?" && ":"",
                               sport?conversation_get_filter_name(conv_item,  CONV_FT_SRC_PORT):"",
                               sport?"==":"",
@@ -490,7 +492,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         /* A <-- ANY */
         str = ep_strdup_printf("%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_DST_ADDRESS),
-                              ep_address_to_str(&conv_item->src_address),
+                              src_addr,
                               sport?" && ":"",
                               sport?conversation_get_filter_name(conv_item,  CONV_FT_DST_PORT):"",
                               sport?"==":"",
@@ -501,7 +503,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         /* ANY <-> B */
         str = ep_strdup_printf("%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
-                              ep_address_to_str(&conv_item->dst_address),
+                              dst_addr,
                               dport?" && ":"",
                               dport?conversation_get_filter_name(conv_item,  CONV_FT_ANY_PORT):"",
                               dport?"==":"",
@@ -512,7 +514,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         /* ANY <-- B */
         str = ep_strdup_printf("%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_SRC_ADDRESS),
-                              ep_address_to_str(&conv_item->dst_address),
+                              dst_addr,
                               dport?" && ":"",
                               dport?conversation_get_filter_name(conv_item,  CONV_FT_SRC_PORT):"",
                               dport?"==":"",
@@ -523,7 +525,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         /* ANY --> B */
         str = ep_strdup_printf("%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_DST_ADDRESS),
-                              ep_address_to_str(&conv_item->dst_address),
+                              dst_addr,
                               dport?" && ":"",
                               dport?conversation_get_filter_name(conv_item,  CONV_FT_DST_PORT):"",
                               dport?"==":"",
@@ -535,24 +537,29 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
     }
     g_free(sport);
     g_free(dport);
+    wmem_free(NULL, src_addr);
+    wmem_free(NULL, dst_addr);
     return str;
 }
 
 const char *get_hostlist_filter(hostlist_talker_t *host)
 {
-    char *sport;
+    char *sport, *src_addr;
     const char *str;
 
     sport=ct_port_to_str(host->ptype, host->port);
+    src_addr = address_to_str(NULL, &host->myaddress);
 
     str = g_strdup_printf("%s==%s%s%s%s%s",
                           hostlist_get_filter_name(host, CONV_FT_ANY_ADDRESS),
-                          ep_address_to_str(&host->myaddress),
+                          src_addr,
                           sport?" && ":"",
                           sport?hostlist_get_filter_name(host, CONV_FT_ANY_PORT):"",
                           sport?"==":"",
                           sport?sport:"");
 
+    g_free(sport);
+    wmem_free(NULL, src_addr);
     return str;
 }
 

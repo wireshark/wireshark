@@ -184,6 +184,7 @@ sctpstat_draw(void *phs)
 {
 	sctpstat_t *hs = (sctpstat_t *)phs;
 	sctp_ep_t  *list = hs->ep_list, *tmp;
+	char *src_addr, *dst_addr;
 
 	printf("-------------------------------------------- SCTP Statistics --------------------------------------------------------------------------\n");
 	printf("|  Total packets RX/TX %u\n", hs->number_of_packets);
@@ -192,19 +193,23 @@ sctpstat_draw(void *phs)
 	printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
 
 	for (tmp = list; tmp; tmp = tmp->next) {
+		src_addr = (char*)address_to_str(NULL, &tmp->src);
+		dst_addr = (char*)address_to_str(NULL, &tmp->dst);
 		printf("|%15s|%5u|%15s|%5u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|%8u|\n",
-		       ep_address_to_str(&tmp->src), tmp->sport,
-		       ep_address_to_str(&tmp->dst), tmp->dport,
-		       tmp->chunk_count[SCTP_DATA_CHUNK_ID],
-		       tmp->chunk_count[SCTP_SACK_CHUNK_ID],
-		       tmp->chunk_count[SCTP_HEARTBEAT_CHUNK_ID],
-		       tmp->chunk_count[SCTP_HEARTBEAT_ACK_CHUNK_ID],
-		       tmp->chunk_count[SCTP_INIT_CHUNK_ID],
-		       tmp->chunk_count[SCTP_INIT_ACK_CHUNK_ID],
-		       tmp->chunk_count[SCTP_COOKIE_ECHO_CHUNK_ID],
-		       tmp->chunk_count[SCTP_COOKIE_ACK_CHUNK_ID],
-		       tmp->chunk_count[SCTP_ABORT_CHUNK_ID],
-		       tmp->chunk_count[SCTP_ERROR_CHUNK_ID]);
+				src_addr, tmp->sport,
+				dst_addr, tmp->dport,
+				tmp->chunk_count[SCTP_DATA_CHUNK_ID],
+				tmp->chunk_count[SCTP_SACK_CHUNK_ID],
+				tmp->chunk_count[SCTP_HEARTBEAT_CHUNK_ID],
+				tmp->chunk_count[SCTP_HEARTBEAT_ACK_CHUNK_ID],
+				tmp->chunk_count[SCTP_INIT_CHUNK_ID],
+				tmp->chunk_count[SCTP_INIT_ACK_CHUNK_ID],
+				tmp->chunk_count[SCTP_COOKIE_ECHO_CHUNK_ID],
+				tmp->chunk_count[SCTP_COOKIE_ACK_CHUNK_ID],
+				tmp->chunk_count[SCTP_ABORT_CHUNK_ID],
+				tmp->chunk_count[SCTP_ERROR_CHUNK_ID]);
+		wmem_free(NULL, src_addr);
+		wmem_free(NULL, dst_addr);
 	}
 	printf("---------------------------------------------------------------------------------------------------------------------------------------\n");
 }

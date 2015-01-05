@@ -146,8 +146,8 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
             break;
         default:
             /* XXX: heuristic and error prone */
-            m->hi_addr = g_str_hash(ep_address_to_str(hi_addr));
-            m->lo_addr = g_str_hash(ep_address_to_str(lo_addr));
+            m->hi_addr = g_str_hash(address_to_str(wmem_packet_scope(), hi_addr));
+            m->lo_addr = g_str_hash(address_to_str(wmem_packet_scope(), lo_addr));
         break;
     }
 

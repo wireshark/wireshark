@@ -510,12 +510,15 @@ finfo_ipv4_output(GtkSpinButton *spinbutton, gpointer user_data _U_)
 	GtkAdjustment *adj;
 	guint32 value;
 	address addr;
+	char* addr_str;
 
 	adj = gtk_spin_button_get_adjustment(spinbutton);
 	value = (guint32) gtk_adjustment_get_value(adj);
 	value = GUINT32_TO_BE(value);
 	SET_ADDRESS(&addr, AT_IPv4, 4, &value);
-	gtk_entry_set_text(GTK_ENTRY(spinbutton), ep_address_to_str(&addr));	/* XXX, can we ep_alloc() inside gui? */
+	addr_str = (char*)address_to_str(NULL, &addr);
+	gtk_entry_set_text(GTK_ENTRY(spinbutton), addr_str);
+	wmem_free(NULL, addr_str);
 	return TRUE;
 }
 

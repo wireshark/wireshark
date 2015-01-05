@@ -483,14 +483,14 @@ add_to_clist(sctp_addr_chunk* sac)
 {
     GtkListStore *list_store = NULL;
     GtkTreeIter  iter;
-    gchar field[1][MAX_ADDRESS_LEN];
+    gchar *field;
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (clist))); /* Get store */
 
     if ((sac->addr->type == AT_IPv4) || (sac->addr->type == AT_IPv6)) {
-        g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", ep_address_to_str(sac->addr));
+        field = (gchar*)address_to_str(NULL, sac->addr);
     } else {
-        g_snprintf(field[0], MAX_ADDRESS_LEN, "%s", "NONE");
+        field = wmem_strdup(NULL, "NONE");
     }
 
     gtk_list_store_insert_with_values( list_store , &iter, G_MAXINT,
@@ -518,6 +518,8 @@ add_to_clist(sctp_addr_chunk* sac)
          ASCONF_COLUMN,          sac->addr_count[SCTP_ASCONF_CHUNK_ID],
          OTHERS_COLUMN,          sac->addr_count[OTHER_CHUNKS_INDEX],
          -1);
+
+    wmem_free(NULL, field);
 }
 
 void sctp_chunk_stat_dlg_update(struct sctp_udata* udata, unsigned int direction)

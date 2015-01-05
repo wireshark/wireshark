@@ -111,7 +111,8 @@ Colasoft Capsa files
 
 The libwireshark API has undergone some major changes:
 
-* Many of the ep_ and se_ memory allocation routines have been removed.
+* Many of the ep_ and se_ memory allocation routines and methods that
+invoked them implicitly have been removed.
 * The (long-since-broken) Python bindings support has been removed.  If
 you want to write dissectors in something other than C, use Lua.
 

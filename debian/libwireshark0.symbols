@@ -442,7 +442,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_v_short@Base 1.9.1
  emem_init@Base 1.9.1
  empty_tcp_stream@Base 1.9.1
- ep_address_to_str@Base 1.9.1
  ep_alloc0@Base 1.9.1
  ep_alloc@Base 1.9.1
  ep_memdup@Base 1.9.1

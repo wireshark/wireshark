@@ -56,7 +56,7 @@ namespace
 class LBMSubstreamEntry
 {
     public:
-        LBMSubstreamEntry(guint64 channel, guint32 substream_id, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port);
+        LBMSubstreamEntry(guint64 channel, guint32 substream_id, const packet_info* pinfo, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port);
         ~LBMSubstreamEntry(void);
         void processPacket(guint32 frame, guint32 bytes);
         void setItem(QTreeWidgetItem * item);
@@ -79,7 +79,7 @@ class LBMSubstreamEntry
         QTreeWidgetItem * m_item;
 };
 
-LBMSubstreamEntry::LBMSubstreamEntry(guint64 channel, guint32 substream_id, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port) :
+LBMSubstreamEntry::LBMSubstreamEntry(guint64 channel, guint32 substream_id, const packet_info* pinfo, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port) :
     m_channel(channel),
     m_substream_id(substream_id),
     m_first_frame((guint32)(~0)),
@@ -89,10 +89,10 @@ LBMSubstreamEntry::LBMSubstreamEntry(guint64 channel, guint32 substream_id, cons
     m_item(NULL)
 {
     m_endpoint_a = QString("%1:%2")
-        .arg(ep_address_to_str(source_address))
+        .arg(address_to_str(pinfo->pool, source_address))
         .arg(source_port);
     m_endpoint_b = QString("%1:%2")
-        .arg(ep_address_to_str(destination_address))
+        .arg(address_to_str(pinfo->pool, destination_address))
         .arg(destination_port);
 }
 
@@ -141,7 +141,7 @@ typedef QMap<guint32, LBMSubstreamEntry *>::iterator LBMSubstreamMapIterator;
 class LBMStreamEntry
 {
     public:
-        LBMStreamEntry(guint64 channel, const lbm_uim_stream_endpoint_t * endpoint_a, const lbm_uim_stream_endpoint_t * endpoint_b);
+        LBMStreamEntry(const packet_info * pinfo, guint64 channel, const lbm_uim_stream_endpoint_t * endpoint_a, const lbm_uim_stream_endpoint_t * endpoint_b);
         ~LBMStreamEntry(void);
         void processPacket(const packet_info * pinfo, const lbm_uim_stream_tap_info_t * stream_info);
         void setItem(QTreeWidgetItem * item);
@@ -153,7 +153,7 @@ class LBMStreamEntry
     private:
         LBMStreamEntry(void) { }
         void fillItem(gboolean update_only = TRUE);
-        QString formatEndpoint(const lbm_uim_stream_endpoint_t * endpoint);
+        QString formatEndpoint(const packet_info * pinfo, const lbm_uim_stream_endpoint_t * endpoint);
         guint64 m_channel;
         QString m_endpoint_a;
         QString m_endpoint_b;
@@ -165,7 +165,7 @@ class LBMStreamEntry
         LBMSubstreamMap m_substreams;
 };
 
-LBMStreamEntry::LBMStreamEntry(guint64 channel, const lbm_uim_stream_endpoint_t * endpoint_a, const lbm_uim_stream_endpoint_t * endpoint_b) :
+LBMStreamEntry::LBMStreamEntry(const packet_info * pinfo, guint64 channel, const lbm_uim_stream_endpoint_t * endpoint_a, const lbm_uim_stream_endpoint_t * endpoint_b) :
     m_channel(channel),
     m_first_frame((guint32)(~0)),
     m_flast_frame(0),
@@ -174,8 +174,8 @@ LBMStreamEntry::LBMStreamEntry(guint64 channel, const lbm_uim_stream_endpoint_t 
     m_item(NULL),
     m_substreams()
 {
-    m_endpoint_a = formatEndpoint(endpoint_a);
-    m_endpoint_b = formatEndpoint(endpoint_b);
+    m_endpoint_a = formatEndpoint(pinfo, endpoint_a);
+    m_endpoint_b = formatEndpoint(pinfo, endpoint_b);
 }
 
 LBMStreamEntry::~LBMStreamEntry(void)
@@ -189,7 +189,7 @@ LBMStreamEntry::~LBMStreamEntry(void)
     m_substreams.clear();
 }
 
-QString LBMStreamEntry::formatEndpoint(const lbm_uim_stream_endpoint_t * endpoint)
+QString LBMStreamEntry::formatEndpoint(const packet_info * pinfo, const lbm_uim_stream_endpoint_t * endpoint)
 {
     if (endpoint->type == lbm_uim_instance_stream)
     {
@@ -199,7 +199,7 @@ QString LBMStreamEntry::formatEndpoint(const lbm_uim_stream_endpoint_t * endpoin
     {
         return QString("%1:%2:%3")
                .arg(endpoint->stream_info.dest.domain)
-               .arg(ep_address_to_str(&(endpoint->stream_info.dest.addr)))
+               .arg(address_to_str(pinfo->pool, &(endpoint->stream_info.dest.addr)))
                .arg(endpoint->stream_info.dest.port);
     }
 }
@@ -224,7 +224,7 @@ void LBMStreamEntry::processPacket(const packet_info * pinfo, const lbm_uim_stre
     {
         QTreeWidgetItem * item = NULL;
 
-        substream = new LBMSubstreamEntry(m_channel, stream_info->substream_id, &(pinfo->src), pinfo->srcport, &(pinfo->dst), pinfo->destport);
+        substream = new LBMSubstreamEntry(m_channel, stream_info->substream_id, pinfo, &(pinfo->src), pinfo->srcport, &(pinfo->dst), pinfo->destport);
         m_substreams.insert(stream_info->substream_id, substream);
         item = new QTreeWidgetItem();
         substream->setItem(item);
@@ -310,7 +310,7 @@ void LBMStreamDialogInfo::processPacket(const packet_info * pinfo, const lbm_uim
         QTreeWidgetItem * parent = NULL;
         Ui::LBMStreamDialog * ui = NULL;
 
-        stream = new LBMStreamEntry(stream_info->channel, &(stream_info->endpoint_a), &(stream_info->endpoint_b));
+        stream = new LBMStreamEntry(pinfo, stream_info->channel, &(stream_info->endpoint_a), &(stream_info->endpoint_b));
         it = m_streams.insert(stream_info->channel, stream);
         item = new QTreeWidgetItem();
         stream->setItem(item);

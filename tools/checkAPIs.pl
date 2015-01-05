@@ -169,7 +169,6 @@ my %APIs = (
                 'ep_stack_push',
                 'ep_stack_pop',
                 'ep_stack_peek',
-                'ep_address_to_str',
                 'se_alloc',
                 'se_new',
                 'se_alloc0',

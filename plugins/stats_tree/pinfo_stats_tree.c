@@ -112,10 +112,10 @@ static void ip_hosts_stats_tree_init(stats_tree *st) {
 	st_node_ip = stats_tree_create_node(st, st_str_ip, 0, TRUE);
 }
 
-static int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+static int ip_hosts_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	tick_stat_node(st, st_str_ip, 0, FALSE);
-	tick_stat_node(st, ep_address_to_str(&pinfo->net_src), st_node_ip, FALSE);
-	tick_stat_node(st, ep_address_to_str(&pinfo->net_dst), st_node_ip, FALSE);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node_ip, FALSE);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node_ip, FALSE);
 
 	return 1;
 }
@@ -138,13 +138,13 @@ static void ip_srcdst_stats_tree_init(stats_tree *st) {
 	stat_node_set_flags(st, st_str_ip_dst, 0, FALSE, ST_FLG_DEF_NOEXPAND);
 }
 
-static int ip_srcdst_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
+static int ip_srcdst_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
 	/* update source branch */
 	tick_stat_node(st, st_str_ip_src, 0, FALSE);
-	tick_stat_node(st, ep_address_to_str(&pinfo->net_src), st_node_ip_src, FALSE);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node_ip_src, FALSE);
 	/* update destination branch */
 	tick_stat_node(st, st_str_ip_dst, 0, FALSE);
-	tick_stat_node(st, ep_address_to_str(&pinfo->net_dst), st_node_ip_dst, FALSE);
+	tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node_ip_dst, FALSE);
 
 	return 1;
 }
@@ -215,7 +215,7 @@ static int dsts_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_disse
 
 	tick_stat_node(st, st_str_dsts, 0, FALSE);
 
-	ip_dst_node = tick_stat_node(st, ep_address_to_str(&pinfo->net_src), st_node_dsts, TRUE);
+	ip_dst_node = tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_src), st_node_dsts, TRUE);
 
 	protocol_node = tick_stat_node(st,port_type_to_str(pinfo->ptype),ip_dst_node,TRUE);
 

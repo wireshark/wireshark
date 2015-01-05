@@ -1555,7 +1555,7 @@ eth_addr_resolve(hashether_t *tp) {
 
         /* No match whatsoever. */
         SET_ADDRESS(&ether_addr, AT_ETHER, 6, addr);
-        g_snprintf(tp->resolved_name, MAXNAMELEN, "%s", ep_address_to_str(&ether_addr));
+        address_to_str_buf(&ether_addr, tp->resolved_name, MAXNAMELEN);
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;
     }

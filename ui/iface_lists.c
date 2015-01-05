@@ -192,22 +192,26 @@ scan_local_interfaces(void (*update_cb)(void))
             addr = (if_addr_t *)curr_addr->data;
             if (addr) {
                 address addr_str;
+                char* temp_addr_str = NULL;
                 temp_addr->ifat_type = addr->ifat_type;
                 switch (addr->ifat_type) {
                     case IF_AT_IPv4:
                         temp_addr->addr.ip4_addr = addr->addr.ip4_addr;
                         SET_ADDRESS(&addr_str, AT_IPv4, 4, &addr->addr.ip4_addr);
-                        g_string_append(ip_str, ep_address_to_str(&addr_str));
+                        temp_addr_str = address_to_str(NULL, &addr_str);
+                        g_string_append(ip_str, temp_addr_str);
                         break;
                     case IF_AT_IPv6:
                         memcpy(temp_addr->addr.ip6_addr, addr->addr.ip6_addr, sizeof(addr->addr));
                         SET_ADDRESS(&addr_str, AT_IPv6, 16, addr->addr.ip6_addr);
-                        g_string_append(ip_str, ep_address_to_str(&addr_str));
+                        temp_addr_str = address_to_str(NULL, &addr_str);
+                        g_string_append(ip_str, temp_addr_str);
                         break;
                     default:
                         /* In case we add non-IP addresses */
                         break;
                 }
+                wmem_free(NULL, temp_addr_str);
             } else {
                 g_free(temp_addr);
                 temp_addr = NULL;

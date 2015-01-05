@@ -198,6 +198,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	size_t filter_length;
 	size_t max_filter_length = 2048; /* What's this based on ? */
 	int pos;
+	char* addr_str;
 
 	const sip_calls_info_t *sipinfo;
 	const isup_calls_info_t *isupinfo;
@@ -287,10 +288,12 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 					listb = g_list_first(h323info->h245_list);
 					while (listb) {
 						h245_add = (h245_address_t *)listb->data;
+						addr_str = (char*)address_to_str(NULL, &h245_add->h245_address);
 						g_string_append_printf(filter_string_fwd,
 							" || (ip.addr == %s && tcp.port == %d && h245)",
-							ep_address_to_str(&h245_add->h245_address), h245_add->h245_port);
+							addr_str, h245_add->h245_port);
 						listb = g_list_next(listb);
+						wmem_free(NULL, addr_str);
 					}
 					g_string_append_printf(filter_string_fwd, ")");
 					break;

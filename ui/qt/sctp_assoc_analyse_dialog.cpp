@@ -131,7 +131,9 @@ void SCTPAssocAnalyseDialog::fillTabs()
             store = (address *)(list->data);
             if (store->type != AT_NONE) {
                 if ((store->type == AT_IPv4) || (store->type == AT_IPv6)) {
-                    ui->listWidgetEP1->addItem(QString("%1").arg(ep_address_to_str(store)));
+                    char* addr_str = (char*)address_to_str(NULL, store);
+                    ui->listWidgetEP1->addItem(QString("%1").arg(addr_str));
+                    wmem_free(NULL, addr_str);
                 }
             }
             list = g_list_next(list);
@@ -183,7 +185,9 @@ void SCTPAssocAnalyseDialog::fillTabs()
             store = (address *)(list->data);
             if (store->type != AT_NONE) {
                 if ((store->type == AT_IPv4) || (store->type == AT_IPv6)) {
-                    ui->listWidgetEP2->addItem(QString("%1").arg(ep_address_to_str(store)));
+                    char* addr_str = (char*)address_to_str(NULL, store);
+                    ui->listWidgetEP2->addItem(QString("%1").arg(addr_str));
+                    wmem_free(NULL, addr_str);
                 }
             }
             list = g_list_next(list);
