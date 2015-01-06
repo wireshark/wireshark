@@ -7989,7 +7989,7 @@ proto_register_mbim(void)
 void
 proto_reg_handoff_mbim(void)
 {
-    static gboolean initialized = FALSE;
+    static gboolean initialized = FALSE, mbim_control_decode_unknown_itf_prev = FALSE;
     dissector_handle_t mbim_control_handle;
 
     if (!initialized) {
@@ -8005,11 +8005,14 @@ proto_reg_handoff_mbim(void)
         initialized = TRUE;
     }
     heur_dissector_set_enabled("usb.bulk", dissect_mbim_bulk_heur, proto_mbim, mbim_bulk_heuristic);
-    mbim_control_handle = find_dissector("mbim.control");
-    if (mbim_control_decode_unknown_itf) {
-        dissector_add_uint("usb.control", IF_CLASS_UNKNOWN, mbim_control_handle);
-    } else {
-        dissector_delete_uint("usb.control", IF_CLASS_UNKNOWN, mbim_control_handle);
+    if (mbim_control_decode_unknown_itf != mbim_control_decode_unknown_itf_prev) {
+        mbim_control_handle = find_dissector("mbim.control");
+        if (mbim_control_decode_unknown_itf) {
+            dissector_add_uint("usb.control", IF_CLASS_UNKNOWN, mbim_control_handle);
+        } else {
+            dissector_delete_uint("usb.control", IF_CLASS_UNKNOWN, mbim_control_handle);
+        }
+        mbim_control_decode_unknown_itf_prev = mbim_control_decode_unknown_itf;
     }
 }
 
