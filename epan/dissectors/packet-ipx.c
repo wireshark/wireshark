@@ -301,8 +301,6 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ipx_tree = NULL;
 	proto_item	*ti = NULL, *hidden_item;
 
-	const guint8	*src_net_node, *dst_net_node;
-
 	guint8		ipx_hops;
 	char 		*str;
 	guint16		first_socket, second_socket;
@@ -334,15 +332,12 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Adjust the tvbuff length to include only the IPX datagram. */
 	set_actual_length(tvb, ipxh->ipx_length);
 
-	src_net_node = tvb_get_ptr(tvb, 18, 10);
-	dst_net_node = tvb_get_ptr(tvb, 6,  10);
-
-	SET_ADDRESS(&pinfo->net_src,	AT_IPX, 10, src_net_node);
-	SET_ADDRESS(&pinfo->src,	AT_IPX, 10, src_net_node);
-	SET_ADDRESS(&ipxh->ipx_src,	AT_IPX, 10, src_net_node);
-	SET_ADDRESS(&pinfo->net_dst,	AT_IPX, 10, dst_net_node);
-	SET_ADDRESS(&pinfo->dst,	AT_IPX, 10, dst_net_node);
-	SET_ADDRESS(&ipxh->ipx_dst,	AT_IPX, 10, dst_net_node);
+	TVB_SET_ADDRESS(&pinfo->net_src,	AT_IPX, tvb, 18, 10);
+	TVB_SET_ADDRESS(&pinfo->src,	AT_IPX, tvb, 18, 10);
+	TVB_SET_ADDRESS(&ipxh->ipx_src,	AT_IPX, tvb, 18, 10);
+	TVB_SET_ADDRESS(&pinfo->net_dst,	AT_IPX, tvb, 6,  10);
+	TVB_SET_ADDRESS(&pinfo->dst,	AT_IPX, tvb, 6,  10);
+	TVB_SET_ADDRESS(&ipxh->ipx_dst,	AT_IPX, tvb, 6,  10);
 
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(ipxh->ipx_dsocket, &ipx_socket_vals_ext, "Unknown (0x%04x)"));
 

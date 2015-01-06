@@ -791,7 +791,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   proto_tree    *p_mul_tree, *field_tree, *checksum_tree;
   proto_item    *ti, *en, *len_en;
   gboolean       save_fragmented;
-  guint32        message_id = 0, ip;
+  guint32        message_id = 0;
   guint16        no_dest = 0, count = 0, len, data_len = 0;
   guint16        checksum_calc, checksum_found;
   guint16        pdu_length, no_pdus = 0, seq_no = 0;
@@ -949,8 +949,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
   if (pdu_type == Ack_PDU) {
     /* Source ID of Ack Sender */
-    ip = tvb_get_ipv4 (tvb, offset);
-    SET_ADDRESS (&dst, AT_IPv4, sizeof(ip), wmem_memdup (wmem_packet_scope(), &ip, 4));
+    TVB_SET_ADDRESS (&dst, AT_IPv4, tvb, offset, 4);
     proto_tree_add_item (p_mul_tree, hf_source_id_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
@@ -960,8 +959,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset += 2;
   } else {
     /* Source Id */
-    ip = tvb_get_ipv4 (tvb, offset);
-    SET_ADDRESS (&src, AT_IPv4, sizeof(ip), wmem_memdup (wmem_packet_scope(), &ip, 4));
+    TVB_SET_ADDRESS (&src, AT_IPv4, tvb, offset, 4);
     proto_tree_add_item (p_mul_tree, hf_source_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
@@ -1036,8 +1034,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       field_tree = proto_item_add_subtree (en, ett_dest_entry);
 
       /* Destination Id */
-      ip = tvb_get_ipv4 (tvb, offset);
-      SET_ADDRESS (&dst, AT_IPv4, sizeof(ip), wmem_memdup(wmem_packet_scope(), &ip, 4));
+      TVB_SET_ADDRESS (&dst, AT_IPv4, tvb, offset, 4);
       proto_tree_add_item (field_tree, hf_dest_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 
@@ -1098,8 +1095,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       }
 
       /* Source Id */
-      ip = tvb_get_ipv4 (tvb, offset);
-      SET_ADDRESS (&src, AT_IPv4, sizeof(ip), wmem_memdup (wmem_packet_scope(), &ip, 4));
+      TVB_SET_ADDRESS (&src, AT_IPv4, tvb, offset, 4);
       proto_tree_add_item (field_tree, hf_source_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 

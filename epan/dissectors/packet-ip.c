@@ -1966,7 +1966,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   gboolean   update_col_info = TRUE;
   gboolean   save_fragmented;
   ws_ip *iph;
-  const guchar *src_addr, *dst_addr;
   guint32    src32, dst32;
   proto_tree *tree;
   proto_item *item = NULL, *ttl_item;
@@ -2222,11 +2221,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       PROTO_ITEM_SET_GENERATED(item);
     }
   }
-  src_addr = tvb_get_ptr(tvb, offset + IPH_SRC, 4);
   src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
-  SET_ADDRESS(&pinfo->net_src, AT_IPv4, 4, src_addr);
-  SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src_addr);
-  SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, src_addr);
+  TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv4, tvb, offset + IPH_SRC, 4);
+  TVB_SET_ADDRESS(&pinfo->src, AT_IPv4, tvb, offset + IPH_SRC, 4);
+  TVB_SET_ADDRESS(&iph->ip_src, AT_IPv4, tvb, offset + IPH_SRC, 4);
   if (tree) {
     const char *src_host;
 
@@ -2266,11 +2264,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   else
     dst_off = 0;
 
-  dst_addr = tvb_get_ptr(tvb, offset + IPH_DST + dst_off, 4);
   dst32 = tvb_get_ntohl(tvb, offset + IPH_DST + dst_off);
-  SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, dst_addr);
-  SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, dst_addr);
-  SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, dst_addr);
+  TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv4, tvb, offset + IPH_DST + dst_off, 4);
+  TVB_SET_ADDRESS(&pinfo->dst, AT_IPv4, tvb, offset + IPH_DST + dst_off, 4);
+  TVB_SET_ADDRESS(&iph->ip_dst, AT_IPv4, tvb, offset + IPH_DST + dst_off, 4);
 
   /* If an IP is destined for an IP address in the Local Network Control Block
    * (e.g. 224.0.0.0/24), the packet should never be routed and the TTL would

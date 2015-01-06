@@ -2034,7 +2034,6 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	guint8  hdr_size;
 	guint8  user;
 	gchar  *addr_str_ptr;
-	const guchar		*src_addr, *dst_addr;
 	tvbuff_t *data_tvb, *tipc_tvb;
 	gboolean datatype_hdr = FALSE;
 	guint8   msg_type = 0;
@@ -2070,22 +2069,18 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				/* Data type header */
 				if (hdr_size > 5 && user <4) {
 					/* W6 Originating Processor */
-					src_addr = tvb_get_ptr(tipc_tvb, offset + 24, 4);
-					SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 24, 4);
 
 					/* W7 Destination Processor */
-					dst_addr = tvb_get_ptr(tipc_tvb, offset + 28, 4);
-					SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
+					TVB_SET_ADDRESS(&pinfo->dst, AT_TIPC, tipc_tvb, offset + 28, 4);
 				} else {
 					/* Short data hdr */
 					/* W2 Previous Processor */
-					src_addr = tvb_get_ptr(tipc_tvb, offset + 8, 4);
-					SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 8, 4);
 				}
 			} else {
 				/* W2 Previous Processor */
-				src_addr = tvb_get_ptr(tipc_tvb, offset + 8, 4);
-				SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+				TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 8, 4);
 			}
 			break;
 		case TIPCv2:
@@ -2110,35 +2105,28 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			if (datatype_hdr) {
 				if (hdr_size > 6) {
 					/* W6 Originating Processor */
-					src_addr = tvb_get_ptr(tipc_tvb, offset + 24, 4);
-					SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 24, 4);
 
 					/* W7 Destination Processor */
-					dst_addr = tvb_get_ptr(tipc_tvb, offset + 28, 4);
-					SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
+					TVB_SET_ADDRESS(&pinfo->dst, AT_TIPC, tipc_tvb, offset + 28, 4);
 				} else {
 					/* W3 Previous Processor */
-					src_addr = tvb_get_ptr(tipc_tvb, offset + 12, 4);
-					SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 12, 4);
 				}
 
 			} else {
 				if (user != TIPCv2_NEIGHBOUR_DISCOVERY) {
 					/* W6 Originating Processor */
-					src_addr = tvb_get_ptr(tipc_tvb, offset + 24, 4);
-					SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 24, 4);
 
 					/* W7 Destination Processor */
-					dst_addr = tvb_get_ptr(tipc_tvb, offset + 28, 4);
-					SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
+					TVB_SET_ADDRESS(&pinfo->dst, AT_TIPC, tipc_tvb, offset + 28, 4);
 				} else {
 					/* W2 Destination Domain */
-					dst_addr = tvb_get_ptr(tipc_tvb, offset + 8, 4);
-					SET_ADDRESS(&pinfo->dst, AT_TIPC, 4, dst_addr);
+					TVB_SET_ADDRESS(&pinfo->dst, AT_TIPC, tipc_tvb, offset + 8, 4);
 
 					/* W3 Previous Node */
-					src_addr = tvb_get_ptr(tipc_tvb, offset + 12, 4);
-					SET_ADDRESS(&pinfo->src, AT_TIPC, 4, src_addr);
+					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 12, 4);
 				}
 			}
 			break;

@@ -535,7 +535,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8  vip_proto;
 	proto_tree *vip_tree, *tctl_tree;
 	proto_item *ti;
-	const guint8     *dst_addr, *src_addr;
+	const guint8     *dst_addr;
 	gboolean is_broadcast = FALSE;
 	tvbuff_t *next_tvb;
 
@@ -553,12 +553,11 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str_const(vip_tctl, proto_vals, "Unknown VIP protocol"),
 			vip_tctl);
 
-	src_addr = tvb_get_ptr(tvb, offset+12, VINES_ADDR_LEN);
-	SET_ADDRESS(&pinfo->net_src, AT_VINES, VINES_ADDR_LEN, src_addr);
-	SET_ADDRESS(&pinfo->src, AT_VINES, VINES_ADDR_LEN, src_addr);
+	TVB_SET_ADDRESS(&pinfo->net_src, AT_VINES, tvb, offset+12, VINES_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->src, AT_VINES, tvb, offset+12, VINES_ADDR_LEN);
 	dst_addr = tvb_get_ptr(tvb, offset+6, VINES_ADDR_LEN);
-	SET_ADDRESS(&pinfo->net_dst, AT_VINES, VINES_ADDR_LEN, dst_addr);
-	SET_ADDRESS(&pinfo->dst, AT_VINES, VINES_ADDR_LEN, dst_addr);
+	TVB_SET_ADDRESS(&pinfo->net_dst, AT_VINES, tvb, offset+6, VINES_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->dst, AT_VINES, tvb, offset+6, VINES_ADDR_LEN);
 
 	/* helpers to transport control */
 	if (memcmp(dst_addr, bcast_addr, VINES_ADDR_LEN) == 0)

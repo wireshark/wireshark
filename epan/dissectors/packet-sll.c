@@ -195,7 +195,6 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 pkttype;
 	guint16 protocol;
 	guint16 hatype, halen;
-	const guint8 *src;
 	proto_item *ti;
 	tvbuff_t *next_tvb;
 	proto_tree *fh_tree = NULL;
@@ -245,30 +244,20 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	switch (halen) {
 	case 4:
-		src = tvb_get_ptr(tvb, 6, 4);
-		SET_ADDRESS(&pinfo->dl_src, AT_IPv4, 4, src);
-		SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src);
-		if (tree) {
-			proto_tree_add_item(fh_tree, &hfi_sll_src_ipv4, tvb,
-			    6, 4, ENC_BIG_ENDIAN);
-		}
+		TVB_SET_ADDRESS(&pinfo->dl_src, AT_IPv4, tvb, 6, 4);
+		TVB_SET_ADDRESS(&pinfo->src, AT_IPv4, tvb, 6, 4);
+		proto_tree_add_item(fh_tree, &hfi_sll_src_ipv4, tvb, 6, 4, ENC_BIG_ENDIAN);
 		break;
 	case 6:
-		src = tvb_get_ptr(tvb, 6, 6);
-		SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src);
-		SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src);
-		if (tree) {
-			proto_tree_add_ether(fh_tree, hfi_sll_src_eth.id, tvb,
-			    6, 6, src);
-		}
+		TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 6, 6);
+		TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 6, 6);
+		proto_tree_add_item(fh_tree, &hfi_sll_src_eth, tvb, 6, 6, ENC_NA);
 		break;
 	case 0:
 		break;
 	default:
-		if (tree) {
-			proto_tree_add_item(fh_tree, &hfi_sll_src_other, tvb,
+		proto_tree_add_item(fh_tree, &hfi_sll_src_other, tvb,
 			    6, halen > 8 ? 8 : halen, ENC_NA);
-		}
 		break;
 	}
 

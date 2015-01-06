@@ -233,7 +233,6 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	proto_item *tgw;
 	proto_tree *bat_batman_tree = NULL;
 	struct batman_packet_v5 *batman_packeth;
-	const guint8  *old_orig_addr, *orig_addr;
 	guint32 old_orig, orig;
 	gint i;
 	static const int * batman_flags[] = {
@@ -252,12 +251,10 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
 	batman_packeth->gwport = tvb_get_ntohs(tvb, offset+6);
-	orig_addr = tvb_get_ptr(tvb, offset+8, 4);
 	orig = tvb_get_ipv4(tvb, offset+8);
-	SET_ADDRESS(&batman_packeth->orig, AT_IPv4, 4, orig_addr);
-	old_orig_addr = tvb_get_ptr(tvb, offset+12, 4);
+	TVB_SET_ADDRESS(&batman_packeth->orig, AT_IPv4, tvb, offset+8, 4);
 	old_orig = tvb_get_ipv4(tvb, offset+12);
-	SET_ADDRESS(&batman_packeth->old_orig, AT_IPv4, 4, old_orig_addr);
+	TVB_SET_ADDRESS(&batman_packeth->old_orig, AT_IPv4, tvb, offset+12, 4);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+16);
 	batman_packeth->hna_len = tvb_get_guint8(tvb, offset+17);
 
@@ -455,7 +452,6 @@ static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v22 *vis_packeth;
-	const guint8  *sender_ip_addr;
 	guint32 sender_ip;
 	proto_tree *bat_vis_tree = NULL;
 
@@ -465,9 +461,8 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	vis_packeth = wmem_new(wmem_packet_scope(), struct vis_packet_v22);
 
-	sender_ip_addr = tvb_get_ptr(tvb, 0, 4);
 	sender_ip = tvb_get_ipv4(tvb, 0);
-	SET_ADDRESS(&vis_packeth->sender_ip, AT_IPv4, 4, sender_ip_addr);
+	TVB_SET_ADDRESS(&vis_packeth->sender_ip, AT_IPv4, tvb, 0, 4);
 	vis_packeth->version = tvb_get_guint8(tvb, 4);
 	vis_packeth->gw_class = tvb_get_guint8(tvb, 5);
 	vis_packeth->tq_max = tvb_get_ntohs(tvb, 6);
@@ -538,15 +533,13 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	struct vis_data_v22 *vis_datah;
-	const guint8  *ip_addr;
 	guint32 ip;
 
 	vis_datah = wmem_new(wmem_packet_scope(), struct vis_data_v22);
 	vis_datah->type = tvb_get_guint8(tvb, 0);
 	vis_datah->data = tvb_get_ntohs(tvb, 1);
-	ip_addr = tvb_get_ptr(tvb, 3, 4);
 	ip = tvb_get_ipv4(tvb, 3);
-	SET_ADDRESS(&vis_datah->ip, AT_IPv4, 4, ip_addr);
+	TVB_SET_ADDRESS(&vis_datah->ip, AT_IPv4, tvb, 3, 4);
 
 
 	/* Set tree info */
@@ -580,7 +573,6 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v23 *vis_packeth;
-	const guint8  *sender_ip_addr;
 	guint32 sender_ip;
 	proto_tree *bat_vis_tree = NULL;
 
@@ -590,9 +582,8 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	vis_packeth = wmem_new(wmem_packet_scope(), struct vis_packet_v23);
 
-	sender_ip_addr = tvb_get_ptr(tvb, 0, 4);
 	sender_ip = tvb_get_ipv4(tvb, 0);
-	SET_ADDRESS(&vis_packeth->sender_ip, AT_IPv4, 4, sender_ip_addr);
+	TVB_SET_ADDRESS(&vis_packeth->sender_ip, AT_IPv4, tvb, 0, 4);
 	vis_packeth->version = tvb_get_guint8(tvb, 4);
 	vis_packeth->gw_class = tvb_get_guint8(tvb, 5);
 	vis_packeth->tq_max = tvb_get_guint8(tvb, 6);
@@ -663,15 +654,13 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	struct vis_data_v23 *vis_datah;
-	const guint8  *ip_addr;
 	guint32 ip;
 
 	vis_datah = wmem_new(wmem_packet_scope(), struct vis_data_v23);
 	vis_datah->type = tvb_get_guint8(tvb, 0);
 	vis_datah->data = tvb_get_guint8(tvb, 1);
-	ip_addr = tvb_get_ptr(tvb, 2, 4);
 	ip = tvb_get_ipv4(tvb, 2);
-	SET_ADDRESS(&vis_datah->ip, AT_IPv4, 4, ip_addr);
+	TVB_SET_ADDRESS(&vis_datah->ip, AT_IPv4, tvb, 2, 4);
 
 
 	/* Set tree info */

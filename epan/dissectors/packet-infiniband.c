@@ -1578,8 +1578,6 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
                                     /*  It provides the parsing methods a known size            */
                                     /*   that must be available for that header.                */
-    struct e_in6_addr SRCgid;       /* Structures to hold GIDs should we need them */
-    struct e_in6_addr DSTgid;
     gint crc_length = 0;
     gint crclen = 6;
 
@@ -1692,23 +1690,13 @@ skip_lrh:
             proto_tree_add_item(global_route_header_tree, hf_infiniband_hop_limit,          tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
             proto_tree_add_item(global_route_header_tree, hf_infiniband_source_gid,         tvb, offset, 16, ENC_NA);
 
-            tvb_get_ipv6(tvb, offset, &SRCgid);
-
             /* set source GID in packet view*/
-            src_addr = wmem_alloc(pinfo->pool, GID_SIZE);
-            memcpy(src_addr, &SRCgid, GID_SIZE);
-            SET_ADDRESS(&pinfo->src, AT_IB, GID_SIZE, src_addr);
-
+            TVB_SET_ADDRESS(&pinfo->src, AT_IB, tvb, offset, GID_SIZE);
             offset += 16;
 
             proto_tree_add_item(global_route_header_tree, hf_infiniband_destination_gid,    tvb, offset, 16, ENC_NA);
-
-            tvb_get_ipv6(tvb, offset, &DSTgid);
-
             /* set destination GID in packet view*/
-            dst_addr = wmem_alloc(pinfo->pool, GID_SIZE);
-            memcpy(dst_addr, &DSTgid, GID_SIZE);
-            SET_ADDRESS(&pinfo->dst, AT_IB, GID_SIZE, dst_addr);
+            TVB_SET_ADDRESS(&pinfo->dst, AT_IB, tvb, offset, GID_SIZE);
 
             offset += 16;
             packetLength -= 40; /* Shave 40 bytes for GRH */
@@ -4943,8 +4931,6 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint8            virtualLane        = 0; /* The Virtual Lane of the current Packet */
     gint32            nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8            nxtHdr             = 0; /* that must be available for that header. */
-    struct e_in6_addr SRCgid;   /* Struct to display ipv6 Address */
-    struct e_in6_addr DSTgid;   /* Struct to display ipv6 Address */
     guint8            management_class   = 0;
     MAD_Data          MadData;
 
@@ -4997,22 +4983,12 @@ skip_lrh:
             nxtHdr = tvb_get_guint8(tvb, offset);
             offset += 2;
 
-            tvb_get_ipv6(tvb, offset, &SRCgid);
-
             /* Set source GID in packet view. */
-            src_addr = wmem_alloc(pinfo->pool, GID_SIZE);
-            memcpy(src_addr, &SRCgid, GID_SIZE);
-            SET_ADDRESS(&pinfo->src, AT_IB, GID_SIZE, src_addr);
-
+            TVB_SET_ADDRESS(&pinfo->src, AT_IB, tvb, offset, GID_SIZE);
             offset += 16;
 
-            tvb_get_ipv6(tvb, offset, &DSTgid);
-
             /* Set destination GID in packet view. */
-            dst_addr = wmem_alloc(pinfo->pool, GID_SIZE);
-            memcpy(dst_addr, &DSTgid, GID_SIZE);
-            SET_ADDRESS(&pinfo->dst, AT_IB, GID_SIZE, dst_addr);
-
+            TVB_SET_ADDRESS(&pinfo->dst, AT_IB, tvb, offset, GID_SIZE);
             offset += 16;
 
             if (nxtHdr != 0x1B)

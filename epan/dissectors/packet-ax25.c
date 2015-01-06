@@ -160,17 +160,17 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 	dst_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
 	proto_tree_add_ax25( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, dst_addr );
-	SET_ADDRESS( &pinfo->dl_dst,	AT_AX25, AX25_ADDR_LEN, dst_addr );
-	SET_ADDRESS( &pinfo->dst,	AT_AX25, AX25_ADDR_LEN, dst_addr );
+	TVB_SET_ADDRESS( &pinfo->dl_dst, AT_AX25, tvb, offset, AX25_ADDR_LEN );
+	TVB_SET_ADDRESS( &pinfo->dst, AT_AX25, tvb, offset, AX25_ADDR_LEN );
 	dst_ssid = *(dst_addr + 6);
 
 	/* step over dst addr point at src addr */
 	offset += AX25_ADDR_LEN;
 
-	src_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
+	src_addr = tvb_get_ptr( tvb, offset, AX25_ADDR_LEN );
 	proto_tree_add_ax25( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, src_addr );
-	SET_ADDRESS( &pinfo->dl_src,	AT_AX25, AX25_ADDR_LEN, src_addr );
-	SET_ADDRESS( &pinfo->src,	AT_AX25, AX25_ADDR_LEN, src_addr );
+	TVB_SET_ADDRESS( &pinfo->dl_src, AT_AX25, tvb, offset, AX25_ADDR_LEN );
+	TVB_SET_ADDRESS( &pinfo->src, AT_AX25, tvb, offset, AX25_ADDR_LEN );
 	src_ssid = *(src_addr + 6);
 
 	/* step over src addr point at either 1st via addr or control byte */

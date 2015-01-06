@@ -1646,7 +1646,6 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
 	guint8		th_0;
-	const guint8	*ptr;
 
 	const int bytes_in_header = 10;
 
@@ -1669,21 +1668,14 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Set DST addr */
-	ptr = tvb_get_ptr(tvb, 2, SNA_FID01_ADDR_LEN);
-	SET_ADDRESS(&pinfo->net_dst, AT_SNA, SNA_FID01_ADDR_LEN, ptr);
-	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID01_ADDR_LEN, ptr);
+	TVB_SET_ADDRESS(&pinfo->net_dst, AT_SNA, tvb, 2, SNA_FID01_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->dst, AT_SNA, tvb, 2, SNA_FID01_ADDR_LEN);
 
-	if (tree)
-		proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 4, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 4, 2, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
-	ptr = tvb_get_ptr(tvb, 4, SNA_FID01_ADDR_LEN);
-	SET_ADDRESS(&pinfo->net_src, AT_SNA, SNA_FID01_ADDR_LEN, ptr);
-	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID01_ADDR_LEN, ptr);
-
-	/* If we're not filling a proto_tree, return now */
-	if (tree)
-		return bytes_in_header;
+	TVB_SET_ADDRESS(&pinfo->net_src, AT_SNA, tvb, 4, SNA_FID01_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->src, AT_SNA, tvb, 4, SNA_FID01_ADDR_LEN);
 
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 6, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, 8, 2, ENC_BIG_ENDIAN);
@@ -1701,7 +1693,6 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree	*bf_tree;
 	proto_item	*bf_item;
 	guint8		th_0;
-	const guint8	*ptr;
 	unsigned int	mpf, id;
 
 	const int bytes_in_header = 6;
@@ -1729,17 +1720,15 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* Set DST addr */
-	ptr = tvb_get_ptr(tvb, 2, SNA_FID2_ADDR_LEN);
-	SET_ADDRESS(&pinfo->net_dst, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
-	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
+	TVB_SET_ADDRESS(&pinfo->net_dst, AT_SNA, tvb, 2, SNA_FID2_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->dst, AT_SNA, tvb, 2, SNA_FID2_ADDR_LEN);
 
 	/* Byte 3 */
 	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 3, 1, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
-	ptr = tvb_get_ptr(tvb, 3, SNA_FID2_ADDR_LEN);
-	SET_ADDRESS(&pinfo->net_src, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
-	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID2_ADDR_LEN, ptr);
+	TVB_SET_ADDRESS(&pinfo->net_src, AT_SNA, tvb, 3, SNA_FID2_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->src, AT_SNA, tvb, 3, SNA_FID2_ADDR_LEN);
 
 	id = tvb_get_ntohs(tvb, 4);
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 4, 2, ENC_BIG_ENDIAN);

@@ -313,15 +313,15 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   src_addr = tvb_get_ptr(tvb, 6, 6);
   src_addr_name = get_ether_name(src_addr);
-  SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src_addr);
-  SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src_addr);
-  SET_ADDRESS(&ehdr->src, AT_ETHER, 6, src_addr);
+  TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 6, 6);
+  TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 6, 6);
+  TVB_SET_ADDRESS(&ehdr->src, AT_ETHER, tvb, 6, 6);
 
   dst_addr = tvb_get_ptr(tvb, 0, 6);
   dst_addr_name = get_ether_name(dst_addr);
-  SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst_addr);
-  SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst_addr);
-  SET_ADDRESS(&ehdr->dst, AT_ETHER, 6, dst_addr);
+  TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 0, 6);
+  TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 0, 6);
+  TVB_SET_ADDRESS(&ehdr->dst, AT_ETHER, tvb, 0, 6);
 
   ehdr->type = tvb_get_ntohs(tvb, 12);
 
