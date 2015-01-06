@@ -2244,10 +2244,13 @@ static const value_string pn_io_channel_properties_accumulative_vals[] = {
     { 0, NULL }
 };
 
+/* We are reading this as a two bit value, but the spec specifies each bit
+ * separately. Beware endianness when reading spec
+ */
 static const value_string pn_io_channel_properties_maintenance[] = {
     { 0x0000, "Failure" },
-    { 0x0001, "Maintenance demanded" },
-    { 0x0002, "Maintenance required" },
+    { 0x0001, "Maintenance required" },
+    { 0x0002, "Maintenance demanded" },
     { 0x0003, "see QualifiedChannelQualifier" },
     { 0, NULL }
 };
