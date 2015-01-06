@@ -2089,6 +2089,7 @@ while ($_ = $ARGV[0])
         my $fileContents = '';
         my @foundAPIs = ();
         my $line;
+        my $prohibit_cpp_comments = 1;
 
         if ($source_dir and ! -e $filename) {
                 $filename = $source_dir . '/' . $filename;
@@ -2104,6 +2105,11 @@ while ($_ = $ARGV[0])
                 print STDERR "Warning: $filename is not of type file - skipping.\n";
                 next;
         }
+
+        # Establish or remove local taboos
+        if ($filename =~ m{ ui/qt/ }x) { $prohibit_cpp_comments = 0; }
+        if ($filename =~ m{ image/*.rc }x) { $prohibit_cpp_comments = 0; }
+
         # Read in the file (ouch, but it's easier that way)
         open(FC, $filename) || die("Couldn't open $filename");
         $line = 1;
@@ -2164,7 +2170,7 @@ while ($_ = $ARGV[0])
 
         #$errorCount += check_ett_registration(\$fileContents, $filename);
 
-        if ($filename !~ m{ ui/qt/ }x && $fileContents =~ m{ \s// }xo)
+        if ($prohibit_cpp_comments && $fileContents =~ m{ \s// }xo)
         {
                 print STDERR "Error: Found C++ style comments in " .$filename."\n";
                 $errorCount++;
