@@ -1288,6 +1288,42 @@ void MainWindow::showColumnEditor(int column)
     main_ui_->columnEditorFrame->animatedShow();
 }
 
+void MainWindow::addStatsPluginsToMenu() {
+    GList          *cfg_list = stats_tree_get_cfg_list();
+    GList          *iter = g_list_first(cfg_list);
+    QAction        *stats_tree_action;
+    QMenu          *parent_menu;
+    bool            first_item = true;
+
+    while (iter) {
+        stats_tree_cfg *cfg = (stats_tree_cfg*)iter->data;
+        if (cfg->plugin) {
+            if (first_item) {
+                main_ui_->menuStatistics->addSeparator();
+                first_item = false;
+            }
+
+            parent_menu = main_ui_->menuStatistics;
+            // gtk/main_menubar.c compresses double slashes, hence SkipEmptyParts
+            QStringList cfg_name_parts = QString(cfg->name).split("/", QString::SkipEmptyParts);
+            if (cfg_name_parts.isEmpty()) continue;
+
+            QString stat_name = cfg_name_parts.takeLast();
+            if (!cfg_name_parts.isEmpty()) {
+                QString menu_name = cfg_name_parts.join("/");
+                parent_menu = findOrAddMenu(parent_menu, menu_name);
+            }
+
+            stats_tree_action = new QAction(stat_name, this);
+            stats_tree_action->setData(cfg->abbr);
+            parent_menu->addAction(stats_tree_action);
+            connect(stats_tree_action, SIGNAL(triggered()), this, SLOT(actionStatisticsPlugin_triggered()));
+        }
+        iter = g_list_next(iter);
+    }
+    g_list_free(cfg_list);
+}
+
 void MainWindow::setFeaturesEnabled(bool enabled)
 {
     main_ui_->menuBar->setEnabled(enabled);
@@ -2390,6 +2426,14 @@ void MainWindow::on_actionStatisticsSametime_triggered()
 void MainWindow::on_actionStatisticsDNS_triggered()
 {
     openStatisticsTreeDialog("dns");
+}
+
+void MainWindow::actionStatisticsPlugin_triggered()
+{
+    QAction* action = qobject_cast<QAction*>(sender());
+    if(action) {
+        openStatisticsTreeDialog(action->data().toString().toUtf8());
+    }
 }
 
 // Telephony Menu

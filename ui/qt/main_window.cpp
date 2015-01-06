@@ -26,6 +26,7 @@
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
+#include <epan/stats_tree_priv.h>
 
 //#include <wiretap/wtap.h>
 
@@ -143,6 +144,18 @@ vsimple_error_message_box(const char *msg_format, va_list ap)
 }
 
 
+QMenu* MainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
+    QList<QAction *> actions = parent_menu->actions();
+    QList<QAction *>::const_iterator i;
+    for (i = actions.constBegin(); i != actions.constEnd(); ++i) {
+        if ((*i)->text()==menu_text) {
+            return (*i)->menu();
+        }
+    }
+    // If we get here there menu entry was not found, add a sub menu
+    return parent_menu->addMenu(menu_text);
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_ui_(new Ui::MainWindow),
@@ -182,6 +195,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setFeaturesEnabled(false);
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));

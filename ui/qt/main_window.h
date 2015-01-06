@@ -171,6 +171,7 @@ private:
     void setMenusForFileSet(bool enable_list_files);
 
     void setForCaptureInProgress(gboolean capture_in_progress = false);
+    QMenu* findOrAddMenu(QMenu *parent_menu, QString& menu_text);
 
 signals:
     void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
@@ -225,6 +226,7 @@ private slots:
     void recreatePacketList();
     void fieldsChanged();
     void showColumnEditor(int column);
+    void addStatsPluginsToMenu();
 
     void startInterfaceCapture(bool valid);
 
@@ -420,6 +422,7 @@ private slots:
     void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();
     void on_actionStatisticsDNS_triggered();
+    void actionStatisticsPlugin_triggered();
 
     void openVoipCallsDialog(bool all_flows = false);
     void on_actionTelephonyVoipCalls_triggered();
