@@ -1662,8 +1662,8 @@ dissect_handle_uint(proto_tree *tree, packet_info *pinfo, gint hf,
 
         if (local_uuid.size == 2)
             sub_item = proto_tree_add_uint(sub_tree, hf_btatt_uuid16, tvb, 0, 0, local_uuid.bt_uuid);
-/*        else
-            sub_item = proto_tree_add_bytes(sub_tree, hf_btatt_uuid128, tvb, 0, 16, uuid.data);*/
+        else
+            sub_item = proto_tree_add_new_bytes(sub_tree, hf_btatt_uuid128, tvb, 0, 0, local_uuid.data, 16);
 
 
         PROTO_ITEM_SET_GENERATED(sub_item);

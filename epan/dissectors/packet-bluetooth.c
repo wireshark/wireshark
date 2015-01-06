@@ -1178,8 +1178,9 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
 {
     uuid_t  uuid;
 
+    uuid.bt_uuid = 0;
+
     if (size != 2 && size != 16) {
-        uuid.bt_uuid = 0;
         uuid.size = 0;
 
         return uuid;
