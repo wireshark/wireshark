@@ -196,6 +196,10 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/D_BIND_TO_CURRENT_CRT_VERSION=1")
 	endif()
 
+	if(ENABLE_CODE_ANALYSIS)
+		set(LOCAL_CFLAGS ${LOCAL_CFLAGS} "/analyze:WX-")
+	endif()
+
 	# Additional compiler warnings to be treated as "Level 3"
 	#  when compiling Wireshark sources. (Selected from "level 4" warnings).
 	## 4295: array is too small to include a terminating null character
