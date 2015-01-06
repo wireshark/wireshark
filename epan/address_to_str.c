@@ -74,36 +74,8 @@ ip6_to_str_buf_len(const guchar* src, char *buf, size_t buf_len);
  */
 #define BUF_TOO_SMALL_ERR "[Buffer too small]"
 
-/* Wrapper for the most common case of asking
- * for a string using a colon as the hex-digit separator.
- */
-const gchar *
-tvb_ether_to_str(tvbuff_t *tvb, const gint offset)
-{
-    return bytestring_to_ep_str(tvb_get_ptr(tvb, offset, 6), 6, ':');
-}
-
 #define IPV4_LENGTH 4
-const gchar *
-tvb_ip_to_str(tvbuff_t *tvb, const gint offset)
-{
-    gchar *buf;
-
-    buf=(gchar *)ep_alloc(MAX_IP_STR_LEN);
-    ip_to_str_buf(tvb_get_ptr(tvb, offset, IPV4_LENGTH), buf, MAX_IP_STR_LEN);
-    return buf;
-}
-
 #define IPV6_LENGTH 16
-const gchar *
-tvb_ip6_to_str(tvbuff_t *tvb, const gint offset)
-{
-    gchar *buf;
-
-    buf=(gchar *)ep_alloc(MAX_IP6_STR_LEN);
-    ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, IPV6_LENGTH), buf);
-    return buf;
-}
 
 /* const char *
  * inet_ntop6(src, dst, size)
@@ -240,12 +212,6 @@ ipx_addr_to_str(const guint32 net, const guint8 *ad)
     return buf;
 }
 
-gchar*
-tvb_ipxnet_to_string(tvbuff_t *tvb, const gint offset)
-{
-    return ipxnet_to_str_punct(tvb_get_ntohl(tvb, offset), ' ');
-}
-
 gchar *
 ipxnet_to_str_punct(const guint32 ad, const char punct)
 {
@@ -269,17 +235,6 @@ vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
     *buf = '\0'; /* 1 byte */
 }
 
-gchar *
-tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset)
-{
-    gchar *buf;
-
-    buf=(gchar *)ep_alloc(214); /* XXX, 14 here? */
-
-    vines_addr_to_str_buf(tvb_get_ptr(tvb, offset, VINES_ADDR_LEN), buf, 214);
-    return buf;
-}
-
 /*
  This function is very fast and this function is called a lot.
  XXX update the address_to_str stuff to use this function.
@@ -299,16 +254,6 @@ eui64_to_str(const guint64 ad) {
     p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],
     p_eui64[4], p_eui64[5], p_eui64[6], p_eui64[7] );
     return buf;
-}
-gchar *
-tvb_eui64_to_str(tvbuff_t *tvb, const gint offset, const guint encoding)
-{
-    if(encoding)
-    {
-        return eui64_to_str(tvb_get_letoh64(tvb, offset));
-    }else {
-        return eui64_to_str(tvb_get_ntoh64(tvb, offset));
-    }
 }
 
 static void
@@ -360,12 +305,6 @@ ib_addr_to_str_buf( const address *addr, gchar *buf, int buf_len){
         memcpy((void *)&lid_number, addr->data, sizeof lid_number);
         g_snprintf(buf,buf_len,"LID: %u",lid_number);
     }
-}
-
-const gchar *
-tvb_fc_to_str(tvbuff_t *tvb, const gint offset)
-{
-    return bytestring_to_str(wmem_packet_scope(),  tvb_get_ptr(tvb, offset, 3), 3, '.');
 }
 
 /* FC Network Header Network Address Authority Identifiers */
@@ -420,16 +359,109 @@ fcwwn_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
     }
 }
 
-gchar *
-tvb_fcwwn_to_str(tvbuff_t *tvb, const gint offset)
+gchar*
+tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset)
 {
-    gchar *buf;
+    address addr;
 
-    buf=(gchar *)ep_alloc(512);
+    addr.type = type;
+    addr.hf = -1;
 
-    fcwwn_addr_to_str_buf(tvb_get_ptr(tvb, offset, FCWWN_ADDR_LEN), buf, 512);
+    switch(type)
+    {
+    case AT_NONE:
+        addr.len = 0;
+        addr.data = NULL;
+        break;
+    case AT_ETHER:
+        addr.len = 6;
+        addr.data = tvb_get_ptr(tvb, offset, 6);
+        break;
+    case AT_IPv4:
+        addr.len = IPV4_LENGTH;
+        addr.data = tvb_get_ptr(tvb, offset, IPV4_LENGTH);
+        break;
+    case AT_IPv6:
+        addr.len = IPV6_LENGTH;
+        addr.data = tvb_get_ptr(tvb, offset, IPV6_LENGTH);
+        break;
+    case AT_IPX:
+        addr.len = 10;
+        addr.data = tvb_get_ptr(tvb, offset, 10);
+        break;
+    case AT_ATALK:
+        addr.len = 3;
+        addr.data = tvb_get_ptr(tvb, offset, 3);
+        break;
+    case AT_VINES:
+        addr.len = VINES_ADDR_LEN;
+        addr.data = tvb_get_ptr(tvb, offset, VINES_ADDR_LEN);
+        break;
+    case AT_FC:
+        addr.len = 3;
+        addr.data = tvb_get_ptr(tvb, offset, 3);
+        break;
+    case AT_FCWWN:
+        addr.len = FCWWN_ADDR_LEN;
+        addr.data = tvb_get_ptr(tvb, offset, FCWWN_ADDR_LEN);
+        break;
+    case AT_EUI64:
+        addr.len = 8;
+        addr.data = tvb_get_ptr(tvb, offset, 8);
+        break;
+    case AT_IB:
+        if (length >= 16)
+        {
+            addr.len = length;
+            addr.data = tvb_get_ptr(tvb, offset, length);
+        }
+        else
+        {
+            addr.len = 2;
+            addr.data = GUINT_TO_POINTER(tvb_get_ntohs(tvb, offset));
+        }
+        break;
+    case AT_AX25:
+        addr.len = AX25_ADDR_LEN;
+        addr.data = tvb_get_ptr(tvb, offset, AX25_ADDR_LEN);
+        break;
+    case AT_IEEE_802_15_4_SHORT:
+        addr.len = 2;
+        addr.data = tvb_get_ptr(tvb, offset, 2);
+        break;
+    case AT_ARCNET:
+    case AT_J1939:
+        addr.len = 1;
+        addr.data = GUINT_TO_POINTER(tvb_get_guint8(tvb, offset));
+        break;
+    case AT_DEVICENET:
+        addr.len = 1;
+        addr.data = GUINT_TO_POINTER((tvb_get_guint8(tvb, offset) & 0x3F));
+        break;
+    case AT_OSI:
+    case AT_SNA:
+    case AT_SS7PC:
+    case AT_STRINGZ:
+    case AT_URI:
+    case AT_TIPC:
+        /* Have variable length fields, use tvb_address_var_to_str() */
+    case AT_USB:
+        /* These addresses are not supported through tvb accessor */
+    default:
+        g_assert_not_reached();
+        return NULL;
+    }
 
-    return buf;
+    return address_to_str(scope, &addr);
+}
+
+gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset, int length)
+{
+    address addr;
+
+    TVB_SET_ADDRESS(&addr, type, tvb, offset, length);
+
+    return address_to_str(scope, &addr);
 }
 
 /*XXX FIXME the code below may be called very very frequently in the future.

@@ -390,8 +390,7 @@ sub generate_hfs {
 			if (($proto_tree_item[6] eq "1") ||
 				($args[5] =~ /tvb_get_guint8/) ||
 				($args[5] =~ /tvb_bytes_to_str/) ||
-				($args[5] =~ /tvb_ether_to_str/) ||
-				($args[5] =~ /tvb_vines_addr_to_str/))  {
+				($args[5] =~ /tvb_ether_to_str/))  {
 				$proto_tree_item[7] = "ENC_NA";
 			} elsif ($args[5] =~ /tvb_get_ntoh/) {
 				$proto_tree_item[7] = "ENC_BIG_ENDIAN";
@@ -497,8 +496,6 @@ sub generate_hfs {
 				$proto_tree_item[9] = "FT_BYTES";
 			} elsif ($args[5] =~ /tvb_ether_to_str/) {
 				$proto_tree_item[9] = "FT_ETHER";
-			} elsif ($args[5] =~ /tvb_vines_addr_to_str/) {
-				$proto_tree_item[9] = "FT_VINES";
 			}
 
 			#if we still can't determine type, assume a constant length

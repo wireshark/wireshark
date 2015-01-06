@@ -1372,7 +1372,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     /* Padding: 6 bytes */
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
 
-                    link_str = tvb_eui64_to_str(tvb, opt_offset, ENC_BIG_ENDIAN);
+                    link_str = tvb_eui64_to_str(tvb, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
                     proto_item_append_text(ti, " : %s", link_str);
                 }else{
@@ -1406,7 +1406,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     /* Padding: 6 bytes */
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
 
-                    link_str = tvb_eui64_to_str(tvb, opt_offset, ENC_BIG_ENDIAN);
+                    link_str = tvb_eui64_to_str(tvb, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
                     proto_item_append_text(ti, " : %s", link_str);
                 }else{
@@ -2126,7 +2126,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* EUI-64 */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_aro_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, " : Register %s %s", tvb_eui64_to_str(tvb, opt_offset, FALSE), val_to_str(status, nd_opt_6lowpannd_status_val, "Unknown %d"));
+                proto_item_append_text(ti, " : Register %s %s", tvb_eui64_to_str(tvb, opt_offset), val_to_str(status, nd_opt_6lowpannd_status_val, "Unknown %d"));
                 opt_offset += 8;
 
             }

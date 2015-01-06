@@ -1292,6 +1292,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  try_val_to_str_ext@Base 1.9.1
  try_val_to_str_idx@Base 1.9.1
  try_val_to_str_idx_ext@Base 1.9.1
+ tvb_address_to_str@Base 1.99.2
+ tvb_address_var_to_str@Base 1.99.2
  tvb_bcd_dig_to_wmem_packet_str@Base 1.12.0~rc1
  tvb_bytes_exist@Base 1.9.1
  tvb_bytes_to_ep_str@Base 1.12.0~rc1
@@ -1307,10 +1309,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_ensure_bytes_exist@Base 1.9.1
  tvb_ensure_bytes_exist64@Base 1.99.0
  tvb_ensure_captured_length_remaining@Base 1.12.0~rc1
- tvb_ether_to_str@Base 1.9.1
- tvb_eui64_to_str@Base 1.9.1
- tvb_fc_to_str@Base 1.9.1
- tvb_fcwwn_to_str@Base 1.9.1
  tvb_find_guint8@Base 1.9.1
  tvb_find_line_end@Base 1.9.1
  tvb_find_line_end_unquoted@Base 1.9.1
@@ -1368,8 +1366,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_get_stringz_enc@Base 1.9.1
  tvb_get_stringzpad@Base 1.12.0~rc1
  tvb_get_ts_23_038_7bits_string@Base 1.12.0~rc1
- tvb_ip6_to_str@Base 1.9.1
- tvb_ip_to_str@Base 1.9.1
  tvb_memcpy@Base 1.9.1
  tvb_memdup@Base 1.9.1
  tvb_memeql@Base 1.9.1

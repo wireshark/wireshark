@@ -52,21 +52,22 @@ extern "C" {
 struct     e_in6_addr;
 
 WS_DLL_PUBLIC gchar* address_to_str(wmem_allocator_t *scope, const address *addr);
-WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
-WS_DLL_PUBLIC const gchar*	tvb_ether_to_str(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC const gchar*	tvb_ip_to_str(tvbuff_t *tvb, const gint offset);
-void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
-WS_DLL_PUBLIC const gchar*	tvb_fc_to_str(tvbuff_t *tvb, const gint offset);
-WS_DLL_PUBLIC gchar*	tvb_fcwwn_to_str (tvbuff_t *tvb, const gint offset);
 
-WS_DLL_PUBLIC const gchar*	tvb_ip6_to_str(tvbuff_t *tvb, const gint offset);
+WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
+
+#define tvb_ether_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset)
+#define tvb_ip_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset)
+#define tvb_ip6_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv6, offset)
+#define tvb_fcwwn_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_FCWWN, offset)
+#define tvb_fc_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_FC, offset)
+#define tvb_eui64_to_str(tvb, opt_offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_EUI64, offset)
+
+void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
+
 void	ip6_to_str_buf(const struct e_in6_addr *, gchar *);
 extern gchar*	ipx_addr_to_str(const guint32, const guint8 *);
-extern gchar*	tvb_ipxnet_to_string(tvbuff_t *tvb, const gint offset);
 extern gchar*	ipxnet_to_str_punct(const guint32 ad, const char punct);
-extern gchar*	tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gchar*	eui64_to_str(const guint64 ad);
-WS_DLL_PUBLIC gchar*	tvb_eui64_to_str(tvbuff_t *tvb, const gint offset, const guint encoding);
 WS_DLL_PUBLIC gchar*	time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val);
 gchar*	time_secs_to_str_unsigned(wmem_allocator_t *scope, const guint32);
 WS_DLL_PUBLIC gchar*	time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val);
@@ -94,6 +95,28 @@ WS_DLL_PUBLIC const char *decode_numeric_bitfield(const guint64 val, const guint
     const char *fmt) G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
+
+/** Turn an address type retrieved from a tvb into a string.
+ *
+ * @param scope memory allocation scheme used
+ * @param tvb tvbuff to retrieve address
+ * @param type address type to retrieve
+ * @param offset offset into tvb to retrieve address
+ * @return A pointer to the formatted string
+ *
+ */
+WS_DLL_PUBLIC gchar* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset);
+
+/** Turn an address type retrieved from a tvb into a string.
+ *
+ * @param scope memory allocation scheme used
+ * @param tvb tvbuff to retrieve address
+ * @param type address type to retrieve
+ * @param offset offset into tvb to retrieve address
+ * @return A pointer to the formatted string
+ *
+ */
+WS_DLL_PUBLIC gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset, int length);
 
 /** Turn an array of bytes into a string showing the bytes in hex.
  *
