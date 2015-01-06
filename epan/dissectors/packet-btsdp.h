@@ -204,6 +204,7 @@ typedef struct _service_info_t {
     struct _service_info_t *parent_info;
 } service_info_t;
 
+extern const value_string hid_country_code_vals[];
 
 extern service_info_t* btsdp_get_service_info(wmem_tree_key_t* key);
 

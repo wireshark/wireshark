@@ -25,6 +25,8 @@
 #include <epan/packet.h>
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
+#include "packet-btsdp.h"
+
 
 void proto_register_usb_hid(void);
 void proto_reg_handoff_usb_hid(void);
@@ -1108,7 +1110,7 @@ proto_register_usb_hid(void)
 
         { &hf_usb_hid_bCountryCode,
         { "bCountryCode", "usbhid.descriptor.hid.bCountryCode", FT_UINT8,
-            BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            BASE_HEX, VALS(hid_country_code_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_hid_bNumDescriptors,
         { "bNumDescriptors", "usbhid.descriptor.hid.bNumDescriptors", FT_UINT8,

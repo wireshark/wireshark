@@ -940,7 +940,7 @@ static const value_string hid_device_subclass_subtype_vals[] = {
 };
 
 /* USB HID 1.11 bCountryCode */
-static const value_string hid_country_code_vals[] = {
+const value_string hid_country_code_vals[] = {
     {  0,   "Not Supported" },
     {  1,   "Arabic" },
     {  2,   "Belgian" },
