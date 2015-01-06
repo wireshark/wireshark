@@ -1071,7 +1071,7 @@ const value_string dns_classes[] = {
 /* This function counts how many '.' are in the string, plus 1, in order to count the number
  * of labels
  */
-guint
+static guint
 qname_labels_count(const guchar* name, guint name_len)
 {
     guint labels = 0;
