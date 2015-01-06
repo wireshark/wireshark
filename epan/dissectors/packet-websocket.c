@@ -23,9 +23,12 @@
 
 #include "config.h"
 
+#include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+
+#include "packet-http.h"
 
 
 /*
@@ -50,6 +53,8 @@ static gint  pref_text_type             = WEBSOCKET_NONE;
 
 /* Initialize the protocol and registered fields */
 static int proto_websocket = -1;
+static int proto_http = -1;
+
 static int hf_ws_fin = -1;
 static int hf_ws_reserved = -1;
 static int hf_ws_opcode = -1;
@@ -154,10 +159,12 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
 {
   guint               offset = 0;
   proto_item         *ti_unmask, *ti;
-  dissector_handle_t  handle;
+  dissector_handle_t  handle = NULL;
   proto_tree         *pl_tree, *mask_tree = NULL;
   tvbuff_t           *payload_tvb         = NULL;
   heur_dtbl_entry_t  *hdtbl_entry;
+  conversation_t     *conv;
+  http_conv_t        *http_conv = NULL;
 
   /* Payload */
   ti = proto_tree_add_item(ws_tree, hf_ws_payload, tvb, offset, payload_length, ENC_NA);
@@ -175,12 +182,17 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     payload_tvb = tvb_new_subset(tvb, offset, payload_length, -1);
   }
 
-  handle = dissector_get_uint_handle(port_subdissector_table, pinfo->match_uint);
-  if (handle != NULL) {
+  conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+  if (conv)
+    http_conv = (http_conv_t *)conversation_get_proto_data(conv, proto_http);
+
+  if (http_conv)
+    handle = dissector_get_uint_handle(port_subdissector_table, http_conv->server_port);
+
+  if (handle)
     call_dissector_only(handle, payload_tvb, pinfo, tree, NULL);
-  } else {
+  else
     dissector_try_heuristic(heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, NULL);
-  }
 
   /* Extension Data */
   /* TODO: Add dissector of Extension (not extension available for the moment...) */
@@ -627,6 +639,8 @@ proto_reg_handoff_websocket(void)
   text_lines_handle = find_dissector("data-text-lines");
   json_handle = find_dissector("json");
   sip_handle = find_dissector("sip");
+
+  proto_http = proto_get_id_by_filter_name("http");
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
