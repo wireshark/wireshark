@@ -55,6 +55,7 @@
 #define VENDOR_JUNIPER               2636
 #define VENDOR_APTIS                 2637
 #define VENDOR_DT_AG                 2937
+#define VENDOR_IXIA                  3054
 #define VENDOR_CISCO_VPN3000         3076
 #define VENDOR_COSINE                3085
 #define VENDOR_SHASTA                3199
