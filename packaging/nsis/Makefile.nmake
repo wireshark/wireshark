@@ -89,13 +89,13 @@ common.nsh: config.nsh
 config.nsh: config.nsh.in ..\..\config.nmake
 	sed \
 		-e s/@PROGRAM_NAME@/$(PROGRAM_NAME)/ \
-		-e s/@MAKEDIR@/$(MAKEDIR_ESCAPED:\=\\)/ \
-		-e s/@STAGING_DIR@/$(STAGING_DIR:\=\\)/ \
+		-e 's/@MAKEDIR@/$(MAKEDIR:\=\\\\)/' \
+		-e 's/@STAGING_DIR@/$(STAGING_DIR:\=\\\\)/' \
 		-e s/@WIRESHARK_TARGET_PLATFORM@/$(WIRESHARK_TARGET_PLATFORM)/ \
 		-e s/@TARGET_MACHINE@/$(TARGET_MACHINE)/ \
 		-e s/@MSVC_VARIANT@/$(MSVC_VARIANT)/ \
 		-e s/@MSC_VER_REQUIRED@/$(MSC_VER_REQUIRED)/ \
-		-e s/@WIRESHARK_LIB_DIR@/$(WIRESHARK_LIB_DIR:\=\\)/ \
+		-e 's/@WIRESHARK_LIB_DIR@/$(WIRESHARK_LIB_DIR:\=\\\\)/' \
 		-e s/@WINPCAP_VERSION@/$(WINPCAP_VERSION)/ \
 		-e s/@PCAP_DISPLAY_VERSION@/$(WINPCAP_VERSION:_=.)/ \
 		-e s/@INTL_DLL@/$(INTL_DLL)/ \
@@ -106,25 +106,27 @@ config.nsh: config.nsh.in ..\..\config.nmake
 		-e s/@VERSION_BUILD@/$(VERSION_BUILD)/ \
 		-e s/@PRODUCT_VERSION@/$(PRODUCT_VERSION)/ \
 		-e s/@WTAP_VERSION@/$(WTAP_VERSION)/ \
-		-e "s/@MSVCR_DLL@/$(MSVCR_DLL:\=\\)/" \
-		-e s/@VCREDIST_EXE@/$(VCREDIST_EXE:\=\\)/ \
+		-e 's/@MSVCR_DLL@/$(MSVCR_DLL:\=\\\\)/' \
+!IFDEF VCREDIST_EXE
+		-e 's/@VCREDIST_EXE@/$(VCREDIST_EXE:\=\\\\)/' \
+!ENDIF
 		-e s/@ENABLE_LIBWIRESHARK@/$(ENABLE_LIBWIRESHARK)/ \
 !IFDEF GTK_DIR
-		-e s/@GTK_DIR@/$(GTK_DIR:\=\\)/ \
-		-e s/@GTK_LIB_DIR@/$(GTK_LIB_DIR:\=\\)/ \
-		-e s/@PANGO_LIB_DIR@/$(PANGO_LIB_DIR:\=\\)/ \
+		-e 's/@GTK_DIR@/$(GTK_DIR:\=\\\\)/' \
+		-e 's/@GTK_LIB_DIR@/$(GTK_LIB_DIR:\=\\\\)/' \
+		-e 's/@PANGO_LIB_DIR@/$(PANGO_LIB_DIR:\=\\\\)/' \
 		-e s/@GDK_DLL@/$(GDK_DLL)/ \
 		-e s/@GTK_DLL@/$(GTK_DLL)/ \
 		-e s/@GTK_NAME@/$(GTK_NAME)/ \
-		-e s/@GTK_ETC_DIR@/$(GTK_ETC_DIR:\=\\)/ \
+		-e 's/@GTK_ETC_DIR@/$(GTK_ETC_DIR:\=\\\\)/' \
 !IFDEF GTK_ENGINES_DIR
-		-e s/@GTK_ENGINES_DIR@/$(GTK_ENGINES_DIR:\=\\)/ \
+		-e 's/@GTK_ENGINES_DIR@/$(GTK_ENGINES_DIR:\=\\\\)/' \
 !ENDIF
 !IFDEF GTK_MODULES_DIR
-		-e s/@GTK_MODULES_DIR@/$(GTK_MODULES_DIR:\=\\)/ \
+		-e 's/@GTK_MODULES_DIR@/$(GTK_MODULES_DIR:\=\\\\)/' \
 !ENDIF
 !IFDEF GTK_SCHEMAS_DIR
-		-e s/@GTK_SCHEMAS_DIR@/$(GTK_SCHEMAS_DIR:\=\\)/ \
+		-e 's/@GTK_SCHEMAS_DIR@/$(GTK_SCHEMAS_DIR:\=\\\\)/' \
 !ENDIF
 !IFDEF NEED_CAIRO_GOBJECT_DLL
 		-e s/@NEED_CAIRO_GOBJECT_DLL@/$(NEED_CAIRO_GOBJECT_DLL)/ \
@@ -223,12 +225,12 @@ config.nsh: config.nsh.in ..\..\config.nmake
 		-e s/@WINSPARKLE_DIR@/$(WINSPARKLE_DIR:\=\\)/ \
 !ENDIF
 !IFDEF HHC_DIR
-		-e 's/@HHC_DIR@/$(HHC_DIR:\=\\\\\\)/' \
+		-e 's/@HHC_DIR@/$(HHC_DIR:\=\\\\)/' \
 !ENDIF
 !IF EXIST("..\..\wireshark-qt-release\wireshark.exe")
 		-e s/@QT_DIR@/..\\..\\wireshark-qt-release/ \
 !ENDIF
-		-e 's/\(^^!define .* \)@.*@$$/; \1/' \
+		-e 's/\(^^!define .*\) \"*@.*@\"*/; \1/' \
 	    < config.nsh.in > $@
 
 wireshark.nsi: qt-dll-manifest.nsh common.nsh

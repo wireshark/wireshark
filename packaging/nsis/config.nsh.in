@@ -25,18 +25,17 @@
 !define WTAP_VERSION @WTAP_VERSION@
 
 !define MSVCR_DLL "@MSVCR_DLL@"
-
 !define VCREDIST_EXE "@VCREDIST_EXE@"
 
 !define ENABLE_LIBWIRESHARK @ENABLE_LIBWIRESHARK@
 
 ; Qt
-!define QT_DIR @QT_DIR@
+!define QT_DIR "@QT_DIR@"
 
 ; GTK+
-!define GTK_DIR @GTK_DIR@
-!define GTK_LIB_DIR @GTK_LIB_DIR@
-!define PANGO_LIB_DIR @PANGO_LIB_DIR@
+!define GTK_DIR "@GTK_DIR@"
+!define GTK_LIB_DIR "@GTK_LIB_DIR@"
+!define PANGO_LIB_DIR "@PANGO_LIB_DIR@"
 !define GDK_DLL @GDK_DLL@
 !define GTK_DLL @GTK_DLL@
 !define GTK_NAME @GTK_NAME@
