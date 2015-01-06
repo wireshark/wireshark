@@ -597,12 +597,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
   proto_item *pi;
   proto_tree *addr_tree = NULL;
   guint8      ip_address_type;
-  address     addr;
-  guint32     IPv4;
   guint32     port;
-
-  struct e_in6_addr IPv6;
-
 
   /* Get type */
   ip_address_type = tvb_get_guint8(tvb, offset);
@@ -624,9 +619,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       /* Add Address */
       proto_tree_add_item(addr_tree, hf_acn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
       /* Append port and address to tree item */
-      IPv4       = tvb_get_ipv4(tvb, offset);
-      SET_ADDRESS(&addr, AT_IPv4, sizeof(IPv4), &IPv4);
-      proto_item_append_text(pi, " %s, Port %d", address_to_str(wmem_packet_scope(), &addr), port);
+      proto_item_append_text(pi, " %s, Port %d", tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset), port);
       offset    += 4;
       break;
     case ACN_ADDR_IPV6:
@@ -641,9 +634,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       /* Add Address */
       proto_tree_add_item(addr_tree, hf_acn_ipv6, tvb, offset, 16, ENC_NA);
       /* Append port and address to tree item */
-      tvb_get_ipv6(tvb, offset, &IPv6);
-      SET_ADDRESS(&addr, AT_IPv6, sizeof(struct e_in6_addr), &IPv6);
-      proto_item_append_text(pi, " %s, Port %d", address_to_str(wmem_packet_scope(), &addr), port);
+      proto_item_append_text(pi, " %s, Port %d", tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv6, offset), port);
       offset    += 16;
       break;
     case ACN_ADDR_IPPORT:
@@ -655,7 +646,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       port       = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       /* Append port to tree item */
-      proto_item_append_text(pi, " %s Port %d", address_to_str(wmem_packet_scope(), &addr), port);
+      proto_item_append_text(pi, " Port %d", port);
       offset    += 2;
       break;
   }
