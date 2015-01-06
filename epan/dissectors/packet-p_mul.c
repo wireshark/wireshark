@@ -274,7 +274,7 @@ static const gchar *get_type (guint8 value)
 }
 
 
-/* Function checksum, found in ACP 142 annex B04 */
+/* Function checksum, found in ACP 142 annex B04 (Fletcher algorithm) */
 static guint16 checksum_acp142 (guint8 *buffer, gint len, gint offset)
 {
   guint16  c0 = 0, c1 = 0, ret, ctmp;
@@ -800,6 +800,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   address        src, dst;
   wmem_strbuf_t *message_id_list = NULL;
   nstime_t       ts;
+  gboolean       fletcher = FALSE;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "P_MUL");
   col_clear (pinfo->cinfo, COL_INFO);
@@ -918,9 +919,15 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   checksum_calc = g_ntohs (ip_checksum (value, len));
   if (checksum_calc != checksum_found) {
     guint16 checksum1 = checksum_acp142 (value, len, offset);
-    if (checksum1 == checksum_found) checksum_calc = checksum1;
+    if (checksum1 == checksum_found) {
+      checksum_calc = checksum1;
+      fletcher = TRUE;
+    }
   }
   if (checksum_calc == checksum_found) {
+    if (fletcher) {
+      proto_item_append_text (en, " [Fletcher algorithm]");
+    }
     proto_item_append_text (en, " (correct)");
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
                                  offset, 2, TRUE);
