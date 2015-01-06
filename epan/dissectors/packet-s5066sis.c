@@ -1279,7 +1279,7 @@ proto_register_s5066(void)
 			{ "Priority", "s5066sis.21.priority", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_21_dest_sapid,
-			{ "Destination Sap ID", "s5066sis.21.dest_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
+			{ "Destination Sap ID", "s5066sis.21.sapid", FT_UINT8, BASE_DEC, VALS(s5066_sapid_assignments), 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_21_tx_mode,
 			{ "Transmission Mode", "s5066sis.21.txmode", FT_UINT8, BASE_HEX, VALS(s5066_st_txmode), 0xF0, NULL, HFILL }
@@ -1352,7 +1352,7 @@ proto_register_s5066(void)
 			{ "(Unused)", "s5066sis.25.unused", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
 		},
 		{ &hf_s5066_25_dest_sapid,
-			{ "Destination Sap ID", "s5066sis.25.dest_sapid", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
+			{ "Destination Sap ID", "s5066sis.25.sapid", FT_UINT8, BASE_DEC, VALS(s5066_sapid_assignments), 0x0F, NULL, HFILL }
 		},
 		{ &hf_s5066_25_tx_mode,
 			{ "Transmission Mode", "s5066sis.25.txmode", FT_UINT8, BASE_HEX, VALS(s5066_st_txmode), 0xF0, NULL, HFILL }
