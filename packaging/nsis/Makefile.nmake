@@ -106,7 +106,7 @@ config.nsh: config.nsh.in ..\..\config.nmake
 		-e s/@VERSION_BUILD@/$(VERSION_BUILD)/ \
 		-e s/@PRODUCT_VERSION@/$(PRODUCT_VERSION)/ \
 		-e s/@WTAP_VERSION@/$(WTAP_VERSION)/ \
-		-e s/@MSVCR_DLL@/$(MSVCR_DLL:\=\\)/ \
+		-e "s/@MSVCR_DLL@/$(MSVCR_DLL:\=\\)/" \
 		-e s/@VCREDIST_EXE@/$(VCREDIST_EXE:\=\\)/ \
 		-e s/@ENABLE_LIBWIRESHARK@/$(ENABLE_LIBWIRESHARK)/ \
 !IFDEF GTK_DIR
