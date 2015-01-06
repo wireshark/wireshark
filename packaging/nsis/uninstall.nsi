@@ -54,7 +54,7 @@ ShowUninstDetails show
 
 Function .onInit
   ; MUST be the absolute path to our staging directory.
-  WriteUninstaller "${MAKEDIR}\${STAGING_DIR}\${UNINSTALLER_NAME}"
+  WriteUninstaller "${STAGING_DIR}\${UNINSTALLER_NAME}"
   SetErrorLevel 0
   Quit
 FunctionEnd

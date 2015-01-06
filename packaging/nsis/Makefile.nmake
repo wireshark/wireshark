@@ -9,8 +9,9 @@ include ../../config.nmake
 # Contains a list of custom plugins(default empty)
 include Custom.nmake
 
-
-STAGING_DIR=..\..\$(INSTALL_DIR)
+TOP_SRC_DIR=$(MAKEDIR)\..\..
+# Must be absolue for uninstall.nsi
+STAGING_DIR=$(MAKEDIR)\..\..\$(INSTALL_DIR)
 
 EXE=../../tshark.exe ../../editcap.exe \
 !IFDEF GTK_DIR
@@ -89,21 +90,19 @@ common.nsh: config.nsh
 config.nsh: config.nsh.in ..\..\config.nmake
 	sed \
 		-e s/@PROGRAM_NAME@/$(PROGRAM_NAME)/ \
-		-e 's/@MAKEDIR@/$(MAKEDIR:\=\\\\)/' \
+		-e 's/@TOP_SRC_DIR@/$(TOP_SRC_DIR:\=\\\\)/' \
 		-e 's/@STAGING_DIR@/$(STAGING_DIR:\=\\\\)/' \
+		-e s/@USER_GUIDE_DIR@/./ \
 		-e s/@WIRESHARK_TARGET_PLATFORM@/$(WIRESHARK_TARGET_PLATFORM)/ \
 		-e s/@TARGET_MACHINE@/$(TARGET_MACHINE)/ \
-		-e s/@MSVC_VARIANT@/$(MSVC_VARIANT)/ \
 		-e s/@MSC_VER_REQUIRED@/$(MSC_VER_REQUIRED)/ \
 		-e 's/@WIRESHARK_LIB_DIR@/$(WIRESHARK_LIB_DIR:\=\\\\)/' \
-		-e s/@WINPCAP_VERSION@/$(WINPCAP_VERSION)/ \
+		-e s/@WINPCAP_PACKAGE_VERSION@/$(WINPCAP_VERSION)/ \
 		-e s/@PCAP_DISPLAY_VERSION@/$(WINPCAP_VERSION:_=.)/ \
 		-e s/@INTL_DLL@/$(INTL_DLL)/ \
 		-e s/@VERSION@/$(VERSION)/ \
 		-e s/@VERSION_MAJOR@/$(VERSION_MAJOR)/ \
 		-e s/@VERSION_MINOR@/$(VERSION_MINOR)/ \
-		-e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
-		-e s/@VERSION_BUILD@/$(VERSION_BUILD)/ \
 		-e s/@PRODUCT_VERSION@/$(PRODUCT_VERSION)/ \
 		-e s/@WTAP_VERSION@/$(WTAP_VERSION)/ \
 		-e 's/@MSVCR_DLL@/$(MSVCR_DLL:\=\\\\)/' \
@@ -113,9 +112,6 @@ config.nsh: config.nsh.in ..\..\config.nmake
 		-e s/@ENABLE_LIBWIRESHARK@/$(ENABLE_LIBWIRESHARK)/ \
 !IFDEF GTK_DIR
 		-e 's/@GTK_DIR@/$(GTK_DIR:\=\\\\)/' \
-!ENDIF
-!IFDEF HHC_DIR
-		-e 's/@HHC_DIR@/$(HHC_DIR:\=\\\\)/' \
 !ENDIF
 !IF EXIST("..\..\wireshark-qt-release\wireshark.exe")
 		-e s/@QT_DIR@/..\\..\\wireshark-qt-release/ \
@@ -133,6 +129,8 @@ all-manifest.nsh: Makefile.nmake ..\..\config.nmake
 	@echo File "$(STAGING_DIR)\libgobject-2.0-0.dll" >> $@
 	@echo File "$(STAGING_DIR)\libgmodule-2.0-0.dll" >> $@
 	@echo File "$(STAGING_DIR)\$(INTL_DLL)" >> $@
+	@echo File "$(STAGING_DIR)\gspawn-$(WIRESHARK_TARGET_PLATFORM)-helper.exe" >> $@
+	@echo File "$(STAGING_DIR)\gspawn-$(WIRESHARK_TARGET_PLATFORM)-helper-console.exe" >> $@
 !IF "$(C_ARES_DIR)" != ""
 	@echo # C-Ares >> $@
 	@echo File "$(STAGING_DIR)\libcares-2.dll" >> $@
@@ -182,14 +180,12 @@ all-manifest.nsh: Makefile.nmake ..\..\config.nmake
 gtk-dll-manifest.nsh: Makefile.nmake ..\..\config.nmake
 	@echo # Files required for the GTK+ section. Generated from Makefile.nmake > $@
 	@echo # Mandatory >> $@
-	echo File "$(STAGING_DIR)\$(GDK_DLL)" >> $@
-	echo File "$(STAGING_DIR)\libgdk_pixbuf-2.0-0.dll" >> $@
-	echo File "$(STAGING_DIR)\gspawn-$(WIRESHARK_TARGET_PLATFORM)-helper.exe" >> $@
-	echo File "$(STAGING_DIR)\gspawn-$(WIRESHARK_TARGET_PLATFORM)-helper-console.exe" >> $@
-	echo File "$(STAGING_DIR)\$(GTK_DLL)" >> $@
-	echo File "$(STAGING_DIR)\libatk-1.0-0.dll" >> $@
-	echo File "$(STAGING_DIR)\libpango-1.0-0.dll" >> $@
-	echo File "$(STAGING_DIR)\libpangowin32-1.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\$(GDK_DLL)" >> $@
+	@echo File "$(STAGING_DIR)\libgdk_pixbuf-2.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\$(GTK_DLL)" >> $@
+	@echo File "$(STAGING_DIR)\libatk-1.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\libpango-1.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\libpangowin32-1.0-0.dll" >> $@
 	@echo # Optional >> $@
 !IFDEF NEED_CAIRO_DLL
 	@echo File "$(STAGING_DIR)\libcairo-2.dll" >> $@

@@ -41,7 +41,7 @@ distclean-local: clean-local
 maintainer-clean-local: distclean-local
 
 checkapi:
-	$(MAKE) -f Makefile.nmake PLUGIN_TARGET=checkapi process-plugins 
+	$(MAKE) -f Makefile.nmake PLUGIN_TARGET=checkapi process-plugins
 
 
 
@@ -64,11 +64,10 @@ custom :
 install-plugins:
 !IFDEF ENABLE_LIBWIRESHARK
 	cd ..
-	@for %f in ( $(PLUGIN_LIST) ) do xcopy plugins\%f\*.dll  $(INSTALL_DIR)\plugins\$(VERSION)\ /d
+	@for %f in ( $(PLUGIN_LIST) ) do xcopy plugins\%f\*.dll  $(INSTALL_DIR)\plugins\ /d
 	cd plugins
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 !ENDIF
 
 ####
 _FORCE_:  ## Assumption: no file named _FORCE_ exists in the current directory
-

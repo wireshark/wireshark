@@ -3,6 +3,10 @@
 ; Name and version information
 ; ============================================================================
 
+!ifdef NSIS_INCLUDE_DIR
+!addincludedir ${NSIS_INCLUDE_DIR}
+!endif
+
 !include "config.nsh"
 
 !if ${WIRESHARK_TARGET_PLATFORM} == "win32"

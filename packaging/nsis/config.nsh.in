@@ -1,26 +1,25 @@
-; ============================================================================
-; NSIS configuration definitions. Generated from config.nsh.in.
-; ============================================================================
+# ============================================================================
+# NSIS configuration definitions. Generated from config.nsh.in.
+# ============================================================================
 
-; XXX We might want to switch all of the "!define"s below to "#cmakedefine"
-; so that we can more easily integrate with CMake.
+# Do not prefix comments with ";". They will be removed by CMake.
 
 !define PROGRAM_NAME "@PROGRAM_NAME@"
-!define MAKEDIR "@MAKEDIR@"
+!define TOP_SRC_DIR "@TOP_SRC_DIR@"
 !define STAGING_DIR "@STAGING_DIR@"
 !define WIRESHARK_TARGET_PLATFORM @WIRESHARK_TARGET_PLATFORM@
 !define TARGET_MACHINE @TARGET_MACHINE@
-!define MSVC_VARIANT @MSVC_VARIANT@
 !define MSC_VER_REQUIRED @MSC_VER_REQUIRED@
 !define WIRESHARK_LIB_DIR "@WIRESHARK_LIB_DIR@"
-!define WINPCAP_VERSION @WINPCAP_VERSION@
+!define WINPCAP_PACKAGE_VERSION @WINPCAP_PACKAGE_VERSION@
 !define PCAP_DISPLAY_VERSION @PCAP_DISPLAY_VERSION@
-!define INTL_DLL @INTL_DLL@
 !define VERSION @VERSION@
 !define VERSION_MAJOR @VERSION_MAJOR@
 !define VERSION_MINOR @VERSION_MINOR@
-!define VERSION_MICRO @VERSION_MICRO@
-!define VERSION_BUILD @VERSION_BUILD@
+# CMake treats 0 as "false" and will undef zero values
+!ifndef VERSION_MINOR
+!define VERSION_MINOR 0
+!endif
 !define PRODUCT_VERSION @PRODUCT_VERSION@
 !define WTAP_VERSION @WTAP_VERSION@
 
@@ -29,74 +28,10 @@
 
 !define ENABLE_LIBWIRESHARK @ENABLE_LIBWIRESHARK@
 
-; Qt
+!define USER_GUIDE_DIR "@USER_GUIDE_DIR@"
+
+# Qt
 !define QT_DIR "@QT_DIR@"
 
-; GTK+
+# GTK+
 !define GTK_DIR "@GTK_DIR@"
-!define GTK_LIB_DIR "@GTK_LIB_DIR@"
-!define PANGO_LIB_DIR "@PANGO_LIB_DIR@"
-!define GDK_DLL @GDK_DLL@
-!define GTK_DLL @GTK_DLL@
-!define GTK_NAME @GTK_NAME@
-!define GTK_ETC_DIR @GTK_ETC_DIR@
-!define GTK_ENGINES_DIR @GTK_ENGINES_DIR@
-!define GTK_MODULES_DIR @GTK_MODULES_DIR@
-!define GTK_SCHEMAS_DIR @GTK_SCHEMAS_DIR@
-!define NEED_CAIRO_GOBJECT_DLL @NEED_CAIRO_GOBJECT_DLL@
-!define NEED_CAIRO_DLL @NEED_CAIRO_DLL@
-!define NEED_EXPAT_DLL @NEED_EXPAT_DLL@
-!define EXPAT_DLL @EXPAT_DLL@
-!define NEED_FFI_DLL @NEED_FFI_DLL@
-!define FFI_DLL @FFI_DLL@
-!define NEED_FONTCONFIG_DLL @NEED_FONTCONFIG_DLL@
-!define FONTCONFIG_DLL @FONTCONFIG_DLL@
-!define NEED_FREETYPE_DLL @NEED_FREETYPE_DLL@
-!define FREETYPE_DLL @FREETYPE_DLL@
-!define NEED_HARFBUZZ_DLL @NEED_HARFBUZZ_DLL@
-!define HARFBUZZ_DLL @HARFBUZZ_DLL@
-!define NEED_JASPER_DLL @NEED_JASPER_DLL@
-!define JASPER_DLL @JASPER_DLL@
-!define NEED_JPEG_DLL @NEED_JPEG_DLL@
-!define JPEG_DLL @JPEG_DLL@
-!define NEED_LZMA_DLL @NEED_LZMA_DLL@
-!define LZMA_DLL @LZMA_DLL@
-!define NEED_PIXMAN_DLL @NEED_PIXMAN_DLL@
-!define PIXMAN_DLL @PIXMAN_DLL@
-!define NEED_PNG_DLL @NEED_PNG_DLL@
-!define PNG_DLL @PNG_DLL@
-!define NEED_SEH_DLL @NEED_SEH_DLL@
-!define SEH_DLL @SEH_DLL@
-!define NEED_SJLJ_DLL @NEED_SJLJ_DLL@
-!define SJLJ_DLL @SJLJ_DLL@
-!define NEED_TIFF_DLL @NEED_TIFF_DLL@
-!define TIFF_DLL @TIFF_DLL@
-!define NEED_XML_DLL @NEED_XML_DLL@
-!define XML_DLL @XML_DLL@
-
-; Common
-!define C_ARES_DIR @C_ARES_DIR@
-!define ADNS_DIR @ADNS_DIR@
-
-!define KFW_DIR @KFW_DIR@
-!define KFW_PATH @KFW_PATH@
-!define COMERR_DLL @COMERR_DLL@
-!define KRB5_DLL @KRB5_DLL@
-!define K5SPRT_DLL @K5SPRT_DLL@
-
-!define GPGERROR_DLL @GPGERROR_DLL@
-!define GNUTLS_DIR @GNUTLS_DIR@
-
-!define GCC_DLL @GCC_DLL@
-
-!define ZLIB_DIR @ZLIB_DIR@
-
-!define LUA_DIR @LUA_DIR@
-
-!define SMI_DIR @SMI_DIR@
-
-!define GEOIP_DIR @GEOIP_DIR@
-
-!define WINSPARKLE_DIR @WINSPARKLE_DIR@
-
-!define HHC_DIR "@HHC_DIR@"

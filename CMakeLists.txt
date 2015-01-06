@@ -19,6 +19,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+#=to do:
+# - Make NSIS targets top-level
+#   - Move nsis/CMakeLists.txt to UseNSIS.cmake
+#
+# - Make CHM depend on HHC_EXECUTABLE (separate commit)
+
 project(Wireshark C CXX)
 
 cmake_minimum_required(VERSION 2.8.3)
@@ -92,11 +98,14 @@ endif()
 #Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
 include(CMakeInstallDirs)
 
+# Updated by make-version.pl
+set(GIT_REVISION 0)
 set(PROJECT_MAJOR_VERSION 1)
 set(PROJECT_MINOR_VERSION 99)
 set(PROJECT_PATCH_VERSION 4)
+set(PROJECT_BUILD_VERSION ${GIT_REVISION})
 set(PROJECT_VERSION_EXTENSION "$ENV{WIRESHARK_VERSION_EXTRA}")
-set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION})
+set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
 
 # Banner shown at top right of Qt welcome screen.
 if(DEFINED ENV{WIRESHARK_VERSION_FLAVOR})
@@ -109,7 +118,8 @@ endif()
 set(VERSION_MAJOR ${PROJECT_MAJOR_VERSION})
 set(VERSION_MINOR ${PROJECT_MINOR_VERSION})
 set(VERSION_MICRO ${PROJECT_PATCH_VERSION})
-set(RC_VERSION ${PROJECT_MAJOR_VERSION},${PROJECT_MINOR_VERSION},${PROJECT_PATCH_VERSION},0)
+set(VERSION_BUILD ${PROJECT_BUILD_VERSION})
+set(RC_VERSION ${PROJECT_MAJOR_VERSION},${PROJECT_MINOR_VERSION},${PROJECT_PATCH_VERSION},${PROJECT_BUILD_VERSION})
 
 message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PROJECT_MINOR_VERSION}, PL: ${PROJECT_PATCH_VERSION}, EV: ${PROJECT_VERSION_EXTENSION}.")
 
@@ -884,6 +894,8 @@ endif()
 # from the build directory similar to DATAFILE_DIR above.
 if(ENABLE_PLUGINS)
 	set(HAVE_PLUGINS 1)
+	add_custom_target(plugins)
+	set_target_properties(plugins PROPERTIES FOLDER "Plugins")
 	if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
 		set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}")
 	else()
@@ -1123,7 +1135,10 @@ set(INSTALL_FILES
 )
 
 if(WIN32)
-	set(INSTALL_FILES ${CMAKE_BINARY_DIR}/COPYING.txt ${INSTALL_FILES})
+	set(TEXTIFY_FILES COPYING NEWS README README.windows)
+	foreach(_text_file ${TEXTIFY_FILES})
+		set(INSTALL_FILES ${CMAKE_BINARY_DIR}/${_text_file}.txt ${INSTALL_FILES})
+	endforeach()
 else()
 	set(INSTALL_FILES COPYING ${INSTALL_FILES})
 endif()
@@ -1195,6 +1210,16 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endforeach(_dll)
+	file(GLOB _gspawn_helpers
+		"${GLIB2_DLL_DIR}/gspawn*.exe"
+	)
+	foreach(_gspawn_helper ${_gspawn_helpers})
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${_gspawn_helper}"
+				"${_dll_output_dir}"
+		)
+	endforeach()
 
 	# Optional
 	if (AIRPCAP_FOUND)
@@ -1341,13 +1366,15 @@ if(ENABLE_APPLICATION_BUNDLE)
 endif()
 
 if(WIN32)
-	add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/COPYING.txt
-		COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
-			-Destination ${CMAKE_BINARY_DIR}
-			${CMAKE_SOURCE_DIR}/COPYING
-		DEPENDS
-			${CMAKE_SOURCE_DIR}/COPYING
-	)
+	foreach(_text_file ${TEXTIFY_FILES})
+		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_text_file}.txt
+			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
+				-Destination ${CMAKE_BINARY_DIR}
+				${CMAKE_SOURCE_DIR}/${_text_file}
+			DEPENDS
+				${CMAKE_SOURCE_DIR}/${_text_file}
+		)
+	endforeach()
 endif()
 
 foreach(_install_file ${INSTALL_FILES})
@@ -1394,6 +1421,14 @@ else()
 		)
 	endforeach()
 endif(WIN32)
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/help/faq.py > faq.tmp.html
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
+		--width=72 --no-links faq.tmp.html
+		> "${DATAFILE_DIR}/help/faq.txt"
+	COMMAND ${CMAKE_COMMAND} -E remove faq.tmp.html
+)
+
 if(LUA_FOUND)
 	add_custom_command(TARGET copy_data_files PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory
@@ -1443,6 +1478,11 @@ foreach(_diameter_file ${_diameter_files})
 			"${DATAFILE_DIR}/diameter/"
 	)
 endforeach()
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_SOURCE_DIR}/profiles"
+		"${DATAFILE_DIR}/profiles"
+)
 add_custom_command(TARGET copy_data_files PRE_BUILD
 	COMMAND ${CMAKE_COMMAND} -E make_directory
 		"${DATAFILE_DIR}/tpncp"
@@ -1622,19 +1662,22 @@ if(BUILD_wireshark AND QT_FOUND)
 		# http://stackoverflow.com/questions/24650936/qt5-with-cmake-how-to-find-qt-translations-dir
 
 		get_target_property(_qmake_location Qt5::qmake IMPORTED_LOCATION)
-		get_filename_component(_qt_bindir "${_qmake_location}" DIRECTORY)
+		get_filename_component(_qt_bin_path "${_qmake_location}" DIRECTORY)
 		find_program(QT_WINDEPLOYQT_EXECUTABLE windeployqt
 			HINTS "${_qmake_location}"
 			DOC "Path to the windeployqt utility."
 		)
 		if (NOT "${QT_WINDEPLOYQT_EXECUTABLE}" STREQUAL "QT_WINDEPLOYQT_EXECUTABLE-NOTFOUND")
+			set(QT_BIN_PATH "${_qt_bin_path}" CACHE INTERNAL
+				"Path to qmake, windeployqt, and other Qt utilities."
+			)
 			add_custom_target(copy_qt_dlls ALL)
 			set_target_properties(copy_qt_dlls PROPERTIES FOLDER "Copy Tasks")
 			# Will we ever need to use --debug? Windeployqt seems to
 			# be smart enough to copy debug DLLs when needed.
 			add_custom_command(TARGET copy_qt_dlls
 				POST_BUILD
-				COMMAND set "PATH=%PATH%;${_qt_bindir}"
+				COMMAND set "PATH=%PATH%;${QT_BIN_PATH}"
 				COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
 					$<$<CONFIG:Debug>:--debug>
 					$<$<NOT:$<CONFIG:Debug>>:--release>
@@ -2031,6 +2074,17 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 				message( WARNING \"setcap failed (${_SETCAP_RESULT}).\")
 			endif()"
 		)
+	endif()
+endif()
+
+if (WIN32)
+	# Must come after executable targets are defined.
+	find_package( NSIS )
+
+	if (NOT "${MAKENSIS_EXECUTABLE}" STREQUAL "MAKENSIS_EXECUTABLE-NOTFOUND")
+		add_subdirectory( packaging/nsis EXCLUDE_FROM_ALL )
+		ADD_NSIS_UNINSTALLER_TARGET()
+		ADD_NSIS_PACKAGE_TARGET()
 	endif()
 endif()
 
