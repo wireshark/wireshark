@@ -35,7 +35,6 @@
 #include "packet-tcp.h"
 /* Request Response tracking */
 #include <epan/conversation.h>
-#include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 
 void proto_register_djiuav(void);
@@ -72,10 +71,14 @@ static int hf_djiuav_flags = -1;
 static int hf_djiuav_seqno = -1;
 static int hf_djiuav_cmd = -1;
 static int hf_djiuav_checksum = -1;
+#if 0
 static int hf_djiuav_cmd04_unknown = -1;
 static int hf_djiuav_resp04_unknown = -1;
+#endif
 static int hf_djiuav_cmd20_unknown = -1;
+#if 0
 static int hf_djiuav_resp20_unknown = -1;
+#endif
 static int hf_djiuav_cmdunk = -1;
 static int hf_djiuav_respunk = -1;
 static int hf_djiuav_extradata = -1;
@@ -254,7 +257,7 @@ static gboolean
 test_djiuav(tvbuff_t *tvb)
 {
 	/* Minimum of 8 bytes, beginning with magic bytes 0x55BB */
-	if ( tvb_length(tvb) < 8 /* Size of a command with empty data is at least 8 */
+	if ( tvb_captured_length(tvb) < 8 /* Size of a command with empty data is at least 8 */
 		|| tvb_get_ntohs(tvb, 0) != 0x55BB
 	) {
 		return FALSE;
@@ -278,7 +281,7 @@ dissect_djiuav_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	tcp_dissect_pdus(tvb, pinfo, tree, djiuav_desegment, 8,
 		get_djiuav_pdu_len, dissect_djiuav_pdu, data);
 
-	return tvb_length(tvb);
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -312,6 +315,7 @@ proto_register_djiuav(void)
 			0x0, NULL, HFILL }},
 
 	/* 0x04 */
+#if 0
 		{ &hf_djiuav_cmd04_unknown,
 		{ "C04 Unknown", "djiuav.cmd04.unknown", FT_UINT8, BASE_HEX, NULL,
 				0x0, NULL, HFILL }},
@@ -319,16 +323,16 @@ proto_register_djiuav(void)
 		{ &hf_djiuav_resp04_unknown,
 		{ "R04 Unknown", "djiuav.resp04.unknown", FT_UINT8, BASE_HEX, NULL,
 				0x0, NULL, HFILL }},
-
+#endif
 	/* Set time */
 		{ &hf_djiuav_cmd20_unknown,
 		{ "Time in BCD", "djiuav.cmd04.bcdtime", FT_BYTES, BASE_NONE, NULL,
 			0x0, NULL, HFILL }},
-
+#if 0
 		{ &hf_djiuav_resp20_unknown,
 		{ "R20 Unknown", "djiuav.resp04.unknown", FT_UINT8, BASE_HEX, NULL,
 			0x0, NULL, HFILL }},
-
+#endif
 	/* CMD Unknown */
 		{ &hf_djiuav_cmdunk,
 		{ "C Unknown", "djiuav.cmd.unknown", FT_BYTES, BASE_NONE, NULL,
@@ -371,9 +375,9 @@ proto_register_djiuav(void)
 	/* Preferences */
 	djiuav_module = prefs_register_protocol(proto_djiuav, NULL);
 
-	prefs_register_bool_preference(djiuav_module, "desegement",
+	prefs_register_bool_preference(djiuav_module, "desegment",
 		"Reassemble DJIUAV messages",
-		"Whether DJIUAV should reassemble messages spannign multiple"
+		"Whether DJIUAV should reassemble messages spanning multiple"
 			" TCP segments (required to get useful results)",
 		&djiuav_desegment);
 }
