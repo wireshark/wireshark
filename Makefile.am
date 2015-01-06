@@ -20,6 +20,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 AM_DISTCHECK_CONFIGURE_FLAGS=@GUI_CONFIGURE_FLAGS@
+# Make sure to keep ACLOCAL_AMFLAGS in Makefile.am and AC_CONFIG_MACRO_DIRS
+# in configure.ac in sync, otherwise there will be an error running autogen.sh.
 ACLOCAL_AMFLAGS = `./aclocal-flags`
 
 if HAVE_WARNINGS_AS_ERRORS
