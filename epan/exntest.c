@@ -23,6 +23,8 @@
 #include <config.h>
 #include "exceptions.h"
 
+#include <wsutil/ws_diag_control.h>
+
 gboolean failed = FALSE;
 
 void
@@ -96,7 +98,7 @@ run_tests(void)
         failed = TRUE;
     }
 
-
+    DIAG_OFF(shadow)
     /* check that finally is called on an uncaught exception */
     ex_thrown = finally_called = 0;
     TRY {
@@ -112,6 +114,7 @@ run_tests(void)
         ex_thrown++;
     }
     ENDTRY;
+    DIAG_ON(shadow)
 
     if (finally_called != 1) {
         printf("03: FINALLY called %u times (not 1) on uncaught exception\n", finally_called);
@@ -124,6 +127,7 @@ run_tests(void)
     }
 
 
+    DIAG_OFF(shadow)
     /* check that finally is called on an rethrown exception */
     ex_thrown = finally_called = 0;
     TRY {
@@ -146,6 +150,7 @@ run_tests(void)
         finally_called ++;
     }
     ENDTRY;
+    DIAG_ON(shadow)
 
     if (finally_called != 11) {
         printf("04: finally_called = %u (not 11) on rethrown exception\n", finally_called);
@@ -158,6 +163,7 @@ run_tests(void)
     }
 
 
+    DIAG_OFF(shadow)
     /* check that finally is called on an exception thrown from a CATCH block */
     ex_thrown = finally_called = 0;
     TRY {
@@ -185,6 +191,7 @@ run_tests(void)
         finally_called ++;
     }
     ENDTRY;
+    DIAG_ON(shadow)
 
     if (finally_called != 11) {
         printf("05: finally_called = %u (not 11) on exception thrown from CATCH\n", finally_called);
