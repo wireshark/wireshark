@@ -387,3 +387,16 @@ proto_reg_handoff_djiuav(void)
 	djiuav_handle = new_create_dissector_handle(dissect_djiuav_static, proto_djiuav);
 	dissector_add_uint("tcp.port", PORT_DJIUAV, djiuav_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
