@@ -980,27 +980,6 @@ decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const in
 	return p;
 }
 
-/* Generate a string describing a numeric bitfield (an N-bit field whose
-   value is just a number). */
-const char *
-decode_numeric_bitfield(const guint64 val, const guint64 mask, const int width,
-		const char *fmt)
-{
-	char *buf;
-	char *p;
-	int shift = 0;
-
-	buf=(char *)ep_alloc(1025); /* isn't this a bit overkill? */
-	/* Compute the number of bits we have to shift the bitfield right
-	   to extract its value. */
-	while ((mask & (G_GUINT64_CONSTANT(1) << shift)) == 0)
-		shift++;
-
-	p = decode_bitfield_value(buf, val, mask, width);
-	g_snprintf(p, (gulong) (1025-(p-buf)), fmt, (val & mask) >> shift);
-	return buf;
-}
-
 /*
    This function is very fast and this function is called a lot.
    XXX update the address_to_str stuff to use this function.

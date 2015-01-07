@@ -2236,10 +2236,7 @@ dissect_smb2_buffercode(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guin
 	buffer_code = tvb_get_letohs(tvb, offset);
 	item = proto_tree_add_uint(parent_tree, hf_smb2_buffer_code, tvb, offset, 2, buffer_code);
 	tree = proto_item_add_subtree(item, ett_smb2_buffercode);
-	proto_tree_add_uint_format(tree, hf_smb2_buffer_code_len, tvb, offset, 2,
-	                           buffer_code&0xfffe, "%s: %u",
-	                           decode_numeric_bitfield(buffer_code, 0xfffe, 16, "Fixed Part Length"),
-	                           buffer_code&0xfffe);
+	proto_tree_add_item(tree, hf_smb2_buffer_code_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_smb2_buffer_code_flags_dyn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
@@ -7722,7 +7719,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_buffer_code_len,
 		  { "Fixed Part Length", "smb2.buffer_code.length", FT_UINT16, BASE_DEC,
-		    NULL, 0, "Length of fixed portion of PDU", HFILL }},
+		    NULL, 0xFFFE, "Length of fixed portion of PDU", HFILL }},
 
 		{ &hf_smb2_olb_length,
 		  { "Length", "smb2.olb.length", FT_UINT32, BASE_DEC,

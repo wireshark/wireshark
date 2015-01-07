@@ -221,7 +221,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  decode_bits_in_field@Base 1.9.1
  decode_dcerpc_add_show_list@Base 1.12.0~rc1
  decode_dcerpc_reset_all@Base 1.12.0~rc1
- decode_numeric_bitfield@Base 1.9.1
  decode_tcp_ports@Base 1.99.0
  decode_udp_ports@Base 1.99.0
  delete_itu_tcap_subdissector@Base 1.9.1
