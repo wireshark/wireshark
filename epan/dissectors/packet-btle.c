@@ -331,8 +331,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (btle_context)
         bluetooth_data = btle_context->previous_protocol_data.bluetooth_data;
-        if (bluetooth_data)
-            ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
+    if (bluetooth_data)
+        ubertooth_data = bluetooth_data->previous_protocol_data.ubertooth_data;
 
     src_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
     dst_bd_addr = (gchar *) wmem_alloc(pinfo->pool, 6);
