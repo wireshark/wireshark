@@ -371,61 +371,46 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     {
     case AT_NONE:
         addr.len = 0;
-        addr.data = NULL;
         break;
     case AT_ETHER:
         addr.len = 6;
-        addr.data = tvb_get_ptr(tvb, offset, 6);
         break;
     case AT_IPv4:
         addr.len = IPV4_LENGTH;
-        addr.data = tvb_get_ptr(tvb, offset, IPV4_LENGTH);
         break;
     case AT_IPv6:
         addr.len = IPV6_LENGTH;
-        addr.data = tvb_get_ptr(tvb, offset, IPV6_LENGTH);
         break;
     case AT_IPX:
         addr.len = 10;
-        addr.data = tvb_get_ptr(tvb, offset, 10);
         break;
     case AT_ATALK:
+    case AT_FC:
         addr.len = 3;
-        addr.data = tvb_get_ptr(tvb, offset, 3);
         break;
     case AT_VINES:
         addr.len = VINES_ADDR_LEN;
-        addr.data = tvb_get_ptr(tvb, offset, VINES_ADDR_LEN);
-        break;
-    case AT_FC:
-        addr.len = 3;
-        addr.data = tvb_get_ptr(tvb, offset, 3);
         break;
     case AT_FCWWN:
         addr.len = FCWWN_ADDR_LEN;
-        addr.data = tvb_get_ptr(tvb, offset, FCWWN_ADDR_LEN);
         break;
     case AT_EUI64:
         addr.len = 8;
-        addr.data = tvb_get_ptr(tvb, offset, 8);
         break;
     case AT_AX25:
         addr.len = AX25_ADDR_LEN;
-        addr.data = tvb_get_ptr(tvb, offset, AX25_ADDR_LEN);
         break;
     case AT_IEEE_802_15_4_SHORT:
         addr.len = 2;
-        addr.data = tvb_get_ptr(tvb, offset, 2);
         break;
     case AT_ARCNET:
     case AT_J1939:
         addr.len = 1;
-        addr.data = GUINT_TO_POINTER((guint)tvb_get_guint8(tvb, offset));
         break;
     case AT_DEVICENET:
         addr.len = 1;
         addr.data = GUINT_TO_POINTER((tvb_get_guint8(tvb, offset) & 0x3F));
-        break;
+        return address_to_str(scope, &addr);
     case AT_OSI:
     case AT_SNA:
     case AT_SS7PC:
@@ -439,6 +424,15 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     default:
         g_assert_not_reached();
         return NULL;
+    }
+
+    switch (addr.len) {
+    case 0:
+        addr.data = NULL;
+    case 1:
+        addr.data = GUINT_TO_POINTER((guint)tvb_get_guint8(tvb, offset));
+    default:
+        addr.data = tvb_get_ptr(tvb, offset, addr.len);
     }
 
     return address_to_str(scope, &addr);
