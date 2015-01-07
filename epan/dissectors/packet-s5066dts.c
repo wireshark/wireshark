@@ -566,8 +566,9 @@ static guint dissect_s5066dts_ack_only(tvbuff_t *tvb, guint offset, proto_tree *
     ack_size = header_size - 7;
 
     proto_tree_add_item(tree, hf_s5066dts_ack_only_rx_lwe, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
-    if (ack_size > 0)
+    if (ack_size > 0){
         proto_tree_add_item(tree, hf_s5066dts_ack_only_acks, tvb, offset, ack_size, ENC_NA); offset += ack_size;
+    }
 
     return offset;
 }
@@ -588,8 +589,9 @@ static guint dissect_s5066dts_data_ack(tvbuff_t *tvb, guint offset, proto_tree *
     proto_tree_add_item(tree, hf_s5066dts_data_ack_segmented_cpdu_size, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
     proto_tree_add_item(tree, hf_s5066dts_data_ack_transmit_sequence_number, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
     proto_tree_add_item(tree, hf_s5066dts_data_ack_rx_lwe, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
-    if (ack_size > 0)
+    if (ack_size > 0){
         proto_tree_add_item(tree, hf_s5066dts_data_ack_acks, tvb, offset, ack_size, ENC_NA); offset += ack_size;
+    }
 
     return offset;
 }
