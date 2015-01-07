@@ -1,1153 +1,804 @@
-commit ef545ea
+commit d97b596
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Fri Nov 7 16:28:22 2014 -0800
+Date:   Wed Jan 7 12:05:03 2015 -0800
 
-    Prep for 1.10.11.
+    Release 1.10.12.
     
-    Change-Id: I4717cc7864c1dce277eb16469647f5ec389a05e8
+    Change-Id: I77b1027c83f4fd673cd2d2489d3f63b4d2fd6993
 
-commit 323338e
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Nov 10 19:47:59 2014 -0800
-
-    Fix a problem that causes build failures with CMake on Yosemite.
-    
-    Change-Id: I52e81656470df887eb3c53b2632bf5a310b1b063
-    Reviewed-on: https://code.wireshark.org/review/5229
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit b2c2debd978518c5c39781567a0e00f6713cc94e)
-    Reviewed-on: https://code.wireshark.org/review/5231
-
-commit 7332098
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Nov 9 08:12:36 2014 -0800
-
-    [Automatic manuf, services and enterprise-numbers update for 2014-11-09]
-    
-    Change-Id: I7c1008e62be0dba9a814a39d574707362b232c3b
-    Reviewed-on: https://code.wireshark.org/review/5208
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit b453723
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Sat Nov 8 19:25:05 2014 +0100
-
-    simple fix for bug 10676
-    
-    Bug: 10676
-    Change-Id: I442aa2ce44309655190752e715279d7325647336
-    Reviewed-on: https://code.wireshark.org/review/5199
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    Tested-by: Martin Kaiser <wireshark@kaiser.cx>
-    (cherry picked from commit ee1c74c3487812b3b361c66dfa7c2055e4df1588)
-    Reviewed-on: https://code.wireshark.org/review/5202
-
-commit c567c0e
-Author: Bill Meier <wmeier@newsguy.com>
-Date:   Sat Nov 8 12:02:08 2014 -0500
-
-    amqp: Fix for crash reported in Bug 10582.
-    
-      Detect and handle overflows when advancing 'offset'.
-    
-      (This patch converts the previous temporary fix to be the
-       permanent fix for Wireshark-1.10).
-    
-    Ping Bug 10582
-    Change-Id: I6ed10c325d851ad9fa5e13e1852fe86ad6f09f6d
-    Reviewed-on: https://code.wireshark.org/review/5196
-    Reviewed-by: Bill Meier <wmeier@newsguy.com>
-
-commit 9a2e8ea
-Author: Evan Huus <eapache@gmail.com>
-Date:   Tue Nov 4 21:31:17 2014 -0500
-
-    sigcomp-udvm: fix invalid access
-    
-    Way back in 2006, svn r20041 (now gd408f2f6fc) worked around a problem by
-    limiting the amount of buffer dealt with in the udvm_state_access call (changing
-    it from state_minimum_access_length_buff[n] to STATE_MIN_ACCESS_LEN).
-    
-    The very next line however, tries to read the same amount of buffer to display
-    to the user - since it seems nobody ever applied a proper fix for the original
-    case, just apply the same workaround to the second call.
-    
-    Bug: 10662
-    Change-Id: I32c81ee2a8eb7b30ff7ab1fbbb6ea5f206385d4b
-    Reviewed-on: https://code.wireshark.org/review/5125
-    Reviewed-by: Evan Huus <eapache@gmail.com>
-    (cherry picked from commit 254436c43bdf59250780ff51fe07d1a8d0794ccd)
-    Conflicts: epan/sigcomp-udvm.c
-    Reviewed-on: https://code.wireshark.org/review/5177
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 034d98e
-Author: Evan Huus <eapache@gmail.com>
-Date:   Wed Oct 15 08:22:09 2014 -0400
-
-    smb2: fully initialize dummy session
-    
-    A few fields weren't being zeroed and were causing valgrind warnings.
-    
-    Bug: 10569
-    Change-Id: I30e1e70c9445376806f385f3578b65bf6e320f8b
-    Reviewed-on: https://code.wireshark.org/review/4703
-    Reviewed-by: Evan Huus <eapache@gmail.com>
-    (cherry picked from commit d07c65de126f976190f1ce8d07ed8fe7deb90696)
-    Conflicts: epan/dissectors/packet-smb2.c
-    Reviewed-on: https://code.wireshark.org/review/5178
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 7b6e578
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Mon Oct 20 22:56:34 2014 +0200
-
-    tn5220: prevent another potential endless loop
-    exit the loop if dissect_unknown_data() returns 0
-    
-    Change-Id: I681d170d4daf8efb06231790652ff7c941b46d89
-    Reviewed-on: https://code.wireshark.org/review/4882
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    (cherry picked from commit 1463db37d9bbc9cd532afdf2817caaf8eb367831)
-    Reviewed-on: https://code.wireshark.org/review/5181
-    (cherry picked from commit d12ab6a48333f57710060c848340a97536ed2396)
-    Reviewed-on: https://code.wireshark.org/review/5182
-
-commit 85018d7
-Author: Bill Meier <wmeier@newsguy.com>
-Date:   Wed Nov 5 00:01:04 2014 -0500
-
-    mih: Fix some bugs; Add an XXX comment.
-    
-      One of the bugs: (2^32) is *not* 2 to the power of 32.
-    
-    Change-Id: I0875ba5ac37717b778ee9252c7bce8a2ac442158
-    Reviewed-on: https://code.wireshark.org/review/5132
-    Reviewed-by: Bill Meier <wmeier@newsguy.com>
-
-commit e369608
-Author: Bill Meier <wmeier@newsguy.com>
-Date:   Tue Nov 4 11:15:18 2014 -0500
-
-    amqp: Fix a number of bugs in dissect_amqp_0_10_map().
-    
-     (Among other things: "2 ^ xxx" is *not* 2 to the xxx'th power).
-    
-    Change-Id: I893b72e853ecbb5d7e6259e950fb347e89eed6c2
-    Reviewed-on: https://code.wireshark.org/review/5109
-    Reviewed-by: Bill Meier <wmeier@newsguy.com>
-    (cherry picked from commit 9ac261f205b7b6cba646368433eac550c7a6acd7)
-    Reviewed-on: https://code.wireshark.org/review/5111
-
-commit 182e0de
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Nov 2 08:13:32 2014 -0800
-
-    [Automatic manuf, services and enterprise-numbers update for 2014-11-02]
-    
-    Change-Id: I92f41798af384a9889a2804edab50ac1943554d6
-    Reviewed-on: https://code.wireshark.org/review/5076
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 74eace1
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Nov 1 19:02:44 2014 -0400
-
-    Announce messages should only have a TLV if the message length is > 64.
-    
-    Also, cleaned up a unnecessary global variable.
-    
-    Bug: 10611
-    
-    Reviewed-on: https://code.wireshark.org/review/5029
-    Reviewed-by: Evan Huus <eapache@gmail.com>
-    Petri-Dish: Evan Huus <eapache@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    
-    Conflicts:
-     epan/dissectors/packet-ptp.c
-    
-    Change-Id: Ifb9bcde70405d591c21bd4e10195e1b192cba98b
-    Reviewed-on: https://code.wireshark.org/review/5062
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 89237e3
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Sat Nov 1 22:44:05 2014 +0100
-
-    print: do not try to add an empty hex stream to PDML output for a text only hf
-    
-    Bug: 10651
-    Change-Id: I4d7e79d6fad909453e3c6fa4973e11a5fd3f7ca4
-    Reviewed-on: https://code.wireshark.org/review/5060
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit 00204d0
-Author: Jeff Morriss <morriss@ulticom.com>
-Date:   Wed Oct 29 17:35:31 2014 -0400
-
-    Convert a couple remaining isalpha() and isprint() calls that were left after
-    the merges to this branch.
-    
-    This gets it compiling cleanly again.
-    
-    Change-Id: I7273c5bb684656b26a98cbcb4e279bc0499c812c
-    Reviewed-on: https://code.wireshark.org/review/4986
-    Reviewed-by: Jeff Morriss <jeff.morriss.ws@gmail.com>
-
-commit d939342
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Tue Oct 28 11:18:40 2014 -0700
-
-    Use g_ascii_isalnum() rather than isalnum().
-    
-    Only *ASCII* alphanumerics are allowed in filterable field names, so use
-    g_ascii_isalnum() to check for them.  That avoids issues with characters
-    with the 8th bit set and avoids locale-dependent behavior.
-    
-    Change-Id: I4e3c4eec907f5e576629229fcf154fcf728b7a2e
-    Reviewed-on: https://code.wireshark.org/review/4973
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 8ea4df97e052f3fb0af3336990f2bef6d882b258)
-    Reviewed-on: https://code.wireshark.org/review/4975
-
-commit 1b956b7
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sun Oct 26 23:16:30 2014 -0400
-
-    Add enumerated value 639 to vals_parm_PID.
-    
-    Per http://www.nowsms.com/discus/messages/1/EMI_UCP_Specification_40-8156.pdf
-    
-    Bug: 10463
-    Change-Id: I55957f7b77b3dcf8c65c288791fed6428a1f4ba5
-    Reviewed-on: https://code.wireshark.org/review/4944
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit ee7243239a56e27c75c896f727a27538112535e5)
-    Change-Id: I55957f7b77b3dcf8c65c288791fed6428a1f4ba5
-    Reviewed-on: https://code.wireshark.org/review/4946
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 3cac251
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Wed Oct 22 09:02:46 2014 -0400
-
-    Add a "placeholder protocol" for H.223 to avoid confusion when using Decode As.
-    
-    The Decode As dialog presents two H.223 options and only "trial and error" can determine if you want bitswapping or not.
-    
-    Change-Id: I9303c73375d130d3097d347bb374019dfc714068
-    Reviewed-on: https://code.wireshark.org/review/4909
-    Reviewed-by: Anders Broman <a.broman58@gmail.com>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 48da429a04956f18667d9de3022b11a60811663c)
-    Change-Id: I9303c73375d130d3097d347bb374019dfc714068
-    Reviewed-on: https://code.wireshark.org/review/4920
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit a478316
-Author: Michael Mann <mmann78@netscape.net>
-Date:   Sat Oct 25 19:44:56 2014 -0400
-
-    Various Mobile IPv6 bugfixes
-    
-    Most of this was found by Boaz Brickner, but to prevent a few more bug reports, I tried to find any remaining MIPv6 options that used -1 to read until "end of packet" instead of "end of option"
-    
-    1. Option-Code and Reserved fields should be 1 byte, not 2 in Local Mobility Anchor Address mobility option
-    2. IPv6 AUTH mobility option parses Mobility SPI
-    3. IPv6 MESG-ID (should just be a timestamp field)
-    4. IPv6 Redirect Mobility Option K and N bits are parsed incorrectly
-    
-    5. The following options had a field that read until the end of the packet instead of the end of the option:
-    DNS-UPDATE-TYPE
-    AUTH Authentication Data
-    Care Of Test
-    Permanent Home Keygen Token
-    CGA Parameters
-    Signature
-    Experimental Mobility Option
-    
-    Bug: 10630
-    Bug: 10629
-    Bug: 10626
-    Bug: 10625
-    Bug: 10624
-    Bug: 10622
-    Bug: 10619
-    
-    Reviewed-on: https://code.wireshark.org/review/4932
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 803a2f9518b9d207094dabfc01ad462e46588ef3)
-    
-    Conflicts:
-    	epan/dissectors/packet-mip6.c
-    
-    Change-Id: I1bd4eeb4ed11d64d99c833ebde985515d9ffb6f5
-    Reviewed-on: https://code.wireshark.org/review/4936
-    Petri-Dish: Michael Mann <mmann78@netscape.net>
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Tested-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 0d63d81
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Oct 26 08:13:59 2014 -0700
-
-    [Automatic manuf, services and enterprise-numbers update for 2014-10-26]
-    
-    Change-Id: I4d835b812e835beb80ccc706833b2aa96e60f778
-    Reviewed-on: https://code.wireshark.org/review/4939
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 8f61ce9
-Author: Evan Huus <eapache@gmail.com>
-Date:   Sat Oct 25 14:08:57 2014 -0400
-
-    ncp2222: initialize buffer in build_expert_data
-    
-    We do a bunch of conditional logic to fill in the buffer, and then were checking
-    strlen(buffer) to see if we'd actually filled it in or not, but if we hadn't
-    then the buffer was garbage and strlen(buffer) was throwing valgrind warnings.
-    Ensure this works as intended by setting the first byte of the buffer
-    unconditionally at the beginning, so strlen(buffer) returns 0 as expected in
-    that case.
-    
-    Bug: 10628
-    Change-Id: I6f6c29fbbcb601b6ebccb3a4b312f0fa72c169ae
-    Reviewed-on: https://code.wireshark.org/review/4926
-    Reviewed-by: Evan Huus <eapache@gmail.com>
-
-commit d7174c0
-Author: Martin Kaiser <wireshark@kaiser.cx>
-Date:   Mon Oct 20 22:37:51 2014 +0200
-
-    tn5250: fix an endless loop, exit when offset is not incremented
-    
-    Bug: 10596
-    Change-Id: I64509aa49fce4893dee4e7a74a560e09a98830f6
-    Reviewed-on: https://code.wireshark.org/review/4878
-    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
-    Tested-by: Martin Kaiser <wireshark@kaiser.cx>
-    (cherry picked from commit bc2726578156f3608960fc65ce1f691639e6addc)
-    Reviewed-on: https://code.wireshark.org/review/4880
-    Reviewed-by: Evan Huus <eapache@gmail.com>
-
-commit fc8132c
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Oct 16 18:26:03 2014 -0700
-
-    Don't use <ctype.h> macros.
-    
-    They're locale-dependent (although those *particular* ones might not
-    be).
-    
-    Remove no-longer necessary (or not-even-necessary-before-this-change)
-    includes of <ctype.h>
-    
-    (cherry picked from commit 0d9b449ae95f26e86f8b433c7f4f99341443b048)
-    
-    Change-Id: Ic2be240369c62a06bd5152fda46e6ad9027570cf
-    Reviewed-on: https://code.wireshark.org/review/4869
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 68ff8fb
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Oct 20 01:48:56 2014 -0700
-
-    Get rid of another toupper() call in favor of g_ascii_toupper().
-    
-    (cherry picked from commit 991743b0b1cce99305a4b3162d6c520a09877c15)
-    
-    Change-Id: Ib7650b773504f7f4572f297a01301bdf895ed917
-    Reviewed-on: https://code.wireshark.org/review/4867
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit c5fe6bf
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Oct 20 01:13:26 2014 -0700
-
-    Fix previous merge.
-    
-    Change-Id: I3cbb84cb93612fee9b6eeddc6e9e3554c0b55c7a
-    Reviewed-on: https://code.wireshark.org/review/4862
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 6b99232
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Oct 20 01:05:03 2014 -0700
-
-    Clean up comments.
-    
-    Change-Id: I38fb39d6444469fd17373a9b0703b553b620e439
-    Reviewed-on: https://code.wireshark.org/review/4860
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit f3a98eb
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Oct 20 00:29:28 2014 -0700
-
-    Clean up comments.
-    
-    Change-Id: I1448062101f55d448f4e4c5e54aee089b7e1c1c5
-    Reviewed-on: https://code.wireshark.org/review/4854
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 3e9482f
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sun Oct 19 23:14:50 2014 -0700
-
-    Get rid of calls to ctype.h functions.
-    
-    They don't handle values outside the range -1 to 127, and their behavior
-    is locale-dependent.  Use g_ascii_isXXX() and g_ascii_toXXX() instead of
-    isXXX() and toXXX().
-    
-    If you're checking for printable ASCII, don't use isascii() and don't
-    use iscntrl(), use g_ascii_isprint().  If you're checking for graphical
-    ASCII, i.e. printable ASCII except for a space, use g_ascii_isgraph().
-    
-    (cherry picked from commit 80e6f6251e96dd7b8a9ab0fdbf63b03a73ef6692)
-    
-    Change-Id: Iabf1304205850934e1b880c0bb81064c76dcd06f
-    Reviewed-on: https://code.wireshark.org/review/4853
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit c72b3c3
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sun Oct 19 16:00:41 2014 -0700
-
-    Eliminate a use of a ctype.h function.
-    
-    That way, we avoid locale-dependent behavior.
-    
-    (cherry picked from commit 4d6b3db5d4edc8743151c599330441ad2f943094)
-    
-    Change-Id: Iabafc8e9e66f8c0cad6c53cc8aa36cc9454ef37f
-    Reviewed-on: https://code.wireshark.org/review/4847
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 771a617
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Oct 19 08:13:30 2014 -0700
-
-    [Automatic manuf, services and enterprise-numbers update for 2014-10-19]
-    
-    Change-Id: I7754169b9f84f4d39f7cf7f11e02bdcb4bfcf1e0
-    Reviewed-on: https://code.wireshark.org/review/4841
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 531d294
-Author: Bill Meier <wmeier@newsguy.com>
-Date:   Sun Oct 19 10:04:39 2014 -0400
-
-    packet-amqp.c: Temporary/preliminary fix for Bug #10582 (crash)
-    
-    This is a temporary/preliminary fix to prevent the buildbot fuzz-test
-     failures seen when testing the capture file attached to Bug #10582.
-    
-    As noted in the bug, a complete fix will require some reworking of
-      the amqp dissector.
-    
-    Change-Id: I2571f1eeb46a7eede04b8d809e87b95f1ff529df
-    Reviewed-on: https://code.wireshark.org/review/4835
-    Reviewed-by: Bill Meier <wmeier@newsguy.com>
-    (cherry picked from commit 8def8ef9c40189472a46d9b1ad95289780e09af5)
-    Reviewed-on: https://code.wireshark.org/review/4837
-    Reviewed-by: Evan Huus <eapache@gmail.com>
-    (cherry picked from commit 4655270af94dcf45195cd0206b3e10a32861fa2a)
-    Reviewed-on: https://code.wireshark.org/review/4838
-
-commit a2ace6b
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Sat Oct 18 16:45:01 2014 +0200
-
-    MIPv6: Mobility Option Binding Authorization Data for FMIPv6 Authenticator field is read beyond the option data
-    
-    There's a single IPv6 packet with Binding Authorization Data for FMIPv6 mobility option.
-    The option's data length is 14 but and since the SPI takes 4 bytes, the Authenticator field should take 10 bytes.
-    However, the Authenticator field is read until the end of the packet, which is 178 bytes.
-    
-    Found by boaz
-    Bug: 10577
-    Change-Id: Ia79c5131d8477c1a7c111c47c2a94e990bbeae4d
-    Reviewed-on: https://code.wireshark.org/review/4817
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 8a10f77ab4d7722efc95170771540eb93b2c2f16)
-    Change-Id: Ia79c5131d8477c1a7c111c47c2a94e990bbeae4d
-    Reviewed-on: https://code.wireshark.org/review/4822
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-
-commit 19141fe
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Sat Oct 18 16:55:46 2014 +0200
-
-    MIPv6: Mobility Option Mobile Node Link Layer Identifier Link-layer Identifier field is read beyond the option data
-    
-    there's a single IPv6 packet with Mobile Node Link Layer Identifier mobility option.
-    The option's data length is 9 but and since the Reserved field takes 2 bytes, the Link Layer Identifier field should take 7 bytes.
-    However, the Link Layer Identifier field is read until the end of the packet, which is 519 bytes.
-    
-    Bug:10578
-    Change-Id: I518de7f6b75e5b749cb029845fd4846954ca6d0e
-    Reviewed-on: https://code.wireshark.org/review/4818
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 51f496220322ac518d9485afe030d0568fdae080)
-    Change-Id: I518de7f6b75e5b749cb029845fd4846954ca6d0e
-    Reviewed-on: https://code.wireshark.org/review/4824
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-
-commit 82828ed
-Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
-Date:   Sat Oct 18 16:31:01 2014 +0200
-
-    MIPv6: Mobility Option IPv6 Address/Prefix marks too many bytes for the address/prefix field
-    
-    One of the mobility options is the IPv6 Address/Prefix.
-    The prefix length of this option is 52.
-    Note that according to RFC 5568, the prefix length is in bits and not in bytes.
-    The IPv6 Address/Prefix field of this option marks 52 bytes.
-    
-    In addition, I'm not sure that the IPv6 Address/Prefix field is a variable size field.
-    RFC 5568 section 6.4.2 has a diagram of this options that shows this field as if it always takes 128 bits, and the prefix length field just says the length of the prefix (not the length of the field).
-    
-    Found by boaz
-    
-    Bug:10576
-    Change-Id: I2a9a35cb7c537ec3b91c9a089f14fa31f41d8c80
-    Reviewed-on: https://code.wireshark.org/review/4816
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 31c119fa789782190cea2608decaa114318bb5d8)
-    Change-Id: I2a9a35cb7c537ec3b91c9a089f14fa31f41d8c80
-    Reviewed-on: https://code.wireshark.org/review/4820
-    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
-
-commit 810ed9b
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Oct 17 18:31:26 2014 -0700
-
-    More replacement of ctype.h functions.
-    
-    Change-Id: I6a1b5b4e621080490d2f3161d954425973faeb5c
-    Reviewed-on: https://code.wireshark.org/review/4810
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 61c4acc
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Oct 17 18:16:10 2014 -0700
-
-    Don't use ctype.h routines.
-    
-    That eliminates locale-dependent behavior when parsing packets.
-    
-    While we're at it, rename a variable to reflect what it's being used for.
-    
-    (cherry picked from commit c734c57a37e4a84e8b66cc054d4b2c07aecebc9e)
-    
-    Change-Id: Ic5d5fb6d73005b1f8e8932fc1666e473d6a42a24
-    Reviewed-on: https://code.wireshark.org/review/4808
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit f54a230
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Oct 17 16:57:28 2014 -0700
-
-    Get rid of some no-longer-necessary casts.
-    
-    g_ascii_isXXX() can be handed a char value safely; they won't try to use
-    it as an index into a table before checking it.
-    
-    (cherry picked from commit e3477bd13635a637d1337093457dbad499bd5538)
-    
-    Change-Id: I35aaeaabcc896adb747aad628d259dd0b5b09c2e
-    Reviewed-on: https://code.wireshark.org/review/4803
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 0757e61
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Oct 17 16:42:40 2014 -0700
-
-    Don't use ctype.h routines.
-    
-    That avoids locale dependency and handles possibly-signed chars(which
-    we weren't always doing before).
-    
-    (cherry picked from commit a91799ebfa3a3aac705132722e57acc92fe4eddb)
-    
-    Change-Id: I9c91ea79d5313317e9a8a877b4ac806e96fdb38f
-    Reviewed-on: https://code.wireshark.org/review/4800
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 1b608a5
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Oct 17 16:10:53 2014 -0700
-
-    Don't use ctype.h routines.
-    
-    That avoids locale dependency and handles possibly-signed chars (which
-    we weren't always doing before).
-    
-    (cherry picked from commit 033f096ee909b63c0692b80416797f743940d054)
-    
-    Change-Id: Id2282486d37e7e88ed144e96f29f3c67014e762d
-    Reviewed-on: https://code.wireshark.org/review/4796
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 91b016e
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Oct 17 14:10:52 2014 -0700
-
-    Don't use ctype.h routines.
-    
-    That avoids locale dependency and handles possibly-signed chars (which
-    we weren't doing before).
-    
-    (cherry picked from commit 5fc398c3286fda408ad5cd4b5834d1b2778db86a)
-    
-    Change-Id: I98c0e532d14e78cc44fef701fb2ad4f29d8edf4e
-    Reviewed-on: https://code.wireshark.org/review/4791
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 5dbd5cf
-Author: AndersBroman <anders.broman@ericsson.com>
-Date:   Tue May 13 14:44:47 2014 +0200
-
-    isprint() -> g_ascii_isprint()
-    
-    (cherry picked from commit 3157bf6ba5e4896b28316695ecd3a4659631c8c2)
-    
-    Change-Id: I0e4645b83289a4a12b7d1eaa275a17c411ebbfce
-    Reviewed-on: https://code.wireshark.org/review/4789
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 12738a5
-Author: Evan Huus <eapache@gmail.com>
-Date:   Mon Apr 28 12:11:35 2014 -0400
-
-    Fix potential invalid-reads in catapult files
-    
-    As caught by CppCheck, the conditions checking that n is in bounds should
-    occur *before* the conditions using n as an index so that if n is out of bounds
-    we don't try and use it anyways.
-    
-    (cherry picked from commit 72fc075e9a6b3ba79e49668e74a8dd187fc04f8a)
-    
-    Change-Id: I23de43d52984cb441fa08f5f7384c486c9de817c
-    Reviewed-on: https://code.wireshark.org/review/4785
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit e638689
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Oct 17 13:54:22 2014 -0700
-
-    Some replacement of ctype.h routines missed by the previous commit.
-    
-    Change-Id: I0d132fceb68141b4e587311f7043ea990b3d083a
-    Reviewed-on: https://code.wireshark.org/review/4784
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 988cb32
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Fri Oct 17 13:37:11 2014 -0700
-
-    Don't use ctype.h routines.
-    
-    That avoids locale dependency and handles possibly-signed chars (which
-    we weren't doing before).
-    
-    (cherry picked from commit 5bfde7c6386b56db80fec85e2ca7dc1d271b461c)
-    
-    Change-Id: Ia20fe28a77b136e0860cffa43cc36d994af04f13
-    Reviewed-on: https://code.wireshark.org/review/4783
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 612491b
-Author: AndersBroman <anders.broman@ericsson.com>
-Date:   Fri Oct 17 10:49:58 2014 +0200
-
-    isdigit -> g_ascii_isdigit to handle 8-bit bytes correctly.
-    
-    (cherry picked from commit 9d1afef1dfd3af626c471debe7f09f41d67c401f)
-    
-    Change-Id: Icee86ee3efd31df183ff259d605ab0ca0295ae88
-    Reviewed-on: https://code.wireshark.org/review/4780
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 9ffacc6
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Thu Oct 9 22:48:59 2014 +0200
-
-    GSM MAP: fix detection of SMS direction when application context version is < 3
-    
-    Bug: 10547
-    Change-Id: I4708fd9977e635c66ef1350ce5098520e4c2ce1e
-    Reviewed-on: https://code.wireshark.org/review/4579
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 6463d2a7e66e259dabbeffbab67bcbeedd98133f)
-    Reviewed-on: https://code.wireshark.org/review/4775
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-
-commit 2b6e946
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Oct 16 23:41:29 2014 -0700
-
-    Don't use <ctype.h> macros, and eliminate an include of <ctype.h>.
-    
-    This avoids locale-dependent tests, and fixes cases where we passed
-    signed char values to those macros (which is not safe with char being
-    signed, as it is on most, but not all, platforms).
-    
-    (cherry picked from commit 63ab36be9266f79d92ac37e632299c8f0e2244f1)
-    
-    Change-Id: I5deeb4dcf6d3828cef3a879bf2aac7e8da6010b1
-    Reviewed-on: https://code.wireshark.org/review/4766
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 6e40d58
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Oct 16 23:08:42 2014 -0700
-
-    Don't use <ctype.h> macros, and eliminate an include of <ctype.h>.
-    
-    This avoids locale-dependent tests.
-    
-    (cherry picked from commit 25d9a7b5f1b880ab283947da28a8216dc9b7e551)
-    
-    Change-Id: I84fe8ca3885fc95ac55b3afdff00a62084d8121f
-    Reviewed-on: https://code.wireshark.org/review/4760
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 9aed0cf
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Oct 16 16:41:59 2014 -0700
-
-    Use g_ascii_isalnum() rather than isalnum().
-    
-    That way, we don't have to worry about casting the argument (which, in
-    one place, was done wrong - casting to int preserves the sign-extension
-    done with signed chars), and don't have to worry about a locale in which
-    particular 8-bit byte values are considered alphanumeric characters.
-    
-    Change-Id: I129b4bfdad70ade4ab6e0a1d2c13d59ae9e6f524
-    Reviewed-on: https://code.wireshark.org/review/4751
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit e6fcff1eb62b581eb7fb3d7af1d2e38612a00b30)
-    Reviewed-on: https://code.wireshark.org/review/4753
-
-commit 1916b57
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Oct 16 14:55:06 2014 -0700
-
-    Make sort_alphabet() not fail too badly with characters in [128,255].
-    
-    Treat all values in the alphabet as unsigned.
-    
-    Change-Id: I4476c75352f32673a9cd131ea233465f3376fa25
-    Reviewed-on: https://code.wireshark.org/review/4747
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit a517d500b4d5bdedba68127d295a37c2dbe4bf2c)
-    Reviewed-on: https://code.wireshark.org/review/4749
-
-commit e511ed4
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Oct 16 12:05:26 2014 -0700
-
-    Better fix - just check that the upper and lower nibbles are >= 0xA.
-    
-    An unsigned 8-bit integer is always <= 0xFF; that was the cause of the
-    warning.
-    
-    To see whether a byte, when represented as hex, has letters for its
-    upper and lower nibbles, just check whether both nibbles are >= 0xA.
-    Cast the extracted nibbles to make sure there's no sign-extension.
-    
-    Change-Id: If4c7717a5d2fe341c02e9309ee6b89973a6ac292
-    Reviewed-on: https://code.wireshark.org/review/4739
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit f6bc6f957a13471fecb4ce0a31ca09f30cdde44f)
-    Reviewed-on: https://code.wireshark.org/review/4741
-
-commit 6596e08
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Oct 16 11:44:06 2014 -0700
-
-    gchar is not guaranteed to be signed; use gint8.
-    
-    C does not guarantee that char is signed (that's why there's a keyword
-    "signed").  Use gint8, to indicate that it's not a character, it's an
-    8-bit signed integer.
-    
-    Change-Id: Id632df23352840cbc86a4d88f4c7dade95ab7837
-    Reviewed-on: https://code.wireshark.org/review/4736
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 0db468e300287b8c8ee691f23873b299f64da0c7)
-    Reviewed-on: https://code.wireshark.org/review/4738
-
-commit 18c5a32
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Oct 16 11:06:06 2014 -0700
-
-    Fix issues in some ARM compilers, due to char being unsigned?
-    
-    I'm not 100% certain the comparisons were right even with signed char;
-    make the comparisons unsigned vs. unsigned, regardless of whether char
-    is signed or not.  (No, C doesn't require it to be signed; that's why
-    there's a "signed" keyword.)
-    
-    Change-Id: Icbbd1019a2f7d4ebb40d821255834f825cd7c5a7
-    Reviewed-on: https://code.wireshark.org/review/4731
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 353f6258f92ed7f8787cc32cd92ac3d44aa88f21)
-    Reviewed-on: https://code.wireshark.org/review/4733
-
-commit 7605675
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Oct 15 17:16:48 2014 -0700
-
-    It was called "interface_data" in 1.10.
-    
-    Change-Id: Ibd918336c2c96c4bfede4564b6d147d472f6e0c2
-    Reviewed-on: https://code.wireshark.org/review/4714
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 1a7884e
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Wed Oct 15 17:02:42 2014 -0700
-
-    Don't allocate the interfaces array until we've read the SHB.
-    
-    Nothing from the SHB gets stored in the interfaces array - it's filled
-    in from IDBs - so it doesn't need to exist when we read the first SHB,
-    and thus doesn't need to be freed if the attempt to read the SHB gets an
-    error or a "this isn't a pcap-ng file" indication.
-    
-    Change-Id: I7e8c573efa67383c843177413cf5f3e2e279502c
-    Reviewed-on: https://code.wireshark.org/review/4713
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 7954467
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Oct 13 23:14:19 2014 +0200
-
-    NCP: cast to guint instead of gulong
-    
-    Change-Id: Idc8f8f3177703ce5546b8a472034705cb6070707
-    Reviewed-on: https://code.wireshark.org/review/4666
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit fb27a682a14ca653b36878186e0ddfdc1fea3a4e)
-    Reviewed-on: https://code.wireshark.org/review/4669
-
-commit f8abafe
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Mon Oct 13 21:04:09 2014 +0200
-
-    NCP: add a missing cast following g6ca40c5
-    
-    Change-Id: I0b93c4faab52d830b8160d89b9bb8026ab2a216e
-    Reviewed-on: https://code.wireshark.org/review/4657
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit 63faad686b49e02b86cd1961dd3bc8283f120da8)
-    Reviewed-on: https://code.wireshark.org/review/4660
-
-commit 146cff5
-Author: Evan Huus <eapache@gmail.com>
-Date:   Mon Oct 13 12:55:40 2014 -0400
-
-    ncp2222: don't overflow buffer constructing string
-    
-    Fixes stack-smashing vuln.
-    
-    Somehow there was already an XXX in the code about this, but nobody realized at
-    the time it was worth fixing... really?
-    
-    Bug: 10552
-    Change-Id: I849068bd6c45146339444f295b72430d3c6e08f2
-    Reviewed-on: https://code.wireshark.org/review/4653
-    Reviewed-by: Evan Huus <eapache@gmail.com>
-    (cherry picked from commit b9988e2bbfc7c6c41ef82c559bd11a8c19170491)
-    Reviewed-on: https://code.wireshark.org/review/4654
-    (cherry picked from commit 6fa8338b381c0018f8dcc8286c554903a5fa4cb8)
-    Reviewed-on: https://code.wireshark.org/review/4655
-
-commit 1d85e52
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Oct 12 08:13:47 2014 -0700
-
-    [Automatic manuf, services and enterprise-numbers update for 2014-10-12]
-    
-    Change-Id: I72dc592caa21049100926a5569a82355d2e0cede
-    Reviewed-on: https://code.wireshark.org/review/4617
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit d38f510
+commit a3362be
 Author: Anish Bhatt <anish@chelsio.com>
-Date:   Tue Oct 7 14:23:28 2014 -0400
+Date:   Mon Jan 5 22:26:46 2015 -0800
 
-    [iSCSI] Fix incorrect heuristic.
+    Revert "[PROFINET] Fix swapped MaintenanceRequired & MaintenanceDemanded bits"
     
-    The only valid check for Expected Data Transfer Length is :
-    R and W	 MUST  NOT both be 0 when the Expected Data Transfer Length and/or
-    Bidirectional Read Expected Data Transfer Length are not 0
+    This reverts commit 0452f763fb0dd2cf7e38f0a127c306199a814c3e. Changes should
+    have been made in ChannelProperties instead of Submodule state. Current
+    implementation merely *appears* to be correct as we are reading it as a two bit
+    value but instead should be addressing it as individual bits, little endian
+    Bug: 10753
     
-    Backported with manual intervention from I5503a5ad524c4e237b143696fc8eda895bcb9172
-    with change to reflect v1.10 version of packet-isci.c code.
-    
-    Ping-Bug: 10469
-    
-    Change-Id: I56362010f354dac4a5e15978a288104fce2629af
-    Reviewed-on: https://code.wireshark.org/review/4529
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 9cfdfdf
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Oct 5 08:13:03 2014 -0700
-
-    [Automatic manuf, services and enterprise-numbers update for 2014-10-05]
-    
-    Change-Id: Id0448cce819b05a222d498996f7d4608fc33f15e
-    Reviewed-on: https://code.wireshark.org/review/4476
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit f57f055
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Mon Sep 29 11:59:26 2014 -0700
-
-    High Throughput is 11n, not 11g or 11a.
-    
-    Change-Id: I86b6dac9cf3f1f524c1168d675bff4a04e361cee
-    Reviewed-on: https://code.wireshark.org/review/4374
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 4342d0f7a28cd31271b6d9f9116ee05e90ac44da)
-    Reviewed-on: https://code.wireshark.org/review/4376
-
-commit 8e87560
-Author: Evan Huus <eapache@gmail.com>
-Date:   Sun Sep 28 17:56:16 2014 -0400
-
-    mrcpv2: don't use an uninitialized buffer as a string
-    
-    I have no idea what the original intent was with this magical
-    otherwise-totally-unused buffer, but it clearly serves no purpose now. Stop
-    reading garbage from it, and just read the data in the packet which is what the
-    field name suggests.
-    
-    Bug: 10510
-    Change-Id: I05d0b98c04e59ea70247811168c4c8a64861f43d
-    Reviewed-on: https://code.wireshark.org/review/4354
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-
-commit 79491cc
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Sep 28 08:13:00 2014 -0700
-
-    [Automatic manuf, services and enterprise-numbers update for 2014-09-28]
-    
-    Change-Id: Ibd595940dee64e170048d3b47ae6f8c534667c11
-    Reviewed-on: https://code.wireshark.org/review/4341
-    Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 2777949
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Sep 25 23:11:34 2014 -0700
-
-    Update a comment as per the previous commit.
-    
-    Change-Id: Ic7adba4302d4d4abff7012cf09d68246ebade922
-    Reviewed-on: https://code.wireshark.org/review/4296
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 95dc9a927895db975e89bf3a65e4faf6ef28476b)
-    Reviewed-on: https://code.wireshark.org/review/4300
-
-commit a46cd04
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Thu Sep 25 23:05:20 2014 -0700
-
-    Renaming libtool* to glibtool* might require root permission.
-    
-    Define DO_MV as "mv" or "sudo mv", depending on whether the user has
-    write access to /usr/local/bin, and use it to rename libtool* to
-    glibtool* and vice versa.
-    
-    Change-Id: Ifbef4daa4521852bc200522743df9d23e7f0d1c2
-    Reviewed-on: https://code.wireshark.org/review/4295
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 92a0cb85f350d547b0816e1bdaee131768390d00)
-    Reviewed-on: https://code.wireshark.org/review/4298
-
-commit 939fcbe
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Tue Sep 23 17:09:46 2014 -0700
-
-    Fix presumed cut-and-pasteo.
-    
-    On errors *other* than a short read, we were driving on and processing
-    the non-data that we didn't read.
-    
-    Change-Id: I6289ddf31ff7896918a030af9d1261bdc194e7d3
-    Reviewed-on: https://code.wireshark.org/review/4270
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 5f096acb454c3d57d23a786f49a884dd4afb0499)
-    Reviewed-on: https://code.wireshark.org/review/4272
-
-commit 06cd8b8
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Thu Sep 18 07:20:01 2014 +0200
-
-    6LoWPAN: fix encapsulating address decoding when a Mesh header is present
-    
-    Bug: 10462
-    Change-Id: I37d532edc41193123b1a7bb380d48cb76c118bf4
-    Reviewed-on: https://code.wireshark.org/review/4161
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Change-Id: Ia3bd088aeb376b8511d64352f62c4304e4129ba6
+    Reviewed-on: https://code.wireshark.org/review/6334
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit eb98b04ac12efe01d1abddf866b18f31101533ee)
+    Reviewed-on: https://code.wireshark.org/review/6340
     Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    Reviewed-by: Michael Mann <mmann78@netscape.net>
-    (cherry picked from commit 1e47e050dcdf30eced478e6909408d79548975c6)
-    Reviewed-on: https://code.wireshark.org/review/4227
 
-commit 61c1de4
+commit 7fc3a06
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Sep 21 08:12:21 2014 -0700
+Date:   Fri Jan 2 14:06:42 2015 -0800
 
-    [Automatic manuf, services and enterprise-numbers update for 2014-09-21]
+    Make sure we don't underrun a buffer when decrypting SSL.
     
-    Change-Id: I5e6d324a1394c7ee05c236bfebaba3c0d27aceec
-    Reviewed-on: https://code.wireshark.org/review/4224
+    Discovered by Noam Rathaus.
+    
+    Change-Id: Ia0275601b2a825ba616656064d9a6eca109e34fa
+    Reviewed-on: https://code.wireshark.org/review/6256
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
     Reviewed-by: Gerald Combs <gerald@wireshark.org>
-
-commit 7381bf2
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sat Sep 20 14:05:10 2014 -0700
-
-    Align the error messages.
-    
-    Change-Id: Icb4b3462b815d50cbdb7b13681bf4819665eb046
-    Reviewed-on: https://code.wireshark.org/review/4219
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 5f73217
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sat Sep 20 13:18:53 2014 -0700
-
-    Report (and free) err_info for WTAP_ERR_DECOMPRESS.
-    
-    Change-Id: I61ecc58be4b0688c43df0b0f006fb899bdc1721c
-    Reviewed-on: https://code.wireshark.org/review/4216
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit be7f0539848238627db0e18acdc2dae5715c3182)
-    Reviewed-on: https://code.wireshark.org/review/4218
-
-commit 9102775
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sat Sep 20 12:06:58 2014 -0700
-
-    Free err_info on WTAP_ERR_DECOMPRESS.
-    
-    Change-Id: I57fbb17baf43b0f1365fef72778ac0e65935456a
-    Reviewed-on: https://code.wireshark.org/review/4210
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 22a0d65a9a6691bcec24905baefeaba370f04043)
-    Reviewed-on: https://code.wireshark.org/review/4212
-
-commit 24b5bf3
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sat Sep 20 11:47:36 2014 -0700
-
-    The previous cherry-pick required some manual intervention.
-    
-    Change-Id: I3f81a0e002a74d9e64ae06428d40dc787a7f8e39
-    Reviewed-on: https://code.wireshark.org/review/4208
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 74fa8e3
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sat Sep 20 11:30:57 2014 -0700
-
-    Add file_error() calls after file_read().
-    
-    If file_read() doesn't return the exact number of bytes you asked for,
-    and you really need all those bytes to be there, you have to call
-    file_error() to find out what the problem is.
-    
-    Change-Id: I4cc87bc1b6cc5a49bbcbf93b56106f57af290d20
-    Reviewed-on: https://code.wireshark.org/review/4205
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-    (cherry picked from commit 32c38a4ecc7fc4f07349b0fbc13f7754be897546)
-    Reviewed-on: https://code.wireshark.org/review/4207
-
-commit 7199e55
-Author: Guy Harris <guy@alum.mit.edu>
-Date:   Sat Sep 20 10:45:28 2014 -0700
-
-    Set err_info if the attempts to read record headers fail.
-    
-    If it fails due to, for example, the file being gzipped and having a bad
-    gzip CRC, the error returned is WTAP_ERR_DECOMPRESS and, for that error,
-    err_info is expected to be set to a string giving details of the
-    problem, so we need to pass back to our caller the string in question.
-    
-    Bug: 10484
-    Change-Id: Ifa3139d2f28fadbc745c51611488865e97bcccb3
-    Reviewed-on: https://code.wireshark.org/review/4203
-    Reviewed-by: Guy Harris <guy@alum.mit.edu>
-
-commit 62de7e3
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Wed Sep 17 12:14:32 2014 +0200
-
-    GTPv2: further fixes for Trace Information IE dissection
-    
-    Bug: 10470
-    Change-Id: I8b61e5601379a568da39cce2335122e91ab37ec4
-    Reviewed-on: https://code.wireshark.org/review/4142
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
-    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
-    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
-    (cherry picked from commit c4c82577d321ee288f2cba776560ef28b7143974)
-    Reviewed-on: https://code.wireshark.org/review/4154
-
-commit 2e2dca7
-Author: Pascal Quantin <pascal.quantin@gmail.com>
-Date:   Tue Sep 16 19:25:37 2014 +0200
-
-    GTPv2: fix dissection of Triggering Events IE
-    
-    Bug: 10470
-    Change-Id: Ieb9819e578f078e956861a4e2d7ab3d8b96416d6
-    Reviewed-on: https://code.wireshark.org/review/4130
-    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
     Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
     Reviewed-by: Evan Huus <eapache@gmail.com>
-    (cherry picked from commit 4cf9e71730df47281f53d736e43e76ba2beb96c5)
-    Reviewed-on: https://code.wireshark.org/review/4153
+    (cherry picked from commit d3581aecda62d2a51ea7088fd46975415b03ec57)
+    Conflicts:
+    	epan/dissectors/packet-ssl-utils.c
+    Reviewed-on: https://code.wireshark.org/review/6325
+
+commit d09456c
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Jan 4 18:47:40 2015 +0100
+
+    ACSE: get rid of an evil global variable
+    
+    Bug: 10787
+    Change-Id: I225dab439e195bbd308bcafd4658e77ef9023c0f
+    Reviewed-on: https://code.wireshark.org/review/6263
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 9aeb24994364c9a3a983b4aa8db4725b1213d64d)
+    Conflicts:
+    	asn1/acse/acse.cnf
+    	asn1/acse/packet-acse-template.c
+    	epan/dissectors/packet-acse.c
+    Reviewed-on: https://code.wireshark.org/review/6310
+
+commit d9de68d
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Jan 4 19:22:05 2015 +0100
+
+    PKIX1Explicit: get rid of an evil global variable
+    
+    Bug: 10744
+    Change-Id: I9fbd7c881ab6b17fa9febb55a4f33dbb229c900b
+    Reviewed-on: https://code.wireshark.org/review/6264
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit d9b480dd5809b76f5ed6a06eda9f9663087af6aa)
+    Conflicts:
+    	asn1/pkix1explicit/pkix1explicit.cnf
+    	epan/dissectors/packet-pkix1explicit.c
+    Reviewed-on: https://code.wireshark.org/review/6308
+
+commit ba644ad
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 4 08:09:57 2015 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2015-01-04]
+    
+    Change-Id: I2ccb07445b9150e160dc974ac57db1f974d7433a
+    Reviewed-on: https://code.wireshark.org/review/6303
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 31f3669
+Author: Hadriel Kaplan <hadrielk@yahoo.com>
+Date:   Wed Dec 31 15:24:18 2014 -0500
+
+    Lua: FieldInfo '==' check isn't really equality
+    
+    The FieldInfo metamethod for equality (letting you use the '==' operator)
+    doesn't check for equality, but rather if the left-hand side is within
+    the right-hand side. It should be equality instead. Also, all of the
+    FieldInfo operate overloads should push a boolean even if they're false
+    result.
+    
+    Ping-Bug: 10820
+    Change-Id: Ibddaab29713f26d22ddb4d5804b9edb15e93fd79
+    Reviewed-on: https://code.wireshark.org/review/6186
+    Petri-Dish: Hadriel Kaplan <hadrielk@yahoo.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 445ddc833669e8cff7e66b268d4b4b77faa504cc)
+    Reviewed-on: https://code.wireshark.org/review/6295
+    Reviewed-by: Hadriel Kaplan <hadrielk@yahoo.com>
+
+commit 17268c4
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sat Jan 3 22:13:18 2015 +0100
+
+    IPv6: fix compilation when building with GeoIP support
+    
+    Change-Id: I2aed82284bdc261c5565c9b66eb32bf393b3f2e2
+    Reviewed-on: https://code.wireshark.org/review/6283
     Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
 
-commit 71d329b
+commit adb08fa
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sat Jan 3 20:40:16 2015 +0100
+
+    IPv6: do not allocate tap data on stack
+    
+    Bug: 10780
+    Change-Id: I2526fb9a5a2dfd61b19dff5ba1b7902f77927f4a
+    Reviewed-on: https://code.wireshark.org/review/6276
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 17dcd95f2bd329982a96cad012334eea4e81c31c)
+    Conflicts:
+    	epan/dissectors/packet-ipv6.c
+    Reviewed-on: https://code.wireshark.org/review/6281
+
+commit 25a7dd1
+Author: Anish Bhatt <anish@chelsio.com>
+Date:   Fri Jan 2 20:00:08 2015 -0800
+
+    [PROFINET] Fix swapped MaintenanceRequired & MaintenanceDemanded bits
+    
+    
+    Bug: 10753
+    
+    Change-Id: Ib5522eba5c1d9107219ee2d70c96899ba6f22ca1
+    Reviewed-on: https://code.wireshark.org/review/6258
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 0452f763fb0dd2cf7e38f0a127c306199a814c3e)
+    Reviewed-on: https://code.wireshark.org/review/6271
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit b24463e
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Jan 2 21:02:13 2015 +0100
+
+    USB HID: fix report descriptor main items dissection
+    
+    true_false_string definitions were inverted
+    While we are at it, use the exact same wording as in the spec
+    
+    Bug: 10825
+    Change-Id: Ia391b310e92eb88a9a144a2fb0974701a460afc8
+    Reviewed-on: https://code.wireshark.org/review/6251
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 42baa9d8483351bc77f61cb382a7163c4e8cf6ad)
+    Reviewed-on: https://code.wireshark.org/review/6253
+
+commit 00a234a
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Tue Sep 16 13:12:10 2014 -0700
+Date:   Fri Jan 2 12:02:44 2015 -0800
 
-    Fix the patch-bzip2 target.
+    Update the release notes for 1.10.12.
     
-    The main site URI scheme is now https. Update the URL in some other
-    places while we're here.
-    
-    Change-Id: Ib03d4fd1c58dabd3cf5050dc4f79216e0b94d525
-    Reviewed-on: https://code.wireshark.org/review/4133
+    Change-Id: I899254fa61e181f4fa4747efc1fc95f5b0ffdb53
+    Reviewed-on: https://code.wireshark.org/review/6250
     Reviewed-by: Gerald Combs <gerald@wireshark.org>
-    (cherry picked from commit 983ae6cadee518be589b53d9b149fd2e156e8ada)
-    (cherry picked from commit f4c3d07bd82c5ce146148c48dd9402517091a130)
-    Reviewed-on: https://code.wireshark.org/review/4135
 
-commit 7dbdb28
+commit 9a8d334
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Tue Sep 16 12:53:36 2014 -0700
+Date:   Wed Dec 31 08:53:39 2014 -0800
 
-    1.10.10 → 1.10.11.
+    Test suite: Make sure we have a usable locale before we run iconv.
     
-    Change-Id: I604a8a69bfe0c2ede76889e26276c0c3442df057
-    Reviewed-on: https://code.wireshark.org/review/4132
+    Change-Id: Ib1f3143dc48af4c556b9bcdfafbb477fd59b6359
+    Reviewed-on: https://code.wireshark.org/review/6181
     Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit f485b2809061e68e3e2b1e7243060a744a2b1cf8)
+    Reviewed-on: https://code.wireshark.org/review/6242
+
+commit da8282d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Jan 1 21:49:40 2015 -0800
+
+    Always set decrypt_len when setting decrypt.
+    
+    This may not always be necessary, but....
+    
+    Change-Id: I7167ca98351318225a99d149f4aaa5309bac1bd6
+    Reviewed-on: https://code.wireshark.org/review/6234
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 2d23bcd
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Jan 1 17:53:24 2015 -0800
+
+    When deccoding base-64, the result is the length of the *decoded* result.
+    
+    That way, for example, format_text() calls on the decoded result don't
+    go past the end of the decoded result.
+    
+    Fix some more indentation while we're at it.
+    
+    Conflicts:
+    	epan/dissectors/packet-smtp.c
+    
+    Bug: 10823
+    Change-Id: Id42b1a5bce4d60e1b86cfc98179a8f14dd544b3f
+    Reviewed-on: https://code.wireshark.org/review/6230
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 38b911d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Jan 1 15:33:01 2015 -0800
+
+    Fix tpyo.
+    
+    Change-Id: Ic486d95cf47d53ee8435cd2b4b2d6cbfae6d9d0f
+    Reviewed-on: https://code.wireshark.org/review/6229
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 9c8897d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Jan 1 15:27:53 2015 -0800
+
+    More indentation cleanups.
+    
+    Change-Id: I4faa59c2afaf841bd91cf893e906dd8df4dfc29c
+    Reviewed-on: https://code.wireshark.org/review/6228
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 2596de1
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Jan 1 15:14:51 2015 -0800
+
+    Clean up indentation.
+    
+    Change-Id: I77850e350b9413013c2a36f6507e1c56cc9884e3
+    Reviewed-on: https://code.wireshark.org/review/6227
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit d4f7bbb
+Author: Hadriel Kaplan <hadrielk@yahoo.com>
+Date:   Tue Dec 30 17:39:56 2014 -0500
+
+    Lua: getting fieldinfo.value for FT_NONE causes assert
+    
+    Retrieving an FT_NONE field's value through `fieldinfo.value` or
+    `fieldinfo()` causes an assert.  It should retrieve the label instead.
+    
+    Conflicts:
+    	epan/wslua/wslua_field.c
+    
+    Bug: 10815
+    Change-Id: Ia80443f3dd046b2cc31d1dff70d599e96d6f6fe3
+    Reviewed-on: https://code.wireshark.org/review/6150
+    Petri-Dish: Hadriel Kaplan <hadrielk@yahoo.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Hadriel Kaplan <hadrielk@yahoo.com>
+    Tested-by: Hadriel Kaplan <hadrielk@yahoo.com>
+    (cherry picked from commit 0bf38f7aec22a1a6e4acfbfec4a9a2201fd6f8de)
+    Reviewed-on: https://code.wireshark.org/review/6188
+
+commit d1559a1
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Jan 1 14:16:20 2015 +0100
+
+    Welcome in 2015
+    
+    Change-Id: I514bf4923009699102261761e2a62ab48d8c5beb
+    Reviewed-on: https://code.wireshark.org/review/6206
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit db548c7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 30 12:38:52 2014 -0800
+
+    Test suite: Start testing our output for valid UTF-8.
+    
+    Feed the output of `tshark -G <glossary>` to `iconv -f UTF-8`. Adjust a
+    couple of the Bluetooth dissectors and X11 keysyms accordingly.
+    
+    Change-Id: I5b04dc3fa4734c8f0a795daf44bd398fe5ebc1bd
+    Reviewed-on: https://code.wireshark.org/review/6147
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit dfa49cdd1653493456d7188950c4c66917c66572)
+    Conflicts:
+    	epan/dissectors/packet-bthci_evt.c
+    	test/suite-clopts.sh
+    Reviewed-on: https://code.wireshark.org/review/6148
+
+commit 62a149c
+Author: Hadriel Kaplan <hadriel@128technology.com>
+Date:   Mon Dec 22 19:14:49 2014 -0500
+
+    Lua accessor for Protocol field type gets wrong data
+    
+    When a Lua dissector/tap accesses the value of a Field of FT_PROTOCOL ftype, the
+    returned ByteArray contains the wrong data.  Also, calling such a field's
+    tostring() method returns a string of "(unknown)" instead of the hex of the
+    data.
+    
+    Conflicts:
+    	epan/wslua/wslua_field.c
+    
+    Bug: 10801
+    Change-Id: I8a0642dc0e41af444d211bbe4106cd21207084a6
+    Reviewed-on: https://code.wireshark.org/review/6003
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Hadriel Kaplan <hadrielk@yahoo.com>
+    Tested-by: Hadriel Kaplan <hadrielk@yahoo.com>
+    (cherry picked from commit ceeeea089ac68366d520eaf332fed4231ce8831e)
+    Reviewed-on: https://code.wireshark.org/review/6135
+    Petri-Dish: Hadriel Kaplan <hadrielk@yahoo.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 1266276
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 28 08:10:09 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-12-28]
+    
+    Change-Id: Id4ff8f3d3f2cd29dd8ebe5c0b371b5472526bf2e
+    Reviewed-on: https://code.wireshark.org/review/6094
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 0966d7d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Dec 28 02:18:05 2014 -0800
+
+    Don't check the same character twice in a row, check it and the next character.
+    
+    Fixes Coverity CID 1260460.
+    
+    Change-Id: Ic9ed109a863bcf20a5e67e4f52d628011f5e9ba5
+    Reviewed-on: https://code.wireshark.org/review/6087
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 120628e5f478a4ee767f87c2b408edb0ed5224ba)
+    Reviewed-on: https://code.wireshark.org/review/6089
+
+commit 677d667
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sun Dec 21 16:15:10 2014 +0100
+
+    RSVP: RECORD_ROUTE IPv4 Subobject Flags field incorrect decoding
+    
+    The Flags field within RSVP RECORD_ROUTE IPv4_Subobject is decoded incorrectly.
+    Wireshark thinks that 0x10 bit represents Node-ID, but actually the Node-ID is encoded by bit 0x20 (per RFC 4561)
+    
+    Issue reported by  Alexander Okonnikov
+    
+    Bug:10799
+    Change-Id: I48f6aa35c08945aacf8f2bb871a72b5927511948
+    Reviewed-on: https://code.wireshark.org/review/5944
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit f1038652c63e86c84c19c07bd018fb56e5c985e9)
+    Reviewed-on: https://code.wireshark.org/review/6017
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit 8827179
+Author: Bill Meier <wmeier@newsguy.com>
+Date:   Tue Dec 23 00:51:49 2014 -0500
+
+    asn1/Makefile.nmake: packet-c1222.c not autogenerated using Windows nmake
+    
+    Change-Id: I571a654c21dfabaf1a539e713ab3039604ca4bfd
+    Reviewed-on: https://code.wireshark.org/review/6010
+    Reviewed-by: Bill Meier <wmeier@newsguy.com>
+
+commit c783d41
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 21 08:09:45 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-12-21]
+    
+    Change-Id: I79154ad11a4b934a30b77191067088c3d24a0b31
+    Reviewed-on: https://code.wireshark.org/review/5947
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8fee8b7
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sat Dec 20 18:39:51 2014 +0100
+
+    FCoIB / Infiniband SDP: prevent a crash when 'enable manual settings' is set without filling address field
+    
+    Bug: 10796
+    Change-Id: Ifdb7804ec5e1146b08f00e54647d802a69d52113
+    Reviewed-on: https://code.wireshark.org/review/5914
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 851909d2c8e54ba8d087d68cc977a90bea4e0fd0)
+    Reviewed-on: https://code.wireshark.org/review/5921
+
+commit e4b1a6f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Dec 20 09:47:01 2014 -0800
+
+    Fix handling of 3-component OS version numbers.
+    
+    Get rid of doubled square brackets (what were those for?), and match
+    dots in the version number with "\.", so we only match dots.
+    
+    This fixes the handling of version numbers such as 10.10.1.
+    
+    (A 2-component version number doesn't match, but that's OK - the sed
+    command doesn't use -n, so that just means it's unchanged by the
+    command.)
+    
+    Change-Id: Ia4af97f2f323b88569a1dda6fe9e008c2e408642
+    Reviewed-on: https://code.wireshark.org/review/5917
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 68e832f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Dec 17 16:22:18 2014 -0800
+
+    Don't use WTAP_ERR_UNSUPPORTED for unwritable records.
+    
+    WTAP_ERR_UNSUPPORTED is expected to include an err_info string;
+    WTAP_ERR_UNSUPPORTED_ENCAP isn't.  In the trunk, we use a new error code
+    for that, and supply and process the err_info string; here, we just use
+    WTAP_ERR_UNSUPPORTED_ENCAP, so we don't have to make as extensive changes.
+    
+    Change-Id: Iaba47c409f9fd0d2edef3386d5d930dd2e370cab
+    Reviewed-on: https://code.wireshark.org/review/5825
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 13227a0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Dec 17 12:38:48 2014 -0800
+
+    This code is used in Wireshark, not TShark; fix messages.
+    
+    Change-Id: I3c6b7686de478e42eeeb9c51c8bdb5b6843666af
+    Reviewed-on: https://code.wireshark.org/review/5814
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit db4232a69a0196c7cafab1afae9b2f45f58e4ebe)
+    Reviewed-on: https://code.wireshark.org/review/5816
+
+commit 7849e6b
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Dec 17 11:53:13 2014 -0800
+
+    Fix another incorrect message for WTAP_ERR_UNSUPPORTED.
+    
+    WTAP_ERR_FILE_UNKNOWN_FORMAT is reported if the file is in a format that
+    libwiretap doesn't know about (either because it's not a capture file at
+    all or because it's a capture file in a format it doesn't support).
+    WTAP_ERR_UNSUPPORTED is for files in a *known* format that are using
+    features or file format elements (record type, link-layer header type,
+    etc.) that libwireshark doesn't support.  Fix another copy-and-pasteo
+    causing WTAP_ERR_UNSUPPORTED to be reported with a message appropriate
+    for WTAP_ERR_FILE_UNKNOWN_FORMAT.
+    
+    Change-Id: Ib35e2a6b6c62517887e0386f0fed1795db335439
+    Reviewed-on: https://code.wireshark.org/review/5810
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit e00f5852960163a1427487e3f0df7c7473b53a6d)
+    Reviewed-on: https://code.wireshark.org/review/5812
+
+commit 982393b
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Dec 17 00:47:31 2014 -0800
+
+    Report WTAP_ERR_UNSUPPORTED correctly.
+    
+    WTAP_ERR_FILE_UNKNOWN_FORMAT is reported if the file is in a format that
+    libwiretap doesn't know about (either because it's not a capture file at
+    all or because it's a capture file in a format it doesn't support).
+    WTAP_ERR_UNSUPPORTED is for files in a *known* format that are using
+    features or file format elements (record type, link-layer header type,
+    etc.) that libwireshark doesn't support.  Fix some copy-and-pasteos
+    causing WTAP_ERR_UNSUPPORTED to be reported with a message appropriate
+    for WTAP_ERR_FILE_UNKNOWN_FORMAT.
+    
+    Change-Id: Ic675ffd501c52838d8944a6c61e1b01041b73098
+    Reviewed-on: https://code.wireshark.org/review/5799
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit d2eddde5bd84ceb39bea77052848930c024d356b)
+    Reviewed-on: https://code.wireshark.org/review/5801
+
+commit 5315b31
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Dec 16 22:22:29 2014 -0800
+
+    Use WTAP_ERR_UNSUPPORTED for input file stuff we can't handle.
+    
+    WTAP_ERR_UNSUPPORTED_ENCAP means "I can't *write* that particular
+    encapsulation type to a file of this format", which mainly means "that
+    file format simply can't handle packets of that type";
+    WTAP_ERR_UNSUPPORTED means "this file can't currently be supported by
+    Wireshark, as there's some feature in the file - such as a file or
+    per-packet encapsulation type - that we don't (yet) handle".
+    
+    Change-Id: I7977a9eceef9b72d2fd8d2ec7b0bb63a1b62be19
+    Reviewed-on: https://code.wireshark.org/review/5796
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 12fd114
+Author: zeuz <czingerl@gmail.com>
+Date:   Tue Dec 16 15:34:29 2014 +0100
+
+    RDM: Mode verbose decoding of parameter IDs.
+        -> I don't see why they were uint8; ANSI E1.33 and ANSI E1.20 use uint16
+    
+    Change-Id: Ia2c024b503d6a4b8c18020699bdc676a8459dcbd
+    Reviewed-on: https://code.wireshark.org/review/5783
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit db93414049b3094734e33a0da49f611c2a211410)
+    Reviewed-on: https://code.wireshark.org/review/5785
+
+commit be343af
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Aug 21 00:35:38 2014 -0700
+
+    Don't assert out on tvb_memcpy() with a null data pointer if the length is 0.
+    
+    If the length is 0, there's nothing to copy, so it doesn't matter if
+    there's no data to copy from.  This fixes problems caused by allocating
+    a zero-length buffer and using that as the data for a tvbuff; the
+    allocation returns null, so the data pointer is null.
+    
+    Bug: 9332
+    Change-Id: I8037ae4b96d30e90a716852bb7e22d3980444f83
+    Reviewed-on: https://code.wireshark.org/review/3761
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 66318ad5eb8235e73e66acee372df7c47cfea8bd)
+    Conflicts:
+    	epan/tvbuff.c
+    Reviewed-on: https://code.wireshark.org/review/5773
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit fd7e355
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 14 08:09:44 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-12-14]
+    
+    Change-Id: I0cf0830ee4648b7d9bd7d14bd9ac6c0c662d0c0c
+    Reviewed-on: https://code.wireshark.org/review/5760
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f0929ec
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Dec 10 21:48:22 2014 +0100
+
+    LCSAP: fix dissection of negative longitude and latitude
+    
+    Bug: 10767
+    Change-Id: I4ab0ffd3bd22f1884895f3118673b433d980de2f
+    Reviewed-on: https://code.wireshark.org/review/5704
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry-picked from commit 2f8030f85a0bfc584deee00a88761355ddd7f941)
+    Conflicts:
+    	epan/dissectors/packet-lcsap.c
+    Reviewed-on: https://code.wireshark.org/review/5710
+
+commit 1b45990
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Dec 7 13:53:07 2014 -0800
+
+    Fix cut-and-pasteo.
+    
+    Change-Id: I56e5dd7f0887aa1a796aa23b28b686b65517c5d2
+    Reviewed-on: https://code.wireshark.org/review/5665
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 725540f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Dec 7 12:50:26 2014 -0800
+
+    1.10 didn't have WTAP_OPEN_ERROR.
+    
+    Change-Id: Iabffe20c8a81946e06f46764ad8aa97d36a88d9d
+    Reviewed-on: https://code.wireshark.org/review/5663
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit acb0402
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Dec 7 12:17:48 2014 -0800
+
+    Add checks for non-null-terminated strings.
+    
+    Change-Id: Idac4fe3e8523bb868bb89d62a456fd360cde54c8
+    Reviewed-on: https://code.wireshark.org/review/5662
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 0ed5e1a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 7 08:10:03 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-12-07]
+    
+    Change-Id: I62934ef79f1e15366205c07cfed216ce77e381c5
+    Reviewed-on: https://code.wireshark.org/review/5649
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 72bd999
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Nov 30 20:29:34 2014 +0100
+
+    win32: use target file format when checking if it supports comments
+    
+    Bug: 10656
+    Change-Id: Ib74f213630d6d382118c09b3cbf998b28cbc045e
+    Reviewed-on: https://code.wireshark.org/review/5544
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 35b1bc5ec61260bc1890a2c991cdb7218946ae1f)
+    Reviewed-on: https://code.wireshark.org/review/5546
+
+commit 9cee3d9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 30 08:09:51 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-11-30]
+    
+    Change-Id: I1bca489de73fbbdc47cd90a27c0d1bb0a0a2bf3b
+    Reviewed-on: https://code.wireshark.org/review/5541
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 336ccc1
+Author: Evan Huus <eapache@gmail.com>
+Date:   Tue Nov 25 20:27:07 2014 -0500
+
+    dec-dnart: use pinfo-scoped memory for addresses
+    
+    They may be accessed during the print phase, at which point packet-scope memory
+    has already been freed.
+    
+    Bug: 10724
+    Change-Id: Ifcf5fc0c0857614edf85349b12dfe605abf6fef7
+    Reviewed-on: https://code.wireshark.org/review/5499
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+
+commit 4fc25f5
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Nov 24 15:51:27 2014 +0100
+
+    SMTP: escape ASCII strings printed to COL_INFO
+    
+    This is already done automatically for the hf entries thanks to hfinfo_format_text() function
+    
+    Bug: 10536
+    Change-Id: I9ee56b795234a94f0e59c82a96e3e6cedf71c4e6
+    Reviewed-on: https://code.wireshark.org/review/5459
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit 78849d0e6b0dde760c8bea40ce99e7a05711f3bf)
+    Conflicts:
+    	epan/dissectors/packet-smtp.c
+    Reviewed-on: https://code.wireshark.org/review/5470
+
+commit a1244a6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 23 08:09:31 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-11-23]
+    
+    Change-Id: I32ce84e2070ce9aac18a49e47c3462185d06b101
+    Reviewed-on: https://code.wireshark.org/review/5452
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit dea2fd7
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Nov 19 20:10:15 2014 +0100
+
+    IrDA: always initialize buffer before accessing it
+    
+    Bug: 10716
+    Change-Id: I8e54f750b70076758d5fd0d7f35f9c782f5d0bf9
+    Reviewed-on: https://code.wireshark.org/review/5398
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit f7f19f029190bedb9cea60d565b0d9c4261e154e)
+    Reviewed-on: https://code.wireshark.org/review/5409
+
+commit 462e7e2
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Nov 17 23:22:08 2014 +0100
+
+    MIPv6: display Experimental Mobility Message Data as such
+    
+    Bug: 10703
+    Change-Id: I9b16f503418d7464234be3c772b5dae3fb5eb7a9
+    Reviewed-on: https://code.wireshark.org/review/5378
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 36837a2f5a340af6206dedf0245b4687fcc53254)
+    Reviewed-on: https://code.wireshark.org/review/5382
+
+commit 4ca697c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Nov 17 13:34:48 2014 -0800
+
+    voip_calls: Fix MTP3 & SUA taps.
+    
+    Fix the registration of M3UA and remove SUA.
+    
+    Change-Id: I7431c980403730bf6e53fa5be84fe85f15c106de
+    Reviewed-on: https://code.wireshark.org/review/5375
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit ae51d109bbf64d02c39a684228ec193f287f5110)
+    Reviewed-on: https://code.wireshark.org/review/5376
+
+commit 5deaeed
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Mon Nov 17 21:59:14 2014 +0100
+
+    DECT: ensure that bfield_data buffer is always fully initiated
+    
+    Bug: 10710
+    Change-Id: I444bc4ff7e542a8aa5ac8e20bac44a823ac74cfd
+    Reviewed-on: https://code.wireshark.org/review/5371
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit da69b51c9e1c9e97860e8a48856acdd3ab381c07)
+    Reviewed-on: https://code.wireshark.org/review/5374
+
+commit 8061eaf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 16 08:15:39 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-11-16]
+    
+    Change-Id: Icc4dbff45fb2461a27642121f463b820ce400984
+    Reviewed-on: https://code.wireshark.org/review/5348
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e7b38d7
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Nov 14 10:07:52 2014 +0100
+
+    NAS EPS: fix dissection of APN AMBR IE when first byte is set to 0xFE
+    
+    Bug: 10699
+    Change-Id: I0f359639d5836f557370ab6d6aad45faa4417b6e
+    Reviewed-on: https://code.wireshark.org/review/5285
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Petri-Dish: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Petri Dish Buildbot <buildbot-no-reply@wireshark.org>
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    (cherry picked from commit e83c7f08f7b3b3be9f70012dff3d59beaecdd0f1)
+    Reviewed-on: https://code.wireshark.org/review/5296
+
+commit 6a9d923
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Thu Nov 13 20:37:46 2014 -0500
+
+    Multipath TCP checksum requires M flag set as well as enough option length.
+    
+    Bug: 10692
+    Change-Id: I8d9874a2c0a6b98497d43804bcf27a8c7e152a9b
+    Reviewed-on: https://code.wireshark.org/review/5275
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    Petri-Dish: Michael Mann <mmann78@netscape.net>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 6e535a8b7143dd61f59fa0680692c94a0d22e916)
+    Reviewed-on: https://code.wireshark.org/review/5280
+
+commit 77f9f66
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Thu Nov 13 22:38:54 2014 -0500
+
+    Always create a subtree for Mobility options, even if it doesn't have a specific dissection function.
+    
+    Bug: 10618
+    Change-Id: Ic4d52485a6bd96f906b4a0d61b75a31bfad4e8f8
+    Reviewed-on: https://code.wireshark.org/review/5276
+    Reviewed-by: Michael Mann <mmann78@netscape.net>
+    (cherry picked from commit 4a7dd620125f1b8711c70f9dbfe78ba1145e31e3)
+    Reviewed-on: https://code.wireshark.org/review/5278

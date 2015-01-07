@@ -20,7 +20,7 @@ The DEC DNA Routing Protocol dissector could crash.
 // Fixed in master-1.12: g8ae9b53
 // Fixed in master-1.10: g336ccc1
 (ws-buglink:10724[])
-//cve-idlink:2015-XXX[]
+cve-idlink:2015-0562[]
 
 * ws-salink:2015-04[]
 +
@@ -29,7 +29,16 @@ The SMTP dissector could crash.
 // Fixed in master-1.12: ge3c0c98, gde70b34
 // Fixed in master-1.10: g2d23bcd, gda8282d
 (ws-buglink:10823[])
-//cve-idlink:2015-XXX[]
+cve-idlink:2015-0563[]
+
+* ws-salink:2015-05[]
++
+Wireshark could crash while decypting TLS/SSL sessions. Discovered by Noam Rathaus.
+// Fixed in master: gd3581ae
+// Fixed in master-1.12: gf5e435a
+// Fixed in master-1.10: g7fc3a06
+//(ws-buglink:10823[])
+cve-idlink:2015-0564[]
 
 The following bugs have been fixed:
 
