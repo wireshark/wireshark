@@ -13,48 +13,15 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed.
 
-* ws-salink:2015-01[]
+* ws-salink:2015-06[]
 +
-The WCCP dissector could crash.
-// Fixed in master: ga442a1c, ge843c67
-// Fixed in master-1.12: gdea8d02, gadce5fa
-(ws-buglink:10720[], ws-buglink:10806[])
-cve-idlink:2015-0559[], cve-idlink:2015-0560[]
+A dissector went awry.
+// Fixed in master: gXXX
+// Fixed in master-1.12: gXXX
+// Fixed in master-1.10: gXXX
+(ws-buglink:XXX[])
+//cve-idlink:2015-XXX[]
 
-* ws-salink:2015-02[]
-+
-The LPP dissector could crash.
-// Fixed in master: g8e96830
-// Fixed in master-1.12: gedc1a29
-(ws-buglink:10773[])
-cve-idlink:2015-0561[]
-
-* ws-salink:2015-03[]
-+
-The DEC DNA Routing Protocol dissector could crash.
-// Fixed in master: ga559f2a
-// Fixed in master-1.12: g8ae9b53
-// Fixed in master-1.10: g336ccc1
-(ws-buglink:10724[])
-cve-idlink:2015-0562[]
-
-* ws-salink:2015-04[]
-+
-The SMTP dissector could crash.
-// Fixed in master: g8541578, g611cfd0
-// Fixed in master-1.12: ge3c0c98, gde70b34
-// Fixed in master-1.10: g2d23bcd, gda8282d
-(ws-buglink:10823[])
-cve-idlink:2015-0563[]
-
-* ws-salink:2015-05[]
-+
-Wireshark could crash while decypting TLS/SSL sessions. Discovered by Noam Rathaus.
-// Fixed in master: gd3581ae
-// Fixed in master-1.12: gf5e435a
-// Fixed in master-1.10: g7fc3a06
-//(ws-buglink:10823[])
-cve-idlink:2015-0564[]
 
 The following bugs have been fixed:
 
@@ -62,59 +29,6 @@ The following bugs have been fixed:
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
 // for bugnumber in `git log --stat v1.12.4rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* WebSocket dissector: empty payload causes DISSECTOR_ASSERT_NOT_REACHED. (ws-buglink:9332[])
-
-* Wireshark crashes if Lua heuristic dissector returns true. (ws-buglink:10233[])
-
-* Display MEP ID in decimal in OAM Y.1731 Synthetic Loss Message and Reply PDU. (ws-buglink:10500[])
-
-* TCP Window Size incorrectly reported in Packet List. (ws-buglink:10514[])
-
-* Status bar "creeps" to the left a few pixels every time Wireshark is opened. (ws-buglink:10518[])
-
-* E-LMI Message type. (ws-buglink:10531[])
-
-* SMTP decoder can dump binary data to terminal in TShark. (ws-buglink:10536[])
-
-* PTPoE dissector gets confused by packets that include an FCS. (ws-buglink:10611[])
-
-* IPv6 Vendor Specific Mobility Option includes the next mobility option type. (ws-buglink:10618[])
-
-* Save PCAP to PCAPng with commentary fails. (ws-buglink:10656[])
-
-* Display filter "frame contains bytes [2342]" causes a crash. (ws-buglink:10690[])
-
-* Multipath TCP: checksum displayed when it's not there. (ws-buglink:10692[])
-
-* LTE APN-AMBR is decoded incorrectly. (ws-buglink:10699[])
-
-* DNS NAPTR RR Replacement Length is incorrect. (ws-buglink:10700[])
-
-* IPv6 Experimental mobility header data is interpreted as options. (ws-buglink:10703[])
-
-* Dissector bug, protocol SPDY: tvbuff.c:610: failed assertion "tvb && tvb->initialized". (ws-buglink:10704[])
-
-* BGP: Incorrect decoding AS numbers when mixed AS size. (ws-buglink:10742[])
-
-* BGP update community - incorrect decoding. (ws-buglink:10746[])
-
-* Setting a 6LoWPAN context generates a Wireshark crash. (ws-buglink:10747[])
-
-* FC is not dissected (protocol UNKNOWN). (ws-buglink:10751[])
-
-* Crash when displaying several times INFO column. (ws-buglink:10755[])
-
-* Decoding of longitude value in LCSAP (3GPP TS 29.171) is incorrect. (ws-buglink:10767[])
-
-* Crash when enabling FCoIB manual settings without filling address field. (ws-buglink:10796[])
-
-* RSVP RECORD_ROUTE IPv4 Subobject Flags field incorrect decoding. (ws-buglink:10799[])
-
-* Wireshark Lua engine can't access protocol field type. (ws-buglink:10801[])
-
-* Field Analysis of OpenFlow v1.4 OFPT_SET_ASYNC. (ws-buglink:10808[])
-
-* Lua: getting fieldinfo.value for FT_NONE causes assert. (ws-buglink:10815[])
 
 === New and Updated Features
 
@@ -127,80 +41,11 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-6LoWPAN
-ADwin
-AllJoyn
-Art-Net
-Asterix
-BGP
-Bitcoin
-Bluetooth OBEX
-Bluetooth SDP
-CFM
-CIP
-DCERPC PN-IO
-DCERPC SPOOLSS
-DEC DNA
-DECT
-DHCPv6
-DNS
-DTN
-E-LMI
-ENIP
-Ethernet
-Extreme
-Fibre Channel
-FCoIB
-GED125
-GTP
-H.248
-H.264
-HiSLIP
-IDRP
-IEEE 802.11
-IEEE P1722.1
-Infiniband
-IrDA
-iSCSI
-ISUP
-LBMR
-LCSAP
-LPP
-MAC LTE
-MAUSB
-MBIM
-MIM
-MIP
-MIPv6
-MP2T
-MPEG-1
-NAS EPS
-NAT-PMP
-NCP
-NXP PN532
-OpcUa
-OpenFlow
-PTP
-RDM
-RPKI-RTR
-RSVP
-RTnet
-RTSP
-SCTP
-SMPP
-SMTP
-SPDY
-Spice
-TCP
-WCCP
-Wi-Fi P2P
-WiMAX
 --sort-and-group--
 
 === New and Updated Capture File Support
 
 --sort-and-group--
-K12
 --sort-and-group--
 
 == Getting Wireshark
