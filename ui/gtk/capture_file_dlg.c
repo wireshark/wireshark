@@ -715,9 +715,10 @@ file_open_cmd(capture_file *cf, GtkWidget *w _U_)
            just leave it around so that the user can, after they
            dismiss the alert box popped up for the open error,
            try again. */
-        if (rfcode != NULL)
+        if (rfcode != NULL){
           dfilter_free(rfcode);
           rfcode = NULL;
+        }
         continue;
       }
 
