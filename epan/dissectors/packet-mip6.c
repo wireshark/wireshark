@@ -3763,26 +3763,12 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                 } else {
                     if (dissect != NULL) {
                         /* Option has a dissector. */
-                        if (opt == MIP6_MHLLA)
-                            (*dissect)(optp, tvb, offset,
-                                   len + 2 + FMIP6_LLA_OPTCODE_LEN, pinfo, opt_data_tree, ti);
-                        else
-                            (*dissect)(optp, tvb, offset, len + 2, pinfo, opt_data_tree, ti);
+                        (*dissect)(optp, tvb, offset, len + 2, pinfo, opt_data_tree, ti);
                     }
                 }
-                /* RFC4068 Section 6.4.4
-                 *   Length         The size of this option in octets not including the
-                 *                  Type, Length, and Option-Code fields.
-                 */
-                if (opt == MIP6_MHLLA)
-                    offset += len + 2 + FMIP6_LLA_OPTCODE_LEN;
-                else
-                    offset += len + 2;
+                offset += len + 2;
             }
-            if (opt == MIP6_MHLLA)
-                length -= (len + FMIP6_LLA_OPTCODE_LEN);
-            else
-                length -= len;
+            length -= len;
         } else {
             proto_tree_add_text(opt_tree, tvb, offset, 1, "%s", name);
             offset += 1;
