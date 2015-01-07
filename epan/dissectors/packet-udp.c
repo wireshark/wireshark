@@ -581,8 +581,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udph->uh_sport=tvb_get_ntohs(tvb, offset);
   udph->uh_dport=tvb_get_ntohs(tvb, offset+2);
 
-  src_port_str = ep_udp_port_to_display(udph->uh_sport);
-  dst_port_str = ep_udp_port_to_display(udph->uh_dport);
+  src_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_sport);
+  dst_port_str = udp_port_to_display(wmem_packet_scope(), udph->uh_dport);
 
   col_add_lstr(pinfo->cinfo, COL_INFO,
     "Source port: ", src_port_str, "  "

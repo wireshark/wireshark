@@ -4501,8 +4501,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if (show_port_numbers)
       sctp_item = proto_tree_add_protocol_format(tree, proto_sctp, tvb, 0, -1,
                                                  "Stream Control Transmission Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-                                                 ep_sctp_port_to_display(source_port), source_port,
-                                                 ep_sctp_port_to_display(destination_port), destination_port);
+                                                 sctp_port_to_display(wmem_packet_scope(), source_port), source_port,
+                                                 sctp_port_to_display(wmem_packet_scope(), destination_port), destination_port);
     else
       sctp_item = proto_tree_add_item(tree, proto_sctp, tvb, 0, -1, ENC_NA);
 

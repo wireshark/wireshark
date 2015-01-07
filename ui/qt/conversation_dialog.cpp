@@ -339,7 +339,7 @@ public:
         conv_item_t *conv_item = data(ci_col_, Qt::UserRole).value<conv_item_t *>();
         bool ok;
         quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
-        char *src_addr, *dst_addr;
+        char *src_addr, *dst_addr, *src_port, *dst_port;
 
         if (!conv_item) {
             return;
@@ -352,12 +352,16 @@ public:
 
         src_addr = (char*)get_conversation_address(NULL, &conv_item->src_address, resolve_names);
         dst_addr = (char*)get_conversation_address(NULL, &conv_item->dst_address, resolve_names);
+        src_port = (char*)get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, resolve_names);
+        dst_port = (char*)get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, resolve_names);
         setText(CONV_COLUMN_SRC_ADDR, src_addr);
-        setText(CONV_COLUMN_SRC_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, resolve_names));
+        setText(CONV_COLUMN_SRC_PORT, src_port);
         setText(CONV_COLUMN_DST_ADDR, dst_addr);
-        setText(CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->dst_port, conv_item->ptype, resolve_names));
+        setText(CONV_COLUMN_DST_PORT, dst_port);
         wmem_free(NULL, src_addr);
         wmem_free(NULL, dst_addr);
+        wmem_free(NULL, src_port);
+        wmem_free(NULL, dst_port);
 
         double duration = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
         QString col_str, bps_ab = bps_na_, bps_ba = bps_na_;
@@ -410,7 +414,10 @@ public:
             }
         case CONV_COLUMN_SRC_PORT:
             if (resolve_names) {
-                return get_conversation_port(conv_item->src_port, conv_item->ptype, resolve_names);
+                char* port_str = (char*)get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, resolve_names);
+                QString q_port_str(port_str);
+                wmem_free(NULL, port_str);
+                return q_port_str;
             } else {
                 return quint32(conv_item->src_port);
             }
@@ -423,7 +430,10 @@ public:
             }
         case CONV_COLUMN_DST_PORT:
             if (resolve_names) {
-                return get_conversation_port(conv_item->dst_port, conv_item->ptype, resolve_names);
+                char* port_str = (char*)get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, resolve_names);
+                QString q_port_str(port_str);
+                wmem_free(NULL, port_str);
+                return q_port_str;
             } else {
                 return quint32(conv_item->dst_port);
             }

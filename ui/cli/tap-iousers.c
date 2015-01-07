@@ -104,11 +104,11 @@ iousers_draw(void *arg)
 				src_addr = (char*)get_conversation_address(NULL, &iui->src_address, TRUE);
 				dst_addr = (char*)get_conversation_address(NULL, &iui->dst_address, TRUE);
 				if (display_ports) {
-					char *src, *dst;
-					src = wmem_strconcat(NULL, src_addr,
-						":", get_conversation_port(iui->src_port, iui->ptype, TRUE), NULL);
-					dst = wmem_strconcat(NULL, dst_addr,
-						":", get_conversation_port(iui->dst_port, iui->ptype, TRUE), NULL);
+					char *src, *dst, *src_port, *dst_port;
+					src_port = (char*)get_conversation_port(NULL, iui->src_port, iui->ptype, TRUE);
+					dst_port = (char*)get_conversation_port(NULL, iui->dst_port, iui->ptype, TRUE);
+					src = wmem_strconcat(NULL, src_addr, ":", src_port, NULL);
+					dst = wmem_strconcat(NULL, dst_addr, ":", dst_port, NULL);
 					printf("%-26s <-> %-26s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER
 					       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
 					       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
@@ -118,6 +118,8 @@ iousers_draw(void *arg)
 						iui->tx_frames+iui->rx_frames,
 						iui->tx_bytes+iui->rx_bytes
 					);
+					wmem_free(NULL, src_port);
+					wmem_free(NULL, dst_port);
 					wmem_free(NULL, src);
 					wmem_free(NULL, dst);
 				} else {

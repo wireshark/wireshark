@@ -341,20 +341,20 @@ const char *get_conversation_address(wmem_allocator_t *allocator, address *addr,
     }
 }
 
-const char *get_conversation_port(guint32 port, port_type ptype, gboolean resolve_names)
+const char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, port_type ptype, gboolean resolve_names)
 {
 
     if(!resolve_names) ptype = PT_NONE;
 
     switch(ptype) {
     case(PT_TCP):
-        return ep_tcp_port_to_display(port);
+        return tcp_port_to_display(allocator, port);
     case(PT_UDP):
-        return ep_udp_port_to_display(port);
+        return udp_port_to_display(allocator, port);
     case(PT_SCTP):
-        return ep_sctp_port_to_display(port);
+        return sctp_port_to_display(allocator, port);
     default:
-        return ep_strdup_printf("%d", port);
+        return wmem_strdup_printf(allocator, "%d", port);
     }
 }
 

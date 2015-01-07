@@ -183,8 +183,8 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
         hostname1 = get_hostname(ipaddr);
     }
 
-    port0 = ep_udp_port_to_display(stats.port[0]);
-    port1 = ep_udp_port_to_display(stats.port[1]);
+    port0 = udp_port_to_display(NULL, stats.port[0]);
+    port1 = udp_port_to_display(NULL, stats.port[1]);
 
     follow_info->is_ipv6 = stats.is_ipv6;
 
@@ -222,6 +222,8 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
     follow_stream("Follow UDP Stream", follow_info, both_directions_string,
                   server_to_client_string, client_to_server_string);
 
+    wmem_free(NULL, port0);
+    wmem_free(NULL, port1);
     g_free(both_directions_string);
     g_free(server_to_client_string);
     g_free(client_to_server_string);

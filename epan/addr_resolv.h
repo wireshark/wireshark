@@ -109,28 +109,28 @@ extern gchar *g_pipxnets_path;
 /* Functions in addr_resolv.c */
 
 /*
- * ep_udp_port_to_display() returns the port name corresponding to that UDP port,
+ * udp_port_to_display() returns the port name corresponding to that UDP port,
  * or the port number as a string if not found.
  */
-WS_DLL_PUBLIC gchar *ep_udp_port_to_display(guint port);
+WS_DLL_PUBLIC gchar *udp_port_to_display(wmem_allocator_t *allocator, guint port);
 
 /*
- * ep_tcp_port_to_display() returns the port name corresponding to that TCP port,
+ * tcp_port_to_display() returns the port name corresponding to that TCP port,
  * or the port number as a string if not found.
  */
-WS_DLL_PUBLIC gchar *ep_tcp_port_to_display(guint port);
+WS_DLL_PUBLIC gchar *tcp_port_to_display(wmem_allocator_t *allocator, guint port);
 
 /*
- * ep_dccp_port_to_display() returns the port name corresponding to that DCCP port,
+ * dccp_port_to_display() returns the port name corresponding to that DCCP port,
  * or the port number as a string if not found.
  */
-extern gchar *ep_dccp_port_to_display(guint port);
+extern gchar *dccp_port_to_display(wmem_allocator_t *allocator, guint port);
 
 /*
- * ep_sctp_port_to_display() returns the port name corresponding to that SCTP port,
+ * sctp_port_to_display() returns the port name corresponding to that SCTP port,
  * or the port number as a string if not found.
  */
-WS_DLL_PUBLIC gchar *ep_sctp_port_to_display(guint port);
+WS_DLL_PUBLIC gchar *sctp_port_to_display(wmem_allocator_t *allocator, guint port);
 
 /*
  * address_to_display takes as input an "address", as defined in address.h */

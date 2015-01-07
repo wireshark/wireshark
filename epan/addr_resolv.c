@@ -601,9 +601,9 @@ parse_services_file(const char * path)
  * unsigned integer to ascii
  */
 static gchar *
-ep_utoa(guint port)
+wmem_utoa(wmem_allocator_t *allocator, guint port)
 {
-    gchar *bp = (gchar *)ep_alloc(MAXNAMELEN);
+    gchar *bp = (gchar *)wmem_alloc(allocator, MAXNAMELEN);
 
     /* XXX, guint32_to_str() ? */
     guint32_to_str_buf(port, bp, MAXNAMELEN);
@@ -2834,52 +2834,52 @@ manually_resolve_cleanup(void)
 }
 
 gchar *
-ep_udp_port_to_display(guint port)
+udp_port_to_display(wmem_allocator_t *allocator, guint port)
 {
 
     if (!gbl_resolv_flags.transport_name) {
-        return ep_utoa(port);
+        return wmem_utoa(allocator, port);
     }
 
     return serv_name_lookup(port, PT_UDP);
 
-} /* ep_udp_port_to_display */
+} /* udp_port_to_display */
 
 gchar *
-ep_dccp_port_to_display(guint port)
+dccp_port_to_display(wmem_allocator_t *allocator, guint port)
 {
 
     if (!gbl_resolv_flags.transport_name) {
-        return ep_utoa(port);
+        return wmem_utoa(allocator, port);
     }
 
     return serv_name_lookup(port, PT_DCCP);
 
-} /* ep_dccp_port_to_display */
+} /* dccp_port_to_display */
 
 gchar *
-ep_tcp_port_to_display(guint port)
+tcp_port_to_display(wmem_allocator_t *allocator, guint port)
 {
 
     if (!gbl_resolv_flags.transport_name) {
-        return ep_utoa(port);
+        return wmem_utoa(allocator, port);
     }
 
     return serv_name_lookup(port, PT_TCP);
 
-} /* ep_tcp_port_to_display */
+} /* tcp_port_to_display */
 
 gchar *
-ep_sctp_port_to_display(guint port)
+sctp_port_to_display(wmem_allocator_t *allocator, guint port)
 {
 
     if (!gbl_resolv_flags.transport_name) {
-        return ep_utoa(port);
+        return wmem_utoa(allocator, port);
     }
 
     return serv_name_lookup(port, PT_SCTP);
 
-} /* ep_sctp_port_to_display */
+} /* sctp_port_to_display */
 
 const gchar *
 address_to_display(wmem_allocator_t *allocator, const address *addr)

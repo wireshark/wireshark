@@ -4355,8 +4355,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
     tcph->th_dport = tvb_get_ntohs(tvb, offset + 2);
 
-    src_port_str = ep_tcp_port_to_display(tcph->th_sport);
-    dst_port_str = ep_tcp_port_to_display(tcph->th_dport);
+    src_port_str = tcp_port_to_display(wmem_packet_scope(), tcph->th_sport);
+    dst_port_str = tcp_port_to_display(wmem_packet_scope(), tcph->th_dport);
     col_add_lstr(pinfo->cinfo, COL_INFO,
         src_port_str,
         "\xe2\x86\x92", /* UTF8_RIGHTWARDS_ARROW */

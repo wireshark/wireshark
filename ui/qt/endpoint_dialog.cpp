@@ -228,7 +228,7 @@ public:
         hostlist_talker_t *endp_item = data(ei_col_, Qt::UserRole).value<hostlist_talker_t *>();
         bool ok;
         quint64 cur_packets = data(pkts_col_, Qt::UserRole).toULongLong(&ok);
-        char* addr_str;
+        char *addr_str, *port_str;
 
         if (!endp_item) {
             return;
@@ -240,9 +240,11 @@ public:
         }
 
         addr_str = (char*)get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
+        port_str = (char*)get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
         setText(ENDP_COLUMN_ADDR, addr_str);
-        setText(ENDP_COLUMN_PORT, get_conversation_port(endp_item->port, endp_item->ptype, resolve_names));
+        setText(ENDP_COLUMN_PORT, port_str);
         wmem_free(NULL, addr_str);
+        wmem_free(NULL, port_str);
 
         QString col_str;
 
@@ -301,7 +303,10 @@ public:
             }
         case ENDP_COLUMN_PORT:
             if (resolve_names) {
-                return get_conversation_port(endp_item->port, endp_item->ptype, resolve_names);
+                char* port_str = (char*)get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
+                QString q_port_str(port_str);
+                wmem_free(NULL, port_str);
+                return q_port_str;
             } else {
                 return quint32(endp_item->port);
             }

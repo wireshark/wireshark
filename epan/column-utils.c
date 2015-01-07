@@ -1946,7 +1946,7 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
   switch (pinfo->ptype) {
   case PT_SCTP:
     if (is_res)
-      g_strlcpy(pinfo->cinfo->col_buf[col], ep_sctp_port_to_display(port), COL_MAX_LEN);
+      g_strlcpy(pinfo->cinfo->col_buf[col], sctp_port_to_display(pinfo->pool, port), COL_MAX_LEN);
     else
       guint32_to_str_buf(port, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
     break;
@@ -1954,7 +1954,7 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
   case PT_TCP:
     guint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     if (is_res)
-      g_strlcpy(pinfo->cinfo->col_buf[col], ep_tcp_port_to_display(port), COL_MAX_LEN);
+      g_strlcpy(pinfo->cinfo->col_buf[col], tcp_port_to_display(pinfo->pool, port), COL_MAX_LEN);
     else
       g_strlcpy(pinfo->cinfo->col_buf[col], pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     if (is_src)
@@ -1966,7 +1966,7 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
   case PT_UDP:
     guint32_to_str_buf(port, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     if (is_res)
-      g_strlcpy(pinfo->cinfo->col_buf[col], ep_udp_port_to_display(port), COL_MAX_LEN);
+      g_strlcpy(pinfo->cinfo->col_buf[col], udp_port_to_display(pinfo->pool, port), COL_MAX_LEN);
     else
       g_strlcpy(pinfo->cinfo->col_buf[col], pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     if (is_src)

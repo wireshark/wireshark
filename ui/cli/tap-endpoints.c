@@ -71,7 +71,7 @@ endpoints_draw(void *arg)
 
 		for (i=0; (iu->hash.conv_array && i < iu->hash.conv_array->len); i++) {
 			guint64 tot_frames;
-			gchar*  conversation_str;
+			gchar *conversation_str, *port_str;
 
 			host = &g_array_index(iu->hash.conv_array, hostlist_talker_t, i);
 			tot_frames = host->rx_frames + host->tx_frames;
@@ -80,15 +80,17 @@ endpoints_draw(void *arg)
 				/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
 				conversation_str = (char*)get_conversation_address(NULL, &host->myaddress, TRUE);
 				if (display_port) {
+					/* XXX - TODO: make port resolution configurable (through gbl_resolv_flags?) */
+					port_str = (char*)get_conversation_port(NULL, host->port, host->ptype, TRUE);
 					printf("%-20s      %5s     %6" G_GINT64_MODIFIER "u     %9" G_GINT64_MODIFIER
 					       "u     %6" G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u      %6"
 					       G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u   \n",
 						conversation_str,
-						/* XXX - TODO: make port resolution configurable (through gbl_resolv_flags?) */
-						get_conversation_port(host->port, host->ptype, TRUE),
+						port_str,
 						host->tx_frames+host->rx_frames, host->tx_bytes+host->rx_bytes,
 						host->tx_frames, host->tx_bytes,
 						host->rx_frames, host->rx_bytes);
+					wmem_free(NULL, port_str);
 				} else {
 					printf("%-20s      %6" G_GINT64_MODIFIER "u     %9" G_GINT64_MODIFIER
 					       "u     %6" G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u      %6"

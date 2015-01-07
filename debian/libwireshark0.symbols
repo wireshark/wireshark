@@ -75,7 +75,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  build_follow_index_filter@Base 1.12.0~rc1
  byte_array_dup@Base 1.9.1
  byte_array_equal@Base 1.9.1
- bytes_to_ep_str@Base 1.12.0~rc1
  bytes_to_str@Base 1.99.2
  bytestring_to_str@Base 1.9.1
  call_ber_oid_callback@Base 1.9.1
@@ -443,7 +442,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ep_alloc0@Base 1.9.1
  ep_alloc@Base 1.9.1
  ep_memdup@Base 1.9.1
- ep_sctp_port_to_display@Base 1.12.0~rc1
  ep_strbuf_append_printf@Base 1.9.1
  ep_strbuf_new@Base 1.9.1
  ep_strbuf_printf@Base 1.9.1
@@ -453,8 +451,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ep_strdup_vprintf@Base 1.9.1
  ep_strndup@Base 1.9.1
  ep_strsplit@Base 1.9.1
- ep_tcp_port_to_display@Base 1.12.0~rc1
- ep_udp_port_to_display@Base 1.12.0~rc1
  epan_cleanup@Base 1.9.1
  epan_dissect_cleanup@Base 1.9.1
  epan_dissect_fake_protocols@Base 1.9.1
@@ -1128,6 +1124,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  scsi_sbc_vals_ext@Base 1.12.0~rc1
  scsi_smc_vals_ext@Base 1.12.0~rc1
  scsi_ssc_vals_ext@Base 1.12.0~rc1
+ sctp_port_to_display@Base 1.99.2
  se_alloc0@Base 1.9.1
  se_alloc@Base 1.9.1
  set_actual_length@Base 1.9.1
@@ -1211,6 +1208,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tap_listeners_require_dissection@Base 1.9.1
  tap_queue_packet@Base 1.9.1
  tcp_dissect_pdus@Base 1.9.1
+ tcp_port_to_display@Base 1.99.2
  tfs_accept_reject@Base 1.9.1
  tfs_accepted_not_accepted@Base 1.9.1
  tfs_ack_nack@Base 1.9.1
@@ -1435,6 +1433,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_remove_record_idx@Base 1.9.1
  uat_save@Base 1.9.1
  uat_swap@Base 1.9.1
+ udp_port_to_display@Base 1.99.2
  union_of_tap_listener_flags@Base 1.9.1
  update_crc10_by_bytes_tvb@Base 1.99.0
  uri_str_to_bytes@Base 1.9.1

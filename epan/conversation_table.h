@@ -266,7 +266,7 @@ WS_DLL_PUBLIC const char *get_conversation_address(wmem_allocator_t *allocator, 
  * @param resolve_names Enable name resolution.
  * @return An ep_allocated string representing the port.
  */
-WS_DLL_PUBLIC const char *get_conversation_port(guint32 port, port_type ptype, gboolean resolve_names);
+WS_DLL_PUBLIC const char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, port_type ptype, gboolean resolve_names);
 
 /** Get a display filter for the given conversation and direction.
  *

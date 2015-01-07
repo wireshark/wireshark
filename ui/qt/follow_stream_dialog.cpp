@@ -1088,16 +1088,16 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     switch (follow_type_)
     {
     case FOLLOW_TCP:
-        port0 = ep_tcp_port_to_display(stats.port[0]);
-        port1 = ep_tcp_port_to_display(stats.port[1]);
+        port0 = tcp_port_to_display(NULL, stats.port[0]);
+        port1 = tcp_port_to_display(NULL, stats.port[1]);
         break;
     case FOLLOW_UDP:
-        port0 = ep_udp_port_to_display(stats.port[0]);
-        port1 = ep_udp_port_to_display(stats.port[1]);
+        port0 = udp_port_to_display(NULL, stats.port[0]);
+        port1 = udp_port_to_display(NULL, stats.port[1]);
         break;
     case FOLLOW_SSL:
-        port0 = ep_tcp_port_to_display(stats.port[0]);
-        port1 = ep_tcp_port_to_display(stats.port[1]);
+        port0 = tcp_port_to_display(NULL, stats.port[0]);
+        port1 = tcp_port_to_display(NULL, stats.port[1]);
         break;
     }
 
@@ -1194,6 +1194,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
                                                format_size_unit_bytes|format_size_prefix_si)));
         }
     }
+
+    wmem_free(NULL, port0);
+    wmem_free(NULL, port1);
 
     /* Both Stream Directions */
     switch (follow_type_)
