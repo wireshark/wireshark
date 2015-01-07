@@ -969,8 +969,12 @@ install_qt:
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
 	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
+
+!IFDEF PCAP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. WinPcap_$(WINPCAP_VERSION).exe
+!ENDIF
+
 # Qt GUI is no more bundled by default in master-1.12 branch
 #!IFNDEF QT5_BASE_DIR
 #!MESSAGE Can't find Qt. This will become a problem at some point.
