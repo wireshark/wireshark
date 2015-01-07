@@ -23,7 +23,28 @@ find_package( FOP ) # Call before XSLTPROC
 find_package( LYNX )
 find_package( XSLTPROC )
 find_package( XMLLINT )
+find_package( HHC )
+
 find_package( ASCIIDOC )
+
+if(WIN32)
+	MACRO( HHP2CHM _hhpsource )
+		GET_FILENAME_COMPONENT( _source_base_name ${_hhpsource} NAME_WE )
+
+		ADD_CUSTOM_COMMAND(
+			OUTPUT ${_output_chm}
+			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			# hhc.exe returns 1 on success.
+			COMMAND ${HHC_WRAPPER} ${_hhpsource}
+			DEPENDS
+				${_hhpsource}
+		)
+	ENDMACRO()
+else()
+	MACRO( HHP2CHM _hhpsource )
+	# Dummy.
+	ENDMACRO()
+endif()
 
 set(COMMON_GRAPHICS
 	common_graphics/note.svg
@@ -222,43 +243,6 @@ add_custom_command(
 		${CMAKE_CURRENT_BINARY_DIR}/ws.css
 )
 
-MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
-	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
-	set( A2X_HTML_OPTS --stylesheet=ws.css )
-	set( _output_xml ${_source_base_name}.xml )
-	set( _output_dbk ${_source_base_name}.dbk )
-
-	foreach(_conf_file ${_conf_files})
-		set( _conf_opts_list ${_conf_opts_list} --conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
-	endforeach()
-	string( REPLACE ";" " " _conf_opts "${_conf_opts_list}")
-
-	foreach(_conf_file ${_conf_files})
-		set( _conf_deps ${_conf_deps} ${CMAKE_CURRENT_SOURCE_DIR}/${_conf_file})
-	endforeach()
-
-	ADD_CUSTOM_COMMAND(
-		OUTPUT
-			${_output_xml}
-		# XXX - Output to a specific directory, e.g. wsdg_generated_src
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		COMMAND ${A2X_EXECUTABLE}
-			--verbose
-			--attribute=build_dir=${CMAKE_CURRENT_BINARY_DIR}
-			--attribute=docinfo
-			--destination-dir=${CMAKE_CURRENT_BINARY_DIR}
-			--asciidoc-opts=${_conf_opts}
-			--no-xmllint
-			--format=docbook
-			--fop
-			${A2X_HTML_OPTS}
-			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-		DEPENDS
-			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
-			${_conf_deps}
-	)
-ENDMACRO()
-
 ASCIIDOC2DOCBOOK( developer-guide.asciidoc "${ASCIIDOC_CONF_FILES}" )
 ASCIIDOC2DOCBOOK( user-guide.asciidoc "${ASCIIDOC_CONF_FILES}" )
 
@@ -289,7 +273,7 @@ set(WSLUA_MODULES
 ADD_CUSTOM_COMMAND(
 	OUTPUT
 		git_version.xml
-	COMMAND ${SH}
+	COMMAND ${SH_EXECUTABLE}
 		${CMAKE_CURRENT_SOURCE_DIR}/check_git_version.sh
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/check_git_version.sh
@@ -303,12 +287,11 @@ if(ENABLE_PDF_GUIDES)
 	set(WSUG_PDF_OUTPUT user-guide-a4.pdf user-guide-us.pdf)
 endif()
 
-add_custom_target(
-	user_guides
-	DEPENDS
-		${WSUG_HTML_OUTPUT}
-		${WSUG_PDF_OUTPUT}
-)
+if(ENABLE_CHM_GUIDES)
+	set(WSUG_CHM_OUTPUT user-guide.chm)
+	XML2HHP(wsug user-guide.xml)
+	HHP2CHM(user-guide.hhp)
+endif()
 
 VALIDATE_XML(
 	wsug.validated
@@ -355,13 +338,11 @@ if(ENABLE_PDF_GUIDES)
 	set(WSDG_PDF_OUTPUT developer-guide-a4.pdf developer-guide-us.pdf)
 endif()
 
-add_custom_target(
-	developer_guides
-	DEPENDS
-		wsluarm
-		${WSDG_HTML_OUTPUT}
-		${WSDG_PDF_OUTPUT}
-)
+if(ENABLE_CHM_GUIDES)
+	set(WSDG_CHM_OUTPUT developer-guide.chm)
+	XML2HHP(wsdg developer-guide.xml)
+	HHP2CHM(developer-guide.hhp)
+endif()
 
 VALIDATE_XML(
 	wsdg.validated
@@ -396,7 +377,24 @@ XML2PDF(
 	letter
 )
 
-if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES)
+if(ENABLE_HTML_GUIDES OR ENABLE_PDF_GUIDES OR ENABLE_CHM_GUIDES)
+	add_custom_target(
+		user_guides
+		DEPENDS
+			${WSUG_HTML_OUTPUT}
+			${WSUG_PDF_OUTPUT}
+			${WSUG_CHM_OUTPUT}
+	)
+
+	add_custom_target(
+		developer_guides
+		DEPENDS
+			wsluarm
+			${WSDG_HTML_OUTPUT}
+			${WSDG_PDF_OUTPUT}
+			${WSDG_CHM_OUTPUT}
+	)
+
 	add_custom_target( all_guides ALL )
 	add_dependencies ( all_guides user_guides developer_guides )
 endif()

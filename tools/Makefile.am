@@ -138,6 +138,7 @@ EXTRA_DIST = \
 	gen-bugnote					\
 	git-compare-abis.sh				\
 	git-export-release.sh				\
+	hhc.cmd.in					\
 	html2text.py					\
 	idl2deb						\
 	idl2wrs						\
@@ -168,6 +169,7 @@ EXTRA_DIST = \
 	process-x11-xcb.pl				\
 	randpkt-test.sh					\
 	rdps.py						\
+	runa2x.sh					\
 	runlex.sh					\
 	setuid-root.pl.in				\
 	test-common.sh					\

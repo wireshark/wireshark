@@ -1,0 +1,6 @@
+@echo off
+"@HHC_EXECUTABLE_NATIVE_WINDOWS_PATH@" %*
+echo hhc.exe returned %errorlevel%
+
+cmd /c exit 0
+echo We are returning %errorlevel%

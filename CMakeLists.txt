@@ -870,11 +870,7 @@ add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( capchild )
 add_subdirectory( caputils )
 add_subdirectory( codecs )
-if (NOT WIN32)
-	# Some work will be required for Windows. See the notes at the top
-	# of FindASCIIDOC.cmake.
-	add_subdirectory( docbook )
-endif()
+add_subdirectory( docbook )
 add_subdirectory( epan )
 add_subdirectory( tools/lemon )
 add_subdirectory( ui )

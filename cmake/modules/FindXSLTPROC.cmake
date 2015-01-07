@@ -23,7 +23,31 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(XSLTPROC DEFAULT_MSG XSLTPROC_EXECUTABLE)
 
 MARK_AS_ADVANCED(XSLTPROC_EXECUTABLE)
 
-# Translate xml to html
+set (_common_xsltproc_args
+    --stringparam use.id.as.filename 1
+    --stringparam admon.graphics 1
+    --stringparam admon.graphics.extension .svg
+    --stringparam section.autolabel 1
+    --stringparam section.label.includes.component.label 1
+    --stringparam html.stylesheet ws.css
+    )
+
+#set (WSUG_XSLTPROC_ARGS
+#	--stringparam admon.graphics.path wsug_graphics/
+#
+#WSDG_XSLTPROC_ARGS = \
+#	--stringparam admon.graphics.path wsdg_graphics/
+#
+#SINGLE_XSLTPROC_ARGS = \
+#	--nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl
+#
+#CHUNKED_XSLTPROC_ARGS = \
+#	--nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
+#
+#HTMLHELP_XSLTPROC_ARGS = \
+#
+
+# Translate XML to HTML
 #XML2HTML(
 #        wsug or wsdg
 #        single-page or chunked
@@ -79,14 +103,8 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
             --stringparam base.dir ${_basedir}/
-            --stringparam use.id.as.filename 1
-            --stringparam admon.graphics 1
+	    ${_common_xsltproc_args}
             --stringparam admon.graphics.path ${_gfxdir}/
-            --stringparam admon.graphics.extension .svg
-            --stringparam section.autolabel 1
-            --stringparam section.label.includes.component.label 1
-            --stringparam html.stylesheet ws.css
-            --nonet
             ${_modeparams}
             ${_STYLESHEET}
             ${_source}
@@ -99,7 +117,7 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
     )
 ENDMACRO(XML2HTML)
 
-
+# Translate XML to FO to PDF
 #XML2PDF(
 #       user-guide-a4.fo or user-guide-us.fo
 #       WSUG_SOURCE
@@ -135,3 +153,38 @@ MACRO(XML2PDF _output _sources _stylesheet _paper)
             ${_stylesheet}
     )
 ENDMACRO(XML2PDF)
+
+# Translate XML to HHP
+#XML2HHP(
+#       wsug or wsdg
+#       user-guide.xml or developer-guide.xml
+#)
+MACRO(XML2HHP _guide _docbooksource)
+    GET_FILENAME_COMPONENT( _source_base_name ${_docbooksource} NAME_WE )
+    set( _output_chm ${_source_base_name}.chm )
+    set( _output_hhp ${_source_base_name}.hhp )
+    set( _output_toc_hhc ${_source_base_name}-toc.hhc )
+
+    SET(_gfxdir ${_guide}_graphics)
+    SET(_basedir ${_guide}_chm)
+    ADD_CUSTOM_COMMAND(
+        OUTPUT
+            ${_output_hhp}
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${_gfxdir} ${_basedir}/${_gfxdir}
+	COMMAND ${CMAKE_COMMAND} -E copy_directory common_graphics ${_basedir}
+        COMMAND ${XSLTPROC_EXECUTABLE}
+            --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
+            --stringparam base.dir ${_basedir}/
+	    --stringparam htmlhelp.chm ${_output_chm}
+	    --stringparam htmlhelp.hhp ${_output_hhp}
+	    --stringparam htmlhelp.hhc ${_output_toc_hhc}
+	    ${_common_xsltproc_args}
+            --stringparam admon.graphics.path ${_gfxdir}/
+	    --nonet custom_layer_chm.xsl
+	    ${_docbooksource}
+        DEPENDS
+            ${_docbooksource}
+    )
+ENDMACRO(XML2HHP)
