@@ -253,38 +253,6 @@ bytes_to_str(wmem_allocator_t *allocator, const guint8 *bd, int bd_len)
 	return cur;
 }
 
-/* Turn an array of bytes into a string showing the bytes in hex with
- * punct as a bytes separator.
- */
-gchar *
-bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct)
-{
-	gchar *cur;
-	gchar *cur_ptr;
-	int truncated = 0;
-
-	if (!punct)
-		return bytes_to_ep_str(bd, bd_len);
-
-	cur=(gchar *)ep_alloc(MAX_BYTE_STR_LEN+3+1);
-	if (bd_len <= 0) { cur[0] = '\0'; return cur; }
-
-	if (bd_len > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
-		truncated = 1;
-		bd_len = MAX_BYTE_STR_LEN/3;
-	}
-
-	cur_ptr = bytes_to_hexstr_punct(cur, bd, bd_len, punct); /* max MAX_BYTE_STR_LEN-1 bytes */
-
-	if (truncated) {
-		*cur_ptr++ = punct;			/* 1 byte */
-		cur_ptr    = g_stpcpy(cur_ptr, "...");	/* 3 bytes */
-	}
-
-	*cur_ptr = '\0';
-	return cur;
-}
-
 static int
 guint32_to_str_buf_len(const guint32 u)
 {

@@ -102,12 +102,12 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pid = tvb_get_ntohs(tvb, 3);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "OUI %s (%s), PID 0x%04X",
-	    bytes_to_ep_str_punct(oui, 3, ':'),
+	    bytestring_to_str(wmem_packet_scope(), oui, 3, ':'),
 	    manuf ? manuf : "Unknown", pid);
 
 	proto_tree_add_uint_format_value(ieee802a_tree, hf_ieee802a_oui,
 	    tvb, 0, 3, oui32, "%s (%s)",
-	    bytes_to_ep_str_punct(oui, 3, ':'), manuf ? manuf : "Unknown");
+	    bytestring_to_str(wmem_packet_scope(), oui, 3, ':'), manuf ? manuf : "Unknown");
 
 	/*
 	 * Do we have information for this OUI?

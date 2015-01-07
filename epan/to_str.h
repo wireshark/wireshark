@@ -123,8 +123,6 @@ WS_DLL_PUBLIC gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *t
  * @param bd A pointer to the byte array
  * @param bd_len The length of the byte array
  * @return A pointer to the formatted string
- *
- * @see bytes_to_ep_str_punct()
  */
 WS_DLL_PUBLIC gchar *bytes_to_ep_str(const guint8 *bd, int bd_len);
 
@@ -136,15 +134,14 @@ WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *allocator, const guint8 *bd, 
 /** Turn an array of bytes into a string showing the bytes in hex,
  *  separated by a punctuation character.
  *
- * @param bd A pointer to the byte array
- * @param bd_len The length of the byte array
+ * @param scope memory allocation scheme used
+ * @param ad A pointer to the byte array
+ * @param len The length of the byte array
  * @param punct The punctuation character
  * @return A pointer to the formatted string
  *
- * @see bytes_to_ep_str()
+ * @see bytes_to_str()
  */
-WS_DLL_PUBLIC gchar *bytes_to_ep_str_punct(const guint8 *bd, int bd_len, gchar punct);
-
 WS_DLL_PUBLIC const gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct);
 
 #ifdef __cplusplus

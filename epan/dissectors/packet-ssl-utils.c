@@ -3435,7 +3435,9 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
     if (ret != 0) {
         ssl_debug_printf( "gnutls_x509_privkey_get_key_id(ssl_pkey, 0, buf_keyid, &buf_len) - %s\n", gnutls_strerror(ret));
     } else {
-        ssl_debug_printf( "Private key imported: KeyID %s\n", bytes_to_ep_str_punct(buf_keyid, (int) buf_len, ':'));
+        char* keyid = (char*)bytestring_to_str(NULL, buf_keyid, (int) buf_len, ':');
+        ssl_debug_printf( "Private key imported: KeyID %s\n", keyid);
+        wmem_free(NULL, keyid);
     }
 
     /* RSA get parameter */

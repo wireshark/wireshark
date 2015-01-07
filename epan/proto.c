@@ -4271,25 +4271,41 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					switch(hfinfo->display)
 					{
 					case BASE_DOT:
-						offset_r += protoo_strlcpy(result+offset_r,
-							bytes ?  bytes_to_ep_str_punct(bytes, fvalue_length(&finfo->value), '.') : "<MISSING>",
-							size-offset_r);
+						if (bytes) {
+							char* str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
+							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+							wmem_free(NULL, str);
+						} else {
+							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
+						}
 						break;
 					case BASE_DASH:
-						offset_r += protoo_strlcpy(result+offset_r,
-							bytes ?  bytes_to_ep_str_punct(bytes, fvalue_length(&finfo->value), '-') : "<MISSING>",
-							size-offset_r);
+						if (bytes) {
+							char* str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
+							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+							wmem_free(NULL, str);
+						} else {
+							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
+						}
 						break;
 					case BASE_SEMICOLON:
-						offset_r += protoo_strlcpy(result+offset_r,
-							bytes ?  bytes_to_ep_str_punct(bytes, fvalue_length(&finfo->value), ':') : "<MISSING>",
-							size-offset_r);
+						if (bytes) {
+							char* str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
+							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+							wmem_free(NULL, str);
+						} else {
+							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
+						}
 						break;
 					case BASE_NONE:
 					default:
-						offset_r += protoo_strlcpy(result+offset_r,
-							bytes ?  bytes_to_ep_str(bytes, fvalue_length(&finfo->value)) : "<MISSING>",
-							size-offset_r);
+						if (bytes) {
+							char* str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
+							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+							wmem_free(NULL, str);
+						} else {
+							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
+						}
 						break;
 					}
 					break;
@@ -4416,10 +4432,9 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					break;
 
 				case FT_ETHER:
-					offset_r += protoo_strlcpy(result+offset_r,
-								bytes_to_ep_str_punct((const guint8 *)fvalue_get(&finfo->value),
-											FT_ETHER_LEN, ':'),
-								size-offset_r);
+					SET_ADDRESS (&addr, AT_ETHER, FT_ETHER_LEN, fvalue_get(&finfo->value));
+					address_to_str_buf(&addr, result+offset_r, size-offset_r);
+					offset_r = (int)strlen(result);
 					break;
 
 				case FT_GUID:
@@ -6028,25 +6043,28 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			switch(hfinfo->display)
-			{
-			case BASE_DOT:
-				label_fill(label_str, 0, hfinfo,
-					(bytes) ? bytes_to_ep_str_punct(bytes, fvalue_length(&fi->value), '.') : "<MISSING>");
-				break;
-			case BASE_DASH:
-				label_fill(label_str, 0, hfinfo,
-					(bytes) ? bytes_to_ep_str_punct(bytes, fvalue_length(&fi->value), '-') : "<MISSING>");
-				break;
-			case BASE_SEMICOLON:
-				label_fill(label_str, 0, hfinfo,
-					(bytes) ? bytes_to_ep_str_punct(bytes, fvalue_length(&fi->value), ':') : "<MISSING>");
-				break;
-			case BASE_NONE:
-			default:
-				label_fill(label_str, 0, hfinfo,
-					(bytes) ? bytes_to_ep_str(bytes, fvalue_length(&fi->value)) : "<MISSING>");
-				break;
+			if (bytes) {
+				char* str = NULL;
+				switch(hfinfo->display)
+				{
+				case BASE_DOT:
+					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '.');
+					break;
+				case BASE_DASH:
+					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '-');
+					break;
+				case BASE_SEMICOLON:
+					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ':');
+					break;
+				case BASE_NONE:
+				default:
+					str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&fi->value));
+					break;
+				}
+				label_fill(label_str, 0, hfinfo, str);
+				wmem_free(NULL, str);
+			} else {
+				label_fill(label_str, 0, hfinfo, "<MISSING>");
 			}
 			break;
 
