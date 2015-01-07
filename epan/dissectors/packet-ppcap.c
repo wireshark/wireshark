@@ -422,7 +422,9 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 
 	if (msg_len%4)
 		msg_len = msg_len+(4-(msg_len%4));
-		offset += msg_len;
+
+	offset += msg_len;
+
 	return offset;
 }
 
