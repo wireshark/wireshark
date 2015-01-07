@@ -173,7 +173,12 @@ QString UatDialog::fieldString(guint row, guint column)
         string_rep = str;
         break;
     case PT_TXTMOD_HEXBYTES: {
-        string_rep = bytes_to_ep_str((const guint8 *) str, length);
+        {
+            char* temp_str = bytes_to_str(NULL, (const guint8 *) str, length);
+            QString qstr(temp_str);
+            string_rep = qstr;
+            wmem_free(NULL, temp_str);
+        }
         break;
     }
     default:

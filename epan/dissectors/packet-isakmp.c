@@ -4739,7 +4739,7 @@ dissect_enc(tvbuff_t *tvb,
         if (tvb_memeql(tvb, offset, md, icd_len) == 0) {
           proto_item_append_text(icd_item, "[correct]");
         } else {
-          proto_item_append_text(icd_item, "[incorrect, should be %s]", bytes_to_ep_str(md, icd_len));
+          proto_item_append_text(icd_item, "[incorrect, should be %s]", bytes_to_str(wmem_packet_scope(), md, icd_len));
           expert_add_info(pinfo, icd_item, &ei_isakmp_ikev2_integrity_checksum);
         }
         gcry_md_close(md_hd);

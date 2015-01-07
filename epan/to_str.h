@@ -120,14 +120,10 @@ WS_DLL_PUBLIC gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *t
 
 /** Turn an array of bytes into a string showing the bytes in hex.
  *
+ * @param scope memory allocation scheme used
  * @param bd A pointer to the byte array
  * @param bd_len The length of the byte array
  * @return A pointer to the formatted string
- */
-WS_DLL_PUBLIC gchar *bytes_to_ep_str(const guint8 *bd, int bd_len);
-
-/**
- * Same as above, but using wmem memory management.
  */
 WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *allocator, const guint8 *bd, int bd_len);
 

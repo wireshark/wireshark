@@ -910,7 +910,7 @@ print_uuid(uuid_t *uuid)
             i_uuid += 1;
         }
 
-        return bytes_to_ep_str(uuid->data, uuid->size);
+        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
     }
 }
 

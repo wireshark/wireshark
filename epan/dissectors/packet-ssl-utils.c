@@ -3603,6 +3603,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, char** err) {
     static char               buf_name[256];
     static char               buf_email[128];
     unsigned char             buf_keyid[32];
+    char                     *tmp_str;
 
     gnutls_pkcs12_t       ssl_p12  = NULL;
     gnutls_x509_crt_t     ssl_cert = NULL;
@@ -3726,7 +3727,9 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, char** err) {
                     if (ret < 0) { g_strlcpy(buf_keyid, "<ERROR>", 32); }
 
                     private_key->x509_cert = ssl_cert;
-                    ssl_debug_printf( "Certificate imported: %s <%s>, KeyID %s\n", buf_name, buf_email, bytes_to_ep_str(buf_keyid, (int) buf_len));
+                    tmp_str = bytes_to_str(NULL, buf_keyid, (int) buf_len);
+                    ssl_debug_printf( "Certificate imported: %s <%s>, KeyID %s\n", buf_name, buf_email, tmp_str);
+                    wmem_free(NULL, tmp_str);
                     break;
 
                 case GNUTLS_BAG_PKCS8_KEY:

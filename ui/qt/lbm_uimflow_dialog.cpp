@@ -133,8 +133,8 @@ static gboolean lbm_uimflow_add_to_graph(seq_analysis_info_t * seq_info, packet_
     }
     if (epa.type == lbm_uim_instance_stream)
     {
-        ctxinst1 = bytes_to_ep_str(epa.stream_info.ctxinst.ctxinst, sizeof(epa.stream_info.ctxinst.ctxinst));
-        ctxinst2 = bytes_to_ep_str(epb.stream_info.ctxinst.ctxinst, sizeof(epb.stream_info.ctxinst.ctxinst));
+        ctxinst1 = bytes_to_str(pinfo->pool, epa.stream_info.ctxinst.ctxinst, sizeof(epa.stream_info.ctxinst.ctxinst));
+        ctxinst2 = bytes_to_str(pinfo->pool, epb.stream_info.ctxinst.ctxinst, sizeof(epb.stream_info.ctxinst.ctxinst));
         item->comment = g_strdup_printf("%s <-> %s [%" G_GUINT64_FORMAT "]",
             ctxinst1,
             ctxinst2,

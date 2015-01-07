@@ -94,8 +94,8 @@ static int lbmc_uim_flow_graph_add_to_graph(packet_info * pinfo, const lbm_uim_s
     lbm_uim_stream_endpoint_t epa;
     lbm_uim_stream_endpoint_t epb;
     seq_analysis_item_t * item;
-    gchar * ctxinst1 = NULL;
-    gchar * ctxinst2 = NULL;
+    gchar * ctxinst1;
+    gchar * ctxinst2;
     gboolean swap_endpoints = FALSE;
     int rc;
 
@@ -179,8 +179,8 @@ static int lbmc_uim_flow_graph_add_to_graph(packet_info * pinfo, const lbm_uim_s
     }
     if (epa.type == lbm_uim_instance_stream)
     {
-        ctxinst1 = bytes_to_ep_str(epa.stream_info.ctxinst.ctxinst, sizeof(epa.stream_info.ctxinst.ctxinst));
-        ctxinst2 = bytes_to_ep_str(epb.stream_info.ctxinst.ctxinst, sizeof(epb.stream_info.ctxinst.ctxinst));
+        ctxinst1 = bytes_to_str(pinfo->pool, epa.stream_info.ctxinst.ctxinst, sizeof(epa.stream_info.ctxinst.ctxinst));
+        ctxinst2 = bytes_to_str(pinfo->pool, epb.stream_info.ctxinst.ctxinst, sizeof(epb.stream_info.ctxinst.ctxinst));
         item->comment = g_strdup_printf("%s <-> %s [%" G_GUINT64_FORMAT "]",
             ctxinst1,
             ctxinst2,

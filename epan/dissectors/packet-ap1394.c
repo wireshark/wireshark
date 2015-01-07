@@ -66,24 +66,21 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
-  const guint8 *src_addr, *dst_addr;
   guint16    etype;
   tvbuff_t *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP/IEEE1394");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  src_addr=tvb_get_ptr(tvb, 8, 8);
   TVB_SET_ADDRESS(&pinfo->dl_src,   AT_EUI64, tvb, 8, 8);
   TVB_SET_ADDRESS(&pinfo->src,      AT_EUI64, tvb, 8, 8);
-  dst_addr=tvb_get_ptr(tvb, 0, 8);
   TVB_SET_ADDRESS(&pinfo->dl_dst,   AT_EUI64, tvb, 0, 8);
   TVB_SET_ADDRESS(&pinfo->dst,      AT_EUI64, tvb, 0, 8);
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_ap1394, tvb, 0, 18,
                 "Apple IP-over-IEEE 1394, Src: %s, Dst: %s",
-                bytes_to_ep_str(src_addr, 8), bytes_to_ep_str(dst_addr, 8));
+                address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
     fh_tree = proto_item_add_subtree(ti, ett_ap1394);
     proto_tree_add_item(fh_tree, hf_ap1394_dst, tvb, 0, 8, ENC_NA);
     proto_tree_add_item(fh_tree, hf_ap1394_src, tvb, 8, 8, ENC_NA);

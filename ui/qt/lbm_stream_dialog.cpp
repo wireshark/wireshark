@@ -193,7 +193,7 @@ QString LBMStreamEntry::formatEndpoint(const packet_info * pinfo, const lbm_uim_
 {
     if (endpoint->type == lbm_uim_instance_stream)
     {
-        return QString(bytes_to_ep_str(endpoint->stream_info.ctxinst.ctxinst, sizeof(endpoint->stream_info.ctxinst.ctxinst)));
+        return QString(bytes_to_str(pinfo->pool, endpoint->stream_info.ctxinst.ctxinst, sizeof(endpoint->stream_info.ctxinst.ctxinst)));
     }
     else
     {

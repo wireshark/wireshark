@@ -1835,7 +1835,7 @@ AirPDcapRsnaPwd2Psk(
 decryption_key_t*
 parse_key_string(gchar* input_string, guint8 key_type)
 {
-    gchar *key;
+    gchar *key, *tmp_str;
     gchar *ssid;
 
     GString    *key_string = NULL;
@@ -1874,11 +1874,13 @@ parse_key_string(gchar* input_string, guint8 key_type)
            dk->type = AIRPDCAP_KEY_TYPE_WEP;
            /* XXX - The current key handling code in the GUI requires
             * no separators and lower case */
-           dk->key  = g_string_new(bytes_to_ep_str(key_ba->data, key_ba->len));
+           tmp_str = bytes_to_str(NULL, key_ba->data, key_ba->len);
+           dk->key  = g_string_new(tmp_str);
            g_string_ascii_down(dk->key);
            dk->bits = key_ba->len * 8;
            dk->ssid = NULL;
 
+           wmem_free(NULL, tmp_str);
            g_byte_array_free(key_ba, TRUE);
            return dk;
        }

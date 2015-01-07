@@ -627,7 +627,7 @@ sigcomp_init_udvm(void){
 	 */
 	sip_sdp_buff = (guint8 *)g_malloc(SIP_SDP_STATE_LENGTH + 8);
 
-	partial_state_str = bytes_to_ep_str(sip_sdp_state_identifier, 6);
+	partial_state_str = bytes_to_str(NULL, sip_sdp_state_identifier, 6);
 
 	/*
 	 * Debug 	g_warning("Sigcomp init: Storing partial state =%s",partial_state_str);
@@ -638,6 +638,7 @@ sigcomp_init_udvm(void){
 	memcpy(sip_sdp_buff+8, sip_sdp_static_dictionaty_for_sigcomp, SIP_SDP_STATE_LENGTH);
 
 	g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), sip_sdp_buff);
+	wmem_free(NULL, partial_state_str);
 	/*	Debug
 	 *	g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
 	 *  g_warning("g_hash_table_insert = 0x%x",sip_sdp_buff);
@@ -645,7 +646,7 @@ sigcomp_init_udvm(void){
 
 	presence_buff = (guint8 *)g_malloc(PRESENCE_STATE_LENGTH + 8);
 
-	partial_state_str = bytes_to_ep_str(presence_state_identifier, 6);
+	partial_state_str = bytes_to_str(NULL, presence_state_identifier, 6);
 
 	memset(presence_buff, 0, 8);
 	presence_buff[0] = PRESENCE_STATE_LENGTH >> 8;
@@ -653,6 +654,7 @@ sigcomp_init_udvm(void){
 	memcpy(presence_buff+8, presence_static_dictionary_for_sigcomp, PRESENCE_STATE_LENGTH);
 
 	g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), presence_buff);
+	wmem_free(NULL, partial_state_str);
 }
 
 
@@ -694,7 +696,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 		partial_state[n] = buff[p_id_start + n];
 		n++;
 	}
-	partial_state_str = bytes_to_ep_str(partial_state, p_id_length);
+	partial_state_str = bytes_to_str(wmem_packet_scope(), partial_state, p_id_length);
 	proto_tree_add_text(tree,tvb, 0, -1,"### Accessing state ###");
 	proto_tree_add_string(tree,hf_id, tvb, 0, 0, partial_state_str);
 
@@ -822,7 +824,7 @@ void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_
 		partial_state[i] = state_identifier[i];
 		i++;
 	}
-	partial_state_str = bytes_to_ep_str(partial_state, p_id_length);
+	partial_state_str = bytes_to_str(NULL, partial_state, p_id_length);
 
 	dummy_buff = (gchar *)g_hash_table_lookup(state_buffer_table, partial_state_str);
 	if ( dummy_buff == NULL ){
@@ -833,6 +835,7 @@ void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_
 		g_free(state_buff);
 
 	}
+	wmem_free(NULL, partial_state_str);
 }
 
 #if 1
@@ -851,7 +854,7 @@ void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length){
 		partial_state[i] = buff[p_id_start + i];
 		i++;
 	}
-	partial_state_str = bytes_to_ep_str(partial_state, p_id_length);
+	partial_state_str = bytes_to_str(NULL, partial_state, p_id_length);
 	/* TODO Implement a state create counter before actually freeing states
 	 * Hmm is it a good idea to free the buffer at all?
 	 */
@@ -863,6 +866,7 @@ void udvm_state_free(guint8 buff[],guint16 p_id_start,guint16 p_id_length){
 		g_hash_table_remove (state_buffer_table, partial_state_str);
 		g_free(dummy_buff);
 	}
+	wmem_free(NULL, partial_state_str);
 }
 #endif
 

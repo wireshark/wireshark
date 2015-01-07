@@ -397,7 +397,7 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
     return address_to_str(wmem_packet_scope(), &addr);
     }
   }
-  return bytes_to_ep_str(ad, ad_len);
+  return bytes_to_str(wmem_packet_scope(), ad, ad_len);
 }
 
 #define MAX_E164_STR_LEN                20
@@ -431,7 +431,7 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
      *
      * XXX - break down into subcomponents.
      */
-    return bytes_to_ep_str(ad, ad_len);
+    return bytes_to_str(wmem_packet_scope(), ad, ad_len);
   }
 }
 
@@ -452,7 +452,7 @@ atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
    *
    * XXX - break down into subcomponents?
    */
-  return bytes_to_ep_str(ad, ad_len);
+  return bytes_to_str(wmem_packet_scope(), ad, ad_len);
 }
 
 const value_string arp_hrd_vals[] = {

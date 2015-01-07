@@ -1781,7 +1781,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         proto_tree_add_bytes(main_tree, hf_serial_number, tvb,
                 offset, 16, (guint8 *) serial);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s",
-                bytes_to_ep_str((guint8 *) serial, 16));
+                bytes_to_str(wmem_packet_scope(), (guint8 *) serial, 16));
         offset += 16;
 
         break;

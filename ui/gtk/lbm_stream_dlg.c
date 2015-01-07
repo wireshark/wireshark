@@ -82,19 +82,19 @@ typedef struct
 
 static lbmc_stream_dlg_info_t * global_stream_dialog_info = NULL;
 
-static gchar * lbmc_stream_dlg_format_endpoint_ep(const lbm_uim_stream_endpoint_t * endpoint)
+static gchar * lbmc_stream_dlg_format_endpoint(wmem_allocator_t *allocator, const lbm_uim_stream_endpoint_t * endpoint)
 {
     gchar * buf = NULL;
     char* addr_str;
 
     if (endpoint->type == lbm_uim_instance_stream)
     {
-        buf = bytes_to_ep_str(endpoint->stream_info.ctxinst.ctxinst, sizeof(endpoint->stream_info.ctxinst.ctxinst));
+        buf = bytes_to_str(allocator, endpoint->stream_info.ctxinst.ctxinst, sizeof(endpoint->stream_info.ctxinst.ctxinst));
     }
     else
     {
         addr_str = (char*)address_to_str(NULL, &(endpoint->stream_info.dest.addr));
-        buf = ep_strdup_printf(
+        buf = wmem_strdup_printf(allocator,
             "%" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT,
             endpoint->stream_info.dest.domain,
             addr_str,
@@ -570,8 +570,8 @@ static gboolean lbmc_stream_dlg_tap_packet(void * tap_data, packet_info * pinfo,
 
         stream = (lbmc_stream_dlg_stream_entry_t *)g_malloc(sizeof(lbmc_stream_dlg_stream_entry_t));
         stream->channel = tapinfo->channel;
-        stream->endpoint_a = wmem_strdup(wmem_file_scope(), lbmc_stream_dlg_format_endpoint_ep(&(tapinfo->endpoint_a)));
-        stream->endpoint_b = wmem_strdup(wmem_file_scope(), lbmc_stream_dlg_format_endpoint_ep(&(tapinfo->endpoint_b)));
+        stream->endpoint_a = lbmc_stream_dlg_format_endpoint(wmem_file_scope(), &(tapinfo->endpoint_a));
+        stream->endpoint_b = lbmc_stream_dlg_format_endpoint(wmem_file_scope(), &(tapinfo->endpoint_b));
         stream->first_frame = (guint32)(~0);
         stream->last_frame = 0;
         stream->messages = 0;
