@@ -61,7 +61,7 @@ static wmem_tree_t *hci_vendors             = NULL;
 
 static int bluetooth_tap = -1;
 
-static const value_string bluetooth_uuid_vals[] = {
+const value_string bluetooth_uuid_vals[] = {
     /* Protocol Identifiers - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
     { 0x0001,   "SDP" },
     { 0x0002,   "UDP" },
@@ -1226,6 +1226,15 @@ print_uuid(uuid_t *uuid)
 
         return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
     }
+}
+
+gchar *
+print_numeric_uuid(uuid_t *uuid)
+{
+    if (uuid && uuid->size > 0)
+        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+
+    return NULL;
 }
 
 

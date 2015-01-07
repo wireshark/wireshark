@@ -209,7 +209,8 @@ typedef struct _custom_uuid_t {
     const gchar  *name;
 } custom_uuid_t;
 
-extern const custom_uuid_t custom_uuid[];
+extern const value_string   bluetooth_uuid_vals[];
+extern const custom_uuid_t  custom_uuid[];
 
 extern value_string_ext  bluetooth_uuid_vals_ext;
 extern value_string_ext  bluetooth_company_id_vals_ext;
@@ -220,6 +221,7 @@ extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb,
 
 extern uuid_t  get_uuid(tvbuff_t *tvb, gint offset, gint size);
 extern gchar  *print_uuid(uuid_t *uuid);
+extern gchar  *print_numeric_uuid(uuid_t *uuid);
 
 extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, guint8 size, bluetooth_data_t *bluetooth_data);
