@@ -998,6 +998,8 @@ if(WIN32)
 		ui/win32/console_win32.c
 		ui/win32/file_dlg_win32.c
 		ui/win32/print_win32.c
+	)
+	set(PLATFORM_UI_RC_FILES
 		image/file_dlg_win32.rc
 	)
 endif()
@@ -1157,6 +1159,7 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	set(wireshark_FILES
 		${WIRESHARK_SRC}
 		image/wireshark.rc
+		${PLATFORM_UI_RC_FILES}
 	)
 endif()
 
