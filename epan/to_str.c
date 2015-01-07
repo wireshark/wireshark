@@ -169,7 +169,7 @@ const gchar *
 bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct)
 {
 	gchar *buf;
-	size_t buflen = len;
+	guint32 buflen = len;
 	gchar *buf_ptr;
 	int truncated = 0;
 
