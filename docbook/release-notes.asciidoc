@@ -13,32 +13,15 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed.
 
-* ws-salink:2015-03[]
+* ws-salink:2015-06[]
 +
-The DEC DNA Routing Protocol dissector could crash.
-// Fixed in master: ga559f2a
-// Fixed in master-1.12: g8ae9b53
-// Fixed in master-1.10: g336ccc1
-(ws-buglink:10724[])
-cve-idlink:2015-0562[]
+A dissector went awry.
+// Fixed in master: gXXX
+// Fixed in master-1.12: gXXX
+// Fixed in master-1.10: gXXX
+(ws-buglink:XXX[])
+cve-idlink:2015-XXX[]
 
-* ws-salink:2015-04[]
-+
-The SMTP dissector could crash.
-// Fixed in master: g8541578, g611cfd0
-// Fixed in master-1.12: ge3c0c98, gde70b34
-// Fixed in master-1.10: g2d23bcd, gda8282d
-(ws-buglink:10823[])
-cve-idlink:2015-0563[]
-
-* ws-salink:2015-05[]
-+
-Wireshark could crash while decypting TLS/SSL sessions. Discovered by Noam Rathaus.
-// Fixed in master: gd3581ae
-// Fixed in master-1.12: gf5e435a
-// Fixed in master-1.10: g7fc3a06
-//(ws-buglink:10823[])
-cve-idlink:2015-0564[]
 
 The following bugs have been fixed:
 
@@ -47,37 +30,6 @@ The following bugs have been fixed:
 //  to sleep. (ws-buglink:0000[])
 // for bugnumber in `git log --stat v1.10.13rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
-* WebSocket dissector: empty payload causes DISSECTOR_ASSERT_NOT_REACHED. (ws-buglink:9332[])
-
-* SMTP decoder can dump binary data to terminal in TShark. (ws-buglink:10536[])
-
-* IPv6 Vendor Specific Mobility Option includes the next mobility option type. (ws-buglink:10618[])
-
-* Save PCAP to PCAPng with commentary fails. (ws-buglink:10656[])
-
-* Multipath TCP: checksum displayed when it's not there. (ws-buglink:10692[])
-
-* LTE APN-AMBR is decoded incorrectly. (ws-buglink:10699[])
-
-* IPv6 Experimental mobility header data is interpreted as options. (ws-buglink:10703[])
-
-* Buildbot crash output: fuzz-2014-11-15-7777.pcap. (ws-buglink:10710[])
-
-* Buildbot crash output: fuzz-2014-11-18-30809.pcap. (ws-buglink:10716[])
-
-* Buildbot crash output: fuzz-2014-11-22-10244.pcap. (ws-buglink:10724[])
-
-* Decoding of longitude value in LCSAP (3GPP TS 29.171) is incorrect. (ws-buglink:10767[])
-
-* Crash when enabling FCoIB manual settings without filling address field. (ws-buglink:10796[])
-
-* RSVP RECORD_ROUTE IPv4 Subobject Flags field incorrect decoding. (ws-buglink:10799[])
-
-* Wireshark Lua engine can't access protocol field type. (ws-buglink:10801[])
-
-* Lua: getting fieldinfo.value for FT_NONE causes assert. (ws-buglink:10815[])
-
-* Buildbot crash output: fuzz-2015-01-01-29029.pcap. (ws-buglink:10823[])
 
 === New and Updated Features
 
@@ -90,17 +42,6 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-DEC DNA
-DECT
-FCoIB
-Infiniband
-IrDA
-LCSAP
-NAS EPS
-MIPv6
-RDM
-RSVP
-TCP
 --sort-and-group--
 
 === New and Updated Capture File Support
