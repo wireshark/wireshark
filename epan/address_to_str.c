@@ -409,18 +409,6 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
         addr.len = 8;
         addr.data = tvb_get_ptr(tvb, offset, 8);
         break;
-    case AT_IB:
-        if (length >= 16)
-        {
-            addr.len = length;
-            addr.data = tvb_get_ptr(tvb, offset, length);
-        }
-        else
-        {
-            addr.len = 2;
-            addr.data = GUINT_TO_POINTER(tvb_get_ntohs(tvb, offset));
-        }
-        break;
     case AT_AX25:
         addr.len = AX25_ADDR_LEN;
         addr.data = tvb_get_ptr(tvb, offset, AX25_ADDR_LEN);
@@ -444,6 +432,7 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     case AT_STRINGZ:
     case AT_URI:
     case AT_TIPC:
+    case AT_IB:
         /* Have variable length fields, use tvb_address_var_to_str() */
     case AT_USB:
         /* These addresses are not supported through tvb accessor */
