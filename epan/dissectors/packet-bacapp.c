@@ -5897,7 +5897,7 @@ fOctetString(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, 
     offset += fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
 
     if (lvt > 0) {
-        tmp = tvb_bytes_to_ep_str(tvb, offset, lvt);
+        tmp = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, lvt);
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt,
                     ett_bacapp_tag, NULL, "%s %s", label, tmp);
         offset += lvt;
@@ -5933,7 +5933,7 @@ fMacAddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, c
 
             } else { /* we have 1 Byte MS/TP Address or anything else interpreted as an address */
                 subtree = proto_tree_add_subtree(tree, tvb, offset, lvt,
-                    ett_bacapp_tag, NULL, tvb_bytes_to_ep_str(tvb, offset, lvt));
+                    ett_bacapp_tag, NULL, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, lvt));
             }
         }
         offset += lvt;

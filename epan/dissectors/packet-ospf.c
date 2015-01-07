@@ -2159,7 +2159,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                 case OIF_TNA_NSAP_ADDRESS:
                     stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_len+4,
                                              ett_ospf_lsa_oif_tna_stlv, NULL, "%s (NSAP): %s", stlv_name,
-                                             tvb_bytes_to_ep_str (tvb, stlv_offset + 8, stlv_len - 4));
+                                             tvb_bytes_to_str(wmem_packet_scope(), tvb, stlv_offset + 8, stlv_len - 4));
                     proto_tree_add_uint_format_value(stlv_tree, hf_ospf_tlv_type, tvb, stlv_offset, 2,
                                         stlv_type, "%u: %s (NSAP)", stlv_type, stlv_name);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset+2, 2, ENC_BIG_ENDIAN);

@@ -895,7 +895,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
 
                     auth_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
                         ett_nhrp_auth_ext, NULL, "Extension Data: SPI=%u: Data=%s", tvb_get_ntohs(tvb, offset + 2),
-                        tvb_bytes_to_ep_str(tvb, offset + 4, len - 4));
+                        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 4, len - 4));
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_spi, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                     if (srcLen == 4)
@@ -921,7 +921,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                     tvb_memcpy(tvb, manuf, offset, 3);
                     vendor_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
                         ett_nhrp_vendor_ext, NULL, "Extension Data: Vendor ID=%s, Data=%s", get_manuf_name(manuf),
-                        tvb_bytes_to_ep_str(tvb, offset + 3, len - 3));
+                        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 3, len - 3));
                     proto_tree_add_bytes_format_value(vendor_tree, hf_nhrp_vendor_ext_id, tvb,
                         offset, 3, manuf, "%s", get_manuf_name(manuf));
                     if (len > 3) {

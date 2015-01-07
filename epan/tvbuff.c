@@ -3482,16 +3482,7 @@ tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len,
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data.
  */
-gchar *
-tvb_bytes_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len)
-{
-	return bytes_to_ep_str(ensure_contiguous(tvb, offset, len), len);
-}
-
-/*
- * Same as tvb_bytes_to_ep_str but with wmem
- */
-gchar *tvb_bytes_to_wmem_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
+gchar *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
     const gint offset, const gint len)
 {
 	return bytes_to_str(allocator, ensure_contiguous(tvb, offset, len), len);

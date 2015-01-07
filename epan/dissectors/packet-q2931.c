@@ -1386,7 +1386,7 @@ dissect_q2931_number_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		if (len < 20) {
 			proto_tree_add_text(tree, tvb, offset, len,
 			    "Number (too short): %s",
-			    tvb_bytes_to_ep_str(tvb, offset, len));
+			    tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
 			return;
 		}
 		nsap_tree = proto_tree_add_subtree(tree, tvb, offset, len, ett_q2931_nsap, NULL, "Number");

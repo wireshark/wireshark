@@ -5368,7 +5368,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 				/* not ascii or NULL character so do string as hex string */
 				proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s",
 					(proto_registrar_get_nth(hf_index))->name,
-					tvb_bytes_to_ep_str(tvb, 0, len));
+					tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, len));
 				return len;
 			};
 		};

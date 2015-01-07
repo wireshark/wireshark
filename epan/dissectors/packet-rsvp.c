@@ -5866,7 +5866,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
 
         case 0x7F:
             offset4 = offset3 + len;
-            str = tvb_bytes_to_ep_str(tvb, offset3, len);
+            str = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset3, len);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_callid_srcaddr_bytes, tvb, offset3, len, ENC_NA);
             break;
 
@@ -5880,7 +5880,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
 
         proto_item_append_text(ti, "Src: %s. ", str);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_call_id_local_identifier, tvb, offset4, 8, ENC_NA);
-        proto_item_append_text(ti, "Local ID: %s. ", tvb_bytes_to_ep_str(tvb, offset4, 8));
+        proto_item_append_text(ti, "Local ID: %s. ", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset4, 8));
         break;
 
     default:

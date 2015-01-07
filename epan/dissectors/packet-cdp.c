@@ -1138,7 +1138,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     if (hf_addr == -1)
     {
         proto_tree_add_item(address_tree, hf_cdp_address, tvb, offset, address_length, ENC_NA);
-        proto_item_set_text(ti, "Address: %s", tvb_bytes_to_ep_str(tvb, offset, address_length));
+        proto_item_set_text(ti, "Address: %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, address_length));
     }
 
     return 2 + protocol_length + 2 + address_length;

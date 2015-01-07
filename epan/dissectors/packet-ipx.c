@@ -1004,7 +1004,7 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Serial number %s",
-		    tvb_bytes_to_ep_str(tvb, 0, 6));
+		    tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, 6));
 
 	proto_tree_add_item(ser_tree, hf_serial_number, tvb, 0, 6, ENC_NA);
 }

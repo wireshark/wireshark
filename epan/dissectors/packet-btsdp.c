@@ -1439,14 +1439,12 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     } else {
         guint8      *continuation_state_buffer;
         guint8       continuation_state_length;
-        guint8      *packet_scope_string;
 
         continuation_state_length = tvb_get_guint8(tvb, offset);
         offset++;
 
         continuation_state_buffer = (guint8 *) wmem_alloc(wmem_file_scope(), continuation_state_length);
-        packet_scope_string = tvb_bytes_to_ep_str(tvb, offset, continuation_state_length);
-        memcpy(continuation_state_buffer, packet_scope_string, continuation_state_length);
+        continuation_state_buffer = tvb_bytes_to_str(wmem_file_scope(), tvb, offset, continuation_state_length);
 
         if (!pinfo->fd->flags.visited) {
             if (is_request) {
@@ -2866,7 +2864,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     break;
                 case 0x352:
                     proto_tree_add_item(next_tree, hf_bpp_character_repertoires_support, tvb, offset, size, ENC_NA);
-                    new_str = tvb_bytes_to_ep_str(tvb, offset, size);
+                    new_str = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, size);
                     wmem_strbuf_append(info_buf, new_str);
                     break;
                 case 0x354:

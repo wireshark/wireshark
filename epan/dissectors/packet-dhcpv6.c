@@ -1103,7 +1103,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 }
                 else {
                     proto_item_append_text(ti, "%s",
-                                           tvb_bytes_to_ep_str(tvb, sub_off, field_len));
+                                           tvb_bytes_to_str(wmem_packet_scope(), tvb, sub_off, field_len));
                 }
                 break;
             case CL_OPTION_TLV5:
@@ -1211,13 +1211,13 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 else {
                     /*proto_item_append_text(ti, "CM MAC Address Option = %s", */
                     proto_item_append_text(ti, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, sub_off, opt_len, ':'));
-                    /* tvb_bytes_to_ep_str(tvb, sub_off, opt_len)); */
+                    /* tvb_bytes_to_str(wmem_packet_scope(), tvb, sub_off, opt_len)); */
                 }
                 break;
             case CL_EROUTER_CONTAINER_OPTION:
                 opt_len = tlv_len;
                 proto_item_append_text(ti, " %s (len=%d)",
-                                       tvb_bytes_to_ep_str(tvb, sub_off, opt_len), tlv_len);
+                                       tvb_bytes_to_str(wmem_packet_scope(), tvb, sub_off, opt_len), tlv_len);
                 break;
             case CL_OPTION_CCC:
                 opt_len = tlv_len;
@@ -1315,7 +1315,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
     switch (opttype) {
     case OPTION_CLIENTID:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "CID: %s ", tvb_bytes_to_ep_str(tvb, off, optlen));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "CID: %s ", tvb_bytes_to_str(wmem_packet_scope(), tvb, off, optlen));
         /* Fall through */
     case OPTION_SERVERID:
     case OPTION_RELAYID:

@@ -612,7 +612,7 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                              1 + 2 + name_length + 2 + value_length,
                              ett_ipp_attr, NULL, "%s: %s",
                              tvb_format_text(tvb, offset + 1 + 2, name_length),
-                             tvb_bytes_to_ep_str(tvb, offset + 1 + 2 + name_length + 2, value_length));
+                             tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 1 + 2 + name_length + 2, value_length));
 }
 
 static void

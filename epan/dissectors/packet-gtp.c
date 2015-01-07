@@ -5773,7 +5773,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             break;
     }
 
-    return tvb_bytes_to_ep_str(tvb, 0, length);
+    return tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, length);
 }
 
 /*

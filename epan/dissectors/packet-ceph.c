@@ -1810,7 +1810,7 @@ guint c_dissect_blob(proto_tree *root, int hf, int hf_data, int hf_len,
 	if (size)
 	{
 		proto_item_append_text(ti, ", Data: %s",
-				       tvb_bytes_to_ep_str(tvb, off+4, size));
+				       tvb_bytes_to_str(wmem_packet_scope(), tvb, off+4, size));
 	}
 
 	proto_tree_add_item(tree, hf_len,

@@ -491,8 +491,7 @@ sub generate_hfs {
 			} elsif (($args[5] =~ /tvb_get_ephemeral_string/) || 
 					 ($args[5] =~ /tvb_format_text/)){
 				$proto_tree_item[9] = "FT_STRING";
-			} elsif (($args[5] =~ /tvb_bytes_to_str/) ||
-					 ($args[5] =~ /tvb_bytes_to_ep_str/)) {
+			} elsif (($args[5] =~ /tvb_bytes_to_str/)) {
 				$proto_tree_item[9] = "FT_BYTES";
 			} elsif ($args[5] =~ /tvb_ether_to_str/) {
 				$proto_tree_item[9] = "FT_ETHER";

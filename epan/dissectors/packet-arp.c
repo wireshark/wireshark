@@ -373,7 +373,7 @@ tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
        address). */
     return tvb_ether_to_str(tvb, offset);
   }
-  return tvb_bytes_to_ep_str(tvb, offset, ad_len);
+  return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
 }
 
 static const gchar *

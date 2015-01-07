@@ -2392,7 +2392,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     proto_tree_add_item(tree, hf_gtpv2_f_teid_gre_key, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%s, TEID/GRE Key: 0x%s",
                            val_to_str_ext_const((flags & 0x3f), &gtpv2_f_teid_interface_type_vals_ext, "Unknown"),
-                           tvb_bytes_to_ep_str(tvb, offset, 4));
+                           tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 4));
 
     offset += 4;
     if (flags & 0x80)
@@ -3859,7 +3859,7 @@ dissect_gtpv2_p_tmsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 
     /* The TMSI consists of 4 octets. It can be coded using a full hexadecimal representation. */
     proto_tree_add_item(tree, hf_gtpv2_p_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_append_text(item, "%s", tvb_bytes_to_ep_str(tvb, offset, 4));
+    proto_item_append_text(item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 4));
 }
 
 /*
@@ -3872,7 +3872,7 @@ dissect_gtpv2_p_tmsi_sig(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     /* The P-TMSI Signature consists of 3 octets and may be allocated by the SGSN. */
     proto_tree_add_item(tree, hf_gtpv2_p_tmsi_sig, tvb, offset, 3, ENC_BIG_ENDIAN);
-    proto_item_append_text(item, "%s", tvb_bytes_to_ep_str(tvb, offset, 3));
+    proto_item_append_text(item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 3));
 
 }
 
@@ -4817,7 +4817,7 @@ dissect_gtpv2_mbms_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     int offset = 0;
     /* Two octets OctetString. */
     proto_tree_add_item(tree, hf_gtpv2_mbms_flow_id, tvb, offset, 2, ENC_NA);
-    proto_item_append_text(item, " %s", tvb_bytes_to_ep_str(tvb, offset, 2));
+    proto_item_append_text(item, " %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 2));
 
     offset += 2;
     if (length > 2)

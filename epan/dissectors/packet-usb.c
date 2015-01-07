@@ -2138,7 +2138,7 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_bytes_format(tree, hf_usb_get_descriptor_resp_generic, tvb, offset, len, NULL,
                                             "GET DESCRIPTOR Response data (unknown descriptor type %u): %s",
                                             usb_trans_info->u.get_descriptor.type,
-                                            tvb_bytes_to_ep_str(tvb, offset, len));
+                                            tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
                 offset = offset + len;
             }
             break;

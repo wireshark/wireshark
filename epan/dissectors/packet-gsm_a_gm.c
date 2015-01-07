@@ -5454,7 +5454,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 			switch (param) {
 			case 0x01:
 				proto_tree_add_text(tf_tree, tvb, curr_offset, pf_length, "Authorization token value: 0x%s",
-				                    tvb_bytes_to_ep_str(tvb, curr_offset, pf_length));
+				                    tvb_bytes_to_str(wmem_packet_scope(), tvb, curr_offset, pf_length));
 				break;
 
 			case 0x02:
@@ -5474,7 +5474,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 			default:
 				proto_tree_add_text(tf_tree, tvb, curr_offset, pf_length, "Parameter content: 0x%s",
-				                    tvb_bytes_to_ep_str(tvb, curr_offset, pf_length));
+				                    tvb_bytes_to_str(wmem_packet_scope(), tvb, curr_offset, pf_length));
 				break;
 			}
 			curr_offset += pf_length;

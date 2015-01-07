@@ -1622,7 +1622,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 break;
             case 51: /* Set AFH Map */
                 proto_tree_add_item(main_tree, hf_afh_map, tvb, offset, 10, ENC_NA);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", tvb_bytes_to_ep_str(tvb, offset, 10));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 10));
 
                 offset += 10;
                 break;

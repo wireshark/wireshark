@@ -502,7 +502,7 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
        will be appended if the string is too long. */
     Tvb tvb = checkTvb(L,1);
     int len = tvb_captured_length(tvb->ws_tvb);
-    char* str = tvb_bytes_to_wmem_str(NULL,tvb->ws_tvb,0,len);
+    char* str = tvb_bytes_to_str(NULL,tvb->ws_tvb,0,len);
 
     lua_pushfstring(L, "TVB(%d) : %s", len, str);
 
@@ -1566,7 +1566,7 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
         return 0;
     }
 
-    str = tvb_bytes_to_wmem_str(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
+    str = tvb_bytes_to_str(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
 
     lua_pushstring(L,str);
     wmem_free(NULL, str);

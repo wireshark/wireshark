@@ -1001,7 +1001,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s: %s",
 					    val_to_str_ext(tag, &comp_tlv_tag_vals_ext, "%02x"),
-					    (const guint8 *)tvb_bytes_to_ep_str(tvb, pos, len));
+					    (const guint8 *)tvb_bytes_to_str(wmem_packet_scope(), tvb, pos, len));
 #else
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s:   ",

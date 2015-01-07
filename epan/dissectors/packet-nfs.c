@@ -1607,7 +1607,7 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 			hash_item = proto_tree_add_text(tree, tvb, offset+4,
 							hashlen + 1,
 							"hash path: %s",
-							tvb_bytes_to_ep_str(tvb, offset+5, hashlen));
+							tvb_bytes_to_str(wmem_packet_scope(), tvb, offset+5, hashlen));
 			hash_tree = proto_item_add_subtree(hash_item,
 							   ett_nfs_fh_hp);
 			proto_tree_add_uint(hash_tree,
@@ -1616,7 +1616,7 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 			proto_tree_add_text(hash_tree, tvb, offset+5,
 					    hashlen,
 					    "key: %s",
-					    tvb_bytes_to_ep_str(tvb, offset+5, hashlen));
+					    tvb_bytes_to_str(wmem_packet_scope(), tvb, offset+5, hashlen));
 		}
 	}
 }

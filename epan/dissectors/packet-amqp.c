@@ -10546,7 +10546,7 @@ format_amqp_1_0_bin(tvbuff_t *tvb,
         return length;
     }
     AMQP_INCREMENT(offset, length, bound);
-    *value = tvb_bytes_to_ep_str(tvb, offset, bin_length);
+    *value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, bin_length);
     return (length+bin_length);
 }
 
@@ -10623,7 +10623,7 @@ format_amqp_0_10_bin(tvbuff_t *tvb,
                      guint offset, guint bound _U_, guint length,
                      const char **value)
 {
-    *value = tvb_bytes_to_ep_str(tvb, offset, length);
+    *value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length);
     return length;
 }
 
@@ -10708,7 +10708,7 @@ format_amqp_0_10_vbin(tvbuff_t *tvb,
         return length;
     }
     AMQP_INCREMENT(offset, length, bound);
-    *value = tvb_bytes_to_ep_str(tvb, offset, bin_length);
+    *value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, bin_length);
     AMQP_INCREMENT(offset, bin_length, bound);
     return (bin_length + length);
 }

@@ -142,7 +142,7 @@ isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *
     case 54:
         if ( length == 16 ) {
             proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
-                NULL, "hmac-md5 (54), password (length %d) = %s", length, tvb_bytes_to_ep_str(tvb, offset, length));
+                NULL, "hmac-md5 (54), password (length %d) = %s", length, tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length));
         } else {
             proto_tree_add_bytes_format( tree, hf_auth_bytes, tvb, offset, length,
                 NULL, "hmac-md5 (54), illegal hmac-md5 digest format (must be 16 bytes)");

@@ -850,13 +850,7 @@ WS_DLL_PUBLIC gchar *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *t
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data.
  */
-WS_DLL_PUBLIC gchar *tvb_bytes_to_ep_str(tvbuff_t *tvb, const gint offset,
-    const gint len);
-
-/**
- * Same as above, but using wmem memory management
- */
-WS_DLL_PUBLIC gchar *tvb_bytes_to_wmem_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
+WS_DLL_PUBLIC gchar *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb,
     const gint offset, const gint len);
 
 /**

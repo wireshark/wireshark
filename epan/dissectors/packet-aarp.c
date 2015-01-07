@@ -120,7 +120,7 @@ tvb_aarphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
        of address). */
     return tvb_ether_to_str(tvb, offset);
   }
-  return tvb_bytes_to_ep_str(tvb, offset, ad_len);
+  return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
 }
 
 static gchar *
@@ -130,7 +130,7 @@ tvb_aarpproaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
     /* Appletalk address.  */
     return tvb_atalkid_to_str(tvb, offset);
   }
-  return tvb_bytes_to_ep_str(tvb, offset, ad_len);
+  return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
 }
 
 /* Offsets of fields within an AARP packet. */

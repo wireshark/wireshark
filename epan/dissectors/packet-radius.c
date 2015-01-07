@@ -341,7 +341,7 @@ static const gchar *dissect_chap_password(proto_tree* tree, tvbuff_t* tvb, packe
 		chap_tree = proto_item_add_subtree(ti, ett_chap);
 		proto_tree_add_item(chap_tree, hf_radius_chap_ident, tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(chap_tree, hf_radius_chap_string, tvb, 1, 16, ENC_NA);
-	return (tvb_bytes_to_ep_str(tvb, 0, len));
+	return (tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, len));
 }
 
 static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
@@ -704,7 +704,7 @@ void radius_string(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 
 void radius_octets(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
-	proto_item_append_text(avp_item, "%s", tvb_bytes_to_ep_str(tvb, offset, len));
+	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
 }
 
 void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
@@ -831,7 +831,7 @@ void radius_date(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
  */
 void radius_abinary(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
-	proto_item_append_text(avp_item, "%s", tvb_bytes_to_ep_str(tvb, offset, len));
+	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
 }
 
 void radius_ether(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
@@ -846,7 +846,7 @@ void radius_ether(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U
 
 void radius_ifid(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
-	proto_item_append_text(avp_item, "%s", tvb_bytes_to_ep_str(tvb, offset, len));
+	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, len));
 }
 
 static void add_tlv_to_tree(proto_tree* tlv_tree, proto_item* tlv_item, packet_info* pinfo, tvbuff_t* tvb, radius_attr_info_t* dictionary_entry, guint32 tlv_length, guint32 offset) {

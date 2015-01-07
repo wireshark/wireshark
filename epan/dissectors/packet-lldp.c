@@ -1198,7 +1198,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 			break;
 		default:
-			strPtr = tvb_bytes_to_ep_str(tvb, offset, (dataLen-2));
+			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-2));
 			proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, offset, (dataLen-2), ENC_NA);
 
 			break;
@@ -1231,7 +1231,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		case 1: /* Chassis component */
 		case 3: /* Port component */
-			strPtr = tvb_bytes_to_ep_str(tvb, offset, (dataLen-1));
+			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
 
 			break;
 		default:
@@ -1350,7 +1350,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
 			break;
 		default:
-			strPtr = tvb_bytes_to_ep_str(tvb, offset, (dataLen-2));
+			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-2));
 			proto_tree_add_item(port_tree, hf_port_id, tvb, offset, (dataLen-2), ENC_ASCII|ENC_NA);
 
 			break;
@@ -1374,7 +1374,7 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 		switch (tlvsubType)
 		{
 		case 2: /* Port component */
-			strPtr = tvb_bytes_to_ep_str(tvb, offset, (dataLen-1));
+			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
 			break;
 		case 1: /* Interface alias */
 		case 5: /* Interface name */

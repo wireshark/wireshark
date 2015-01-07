@@ -2363,7 +2363,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                               tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l*2 + 2,
                                                                "textitem (string): delta = %d, %s",
                                                                delta,
-                                                               tvb_bytes_to_ep_str(tvb, *offsetp + 2, l*2));
+                                                               tvb_bytes_to_str(wmem_packet_scope(), tvb, *offsetp + 2, l*2));
                               ttt = proto_item_add_subtree(tti, ett_x11_text_item);
                               proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, byte_order);
                               proto_tree_add_item(ttt, hf_x11_textitem_string_string16_bytes, tvb, *offsetp + 2, l*2, byte_order);
