@@ -1061,7 +1061,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 opt_len = tlv_len;
                 if (tlv_len == 3) {
                     proto_item_append_text(ti, "%s",
-                        tvb_bytes_to_ep_str_punct(tvb, sub_off, 3, ':'));
+                        tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, sub_off, 3, ':'));
                 } else if (tlv_len == 6) {
                     proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(tvb, sub_off, tlv_len));
                 } else {
@@ -1210,7 +1210,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 }
                 else {
                     /*proto_item_append_text(ti, "CM MAC Address Option = %s", */
-                    proto_item_append_text(ti, "%s", tvb_bytes_to_ep_str_punct(tvb, sub_off, opt_len, ':'));
+                    proto_item_append_text(ti, "%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, sub_off, opt_len, ':'));
                     /* tvb_bytes_to_ep_str(tvb, sub_off, opt_len)); */
                 }
                 break;

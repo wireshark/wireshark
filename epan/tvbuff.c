@@ -3405,9 +3405,9 @@ tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8 ch)
  * separator.
  */
 gchar *
-tvb_bytes_to_ep_str_punct(tvbuff_t *tvb, const gint offset, const gint len, const gchar punct)
+tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint len, const gchar punct)
 {
-	return bytes_to_ep_str_punct(ensure_contiguous(tvb, offset, len), len, punct);
+	return (gchar*)bytestring_to_str(scope, ensure_contiguous(tvb, offset, len), len, punct);
 }
 
 

@@ -241,7 +241,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     col_add_fstr(pinfo->cinfo, COL_INFO, "PGN: %d", pgn);
 
     /* For now just include raw bytes */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_ep_str_punct(tvb, 0, data_length, ' '));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, 0, data_length, ' '));
 
     msg_tree = proto_tree_add_subtree(j1939_tree, tvb, 0, -1, ett_j1939_message, NULL, "Message");
 

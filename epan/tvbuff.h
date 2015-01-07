@@ -843,7 +843,7 @@ WS_DLL_PUBLIC gint tvb_memeql(tvbuff_t *tvb, const gint offset,
  * to the string with the formatted data, with "punct" as a byte
  * separator.
  */
-WS_DLL_PUBLIC gchar *tvb_bytes_to_ep_str_punct(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC gchar *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
     const gint len, const gchar punct);
 
 /**

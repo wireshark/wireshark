@@ -155,6 +155,9 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct)
 	return out;
 }
 
+/* Max string length for displaying byte string.  */
+#define	MAX_BYTE_STR_LEN	48
+
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
  * digits at at a time, with a specified punctuation character between
  * the bytes.
@@ -166,7 +169,12 @@ const gchar *
 bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct)
 {
 	gchar *buf;
-	size_t buflen;
+	size_t buflen = len;
+	gchar *buf_ptr;
+	int truncated = 0;
+
+	if (!punct)
+		return bytes_to_str(scope, ad, len);
 
 	if (!ad)
 		REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_str()");
@@ -174,24 +182,22 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, 
 	if (len == 0)
 		return wmem_strdup(scope, "");
 
-	if (punct)
-		buflen=len*3;
-	else
-		buflen=len*2 + 1;
+	buf=(gchar *)wmem_alloc(scope, MAX_BYTE_STR_LEN+3+1);
+	if (buflen > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
+		truncated = 1;
+		buflen = MAX_BYTE_STR_LEN/3;
+	}
 
-	buf=(gchar *)wmem_alloc(scope, buflen);
+	buf_ptr = bytes_to_hexstr_punct(buf, ad, buflen, punct); /* max MAX_BYTE_STR_LEN-1 bytes */
 
-	if (punct)
-		bytes_to_hexstr_punct(buf, ad, len, punct);
-	else
-		bytes_to_hexstr(buf, ad, len);
+	if (truncated) {
+		*buf_ptr++ = punct;			/* 1 byte */
+		buf_ptr    = g_stpcpy(buf_ptr, "...");	/* 3 bytes */
+	}
 
-	buf[buflen-1] = '\0';
+	*buf_ptr = '\0';
 	return buf;
 }
-
-/* Max string length for displaying byte string.  */
-#define	MAX_BYTE_STR_LEN	48
 
 gchar *
 bytes_to_ep_str(const guint8 *bd, int bd_len)

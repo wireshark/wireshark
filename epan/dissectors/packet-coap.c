@@ -296,7 +296,7 @@ dissect_coap_opt_hex_string(tvbuff_t *tvb, proto_item *item, proto_tree *subtree
 	if (opt_length == 0)
 		str = nullstr;
 	else
-		str = tvb_bytes_to_ep_str_punct(tvb, offset, opt_length, ' ');
+		str = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, opt_length, ' ');
 
 	proto_tree_add_item(subtree, hf, tvb, offset, opt_length, ENC_NA);
 
@@ -846,7 +846,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	coap_token_str = NULL;
 	if (token_len > 0)
 	{
-		coap_token_str = tvb_bytes_to_ep_str_punct(tvb, offset, token_len, ' ');
+		coap_token_str = tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, offset, token_len, ' ');
 		proto_tree_add_item(coap_tree, hf_coap_token,
 				    tvb, offset, token_len, ENC_NA);
 		offset += token_len;
