@@ -78,7 +78,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  bytes_to_ep_str@Base 1.12.0~rc1
  bytes_to_ep_str_punct@Base 1.12.0~rc1
  bytes_to_str@Base 1.99.2
- bytestring_to_ep_str@Base 1.12.0~rc1
  bytestring_to_str@Base 1.9.1
  call_ber_oid_callback@Base 1.9.1
  call_dissector@Base 1.9.1

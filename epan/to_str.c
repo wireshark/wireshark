@@ -163,38 +163,6 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct)
  * the resulting string is (len-1) bytes shorter)
  */
 const gchar *
-bytestring_to_ep_str(const guint8 *ad, const guint32 len, const char punct)
-{
-	gchar *buf;
-	size_t       buflen;
-
-	if (!ad)
-		REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_ep_str()");
-
-	/* XXX, Old code was using int as iterator... Why len is guint32 anyway?! (darkjames) */
-	if ( ((int) len) < 0)
-		return "";
-
-	if (!len)
-		return "";
-
-	if (punct)
-		buflen=len*3;
-	else
-		buflen=len*2 + 1;
-
-	buf=(gchar *)ep_alloc(buflen);
-
-	if (punct)
-		bytes_to_hexstr_punct(buf, ad, len, punct);
-	else
-		bytes_to_hexstr(buf, ad, len);
-
-	buf[buflen-1] = '\0';
-	return buf;
-}
-
-const gchar *
 bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct)
 {
 	gchar *buf;

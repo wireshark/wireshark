@@ -203,11 +203,11 @@ ipx_addr_to_str(const guint32 net, const guint8 *ad)
     name = get_ether_name_if_known(ad);
 
     if (name) {
-        buf = ep_strdup_printf("%s.%s", get_ipxnet_name(net), name);
+        buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(net), name);
     }
     else {
-        buf = ep_strdup_printf("%s.%s", get_ipxnet_name(net),
-            bytestring_to_ep_str(ad, 6, '\0'));
+        buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(net),
+            bytestring_to_str(wmem_packet_scope(), ad, 6, '\0'));
     }
     return buf;
 }

@@ -199,7 +199,9 @@ extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_l
 		D(3,("\tOid (from encoded): %s %s ",name, oid_subid2string(subids,subids_len)));
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,subids_len,subids);
 	} else {
-		D(1,("Failed to add Oid: %s [%d]%s ",name?name:"NULL", oid_len,bytestring_to_ep_str(oid, oid_len, ':')));
+		gchar* bytestr = (gchar*)bytestring_to_str(NULL, oid, oid_len, ':');
+		D(1,("Failed to add Oid: %s [%d]%s ",name?name:"NULL", oid_len, bytestr));
+		wmem_free(NULL, bytestr);
 	}
 }
 
@@ -1283,10 +1285,10 @@ char* oid_test_a2b(guint32 num_subids, guint32* subids) {
 							"oid_string2encoded=[%d]%s \n"
 							"oid_string2subid=%s \n "
 							,sub2str
-							,sub2enc_len,bytestring_to_ep_str(sub2enc, sub2enc_len, ':')
+							,sub2enc_len,bytestring_to_str(wmem_packet_scope(), sub2enc, sub2enc_len, ':')
 							,enc2sub ? oid_subid2string(enc2sub,enc2sub_len) : "-"
 							,enc2str
-							,str2enc_len,bytestring_to_ep_str(str2enc, str2enc_len, ':')
+							,str2enc_len,bytestring_to_str(wmem_packet_scope(), str2enc, str2enc_len, ':')
 							,str2sub ? oid_subid2string(str2sub,str2sub_len) : "-"
 							);
 }
