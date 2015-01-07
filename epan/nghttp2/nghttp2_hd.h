@@ -33,6 +33,7 @@
 
 #include "nghttp2_hd_huffman.h"
 #include "nghttp2_buf.h"
+#include "nghttp2_mem.h"
 
 #define NGHTTP2_HD_DEFAULT_MAX_BUFFER_SIZE NGHTTP2_DEFAULT_HEADER_TABLE_SIZE
 #define NGHTTP2_HD_ENTRY_OVERHEAD 32
@@ -109,6 +110,8 @@ typedef enum {
 typedef struct {
   /* dynamic header table */
   nghttp2_hd_ringbuf hd_table;
+  /* Memory allocator */
+  nghttp2_mem *mem;
   /* Abstract buffer size of hd_table as described in the spec. This
      is the sum of length of name/value in hd_table +
      NGHTTP2_HD_ENTRY_OVERHEAD bytes overhead per each entry. */
@@ -185,9 +188,10 @@ struct nghttp2_hd_inflater {
  */
 int nghttp2_hd_entry_init(nghttp2_hd_entry *ent, uint8_t flags, uint8_t *name,
                           size_t namelen, uint8_t *value, size_t valuelen,
-                          uint32_t name_hash, uint32_t value_hash);
+                          uint32_t name_hash, uint32_t value_hash,
+                          nghttp2_mem *mem);
 
-void nghttp2_hd_entry_free(nghttp2_hd_entry *ent);
+void nghttp2_hd_entry_free(nghttp2_hd_entry *ent, nghttp2_mem *mem);
 
 /*
  * Initializes |deflater| for deflating name/values pairs.
@@ -203,7 +207,7 @@ void nghttp2_hd_entry_free(nghttp2_hd_entry *ent);
  * NGHTTP2_ERR_NOMEM
  *     Out of memory.
  */
-int nghttp2_hd_deflate_init(nghttp2_hd_deflater *deflater);
+int nghttp2_hd_deflate_init(nghttp2_hd_deflater *deflater, nghttp2_mem *mem);
 
 /*
  * Initializes |deflater| for deflating name/values pairs.
@@ -219,7 +223,8 @@ int nghttp2_hd_deflate_init(nghttp2_hd_deflater *deflater);
  *     Out of memory.
  */
 int nghttp2_hd_deflate_init2(nghttp2_hd_deflater *deflater,
-                             size_t deflate_hd_table_bufsize_max);
+                             size_t deflate_hd_table_bufsize_max,
+                             nghttp2_mem *mem);
 
 /*
  * Deallocates any resources allocated for |deflater|.
@@ -259,7 +264,7 @@ int nghttp2_hd_deflate_hd_bufs(nghttp2_hd_deflater *deflater,
  * :enum:`NGHTTP2_ERR_NOMEM`
  *     Out of memory.
  */
-int nghttp2_hd_inflate_init(nghttp2_hd_inflater *inflater);
+int nghttp2_hd_inflate_init(nghttp2_hd_inflater *inflater, nghttp2_mem *mem);
 
 /*
  * Deallocates any resources allocated for |inflater|.

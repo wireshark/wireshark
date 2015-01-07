@@ -1518,6 +1518,7 @@ set(NGHTTP2_FILES
 	nghttp2/nghttp2_hd_huffman.c
 	nghttp2/nghttp2_hd_huffman_data.c
 	nghttp2/nghttp2_helper.c
+	nghttp2/nghttp2_mem.c
 )
 source_group(nghttp2 FILES ${NGHTTP2_FILES})
 

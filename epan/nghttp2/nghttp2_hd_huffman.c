@@ -44,56 +44,72 @@ static ssize_t huff_encode_sym(nghttp2_bufs *bufs, size_t *avail_ptr,
                                size_t rembits, const nghttp2_huff_sym *sym) {
   int rv;
   size_t nbits = sym->nbits;
+  uint32_t code = sym->code;
 
-  for (;;) {
-    if (rembits > nbits) {
-      if (*avail_ptr) {
-        nghttp2_bufs_fast_orb_hold(bufs, sym->code << (rembits - nbits));
-      } else {
-        rv = nghttp2_bufs_orb_hold(bufs, sym->code << (rembits - nbits));
-        if (rv != 0) {
-          return rv;
-        }
-
-        *avail_ptr = nghttp2_bufs_cur_avail(bufs);
-      }
-
-      rembits -= nbits;
-
-      break;
-    }
-
-    if (*avail_ptr) {
-      nghttp2_bufs_fast_orb(bufs, sym->code >> (nbits - rembits));
-      --*avail_ptr;
-    } else {
-      rv = nghttp2_bufs_orb(bufs, sym->code >> (nbits - rembits));
-      if (rv != 0) {
-        return rv;
-      }
-
-      *avail_ptr = nghttp2_bufs_cur_avail(bufs);
-    }
-
-    nbits -= rembits;
-    rembits = 8;
-
-    if (nbits == 0) {
-      break;
-    }
-
-    if (*avail_ptr) {
-      nghttp2_bufs_fast_addb_hold(bufs, 0);
-    } else {
-      rv = nghttp2_bufs_addb_hold(bufs, 0);
-      if (rv != 0) {
-        return rv;
-      }
-
-      *avail_ptr = nghttp2_bufs_cur_avail(bufs);
-    }
+  /* We assume that sym->nbits <= 32 */
+  if (rembits > nbits) {
+    nghttp2_bufs_fast_orb_hold(bufs, code << (rembits - nbits));
+    return (ssize_t)(rembits - nbits);
   }
-  return (ssize_t)rembits;
+
+  if (rembits == nbits) {
+    nghttp2_bufs_fast_orb(bufs, code);
+    --*avail_ptr;
+    return 8;
+  }
+
+  nghttp2_bufs_fast_orb(bufs, code >> (nbits - rembits));
+  --*avail_ptr;
+
+  nbits -= rembits;
+  if (nbits & 0x7) {
+    /* align code to MSB byte boundary */
+    code <<= 8 - (nbits & 0x7);
+  }
+
+  /* we lose at most 3 bytes, but it is not critical in practice */
+  if (*avail_ptr < (nbits + 7) / 8) {
+    rv = nghttp2_bufs_advance(bufs);
+    if (rv != 0) {
+      return rv;
+    }
+    *avail_ptr = nghttp2_bufs_cur_avail(bufs);
+    /* we assume that we at least 3 buffer space available */
+    assert(*avail_ptr >= 3);
+  }
+
+  /* fast path, since most code is less than 8 */
+  if (nbits < 8) {
+    nghttp2_bufs_fast_addb_hold(bufs, code);
+    *avail_ptr = nghttp2_bufs_cur_avail(bufs);
+    return (ssize_t)(8 - nbits);
+  }
+
+  /* handle longer code path */
+  if (nbits > 24) {
+    nghttp2_bufs_fast_addb(bufs, code >> 24);
+    nbits -= 8;
+  }
+
+  if (nbits > 16) {
+    nghttp2_bufs_fast_addb(bufs, code >> 16);
+    nbits -= 8;
+  }
+
+  if (nbits > 8) {
+    nghttp2_bufs_fast_addb(bufs, code >> 8);
+    nbits -= 8;
+  }
+
+  if (nbits == 8) {
+    nghttp2_bufs_fast_addb(bufs, code);
+    *avail_ptr = nghttp2_bufs_cur_avail(bufs);
+    return 8;
+  }
+
+  nghttp2_bufs_fast_addb_hold(bufs, code);
+  *avail_ptr = nghttp2_bufs_cur_avail(bufs);
+  return (ssize_t)(8 - nbits);
 }
 
 size_t nghttp2_hd_huff_encode_count(const uint8_t *src, size_t len) {
@@ -136,17 +152,12 @@ int nghttp2_hd_huff_encode(nghttp2_bufs *bufs, const uint8_t *src,
   }
   /* 256 is special terminal symbol, pad with its prefix */
   if (rembits < 8) {
+    /* if rembits < 8, we should have at least 1 buffer space
+       available */
     const nghttp2_huff_sym *sym = &huff_sym_table[256];
-
+    assert(avail);
     /* Caution we no longer adjust avail here */
-    if (avail) {
-      nghttp2_bufs_fast_orb(bufs, sym->code >> (sym->nbits - rembits));
-    } else {
-      rv = nghttp2_bufs_orb(bufs, sym->code >> (sym->nbits - rembits));
-      if (rv != 0) {
-        return rv;
-      }
-    }
+    nghttp2_bufs_fast_orb(bufs, sym->code >> (sym->nbits - rembits));
   }
 
   return 0;

@@ -1689,6 +1689,101 @@ void nghttp2_session_callbacks_set_on_begin_frame_callback(
     nghttp2_session_callbacks *cbs,
     nghttp2_on_begin_frame_callback on_begin_frame_callback);
 
+/**
+ * @functypedef
+ *
+ * Custom memory allocator to replace malloc().  The |mem_user_data|
+ * is the mem_user_data member of :type:`nghttp2_mem` structure.
+ */
+typedef void *(*nghttp2_malloc)(size_t size, void *mem_user_data);
+
+/**
+ * @functypedef
+ *
+ * Custom memory allocator to replace free().  The |mem_user_data| is
+ * the mem_user_data member of :type:`nghttp2_mem` structure.
+ */
+typedef void (*nghttp2_free)(void *ptr, void *mem_user_data);
+
+/**
+ * @functypedef
+ *
+ * Custom memory allocator to replace calloc().  The |mem_user_data|
+ * is the mem_user_data member of :type:`nghttp2_mem` structure.
+ */
+typedef void *(*nghttp2_calloc)(size_t nmemb, size_t size, void *mem_user_data);
+
+/**
+ * @functypedef
+ *
+ * Custom memory allocator to replace realloc().  The |mem_user_data|
+ * is the mem_user_data member of :type:`nghttp2_mem` structure.
+ */
+typedef void *(*nghttp2_realloc)(void *ptr, size_t size, void *mem_user_data);
+
+/**
+ * @struct
+ *
+ * Custom memory allocator functions and user defined pointer.  The
+ * |mem_user_data| member is passed to each allocator function.  This
+ * can be used, for example, to achieve per-session memory pool.
+ *
+ * In the following example code, ``my_malloc``, ``my_free``,
+ * ``my_calloc`` and ``my_realloc`` are the replacement of the
+ * standard allocators ``malloc``, ``free``, ``calloc`` and
+ * ``realloc`` respectively::
+ *
+ *     void *my_malloc_cb(size_t size, void *mem_user_data) {
+ *       return my_malloc(size);
+ *     }
+ *
+ *     void my_free_cb(void *ptr, void *mem_user_data) { my_free(ptr); }
+ *
+ *     void *my_calloc_cb(size_t nmemb, size_t size, void *mem_user_data) {
+ *       return my_calloc(nmemb, size);
+ *     }
+ *
+ *     void *my_realloc_cb(void *ptr, size_t size, void *mem_user_data) {
+ *       return my_realloc(ptr, size);
+ *     }
+ *
+ *     void session_new() {
+ *       nghttp2_session *session;
+ *       nghttp2_session_callbacks *callbacks;
+ *       nghttp2_mem mem = {NULL, my_malloc_cb, my_free_cb, my_calloc_cb,
+ *                          my_realloc_cb};
+ *
+ *       ...
+ *
+ *       nghttp2_session_client_new3(&session, callbacks, NULL, NULL, &mem);
+ *
+ *       ...
+ *     }
+ */
+typedef struct {
+  /**
+   * An arbitrary user supplied data.  This is passed to each
+   * allocator function.
+   */
+  void *mem_user_data;
+  /**
+   * Custom allocator function to replace malloc().
+   */
+  nghttp2_malloc malloc;
+  /**
+   * Custom allocator function to replace free().
+   */
+  nghttp2_free free;
+  /**
+   * Custom allocator function to replace calloc().
+   */
+  nghttp2_calloc calloc;
+  /**
+   * Custom allocator function to replace realloc().
+   */
+  nghttp2_realloc realloc;
+} nghttp2_mem;
+
 struct nghttp2_option;
 
 /**
@@ -1870,6 +1965,58 @@ int nghttp2_session_client_new2(nghttp2_session **session_ptr,
 int nghttp2_session_server_new2(nghttp2_session **session_ptr,
                                 const nghttp2_session_callbacks *callbacks,
                                 void *user_data, const nghttp2_option *option);
+
+/**
+ * @function
+ *
+ * Like `nghttp2_session_client_new2()`, but with additional custom
+ * memory allocator specified in the |mem|.
+ *
+ * The |mem| can be ``NULL`` and the call is equivalent to
+ * `nghttp2_session_client_new2()`.
+ *
+ * This function does not take ownership |mem|.  The application is
+ * responsible for freeing |mem|.
+ *
+ * The library code does not refer to |mem| pointer after this
+ * function returns, so the application can safely free it.
+ *
+ * This function returns 0 if it succeeds, or one of the following
+ * negative error codes:
+ *
+ * :enum:`NGHTTP2_ERR_NOMEM`
+ *     Out of memory.
+ */
+int nghttp2_session_client_new3(nghttp2_session **session_ptr,
+                                const nghttp2_session_callbacks *callbacks,
+                                void *user_data, const nghttp2_option *option,
+                                nghttp2_mem *mem);
+
+/**
+ * @function
+ *
+ * Like `nghttp2_session_server_new2()`, but with additional custom
+ * memory allocator specified in the |mem|.
+ *
+ * The |mem| can be ``NULL`` and the call is equivalent to
+ * `nghttp2_session_server_new2()`.
+ *
+ * This function does not take ownership |mem|.  The application is
+ * responsible for freeing |mem|.
+ *
+ * The library code does not refer to |mem| pointer after this
+ * function returns, so the application can safely free it.
+ *
+ * This function returns 0 if it succeeds, or one of the following
+ * negative error codes:
+ *
+ * :enum:`NGHTTP2_ERR_NOMEM`
+ *     Out of memory.
+ */
+int nghttp2_session_server_new3(nghttp2_session **session_ptr,
+                                const nghttp2_session_callbacks *callbacks,
+                                void *user_data, const nghttp2_option *option,
+                                nghttp2_mem *mem);
 
 /**
  * @function
@@ -2325,6 +2472,32 @@ uint32_t nghttp2_session_get_remote_settings(nghttp2_session *session,
 /**
  * @function
  *
+ * Tells the |session| that next stream ID is |next_stream_id|.  The
+ * |next_stream_id| must be equal or greater than the value returned
+ * by `nghttp2_session_get_next_stream_id()`.
+ *
+ * This function returns 0 if it succeeds, or one of the following
+ * negative error codes:
+ *
+ * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
+ *     The |next_stream_id| is strictly less than the value
+ *     `nghttp2_session_get_next_stream_id()` returns.
+ */
+int nghttp2_session_set_next_stream_id(nghttp2_session *session,
+                                       int32_t next_stream_id);
+
+/**
+ * @function
+ *
+ * Returns the next outgoing stream ID.  Notice that return type is
+ * uint32_t.  If we run out of stream ID for this session, this
+ * function returns 1 << 31.
+ */
+uint32_t nghttp2_session_get_next_stream_id(nghttp2_session *session);
+
+/**
+ * @function
+ *
  * Tells the |session| that |size| bytes for a stream denoted by
  * |stream_id| were consumed by application and are ready to
  * WINDOW_UPDATE.  This function is intended to be used without
@@ -2555,6 +2728,12 @@ int32_t nghttp2_submit_request(nghttp2_session *session,
  *     Out of memory.
  * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
  *     The |stream_id| is 0.
+ *
+ * .. warning::
+ *
+ *   Calling this function twice for the same stream ID may lead to
+ *   program crash.  It is generally considered to a programming error
+ *   to commit response twice.
  */
 int nghttp2_submit_response(nghttp2_session *session, int32_t stream_id,
                             const nghttp2_nv *nva, size_t nvlen,
@@ -2931,32 +3110,9 @@ int nghttp2_submit_window_update(nghttp2_session *session, uint8_t flags,
 /**
  * @function
  *
- * Submits ALTSVC frame with given parameters.
- *
- * The |flags| is currently ignored and should be
- * :enum:`NGHTTP2_FLAG_NONE`.
- *
- * Only the server can send the ALTSVC frame.  If |session| is
- * initialized as client, this function fails and returns
- * :enum:`NGHTTP2_ERR_PROTO`.
- *
- * If the |protocol_id_len| is 0, the |protocol_id| could be ``NULL``.
- *
- * If the |host_len| is 0, the |host| could be ``NULL``.
- *
- * If the |origin_len| is 0, the |origin| could be ``NULL``.
- *
- * This function returns 0 if it succeeds, or one of the following
- * negative error codes:
- *
- * :enum:`NGHTTP2_ERR_NOMEM`
- *     Out of memory.
- * :enum:`NGHTTP2_ERR_PROTO`
- *     The function is invoked with |session| which was initialized as
- *     client.
- * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
- *     The combined length of |protocol_id_len|, |host_len| and
- *     |origin_len| is is too large.
+ * This function previously submits ALTSVC frame with given
+ * parameters, but is deprecated and will be removed in a future
+ * release.  This function does nothing and just return 0.
  */
 int nghttp2_submit_altsvc(nghttp2_session *session, uint8_t flags,
                           int32_t stream_id, uint32_t max_age, uint16_t port,
@@ -3107,6 +3263,25 @@ int nghttp2_hd_deflate_new(nghttp2_hd_deflater **deflater_ptr,
 /**
  * @function
  *
+ * Like `nghttp2_hd_deflate_new()`, but with additional custom memory
+ * allocator specified in the |mem|.
+ *
+ * The |mem| can be ``NULL`` and the call is equivalent to
+ * `nghttp2_hd_deflate_new()`.
+ *
+ * This function does not take ownership |mem|.  The application is
+ * responsible for freeing |mem|.
+ *
+ * The library code does not refer to |mem| pointer after this
+ * function returns, so the application can safely free it.
+ */
+int nghttp2_hd_deflate_new2(nghttp2_hd_deflater **deflater_ptr,
+                            size_t deflate_hd_table_bufsize_max,
+                            nghttp2_mem *mem);
+
+/**
+ * @function
+ *
  * Deallocates any resources allocated for |deflater|.
  */
 void nghttp2_hd_deflate_del(nghttp2_hd_deflater *deflater);
@@ -3200,6 +3375,24 @@ typedef struct nghttp2_hd_inflater nghttp2_hd_inflater;
  *     Out of memory.
  */
 int nghttp2_hd_inflate_new(nghttp2_hd_inflater **inflater_ptr);
+
+/**
+ * @function
+ *
+ * Like `nghttp2_hd_inflate_new()`, but with additional custom memory
+ * allocator specified in the |mem|.
+ *
+ * The |mem| can be ``NULL`` and the call is equivalent to
+ * `nghttp2_hd_inflate_new()`.
+ *
+ * This function does not take ownership |mem|.  The application is
+ * responsible for freeing |mem|.
+ *
+ * The library code does not refer to |mem| pointer after this
+ * function returns, so the application can safely free it.
+ */
+int nghttp2_hd_inflate_new2(nghttp2_hd_inflater **inflater_ptr,
+                            nghttp2_mem *mem);
 
 /**
  * @function

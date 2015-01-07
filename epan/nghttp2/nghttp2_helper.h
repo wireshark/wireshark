@@ -28,6 +28,7 @@
 #include <config.h>
 
 #include <nghttp2.h>
+#include "nghttp2_mem.h"
 
 #define nghttp2_min(A, B) ((A) < (B) ? (A) : (B))
 #define nghttp2_max(A, B) ((A) > (B) ? (A) : (B))
@@ -66,7 +67,7 @@ uint32_t nghttp2_get_uint32(const uint8_t *data);
  * NGHTTP2_ERR_NOMEM
  *     Out of memory.
  */
-void *nghttp2_memdup(const void *src, size_t n);
+void *nghttp2_memdup(const void *src, size_t n, nghttp2_mem *mem);
 
 void nghttp2_downcase(uint8_t *s, size_t len);
 
@@ -96,14 +97,6 @@ int nghttp2_adjust_local_window_size(int32_t *local_window_size_ptr,
  */
 int nghttp2_should_send_window_update(int32_t local_window_size,
                                       int32_t recv_window_size);
-
-/*
- * Deallocates memory space pointed by |ptr|. This function exists for
- * the application to free the memory space allocated by the library
- * functions. Currently this function is hidden from the public API,
- * but may be exposed as public API.
- */
-void nghttp2_free(void *ptr);
 
 /*
  * Copies the buffer |src| of length |len| to the destination pointed

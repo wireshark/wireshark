@@ -26,7 +26,8 @@ LIBNGHTTP2_SRC =			\
 	nghttp2_hd.c			\
 	nghttp2_hd_huffman.c		\
 	nghttp2_hd_huffman_data.c	\
-	nghttp2_helper.c
+	nghttp2_helper.c		\
+	nghttp2_mem.c
 
 LIBNGHTTP2_INCLUDES =			\
 	nghttp2_buf.h			\
@@ -34,6 +35,7 @@ LIBNGHTTP2_INCLUDES =			\
 	nghttp2_hd_huffman.h		\
 	nghttp2_helper.h		\
 	nghttp2_int.h			\
+	nghttp2_mem.h			\
 	nghttp2_net.h			\
 	nghttp2.h			\
 	nghttp2ver.h
