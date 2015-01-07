@@ -420,7 +420,7 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     case AT_ARCNET:
     case AT_J1939:
         addr.len = 1;
-        addr.data = GUINT_TO_POINTER(tvb_get_guint8(tvb, offset));
+        addr.data = GUINT_TO_POINTER((guint)tvb_get_guint8(tvb, offset));
         break;
     case AT_DEVICENET:
         addr.len = 1;
