@@ -29,7 +29,6 @@ LIBWIRESHARK_SRC =		\
 	aftypes.c		\
 	app_mem_usage.c		\
 	asn1.c			\
-	atalk-utils.c		\
 	charsets.c		\
 	circuit.c		\
 	color_dissector_filters.c	\
@@ -157,7 +156,6 @@ LIBWIRESHARK_INCLUDES =		\
 	arcnet_pids.h		\
 	arptypes.h		\
 	asn1.h			\
-	atalk-utils.h		\
 	ax25_pids.h		\
 	bridged_pids.h		\
 	charsets.h		\

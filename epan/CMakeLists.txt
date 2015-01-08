@@ -1549,7 +1549,6 @@ set(LIBWIRESHARK_FILES
 	aftypes.c
 	app_mem_usage.c
 	asn1.c
-	atalk-utils.c
 	charsets.c
 	circuit.c
 	column.c

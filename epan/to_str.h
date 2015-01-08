@@ -68,6 +68,7 @@ void	ip6_to_str_buf(const struct e_in6_addr *, gchar *);
 extern gchar*	ipx_addr_to_str(const guint32, const guint8 *);
 extern gchar*	ipxnet_to_str_punct(const guint32 ad, const char punct);
 WS_DLL_PUBLIC gchar*	eui64_to_str(const guint64 ad);
+
 WS_DLL_PUBLIC gchar*	time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val);
 gchar*	time_secs_to_str_unsigned(wmem_allocator_t *scope, const guint32);
 WS_DLL_PUBLIC gchar*	time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val);
@@ -93,6 +94,20 @@ WS_DLL_PUBLIC char	*decode_bitfield_value(char *buf, const guint64 val, const gu
     const int width);
 
 WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
+
+/*
+ * Routines to take a DDP address and generate a string.
+ */
+/*
+ * Structure used to represent a DDP address; gives the layout of the
+ * data pointed to by an AT_ATALK "address" structure.
+ */
+struct atalk_ddp_addr {
+	guint16	net;
+	guint8	node;
+};
+
+extern gchar *atalk_addr_to_str(const struct atalk_ddp_addr *addrp);
 
 /** Turn an address type retrieved from a tvb into a string.
  *

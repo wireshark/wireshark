@@ -28,7 +28,6 @@
 #include "column-utils.h"
 #include "timestamp.h"
 #include "sna-utils.h"
-#include "atalk-utils.h"
 #include "to_str.h"
 #include "packet_info.h"
 #include "wsutil/pint.h"

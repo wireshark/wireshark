@@ -31,10 +31,10 @@
 #include <epan/ppptypes.h>
 #include <epan/aftypes.h>
 #include <epan/arcnet_pids.h>
-#include <epan/atalk-utils.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/to_str.h>
 #include <wiretap/wtap.h>
 #include "packet-atalk.h"
 #include "packet-afp.h"

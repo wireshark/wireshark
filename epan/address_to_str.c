@@ -55,7 +55,6 @@
 #include "addr_resolv.h"
 #include "wsutil/pint.h"
 #include "wsutil/str_util.h"
-#include "atalk-utils.h"
 #include "sna-utils.h"
 #include "osi-utils.h"
 #include <epan/dissectors/packet-mtp3.h>
@@ -357,6 +356,22 @@ fcwwn_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
         *ethptr = '\0';
         break;
     }
+}
+
+static void
+atalk_addr_to_str_buf(const struct atalk_ddp_addr *addrp, gchar *buf, int buf_len)
+{
+  g_snprintf(buf, buf_len, "%u.%u", addrp->net, addrp->node );
+}
+
+gchar *
+atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
+{
+  gchar *cur;
+
+  cur=(gchar *)wmem_alloc(wmem_packet_scope(), 14);
+  atalk_addr_to_str_buf(addrp, cur, 14);
+  return cur;
 }
 
 gchar*
