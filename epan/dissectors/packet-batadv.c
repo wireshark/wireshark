@@ -1721,7 +1721,6 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	orig_addr = tvb_get_ptr(tvb, offset, 6);
 	TVB_SET_ADDRESS(&iv_ogm_packeth->orig, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset, 6);
@@ -2408,7 +2407,6 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	dst_addr = tvb_get_ptr(tvb, offset, 6);
 	TVB_SET_ADDRESS(&icmp_packeth->dst, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, offset, 6);
@@ -2417,7 +2415,6 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    6, ENC_NA);
 	offset += 6;
 
-	orig_addr = tvb_get_ptr(tvb, offset, 6);
 	TVB_SET_ADDRESS(&icmp_packeth->orig, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset, 6);
@@ -3009,7 +3006,6 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	dest_addr = tvb_get_ptr(tvb, offset, 6);
 	TVB_SET_ADDRESS(&unicast_frag_packeth->dest, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, offset, 6);
@@ -3914,7 +3910,6 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 	/* Skip 1 byte of padding. */
 	offset += 1;
 
-	dest_addr = tvb_get_ptr(tvb, offset, 6);
 	TVB_SET_ADDRESS(&unicast_tvlv_packeth->dest, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, offset, 6);
@@ -3922,7 +3917,6 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	src_addr = tvb_get_ptr(tvb, offset, 6);
 	TVB_SET_ADDRESS(&unicast_tvlv_packeth->src, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset, 6);
 	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset, 6);
