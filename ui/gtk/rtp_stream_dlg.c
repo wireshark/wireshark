@@ -637,9 +637,10 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
         }
     }
 
-    src_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->src_addr));
-    dst_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->dest_addr));
     if (selected_stream_fwd) {
+        src_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->src_addr));
+        dst_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->dest_addr));
+
         g_snprintf(label_text, sizeof(label_text), "Forward: %s:%u -> %s:%u, SSRC=0x%X",
             src_addr,
             selected_stream_fwd->src_port,
@@ -648,18 +649,20 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
             selected_stream_fwd->ssrc
         );
         gtk_label_set_text(GTK_LABEL(label_fwd), label_text);
+
+        wmem_free(NULL, src_addr);
+        wmem_free(NULL, dst_addr);
     } else {
         if (selected_stream_rev)
             gtk_label_set_text(GTK_LABEL(label_fwd), FWD_ONLY_LABEL_TEXT);
         else
             gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
     }
-    wmem_free(NULL, src_addr);
-    wmem_free(NULL, dst_addr);
 
-    src_addr = (char*)address_to_display(NULL, &(selected_stream_rev->src_addr));
-    dst_addr = (char*)address_to_display(NULL, &(selected_stream_rev->dest_addr));
     if (selected_stream_rev) {
+        src_addr = (char*)address_to_display(NULL, &(selected_stream_rev->src_addr));
+        dst_addr = (char*)address_to_display(NULL, &(selected_stream_rev->dest_addr));
+
         g_snprintf(label_text, sizeof(label_text), "Reverse: %s:%u -> %s:%u, SSRC=0x%X",
             src_addr,
             selected_stream_rev->src_port,
@@ -668,11 +671,12 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
             selected_stream_rev->ssrc
         );
         gtk_label_set_text(GTK_LABEL(label_rev), label_text);
+
+        wmem_free(NULL, src_addr);
+        wmem_free(NULL, dst_addr);
     } else {
         gtk_label_set_text(GTK_LABEL(label_rev), REV_LABEL_TEXT);
     }
-    wmem_free(NULL, src_addr);
-    wmem_free(NULL, dst_addr);
 
     return result;
 }
