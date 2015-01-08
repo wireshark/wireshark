@@ -1437,7 +1437,8 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   e_ddp                         ddp;
   proto_tree                   *ddp_tree;
   proto_item                   *ti, *hidden_item;
-  static struct atalk_ddp_addr  src, dst; /* has to be static due to SET_ADDRESS */
+  struct atalk_ddp_addr        *src = wmem_new(pinfo->pool, struct atalk_ddp_addr),
+                               *dst = wmem_new(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t                     *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
@@ -1449,14 +1450,14 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ddp.sum=g_ntohs(ddp.sum);
   ddp.hops_len=g_ntohs(ddp.hops_len);
 
-  src.net = ddp.snet;
-  src.node = ddp.snode;
-  dst.net = ddp.dnet;
-  dst.node = ddp.dnode;
-  SET_ADDRESS(&pinfo->net_src, AT_ATALK, sizeof src, (guint8 *)&src);
-  SET_ADDRESS(&pinfo->src, AT_ATALK, sizeof src, (guint8 *)&src);
-  SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
-  SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
+  src->net = ddp.snet;
+  src->node = ddp.snode;
+  dst->net = ddp.dnet;
+  dst->node = ddp.dnode;
+  SET_ADDRESS(&pinfo->net_src, AT_ATALK, sizeof src, src);
+  SET_ADDRESS(&pinfo->src, AT_ATALK, sizeof src, src);
+  SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof dst, dst);
+  SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, dst);
 
   pinfo->ptype = PT_DDP;
   pinfo->destport = ddp.dport;
@@ -1471,11 +1472,11 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
 
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
-                                        4, 3, atalk_addr_to_str(&src));
+                                        4, 3, atalk_addr_to_str(src));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
-                                        6, 3, atalk_addr_to_str(&dst));
+                                        6, 3, atalk_addr_to_str(dst));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_hopcount,   tvb, 0, 1,

@@ -1117,7 +1117,6 @@ static conversation_t
                         gboolean is_data, gboolean req)
 {
     conversation_t *conversation = NULL;
-    static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     guint16 device_address;
     guint16 bus_num;
     int endpoint;
@@ -1128,8 +1127,7 @@ static conversation_t
         endpoint = mausb_ep_handle_ep_num(handle);
         bus_num = mausb_ep_handle_bus_num(handle);
 
-        usb_set_addr(pinfo, &src_addr, &dst_addr, bus_num, device_address,
-                     endpoint, req);
+        usb_set_addr(pinfo, bus_num, device_address, endpoint, req);
         conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst,
                                             pinfo->srcport, pinfo->destport);
     }

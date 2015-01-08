@@ -315,7 +315,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item      *ti, *hidden_item;
   const gchar     *fc_str;
   proto_tree      *fc_tree;
-  static guchar    src[6], dst[6]; /* has to be static due to SET_ADDRESS */
+  guchar          *src = (guchar*)wmem_alloc(pinfo->pool, 6), *dst = (guchar*)wmem_alloc(pinfo->pool, 6);
   guchar           src_swapped[6], dst_swapped[6];
   tvbuff_t        *next_tvb;
   static fddi_hdr  fddihdrs[4];
@@ -370,9 +370,9 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "dst" static? */
-  SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, &dst[0]);
-  SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, &dst[0]);
-  SET_ADDRESS(&fddihdr->dst, AT_ETHER, 6, &dst[0]);
+  SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
+  SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
+  SET_ADDRESS(&fddihdr->dst, AT_ETHER, 6, dst);
 
   if (fh_tree) {
     proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst);
@@ -395,9 +395,9 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "src" static? */
-  SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, &src[0]);
-  SET_ADDRESS(&pinfo->src, AT_ETHER, 6, &src[0]);
-  SET_ADDRESS(&fddihdr->src, AT_ETHER, 6, &src[0]);
+  SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src);
+  SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src);
+  SET_ADDRESS(&fddihdr->src, AT_ETHER, 6, src);
 
   if (fh_tree) {
     proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src);

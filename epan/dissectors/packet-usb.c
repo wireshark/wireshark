@@ -2740,9 +2740,9 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                 usb_conv_info->usb_trans_info = usb_trans_info;
             }
             else if (ctrl_recip == RQT_SETUP_RECIPIENT_ENDPOINT) {
-                static address        endpoint_addr;
+                address               endpoint_addr;
                 gint                  endpoint;
-                static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
+                usb_address_t         src_addr, dst_addr;
                 guint32               src_endpoint, dst_endpoint;
                 conversation_t       *conversation;
 
@@ -3106,10 +3106,12 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 /* Set the usb_address_t fields based on the direction of the urb */
 void
-usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
-             usb_address_t *dst_addr, guint16 bus_id, guint16 device_address,
+usb_set_addr(packet_info *pinfo, guint16 bus_id, guint16 device_address,
              int endpoint, gboolean req)
 {
+    usb_address_t  *src_addr = wmem_new(pinfo->pool, usb_address_t),
+                   *dst_addr = wmem_new(pinfo->pool, usb_address_t);
+
     if (req) {
         /* request */
         src_addr->device   = 0xffffffff;
@@ -3404,7 +3406,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     proto_item           *urb_tree_ti;
     proto_tree           *tree;
     proto_item           *item;
-    static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     usb_conv_info_t      *usb_conv_info;
     conversation_t       *conversation;
     guint16              device_address;
@@ -3438,7 +3439,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     else
         return; /* invalid USB pseudo header */
 
-    usb_set_addr(pinfo, &src_addr, &dst_addr, bus_id, device_address, endpoint,
+    usb_set_addr(pinfo, bus_id, device_address, endpoint,
                  (urb_type == URB_SUBMIT));
 
     conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, pinfo->destport);

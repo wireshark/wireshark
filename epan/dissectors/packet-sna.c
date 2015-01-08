@@ -1843,7 +1843,7 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		NULL
 	};
 
-	static struct sna_fid_type_4_addr src, dst; /* has to be static due to SET_ADDRESS */
+	struct sna_fid_type_4_addr *src, *dst;
 
 	const int bytes_in_header = 26;
 
@@ -1915,8 +1915,9 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(tree, hf_sna_th_def, tvb, offset, 2, def);
 
 	/* Addresses in FID 4 are discontiguous, sigh */
-	dst.saf = dsaf;
-	dst.ef = def;
+	dst = wmem_new(pinfo->pool, struct sna_fid_type_4_addr);
+	dst->saf = dsaf;
+	dst->ef = def;
 	SET_ADDRESS(&pinfo->net_dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
 	    (guint8* )&dst);
 	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
@@ -1926,8 +1927,9 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint(tree, hf_sna_th_oef, tvb, offset+2, 2, oef);
 
 	/* Addresses in FID 4 are discontiguous, sigh */
-	src.saf = osaf;
-	src.ef = oef;
+	src = wmem_new(pinfo->pool, struct sna_fid_type_4_addr);
+	src->saf = osaf;
+	src->ef = oef;
 	SET_ADDRESS(&pinfo->net_src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
 	    (guint8 *)&src);
 	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
