@@ -163,7 +163,7 @@ WS_DLL_PUBLIC int stats_tree_tick_range(stats_tree *st,
                                         int value_in_range);
 
 #define stats_tree_tick_range_by_pname(st,name,parent_name,value_in_range) \
-    stats_tree_tick_range((st),(name),stats_tree_parent_id_by_name((st),(parent_name),(value_in_range))
+    stats_tree_tick_range((st),(name),stats_tree_parent_id_by_name((st),(parent_name),(value_in_range)))
 
 /* */
 WS_DLL_PUBLIC int stats_tree_create_pivot(stats_tree *st,

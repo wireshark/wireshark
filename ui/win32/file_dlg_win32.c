@@ -1711,7 +1711,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                                 }
                                 g_filetype = new_filetype;
                                 cur_ctrl = GetDlgItem(sf_hwnd, EWFD_GZIP_CB);
-                                if (wtap_dump_can_compress(file_type) {
+                                if (wtap_dump_can_compress(file_type)) {
                                     EnableWindow(cur_ctrl);
                                 } else {
                                     g_compressed = FALSE;
