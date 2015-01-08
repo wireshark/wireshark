@@ -185,6 +185,21 @@ decryption_step_ikev1_certs() {
 	test_step_ok
 }
 
+# HTTP2 (HPACK)
+decryption_step_http2() {
+        env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+                -Tfields -e http2.header.value \
+                -d tcp.port==3000,http2 \
+                -r "$CAPTURE_DIR/packet-h2-14_headers.pcapng" \
+                | grep "nghttp2" > /dev/null  2>&1
+        RETURNVALUE=$?
+        if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+                test_step_failed "Failed to decode HTTP2 HPACK"
+                return
+        fi
+        test_step_ok
+}
+
 
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
@@ -195,6 +210,7 @@ tshark_decryption_suite() {
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci
 	test_step_add "IKEv1 Decryption (certificates)" decryption_step_ikev1_certs
+	test_step_add "HTTP2 (HPACK)" decryption_step_http2
 }
 
 decryption_cleanup_step() {
