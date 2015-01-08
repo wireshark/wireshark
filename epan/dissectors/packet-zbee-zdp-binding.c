@@ -159,7 +159,7 @@ dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     for (i=0; i<out_count; i++) zbee_parse_uint(field_tree, hf_zbee_zdp_out_cluster, tvb, &offset, sizeof_cluster, NULL);
 
     if (version >= ZBEE_VERSION_2007) {
-        zbee_append_info(tree, pinfo, " Src: %s", ep_eui64_to_display(ext_addr));
+        zbee_append_info(tree, pinfo, " Src: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
     }
     zbee_append_info(tree, pinfo, ", Target: 0x%04x", target);
 
@@ -220,13 +220,13 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
 
     if (version >= ZBEE_VERSION_2007) {
-        zbee_append_info(tree, pinfo, " Src: %s", ep_eui64_to_display(src64));
+        zbee_append_info(tree, pinfo, " Src: %s", eui64_to_display(wmem_packet_scope(), src64));
     }
     if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
         zbee_append_info(tree, pinfo, ", Dst: 0x%04x", dst);
     }
     else {
-        zbee_append_info(tree, pinfo, ", Dst: %s", ep_eui64_to_display(dst64));
+        zbee_append_info(tree, pinfo, ", Dst: %s", eui64_to_display(wmem_packet_scope(), dst64));
     }
 
     /* Dump any leftover bytes. */
@@ -286,13 +286,13 @@ dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (version >= ZBEE_VERSION_2007) {
-        zbee_append_info(tree, pinfo, " Src: %s", ep_eui64_to_display(src64));
+        zbee_append_info(tree, pinfo, " Src: %s", eui64_to_display(wmem_packet_scope(), src64));
     }
     if (dst_mode == ZBEE_ZDP_ADDR_MODE_GROUP) {
         zbee_append_info(tree, pinfo, ", Dst: 0x%04x", dst);
     }
     else {
-        zbee_append_info(tree, pinfo, ", Dst: %s", ep_eui64_to_display(dst64));
+        zbee_append_info(tree, pinfo, ", Dst: %s", eui64_to_display(wmem_packet_scope(), dst64));
     }
 
     /* Dump any leftover bytes. */
@@ -321,7 +321,7 @@ dissect_zbee_zdp_req_bind_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
 
-    zbee_append_info(tree, pinfo, ", Device: %s", ep_eui64_to_display(ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -355,8 +355,8 @@ dissect_zbee_zdp_req_replace_device(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     new_addr = zbee_parse_eui64(tree, hf_zbee_zdp_replacement, tvb, &offset, (int)sizeof(guint64), NULL);
     /*new_ep   =*/ zbee_parse_uint(tree, hf_zbee_zdp_replacement_ep, tvb, &offset, (int)sizeof(guint8), NULL);
 
-    zbee_append_info(tree, pinfo, ", Device: %s", ep_eui64_to_display(ext_addr));
-    zbee_append_info(tree, pinfo, ", Replacement: %s", ep_eui64_to_display(new_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", eui64_to_display(wmem_packet_scope(), ext_addr));
+    zbee_append_info(tree, pinfo, ", Replacement: %s", eui64_to_display(wmem_packet_scope(), new_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -406,7 +406,7 @@ dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pro
     }
     else if (tree) proto_item_append_text(ti, " (Reserved)");
 
-    zbee_append_info(tree, pinfo, ", Src: %s", ep_eui64_to_display(src64));
+    zbee_append_info(tree, pinfo, ", Src: %s", eui64_to_display(wmem_packet_scope(), src64));
     zbee_append_info(tree, pinfo, ", Src Endpoint: %d", src_ep);
     zbee_append_info(tree, pinfo, ", Cluster: %d", cluster);
 
@@ -458,7 +458,7 @@ dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
     }
     else if (tree) proto_item_append_text(ti, " (Reserved)");
 
-    zbee_append_info(tree, pinfo, ", Src: %s", ep_eui64_to_display(src64));
+    zbee_append_info(tree, pinfo, ", Src: %s", eui64_to_display(wmem_packet_scope(), src64));
     zbee_append_info(tree, pinfo, ", Src Endpoint: %d", src_ep);
     zbee_append_info(tree, pinfo, ", Cluster: %d", cluster);
 

@@ -4386,9 +4386,11 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					offset_r = (int)strlen(result);
 					break;
 				case FT_EUI64:
-					offset_r += protoo_strlcpy(result+offset_r,
-								eui64_to_str(fvalue_get_integer64(&finfo->value)),
-								size-offset_r);
+					{
+					char* str = eui64_to_str(NULL, fvalue_get_integer64(&finfo->value));
+					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+					wmem_free(NULL, str);
+					}
 					break;
 
 				case FT_IPv4:
@@ -6237,9 +6239,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_EUI64:
 			integer64 = fvalue_get_integer64(&fi->value);
-			label_fill_descr(label_str, 0, hfinfo,
-				   ep_eui64_to_display(integer64),
-				   eui64_to_str(integer64));
+			addr_str = eui64_to_str(NULL, integer64);
+            tmp = (char*)eui64_to_display(NULL, integer64);
+			label_fill_descr(label_str, 0, hfinfo, tmp, addr_str);
+			wmem_free(NULL, tmp);
+			wmem_free(NULL, addr_str);
 			break;
 		case FT_STRING:
 		case FT_STRINGZ:

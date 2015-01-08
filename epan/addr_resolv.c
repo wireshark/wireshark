@@ -3111,41 +3111,20 @@ tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
 }
 
 const gchar *
-ep_eui64_to_display(const guint64 addr_eui64)
+eui64_to_display(wmem_allocator_t *allocator, const guint64 addr_eui64)
 {
-    gchar *cur, *name;
-    guint8 *addr = (guint8 *)ep_alloc(8);
+    gchar *name;
+    guint8 *addr = (guint8 *)wmem_alloc(allocator, 8);
 
     /* Copy and convert the address to network byte order. */
     *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
 
     if (!gbl_resolv_flags.mac_name || ((name = manuf_name_lookup(addr)) == NULL)) {
-        cur=ep_strdup_printf("%02x:%02x:%02x%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
-        return cur;
+        return wmem_strdup_printf(allocator, "%02x:%02x:%02x%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
     }
-    cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", name, addr[3], addr[4], addr[5], addr[6], addr[7]);
-    return cur;
+    return wmem_strdup_printf(allocator, "%s_%02x:%02x:%02x:%02x:%02x", name, addr[3], addr[4], addr[5], addr[6], addr[7]);
 
-} /* ep_eui64_to_display */
-
-
-const gchar *
-ep_eui64_to_display_if_known(const guint64 addr_eui64)
-{
-    gchar *cur, *name;
-    guint8 *addr = (guint8 *)ep_alloc(8);
-
-    /* Copy and convert the address to network byte order. */
-    *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
-
-    if ((name = manuf_name_lookup(addr)) == NULL) {
-        return NULL;
-    }
-
-    cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", name, addr[3], addr[4], addr[5], addr[6], addr[7]);
-    return cur;
-
-} /* ep_eui64_to_display_if_known */
+} /* eui64_to_display */
 
 #ifdef HAVE_C_ARES
 #define GHI_TIMEOUT (250 * 1000)
