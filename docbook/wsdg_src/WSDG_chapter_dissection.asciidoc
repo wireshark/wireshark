@@ -1017,7 +1017,7 @@ of the dissector.
 void dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
        ...
-    fooinfo = ep_alloc(sizeof(struct FooTap));
+    fooinfo = wmem_alloc(wmem_packet_scope(), sizeof(struct FooTap));
     fooinfo->packet_type = tvb_get_guint8(tvb, 0);
     fooinfo->priority = tvb_get_ntohs(tvb, 8);
        ...

@@ -103,7 +103,7 @@ typedef struct _protocol protocol_t;
  * the Info column and the protocol tree.
  *
  * If that string is dynamically allocated, it should be allocated with
- * ep_alloc(); using ep_strdup_printf() would work.
+ * wmem_alloc() with wmem_packet_scope(); using wmem_strdup_printf() would work.
  *
  * If the WIRESHARK_ABORT_ON_DISSECTOR_BUG environment variable is set,
  * it will call abort(), instead, to make it easier to get a stack trace.

@@ -908,7 +908,7 @@ ptvcursor_new_subtree_levels(ptvcursor_t *ptvc)
 	DISSECTOR_ASSERT(ptvc->pushed_tree_max <= SUBTREE_MAX_LEVELS-SUBTREE_ONCE_ALLOCATION_NUMBER);
 	ptvc->pushed_tree_max += SUBTREE_ONCE_ALLOCATION_NUMBER;
 
-	pushed_tree = (subtree_lvl *)ep_alloc(sizeof(subtree_lvl) * ptvc->pushed_tree_max);
+	pushed_tree = (subtree_lvl *)wmem_alloc(wmem_packet_scope(), sizeof(subtree_lvl) * ptvc->pushed_tree_max);
 	DISSECTOR_ASSERT(pushed_tree != NULL);
 	if (ptvc->pushed_tree)
 		memcpy(pushed_tree, ptvc->pushed_tree, ptvc->pushed_tree_max - SUBTREE_ONCE_ALLOCATION_NUMBER);
@@ -931,7 +931,7 @@ ptvcursor_new(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	ptvcursor_t *ptvc;
 
-	ptvc                    = (ptvcursor_t *)ep_alloc(sizeof(ptvcursor_t));
+	ptvc                    = (ptvcursor_t *)wmem_alloc(wmem_packet_scope(), sizeof(ptvcursor_t));
 	ptvc->tree              = tree;
 	ptvc->tvb               = tvb;
 	ptvc->offset            = offset;
@@ -8027,7 +8027,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 	guint       mask_greatest_bit_offset;
 	guint       octet_length;
 	guint8      i;
-	char       *bf_str;
+	char        bf_str[256];
 	char        lbl_str[ITEM_LABEL_LENGTH];
 	guint64     value;
 	guint64     composite_bitmask;
@@ -8109,7 +8109,6 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	/* initialise the format string */
-	bf_str    = (char *)ep_alloc(256);
 	bf_str[0] = '\0';
 
 	octet_offset = bit_offset >> 3;

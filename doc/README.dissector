@@ -312,16 +312,16 @@ information).
 
 Byte Array Accessors:
 
-gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
+gchar *tvb_bytes_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint len);
 
 Formats a bunch of data from a tvbuff as bytes, returning a pointer
 to the string with the data formatted as two hex digits for each byte.
-The string pointed to is stored in an "ep_alloc'd" buffer which will be freed
-before the next frame is dissected. The formatted string will contain the hex digits
-for at most the first 16 bytes of the data. If len is greater than 16 bytes, a
-trailing "..." will be added to the string.
+The string pointed to is stored in an "wmem_alloc'd" buffer which will be freed
+depending on its scope (typically wmem_packet_scope which is freed after the frame).
+The formatted string will contain the hex digits for at most the first 16 bytes of
+the data. If len is greater than 16 bytes, a trailing "..." will be added to the string.
 
-gchar *tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len, gchar punct);
+gchar *tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint len, gchar punct);
 
 This function is similar to tvb_bytes_to_str(...) except that 'punct' is inserted
 between the hex representation of each byte.
