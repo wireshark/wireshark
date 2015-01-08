@@ -527,8 +527,8 @@ verify_password(tvbuff_t *tvb, const char *password)
 	md5_state_t   md_ctx;
 	md5_byte_t   *digest;
 
-	workbuffer=ep_alloc(32);
-	digest=ep_alloc(16);
+	workbuffer=wmem_alloc(wmem_packet_scope(), 32);
+	digest=wmem_alloc(wmem_packet_scope(), 16);
 
 	length = tvb_get_ntohs(tvb, 6);
 	packetdata = tvb_get_ptr(tvb, 0, length);

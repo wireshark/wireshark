@@ -134,7 +134,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 {
 	tvbuff_t	*decomp_tvb;
 	/* UDVM memory must be initialised to zero */
-	guint8		*buff = (guint8 *)ep_alloc0(UDVM_MEMORY_SIZE);
+	guint8		*buff = (guint8 *)wmem_alloc0(wmem_packet_scope(), UDVM_MEMORY_SIZE);
 	char		string[2];
 	guint8		*out_buff;		/* Largest allowed size for a message is UDVM_MEMORY_SIZE = 65536 */
 	guint32		i = 0;

@@ -44,7 +44,7 @@ print_nsap_net( const guint8 *ad, int length )
 {
   gchar *cur;
 
-  cur = (gchar *)ep_alloc(MAX_NSAP_LEN * 3 + 50);
+  cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_NSAP_LEN * 3 + 50);
   print_nsap_net_buf( ad, length, cur, MAX_NSAP_LEN * 3 + 50);
   return( cur );
 }
@@ -144,7 +144,7 @@ print_area(const guint8 *ad, int length)
 {
   gchar *cur;
 
-  cur = (gchar *)ep_alloc(MAX_AREA_LEN * 3 + 20);
+  cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_AREA_LEN * 3 + 20);
   print_area_buf(ad, length, cur, MAX_AREA_LEN * 3 + 20);
   return cur;
 }

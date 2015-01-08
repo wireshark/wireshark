@@ -35,7 +35,7 @@ sna_fid_to_str(const address *addr)
 {
   gchar *cur;
 
-  cur=(gchar *)ep_alloc(14);
+  cur=(gchar *)wmem_alloc(wmem_packet_scope(), 14);
   sna_fid_to_str_buf(addr, cur, 14);
   return cur;
 }

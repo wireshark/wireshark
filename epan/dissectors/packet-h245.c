@@ -2424,7 +2424,7 @@ static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static void reset_h245_pi(void *dummy _U_)
 {
-	h245_pi = NULL; /* Make sure we don't leave ep_alloc()ated memory lying around */
+	h245_pi = NULL; /* Make sure we don't leave wmem_packet_scoped() memory lying around */
 }
 
 

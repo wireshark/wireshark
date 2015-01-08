@@ -2536,7 +2536,7 @@ decode_mdt_safi(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 /*
  * Decode an MPLS label stack
- * XXX - We should change *buf to **buf, use ep_alloc() and drop the buflen
+ * XXX - We should change *buf to **buf, use wmem_alloc() and drop the buflen
  * argument.
  */
 static guint

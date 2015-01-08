@@ -287,7 +287,7 @@ mtp3_stat_draw(
 {
     mtp3_stat_t   (*stat_p)[MTP3_MAX_NUM_OPC_DPC] = (mtp3_stat_t(*)[MTP3_MAX_NUM_OPC_DPC])tapdata;
     int           i,j;
-    char         *str;
+    char          str[256];
     float         avg;
     GtkListStore *list_store = NULL;
     GtkTreeIter   iter;
@@ -297,7 +297,6 @@ mtp3_stat_draw(
         return;
     }
 
-    str=(char *)ep_alloc(256);
     i = 0;
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (dlg.table))); /* Get store */

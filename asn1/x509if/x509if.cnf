@@ -343,8 +343,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
   /* now append this to the DN */
   if (last_dn) {
     if(*last_dn) {
-      temp_dn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
-      g_snprintf(temp_dn, MAX_DN_STR_LEN, "%%s,%%s", last_rdn, last_dn);
+      temp_dn = (char *)wmem_strdup_printf(wmem_packet_scope(), "%%s,%%s", last_rdn, last_dn);
       last_dn[0] = '\0';
       g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
     } else {

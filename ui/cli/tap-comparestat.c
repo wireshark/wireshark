@@ -163,8 +163,8 @@ call_foreach_count_ip_id(gpointer key _U_, gpointer value, gpointer arg)
 	guint i;
 
 	/* we only need one value out of pinfo we use a temp one */
-	packet_info *pinfo = (packet_info*)ep_alloc(sizeof(packet_info));
-	pinfo->fd = (frame_data*)ep_alloc(sizeof(frame_data));
+	packet_info *pinfo = (packet_info*)g_malloc(sizeof(packet_info));
+	pinfo->fd = (frame_data*)g_malloc(sizeof(frame_data));
 	pinfo->fd->num = fInfo->num;
 
 	fInfoTemp = (frame_info *)g_hash_table_lookup(cs->ip_id_set, GINT_TO_POINTER((gint)fInfo->id));
@@ -227,6 +227,9 @@ call_foreach_count_ip_id(gpointer key _U_, gpointer value, gpointer arg)
 		}
 		g_array_append_val(cs->ip_ttl_list, fInfo->ip_ttl);
 	}
+
+	g_free(pinfo->fd);
+	g_free(pinfo);
 }
 
 /*Create new numbering */

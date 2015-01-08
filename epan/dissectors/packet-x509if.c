@@ -504,7 +504,7 @@ static const ber_sequence_t Attribute_sequence[] = {
 
 int
 dissect_x509if_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 415 "../../asn1/x509if/x509if.cnf"
+#line 414 "../../asn1/x509if/x509if.cnf"
 	doing_attr = TRUE;
 	register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
@@ -661,7 +661,7 @@ static const ber_sequence_t AttributeValueAssertion_sequence[] = {
 
 int
 dissect_x509if_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 405 "../../asn1/x509if/x509if.cnf"
+#line 404 "../../asn1/x509if/x509if.cnf"
 
 	ava_hf_index = hf_index;
 	last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN); *last_ava = '\0';
@@ -876,7 +876,7 @@ dissect_x509if_AttributeTypeAndDistinguishedValue(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 358 "../../asn1/x509if/x509if.cnf"
+#line 357 "../../asn1/x509if/x509if.cnf"
 
   if(!rdn_one_value) {
     top_of_rdn = tree;
@@ -922,8 +922,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
   /* now append this to the DN */
   if (last_dn) {
     if(*last_dn) {
-      temp_dn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); /* is there a better way to use ep_alloc here ? */
-      g_snprintf(temp_dn, MAX_DN_STR_LEN, "%s,%s", last_rdn, last_dn);
+      temp_dn = (char *)wmem_strdup_printf(wmem_packet_scope(), "%s,%s", last_rdn, last_dn);
       last_dn[0] = '\0';
       g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
     } else {
@@ -942,7 +941,7 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 394 "../../asn1/x509if/x509if.cnf"
+#line 393 "../../asn1/x509if/x509if.cnf"
 
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
@@ -966,7 +965,7 @@ static const ber_sequence_t RDNSequence_sequence_of[1] = {
 
 int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 373 "../../asn1/x509if/x509if.cnf"
+#line 372 "../../asn1/x509if/x509if.cnf"
   const char *fmt;
 
   dn_one_rdn = FALSE; /* reset */
