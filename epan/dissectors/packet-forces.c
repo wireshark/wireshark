@@ -886,19 +886,19 @@ proto_reg_handoff_forces(void)
     /* Register SCTP port for medium priority dissection */
     if ((alternate_sctp_med_prio_channel_port != 0) &&
         (alternate_sctp_med_prio_channel_port != forces_alternate_sctp_med_prio_channel_port))
-        dissector_delete_uint("udp.port", alternate_sctp_med_prio_channel_port, forces_handle);
+        dissector_delete_uint("sctp.port", alternate_sctp_med_prio_channel_port, forces_handle);
     if ((forces_alternate_sctp_med_prio_channel_port != 0) &&
         (alternate_sctp_med_prio_channel_port != forces_alternate_sctp_med_prio_channel_port))
-        dissector_add_uint("udp.port", forces_alternate_sctp_med_prio_channel_port, forces_handle);
+        dissector_add_uint("sctp.port", forces_alternate_sctp_med_prio_channel_port, forces_handle);
     alternate_sctp_med_prio_channel_port = forces_alternate_sctp_med_prio_channel_port;
 
     /* Register SCTP port for low priority dissection */
     if ((alternate_sctp_low_prio_channel_port != 0) &&
         (alternate_sctp_low_prio_channel_port != forces_alternate_sctp_low_prio_channel_port))
-        dissector_delete_uint("udp.port", alternate_sctp_low_prio_channel_port, forces_handle);
+        dissector_delete_uint("sctp.port", alternate_sctp_low_prio_channel_port, forces_handle);
     if ((forces_alternate_sctp_low_prio_channel_port != 0) &&
         (alternate_sctp_low_prio_channel_port != forces_alternate_sctp_low_prio_channel_port))
-        dissector_add_uint("udp.port", forces_alternate_sctp_low_prio_channel_port, forces_handle);
+        dissector_add_uint("sctp.port", forces_alternate_sctp_low_prio_channel_port, forces_handle);
     alternate_sctp_low_prio_channel_port = forces_alternate_sctp_low_prio_channel_port;
 }
 
