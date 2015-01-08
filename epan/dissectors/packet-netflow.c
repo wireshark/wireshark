@@ -119,7 +119,6 @@
  */
 
 #include "config.h"
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
@@ -1653,6 +1652,7 @@ static int      hf_ipfix_enterprise_private_entry = -1;
 
 /* pie = private information element */
 
+static int      hf_pie_cace                       = -1;
 static int      hf_pie_cace_local_ipv4_address   = -1;
 static int      hf_pie_cace_remote_ipv4_address  = -1;
 static int      hf_pie_cace_local_ipv6_address   = -1;
@@ -1668,6 +1668,7 @@ static int      hf_pie_cace_local_username       = -1;
 static int      hf_pie_cace_local_cmd_len        = -1;
 static int      hf_pie_cace_local_cmd            = -1;
 
+static int      hf_pie_ntop                      = -1;
 static int      hf_pie_ntop_fragmented           = -1;
 static int      hf_pie_ntop_fingerprint          = -1;
 static int      hf_pie_ntop_client_nw_delay_sec  = -1;
@@ -1733,6 +1734,7 @@ static int      hf_pie_ntop_mysql_db             = -1;
 static int      hf_pie_ntop_mysql_query          = -1;
 static int      hf_pie_ntop_mysql_response       = -1;
 
+static int      hf_pie_plixer                         = -1;
 static int      hf_pie_plixer_client_ip_v4            = -1;
 static int      hf_pie_plixer_client_hostname         = -1;     /* string */
 static int      hf_pie_plixer_partner_name            = -1;     /* string */
@@ -1753,6 +1755,7 @@ static int      hf_pie_plixer_message_subject         = -1;     /* string */
 static int      hf_pie_plixer_sender_address          = -1;     /* string */
 static int      hf_pie_plixer_date_time               = -1;
 
+static int      hf_pie_ixia                             = -1;
 static int      hf_pie_ixia_l7_application_id           = -1;
 static int      hf_pie_ixia_l7_application_name         = -1;
 static int      hf_pie_ixia_source_ip_country_code      = -1;
@@ -2833,6 +2836,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     v9_v10_tmplt_entry_t *entries_p;
     proto_tree           *fwdstattree;
 
+    gboolean             cace_pie_seen = FALSE,
+                         plixer_pie_seen = FALSE,
+                         ntop_pie_seen = FALSE,
+                         ixia_pie_seen = FALSE;
+
     entries_p = tmplt_p->fields_p[fields_type];
     if (entries_p == NULL) {
         /* I don't think we can actually hit this condition.
@@ -2905,6 +2913,41 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             } else {
                 pen_type = (((guint64)pen) << 16) | pen_type;
             }
+        }
+
+        /* Provide a convenient (hidden) filter for any items belonging to a known PIE,
+           but take care not to add > once. */
+        switch (pen) {
+            case VENDOR_CACE:
+                if (!cace_pie_seen) {
+                    proto_item *pie_cace_ti = proto_tree_add_item(pdutree, hf_pie_cace, tvb, 0, 0, ENC_NA);
+                    PROTO_ITEM_SET_HIDDEN(pie_cace_ti);
+                    cace_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_PLIXER:
+                if (!plixer_pie_seen) {
+                    proto_item *pie_plixer_ti = proto_tree_add_item(pdutree, hf_pie_plixer, tvb, 0, 0, ENC_NA);
+                    PROTO_ITEM_SET_HIDDEN(pie_plixer_ti);
+                    plixer_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_NTOP:
+                if (!ntop_pie_seen) {
+                    proto_item *pie_ntop_ti = proto_tree_add_item(pdutree, hf_pie_ntop, tvb, 0, 0, ENC_NA);
+                    PROTO_ITEM_SET_HIDDEN(pie_ntop_ti);
+                    ntop_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_IXIA:
+                if (!ixia_pie_seen) {
+                    proto_item *pie_ixia_ti = proto_tree_add_item(pdutree, hf_pie_ixia, tvb, 0, 0, ENC_NA);
+                    PROTO_ITEM_SET_HIDDEN(pie_ixia_ti);
+                    ixia_pie_seen = TRUE;
+                }
+                break;
+            default:
+                break;
         }
 
         ti = NULL;
@@ -9058,6 +9101,12 @@ proto_register_netflow(void)
         },
         /* Private Information Elements */
 
+        /* CACE root (a hidden item to allow filtering) */
+        {&hf_pie_cace,
+         {"CACE", "cflow.pie.cace",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
         /* CACE Technologies, 32622 / 0 */
         {&hf_pie_cace_local_ipv4_address,
          {"Local IPv4 Address", "cflow.pie.cace.localaddr4",
@@ -9141,6 +9190,13 @@ proto_register_netflow(void)
          {"Local Command", "cflow.pie.cace.localcmd",
           FT_STRING, STR_ASCII, NULL, 0x0,
           "Local Command (caceLocalProcessCommand)", HFILL}
+        },
+
+        /* ntop root (a hidden item to allow filtering) */
+        {&hf_pie_ntop,
+         {"Ntop", "cflow.pie.ntop",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
         },
         /* ntop, 35632 / 80 */
         {&hf_pie_ntop_fragmented,
@@ -9510,6 +9566,12 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
 
+        /* Plixer root (a hidden item to allow filtering) */
+        {&hf_pie_plixer,
+         {"Plixer", "cflow.pie.plixer",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
         /* plixer, 13745 / 100 */
         {&hf_pie_plixer_client_ip_v4,
          {"client_ip_v4", "cflow.pie.plixer.client.ip_v4",
@@ -9619,6 +9681,12 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
 
+        /* Ixia root (a hidden item to allow filtering) */
+        {&hf_pie_ixia,
+         {"Ixia", "cflow.pie.ixia",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
         /* ixia, 3054 / 110 */
         {&hf_pie_ixia_l7_application_id,
          {"L7 Application ID", "cflow.pie.ixia.l7-application-id",
