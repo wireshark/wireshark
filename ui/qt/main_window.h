@@ -425,6 +425,7 @@ private slots:
     void on_actionStatisticsDNS_triggered();
     void actionStatisticsPlugin_triggered();
     void on_actionStatisticsHpfeeds_triggered();
+    void on_actionStatisticsHTTP2_triggered();
 
     void openVoipCallsDialog(bool all_flows = false);
     void on_actionTelephonyVoipCalls_triggered();

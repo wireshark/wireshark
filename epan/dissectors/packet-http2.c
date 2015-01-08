@@ -46,6 +46,8 @@
 #include <epan/nghttp2/nghttp2.h>
 
 #include "packet-tcp.h"
+#include <epan/tap.h>
+#include <epan/stats_tree.h>
 
 #include "wsutil/pint.h"
 
@@ -137,6 +139,17 @@ typedef struct {
 void proto_register_http2(void);
 void proto_reg_handoff_http2(void);
 
+struct HTTP2Tap {
+    guint8 type;
+};
+
+static int http2_tap = -1;
+
+static const guint8* st_str_http2 = "HTTP2";
+static const guint8* st_str_http2_type = "Type";
+
+static int st_node_http2 = -1;
+static int st_node_http2_type = -1;
 
 /* Heuristic dissection */
 static gboolean global_http2_heur = FALSE;
@@ -1235,6 +1248,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     guint8 type, flags;
     guint16 length;
     guint32 streamid;
+    struct HTTP2Tap *http2_stats;
 
     if(!p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, 0)) {
         http2_header_data_t *header_data;
@@ -1305,6 +1319,10 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_item_append_text(ti, ": %s, Stream ID: %u, Length %u", val_to_str(type, http2_type_vals, "Unknown type (%d)"), streamid, length);
     offset += 4;
 
+    /* Collect stats */
+    http2_stats = wmem_new0(wmem_packet_scope(), struct HTTP2Tap);
+    http2_stats->type = type;
+
     switch(type){
         case HTTP2_DATA: /* Data (0) */
             dissect_http2_data(tvb, pinfo, http2_tree, offset, flags);
@@ -1358,6 +1376,10 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             proto_tree_add_item(http2_tree, hf_http2_unknown, tvb, offset, -1, ENC_NA);
         break;
     }
+
+    tap_queue_packet(http2_tap, pinfo, http2_stats);
+
+
     return tvb_captured_length(tvb);
 }
 
@@ -1840,6 +1862,25 @@ proto_register_http2(void)
         &global_http2_heur);
 
     new_register_dissector("http2", dissect_http2, proto_http2);
+
+    http2_tap = register_tap("http2");
+}
+
+static void http2_stats_tree_init(stats_tree* st)
+{
+    st_node_http2 = stats_tree_create_node(st, st_str_http2, 0, TRUE);
+    st_node_http2_type = stats_tree_create_pivot(st, st_str_http2_type, st_node_http2);
+
+}
+
+static int http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+{
+    struct HTTP2Tap *pi = (struct HTTP2Tap *)p;
+    tick_stat_node(st, st_str_http2, 0, FALSE);
+    stats_tree_tick_pivot(st, st_node_http2_type,
+            val_to_str(pi->type, http2_type_vals, "Unknown type (%d)"));
+
+    return 1;
 }
 
 void
@@ -1852,6 +1893,8 @@ proto_reg_handoff_http2(void)
 
     heur_dissector_add("ssl", dissect_http2_heur, proto_http2);
     heur_dissector_add("http", dissect_http2_heur, proto_http2);
+
+    stats_tree_register("http2", "http2", "HTTP2", 0, http2_stats_tree_packet, http2_stats_tree_init, NULL);
 }
 
 /*

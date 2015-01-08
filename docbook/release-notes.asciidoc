@@ -49,6 +49,10 @@ field and shows a description in the status bar.
        is possible to collect stats per channel (messages count and payload
        size), and opcode distribution.
 
+* HTTP2 stats:
+     + A new stats tree has been added to the statistics menu. Now it
+       is possible to collect stats (type distribution).
+
 The following features are new (or have been significantly updated)
 since version 1.12.0:
 

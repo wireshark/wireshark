@@ -438,6 +438,7 @@
     <addaction name="actionStatisticsHART_IP"/>
     <addaction name="actionStatisticsHpfeeds"/>
     <addaction name="menuHTTP"/>
+    <addaction name="actionStatisticsHTTP2"/>
     <addaction name="actionStatisticsSametime"/>
     <addaction name="menuTcpStreamGraphs"/>
    </widget>
@@ -1595,6 +1596,14 @@
    </property>
    <property name="toolTip">
     <string>hpfeeds statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsHTTP2">
+   <property name="text">
+    <string>HTTP2</string>
+   </property>
+   <property name="toolTip">
+    <string>HTTP2 statistics</string>
    </property>
   </action>
   <action name="actionStatisticsHTTPPacketCounter">

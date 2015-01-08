@@ -2448,6 +2448,12 @@ void MainWindow::actionStatisticsPlugin_triggered()
     }
 }
 
+void MainWindow::on_actionStatisticsHTTP2_triggered()
+{
+    openStatisticsTreeDialog("http2");
+
+}
+
 // Telephony Menu
 
 void MainWindow::openVoipCallsDialog(bool all_flows)
