@@ -2243,3 +2243,16 @@ void proto_reg_handoff_irda(void)
     dissector_add_uint("sll.ltype", LINUX_SLL_P_IRDA_LAP, irda_handle);
     data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
