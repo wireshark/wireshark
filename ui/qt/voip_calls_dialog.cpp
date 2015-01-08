@@ -352,7 +352,7 @@ void VoipCallsDialog::prepareFilter()
     const h323_calls_info_t *h323info;
     const h245_address_t *h245_add = NULL;
     const gcp_ctx_t* ctx;
-    char* addr_str;
+    char* addr_str, *guid_str;
 
     if (filter_length < max_filter_length) {
         gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
@@ -389,14 +389,16 @@ void VoipCallsDialog::prepareFilter()
                     break;
                 case VOIP_H323:
                     h323info = (h323_calls_info_t *)listinfo->prot_info;
+					guid_str = guid_to_str(NULL, &h323info->guid[0]);
                     g_string_append_printf(filter_string_fwd,
                         "((h225.guid == %s || q931.call_ref == %x:%x || q931.call_ref == %x:%x)",
-                        guid_to_ep_str(&h323info->guid[0]),
+                        guid_str,
                         (guint8) (h323info->q931_crv & 0x00ff),
                         (guint8)((h323info->q931_crv & 0xff00)>>8),
                         (guint8) (h323info->q931_crv2 & 0x00ff),
                         (guint8)((h323info->q931_crv2 & 0xff00)>>8));
                     listb = g_list_first(h323info->h245_list);
+					wmem_free(NULL, guid_str);
                     while (listb) {
                         h245_add = (h245_address_t *)listb->data;
                         addr_str = (char*)address_to_str(NULL, &h245_add->h245_address);

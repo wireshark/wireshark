@@ -2626,10 +2626,10 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
         /* get Header (CID) 16 bytes */
         tvb_get_guid(tvb, header_offset, &guid, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, ", Src: %s", guid_to_ep_str(&guid));
+        proto_item_append_text(ti, ", Src: %s", guid_to_str(wmem_packet_scope(), &guid));
 
         /* add cid to info */
-        col_add_fstr(pinfo->cinfo,COL_INFO, "CID %s", guid_to_ep_str(&guid));
+        col_add_fstr(pinfo->cinfo,COL_INFO, "CID %s", guid_to_str(wmem_packet_scope(), &guid));
 
         proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, ENC_BIG_ENDIAN);
         /*header_offset += 16;*/
@@ -2675,7 +2675,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
       /* get Header (CID) 16 bytes */
       tvb_get_guid(tvb, header_offset, &guid, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti, ", Src: %s", guid_to_ep_str(&guid));
+      proto_item_append_text(ti, ", Src: %s", guid_to_str(wmem_packet_scope(), &guid));
 
       proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, ENC_BIG_ENDIAN);
       /*header_offset += 16;*/

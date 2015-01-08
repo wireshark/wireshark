@@ -282,7 +282,7 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 			guid_name = guids_get_guid_name(&guid);
 			if (guid_name != NULL)
 				proto_item_set_text(dtpt_guid_item, "%s: %s (%s)",
-				proto_registrar_get_name(hfindex), guid_name, guid_to_ep_str(&guid));
+				proto_registrar_get_name(hfindex), guid_name, guid_to_str(wmem_packet_scope(), &guid));
 			dtpt_guid_tree = proto_item_add_subtree(dtpt_guid_item, ett_dtpt_guid);
 		}
 		if (dtpt_guid_tree) {
@@ -296,7 +296,7 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 				if (guid_name != NULL && dtpt_guid_data_item != NULL) {
 					proto_item_set_text(dtpt_guid_data_item, "%s: %s (%s)",
 					proto_registrar_get_name(hf_dtpt_guid_data),
-					guid_name, guid_to_ep_str(&guid));
+					guid_name, guid_to_str(wmem_packet_scope(), &guid));
 				}
 			}
 		}

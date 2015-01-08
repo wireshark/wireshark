@@ -82,7 +82,7 @@ extern void	guint32_to_str_buf(guint32 u, gchar *buf, int buf_len);
 
 WS_DLL_PUBLIC gchar*	rel_time_to_str(wmem_allocator_t *scope, const nstime_t*);
 WS_DLL_PUBLIC gchar*	rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t*);
-WS_DLL_PUBLIC gchar*	guid_to_ep_str(const e_guid_t*);
+WS_DLL_PUBLIC gchar*	guid_to_str(wmem_allocator_t *scope, const e_guid_t*);
 gchar*	guid_to_str_buf(const e_guid_t*, gchar*, int);
 
 WS_DLL_PUBLIC char *decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value);

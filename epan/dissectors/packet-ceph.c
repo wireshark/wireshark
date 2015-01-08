@@ -1664,7 +1664,7 @@ char *c_format_uuid(tvbuff_t *tvb, guint off)
 {
 	e_guid_t uuid;
 	tvb_get_guid(tvb, off, &uuid, ENC_BIG_ENDIAN);
-	return guid_to_ep_str(&uuid);
+	return guid_to_str(wmem_packet_scope(), &uuid);
 }
 
 enum c_ressembly {

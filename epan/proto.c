@@ -4438,9 +4438,11 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					break;
 
 				case FT_GUID:
-					offset_r += protoo_strlcpy(result+offset_r,
-								guid_to_ep_str((e_guid_t *)fvalue_get(&finfo->value)),
-								size-offset_r);
+					{
+					char* str = guid_to_str(NULL, (e_guid_t *)fvalue_get(&finfo->value));
+					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+					wmem_free(NULL, str);
+					}
 					break;
 
 				case FT_REL_OID:
@@ -6216,7 +6218,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_GUID:
 			guid = (e_guid_t *)fvalue_get(&fi->value);
-			label_fill(label_str, 0, hfinfo, guid_to_ep_str(guid));
+			tmp = guid_to_str(NULL, guid);
+			label_fill(label_str, 0, hfinfo, tmp);
+			wmem_free(NULL, tmp);
 			break;
 
 		case FT_OID:

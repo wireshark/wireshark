@@ -1780,14 +1780,14 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         *uuid_ext_info = (struct mbim_uuid_ext *)wmem_map_lookup(mbim_uuid_ext_hash, uuid_ext);
         if (*uuid_ext_info) {
             proto_tree_add_guid_format_value(tree, hf, tvb, *offset, 16, &uuid, "%s (%s)",
-                                             (*uuid_ext_info)->uuid_name, guid_to_ep_str(&uuid));
+                                             (*uuid_ext_info)->uuid_name, guid_to_str(wmem_packet_scope(), &uuid));
             *offset += 16;
             return UUID_EXT_IDX;
         }
     }
 
     proto_tree_add_guid_format_value(tree, hf, tvb, *offset, 16, &uuid, "%s (%s)",
-                                     val_to_str_const(i, mbim_service_id_vals, "Unknown"), guid_to_ep_str(&uuid));
+                                     val_to_str_const(i, mbim_service_id_vals, "Unknown"), guid_to_str(wmem_packet_scope(), &uuid));
     *offset += 16;
 
     return i;
@@ -2298,7 +2298,7 @@ mbim_dissect_context_type_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         }
     }
     proto_tree_add_guid_format_value(tree, hf_mbim_context_type, tvb, *offset, 16, &uuid, "%s (%s)",
-                                     val_to_str_const(i, mbim_context_type_vals, "Unknown"), guid_to_ep_str(&uuid));
+                                     val_to_str_const(i, mbim_context_type_vals, "Unknown"), guid_to_str(wmem_packet_scope(), &uuid));
     *offset += 16;
 
     return i;

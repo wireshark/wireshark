@@ -538,7 +538,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 
 				tvb_get_ntohguid(tvb, offset, &gfid);
 
-				gfid_s = guid_to_ep_str(&gfid);
+				gfid_s = guid_to_str(wmem_packet_scope(), &gfid);
 				dict_item = proto_tree_add_guid_format(subtree, hf_glusterfs_gfid,
 								tvb, offset, 16, &gfid,
 								"%s: %s", key, gfid_s);

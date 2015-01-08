@@ -5615,7 +5615,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		proto_tree *tag_tree;
 
 		tvb_get_letohguid(tvb, tag_olb.off, &tag_guid);
-		tag = guid_to_ep_str(&tag_guid);
+		tag = guid_to_str(wmem_packet_scope(), &tag_guid);
 
 		tag_item = proto_tree_add_string(sub_tree, tag_olb.hfindex, tvb, tag_olb.off, tag_olb.len, tag);
 		tag_tree = proto_item_add_subtree(tag_item, ett_smb2_olb);

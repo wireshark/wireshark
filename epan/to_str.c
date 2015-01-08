@@ -1025,11 +1025,11 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 }
 
 gchar *
-guid_to_ep_str(const e_guid_t *guid)
+guid_to_str(wmem_allocator_t *scope, const e_guid_t *guid)
 {
 	gchar *buf;
 
-	buf=(gchar *)ep_alloc(GUID_STR_LEN);
+	buf=(gchar *)wmem_alloc(scope, GUID_STR_LEN);
 	return guid_to_str_buf(guid, buf, GUID_STR_LEN);
 }
 

@@ -198,7 +198,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 	size_t filter_length;
 	size_t max_filter_length = 2048; /* What's this based on ? */
 	int pos;
-	char* addr_str;
+	char *addr_str, *guid_str;
 
 	const sip_calls_info_t *sipinfo;
 	const isup_calls_info_t *isupinfo;
@@ -278,14 +278,16 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 					break;
 				case VOIP_H323:
 					h323info = (h323_calls_info_t *)listinfo->prot_info;
+					guid_str = guid_to_str(NULL, &h323info->guid[0]);
 					g_string_append_printf(filter_string_fwd,
 						"((h225.guid == %s || q931.call_ref == %x:%x || q931.call_ref == %x:%x)",
-						guid_to_ep_str(&h323info->guid[0]),
+						guid_str,
 						(guint8) (h323info->q931_crv & 0x00ff),
 						(guint8)((h323info->q931_crv & 0xff00)>>8),
 						(guint8) (h323info->q931_crv2 & 0x00ff),
 						(guint8)((h323info->q931_crv2 & 0xff00)>>8));
 					listb = g_list_first(h323info->h245_list);
+					wmem_free(NULL, guid_str);
 					while (listb) {
 						h245_add = (h245_address_t *)listb->data;
 						addr_str = (char*)address_to_str(NULL, &h245_add->h245_address);

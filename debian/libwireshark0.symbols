@@ -694,7 +694,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  gsm_a_rr_short_pd_msg_strings@Base 1.9.1
  gsm_map_opr_code_strings@Base 1.9.1
  gtcap_StatSRT@Base 1.9.1
- guid_to_ep_str@Base 1.12.0~rc1
+ guid_to_str@Base 1.99.2
  guids_add_guid@Base 1.9.1
  guids_get_guid_name@Base 1.9.1
  guids_init@Base 1.9.1
