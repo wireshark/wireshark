@@ -226,7 +226,7 @@ extern const gchar *ep_eui64_to_display_if_known(const guint64 addr);
 
 /* get_ipxnet_name returns the logical name if found in an ipxnets file,
  * or a string formatted with "%X" if not */
-extern const gchar *get_ipxnet_name(const guint32 addr);
+extern const gchar *get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr);
 
 /* returns the ethernet address corresponding to name or NULL if not known */
 extern guint8 *get_ether_addr(const gchar *name);

@@ -1178,7 +1178,7 @@ dissect_eigrp_ipx_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                                  ENC_NA);
 
     /* add it to the top level line */
-    proto_item_append_text(ti,"  =   %s", ipxnet_to_str_punct(tvb_get_ntohl(tvb, offset), ' '));
+    proto_item_append_text(ti,"  =   %s", ipxnet_to_str_punct(wmem_packet_scope(), tvb_get_ntohl(tvb, offset), ' '));
 
     if (unreachable) {
         expert_add_info(pinfo, ti_dst, &ei_eigrp_unreachable);

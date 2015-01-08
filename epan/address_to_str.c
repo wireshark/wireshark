@@ -202,19 +202,19 @@ ipx_addr_to_str(const guint32 net, const guint8 *ad)
     name = get_ether_name_if_known(ad);
 
     if (name) {
-        buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(net), name);
+        buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(wmem_packet_scope(), net), name);
     }
     else {
-        buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(net),
+        buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(wmem_packet_scope(), net),
             bytestring_to_str(wmem_packet_scope(), ad, 6, '\0'));
     }
     return buf;
 }
 
 gchar *
-ipxnet_to_str_punct(const guint32 ad, const char punct)
+ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct)
 {
-    gchar *buf = (gchar *)ep_alloc(12);
+    gchar *buf = (gchar *)wmem_alloc(scope, 12);
 
     *dword_to_hex_punct(buf, ad, punct) = '\0';
     return buf;

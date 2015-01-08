@@ -1864,7 +1864,7 @@ add_ipxnet_name(guint addr, const gchar *name)
 #endif
 
 static gchar *
-ipxnet_name_lookup(const guint addr)
+ipxnet_name_lookup(wmem_allocator_t *allocator, const guint addr)
 {
     hashipxnet_t *tp;
     ipxnet_t *ipxnet;
@@ -1878,7 +1878,7 @@ ipxnet_name_lookup(const guint addr)
         tp = g_new(hashipxnet_t, 1);
         g_hash_table_insert(ipxnet_hash_table, key, tp);
     }else{
-        return tp->name;
+        return wmem_strdup(allocator, tp->name);
     }
 
     /* fill in a new entry */
@@ -1893,7 +1893,7 @@ ipxnet_name_lookup(const guint addr)
         g_strlcpy(tp->name, ipxnet->name, MAXNAMELEN);
     }
 
-    return (tp->name);
+    return wmem_strdup(allocator, tp->name);
 
 } /* ipxnet_name_lookup */
 
@@ -3001,14 +3001,14 @@ add_ether_byip(const guint ip, const guint8 *eth)
 } /* add_ether_byip */
 
 const gchar *
-get_ipxnet_name(const guint32 addr)
+get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr)
 {
 
     if (!gbl_resolv_flags.network_name) {
-        return ipxnet_to_str_punct(addr, '\0');
+        return ipxnet_to_str_punct(allocator, addr, '\0');
     }
 
-    return ipxnet_name_lookup(addr);
+    return ipxnet_name_lookup(allocator, addr);
 
 } /* get_ipxnet_name */
 
