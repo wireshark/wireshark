@@ -5,6 +5,8 @@
 
 INCLUDE(FindCygwin)
 
+FIND_PACKAGE(SED)
+
 FIND_PROGRAM(XSLTPROC_EXECUTABLE
   NAMES
     xsltproc
@@ -164,6 +166,7 @@ MACRO(XML2HHP _guide _docbooksource)
     set( _output_chm ${_source_base_name}.chm )
     set( _output_hhp ${_source_base_name}.hhp )
     set( _output_toc_hhc ${_source_base_name}-toc.hhc )
+    set( _docbook_plain_title ${_source_base_name}-plain-title.xml )
 
     SET(_gfxdir ${_guide}_graphics)
     SET(_basedir ${_guide}_chm)
@@ -174,6 +177,10 @@ MACRO(XML2HHP _guide _docbooksource)
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${_gfxdir} ${_basedir}/${_gfxdir}
 	COMMAND ${CMAKE_COMMAND} -E copy_directory common_graphics ${_basedir}
+	COMMAND ${SED_EXECUTABLE}
+	    -e "s|er&#8217;s Guide</title>|er's Guide</title>|"
+	    < ${_docbooksource}
+	    > ${_docbook_plain_title}
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
             --stringparam base.dir ${_basedir}/
@@ -183,7 +190,7 @@ MACRO(XML2HHP _guide _docbooksource)
 	    ${_common_xsltproc_args}
             --stringparam admon.graphics.path ${_gfxdir}/
 	    --nonet custom_layer_chm.xsl
-	    ${_docbooksource}
+	    ${_docbook_plain_title}
         DEPENDS
             ${_docbooksource}
     )
