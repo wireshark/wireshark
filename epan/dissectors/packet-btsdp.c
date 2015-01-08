@@ -1443,7 +1443,6 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         continuation_state_length = tvb_get_guint8(tvb, offset);
         offset++;
 
-        continuation_state_buffer = (guint8 *) wmem_alloc(wmem_file_scope(), continuation_state_length);
         continuation_state_buffer = tvb_bytes_to_str(wmem_file_scope(), tvb, offset, continuation_state_length);
 
         if (!pinfo->fd->flags.visited) {
