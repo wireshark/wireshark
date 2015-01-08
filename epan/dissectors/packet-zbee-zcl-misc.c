@@ -63,53 +63,53 @@
 #define ZBEE_ZCL_THERMOSTAT_NUM_ETT             3
 
 /* Thermostat Information Attributes */
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_LOCAL_TEMP              0x0000
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OUTDOOR_TEMP            0x0001
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPANCY               0x0002
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ABS_MIN_HEAT_SETPOINT   0x0003
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ABS_MAX_HEAT_SETPOINT   0x0004
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ABS_MIN_COOL_SETPOINT   0x0005
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ABS_MAX_COOL_SETPOINT   0x0006
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_PI_COOL_DEMAND          0x0007
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_PI_HEAT_DEMAND          0x0008
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_HVAC_TYPE_CONFIG        0x0009
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_LOCAL_TEMP               0x0000
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OUTDOOR_TEMP             0x0001
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPANCY                0x0002
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ABS_MIN_HEAT_SETPOINT    0x0003
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ABS_MAX_HEAT_SETPOINT    0x0004
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ABS_MIN_COOL_SETPOINT    0x0005
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ABS_MAX_COOL_SETPOINT    0x0006
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_PI_COOL_DEMAND           0x0007
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_PI_HEAT_DEMAND           0x0008
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_HVAC_TYPE_CONFIG         0x0009
 /* Thermostat Settings Attributes */
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_LOCAL_TEMP_CALIBRATION  0x0010
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_COOL_SETPOINT  0x0011
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_HEAT_SETPOINT  0x0012
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_LOCAL_TEMP_CALIBRATION   0x0010
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_COOL_SETPOINT   0x0011
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_OCCUPIED_HEAT_SETPOINT   0x0012
 #define ZBEE_ZCL_ATTR_ID_THERMOSTAT_UNOCCUPIED_COOL_SETPOINT 0x0013
 #define ZBEE_ZCL_ATTR_ID_THERMOSTAT_UNOCCUPIED_HEAT_SETPOINT 0x0014
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MIN_HEAT_SETPOINT       0x0015
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MAX_HEAT_SETPOINT       0x0016
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MIN_COOL_SETPOINT       0x0017
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MAX_COOL_SETPOINT       0x0018
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MIN_SETPOINT_DEADBAND   0x0019
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_REMOTE_SENSING          0x001A
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_CONTROL_SEQUENCE        0x001B
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SYSTEM_MODE             0x001C
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ALARM_MASK              0x001D
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_RUNNING_MODE            0x001E
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MIN_HEAT_SETPOINT        0x0015
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MAX_HEAT_SETPOINT        0x0016
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MIN_COOL_SETPOINT        0x0017
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MAX_COOL_SETPOINT        0x0018
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_MIN_SETPOINT_DEADBAND    0x0019
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_REMOTE_SENSING           0x001A
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_CONTROL_SEQUENCE         0x001B
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SYSTEM_MODE              0x001C
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_ALARM_MASK               0x001D
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_RUNNING_MODE             0x001E
 /* Schedule & HVAC Relay Attributes. */
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_START_OF_WEEK           0x0020
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_NUM_WEEKLY_TRANSITIONS  0x0021
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_NUM_DAILY_TRANSITIONS   0x0022
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_HOLD           0x0023
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_HOLD_DURATION  0x0024
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_PROGRAMMING_MODE        0x0025
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_RUNNING_STATE           0x0029
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_START_OF_WEEK            0x0020
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_NUM_WEEKLY_TRANSITIONS   0x0021
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_NUM_DAILY_TRANSITIONS    0x0022
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_HOLD            0x0023
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_HOLD_DURATION   0x0024
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_PROGRAMMING_MODE         0x0025
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_RUNNING_STATE            0x0029
 /* Setpoint Change Tracking Attributes. */
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_SOURCE  0x0030
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_AMOUNT  0x0031
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_TIME    0x0032
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_SOURCE   0x0030
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_AMOUNT   0x0031
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_SETPOINT_CHANGE_TIME     0x0032
 /* Air Conditioning Atrributes. */
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_TYPE                 0x0040
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_CAPACITY             0x0041
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_REFRIGERANT_TYPE     0x0042
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_COMPRESSOR_TYPE      0x0043
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_ERROR_CODE           0x0044
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_LOUVER_POSITION      0x0045
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_COIL_TEMPERATURE     0x0046
-#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_CAPACITY_FORMAT      0x0047
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_TYPE                  0x0040
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_CAPACITY              0x0041
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_REFRIGERANT_TYPE      0x0042
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_COMPRESSOR_TYPE       0x0043
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_ERROR_CODE            0x0044
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_LOUVER_POSITION       0x0045
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_COIL_TEMPERATURE      0x0046
+#define ZBEE_ZCL_ATTR_ID_THERMOSTAT_AC_CAPACITY_FORMAT       0x0047
 
 static const value_string zbee_zcl_thermostat_attr_names[] = {
     { ZBEE_ZCL_ATTR_ID_THERMOSTAT_LOCAL_TEMP,               "LocalTemperature" },
@@ -148,9 +148,9 @@ static const value_string zbee_zcl_thermostat_attr_names[] = {
 };
 
 /* RemoteSensing bitmask. */
-#define ZBEE_ZCL_THERMOSTAT_REMOTE_SENSE_LOCAL      0x01
-#define ZBEE_ZCL_THERMOSTAT_REMOTE_SENSE_OUTDOOR    0x02
-#define ZBEE_ZCL_THERMOSTAT_REMOTE_SENSE_OCCUPANCY  0x04
+#define ZBEE_ZCL_THERMOSTAT_REMOTE_SENSE_LOCAL          0x01
+#define ZBEE_ZCL_THERMOSTAT_REMOTE_SENSE_OUTDOOR        0x02
+#define ZBEE_ZCL_THERMOSTAT_REMOTE_SENSE_OCCUPANCY      0x04
 
 #define ZBEE_ZCL_THERMOSTAT_ALARM_INIT_FAILURE          0x01
 #define ZBEE_ZCL_THERMOSTAT_ALARM_HARDWARE_FAILURE      0x02
@@ -265,7 +265,7 @@ static void
 dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
 
-    static const int * thermostat_schedule_days[] = {
+    static const int *thermostat_schedule_days[] = {
         &hf_zbee_zcl_thermostat_schedule_day_sunday,
         &hf_zbee_zcl_thermostat_schedule_day_monday,
         &hf_zbee_zcl_thermostat_schedule_day_tuesday,
@@ -299,7 +299,7 @@ static void
 dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
 
-    static const int * thermostat_schedule_modes[] = {
+    static const int *thermostat_schedule_modes[] = {
         &hf_zbee_zcl_thermostat_schedule_mode_heat,
         &hf_zbee_zcl_thermostat_schedule_mode_cool,
         NULL
@@ -827,7 +827,7 @@ static void dissect_zcl_ias_zone_status     (proto_tree *tree, tvbuff_t *tvb, gu
 static void
 dissect_zcl_ias_zone_status(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
-    static const int * ias_zone_statuses[] = {
+    static const int *ias_zone_statuses[] = {
         &hf_zbee_zcl_ias_zone_status_alarm1,
         &hf_zbee_zcl_ias_zone_status_alarm2,
         &hf_zbee_zcl_ias_zone_status_tamper,
@@ -858,7 +858,7 @@ dissect_zcl_ias_zone_status(proto_tree *tree, tvbuff_t *tvb, guint offset)
  *---------------------------------------------------------------
  */
 static int
-dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     zbee_zcl_packet   *zcl;
     guint             offset = 0;
@@ -922,7 +922,7 @@ dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         } /* switch */
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_reported_length(tvb);
 } /* dissect_zbee_zcl_ias_zone */
 
 /*FUNCTION:------------------------------------------------------
