@@ -31,6 +31,7 @@
 #include <gtk/gtk.h>
 
 #include "ui/recent.h"
+#include "ui/gtk/old-gtk-compat.h"
 
 
 #include "filter_dlg.h"

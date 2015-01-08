@@ -29,6 +29,7 @@
 
 #include "epan/addr_resolv.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"

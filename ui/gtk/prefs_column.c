@@ -34,6 +34,7 @@
 
 #include "ui/preference_utils.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/prefs_column.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/packet_list.h"
