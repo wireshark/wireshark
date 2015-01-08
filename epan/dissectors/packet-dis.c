@@ -3543,9 +3543,12 @@ static int hf_dis_force_id = -1;
 static int hf_dis_entity_linear_velocity_x = -1;
 static int hf_dis_entity_linear_velocity_y = -1;
 static int hf_dis_entity_linear_velocity_z = -1;
-static int hf_dis_entity_location_x = -1;
-static int hf_dis_entity_location_y = -1;
-static int hf_dis_entity_location_z = -1;
+static int hf_dis_entity_location_x_double = -1;
+static int hf_dis_entity_location_x_float = -1;
+static int hf_dis_entity_location_y_double = -1;
+static int hf_dis_entity_location_y_float = -1;
+static int hf_dis_entity_location_z_double = -1;
+static int hf_dis_entity_location_z_float = -1;
 static int hf_dis_entity_orientation_psi = -1;
 static int hf_dis_entity_orientation_theta = -1;
 static int hf_dis_entity_orientation_phi = -1;
@@ -4546,11 +4549,11 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
 
     ti = proto_tree_add_text(tree, tvb, offset, 24, "Entity Location");
     sub_tree = proto_item_add_subtree(ti, ett_entity_location);
-    proto_tree_add_item(sub_tree, hf_dis_entity_location_x, tvb, offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_x_double, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(sub_tree, hf_dis_entity_location_y, tvb, offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_y_double, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(sub_tree, hf_dis_entity_location_z, tvb, offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_z_double, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     ti = proto_tree_add_text(tree, tvb, offset, 12, "Entity Orientation");
@@ -5268,11 +5271,11 @@ static int dissect_DIS_PARSER_DETONATION_PDU(tvbuff_t *tvb, packet_info *pinfo _
     ti = proto_tree_add_text(tree, tvb, offset, 12, "Location in Entity Coordinates");
     sub_tree = proto_item_add_subtree(ti, ett_linear_velocity);
 
-    proto_tree_add_item(sub_tree, hf_dis_entity_location_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_x_float, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(sub_tree, hf_dis_entity_location_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_y_float, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(sub_tree, hf_dis_entity_location_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_z_float, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_dis_detonation_result, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6989,19 +6992,34 @@ void proto_register_dis(void)
                FT_FLOAT, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_dis_entity_location_x,
+            { &hf_dis_entity_location_x_double,
               {"X", "dis.entity_location.x",
                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_dis_entity_location_y,
+            { &hf_dis_entity_location_x_float,
+              {"X", "dis.entity_location.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_location_y_double,
               {"Y", "dis.entity_location.y",
                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
-            { &hf_dis_entity_location_z,
+            { &hf_dis_entity_location_y_float,
+              {"Y", "dis.entity_location.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_location_z_double,
               {"Z", "dis.entity_location.z",
                FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_location_z_float,
+              {"Z", "dis.entity_location.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
             { &hf_dis_entity_orientation_psi,
