@@ -414,6 +414,21 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
     src_addr = address_to_str(NULL, &conv_item->src_address);
     dst_addr = address_to_str(NULL, &conv_item->dst_address);
 
+    if (conv_item->src_address.type == AT_STRINGZ) {
+        char *new_addr;
+
+        new_addr = wmem_strdup_printf(NULL, "\"%s\"", src_addr);
+        wmem_free(NULL, src_addr);
+        src_addr = new_addr;
+    }
+    if (conv_item->dst_address.type == AT_STRINGZ) {
+        char *new_addr;
+
+        new_addr = wmem_strdup_printf(NULL, "\"%s\"", dst_addr);
+        wmem_free(NULL, dst_addr);
+        dst_addr = new_addr;
+    }
+
     switch(direction){
     case CONV_DIR_A_TO_FROM_B:
         /* A <-> B */
@@ -549,6 +564,13 @@ const char *get_hostlist_filter(hostlist_talker_t *host)
 
     sport=ct_port_to_str(host->ptype, host->port);
     src_addr = address_to_str(NULL, &host->myaddress);
+    if (host->myaddress.type == AT_STRINGZ) {
+        char *new_addr;
+
+        new_addr = wmem_strdup_printf(NULL, "\"%s\"", src_addr);
+        wmem_free(NULL, src_addr);
+        src_addr = new_addr;
+    }
 
     str = g_strdup_printf("%s==%s%s%s%s%s",
                           hostlist_get_filter_name(host, CONV_FT_ANY_ADDRESS),
