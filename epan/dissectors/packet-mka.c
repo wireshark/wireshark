@@ -37,7 +37,6 @@
 #define ICV_TYPE                     255
 
 void proto_register_mka(void);
-void proto_reg_handoff_mka(void);
 
 static int proto_mka = -1;
 
@@ -102,9 +101,6 @@ static gint ett_mka_distributed_cak_set = -1;
 static gint ett_mka_kmd_set = -1;
 static gint ett_mka_icv_set = -1;
 
-static dissector_handle_t mka_handle;
-static dissector_handle_t data_handle;
-
 static const value_string param_set_type_vals[] = {
   { 1,                     "Live Peer List" },
   { 2,                     "Potential Peer List" },
@@ -129,10 +125,10 @@ static void
 dissect_basic_paramset(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  proto_tree *basic_param_set_tree = NULL;
-  proto_tree *ti = NULL;
-  guint16 basic_param_set_len = 0;
-  guint16 cak_len = 0;
+  proto_tree *basic_param_set_tree;
+  proto_tree *ti;
+  guint16 basic_param_set_len;
+  guint16 cak_len;
 
   ti = proto_tree_add_item(mka_tree, hf_mka_basic_param_set, tvb, offset, 0, ENC_NA);
   basic_param_set_tree = proto_item_add_subtree(ti, ett_mka_basic_param_set);
@@ -185,10 +181,10 @@ static void
 dissect_peer_list(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  proto_tree *peer_list_set_tree = NULL;
-  proto_tree *ti = NULL;
+  proto_tree *peer_list_set_tree;
+  proto_tree *ti;
   int hf_peer = -1;
-  gint16 peer_list_len = 0;
+  gint16 peer_list_len;
 
   if (tvb_get_guint8(tvb, offset) == LIVE_PEER_LIST_TYPE) {
     hf_peer = hf_mka_live_peer_list_set;
@@ -227,9 +223,9 @@ static void
 dissect_sak_use(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  proto_tree *sak_use_set_tree = NULL;
-  proto_tree *ti = NULL;
-  guint16 sak_use_len = 0;
+  proto_tree *sak_use_set_tree;
+  proto_tree *ti;
+  guint16 sak_use_len;
 
   ti = proto_tree_add_item(mka_tree, hf_mka_macsec_sak_use_set, tvb, offset, 0, ENC_NA);
   sak_use_set_tree = proto_item_add_subtree(ti, ett_mka_sak_use_set);
@@ -301,9 +297,9 @@ static void
 dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 distributed_sak_len = 0;
-  proto_tree *distributed_sak_tree = NULL;
-  proto_tree *ti = NULL;
+  guint16 distributed_sak_len;
+  proto_tree *distributed_sak_tree;
+  proto_tree *ti;
 
   ti = proto_tree_add_item(mka_tree, hf_mka_distributed_sak_set, tvb, offset, 0, ENC_NA);
   distributed_sak_tree = proto_item_add_subtree(ti, ett_mka_distributed_sak_set);
@@ -359,10 +355,10 @@ static void
 dissect_distributed_cak(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 distributed_cak_len = 0;
-  proto_tree *distributed_cak_tree = NULL;
-  proto_tree *ti = NULL;
-  guint16 cak_len = 0;
+  guint16 distributed_cak_len;
+  proto_tree *distributed_cak_tree;
+  proto_tree *ti;
+  guint16 cak_len;
 
   ti = proto_tree_add_item(mka_tree, hf_mka_distributed_cak_set, tvb, offset, 0, ENC_NA);
   distributed_cak_tree = proto_item_add_subtree(ti, ett_mka_distributed_cak_set);
@@ -392,9 +388,9 @@ static void
 dissect_kmd(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 kmd_len = 0;
-  proto_tree *kmd_set_tree = NULL;
-  proto_tree *ti = NULL;
+  guint16 kmd_len;
+  proto_tree *kmd_set_tree;
+  proto_tree *ti;
 
   ti = proto_tree_add_item(mka_tree, hf_mka_kmd_set, tvb, offset, 0, ENC_NA);
   kmd_set_tree = proto_item_add_subtree(ti, ett_mka_kmd_set);
@@ -419,9 +415,9 @@ static void
 dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
 {
   int offset = *offset_ptr;
-  guint16 icv_len = 0;
-  proto_tree *icv_set_tree = NULL;
-  proto_tree *ti = NULL;
+  guint16 icv_len;
+  proto_tree *icv_set_tree;
+  proto_tree *ti;
 
   ti = proto_tree_add_item(mka_tree, hf_mka_icv_set, tvb, offset, 0, ENC_NA);
   icv_set_tree = proto_item_add_subtree(ti, ett_mka_icv_set);
@@ -447,8 +443,8 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int         offset = 0;
   guint8      mka_version_type = 0;
-  proto_tree *ti = NULL;
-  proto_tree *mka_tree = NULL;
+  proto_tree *ti;
+  proto_tree *mka_tree;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPOL-MKA");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -470,7 +466,8 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * Basic Parameter set is always the first parameter set, dissect it first !
    */
   dissect_basic_paramset(mka_tree, tvb, &offset);
-  while(tvb_reported_length_remaining(tvb,offset) > 0) {
+
+  while(tvb_reported_length_remaining(tvb, offset) > 0) {
     switch (tvb_get_guint8(tvb, offset)) {
     case LIVE_PEER_LIST_TYPE:
     case POTENTIAL_PEER_LIST_TYPE:
@@ -499,7 +496,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
         proto_tree_add_expert(mka_tree, pinfo, &ei_mka_undecoded, tvb, offset, -1);
-        offset += tvb_captured_length_remaining(tvb, offset);
+        offset += tvb_reported_length_remaining(tvb, offset);
     }
   }
 }
@@ -510,8 +507,10 @@ proto_register_mka(void)
   expert_module_t  *expert_mka = NULL;
 
   static ei_register_info ei[] = {
-    { &ei_mka_undecoded,                     { "mka.expert.undecoded_data", PI_UNDECODED, PI_WARN, "Undecoded data", EXPFILL }},
-    { &ei_unexpected_data,                   { "mka.expert.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
+    { &ei_mka_undecoded, {
+        "mka.expert.undecoded_data", PI_UNDECODED, PI_WARN, "Undecoded data", EXPFILL }},
+    { &ei_unexpected_data, {
+        "mka.expert.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
   };
 
   static hf_register_info hf[] = {
@@ -744,7 +743,7 @@ proto_register_mka(void)
   };
 
   proto_mka = proto_register_protocol("MACsec Key Agreement", "EAPOL-MKA", "mka");
-  mka_handle = register_dissector("mka", dissect_mka, proto_mka);
+  register_dissector("mka", dissect_mka, proto_mka);
 
   proto_register_field_array(proto_mka, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -752,16 +751,6 @@ proto_register_mka(void)
   expert_mka = expert_register_protocol(proto_mka);
   expert_register_field_array(expert_mka, ei, array_length(ei));
 
-}
-
-void
-proto_reg_handoff_mka(void)
-{
-  /*
-   * Get handles for the EAPOL-MKA and raw data dissectors.
-   */
-  mka_handle  = find_dissector("mka");
-  data_handle = find_dissector("data");
 }
 
 /*
