@@ -191,10 +191,6 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item   *ti;
 	proto_tree   *netrom_tree;
 	int           offset;
-	const guint8 *src_addr;
-	const guint8 *dst_addr;
-	const guint8 *user_addr;
-	const guint8 *node_addr;
 #if 0
 	guint8        src_ssid;
 	guint8        dst_ssid;
@@ -210,17 +206,15 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 
 	/* source */
-	src_addr = tvb_get_ptr( tvb, offset, AX25_ADDR_LEN );
 	TVB_SET_ADDRESS(&pinfo->dl_src,	AT_AX25, tvb, offset, AX25_ADDR_LEN);
 	TVB_SET_ADDRESS(&pinfo->src,	AT_AX25, tvb, offset, AX25_ADDR_LEN);
-	/* src_ssid = *(src_addr + 6); */
+	/* src_ssid = tvb_get_guint8(tvb, offset+6); */
 	offset += AX25_ADDR_LEN; /* step over src addr */
 
 	/* destination */
-	dst_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
 	TVB_SET_ADDRESS(&pinfo->dl_dst,	AT_AX25, tvb, offset, AX25_ADDR_LEN);
 	TVB_SET_ADDRESS(&pinfo->dst,	AT_AX25, tvb, offset, AX25_ADDR_LEN);
-	/* dst_ssid = *(dst_addr + 6); */
+	/* dst_ssid = tvb_get_guint8(tvb, offset+6); */
 	offset += AX25_ADDR_LEN; /* step over dst addr */
 
 	offset += 1; /* step over ttl */
@@ -251,11 +245,11 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = 0;
 
 		/* source */
-		proto_tree_add_ax25( netrom_tree, hf_netrom_src, tvb, offset, AX25_ADDR_LEN, src_addr );
+		proto_tree_add_item( netrom_tree, hf_netrom_src, tvb, offset, AX25_ADDR_LEN, ENC_NA );
 		offset += AX25_ADDR_LEN;
 
 		/* destination */
-		proto_tree_add_ax25( netrom_tree, hf_netrom_dst, tvb, offset, AX25_ADDR_LEN, dst_addr );
+		proto_tree_add_item( netrom_tree, hf_netrom_dst, tvb, offset, AX25_ADDR_LEN, ENC_NA );
 		offset += AX25_ADDR_LEN;
 
 		/* ttl */
@@ -409,12 +403,10 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item( netrom_tree, hf_netrom_pwindow, tvb, offset, 1, ENC_BIG_ENDIAN );
 						offset += 1;
 
-						user_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
-						proto_tree_add_ax25( netrom_tree, hf_netrom_user, tvb, offset, AX25_ADDR_LEN, user_addr );
+						proto_tree_add_item( netrom_tree, hf_netrom_user, tvb, offset, AX25_ADDR_LEN, ENC_NA );
 						offset += AX25_ADDR_LEN;
 
-						node_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
-						proto_tree_add_ax25( netrom_tree, hf_netrom_node, tvb, offset, AX25_ADDR_LEN, node_addr );
+						proto_tree_add_item( netrom_tree, hf_netrom_node, tvb, offset, AX25_ADDR_LEN, ENC_NA );
 						offset += AX25_ADDR_LEN;
 
 						break;

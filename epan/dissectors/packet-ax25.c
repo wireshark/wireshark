@@ -136,9 +136,6 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	/* char v2cmdresp; */
 	const char *ax25_version;
 	int is_response;
-	const guint8 *src_addr;
-	const guint8 *dst_addr;
-	const guint8 *via_addr;
 	guint8 control;
 	guint8 pid = AX25_P_NO_L3;
 	guint8 src_ssid;
@@ -158,20 +155,18 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	ti = proto_tree_add_protocol_format( parent_tree, proto_ax25, tvb, offset, -1, "AX.25");
 	ax25_tree = proto_item_add_subtree( ti, ett_ax25 );
 
-	dst_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
-	proto_tree_add_ax25( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, dst_addr );
+	proto_tree_add_item( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, ENC_NA);
 	TVB_SET_ADDRESS( &pinfo->dl_dst, AT_AX25, tvb, offset, AX25_ADDR_LEN );
 	TVB_SET_ADDRESS( &pinfo->dst, AT_AX25, tvb, offset, AX25_ADDR_LEN );
-	dst_ssid = *(dst_addr + 6);
+	dst_ssid = tvb_get_guint8(tvb, offset+6);
 
 	/* step over dst addr point at src addr */
 	offset += AX25_ADDR_LEN;
 
-	src_addr = tvb_get_ptr( tvb, offset, AX25_ADDR_LEN );
-	proto_tree_add_ax25( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, src_addr );
+	proto_tree_add_item( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, ENC_NA);
 	TVB_SET_ADDRESS( &pinfo->dl_src, AT_AX25, tvb, offset, AX25_ADDR_LEN );
 	TVB_SET_ADDRESS( &pinfo->src, AT_AX25, tvb, offset, AX25_ADDR_LEN );
-	src_ssid = *(src_addr + 6);
+	src_ssid = tvb_get_guint8(tvb, offset+6);
 
 	/* step over src addr point at either 1st via addr or control byte */
 	offset += AX25_ADDR_LEN;
@@ -208,8 +203,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		{
 		if ( via_index < AX25_MAX_DIGIS )
 			{
-			via_addr = tvb_get_ptr( tvb,  offset, AX25_ADDR_LEN );
-			proto_tree_add_ax25( ax25_tree, hf_ax25_via[ via_index ], tvb, offset, AX25_ADDR_LEN, via_addr );
+			proto_tree_add_item( ax25_tree, hf_ax25_via[ via_index ], tvb, offset, AX25_ADDR_LEN, ENC_NA);
 			via_index++;
 			}
 		/* step over a via addr */

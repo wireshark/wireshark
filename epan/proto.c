@@ -3164,25 +3164,6 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 	proto_tree_set_string(fi, string);
 }
 
-
-/* Add a FT_AX25 to a proto_tree */
-proto_item *
-proto_tree_add_ax25(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
-		const guint8* value)
-{
-	proto_item		*pi;
-	header_field_info	*hfinfo;
-
-	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
-
-	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_AX25);
-
-	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
-	proto_tree_set_ax25(PNODE_FINFO(pi), value);
-
-	return pi;
-}
-
 /* Set the FT_AX25 value */
 static void
 proto_tree_set_ax25(field_info *fi, const guint8* value)

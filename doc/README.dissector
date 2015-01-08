@@ -1178,9 +1178,6 @@ protocol or field labels to the proto_tree:
         value_ptr, format, ...);
 
     proto_item *
-    proto_tree_add_ax25(tree, id, tvb, start, length, value);
-
-    proto_item *
     proto_tree_add_ether(tree, id, tvb, start, length, value_ptr);
 
     proto_item *
