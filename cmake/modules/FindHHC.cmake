@@ -4,17 +4,13 @@
 # Sets HHC_WRAPPER to a wrapper script that ignores hhc.exe's return value.
 #
 
-FIND_PROGRAM(HHC_EXECUTABLE
-  NAMES
-    hhc
-  HINTS
-    $ENV{PROGRAMFILES}/HTML Help Workshop
-)
+find_package(HTMLHelp)
+set(HHC_EXECUTABLE ${HTML_HELP_COMPILER})
 
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(HHC DEFAULT_MSG HHC_EXECUTABLE)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(HHC DEFAULT_MSG HHC_EXECUTABLE)
 
-MARK_AS_ADVANCED(HHC_EXECUTABLE)
+mark_as_advanced(HHC_EXECUTABLE)
 
 if(WIN32)
   # hhc.exe returns 1 on success. Create a wrapper script that ignores
@@ -25,6 +21,6 @@ if(WIN32)
     ${HHC_WRAPPER}
     NEWLINE_STYLE WIN32
   )
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(HHC DEFAULT_MSG HHC_WRAPPER)
-  MARK_AS_ADVANCED(HHC_WRAPPER)
+  find_package_handle_standard_args(HHC DEFAULT_MSG HHC_WRAPPER)
+  mark_as_advanced(HHC_WRAPPER)
 endif()
