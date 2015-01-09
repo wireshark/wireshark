@@ -93,6 +93,7 @@ Elasticsearch
 Shared Memory Communications - RDMA
 Riemann
 MACsec Key Agreement - EAPoL-MKA
+DJI UAV Drone Control Protocol
 --sort-and-group--
 
 === Updated Protocol Support

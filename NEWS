@@ -30,12 +30,6 @@ What's New
           + The VoIP Calls and SIP Flows dialogs have been added.
           + Support for HiDPI / Retina displays has been improved in the
             official packages.
-     * DNS stats:
-          + A new stats tree has been added to the Statistics menu. Now it
-            is possible to collect stats such as qtype/qclass distribution,
-            number of resource record per response section, and stats data
-            (min, max, avg) for values such as query name length or DNS
-            payload.
 
    The following features are new (or have been significantly updated)
    since version 1.12.0:
@@ -65,9 +59,10 @@ What's New
 
    (LISP) TCP Control Message, AllJoyn Reliable Datagram Protocol, Android
    ADB, Android Logcat text, ceph, corosync/totemnet, corosync/totemsrp,
-   Couchbase, CP "Cooper" 2179, Dynamic Source Routing (RFC 4728),
-   Elasticsearch, Generic Network Virtualization Encapsulation (Geneve),
-   GVSP, HiQnet, IPMI Trace, iSER, KNXnetIP, MCPE (Minecraft Pocket
+   Couchbase, CP "Cooper" 2179, DJI UAV Drone Control Protocol, Dynamic
+   Source Routing (RFC 4728), Elasticsearch, Generic Network
+   Virtualization Encapsulation (Geneve), GVSP, HiQnet, IPMI Trace, iSER,
+   KNXnetIP, MACsec Key Agreement - EAPoL-MKA, MCPE (Minecraft Pocket
    Edition), OptoMMP, RakNet games library, Riemann, S7 Communication,
    Shared Memory Communications - RDMA, and Stateless Transport Tunneling
 
@@ -83,8 +78,8 @@ What's New
   Major API Changes
 
    The libwireshark API has undergone some major changes:
-     * Many of the ep_ and se_ memory allocation routines have been
-       removed.
+     * Many of the ep_ and se_ memory allocation routines and methods that
+       invoked them implicitly have been removed.
      * The (long-since-broken) Python bindings support has been removed.
        If you want to write dissectors in something other than C, use Lua.
      __________________________________________________________________
@@ -136,24 +131,27 @@ Known Problems
 
    The 64-bit version of Wireshark will leak memory on Windows when the
    display depth is set to 16 bits ([13]Bug 9914)
+
+   Wireshark should let you work with multiple capture files. ([14]Bug
+   10488)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [14]Wireshark's Q&A site and on the
+   Community support is available on [15]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [15]the web site.
+   all of Wireshark's mailing lists can be found on [16]the web site.
 
    Official Wireshark training and certification are available from
-   [16]Wireshark University.
+   [17]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [17]Wireshark web site.
+   A complete FAQ is available on the [18]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-12-10 19:56:16 UTC
+   Last updated 2015-01-09 21:47:07 UTC
 
 References
 
@@ -170,7 +168,8 @@ References
   11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
   12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
   13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9914
-  14. http://ask.wireshark.org/
-  15. https://www.wireshark.org/lists/
-  16. http://www.wiresharktraining.com/
-  17. https://www.wireshark.org/faq.html
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  15. http://ask.wireshark.org/
+  16. https://www.wireshark.org/lists/
+  17. http://www.wiresharktraining.com/
+  18. https://www.wireshark.org/faq.html
