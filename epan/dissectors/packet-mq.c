@@ -83,6 +83,11 @@
 void proto_register_mq(void);
 void proto_reg_handoff_mq(void);
 
+/*
+used to only sort once some value_string_ext
+*/
+static gboolean is_value_string_ext_sorted = FALSE;
+
 static int proto_mq = -1;
 static int hf_mq_tsh_StructID = -1;
 static int hf_mq_tsh_mqseglen = -1;
@@ -3808,6 +3813,43 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+/*
+function used to compare value_string when sorting the array
+*/
+static int _mq_vals_fncomp(const void *e1, const void *e2)
+{
+    if (((const value_string *)e1)->value < ((const value_string *)e2)->value)
+        return -1;
+    if (((const value_string *)e1)->value > ((const value_string *)e2)->value)
+        return 1;
+    return  0;
+}
+/*
+if the value_string_ext is not yet initialized, try first to
+sort the array to improve the use of the bsearch type
+*/
+static void _try_mq_vals_sort(value_string_ext *pExt)
+{
+    if (pExt->_vs_match2 == _try_val_to_str_ext_init)
+    {
+        qsort((void *)(value_string_ext *)pExt->_vs_p,
+            pExt->_vs_num_entries, sizeof(value_string), _mq_vals_fncomp);
+    }
+}
+static void _mq_sort_value_string_ext(void)
+{
+    is_value_string_ext_sorted = TRUE;
+    _try_mq_vals_sort(GET_VALS_EXTP(mqrc));
+    _try_mq_vals_sort(GET_VALS_EXTP(mqcmd));
+    _try_mq_vals_sort(GET_VALS_EXTP(PrmId));
+    _try_mq_vals_sort(GET_VALS_EXTP(selector));
+    _try_mq_vals_sort(GET_VALS_EXTP(MQCFINT_Parse));
+    _try_mq_vals_sort(GET_VALS_EXTP(mqat));
+    _try_mq_vals_sort(GET_VALS_EXTP(PrmTyp));
+    _try_mq_vals_sort(GET_VALS_EXTP(objtype));
+    _try_mq_vals_sort(GET_VALS_EXTP(StructID));
+}
+
 static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     mq_parm_t mq_parm;
@@ -3816,6 +3858,12 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* Typically a TCP PDU is 1460 bytes and a MQ PDU is 32766 bytes */
     if (tvb_reported_length(tvb) < 28)
         return 0;
+
+    /*
+    Sort value_string_ext if not already done
+    */
+    if (!is_value_string_ext_sorted)
+        _mq_sort_value_string_ext();
 
     memset(&mq_parm, 0, sizeof(mq_parm_t));
     mq_parm.mq_strucID = tvb_get_ntohl(tvb, 0);
@@ -4042,6 +4090,12 @@ static int dissect_mq_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 static void dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    /*
+    Sort value_string_ext if not already done
+    */
+    if (!is_value_string_ext_sorted)
+        _mq_sort_value_string_ext();
+
     /* Since SPX has no standard desegmentation, MQ cannot be performed as well */
     dissect_mq_pdu(tvb, pinfo, tree);
 }
@@ -4081,29 +4135,6 @@ static gboolean    dissect_mq_heur_netbios(tvbuff_t *tvb, packet_info *pinfo, pr
 static gboolean    dissect_mq_heur_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     return dissect_mq_heur(tvb, pinfo, tree, MQ_XPT_HTTP, NULL);
-}
-/*
-function used to compare value_string when sorting the array
-*/
-static int _mq_vals_fncomp(const void *e1, const void *e2)
-{
-    if (((const value_string *)e1)->value < ((const value_string *)e2)->value)
-        return -1;
-    if (((const value_string *)e1)->value > ((const value_string *)e2)->value)
-        return 1;
-    return  0;
-}
-/*
-if the value_string_ext is not yet initialized, try first to
-sort the array to improve the use of the bsearch type
-*/
-static void _try_mq_vals_sort(value_string_ext *pExt)
-{
-    if (pExt->_vs_match2 == _try_val_to_str_ext_init)
-    {
-        qsort((void *)(value_string_ext *)pExt->_vs_p,
-            pExt->_vs_num_entries, sizeof(value_string), _mq_vals_fncomp);
-    }
 }
 
 static void mq_init(void)
@@ -4805,21 +4836,6 @@ void proto_reg_handoff_mq(void)
     dissector_add_uint("spx.socket", MQ_SOCKET_SPX, mq_spx_handle);
     data_handle  = find_dissector("data");
     mqpcf_handle = find_dissector("mqpcf");
-
-    /*
-    Sort the value_string_ext to improve the use of bsearch
-    in case the string_value is not sorted by value when created
-    */
-
-    _try_mq_vals_sort(GET_VALS_EXTP(mqrc));
-    _try_mq_vals_sort(GET_VALS_EXTP(mqcmd));
-    _try_mq_vals_sort(GET_VALS_EXTP(PrmId));
-    _try_mq_vals_sort(GET_VALS_EXTP(selector));
-    _try_mq_vals_sort(GET_VALS_EXTP(MQCFINT_Parse));
-    _try_mq_vals_sort(GET_VALS_EXTP(mqat));
-    _try_mq_vals_sort(GET_VALS_EXTP(PrmTyp));
-    _try_mq_vals_sort(GET_VALS_EXTP(objtype));
-    _try_mq_vals_sort(GET_VALS_EXTP(StructID));
 }
 
 /*
