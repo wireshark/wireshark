@@ -175,7 +175,9 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
             --asciidoc-opts=${_conf_opts}
             --fop
             ${A2X_TEXT_OPTS}
-            --xsltproc-opts "--stringparam generate.toc \"article nop\""
+            # XXX This generates a CMake working but correcting it looks
+            # messy.
+            --xsltproc-opts '--stringparam generate.toc "article nop"'
             ${_a2x_asciidocsource}
         COMMAND ${CMAKE_COMMAND} -E rename
             ${CMAKE_CURRENT_BINARY_DIR}/${_source_base_name}.text
