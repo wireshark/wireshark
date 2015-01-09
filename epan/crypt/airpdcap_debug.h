@@ -60,6 +60,8 @@ void print_debug_line(const CHAR *function, const CHAR *msg, const INT level);
 #include <stdio.h>
 #include <time.h>
 
+#include <epan/to_str.h>
+
 /*	Debug level definition																		*/
 #define	AIRPDCAP_DEBUG_LEVEL_1	1
 #define	AIRPDCAP_DEBUG_LEVEL_2	2
@@ -87,12 +89,12 @@ void print_debug_line(const CHAR *function, const CHAR *msg, const INT level);
 #endif
 #endif
 
-#define DEBUG_DUMP(x,y,z) \
-    { \
-    char* tmp_str = (char*)bytes_to_str(NULL, y, (z)); \
-    g_warning("%s: %s", x, ) \
-    wmem_free(NULL, tmp_str); \
-    }
+static inline void DEBUG_DUMP(x,y,z)
+{
+    char* tmp_str = bytes_to_str(NULL, (const guint8 *) y, (z));
+    g_warning("%s: %s", x, tmp_str);
+    wmem_free(NULL, tmp_str);
+}
 
 #else	/* !defined _DEBUG	*/
 
