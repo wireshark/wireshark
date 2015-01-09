@@ -34,6 +34,7 @@
 #include "ui/io_graph_item.h"
 #include "ui/simple_dialog.h"
 
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/dlg_utils.h"

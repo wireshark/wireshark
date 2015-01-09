@@ -33,6 +33,7 @@
 #include <ui/recent.h>
 #include <ui/simple_dialog.h>
 
+#include "ui/gtk/old-gtk-compat.h"
 #include "color_utils.h"
 #include "follow_tcp.h"
 #include "font_utils.h"

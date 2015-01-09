@@ -30,6 +30,7 @@
 #include <epan/exported_pdu.h>
 
 
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
