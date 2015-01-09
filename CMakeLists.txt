@@ -32,6 +32,19 @@ cmake_policy(SET CMP0011 OLD)
 # Policy since 2.8.1
 cmake_policy(SET CMP0015 NEW)
 
+# If our target platform is enforced by our generator, set
+# WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
+# %WIRESHARK_TARGET_PLATFORM%.
+if(WIN32)
+	if("${CMAKE_GENERATOR}" MATCHES "Win64")
+		set(WIRESHARK_TARGET_PLATFORM win64)
+	elseif("${WIRESHARK_TARGET_PLATFORM}" MATCHES "Visual Studio")
+		set(WIRESHARK_TARGET_PLATFORM win32)
+	else()
+		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
+	endif()
+endif(WIN32)
+
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
