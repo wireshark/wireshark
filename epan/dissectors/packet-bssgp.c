@@ -3331,7 +3331,7 @@ de_bssgp_unconfim_send_state_var(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 static guint16
 de_bssgp_selected_plmn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_string(tree, hf_bssgp_selected_plmn_id, tvb, offset, 3, dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, TRUE));
+    proto_tree_add_string(tree, hf_bssgp_selected_plmn_id, tvb, offset, 3, dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, TRUE));
     return 3;
 }
 

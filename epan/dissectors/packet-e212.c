@@ -2549,7 +2549,13 @@ static value_string_ext mcc_mnc_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_codes)
 static int proto_e212   = -1;
 static int hf_E212_imsi = -1;
 static int hf_E212_mcc  = -1;
+static int hf_E212_mcc_lai = -1;
+static int hf_E212_mcc_sai = -1;
+static int hf_E212_mcc_rai = -1;
 static int hf_E212_mnc  = -1;
+static int hf_E212_mnc_lai = -1;
+static int hf_E212_mnc_sai = -1;
+static int hf_E212_mnc_rai = -1;
 
 static int ett_e212_imsi = -1;
 
@@ -2614,7 +2620,7 @@ static expert_field ei_E212_mnc_non_decimal = EI_INIT;
  * Return MCC MNC in a packet scope allocated string that can be used in labels.
  */
 gchar *
-dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
+dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, e212_number_type_t number_type, gboolean little_endian)
 {
 
     int         start_offset, mcc_mnc;
@@ -2624,7 +2630,25 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_item *item;
     gchar      *mcc_mnc_str;
     gboolean    long_mnc = FALSE;
+    int         hf_E212_mcc_id, hf_E212_mnc_id;
 
+    switch(number_type){
+    case E212_LAI:
+        hf_E212_mcc_id = hf_E212_mcc_lai;
+        hf_E212_mnc_id = hf_E212_mnc_lai;
+        break;
+    case E212_RAI:
+        hf_E212_mcc_id = hf_E212_mcc_rai;
+        hf_E212_mnc_id = hf_E212_mnc_rai;
+        break;
+    case E212_SAI:
+        hf_E212_mcc_id = hf_E212_mcc_sai;
+        hf_E212_mnc_id = hf_E212_mnc_sai;
+        break;
+    default:
+        hf_E212_mcc_id = hf_E212_mcc;
+        hf_E212_mnc_id = hf_E212_mnc;
+    }
     start_offset = offset;
     /* MCC + MNC */
     mcc_mnc = tvb_get_ntoh24(tvb,offset);
@@ -2651,12 +2675,12 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         else
             mnc = 100 * mnc3 + mnc;
     }
-    item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
+    item = proto_tree_add_uint(tree, hf_E212_mcc_id , tvb, start_offset, 2, mcc );
     if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) && (mcc_mnc != 0xffffff))
         expert_add_info(pinfo, item, &ei_E212_mcc_non_decimal);
 
     if (long_mnc) {
-        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc,
+        item = proto_tree_add_uint_format_value(tree, hf_E212_mnc_id , tvb, start_offset + 1, 2, mnc,
                    "%s (%03u)",
                    val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, "Unknown"),
                    mnc);
@@ -2692,7 +2716,7 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 int
 dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
 {
-    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, little_endian);
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, little_endian);
     return offset +3;
 }
 
@@ -2986,8 +3010,38 @@ proto_register_e212(void)
         FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
         "Mobile Country Code MCC", HFILL }
     },
+    { &hf_E212_mcc_lai,
+        { "Mobile Country Code (MCC)","e212.lai.mcc",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        "Mobile Country Code MCC", HFILL }
+    },
+    { &hf_E212_mcc_rai,
+        { "Mobile Country Code (MCC)","e212.rai.mcc",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        "Mobile Country Code MCC", HFILL }
+    },
+    { &hf_E212_mcc_sai,
+        { "Mobile Country Code (MCC)","e212.sai.mcc",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
+        "Mobile Country Code MCC", HFILL }
+    },
     { &hf_E212_mnc,
         { "Mobile Network Code (MNC)","e212.mnc",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Mobile network code", HFILL }
+    },
+    { &hf_E212_mnc_lai,
+        { "Mobile Network Code (MNC)","e212.lai.mnc",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Mobile network code", HFILL }
+    },
+    { &hf_E212_mnc_rai,
+        { "Mobile Network Code (MNC)","e212.rai.mnc",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Mobile network code", HFILL }
+    },
+    { &hf_E212_mnc_sai,
+        { "Mobile Network Code (MNC)","e212.sai.mnc",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Mobile network code", HFILL }
     },
