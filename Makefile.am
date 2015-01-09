@@ -1215,24 +1215,21 @@ EXTRA_DIST = \
 	wiretap/CMakeLists.txt	\
 	README.cmake		\
 	ConfigureChecks.cmake	\
-	cmake/TestFileOffsetBits.c	\
-	cmake/TestLargeFiles.c.cmakein	\
-	cmake/TestWindowsFSeek.c	\
-	cmake/modules/CMakeInstallDirs.cmake	\
-	cmake/modules/COPYING-CMAKE-SCRIPTS	\
 	cmake/modules/CheckCCompilerFlag.cmake	\
 	cmake/modules/CheckCLinkerFlag.cmake	\
+	cmake/modules/CMakeInstallDirs.cmake	\
+	cmake/modules/COPYING-CMAKE-SCRIPTS	\
 	cmake/modules/FindADNS.cmake		\
 	cmake/modules/FindAIRPCAP.cmake		\
 	cmake/modules/FindASCIIDOC.cmake	\
 	cmake/modules/FindCAP.cmake		\
 	cmake/modules/FindCARES.cmake		\
-	cmake/modules/FindFOP.cmake		\
-	cmake/modules/FindGCRYPT.cmake		\
-	cmake/modules/FindGEOIP.cmake		\
 	cmake/modules/FindChocolatey.cmake	\
 	cmake/modules/FindDOXYGEN.cmake		\
+	cmake/modules/FindFOP.cmake		\
 	cmake/modules/FindFreetype.cmake	\
+	cmake/modules/FindGCRYPT.cmake		\
+	cmake/modules/FindGEOIP.cmake		\
 	cmake/modules/FindGLIB2.cmake		\
 	cmake/modules/FindGMODULE2.cmake	\
 	cmake/modules/FindGNUTLS.cmake		\
@@ -1241,11 +1238,11 @@ EXTRA_DIST = \
 	cmake/modules/FindGTK3.cmake		\
 	cmake/modules/FindHtmlViewer.cmake	\
 	cmake/modules/FindKERBEROS.cmake	\
-	cmake/modules/FindNL.cmake		\
 	cmake/modules/FindLEX.cmake		\
 	cmake/modules/FindLUA.cmake		\
 	cmake/modules/FindLYNX.cmake		\
 	cmake/modules/FindM.cmake		\
+	cmake/modules/FindNL.cmake		\
 	cmake/modules/FindOS_X_FRAMEWORKS.cmake	\
 	cmake/modules/FindPCAP.cmake		\
 	cmake/modules/FindPOD.cmake		\
@@ -1262,8 +1259,11 @@ EXTRA_DIST = \
 	cmake/modules/FindYACC.cmake		\
 	cmake/modules/FindYAPP.cmake		\
 	cmake/modules/FindZLIB.cmake		\
+	cmake/modules/gmxTestLargeFiles.cmake	\
+	cmake/modules/hhc.cmake	\
 	cmake/modules/LICENSE.txt		\
 	cmake/modules/LocatePythonModule.cmake	\
+	cmake/modules/readme.txt		\
 	cmake/modules/UseABICheck.cmake		\
 	cmake/modules/UseAsn2Wrs.cmake		\
 	cmake/modules/UseCheckAPI.cmake		\
@@ -1273,8 +1273,9 @@ EXTRA_DIST = \
 	cmake/modules/UseWinLibs.cmake		\
 	cmake/modules/WiresharkConfig.cmake.in	\
 	cmake/modules/WiresharkConfigVersion.cmake.in \
-	cmake/modules/gmxTestLargeFiles.cmake	\
-	cmake/modules/readme.txt		\
+	cmake/TestFileOffsetBits.c	\
+	cmake/TestLargeFiles.c.cmakein	\
+	cmake/TestWindowsFSeek.c	\
 	ui/win32/Makefile.nmake			\
 	ui/win32/console_win32.c		\
 	ui/win32/console_win32.h		\

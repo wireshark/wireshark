@@ -138,7 +138,6 @@ EXTRA_DIST = \
 	gen-bugnote					\
 	git-compare-abis.sh				\
 	git-export-release.sh				\
-	hhc.cmd.in					\
 	html2text.py					\
 	idl2deb						\
 	idl2wrs						\

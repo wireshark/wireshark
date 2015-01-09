@@ -1,9 +1,12 @@
 # hhc.exe returns 1 on success - which cmake instprets as failure in case
 #  of add_custom_command.
 
-# Params 0,1 and 2 are "cmake -P hhc.cmake"
-set(_param ${CMAKE_ARGV3})
+# Params are
+#   cmake -P /path/to/hhc.cmake "/path/to/hhc.exe" project.hhp
+set(_hhc_executable ${CMAKE_ARGV3})
+set(_project_file ${CMAKE_ARGV4})
 
-EXECUTE_PROCESS(
-  COMMAND ${HHC_EXECUTABLE} ${_param}
+execute_process(
+  COMMAND ${_hhc_executable} ${_project_file}
+  RESULT_VARIABLE _return_code
 )

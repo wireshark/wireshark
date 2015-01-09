@@ -23,27 +23,30 @@ find_package( FOP ) # Call before XSLTPROC
 find_package( LYNX )
 find_package( XSLTPROC )
 find_package( XMLLINT )
-find_package( HHC )
+find_package( HTMLHelp )
 
 find_package( ASCIIDOC )
 
 if(WIN32)
-	MACRO( HHP2CHM _hhpsource )
-		GET_FILENAME_COMPONENT( _source_base_name ${_hhpsource} NAME_WE )
+	macro( HHP2CHM _hhpsource )
+		get_filename_component( _source_base_name ${_hhpsource} NAME_WE )
 
-		ADD_CUSTOM_COMMAND(
+		add_custom_command(
 			OUTPUT ${_output_chm}
 			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-			# hhc.exe returns 1 on success.
-			COMMAND ${HHC_WRAPPER} ${_hhpsource}
+			# The number and order of arguments MUST match hhc.cmake.
+			COMMAND ${CMAKE_COMMAND} -P
+				${CMAKE_SOURCE_DIR}/cmake/modules/hhc.cmake
+					"${HTML_HELP_COMPILER}"
+					${_hhpsource}
 			DEPENDS
 				${_hhpsource}
 		)
-	ENDMACRO()
+	endmacro()
 else()
-	MACRO( HHP2CHM _hhpsource )
+	macro( HHP2CHM _hhpsource )
 	# Dummy.
-	ENDMACRO()
+	endmacro()
 endif()
 
 set(COMMON_GRAPHICS

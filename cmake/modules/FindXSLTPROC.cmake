@@ -187,6 +187,7 @@ MACRO(XML2HHP _guide _docbooksource)
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${_gfxdir} ${_basedir}/${_gfxdir}
 	COMMAND ${CMAKE_COMMAND} -E copy_directory common_graphics ${_basedir}
+	# HTML Help doesn't render decimal character entities in the title.
 	COMMAND ${SED_EXECUTABLE}
 	    -e "s|er&#8217;s Guide</title>|er's Guide</title>|"
 	    < ${_docbooksource}
@@ -202,6 +203,9 @@ MACRO(XML2HHP _guide _docbooksource)
 	    --nonet custom_layer_chm.xsl
 	    ${_docbook_plain_title}
         DEPENDS
+	    # AsciiDoc uses UTF-8 by default, which is unsupported by HTML
+	    # Help. We may want to render an ISO-8859-1 version, or get rid
+	    # of HTML Help.
             ${_docbooksource}
     )
 ENDMACRO(XML2HHP)
