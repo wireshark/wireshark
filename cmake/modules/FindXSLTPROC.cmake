@@ -186,8 +186,7 @@ MACRO(XML2HHP _guide _docbooksource)
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
 	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_basedir}/${_gfxdir}
-	# XXX - HTML Help doesn't support SVG.
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_basedir}
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_basedir}/${_gfxdir}
 	# HTML Help doesn't render decimal character entities in the title.
 	COMMAND ${SED_EXECUTABLE}
 	    -e "s|er&#8217;s Guide</title>|er's Guide</title>|"
