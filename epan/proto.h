@@ -499,7 +499,8 @@ typedef enum {
 /* Byte types */
 	BASE_DOT = 8,        /**< hexadecimal bytes with a period (.) between each byte */
 	BASE_DASH  = 9,      /**< hexadecimal bytes with a dash (-) between each byte */
-	BASE_SEMICOLON  = 10 /**< hexadecimal bytes with a dash (:) between each byte */
+	BASE_SEMICOLON = 10, /**< hexadecimal bytes with a dash (:) between each byte */
+	BASE_SPACE  = 11 /**< hexadecimal bytes with a space between each byte */
 } field_display_e;
 
 /* Following constants have to be ORed with a field_display_e when dissector

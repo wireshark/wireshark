@@ -160,6 +160,7 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 			case BASE_DASH:
 				separator = '-';
 				break;
+			case BASE_SPACE:
 			case BASE_SEMICOLON:
 			case BASE_NONE:
 			default:

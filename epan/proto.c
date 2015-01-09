@@ -4164,7 +4164,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 	const char *hf_str_val;
 	char number_buf[32];
 	const char *number_out;
-	char *tmpbuf;
+	char *tmpbuf, *str;
 	int *field_idx;
 	int field_id;
 	int ii = 0;
@@ -4249,39 +4249,23 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 				case FT_UINT_BYTES:
 				case FT_BYTES:
 					bytes = (guint8 *)fvalue_get(&finfo->value);
-					switch(hfinfo->display)
-					{
-					case BASE_DOT:
-						if (bytes) {
-							char* str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
-							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-							wmem_free(NULL, str);
-						} else {
-							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
-						}
-						break;
-					case BASE_DASH:
-						if (bytes) {
-							char* str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
-							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-							wmem_free(NULL, str);
-						} else {
-							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
-						}
-						break;
-					case BASE_SEMICOLON:
-						if (bytes) {
-							char* str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
-							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-							wmem_free(NULL, str);
-						} else {
-							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
-						}
-						break;
-					case BASE_NONE:
-					default:
-						if (bytes) {
-							char* str;
+					if (bytes) {
+						switch(hfinfo->display)
+						{
+						case BASE_DOT:
+							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
+							break;
+						case BASE_DASH:
+							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
+							break;
+						case BASE_SEMICOLON:
+							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
+							break;
+						case BASE_SPACE:
+							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
+							break;
+						case BASE_NONE:
+						default:
 							if (prefs.display_byte_fields_with_spaces)
 							{
 								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
@@ -4290,12 +4274,13 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							{
 								str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
 							}
-							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-							wmem_free(NULL, str);
-						} else {
-							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
+							break;
 						}
-						break;
+						offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+						wmem_free(NULL, str);
+					}
+					else {
+						offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
 					}
 					break;
 
@@ -4394,11 +4379,9 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					offset_r = (int)strlen(result);
 					break;
 				case FT_EUI64:
-					{
-					char* str = eui64_to_str(NULL, fvalue_get_integer64(&finfo->value));
+					str = eui64_to_str(NULL, fvalue_get_integer64(&finfo->value));
 					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
 					wmem_free(NULL, str);
-					}
 					break;
 
 				case FT_IPv4:
@@ -4430,7 +4413,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 				case FT_GUID:
 					{
-					char* str = guid_to_str(NULL, (e_guid_t *)fvalue_get(&finfo->value));
+					str = guid_to_str(NULL, (e_guid_t *)fvalue_get(&finfo->value));
 					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
 					wmem_free(NULL, str);
 					}
@@ -5648,9 +5631,10 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case BASE_DOT:
 				case BASE_DASH:
 				case BASE_SEMICOLON:
+				case BASE_SPACE:
 					break;
 				default:
-				g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, BASE_DOT, BASE_DASH, or BASE_SEMICOLON\n",
+				g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, BASE_DOT, BASE_DASH, BASE_SEMICOLON, or BASE_SPACE\n",
 					hfinfo->name, hfinfo->abbrev,
 					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 			}
@@ -6048,6 +6032,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 					break;
 				case BASE_SEMICOLON:
 					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ':');
+					break;
+				case BASE_SPACE:
+					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
 					break;
 				case BASE_NONE:
 				default:
