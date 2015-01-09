@@ -2840,7 +2840,6 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                          plixer_pie_seen = FALSE,
                          ntop_pie_seen = FALSE,
                          ixia_pie_seen = FALSE;
-
     entries_p = tmplt_p->fields_p[fields_type];
     if (entries_p == NULL) {
         /* I don't think we can actually hit this condition.
@@ -6862,12 +6861,12 @@ proto_register_netflow(void)
         {&hf_cflow_packets,
          {"Packets", "cflow.packets",
           FT_UINT64, BASE_DEC, NULL, 0x0,
-          "Count of packets", HFILL}
+          "Count of packets in flow", HFILL}
         },
         {&hf_cflow_octets,
          {"Octets", "cflow.octets",
           FT_UINT64, BASE_DEC, NULL, 0x0,
-          "Count of bytes", HFILL}
+          "Count of bytes in flow", HFILL}
         },
         {&hf_cflow_length_min,
          {"MinLength", "cflow.length_min",
@@ -6882,7 +6881,7 @@ proto_register_netflow(void)
         {&hf_cflow_timedelta,
          {"Duration", "cflow.timedelta",
           FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-          "Duration of flow sample (end - start)", HFILL}
+          "Duration of flow sample (end - start) in seconds", HFILL}
         },
         {&hf_cflow_timestart,
          {"StartTime", "cflow.timestart",
@@ -7081,27 +7080,27 @@ proto_register_netflow(void)
           "Sampler Name", HFILL}
         },
         {&hf_cflow_forwarding_status,
-         {"ForwdStat", "cflow.forwarding_status",
+         {"ForwardingStatus", "cflow.forwarding_status",
           FT_UINT8, BASE_DEC, VALS(v9_forwarding_status), 0xC0,
           "Forwarding Status", HFILL}
         },
         {&hf_cflow_forwarding_status_unknown_code,
-         {"ForwdCode", "cflow.forwarding_status_unknown_code",
+         {"ForwardingStatusUnknown", "cflow.forwarding_status_unknown_code",
           FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_unknown_code), 0x3F,
           NULL, HFILL}
         },
         {&hf_cflow_forwarding_status_forward_code,
-         {"ForwdCode", "cflow.forwarding_status_foreward_code",
+         {"ForwardingStatusForwardCode", "cflow.forwarding_status_forward_code",
           FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_forward_code), 0x3F,
           NULL, HFILL}
         },
         {&hf_cflow_forwarding_status_drop_code,
-         {"ForwdCode", "cflow.forwarding_status_drop_code",
+         {"ForwardingStatusDropCode", "cflow.forwarding_status_drop_code",
           FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_drop_code), 0x3F,
           NULL, HFILL}
         },
         {&hf_cflow_forwarding_status_consume_code,
-         {"ForwdCode", "cflow.forwarding_status_consume_code",
+         {"ForwardingStatusConsumeCode", "cflow.forwarding_status_consume_code",
           FT_UINT8, BASE_DEC, VALS(v9_forwarding_status_consume_code), 0x3F,
           NULL, HFILL}
         },
