@@ -34,20 +34,30 @@ set (_common_xsltproc_args
     --stringparam html.stylesheet ws.css
     )
 
-#set (WSUG_XSLTPROC_ARGS
-#	--stringparam admon.graphics.path wsug_graphics/
-#
-#WSDG_XSLTPROC_ARGS = \
-#	--stringparam admon.graphics.path wsdg_graphics/
-#
-#SINGLE_XSLTPROC_ARGS = \
-#	--nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl
-#
-#CHUNKED_XSLTPROC_ARGS = \
-#	--nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl
-#
-#HTMLHELP_XSLTPROC_ARGS = \
-#
+if (WIN32 AND NOT "${CYGWIN_INSTALL_PATH}" STREQUAL "" AND ${XSLTPROC_EXECUTABLE} MATCHES "${CYGWIN_INSTALL_PATH}")
+    FIND_PROGRAM(CYGPATH_EXECUTABLE
+        NAMES cygpath
+        PATHS ${CYGWIN_INSTALL_PATH}/bin
+    )
+    # XXX Duplicate of TO_A2X_COMPATIBLE_PATH
+    MACRO( TO_XSLTPROC_COMPATIBLE_PATH _cmake_path _result )
+        execute_process(
+            COMMAND ${CYGPATH_EXECUTABLE} -u ${_cmake_path}
+            OUTPUT_VARIABLE _cygwin_path
+        )
+        # cygpath adds a linefeed.
+        string(STRIP "${_cygwin_path}" _cygwin_path)
+
+        set( ${_result} ${_cygwin_path} )
+    ENDMACRO()
+
+    TO_XSLTPROC_COMPATIBLE_PATH( ${CMAKE_CURRENT_SOURCE_DIR} _xsltproc_current_source_dir )
+    TO_XSLTPROC_COMPATIBLE_PATH( ${CMAKE_CURRENT_BINARY_DIR} _xsltproc_current_binary_dir )
+
+    set ( _xsltproc_path "${_xsltproc_current_source_dir}:${_xsltproc_current_binary_dir}:${_xsltproc_current_binary_dir}/wsluarm_src")
+else()
+    set ( _xsltproc_path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src")
+endif()
 
 # Translate XML to HTML
 #XML2HTML(
@@ -103,7 +113,7 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
         COMMAND cmake
             -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ws.css ${_outdir}
         COMMAND ${XSLTPROC_EXECUTABLE}
-            --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
+            --path "${_xsltproc_path}"
             --stringparam base.dir ${_basedir}/
 	    ${_common_xsltproc_args}
             --stringparam admon.graphics.path ${_gfxdir}/
@@ -136,7 +146,7 @@ MACRO(XML2PDF _output _sources _stylesheet _paper)
         OUTPUT
             ${_output}
         COMMAND ${XSLTPROC_EXECUTABLE}
-            --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
+            --path "${_xsltproc_path}"
             --stringparam paper.type ${_paper}
             --stringparam img.src.path ${CMAKE_CURRENT_SOURCE_DIR}/
             --stringparam use.id.as.filename 1
@@ -182,7 +192,7 @@ MACRO(XML2HHP _guide _docbooksource)
 	    < ${_docbooksource}
 	    > ${_docbook_plain_title}
         COMMAND ${XSLTPROC_EXECUTABLE}
-            --path "${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_CURRENT_BINARY_DIR}:${CMAKE_CURRENT_BINARY_DIR}/wsluarm_src"
+            --path "${_xsltproc_path}"
             --stringparam base.dir ${_basedir}/
 	    --stringparam htmlhelp.chm ${_output_chm}
 	    --stringparam htmlhelp.hhp ${_output_hhp}
