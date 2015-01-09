@@ -66,9 +66,6 @@ ep_new0(t) : allocate a single element of type t and fill it with 0.
 .._strdup_vprintf() : will calculate the size of the formatted string, 
   allocate a chunk for it and format the string.
 
-ep_strsplit(): will split a string based on a certain separator returning an 
-  array of strings.
-
 3.3 Stack related functions
 
 ep_stack_new() : creates an ephemeral stack.

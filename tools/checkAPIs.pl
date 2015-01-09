@@ -164,7 +164,6 @@ my %APIs = (
                 'ep_strconcat',
                 'ep_alloc_array',
                 'ep_alloc_array0',
-                'ep_strsplit',
                 'ep_stack_new',
                 'ep_stack_push',
                 'ep_stack_pop',

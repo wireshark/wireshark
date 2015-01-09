@@ -360,18 +360,21 @@ ssl_parse_old_keys(void)
 
     /* Import old-style keys */
     if (ssldecrypt_uat && ssl_keys_list && ssl_keys_list[0]) {
-        old_keys = ep_strsplit(ssl_keys_list, ";", 0);
+        old_keys = wmem_strsplit(NULL, ssl_keys_list, ";", 0);
         for (i = 0; old_keys[i] != NULL; i++) {
-            parts = ep_strsplit(old_keys[i], ",", 4);
+            parts = wmem_strsplit(NULL, old_keys[i], ",", 4);
             if (parts[0] && parts[1] && parts[2] && parts[3]) {
-                uat_entry = ep_strdup_printf("\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
+                uat_entry = wmem_strdup_printf(NULL, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
                                 parts[0], parts[1], parts[2], parts[3]);
                 if (!uat_load_str(ssldecrypt_uat, uat_entry, &err)) {
                     ssl_debug_printf("ssl_parse_old_keys: Can't load UAT string %s: %s\n",
                                      uat_entry, err);
                 }
+                wmem_free(NULL, uat_entry);
             }
+            wmem_free(NULL, parts);
         }
+        wmem_free(NULL, old_keys);
     }
 }
 

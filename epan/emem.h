@@ -87,16 +87,6 @@ gchar *ep_strconcat(const gchar *string, ...) G_GNUC_MALLOC G_GNUC_NULL_TERMINAT
 /** allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
 
-/**
- * Splits a string into a maximum of max_tokens pieces, using the given
- * delimiter. If max_tokens is reached, the remainder of string is appended
- * to the last token. Consecutive delimiters are treated as a single delimiter.
- *
- * The vector and all the strings are allocated with packet lifetime scope
- */
-WS_DLL_PUBLIC
-gchar** ep_strsplit(const gchar* string, const gchar* delimiter, int max_tokens);
-
 /** release all memory allocated in the previous packet dissection */
 void ep_free_all(void);
 
