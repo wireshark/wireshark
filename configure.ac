@@ -2795,15 +2795,18 @@ AC_SUBST(wireshark_SUBDIRS)
 # git://git.kernel.org/pub/scm/bluetooth/sbc.git
 AC_ARG_WITH([sbc],
   AC_HELP_STRING( [--with-sbc=@<:@yes/no@:>@],
-                  [use SBC codec to play Bluetooth A2DP stream @<:@default=yes@:>@]),
-  with_sbc="$withval", with_sbc="yes")
+                  [use SBC codec to play Bluetooth A2DP stream @<:@default=yes, if available@:>@]),
+  with_sbc="$withval"; want_sbc="yes", with_sbc="yes")
 
 PKG_CHECK_MODULES(SBC, sbc >= 1.0, [have_sbc=yes], [have_sbc=no])
-if test "x$with_sbc" = "xyes"; then
+if test "x$with_sbc" != "xno"; then
     if (test "${have_sbc}" = "yes"); then
         AC_DEFINE(HAVE_SBC, 1, [Define to support playing SBC by standalone BlueZ SBC library])
         CFLAGS="$CFLAGS $(pkg-config sbc --cflags)"
         LIBS="$LIBS $(pkg-config sbc --libs)"
+    elif test "x$want_sbc" = "xyes"; then
+	# Error out if the user explicitly requested the sbc library
+	AC_MSG_ERROR([SBC codec library was requested, but is not available])
     fi
 else
     have_sbc=no
