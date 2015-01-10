@@ -860,7 +860,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	/* error */
 	if (errorlen) {
 		proto_tree_add_item(tree, hf_ctdb_error, tvb, offset, errorlen, endianess);
-		offset+=datalen;
+		offset+=errorlen;
 	}
 
 
