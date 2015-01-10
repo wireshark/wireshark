@@ -560,8 +560,9 @@ void IOGraphDialog::reject()
                 io_graph_free_cb(&iogs);
             }
         }
-        const char* err = NULL;
+        char* err = NULL;
         uat_save(iog_uat_, &err);
+        g_free(err);
     }
 
     QDialog::reject();
@@ -1074,8 +1075,9 @@ void IOGraphDialog::loadProfileGraphs()
                        io_graph_free_cb,
                        NULL,
                        io_graph_fields);
-    const char* err = NULL;
+    char* err = NULL;
     uat_load(iog_uat_, &err);
+    g_free(err);
 }
 
 

@@ -1445,7 +1445,7 @@ ssl_data_clone(StringInfo *str)
 }
 
 /* from_hex converts |hex_len| bytes of hex data from |in| and sets |*out| to
- * the result. |out->data| will be allocated using se_alloc. Returns TRUE on
+ * the result. |out->data| will be allocated using wmem_file_scope. Returns TRUE on
  * success. */
 static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
     gsize i;
@@ -4068,7 +4068,7 @@ ssl_private_key_hash  (gconstpointer v)
 }
 
 /* private key table entries have a scope 'larger' then packet capture,
- * so we can't relay on se_alloc** function */
+ * so we can't rely on wmem_file_scope function */
 void
 ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_)
 {
@@ -4815,7 +4815,7 @@ gboolean
 ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
     if (!p || strlen(p) == 0u) {
-        *err = ep_strdup_printf("No IP address given.");
+        *err = g_strdup_printf("No IP address given.");
         return FALSE;
     }
 
@@ -4827,14 +4827,14 @@ gboolean
 ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
     if (!p || strlen(p) == 0u) {
-        *err = ep_strdup_printf("No Port given.");
+        *err = g_strdup_printf("No Port given.");
         return FALSE;
     }
 
     if (strcmp(p, "start_tls") != 0){
         const gint i = atoi(p);
         if (i < 0 || i > 65535) {
-            *err = ep_strdup_printf("Invalid port given.");
+            *err = g_strdup_printf("Invalid port given.");
             return FALSE;
         }
     }
@@ -4847,13 +4847,13 @@ gboolean
 ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
     if (!p || strlen(p) == 0u) {
-        *err = ep_strdup_printf("No protocol given.");
+        *err = g_strdup_printf("No protocol given.");
         return FALSE;
     }
 
     if (!find_dissector(p)) {
         char* ssl_str = ssl_association_info();
-        *err = ep_strdup_printf("Could not find dissector for: '%s'\nValid dissectors are:\n%s", p, ssl_str);
+        *err = g_strdup_printf("Could not find dissector for: '%s'\nValid dissectors are:\n%s", p, ssl_str);
         g_free(ssl_str);
         return FALSE;
     }
@@ -4868,11 +4868,11 @@ ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, guint len _U_, co
     ws_statb64 st;
 
     if (!p || strlen(p) == 0u) {
-        *err = ep_strdup_printf("No filename given.");
+        *err = g_strdup_printf("No filename given.");
         return FALSE;
     } else {
         if (ws_stat64(p, &st) != 0) {
-            *err = ep_strdup_printf("File '%s' does not exist or access is denied.", p);
+            *err = g_strdup_printf("File '%s' does not exist or access is denied.", p);
             return FALSE;
         }
     }
@@ -4893,14 +4893,14 @@ ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, guint len _U_, co
             char *msg = NULL;
             if (!ssl_load_pkcs12(fp, p, &msg)) {
                 fclose(fp);
-                *err = ep_strdup_printf("Could not load PKCS#12 key file: %s", msg);
+                *err = g_strdup_printf("Could not load PKCS#12 key file: %s", msg);
                 g_free(msg);
                 return FALSE;
             }
             g_free(msg);
             fclose(fp);
         } else {
-            *err = ep_strdup_printf("Leave this field blank if the keyfile is not PKCS#12.");
+            *err = g_strdup_printf("Leave this field blank if the keyfile is not PKCS#12.");
             return FALSE;
         }
     }

@@ -225,9 +225,11 @@ pref_show(pref_t *pref, gpointer user_data)
 
   case PREF_RANGE:
   {
-    char *range_str_p;
+    char *range_str_p, *tmp_range;
 
-    range_str_p = range_convert_range(*pref->varp.range);
+    tmp_range = range_convert_range(NULL, *pref->varp.range);
+    range_str_p = ep_strdup(tmp_range);
+    wmem_free(NULL, tmp_range);
     pref->control = create_preference_entry(main_grid, pref->ordinal,
                                             label_string, tooltip_txt,
                                             range_str_p);

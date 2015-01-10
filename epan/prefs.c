@@ -3460,7 +3460,8 @@ static gboolean
 prefs_set_uat_pref(char *uat_entry) {
     gchar *p, *colonp;
     uat_t *uat;
-    gchar *err;
+    gchar *err = NULL;
+    gboolean ret;
 
     colonp = strchr(uat_entry, ':');
     if (colonp == NULL)
@@ -3492,10 +3493,9 @@ prefs_set_uat_pref(char *uat_entry) {
         return FALSE;
     }
 
-    if (uat_load_str(uat, p, &err)) {
-        return TRUE;
-    }
-    return FALSE;
+    ret = uat_load_str(uat, p, &err);
+    g_free(err);
+    return ret;
 }
 
 /*
@@ -4531,6 +4531,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     const char *pref_text = "[Unknown]";
     void *valp; /* pointer to preference value */
     color_t *pref_color;
+    gchar *tmp_value, *ret_value;
 
     if (!pref) {
         return g_strdup(pref_text);
@@ -4603,8 +4604,11 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
         return g_strdup(*(const char **) valp);
 
     case PREF_RANGE:
-        pref_text = range_convert_range(*(range_t **) valp);
-        break;
+        /* Convert wmem to g_alloc memory */
+        tmp_value = range_convert_range(NULL, *(range_t **) valp);
+        ret_value = g_strdup(tmp_value);
+        wmem_free(NULL, tmp_value);
+        return ret_value;
 
     case PREF_COLOR:
         return g_strdup_printf("%02x%02x%02x",

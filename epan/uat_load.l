@@ -79,7 +79,9 @@ static gchar *parse_str;
 static guint parse_str_pos;
 
 #define ERROR(fmtd) do { \
-    error = ep_strdup_printf("%s:%d: %s",uat->filename,linenum,ep_strdup_printf fmtd); \
+    char* fmt_str = g_strdup_printf fmtd; \
+    error = g_strdup_printf("%s:%d: %s",uat->filename,linenum,fmt_str); \
+    g_free(fmt_str); \
     yyterminate(); \
 } while(0)
 
@@ -87,7 +89,7 @@ static guint parse_str_pos;
 	{ const gchar* errx; \
 	if (uat->fields[colnum].cb.chk) { \
 		if ( ! uat->fields[colnum].cb.chk(record, ptrx, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data, &errx) ) { \
-			error = ep_strdup_printf("%s:%d: %s",uat->filename,linenum,ep_strdup_printf("%s",errx)); \
+			error = g_strdup_printf("%s:%d: %s",uat->filename,linenum,errx); \
 			valid_record = FALSE; \
 		}\
 	}\
@@ -251,12 +253,8 @@ comment #[^\n]*\n
 		uat->update_cb(rec,&err);
 
 	if (err) {
-		char *tmp = ep_strdup(err);
-		/* XXX bit of a hack to remove emem from dissectors, this can
-		 * be removed as proper use of glib memory is propogated
-		 * through the rest of the UAT code */
-		g_free((char*)err);
-		ERROR(("%s",tmp));
+		error = err;
+		yyterminate();
 	}
 
 	valid_record = TRUE;
@@ -286,7 +284,7 @@ comment #[^\n]*\n
 
 
 gboolean
-uat_load(uat_t *uat_in, const char **errx)
+uat_load(uat_t *uat_in, char **errx)
 {
 	gchar *fname = uat_get_actual_filename(uat_in, FALSE);
 
@@ -304,7 +302,7 @@ uat_load(uat_t *uat_in, const char **errx)
 
 
 	if (!(yyin = ws_fopen(fname,"r"))) {
-		*errx = g_strerror(errno);
+		*errx = g_strdup(g_strerror(errno));
 		g_free(fname);
 		return FALSE;
 	}
@@ -329,7 +327,7 @@ uat_load(uat_t *uat_in, const char **errx)
 	UAT_UPDATE(uat);
 
 	if (error) {
-		*errx = ep_strdup(error);
+		*errx = g_strdup(error);
 		return FALSE;
 	}
 
@@ -368,7 +366,7 @@ uat_load_str(uat_t *uat_in, char *entry, char **err)
 	UAT_UPDATE(uat);
 
 	if (error) {
-		*err = ep_strdup(error);
+		*err = g_strdup(error);
 		return FALSE;
 	}
 

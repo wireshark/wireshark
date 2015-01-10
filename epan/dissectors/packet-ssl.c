@@ -369,6 +369,7 @@ ssl_parse_old_keys(void)
                 if (!uat_load_str(ssldecrypt_uat, uat_entry, &err)) {
                     ssl_debug_printf("ssl_parse_old_keys: Can't load UAT string %s: %s\n",
                                      uat_entry, err);
+                    g_free(err);
                 }
                 wmem_free(NULL, uat_entry);
             }

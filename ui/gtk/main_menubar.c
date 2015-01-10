@@ -4936,7 +4936,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 {
     pref_t    *pref   = (pref_t *)data;
     module_t  *module = (module_t *)g_object_get_data (G_OBJECT(w), "module");
-    gchar     *value  = NULL, *label_str;
+    gchar     *value  = NULL, *tmp_value, *label_str;
 
     GtkWidget *win, *main_grid, *main_vb, *bbox, *cancel_bt, *ok_bt;
     GtkWidget *entry, *label;
@@ -4962,7 +4962,10 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
         value = g_strdup(*pref->varp.string);
         break;
     case PREF_RANGE:
-        value = g_strdup(range_convert_range (*pref->varp.range));
+        /* Convert wmem to g_alloc memory */
+        tmp_value = range_convert_range(NULL, *pref->varp.range);
+        value = g_strdup(tmp_value);
+        wmem_free(NULL, tmp_value);
         break;
     default:
         g_assert_not_reached();
@@ -5024,7 +5027,7 @@ add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_me
     GSList           *group  = NULL;
     module_t         *module = (module_t *)data;
     const enum_val_t *enum_valp;
-    gchar            *label  = NULL;
+    gchar            *label  = NULL, *tmp_str;
 
     switch (pref->type) {
     case PREF_UINT:
@@ -5080,7 +5083,9 @@ add_protocol_prefs_generic_menu(pref_t *pref, gpointer data, GtkUIManager *ui_me
         g_free (label);
         break;
     case PREF_RANGE:
-        label = g_strdup_printf ("%s: %s", pref->title, range_convert_range (*pref->varp.range));
+        tmp_str = range_convert_range (NULL, *pref->varp.range);
+        label = g_strdup_printf ("%s: %s", pref->title, tmp_str);
+        wmem_free(NULL, tmp_str);
         menu_item = gtk_menu_item_new_with_label(label);
         g_object_set_data (G_OBJECT(menu_item), "module", module);
         g_signal_connect(menu_item, "activate", G_CALLBACK(menu_prefs_edit_dlg), pref);

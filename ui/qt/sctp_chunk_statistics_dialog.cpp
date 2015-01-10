@@ -273,7 +273,7 @@ void SCTPChunkStatisticsDialog::on_actionHideChunkType_triggered()
 
 void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
 {
-    const gchar* err = NULL;
+    gchar* err = NULL;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
     uat_t *uat = pref->varp.uat;
@@ -282,6 +282,7 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
     uat_load(pref->varp.uat, &err);
     if (err) {
         printf("Error loading table '%s': %s",pref->varp.uat->name,err);
+        g_free(err);
     }
 
     UatDialog *uatdialog = new UatDialog(this, pref->varp.uat);

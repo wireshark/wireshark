@@ -580,13 +580,13 @@ static gboolean macro_name_chk(void* r _U_, const char* in_name, guint name_len,
 	guint i;
 
 	if (name_len == 0) {
-		*error = "invalid name";
+		*error = g_strdup("invalid name");
 		return FALSE;
 	}
 
 	for (i=0; i < name_len; i++) {
 		if (!(in_name[i] == '_' || g_ascii_isalnum(in_name[i]) ) ) {
-			*error = "invalid char in name";
+			*error = g_strdup("invalid char in name");
 			return FALSE;
 		}
 	}

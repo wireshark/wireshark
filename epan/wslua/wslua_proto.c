@@ -427,7 +427,13 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
                 case PREF_UINT: lua_pushnumber(L,(lua_Number)prefs_p->value.u); break;
                 case PREF_STRING: lua_pushstring(L,prefs_p->value.s); break;
                 case PREF_ENUM: lua_pushnumber(L,(lua_Number)prefs_p->value.e); break;
-                case PREF_RANGE: lua_pushstring(L,range_convert_range(prefs_p->value.r)); break;
+                case PREF_RANGE:
+                    {
+                    char *push_str = range_convert_range(NULL, prefs_p->value.r);
+                    lua_pushstring(L, push_str);
+                    wmem_free(NULL, push_str);
+                    }
+                    break;
                 default: WSLUA_ERROR(Prefs__index,"Unknow Pref type"); return 0;
             }
             WSLUA_RETURN(1); /* The current value of the preference. */

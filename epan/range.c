@@ -322,27 +322,27 @@ range_foreach(range_t *range, void (*callback)(guint32 val))
    }
 }
 
-/* This function converts a range_t to a (ep_alloc()-allocated) string.  */
+/* This function converts a range_t to a (wmem-allocated) string.  */
 char *
-range_convert_range(range_t *range)
+range_convert_range(wmem_allocator_t *scope, range_t *range)
 {
    guint32 i;
    gboolean prepend_comma = FALSE;
-   emem_strbuf_t *strbuf;
+   wmem_strbuf_t *strbuf;
 
-   strbuf=ep_strbuf_new(NULL);
+   strbuf=wmem_strbuf_new(scope, "");
 
    if (range) {
       for (i=0; i < range->nranges; i++) {
          if (range->ranges[i].low == range->ranges[i].high) {
-            ep_strbuf_append_printf(strbuf, "%s%u", prepend_comma?",":"", range->ranges[i].low);
+            wmem_strbuf_append_printf(strbuf, "%s%u", prepend_comma?",":"", range->ranges[i].low);
          } else {
-            ep_strbuf_append_printf(strbuf, "%s%u-%u", prepend_comma?",":"", range->ranges[i].low, range->ranges[i].high);
+            wmem_strbuf_append_printf(strbuf, "%s%u-%u", prepend_comma?",":"", range->ranges[i].low, range->ranges[i].high);
          }
          prepend_comma = TRUE;
       }
    }
-   return strbuf->str;
+   return wmem_strbuf_finalize(strbuf);
 }
 
 /* Create a copy of a range. */

@@ -174,10 +174,14 @@ static const gchar *st_str_plen = "Packet Lengths";
 static void plen_stats_tree_init(stats_tree *st) {
 	guint i;
 	char **str_range_array = (char **)ep_alloc(num_plen_uat*sizeof(char*));
+	char *tmp_str, *range_str;
 
 	/* Convert the ranges to strings for the stats tree API */
 	for (i = 0; i < num_plen_uat; i++) {
-		str_range_array[i] = range_convert_range(uat_plen_records[i].packet_range);
+		tmp_str = range_convert_range(NULL, uat_plen_records[i].packet_range),
+		range_str = ep_strdup(tmp_str);
+		str_range_array[i] = range_str;
+		wmem_free(NULL, tmp_str);
 	}
 
 	st_node_plen = stats_tree_create_range_node_string(st, st_str_plen, 0, num_plen_uat, str_range_array);

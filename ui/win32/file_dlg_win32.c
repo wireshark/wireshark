@@ -2102,8 +2102,11 @@ range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range) {
 
     /* Retain the filter text, and fill it in. */
     if(range->user_range != NULL) {
+        char* tmp_str;
         cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_RANGE_EDIT);
-        SetWindowText(cur_ctrl, utf_8to16(range_convert_range(range->user_range)));
+        tmp_str = range_convert_range(NULL, range->user_range);
+        SetWindowText(cur_ctrl, utf_8to16(tmp_str));
+        wmem_free(NULL, tmp_str);
     }
 
     /* dynamic values in the range frame */

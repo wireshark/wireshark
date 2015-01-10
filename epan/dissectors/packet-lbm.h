@@ -130,12 +130,12 @@ typedef guint64 lbm_uint64_t;
     {\
         if (((rec_t*)rec)->field_name ) \
         { \
-            *out_ptr = (((rec_t*)rec)->field_name); \
+            *out_ptr = g_strdup((((rec_t*)rec)->field_name)); \
             *out_len = (unsigned)strlen((((rec_t*)rec)->field_name)); \
         } \
         else \
         { \
-            *out_ptr = ""; \
+            *out_ptr = g_strdup(""); \
             *out_len = 0; \
         } \
     }
@@ -150,12 +150,12 @@ typedef guint64 lbm_uint64_t;
         struct in_addr addr; \
         if (inet_aton(strptr, &addr) == 0) \
         { \
-            *err = "invalid address"; \
+            *err = g_strdup("invalid address"); \
             return (FALSE); \
         } \
         if (!IN_MULTICAST(g_ntohl(addr.s_addr)) && (g_ntohl(addr.s_addr) != 0)) \
         { \
-            *err = "invalid multicast address"; \
+            *err = g_strdup("invalid multicast address"); \
             return (FALSE); \
         } \
         return (TRUE); \
@@ -173,12 +173,12 @@ typedef guint64 lbm_uint64_t;
     {\
         if (((rec_t*)rec)->field_name ) \
         { \
-            *out_ptr = (((rec_t*)rec)->field_name); \
+            *out_ptr = g_strdup((((rec_t*)rec)->field_name)); \
             *out_len = (unsigned)strlen((((rec_t*)rec)->field_name)); \
         } \
         else \
         { \
-            *out_ptr = ""; \
+            *out_ptr = g_strdup(""); \
             *out_len = 0; \
         } \
     }

@@ -160,16 +160,18 @@ void* uat_add_record(uat_t* uat, const void* data, gboolean valid_rec) {
 
 void uat_swap(uat_t* uat, guint a, guint b) {
     size_t s = uat->record_size;
-    void* tmp = ep_alloc(s);
+    void* tmp;
     gboolean tmp_bool;
 
     g_assert( a < uat->raw_data->len && b < uat->raw_data->len );
 
     if (a == b) return;
 
+    tmp = g_malloc(s);
     memcpy(tmp, UAT_INDEX_PTR(uat,a), s);
     memcpy(UAT_INDEX_PTR(uat,a), UAT_INDEX_PTR(uat,b), s);
     memcpy(UAT_INDEX_PTR(uat,b), tmp, s);
+    g_free(tmp);
 
     tmp_bool = *(gboolean*)(uat->valid_data->data + (sizeof(gboolean) * (a)));
     *(gboolean*)(uat->valid_data->data + (sizeof(gboolean) * (a))) = *(gboolean*)(uat->valid_data->data + (sizeof(gboolean) * (b)));
@@ -254,7 +256,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
             }
 
             putc('"',fp);
-            return;
+            break;
         }
         case PT_TXTMOD_HEXBYTES: {
             guint i;
@@ -263,14 +265,16 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
                 fprintf(fp,"%.2x",((const guint8*)fld_ptr)[i]);
             }
 
-            return;
+            break;
         }
         default:
             g_assert_not_reached();
     }
+
+    g_free((char*)fld_ptr);
 }
 
-gboolean uat_save(uat_t* uat, const char** error) {
+gboolean uat_save(uat_t* uat, char** error) {
     guint i;
     gchar* fname = uat_get_actual_filename(uat,TRUE);
     FILE* fp;
@@ -283,7 +287,7 @@ gboolean uat_save(uat_t* uat, const char** error) {
         /* Parent directory does not exist, try creating first */
         gchar *pf_dir_path = NULL;
         if (create_persconffile_dir(&pf_dir_path) != 0) {
-            *error = ep_strdup_printf("uat_save: error creating '%s'", pf_dir_path);
+            *error = g_strdup_printf("uat_save: error creating '%s'", pf_dir_path);
             g_free (pf_dir_path);
             return FALSE;
         }
@@ -291,7 +295,7 @@ gboolean uat_save(uat_t* uat, const char** error) {
     }
 
     if (!fp) {
-        *error = ep_strdup_printf("uat_save: error opening '%s': %s",fname,g_strerror(errno));
+        *error = g_strdup_printf("uat_save: error opening '%s': %s",fname,g_strerror(errno));
         return FALSE;
     }
 
@@ -426,7 +430,7 @@ void uat_foreach_table(uat_cb_t cb,void* user_data) {
 
 void uat_load_all(void) {
     guint i;
-    const gchar* err;
+    gchar* err;
 
     for (i=0; i < all_uats->len; i++) {
         uat_t* u = (uat_t *)g_ptr_array_index(all_uats,i);
@@ -437,6 +441,7 @@ void uat_load_all(void) {
 
         if (err) {
             report_failure("Error loading table '%s': %s",u->name,err);
+            g_free(err);
         }
     }
 }
@@ -444,7 +449,7 @@ void uat_load_all(void) {
 
 gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, guint len _U_, const void* u2 _U_, const void* u3 _U_, const char** err) {
     if (strptr == NULL) {
-        *err = "NULL pointer";
+        *err = g_strdup("NULL pointer");
         return FALSE;
     }
 
@@ -457,21 +462,25 @@ gboolean uat_fld_chk_oid(void* u1 _U_, const char* strptr, guint len, const void
     *err = NULL;
 
     if (strptr == NULL) {
-      *err = "NULL pointer";
+      *err = g_strdup("NULL pointer");
       return FALSE;
     }
 
     for(i = 0; i < len; i++)
       if(!(g_ascii_isdigit(strptr[i]) || strptr[i] == '.')) {
-        *err = "Only digits [0-9] and \".\" allowed in an OID";
-        break;
+        *err = g_strdup("Only digits [0-9] and \".\" allowed in an OID");
+        return FALSE;
       }
 
-    if(strptr[len-1] == '.')
-      *err = "OIDs must not be terminated with a \".\"";
+    if(strptr[len-1] == '.') {
+      *err = g_strdup("OIDs must not be terminated with a \".\"");
+      return FALSE;
+    }
 
-    if(!((*strptr == '0' || *strptr == '1' || *strptr =='2') && (len > 1 && strptr[1] == '.')))
-      *err = "OIDs must start with \"0.\" (ITU-T assigned), \"1.\" (ISO assigned) or \"2.\" (joint ISO/ITU-T assigned)";
+    if(!((*strptr == '0' || *strptr == '1' || *strptr =='2') && (len > 1 && strptr[1] == '.'))) {
+      *err = g_strdup("OIDs must start with \"0.\" (ITU-T assigned), \"1.\" (ISO assigned) or \"2.\" (joint ISO/ITU-T assigned)");
+      return FALSE;
+    }
 
     /* should also check that the second arc is in the range 0-39 */
 
@@ -480,15 +489,17 @@ gboolean uat_fld_chk_oid(void* u1 _U_, const char* strptr, guint len, const void
 
 gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, const char** err) {
     if (len) {
-        char* name = ep_strndup(strptr,len);
+        char* name = g_strndup(strptr,len);
         ascii_strdown_inplace(name);
         g_strchug(name);
 
         if (find_dissector(name)) {
             *err = NULL;
+            g_free(name);
             return TRUE;
         } else {
-            *err = "dissector not found";
+            *err = g_strdup("dissector not found");
+            g_free(name);
             return FALSE;
         }
     } else {
@@ -499,7 +510,7 @@ gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, guint len, const vo
 
 static gboolean uat_fld_chk_num(int base, const char* strptr, guint len, const char** err) {
     if (len > 0) {
-        char* str = ep_strndup(strptr,len);
+        char* str = g_strndup(strptr,len);
         char* strn;
         long i;
 
@@ -508,18 +519,23 @@ static gboolean uat_fld_chk_num(int base, const char* strptr, guint len, const c
 
         if (((i == G_MAXLONG || i == G_MINLONG) && errno == ERANGE)
             || (errno != 0 && i == 0)) {
-            *err = g_strerror(errno);
+            *err = g_strdup(g_strerror(errno));
+            g_free(str);
             return FALSE;
         }
         if ((*strn != '\0') && (*strn != ' ')) {
-            *err = "Invalid value";
+            *err = g_strdup("Invalid value");
+            g_free(str);
             return FALSE;
         }
         /* Allow only 32bit values */
         if ((sizeof(long) > 4) && ((i < G_MININT) || (i > G_MAXINT))) {
-            *err = "Value too large";
+            *err = g_strdup("Value too large");
+            g_free(str);
             return FALSE;
         }
+
+        g_free(str);
     }
 
     *err = NULL;
@@ -535,40 +551,50 @@ gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, guint len, const 
 }
 
 gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, guint len, const void* v, const void* u3 _U_, const char** err) {
-    char* str = ep_strndup(strptr,len);
+    char* str = g_strndup(strptr,len);
     guint i;
     const value_string* vs = (const value_string *)v;
 
     for(i=0;vs[i].strptr;i++) {
         if (g_str_equal(vs[i].strptr,str)) {
             *err = NULL;
+            g_free(str);
             return TRUE;
         }
     }
 
-    *err = ep_strdup_printf("invalid value: %s",str);
+    *err = g_strdup_printf("invalid value: %s",str);
+    g_free(str);
     return FALSE;
 }
 
 gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, guint len, const void* v _U_, const void* u3, const char** err) {
-    char* str = ep_strndup(strptr,len);
+    char* str = g_strndup(strptr,len);
     range_t* r = NULL;
     convert_ret_t ret = range_convert_str(&r, str,GPOINTER_TO_UINT(u3));
+    gboolean ret_value = FALSE;
 
     switch (  ret ) {
         case CVT_NO_ERROR:
             *err = NULL;
-            return TRUE;
+            ret_value = TRUE;
+            break;
         case CVT_SYNTAX_ERROR:
-            *err = ep_strdup_printf("syntax error in range: %s",str);
-            return FALSE;
+            *err = g_strdup_printf("syntax error in range: %s",str);
+            ret_value = FALSE;
+            break;
         case CVT_NUMBER_TOO_BIG:
-            *err = ep_strdup_printf("value too large in range: '%s' (max = %u)",str,GPOINTER_TO_UINT(u3));
-            return FALSE;
+            *err = g_strdup_printf("value too large in range: '%s' (max = %u)",str,GPOINTER_TO_UINT(u3));
+            ret_value = FALSE;
+            break;
         default:
-            *err = "This should not happen, it is a bug in wireshark! please report to wireshark-dev@wireshark.org";
-            return FALSE;
+            *err = g_strdup("This should not happen, it is a bug in wireshark! please report to wireshark-dev@wireshark.org");
+            ret_value = FALSE;
+            break;
     }
+
+    g_free(str);
+    return ret_value;
 }
 
 char* uat_unbinstring(const char* si, guint in_len, guint* len_p) {
@@ -685,7 +711,7 @@ char* uat_undquote(const char* si, guint in_len, guint* len_p) {
 
 char* uat_esc(const char* buf, guint len) {
     const guint8* end = ((const guint8*)buf)+len;
-    char* out = (char *)ep_alloc0((4*len)+1);
+    char* out = (char *)g_malloc0((4*len)+1);
     const guint8* b;
     char* s = out;
 

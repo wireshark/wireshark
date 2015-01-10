@@ -186,6 +186,7 @@ QString UatDialog::fieldString(guint row, guint column)
         break;
     }
 
+    g_free((char*)str);
     return string_rep;
 }
 
@@ -377,6 +378,7 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
         field->cb.set(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.set, field->fld_data);
         ok_button_->setEnabled(true);
     } else {
+        g_free((char*)err);
         ok_button_->setEnabled(false);
     }
     uat_->changed = TRUE;
@@ -403,6 +405,7 @@ void UatDialog::stringPrefTextChanged(const QString &text)
             saved_string_pref_ = text;
             ss = SyntaxLineEdit::Valid;
         } else {
+            g_free((char*)err);
             enable_ok = false;
             ss = SyntaxLineEdit::Invalid;
         }
@@ -493,11 +496,12 @@ void UatDialog::on_buttonBox_accepted()
     if (!uat_) return;
 
     if (uat_->changed) {
-        const gchar *err = NULL;
+        gchar *err = NULL;
         uat_save(uat_, &err);
 
         if (err) {
             report_failure("Error while saving %s: %s", uat_->name, err);
+            g_free(err);
         }
 
         if (uat_->post_update_cb) {
@@ -512,12 +516,13 @@ void UatDialog::on_buttonBox_rejected()
     if (!uat_) return;
 
     if (uat_->changed) {
-        const gchar *err = NULL;
+        gchar *err = NULL;
         uat_clear(uat_);
         uat_load(uat_, &err);
 
         if (err) {
             report_failure("Error while loading %s: %s", uat_->name, err);
+            g_free(err);
         }
         applyChanges();
     }
