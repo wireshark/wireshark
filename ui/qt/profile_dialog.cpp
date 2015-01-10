@@ -273,6 +273,7 @@ void ProfileDialog::on_buttonBox_accepted()
         QMessageBox::critical(this, tr("Profile Error"),
                               err_msg,
                               QMessageBox::Ok);
+        g_free((gchar*)err_msg);
         return;
     }
 

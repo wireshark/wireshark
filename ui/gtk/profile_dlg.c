@@ -139,6 +139,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 
   if ((err_msg = apply_profile_changes()) != NULL) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+    g_free((gchar*)err_msg);
     return;
   }
 
@@ -735,9 +736,14 @@ profile_name_edit_ok(GtkWidget *w _U_, gpointer parent_w)
   const gchar  *new_name     = gtk_entry_get_text(GTK_ENTRY(entry));
   const gchar  *profile_name = "";
   gboolean      from_global  = FALSE;
-  char         *pf_dir_path, *pf_dir_path2, *pf_filename;
+  char         *pf_dir_path, *pf_dir_path2, *pf_filename, *valid_name;
 
-  if ((strlen(new_name) == 0) || (profile_name_is_valid(new_name) != NULL)) {
+  if (strlen(new_name) == 0) {
+    return;
+  }
+  valid_name = (char*)profile_name_is_valid(new_name);
+  if (valid_name != NULL) {
+    g_free(valid_name);
     return;
   }
 

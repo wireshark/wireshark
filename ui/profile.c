@@ -114,7 +114,6 @@ const gchar *apply_profile_changes(void) {
     GList       *fl1, *fl2;
     profile_def *profile1, *profile2;
     gboolean     found;
-    emem_strbuf_t *message = ep_strbuf_new(NULL);
     const gchar *err_msg;
 
     /* First validate all profile names */
@@ -123,8 +122,7 @@ const gchar *apply_profile_changes(void) {
         profile1 = (profile_def *) fl1->data;
         g_strstrip(profile1->name);
         if ((err_msg = profile_name_is_valid(profile1->name)) != NULL) {
-            ep_strbuf_printf(message, "%s", err_msg);
-            return message->str;
+            return err_msg;
         }
         fl1 = g_list_next(fl1);
     }
@@ -136,11 +134,11 @@ const gchar *apply_profile_changes(void) {
         g_strstrip(profile1->name);
         if (profile1->status == PROF_STAT_COPY) {
             if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
-                ep_strbuf_printf(message,
-                        "Can't create directory\n\"%s\":\n%s.",
+                err_msg = g_strdup_printf("Can't create directory\n\"%s\":\n%s.",
                         pf_dir_path, g_strerror(errno));
 
                 g_free(pf_dir_path);
+                return err_msg;
             }
             profile1->status = PROF_STAT_EXISTS;
 
@@ -354,7 +352,7 @@ const gchar *
 profile_name_is_valid(const gchar *name)
 {
     gchar *reason = NULL;
-    emem_strbuf_t  *message = ep_strbuf_new(NULL);
+    gchar *message;
 
 #ifdef _WIN32
     char *invalid_dir_char = "\\/:*?\"<>|";
@@ -383,9 +381,9 @@ profile_name_is_valid(const gchar *name)
 #endif
 
     if (reason) {
-        ep_strbuf_printf(message, "A profile name cannot %s\nProfiles unchanged.", reason);
+        message = g_strdup_printf("A profile name cannot %s\nProfiles unchanged.", reason);
         g_free(reason);
-        return message->str;
+        return message;
     }
 
     return NULL;
