@@ -200,7 +200,7 @@ bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, 
 }
 
 char *
-bytes_to_str(wmem_allocator_t *allocator, const guint8 *bd, int bd_len)
+bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int bd_len)
 {
 	gchar *cur;
 	gchar *cur_ptr;
@@ -209,7 +209,7 @@ bytes_to_str(wmem_allocator_t *allocator, const guint8 *bd, int bd_len)
 	if (!bd)
 		REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_str()");
 
-	cur=(gchar *)wmem_alloc(allocator, MAX_BYTE_STR_LEN+3+1);
+	cur=(gchar *)wmem_alloc(scope, MAX_BYTE_STR_LEN+3+1);
 	if (bd_len <= 0) { cur[0] = '\0'; return cur; }
 
 	if (bd_len > MAX_BYTE_STR_LEN/2) {	/* bd_len > 24 */
