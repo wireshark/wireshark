@@ -711,7 +711,10 @@ void ConversationTreeWidget::filterActionTriggered()
         return;
     }
 
-    QString filter = get_conversation_filter(conv_item, fad_to_cd_[fa->actionDirection()]);
+    char* tmp_str = (char*)get_conversation_filter(conv_item, fad_to_cd_[fa->actionDirection()]);
+    QString filter(tmp_str);
+
+    g_free(tmp_str);
     emit filterAction(filter, fa->action(), fa->actionType());
 }
 

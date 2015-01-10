@@ -272,7 +272,7 @@ WS_DLL_PUBLIC const char *get_conversation_port(wmem_allocator_t *allocator, gui
  *
  * @param conv_item The conversation.
  * @param direction The desired direction.
- * @return An ep_allocated string representing the conversation.
+ * @return An g_allocated string representing the conversation that must be freed
  */
 WS_DLL_PUBLIC const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction);
 

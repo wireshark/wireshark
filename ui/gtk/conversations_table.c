@@ -213,7 +213,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
     GtkTreeIter iter;
     GtkTreeModel *model;
     GtkTreeSelection  *sel;
-    const char *str = NULL;
+    const char *str;
     conv_item_t *conv;
 
     direction = (conv_direction_e) FILTER_EXTRA(callback_action);
@@ -235,6 +235,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
     str = get_conversation_filter(conv, direction);
 
     apply_selected_filter(callback_action, str);
+    g_free((char*)str);
 }
 
 static gboolean

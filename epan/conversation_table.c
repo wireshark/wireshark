@@ -432,7 +432,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
     switch(direction){
     case CONV_DIR_A_TO_FROM_B:
         /* A <-> B */
-        str = ep_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
                               src_addr,
                               sport?" && ":"",
@@ -449,7 +449,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         break;
     case CONV_DIR_A_TO_B:
         /* A --> B */
-        str = ep_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_SRC_ADDRESS),
                               src_addr,
                               sport?" && ":"",
@@ -466,7 +466,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         break;
     case CONV_DIR_A_FROM_B:
         /* A <-- B */
-        str = ep_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_DST_ADDRESS),
                               src_addr,
                               sport?" && ":"",
@@ -483,7 +483,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         break;
     case CONV_DIR_A_TO_FROM_ANY:
         /* A <-> ANY */
-        str = ep_strdup_printf("%s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
                               src_addr,
                               sport?" && ":"",
@@ -494,7 +494,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         break;
     case CONV_DIR_A_TO_ANY:
         /* A --> ANY */
-        str = ep_strdup_printf("%s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_SRC_ADDRESS),
                               src_addr,
                               sport?" && ":"",
@@ -505,7 +505,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         break;
     case CONV_DIR_A_FROM_ANY:
         /* A <-- ANY */
-        str = ep_strdup_printf("%s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_DST_ADDRESS),
                               src_addr,
                               sport?" && ":"",
@@ -516,7 +516,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         break;
     case CONV_DIR_ANY_TO_FROM_B:
         /* ANY <-> B */
-        str = ep_strdup_printf("%s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_ANY_ADDRESS),
                               dst_addr,
                               dport?" && ":"",
@@ -527,7 +527,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         break;
     case CONV_DIR_ANY_FROM_B:
         /* ANY <-- B */
-        str = ep_strdup_printf("%s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_SRC_ADDRESS),
                               dst_addr,
                               dport?" && ":"",
@@ -538,7 +538,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         break;
     case CONV_DIR_ANY_TO_B:
         /* ANY --> B */
-        str = ep_strdup_printf("%s==%s%s%s%s%s",
+        str = wmem_strdup_printf(NULL, "%s==%s%s%s%s%s",
                               conversation_get_filter_name(conv_item,  CONV_FT_DST_ADDRESS),
                               dst_addr,
                               dport?" && ":"",
