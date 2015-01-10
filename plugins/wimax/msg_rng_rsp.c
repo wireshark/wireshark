@@ -459,7 +459,7 @@ static void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 						if(tlv_type == -1 || sub_tlv_len > MAX_TLV_LEN || sub_tlv_len < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RNG-RSP TLV error");
-							proto_tree_add_item(rng_rsp_tree, hf_rng_invalid_tlv, tvb, tlv_offset, (tvb_len - offset), ENC_NA);
+							proto_tree_add_item(rng_rsp_tree, hf_rng_invalid_tlv, tvb, tlv_offset, (tvb_len - tlv_offset), ENC_NA);
 							break;
 						}
 						/* get the offset to the sub TLV data */
