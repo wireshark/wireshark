@@ -562,9 +562,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_test_stat, tvb,
 				offset, -1, ENC_NA);
-		if (lock_item)
-			lock_tree = proto_item_add_subtree(lock_item,
-				ett_nlm_lock);
+		lock_tree = proto_item_add_subtree(lock_item, ett_nlm_lock);
 	}
 
 	offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_test_stat_stat,
