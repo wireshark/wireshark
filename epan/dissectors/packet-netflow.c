@@ -126,6 +126,7 @@
 #include <epan/sminmpec.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/addr_resolv.h>
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "packet-ntp.h"
@@ -2840,6 +2841,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                          plixer_pie_seen = FALSE,
                          ntop_pie_seen = FALSE,
                          ixia_pie_seen = FALSE;
+
+    guint8       ip_protocol = 0;
+
     entries_p = tmplt_p->fields_p[fields_type];
     if (entries_p == NULL) {
         /* I don't think we can actually hit this condition.
@@ -2969,6 +2973,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 4: /* proto */
+            /* Store this to help with possible port transport lookup */
+            ip_protocol = tvb_get_guint8(tvb, offset);
             ti = proto_tree_add_item(pdutree, hf_cflow_prot,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
@@ -2993,6 +2999,18 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 182: /*  tcpSourcePort */
             ti = proto_tree_add_item(pdutree, hf_cflow_srcport,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
+            /* Look up transport name for UDP or TCP ports */
+            if ((ip_protocol == IP_PROTO_UDP) || (ip_protocol == IP_PROTO_TCP) || (pen_type == 181) || (pen_type == 183)) {
+                guint16 port_number = tvb_get_ntohs(tvb, offset);
+                const char *port_str = "";
+                if ((pen_type == 180) || (ip_protocol == IP_PROTO_UDP))  {
+                    port_str = udp_port_to_display(wmem_packet_scope(), port_number);
+                }
+                else if ((pen_type = 182) || (ip_protocol == IP_PROTO_TCP)) {
+                    port_str = tcp_port_to_display(wmem_packet_scope(), port_number);
+                }
+                proto_item_append_text(ti, " (%s)", port_str);
+            }
             break;
 
         case 8: /* source IP */
@@ -3016,6 +3034,18 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 183: /*  tcpDestinationPort */
             ti = proto_tree_add_item(pdutree, hf_cflow_dstport,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
+            /* Look up transport name for UDP or TCP ports */
+            if ((ip_protocol == IP_PROTO_UDP) || (ip_protocol == IP_PROTO_TCP) || (pen_type == 181) || (pen_type == 183)) {
+                guint16 port_number = tvb_get_ntohs(tvb, offset);
+                const char *port_str = "";
+                if ((pen_type == 181) || (ip_protocol == IP_PROTO_UDP))  {
+                    port_str = udp_port_to_display(wmem_packet_scope(), port_number);
+                }
+                else if ((pen_type = 183) || (ip_protocol == IP_PROTO_TCP)) {
+                    port_str = tcp_port_to_display(wmem_packet_scope(), port_number);
+                }
+                proto_item_append_text(ti, " (%s)", port_str);
+            }
             break;
 
         case 12: /* dest IP */
@@ -6720,7 +6750,7 @@ proto_register_netflow(void)
         {&hf_cflow_flowset_length,
          {"FlowSet Length", "cflow.flowset_length",
           FT_UINT16, BASE_DEC, NULL, 0x0,
-          NULL, HFILL}
+          "FlowSet Length in bytes", HFILL}
         },
         {&hf_cflow_template_id,
          {"Template Id", "cflow.template_id",
