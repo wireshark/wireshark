@@ -372,6 +372,41 @@ Fin
 }
 
 
+# Read CMakeLists.txt, then write it back out with updated "set(PROJECT_..._VERSION ...)
+# lines
+# set(PROJECT_MAJOR_VERSION 1)
+# set(PROJECT_MINOR_VERSION 99)
+# set(PROJECT_PATCH_VERSION 0)
+# set(PROJECT_VERSION_EXTENSION "-rc5")
+sub update_cmakelists_txt
+{
+	my $line;
+	my $contents = "";
+	my $version = "";
+	my $filepath = "$srcdir/CMakeLists.txt";
+
+	return if (!$set_version && $package_string eq "");
+
+	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
+	while ($line = <CFGIN>) {
+		if ($line =~ /^set *\( *PROJECT_MAJOR_VERSION .*([\r\n]+)$/) {
+			$line = sprintf("set(PROJECT_MAJOR_VERSION %d)$1", $version_pref{"version_major"});
+		} elsif ($line =~ /^set *\( *PROJECT_MINOR_VERSION .*([\r\n]+)$/) {
+			$line = sprintf("set(PROJECT_MINOR_VERSION %d)$1", $version_pref{"version_minor"});
+		} elsif ($line =~ /^set *\( *PROJECT_PATCH_VERSION .*([\r\n]+)$/) {
+			$line = sprintf("set(PROJECT_PATCH_VERSION %d)$1", $version_pref{"version_micro"});
+		} elsif ($line =~ /^set *\( *PROJECT_VERSION_EXTENSION.*([\r\n]+)$/) {
+			$line = sprintf("set(PROJECT_VERSION_EXTENSION \"%s\")$1", $package_string);
+		}
+		$contents .= $line
+	}
+
+	open(CFGIN, "> $filepath") || die "Can't write $filepath!";
+	print(CFGIN $contents);
+	close(CFGIN);
+	print "$filepath has been updated.\n";
+}
+
 # Read configure.ac, then write it back out with an updated
 # "AC_INIT" line.
 sub update_configure_ac
@@ -411,6 +446,10 @@ sub update_config_nmake
 	my $contents = "";
 	my $version = "";
 	my $filepath = "$srcdir/config.nmake";
+	my $win_package_string = "\$(WIRESHARK_VERSION_EXTRA)";
+
+	if ($package_string ne "") { $win_package_string = $package_string; }
+
 
 	open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGNMAKE>) {
@@ -423,7 +462,7 @@ sub update_config_nmake
 		} elsif ($set_version && $line =~ /^VERSION_MICRO=.*([\r\n]+)$/) {
 			$line = sprintf("VERSION_MICRO=%d$1", $version_pref{"version_micro"});
 		} elsif ($line =~ /^VERSION_EXTRA=.*([\r\n]+)$/) {
-			$line = "VERSION_EXTRA=$package_string$1";
+			$line = "VERSION_EXTRA=$win_package_string$1";
 		}
 		$contents .= $line
 	}
@@ -493,34 +532,6 @@ sub update_debian_changelog
 	print "$filepath has been updated.\n";
 }
 
-# Read debian/wireshark-common.files, then write back out an updated version.
-# The libraries updated here MUST match the updates made by update_lib_releases
-# below. We should do this automatically.
-sub update_debian_wcf
-{
-	my $line;
-	my $contents = "";
-	my $version = "";
-	my $filepath = "$srcdir/debian/wireshark-common.files";
-
-	return if (!$set_version);
-
-	open(DWCF, "< $filepath") || die "Can't read $filepath!";
-	while ($line = <DWCF>) {
-		# /usr/lib/wireshark/libwireshark.so.1.1.0
-
-		if ($line =~ qr{^(/usr/lib/wireshark/lib(wireshark|wiretap).so\.\d+\.\d+\.)\d+$}) {
-			$line = sprintf("$1%d\n", $version_pref{"version_micro"});
-		}
-		$contents .= $line
-	}
-
-	open(DWCF, "> $filepath") || die "Can't write $filepath!";
-	print(DWCF $contents);
-	close(DWCF);
-	print "$filepath has been updated.\n";
-}
-
 # Read Makefile.am for each library, then write back out an updated version.
 sub update_lib_releases
 {
@@ -562,11 +573,11 @@ sub update_lib_releases
 # Update distributed files that contain any version information
 sub update_versioned_files
 {
+	&update_cmakelists_txt;
 	&update_configure_ac;
 	&update_config_nmake;
 	&update_release_notes;
 	&update_debian_changelog;
-	&update_debian_wcf;
 	&update_lib_releases;
 }
 

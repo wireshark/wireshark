@@ -84,51 +84,12 @@ endif()
 #Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
 include(CMakeInstallDirs)
 
-# set(PROJECT_MAJOR_VERSION 1)
-# set(PROJECT_MINOR_VERSION 9)
-# set(PROJECT_PATCH_VERSION 0)
-# set(PROJECT_VERSION_EXTENSION "-rc5")
-# If not set, copy over Wireshark version from configure.ac
-if(NOT PROJECT_MAJOR_VERSION)
-	file(STRINGS
-		${CMAKE_SOURCE_DIR}/configure.ac
-		PROJECT_MAJOR_VERSION_TMP
-		REGEX "^m4_define\\(\\[?version_major\\]?, *\\[?[0-9]+\\]?\\)"
-	)
-	file(STRINGS
-		${CMAKE_SOURCE_DIR}/configure.ac
-		PROJECT_MINOR_VERSION_TMP
-		REGEX "^m4_define\\(\\[?version_minor\\]?, *\\[?[0-9]+\\]?\\)"
-	)
-	file(STRINGS
-		${CMAKE_SOURCE_DIR}/configure.ac
-		PROJECT_PATCH_VERSION_TMP
-		REGEX "^m4_define\\(\\[?version_micro\\]?, *\\[?[0-9]+\\]?\\)"
-	)
-	# XXX pull VERSION_EXTENSION out of configure.ac ?
+set(PROJECT_MAJOR_VERSION 1)
+set(PROJECT_MINOR_VERSION 99)
+set(PROJECT_PATCH_VERSION 2)
+set(PROJECT_VERSION_EXTENSION "")
 
-	string(REGEX REPLACE "m4_define\\(\\[?version_major\\]?, *\\[?([0-9]+)\\]?\\)"
-		"\\1"
-		PROJECT_MAJOR_VERSION
-		${PROJECT_MAJOR_VERSION_TMP}
-	)
-	string(REGEX REPLACE "m4_define\\(\\[?version_minor\\]?, *\\[?([0-9]+)\\]?\\)"
-		"\\1"
-		PROJECT_MINOR_VERSION
-		${PROJECT_MINOR_VERSION_TMP}
-	)
-	string(REGEX REPLACE "m4_define\\(\\[?version_micro\\]?, *\\[?([0-9]+)\\]?\\)"
-		"\\1"
-		PROJECT_PATCH_VERSION
-		${PROJECT_PATCH_VERSION_TMP}
-	)
-endif()
-
-if(PROJECT_VERSION_EXTENSION)
-	set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION})
-else()
-	set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
-endif()
+set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION})
 
 message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PROJECT_MINOR_VERSION}, PL: ${PROJECT_PATCH_VERSION}, EV: ${PROJECT_VERSION_EXTENSION}.")
 
