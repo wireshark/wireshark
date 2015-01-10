@@ -1710,7 +1710,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${DISSECTOR_FILES}
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
-	../image/libwireshark.rc
+	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
 
 set(FULL_SO_VERSION "0.0.0")

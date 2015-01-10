@@ -1,6 +1,6 @@
 #include "winver.h"
 
-WIRESHARK_ICON		ICON			"wireshark.ico"
+WIRESHARK_ICON ICON "@ICON_PATH@wireshark.ico"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION @RC_VERSION@

@@ -36,10 +36,14 @@ cmake_policy(SET CMP0015 NEW)
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
 # %WIRESHARK_TARGET_PLATFORM%.
 if(WIN32)
-	if("${CMAKE_GENERATOR}" MATCHES "Win64")
+	if("${CMAKE_GENERATOR}" MATCHES ".*Win64$")
 		set(WIRESHARK_TARGET_PLATFORM win64)
-	elseif("${WIRESHARK_TARGET_PLATFORM}" MATCHES "Visual Studio")
+		set(PROCESSOR_ARCHITECTURE amd64)
+		message("Building for x64")
+	elseif("${CMAKE_GENERATOR}" MATCHES "Visual Studio.*")
 		set(WIRESHARK_TARGET_PLATFORM win32)
+		set(PROCESSOR_ARCHITECTURE x86)
+		message("Building for x86")
 	else()
 		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
 	endif()
@@ -87,9 +91,14 @@ include(CMakeInstallDirs)
 set(PROJECT_MAJOR_VERSION 1)
 set(PROJECT_MINOR_VERSION 99)
 set(PROJECT_PATCH_VERSION 2)
-set(PROJECT_VERSION_EXTENSION "")
-
+set(PROJECT_VERSION_EXTENSION "$ENV{WIRESHARK_VERSION_EXTRA}")
 set(PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION})
+
+# These are required in .rc files and manifests
+set(VERSION_MAJOR ${PROJECT_MAJOR_VERSION})
+set(VERSION_MINOR ${PROJECT_MINOR_VERSION})
+set(VERSION_MICRO ${PROJECT_PATCH_VERSION})
+set(RC_VERSION ${PROJECT_MAJOR_VERSION},${PROJECT_MINOR_VERSION},${PROJECT_PATCH_VERSION},0)
 
 message(STATUS "V: ${PROJECT_VERSION}, MaV: ${PROJECT_MAJOR_VERSION}, MiV: ${PROJECT_MINOR_VERSION}, PL: ${PROJECT_PATCH_VERSION}, EV: ${PROJECT_VERSION_EXTENSION}.")
 
@@ -896,6 +905,7 @@ endif()
 set( VERSION ${PROJECT_VERSION} )
 set( configure_input "Built with CMake ${CMAKE_VERSION}" )
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
+set(ICON_PATH "${CMAKE_SOURCE_DIR}/image/")
 set( IN_FILES
 	adns_dll.rc
 	capchild/doxygen.cfg.in
@@ -918,21 +928,8 @@ set( IN_FILES
 	image/captype.rc.in
 	image/libwsutil.rc.in
 	image/wiretap.rc.in
+	image/wireshark.exe.manifest.in
 	packaging/macosx/Info.plist.in
-	plugins/ethercat/plugin.rc.in
-	plugins/unistim/plugin.rc.in
-	plugins/opcua/plugin.rc.in
-	plugins/wimax/plugin.rc.in
-	plugins/gryphon/plugin.rc.in
-	plugins/profinet/plugin.rc.in
-	plugins/m2m/plugin.rc.in
-	plugins/stats_tree/plugin.rc.in
-	plugins/wimaxasncp/plugin.rc.in
-	plugins/mate/plugin.rc.in
-	plugins/wimaxmacphy/plugin.rc.in
-	plugins/irda/plugin.rc.in
-	plugins/docsis/plugin.rc.in
-	plugins/easy_codec/plugin.rc.in
 	${CUSTOM_PLUGIN_IN_FILES}
 	ui/doxygen.cfg.in
 	ui/gtk/doxygen.cfg.in
@@ -946,7 +943,7 @@ foreach( _in_file ${IN_FILES} )
 endforeach()
 
 include(FeatureSummary)
-#SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ]
+#SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ])
 SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "www: http://git.kernel.org/cgit/bluetooth/sbc.git" )
 
 FEATURE_SUMMARY(WHAT ALL)
@@ -1128,7 +1125,7 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	)
 	set(wireshark_FILES
 		${WIRESHARK_SRC}
-		image/wireshark.rc
+		${CMAKE_BINARY_DIR}/image/wireshark.rc
 		${PLATFORM_UI_RC_FILES}
 	)
 endif()
@@ -1365,7 +1362,7 @@ if(BUILD_tshark)
 		tshark.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_SRC}
-		image/tshark.rc
+		${CMAKE_BINARY_DIR}/image/tshark.rc
 	)
 	add_executable(tshark ${tshark_FILES})
 	set_extra_executable_properties(tshark "Executables")
@@ -1384,7 +1381,7 @@ if(BUILD_tfshark)
 		tfshark.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_SRC}
-		image/tfshark.rc
+		${CMAKE_BINARY_DIR}/image/tfshark.rc
 	)
 	add_executable(tfshark ${tfshark_FILES})
 	set_extra_executable_properties(tfshark "Executables")
@@ -1403,7 +1400,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${SHARK_COMMON_SRC}
 		rawshark.c
 		ui/util.c
-		image/rawshark.rc
+		${CMAKE_BINARY_DIR}/image/rawshark.rc
 	)
 	add_executable(rawshark ${rawshark_FILES})
 	set_extra_executable_properties(rawshark "Executables")
@@ -1458,7 +1455,7 @@ if(BUILD_text2pcap)
 	)
 	set(text2pcap_FILES
 		${text2pcap_CLEAN_FILES}
-		image/text2pcap.rc
+		${CMAKE_BINARY_DIR}/image/text2pcap.rc
 	)
 	add_lex_files(text2pcap_FILES
 		text2pcap-scanner.l
@@ -1477,7 +1474,7 @@ if(BUILD_mergecap)
 	)
 	set(mergecap_FILES
 		mergecap.c
-		image/mergecap.rc
+		${CMAKE_BINARY_DIR}/image/mergecap.rc
 	)
 	add_executable(mergecap ${mergecap_FILES})
 	set_extra_executable_properties(mergecap "Executables")
@@ -1493,7 +1490,7 @@ if(BUILD_reordercap)
 	)
 	set(reordercap_FILES
 		reordercap.c
-		image/reordercap.rc
+		${CMAKE_BINARY_DIR}/image/reordercap.rc
 	)
 	add_executable(reordercap ${reordercap_FILES})
 	set_extra_executable_properties(reordercap "Executables")
@@ -1511,7 +1508,7 @@ if(BUILD_capinfos)
 	)
 	set(capinfos_FILES
 		capinfos.c
-		image/capinfos.rc
+		${CMAKE_BINARY_DIR}/image/capinfos.rc
 	)
 	add_executable(capinfos ${capinfos_FILES})
 	set_extra_executable_properties(capinfos "Executables")
@@ -1528,7 +1525,7 @@ if(BUILD_captype)
 	)
 	set(captype_FILES
 		captype.c
-		image/captype.rc
+		${CMAKE_BINARY_DIR}/image/captype.rc
 	)
 	add_executable(captype ${captype_FILES})
 	set_extra_executable_properties(captype "Executables")
@@ -1544,7 +1541,7 @@ if(BUILD_editcap)
 	)
 	set(editcap_FILES
 		editcap.c
-		image/editcap.rc
+		${CMAKE_BINARY_DIR}/image/editcap.rc
 	)
 	add_executable(editcap ${editcap_FILES})
 	set_extra_executable_properties(editcap "Executables")
@@ -1575,7 +1572,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		pcapio.c
 		ringbuffer.c
 		sync_pipe_write.c
-		image/dumpcap.rc
+		${CMAKE_BINARY_DIR}/image/dumpcap.rc
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
 	set_extra_executable_properties(dumpcap "Executables")

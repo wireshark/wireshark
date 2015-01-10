@@ -149,7 +149,7 @@ endif()
 
 add_library(wsutil ${LINK_MODE_LIB}
 	${WSUTIL_FILES}
-	../image/libwsutil.rc
+	${CMAKE_BINARY_DIR}/image/libwsutil.rc
 )
 
 add_dependencies(wsutil gitversion)

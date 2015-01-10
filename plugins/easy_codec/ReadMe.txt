@@ -9,5 +9,6 @@ Instructions on compiling the Easy Codecs
 2. Build plugin.
 	Win32: nmake -f makefile.nmake
 	Linux: TO DO
+	CMake: TO DO
 
 

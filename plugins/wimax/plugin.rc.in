@@ -24,7 +24,7 @@ BEGIN
             VALUE "OriginalFilename", "@PLUGIN_NAME@.dll\0"
             VALUE "ProductName", "Wireshark\0"
             VALUE "ProductVersion", "@VERSION@\0"
-            VALUE "Comments", "Build with @MSVC_VARIANT@\0"
+            VALUE "Comments", "Built with @MSVC_VARIANT@\0"
         END
     END
     BLOCK "VarFileInfo"

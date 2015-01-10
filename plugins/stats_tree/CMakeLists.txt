@@ -19,6 +19,30 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+# Create the Windows .rc file for the plugin.
+# The values come from several files in the source, I can't see how to reuse them
+
+# This info is from moduleinfo.nmake
+set(PACKAGE stats_tree)
+set(MODULE_VERSION_MAJOR 0)
+set(MODULE_VERSION_MINOR 0)
+set(MODULE_VERSION_MICRO 1)
+set(MODULE_VERSION_EXTRA 0)
+set(MODULE_VERSION "${MODULE_VERSION_MAJOR}.${MODULE_VERSION_MINOR}.${MODULE_VERSION_MICRO}.${MODULE_VERSION_EXTRA}")
+set(RC_MODULE_VERSION "${MODULE_VERSION_MAJOR},${MODULE_VERSION_MINOR},${MODULE_VERSION_MICRO},${MODULE_VERSION_EXTRA}")
+
+# This info is from Makefile.common
+set(PLUGIN_NAME ${PACKAGE})
+
+# This info is from config.nmake
+set(MSVC_VARIANT "${CMAKE_GENERATOR}")
+
+# The rc.in requires a plain VERSION variable
+set(VERSION ${PROJECT_VERSION})
+
+# Create the plugin.rc file from the template
+configure_file(plugin.rc.in plugin.rc @ONLY)
+
 set(TAP_SRC
 	stats_tree_plugin.c
 	pinfo_stats_tree.c
@@ -38,7 +62,7 @@ endif()
 
 add_library(stats_tree ${LINK_MODE_MODULE}
 	${TAP_SRC}
-	plugin.rc
+	${CMAKE_CURRENT_BINARY_DIR}/plugin.rc
 )
 
 set_target_properties(stats_tree PROPERTIES
