@@ -579,7 +579,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		proto_item_append_text(ismacryp_item, ": Length=%d bytes",delta_iv_length); /* add delta IV info */
 		col_append_fstr( pinfo->cinfo, COL_INFO,
 			", Delta IV=0x%s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, poffset->offset_bytes, delta_iv_length,' '));
-		poffset->offset_bytes+=iv_length; /* add IV length to offset_bytes */
+		poffset->offset_bytes+=delta_iv_length; /* add IV length to offset_bytes */
 	}
 	/* Key Indicator */
 	if ( key_indicator_length != 0 && ( first_au_flag == TRUE || key_indicator_per_au_flag == TRUE) )
