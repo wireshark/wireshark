@@ -48,10 +48,11 @@
 #include <epan/addr_resolv.h>
 
 /* special characters of the serial transport protocol */
+#define STX 0x02
+#define ETX 0x03
 #define ACK 0x06
+#define DLE 0x10
 #define NAK 0x15
-#define DLE 0x10  /* data line escape */
-#define STX 0x02  /* start of text */
 
 /* an APDU needs at least a 2-byte control-field and one byte length */
 #define ZVT_APDU_MIN_LEN 3
@@ -68,8 +69,20 @@ static int proto_zvt = -1;
 static int ett_zvt = -1;
 static int ett_zvt_apdu = -1;
 
+static int hf_zvt_serial_char = -1;
+static int hf_zvt_crc = -1;
 static int hf_zvt_ctrl = -1;
 static int hf_zvt_len = -1;
+
+static const value_string serial_char[] = {
+    { STX, "Start of text (STX)" },
+    { ETX, "End of text (ETX)" },
+    { ACK, "Acknowledged (ACK)" },
+    { DLE, "Data line escape (DLE)" },
+    { NAK, "Not acknowledged (NAK)" },
+    { 0, NULL }
+};
+static value_string_ext serial_char_ext = VALUE_STRING_EXT_INIT(serial_char);
 
 static const value_string ctrl_field[] = {
     { 0x040F, "Status Information" },
@@ -148,11 +161,17 @@ dissect_zvt_serial(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tre
     offset_start = offset;
 
     if (tvb_reported_length_remaining(tvb, offset) == 1) {
+        proto_tree_add_item(tree, hf_zvt_serial_char,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++; /* ACK or NAK byte */
         return offset - offset_start;
     }
 
+    proto_tree_add_item(tree, hf_zvt_serial_char,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset ++; /* DLE byte */
+    proto_tree_add_item(tree, hf_zvt_serial_char,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset ++; /* STX byte */
 
     apdu_len = dissect_zvt_apdu(tvb, offset, pinfo, tree);
@@ -161,8 +180,16 @@ dissect_zvt_serial(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tre
 
     offset += apdu_len;
 
+    proto_tree_add_item(tree, hf_zvt_serial_char,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset ++; /* DLE byte */
+    proto_tree_add_item(tree, hf_zvt_serial_char,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
     offset ++; /* ETX byte */
+
+    /* the CRC is little endian, the other fields are big endian */
+    proto_tree_add_item(tree, hf_zvt_crc,
+            tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2; /* CRC bytes */
 
     return offset - offset_start;
@@ -288,6 +315,12 @@ void
 proto_register_zvt(void)
 {
     static hf_register_info hf[] = {
+        { &hf_zvt_serial_char,
+            { "Serial character", "zvt.serial_char", FT_UINT8,
+                BASE_HEX|BASE_EXT_STRING, &serial_char_ext, 0, NULL, HFILL } },
+        { &hf_zvt_crc,
+            { "CRC", "zvt.crc", FT_UINT16,
+                BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_zvt_ctrl,
             { "Control-field", "zvt.control_field", FT_UINT16,
                 BASE_HEX|BASE_EXT_STRING, &ctrl_field_ext, 0, NULL, HFILL } },
