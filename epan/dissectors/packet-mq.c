@@ -83,11 +83,6 @@
 void proto_register_mq(void);
 void proto_reg_handoff_mq(void);
 
-/*
-used to only sort once some value_string_ext
-*/
-static gboolean is_value_string_ext_sorted = FALSE;
-
 static int proto_mq = -1;
 static int hf_mq_tsh_StructID = -1;
 static int hf_mq_tsh_mqseglen = -1;
@@ -3838,7 +3833,6 @@ static void _try_mq_vals_sort(value_string_ext *pExt)
 }
 static void _mq_sort_value_string_ext(void)
 {
-    is_value_string_ext_sorted = TRUE;
     _try_mq_vals_sort(GET_VALS_EXTP(mqrc));
     _try_mq_vals_sort(GET_VALS_EXTP(mqcmd));
     _try_mq_vals_sort(GET_VALS_EXTP(PrmId));
@@ -3858,12 +3852,6 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* Typically a TCP PDU is 1460 bytes and a MQ PDU is 32766 bytes */
     if (tvb_reported_length(tvb) < 28)
         return 0;
-
-    /*
-    Sort value_string_ext if not already done
-    */
-    if (!is_value_string_ext_sorted)
-        _mq_sort_value_string_ext();
 
     memset(&mq_parm, 0, sizeof(mq_parm_t));
     mq_parm.mq_strucID = tvb_get_ntohl(tvb, 0);
@@ -4090,12 +4078,6 @@ static int dissect_mq_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 static void dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    /*
-    Sort value_string_ext if not already done
-    */
-    if (!is_value_string_ext_sorted)
-        _mq_sort_value_string_ext();
-
     /* Since SPX has no standard desegmentation, MQ cannot be performed as well */
     dissect_mq_pdu(tvb, pinfo, tree);
 }
@@ -4800,6 +4782,11 @@ void proto_register_mq(void)
     };
 
     module_t *mq_module;
+
+    /*
+    Sort value_string_exts
+    */
+    _mq_sort_value_string_ext();
 
     proto_mq = proto_register_protocol("WebSphere MQ", "MQ", "mq");
     proto_register_field_array(proto_mq, hf, array_length(hf));
