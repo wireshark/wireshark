@@ -1,9 +1,9 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V12.3.0 Release 12) packet dissection
+ * (3GPP TS 36.331 V12.4.0 Release 12) packet dissection
  * Copyright 2008, Vincent Helfre
- * Copyright 2009-2014, Pascal Quantin
+ * Copyright 2009-2015, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -193,6 +193,46 @@ static int hf_lte_rrc_cdma_time = -1;
 static int hf_lte_rrc_utc_time = -1;
 static int hf_lte_rrc_local_time = -1;
 static int hf_lte_rrc_absolute_time = -1;
+static int hf_lte_rrc_transmissionModeList_r12_tm1 = -1;
+static int hf_lte_rrc_transmissionModeList_r12_tm2 = -1;
+static int hf_lte_rrc_transmissionModeList_r12_tm3 = -1;
+static int hf_lte_rrc_transmissionModeList_r12_tm4 = -1;
+static int hf_lte_rrc_transmissionModeList_r12_tm6 = -1;
+static int hf_lte_rrc_transmissionModeList_r12_tm8 = -1;
+static int hf_lte_rrc_transmissionModeList_r12_tm9 = -1;
+static int hf_lte_rrc_transmissionModeList_r12_tm10 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_0 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_1 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_2 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_3 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_4 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_5 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_6 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_7 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_8 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_9 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_10 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_11 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_12 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_13 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_14 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_15 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_16 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_17 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_18 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_19 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_20 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_21 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_22 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_23 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_24 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_25 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_26 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_27 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_28 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_29 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_30 = -1;
+static int hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_31 = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -215,6 +255,8 @@ static gint ett_lte_rrc_warningMessageSegment = -1;
 static gint ett_lte_rrc_interBandTDD_CA_WithDifferentConfig = -1;
 static gint ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12 = -1;
 static gint ett_lte_rrc_sr_ConfigIndex = -1;
+static gint ett_lte_rrc_transmissionModeList_r12 = -1;
+static gint ett_lte_rrc_modifiedMPR_Behavior_r10 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -688,6 +730,43 @@ lte_rrc_timeConnFailure_r10_fmt(gchar *s, guint32 v)
   g_snprintf(s, ITEM_LABEL_LENGTH, "%ums (%u)", 100*v, v);
 }
 
+static const value_string lte_rrc_BLER_Range_r12_vals[] = {
+  {  0, "BLER < 0.1%"},
+  {  1, "0.1% <= BLER < 0.123%"},
+  {  2, "0.123% <= BLER < 0.151%"},
+  {  3, "0.151% <= BLER < 0.186%"},
+  {  4, "0.186% <= BLER < 0.229%"},
+  {  5, "0.229% <= BLER < 0.282%"},
+  {  6, "0.282% <= BLER < 0.347%"},
+  {  7, "0.347% <= BLER < 0.426%"},
+  {  8, "0.426% <= BLER < 0.525%"},
+  {  9, "0.525% <= BLER < 0.645%"},
+  { 10, "0.645% <= BLER < 0.794%"},
+  { 11, "0.794% <= BLER < 0.976%"},
+  { 12, "0.976% <= BLER < 1.201%"},
+  { 13, "1.201% <= BLER < 1.478%"},
+  { 14, "1.478% <= BLER < 1.818%"},
+  { 15, "1.818% <= BLER < 2.236%"},
+  { 16, "2.236% <= BLER < 2.751%"},
+  { 17, "2.751% <= BLER < 3.384%"},
+  { 18, "3.384% <= BLER < 4.163%"},
+  { 19, "4.163% <= BLER < 5.121%"},
+  { 20, "5.121% <= BLER < 6.300%"},
+  { 21, "6.300% <= BLER < 7.750%"},
+  { 22, "7.750% <= BLER < 9.533%"},
+  { 23, "9.533% <= BLER < 11.728%"},
+  { 24, "11.728% <= BLER < 14.427%"},
+  { 25, "14.427% <= BLER < 17.478%"},
+  { 26, "17.478% <= BLER < 21.833%"},
+  { 27, "21.833% <= BLER < 26.858%"},
+  { 28, "26.858% <= BLER < 33.040%"},
+  { 29, "33.040% <= BLER < 40.645%"},
+  { 30, "40.645% <= BLER < 50%"},
+  { 31, "50% <= BLER"},
+  { 0, NULL}
+};
+static value_string_ext lte_rrc_BLER_Range_r12_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_BLER_Range_r12_vals);
+
 static const value_string lte_rrc_utra_q_RxLevMin_vals[] = {
   { -60, "-119dBm"},
   { -59, "-117dBm"},
@@ -1149,7 +1228,7 @@ static const value_string lte_rrc_utra_RSCP_vals[] = {
 };
 static value_string_ext lte_rrc_utra_RSCP_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_utra_RSCP_vals);
 
-static const value_string lte_rrc_a3_a6_Offset_vals[] = {
+static const value_string lte_rrc_a3_a6_c2_Offset_vals[] = {
   { -30, "-15dB"},
   { -29, "-14.5dB"},
   { -28, "-14dB"},
@@ -1213,7 +1292,7 @@ static const value_string lte_rrc_a3_a6_Offset_vals[] = {
   {  30, "15dB"},
   {  0, NULL}
 };
-static value_string_ext lte_rrc_a3_a6_Offset_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_a3_a6_Offset_vals);
+static value_string_ext lte_rrc_a3_a6_c2_Offset_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_a3_a6_c2_Offset_vals);
 
 static const value_string lte_rrc_threshold_RSRP_vals[] = {
   {  0, "-140dBm"},
@@ -1688,6 +1767,40 @@ static const value_string lte_rrc_RSRP_Range_vals[] = {
 static value_string_ext lte_rrc_RSRP_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRP_Range_vals);
 
 static const value_string lte_rrc_RSRQ_Range_vals[] = {
+  {-34, "RSRQ < -36dB"},
+  {-33, "-36dB <= RSRQ < -35.5dB"},
+  {-32, "-35.5dB <= RSRQ < -35dB"},
+  {-31, "-35dB <= RSRQ < -34.5dB"},
+  {-30, "-34.5dB <= RSRQ < -34dB"},
+  {-29, "-34dB <= RSRQ < -33.5dB"},
+  {-28, "-33.5dB <= RSRQ < -33dB"},
+  {-27, "-33dB <= RSRQ < -32.5dB"},
+  {-26, "-32.5dB <= RSRQ < -32dB"},
+  {-25, "-32dB <= RSRQ < -31.5dB"},
+  {-24, "-31.5dB <= RSRQ < -31dB"},
+  {-23, "-31dB <= RSRQ < -30.5dB"},
+  {-22, "-30.5dB <= RSRQ < -30dB"},
+  {-21, "-30dB <= RSRQ < -29.5dB"},
+  {-20, "-29.5dB <= RSRQ < -29dB"},
+  {-19, "-29dB <= RSRQ < -28.5dB"},
+  {-18, "-28.5dB <= RSRQ < -28dB"},
+  {-17, "-28dB <= RSRQ < -27.5dB"},
+  {-16, "-27.5dB <= RSRQ < -27dB"},
+  {-15, "-27dB <= RSRQ < -26.5dB"},
+  {-14, "-26.5dB <= RSRQ < -26dB"},
+  {-13, "-26dB <= RSRQ < -25.5dB"},
+  {-12, "-25.5dB <= RSRQ < -25dB"},
+  {-11, "-25dB <= RSRQ < -24.5dB"},
+  {-10, "-24.5dB <= RSRQ < -24dB"},
+  { -9, "-24dB <= RSRQ < -23.5dB"},
+  { -8, "-23.5dB <= RSRQ < -23dB"},
+  { -7, "-23dB <= RSRQ < -22.5dB"},
+  { -6, "-22.5dB <= RSRQ < -22dB"},
+  { -5, "-22dB <= RSRQ < -21.5dB"},
+  { -4, "-21.5dB <= RSRQ < -21dB"},
+  { -3, "-21dB <= RSRQ < -20.5dB"},
+  { -2, "-20.5dB <= RSRQ < -20dB"},
+  { -1, "-20dB <= RSRQ < -19.5dB"},
   {  0, "RSRQ < -19.5dB"},
   {  1, "-19.5dB <= RSRQ < -19dB"},
   {  2, "-19dB <= RSRQ < -18.5dB"},
@@ -1723,9 +1836,58 @@ static const value_string lte_rrc_RSRQ_Range_vals[] = {
   { 32, "-4dB <= RSRQ < -3.5dB"},
   { 33, "-3.5dB <= RSRQ < -3dB"},
   { 34, "-3dB <= RSRQ"},
+  { 35, "-3dB <= RSRQ < -2.5dB"},
+  { 36, "-2.5dB <= RSRQ < -2dB"},
+  { 37, "-2dB <= RSRQ < -1.5dB"},
+  { 38, "-1.5dB <= RSRQ < -1dB"},
+  { 39, "-1dB <= RSRQ < -0.5dB"},
+  { 40, "-0.5dB <= RSRQ < 0dB"},
+  { 41, "0dB <= RSRQ < 0.5dB"},
+  { 42, "0.5dB <= RSRQ < 1dB"},
+  { 43, "1dB <= RSRQ < 1.5dB"},
+  { 44, "1.5dB <= RSRQ < 2dB"},
+  { 45, "2dB <= RSRQ < 2.5dB"},
+  { 46, "2.5dB <= RSRQ"},
   {  0, NULL}
 };
 static value_string_ext lte_rrc_RSRQ_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRQ_Range_vals);
+
+static const value_string lte_rrc_MBSFN_RSRQ_Range_vals[] = {
+  {  0, "RSRQ < -23dB"},
+  {  1, "-23dB <= RSRQ < -22.5dB"},
+  {  2, "-22.5dB <= RSRQ < -22dB"},
+  {  3, "-22dB <= RSRQ < -21.5dB"},
+  {  4, "-21.5dB <= RSRQ < -21dB"},
+  {  5, "-21dB <= RSRQ < -20.5dB"},
+  {  6, "-20.5dB <= RSRQ < -20dB"},
+  {  7, "-20dB <= RSRQ < -19.5dB"},
+  {  8, "-19.5dB <= RSRQ < -19dB"},
+  {  9, "-19dB <= RSRQ < -18.5dB"},
+  { 10, "-18.5dB <= RSRQ < -18dB"},
+  { 11, "-18dB <= RSRQ < -17.5dB"},
+  { 12, "-17.5dB <= RSRQ < -17dB"},
+  { 13, "-17dB <= RSRQ < -16.5dB"},
+  { 14, "-16.5dB <= RSRQ < -16dB"},
+  { 15, "-16dB <= RSRQ < -15.5dB"},
+  { 16, "-15.5dB <= RSRQ < -15dB"},
+  { 17, "-15dB <= RSRQ < -14.5dB"},
+  { 18, "-14.5dB <= RSRQ < -14dB"},
+  { 19, "-14dB <= RSRQ < -13.5dB"},
+  { 20, "-13.5dB <= RSRQ < -13dB"},
+  { 21, "-13dB <= RSRQ < -12.5dB"},
+  { 22, "-12.5dB <= RSRQ < -12dB"},
+  { 23, "-12dB <= RSRQ < -11.5dB"},
+  { 24, "-11.5dB <= RSRQ < -11dB"},
+  { 25, "-11dB <= RSRQ < -10.5dB"},
+  { 26, "-10.5dB <= RSRQ < -10dB"},
+  { 27, "-10dB <= RSRQ < -9.5dB"},
+  { 28, "-9.5dB <= RSRQ < -9dB"},
+  { 29, "-9dB <= RSRQ < -8.5dB"},
+  { 30, "-8.5dB <= RSRQ < -8dB"},
+  { 31, "-8dB <= RSRQ"},
+  {  0, NULL}
+};
+static value_string_ext lte_rrc_MBSFN_RSRQ_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_MBSFN_RSRQ_Range_vals);
 
 static void
 lte_rrc_ue_RxTxTimeDiffResult_fmt(gchar *s, guint32 v)
@@ -1838,6 +2000,11 @@ static const true_false_string lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2_val = {
   "FDD PCell - Not supported"
 };
 
+static const true_false_string lte_rrc_transmissionModeList_r12_val = {
+  "NeighCellsInfo applies",
+  "NeighCellsInfo does not apply"
+};
+
 /*****************************************************************************/
 /* Packet private data                                                       */
 /* For this dissector, all access to actx->private_data should be made       */
@@ -1845,10 +2012,10 @@ static const true_false_string lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2_val = {
 /*****************************************************************************/
 
 typedef struct meas_capabilities_item_band_mappings_t {
-	guint16 number_of_bands_set;
-	guint16 number_of_interfreq_serving_read;
-	guint16 number_of_interfreq_target_read;
-	guint16 band_by_item[256];
+  guint16 number_of_bands_set;
+  guint16 number_of_interfreq_serving_read;
+  guint16 number_of_interfreq_target_read;
+  guint16 band_by_item[256];
 } meas_capabilities_item_band_mappings_t;
 
 
@@ -1856,139 +2023,139 @@ typedef struct meas_capabilities_item_band_mappings_t {
 /* Struct to store all current uses of packet private data */
 typedef struct lte_rrc_private_data_t
 {
-    guint8  rat_type;
-    guint8  target_rat_type;
-    guint8  si_or_psi_geran;
-    guint8  ra_preambles;
-    guint16 message_identifier;
-    drb_mapping_t drb_mapping;
-    drx_config_t  drx_config;
-    pdcp_security_info_t pdcp_security;
-    meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
+  guint8  rat_type;
+  guint8  target_rat_type;
+  guint8  si_or_psi_geran;
+  guint8  ra_preambles;
+  guint16 message_identifier;
+  drb_mapping_t drb_mapping;
+  drx_config_t  drx_config;
+  pdcp_security_info_t pdcp_security;
+  meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
 static lte_rrc_private_data_t* lte_rrc_get_private_data(asn1_ctx_t *actx)
 {
-    if (actx->private_data != NULL) {
-        return (lte_rrc_private_data_t*)actx->private_data;
-    }
-    else {
-        lte_rrc_private_data_t* new_struct =
-            (lte_rrc_private_data_t*)wmem_alloc0(wmem_packet_scope(), sizeof(lte_rrc_private_data_t));
-        actx->private_data = new_struct;
-        return new_struct;
-    }
+  if (actx->private_data != NULL) {
+    return (lte_rrc_private_data_t*)actx->private_data;
+  }
+  else {
+    lte_rrc_private_data_t* new_struct =
+      (lte_rrc_private_data_t*)wmem_alloc0(wmem_packet_scope(), sizeof(lte_rrc_private_data_t));
+    actx->private_data = new_struct;
+    return new_struct;
+  }
 }
 
 
 /* DRX config data */
 static drx_config_t* private_data_get_drx_config(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return &private_data->drx_config;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return &private_data->drx_config;
 }
 
 /* DRB mapping info */
 static drb_mapping_t* private_data_get_drb_mapping(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return &private_data->drb_mapping;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return &private_data->drb_mapping;
 }
 
 
 /* RAT type */
 static guint8 private_data_get_rat_type(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return private_data->rat_type;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->rat_type;
 }
 
 static void private_data_set_rat_type(asn1_ctx_t *actx, guint8 rat_type)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    private_data->rat_type = rat_type;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->rat_type = rat_type;
 }
 
 
 /* Target RAT type */
 static guint8 private_data_get_rat_target_type(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return private_data->target_rat_type;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->target_rat_type;
 }
 
 static void private_data_set_rat_target_type(asn1_ctx_t *actx, guint8 target_rat_type)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    private_data->target_rat_type = target_rat_type;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->target_rat_type = target_rat_type;
 }
 
 
 /* si_or_psi_geran */
 static guint8 private_data_get_si_or_psi_geran(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return private_data->si_or_psi_geran;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->si_or_psi_geran;
 }
 
 static void private_data_set_si_or_psi_geran(asn1_ctx_t *actx, guint8 si_or_psi_geran)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    private_data->si_or_psi_geran = si_or_psi_geran;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->si_or_psi_geran = si_or_psi_geran;
 }
 
 
 /* Message identifier */
 static guint16 private_data_get_message_identifier(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return private_data->message_identifier;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->message_identifier;
 }
 
 static void private_data_set_message_identifier(asn1_ctx_t *actx, guint16 message_identifier)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    private_data->message_identifier = message_identifier;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->message_identifier = message_identifier;
 }
 
 
 /* Number of RA-preambles */
 static guint8 private_data_get_ra_preambles(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return private_data->ra_preambles;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->ra_preambles;
 }
 
 static void private_data_set_ra_preambles(asn1_ctx_t *actx, guint8 ra_preambles)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    private_data->ra_preambles = ra_preambles;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->ra_preambles = ra_preambles;
 }
 
 
 /* PDCP Security info */
 static pdcp_security_info_t* private_data_pdcp_security_algorithms(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return &private_data->pdcp_security;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return &private_data->pdcp_security;
 }
 
 
 /* Measurement UE capabilities item -> band mappings */
 static meas_capabilities_item_band_mappings_t* private_data_meas_capabilities_item_band_mappings(asn1_ctx_t *actx)
 {
-    lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
-    return &private_data->meas_capabilities_item_band_mappings;
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return &private_data->meas_capabilities_item_band_mappings;
 }
 
 static void set_freq_band_indicator(guint32 value, asn1_ctx_t *actx)
 {
-    /* Store band mapping for this item in the next position */
-    meas_capabilities_item_band_mappings_t *mappings = private_data_meas_capabilities_item_band_mappings(actx);
-    if (mappings->number_of_bands_set < 256) {
-        mappings->band_by_item[mappings->number_of_bands_set++] = (guint16)value;
-    }
+  /* Store band mapping for this item in the next position */
+  meas_capabilities_item_band_mappings_t *mappings = private_data_meas_capabilities_item_band_mappings(actx);
+  if (mappings->number_of_bands_set < 256) {
+    mappings->band_by_item[mappings->number_of_bands_set++] = (guint16)value;
+  }
 }
 
 /*****************************************************************************/
@@ -2918,6 +3085,166 @@ void proto_register_lte_rrc(void) {
       { "Absolute time", "lte-rrc.absolute_time",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_lte_rrc_transmissionModeList_r12_tm1,
+      { "TM1", "lte-rrc.transmissionModeList_r12.tm1",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_transmissionModeList_r12_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_transmissionModeList_r12_tm2,
+      { "TM2", "lte-rrc.transmissionModeList_r12.tm2",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_transmissionModeList_r12_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_transmissionModeList_r12_tm3,
+      { "TM3", "lte-rrc.transmissionModeList_r12.tm3",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_transmissionModeList_r12_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_transmissionModeList_r12_tm4,
+      { "TM4", "lte-rrc.transmissionModeList_r12.tm4",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_transmissionModeList_r12_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_transmissionModeList_r12_tm6,
+      { "TM6", "lte-rrc.transmissionModeList_r12.tm6",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_transmissionModeList_r12_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_transmissionModeList_r12_tm8,
+      { "TM8", "lte-rrc.transmissionModeList_r12.tm8",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_transmissionModeList_r12_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_transmissionModeList_r12_tm9,
+      { "TM9", "lte-rrc.transmissionModeList_r12.tm9",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_transmissionModeList_r12_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_transmissionModeList_r12_tm10,
+      { "TM10", "lte-rrc.transmissionModeList_r12.tm10",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_transmissionModeList_r12_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_0,
+      { "MPR/A-MPR behavior 0", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_0",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_1,
+      { "MPR/A-MPR behavior 1", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_1",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_2,
+      { "MPR/A-MPR behavior 2", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_2",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_3,
+      { "MPR/A-MPR behavior 3", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_3",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_4,
+      { "MPR/A-MPR behavior 4", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_4",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_5,
+      { "MPR/A-MPR behavior 5", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_5",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_6,
+      { "MPR/A-MPR behavior 6", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_6",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_7,
+      { "MPR/A-MPR behavior 7", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_7",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_8,
+      { "MPR/A-MPR behavior 8", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_8",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_9,
+      { "MPR/A-MPR behavior 9", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_9",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_10,
+      { "MPR/A-MPR behavior 10", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_10",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_11,
+      { "MPR/A-MPR behavior 11", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_11",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_12,
+      { "MPR/A-MPR behavior 12", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_12",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_13,
+      { "MPR/A-MPR behavior 13", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_13",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_14,
+      { "MPR/A-MPR behavior 14", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_14",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_15,
+      { "MPR/A-MPR behavior 15", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_15",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_16,
+      { "MPR/A-MPR behavior 16", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_16",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_17,
+      { "MPR/A-MPR behavior 17", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_17",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_18,
+      { "MPR/A-MPR behavior 18", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_18",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_19,
+      { "MPR/A-MPR behavior 19", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_19",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_20,
+      { "MPR/A-MPR behavior 20", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_20",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_21,
+      { "MPR/A-MPR behavior 21", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_21",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_22,
+      { "MPR/A-MPR behavior 22", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_22",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_23,
+      { "MPR/A-MPR behavior 23", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_23",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_24,
+      { "MPR/A-MPR behavior 24", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_24",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_25,
+      { "MPR/A-MPR behavior 25", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_25",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_26,
+      { "MPR/A-MPR behavior 26", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_26",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_27,
+      { "MPR/A-MPR behavior 27", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_27",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_28,
+      { "MPR/A-MPR behavior 28", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_28",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_29,
+      { "MPR/A-MPR behavior 29", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_29",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_30,
+      { "MPR/A-MPR behavior 30", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_30",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_31,
+      { "MPR/A-MPR behavior 31", "lte-rrc.modifiedMPR_Behavior_r10.mpr_ampr_31",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -2940,7 +3267,9 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_warningMessageSegment,
     &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig,
     &ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12,
-    &ett_lte_rrc_sr_ConfigIndex
+    &ett_lte_rrc_sr_ConfigIndex,
+    &ett_lte_rrc_transmissionModeList_r12,
+    &ett_lte_rrc_modifiedMPR_Behavior_r10
   };
 
   static ei_register_info ei[] = {

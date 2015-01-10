@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre, 2009-2014 Pascal Quantin
+# Copyright 2008 Vincent Helfre, 2009-2015 Pascal Quantin
 
 #.OPT
 PER
@@ -10,6 +10,7 @@ UNALIGNED
 #.USE_VALS_EXT
 BandclassCDMA2000
 DRX-Config/setup/drx-InactivityTimer
+PDCP-Config/eag_3/t-Reordering-r12
 Q-OffsetRange
 RRM-Config/ue-InactiveTime
 SupportedBandUTRA-FDD
@@ -47,23 +48,34 @@ UE-EUTRA-Capability          @ue_eutra_cap
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
-VarShortMAC-Input
-VarMeasConfig
-VarMeasReportList
-VarMeasReport
+Cell-ToAddMod-r12
 CellsTriggeredList
-VarConnEstFailReport-r11
-VarLogMeasConfig-r10
-VarLogMeasReport-r10
+CSI-RS-TriggeredList-r12
+DRB-InfoListSCG-r12
+DRB-InfoSCG-r12
 LogMeasInfoList2-r10
-VarRLF-Report-r10
-VarLogMeasConfig-r11
-VarLogMeasReport-r11
-VarRLF-Report-r11
-VarLogMeasConfig-r12
-VarMobilityHistoryReport-r12
+MeasResultServCellListSCG-r12
+MeasResultServCellSCG-r12
+SCellToAddModListSCG-r12
+SCG-ConfigInfo-r12
+SCG-ConfigInfo-r12-IEs
+SCG-ConfigRestrictInfo-r12
 UERadioPagingInformation
 UERadioPagingInformation-r12-IEs
+VarConnEstFailReport-r11
+VarLogMeasConfig-r10
+VarLogMeasConfig-r11
+VarLogMeasConfig-r12
+VarLogMeasReport-r10
+VarLogMeasReport-r11
+VarMeasConfig
+VarMeasReportList
+VarMeasReportList-r12
+VarMeasReport
+VarMobilityHistoryReport-r12
+VarRLF-Report-r10
+VarRLF-Report-r11
+VarShortMAC-Input
 
 #.MAKE_ENUM
 RAT-Type TYPE_PREFIX
@@ -245,6 +257,46 @@ if(ue_cap_tvb){
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1, pcellduplex_tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2, pcellduplex_tvb, 1, 1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY RF-Parameters-v10f0/modifiedMPR-Behavior-r10 VAL_PTR = &modifiedMPR_Behavior_r10_tvb
+  tvbuff_t *modifiedMPR_Behavior_r10_tvb=NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (modifiedMPR_Behavior_r10_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_modifiedMPR_Behavior_r10);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_0, modifiedMPR_Behavior_r10_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_1, modifiedMPR_Behavior_r10_tvb, 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_2, modifiedMPR_Behavior_r10_tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_3, modifiedMPR_Behavior_r10_tvb, 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_4, modifiedMPR_Behavior_r10_tvb, 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_5, modifiedMPR_Behavior_r10_tvb, 5, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_6, modifiedMPR_Behavior_r10_tvb, 6, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_7, modifiedMPR_Behavior_r10_tvb, 7, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_8, modifiedMPR_Behavior_r10_tvb, 8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_9, modifiedMPR_Behavior_r10_tvb, 9, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_10, modifiedMPR_Behavior_r10_tvb, 10, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_11, modifiedMPR_Behavior_r10_tvb, 11, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_12, modifiedMPR_Behavior_r10_tvb, 12, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_13, modifiedMPR_Behavior_r10_tvb, 13, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_14, modifiedMPR_Behavior_r10_tvb, 14, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_15, modifiedMPR_Behavior_r10_tvb, 15, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_16, modifiedMPR_Behavior_r10_tvb, 16, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_17, modifiedMPR_Behavior_r10_tvb, 17, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_18, modifiedMPR_Behavior_r10_tvb, 18, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_19, modifiedMPR_Behavior_r10_tvb, 19, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_20, modifiedMPR_Behavior_r10_tvb, 20, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_21, modifiedMPR_Behavior_r10_tvb, 21, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_22, modifiedMPR_Behavior_r10_tvb, 22, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_23, modifiedMPR_Behavior_r10_tvb, 23, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_24, modifiedMPR_Behavior_r10_tvb, 24, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_25, modifiedMPR_Behavior_r10_tvb, 25, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_26, modifiedMPR_Behavior_r10_tvb, 26, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_27, modifiedMPR_Behavior_r10_tvb, 27, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_28, modifiedMPR_Behavior_r10_tvb, 28, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_29, modifiedMPR_Behavior_r10_tvb, 29, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_30, modifiedMPR_Behavior_r10_tvb, 30, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_modifiedMPR_Behavior_r10_mpr_ampr_31, modifiedMPR_Behavior_r10_tvb, 31, 1, ENC_BIG_ENDIAN);
   }
 
 #.FN_BODY Handover
@@ -508,10 +560,13 @@ NeighCellConfig TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_neighCellCon
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_absTimeInfo);
     str = tvb_bcd_dig_to_wmem_packet_str(abs_time_info_tvb, 0, 6, NULL, FALSE);
-	hf_str = wmem_strdup_printf(wmem_packet_scope(), "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
+    hf_str = wmem_strdup_printf(wmem_packet_scope(), "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
                         str[2], str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
     proto_tree_add_string(subtree, hf_lte_rrc_absolute_time, abs_time_info_tvb, 0, 6, hf_str);
   }
+
+#.TYPE_RENAME
+CarrierFreqUTRA-FDD-Ext-r12/multiBandInfoList-r12 FreqBandIndicator_UTRA_FDD_r12
 
 #.TYPE_ATTR
 SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=STR_UNICODE
@@ -747,6 +802,9 @@ RLF-Report-r9/eag_1/timeConnFailure-r10 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_tim
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
 
+#.TYPE_ATTR
+BLER-Range-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_BLER_Range_r12_vals_ext
+
 #.FN_BODY TimeSinceFailure-r11
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
@@ -755,9 +813,19 @@ RLF-Report-r9/eag_1/timeConnFailure-r10 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_tim
 CarrierFreqUTRA-FDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
 
 #.TYPE_ATTR
+CarrierFreqUTRA-FDD-Ext-r12/q-RxLevMin-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
+
+#.TYPE_ATTR
 CarrierFreqUTRA-TDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
 
+#.TYPE_ATTR
+CarrierFreqUTRA-TDD-r12/q-RxLevMin-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
+
 #.FN_BODY CarrierFreqUTRA-FDD/p-MaxUTRA
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY CarrierFreqUTRA-FDD-Ext-r12/p-MaxUTRA-r12
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
 
@@ -765,7 +833,15 @@ CarrierFreqUTRA-TDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
 
+#.FN_BODY CarrierFreqUTRA-TDD-r12/p-MaxUTRA-r12
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
 #.FN_BODY CarrierFreqUTRA-FDD/q-QualMin
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY CarrierFreqUTRA-FDD-Ext-r12/q-QualMin-r12
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dB");
 
@@ -843,11 +919,11 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dB");
 
-#.FN_BODY SPS-ConfigUL/setup/eag_1/p0-Persistent-SubframeSet2-r12/p0-NominalPUSCH-Persistent-SubframeSet2-r12
+#.FN_BODY SPS-ConfigUL/setup/eag_1/p0-PersistentSubframeSet2-r12/p0-NominalPUSCH-PersistentSubframeSet2-r12
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
 
-#.FN_BODY SPS-ConfigUL/setup/eag_1/p0-Persistent-SubframeSet2-r12/p0-UE-PUSCH-Persistent-SubframeSet2-r12
+#.FN_BODY SPS-ConfigUL/setup/eag_1/p0-PersistentSubframeSet2-r12/p0-UE-PUSCH-PersistentSubframeSet2-r12
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dB");
 
@@ -862,6 +938,10 @@ UplinkPowerControlCommon/deltaPreambleMsg3 STRINGS=VALS(lte_rrc_deltaPreambleMsg
 UplinkPowerControlCommonSCell-v11x0/deltaPreambleMsg3-r11 STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
 
 #.FN_BODY UplinkPowerControlCommon/p0-NominalPUCCH
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY UplinkPowerControlCommonPSCell-r12/p0-NominalPUCCH
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
 
@@ -914,6 +994,12 @@ ReselectionThreshold DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_Reselecti
 #.TYPE_ATTR
 Hysteresis DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_Hysteresis_vals_ext
 
+#.TYPE_ATTR
+CSI-RSRP-Range-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRP_Range_vals_ext
+
+#.TYPE_ATTR
+MBSFN-RSRQ-Range-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_MBSFN_RSRQ_Range_vals_ext
+
 #.TYPE_RENAME
 MeasConfig/s-Measure S_Measure
 
@@ -930,10 +1016,13 @@ MeasResultUTRA/measResult/utra-EcN0 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lt
 MeasResultUTRA/measResult/utra-RSCP DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_RSCP_vals_ext
 
 #.TYPE_ATTR
-ReportConfigEUTRA/triggerType/event/eventId/eventA3/a3-Offset DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_Offset_vals_ext
+ReportConfigEUTRA/triggerType/event/eventId/eventA3/a3-Offset DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_c2_Offset_vals_ext
 
 #.TYPE_ATTR
-ReportConfigEUTRA/triggerType/event/eventId/eventA6-r10/a6-Offset-r10 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_Offset_vals_ext
+ReportConfigEUTRA/triggerType/event/eventId/eventA6-r10/a6-Offset-r10 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_c2_Offset_vals_ext
+
+#.TYPE_ATTR
+ReportConfigEUTRA/triggerType/event/eventId/eventC2-r12/c2-Offset-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_c2_Offset_vals_ext
 
 #.TYPE_RENAME
 ThresholdEUTRA/threshold-RSRP Threshold_RSRP_Range
@@ -967,6 +1056,9 @@ RSRP-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRP_Range_vals_ext
 
 #.TYPE_ATTR
 RSRQ-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
+
+#.TYPE_ATTR
+RSRQ-Range-v12xy DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
 
 #.TYPE_ATTR
 MeasResultForECID-r9/ue-RxTxTimeDiffResult-r9 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_ue_RxTxTimeDiffResult_fmt
@@ -1230,6 +1322,10 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSInterestIndication-r11");
 
+#.FN_HDR SCGFailureInformation-r12
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SCGFailureInformation-r12");
+
 #.FN_BODY Paging/systemInfoModification
 %(DEFAULT_BODY)s
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (systemInfoModification)");
@@ -1344,7 +1440,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     }
   }
 
-#.FN_BODY UL-AM-RLC-r12/extended-RLC-LI-Field-r12 VAL_PTR=&ext_li_field
+#.FN_BODY RLC-Config-v12xy/ul-extended-RLC-LI-Field-r12 VAL_PTR=&ext_li_field
   gboolean ext_li_field;
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
@@ -1352,7 +1448,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     mapping->rlc_ul_ext_li_field = ext_li_field;
   }
 
-#.FN_BODY DL-AM-RLC-r12/extended-RLC-LI-Field-r12 VAL_PTR=&ext_li_field
+#.FN_BODY RLC-Config-v12xy/dl-extended-RLC-LI-Field-r12 VAL_PTR=&ext_li_field
   gboolean ext_li_field;
   drb_mapping_t *mapping = private_data_get_drb_mapping(actx);
 %(DEFAULT_BODY)s
@@ -1404,6 +1500,21 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     mapping->pdcp_sn_size_present = TRUE;
   }
 
+#.FN_BODY NeighCellsInfo-r12/transmissionModeList-r12 VAL_PTR=&tm_list_tvb
+  tvbuff_t *tm_list_tvb=NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (tm_list_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_transmissionModeList_r12);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm1, tm_list_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm2, tm_list_tvb, 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm3, tm_list_tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm4, tm_list_tvb, 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm6, tm_list_tvb, 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm8, tm_list_tvb, 5, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm9, tm_list_tvb, 6, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm10, tm_list_tvb, 7, 1, ENC_BIG_ENDIAN);
+  }
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo
 %(DEFAULT_BODY)s
@@ -1649,7 +1760,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     set_pdcp_lte_security_algorithms(p_pdcp_lte_info->ueid, p_security_algorithms);
   }
 
-#.FN_BODY SecurityAlgorithmConfig/cipheringAlgorithm VAL_PTR=&value
+#.FN_BODY CipheringAlgorithm-r12 VAL_PTR=&value
   guint32 value;
   pdcp_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
