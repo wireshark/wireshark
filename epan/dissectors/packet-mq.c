@@ -4048,7 +4048,7 @@ static void dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto, void *data)
 {
-    if (tvb_reported_length(tvb) >= 28)
+    if ((tvb_captured_length(tvb) >= 4) && (tvb_reported_length(tvb) >= 28))
     {
         guint32 mq_strucID = tvb_get_ntohl(tvb, 0);
         if ( (mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx || (mq_strucID & MQ_MASK_TSHx) == MQ_STRUCTID_TSHx_EBCDIC )
