@@ -271,7 +271,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			else
 				proto_tree_add_uint_format(uts_header_tree, hf_sid, tvb, 2, 1, sid, "SID (%02X)", sid);
 
-			if (sid == GDID)
+			if (did == GDID)
 				proto_tree_add_uint_format(uts_header_tree, hf_did, tvb, 3, 1, did, "DID (%02X) (General)", did);
 			else
 				proto_tree_add_uint_format(uts_header_tree, hf_did, tvb, 3, 1, did, "DID (%02X)", did);
