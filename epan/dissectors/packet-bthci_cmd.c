@@ -3031,7 +3031,6 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree        *opcode_tree;
     gint               hfx;
     bluetooth_data_t  *bluetooth_data;
-    const gchar       *unknown_format;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -3077,11 +3076,10 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     ogf = (guint8) (opcode >> 10);
 
     if (ogf == HCI_OGF_VENDOR_SPECIFIC)
-        unknown_format = "Vendor Command 0x%04x";
+        proto_item_append_text(ti_cmd," - %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Vendor Command 0x%04x"));
     else
-        unknown_format = "Unknown 0x%04x";
+        proto_item_append_text(ti_cmd," - %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
 
-    proto_item_append_text(ti_cmd," - %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, unknown_format));
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");
 
