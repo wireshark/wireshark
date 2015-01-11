@@ -16,7 +16,11 @@ FIND_PROGRAM(A2X_EXECUTABLE
         /sbin
 )
 
-if (WIN32 AND NOT "${CYGWIN_INSTALL_PATH}" STREQUAL "" AND ${A2X_EXECUTABLE} MATCHES "${CYGWIN_INSTALL_PATH}")
+string( TOLOWER "${CYGWIN_INSTALL_PATH}" l_cyg_path)
+string( TOLOWER "${A2X_EXECUTABLE}" l_a2x_ex)
+if (NOT "${CYGWIN_INSTALL_PATH}" STREQUAL "" AND "${l_a2x_ex}" MATCHES "${l_cyg_path}")
+    message("-- Using Cygwin a2x")
+    # We have most likely found a symlink to a2x.py. This won't work from the Windows shell.
     FIND_PROGRAM(CYGPATH_EXECUTABLE
         NAMES cygpath
         PATHS ${CYGWIN_INSTALL_PATH}/bin
@@ -40,10 +44,10 @@ if (WIN32 AND NOT "${CYGWIN_INSTALL_PATH}" STREQUAL "" AND ${A2X_EXECUTABLE} MAT
     # - /usr/bin/a2x, which is a symlink to /usr/bin/a2x.py.
     # - We need to set environment variables (LC_ALL, PATH, TZ, PYTHONHOME)
     # so we use a wrapper script.
-    set( A2X_EXECUTABLE ${SH_EXECUTABLE} ${RUNA2X_CYGWIN_PATH} )
+    set( RUNA2X ${SH_EXECUTABLE} ${RUNA2X_CYGWIN_PATH} )
 else()
     # Make sure we don't get language specific quotes
-    set( A2X_EXECUTABLE LC_ALL=C TZ=UTC ${A2X_EXECUTABLE} )
+    set( RUNA2X LC_ALL=C TZ=UTC ${A2X_EXECUTABLE} )
 
     MACRO( TO_A2X_COMPATIBLE_PATH _cmake_path _result )
         set( ${_result} ${_cmake_path} )
@@ -53,9 +57,9 @@ endif()
 # Handle the QUIETLY and REQUIRED arguments and set ASCIIDOC_FOUND to TRUE if
 # all listed variables are TRUE
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(ASCIIDOC DEFAULT_MSG A2X_EXECUTABLE)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(A2X DEFAULT_MSG RUNA2X)
 
-MARK_AS_ADVANCED(A2X_EXECUTABLE)
+MARK_AS_ADVANCED(RUNA2X)
 
 TO_A2X_COMPATIBLE_PATH( ${CMAKE_CURRENT_BINARY_DIR} _a2x_current_binary_dir )
 
@@ -82,7 +86,7 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files )
             ${_output_xml}
         # XXX - Output to a specific directory, e.g. wsdg_generated_src
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMAND ${A2X_EXECUTABLE}
+        COMMAND ${RUNA2X}
             --verbose
             --attribute=build_dir=${_a2x_current_binary_dir}
             --attribute=docinfo
@@ -123,7 +127,7 @@ MACRO( ASCIIDOC2HTML _output _asciidocsource _conf_files )
         OUTPUT
             ${_output}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMAND ${A2X_EXECUTABLE}
+        COMMAND ${RUNA2X}
             --format=xhtml
             --destination-dir=${_a2x_current_binary_dir}
             --asciidoc-opts=${_conf_opts}
@@ -169,7 +173,7 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
         OUTPUT
             ${_output}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMAND ${A2X_EXECUTABLE}
+        COMMAND ${RUNA2X}
             --format=text
             --destination-dir=${_a2x_current_binary_dir}
             --asciidoc-opts=${_conf_opts}
@@ -214,7 +218,7 @@ MACRO( ASCIIDOC2PDF _output _asciidocsource _conf_files _paper )
         OUTPUT
             ${_output}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMAND ${A2X_EXECUTABLE}
+        COMMAND ${RUNA2X}
             --format=pdf
             --destination-dir=${_a2x_current_binary_dir}
             --asciidoc-opts=${_conf_opts}
