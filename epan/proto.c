@@ -4252,16 +4252,16 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					if (bytes) {
 						switch(hfinfo->display)
 						{
-						case BASE_DOT:
+						case SEP_DOT:
 							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
 							break;
-						case BASE_DASH:
+						case SEP_DASH:
 							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
 							break;
-						case BASE_SEMICOLON:
+						case SEP_COLON:
 							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
 							break;
-						case BASE_SPACE:
+						case SEP_SPACE:
 							str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
 							break;
 						case BASE_NONE:
@@ -5628,13 +5628,13 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			 */
 			switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
 				case BASE_NONE:
-				case BASE_DOT:
-				case BASE_DASH:
-				case BASE_SEMICOLON:
-				case BASE_SPACE:
+				case SEP_DOT:
+				case SEP_DASH:
+				case SEP_COLON:
+				case SEP_SPACE:
 					break;
 				default:
-				g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, BASE_DOT, BASE_DASH, BASE_SEMICOLON, or BASE_SPACE\n",
+				g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE\n",
 					hfinfo->name, hfinfo->abbrev,
 					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 			}
@@ -6024,16 +6024,16 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				char* str = NULL;
 				switch(hfinfo->display)
 				{
-				case BASE_DOT:
+				case SEP_DOT:
 					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '.');
 					break;
-				case BASE_DASH:
+				case SEP_DASH:
 					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '-');
 					break;
-				case BASE_SEMICOLON:
+				case SEP_COLON:
 					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ':');
 					break;
-				case BASE_SPACE:
+				case SEP_SPACE:
 					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
 					break;
 				case BASE_NONE:

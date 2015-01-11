@@ -970,7 +970,7 @@ proto_register_fcfcs (void)
            BASE_HEX, NULL, 0x0, NULL, HFILL}},
         { &hf_fcs_mgmtid,
           {"Interconnect Element Mgmt. ID", "fcs.ie.mgmtid", FT_BYTES,
-           BASE_DOT, NULL, 0x0, NULL, HFILL}},
+           SEP_DOT, NULL, 0x0, NULL, HFILL}},
         { &hf_fcs_fabricname,
           {"Interconnect Element Fabric Name", "fcs.ie.fname", FT_FCWWN,
            BASE_NONE, NULL, 0x0, NULL, HFILL}},

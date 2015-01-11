@@ -6749,7 +6749,7 @@ proto_register_ipv6cp(void)
 {
     static hf_register_info hf[] = {
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_ipv6cp_interface_identifier, { "Interface Identifier", "ipv6cp.interface_identifier", FT_BYTES, BASE_SEMICOLON, NULL, 0x0, NULL, HFILL }},
+      { &hf_ipv6cp_interface_identifier, { "Interface Identifier", "ipv6cp.interface_identifier", FT_BYTES, SEP_COLON, NULL, 0x0, NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_ipv6cp,

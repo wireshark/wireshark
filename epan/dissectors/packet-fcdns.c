@@ -67,7 +67,7 @@ static header_field_info hfi_fcdns_vendor FCDNS_HFI_INIT =
            BASE_HEX, NULL, 0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_req_portid FCDNS_HFI_INIT =
-          {"Port Identifier", "fcdns.req.portid", FT_BYTES, BASE_DOT, NULL, 0x0,
+          {"Port Identifier", "fcdns.req.portid", FT_BYTES, SEP_DOT, NULL, 0x0,
            NULL, HFILL};
 
 static header_field_info hfi_fcdns_rply_pname FCDNS_HFI_INIT =
@@ -115,7 +115,7 @@ static header_field_info hfi_fcdns_req_pname FCDNS_HFI_INIT =
            NULL, HFILL};
 
 static header_field_info hfi_fcdns_rply_portid FCDNS_HFI_INIT =
-          {"Port Identifier", "fcdns.rply.portid", FT_BYTES, BASE_DOT, NULL,
+          {"Port Identifier", "fcdns.rply.portid", FT_BYTES, SEP_DOT, NULL,
            0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_req_nname FCDNS_HFI_INIT =
@@ -183,7 +183,7 @@ static header_field_info hfi_fcdns_rply_fc4desclen FCDNS_HFI_INIT =
            BASE_DEC, NULL, 0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_rply_hrdaddr FCDNS_HFI_INIT =
-          {"Hard Address", "fcdns.rply.hrdaddr", FT_BYTES, BASE_DOT, NULL,
+          {"Hard Address", "fcdns.rply.hrdaddr", FT_BYTES, SEP_DOT, NULL,
            0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_req_fdesclen FCDNS_HFI_INIT =
@@ -219,7 +219,7 @@ static header_field_info hfi_fcdns_zone_mbrid_uint FCDNS_HFI_INIT =
            0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_zone_mbrid_fc FCDNS_HFI_INIT =
-          {"Member Identifier", "fcdns.zone.mbrid.fc", FT_BYTES, BASE_DOT, NULL,
+          {"Member Identifier", "fcdns.zone.mbrid.fc", FT_BYTES, SEP_DOT, NULL,
            0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_id_length FCDNS_HFI_INIT =

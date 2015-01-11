@@ -1455,7 +1455,7 @@ void proto_register_zbee_zcl_part(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_part_part_frame,
-            { "Partition Frame", "zbee_zcl_general.part.part_frame", FT_BYTES, BASE_SEMICOLON, NULL,
+            { "Partition Frame", "zbee_zcl_general.part.part_frame", FT_BYTES, SEP_COLON, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_part_partitioned_cluster_id,
@@ -2663,7 +2663,7 @@ void proto_register_zbee_zcl_ota(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_image_data,
-            { "Image Data", "zbee_zcl_general.ota.image.data", FT_BYTES, BASE_SEMICOLON, NULL,
+            { "Image Data", "zbee_zcl_general.ota.image.data", FT_BYTES, SEP_COLON, NULL,
             0x00, NULL, HFILL } }
    };
 

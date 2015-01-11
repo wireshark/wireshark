@@ -4368,7 +4368,7 @@ proto_register_mip6(void)
 
     { &hf_fmip6_lla,
       { "Link-layer address", "mip6.lla",
-        FT_BYTES, BASE_SEMICOLON, NULL, 0,
+        FT_BYTES, SEP_COLON, NULL, 0,
         NULL, HFILL }
     },
 

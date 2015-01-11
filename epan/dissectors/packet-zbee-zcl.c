@@ -2309,7 +2309,7 @@ void proto_register_zbee_zcl(void)
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_ostr,
-            { "Octet String",   "zbee_zcl.attr.ostr", FT_BYTES, BASE_SEMICOLON, NULL, 0x0,
+            { "Octet String",   "zbee_zcl.attr.ostr", FT_BYTES, SEP_COLON, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_array_elements_type,

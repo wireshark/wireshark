@@ -1379,7 +1379,7 @@ proto_register_zbee_zcl_appl_stats(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_appl_stats_log_payload,
-            { "Log Payload", "zbee_zcl_ha.applstats.log.payload", FT_BYTES, BASE_SEMICOLON, NULL,
+            { "Log Payload", "zbee_zcl_ha.applstats.log.payload", FT_BYTES, SEP_COLON, NULL,
             0x00, NULL, HFILL } },
 
     };

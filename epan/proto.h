@@ -497,10 +497,10 @@ typedef enum {
 	STR_UNICODE  = 7,         /**< shows non-printable UNICODE characters as \\uXXXX (XXX for now non-printable characters display depends on UI) */
 
 /* Byte types */
-	BASE_DOT = 8,        /**< hexadecimal bytes with a period (.) between each byte */
-	BASE_DASH  = 9,      /**< hexadecimal bytes with a dash (-) between each byte */
-	BASE_SEMICOLON = 10, /**< hexadecimal bytes with a dash (:) between each byte */
-	BASE_SPACE  = 11 /**< hexadecimal bytes with a space between each byte */
+	SEP_DOT = 8,        /**< hexadecimal bytes with a period (.) between each byte */
+	SEP_DASH  = 9,      /**< hexadecimal bytes with a dash (-) between each byte */
+	SEP_COLON = 10,     /**< hexadecimal bytes with a colon (:) between each byte */
+	SEP_SPACE  = 11     /**< hexadecimal bytes with a space between each byte */
 } field_display_e;
 
 /* Following constants have to be ORed with a field_display_e when dissector

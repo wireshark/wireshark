@@ -655,7 +655,7 @@ proto_register_fip(void)
 
         { &hf_fip_desc_map,
           { "FC-MAP-OUI", "fip.map",
-            FT_BYTES, BASE_DOT, NULL, 0,
+            FT_BYTES, SEP_DOT, NULL, 0,
             NULL, HFILL}},
 
         { &hf_fip_desc_name,
@@ -670,7 +670,7 @@ proto_register_fip(void)
 
         { &hf_fip_desc_fab_map,
           { "FC-MAP", "fip.fab.map",
-            FT_BYTES, BASE_DOT, NULL, 0,
+            FT_BYTES, SEP_DOT, NULL, 0,
             NULL, HFILL}},
 
         { &hf_fip_desc_fab_name,

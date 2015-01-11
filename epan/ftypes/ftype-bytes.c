@@ -154,14 +154,14 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 		else {
 			switch(field_display)
 			{
-			case BASE_DOT:
+			case SEP_DOT:
 				separator = '.';
 				break;
-			case BASE_DASH:
+			case SEP_DASH:
 				separator = '-';
 				break;
-			case BASE_SPACE:
-			case BASE_SEMICOLON:
+			case SEP_SPACE:
+			case SEP_COLON:
 			case BASE_NONE:
 			default:
 				separator = ':';

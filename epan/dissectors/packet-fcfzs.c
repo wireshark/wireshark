@@ -810,7 +810,7 @@ proto_register_fcfzs(void)
 
         { &hf_fcfzs_mbrid_fc,
           {"Zone Member Identifier", "fcfzs.zone.mbrid.fc",
-           FT_BYTES, BASE_DOT, NULL, 0x0,
+           FT_BYTES, SEP_DOT, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_fcfzs_mbrid_uint,

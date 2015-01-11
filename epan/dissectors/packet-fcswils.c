@@ -2078,7 +2078,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_ldrec_linkid,
           {"Link ID", "swils.ldr.linkid",
-           FT_BYTES, BASE_DOT, NULL, 0x0,
+           FT_BYTES, SEP_DOT, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_ldrec_out_pidx,
@@ -2113,7 +2113,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_rscn_affectedport,
           {"Affected Port ID", "swils.rscn.affectedport",
-           FT_BYTES, BASE_DOT, NULL, 0x0,
+           FT_BYTES, SEP_DOT, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_rscn_detectfn,
@@ -2128,7 +2128,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_rscn_portid,
           {"Port Id", "swils.rscn.portid",
-           FT_BYTES, BASE_DOT, NULL, 0x0,
+           FT_BYTES, SEP_DOT, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_rscn_pwwn,
@@ -2193,7 +2193,7 @@ proto_register_fcswils(void)
 
         { &hf_swils_zone_mbrid_fc,
           {"Member Identifier", "swils.zone.mbrid.fc",
-           FT_BYTES, BASE_DOT, NULL, 0x0,
+           FT_BYTES, SEP_DOT, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_swils_zone_mbrid_uint,

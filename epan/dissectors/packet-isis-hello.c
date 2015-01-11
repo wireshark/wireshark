@@ -1390,7 +1390,7 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_digest_v, { "V", "isis.hello.digest.v", FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
       { &hf_isis_hello_digest_a, { "A", "isis.hello.digest.a", FT_UINT8, BASE_DEC, NULL, 0x0c, NULL, HFILL }},
       { &hf_isis_hello_digest_d, { "D", "isis.hello.digest.d", FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL }},
-      { &hf_isis_hello_ect, { "ECT", "isis.hello.ect", FT_BYTES, BASE_DASH, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_ect, { "ECT", "isis.hello.ect", FT_BYTES, SEP_DASH, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_bvid, { "BVID", "isis.hello.bvid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0FFF, NULL, HFILL }},
       { &hf_isis_hello_bvid_u, { "U", "isis.hello.bvid.u", FT_UINT16, BASE_HEX_DEC, NULL, 0x0008, NULL, HFILL }},
       { &hf_isis_hello_bvid_m, { "M", "isis.hello.bvid.m", FT_UINT16, BASE_HEX_DEC, NULL, 0x0004, NULL, HFILL }},
