@@ -20,5 +20,6 @@ MACRO(ABICHECK _libname)
 	file(MAKE_DIRECTORY ${ABICHECK_TMPDIR})
 	file(COPY ${HEADERS} ../ws_symbol_export.h DESTINATION ${ABICHECK_TMPDIR})
 	add_custom_target(dumpabi-${_libname} DEPENDS ${_libname}.abi.tar.gz)
+	set_target_properties(dumpabi-${_libname} PROPERTIES FOLDER "Auxilary")
 ENDMACRO()
 

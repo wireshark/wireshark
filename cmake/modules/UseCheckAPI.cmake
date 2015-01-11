@@ -13,4 +13,5 @@ macro( CHECKAPI )
 		  ${CMAKE_SOURCE_DIR}/tools/checkAPIs.pl
 		  ${_sources}
 	)
+	set_target_properties(checkapi PROPERTIES FOLDER "Auxilary")
 ENDMACRO()

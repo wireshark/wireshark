@@ -1683,7 +1683,7 @@ pod2manhtml( ${CMAKE_BINARY_DIR}/wireshark 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/wireshark-filter 4 )
 
 add_custom_target(
-	auxiliary ALL
+	html_docs ALL
 	DEPENDS
 		${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 		capinfos.html
@@ -1703,7 +1703,7 @@ add_custom_target(
 		wireshark.html
 		wireshark-filter.html
 )
-set_target_properties(auxiliary PROPERTIES FOLDER "Docs")
+set_target_properties(html_docs PROPERTIES FOLDER "Docs")
 
 set(CLEAN_FILES
 	${wireshark_FILES}
