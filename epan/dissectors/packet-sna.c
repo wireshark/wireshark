@@ -1918,10 +1918,8 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dst = wmem_new(pinfo->pool, struct sna_fid_type_4_addr);
 	dst->saf = dsaf;
 	dst->ef = def;
-	SET_ADDRESS(&pinfo->net_dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
-	    (guint8* )&dst);
-	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
-	    (guint8 *)&dst);
+	SET_ADDRESS(&pinfo->net_dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, dst);
+	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, dst);
 
 	oef = tvb_get_ntohs(tvb, 20);
 	proto_tree_add_uint(tree, hf_sna_th_oef, tvb, offset+2, 2, oef);
@@ -1930,10 +1928,8 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	src = wmem_new(pinfo->pool, struct sna_fid_type_4_addr);
 	src->saf = osaf;
 	src->ef = oef;
-	SET_ADDRESS(&pinfo->net_src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
-	    (guint8 *)&src);
-	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
-	    (guint8 *)&src);
+	SET_ADDRESS(&pinfo->net_src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, src);
+	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, src);
 
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, offset+6, 2, ENC_BIG_ENDIAN);
