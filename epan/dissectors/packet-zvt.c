@@ -57,8 +57,43 @@
 /* an APDU needs at least a 2-byte control-field and one byte length */
 #define ZVT_APDU_MIN_LEN 3
 
+
+static GHashTable *apdu_table = NULL;
+
+typedef enum _zvt_direction_t {
+    DIRECTION_UNKNOWN,
+    DIRECTION_ECR_TO_PT,
+    DIRECTION_PT_TO_ECR
+} zvt_direction_t;
+
+/* source/destination address field */
+#define ADDR_ECR "ECR"
+#define ADDR_PT  "PT"
+
+typedef struct _apdu_info_t {
+    guint16          ctrl;
+    guint32          min_len_field;
+    zvt_direction_t  direction;
+    void (*dissect_payload)(tvbuff_t *, gint, packet_info *, proto_tree *);
+} apdu_info_t;
+
 /* control code 0 is not defined in the specification */
-#define ZVT_CTRL_INVALID 0x0000
+#define ZVT_CTRL_NONE      0x0000
+#define CTRL_STATUS        0x040F
+#define CTRL_INT_STATUS    0x04FF
+#define CTRL_AUTHORISATION 0x0601
+#define CTRL_COMPLETION    0x060F
+#define CTRL_PRINT_LINE    0x06D1
+
+
+static const apdu_info_t apdu_info[] = {
+    { CTRL_STATUS, 0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_INT_STATUS, 0, DIRECTION_PT_TO_ECR, NULL },
+    /* authorisation has at least a 0x04 tag and 6 bytes for the amount */
+    { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_COMPLETION, 0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_PRINT_LINE, 0, DIRECTION_PT_TO_ECR, NULL }
+};
 
 void proto_register_zvt(void);
 void proto_reg_handoff_zvt(void);
@@ -90,35 +125,51 @@ static const value_string serial_char[] = {
 };
 static value_string_ext serial_char_ext = VALUE_STRING_EXT_INIT(serial_char);
 
+
 static const value_string ctrl_field[] = {
-    { 0x040F, "Status Information" },
-    { 0x04FF, "Intermediate Status Information" },
+    { CTRL_STATUS, "Status Information" },
+    { CTRL_INT_STATUS, "Intermediate Status Information" },
     { 0x0600, "Registration" },
-    { 0x0601, "Authorisation" },
-    { 0x060F, "Completion" },
+    { CTRL_AUTHORISATION, "Authorisation" },
+    { CTRL_COMPLETION, "Completion" },
     { 0x061E, "Abort" },
     { 0x0650, "End Of Day" },
     { 0x0670, "Diagnosis" },
     { 0x0693, "Initialisation" },
-    { 0x06D1, "Print Line" },
+    { CTRL_PRINT_LINE, "Print Line" },
     { 0x06D3, "Print Text Block" },
     { 0, NULL }
 };
 static value_string_ext ctrl_field_ext = VALUE_STRING_EXT_INIT(ctrl_field);
 
 
+static void
+zvt_set_addresses(packet_info *pinfo _U_, zvt_direction_t dir)
+{
+    if (dir == DIRECTION_ECR_TO_PT) {
+        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_ECR)+1, ADDR_ECR);
+        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_PT)+1, ADDR_PT);
+    }
+    else if (dir == DIRECTION_PT_TO_ECR) {
+        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_PT)+1, ADDR_PT);
+        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_ECR)+1, ADDR_ECR);
+    }
+}
+
+
 /* dissect a ZVT APDU
    return -1 if we don't have a complete APDU, 0 if the packet is no ZVT APDU
    or the length of the ZVT APDU if all goes well */
 static int
-dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint        offset_start;
-    guint8      len_bytes = 1; /* number of bytes for the len field */
-    guint16     ctrl = ZVT_CTRL_INVALID;
-    guint16     len;
-    proto_item *apdu_it;
-    proto_tree *apdu_tree;
+    gint         offset_start;
+    guint8       len_bytes = 1; /* number of bytes for the len field */
+    guint16      ctrl = ZVT_CTRL_NONE;
+    guint16      len;
+    proto_item  *apdu_it;
+    proto_tree  *apdu_tree;
+    apdu_info_t *ai;
 
     offset_start = offset;
 
@@ -156,12 +207,20 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree 
     proto_tree_add_uint(apdu_tree, hf_zvt_len, tvb, offset, len_bytes, len);
     offset += len_bytes;
 
-    switch (ctrl) {
-        default:
-            proto_tree_add_item(apdu_tree, hf_zvt_data, tvb, offset, len, ENC_NA);
-            break;
+    ai = (apdu_info_t *)g_hash_table_lookup(
+            apdu_table, GUINT_TO_POINTER((guint)ctrl));
+
+    if (ai) {
+        zvt_set_addresses(pinfo, ai->direction);
+        /* XXX - check the minimum length */
     }
 
+    if (len > 0) {
+        if (ai && ai->dissect_payload)
+            ai->dissect_payload(tvb, offset, len, pinfo, apdu_tree);
+        else
+            proto_tree_add_item(apdu_tree, hf_zvt_data, tvb, offset, len, ENC_NA);
+    }
     offset += len;
 
     proto_item_set_len(apdu_it, offset - offset_start);
@@ -331,6 +390,13 @@ dissect_zvt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 void
 proto_register_zvt(void)
 {
+    guint     i;
+    module_t *zvt_module;
+
+    static gint *ett[] = {
+        &ett_zvt,
+        &ett_zvt_apdu
+    };
     static hf_register_info hf[] = {
         { &hf_zvt_serial_char,
             { "Serial character", "zvt.serial_char", FT_UINT8,
@@ -354,12 +420,14 @@ proto_register_zvt(void)
           { "APDU data", "zvt.data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } }
     };
-    static gint *ett[] = {
-        &ett_zvt,
-        &ett_zvt_apdu
-    };
 
-    module_t *zvt_module;
+
+    apdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+    for(i=0; i<array_length(apdu_info); i++) {
+        g_hash_table_insert(apdu_table,
+                            GUINT_TO_POINTER((guint)apdu_info[i].ctrl),
+                            (const gpointer)(&apdu_info[i]));
+    }
 
     proto_zvt = proto_register_protocol(
             "ZVT Kassenschnittstelle", "ZVT", "zvt");
