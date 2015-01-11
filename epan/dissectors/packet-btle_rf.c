@@ -68,6 +68,23 @@ static int hf_btle_rf_mic_checked_flag = -1;
 static int hf_btle_rf_mic_valid_flag = -1;
 static int hf_btle_rf_flags_rfu_2 = -1;
 
+static const int *hfs_btle_rf_flags[] = {
+    &hf_btle_rf_dewhitened_flag,
+    &hf_btle_rf_sigpower_valid_flag,
+    &hf_btle_rf_noisepower_valid_flag,
+    &hf_btle_rf_packet_decrypted_flag,
+    &hf_btle_rf_ref_aa_valid_flag,
+    &hf_btle_rf_aa_offenses_valid_flag,
+    &hf_btle_rf_channel_aliased_flag,
+    &hf_btle_rf_flags_rfu_1,
+    &hf_btle_rf_crc_checked_flag,
+    &hf_btle_rf_crc_valid_flag,
+    &hf_btle_rf_mic_checked_flag,
+    &hf_btle_rf_mic_valid_flag,
+    &hf_btle_rf_flags_rfu_2,
+    NULL
+};
+
 static int ett_btle_rf = -1;
 static int ett_btle_rf_flags = -1;
 
@@ -121,7 +138,6 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item        *ti;
     proto_tree        *btle_rf_tree;
-    proto_tree        *btle_rf_flags_tree;
     tvbuff_t          *btle_tvb;
     btle_context_t     context;
     guint8             rf_channel;
@@ -198,21 +214,8 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(btle_rf_tree, hf_btle_rf_word_unused, tvb, 4, 4, ENC_LITTLE_ENDIAN);
     }
 
-    ti = proto_tree_add_item(btle_rf_tree, hf_btle_rf_flags, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    btle_rf_flags_tree = proto_item_add_subtree(ti, ett_btle_rf_flags);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_dewhitened_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_sigpower_valid_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_noisepower_valid_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_packet_decrypted_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_ref_aa_valid_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_aa_offenses_valid_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_channel_aliased_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_flags_rfu_1, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_crc_checked_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_crc_valid_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_mic_checked_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_mic_valid_flag, tvb, 8, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(btle_rf_flags_tree, hf_btle_rf_flags_rfu_2, tvb, 8, 2, ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_bitmask_with_flags(btle_rf_tree, tvb, 8, hf_btle_rf_flags, ett_btle_rf_flags,  hfs_btle_rf_flags, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 
     btle_tvb = tvb_new_subset_remaining(tvb, BTLE_RF_OCTETS);
     return BTLE_RF_OCTETS+call_dissector_with_data(btle_handle, btle_tvb, pinfo, tree, &context);
