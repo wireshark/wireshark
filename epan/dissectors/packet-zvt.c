@@ -201,6 +201,8 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
     else {
         ctrl = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(apdu_tree, hf_zvt_ctrl, tvb, offset, 2, ENC_BIG_ENDIAN);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+                val_to_str_const(ctrl, ctrl_field, "Unknown 0x%x"));
         offset += 2;
     }
 
