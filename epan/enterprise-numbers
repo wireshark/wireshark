@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2015-01-03)
+(last updated 2015-01-11)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -30791,8 +30791,8 @@ Decimal
       olegp&wydeband.com
 7709
   Aristotle University of Thessaloniki
-    Panagiotis Tzounakis
-      noc&auth.gr
+    Dimitris Zacharopoulos
+      jimmy&it.auth.gr
 7710
   Agrilis (pty) Ltd
     T. Kenedi
@@ -42900,7 +42900,7 @@ Decimal
 10736
   University of Denver
     Phil L. Tripp
-      tripp&du.edu
+      Phil.Tripp&du.edu
 10737
   Web Simulation
     Riley Rainey
@@ -105049,8 +105049,8 @@ S.A
       dmickovic&gmail.com
 26369
   Mattig-Schauer Ges.m.b.H
-    Ing. Michael Herzog
-      m.herzog&mattig-schauer.at
+    Johannes Bauer
+      Office&mattig-schauer.at
 26370
   Bend Cable Communications, LLC
     Wade Holmes
@@ -105624,10 +105624,9 @@ S.A
     Aykut KARA
       akara&geek.com.tr
 26513
-  Hellenic Academic and Research Institutions Certification
-Authority
+  Hellenic Academic and Research Institutions CertificationAuthority
     Dimitris Zacharopoulos
-      jimmy&ccf.auth.gr
+      jimmy&it.auth.gr
 26514
   Suntel Communications
     Peter Nixon
@@ -106515,9 +106514,9 @@ Institute
     Andrew Kay
       andrewjkay&gmail.com
 26735
-  ITadmin GmbH
+  Dipl. Ing. T. Biel
     Thorsten Biel
-      hostmaster&ITadmin.com
+      hostmaster&ing-biel.com
 26736
   Weyhmueller.net
     Oliver Weyhmüller
@@ -108652,9 +108651,9 @@ de l'Ouest(RESAO)
     Mark McConnell
       mnhangareighteen&gmail.com
 27269
-  Mainichi Communications Inc.
+  Mynavi Corporation
     Terutake Usui
-      iana-contact&mycom.co.jp
+      iana-contact&mynavi.jp
 27270
   KoSyS - Kockisch ITK Systems and Services
     Michel Bretschneider
@@ -174141,9 +174140,9 @@ Decentralization / Helenic Public Administra
     Schalk Snyman
       schalks&evoluta.biz
 43640
-  through.other.eyes (Jonathan Platzer)
+  THROUGHOTHEREYES (Jonathan Platzer)
     Jonathan Platzer
-      jonathan1996&gmx.at
+      jonathan&throughotherey.es
 43641
   netplus.ch SA
     Jean-Blaise Rey
@@ -177959,7 +177958,7 @@ Decentralization / Helenic Public Administra
 44594
   Yokogawa Digital Computer Corporation
     Yoki Hoyama
-      hoyama&yokogawa-digital.com
+      pqa_admin&yokogawa-digital.com
 44595
   indigo Consulting GmbH
     Sven Schmidtke
@@ -179129,7 +179128,7 @@ Decentralization / Helenic Public Administra
     Ram Prasad
       ram&gainspeed.com
 44887
-  The Kansas City Railway Company
+  The Kansas City Southern Railway Company
     Michael Chung
       KCSInfoSec&KCSouthern.com
 44888
@@ -179780,6 +179779,150 @@ Decentralization / Helenic Public Administra
   Gudok LLC
     Michael Dokolin
       mail&ipgudok.com
+45050
+  Bjørn Ludvig Langaas Johansen
+    Bjørn Ludvig Langaas Johansen
+      iana-pen&bjornj.no
+45051
+  Finalsite
+    Carl P. Corliss
+      carl.corliss&finalsite.com
+45052
+  SequoiaDB Ltd.
+    Tao Wang
+      taoewang&sequoiadb.com
+45053
+  Information and Telecom Systems India Pvt. Ltd.
+    Milind Pandharipande
+      pmilind&info-telecomsys.com
+45054
+  Tony Ditchfield
+    Tony Ditchfield
+      tony.ditchfield&gmail.com
+45055
+  ISAE
+    David MOUCHOIR
+      david.mouchoir&isae.fr
+45056
+  Kassenärztliche Vereinigung Schleswig-Holstein
+    Sven Grünewald
+      sven.gruenewald&kvsh.de
+45057
+  COPALP
+    Jerome FOLLUT
+      jf&copalp.com
+45058
+  CCP Games
+    Sturla Thorsson
+      sturla&ccpgames.com
+45059
+  Bauduin Raphaël
+    Bauduin Raphaël
+      rb&raphinou.com
+45060
+  Otis R Bowen Center for Human Services, Inc
+    Joseph Van Overberghe
+      joe.vanoverberghe&bowencenter.org
+45061
+  Gymnasium Geretsried
+    Wild Axel
+      Axel.Wild&gymger.de
+45062
+  Southern Cancer Center
+    Lauren Pettis
+      lauren.pettis&southerncancercenter.com
+45063
+  SEAtech Technology Inc
+    Pengfei Hu
+      hupengfei&seatech-global.com
+45064
+  China Mobile Hong Kong Company Limited
+    Komix Hui
+      komixhui&hk.chinamobile.com
+45065
+  Insyde
+    Y.C. Lin 
+      yc.lin&insyde.com
+45066
+  SIP Cantabria S.L.
+    Luis Carlos Peña Bocos
+      luis&sipcantabria.net
+45067
+  Dude Solutions Inc.
+    Wes Carver
+      IANAAdmin&dudesolutions.com
+45068
+  PROTECH SYSTEMS PRIVATE LIMITED
+    ATUL BAL
+      protech&aprotech.com
+45069
+  TOMinf Tomasz Tomaszewski
+    Tomasz Tomaszewski
+      tominf&tominf.com
+45070
+  Reservoir Labs, Inc.
+    Nicole Leung
+      leung&reservoir.com
+45071
+  tetraguard systems GmbH
+    Stefan Kistner
+      skistner&tetraguard.de
+45072
+  Catalyst Paper
+    Karim Dhanani
+      karim.dhanani&catalystpaper.com
+45073
+  Pacific Seafood Group
+    Brent Glasgow
+      oid&pacseafood.com
+45074
+  TTSSB corp 
+    Balaji Sunder Rajan 
+      bsfrc_2000&yahoo.com
+45075
+  Electron Jungle, LLC
+    Kevin Wagner
+      iana&electronjungle.com
+45076
+  HamLogin.com
+    Tyler Sarna
+      hamlogin&hamlogin.com
+45077
+  Sestek Ses ve Iletisim Bilgisayar Teknolojileri San. ve Tic. A.S.
+    M. Levent Arslan
+      levent.arslan&sestek.com
+45078
+  QoS Solutions
+    Jeffrey Thomas
+      jthomas&qos-solutions.com
+45079
+  i2p informatikai kft.
+    Rózsahegyi Zsolt
+      info&i2p.hu
+45080
+  Kerio Technologies, Inc.
+    Martin Meduna
+      hostmaster&kerio.com
+45081
+  Increase Qingdao Information Technology Co., Ltd.
+    Zhengxin Sun
+      sunzx&qdincrease.com
+45082
+  PT. Tekno Inovasi Asia
+    Rachmat Kusnadi
+      rachmat.kusnadi&teknoasia.com
+45083
+  Intility AS
+    Arne Klæboe
+      arne.klaeboe&intility.no
+45084
+  Arbeitsgemeinschaft Dresdner Studentennetz
+    Sebastian Schrader
+      software&wh2.tu-dresden.de
+45085
+  Bibliotheca Alexandrina
+    Mohamed Ellotf
+      Sysadmin&bibalex.org
 
 
 End of Document
