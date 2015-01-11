@@ -57,6 +57,9 @@
 /* an APDU needs at least a 2-byte control-field and one byte length */
 #define ZVT_APDU_MIN_LEN 3
 
+/* control code 0 is not defined in the specification */
+#define ZVT_CTRL_INVALID 0x0000
+
 void proto_register_zvt(void);
 void proto_reg_handoff_zvt(void);
 
@@ -72,7 +75,10 @@ static int ett_zvt_apdu = -1;
 static int hf_zvt_serial_char = -1;
 static int hf_zvt_crc = -1;
 static int hf_zvt_ctrl = -1;
+static int hf_zvt_ccrc = -1;
+static int hf_zvt_aprc = -1;
 static int hf_zvt_len = -1;
+static int hf_zvt_data = -1;
 
 static const value_string serial_char[] = {
     { STX, "Start of text (STX)" },
@@ -109,6 +115,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree 
 {
     gint        offset_start;
     guint8      len_bytes = 1; /* number of bytes for the len field */
+    guint16     ctrl = ZVT_CTRL_INVALID;
     guint16     len;
     proto_item *apdu_it;
     proto_tree *apdu_tree;
@@ -135,15 +142,25 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree 
 
     if (tvb_get_guint8(tvb, offset) == 0x80 ||
         tvb_get_guint8(tvb, offset) == 0x84) {
-        offset += 2;
+        proto_tree_add_item(apdu_tree, hf_zvt_ccrc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(apdu_tree, hf_zvt_aprc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
     }
     else {
+        ctrl = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(apdu_tree, hf_zvt_ctrl, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
     proto_tree_add_uint(apdu_tree, hf_zvt_len, tvb, offset, len_bytes, len);
     offset += len_bytes;
+
+    switch (ctrl) {
+        default:
+            proto_tree_add_item(apdu_tree, hf_zvt_data, tvb, offset, len, ENC_NA);
+            break;
+    }
 
     offset += len;
 
@@ -324,9 +341,18 @@ proto_register_zvt(void)
         { &hf_zvt_ctrl,
             { "Control-field", "zvt.control_field", FT_UINT16,
                 BASE_HEX|BASE_EXT_STRING, &ctrl_field_ext, 0, NULL, HFILL } },
+        { &hf_zvt_ccrc,
+            { "CCRC", "zvt.ccrc",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_aprc,
+            { "APRC", "zvt.aprc",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_zvt_len,
             { "Length-field", "zvt.length_field",
-                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } }
+                FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_data,
+          { "APDU data", "zvt.data",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } }
     };
     static gint *ett[] = {
         &ett_zvt,
