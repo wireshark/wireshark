@@ -3134,7 +3134,7 @@ proto_item_append_string(proto_item *pi, const char *str)
 	DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo);
 	old_str = (guint8 *)fvalue_get(&fi->value);
 	if (old_str && old_str[0])
-		new_str = ep_strconcat(old_str, str, NULL);
+		new_str = wmem_strconcat(wmem_packet_scope(), old_str, str, NULL);
 	else
 		new_str = str;
 	fvalue_set_string(&fi->value, new_str);
@@ -8337,7 +8337,7 @@ proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 
 #define CREATE_VALUE_STRING(dst,format,ap) \
 	va_start(ap, format); \
-	dst = ep_strdup_vprintf(format, ap); \
+	dst = wmem_strdup_vprintf(wmem_packet_scope(), format, ap); \
 	va_end(ap);
 
 proto_item *

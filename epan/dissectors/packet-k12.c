@@ -359,7 +359,7 @@ static gboolean
 protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
 	gchar** protos;
-	gchar* line = ep_strndup(p,len);
+	gchar* line = wmem_strndup(NULL,p,len);
 	guint num_protos, i;
 
 	g_strstrip(line);
@@ -372,6 +372,7 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 
 	if (!num_protos) {
 		*err = ep_strdup_printf("No protocols given");
+		wmem_free(NULL, line);
 		wmem_free(NULL, protos);
 		return FALSE;
 	}
@@ -379,11 +380,13 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 	for (i = 0; i < num_protos; i++) {
 		if (!find_dissector(protos[i])) {
 			*err = ep_strdup_printf("Could not find dissector for: '%s'",protos[i]);
+			wmem_free(NULL, line);
 			wmem_free(NULL, protos);
 			return FALSE;
 		}
 	}
 
+	wmem_free(NULL, line);
 	wmem_free(NULL, protos);
 	return TRUE;
 }

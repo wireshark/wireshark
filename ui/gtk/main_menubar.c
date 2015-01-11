@@ -4936,7 +4936,7 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
 {
     pref_t    *pref   = (pref_t *)data;
     module_t  *module = (module_t *)g_object_get_data (G_OBJECT(w), "module");
-    gchar     *value  = NULL;
+    gchar     *value  = NULL, *label_str;
 
     GtkWidget *win, *main_grid, *main_vb, *bbox, *cancel_bt, *ok_bt;
     GtkWidget *entry, *label;
@@ -4982,7 +4982,9 @@ menu_prefs_edit_dlg (GtkWidget *w, gpointer data)
     gtk_box_pack_start(GTK_BOX(main_vb), main_grid, FALSE, FALSE, 0);
     ws_gtk_grid_set_column_spacing(GTK_GRID(main_grid), 10);
 
-    label = gtk_label_new(ep_strdup_printf("%s:", pref->title));
+    label_str = g_strdup_printf("%s:", pref->title);
+    label = gtk_label_new(label_str);
+    g_free(label_str);
     ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), label, 0, 1, 1, 1);
     gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
     if (pref->description)

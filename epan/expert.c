@@ -512,13 +512,13 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	if (!tap)
 		return;
 
-	ei = ep_new(expert_info_t);
+	ei = wmem_new(wmem_packet_scope(), expert_info_t);
 
 	ei->packet_num  = PINFO_FD_NUM(pinfo);
 	ei->group       = group;
 	ei->severity    = severity;
 	ei->protocol    = pinfo->current_proto;
-	ei->summary     = ep_strdup(formatted);
+	ei->summary     = wmem_strdup(wmem_packet_scope(), formatted);
 
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
 	if (pi != NULL && PITEM_FINFO(pi) != NULL) {

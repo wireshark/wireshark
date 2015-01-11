@@ -745,7 +745,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
 
   if(suffix_len <  IPSEC_STRLEN_IPV6)
     {
-      prefix_addr = ep_strndup(ipv6_addr,strlen(ipv6_addr) - suffix_cpt);
+      prefix_addr = wmem_strndup(wmem_packet_scope(), ipv6_addr,strlen(ipv6_addr) - suffix_cpt);
       prefix_remaining = get_ipv6_suffix(prefix,prefix_addr);
       prefix_len = (int) strlen(prefix);
       memcpy(ipv6_addr_expanded,prefix,prefix_len);

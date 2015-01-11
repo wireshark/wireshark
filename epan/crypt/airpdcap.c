@@ -1046,13 +1046,14 @@ AirPDcapRsnaMng(
     }
 
     /* allocate a temp buffer for the decryption loop */
-    try_data=(UCHAR *)ep_alloc(try_data_len);
+    try_data=(UCHAR *)g_malloc(try_data_len);
 
     /* start of loop added by GCS */
     for(/* sa */; sa != NULL ;sa=sa->next) {
 
         if (*decrypt_len > try_data_len) {
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "Invalid decryption length", AIRPDCAP_DEBUG_LEVEL_3);
+            g_free(try_data);
             return AIRPDCAP_RET_UNSUCCESS;
         }
 
@@ -1092,16 +1093,20 @@ AirPDcapRsnaMng(
     /* end of loop */
 
     /* none of the keys worked */
-    if(sa == NULL)
+    if(sa == NULL) {
+        g_free(try_data);
         return ret_value;
+    }
 
     if (*decrypt_len > try_data_len || *decrypt_len < 8) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsnaMng", "Invalid decryption length", AIRPDCAP_DEBUG_LEVEL_3);
+        g_free(try_data);
         return AIRPDCAP_RET_UNSUCCESS;
     }
 
     /* copy the decrypted data into the decrypt buffer GCS*/
     memcpy(decrypt_data, try_data, *decrypt_len);
+    g_free(try_data);
 
     /* remove protection bit */
     decrypt_data[1]&=0xBF;
@@ -1142,7 +1147,7 @@ AirPDcapWepMng(
     UCHAR *try_data;
     guint try_data_len = *decrypt_len;
 
-    try_data = (UCHAR *)ep_alloc(try_data_len);
+    try_data = (UCHAR *)g_malloc(try_data_len);
 
     if (sa->key!=NULL)
         useCache=TRUE;
@@ -1204,6 +1209,7 @@ AirPDcapWepMng(
         }
     }
 
+    g_free(try_data);
     if (ret_value)
         return ret_value;
 

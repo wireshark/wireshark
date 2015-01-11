@@ -59,7 +59,6 @@ void *ep_alloc(size_t size) G_GNUC_MALLOC;
 /** Allocate memory with a packet lifetime scope and fill it with zeros*/
 WS_DLL_PUBLIC
 void* ep_alloc0(size_t size) G_GNUC_MALLOC;
-#define ep_new0(type) ((type*)ep_alloc0(sizeof(type)))
 
 /** Duplicate a string with a packet lifetime scope */
 WS_DLL_PUBLIC
@@ -83,9 +82,6 @@ gchar* ep_strdup_printf(const gchar* fmt, ...)
 
 WS_DLL_PUBLIC
 gchar *ep_strconcat(const gchar *string, ...) G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
-
-/** allocates with a packet lifetime scope an array of type made of num elements */
-#define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
 
 /** release all memory allocated in the previous packet dissection */
 void ep_free_all(void);

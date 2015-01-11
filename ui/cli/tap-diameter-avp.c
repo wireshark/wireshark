@@ -107,13 +107,14 @@ diam_tree_to_csv(proto_node *node, gpointer data)
 		val_tmp = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, hfi->display, NULL);
 		if (val_tmp)
 		{
-			val_str = ep_strdup(val_tmp);
+			val_str = g_strdup(val_tmp);
 			g_free(val_tmp);
 		} else
-			val_str = ep_strdup_printf("unsupported type: %s", ftype_name(ftype));
+			val_str = g_strdup_printf("unsupported type: %s", ftype_name(ftype));
 
 		/*printf("traverse: name='%s', abbrev='%s',desc='%s', val='%s'\n", hfi->name, hfi->abbrev, ftype_name(hfi->type), val_str);*/
 		printf("%s='%s' ", hfi->name, val_str);
+		g_free(val_str);
 	}
 	return FALSE;
 }

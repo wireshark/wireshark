@@ -4852,7 +4852,9 @@ ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, co
     }
 
     if (!find_dissector(p)) {
-        *err = ep_strdup_printf("Could not find dissector for: '%s'\nValid dissectors are:\n%s", p, ssl_association_info());
+        char* ssl_str = ssl_association_info();
+        *err = ep_strdup_printf("Could not find dissector for: '%s'\nValid dissectors are:\n%s", p, ssl_str);
+        g_free(ssl_str);
         return FALSE;
     }
 

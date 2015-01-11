@@ -406,7 +406,7 @@ ssl_association_info_(gpointer key_ _U_, gpointer value_, gpointer s_)
 gchar*
 ssl_association_info(void)
 {
-    gchar *s = (gchar *)ep_alloc0(SSL_ASSOC_MAX_LEN);
+    gchar *s = (gchar *)g_malloc0(SSL_ASSOC_MAX_LEN);
     g_tree_foreach(ssl_associations, ssl_association_info_, s);
     return s;
 }
