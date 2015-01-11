@@ -81,8 +81,13 @@ typedef struct _apdu_info_t {
 #define ZVT_CTRL_NONE      0x0000
 #define CTRL_STATUS        0x040F
 #define CTRL_INT_STATUS    0x04FF
+#define CTRL_REGISTRATION  0x0600
 #define CTRL_AUTHORISATION 0x0601
 #define CTRL_COMPLETION    0x060F
+#define CTRL_ABORT         0x061E
+#define CTRL_END_OF_DAY    0x0650
+#define CTRL_DIAG          0x0670
+#define CTRL_INIT          0x0693
 #define CTRL_PRINT_LINE    0x06D1
 
 static void dissect_zvt_auth(
@@ -91,9 +96,14 @@ static void dissect_zvt_auth(
 static const apdu_info_t apdu_info[] = {
     { CTRL_STATUS, 0, DIRECTION_PT_TO_ECR, NULL },
     { CTRL_INT_STATUS, 0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_REGISTRATION, 4, DIRECTION_ECR_TO_PT, NULL },
     /* authorisation has at least a 0x04 tag and 6 bytes for the amount */
     { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, dissect_zvt_auth },
     { CTRL_COMPLETION, 0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_ABORT, 0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_END_OF_DAY, 0, DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_DIAG, 0,  DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_INIT, 0, DIRECTION_ECR_TO_PT, NULL },
     { CTRL_PRINT_LINE, 0, DIRECTION_PT_TO_ECR, NULL }
 };
 
@@ -132,13 +142,13 @@ static value_string_ext serial_char_ext = VALUE_STRING_EXT_INIT(serial_char);
 static const value_string ctrl_field[] = {
     { CTRL_STATUS, "Status Information" },
     { CTRL_INT_STATUS, "Intermediate Status Information" },
-    { 0x0600, "Registration" },
+    { CTRL_REGISTRATION, "Registration" },
     { CTRL_AUTHORISATION, "Authorisation" },
     { CTRL_COMPLETION, "Completion" },
-    { 0x061E, "Abort" },
-    { 0x0650, "End Of Day" },
-    { 0x0670, "Diagnosis" },
-    { 0x0693, "Initialisation" },
+    { CTRL_ABORT, "Abort" },
+    { CTRL_END_OF_DAY, "End Of Day" },
+    { CTRL_DIAG, "Diagnosis" },
+    { CTRL_INIT, "Initialisation" },
     { CTRL_PRINT_LINE, "Print Line" },
     { 0x06D3, "Print Text Block" },
     { 0, NULL }
