@@ -28,7 +28,10 @@
 #   to be a way to construct a Windows command line that can set the
 #   environment variables below, then run /usr/bin/a2x (which is a symlink).
 
-if [ `uname -o` != "Cygwin" ] ; then
+# Ensure cygwin bin dir is on the path if running under it
+if [[ $OSTYPE == "cygwin" ]]; then
+	PATH="/usr/bin:$PATH"
+else
     >&2 echo "We're trying to limit the scope of this insanity to CMake + Cygwin"
     exit 1
 fi
