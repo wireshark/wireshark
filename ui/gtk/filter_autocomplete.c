@@ -359,7 +359,7 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
   popup_win = (GtkWidget *)g_object_get_data(G_OBJECT(w_toplevel), E_FILT_AUTOCOMP_PTR_KEY);
 
   k = event->keyval;
-  if (k != GDK_KEY_VoidSymbol) {
+  if (k != GDK_VoidSymbol) {
     ckey = gdk_keyval_to_unicode(k);
     string_buf_len = g_unichar_to_utf8(ckey, string_buf);
     key_string =
