@@ -4876,29 +4876,14 @@ extern void    dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 DEF_VALSX(mqcc);
 
-DEF_VALSX(mqrc);
-DEF_VALS_EXTX(mqrc);
-
-DEF_VALSX(mqcmd);
-DEF_VALS_EXTX(mqcmd);
-
-DEF_VALSX(PrmId);
-DEF_VALS_EXTX(PrmId);
-
-DEF_VALSX(selector);
-DEF_VALS_EXTX(selector);
-
-DEF_VALSX(MQCFINT_Parse);
-DEF_VALS_EXTX(MQCFINT_Parse);
-
-DEF_VALSX(mqat);
 DEF_VALS_EXTX(mqat);
-
-DEF_VALSX(PrmTyp);
-DEF_VALS_EXTX(PrmTyp);
-
-DEF_VALSX(objtype);
+DEF_VALS_EXTX(mqcmd);
+DEF_VALS_EXTX(mqrc);
 DEF_VALS_EXTX(objtype);
+DEF_VALS_EXTX(PrmId);
+DEF_VALS_EXTX(PrmTyp);
+DEF_VALS_EXTX(selector);
+DEF_VALS_EXTX(MQCFINT_Parse);
 
 DEF_VALSX(CtlOpt);
 DEF_VALSX(mqcft);
