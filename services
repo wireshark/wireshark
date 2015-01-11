@@ -9151,6 +9151,8 @@ pscribe          6163/udp # Precision Scribe Cnx Port [Robert_W_Hodges] [Robert_
 lm-x             6200/tcp # LM-X License Manager by X-Formation [Henrik_Goldman] [Henrik_Goldman] 2006-10 Known Unauthorized Use on port 6200
 lm-x             6200/udp # LM-X License Manager by X-Formation [Henrik_Goldman] [Henrik_Goldman] 2006-10 Known Unauthorized Use on port 6200
 thermo-calc      6201/udp # Management of service nodes in a processing grid for thermodynamic calculations [Thermo-Calc_Software] [Thomas_Revesz] 2012-06-28
+qmtps            6209/tcp # QMTP over TLS [FEHCom] [Erwin_Hoffmann] 2015-01-09
+qmtps            6209/udp # QMTP over TLS [FEHCom] [Erwin_Hoffmann] 2015-01-09
 radmind          6222/tcp # Radmind Access Protocol [Patrick_M_McNeal] [Patrick_M_McNeal] 2006-03
 radmind          6222/udp # Radmind Access Protocol [Patrick_M_McNeal] [Patrick_M_McNeal] 2006-03
 jeol-nsdtp-1     6241/tcp # JEOL Network Services Data Transport Protocol 1 [Kevin_Wellwood] [Kevin_Wellwood] 2008-04-17
