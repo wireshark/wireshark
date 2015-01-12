@@ -2,9 +2,11 @@
 # - Try to find the GLIB2 libraries
 # Once done this will define
 #
-#  GLIB2_FOUND - system has glib2
+#  GLIB2_FOUND        - system has glib2
 #  GLIB2_INCLUDE_DIRS - the glib2 include directory
-#  GLIB2_LIBRARIES - glib2 library
+#  GLIB2_LIBRARIES    - glib2 library
+#  GLIB2_DLL_DIR      - (Windows) Path to required GLib2 DLLs.
+#  GLIB2_DLLS         - (Windows) List of required GLib2 DLLs.
 
 # Copyright (c) 2008 Laurent Montel, <montel@kde.org>
 #
@@ -18,14 +20,11 @@ if( GLIB2_MAIN_INCLUDE_DIR AND GLIB2_LIBRARIES )
 endif()
 
 include( FindWSWinLibs )
-if( BUILD_wireshark )
-	if( ENABLE_GTK3 )
-		FindWSWinLibs( "gtk3" "GLIB2_HINTS" )
-	else()
-		FindWSWinLibs( "gtk2" "GLIB2_HINTS" )
-	endif()
+
+if( ENABLE_GTK3 )
+	FindWSWinLibs( "gtk3" "GLIB2_HINTS" )
 else()
-	message( ERROR "Unsupported build setup" )
+	FindWSWinLibs( "gtk2" "GLIB2_HINTS" )
 endif()
 
 find_package( PkgConfig )
@@ -97,12 +96,30 @@ find_package_handle_standard_args( GLIB2
 if( GLIB2_FOUND )
 	set( GLIB2_LIBRARIES ${GLIB2_LIBRARY} )
 	set( GLIB2_INCLUDE_DIRS ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR} )
+	if ( WIN32 AND GLIB2_FOUND )
+		set ( GLIB2_DLL_DIR "${GLIB2_HINTS}/bin"
+			CACHE PATH "Path to GLib 2 DLLs"
+		)
+		file( GLOB _glib2_dlls RELATIVE "${GLIB2_DLL_DIR}"
+			"${GLIB2_DLL_DIR}/libglib-*.dll"
+			"${GLIB2_DLL_DIR}/libgio-*.dll"
+			"${GLIB2_DLL_DIR}/libgmodule-*.dll"
+			"${GLIB2_DLL_DIR}/libgobject-*.dll"
+			"${GLIB2_DLL_DIR}/libintl-*.dll"
+		)
+		set ( GLIB2_DLLS ${_glib2_dlls}
+			# We're storing filenames only. Should we use STRING instead?
+			CACHE FILEPATH "GLib 2 DLL list"
+		)
+		mark_as_advanced( GLIB2_DLL_DIR GLIB2_DLLS )
+	endif()
 elseif( GLIB2_FIND_REQUIRED )
 	message( SEND_ERROR "Package required but not found" )
 else()
 	set( GLIB2_LIBRARIES )
 	set( GLIB2_MAIN_INCLUDE_DIRS )
+	set( GLIB2_DLL_DIR )
+	set( GLIB2_DLLS )
 endif()
 
 mark_as_advanced( GLIB2_INCLUDE_DIRS GLIB2_LIBRARIES )
-

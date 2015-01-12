@@ -5,6 +5,8 @@
 #  GEOIP_INCLUDE_DIRS - where to find GeoIP.h, etc.
 #  GEOIP_LIBRARIES    - List of libraries when using GeoIP.
 #  GEOIP_FOUND        - True if GeoIP found.
+#  GEOIP_DLL_DIR      - (Windows) Path to the GeoIP DLL.
+#  GEOIP_DLL          - (Windows) Name of the GeoIP DLL.
 
 
 IF (GEOIP_INCLUDE_DIRS)
@@ -45,9 +47,24 @@ IF(GEOIP_FOUND)
   CHECK_FUNCTION_EXISTS("GeoIP_country_name_by_ipnum_v6" HAVE_GEOIP_V6)
   SET(CMAKE_REQUIRED_INCLUDES "")
   SET(CMAKE_REQUIRED_LIBRARIES "")
+  if (WIN32)
+    set ( GEOIP_DLL_DIR "${GEOIP_HINTS}/bin"
+      CACHE PATH "Path to the GeoIP DLL"
+    )
+    file( GLOB _geoip_dll RELATIVE "${GEOIP_DLL_DIR}"
+      "${GEOIP_DLL_DIR}/libGeoIP-*.dll"
+    )
+    set ( GEOIP_DLL ${_geoip_dll}
+      # We're storing filenames only. Should we use STRING instead?
+      CACHE FILEPATH "GeoIP DLL file name"
+    )
+    mark_as_advanced( GEOIP_DLL_DIR GEOIP_DLL )
+  endif()
 ELSE(GEOIP_FOUND)
   SET(GEOIP_LIBRARIES )
   SET(GEOIP_INCLUDE_DIRS )
+  SET(GEOIP_DLL_DIR )
+  SET(GEOIP_DLL )
 ENDIF(GEOIP_FOUND)
 
 MARK_AS_ADVANCED( GEOIP_LIBRARIES GEOIP_INCLUDE_DIRS )

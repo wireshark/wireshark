@@ -1,9 +1,11 @@
 #
 # Locate Lua library
 # This module defines
-#  LUA_FOUND, if false, do not try to link to Lua 
+#  LUA_FOUND        - If false, do not try to link to Lua
 #  LUA_LIBRARIES
-#  LUA_INCLUDE_DIRS, where to find lua.h 
+#  LUA_INCLUDE_DIRS - Where to find lua.h
+#  LUA_DLL_DIR      - (Windows) Path to the Lua DLL.
+#  LUA_DLL          - (Windows) Name of the Lua DLL.
 #
 # Note that the expected include convention is
 #  #include "lua.h"
@@ -69,7 +71,7 @@ FIND_LIBRARY(LUA_LIBRARY
 )
 
 INCLUDE(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set LUA_FOUND to TRUE if 
+# handle the QUIETLY and REQUIRED arguments and set LUA_FOUND to TRUE if
 # all listed variables are TRUE
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LUA  DEFAULT_MSG  LUA_LIBRARY LUA_INCLUDE_DIR)
 message("LUA INCLUDEs version: ${LUA_VERSION}")
@@ -77,10 +79,24 @@ message("LUA INCLUDEs version: ${LUA_VERSION}")
 IF(LUA_LIBRARY)
   SET( LUA_LIBRARIES "${LUA_LIBRARY}")
   SET( LUA_INCLUDE_DIRS ${LUA_INCLUDE_DIR} )
+  if (WIN32)
+    set ( LUA_DLL_DIR "${LUA_HINTS}"
+      CACHE PATH "Path to Lua DLL"
+    )
+    file( GLOB _lua_dll RELATIVE "${LUA_DLL_DIR}"
+      "${LUA_DLL_DIR}/lua*.dll"
+    )
+    set ( LUA_DLL ${_lua_dll}
+      # We're storing filenames only. Should we use STRING instead?
+      CACHE FILEPATH "Lua DLL file name"
+    )
+    mark_as_advanced( LUA_DLL_DIR LUA_DLL )
+  endif()
 ELSE(LUA_LIBRARY)
   SET( LUA_LIBRARIES )
   SET( LUA_INCLUDE_DIRS )
+  SET( LUA_DLL_DIR )
+  SET( LUA_DLL )
 ENDIF(LUA_LIBRARY)
 
 MARK_AS_ADVANCED(LUA_INCLUDE_DIRS LUA_LIBRARIES)
-

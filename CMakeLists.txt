@@ -1112,6 +1112,134 @@ set(LIBEPAN_LIBS
 		${WINSPARKLE_LIBRARIES}
 )
 
+if(WIN32)
+	# According to http://stackoverflow.com/questions/14474659/cmake-how-to-have-a-target-for-copying-files
+	# we can't just use "set(_dll_output_dir "$<TARGET_FILE_DIR:epan>")"
+	get_target_property(_libwireshark_location epan LOCATION)
+	get_filename_component(_dll_output_dir "${_libwireshark_location}" PATH)
+	add_custom_target(copy_cli_dlls)
+	add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${_dll_output_dir}"
+	)
+
+	# XXX Can (and should) we iterate over these similar to the way
+	# the top-level CMakeLists.txt iterates over the package list?
+
+	# Required
+	foreach( _dll ${GLIB2_DLLS} )
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${GLIB2_DLL_DIR}/${_dll}"
+				"${_dll_output_dir}"
+		)
+	endforeach(_dll)
+
+	# Optional
+	if (AIRPCAP_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${AIRPCAP_DLL_DIR}/${AIRPCAP_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(AIRPCAP_FOUND)
+	if (CARES_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${CARES_DLL_DIR}/${CARES_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(CARES_FOUND)
+	if (GEOIP_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${GEOIP_DLL_DIR}/${GEOIP_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(GEOIP_FOUND)
+	if(GCRYPT_FOUND)
+		foreach( _dll ${GCRYPT_DLLS} )
+			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					"${GCRYPT_DLL_DIR}/${_dll}"
+					"${_dll_output_dir}"
+			)
+		endforeach(_dll)
+	endif(GCRYPT_FOUND)
+	if(GNUTLS_FOUND)
+		foreach( _dll ${GNUTLS_DLLS} )
+			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					"${GNUTLS_DLL_DIR}/${_dll}"
+					"${_dll_output_dir}"
+			)
+		endforeach(_dll)
+	endif(GNUTLS_FOUND)
+	if(KERBEROS_FOUND)
+		foreach( _dll ${KERBEROS_DLLS} )
+			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					"${KERBEROS_DLL_DIR}/${_dll}"
+					"${_dll_output_dir}"
+			)
+		endforeach(_dll)
+	endif(KERBEROS_FOUND)
+	if (LUA_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${LUA_DLL_DIR}/${LUA_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(LUA_FOUND)
+	if (SMI_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${SMI_DLL_DIR}/${SMI_DLL}"
+				"${_dll_output_dir}"
+			COMMAND ${CMAKE_COMMAND} -E make_directory
+				"${_dll_output_dir}/snmp"
+			COMMAND ${CMAKE_COMMAND} -E make_directory
+				"${_dll_output_dir}/snmp/mibs"
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/iana"
+				"${_dll_output_dir}/snmp/mibs"
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/ietf"
+				"${_dll_output_dir}/snmp/mibs"
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/irtf"
+				"${_dll_output_dir}/snmp/mibs"
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/site"
+				"${_dll_output_dir}/snmp/mibs"
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${SMI_SHARE_DIR}/${SMI_DLL}/mibs/tubs"
+				"${_dll_output_dir}/snmp/mibs"
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${SMI_SHARE_DIR}/${SMI_DLL}/pibs"
+				"${_dll_output_dir}/snmp/mibs"
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${SMI_SHARE_DIR}/${SMI_DLL}/yang"
+				"${_dll_output_dir}/snmp/mibs"
+		)
+	endif(SMI_FOUND)
+	if (WINSPARKLE_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${WINSPARKLE_DLL_DIR}/${WINSPARKLE_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(WINSPARKLE_FOUND)
+	if (ZLIB_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${ZLIB_DLL_DIR}/${ZLIB_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(ZLIB_FOUND)
+
+	add_dependencies(epan copy_cli_dlls)
+endif()
+
 if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	set(WIRESHARK_SRC
 		capture_info.c
