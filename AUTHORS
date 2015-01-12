@@ -3648,6 +3648,13 @@ Hitesh K Maisheri       <maisheri.hitesh[AT]gmail.com> {
         EAPOL-MKA support
 }
 
+Dario Lombardo		<lomato[AT]gmail.com> {
+	chargen (Character Generator) dissector
+	Italian translation (QT)
+	HCrt (Hotline Command-Response Transaction) dissector
+}
+
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -3859,7 +3866,6 @@ Hendrik Uhlmann		<Hendrik.Uhlmann[AT]rheinmetall.com>
 Sebastiano Di Paola	<sebastiano.dipaola[AT]gmail.com>
 Steven J. Magnani	<steve[AT]digidescorp.com>
 David Arnold		<davida[AT]pobox.com>
-Dario Lombardo		<lomato[AT]gmail.com>
 Alexander Chemeris	<alexander.chemeris[AT]gmail.com>
 Ivan Klyuchnikov	<kluchnikovi[AT]gmail.com>
 Max Baker		<max[AT]warped.org>

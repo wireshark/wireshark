@@ -679,13 +679,14 @@ DISSECTOR_SRC = \
 	packet-hci_mon.c	\
 	packet-hci_usb.c	\
 	packet-hclnfsd.c	\
+	packet-hcrt.c		\
 	packet-hdcp.c		\
 	packet-hdcp2.c		\
 	packet-hdfs.c		\
 	packet-hdfsdata.c	\
 	packet-hdmi.c		\
 	packet-hip.c		\
-	packet-hiqnet.c \
+	packet-hiqnet.c		\
 	packet-hislip.c		\
 	packet-homeplug-av.c	\
 	packet-homeplug.c	\
@@ -749,11 +750,11 @@ DISSECTOR_SRC = \
 	packet-ipmi-se.c	\
 	packet-ipmi-session.c	\
 	packet-ipmi-storage.c	\
-	packet-ipmi-trace.c		\
+	packet-ipmi-trace.c	\
 	packet-ipmi-transport.c	\
 	packet-ipmi-pps.c	\
-	packet-ipmi-update.c \
-	packet-ipmi-vita.c \
+	packet-ipmi-update.c	\
+	packet-ipmi-vita.c	\
 	packet-ipnet.c		\
 	packet-ipoib.c		\
 	packet-ipp.c		\

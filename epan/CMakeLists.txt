@@ -764,6 +764,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-hci_mon.c
 	dissectors/packet-hci_usb.c
 	dissectors/packet-hclnfsd.c
+	dissectors/packet-hcrt.c
 	dissectors/packet-hdcp.c
 	dissectors/packet-hdcp2.c
 	dissectors/packet-hdfs.c
