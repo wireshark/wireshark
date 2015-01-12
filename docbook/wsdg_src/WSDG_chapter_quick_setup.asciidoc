@@ -171,6 +171,8 @@ so it shows a version number for:
 // Only used by win-setup.sh
 * Web/wget
 
+* asciidoc
+
 // Also need: bash/sh, sed
 
 You might also have to install
@@ -469,9 +471,9 @@ to build Wireshark.
 
 . Wait for Wireshark to compile. This will take a while, and there will be a lot of text output in the command prompt window
 
-. Run `C:\Development\wireshark\wireshark-qt-release\Wireshark.exe` and make sure it starts.
+. For the QT version run `C:\Development\wireshark\wireshark-qt-release\Wireshark.exe` and make sure it starts.
 
-//. Run `C:wiresharkwireshark-gtk2wireshark-gtk.exe` and make sure it starts.
+. For the older GTK version run `C:\Development\wireshark\wireshark-gtk2\Wireshark-gtk.exe`.
 
 . Open 'Help -> About'. If it shows your "private" program
 version, e.g.: Version wireshark-major-minor-version:[].x-myprotocol123
@@ -483,12 +485,8 @@ the sources and make "all" again
 
 ==== Debug Environment Setup
 
-****
-Unfortunately this section hasn't been written. You should be able
-to use the Visual Studio debugger to attach to a running executable.
-Alternately, if you are building QtShark with Qt Creator, you can
-launch QtShark in the debugger included with that IDE.
-****
+You can debug using the Visual Studio Debugger or WinDbg.  See the section
+on using the <<ChToolsDebugger, Debugger Tools>>.
 
 ==== Optional: Create User's and Developer's Guide
 

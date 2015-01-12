@@ -469,8 +469,12 @@ be informative when things don't work as expected.
 ==== Win32 native
 
 During the build all relevant program files are collected in a subdirectory
-'wireshark-gtk2'. You can run the program from there by
-launching the wireshark.exe executable.
+'wireshark-qt-release'. You can run the program from there by
+launching the Wireshark.exe executable.
+
+The older GTK based version is also available in the 'wireshark-gtk'
+subdirectory.  You can run the program from there by launching the
+Wireshark-gtk.exe executable.
 
 
 [[ChSrcDebug]]
@@ -509,9 +513,8 @@ See http://library.gnome.org/devel/glib/stable/glib-running.html[]
 
 ==== Win32 native
 
-****
-To be written
-****
+You can debug using the Visual Studio Debugger or WinDbg.  See the section
+on using the <<ChToolsDebugger, Debugger Tools>>.
 
 [[ChSrcChange]]
 
