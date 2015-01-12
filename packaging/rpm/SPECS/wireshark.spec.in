@@ -23,7 +23,7 @@
 %global use_wireshark_group 1
 
 
-Summary:	Network protocol analyzer
+Summary:	Wireshark is the world's foremost protocol analyzer
 Name:		wireshark
 Version:	@VERSION@
 Release:	1
@@ -106,19 +106,22 @@ BuildRequires:	rpm >= 4.7.0
 %endif
 
 %description
-Wireshark is a free network protocol analyzer for Unix and Windows. It
-allows you to examine data from a live network or from a capture file
-on disk. You can interactively browse the capture data, viewing summary
-and detail information for each packet. Wireshark has several powerful
-features, including a rich display filter language and the ability to
-view the reconstructed stream of a TCP session.
+Wireshark allows you to examine protocol data stored in files or as it is
+captured from wired or wireless (WiFi or Bluetooth) networks, USB devices,
+and many other sources.  It supports dozens of protocol capture file formats
+and understands more than a thousand protocols.
+
+It has many powerful features including a rich display filter language
+and the ability to reassemble multiple protocol packets in order to, for
+example, view a complete TCP stream, save the contents of a file which was
+transferred over HTTP or CIFS, or play back an RTP audio stream.
 
 This package contains command-line utilities, plugins, and documentation for
-Wireshark. A Qt and GTK+ graphical user interface are packaged separately.
+Wireshark. A Qt and a GTK+ graphical user interface are packaged separately.
 
 %if %{with qt}
 %package	qt
-Summary:	Qt GUI for Wireshark
+Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
 %if 0%{?suse_version}
 Requires:	libqt4 >= @QT_MIN_VERSION@
@@ -141,12 +144,12 @@ BuildRequires:	update-desktop-files
 %endif
 
 %description qt
-Contains the Qt Wireshark GUI and desktop integration files.
+This package contains the Qt Wireshark GUI and desktop integration files.
 %endif
 
 %if %{with gtk2} || %{with gtk3}
 %package	gnome
-Summary:	Gnome desktop integration for Wireshark
+Summary:	Wireshark's GTK+-based GUI
 Group:		Applications/Internet
 %if %{with gtk3}
 Requires:	gtk3 >= @GTK3_MIN_VERSION@
@@ -180,7 +183,7 @@ Requires:	portaudio
 #Requires:	dejavu-sans-mono-fonts
 
 %description gnome
-Contains the Gnome (GTK+) Wireshark GUI and desktop integration files.
+This package contains the GTK+ Wireshark GUI and desktop integration files.
 %endif
 
 
@@ -388,6 +391,9 @@ fi
 %endif
 
 %changelog
+* Tue Jan 15 2015 Jeff Morriss
+- Modernize the (base package) %description.
+
 * Wed Dec  3 2014 Jeff Morriss
 - Don't run gtk-update-icon-cache when uninstalling the Qt package.  But do run
   it when installing the gnome package.
