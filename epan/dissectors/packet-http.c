@@ -68,6 +68,11 @@ static int hf_http_request = -1;
 static int hf_http_response_line = -1;
 static int hf_http_request_line = -1;
 static int hf_http_basic = -1;
+static int hf_http_citrix = -1;
+static int hf_http_citrix_user = -1;
+static int hf_http_citrix_domain = -1;
+static int hf_http_citrix_passwd = -1;
+static int hf_http_citrix_session = -1;
 static int hf_http_request_method = -1;
 static int hf_http_request_uri = -1;
 static int hf_http_request_full_uri = -1;
@@ -298,6 +303,8 @@ static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
 				   packet_info *pinfo, gchar *value);
 static gboolean check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb,
 				 gchar *value);
+static gboolean check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb,
+				 gchar *value, int offset);
 static gboolean check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb,
 				   packet_info *pinfo, const gchar *value);
 
@@ -2521,6 +2528,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				break;	/* dissected NTLMSSP */
 			if (check_auth_basic(hdr_item, tvb, value))
 				break; /* dissected basic auth */
+			if (check_auth_citrixbasic(hdr_item, tvb, value, offset))
+				break; /* dissected citrix basic auth */
 			check_auth_kerberos(hdr_item, tvb, pinfo, value);
 			break;
 
@@ -2751,6 +2760,103 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 	return FALSE;
 }
 
+/*
+ * Dissect HTTP CitrixAGBasic authorization.
+ */
+static gboolean
+check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int offset)
+{
+	static const char *basic_headers[] = {
+		"CitrixAGBasic ",
+		NULL
+	};
+	const char **header;
+	size_t hdrlen;
+	proto_tree *hdr_tree;
+	char *ch_ptr;
+	int data_len;
+	char *data_val;
+	proto_item *hidden_item;
+	proto_item *pi;
+
+	for (header = &basic_headers[0]; *header != NULL; header++) {
+		hdrlen = strlen(*header);
+		if (strncmp(value, *header, hdrlen) == 0) {
+			if (hdr_item != NULL) {
+				hdr_tree = proto_item_add_subtree(hdr_item,
+				    ett_http_ntlmssp);
+			} else
+				hdr_tree = NULL;
+			value += hdrlen;
+			offset += hdrlen + 15;
+			hidden_item = proto_tree_add_boolean(hdr_tree,
+					    hf_http_citrix, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+		        if(strncmp(value, "username=\"", 10) == 0) {
+				value += 10;
+				offset += 10;
+				ch_ptr = strchr(value, '"');
+				if ( ch_ptr != NULL ) {
+					data_len = (int)(ch_ptr - value + 1);
+					data_val = wmem_strndup(wmem_packet_scope(), value, data_len);
+					ws_base64_decode_inplace(data_val);
+					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_user, tvb,
+					    offset , data_len - 1, data_val);
+					PROTO_ITEM_SET_GENERATED(pi);
+					value += data_len;
+					offset += data_len;
+				}
+			}
+		        if(strncmp(value, "; domain=\"", 10) == 0) {
+				value += 10;
+				offset += 10;
+				ch_ptr = strchr(value, '"');
+				if ( ch_ptr != NULL ) {
+					data_len = (int)(ch_ptr - value + 1);
+					data_val = wmem_strndup(wmem_packet_scope(), value, data_len);
+					ws_base64_decode_inplace(data_val);
+					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_domain, tvb,
+					    offset, data_len - 1, data_val);
+					PROTO_ITEM_SET_GENERATED(pi);
+					value += data_len;
+					offset += data_len;
+				}
+			}
+		        if(strncmp(value, "; password=\"", 12) == 0) {
+				value += 12;
+				offset += 12;
+				ch_ptr = strchr(value, '"');
+				if ( ch_ptr != NULL ) {
+					data_len = (int)(ch_ptr - value + 1);
+					data_val = wmem_strndup(wmem_packet_scope(), value, data_len);
+					ws_base64_decode_inplace(data_val);
+					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_passwd, tvb,
+					    offset, data_len - 1, data_val);
+					PROTO_ITEM_SET_GENERATED(pi);
+					value += data_len;
+					offset += data_len;
+				}
+			}
+		        if(strncmp(value, "; AGESessionId=\"", 16) == 0) {
+				value += 16;
+				offset += 16;
+				ch_ptr = strchr(value, '"');
+				if ( ch_ptr != NULL ) {
+					data_len = (int)(ch_ptr - value + 1);
+					data_val = wmem_strndup(wmem_packet_scope(), value, data_len);
+					ws_base64_decode_inplace(data_val);
+					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_session, tvb,
+					    offset, data_len - 1, data_val);
+					PROTO_ITEM_SET_GENERATED(pi);
+				}
+			}
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 static gboolean
 check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, const gchar *value)
 {
@@ -2894,6 +3000,22 @@ proto_register_http(void)
 		"TRUE if HTTP request", HFILL }},
 	    { &hf_http_basic,
 	      { "Credentials",		"http.authbasic",
+		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	    { &hf_http_citrix,
+	      { "Citrix AG Auth",	"http.authcitrix",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"TRUE if CitrixAGBasic Auth", HFILL }},
+	    { &hf_http_citrix_user,
+	      { "Citrix AG Username",	"http.authcitrix.user",
+		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	    { &hf_http_citrix_domain,
+	      { "Citrix AG Domain",	"http.authcitrix.domain",
+		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	    { &hf_http_citrix_passwd,
+	      { "Citrix AG Password",	"http.authcitrix.password",
+		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	    { &hf_http_citrix_session,
+	      { "Citrix AG Session ID",	"http.authcitrix.session",
 		FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	    { &hf_http_response_line,
 	      { "Response line",	"http.response.line",
