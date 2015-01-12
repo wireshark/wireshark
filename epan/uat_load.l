@@ -253,7 +253,7 @@ comment #[^\n]*\n
 		uat->update_cb(rec,&err);
 
 	if (err) {
-		error = err;
+		error = (gchar*)err;
 		yyterminate();
 	}
 
