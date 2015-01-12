@@ -30,7 +30,7 @@
 
 # Ensure cygwin bin dir is on the path if running under it
 if [[ $OSTYPE == "cygwin" ]]; then
-	PATH="/usr/bin:$PATH"
+	PATH="$PATH:/usr/bin"
 else
     >&2 echo "We're trying to limit the scope of this insanity to CMake + Cygwin"
     exit 1

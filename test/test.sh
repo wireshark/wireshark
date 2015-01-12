@@ -31,7 +31,7 @@ PRINT_USAGE=0
 
 # Ensure cygwin bin dir is on the path if running under it
 if [[ $OSTYPE == "cygwin" ]]; then
-	PATH="/usr/bin:$PATH"
+	PATH="$PATH:/usr/bin"
 fi
 
 while getopts "chs:" OPTION ; do
