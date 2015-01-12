@@ -437,6 +437,7 @@ static gint ett_gprscdr_UserCSGInformation = -1;
 #line 51 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
+static expert_field ei_gprscdr_choice_not_found = EI_INIT;
 
 /* Global variables */
 static const char *obj_id = NULL;
@@ -3126,9 +3127,24 @@ static const ber_choice_t GPRSRecord_choice[] = {
 
 int
 dissect_gprscdr_GPRSRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+#line 157 "../../asn1/gprscdr/gprscdr.cnf"
+proto_item *item;
+gint branch_taken, t_offset = offset;
+gint32   tag;
+
+   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  GPRSRecord_choice, hf_index, ett_gprscdr_GPRSRecord,
-                                 NULL);
+                                 &branch_taken);
+
+
+ if(branch_taken == -1){
+    get_ber_identifier(tvb, t_offset, NULL, NULL, &tag);
+	item = proto_tree_add_uint(tree, hf_index, tvb, t_offset, 1, tag);
+	dissect_ber_identifier(actx->pinfo, tree, tvb, t_offset, NULL, NULL, &tag);
+	expert_add_info_format(actx->pinfo, item, &ei_gprscdr_choice_not_found,
+              "Record type(BER choice) not found: %u", tag);
+ }
+
 
   return offset;
 }
@@ -3152,7 +3168,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 66 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 67 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -4395,7 +4411,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 76 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 77 "../../asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -4470,11 +4486,12 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UserCSGInformation,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 85 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 86 "../../asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   static ei_register_info ei[] = {
     { &ei_gprscdr_not_dissected, { "gprscdr.not_dissected", PI_UNDECODED, PI_WARN, "Not dissected", EXPFILL }},
+    { &ei_gprscdr_choice_not_found, { "gprscdr.error.choice_not_found", PI_MALFORMED, PI_WARN, "GPRS CDR Error: This choice field(Record type) was not found", EXPFILL }},
   };
 
   expert_module_t* expert_gprscdr;

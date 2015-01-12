@@ -50,6 +50,7 @@ static int ett_gprscdr_managementextension_information = -1;
 #include "packet-gprscdr-ett.c"
 
 static expert_field ei_gprscdr_not_dissected = EI_INIT;
+static expert_field ei_gprscdr_choice_not_found = EI_INIT;
 
 /* Global variables */
 static const char *obj_id = NULL;
@@ -86,6 +87,7 @@ proto_register_gprscdr(void)
 
   static ei_register_info ei[] = {
     { &ei_gprscdr_not_dissected, { "gprscdr.not_dissected", PI_UNDECODED, PI_WARN, "Not dissected", EXPFILL }},
+    { &ei_gprscdr_choice_not_found, { "gprscdr.error.choice_not_found", PI_MALFORMED, PI_WARN, "GPRS CDR Error: This choice field(Record type) was not found", EXPFILL }},
   };
 
   expert_module_t* expert_gprscdr;
