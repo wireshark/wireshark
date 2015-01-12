@@ -441,9 +441,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ep_alloc0@Base 1.9.1
  ep_alloc@Base 1.9.1
  ep_memdup@Base 1.9.1
- ep_strbuf_append_printf@Base 1.9.1
- ep_strbuf_new@Base 1.9.1
- ep_strbuf_printf@Base 1.9.1
  ep_strconcat@Base 1.9.1
  ep_strdup@Base 1.9.1
  ep_strdup_printf@Base 1.9.1

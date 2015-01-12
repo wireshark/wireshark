@@ -127,54 +127,6 @@ void se_free_all(void);
 #define WS_MEM_ALIGN G_MEM_ALIGN
 #endif
 
-/* ******************************************************************
- * String buffers - Growable strings similar to GStrings
- * ****************************************************************** */
-
-typedef struct _emem_strbuf_t {
-    gchar *str;             /**< Points to the character data. It may move as text is       */
-                            /*  added. The str field is null-terminated and so can        */
-                            /*  be used as an ordinary C string.                          */
-    gsize len;              /**< strlen: ie: length of str not including trailing '\0'      */
-    gsize alloc_len;        /**< num bytes curently allocated for str: 1 .. MAX_STRBUF_LEN  */
-    gsize max_alloc_len;    /**< max num bytes to allocate for str: 1 .. MAX_STRBUF_LEN     */
-} emem_strbuf_t;
-
-/*
- * The maximum length is limited to 64K. If you need something bigger, you
- * should probably use an actual GString or GByteArray.
- */
-
-/**
- * Allocate an ephemeral string buffer with "unlimited" size.
- *
- * @param init The initial string for the buffer, or NULL to allocate an initial zero-length string.
- *
- * @return A newly-allocated string buffer.
- */
-WS_DLL_PUBLIC
-emem_strbuf_t *ep_strbuf_new(const gchar *init) G_GNUC_MALLOC;
-
-/**
- * Apply printf-style formatted text to a string buffer.
- *
- * @param strbuf The ep_strbuf-allocated string buffer to set to.
- * @param format A printf-style string format.
- */
-WS_DLL_PUBLIC
-void ep_strbuf_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
-     G_GNUC_PRINTF(2, 3);
-
-/**
- * Append printf-style formatted text to a string buffer.
- *
- * @param strbuf The ep_strbuf-allocated string buffer to append to.
- * @param format A printf-style string format.
- */
-WS_DLL_PUBLIC
-void ep_strbuf_append_printf(emem_strbuf_t *strbuf, const gchar *format, ...)
-    G_GNUC_PRINTF(2, 3);
-
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 
 /** Helper to troubleshoot ep memory corruption.
