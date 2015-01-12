@@ -3591,7 +3591,7 @@ dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 
 	static struct opt_info o125_cl_opt[]= {
 		/* 0 */ {"nop", special, NULL},	/* dummy */
-		/* 1 */ {"Option Request = ", val_u_byte, &hf_bootp_option125_cl_option_request},
+		/* 1 */ {"Option Request = ", bytes, &hf_bootp_option125_cl_option_request},
 		/* 2 */ {"TFTP Server Addresses : ", ipv4_list, &hf_bootp_option125_cl_tftp_server_addresses},
 		/* 3 */ {"eRouter Container Option : ", bytes, &hf_bootp_option125_cl_erouter_container_option},
 		/* 4 */ {"MIB Environment Indicator Option = ", val_u_byte, &hf_bootp_option125_cl_mib_environment_indicator_option},
@@ -6744,7 +6744,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option125_cl_option_request,
 		  { "Option Request", "bootp.option.vi.cl.option_request",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 125:CL 1 Option Request", HFILL }},
 
 		{ &hf_bootp_option125_cl_tftp_server_addresses,
