@@ -147,6 +147,7 @@ dealloc_wlan_details_ep (wlan_details_ep_t *details)
     while (details) {
         tmp = details;
         details = details->next;
+        g_free ((void*)tmp->addr.data);
         g_free (tmp);
     }
 }
@@ -206,6 +207,7 @@ wlanstat_reset (void *phs)
         tmp  = list;
         dealloc_wlan_details_ep(tmp->details);
         list = tmp->next;
+        g_free((void*)tmp->bssid.data);
         g_free(tmp);
     }
 
@@ -239,7 +241,7 @@ alloc_wlan_ep (const struct _wlan_hdr *si, const packet_info *pinfo _U_)
 
     ep = (wlan_ep_t *)g_malloc (sizeof(wlan_ep_t));
 
-    SE_COPY_ADDRESS (&ep->bssid, &si->bssid);
+    COPY_ADDRESS (&ep->bssid, &si->bssid);
     ep->stats.channel      = si->stats.channel;
     memcpy (ep->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
     ep->stats.ssid_len     = si->stats.ssid_len;
@@ -266,7 +268,7 @@ alloc_wlan_details_ep (const address *addr)
     if (!(d_ep = (wlan_details_ep_t *)g_malloc (sizeof(wlan_details_ep_t))))
         return NULL;
 
-    SE_COPY_ADDRESS (&d_ep->addr, addr);
+    COPY_ADDRESS (&d_ep->addr, addr);
     d_ep->probe_req         = 0;
     d_ep->probe_rsp         = 0;
     d_ep->auth              = 0;
@@ -454,7 +456,8 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
                     if (tmp->iter_valid) {
                         gtk_list_store_remove(store, &tmp->iter);
                     }
-                    g_free (tmp);
+                    g_free((void*)tmp->bssid.data);
+                    g_free(tmp);
                     break;
                 }
                 prev = tmp;

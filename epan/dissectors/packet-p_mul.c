@@ -331,7 +331,7 @@ static p_mul_seq_val *lookup_seq_val (guint32 message_id, guint16 seq_no,
 
   p_mul_key->id = message_id;
   p_mul_key->seq = seq_no;
-  SE_COPY_ADDRESS(&p_mul_key->addr, addr);
+  WMEM_COPY_ADDRESS(wmem_file_scope(), &p_mul_key->addr, addr);
 
   pkg_data = (p_mul_seq_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
 
@@ -391,7 +391,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     /* Try to match corresponding address PDU */
     p_mul_key->id = message_id;
     p_mul_key->seq = 0;
-    SE_COPY_ADDRESS(&p_mul_key->addr, addr);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &p_mul_key->addr, addr);
     need_set_address = TRUE;
 
     p_mul_data = (p_mul_seq_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
@@ -445,7 +445,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     p_mul_key->id = message_id;
     p_mul_key->seq = seq_no;
     if (!need_set_address) {
-      SE_COPY_ADDRESS(&p_mul_key->addr, addr);
+      WMEM_COPY_ADDRESS(wmem_file_scope(), &p_mul_key->addr, addr);
     }
     p_mul_data = (p_mul_seq_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
 

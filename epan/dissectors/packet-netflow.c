@@ -6350,8 +6350,8 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         if ((tmplt_p == NULL) && (tmplt.fields_p[TF_SCOPES] || tmplt.fields_p[TF_ENTRIES])) {
             /* create permanent template copy for storage in template table */
             tmplt_p = (v9_v10_tmplt_t *)wmem_memdup(wmem_file_scope(), &tmplt, sizeof(tmplt));
-            SE_COPY_ADDRESS(&tmplt_p->src_addr, &pinfo->net_src);
-            SE_COPY_ADDRESS(&tmplt_p->dst_addr, &pinfo->net_dst);
+            WMEM_COPY_ADDRESS(wmem_file_scope(), &tmplt_p->src_addr, &pinfo->net_src);
+            WMEM_COPY_ADDRESS(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
             /* Remember when we saw this template */
             tmplt_p->template_frame_number = pinfo->fd->num;
             /* Add completed entry into table */
@@ -6450,8 +6450,8 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 
             /* create permanent template copy for storage in template table */
             tmplt_p = (v9_v10_tmplt_t *)wmem_memdup(wmem_file_scope(), &tmplt, sizeof(tmplt));
-            SE_COPY_ADDRESS(&tmplt_p->src_addr, &pinfo->net_src);
-            SE_COPY_ADDRESS(&tmplt_p->dst_addr, &pinfo->net_dst);
+            WMEM_COPY_ADDRESS(wmem_file_scope(), &tmplt_p->src_addr, &pinfo->net_src);
+            WMEM_COPY_ADDRESS(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
             /* Remember when we saw this template */
             tmplt_p->template_frame_number = pinfo->fd->num;
             g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);

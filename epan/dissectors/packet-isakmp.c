@@ -2816,7 +2816,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if (ADDRESSES_EQUAL(&decr->initiator, &null_addr)) {
       /* XXX - We assume that we're seeing the second packet in an exchange here.
        * Is there a way to verify this? */
-      SE_COPY_ADDRESS(&decr->initiator, &pinfo->src);
+      WMEM_COPY_ADDRESS(wmem_file_scope(), &decr->initiator, &pinfo->src);
     }
 
     decr_data = decr;

@@ -3989,7 +3989,7 @@ ssl_session_init(SslDecryptSession* ssl_session)
 void
 ssl_set_server(SslDecryptSession* ssl, address *addr, port_type ptype, guint32 port)
 {
-    SE_COPY_ADDRESS(&ssl->srv_addr, addr);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &ssl->srv_addr, addr);
     ssl->srv_ptype = ptype;
     ssl->srv_port = port;
 }

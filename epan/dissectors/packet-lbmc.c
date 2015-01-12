@@ -279,9 +279,9 @@ static lbm_istream_substream_entry_t * lbm_stream_istream_substream_add(lbm_istr
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbm_istream_substream_entry_t);
-    SE_COPY_ADDRESS(&(entry->src_addr), src_addr);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->src_addr), src_addr);
     entry->src_port = src_port;
-    SE_COPY_ADDRESS(&(entry->dst_addr), dst_addr);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->dst_addr), dst_addr);
     entry->dst_port = dst_port;
     entry->lbm_stream_id = stream_id;
     entry->parent = stream;
@@ -418,10 +418,10 @@ static lbm_dstream_entry_t * lbm_stream_dstream_add(const lbm_uim_stream_destina
     }
     entry = wmem_new(wmem_file_scope(), lbm_dstream_entry_t);
     entry->domain_1 = endpoint_a->domain;
-    SE_COPY_ADDRESS(&(entry->addr_1), &(endpoint_a->addr));
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->addr_1), &(endpoint_a->addr));
     entry->port_1 = endpoint_a->port;
     entry->domain_2 = endpoint_b->domain;
-    SE_COPY_ADDRESS(&(entry->addr_2), &(endpoint_b->addr));
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->addr_2), &(endpoint_b->addr));
     entry->port_2 = endpoint_b->port;
     lbm_stream_order_dstream_key(entry);
     entry->channel = lbm_channel_assign(LBM_CHANNEL_STREAM_TCP);
@@ -488,9 +488,9 @@ static lbm_dstream_substream_entry_t * lbm_stream_dstream_substream_add(lbm_dstr
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbm_dstream_substream_entry_t);
-    SE_COPY_ADDRESS(&(entry->src_addr), src_addr);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->src_addr), src_addr);
     entry->src_port = src_port;
-    SE_COPY_ADDRESS(&(entry->dst_addr), dst_addr);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->dst_addr), dst_addr);
     entry->dst_port = dst_port;
     entry->lbm_stream_id = stream_id;
     entry->parent = stream;
@@ -6156,7 +6156,7 @@ static lbmc_message_entry_t * lbmc_message_create(guint64 channel, const address
     }
     entry = wmem_new(wmem_file_scope(), lbmc_message_entry_t);
     entry->channel = channel;
-    SE_COPY_ADDRESS(&(entry->addr), dest_address);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->addr), dest_address);
     entry->port = port;
     entry->first_sqn = info->first_sqn;
     entry->fragment_count = 0;

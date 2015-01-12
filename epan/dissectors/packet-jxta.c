@@ -581,7 +581,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             /* The initiator welcome frame */
             tpt_conv_data->tpt_ptype = pinfo->ptype;
             tpt_conv_data->initiator_welcome_frame = pinfo->fd->num;
-            SE_COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
+            WMEM_COPY_ADDRESS(wmem_file_scope(), &tpt_conv_data->initiator_tpt_address, &pinfo->src);
             tpt_conv_data->initiator_tpt_port = pinfo->srcport;
 
             welcome_addr = &tpt_conv_data->initiator_address;
@@ -594,7 +594,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 tpt_conv_data->receiver_tpt_port = tpt_conv_data->initiator_tpt_port;
                 tpt_conv_data->receiver_address = tpt_conv_data->initiator_address;
                 tpt_conv_data->initiator_welcome_frame = pinfo->fd->num;
-                SE_COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
+                WMEM_COPY_ADDRESS(wmem_file_scope(), &tpt_conv_data->initiator_tpt_address, &pinfo->src);
                 tpt_conv_data->initiator_tpt_port = pinfo->srcport;
 
                 welcome_addr = &tpt_conv_data->initiator_address;
@@ -603,7 +603,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 /* The receiver welcome frame */
                 tpt_conv_data->tpt_ptype = pinfo->ptype;
                 tpt_conv_data->receiver_welcome_frame = pinfo->fd->num;
-                SE_COPY_ADDRESS(&tpt_conv_data->receiver_tpt_address, &pinfo->src);
+                WMEM_COPY_ADDRESS(wmem_file_scope(), &tpt_conv_data->receiver_tpt_address, &pinfo->src);
                 tpt_conv_data->receiver_tpt_port = pinfo->srcport;
 
                 welcome_addr = &tpt_conv_data->receiver_address;
@@ -744,14 +744,14 @@ static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo)
         tpt_conv_data = wmem_new(wmem_file_scope(), jxta_stream_conversation_data);
         tpt_conv_data->tpt_ptype = pinfo->ptype;
 
-        SE_COPY_ADDRESS(&tpt_conv_data->initiator_tpt_address, &pinfo->src);
+        WMEM_COPY_ADDRESS(wmem_file_scope(), &tpt_conv_data->initiator_tpt_address, &pinfo->src);
         tpt_conv_data->initiator_tpt_port = pinfo->srcport;
         tpt_conv_data->initiator_welcome_frame = 0;
         tpt_conv_data->initiator_address.type = AT_NONE;
         tpt_conv_data->initiator_address.len = 0;
         tpt_conv_data->initiator_address.data = NULL;
 
-        SE_COPY_ADDRESS(&tpt_conv_data->receiver_tpt_address, &pinfo->dst);
+        WMEM_COPY_ADDRESS(wmem_file_scope(), &tpt_conv_data->receiver_tpt_address, &pinfo->dst);
         tpt_conv_data->receiver_tpt_port = pinfo->destport;
         tpt_conv_data->receiver_welcome_frame = 0;
         tpt_conv_data->receiver_address.type = AT_NONE;

@@ -228,18 +228,18 @@ copy_address_shallow(address *to, const address *from) {
 #define COPY_ADDRESS_SHALLOW(to, from) copy_address_shallow((to), (from))
 
 /** Copy an address, allocating a new buffer for the address data
- *  using seasonal memory.
+ *  using wmem-scoped memory.
  *
  * @param to [in,out] The destination address.
  * @param from [in] The source address.
  */
-#define SE_COPY_ADDRESS(to, from)     \
+#define WMEM_COPY_ADDRESS(scope, to, from)     \
     do {                              \
-        void *SE_COPY_ADDRESS_data; \
+        void *WMEM_COPY_ADDRESS_data; \
         copy_address_shallow((to), (from)); \
-        SE_COPY_ADDRESS_data = se_alloc((from)->len); \
-        memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
-        (to)->data = SE_COPY_ADDRESS_data; \
+        WMEM_COPY_ADDRESS_data = wmem_alloc(scope, (from)->len); \
+        memcpy(WMEM_COPY_ADDRESS_data, (from)->data, (from)->len); \
+        (to)->data = WMEM_COPY_ADDRESS_data; \
     } while (0)
 
 

@@ -264,7 +264,7 @@ static lbtrdma_transport_t * lbtrdma_transport_add(const address * source_addres
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbtrdma_transport_t);
-    SE_COPY_ADDRESS(&(entry->source_address), source_address);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->source_address), source_address);
     entry->session_id = session_id;
     entry->port = port;
     entry->channel = lbm_channel_assign(LBM_CHANNEL_TRANSPORT_LBTRDMA);

@@ -100,9 +100,9 @@ static lbmtcp_transport_t * lbmtcp_transport_add(const address * address1, guint
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbmtcp_transport_t);
-    SE_COPY_ADDRESS(&(entry->addr1), address1);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->addr1), address1);
     entry->port1 = port1;
-    SE_COPY_ADDRESS(&(entry->addr2), address2);
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->addr2), address2);
     entry->port2 = port2;
     lbmtcp_order_key(entry);
     entry->channel = lbm_channel_assign(LBM_CHANNEL_TCP);
