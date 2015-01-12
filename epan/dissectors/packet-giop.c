@@ -1540,7 +1540,7 @@ static void giop_init(void) {
 
   /*
    * Create objkey/repoid  hash, use my "equal" and "hash" functions.
-   *  Note: keys and values are se_alloc'd so they don't need to be freed.
+   *  Note: keys and values are wmem_file_scoped so they don't need to be freed.
    *
    */
 
@@ -1557,7 +1557,7 @@ static void giop_init(void) {
 
   /*
    * Create complete_reply_hash, use my "equal" and "hash" functions.
-   *  Note: keys and values are se_alloc'd so they don't need to be freed.
+   *  Note: keys and values are wmem_file_scoped so they don't need to be freed.
    *
    */
 
@@ -1574,7 +1574,7 @@ static void giop_init(void) {
 
   /*
    * Free giop_complete_request_list (if necessary)
-   * Note: The data elements are se_alloc'd so only the
+   * Note: The data elements are wmem_file_scoped so only the
    *       actual list elements need to be freed.
    */
 

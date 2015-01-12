@@ -2188,7 +2188,7 @@ static void dcom_reinit( void) {
 		dcom_machines = NULL;
 	}
 
-	/*  The data in dcom_interfaces is se_alloc'd so there's no need to free
+	/*  The data in dcom_interfaces is wmem_file_scoped so there's no need to free
 	 *  the data pointers.
 	 */
 	if (dcom_interfaces != NULL) {

@@ -75,8 +75,8 @@ struct _rtp_info {
 #if 0	/* these are only needed once the dissector include the crypto functions to decrypt and/or authenticate */
 struct srtp_key_info
 {
-    guint8		*master_key;			/* pointer to an se_alloc'ed master key */
-    guint8		*master_salt;			/* pointer to an se_alloc'ed salt for this master key - NULL if no salt */
+    guint8		*master_key;			/* pointer to an wmem_file_scope'ed master key */
+    guint8		*master_salt;			/* pointer to an wmem_file_scope'ed salt for this master key - NULL if no salt */
     guint8		key_generation_rate;	/* encoded as the power of 2, 0..24, or 255 (=zero rate) */
                                         /* Either the MKI value is used (in which case from=to=0), or the <from,to> values are used (and MKI=0) */
     guint32		from_roc;				/* 32 MSBs of a 48 bit value - frame from which this key is valid (roll-over counter part) */
@@ -94,7 +94,7 @@ struct srtp_info
     guint      mki_len;					/* number of octets used for the MKI in the RTP payload */
     guint      auth_tag_len;			/* number of octets used for the Auth Tag in the RTP payload */
 #if 0	/* these are only needed once the dissector include the crypto functions to decrypt and/or authenticate */
-    struct srtp_key_info **master_keys; /* an array of pointers to master keys and their info, the array and each key struct being se_alloc'ed  */
+    struct srtp_key_info **master_keys; /* an array of pointers to master keys and their info, the array and each key struct being wmem_file_scope'ed  */
     void       *enc_alg_info,			/* algorithm-dependent info struct - may be void for default alg with default params */
     void       *auth_alg_info			/* algorithm-dependent info struct - void for default alg with default params */
 #endif

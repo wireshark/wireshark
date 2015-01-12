@@ -540,7 +540,7 @@ extern guint
 ssl_private_key_hash  (gconstpointer v);
 
 /* private key table entries have a scope 'larger' then packet capture,
- * so we can't relay on se_alloc** function */
+ * so we can't rely on wmem_file_scope function */
 extern void
 ssl_private_key_free(gpointer id, gpointer key, gpointer dummy _U_);
 

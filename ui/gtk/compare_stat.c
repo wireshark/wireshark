@@ -203,8 +203,8 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	}
 
 	/* collect all packet infos */
-	fInfo=(frame_info*)se_alloc(sizeof(frame_info));
-	fInfo->fg=(for_gui*)se_alloc(sizeof(for_gui));
+	fInfo=(frame_info*)g_malloc(sizeof(frame_info));
+	fInfo->fg=(for_gui*)g_malloc(sizeof(for_gui));
 	fInfo->fg->partner=NULL;
 	fInfo->fg->count=1;
 	fInfo->fg->cksum=computed_cksum;
@@ -224,6 +224,15 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	} else {
 		return 0;
 	}
+}
+
+static void
+frame_info_free(gpointer data)
+{
+	frame_info *fInfo = (frame_info *)data;
+
+	g_free(fInfo->fg);
+	g_free(fInfo);
 }
 
 /* Find equal packets, same IP-Id, count them and make time statistics */
@@ -778,7 +787,7 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 	gtk_box_pack_start(GTK_BOX(vbox), cs->scrolled_win, TRUE, TRUE, 0);
 
 	/* create a Hash to count the packets with the same ip.id */
-	cs->packet_set=g_hash_table_new(NULL, NULL);
+	cs->packet_set=g_hash_table_new_full(NULL, NULL, NULL, frame_info_free);
 
 	error_string=register_tap_listener("ip", cs, filter, 0, comparestat_reset, comparestat_packet, comparestat_draw);
 	if(error_string){

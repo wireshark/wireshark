@@ -124,7 +124,7 @@ WS_DLL_PUBLIC void oids_cleanup(void);
  * However, take into account that when the packet dissection
  * completes, these buffers will be automatically reclaimed/freed.
  * If you need the buffer to remain for a longer scope than packet lifetime
- * you must copy the content to an se_alloc() buffer.
+ * you must copy the content to an wmem_file_scope() buffer.
  */
 
 /*
