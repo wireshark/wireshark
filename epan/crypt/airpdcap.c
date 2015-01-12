@@ -914,6 +914,30 @@ AirPDcapCleanKeys(
     AIRPDCAP_DEBUG_TRACE_END("AirPDcapCleanKeys");
 }
 
+static void
+AirPDcapRecurseCleanSA(
+    PAIRPDCAP_SEC_ASSOCIATION sa)
+{
+    if (sa->next != NULL) {
+        AirPDcapRecurseCleanSA(sa->next);
+        g_free(sa->next);
+        sa->next = NULL;
+    }
+}
+
+static void
+AirPDcapCleanSecAssoc(
+    PAIRPDCAP_CONTEXT ctx)
+{
+    PAIRPDCAP_SEC_ASSOCIATION psa;
+    int i;
+
+    for (psa = ctx->sa, i = 0; i < AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR; i++, psa++) {
+        /* To iterate is human, to recurse, divine */
+        AirPDcapRecurseCleanSA(psa);
+    }
+}
+
 INT AirPDcapGetKeys(
     const PAIRPDCAP_CONTEXT ctx,
     AIRPDCAP_KEY_ITEM keys[],
@@ -1000,6 +1024,7 @@ INT AirPDcapDestroyContext(
     }
 
     AirPDcapCleanKeys(ctx);
+    AirPDcapCleanSecAssoc(ctx);
 
     ctx->first_free_index=0;
     ctx->index=-1;
@@ -1264,7 +1289,7 @@ AirPDcapRsna4WHandshake(
 
     /* This saves the sa since we are reauthenticating which will overwrite our current sa GCS*/
     if(sa->handshake == 4) {
-        tmp_sa=(AIRPDCAP_SEC_ASSOCIATION *)se_alloc(sizeof(AIRPDCAP_SEC_ASSOCIATION));
+        tmp_sa= g_new(AIRPDCAP_SEC_ASSOCIATION, 1);
         memcpy(tmp_sa, sa, sizeof(AIRPDCAP_SEC_ASSOCIATION));
         sa->next=tmp_sa;
     }

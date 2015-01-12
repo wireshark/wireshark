@@ -18361,12 +18361,11 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
 static void
 set_airpdcap_keys(void)
 {
-  PAIRPDCAP_KEYS_COLLECTION  keys;
+  AIRPDCAP_KEYS_COLLECTION  keys;
   GByteArray                *bytes = NULL;
   guint                      i;
 
-  keys = (PAIRPDCAP_KEYS_COLLECTION)se_alloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
-  keys->nKeys = 0;
+  keys.nKeys = 0;
 
   for (i = 0; (uat_wep_key_records != NULL) && (i < num_wepkeys_uat) && (i < MAX_ENCRYPTION_KEYS); i++)
   {
@@ -18393,8 +18392,8 @@ set_airpdcap_keys(void)
            */
           memcpy(key.KeyData.Wep.WepKey, bytes->data, bytes->len);
           key.KeyData.Wep.WepKeyLen = bytes->len;
-          keys->Keys[keys->nKeys] = key;
-          keys->nKeys += 1;
+          keys.Keys[keys.nKeys] = key;
+          keys.nKeys += 1;
         }
       }
       else if (dk->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
@@ -18412,8 +18411,8 @@ set_airpdcap_keys(void)
           key.UserPwd.SsidLen = dk->ssid->len;
         }
 
-        keys->Keys[keys->nKeys] = key;
-        keys->nKeys += 1;
+        keys.Keys[keys.nKeys] = key;
+        keys.nKeys += 1;
       }
       else if (dk->type == AIRPDCAP_KEY_TYPE_WPA_PSK)
       {
@@ -18426,15 +18425,15 @@ set_airpdcap_keys(void)
         if (bytes->len <= AIRPDCAP_WPA_PSK_LEN) {
           memcpy(key.KeyData.Wpa.Psk, bytes->data, bytes->len);
 
-          keys->Keys[keys->nKeys] = key;
-          keys->nKeys += 1;
+          keys.Keys[keys.nKeys] = key;
+          keys.nKeys += 1;
         }
       }
     }
   }
 
   /* Now set the keys */
-  AirPDcapSetKeys(&airpdcap_ctx, keys->Keys, keys->nKeys);
+  AirPDcapSetKeys(&airpdcap_ctx, keys.Keys, keys.nKeys);
   if (bytes)
     g_byte_array_free(bytes, TRUE);
 
