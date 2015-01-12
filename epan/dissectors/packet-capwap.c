@@ -157,6 +157,12 @@ static int hf_capwap_msg_element_type_capwap_timers_echo_request = -1;
 static int hf_capwap_msg_element_type_decryption_error_report_period_radio_id = -1;
 static int hf_capwap_msg_element_type_decryption_error_report_period_interval = -1;
 
+static int hf_capwap_msg_element_type_delete_station_radio_id = -1;
+static int hf_capwap_msg_element_type_delete_station_length = -1;
+static int hf_capwap_msg_element_type_delete_station_mac_eui48 = -1;
+static int hf_capwap_msg_element_type_delete_station_mac_eui64 = -1;
+static int hf_capwap_msg_element_type_delete_station_mac_data = -1;
+
 static int hf_capwap_msg_element_type_discovery_type = -1;
 
 static int hf_capwap_msg_element_type_location_data = -1;
@@ -1342,6 +1348,31 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_decryption_error_report_period_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree,hf_capwap_msg_element_type_decryption_error_report_period_interval, tvb, offset+5, 2, ENC_BIG_ENDIAN);
+        break;
+
+    case TYPE_DELETE_STATION:{ /* Delete Station (18) */
+        guint8 maclength;
+        if (optlen < 8) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "Delete Station length %u wrong, must be >= 8", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_radio_id, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_length, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
+        maclength = tvb_get_guint8(tvb, offset+5);
+        switch(maclength){
+            case 6:
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_mac_eui48, tvb, offset+6, maclength, ENC_NA);
+            break;
+            case 8:
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_mac_eui64, tvb, offset+6, maclength, ENC_BIG_ENDIAN);
+            break;
+            default:
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_mac_data, tvb, offset+6, maclength, ENC_NA);
+            break;
+        }
+
+        }
         break;
 
     case TYPE_DISCOVERY_TYPE: /* Discovery Type (20) */
@@ -2705,6 +2736,31 @@ proto_register_capwap_control(void)
         { &hf_capwap_msg_element_type_decryption_error_report_period_interval,
             { "Decryption Error Report Report Interval (Sec)", "capwap.control.message_element.decryption_error_report_period.interval",
               FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_delete_station_radio_id,
+            { "Radio ID", "capwap.control.message_element.delete_station.radio_id",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Representing the radio, whose value is between one (1) and 31", HFILL }
+        },
+        { &hf_capwap_msg_element_type_delete_station_length,
+            { "Mac Length", "capwap.control.message_element.delete_station.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              "The length of the MAC Address field", HFILL }
+        },
+        { &hf_capwap_msg_element_type_delete_station_mac_eui48,
+            { "MAC address", "capwap.control.message_element.delete_station.mac.eui48",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_delete_station_mac_eui64,
+            { "MAC address", "capwap.control.message_element.delete_station.mac.eui64",
+              FT_EUI64, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_delete_station_mac_data,
+            { "MAC address", "capwap.control.message_element.delete_station.mac.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ac_name,
