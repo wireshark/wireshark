@@ -185,6 +185,7 @@ static int hf_gprscdr_sgsnPDPRecord_01 = -1;      /* SGSNPDPRecord */
 static int hf_gprscdr_ggsnPDPRecord_01 = -1;      /* GGSNPDPRecordV750 */
 static int hf_gprscdr_sgsnSMORecord_01 = -1;      /* SGSNSMORecord */
 static int hf_gprscdr_sgsnSMTRecord_01 = -1;      /* SGSNSMTRecord */
+static int hf_gprscdr_egsnPDPRecord_01 = -1;      /* EGSNPDPRecordV750 */
 static int hf_gprscdr_sGWRecord = -1;             /* SGWRecord */
 static int hf_gprscdr_pGWRecord = -1;             /* PGWRecord */
 static int hf_gprscdr_tDFRecord = -1;             /* TDFRecord */
@@ -3345,7 +3346,7 @@ static const ber_choice_t GPRSRecord_choice[] = {
   {  21, &hf_gprscdr_ggsnPDPRecord_01, BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_gprscdr_GGSNPDPRecordV750 },
   {  23, &hf_gprscdr_sgsnSMORecord_01, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNSMORecord },
   {  24, &hf_gprscdr_sgsnSMTRecord_01, BER_CLASS_CON, 24, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNSMTRecord },
-  {  70, &hf_gprscdr_egsnPDPRecord, BER_CLASS_CON, 70, BER_FLAGS_IMPLTAG, dissect_gprscdr_EGSNPDPRecord },
+  {  70, &hf_gprscdr_egsnPDPRecord_01, BER_CLASS_CON, 70, BER_FLAGS_IMPLTAG, dissect_gprscdr_EGSNPDPRecordV750 },
   {  78, &hf_gprscdr_sGWRecord   , BER_CLASS_CON, 78, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGWRecord },
   {  79, &hf_gprscdr_pGWRecord   , BER_CLASS_CON, 79, BER_FLAGS_IMPLTAG, dissect_gprscdr_PGWRecord },
   {  92, &hf_gprscdr_tDFRecord   , BER_CLASS_CON, 92, BER_FLAGS_IMPLTAG, dissect_gprscdr_TDFRecord },
@@ -3942,6 +3943,10 @@ proto_register_gprscdr(void)
       { "sgsnSMTRecord", "gprscdr.sgsnSMTRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gprscdr_egsnPDPRecord_01,
+      { "egsnPDPRecord", "gprscdr.egsnPDPRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EGSNPDPRecordV750", HFILL }},
     { &hf_gprscdr_sGWRecord,
       { "sGWRecord", "gprscdr.sGWRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,

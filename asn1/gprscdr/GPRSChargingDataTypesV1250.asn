@@ -91,7 +91,7 @@ GPRSRecord	::= CHOICE
 --	sgsnMOLCSRecord			[26] SGSNMOLCSRecord,
 --	sgsnNILCSRecord			[27] SGSNNILCSRecord,
 -- WS bacward compabillity addition
-	egsnPDPRecord			[70] EGSNPDPRecord,
+	egsnPDPRecord			[70] EGSNPDPRecordV750,
 -- WS mod END
 --	sgsnMBMSRecord			[76] SGSNMBMSRecord,
 --	ggsnMBMSRecord			[77] GGSNMBMSRecord,
