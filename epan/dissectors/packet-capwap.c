@@ -295,6 +295,13 @@ static int hf_capwap_msg_element_type_ieee80211_direct_sequence_control_current_
 static int hf_capwap_msg_element_type_ieee80211_direct_sequence_control_current_cca = -1;
 static int hf_capwap_msg_element_type_ieee80211_direct_sequence_control_energy_detect_threshold = -1;
 
+static int hf_capwap_msg_element_type_ieee80211_ie_radio_id = -1;
+static int hf_capwap_msg_element_type_ieee80211_ie_wlan_id = -1;
+static int hf_capwap_msg_element_type_ieee80211_ie_flags = -1;
+static int hf_capwap_msg_element_type_ieee80211_ie_flags_b = -1;
+static int hf_capwap_msg_element_type_ieee80211_ie_flags_p = -1;
+static int hf_capwap_msg_element_type_ieee80211_ie_flags_rsv = -1;
+
 static int hf_capwap_msg_element_type_ieee80211_mac_operation_radio_id = -1;
 static int hf_capwap_msg_element_type_ieee80211_mac_operation_reserved = -1;
 static int hf_capwap_msg_element_type_ieee80211_mac_operation_rts_threshold = -1;
@@ -454,6 +461,7 @@ static gint ett_capwap_ac_descriptor_security_flags = -1;
 static gint ett_capwap_ac_descriptor_dtls_flags = -1;
 static gint ett_capwap_wtp_frame_tunnel_mode = -1;
 static gint ett_capwap_ieee80211_add_wlan_capability = -1;
+static gint ett_capwap_ieee80211_ie_flags = -1;
 static gint ett_capwap_ieee80211_update_wlan_capability = -1;
 static gint ett_capwap_ieee80211_station_capabilities = -1;
 static gint ett_capwap_ieee80211_ofdm_control_band_support = -1;
@@ -475,6 +483,14 @@ static const int * ieee80211_ofdm_control_band_support_flags[] = {
 	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit5,
 	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit6,
 	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit7,
+	NULL
+};
+
+static const int * ieee80211_ie_flags[] = {
+	&hf_capwap_msg_element_type_ieee80211_ie_flags_b,
+	&hf_capwap_msg_element_type_ieee80211_ie_flags_p,
+	&hf_capwap_msg_element_type_ieee80211_ie_flags_rsv,
+
 	NULL
 };
 
@@ -1766,6 +1782,31 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_direct_sequence_control_current_channel, tvb, offset+6, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_direct_sequence_control_current_cca, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_direct_sequence_control_energy_detect_threshold, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+        break;
+
+    case IEEE80211_INFORMATION_ELEMENT: /* ieee80211 Information Element (1029) */
+        if (optlen < 4) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "IEEE80211 Information Element length %u wrong, must be >= 4", optlen);
+        break;
+        }
+        offset += 4;
+        offset_end = offset + optlen;
+
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_ie_radio_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_ie_wlan_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset,
+hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ieee80211_ie_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+        offset += 1;
+
+        while (offset < offset_end) {
+            offset += add_tagged_field(pinfo, sub_msg_element_type_tree, tvb, offset, 0);
+        }
+
         break;
 
     case IEEE80211_MAC_OPERATION: /* ieee80211 MAC Operation (1030) */
@@ -3464,6 +3505,36 @@ proto_register_capwap_control(void)
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_capwap_msg_element_type_ieee80211_ie_radio_id,
+            { "Radio ID", "capwap.control.message_element.ieee80211_ie.radio_id",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_ieee80211_ie_wlan_id,
+            { "WLAN ID", "capwap.control.message_element.ieee80211_ie.radio_id",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_ieee80211_ie_flags,
+            { "Flags", "capwap.control.message_element.ieee80211_ie.flags",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_ieee80211_ie_flags_b,
+            { "Include IE in Beacons", "capwap.control.message_element.ieee80211_ie.flags.b",
+              FT_BOOLEAN, 8, NULL, 0x80,
+              "When set, the WTP is to include the Information Element in IEEE 802.11 Beacons associated with the WLAN", HFILL }
+        },
+        { &hf_capwap_msg_element_type_ieee80211_ie_flags_p,
+            { "Include IE in  Probe Responses", "capwap.control.message_element.ieee80211_ie.flags.p",
+              FT_BOOLEAN, 8, NULL, 0x40,
+              "When set, the WTP is to include the Information Element in Probe Responses associated with the WLAN", HFILL }
+        },
+        { &hf_capwap_msg_element_type_ieee80211_ie_flags_rsv,
+            { "Reserved", "capwap.control.message_element.ieee80211_ie.flags.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0x3F,
+              "Must be Zero", HFILL }
+        },
         { &hf_capwap_msg_element_type_ieee80211_mac_operation_radio_id,
             { "Radio ID", "capwap.control.message_element.ieee80211_mac_operation.radio_id",
               FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -4080,6 +4151,7 @@ proto_register_capwap_control(void)
         &ett_capwap_ac_descriptor_dtls_flags,
         &ett_capwap_wtp_frame_tunnel_mode,
         &ett_capwap_ieee80211_add_wlan_capability,
+        &ett_capwap_ieee80211_ie_flags,
         &ett_capwap_ieee80211_update_wlan_capability,
         &ett_capwap_ieee80211_station_capabilities,
         &ett_capwap_ieee80211_ofdm_control_band_support,

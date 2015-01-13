@@ -114,11 +114,6 @@ void proto_register_wlan_rsna_eapol(void);
 
 extern value_string_ext eap_type_vals_ext; /* from packet-eap.c */
 
-/* To Avoid Compilation warnings/errors because
- * dissectors such as RIC will use this function recursively
- */
-static int add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int ftype);
-
 #ifndef roundup2
 #define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif
@@ -13622,7 +13617,7 @@ ieee80211_tag_fh_hopping_table(packet_info *pinfo, proto_tree *tree,
   return offset;
 }
 
-static int
+int
 add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int ftype)
 {
   guint32       oui;

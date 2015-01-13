@@ -49,6 +49,9 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 void dissect_wifi_display_ie(packet_info *pinfo, proto_tree *tree,
                              tvbuff_t *tvb, int offset, gint size);
 
+int add_tagged_field(packet_info *pinfo, proto_tree *tree,
+                            tvbuff_t *tvb, int offset, int ftype);
+
 #define MAX_SSID_LEN    32
 #define MAX_PROTECT_LEN 10
 
