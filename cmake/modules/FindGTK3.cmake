@@ -6,6 +6,10 @@
 #  GTK3_INCLUDE_DIRS - The GTK3 include directory
 #  GTK3_LIBRARIES - The libraries needed to use GTK3
 #  GTK3_DEFINITIONS - Compiler switches required for using GTK3
+#  GTK3_DLL_DIR - (Windows) Path to required GTK2 DLLS
+#  GTK3_DLLS - (Windows) List of required GTK3 DLLS
+#  GTK3_ETC_DIR - (Windows) Path to GTK3 configuration files
+#  GTK3_LIB_DIR - (Windows) Path to additional GTK3 library files
 #=============================================================================
 # Copyright 2011 Duncan Mac-Vicar P. <duncan@kde.org>
 #
@@ -103,10 +107,46 @@ find_package_handle_standard_args(GTK3 DEFAULT_MSG GTK3_LIBRARY GTK3_INCLUDE_DIR
 if( GTK3_FOUND )
     set( GTK3_LIBRARIES ${GTK3_LIBRARY} )
     set( GTK3_INCLUDE_DIRS ${GTK3_INCLUDE_DIR} )
+    if(WIN32)
+        set(GTK3_DLL_DIR "${GTK3_HINTS}/bin"
+            CACHE PATH "Path to GTK+ 3 DLLS")
+        file( GLOB _gtk3_dlls RELATIVE "${GTK3_DLL_DIR}"
+            "${GTK3_DLL_DIR}/libgtk-*.dll"
+            "${GTK3_DLL_DIR}/libgdk-*.dll"
+            "${GTK3_DLL_DIR}/libgdk_pixbuf-*.dll"
+            "${GTK3_DLL_DIR}/libatk-*.dll"
+            "${GTK3_DLL_DIR}/libpango-*.dll"
+            "${GTK3_DLL_DIR}/libpangowin32-*.dll"
+            "${GTK3_DLL_DIR}/libcairo-*.dll"
+            "${GTK3_DLL_DIR}/libpangocairo-*.dll"
+            "${GTK3_DLL_DIR}/libexpat-*.dll"
+            "${GTK3_DLL_DIR}/libffi-*.dll"
+            "${GTK3_DLL_DIR}/libfontconfig-*.dll"
+            "${GTK3_DLL_DIR}/libpangoft2-*.dll"
+            "${GTK3_DLL_DIR}/libfreetype-*.dll"
+            "${GTK3_DLL_DIR}/libharfbuzz-*.dll"
+            "${GTK3_DLL_DIR}/libjasper-*.dll"
+            "${GTK3_DLL_DIR}/libjpeg-*.dll"
+            "${GTK3_DLL_DIR}/liblzma-*.dll"
+            "${GTK3_DLL_DIR}/libpixman-*.dll"
+            "${GTK3_DLL_DIR}/libpng??-*.dll"
+            "${GTK3_DLL_DIR}/libtiff-*.dll"
+            "${GTK3_DLL_DIR}/libxml2-*.dll"
+        )
+        set(GTK3_DLLS "${_gtk3_dlls}"
+            CACHE PATH "List of GTK+ 3 DLLS")
+        set(GTK3_ETC_DIR "${GTK3_HINTS}/etc"
+            CACHE PATH "Path to GTK+ 3 configuration files")
+        set(GTK3_LIB_DIR "${GTK3_HINTS}/lib/gtk-3.0"
+            CACHE PATH "Path to additional GTK+ 3 library files")
+    endif()
 else()
     set( GTK3_LIBRARIES )
     set( GTK3_INCLUDE_DIRS )
+    set( GTK3_DLL_DIR )
+    set( GTK3_DLLS )
+    set( GTK3_ETC_DIR )
+    set( GTK3_LIB_DIR )
 endif()
 
 mark_as_advanced(GTK3_INCLUDE_DIRS GTK3_LIBRARIES)
-

@@ -1468,6 +1468,76 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 			"${PROJECT_SOURCE_DIR}/ipmap.html"
 			$<TARGET_FILE_DIR:wireshark-gtk>
 	)
+
+	if(WIN32)
+		get_target_property(_wsgtk_location wireshark-gtk LOCATION)
+		get_filename_component(_dll_output_dir "${_wsgtk_location}" PATH)
+		add_custom_target(copy_gtk_dlls)
+		add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${_dll_output_dir}"
+		)
+
+		if(GTK2_FOUND)
+			set(_gtk_dll_dir "${GTK2_DLL_DIR}")
+			set(_gtk_etc_dir "${GTK2_ETC_DIR}")
+			set(_gtk_dlls "${GTK2_DLLS}")
+			set(_gtk_etc_dir "${GTK2_ETC_DIR}")
+		else()
+			set(_gtk_dll_dir "${GTK3_DLL_DIR}")
+			set(_gtk_dlls "${GTK3_DLLS}")
+			set(_gtk_etc_dir "${GTK3_ETC_DIR}")
+		endif()
+
+		foreach(_dll ${_gtk_dlls})
+			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					"${_gtk_dll_dir}/${_dll}" "${_dll_output_dir}"
+			)
+		endforeach(_dll)
+
+		# /etc
+		add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${_dll_output_dir}/etc"
+		)
+		add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${_gtk_etc_dir}" "${_dll_output_dir}/etc"
+		)
+
+		# XXX - Omitting ${GTK2_LIB_DIR}\loaders copying from Makefile.nmake
+		if(GTK2_FOUND)
+			# Engines
+			set (_engines_output_dir "${_dll_output_dir}/lib/gtk-2.0/2.10.0/engines")
+			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E make_directory "${_engines_output_dir}"
+			)
+			foreach(_dll ${GTK2_ENGINES_DLLS})
+				add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+					COMMAND ${CMAKE_COMMAND} -E copy_if_different
+						"${GTK2_ENGINES_DLL_DIR}/${_dll}" "${_engines_output_dir}"
+				)
+			endforeach(_dll)
+
+			# Themes
+			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					"${GTK2_THEMES_DIR}/gtkrc" "${_dll_output_dir}/etc/gtk-2.0"
+			)
+
+			# Modules
+			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_directory
+					"${GTK2_LIB_DIR}" "${_dll_output_dir}/lib/gtk-2.0"
+			)
+		else()
+			add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_directory
+					"${CMAKE_SOURCE_DIR}/ui/win32/settings.ini" "${_dll_output_dir}/etc"
+			)
+		endif()
+
+		add_dependencies(wireshark-gtk copy_gtk_dlls copy_cli_dlls)
+	endif(WIN32)
 endif()
 
 register_tap_files(tshark-tap-register.c

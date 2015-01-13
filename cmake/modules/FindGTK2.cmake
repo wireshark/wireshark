@@ -35,6 +35,13 @@
 #    GTK2_INCLUDE_DIRS - All include directories
 #    GTK2_LIBRARIES - All libraries
 #    GTK2_DEFINITIONS - Additional compiler flags
+#    GTK2_DLL_DIR - (Windows) Path to required GTK2 DLLS
+#    GTK2_DLLS - (Windows) List of required GTK2 DLLS
+#    GTK2_ETC_DIR - (Windows) Path to GTK2 configuration files
+#    GTK2_LIB_DIR - (Windows) Path to additional GTK2 library files
+#    GTK2_ENGINES_DLL_DIR - (Windows) Path to required GTK2 theme engine DLLS
+#    GTK2_ENGINES_DLLS - (Windows) List of required GTK2 theme engine DLLS
+#    GTK2_THEMES_DIR - (Windows) Path to GTK2 theme files
 #
 #
 #
@@ -894,6 +901,49 @@ endforeach()
 
 if(_GTK2_did_we_find_everything AND NOT GTK2_VERSION_CHECK_FAILED)
     set(GTK2_FOUND true)
+    if(WIN32)
+        set(GTK2_DLL_DIR "${GTK2_HINTS}/bin"
+            CACHE PATH "Path to GTK+ 2 DLLS")
+        file( GLOB _gtk2_dlls RELATIVE "${GTK2_DLL_DIR}"
+            "${GTK2_DLL_DIR}/libgtk-win32-*.dll"
+            "${GTK2_DLL_DIR}/libgdk-win32-*.dll"
+            "${GTK2_DLL_DIR}/libgdk_pixbuf-*.dll"
+            "${GTK2_DLL_DIR}/libatk-*.dll"
+            "${GTK2_DLL_DIR}/libpango-*.dll"
+            "${GTK2_DLL_DIR}/libpangowin32-*.dll"
+            "${GTK2_DLL_DIR}/libcairo-*.dll"
+            "${GTK2_DLL_DIR}/libpangocairo-*.dll"
+            "${GTK2_DLL_DIR}/libexpat-*.dll"
+            "${GTK2_DLL_DIR}/libffi-*.dll"
+            "${GTK2_DLL_DIR}/libfontconfig-*.dll"
+            "${GTK2_DLL_DIR}/libpangoft2-*.dll"
+            "${GTK2_DLL_DIR}/libfreetype-*.dll"
+            "${GTK2_DLL_DIR}/libharfbuzz-*.dll"
+            "${GTK2_DLL_DIR}/libjasper-*.dll"
+            "${GTK2_DLL_DIR}/libjpeg-*.dll"
+            "${GTK2_DLL_DIR}/liblzma-*.dll"
+            "${GTK2_DLL_DIR}/libpixman-*.dll"
+            "${GTK2_DLL_DIR}/libpng??-*.dll"
+            "${GTK2_DLL_DIR}/libtiff-*.dll"
+            "${GTK2_DLL_DIR}/libxml2-*.dll"
+        )
+        set(GTK2_DLLS "${_gtk2_dlls}"
+            CACHE PATH "List of GTK+ 2 DLLS")
+        set(GTK2_ETC_DIR "${GTK2_HINTS}/etc"
+            CACHE PATH "Path to GTK+ 2 configuration files")
+        set(GTK2_LIB_DIR "${GTK2_HINTS}/lib/gtk-2.0"
+            CACHE PATH "Path to additional GTK+ 2 library files")
+        set(GTK2_ENGINES_DLL_DIR "${GTK2_LIB_DIR}/2.10.0/engines"
+            CACHE PATH "Path to GTK+ 2 theme engine DLLS")
+        file( GLOB _gtk2_engines_dlls RELATIVE "${GTK2_ENGINES_DLL_DIR}"
+            "${GTK2_ENGINES_DLL_DIR}/lib*.dll"
+        )
+        set(GTK2_ENGINES_DLLS "${_gtk2_engines_dlls}"
+            CACHE PATH "List of GTK+ 2 theme engine DLLS")
+        set(GTK2_THEMES_DIR "${GTK2_HINTS}/share/themes/MS-Windows/gtk-2.0"
+            CACHE PATH "Path to GTK+ 2 theme files")
+    mark_as_advanced(GTK2_DLL_DIR GTK2_DLLS GTK2_ETC_DIR GTK2_LIB_DIR GTK2_ENGINES_DLL_DIR GTK2_ENGINES_DLLS)
+    endif()
 else()
     # Unset our variables.
     set(GTK2_FOUND false)
@@ -904,9 +954,15 @@ else()
     set(GTK2_INCLUDE_DIRS)
     set(GTK2_LIBRARIES)
     set(GTK2_DEFINITIONS)
+    set(GTK2_DLL_DIR)
+    set(GTK2_DLLS)
+    set(GTK2_ETC_DIR)
+    set(GTK2_LIB_DIR)
+    set(GTK2_ENGINES_DLL_DIR)
+    set(GTK2_ENGINES_DLLS)
+    set(GTK2_THEMES_DIR)
 endif()
 
 if(GTK2_INCLUDE_DIRS)
    list(REMOVE_DUPLICATES GTK2_INCLUDE_DIRS)
 endif()
-
