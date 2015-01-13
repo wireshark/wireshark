@@ -811,9 +811,7 @@ static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 
 	if (uat->changed) {
 		uat_clear(uat);
-		uat_load(uat, &err);
-
-		if (err) {
+		if (!uat_load(uat, &err)) {
 			report_failure("Error while loading %s: %s", uat->name, err);
 			g_free(err);
 		}
@@ -842,9 +840,7 @@ static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
 	gchar *err = NULL;
 
 	if (uat->changed) {
-		uat_save(uat, &err);
-
-		if (err) {
+		if (!uat_save(uat, &err)) {
 			report_failure("Error while saving %s: %s", uat->name, err);
 			g_free(err);
 		}
@@ -872,15 +868,16 @@ static void uat_refresh_cb(GtkButton *button _U_, gpointer u) {
 	uat_t *uat = (uat_t *)u;
 	gchar *err = NULL;
 	guint  i;
+	gboolean success;
 
 	uat_clear_cb(button, u);
 
 	uat->from_global = TRUE;
-	uat_load(uat, &err);
+	success = uat_load(uat, &err);
 	uat->from_global = FALSE;
 	uat->changed = TRUE;
 
-	if (err) {
+	if (!success) {
 		report_failure("Error while loading %s: %s", uat->name, err);
 		g_free(err);
 	}
@@ -911,9 +908,7 @@ static void uat_yessave_cb(GtkWindow *w _U_, void *u) {
 
 	window_delete_event_cb(uat->rep->unsaved_window, NULL, NULL);
 
-	uat_save(uat, &err);
-
-	if (err) {
+	if (!uat_save(uat, &err)) {
 		report_failure("Error while saving %s: %s", uat->name, err);
 		g_free(err);
 	}

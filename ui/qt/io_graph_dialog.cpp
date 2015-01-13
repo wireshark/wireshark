@@ -561,8 +561,10 @@ void IOGraphDialog::reject()
             }
         }
         char* err = NULL;
-        uat_save(iog_uat_, &err);
-        g_free(err);
+        if (!uat_save(iog_uat_, &err)) {
+            /* XXX - report this error */
+            g_free(err);
+        }
     }
 
     QDialog::reject();
@@ -1076,8 +1078,10 @@ void IOGraphDialog::loadProfileGraphs()
                        NULL,
                        io_graph_fields);
     char* err = NULL;
-    uat_load(iog_uat_, &err);
-    g_free(err);
+    if (!uat_load(iog_uat_, &err)) {
+        /* XXX - report the error */
+        g_free(err);
+    }
 }
 
 

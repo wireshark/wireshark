@@ -499,9 +499,8 @@ void UatDialog::on_buttonBox_accepted()
 
     if (uat_->changed) {
         gchar *err = NULL;
-        uat_save(uat_, &err);
 
-        if (err) {
+        if (!uat_save(uat_, &err)) {
             report_failure("Error while saving %s: %s", uat_->name, err);
             g_free(err);
         }
@@ -520,9 +519,7 @@ void UatDialog::on_buttonBox_rejected()
     if (uat_->changed) {
         gchar *err = NULL;
         uat_clear(uat_);
-        uat_load(uat_, &err);
-
-        if (err) {
+        if (!uat_load(uat_, &err)) {
             report_failure("Error while loading %s: %s", uat_->name, err);
             g_free(err);
         }

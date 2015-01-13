@@ -1,4 +1,4 @@
-/* sctp_chunck_statistics_dialog.cpp
+/* sctp_chunk_statistics_dialog.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -279,8 +279,8 @@ void SCTPChunkStatisticsDialog::on_actionChunkTypePreferences_triggered()
     uat_t *uat = pref->varp.uat;
     uat_clear(uat);
 
-    uat_load(pref->varp.uat, &err);
-    if (err) {
+    if (!uat_load(pref->varp.uat, &err)) {
+        /* XXX - report this through the GUI */
         printf("Error loading table '%s': %s",pref->varp.uat->name,err);
         g_free(err);
     }

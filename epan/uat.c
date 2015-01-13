@@ -434,14 +434,13 @@ void uat_load_all(void) {
 
     for (i=0; i < all_uats->len; i++) {
         uat_t* u = (uat_t *)g_ptr_array_index(all_uats,i);
-        err = NULL;
 
-        if (!u->loaded)
-            uat_load(u, &err);
-
-        if (err) {
-            report_failure("Error loading table '%s': %s",u->name,err);
-            g_free(err);
+        if (!u->loaded) {
+            err = NULL;
+            if (!uat_load(u, &err)) {
+                report_failure("Error loading table '%s': %s",u->name,err);
+                g_free(err);
+            }
         }
     }
 }

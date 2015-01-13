@@ -165,9 +165,9 @@ get_wep_key(pref_t *pref, gpointer ud)
         /* This is just a sanity check.  UAT should be loaded */
         if (!uat->loaded)
         {
-            uat_load(uat, &err);
-            if (err != NULL)
+            if (!uat_load(uat, &err))
             {
+                /* XXX - report the error */
                 g_free(err);
                 return 1;
             }
@@ -265,9 +265,9 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
         {
             /* UAT will only be loaded if previous keys exist, so it may need
                to be loaded now */
-            uat_load(uat, &err);
-            if (err != NULL)
+            if (!uat_load(uat, &err))
             {
+                /* XXX - report the error */
                 g_free(err);
                 return 1;
             }
@@ -285,9 +285,9 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
             uat_add_record(uat, &uat_key, TRUE);
         }
 
-        uat_save(uat, &err);
-        if (err != NULL)
+        if (!uat_save(uat, &err))
         {
+            /* XXX - report the error */
             g_free(err);
             return 1;
         }
