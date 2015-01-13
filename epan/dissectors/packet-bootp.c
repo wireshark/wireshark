@@ -3720,8 +3720,11 @@ dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 				   proto_tree_add_item(o125_v_tree, *o125_cl_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 				else
 				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_NA);
-
-					dissect_docsis_cm_cap(o125_v_tree, tvb, optoff, subopt_len+2, TRUE);
+				switch(subopt){
+					case 5: /* Modem Capabilities */
+						dissect_docsis_cm_cap(o125_v_tree, tvb, optoff, subopt_len+2, TRUE);
+					break;
+				}
 				break;
 			default:
 				if (o125_cl_opt[subopt].phf == NULL)
