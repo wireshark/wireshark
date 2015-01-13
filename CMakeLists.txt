@@ -1418,14 +1418,15 @@ if(BUILD_wireshark AND QT_FOUND)
 
 	if(WIN32 AND Qt5Core_FOUND)
 		# Use windeployqt to copy our required DLLs to the run path.
-		# Ideally one of the modules in ${QTDIR}/lib/cmake/Qt5WinExtras
-		# would give us the path to windeployqt. For that matter a
-		# reliable path to qmake would be amazingly convenient. As it
-		# is we derive the location from Qt5::qmake, which is provided
-		# by Qt5Core.
+		# Ideally one of the modules in ${QTDIR}/lib/cmake would expose
+		# the path to windeployqt. For that matter having a reliable
+		# path to qmake would be *amazingly convenient*. We don't have
+		# either of those so we try to discover the path via Qt5Core.
+		# http://stackoverflow.com/questions/24650936/qt5-with-cmake-how-to-find-qt-translations-dir
+
 		get_target_property(_qmake_location Qt5::qmake IMPORTED_LOCATION)
 		get_filename_component(_qt_bindir "${_qmake_location}" DIRECTORY)
-		find_program(_windeployqt windeployqt PATHS "${_qmake_location}")
+		find_program(_windeployqt windeployqt HINTS "${_qmake_location}")
 		if (NOT "${_windeployqt}" STREQUAL "_windeployqt-NOTFOUND")
 			add_custom_target(copy_qt_dlls ALL)
 			# Will we ever need to use --debug? Windeployqt seems to
