@@ -2390,7 +2390,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
 	header_len = colon_offset - offset;
-	header_name = wmem_strndup(wmem_file_scope(), &line[0], header_len);
+	header_name = wmem_strndup(wmem_packet_scope(), &line[0], header_len);
 	hf_index = find_header_hf_value(tvb, offset, header_len);
 
 	/*
@@ -2413,9 +2413,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * has value_len bytes in it.
 	 */
 	value_len = line_end_offset - value_offset;
-	value = (char *)wmem_alloc(wmem_packet_scope(), value_len+1);
-	memcpy(value, &line[value_offset - offset], value_len);
-	value[value_len] = '\0';
+	value = wmem_strndup(wmem_packet_scope(), &line[value_offset - offset], value_len);
 
 	if (hf_index == -1) {
 		/*
