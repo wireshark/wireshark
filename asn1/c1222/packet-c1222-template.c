@@ -724,7 +724,7 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
  * \param err is updated to point to an error string if needed
  */
 static void
-c1222_uat_data_update_cb(void* n, const char** err)
+c1222_uat_data_update_cb(void* n, char** err)
 {
   c1222_uat_data_t* new_rec = (c1222_uat_data_t *)n;
 

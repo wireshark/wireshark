@@ -620,7 +620,7 @@ static guint num_attribute_types = 0;
 static GHashTable* attribute_types_hash = NULL;
 
 static void
-attribute_types_update_cb(void *r, const char **err)
+attribute_types_update_cb(void *r, char **err)
 {
   attribute_type_t *rec = (attribute_type_t *)r;
   char c;

@@ -153,7 +153,7 @@ static uat_field_t lbmpdm_tcp_tag_array[] =
 /*----------------------------------------------------------------------------*/
 /* UAT callback functions.                                                    */
 /*----------------------------------------------------------------------------*/
-static void lbmpdm_tcp_tag_update_cb(void * record, const char * * error_string)
+static void lbmpdm_tcp_tag_update_cb(void * record, char * * error_string)
 {
     lbmpdm_tcp_tag_entry_t * tag = (lbmpdm_tcp_tag_entry_t *)record;
 

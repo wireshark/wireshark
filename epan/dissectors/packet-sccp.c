@@ -3420,7 +3420,7 @@ static struct _sccp_ul {
 };
 
 static void
-sccp_users_update_cb(void *r, const char **err)
+sccp_users_update_cb(void *r, char **err)
 {
   sccp_user_t *u = (sccp_user_t *)r;
   struct _sccp_ul *c;

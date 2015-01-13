@@ -1968,7 +1968,7 @@ static uat_field_t lbmr_tag_array[] =
 /*----------------------------------------------------------------------------*/
 /* UAT callback functions.                                                    */
 /*----------------------------------------------------------------------------*/
-static void lbmr_tag_update_cb(void * record, const char * * error_string)
+static void lbmr_tag_update_cb(void * record, char * * error_string)
 {
     lbmr_tag_entry_t * tag = (lbmr_tag_entry_t *)record;
 

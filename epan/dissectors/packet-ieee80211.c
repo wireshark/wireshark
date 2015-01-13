@@ -177,7 +177,7 @@ uat_wep_key_record_copy_cb(void* n, const void* o, size_t siz _U_)
 }
 
 static void
-uat_wep_key_record_update_cb(void* r, const char** err)
+uat_wep_key_record_update_cb(void* r, char** err)
 {
   uat_wep_key_record_t* rec = (uat_wep_key_record_t *)r;
   decryption_key_t* dk;

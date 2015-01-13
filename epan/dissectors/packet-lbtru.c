@@ -695,7 +695,7 @@ static uat_field_t lbtru_tag_array[] =
 /*----------------------------------------------------------------------------*/
 /* UAT callback functions.                                                    */
 /*----------------------------------------------------------------------------*/
-static void lbtru_tag_update_cb(void * record, const char * * error_string)
+static void lbtru_tag_update_cb(void * record, char * * error_string)
 {
     lbtru_tag_entry_t * tag = (lbtru_tag_entry_t *)record;
 

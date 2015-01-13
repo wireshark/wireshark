@@ -539,7 +539,7 @@ sctp_chunk_type_free_cb(void* r)
 }
 
 static void
-sctp_chunk_type_update_cb(void *r, const char **err)
+sctp_chunk_type_update_cb(void *r, char **err)
 {
   type_field_t *rec = (type_field_t *)r;
   char c;

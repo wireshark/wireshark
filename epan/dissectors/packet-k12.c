@@ -297,7 +297,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 }
 
 static void
-k12_update_cb(void* r, const char** err)
+k12_update_cb(void* r, char** err)
 {
 	k12_handles_t* h = (k12_handles_t *)r;
 	gchar** protos;
@@ -356,7 +356,7 @@ k12_free_cb(void* r)
 
 
 static gboolean
-protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const void* u2 _U_, const char** err)
+protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const void* u2 _U_, char** err)
 {
 	gchar** protos;
 	gchar* line = wmem_strndup(NULL,p,len);

@@ -362,7 +362,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 		}
 
 		if (f[colnum].cb.chk) {
-			if (! f[colnum].cb.chk(dd->rec, text, len, f[colnum].cbdata.chk, f[colnum].fld_data, (const char**)&err)) {
+			if (! f[colnum].cb.chk(dd->rec, text, len, f[colnum].cbdata.chk, f[colnum].fld_data, &err)) {
 				tmp_err = err;
 				err = g_strdup_printf("error in column '%s': %s", f[colnum].title, tmp_err);
 				g_free(tmp_err);
@@ -376,7 +376,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	}
 
 	if (dd->uat->update_cb) {
-		dd->uat->update_cb(dd->rec, (const char**)&err);
+		dd->uat->update_cb(dd->rec, &err);
 
 		if (err) {
 			tmp_err = err;

@@ -109,8 +109,10 @@ typedef void (*uat_free_cb_t)(void*);
  * to be called after any record fields had been updated
  * optional, record will be updated always if not given
  * update(record,&error)
+ * The error string must be allocated with g_malloc() or
+ * a routine that calls it.
  */
-typedef void (*uat_update_cb_t)(void* , const char** );
+typedef void (*uat_update_cb_t)(void* , char** );
 
 
 /*******
@@ -126,7 +128,7 @@ typedef void (*uat_update_cb_t)(void* , const char** );
  * optional, if not given any input is considered OK and the set cb will be called
  * chk(record, ptr, len, chk_data, fld_data, &error)
  */
-typedef gboolean (*uat_fld_chk_cb_t)(void*, const char*, unsigned, const void*, const void*, const char**);
+typedef gboolean (*uat_fld_chk_cb_t)(void*, const char*, unsigned, const void*, const void*, char**);
 
 /*
  * Set Field CB
@@ -306,21 +308,21 @@ uat_t* uat_get_table_by_name(const char* name);
  * Some common uat_fld_chk_cbs
  */
 WS_DLL_PUBLIC
-gboolean uat_fld_chk_str(void*, const char*, unsigned, const void*, const void*, const char** err);
-gboolean uat_fld_chk_oid(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean uat_fld_chk_str(void*, const char*, unsigned, const void*, const void*, char** err);
+gboolean uat_fld_chk_oid(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
-gboolean uat_fld_chk_proto(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean uat_fld_chk_proto(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
-gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
-gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, const void*, const void*, const char** err);
+gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
-gboolean uat_fld_chk_enum(void*, const char*, unsigned, const void*, const void*, const char**);
+gboolean uat_fld_chk_enum(void*, const char*, unsigned, const void*, const void*, char**);
 WS_DLL_PUBLIC
-gboolean uat_fld_chk_range(void*, const char*, unsigned, const void*, const void*, const char**);
+gboolean uat_fld_chk_range(void*, const char*, unsigned, const void*, const void*, char**);
 
 #define CHK_STR_IS_DECL(what) \
-gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, const void*, const void*, const char**)
+gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, const void*, const void*, char**)
 
 typedef void (*uat_cb_t)(void* uat,void* user_data);
 WS_DLL_PUBLIC
@@ -351,7 +353,7 @@ WS_DLL_PUBLIC
 CHK_STR_IS_DECL(isxdigit);
 
 #define CHK_STR_IS_DEF(what) \
-gboolean uat_fld_chk_str_ ## what (void* UNUSED_PARAMETER(u1), const char* strptr, guint len, const void* UNUSED_PARAMETER(u2), const void* UNUSED_PARAMETER(u3), const char** err) { \
+gboolean uat_fld_chk_str_ ## what (void* UNUSED_PARAMETER(u1), const char* strptr, guint len, const void* UNUSED_PARAMETER(u2), const void* UNUSED_PARAMETER(u3), char** err) { \
 	guint i; for (i=0;i<len;i++) { \
 		char c = strptr[i]; \
 			if (! g_ascii_ ## what(c)) { \

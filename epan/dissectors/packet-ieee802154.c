@@ -127,7 +127,7 @@ static guint          num_static_addrs = 0;
 
 /* Sanity-checks a UAT record. */
 static void
-addr_uat_update_cb(void *r, const char **err)
+addr_uat_update_cb(void *r, char **err)
 {
     static_addr_t *map = (static_addr_t *)r;
     /* Ensure a valid short address */

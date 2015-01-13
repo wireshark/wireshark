@@ -388,7 +388,7 @@ const gchar* dfilter_macro_apply(const gchar* text, const gchar** error) {
 	return dfilter_macro_apply_recurse(text, 0, error);
 }
 
-static void macro_update(void* mp, const gchar** error) {
+static void macro_update(void* mp, gchar** error) {
 	dfilter_macro_t* m = (dfilter_macro_t*)mp;
 	GPtrArray* parts;
 	GArray* args_pos;
@@ -576,7 +576,7 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 	return d;
 }
 
-static gboolean macro_name_chk(void* r _U_, const char* in_name, guint name_len, const void* u1 _U_, const void* u2 _U_, const char** error) {
+static gboolean macro_name_chk(void* r _U_, const char* in_name, guint name_len, const void* u1 _U_, const void* u2 _U_, char** error) {
 	guint i;
 
 	if (name_len == 0) {

@@ -86,10 +86,11 @@ static guint parse_str_pos;
 } while(0)
 
 #define SET_FIELD() \
-	{ const gchar* errx; \
+	{ gchar* errx; \
 	if (uat->fields[colnum].cb.chk) { \
 		if ( ! uat->fields[colnum].cb.chk(record, ptrx, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data, &errx) ) { \
 			error = g_strdup_printf("%s:%d: %s",uat->filename,linenum,errx); \
+			g_free(errx); \
 			valid_record = FALSE; \
 		}\
 	}\
@@ -239,7 +240,7 @@ comment #[^\n]*\n
 
 <END_OF_RECORD>{newline} {
 	void* rec;
-	const char* err = NULL;
+	char* err = NULL;
 
 	linenum++;
 
@@ -253,7 +254,7 @@ comment #[^\n]*\n
 		uat->update_cb(rec,&err);
 
 	if (err) {
-		error = (gchar*)err;
+		error = err;
 		yyterminate();
 	}
 
@@ -327,7 +328,7 @@ uat_load(uat_t *uat_in, char **errx)
 	UAT_UPDATE(uat);
 
 	if (error) {
-		*errx = g_strdup(error);
+		*errx = error;
 		return FALSE;
 	}
 
@@ -366,7 +367,7 @@ uat_load_str(uat_t *uat_in, char *entry, char **err)
 	UAT_UPDATE(uat);
 
 	if (error) {
-		*err = g_strdup(error);
+		*err = error;
 		return FALSE;
 	}
 

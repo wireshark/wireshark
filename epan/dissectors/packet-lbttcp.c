@@ -326,7 +326,7 @@ static uat_field_t lbttcp_tag_array[] =
 /*----------------------------------------------------------------------------*/
 /* UAT callback functions.                                                    */
 /*----------------------------------------------------------------------------*/
-static void lbttcp_tag_update_cb(void * record, const char * * error_string)
+static void lbttcp_tag_update_cb(void * record, char * * error_string)
 {
     lbttcp_tag_entry_t * tag = (lbttcp_tag_entry_t *)record;
 

@@ -372,13 +372,14 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
     void *rec = UAT_INDEX_PTR(uat_, row);
     uat_field_t *field = &uat_->fields[cur_column_];
     const QByteArray& enum_txt = cur_combo_box_->itemText(index).toUtf8();
-    const char *err = NULL;
+    char *err = NULL;
 
     if (field->cb.chk && field->cb.chk(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.chk, field->fld_data, &err)) {
         field->cb.set(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.set, field->fld_data);
         ok_button_->setEnabled(true);
     } else {
-        g_free((char*)err);
+        /* XXX - do something useful with the error message string */
+        g_free(err);
         ok_button_->setEnabled(false);
     }
     uat_->changed = TRUE;
@@ -395,7 +396,7 @@ void UatDialog::stringPrefTextChanged(const QString &text)
     void *rec = UAT_INDEX_PTR(uat_, row);
     uat_field_t *field = &uat_->fields[cur_column_];
     const QByteArray& txt = text.toUtf8();
-    const char *err = NULL;
+    char *err = NULL;
     bool enable_ok = true;
     SyntaxLineEdit::SyntaxState ss = SyntaxLineEdit::Empty;
 
@@ -405,7 +406,8 @@ void UatDialog::stringPrefTextChanged(const QString &text)
             saved_string_pref_ = text;
             ss = SyntaxLineEdit::Valid;
         } else {
-            g_free((char*)err);
+            /* XXX - do something useful with the error message string */
+            g_free(err);
             enable_ok = false;
             ss = SyntaxLineEdit::Invalid;
         }

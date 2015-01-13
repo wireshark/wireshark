@@ -1369,7 +1369,7 @@ snmp_users_free_cb(void* p)
 }
 
 static void
-snmp_users_update_cb(void* p _U_, const char** err)
+snmp_users_update_cb(void* p _U_, char** err)
 {
 	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
 	GString* es = g_string_new("");
