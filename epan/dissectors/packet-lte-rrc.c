@@ -6095,6 +6095,7 @@ typedef struct lte_rrc_private_data_t
   drx_config_t  drx_config;
   pdcp_security_info_t pdcp_security;
   meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
+  simult_pucch_pusch_cell_type cell_type;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -6219,6 +6220,20 @@ static void set_freq_band_indicator(guint32 value, asn1_ctx_t *actx)
   if (mappings->number_of_bands_set < 256) {
     mappings->band_by_item[mappings->number_of_bands_set++] = (guint16)value;
   }
+}
+
+
+/* Cell type for simultaneousPUCCH-PUSCH-r10 */
+static simult_pucch_pusch_cell_type private_data_get_simult_pucch_pusch_cell_type(asn1_ctx_t *actx)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->cell_type;
+}
+
+static void private_data_set_simult_pucch_pusch_cell_type(asn1_ctx_t *actx, simult_pucch_pusch_cell_type cell_type)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->cell_type = cell_type;
 }
 
 /*****************************************************************************/
@@ -18305,8 +18320,18 @@ static const value_string lte_rrc_T_simultaneousPUCCH_PUSCH_r10_vals[] = {
 
 static int
 dissect_lte_rrc_T_simultaneousPUCCH_PUSCH_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  mac_lte_info* p_mac_lte_info;
+
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
+
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info != NULL) {
+    /* Tell MAC to use simultaneous PUCCH/PUSCH configuration */
+    set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, private_data_get_simult_pucch_pusch_cell_type(actx), TRUE, actx->pinfo);
+  }
+
 
   return offset;
 }
@@ -21380,8 +21405,11 @@ static const per_sequence_t RadioResourceConfigDedicated_sequence[] = {
 
 static int
 dissect_lte_rrc_RadioResourceConfigDedicated(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  private_data_set_simult_pucch_pusch_cell_type(actx, SIMULT_PUCCH_PUSCH_PCELL);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RadioResourceConfigDedicated, RadioResourceConfigDedicated_sequence);
+
+
 
   return offset;
 }
@@ -21981,6 +22009,9 @@ dissect_lte_rrc_RRCConnectionSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
     /* Also tell MAC to release extended BSR sizes configuration */
     set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, FALSE, actx->pinfo);
+    /* Also tell MAC to release simutaneous PUCCH/PUSCH configuration */
+    set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, SIMULT_PUCCH_PUSCH_PCELL, FALSE, actx->pinfo);
+    set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, SIMULT_PUCCH_PUSCH_PSCELL, FALSE, actx->pinfo);
     /* TODO: also release PDCP security config here */
   }
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -27553,8 +27584,11 @@ static const per_sequence_t RadioResourceConfigDedicatedPSCell_r12_sequence[] = 
 
 static int
 dissect_lte_rrc_RadioResourceConfigDedicatedPSCell_r12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  private_data_set_simult_pucch_pusch_cell_type(actx, SIMULT_PUCCH_PUSCH_PSCELL);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RadioResourceConfigDedicatedPSCell_r12, RadioResourceConfigDedicatedPSCell_r12_sequence);
+
+
 
   return offset;
 }
@@ -41982,7 +42016,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2461 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2476 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -52717,7 +52751,7 @@ void proto_register_lte_rrc(void) {
         "RSRQ_Range_v12xy", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2631 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2646 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -54640,7 +54674,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3254 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3269 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -54713,7 +54747,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3311 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3326 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

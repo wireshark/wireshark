@@ -2032,6 +2032,7 @@ typedef struct lte_rrc_private_data_t
   drx_config_t  drx_config;
   pdcp_security_info_t pdcp_security;
   meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
+  simult_pucch_pusch_cell_type cell_type;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -2156,6 +2157,20 @@ static void set_freq_band_indicator(guint32 value, asn1_ctx_t *actx)
   if (mappings->number_of_bands_set < 256) {
     mappings->band_by_item[mappings->number_of_bands_set++] = (guint16)value;
   }
+}
+
+
+/* Cell type for simultaneousPUCCH-PUSCH-r10 */
+static simult_pucch_pusch_cell_type private_data_get_simult_pucch_pusch_cell_type(asn1_ctx_t *actx)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->cell_type;
+}
+
+static void private_data_set_simult_pucch_pusch_cell_type(asn1_ctx_t *actx, simult_pucch_pusch_cell_type cell_type)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->cell_type = cell_type;
 }
 
 /*****************************************************************************/

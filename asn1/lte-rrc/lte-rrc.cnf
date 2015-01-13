@@ -1381,6 +1381,14 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (CMAS)");
   expert_add_info(actx->pinfo, actx->created_item, &ei_lte_rrc_commercial_mobile_alert_sys);
 
+#.FN_BODY RadioResourceConfigDedicated
+  private_data_set_simult_pucch_pusch_cell_type(actx, SIMULT_PUCCH_PUSCH_PCELL);
+%(DEFAULT_BODY)s
+
+#.FN_BODY RadioResourceConfigDedicatedPSCell-r12
+  private_data_set_simult_pucch_pusch_cell_type(actx, SIMULT_PUCCH_PUSCH_PSCELL);
+%(DEFAULT_BODY)s
+
 #.FN_BODY DRB-ToAddMod
   struct mac_lte_info *p_mac_lte_info;
   struct rlc_lte_info *p_rlc_lte_info;
@@ -1514,6 +1522,17 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm8, tm_list_tvb, 5, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm9, tm_list_tvb, 6, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_transmissionModeList_r12_tm10, tm_list_tvb, 7, 1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY PUCCH-ConfigDedicated-v1020/simultaneousPUCCH-PUSCH-r10
+  mac_lte_info* p_mac_lte_info;
+
+%(DEFAULT_BODY)s
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info != NULL) {
+    /* Tell MAC to use simultaneous PUCCH/PUSCH configuration */
+    set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, private_data_get_simult_pucch_pusch_cell_type(actx), TRUE, actx->pinfo);
   }
 
 #.FN_BODY RACH-ConfigCommon/preambleInfo
@@ -1738,6 +1757,9 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
     /* Also tell MAC to release extended BSR sizes configuration */
     set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, FALSE, actx->pinfo);
+    /* Also tell MAC to release simutaneous PUCCH/PUSCH configuration */
+    set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, SIMULT_PUCCH_PUSCH_PCELL, FALSE, actx->pinfo);
+    set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, SIMULT_PUCCH_PUSCH_PSCELL, FALSE, actx->pinfo);
     /* TODO: also release PDCP security config here */
   }
 %(DEFAULT_BODY)s

@@ -130,6 +130,12 @@ typedef struct mac_lte_info
     /* UL only.  Indicates if the R10 extendedBSR-Sizes parameter is set */
     gboolean        isExtendedBSRSizes;
 
+    /* UL only.  Indicates if the R10 simultaneousPUCCH-PUSCH parameter is set for PCell */
+    gboolean        isSimultPUCCHPUSCHPCell;
+
+    /* UL only.  Indicates if the R10 extendedBSR-Sizes parameter is set for PSCell */
+    gboolean        isSimultPUCCHPUSCHPSCell;
+
     /* Status of CRC check. For UE it is DL only. For eNodeB it is UL
        only. For an analyzer, it is present for both DL and UL. */
     gboolean        crcStatusValid;
@@ -278,6 +284,12 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
           MCS index (1 byte), redundancy version (1 byte), resource block length (1 byte),
           HARQ id (1 byte), NDI (1 byte), TB (1 byte), DL reTx (1 byte) */
 
+#define MAC_LTE_SIMULT_PUCCH_PUSCH_PCELL  0x0C
+/* 0 byte */
+
+#define MAC_LTE_SIMULT_PUCCH_PUSCH_PSCELL 0x0D
+/* 0 byte */
+
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */
 #define MAC_LTE_PAYLOAD_TAG 0x01
@@ -337,6 +349,13 @@ void set_mac_lte_rapid_ranges(guint groupA, guint all_RA);
 
 /* RRC can indicate whether extended BSR sizes are used */
 void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes, packet_info *pinfo);
+
+/* RRC can indicate whether simultaneous PUCCH/PUSCH is used */
+typedef enum {
+    SIMULT_PUCCH_PUSCH_PCELL = 0,
+    SIMULT_PUCCH_PUSCH_PSCELL
+} simult_pucch_pusch_cell_type;
+void set_mac_lte_simult_pucch_pusch(guint16 ueid, simult_pucch_pusch_cell_type cell_type, gboolean use_simult_pucch_pusch, packet_info *pinfo);
 
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */
