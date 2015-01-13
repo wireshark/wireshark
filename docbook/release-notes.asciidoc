@@ -44,6 +44,11 @@ field and shows a description in the status bar.
        (min, max, avg) for values such as query name length or DNS
        payload.
 
+* HPFEEDS stats:
+     + A new stats tree has been added to the statistics menu. Now it
+       is possible to collect stats per channel (messages count and payload
+       size), and opcode distribution.
+
 The following features are new (or have been significantly updated)
 since version 1.12.0:
 

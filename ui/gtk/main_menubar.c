@@ -1048,6 +1048,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name= 'DNS' action='/Statistics/dns'/>\n"
 "      <menuitem name='FlowGraph' action='/Statistics/FlowGraph'/>\n"
 "      <menuitem name='HART-IP' action='/Statistics/hart_ip'/>\n"
+"      <menuitem name= 'Hpfeeds' action='/Statistics/hpfeeds'/>\n"
 "      <menu name= 'HTTPMenu' action='/Statistics/HTTP'>\n"
 "        <menuitem name='http' action='/Statistics/HTTP/http'/>\n"
 "        <menuitem name='http_req' action='/Statistics/HTTP/http_req'/>\n"
@@ -1481,6 +1482,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Statistics/dns",                             NULL,       "DNS",                              NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/FlowGraph",       WIRESHARK_STOCK_FLOW_GRAPH, "Flo_w Graph...",                   NULL, NULL, G_CALLBACK(flow_graph_launch) },
    { "/Statistics/hart_ip",                         NULL,       "HART-IP",                          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Statistics/hpfeeds",                         NULL,       "HPFEEDS",                          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/HTTP",                            NULL,       "HTTP",                             NULL, NULL, NULL },
    { "/Statistics/HTTP/http",                       NULL,       "Packet Counter",                   NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/Statistics/HTTP/http_req",                   NULL,       "Requests",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },

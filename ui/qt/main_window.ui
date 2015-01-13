@@ -427,6 +427,7 @@
     <addaction name="actionStatisticsDNS"/>
     <addaction name="actionStatisticsFlowGraph"/>
     <addaction name="actionStatisticsHART_IP"/>
+    <addaction name="actionStatisticsHpfeeds"/>
     <addaction name="menuHTTP"/>
     <addaction name="actionStatisticsSametime"/>
     <addaction name="menuTcpStreamGraphs"/>
@@ -1568,6 +1569,14 @@
    <property name="toolTip">
     <string>HART-IP statistics</string>
    </property>
+  </action>
+  <action name="actionStatisticsHpfeeds">
+  <property name="text">
+    <string>HPFEEDS</string>
+  </property>
+  <property name="toolTip">
+    <string>hpfeeds statistics</string>
+  </property>
   </action>
   <action name="actionStatisticsHTTPPacketCounter">
    <property name="text">

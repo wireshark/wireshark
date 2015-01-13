@@ -1593,6 +1593,11 @@ void MainWindow::on_actionFileExportObjectsDICOM_triggered()
     new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Dicom);
 }
 
+void MainWindow::on_actionStatisticsHpfeeds_triggered()
+{
+    openStatisticsTreeDialog("hpfeeds");
+}
+
 void MainWindow::on_actionFileExportObjectsHTTP_triggered()
 {
     new ExportObjectDialog(*this, capture_file_, ExportObjectDialog::Http);

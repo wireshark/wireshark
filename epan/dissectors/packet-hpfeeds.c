@@ -32,8 +32,32 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/tap.h>
+#include <epan/stats_tree.h>
+#include <epan/wmem/wmem_list.h>
 
 #include "packet-tcp.h"
+
+struct HpfeedsTap {
+    guint payload_size;
+    guint8* channel;
+    guint8 opcode;
+};
+
+static int hpfeeds_tap = -1;
+
+static const guint8* st_str_channels_payload = "Payload size per channel";
+static const guint8* st_str_opcodes = "Opcodes";
+
+static int st_node_channels_payload = -1;
+static int st_node_opcodes = -1;
+
+static wmem_list_t* channels_list;
+
+struct channel_node {
+    guint8* channel;
+    guint st_node_channel_payload;
+};
 
 void proto_register_hpfeeds(void);
 void proto_reg_handoff_hpfeeds(void);
@@ -130,6 +154,25 @@ dissect_hpfeeds_auth_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
                     offset, -1, ENC_NA);
 }
 
+static guint8*
+hpfeeds_get_channel_name(tvbuff_t* tvb, guint offset)
+{
+    guint8 len = tvb_get_guint8(tvb, offset);
+    offset += len + 1;
+    len = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    return tvb_get_string_enc(wmem_file_scope(), tvb, offset, len, ENC_ASCII);
+}
+
+static guint
+hpfeeds_get_payload_size(tvbuff_t* tvb, guint offset)
+{
+    guint message_len = tvb_get_ntohl(tvb, offset);
+    guint ident_len = tvb_get_guint8(tvb, offset + 5);
+    guint channel_len = tvb_get_guint8(tvb, offset + 6 + ident_len);
+    return (message_len - 2 - ident_len - 1 - channel_len);
+}
+
 static void
 dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint offset)
@@ -166,6 +209,48 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_hpfeeds_payload, tvb, offset, -1, ENC_NA);
 }
 
+static void hpfeeds_stats_tree_init(stats_tree* st)
+{
+    st_node_channels_payload = stats_tree_create_node(st, st_str_channels_payload, 0, TRUE);
+    st_node_opcodes = stats_tree_create_pivot(st, st_str_opcodes, 0);
+
+    channels_list = wmem_list_new(wmem_epan_scope());
+}
+
+static int hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
+{
+    struct HpfeedsTap *pi = (struct HpfeedsTap *)p;
+    wmem_list_frame_t* head = wmem_list_head(channels_list);
+    wmem_list_frame_t* cur = head;
+    struct channel_node* ch_node;
+
+    if (pi->opcode == OP_PUBLISH) {
+        /* search an existing channel node and create it if it does not */
+        while(cur != NULL) {
+            ch_node = (struct channel_node*)wmem_list_frame_data(cur);
+            if (strncmp(ch_node->channel, pi->channel, strlen(pi->channel)) == 0) {
+                break;
+            }
+            cur = wmem_list_frame_next(cur);
+        }
+
+        if (cur == NULL) {
+            ch_node = (struct channel_node*)wmem_alloc0(wmem_file_scope(), sizeof(struct channel_node));
+            ch_node->channel = wmem_strdup(wmem_file_scope(), pi->channel);
+            ch_node->st_node_channel_payload = stats_tree_create_node(st, ch_node->channel,
+                st_node_channels_payload, FALSE);
+            wmem_list_append(channels_list, ch_node);
+        }
+
+        avg_stat_node_add_value(st, st_str_channels_payload, 0, FALSE, pi->payload_size);
+        avg_stat_node_add_value(st, ch_node->channel, 0, FALSE, pi->payload_size);
+    }
+
+    stats_tree_tick_pivot(st, st_node_opcodes,
+            val_to_str(pi->opcode, opcode_vals, "Unknown opcode (%d)"));
+    return 1;
+}
+
 static void
 dissect_hpfeeds_subscribe_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -198,6 +283,8 @@ get_hpfeeds_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    struct HpfeedsTap *hpfeeds_stats;
+
     /* We have already parsed msg length we need to skip to opcode offset */
     guint offset = 0;
 
@@ -252,6 +339,15 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         }
     }
 
+    /* In publish, generate stats every packet, even not in tree */
+    hpfeeds_stats = wmem_new0(wmem_file_scope(), struct HpfeedsTap);
+    if (opcode == OP_PUBLISH) {
+        hpfeeds_stats->channel = hpfeeds_get_channel_name(tvb, offset);
+        hpfeeds_stats->payload_size = hpfeeds_get_payload_size(tvb, 0);
+    }
+
+    hpfeeds_stats->opcode = opcode;
+    tap_queue_packet(hpfeeds_tap, pinfo, hpfeeds_stats);
     return tvb_captured_length(tvb);
 }
 
@@ -391,6 +487,8 @@ proto_register_hpfeeds(void)
         "Try heuristic sub-dissectors",
         "Try to decode the payload using an heuristic sub-dissector",
         &try_heuristic);
+
+    hpfeeds_tap = register_tap("hpfeeds");
 }
 
 void
@@ -402,6 +500,7 @@ proto_reg_handoff_hpfeeds(void)
 
     if (!hpfeeds_prefs_initialized) {
         hpfeeds_handle = new_create_dissector_handle(dissect_hpfeeds, proto_hpfeeds);
+        stats_tree_register("hpfeeds", "hpfeeds", "HPFEEDS", 0, hpfeeds_stats_tree_packet, hpfeeds_stats_tree_init, NULL);
         hpfeeds_prefs_initialized = TRUE;
     }
     else {

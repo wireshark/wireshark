@@ -1111,6 +1111,11 @@ and IPv6 addresses are dumped by default.
 Addresses are collected from a number of sources, including standard "hosts"
 files and captured traffic.
 
+=item B<-z> hpfeeds,tree[,I<filter>]
+
+Calculate statistics for HPFEEDS traffic such as publish per channel, and opcode
+distribution.
+
 =item B<-z> http,stat,
 
 Calculate the HTTP statistics distribution. Displayed values are
