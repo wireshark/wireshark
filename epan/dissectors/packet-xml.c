@@ -922,7 +922,6 @@ static gchar *fully_qualified_name(GPtrArray *hier, gchar *name, gchar *proto_na
 {
     guint    i;
     GString *s = g_string_new(proto_name);
-    gchar   *str;
 
     g_string_append(s, ".");
 
@@ -931,10 +930,8 @@ static gchar *fully_qualified_name(GPtrArray *hier, gchar *name, gchar *proto_na
     }
 
     g_string_append(s, name);
-    str = s->str;
-    g_string_free(s, FALSE);
 
-    return str;
+    return g_string_free(s, FALSE);
 }
 
 

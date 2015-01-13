@@ -1219,7 +1219,6 @@ extern gchar *
 oid_get_default_mib_path(void) {
 #ifdef HAVE_LIBSMI
 	GString* path_str;
-	gchar *path_ret;
 	char *path;
 	guint i;
 
@@ -1256,9 +1255,7 @@ oid_get_default_mib_path(void) {
 		g_string_append_printf(path_str,PATH_SEPARATOR "%s",smi_paths[i].name);
 	}
 
-	path_ret = path_str->str;
-	g_string_free(path_str, FALSE);
-	return path_ret;
+	return g_string_free(path_str, FALSE);
 #else /* HAVE_LIBSMI */
         return g_strdup("");
 #endif

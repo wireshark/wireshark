@@ -3491,9 +3491,7 @@ make_menu_xml(const char *path)
     xml = g_string_append(xml, XMENU_FOOTER);
 
     /* free the GString object, return the allocated char buf which must be g_freed */
-    markup = g_string_free(xml, FALSE);
-
-    return markup;
+    return g_string_free(xml, FALSE);
 }
 
 /**

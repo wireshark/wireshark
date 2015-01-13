@@ -2858,8 +2858,7 @@ h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
             }
         }
 
-        callsinfo->to_identity = s->str;
-        g_string_free(s,FALSE);
+        callsinfo->to_identity = g_string_free(s,FALSE);
 
         callsinfo->stop_fd = pinfo->fd;
         callsinfo->stop_rel_ts = pinfo->rel_ts;

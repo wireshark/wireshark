@@ -549,8 +549,7 @@ sctp_set_filter(GtkButton *button _U_, struct sctp_analyse *u_data)
 		}
 		str = g_strdup_printf(")))");
 		g_string_append(gstring, str);
-		filter_string = gstring->str;
-		g_string_free(gstring, FALSE);
+		filter_string = g_string_free(gstring, FALSE);
 	}
 
 	if (filter_string != NULL) {

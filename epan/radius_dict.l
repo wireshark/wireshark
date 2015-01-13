@@ -609,8 +609,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	if (!yyin) {
 		g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], g_strerror(errno) );
 		g_free(fullpaths[include_stack_ptr]);
-		*err_str = error->str;
-		g_string_free(error,FALSE);
+		*err_str = g_string_free(error,FALSE);
 		return FALSE;
 	}
 
@@ -632,8 +631,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	g_hash_table_foreach_remove(value_strings,destroy_value_strings,NULL);
 
 	if (error->len > 0) {
-		*err_str = error->str;
-		g_string_free(error,FALSE);
+		*err_str = g_string_free(error,FALSE);
 		return FALSE;
 	} else {
 		*err_str = NULL;

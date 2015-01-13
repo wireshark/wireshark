@@ -123,17 +123,21 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     shb_hdr->section_length = -1;
     /* options */
     shb_hdr->opt_comment    = g_strdup_printf("Dump of PDUs from %s", cfile.filename);
-    shb_hdr->shb_hardware   = NULL;                    /* UTF-8 string containing the
-                                                       * description of the hardware used to create this section.
-                                                       */
-    shb_hdr->shb_os         = os_info_str->str;        /* UTF-8 string containing the name
-                                                       * of the operating system used to create this section.
-                                                       */
-    g_string_free(os_info_str, FALSE);                /* The actual string is not freed */
-    shb_hdr->shb_user_appl  = appname;                /* UTF-8 string containing the name
-                                                       *  of the application used to create this section.
-                                                       */
-
+    /*
+     * UTF-8 string containing the description of the hardware used to create
+     * this section.
+     */
+    shb_hdr->shb_hardware   = NULL;
+    /*
+     * UTF-8 string containing the name of the operating system used to create
+     * this section.
+     */
+    shb_hdr->shb_os         = g_string_free(os_info_str, FALSE);
+    /*
+     * UTF-8 string containing the name of the application used to create
+     * this section.
+     */
+    shb_hdr->shb_user_appl  = appname;
 
     /* Create fake IDB info */
     idb_inf = g_new(wtapng_iface_descriptions_t,1);

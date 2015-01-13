@@ -164,7 +164,6 @@ static char*
 create_packet_window_title(void)
 {
 	GString *title;
-	char *ret;
 	int i;
 
 	title = g_string_new("");
@@ -178,11 +177,7 @@ create_packet_window_title(void)
 		g_string_append_c(title, ' ');
 	}
 
-	ret = title->str;
-
-	g_string_free(title, FALSE);
-
-	return ret;
+	return g_string_free(title, FALSE);
 }
 
 static void

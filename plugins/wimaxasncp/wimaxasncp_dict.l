@@ -673,8 +673,7 @@ wimaxasncp_dict_t *wimaxasncp_dict_scan(
 
 	if (dict_error->len > 0)
 	{
-		*error = dict_error->str;
-		g_string_free(dict_error, FALSE);
+		*error = g_string_free(dict_error, FALSE);
 	}
 	else
 	{

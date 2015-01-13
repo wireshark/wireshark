@@ -318,8 +318,7 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 						*error = "end of filter in the middle of a macro expression";
 						goto on_error;
 					} case ';': {
-						g_ptr_array_add(args,arg->str);
-						g_string_free(arg,FALSE);
+						g_ptr_array_add(args,g_string_free(arg,FALSE));
 
 						arg = g_string_sized_new(32);
 						break;
@@ -337,10 +336,9 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 						break;
 					} case '}': {
 						const gchar* resolved;
-						g_ptr_array_add(args,arg->str);
+						g_ptr_array_add(args,g_string_free(arg,FALSE));
 						g_ptr_array_add(args,NULL);
 
-						g_string_free(arg,FALSE);
 						arg = NULL;
 
 						resolved = dfilter_macro_resolve(name->str, (gchar**)args->pdata, error);

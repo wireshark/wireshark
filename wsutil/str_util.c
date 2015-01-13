@@ -173,8 +173,7 @@ format_size(gint64 size, format_size_flags_e flags)
 			g_assert_not_reached();
 	}
 
-	ret_val = human_str->str;
-	g_string_free(human_str, FALSE);
+	ret_val = g_string_free(human_str, FALSE);
 	return g_strchomp(ret_val);
 }
 

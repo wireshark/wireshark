@@ -317,14 +317,11 @@ cmd_t commands[] = {
 static char* help_cmd(char** params _U_, char** err _U_) {
 	GString* out = g_string_new("Commands:\n");
 	cmd_t* c = commands;
-	char* s;
 
 	for (;c->txt;c++) {
 		g_string_append_printf(out,"%s\n",c->help);
 	}
-	s = out->str;
-	g_string_free(out,FALSE);
-	return s;
+	return g_string_free(out,FALSE);
 }
 
 

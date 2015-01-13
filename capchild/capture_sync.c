@@ -1147,8 +1147,7 @@ sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
              */
             *primary_msg = NULL;
             *secondary_msg = NULL;
-            *data = data_buf->str;
-            g_string_free(data_buf, FALSE);
+            *data = g_string_free(data_buf, FALSE);
         }
         break;
 

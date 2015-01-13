@@ -69,7 +69,6 @@ gchar*
 ssl_export_sessions(void)
 {
     GString* keylist = g_string_new("");
-    gchar *session_keys;
 
     /* Output format is:
      * "RSA Session-ID:xxxx Master-Key:yyyy\n"
@@ -80,9 +79,7 @@ ssl_export_sessions(void)
 
     g_hash_table_foreach(ssl_session_hash, ssl_export_sessions_func, (gpointer)keylist);
 
-    session_keys = keylist->str;
-    g_string_free(keylist, FALSE);
-    return session_keys;
+    return g_string_free(keylist, FALSE);
 }
 
 /*

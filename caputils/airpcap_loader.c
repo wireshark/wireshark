@@ -212,34 +212,29 @@ get_wep_key(pref_t *pref, gpointer ud)
 gboolean
 wep_key_is_valid(char* key)
 {
-    GString *new_key_string;
-    guint i=0;
+    size_t strsize, i;
 
     if (key == NULL)
         return FALSE;
 
-    new_key_string = g_string_new(key);
+    strsize = strlen(key);
 
-    if ( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < 2))
+    if ( (strsize > WEP_KEY_MAX_CHAR_SIZE) || (strsize < 2))
     {
-        g_string_free(new_key_string,FALSE);
         return FALSE;
     }
-    if ((new_key_string->len % 2) != 0)
+    if ((strsize % 2) != 0)
     {
-        g_string_free(new_key_string,FALSE);
         return FALSE;
     }
-    for(i = 0; i < new_key_string->len; i++)
+    for(i = 0; i < strsize; i++)
     {
-        if (!g_ascii_isxdigit(new_key_string->str[i]))
+        if (!g_ascii_isxdigit(key[i]))
         {
-            g_string_free(new_key_string,FALSE);
             return FALSE;
         }
     }
 
-    g_string_free(new_key_string,FALSE);
     return TRUE;
 }
 

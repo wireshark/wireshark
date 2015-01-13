@@ -511,7 +511,6 @@ geoip_db_lookup_ipv6(guint dbnum _U_, struct e_in6_addr addr _U_, const char *no
 gchar *
 geoip_db_get_paths(void) {
     GString* path_str = NULL;
-    gchar *path_ret;
     char path_separator;
     guint i;
 
@@ -529,10 +528,8 @@ geoip_db_get_paths(void) {
     }
 
     g_string_truncate(path_str, path_str->len-1);
-    path_ret = path_str->str;
-    g_string_free(path_str, FALSE);
 
-    return path_ret;
+    return g_string_free(path_str, FALSE);
 }
 
 #else /* HAVE_GEOIP */

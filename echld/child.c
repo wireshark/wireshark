@@ -276,7 +276,6 @@ static char* param_get_file_list(char** err) {
 	GError* gerror  = NULL;
 	GDir* dir = g_dir_open(".", 0, &gerror);
 	GString* str = g_string_new("{ what='file_list', files=[");
-	char* s;
 	const char* file;
 
 	if (gerror) {
@@ -292,9 +291,7 @@ static char* param_get_file_list(char** err) {
 	g_string_truncate(str, str->len-2); /* ',\n' */
 	g_string_append(str, "]}");
 
-	s=str->str;
-	g_string_free(str,FALSE);
-	return s;
+	return g_string_free(str,FALSE);
 }
 
 #ifdef PCAP_NG_DEFAULT

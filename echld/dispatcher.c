@@ -207,7 +207,6 @@ static char* intflist2json(GList* if_list, char** if_cap_err) {
     if_capabilities_t *caps;
     char        addr_str[ADDRSTRLEN];
     GString     *str = g_string_new("{ what='interfaces', interfaces={ \n");
-    char* s;
 
     for (if_entry = g_list_first(if_list); if_entry != NULL;
          if_entry = g_list_next(if_entry)) {
@@ -315,9 +314,7 @@ static char* intflist2json(GList* if_list, char** if_cap_err) {
     g_string_truncate(str,str->len - 2); /* the comma and return */
     g_string_append(str,"}");
 
-    s=str->str;
-    g_string_free(str,FALSE);
-    return s;
+    return g_string_free(str,FALSE);
 }
 
 static char* intf_list = NULL;
@@ -382,7 +379,6 @@ static char* param_get_version(char** err _U_) {
 
 static char* param_get_capture_types(char** err _U_) {
   GString* str = g_string_new("");
-  char* s;
   int i;
 
   for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
@@ -392,9 +388,7 @@ static char* param_get_capture_types(char** err _U_) {
     }
   }
 
-  s = str->str;
-  g_string_free(str,FALSE);
-  return s;
+  return g_string_free(str,FALSE);
 }
 
 static echld_bool_t param_set_add_hosts_file(char* val, char** err) {

@@ -752,8 +752,7 @@ gchar* avpl_to_str(AVPL* avpl) {
 		g_free(avp_s);
 	}
 
-	r = s->str;
-	g_string_free(s,FALSE);
+	r = g_string_free(s,FALSE);
 
 	/* g_strchug(r); ? */
 	return r;
@@ -771,8 +770,7 @@ extern gchar* avpl_to_dotstr(AVPL* avpl) {
 		g_free(avp_s);
 	}
 
-	r = s->str;
-	g_string_free(s,FALSE);
+	r = g_string_free(s,FALSE);
 
 	/* g_strchug(r); ? */
 	return r;

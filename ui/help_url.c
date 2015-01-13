@@ -119,7 +119,6 @@ topic_online_url(topic_action_e action)
 gchar *
 user_guide_url(const gchar *page) {
     GString *url = g_string_new("");
-    gchar *ug_url = NULL;
 
     /*
      * Try to open local .chm file. This is not the most intuitive way to
@@ -155,9 +154,7 @@ user_guide_url(const gchar *page) {
 #endif /* ifdef DOC_DIR */
 
 
-    ug_url = url->str;
-    g_string_free(url, FALSE);
-    return ug_url;
+    return g_string_free(url, FALSE);
 }
 
 gchar *
