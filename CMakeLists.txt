@@ -534,6 +534,7 @@ if(BUILD_wireshark)
 			set( WS_ALL_LIBS ${WS_ALL_LIBS} ${QT5_DLL_PATH} )
 		endif()
 		set(PACKAGELIST ${PACKAGELIST}
+			Qt5Core
 			Qt5LinguistTools
 			Qt5MultimediaWidgets
 			Qt5PrintSupport
@@ -1414,6 +1415,29 @@ if(BUILD_wireshark AND QT_FOUND)
 				$<TARGET_FILE_DIR:wireshark>
 		)
 	endif()
+
+	if(WIN32 AND Qt5Core_FOUND)
+		# Use windeployqt to copy our required DLLs to the run path.
+		# Ideally one of the modules in ${QTDIR}/lib/cmake/Qt5WinExtras
+		# would give us the path to windeployqt. For that matter a
+		# reliable path to qmake would be amazingly convenient. As it
+		# is we derive the location from Qt5::qmake, which is provided
+		# by Qt5Core.
+		get_target_property(_qmake_location Qt5::qmake IMPORTED_LOCATION)
+		get_filename_component(_qt_bindir "${_qmake_location}" DIRECTORY)
+		find_program(_windeployqt windeployqt PATHS "${_qmake_location}")
+		if (NOT "${_windeployqt}" STREQUAL "_windeployqt-NOTFOUND")
+			add_custom_target(copy_qt_dlls ALL)
+			# Will we ever need to use --debug? Windeployqt seems to
+			# be smart enough to copy debug DLLs when needed.
+			add_custom_command(TARGET copy_qt_dlls POST_BUILD
+				COMMAND "${_windeployqt}"
+					--release --no-compiler-runtime
+					"$<TARGET_FILE:wireshark>"
+			)
+			add_dependencies(copy_qt_dlls wireshark)
+		endif()
+	endif(WIN32)
 endif()
 
 # Common properties for CLI executables
