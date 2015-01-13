@@ -3111,8 +3111,8 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
              int endpoint, gboolean req)
 {
     proto_item     *sub_item;
-    usb_address_t  *src_addr = wmem_new(pinfo->pool, usb_address_t),
-                   *dst_addr = wmem_new(pinfo->pool, usb_address_t);
+    usb_address_t  *src_addr = wmem_new0(pinfo->pool, usb_address_t),
+                   *dst_addr = wmem_new0(pinfo->pool, usb_address_t);
     guint8         *str_src_addr;
     guint8         *str_dst_addr;
 

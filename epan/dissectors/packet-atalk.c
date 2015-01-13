@@ -1377,8 +1377,8 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   guint8                 type;
   proto_tree            *ddp_tree = NULL;
   proto_item            *ti, *hidden_item;
-  struct atalk_ddp_addr *src = wmem_new(pinfo->pool, struct atalk_ddp_addr),
-                        *dst = wmem_new(pinfo->pool, struct atalk_ddp_addr);
+  struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
+                        *dst = wmem_new0(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t              *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
@@ -1438,8 +1438,8 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   e_ddp                  ddp;
   proto_tree            *ddp_tree;
   proto_item            *ti, *hidden_item;
-  struct atalk_ddp_addr *src = wmem_new(pinfo->pool, struct atalk_ddp_addr),
-                        *dst = wmem_new(pinfo->pool, struct atalk_ddp_addr);
+  struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
+                        *dst = wmem_new0(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t              *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
