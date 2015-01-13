@@ -82,12 +82,17 @@ GPRSRecord	::= CHOICE
 {
 	sgsnPDPRecord			[20] SGSNPDPRecord,
 	sgsnMMRecord			[22] SGSNMMRecord,
+-- WS bacward compabillity addition
+	ggsnPDPRecord			[21] GGSNPDPRecordV750,
+-- WS mod END
 	sgsnSMORecord			[23] SGSNSMORecord,
 	sgsnSMTRecord			[24] SGSNSMTRecord,
 --	sgsnMTLCSRecord			[25] SGSNMTLCSRecord,
 --	sgsnMOLCSRecord			[26] SGSNMOLCSRecord,
 --	sgsnNILCSRecord			[27] SGSNNILCSRecord,
-
+-- WS bacward compabillity addition
+	egsnPDPRecord			[70] EGSNPDPRecord,
+-- WS mod END
 --	sgsnMBMSRecord			[76] SGSNMBMSRecord,
 --	ggsnMBMSRecord			[77] GGSNMBMSRecord,
 	sGWRecord				[78] SGWRecord,

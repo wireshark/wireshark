@@ -96,6 +96,41 @@ GGSNPDPRecord 	::= SET
 
 }
 
+-- WS Added GGSNPDPRecord from V750 spec here
+GGSNPDPRecordV750 	::= SET
+{
+	recordType					[0] RecordType,
+	networkInitiation			[1] NetworkInitiatedPDPContext OPTIONAL,
+	servedIMSI					[3] IMSI,
+	ggsnAddress					[4] GSNAddress,
+	chargingID					[5] ChargingID,
+	sgsnAddress					[6] SEQUENCE OF GSNAddress,
+	accessPointNameNI			[7] AccessPointNameNI OPTIONAL,
+	pdpType						[8] PDPType OPTIONAL,
+	servedPDPAddress			[9] PDPAddress OPTIONAL,
+	dynamicAddressFlag			[11] DynamicAddressFlag OPTIONAL,
+	listOfTrafficVolumes		[12] SEQUENCE OF ChangeOfCharConditionV651 OPTIONAL,
+	recordOpeningTime			[13] TimeStamp,
+	duration					[14] CallDuration,
+	causeForRecClosing			[15] CauseForRecClosing,
+	diagnostics					[16] Diagnostics OPTIONAL,
+	recordSequenceNumber		[17] INTEGER OPTIONAL,
+	nodeID						[18] NodeID OPTIONAL,
+	recordExtensions			[19] ManagementExtensions OPTIONAL,
+	localSequenceNumber			[20] LocalSequenceNumber OPTIONAL,
+	apnSelectionMode			[21] APNSelectionMode OPTIONAL,
+	servedMSISDN				[22] MSISDN OPTIONAL,
+	chargingCharacteristics		[23] ChargingCharacteristics,
+	chChSelectionMode			[24] ChChSelectionMode OPTIONAL,
+	iMSsignalingContext			[25] NULL OPTIONAL,
+	externalChargingID			[26] OCTET STRING OPTIONAL,
+	sgsnPLMNIdentifier			[27] PLMN-Id OPTIONAL,
+	servedIMEISV				[29] IMEI OPTIONAL,
+	rATType						[30] RATType OPTIONAL,
+	mSTimeZone 					[31] MSTimeZone OPTIONAL,
+	userLocationInformation		[32] OCTET STRING OPTIONAL,
+	cAMELChargingInformation	[33] OCTET STRING OPTIONAL
+}
 EGSNPDPRecord 	::= SET
 {
 	recordType						[0] CallEventRecordType,
@@ -133,6 +168,42 @@ EGSNPDPRecord 	::= SET
 	listOfServiceData				[34] SEQUENCE OF ChangeOfServiceConditionV651 OPTIONAL
 }
 
+EGSNPDPRecordV750 	::= SET
+{
+	recordType						[0] CallEventRecordType,
+	networkInitiation				[1] NetworkInitiatedPDPContext OPTIONAL,
+	servedIMSI						[3] IMSI,
+	ggsnAddress						[4] GSNAddress,
+	chargingID						[5] ChargingID,
+	sgsnAddress						[6] SEQUENCE OF GSNAddress,
+	accessPointNameNI				[7] AccessPointNameNI OPTIONAL,
+	pdpType							[8] PDPType OPTIONAL,
+	servedPDPAddress				[9] PDPAddress OPTIONAL,
+	dynamicAddressFlag				[11] DynamicAddressFlag OPTIONAL,
+	listOfTrafficVolumes			[12] SEQUENCE OF ChangeOfCharConditionV651 OPTIONAL,
+	recordOpeningTime				[13] TimeStamp,
+	duration						[14] CallDuration,
+	causeForRecClosing				[15] CauseForRecClosingV651,
+	diagnostics						[16] Diagnostics OPTIONAL,
+	recordSequenceNumber			[17] INTEGER OPTIONAL,
+	nodeID							[18] NodeID OPTIONAL,
+	recordExtensions				[19] ManagementExtensions OPTIONAL,
+	localSequenceNumber				[20] LocalSequenceNumber OPTIONAL,
+	apnSelectionMode				[21] APNSelectionMode OPTIONAL,
+	servedMSISDN					[22] MSISDN OPTIONAL,
+	chargingCharacteristics			[23] ChargingCharacteristics,
+	chChSelectionMode				[24] ChChSelectionMode OPTIONAL,
+	iMSsignalingContext				[25] NULL OPTIONAL,
+	externalChargingID				[26] OCTET STRING OPTIONAL,
+	sgsnPLMNIdentifier				[27] PLMN-Id OPTIONAL,
+	pSFurnishChargingInformation	[28] PSFurnishChargingInformation OPTIONAL,
+	servedIMEISV					[29] IMEI OPTIONAL,
+	rATType							[30] RATType OPTIONAL,
+	mSTimeZone 						[31] MSTimeZone OPTIONAL,
+	userLocationInformation			[32] OCTET STRING OPTIONAL,
+	cAMELChargingInformation		[33] OCTET STRING OPTIONAL,
+	listOfServiceData				[34] SEQUENCE OF ChangeOfServiceConditionV750 OPTIONAL
+}
 --SGSNMMRecord	::= SET
 --{
 --	recordType					[0] CallEventRecordType,
@@ -488,7 +559,12 @@ ChangeConditionV651	::= ENUMERATED
 	recordClosure			       			(2),
 	failureHandlingContinueOngoing		   	(3),
 	failureHandlingRetryandTerminateOngoing (4),
-	failureHandlingTerminateOngoing	   		(5)
+	failureHandlingTerminateOngoing	   		(5),
+-- WS mod add from V750
+	cGI-SAICHange							(6),
+	rAIChange								(7),
+	dT-Establishment						(8),
+	dT-Removal								(9)
 }
 
 ChangeOfCharConditionV651	::= SEQUENCE
@@ -501,7 +577,10 @@ ChangeOfCharConditionV651	::= SEQUENCE
 	dataVolumeGPRSUplink		[3] DataVolumeGPRS,
 	dataVolumeGPRSDownlink		[4] DataVolumeGPRS,
 	changeCondition				[5] ChangeConditionV651,
-	changeTime					[6] TimeStamp
+	changeTime					[6] TimeStamp,
+-- WS mod add from V750
+	failureHandlingContinue		[7] FailureHandlingContinue OPTIONAL,
+	userLocationInformation		[8] OCTET STRING OPTIONAL
 }
 --ChangeOfMBMSCondition	::= SEQUENCE
 --{
@@ -516,6 +595,7 @@ ChangeOfCharConditionV651	::= SEQUENCE
 --	changeTime					[6] TimeStamp,
 --	failureHandlingContinue		[7] FailureHandlingContinue OPTIONAL
 --}
+
 ChangeOfServiceConditionV651	::= SEQUENCE
 {
 	--
@@ -543,6 +623,36 @@ ChangeOfServiceConditionV651	::= SEQUENCE
 	pSFurnishChargingInformation	[18] PSFurnishChargingInformation OPTIONAL
 }
 
+ChangeOfServiceConditionV750	::= SEQUENCE
+{
+	--
+	-- Used for Flow based Charging service data container
+	--
+	ratingGroup 					[1] RatingGroupId,
+	chargingRuleBaseName			[2] ChargingRuleBaseName OPTIONAL,
+	resultCode						[3] ResultCode OPTIONAL,
+	localSequenceNumber				[4] LocalSequenceNumber OPTIONAL,
+	timeOfFirstUsage				[5] TimeStamp OPTIONAL,
+	timeOfLastUsage					[6] TimeStamp OPTIONAL,
+	timeUsage 						[7] CallDuration OPTIONAL,
+	serviceConditionChangeV750		[8] ServiceConditionChangeV750,
+	qoSInformationNeg				[9] QoSInformation OPTIONAL,
+	sgsn-Address 					[10] GSNAddress OPTIONAL,
+--	sGSNPLMNIdentifier 				[11] SGSNPLMNIdentifier OPTIONAL,
+	sGSNPLMNIdentifier 				[11] PLMN-Id OPTIONAL,
+	datavolumeFBCUplink				[12] DataVolumeGPRS OPTIONAL,
+	datavolumeFBCDownlink			[13] DataVolumeGPRS OPTIONAL,
+	timeOfReport					[14] TimeStamp,
+	rATType							[15] RATType OPTIONAL,
+	failureHandlingContinue			[16] FailureHandlingContinue OPTIONAL,
+	serviceIdentifier				[17] ServiceIdentifier OPTIONAL,
+	pSFurnishChargingInformation	[18] PSFurnishChargingInformation OPTIONAL,
+	aFRecordInformation				[19] SEQUENCE OF AFRecordInformation OPTIONAL,
+	userLocationInformation			[20] OCTET STRING OPTIONAL,
+	eventBasedChargingInformation	[21] EventBasedChargingInformation OPTIONAL,
+	timeQuotaMechanism				[22] TimeQuotaMechanism OPTIONAL
+}
+
 ChangeLocationV651	::= SEQUENCE
 {
 	--
@@ -551,7 +661,9 @@ ChangeLocationV651	::= SEQUENCE
 	locationAreaCode		[0] LocationAreaCode,
 	routingAreaCode			[1] RoutingAreaCode,
 	cellId					[2] CellId OPTIONAL,
-	changeTime				[3] TimeStamp
+	changeTime				[3] TimeStamp,
+	-- WS add from V750
+	mCC-MNC					[4] PLMN-Id OPTIONAL
 }
 
 --ChargingCharacteristics	::= OCTET STRING (SIZE(2))
@@ -714,6 +826,48 @@ terminateOngoingSession 		(20)
 -- some of the values are non-exclusive
 -- serviceIdledOut - bit 6 is equivalent to service release by QHT
 
+ServiceConditionChangeV750	::= BIT STRING
+{
+	qoSChange 								 (0),	-- PDP context modification
+	sGSNChange 								 (1), 	-- PDP context modification
+	sGSNPLMNIDChange 						 (2), 	-- PDP context modification
+	tariffTimeSwitch 						 (3), 	-- tariff time change
+	pDPContextRelease 						 (4), 	-- PDP context release
+	rATChange 								 (5),	-- PDP context modification
+	serviceIdledOut 						 (6),	-- IP flow idle out, DCCA QHT expiry
+	reserved 								 (7),	-- old: QCTexpiry is no report event
+	configurationChange 					 (8),	-- configuration change
+	serviceStop 							 (9), 	-- IP flow termination
+	dCCATimeThresholdReached 				(10),	-- DCCA quota reauthorization
+	dCCAVolumeThresholdReached 				(11), 	-- DCCA quota reauthorization
+	dCCAServiceSpecificUnitThresholdReached	(12), 	-- DCCA quota reauthorization
+	dCCATimeExhausted 						(13), 	-- DCCA quota reauthorization
+	dCCAVolumeExhausted 					(14), 	-- DCCA quota reauthorization
+	dCCAValidityTimeout 					(15), 	-- DCCA quota validity time (QVT expiry)
+	reserved2								(16),	-- reserved due to no use case,
+													-- old: return Requested is covered by (17),(18)
+	dCCAReauthorisationRequest 				(17), 	-- DCCA quota reauthorization request by OCS
+	dCCAContinueOngoingSession 				(18), 	-- DCCA failure handling (CCFH),
+													-- continue IP flow
+	dCCARetryAndTerminateOngoingSession		(19), 	-- DCCA failure handling (CCFH),
+													-- terminate IP flow after DCCA retry
+	dCCATerminateOngoingSession 			(20), 	-- DCCA failure handling,
+													-- terminate IP flow
+	cGI-SAIChange							(21), 	-- PDP context modification
+	rAIChange								(22), 	-- PDP context modification
+	dCCAServiceSpecificUnitExhausted		(23), 	-- DCCA quota reauthorization
+	recordClosure							(24),	-- eG-CDR closure
+	timeLimit								(25),	-- intermediate recording
+	volumeLimit								(26),	-- intermediate recording
+	serviceSpecificUnitLimit				(27),	-- intermediate recording
+	envelopeClosure 						(28)
+}
+--
+-- Trigger and cause values for IP flow level recording are defined for support of independent
+-- online and offline charging and also for tight interworking between online and offline charging.
+-- Unused bits will always be zero.
+-- Some of the values are non-exclusive (e.g. PDP context modification reasons).
+	--
 --SCFAddress	::= AddressString
 	--
 	-- See TS 29.002

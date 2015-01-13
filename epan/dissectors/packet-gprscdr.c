@@ -129,9 +129,13 @@ static int hf_gprscdr_rATType = -1;               /* RATType */
 static int hf_gprscdr_mSTimeZone = -1;            /* MSTimeZone */
 static int hf_gprscdr_userLocationInformation = -1;  /* OCTET_STRING */
 static int hf_gprscdr_cAMELChargingInformation = -1;  /* OCTET_STRING */
+static int hf_gprscdr_recordType_01 = -1;         /* RecordType */
+static int hf_gprscdr_causeForRecClosing_01 = -1;  /* CauseForRecClosing */
 static int hf_gprscdr_pSFurnishChargingInformation = -1;  /* PSFurnishChargingInformation */
 static int hf_gprscdr_listOfServiceData = -1;     /* SEQUENCE_OF_ChangeOfServiceConditionV651 */
 static int hf_gprscdr_listOfServiceData_item = -1;  /* ChangeOfServiceConditionV651 */
+static int hf_gprscdr_listOfServiceData_01 = -1;  /* SEQUENCE_OF_ChangeOfServiceConditionV750 */
+static int hf_gprscdr_listOfServiceData_item_01 = -1;  /* ChangeOfServiceConditionV750 */
 static int hf_gprscdr_servedIMEI = -1;            /* IMEI */
 static int hf_gprscdr_sgsnAddress_01 = -1;        /* GSNAddress */
 static int hf_gprscdr_msNetworkCapability = -1;   /* MSNetworkCapability */
@@ -157,6 +161,7 @@ static int hf_gprscdr_dataVolumeGPRSUplink = -1;  /* DataVolumeGPRS */
 static int hf_gprscdr_dataVolumeGPRSDownlink = -1;  /* DataVolumeGPRS */
 static int hf_gprscdr_changeCondition = -1;       /* ChangeConditionV651 */
 static int hf_gprscdr_changeTime = -1;            /* TimeStamp */
+static int hf_gprscdr_failureHandlingContinue = -1;  /* FailureHandlingContinue */
 static int hf_gprscdr_ratingGroup = -1;           /* RatingGroupId */
 static int hf_gprscdr_chargingRuleBaseName = -1;  /* ChargingRuleBaseName */
 static int hf_gprscdr_resultCode = -1;            /* ResultCode */
@@ -170,9 +175,14 @@ static int hf_gprscdr_sGSNPLMNIdentifier = -1;    /* PLMN_Id */
 static int hf_gprscdr_datavolumeFBCUplink = -1;   /* DataVolumeGPRS */
 static int hf_gprscdr_datavolumeFBCDownlink = -1;  /* DataVolumeGPRS */
 static int hf_gprscdr_timeOfReport = -1;          /* TimeStamp */
-static int hf_gprscdr_failureHandlingContinue = -1;  /* FailureHandlingContinue */
 static int hf_gprscdr_serviceIdentifier = -1;     /* ServiceIdentifier */
+static int hf_gprscdr_serviceConditionChangeV750 = -1;  /* ServiceConditionChangeV750 */
+static int hf_gprscdr_aFRecordInformation = -1;   /* SEQUENCE_OF_AFRecordInformation */
+static int hf_gprscdr_aFRecordInformation_item = -1;  /* AFRecordInformation */
+static int hf_gprscdr_eventBasedChargingInformation = -1;  /* EventBasedChargingInformation */
+static int hf_gprscdr_timeQuotaMechanism = -1;    /* TimeQuotaMechanism */
 static int hf_gprscdr_sgsnPDPRecord_01 = -1;      /* SGSNPDPRecord */
+static int hf_gprscdr_ggsnPDPRecord_01 = -1;      /* GGSNPDPRecordV750 */
 static int hf_gprscdr_sgsnSMORecord_01 = -1;      /* SGSNSMORecord */
 static int hf_gprscdr_sgsnSMTRecord_01 = -1;      /* SGSNSMTRecord */
 static int hf_gprscdr_sGWRecord = -1;             /* SGWRecord */
@@ -180,7 +190,6 @@ static int hf_gprscdr_pGWRecord = -1;             /* PGWRecord */
 static int hf_gprscdr_tDFRecord = -1;             /* TDFRecord */
 static int hf_gprscdr_iPERecord = -1;             /* IPERecord */
 static int hf_gprscdr_ePDGRecord = -1;            /* EPDGRecord */
-static int hf_gprscdr_recordType_01 = -1;         /* RecordType */
 static int hf_gprscdr_s_GWAddress = -1;           /* GSNAddress */
 static int hf_gprscdr_servingNodeAddress = -1;    /* SEQUENCE_OF_GSNAddress */
 static int hf_gprscdr_servingNodeAddress_item = -1;  /* GSNAddress */
@@ -188,7 +197,6 @@ static int hf_gprscdr_pdpPDNType = -1;            /* PDPType */
 static int hf_gprscdr_servedPDPPDNAddress = -1;   /* PDPAddress */
 static int hf_gprscdr_listOfTrafficVolumes_01 = -1;  /* SEQUENCE_OF_ChangeOfCharCondition */
 static int hf_gprscdr_listOfTrafficVolumes_item_01 = -1;  /* ChangeOfCharCondition */
-static int hf_gprscdr_causeForRecClosing_01 = -1;  /* CauseForRecClosing */
 static int hf_gprscdr_servingNodePLMNIdentifier = -1;  /* PLMN_Id */
 static int hf_gprscdr_sGWChange = -1;             /* SGWChange */
 static int hf_gprscdr_servingNodeType = -1;       /* SEQUENCE_OF_ServingNodeType */
@@ -214,8 +222,8 @@ static int hf_gprscdr_presenceReportingAreaInfo = -1;  /* PresenceReportingAreaI
 static int hf_gprscdr_lastUserLocationInformation = -1;  /* OCTET_STRING */
 static int hf_gprscdr_lastMSTimeZone = -1;        /* MSTimeZone */
 static int hf_gprscdr_p_GWAddress = -1;           /* GSNAddress */
-static int hf_gprscdr_listOfServiceData_01 = -1;  /* SEQUENCE_OF_ChangeOfServiceCondition */
-static int hf_gprscdr_listOfServiceData_item_01 = -1;  /* ChangeOfServiceCondition */
+static int hf_gprscdr_listOfServiceData_02 = -1;  /* SEQUENCE_OF_ChangeOfServiceCondition */
+static int hf_gprscdr_listOfServiceData_item_02 = -1;  /* ChangeOfServiceCondition */
 static int hf_gprscdr_servedMNNAI = -1;           /* SubscriptionID */
 static int hf_gprscdr_served3gpp2MEID = -1;       /* OCTET_STRING */
 static int hf_gprscdr_threeGPP2UserLocationInformation = -1;  /* OCTET_STRING */
@@ -267,10 +275,6 @@ static int hf_gprscdr_changeCondition_01 = -1;    /* ChangeCondition */
 static int hf_gprscdr_presenceReportingAreaStatus = -1;  /* PresenceReportingAreaStatus */
 static int hf_gprscdr_serviceConditionChange_01 = -1;  /* ServiceConditionChange */
 static int hf_gprscdr_qoSInformationNeg_01 = -1;  /* EPCQoSInformation */
-static int hf_gprscdr_aFRecordInformation = -1;   /* SEQUENCE_OF_AFRecordInformation */
-static int hf_gprscdr_aFRecordInformation_item = -1;  /* AFRecordInformation */
-static int hf_gprscdr_eventBasedChargingInformation = -1;  /* EventBasedChargingInformation */
-static int hf_gprscdr_timeQuotaMechanism = -1;    /* TimeQuotaMechanism */
 static int hf_gprscdr_serviceSpecificInfo = -1;   /* SEQUENCE_OF_ServiceSpecificInfo */
 static int hf_gprscdr_serviceSpecificInfo_item = -1;  /* ServiceSpecificInfo */
 static int hf_gprscdr_sponsorIdentity = -1;       /* OCTET_STRING */
@@ -328,6 +332,35 @@ static int hf_gprscdr_ServiceConditionChangeV651_reauthorisationRequest = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_continueOngoingSession = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_retryAndTerminateOngoingSession = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_terminateOngoingSession = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_qoSChange = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_sGSNChange = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_sGSNPLMNIDChange = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_tariffTimeSwitch = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_pDPContextRelease = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_rATChange = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_serviceIdledOut = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_reserved = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_configurationChange = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_serviceStop = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCATimeThresholdReached = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeThresholdReached = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitThresholdReached = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCATimeExhausted = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeExhausted = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAValidityTimeout = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_reserved2 = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAReauthorisationRequest = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAContinueOngoingSession = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCARetryAndTerminateOngoingSession = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCATerminateOngoingSession = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_cGI_SAIChange = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_rAIChange = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitExhausted = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_recordClosure = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_timeLimit = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_volumeLimit = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_serviceSpecificUnitLimit = -1;
+static int hf_gprscdr_ServiceConditionChangeV750_envelopeClosure = -1;
 static int hf_gprscdr_ServiceConditionChange_qoSChange = -1;
 static int hf_gprscdr_ServiceConditionChange_sGSNChange = -1;
 static int hf_gprscdr_ServiceConditionChange_sGSNPLMNIDChange = -1;
@@ -387,14 +420,20 @@ static gint ett_gprscdr_GPRSCallEventRecord = -1;
 static gint ett_gprscdr_GGSNPDPRecord = -1;
 static gint ett_gprscdr_SEQUENCE_OF_GSNAddress = -1;
 static gint ett_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651 = -1;
+static gint ett_gprscdr_GGSNPDPRecordV750 = -1;
 static gint ett_gprscdr_EGSNPDPRecord = -1;
 static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV651 = -1;
+static gint ett_gprscdr_EGSNPDPRecordV750 = -1;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV750 = -1;
 static gint ett_gprscdr_SGSNPDPRecordV651 = -1;
 static gint ett_gprscdr_SGSNSMORecordV651 = -1;
 static gint ett_gprscdr_SGSNSMTRecordV651 = -1;
 static gint ett_gprscdr_ChangeOfCharConditionV651 = -1;
 static gint ett_gprscdr_ChangeOfServiceConditionV651 = -1;
+static gint ett_gprscdr_ChangeOfServiceConditionV750 = -1;
+static gint ett_gprscdr_SEQUENCE_OF_AFRecordInformation = -1;
 static gint ett_gprscdr_ServiceConditionChangeV651 = -1;
+static gint ett_gprscdr_ServiceConditionChangeV750 = -1;
 static gint ett_gprscdr_GPRSRecord = -1;
 static gint ett_gprscdr_SGWRecord = -1;
 static gint ett_gprscdr_SEQUENCE_OF_ChangeOfCharCondition = -1;
@@ -416,7 +455,6 @@ static gint ett_gprscdr_CAMELInformationPDP = -1;
 static gint ett_gprscdr_CAMELInformationSMS = -1;
 static gint ett_gprscdr_ChangeOfCharCondition = -1;
 static gint ett_gprscdr_ChangeOfServiceCondition = -1;
-static gint ett_gprscdr_SEQUENCE_OF_AFRecordInformation = -1;
 static gint ett_gprscdr_SEQUENCE_OF_ServiceSpecificInfo = -1;
 static gint ett_gprscdr_ChangeLocation = -1;
 static gint ett_gprscdr_EPCQoSInformation = -1;
@@ -1333,6 +1371,10 @@ static const value_string gprscdr_ChangeConditionV651_vals[] = {
   {   3, "failureHandlingContinueOngoing" },
   {   4, "failureHandlingRetryandTerminateOngoing" },
   {   5, "failureHandlingTerminateOngoing" },
+  {   6, "cGI-SAICHange" },
+  {   7, "rAIChange" },
+  {   8, "dT-Establishment" },
+  {   9, "dT-Removal" },
   { 0, NULL }
 };
 
@@ -1346,6 +1388,25 @@ dissect_gprscdr_ChangeConditionV651(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
+
+static int
+dissect_gprscdr_FailureHandlingContinue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ChangeOfCharConditionV651_sequence[] = {
   { &hf_gprscdr_qosRequested, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
   { &hf_gprscdr_qosNegotiated, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
@@ -1353,6 +1414,8 @@ static const ber_sequence_t ChangeOfCharConditionV651_sequence[] = {
   { &hf_gprscdr_dataVolumeGPRSDownlink, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
   { &hf_gprscdr_changeCondition, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChangeConditionV651 },
   { &hf_gprscdr_changeTime  , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_failureHandlingContinue, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_FailureHandlingContinue },
+  { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1648,16 +1711,6 @@ dissect_gprscdr_SEQUENCE_OF_GSNAddress(gboolean implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_gprscdr_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-
-static int
-dissect_gprscdr_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
 
   return offset;
 }
@@ -2038,15 +2091,6 @@ dissect_gprscdr_ServiceConditionChangeV651(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static int
-dissect_gprscdr_FailureHandlingContinue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
-
-  return offset;
-}
-
-
-
-static int
 dissect_gprscdr_ServiceIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
@@ -2170,6 +2214,312 @@ dissect_gprscdr_GPRSCallEventRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  GPRSCallEventRecord_choice, hf_index, ett_gprscdr_GPRSCallEventRecord,
                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t GGSNPDPRecordV750_set[] = {
+  { &hf_gprscdr_recordType_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_RecordType },
+  { &hf_gprscdr_networkInitiation, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NetworkInitiatedPDPContext },
+  { &hf_gprscdr_servedIMSI  , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_gprscdr_ggsnAddress , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_chargingID  , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
+  { &hf_gprscdr_sgsnAddress , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_GSNAddress },
+  { &hf_gprscdr_accessPointNameNI, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AccessPointNameNI },
+  { &hf_gprscdr_pdpType     , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PDPType },
+  { &hf_gprscdr_servedPDPAddress, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_PDPAddress },
+  { &hf_gprscdr_dynamicAddressFlag, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DynamicAddressFlag },
+  { &hf_gprscdr_listOfTrafficVolumes, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651 },
+  { &hf_gprscdr_recordOpeningTime, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_duration    , BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_causeForRecClosing_01, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosing },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_recordSequenceNumber, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_apnSelectionMode, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNSelectionMode },
+  { &hf_gprscdr_servedMSISDN, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSISDN },
+  { &hf_gprscdr_chargingCharacteristics, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingCharacteristics },
+  { &hf_gprscdr_chChSelectionMode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChChSelectionMode },
+  { &hf_gprscdr_iMSsignalingContext, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NULL },
+  { &hf_gprscdr_externalChargingID, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_sgsnPLMNIdentifier, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_servedIMEISV, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_mSTimeZone  , BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSTimeZone },
+  { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_cAMELChargingInformation, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_GGSNPDPRecordV750(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              GGSNPDPRecordV750_set, hf_index, ett_gprscdr_GGSNPDPRecordV750);
+
+  return offset;
+}
+
+
+static const asn_namedbit ServiceConditionChangeV750_bits[] = {
+  {  0, &hf_gprscdr_ServiceConditionChangeV750_qoSChange, -1, -1, "qoSChange", NULL },
+  {  1, &hf_gprscdr_ServiceConditionChangeV750_sGSNChange, -1, -1, "sGSNChange", NULL },
+  {  2, &hf_gprscdr_ServiceConditionChangeV750_sGSNPLMNIDChange, -1, -1, "sGSNPLMNIDChange", NULL },
+  {  3, &hf_gprscdr_ServiceConditionChangeV750_tariffTimeSwitch, -1, -1, "tariffTimeSwitch", NULL },
+  {  4, &hf_gprscdr_ServiceConditionChangeV750_pDPContextRelease, -1, -1, "pDPContextRelease", NULL },
+  {  5, &hf_gprscdr_ServiceConditionChangeV750_rATChange, -1, -1, "rATChange", NULL },
+  {  6, &hf_gprscdr_ServiceConditionChangeV750_serviceIdledOut, -1, -1, "serviceIdledOut", NULL },
+  {  7, &hf_gprscdr_ServiceConditionChangeV750_reserved, -1, -1, "reserved", NULL },
+  {  8, &hf_gprscdr_ServiceConditionChangeV750_configurationChange, -1, -1, "configurationChange", NULL },
+  {  9, &hf_gprscdr_ServiceConditionChangeV750_serviceStop, -1, -1, "serviceStop", NULL },
+  { 10, &hf_gprscdr_ServiceConditionChangeV750_dCCATimeThresholdReached, -1, -1, "dCCATimeThresholdReached", NULL },
+  { 11, &hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeThresholdReached, -1, -1, "dCCAVolumeThresholdReached", NULL },
+  { 12, &hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitThresholdReached, -1, -1, "dCCAServiceSpecificUnitThresholdReached", NULL },
+  { 13, &hf_gprscdr_ServiceConditionChangeV750_dCCATimeExhausted, -1, -1, "dCCATimeExhausted", NULL },
+  { 14, &hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeExhausted, -1, -1, "dCCAVolumeExhausted", NULL },
+  { 15, &hf_gprscdr_ServiceConditionChangeV750_dCCAValidityTimeout, -1, -1, "dCCAValidityTimeout", NULL },
+  { 16, &hf_gprscdr_ServiceConditionChangeV750_reserved2, -1, -1, "reserved2", NULL },
+  { 17, &hf_gprscdr_ServiceConditionChangeV750_dCCAReauthorisationRequest, -1, -1, "dCCAReauthorisationRequest", NULL },
+  { 18, &hf_gprscdr_ServiceConditionChangeV750_dCCAContinueOngoingSession, -1, -1, "dCCAContinueOngoingSession", NULL },
+  { 19, &hf_gprscdr_ServiceConditionChangeV750_dCCARetryAndTerminateOngoingSession, -1, -1, "dCCARetryAndTerminateOngoingSession", NULL },
+  { 20, &hf_gprscdr_ServiceConditionChangeV750_dCCATerminateOngoingSession, -1, -1, "dCCATerminateOngoingSession", NULL },
+  { 21, &hf_gprscdr_ServiceConditionChangeV750_cGI_SAIChange, -1, -1, "cGI-SAIChange", NULL },
+  { 22, &hf_gprscdr_ServiceConditionChangeV750_rAIChange, -1, -1, "rAIChange", NULL },
+  { 23, &hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitExhausted, -1, -1, "dCCAServiceSpecificUnitExhausted", NULL },
+  { 24, &hf_gprscdr_ServiceConditionChangeV750_recordClosure, -1, -1, "recordClosure", NULL },
+  { 25, &hf_gprscdr_ServiceConditionChangeV750_timeLimit, -1, -1, "timeLimit", NULL },
+  { 26, &hf_gprscdr_ServiceConditionChangeV750_volumeLimit, -1, -1, "volumeLimit", NULL },
+  { 27, &hf_gprscdr_ServiceConditionChangeV750_serviceSpecificUnitLimit, -1, -1, "serviceSpecificUnitLimit", NULL },
+  { 28, &hf_gprscdr_ServiceConditionChangeV750_envelopeClosure, -1, -1, "envelopeClosure", NULL },
+  { 0, NULL, 0, 0, NULL, NULL }
+};
+
+static int
+dissect_gprscdr_ServiceConditionChangeV750(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    ServiceConditionChangeV750_bits, hf_index, ett_gprscdr_ServiceConditionChangeV750,
+                                    NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_AFChargingIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t T_flowNumber_sequence_of[1] = {
+  { &hf_gprscdr_flowNumber_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_gprscdr_INTEGER },
+};
+
+static int
+dissect_gprscdr_T_flowNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      T_flowNumber_sequence_of, hf_index, ett_gprscdr_T_flowNumber);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Flows_sequence[] = {
+  { &hf_gprscdr_mediaComponentNumber, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_flowNumber  , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_T_flowNumber },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_Flows(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Flows_sequence, hf_index, ett_gprscdr_Flows);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AFRecordInformation_sequence[] = {
+  { &hf_gprscdr_aFChargingIdentifier, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_AFChargingIdentifier },
+  { &hf_gprscdr_flows       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_Flows },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_AFRecordInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AFRecordInformation_sequence, hf_index, ett_gprscdr_AFRecordInformation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_AFRecordInformation_sequence_of[1] = {
+  { &hf_gprscdr_aFRecordInformation_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_AFRecordInformation },
+};
+
+static int
+dissect_gprscdr_SEQUENCE_OF_AFRecordInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_AFRecordInformation_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_AFRecordInformation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_TimeStamp_sequence_of[1] = {
+  { &hf_gprscdr_eventTimeStamps_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gprscdr_TimeStamp },
+};
+
+static int
+dissect_gprscdr_SEQUENCE_OF_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_TimeStamp_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_TimeStamp);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EventBasedChargingInformation_sequence[] = {
+  { &hf_gprscdr_numberOfEvents, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_eventTimeStamps, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_TimeStamp },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_EventBasedChargingInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   EventBasedChargingInformation_sequence, hf_index, ett_gprscdr_EventBasedChargingInformation);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_TimeQuotaType_vals[] = {
+  {   0, "dISCRETETIMEPERIOD" },
+  {   1, "cONTINUOUSTIMEPERIOD" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_TimeQuotaType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t TimeQuotaMechanism_sequence[] = {
+  { &hf_gprscdr_timeQuotaType, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeQuotaType },
+  { &hf_gprscdr_baseTimeInterval, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_TimeQuotaMechanism(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TimeQuotaMechanism_sequence, hf_index, ett_gprscdr_TimeQuotaMechanism);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ChangeOfServiceConditionV750_sequence[] = {
+  { &hf_gprscdr_ratingGroup , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_RatingGroupId },
+  { &hf_gprscdr_chargingRuleBaseName, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingRuleBaseName },
+  { &hf_gprscdr_resultCode  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ResultCode },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_timeOfFirstUsage, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_timeOfLastUsage, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_timeUsage   , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_serviceConditionChangeV750, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_gprscdr_ServiceConditionChangeV750 },
+  { &hf_gprscdr_qoSInformationNeg, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
+  { &hf_gprscdr_sgsn_Address, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_sGSNPLMNIdentifier, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_datavolumeFBCUplink, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
+  { &hf_gprscdr_datavolumeFBCDownlink, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
+  { &hf_gprscdr_timeOfReport, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_failureHandlingContinue, BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_FailureHandlingContinue },
+  { &hf_gprscdr_serviceIdentifier, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ServiceIdentifier },
+  { &hf_gprscdr_pSFurnishChargingInformation, BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PSFurnishChargingInformation },
+  { &hf_gprscdr_aFRecordInformation, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_AFRecordInformation },
+  { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_eventBasedChargingInformation, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_EventBasedChargingInformation },
+  { &hf_gprscdr_timeQuotaMechanism, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeQuotaMechanism },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_ChangeOfServiceConditionV750(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ChangeOfServiceConditionV750_sequence, hf_index, ett_gprscdr_ChangeOfServiceConditionV750);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_ChangeOfServiceConditionV750_sequence_of[1] = {
+  { &hf_gprscdr_listOfServiceData_item_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_ChangeOfServiceConditionV750 },
+};
+
+static int
+dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV750(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_ChangeOfServiceConditionV750_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV750);
+
+  return offset;
+}
+
+
+static const ber_sequence_t EGSNPDPRecordV750_set[] = {
+  { &hf_gprscdr_recordType  , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_CallEventRecordType },
+  { &hf_gprscdr_networkInitiation, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NetworkInitiatedPDPContext },
+  { &hf_gprscdr_servedIMSI  , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { &hf_gprscdr_ggsnAddress , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
+  { &hf_gprscdr_chargingID  , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
+  { &hf_gprscdr_sgsnAddress , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_GSNAddress },
+  { &hf_gprscdr_accessPointNameNI, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AccessPointNameNI },
+  { &hf_gprscdr_pdpType     , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PDPType },
+  { &hf_gprscdr_servedPDPAddress, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_PDPAddress },
+  { &hf_gprscdr_dynamicAddressFlag, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DynamicAddressFlag },
+  { &hf_gprscdr_listOfTrafficVolumes, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651 },
+  { &hf_gprscdr_recordOpeningTime, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_duration    , BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_gprscdr_CallDuration },
+  { &hf_gprscdr_causeForRecClosing, BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_gprscdr_CauseForRecClosingV651 },
+  { &hf_gprscdr_diagnostics , BER_CLASS_CON, 16, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_Diagnostics },
+  { &hf_gprscdr_recordSequenceNumber, BER_CLASS_CON, 17, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_nodeID      , BER_CLASS_CON, 18, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NodeID },
+  { &hf_gprscdr_recordExtensions, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ManagementExtensions },
+  { &hf_gprscdr_localSequenceNumber, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_LocalSequenceNumber },
+  { &hf_gprscdr_apnSelectionMode, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNSelectionMode },
+  { &hf_gprscdr_servedMSISDN, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSISDN },
+  { &hf_gprscdr_chargingCharacteristics, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingCharacteristics },
+  { &hf_gprscdr_chChSelectionMode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChChSelectionMode },
+  { &hf_gprscdr_iMSsignalingContext, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NULL },
+  { &hf_gprscdr_externalChargingID, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_sgsnPLMNIdentifier, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_pSFurnishChargingInformation, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PSFurnishChargingInformation },
+  { &hf_gprscdr_servedIMEISV, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
+  { &hf_gprscdr_rATType     , BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_mSTimeZone  , BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSTimeZone },
+  { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_cAMELChargingInformation, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_listOfServiceData_01, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV750 },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_EGSNPDPRecordV750(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              EGSNPDPRecordV750_set, hf_index, ett_gprscdr_EGSNPDPRecordV750);
 
   return offset;
 }
@@ -2619,131 +2969,6 @@ dissect_gprscdr_ServiceConditionChange(gboolean implicit_tag _U_, tvbuff_t *tvb 
 }
 
 
-
-static int
-dissect_gprscdr_AFChargingIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t T_flowNumber_sequence_of[1] = {
-  { &hf_gprscdr_flowNumber_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_gprscdr_INTEGER },
-};
-
-static int
-dissect_gprscdr_T_flowNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      T_flowNumber_sequence_of, hf_index, ett_gprscdr_T_flowNumber);
-
-  return offset;
-}
-
-
-static const ber_sequence_t Flows_sequence[] = {
-  { &hf_gprscdr_mediaComponentNumber, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
-  { &hf_gprscdr_flowNumber  , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_T_flowNumber },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_Flows(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   Flows_sequence, hf_index, ett_gprscdr_Flows);
-
-  return offset;
-}
-
-
-static const ber_sequence_t AFRecordInformation_sequence[] = {
-  { &hf_gprscdr_aFChargingIdentifier, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_AFChargingIdentifier },
-  { &hf_gprscdr_flows       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_Flows },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_AFRecordInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AFRecordInformation_sequence, hf_index, ett_gprscdr_AFRecordInformation);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SEQUENCE_OF_AFRecordInformation_sequence_of[1] = {
-  { &hf_gprscdr_aFRecordInformation_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_AFRecordInformation },
-};
-
-static int
-dissect_gprscdr_SEQUENCE_OF_AFRecordInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_AFRecordInformation_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_AFRecordInformation);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SEQUENCE_OF_TimeStamp_sequence_of[1] = {
-  { &hf_gprscdr_eventTimeStamps_item, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_gprscdr_TimeStamp },
-};
-
-static int
-dissect_gprscdr_SEQUENCE_OF_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_TimeStamp_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_TimeStamp);
-
-  return offset;
-}
-
-
-static const ber_sequence_t EventBasedChargingInformation_sequence[] = {
-  { &hf_gprscdr_numberOfEvents, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
-  { &hf_gprscdr_eventTimeStamps, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_TimeStamp },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_EventBasedChargingInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   EventBasedChargingInformation_sequence, hf_index, ett_gprscdr_EventBasedChargingInformation);
-
-  return offset;
-}
-
-
-static const value_string gprscdr_TimeQuotaType_vals[] = {
-  {   0, "dISCRETETIMEPERIOD" },
-  {   1, "cONTINUOUSTIMEPERIOD" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gprscdr_TimeQuotaType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TimeQuotaMechanism_sequence[] = {
-  { &hf_gprscdr_timeQuotaType, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeQuotaType },
-  { &hf_gprscdr_baseTimeInterval, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_TimeQuotaMechanism(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TimeQuotaMechanism_sequence, hf_index, ett_gprscdr_TimeQuotaMechanism);
-
-  return offset;
-}
-
-
 static const ber_sequence_t SEQUENCE_OF_ServiceSpecificInfo_sequence_of[1] = {
   { &hf_gprscdr_serviceSpecificInfo_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_ServiceSpecificInfo },
 };
@@ -2808,7 +3033,7 @@ dissect_gprscdr_ChangeOfServiceCondition(gboolean implicit_tag _U_, tvbuff_t *tv
 
 
 static const ber_sequence_t SEQUENCE_OF_ChangeOfServiceCondition_sequence_of[1] = {
-  { &hf_gprscdr_listOfServiceData_item_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_ChangeOfServiceCondition },
+  { &hf_gprscdr_listOfServiceData_item_02, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_ChangeOfServiceCondition },
 };
 
 static int
@@ -2866,7 +3091,7 @@ static const ber_sequence_t PGWRecord_set[] = {
   { &hf_gprscdr_mSTimeZone  , BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSTimeZone },
   { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
   { &hf_gprscdr_cAMELChargingInformation, BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
-  { &hf_gprscdr_listOfServiceData_01, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition },
+  { &hf_gprscdr_listOfServiceData_02, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition },
   { &hf_gprscdr_servingNodeType, BER_CLASS_CON, 35, BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ServingNodeType },
   { &hf_gprscdr_servedMNNAI , BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SubscriptionID },
   { &hf_gprscdr_p_GWPLMNIdentifier, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
@@ -2970,7 +3195,7 @@ static const ber_sequence_t TDFRecord_set[] = {
   { &hf_gprscdr_rATType     , BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
   { &hf_gprscdr_mSTimeZone  , BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MSTimeZone },
   { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
-  { &hf_gprscdr_listOfServiceData_01, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition },
+  { &hf_gprscdr_listOfServiceData_02, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition },
   { &hf_gprscdr_servingNodeType, BER_CLASS_CON, 35, BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ServingNodeType },
   { &hf_gprscdr_servedMNNAI , BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SubscriptionID },
   { &hf_gprscdr_p_GWPLMNIdentifier, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
@@ -3028,7 +3253,7 @@ static const ber_sequence_t IPERecord_set[] = {
   { &hf_gprscdr_chChSelectionMode, BER_CLASS_CON, 24, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChChSelectionMode },
   { &hf_gprscdr_pSFurnishChargingInformation, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PSFurnishChargingInformation },
   { &hf_gprscdr_servedIMEI  , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
-  { &hf_gprscdr_listOfServiceData_01, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition },
+  { &hf_gprscdr_listOfServiceData_02, BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition },
   { &hf_gprscdr_servedMNNAI , BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SubscriptionID },
   { &hf_gprscdr_iPEdgeOperatorIdentifier, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
   { &hf_gprscdr_startTime   , BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
@@ -3102,8 +3327,10 @@ dissect_gprscdr_EPDGRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 const value_string gprscdr_GPRSRecord_vals[] = {
   {  20, "sgsnPDPRecord" },
   {  22, "sgsnMMRecord" },
+  {  21, "ggsnPDPRecord" },
   {  23, "sgsnSMORecord" },
   {  24, "sgsnSMTRecord" },
+  {  70, "egsnPDPRecord" },
   {  78, "sGWRecord" },
   {  79, "pGWRecord" },
   {  92, "tDFRecord" },
@@ -3115,8 +3342,10 @@ const value_string gprscdr_GPRSRecord_vals[] = {
 static const ber_choice_t GPRSRecord_choice[] = {
   {  20, &hf_gprscdr_sgsnPDPRecord_01, BER_CLASS_CON, 20, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNPDPRecord },
   {  22, &hf_gprscdr_sgsnMMRecord, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNMMRecord },
+  {  21, &hf_gprscdr_ggsnPDPRecord_01, BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_gprscdr_GGSNPDPRecordV750 },
   {  23, &hf_gprscdr_sgsnSMORecord_01, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNSMORecord },
   {  24, &hf_gprscdr_sgsnSMTRecord_01, BER_CLASS_CON, 24, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNSMTRecord },
+  {  70, &hf_gprscdr_egsnPDPRecord, BER_CLASS_CON, 70, BER_FLAGS_IMPLTAG, dissect_gprscdr_EGSNPDPRecord },
   {  78, &hf_gprscdr_sGWRecord   , BER_CLASS_CON, 78, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGWRecord },
   {  79, &hf_gprscdr_pGWRecord   , BER_CLASS_CON, 79, BER_FLAGS_IMPLTAG, dissect_gprscdr_PGWRecord },
   {  92, &hf_gprscdr_tDFRecord   , BER_CLASS_CON, 92, BER_FLAGS_IMPLTAG, dissect_gprscdr_TDFRecord },
@@ -3489,6 +3718,14 @@ proto_register_gprscdr(void)
       { "cAMELChargingInformation", "gprscdr.cAMELChargingInformation",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
+    { &hf_gprscdr_recordType_01,
+      { "recordType", "gprscdr.recordType",
+        FT_INT32, BASE_DEC, VALS(gprscdr_RecordType_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_causeForRecClosing_01,
+      { "causeForRecClosing", "gprscdr.causeForRecClosing",
+        FT_INT32, BASE_DEC, VALS(gprscdr_CauseForRecClosing_vals), 0,
+        NULL, HFILL }},
     { &hf_gprscdr_pSFurnishChargingInformation,
       { "pSFurnishChargingInformation", "gprscdr.pSFurnishChargingInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3499,6 +3736,14 @@ proto_register_gprscdr(void)
         "SEQUENCE_OF_ChangeOfServiceConditionV651", HFILL }},
     { &hf_gprscdr_listOfServiceData_item,
       { "ChangeOfServiceConditionV651", "gprscdr.ChangeOfServiceConditionV651_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_listOfServiceData_01,
+      { "listOfServiceData", "gprscdr.listOfServiceData",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_ChangeOfServiceConditionV750", HFILL }},
+    { &hf_gprscdr_listOfServiceData_item_01,
+      { "ChangeOfServiceConditionV750", "gprscdr.ChangeOfServiceConditionV750_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_servedIMEI,
@@ -3601,6 +3846,10 @@ proto_register_gprscdr(void)
       { "changeTime", "gprscdr.changeTime",
         FT_BYTES, BASE_NONE, NULL, 0,
         "TimeStamp", HFILL }},
+    { &hf_gprscdr_failureHandlingContinue,
+      { "failureHandlingContinue", "gprscdr.failureHandlingContinue",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_ratingGroup,
       { "ratingGroup", "gprscdr.ratingGroup",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -3653,18 +3902,38 @@ proto_register_gprscdr(void)
       { "timeOfReport", "gprscdr.timeOfReport",
         FT_BYTES, BASE_NONE, NULL, 0,
         "TimeStamp", HFILL }},
-    { &hf_gprscdr_failureHandlingContinue,
-      { "failureHandlingContinue", "gprscdr.failureHandlingContinue",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_gprscdr_serviceIdentifier,
       { "serviceIdentifier", "gprscdr.serviceIdentifier",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_serviceConditionChangeV750,
+      { "serviceConditionChangeV750", "gprscdr.serviceConditionChangeV750",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_aFRecordInformation,
+      { "aFRecordInformation", "gprscdr.aFRecordInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_AFRecordInformation", HFILL }},
+    { &hf_gprscdr_aFRecordInformation_item,
+      { "AFRecordInformation", "gprscdr.AFRecordInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_eventBasedChargingInformation,
+      { "eventBasedChargingInformation", "gprscdr.eventBasedChargingInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_timeQuotaMechanism,
+      { "timeQuotaMechanism", "gprscdr.timeQuotaMechanism_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_sgsnPDPRecord_01,
       { "sgsnPDPRecord", "gprscdr.sgsnPDPRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gprscdr_ggsnPDPRecord_01,
+      { "ggsnPDPRecord", "gprscdr.ggsnPDPRecord_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GGSNPDPRecordV750", HFILL }},
     { &hf_gprscdr_sgsnSMORecord_01,
       { "sgsnSMORecord", "gprscdr.sgsnSMORecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -3693,10 +3962,6 @@ proto_register_gprscdr(void)
       { "ePDGRecord", "gprscdr.ePDGRecord_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_gprscdr_recordType_01,
-      { "recordType", "gprscdr.recordType",
-        FT_INT32, BASE_DEC, VALS(gprscdr_RecordType_vals), 0,
-        NULL, HFILL }},
     { &hf_gprscdr_s_GWAddress,
       { "s-GWAddress", "gprscdr.s_GWAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
@@ -3724,10 +3989,6 @@ proto_register_gprscdr(void)
     { &hf_gprscdr_listOfTrafficVolumes_item_01,
       { "ChangeOfCharCondition", "gprscdr.ChangeOfCharCondition_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_gprscdr_causeForRecClosing_01,
-      { "causeForRecClosing", "gprscdr.causeForRecClosing",
-        FT_INT32, BASE_DEC, VALS(gprscdr_CauseForRecClosing_vals), 0,
         NULL, HFILL }},
     { &hf_gprscdr_servingNodePLMNIdentifier,
       { "servingNodePLMNIdentifier", "gprscdr.servingNodePLMNIdentifier",
@@ -3829,11 +4090,11 @@ proto_register_gprscdr(void)
       { "p-GWAddress", "gprscdr.p_GWAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
         "GSNAddress", HFILL }},
-    { &hf_gprscdr_listOfServiceData_01,
+    { &hf_gprscdr_listOfServiceData_02,
       { "listOfServiceData", "gprscdr.listOfServiceData",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_OF_ChangeOfServiceCondition", HFILL }},
-    { &hf_gprscdr_listOfServiceData_item_01,
+    { &hf_gprscdr_listOfServiceData_item_02,
       { "ChangeOfServiceCondition", "gprscdr.ChangeOfServiceCondition_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -4041,22 +4302,6 @@ proto_register_gprscdr(void)
       { "qoSInformationNeg", "gprscdr.qoSInformationNeg_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "EPCQoSInformation", HFILL }},
-    { &hf_gprscdr_aFRecordInformation,
-      { "aFRecordInformation", "gprscdr.aFRecordInformation",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_OF_AFRecordInformation", HFILL }},
-    { &hf_gprscdr_aFRecordInformation_item,
-      { "AFRecordInformation", "gprscdr.AFRecordInformation_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_gprscdr_eventBasedChargingInformation,
-      { "eventBasedChargingInformation", "gprscdr.eventBasedChargingInformation_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_gprscdr_timeQuotaMechanism,
-      { "timeQuotaMechanism", "gprscdr.timeQuotaMechanism_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_gprscdr_serviceSpecificInfo,
       { "serviceSpecificInfo", "gprscdr.serviceSpecificInfo",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4281,6 +4526,122 @@ proto_register_gprscdr(void)
       { "terminateOngoingSession", "gprscdr.terminateOngoingSession",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_qoSChange,
+      { "qoSChange", "gprscdr.qoSChange",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_sGSNChange,
+      { "sGSNChange", "gprscdr.sGSNChange",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_sGSNPLMNIDChange,
+      { "sGSNPLMNIDChange", "gprscdr.sGSNPLMNIDChange",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_tariffTimeSwitch,
+      { "tariffTimeSwitch", "gprscdr.tariffTimeSwitch",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_pDPContextRelease,
+      { "pDPContextRelease", "gprscdr.pDPContextRelease",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_rATChange,
+      { "rATChange", "gprscdr.rATChange",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_serviceIdledOut,
+      { "serviceIdledOut", "gprscdr.serviceIdledOut",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_reserved,
+      { "reserved", "gprscdr.reserved",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_configurationChange,
+      { "configurationChange", "gprscdr.configurationChange",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_serviceStop,
+      { "serviceStop", "gprscdr.serviceStop",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCATimeThresholdReached,
+      { "dCCATimeThresholdReached", "gprscdr.dCCATimeThresholdReached",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeThresholdReached,
+      { "dCCAVolumeThresholdReached", "gprscdr.dCCAVolumeThresholdReached",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitThresholdReached,
+      { "dCCAServiceSpecificUnitThresholdReached", "gprscdr.dCCAServiceSpecificUnitThresholdReached",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCATimeExhausted,
+      { "dCCATimeExhausted", "gprscdr.dCCATimeExhausted",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeExhausted,
+      { "dCCAVolumeExhausted", "gprscdr.dCCAVolumeExhausted",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCAValidityTimeout,
+      { "dCCAValidityTimeout", "gprscdr.dCCAValidityTimeout",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_reserved2,
+      { "reserved2", "gprscdr.reserved2",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCAReauthorisationRequest,
+      { "dCCAReauthorisationRequest", "gprscdr.dCCAReauthorisationRequest",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCAContinueOngoingSession,
+      { "dCCAContinueOngoingSession", "gprscdr.dCCAContinueOngoingSession",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCARetryAndTerminateOngoingSession,
+      { "dCCARetryAndTerminateOngoingSession", "gprscdr.dCCARetryAndTerminateOngoingSession",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCATerminateOngoingSession,
+      { "dCCATerminateOngoingSession", "gprscdr.dCCATerminateOngoingSession",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_cGI_SAIChange,
+      { "cGI-SAIChange", "gprscdr.cGI-SAIChange",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_rAIChange,
+      { "rAIChange", "gprscdr.rAIChange",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitExhausted,
+      { "dCCAServiceSpecificUnitExhausted", "gprscdr.dCCAServiceSpecificUnitExhausted",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_recordClosure,
+      { "recordClosure", "gprscdr.recordClosure",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_timeLimit,
+      { "timeLimit", "gprscdr.timeLimit",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_volumeLimit,
+      { "volumeLimit", "gprscdr.volumeLimit",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_serviceSpecificUnitLimit,
+      { "serviceSpecificUnitLimit", "gprscdr.serviceSpecificUnitLimit",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV750_envelopeClosure,
+      { "envelopeClosure", "gprscdr.envelopeClosure",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
     { &hf_gprscdr_ServiceConditionChange_qoSChange,
       { "qoSChange", "gprscdr.qoSChange",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -4439,14 +4800,20 @@ proto_register_gprscdr(void)
     &ett_gprscdr_GGSNPDPRecord,
     &ett_gprscdr_SEQUENCE_OF_GSNAddress,
     &ett_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651,
+    &ett_gprscdr_GGSNPDPRecordV750,
     &ett_gprscdr_EGSNPDPRecord,
     &ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV651,
+    &ett_gprscdr_EGSNPDPRecordV750,
+    &ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV750,
     &ett_gprscdr_SGSNPDPRecordV651,
     &ett_gprscdr_SGSNSMORecordV651,
     &ett_gprscdr_SGSNSMTRecordV651,
     &ett_gprscdr_ChangeOfCharConditionV651,
     &ett_gprscdr_ChangeOfServiceConditionV651,
+    &ett_gprscdr_ChangeOfServiceConditionV750,
+    &ett_gprscdr_SEQUENCE_OF_AFRecordInformation,
     &ett_gprscdr_ServiceConditionChangeV651,
+    &ett_gprscdr_ServiceConditionChangeV750,
     &ett_gprscdr_GPRSRecord,
     &ett_gprscdr_SGWRecord,
     &ett_gprscdr_SEQUENCE_OF_ChangeOfCharCondition,
@@ -4468,7 +4835,6 @@ proto_register_gprscdr(void)
     &ett_gprscdr_CAMELInformationSMS,
     &ett_gprscdr_ChangeOfCharCondition,
     &ett_gprscdr_ChangeOfServiceCondition,
-    &ett_gprscdr_SEQUENCE_OF_AFRecordInformation,
     &ett_gprscdr_SEQUENCE_OF_ServiceSpecificInfo,
     &ett_gprscdr_ChangeLocation,
     &ett_gprscdr_EPCQoSInformation,
