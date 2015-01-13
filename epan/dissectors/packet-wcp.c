@@ -108,9 +108,10 @@
 #include <epan/etypes.h>
 #include <epan/nlpid.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 
 #define MAX_WIN_BUF_LEN 0x7fff		/* storage size for decompressed data */
-#define MAX_WCP_BUF_LEN 2048		/* storage size for decompressed data */
+#define MAX_WCP_BUF_LEN 2048		/* storage size for compressed data */
 #define FROM_DCE	0x80		/* for direction setting */
 
 void proto_register_wcp(void);
@@ -397,25 +398,13 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 
-static guint8 *decompressed_entry( guint8 *src, guint8 *dst, int *len, guint8 * buf_start, guint8 *buf_end){
+static guint8 *
+decompressed_entry(guint8 *dst, guint16 data_offset,
+    guint16 data_cnt, int *len, guint8 * buf_start, guint8 *buf_end)
+{
+	const guint8 *src;
 
 /* do the decompression for one field */
-
-	guint16 data_offset, data_cnt;
-	guint8 tmp = *src;
-
-	data_offset = (*(src++) & 0xf) << 8;	/* get high byte */
-	data_offset += *(src++);		/* add next byte */
-
-	if (( tmp & 0xf0) == 0x10){		/* 2 byte count */
-		data_cnt = *src;
-		data_cnt++;
-
-	}else {					/* one byte count */
-		data_cnt = tmp >> 4;
-		data_cnt++;
-	}
-
 
 	src = (dst - 1 - data_offset);
 	if ( src < buf_start)
@@ -480,6 +469,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	int cnt = tvb_reported_length( src_tvb)-1;	/* don't include check byte */
 
 	guint8 *dst, *src, *buf_start, *buf_end, comp_flag_bits = 0;
+	guint16 data_offset, data_cnt;
 	guint8 src_buf[ MAX_WCP_BUF_LEN];
 	tvbuff_t *tvb;
 	wcp_window_t *buf_ptr = 0;
@@ -500,32 +490,56 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 		return NULL;
 	}
 
+	/*
+	 * XXX - this will thow an exception if a snapshot length cut short
+	 * the data.  We may want to try to dissect the data in that case,
+	 * and we may even want to try to decompress it, *but* we will
+	 * want to mark the buffer of decompressed data as incomplete, so
+	 * that we don't try to use it for decompressing later packets.
+	 */
 	src = (guint8 *)tvb_memcpy(src_tvb, src_buf, offset, cnt - offset);
 	dst = buf_ptr->buf_cur;
 	len = 0;
 	i = -1;
 
 	while( offset < cnt){
-
+		/* There are i bytes left for this byte of flag bits */
 		if ( --i >= 0){
-			if ( comp_flag_bits & 0x80){	/* if this is a compressed entry */
-
-				if ( !pinfo->fd->flags.visited){	/* if first pass */
-					dst = decompressed_entry( src, dst, &len, buf_start, buf_end);
-					if (dst == NULL){
-						expert_add_info_format(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
-							"Uncompressed data exceeds maximum buffer length (%d > %d)",
-							len, MAX_WCP_BUF_LEN);
-						return NULL;
-					}
+			/*
+			 * There's still at least one more byte left for
+			 * the current set of compression flag bits; is
+			 * it compressed data or uncompressed data?
+			 */
+			if ( comp_flag_bits & 0x80){
+				/* This byte is compressed data */
+				if (!(offset + 1 < cnt)) {
+					/*
+					 * The data offset runs past the
+					 * end of the data.
+					 */
+					THROW(ReportedBoundsError);
 				}
+				data_offset = pntoh16(src) & WCP_OFFSET_MASK;
 				if ((*src & 0xf0) == 0x10){
+					/*
+					 * The count of bytes to copy from
+					 * the dictionary window is in the
+					 * byte following the data offset.
+					 */
+					if (!(offset + 2 < cnt)) {
+						/*
+						 * The data count runs past the
+						 * end of the data.
+						 */
+						THROW(ReportedBoundsError);
+					}
+					data_cnt = *(src + 2) + 1;
 					if ( tree) {
 						ti = proto_tree_add_item( cd_tree, hf_wcp_long_run, src_tvb,
 							 offset, 3, ENC_NA);
 						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
-							 offset, 2, pntoh16(src));
+							 offset, 2, data_offset);
 
 						proto_tree_add_item( sub_tree, hf_wcp_long_len, src_tvb,
 							 offset+2, 1, ENC_BIG_ENDIAN);
@@ -533,6 +547,13 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 					src += 3;
 					offset += 3;
 				}else{
+					/*
+					 * The count of bytes to copy from
+					 * the dictionary window is in
+					 * the upper 4 bits of the next
+					 * byte.
+					 */
+					data_cnt = (*src >> 4) + 1;
 					if ( tree) {
 						ti = proto_tree_add_item( cd_tree, hf_wcp_short_run, src_tvb,
 							 offset, 2, ENC_NA);
@@ -540,20 +561,42 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 						proto_tree_add_uint( sub_tree, hf_wcp_short_len, src_tvb,
 							 offset, 1, *src);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
-							 offset, 2, pntoh16(src));
+							 offset, 2, data_offset);
 					}
 					src += 2;
 					offset += 2;
 				}
+				if ( !pinfo->fd->flags.visited){	/* if first pass */
+					dst = decompressed_entry(dst,
+					    data_offset, data_cnt, &len,
+					    buf_start, buf_end);
+					if (dst == NULL){
+						expert_add_info_format(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
+							"Uncompressed data exceeds maximum buffer length (%d > %d)",
+							len, MAX_WCP_BUF_LEN);
+						return NULL;
+					}
+				}
 			}else {
+				/*
+				 * This byte is uncompressed data; is there
+				 * room for it in the buffer of uncompressed
+				 * data?
+				 */
 				if ( ++len >MAX_WCP_BUF_LEN){
+					/* No - report an error. */
 					expert_add_info_format(pinfo, cd_item, &ei_wcp_uncompressed_data_exceeds,
 						"Uncompressed data exceeds maximum buffer length (%d > %d)",
 						len, MAX_WCP_BUF_LEN);
 					return NULL;
 				}
 
-				if ( !pinfo->fd->flags.visited){	/* if first pass */
+				if ( !pinfo->fd->flags.visited){
+					/*
+					 * This is the first pass through
+					 * the packets, so copy it to the
+					 * buffer of unco,pressed data.
+					 */
 					*dst = *src;
 					if ( dst++ == buf_end)
 						dst = buf_start;
@@ -562,10 +605,15 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 				++offset;
 			}
 
+			/* Skip to the next compression flag bit */
 			comp_flag_bits <<= 1;
 
-		}else {	/* compressed data flag */
-
+		}else {
+			/*
+			 * There are no more bytes left for the current
+			 * set of compression flag bits, so this byte
+			 * is another byte of compression flag bits.
+			 */
 			comp_flag_bits = *src++;
 			if (cd_tree)
 				proto_tree_add_uint(cd_tree, hf_wcp_comp_bits,  src_tvb, offset, 1,
