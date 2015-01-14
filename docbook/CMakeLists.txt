@@ -19,11 +19,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-find_package( FOP ) # Call before XSLTPROC
 find_package( LYNX )
 find_package( XSLTPROC )
 find_package( XMLLINT )
-find_package( HTMLHelp )
+if(ENABLE_CHM_GUIDES)
+	find_package( HTMLHelp )
+endif()
 
 find_package( ASCIIDOC )
 

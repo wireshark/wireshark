@@ -3,11 +3,17 @@
 # This module looks for some usual Unix commands.
 #
 
-INCLUDE(FindCygwin)
+include(FindCygwin)
 
-FIND_PACKAGE(SED)
+if(ENABLE_PDF_GUIDES)
+    find_package(FOP)
+endif()
 
-FIND_PROGRAM(XSLTPROC_EXECUTABLE
+if(ENABLE_CHM_GUIDES)
+    find_package(SED)
+endif()
+
+find_program(XSLTPROC_EXECUTABLE
   NAMES
     xsltproc
   PATHS
@@ -72,11 +78,11 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
     IF(${_mode} STREQUAL "chunked")
         SET(_basedir ${_guide}_html_chunked)
         SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl")
-	SET(_modeparams --noout)
+        SET(_modeparams --noout)
     ELSE() # single-page
         SET(_basedir ${_guide}_html)
         SET(_STYLESHEET "http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl")
-	SET(_modeparams --output ${_basedir}/index.html)
+        SET(_modeparams --output ${_basedir}/index.html)
     ENDIF()
 
     SET(_outdir ${CMAKE_CURRENT_BINARY_DIR}/${_basedir})
@@ -115,7 +121,7 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
             --stringparam base.dir ${_basedir}/
-	    ${_common_xsltproc_args}
+            ${_common_xsltproc_args}
             --stringparam admon.graphics.path ${_gfxdir}/
             ${_modeparams}
             ${_STYLESHEET}
@@ -183,29 +189,29 @@ MACRO(XML2HHP _guide _docbooksource)
     ADD_CUSTOM_COMMAND(
         OUTPUT
             ${_output_hhp}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_basedir}/${_gfxdir}
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_basedir}/${_gfxdir}
-	# HTML Help doesn't render decimal character entities in the title.
-	COMMAND ${SED_EXECUTABLE}
-	    -e "s|er&#8217;s Guide</title>|er's Guide</title>|"
-	    < ${_docbooksource}
-	    > ${_docbook_plain_title}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_basedir}/${_gfxdir}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_basedir}/${_gfxdir}
+        # HTML Help doesn't render decimal character entities in the title.
+        COMMAND ${SED_EXECUTABLE}
+            -e "s|er&#8217;s Guide</title>|er's Guide</title>|"
+            < ${_docbooksource}
+            > ${_docbook_plain_title}
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
             --stringparam base.dir ${_basedir}/
-	    --stringparam htmlhelp.chm ${_output_chm}
-	    --stringparam htmlhelp.hhp ${_output_hhp}
-	    --stringparam htmlhelp.hhc ${_output_toc_hhc}
-	    ${_common_xsltproc_args}
+            --stringparam htmlhelp.chm ${_output_chm}
+            --stringparam htmlhelp.hhp ${_output_hhp}
+            --stringparam htmlhelp.hhc ${_output_toc_hhc}
+            ${_common_xsltproc_args}
             --stringparam admon.graphics.path ${_gfxdir}/
-	    --nonet custom_layer_chm.xsl
-	    ${_docbook_plain_title}
+            --nonet custom_layer_chm.xsl
+            ${_docbook_plain_title}
         DEPENDS
-	    # AsciiDoc uses UTF-8 by default, which is unsupported by HTML
-	    # Help. We may want to render an ISO-8859-1 version, or get rid
-	    # of HTML Help.
+            # AsciiDoc uses UTF-8 by default, which is unsupported by HTML
+            # Help. We may want to render an ISO-8859-1 version, or get rid
+            # of HTML Help.
             ${_docbooksource}
     )
 ENDMACRO(XML2HHP)
