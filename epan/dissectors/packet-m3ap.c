@@ -586,7 +586,7 @@ dissect_m3ap_Absolute_Time_ofMBMS_Data(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_length(parameter_tvb);
+  tvb_len = tvb_reported_length(parameter_tvb);
 
   time_str = tvb_ntp_fmt_ts(parameter_tvb, 0);
   proto_tree_add_string(tree, hf_m3ap_Absolute_Time_ofMBMS_Data_value, parameter_tvb, 0, tvb_len, time_str);
@@ -880,7 +880,7 @@ dissect_m3ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 	if (!parameter_tvb)
 		return offset;
-	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
+	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, E212_NONE, FALSE);
 
 
   return offset;
@@ -954,7 +954,7 @@ dissect_m3ap_IPAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_length(parameter_tvb);
+  tvb_len = tvb_reported_length(parameter_tvb);
   proto_tree_add_item(tree, hf_m3ap_IPAddress, parameter_tvb, 0, tvb_len, ENC_NA);
 
 
@@ -1048,7 +1048,7 @@ dissect_m3ap_MBMS_Service_Area(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_length(parameter_tvb);
+  tvb_len = tvb_reported_length(parameter_tvb);
 
   dissect_gtpv2_mbms_service_area(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
 
@@ -1070,7 +1070,7 @@ dissect_m3ap_MBMS_Session_Duration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_length(parameter_tvb);
+  tvb_len = tvb_reported_length(parameter_tvb);
 
   proto_item_append_text(actx->created_item, " ");
   dissect_gtpv2_mbms_session_duration(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
@@ -1114,7 +1114,7 @@ dissect_m3ap_MinimumTimeToMBMSDataTransfer(tvbuff_t *tvb _U_, int offset _U_, as
   if (!parameter_tvb)
     return offset;
 
-  tvb_len = tvb_length(parameter_tvb);
+  tvb_len = tvb_reported_length(parameter_tvb);
   dissect_gtpv2_mbms_time_to_data_xfer(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
 
 

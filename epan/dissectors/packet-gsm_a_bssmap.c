@@ -1610,9 +1610,9 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
         /* FALLTHRU */
     case 0x0c:  /* For identification of a UTRAN cell for cell load information: */
         if (disc != 0x0b)
-            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
         else
-            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, FALSE);
+            curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, FALSE);
         /* FALLTHRU */
 
     case 0x01:

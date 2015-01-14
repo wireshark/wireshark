@@ -3256,7 +3256,7 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 		"Routing area identification: %x-%x-%u-%u",
 		mcc, mnc, lac, rac);
 
-	dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
+	dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, E212_RAI, TRUE);
 
 	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset+3, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(subtree, hf_gsm_a_gm_rac, tvb, curr_offset+5, 1, ENC_BIG_ENDIAN);
@@ -4275,7 +4275,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			{
 				if (e_len > 0) {
 					if (prot >= 0xff00) {
-						dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset, TRUE);
+						dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset, E212_NONE, TRUE);
 						if ((e_len - 3) > 0) {
 							proto_tree_add_item(pco_tree, hf_gsm_a_gm_pco_app_spec_info, tvb, curr_offset+3, e_len-3, ENC_NA);
 						}
@@ -5502,7 +5502,7 @@ de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	curr_offset += 3;
 
 	NO_MORE_DATA_CHECK(len);
-	curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, TRUE);
+	curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 

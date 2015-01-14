@@ -1142,7 +1142,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x13:	/* location information */
 			/* MCC/MNC / LAC / CellID */
-			dissect_e212_mcc_mnc(tvb, pinfo, elem_tree, pos, TRUE);
+			dissect_e212_mcc_mnc(tvb, pinfo, elem_tree, pos, E212_NONE, TRUE);
 			proto_tree_add_item(elem_tree, hf_ctlv_loci_lac, tvb, pos+3, 2, ENC_BIG_ENDIAN);
 			if (len == 5)
 				break;
@@ -1372,7 +1372,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x79:	/* PLMN list */
 			for (i = 0; i < len; i+=3) {
-				dissect_e212_mcc_mnc(tvb, pinfo, elem_tree, pos+3*i, TRUE);
+				dissect_e212_mcc_mnc(tvb, pinfo, elem_tree, pos+3*i, E212_NONE, TRUE);
 			}
 			break;
 		case 0x7a:/* Broadcast Network Information */

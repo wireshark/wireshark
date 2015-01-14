@@ -615,7 +615,7 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     proto_tree_add_item(sub_tree, hf_diameter_mbms_service_id, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset = offset+3;
-    offset = dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, offset, TRUE);
+    offset = dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, offset, E212_NONE, TRUE);
 
     return offset;
 

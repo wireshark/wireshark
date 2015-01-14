@@ -1319,7 +1319,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		octet = tvb_get_guint8(tvb,ie_offset);
 		ie_offset++;
 		if ( octet == 0 ){
-			ie_offset = dissect_e212_mcc_mnc(tvb, pinfo, urr_ie_tree, ie_offset, TRUE);
+			ie_offset = dissect_e212_mcc_mnc(tvb, pinfo, urr_ie_tree, ie_offset, E212_NONE, TRUE);
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 			/*ie_offset = ie_offset + 2;*/
 			/* The octets 9-12 are coded as shown in 3GPP TS 25.331, Table 'Cell identity'.
@@ -1636,7 +1636,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if ((octet & 0xf0) != 0 ){
 		proto_tree_add_text(uma_tree, tvb,offset,-1,"Skip this message");
-		return tvb_length(tvb);
+		return tvb_reported_length(tvb);
 	}
 
 	proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1671,7 +1671,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		break;
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static guint
@@ -1686,7 +1686,7 @@ dissect_uma_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, uma_desegment, UMA_HEADER_SIZE,
 	    get_uma_pdu_len, dissect_uma, data);
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
@@ -1712,7 +1712,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 	col_set_fence(pinfo->cinfo,COL_INFO);
-	msg_len = tvb_length_remaining(tvb,offset) - 1;
+	msg_len = tvb_reported_length_remaining(tvb,offset) - 1;
 
 	switch  ( octet ){
 
@@ -1731,7 +1731,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		return offset;
 	default:
 		proto_tree_add_text(uma_tree, tvb,offset,-1,"Wrong message type %u",octet);
-		return tvb_length(tvb);
+		return tvb_reported_length(tvb);
 
 	}
 

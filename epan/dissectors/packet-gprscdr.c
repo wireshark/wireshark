@@ -1732,7 +1732,7 @@ dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 	return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
- dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE);
+ dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
 
 
 

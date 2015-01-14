@@ -151,7 +151,7 @@ GPRSRecord
 	return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
- dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE);
+ dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
 
 #.FN_BODY GPRSRecord VAL_PTR = &branch_taken
 proto_item *item;

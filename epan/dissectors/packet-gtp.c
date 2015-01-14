@@ -3279,7 +3279,7 @@ decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
     ext_tree_rai = proto_tree_add_subtree(tree, tvb, offset, 1, ett_gtp_ies[GTP_EXT_RAI], NULL,
                             val_to_str_ext_const(GTP_EXT_RAI, &gtp_val_ext, "Unknown message"));
 
-    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree_rai, offset+1, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree_rai, offset+1, E212_RAI, TRUE);
     proto_tree_add_item(ext_tree_rai, hf_gtp_rai_lac, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree_rai, hf_gtp_rai_rac, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
 
@@ -5294,7 +5294,7 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
      *         octets 4-n. Also the optional "iE-Extensions" parameter shall not be included into the GTP IE.
      */
     /* Octet 4-6 MCC + MNC */
-    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, TRUE);
     offset+=3;
     /* Octet 7-8 LAC */
     proto_tree_add_item(ext_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -5729,7 +5729,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
              * registered. RAI is defined in sub-clause 4.2 of 3GPP TS 23.003
              * [2].
              */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_RAI, TRUE);
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
@@ -5740,7 +5740,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
              * Area Identity (TAI) of where the user currently is registered.
              * TAI is defined in sub-clause 8.21.4 of 3GPP TS 29.274.
              */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
@@ -5749,7 +5749,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
              * Global Identifier (ECGI) of where the user currently is registered.
              * ECGI is defined in sub-clause 8.21.5 of 3GPP TS 29.274.
              */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
@@ -5760,11 +5760,11 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
              * TAI is defined in sub-clause 8.21.4 of 3GPP TS 29.274.
              * ECGI is defined in sub-clause 8.21.5 of 3GPP TS 29.274.
              */
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
@@ -5828,7 +5828,7 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
              */
             rai_tree = proto_tree_add_subtree(ext_tree, tvb, offset + 1, 7, ett_gtp_uli_rai, NULL, "Routeing Area Identity (RAI)");
 
-            dissect_e212_mcc_mnc(tvb, pinfo, rai_tree, offset, TRUE);
+            dissect_e212_mcc_mnc(tvb, pinfo, rai_tree, offset, E212_RAI, TRUE);
             offset+=3;
             proto_tree_add_item(rai_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
@@ -6284,7 +6284,7 @@ decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, FALSE);
+    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, FALSE);
     return 3 + length;
 
 }

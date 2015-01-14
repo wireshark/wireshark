@@ -1430,7 +1430,7 @@ dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
                                    "Routing area identification: %x-%x-%u-%u",
                                    mcc, mnc, lac, rnc_id);
 
-    dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, E212_RAI, TRUE);
     curr_offset+=3;
 
     proto_tree_add_item(subtree, hf_gtpv2_lac,    tvb, curr_offset, 2, ENC_BIG_ENDIAN);
@@ -1490,7 +1490,7 @@ dissect_gtpv2_tgt_global_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                    "Routing area identification: %x-%x-%u-%u",
                                    mcc, mnc, lac, tgt_cell_id);
 
-    dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, E212_RAI, TRUE);
 
     proto_tree_add_item(subtree, hf_gtpv2_lac,           tvb, curr_offset + 3, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gtpv2_tgt_g_cell_id, tvb, curr_offset + 5, 2, ENC_BIG_ENDIAN);
@@ -1538,7 +1538,7 @@ dissect_gtpv2_sai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
      * 6 MNC digit 3 MCC digit 3
      * 7 MNC digit 2 MNC digit 1
      */
-    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_SAI, TRUE);
     offset += 3;
 
     /* The Location Area Code (LAC) consists of 2 octets. Bit 8 of Octet 8 is the most significant bit and bit 1 of Octet 9 the
@@ -2434,7 +2434,7 @@ dissect_gtpv2_g_cn_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto
 {
     int offset = 0;
 
-    dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, E212_NONE, TRUE);
     offset += 3;
 
     /* >CN-ID M INTEGER (0..4095) */
@@ -2653,7 +2653,7 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     guint16     tid;
     guint32     bit_offset;
 
-    dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, E212_NONE, TRUE);
     offset += 3;
 
     /* Append Trace ID to main tree */
@@ -3971,7 +3971,7 @@ dissect_gtpv2_guti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_it
 
     offset = 0;
 
-    dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, E212_NONE, TRUE);
     offset += 3;
 
     proto_tree_add_item(tree, hf_gtpv2_mme_grp_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4268,7 +4268,7 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     switch (target_type) {
     case 0:
         new_tvb = tvb_new_subset_remaining(tvb, offset);
-        dissect_e212_mcc_mnc(new_tvb, pinfo, tree, 0, TRUE);
+        dissect_e212_mcc_mnc(new_tvb, pinfo, tree, 0, E212_NONE, TRUE);
         offset += 3;
         /* LAC */
         proto_tree_add_item(tree, hf_gtpv2_lac,    tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -5063,7 +5063,7 @@ dissect_gtpv2_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     proto_tree_add_item(tree, hf_gtpv2_mbms_service_id, tvb, offset, 3, ENC_NA);
     offset += 3;
 
-    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
     offset += 3;
 
     if (length > offset)

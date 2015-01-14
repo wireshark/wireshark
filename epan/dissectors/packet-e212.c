@@ -2714,9 +2714,9 @@ dissect_e212_mcc_mnc_wmem_packet_str(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 int
-dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, gboolean little_endian)
+dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, e212_number_type_t number_type, gboolean little_endian)
 {
-    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, little_endian);
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, number_type, little_endian);
     return offset +3;
 }
 
