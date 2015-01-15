@@ -460,6 +460,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
     guint             i,j;
     gchar             *table_entry;
     guint             table_entry_uint;
+    gdouble           table_entry_double;
 
     GString           *CSV_str;
     GtkClipboard      *cb;
@@ -478,13 +479,19 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
     if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter)) {
         for (i=0; i<streams_nb; i++) {
             for (j=0; j<NUM_COLS-1; j++) {
-                if (j == RTP_COL_SRC_PORT || j == RTP_COL_DST_PORT || j == RTP_COL_PACKETS) {
+                //if (j == RTP_COL_SRC_PORT || j == RTP_COL_DST_PORT || j == RTP_COL_PACKETS) {
+                if (gtk_tree_model_get_column_type(GTK_TREE_MODEL(list_store), j) == G_TYPE_UINT) {
                     gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry_uint, -1);
                     g_string_append_printf(CSV_str, "\"%u\"", table_entry_uint);
-                } else {
+                } else if (gtk_tree_model_get_column_type(GTK_TREE_MODEL(list_store), j) == G_TYPE_DOUBLE) {
+                    gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry_double, -1);
+                    g_string_append_printf(CSV_str, "\"%f\"", table_entry_uint);
+                } else if (gtk_tree_model_get_column_type(GTK_TREE_MODEL(list_store), j) == G_TYPE_STRING) {
                     gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry, -1);
                     g_string_append_printf(CSV_str, "\"%s\"", table_entry);
                     g_free(table_entry);
+                } else {
+                    g_assert_not_reached();
                 }
                 if (j<NUM_COLS-2) g_string_append(CSV_str,",");
             }
