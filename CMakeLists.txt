@@ -70,7 +70,11 @@ foreach (_BT DEBUG RELEASE RELWITHDEBINFO SIZEREL)
 endforeach()
 
 message(STATUS "${CMAKE_BUILD_TYPE}: ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-#Where to put executables and libraries in the build tree
+
+# Where to put executables and libraries in the build tree
+# Note: Executables and libraries might end end up in a configuration
+# subdirectory, e.g. run/Debug or run/Release. We try to set DATAFILE_DIR
+# to a corresponding value below.
 if(NOT ARCHIVE_OUTPUT_PATH)
 	set(ARCHIVE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
 		   "Single output directory for building all archives.")
@@ -78,12 +82,12 @@ endif()
 if(NOT EXECUTABLE_OUTPUT_PATH)
 	set(EXECUTABLE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
 		   "Single output directory for building all executables.")
-	file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/extcap)
 endif()
 if(NOT LIBRARY_OUTPUT_PATH)
 	set(LIBRARY_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
 		   "Single output directory for building all libraries.")
 endif()
+
 # Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
 #Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
 include(CMakeInstallDirs)
@@ -492,7 +496,11 @@ set(GTHREAD2_REQUIRED TRUE)
 set(PythonInterp_FIND_VERSION 2)
 set(Python_ADDITIONAL_VERSIONS 3)
 set(YACC_REQUIRED TRUE)
-if (NOT WIN32)
+
+if (WIN32)
+	set(PACKAGELIST ${PACKAGELIST} PowerShell)
+	set(PowerShell_REQUIRED TRUE)
+else()
 	set(M_REQUIRED TRUE)
 endif()
 
@@ -642,6 +650,8 @@ foreach(PACKAGE ${PACKAGELIST})
 		set(PACKAGE_VAR "HTML_VIEWER")
 	elseif(${PACKAGE} STREQUAL "Perl")
 		set(PACKAGE_VAR "PERL")
+	elseif(${PACKAGE} STREQUAL "PowerShell")
+		set(PACKAGE_VAR "POWERSHELL")
 	else()
 		set(PACKAGE_VAR ${PACKAGE})
 	endif()
@@ -781,8 +791,6 @@ include(ConfigureChecks.cmake)
 include(TestBigEndian)
 test_big_endian(WORDS_BIGENDIAN)
 
-set(DATAFILE_DIR "${CMAKE_INSTALL_PREFIX}/share/${CPACK_PACKAGE_NAME}")
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 ADD_CUSTOM_TARGET(
@@ -842,11 +850,6 @@ foreach(PLUGIN_DIR ${PLUGIN_SRC_DIRS})
 	add_subdirectory( ${PLUGIN_DIR} )
 endforeach()
 
-if(ENABLE_EXTCAP)
-	set(HAVE_EXTCAP 1)
-	set(EXTCAP_DIR "${DATAFILE_DIR}/extcap/")
-endif()
-
 add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( capchild )
 add_subdirectory( caputils )
@@ -874,6 +877,22 @@ if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
 endif()
 
+# Location of our data files. This should be set to a value that allows
+# running from the build directory on Windows, on OS X when building an
+# application bundle, and on UNIX if WIRESHARK_RUN_FROM_BUILD_DIRECTORY
+# is set.
+if(ENABLE_APPLICATION_BUNDLE)
+	set(_datafile_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/share/wireshark")
+else()
+	get_target_property(_libwireshark_location epan LOCATION)
+	get_filename_component(_datafile_dir "${_libwireshark_location}" PATH)
+endif()
+set (DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
+
+if(ENABLE_EXTCAP)
+	set(HAVE_EXTCAP 1)
+	set(EXTCAP_DIR "${DATAFILE_DIR}/extcap/")
+endif()
 
 # Basedir where to install guides
 set(DOC_DIR "$ENV{docdir}" CACHE FILEPATH "Installation directory for ug and dg pdfs.")
@@ -1039,7 +1058,6 @@ set(INSTALL_DIRS
 
 set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
-	COPYING
 	${CMAKE_BINARY_DIR}/capinfos.html
 	${CMAKE_BINARY_DIR}/captype.html
 	cfilters
@@ -1066,6 +1084,12 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/wireshark.html
 	docbook/ws.css
 )
+
+if(WIN32)
+	set(INSTALL_FILES ${CMAKE_BINARY_DIR}/COPYING.txt ${INSTALL_FILES})
+else()
+	set(INSTALL_FILES COPYING ${INSTALL_FILES})
+endif()
 
 set(MAN1_FILES
 	${CMAKE_BINARY_DIR}/capinfos.1
@@ -1113,9 +1137,12 @@ set(LIBEPAN_LIBS
 if(WIN32)
 	# According to http://stackoverflow.com/questions/14474659/cmake-how-to-have-a-target-for-copying-files
 	# we can't just use "set(_dll_output_dir "$<TARGET_FILE_DIR:epan>")"
+	# DATAFILE_DIR is set using the same property. We could probably
+	# get away with using it here.
 	get_target_property(_libwireshark_location epan LOCATION)
 	get_filename_component(_dll_output_dir "${_libwireshark_location}" PATH)
 	add_custom_target(copy_cli_dlls)
+	set_target_properties(copy_cli_dlls PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${_dll_output_dir}"
 	)
@@ -1236,7 +1263,129 @@ if(WIN32)
 	endif(ZLIB_FOUND)
 
 	add_dependencies(epan copy_cli_dlls)
+endif(WIN32)
+
+# Copy ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
+add_custom_target(copy_data_files ALL DEPENDS ${INSTALL_FILES})
+set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
+
+if(WIN32)
+	add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/COPYING.txt
+		COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
+			-Destination ${CMAKE_BINARY_DIR}
+			${CMAKE_SOURCE_DIR}/COPYING
+		DEPENDS
+			${CMAKE_SOURCE_DIR}/COPYING
+	)
 endif()
+
+foreach(_install_file ${INSTALL_FILES})
+	get_filename_component(_install_basename "${_install_file}" NAME)
+	add_custom_command(TARGET copy_data_files POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${_install_file}"
+			"${DATAFILE_DIR}/${_install_basename}"
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	)
+endforeach()
+
+if(ENABLE_EXTCAP)
+	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory
+			"${DATAFILE_DIR}/extcap"
+	)
+endif()
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory
+		"${DATAFILE_DIR}/help"
+)
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		"${CMAKE_SOURCE_DIR}/help/toc"
+		"${DATAFILE_DIR}/help/toc"
+)
+if(WIN32)
+	file(TO_NATIVE_PATH ${DATAFILE_DIR}/help _help_dest_dir)
+	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
+			-Destination ${_help_dest_dir}
+			${CMAKE_SOURCE_DIR}/help/*.txt
+	)
+else()
+	file(GLOB _help_files
+		"${CMAKE_SOURCE_DIR}/help/*.txt"
+	)
+	foreach(_help_file ${_help_files})
+		add_custom_command(TARGET copy_data_files PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${_help_file}"
+				"${DATAFILE_DIR}/help/"
+		)
+	endforeach()
+endif(WIN32)
+if(LUA_FOUND)
+	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory
+			"${DATAFILE_DIR}/lua"
+	)
+	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${CMAKE_BINARY_DIR}/epan/init.lua"
+			"${DATAFILE_DIR}/lua"
+	)
+	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${CMAKE_SOURCE_DIR}/epan/wslua/console.lua"
+			"${DATAFILE_DIR}/lua"
+	)
+	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${CMAKE_SOURCE_DIR}/epan/wslua/dtd_gen.lua"
+			"${DATAFILE_DIR}/lua"
+	)
+	add_dependencies(copy_data_files wsluaauxiliary)
+endif(LUA_FOUND)
+# doc/*.html handled elsewhere.
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_SOURCE_DIR}/dtds"
+		"${DATAFILE_DIR}/dtds"
+)
+# Skipping asn1 default.tt
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_SOURCE_DIR}/radius"
+		"${DATAFILE_DIR}/radius"
+)
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory
+		"${DATAFILE_DIR}/diameter"
+)
+file(GLOB _diameter_files
+	"${CMAKE_SOURCE_DIR}/diameter/*.dtd"
+	"${CMAKE_SOURCE_DIR}/diameter/*.xml"
+)
+foreach(_diameter_file ${_diameter_files})
+	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${_diameter_file}"
+			"${DATAFILE_DIR}/diameter/"
+	)
+endforeach()
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory
+		"${DATAFILE_DIR}/tpncp"
+)
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		"${CMAKE_SOURCE_DIR}/tpncp/tpncp.dat"
+		"${DATAFILE_DIR}/tpncp/tpncp.dat"
+)
+add_custom_command(TARGET copy_data_files PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_SOURCE_DIR}/wimaxasncp"
+		"${DATAFILE_DIR}/wimaxasncp"
+)
 
 if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	set(WIRESHARK_SRC
@@ -1318,39 +1467,13 @@ if(ENABLE_APPLICATION_BUNDLE)
 		MACOSX_PACKAGE_LOCATION Resources/share/man/man4
 	)
 
-	# Wireshark.app/Contents/Resources/share/wireshark
-	set(BUNDLE_RESOURCE_SHARE_WIRESHARK_FILES
-		${INSTALL_FILES}
-	)
-	set_source_files_properties(${BUNDLE_RESOURCE_SHARE_WIRESHARK_FILES} PROPERTIES
-		MACOSX_PACKAGE_LOCATION Resources/share/wireshark
-	)
-
-	# Wireshark.app/Contents/Resources/share/wireshark/*/*
-	# This is a bit messy but copying directories using
-	# MACOSX_PACKAGE_LOCATION is currently broken:
-	# http://public.kitware.com/Bug/view.php?id=13784
-	# We also assume INSTALL_DIRS are all one level deep
-	set(BUNDLE_RESOURCE_SHARE_WIRESHARK_SUBIDR_FILES)
-	foreach (_subdir ${INSTALL_DIRS})
-		file(GLOB _subdir_files RELATIVE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/${_subdir}/*)
-		list(REMOVE_ITEM _subdir_files ${_subdir}/Custom.make)
-		set(BUNDLE_RESOURCE_SHARE_WIRESHARK_SUBIDR_FILES
-			${BUNDLE_RESOURCE_SHARE_WIRESHARK_SUBIDR_FILES}
-			${_subdir_files}
-		)
-		set_source_files_properties(${_subdir_files} PROPERTIES
-			MACOSX_PACKAGE_LOCATION Resources/share/wireshark/${_subdir}
-		)
-	endforeach()
+	# INSTALL_FILES and INSTALL_DIRS are handled by copy_data_files
 
 	set(EXTRA_BUNDLE_FILES
 		${BUNDLE_CONTENTS_FILES}
 		${BUNDLE_RESOURCE_FILES}
 		${BUNDLE_RESOURCE_SHARE_MAN1_FILES}
 		${BUNDLE_RESOURCE_SHARE_MAN4_FILES}
-		${BUNDLE_RESOURCE_SHARE_WIRESHARK_FILES}
-		${BUNDLE_RESOURCE_SHARE_WIRESHARK_SUBIDR_FILES}
 	)
 else()
 	set(EXTRA_BUNDLE_FILES)
@@ -1429,6 +1552,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		)
 		if (NOT "${QT_WINDEPLOYQT_EXECUTABLE}" STREQUAL "QT_WINDEPLOYQT_EXECUTABLE-NOTFOUND")
 			add_custom_target(copy_qt_dlls ALL)
+			set_target_properties(copy_qt_dlls PROPERTIES FOLDER "Copy Tasks")
 			# Will we ever need to use --debug? Windeployqt seems to
 			# be smart enough to copy debug DLLs when needed.
 			add_custom_command(TARGET copy_qt_dlls
@@ -1442,7 +1566,7 @@ if(BUILD_wireshark AND QT_FOUND)
 			)
 			add_dependencies(copy_qt_dlls wireshark)
 		endif()
-	endif(WIN32)
+	endif(WIN32 AND Qt5Core_FOUND)
 endif()
 
 # Common properties for CLI executables
@@ -1502,6 +1626,7 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 		get_target_property(_wsgtk_location wireshark-gtk LOCATION)
 		get_filename_component(_dll_output_dir "${_wsgtk_location}" PATH)
 		add_custom_target(copy_gtk_dlls)
+		set_target_properties(copy_gtk_dlls PROPERTIES FOLDER "Copy Tasks")
 		add_custom_command(TARGET copy_gtk_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${_dll_output_dir}"
 		)
