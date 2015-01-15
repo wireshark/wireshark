@@ -121,8 +121,24 @@ OperationCode ::= CHOICE{
 
 ErrorCode ::= CHOICE {
 					national [PRIVATE 19] INTEGER (-128..127),
-					private [PRIVATE 20] INTEGER
-}
+--WS adaptation This is only correct for ANSI MAP but that's the only user.
+					private [PRIVATE 20] IMPLICIT ANSIMAPPrivateErrorcode
+					}
+
+ANSIMAPPrivateErrorcode ::= INTEGER {
+	unrecognized-MIN  (129),
+    unrecognized-ESN  (130),
+    mINorHLR-Mismatch (131),
+    operation-Sequence-Problem (132),
+    resource-Shortage (133),
+    operation-Not-Supported (134),
+    trunk-Unavailable (135),
+    parameter-Error (136),
+    system-Failure (137),
+    unrecognized-Parameter-Value (138),
+    feature-Inactive (139),
+    missing-Parameter (140)
+} (0..255)
 
 Priority ::= INTEGER (0..MAX)
 

@@ -72,7 +72,7 @@ static int hf_ansi_tcap_op_specifier = -1;
 static int hf_ansi_tcap_national = -1;            /* T_national */
 static int hf_ansi_tcap_private = -1;             /* T_private */
 static int hf_ansi_tcap_national_01 = -1;         /* INTEGER_M128_127 */
-static int hf_ansi_tcap_private_01 = -1;          /* INTEGER */
+static int hf_ansi_tcap_private_01 = -1;          /* ANSIMAPPrivateErrorcode */
 static int hf_ansi_tcap_unidirectional = -1;      /* T_unidirectional */
 static int hf_ansi_tcap_queryWithPerm = -1;       /* T_queryWithPerm */
 static int hf_ansi_tcap_queryWithoutPerm = -1;    /* T_queryWithoutPerm */
@@ -567,9 +567,25 @@ dissect_ansi_tcap_INTEGER_M128_127(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
+static const value_string ansi_tcap_ANSIMAPPrivateErrorcode_vals[] = {
+  { 129, "unrecognized-MIN" },
+  { 130, "unrecognized-ESN" },
+  { 131, "mINorHLR-Mismatch" },
+  { 132, "operation-Sequence-Problem" },
+  { 133, "resource-Shortage" },
+  { 134, "operation-Not-Supported" },
+  { 135, "trunk-Unavailable" },
+  { 136, "parameter-Error" },
+  { 137, "system-Failure" },
+  { 138, "unrecognized-Parameter-Value" },
+  { 139, "feature-Inactive" },
+  { 140, "missing-Parameter" },
+  { 0, NULL }
+};
+
 
 static int
-dissect_ansi_tcap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ansi_tcap_ANSIMAPPrivateErrorcode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -585,7 +601,7 @@ static const value_string ansi_tcap_ErrorCode_vals[] = {
 
 static const ber_choice_t ErrorCode_choice[] = {
   {  19, &hf_ansi_tcap_national_01, BER_CLASS_PRI, 19, 0, dissect_ansi_tcap_INTEGER_M128_127 },
-  {  20, &hf_ansi_tcap_private_01, BER_CLASS_PRI, 20, 0, dissect_ansi_tcap_INTEGER },
+  {  20, &hf_ansi_tcap_private_01, BER_CLASS_PRI, 20, BER_FLAGS_IMPLTAG, dissect_ansi_tcap_ANSIMAPPrivateErrorcode },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -674,6 +690,16 @@ static int
 dissect_ansi_tcap_ProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_PRI, 26, TRUE, dissect_ansi_tcap_OCTET_STRING_SIZE_1);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ansi_tcap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
 
   return offset;
 }
@@ -1539,8 +1565,8 @@ proto_register_ansi_tcap(void)
         "INTEGER_M128_127", HFILL }},
     { &hf_ansi_tcap_private_01,
       { "private", "ansi_tcap.private",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(ansi_tcap_ANSIMAPPrivateErrorcode_vals), 0,
+        "ANSIMAPPrivateErrorcode", HFILL }},
     { &hf_ansi_tcap_unidirectional,
       { "unidirectional", "ansi_tcap.unidirectional_element",
         FT_NONE, BASE_NONE, NULL, 0,
