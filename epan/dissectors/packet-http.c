@@ -2788,7 +2788,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 			} else
 				hdr_tree = NULL;
 			value += hdrlen;
-			offset += hdrlen + 15;
+			offset += (int)hdrlen + 15;
 			hidden_item = proto_tree_add_boolean(hdr_tree,
 					    hf_http_citrix, tvb, 0, 0, 1);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
