@@ -112,9 +112,10 @@ skipwhite:
 
 	/* skip // comments */
 	if ((c=='/') && (data[1]=='/')) {
-		while (*data && *data != '\n')
+		while (*data && *data != '\n'){
 			data++;
 			com_token_start++;
+		}
 		goto skipwhite;
 	}
 
