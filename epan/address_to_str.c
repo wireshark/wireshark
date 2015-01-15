@@ -444,10 +444,13 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     switch (addr.len) {
     case 0:
         addr.data = NULL;
+        break;
     case 1:
         addr.data = GUINT_TO_POINTER((guint)tvb_get_guint8(tvb, offset));
+        break;
     default:
         addr.data = tvb_get_ptr(tvb, offset, addr.len);
+        break;
     }
 
     return address_to_str(scope, &addr);
