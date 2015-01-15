@@ -3006,7 +3006,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 if ((pen_type == 180) || (ip_protocol == IP_PROTO_UDP))  {
                     port_str = udp_port_to_display(wmem_packet_scope(), port_number);
                 }
-                else if ((pen_type = 182) || (ip_protocol == IP_PROTO_TCP)) {
+                else if ((pen_type == 182) || (ip_protocol == IP_PROTO_TCP)) {
                     port_str = tcp_port_to_display(wmem_packet_scope(), port_number);
                 }
                 proto_item_append_text(ti, " (%s)", port_str);
@@ -3041,7 +3041,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 if ((pen_type == 181) || (ip_protocol == IP_PROTO_UDP))  {
                     port_str = udp_port_to_display(wmem_packet_scope(), port_number);
                 }
-                else if ((pen_type = 183) || (ip_protocol == IP_PROTO_TCP)) {
+                else if ((pen_type == 183) || (ip_protocol == IP_PROTO_TCP)) {
                     port_str = tcp_port_to_display(wmem_packet_scope(), port_number);
                 }
                 proto_item_append_text(ti, " (%s)", port_str);
