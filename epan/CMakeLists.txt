@@ -1280,6 +1280,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ssh.c
 	dissectors/packet-ssl-utils.c
 	dissectors/packet-ssl.c
+	dissectors/packet-sstp.c
 	dissectors/packet-stanag4607.c
 	dissectors/packet-starteam.c
 	dissectors/packet-stat-notify.c

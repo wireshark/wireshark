@@ -142,6 +142,9 @@ static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t websocket_handle;
 static dissector_handle_t http2_handle;
+static dissector_handle_t sstp_handle;
+static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t gssapi_handle;
 
 /* Stuff for generation/handling of fields for custom HTTP headers */
 typedef struct _header_field_t {
@@ -265,6 +268,7 @@ static gboolean http_decompress_body = FALSE;
 
 #define UPGRADE_WEBSOCKET 1
 #define UPGRADE_HTTP2 2
+#define UPGRADE_SSTP 3
 
 static range_t *global_http_tcp_range = NULL;
 static range_t *global_http_ssl_range = NULL;
@@ -312,9 +316,6 @@ static gboolean check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb,
 static dissector_table_t port_subdissector_table;
 static dissector_table_t media_type_subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
-
-static dissector_handle_t ntlmssp_handle;
-static dissector_handle_t gssapi_handle;
 
 /* --- HTTP Status Codes */
 /* Note: The reference for uncommented entries is RFC 2616 */
@@ -1518,6 +1519,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += datalen;
 	}
 
+	if (http_type == HTTP_RESPONSE && conv_data->upgrade == UPGRADE_SSTP) {
+		conv_data->startframe = pinfo->fd->num + 1;
+		headers.upgrade = conv_data->upgrade;
+	}
+
 	if (http_type == HTTP_RESPONSE && pinfo->desegment_offset<=0 && pinfo->desegment_len<=0) {
 		conv_data->upgrade = headers.upgrade;
 		conv_data->startframe = pinfo->fd->num + 1;
@@ -2235,6 +2241,10 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			if (strncmp(data, "BASELINE-CONTROL", indx) == 0) {  /* RFC 3253 12.6 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
+			} else if (strncmp(data, "SSTP_DUPLEX_POST", indx) == 0) {  /* MS SSTP */
+				*type = HTTP_REQUEST;
+				isHttpRequestOrReply = TRUE;
+				conv_data->upgrade = UPGRADE_SSTP;
 			}
 			break;
 
@@ -2633,7 +2643,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_UPGRADE:
-			if (g_ascii_strncasecmp(value, "WebSocket", value_len) == 0){
+			if (g_ascii_strncasecmp(value, "WebSocket", value_len) == 0) {
 				eh_ptr->upgrade = UPGRADE_WEBSOCKET;
 			}
 			/* Check if upgrade is HTTP 2.0 (Start with h2...) */
@@ -2905,6 +2915,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			}
 			if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->fd->num >= conv_data->startframe) {
 				call_dissector_only(http2_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
+				break;
+			}
+			if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200 && pinfo->fd->num >= conv_data->startframe) {
+				call_dissector_only(sstp_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
 			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data);
@@ -3400,6 +3414,7 @@ proto_reg_handoff_http(void)
 
 	ntlmssp_handle = find_dissector("ntlmssp");
 	gssapi_handle = find_dissector("gssapi");
+	sstp_handle = find_dissector("sstp");
 
 	stats_tree_register("http", "http",     "HTTP/Packet Counter",   0, http_stats_tree_packet,      http_stats_tree_init, NULL );
 	stats_tree_register("http", "http_req", "HTTP/Requests",         0, http_req_stats_tree_packet,  http_req_stats_tree_init, NULL );

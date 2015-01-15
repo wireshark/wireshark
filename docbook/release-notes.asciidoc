@@ -139,6 +139,7 @@ DJI UAV Drone Control Protocol
 ZVT Kassenschnittstelle
 ETSI Card Application Toolkit - Transport Protocol
 QNEX6 (QNET)
+Secure Socket Tunnel Protocol (SSTP)
 --sort-and-group--
 
 === Updated Protocol Support
