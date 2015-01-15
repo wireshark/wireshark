@@ -211,7 +211,7 @@ else()
 				# Only 32-bit builds are supported.  10.5
 				# (and 10.4?) had a bug that causes some BPF
 				# functions not to work with 64-bit userland
-			        # code, so capturing won't work.
+				# code, so capturing won't work.
 				#
 				set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}")
 				set(CMAKE_CXX_FLAGS "-m32 ${CMAKE_CXX_FLAGS}")
@@ -1857,23 +1857,23 @@ FILE(TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template WPT_WIN_PATH)
 FILE(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT ASF_WIN_PATH)
 FILE(TO_NATIVE_PATH ${CMAKE_BINARY_DIR}/wireshark.pod WP_WIN_PATH)
 ADD_CUSTOM_COMMAND(
-        OUTPUT	${CMAKE_BINARY_DIR}/wireshark.pod
-        COMMAND copy /B ${WPT_WIN_PATH} + ${ASF_WIN_PATH} ${WP_WIN_PATH}
-        DEPENDS
-                ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
-                ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
+	OUTPUT	${CMAKE_BINARY_DIR}/wireshark.pod
+	COMMAND copy /B ${WPT_WIN_PATH} + ${ASF_WIN_PATH} ${WP_WIN_PATH}
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
+		${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
 )
 else()
 
 ADD_CUSTOM_COMMAND(
-        OUTPUT	${CMAKE_BINARY_DIR}/wireshark.pod
-        COMMAND cat
-                ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
-                ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
-                > ${CMAKE_BINARY_DIR}/wireshark.pod
-        DEPENDS
-                ${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
-                ${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
+	OUTPUT	${CMAKE_BINARY_DIR}/wireshark.pod
+	COMMAND cat
+		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
+		${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
+		> ${CMAKE_BINARY_DIR}/wireshark.pod
+	DEPENDS
+		${CMAKE_SOURCE_DIR}/doc/wireshark.pod.template
+		${CMAKE_BINARY_DIR}/AUTHORS-SHORT-FORMAT
 )
 endif()
 
@@ -2032,3 +2032,16 @@ if(DOC_DIR)
 		PATTERN "*.pdf"
 	)
 endif()
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

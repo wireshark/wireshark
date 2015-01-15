@@ -120,129 +120,129 @@ dist_dtds_DATA = \
 radiusdir = $(pkgdatadir)/radius
 include radius/Custom.make
 dist_radius_DATA = $(_CUSTOM_radius_dict_) \
-	radius/README.radius_dictionary  \
-	radius/custom.includes  \
-	radius/dictionary  \
-	radius/dictionary.3com  \
-	radius/dictionary.3gpp  \
-	radius/dictionary.3gpp2  \
-	radius/dictionary.acc  \
+	radius/README.radius_dictionary \
+	radius/custom.includes \
+	radius/dictionary \
+	radius/dictionary.3com \
+	radius/dictionary.3gpp \
+	radius/dictionary.3gpp2 \
+	radius/dictionary.acc \
 	radius/dictionary.acme \
 	radius/dictionary.airespace \
-	radius/dictionary.actelis  \
+	radius/dictionary.actelis \
 	radius/dictionary.aerohive \
-	radius/dictionary.alcatel  \
+	radius/dictionary.alcatel \
 	radius/dictionary.alcatel.esam \
 	radius/dictionary.alcatel.sr \
 	radius/dictionary.alcatel-lucent.aaa \
-	radius/dictionary.alteon  \
-	radius/dictionary.altiga  \
+	radius/dictionary.alteon \
+	radius/dictionary.altiga \
 	radius/dictionary.alvarion \
-	radius/dictionary.alvarion.wimax.v2_2  \
+	radius/dictionary.alvarion.wimax.v2_2 \
 	radius/dictionary.apc \
-	radius/dictionary.aptis  \
-	radius/dictionary.arbor  \
-	radius/dictionary.aruba  \
-	radius/dictionary.ascend  \
+	radius/dictionary.aptis \
+	radius/dictionary.arbor \
+	radius/dictionary.aruba \
+	radius/dictionary.ascend \
 	radius/dictionary.asn \
 	radius/dictionary.audiocodes \
 	radius/dictionary.avaya \
 	radius/dictionary.azaire \
-	radius/dictionary.bay  \
+	radius/dictionary.bay \
 	radius/dictionary.bluecoat \
-	radius/dictionary.bintec  \
-	radius/dictionary.broadsoft  \
-	radius/dictionary.brocade  \
-	radius/dictionary.bskyb  \
-	radius/dictionary.bristol  \
-	radius/dictionary.bt  \
-	radius/dictionary.camiant  \
-	radius/dictionary.cablelabs  \
-	radius/dictionary.cabletron  \
+	radius/dictionary.bintec \
+	radius/dictionary.broadsoft \
+	radius/dictionary.brocade \
+	radius/dictionary.bskyb \
+	radius/dictionary.bristol \
+	radius/dictionary.bt \
+	radius/dictionary.camiant \
+	radius/dictionary.cablelabs \
+	radius/dictionary.cabletron \
 	radius/dictionary.chillispot \
-	radius/dictionary.cisco  \
-	radius/dictionary.cisco.asa  \
-	radius/dictionary.cisco.bbsm  \
-	radius/dictionary.cisco.vpn3000  \
-	radius/dictionary.cisco.vpn5000  \
-	radius/dictionary.citrix  \
+	radius/dictionary.cisco \
+	radius/dictionary.cisco.asa \
+	radius/dictionary.cisco.bbsm \
+	radius/dictionary.cisco.vpn3000 \
+	radius/dictionary.cisco.vpn5000 \
+	radius/dictionary.citrix \
 	radius/dictionary.clavister \
-	radius/dictionary.colubris  \
-	radius/dictionary.columbia_university  \
-	radius/dictionary.compatible  \
-	radius/dictionary.compat  \
-	radius/dictionary.cosine  \
-	radius/dictionary.dante  \
+	radius/dictionary.colubris \
+	radius/dictionary.columbia_university \
+	radius/dictionary.compatible \
+	radius/dictionary.compat \
+	radius/dictionary.cosine \
+	radius/dictionary.dante \
 	radius/dictionary.dhcp \
-	radius/dictionary.dlink  \
+	radius/dictionary.dlink \
 	radius/dictionary.digium \
-	radius/dictionary.dragonwave  \
-	radius/dictionary.efficientip  \
+	radius/dictionary.dragonwave \
+	radius/dictionary.efficientip \
 	radius/dictionary.eltex \
 	radius/dictionary.epygi \
-	radius/dictionary.equallogic  \
-	radius/dictionary.ericsson  \
-	radius/dictionary.ericsson.ab  \
-	radius/dictionary.ericsson.packet.core.networks  \
-	radius/dictionary.erx  \
-	radius/dictionary.extreme  \
-	radius/dictionary.f5  \
-	radius/dictionary.fdxtended  \
+	radius/dictionary.equallogic \
+	radius/dictionary.ericsson \
+	radius/dictionary.ericsson.ab \
+	radius/dictionary.ericsson.packet.core.networks \
+	radius/dictionary.erx \
+	radius/dictionary.extreme \
+	radius/dictionary.f5 \
+	radius/dictionary.fdxtended \
 	radius/dictionary.fortinet \
-	radius/dictionary.foundry  \
-	radius/dictionary.freedhcp  \
-	radius/dictionary.freeradius  \
-	radius/dictionary.freeradius.internal  \
+	radius/dictionary.foundry \
+	radius/dictionary.freedhcp \
+	radius/dictionary.freeradius \
+	radius/dictionary.freeradius.internal \
 	radius/dictionary.freeswitch \
-	radius/dictionary.gandalf  \
-	radius/dictionary.garderos  \
-	radius/dictionary.gemtek  \
+	radius/dictionary.gandalf \
+	radius/dictionary.garderos \
+	radius/dictionary.gemtek \
 	radius/dictionary.h3c \
 	radius/dictionary.hp \
 	radius/dictionary.huawei \
-	radius/dictionary.iana  \
+	radius/dictionary.iana \
 	radius/dictionary.iea \
-	radius/dictionary.infoblox  \
+	radius/dictionary.infoblox \
 	radius/dictionary.infonet \
 	radius/dictionary.ipunplugged \
 	radius/dictionary.issanni \
-	radius/dictionary.itk  \
+	radius/dictionary.itk \
 	radius/dictionary.jradius \
-	radius/dictionary.juniper  \
-	radius/dictionary.kineto  \
-	radius/dictionary.karlnet  \
+	radius/dictionary.juniper \
+	radius/dictionary.kineto \
+	radius/dictionary.karlnet \
 	radius/dictionary.lancom \
-	radius/dictionary.livingston  \
-	radius/dictionary.localweb  \
+	radius/dictionary.livingston \
+	radius/dictionary.localweb \
 	radius/dictionary.lucent \
 	radius/dictionary.manzara \
 	radius/dictionary.meinberg \
-	radius/dictionary.merit  \
-	radius/dictionary.meru  \
-	radius/dictionary.microsoft  \
-	radius/dictionary.mikrotik  \
+	radius/dictionary.merit \
+	radius/dictionary.meru \
+	radius/dictionary.microsoft \
+	radius/dictionary.mikrotik \
 	radius/dictionary.motorola \
 	radius/dictionary.motorola.wimax \
-	radius/dictionary.navini  \
-	radius/dictionary.netscreen  \
+	radius/dictionary.navini \
+	radius/dictionary.netscreen \
 	radius/dictionary.networkphysics \
 	radius/dictionary.nexans \
-	radius/dictionary.nokia  \
+	radius/dictionary.nokia \
 	radius/dictionary.nokia.conflict \
-	radius/dictionary.nomadix  \
+	radius/dictionary.nomadix \
 	radius/dictionary.nortel \
 	radius/dictionary.ntua \
 	radius/dictionary.openser \
 	radius/dictionary.packeteer \
-	radius/dictionary.paloalto  \
+	radius/dictionary.paloalto \
 	radius/dictionary.patton \
-	radius/dictionary.propel  \
+	radius/dictionary.propel \
 	radius/dictionary.prosoft \
-	radius/dictionary.proxim  \
-	radius/dictionary.purewave  \
+	radius/dictionary.proxim \
+	radius/dictionary.purewave \
 	radius/dictionary.quiconnect \
-	radius/dictionary.quintum  \
-	radius/dictionary.redcreek  \
+	radius/dictionary.quintum \
+	radius/dictionary.redcreek \
 	radius/dictionary.rfc2865 \
 	radius/dictionary.rfc2866 \
 	radius/dictionary.rfc2867 \
@@ -273,47 +273,47 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.rfc7055 \
 	radius/dictionary.rfc7155 \
 	radius/dictionary.rfc7268 \
-	radius/dictionary.riverbed  \
+	radius/dictionary.riverbed \
 	radius/dictionary.riverstone \
-	radius/dictionary.ruckus  \
+	radius/dictionary.ruckus \
 	radius/dictionary.roaringpenguin \
-	radius/dictionary.sg  \
-	radius/dictionary.shasta  \
-	radius/dictionary.shiva  \
-	radius/dictionary.siemens  \
+	radius/dictionary.sg \
+	radius/dictionary.shasta \
+	radius/dictionary.shiva \
+	radius/dictionary.siemens \
 	radius/dictionary.slipstream \
 	radius/dictionary.sofaware \
-	radius/dictionary.sonicwall  \
-	radius/dictionary.springtide  \
-	radius/dictionary.starent  \
-	radius/dictionary.starent.vsa1  \
-	radius/dictionary.surfnet  \
-	radius/dictionary.symbol  \
-	radius/dictionary.t_systems_nova  \
-	radius/dictionary.telebit  \
+	radius/dictionary.sonicwall \
+	radius/dictionary.springtide \
+	radius/dictionary.starent \
+	radius/dictionary.starent.vsa1 \
+	radius/dictionary.surfnet \
+	radius/dictionary.symbol \
+	radius/dictionary.t_systems_nova \
+	radius/dictionary.telebit \
 	radius/dictionary.telkom \
-	radius/dictionary.terena  \
-	radius/dictionary.trapeze  \
+	radius/dictionary.terena \
+	radius/dictionary.trapeze \
 	radius/dictionary.tropos \
-	radius/dictionary.ukerna  \
-	radius/dictionary.unix  \
-	radius/dictionary.usr  \
+	radius/dictionary.ukerna \
+	radius/dictionary.unix \
+	radius/dictionary.usr \
 	radius/dictionary.utstarcom \
-	radius/dictionary.valemount  \
-	radius/dictionary.versanet  \
+	radius/dictionary.valemount \
+	radius/dictionary.versanet \
 	radius/dictionary.vqp \
 	radius/dictionary.walabi \
 	radius/dictionary.waverider \
 	radius/dictionary.wichorus \
-	radius/dictionary.wimax  \
-	radius/dictionary.wimax.alvarion  \
+	radius/dictionary.wimax \
+	radius/dictionary.wimax.alvarion \
 	radius/dictionary.wimax.wichorus \
-	radius/dictionary.wispr  \
+	radius/dictionary.wispr \
 	radius/dictionary.xedia \
-	radius/dictionary.xylan  \
-	radius/dictionary.yubico  \
-	radius/dictionary.zeus  \
-	radius/dictionary.zte  \
+	radius/dictionary.xylan \
+	radius/dictionary.yubico \
+	radius/dictionary.zeus \
+	radius/dictionary.zte \
 	radius/dictionary.zyxel
 
 #
@@ -1187,7 +1187,7 @@ EXTRA_DIST = \
 	image/wssplash.png	\
 	ipmap.html		\
 	macosx-setup.sh		\
-        macosx-support-lib-patches/glib-gconvert.c.patch \
+	macosx-support-lib-patches/glib-gconvert.c.patch \
 	macosx-support-lib-patches/glib-pkgconfig.patch \
 	macosx-support-lib-patches/gnutls-pkgconfig.patch \
 	macosx-support-lib-patches/portaudio-pa_mac_core.h.patch \
@@ -1540,7 +1540,7 @@ osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
 	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
 		rm -rf $(stagedir) ; \
 		$(MAKE) DESTDIR=$(stagedir) install; \
-		cd $(srcdir)/packaging/macosx ;  \
+		cd $(srcdir)/packaging/macosx ; \
 		./osx-app.sh @OSX_APP_FLAGS@ \
 			--create-bundle \
 			--binary-path ../staging/$(PACKAGE).inst$(bindir) ; \
@@ -1555,7 +1555,7 @@ packaging/macosx/COPYING.txt: COPYING
 
 osx-package: osx-app packaging/macosx/COPYING.txt
 	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
-		cd $(srcdir)/packaging/macosx ;  \
+		cd $(srcdir)/packaging/macosx ; \
 		chmod +x ./osx-dmg.sh ; \
 		./osx-dmg.sh @OSX_DMG_FLAGS@ ; \
 	fi
@@ -1563,7 +1563,7 @@ osx-package: osx-app packaging/macosx/COPYING.txt
 osx-install: osx-app
 	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
 		echo "Copying Wireshark.app to /Applications" ; \
-		cp -pr $(srcdir)/packaging/macosx/Wireshark.app /Applications ;  \
+		cp -pr $(srcdir)/packaging/macosx/Wireshark.app /Applications ; \
 	fi
 
 clean-local:
