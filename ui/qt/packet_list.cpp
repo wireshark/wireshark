@@ -1046,6 +1046,7 @@ void PacketList::headerMenuTriggered()
     case caResolveNames:
         set_column_resolved(header_ctx_column_, checked);
         redraw = true;
+        break;
     case caResizeToContents:
         resizeColumnToContents(header_ctx_column_);
         break;
