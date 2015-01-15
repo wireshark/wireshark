@@ -8078,7 +8078,7 @@ proto_register_rsvp(void)
            NULL, HFILL }
         },
 
-        {&hf_rsvp_filter[RSVPF_ASSOCIATION],
+        {&hf_rsvp_filter[RSVPF_CALL_ATTRIBUTES],
          { "CALL ATTRIBUTES", "rsvp.call_attributes",
            FT_NONE, BASE_NONE, NULL, 0x0,
            NULL, HFILL }
