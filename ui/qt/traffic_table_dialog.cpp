@@ -44,6 +44,9 @@
 #include <QTextStream>
 #include <QToolButton>
 
+// To do:
+// - Add "copy" items to the menu.
+
 // Bugs:
 // - Name resolution doesn't do anything if its preference is disabled.
 // - Columns don't resize correctly.

@@ -32,123 +32,147 @@
 #include <fcntl.h>
 #endif
 
+#include "file.h"
+
 #include <epan/epan.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/addr_resolv.h>
 
-#include "../globals.h"
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
 #include "ui/rtp_stream.h"
 #include "ui/tap-rtp-common.h"
 #include <wsutil/file_util.h>
 
-#include "ui/gtk/rtp_stream_dlg.h"
-#include "ui/gtk/main.h"
-
-/* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
- */
-static rtpstream_tapinfo_t the_tapinfo_struct =
-    {0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE};
-
 
 /****************************************************************************/
 /* redraw the output */
-static void rtpstream_draw(void *arg _U_)
+static void rtpstream_draw(void *ti_ptr)
 {
+    rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *)ti_ptr;
 /* XXX: see rtpstream_on_update in rtp_streams_dlg.c for comments
     g_signal_emit_by_name(top_level, "signal_rtpstream_update");
 */
-    rtpstream_dlg_update(the_tapinfo_struct.strinfo_list);
+    if (tapinfo && tapinfo->tap_draw) {
+        tapinfo->tap_draw(ti_ptr);
+    }
     return;
 }
 
 
 /****************************************************************************/
 /* scan for RTP streams */
-void rtpstream_scan(void)
+void rtpstream_scan(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file)
 {
-    gboolean was_registered = the_tapinfo_struct.is_registered;
-    if (!the_tapinfo_struct.is_registered)
-        register_tap_listener_rtp_stream();
+    gboolean was_registered;
 
-    the_tapinfo_struct.mode = TAP_ANALYSE;
-    cf_retap_packets(&cfile);
+    if (!tapinfo || !cap_file) {
+        return;
+    }
+
+    was_registered = tapinfo->is_registered;
+    if (!tapinfo->is_registered)
+        register_tap_listener_rtp_stream(tapinfo);
+
+    tapinfo->mode = TAP_ANALYSE;
+    cf_retap_packets(cap_file);
 
     if (!was_registered)
-        remove_tap_listener_rtp_stream();
+        remove_tap_listener_rtp_stream(tapinfo);
 }
 
 
 /****************************************************************************/
 /* save rtp dump of stream_fwd */
-gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
+gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_stream_info_t* stream, const gchar *filename)
 {
-    gboolean was_registered = the_tapinfo_struct.is_registered;
+    gboolean was_registered;
+
+    if (!tapinfo) {
+        return FALSE;
+    }
+
+    was_registered = tapinfo->is_registered;
+
     /* open file for saving */
-    the_tapinfo_struct.save_file = ws_fopen(filename, "wb");
-    if (the_tapinfo_struct.save_file==NULL) {
+    tapinfo->save_file = ws_fopen(filename, "wb");
+    if (tapinfo->save_file==NULL) {
         open_failure_alert_box(filename, errno, TRUE);
         return FALSE;
     }
 
-    rtp_write_header(stream, the_tapinfo_struct.save_file);
-    if (ferror(the_tapinfo_struct.save_file)) {
+    rtp_write_header(stream, tapinfo->save_file);
+    if (ferror(tapinfo->save_file)) {
         write_failure_alert_box(filename, errno);
-        fclose(the_tapinfo_struct.save_file);
+        fclose(tapinfo->save_file);
         return FALSE;
     }
 
-    if (!the_tapinfo_struct.is_registered)
-        register_tap_listener_rtp_stream();
+    if (!tapinfo->is_registered)
+        register_tap_listener_rtp_stream(tapinfo);
 
-    the_tapinfo_struct.mode = TAP_SAVE;
-    the_tapinfo_struct.filter_stream_fwd = stream;
-    cf_retap_packets(&cfile);
-    the_tapinfo_struct.mode = TAP_ANALYSE;
+    tapinfo->mode = TAP_SAVE;
+    tapinfo->filter_stream_fwd = stream;
+    cf_retap_packets(cap_file);
+    tapinfo->mode = TAP_ANALYSE;
 
     if (!was_registered)
-        remove_tap_listener_rtp_stream();
+        remove_tap_listener_rtp_stream(tapinfo);
 
-    if (ferror(the_tapinfo_struct.save_file)) {
+    if (ferror(tapinfo->save_file)) {
         write_failure_alert_box(filename, errno);
-        fclose(the_tapinfo_struct.save_file);
+        fclose(tapinfo->save_file);
         return FALSE;
     }
 
-    if (fclose(the_tapinfo_struct.save_file) == EOF) {
+    if (fclose(tapinfo->save_file) == EOF) {
         write_failure_alert_box(filename, errno);
         return FALSE;
     }
     return TRUE;
 }
 
+/****************************************************************************/
+/* compare the endpoints of two RTP streams */
+gboolean rtp_stream_info_is_reverse(const rtp_stream_info_t *stream_a, rtp_stream_info_t *stream_b)
+{
+    if (stream_a == NULL || stream_b == NULL)
+        return FALSE;
+
+    if ((ADDRESSES_EQUAL(&(stream_a->src_addr), &(stream_b->dest_addr)))
+        && (stream_a->src_port == stream_b->dest_port)
+        && (ADDRESSES_EQUAL(&(stream_a->dest_addr), &(stream_b->src_addr)))
+        && (stream_a->dest_port == stream_b->src_port))
+        return TRUE;
+    else
+        return FALSE;
+}
 
 /****************************************************************************/
 /* mark packets in stream_fwd or stream_rev */
-void rtpstream_mark(rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev)
+void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtp_stream_info_t* stream_fwd, rtp_stream_info_t* stream_rev)
 {
-    gboolean was_registered = the_tapinfo_struct.is_registered;
-    if (!the_tapinfo_struct.is_registered)
-        register_tap_listener_rtp_stream();
+    gboolean was_registered;
 
-    the_tapinfo_struct.mode = TAP_MARK;
-    the_tapinfo_struct.filter_stream_fwd = stream_fwd;
-    the_tapinfo_struct.filter_stream_rev = stream_rev;
-    cf_retap_packets(&cfile);
-    the_tapinfo_struct.mode = TAP_ANALYSE;
+    if (!tapinfo) {
+        return;
+    }
+
+    was_registered = tapinfo->is_registered;
+
+    if (!tapinfo->is_registered)
+        register_tap_listener_rtp_stream(tapinfo);
+
+    tapinfo->mode = TAP_MARK;
+    tapinfo->filter_stream_fwd = stream_fwd;
+    tapinfo->filter_stream_rev = stream_rev;
+    cf_retap_packets(cap_file);
+    tapinfo->mode = TAP_ANALYSE;
 
     if (!was_registered)
-        remove_tap_listener_rtp_stream();
-}
-
-
-/****************************************************************************/
-const rtpstream_tapinfo_t* rtpstream_get_info(void)
-{
-    return &the_tapinfo_struct;
+        remove_tap_listener_rtp_stream(tapinfo);
 }
 
 
@@ -158,24 +182,27 @@ const rtpstream_tapinfo_t* rtpstream_get_info(void)
 
 /****************************************************************************/
 void
-remove_tap_listener_rtp_stream(void)
+remove_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo)
 {
-    if (the_tapinfo_struct.is_registered) {
-        remove_tap_listener(&the_tapinfo_struct);
-
-        the_tapinfo_struct.is_registered = FALSE;
+    if (tapinfo && tapinfo->is_registered) {
+        remove_tap_listener(tapinfo);
+        tapinfo->is_registered = FALSE;
     }
 }
 
 
 /****************************************************************************/
 void
-register_tap_listener_rtp_stream(void)
+register_tap_listener_rtp_stream(rtpstream_tapinfo_t *tapinfo)
 {
     GString *error_string;
 
-    if (!the_tapinfo_struct.is_registered) {
-        error_string = register_tap_listener("rtp", &the_tapinfo_struct,
+    if (!tapinfo) {
+        return;
+    }
+
+    if (!tapinfo->is_registered) {
+        error_string = register_tap_listener("rtp", tapinfo,
             NULL, 0, rtpstream_reset_cb, rtpstream_packet,
             rtpstream_draw);
 
@@ -186,7 +213,7 @@ register_tap_listener_rtp_stream(void)
             exit(1);
         }
 
-        the_tapinfo_struct.is_registered = TRUE;
+        tapinfo->is_registered = TRUE;
     }
 }
 

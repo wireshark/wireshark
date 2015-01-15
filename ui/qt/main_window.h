@@ -428,6 +428,7 @@ private slots:
     void openVoipCallsDialog(bool all_flows = false);
     void on_actionTelephonyVoipCalls_triggered();
     void on_actionTelephonyISUPMessages_triggered();
+    void on_actionTelephonyRTPStreams_triggered();
     void on_actionTelephonyRTSPPacketCounter_triggered();
     void on_actionTelephonySMPPOperations_triggered();
     void on_actionTelephonyUCPMessages_triggered();

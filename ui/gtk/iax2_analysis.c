@@ -3771,10 +3771,10 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	port_dst_rev = edt.pi.srcport;
 
 	/* Scan for rtpstream */
-	rtpstream_scan();
+	rtpstream_scan(rtpstream_dlg_get_tapinfo(), &cfile);
 	/* search for reversed direction in the global rtp streams list */
 	nfound = 0;
-	strinfo_list = g_list_first(rtpstream_get_info()->strinfo_list);
+	strinfo_list = g_list_first(rtpstream_dlg_get_tapinfo()->strinfo_list);
 	while (strinfo_list)
 	{
 		strinfo = (rtp_stream_info_t*)(strinfo_list->data);

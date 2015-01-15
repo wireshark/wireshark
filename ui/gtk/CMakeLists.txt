@@ -99,7 +99,6 @@ set(WIRESHARK_GTK_SRC
 	proto_hier_tree_model.c
 	proto_tree_model.c
 	range_utils.c
-	rtp_stream.c
 	sctp_byte_graph_dlg.c
 	sctp_error_dlg.c
 	sctp_graph_dlg.c

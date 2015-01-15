@@ -110,7 +110,8 @@ typedef enum {
     HELP_SAVE_WIN32_DIALOG,
     HELP_TIME_SHIFT_DIALOG,
     HELP_FILTER_SAVE_DIALOG,
-    HELP_TELEPHONY_VOIP_CALLS_DIALOG
+    HELP_TELEPHONY_VOIP_CALLS_DIALOG,
+    HELP_RTP_ANALYSIS_DIALOG
 } topic_action_e;
 
 /** Given a filename return a filesystem URL. Relative paths are prefixed with

@@ -982,7 +982,6 @@ void PacketList::addRelatedFrame(int related_frame)
     related_packet_delegate_.addRelatedFrame(related_frame);
 }
 
-#include <QDebug>
 void PacketList::showHeaderMenu(QPoint pos)
 {
     header_ctx_column_ = header()->logicalIndexAt(pos);

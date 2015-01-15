@@ -43,6 +43,7 @@ set(COMMON_UI_SRC
 	profile.c
 	proto_hier_stats.c
 	recent.c
+	rtp_stream.c
 	software_update.c
 	ssl_key_export.c
 	tap_export_pdu.c
@@ -56,6 +57,12 @@ set(COMMON_UI_SRC
 	traffic_table_ui.c
 	util.c
 	voip_calls.c
+)
+
+# Enables visibility in IDEs
+file(GLOB EXTRA_UI_HEADERS
+	rtp_analysis.h
+	rtp_stream.h
 )
 
 set(DIRTY_UI_SRC)

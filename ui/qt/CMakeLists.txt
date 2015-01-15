@@ -82,6 +82,7 @@ set(WIRESHARK_QT_HEADERS
 	proto_tree.h
 	qcustomplot.h
 	recent_file_status.h
+	rtp_stream_dialog.h
 	sctp_all_assocs_dialog.h
 	sctp_assoc_analyse_dialog.h
 	sctp_chunk_statistics_dialog.h
@@ -112,7 +113,7 @@ if(HAVE_PCAP_REMOTE)
 	)
 endif()
 
-file(GLOB EXTA_QT_HEADERS
+file(GLOB EXTRA_QT_HEADERS
 	packet_list_record.h
 	qt_ui_utils.h
 	related_packet_delegate.h
@@ -181,6 +182,7 @@ set(WIRESHARK_QT_SRC
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
+	rtp_stream_dialog.cpp
 	sctp_all_assocs_dialog.cpp
 	sctp_assoc_analyse_dialog.cpp
 	sctp_chunk_statistics_dialog.cpp
@@ -261,6 +263,7 @@ set(WIRESHARK_QT_UI
 	preferences_dialog.ui
 	print_dialog.ui
 	profile_dialog.ui
+	rtp_stream_dialog.ui
 	sctp_all_assocs_dialog.ui
 	sctp_assoc_analyse_dialog.ui
 	sctp_chunk_statistics_dialog.ui

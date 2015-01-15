@@ -46,7 +46,7 @@
 
 /****************************************************************************/
 /* GCompareFunc style comparison function for _rtp_stream_info */
-gint rtp_stream_info_cmp(gconstpointer aa, gconstpointer bb)
+static gint rtp_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 {
 	const struct _rtp_stream_info* a = (const struct _rtp_stream_info*)aa;
 	const struct _rtp_stream_info* b = (const struct _rtp_stream_info*)bb;
@@ -264,15 +264,13 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			rtp_write_sample(&sample, tapinfo->save_file);
 		}
 	}
-#ifdef __GTK_H__
-	else if (tapinfo->mode == TAP_MARK) {
-		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0
-				|| rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_rev)==0)
+    else if (tapinfo->mode == TAP_MARK && tapinfo->tap_mark_packet) {
+        if (rtp_stream_info_cmp(&new_stream_info, tapinfo->filter_stream_fwd)==0
+                || rtp_stream_info_cmp(&new_stream_info, tapinfo->filter_stream_rev)==0)
 		{
-			cf_mark_frame(&cfile, pinfo->fd);
+            tapinfo->tap_mark_packet(tapinfo, pinfo->fd);
 		}
 	}
-#endif
 	return 0;
 }
 

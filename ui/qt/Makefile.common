@@ -63,6 +63,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_profile_dialog.h	\
 	ui_remote_capture_dialog.h	\
 	ui_remote_settings_dialog.h	\
+	ui_rtp_stream_dialog.h	\
 	ui_sctp_all_assocs_dialog.h	\
 	ui_sctp_assoc_analyse_dialog.h	\
 	ui_sctp_chunk_statistics_dialog.h	\
@@ -177,6 +178,7 @@ MOC_HDRS =	\
 	remote_capture_dialog.h	\
 	remote_settings_dialog.h	\
 	search_frame.h	\
+	rtp_stream_dialog.h	\
 	sctp_all_assocs_dialog.h	\
 	sctp_assoc_analyse_dialog.h	\
 	sctp_chunk_statistics_dialog.h	\
@@ -237,6 +239,7 @@ UI_FILES =	\
 	profile_dialog.ui	\
 	remote_capture_dialog.ui	\
 	remote_settings_dialog.ui	\
+	rtp_stream_dialog.ui	\
 	sctp_all_assocs_dialog.ui	\
 	sctp_assoc_analyse_dialog.ui	\
 	sctp_chunk_statistics_dialog.ui	\
@@ -376,6 +379,7 @@ WIRESHARK_QT_SRC =	\
 	related_packet_delegate.cpp	\
 	remote_capture_dialog.cpp	\
 	remote_settings_dialog.cpp	\
+	rtp_stream_dialog.cpp	\
 	sctp_all_assocs_dialog.cpp	\
 	sctp_assoc_analyse_dialog.cpp	\
 	sctp_chunk_statistics_dialog.cpp	\

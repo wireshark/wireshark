@@ -44,7 +44,6 @@
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
-#include "ui/rtp_stream.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/gui_stat_menu.h"
 
@@ -52,7 +51,16 @@ static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse b
 static const gchar FWD_ONLY_LABEL_TEXT[] = "Select a forward stream with Ctrl + left mouse button";
 static const gchar REV_LABEL_TEXT[] = "Select a reverse stream with Ctrl + left mouse button";
 
+static void rtpstream_dlg_update(void *ti_ptr);
+static void rtpstream_dlg_mark_packet(rtpstream_tapinfo_t *tapinfo, frame_data *fd);
 void register_tap_listener_rtp_stream_dlg(void);
+
+/* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
+ */
+static rtpstream_tapinfo_t the_tapinfo_struct =
+    { rtpstream_dlg_update, rtpstream_dlg_mark_packet, NULL, 0, NULL, 0,
+      TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE
+    };
 
 /****************************************************************************/
 /* pointer to the one and only dialog window */
@@ -91,7 +99,6 @@ enum
    NUM_COLS /* The number of columns */
 };
 
-
 /****************************************************************************/
 static void save_stream_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
@@ -128,7 +135,7 @@ static gboolean save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer fs)
     /*
      * Don't dismiss the dialog box if the save operation fails.
      */
-    if (!rtpstream_save(selected_stream_fwd, g_dest)) {
+    if (!rtpstream_save(&the_tapinfo_struct, &cfile, selected_stream_fwd, g_dest)) {
         g_free(g_dest);
         return;
     }
@@ -139,7 +146,7 @@ static gboolean save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer fs)
     /*  Dialog box needs to be always destroyed. Return TRUE      */
     /*  so that caller will destroy the dialog box.               */
     /*  See comment under rtpstream_on_save.                      */
-    rtpstream_save(selected_stream_fwd, g_dest);
+    rtpstream_save(&the_tapinfo_struct, &cfile, selected_stream_fwd, g_dest);
     g_free(g_dest);
     return TRUE;
 #endif
@@ -153,14 +160,14 @@ static void
 rtpstream_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
     /* Remove the stream tap listener */
-    remove_tap_listener_rtp_stream();
+    remove_tap_listener_rtp_stream(&the_tapinfo_struct);
 
     /* Is there a save voice window open? */
     if (rtpstream_save_dlg != NULL)
         window_destroy(rtpstream_save_dlg);
 
     /* Clean up memory used by stream tap */
-    rtpstream_reset((rtpstream_tapinfo_t *)rtpstream_get_info());
+    rtpstream_reset(rtpstream_dlg_get_tapinfo());
 
     /* Note that we no longer have a "RTP Streams" dialog box. */
     rtp_stream_dlg = NULL;
@@ -178,24 +185,6 @@ rtpstream_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
     selected_stream_rev = NULL;
     gtk_label_set_text(GTK_LABEL(label_fwd), FWD_LABEL_TEXT);
     gtk_label_set_text(GTK_LABEL(label_rev), REV_LABEL_TEXT);
-}
-
-
-/****************************************************************************/
-static gint rtp_stream_info_cmp_reverse(gconstpointer aa, gconstpointer bb)
-{
-    const struct _rtp_stream_info* a = (const struct _rtp_stream_info *)aa;
-    const struct _rtp_stream_info* b = (const struct _rtp_stream_info *)bb;
-
-    if (a==NULL || b==NULL)
-        return 1;
-    if ((ADDRESSES_EQUAL(&(a->src_addr), &(b->dest_addr)))
-        && (a->src_port == b->dest_port)
-        && (ADDRESSES_EQUAL(&(a->dest_addr), &(b->src_addr)))
-        && (a->dest_port == b->src_port))
-        return 0;
-    else
-        return 1;
 }
 
 /****************************************************************************/
@@ -254,7 +243,7 @@ rtpstream_on_findrev(GtkButton  *button _U_, gpointer user_data _U_)
     gtk_tree_model_get_iter(GTK_TREE_MODEL(list_store), &iter, path_fwd);
     while (gtk_tree_model_iter_next(GTK_TREE_MODEL(list_store), &iter)) {
         gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, RTP_COL_DATA, &stream, -1);
-        if (rtp_stream_info_cmp_reverse(selected_stream_fwd, stream) == 0) {
+        if (rtp_stream_info_is_reverse(selected_stream_fwd, stream)) {
             found_it = TRUE;
             break;
         }
@@ -265,7 +254,7 @@ rtpstream_on_findrev(GtkButton  *button _U_, gpointer user_data _U_)
         gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter);
         do {
             gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, RTP_COL_DATA, &stream, -1);
-            if (rtp_stream_info_cmp_reverse(selected_stream_fwd, stream) == 0) {
+            if (rtp_stream_info_is_reverse(selected_stream_fwd, stream)) {
                 found_it = TRUE;
                 break;
             }
@@ -369,7 +358,7 @@ rtpstream_on_mark(GtkButton *button _U_, gpointer user_data _U_)
 {
     if (selected_stream_fwd==NULL && selected_stream_rev==NULL)
         return;
-    rtpstream_mark(selected_stream_fwd, selected_stream_rev);
+    rtpstream_mark(&the_tapinfo_struct, &cfile, selected_stream_fwd, selected_stream_rev);
 }
 
 
@@ -446,7 +435,7 @@ rtpstream_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 
 /*
     main_filter_packets(&cfile, filter_string, FALSE);
-    rtpstream_dlg_update(rtpstream_get_info()->strinfo_list);
+    rtpstream_dlg_update(rtpstream_dlg_get_tapinfo()->strinfo_list);
 */
 }
 
@@ -480,7 +469,6 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
     if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list_store), &iter)) {
         for (i=0; i<streams_nb; i++) {
             for (j=0; j<NUM_COLS-1; j++) {
-                /*if (j == RTP_COL_SRC_PORT || j == RTP_COL_DST_PORT || j == RTP_COL_PACKETS) { */
                 if (gtk_tree_model_get_column_type(GTK_TREE_MODEL(list_store), j) == G_TYPE_UINT) {
                     gtk_tree_model_get(GTK_TREE_MODEL(list_store), &iter, j, &table_entry_uint, -1);
                     g_string_append_printf(CSV_str, "\"%u\"", table_entry_uint);
@@ -1098,14 +1086,20 @@ rtpstream_dlg_create (void)
 
 
 /****************************************************************************/
-/* PUBLIC                                   */
-/****************************************************************************/
-
-/****************************************************************************/
 /* update the contents of the dialog box list_store */
 /* list: pointer to list of rtp_stream_info_t* */
-void rtpstream_dlg_update(GList *list_lcl)
+static void
+rtpstream_dlg_update(void *ti_ptr)
 {
+    GList *list_lcl;
+    rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *)ti_ptr;
+
+    if (!tapinfo) {
+        return;
+    }
+
+    list_lcl = tapinfo->strinfo_list;
+
     if (rtp_stream_dlg != NULL) {
         gtk_list_store_clear(list_store);
         streams_nb = 0;
@@ -1123,6 +1117,16 @@ void rtpstream_dlg_update(GList *list_lcl)
     last_list = list_lcl;
 }
 
+static void
+rtpstream_dlg_mark_packet(rtpstream_tapinfo_t *tapinfo _U_, frame_data *fd) {
+    if (!fd) return;
+
+    cf_mark_frame(&cfile, fd);
+}
+
+/****************************************************************************/
+/* PUBLIC                                   */
+/****************************************************************************/
 
 /****************************************************************************/
 /* update the contents of the dialog box list_store */
@@ -1150,13 +1154,13 @@ void rtpstream_dlg_show(GList *list_lcl)
 void rtpstream_launch(GtkAction *action _U_, gpointer user_data _U_)
 {
     /* Register the tap listener */
-    register_tap_listener_rtp_stream();
+    register_tap_listener_rtp_stream(&the_tapinfo_struct);
 
     /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan();
+    rtpstream_scan(&the_tapinfo_struct, &cfile);
 
     /* Show the dialog box with the list of streams */
-    rtpstream_dlg_show(rtpstream_get_info()->strinfo_list);
+    rtpstream_dlg_show(the_tapinfo_struct.strinfo_list);
 
     /* Tap listener will be removed and cleaned up in rtpstream_on_destroy */
 }
@@ -1165,6 +1169,12 @@ void rtpstream_launch(GtkAction *action _U_, gpointer user_data _U_)
 void
 register_tap_listener_rtp_stream_dlg(void)
 {
+}
+
+/****************************************************************************/
+/* Needed by iax2_analysis.c */
+rtpstream_tapinfo_t *rtpstream_dlg_get_tapinfo(void) {
+   return &the_tapinfo_struct;
 }
 
 /*

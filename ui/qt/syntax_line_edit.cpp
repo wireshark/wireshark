@@ -59,9 +59,9 @@ void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
             .arg(Invalid)
             .arg(Deprecated)
             .arg("palette(text)")   // Foreground
-            .arg(ColorUtils::fromColorT(&prefs.gui_text_valid).name()) // Invalid
-            .arg(ColorUtils::fromColorT(&prefs.gui_text_invalid).name())      // Deprecated
-            .arg(ColorUtils::fromColorT(&prefs.gui_text_deprecated).name())   // Valid
+            .arg(ColorUtils::fromColorT(&prefs.gui_text_valid).name())        // Valid
+            .arg(ColorUtils::fromColorT(&prefs.gui_text_invalid).name())      // Invalid
+            .arg(ColorUtils::fromColorT(&prefs.gui_text_deprecated).name())   // VDeprecated
             ;
     setStyleSheet(style_sheet_);
 }

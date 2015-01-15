@@ -33,6 +33,7 @@
 
 #define UTF8_MIDDLE_DOT                     "\xc2\xb7"      /*  183 /   0xb7 */
 
+#define UTF8_BULLET                     "\xe2\x80\xa2"      /* 8226 / 0x2024 */
 #define UTF8_HORIZONTAL_ELLIPSIS        "\xe2\x80\xa6"      /* 8230 / 0x2026 */
 #define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
 #define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */

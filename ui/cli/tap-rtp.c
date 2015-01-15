@@ -51,13 +51,11 @@ void register_tap_listener_rtp_streams(void);
 /* The one and only global rtpstream_tapinfo_t structure for tshark and wireshark.
  */
 static rtpstream_tapinfo_t the_tapinfo_struct =
-        {0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE};
+        {NULL, NULL, NULL, 0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, 0, FALSE};
 
 static void
 rtp_streams_stat_draw(void *arg _U_)
 {
-
-
     GList *list;
     rtp_stream_info_t *strinfo;
     gchar *payload_type;

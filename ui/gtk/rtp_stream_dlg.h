@@ -28,6 +28,8 @@
 
 #include <gtk/gtk.h>
 
+#include "ui/rtp_stream.h"
+
 /** @file
  *  "RTP Stream Analysis" dialog box.
  *  @ingroup dialog_group
@@ -41,10 +43,12 @@
 void rtpstream_dlg_show(GList *list);
 
 /**
- * Update the contents of the dialog box clist with that of list.
+ * Retrieves a constant reference to the unique info structure of the
+ * rtp_streams tap listener.
+ * The user should not modify the data pointed to.
  *
- * @param list pointer to list of rtp_stream_info_t*
+ * @return Pointer to an rtpstream_tapinfo_t
  */
-void rtpstream_dlg_update(GList *list);
+rtpstream_tapinfo_t *rtpstream_dlg_get_tapinfo(void);
 
 #endif /* __RTP_STREAM_DLG_H__ */

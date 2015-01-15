@@ -30,7 +30,6 @@
 #ifndef TAP_RTP_COMMON_H_INCLUDED
 #define TAP_RTP_COMMON_H_INCLUDED
 
-gint rtp_stream_info_cmp(gconstpointer, gconstpointer);
 void rtpstream_reset_cb(void*);
 void rtp_write_header(rtp_stream_info_t*, FILE*);
 void rtp_write_sample(rtp_sample_t*, FILE*);

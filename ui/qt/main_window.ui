@@ -442,8 +442,15 @@
      </property>
      <addaction name="actionTelephonyRTSPPacketCounter"/>
     </widget>
+    <widget class="QMenu" name="menuRTP">
+     <property name="title">
+      <string>RTP</string>
+     </property>
+     <addaction name="actionTelephonyRTPStreams"/>
+    </widget>
     <addaction name="actionTelephonyVoipCalls"/>
     <addaction name="actionTelephonyISUPMessages"/>
+    <addaction name="menuRTP"/>
     <addaction name="menuRTSP"/>
     <addaction name="actionTelephonySMPPOperations"/>
     <addaction name="actionTelephonyUCPMessages"/>
@@ -2211,6 +2218,11 @@
    </property>
    <property name="toolTip">
     <string>SIP Flows</string>
+   </property>
+  </action>
+  <action name="actionTelephonyRTPStreams">
+   <property name="text">
+    <string>RTP Streams</string>
    </property>
   </action>
  </widget>

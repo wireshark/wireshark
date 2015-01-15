@@ -88,6 +88,7 @@
 #include "print_dialog.h"
 #include "profile_dialog.h"
 #include "qt_ui_utils.h"
+#include "rtp_stream_dialog.h"
 #include "sctp_all_assocs_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
 #include "sctp_graph_dialog.h"
@@ -2466,6 +2467,18 @@ void MainWindow::on_actionTelephonyVoipCalls_triggered()
 void MainWindow::on_actionTelephonyISUPMessages_triggered()
 {
     openStatisticsTreeDialog("isup_msg");
+}
+
+void MainWindow::on_actionTelephonyRTPStreams_triggered()
+{
+    RtpStreamDialog *rtp_stream_dialog = new  RtpStreamDialog(*this, capture_file_);
+    connect(rtp_stream_dialog, SIGNAL(packetsMarked()),
+            packet_list_, SLOT(redrawVisiblePackets()));
+    connect(rtp_stream_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(rtp_stream_dialog, SIGNAL(updateFilter(QString&, bool)),
+            this, SLOT(filterPackets(QString&, bool)));
+    rtp_stream_dialog->show();
 }
 
 void MainWindow::on_actionTelephonyRTSPPacketCounter_triggered()

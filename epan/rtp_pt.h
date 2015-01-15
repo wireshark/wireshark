@@ -23,6 +23,10 @@
 #ifndef __RTP_PT_H__
 #define __RTP_PT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <epan/value_string.h>
 #include "ws_symbol_export.h"
 
@@ -100,4 +104,21 @@
 WS_DLL_PUBLIC value_string_ext rtp_payload_type_vals_ext;
 WS_DLL_PUBLIC value_string_ext rtp_payload_type_short_vals_ext;
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

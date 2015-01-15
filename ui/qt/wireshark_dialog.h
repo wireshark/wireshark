@@ -39,6 +39,7 @@ signals:
 public slots:
 
 protected:
+    virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }
     void setWindowSubtitle(const QString &subtitle);
     virtual void updateWidgets();
 
