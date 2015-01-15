@@ -419,7 +419,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
         wmem_free(NULL, src_addr);
         src_addr = new_addr;
     }
-    if (conv_item->dst_address.type == AT_STRINGZ || conv_item->src_address.type == AT_USB) {
+    if (conv_item->dst_address.type == AT_STRINGZ || conv_item->dst_address.type == AT_USB) {
         char *new_addr;
 
         new_addr = wmem_strdup_printf(NULL, "\"%s\"", dst_addr);
