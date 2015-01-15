@@ -2153,6 +2153,86 @@ dissect_subclv_spb_link_metric(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /*
+ * Name: dissect_sub_clv_tlv_22_22_23_141_222_223
+ *
+ * Description: Decode a sub tlv's for all those tlv
+ *
+ *   CALLED BY TLV 22,23,141,222,223 DISSECTOR
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   packet_info * : expert error misuse reporting
+ *   proto_tree * : protocol display tree to fill out.  May be NULL
+ *   int : offset into packet data where we are.
+ *   int : sub-tlv length
+ *   int : length of clv we are decoding
+ *
+ * Output:
+ *   void
+ */
+
+static void
+dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
+    int offset, int subclvs_len)
+{
+  proto_item *ti_subclvs = NULL;
+  proto_tree *subtree = NULL;
+  int sub_tlv_offset = 0;
+  int i = 0;
+  guint      clv_code, clv_len;
+
+  sub_tlv_offset  = offset;
+  while (i < subclvs_len) {
+    subtree = proto_tree_add_subtree(tree, tvb, sub_tlv_offset+11+i, 0,
+                                     ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv,
+                                     &ti_subclvs, "subTLV");
+    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_code,
+                        tvb, sub_tlv_offset+11+i, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, sub_tlv_offset+12+i, 1, ENC_BIG_ENDIAN);
+    clv_code = tvb_get_guint8(tvb, sub_tlv_offset+11+i);
+    clv_len  = tvb_get_guint8(tvb, sub_tlv_offset+12+i);
+    proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str(clv_code, isis_lsp_ext_is_reachability_code_vals, "Unknown"), clv_code, clv_len);
+    proto_item_set_len(ti_subclvs, clv_len+2);
+    switch (clv_code) {
+      case 3 :
+        dissect_subclv_admin_group(tvb, subtree, sub_tlv_offset+13+i);
+        break;
+      case 4 :
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_local_identifier, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_remote_identifier, tvb, sub_tlv_offset+17+i, 4, ENC_BIG_ENDIAN);
+        break;
+      case 6 :
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+        break;
+      case 8 :
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+        break;
+      case 9 :
+        dissect_subclv_max_bw(tvb, subtree, sub_tlv_offset+13+i);
+        break;
+      case 10:
+        dissect_subclv_rsv_bw(tvb, subtree, sub_tlv_offset+13+i);
+        break;
+      case 11:
+        dissect_subclv_unrsv_bw(tvb, subtree, sub_tlv_offset+13+i);
+        break;
+      case 18:
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, tvb, sub_tlv_offset+13+i, 3, ENC_BIG_ENDIAN);
+        break;
+      case 29:
+        dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
+                                       sub_tlv_offset+13+i, clv_code, clv_len);
+        break;
+      default:
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, sub_tlv_offset+13+i, clv_len, ENC_NA);
+        break;
+      }
+    i += clv_len + 2;
+  }
+}
+
+
+/*
  * Name: dissect_lsp_ext_is_reachability_clv()
  *
  * Description: Decode a Extended IS Reachability CLV - code 22
@@ -2179,11 +2259,10 @@ static void
 dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
     int offset, int id_length _U_, int length)
 {
-    proto_item *ti, *ti_subclvs_len, *ti_subclvs;
-    proto_tree *ntree = NULL, *subtree;
+    proto_item *ti, *ti_subclvs_len;
+    proto_tree *ntree = NULL;
     guint      subclvs_len;
-    guint      len, i;
-    guint      clv_code, clv_len;
+    guint      len;
 
     while (length > 0) {
         ntree = proto_tree_add_subtree(tree, tvb, offset, -1,
@@ -2201,51 +2280,8 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
             proto_item_append_text(ti_subclvs_len, " (no sub-TLVs present)");
         }
         else {
-            i = 0;
-            while (i < subclvs_len) {
-                subtree = proto_tree_add_subtree(ntree, tvb, offset+11+i, 0, ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv, &ti_subclvs, "subTLV");
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_code, tvb, offset+11+i, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, offset+12+i, 1, ENC_BIG_ENDIAN);
-                clv_code = tvb_get_guint8(tvb, offset+11+i);
-                clv_len  = tvb_get_guint8(tvb, offset+12+i);
-                proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str(clv_code, isis_lsp_ext_is_reachability_code_vals, "Unknown"), clv_code, clv_len);
-                proto_item_set_len(ti_subclvs, clv_len+2);
-                switch (clv_code) {
-                case 3 :
-                    dissect_subclv_admin_group(tvb, subtree, offset+13+i);
-                    break;
-                case 4 :
-                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_local_identifier, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_remote_identifier, tvb, offset+17+i, 4, ENC_BIG_ENDIAN);
-                    break;
-                case 6 :
-                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
-                    break;
-                case 8 :
-                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, offset+13+i, 4, ENC_BIG_ENDIAN);
-                    break;
-                case 9 :
-                    dissect_subclv_max_bw(tvb, subtree, offset+13+i);
-                    break;
-                case 10:
-                    dissect_subclv_rsv_bw(tvb, subtree, offset+13+i);
-                    break;
-                case 11:
-                    dissect_subclv_unrsv_bw(tvb, subtree, offset+13+i);
-                    break;
-                case 18:
-                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, tvb, offset+13+i, 3, ENC_BIG_ENDIAN);
-                    break;
-                case 29:
-                    dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
-                        offset+13+i, clv_code, clv_len);
-                    break;
-                default:
-                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, offset+13+i, clv_len, ENC_NA);
-                    break;
-                }
-                i += clv_len + 2;
-            }
+            dissect_sub_clv_tlv_22_22_23_141_222_223(tvb, pinfo, ntree,
+                                                    offset, subclvs_len);
         }
 
         len = 11 + subclvs_len;
