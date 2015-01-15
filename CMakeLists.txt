@@ -1423,15 +1423,18 @@ if(BUILD_wireshark AND QT_FOUND)
 
 		get_target_property(_qmake_location Qt5::qmake IMPORTED_LOCATION)
 		get_filename_component(_qt_bindir "${_qmake_location}" DIRECTORY)
-		find_program(_windeployqt windeployqt HINTS "${_qmake_location}")
-		if (NOT "${_windeployqt}" STREQUAL "_windeployqt-NOTFOUND")
+		find_program(QT_WINDEPLOYQT_EXECUTABLE windeployqt
+			HINTS "${_qmake_location}"
+			DOC "Path to the windeployqt utility."
+		)
+		if (NOT "${QT_WINDEPLOYQT_EXECUTABLE}" STREQUAL "QT_WINDEPLOYQT_EXECUTABLE-NOTFOUND")
 			add_custom_target(copy_qt_dlls ALL)
 			# Will we ever need to use --debug? Windeployqt seems to
 			# be smart enough to copy debug DLLs when needed.
 			add_custom_command(TARGET copy_qt_dlls
 				POST_BUILD
 				COMMAND set "PATH=%PATH%;${_qt_bindir}"
-				COMMAND "${_windeployqt}"
+				COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
 					$<$<CONFIG:Debug>:--debug>
 					$<$<NOT:$<CONFIG:Debug>>:--release>
 					--no-compiler-runtime
