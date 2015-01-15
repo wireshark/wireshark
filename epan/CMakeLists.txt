@@ -455,6 +455,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-carp.c
 	dissectors/packet-cast.c
 	dissectors/packet-catapult-dct2000.c
+	dissectors/packet-cattp.c
 	dissectors/packet-ccsds.c
 	dissectors/packet-cdp.c
 	dissectors/packet-cell_broadcast.c

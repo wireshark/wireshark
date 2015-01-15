@@ -95,6 +95,7 @@ Riemann
 MACsec Key Agreement - EAPoL-MKA
 DJI UAV Drone Control Protocol
 ZVT Kassenschnittstelle
+ETSI Card Application Toolkit - Transport Protocol
 --sort-and-group--
 
 === Updated Protocol Support
