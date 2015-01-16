@@ -79,10 +79,21 @@ static int hf_zbee_zcl_cs_cmd_id = -1;
 static int hf_zbee_zcl_attr_id = -1;
 static int hf_zbee_zcl_attr_data_type = -1;
 static int hf_zbee_zcl_attr_boolean = -1;
+static int hf_zbee_zcl_attr_bitmap8 = -1;
+static int hf_zbee_zcl_attr_bitmap16 = -1;
+static int hf_zbee_zcl_attr_bitmap24 = -1;
+static int hf_zbee_zcl_attr_bitmap32 = -1;
+static int hf_zbee_zcl_attr_bitmap40 = -1;
+static int hf_zbee_zcl_attr_bitmap48 = -1;
+static int hf_zbee_zcl_attr_bitmap56 = -1;
+static int hf_zbee_zcl_attr_bitmap64 = -1;
 static int hf_zbee_zcl_attr_uint8 = -1;
 static int hf_zbee_zcl_attr_uint16 = -1;
 static int hf_zbee_zcl_attr_uint24 = -1;
 static int hf_zbee_zcl_attr_uint32 = -1;
+static int hf_zbee_zcl_attr_uint40 = -1;
+static int hf_zbee_zcl_attr_uint48 = -1;
+static int hf_zbee_zcl_attr_uint56 = -1;
 static int hf_zbee_zcl_attr_uint64 = -1;
 static int hf_zbee_zcl_attr_int8 = -1;
 static int hf_zbee_zcl_attr_int16 = -1;
@@ -1536,149 +1547,141 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             break;
 
         case ZBEE_ZCL_8_BIT_DATA:
-        case ZBEE_ZCL_8_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, 1, ENC_NA);
+            (*offset) += 1;
+            break;
+
+        case ZBEE_ZCL_8_BIT_BITMAP:
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap8, tvb, *offset, 1, ENC_NA);
+            proto_item_append_text(tree, ", Bitmap: %02x", (int)(*tvb_get_ptr(tvb, *offset, 1)));
             (*offset) += 1;
             break;
 
         case ZBEE_ZCL_8_BIT_UINT:
         case ZBEE_ZCL_8_BIT_ENUM:
-
             /* Display 8 bit unsigned integer */
             attr_uint = tvb_get_guint8(tvb, *offset);
-
             proto_item_append_text(tree, ", %s: %u",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_uint8, tvb, *offset, 1, ENC_NA);
             *offset += 1;
             break;
 
         case ZBEE_ZCL_8_BIT_INT:
             /* Display 8 bit integer */
-
             attr_int = (gint8)tvb_get_guint8(tvb, *offset);
-
             proto_item_append_text(tree, ", %s: %-d",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_int8, tvb, *offset, 1, ENC_NA);
-
             *offset += 1;
             break;
 
         case ZBEE_ZCL_BOOLEAN:
-
             attr_uint = tvb_get_guint8(tvb, *offset);
-
             proto_item_append_text(tree, ", %s: 0x%02x",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_boolean, tvb, *offset, 1, ENC_BIG_ENDIAN);
-
             *offset += 1;
             break;
 
         case ZBEE_ZCL_16_BIT_DATA:
-        case ZBEE_ZCL_16_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, 2, ENC_NA);
+            (*offset) += 2;
+            break;
+
+        case ZBEE_ZCL_16_BIT_BITMAP:
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap16, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(tree, ", Bitmap: %04" G_GINT16_MODIFIER "x", tvb_get_letohs(tvb, *offset));
             (*offset) += 2;
             break;
 
         case ZBEE_ZCL_16_BIT_UINT:
         case ZBEE_ZCL_16_BIT_ENUM:
             /* Display 16 bit unsigned integer */
-
             attr_uint = tvb_get_letohs(tvb, *offset);
-
             proto_item_append_text(tree, ", %s: %u",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_uint16, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
             break;
 
         case ZBEE_ZCL_16_BIT_INT:
             /* Display 16 bit integer */
-
             attr_int = (gint16)tvb_get_letohs(tvb, *offset);
-
             proto_item_append_text(tree, ", %s: %-d",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_int16, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-
             *offset += 2;
             break;
 
         case ZBEE_ZCL_24_BIT_DATA:
-        case ZBEE_ZCL_24_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, 3, ENC_NA);
+            (*offset) += 3;
+            break;
+
+        case ZBEE_ZCL_24_BIT_BITMAP:
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap24, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(tree, ", Bitmap: %06" G_GINT32_MODIFIER "x", tvb_get_letoh24(tvb, *offset));
             (*offset) += 3;
             break;
 
         case ZBEE_ZCL_24_BIT_UINT:
             /* Display 24 bit unsigned integer */
-
             attr_uint = tvb_get_letoh24(tvb, *offset);
-
             proto_item_append_text(tree, ", %s: %u",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_uint24, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
-
             *offset += 3;
             break;
 
         case ZBEE_ZCL_24_BIT_INT:
             /* Display 24 bit signed integer */
-
             attr_int = (gint)tvb_get_letoh24(tvb, *offset);
             /* sign extend into int32 */
             if (attr_int & INT24_SIGN_BITS) attr_int |= INT24_SIGN_BITS;
-
             proto_item_append_text(tree, ", %s: %-d",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_int24, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
-
             *offset += 3;
             break;
 
         case ZBEE_ZCL_32_BIT_DATA:
-        case ZBEE_ZCL_32_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, 4, ENC_NA);
+            (*offset) += 4;
+            break;
+
+        case ZBEE_ZCL_32_BIT_BITMAP:
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap32, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(tree, ", Bitmap: %08" G_GINT32_MODIFIER "x", tvb_get_letohl(tvb, *offset));
             (*offset) += 4;
             break;
 
         case ZBEE_ZCL_32_BIT_UINT:
             /* Display 32 bit unsigned integer */
-
             attr_uint = tvb_get_letohl(tvb, *offset);
-
             proto_item_append_text(tree, ", %s: %u",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_uint);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_uint32, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-
             *offset += 4;
             break;
 
         case ZBEE_ZCL_32_BIT_INT:
             /* Display 32 bit signed integer */
-
             attr_int = (gint)tvb_get_letohl(tvb, *offset);
-
             proto_item_append_text(tree, ", %s: %-d",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_int);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_int32, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             *offset += 4;
             break;
 
         case ZBEE_ZCL_40_BIT_DATA:
-        case ZBEE_ZCL_40_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, 5, ENC_NA);
+            (*offset) += 5;
+            break;
+
+        case ZBEE_ZCL_40_BIT_BITMAP:
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap40, tvb, *offset, 5, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(tree, ", Bitmap: %010" G_GINT64_MODIFIER "x", tvb_get_letoh40(tvb, *offset));
             (*offset) += 5;
             break;
 
@@ -1695,13 +1698,18 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             break;
 
         case ZBEE_ZCL_48_BIT_DATA:
-        case ZBEE_ZCL_48_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, 6, ENC_NA);
             (*offset) += 6;
             break;
 
+        case ZBEE_ZCL_48_BIT_BITMAP:
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap48, tvb, *offset, 6, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(tree, ", Bitmap: %012" G_GINT64_MODIFIER "x", tvb_get_letoh48(tvb, *offset));
+            (*offset) += 6;
+            break;
+
         case ZBEE_ZCL_48_BIT_UINT:
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_uint64, tvb, *offset, 6, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_uint48, tvb, *offset, 6, ENC_LITTLE_ENDIAN);
             proto_item_append_text(tree, ", Uint: %" G_GINT64_MODIFIER "u", tvb_get_letoh48(tvb, *offset));
             (*offset) += 6;
             break;
@@ -1713,13 +1721,18 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             break;
 
         case ZBEE_ZCL_56_BIT_DATA:
-        case ZBEE_ZCL_56_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, 7, ENC_NA);
             (*offset) += 7;
             break;
 
+        case ZBEE_ZCL_56_BIT_BITMAP:
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap56, tvb, *offset, 7, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(tree, ", Bitmap: %014" G_GINT64_MODIFIER "x", tvb_get_letoh56(tvb, *offset));
+            (*offset) += 7;
+            break;
+
         case ZBEE_ZCL_56_BIT_UINT:
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_uint64, tvb, *offset, 7, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_uint56, tvb, *offset, 7, ENC_LITTLE_ENDIAN);
             proto_item_append_text(tree, ", Uint: %" G_GINT64_MODIFIER "u", tvb_get_letoh56(tvb, *offset));
             (*offset) += 7;
             break;
@@ -1731,8 +1744,13 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             break;
 
         case ZBEE_ZCL_64_BIT_DATA:
-        case ZBEE_ZCL_64_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bytes, tvb, *offset, 8, ENC_NA);
+            (*offset) += 8;
+            break;
+
+        case ZBEE_ZCL_64_BIT_BITMAP:
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap64, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(tree, ", Bitmap: %016" G_GINT64_MODIFIER "x", tvb_get_letoh64(tvb, *offset));
             (*offset) += 8;
             break;
 
@@ -1756,72 +1774,51 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_SINGLE_FLOAT:
             attr_float = tvb_get_letohieee_float(tvb, *offset);
-
-
             proto_item_append_text(tree, ", %s: %g",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_float);
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_float, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-
             *offset += 4;
             break;
 
         case ZBEE_ZCL_DOUBLE_FLOAT:
             attr_double = tvb_get_letohieee_double(tvb, *offset);
-
             proto_item_append_text(tree, ", Double: %g", attr_double);
             proto_tree_add_item(tree, hf_zbee_zcl_attr_double, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
-
             *offset += 8;
             break;
 
         case ZBEE_ZCL_OCTET_STRING:
-
             /* Display octet string */
             attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
             if (attr_uint == ZBEE_ZCL_INVALID_STR_LENGTH) attr_uint = 0;
-
             proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, 1,
                         attr_uint);
-
             *offset += 1;
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint, ENC_NA);
             proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, *offset, attr_uint, ':'));
-
             *offset += attr_uint;
             break;
 
         case ZBEE_ZCL_CHAR_STRING:
-
             /* Display string */
             attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
             if (attr_uint == ZBEE_ZCL_INVALID_STR_LENGTH) attr_uint = 0;
-
             proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, 1, attr_uint);
-
             *offset += 1;
-
             attr_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, attr_uint, ENC_ASCII);
-
             proto_item_append_text(tree, ", String: %s", attr_string);
             proto_tree_add_string(tree, hf_zbee_zcl_attr_str, tvb, *offset, attr_uint, attr_string);
-
             *offset += attr_uint;
             break;
 
         case ZBEE_ZCL_LONG_OCTET_STRING:
-
             /* Display long octet string */
             attr_uint = tvb_get_letohs(tvb, *offset); /* string length */
             if (attr_uint == ZBEE_ZCL_INVALID_LONG_STR_LENGTH) attr_uint = 0;
             proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, 2, attr_uint);
-
             *offset += 2;
-
             proto_tree_add_item(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, attr_uint, ENC_NA);
             proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, *offset, attr_uint, ':'));
-
             *offset += attr_uint;
             break;
 
@@ -1830,14 +1827,11 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             /* Display long string */
             attr_uint = tvb_get_letohs(tvb, *offset); /* string length */
             if (attr_uint == ZBEE_ZCL_INVALID_LONG_STR_LENGTH) attr_uint = 0;
-
             proto_tree_add_uint(tree, hf_zbee_zcl_attr_str_len, tvb, *offset, 2, attr_uint);
             *offset += 2;
-
             attr_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, attr_uint, ENC_ASCII);
             proto_item_append_text(tree, ", String: %s", attr_string);
             proto_tree_add_string(tree, hf_zbee_zcl_attr_str, tvb, *offset, attr_uint, attr_string);
-
             *offset += attr_uint;
             break;
 
@@ -1901,7 +1895,6 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             attr_uint8[1] = dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_mm);
             attr_uint8[2] = dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_md);
             attr_uint8[3] = dissect_zcl_attr_uint8(tvb, tree, offset, &hf_zbee_zcl_attr_wd);
-
             proto_item_append_text(tree, ", Date: %u/%u/%u %s",
                 attr_uint8[0]+1900, attr_uint8[1], attr_uint8[2],
                 val_to_str_ext_const(attr_uint8[3], &zbee_zcl_wd_names_ext, "Invalid Weekday") );
@@ -1912,11 +1905,9 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             attr_time.secs = tvb_get_letohl(tvb, *offset);
             attr_time.secs += ZBEE_ZCL_NSTIME_UTC_OFFSET;
             attr_time.nsecs = 0;
-
             proto_item_append_text(tree, ", %s",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved") );
             proto_tree_add_time(tree, hf_zbee_zcl_attr_utc, tvb, *offset, 4, &attr_time);
-
             *offset += 4;
             break;
 
@@ -2181,6 +2172,38 @@ void proto_register_zbee_zcl(void)
             { "Boolean",    "zbee_zcl.attr.boolean", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0xff,
                 NULL, HFILL }},
 
+        { &hf_zbee_zcl_attr_bitmap8,
+            { "Bitmap8",  "zbee_zcl.attr.bitmap8", FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bitmap16,
+            { "Bitmap16", "zbee_zcl.attr.bitmap16", FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bitmap24,
+            { "Bitmap24", "zbee_zcl.attr.bitmap24", FT_UINT24, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bitmap32,
+            { "Bitmap32", "zbee_zcl.attr.bitmap32", FT_UINT32, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bitmap40,
+            { "Bitmap40", "zbee_zcl.attr.bitmap40", FT_UINT64, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bitmap48,
+            { "Bitmap48", "zbee_zcl.attr.bitmap48", FT_UINT64, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bitmap56,
+            { "Bitmap56", "zbee_zcl.attr.bitmap56", FT_UINT64, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bitmap64,
+            { "Bitmap64", "zbee_zcl.attr.bitmap64", FT_UINT64, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
         { &hf_zbee_zcl_attr_uint8,
             { "Uint8",  "zbee_zcl.attr.uint8", FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
                 NULL, HFILL }},
@@ -2195,6 +2218,18 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_attr_uint32,
             { "Uint32", "zbee_zcl.attr.uint32", FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_uint40,
+            { "Uint40", "zbee_zcl.attr.uint40", FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_uint48,
+            { "Uint48", "zbee_zcl.attr.uint48", FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_uint56,
+            { "Uint56", "zbee_zcl.attr.uint56", FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_uint64,
