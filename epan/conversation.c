@@ -459,7 +459,8 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 }
 
 /*
- * Free the proto_data.  The conversation itself is se_allocated.
+ * Free the proto_data.  The conversation itself is wmem-allocated with
+ * file scope.
  */
 static void
 free_data_list(gpointer value)
