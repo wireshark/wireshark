@@ -113,11 +113,11 @@ circuit_new(circuit_type ctype, guint32 circuit_id, guint32 first_frame)
 	circuit_t *circuit, *old_circuit;
 	circuit_key *new_key;
 
-	new_key = se_new(struct circuit_key);
+	new_key = wmem_new(wmem_file_scope(), struct circuit_key);
 	new_key->ctype = ctype;
 	new_key->circuit_id = circuit_id;
 
-	circuit = se_new(circuit_t);
+	circuit = wmem_new(wmem_file_scope(), circuit_t);
 	circuit->next = NULL;
 	circuit->first_frame = first_frame;
 	circuit->last_frame = 0;	/* not known yet */
@@ -225,7 +225,7 @@ p_compare(gconstpointer a, gconstpointer b)
 void
 circuit_add_proto_data(circuit_t *conv, int proto, void *proto_data)
 {
-	circuit_proto_data *p1 = se_new(circuit_proto_data);
+	circuit_proto_data *p1 = wmem_new(wmem_file_scope(), circuit_proto_data);
 
 	p1->proto = proto;
 	p1->proto_data = proto_data;

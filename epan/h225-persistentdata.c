@@ -81,10 +81,10 @@ h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packe
 	   frame numbers are 1-origin, so we use 0
 	   to mean "we don't yet know in which frame
 	   the reply for this call appears". */
-	new_h225ras_call_key = se_new(h225ras_call_info_key);
+	new_h225ras_call_key = wmem_new(wmem_file_scope(), h225ras_call_info_key);
 	new_h225ras_call_key->reqSeqNum = h225ras_call_key->reqSeqNum;
 	new_h225ras_call_key->conversation = h225ras_call_key->conversation;
-	h225ras_call = se_new(h225ras_call_t);
+	h225ras_call = wmem_new(wmem_file_scope(), h225ras_call_t);
 	h225ras_call->req_num = pinfo->fd->num;
 	h225ras_call->rsp_num = 0;
 	h225ras_call->requestSeqNum = h225ras_call_key->reqSeqNum;
@@ -107,7 +107,7 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
 	   frame numbers are 1-origin, so we use 0
 	   to mean "we don't yet know in which frame
 	   the reply for this call appears". */
-	h225ras_call = se_new(h225ras_call_t);
+	h225ras_call = wmem_new(wmem_file_scope(), h225ras_call_t);
 	h225ras_call->req_num = pinfo->fd->num;
 	h225ras_call->rsp_num = 0;
 	h225ras_call->requestSeqNum = prev_call->requestSeqNum;

@@ -7319,9 +7319,9 @@ new_camelsrt_call(struct camelsrt_call_info_key_t *p_camelsrt_call_key)
      with the tcap transaction Id as main Key
      Once created, this entry will be updated later */
 
-  p_new_camelsrt_call_key = se_new(struct camelsrt_call_info_key_t);
+  p_new_camelsrt_call_key = wmem_new(wmem_file_scope(), struct camelsrt_call_info_key_t);
   p_new_camelsrt_call_key->SessionIdKey = p_camelsrt_call_key->SessionIdKey;
-  p_new_camelsrt_call = se_new(struct camelsrt_call_t);
+  p_new_camelsrt_call = wmem_new(wmem_file_scope(), struct camelsrt_call_t);
   raz_camelsrt_call(p_new_camelsrt_call);
   p_new_camelsrt_call->session_id = camelsrt_global_SessionId++;
 #ifdef DEBUG_CAMELSRT

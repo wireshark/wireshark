@@ -695,7 +695,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 		}
 	}
 
-	new_key = se_new(struct conversation_key);
+	new_key = wmem_new(wmem_file_scope(), struct conversation_key);
 	new_key->next = conversation_keys;
 	conversation_keys = new_key;
 	SE_COPY_ADDRESS(&new_key->addr1, addr1);
@@ -704,7 +704,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key->port1 = port1;
 	new_key->port2 = port2;
 
-	conversation = se_new(conversation_t);
+	conversation = wmem_new(wmem_file_scope(), conversation_t);
 	memset(conversation, 0, sizeof(conversation_t));
 
 	conversation->index = new_index;
@@ -1229,7 +1229,7 @@ p_compare(gconstpointer a, gconstpointer b)
 void
 conversation_add_proto_data(conversation_t *conv, const int proto, void *proto_data)
 {
-	conv_proto_data *p1 = se_new(conv_proto_data);
+	conv_proto_data *p1 = wmem_new(wmem_file_scope(), conv_proto_data);
 
 	p1->proto = proto;
 	p1->proto_data = proto_data;
