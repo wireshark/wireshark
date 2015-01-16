@@ -220,7 +220,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     pgn = (can_id.id & 0x3FFFF00) >> 8;
 
     /* If PF < 240, PS is destination address, last byte of PGN is cleared */
-    if (((can_id.id & 0xFF00) >> 8) < 240)
+    if (((can_id.id & 0xFF0000) >> 16) < 240)
     {
         pgn &= 0x3FF00;
 
