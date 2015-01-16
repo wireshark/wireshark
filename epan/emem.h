@@ -68,20 +68,10 @@ gchar* ep_strdup(const gchar* src) G_GNUC_MALLOC;
 WS_DLL_PUBLIC
 gchar* ep_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
 
-/** Duplicate a buffer with a packet lifetime scope */
-WS_DLL_PUBLIC
-void* ep_memdup(const void* src, size_t len) G_GNUC_MALLOC;
-
 /** Create a formatted string with a packet lifetime scope */
-WS_DLL_PUBLIC
-gchar* ep_strdup_vprintf(const gchar* fmt, va_list ap)
-    G_GNUC_MALLOC G_GNUC_PRINTF(1, 0);
 WS_DLL_PUBLIC
 gchar* ep_strdup_printf(const gchar* fmt, ...)
     G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
-
-WS_DLL_PUBLIC
-gchar *ep_strconcat(const gchar *string, ...) G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
 
 /** release all memory allocated in the previous packet dissection */
 void ep_free_all(void);

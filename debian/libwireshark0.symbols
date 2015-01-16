@@ -440,11 +440,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  empty_tcp_stream@Base 1.9.1
  ep_alloc0@Base 1.9.1
  ep_alloc@Base 1.9.1
- ep_memdup@Base 1.9.1
- ep_strconcat@Base 1.9.1
  ep_strdup@Base 1.9.1
  ep_strdup_printf@Base 1.9.1
- ep_strdup_vprintf@Base 1.9.1
  ep_strndup@Base 1.9.1
  epan_cleanup@Base 1.9.1
  epan_dissect_cleanup@Base 1.9.1

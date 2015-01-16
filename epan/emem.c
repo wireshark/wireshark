@@ -987,12 +987,6 @@ ep_strndup(const gchar *src, size_t len)
 
 
 
-void *
-ep_memdup(const void* src, size_t len)
-{
-	return memcpy(ep_alloc(len), src, len);
-}
-
 static gchar *
 emem_strdup_vprintf(const gchar *fmt, va_list ap, void *allocator(size_t))
 {
@@ -1011,7 +1005,7 @@ emem_strdup_vprintf(const gchar *fmt, va_list ap, void *allocator(size_t))
 	return dst;
 }
 
-gchar *
+static gchar *
 ep_strdup_vprintf(const gchar *fmt, va_list ap)
 {
 	return emem_strdup_vprintf(fmt, ap, ep_alloc);
@@ -1028,43 +1022,6 @@ ep_strdup_printf(const gchar *fmt, ...)
 	va_end(ap);
 	return dst;
 }
-
-gchar *
-ep_strconcat(const gchar *string1, ...)
-{
-	gsize   l;
-	va_list args;
-	gchar   *s;
-	gchar   *concat;
-	gchar   *ptr;
-
-	if (!string1)
-		return NULL;
-
-	l = 1 + strlen(string1);
-	va_start(args, string1);
-	s = va_arg(args, gchar*);
-	while (s) {
-		l += strlen(s);
-		s = va_arg(args, gchar*);
-	}
-	va_end(args);
-
-	concat = (gchar *)ep_alloc(l);
-	ptr = concat;
-
-	ptr = g_stpcpy(ptr, string1);
-	va_start(args, string1);
-	s = va_arg(args, gchar*);
-	while (s) {
-		ptr = g_stpcpy(ptr, s);
-		s = va_arg(args, gchar*);
-	}
-	va_end(args);
-
-	return concat;
-}
-
 
 
 /* release all allocated memory back to the pool. */
