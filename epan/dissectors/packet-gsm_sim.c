@@ -34,7 +34,12 @@ void proto_reg_handoff_gsm_sim(void);
 static int proto_gsm_sim = -1;
 
 /* ISO 7816-4 APDU */
-static int hf_apdu_cla = -1;
+static int hf_apdu_cla_coding = -1;
+static int hf_apdu_cla_coding_ext = -1;
+static int hf_apdu_cla_secure_messaging_ind = -1;
+static int hf_apdu_cla_secure_messaging_ind_ext = -1;
+static int hf_apdu_cla_log_chan = -1;
+static int hf_apdu_cla_log_chan_ext = -1;
 static int hf_apdu_ins = -1;
 static int hf_apdu_p1 = -1;
 static int hf_apdu_p2 = -1;
@@ -714,9 +719,30 @@ static const value_string chan_op_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string apdu_cla_vals[] = {
-	{ 0xa0,	"GSM" },
+static const value_string apdu_cla_coding_vals[] = {
+	{ 0x00,	"ISO/IEC 7816-4" },
+	{ 0x08,	"ETSI TS 102.221" },
+	{ 0x0a,	"ISO/IEC 7816-4 unless stated otherwise" },
 	{ 0, NULL }
+};
+
+static const value_string apdu_cla_coding_ext_vals[] = {
+	{ 0x01,	"ISO/IEC 7816-4" },
+	{ 0x03,	"ETSI TS 102.221" },
+	{ 0, NULL }
+};
+
+static const value_string apdu_cla_secure_messaging_ind_vals[] = {
+	{ 0x00,	"No SM used between terminal and card" },
+	{ 0x01,	"Proprietary SM format" },
+	{ 0x02,	"Command header not authenticated" },
+	{ 0x03,	"Command header authenticated" },
+	{ 0, NULL }
+};
+
+static const true_false_string apdu_cla_secure_messaging_ind_ext_val = {
+	"Command header not authenticated",
+	"No SM used between terminal and card"
 };
 
 /* Table 9 of GSM TS 11.11 */
@@ -1425,13 +1451,26 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
 		sim_tree = proto_item_add_subtree(ti, ett_sim);
 
-		proto_tree_add_item(sim_tree, hf_apdu_cla, tvb, offset, 1, ENC_BIG_ENDIAN);
+		if ((cla & 0x50) == 0x40) {
+			proto_tree_add_item(sim_tree, hf_apdu_cla_coding_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+		} else {
+			proto_tree_add_item(sim_tree, hf_apdu_cla_coding, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sim_tree, hf_apdu_cla_secure_messaging_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sim_tree, hf_apdu_cla_log_chan, tvb, offset, 1, ENC_BIG_ENDIAN);
+		}
 		proto_tree_add_item(sim_tree, hf_apdu_ins, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-			val_to_str(cla, apdu_cla_vals, "%02x"));
+	if ((cla & 0x50) == 0x40) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(cla>>6, apdu_cla_coding_ext_vals, "%01x"));
+	} else {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+				val_to_str(cla>>4, apdu_cla_coding_vals, "%01x"));
+	}
 
 	/* if (cla == 0xA0) */
 		rc = dissect_gsm_apdu(ins, p1, p2, p3, tvb, offset, pinfo, sim_tree, isSIMtrace);
@@ -1479,9 +1518,34 @@ void
 proto_register_gsm_sim(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_apdu_cla,
-			{ "Class", "gsm_sim.apdu.cla",
-			  FT_UINT8, BASE_HEX, VALS(apdu_cla_vals), 0,
+		{ &hf_apdu_cla_coding,
+			{ "Class Coding", "gsm_sim.apdu.cla.coding",
+			  FT_UINT8, BASE_HEX, VALS(apdu_cla_coding_vals), 0xf0,
+			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
+		},
+		{ &hf_apdu_cla_coding_ext,
+			{ "Class Coding", "gsm_sim.apdu.cla.coding",
+			  FT_UINT8, BASE_HEX, VALS(apdu_cla_coding_ext_vals), 0xc0,
+			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
+		},
+		{ &hf_apdu_cla_secure_messaging_ind,
+			{ "Secure Messaging Indication", "gsm_sim.apdu.cla.secure_messaging_ind",
+			  FT_UINT8, BASE_HEX, VALS(apdu_cla_secure_messaging_ind_vals), 0x0c,
+			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
+		},
+		{ &hf_apdu_cla_secure_messaging_ind_ext,
+			{ "Secure Messaging Indication", "gsm_sim.apdu.cla.secure_messaging_ind",
+			  FT_BOOLEAN, 8, TFS(&apdu_cla_secure_messaging_ind_ext_val), 0x20,
+			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
+		},
+		{ &hf_apdu_cla_log_chan,
+			{ "Logical Channel number", "gsm_sim.apdu.cla.log_chan",
+			  FT_UINT8, BASE_DEC, NULL, 0x03,
+			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
+		},
+		{ &hf_apdu_cla_log_chan_ext,
+			{ "Logical Channel number", "gsm_sim.apdu.cla.log_chan",
+			  FT_UINT8, BASE_DEC, NULL, 0x0f,
 			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
 		},
 		{ &hf_apdu_ins,
