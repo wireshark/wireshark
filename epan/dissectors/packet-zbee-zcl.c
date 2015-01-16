@@ -1553,7 +1553,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
 
         case ZBEE_ZCL_8_BIT_BITMAP:
             proto_tree_add_item(tree, hf_zbee_zcl_attr_bitmap8, tvb, *offset, 1, ENC_NA);
-            proto_item_append_text(tree, ", Bitmap: %02x", (int)(*tvb_get_ptr(tvb, *offset, 1)));
+            proto_item_append_text(tree, ", Bitmap: %02x", tvb_get_guint8(tvb, *offset));
             (*offset) += 1;
             break;
 
