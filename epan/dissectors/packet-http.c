@@ -724,12 +724,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint16 word;
 	gboolean	leading_crlf = FALSE;
 
-	/*
-	 * If this should be a request or response, do this quick check to see if
-	 * it begins with a string...
-	 * Otherwise, looking for the end of line in a binary file can take a long time
-	 * and this probably isn't HTTP
-	 */
 	reported_length = tvb_reported_length_remaining(tvb, offset);
 	if (reported_length < 1) {
 		return -1;
@@ -741,7 +735,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 *   the server is reading the protocol stream at the beginning of a
 	 *   message and receives a CRLF first, it should ignore the CRLF.
 	 */
-
 	if(reported_length > 3){
 		word = tvb_get_ntohs(tvb,offset);
 		if(word == 0x0d0a){
@@ -749,6 +742,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset+=2;
 		}
 	}
+
+	/*
+	 * If this should be a request or response, do this quick check to see if
+	 * it begins with a string...
+	 * Otherwise, looking for the end of line in a binary file can take a long time
+	 * and this probably isn't HTTP
+	 */
 	if (!g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
 		return -1;
 	}
