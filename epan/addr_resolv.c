@@ -2248,19 +2248,19 @@ subnet_entry_set(guint32 subnet_addr, const guint32 mask_length, const gchar* na
     hash_idx = HASH_IPV4_ADDRESS(subnet_addr);
 
     if(NULL == entry->subnet_addresses) {
-        entry->subnet_addresses = (sub_net_hashipv4_t**) se_alloc0(sizeof(sub_net_hashipv4_t*) * HASHHOSTSIZE);
+        entry->subnet_addresses = (sub_net_hashipv4_t**) g_malloc0(sizeof(sub_net_hashipv4_t*) * HASHHOSTSIZE);
     }
 
     if(NULL != (tp = entry->subnet_addresses[hash_idx])) {
         if(tp->addr == subnet_addr) {
             return;    /* XXX provide warning that an address was repeated? */
         } else {
-            sub_net_hashipv4_t * new_tp = se_new(sub_net_hashipv4_t);
+            sub_net_hashipv4_t * new_tp = g_new(sub_net_hashipv4_t, 1);
             tp->next = new_tp;
             tp = new_tp;
         }
     } else {
-        tp = entry->subnet_addresses[hash_idx] = se_new(sub_net_hashipv4_t);
+        tp = entry->subnet_addresses[hash_idx] = g_new(sub_net_hashipv4_t, 1);
     }
 
     tp->next = NULL;
@@ -2301,6 +2301,15 @@ subnet_name_lookup_init(void)
     g_free(subnetspath);
 }
 
+static void
+cleanup_subnet_entry(sub_net_hashipv4_t* entry)
+{
+    if ((entry != NULL) && (entry->next != NULL)) {
+        cleanup_subnet_entry(entry->next);
+    }
+
+    g_free(entry);
+}
 
 /*
  *  External Functions
@@ -2777,6 +2786,7 @@ host_name_lookup_init(void)
 void
 host_name_lookup_cleanup(void)
 {
+    guint32 i, j;
     _host_name_lookup_cleanup();
 
     if(ipxnet_hash_table){
@@ -2794,7 +2804,18 @@ host_name_lookup_cleanup(void)
         ipv6_hash_table = NULL;
     }
 
-    memset(subnet_length_entries, 0, sizeof(subnet_length_entries));
+    for(i = 0; i < SUBNETLENGTHSIZE; ++i) {
+        if (subnet_length_entries[i].subnet_addresses != NULL) {
+            for (j = 0; j < HASHHOSTSIZE; j++) {
+                if (subnet_length_entries[i].subnet_addresses[j] != NULL)
+                {
+                    cleanup_subnet_entry(subnet_length_entries[i].subnet_addresses[j]);
+                }
+            }
+            g_free(subnet_length_entries[i].subnet_addresses);
+            subnet_length_entries[i].subnet_addresses = NULL;
+        }
+    }
 
     have_subnet_entry = FALSE;
     new_resolved_objects = FALSE;
