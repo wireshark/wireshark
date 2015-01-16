@@ -2234,7 +2234,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
                     dissect_subclv_unrsv_bw(tvb, subtree, offset+13+i);
                     break;
                 case 18:
-                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, tvb, offset+13+i, 5, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, tvb, offset+13+i, 3, ENC_BIG_ENDIAN);
                     break;
                 case 29:
                     dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
