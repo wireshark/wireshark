@@ -2203,7 +2203,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
         else {
             i = 0;
             while (i < subclvs_len) {
-                subtree = proto_tree_add_subtree(ntree, tvb, offset+11, 0, ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv, &ti_subclvs, "subTLV");
+                subtree = proto_tree_add_subtree(ntree, tvb, offset+11+i, 0, ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv, &ti_subclvs, "subTLV");
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_code, tvb, offset+11+i, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, offset+12+i, 1, ENC_BIG_ENDIAN);
                 clv_code = tvb_get_guint8(tvb, offset+11+i);
