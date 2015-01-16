@@ -31,8 +31,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* Types of addresses Wireshark knows about. */
-/* If a new address type is added here, a string representation procedure should */
-/* also be included in address_to_str_buf defined in to_str.c, for presentation purposes */
+/* If a new address type is added here, a string representation procedure should also be */
+/* included in address_to_str_buf defined in address_to_str.c, for presentation purposes */
 
 typedef enum {
     AT_NONE,               /* no link-layer address */
