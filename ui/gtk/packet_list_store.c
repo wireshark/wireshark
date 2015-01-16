@@ -599,7 +599,7 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), -1);
 
-	newrecord = se_new(PacketListRecord);
+	newrecord = wmem_new(wmem_file_scope(), PacketListRecord);
 	newrecord->colorized    = FALSE;
 	newrecord->col_text_len = NULL;
 	newrecord->col_text     = NULL;
@@ -1108,8 +1108,8 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	if (dissect_columns) {
 		cinfo = &cfile.cinfo;
 
-		record->col_text     = (const gchar **)se_alloc0(sizeof(*record->col_text) * packet_list->n_text_cols);
-		record->col_text_len = (gushort *)se_alloc0(sizeof(*record->col_text_len) * packet_list->n_text_cols);
+		record->col_text     = (const gchar **)wmem_alloc0(wmem_file_scope(), sizeof(*record->col_text) * packet_list->n_text_cols);
+		record->col_text_len = (gushort *)wmem_alloc0(wmem_file_scope(), sizeof(*record->col_text_len) * packet_list->n_text_cols);
 	} else
 		cinfo = NULL;
 
