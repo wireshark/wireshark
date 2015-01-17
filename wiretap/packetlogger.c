@@ -35,9 +35,14 @@
 #include "file_wrappers.h"
 #include "packetlogger.h"
 
+typedef struct {
+	gboolean little_endian;
+} packetlogger_t;
+
 typedef struct packetlogger_header {
 	guint32 len;
-	guint64 ts;
+	guint32 ts_secs;
+	guint32 ts_usecs;
 } packetlogger_header_t;
 
 static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info,
@@ -46,17 +51,21 @@ static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
 				       struct wtap_pkthdr *phdr,
 				       Buffer *buf, int *err, gchar **err_info);
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
-					 FILE_T fh, int *err, gchar **err_info);
+					 FILE_T fh, gboolean little_endian,
+					 int *err, gchar **err_info);
 static gboolean packetlogger_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 					 Buffer *buf, int *err,
 					 gchar **err_info);
 
 wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 {
+	gboolean little_endian = FALSE;
 	packetlogger_header_t pl_hdr;
 	guint8 type;
+	packetlogger_t *packetlogger;
 
-	if(!packetlogger_read_header(&pl_hdr, wth->fh, err, err_info)) {
+	if(!packetlogger_read_header(&pl_hdr, wth->fh, little_endian,
+	    err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return WTAP_OPEN_ERROR;
 		return WTAP_OPEN_NOT_MINE;
@@ -68,6 +77,21 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_NOT_MINE;
 	}
 
+	/*
+	 * If the upper 16 bits of the length are non-zero and the lower
+	 * 16 bits are zero, assume the file is little-endian.
+	 */
+	if ((pl_hdr.len & 0x0000FFFF) == 0 &&
+	    (pl_hdr.len & 0xFFFF0000) != 0) {
+		/*
+		 * Byte-swap the upper 16 bits (the lower 16 bits are
+		 * zero, so we don't have to look at them).
+		 */
+		pl_hdr.len = ((pl_hdr.len >> 24) & 0xFF) |
+			     (((pl_hdr.len >> 16) & 0xFF) << 8);
+		little_endian = TRUE;
+	}
+
 	/* Verify this file belongs to us */
 	if (!((8 <= pl_hdr.len) && (pl_hdr.len < 65536) &&
 	      (type < 0x04 || type == 0xFB || type == 0xFC || type == 0xFE || type == 0xFF)))
@@ -76,6 +100,11 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	/* No file header. Reset the fh to 0 so we can read the first packet */
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return WTAP_OPEN_ERROR;
+
+	/* This is a PacketLogger file */
+	packetlogger = (packetlogger_t *)g_malloc(sizeof(packetlogger_t));
+	packetlogger->little_endian = little_endian;
+	wth->priv = (void *)packetlogger;
 
 	/* Set up the pointers to the handlers for this file type */
 	wth->subtype_read = packetlogger_read;
@@ -114,17 +143,26 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 }
 
 static gboolean
-packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh, int *err,
-			 gchar **err_info)
+packetlogger_read_header(packetlogger_header_t *pl_hdr, FILE_T fh,
+			 gboolean little_endian, int *err, gchar **err_info)
 {
 	if (!wtap_read_bytes_or_eof(fh, &pl_hdr->len, 4, err, err_info))
 		return FALSE;
-	if (!wtap_read_bytes(fh, &pl_hdr->ts, 8, err, err_info))
+	if (!wtap_read_bytes(fh, &pl_hdr->ts_secs, 4, err, err_info))
+		return FALSE;
+	if (!wtap_read_bytes(fh, &pl_hdr->ts_usecs, 4, err, err_info))
 		return FALSE;
 
-	/* Convert multi-byte values from big endian to host endian */
-	pl_hdr->len = GUINT32_FROM_BE(pl_hdr->len);
-	pl_hdr->ts = GUINT64_FROM_BE(pl_hdr->ts);
+	/* Convert multi-byte values to host endian */
+	if (little_endian) {
+		pl_hdr->len = GUINT32_FROM_LE(pl_hdr->len);
+		pl_hdr->ts_secs = GUINT32_FROM_LE(pl_hdr->ts_secs);
+		pl_hdr->ts_usecs = GUINT32_FROM_LE(pl_hdr->ts_usecs);
+	} else {
+		pl_hdr->len = GUINT32_FROM_BE(pl_hdr->len);
+		pl_hdr->ts_secs = GUINT32_FROM_BE(pl_hdr->ts_secs);
+		pl_hdr->ts_usecs = GUINT32_FROM_BE(pl_hdr->ts_usecs);
+	}
 
 	return TRUE;
 }
@@ -133,9 +171,11 @@ static gboolean
 packetlogger_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 			 int *err, gchar **err_info)
 {
+	packetlogger_t *packetlogger = (packetlogger_t *)wth->priv;
 	packetlogger_header_t pl_hdr;
 
-	if(!packetlogger_read_header(&pl_hdr, fh, err, err_info))
+	if(!packetlogger_read_header(&pl_hdr, fh, packetlogger->little_endian,
+	    err, err_info))
 		return FALSE;
 
 	if (pl_hdr.len < 8) {
@@ -161,8 +201,8 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer 
 	phdr->len = pl_hdr.len - 8;
 	phdr->caplen = pl_hdr.len - 8;
 
-	phdr->ts.secs = (time_t) (pl_hdr.ts >> 32);
-	phdr->ts.nsecs = (int)((pl_hdr.ts & 0xFFFFFFFF) * 1000);
+	phdr->ts.secs = (time_t)pl_hdr.ts_secs;
+	phdr->ts.nsecs = (int)(pl_hdr.ts_usecs * 1000);
 
 	return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
 }
