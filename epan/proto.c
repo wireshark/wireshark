@@ -7390,7 +7390,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		}
 
 		if (str != NULL && filter != NULL) {
-			*filter = ep_strdup_printf("%s == \"%s\"", hfinfo->abbrev, str);
+			*filter = wmem_strdup_printf(NULL, "%s == \"%s\"", hfinfo->abbrev, str);
 			return TRUE;
 		}
 	}
@@ -7441,7 +7441,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 
 				out = hfinfo_numeric_value_format(hfinfo, buf, number);
 
-				*filter = ep_strdup_printf("%s == %s", hfinfo->abbrev, out);
+				*filter = wmem_strdup_printf(NULL, "%s == %s", hfinfo->abbrev, out);
 			}
 			break;
 
@@ -7450,7 +7450,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			if (filter != NULL) {
 				const char *format = hfinfo_numeric_format(hfinfo);
 
-				*filter = ep_strdup_printf(format,
+				*filter = wmem_strdup_printf(NULL, format,
 					hfinfo->abbrev,
 					fvalue_get_integer64(&finfo->value));
 			}
@@ -7458,7 +7458,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 
 		case FT_PROTOCOL:
 			if (filter != NULL)
-				*filter = ep_strdup(finfo->hfinfo->abbrev);
+				*filter = wmem_strdup(NULL, finfo->hfinfo->abbrev);
 			break;
 
 		case FT_NONE:
@@ -7472,7 +7472,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			length = finfo->length;
 			if (length == 0) {
 				if (filter != NULL)
-					*filter = ep_strdup(finfo->hfinfo->abbrev);
+					*filter = wmem_strdup(NULL, finfo->hfinfo->abbrev);
 				break;
 			}
 			if (length < 0)
@@ -7514,7 +7514,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			if (filter != NULL) {
 				start = finfo->start;
 				buf_len = 32 + length * 3;
-				*filter = (char *)ep_alloc0(buf_len);
+				*filter = (char *)wmem_alloc0(NULL, buf_len);
 				ptr = *filter;
 
 				ptr += g_snprintf(ptr, (gulong) (buf_len-(ptr-*filter)),
@@ -7549,7 +7549,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				dfilter_len = fvalue_string_repr_len(&finfo->value,
 						FTREPR_DFILTER, finfo->hfinfo->display);
 				dfilter_len += abbrev_len + 4 + 1;
-				*filter = (char *)ep_alloc0(dfilter_len);
+				*filter = (char *)wmem_alloc0(NULL, dfilter_len);
 
 				/* Create the string */
 				g_snprintf(*filter, dfilter_len, "%s == ",
@@ -7585,10 +7585,13 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 char *
 proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
 {
-	char *filter;
+	char *filter = NULL;
 
 	if (!construct_match_selected_string(finfo, edt, &filter))
+	{
+		wmem_free(NULL, filter);
 		return NULL;
+	}
 	return filter;
 }
 

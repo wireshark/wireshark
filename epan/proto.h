@@ -2202,7 +2202,7 @@ proto_can_match_selected(field_info *finfo, struct epan_dissect *edt);
 /** Construct a "match selected" display filter string.
  @param finfo field_info
  @param edt epan dissecting
- @return the display filter string */
+ @return the wmem NULL alloced display filter string.  Needs to be freed with wmem_free(NULL, ...) */
 WS_DLL_PUBLIC char*
 proto_construct_match_selected_string(field_info *finfo, struct epan_dissect *edt);
 

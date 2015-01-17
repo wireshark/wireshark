@@ -347,6 +347,7 @@ match_selected_ptree_cb(gpointer data, MATCH_SELECTED_E action)
         filter = proto_construct_match_selected_string(cfile.finfo_selected,
                                                        cfile.edt);
         match_selected_cb_do((GtkWidget *)g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY), action, filter);
+        wmem_free(NULL, filter);
     }
 }
 
@@ -375,6 +376,7 @@ colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
             }
             packet_list_colorize_packets();
         }
+        wmem_free(NULL, filter);
     }
 }
 

@@ -1987,12 +1987,15 @@ void MainWindow::on_actionViewReload_triggered()
 void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type)
 {
     QString field_filter;
+    char* tmp_field;
 
     if (packet_list_->contextMenuActive()) {
         field_filter = packet_list_->getFilterFromRowAndColumn();
     } else if (capture_file_.capFile() && capture_file_.capFile()->finfo_selected) {
-        field_filter = proto_construct_match_selected_string(capture_file_.capFile()->finfo_selected,
+        tmp_field = proto_construct_match_selected_string(capture_file_.capFile()->finfo_selected,
                                                        capture_file_.capFile()->edt);
+        field_filter = QString(tmp_field);
+        wmem_free(NULL, tmp_field);
     } else {
         return;
     }
