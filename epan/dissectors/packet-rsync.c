@@ -129,8 +129,8 @@ dissect_rsync_version_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rsyn
     proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_magic, tvb, offset, RSYNCD_MAGIC_HEADER_LEN, ENC_ASCII|ENC_NA);
     offset += RSYNCD_MAGIC_HEADER_LEN;
     offset += 1; /* skip the space */
-    proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_version, tvb, offset, VERSION_LEN, ENC_ASCII|ENC_NA);
-    version = tvb_get_string_enc(wmem_packet_scope(),tvb, offset, VERSION_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_version, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    version = tvb_get_string_enc(wmem_packet_scope(),tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s Initialisation (Version %s)", (me == SERVER ? "Server" : "Client"), version);
 }
