@@ -149,6 +149,16 @@ static int hf_isis_lsp_is_type = -1;
 static int hf_isis_lsp_clv_type = -1;
 static int hf_isis_lsp_clv_length = -1;
 static int hf_isis_lsp_root_id = -1;
+static int hf_isis_lsp_bw_ct_model = -1;
+static int hf_isis_lsp_bw_ct_reserved = -1;
+static int hf_isis_lsp_bw_ct0 = -1;
+static int hf_isis_lsp_bw_ct1 = -1;
+static int hf_isis_lsp_bw_ct2 = -1;
+static int hf_isis_lsp_bw_ct3 = -1;
+static int hf_isis_lsp_bw_ct4 = -1;
+static int hf_isis_lsp_bw_ct5 = -1;
+static int hf_isis_lsp_bw_ct6 = -1;
+static int hf_isis_lsp_bw_ct7 = -1;
 static int hf_isis_lsp_spb_link_metric = -1;
 static int hf_isis_lsp_spb_port_count = -1;
 static int hf_isis_lsp_spb_port_id = -1;
@@ -298,6 +308,7 @@ static gint ett_isis_lsp_part_of_clv_ext_is_reachability = -1;
 static gint ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv = -1;
 static gint ett_isis_lsp_subclv_admin_group = -1;
 static gint ett_isis_lsp_subclv_unrsv_bw = -1;
+static gint ett_isis_lsp_subclv_bw_ct = -1;
 static gint ett_isis_lsp_subclv_spb_link_metric = -1;
 static gint ett_isis_lsp_clv_unknown = -1;
 static gint ett_isis_lsp_clv_partition_dis = -1;
@@ -2107,6 +2118,95 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 /*
+ * Name: dissect_subclv_bw_ct ()
+ *
+ * Description: Called by function dissect_lsp_ext_is_reachability_clv().
+ *
+ *   This function is called by dissect_lsp_ext_is_reachability_clv()
+ *   for dissect the Bandwidth Constraints sub-CLV (code 22).
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : protocol display tree to fill out.
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *
+ * Output:
+ *   void
+ */
+static void
+dissect_subclv_bw_ct(tvbuff_t *tvb, proto_tree *tree, int offset, int sublen)
+{
+    proto_tree *ntree;
+    int offset_end = offset + sublen;
+    gfloat  bw;
+
+    ntree = proto_tree_add_subtree(tree, tvb, offset-2, sublen,
+                    ett_isis_lsp_subclv_bw_ct, NULL, "Bandwidth Constraints:");
+
+    proto_tree_add_item(ntree, hf_isis_lsp_bw_ct_model, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset +=1;
+
+    proto_tree_add_item(ntree, hf_isis_lsp_bw_ct_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset +=3;
+
+    if(offset < offset_end){
+        bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
+        proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct0, tvb, offset, 4,
+            bw, "%.2f Mbps", bw);
+        offset += 4;
+    }
+
+    if(offset < offset_end){
+        bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
+        proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct1, tvb, offset, 4,
+            bw, "%.2f Mbps", bw);
+        offset += 4;
+    }
+
+    if(offset < offset_end){
+        bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
+        proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct2, tvb, offset, 4,
+            bw, "%.2f Mbps", bw);
+        offset += 4;
+    }
+
+    if(offset < offset_end){
+        bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
+        proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct3, tvb, offset, 4,
+            bw, "%.2f Mbps", bw);
+        offset += 4;
+    }
+
+    if(offset < offset_end){
+        bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
+        proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct4, tvb, offset, 4,
+            bw, "%.2f Mbps", bw);
+        offset += 4;
+    }
+
+    if(offset < offset_end){
+        bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
+        proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct5, tvb, offset, 4,
+            bw, "%.2f Mbps", bw);
+        offset += 4;
+    }
+
+    if(offset < offset_end){
+        bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
+        proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct6, tvb, offset, 4,
+            bw, "%.2f Mbps", bw);
+        offset += 4;
+    }
+
+    if(offset < offset_end){
+        bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
+        proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct7, tvb, offset, 4,
+            bw, "%.2f Mbps", bw);
+        offset += 4;
+    }
+}
+
+/*
  * Name: dissect_subclv_spb_link_metric ()
  *
  * Description: Called by function dissect_lsp_ext_is_reachability_clv().
@@ -2218,6 +2318,9 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
         break;
       case 18:
         proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, tvb, sub_tlv_offset+13+i, 3, ENC_BIG_ENDIAN);
+        break;
+      case 22:
+       dissect_subclv_bw_ct(tvb, subtree, sub_tlv_offset+13+i, clv_len);
         break;
       case 29:
         dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
@@ -3112,6 +3215,57 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
 
+        { &hf_isis_lsp_bw_ct_model,
+            { "Bandwidth Constraints Model Id", "isis.lsp.bw_ct.model",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct_reserved,
+            { "Reserved", "isis.lsp.bw_ct.rsv",
+              FT_UINT24, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct0,
+            { "Bandwidth Constraints 0", "isis.lsp.bw_ct.0",
+              FT_FLOAT, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct1,
+            { "Bandwidth Constraints 1", "isis.lsp.bw_ct.1",
+              FT_FLOAT, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct2,
+            { "Bandwidth Constraints 2", "isis.lsp.bw_ct.2",
+              FT_FLOAT, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct3,
+            { "Bandwidth Constraints 3", "isis.lsp.bw_ct.3",
+              FT_FLOAT, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct4,
+            { "Bandwidth Constraints 4", "isis.lsp.bw_ct.4",
+              FT_FLOAT, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct5,
+            { "Bandwidth Constraints 5", "isis.lsp.bw_ct.5",
+              FT_FLOAT, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct6,
+            { "Bandwidth Constraints 6", "isis.lsp.bw_ct.6",
+              FT_FLOAT, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_bw_ct7,
+            { "Bandwidth Constraints 7", "isis.lsp.bw_ct.7",
+              FT_FLOAT, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+
         { &hf_isis_lsp_spb_link_metric,
             { "SPB Link Metric", "isis.lsp.spb.link_metric",
               FT_UINT24, BASE_HEX_DEC, NULL, 0,
@@ -3811,6 +3965,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv,
         &ett_isis_lsp_subclv_admin_group,
         &ett_isis_lsp_subclv_unrsv_bw,
+        &ett_isis_lsp_subclv_bw_ct,
         &ett_isis_lsp_subclv_spb_link_metric,
         &ett_isis_lsp_clv_unknown,
         &ett_isis_lsp_clv_partition_dis,
