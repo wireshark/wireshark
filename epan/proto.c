@@ -4412,11 +4412,9 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					break;
 
 				case FT_GUID:
-					{
 					str = guid_to_str(NULL, (e_guid_t *)fvalue_get(&finfo->value));
 					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
 					wmem_free(NULL, str);
-					}
 					break;
 
 				case FT_REL_OID:
@@ -4443,12 +4441,10 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 				case FT_SYSTEM_ID:
 					bytes = (guint8 *)fvalue_get(&finfo->value);
-					offset_r += protoo_strlcpy(result+offset_r,
-								print_system_id(bytes, fvalue_length(&finfo->value)),
-								size-offset_r);
-					offset_e += protoo_strlcpy(expr+offset_e,
-								print_system_id(bytes, fvalue_length(&finfo->value)),
-								size-offset_e);
+					str = print_system_id(NULL, bytes, fvalue_length(&finfo->value));
+					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+					wmem_free(NULL, str);
 					break;
 
 				case FT_FLOAT:
@@ -6236,7 +6232,9 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_SYSTEM_ID:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			label_fill(label_str, 0, hfinfo, print_system_id(bytes, fvalue_length(&fi->value)));
+			tmp = print_system_id(NULL, bytes, fvalue_length(&fi->value));
+			label_fill(label_str, 0, hfinfo, tmp);
+			wmem_free(NULL, tmp);
 			break;
 
 		case FT_EUI64:

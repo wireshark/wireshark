@@ -891,7 +891,7 @@ decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint6
 	mask = mask << (no_of_bits-1);
 
 	/* Prepare the string, 256 pos for the bits and zero termination, + 64 for the spaces */
-	str=(char *)ep_alloc0(256+64);
+	str=(char *)wmem_alloc0(wmem_packet_scope(), 256+64);
 	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
 		if(bit&&(!(bit%4))){
 			str[str_p] = ' ';

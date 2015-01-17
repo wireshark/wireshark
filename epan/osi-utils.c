@@ -79,11 +79,11 @@ print_nsap_net_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
 } /* print_nsap */
 
 gchar *
-print_system_id( const guint8 *ad, int length )
+print_system_id(wmem_allocator_t* scope, const guint8 *ad, int length )
 {
   gchar        *cur;
 
-  cur = (gchar *)ep_alloc(MAX_SYSTEMID_LEN * 3 + 5);
+  cur = (gchar *)wmem_alloc(scope, MAX_SYSTEMID_LEN * 3 + 5);
   print_system_id_buf(ad, length, cur, MAX_SYSTEMID_LEN * 3 + 5);
   return( cur );
 }
@@ -91,7 +91,7 @@ print_system_id( const guint8 *ad, int length )
 gchar *
 tvb_print_system_id( tvbuff_t *tvb, const gint offset, int length )
 {
-  return( print_system_id(tvb_get_ptr(tvb, offset, length), length) );
+  return( print_system_id(wmem_packet_scope(), tvb_get_ptr(tvb, offset, length), length) );
 }
 
 void
