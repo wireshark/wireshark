@@ -216,6 +216,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	guint		i;
 	/* XXX, GHashTable */
 	GPtrArray	*deprecated;
+	gchar *temp_error_msg;
 
 	g_assert(dfp);
 
@@ -226,7 +227,10 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 
 	dfilter_error_msg = NULL;
 
-	if ( !( text = dfilter_macro_apply(text, &dfilter_error_msg) ) ) {
+	if ( !( text = dfilter_macro_apply(text, &temp_error_msg) ) ) {
+		/* Move the ep_ allocation up a layer */
+		dfilter_error_msg = ep_strdup(temp_error_msg);
+		wmem_free(NULL, temp_error_msg);
 		return FALSE;
 	}
 
@@ -350,6 +354,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	}
 	/* SUCCESS */
 	dfwork_free(dfw);
+	wmem_free(NULL, (char*)text);
 	return TRUE;
 
 FAILURE:
@@ -362,6 +367,7 @@ FAILURE:
 	}
 	g_ptr_array_free(deprecated, TRUE);
 	dfilter_fail("Unable to parse filter string \"%s\".", text);
+	wmem_free(NULL, (char*)text);
 	*dfp = NULL;
 	return FALSE;
 

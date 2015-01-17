@@ -46,7 +46,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
         arg_fvalue = (fvalue_t *)arg1->data;
         /* XXX - it would be nice to handle FT_TVBUFF, too */
         if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
-            s = (char *)ep_strdup((gchar *)fvalue_get(arg_fvalue));
+            s = (char *)wmem_strdup(NULL, (gchar *)fvalue_get(arg_fvalue));
             for (c = s; *c; c++) {
                     /**c = g_ascii_tolower(*c);*/
                     *c = conv_func(*c);
@@ -54,6 +54,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
 
             new_ft_string = fvalue_new(FT_STRING);
             fvalue_set_string(new_ft_string, s);
+            wmem_free(NULL, s);
             *retval = g_list_append(*retval, new_ft_string);
 	}
         arg1 = arg1->next;

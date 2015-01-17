@@ -110,7 +110,7 @@ void dfilter_macro_save(const gchar* filename, gchar** error) {
 	FILE* f = ws_fopen(filename,"w");
 
 	if (!f) {
-		*error = ep_strdup_printf("Could not open file: '%s', error: %s\n", filename, g_strerror(errno) );
+		*error = wmem_strdup_printf(NULL, "Could not open file: '%s', error: %s\n", filename, g_strerror(errno) );
 		return;
 	}
 
@@ -146,14 +146,14 @@ void dfilter_macro_dump(void) {
 #endif
 }
 
-static const gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** error) {
+static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 	GString* text;
 	int argc = 0;
 	dfilter_macro_t* m = NULL;
 	fvt_cache_entry_t* e;
 	int* arg_pos_p;
 	gchar** parts;
-	const gchar* ret;
+	gchar* ret;
 	guint i;
 
 	for (i = 0; i < num_macros; i++) {
@@ -168,13 +168,13 @@ static const gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar
 		if (fvt_cache &&
 		    (e = (fvt_cache_entry_t  *)g_hash_table_lookup(fvt_cache,name)) != NULL) {
 			if(e->usable) {
-				return e->repr;
+				return wmem_strdup(NULL, e->repr);
 			} else {
-				*error = ep_strdup_printf("macro '%s' is unusable", name);
+				*error = wmem_strdup_printf(NULL, "macro '%s' is unusable", name);
 				return NULL;
 			}
 		} else {
-			*error = ep_strdup_printf("macro '%s' does not exist", name);
+			*error = wmem_strdup_printf(NULL, "macro '%s' does not exist", name);
 			return NULL;
 		}
 	}
@@ -186,7 +186,7 @@ static const gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar
 	}
 
 	if (argc != m->argc) {
-		*error = ep_strdup_printf("wrong number of arguments for macro '%s', expecting %d instead of %d",
+		*error = wmem_strdup_printf(NULL, "wrong number of arguments for macro '%s', expecting %d instead of %d",
 								  name, m->argc, argc);
 		return NULL;
 	}
@@ -204,7 +204,7 @@ static const gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar
 		}
 	}
 
-	ret = ep_strdup(text->str);
+	ret = wmem_strdup(NULL, text->str);
 
 	g_string_free(text,TRUE);
 
@@ -212,7 +212,7 @@ static const gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar
 }
 
 
-static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, const gchar** error) {
+static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar** error) {
 	enum { OUTSIDE, STARTING, NAME, ARGS } state = OUTSIDE;
 	GString* out;
 	GString* name = NULL;
@@ -223,7 +223,7 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 	gboolean changed = FALSE;
 
 	if ( depth > 31) {
-		*error = "too much nesting in macros";
+		*error = wmem_strdup(NULL, "too much nesting in macros");
 		return NULL;
 	}
 
@@ -290,7 +290,7 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 				} else if ( c == ':') {
 					state = ARGS;
 				} else if ( c == '}') {
-					const gchar* resolved;
+					gchar* resolved;
 
 					g_ptr_array_add(args,NULL);
 
@@ -300,22 +300,23 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 					changed = TRUE;
 
 					g_string_append(out,resolved);
+					wmem_free(NULL, resolved);
 
 					FREE_ALL();
 
 					state = OUTSIDE;
 				} else if ( c == '\0') {
-					*error = "end of filter in the middle of a macro expression";
+					*error = wmem_strdup(NULL, "end of filter in the middle of a macro expression");
 					goto on_error;
 				} else {
-					*error = "invalid char in macro name";
+					*error = wmem_strdup(NULL, "invalid char in macro name");
 					goto on_error;
 				}
 				break;
 			} case ARGS: {
 				switch(c) {
 					case '\0': {
-						*error = "end of filter in the middle of a macro expression";
+						*error = wmem_strdup(NULL, "end of filter in the middle of a macro expression");
 						goto on_error;
 					} case ';': {
 						g_ptr_array_add(args,g_string_free(arg,FALSE));
@@ -328,14 +329,14 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 							g_string_append_c(arg,c);
 							break;
 						} else {
-							*error = "end of filter in the middle of a macro expression";
+							*error = wmem_strdup(NULL, "end of filter in the middle of a macro expression");
 							goto on_error;
 						}
 					} default: {
 						g_string_append_c(arg,c);
 						break;
 					} case '}': {
-						const gchar* resolved;
+						gchar* resolved;
 						g_ptr_array_add(args,g_string_free(arg,FALSE));
 						g_ptr_array_add(args,NULL);
 
@@ -347,6 +348,7 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 						changed = TRUE;
 
 						g_string_append(out,resolved);
+						wmem_free(NULL, resolved);
 
 						FREE_ALL();
 
@@ -368,7 +370,7 @@ finish:
 			g_string_free(out,TRUE);
 			return (*error) ? NULL : resolved;
 		} else {
-			const gchar* out_str = ep_strdup(out->str);
+			const gchar* out_str = wmem_strdup(NULL, out->str);
 			g_string_free(out,TRUE);
 			return out_str;
 		}
@@ -376,13 +378,13 @@ finish:
 on_error:
 	{
 		FREE_ALL();
-		if (! *error) *error = "unknown error in macro expression";
+		if (! *error) *error = wmem_strdup(NULL, "unknown error in macro expression");
 		g_string_free(out,TRUE);
 		return NULL;
 	}
 }
 
-const gchar* dfilter_macro_apply(const gchar* text, const gchar** error) {
+const gchar* dfilter_macro_apply(const gchar* text, gchar** error) {
 	return dfilter_macro_apply_recurse(text, 0, error);
 }
 
