@@ -113,4 +113,9 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   str = x509if_get_last_dn();
   proto_item_append_text(proto_item_get_parent(tree), " (%%s)", str?str:"");
 
+#.TYPE_ATTR
+CertificateSerialNumber TYPE = FT_INT64
+
+#.FN_PARS CertificateSerialNumber FN_VARIANT = 64
+
 #.END
