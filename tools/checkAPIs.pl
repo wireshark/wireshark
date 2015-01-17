@@ -153,9 +153,7 @@ my %APIs = (
 
                 # wmem calls should replace all emem calls (see doc/README.wmem)
                 'ep_alloc',
-                'ep_new',
                 'ep_alloc0',
-                'ep_new0',
                 'ep_strdup',
                 'ep_strndup',
                 'ep_strdup_printf',

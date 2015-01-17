@@ -27,7 +27,6 @@
 #include <string.h>
 #include <glib.h>
 
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include <epan/proto.h>
 #include <epan/packet_info.h>
@@ -928,127 +927,127 @@ static gboolean comp_le_f(void* lp, const void* rp) { return ( *((gdouble*)lp) <
 static gboolean comp_lt_f(void* lp, const void* rp) { return ( *((gdouble*)lp) < *((gdouble*)rp) ); }
 
 static void* extract_u8(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_guint8(tvb,offset);
     return p;
 }
 
 static void* extract_uns(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_ntohs(tvb,offset);
     return p;
 }
 
 static void* extract_un24(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_ntoh24(tvb,offset);
     return p;
 }
 
 static void* extract_unl(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_ntohl(tvb,offset);
     return p;
 }
 
 static void* extract_un64(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_ntoh64(tvb,offset);
     return p;
 }
 
 static void* extract_ules(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_letohs(tvb,offset);
     return p;
 }
 
 static void* extract_ule24(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_letoh24(tvb,offset);
     return p;
 }
 
 static void* extract_ulel(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_letohl(tvb,offset);
     return p;
 }
 
 static void* extract_ule64(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_letoh64(tvb,offset);
     return p;
 }
 
 static void* extract_ins(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_ntohs(tvb,offset);
     return p;
 }
 
 static void* extract_in24(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_ntoh24(tvb,offset);
     return p;
 }
 
 static void* extract_inl(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_ntohl(tvb,offset);
     return p;
 }
 
 static void* extract_in64(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_ntoh64(tvb,offset);
     return p;
 }
 
 static void* extract_iles(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_letohs(tvb,offset);
     return p;
 }
 
 static void* extract_ile24(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_letoh24(tvb,offset);
     return p;
 }
 
 static void* extract_ilel(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_letohl(tvb,offset);
     return p;
 }
 
 static void* extract_ile64(tvbuff_t* tvb, guint offset) {
-    guint64* p = ep_new(guint64);
+    guint64* p = wmem_new(wmem_packet_scope(), guint64);
     *p = tvb_get_letoh64(tvb,offset);
     return p;
 }
 
 static void* extract_inf(tvbuff_t* tvb, guint offset) {
-    gdouble* p = ep_new(gdouble);
+    gdouble* p = wmem_new(wmem_packet_scope(), gdouble);
     *p = tvb_get_ntohieee_float(tvb,offset);
     return p;
 }
 
 static void* extract_ind(tvbuff_t* tvb, guint offset) {
-    gdouble* p = ep_new(gdouble);
+    gdouble* p = wmem_new(wmem_packet_scope(), gdouble);
     *p = tvb_get_ntohieee_double(tvb,offset);
     return p;
 }
 
 static void* extract_ilef(tvbuff_t* tvb, guint offset) {
-    gdouble* p = ep_new(gdouble);
+    gdouble* p = wmem_new(wmem_packet_scope(), gdouble);
     *p = tvb_get_letohieee_float(tvb,offset);
     return p;
 }
 
 static void* extract_iled(tvbuff_t* tvb, guint offset) {
-    gdouble* p = ep_new(gdouble);
+    gdouble* p = wmem_new(wmem_packet_scope(), gdouble);
     *p = tvb_get_letohieee_double(tvb,offset);
     return p;
 }

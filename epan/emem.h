@@ -54,7 +54,6 @@ void emem_init(void);
 /** Allocate memory with a packet lifetime scope */
 WS_DLL_PUBLIC
 void *ep_alloc(size_t size) G_GNUC_MALLOC;
-#define ep_new(type) ((type*)ep_alloc(sizeof(type)))
 
 /** Allocate memory with a packet lifetime scope and fill it with zeros*/
 WS_DLL_PUBLIC
