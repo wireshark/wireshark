@@ -223,7 +223,7 @@ static const value_string codec_state_vals[] = {
 static const value_string codec_vals[] = {
     { 0x00,  "None" },
     { 0x01,  "CVSD" },
-    { 0x01,  "mSBC" },
+    { 0x02,  "mSBC" },
     { 0, NULL }
 };
 
@@ -553,10 +553,13 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             break;
         case 0x007E: /* Enable WBS */
             proto_tree_add_item(main_tree, hf_codec_state, tvb, offset, 1, ENC_NA);
+            status = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            proto_tree_add_item(main_tree, hf_codec, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+            if (status == 0x01) { /* Enable */
+                proto_tree_add_item(main_tree, hf_codec, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
             break;
         case 0x0154: /* LE Multi Adveritising */
             proto_tree_add_item(main_tree, hf_le_multi_advertising_subcode, tvb, offset, 1, ENC_NA);
