@@ -218,7 +218,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   algorithm_id = actx->external.direct_reference;
 
   if(actx->external.direct_reference) {
-    name = oid_resolved_from_string(actx->external.direct_reference);
+    name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
 
     proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
   }
@@ -376,7 +376,7 @@ dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
   if(actx->external.direct_reference) {
-    name = oid_resolved_from_string(actx->external.direct_reference);
+    name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
 
     proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
   }

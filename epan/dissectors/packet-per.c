@@ -964,7 +964,7 @@ dissect_per_any_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 	if ((is_absolute && hfi->type == FT_OID) || (is_absolute && hfi->type == FT_REL_OID)) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, ENC_BIG_ENDIAN);
 	} else if (IS_FT_STRING(hfi->type)) {
-		str = oid_encoded2string(tvb_get_ptr(val_tvb, 0, length), length);
+		str = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(val_tvb, 0, length), length);
 		actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0, length, str);
 	} else {
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -1000,7 +1000,7 @@ dissect_per_any_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
 
 	if (value_stringx) {
 		if (value_tvb && (length = tvb_captured_length(value_tvb))) {
-			*value_stringx = oid_encoded2string(tvb_get_ptr(value_tvb, 0, length), length);
+			*value_stringx = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(value_tvb, 0, length), length);
 		} else {
 			*value_stringx = "";
 		}

@@ -194,7 +194,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
   if(actx->external.direct_reference) {
     /* see if we can find a nice name */
-    name = oid_resolved_from_string(actx->external.direct_reference);
+    name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
     if(!name) name = actx->external.direct_reference;
 
     if(last_rdn) { /* append it to the RDN */
@@ -258,7 +258,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
         last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN);
       }
 
-      if(!(name = oid_resolved_from_string(actx->external.direct_reference)))
+      if(!(name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference)))
         name = actx->external.direct_reference;
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s %%s", name, fmt, value);
 

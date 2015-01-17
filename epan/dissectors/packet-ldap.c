@@ -2860,7 +2860,7 @@ dissect_ldap_LDAPOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 		return offset;
 
 	object_identifier_id = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
-	name = oid_resolved_from_string(object_identifier_id);
+	name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
 
 	if(name){
 		proto_item_append_text(actx->created_item, " (%s)", name);
@@ -3054,7 +3054,7 @@ dissect_ldap_T_intermediateResponse_responseValue(gboolean implicit_tag _U_, tvb
 #line 759 "../../asn1/ldap/ldap.cnf"
 	if(ldm_tree && object_identifier_id) {
 		proto_item_set_text(ldm_tree, "%s %s", "IntermediateResponse", object_identifier_id);
-		name = oid_resolved_from_string(object_identifier_id);
+		name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
 		if(name)
 			proto_item_append_text(ldm_tree, " (%s)", name);
 	}
@@ -4608,7 +4608,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		return;
 	}
 
-	oidname=oid_resolved_from_string(oid);
+	oidname=oid_resolved_from_string(wmem_packet_scope(), oid);
 
 	if(oidname){
 		proto_tree_add_string_format_value(tree, hf_ldap_oid, tvb, 0, tvb_reported_length(tvb), oid, "%s (%s)",oid,oidname);

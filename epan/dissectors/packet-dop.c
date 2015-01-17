@@ -357,7 +357,7 @@ static void append_oid(packet_info *pinfo, const char *oid)
 {
   	const char *name = NULL;
 
-    name = oid_resolved_from_string(oid);
+    name = oid_resolved_from_string(wmem_packet_scope(), oid);
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name ? name : oid);
 }
 

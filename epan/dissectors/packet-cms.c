@@ -338,7 +338,7 @@ dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 	if(object_identifier_id) {
-		name = oid_resolved_from_string(object_identifier_id);
+		name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
 		proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id);
 	}
 
@@ -466,7 +466,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
   if(object_identifier_id) {
-    name = oid_resolved_from_string(object_identifier_id);
+    name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
     proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id);
   }
 
@@ -1643,7 +1643,7 @@ dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
   if(object_identifier_id) {
-    name = oid_resolved_from_string(object_identifier_id);
+    name = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id);
     proto_item_append_text(tree, " %s", name ? name : object_identifier_id);
     cap_tree = tree;
   }

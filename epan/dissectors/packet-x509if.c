@@ -728,7 +728,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   if(actx->external.direct_reference) {
     /* see if we can find a nice name */
-    name = oid_resolved_from_string(actx->external.direct_reference);
+    name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
     if(!name) name = actx->external.direct_reference;
 
     if(last_rdn) { /* append it to the RDN */
@@ -801,7 +801,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
         last_ava = (char *)wmem_alloc(wmem_packet_scope(), MAX_AVA_STR_LEN);
       }
 
-      if(!(name = oid_resolved_from_string(actx->external.direct_reference)))
+      if(!(name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference)))
         name = actx->external.direct_reference;
       g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
 

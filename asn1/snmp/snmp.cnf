@@ -70,7 +70,7 @@ gint pdu_type=-1;
 %(DEFAULT_BODY)s
 
 	if (display_oid && enterprise_oid) {
-		name = oid_resolved_from_string(enterprise_oid);
+		name = oid_resolved_from_string(wmem_packet_scope(), enterprise_oid);
 		if (name) {
 		col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %%s", name);
 		}

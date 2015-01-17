@@ -86,7 +86,7 @@ static void append_oid(proto_tree *tree, const char *oid)
 {
   	const char *name = NULL;
 
-	name = oid_resolved_from_string(oid);
+	name = oid_resolved_from_string(wmem_packet_scope(), oid);
 	proto_item_append_text(tree, " (%s)", name ? name : oid);
 }
 
@@ -369,7 +369,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 	tvb_set_free_cb(clear_tvb, g_free);
 
 	name = g_string_new("");
-	oidname = oid_resolved_from_string(object_identifier_id_param);
+	oidname = oid_resolved_from_string(wmem_packet_scope(), object_identifier_id_param);
 	g_string_printf(name, "Decrypted %s", oidname ? oidname : object_identifier_id_param);
 
 	/* add it as a new source */

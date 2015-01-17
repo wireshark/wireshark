@@ -607,21 +607,21 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 	/* fetch ObjectName and its relative oid_info */
 	oid_bytes = (guint8*)tvb_memdup(wmem_packet_scope(), tvb, name_offset, name_len);
-	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
+	oid_info = oid_get_from_encoded(wmem_packet_scope(), oid_bytes, name_len, &subids, &oid_matched, &oid_left);
 
 	add_oid_debug_subtree(oid_info,pt_name);
 
 	if (!subids) {
 		proto_item* pi;
 
-		repr = oid_encoded2string(oid_bytes, name_len);
+		repr = oid_encoded2string(wmem_packet_scope(), oid_bytes, name_len);
 		pt = proto_tree_add_subtree_format(pt_name,tvb, 0, 0, ett_decoding_error, &pi, "invalid oid: %s", repr);
 		expert_add_info_format(actx->pinfo, pi, &ei_snmp_invalid_oid, "invalid oid: %s", repr);
 		return dissect_unknown_ber(actx->pinfo, tvb, name_offset, pt);
 	}
 
 	if (oid_matched+oid_left) {
-		oid_string = oid_subid2string(subids,oid_matched+oid_left);
+		oid_string = oid_subid2string(wmem_packet_scope(), subids,oid_matched+oid_left);
 	}
 
 	if (ber_class == BER_CLASS_CON) {
@@ -752,7 +752,7 @@ show_oid_index:
 									goto indexing_done;
 								}
 
-								suboid_buf_len = oid_subid2encoded(suboid_len, suboid, &suboid_buf);
+								suboid_buf_len = oid_subid2encoded(wmem_packet_scope(), suboid_len, suboid, &suboid_buf);
 
 								DISSECTOR_ASSERT(suboid_buf_len);
 
@@ -1020,13 +1020,13 @@ set_label:
 	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {
 			repr = wmem_strdup_printf(wmem_packet_scope(), "%s.%s (%s)", oid_info->name,
-						 oid_subid2string(&(subids[oid_matched]),oid_left),
-						 oid_subid2string(subids,oid_matched+oid_left));
+						oid_subid2string(wmem_packet_scope(), &(subids[oid_matched]),oid_left),
+						oid_subid2string(wmem_packet_scope(), subids,oid_matched+oid_left));
 			info_oid = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", oid_info->name,
-						    oid_subid2string(&(subids[oid_matched]),oid_left));
+						oid_subid2string(wmem_packet_scope(), &(subids[oid_matched]),oid_left));
 		} else {
 			repr = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", oid_info->name,
-						 oid_subid2string(subids,oid_matched));
+						oid_subid2string(wmem_packet_scope(), subids,oid_matched));
 			info_oid = oid_info->name;
 		}
 	} else if (oid_string) {

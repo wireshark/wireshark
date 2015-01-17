@@ -3201,11 +3201,11 @@ printf("OBJECT IDENTIFIER dissect_ber_any_oid(%s) entered\n", name);
     if ((is_absolute && hfi->type == FT_OID) || (!is_absolute && hfi->type == FT_REL_OID)) {
         actx->created_item = proto_tree_add_item(tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
     } else if (IS_FT_STRING(hfi->type)) {
-        str = oid_encoded2string(tvb_get_ptr(tvb, offset, len), len);
+        str = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(tvb, offset, len), len);
         actx->created_item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
         if (actx->created_item) {
             /* see if we know the name of this oid */
-            name = oid_resolved_from_encoded(tvb_get_ptr(tvb, offset, len), len);
+            name = oid_resolved_from_encoded(wmem_packet_scope(), tvb_get_ptr(tvb, offset, len), len);
             if (name) {
                 proto_item_append_text(actx->created_item, " (%s)", name);
             }
@@ -3230,7 +3230,7 @@ dissect_ber_any_oid_str(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tre
 
     if (value_stringx) {
         if (value_tvb && (length = tvb_reported_length(value_tvb))) {
-            *value_stringx = oid_encoded2string(tvb_get_ptr(value_tvb, 0, length), length);
+            *value_stringx = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(value_tvb, 0, length), length);
         } else {
             *value_stringx = "";
         }

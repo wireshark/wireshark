@@ -4419,24 +4419,24 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 				case FT_REL_OID:
 					bytes = (guint8 *)fvalue_get(&finfo->value);
-					offset_r += protoo_strlcpy(result+offset_r,
-								rel_oid_resolved_from_encoded(bytes,
-												fvalue_length(&finfo->value)),
-								size-offset_r);
-					offset_e += protoo_strlcpy(expr+offset_e,
-								rel_oid_encoded2string(bytes, fvalue_length(&finfo->value)),
-								size-offset_e);
+					str = rel_oid_resolved_from_encoded(NULL, bytes, fvalue_length(&finfo->value));
+					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+					wmem_free(NULL, str);
+
+					str = rel_oid_encoded2string(NULL, bytes, fvalue_length(&finfo->value));
+					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+					wmem_free(NULL, str);
 					break;
 
 				case FT_OID:
 					bytes = (guint8 *)fvalue_get(&finfo->value);
-					offset_r += protoo_strlcpy(result+offset_r,
-								oid_resolved_from_encoded(bytes,
-												fvalue_length(&finfo->value)),
-								size-offset_r);
-					offset_e += protoo_strlcpy(expr+offset_e,
-								oid_encoded2string(bytes, fvalue_length(&finfo->value)),
-								size-offset_e);
+					str = oid_resolved_from_encoded(NULL, bytes, fvalue_length(&finfo->value));
+					offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
+					wmem_free(NULL, str);
+
+					str = oid_encoded2string(NULL, bytes, fvalue_length(&finfo->value));
+					offset_e += protoo_strlcpy(expr+offset_e, str, size-offset_e);
+					wmem_free(NULL, str);
 					break;
 
 				case FT_SYSTEM_ID:
@@ -5990,7 +5990,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	ipv4_addr	  *ipv4;
 	e_guid_t	  *guid;
 	guint32		   n_addr; /* network-order IPv4 address */
-	const gchar	  *name;
+	gchar	      *name;
 	address		   addr;
 	char		  *addr_str;
 	char          *tmp;
@@ -6209,26 +6209,28 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_OID:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			name = oid_resolved_from_encoded(bytes, fvalue_length(&fi->value));
+			name = oid_resolved_from_encoded(NULL, bytes, fvalue_length(&fi->value));
+			tmp = oid_encoded2string(NULL, bytes, fvalue_length(&fi->value));
 			if (name) {
-				label_fill_descr(label_str, 0, hfinfo,
-					 oid_encoded2string(bytes, fvalue_length(&fi->value)), name);
+				label_fill_descr(label_str, 0, hfinfo, tmp, name);
+				wmem_free(NULL, name);
 			} else {
-				label_fill(label_str, 0, hfinfo,
-					 oid_encoded2string(bytes, fvalue_length(&fi->value)));
+				label_fill(label_str, 0, hfinfo, tmp);
 			}
+			wmem_free(NULL, tmp);
 			break;
 
 		case FT_REL_OID:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			name = rel_oid_resolved_from_encoded(bytes, fvalue_length(&fi->value));
+			name = rel_oid_resolved_from_encoded(NULL, bytes, fvalue_length(&fi->value));
+			tmp = rel_oid_encoded2string(NULL, bytes, fvalue_length(&fi->value));
 			if (name) {
-				label_fill_descr(label_str, 0, hfinfo,
-					 rel_oid_encoded2string(bytes, fvalue_length(&fi->value)), name);
+				label_fill_descr(label_str, 0, hfinfo, tmp, name);
+				wmem_free(NULL, name);
 			} else {
-				label_fill(label_str, 0, hfinfo,
-					 rel_oid_encoded2string(bytes, fvalue_length(&fi->value)));
+				label_fill(label_str, 0, hfinfo, tmp);
 			}
+			wmem_free(NULL, tmp);
 			break;
 
 		case FT_SYSTEM_ID:
@@ -6241,7 +6243,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_EUI64:
 			integer64 = fvalue_get_integer64(&fi->value);
 			addr_str = eui64_to_str(NULL, integer64);
-            tmp = (char*)eui64_to_display(NULL, integer64);
+			tmp = (char*)eui64_to_display(NULL, integer64);
 			label_fill_descr(label_str, 0, hfinfo, tmp, addr_str);
 			wmem_free(NULL, tmp);
 			wmem_free(NULL, addr_str);

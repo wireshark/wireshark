@@ -1579,7 +1579,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
             encoid_len = tvb_length_remaining(oid_tvb,0);
             if (encoid_len > 0) {
                 encoid = (guint8*)tvb_memdup(wmem_packet_scope(),oid_tvb,0,encoid_len);
-                (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
+                (*pprid_subids_len) = oid_encoded2subid(wmem_packet_scope(), encoid, encoid_len, pprid_subids);
             }
         }
         break;
@@ -1610,9 +1610,9 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         if (*pprid_subids) {
             /* Never tested this branch */
             subids_len = redecode_oid(*pprid_subids, *pprid_subids_len, encoid, encoid_len, &subids);
-            encoid_len = oid_subid2encoded(subids_len, subids, &encoid);
+            encoid_len = oid_subid2encoded(wmem_packet_scope(), subids_len, subids, &encoid);
         } else {
-            subids_len = oid_encoded2subid(encoid, encoid_len, &subids);
+            subids_len = oid_encoded2subid(wmem_packet_scope(), encoid, encoid_len, &subids);
         }
 
         proto_tree_add_oid(asn_tree,hf_cops_prid_oid,tvb,offset,encoid_len,encoid);

@@ -1242,7 +1242,7 @@ dissect_p1_SecurityCategoryValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 	if (actx->external.direct_reference) {
 		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
-		name = oid_resolved_from_string(actx->external.direct_reference);
+		name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
 		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 	} else {
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
@@ -2540,7 +2540,7 @@ dissect_p1_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 	if(ctx->content_type_id) {
-		name = oid_resolved_from_string(ctx->content_type_id);
+		name = oid_resolved_from_string(wmem_packet_scope(), ctx->content_type_id);
 
 		if(!name) name = ctx->content_type_id;
 
@@ -3057,7 +3057,7 @@ dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 		}
 	} else if (actx->external.direct_ref_present) {
 		offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
-		name = oid_resolved_from_string(actx->external.direct_reference);
+		name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
 		proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 	}
 

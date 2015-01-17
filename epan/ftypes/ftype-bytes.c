@@ -97,7 +97,7 @@ oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	const char* oid_str = oid_encoded2string(fv->value.bytes->data,fv->value.bytes->len);
+	char* oid_str = oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
 	/*
 	 * XXX:
 	 * I'm assuming that oid_repr_len is going to be called before to set buf's size.
@@ -105,7 +105,8 @@ oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 	 * I guess that is why this callback is not passed a length.
 	 *    -- lego
 	 */
-	strncpy(buf,oid_str,OID_REPR_LEN(fv));
+	g_strlcpy(buf,oid_str,OID_REPR_LEN(fv));
+	wmem_free(NULL, oid_str);
 }
 
 static int
@@ -117,7 +118,7 @@ rel_oid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	const char* oid_str = rel_oid_encoded2string(fv->value.bytes->data,fv->value.bytes->len);
+	char* oid_str = rel_oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
 	/*
 	 * XXX:
 	 * I'm assuming that oid_repr_len is going to be called before to set buf's size.
@@ -126,7 +127,8 @@ rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 	 *    -- lego
 	 */
 	*buf++ = '.';
-	strncpy(buf,oid_str,REL_OID_REPR_LEN(fv));
+	g_strlcpy(buf,oid_str,REL_OID_REPR_LEN(fv));
+	wmem_free(NULL, oid_str);
 }
 
 static void

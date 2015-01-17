@@ -221,7 +221,7 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
 
   %(DEFAULT_BODY)s
 
-  name = oid_resolved_from_string(actx->external.direct_reference);
+  name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
   proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference);
 
 #.FN_BODY IPMSExtension/value
