@@ -640,6 +640,9 @@ eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf
 	guint8 eui64[8];
 	guint8 *p_eui64 = eui64;
 
+	/* ensure array is initialized (Clang) */
+	memset(eui64, 0, 8);
+
 	/* Copy and convert the address to network byte order. */
 	*(guint64 *)(void *)(p_eui64) = pntoh64(&(fv->value.integer64));
 
