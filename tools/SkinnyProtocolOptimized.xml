@@ -2177,11 +2177,12 @@
           <integer comment="" name="precedenceValue" type="uint32"/>
           <enum comment="" name="ssValue" subtype="Media_SilenceSuppression" type="uint32"/>
           <integer comment="" name="maxFramesPerPacket" type="uint16"/>
+          <integer comment="Unused/Padding" name="padding" type="uint16"/>
         </fields>
         <fields beginversion="0" endversion="10">
           <enum comment="" name="g723BitRate" subtype="Media_G723BitRate" type="uint32"/>
         </fields>
-        <fields beginversion="11" endversion="15">
+        <fields beginversion="11" endversion="22">
           <union comment="" lookup_guide="compressionType" name="codecParamsUnion" subtype="Media_QualifierOutgoingUnion" type="union">
             <fields>
               <enum comment="" lookup_eq="Media_Payload_G7231" name="g723BitRate" subtype="Media_G723BitRate" type="uint32"/>
@@ -2214,6 +2215,8 @@
       <integer comment="" name="RFC2833PayloadType" type="uint32"/>
       <integer comment="" name="dtmfType" type="uint32"/>
       <integer comment="" name="mixingMode" type="uint32"/>
+    </fields>
+    <fields beginversion="15">
       <integer comment="" name="partyDirection" type="uint32"/>
     </fields>
     <fields beginversion="20" endversion="22">
@@ -2599,11 +2602,12 @@
           <integer comment="" name="precedenceValue" type="uint32"/>
           <enum comment="" name="ssValue" subtype="Media_SilenceSuppression" type="uint32"/>
           <integer comment="" name="maxFramesPerPacket" type="uint16"/>
+          <integer comment="Unused/Padding" name="padding" type="uint16"/>
         </fields>
         <fields beginversion="0" endversion="10">
           <enum comment="" name="g723BitRate" subtype="Media_G723BitRate" type="uint32"/>
         </fields>
-        <fields beginversion="11" endversion="15">
+        <fields beginversion="11" endversion="22">
           <union comment="" lookup_guide="compressionType" name="codecParamsUnion" subtype="Media_QualifierOutgoingUnion" type="union">
             <fields>
               <enum comment="" lookup_eq="Media_Payload_G7231" name="g723BitRate" subtype="Media_G723BitRate" type="uint32"/>
@@ -2942,8 +2946,8 @@
       <enum comment="" name="privacy" subtype="CallPrivacy" type="uint32"/>
       <struct comment="" name="precedence" type="struct">
         <fields>
-          <integer comment="" name="precedenceLv" type="uint32"/>
-          <integer comment="" name="precedenceDm" type="uint32"/>
+          <integer comment="Precendence Level, MLPP priorities" name="precedenceLevel" type="uint32"/>
+          <integer comment="Precendence Domain" name="precedenceDomain" type="uint32"/>
         </fields>
       </struct>
     </fields>
@@ -3725,15 +3729,16 @@
           <integer comment="Device Instance" name="instance" type="uint32"/>
         </fields>
       </struct>
-      <integer comment="Server Instance" name="serverInstance" type="uint32"/>
-      <integer comment="unknown" name="unknown2" type="uint32"/>
-      <string comment="Connected to Server" name="serverName" size="12" type="char"/>
+      <integer comment="" name="numberOfLines" type="uint32"/>
+      <integer comment="" name="numberOfSpeedDials" type="uint32"/>
+      <string comment="" name="userName" size="121" type="char"/>
+      <string comment="" name="serverName" size="121" type="char"/>
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="yes" name="DisplayNotifyV2Message" opcode="0x0143" status="no" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="timeOutValue" type="uint32"/>
-      <string comment="" name="notify" size="32" subtype="DisplayLabel" type="char"/>
+      <string comment="" name="notify" size="97" subtype="DisplayLabel" type="char"/>
     </fields>
   </message>
   <message comment="" direction="pbx2dev" dynamic="yes" name="DisplayPriNotifyV2Message" opcode="0x0144" status="no" type="RegistrationAndManagement">
@@ -3759,10 +3764,25 @@
       <string comment="" name="featureTextLabel" size="121" type="char"/>
     </fields>
   </message>
+  <bitfield name="LineTypeBits">
+    <entries>
+      <entry comment="" name="OrigDialed" text="Originaly Dialed" value="0x0001"/>
+      <entry comment="" name="RedirDialed" text="Redirected Dialed" value="0x0002"/>
+      <entry comment="" name="CallingPartyNumber" text="CallingNum" value="0x0004"/>
+      <entry comment="" name="CallingPartyName" text="CallingName" value="0x0008"/>
+    </entries>
+  </bitfield>
   <message comment="" direction="pbx2dev" dynamic="yes" name="LineStatV2Message" opcode="0x0147" status="no" type="RegistrationAndManagement">
     <fields beginversion="0" endversion="22">
       <integer comment="" name="lineNumber" type="uint32"/>
-      <integer comment="" name="lineType" type="uint32"/>
+      <bitfield comment="" name="lineType" size="uint32" subtype="LineTypeBits" type="bitfield">
+        <entries>
+          <entry comment="" name="OrigDialed" text="Originaly Dialed" value="0x0001"/>
+          <entry comment="" name="RedirDialed" text="Redirected Dialed" value="0x0002"/>
+          <entry comment="" name="CallingPartyNumber" text="CallingNum" value="0x0004"/>
+          <entry comment="" name="CallingPartyName" text="CallingName" value="0x0008"/>
+        </entries>
+      </bitfield>
       <string comment="" name="lineDirNumber" size="25" type="char"/>
       <string comment="" name="lineFullyQualifiedDisplayName" size="40" type="char"/>
       <string comment="" name="lineTextLabel" size="40" type="char"/>

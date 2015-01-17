@@ -1721,6 +1721,8 @@ static int hf_skinny_xmlData            = -1;
 static int hf_skinny_ipv4or6            = -1;
 
 static int hf_skinny_AlternateCallingParty = -1;
+static int hf_skinny_CallingPartyName = -1;
+static int hf_skinny_CallingPartyNumber = -1;
 static int hf_skinny_DSCPValue = -1;
 static int hf_skinny_DeviceName = -1;
 static int hf_skinny_FutureUse1 = -1;
@@ -1761,6 +1763,7 @@ static int hf_skinny_Generic_Bitfield_Bit9 = -1;
 static int hf_skinny_HuntPilotName = -1;
 static int hf_skinny_HuntPilotNumber = -1;
 static int hf_skinny_MPI = -1;
+static int hf_skinny_OrigDialed = -1;
 static int hf_skinny_PhoneFeatures_Abbreviated_Dial = -1;
 static int hf_skinny_PhoneFeatures_Bit1 = -1;
 static int hf_skinny_PhoneFeatures_Bit11 = -1;
@@ -1780,6 +1783,7 @@ static int hf_skinny_PhoneFeatures_UTF8 = -1;
 static int hf_skinny_RFC2833PayloadType = -1;
 static int hf_skinny_RTCPPortNumber = -1;
 static int hf_skinny_RTPPayloadFormat = -1;
+static int hf_skinny_RedirDialed = -1;
 static int hf_skinny_RestrictInformationType_BitsReserved = -1;
 static int hf_skinny_RestrictInformationType_CalledParty = -1;
 static int hf_skinny_RestrictInformationType_CalledPartyName = -1;
@@ -1956,7 +1960,6 @@ static int hf_skinny_lineFullyQualifiedDisplayName = -1;
 static int hf_skinny_lineInstance = -1;
 static int hf_skinny_lineNumber = -1;
 static int hf_skinny_lineTextLabel = -1;
-static int hf_skinny_lineType = -1;
 static int hf_skinny_locale = -1;
 static int hf_skinny_longTermPictureIndex = -1;
 static int hf_skinny_macAddress = -1;
@@ -2017,6 +2020,7 @@ static int hf_skinny_originalCalledParty = -1;
 static int hf_skinny_originalCalledPartyName = -1;
 static int hf_skinny_originalCdpnRedirectReason = -1;
 static int hf_skinny_originalCdpnVoiceMailbox = -1;
+static int hf_skinny_padding = -1;
 static int hf_skinny_parm1 = -1;
 static int hf_skinny_parm2 = -1;
 static int hf_skinny_participantEntry = -1;
@@ -2038,8 +2042,8 @@ static int hf_skinny_pictureWidth = -1;
 static int hf_skinny_pixelAspectRatio = -1;
 static int hf_skinny_portHandlingFlag = -1;
 static int hf_skinny_portNumber = -1;
-static int hf_skinny_precedenceDm = -1;
-static int hf_skinny_precedenceLv = -1;
+static int hf_skinny_precedenceDomain = -1;
+static int hf_skinny_precedenceLevel = -1;
 static int hf_skinny_precedenceValue = -1;
 static int hf_skinny_preemptionPriority = -1;
 static int hf_skinny_priority = -1;
@@ -2074,7 +2078,6 @@ static int hf_skinny_salt = -1;
 static int hf_skinny_saltlen = -1;
 static int hf_skinny_secondaryKeepAliveInterval = -1;
 static int hf_skinny_sequenceFlag = -1;
-static int hf_skinny_serverInstance = -1;
 static int hf_skinny_serverName = -1;
 static int hf_skinny_serverTcpListenPort = -1;
 static int hf_skinny_serviceNum = -1;
@@ -2140,7 +2143,6 @@ static int hf_skinny_transmitPort = -1;
 static int hf_skinny_transmitPreference = -1;
 static int hf_skinny_unRegReasonCode = -1;
 static int hf_skinny_unknown = -1;
-static int hf_skinny_unknown2 = -1;
 static int hf_skinny_userName = -1;
 static int hf_skinny_v150sprt = -1;
 static int hf_skinny_vendor = -1;
@@ -2232,7 +2234,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
   gboolean           is_video    = 0;
 
   /* ProtocolVersion > 18 include and extra field to declare IPv4 (0) / IPv6 (1) */
-  if (hdr_version >= V18_MSG_TYPE) {
+  if (hdr_version >= V17_MSG_TYPE) {
     ipversion = tvb_get_letohl(tvb, offset);
     ptvcursor_add(cursor, hf_skinny_ipv4or6, 4, ENC_LITTLE_ENDIAN);
   }
@@ -2244,7 +2246,7 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6, 
     ip_address = tvb_get_ipv4(tvb, offset);
     rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset), 0, "Skinny", pinfo->fd->num, is_video, NULL);
     ptvcursor_add(cursor, hfindex_ipv4, 4, ENC_BIG_ENDIAN);
-    if (hdr_version >= V18_MSG_TYPE) {
+    if (hdr_version >= V17_MSG_TYPE) {
       /* skip over the extra room for ipv6 addresses */
       ptvcursor_advance(cursor, 12);
     }
@@ -2273,7 +2275,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
   guint32       offset            = ptvcursor_current_offset(cursor);
   tvbuff_t      *tvb              = ptvcursor_tvbuff(cursor);
   wmem_strbuf_t *wmem_new         = NULL;
-  gchar         *disp_string      = NULL;
+  gchar	        *disp_string      = NULL;
   const gchar   *replacestr       = NULL;
   gboolean      show_replaced_str = FALSE;
   gint          x                 = 0;
@@ -4430,15 +4432,16 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : qualifierOut / size: 18 */
+    /* start struct : qualifierOut / size: 20 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierOut");
     ptvcursor_add(cursor, hf_skinny_precedenceValue, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_ssValue, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_padding, 2, ENC_LITTLE_ENDIAN);
     if (hdr_version <= V10_MSG_TYPE) {
       ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
     }
-    if (hdr_version >= V11_MSG_TYPE && hdr_version <= V15_MSG_TYPE) {
+    if (hdr_version >= V11_MSG_TYPE) {
       if (compressionType == MEDIA_PAYLOAD_G7231)       {
         /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
@@ -4507,7 +4510,9 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
   ptvcursor_add(cursor, hf_skinny_RFC2833PayloadType, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_dtmfType, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_mixingMode, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_partyDirection, 4, ENC_LITTLE_ENDIAN);
+  if (hdr_version >= V15_MSG_TYPE) {
+    ptvcursor_add(cursor, hf_skinny_partyDirection, 4, ENC_LITTLE_ENDIAN);
+  }
   if (hdr_version >= V20_MSG_TYPE) {
     {
       /* start struct : latentCapsInfo / size: 36 */
@@ -4975,15 +4980,16 @@ handle_StartMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info *
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
   {
-    /* start struct : qualifierOut / size: 18 */
+    /* start struct : qualifierOut / size: 20 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "qualifierOut");
     ptvcursor_add(cursor, hf_skinny_precedenceValue, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_ssValue, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_maxFramesPerPacket, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_padding, 2, ENC_LITTLE_ENDIAN);
     if (hdr_version <= V10_MSG_TYPE) {
       ptvcursor_add(cursor, hf_skinny_g723BitRate, 4, ENC_LITTLE_ENDIAN);
     }
-    if (hdr_version >= V11_MSG_TYPE && hdr_version <= V15_MSG_TYPE) {
+    if (hdr_version >= V11_MSG_TYPE) {
       if (compressionType == MEDIA_PAYLOAD_G7231)       {
         /* start union : codecParamsUnion / maxsize: 4 */
         ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "compressionType is Media_Payload_G7231");
@@ -5389,8 +5395,8 @@ handle_CallStateMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
   {
     /* start struct : precedence / size: 8 */
     ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "precedence");
-    ptvcursor_add(cursor, hf_skinny_precedenceLv, 4, ENC_LITTLE_ENDIAN);
-    ptvcursor_add(cursor, hf_skinny_precedenceDm, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_precedenceLevel, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(cursor, hf_skinny_precedenceDomain, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(cursor);
     /* end struct: precedence */
   }
@@ -6799,6 +6805,7 @@ static void
 handle_ConfigStatV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
   guint32 DeviceName_len = 0;
+  guint32 userName_len = 0;
   guint32 serverName_len = 0;
   {
     /* start struct : sid / size: 24 */
@@ -6814,8 +6821,14 @@ handle_ConfigStatV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_pop_subtree(cursor);
     /* end struct: sid */
   }
-  ptvcursor_add(cursor, hf_skinny_serverInstance, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_unknown2, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_numberOfLines, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add(cursor, hf_skinny_numberOfSpeedDials, 4, ENC_LITTLE_ENDIAN);
+  userName_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;
+  if (userName_len > 1) {
+    ptvcursor_add(cursor, hf_skinny_userName, userName_len, ENC_ASCII|ENC_NA);
+  } else {
+    ptvcursor_advance(cursor, 1);
+  }
   serverName_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;
   if (serverName_len > 1) {
     ptvcursor_add(cursor, hf_skinny_serverName, serverName_len, ENC_ASCII|ENC_NA);
@@ -6907,7 +6920,13 @@ handle_LineStatV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_)
   guint32 lineFullyQualifiedDisplayName_len = 0;
   guint32 lineTextLabel_len = 0;
   ptvcursor_add(cursor, hf_skinny_lineNumber, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_lineType, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "lineType");
+  ptvcursor_add_no_advance(cursor, hf_skinny_OrigDialed, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_RedirDialed, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_CallingPartyNumber, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_add_no_advance(cursor, hf_skinny_CallingPartyName, 4, ENC_LITTLE_ENDIAN);
+  ptvcursor_advance(cursor, 4);
+  ptvcursor_pop_subtree(cursor); /* end bitfield: lineType */
   lineDirNumber_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;
   if (lineDirNumber_len > 1) {
     ptvcursor_add(cursor, hf_skinny_lineDirNumber, lineDirNumber_len, ENC_ASCII|ENC_NA);
@@ -7850,6 +7869,14 @@ proto_register_skinny(void)
       {
         "IPv4or6", "skinny.ipv4or6", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &IpAddrType_ext, 0x0,
         NULL, HFILL }},
+    { &hf_skinny_CallingPartyName,
+      {
+        "CallingName", "skinny.CallingPartyName", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0008,
+        NULL, HFILL }},
+    { &hf_skinny_CallingPartyNumber,
+      {
+        "CallingNum", "skinny.CallingPartyNumber", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0004,
+        NULL, HFILL }},
     { &hf_skinny_DSCPValue,
       {
         "DSCPValue", "skinny.DSCPValue", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -7998,6 +8025,10 @@ proto_register_skinny(void)
       {
         "MPI", "skinny.MPI", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_skinny_OrigDialed,
+      {
+        "Originaly Dialed", "skinny.OrigDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0001,
+        NULL, HFILL }},
     { &hf_skinny_PhoneFeatures_Abbreviated_Dial,
       {
         "AbbrevDial", "skinny.PhoneFeatures.Abbreviated.Dial", FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000,
@@ -8073,6 +8104,10 @@ proto_register_skinny(void)
     { &hf_skinny_RTPPayloadFormat,
       {
         "RTPPayloadFormat", "skinny.RTPPayloadFormat", FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_skinny_RedirDialed,
+      {
+        "Redirected Dialed", "skinny.RedirDialed", FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0002,
         NULL, HFILL }},
     { &hf_skinny_RestrictInformationType_BitsReserved,
       {
@@ -8546,10 +8581,6 @@ proto_register_skinny(void)
       {
         "lineNumber", "skinny.lineNumber", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_lineType,
-      {
-        "lineType", "skinny.lineType", FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
     { &hf_skinny_locale,
       {
         "locale", "skinny.locale", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8726,6 +8757,10 @@ proto_register_skinny(void)
       {
         "originalCdpnRedirectReason", "skinny.originalCdpnRedirectReason", FT_UINT32, BASE_DEC, NULL, 0x0,
         "Original Called Party Redirect Reason", HFILL }},
+    { &hf_skinny_padding,
+      {
+        "padding", "skinny.padding", FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Unused/Padding", HFILL }},
     { &hf_skinny_parm1,
       {
         "parm1", "skinny.parm1", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8790,14 +8825,14 @@ proto_register_skinny(void)
       {
         "portNumber", "skinny.portNumber", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_precedenceDm,
+    { &hf_skinny_precedenceDomain,
       {
-        "precedenceDm", "skinny.precedenceDm", FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
-    { &hf_skinny_precedenceLv,
+        "precedenceDomain", "skinny.precedenceDomain", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Precendence Domain", HFILL }},
+    { &hf_skinny_precedenceLevel,
       {
-        "precedenceLv", "skinny.precedenceLv", FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
+        "precedenceLevel", "skinny.precedenceLevel", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Precendence Level, MLPP priorities", HFILL }},
     { &hf_skinny_precedenceValue,
       {
         "precedenceValue", "skinny.precedenceValue", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8878,10 +8913,6 @@ proto_register_skinny(void)
       {
         "secondaryKeepAliveInterval", "skinny.secondaryKeepAliveInterval", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-    { &hf_skinny_serverInstance,
-      {
-        "serverInstance", "skinny.serverInstance", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Server Instance", HFILL }},
     { &hf_skinny_serverTcpListenPort,
       {
         "serverTcpListenPort", "skinny.serverTcpListenPort", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -9046,10 +9077,6 @@ proto_register_skinny(void)
       {
         "unknown", "skinny.unknown", FT_UINT8, BASE_DEC, NULL, 0x0,
         "unknown (Part of ProtocolVer)", HFILL }},
-    { &hf_skinny_unknown2,
-      {
-        "unknown2", "skinny.unknown2", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "unknown", HFILL }},
     { &hf_skinny_v150sprt,
       {
         "v150sprt", "skinny.v150sprt", FT_UINT8, BASE_DEC, NULL, 0x0,
