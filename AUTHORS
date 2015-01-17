@@ -3644,6 +3644,9 @@ Enrico Jorns		<ejo[AT]pengutronix.de> {
 	CANopen dissector enhancements and fixes
 }
 
+Hitesh K Maisheri       <maisheri.hitesh[AT]gmail.com> {
+        EAPOL-MKA support
+}
 
 and by:
 

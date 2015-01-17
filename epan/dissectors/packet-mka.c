@@ -1,5 +1,7 @@
 /* packet-mka.c
  * Routines for EAPOL-MKA 802.1X authentication header disassembly
+ * Copyright 2014, Hitesh K Maisheri <maisheri.hitesh@gmail.com>
+ *
  * (From IEEE Draft P802.1X/D11; is there a later draft, or a
  * final standard?  If so, check it.)
  *
@@ -335,12 +337,26 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     offset += 4;
 
     proto_tree_add_item(distributed_sak_tree, hf_mka_macsec_cipher_suite,
-                        tvb, offset, 4, ENC_NA);
-    offset += 4;
+                        tvb, offset, 8, ENC_NA);
+    offset += 8;
 
     proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_sak,
                         tvb, offset, 24, ENC_NA);
     offset += 24;
+    break;
+
+  case 50:
+    proto_tree_add_item(distributed_sak_tree, hf_mka_key_number,
+                        tvb, offset, 4, ENC_NA);
+    offset += 4;
+
+    proto_tree_add_item(distributed_sak_tree, hf_mka_macsec_cipher_suite,
+                        tvb, offset, 8, ENC_NA);
+    offset += 8;
+
+    proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_sak,
+                        tvb, offset, 38, ENC_NA);
+    offset += 38;
     break;
 
   default:
@@ -716,7 +732,7 @@ proto_register_mka(void)
 
     { &hf_mka_macsec_cipher_suite, {
         "MACsec Cipher Suite", "mka.macsec_cipher_suite",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
+        FT_UINT64, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_mka_kmd, {
