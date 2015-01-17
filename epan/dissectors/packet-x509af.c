@@ -205,7 +205,7 @@ dissect_x509af_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 int
 dissect_x509af_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -964,7 +964,7 @@ void proto_register_x509af(void) {
         NULL, HFILL }},
     { &hf_x509af_serialNumber,
       { "serialNumber", "x509af.serialNumber",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         "CertificateSerialNumber", HFILL }},
     { &hf_x509af_signature,
       { "signature", "x509af.signature",
@@ -1112,7 +1112,7 @@ void proto_register_x509af(void) {
         NULL, HFILL }},
     { &hf_x509af_revokedUserCertificate,
       { "userCertificate", "x509af.userCertificate",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         "CertificateSerialNumber", HFILL }},
     { &hf_x509af_revocationDate,
       { "revocationDate", "x509af.revocationDate",
@@ -1180,7 +1180,7 @@ void proto_register_x509af(void) {
         "UniqueIdentifier", HFILL }},
     { &hf_x509af_serial,
       { "serial", "x509af.serial",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT64, BASE_DEC, NULL, 0,
         "CertificateSerialNumber", HFILL }},
     { &hf_x509af_issuerUID,
       { "issuerUID", "x509af.issuerUID",
