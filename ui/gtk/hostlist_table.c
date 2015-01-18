@@ -585,14 +585,16 @@ draw_hostlist_table_data(hostlist_table *hl)
             /* Filled in from the GeoIP config, if any */
             for (j = 0; j < ENDP_NUM_GEOIP_COLUMNS; j++) {
                 if (host->myaddress.type == AT_IPv4 && j < geoip_db_num_dbs()) {
-                    const guchar *name = geoip_db_lookup_ipv4(j, pntoh32(host->myaddress.data), "-");
+                    guchar *name = geoip_db_lookup_ipv4(j, pntoh32(host->myaddress.data), "-");
                     geoip[j] = g_strdup(name);
+                    wmem_free(NULL, name);
                 } else if (host->myaddress.type == AT_IPv6 && j < geoip_db_num_dbs()) {
-                    const guchar *name;
+                    guchar *name;
                     const struct e_in6_addr *addr = (const struct e_in6_addr *) host->myaddress.data;
 
                     name = geoip_db_lookup_ipv6(j, *addr, "-");
                     geoip[j] = g_strdup(name);
+                    wmem_free(NULL, name);
                 } else {
                   geoip[j] = NULL;
                 }

@@ -267,7 +267,7 @@ public:
         EndpointTreeWidget *ep_tree = qobject_cast<EndpointTreeWidget *>(treeWidget());
         if (ep_tree) {
             for (int col = ENDP_NUM_COLUMNS; col < ep_tree->columnCount(); col++) {
-                const char *col_text = NULL;
+                char *col_text = NULL;
                 foreach (unsigned db, ep_tree->columnToDb(col)) {
                     if (endp_item->myaddress.type == AT_IPv4) {
                         col_text = geoip_db_lookup_ipv4(db, pntoh32(endp_item->myaddress.data), NULL);
@@ -280,6 +280,7 @@ public:
                     }
                 }
                 setText(col, col_text ? col_text : geoip_none_);
+                wmem_free(NULL, col_text);
             }
         }
 #endif

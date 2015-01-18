@@ -195,7 +195,7 @@ create_endpoint_geoip_map(const GArray *endp_array, gchar **err_str) {
     tpl_entry = g_string_new("");
 
     for (i = 0; i < endp_array->len; i++) {
-        const char *lat, *lon, *country, *city, *asn;
+        char *lat = NULL, *lon = NULL, *country = NULL, *city = NULL, *asn = NULL;
         hostlist_talker_t *endp_item = &g_array_index(endp_array, hostlist_talker_t, i);
 
         if (endp_item->myaddress.type == AT_IPv4) {
@@ -272,8 +272,13 @@ create_endpoint_geoip_map(const GArray *endp_array, gchar **err_str) {
             map_endpoint_opener = ",\n{\n";
         }
 
-        /* XXX Display an error if we we have no entries */
+        wmem_free(NULL, lat);
+        wmem_free(NULL, lon);
+        wmem_free(NULL, country);
+        wmem_free(NULL, city);
+        wmem_free(NULL, asn);
 
+        /* XXX Display an error if we we have no entries */
     }
 
     while (fgets(tpl_line, MAX_TPL_LINE_LEN, tpl_file) != NULL) {

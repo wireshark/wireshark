@@ -608,7 +608,7 @@ add_geoip_info_entry(proto_tree *geoip_info_tree, proto_item *geoip_info_item, t
   guint dbnum;
 
   for (dbnum = 0; dbnum < num_dbs; dbnum++) {
-    const char *geoip_str = geoip_db_lookup_ipv4(dbnum, ip, NULL);
+    char *geoip_str = geoip_db_lookup_ipv4(dbnum, ip, NULL);
     int db_type = geoip_db_type(dbnum);
 
     int geoip_hf, geoip_local_hf;
@@ -674,6 +674,7 @@ add_geoip_info_entry(proto_tree *geoip_info_tree, proto_item *geoip_info_item, t
       item_cnt++;
       proto_item_append_text(geoip_info_item, "%s%s",
                              plurality(item_cnt, "", ", "), geoip_str);
+      wmem_free(NULL, geoip_str);
     }
   }
 
