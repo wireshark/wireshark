@@ -4135,6 +4135,8 @@ static void
 				/* if we could unwrap, do a tvb shuffle */
 				if(pinfo->gssapi_decrypted_tvb){
 					decr_tvb=pinfo->gssapi_decrypted_tvb;
+				} else if (pinfo->gssapi_wrap_tvb) {
+					plain_tvb=pinfo->gssapi_wrap_tvb;
 				}
 				/* tidy up */
 				pinfo->decrypt_gssapi_tvb=0;
@@ -4155,7 +4157,7 @@ static void
 				* see if the wrapping involved encryption of the
 				* data; if not, just use the plaintext data.
 				*/
-				if (!decr_tvb) {
+				if (!decr_tvb && !plain_tvb) {
 					if(!pinfo->gssapi_data_encrypted){
 						plain_tvb = tvb_new_subset_remaining(gssapi_tvb,  ver_len);
 					}
@@ -5731,7 +5733,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2228 "../../asn1/ldap/packet-ldap-template.c"
+#line 2230 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5805,7 +5807,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2242 "../../asn1/ldap/packet-ldap-template.c"
+#line 2244 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5971,7 +5973,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2391 "../../asn1/ldap/packet-ldap-template.c"
+#line 2393 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
