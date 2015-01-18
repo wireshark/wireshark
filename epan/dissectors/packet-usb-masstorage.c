@@ -179,7 +179,8 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 {
     usb_conv_info_t *usb_conv_info;
     usb_ms_conv_info_t *usb_ms_conv_info;
-    proto_tree *tree=NULL;
+    proto_tree *tree;
+    proto_item *ti;
     guint32 signature=0;
     int offset=0;
     gboolean is_request;
@@ -208,12 +209,8 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
     col_clear(pinfo->cinfo, COL_INFO);
 
 
-    if(parent_tree){
-        proto_item *ti = NULL;
-        ti = proto_tree_add_protocol_format(parent_tree, proto_usb_ms, tvb, 0, -1, "USB Mass Storage");
-
-        tree = proto_item_add_subtree(ti, ett_usb_ms);
-    }
+    ti = proto_tree_add_protocol_format(parent_tree, proto_usb_ms, tvb, 0, -1, "USB Mass Storage");
+    tree = proto_item_add_subtree(ti, ett_usb_ms);
 
     signature=tvb_get_letohl(tvb, offset);
 
