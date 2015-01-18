@@ -47,7 +47,6 @@
 #include <wsutil/report_err.h>
 
 #include <epan/dfilter/dfilter-macro.h>
-#include <epan/emem.h>
 #include <epan/proto.h>
 #include <epan/packet.h>
 #include <epan/uat-int.h>

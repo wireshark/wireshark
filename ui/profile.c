@@ -26,8 +26,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include <glib.h>
 
-#include <epan/emem.h>
 #include <wsutil/filesystem.h>
 
 #include "profile.h"

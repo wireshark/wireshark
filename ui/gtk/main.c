@@ -76,7 +76,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
-#include <epan/emem.h>
 #include <epan/ex-opt.h>
 #include <epan/funnel.h>
 #include <epan/expert.h>
@@ -619,7 +618,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
              */
             if (strlen(cfile.cinfo.col_expr.col_expr[column]) != 0 &&
                 strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
-                /* leak a little but safer than ep_ here */
+                /* leak a little; is there a safe wmem_ scope here? */
                 if (cfile.cinfo.col_fmt[column] == COL_CUSTOM) {
                     header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[column]);
                     if (hfi && hfi->parent == -1) {
