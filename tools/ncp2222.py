@@ -5740,7 +5740,6 @@ def produce_code():
 #include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/ptvcursor.h>
-#include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>

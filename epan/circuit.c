@@ -25,7 +25,6 @@
 #include <glib.h>
 #include "packet.h"
 #include "circuit.h"
-#include "emem.h"
 
 /*
  * Hash table for circuits.

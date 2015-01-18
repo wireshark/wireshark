@@ -29,7 +29,6 @@
 #include "proto.h"
 #include "conversation_table.h"
 #include "addr_resolv.h"
-#include "emem.h"
 
 #include "stat_tap_ui.h"
 

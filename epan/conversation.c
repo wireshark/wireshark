@@ -27,7 +27,6 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
-#include "emem.h"
 #include "to_str.h"
 #include "conversation.h"
 

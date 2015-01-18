@@ -30,7 +30,6 @@
 #include <ftypes/ftypes-int.h>
 #include <ftypes/ftypes.h>
 #include <epan/exceptions.h>
-#include <epan/emem.h>
 
 /* Convert an FT_STRING using a callback function */
 static gboolean

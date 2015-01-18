@@ -59,7 +59,6 @@
 #include "osi-utils.h"
 #include <epan/dissectors/packet-mtp3.h>
 #include <stdio.h>
-#include "emem.h"
 #include "wmem/wmem.h"
 
 static void

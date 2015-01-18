@@ -133,7 +133,6 @@
 #include <epan/strutil.h>
 #include <epan/to_str-int.h>
 #include <epan/prefs.h>
-#include <epan/emem.h>
 
 #define ENAME_HOSTS     "hosts"
 #define ENAME_SUBNETS   "subnets"

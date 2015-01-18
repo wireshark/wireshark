@@ -65,7 +65,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <epan/emem.h>
 #include <epan/value_string.h>
 #include <epan/packet.h>	/* array_length */
 #include <wsutil/file_util.h>

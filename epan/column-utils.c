@@ -39,7 +39,6 @@
 #include "proto.h"
 
 #include <epan/strutil.h>
-#include <epan/emem.h>
 #include <epan/epan.h>
 #include <epan/dfilter/dfilter.h>
 
