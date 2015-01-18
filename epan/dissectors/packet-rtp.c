@@ -1833,6 +1833,12 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
             return;
 
         ext_length = (ext_hdr_hdr & 0x0F) + 1;
+
+        /* Exit on malformed extension headers */
+        if (ext_offset + ext_length + 1 > tvb_captured_length (tvb)) {
+            return;
+        }
+
         if (rtp_hext_tree) {
             rtp_hext_rfc5285_tree = proto_tree_add_subtree(rtp_hext_tree, tvb, ext_offset, ext_length + 1,
                                             ett_hdr_ext_rfc5285, NULL, "RFC 5285 Header Extension (One-Byte Header)");
