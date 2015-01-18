@@ -63,10 +63,6 @@ void* ep_alloc0(size_t size) G_GNUC_MALLOC;
 WS_DLL_PUBLIC
 gchar* ep_strdup(const gchar* src) G_GNUC_MALLOC;
 
-/** Duplicate at most n characters of a string with a packet lifetime scope */
-WS_DLL_PUBLIC
-gchar* ep_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
-
 /** Create a formatted string with a packet lifetime scope */
 WS_DLL_PUBLIC
 gchar* ep_strdup_printf(const gchar* fmt, ...)

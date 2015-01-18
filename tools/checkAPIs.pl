@@ -155,7 +155,6 @@ my %APIs = (
                 'ep_alloc',
                 'ep_alloc0',
                 'ep_strdup',
-                'ep_strndup',
                 'ep_strdup_printf',
                 'ep_alloc_array',
                 'ep_alloc_array0',

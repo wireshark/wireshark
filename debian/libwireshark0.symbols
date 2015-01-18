@@ -442,7 +442,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ep_alloc@Base 1.9.1
  ep_strdup@Base 1.9.1
  ep_strdup_printf@Base 1.9.1
- ep_strndup@Base 1.9.1
  epan_cleanup@Base 1.9.1
  epan_dissect_cleanup@Base 1.9.1
  epan_dissect_fake_protocols@Base 1.9.1

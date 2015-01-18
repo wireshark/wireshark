@@ -965,27 +965,6 @@ ep_strdup(const gchar *src)
 	return emem_strdup(src, ep_alloc);
 }
 
-static gchar *
-emem_strndup(const gchar *src, size_t len, void *allocator(size_t))
-{
-	gchar *dst = (gchar *)allocator(len+1);
-	guint i;
-
-	for (i = 0; (i < len) && src[i]; i++)
-		dst[i] = src[i];
-
-	dst[i] = '\0';
-
-	return dst;
-}
-
-gchar *
-ep_strndup(const gchar *src, size_t len)
-{
-	return emem_strndup(src, len, ep_alloc);
-}
-
-
 
 static gchar *
 emem_strdup_vprintf(const gchar *fmt, va_list ap, void *allocator(size_t))

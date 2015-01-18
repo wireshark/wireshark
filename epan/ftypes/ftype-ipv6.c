@@ -25,7 +25,6 @@
 #include <ftypes-int.h>
 #include <epan/ipv6-utils.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
 
 static void
 ipv6_fvalue_set(fvalue_t *fv, const guint8 *value)
@@ -37,20 +36,29 @@ ipv6_fvalue_set(fvalue_t *fv, const guint8 *value)
 static gboolean
 ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
-	const char *has_slash, *addr_str;
+	const char *has_slash;
+	char *addr_str;
 	unsigned int nmask_bits;
 	fvalue_t *nmask_fvalue;
+	gboolean free_addr_str = FALSE;
 
 	/* Look for prefix: Is there a single slash in the string? */
-	if ((has_slash = strchr(s, '/')))
-		addr_str = ep_strndup(s, has_slash-s);
+	if ((has_slash = strchr(s, '/'))) {
+		addr_str = wmem_strndup(NULL, s, has_slash-s);
+		free_addr_str = TRUE;
+	}
 	else
-		addr_str = s;
+		addr_str = (char*)s;
 
 	if (!get_host_ipaddr6(addr_str, &(fv->value.ipv6.addr))) {
 		logfunc("\"%s\" is not a valid hostname or IPv6 address.", s);
+		if (free_addr_str)
+			wmem_free(NULL, addr_str);
 		return FALSE;
 	}
+
+	if (free_addr_str)
+		wmem_free(NULL, addr_str);
 
 	/* If prefix */
 	if (has_slash) {

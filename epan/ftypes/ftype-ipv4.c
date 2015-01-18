@@ -25,7 +25,6 @@
 #include <ftypes-int.h>
 #include <epan/ipv4.h>
 #include <epan/addr_resolv.h>
-#include <epan/emem.h>
 
 
 static void
@@ -47,27 +46,32 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	guint32	addr;
 	unsigned int nmask_bits;
 
-	const char *has_slash;
-	const char *net_str, *addr_str;
+	const char *has_slash, *net_str;
+	char *addr_str;
 	fvalue_t *nmask_fvalue;
+	gboolean free_addr_str = FALSE;
 
 	/* Look for CIDR: Is there a single slash in the string? */
 	has_slash = strchr(s, '/');
 	if (has_slash) {
 		/* Make a copy of the string up to but not including the
 		 * slash; that's the address portion. */
-		addr_str = ep_strndup(s, has_slash - s);
+		addr_str = wmem_strndup(NULL, s, has_slash - s);
+		free_addr_str = TRUE;
 	}
 	else {
-		addr_str = s;
+		addr_str = (char*)s;
 	}
 
 	if (!get_host_ipaddr(addr_str, &addr)) {
-		logfunc("\"%s\" is not a valid hostname or IPv4 address.",
-		    addr_str);
+		logfunc("\"%s\" is not a valid hostname or IPv4 address.", addr_str);
+		if (free_addr_str)
+			wmem_free(NULL, addr_str);
 		return FALSE;
 	}
 
+	if (free_addr_str)
+		wmem_free(NULL, addr_str);
 	ipv4_addr_set_net_order_addr(&(fv->value.ipv4), addr);
 
 	/* If CIDR, get netmask bits. */
