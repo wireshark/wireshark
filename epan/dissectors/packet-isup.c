@@ -6821,21 +6821,37 @@ dissect_isup_calling_geodetic_location_parameter(tvbuff_t *parameter_tvb, packet
 /* ------------------------------------------------------------------
   Dissector Parameter Generic number
  */
+static const range_string number_qualifier_indicator_vals[] = {
+  { 0x00, 0x00, "reserved (dialled digits) (national use)"},
+  { 0x01, 0x01, "additional called number (national use)"},
+  { 0x02, 0x02, "reserved (supplemental user provided calling number - failed network screening) (national use)"},
+  { 0x03, 0x03, "reserved (supplemental user provided calling number - not screened) (national use)"},
+  { 0x04, 0x04, "reserved (redirecting terminating number) (national use)"},
+  { 0x05, 0x05, "additional connected number"},
+  { 0x06, 0x06, "additional calling party number"},
+  { 0x07, 0x07, "reserved for additional original called number"},
+  { 0x08, 0x08, "reserved for additional redirecting number"},
+  { 0x09, 0x09, "reserved for additional redirection number"},
+  { 0x0a, 0x0a, "reserved (used in 1992 version)"},
+  { 0x0b, 0x7f, "spare"},
+  { 0x80, 0xfe, "reserved for national use"},
+  { 0xff, 0xff, "reserved for expansion"},
+  { 0, 0, NULL}
+};
+
 void
 dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *address_digits_item;
   proto_tree *address_digits_tree;
-  guint8      indicators1, indicators2, nr_qualifier_ind;
+  guint8      indicators1, indicators2;
   guint8      address_digit_pair = 0;
   gint        offset = 0;
   gint        i = 0;
   gint        length;
   char        calling_number[MAXDIGITS + 1] = "";
 
-  nr_qualifier_ind = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint_format_value(parameter_tree, hf_isup_number_qualifier_indicator, parameter_tvb, 0, 1, nr_qualifier_ind,
-      "0x%x (refer to 3.26/Q.763 for detailed decoding)", nr_qualifier_ind);
+  proto_tree_add_item(parameter_tree, hf_isup_number_qualifier_indicator, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
   indicators1 = tvb_get_guint8(parameter_tvb, 1);
   proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 1, 1, indicators1);
   proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
@@ -12214,7 +12230,7 @@ proto_register_isup(void)
       { &hf_isup_collect_call_request_indicator, { "Collect call request indicator", "isup.collect_call_request_indicator", FT_BOOLEAN, 8, TFS(&tfs_collect_call_req_no_indication), A_8BIT_MASK, NULL, HFILL }},
       { &hf_isup_geo_loc_shape, { "Calling geodetic location type of shape", "isup.geo_loc_shape", FT_UINT8, BASE_DEC, VALS(isup_location_type_of_shape_value), GFEDCBA_8BIT_MASK, NULL, HFILL }},
       { &hf_isup_geo_loc_shape_description, { "Shape description", "isup.shape_description", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_isup_number_qualifier_indicator, { "Number qualifier indicator", "isup.number_qualifier_indicator", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_isup_number_qualifier_indicator, { "Number qualifier indicator", "isup.number_qualifier_indicator", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(number_qualifier_indicator_vals), 0x0, NULL, HFILL }},
       { &hf_isup_generic_digits, { "Generic digits (refer to 3.24/Q.673 for detailed decoding)", "isup.generic_digits", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
   };
 
