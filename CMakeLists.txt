@@ -812,44 +812,6 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 )
 
-if(ENABLE_PLUGINS)
-	set(HAVE_PLUGINS 1)
-	if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
-		set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}")
-	else()
-		set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}")
-	endif()
-	set(PLUGIN_SRC_DIRS
-		plugins/docsis
-		plugins/ethercat
-		plugins/gryphon
-		plugins/irda
-		plugins/m2m
-		plugins/mate
-		plugins/opcua
-		plugins/profinet
-		plugins/stats_tree
-		plugins/unistim
-		plugins/wimax
-		plugins/wimaxasncp
-		plugins/wimaxmacphy
-		${CUSTOM_PLUGIN_SRC_DIR}
-	)
-# It seems this stuff doesn't build with autofoo either...
-#	if(YAPP_FOUND)
-#		set(PLUGIN_SRC_DIRS
-#			${PLUGIN_SRC_DIRS}
-#			plugins/tpg
-#		)
-#	endif()
-else()
-	set(PLUGIN_SRC_DIRS )
-endif()
-
-foreach(PLUGIN_DIR ${PLUGIN_SRC_DIRS})
-	add_subdirectory( ${PLUGIN_DIR} )
-endforeach()
-
 add_subdirectory( asn1 EXCLUDE_FROM_ALL )
 add_subdirectory( capchild )
 add_subdirectory( caputils )
@@ -893,6 +855,57 @@ if(ENABLE_EXTCAP)
 	set(HAVE_EXTCAP 1)
 	set(EXTCAP_DIR "${DATAFILE_DIR}/extcap/")
 endif()
+
+# Location of our plugins. PLUGIN_DIRECTORY should allow running
+# from the build directory similar to DATAFILE_DIR above.
+if(ENABLE_PLUGINS)
+	set(HAVE_PLUGINS 1)
+	if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
+		set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}")
+	else()
+		set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}")
+	endif()
+	set(PLUGIN_SRC_DIRS
+		plugins/docsis
+		plugins/ethercat
+		plugins/gryphon
+		plugins/irda
+		plugins/m2m
+		plugins/mate
+		plugins/opcua
+		plugins/profinet
+		plugins/stats_tree
+		plugins/unistim
+		plugins/wimax
+		plugins/wimaxasncp
+		plugins/wimaxmacphy
+		${CUSTOM_PLUGIN_SRC_DIR}
+	)
+# It seems this stuff doesn't build with autofoo either...
+#	if(YAPP_FOUND)
+#		set(PLUGIN_SRC_DIRS
+#			${PLUGIN_SRC_DIRS}
+#			plugins/tpg
+#		)
+#	endif()
+else()
+	set(PLUGIN_SRC_DIRS )
+endif()
+
+if(ENABLE_APPLICATION_BUNDLE)
+	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark")
+else()
+	get_target_property(_libwireshark_location epan LOCATION)
+	get_filename_component(_plugin_dir "${_libwireshark_location}" PATH)
+	set(_plugin_dir "${_plugin_dir}/plugins")
+endif()
+# XXX The NMake environment appends the version. Should we do so here?
+set (PLUGIN_DIR ${_plugin_dir} CACHE INTERNAL "Build time plugin location.")
+
+foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS})
+	add_subdirectory( ${_plugin_src_dir} )
+endforeach()
+
 
 # Basedir where to install guides
 set(DOC_DIR "$ENV{docdir}" CACHE FILEPATH "Installation directory for ug and dg pdfs.")

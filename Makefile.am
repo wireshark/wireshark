@@ -1247,6 +1247,7 @@ EXTRA_DIST = \
 	cmake/modules/FindPCAP.cmake		\
 	cmake/modules/FindPOD.cmake		\
 	cmake/modules/FindPORTAUDIO.cmake	\
+	cmake/modules/FindPowerShell.cmake	\
 	cmake/modules/FindSBC.cmake		\
 	cmake/modules/FindSED.cmake		\
 	cmake/modules/FindSETCAP.cmake		\
@@ -1273,6 +1274,7 @@ EXTRA_DIST = \
 	cmake/modules/UseWinLibs.cmake		\
 	cmake/modules/WiresharkConfig.cmake.in	\
 	cmake/modules/WiresharkConfigVersion.cmake.in \
+	cmake/modules/WiresharkPlugin.cmake	\
 	cmake/TestFileOffsetBits.c	\
 	cmake/TestLargeFiles.c.cmakein	\
 	cmake/TestWindowsFSeek.c	\

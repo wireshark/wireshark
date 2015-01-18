@@ -265,17 +265,17 @@ scan_plugins(void)
     {
         /*
          * Scan the global plugin directory.
-         * If we're running from a build directory, scan the subdirectories
-         * of that directory, as the global plugin directory is the
-         * "plugins" directory of the source tree, and the subdirectories
-         * are the source directories for the plugins, with the plugins
-         * built in those subdirectories.
+         * If we're running from a build directory, scan the "plugins"
+         * subdirectory, as that's where plugins are located in an
+         * out-of-tree build. If we find subdirectories scan those since
+         * they will contain plugins in the case of an in-tree build.
          */
         plugin_dir = get_plugin_dir();
         if (running_in_build_directory())
         {
             if ((dir = ws_dir_open(plugin_dir, 0, NULL)) != NULL)
             {
+                plugins_scan_dir(plugin_dir);
                 while ((file = ws_dir_read_name(dir)) != NULL)
                 {
                     name = ws_dir_get_name(file);
