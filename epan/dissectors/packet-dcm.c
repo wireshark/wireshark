@@ -36,6 +36,10 @@
  * - Read private tags from configuration and parse in capture
  * - dissect_dcm_heuristic() to return proper data type
  *
+ * September 2013 - Pascal Quantin
+ *
+ * - Replace all ep_ and se_ allocation with wmem_ allocations
+ *
  * February 2013 - Stefan Allers
  *
  * - Support for dissection of Extended Negotiation (Query/Retrieve
@@ -6099,7 +6103,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_sequence = FALSE;           /* True for Sequence Tags */
     gboolean is_item = FALSE;               /* True for Sequence Item Tags */
 
-    *tag_description = NULL;                /* Reset description. It's ep_ memory, so not really bad*/
+    *tag_description = NULL;                /* Reset description. It's wmem packet scope memory, so not really bad*/
 
     tag_value = (gchar *)wmem_alloc0(wmem_packet_scope(), MAX_BUF_LEN);
 
@@ -6351,7 +6355,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gboolean local_end_of_seq_or_item = FALSE;
         gboolean is_first_desc = TRUE;
 
-        const gchar *item_description = NULL;       /* Will be allocated as ep_ memory in dissect_dcm_tag() */
+        const gchar *item_description = NULL;       /* Will be allocated as wmem packet scope memory in dissect_dcm_tag() */
 
         if (vl == 0xFFFFFFFF) {
             /* Undefined length */

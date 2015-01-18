@@ -47,7 +47,7 @@
 
 /* Helper Functions */
 #ifdef HAVE_LIBGCRYPT
-static guint8 *    zbee_sec_key_hash(guint8 *, guint8, guint8 *);
+static void        zbee_sec_key_hash(guint8 *, guint8, guint8 *);
 static void        zbee_sec_make_nonce (zbee_security_packet *, guint8 *);
 static gboolean    zbee_sec_decrypt_payload(zbee_security_packet *, const gchar *, const gchar, guint8 *,
         guint, guint, guint8 *);
@@ -1213,18 +1213,15 @@ zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
  *          ipad = 0x36 repeated.
  *          opad = 0x5c repeated.
  *          H() = ZigBee Cryptographic Hash (B.1.3 and B.6).
- *
- *      The output of this function is an ep_alloced buffer containing
- *      the key-hashed output, and is garaunteed never to return NULL.
  *  PARAMETERS
- *      guint8  *key    - ZigBee Security Key (must be ZBEE_SEC_CONST_KEYSIZE) in length.
- *      guint8  input   - ZigBee CCM* Nonce (must be ZBEE_SEC_CONST_NONCE_LEN) in length.
- *      packet_info *pinfo  - pointer to packet information fields
+ *      guint8  *key      - ZigBee Security Key (must be ZBEE_SEC_CONST_KEYSIZE) in length.
+ *      guint8  input     - ZigBee CCM* Nonce (must be ZBEE_SEC_CONST_NONCE_LEN) in length.
+ *      guint8  *hash_out - buffer into which the key-hashed output is placed
  *  RETURNS
- *      guint8*
+ *      void
  *---------------------------------------------------------------
  */
-static guint8 *
+static void
 zbee_sec_key_hash(guint8 *key, guint8 input, guint8 *hash_out)
 {
     guint8              hash_in[2*ZBEE_SEC_CONST_BLOCKSIZE];
@@ -1244,7 +1241,6 @@ zbee_sec_key_hash(guint8 *key, guint8 input, guint8 *hash_out)
     zbee_sec_hash(hash_out, ZBEE_SEC_CONST_BLOCKSIZE+1, hash_in+ZBEE_SEC_CONST_BLOCKSIZE);
     /* Hash the contents of hash_in to get the final result. */
     zbee_sec_hash(hash_in, 2*ZBEE_SEC_CONST_BLOCKSIZE, hash_out);
-    return hash_out;
 } /* zbee_sec_key_hash */
 #else   /* HAVE_LIBGCRYPT */
 gboolean

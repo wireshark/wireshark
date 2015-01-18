@@ -1290,6 +1290,10 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
             /* Create an empty key ring for this pan. Use g_malloc0() because we must free
              * GSLists after a capture is closed and wireshark frees seasonal memory
              * with se_free_all() before calling the registered init routine.
+             *
+             * XXX - we don't use seasonal memory any more, and libwireshark
+             * just does wmem_enter_file_scope() before calling registered init
+             * routines; does this still apply?
              */
             nwk_keyring = (GSList **)g_malloc0(sizeof(GSList*));
             g_hash_table_insert(zbee_table_nwk_keyring,

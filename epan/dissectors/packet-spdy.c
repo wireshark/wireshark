@@ -948,7 +948,7 @@ body_dissected:
  * Performs header decompression.
  *
  * The returned buffer is automatically scoped to the lifetime of the capture
- * (via se_memdup()).
+ * (via wmem_memdup() with file scope).
  */
 #define DECOMPRESS_BUFSIZE   16384
 

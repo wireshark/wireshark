@@ -739,7 +739,6 @@ QString &PacketList::getFilterFromRowAndColumn()
              */
             if (strlen(cap_file_->cinfo.col_expr.col_expr[ctx_column_]) != 0 &&
                 strlen(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]) != 0) {
-                /* leak a little but safer than ep_ here */
                 if (cap_file_->cinfo.col_fmt[ctx_column_] == COL_CUSTOM) {
                     header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_custom_field[ctx_column_]);
                     if (hfi->parent == -1) {

@@ -466,7 +466,7 @@ free_data_list(gpointer value)
 {
 	conversation_t *conv = (conversation_t *)value;
 
-	/* TODO: se_slist? */
+	/* TODO: file scoped wmem_list? There's no singly-linked wmem_ list */
 	g_slist_free(conv->data_list);
 
 	/* Not really necessary, but... */
@@ -482,7 +482,8 @@ conversation_cleanup(void)
 {
 	/*  Clean up the hash tables, but only after freeing any proto_data
 	 *  that may be hanging off the conversations.
-	 *  The conversation keys are se_ allocated so we don't have to clean them up.
+	 *  The conversation keys are wmem-allocated with file scope so we
+	 *  don't have to clean them up.
 	 */
 	conversation_keys = NULL;
 	if (conversation_hashtable_exact != NULL) {

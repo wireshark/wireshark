@@ -2908,8 +2908,6 @@ address_to_display(wmem_allocator_t *allocator, const address *addr)
     const gchar *result = solve_address_to_name(addr);
 
     if (result != NULL) {
-        /* unlike ep_address_to_display(), we can't assume the lifetime of the address' members
-           is safe, so we allocate and copy */
         str = wmem_strdup(allocator, result);
     }
     else if (addr->type == AT_NONE) {

@@ -5093,7 +5093,7 @@ register_bacapp_stat_trees(void)
         bacapp_stats_tree_instanceid, bacapp_instanceid_stats_tree_init, NULL);
 }
 
-/* 'data' must be ep_ allocated */
+/* 'data' must be allocated with wmem packet scope */
 static gint
 updateBacnetInfoValue(gint whichval, const gchar *data)
 {

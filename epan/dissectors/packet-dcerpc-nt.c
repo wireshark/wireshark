@@ -873,8 +873,8 @@ static void init_pol_hash(void)
 	/* Initialise hash table */
 
 	if (pol_hash) {
-		/*  Everything in the table is se_ allocated so there's no
-		 *  need to go through and free it all.
+		/*  Everything in the table is allocated with wmem file
+		 *  scope so there's no need to go through and free it all.
 		 */
 		g_hash_table_destroy(pol_hash);
 	}

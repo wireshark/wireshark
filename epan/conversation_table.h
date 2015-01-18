@@ -253,18 +253,20 @@ WS_DLL_PUBLIC void dissector_hostlist_init(const char *opt_arg, void* userdata);
 
 /** Get the string representation of an address.
  *
+ * @param allocator The wmem allocator to use when allocating the string
  * @param addr The address.
  * @param resolve_names Enable name resolution.
- * @return An ep_allocated string representing the address.
+ * @return A string representing the address.
  */
 WS_DLL_PUBLIC const char *get_conversation_address(wmem_allocator_t *allocator, address *addr, gboolean resolve_names);
 
 /** Get the string representation of a port.
  *
+ * @param allocator The wmem allocator to use when allocating the string
  * @param port The port number.
  * @param ptype The port type.
  * @param resolve_names Enable name resolution.
- * @return An ep_allocated string representing the port.
+ * @return A string representing the port.
  */
 WS_DLL_PUBLIC const char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, port_type ptype, gboolean resolve_names);
 
@@ -279,7 +281,8 @@ WS_DLL_PUBLIC const char *get_conversation_filter(conv_item_t *conv_item, conv_d
 /** Get a display filter for the given hostlist.
  *
  * @param host The hostlist.
- * @return An ep_allocated string representing the conversation.
+ * @return A string, allocated using the wmem NULL allocator,
+ * representing the conversation.
  */
 WS_DLL_PUBLIC const char *get_hostlist_filter(hostlist_talker_t *host);
 
