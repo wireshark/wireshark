@@ -2969,7 +2969,6 @@ value_string_ext ext_usb_vendors_vals = VALUE_STRING_EXT_INIT(usb_vendors_vals);
 
 
 static const value_string usb_products_vals[] = {
-    { 0x0001142b, "Arbiter Systems, Inc." },
     { 0x00017778, "Counterfeit flash drive [Kingston]" },
     { 0x00117788, "Flash mass storage drive" },
     { 0x00535301, "GW-US54ZGL 802.11bg" },
