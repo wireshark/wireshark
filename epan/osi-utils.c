@@ -32,7 +32,6 @@
 
 #include "tvbuff.h"
 #include "osi-utils.h"
-#include "emem.h"
 
 /*
  * XXX - shouldn't there be a centralized routine for dissecting NSAPs?

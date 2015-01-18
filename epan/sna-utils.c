@@ -28,7 +28,6 @@
 #include "packet_info.h"
 #include "wsutil/pint.h"
 #include "sna-utils.h"
-#include "emem.h"
 
 gchar *
 sna_fid_to_str(const address *addr)

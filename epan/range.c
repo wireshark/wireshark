@@ -34,7 +34,6 @@
 #include <epan/frame_data.h>
 
 #include <epan/range.h>
-#include <epan/emem.h>
 #include <stdio.h>
 
 /*

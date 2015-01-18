@@ -28,7 +28,6 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <wsutil/unicode-utils.h>
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 #include "guid-utils.h"
 

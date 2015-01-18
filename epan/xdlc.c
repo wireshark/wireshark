@@ -29,7 +29,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/xdlc.h>
-#include <epan/emem.h>
 #include <wsutil/pint.h>
 
 const value_string ftype_vals[] = {

@@ -34,7 +34,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-udp.h>
 #include "follow.h"

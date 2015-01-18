@@ -26,7 +26,6 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/emem.h>
 #include <epan/reassemble.h>
 #include <epan/tvbuff-int.h>
 

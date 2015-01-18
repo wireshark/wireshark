@@ -38,7 +38,6 @@
 #include <wsutil/str_util.h>
 #include <wsutil/report_err.h>
 
-#include <epan/emem.h>
 #include <wsutil/filesystem.h>
 #include <epan/packet.h>
 #include <epan/range.h>

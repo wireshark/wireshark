@@ -29,8 +29,6 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
-
 #include "gcp.h"
 
 static wmem_tree_t* msgs = NULL;

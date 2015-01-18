@@ -26,7 +26,6 @@
 #include <string.h>
 #include <glib.h>
 #include "strutil.h"
-#include "emem.h"
 
 #include <wsutil/str_util.h>
 #include <epan/proto.h>

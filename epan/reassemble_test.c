@@ -58,7 +58,6 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/proto.h>

@@ -56,7 +56,6 @@
 
 #include <glib.h>
 
-#include <epan/emem.h>
 #include "uat-int.h"
 #include "uat_load_lex.h"
 #include <wsutil/file_util.h>

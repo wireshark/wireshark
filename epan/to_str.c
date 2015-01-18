@@ -27,7 +27,6 @@
 #include <time.h>
 #include <glib.h>
 
-#include "emem.h"
 #include "wmem/wmem.h"
 #include "proto.h"
 #include "to_str.h"

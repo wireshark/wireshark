@@ -27,7 +27,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/emem.h>
 #include <epan/reassemble.h>
 #include <epan/stream.h>
 #include <epan/tvbuff.h>
