@@ -773,11 +773,12 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     usb_setup_dissector dissector;
     const usb_setup_dissector_table_t *tmp;
 
-    /* Reject the packet if data or usb_trans_info are NULL */
-    if (data == NULL || ((usb_conv_info_t *)data)->usb_trans_info == NULL)
-        return 0;
     usb_conv_info = (usb_conv_info_t *)data;
+    if (!usb_conv_info)
+        return 0;
     usb_trans_info = usb_conv_info->usb_trans_info;
+    if (!usb_trans_info)
+        return 0;
 
     is_request = (pinfo->srcport==NO_ENDPOINT);
 
