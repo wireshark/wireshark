@@ -2420,7 +2420,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	 * has value_len bytes in it.
 	 */
 	value_len = line_end_offset - value_offset;
-	value = wmem_strndup(wmem_packet_scope(), &line[value_offset - offset], value_len);
+	value = (char *)wmem_alloc(wmem_packet_scope(), value_len+1);
+	memcpy(value, &line[value_offset - offset], value_len);
+	value[value_len] = '\0';
 
 	if (hf_index == -1) {
 		/*
