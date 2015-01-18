@@ -110,7 +110,7 @@ struct ptvcursor {
 		/* Let the exception handler add items to the tree */	\
 		PTREE_DATA(tree)->count = 0;				\
 		THROW_MESSAGE(DissectorError,				\
-			ep_strdup_printf("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS)); \
+			wmem_strdup_printf(wmem_packet_scope(), "More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS)); \
 	}								\
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
 	if (!(PTREE_DATA(tree)->visible)) {				\
@@ -3826,7 +3826,8 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	tnode = tree;
 	tfi = PNODE_FINFO(tnode);
 	if (tfi != NULL && (tfi->tree_type < 0 || tfi->tree_type >= num_tree_types)) {
-		REPORT_DISSECTOR_BUG(ep_strdup_printf("\"%s\" - \"%s\" tfi->tree_type: %u invalid (%s:%u)",
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+				     "\"%s\" - \"%s\" tfi->tree_type: %u invalid (%s:%u)",
 				     fi->hfinfo->name, fi->hfinfo->abbrev, tfi->tree_type, __FILE__, __LINE__));
 		/* XXX - is it safe to continue here? */
 	}
@@ -7931,9 +7932,10 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	PROTO_REGISTRAR_GET_NTH(hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
-		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val"
-						      " with field '%s' (%s) with bitmask != 0",
-						      hf_field->abbrev, hf_field->name));
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+					"Incompatible use of proto_tree_add_bits_ret_val"
+					" with field '%s' (%s) with bitmask != 0",
+					hf_field->abbrev, hf_field->name));
 	}
 
 	DISSECTOR_ASSERT(no_of_bits >  0);
@@ -8050,10 +8052,10 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 	PROTO_REGISTRAR_GET_NTH(hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
-		REPORT_DISSECTOR_BUG(ep_strdup_printf(
-					     "Incompatible use of proto_tree_add_split_bits_item_ret_val"
-					     " with field '%s' (%s) with bitmask != 0",
-					     hf_field->abbrev, hf_field->name));
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+					"Incompatible use of proto_tree_add_split_bits_item_ret_val"
+					" with field '%s' (%s) with bitmask != 0",
+					hf_field->abbrev, hf_field->name));
 	}
 
 	mask_initial_bit_offset = bit_offset % 8;
@@ -8237,10 +8239,10 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hf_field);
 
 	if (hf_field->bitmask != 0) {
-		REPORT_DISSECTOR_BUG(ep_strdup_printf(
-					     "Incompatible use of proto_tree_add_bits_format_value"
-					     " with field '%s' (%s) with bitmask != 0",
-					     hf_field->abbrev, hf_field->name));
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+					"Incompatible use of proto_tree_add_bits_format_value"
+					" with field '%s' (%s) with bitmask != 0",
+					hf_field->abbrev, hf_field->name));
 	}
 
 	DISSECTOR_ASSERT(no_of_bits > 0);
