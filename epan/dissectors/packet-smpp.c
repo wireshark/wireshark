@@ -1151,10 +1151,12 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
  * \param       secs    Returns the 'time_t' equivalent
  * \param       nsecs   Returns the additional nano-seconds
  *
- * \return              Whether time is specified relative or absolute
- * \retval      TRUE    Relative time
- * \retval      FALSE   Absolute time
+ * \return              Whether time is specified relative (TRUE) or absolute (FALSE)
+ *                      If invalid abs time: return *secs = (time_t)(-1) and *nsecs=0
  */
+
+/* XXX: This function needs better error checking and handling */
+
 static gboolean
 smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
 {
@@ -1181,6 +1183,10 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
         int gm_hour, gm_min;
 
         *secs = mktime(&r_time);
+        *nsecs = 0;
+        if (*secs == (time_t)(-1)) {
+            return relative;
+        }
         *nsecs = (datestr[12] - '0') * 100000000;
 
         t_diff = (10 * (datestr[13] - '0') + (datestr[14] - '0')) * 900;
@@ -1197,11 +1203,14 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
          * To do that, first determine how the time is represented in the
          * local time zone and in UTC.
          */
-        gm = gmtime(secs);
-        gm_hour = gm->tm_hour;
-        gm_min = gm->tm_min;
-        local_time = localtime(secs);
+        if (((gm = gmtime(secs)) == NULL) || ((local_time = localtime(secs)) == NULL)) {
+            *secs = (time_t)(-1);
+            *nsecs = 0;
+            return relative;
+        }
 
+        gm_hour = gm->tm_hour;
+        gm_min  = gm->tm_min;
         /* Then subtract out the difference between those times (whether the
          * difference is measured in hours, minutes, or both).
          */
