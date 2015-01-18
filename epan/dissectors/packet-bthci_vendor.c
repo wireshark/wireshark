@@ -900,8 +900,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     case P2P_DIR_UNKNOWN:
     default:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_BROADCOM");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d Broadcom ",
-                pinfo->p2p_dir);
+        col_set_str(pinfo->cinfo, COL_INFO, "UnknownDirection Broadcom ");
 
         if (tvb_captured_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(main_tree, hf_data, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);

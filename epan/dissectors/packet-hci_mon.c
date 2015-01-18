@@ -135,7 +135,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     default:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction ");
+        col_set_str(pinfo->cinfo, COL_INFO, "UnknownDirection ");
         break;
     }
 

@@ -79,8 +79,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
             col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
             break;
         default:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
-                pinfo->p2p_dir);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "UnknownDirection ");
             break;
     }
 

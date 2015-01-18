@@ -1188,12 +1188,8 @@ dissect_bluetooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         col_add_fstr(pinfo->cinfo, COL_INFO, "Rcvd ");
         break;
 
-    case P2P_DIR_UNKNOWN:
-        break;
-
     default:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
-                pinfo->p2p_dir);
+        col_set_str(pinfo->cinfo, COL_INFO, "UnknownDirection ");
         break;
     }
 
