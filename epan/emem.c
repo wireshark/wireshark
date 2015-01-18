@@ -133,7 +133,6 @@ typedef struct _emem_pool_t {
 	 * object individually.
 	 *
 	 * WIRESHARK_DEBUG_EP_NO_CHUNKS
-	 * WIRESHARK_DEBUG_SE_NO_CHUNKS
 	 */
 	gboolean debug_use_chunks;
 
@@ -141,17 +140,13 @@ typedef struct _emem_pool_t {
 	 * Export the following environment variables to disable/enable canaries
 	 *
 	 * WIRESHARK_DEBUG_EP_NO_CANARY
-	 * For SE memory use of canary is default off as the memory overhead
-	 * is considerable.
-	 * WIRESHARK_DEBUG_SE_USE_CANARY
 	 */
 	gboolean debug_use_canary;
 
 	/*  Do we want to verify no one is using a pointer to an ep_
 	 *  allocated thing where they shouldn't be?
 	 *
-	 * Export WIRESHARK_EP_VERIFY_POINTERS or WIRESHARK_SE_VERIFY_POINTERS
-	 * to turn this on.
+	 * Export WIRESHARK_EP_VERIFY_POINTERS to turn this on.
 	 */
 	gboolean debug_verify_pointers;
 
@@ -687,6 +682,12 @@ void *
 ep_alloc(size_t size)
 {
 	return emem_alloc(size, &ep_packet_mem);
+}
+
+void *
+ep_alloc0(size_t size)
+{
+	return memset(ep_alloc(size),'\0',size);
 }
 
 static gchar *
