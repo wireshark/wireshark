@@ -347,12 +347,12 @@ remove_last_data_source(packet_info *pinfo)
 	g_slice_free(struct data_source, src);
 }
 
-const char*
+char*
 get_data_source_name(const struct data_source *src)
 {
 	guint length = tvb_length(src->tvb);
 
-	return ep_strdup_printf("%s (%u byte%s)", src->name, length,
+	return wmem_strdup_printf(NULL, "%s (%u byte%s)", src->name, length,
 				plurality(length, "", "s"));
 }
 

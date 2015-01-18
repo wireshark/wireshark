@@ -677,7 +677,7 @@ write_carrays_hex_data(guint32 num, FILE *fh, epan_dissect_t *edt)
     guint32       i = 0, src_num = 0;
     GSList       *src_le;
     tvbuff_t     *tvb;
-    const char   *name;
+    char         *name;
     const guchar *cp;
     guint         length;
     char          ascii[9];
@@ -694,8 +694,10 @@ write_carrays_hex_data(guint32 num, FILE *fh, epan_dissect_t *edt)
         cp = tvb_get_ptr(tvb, 0, length);
 
         name = get_data_source_name(src);
-        if (name)
+        if (name) {
             fprintf(fh, "/* %s */\n", name);
+            wmem_free(NULL, name);
+        }
         if (src_num) {
             fprintf(fh, "static const unsigned char pkt%u_%u[%u] = {\n",
                     num, src_num, length);
@@ -846,8 +848,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
     gboolean      multiple_sources;
     GSList       *src_le;
     tvbuff_t     *tvb;
-    const char   *name;
-    char         *line;
+    char         *line, *name;
     const guchar *cp;
     guint         length;
     struct data_source *src;
@@ -867,6 +868,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
         if (multiple_sources) {
             name = get_data_source_name(src);
             line = g_strdup_printf("%s:", name);
+            wmem_free(NULL, name);
             print_line(stream, 0, line);
             g_free(line);
         }
@@ -1339,8 +1341,9 @@ void write_fields_proto_tree(output_fields_t *fields, epan_dissect_t *edt, colum
     if (fields->includes_col_fields) {
         for (col = 0; col < cinfo->num_cols; col++) {
             /* Prepend COLUMN_FIELD_FILTER as the field name */
-            col_name = ep_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->col_title[col]);
+            col_name = g_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->col_title[col]);
             field_index = g_hash_table_lookup(fields->field_indicies, col_name);
+            g_free(col_name);
 
             if (NULL != field_index) {
                 format_field_values(fields, field_index, g_strdup(cinfo->col_data[col]));

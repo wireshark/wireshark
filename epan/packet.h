@@ -579,7 +579,7 @@ WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
  * Return the data source name, tvb.
  */
 struct data_source;
-WS_DLL_PUBLIC const char *get_data_source_name(const struct data_source *src);
+WS_DLL_PUBLIC char *get_data_source_name(const struct data_source *src);
 WS_DLL_PUBLIC tvbuff_t *get_data_source_tvb(const struct data_source *src);
 
 /*

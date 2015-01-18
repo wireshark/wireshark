@@ -182,7 +182,7 @@ gchar *get_ether_name_if_known(const guint8 *addr);
  * Given a sequence of 3 octets containing an OID, get_manuf_name()
  * returns the vendor name, or "%02x:%02x:%02x" if not known.
  */
-extern const gchar *get_manuf_name(const guint8 *addr);
+extern gchar *get_manuf_name(wmem_allocator_t *allocator, const guint8 *addr);
 
 /*
  * Given a sequence of 3 octets containing an OID, get_manuf_name_if_known()

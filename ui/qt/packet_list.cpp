@@ -489,12 +489,15 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     if (byte_view_tab_) {
         GSList *src_le;
         struct data_source *source;
+        char* source_name;
 
         byte_view_tab_->clear();
 
         for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
             source = (struct data_source *)src_le->data;
-            byte_view_tab_->addTab(get_data_source_name(source), get_data_source_tvb(source), cap_file_->edt->tree, proto_tree_, (packet_char_enc)cap_file_->current_frame->flags.encoding);
+            source_name = get_data_source_name(source);
+            byte_view_tab_->addTab(source_name, get_data_source_tvb(source), cap_file_->edt->tree, proto_tree_, (packet_char_enc)cap_file_->current_frame->flags.encoding);
+            wmem_free(NULL, source_name);
         }
         byte_view_tab_->setCurrentIndex(0);
     }

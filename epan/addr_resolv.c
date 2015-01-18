@@ -3026,8 +3026,8 @@ get_ipxnet_addr(const gchar *name, gboolean *known)
 
 } /* get_ipxnet_addr */
 
-const gchar *
-get_manuf_name(const guint8 *addr)
+gchar *
+get_manuf_name(wmem_allocator_t *allocator, const guint8 *addr)
 {
     gchar *cur;
     int manuf_key;
@@ -3043,11 +3043,11 @@ get_manuf_name(const guint8 *addr)
     manuf_key = manuf_key | oct;
 
     if (!gbl_resolv_flags.mac_name || ((cur = (gchar *)g_hash_table_lookup(manuf_hashtable, &manuf_key)) == NULL)) {
-        cur=ep_strdup_printf("%02x:%02x:%02x", addr[0], addr[1], addr[2]);
+        cur=wmem_strdup_printf(allocator, "%02x:%02x:%02x", addr[0], addr[1], addr[2]);
         return cur;
     }
 
-    return cur;
+    return wmem_strdup(allocator, cur);
 
 } /* get_manuf_name */
 
@@ -3059,13 +3059,13 @@ uint_get_manuf_name(const guint oid)
     addr[0] = (oid >> 16) & 0xFF;
     addr[1] = (oid >> 8) & 0xFF;
     addr[2] = (oid >> 0) & 0xFF;
-    return get_manuf_name(addr);
+    return get_manuf_name(wmem_packet_scope(), addr);
 }
 
 const gchar *
 tvb_get_manuf_name(tvbuff_t *tvb, gint offset)
 {
-    return get_manuf_name(tvb_get_ptr(tvb, offset, 3));
+    return get_manuf_name(wmem_packet_scope(), tvb_get_ptr(tvb, offset, 3));
 }
 
 const gchar *
