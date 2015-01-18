@@ -31,14 +31,16 @@
 
 #include <glib.h>
 
+#include <epan/wmem/wmem.h>
+
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>
 #include <GeoIPCity.h>
 
-#include "geoip_db.h"
-#include "uat.h"
-#include "prefs.h"
-#include "value_string.h"
+#include <epan/geoip_db.h>
+#include <epan/uat.h>
+#include <epan/prefs.h>
+#include <epan/value_string.h>
 
 #include <wsutil/report_err.h>
 #include <wsutil/file_util.h>
