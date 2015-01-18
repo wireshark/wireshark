@@ -730,7 +730,7 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
 
     const char* fname = luaL_checkstring(L,WSLUA_ARG_open_capture_file_FILENAME);
     const char* filter = luaL_optstring(L,WSLUA_ARG_open_capture_file_FILTER,NULL);
-    const char* error = NULL;
+    char* error = NULL;
 
     if (!ops->open_file) {
         WSLUA_ERROR(open_capture_file, "GUI not available");
@@ -740,9 +740,10 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
     if (! ops->open_file(fname,filter,&error) ) {
         lua_pushboolean(L,FALSE);
 
-        if (error)
+        if (error) {
             lua_pushstring(L,error);
-        else
+            g_free(error);
+        } else
             lua_pushnil(L);
 
         return 2;

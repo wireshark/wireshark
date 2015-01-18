@@ -22,6 +22,7 @@
 #ifndef STTYPE_FUNCTION_H
 #define STTYPE_FUNCTION_H
 
+#include "dfilter-int.h"
 #include "dfunctions.h"
 
 /* Set the parameters for a function stnode_t. */

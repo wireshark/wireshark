@@ -115,6 +115,7 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
 {
     QString file_name = "";
     dfilter_t *rfcode = NULL;
+    gchar *err_msg;
     int err;
     gboolean name_param;
 
@@ -155,7 +156,7 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
             }
         }
 
-        if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode)) {
+        if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
             cf_set_rfcode(CaptureFile::globalCapFile(), rfcode);
         } else {
             /* Not valid.  Tell the user, and go back and run the file
@@ -165,7 +166,7 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
                     QString("The filter expression ") +
                     read_filter +
                     QString(" isn't a valid display filter. (") +
-                    dfilter_error_msg + QString(")."),
+                    err_msg + QString(")."),
                     QMessageBox::Ok);
 
             if (!name_param) {
@@ -1259,8 +1260,9 @@ void MainWindow::fieldsChanged()
     if (CaptureFile::globalCapFile()->dfilter) {
         // Check if filter is still valid
         dfilter_t *dfp = NULL;
-        if (!dfilter_compile(CaptureFile::globalCapFile()->dfilter, &dfp)) {
+        if (!dfilter_compile(CaptureFile::globalCapFile()->dfilter, &dfp, NULL)) {
             // TODO: Not valid, enable "Apply" button.
+            // TODO: get an error message and display it?
             g_free(CaptureFile::globalCapFile()->dfilter);
             CaptureFile::globalCapFile()->dfilter = NULL;
         }

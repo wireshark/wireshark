@@ -271,7 +271,7 @@ goto_conversation_frame(gboolean dir)
         return;
     }
 
-    if (!dfilter_compile(filter, &dfcode)) {
+    if (!dfilter_compile(filter, &dfcode, NULL)) {
         /* The attempt failed; report an error. */
         statusbar_push_temporary_msg("Error compiling filter for this conversation.");
         g_free(filter);

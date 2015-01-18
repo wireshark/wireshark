@@ -3933,6 +3933,7 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 
 	gchar	      filter_text[256];
 	dfilter_t    *sfcode;
+	gchar        *err_msg;
 	capture_file *cf;
 	frame_data   *fdata;
 	GList	     *strinfo_list;
@@ -3943,8 +3944,9 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 
 	/* Try to compile the filter. */
 	g_strlcpy(filter_text, "rtp && rtp.version && rtp.ssrc && (ip || ipv6)", sizeof(filter_text));
-	if (!dfilter_compile(filter_text, &sfcode)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
+	if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+		g_free(err_msg);
 		return;
 	}
 	/* we load the current file into cf variable */

@@ -2163,6 +2163,7 @@ main(int argc, char *argv[])
     gint                 pl_size = 280, tv_size = 95, bv_size = 75;
     gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *dfilter = NULL, *jfilter = NULL;
     dfilter_t           *rfcode = NULL;
+    gchar               *err_msg;
     gboolean             rfilter_parse_failed = FALSE;
     e_prefs             *prefs_p;
     char                 badopt;
@@ -3082,8 +3083,9 @@ main(int argc, char *argv[])
         show_main_window(TRUE);
         check_and_warn_user_startup(cf_name);
         if (rfilter != NULL) {
-            if (!dfilter_compile(rfilter, &rfcode)) {
-                bad_dfilter_alert_box(top_level, rfilter);
+            if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
+                bad_dfilter_alert_box(top_level, rfilter, err_msg);
+                g_free(err_msg);
                 rfilter_parse_failed = TRUE;
             }
         }
@@ -3121,8 +3123,9 @@ main(int argc, char *argv[])
                             cf_goto_frame(&cfile, go_to_packet);
                         } else if (jfilter != NULL) {
                             /* try to compile given filter */
-                            if (!dfilter_compile(jfilter, &jump_to_filter)) {
-                                bad_dfilter_alert_box(top_level, jfilter);
+                            if (!dfilter_compile(jfilter, &jump_to_filter, &err_msg)) {
+                                bad_dfilter_alert_box(top_level, jfilter, err_msg);
+                                g_free(err_msg);
                             } else {
                             /* Filter ok, jump to the first packet matching the filter
                                conditions. Default search direction is forward, but if
@@ -3859,7 +3862,7 @@ main_fields_changed (void)
     if (cfile.dfilter) {
         /* Check if filter is still valid */
         dfilter_t *dfp = NULL;
-        if (!dfilter_compile(cfile.dfilter, &dfp)) {
+        if (!dfilter_compile(cfile.dfilter, &dfp, NULL)) {
             /* Not valid.  Enable 'Apply' button and remove dfilter. */
             g_signal_emit_by_name(G_OBJECT(main_display_filter_widget), "changed");
             g_free(cfile.dfilter);

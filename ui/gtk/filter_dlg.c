@@ -1345,7 +1345,7 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
         statusbar_pop_filter_msg();
     }
 
-    if (strval && g_object_get_data(G_OBJECT(w), E_FILT_MULTI_FIELD_NAME_ONLY_KEY)) {
+    if (g_object_get_data(G_OBJECT(w), E_FILT_MULTI_FIELD_NAME_ONLY_KEY)) {
         gchar  **fields;
         guint    i_field = 0;
 
@@ -1369,41 +1369,41 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
 
     /* colorize filter string entry */
     if (g_object_get_data(G_OBJECT(w), E_FILT_FIELD_NAME_ONLY_KEY) &&
-        strval && (c = proto_check_field_name(strval)) != 0)
+        (c = proto_check_field_name(strval)) != 0)
     {
         colorize_filter_te_as_invalid(w);
         if (use_statusbar) {
             statusbar_push_filter_msg(" Illegal character in field name: '%c'", c);
         }
-    } else if (strval && dfilter_compile(strval, &dfp)) {
-        if (dfp != NULL) {
-            depr = dfilter_deprecated_tokens(dfp);
-        }
-        if (strlen(strval) == 0) {
-            colorize_filter_te_as_empty(w);
-        } else if (depr) {
-            /* You keep using that word. I do not think it means what you think it means. */
-            colorize_filter_te_as_deprecated(w);
-            if (use_statusbar) {
-                /*
-                 * We're being lazy and only printing the first "problem" token.
-                 * Would it be better to print all of them?
-                 */
-                statusbar_push_temporary_msg(" \"%s\" may have unexpected results (see the User's Guide)",
-                                      (const char *) g_ptr_array_index(depr, 0));
-            }
-        } else {
-            colorize_filter_te_as_valid(w);
-        }
-        dfilter_free(dfp);
     } else {
-        colorize_filter_te_as_invalid(w);
-        if (use_statusbar) {
-            if (dfilter_error_msg) {
-                statusbar_push_filter_msg(" Invalid filter: %s", dfilter_error_msg);
-            } else {
-                statusbar_push_filter_msg(" Invalid filter");
+        gchar *err_msg;
+
+        if (dfilter_compile(strval, &dfp, &err_msg)) {
+            if (dfp != NULL) {
+                depr = dfilter_deprecated_tokens(dfp);
             }
+            if (strlen(strval) == 0) {
+                colorize_filter_te_as_empty(w);
+            } else if (depr) {
+                /* You keep using that word. I do not think it means what you think it means. */
+                colorize_filter_te_as_deprecated(w);
+                if (use_statusbar) {
+                    /*
+                     * We're being lazy and only printing the first "problem" token.
+                     * Would it be better to print all of them?
+                     */
+                    statusbar_push_temporary_msg(" \"%s\" may have unexpected results (see the User's Guide)",
+                                          (const char *) g_ptr_array_index(depr, 0));
+                }
+            } else {
+                colorize_filter_te_as_valid(w);
+            }
+            dfilter_free(dfp);
+        } else {
+            colorize_filter_te_as_invalid(w);
+            if (use_statusbar)
+                statusbar_push_filter_msg(" Invalid filter: %s", err_msg);
+            g_free(err_msg);
         }
     }
 }

@@ -1555,10 +1555,12 @@ void IOGraph::setFilter(const QString &filter)
     if (!full_filter.isEmpty()) {
         dfilter_t *dfilter;
         bool status;
-        status = dfilter_compile(full_filter.toUtf8().constData(), &dfilter);
+        gchar *err_msg;
+        status = dfilter_compile(full_filter.toUtf8().constData(), &dfilter, &err_msg);
         dfilter_free(dfilter);
         if (!status) {
-            config_err_ = dfilter_error_msg;
+            config_err_ = QString::fromUtf8(err_msg);
+            g_free(err_msg);
             filter_ = full_filter;
             return;
         }

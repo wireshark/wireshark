@@ -66,6 +66,10 @@ void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
     setStyleSheet(style_sheet_);
 }
 
+QString SyntaxLineEdit::syntaxErrorMessage() {
+    return syntax_error_message_;
+}
+
 QString SyntaxLineEdit::styleSheet() const {
     return style_sheet_;
 }
@@ -89,21 +93,23 @@ void SyntaxLineEdit::checkDisplayFilter(QString filter)
 
     deprecated_token_.clear();
     dfilter_t *dfp = NULL;
-    bool valid = dfilter_compile(filter.toUtf8().constData(), &dfp);
-
-    if (valid) {
-        setSyntaxState(SyntaxLineEdit::Valid);
-    } else {
+    gchar *err_msg;
+    if (dfilter_compile(filter.toUtf8().constData(), &dfp, &err_msg)) {
         GPtrArray *depr = NULL;
         if (dfp) {
             depr = dfilter_deprecated_tokens(dfp);
         }
         if (depr) {
+            // You keep using that word. I do not think it means what you think it means.
             setSyntaxState(SyntaxLineEdit::Deprecated);
             deprecated_token_ = (const char *) g_ptr_array_index(depr, 0);
         } else {
-            setSyntaxState(SyntaxLineEdit::Invalid);
+            setSyntaxState(SyntaxLineEdit::Valid);
         }
+    } else {
+        setSyntaxState(SyntaxLineEdit::Invalid);
+        syntax_error_message_ = QString::fromUtf8(err_msg);
+        g_free(err_msg);
     }
     dfilter_free(dfp);
 }

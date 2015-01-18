@@ -806,8 +806,11 @@ main(int argc, char *argv[])
 
     if (n_rfilters != 0) {
         for (i = 0; i < n_rfilters; i++) {
-            if (!dfilter_compile(rfilters[i], &rfcodes[n_rfcodes])) {
-                cmdarg_err("%s", dfilter_error_msg);
+            gchar *err_msg;
+
+            if (!dfilter_compile(rfilters[i], &rfcodes[n_rfcodes], &err_msg)) {
+                cmdarg_err("%s", err_msg);
+                g_free(err_msg);
                 epan_free(cfile.epan);
                 epan_cleanup();
                 exit(2);

@@ -288,38 +288,48 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype)
 }
 
 fvalue_t*
-fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
 	if (fv->ftype->val_from_unparsed) {
-		if (fv->ftype->val_from_unparsed(fv, s, allow_partial_value, logfunc)) {
+		if (fv->ftype->val_from_unparsed(fv, s, allow_partial_value, err_msg)) {
+			/* Success */
+			if (err_msg != NULL)
+				*err_msg = NULL;
 			return fv;
 		}
 	}
 	else {
-		logfunc("\"%s\" cannot be converted to %s.",
-				s, ftype_pretty_name(ftype));
+		if (err_msg != NULL) {
+			*err_msg = g_strdup_printf("\"%s\" cannot be converted to %s.",
+					s, ftype_pretty_name(ftype));
+		}
 	}
 	FVALUE_FREE(fv);
 	return NULL;
 }
 
 fvalue_t*
-fvalue_from_string(ftenum_t ftype, const char *s, LogFunc logfunc)
+fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg)
 {
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
 	if (fv->ftype->val_from_string) {
-		if (fv->ftype->val_from_string(fv, s, logfunc)) {
+		if (fv->ftype->val_from_string(fv, s, err_msg)) {
+			/* Success */
+			if (err_msg != NULL)
+				*err_msg = NULL;
 			return fv;
 		}
 	}
 	else {
-		logfunc("\"%s\" cannot be converted to %s.",
-				s, ftype_pretty_name(ftype));
+		if (err_msg != NULL) {
+			*err_msg = g_strdup_printf("\"%s\" cannot be converted to %s.",
+					s, ftype_pretty_name(ftype));
+		}
 	}
 	FVALUE_FREE(fv);
 	return NULL;

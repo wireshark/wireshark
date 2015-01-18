@@ -62,7 +62,7 @@ get_sinteger(fvalue_t *fv)
 
 
 static gboolean
-uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc,
+uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
 		   guint32 max)
 {
 	unsigned long value;
@@ -73,8 +73,8 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		 * Probably a negative integer, but will be
 		 * "converted in the obvious manner" by strtoul().
 		 */
-		if (logfunc != NULL)
-			logfunc("\"%s\" too small for this field, minimum 0.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" too small for this field, minimum 0.", s);
 		return FALSE;
 	}
 
@@ -83,14 +83,14 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		if (logfunc != NULL)
-			logfunc("\"%s\" is not a valid number.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (logfunc != NULL) {
+		if (err_msg != NULL) {
 			if (value == ULONG_MAX) {
-				logfunc("\"%s\" causes an integer overflow.",
+				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.",
 				    s);
 			}
 			else {
@@ -98,15 +98,15 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 				 * XXX - can "strtoul()" set errno to
 				 * ERANGE without returning ULONG_MAX?
 				 */
-				logfunc("\"%s\" is not an integer.", s);
+				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
 	}
 
 	if (value > max) {
-		if (logfunc != NULL)
-			logfunc("\"%s\" too big for this field, maximum %u.", s, max);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" too big for this field, maximum %u.", s, max);
 		return FALSE;
 	}
 
@@ -115,31 +115,31 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 }
 
 static gboolean
-uint32_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+uint32_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT32);
+	return uint_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXUINT32);
 }
 
 static gboolean
-uint24_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+uint24_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, 0xFFFFFF);
+	return uint_from_unparsed (fv, s, allow_partial_value, err_msg, 0xFFFFFF);
 }
 
 static gboolean
-uint16_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+uint16_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT16);
+	return uint_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXUINT16);
 }
 
 static gboolean
-uint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+uint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT8);
+	return uint_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXUINT8);
 }
 
 static gboolean
-sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc,
+sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg,
 		   gint32 max, gint32 min)
 {
 	long value;
@@ -150,8 +150,8 @@ sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		 * Probably a positive integer > G_MAXINT32, but will be
 		 * "converted in the obvious manner" by strtol().
 		 */
-		if (logfunc != NULL)
-			logfunc("\"%s\" causes an integer overflow.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
 		return FALSE;
 	}
 
@@ -160,37 +160,37 @@ sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		if (logfunc != NULL)
-			logfunc("\"%s\" is not a valid number.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (logfunc != NULL) {
+		if (err_msg != NULL) {
 			if (value == LONG_MAX) {
-				logfunc("\"%s\" causes an integer overflow.", s);
+				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
 			}
 			else if (value == LONG_MIN) {
-				logfunc("\"%s\" causes an integer underflow.", s);
+				*err_msg = g_strdup_printf("\"%s\" causes an integer underflow.", s);
 			}
 			else {
 				/*
 				 * XXX - can "strtol()" set errno to
 				 * ERANGE without returning ULONG_MAX?
 				 */
-				logfunc("\"%s\" is not an integer.", s);
+				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
 	}
 
 	if (value > max) {
-		if (logfunc != NULL)
-			logfunc("\"%s\" too big for this field, maximum %d.",
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" too big for this field, maximum %d.",
 				s, max);
 		return FALSE;
 	} else if (value < min) {
-		if (logfunc != NULL)
-			logfunc("\"%s\" too small for this field, minimum %d.",
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" too small for this field, minimum %d.",
 				s, min);
 		return FALSE;
 	}
@@ -200,27 +200,27 @@ sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 }
 
 static gboolean
-sint32_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+sint32_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT32, G_MININT32);
+	return sint_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXINT32, G_MININT32);
 }
 
 static gboolean
-sint24_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+sint24_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, 0x7FFFFF, -0x800000);
+	return sint_from_unparsed (fv, s, allow_partial_value, err_msg, 0x7FFFFF, -0x800000);
 }
 
 static gboolean
-sint16_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+sint16_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT16, G_MININT16);
+	return sint_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXINT16, G_MININT16);
 }
 
 static gboolean
-sint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+sint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT8, G_MININT8);
+	return sint_from_unparsed (fv, s, allow_partial_value, err_msg, G_MAXINT8, G_MININT8);
 }
 
 static int
@@ -256,15 +256,15 @@ uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *
 }
 
 static gboolean
-ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	guint32 	val;
 	gboolean	known;
 
 	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as an IPX network name if it does, and if that fails,
-	 * we'll log a message.
+	 * Don't request an errror message if uint32_from_unparsed fails;
+	 * if it does, we'll try looking it up as an IPX network name, and
+	 * if that fails, we'll report an error message for that.
 	 */
 	if (uint32_from_unparsed(fv, s, TRUE, NULL)) {
 		return TRUE;
@@ -276,7 +276,8 @@ ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 		return TRUE;
 	}
 
-	logfunc("\"%s\" is not a valid IPX network name or address.", s);
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid IPX network name or address.", s);
 	return FALSE;
 }
 
@@ -377,7 +378,7 @@ get_integer64(fvalue_t *fv)
 }
 
 static gboolean
-uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	guint64 value;
 	char    *endptr;
@@ -387,8 +388,8 @@ uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 		 * Probably a negative integer, but will be
 		 * "converted in the obvious manner" by g_ascii_strtoull().
 		 */
-		if (logfunc != NULL)
-			logfunc("\"%s\" causes an integer underflow.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" causes an integer underflow.", s);
 		return FALSE;
 	}
 
@@ -397,21 +398,21 @@ uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		if (logfunc != NULL)
-			logfunc("\"%s\" is not a valid number.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (logfunc != NULL) {
+		if (err_msg != NULL) {
 			if (value == G_MAXUINT64) {
-				logfunc("\"%s\" causes an integer overflow.", s);
+				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
 			}
 			else {
 				/*
 				 * XXX - can "strtoul()" set errno to
 				 * ERANGE without returning ULONG_MAX?
 				 */
-				logfunc("\"%s\" is not an integer.", s);
+				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
@@ -422,7 +423,7 @@ uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 }
 
 static gboolean
-sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	gint64 value;
 	char   *endptr;
@@ -432,8 +433,8 @@ sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 		 * Probably a positive integer > G_MAXINT64, but will be
 		 * "converted in the obvious manner" by g_ascii_strtoll().
 		 */
-		if (logfunc != NULL)
-			logfunc("\"%s\" causes an integer overflow.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
 		return FALSE;
 	}
 
@@ -442,24 +443,24 @@ sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		if (logfunc != NULL)
-			logfunc("\"%s\" is not a valid number.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
-		if (logfunc != NULL) {
+		if (err_msg != NULL) {
 			if (value == G_MAXINT64) {
-				logfunc("\"%s\" causes an integer overflow.", s);
+				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
 			}
 			else if (value == G_MININT64) {
-				logfunc("\"%s\" causes an integer underflow.", s);
+				*err_msg = g_strdup_printf("\"%s\" causes an integer underflow.", s);
 			}
 			else {
 				/*
 				 * XXX - can "strtol()" set errno to
 				 * ERANGE without returning LONG_MAX?
 				 */
-				logfunc("\"%s\" is not an integer.", s);
+				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
@@ -611,19 +612,19 @@ bool_ne(const fvalue_t *a, const fvalue_t *b)
 
 /* EUI64-specific */
 static gboolean
-eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
-
 	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as an EUI64 Address if it does, and if that fails,
-	 * we'll log a message.
+	 * Don't request an error message if uint64_from_unparsed fails;
+	 * if it does, we'll report an error specific to this address
+	 * type.
 	 */
 	if (uint64_from_unparsed(fv, s, TRUE, NULL)) {
 		return TRUE;
 	}
 
-	logfunc("\"%s\" is not a valid EUI64 Address", s);
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid EUI64 Address", s);
 	return FALSE;
 }
 

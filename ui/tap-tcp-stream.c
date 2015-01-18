@@ -287,6 +287,7 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     frame_data     *fdata;
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
+    gchar          *err_msg;
     GString        *error_string;
     nstime_t        rel_ts;
     th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
@@ -297,8 +298,9 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     fdata = cf->current_frame;
 
     /* no real filter yet */
-    if (!dfilter_compile("tcp", &sfcode)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
+    if (!dfilter_compile("tcp", &sfcode, &err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
         return NULL;
     }
 

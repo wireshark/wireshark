@@ -84,12 +84,13 @@ get_guid(const char *s, e_guid_t *guid)
 }
 
 static gboolean
-guid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+guid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
      e_guid_t guid;
 
     if (!get_guid(s, &guid)) {
-        logfunc("\"%s\" is not a valid GUID.", s);
+        if (err_msg != NULL)
+            *err_msg = g_strdup_printf("\"%s\" is not a valid GUID.", s);
         return FALSE;
     }
 

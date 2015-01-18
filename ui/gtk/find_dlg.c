@@ -626,9 +626,12 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     /*
      * Display filter search - try to compile the filter.
      */
-    if (!dfilter_compile(filter_text, &sfcode)) {
+    gchar *err_msg;
+
+    if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
       /* The attempt failed; report an error. */
-      bad_dfilter_alert_box(GTK_WIDGET(parent_w), filter_text);
+      bad_dfilter_alert_box(GTK_WIDGET(parent_w), filter_text, err_msg);
+      g_free(err_msg);
       return;
     }
 
@@ -752,7 +755,7 @@ find_previous_next(GtkWidget *w, gpointer d, search_direction dir)
       }
       g_free(string);
     } else {
-      if (!dfilter_compile(cfile.sfilter, &sfcode)) {
+      if (!dfilter_compile(cfile.sfilter, &sfcode, NULL)) {
 	/*
 	 * XXX - this shouldn't happen, as we've already successfully
 	 * translated the string once.

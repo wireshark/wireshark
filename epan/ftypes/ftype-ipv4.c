@@ -41,7 +41,7 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	guint32	addr;
 	unsigned int nmask_bits;
@@ -64,7 +64,10 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	}
 
 	if (!get_host_ipaddr(addr_str, &addr)) {
-		logfunc("\"%s\" is not a valid hostname or IPv4 address.", addr_str);
+		if (err_msg != NULL) {
+			*err_msg = g_strdup_printf("\"%s\" is not a valid hostname or IPv4 address.",
+			    addr_str);
+		}
 		if (free_addr_str)
 			wmem_free(NULL, addr_str);
 		return FALSE;
@@ -80,7 +83,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 		net_str = has_slash + 1;
 
 		/* XXX - this is inefficient */
-		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, net_str, FALSE, logfunc);
+		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, net_str, FALSE, err_msg);
 		if (!nmask_fvalue) {
 			return FALSE;
 		}
@@ -88,8 +91,10 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 		FVALUE_FREE(nmask_fvalue);
 
 		if (nmask_bits > 32) {
-			logfunc("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
-					nmask_bits);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
+						nmask_bits);
+			}
 			return FALSE;
 		}
 		ipv4_addr_set_netmask_bits(&fv->value.ipv4, nmask_bits);

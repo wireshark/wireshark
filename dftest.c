@@ -60,6 +60,7 @@ main(int argc, char **argv)
 	int		gpf_open_errno, gpf_read_errno;
 	int		pf_open_errno, pf_read_errno;
 	dfilter_t	*df;
+	gchar		*err_msg;
 
 	/*
 	 * Get credential information for later use.
@@ -144,8 +145,9 @@ main(int argc, char **argv)
 	printf("Filter: \"%s\"\n", text);
 
 	/* Compile it */
-	if (!dfilter_compile(text, &df)) {
-		fprintf(stderr, "dftest: %s\n", dfilter_error_msg);
+	if (!dfilter_compile(text, &df, &err_msg)) {
+		fprintf(stderr, "dftest: %s\n", err_msg);
+		g_free(err_msg);
 		epan_cleanup();
 		exit(2);
 	}

@@ -34,7 +34,7 @@ ipv6_fvalue_set(fvalue_t *fv, const guint8 *value)
 }
 
 static gboolean
-ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	const char *has_slash;
 	char *addr_str;
@@ -51,7 +51,8 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		addr_str = (char*)s;
 
 	if (!get_host_ipaddr6(addr_str, &(fv->value.ipv6.addr))) {
-		logfunc("\"%s\" is not a valid hostname or IPv6 address.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid hostname or IPv6 address.", s);
 		if (free_addr_str)
 			wmem_free(NULL, addr_str);
 		return FALSE;
@@ -63,7 +64,7 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 	/* If prefix */
 	if (has_slash) {
 		/* XXX - this is inefficient */
-		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, has_slash+1, FALSE, logfunc);
+		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, has_slash+1, FALSE, err_msg);
 		if (!nmask_fvalue) {
 			return FALSE;
 		}
@@ -71,8 +72,10 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		FVALUE_FREE(nmask_fvalue);
 
 		if (nmask_bits > 128) {
-			logfunc("Prefix in a IPv6 address should be <= 128, not %u",
-					nmask_bits);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("Prefix in a IPv6 address should be <= 128, not %u",
+						nmask_bits);
+			}
 			return FALSE;
 		}
 		fv->value.ipv6.prefix = nmask_bits;

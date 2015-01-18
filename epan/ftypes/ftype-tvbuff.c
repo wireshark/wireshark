@@ -61,7 +61,7 @@ free_tvb_data(void *data)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, const char *s, LogFunc logfunc _U_)
+val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 {
 	tvbuff_t *new_tvb;
 	guint8 *private_data;
@@ -85,7 +85,7 @@ val_from_string(fvalue_t *fv, const char *s, LogFunc logfunc _U_)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	fvalue_t *fv_bytes;
 	tvbuff_t *new_tvb;
@@ -114,7 +114,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	}
 
 	/* Treat it as a string. */
-	return val_from_string(fv, s, logfunc);
+	return val_from_string(fv, s, err_msg);
 }
 
 static int

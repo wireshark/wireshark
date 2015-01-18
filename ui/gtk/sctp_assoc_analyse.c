@@ -973,6 +973,7 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 {
 	GList	       *list;
 	dfilter_t      *sfcode;
+	gchar          *err_msg;
 	capture_file   *cf;
 	epan_dissect_t	edt;
 	gboolean	frame_found = FALSE;
@@ -980,8 +981,9 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 	gchar		filter_text[256];
 
 	g_strlcpy(filter_text, "sctp", 250);
-	if (!dfilter_compile(filter_text, &sfcode)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
+	if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+		g_free(err_msg);
 		return;
 	}
 

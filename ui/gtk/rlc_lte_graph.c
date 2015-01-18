@@ -892,6 +892,7 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
     frame_data     *fdata;
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
+    gchar          *err_msg;
     GString        *error_string;
     nstime_t        rel_ts;
     th_t            th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
@@ -903,8 +904,9 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
     fdata = cf->current_frame;
 
     /* no real filter yet */
-    if (!dfilter_compile("rlc-lte", &sfcode)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", dfilter_error_msg);
+    if (!dfilter_compile("rlc-lte", &sfcode, &err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
         return NULL;
     }
 

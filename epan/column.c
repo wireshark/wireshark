@@ -799,7 +799,7 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
     if (cinfo->col_fmt[i] == COL_CUSTOM) {
       cinfo->col_custom_field[i] = g_strdup(get_column_custom_field(i));
       cinfo->col_custom_occurrence[i] = get_column_custom_occurrence(i);
-      if(!dfilter_compile(cinfo->col_custom_field[i], &cinfo->col_custom_dfilter[i])) {
+      if(!dfilter_compile(cinfo->col_custom_field[i], &cinfo->col_custom_dfilter[i], NULL)) {
         /* XXX: Should we issue a warning? */
         g_free(cinfo->col_custom_field[i]);
         cinfo->col_custom_field[i] = NULL;

@@ -68,9 +68,9 @@
 /*#undef YY_NO_UNPUT*/
 
 static int set_lval(int token, gpointer data);
-static int set_lval_int(int token, char *s);
+static int set_lval_int(dfwork_t *dfw, int token, char *s);
 static int simple(int token);
-static gboolean str_to_gint32(char *s, gint32* pint);
+static gboolean str_to_gint32(dfwork_t *dfw, char *s, gint32* pint);
 GString* quoted_string = NULL;
 static void mark_lval_deprecated(const char *s);
 
@@ -128,12 +128,12 @@ static void mark_lval_deprecated(const char *s);
 
 <RANGE_INT>[+-]?[[:digit:]]+		{
 	BEGIN(RANGE_PUNCT);
-	return set_lval_int(TOKEN_INTEGER, yytext);
+	return set_lval_int(global_dfw, TOKEN_INTEGER, yytext);
 }
 
 <RANGE_INT>[+-]?0x[[:xdigit:]]+		{
 	BEGIN(RANGE_PUNCT);
-	return set_lval_int(TOKEN_INTEGER, yytext);
+	return set_lval_int(global_dfw, TOKEN_INTEGER, yytext);
 }
 
 <RANGE_INT,RANGE_PUNCT>":"		{
@@ -159,7 +159,7 @@ static void mark_lval_deprecated(const char *s);
 	/* Error if none of the above while scanning a range (slice) */
 
 <RANGE_PUNCT>[^:\-,\]]+		{
-	dfilter_fail("Invalid string \"%s\" found while scanning slice.", yytext);
+	dfilter_fail(global_dfw, "Invalid string \"%s\" found while scanning slice.", yytext);
 	return SCAN_FAILED;
 }
 
@@ -168,7 +168,7 @@ static void mark_lval_deprecated(const char *s);
 	 */
 
 <RANGE_INT>.	{
-	dfilter_fail("Invalid character \"%s\" found while scanning slice; expected integer.", yytext);
+	dfilter_fail(global_dfw, "Invalid character \"%s\" found while scanning slice; expected integer.", yytext);
 	return SCAN_FAILED;
 }
 
@@ -200,7 +200,7 @@ static void mark_lval_deprecated(const char *s);
 	See:
 	http://www.gnu.org/software/flex/manual/html_node/flex_13.html */
 
-	dfilter_fail("The final quote was missing from a quoted string.");
+	dfilter_fail(global_dfw, "The final quote was missing from a quoted string.");
 	return SCAN_FAILED;
 }
 
@@ -221,7 +221,7 @@ static void mark_lval_deprecated(const char *s);
 	if (result > 0xff) {
 		g_string_free(quoted_string, TRUE);
 		quoted_string = NULL;
-		dfilter_fail("%s is larger than 255.", yytext);
+		dfilter_fail(global_dfw, "%s is larger than 255.", yytext);
 		return SCAN_FAILED;
 	}
 	g_string_append_c(quoted_string, (gchar) result);
@@ -340,12 +340,12 @@ set_lval(int token, gpointer data)
 }
 
 static int
-set_lval_int(int token, char *s)
+set_lval_int(dfwork_t *dfw, int token, char *s)
 {
 	sttype_id_t	type_id = STTYPE_UNINITIALIZED;
 	gint32		val;
 
-	if (!str_to_gint32(s, &val)) {
+	if (!str_to_gint32(dfw, s, &val)) {
 		return SCAN_FAILED;
 	}
 
@@ -363,7 +363,7 @@ set_lval_int(int token, char *s)
 
 
 static gboolean
-str_to_gint32(char *s, gint32* pint)
+str_to_gint32(dfwork_t *dfw, char *s, gint32* pint)
 {
 	char    *endptr;
 	long	integer;
@@ -373,22 +373,22 @@ str_to_gint32(char *s, gint32* pint)
 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		dfilter_fail("\"%s\" is not a valid number.", s);
+		dfilter_fail(dfw, "\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (integer == LONG_MAX) {
-			dfilter_fail("\"%s\" causes an integer overflow.", s);
+			dfilter_fail(dfw, "\"%s\" causes an integer overflow.", s);
 		}
 		else if (integer == LONG_MIN) {
-			dfilter_fail("\"%s\" causes an integer underflow.", s);
+			dfilter_fail(dfw, "\"%s\" causes an integer underflow.", s);
 		}
 		else {
 			/*
 			 * XXX - can "strtol()" set errno to ERANGE without
 			 * returning LONG_MAX or LONG_MIN?
 			 */
-			dfilter_fail("\"%s\" is not an integer.", s);
+			dfilter_fail(dfw, "\"%s\" is not an integer.", s);
 		}
 		return FALSE;
 	}
@@ -397,7 +397,7 @@ str_to_gint32(char *s, gint32* pint)
 		 * Fits in a long, but not in a gint32 (a long might be
 		 * 64 bits).
 		 */
-		dfilter_fail("\"%s\" causes an integer overflow.", s);
+		dfilter_fail(dfw, "\"%s\" causes an integer overflow.", s);
 		return FALSE;
 	}
 	if (integer < G_MININT32) {
@@ -405,7 +405,7 @@ str_to_gint32(char *s, gint32* pint)
 		 * Fits in a long, but not in a gint32 (a long might be
 		 * 64 bits).
 		 */
-		dfilter_fail("\"%s\" causes an integer underflow.", s);
+		dfilter_fail(dfw, "\"%s\" causes an integer underflow.", s);
 		return FALSE;
 	}
 

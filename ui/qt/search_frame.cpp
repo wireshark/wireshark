@@ -212,7 +212,7 @@ void SearchFrame::on_findButton_clicked()
 
     switch (sf_ui_->searchTypeComboBox->currentIndex()) {
     case df_search:
-        if (!dfilter_compile(sf_ui_->searchLineEdit->text().toUtf8().constData(), &dfp)) {
+        if (!dfilter_compile(sf_ui_->searchLineEdit->text().toUtf8().constData(), &dfp, NULL)) {
             err_string = tr("Invalid filter.");
             emit pushFilterSyntaxStatus(err_string);
             return;

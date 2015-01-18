@@ -48,8 +48,8 @@ void ftype_register_pcre(void);
 typedef void (*FvalueNewFunc)(fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
 
-typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, const char*, gboolean, LogFunc);
-typedef gboolean (*FvalueFromString)(fvalue_t*, const char*, LogFunc);
+typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, const char*, gboolean, gchar **);
+typedef gboolean (*FvalueFromString)(fvalue_t*, const char*, gchar **);
 typedef void (*FvalueToStringRepr)(fvalue_t*, ftrepr_t, int field_display, char*volatile);
 typedef int (*FvalueStringReprLen)(fvalue_t*, ftrepr_t, int field_display);
 

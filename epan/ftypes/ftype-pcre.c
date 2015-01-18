@@ -68,9 +68,10 @@ raw_flag_needed(const gchar *pattern)
 }
 
 /* Generate a FT_PCRE from a parsed string pattern.
- * Uses the specified logfunc() to report errors. */
+ * On failure, if err_msg is non-null, set *err_msg to point to a
+ * g_malloc()ed error message. */
 static gboolean
-val_from_string(fvalue_t *fv, const char *pattern, LogFunc logfunc)
+val_from_string(fvalue_t *fv, const char *pattern, gchar **err_msg)
 {
     GError *regex_error = NULL;
     GRegexCompileFlags cflags = G_REGEX_OPTIMIZE;
@@ -93,8 +94,8 @@ val_from_string(fvalue_t *fv, const char *pattern, LogFunc logfunc)
             );
 
     if (regex_error) {
-        if (logfunc) {
-            logfunc(regex_error->message);
+        if (err_msg) {
+            *err_msg = g_strdup(regex_error->message);
         }
         g_error_free(regex_error);
         if (fv->value.re) {
@@ -106,13 +107,14 @@ val_from_string(fvalue_t *fv, const char *pattern, LogFunc logfunc)
 }
 
 /* Generate a FT_PCRE from an unparsed string pattern.
- * Uses the specified logfunc() to report errors. */
+ * On failure, if err_msg is non-null, set *err_msg to point to a
+ * g_malloc()ed error message. */
 static gboolean
-val_from_unparsed(fvalue_t *fv, const char *pattern, gboolean allow_partial_value _U_, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, const char *pattern, gboolean allow_partial_value _U_, gchar **err_msg)
 {
     g_assert(! allow_partial_value);
 
-    return val_from_string(fv, pattern, logfunc);
+    return val_from_string(fv, pattern, err_msg);
 }
 
 static int

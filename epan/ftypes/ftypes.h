@@ -203,8 +203,6 @@ typedef struct _fvalue_t {
 
 } fvalue_t;
 
-typedef void (*LogFunc)(const char*,...);
-
 fvalue_t*
 fvalue_new(ftenum_t ftype);
 
@@ -213,10 +211,10 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype);
 
 WS_DLL_PUBLIC
 fvalue_t*
-fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, LogFunc logfunc);
+fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg);
 
 fvalue_t*
-fvalue_from_string(ftenum_t ftype, const char *s, LogFunc logfunc);
+fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg);
 
 /* Returns the length of the string required to hold the
  * string representation of the the field value.

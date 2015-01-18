@@ -714,15 +714,18 @@ void MainWindow::mergeCaptureFile()
         }
 
         if (merge_dlg.merge(file_name)) {
-            if (dfilter_compile(display_filter.toUtf8().constData(), &rfcode)) {
+            gchar *err_msg;
+
+            if (dfilter_compile(display_filter.toUtf8().constData(), &rfcode, &err_msg)) {
                 cf_set_rfcode(capture_file_.capFile(), rfcode);
             } else {
                 /* Not valid.  Tell the user, and go back and run the file
                    selection box again once they dismiss the alert. */
                 //bad_dfilter_alert_box(top_level, display_filter->str);
                 QMessageBox::warning(this, tr("Invalid Display Filter"),
-                                     QString(tr("The filter expression %1 isn't a valid display filter. (%2).").arg(display_filter, dfilter_error_msg)),
+                                     QString(tr("The filter expression %1 isn't a valid display filter. (%2).").arg(display_filter, err_msg)),
                                      QMessageBox::Ok);
+                g_free(err_msg);
                 continue;
             }
         } else {

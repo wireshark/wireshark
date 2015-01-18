@@ -150,6 +150,7 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
     GSList         *cfl;
     color_filter_t *colorf;
     dfilter_t      *compiled_filter;
+    gchar          *err_msg;
     guint8         i;
 
     /* Go through the tomporary filters and look for the same filter string.
@@ -174,10 +175,11 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
              * or if we found a matching filter string which need to be cleared
              */
             tmpfilter = ( (filter==NULL) || (i!=filt_nr) ) ? "frame" : filter;
-            if (!dfilter_compile(tmpfilter, &compiled_filter)) {
+            if (!dfilter_compile(tmpfilter, &compiled_filter, &err_msg)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                               "Could not compile color filter name: \"%s\""
-                              " text: \"%s\".\n%s", name, filter, dfilter_error_msg);
+                              " text: \"%s\".\n%s", name, filter, err_msg);
+                g_free(err_msg);
             } else {
                 if (colorf->filter_text != NULL)
                     g_free(colorf->filter_text);
@@ -339,12 +341,14 @@ static void
 color_filter_compile_cb(gpointer filter_arg, gpointer unused _U_)
 {
     color_filter_t *colorf = (color_filter_t *)filter_arg;
+    gchar *err_msg;
 
     g_assert(colorf->c_colorfilter == NULL);
-    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter)) {
+    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
-                      colorf->filter_name, colorf->filter_text, dfilter_error_msg);
+                      colorf->filter_name, colorf->filter_text, err_msg);
+        g_free(err_msg);
         /* this filter was compilable before, so this should never happen */
         /* except if the OK button of the parent window has been clicked */
         /* so don't use g_assert_not_reached() but check the filters again */
@@ -355,12 +359,14 @@ static void
 color_filter_validate_cb(gpointer filter_arg, gpointer unused _U_)
 {
     color_filter_t *colorf = (color_filter_t *)filter_arg;
+    gchar *err_msg;
 
     g_assert(colorf->c_colorfilter == NULL);
-    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter)) {
+    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Removing color filter name: \"%s\" text: \"%s\".\n%s",
-                      colorf->filter_name, colorf->filter_text, dfilter_error_msg);
+                      colorf->filter_name, colorf->filter_text, err_msg);
+        g_free(err_msg);
         /* Delete the color filter from the list of color filters. */
         color_filter_valid_list = g_slist_remove(color_filter_valid_list, colorf);
         color_filter_delete(colorf);
@@ -566,10 +572,12 @@ read_filters_file(FILE *f, gpointer user_data)
             color_t bg_color, fg_color;
             color_filter_t *colorf;
             dfilter_t *temp_dfilter;
+            gchar *err_msg;
 
-            if (!dfilter_compile(filter_exp, &temp_dfilter)) {
+            if (!dfilter_compile(filter_exp, &temp_dfilter, &err_msg)) {
                 g_warning("Could not compile \"%s\" in colorfilters file.\n%s",
-                          name, dfilter_error_msg);
+                          name, err_msg);
+                g_free(err_msg);
                 prefs.unknown_colorfilters = TRUE;
 
                 skip_end_of_line = TRUE;

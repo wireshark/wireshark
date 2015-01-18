@@ -283,10 +283,8 @@ void DisplayFilterEdit::checkFilter(const QString& text)
     }
     case Invalid:
     {
-        QString invalidMsg(tr("Invalid filter"));
-        if (dfilter_error_msg) {
-            invalidMsg.append(QString().sprintf(": %s", dfilter_error_msg));
-        }
+        QString invalidMsg(tr("Invalid filter: "));
+        invalidMsg.append(syntaxErrorMessage());
         emit pushFilterSyntaxStatus(invalidMsg);
         break;
     }

@@ -546,7 +546,7 @@ cf_read(capture_file *cf, gboolean reloading)
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
   g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Get the union of the flags for all tap listeners. */
@@ -793,7 +793,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
   g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Get the union of the flags for all tap listeners. */
@@ -920,7 +920,7 @@ cf_finish_tail(capture_file *cf, int *err)
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
   g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Get the union of the flags for all tap listeners. */
@@ -1652,6 +1652,7 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   const char *filter_new = dftext ? dftext : "";
   const char *filter_old = cf->dfilter ? cf->dfilter : "";
   dfilter_t  *dfcode;
+  gchar      *err_msg;
   GTimeVal    start_time;
 
   /* if new filter equals old one, do nothing unless told to do so */
@@ -1671,12 +1672,13 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
      * and try to compile it.
      */
     dftext = g_strdup(dftext);
-    if (!dfilter_compile(dftext, &dfcode)) {
+    if (!dfilter_compile(dftext, &dfcode, &err_msg)) {
       /* The attempt failed; report an error. */
       simple_message_box(ESD_TYPE_ERROR, NULL,
           "See the help for a description of the display filter syntax.",
           "\"%s\" isn't a valid display filter: %s",
-          dftext, dfilter_error_msg);
+          dftext, err_msg);
+      g_free(err_msg);
       g_free(dftext);
       return CF_ERROR;
     }
@@ -1819,7 +1821,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
    * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
-  compiled = dfilter_compile(cf->dfilter, &dfcode);
+  compiled = dfilter_compile(cf->dfilter, &dfcode, NULL);
   g_assert(!cf->dfilter || (compiled && dfcode));
 
   /* Get the union of the flags for all tap listeners. */
@@ -3447,7 +3449,7 @@ cf_find_packet_dfilter_string(capture_file *cf, const char *filter,
   dfilter_t *sfcode;
   gboolean   result;
 
-  if (!dfilter_compile(filter, &sfcode)) {
+  if (!dfilter_compile(filter, &sfcode, NULL)) {
      /*
       * XXX - this shouldn't happen, as the filter string is machine
       * generated

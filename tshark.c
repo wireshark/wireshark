@@ -993,6 +993,7 @@ main(int argc, char *argv[])
 #endif
   dfilter_t           *rfcode = NULL;
   dfilter_t           *dfcode = NULL;
+  gchar               *err_msg;
   e_prefs             *prefs_p;
   char                 badopt;
   int                  log_flags;
@@ -2026,8 +2027,9 @@ main(int argc, char *argv[])
 #endif
 
   if (rfilter != NULL) {
-    if (!dfilter_compile(rfilter, &rfcode)) {
-      cmdarg_err("%s", dfilter_error_msg);
+    if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
+      cmdarg_err("%s", err_msg);
+      g_free(err_msg);
       epan_cleanup();
 #ifdef HAVE_PCAP_OPEN_DEAD
       {
@@ -2050,8 +2052,9 @@ main(int argc, char *argv[])
   cfile.rfcode = rfcode;
 
   if (dfilter != NULL) {
-    if (!dfilter_compile(dfilter, &dfcode)) {
-      cmdarg_err("%s", dfilter_error_msg);
+    if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
+      cmdarg_err("%s", err_msg);
+      g_free(err_msg);
       epan_cleanup();
 #ifdef HAVE_PCAP_OPEN_DEAD
       {
@@ -2587,7 +2590,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i, char 
   g_assert(i < capture_opts->ifaces->len);
   interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
 
-  if (dfilter_compile(interface_opts.cfilter, &rfcode) && rfcode != NULL) {
+  if (dfilter_compile(interface_opts.cfilter, &rfcode, NULL) && rfcode != NULL) {
     cmdarg_err(
       "Invalid capture filter \"%s\" for interface '%s'.\n"
       "\n"

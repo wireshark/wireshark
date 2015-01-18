@@ -583,19 +583,6 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
 }
 
 static void
-dfilter_report_bad_value(const char *format, ...)
-{
-	char error_msg_buf[1024];
-	va_list args;
-
-	va_start(args, format);
-	g_vsnprintf(error_msg_buf, sizeof error_msg_buf, format, args);
-	va_end(args);
-
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_msg_buf);
-}
-
-static void
 dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 {
     GtkWidget *filter_te = (GtkWidget *)filter_te_arg;
@@ -615,6 +602,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     ftenum_t      ftype;
     gboolean      can_compare;
     fvalue_t     *fvalue;
+    gchar        *err_msg;
     GtkTreeModel *model;
     GtkTreeIter   iter;
     gboolean      quote_it;
@@ -743,19 +731,18 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
          */
     	if (strcmp(item_str, "contains") == 0) {
             fvalue = fvalue_from_unparsed(ftype, stripped_value_str, TRUE,
-                                          dfilter_report_bad_value);
+                                          &err_msg);
 	}
 	else {
             fvalue = fvalue_from_unparsed(ftype, stripped_value_str, FALSE,
-                                          dfilter_report_bad_value);
+                                          &err_msg);
 	}
         if (fvalue == NULL) {
             /*
              * It's not valid.
-             *
-             * The dialog box was already popped up by
-             * "dfilter_report_bad_value()".
              */
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+            g_free(err_msg);
             g_free(range_str);
             g_free(value_str);
             g_free(item_str);

@@ -30,7 +30,6 @@
 #include "dfilter.h"
 #include "dfilter-macro.h"
 #include <ftypes/ftypes-int.h>
-#include <epan/emem.h>
 #include <epan/uat-int.h>
 #include <epan/proto.h>
 #include <wsutil/file_util.h>
@@ -110,7 +109,8 @@ void dfilter_macro_save(const gchar* filename, gchar** error) {
 	FILE* f = ws_fopen(filename,"w");
 
 	if (!f) {
-		*error = wmem_strdup_printf(NULL, "Could not open file: '%s', error: %s\n", filename, g_strerror(errno) );
+		if (error != NULL)
+			*error = g_strdup_printf("Could not open file: '%s', error: %s\n", filename, g_strerror(errno) );
 		return;
 	}
 
@@ -170,11 +170,13 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 			if(e->usable) {
 				return wmem_strdup(NULL, e->repr);
 			} else {
-				*error = wmem_strdup_printf(NULL, "macro '%s' is unusable", name);
+				if (error != NULL)
+					*error = g_strdup_printf("macro '%s' is unusable", name);
 				return NULL;
 			}
 		} else {
-			*error = wmem_strdup_printf(NULL, "macro '%s' does not exist", name);
+			if (error != NULL)
+				*error = g_strdup_printf("macro '%s' does not exist", name);
 			return NULL;
 		}
 	}
@@ -186,8 +188,10 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 	}
 
 	if (argc != m->argc) {
-		*error = wmem_strdup_printf(NULL, "wrong number of arguments for macro '%s', expecting %d instead of %d",
-								  name, m->argc, argc);
+		if (error != NULL) {
+			*error = g_strdup_printf("wrong number of arguments for macro '%s', expecting %d instead of %d",
+									  name, m->argc, argc);
+		}
 		return NULL;
 	}
 
@@ -223,7 +227,8 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 	gboolean changed = FALSE;
 
 	if ( depth > 31) {
-		*error = wmem_strdup(NULL, "too much nesting in macros");
+		if (error != NULL)
+			*error = g_strdup("too much nesting in macros");
 		return NULL;
 	}
 
@@ -240,7 +245,8 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 		} \
 	} while(0)
 
-	*error = NULL;
+	if (error != NULL)
+		*error = NULL;
 	out = g_string_sized_new(64);
 
 	while(1) {
@@ -295,7 +301,8 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 					g_ptr_array_add(args,NULL);
 
 					resolved = dfilter_macro_resolve(name->str, (gchar**)args->pdata, error);
-					if (*error) goto on_error;
+					if (resolved == NULL)
+						goto on_error;
 
 					changed = TRUE;
 
@@ -306,17 +313,20 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 
 					state = OUTSIDE;
 				} else if ( c == '\0') {
-					*error = wmem_strdup(NULL, "end of filter in the middle of a macro expression");
+					if (error != NULL)
+						*error = g_strdup("end of filter in the middle of a macro expression");
 					goto on_error;
 				} else {
-					*error = wmem_strdup(NULL, "invalid char in macro name");
+					if (error != NULL)
+						*error = g_strdup("invalid character in macro name");
 					goto on_error;
 				}
 				break;
 			} case ARGS: {
 				switch(c) {
 					case '\0': {
-						*error = wmem_strdup(NULL, "end of filter in the middle of a macro expression");
+						if (error != NULL)
+							*error = g_strdup("end of filter in the middle of a macro expression");
 						goto on_error;
 					} case ';': {
 						g_ptr_array_add(args,g_string_free(arg,FALSE));
@@ -329,7 +339,8 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 							g_string_append_c(arg,c);
 							break;
 						} else {
-							*error = wmem_strdup(NULL, "end of filter in the middle of a macro expression");
+							if (error != NULL)
+								*error = g_strdup("end of filter in the middle of a macro expression");
 							goto on_error;
 						}
 					} default: {
@@ -343,7 +354,8 @@ static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, 
 						arg = NULL;
 
 						resolved = dfilter_macro_resolve(name->str, (gchar**)args->pdata, error);
-						if (*error) goto on_error;
+						if (resolved == NULL)
+							goto on_error;
 
 						changed = TRUE;
 
@@ -368,7 +380,7 @@ finish:
 		if (changed) {
 			const gchar* resolved = dfilter_macro_apply_recurse(out->str, depth + 1, error);
 			g_string_free(out,TRUE);
-			return (*error) ? NULL : resolved;
+			return resolved;
 		} else {
 			const gchar* out_str = wmem_strdup(NULL, out->str);
 			g_string_free(out,TRUE);
@@ -378,7 +390,10 @@ finish:
 on_error:
 	{
 		FREE_ALL();
-		if (! *error) *error = wmem_strdup(NULL, "unknown error in macro expression");
+		if (error != NULL) {
+			if (*error == NULL)
+				*error = g_strdup("unknown error in macro expression");
+		}
 		g_string_free(out,TRUE);
 		return NULL;
 	}

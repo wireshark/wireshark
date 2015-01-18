@@ -44,6 +44,7 @@ typedef struct {
 	/* Syntax Tree stuff */
 	stnode_t	*st_root;
 	gboolean	syntax_error;
+	gchar		*error_message;
 	GPtrArray	*insns;
 	GPtrArray	*consts;
 	GHashTable	*loaded_fields;
@@ -53,6 +54,12 @@ typedef struct {
 	int		next_register;
 	int		first_constant; /* first register used as a constant */
 } dfwork_t;
+
+/*
+ * XXX - if we're using a version of Flex that supports reentrant lexical
+ * analyzers, we should put this into the lexical analyzer's state.
+ */
+extern dfwork_t *global_dfw;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
 void *DfilterAlloc(void* (*)(gsize));
@@ -66,9 +73,9 @@ extern stnode_t *df_lval;
 /* Return value for error in scanner. */
 #define SCAN_FAILED	-1	/* not 0, as that means end-of-input */
 
-/* Set dfilter_error_msg_buf and dfilter_error_msg */
+/* Set dfw->error_message */
 void
-dfilter_fail(const char *format, ...) G_GNUC_PRINTF(1, 2);
+dfilter_fail(dfwork_t *dfw, const char *format, ...) G_GNUC_PRINTF(2, 3);
 
 void
 DfilterTrace(FILE *TraceFILE, char *zTracePrompt);

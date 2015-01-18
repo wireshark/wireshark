@@ -68,35 +68,35 @@ any "error" symbols are shifted, if possible. */
 	header_field_info	*hfinfo;
 
 	if (!TOKEN) {
-		dfilter_fail("Unexpected end of filter string.");
+		dfilter_fail(dfw, "Unexpected end of filter string.");
 		return;
 	}
 
 	switch(stnode_type_id(TOKEN)) {
 	        case STTYPE_UNINITIALIZED:
-			dfilter_fail("Syntax error.");
+			dfilter_fail(dfw, "Syntax error.");
 			break;
 		case STTYPE_TEST:
-			dfilter_fail("Syntax error, TEST.");
+			dfilter_fail(dfw, "Syntax error, TEST.");
 			break;
 		case STTYPE_STRING:
-			dfilter_fail("The string \"%s\" was unexpected in this context.",
+			dfilter_fail(dfw, "The string \"%s\" was unexpected in this context.",
 				(char *)stnode_data(TOKEN));
 			break;
 		case STTYPE_UNPARSED:
-			dfilter_fail("\"%s\" was unexpected in this context.",
+			dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
 				(char *)stnode_data(TOKEN));
 			break;
 		case STTYPE_INTEGER:
-			dfilter_fail("The integer %d was unexpected in this context.",
+			dfilter_fail(dfw, "The integer %d was unexpected in this context.",
 				stnode_value(TOKEN));
 			break;
 		case STTYPE_FIELD:
 			hfinfo = (header_field_info *)stnode_data(TOKEN);
-			dfilter_fail("Syntax error near \"%s\".", hfinfo->abbrev);
+			dfilter_fail(dfw, "Syntax error near \"%s\".", hfinfo->abbrev);
 			break;
 		case STTYPE_FUNCTION:
-			dfilter_fail("The function s was unexpected in this context.");
+			dfilter_fail(dfw, "The function s was unexpected in this context.");
 			break;
 
 		/* These aren't handed to use as terminal tokens from

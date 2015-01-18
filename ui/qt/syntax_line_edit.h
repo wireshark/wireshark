@@ -35,6 +35,7 @@ public:
 
     SyntaxState syntaxState() const { return syntax_state_; }
     void setSyntaxState(SyntaxState state = Empty);
+    QString syntaxErrorMessage();
     QString styleSheet() const;
     QString deprecatedToken();
 
@@ -51,6 +52,7 @@ private:
     QString style_sheet_;
     QString state_style_sheet_;
     QString deprecated_token_;
+    QString syntax_error_message_;
 
 signals:
 

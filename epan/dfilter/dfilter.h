@@ -50,32 +50,22 @@ dfilter_cleanup(void);
  * a pointer to the newly-allocated dfilter_t
  * structure.
  *
- * On failure, dfilter_error_msg points to an
- * appropriate error message. This error message is
- * a global string, so another invocation of
- * dfilter_compile() will clear it. The dfilter*
- * will be set to NULL after a failure.
+ * On failure, *err_msg is set to point to the error
+ * message.  This error message is allocated with
+ * g_malloc(), and must be freed with g_free().
+ * The dfilter* will be set to NULL after a failure.
  *
  * Returns TRUE on success, FALSE on failure.
  */
 WS_DLL_PUBLIC
 gboolean
-dfilter_compile(const gchar *text, dfilter_t **dfp);
+dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg);
 
 /* Frees all memory used by dfilter, and frees
  * the dfilter itself. */
 WS_DLL_PUBLIC
 void
 dfilter_free(dfilter_t *df);
-
-
-/* dfilter_error_msg is NULL if there was no error during dfilter_compile,
- * otherwise it points to a displayable error message. With MSVC and a
- * libwireshark.dll, we need a special declaration.
- */
-
-WS_DLL_PUBLIC const gchar *dfilter_error_msg;
-
 
 /* Apply compiled dfilter */
 WS_DLL_PUBLIC

@@ -230,21 +230,23 @@ static char* param_get_packet_count(char** err) {
 
 
 
-static echld_bool_t param_set_dfilter(char* val , char** err _U_) {
+static echld_bool_t param_set_dfilter(char* val , char** err) {
 	dfilter_t *dfn = NULL;
+	gchar *err_msg;
 
 	if (child.state != IDLE && child.state != DONE ) {
 		*err = g_strdup("Only while idle or done");
 		return FALSE;
-	} else if ( dfilter_compile(val, &dfn) ) {
-		if (child.dfilter) g_free(child.dfilter);
-		if (child.df) dfilter_free(child.df);
-		child.df = dfn;
-		child.dfilter = g_strdup(val);
-		return TRUE;
 	} else {
-		*err = g_strdup(dfilter_error_msg);
-		return FALSE;
+		if ( dfilter_compile(val, &dfn, err) ) {
+			if (child.dfilter) g_free(child.dfilter);
+			if (child.df) dfilter_free(child.df);
+			child.df = dfn;
+			child.dfilter = g_strdup(val);
+			return TRUE;
+		} else {
+			return FALSE;
+		}
 	}
 }
 

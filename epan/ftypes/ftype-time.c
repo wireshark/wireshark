@@ -168,7 +168,7 @@ get_nsecs(const char *startp, int *nsecs)
 }
 
 static gboolean
-relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	const char    *curptr;
 	char *endptr;
@@ -227,14 +227,14 @@ relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_v
 	return TRUE;
 
 fail:
-	if (logfunc != NULL)
-		logfunc("\"%s\" is not a valid time.", s);
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid time.", s);
 	return FALSE;
 }
 
 
 static gboolean
-absolute_val_from_string(fvalue_t *fv, const char *s, LogFunc logfunc)
+absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 {
 	struct tm tm;
 	char    *curptr;
@@ -291,16 +291,16 @@ absolute_val_from_string(fvalue_t *fv, const char *s, LogFunc logfunc)
 	return TRUE;
 
 fail:
-	if (logfunc != NULL)
-		logfunc("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\"",
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\"",
 		    s);
 	return FALSE;
 }
 
 static gboolean
-absolute_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+absolute_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
-	return absolute_val_from_string(fv, s, logfunc);
+	return absolute_val_from_string(fv, s, err_msg);
 }
 
 static void

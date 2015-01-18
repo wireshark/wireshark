@@ -475,6 +475,7 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
     GString* fake_tap_filter = g_string_new("frame");
     guint i;
     static gboolean fake_tap = FALSE;
+    gchar *err_msg;
 
     for(i=0; i < wanted_fields->len; i++) {
         Field f = (Field)g_ptr_array_index(wanted_fields,i);
@@ -514,8 +515,9 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
                 dfilter_free(wslua_dfilter);
                 wslua_dfilter = NULL;
             }
-            if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter)) {
-                report_failure("while compiling dfilter for wslua: '%s'", fake_tap_filter->str);
+            if (!dfilter_compile(fake_tap_filter->str, &wslua_dfilter, &err_msg)) {
+                report_failure("while compiling dfilter \"%s\" for wslua: %s", fake_tap_filter->str, err_msg);
+                g_free(err_msg);
             }
         }
     }

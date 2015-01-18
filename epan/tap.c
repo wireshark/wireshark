@@ -472,6 +472,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	tap_listener_t *tl;
 	int tap_id;
 	GString *error_string;
+	gchar *err_msg;
 
 	tap_id=find_tap_id(tapname);
 	if(!tap_id){
@@ -485,11 +486,12 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	tl->needs_redraw=TRUE;
 	tl->flags=flags;
 	if(fstring){
-		if(!dfilter_compile(fstring, &tl->code)){
+		if(!dfilter_compile(fstring, &tl->code, &err_msg)){
 			error_string = g_string_new("");
 			g_string_printf(error_string,
 			    "Filter \"%s\" is invalid - %s",
-			    fstring, dfilter_error_msg);
+			    fstring, err_msg);
+			g_free(err_msg);
 			g_free(tl);
 			return error_string;
 		}
@@ -514,6 +516,7 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 {
 	tap_listener_t *tl=NULL,*tl2;
 	GString *error_string;
+	gchar *err_msg;
 
 	if(!tap_listener_queue){
 		return NULL;
@@ -538,11 +541,12 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 		}
 		tl->needs_redraw=TRUE;
 		if(fstring){
-			if(!dfilter_compile(fstring, &tl->code)){
+			if(!dfilter_compile(fstring, &tl->code, &err_msg)){
 				error_string = g_string_new("");
 				g_string_printf(error_string,
 						 "Filter \"%s\" is invalid - %s",
-						 fstring, dfilter_error_msg);
+						 fstring, err_msg);
+				g_free(err_msg);
 				return error_string;
 			}
 		}

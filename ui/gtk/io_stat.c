@@ -1784,6 +1784,7 @@ filter_callback(GtkWidget *widget, gpointer user_data)
     io_stat_graph_t   *gio   = (io_stat_graph_t *)user_data;
     const char        *filter;
     dfilter_t         *dfilter;
+    gchar             *err_msg;
     const char        *field_name = NULL;
 
     /* this graph is not active, just update display and redraw */
@@ -1813,9 +1814,10 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 
     /* first check if the filter string is valid. */
     filter = gtk_entry_get_text(GTK_ENTRY(gio->filter_field));
-    if (!dfilter_compile(filter, &dfilter)) {
+    if (!dfilter_compile(filter, &dfilter, &err_msg)) {
         bad_dfilter_alert_box(gtk_widget_get_toplevel(widget),
-            filter);
+            filter, err_msg);
+        g_free(err_msg);
         disable_graph(gio);
         io_stat_redraw(gio->io);
         return;

@@ -47,7 +47,7 @@ value_get_floating(fvalue_t *fv)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	char    *endptr = NULL;
 
@@ -55,19 +55,23 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
-		logfunc("\"%s\" is not a valid number.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (fv->value.floating == 0) {
-			logfunc("\"%s\" causes floating-point underflow.", s);
+			if (err_msg != NULL)
+				*err_msg = g_strdup_printf("\"%s\" causes floating-point underflow.", s);
 		}
 		else if (fv->value.floating == HUGE_VAL) {
-			logfunc("\"%s\" causes floating-point overflow.", s);
+			if (err_msg != NULL)
+				*err_msg = g_strdup_printf("\"%s\" causes floating-point overflow.", s);
 		}
 		else {
-			logfunc("\"%s\" is not a valid floating-point number.",
-			    s);
+			if (err_msg != NULL)
+				*err_msg = g_strdup_printf("\"%s\" is not a valid floating-point number.",
+				    s);
 		}
 		return FALSE;
 	}

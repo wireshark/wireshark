@@ -232,7 +232,7 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-bytes_from_string(fvalue_t *fv, const char *s, LogFunc logfunc _U_)
+bytes_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 {
 	GByteArray	*bytes;
 
@@ -248,7 +248,7 @@ bytes_from_string(fvalue_t *fv, const char *s, LogFunc logfunc _U_)
 }
 
 static gboolean
-bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	GByteArray	*bytes;
 	gboolean	res;
@@ -258,8 +258,8 @@ bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 	res = hex_str_to_bytes(s, bytes, TRUE);
 
 	if (!res) {
-		if (logfunc != NULL)
-			logfunc("\"%s\" is not a valid byte string.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid byte string.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}
@@ -273,22 +273,26 @@ bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 }
 
 static gboolean
-ax25_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+ax25_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as another way if it does, and if that fails,
-	 * we'll log a message.
+	 * Don't request an error message if bytes_from_unparsed fails;
+	 * if it does, we'll report an error specific to this address
+	 * type.
 	 */
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_AX25_ADDR_LEN) {
-			logfunc("\"%s\" contains too many bytes to be a valid AX.25 address.",
-			    s);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid AX.25 address.",
+				    s);
+			}
 			return FALSE;
 		}
 		else if (fv->value.bytes->len < FT_AX25_ADDR_LEN && !allow_partial_value) {
-			logfunc("\"%s\" contains too few bytes to be a valid AX.25 address.",
-			    s);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("\"%s\" contains too few bytes to be a valid AX.25 address.",
+				    s);
+			}
 			return FALSE;
 		}
 
@@ -326,27 +330,32 @@ ax25_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, Lo
 	 *
 	 *	http://www.itu.int/ITU-R/terrestrial/docs/fixedmobile/fxm-art19-sec3.pdf
 	 */
-	logfunc("\"%s\" is not a valid AX.25 address.", s);
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid AX.25 address.", s);
 	return FALSE;
 }
 
 static gboolean
-vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as another way if it does, and if that fails,
-	 * we'll log a message.
+	 * Don't request an error message if bytes_from_unparsed fails;
+	 * if it does, we'll report an error specific to this address
+	 * type.
 	 */
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_VINES_ADDR_LEN) {
-			logfunc("\"%s\" contains too many bytes to be a valid Vines address.",
-			    s);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid Vines address.",
+				    s);
+			}
 			return FALSE;
 		}
 		else if (fv->value.bytes->len < FT_VINES_ADDR_LEN && !allow_partial_value) {
-			logfunc("\"%s\" contains too few bytes to be a valid Vines address.",
-			    s);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("\"%s\" contains too few bytes to be a valid Vines address.",
+				    s);
+			}
 			return FALSE;
 		}
 
@@ -355,29 +364,34 @@ vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, L
 
 	/* XXX - need better validation of Vines address */
 
-	logfunc("\"%s\" is not a valid Vines address.", s);
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid Vines address.", s);
 	return FALSE;
 }
 
 static gboolean
-ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
+ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	guint8	*mac;
 
 	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as an Ethernet host name if it does, and if that fails,
-	 * we'll log a message.
+	 * Don't request an error message if bytes_from_unparsed fails;
+	 * if it does, we'll report an error specific to this address
+	 * type.
 	 */
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_ETHER_LEN) {
-			logfunc("\"%s\" contains too many bytes to be a valid Ethernet address.",
-			    s);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid Ethernet address.",
+				    s);
+			}
 			return FALSE;
 		}
 		else if (fv->value.bytes->len < FT_ETHER_LEN && !allow_partial_value) {
-			logfunc("\"%s\" contains too few bytes to be a valid Ethernet address.",
-			    s);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("\"%s\" contains too few bytes to be a valid Ethernet address.",
+				    s);
+			}
 			return FALSE;
 		}
 
@@ -386,8 +400,10 @@ ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, L
 
 	mac = get_ether_addr(s);
 	if (!mac) {
-		logfunc("\"%s\" is not a valid hostname or Ethernet address.",
-		    s);
+		if (err_msg != NULL) {
+			*err_msg = g_strdup_printf("\"%s\" is not a valid hostname or Ethernet address.",
+			    s);
+		}
 		return FALSE;
 	}
 
@@ -396,28 +412,29 @@ ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, L
 }
 
 static gboolean
-oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	GByteArray	*bytes;
 	gboolean	res;
 
 
+#if 0
 	/*
 	 * Don't log a message if this fails; we'll try looking it
 	 * up as an OID if it does, and if that fails,
 	 * we'll log a message.
 	 */
-	/* do not try it as '.' is handled as valid separator for hexbytes :(
+	/* do not try it as '.' is handled as valid separator for hexbytes :( */
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		return TRUE;
 	}
-	*/
+#endif
 
 	bytes = g_byte_array_new();
 	res = oid_str_to_bytes(s, bytes);
 	if (!res) {
-		if (logfunc != NULL)
-			logfunc("\"%s\" is not a valid OBJECT IDENTIFIER.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid OBJECT IDENTIFIER.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}
@@ -430,22 +447,16 @@ oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 }
 
 static gboolean
-rel_oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+rel_oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	GByteArray	*bytes;
 	gboolean	res;
 
-
-	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as an OID if it does, and if that fails,
-	 * we'll log a message.
-	 */
 	bytes = g_byte_array_new();
 	res = rel_oid_str_to_bytes(s, bytes, FALSE);
 	if (!res) {
-		if (logfunc != NULL)
-			logfunc("\"%s\" is not a valid RELATIVE-OID.", s);
+		if (err_msg != NULL)
+			*err_msg = g_strdup_printf("\"%s\" is not a valid RELATIVE-OID.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}
@@ -458,17 +469,19 @@ rel_oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 }
 
 static gboolean
-system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as another way if it does, and if that fails,
-	 * we'll log a message.
+	 * Don't request an error message if bytes_from_unparsed fails;
+	 * if it does, we'll report an error specific to this address
+	 * type.
 	 */
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > MAX_SYSTEMID_LEN) {
-			logfunc("\"%s\" contains too many bytes to be a valid OSI System-ID.",
-			    s);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid OSI System-ID.",
+				    s);
+			}
 			return FALSE;
 		}
 
@@ -477,22 +490,25 @@ system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_valu
 
 	/* XXX - need better validation of OSI System-ID address */
 
-	logfunc("\"%s\" is not a valid OSI System-ID.", s);
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid OSI System-ID.", s);
 	return FALSE;
 }
 
 static gboolean
-fcwwn_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+fcwwn_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	/*
-	 * Don't log a message if this fails; we'll try looking it
-	 * up as another way if it does, and if that fails,
-	 * we'll log a message.
+	 * Don't request an error message if bytes_from_unparsed fails;
+	 * if it does, we'll report an error specific to this address
+	 * type.
 	 */
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_FCWWN_LEN) {
-			logfunc("\"%s\" contains too many bytes to be a valid FCWWN.",
-			    s);
+			if (err_msg != NULL) {
+				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid FCWWN.",
+				    s);
+			}
 			return FALSE;
 		}
 
@@ -501,7 +517,8 @@ fcwwn_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 
 	/* XXX - need better validation of FCWWN address */
 
-	logfunc("\"%s\" is not a valid FCWWN.", s);
+	if (err_msg != NULL)
+		*err_msg = g_strdup_printf("\"%s\" is not a valid FCWWN.", s);
 	return FALSE;
 }
 

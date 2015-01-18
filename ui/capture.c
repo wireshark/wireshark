@@ -514,7 +514,7 @@ capture_input_cfilter_error_message(capture_session *cap_session, guint i,
   safe_descr = simple_dialog_format_message(interface_opts.descr);
   safe_cfilter_error_msg = simple_dialog_format_message(error_message);
   /* Did the user try a display filter? */
-  if (dfilter_compile(interface_opts.cfilter, &rfcode) && rfcode != NULL) {
+  if (dfilter_compile(interface_opts.cfilter, &rfcode, NULL) && rfcode != NULL) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "%sInvalid capture filter \"%s\" for interface %s.%s\n"
       "\n"

@@ -189,13 +189,12 @@ extern void reactivate_window(GtkWidget *win);
 /** @} */
 
 /** Alert box for an invalid display filter expression.
- * Assumes "dfilter_error_msg" has been set by "dfilter_compile()" to the
- * error message for the filter.
  *
  * @param parent parent window from which the display filter came
  * @param dftext text of the display filter
+ * @param err_msg text of the error message for the filter
  */
-extern void bad_dfilter_alert_box(GtkWidget *parent, const char *dftext);
+extern void bad_dfilter_alert_box(GtkWidget *parent, const char *dftext, gchar *err_msg);
 
 /** Create a GtkScrolledWindow, set its scrollbar placement appropriately,
  *  and remember it.

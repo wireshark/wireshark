@@ -79,7 +79,7 @@ typedef struct _funnel_ops_t {
     gchar * (*get_filter)(void);
     void (*set_filter)(const char*);
     void (*set_color_filter_slot)(guint8 flit_nr, const gchar* filter);
-    gboolean (*open_file)(const char* fname, const char* filter, const char** error);
+    gboolean (*open_file)(const char* fname, const char* filter, char** error);
     void (*reload)(void);
     void (*apply_filter)(void);
 

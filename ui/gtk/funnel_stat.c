@@ -486,11 +486,11 @@ static void funnel_retap_packets(void) {
     cf_retap_packets(&cfile);
 }
 
-static gboolean funnel_open_file(const char* fname, const char* filter, const char** err_str) {
+static gboolean funnel_open_file(const char* fname, const char* filter, char** err_str) {
     int err = 0;
     dfilter_t   *rfcode = NULL;
 
-    *err_str = "no error";
+    *err_str = NULL;
 
     switch (cfile.state) {
         case FILE_CLOSED:
@@ -498,20 +498,19 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
         case FILE_READ_ABORTED:
             break;
         case FILE_READ_IN_PROGRESS:
-            *err_str = "file read in progress";
+            *err_str = g_strdup("file read in progress");
             return FALSE;
     }
 
     if (filter) {
-        if (!dfilter_compile(filter, &rfcode)) {
-            *err_str = dfilter_error_msg ? dfilter_error_msg : "cannot compile filter";
+        if (!dfilter_compile(filter, &rfcode, err_str)) {
             return FALSE;
         }
     }
 
     /* This closes the current file if it succeeds. */
     if (cf_open(&cfile, fname, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
-        *err_str = g_strerror(err);
+        *err_str = g_strdup(g_strerror(err));
         if (rfcode != NULL) dfilter_free(rfcode);
         return FALSE;
     }
@@ -523,7 +522,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
         case CF_READ_ERROR:
             break;
         default:
-            *err_str = "problem while reading file";
+            *err_str = g_strdup("problem while reading file");
             return FALSE;
     }
 

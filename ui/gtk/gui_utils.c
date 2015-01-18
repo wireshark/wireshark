@@ -535,7 +535,8 @@ pixbuf_to_widget(const guint8 *pb_data) {
  */
 void
 bad_dfilter_alert_box(GtkWidget  *parent,
-                      const char *dftext)
+                      const char *dftext,
+                      gchar *err_msg)
 {
     GtkWidget *msg_dialog;
 
@@ -544,7 +545,7 @@ bad_dfilter_alert_box(GtkWidget  *parent,
                                         GTK_MESSAGE_ERROR,
                                         GTK_BUTTONS_OK,
             "The filter expression \"%s\" isn't a valid display filter. (%s)",
-                                        dftext, dfilter_error_msg);
+                                        dftext, err_msg);
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
          "See the help for a description of the display filter syntax.");
     gtk_dialog_run(GTK_DIALOG(msg_dialog));
