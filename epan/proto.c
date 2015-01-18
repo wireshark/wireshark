@@ -43,7 +43,6 @@
 #include "proto.h"
 #include "epan_dissect.h"
 #include "tvbuff.h"
-#include "emem.h"
 #include "wmem/wmem.h"
 #include "charsets.h"
 #include "asm_utils.h"

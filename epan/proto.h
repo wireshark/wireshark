@@ -43,7 +43,6 @@
 
 #include <glib.h>
 
-#include <epan/emem.h>
 #include <epan/wmem/wmem.h>
 
 #include "ipv4.h"
