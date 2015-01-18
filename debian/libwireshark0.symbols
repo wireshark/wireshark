@@ -1115,8 +1115,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  scsi_smc_vals_ext@Base 1.12.0~rc1
  scsi_ssc_vals_ext@Base 1.12.0~rc1
  sctp_port_to_display@Base 1.99.2
- se_alloc0@Base 1.9.1
- se_alloc@Base 1.9.1
  set_actual_length@Base 1.9.1
  set_column_custom_field@Base 1.9.1
  set_column_custom_occurrence@Base 1.9.1
