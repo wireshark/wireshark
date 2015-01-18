@@ -580,7 +580,7 @@ geoip_db_lookup_ipv4(guint dbnum _U_, guint32 addr _U_, const char *not_found) {
     if (not_found == NULL)
         return NULL;
 
-    return wmem_strdup(NULL, not_found);
+    return (char *)wmem_strdup(NULL, not_found);
 }
 
 char *
@@ -588,7 +588,7 @@ geoip_db_lookup_ipv6(guint dbnum _U_, guint32 addr _U_, const char *not_found) {
     if (not_found == NULL)
         return NULL;
 
-    return wmem_strdup(NULL, not_found);
+    return (char *)wmem_strdup(NULL, not_found);
 }
 
 gchar *
