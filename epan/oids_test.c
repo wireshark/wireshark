@@ -27,6 +27,7 @@
 #include <string.h>
 #include <glib.h>
 
+#include "emem.h"
 #include "oids.h"
 #include "wmem/wmem.h"
 
@@ -495,6 +496,10 @@ main(int argc, char **argv)
     oids_cleanup();
     wmem_destroy_allocator(test_scope);
     wmem_cleanup();
+    /*
+     * This might have been a good place for a call to ep_free_all() but that is not part of the
+     * public interface for emem.h
+     */
     return result;
 }
 
