@@ -141,13 +141,15 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 
 #define __DISSECTOR_ASSERT(expression, file, lineno)  \
   (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: failed assertion \"%s\"", \
-     file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
+    wmem_strdup_printf(wmem_packet_scope(), \
+        "%s:%u: failed assertion \"%s\"", \
+        file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
 
 #define __DISSECTOR_ASSERT_HINT(expression, file, lineno, hint)  \
   (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: failed assertion \"%s\" (%s)", \
-     file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression), hint)))
+    wmem_strdup_printf(wmem_packet_scope(), \
+        "%s:%u: failed assertion \"%s\" (%s)", \
+        file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression), hint)))
 
 #define DISSECTOR_ASSERT(expression)  \
   ((void) ((expression) ? (void)0 : \
@@ -183,8 +185,9 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  */
 #define DISSECTOR_ASSERT_NOT_REACHED()  \
   (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: failed assertion \"DISSECTOR_ASSERT_NOT_REACHED\"", \
-     __FILE__, __LINE__)))
+    wmem_strdup_printf(wmem_packet_scope(), \
+        "%s:%u: failed assertion \"DISSECTOR_ASSERT_NOT_REACHED\"", \
+        __FILE__, __LINE__)))
 
 /** Compare two integers.
  *
@@ -205,8 +208,9 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  */
 #define __DISSECTOR_ASSERT_CMPINT(a, op, b, type, fmt) \
   (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: failed assertion "#a" "#op" "#b" ("fmt" "#op" "fmt")", \
-     __FILE__, __LINE__, (type)a, (type)b)))
+    wmem_strdup_printf(wmem_packet_scope(), \
+        "%s:%u: failed assertion "#a" "#op" "#b" ("fmt" "#op" "fmt")", \
+        __FILE__, __LINE__, (type)a, (type)b)))
 
 #define DISSECTOR_ASSERT_CMPINT(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
@@ -241,8 +245,9 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  */
 #define __DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, t) \
   (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: field %s is not of type "#t, \
-     __FILE__, __LINE__, (hfinfo)->abbrev)))
+    wmem_strdup_printf(wmem_packet_scope(), \
+        "%s:%u: field %s is not of type "#t, \
+        __FILE__, __LINE__, (hfinfo)->abbrev)))
 
 #define DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, t)  \
   ((void) (((hfinfo)->type == t) ? (void)0 : \
@@ -253,8 +258,9 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
   ((void) ((IS_FT_INT((hfinfo)->type) || \
             IS_FT_UINT((hfinfo)->type)) ? (void)0 : \
    REPORT_DISSECTOR_BUG( \
-     ep_strdup_printf("%s:%u: field %s is not of an FT_{U}INTn type", \
-                       __FILE__, __LINE__, (hfinfo)->abbrev)))) \
+     wmem_strdup_printf(wmem_packet_scope(), \
+         "%s:%u: field %s is not of an FT_{U}INTn type", \
+         __FILE__, __LINE__, (hfinfo)->abbrev)))) \
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(IS_FT_INT((hfinfo)->type) || \
                                            IS_FT_UINT((hfinfo)->type))
 
@@ -267,8 +273,9 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo) \
   (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: field %s is not of type FT_STRING, FT_STRINGZ, or FT_STRINGZPAD", \
-     __FILE__, __LINE__, (hfinfo)->abbrev)))
+    wmem_strdup_printf(wmem_packet_scope(), \
+        "%s:%u: field %s is not of type FT_STRING, FT_STRINGZ, or FT_STRINGZPAD", \
+        __FILE__, __LINE__, (hfinfo)->abbrev)))
 
 #define DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo)  \
   ((void) (((hfinfo)->type == FT_STRING || (hfinfo)->type == FT_STRINGZ || \
@@ -280,8 +287,9 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo) \
   (REPORT_DISSECTOR_BUG( \
-    ep_strdup_printf("%s:%u: field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME", \
-     __FILE__, __LINE__, (hfinfo)->abbrev)))
+    wmem_strdup_printf(wmem_packet_scope(), \
+        "%s:%u: field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME", \
+        __FILE__, __LINE__, (hfinfo)->abbrev)))
 
 /*
  * The encoding of a field of a particular type may involve more
