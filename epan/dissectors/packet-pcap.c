@@ -906,7 +906,7 @@ static int hf_pcap_utcDN_01 = -1;                 /* BIT_STRING_SIZE_8 */
 static int hf_pcap_utcStandardID = -1;            /* BIT_STRING_SIZE_3 */
 static int hf_pcap_utran_GANSSTimingOfCellFrames = -1;  /* INTEGER_0_3999999 */
 static int hf_pcap_referenceSfn = -1;             /* INTEGER_0_4095 */
-static int hf_pcap_ue_GANSSTimingOfCellFrames = -1;  /* T_ue_GANSSTimingOfCellFrames */
+static int hf_pcap_ue_GANSSTimingOfCellFrames = -1;  /* INTEGER_0_345599999999 */
 static int hf_pcap_gANSS_TimeId = -1;             /* GANSSID */
 static int hf_pcap_wn_a = -1;                     /* BIT_STRING_SIZE_8 */
 static int hf_pcap_almanacSatInfoList = -1;       /* AlmanacSatInfoList */
@@ -1352,9 +1352,9 @@ static int hf_pcap_bearing = -1;                  /* INTEGER_0_359 */
 static int hf_pcap_horizontalSpeed = -1;          /* INTEGER_0_2047 */
 static int hf_pcap_verticalSpeed = -1;            /* INTEGER_0_255 */
 static int hf_pcap_verticalSpeedDirection = -1;   /* VerticalSpeedDirection */
-static int hf_pcap_utran_GPSTimingOfCell = -1;    /* T_utran_GPSTimingOfCell */
-static int hf_pcap_ue_GPSTimingOfCell = -1;       /* T_ue_GPSTimingOfCell */
-static int hf_pcap_ue_GANSSTimingOfCell = -1;     /* T_ue_GANSSTimingOfCell */
+static int hf_pcap_utran_GPSTimingOfCell = -1;    /* INTEGER_0_2322431999999_ */
+static int hf_pcap_ue_GPSTimingOfCell = -1;       /* INTEGER_0_37158911999999_ */
+static int hf_pcap_ue_GANSSTimingOfCell = -1;     /* INTEGER_0_345599999999_ */
 static int hf_pcap_ganss_Time_ID = -1;            /* GANSSID */
 static int hf_pcap_protocolIEs = -1;              /* ProtocolIE_Container */
 static int hf_pcap_protocolExtensions = -1;       /* ProtocolExtensionContainer */
@@ -3906,7 +3906,7 @@ dissect_pcap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 
 static int
-dissect_pcap_T_ue_GPSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pcap_INTEGER_0_37158911999999_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, G_GUINT64_CONSTANT(37158911999999), NULL, TRUE);
 
@@ -3915,7 +3915,7 @@ dissect_pcap_T_ue_GPSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const per_sequence_t UTRAN_GPSReferenceTimeResult_sequence[] = {
-  { &hf_pcap_ue_GPSTimingOfCell, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_T_ue_GPSTimingOfCell },
+  { &hf_pcap_ue_GPSTimingOfCell, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_37158911999999_ },
   { &hf_pcap_uC_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_UC_ID },
   { &hf_pcap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_4095 },
   { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
@@ -6634,7 +6634,7 @@ dissect_pcap_GanssIntegerCodePhaseExt(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static int
-dissect_pcap_T_ue_GANSSTimingOfCellFrames(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pcap_INTEGER_0_345599999999(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, G_GUINT64_CONSTANT(345599999999), NULL, FALSE);
 
@@ -6643,7 +6643,7 @@ dissect_pcap_T_ue_GANSSTimingOfCellFrames(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static const per_sequence_t UTRAN_GANSSReferenceTimeUL_sequence[] = {
-  { &hf_pcap_ue_GANSSTimingOfCellFrames, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_T_ue_GANSSTimingOfCellFrames },
+  { &hf_pcap_ue_GANSSTimingOfCellFrames, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_345599999999 },
   { &hf_pcap_gANSS_TimeId   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_GANSSID },
   { &hf_pcap_gANSS_TimeUncertainty, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_INTEGER_0_127 },
   { &hf_pcap_uC_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_UC_ID },
@@ -11838,7 +11838,7 @@ dissect_pcap_VelocityEstimate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static int
-dissect_pcap_T_utran_GPSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pcap_INTEGER_0_2322431999999_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, G_GUINT64_CONSTANT(2322431999999), NULL, TRUE);
 
@@ -11847,7 +11847,7 @@ dissect_pcap_T_utran_GPSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t UTRAN_GPSReferenceTime_sequence[] = {
-  { &hf_pcap_utran_GPSTimingOfCell, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_T_utran_GPSTimingOfCell },
+  { &hf_pcap_utran_GPSTimingOfCell, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_2322431999999_ },
   { &hf_pcap_uC_ID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_UC_ID },
   { &hf_pcap_sfn            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_4095 },
   { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
@@ -11865,7 +11865,7 @@ dissect_pcap_UTRAN_GPSReferenceTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static int
-dissect_pcap_T_ue_GANSSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pcap_INTEGER_0_345599999999_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, G_GUINT64_CONSTANT(345599999999), NULL, TRUE);
 
@@ -11874,7 +11874,7 @@ dissect_pcap_T_ue_GANSSTimingOfCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static const per_sequence_t UTRAN_GANSSReferenceTimeResult_sequence[] = {
-  { &hf_pcap_ue_GANSSTimingOfCell, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_T_ue_GANSSTimingOfCell },
+  { &hf_pcap_ue_GANSSTimingOfCell, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_345599999999_ },
   { &hf_pcap_ganss_Time_ID  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_GANSSID },
   { &hf_pcap_ganssTodUncertainty, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_INTEGER_0_127 },
   { &hf_pcap_uC_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_UC_ID },
@@ -16316,7 +16316,7 @@ void proto_register_pcap(void) {
     { &hf_pcap_ue_GANSSTimingOfCellFrames,
       { "ue-GANSSTimingOfCellFrames", "pcap.ue_GANSSTimingOfCellFrames",
         FT_UINT64, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "INTEGER_0_345599999999", HFILL }},
     { &hf_pcap_gANSS_TimeId,
       { "gANSS-TimeId", "pcap.gANSS_TimeId_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -18100,15 +18100,15 @@ void proto_register_pcap(void) {
     { &hf_pcap_utran_GPSTimingOfCell,
       { "utran-GPSTimingOfCell", "pcap.utran_GPSTimingOfCell",
         FT_UINT64, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "INTEGER_0_2322431999999_", HFILL }},
     { &hf_pcap_ue_GPSTimingOfCell,
       { "ue-GPSTimingOfCell", "pcap.ue_GPSTimingOfCell",
         FT_UINT64, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "INTEGER_0_37158911999999_", HFILL }},
     { &hf_pcap_ue_GANSSTimingOfCell,
       { "ue-GANSSTimingOfCell", "pcap.ue_GANSSTimingOfCell",
         FT_UINT64, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "INTEGER_0_345599999999_", HFILL }},
     { &hf_pcap_ganss_Time_ID,
       { "ganss-Time-ID", "pcap.ganss_Time_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,

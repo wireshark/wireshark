@@ -99,9 +99,6 @@ ProtocolIE-ContainerPairList
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_ProtocolIE_ID_vals)
 #.END
 
-# Handle 64 bit constraint
-#.FN_PARS BitRate FN_VARIANT = _64b
-
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
 # For details on the Transport Layer Address, see
 # ref. [8], [19]
@@ -424,6 +421,4 @@ X2Release							N x2ap.proc.imsg id-x2Release
 
 X2MessageTransfer					N x2ap.proc.imsg id-x2MessageTransfer
 
-#.TYPE_ATTR
-BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL
 #.END

@@ -112,9 +112,6 @@ ProtocolIE-Field/value ie_field_value
 #  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
 # END
 
-# Handle 64 bit constraint
-#.FN_PARS BitRate FN_VARIANT = _64b
-
 # following construction is not supported by asn2wrs
 # PLMNidentity ::= TBCD-STRING (SIZE (3))
 
@@ -330,6 +327,4 @@ M3SetupRequest												N m3ap.proc.imsg id-m3Setup
 M3SetupResponse												N m3ap.proc.sout id-m3Setup
 M3SetupFailure												N m3ap.proc.uout id-m3Setup
 
-#.TYPE_ATTR
-BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL
 #.END

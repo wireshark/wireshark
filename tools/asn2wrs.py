@@ -3636,6 +3636,12 @@ class Constraint (Node):
                 self.constr_num = constr_cnt
             return 'CONSTR%03d%s' % (self.constr_num, ext)
 
+    def Needs64b(self, ectx):
+        (minv, maxv, ext) = self.GetValue(ectx)
+        if (str(minv).isdigit() or ((str(minv)[0] == "-") and str(minv)[1:].isdigit())) \
+        and str(maxv).isdigit() and (abs(int(maxv) - int(minv)) >= 2**32):
+            return True
+        return False
 
 class Module (Node):
     def to_python (self, ctx):
@@ -5384,7 +5390,12 @@ class IntegerType (Type):
     def eth_ftype(self, ectx):
         if self.HasConstraint():
             if not self.constr.IsNegativ():
-                return ('FT_UINT32', 'BASE_DEC')
+                if self.constr.Needs64b(ectx):
+                    return ('FT_UINT64', 'BASE_DEC')
+                else:
+                    return ('FT_UINT32', 'BASE_DEC')
+            if self.constr.Needs64b(ectx):
+                return ('FT_INT64', 'BASE_DEC')
         return ('FT_INT32', 'BASE_DEC')
 
     def eth_strings(self):
@@ -5428,6 +5439,9 @@ class IntegerType (Type):
         pars = Type.eth_type_default_pars(self, ectx, tname)
         if self.HasValueConstraint():
             (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_value_constr(ectx)
+            if (pars['FN_VARIANT'] == '') and self.constr.Needs64b(ectx):
+                if ectx.Ber(): pars['FN_VARIANT'] = '64'
+                else: pars['FN_VARIANT'] = '_64b'
         return pars
 
     def eth_type_default_body(self, ectx, tname):

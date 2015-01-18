@@ -744,10 +744,7 @@ SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11 TYPE=FT_UIN
 #.TYPE_ATTR
 SystemInformationBlockType16-r11/timeInfo-r11/localTimeOffset-r11 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_localTimeOffset_fmt
 
-#.TYPE_ATTR
-SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 TYPE = FT_UINT64
-
-#.FN_BODY SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 VAL_PTR=&timeInfo FN_VARIANT = _64b
+#.FN_BODY SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 VAL_PTR=&timeInfo
   guint64 timeInfo;
   proto_tree *subtree;
   nstime_t ts;

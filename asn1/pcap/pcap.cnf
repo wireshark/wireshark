@@ -57,12 +57,6 @@ PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
 
-# Handle 64 bit constraint
-#.FN_PARS UTRAN-GPSReferenceTimeResult/ue-GPSTimingOfCell FN_VARIANT = _64b
-#.FN_PARS UTRAN-GANSSReferenceTimeUL/ue-GANSSTimingOfCellFrames FN_VARIANT = _64b
-#.FN_PARS UTRAN-GPSReferenceTime/utran-GPSTimingOfCell FN_VARIANT = _64b
-#.FN_PARS UTRAN-GANSSReferenceTimeResult/ue-GANSSTimingOfCell FN_VARIANT = _64b
-
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
@@ -432,12 +426,5 @@ PositionPeriodicReport							N pcap.proc.imsg id-PositionPeriodicReport
 PositionPeriodicResult							N pcap.proc.imsg id-PositionPeriodicResult
 
 PositionPeriodicTermination						N pcap.proc.imsg id-PositionPeriodicTermination
-
-#.TYPE_ATTR
-# Handle 64 bit constraint
-UTRAN-GPSReferenceTimeResult/ue-GPSTimingOfCell TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL
-UTRAN-GANSSReferenceTimeUL/ue-GANSSTimingOfCellFrames  TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL
-UTRAN-GPSReferenceTime/utran-GPSTimingOfCell  TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL
-UTRAN-GANSSReferenceTimeResult/ue-GANSSTimingOfCell TYPE = FT_UINT64  DISPLAY = BASE_DEC  STRINGS = NULL
 
 #.END

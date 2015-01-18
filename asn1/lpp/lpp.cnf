@@ -682,7 +682,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNo DISPLAY=BASE_CUSTOM STRINGS=&lpp_cnavDelta
 #.TYPE_ATTR
 NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=&lpp_cnavDeltaNoDot_fmt
 
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavMo VAL_PTR=&cnavMo FN_VARIANT=_64b
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavMo VAL_PTR=&cnavMo
   gint64 cnavMo;
   int curr_offset = offset;
 %(DEFAULT_BODY)s
@@ -693,10 +693,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=&lpp_cnavDe
                                                          cnavMo, "%e semi-circles (%"G_GINT64_MODIFIER"d)",
                                                          (double)cnavMo*pow(2, -32), cnavMo);
 
-#.TYPE_ATTR
-NavModelCNAV-KeplerianSet/cnavMo TYPE=FT_INT64
-
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavE VAL_PTR=&cnavE FN_VARIANT=_64b
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavE VAL_PTR=&cnavE
   guint64 cnavE;
   int curr_offset = offset;
 %(DEFAULT_BODY)s
@@ -707,10 +704,7 @@ NavModelCNAV-KeplerianSet/cnavMo TYPE=FT_INT64
                                                           cnavE, "%e (%"G_GINT64_MODIFIER"u)",
                                                           (double)cnavE*pow(2, -34), cnavE);
 
-#.TYPE_ATTR
-NavModelCNAV-KeplerianSet/cnavE TYPE=FT_UINT64
-
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavOmega VAL_PTR=&cnavOmega FN_VARIANT=_64b
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavOmega VAL_PTR=&cnavOmega
   gint64 cnavOmega;
   int curr_offset = offset;
 %(DEFAULT_BODY)s
@@ -721,10 +715,7 @@ NavModelCNAV-KeplerianSet/cnavE TYPE=FT_UINT64
                                                          cnavOmega, "%e semi-circles (%"G_GINT64_MODIFIER"d)",
                                                          (double)cnavOmega*pow(2, -32), cnavOmega);
 
-#.TYPE_ATTR
-NavModelCNAV-KeplerianSet/cnavOmega TYPE=FT_INT64
-
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavOMEGA0 VAL_PTR=&cnavOMEGA0 FN_VARIANT=_64b
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavOMEGA0 VAL_PTR=&cnavOMEGA0
   gint64 cnavOMEGA0;
   int curr_offset = offset;
 %(DEFAULT_BODY)s
@@ -736,12 +727,9 @@ NavModelCNAV-KeplerianSet/cnavOmega TYPE=FT_INT64
                                                          (double)cnavOMEGA0*pow(2, -32), cnavOMEGA0);
 
 #.TYPE_ATTR
-NavModelCNAV-KeplerianSet/cnavOMEGA0 TYPE=FT_INT64
-
-#.TYPE_ATTR
 NavModelCNAV-KeplerianSet/cnavDeltaOmegaDot DISPLAY=BASE_CUSTOM STRINGS=&lpp_cnavDeltaOmegaDot_IoDot_fmt
 
-#.FN_BODY NavModelCNAV-KeplerianSet/cnavIo VAL_PTR=&cnavIo FN_VARIANT=_64b
+#.FN_BODY NavModelCNAV-KeplerianSet/cnavIo VAL_PTR=&cnavIo
   gint64 cnavIo;
   int curr_offset = offset;
 %(DEFAULT_BODY)s
@@ -751,9 +739,6 @@ NavModelCNAV-KeplerianSet/cnavDeltaOmegaDot DISPLAY=BASE_CUSTOM STRINGS=&lpp_cna
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavIo, "%e semi-circles (%"G_GINT64_MODIFIER"d)",
                                                          (double)cnavIo*pow(2, -32), cnavIo);
-
-#.TYPE_ATTR
-NavModelCNAV-KeplerianSet/cnavIo TYPE=FT_INT64
 
 #.TYPE_ATTR
 NavModelCNAV-KeplerianSet/cnavIoDot DISPLAY=BASE_CUSTOM STRINGS=&lpp_cnavDeltaOmegaDot_IoDot_fmt

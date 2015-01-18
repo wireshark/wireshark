@@ -182,9 +182,6 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
 # END
 
-# Handle 64 bit constraint
-#.FN_PARS BitRate FN_VARIANT = _64b
-
 #.FN_HDR PrivateIE-ID
 obj_id = NULL;
 
@@ -1225,10 +1222,5 @@ PWSRestartIndication					N s1ap.proc.imsg id-PWSRestartIndication
   guint32 value;
 %(DEFAULT_BODY)s
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Misc-cause=%%s]", val_to_str_const(value, s1ap_CauseMisc_vals, "Unknown"));
-     
 
-#.TYPE_ATTR
-BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL
 #.END
-
-

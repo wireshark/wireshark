@@ -298,7 +298,7 @@ dissect_novell_pkis_BIT_STRING_SIZE_64(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_novell_pkis_INTEGER_0_9223372036854775807(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -677,7 +677,7 @@ void proto_register_novell_pkis (void)
         NULL, HFILL }},
     { &hf_novell_pkis_uniqueSingleton,
       { "uniqueSingleton", "novell_pkis.uniqueSingleton",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_0_9223372036854775807", HFILL }},
     { &hf_novell_pkis_singletonRange,
       { "singletonRange", "novell_pkis.singletonRange_element",
@@ -685,11 +685,11 @@ void proto_register_novell_pkis (void)
         NULL, HFILL }},
     { &hf_novell_pkis_singletonLowerBound,
       { "singletonLowerBound", "novell_pkis.singletonLowerBound",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_0_9223372036854775807", HFILL }},
     { &hf_novell_pkis_singletonUpperBound,
       { "singletonUpperBound", "novell_pkis.singletonUpperBound",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "INTEGER_0_9223372036854775807", HFILL }},
     { &hf_novell_pkis_singletonValue,
       { "singletonValue", "novell_pkis.singletonValue",
