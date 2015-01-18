@@ -71,30 +71,6 @@ gchar* ep_strdup_printf(const gchar* fmt, ...)
 /** release all memory allocated in the previous packet dissection */
 void ep_free_all(void);
 
-/* Functions for handling memory allocation and garbage collection with
- * a capture lifetime scope.
- * These functions are used to allocate memory that will only remain persistent
- * until Wireshark opens a new capture or capture file.
- * Everytime Wireshark starts a new capture or opens a new capture file
- * all the data allocated through these functions will be released back
- * to the free pool.
- *
- * These functions are very fast and offer automatic garbage collection.
- */
-
-/** Allocate memory with a capture lifetime scope */
-WS_DLL_PUBLIC
-void *se_alloc(size_t size) G_GNUC_MALLOC;
-#define se_new(type) ((type*)se_alloc(sizeof(type)))
-
-/** Allocate memory with a capture lifetime scope and fill it with zeros*/
-WS_DLL_PUBLIC
-void* se_alloc0(size_t size) G_GNUC_MALLOC;
-#define se_new0(type) ((type*)se_alloc0(sizeof(type)))
-
-/** release all memory allocated */
-void se_free_all(void);
-
 /**************************************************************
  * slab allocator
  **************************************************************/

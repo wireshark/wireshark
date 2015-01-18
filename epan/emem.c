@@ -147,7 +147,7 @@ typedef struct _emem_pool_t {
 	 */
 	gboolean debug_use_canary;
 
-	/*  Do we want to verify no one is using a pointer to an ep_ or se_
+	/*  Do we want to verify no one is using a pointer to an ep_
 	 *  allocated thing where they shouldn't be?
 	 *
 	 * Export WIRESHARK_EP_VERIFY_POINTERS or WIRESHARK_SE_VERIFY_POINTERS
@@ -158,7 +158,6 @@ typedef struct _emem_pool_t {
 } emem_pool_t;
 
 static emem_pool_t ep_packet_mem;
-static emem_pool_t se_packet_mem;
 
 /*
  *  Memory scrubbing is expensive but can be useful to ensure we don't:
@@ -338,33 +337,6 @@ ep_init_chunk(void)
 	memory_usage_component_register(&ep_stats);
 }
 
-static gsize
-se_memory_usage(void)
-{
-	return emem_memory_usage(&se_packet_mem);
-}
-
-/* Initialize the capture-lifetime memory allocation pool.
- * This function should be called only once when Wireshark or TShark starts
- * up.
- */
-static void
-se_init_chunk(void)
-{
-	static const ws_mem_usage_t se_stats = { "SE", se_memory_usage, NULL };
-
-	se_packet_mem.free_list = NULL;
-	se_packet_mem.used_list = NULL;
-
-	se_packet_mem.debug_use_chunks = (getenv("WIRESHARK_DEBUG_SE_NO_CHUNKS") == NULL);
-	se_packet_mem.debug_use_canary = se_packet_mem.debug_use_chunks && (getenv("WIRESHARK_DEBUG_SE_USE_CANARY") != NULL);
-	se_packet_mem.debug_verify_pointers = (getenv("WIRESHARK_SE_VERIFY_POINTERS") != NULL);
-
-	emem_init_chunk(&se_packet_mem);
-
-	memory_usage_component_register(&se_stats);
-}
-
 /*  Initialize all the allocators here.
  *  This function should be called only once when Wireshark or TShark starts
  *  up.
@@ -373,7 +345,6 @@ void
 emem_init(void)
 {
 	ep_init_chunk();
-	se_init_chunk();
 
 	if (getenv("WIRESHARK_DEBUG_SCRUB_MEMORY"))
 		debug_use_memory_scrubber  = TRUE;
@@ -428,173 +399,6 @@ emem_init(void)
 #endif
 #endif /* _WIN32 / USE_GUARD_PAGES */
 }
-
-#ifdef SHOW_EMEM_STATS
-#define NUM_ALLOC_DIST 10
-static guint allocations[NUM_ALLOC_DIST] = { 0 };
-static guint total_no_chunks = 0;
-
-static void
-print_alloc_stats(void)
-{
-	guint num_chunks = 0;
-	guint num_allocs = 0;
-	guint total_used = 0;
-	guint total_allocation = 0;
-	guint used_for_canaries = 0;
-	guint total_headers;
-	guint i;
-	emem_chunk_t *chunk;
-	guint total_space_allocated_from_os, total_space_wasted;
-	gboolean ep_stat=TRUE;
-
-	fprintf(stderr, "\n-------- EP allocator statistics --------\n");
-	fprintf(stderr, "%s chunks, %s canaries, %s memory scrubber\n",
-	       ep_packet_mem.debug_use_chunks ? "Using" : "Not using",
-	       ep_packet_mem.debug_use_canary ? "using" : "not using",
-	       debug_use_memory_scrubber ? "using" : "not using");
-
-	if (! (ep_packet_mem.free_list || !ep_packet_mem.used_list)) {
-		fprintf(stderr, "No memory allocated\n");
-		ep_stat = FALSE;
-	}
-	if (ep_packet_mem.debug_use_chunks && ep_stat) {
-		/* Nothing interesting without chunks */
-		/*  Only look at the used_list since those chunks are fully
-		 *  used.  Looking at the free list would skew our view of what
-		 *  we have wasted.
-		 */
-		for (chunk = ep_packet_mem.used_list; chunk; chunk = chunk->next) {
-			num_chunks++;
-			total_used += (chunk->amount_free_init - chunk->amount_free);
-			total_allocation += chunk->amount_free_init;
-		}
-		if (num_chunks > 0) {
-			fprintf (stderr, "\n");
-			fprintf (stderr, "\n---- Buffer space ----\n");
-			fprintf (stderr, "\tChunk allocation size: %10u\n", EMEM_PACKET_CHUNK_SIZE);
-			fprintf (stderr, "\t*    Number of chunks: %10u\n", num_chunks);
-			fprintf (stderr, "\t-------------------------------------------\n");
-			fprintf (stderr, "\t= %u (%u including guard pages) total space used for buffers\n",
-			total_allocation, EMEM_PACKET_CHUNK_SIZE * num_chunks);
-			fprintf (stderr, "\t-------------------------------------------\n");
-			total_space_allocated_from_os = total_allocation
-				+ sizeof(emem_chunk_t) * num_chunks;
-			fprintf (stderr, "Total allocated from OS: %u\n\n",
-				total_space_allocated_from_os);
-		}else{
-			fprintf (stderr, "No fully used chunks, nothing to do\n");
-		}
-		/* Reset stats */
-		num_chunks = 0;
-		num_allocs = 0;
-		total_used = 0;
-		total_allocation = 0;
-		used_for_canaries = 0;
-	}
-
-
-	fprintf(stderr, "\n-------- SE allocator statistics --------\n");
-	fprintf(stderr, "Total number of chunk allocations %u\n",
-		total_no_chunks);
-	fprintf(stderr, "%s chunks, %s canaries\n",
-	       se_packet_mem.debug_use_chunks ? "Using" : "Not using",
-	       se_packet_mem.debug_use_canary ? "using" : "not using");
-
-	if (! (se_packet_mem.free_list || !se_packet_mem.used_list)) {
-		fprintf(stderr, "No memory allocated\n");
-		return;
-	}
-
-	if (!se_packet_mem.debug_use_chunks )
-		return; /* Nothing interesting without chunks?? */
-
-	/*  Only look at the used_list since those chunks are fully used.
-	 *  Looking at the free list would skew our view of what we have wasted.
-	 */
-	for (chunk = se_packet_mem.used_list; chunk; chunk = chunk->next) {
-		num_chunks++;
-		total_used += (chunk->amount_free_init - chunk->amount_free);
-		total_allocation += chunk->amount_free_init;
-
-		if (se_packet_mem.debug_use_canary){
-			void *ptr = chunk->canary_last;
-			int len;
-
-			while (ptr != NULL) {
-				ptr = emem_canary_next(se_packet_mem.canary, (guint8*)ptr, &len);
-
-				if (ptr == (void *) -1)
-					g_error("Memory corrupted");
-				used_for_canaries += len;
-			}
-		}
-	}
-
-	if (num_chunks == 0) {
-
-		fprintf (stderr, "No fully used chunks, nothing to do\n");
-		return;
-	}
-
-	fprintf (stderr, "\n");
-	fprintf (stderr, "---------- Allocations from the OS ----------\n");
-	fprintf (stderr, "---- Headers ----\n");
-	fprintf (stderr, "\t(    Chunk header size: %10lu\n",
-		 sizeof(emem_chunk_t));
-	fprintf (stderr, "\t*     Number of chunks: %10u\n", num_chunks);
-	fprintf (stderr, "\t-------------------------------------------\n");
-
-	total_headers = sizeof(emem_chunk_t) * num_chunks;
-	fprintf (stderr, "\t= %u bytes used for headers\n", total_headers);
-	fprintf (stderr, "\n---- Buffer space ----\n");
-	fprintf (stderr, "\tChunk allocation size: %10u\n",
-		 EMEM_PACKET_CHUNK_SIZE);
-	fprintf (stderr, "\t*    Number of chunks: %10u\n", num_chunks);
-	fprintf (stderr, "\t-------------------------------------------\n");
-	fprintf (stderr, "\t= %u (%u including guard pages) bytes used for buffers\n",
-		total_allocation, EMEM_PACKET_CHUNK_SIZE * num_chunks);
-	fprintf (stderr, "\t-------------------------------------------\n");
-	total_space_allocated_from_os = (EMEM_PACKET_CHUNK_SIZE * num_chunks)
-					+ total_headers;
-	fprintf (stderr, "Total bytes allocated from the OS: %u\n\n",
-		total_space_allocated_from_os);
-
-	for (i = 0; i < NUM_ALLOC_DIST; i++)
-		num_allocs += allocations[i];
-
-	fprintf (stderr, "---------- Allocations from the SE pool ----------\n");
-	fprintf (stderr, "                Number of SE allocations: %10u\n",
-		 num_allocs);
-	fprintf (stderr, "             Bytes used (incl. canaries): %10u\n",
-		 total_used);
-	fprintf (stderr, "                 Bytes used for canaries: %10u\n",
-		 used_for_canaries);
-	fprintf (stderr, "Bytes unused (wasted, excl. guard pages): %10u\n",
-		 total_allocation - total_used);
-	fprintf (stderr, "Bytes unused (wasted, incl. guard pages): %10u\n\n",
-		 total_space_allocated_from_os - total_used);
-
-	fprintf (stderr, "---------- Statistics ----------\n");
-	fprintf (stderr, "Average SE allocation size (incl. canaries): %6.2f\n",
-		(float)total_used/(float)num_allocs);
-	fprintf (stderr, "Average SE allocation size (excl. canaries): %6.2f\n",
-		(float)(total_used - used_for_canaries)/(float)num_allocs);
-	fprintf (stderr, "        Average wasted bytes per allocation: %6.2f\n",
-		(total_allocation - total_used)/(float)num_allocs);
-	total_space_wasted = (total_allocation - total_used)
-		+ (sizeof(emem_chunk_t));
-	fprintf (stderr, " Space used for headers + unused allocation: %8u\n",
-		total_space_wasted);
-	fprintf (stderr, "--> %% overhead/waste: %4.2f\n",
-		100 * (float)total_space_wasted/(float)total_space_allocated_from_os);
-
-	fprintf (stderr, "\nAllocation distribution (sizes include canaries):\n");
-	for (i = 0; i < (NUM_ALLOC_DIST-1); i++)
-		fprintf (stderr, "size < %5d: %8u\n", 32<<i, allocations[i]);
-	fprintf (stderr, "size > %5d: %8u\n", 32<<i, allocations[i]);
-}
-#endif
 
 static gboolean
 emem_verify_pointer_list(const emem_chunk_t *chunk_list, const void *ptr)
@@ -711,10 +515,6 @@ emem_create_chunk(size_t size)
 	/* g_malloc() can't fail */
 #endif
 
-#ifdef SHOW_EMEM_STATS
-	total_no_chunks++;
-#endif
-
 	npc->amount_free = npc->amount_free_init = (unsigned int) size;
 	npc->free_offset = npc->free_offset_init = 0;
 	return npc;
@@ -796,34 +596,6 @@ emem_alloc_chunk(size_t size, emem_pool_t *mem)
 
 	asize += pad;
 
-#ifdef SHOW_EMEM_STATS
-	/* Do this check here so we can include the canary size */
-	if (mem == &se_packet_mem) {
-		if (asize < 32)
-			allocations[0]++;
-		else if (asize < 64)
-			allocations[1]++;
-		else if (asize < 128)
-			allocations[2]++;
-		else if (asize < 256)
-			allocations[3]++;
-		else if (asize < 512)
-			allocations[4]++;
-		else if (asize < 1024)
-			allocations[5]++;
-		else if (asize < 2048)
-			allocations[6]++;
-		else if (asize < 4096)
-			allocations[7]++;
-		else if (asize < 8192)
-			allocations[8]++;
-		else if (asize < 16384)
-			allocations[8]++;
-		else
-			allocations[(NUM_ALLOC_DIST-1)]++;
-	}
-#endif
-
 	/* make sure we don't try to allocate too much (arbitrary limit) */
 	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
 
@@ -896,9 +668,6 @@ emem_alloc(size_t size, emem_pool_t *mem)
 	if (mem == &ep_packet_mem) {
 		return wmem_alloc(wmem_packet_scope(), size);
 	}
-	else if (mem == &se_packet_mem) {
-		return wmem_alloc(wmem_file_scope(), size);
-	}
 #endif
 
 	buf = mem->memory_alloc(size, mem);
@@ -918,27 +687,6 @@ void *
 ep_alloc(size_t size)
 {
 	return emem_alloc(size, &ep_packet_mem);
-}
-
-/* allocate 'size' amount of memory with an allocation lifetime until the
- * next capture.
- */
-void *
-se_alloc(size_t size)
-{
-	return emem_alloc(size, &se_packet_mem);
-}
-
-void *
-ep_alloc0(size_t size)
-{
-	return memset(ep_alloc(size),'\0',size);
-}
-
-void *
-se_alloc0(size_t size)
-{
-	return memset(se_alloc(size),'\0',size);
 }
 
 static gchar *
@@ -1060,17 +808,6 @@ void
 ep_free_all(void)
 {
 	emem_free_all(&ep_packet_mem);
-}
-
-/* release all allocated memory back to the pool. */
-void
-se_free_all(void)
-{
-#ifdef SHOW_EMEM_STATS
-	print_alloc_stats();
-#endif
-
-	emem_free_all(&se_packet_mem);
 }
 
 /*

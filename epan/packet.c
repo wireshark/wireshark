@@ -229,9 +229,6 @@ call_init_routine(gpointer routine, gpointer dummy _U_)
 void
 init_dissection(void)
 {
-	/* Reclaim and reinitialize all memory of seasonal scope */
-	se_free_all();
-
 	wmem_enter_file_scope();
 
 	/*
@@ -263,9 +260,6 @@ cleanup_dissection(void)
 	 * memory (at least until conversation's use of g_slist is changed).
 	 */
 	epan_conversation_cleanup();
-
-	/* Reclaim all memory of seasonal scope */
-	se_free_all();
 
 	/* Cleanup the table of circuits. */
 	epan_circuit_cleanup();

@@ -81,7 +81,7 @@ my %APIs = (
                 # The MSDN page for ZeroMemory recommends SecureZeroMemory
                 # instead.
                 'ZeroMemory',
-                # use ep_*, se_*, or g_* functions instead of these:
+                # use wmem_*, ep_*, or g_* functions instead of these:
                 # (One thing to be aware of is that space allocated with malloc()
                 # may not be freeable--at least on Windows--with g_free() and
                 # vice-versa.)
@@ -162,23 +162,6 @@ my %APIs = (
                 'ep_stack_push',
                 'ep_stack_pop',
                 'ep_stack_peek',
-                'se_alloc',
-                'se_new',
-                'se_alloc0',
-                'se_new0',
-                'se_strdup',
-                'se_strndup',
-                'se_memdup',
-                'se_strdup_vprintf',
-                'se_strdup_printf',
-                'se_alloc_array',
-                'se_tree_create',
-                'se_tree_insert32',
-                'se_tree_lookup32',
-                'se_tree_lookup32_le',
-                'se_tree_insert32_array',
-                'se_tree_lookup32_array',
-                'se_tree_lookup32_array_le',
                 'emem_tree_insert32',
                 'emem_tree_lookup32',
                 'emem_tree_lookup32_le',
