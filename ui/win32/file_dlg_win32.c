@@ -1306,7 +1306,7 @@ filter_tb_syntax_check(HWND hwnd, TCHAR *filter_text) {
         /* Default window background */
         SendMessage(hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, COLOR_WINDOW);
         return;
-    } else if (dfilter_compile(utf_16to8(strval), &dfp)) { /* colorize filter string entry */
+    } else if (dfilter_compile(utf_16to8(strval), &dfp, NULL)) { /* colorize filter string entry */
         if (dfp != NULL)
             dfilter_free(dfp);
         /* Valid (light green) */
