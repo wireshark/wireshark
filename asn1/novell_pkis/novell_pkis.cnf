@@ -17,4 +17,19 @@ RelianceLimits     B "2.16.840.1.113719.1.9.4.2" "pa-rl"
 
 #.FIELD_RENAME
 
+#.FN_PARS SingletonChoice/uniqueSingleton FN_VARIANT = 64
+
+#.TYPE_ATTR
+SingletonChoice/uniqueSingleton TYPE = FT_UINT64
+
+#.FN_PARS SingletonRange/singletonLowerBound FN_VARIANT = 64
+
+#.TYPE_ATTR
+SingletonRange/singletonLowerBound TYPE = FT_UINT64
+
+#.FN_PARS SingletonRange/singletonUpperBound FN_VARIANT = 64
+
+#.TYPE_ATTR
+SingletonRange/singletonUpperBound TYPE = FT_UINT64
+
 #.END

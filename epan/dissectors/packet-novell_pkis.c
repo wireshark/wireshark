@@ -81,10 +81,10 @@ static int hf_novell_pkis_integrityCategories1 = -1;  /* BIT_STRING_SIZE_64 */
 static int hf_novell_pkis_secrecySingletons1 = -1;  /* Singletons */
 static int hf_novell_pkis_integritySingletons1 = -1;  /* Singletons */
 static int hf_novell_pkis_Singletons_item = -1;   /* SingletonChoice */
-static int hf_novell_pkis_uniqueSingleton = -1;   /* INTEGER_0_9223372036854775807 */
+static int hf_novell_pkis_uniqueSingleton = -1;   /* T_uniqueSingleton */
 static int hf_novell_pkis_singletonRange = -1;    /* SingletonRange */
-static int hf_novell_pkis_singletonLowerBound = -1;  /* INTEGER_0_9223372036854775807 */
-static int hf_novell_pkis_singletonUpperBound = -1;  /* INTEGER_0_9223372036854775807 */
+static int hf_novell_pkis_singletonLowerBound = -1;  /* T_singletonLowerBound */
+static int hf_novell_pkis_singletonUpperBound = -1;  /* T_singletonUpperBound */
 static int hf_novell_pkis_singletonValue = -1;    /* BOOLEAN */
 static int hf_novell_pkis_perTransactionLimit = -1;  /* MonetaryValue */
 static int hf_novell_pkis_perCertificateLimit = -1;  /* MonetaryValue */
@@ -301,8 +301,28 @@ dissect_novell_pkis_BIT_STRING_SIZE_64(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static int
-dissect_novell_pkis_INTEGER_0_9223372036854775807(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+dissect_novell_pkis_T_uniqueSingleton(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_novell_pkis_T_singletonLowerBound(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_novell_pkis_T_singletonUpperBound(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
   return offset;
@@ -310,8 +330,8 @@ dissect_novell_pkis_INTEGER_0_9223372036854775807(gboolean implicit_tag _U_, tvb
 
 
 static const ber_sequence_t SingletonRange_sequence[] = {
-  { &hf_novell_pkis_singletonLowerBound, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_novell_pkis_INTEGER_0_9223372036854775807 },
-  { &hf_novell_pkis_singletonUpperBound, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_novell_pkis_INTEGER_0_9223372036854775807 },
+  { &hf_novell_pkis_singletonLowerBound, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_novell_pkis_T_singletonLowerBound },
+  { &hf_novell_pkis_singletonUpperBound, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_novell_pkis_T_singletonUpperBound },
   { &hf_novell_pkis_singletonValue, BER_CLASS_UNI, BER_UNI_TAG_BOOLEAN, BER_FLAGS_NOOWNTAG, dissect_novell_pkis_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
 };
@@ -332,7 +352,7 @@ static const value_string novell_pkis_SingletonChoice_vals[] = {
 };
 
 static const ber_choice_t SingletonChoice_choice[] = {
-  {   0, &hf_novell_pkis_uniqueSingleton, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_novell_pkis_INTEGER_0_9223372036854775807 },
+  {   0, &hf_novell_pkis_uniqueSingleton, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_novell_pkis_T_uniqueSingleton },
   {   1, &hf_novell_pkis_singletonRange, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_novell_pkis_SingletonRange },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -677,20 +697,20 @@ void proto_register_novell_pkis (void)
         NULL, HFILL }},
     { &hf_novell_pkis_uniqueSingleton,
       { "uniqueSingleton", "novell_pkis.uniqueSingleton",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_9223372036854775807", HFILL }},
+        FT_UINT64, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_novell_pkis_singletonRange,
       { "singletonRange", "novell_pkis.singletonRange_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_novell_pkis_singletonLowerBound,
       { "singletonLowerBound", "novell_pkis.singletonLowerBound",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_9223372036854775807", HFILL }},
+        FT_UINT64, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_novell_pkis_singletonUpperBound,
       { "singletonUpperBound", "novell_pkis.singletonUpperBound",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_9223372036854775807", HFILL }},
+        FT_UINT64, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_novell_pkis_singletonValue,
       { "singletonValue", "novell_pkis.singletonValue",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
