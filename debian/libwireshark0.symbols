@@ -229,7 +229,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dfilter_compile@Base 1.9.1
  dfilter_deprecated_tokens@Base 1.9.1
  dfilter_dump@Base 1.9.1
- dfilter_error_msg@Base 1.9.1
  dfilter_free@Base 1.9.1
  dfilter_macro_build_ftv_cache@Base 1.9.1
  dfilter_macro_foreach@Base 1.9.1
@@ -1311,8 +1310,20 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_get_bits@Base 1.9.1
  tvb_get_const_stringz@Base 1.9.1
  tvb_get_ds_tvb@Base 1.9.1
+ tvb_get_gint40@Base 1.99.2
+ tvb_get_gint48@Base 1.99.2
+ tvb_get_gint56@Base 1.99.2
  tvb_get_guid@Base 1.9.1
+ tvb_get_guint16@Base 1.99.2
+ tvb_get_guint24@Base 1.99.2
+ tvb_get_guint32@Base 1.99.2
+ tvb_get_guint40@Base 1.99.2
+ tvb_get_guint48@Base 1.99.2
+ tvb_get_guint56@Base 1.99.2
+ tvb_get_guint64@Base 1.99.2
  tvb_get_guint8@Base 1.9.1
+ tvb_get_ieee_double@Base 1.99.2
+ tvb_get_ieee_float@Base 1.99.2
  tvb_get_ipv4@Base 1.9.1
  tvb_get_ipv6@Base 1.9.1
  tvb_get_letoh24@Base 1.9.1
