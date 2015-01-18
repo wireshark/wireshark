@@ -513,7 +513,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 void
 proto_cleanup(void)
 {
-	/* Free the abbrev/ID GTree */
+	/* Free the abbrev/ID hash table */
 	if (gpa_name_map) {
 		g_hash_table_destroy(gpa_name_map);
 		gpa_name_map = NULL;
@@ -5831,12 +5831,13 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 		 * to same_name_hfinfo by value destroy callback */
 		if (same_name_hfinfo) {
 			/* There's already a field with this name.
-			 * Put it after that field in the list of
-			 * fields with this name, then allow the code
-			 * after this if{} block to replace the old
-			 * hfinfo with the new hfinfo in the GTree. Thus,
-			 * we end up with a linked-list of same-named hfinfo's,
-			 * with the root of the list being the hfinfo in the GTree */
+			 * Put the current field *before* that field
+			 * in the list of fields with this name, Thus,
+			 * we end up with an effectively
+			 * doubly-linked-list of same-named hfinfo's,
+			 * with the head of the list (stored in the
+			 * hash) being the last seen hfinfo.
+			 */
 			same_name_next_hfinfo =
 				same_name_hfinfo->same_name_next;
 
