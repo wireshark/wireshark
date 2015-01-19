@@ -65,6 +65,7 @@
 #include "hcidump.h"
 #include "logcat.h"
 #include "logcat_text.h"
+#include "json.h"
 #include "network_instruments.h"
 #include "k12.h"
 #include "ber.h"
@@ -156,6 +157,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "MPEG2 transport stream", "mp2t;ts;mpg" },
 	{ "Ixia IxVeriWave .vwr Raw 802.11 Capture", "vwr" },
 	{ "CAM Inspector file", "camins" },
+	{ "JavaScript Object Notation file", "json" }
 };
 
 #define	N_FILE_TYPE_EXTENSIONS	(sizeof file_type_extensions_base / sizeof file_type_extensions_base[0])
@@ -395,6 +397,7 @@ static struct open_info open_info_base[] = {
 	/* Extremely weak heuristics - put them at the end. */
 	{ "Ixia IxVeriWave .vwr Raw Capture",       OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL, NULL },
 	{ "CAM Inspector file",                     OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL, NULL },
+	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL }
 };
 
 /* this is only used to build the dynamic array on load, do NOT use this
@@ -1487,6 +1490,11 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	{ "Android Logcat Binary format", "logcat", "logcat", NULL,
 	  FALSE, FALSE, 0,
 	  logcat_dump_can_write_encap, logcat_binary_dump_open, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_JSON */
+	{ "JavaScript Object Notation", "json", "json", "NULL",
+	  FALSE, FALSE, 0,
+	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_LOGCAT_BRIEF */
 	{ "Android Logcat Brief text format", "logcat-brief", NULL, NULL,

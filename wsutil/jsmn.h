@@ -25,6 +25,9 @@
 
 #include <stddef.h>
 
+#include <glib.h>
+#include <ws_symbol_export.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,19 +40,19 @@ extern "C" {
  *  o Other primitive: number, boolean (true/false) or null
  */
 typedef enum {
-    JSMN_PRIMITIVE = 0,
-    JSMN_OBJECT = 1,
-    JSMN_ARRAY = 2,
-    JSMN_STRING = 3
+	JSMN_PRIMITIVE = 0,
+	JSMN_OBJECT = 1,
+	JSMN_ARRAY = 2,
+	JSMN_STRING = 3
 } jsmntype_t;
 
 typedef enum {
-    /* Not enough tokens were provided */
-    JSMN_ERROR_NOMEM = -1,
-    /* Invalid character inside JSON string */
-    JSMN_ERROR_INVAL = -2,
-    /* The string is not a full JSON packet, more bytes expected */
-    JSMN_ERROR_PART = -3
+	/* Not enough tokens were provided */
+	JSMN_ERROR_NOMEM = -1,
+	/* Invalid character inside JSON string */
+	JSMN_ERROR_INVAL = -2,
+	/* The string is not a full JSON packet, more bytes expected */
+	JSMN_ERROR_PART = -3
 } jsmnerr_t;
 
 /**
@@ -60,12 +63,12 @@ typedef enum {
  * size  the size of the token
  */
 typedef struct {
-    jsmntype_t type;
-    int start;
-    int end;
-    int size;
+	jsmntype_t type;
+	int start;
+	int end;
+	int size;
 #ifdef JSMN_PARENT_LINKS
-    int parent;
+	int parent;
 #endif
 } jsmntok_t;
 
@@ -74,22 +77,27 @@ typedef struct {
  * the string being parsed now and current position in that string
  */
 typedef struct {
-    unsigned int pos;           /* offset in the JSON string */
-    unsigned int toknext;       /* next token to allocate */
-    int          toksuper;      /* superior token node, e.g parent object or array */
+	unsigned int pos;           /* offset in the JSON string */
+	unsigned int toknext;       /* next token to allocate */
+	int toksuper;      /* superior token node, e.g parent object or array */
 } jsmn_parser;
 
 /**
  * Create JSON parser over an array of tokens
  */
-void jsmn_init(jsmn_parser *parser);
+WS_DLL_PUBLIC void jsmn_init(jsmn_parser *parser);
 
 /**
  * Run JSON parser. It parses a JSON data string into and array of tokens, each describing
  * a single JSON object.
  */
 int jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
-               jsmntok_t *tokens, unsigned int num_tokens);
+		jsmntok_t *tokens, unsigned int num_tokens);
+
+/**
+ * Check if a buffer is json an returns true if it is.
+ */
+WS_DLL_PUBLIC gboolean jsmn_is_json(const guint8* buf, const size_t len);
 
 #ifdef __cplusplus
 }
@@ -102,10 +110,10 @@ int jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
+ * tab-width: 4
+ * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=9:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=4 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
  */

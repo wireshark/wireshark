@@ -46,6 +46,7 @@ set(CLEAN_FILES
 	ipfix.c
 	iptrace.c
 	iseries.c
+	json.c
 	k12.c
 	lanalyzer.c
 	libpcap.c

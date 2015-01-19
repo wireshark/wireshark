@@ -52,6 +52,7 @@ NONGENERATED_C_FILES = \
 	iptrace.c		\
 	iseries.c		\
 	mime_file.c		\
+	json.c          \
 	k12.c			\
 	lanalyzer.c		\
 	logcat_text.c		\

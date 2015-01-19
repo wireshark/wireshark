@@ -1517,11 +1517,6 @@ set(WMEM_FILES
 )
 source_group(wmem FILES ${WMEM_FILES})
 
-set(JSMN_FILES
-	jsmn/jsmn.c
-)
-source_group(jsmn FILES ${JSMN_FILES})
-
 set(NGHTTP2_FILES
 	nghttp2/nghttp2_buf.c
 	nghttp2/nghttp2_hd.c
@@ -1690,7 +1685,6 @@ set(CLEAN_FILES
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
 	${WMEM_FILES}
-	${JSMN_FILES}
 	${NGHTTP2_FILES}
 	${WSLUA_FILES}
 )
@@ -1713,7 +1707,6 @@ add_library(epan ${LINK_MODE_LIB}
 	${DFILTER_FILES}
 	${FTYPE_FILES}
 	${WMEM_FILES}
-	${JSMN_FILES}
 	${NGHTTP2_FILES}
 	${WSLUA_FILES}
 	${DISSECTOR_FILES}
@@ -1743,7 +1736,6 @@ file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)
 file(GLOB D_HEADERS dissectors/*.h)
 file(GLOB FTYPES_HEADERS ftypes/*.h)
 file(GLOB WMEM_HEADERS wmem/*.h)
-file(GLOB JSMN_HEADERS jsmn/*.h)
 file(GLOB NGHTTP2_HEADERS nghttp2/*.h)
 file(MAKE_DIRECTORY ${ABICHECK_TMPDIR}
 	${ABICHECK_TMPDIR}/epan
@@ -1753,7 +1745,6 @@ file(MAKE_DIRECTORY ${ABICHECK_TMPDIR}
 	${ABICHECK_TMPDIR}/dissectors
 	${ABICHECK_TMPDIR}/ftypes
 	${ABICHECK_TMPDIR}/wmem
-	${ABICHECK_TMPDIR}/jsmn
 	${ABICHECK_TMPDIR}/nghttp2)
 
 file(COPY ../color.h ../register.h DESTINATION ${ABICHECK_TMPDIR})
@@ -1764,7 +1755,6 @@ file(COPY ${DFILTER_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/dfilter)
 file(COPY ${D_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/dissectors)
 file(COPY ${FTYPES_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/ftypes)
 file(COPY ${WMEM_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/wmem)
-file(COPY ${JSMN_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/jsmn)
 file(COPY ${NGHTTP2_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/nghttp2)
 
 add_custom_command(OUTPUT libwireshark.abi.tar.gz
@@ -1781,10 +1771,10 @@ add_custom_command(OUTPUT libwireshark.abi.tar.gz
 		${ABICHECK_TMPDIR}/epan/* ${ABICHECK_TMPDIR}/compress/*
 		${ABICHECK_TMPDIR}/dfilter/* ${ABICHECK_TMPDIR}/dissectors/*
 		${ABICHECK_TMPDIR}/ftypes/* ${ABICHECK_TMPDIR}/wmem/*
-		${ABICHECK_TMPDIR}/jsmn/* ${ABICHECK_TMPDIR}/nghttp2/*
+		${ABICHECK_TMPDIR}/nghttp2/*
 	DEPENDS ${HEADERS}
 		${CRYPT_HEADERS} ${COMPRESS_HEADERS} ${DFILTER_HEADERS} ${D_HEADERS}
-		${FTYPES_HEADERS} ${WMEM_HEADERS} ${JSMN_HEADERS} ${NGHTTP2_HEADERS} epan)
+		${FTYPES_HEADERS} ${WMEM_HEADERS} ${NGHTTP2_HEADERS} epan)
 
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark

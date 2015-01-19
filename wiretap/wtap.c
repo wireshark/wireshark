@@ -740,6 +740,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_LOOP */
 	{ "OpenBSD loopback", "loop" },
+
+	/* WTAP_ENCAP_JSON */
+	{ "JavaScript Object Notation", "json" }
 };
 
 WS_DLL_LOCAL

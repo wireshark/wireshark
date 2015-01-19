@@ -53,6 +53,7 @@ set(WSUTIL_FILES
 	eax.c
 	filesystem.c
 	g711.c
+	jsmn.c
 	md4.c
 	md5.c
 	mpeg-audio.c

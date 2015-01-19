@@ -31,10 +31,12 @@
 
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
-#include <epan/jsmn/jsmn.h>
+#include <wsutil/jsmn.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/unicode-utils.h>
+
+#include <wiretap/wtap.h>
 
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
@@ -118,6 +120,20 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	const char *data_name;
 	int offset;
+
+	/* JSON dissector can be called in a JSON native file or when transported
+	 * by another protocol. We set the column values only if they've not been
+	 * already set by someone else.
+	 */
+	wmem_list_frame_t *proto = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+	if (proto) {
+		const char *name = proto_get_protocol_filter_name(GPOINTER_TO_INT(wmem_list_frame_data(proto)));
+
+		if (!strcmp(name, "frame")) {
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "JSON");
+			col_set_str(pinfo->cinfo, COL_INFO, "JavaScript Object Notation");
+		}
+	}
 
 	data_name = pinfo->match_string;
 	if (! (data_name && data_name[0])) {
@@ -572,19 +588,12 @@ static void init_json_parser(void) {
 static gboolean
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	/* We expect no more than 1024 tokens */
-	const guint max_tokens = 1024;
 	guint len = tvb_captured_length(tvb);
-	guint8* buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, len, ENC_ASCII);
+	const guint8* buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, len, ENC_ASCII);
 
-	jsmn_parser p;
-
-	jsmntok_t* t = (jsmntok_t*)wmem_alloc_array(wmem_packet_scope(), jsmntok_t, max_tokens);
-
-	jsmn_init(&p);
-	if (jsmn_parse(&p, buf, len, t, max_tokens) < 0) {
+	if (jsmn_is_json(buf, len) == FALSE)
 		return FALSE;
-	}
+
 	return (dissect_json(tvb, pinfo, tree, data) != 0);
 }
 
@@ -628,6 +637,7 @@ proto_reg_handoff_json(void)
 {
 	heur_dissector_add("hpfeeds", dissect_json_heur, proto_json);
 	heur_dissector_add("db-lsp", dissect_json_heur, proto_json);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_JSON, json_handle);
 
 	dissector_add_string("media_type", "application/json", json_handle); /* RFC 4627 */
 	dissector_add_string("media_type", "application/json-rpc", json_handle); /* JSON-RPC over HTTP */

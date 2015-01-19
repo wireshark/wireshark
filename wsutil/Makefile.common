@@ -50,6 +50,7 @@ LIBWSUTIL_SRC = 	\
 	eax.c		\
 	filesystem.c	\
 	g711.c		\
+	jsmn.c		\
 	md4.c		\
 	md5.c		\
 	mpeg-audio.c	\
@@ -98,6 +99,7 @@ libwsutil_nonrepl_INCLUDES = \
 	eax.h		\
 	filesystem.h	\
 	g711.h		\
+	jsmn.h		\
 	md4.h		\
 	md5.h		\
 	mpeg-audio.h	\
