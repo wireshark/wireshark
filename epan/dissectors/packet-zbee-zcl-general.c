@@ -1944,8 +1944,10 @@ decode_zcl_ota_curr_time(gchar *s, guint32 value)
 {
      if (value == ZBEE_ZCL_OTA_TIME_NOW)
          g_snprintf(s, ITEM_LABEL_LENGTH, "Now");
-     else
+     else {
+        value += ZBEE_ZCL_NSTIME_UTC_OFFSET;
         g_snprintf(s, ITEM_LABEL_LENGTH, "%s", abs_time_secs_to_ep_str(value, ABSOLUTE_TIME_LOCAL, 1));
+     }
 
     return;
 } /*decode_zcl_ota_curr_time*/
