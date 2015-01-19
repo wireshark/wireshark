@@ -814,7 +814,7 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     }
 
     dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* dissect a descriptor that is specific to the HID class */
