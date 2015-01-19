@@ -812,8 +812,8 @@ wide the parent bitfield is.
 For FT_ABSOLUTE_TIME fields, 'display' is used to indicate whether the
 time is to be displayed as a time in the time zone for the machine on
 which Wireshark/TShark is running or as UTC and, for UTC, whether the
-date should be displayed as "{monthname}, {month} {day_of_month},
-{year}" or as "{year/day_of_year}".
+date should be displayed as "{monthname} {day_of_month}, {year}" or as
+"{year/day_of_year}".
 
 Additionally, BASE_NONE is used for 'display' as a NULL-value. That is, for
 non-integers other than FT_ABSOLUTE_TIME fields, and non-bitfield
@@ -1447,6 +1447,7 @@ encodings that are currently supported are:
 
     ENC_TIME_TIMESPEC - seconds (4 bytes) and nanoseconds (4 bytes)
         of time since January 1, 1970, midnight UTC.
+        (If the field length is 4, then nanosecs is defaulted to 0).
 
     ENC_TIME_NTP - an NTP timestamp, represented as a 64-bit
         unsigned fixed-point number, in seconds relative to 0h
