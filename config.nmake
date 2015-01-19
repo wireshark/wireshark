@@ -870,6 +870,8 @@ TEXTIFY=$(POWERSHELL) $(TOOLS_DIR)/textify.ps1
 MAKENSIS="$(PROGRAM_FILES)\NSIS\makensis.exe"
 !ELSE IF EXIST("$(PROGRAM_FILES_W6432)\NSIS\makensis.exe")
 MAKENSIS="$(PROGRAM_FILES_W6432)\NSIS\makensis.exe"
+!ELSE IF EXIST("\Program Files (x86)\NSIS\makensis.exe")
+MAKENSIS="\Program Files (x86)\NSIS\makensis.exe"
 !ENDIF
 !ENDIF
 
