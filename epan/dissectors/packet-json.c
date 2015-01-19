@@ -572,15 +572,17 @@ static void init_json_parser(void) {
 static gboolean
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+	/* We expect no more than 1024 tokens */
+	const guint max_tokens = 1024;
 	guint len = tvb_captured_length(tvb);
 	guint8* buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, len, ENC_ASCII);
 
 	jsmn_parser p;
-	/* We expect no more than 1024 tokens */
-	jsmntok_t* t = (jsmntok_t*)wmem_alloc_array(wmem_packet_scope(), jsmntok_t, 1024);
+
+	jsmntok_t* t = (jsmntok_t*)wmem_alloc_array(wmem_packet_scope(), jsmntok_t, max_tokens);
 
 	jsmn_init(&p);
-	if (jsmn_parse(&p, buf, len, t, sizeof(t)/sizeof(t[0])) < 0) {
+	if (jsmn_parse(&p, buf, len, t, max_tokens) < 0) {
 		return FALSE;
 	}
 	return (dissect_json(tvb, pinfo, tree, data) != 0);
