@@ -47,8 +47,7 @@ libjsmn_la_SOURCES =	\
 
 EXTRA_DIST = \
 	Makefile.common	\
-	Makefile.nmake	\
-	LICENSE
+	Makefile.nmake
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
