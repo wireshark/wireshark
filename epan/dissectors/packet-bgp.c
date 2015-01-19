@@ -7971,7 +7971,7 @@ proto_register_bgp(void)
        { "Ethernet Tag ID", "bgp.evpn.nlri.etag", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
      { &hf_bgp_evpn_nlri_mpls_ls,
-        { "MPLS Label Stack", "bgp.evpn.nlri.mpls_ls", FT_BYTES,
+        { "MPLS Label Stack", "bgp.evpn.nlri.mpls_ls", FT_STRING,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
      { &hf_bgp_evpn_nlri_maclen,
        { "MAC Address Length", "bgp.evpn.nlri.maclen", FT_UINT8,
