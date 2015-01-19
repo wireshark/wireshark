@@ -3768,8 +3768,8 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_esi, tvb, start_offset+10,
                             10, ENC_NA);
 
-        ip_len = tvb_get_guint8(tvb, offset + 14) / 8;
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+14,
+        ip_len = tvb_get_guint8(tvb, offset + 20) / 8;
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+20,
                             1, ENC_NA);
 
         total_length = 21;
