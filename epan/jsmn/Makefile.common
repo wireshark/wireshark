@@ -22,7 +22,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 LIBJSMN_SRC = jsmn.c
-LIBNGHTTP2_INCLUDES = jsmn.h
+LIBJSMN_INCLUDES = jsmn.h
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
