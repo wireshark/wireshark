@@ -691,31 +691,6 @@ ep_alloc0(size_t size)
 }
 
 static gchar *
-emem_strdup(const gchar *src, void *allocator(size_t))
-{
-	guint len;
-	gchar *dst;
-
-	/* If str is NULL, just return the string "<NULL>" so that the callers don't
-	 * have to bother checking it.
-	 */
-	if(!src)
-		src = "<NULL>";
-
-	len = (guint) strlen(src);
-	dst = (gchar *)memcpy(allocator(len+1), src, len+1);
-
-	return dst;
-}
-
-gchar *
-ep_strdup(const gchar *src)
-{
-	return emem_strdup(src, ep_alloc);
-}
-
-
-static gchar *
 emem_strdup_vprintf(const gchar *fmt, va_list ap, void *allocator(size_t))
 {
 	va_list ap2;
