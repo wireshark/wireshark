@@ -144,16 +144,16 @@ typedef struct {
 
 /* holds information required to dissect a single PMU block in a data frame */
 typedef struct {
-	guint16		id;		     /* identifies source of block     */
-	char		name[CHNAM_LEN + 1]; /* holds STN		       */
-	data_format	format_fr;	     /* data format of FREQ and DFREQ  */
-	data_format	format_ph;	     /* data format of PHASORS	       */
-	data_format	format_an;	     /* data format of ANALOG	       */
-	phasor_notation_e phasor_notation;   /* format of the phasors	       */
-	guint		fnom;		     /* nominal line frequency	       */
-	guint		num_dg;		     /* number of digital status words */
-	wmem_array_t	       *phasors;	     /* array of phasor_infos	       */
-	wmem_array_t	       *analogs;	     /* array of analog_infos	       */
+	guint16		   id;			/* identifies source of block     */
+	char		   name[CHNAM_LEN + 1];	/* holds STN			  */
+	data_format	   format_fr;		/* data format of FREQ and DFREQ  */
+	data_format	   format_ph;		/* data format of PHASORS	  */
+	data_format	   format_an;		/* data format of ANALOG	  */
+	phasor_notation_e  phasor_notation;	/* format of the phasors	  */
+	guint		   fnom;		/* nominal line frequency	  */
+	guint		   num_dg;		/* number of digital status words */
+	wmem_array_t	  *phasors;		/* array of phasor_infos	  */
+	wmem_array_t	  *analogs;		/* array of analog_infos	  */
 } config_block;
 
 /* holds the id the configuration comes from an and
@@ -1321,7 +1321,7 @@ void proto_reg_handoff_synphasor(void)
 
 	if (!initialized) {
 		synphasor_tcp_handle = new_create_dissector_handle(dissect_tcp, proto_synphasor);
-
+		dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_SYNPHASOR, synphasor_udp_handle);
 		initialized = TRUE;
 	}
 	else {
@@ -1335,7 +1335,6 @@ void proto_reg_handoff_synphasor(void)
 
 	dissector_add_uint("udp.port", current_udp_port, synphasor_udp_handle);
 	dissector_add_uint("tcp.port", current_tcp_port, synphasor_tcp_handle);
-	dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_SYNPHASOR, synphasor_udp_handle);
 } /* proto_reg_handoff_synphasor() */
 
 /*
