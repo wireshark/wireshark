@@ -156,6 +156,7 @@ void proto_reg_handoff_dmp(void);
 #define DMP_TIME_RESERVED     -2
 
 #define ILLEGAL_FORMAT "<Illegal format>"
+#define TIME_NOT_REPRESENTABLE "<Time not representable>"
 
 /* Maximum lengths */
 #define MAX_SIC_LEN         30
@@ -1686,6 +1687,9 @@ static const gchar *dissect_thales_ipm_id (tvbuff_t *tvb, gint offset, gint leng
     guint8 number_len = modifier + 2;
     time_t timev = tvb_get_ntohl(tvb, offset + length - 4);
     struct tm *tmp = gmtime(&timev);
+
+    if (tmp == NULL)
+      return TIME_NOT_REPRESENTABLE;
 
     if (modifier == 1 && number >= 1024) {
       /* The number is in the range 65536-99999 */
