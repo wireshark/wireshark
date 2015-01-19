@@ -24,7 +24,7 @@
 
 /*
  * FLIP (Flow Layer Internal Protocol) is a proprietary protocol
- * developed by Nokia Siemens Networks.
+ * developed by Nokia Solutions and Networks (previous was 'Nokia Siemens Networks').
  */
 
 /*

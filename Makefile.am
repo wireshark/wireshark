@@ -89,7 +89,7 @@ dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/Vodafone.xml \
 	diameter/AlcatelLucent.xml \
 	diameter/Nokia.xml \
-	diameter/NokiaSiemensNetworks.xml \
+	diameter/NokiaSolutionsAndNetworks.xml \
 	diameter/SKT.xml \
 	diameter/HP.xml \
 	diameter/VerizonWireless.xml

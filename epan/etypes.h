@@ -483,7 +483,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_FLIP
-#define ETHERTYPE_FLIP			0x8901	/* Nokia Siemens Networks Flow Layer Internal Protocol */
+#define ETHERTYPE_FLIP			0x8901	/* Nokia Solutions and Networks Flow Layer Internal Protocol */
 #endif
 
 #ifndef ETHERTYPE_CFM

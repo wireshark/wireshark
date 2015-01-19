@@ -23,7 +23,7 @@
 	<!ENTITY Vodafone		SYSTEM "Vodafone.xml">
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
 	<!ENTITY Nokia			SYSTEM "Nokia.xml">
-	<!ENTITY NokiaSiemensNetworks	SYSTEM "NokiaSiemensNetworks.xml">
+	<!ENTITY NokiaSolutionsAndNetworks	SYSTEM "NokiaSolutionsAndNetworks.xml">
 	<!ENTITY SKT			SYSTEM "SKT.xml">
 	<!ENTITY ChinaTelecom		SYSTEM "ChinaTelecom.xml">
 	<!ENTITY VerizonWireless	SYSTEM "VerizonWireless.xml">
@@ -175,7 +175,7 @@
 		<vendor vendor-id="Sun" code="42" name="Sun Microsystems, Inc."/>
 		<vendor vendor-id="Merit" code="61" name="Merit Networks"/>
 		<vendor vendor-id="Nokia" code="94" name="Nokia"/>
-		<vendor vendor-id="NokiaSiemensNetworks" code="28458" name="Nokia Siemens Networks"/>
+		<vendor vendor-id="NokiaSolutionsAndNetworks" code="28458" name="Nokia Solutions and Networks"/>
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
 		<vendor vendor-id="ALU" code="637" name="ALU Network"/>
@@ -1730,7 +1730,7 @@
 			<enum name="Ericsson Diameter Signalling Controller Application (DSC)" code="16777315"/>
 			<!--
 			16777316 Verizon-Femto-Loc [Niranjan_Avula]
-			16777317 Nokia Siemens Networks (NSN) Hd Application [Hannes_Tschofenig]
+			16777317 Nokia Solutions and Networks (NSN) Hd Application [Hannes_Tschofenig]
 			16777318 3GPP S15 [3GPP TS 29.212][Kimmo_Kymalainen]
 			16777319 3GPP S9a [3GPP TS 29.215][Kimmo_Kymalainen]
 			16777320 3GPP S9a* [3GPP TS 29.215][Kimmo_Kymalainen]
@@ -6617,7 +6617,7 @@
 	16777267 is defined in TGPP.xml
 	16777292 is defined in TGPP.xml
 	16777304 is defined in SKT.xml
-	16777317 is defined in NokiaSiemensNetworks.xml
+	16777317 is defined in NokiaSolutionsAndNetworks.xml
 	-->
 	<application id="0"		name="Diameter Common Messages"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
@@ -6655,7 +6655,7 @@
 	&Vodafone;
 	&AlcatelLucent;
 	&Nokia;
-	&NokiaSiemensNetworks;
+	&NokiaSolutionsAndNetworks;
 	&SKT;
 	&ChinaTelecom;
 	&VerizonWireless;
