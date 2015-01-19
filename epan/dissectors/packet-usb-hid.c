@@ -24,7 +24,6 @@
 
 #include <epan/packet.h>
 #include "packet-usb.h"
-#include "packet-usb-hid.h"
 #include "packet-btsdp.h"
 
 
@@ -102,7 +101,9 @@ static int hf_usb_hid_zero = -1;
 static int hf_usb_hid_bcdHID = -1;
 static int hf_usb_hid_bCountryCode = -1;
 static int hf_usb_hid_bNumDescriptors = -1;
+static int hf_usb_hid_bDescriptorIndex = -1;
 static int hf_usb_hid_bDescriptorType = -1;
+static int hf_usb_hid_wInterfaceNumber = -1;
 static int hf_usb_hid_wDescriptorLength = -1;
 
 static int hf_usbhid_boot_report_keyboard_modifier_right_gui = -1;
@@ -157,9 +158,11 @@ struct usb_hid_global_state {
 
 
 /* HID class specific descriptor types */
-#define USB_DT_HID 33
+#define USB_DT_HID        0x21
+#define USB_DT_HID_REPORT 0x22
 static const value_string hid_descriptor_type_vals[] = {
     {USB_DT_HID, "HID"},
+    {USB_DT_HID_REPORT, "HID Report"},
     {0,NULL}
 };
 static value_string_ext hid_descriptor_type_vals_ext =
@@ -1315,41 +1318,84 @@ dissect_usb_hid_boot_mouse_input_report(tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 
-/* Dissector for HID class-specific control request as defined in
- * USBHID 1.11, Chapter 7.2.
- * Returns tvb_length(tvb) if a class specific dissector was found
- * and 0 otherwise.
- */
+/* dissect a "standard" control message that's sent to an interface */
 static gint
-dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gboolean is_request;
-    usb_conv_info_t *usb_conv_info;
+    gint              offset = 0;
     usb_trans_info_t *usb_trans_info;
+    guint8            req;
+
+    usb_trans_info = usb_conv_info->usb_trans_info;
+
+    /* XXX - can we do some plausibility checks here? */
+
+    /* we can't use usb_conv_info->is_request since usb_conv_info
+       was replaced with the interface conversation */
+    if (usb_trans_info->request_in == pinfo->fd->num) {
+        /* the tvb that we see here is the setup packet
+           without the request type byte */
+
+        req = tvb_get_guint8(tvb, offset);
+        if (req != USB_SETUP_GET_DESCRIPTOR)
+            return offset;
+        col_clear(pinfo->cinfo, COL_INFO);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "GET DESCRIPTOR Request");
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_usb_hid_bDescriptorIndex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        usb_trans_info->u.get_descriptor.index = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_usb_hid_bDescriptorType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        usb_trans_info->u.get_descriptor.type = tvb_get_guint8(tvb, offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                val_to_str_ext(usb_trans_info->u.get_descriptor.type,
+                    &hid_descriptor_type_vals_ext, "Unknown type %u"));
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_usb_hid_wInterfaceNumber, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(tree, hf_usb_hid_wDescriptorLength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+    else {
+        col_clear(pinfo->cinfo, COL_INFO);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "GET DESCRIPTOR Response");
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                val_to_str_ext(usb_trans_info->u.get_descriptor.type,
+                    &hid_descriptor_type_vals_ext, "Unknown type %u"));
+        if (usb_trans_info->u.get_descriptor.type == USB_DT_HID_REPORT) {
+            offset = dissect_usb_hid_get_report_descriptor(
+                    pinfo, tree, tvb, offset, usb_conv_info);
+        }
+    }
+
+    return offset;
+}
+
+/* dissect a class-specific control message that's sent to an interface */
+static gint
+dissect_usb_hid_control_class_intf(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+{
+    usb_trans_info_t *usb_trans_info;
+    gboolean is_request;
     int offset = 0;
-    usb_setup_dissector dissector;
+    usb_setup_dissector dissector = NULL;
     const usb_setup_dissector_table_t *tmp;
 
-    usb_conv_info = (usb_conv_info_t *)data;
-    if (!usb_conv_info)
-        return 0;
     usb_trans_info = usb_conv_info->usb_trans_info;
-    if (!usb_trans_info)
-        return 0;
 
     is_request = (pinfo->srcport==NO_ENDPOINT);
 
-    /* See if we can find a class specific dissector for this request */
-    dissector = NULL;
-
     /* Check valid values for bmRequestType. See Chapter 7.2 in USBHID 1.11 */
-    if ((usb_trans_info->setup.requesttype & 0x7F) ==
-        ((RQT_SETUP_TYPE_CLASS << 5) | RQT_SETUP_RECIPIENT_INTERFACE)) {
-        for (tmp = setup_dissectors; tmp->dissector; tmp++) {
-            if (tmp->request == usb_trans_info->setup.request) {
-                dissector = tmp->dissector;
-                break;
-            }
+    for (tmp = setup_dissectors; tmp->dissector; tmp++) {
+        if (tmp->request == usb_trans_info->setup.request) {
+            dissector = tmp->dissector;
+            break;
         }
     }
     /* No, we could not find any class specific dissector for this request
@@ -1372,6 +1418,40 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     dissector(pinfo, tree, tvb, offset, is_request, usb_conv_info);
     return tvb_captured_length(tvb);
+}
+
+/* Dissector for HID class-specific control request as defined in
+ * USBHID 1.11, Chapter 7.2.
+ * returns the number of bytes consumed */
+static gint
+dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    usb_conv_info_t *usb_conv_info;
+    usb_trans_info_t *usb_trans_info;
+    guint8 type, recip;
+
+    usb_conv_info = (usb_conv_info_t *)data;
+    if (!usb_conv_info)
+        return 0;
+    usb_trans_info = usb_conv_info->usb_trans_info;
+    if (!usb_trans_info)
+        return 0;
+
+    type = USB_TYPE(usb_trans_info->setup.requesttype);
+    recip = USB_RECIPIENT(usb_trans_info->setup.requesttype);
+
+    if (recip == RQT_SETUP_RECIPIENT_INTERFACE) {
+        if (type == RQT_SETUP_TYPE_STANDARD) {
+            return dissect_usb_hid_control_std_intf(
+                    tvb, pinfo, tree, usb_conv_info);
+        }
+        else if (type == RQT_SETUP_TYPE_CLASS) {
+            return dissect_usb_hid_control_class_intf(
+                    tvb, pinfo, tree, usb_conv_info);
+        }
+    }
+
+    return 0;
 }
 
 /* dissect a descriptor that is specific to the HID class */
@@ -1673,9 +1753,17 @@ proto_register_usb_hid(void)
         { "bNumDescriptors", "usbhid.descriptor.hid.bNumDescriptors", FT_UINT8,
             BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+        { &hf_usb_hid_bDescriptorIndex,
+        { "bDescriptorIndex", "usbhid.descriptor.hid.bDescriptorIndex", FT_UINT8,
+            BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
         { &hf_usb_hid_bDescriptorType,
         { "bDescriptorType", "usbhid.descriptor.hid.bDescriptorType", FT_UINT8,
             BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_hid_wInterfaceNumber,
+        { "wInterfaceNumber", "usbhid.descriptor.hid.wInterfaceNumber", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_hid_wDescriptorLength,
         { "wDescriptorLength", "usbhid.descriptor.hid.wDescriptorLength", FT_UINT16,

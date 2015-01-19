@@ -203,6 +203,22 @@ typedef struct _usb_tap_data_t {
 #define ENDPOINT_TYPE_BULK              2
 #define ENDPOINT_TYPE_INTERRUPT         3
 
+
+#define USB_SETUP_GET_STATUS             0
+#define USB_SETUP_CLEAR_FEATURE          1
+#define USB_SETUP_SET_FEATURE            3
+#define USB_SETUP_SET_ADDRESS            5
+#define USB_SETUP_GET_DESCRIPTOR         6
+#define USB_SETUP_SET_DESCRIPTOR         7
+#define USB_SETUP_GET_CONFIGURATION      8
+#define USB_SETUP_SET_CONFIGURATION      9
+#define USB_SETUP_GET_INTERFACE         10
+#define USB_SETUP_SET_INTERFACE         11
+#define USB_SETUP_SYNCH_FRAME           12
+#define USB_SETUP_SET_SEL               48
+#define USB_SETUP_SET_ISOCH_DELAY       49
+
+
 /* 9.6.6 */
 extern const true_false_string tfs_endpoint_direction;
 

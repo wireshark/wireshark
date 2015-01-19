@@ -37,7 +37,6 @@
 #include <epan/decode_as.h>
 
 #include "packet-usb.h"
-#include "packet-usb-hid.h"
 
 /* protocols and header fields */
 static int proto_usb = -1;
@@ -520,8 +519,6 @@ extern value_string_ext ext_usb_com_subclass_vals;
 #define USB_DT_OTG                             9
 #define USB_DT_DEBUG                          10
 #define USB_DT_INTERFACE_ASSOCIATION          11
-/* XXX - move into HID dissector */
-#define USB_DT_RPIPE                          34
 
 /* There are only Standard Descriptor Types, Class-specific types are
    provided by "usb.descriptor" descriptors table*/
@@ -2141,13 +2138,6 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
         case USB_DT_DEVICE_QUALIFIER:
             offset = dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
             break;
-        case USB_DT_RPIPE:
-            if (usb_conv_info->interfaceClass == IF_CLASS_HID ||
-                    usb_conv_info->interfaceClass == IF_CLASS_UNKNOWN) {
-                offset = dissect_usb_hid_get_report_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
-                break;
-            }
-            /* else fall through as default/unknown */
         default:
             /* XXX dissect the descriptor coming back from the device */
             {
@@ -2486,20 +2476,6 @@ typedef struct _usb_setup_dissector_table_t {
     usb_setup_dissector dissector;
 
 } usb_setup_dissector_table_t;
-#define USB_SETUP_GET_STATUS             0
-#define USB_SETUP_CLEAR_FEATURE          1
-#define USB_SETUP_SET_FEATURE            3
-#define USB_SETUP_SET_ADDRESS            5
-#define USB_SETUP_GET_DESCRIPTOR         6
-#define USB_SETUP_SET_DESCRIPTOR         7
-#define USB_SETUP_GET_CONFIGURATION      8
-#define USB_SETUP_SET_CONFIGURATION      9
-#define USB_SETUP_GET_INTERFACE         10
-#define USB_SETUP_SET_INTERFACE         11
-#define USB_SETUP_SYNCH_FRAME           12
-#define USB_SETUP_SET_SEL               48
-#define USB_SETUP_SET_ISOCH_DELAY       49
-
 static const usb_setup_dissector_table_t setup_request_dissectors[] = {
     {USB_SETUP_GET_STATUS,        dissect_usb_setup_get_status_request},
     {USB_SETUP_CLEAR_FEATURE,     dissect_usb_setup_clear_feature_request},
