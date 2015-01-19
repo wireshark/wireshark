@@ -604,16 +604,8 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 	offset += 2;
 
 	/* SOC */
-	{
-		/* can't use 'proto_tree_add_time()' because we need UTC */
-		char   buf[20];
-		struct tm* t;
-		time_t soc = tvb_get_ntohl(tvb, offset);
-		t = gmtime(&soc);
-		strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", t);
-		proto_tree_add_string(tree, hf_soc, tvb, offset, 4, buf);
-		offset += 4;
-	}
+	proto_tree_add_item(tree, hf_soc, tvb, offset, 4, ENC_TIME_TIMESPEC | ENC_BIG_ENDIAN);
+	offset += 4;
 
 	/* FRACSEC */
 	/* time quality flags */
@@ -1169,7 +1161,7 @@ void proto_register_synphasor(void)
 		  NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_soc,
-		{ "SOC time stamp (UTC)", "synphasor.soc", FT_STRINGZ, BASE_NONE,
+		{ "SOC time stamp", "synphasor.soc", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
 		  NULL, 0x0, NULL, HFILL }},
 
 		/* Time quality flags in fracsec */
