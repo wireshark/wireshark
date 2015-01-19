@@ -525,6 +525,7 @@ add_abstime_common(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_index,
     const char *absent_name)
 {
 	nstime_t nstime;
+	struct tm *tmp;
 
 	nstime.secs = tvb_get_letohl(tvb, offset);
 	nstime.nsecs = 0;
@@ -538,7 +539,24 @@ add_abstime_common(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_index,
 		    &nstime, "%s",
 		    absent_name);
 	} else {
-		proto_tree_add_item(tree, hf_index, tvb, offset, 4, ENC_TIME_TIMESPEC | ENC_BIG_ENDIAN);
+		/*
+		 * Run it through "gmtime()" to break it down, and then
+		 * run it through "mktime()" to put it back together
+		 * as UTC.
+		 */
+		tmp = gmtime(&nstime.secs);
+		if (tmp == NULL) {
+			/*
+			 * Can't be represented.
+			 */
+			proto_tree_add_time_format_value(tree, hf_index, tvb,
+			    offset, 4, &nstime, "Not representable");
+		} else {
+			tmp->tm_isdst = -1;	/* we don't know if it's DST or not */
+			nstime.secs = mktime(tmp);
+			proto_tree_add_time(tree, hf_index, tvb, offset, 4,
+			    &nstime);
+		}
 	}
 	offset += 4;
 	return offset;
@@ -2963,7 +2981,7 @@ proto_register_pipe_lanman(void)
 			NULL, 0, "LANMAN Number of Available Bytes", HFILL }},
 
 		{ &hf_current_time,
-			{ "Current Date/Time", "lanman.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			{ "Current Date/Time", "lanman.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "LANMAN Current date and time, in seconds since 00:00:00, January 1, 1970", HFILL }},
 
 		{ &hf_msecs,
@@ -3083,19 +3101,19 @@ proto_register_pipe_lanman(void)
 			NULL, 0, "LANMAN Number of incorrect passwords entered since last successful login", HFILL }},
 
 		{ &hf_last_logon,
-			{ "Last Logon Date/Time", "lanman.last_logon", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			{ "Last Logon Date/Time", "lanman.last_logon", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "LANMAN Date and time of last logon", HFILL }},
 
 		{ &hf_last_logoff,
-			{ "Last Logoff Date/Time", "lanman.last_logoff", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			{ "Last Logoff Date/Time", "lanman.last_logoff", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "LANMAN Date and time of last logoff", HFILL }},
 
 		{ &hf_logoff_time,
-			{ "Logoff Date/Time", "lanman.logoff_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			{ "Logoff Date/Time", "lanman.logoff_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "LANMAN Date and time when user should log off", HFILL }},
 
 		{ &hf_kickoff_time,
-			{ "Kickoff Date/Time", "lanman.kickoff_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			{ "Kickoff Date/Time", "lanman.kickoff_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "LANMAN Date and time when user will be logged off", HFILL }},
 
 		{ &hf_password_age,
@@ -3103,11 +3121,11 @@ proto_register_pipe_lanman(void)
 			NULL, 0, "LANMAN Time since user last changed his/her password", HFILL }},
 
 		{ &hf_password_can_change,
-			{ "Password Can Change", "lanman.password_can_change", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			{ "Password Can Change", "lanman.password_can_change", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "LANMAN Date and time when user can change their password", HFILL }},
 
 		{ &hf_password_must_change,
-			{ "Password Must Change", "lanman.password_must_change", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
+			{ "Password Must Change", "lanman.password_must_change", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "LANMAN Date and time when user must change their password", HFILL }},
 
 		{ &hf_script_path,
