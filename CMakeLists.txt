@@ -1263,6 +1263,32 @@ if(WIN32)
 	endif(ZLIB_FOUND)
 
 	add_dependencies(epan copy_cli_dlls)
+
+	# We have a lot of choices for creating zip archives:
+	# - 7z, WinZip, etc., which require a separate download+install.
+	# - Cygwin's zip, which requires Cygwin.
+	# - "CMake -E tar cz", which creates a tar file.
+	# - CPack, which requires a CPack configuration.
+	# - PowerShell via PSCX or System.IO.Compression.FileSystem.
+	# - Python via zipfile.
+	# For now, just look for 7z. It's installed on the Windows builders,
+	# which might be the only systems that use this target.
+	find_program(ZIP_EXECUTABLE 7z
+		PATH "$ENV{PROGRAMFILES}/7-Zip" "$ENV{PROGRAMW6432}/7-Zip"
+		DOC "Path to the 7z utility."
+	)
+	if (NOT "${ZIP_EXECUTABLE}" STREQUAL "ZIP_EXECUTABLE-NOTFOUND")
+		add_custom_target(pdb_zip_package)
+		set_target_properties(pdb_zip_package PROPERTIES FOLDER "Packaging")
+		set(_pdb_zip "${CMAKE_BINARY_DIR}/Wireshark-pdb-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.zip")
+		file(TO_NATIVE_PATH "${_pdb_zip}" _pdb_zip_win)
+		add_custom_command(TARGET pdb_zip_package POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E remove -f "${_pdb_zip}"
+			COMMAND ${ZIP_EXECUTABLE} a -tzip "${_pdb_zip_win}" *.pdb *.lib
+			WORKING_DIRECTORY "${_dll_output_dir}"
+		)
+		add_dependencies(pdb_zip_package epan)
+	endif()
 endif(WIN32)
 
 # Copy ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
