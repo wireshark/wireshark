@@ -1277,6 +1277,8 @@ if(WIN32)
 		PATH "$ENV{PROGRAMFILES}/7-Zip" "$ENV{PROGRAMW6432}/7-Zip"
 		DOC "Path to the 7z utility."
 	)
+	# XXX "if(ZIP_EXECUTABLE)" doesn't work here. It looks like the
+	# absence of "-NOTFOUND" doesn't equal "true".
 	if (NOT "${ZIP_EXECUTABLE}" STREQUAL "ZIP_EXECUTABLE-NOTFOUND")
 		add_custom_target(pdb_zip_package)
 		set_target_properties(pdb_zip_package PROPERTIES FOLDER "Packaging")
@@ -1284,7 +1286,7 @@ if(WIN32)
 		file(TO_NATIVE_PATH "${_pdb_zip}" _pdb_zip_win)
 		add_custom_command(TARGET pdb_zip_package POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove -f "${_pdb_zip}"
-			COMMAND ${ZIP_EXECUTABLE} a -tzip "${_pdb_zip_win}" *.pdb *.lib
+			COMMAND ${ZIP_EXECUTABLE} a -tzip -mmt=on "${_pdb_zip_win}" *.pdb *.lib
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
 		add_dependencies(pdb_zip_package epan)
