@@ -2527,7 +2527,11 @@ uni_to_string(char * data, guint32 str_length, char *dest_buf)
 
         if(length_remaining==0)
         {
-            dest_buf[i+1] = '\0';
+            if (i+1 < (gint)str_length){
+                dest_buf[i+1] = '\0';
+            } else {
+                dest_buf[i] = '\0';
+            }
             return;
         }
     }
