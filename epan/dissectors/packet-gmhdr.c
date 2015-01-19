@@ -313,13 +313,18 @@ dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     if (gmtrailer_summary_in_tree) {
       offset += 4;
       port_num = tvb_get_ntohs(tvb, offset);
+      proto_item_append_text(ti, ", Port: %d, Timestamp: ", port_num);
       offset += 2;
+
       gmtimev.secs = tvb_get_ntohl(tvb, offset);
       offset += 4;
       gmtimev.nsecs = tvb_get_ntohl(tvb, offset);
 
       tm = localtime(&gmtimev.secs);
-      proto_item_append_text(ti, ", Port: %d, Timestamp: %d:%02d:%02d.%09d", port_num, tm->tm_hour, tm->tm_min, tm->tm_sec, gmtimev.nsecs);
+      if (tm)
+        proto_item_append_text(ti, "%d:%02d:%02d.%09d", tm->tm_hour, tm->tm_min, tm->tm_sec, gmtimev.nsecs);
+      else
+        proto_item_append_text(ti, "<Not representable>");
     }
 
     offset = 0;

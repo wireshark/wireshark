@@ -172,8 +172,11 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
       proto_tree_add_uint(vssmonitoring_tree, hf_vssmonitoring_clksrc, tvb, offset + 4, 1, vssmonitoring_clksrc);
 
       tmp = localtime(&vssmonitoring_time.secs);
-      proto_item_append_text(ti, ", Timestamp: %02d:%02d:%02d.%09ld",
-          tmp->tm_hour, tmp->tm_min, tmp->tm_sec,(long)vssmonitoring_time.nsecs);
+      if (tmp)
+        proto_item_append_text(ti, ", Timestamp: %02d:%02d:%02d.%09ld",
+            tmp->tm_hour, tmp->tm_min, tmp->tm_sec,(long)vssmonitoring_time.nsecs);
+      else
+        proto_item_append_text(ti, ", Timestamp: <Not representable>");
     }
     offset += 8;
   }
