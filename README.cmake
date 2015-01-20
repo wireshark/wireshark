@@ -170,14 +170,20 @@ What needs to be done?
   itself.  autofoo includes libtool in our case, so what you're running
   from the build directory is a script that then runs the executable,
   and the executable is in a .libs directory; the code that checks for
-  "running from the build directory?" checks for that.
+  "running from the build directory?" checks for that.  The actual
+  executable isn't supposed to be run directly - it's expected to be run
+  by the wrapper script and might not even work if run directly, as it
+  won't find the relevant shared libraries.
 
-  We could perhaps check for the pathname containing "run/", although
-  that wouldn't help if we ran it while *in* the "run" directory;
-  getting an absolute path for the executable would be necessary for
-  that.
+  We could perhaps check for the executable being in a "run" directory
+  instead, if the build drops it there.  However, it might be possible
+  to copy the executable to another directory and have it run, so the
+  guarantee that it's in a "run" directory might not be as strong.
 - Get plugins loading when running *shark from the build directory.
-  That might involve handling ".libs" and "run" differently.
+  That might involve handling ".libs" and "run" differently.  The chance
+  that a random directory the executable was ultimately placed in would
+  be named "run" might also be a bit bigger than the chance that it's
+  named ".libs".
 - Get cross-compilation working (or ensure it does). It works with autofoo.
 - Handle -DFORTIFY_SOURCE=2 appropriately.  (Do a Web search for
   "cmake fortify" for some information.)
