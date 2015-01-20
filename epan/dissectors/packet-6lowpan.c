@@ -1389,8 +1389,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     guint16             hint_panid;
     gint                offset = 0;
     gint                length = 0;
-    proto_tree *        iphc_tree = NULL;
-    proto_item *        ti = NULL;
+    proto_tree *        iphc_tree;
     proto_item *        ti_dam = NULL;
     /* IPHC header fields. */
     guint16             iphc_flags;
@@ -1507,6 +1506,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     if ((tree) && (iphc_traffic != LOWPAN_IPHC_FLOW_COMPRESSED)) {
         /* Create a tree for the traffic class. */
         proto_tree *    tf_tree;
+        proto_item *    ti;
         ti = proto_tree_add_uint(tree, hf_6lowpan_traffic_class, tvb, offset>>3, 1, ipv6_class);
         tf_tree = proto_item_add_subtree(ti, ett_6lopwan_traffic_class);
 
@@ -1612,6 +1612,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Add information about where the context came from. */
     /* TODO: We should display the prefix length too. */
     if (tree && sctx->plen) {
+        proto_item *ti;
         ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_sctx_prefix, tvb, 0, 0, (guint8 *)&sctx->prefix);
         PROTO_ITEM_SET_GENERATED(ti);
         if ( sctx->frame ) {
@@ -1738,6 +1739,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Add information about where the context came from. */
     /* TODO: We should display the prefix length too. */
     if (tree && dctx->plen) {
+        proto_item *ti;
         ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_dctx_prefix, tvb, 0, 0, (guint8 *)&dctx->prefix);
         PROTO_ITEM_SET_GENERATED(ti);
         if ( dctx->frame ) {
@@ -1828,7 +1830,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
         /* Create a tree for the IPv6 extension header. */
         if (tree) {
-            nhc_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_6lowpan_nhc_ext, NULL, "IPv6 extension header");
+            nhc_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_6lowpan_nhc_ext, &ti, "IPv6 extension header");
             /* Display the NHC-UDP pattern. */
             proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS, ENC_BIG_ENDIAN);
         }
@@ -2178,13 +2180,13 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
 {
     gint                offset = 0;
     guint8              mesh_header;
-    proto_tree *        mesh_tree = NULL;
-    proto_item *        ti = NULL;
+    proto_tree *        mesh_tree;
+    proto_item *        ti;
     const guint8 *      src_ifcid;
     const guint8 *      dst_ifcid;
 
     /* Create a tree for the mesh header. */
-    mesh_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_6lowpan_mesh, NULL, "Mesh Header");
+    mesh_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_6lowpan_mesh, &ti, "Mesh Header");
 
     /* Get and display the mesh flags. */
     mesh_header = tvb_get_guint8(tvb, offset);
@@ -2404,7 +2406,7 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16             dgram_size;
     guint16             dgram_tag;
     guint16             dgram_offset = 0;
-    proto_tree *        frag_tree = NULL;
+    proto_tree *        frag_tree;
     proto_item *        ti;
     /* Reassembly parameters. */
     tvbuff_t *          new_tvb;
