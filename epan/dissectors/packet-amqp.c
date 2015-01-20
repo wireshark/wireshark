@@ -7910,6 +7910,11 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         col_append_str(pinfo->cinfo, COL_INFO, "Content-Body ");
         col_set_fence(pinfo->cinfo, COL_INFO);
         break;
+    case AMQP_0_9_FRAME_TYPE_HEARTBEAT:
+        col_append_str(pinfo->cinfo, COL_INFO,
+                       "Heartbeat ");
+        col_set_fence(pinfo->cinfo, COL_INFO);
+        break;
     default:
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %u", frame_type);
     }
