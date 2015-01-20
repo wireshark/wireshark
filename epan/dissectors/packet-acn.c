@@ -1884,9 +1884,8 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   guint32           item_cnt;
 
   proto_item       *ti, *pi;
-  proto_tree       *pdu_tree  = NULL;
-  proto_tree       *flag_tree = NULL;
-/*  proto_tree *addr_tree = NULL; */
+  proto_tree       *pdu_tree;
+  proto_tree       *flag_tree;
 
 /* this pdu */
   acn_dmp_adt_type  adt       = {0,0,0,0,0,0};
@@ -2141,8 +2140,8 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
   guint32          data_length;
 
   proto_item      *ti, *pi;
-  proto_tree      *pdu_tree    = NULL;
-  proto_tree      *flag_tree   = NULL;
+  proto_tree      *pdu_tree;
+  proto_tree      *flag_tree;
 
   const char      *name;
 
@@ -2299,8 +2298,8 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   guint32          data_length;
 
   proto_item      *ti, *pi;
-  proto_tree      *pdu_tree    = NULL;
-  proto_tree      *flag_tree   = NULL;
+  proto_tree      *pdu_tree;
+  proto_tree      *flag_tree;
 
   /* this pdu */
   const gchar     *name;
@@ -2540,8 +2539,8 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
   guint32          data_length;
 
   proto_item      *ti, *pi;
-  proto_tree      *pdu_tree    = NULL;
-  proto_tree      *flag_tree   = NULL;
+  proto_tree      *pdu_tree;
+  proto_tree      *flag_tree;
 
   /* this pdu */
   guint32          protocol_id;
@@ -2597,8 +2596,6 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     vector_offset = last_pdu_offsets->vector;
   }
   /* offset should now be pointing to header (if one exists) */
-
-
 
   /* Get Protocol ID (vector) */
   protocol_id = tvb_get_ntohl(tvb, vector_offset);
@@ -2711,8 +2708,8 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 static int
 dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item      *ti          = NULL;
-  proto_tree      *acn_tree    = NULL;
+  proto_item      *ti;
+  proto_tree      *acn_tree;
   guint32          data_offset = 0;
   guint32          old_offset;
   guint32          end_offset;
@@ -2727,27 +2724,25 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_add_fstr(pinfo->cinfo,COL_INFO, "ACN [Src Port: %d, Dst Port: %d]", pinfo->srcport, pinfo->destport );
 
-  if (tree) { /* we are being asked for details */
-    ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, ENC_NA);
-    acn_tree = proto_item_add_subtree(ti, ett_acn);
+  ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, ENC_NA);
+  acn_tree = proto_item_add_subtree(ti, ett_acn);
 
-    /* add preamble, postamble and ACN Packet ID */
-    proto_tree_add_item(acn_tree, hf_acn_preamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
-    data_offset += 2;
-    proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
-    data_offset += 2;
-    proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8|ENC_NA);
-    data_offset += 12;
+  /* add preamble, postamble and ACN Packet ID */
+  proto_tree_add_item(acn_tree, hf_acn_preamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+  data_offset += 2;
+  proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+  data_offset += 2;
+  proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8|ENC_NA);
+  data_offset += 12;
 
-    /* one past the last byte */
-    end_offset = data_offset + tvb_reported_length_remaining(tvb, data_offset);
-    while (data_offset < end_offset) {
-      old_offset = data_offset;
-      data_offset = dissect_acn_root_pdu(tvb, pinfo, acn_tree, data_offset, &pdu_offsets);
-      if (data_offset == old_offset) break;
-    }
+  /* one past the last byte */
+  end_offset = data_offset + tvb_reported_length_remaining(tvb, data_offset);
+  while (data_offset < end_offset) {
+    old_offset = data_offset;
+    data_offset = dissect_acn_root_pdu(tvb, pinfo, acn_tree, data_offset, &pdu_offsets);
+    if (data_offset == old_offset) break;
   }
-  return tvb_captured_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 /******************************************************************************/
@@ -3273,7 +3268,6 @@ proto_reg_handoff_acn(void)
   /* dissector_add_for_decode_as("udp.port", acn_handle);                         */
   heur_dissector_add("udp", dissect_acn_heur, proto_acn);
 }
-
 
 /*
  * Editor modelines
