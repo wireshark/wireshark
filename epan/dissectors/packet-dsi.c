@@ -224,7 +224,7 @@ static int
 dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree      *dsi_tree;
-	proto_item	*ti;
+	proto_item	*dsi_ti;
 	guint8		dsi_flags,dsi_command;
 	guint16		dsi_requestid;
 	gint32		dsi_code;
@@ -250,8 +250,8 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				   "Unknown function (0x%02x)"),
 			dsi_requestid);
 
-	ti = proto_tree_add_item(tree, proto_dsi, tvb, 0, -1, ENC_NA);
-	dsi_tree = proto_item_add_subtree(ti, ett_dsi);
+	dsi_ti = proto_tree_add_item(tree, proto_dsi, tvb, 0, -1, ENC_NA);
+	dsi_tree = proto_item_add_subtree(dsi_ti, ett_dsi);
 
 	if (tree) {
 		proto_tree_add_uint(dsi_tree, hf_dsi_flags, tvb,
@@ -308,7 +308,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			aspinfo.command = dsi_command;
 			aspinfo.seq = dsi_requestid;
 			aspinfo.code = dsi_code;
-			proto_item_set_len(dsi_tree, DSI_BLOCKSIZ);
+			proto_item_set_len(dsi_ti, DSI_BLOCKSIZ);
 
 			new_tvb = tvb_new_subset_remaining(tvb, DSI_BLOCKSIZ);
 			call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, &aspinfo);
