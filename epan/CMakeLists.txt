@@ -1611,8 +1611,6 @@ set(LIBWIRESHARK_FILES
 	reedsolomon.c
 	req_resp_hdrs.c
 	show_exception.c
-	sigcomp_state_hdlr.c
-	sigcomp-udvm.c
 	sminmpec.c
 	sna-utils.c
 	stat_tap_ui.c
