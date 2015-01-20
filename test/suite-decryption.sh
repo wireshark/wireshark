@@ -187,17 +187,28 @@ decryption_step_ikev1_certs() {
 
 # HTTP2 (HPACK)
 decryption_step_http2() {
-        env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
-                -Tfields -e http2.header.value \
-                -d tcp.port==3000,http2 \
-                -r "$CAPTURE_DIR/packet-h2-14_headers.pcapng" \
-                | grep "nghttp2" > /dev/null  2>&1
-        RETURNVALUE=$?
-        if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-                test_step_failed "Failed to decode HTTP2 HPACK"
-                return
-        fi
-        test_step_ok
+		env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+				-Tfields -e http2.header.value \
+				-d tcp.port==3000,http2 \
+				-r "$CAPTURE_DIR/packet-h2-14_headers.pcapng" \
+		> ./testout.txt
+		grep "nghttp2" ./testout.txt > /dev/null 2>&1
+		RETURNVALUE=$?
+		if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+			-V \
+			-d tcp.port==3000,http2 \
+			-r "$CAPTURE_DIR/packet-h2-14_headers.pcapng" \
+			> ./testout2.txt
+		echo
+		echo "Test output:"
+		cat ./testout.txt
+		echo "Verbose output:"
+		cat ./testout2.txt
+				test_step_failed "Failed to decode HTTP2 HPACK"
+				return
+		fi
+		test_step_ok
 }
 
 
