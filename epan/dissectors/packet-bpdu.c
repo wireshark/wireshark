@@ -271,7 +271,7 @@ dissect_bpdu_pvst_tlv(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb) {
     tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
     tlv_tree = proto_tree_add_subtree(tree, tvb, offset, 4 + tlv_length,
-                        ett_bpdu_pvst_tlv, NULL,
+                        ett_bpdu_pvst_tlv, &ti,
                         val_to_str(tlv_type, bpdu_pvst_tlv_vals, "Unknown TLV type: 0x%04x"));
 
     proto_tree_add_item(tlv_tree, hf_bpdu_pvst_tlvtype, tvb, offset, 2, ENC_BIG_ENDIAN);
