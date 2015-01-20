@@ -728,16 +728,21 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset += 2;
     }
     else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+        guint64 *p_addr = (guint64 *)wmem_new(pinfo->pool, guint64);
+
         /* Get the address */
         packet->dst64 = tvb_get_letoh64(tvb, offset);
+
+        /* Copy and convert the address to network byte order. */
+        *p_addr = pntoh64(&(packet->dst64));
 
         /* Display the destination address. */
         /* XXX - OUI resolution doesn't happen when displaying resolved
          * EUI64 addresses; that should probably be fixed in
          * epan/addr_resolv.c.
          */
-        TVB_SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, tvb, offset, 8);
-        TVB_SET_ADDRESS(&pinfo->dst, AT_EUI64, tvb, offset, 8);
+        SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, 8, p_addr);
+        SET_ADDRESS(&pinfo->dst, AT_EUI64, 8, p_addr);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(wmem_packet_scope(), packet->dst64));
@@ -836,16 +841,21 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         offset += 2;
     }
     else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) {
+        guint64 *p_addr = (guint64 *)wmem_new(pinfo->pool, guint64);
+
         /* Get the address. */
         packet->src64 = tvb_get_letoh64(tvb, offset);
+
+        /* Copy and convert the address to network byte order. */
+        *p_addr = pntoh64(&(packet->src64));
 
         /* Display the source address. */
         /* XXX - OUI resolution doesn't happen when displaying resolved
          * EUI64 addresses; that should probably be fixed in
          * epan/addr_resolv.c.
          */
-        TVB_SET_ADDRESS(&pinfo->dl_src, AT_EUI64, tvb, offset, 8);
-        TVB_SET_ADDRESS(&pinfo->src, AT_EUI64, tvb, offset, 8);
+        SET_ADDRESS(&pinfo->dl_src, AT_EUI64, 8, p_addr);
+        SET_ADDRESS(&pinfo->src, AT_EUI64, 8, p_addr);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(wmem_packet_scope(), packet->src64));
