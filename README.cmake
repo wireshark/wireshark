@@ -176,9 +176,10 @@ What needs to be done?
   won't find the relevant shared libraries.
 
   We could perhaps check for the executable being in a "run" directory
-  instead, if the build drops it there.  However, it might be possible
-  to copy the executable to another directory and have it run, so the
-  guarantee that it's in a "run" directory might not be as strong.
+  instead, if the build drops it there.  However, it's possible, at
+  least on OS X, to copy the executable to another directory and have
+  it run, so the guarantee that it's in a "run" directory is not as
+  strong.
 - Get plugins loading when running *shark from the build directory.
   That might involve handling ".libs" and "run" differently.  The chance
   that a random directory the executable was ultimately placed in would
