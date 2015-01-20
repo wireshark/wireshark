@@ -47,6 +47,8 @@
 
 #include "packet-tcp.h"
 
+#include "wsutil/pint.h"
+
 #define http2_header_repr_type_VALUE_STRING_LIST(XXX)                   \
     XXX(HTTP2_HD_NONE, 0x00, "")                                        \
     XXX(HTTP2_HD_INDEXED, 0x01, "Indexed Header Field")                 \
@@ -690,11 +692,11 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                    to get length in 4 bytes, we have to copy it to
                    guint32. */
                 len = (guint32)nv.namelen;
-                memcpy(&str[0], (char *)&len, sizeof(len));
+                phton32(&str[0], len);
                 memcpy(&str[4], nv.name, nv.namelen);
 
                 len = (guint32)nv.valuelen;
-                memcpy(&str[4 + nv.namelen], (char *)&len, sizeof(len));
+                phton32(&str[4 + nv.namelen], len);
                 memcpy(&str[4 + nv.namelen + 4], nv.value, nv.valuelen);
 
                 out->table.data.data = str;
@@ -783,7 +785,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         header_tree = proto_item_add_subtree(header, ett_http2_headers);
 
         /* header value length */
-        header_name_length = tvb_get_letohl(header_tvb, hoffset);
+        header_name_length = tvb_get_ntohl(header_tvb, hoffset);
         proto_tree_add_uint(header_tree, hf_http2_header_name_length, tvb, offset, in->length, header_name_length);
         hoffset += 4;
 
@@ -793,7 +795,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         hoffset += header_name_length;
 
         /* header value length */
-        header_value_length = tvb_get_letohl(header_tvb, hoffset);
+        header_value_length = tvb_get_ntohl(header_tvb, hoffset);
         proto_tree_add_uint(header_tree, hf_http2_header_value_length, tvb, offset, in->length, header_value_length);
         hoffset += 4;
 
