@@ -134,8 +134,8 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   int offset = 0;
   guint8 dst, src, protID, split_flag;
   tvbuff_t *next_tvb;
-  proto_item *ti = NULL;
-  proto_tree *arcnet_tree = NULL;
+  proto_item *ti;
+  proto_tree *arcnet_tree;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "ARCNET");
 

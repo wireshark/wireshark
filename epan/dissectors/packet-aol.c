@@ -135,8 +135,8 @@ static gboolean aol_desegment  = TRUE;
  * Dissect the 'INIT' PDU.
  */
 static guint dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, guint offset, proto_tree *tree) {
-	proto_item *data_item = NULL;
-	proto_tree *data_tree = NULL;
+	proto_item *data_item;
+	proto_tree *data_tree;
 	guint16     dos_ver   = 0;
 	guint16     win_ver   = 0;
 
@@ -207,12 +207,10 @@ static guint get_aol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) 
  * Dissect a PDU
  */
 static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
-	proto_item    *ti         = NULL;
-	proto_tree    *aol_tree   = NULL;
+	proto_item    *ti;
+	proto_tree    *aol_tree;
 	guint          offset     = 0;
-	guint          old_offset = 0;
-	guint16        token      = 0;
-	guint16        pdu_len    = 0;
+	guint16        pdu_len;
 	guint8         pdu_type   = 0;
 
 	/* Set the protocol name, and info column text. */
@@ -247,7 +245,7 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* Now for the data... */
 	if (pdu_len > 0) {
-		old_offset = offset;
+		guint old_offset = offset;
 
 		if (tvb_length_remaining(tvb,offset) > pdu_len) {
 			/* Init packets are a special case */
@@ -255,6 +253,7 @@ static int dissect_aol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				offset = dissect_aol_init(tvb,pinfo,offset,aol_tree);
 			} else {
 				if (pdu_len >= 2) {
+					guint16 token;
 					/* Get the token */
 					token = tvb_get_ntohs(tvb,offset);
 
