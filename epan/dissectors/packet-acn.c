@@ -2741,25 +2741,23 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_add_fstr(pinfo->cinfo,COL_INFO, "ACN [Src Port: %d, Dst Port: %d]", pinfo->srcport, pinfo->destport );
 
-  if (tree) { /* we are being asked for details */
-    ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, ENC_NA);
-    acn_tree = proto_item_add_subtree(ti, ett_acn);
+  ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, ENC_NA);
+  acn_tree = proto_item_add_subtree(ti, ett_acn);
 
-    /* add preamble, postamble and ACN Packet ID */
-    proto_tree_add_item(acn_tree, hf_acn_preamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
-    data_offset += 2;
-    proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
-    data_offset += 2;
-    proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8|ENC_NA);
-    data_offset += 12;
+  /* add preamble, postamble and ACN Packet ID */
+  proto_tree_add_item(acn_tree, hf_acn_preamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+  data_offset += 2;
+  proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
+  data_offset += 2;
+  proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8|ENC_NA);
+  data_offset += 12;
 
-    /* one past the last byte */
-    end_offset = data_offset + tvb_reported_length_remaining(tvb, data_offset);
-    while (data_offset < end_offset) {
-      old_offset = data_offset;
-      data_offset = dissect_acn_root_pdu(tvb, pinfo, acn_tree, data_offset, &pdu_offsets);
-      if (data_offset == old_offset) break;
-    }
+  /* one past the last byte */
+  end_offset = data_offset + tvb_reported_length_remaining(tvb, data_offset);
+  while (data_offset < end_offset) {
+    old_offset = data_offset;
+    data_offset = dissect_acn_root_pdu(tvb, pinfo, acn_tree, data_offset, &pdu_offsets);
+    if (data_offset == old_offset) break;
   }
   return tvb_length(tvb);
 }
