@@ -2848,7 +2848,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   }
 #endif /* HAVE_LIBGCRYPT */
 
-  if (tree) {
+  {
     proto_tree_add_item(isakmp_tree, hf_isakmp_ispi, tvb, offset, COOKIE_SIZE, ENC_NA);
     offset += COOKIE_SIZE;
 
