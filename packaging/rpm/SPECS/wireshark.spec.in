@@ -27,7 +27,7 @@ Summary:	Wireshark is the world's foremost protocol analyzer
 Name:		wireshark
 Version:	@VERSION@
 Release:	1
-License:	GPL+
+License:	GPLv2+
 Group:		Applications/Internet
 Source:		https://wireshark.org/download/src/%{name}-%{version}.tar.bz2
 # Or this URL for automated builds:
