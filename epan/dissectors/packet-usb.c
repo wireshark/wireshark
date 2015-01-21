@@ -1338,7 +1338,7 @@ dissect_usb_device_qualifier_descriptor(packet_info *pinfo _U_, proto_tree *pare
 {
     proto_item *item;
     proto_tree *tree;
-    proto_item *nitem      = NULL;
+    proto_item *nitem;
     int         old_offset = offset;
     guint32     protocol;
     const gchar *description;
@@ -1420,7 +1420,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 {
     proto_item        *item;
     proto_tree        *tree;
-    proto_item        *nitem      = NULL;
+    proto_item        *nitem;
     int                old_offset = offset;
     guint32            protocol;
     const gchar       *description;

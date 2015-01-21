@@ -48,7 +48,7 @@ static void
 dissect_chargen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree* chargen_tree;
-	proto_item* ti = NULL;
+	proto_item* ti;
 	guint8* data;
 	guint32 len;
 

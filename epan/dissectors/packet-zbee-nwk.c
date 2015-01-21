@@ -357,10 +357,9 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 {
     tvbuff_t            *payload_tvb = NULL;
 
-    proto_item          *proto_root = NULL;
+    proto_item          *proto_root;
     proto_item          *ti = NULL;
-    proto_tree          *nwk_tree = NULL;
-    proto_tree          *field_tree = NULL;
+    proto_tree          *nwk_tree;
 
     zbee_nwk_packet     packet;
     ieee802154_packet   *ieee_packet;
@@ -605,9 +604,10 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     /* Add the Source Route field. (ZigBee 2006 and later). */
     if ((packet.version >= ZBEE_VERSION_2007) && packet.route) {
-        guint8  relay_count;
-        guint16 relay_addr;
-        guint   i;
+        proto_tree *field_tree;
+        guint8      relay_count;
+        guint16     relay_addr;
+        guint       i;
 
         /* Create a subtree for the source route field. */
         field_tree = proto_tree_add_subtree(nwk_tree, tvb, offset, 1, ett_zbee_nwk_route, &ti, "Source Route");
@@ -1364,8 +1364,8 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     ieee802154_packet   *packet;
 
-    proto_item  *beacon_root = NULL;
-    proto_tree  *beacon_tree = NULL;
+    proto_item  *beacon_root;
+    proto_tree  *beacon_tree;
     guint       offset = 0;
 
     guint8      version;
@@ -1504,8 +1504,8 @@ static int dissect_zbip_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     ieee802154_packet   *packet = (ieee802154_packet *)data;
 
-    proto_item  *beacon_root = NULL;
-    proto_tree  *beacon_tree = NULL;
+    proto_item  *beacon_root;
+    proto_tree  *beacon_tree;
     guint       offset = 0;
     guint8      proto_id;
     char        *ssid;
