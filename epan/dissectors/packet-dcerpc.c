@@ -622,7 +622,7 @@ static GHashTable *dcerpc_binds = NULL;
 typedef struct _dcerpc_bind_key {
     conversation_t *conv;
     guint16         ctx_id;
-    guint16         smb_fid;
+    guint64         transport_salt;
 } dcerpc_bind_key;
 
 typedef struct _dcerpc_bind_value {
@@ -637,7 +637,7 @@ typedef struct _dcerpc_decode_as_data {
     int     dcetransporttype;     /**< Transport type
                                     * Value -1 means "not a DCERPC packet"
                                     */
-    guint16 dcetransportsalt;     /**< fid: if transporttype==DCE_CN_TRANSPORT_SMBPIPE */
+    guint64 dcetransportsalt;     /**< fid: if transporttype==DCE_CN_TRANSPORT_SMBPIPE */
 } dcerpc_decode_as_data;
 
 static dcerpc_decode_as_data*
@@ -702,7 +702,7 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
     key = (dcerpc_bind_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_key));
     key->conv = conv;
     key->ctx_id = binding->ctx_id;
-    key->smb_fid = binding->smb_fid;
+    key->transport_salt = binding->transport_salt;
 
     /* add this entry to the bind table */
     g_hash_table_insert(dcerpc_binds, key, bind_value);
@@ -790,7 +790,8 @@ dcerpc_prompt(packet_info *pinfo, gchar* result)
     g_string_append(str, "&\r\n");
     g_string_append_printf(str, "%s: %u\r\n", address_str->str, pinfo->destport);
     g_string_append_printf(str, "&\r\nContext ID: %u\r\n", decode_data->dcectxid);
-    g_string_append_printf(str, "&\r\nSMB FID: %u\r\n", dcerpc_get_transport_salt(pinfo));
+    g_string_append_printf(str, "&\r\nSMB FID: %"G_GINT64_MODIFIER"u\r\n",
+                           dcerpc_get_transport_salt(pinfo));
     g_string_append(str, "with:\r\n");
 
     g_strlcpy(result, str->str, MAX_DECODE_AS_PROMPT_LEN);
@@ -812,7 +813,7 @@ dcerpc_value(packet_info *pinfo)
     binding->port_a = pinfo->srcport;
     binding->port_b = pinfo->destport;
     binding->ctx_id = decode_data->dcectxid;
-    binding->smb_fid = dcerpc_get_transport_salt(pinfo);
+    binding->transport_salt = dcerpc_get_transport_salt(pinfo);
     binding->ifname = NULL;
     /*binding->uuid = NULL;*/
     binding->ver = 0;
@@ -865,7 +866,7 @@ decode_dcerpc_binding_cmp(gconstpointer a, gconstpointer b)
         binding_a->port_a == binding_b->port_a &&
         binding_a->port_b == binding_b->port_b &&
         binding_a->ctx_id == binding_b->ctx_id &&
-        binding_a->smb_fid == binding_b->smb_fid)
+        binding_a->transport_salt == binding_b->transport_salt)
     {
         /* equal */
         return 0;
@@ -1362,7 +1363,7 @@ dcerpc_bind_equal(gconstpointer k1, gconstpointer k2)
     const dcerpc_bind_key *key2 = (const dcerpc_bind_key *)k2;
     return ((key1->conv == key2->conv)
             && (key1->ctx_id == key2->ctx_id)
-            && (key1->smb_fid == key2->smb_fid));
+            && (key1->transport_salt == key2->transport_salt));
 }
 
 static guint
@@ -1371,9 +1372,13 @@ dcerpc_bind_hash(gconstpointer k)
     const dcerpc_bind_key *key = (const dcerpc_bind_key *)k;
     guint hash;
 
-    hash = GPOINTER_TO_UINT(key->conv) + key->ctx_id + key->smb_fid;
-    return hash;
+    hash = GPOINTER_TO_UINT(key->conv);
+    hash += key->ctx_id;
+    /* sizeof(guint) might be smaller than sizeof(guint64) */
+    hash += (guint)key->transport_salt;
+    hash += (guint)(key->transport_salt << sizeof(guint));
 
+    return hash;
 }
 
 /*
@@ -1386,7 +1391,7 @@ static GHashTable *dcerpc_dg_calls = NULL;
 typedef struct _dcerpc_cn_call_key {
     conversation_t *conv;
     guint32 call_id;
-    guint16 smb_fid;
+    guint64 transport_salt;
 } dcerpc_cn_call_key;
 
 typedef struct _dcerpc_dg_call_key {
@@ -1403,7 +1408,7 @@ dcerpc_cn_call_equal(gconstpointer k1, gconstpointer k2)
     const dcerpc_cn_call_key *key2 = (const dcerpc_cn_call_key *)k2;
     return ((key1->conv == key2->conv)
             && (key1->call_id == key2->call_id)
-            && (key1->smb_fid == key2->smb_fid));
+            && (key1->transport_salt == key2->transport_salt));
 }
 
 static gint
@@ -1420,7 +1425,15 @@ static guint
 dcerpc_cn_call_hash(gconstpointer k)
 {
     const dcerpc_cn_call_key *key = (const dcerpc_cn_call_key *)k;
-    return GPOINTER_TO_UINT(key->conv) + key->call_id + key->smb_fid;
+    guint hash;
+
+    hash = GPOINTER_TO_UINT(key->conv);
+    hash += key->call_id;
+    /* sizeof(guint) might be smaller than sizeof(guint64) */
+    hash += (guint)key->transport_salt;
+    hash += (guint)(key->transport_salt << sizeof(guint));
+
+    return hash;
 }
 
 static guint
@@ -3185,7 +3198,7 @@ dissect_dcerpc_cn_auth(tvbuff_t *tvb, int stub_offset, packet_info *pinfo,
  * as well in the future.
  */
 
-guint16
+guint64
 dcerpc_get_transport_salt(packet_info *pinfo)
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
@@ -3201,7 +3214,7 @@ dcerpc_get_transport_salt(packet_info *pinfo)
 }
 
 void
-dcerpc_set_transport_salt(guint16 dcetransportsalt, packet_info *pinfo)
+dcerpc_set_transport_salt(guint64 dcetransportsalt, packet_info *pinfo)
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
@@ -3374,7 +3387,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             key = (dcerpc_bind_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_key));
             key->conv = conv;
             key->ctx_id = ctx_id;
-            key->smb_fid = dcerpc_get_transport_salt(pinfo);
+            key->transport_salt = dcerpc_get_transport_salt(pinfo);
 
             value = (dcerpc_bind_value *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_value));
             value->uuid = if_id;
@@ -3869,7 +3882,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
             bind_key.conv = conv;
             bind_key.ctx_id = ctx_id;
-            bind_key.smb_fid = dcerpc_get_transport_salt(pinfo);
+            bind_key.transport_salt = dcerpc_get_transport_salt(pinfo);
 
             if ((bind_value = (dcerpc_bind_value *)g_hash_table_lookup(dcerpc_binds, &bind_key)) ) {
                 if (!(hdr->flags&PFC_FIRST_FRAG)) {
@@ -3878,7 +3891,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
                     call_key.conv = conv;
                     call_key.call_id = hdr->call_id;
-                    call_key.smb_fid = dcerpc_get_transport_salt(pinfo);
+                    call_key.transport_salt = dcerpc_get_transport_salt(pinfo);
                     if ((call_value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_cn_calls, &call_key))) {
                         new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
                         *new_matched_key = matched_key;
@@ -3897,7 +3910,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     call_key = (dcerpc_cn_call_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_cn_call_key));
                     call_key->conv = conv;
                     call_key->call_id = hdr->call_id;
-                    call_key->smb_fid = dcerpc_get_transport_salt(pinfo);
+                    call_key->transport_salt = dcerpc_get_transport_salt(pinfo);
 
                     /* if there is already a matching call in the table
                        remove it so it is replaced with the new one */
@@ -3940,7 +3953,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             di->dcerpc_procedure_name = "";
             di->conv = conv;
             di->call_id = hdr->call_id;
-            di->smb_fid = dcerpc_get_transport_salt(pinfo);
+            di->transport_salt = dcerpc_get_transport_salt(pinfo);
             di->ptype = PDU_REQ;
             di->call_data = value;
             di->hf_index = -1;
@@ -4033,7 +4046,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
             call_key.conv = conv;
             call_key.call_id = hdr->call_id;
-            call_key.smb_fid = dcerpc_get_transport_salt(pinfo);
+            call_key.transport_salt = dcerpc_get_transport_salt(pinfo);
 
             if ((call_value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_cn_calls, &call_key))) {
                 /* extra sanity check,  only match them if the reply
@@ -4058,7 +4071,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             di->dcerpc_procedure_name = "";
             di->conv = conv;
             di->call_id = hdr->call_id;
-            di->smb_fid = dcerpc_get_transport_salt(pinfo);
+            di->transport_salt = dcerpc_get_transport_salt(pinfo);
             di->ptype = PDU_RESP;
             di->call_data = value;
 
@@ -4177,7 +4190,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
             call_key.conv = conv;
             call_key.call_id = hdr->call_id;
-            call_key.smb_fid = dcerpc_get_transport_salt(pinfo);
+            call_key.transport_salt = dcerpc_get_transport_salt(pinfo);
 
             if ((call_value = (dcerpc_call_value *)g_hash_table_lookup(dcerpc_cn_calls, &call_key))) {
                 new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
@@ -4202,7 +4215,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             di->dcerpc_procedure_name = "";
             di->conv = conv;
             di->call_id = hdr->call_id;
-            di->smb_fid = dcerpc_get_transport_salt(pinfo);
+            di->transport_salt = dcerpc_get_transport_salt(pinfo);
             di->ptype = PDU_FAULT;
             di->call_data = value;
 
@@ -5474,7 +5487,7 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
     di->dcerpc_procedure_name = "";
     di->conv = conv;
     di->call_id = hdr->seqnum;
-    di->smb_fid = -1;
+    di->transport_salt = -1;
     di->ptype = PDU_REQ;
     di->call_data = value;
 
@@ -5535,7 +5548,7 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
     di = wmem_new0(wmem_packet_scope(), dcerpc_info);
     di->dcerpc_procedure_name = "";
     di->conv = conv;
-    di->smb_fid = -1;
+    di->transport_salt = -1;
     di->ptype = PDU_RESP;
     di->call_data = value;
 

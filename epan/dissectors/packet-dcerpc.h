@@ -156,7 +156,7 @@ typedef struct _dcerpc_call_value {
 typedef struct _dcerpc_info {
 	conversation_t *conv;	/* Which TCP stream we are in */
 	guint32 call_id;	/* Call ID for this call */
-	guint16 smb_fid;	/* FID for DCERPC over SMB */
+	guint64 transport_salt; /* e.g. FID for DCERPC over SMB */
 	guint8 ptype;       /* packet type: PDU_REQ, PDU_RESP, ... */
 	gboolean conformant_run;
 	gboolean no_align; /* are data aligned? (default yes) */
@@ -456,15 +456,15 @@ typedef struct decode_dcerpc_bind_values_s {
     guint32 port_b;
     /* dcerpc conversation specific */
     guint16 ctx_id;
-    guint16 smb_fid;
+    guint64 transport_salt;
     /* corresponding "interface" */
     GString *ifname;
     e_uuid_t uuid;
     guint16 ver;
 } decode_dcerpc_bind_values_t;
 
-WS_DLL_PUBLIC guint16 dcerpc_get_transport_salt(packet_info *pinfo);
-WS_DLL_PUBLIC void dcerpc_set_transport_salt(guint16 dcetransportsalt, packet_info *pinfo);
+WS_DLL_PUBLIC guint64 dcerpc_get_transport_salt(packet_info *pinfo);
+WS_DLL_PUBLIC void dcerpc_set_transport_salt(guint64 dcetransportsalt, packet_info *pinfo);
 
 /* Authentication services */
 
