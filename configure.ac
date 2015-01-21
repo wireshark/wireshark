@@ -2845,8 +2845,6 @@ PKG_CHECK_MODULES(SBC, sbc >= 1.0, [have_sbc=yes], [have_sbc=no])
 if test "x$with_sbc" != "xno"; then
     if (test "${have_sbc}" = "yes"); then
         AC_DEFINE(HAVE_SBC, 1, [Define to support playing SBC by standalone BlueZ SBC library])
-        CFLAGS="$CFLAGS $(pkg-config sbc --cflags)"
-        LIBS="$LIBS $(pkg-config sbc --libs)"
     elif test "x$want_sbc" = "xyes"; then
 	# Error out if the user explicitly requested the sbc library
 	AC_MSG_ERROR([SBC codec library was requested, but is not available])
