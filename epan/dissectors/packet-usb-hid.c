@@ -461,8 +461,8 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
 static int
 dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_conv_info_t *usb_conv_info _U_, const struct usb_hid_global_state *global)
 {
-    proto_item *subitem=NULL;
-    proto_tree *tree=NULL, *subtree=NULL;
+    proto_item *subitem;
+    proto_tree *tree, *subtree;
     int old_offset;
     unsigned int tmp;
     unsigned int bSize, bType, bTag;
@@ -501,7 +501,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
         }
 
         subtree = proto_tree_add_subtree_format(parent_tree, tvb, offset, bSize + 1,
-            ett_usb_hid_item_header, NULL, "%s item (%s)",
+            ett_usb_hid_item_header, &subitem, "%s item (%s)",
             val_to_str(bType, usb_hid_item_bType_vals, "Unknown/%u"),
             val_to_str(bTag, usb_hid_cur_bTag_vals, "Unknown/%u tag")
         );
@@ -557,21 +557,19 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 int
 dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_conv_info_t *usb_conv_info)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item;
+    proto_tree *tree;
     int old_offset=offset;
     struct usb_hid_global_state initial_global;
 
     memset(&initial_global, 0, sizeof(struct usb_hid_global_state));
 
-    if (parent_tree) {
-        item = proto_tree_add_protocol_format(parent_tree, proto_usb_hid, tvb, offset,
-                              -1, "HID Report");
-        tree = proto_item_add_subtree(item, ett_usb_hid_report);
-        offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_conv_info, &initial_global);
+    item = proto_tree_add_protocol_format(parent_tree, proto_usb_hid, tvb, offset,
+                                          -1, "HID Report");
+    tree = proto_item_add_subtree(item, ett_usb_hid_report);
+    offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_conv_info, &initial_global);
 
-        proto_item_set_len(item, offset-old_offset);
-    }
+    proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
