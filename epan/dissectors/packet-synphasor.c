@@ -537,7 +537,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		}
 	} /* if (!visited) */
 
-	if (tree) { /* we are being asked for details */
+	{
 		proto_tree *synphasor_tree = NULL;
 		proto_item *temp_item	   = NULL;
 		proto_item *sub_item	   = NULL;
@@ -831,10 +831,10 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 		offset += 2;
 
 		/* PHASORS, (D)FREQ, ANALOG, and DIGITAL */
-		offset = dissect_PHASORS(tvb, block_item, block, offset);
-		offset = dissect_DFREQ	(tvb, block_item, block, offset);
-		offset = dissect_ANALOG (tvb, block_item, block, offset);
-		offset = dissect_DIGITAL(tvb, block_item, block, offset);
+		offset = dissect_PHASORS(tvb, block_tree, block, offset);
+		offset = dissect_DFREQ	(tvb, block_tree, block, offset);
+		offset = dissect_ANALOG (tvb, block_tree, block, offset);
+		offset = dissect_DIGITAL(tvb, block_tree, block, offset);
 	}
 	return offset;
 } /* dissect_data_frame() */
