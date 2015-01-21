@@ -567,14 +567,12 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     struct usb_hid_global_state initial_global;
     memset(&initial_global, 0, sizeof(struct usb_hid_global_state));
 
-    if (parent_tree) {
-        item = proto_tree_add_protocol_format(parent_tree, proto_usb_hid, tvb, offset,
-                              -1, "HID Report");
-        tree = proto_item_add_subtree(item, ett_usb_hid_report);
-        offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info, &initial_global);
+    item = proto_tree_add_protocol_format(parent_tree, proto_usb_hid, tvb, offset,
+                                          -1, "HID Report");
+    tree = proto_item_add_subtree(item, ett_usb_hid_report);
+    offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info, &initial_global);
 
-        proto_item_set_len(item, offset-old_offset);
-    }
+    proto_item_set_len(item, offset-old_offset);
 
     return offset;
 }
