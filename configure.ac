@@ -1081,13 +1081,36 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-msse4.2, C)
 if test "x$CFLAGS" != "x$CFLAGS_before_simd"
 then
 	#
+	# The compiler supports -msse4.2; use that to enable SSE 4.2.
+	#
 	# Restore CFLAGS.  We only want to apply -msse4.2 to
 	# wsutil/ws_mempbrk_sse42.c, as the SSE4.2 code there
 	# is run only if the hardware supports it, but other
 	# code would do no such checks.
 	#
 	CFLAGS="$CFLAGS_before_simd"
+	ac_sse4_2_flag=-msse4.2
+else
+	#
+	# Try -xarch=sse4_2; that's the flag for Sun's compiler.
+	#
+	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-xarch=sse4_2, C)
+	if test "x$CFLAGS" != "x$CFLAGS_before_simd"
+	then
+		#
+		# The compiler supports -xarch=sse4_2; use that to
+		# enable SSE 4.2.
+		#
+		# Restore CFLAGS; see above.
+		#
+		CFLAGS="$CFLAGS_before_simd"
+		ac_sse4_2_flag=-xarch=sse4_2
+	fi
+fi
 
+if test "x$ac_sse4_2_flag" != x; then
+	#
+	# OK, we have a compiler flag to enable SSE 4.2.
 	#
 	# Make sure we have the necessary header for the SSE4.2 intrinsics
 	# and that we can use it.
@@ -1103,14 +1126,14 @@ then
 	# in the environment will come later and override it.
 	#
 	saved_CFLAGS="$CFLAGS"
-	CFLAGS="-msse4.2 $CFLAGS"
+	CFLAGS="$ac_sse4_2_flag $CFLAGS"
 	AC_TRY_COMPILE(
 		[#include <nmmintrin.h>],
 		[return 0;],
 		[
 		        have_sse42=yes
 		        AC_DEFINE(HAVE_SSE4_2, 1, [Support SSSE4.2 (Streaming SIMD Extensions 4.2) instructions])
-			CFLAGS_SSE42="-msse4.2"
+			CFLAGS_SSE42="$ac_sse4_2_flag"
 		        AC_MSG_RESULT([yes])
 		],
 		[
