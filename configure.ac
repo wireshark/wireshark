@@ -1085,7 +1085,7 @@ then
 	# wsutil/ws_mempbrk_sse42.c, as the SSE4.2 code there
 	# is run only if the hardware supports it, but other
 	# code would do no such checks.
-	# 
+	#
 	CFLAGS="$CFLAGS_before_simd"
 
 	#
