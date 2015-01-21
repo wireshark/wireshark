@@ -404,26 +404,6 @@ foreach(THIS_FLAG ${CPP_FLAG_TESTS})
 endforeach()
 set(CMAKE_CXX_FLAGS "${ADDED_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
-#
-# XXX - we're assuming MSVC supports the SSE 4.2 intrinsics and
-# that other C compilers support them iff they support the
-# -msse4.2 flag.
-#
-# Perhaps we should check whether we can compile something
-# that uses them, instead, and do something else to figure
-# out what compiler flag, if any, we need to pass to the
-# compiler to compile code that uses them.
-#
-if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	set(HAVE_SSE4_2 TRUE)
-else()
-	message(STATUS "Checking for c-compiler flag: -msse4.2")
-	check_c_compiler_flag(-msse4.2 HAVE_SSE4_2)
-	if(HAVE_SSE4_2)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.2")
-	endif()
-endif()
-
 check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
 if(FVHIDDEN)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")

@@ -72,11 +72,26 @@ set(WSUTIL_FILES
 	u3.c
 	unicode-utils.c
 	ws_mempbrk.c
-	ws_mempbrk_sse42.c
 	ws_version_info.c
 	${WSUTIL_PLATFORM_FILES}
 )
 
+#
+# XXX - we're assuming MSVC supports the SSE 4.2 intrinsics and
+# that other C compilers support them iff they support the
+# -msse4.2 flag.
+#
+# Perhaps we should check whether we can compile something
+# that uses them, instead, and do something else to figure
+# out what compiler flag, if any, we need to pass to the
+# compiler to compile code that uses them.
+#
+if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	set(HAVE_SSE4_2 TRUE)
+else()
+	message(STATUS "Checking for c-compiler flag: -msse4.2")
+	check_c_compiler_flag(-msse4.2 HAVE_SSE4_2)
+endif()
 if(HAVE_SSE4_2)
 	set(WSUTIL_FILES ${WSUTIL_FILES} ws_mempbrk_sse42.c)
 endif()
@@ -139,10 +154,15 @@ if (HAVE_SSE4_2)
 	# compiler to compile code that uses them.
 	#
 	if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+		get_source_file_property(
+			WS_MEMPBRK_SSE42_COMPILE_FLAGS
+			ws_mempbrk_sse42.c
+			COMPILE_FLAGS
+		)
 		set_source_files_properties(
-			${WSUTIL_SSE42_FILES}
+			ws_mempbrk_sse42.c
 			PROPERTIES
-			COMPILE_FLAGS -msse4.2
+			COMPILE_FLAGS "${WS_MEMPBRK_SSE42_COMPILE_FLAGS} -msse4.2"
 		)
 	endif()
 endif()
