@@ -670,7 +670,7 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
                 proto_item_set_len(ti, 8);
                 byte_value = unicode_to_bytes(tvb, foffset+9, 12, FALSE); /* IPX Node Address */
                 sscanf(byte_value,"%x",&prot);
-                proto_tree_add_uint(srvloc_tree, hf_srvloc_node, tvb, foffset+9, 4, prot);
+                ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_node, tvb, foffset+9, 4, prot);
                 proto_item_set_len(ti, 12);
                 byte_value = unicode_to_bytes(tvb, foffset+21, 4, FALSE);  /* Socket */
                 sscanf(byte_value,"%x",&prot);
