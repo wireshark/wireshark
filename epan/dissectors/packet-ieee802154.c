@@ -1545,6 +1545,7 @@ static void
 dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
     proto_tree *subtree;
+    proto_item *subitem;
     guint16     pan_id;
     guint16     coord_addr;
     guint8      channel;
@@ -1552,7 +1553,7 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint       offset  = 0;
 
     /* Create a subtree for this command frame. */
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_ieee802154_cmd, NULL,
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_ieee802154_cmd, &subitem,
                 val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
 
     /* Get and display the command PAN ID. */
@@ -1596,7 +1597,7 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Fix the length of the command subtree. */
     if (tree) {
-        proto_item_set_len(subtree, offset);
+        proto_item_set_len(subitem, offset);
     }
 
     /* Call the data dissector for any leftover bytes. */
