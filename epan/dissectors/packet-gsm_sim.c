@@ -1345,7 +1345,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 	case 0x12: /* FETCH */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
 		if (isSIMtrace) {
-			subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, p3);
+			subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, (p3 == 0) ? 256 : p3);
 			dissect_bertlv(subtvb, pinfo, tree);
 		}
 		break;
@@ -1472,8 +1472,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 				val_to_str(cla>>4, apdu_cla_coding_vals, "%01x"));
 	}
 
-	/* if (cla == 0xA0) */
-		rc = dissect_gsm_apdu(ins, p1, p2, p3, tvb, offset, pinfo, sim_tree, isSIMtrace);
+	rc = dissect_gsm_apdu(ins, p1, p2, p3, tvb, offset, pinfo, sim_tree, isSIMtrace);
 
 	if (rc == -1 && sim_tree) {
 		/* default dissector */
