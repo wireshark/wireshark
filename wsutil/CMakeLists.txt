@@ -166,6 +166,16 @@ if (WERROR)
 		PROPERTIES
 		COMPILE_FLAGS -Werror
 	)
+else()
+	#
+	# Set the property to an empty string, so that if we try
+	# to get it below, it succeeds.
+	#
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS ""
+	)
 endif()
 if (HAVE_SSE4_2)
 	get_source_file_property(
