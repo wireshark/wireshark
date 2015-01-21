@@ -261,191 +261,194 @@ smex_time_to_string (int pb5_days_since_midnight_9_10_oct_1995, int pb5_seconds,
 static void
 dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int packet_boundary  = 0;
     int offset           = 0;
-    int new_offset       = 0;
-    int ccsds_tree_added = 0;
-    int ccsds_len        = 0;
+    gboolean ccsds_tree_added = FALSE;
 
     proto_item *smex_header;
     proto_tree *smex_tree;
 
     proto_tree *vcdu_tree;
+    proto_item *vcdu_item;
 
-    guint16 first_word = 0;
-    guint32 long_word  = 0;
-    guint16 new_ptr    = 0;
+    guint16 first_word;
+    guint32 long_word;
 
-    tvbuff_t *new_tvb = NULL;
-
-    int vcid = 0, pb5_days = 0, pb5_seconds = 0, pb5_milliseconds = 0;
-    const char *time_string = NULL;
+    int vcid, pb5_days, pb5_seconds, pb5_milliseconds;
+    const char *time_string;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VCDU");
     col_set_str(pinfo->cinfo, COL_INFO, "Virtual Channel Data Unit");
 
+    /* build the smex header tree */
+    smex_tree = proto_tree_add_subtree(tree, tvb, offset, SMEX_HEADER_LENGTH, ett_smex, &smex_header, "SMEX Header");
+
+    proto_tree_add_item(smex_tree, hf_smex_gsc, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    /* proto_tree_add_item(smex_tree, hf_smex_unused, tvb, offset, 2, ENC_BIG_ENDIAN); */
+    offset += 2;
+
+    first_word = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(smex_tree, hf_smex_version,  tvb, offset, 2, first_word);
+    proto_tree_add_uint(smex_tree, hf_smex_framelen, tvb, offset, 2, first_word);
+    offset += 2;
+
+    proto_tree_add_item(smex_tree, hf_smex_rs_enable,     tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_rs_error,      tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_crc_enable,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_crc_error,     tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_mcs_enable,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_mcs_num_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_data_inv,      tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(smex_tree, hf_smex_frame_sync, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_data_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_data_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* extract smex ground receipt time tag */
+    long_word   = tvb_get_ntohl(tvb, offset);
+    pb5_days    = (long_word >> 17) & PB5_JULIAN_DAY_MASK;
+    pb5_seconds = (long_word & PB5_SECONDS_MASK);
+
+    first_word = tvb_get_ntohs(tvb, offset+4);
+    pb5_milliseconds = (first_word & PB5_MILLISECONDS_MASK) >> 6;
+
+    proto_tree_add_item(smex_tree, hf_smex_pb5,     tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(smex_tree, hf_smex_jday,    tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(smex_tree, hf_smex_seconds, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(smex_tree, hf_smex_msec, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /* proto_tree_add_item(smex_tree, hf_smex_spare, tvb, offset, 2, ENC_BIG_ENDIAN); */
+    offset += 2;
+
+    /* format ground receipt time into human readable time format for display */
+    time_string = smex_time_to_string(pb5_days, pb5_seconds, pb5_milliseconds);
+    proto_tree_add_string(smex_tree, hf_vcdu_ground_receipt_time, tvb, offset-6, 6, time_string);
+
+    proto_item_set_end(smex_header, tvb, offset);
+
+
+    /* build the vcdu header tree */
+    vcdu_tree = proto_tree_add_subtree(tree, tvb, offset, VCDU_HEADER_LENGTH, ett_vcdu, &vcdu_item, "VCDU Header");
+
+    /* extract the virtual channel for use later on */
+    first_word = tvb_get_ntohs(tvb, offset);
+    vcid = first_word & 0x3f;
+
+    proto_tree_add_item(vcdu_tree, hf_vcdu_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vcdu_tree, hf_vcdu_sp_id,   tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vcdu_tree, hf_vcdu_vc_id,   tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(vcdu_tree, hf_vcdu_seq,     tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+    proto_tree_add_item(vcdu_tree, hf_vcdu_replay,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* extract mpdu/bpdu header word */
+    first_word = tvb_get_ntohs(tvb, offset);
+
+    /* do bitstream channel processing */
+    if (bitstream_channels[vcid])
     {
-        /* build the smex header tree */
-        smex_tree = proto_tree_add_subtree(tree, tvb, offset, SMEX_HEADER_LENGTH, ett_smex, &smex_header, "SMEX Header");
+        guint16 new_ptr;
 
-        proto_tree_add_item(smex_tree, hf_smex_gsc, tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
-        /* proto_tree_add_item(smex_tree, hf_smex_unused, tvb, offset, 2, ENC_BIG_ENDIAN); */
-        offset += 2;
+        /* extract last bit pointer for bitstream channels */
+        new_ptr = first_word & LBP_MASK;
 
-        first_word = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(smex_tree, hf_smex_version,  tvb, offset, 2, first_word);
-        proto_tree_add_uint(smex_tree, hf_smex_framelen, tvb, offset, 2, first_word);
-        offset += 2;
+        /* add last bit pointer to display tree */
+        proto_tree_add_item(vcdu_tree, hf_vcdu_lbp, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(smex_tree, hf_smex_rs_enable,     tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_rs_error,      tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_crc_enable,    tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_crc_error,     tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_mcs_enable,    tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_mcs_num_error, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_data_inv,      tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        proto_tree_add_item(smex_tree, hf_smex_frame_sync, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_data_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_data_class, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        /* extract smex ground receipt time tag */
-        long_word   = tvb_get_ntohl(tvb, offset);
-        pb5_days    = (long_word >> 17) & PB5_JULIAN_DAY_MASK;
-        pb5_seconds = (long_word & PB5_SECONDS_MASK);
-
-        first_word = tvb_get_ntohs(tvb, offset+4);
-        pb5_milliseconds = (first_word & PB5_MILLISECONDS_MASK) >> 6;
-
-        proto_tree_add_item(smex_tree, hf_smex_pb5,     tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(smex_tree, hf_smex_jday,    tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_tree_add_item(smex_tree, hf_smex_seconds, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
-
-        proto_tree_add_item(smex_tree, hf_smex_msec, tvb, offset, 2, ENC_BIG_ENDIAN);
-        /* proto_tree_add_item(smex_tree, hf_smex_spare, tvb, offset, 2, ENC_BIG_ENDIAN); */
-        offset += 2;
-
-        /* format ground receipt time into human readable time format for display */
-        time_string = smex_time_to_string(pb5_days, pb5_seconds, pb5_milliseconds);
-        proto_tree_add_string(smex_tree, hf_vcdu_ground_receipt_time, tvb, offset-6, 6, time_string);
-
-        proto_item_set_end(smex_header, tvb, offset);
-
-
-        /* build the vcdu header tree */
-        vcdu_tree = proto_tree_add_subtree(tree, tvb, offset, VCDU_HEADER_LENGTH, ett_vcdu, NULL, "VCDU Header");
-
-        /* extract the virtual channel for use later on */
-        first_word = tvb_get_ntohs(tvb, offset);
-        vcid = first_word & 0x3f;
-
-        proto_tree_add_item(vcdu_tree, hf_vcdu_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(vcdu_tree, hf_vcdu_sp_id,   tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(vcdu_tree, hf_vcdu_vc_id,   tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        proto_tree_add_item(vcdu_tree, hf_vcdu_seq,     tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
-        proto_tree_add_item(vcdu_tree, hf_vcdu_replay,  tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        /* extract mpdu/bpdu header word */
-        first_word = tvb_get_ntohs(tvb, offset);
-
-        /* do bitstream channel processing */
-        if (bitstream_channels[vcid])
+        switch (new_ptr)
         {
-            /* extract last bit pointer for bitstream channels */
-            new_ptr = first_word & LBP_MASK;
+        case LBP_ALL_DATA:
+            proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_data, tvb, 0, -1, ENC_NA);
+            break;
 
-            /* add last bit pointer to display tree */
-            proto_tree_add_item(vcdu_tree, hf_vcdu_lbp, tvb, offset, 2, ENC_BIG_ENDIAN);
+        case LBP_ALL_DATA_ANOMALY:
+            proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_data_anomaly, tvb, 0, -1, ENC_NA);
+            break;
 
-            switch (new_ptr)
-            {
-            case LBP_ALL_DATA:
-                proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_data, tvb, 0, -1, ENC_NA);
-                break;
+        case LBP_ALL_FILL:
+            proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_fill, tvb, 0, -1, ENC_NA);
+            break;
 
-            case LBP_ALL_DATA_ANOMALY:
-                proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_data_anomaly, tvb, 0, -1, ENC_NA);
-                break;
+        default:
+            break;
+        }
+    }  /* end of bitstream channel processing */
 
-            case LBP_ALL_FILL:
-                proto_tree_add_item(vcdu_tree, hf_vcdu_bitream_all_fill, tvb, 0, -1, ENC_NA);
-                break;
+    /* do ccsds channel processing */
+    else
+    {
+        guint16 new_ptr;
 
-            default:
-                break;
-            }
-        }  /* end of bitstream channel processing */
+        /* extract first header pointer for ccsds channels */
+        new_ptr = first_word & FHP_MASK;
 
-        /* do ccsds channel processing */
+        /* add first header pointer to display tree */
+        proto_tree_add_item(vcdu_tree, hf_vcdu_fhp, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        /* process special cases of first header pointer */
+        if (FHP_ALL_FILL == new_ptr)
+        {
+            proto_tree_add_item(vcdu_tree, hf_vcdu_ccsds_all_fill, tvb, 0, -1, ENC_NA);
+        }
+
+        else if (FHP_CONTINUATION == new_ptr)
+        {
+            proto_tree_add_item(vcdu_tree, hf_vcdu_ccsds_continuation_packet, tvb, 0, -1, ENC_NA);
+        }
+
+        /* process as many ccsds packet headers as we can using the ccsds packet dissector */
         else
         {
-            /* extract first header pointer for ccsds channels */
-            new_ptr = first_word & FHP_MASK;
+            int packet_boundary;
+            int new_offset;
 
-            /* add first header pointer to display tree */
-            proto_tree_add_item(vcdu_tree, hf_vcdu_fhp, tvb, offset, 2, ENC_BIG_ENDIAN);
+            /* compute offset and packet boundary lengths for ccsds dissector loop */
+            new_offset = offset + 2 + new_ptr;
 
-            /* process special cases of first header pointer */
-            if (FHP_ALL_FILL == new_ptr)
+            packet_boundary =
+                tvb_reported_length(tvb) - VCDU_HEADER_LENGTH
+                - CCSDS_PRIMARY_HEADER_LENGTH - CCSDS_SECONDARY_HEADER_LENGTH;
+
+            while ( ((new_offset-offset+2) < packet_boundary)  &&  ((new_offset-offset+2) >= 4) )
             {
-                proto_tree_add_item(vcdu_tree, hf_vcdu_ccsds_all_fill, tvb, 0, -1, ENC_NA);
+                int ccsds_len;
+                tvbuff_t *new_tvb;
+
+                ccsds_tree_added = TRUE;
+                ccsds_len = tvb_get_ntohs(tvb, new_offset+4);
+
+                new_tvb = tvb_new_subset_remaining(tvb, new_offset);
+                call_dissector(ccsds_handle, new_tvb, pinfo, vcdu_tree);
+
+                new_offset = new_offset + ccsds_len + 7;
             }
 
-            else if (FHP_CONTINUATION == new_ptr)
+            if (! ccsds_tree_added)
             {
-                proto_tree_add_item(vcdu_tree, hf_vcdu_ccsds_continuation_packet, tvb, 0, -1, ENC_NA);
+                proto_tree_add_expert(vcdu_tree, pinfo, &ei_vcdu_fhp_too_close_to_end_of_vcdu, tvb, 0, -1);
             }
-
-            /* process as many ccsds packet headers as we can using the ccsds packet dissector */
-            else
-            {
-                /* compute offset and packet boundary lengths for ccsds dissector loop */
-                new_offset = offset + 2 + new_ptr;
-
-                packet_boundary =
-                    tvb_reported_length(tvb) - VCDU_HEADER_LENGTH
-                    - CCSDS_PRIMARY_HEADER_LENGTH - CCSDS_SECONDARY_HEADER_LENGTH;
-
-                while ( ((new_offset-offset+2) < packet_boundary)  &&  ((new_offset-offset+2) >= 4) )
-                {
-                    ccsds_tree_added = 1;
-                    ccsds_len = tvb_get_ntohs(tvb, new_offset+4);
-
-                    new_tvb = tvb_new_subset_remaining(tvb, new_offset);
-                    call_dissector(ccsds_handle, new_tvb, pinfo, vcdu_tree);
-
-                    new_offset = new_offset + ccsds_len + 7;
-                }
-
-                if (! ccsds_tree_added)
-                {
-                    proto_tree_add_expert(vcdu_tree, pinfo, &ei_vcdu_fhp_too_close_to_end_of_vcdu, tvb, 0, -1);
-                }
-            }
-
-        }  /* end of ccsds channel processing */
-
-        /* don't include the mpdu/bpdu header in the vcdu header highlighting.
-         * by skipping the offset bump the vcdu header highlighting will show
-         * just 6 bytes as it really should, and the fhp/lbp will be included
-         * in the data zone, which is technically more correct.
-         */
-        /* offset += 2; */
-        proto_item_set_end(vcdu_tree, tvb, offset);
-
-        if (! ccsds_tree_added)
-        {
-            /* add "Data" section if ccsds parsing did not do so already */
-            proto_tree_add_item(vcdu_tree, hf_vcdu_data, tvb, offset, -1, ENC_NA);
         }
+
+    }  /* end of ccsds channel processing */
+
+    /* don't include the mpdu/bpdu header in the vcdu header highlighting.
+     * by skipping the offset bump the vcdu header highlighting will show
+     * just 6 bytes as it really should, and the fhp/lbp will be included
+     * in the data zone, which is technically more correct.
+     */
+    /* offset += 2; */
+    proto_item_set_end(vcdu_item, tvb, offset);
+
+    if (! ccsds_tree_added)
+    {
+        /* add "Data" section if ccsds parsing did not do so already */
+        proto_tree_add_item(vcdu_tree, hf_vcdu_data, tvb, offset, -1, ENC_NA);
     }
 }
 
