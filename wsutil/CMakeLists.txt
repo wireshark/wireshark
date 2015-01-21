@@ -88,9 +88,32 @@ set(WSUTIL_FILES
 #
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(HAVE_SSE4_2 TRUE)
+	set(SSE4_2_FLAG "")
 else()
 	message(STATUS "Checking for c-compiler flag: -msse4.2")
 	check_c_compiler_flag(-msse4.2 HAVE_SSE4_2)
+	set(SSE4_2_FLAG "-msse4.2")
+endif()
+if(HAVE_SSE4_2)
+	#
+	# Make sure we have the necessary header for the SSE4.2 intrinsics
+	# and that we can use it.
+	#
+
+	#
+	# Does this add the SSE4.2 flags to the beginning of CFLAGS?
+	#
+	cmake_push_check_state()
+	set(CMAKE_REQUIRED_FLAGS "${SSE4_2_FLAG}")
+	check_include_file("nmmintrin.h" CAN_USE_SSE4_2)
+	cmake_pop_check_state()
+	if(NOT CAN_USE_SSE4_2)
+		#
+		# OK, it's not working for some reason, perhaps because
+		# ${SSE4_2_FLAG} above didn't enable SSE 4.2 support.
+		#
+		set(HAVE_SSE4_2 FALSE)
+	endif()
 endif()
 if(HAVE_SSE4_2)
 	set(WSUTIL_FILES ${WSUTIL_FILES} ws_mempbrk_sse42.c)
@@ -143,28 +166,16 @@ if (WERROR)
 	)
 endif()
 if (HAVE_SSE4_2)
-	#
-	# XXX - we're assuming MSVC supports the SSE 4.2 intrinsics and
-	# that other C compilers support them iff they support the
-	# -msse4.2 flag.
-	#
-	# Perhaps we should check whether we can compile something
-	# that uses them, instead, and do something else to figure
-	# out what compiler flag, if any, we need to pass to the
-	# compiler to compile code that uses them.
-	#
-	if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-		get_source_file_property(
-			WS_MEMPBRK_SSE42_COMPILE_FLAGS
-			ws_mempbrk_sse42.c
-			COMPILE_FLAGS
-		)
-		set_source_files_properties(
-			ws_mempbrk_sse42.c
-			PROPERTIES
-			COMPILE_FLAGS "${WS_MEMPBRK_SSE42_COMPILE_FLAGS} -msse4.2"
-		)
-	endif()
+	get_source_file_property(
+		WS_MEMPBRK_SSE42_COMPILE_FLAGS
+		ws_mempbrk_sse42.c
+		COMPILE_FLAGS
+	)
+	set_source_files_properties(
+		ws_mempbrk_sse42.c
+		PROPERTIES
+		COMPILE_FLAGS "${WS_MEMPBRK_SSE42_COMPILE_FLAGS} ${SSE4_2_FLAG}"
+	)
 endif()
 
 add_library(wsutil ${LINK_MODE_LIB}
