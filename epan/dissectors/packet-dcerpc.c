@@ -5145,7 +5145,7 @@ dissect_dcerpc_cn_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 {
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
 
-    decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
+    decode_data->dcetransporttype = DCE_CN_TRANSPORT_SMBPIPE;
     return dissect_dcerpc_cn_bs_body(tvb, pinfo, tree);
 }
 

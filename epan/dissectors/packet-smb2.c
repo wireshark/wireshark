@@ -4054,6 +4054,27 @@ dissect_smb2_cancel_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	return offset;
 }
 
+static void
+smb2_set_dcerpc_file_id(packet_info *pinfo, smb2_info_t *si)
+{
+	guint64 persistent;
+
+	if (si == NULL) {
+		return;
+	}
+	if (si->saved == NULL) {
+		return;
+	}
+
+	/*
+	 * the first 8 bytes are the persistent part of the file handle
+	 */
+	persistent =  si->saved->policy_hnd.uuid.Data1;
+	persistent |= ((guint64)si->saved->policy_hnd.uuid.Data2) << 32;
+	persistent |= ((guint64)si->saved->policy_hnd.uuid.Data3) << 48;
+
+	dcerpc_set_transport_salt(persistent, pinfo);
+}
 
 static int
 dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, guint32 datalen, proto_tree *top_tree)
@@ -4188,6 +4209,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* data or dcerpc ?*/
 	if (length && si->tree && si->tree->share_type == SMB2_SHARE_TYPE_PIPE) {
+		smb2_set_dcerpc_file_id(pinfo, si);
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);
 		return offset;
 	}
@@ -4764,12 +4786,14 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 static void
 dissect_smb2_ioctl_data_in(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
+	smb2_set_dcerpc_file_id(pinfo, si);
 	dissect_smb2_ioctl_data(tvb, pinfo, tree, si->top_tree, si->ioctl_function, TRUE);
 }
 
 static void
 dissect_smb2_ioctl_data_out(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
 {
+	smb2_set_dcerpc_file_id(pinfo, si);
 	dissect_smb2_ioctl_data(tvb, pinfo, tree, si->top_tree, si->ioctl_function, FALSE);
 }
 
@@ -5004,6 +5028,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	 * STATUS_PENDING read and thus a named pipe (==dcerpc)
 	 */
 	if (length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_PIPE)||(si->flags & SMB2_FLAGS_ASYNC_CMD))) {
+		smb2_set_dcerpc_file_id(pinfo, si);
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);
 		return offset;
 	}
