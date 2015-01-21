@@ -39,16 +39,3 @@ LIBECHLD_INCLUDES = \
 	echld-util.h \
 	echld.h
 
-LIBECHLD_MORE_SRC = \
-	../capture_opts.c	\
-	../capture_stop_conditions.c	\
-	../cfile.c	\
-	../conditions.c	\
-	../pcapio.c	\
-	../ringbuffer.c	\
-	../sync_pipe_write.c
-
-OTHER = \
-	../dumpcap.c
-
-
