@@ -8334,7 +8334,7 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	guint	    layout_type;
 	guint	    sub_num;
 	guint	    lo_seg_count;
-	guint	    i, j, lo_seg;
+	guint	    i, j, k, lo_seg;
 	proto_tree *newtree;
 	proto_item *sub_fitem;
 	proto_tree *subtree;
@@ -8381,7 +8381,7 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						subtree, "lo_filehandle", NULL,
 						civ);
 		} else if (layout_type == LAYOUT4_FLEX_FILES) {
-			guint	ds_count;
+			guint	ds_count, fh_count;
 			proto_tree *ds_tree;
 			proto_item *ds_fitem;
 
@@ -8421,8 +8421,14 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 							hf_nfs4_mirror_eff, offset);
 					offset = dissect_nfs4_stateid(tvb, offset,
 							ds_tree, NULL);
-					offset = dissect_nfs4_fh(tvb, offset, pinfo,
-							ds_tree, "fh", NULL, civ);
+
+					fh_count = tvb_get_ntohl(tvb, offset);
+					offset += 4;
+
+					for (k = 0; k < fh_count; k++)
+						offset = dissect_nfs4_fh(tvb, offset,
+							pinfo, ds_tree, "fh", NULL, civ);
+
 					offset = dissect_rpc_opaque_auth(tvb, ds_tree,
 							offset, pinfo);
 				}
