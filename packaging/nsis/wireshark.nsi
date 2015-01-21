@@ -318,7 +318,6 @@ Section "-Required"
 ;
 SetShellVarContext all
 
-
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\${UNINSTALLER_NAME}"
 File "${STAGING_DIR}\wiretap-${WTAP_VERSION}.dll"
@@ -326,58 +325,9 @@ File "${STAGING_DIR}\wiretap-${WTAP_VERSION}.dll"
 File "${STAGING_DIR}\libwireshark.dll"
 !endif
 File "${STAGING_DIR}\libwsutil.dll"
-File "${STAGING_DIR}\libgio-2.0-0.dll"
-File "${STAGING_DIR}\libglib-2.0-0.dll"
-File "${STAGING_DIR}\libgobject-2.0-0.dll"
-File "${STAGING_DIR}\libgmodule-2.0-0.dll"
-!ifdef ICONV_DIR
-File "${STAGING_DIR}\iconv.dll"
-!endif
-File "${STAGING_DIR}\${INTL_DLL}"
-!ifdef ZLIB_DIR
-File "${STAGING_DIR}\zlib1.dll"
-!endif
-!ifdef C_ARES_DIR
-File "${STAGING_DIR}\libcares-2.dll"
-!endif
-!ifdef ADNS_DIR
-File "${STAGING_DIR}\adns_dll.dll"
-!endif
-!ifdef KFW_DIR
-File "${STAGING_DIR}\${COMERR_DLL}"
-File "${STAGING_DIR}\${KRB5_DLL}"
-File "${STAGING_DIR}\${K5SPRT_DLL}"
-!endif
-!ifdef GNUTLS_DIR
-File "${STAGING_DIR}\libffi-6.dll"
-File "${STAGING_DIR}\${GCC_DLL}"
-File "${STAGING_DIR}\libgcrypt-20.dll"
-File "${STAGING_DIR}\libgmp-10.dll"
-File "${STAGING_DIR}\libgnutls-28.dll"
-File "${STAGING_DIR}\${GPGERROR_DLL}"
-File "${STAGING_DIR}\libhogweed-2-4.dll"
-File "${STAGING_DIR}\libnettle-4-6.dll"
-File "${STAGING_DIR}\libp11-kit-0.dll"
-File "${STAGING_DIR}\libtasn1-6.dll"
-StrCmp "${INTL_DLL}" "libintl-8.dll" SkipLibIntl8
-File "${STAGING_DIR}\libintl-8.dll"
-SkipLibIntl8:
-!endif
-!ifdef LUA_DIR
-File "${STAGING_DIR}\lua52.dll"
-File "..\..\epan\wslua\init.lua"
-File "..\..\epan\wslua\console.lua"
-File "..\..\epan\wslua\dtd_gen.lua"
-!endif
-!ifdef SMI_DIR
-File "${STAGING_DIR}\libsmi-2.dll"
-!endif
-!ifdef GEOIP_DIR
-File "${STAGING_DIR}\libGeoIP-1.dll"
-!endif
-!ifdef WINSPARKLE_DIR
-File "${STAGING_DIR}\WinSparkle.dll"
-!endif
+
+!include all-manifest.nsh
+
 File "${STAGING_DIR}\COPYING.txt"
 File "${STAGING_DIR}\NEWS.txt"
 File "${STAGING_DIR}\README.txt"
@@ -928,83 +878,8 @@ Section "${PROGRAM_NAME} 1" SecWiresharkGtk
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\${PROGRAM_NAME_PATH_GTK}"
-File "${STAGING_DIR}\${GDK_DLL}"
-File "${STAGING_DIR}\libgdk_pixbuf-2.0-0.dll"
-File "${STAGING_DIR}\gspawn-${WIRESHARK_TARGET_PLATFORM}-helper.exe"
-File "${STAGING_DIR}\gspawn-${WIRESHARK_TARGET_PLATFORM}-helper-console.exe"
-File "${STAGING_DIR}\${GTK_DLL}"
-File "${STAGING_DIR}\libatk-1.0-0.dll"
-File "${STAGING_DIR}\libpango-1.0-0.dll"
-File "${STAGING_DIR}\libpangowin32-1.0-0.dll"
-!ifdef NEED_CAIRO_GOBJECT_DLL
-File "${STAGING_DIR}\libcairo-gobject-2.dll"
-!endif
-!ifdef NEED_CAIRO_DLL
-File "${STAGING_DIR}\libcairo-2.dll"
-File "${STAGING_DIR}\libpangocairo-1.0-0.dll"
-!endif
-!ifdef NEED_EXPAT_DLL
-File "${STAGING_DIR}\${EXPAT_DLL}"
-!endif
-!ifdef NEED_FFI_DLL
-File "${STAGING_DIR}\${FFI_DLL}"
-!endif
-!ifdef NEED_FONTCONFIG_DLL
-File "${STAGING_DIR}\${FONTCONFIG_DLL}"
-!endif
-!ifdef NEED_FREETYPE_DLL
-File "${STAGING_DIR}\libpangoft2-1.0-0.dll"
-File "${STAGING_DIR}\${FREETYPE_DLL}"
-!endif
-!ifdef NEED_HARFBUZZ_DLL
-File "${STAGING_DIR}\${HARFBUZZ_DLL}"
-!endif
-!ifdef NEED_JASPER_DLL
-File "${STAGING_DIR}\${JASPER_DLL}"
-!endif
-!ifdef NEED_JPEG_DLL
-File "${STAGING_DIR}\${JPEG_DLL}"
-!endif
-!ifdef NEED_LZMA_DLL
-File "${STAGING_DIR}\${LZMA_DLL}"
-!endif
-!ifdef NEED_PIXMAN_DLL
-File "${STAGING_DIR}\${PIXMAN_DLL}"
-!endif
-!ifdef NEED_PNG_DLL
-File "${STAGING_DIR}\${PNG_DLL}"
-!endif
-!ifdef NEED_SEH_DLL
-File "${STAGING_DIR}\${SEH_DLL}"
-!endif
-!ifdef NEED_SJLJ_DLL
-File "${STAGING_DIR}\${SJLJ_DLL}"
-!endif
-!ifdef NEED_TIFF_DLL
-File "${STAGING_DIR}\${TIFF_DLL}"
-!endif
-!ifdef NEED_XML_DLL
-File "${STAGING_DIR}\${XML_DLL}"
-!endif
 
-SetOutPath $INSTDIR\${GTK_ETC_DIR}
-File "${GTK_DIR}\${GTK_ETC_DIR}\*.*"
-
-!ifdef GTK_ENGINES_DIR
-SetOutPath $INSTDIR\${GTK_ENGINES_DIR}
-File "${STAGING_DIR}\${GTK_ENGINES_DIR}\libpixmap.dll"
-File "${STAGING_DIR}\${GTK_ENGINES_DIR}\libwimp.dll"
-!endif
-
-!ifdef GTK_MODULES_DIR
-SetOutPath $INSTDIR\${GTK_MODULES_DIR}
-File "${STAGING_DIR}\${GTK_MODULES_DIR}\libgail.dll"
-!endif
-
-!ifdef GTK_SCHEMAS_DIR
-SetOutPath $INSTDIR\${GTK_SCHEMAS_DIR}
-File "${STAGING_DIR}\${GTK_SCHEMAS_DIR}\*.*"
-!endif
+!include gtk-dll-manifest.nsh
 
 SectionEnd ; "SecWiresharkGtk"
 !endif

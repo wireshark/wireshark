@@ -113,116 +113,6 @@ config.nsh: config.nsh.in ..\..\config.nmake
 		-e s/@ENABLE_LIBWIRESHARK@/$(ENABLE_LIBWIRESHARK)/ \
 !IFDEF GTK_DIR
 		-e 's/@GTK_DIR@/$(GTK_DIR:\=\\\\)/' \
-		-e 's/@GTK_LIB_DIR@/$(GTK_LIB_DIR:\=\\\\)/' \
-		-e 's/@PANGO_LIB_DIR@/$(PANGO_LIB_DIR:\=\\\\)/' \
-		-e s/@GDK_DLL@/$(GDK_DLL)/ \
-		-e s/@GTK_DLL@/$(GTK_DLL)/ \
-		-e s/@GTK_NAME@/$(GTK_NAME)/ \
-		-e 's/@GTK_ETC_DIR@/$(GTK_ETC_DIR:\=\\\\)/' \
-!IFDEF GTK_ENGINES_DIR
-		-e 's/@GTK_ENGINES_DIR@/$(GTK_ENGINES_DIR:\=\\\\)/' \
-!ENDIF
-!IFDEF GTK_MODULES_DIR
-		-e 's/@GTK_MODULES_DIR@/$(GTK_MODULES_DIR:\=\\\\)/' \
-!ENDIF
-!IFDEF GTK_SCHEMAS_DIR
-		-e 's/@GTK_SCHEMAS_DIR@/$(GTK_SCHEMAS_DIR:\=\\\\)/' \
-!ENDIF
-!IFDEF NEED_CAIRO_GOBJECT_DLL
-		-e s/@NEED_CAIRO_GOBJECT_DLL@/$(NEED_CAIRO_GOBJECT_DLL)/ \
-!ENDIF
-!IFDEF NEED_CAIRO_DLL
-		-e s/@NEED_CAIRO_DLL@/$(NEED_CAIRO_DLL)/ \
-!ENDIF
-!IFDEF NEED_EXPAT_DLL
-		-e s/@NEED_EXPAT_DLL@/$(NEED_EXPAT_DLL)/ \
-		-e s/@EXPAT_DLL@/$(EXPAT_DLL)/ \
-!ENDIF
-!IFDEF NEED_FFI_DLL
-		-e s/@NEED_FFI_DLL@/$(NEED_FFI_DLL)/ \
-		-e s/@FFI_DLL@/$(FFI_DLL)/ \
-!ENDIF
-!IFDEF NEED_FONTCONFIG_DLL
-		-e s/@NEED_FONTCONFIG_DLL@/$(NEED_FONTCONFIG_DLL)/ \
-		-e s/@FONTCONFIG_DLL@/$(FONTCONFIG_DLL)/ \
-!ENDIF
-!IFDEF NEED_FREETYPE_DLL
-		-e s/@NEED_FREETYPE_DLL@/$(NEED_FREETYPE_DLL)/ \
-		-e s/@FREETYPE_DLL@/$(FREETYPE_DLL)/ \
-!ENDIF
-!IFDEF NEED_HARFBUZZ_DLL
-		-e s/@NEED_HARFBUZZ_DLL@/$(NEED_HARFBUZZ_DLL)/ \
-		-e s/@HARFBUZZ_DLL@/$(HARFBUZZ_DLL)/ \
-!ENDIF
-!IFDEF NEED_JASPER_DLL
-		-e s/@NEED_JASPER_DLL@/$(NEED_JASPER_DLL)/ \
-		-e s/@JASPER_DLL@/$(JASPER_DLL)/ \
-!ENDIF
-!IFDEF NEED_JPEG_DLL
-		-e s/@NEED_JPEG_DLL@/$(NEED_JPEG_DLL)/ \
-		-e s/@JPEG_DLL@/$(JPEG_DLL)/ \
-!ENDIF
-!IFDEF NEED_LZMA_DLL
-		-e s/@NEED_LZMA_DLL@/$(NEED_LZMA_DLL)/ \
-		-e s/@LZMA_DLL@/$(LZMA_DLL)/ \
-!ENDIF
-!IFDEF NEED_PIXMAN_DLL
-		-e s/@NEED_PIXMAN_DLL@/$(NEED_PIXMAN_DLL)/ \
-		-e s/@PIXMAN_DLL@/$(PIXMAN_DLL)/ \
-!ENDIF
-!IFDEF NEED_PNG_DLL
-		-e s/@NEED_PNG_DLL@/$(NEED_PNG_DLL)/ \
-		-e s/@PNG_DLL@/$(PNG_DLL)/ \
-!ENDIF
-!IFDEF NEED_SEH_DLL
-		-e s/@NEED_SEH_DLL@/$(NEED_SEH_DLL)/ \
-		-e s/@SEH_DLL@/$(SEH_DLL)/ \
-!ENDIF
-!IFDEF NEED_SJLJ_DLL
-		-e s/@NEED_SJLJ_DLL@/$(NEED_SJLJ_DLL)/ \
-		-e s/@SJLJ_DLL@/$(SJLJ_DLL)/ \
-!ENDIF
-!IFDEF NEED_TIFF_DLL
-		-e s/@NEED_TIFF_DLL@/$(NEED_TIFF_DLL)/ \
-		-e s/@TIFF_DLL@/$(TIFF_DLL)/ \
-!ENDIF
-!IFDEF NEED_XML_DLL
-		-e s/@NEED_XML_DLL@/$(NEED_XML_DLL)/ \
-		-e s/@XML_DLL@/$(XML_DLL)/ \
-!ENDIF
-!ENDIF
-!IF "$(C_ARES_DIR)" != ""
-		-e s/@C_ARES_DIR@/$(C_ARES_DIR:\=\\)/ \
-!ENDIF
-!IF "$(ADNS_DIR)" != ""
-		-e s/@ADNS_DIR@/$(ADNS_DIR:\=\\)/ \
-!ENDIF
-!IF "$(KFW_DIR)" != ""
-		-e s/@KFW_DIR@/$(KFW_DIR:\=\\)/ \
-		-e s/@KFW_PATH@/$(KFW_PATH:\=\\)/ \
-		-e s/@COMERR_DLL@/$(COMERR_DLL:\=\\)/ \
-		-e s/@KRB5_DLL@/$(KRB5_DLL:\=\\)/ \
-		-e s/@K5SPRT_DLL@/$(K5SPRT_DLL:\=\\)/ \
-!ENDIF
-!IF "$(GNUTLS_DIR)" != ""
-		-e s/@GPGERROR_DLL@/$(GPGERROR_DLL)/ \
-		-e s/@GCC_DLL@/$(GCC_DLL)/ \
-		-e s/@GNUTLS_DIR@/$(GNUTLS_DIR:\=\\)/ \
-!ENDIF
-!IF "$(ZLIB_DIR)" != ""
-		-e s/@ZLIB_DIR@/$(ZLIB_DIR:\=\\)/ \
-!ENDIF
-!IFDEF LUA_DIR
-		-e s/@LUA_DIR@/$(LUA_DIR:\=\\)/ \
-!ENDIF
-!IFDEF SMI_DIR
-		-e s/@SMI_DIR@/$(SMI_DIR:\=\\)/ \
-!ENDIF
-!IFDEF GEOIP_DIR
-		-e s/@GEOIP_DIR@/$(GEOIP_DIR:\=\\)/ \
-!ENDIF
-!IFDEF WINSPARKLE_DIR
-		-e s/@WINSPARKLE_DIR@/$(WINSPARKLE_DIR:\=\\)/ \
 !ENDIF
 !IFDEF HHC_DIR
 		-e 's/@HHC_DIR@/$(HHC_DIR:\=\\\\)/' \
@@ -233,7 +123,141 @@ config.nsh: config.nsh.in ..\..\config.nmake
 		-e 's/\(^^!define .*\) \"*@.*@\"*/; \1/' \
 	    < config.nsh.in > $@
 
-wireshark.nsi: qt-dll-manifest.nsh common.nsh
+wireshark.nsi: all-manifest.nsh qt-dll-manifest.nsh gtk-dll-manifest.nsh common.nsh
+
+all-manifest.nsh: Makefile.nmake ..\..\config.nmake
+	@echo # Files required for all sections. Generated from Makefile.nmake > $@
+	@echo # GLib >> $@
+	@echo File "$(STAGING_DIR)\libgio-2.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\libglib-2.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\libgobject-2.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\libgmodule-2.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\$(INTL_DLL)" >> $@
+!IF "$(C_ARES_DIR)" != ""
+	@echo # C-Ares >> $@
+	@echo File "$(STAGING_DIR)\libcares-2.dll" >> $@
+!ENDIF
+!IF "$(GNUTLS_DIR)" != ""
+	@echo # GnuTLS >> $@
+	@echo File "$(STAGING_DIR)\libffi-6.dll" >> $@
+	@echo File "$(STAGING_DIR)\$(GCC_DLL)" >> $@
+	@echo File "$(STAGING_DIR)\libgcrypt-20.dll" >> $@
+	@echo File "$(STAGING_DIR)\libgmp-10.dll" >> $@
+	@echo File "$(STAGING_DIR)\libgnutls-28.dll" >> $@
+	@echo File "$(STAGING_DIR)\$(GPGERROR_DLL)" >> $@
+	@echo File "$(STAGING_DIR)\libhogweed-2-4.dll" >> $@
+	@echo File "$(STAGING_DIR)\libnettle-4-6.dll" >> $@
+	@echo File "$(STAGING_DIR)\libp11-kit-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\libtasn1-6.dll" >> $@
+!ENDIF
+!IF "$(KFW_DIR)" != ""
+	@echo # Kerberos >> $@
+	@echo File "$(STAGING_DIR)\$(COMERR_DLL)" >> $@
+	@echo File "$(STAGING_DIR)\$(KRB5_DLL)" >> $@
+	@echo File "$(STAGING_DIR)\$(K5SPRT_DLL)" >> $@
+!ENDIF
+!IFDEF LUA_DIR
+	@echo # Lua >> $@
+	@echo File "$(STAGING_DIR)\lua52.dll" >> $@
+	@echo File "..\..\epan\wslua\init.lua" >> $@
+	@echo File "..\..\epan\wslua\console.lua" >> $@
+	@echo File "..\..\epan\wslua\dtd_gen.lua" >> $@
+!ENDIF
+!IFDEF GEOIP_DIR
+	@echo File "$(STAGING_DIR)\libGeoIP-1.dll" >> $@
+!ENDIF
+!IFDEF SMI_DIR
+	@echo # SMI >> $@
+	@echo File "$(STAGING_DIR)\libsmi-2.dll" >> $@
+!ENDIF
+!IFDEF WINSPARKLE_DIR
+	@echo # WinSparkle >> $@
+	@echo File "$(STAGING_DIR)\WinSparkle.dll" >> $@
+!ENDIF
+!IF "$(ZLIB_DIR)" != ""
+	@echo # Zlib >> $@
+	@echo File "$(STAGING_DIR)\zlib1.dll" >> $@
+!ENDIF
+
+gtk-dll-manifest.nsh: Makefile.nmake ..\..\config.nmake
+	@echo # Files required for the GTK+ section. Generated from Makefile.nmake > $@
+	@echo # Mandatory >> $@
+	echo File "$(STAGING_DIR)\$(GDK_DLL)" >> $@
+	echo File "$(STAGING_DIR)\libgdk_pixbuf-2.0-0.dll" >> $@
+	echo File "$(STAGING_DIR)\gspawn-$(WIRESHARK_TARGET_PLATFORM)-helper.exe" >> $@
+	echo File "$(STAGING_DIR)\gspawn-$(WIRESHARK_TARGET_PLATFORM)-helper-console.exe" >> $@
+	echo File "$(STAGING_DIR)\$(GTK_DLL)" >> $@
+	echo File "$(STAGING_DIR)\libatk-1.0-0.dll" >> $@
+	echo File "$(STAGING_DIR)\libpango-1.0-0.dll" >> $@
+	echo File "$(STAGING_DIR)\libpangowin32-1.0-0.dll" >> $@
+	@echo # Optional >> $@
+!IFDEF NEED_CAIRO_DLL
+	@echo File "$(STAGING_DIR)\libcairo-2.dll" >> $@
+	@echo File "$(STAGING_DIR)\libpangocairo-1.0-0.dll" >> $@
+!ENDIF
+!IFDEF NEED_CAIRO_GOBJECT_DLL
+	@echo File "$(STAGING_DIR)\libcairo-gobject-2.dll" >> $@
+!ENDIF
+!IFDEF NEED_EXPAT_DLL
+	@echo File "$(STAGING_DIR)\${EXPAT_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_FFI_DLL
+	@echo File "$(STAGING_DIR)\$(FFI_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_FONTCONFIG_DLL
+	@echo File "$(STAGING_DIR)\$(FONTCONFIG_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_FREETYPE_DLL
+	@echo File "$(STAGING_DIR)\libpangoft2-1.0-0.dll" >> $@
+	@echo File "$(STAGING_DIR)\$(FREETYPE_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_HARFBUZZ_DLL
+	@echo File "$(STAGING_DIR)\$(HARFBUZZ_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_JASPER_DLL
+	@echo File "$(STAGING_DIR)\$(JASPER_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_JPEG_DLL
+	@echo File "$(STAGING_DIR)\$(JPEG_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_LZMA_DLL
+	@echo File "$(STAGING_DIR)\$(LZMA_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_PIXMAN_DLL
+	@echo File "$(STAGING_DIR)\$(PIXMAN_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_PNG_DLL
+	@echo File "$(STAGING_DIR)\$(PNG_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_SEH_DLL
+	@echo File "$(STAGING_DIR)\$(SEH_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_SJLJ_DLL
+	@echo File "$(STAGING_DIR)\$(SJLJ_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_TIFF_DLL
+	@echo File "$(STAGING_DIR)\$(TIFF_DLL)" >> $@
+!ENDIF
+!IFDEF NEED_XML_DLL
+	@echo File "$(STAGING_DIR)\$(XML_DLL)" >> $@
+!ENDIF
+	@echo # Subdirectories >> $@
+	@echo SetOutPath ^$INSTDIR\$(GTK_ETC_DIR) >> $@
+	@echo File "$(GTK_DIR)\$(GTK_ETC_DIR)\*.*" >> $@
+!IFDEF GTK_ENGINES_DIR
+	@echo SetOutPath ^$INSTDIR\$(GTK_ENGINES_DIR) >> $@
+	@echo File "$(STAGING_DIR)\$(GTK_ENGINES_DIR)\libpixmap.dll" >> $@
+	@echo File "$(STAGING_DIR)\$(GTK_ENGINES_DIR)\libwimp.dll" >> $@
+!ENDIF
+!IFDEF GTK_MODULES_DIR
+	@echo SetOutPath ^$INSTDIR\$(GTK_MODULES_DIR) >> $@
+	@echo File "$(STAGING_DIR)\$(GTK_MODULES_DIR)\libgail.dll" >> $@
+!ENDIF
+!IFDEF GTK_SCHEMAS_DIR
+	@echo SetOutPath ^$INSTDIR\$(GTK_SCHEMAS_DIR) >> $@
+	@echo File "$(STAGING_DIR)\$(GTK_SCHEMAS_DIR)\*.*" >> $@
+!ENDIF
+
 qt-dll-manifest.nsh: windeployqt-to-nsis.ps1 Makefile.nmake
 !IF EXIST("$(QT5_BASE_DIR)\bin\qmake.exe")
 	set PATH=%PATH%;$(QT5_BASE_DIR)\bin
@@ -254,12 +278,14 @@ wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(
 	$(MAKENSIS) wireshark.nsi
 
 clean:
-	rm -f wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
-	rm -f $(UNINSTALL_INSTALLER)
-	rm -f NEWS.txt
-	rm -f user-guide.chm
-	rm -f qt-dll-manifest.nsh
+	rm -f all-manifest.nsh
 	rm -f config.nsh
+	rm -f gtk-dll-manifest.nsh
+	rm -f NEWS.txt
+	rm -f qt-dll-manifest.nsh
+	rm -f user-guide.chm
+	rm -f $(UNINSTALL_INSTALLER)
+	rm -f wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe
 
 distclean: clean
 	rm -f wireshark-$(WIRESHARK_TARGET_PLATFORM)-*.exe
