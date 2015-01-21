@@ -64,30 +64,12 @@ static gint ett_hpfeeds = -1;
 
 static expert_field ei_hpfeeds_opcode_unknown = EI_INIT;
 
-static dissector_handle_t json_hdl;
-
 /* OPCODE */
 #define OP_ERROR       0         /* error message*/
 #define OP_INFO        1         /* server name, nonce */
 #define OP_AUTH        2         /* client id, sha1(nonce+authkey) */
 #define OP_PUBLISH     3         /* client id, channelname, payload */
 #define OP_SUBSCRIBE   4         /* client id, channelname*/
-
-
-/* WELL-KNOWN CHANNELS */
-#define CH_EINVAL               0
-/* Dionaea honeypot */
-#define CH_DIONAEA_CAPTURE      1
-#define CH_DIONAEA_DCE          2
-#define CH_DIONAEA_SHELLCODE    3
-#define CH_DIONAEA_UINQUE       4
-#define CH_DIONAEA_CONNECTIONS  5
-/* Kippo honeypot */
-#define CH_KIPPO_SESSIONS       10
-/* Glastopf honeypot */
-#define CH_GLASTOPF_EVENTS      20
-/* Honeymap geoloc channel */
-#define CH_GEOLOC_EVENTS        30
 
 /* OFFSET FOR HEADER */
 #define HPFEEDS_HDR_LEN  5
@@ -166,7 +148,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    /* get the channel name as ephemeral string to pass it to the json decoder */
+    /* get the channel name as ephemeral string to pass it to the heuristic decoders */
     strptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
     proto_tree_add_item(tree, hf_hpfeeds_channel, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
@@ -429,8 +411,6 @@ proto_reg_handoff_hpfeeds(void)
     hpfeeds_dissector_port = hpfeeds_port_pref;
 
     dissector_add_uint("tcp.port", hpfeeds_dissector_port,  hpfeeds_handle);
-
-    json_hdl = find_dissector("json");
 }
 
 /*
