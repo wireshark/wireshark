@@ -1080,8 +1080,30 @@ CFLAGS_before_simd="$CFLAGS"
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-msse4.2, C)
 if test "x$CFLAGS" != "x$CFLAGS_before_simd"
 then
-	AC_MSG_CHECKING([whether there is nmmintrin.h header])
+	#
+	# Restore CFLAGS.  We only want to apply -msse4.2 to
+	# wsutil/ws_mempbrk_sse42.c, as the SSE4.2 code there
+	# is run only if the hardware supports it, but other
+	# code would do no such checks.
+	# 
+	CFLAGS="$CFLAGS_before_simd"
 
+	#
+	# Make sure we have the necessary header for the SSE4.2 intrinsics
+	# and that we can use it.
+	#
+	AC_MSG_CHECKING([whether there is nmmintrin.h header and we can use it])
+
+	#
+	# Add the SSE4.2 flags to the beginning of CFLAGS, in case the
+	# user explicitly specified -mno-sse4.2 (or in case Gentoo's build
+	# tools did so); if they did so, we only want this to work if
+	# we can use the #pragma to override that for ws_mempbrk_sse42.c,
+	# and putting it at the beginning means that the CFLAGS setting
+	# in the environment will come later and override it.
+	#
+	saved_CFLAGS="$CFLAGS"
+	CFLAGS="-msse4.2 $CFLAGS"
 	AC_TRY_COMPILE(
 		[#include <nmmintrin.h>],
 		[return 0;],
@@ -1096,9 +1118,7 @@ then
 		        AC_MSG_RESULT([no])
 		]
 	)
-
-	# Restore CFLAGS
-	CFLAGS="$CFLAGS_before_simd"
+	CFLAGS="$saved_CFLAGS"
 else
 	have_sse42=no
 fi
