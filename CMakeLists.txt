@@ -404,13 +404,39 @@ foreach(THIS_FLAG ${CPP_FLAG_TESTS})
 endforeach()
 set(CMAKE_CXX_FLAGS "${ADDED_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
-check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
-if(FVHIDDEN)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-else() # TODO add alternate compiler flags for hiding symbols
-	if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-		message(WARNING "Hiding shared library symbols is not supported by the compiler."
-			" All shared library symbols will be exported.")
+#
+# Try to have the compiler default to hiding symbols, so that only
+# symbols explicitly exported with WS_DLL_PUBLIC will be visible
+# outside (shared) libraries; that way, more UN*X builds will catch
+# failures to export symbols, rather than having that fail only on
+# Windows.
+#
+# We don't need that with MSVC, as that's the default.
+#
+if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+	#
+	# Try the GCC-and-copatible -fvisibility-hidden first.
+	#
+	check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
+	if(FVHIDDEN)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+	else()
+		#
+		# OK, try the Sun^WOracle C -xldscope=hidden
+		#
+		check_c_compiler_flag(-xldscope=hidden XLDSCOPEHIDDEN)
+		if(XLDSCOPEHIDDEN)
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -xldscope=hidden")
+		else()
+			#
+			# Anything else?
+			# If there is anything else, we might want to
+			# make a list of options to try, and try them
+			# in a loop.
+			#
+			message(WARNING "Hiding shared library symbols is not supported by the compiler."
+				" All shared library symbols will be exported.")
+		endif()
 	endif()
 endif()
 
