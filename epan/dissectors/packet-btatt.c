@@ -304,6 +304,203 @@ static int hf_btatt_magnetic_flux_density_z = -1;
 static int hf_btatt_language = -1;
 static int hf_btatt_barometric_pressure_trend = -1;
 static int hf_btatt_central_address_resolution = -1;
+static int hf_btatt_cycling_power_feature = -1;
+static int hf_btatt_cycling_power_feature_reserved = -1;
+static int hf_btatt_cycling_power_feature_factory_calibration_date = -1;
+static int hf_btatt_cycling_power_feature_instantaneous_measurement_direction = -1;
+static int hf_btatt_cycling_power_feature_sensor_measurement_context = -1;
+static int hf_btatt_cycling_power_feature_span_length_adjustment = -1;
+static int hf_btatt_cycling_power_feature_chain_weight_adjustment = -1;
+static int hf_btatt_cycling_power_feature_chain_length_adjustment = -1;
+static int hf_btatt_cycling_power_feature_crank_length_adjustment = -1;
+static int hf_btatt_cycling_power_feature_multiple_sensor_locations = -1;
+static int hf_btatt_cycling_power_feature_cycling_power_measurement_characteristic_content_masking = -1;
+static int hf_btatt_cycling_power_feature_offset_compensation = -1;
+static int hf_btatt_cycling_power_feature_offset_compensation_indicator = -1;
+static int hf_btatt_cycling_power_feature_accumulated_energy = -1;
+static int hf_btatt_cycling_power_feature_top_and_bottom_dead_spot_angles = -1;
+static int hf_btatt_cycling_power_feature_extreme_angles = -1;
+static int hf_btatt_cycling_power_feature_extreme_magnitudes = -1;
+static int hf_btatt_cycling_power_feature_crank_revolution_data = -1;
+static int hf_btatt_cycling_power_feature_wheel_revolution_data = -1;
+static int hf_btatt_cycling_power_feature_accumulated_torque = -1;
+static int hf_btatt_cycling_power_feature_pedal_power_balance = -1;
+static int hf_btatt_ln_feature = -1;
+static int hf_btatt_ln_feature_reserved = -1;
+static int hf_btatt_ln_feature_position_status = -1;
+static int hf_btatt_ln_feature_elevation_setting = -1;
+static int hf_btatt_ln_feature_fix_rate_setting = -1;
+static int hf_btatt_ln_feature_location_and_speed_characteristic_content_masking = -1;
+static int hf_btatt_ln_feature_vertical_dilution_of_precision = -1;
+static int hf_btatt_ln_feature_horizontal_dilution_of_precision = -1;
+static int hf_btatt_ln_feature_estimated_vertical_position_error = -1;
+static int hf_btatt_ln_feature_estimated_horizontal_position_error = -1;
+static int hf_btatt_ln_feature_time_to_first_fix = -1;
+static int hf_btatt_ln_feature_number_of_beacons_in_view = -1;
+static int hf_btatt_ln_feature_number_of_beacons_in_solution = -1;
+static int hf_btatt_ln_feature_estimated_time_of_arrival = -1;
+static int hf_btatt_ln_feature_remaining_vertical_distance = -1;
+static int hf_btatt_ln_feature_remaining_distance = -1;
+static int hf_btatt_ln_feature_utc_time = -1;
+static int hf_btatt_ln_feature_rolling_time = -1;
+static int hf_btatt_ln_feature_heading = -1;
+static int hf_btatt_ln_feature_elevation = -1;
+static int hf_btatt_ln_feature_location = -1;
+static int hf_btatt_ln_feature_total_distance = -1;
+static int hf_btatt_ln_feature_instantaneous_speed = -1;
+static int hf_btatt_body_composition_feature = -1;
+static int hf_btatt_body_composition_feature_reserved = -1;
+static int hf_btatt_body_composition_feature_height_measurement_resolution = -1;
+static int hf_btatt_body_composition_feature_mass_measurement_resolution = -1;
+static int hf_btatt_body_composition_feature_height = -1;
+static int hf_btatt_body_composition_feature_weight = -1;
+static int hf_btatt_body_composition_feature_impedance = -1;
+static int hf_btatt_body_composition_feature_body_water_mass = -1;
+static int hf_btatt_body_composition_feature_soft_lean_mass = -1;
+static int hf_btatt_body_composition_feature_fat_free_mass = -1;
+static int hf_btatt_body_composition_feature_muscle_mass = -1;
+static int hf_btatt_body_composition_feature_muscle_percentage = -1;
+static int hf_btatt_body_composition_feature_basal_metabolism = -1;
+static int hf_btatt_body_composition_feature_multiple_users = -1;
+static int hf_btatt_body_composition_feature_timestamp = -1;
+static int hf_btatt_weight_scale_feature = -1;
+static int hf_btatt_weight_scale_feature_reserved = -1;
+static int hf_btatt_weight_scale_feature_height_measurement_resolution = -1;
+static int hf_btatt_weight_scale_feature_weight_measurement_resolution = -1;
+static int hf_btatt_weight_scale_feature_bmi = -1;
+static int hf_btatt_weight_scale_feature_multiple_users = -1;
+static int hf_btatt_weight_scale_feature_timestamp = -1;
+static int hf_btatt_glucose_measurement_flags = -1;
+static int hf_btatt_glucose_measurement_flags_reserved = -1;
+static int hf_btatt_glucose_measurement_flags_context_information_follows = -1;
+static int hf_btatt_glucose_measurement_flags_sensor_status_annunciation_present = -1;
+static int hf_btatt_glucose_measurement_flags_glucose_concentration_units = -1;
+static int hf_btatt_glucose_measurement_flags_glucose_concentration_type_and_sample_location_present = -1;
+static int hf_btatt_glucose_measurement_flags_time_offset_present = -1;
+static int hf_btatt_glucose_measurement_sequence_number = -1;
+static int hf_btatt_glucose_measurement_base_time = -1;
+static int hf_btatt_glucose_measurement_time_offset = -1;
+static int hf_btatt_glucose_measurement_glucose_concentration_kg_per_l = -1;
+static int hf_btatt_glucose_measurement_glucose_concentration_mol_per_l = -1;
+static int hf_btatt_glucose_measurement_type_and_sample_location = -1;
+static int hf_btatt_glucose_measurement_type_and_sample_location_type = -1;
+static int hf_btatt_glucose_measurement_type_and_sample_location_sample_location = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_reserved = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_time_fault = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_general_fault = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_read_interrupted = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_low = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_high = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_lower = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_high = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_strip_type_incorrect = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_strip_insertion_error = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_size_insufficient = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_fault = -1;
+static int hf_btatt_glucose_measurement_sensor_status_annunciation_battery_low = -1;
+static int hf_btatt_bond_management_feature = -1;
+static int hf_btatt_bond_management_feature_feature_extension = -1;
+static int hf_btatt_bond_management_feature_reserved = -1;
+static int hf_btatt_bond_management_feature_identify_yourself = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_9 = -1;
+static int hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_le_transport_only_server = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_8 = -1;
+static int hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_br_edr_transport_only_server = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_7 = -1;
+static int hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_br_edr_and_le_server = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_6 = -1;
+static int hf_btatt_bond_management_feature_remove_all_bonds_on_le_transport_only_server = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_5 = -1;
+static int hf_btatt_bond_management_feature_remove_all_bonds_on_br_edr_transport_only_server = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_4 = -1;
+static int hf_btatt_bond_management_feature_remove_all_bonds_on_br_edr_and_le_server = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_3 = -1;
+static int hf_btatt_bond_management_feature_delete_bond_of_current_le_transport_only_connection = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_2 = -1;
+static int hf_btatt_bond_management_feature_delete_bond_of_current_br_edr_transport_only_connection = -1;
+static int hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_1 = -1;
+static int hf_btatt_bond_management_feature_delete_bond_of_current_br_edr_and_le_connection = -1;
+static int hf_btatt_bond_management_feature_nth = -1;
+static int hf_btatt_bond_management_feature_nth_feature_extension = -1;
+static int hf_btatt_bond_management_feature_nth_reserved = -1;
+static int hf_btatt_bond_management_control_point_opcode = -1;
+static int hf_btatt_bond_management_control_point_authorization_code = -1;
+static int hf_btatt_temperature_measurement_flags = -1;
+static int hf_btatt_temperature_measurement_flags_reserved = -1;
+static int hf_btatt_temperature_measurement_flags_temperature_type = -1;
+static int hf_btatt_temperature_measurement_flags_timestamp = -1;
+static int hf_btatt_temperature_measurement_flags_temperature_unit = -1;
+static int hf_btatt_temperature_measurement_value_celsius = -1;
+static int hf_btatt_temperature_measurement_value_fahrenheit = -1;
+static int hf_btatt_temperature_measurement_timestamp = -1;
+static int hf_btatt_glucose_measurement_context_flags = -1;
+static int hf_btatt_glucose_measurement_context_flags_extended_flags = -1;
+static int hf_btatt_glucose_measurement_context_flags_hba1c = -1;
+static int hf_btatt_glucose_measurement_context_flags_medication_value_units = -1;
+static int hf_btatt_glucose_measurement_context_flags_medication_id_and_medication = -1;
+static int hf_btatt_glucose_measurement_context_flags_exercise_duration_and_exercise_intensity = -1;
+static int hf_btatt_glucose_measurement_context_flags_tester_health = -1;
+static int hf_btatt_glucose_measurement_context_flags_meal = -1;
+static int hf_btatt_glucose_measurement_context_flags_carbohydrate_id_and_carbohydrate = -1;
+static int hf_btatt_glucose_measurement_context_sequence_number = -1;
+static int hf_btatt_glucose_measurement_context_extended_flags = -1;
+static int hf_btatt_glucose_measurement_context_extended_flags_reserved = -1;
+static int hf_btatt_glucose_measurement_context_carbohydrate_id = -1;
+static int hf_btatt_glucose_measurement_context_carbohydrate_kg = -1;
+static int hf_btatt_glucose_measurement_context_meal = -1;
+static int hf_btatt_glucose_measurement_context_tester_health = -1;
+static int hf_btatt_glucose_measurement_context_tester = -1;
+static int hf_btatt_glucose_measurement_context_health = -1;
+static int hf_btatt_glucose_measurement_context_exercise_duration = -1;
+static int hf_btatt_glucose_measurement_context_exercise_intensity = -1;
+static int hf_btatt_glucose_measurement_context_medication_id = -1;
+static int hf_btatt_glucose_measurement_context_medication_l = -1;
+static int hf_btatt_glucose_measurement_context_medication_kg = -1;
+static int hf_btatt_glucose_measurement_context_hba1c = -1;
+static int hf_btatt_blood_pressure_measurement_flags = -1;
+static int hf_btatt_blood_pressure_measurement_flags_reserved = -1;
+static int hf_btatt_blood_pressure_measurement_flags_measurement_status = -1;
+static int hf_btatt_blood_pressure_measurement_flags_user_id = -1;
+static int hf_btatt_blood_pressure_measurement_flags_pulse_rate = -1;
+static int hf_btatt_blood_pressure_measurement_flags_timestamp = -1;
+static int hf_btatt_blood_pressure_measurement_flags_unit = -1;
+static int hf_btatt_blood_pressure_measurement_compound_value_systolic_kpa = -1;
+static int hf_btatt_blood_pressure_measurement_compound_value_diastolic_kpa = -1;
+static int hf_btatt_blood_pressure_measurement_compound_value_mean_arterial_pressure_kpa = -1;
+static int hf_btatt_blood_pressure_measurement_compound_value_systolic_mmhg = -1;
+static int hf_btatt_blood_pressure_measurement_compound_value_diastolic_mmhg = -1;
+static int hf_btatt_blood_pressure_measurement_compound_value_mean_arterial_pressure_mmhg = -1;
+static int hf_btatt_blood_pressure_measurement_timestamp = -1;
+static int hf_btatt_blood_pressure_measurement_pulse_rate = -1;
+static int hf_btatt_blood_pressure_measurement_user_id = -1;
+static int hf_btatt_blood_pressure_measurement_status = -1;
+static int hf_btatt_blood_pressure_measurement_status_reserved = -1;
+static int hf_btatt_blood_pressure_measurement_status_improper_measurement_position = -1;
+static int hf_btatt_blood_pressure_measurement_status_pulse_rate_range_detection = -1;
+static int hf_btatt_blood_pressure_measurement_status_irregular_pulse = -1;
+static int hf_btatt_blood_pressure_measurement_status_cuff_fit_too_loose = -1;
+static int hf_btatt_blood_pressure_measurement_status_body_movement = -1;
+static int hf_btatt_heart_rate_measurement_flags = -1;
+static int hf_btatt_heart_rate_measurement_flags_reserved = -1;
+static int hf_btatt_heart_rate_measurement_flags_rr_interval = -1;
+static int hf_btatt_heart_rate_measurement_flags_energy_expended = -1;
+static int hf_btatt_heart_rate_measurement_flags_sensor_contact_status_support = -1;
+static int hf_btatt_heart_rate_measurement_flags_sensor_contact_status_contact = -1;
+static int hf_btatt_heart_rate_measurement_flags_value_16 = -1;
+static int hf_btatt_heart_rate_measurement_value_8 = -1;
+static int hf_btatt_heart_rate_measurement_value_16 = -1;
+static int hf_btatt_heart_rate_measurement_energy_expended = -1;
+static int hf_btatt_heart_rate_measurement_rr_interval = -1;
+static int hf_btatt_record_access_control_point_opcode = -1;
+static int hf_btatt_record_access_control_point_operator = -1;
+static int hf_btatt_record_access_control_point_operand = -1;
+static int hf_btatt_record_access_control_point_operand_filter_type = -1;
+static int hf_btatt_record_access_control_point_operand_min_time_offset = -1;
+static int hf_btatt_record_access_control_point_operand_max_time_offset = -1;
+static int hf_btatt_record_access_control_point_operand_number_of_records = -1;
+static int hf_btatt_record_access_control_point_request_opcode = -1;
+static int hf_btatt_record_access_control_point_response_code = -1;
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
 
@@ -506,6 +703,209 @@ static const int *hfx_btatt_descriptor_value_changed_flags[] = {
     NULL
 };
 
+static const int *hfx_btatt_cycling_power_feature[] = {
+    &hf_btatt_cycling_power_feature_reserved,
+    &hf_btatt_cycling_power_feature_factory_calibration_date,
+    &hf_btatt_cycling_power_feature_instantaneous_measurement_direction,
+    &hf_btatt_cycling_power_feature_sensor_measurement_context,
+    &hf_btatt_cycling_power_feature_span_length_adjustment,
+    &hf_btatt_cycling_power_feature_chain_weight_adjustment,
+    &hf_btatt_cycling_power_feature_chain_length_adjustment,
+    &hf_btatt_cycling_power_feature_crank_length_adjustment,
+    &hf_btatt_cycling_power_feature_multiple_sensor_locations,
+    &hf_btatt_cycling_power_feature_cycling_power_measurement_characteristic_content_masking,
+    &hf_btatt_cycling_power_feature_offset_compensation,
+    &hf_btatt_cycling_power_feature_offset_compensation_indicator,
+    &hf_btatt_cycling_power_feature_accumulated_energy,
+    &hf_btatt_cycling_power_feature_top_and_bottom_dead_spot_angles,
+    &hf_btatt_cycling_power_feature_extreme_angles,
+    &hf_btatt_cycling_power_feature_extreme_magnitudes,
+    &hf_btatt_cycling_power_feature_crank_revolution_data,
+    &hf_btatt_cycling_power_feature_wheel_revolution_data,
+    &hf_btatt_cycling_power_feature_accumulated_torque,
+    &hf_btatt_cycling_power_feature_pedal_power_balance,
+    NULL
+};
+
+static const int *hfx_btatt_ln_feature[] = {
+    &hf_btatt_ln_feature_reserved,
+    &hf_btatt_ln_feature_position_status,
+    &hf_btatt_ln_feature_elevation_setting,
+    &hf_btatt_ln_feature_fix_rate_setting,
+    &hf_btatt_ln_feature_location_and_speed_characteristic_content_masking,
+    &hf_btatt_ln_feature_vertical_dilution_of_precision,
+    &hf_btatt_ln_feature_horizontal_dilution_of_precision,
+    &hf_btatt_ln_feature_estimated_vertical_position_error,
+    &hf_btatt_ln_feature_estimated_horizontal_position_error,
+    &hf_btatt_ln_feature_time_to_first_fix,
+    &hf_btatt_ln_feature_number_of_beacons_in_view,
+    &hf_btatt_ln_feature_number_of_beacons_in_solution,
+    &hf_btatt_ln_feature_estimated_time_of_arrival,
+    &hf_btatt_ln_feature_remaining_vertical_distance,
+    &hf_btatt_ln_feature_remaining_distance,
+    &hf_btatt_ln_feature_utc_time,
+    &hf_btatt_ln_feature_rolling_time,
+    &hf_btatt_ln_feature_heading,
+    &hf_btatt_ln_feature_elevation,
+    &hf_btatt_ln_feature_location,
+    &hf_btatt_ln_feature_total_distance,
+    &hf_btatt_ln_feature_instantaneous_speed,
+    NULL
+};
+
+static const int *hfx_btatt_body_composition_feature[] = {
+    &hf_btatt_body_composition_feature_reserved,
+    &hf_btatt_body_composition_feature_height_measurement_resolution,
+    &hf_btatt_body_composition_feature_mass_measurement_resolution,
+    &hf_btatt_body_composition_feature_height,
+    &hf_btatt_body_composition_feature_weight,
+    &hf_btatt_body_composition_feature_impedance,
+    &hf_btatt_body_composition_feature_body_water_mass,
+    &hf_btatt_body_composition_feature_soft_lean_mass,
+    &hf_btatt_body_composition_feature_fat_free_mass,
+    &hf_btatt_body_composition_feature_muscle_mass,
+    &hf_btatt_body_composition_feature_muscle_percentage,
+    &hf_btatt_body_composition_feature_basal_metabolism,
+    &hf_btatt_body_composition_feature_multiple_users,
+    &hf_btatt_body_composition_feature_timestamp,
+    NULL
+};
+
+static const int *hfx_btatt_weight_scale_feature[] = {
+    &hf_btatt_weight_scale_feature_reserved,
+    &hf_btatt_weight_scale_feature_height_measurement_resolution,
+    &hf_btatt_weight_scale_feature_weight_measurement_resolution,
+    &hf_btatt_weight_scale_feature_bmi,
+    &hf_btatt_weight_scale_feature_multiple_users,
+    &hf_btatt_weight_scale_feature_timestamp,
+    NULL
+};
+
+static const int *hfx_btatt_glucose_measurement_flags[] = {
+    &hf_btatt_glucose_measurement_flags_reserved,
+    &hf_btatt_glucose_measurement_flags_context_information_follows,
+    &hf_btatt_glucose_measurement_flags_sensor_status_annunciation_present,
+    &hf_btatt_glucose_measurement_flags_glucose_concentration_units,
+    &hf_btatt_glucose_measurement_flags_glucose_concentration_type_and_sample_location_present,
+    &hf_btatt_glucose_measurement_flags_time_offset_present,
+    NULL
+};
+
+static const int *hfx_btatt_glucose_measurement_type_and_sample_location[] = {
+    &hf_btatt_glucose_measurement_type_and_sample_location_type,
+    &hf_btatt_glucose_measurement_type_and_sample_location_sample_location,
+    NULL
+};
+
+static const int *hfx_btatt_glucose_measurement_sensor_status_annunciation[] = {
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_reserved,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_time_fault,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_general_fault,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_read_interrupted,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_low,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_high,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_lower,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_high,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_strip_type_incorrect,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_strip_insertion_error,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_size_insufficient,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_fault,
+    &hf_btatt_glucose_measurement_sensor_status_annunciation_battery_low,
+    NULL
+};
+
+static const int *hfx_btatt_bond_management_feature[] = {
+    &hf_btatt_bond_management_feature_feature_extension,
+    &hf_btatt_bond_management_feature_reserved,
+    &hf_btatt_bond_management_feature_identify_yourself,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_9,
+    &hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_le_transport_only_server,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_8,
+    &hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_br_edr_transport_only_server,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_7,
+    &hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_br_edr_and_le_server,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_6,
+    &hf_btatt_bond_management_feature_remove_all_bonds_on_le_transport_only_server,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_5,
+    &hf_btatt_bond_management_feature_remove_all_bonds_on_br_edr_transport_only_server,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_4,
+    &hf_btatt_bond_management_feature_remove_all_bonds_on_br_edr_and_le_server,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_3,
+    &hf_btatt_bond_management_feature_delete_bond_of_current_le_transport_only_connection,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_2,
+    &hf_btatt_bond_management_feature_delete_bond_of_current_br_edr_transport_only_connection,
+    &hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_1,
+    &hf_btatt_bond_management_feature_delete_bond_of_current_br_edr_and_le_connection,
+    NULL
+};
+
+static const int *hfx_btatt_bond_management_feature_nth[] = {
+    &hf_btatt_bond_management_feature_nth_feature_extension,
+    &hf_btatt_bond_management_feature_nth_reserved,
+    NULL
+};
+
+static const int *hfx_btatt_temperature_measurement_flags[] = {
+    &hf_btatt_temperature_measurement_flags_reserved,
+    &hf_btatt_temperature_measurement_flags_temperature_type,
+    &hf_btatt_temperature_measurement_flags_timestamp,
+    &hf_btatt_temperature_measurement_flags_temperature_unit,
+    NULL
+};
+
+static const int *hfx_btatt_glucose_measurement_context_flags[] = {
+    &hf_btatt_glucose_measurement_context_flags_extended_flags,
+    &hf_btatt_glucose_measurement_context_flags_hba1c,
+    &hf_btatt_glucose_measurement_context_flags_medication_value_units,
+    &hf_btatt_glucose_measurement_context_flags_medication_id_and_medication,
+    &hf_btatt_glucose_measurement_context_flags_exercise_duration_and_exercise_intensity,
+    &hf_btatt_glucose_measurement_context_flags_tester_health,
+    &hf_btatt_glucose_measurement_context_flags_meal,
+    &hf_btatt_glucose_measurement_context_flags_carbohydrate_id_and_carbohydrate,
+    NULL
+};
+
+static const int *hfx_btatt_glucose_measurement_context_extended_flags[] = {
+    &hf_btatt_glucose_measurement_context_extended_flags_reserved,
+    NULL
+};
+
+static const int *hfx_btatt_glucose_measurement_context_tester_health[] = {
+    &hf_btatt_glucose_measurement_context_tester,
+    &hf_btatt_glucose_measurement_context_health,
+    NULL
+};
+
+static const int *hfx_btatt_blood_pressure_measurement_flags[] = {
+    &hf_btatt_blood_pressure_measurement_flags_reserved,
+    &hf_btatt_blood_pressure_measurement_flags_measurement_status,
+    &hf_btatt_blood_pressure_measurement_flags_user_id,
+    &hf_btatt_blood_pressure_measurement_flags_pulse_rate,
+    &hf_btatt_blood_pressure_measurement_flags_timestamp,
+    &hf_btatt_blood_pressure_measurement_flags_unit,
+    NULL
+};
+
+static const int *hfx_btatt_blood_pressure_measurement_status[] = {
+    &hf_btatt_blood_pressure_measurement_status_reserved,
+    &hf_btatt_blood_pressure_measurement_status_improper_measurement_position,
+    &hf_btatt_blood_pressure_measurement_status_pulse_rate_range_detection,
+    &hf_btatt_blood_pressure_measurement_status_irregular_pulse,
+    &hf_btatt_blood_pressure_measurement_status_cuff_fit_too_loose,
+    &hf_btatt_blood_pressure_measurement_status_body_movement,
+    NULL
+};
+
+static const int *hfx_btatt_heart_rate_measurement_flags[] = {
+    &hf_btatt_heart_rate_measurement_flags_reserved,
+    &hf_btatt_heart_rate_measurement_flags_rr_interval,
+    &hf_btatt_heart_rate_measurement_flags_energy_expended,
+    &hf_btatt_heart_rate_measurement_flags_sensor_contact_status_support,
+    &hf_btatt_heart_rate_measurement_flags_sensor_contact_status_contact,
+    &hf_btatt_heart_rate_measurement_flags_value_16,
+    NULL
+};
+
 
 /* Initialize the subtree pointers */
 static gint ett_btatt = -1;
@@ -520,6 +920,7 @@ static expert_field ei_btatt_uuid_format_unknown = EI_INIT;
 static expert_field ei_btatt_handle_too_few = EI_INIT;
 static expert_field ei_btatt_mtu_exceeded = EI_INIT;
 static expert_field ei_btatt_mtu_full = EI_INIT;
+static expert_field ei_btatt_undecoded = EI_INIT;
 
 static wmem_tree_t *mtus = NULL;
 static wmem_tree_t *requests = NULL;
@@ -1331,12 +1732,214 @@ static const value_string barometric_pressure_trend_vals[] = {
 };
 
 static const value_string central_address_resolution_vals[] = {
-    {0x00,   "Not supported"},
+    {0x00,   "Not Supported"},
     {0x01,   "Supported"},
-    {0x02,   ""},
     {0x0, NULL}
 };
 
+static const value_string cycling_power_feature_sensor_measurement_context_vals[] = {
+    {0x00,   "Force Based"},
+    {0x01,   "Torque Based"},
+    {0x0, NULL}
+};
+
+static const value_string body_composition_feature_mass_measurement_resolution_vals[] = {
+    {0x00,   "Not Specified"},
+    {0x01,   "Resolution of 0.5 kg or 1 lb"},
+    {0x02,   "Resolution of 0.2 kg or 0.5 lb"},
+    {0x03,   "Resolution of 0.1 kg or 0.2 lb"},
+    {0x04,   "Resolution of 0.05 kg or 0.1 lb"},
+    {0x05,   "Resolution of 0.02 kg or 0.05 lb"},
+    {0x06,   "Resolution of 0.01 kg or 0.02 lb"},
+    {0x07,   "Resolution of 0.005 kg or 0.01 lb"},
+    {0x0, NULL}
+};
+
+static const value_string body_composition_feature_height_measurement_resolution_vals[] = {
+    {0x00,   "Not Specified"},
+    {0x01,   "Resolution of 0.01 meter or 1 inch"},
+    {0x02,   "Resolution of 0.005 meter or 0.5 inch"},
+    {0x03,   "Resolution of 0.001 meter or 0.1 inch"},
+    {0x0, NULL}
+};
+
+static const value_string weight_scale_feature_height_measurement_resolution_vals[] = {
+    {0x00,   "Not Specified"},
+    {0x01,   "Resolution of 0.01 meter or 1 inch"},
+    {0x02,   "Resolution of 0.005 meter or 0.5 inch"},
+    {0x03,   "Resolution of 0.001 meter or 0.1 inch"},
+    {0x0, NULL}
+};
+
+static const value_string weight_scale_feature_weight_measurement_resolution_vals[] = {
+    {0x00,   "Not Specified"},
+    {0x01,   "Resolution of 0.5 kg or 1 lb"},
+    {0x02,   "Resolution of 0.2 kg or 0.5 lb"},
+    {0x03,   "Resolution of 0.1 kg or 0.2 lb"},
+    {0x04,   "Resolution of 0.05 kg or 0.1 lb"},
+    {0x05,   "Resolution of 0.02 kg or 0.05 lb"},
+    {0x06,   "Resolution of 0.01 kg or 0.02 lb"},
+    {0x07,   "Resolution of 0.005 kg or 0.01 lb"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_flags_glucose_concentration_units_vals[] = {
+    {0x00,   "kg/L"},
+    {0x01,   "mol/L"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_type_and_sample_location_type_vals[] = {
+    {0x01,   "Capillary Whole Blood"},
+    {0x02,   "Capillary Plasma"},
+    {0x03,   "Venous Whole Blood"},
+    {0x04,   "Venous Plasma"},
+    {0x05,   "Arterial Whole Blood"},
+    {0x06,   "Arterial Plasma"},
+    {0x07,   "Undetermined Whole Blood"},
+    {0x08,   "Undetermined Plasma"},
+    {0x09,   "Interstitial Fluid"},
+    {0x0A,   "Control Solution"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_type_and_sample_location_sample_location_vals[] = {
+    {0x01,   "Finger"},
+    {0x02,   "Alternate Site Test"},
+    {0x03,   "Earlobe"},
+    {0x04,   "Control Solution"},
+    {0x0F,   "Sample Location Value Not Available"},
+    {0x0, NULL}
+};
+
+static const value_string bond_management_control_point_opcode_vals[] = {
+    {0x01,   "Delete bond of requesting device (BR/EDR and LE)"},
+    {0x02,   "Delete bond of requesting device (BR/EDR transport only)"},
+    {0x03,   "Delete bond of requesting device (LE transport only)"},
+    {0x04,   "Delete all bonds on server (BR/EDR and LE)"},
+    {0x05,   "Delete all bonds on server (BR/EDR transport only)"},
+    {0x06,   "Delete all bonds on server (LE transport only)"},
+    {0x07,   "Delete all but the active bond on server (BR/EDR and LE)"},
+    {0x08,   "Delete all but the active bond on server (BR/EDR transport only)"},
+    {0x09,   "Delete all but the active bond on server (LE transport only)"},
+    {0x0, NULL}
+};
+
+static const value_string temperature_measurement_flags_temperature_unit_vals[] = {
+    {0x00,   "Celsius"},
+    {0x01,   "Fahrenheit"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_context_flags_medication_value_units_vals[] = {
+    {0x00,   "Kilograms"},
+    {0x01,   "Liters"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_context_carbohydrate_id_vals[] = {
+    {0x01,   "Breakfast"},
+    {0x02,   "Lunch"},
+    {0x03,   "Dinner"},
+    {0x04,   "Snack"},
+    {0x05,   "Drink"},
+    {0x06,   "Supper"},
+    {0x07,   "Brunch"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_context_meal_vals[] = {
+    {0x01,   "Preprandial (before meal)"},
+    {0x02,   "Postprandial (after meal)"},
+    {0x03,   "Fasting"},
+    {0x04,   "Casual (snacks, drinks, etc.)"},
+    {0x05,   "Bedtime"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_context_tester_vals[] = {
+    { 1,   "Self"},
+    { 2,   "Health Care Professional"},
+    { 3,   "Lab Test"} ,
+    {15,   "Tester Value not Available"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_context_health_vals[] = {
+    { 1,   "Minor Health Issues"},
+    { 2,   "Major Health Issues"},
+    { 3,   "During Menses"},
+    { 4,   "Under Stress"},
+    { 5,   "No Health Issues"},
+    {15,   "Health Value not Available"},
+    {0x0, NULL}
+};
+
+static const value_string glucose_measurement_context_medication_id_vals[] = {
+    { 1,   "Rapid Acting Insulin"},
+    { 2,   "Short Acting Insulin"},
+    { 3,   "Intermediate Acting Insulin"},
+    { 4,   "Long Acting Insulin"},
+    { 5,   "Pre-mixed Insulin"},
+    {0x0, NULL}
+};
+
+static const value_string blood_pressure_measurement_unit_vals[] = {
+    { 0,   "mmHg"},
+    { 1,   "kPa"},
+    {0x0, NULL}
+};
+
+static const value_string blood_pressure_measurement_status_pulse_rate_range_detection_vals[] = {
+    { 0,   "Pulse rate is within the range"},
+    { 1,   "Pulse rate exceeds upper limit"},
+    { 2,   "Pulse rate is less than lower limit"},
+    { 3,   "Reserved"},
+    {0x0, NULL}
+};
+
+static const value_string record_access_control_point_opcode_vals[] = {
+    { 0,   "Reserved"},
+    { 1,   "Report Stored Records"},
+    { 2,   "Delete Stored Records"},
+    { 3,   "Abort Operation"},
+    { 4,   "Report Number of Stored Records"},
+    { 5,   "Number of Stored Records Response"},
+    { 6,   "Response Code"},
+    {0x0, NULL}
+};
+
+static const value_string record_access_control_point_operator_vals[] = {
+    { 0,   "Null"},
+    { 1,   "All Records"},
+    { 2,   "Less than or equal to"},
+    { 3,   "Greater than or equal to"},
+    { 4,   "Within range of (inclusive)"},
+    { 5,   "First record(i.e. oldest record)"},
+    { 6,   "Last record (i.e. most recent record)"},
+    {0x0, NULL}
+};
+
+static const value_string record_access_control_point_operand_filter_type_vals[] = {
+    { 0x00,   "Reserved"},
+    { 0x01,   "Sequence Number"},
+    { 0x02,   "User Facing Time (Base Time + Offset Time)"},
+    {0x0, NULL}
+};
+
+static const value_string record_access_control_point_response_code_vals[] = {
+    { 0x00,   "Reserved"},
+    { 0x01,   "Success"},
+    { 0x02,   "Op Code not supported"},
+    { 0x03,   "Invalid Operator"},
+    { 0x04,   "Operator not supported"},
+    { 0x05,   "Invalid Operand"},
+    { 0x06,   "No records found"},
+    { 0x07,   "Abort unsuccessful"},
+    { 0x08,   "Procedure not completed"},
+    { 0x09,   "Operand not supported"},
+    {0x0, NULL}
+};
 
 
 union request_parameters_union {
@@ -1729,6 +2332,10 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     bluetooth_uuid_t sub_uuid;
     guint16      sub_handle;
     guint32      value;
+    guint32      flags;
+    guint32      operator_value;
+    guint32      opcode;
+    guint32      operand_offset;
     const gint  **hfs;
 
     tvb = tvb_new_subset(old_tvb, old_offset, length, length);
@@ -1775,7 +2382,6 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
     if (dissector_try_uint_new(att_uuid16_dissector_table, uuid.bt_uuid, tvb, pinfo, tree, TRUE, bluetooth_data))
         return old_offset + length;
-
 
     switch (uuid.bt_uuid) {
     case 0x2800: /* GATT Primary Service Declaration */
@@ -2075,6 +2681,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
         offset += 1;
+
         break;
     case 0x2A09: /* Day of Week */
         proto_tree_add_item(tree, hf_btatt_day_of_week, tvb, offset, 1, ENC_NA);
@@ -2194,9 +2801,107 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
+    case 0x2A18: /* Glucose Measurement */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_glucose_measurement_flags, ett_btatt_value, hfx_btatt_glucose_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_glucose_measurement_sequence_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        sub_item = proto_tree_add_item(tree, hf_btatt_glucose_measurement_base_time, tvb, offset, 7, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+        proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_time_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02 && !(flags & 0x04)) {
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_glucose_concentration_kg_per_l, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02 && flags & 0x04) {
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_glucose_concentration_mol_per_l, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_glucose_measurement_type_and_sample_location, ett_btatt_value, hfx_btatt_glucose_measurement_type_and_sample_location, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_glucose_measurement_sensor_status_annunciation, ett_btatt_value, hfx_btatt_glucose_measurement_sensor_status_annunciation, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
     case 0x2A19: /* Battery Level */
         proto_tree_add_item(tree, hf_btatt_battery_level, tvb, offset, 1, ENC_NA);
         offset += 1;
+
+        break;
+    case 0x2A1C: /* Temperature Measurement */
+    case 0x2A1E: /* Intermediate Temperature */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_temperature_measurement_flags, ett_btatt_value, hfx_btatt_temperature_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_temperature_measurement_value_celsius, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        } else {
+            proto_tree_add_item(tree, hf_btatt_temperature_measurement_value_fahrenheit, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+
+        if (flags & 0x02) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_temperature_measurement_timestamp, tvb, offset, 7, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+            proto_tree_add_item(sub_tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_item(tree, hf_btatt_temperature_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
 
         break;
     case 0x2A1D: /* Temperature Type */
@@ -2211,7 +2916,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         break;
     case 0x2A22: /* Boot Keyboard Input Report */
         call_dissector_with_data(usb_hid_boot_keyboard_input_report_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
-        offset += length;
+        offset += tvb_reported_length_remaining(tvb, offset);
 
         break;
     case 0x2A23: /* System ID */
@@ -2263,12 +2968,159 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         break;
     case 0x2A32: /* Boot Keyboard Output Report */
         call_dissector_with_data(usb_hid_boot_keyboard_output_report_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
-        offset += length;
+        offset += tvb_reported_length_remaining(tvb, offset);
 
         break;
     case 0x2A33: /* Boot Mouse Input Report */
         call_dissector_with_data(usb_hid_boot_mouse_input_report_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
-        offset += length;
+        offset += tvb_reported_length_remaining(tvb, offset);
+
+        break;
+    case 0x2A34: /* Glucose Measurement Context */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_glucose_measurement_context_flags, ett_btatt_value, hfx_btatt_glucose_measurement_context_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_sequence_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x80) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_glucose_measurement_context_extended_flags, ett_btatt_value, hfx_btatt_glucose_measurement_context_extended_flags, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_carbohydrate_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_carbohydrate_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_meal, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_glucose_measurement_context_tester_health, ett_btatt_value, hfx_btatt_glucose_measurement_context_tester_health, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_exercise_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_exercise_intensity, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x10) {
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_medication_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (flags & 0x20) {
+                proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_medication_l, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            } else {
+                proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_medication_kg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+        }
+
+        if (flags & 0x40) {
+            proto_tree_add_item(tree, hf_btatt_glucose_measurement_context_hba1c, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
+    case 0x2A35: /* Blood Pressure Measurement */
+    case 0x2A36: /* Intermediate Cuff Pressure */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_blood_pressure_measurement_flags, ett_btatt_value, hfx_btatt_blood_pressure_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_compound_value_systolic_kpa, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_compound_value_diastolic_kpa, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_compound_value_mean_arterial_pressure_kpa, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        } else {
+            proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_compound_value_systolic_mmhg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_compound_value_diastolic_mmhg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_compound_value_mean_arterial_pressure_mmhg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_timestamp, tvb, offset, 7, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+
+            proto_tree_add_item(tree, hf_btatt_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(tree, hf_btatt_month, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_day, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_hours, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_minutes, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(tree, hf_btatt_seconds, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_pulse_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_item(tree, hf_btatt_blood_pressure_measurement_user_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x10) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_blood_pressure_measurement_status, ett_btatt_value, hfx_btatt_blood_pressure_measurement_status, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
+    case 0x2A37: /* Heart Rate Measurement */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_heart_rate_measurement_flags, ett_btatt_value, hfx_btatt_heart_rate_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if (flags & 0x01) {
+            proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_value_16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        } else {
+            proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_value_8, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_energy_expended, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x10) {
+            proto_tree_add_item(tree, hf_btatt_heart_rate_measurement_rr_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
 
         break;
     case 0x2A38: /* Body Sensor Location */
@@ -2385,6 +3237,102 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 2;
 
         break;
+    case 0x2A52: /* Record Access Control Point */
+        proto_tree_add_item(tree, hf_btatt_record_access_control_point_opcode, tvb, offset, 1, ENC_NA);
+        opcode = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_btatt_record_access_control_point_operator, tvb, offset, 1, ENC_NA);
+        operator_value = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        sub_item = proto_tree_add_item(tree, hf_btatt_record_access_control_point_operand, tvb, offset, 0, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_list);
+        operand_offset = offset;
+
+        switch (opcode) {
+        case  1: /* Report Stored Records */
+        case  2: /* Delete Stored Records */
+        case  4: /* Report Number of Stored Records */
+            switch (operator_value) {
+            case 0: /* Null */
+            case 1: /* All records */
+            case 5: /* First record(i.e. oldest record) */
+            case 6: /* Last record (i.e. most recent record) */
+                /* N/A */
+
+                break;
+            case 2: /* Less than or equal to */
+                proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_filter_type, tvb, offset, 1, ENC_NA);
+                value = tvb_get_guint8(tvb, offset);
+                offset += 1;
+
+                if (value == 0x01) /* Time offset */ {
+                    proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_max_time_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                } else {
+                    proto_tree_add_item(sub_tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+                    offset = tvb_captured_length(tvb);
+                }
+
+                break;
+            case 3: /* Greater than or equal to */
+                proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_filter_type, tvb, offset, 1, ENC_NA);
+                value = tvb_get_guint8(tvb, offset);
+                offset += 1;
+
+                if (value == 0x01) /* Time offset */ {
+                    proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_min_time_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                } else {
+                    proto_tree_add_item(sub_tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+                    offset = tvb_captured_length(tvb);
+                }
+
+                break;
+            case 4: /* Within range of (inclusive) */
+                proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_filter_type, tvb, offset, 1, ENC_NA);
+                value = tvb_get_guint8(tvb, offset);
+                offset += 1;
+
+                if (value == 0x01) /* Time offset */ {
+                    proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_min_time_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+
+                    proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_max_time_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                } else {
+                    proto_tree_add_item(sub_tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+                    offset = tvb_captured_length(tvb);
+                }
+
+                break;
+            }
+
+            break;
+        case  3: /* Abort Operation */
+            /* N/A */
+
+            break;
+
+        case  5: /* Number of Stored Records Response */
+            proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_operand_number_of_records, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case  6: /* Response Code */
+            proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_request_opcode, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_btatt_record_access_control_point_response_code, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        };
+
+        proto_item_set_len(sub_item, offset - operand_offset);
+
+        break;
     case 0x2A54: /* RSC Feature */
         proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_rsc_feature, ett_btatt_value, hfx_btatt_rsc_feature, ENC_LITTLE_ENDIAN);
         offset += 2;
@@ -2398,6 +3346,16 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     case 0x2A5D: /* Sensor Location */
         proto_tree_add_item(tree, hf_btatt_sensor_location, tvb, offset, 1, ENC_NA);
         offset += 1;
+
+        break;
+    case 0x2A65: /* Cycling Power Feature */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_cycling_power_feature, ett_btatt_value, hfx_btatt_cycling_power_feature, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        break;
+    case 0x2A6A: /* LN Feature */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_ln_feature, ett_btatt_value, hfx_btatt_ln_feature, ENC_LITTLE_ENDIAN);
+        offset += 4;
 
         break;
     case 0x2A6C: /* Elevation */
@@ -2655,6 +3613,16 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
+    case 0x2A9B: /* Body Composition Feature */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_body_composition_feature, ett_btatt_value, hfx_btatt_body_composition_feature, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        break;
+    case 0x2A9E: /* Weight Scale Feature */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_weight_scale_feature, ett_btatt_value, hfx_btatt_weight_scale_feature, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        break;
     case 0x2AA0: /* Magnetic Flux Density - 2D */
     case 0x2AA1: /* Magnetic Flux Density - 3D */
         proto_tree_add_item(tree, hf_btatt_magnetic_flux_density_x, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2679,49 +3647,63 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 1;
 
         break;
+    case 0x2AA4: /* Bond Management Control Point */
+        proto_tree_add_item(tree, hf_btatt_bond_management_control_point_opcode, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(tree, hf_btatt_bond_management_control_point_authorization_code, tvb, offset, length -1, ENC_NA | ENC_UTF_8);
+            offset += tvb_reported_length_remaining(tvb, offset);
+        }
+        break;
+    case 0x2AA5: /* Bond Management Feature */
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_bond_management_feature, ett_btatt_value, hfx_btatt_bond_management_feature, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 3;
+
+        if (flags & 0x800000) {
+            do {
+                proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_bond_management_feature_nth, ett_btatt_value, hfx_btatt_bond_management_feature_nth, ENC_LITTLE_ENDIAN);
+                offset += 1;
+            } while (tvb_get_guint8(tvb, offset - 1) & 0x80);
+        }
+
+        break;
     case 0x2AA6: /* Central Address Resolution */
         proto_tree_add_item(tree, hf_btatt_central_address_resolution, tvb, offset, 1, ENC_NA);
         offset += 1;
 
         break;
-
-    case 0x2906: /* Valid Range */
-    case 0x2A18: /* Glucose Measurement */
-    case 0x2A1C: /* Temperature Measurement */
-    case 0x2A1E: /* Intermediate Temperature */
-    case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */
-    case 0x2A34: /* Glucose Measurement Context */
-    case 0x2A35: /* Blood Pressure Measurement */
-    case 0x2A36: /* Intermediate Cuff Pressure */
-    case 0x2A37: /* Heart Rate Measurement */
-    case 0x2A4D: /* Report */
-    case 0x2A52: /* Record Access Control Point */
     case 0x2A53: /* RSC Measurement */
     case 0x2A55: /* SC Control Point */
     case 0x2A5B: /* CSC Measurement */
     case 0x2A63: /* Cycling Power Measurement */
     case 0x2A64: /* Cycling Power Vector */
-    case 0x2A65: /* Cycling Power Feature */
     case 0x2A66: /* Cycling Power Control Point */
     case 0x2A67: /* Location and Speed */
     case 0x2A68: /* Navigation */
     case 0x2A69: /* Position Quality */
-    case 0x2A6A: /* LN Feature */
     case 0x2A6B: /* LN Control Point */
-    case 0x2A9B: /* Body Composition Feature */
     case 0x2A9C: /* Body Composition Measurement */
     case 0x2A9D: /* Weight Measurement */
-    case 0x2A9E: /* Weight Scale Feature */
     case 0x2A9F: /* User Control Point */
-    case 0x2AA4: /* Bond Management Control Point */
-    case 0x2AA5: /* Bond Management Feature */
     case 0x2AA7: /* CGM Measurement */
     case 0x2AA8: /* CGM Feature */
     case 0x2AA9: /* CGM Status */
     case 0x2AAA: /* CGM Session Start Time */
     case 0x2AAB: /* CGM Session Run Time */
     case 0x2AAC: /* CGM Specific Ops Control Point */
+/* TODO: Implement (easy) */
+    case 0x2906: /* Valid Range */
+    case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */
+    case 0x2A4D: /* Report */
+
 /* TODO: Implement */
+        sub_item = proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
+        expert_add_info(pinfo, sub_item, &ei_btatt_undecoded);
+        offset = tvb_captured_length(tvb);
+
+        break;
     default:
         proto_tree_add_item(tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
         offset = tvb_captured_length(tvb);
@@ -2738,13 +3720,18 @@ dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item  *patron_item = NULL;
     bluetooth_uuid_t uuid;
 
-    main_item = proto_tree_add_item(tree, (gint) GPOINTER_TO_UINT(wmem_list_frame_data(wmem_list_tail(pinfo->layers))), tvb, 0, -1, ENC_NA);
+    main_item = proto_tree_add_item(tree, (gint) GPOINTER_TO_UINT(wmem_list_frame_data(wmem_list_tail(pinfo->layers))), tvb, 0, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btgatt);
 
-    uuid.size = 2;
-    uuid.bt_uuid = (guint16) g_ascii_strtoull(pinfo->current_proto + strlen(pinfo->current_proto) - 7, NULL, 16);
-    uuid.data[0] = uuid.bt_uuid & 0xFF;
-    uuid.data[1] = (uuid.bt_uuid >> 8) & 0xFF;
+    if (strlen(pinfo->current_proto) > 7) {
+        uuid.size = 2;
+        uuid.bt_uuid = (guint16) g_ascii_strtoull(pinfo->current_proto + strlen(pinfo->current_proto) - 7, NULL, 16);
+        uuid.data[0] = uuid.bt_uuid & 0xFF;
+        uuid.data[1] = (uuid.bt_uuid >> 8) & 0xFF;
+    } else {
+        uuid.size = 2;
+        uuid.bt_uuid = 0;
+    }
 
     return dissect_attribute_value(main_tree, patron_item, pinfo, tvb,
             0, tvb_captured_length(tvb), 0, uuid, (bluetooth_data_t *) data);
@@ -2766,6 +3753,7 @@ is_long_attribute_value(bluetooth_uuid_t uuid)
     case 0x2A4B: /* Report Map */
     case 0x2A87: /* Email Address */
     case 0x2A90: /* Last Name */
+    case 0x2AA4: /* Bond Management Control Point */
         return TRUE;
     }
 
@@ -4835,6 +5823,1006 @@ proto_register_btatt(void)
             FT_UINT8, BASE_DEC, VALS(central_address_resolution_vals), 0x0,
             NULL, HFILL}
         },
+        {&hf_btatt_cycling_power_feature,
+            {"Cycling Power Feature", "btatt.cycling_power_feature",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_reserved,
+            {"Reserved", "btatt.cycling_power_feature.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFF80000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_factory_calibration_date,
+            {"Factory Calibration Date", "btatt.cycling_power_feature.factory_calibration_date",
+            FT_BOOLEAN, 32, NULL, 0x00040000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_instantaneous_measurement_direction,
+            {"Instantaneous Measurement Direction", "btatt.cycling_power_feature.instantaneous_measurement_direction",
+            FT_BOOLEAN, 32, NULL, 0x00020000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_sensor_measurement_context,
+            {"Sensor Measurement Context", "btatt.cycling_power_feature.sensor_measurement_context",
+            FT_UINT32, BASE_HEX, VALS(cycling_power_feature_sensor_measurement_context_vals), 0x00010000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_span_length_adjustment,
+            {"Span Length Adjustment", "btatt.cycling_power_feature.span_length_adjustment",
+            FT_BOOLEAN, 32, NULL, 0x00008000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_chain_weight_adjustment,
+            {"Chain Weight Adjustment", "btatt.cycling_power_feature.chain_weight_adjustment",
+            FT_BOOLEAN, 32, NULL, 0x00004000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_chain_length_adjustment,
+            {"Chain Length Adjustment", "btatt.cycling_power_feature.chain_length_adjustment",
+            FT_BOOLEAN, 32, NULL, 0x00002000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_crank_length_adjustment,
+            {"Crank Length Adjustment", "btatt.cycling_power_feature.crank_length_adjustment",
+            FT_BOOLEAN, 32, NULL, 0x00001000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_multiple_sensor_locations,
+            {"Multiple Sensor Locations", "btatt.cycling_power_feature.multiple_sensor_locations",
+            FT_BOOLEAN, 32, NULL, 0x00000800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_cycling_power_measurement_characteristic_content_masking,
+            {"Cycling Power Measurement Characteristic Content Masking", "btatt.cycling_power_feature.cycling_power_measurement_characteristic_content_masking",
+            FT_BOOLEAN, 32, NULL, 0x00000400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_offset_compensation,
+            {"Offset Compensation", "btatt.cycling_power_feature.offset_compensation",
+            FT_BOOLEAN, 32, NULL, 0x00000200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_offset_compensation_indicator,
+            {"Offset Compensation Indicator", "btatt.cycling_power_feature.offset_compensation_indicator",
+            FT_BOOLEAN, 32, NULL, 0x00000100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_accumulated_energy,
+            {"Accumulated Energy", "btatt.cycling_power_feature.accumulated_energy",
+            FT_BOOLEAN, 32, NULL, 0x00000080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_top_and_bottom_dead_spot_angles,
+            {"Top and Bottom Dead Spot Angles", "btatt.cycling_power_feature.top_and_bottom_dead_spot_angles",
+            FT_BOOLEAN, 32, NULL, 0x00000040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_extreme_angles,
+            {"Extreme Angles", "btatt.cycling_power_feature.extreme_angles",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_extreme_magnitudes,
+            {"Extreme Magnitudes", "btatt.cycling_power_feature.extreme_magnitudes",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_crank_revolution_data,
+            {"Crank Revolution Data", "btatt.cycling_power_feature.crank_revolution_data",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_wheel_revolution_data,
+            {"Wheel Revolution Data", "btatt.cycling_power_feature.wheel_revolution_data",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_accumulated_torque,
+            {"Accumulated Torque", "btatt.cycling_power_feature.accumulated_torque",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_cycling_power_feature_pedal_power_balance,
+            {"Pedal Power Balance", "btatt.cycling_power_feature.pedal_power_balance",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature,
+            {"LN Feature", "btatt.ln_feature",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_reserved,
+            {"Reserved", "btatt.ln_feature.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFE00000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_position_status,
+            {"Position Status", "btatt.ln_feature.position_status",
+            FT_BOOLEAN, 32, NULL, 0x00100000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_elevation_setting,
+            {"Elevation Setting,", "btatt.ln_feature.elevation_setting",
+            FT_BOOLEAN, 32, NULL, 0x00080000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_fix_rate_setting,
+            {"Fix Rate Setting", "btatt.ln_feature.fix_rate_setting",
+            FT_BOOLEAN, 32, NULL, 0x00040000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_location_and_speed_characteristic_content_masking,
+            {"Location and Speed Characteristic Content Masking", "btatt.ln_feature.location_and_speed_characteristic_content_masking",
+            FT_BOOLEAN, 32, NULL, 0x00020000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_vertical_dilution_of_precision,
+            {"Vertical Dilution of Precision", "btatt.ln_feature.vertical_dilution_of_precision",
+            FT_BOOLEAN, 32, NULL, 0x00010000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_horizontal_dilution_of_precision,
+            {"Horizontal Dilution of Precision", "btatt.ln_feature.horizontal_dilution_of_precision",
+            FT_BOOLEAN, 32, NULL, 0x00008000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_estimated_vertical_position_error,
+            {"Estimated Vertical Position Error", "btatt.ln_feature.estimated_vertical_position_error",
+            FT_BOOLEAN, 32, NULL, 0x00004000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_estimated_horizontal_position_error,
+            {"Estimated Horizontal Position Error", "btatt.ln_feature.estimated_horizontal_position_error",
+            FT_BOOLEAN, 32, NULL, 0x00002000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_time_to_first_fix,
+            {"Time to First Fix", "btatt.ln_feature.time_to_first_fix",
+            FT_BOOLEAN, 32, NULL, 0x00001000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_number_of_beacons_in_view,
+            {"Number of Beacons in View", "btatt.ln_feature.number_of_beacons_in_view",
+            FT_BOOLEAN, 32, NULL, 0x00000800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_number_of_beacons_in_solution,
+            {"Number of Beacons in Solution", "btatt.ln_feature.number_of_beacons_in_solution",
+            FT_BOOLEAN, 32, NULL, 0x00000400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_estimated_time_of_arrival,
+            {"Estimated Time of Arrival", "btatt.ln_feature.estimated_time_of_arrival",
+            FT_BOOLEAN, 32, NULL, 0x00000200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_remaining_vertical_distance,
+            {"Remaining Vertical Distance", "btatt.ln_feature.remaining_vertical_distance",
+            FT_BOOLEAN, 32, NULL, 0x00000100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_remaining_distance,
+            {"Remaining Distance", "btatt.ln_feature.remaining_distance",
+            FT_BOOLEAN, 32, NULL, 0x00000080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_utc_time,
+            {"UTC Time", "btatt.ln_feature.utc_time",
+            FT_BOOLEAN, 32, NULL, 0x00000040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_rolling_time,
+            {"Rolling Time", "btatt.ln_feature.rolling_time",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_heading,
+            {"Heading", "btatt.ln_feature.heading",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_elevation,
+            {"Elevation", "btatt.ln_feature.elevation",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_location,
+            {"Location", "btatt.ln_feature.location",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_total_distance,
+            {"Total Distance", "btatt.ln_feature.total_distance",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_ln_feature_instantaneous_speed,
+            {"Instantaneous Speed", "btatt.ln_feature.instantaneous_speed",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature,
+            {"Body Composition Feature", "btatt.body_composition_feature",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_reserved,
+            {"Reserved", "btatt.body_composition_feature.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFC0000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_height_measurement_resolution,
+            {"Height Measurement Resolution", "btatt.body_composition_feature.height_measurement_resolution",
+            FT_UINT32, BASE_HEX, VALS(body_composition_feature_height_measurement_resolution_vals), 0x00038000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_mass_measurement_resolution,
+            {"Mass Measurement Resolution", "btatt.body_composition_feature.mass_measurement_resolution",
+            FT_UINT32, BASE_HEX, VALS(body_composition_feature_mass_measurement_resolution_vals), 0x00007800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_height,
+            {"Height", "btatt.body_composition_feature.height",
+            FT_BOOLEAN, 32, NULL, 0x00000400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_weight,
+            {"Weight", "btatt.body_composition_feature.weight",
+            FT_BOOLEAN, 32, NULL, 0x00000200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_impedance,
+            {"Impedance", "btatt.body_composition_feature.impedance",
+            FT_BOOLEAN, 32, NULL, 0x00000100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_body_water_mass,
+            {"Body Water Mass", "btatt.body_composition_feature.body_water_mass",
+            FT_BOOLEAN, 32, NULL, 0x00000080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_soft_lean_mass,
+            {"Soft Lean Mass", "btatt.body_composition_feature.soft_lean_mass",
+            FT_BOOLEAN, 32, NULL, 0x00000040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_fat_free_mass,
+            {"Fat Free Mass", "btatt.body_composition_feature.fat_free_mass",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_muscle_mass,
+            {"Muscle Mass", "btatt.body_composition_feature.muscle_mass",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_muscle_percentage,
+            {"Muscle Percentage", "btatt.body_composition_feature.muscle_percentage",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_basal_metabolism,
+            {"Basal Metabolism", "btatt.body_composition_feature.basal_metabolism",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_multiple_users,
+            {"Multiple Users", "btatt.body_composition_feature.multiple_users",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_body_composition_feature_timestamp,
+            {"Timestamp", "btatt.body_composition_feature.timestamp",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_scale_feature,
+            {"Body Composition Feature", "btatt.weight_scale_feature",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_scale_feature_reserved,
+            {"Reserved", "btatt.weight_scale_feature.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFC00,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_scale_feature_height_measurement_resolution,
+            {"Height Measurement Resolution", "btatt.weight_scale_feature.height_measurement_resolution",
+            FT_UINT32, BASE_HEX, VALS(weight_scale_feature_height_measurement_resolution_vals), 0x00000380,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_scale_feature_weight_measurement_resolution,
+            {"Mass Measurement Resolution", "btatt.weight_scale_feature.weight_measurement_resolution",
+            FT_UINT32, BASE_HEX, VALS(weight_scale_feature_weight_measurement_resolution_vals), 0x000000078,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_scale_feature_bmi,
+            {"BMI", "btatt.weight_scale_feature.bmi",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_scale_feature_multiple_users,
+            {"Multiple Users", "btatt.weight_scale_feature.multiple_users",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_weight_scale_feature_timestamp,
+            {"Timestamp", "btatt.weight_scale_feature.timestamp",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_flags,
+            {"Flags", "btatt.glucose_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_flags_reserved,
+            {"Reserved", "btatt.glucose_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xE0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_flags_context_information_follows,
+            {"Context Information Follows", "btatt.glucose_measurement.flags.context_information_follows",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_flags_sensor_status_annunciation_present,
+            {"Sensor Status Annunciation Present", "btatt.glucose_measurement.flags.sensor_status_annunciation_present",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_flags_glucose_concentration_units,
+            {"Glucose Concentration Units", "btatt.glucose_measurement.flags.glucose_concentration_units",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_flags_glucose_concentration_units_vals), 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_flags_glucose_concentration_type_and_sample_location_present,
+            {"Glucose Concentration, Type and Sample Location Present", "btatt.glucose_measurement.flags.glucose_concentration_type_and_sample_location_present",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_flags_time_offset_present,
+            {"Time Offset Present", "btatt.glucose_measurement.flags.time_offset_present",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sequence_number,
+            {"Body Composition Feature", "btatt.glucose_measurement.sequence_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_base_time,
+            {"Base Time", "btatt.glucose_measurement.base_time",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_time_offset,
+            {"Time Offset", "btatt.glucose_measurement.time_offset",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_glucose_measurement_glucose_concentration_kg_per_l,
+            {"Glucose Concentration [kg/l]", "btatt.glucose_measurement.glucose_concentration.kg_per_l",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_glucose_measurement_glucose_concentration_mol_per_l,
+            {"Glucose Concentration [mol/l]", "btatt.glucose_measurement.glucose_concentration.mol_per_l",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_type_and_sample_location,
+            {"Glucose Concentration [mol/l]", "btatt.glucose_measurement.type_and_sample_location",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_type_and_sample_location_type,
+            {"Type", "btatt.glucose_measurement.type_and_sample_location.type",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_type_and_sample_location_type_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_type_and_sample_location_sample_location,
+            {"Sample Location", "btatt.glucose_measurement.type_and_sample_location.sample_location",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_type_and_sample_location_sample_location_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation,
+            {"Sensor Status Annunciation", "btatt.glucose_measurement.sensor_status_annunciation",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_reserved,
+            {"Reserved", "btatt.glucose_measurement.sensor_status_annunciation.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xF000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_time_fault,
+            {"Time fault has occurred in the sensor and time may be inaccurate", "btatt.glucose_measurement.sensor_status_annunciation.time_fault",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_general_fault,
+            {"General device fault has occurred in the sensor", "btatt.glucose_measurement.sensor_status_annunciation.general_fault",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_read_interrupted,
+            {"Sensor read interrupted because strip was pulled too soon at time of measurement", "btatt.glucose_measurement.sensor_status_annunciation.read_interrupted",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_low,
+            {"Sensor temperature too low for valid test/result at time of measurement", "btatt.glucose_measurement.sensor_status_annunciation.temperature_too_low",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_temperature_too_high,
+            {"Sensor temperature too high for valid test/result at time of measurement", "btatt.glucose_measurement.sensor_status_annunciation.temperature_too_high",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_lower,
+            {"Sensor result lower than the device can process", "btatt.glucose_measurement.sensor_status_annunciation.result_too_lower",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_result_too_high,
+            {"Sensor result higher than the device can process", "btatt.glucose_measurement.sensor_status_annunciation.result_too_high",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_strip_type_incorrect,
+            {"Strip type incorrect for device", "btatt.glucose_measurement.sensor_status_annunciation.strip_type_incorrect",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_strip_insertion_error,
+            {"Strip insertion error", "btatt.glucose_measurement.sensor_status_annunciation.strip_insertion_error",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_size_insufficient,
+            {"Sample size for blood or control solution insufficient at time of measurement", "btatt.glucose_measurement.sensor_status_annunciation.size_insufficient",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_fault,
+            {"Sensor malfunction or faulting at time of measurement", "btatt.glucose_measurement.sensor_status_annunciation.fault",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_sensor_status_annunciation_battery_low,
+            {"Device battery low at time of measurement", "btatt.glucose_measurement.sensor_status_annunciation.battery_low",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature,
+            {"Sensor Status Annunciation", "btatt.bond_management_feature",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_feature_extension,
+            {"Feature Extension", "btatt.bond_management_feature.feature_extension",
+            FT_BOOLEAN, 24, NULL, 0x800000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_reserved,
+            {"Reserved", "btatt.bond_management_feature.reserved",
+            FT_UINT24, BASE_HEX, NULL, 0x780000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_identify_yourself,
+            {"Identify Yourself", "btatt.bond_management_feature.identify_yourself",
+            FT_BOOLEAN, 24, NULL, 0x040000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_9,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.9",
+            FT_BOOLEAN, 24, NULL, 0x020000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_le_transport_only_server,
+            {"Remove all but the active bond on server (LE transport only)", "btatt.bond_management_feature.remove_all_but_the_active_bond_on_le_transport_only_server",
+            FT_BOOLEAN, 24, NULL, 0x010000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_8,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.8",
+            FT_BOOLEAN, 24, NULL, 0x008000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_br_edr_transport_only_server,
+            {"Remove all but the active bond on server (BR/EDR transport only)", "btatt.bond_management_feature.remove_all_but_the_active_bond_on_br_edr_transport_only_server",
+            FT_BOOLEAN, 24, NULL, 0x004000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_7,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.7",
+            FT_BOOLEAN, 24, NULL, 0x002000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_remove_all_but_the_active_bond_on_br_edr_and_le_server,
+            {"Remove all but the active bond on server (BR/EDR and LE)", "btatt.bond_management_feature.remove_all_but_the_active_bond_on_br_edr_and_le_server",
+            FT_BOOLEAN, 24, NULL, 0x001000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_6,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.6",
+            FT_BOOLEAN, 24, NULL, 0x000800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_remove_all_bonds_on_le_transport_only_server,
+            {"Remove all bonds on server (LE transport only)", "btatt.bond_management_feature.remove_all_bonds_on_le_transport_only_server",
+            FT_BOOLEAN, 24, NULL, 0x000400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_5,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.5",
+            FT_BOOLEAN, 24, NULL, 0x000200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_remove_all_bonds_on_br_edr_transport_only_server,
+            {"Remove all bonds on server (BR/EDR transport only)", "btatt.bond_management_feature.remove_all_bonds_on_br_edr_transport_only_server",
+            FT_BOOLEAN, 24, NULL, 0x000100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_4,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.4",
+            FT_BOOLEAN, 24, NULL, 0x000080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_remove_all_bonds_on_br_edr_and_le_server,
+            {"Remove all bonds on server (BR/EDR and LE)", "btatt.bond_management_feature.remove_all_bonds_on_br_edr_and_le_server",
+            FT_BOOLEAN, 24, NULL, 0x000040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_3,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.3",
+            FT_BOOLEAN, 24, NULL, 0x000020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_delete_bond_of_current_le_transport_only_connection,
+            {"Delete bond of current connection (LE transport only)", "btatt.bond_management_feature.delete_bond_of_current_le_transport_only_connection",
+            FT_BOOLEAN, 24, NULL, 0x000010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_2,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.2",
+            FT_BOOLEAN, 24, NULL, 0x000008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_delete_bond_of_current_br_edr_transport_only_connection,
+            {"Delete bond of current connection (BR/EDR transport only)", "btatt.bond_management_feature.delete_bond_of_current_br_edr_transport_only_connection",
+            FT_BOOLEAN, 24, NULL, 0x000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_authorization_code_required_for_feature_above_1,
+            {"Authorization Code Required for Feature Above", "btatt.bond_management_feature.authorization_code_required_for_feature_above.1",
+            FT_BOOLEAN, 24, NULL, 0x000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_delete_bond_of_current_br_edr_and_le_connection,
+            {"Delete Bond of current connection (BR/EDR and LE)", "btatt.bond_management_feature.delete_bond_of_current_br_edr_and_le_connection",
+            FT_BOOLEAN, 24, NULL, 0x000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_nth,
+            {"Extended Features", "btatt.bond_management_feature.nth",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_nth_feature_extension,
+            {"Feature Extension", "btatt.bond_management_feature.nth.feature_extension",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_feature_nth_reserved,
+            {"Reserved", "btatt.bond_management_feature.nth.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7F,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_control_point_opcode,
+            {"Opcode", "btatt.bond_management_control_point.opcode",
+            FT_UINT8, BASE_HEX, VALS(bond_management_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_bond_management_control_point_authorization_code,
+            {"Authorization Code", "btatt.bond_management_control_point.authorization_code",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_temperature_measurement_flags,
+            {"Sensor Status Annunciation", "btatt.temperature_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_temperature_measurement_flags_reserved,
+            {"Reserved", "btatt.temperature_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF8,
+            NULL, HFILL}
+        },
+        {&hf_btatt_temperature_measurement_flags_temperature_type,
+            {"Temperature Type", "btatt.temperature_measurement.flags.temperature_type",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_temperature_measurement_flags_timestamp,
+            {"Timestamp", "btatt.temperature_measurement.flags.timestamp",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_temperature_measurement_flags_temperature_unit,
+            {"Temperature Unit", "btatt.temperature_measurement.flags.temperature_unit",
+            FT_UINT8, BASE_HEX, VALS(temperature_measurement_flags_temperature_unit_vals), 0x01,
+            NULL, HFILL}
+        },
+/* TODO: This field should be FLOAT: IEEE-11073 32-bit SFLOAT */
+        {&hf_btatt_temperature_measurement_value_celsius,
+            {"Value [Celsius]", "btatt.temperature_measurement.value.celsius",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+/* TODO: This field should be FLOAT: IEEE-11073 32-bit SFLOAT */
+        {&hf_btatt_temperature_measurement_value_fahrenheit,
+            {"Value [Fahrenheit]", "btatt.temperature_measurement.value.fahrenheit",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+        {&hf_btatt_temperature_measurement_timestamp,
+            {"Timestamp", "btatt.temperature_measurement.timestamp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags,
+            {"Glucose Measurement Context", "btatt.glucose_measurement_context.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags_extended_flags,
+            {"Extended Flags", "btatt.glucose_measurement_context.flags.extended_flags",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags_hba1c,
+            {"HbA1c", "btatt.glucose_measurement_context.flags.hba1c",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags_medication_value_units,
+            {"Medication Value Units", "btatt.glucose_measurement_context.flags.medication_value_units",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_context_flags_medication_value_units_vals), 0x20,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags_medication_id_and_medication,
+            {"Medication ID And Medication", "btatt.glucose_measurement_context.flags.",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags_exercise_duration_and_exercise_intensity,
+            {"Exercise Duration And Exercise Intensity", "btatt.glucose_measurement_context.flags.",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags_tester_health,
+            {"Tester Health", "btatt.glucose_measurement_context.flags.",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags_meal,
+            {"Meal", "btatt.glucose_measurement_context.flags.",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_flags_carbohydrate_id_and_carbohydrate,
+            {"Carbohydrate ID And Carbohydrate", "btatt.glucose_measurement_context.flags.",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_sequence_number,
+            {"Sequence Number", "btatt.glucose_measurement_context.sequence_number",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_extended_flags,
+            {"Extended Flags", "btatt.glucose_measurement_context.extended_flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_extended_flags_reserved,
+            {"Reserved", "btatt.glucose_measurement_context.extended_flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFF,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_carbohydrate_id,
+            {"Carbohydrate ID", "btatt.glucose_measurement_context.carbohydrate_id",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_context_carbohydrate_id_vals), 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_glucose_measurement_context_carbohydrate_kg,
+            {"Carbohydrate [kg]", "btatt.glucose_measurement_context.carbohydrate.kg",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_meal,
+            {"Meal", "btatt.glucose_measurement_context.meal",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_context_meal_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_tester_health,
+            {"Tester and Health", "btatt.glucose_measurement_context.tester_and_health",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_tester,
+            {"Tester", "btatt.glucose_measurement_context.tester_and_health.tester",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_context_tester_vals), 0xF0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_health,
+            {"Health", "btatt.glucose_measurement_context.tester_and_health.health",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_context_health_vals), 0x0F,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_exercise_duration,
+            {"Exercise Duration", "btatt.glucose_measurement_context.exercise_duration",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_exercise_intensity,
+            {"Exercise Intensity", "btatt.glucose_measurement_context.exercise_intensity",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_glucose_measurement_context_medication_id,
+            {"Medication ID", "btatt.glucose_measurement_context.medication_id",
+            FT_UINT8, BASE_HEX, VALS(glucose_measurement_context_medication_id_vals), 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_glucose_measurement_context_medication_l,
+            {"Medication [l]", "btatt.glucose_measurement_context.medication.l",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_glucose_measurement_context_medication_kg,
+            {"Medication [kg]", "btatt.glucose_measurement_context.medication.kg",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_glucose_measurement_context_hba1c,
+            {"HbA1c", "btatt.glucose_measurement_context.hba1c",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_flags,
+            {"Flags", "btatt.blood_pressure_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_flags_reserved,
+            {"Reserved", "btatt.blood_pressure_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xE0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_flags_measurement_status,
+            {"Measurement Status", "btatt.blood_pressure_measurement.flags.measurement_status",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_flags_user_id,
+            {"User ID", "btatt.blood_pressure_measurement.flags.user_id",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_flags_pulse_rate,
+            {"Pulse Rate", "btatt.blood_pressure_measurement.flags.pulse_rate",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_flags_timestamp,
+            {"Timestamp", "btatt.blood_pressure_measurement.flags.timestamp",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_flags_unit,
+            {"Unit", "btatt.blood_pressure_measurement.flags.unit",
+            FT_UINT8, BASE_HEX, VALS(blood_pressure_measurement_unit_vals), 0x01,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_blood_pressure_measurement_compound_value_systolic_kpa,
+            {"Systolic [kPa]", "btatt.blood_pressure_measurement.compound_value.systolic.kpa",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_blood_pressure_measurement_compound_value_diastolic_kpa,
+            {"Diastolic [kPa]", "btatt.blood_pressure_measurement.compound_value.diastolic.kpa",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_blood_pressure_measurement_compound_value_mean_arterial_pressure_kpa,
+            {"Arterial Pressure [kPa]", "btatt.blood_pressure_measurement.compound_value.arterial_pressure.kpa",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_blood_pressure_measurement_compound_value_systolic_mmhg,
+            {"Systolic [mmHg]", "btatt.blood_pressure_measurement.compound_value.systolic.mmhg",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_blood_pressure_measurement_compound_value_diastolic_mmhg,
+            {"Diastolic [mmHg]", "btatt.blood_pressure_measurement.compound_value.diastolic.mmhg",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_blood_pressure_measurement_compound_value_mean_arterial_pressure_mmhg,
+            {"Arterial Pressure [mmHg]", "btatt.blood_pressure_measurement.compound_value.arterial_pressure.mmhg",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_timestamp,
+            {"Timestamp", "btatt.blood_pressure_measurement.compound_value.timestamp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+/* TODO: This field should be SFLOAT: IEEE-11073 16-bit SFLOAT */
+        {&hf_btatt_blood_pressure_measurement_pulse_rate,
+            {"Pulse Rate", "btatt.blood_pressure_measurement.pulse_rate",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_user_id,
+            {"User ID", "btatt.blood_pressure_measurement.user_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_status,
+            {"Flags", "btatt.blood_pressure_measurement.status",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_status_reserved,
+            {"Reserved", "btatt.blood_pressure_measurement.status.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFFC0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_status_improper_measurement_position,
+            {"Improper Measurement Position", "btatt.blood_pressure_measurement.status.improper_measurement_position",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_status_pulse_rate_range_detection,
+            {"Pulse_Rate Range Detection", "btatt.blood_pressure_measurement.status.pulse_rate_range_detection",
+            FT_UINT16, BASE_HEX, VALS(blood_pressure_measurement_status_pulse_rate_range_detection_vals), 0x0018,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_status_irregular_pulse,
+            {"Irregular Pulse", "btatt.blood_pressure_measurement.status.irregular_pulse",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_status_cuff_fit_too_loose,
+            {"Cuff Fit too Loose", "btatt.blood_pressure_measurement.status.cuff_fit_too_loose",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_blood_pressure_measurement_status_body_movement,
+            {"Body Movement", "btatt.blood_pressure_measurement.status.body_movement",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_flags,
+            {"Flags", "btatt.heart_rate_measurement.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_flags_reserved,
+            {"Reserved", "btatt.heart_rate_measurement.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xE0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_flags_rr_interval,
+            {"RR Interval", "btatt.heart_rate_measurement.flags.rr_interval",
+            FT_BOOLEAN, 16, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_flags_energy_expended,
+            {"Energy Expended", "btatt.heart_rate_measurement.flags.energy_expended",
+            FT_BOOLEAN, 16, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_flags_sensor_contact_status_support,
+            {"Sensor Support", "btatt.heart_rate_measurement.flags.sensor_contact_status.support",
+            FT_BOOLEAN, 16, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_flags_sensor_contact_status_contact,
+            {"Sensor Contact", "btatt.heart_rate_measurement.flags.sensor_contact_status.contact",
+            FT_BOOLEAN, 16, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_flags_value_16,
+            {"Value is UINT16", "btatt.heart_rate_measurement.flags.value_16",
+            FT_BOOLEAN, 16, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_value_8,
+            {"Value", "btatt.heart_rate_measurement.value.8",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_value_16,
+            {"Value", "btatt.heart_rate_measurement.value.16",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_energy_expended,
+            {"Energy Expended", "btatt.heart_rate_measurement.energy_expended",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_heart_rate_measurement_rr_interval,
+            {"RR Interval", "btatt.heart_rate_measurement.rr_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_opcode,
+            {"Opcode", "btatt.record_access_control_point.opcode",
+            FT_UINT8, BASE_DEC, VALS(record_access_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_operator,
+            {"Operator", "btatt.record_access_control_point.operator",
+            FT_UINT8, BASE_DEC, VALS(record_access_control_point_operator_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_operand,
+            {"Operand", "btatt.record_access_control_point.operand",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_operand_filter_type,
+            {"Filter Type", "btatt.record_access_control_point.operand.filter_type",
+            FT_UINT8, BASE_DEC, VALS(record_access_control_point_operand_filter_type_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_operand_min_time_offset,
+            {"Min Time Offset", "btatt.record_access_control_point_operand.min_time_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_operand_max_time_offset,
+            {"Max Time Offset", "btatt.record_access_control_point_operand.max_time_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_operand_number_of_records,
+            {"Number of Records", "btatt.record_access_control_point_operand.number_of_records",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_request_opcode,
+            {"Request Opcode", "btatt.record_access_control_point.request_opcode",
+            FT_UINT8, BASE_DEC, VALS(record_access_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_record_access_control_point_response_code,
+            {"Request Opcode", "btatt.record_access_control_point.response_code",
+            FT_UINT8, BASE_DEC, VALS(record_access_control_point_response_code_vals), 0x0,
+            NULL, HFILL}
+        },
         {&hf_request_in_frame,
             {"Request in Frame", "btatt.request_in_frame",
             FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
@@ -4863,6 +6851,7 @@ proto_register_btatt(void)
         { &ei_btatt_handle_too_few,      { "btatt.handle.too_few",      PI_PROTOCOL, PI_WARN, "Too few handles, should be 2 or more", EXPFILL }},
         { &ei_btatt_mtu_exceeded,        { "btatt.mtu.exceeded",        PI_PROTOCOL, PI_WARN, "Packet size exceed current ATT_MTU", EXPFILL }},
         { &ei_btatt_mtu_full,            { "btatt.mtu.full",            PI_PROTOCOL, PI_NOTE, "Reached ATT_MTU. Attribute value may be longer.", EXPFILL }},
+        { &ei_btatt_undecoded,           { "btatt.undecoded",           PI_PROTOCOL, PI_UNDECODED, "Undecoded", EXPFILL }},
     };
 
     static build_valid_func btatt_handle_da_build_value[1] = {btatt_handle_value};
