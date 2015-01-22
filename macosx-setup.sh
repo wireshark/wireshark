@@ -508,7 +508,7 @@ uninstall_libpng() {
     fi
 }
 
-install_libpixman() {
+install_pixman() {
     if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
         echo "Downloading, building, and installing pixman:"
         [ -f pixman-$PIXMAN_VERSION.tar.gz ] || curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
@@ -1138,7 +1138,7 @@ install_all() {
             # XXX - what about the one that comes with the latest version
             # of Xquartz?
             #
-            install_libpixman
+            install_pixman
 
             #
             # And now Cairo itself.
