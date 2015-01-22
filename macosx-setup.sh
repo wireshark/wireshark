@@ -295,6 +295,11 @@ install_gettext() {
 
 uninstall_gettext() {
     if [ ! -z "$installed_gettext_version" ] ; then
+        #
+        # GLib depends on this, so uninstall it.
+        #
+        uninstall_glib
+
         echo "Uninstalling GNU gettext:"
         cd gettext-$installed_gettext_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -408,6 +413,13 @@ install_glib() {
 
 uninstall_glib() {
     if [ ! -z "$installed_glib_version" ] ; then
+        #
+        # ATK, Pango, and GTK depend on this, so uninstall them.
+        #
+        uninstall_gtk
+        uninstall_pango
+        uninstall_atk
+
         echo "Uninstalling GLib:"
         cd glib-$installed_glib_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -498,6 +510,11 @@ install_libpng() {
 
 uninstall_libpng() {
     if [ ! -z "$installed_libpng_version" ] ; then
+        #
+        # Cairo depends on this, so uninstall it.
+        #
+        uninstall_cairo
+
         echo "Uninstalling libpng:"
         cd libpng-$installed_libpng_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -524,6 +541,11 @@ install_pixman() {
 
 uninstall_pixman() {
     if [ ! -z "$installed_pixman_version" ] ; then
+        #
+        # Cairo depends on this, so uninstall it.
+        #
+        uninstall_cairo
+
         echo "Uninstalling pixman:"
         cd pixman-$installed_pixman_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -574,6 +596,11 @@ install_cairo() {
 
 uninstall_cairo() {
     if [ ! -z "$installed_cairo_version" ] ; then
+        #
+        # GTK+ depends on this, so uninstall it.
+        #
+        uninstall_gtk
+
         echo "Uninstalling Cairo:"
         cd cairo-$installed_cairo_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -615,6 +642,11 @@ install_atk() {
 
 uninstall_atk() {
     if [ ! -z "$installed_atk_version" ] ; then
+        #
+        # GTK+ depends on this, so uninstall it.
+        #
+        uninstall_gtk
+
         echo "Uninstalling ATK:"
         cd atk-$installed_atk_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -655,6 +687,11 @@ install_pango() {
 
 uninstall_pango() {
     if [ ! -z "$installed_pango_version" ] ; then
+        #
+        # GTK+ depends on this, so uninstall it.
+        #
+        uninstall_gtk
+
         echo "Uninstalling Pango:"
         cd pango-$installed_pango_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -697,6 +734,11 @@ install_gdk_pixbuf() {
 
 uninstall_gdk_pixbuf() {
     if [ ! -z "$installed_gdk_pixbuf_version" ] ; then
+        #
+        # GTK+ depends on this, so uninstall it.
+        #
+        uninstall_gtk
+
         echo "Uninstalling gdk-pixbuf:"
         cd gdk-pixbuf-$installed_gdk_pixbuf_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -807,6 +849,11 @@ install_libgpg_error() {
 
 uninstall_libgpg_error() {
     if [ ! -z "$installed_libgpg_error_version" ] ; then
+        #
+        # libgcrypt depends on this, so uninstall it.
+        #
+        uninstall_libgcrypt
+
         echo "Uninstalling libgpg-error:"
         cd libgpg-error-$installed_libgpg_error_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -851,6 +898,11 @@ install_libgcrypt() {
 
 uninstall_libgcrypt() {
     if [ ! -z "$installed_libgcrypt_version" ] ; then
+        #
+        # GnuTLS depends on this, so uninstall it.
+        #
+        uninstall_gnutls
+
         echo "Uninstalling libgcrypt:"
         cd libgcrypt-$installed_libgcrypt_version
         $DO_MAKE_UNINSTALL || exit 1
