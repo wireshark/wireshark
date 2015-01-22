@@ -5320,6 +5320,7 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
     offset++;
     /* Octet 10-11 RNC-ID*/
     proto_tree_add_item(ext_tree, hf_gtp_target_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
     /* If the optional Extended RNC-ID is not included, then the length variable 'n' = 8 and the overall length of the IE is 11
      * octets. Otherwise, 'n' = 10 and the overall length of the IE is 13 octets
      */
