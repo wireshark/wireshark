@@ -224,6 +224,8 @@ uat_dialog.cpp uat_dialog.h: ui_uat_dialog.h
 
 voip_calls_dialog.cpp voip_calls_dialog.h: ui_voip_calls_dialog.h
 
+bluetooth_att_server_attributes_dialog.cpp bluetooth_att_server_attributes_dialog.h: ui_bluetooth_att_server_attributes_dialog.h
+
 doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg

@@ -438,6 +438,8 @@ private slots:
     void on_actionTelephonyUCPMessages_triggered();
     void on_actionTelephonySipFlows_triggered();
 
+    void on_actionATT_Server_Attributes_triggered();
+
     void changeEvent(QEvent* event);
 };
 

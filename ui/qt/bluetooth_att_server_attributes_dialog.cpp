@@ -1,0 +1,365 @@
+/* bluetooth_att_server_attributes_dialog.cpp
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include "bluetooth_att_server_attributes_dialog.h"
+#include "ui_bluetooth_att_server_attributes_dialog.h"
+
+#include "epan/epan.h"
+#include "epan/to_str.h"
+#include "epan/epan_dissect.h"
+#include "epan/dissectors/packet-bluetooth.h"
+#include "epan/dissectors/packet-btatt.h"
+
+#include "ui/simple_dialog.h"
+
+#include <QContextMenuEvent>
+#include <QClipboard>
+
+static const int column_number_handle = 0;
+static const int column_number_uuid = 1;
+static const int column_number_uuid_name = 2;
+
+
+static const gchar *
+bt_print_uuid(uuid_t *uuid)
+{
+    if (uuid->bt_uuid) {
+        return val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown");
+    } else {
+        guint i_uuid;
+
+        i_uuid = 0;
+        while (bluetooth_uuid_custom[i_uuid].name) {
+            if (bluetooth_uuid_custom[i_uuid].size != uuid->size) {
+                i_uuid += 1;
+                continue;
+            }
+
+            if (memcmp(uuid->data, bluetooth_uuid_custom[i_uuid].uuid, uuid->size) == 0) {
+                return wmem_strdup(wmem_packet_scope(), bluetooth_uuid_custom[i_uuid].name);
+            }
+
+            i_uuid += 1;
+        }
+
+        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+    }
+}
+
+
+static gchar *
+bt_print_numeric_uuid(uuid_t *uuid)
+{
+    if (uuid && uuid->size > 0)
+        return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);
+
+    return NULL;
+}
+
+
+static gboolean
+btatt_handle_tap_packet(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *edt, const void* data)
+{
+    tapinfo_t *tapinfo = (tapinfo_t *) tapinfo_ptr;
+
+    if (tapinfo->tap_packet)
+        tapinfo->tap_packet(tapinfo, pinfo, edt, data);
+
+    return TRUE;
+}
+
+static void
+btatt_handle_tap_reset(void *tapinfo_ptr)
+{
+    tapinfo_t *tapinfo = (tapinfo_t *) tapinfo_ptr;
+
+    if (tapinfo->tap_reset)
+        tapinfo->tap_reset(tapinfo);
+}
+
+
+static void
+bluetooth_att_server_attributes_tap(void *data)
+{
+    GString *error_string;
+
+    error_string = register_tap_listener("btatt.handles", data, NULL,
+            0,
+            btatt_handle_tap_reset,
+            btatt_handle_tap_packet,
+            NULL
+            );
+
+    if (error_string != NULL) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "%s", error_string->str);
+        g_string_free(error_string, TRUE);
+    }
+}
+
+
+BluetoothAttServerAttributesDialog::BluetoothAttServerAttributesDialog(QWidget &parent, CaptureFile &cf) :
+    WiresharkDialog(parent, cf),
+    ui(new Ui::BluetoothAttServerAttributesDialog)
+{
+    ui->setupUi(this);
+    resize(parent.width() * 4 / 5, parent.height() * 2 / 3);
+
+    connect(ui->tableTreeWidget, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(tableContextMenu(const QPoint &)));
+    connect(ui->interfaceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(interfaceCurrentIndexChanged(int)));
+    connect(ui->deviceComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(deviceCurrentIndexChanged(int)));
+    connect(ui->removeDuplicatesCheckBox, SIGNAL(stateChanged(int)), this, SLOT(removeDuplicatesStateChanged(int)));
+
+    ui->tableTreeWidget->sortByColumn(column_number_handle, Qt::AscendingOrder);
+
+    context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Cell);
+    context_menu_.addActions(QList<QAction *>() << ui->actionCopy_Rows);
+
+    copy_all_button_ = ui->buttonBox->addButton(tr("Copy All"), QDialogButtonBox::ApplyRole);
+
+    tapinfo_.tap_packet = tapPacket;
+    tapinfo_.tap_reset  = tapReset;
+    tapinfo_.ui = this;
+
+    bluetooth_att_server_attributes_tap(&tapinfo_);
+
+    cap_file_.retapPackets();
+}
+
+
+BluetoothAttServerAttributesDialog::~BluetoothAttServerAttributesDialog()
+{
+    delete ui;
+
+    remove_tap_listener(&tapinfo_);
+}
+
+
+void BluetoothAttServerAttributesDialog::captureFileClosing()
+{
+    remove_tap_listener(&tapinfo_);
+
+    WiresharkDialog::captureFileClosing();
+}
+
+
+void BluetoothAttServerAttributesDialog::changeEvent(QEvent *event)
+{
+    if (0 != event)
+    {
+        switch (event->type())
+        {
+        case QEvent::LanguageChange:
+            ui->retranslateUi(this);
+            break;
+        default:
+            break;
+        }
+    }
+    QDialog::changeEvent(event);
+}
+
+
+void BluetoothAttServerAttributesDialog::tableContextMenu(const QPoint &pos)
+{
+    context_menu_.exec(ui->tableTreeWidget->viewport()->mapToGlobal(pos));
+}
+
+
+void BluetoothAttServerAttributesDialog::on_actionCopy_Cell_triggered()
+{
+    QClipboard             *clipboard = QApplication::clipboard();
+    QString                 copy;
+
+    copy = QString(ui->tableTreeWidget->currentItem()->text(ui->tableTreeWidget->currentColumn()));
+
+    clipboard->setText(copy);
+}
+
+
+void BluetoothAttServerAttributesDialog::on_actionCopy_Rows_triggered()
+{
+    QClipboard                         *clipboard = QApplication::clipboard();
+    QString                             copy;
+    QList<QTreeWidgetItem *>            items;
+    QList<QTreeWidgetItem *>::iterator  i_item;
+
+    items =  ui->tableTreeWidget->selectedItems();
+
+    for (i_item = items.begin(); i_item != items.end(); ++i_item) {
+        copy += QString("%1  %2  %3\n")
+                .arg((*i_item)->text(column_number_handle), -6)
+                .arg((*i_item)->text(column_number_uuid), -32)
+                .arg((*i_item)->text(column_number_uuid_name));
+
+    }
+
+    clipboard->setText(copy);
+}
+
+void BluetoothAttServerAttributesDialog::tapReset(void *tapinfo_ptr )
+{
+    tapinfo_t *tapinfo = (tapinfo_t *) tapinfo_ptr;
+    BluetoothAttServerAttributesDialog  *bluetooth_att_server_attributes_dialog = static_cast<BluetoothAttServerAttributesDialog *>(tapinfo->ui);
+
+
+    bluetooth_att_server_attributes_dialog->ui->tableTreeWidget->clear();
+}
+
+
+gboolean BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data)
+{
+    tapinfo_t                           *tapinfo     = static_cast<tapinfo_t *>(tapinfo_ptr);
+    BluetoothAttServerAttributesDialog  *dialog      = static_cast<BluetoothAttServerAttributesDialog *>(tapinfo->ui);
+    tap_handles_t                       *tap_handles = static_cast<tap_handles_t *>(const_cast<void *>(data));
+    QString                              handle;
+    QString                              uuid;
+    QString                              uuid_name;
+    gchar                               *addr = NULL;
+
+    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID) {
+        gchar       *interface;
+        const char  *interface_name;
+
+        interface_name = epan_get_interface_name(pinfo->epan, pinfo->phdr->interface_id);
+        interface = wmem_strdup_printf(wmem_packet_scope(), "%u: %s", pinfo->phdr->interface_id, interface_name);
+
+        if (dialog->ui->interfaceComboBox->findText(interface) == -1)
+            dialog->ui->interfaceComboBox->addItem(interface);
+
+        if (interface && dialog->ui->interfaceComboBox->currentIndex() > 0) {
+            if (dialog->ui->interfaceComboBox->currentText() != interface)
+            return TRUE;
+        }
+    }
+
+    if (pinfo->p2p_dir == P2P_DIR_SENT || pinfo->p2p_dir == P2P_DIR_RECV)
+        addr = address_to_str(wmem_packet_scope(), &pinfo->src);
+
+    if (addr && dialog->ui->deviceComboBox->findText(addr) == -1) {
+        dialog->ui->deviceComboBox->addItem(addr);
+    }
+
+    if (addr && dialog->ui->deviceComboBox->currentIndex() > 0) {
+        if (dialog->ui->deviceComboBox->currentText() != addr)
+        return TRUE;
+    }
+
+    handle.sprintf("0x%04x", tap_handles->handle);
+    uuid.sprintf("0x%s", bt_print_numeric_uuid(&tap_handles->uuid));
+    uuid_name = QString(bt_print_uuid(&tap_handles->uuid));
+
+    if (dialog->ui->removeDuplicatesCheckBox->checkState() == Qt::Checked) {
+        QTreeWidgetItemIterator i_item(dialog->ui->tableTreeWidget);
+
+        while (*i_item) {
+            QTreeWidgetItem *item = static_cast<QTreeWidgetItem*>(*i_item);
+
+            if (item->text(column_number_handle) == handle &&
+                    item->text(column_number_uuid) == uuid &&
+                    item->text(column_number_uuid_name) == uuid_name)
+                return TRUE;
+            i_item += 1;
+        }
+    }
+
+    QTreeWidgetItem *item = new QTreeWidgetItem(dialog->ui->tableTreeWidget);
+    item->setText(column_number_handle, handle);
+    item->setText(column_number_uuid, uuid);
+    item->setText(column_number_uuid_name,  uuid_name);
+    item->setData(0, Qt::UserRole, qVariantFromValue(pinfo->fd->num));
+
+    for (int i = 0; i < dialog->ui->tableTreeWidget->columnCount(); i++) {
+        dialog->ui->tableTreeWidget->resizeColumnToContents(i);
+    }
+
+    return TRUE;
+}
+
+void BluetoothAttServerAttributesDialog::interfaceCurrentIndexChanged(int)
+{
+    cap_file_.retapPackets();
+}
+
+
+void BluetoothAttServerAttributesDialog::deviceCurrentIndexChanged(int)
+{
+    cap_file_.retapPackets();
+}
+
+
+void BluetoothAttServerAttributesDialog::removeDuplicatesStateChanged(int)
+{
+    cap_file_.retapPackets();
+}
+
+
+
+void BluetoothAttServerAttributesDialog::on_tableTreeWidget_itemActivated(QTreeWidgetItem *item, int)
+{
+    guint32 frame_number = item->data(0, Qt::UserRole).value<guint32>();
+
+    emit goToPacket(frame_number);
+}
+
+
+void BluetoothAttServerAttributesDialog::copyAll()
+{
+    QClipboard             *clipboard = QApplication::clipboard();
+    QString                 copy;
+    QTreeWidgetItemIterator i_item(ui->tableTreeWidget);
+
+    copy = QString("%1  %2  %3\n")
+            .arg(ui->tableTreeWidget->headerItem()->text(column_number_handle), -6)
+            .arg(ui->tableTreeWidget->headerItem()->text(column_number_uuid), -32)
+            .arg(ui->tableTreeWidget->headerItem()->text(column_number_uuid_name));
+
+    while (*i_item) {
+        QTreeWidgetItem *item = static_cast<QTreeWidgetItem*>(*i_item);
+        copy += QString("%1  %2  %3\n")
+                .arg(item->text(column_number_handle), -6)
+                .arg(item->text(column_number_uuid), -32)
+                .arg(item->text(column_number_uuid_name));
+        i_item += 1;
+    }
+
+    clipboard->setText(copy);
+}
+
+
+void BluetoothAttServerAttributesDialog::on_buttonBox_clicked(QAbstractButton *button)
+{
+    if (button == copy_all_button_)
+        copyAll();
+}
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -206,6 +206,7 @@ HEADERS_WS_C  = \
 
 FORMS += \
     about_dialog.ui \
+    bluetooth_att_server_attributes_dialog.ui \
     capture_file_properties_dialog.ui \
     capture_interfaces_dialog.ui \
     capture_preferences_frame.ui \
@@ -262,6 +263,7 @@ FORMS += \
 HEADERS += $$HEADERS_WS_C \
     about_dialog.h \
     accordion_frame.h \
+    bluetooth_att_server_attributes_dialog.h \
     capture_file_properties_dialog.h \
     capture_interfaces_dialog.h \
     capture_preferences_frame.h \
@@ -595,6 +597,7 @@ HEADERS += \
 SOURCES += \
     about_dialog.cpp \
     accordion_frame.cpp \
+    bluetooth_att_server_attributes_dialog.cpp \
     byte_view_tab.cpp \
     byte_view_text.cpp \
     capture_file.cpp \

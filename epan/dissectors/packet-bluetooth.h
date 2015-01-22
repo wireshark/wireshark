@@ -22,6 +22,10 @@
 #ifndef __PACKET_BLUETOOTH_H__
 #define __PACKET_BLUETOOTH_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <epan/wmem/wmem.h>
 
 #include "packet-usb.h"
@@ -203,16 +207,16 @@ typedef struct _uuid_t {
     guint8   data[16];
 } uuid_t;
 
-typedef struct _custom_uuid_t {
+typedef struct _bluetooth_uuid_custom {
     const guint8  uuid[16];
     const guint8  size;
     const gchar  *name;
-} custom_uuid_t;
+} bluetooth_uuid_custom_t;
 
-extern const value_string   bluetooth_uuid_vals[];
-extern const custom_uuid_t  custom_uuid[];
+WS_DLL_PUBLIC const value_string   bluetooth_uuid_vals[];
+WS_DLL_PUBLIC const bluetooth_uuid_custom_t  bluetooth_uuid_custom[];
 
-extern value_string_ext  bluetooth_uuid_vals_ext;
+WS_DLL_PUBLIC value_string_ext  bluetooth_uuid_vals_ext;
 extern value_string_ext  bluetooth_company_id_vals_ext;
 extern guint32           max_disconnect_in_frame;
 
@@ -225,6 +229,10 @@ extern gchar  *print_numeric_uuid(uuid_t *uuid);
 
 extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, guint8 size, bluetooth_data_t *bluetooth_data);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
 

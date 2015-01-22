@@ -1301,14 +1301,14 @@ dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, uuid_t *uu
         item = proto_tree_add_item(tree, hf_data_element_value_uuid, tvb, offset, size, ENC_NA);
 
         i_uuid = 0;
-        while (custom_uuid[i_uuid].name) {
-            if (custom_uuid[i_uuid].size != size) {
+        while (bluetooth_uuid_custom[i_uuid].name) {
+            if (bluetooth_uuid_custom[i_uuid].size != size) {
                 i_uuid += 1;
                 continue;
             }
 
-            if (tvb_memeql(tvb, offset, custom_uuid[i_uuid].uuid, 4) == 0) {
-                proto_item_append_text(item, " (%s)", custom_uuid[i_uuid].name);
+            if (tvb_memeql(tvb, offset, bluetooth_uuid_custom[i_uuid].uuid, 4) == 0) {
+                proto_item_append_text(item, " (%s)", bluetooth_uuid_custom[i_uuid].name);
                 break;
             }
 

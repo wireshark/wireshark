@@ -71,6 +71,7 @@
 #include "ui/software_update.h"
 #endif
 
+#include "bluetooth_att_server_attributes_dialog.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
 #include "coloring_rules_dialog.h"
@@ -2526,6 +2527,18 @@ void MainWindow::on_actionTelephonyUCPMessages_triggered()
 void MainWindow::on_actionTelephonySipFlows_triggered()
 {
     openVoipCallsDialog(true);
+}
+
+// Bluetooth Menu
+
+void MainWindow::on_actionATT_Server_Attributes_triggered()
+{
+    BluetoothAttServerAttributesDialog *bluetooth_att_sever_attributes_dialog = new BluetoothAttServerAttributesDialog(*this, capture_file_);
+    connect(bluetooth_att_sever_attributes_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(bluetooth_att_sever_attributes_dialog, SIGNAL(updateFilter(QString&, bool)),
+            this, SLOT(filterPackets(QString&, bool)));
+    bluetooth_att_sever_attributes_dialog->show();
 }
 
 // Help Menu

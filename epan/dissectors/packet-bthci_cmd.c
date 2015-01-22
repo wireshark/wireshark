@@ -4792,14 +4792,14 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 4, ENC_NA);
 
                     i_uuid = 0;
-                    while (custom_uuid[i_uuid].name) {
-                        if (custom_uuid[i_uuid].size != 4) {
+                    while (bluetooth_uuid_custom[i_uuid].name) {
+                        if (bluetooth_uuid_custom[i_uuid].size != 4) {
                             i_uuid += 1;
                             continue;
                         }
 
-                        if (tvb_memeql(tvb, offset, custom_uuid[i_uuid].uuid, 4) == 0) {
-                            proto_item_append_text(sub_item, " (%s)", custom_uuid[i_uuid].name);
+                        if (tvb_memeql(tvb, offset, bluetooth_uuid_custom[i_uuid].uuid, 4) == 0) {
+                            proto_item_append_text(sub_item, " (%s)", bluetooth_uuid_custom[i_uuid].name);
                             break;
                         }
 
@@ -4825,14 +4825,14 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 16, ENC_NA);
 
                     i_uuid = 0;
-                    while (custom_uuid[i_uuid].name) {
-                        if (custom_uuid[i_uuid].size != 16) {
+                    while (bluetooth_uuid_custom[i_uuid].name) {
+                        if (bluetooth_uuid_custom[i_uuid].size != 16) {
                             i_uuid += 1;
                             continue;
                         }
 
-                        if (tvb_memeql(tvb, offset, custom_uuid[i_uuid].uuid, 16) == 0) {
-                            proto_item_append_text(sub_item, " (%s)", custom_uuid[i_uuid].name);
+                        if (tvb_memeql(tvb, offset, bluetooth_uuid_custom[i_uuid].uuid, 16) == 0) {
+                            proto_item_append_text(sub_item, " (%s)", bluetooth_uuid_custom[i_uuid].name);
                             break;
                         }
 
@@ -4965,14 +4965,14 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 4, ENC_NA);
 
                 i_uuid = 0;
-                while (custom_uuid[i_uuid].name) {
-                    if (custom_uuid[i_uuid].size != 4) {
+                while (bluetooth_uuid_custom[i_uuid].name) {
+                    if (bluetooth_uuid_custom[i_uuid].size != 4) {
                         i_uuid += 1;
                         continue;
                     }
 
-                    if (tvb_memeql(tvb, offset, custom_uuid[i_uuid].uuid, 4) == 0) {
-                        proto_item_append_text(sub_item, " (%s)", custom_uuid[i_uuid].name);
+                    if (tvb_memeql(tvb, offset, bluetooth_uuid_custom[i_uuid].uuid, 4) == 0) {
+                        proto_item_append_text(sub_item, " (%s)", bluetooth_uuid_custom[i_uuid].name);
                         break;
                     }
 
@@ -4996,14 +4996,14 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 16, ENC_NA);
 
                 i_uuid = 0;
-                while (custom_uuid[i_uuid].name) {
-                    if (custom_uuid[i_uuid].size != 16) {
+                while (bluetooth_uuid_custom[i_uuid].name) {
+                    if (bluetooth_uuid_custom[i_uuid].size != 16) {
                         i_uuid += 1;
                         continue;
                     }
 
-                    if (tvb_memeql(tvb, offset, custom_uuid[i_uuid].uuid, 16) == 0) {
-                        proto_item_append_text(sub_item, " (%s)", custom_uuid[i_uuid].name);
+                    if (tvb_memeql(tvb, offset, bluetooth_uuid_custom[i_uuid].uuid, 16) == 0) {
+                        proto_item_append_text(sub_item, " (%s)", bluetooth_uuid_custom[i_uuid].name);
                         break;
                     }
 

@@ -23,6 +23,7 @@
 # need to go here.
 set(WIRESHARK_QT_HEADERS
 	about_dialog.h
+	bluetooth_att_server_attributes_dialog.h
 	accordion_frame.h
 	byte_view_tab.h
 	byte_view_text.h
@@ -125,6 +126,7 @@ file(GLOB EXTRA_QT_HEADERS
 set(WIRESHARK_QT_SRC
 	about_dialog.cpp
 	accordion_frame.cpp
+	bluetooth_att_server_attributes_dialog.cpp
 	byte_view_tab.cpp
 	byte_view_text.cpp
 	capture_file.cpp
@@ -234,6 +236,7 @@ set(DIRTY_FILES
 
 set(WIRESHARK_QT_UI
 	about_dialog.ui
+	bluetooth_att_server_attributes_dialog.ui
 	capture_file_properties_dialog.ui
 	capture_interfaces_dialog.ui
 	capture_preferences_frame.ui

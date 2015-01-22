@@ -134,7 +134,7 @@ WS_DLL_PUBLIC epan_t *epan_new(void);
 
 WS_DLL_PUBLIC const char *epan_get_user_comment(const epan_t *session, const frame_data *fd);
 
-const char *epan_get_interface_name(const epan_t *session, guint32 interface_id);
+WS_DLL_PUBLIC const char *epan_get_interface_name(const epan_t *session, guint32 interface_id);
 
 const nstime_t *epan_get_frame_ts(const epan_t *session, guint32 frame_num);
 

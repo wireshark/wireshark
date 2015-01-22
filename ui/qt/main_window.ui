@@ -508,6 +508,12 @@
     <addaction name="actionEditConfigurationProfiles"/>
     <addaction name="actionEditPreferences"/>
    </widget>
+   <widget class="QMenu" name="menuBluetooth">
+    <property name="title">
+     <string>Bluetooth</string>
+    </property>
+    <addaction name="actionATT_Server_Attributes"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
@@ -516,6 +522,7 @@
    <addaction name="menuAnalyze"/>
    <addaction name="menuStatistics"/>
    <addaction name="menuTelephony"/>
+   <addaction name="menuBluetooth"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -2253,6 +2260,21 @@
    </property>
    <property name="toolTip">
     <string>Edit the packet list coloring rules.</string>
+   </property>
+  </action>
+  <action name="actionATT_Server_Attributes">
+   <property name="text">
+    <string>ATT Server Attributes</string>
+   </property>
+  </action>
+  <action name="actionDevices">
+   <property name="text">
+    <string>Devices</string>
+   </property>
+  </action>
+  <action name="actionServices">
+   <property name="text">
+    <string>Services</string>
    </property>
   </action>
  </widget>

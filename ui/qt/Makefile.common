@@ -30,6 +30,7 @@ GENERATED_HEADER_FILES =
 # Generated header files that we don't want in the distribution.
 NODIST_GENERATED_HEADER_FILES =	\
 	ui_about_dialog.h	\
+	ui_bluetooth_att_server_attributes_dialog.h	\
 	ui_capture_file_properties_dialog.h	\
 	ui_capture_interfaces_dialog.h	\
 	ui_capture_preferences_frame.h	\
@@ -118,6 +119,7 @@ GENERATOR_FILES =
 MOC_HDRS =	\
 	about_dialog.h	\
 	accordion_frame.h	\
+	bluetooth_att_server_attributes_dialog.h	\
 	byte_view_tab.h	\
 	byte_view_text.h	\
 	capture_file.h	\
@@ -209,6 +211,7 @@ MOC_HDRS =	\
 #
 UI_FILES =	\
 	about_dialog.ui	\
+	bluetooth_att_server_attributes_dialog.ui	\
 	capture_file_properties_dialog.ui 	\
 	capture_interfaces_dialog.ui 	\
 	capture_preferences_frame.ui	\
@@ -320,6 +323,7 @@ QRC_SRC = $(QRC_FILES:.qrc=.rcc.cpp)
 WIRESHARK_QT_SRC =	\
 	about_dialog.cpp	\
 	accordion_frame.cpp	\
+	bluetooth_att_server_attributes_dialog.cpp	\
 	byte_view_tab.cpp	\
 	byte_view_text.cpp	\
 	capture_file.cpp	\

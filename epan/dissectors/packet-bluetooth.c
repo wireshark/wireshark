@@ -558,7 +558,7 @@ const value_string bluetooth_uuid_vals[] = {
 };
 value_string_ext bluetooth_uuid_vals_ext = VALUE_STRING_EXT_INIT(bluetooth_uuid_vals);
 
-const custom_uuid_t custom_uuid[] = {
+const bluetooth_uuid_custom_t bluetooth_uuid_custom[] = {
     { {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Server" },
     { {0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Client" },
     { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, NULL},
@@ -1211,14 +1211,14 @@ print_uuid(uuid_t *uuid)
         guint i_uuid;
 
         i_uuid = 0;
-        while (custom_uuid[i_uuid].name) {
-            if (custom_uuid[i_uuid].size != uuid->size) {
+        while (bluetooth_uuid_custom[i_uuid].name) {
+            if (bluetooth_uuid_custom[i_uuid].size != uuid->size) {
                 i_uuid += 1;
                 continue;
             }
 
-            if (memcmp(uuid->data, custom_uuid[i_uuid].uuid, uuid->size) == 0) {
-                return wmem_strdup(wmem_packet_scope(), custom_uuid[i_uuid].name);
+            if (memcmp(uuid->data, bluetooth_uuid_custom[i_uuid].uuid, uuid->size) == 0) {
+                return wmem_strdup(wmem_packet_scope(), bluetooth_uuid_custom[i_uuid].name);
             }
 
             i_uuid += 1;
