@@ -939,7 +939,176 @@ uninstall_c_ares() {
     rm c-ares-$installed_cares_version-done
 }
 
-uninstall() {
+install_all() {
+    #
+    # Start with xz: It is the sole download format of glib later than 2.31.2
+    #
+    if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
+        install_xz
+    fi
+
+    if [ "$AUTOCONF_VERSION" -a ! -f autoconf-$AUTOCONF_VERSION-done ] ; then
+        install_autoconf
+    fi
+
+    if [ "$AUTOMAKE_VERSION" -a ! -f automake-$AUTOMAKE_VERSION-done ] ; then
+        install_automake
+    fi
+
+    if [ "$LIBTOOL_VERSION" -a ! -f libtool-$LIBTOOL_VERSION-done ] ; then
+        install_libtool
+    fi
+
+    if [ -n "$CMAKE" -a ! -f cmake-$CMAKE_VERSION-done ]; then
+        install_cmake
+    fi
+
+    #
+    # Start with GNU gettext; GLib requires it, and OS X doesn't have it
+    # or a BSD-licensed replacement.
+    #
+    # At least on Lion with Xcode 4, _FORTIFY_SOURCE gets defined as 2
+    # by default, which causes, for example, stpncpy to be defined as
+    # a hairy macro that collides with the GNU gettext configure script's
+    # attempts to workaround AIX's lack of a declaration for stpncpy,
+    # with the result being a huge train wreck.  Define _FORTIFY_SOURCE
+    # as 0 in an attempt to keep the trains on separate tracks.
+    #
+    if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
+        install_gettext
+    fi
+
+    #
+    # GLib depends on pkg-config.
+    # By default, pkg-config depends on GLib; we break the dependency cycle
+    # by configuring pkg-config to use its own internal version of GLib.
+    #
+    if [ ! -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
+        install_pkg_config
+    fi
+
+    if [ ! -f glib-$GLIB_VERSION-done ] ; then
+        install_glib
+    fi
+
+    #
+    # Now we have reached a point where we can build everything but
+    # the GUI (Wireshark).
+    #
+    if [ "$QT_VERSION" -a ! -f qt-$QT_VERSION-done ]; then
+        install_qt
+    fi
+
+    if [ "$GTK_VERSION" ]; then
+        #
+        # GTK+ 3 requires a newer Cairo build than the one that comes with
+        # 10.6, so we build Cairo if we are using GTK+ 3.
+        #
+        # In 10.6 and 10.7, it's an X11 library; if we build with "native" GTK+
+        # rather than X11 GTK+, we might have to build and install Cairo.
+        # In 10.8 and later, there is no X11, but it's included in Xquartz;
+        # again, if we build with "native" GTK+, we'd have to build and install
+        # it.
+        #
+        if [[ "$GTK_MAJOR_VERSION" -eq 3 || "$cairo_not_in_the_os" = yes ]]; then
+            #
+            # Requirements for Cairo first
+            #
+            # The libpng that comes with the X11 for Leopard has a bogus
+            # pkg-config file that lies about where the header files are,
+            # which causes other packages not to be able to find its
+            # headers.
+            #
+            # The libpng in later versions is not what the version of
+            # libpixman we build below wants - it wants libpng15.
+            #
+            if [ ! -f libpng-$PNG_VERSION-done ] ; then
+                install_libpng
+            fi
+
+            #
+            # The libpixman versions that come with the X11s for Leopard,
+            # Snow Leopard, and Lion is too old to support Cairo's image
+            # surface backend feature (which requires pixman-1 >= 0.22.0).
+            #
+            # XXX - what about the one that comes with the latest version
+            # of Xquartz?
+            #
+            if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
+                install_libpixman
+            fi
+
+            #
+            # And now Cairo itself.
+            # XXX - with the libxcb that comes with 10.6,
+            # xcb_discard_reply() is missing, and the build fails.
+            #
+            if [ ! -f cairo-$CAIRO_VERSION-done ] ; then
+                install_cairo
+            fi
+        fi
+
+        if [ ! -f atk-$ATK_VERSION-done ] ; then
+            install_atk
+        fi
+
+        if [ ! -f pango-$PANGO_VERSION-done ] ; then
+            install_pango
+        fi
+
+        if [ "$GDK_PIXBUF_VERSION" -a ! -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
+            install_gdk_pixbuf
+        fi
+
+        if [ ! -f gtk+-$GTK_VERSION-done ] ; then
+            install_gtk
+        fi
+    fi
+
+    #
+    # Now we have reached a point where we can build everything including
+    # the GUI (Wireshark), but not with any optional features such as
+    # SNMP OID resolution, some forms of decryption, Lua scripting, playback
+    # of audio, or GeoIP mapping of IP addresses.
+    #
+    # We now conditionally download optional libraries to support them;
+    # the default is to download them all.
+    #
+
+    if [ "$LIBSMI_VERSION" -a ! -f libsmi-$LIBSMI_VERSION-done ] ; then
+        install_libsmi
+    fi
+
+    if [ "$LIBGPG_ERROR_VERSION" -a ! -f libgpg-error-$LIBGPG_ERROR_VERSION-done ] ; then
+        install_libgpg_error
+    fi
+
+    if [ "$LIBGCRYPT_VERSION" -a ! -f libgcrypt-$LIBGCRYPT_VERSION-done ] ; then
+        install_libgcrypt
+    fi
+
+    if [ "$GNUTLS_VERSION" -a ! -f gnutls-$GNUTLS_VERSION-done ] ; then
+        install_gnutls
+    fi
+
+    if [ "$LUA_VERSION" -a ! -f lua-$LUA_VERSION-done ] ; then
+        install_lua
+    fi
+
+    if [ "$PORTAUDIO_VERSION" -a ! -f portaudio-done ] ; then
+        install_portaudio
+    fi
+
+    if [ "$GEOIP_VERSION" -a ! -f geoip-$GEOIP_VERSION-done ] ; then
+        install_geoip
+    fi
+
+    if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ] ; then
+        install_c_ares
+    fi
+}
+
+uninstall_all() {
     if [ -d macosx-support-libs ]
     then
         cd macosx-support-libs
@@ -1150,7 +1319,7 @@ done
 
 if [ "$do_uninstall" = "yes" ]
 then
-    uninstall
+    uninstall_all
     exit 0
 fi
 
@@ -1450,175 +1619,7 @@ then
 fi
 cd macosx-support-libs
 
-# Start with xz: It is the sole download format of glib later than 2.31.2
-#
-if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
-    install_xz
-fi
-
-if [ "$AUTOCONF_VERSION" -a ! -f autoconf-$AUTOCONF_VERSION-done ] ; then
-    install_autoconf
-fi
-
-if [ "$AUTOMAKE_VERSION" -a ! -f automake-$AUTOMAKE_VERSION-done ] ; then
-    install_automake
-fi
-
-if [ "$LIBTOOL_VERSION" -a ! -f libtool-$LIBTOOL_VERSION-done ] ; then
-    install_libtool
-fi
-
-if [ -n "$CMAKE" -a ! -f cmake-$CMAKE_VERSION-done ]; then
-    install_cmake
-fi
-
-#
-# Start with GNU gettext; GLib requires it, and OS X doesn't have it
-# or a BSD-licensed replacement.
-#
-# At least on Lion with Xcode 4, _FORTIFY_SOURCE gets defined as 2
-# by default, which causes, for example, stpncpy to be defined as
-# a hairy macro that collides with the GNU gettext configure script's
-# attempts to workaround AIX's lack of a declaration for stpncpy,
-# with the result being a huge train wreck.  Define _FORTIFY_SOURCE
-# as 0 in an attempt to keep the trains on separate tracks.
-#
-if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
-    install_gettext
-fi
-
-#
-# GLib depends on pkg-config.
-# By default, pkg-config depends on GLib; we break the dependency cycle
-# by configuring pkg-config to use its own internal version of GLib.
-#
-if [ ! -f pkg-config-$PKG_CONFIG_VERSION-done ] ; then
-    install_pkg_config
-fi
-
-if [ ! -f glib-$GLIB_VERSION-done ] ; then
-    install_glib
-fi
-
-#
-# Now we have reached a point where we can build everything but
-# the GUI (Wireshark).
-#
-if [ "$QT_VERSION" -a ! -f qt-$QT_VERSION-done ]; then
-    install_qt
-fi
-
-if [ "$GTK_VERSION" ]; then
-
-    #
-    # GTK+ 3 requires a newer Cairo build than the one that comes with
-    # 10.6, so we build Cairo if we are using GTK+ 3.
-    #
-    # In 10.6 and 10.7, it's an X11 library; if we build with "native" GTK+
-    # rather than X11 GTK+, we might have to build and install Cairo.
-    # In 10.8 and later, there is no X11, but it's included in Xquartz;
-    # again, if we build with "native" GTK+, we'd have to build and install
-    # it.
-    #
-    if [[ "$GTK_MAJOR_VERSION" -eq 3 || "$cairo_not_in_the_os" = yes ]]; then
-        #
-        # Requirements for Cairo first
-        #
-        # The libpng that comes with the X11 for Leopard has a bogus
-        # pkg-config file that lies about where the header files are,
-        # which causes other packages not to be able to find its
-        # headers.
-        #
-        # The libpng in later versions is not what the version of
-        # libpixman we build below wants - it wants libpng15.
-        #
-        if [ ! -f libpng-$PNG_VERSION-done ] ; then
-            install_libpng
-        fi
-
-        #
-        # The libpixman versions that come with the X11s for Leopard,
-        # Snow Leopard, and Lion is too old to support Cairo's image
-        # surface backend feature (which requires pixman-1 >= 0.22.0).
-        #
-        # XXX - what about the one that comes with the latest version
-        # of Xquartz?
-        #
-        if [ ! -f pixman-$PIXMAN_VERSION-done ] ; then
-            install_libpixman
-        fi
-
-        #
-        # And now Cairo itself.
-        # XXX - with the libxcb that comes with 10.6,
-        #
-        # xcb_discard_reply() is missing, and the build fails.
-        #
-        if [ ! -f cairo-$CAIRO_VERSION-done ] ; then
-            install_cairo
-        fi
-    fi
-
-    if [ ! -f atk-$ATK_VERSION-done ] ; then
-        install_atk
-    fi
-
-    if [ ! -f pango-$PANGO_VERSION-done ] ; then
-        install_pango
-    fi
-
-    if [ "$GDK_PIXBUF_VERSION" -a ! -f gdk-pixbuf-$GDK_PIXBUF_VERSION-done ] ; then
-        install_gdk_pixbuf
-    fi
-
-    if [ ! -f gtk+-$GTK_VERSION-done ] ; then
-        install_gtk
-    fi
-fi
-
-#
-# Now we have reached a point where we can build everything including
-# the GUI (Wireshark), but not with any optional features such as
-# SNMP OID resolution, some forms of decryption, Lua scripting, playback
-# of audio, or GeoIP mapping of IP addresses.
-#
-# We now conditionally download optional libraries to support them;
-# the default is to download them all.
-#
-
-if [ "$LIBSMI_VERSION" -a ! -f libsmi-$LIBSMI_VERSION-done ] ; then
-    install_libsmi
-fi
-
-if [ "$LIBGPG_ERROR_VERSION" -a ! -f libgpg-error-$LIBGPG_ERROR_VERSION-done ] ; then
-    install_libgpg_error
-fi
-
-if [ "$LIBGCRYPT_VERSION" -a ! -f libgcrypt-$LIBGCRYPT_VERSION-done ] ; then
-    install_libgcrypt
-fi
-
-if [ "$GNUTLS_VERSION" -a ! -f gnutls-$GNUTLS_VERSION-done ] ; then
-    install_gnutls
-fi
-
-if [ "$LUA_VERSION" -a ! -f lua-$LUA_VERSION-done ] ; then
-    install_lua
-fi
-
-if [ "$PORTAUDIO_VERSION" -a ! -f portaudio-done ] ; then
-    install_portaudio
-fi
-
-if [ "$GEOIP_VERSION" -a ! -f geoip-$GEOIP_VERSION-done ]
-then
-    install_geoip
-fi
-
-if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ]
-then
-    install_c_ares
-fi
+install_all
 
 echo ""
 
