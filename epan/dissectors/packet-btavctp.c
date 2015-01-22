@@ -52,6 +52,7 @@ static int hf_btavctp_number_of_packets         = -1;
 static gint ett_btavctp             = -1;
 
 static expert_field ei_btavctp_unexpected_frame = EI_INIT;
+static expert_field ei_btavctp_invalid_profile = EI_INIT;
 
 static dissector_table_t avctp_service_dissector_table;
 
@@ -131,6 +132,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item      *ti;
     proto_tree      *btavctp_tree;
     proto_item      *pitem;
+    proto_item      *ipid_item;
     btavctp_data_t  *avctp_data;
     btl2cap_data_t  *l2cap_data;
     tvbuff_t        *next_tvb;
@@ -142,6 +144,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint           number_of_packets = 0;
     guint           length;
     guint           i_frame;
+    gboolean        ipid = FALSE;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -174,10 +177,12 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     packet_type = (tvb_get_guint8(tvb, offset) & 0x0C) >> 2;
     cr = (tvb_get_guint8(tvb, offset) & 0x02) >> 1 ;
 
-    if (packet_type == PACKET_TYPE_SINGLE || packet_type == PACKET_TYPE_START)
-        proto_tree_add_item(btavctp_tree, hf_btavctp_ipid,  tvb, offset, 1, ENC_BIG_ENDIAN);
-    else
+    if (packet_type == PACKET_TYPE_SINGLE || packet_type == PACKET_TYPE_START) {
+        ipid_item = proto_tree_add_item(btavctp_tree, hf_btavctp_ipid,  tvb, offset, 1, ENC_BIG_ENDIAN);
+        ipid = tvb_get_guint8(tvb, offset) & 0x01;
+    } else {
         proto_tree_add_item(btavctp_tree, hf_btavctp_rfa,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
     offset++;
 
     if (packet_type == PACKET_TYPE_START) {
@@ -200,16 +205,23 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset +=2;
     }
 
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s - Transaction: %u, PacketType: %s",
+            val_to_str_const(cr, cr_vals, "unknown CR"), transaction,
+            val_to_str_const(packet_type, packet_type_vals, "unknown packet type"));
+
+    if (ipid) {
+        expert_add_info(pinfo, ipid_item, &ei_btavctp_invalid_profile);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid profile");
+        if (tvb_captured_length_remaining(tvb, offset) == 0)
+            return offset;
+    }
+
     avctp_data = wmem_new(wmem_packet_scope(), btavctp_data_t);
     avctp_data->cr           = cr;
     avctp_data->interface_id = l2cap_data->interface_id;
     avctp_data->adapter_id   = l2cap_data->adapter_id;
     avctp_data->chandle      = l2cap_data->chandle;
     avctp_data->psm          = l2cap_data->psm;
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s - Transaction: %u, PacketType: %s",
-            val_to_str_const(cr, cr_vals, "unknown CR"), transaction,
-            val_to_str_const(packet_type, packet_type_vals, "unknown packet type"));
 
     length = tvb_ensure_length_remaining(tvb, offset);
 
@@ -471,6 +483,7 @@ proto_register_btavctp(void)
 
     static ei_register_info ei[] = {
         { &ei_btavctp_unexpected_frame, { "btavctp.unexpected_frame", PI_PROTOCOL, PI_WARN, "Unexpected frame", EXPFILL }},
+        { &ei_btavctp_invalid_profile,  { "btavctp.invalid_profile",  PI_PROTOCOL, PI_NOTE, "Invalid Profile", EXPFILL }},
     };
 
     /* Decode As handling */
