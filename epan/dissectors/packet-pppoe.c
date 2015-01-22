@@ -343,7 +343,7 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 	proto_tree  *pppoe_tree, *ti, *encaps_tree;
 
 	/* Start Decoding Here. */
-	if (tree)
+/*	if (tree) */
 	{
 		/* Create tags subtree */
 		ti = proto_tree_add_item(tree, hf_pppoed_tag_vspec_tags, tvb, offset, payload_length, ENC_NA);
@@ -450,7 +450,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 	proto_item  *pppoe_tree_tag_length_item = NULL;
 
 	/* Start Decoding Here. */
-	if (tree)
+/*	if (tree) */
 	{
 		/* Create tags subtree */
 		ti = proto_tree_add_item(tree, hf_pppoed_tags, tvb, offset, payload_length-6, ENC_NA);
