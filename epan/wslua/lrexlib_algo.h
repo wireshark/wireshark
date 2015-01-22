@@ -64,7 +64,7 @@ static int generate_error  (lua_State *L, const TUserdata *ud, int errcode);
 #endif
 
 #ifndef ALG_GETEFLAGS
-#  define ALG_GETEFLAGS(L,idx) luaL_optint (L, idx, ALG_EFLAGS_DFLT)
+#  define ALG_GETEFLAGS(L,idx) ((int) luaL_optinteger (L, idx, ALG_EFLAGS_DFLT))
 #endif
 
 #ifndef DO_NAMED_SUBPATTERNS
@@ -118,7 +118,7 @@ static int OptLimit (lua_State *L, int pos) {
 
 
 static int get_startoffset(lua_State *L, int stackpos, size_t len) {
-  int startoffset = luaL_optint(L, stackpos, 1);
+  int startoffset = (int)luaL_optinteger(L, stackpos, 1);
   if(startoffset > 0)
     startoffset--;
   else if(startoffset < 0) {

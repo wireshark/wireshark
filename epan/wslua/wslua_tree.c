@@ -532,8 +532,8 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
                                                             `PI_WARN`, or `PI_ERROR`. */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 4 /* The text for the expert info display. */
     TreeItem ti           = checkTreeItem(L,1);
-    int group             = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_GROUP,PI_DEBUG);
-    int severity          = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY,PI_CHAT);
+    int group             = (int)luaL_optinteger(L,WSLUA_OPTARG_TreeItem_add_expert_info_GROUP,PI_DEBUG);
+    int severity          = (int)luaL_optinteger(L,WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY,PI_CHAT);
     expert_field* ei_info = wslua_get_expert_field(group, severity);
     const gchar* str;
 
@@ -667,7 +667,7 @@ WSLUA_METHOD TreeItem_set_len(lua_State *L) {
     */
 #define WSLUA_ARG_TreeItem_set_len_LEN 2 /* The length to be used. */
     TreeItem ti = checkTreeItem(L,1);
-    gint len = luaL_checkint(L,WSLUA_ARG_TreeItem_set_len_LEN);
+    gint len = (int)luaL_checkinteger(L,WSLUA_ARG_TreeItem_set_len_LEN);
 
     proto_item_set_len(ti->item, len);
 

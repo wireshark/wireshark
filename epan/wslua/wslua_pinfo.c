@@ -81,8 +81,8 @@ WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
 
     if (!nstime) return 0;
 
-    nstime->secs = (time_t) luaL_optint(L,WSLUA_OPTARG_NSTime_new_SECONDS,0);
-    nstime->nsecs = luaL_optint(L,WSLUA_OPTARG_NSTime_new_NSECONDS,0);
+    nstime->secs = (time_t) luaL_optinteger(L,WSLUA_OPTARG_NSTime_new_SECONDS,0);
+    nstime->nsecs = (int) luaL_optinteger(L,WSLUA_OPTARG_NSTime_new_NSECONDS,0);
 
     pushNSTime(L,nstime);
 

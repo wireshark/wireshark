@@ -52,7 +52,7 @@ WSLUA_API gboolean wslua_toboolean(lua_State* L, int n) {
     if ( lua_isboolean(L,n) ||  lua_isnil(L,n)  || lua_gettop(L) < n ) {
         val = lua_toboolean(L,n);
     } else if ( lua_type(L,n) == LUA_TNUMBER ) {
-        int num = luaL_checkint(L,n);
+        int num = (int)luaL_checkinteger(L,n);
         val = num != 0 ? TRUE : FALSE;
     } else {
         luaL_argerror(L,n,"must be a boolean or number");
@@ -61,7 +61,7 @@ WSLUA_API gboolean wslua_toboolean(lua_State* L, int n) {
     return val;
 }
 
-/* like luaL_checkint, except for booleans - this does not coerce other types */
+/* like luaL_checkinteger, except for booleans - this does not coerce other types */
 WSLUA_API gboolean wslua_checkboolean(lua_State* L, int n) {
 
     if (!lua_isboolean(L,n) ) {

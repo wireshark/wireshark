@@ -149,7 +149,7 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
 #define WSLUA_ARG_ByteArray_set_size_SIZE 2 /* New size of the array. */
 
     ByteArray ba = checkByteArray(L,1);
-    int siz = luaL_checkint(L,WSLUA_ARG_ByteArray_set_size_SIZE);
+    int siz = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_set_size_SIZE);
     guint8* padding;
 
     if (siz < 0) {
@@ -172,8 +172,8 @@ WSLUA_METHOD ByteArray_set_index(lua_State* L) {
 #define WSLUA_ARG_ByteArray_set_index_INDEX 2 /* The position of the byte to be set. */
 #define WSLUA_ARG_ByteArray_set_index_VALUE 3 /* The char value to set [0-255]. */
     ByteArray ba = checkByteArray(L,1);
-    int idx = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_INDEX);
-    int v = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_VALUE);
+    int idx = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_set_index_INDEX);
+    int v = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_set_index_VALUE);
 
     if (idx == 0 && ! g_str_equal(luaL_optstring(L,2,""),"0") ) {
         luaL_argerror(L,2,"bad index");
@@ -200,7 +200,7 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
 	/* Get the value of a byte in a `ByteArray`. */
 #define WSLUA_ARG_ByteArray_get_index_INDEX 2 /* The position of the byte to get. */
     ByteArray ba = checkByteArray(L,1);
-    int idx = luaL_checkint(L,WSLUA_ARG_ByteArray_get_index_INDEX);
+    int idx = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_get_index_INDEX);
 
     if (idx == 0 && ! g_str_equal(luaL_optstring(L,2,""),"0") ) {
         luaL_argerror(L,2,"bad index");
@@ -230,8 +230,8 @@ WSLUA_METHOD ByteArray_subset(lua_State* L) {
 #define WSLUA_ARG_ByteArray_set_index_OFFSET 2 /* The position of the first byte (0=first). */
 #define WSLUA_ARG_ByteArray_set_index_LENGTH 3 /* The length of the segment. */
     ByteArray ba = checkByteArray(L,1);
-    int offset = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_OFFSET);
-    int len = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_LENGTH);
+    int offset = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_set_index_OFFSET);
+    int len = (int)luaL_checkinteger(L,WSLUA_ARG_ByteArray_set_index_LENGTH);
     ByteArray sub;
 
     if ((offset + len) > (int)ba->len || offset < 0 || len < 1) {
@@ -272,7 +272,7 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
 #define WSLUA_OPTARG_ByteArray_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
 #define WSLUA_OPTARG_ByteArray_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     ByteArray ba = checkByteArray(L,1);
-    guint offset = (guint) luaL_optint(L,WSLUA_OPTARG_ByteArray_raw_OFFSET,0);
+    guint offset = (guint) luaL_optinteger(L,WSLUA_OPTARG_ByteArray_raw_OFFSET,0);
     int len;
 
     if (!ba) return 0;
@@ -281,7 +281,7 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
         return 0;
     }
 
-    len = luaL_optint(L,WSLUA_OPTARG_ByteArray_raw_LENGTH, ba->len - offset);
+    len = (int) luaL_optinteger(L,WSLUA_OPTARG_ByteArray_raw_LENGTH, ba->len - offset);
     if ((len < 0) || ((guint)len > (ba->len - offset)))
         len = ba->len - offset;
 
@@ -542,7 +542,7 @@ WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
        offset is beyond the end of the `Tvb`. */
 #define Tvb_reported_length_remaining_OFFSET 2 /* offset */
     Tvb tvb = checkTvb(L,1);
-    int offset = luaL_optint(L, Tvb_reported_length_remaining_OFFSET, 0);
+    int offset = (int) luaL_optinteger(L, Tvb_reported_length_remaining_OFFSET, 0);
 
     lua_pushnumber(L,tvb_reported_length_remaining(tvb->ws_tvb, offset));
     WSLUA_RETURN(1); /* The captured length of the `Tvb`. */
@@ -611,8 +611,8 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
 #define WSLUA_OPTARG_Tvb_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the `Tvb`. */
 
     Tvb tvb = checkTvb(L,1);
-    int offset = luaL_optint(L,WSLUA_OPTARG_Tvb_range_OFFSET,0);
-    int len = luaL_optint(L,WSLUA_OPTARG_Tvb_range_LENGTH,-1);
+    int offset = (int) luaL_optinteger(L,WSLUA_OPTARG_Tvb_range_OFFSET,0);
+    int len = (int) luaL_optinteger(L,WSLUA_OPTARG_Tvb_range_LENGTH,-1);
 
     if (push_TvbRange(L,tvb->ws_tvb,offset,len)) {
         WSLUA_RETURN(1); /* The TvbRange */
@@ -626,8 +626,8 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
 #define WSLUA_OPTARG_Tvb_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
 #define WSLUA_OPTARG_Tvb_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     Tvb tvb = checkTvb(L,1);
-    int offset = luaL_optint(L,WSLUA_OPTARG_Tvb_raw_OFFSET,0);
-    int len = luaL_optint(L,WSLUA_OPTARG_Tvb_raw_LENGTH,-1);
+    int offset = (int) luaL_optinteger(L,WSLUA_OPTARG_Tvb_raw_OFFSET,0);
+    int len = (int) luaL_optinteger(L,WSLUA_OPTARG_Tvb_raw_LENGTH,-1);
 
     if (!tvb) return 0;
     if (tvb->expired) {
@@ -1076,7 +1076,7 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_nstime_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
     NSTime nstime;
-    const guint encoding = luaL_optint(L, WSLUA_OPTARG_TvbRange_nstime_ENCODING, 0);
+    const guint encoding = (guint) luaL_optinteger(L, WSLUA_OPTARG_TvbRange_nstime_ENCODING, 0);
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1157,7 +1157,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
 	/* Obtain a string from a `TvbRange`. */
 #define WSLUA_OPTARG_TvbRange_string_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
-    guint encoding = (guint)luaL_optint(L,WSLUA_OPTARG_TvbRange_string_ENCODING, ENC_ASCII|ENC_NA);
+    guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_string_ENCODING, ENC_ASCII|ENC_NA);
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1201,7 +1201,7 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
 	/* Obtain a zero terminated string from a `TvbRange`. */
 #define WSLUA_OPTARG_TvbRange_stringz_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
-    guint encoding = (guint)luaL_optint(L,WSLUA_OPTARG_TvbRange_stringz_ENCODING, ENC_ASCII|ENC_NA);
+    guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_stringz_ENCODING, ENC_ASCII|ENC_NA);
     gint offset;
     gunichar2 uchar;
 
@@ -1245,7 +1245,7 @@ WSLUA_METHOD TvbRange_strsize(lua_State* L) {
            The size of the string includes the terminating zero. */
 #define WSLUA_OPTARG_TvbRange_strsize_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
-    guint encoding = (guint)luaL_optint(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
+    guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
     gint offset;
     gunichar2 uchar;
 
@@ -1345,7 +1345,7 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_bytes_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
     GByteArray* ba;
-    const guint encoding = luaL_optint(L, WSLUA_OPTARG_TvbRange_bytes_ENCODING, 0);
+    const guint encoding = (guint)luaL_optinteger(L, WSLUA_OPTARG_TvbRange_bytes_ENCODING, 0);
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1388,8 +1388,8 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_bitfield_LENGTH 3 /* The length (in bits) of the field. Defaults to 1. */
 
     TvbRange tvbr = checkTvbRange(L,1);
-    int pos = luaL_optint(L,WSLUA_OPTARG_TvbRange_bitfield_POSITION,0);
-    int len = luaL_optint(L,WSLUA_OPTARG_TvbRange_bitfield_LENGTH,1);
+    int pos = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_bitfield_POSITION,0);
+    int len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_bitfield_LENGTH,1);
 
     if (!(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1426,12 +1426,12 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_range_LENGTH 3 /* The length (in octets) of the range. Defaults to until the end of the `TvbRange`. */
 
     TvbRange tvbr = checkTvbRange(L,1);
-    int offset = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_OFFSET,0);
+    int offset = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_range_OFFSET,0);
     int len;
 
     if (!(tvbr && tvbr->tvb)) return 0;
 
-    len = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_LENGTH,tvbr->len-offset);
+    len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_range_LENGTH,tvbr->len-offset);
 
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
@@ -1522,8 +1522,8 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
 #define WSLUA_OPTARG_TvbRange_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
 #define WSLUA_OPTARG_TvbRange_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     TvbRange tvbr = checkTvbRange(L,1);
-    int offset = luaL_optint(L,WSLUA_OPTARG_TvbRange_raw_OFFSET,0);
-    int len = luaL_optint(L,WSLUA_OPTARG_TvbRange_raw_LENGTH,-1);
+    int offset = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_raw_OFFSET,0);
+    int len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_raw_LENGTH,-1);
 
     if (!tvbr || !tvbr->tvb) return 0;
     if (tvbr->tvb->expired) {

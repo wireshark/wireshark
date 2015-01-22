@@ -92,7 +92,7 @@ WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
     PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ETH;
     ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->eth.fcs_len = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_eth_FCSLEN,-1);
+    ph->wph->eth.fcs_len = (gint)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_eth_FCSLEN,-1);
 
     pushPseudoHeader(L,ph);
 
@@ -114,13 +114,13 @@ WSLUA_CONSTRUCTOR PseudoHeader_atm(lua_State* L) {
     PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_ATM;
     ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->atm.aal = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_AAL,5);
-    ph->wph->atm.vpi = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_VPI,1);
-    ph->wph->atm.vci = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_VCI,1);
-    ph->wph->atm.channel = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_CHANNEL,0);
-    ph->wph->atm.cells = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_CELLS,1);
-    ph->wph->atm.aal5t_u2u = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5U2U,1);
-    ph->wph->atm.aal5t_len = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5LEN,0);
+    ph->wph->atm.aal = (guint8)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL,5);
+    ph->wph->atm.vpi = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VPI,1);
+    ph->wph->atm.vci = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VCI,1);
+    ph->wph->atm.channel = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CHANNEL,0);
+    ph->wph->atm.cells = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CELLS,1);
+    ph->wph->atm.aal5t_u2u = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5U2U,1);
+    ph->wph->atm.aal5t_len = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5LEN,0);
 
     pushPseudoHeader(L,ph);
     WSLUA_RETURN(1);
@@ -135,9 +135,9 @@ WSLUA_CONSTRUCTOR PseudoHeader_mtp2(lua_State* L) {
     PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_MTP2;
     ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->mtp2.sent = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_SENT,0);
-    ph->wph->mtp2.annex_a_used = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA,0);
-    ph->wph->mtp2.link_number = luaL_optint(L,WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM,0);
+    ph->wph->mtp2.sent = (guint8)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_SENT,0);
+    ph->wph->mtp2.annex_a_used = (guint8)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA,0);
+    ph->wph->mtp2.link_number = (guint16)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM,0);
 
     pushPseudoHeader(L,ph);
     WSLUA_RETURN(1); /* The MTP2 pseudoheader */
@@ -213,8 +213,8 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created - a number entry from the `wtap_encaps` table in `init.lua`. */
     Dumper d;
     const char* fname = luaL_checkstring(L,WSLUA_ARG_Dumper_new_FILENAME);
-    int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
-    int encap  = luaL_optint(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
+    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
+    int encap  = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
     int err = 0;
     const char* filename = cross_plat_fname(fname);
 
@@ -363,7 +363,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcap. */
     Dumper d;
     const char* fname = luaL_checkstring(L,1);
-    int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
+    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
     int encap;
     int err = 0;
     const char* filename = cross_plat_fname(fname);

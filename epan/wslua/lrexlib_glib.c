@@ -231,7 +231,7 @@ static int getcflags (lua_State *L, int pos) {
 }
 
 static int check_eflags(lua_State *L, const int idx, const int def) {
-  int eflags = luaL_optint (L, idx, def);
+  int eflags = (int) luaL_optinteger (L, idx, def);
   if ((eflags & ~G_REGEX_MATCH_MASK) != 0) {
     return luaL_error (L, "GLib Regex match flag is invalid");
   }

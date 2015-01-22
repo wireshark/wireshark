@@ -269,10 +269,10 @@ WSLUA_METHOD Int64_tohex(lua_State* L) {
 #define WSLUA_OPTARG_Int64_new_NUMBYTES 2 /* The number of hex-chars/nibbles to generate,
                                              negative means uppercase (default=16). */
     gint64 b = getInt64(L,1);
-    gint n = luaL_optint(L, WSLUA_OPTARG_Int64_new_NUMBYTES, 16);
+    lua_Integer n = luaL_optinteger(L, WSLUA_OPTARG_Int64_new_NUMBYTES, 16);
     const gchar *hexdigits = "0123456789abcdef";
     gchar buf[16];
-    gint i;
+    lua_Integer i;
     if (n < 0) { n = -n; hexdigits = "0123456789ABCDEF"; }
     if (n > 16) n = 16;
     for (i = n-1; i >= 0; --i) { buf[i] = hexdigits[b & 15]; b >>= 4; }
@@ -829,10 +829,10 @@ WSLUA_METHOD UInt64_tohex(lua_State* L) {
 #define WSLUA_OPTARG_UInt64_new_NUMBYTES 2 /* The number of hex-chars/nibbles to generate,
                                               negative means uppercase (default=16). */
     guint64 b = getUInt64(L,1);
-    gint n = luaL_optint(L, WSLUA_OPTARG_UInt64_new_NUMBYTES, 16);
+    lua_Integer n = luaL_optinteger(L, WSLUA_OPTARG_UInt64_new_NUMBYTES, 16);
     const gchar *hexdigits = "0123456789abcdef";
     gchar buf[16];
-    gint i;
+    lua_Integer i;
     if (n < 0) { n = -n; hexdigits = "0123456789ABCDEF"; }
     if (n > 16) n = 16;
     for (i = n-1; i >= 0; --i) { buf[i] = hexdigits[b & 15]; b >>= 4; }

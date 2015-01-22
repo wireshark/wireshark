@@ -757,7 +757,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     const gchar *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
 
     if (lua_isnumber(L,WSLUA_ARG_ProtoField_new_TYPE)) {
-        type = (enum ftenum)luaL_checkint(L,WSLUA_ARG_ProtoField_new_TYPE);
+        type = (enum ftenum)luaL_checkinteger(L,WSLUA_ARG_ProtoField_new_TYPE);
     } else {
         type = get_ftenum(luaL_checkstring(L,WSLUA_ARG_ProtoField_new_TYPE));
     }
@@ -765,7 +765,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     abbr = check_field_name(L,WSLUA_ARG_ProtoField_new_ABBR,type);
 
     if (lua_isnumber(L, WSLUA_OPTARG_ProtoField_new_BASE)) {
-        base = luaL_optint(L, WSLUA_OPTARG_ProtoField_new_BASE, BASE_NONE);
+        base = (unsigned)luaL_optinteger(L, WSLUA_OPTARG_ProtoField_new_BASE, BASE_NONE);
     } else {
         base = string_to_base(luaL_optstring(L, WSLUA_OPTARG_ProtoField_new_BASE, "BASE_NONE"));
     }
@@ -905,7 +905,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     ProtoField f;
     const gchar* abbr = check_field_name(L,1,type);
     const gchar* name = luaL_optstring(L,2,abbr);
-    unsigned base = luaL_optint(L, 3, BASE_DEC);
+    unsigned base = (unsigned)luaL_optinteger(L, 3, BASE_DEC);
     value_string* vs32 = NULL;
     val64_string* vs64 = NULL;
     guint32 mask = wslua_optguint32(L,5,0);
@@ -1077,7 +1077,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     ProtoField f;
     const gchar* abbr = check_field_name(L,1,type);
     const gchar* name = luaL_optstring(L,2,abbr);
-    unsigned base = luaL_optint(L, 3, BASE_NONE);
+    unsigned base = (unsigned)luaL_optinteger(L, 3, BASE_NONE);
     true_false_string* tfs = NULL;
     guint32 mask = wslua_optguint32(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
@@ -1136,7 +1136,7 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
     ProtoField f;
     const gchar* abbr = NULL;
     const gchar* name = luaL_optstring(L,2,abbr);
-    unsigned base = luaL_optint(L,3,ABSOLUTE_TIME_LOCAL);
+    unsigned base = (unsigned)luaL_optinteger(L,3,ABSOLUTE_TIME_LOCAL);
     const gchar* blob = NULL;
 
     if (type == FT_ABSOLUTE_TIME) {
@@ -1435,8 +1435,8 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
     ProtoExpert pe    = NULL;
     const gchar* abbr = wslua_checkstring_only(L,WSLUA_ARG_ProtoExpert_new_ABBR);
     const gchar* text = wslua_checkstring_only(L,WSLUA_ARG_ProtoExpert_new_TEXT);
-    int group         = luaL_checkint         (L, WSLUA_ARG_ProtoExpert_new_GROUP);
-    int severity      = luaL_checkint         (L, WSLUA_ARG_ProtoExpert_new_SEVERITY);
+    int group         = (int)luaL_checkinteger(L, WSLUA_ARG_ProtoExpert_new_GROUP);
+    int severity      = (int)luaL_checkinteger(L, WSLUA_ARG_ProtoExpert_new_SEVERITY);
 
     pe = g_new(wslua_expert_field_t,1);
 
@@ -2213,8 +2213,8 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
                                                   (defaults to `base.DEC`). */
     const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
     const gchar* ui_name = (const gchar*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
-    enum ftenum type = (enum ftenum)luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
-    unsigned base = (unsigned)luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
+    enum ftenum type = (enum ftenum)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
+    unsigned base = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
 
     switch(type) {
         case FT_STRING:
@@ -2364,7 +2364,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
         g_free (pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         if (lua_isnumber(L, WSLUA_ARG_DissectorTable_add_PATTERN)) {
-            int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_add_PATTERN);
+            int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_add_PATTERN);
             dissector_add_uint(dt->name, port, handle);
         } else {
             /* Not a number, try as range */
@@ -2426,7 +2426,7 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
         dissector_add_string(dt->name, pattern,handle);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         if (lua_isnumber(L, WSLUA_ARG_DissectorTable_set_PATTERN)) {
-            int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_set_PATTERN);
+            int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_set_PATTERN);
             dissector_delete_all(dt->name, handle);
             dissector_add_uint(dt->name, port, handle);
         } else {
@@ -2482,7 +2482,7 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
         g_free (pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         if (lua_isnumber(L, WSLUA_ARG_DissectorTable_remove_PATTERN)) {
-          int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
+          int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_remove_PATTERN);
           dissector_delete_uint(dt->name, port, handle);
         } else {
             /* Not a number, try as range */
@@ -2562,7 +2562,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
                 handled = TRUE;
             }
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-            int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_try_PATTERN);
+            int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_try_PATTERN);
 
             len = dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
             if (len > 0) {
@@ -2605,7 +2605,7 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
         const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
         handle = dissector_get_string_handle(dt->table,pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-        int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
+        int port = (int)luaL_checkinteger(L, WSLUA_ARG_DissectorTable_get_dissector_PATTERN);
         handle = dissector_get_uint_handle(dt->table,port);
     }
 

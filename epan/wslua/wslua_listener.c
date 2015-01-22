@@ -110,7 +110,7 @@ static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt
 
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
-            retval = luaL_optint(tap->L,-1,1);
+            retval = (int)luaL_optinteger(tap->L,-1,1);
             break;
         case LUA_ERRRUN:
             break;
