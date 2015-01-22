@@ -116,7 +116,7 @@ LIBGPG_ERROR_VERSION=1.10
 LIBGCRYPT_VERSION=1.5.0
 GNUTLS_VERSION=2.12.19
 # Default to 5.2 now, unless user overrides it later
-LUA_VERSION=5.2.3
+LUA_VERSION=5.3.0
 PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
 # XXX - they appear to have an unversioned gzipped tarball for the
