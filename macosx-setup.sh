@@ -181,6 +181,12 @@ install_autoconf() {
 
 uninstall_autoconf() {
     if [ ! -z "$installed_autoconf_version" ] ; then
+        #
+        # automake and libtool depend on this, so uninstall them.
+        #
+        uninstall_libtool
+        uninstall_automake
+
         echo "Uninstalling GNU autoconf:"
         cd autoconf-$installed_autoconf_version
         $DO_MAKE_UNINSTALL || exit 1
@@ -207,6 +213,11 @@ install_automake() {
 
 uninstall_automake() {
     if [ ! -z "$installed_automake_version" ] ; then
+        #
+        # libtool depends on this(?), so uninstall it.
+        #
+        uninstall_automake
+
         echo "Uninstalling GNU automake:"
         cd automake-$installed_automake_version
         $DO_MAKE_UNINSTALL || exit 1
