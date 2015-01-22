@@ -391,7 +391,10 @@ fi
 %endif
 
 %changelog
-* Tue Jan 15 2015 Jeff Morriss
+* Tue Jan 20 2015 Jeff Morriss
+- Make the license tag more specific: Wireshark is GPLv2+.
+
+* Mon Jan 12 2015 Jeff Morriss
 - Modernize the (base package) %description.
 
 * Wed Dec  3 2014 Jeff Morriss
