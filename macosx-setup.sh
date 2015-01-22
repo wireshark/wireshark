@@ -946,7 +946,11 @@ uninstall_lua() {
 }
 
 install_portaudio() {
-    if [ "$PORTAUDIO_VERSION" -a ! -f portaudio-done ] ; then
+    #
+    # Check for both the old versionless portaudio-done and the new
+    # versioned -done file.
+    #
+    if [ "$PORTAUDIO_VERSION" -a ! -f portaudio-$PORTAUDIO_VERSION-done ] ; then
         echo "Downloading, building, and installing PortAudio:"
         [ -f $PORTAUDIO_VERSION.tgz ] || curl -L -O http://www.portaudio.com/archives/$PORTAUDIO_VERSION.tgz || exit 1
         gzcat $PORTAUDIO_VERSION.tgz | tar xf - || exit 1
@@ -976,18 +980,19 @@ install_portaudio() {
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
-        touch portaudio-done
+        touch portaudio-$PORTAUDIO_VERSION-done
     fi
 }
 
 uninstall_portaudio() {
-    if [ "$PORTAUDIO_VERSION" -a -f portaudio-done ] ; then
+    if [ ! -z "$installed_portaudio_version" ] ; then
         echo "Uninstalling PortAudio:"
         cd portaudio
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
         cd ..
-        rm portaudio-done
+        rm portaudio-$installed_portaudio_version-done
+        installed_portaudio_version=""
     fi
 }
 
@@ -1344,8 +1349,19 @@ then
     installed_libgcrypt_version=`ls libgcrypt-*-done 2>/dev/null | sed 's/libgcrypt-\(.*\)-done/\1/'`
     installed_gnutls_version=`ls gnutls-*-done 2>/dev/null | sed 's/gnutls-\(.*\)-done/\1/'`
     installed_lua_version=`ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/'`
+    installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
     installed_geoip_version=`ls geoip-*-done 2>/dev/null | sed 's/geoip-\(.*\)-done/\1/'`
     installed_cares_version=`ls c-ares-*-done 2>/dev/null | sed 's/c-ares-\(.*\)-done/\1/'`
+
+    #
+    # If we don't have a versioned -done file for portaudio, but do have
+    # an unversioned -done file for it, assume the installed version is the
+    # requested version, and rename the -done file to include that version.
+    #
+    if [ -f portaudio-done -a -z "$installed_portaudio_version" ] ; then
+        mv portaudio-done portaudio-$PORTAUDIO_VERSION-done
+        installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
+    fi
 
     cd ..
 fi
