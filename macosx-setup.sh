@@ -1358,7 +1358,7 @@ then
     # an unversioned -done file for it, assume the installed version is the
     # requested version, and rename the -done file to include that version.
     #
-    if [ -f portaudio-done -a -z "$installed_portaudio_version" ] ; then
+    if [ -z "$installed_portaudio_version" -a -f portaudio-done ] ; then
         mv portaudio-done portaudio-$PORTAUDIO_VERSION-done
         installed_portaudio_version=`ls portaudio-*-done 2>/dev/null | sed 's/portaudio-\(.*\)-done/\1/'`
     fi
