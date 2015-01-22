@@ -161,6 +161,15 @@ uninstall_xz() {
         make distclean || exit 1
         cd ..
         rm xz-$installed_xz_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf xz-$installed_xz_version
+            rm -rf xz-$installed_xz_version.tar.bz2
+        fi
+
         installed_xz_version=""
     fi
 }
@@ -193,6 +202,15 @@ uninstall_autoconf() {
         make distclean || exit 1
         cd ..
         rm autoconf-$installed_autoconf_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf autoconf-$installed_autoconf_version
+            rm -rf autoconf-$installed_autoconf_version.tar.xz
+        fi
+
         installed_autoconf_version=""
     fi
 }
@@ -216,7 +234,7 @@ uninstall_automake() {
         #
         # libtool depends on this(?), so uninstall it.
         #
-        uninstall_automake
+        uninstall_automake "$@"
 
         echo "Uninstalling GNU automake:"
         cd automake-$installed_automake_version
@@ -224,6 +242,15 @@ uninstall_automake() {
         make distclean || exit 1
         cd ..
         rm automake-$installed_automake_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf automake-$installed_automake_version
+            rm -rf automake-$installed_automake_version.tar.xz
+        fi
+
         installed_automake_version=""
     fi
 }
@@ -254,6 +281,15 @@ uninstall_libtool() {
         make distclean || exit 1
         cd ..
         rm libtool-$installed_libtool_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libtool-$installed_libtool_version
+            rm -rf libtool-$installed_libtool_version.tar.xz
+        fi
+
         installed_libtool_version=""
     fi
 }
@@ -286,6 +322,14 @@ uninstall_cmake() {
         sudo rm /usr/bin/ctest
         sudo pkgutil --forget com.Kitware.CMake
         rm cmake-$installed_cmake_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -f cmake-$installed_cmake_version-Darwin64-universal.dmg
+        fi
+
         installed_cmake_version=""
     fi
 }
@@ -309,7 +353,7 @@ uninstall_gettext() {
         #
         # GLib depends on this, so uninstall it.
         #
-        uninstall_glib
+        uninstall_glib "$@"
 
         echo "Uninstalling GNU gettext:"
         cd gettext-$installed_gettext_version
@@ -317,6 +361,15 @@ uninstall_gettext() {
         make distclean || exit 1
         cd ..
         rm gettext-$installed_gettext_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf gettext-$installed_gettext_version
+            rm -rf gettext-$installed_gettext_version.tar.gz
+        fi
+
         installed_gettext_version=""
     fi
 }
@@ -343,6 +396,15 @@ uninstall_pkg_config() {
         make distclean || exit 1
         cd ..
         rm pkg-config-$installed_pkg_config_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf pkg-config-$installed_pkg_config_version
+            rm -rf pkg-config-$installed_pkg_config_version.tar.gz
+        fi
+
         installed_pkg_config_version=""
     fi
 }
@@ -437,6 +499,15 @@ uninstall_glib() {
         make distclean || exit 1
         cd ..
         rm glib-$installed_glib_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf glib-$installed_glib_version
+            rm -rf glib-$installed_glib_version.tar.xz glib-$installed_glib_version.tar.bz2
+        fi
+
         installed_glib_version=""
     fi
 }
@@ -497,6 +568,15 @@ uninstall_qt() {
         #make distclean || exit 1
         cd ..
         rm qt-$installed_qt_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf qt-everywhere-opensource-src-$installed_qt_version
+            rm -rf qt-everywhere-opensource-src-$installed_qt_version.tar.gz
+        fi
+
         installed_qt_version=""
     fi
 }
@@ -524,7 +604,7 @@ uninstall_libpng() {
         #
         # Cairo depends on this, so uninstall it.
         #
-        uninstall_cairo
+        uninstall_cairo "$@"
 
         echo "Uninstalling libpng:"
         cd libpng-$installed_libpng_version
@@ -532,6 +612,15 @@ uninstall_libpng() {
         make distclean || exit 1
         cd ..
         rm libpng-$installed_libpng_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libpng-$installed_libpng_version
+            rm -rf libpng-$installed_libpng_version.tar.xz
+        fi
+
         installed_libpng_version=""
     fi
 }
@@ -555,7 +644,7 @@ uninstall_pixman() {
         #
         # Cairo depends on this, so uninstall it.
         #
-        uninstall_cairo
+        uninstall_cairo "$@"
 
         echo "Uninstalling pixman:"
         cd pixman-$installed_pixman_version
@@ -563,6 +652,15 @@ uninstall_pixman() {
         make distclean || exit 1
         cd ..
         rm pixman-$installed_pixman_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf pixman-$installed_pixman_version
+            rm -rf pixman-$installed_pixman_version.tar.gz
+        fi
+
         installed_pixman_version=""
     fi
 }
@@ -610,7 +708,7 @@ uninstall_cairo() {
         #
         # GTK+ depends on this, so uninstall it.
         #
-        uninstall_gtk
+        uninstall_gtk "$@"
 
         echo "Uninstalling Cairo:"
         cd cairo-$installed_cairo_version
@@ -618,6 +716,15 @@ uninstall_cairo() {
         make distclean || exit 1
         cd ..
         rm cairo-$installed_cairo_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf cairo-$installed_cairo_version
+            rm -rf cairo-$installed_cairo_version.tar.xz cairo-$installed_cairo_version.tar.gz
+        fi
+
         installed_cairo_version=""
     fi
 }
@@ -656,7 +763,7 @@ uninstall_atk() {
         #
         # GTK+ depends on this, so uninstall it.
         #
-        uninstall_gtk
+        uninstall_gtk "$@"
 
         echo "Uninstalling ATK:"
         cd atk-$installed_atk_version
@@ -664,6 +771,15 @@ uninstall_atk() {
         make distclean || exit 1
         cd ..
         rm atk-$installed_atk_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf atk-$installed_atk_version
+            rm -rf atk-$installed_atk_version.tar.xz atk-$installed_atk_version.tar.bz2
+        fi
+
         installed_atk_version=""
     fi
 }
@@ -701,7 +817,7 @@ uninstall_pango() {
         #
         # GTK+ depends on this, so uninstall it.
         #
-        uninstall_gtk
+        uninstall_gtk "$@"
 
         echo "Uninstalling Pango:"
         cd pango-$installed_pango_version
@@ -709,6 +825,15 @@ uninstall_pango() {
         make distclean || exit 1
         cd ..
         rm pango-$installed_pango_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf pango-$installed_pango_version
+            rm -rf pango-$installed_pango_version.tar.xz pango-$installed_pango_version.tar.bz2
+        fi
+
         installed_pango_version=""
     fi
 }
@@ -748,7 +873,7 @@ uninstall_gdk_pixbuf() {
         #
         # GTK+ depends on this, so uninstall it.
         #
-        uninstall_gtk
+        uninstall_gtk "$@"
 
         echo "Uninstalling gdk-pixbuf:"
         cd gdk-pixbuf-$installed_gdk_pixbuf_version
@@ -756,6 +881,15 @@ uninstall_gdk_pixbuf() {
         make distclean || exit 1
         cd ..
         rm gdk-pixbuf-$installed_gdk_pixbuf_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf gdk-pixbuf-$installed_gdk_pixbuf_version
+            rm -rf gdk-pixbuf-$installed_gdk_pixbuf_version.tar.xz
+        fi
+
         installed_gdk_pixbuf_version=""
     fi
 }
@@ -814,6 +948,15 @@ uninstall_gtk() {
         make distclean || exit 1
         cd ..
         rm gtk+-$installed_gtk_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf gtk+-$installed_gtk_version
+            rm -rf gtk+-$installed_gtk_version.tar.xz gtk+-$installed_gtk_version.tar.bz2
+        fi
+
         installed_gtk_version=""
     fi
 }
@@ -840,6 +983,15 @@ uninstall_libsmi() {
         make distclean || exit 1
         cd ..
         rm libsmi-$installed_libsmi_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libsmi-$installed_libsmi_version
+            rm -rf libsmi-$installed_libsmi_version.tar.gz
+        fi
+
         installed_libsmi_version=""
     fi
 }
@@ -863,7 +1015,7 @@ uninstall_libgpg_error() {
         #
         # libgcrypt depends on this, so uninstall it.
         #
-        uninstall_libgcrypt
+        uninstall_libgcrypt "$@"
 
         echo "Uninstalling libgpg-error:"
         cd libgpg-error-$installed_libgpg_error_version
@@ -871,6 +1023,15 @@ uninstall_libgpg_error() {
         make distclean || exit 1
         cd ..
         rm libgpg-error-$installed_libgpg_error_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libgpg-error-$installed_libgpg_error_version
+            rm -rf libgpg-error-$installed_libgpg_error_version.tar.bz2
+        fi
+
         installed_libgpg_error_version=""
     fi
 }
@@ -912,7 +1073,7 @@ uninstall_libgcrypt() {
         #
         # GnuTLS depends on this, so uninstall it.
         #
-        uninstall_gnutls
+        uninstall_gnutls "$@"
 
         echo "Uninstalling libgcrypt:"
         cd libgcrypt-$installed_libgcrypt_version
@@ -920,6 +1081,15 @@ uninstall_libgcrypt() {
         make distclean || exit 1
         cd ..
         rm libgcrypt-$installed_libgcrypt_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf libgcrypt-$installed_libgcrypt_version
+            rm -rf libgcrypt-$installed_libgcrypt_version.tar.gz
+        fi
+
         installed_libgcrypt_version=""
     fi
 }
@@ -971,6 +1141,15 @@ uninstall_gnutls() {
         make distclean || exit 1
         cd ..
         rm gnutls-$installed_gnutls_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf gnutls-$installed_gnutls_version
+            rm -rf gnutls-$installed_gnutls_version.tar.bz2
+        fi
+
         installed_gnutls_version=""
     fi
 }
@@ -1004,6 +1183,15 @@ uninstall_lua() {
         make clean || exit 1
         cd ..
         rm lua-$installed_lua_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf lua-$installed_lua_version
+            rm -rf lua-$installed_lua_version.tar.gz
+        fi
+
         installed_lua_version=""
     fi
 }
@@ -1055,6 +1243,15 @@ uninstall_portaudio() {
         make distclean || exit 1
         cd ..
         rm portaudio-$installed_portaudio_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf portaudio
+            rm -rf $installed_portaudio_version.tgz
+        fi
+
         installed_portaudio_version=""
     fi
 }
@@ -1096,6 +1293,15 @@ uninstall_geoip() {
         make distclean || exit 1
         cd ..
         rm geoip-$installed_geoip_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf GeoIP-$installed_geoip_version
+            rm -rf GeoIP-$installed_geoip_version.tar.gz
+        fi
+
         installed_geoip_version=""
     fi
 }
@@ -1122,11 +1328,293 @@ uninstall_c_ares() {
         make distclean || exit 1
         cd ..
         rm c-ares-$installed_cares_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf c-ares-$installed_cares_version
+            rm -rf c-ares-$installed_cares_version.tar.gz
+        fi
+
         installed_cares_version=""
     fi
 }
 
 install_all() {
+    #
+    # Check whether the versions we have installed are the versions
+    # requested; if not, uninstall the installed versions.
+    #
+    if [ ! -z "$installed_cares_version" -a \
+              "$installed_cares_version" != "$CARES_VERSION" ] ; then
+        echo "Installed C-Ares version is $installed_cares_version"
+        if [ -z "$CARES_VERSION" ] ; then
+            echo "C-Ares is not requested"
+        else
+            echo "Requested C-Ares version is $CARES_VERSION"
+        fi
+        uninstall_c_ares -r
+    fi
+
+    if [ ! -z "$installed_geoip_version" -a \
+              "$installed_geoip_version" != "$GEOIP_VERSION" ] ; then
+        echo "Installed GeoIP API version is $installed_geoip_version"
+        if [ -z "$GEOIP_VERSION" ] ; then
+            echo "GeoIP is not requested"
+        else
+            echo "Requested GeoIP version is $GEOIP_VERSION"
+        fi
+        uninstall_geoip -r
+    fi
+
+    if [ ! -z "$installed_portaudio_version" -a \
+              "$installed_portaudio_version" != "$PORTAUDIO_VERSION" ] ; then
+        echo "Installed PortAudio version is $installed_portaudio_version"
+        if [ -z "$PORTAUDIO_VERSION" ] ; then
+            echo "PortAudio is not requested"
+        else
+            echo "Requested PortAudio version is $PORTAUDIO_VERSION"
+        fi
+        uninstall_portaudio -r
+    fi
+
+    if [ ! -z "$installed_lua_version" -a \
+              "$installed_lua_version" != "$LUA_VERSION" ] ; then
+        echo "Installed Lua version is $installed_lua_version"
+        if [ -z "$LUA_VERSION" ] ; then
+            echo "Lua is not requested"
+        else
+            echo "Requested Lua version is $LUA_VERSION"
+        fi
+        uninstall_lua -r
+    fi
+
+    if [ ! -z "$installed_gnutls_version" -a \
+              "$installed_gnutls_version" != "$GNUTLS_VERSION" ] ; then
+        echo "Installed GnuTLS version is $installed_gnutls_version"
+        if [ -z "$GNUTLS_VERSION" ] ; then
+            echo "GnuTLS is not requested"
+        else
+            echo "Requested GnuTLS version is $GNUTLS_VERSION"
+        fi
+        uninstall_gnutls -r
+    fi
+
+    if [ ! -z "$installed_libgcrypt_version" -a \
+              "$installed_libgcrypt_version" != "$LIBGCRYPT_VERSION" ] ; then
+        echo "Installed libgcrypt version is $installed_libgcrypt_version"
+        if [ -z "$LIBGCRYPT_VERSION" ] ; then
+            echo "libgcrypt is not requested"
+        else
+            echo "Requested libgcrypt version is $LIBGCRYPT_VERSION"
+        fi
+        uninstall_libgcrypt -r
+    fi
+
+    if [ ! -z "$installed_libgpg_error_version" -a \
+              "$installed_libgpg_error_version" != "$LIBGPG_ERROR_VERSION" ] ; then
+        echo "Installed libgpg-error version is $installed_libgpg_error_version"
+        if [ -z "$LIBGPG_ERROR_VERSION" ] ; then
+            echo "libgpg-error is not requested"
+        else
+            echo "Requested libgpg-error version is $LIBGPG_ERROR_VERSION"
+        fi
+        uninstall_libgpg_error -r
+    fi
+
+    if [ ! -z "$installed_libsmi_version" -a \
+              "$installed_libsmi_version" != "$LIBSMI_VERSION" ] ; then
+        echo "Installed libsmi version is $installed_libsmi_version"
+        if [ -z "$LIBSMI_VERSION" ] ; then
+            echo "libsmi is not requested"
+        else
+            echo "Requested libsmi version is $LIBSMI_VERSION"
+        fi
+        uninstall_libsmi -r
+    fi
+
+    if [ ! -z "$installed_gtk_version" -a \
+              "$installed_gtk_version" != "$GTK_VERSION" ] ; then
+        echo "Installed GTK+ version is $installed_gtk_version"
+        if [ -z "$GTK_VERSION" ] ; then
+            echo "GTK+ is not requested"
+        else
+            echo "Requested GTK+ version is $GTK_VERSION"
+        fi
+        uninstall_gtk -r
+    fi
+
+    if [ ! -z "$installed_gdk_pixbuf_version" -a \
+              "$installed_gdk_pixbuf_version" != "$GDK_PIXBUF_VERSION" ] ; then
+        echo "Installed gdk-pixbuf version is $installed_gdk_pixbuf_version"
+        if [ -z "$GDK_PIXBUF_VERSION" ] ; then
+            echo "gdk-pixbuf is not requested"
+        else
+            echo "Requested gdk-pixbuf version is $GDK_PIXBUF_VERSION"
+        fi
+        uninstall_gdk_pixbuf -r
+    fi
+
+    if [ ! -z "$installed_pango_version" -a \
+              "$installed_pango_version" != "$PANGO_VERSION" ] ; then
+        echo "Installed Pango version is $installed_pango_version"
+        if [ -z "$PANGO_VERSION" ] ; then
+            echo "Pango is not requested"
+        else
+            echo "Requested Pango version is $PANGO_VERSION"
+        fi
+        uninstall_pango -r
+    fi
+
+    if [ ! -z "$installed_atk_version" -a \
+              "$installed_atk_version" != "$ATK_VERSION" ] ; then
+        echo "Installed ATK version is $installed_atk_version"
+        if [ -z "$ATK_VERSION" ] ; then
+            echo "ATK is not requested"
+        else
+            echo "Requested ATK version is $ATK_VERSION"
+        fi
+        uninstall_atk -r
+    fi
+
+    if [ ! -z "$installed_cairo_version" -a \
+              "$installed_cairo_version" != "$CAIRO_VERSION" ] ; then
+        echo "Installed Cairo version is $installed_cairo_version"
+        if [ -z "$CAIRO_VERSION" ] ; then
+            echo "Cairo is not requested"
+        else
+            echo "Requested Cairo version is $CAIRO_VERSION"
+        fi
+        uninstall_cairo -r
+    fi
+
+    if [ ! -z "$installed_pixman_version" -a \
+              "$installed_pixman_version" != "$PIXMAN_VERSION" ] ; then
+        echo "Installed pixman version is $installed_pixman_version"
+        if [ -z "$PIXMAN_VERSION" ] ; then
+            echo "pixman is not requested"
+        else
+            echo "Requested pixman version is $PIXMAN_VERSION"
+        fi
+        uninstall_pixman -r
+    fi
+
+    if [ ! -z "$installed_libpng_version" -a \
+              "$installed_libpng_version" != "$PNG_VERSION" ] ; then
+        echo "Installed libpng version is $installed_libpng_version"
+        if [ -z "$PNG_VERSION" ] ; then
+            echo "libpng is not requested"
+        else
+            echo "Requested libpng version is $PNG_VERSION"
+        fi
+        uninstall_libpng -r
+    fi
+
+    if [ ! -z "$installed_qt_version" -a \
+              "$installed_qt_version" != "$QT_VERSION" ] ; then
+        echo "Installed Qt version is $installed_qt_version"
+        if [ -z "$QT_VERSION" ] ; then
+            echo "Qt is not requested"
+        else
+            echo "Requested Qt version is $QT_VERSION"
+        fi
+        uninstall_qt -r
+    fi
+
+    if [ ! -z "$installed_glib_version" -a \
+              "$installed_glib_version" != "$GLIB_VERSION" ] ; then
+        echo "Installed GLib version is $installed_glib_version"
+        if [ -z "$GLIB_VERSION" ] ; then
+            echo "GLib is not requested"
+        else
+            echo "Requested GLib version is $GLIB_VERSION"
+        fi
+        uninstall_glib -r
+    fi
+
+    if [ ! -z "$installed_pkg_config_version" -a \
+              "$installed_pkg_config_version" != "$PKG_CONFIG_VERSION" ] ; then
+        echo "Installed pkg-config version is $installed_pkg_config_version"
+        if [ -z "$PKG_CONFIG_VERSION" ] ; then
+            echo "pkg-config is not requested"
+        else
+            echo "Requested pkg-config version is $PKG_CONFIG_VERSION"
+        fi
+        uninstall_pkg_config -r
+    fi
+
+    if [ ! -z "$installed_gettext_version" -a \
+              "$installed_gettext_version" != "$GETTEXT_VERSION" ] ; then
+        echo "Installed GNU gettext version is $installed_gettext_version"
+        if [ -z "$GETTEXT_VERSION" ] ; then
+            echo "GNU gettext is not requested"
+        else
+            echo "Requested GNU gettext version is $GETTEXT_VERSION"
+        fi
+        uninstall_gettext -r
+    fi
+
+    if [ ! -z "$installed_cmake_version" -a \
+              "$installed_cmake_version" != "$CMAKE_VERSION" ] ; then
+        echo "Installed CMake version is $installed_cmake_version"
+        if [ -z "$CMAKE_VERSION" ] ; then
+            echo "CMake is not requested"
+        else
+            echo "Requested CMake version is $CMAKE_VERSION"
+        fi
+        #
+        # XXX - really remove this?
+        # Or should we remember it as installed only if this script
+        # installed it?
+        #
+        uninstall_cmake -r
+    fi
+
+    if [ ! -z "$installed_libtool_version" -a \
+              "$installed_libtool_version" != "$LIBTOOL_VERSION" ] ; then
+        echo "Installed GNU libtool version is $installed_libtool_version"
+        if [ -z "$LIBTOOL_VERSION" ] ; then
+            echo "GNU libtool is not requested"
+        else
+            echo "Requested GNU libtool version is $LIBTOOL_VERSION"
+        fi
+        uninstall_libtool -r
+    fi
+
+    if [ ! -z "$installed_automake_version" -a \
+              "$installed_automake_version" != "$AUTOMAKE_VERSION" ] ; then
+        echo "Installed GNU automake version is $installed_automake_version"
+        if [ -z "$AUTOMAKE_VERSION" ] ; then
+            echo "GNU automake is not requested"
+        else
+            echo "Requested GNU automake version is $AUTOMAKE_VERSION"
+        fi
+        uninstall_automake -r
+    fi
+
+    if [ ! -z "$installed_autoconf_version" -a \
+              "$installed_autoconf_version" != "$AUTOCONF_VERSION" ] ; then
+        echo "Installed GNU autoconf version is $installed_autoconf_version"
+        if [ -z "$AUTOCONF_VERSION" ] ; then
+            echo "GNU autoconf is not requested"
+        else
+            echo "Requested GNU autoconf version is $AUTOCONF_VERSION"
+        fi
+        uninstall_autoconf -r
+    fi
+
+    if [ ! -z "$installed_xz_version" -a \
+              "$installed_xz_version" != "$XZ_VERSION" ] ; then
+        echo "Installed xz version is $installed_xz_version"
+        if [ -z "$XZ_VERSION" ] ; then
+            echo "xz is not requested"
+        else
+            echo "Requested xz version is $XZ_VERSION"
+        fi
+        uninstall_xz -r
+    fi
+
     #
     # Start with xz: It is the sole download format of glib later than 2.31.2
     #
