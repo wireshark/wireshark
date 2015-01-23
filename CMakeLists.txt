@@ -1315,6 +1315,11 @@ endif(WIN32)
 # Copy ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
 add_custom_target(copy_data_files ALL DEPENDS ${INSTALL_FILES})
 set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
+if(ENABLE_APPLICATION_BUNDLE)
+	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}"
+	)
+endif()
 
 if(WIN32)
 	add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/COPYING.txt
