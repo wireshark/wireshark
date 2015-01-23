@@ -968,132 +968,130 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_edp, tvb, offset, -1,
-		    ENC_NA);
-		edp_tree = proto_item_add_subtree(ti, ett_edp);
+	ti = proto_tree_add_item(tree, proto_edp, tvb, offset, -1,
+				 ENC_NA);
+	edp_tree = proto_item_add_subtree(ti, ett_edp);
 
-		proto_tree_add_item(edp_tree, hf_edp_version, tvb, offset, 1,
-			ENC_BIG_ENDIAN);
-		offset += 1;
+	proto_tree_add_item(edp_tree, hf_edp_version, tvb, offset, 1,
+			    ENC_BIG_ENDIAN);
+	offset += 1;
 
-		proto_tree_add_item(edp_tree, hf_edp_reserved, tvb, offset, 1,
-			ENC_BIG_ENDIAN);
-		offset += 1;
+	proto_tree_add_item(edp_tree, hf_edp_reserved, tvb, offset, 1,
+			    ENC_BIG_ENDIAN);
+	offset += 1;
 
-		data_length = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(edp_tree, hf_edp_length, tvb, offset, 2,
-			data_length);
-		offset += 2;
+	data_length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_uint(edp_tree, hf_edp_length, tvb, offset, 2,
+			    data_length);
+	offset += 2;
 
-		packet_checksum = tvb_get_ntohs(tvb, offset);
-		/*
-		 * If we have the entire ESP packet available, check the checksum.
-		 */
-		if (tvb_length(tvb) >= data_length) {
-			/* Checksum from version to null tlv */
-			SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
-			computed_checksum = in_cksum(&cksum_vec[0], 1);
-			checksum_good = (computed_checksum == 0);
-			checksum_bad = !checksum_good;
-			if (checksum_good) {
-				checksum_item = proto_tree_add_uint_format(edp_tree,
-					hf_edp_checksum, tvb, offset, 2, packet_checksum,
-					"Checksum: 0x%04x [correct]",
-					packet_checksum);
-			} else {
-				checksum_item = proto_tree_add_uint_format(edp_tree,
-					hf_edp_checksum, tvb, offset, 2, packet_checksum,
-					"Checksum: 0x%04x [incorrect, should be 0x%04x]",
-					packet_checksum,
-					in_cksum_shouldbe(packet_checksum, computed_checksum));
-			}
+	packet_checksum = tvb_get_ntohs(tvb, offset);
+	/*
+	 * If we have the entire ESP packet available, check the checksum.
+	 */
+	if (tvb_length(tvb) >= data_length) {
+		/* Checksum from version to null tlv */
+		SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, data_length);
+		computed_checksum = in_cksum(&cksum_vec[0], 1);
+		checksum_good = (computed_checksum == 0);
+		checksum_bad = !checksum_good;
+		if (checksum_good) {
+			checksum_item = proto_tree_add_uint_format(edp_tree,
+								   hf_edp_checksum, tvb, offset, 2, packet_checksum,
+								   "Checksum: 0x%04x [correct]",
+								   packet_checksum);
 		} else {
-			checksum_good = checksum_bad = FALSE;
-			checksum_item = proto_tree_add_uint(edp_tree, hf_edp_checksum,
-				tvb, offset, 2, packet_checksum);
+			checksum_item = proto_tree_add_uint_format(edp_tree,
+								   hf_edp_checksum, tvb, offset, 2, packet_checksum,
+								   "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+								   packet_checksum,
+								   in_cksum_shouldbe(packet_checksum, computed_checksum));
 		}
-		checksum_tree = proto_item_add_subtree(checksum_item, ett_edp_checksum);
-		checksum_item = proto_tree_add_boolean(checksum_tree, hf_edp_checksum_good,
-			tvb, offset, 2, checksum_good);
-		PROTO_ITEM_SET_GENERATED(checksum_item);
-		checksum_item = proto_tree_add_boolean(checksum_tree, hf_edp_checksum_bad,
-			tvb, offset, 2, checksum_bad);
-		PROTO_ITEM_SET_GENERATED(checksum_item);
-		offset += 2;
+	} else {
+		checksum_good = checksum_bad = FALSE;
+		checksum_item = proto_tree_add_uint(edp_tree, hf_edp_checksum,
+						    tvb, offset, 2, packet_checksum);
+	}
+	checksum_tree = proto_item_add_subtree(checksum_item, ett_edp_checksum);
+	checksum_item = proto_tree_add_boolean(checksum_tree, hf_edp_checksum_good,
+					       tvb, offset, 2, checksum_good);
+	PROTO_ITEM_SET_GENERATED(checksum_item);
+	checksum_item = proto_tree_add_boolean(checksum_tree, hf_edp_checksum_bad,
+					       tvb, offset, 2, checksum_bad);
+	PROTO_ITEM_SET_GENERATED(checksum_item);
+	offset += 2;
 
-		seqno = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(edp_tree, hf_edp_seqno, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
-		offset += 2;
+	seqno = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(edp_tree, hf_edp_seqno, tvb, offset, 2,
+			    ENC_BIG_ENDIAN);
+	offset += 2;
 
-		/* Machine ID is 8 bytes, if it starts with 0000, the remaining
-		   6 bytes are a MAC */
-		proto_tree_add_item(edp_tree, hf_edp_midtype, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
-		offset += 2;
+	/* Machine ID is 8 bytes, if it starts with 0000, the remaining
+	   6 bytes are a MAC */
+	proto_tree_add_item(edp_tree, hf_edp_midtype, tvb, offset, 2,
+			    ENC_BIG_ENDIAN);
+	offset += 2;
 
-		proto_tree_add_item(edp_tree, hf_edp_midmac, tvb, offset, 6,
-			ENC_NA);
-		offset += 6;
+	proto_tree_add_item(edp_tree, hf_edp_midmac, tvb, offset, 6,
+			    ENC_NA);
+	offset += 6;
 
-		/* Decode the individual TLVs */
-		while (offset < data_length && !last) {
-			if (data_length - offset < 4) {
-				proto_tree_add_expert_format(edp_tree, pinfo, &ei_edp_short_tlv, tvb, offset, 4,
-								"Too few bytes left for TLV: %u (< 4)",
-				data_length - offset);
-				break;
-			}
-			tlv_type = tvb_get_guint8(tvb, offset + 1);
-			tlv_length = tvb_get_ntohs(tvb, offset + 2);
+	/* Decode the individual TLVs */
+	while (offset < data_length && !last) {
+		if (data_length - offset < 4) {
+			proto_tree_add_expert_format(edp_tree, pinfo, &ei_edp_short_tlv, tvb, offset, 4,
+						     "Too few bytes left for TLV: %u (< 4)",
+						     data_length - offset);
+			break;
+		}
+		tlv_type = tvb_get_guint8(tvb, offset + 1);
+		tlv_length = tvb_get_ntohs(tvb, offset + 2);
 
-			if ((tlv_length < 4) || (tlv_length > (data_length - offset))) {
-				proto_tree_add_expert_format(edp_tree, pinfo, &ei_edp_short_tlv, tvb, offset, 0,
-								"TLV with invalid length: %u", tlv_length);
-				break;
-			}
-			if (tlv_type != EDP_TYPE_NULL)
-				col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+		if ((tlv_length < 4) || (tlv_length > (data_length - offset))) {
+			proto_tree_add_expert_format(edp_tree, pinfo, &ei_edp_short_tlv, tvb, offset, 0,
+						     "TLV with invalid length: %u", tlv_length);
+			break;
+		}
+		if (tlv_type != EDP_TYPE_NULL)
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
 					val_to_str(tlv_type, edp_type_vals, "[0x%02x]"));
 
-			switch (tlv_type) {
-			case EDP_TYPE_NULL: /* Last TLV */
-				dissect_null_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				last = 1;
-				break;
-			case EDP_TYPE_DISPLAY: /* MIB II display string */
-				dissect_display_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				break;
-			case EDP_TYPE_INFO: /* Basic system information */
-				dissect_info_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				break;
-			case EDP_TYPE_VLAN: /* VLAN info */
-				dissect_vlan_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				break;
-			case EDP_TYPE_ESRP: /* Extreme Standby Router Protocol */
-				dissect_esrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				break;
-			case EDP_TYPE_EAPS: /* Ethernet Automatic Protection Swtiching */
-				dissect_eaps_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				break;
-			case EDP_TYPE_ESL: /* EAPS shared link */
-				dissect_esl_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				break;
-			case EDP_TYPE_ELSM: /* Extreme Link Status Monitoring */
-				dissect_elsm_tlv(tvb, pinfo, offset, tlv_length, edp_tree, seqno);
-				break;
-			case EDP_TYPE_ELRP: /* Extreme Loop Recognition Protocol */
-				dissect_elrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				break;
-			default:
-				dissect_unknown_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-				break;
-			}
-			offset += tlv_length;
+		switch (tlv_type) {
+		case EDP_TYPE_NULL: /* Last TLV */
+			dissect_null_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			last = 1;
+			break;
+		case EDP_TYPE_DISPLAY: /* MIB II display string */
+			dissect_display_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
+		case EDP_TYPE_INFO: /* Basic system information */
+			dissect_info_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
+		case EDP_TYPE_VLAN: /* VLAN info */
+			dissect_vlan_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
+		case EDP_TYPE_ESRP: /* Extreme Standby Router Protocol */
+			dissect_esrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
+		case EDP_TYPE_EAPS: /* Ethernet Automatic Protection Swtiching */
+			dissect_eaps_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
+		case EDP_TYPE_ESL: /* EAPS shared link */
+			dissect_esl_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
+		case EDP_TYPE_ELSM: /* Extreme Link Status Monitoring */
+			dissect_elsm_tlv(tvb, pinfo, offset, tlv_length, edp_tree, seqno);
+			break;
+		case EDP_TYPE_ELRP: /* Extreme Loop Recognition Protocol */
+			dissect_elrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
+		default:
+			dissect_unknown_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+			break;
 		}
-
+		offset += tlv_length;
 	}
+
 }
 
 void

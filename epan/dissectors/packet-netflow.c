@@ -2075,14 +2075,12 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     offset += 2;
 
     pdus = tvb_get_ntohs(tvb, offset);
-    if (tree) {
-        if(ver == 10) {
-            proto_tree_add_uint(netflow_tree, hf_cflow_len, tvb, offset, 2, pdus);
-            flow_len = pdus;
-        } else {
-            proto_tree_add_uint(netflow_tree, hf_cflow_count, tvb, offset, 2, pdus);
-            flow_len = -1;
-        }
+    if(ver == 10) {
+        proto_tree_add_uint(netflow_tree, hf_cflow_len, tvb, offset, 2, pdus);
+        flow_len = pdus;
+    } else {
+        proto_tree_add_uint(netflow_tree, hf_cflow_count, tvb, offset, 2, pdus);
+        flow_len = -1;
     }
     offset += 2;
 

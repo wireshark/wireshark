@@ -145,187 +145,187 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LACP");
     col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
 
+    /* Add LACP Heading */
+    lacpdu_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
+                                                 0, -1, "Link Aggregation Control Protocol");
+    lacpdu_tree = proto_item_add_subtree(lacpdu_item, ett_lacp);
+
+    /* Version Number */
+
+    raw_octet = tvb_get_guint8(tvb, offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Version %d.  ", raw_octet);
+    proto_tree_add_uint(lacpdu_tree, hf_lacp_version_number, tvb,
+                        offset, 1, raw_octet);
+    offset += 1;
+
+    /* Actor Type */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_type, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Actor Info Length */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_info_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Actor System Priority */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_sys_priority, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Actor System */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_sys, tvb,
+                        offset, 6, ENC_NA);
+    offset += 6;
+
+    /* Actor Key */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_key, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Actor Port Priority */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_port_priority, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Actor Port */
+
+    raw_word = tvb_get_ntohs(tvb, offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Actor Port = %d ", raw_word);
+    proto_tree_add_uint(lacpdu_tree, hf_lacp_actor_port, tvb,
+                        offset, 2, raw_word);
+    offset += 2;
+
+    /* Actor State */
+
+    flags = tvb_get_guint8(tvb, offset);
+    actor_flags_item = proto_tree_add_uint(lacpdu_tree, hf_lacp_actor_state, tvb,
+                                           offset, 1, flags);
+    actor_flags_tree = proto_item_add_subtree(actor_flags_item, ett_lacp_a_flags);
+
+    sep = initial_sep;
+
+    /* Activity Flag */
+
+    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_ACTIVITY, actor_flags_item,
+                        "%sActivity");
+    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_activity, tvb,
+                           offset, 1, flags);
+
+    /* Timeout Flag */
+
+    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_TIMEOUT, actor_flags_item,
+                        "%sTimeout");
+    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_timeout, tvb,
+                           offset, 1, flags);
+
+    /* Aggregation Flag */
+
+    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_AGGREGATION, actor_flags_item,
+                        "%sAggregation");
+    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_aggregation, tvb,
+                           offset, 1, flags);
+
+    /* Synchronization Flag */
+
+    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_SYNC, actor_flags_item,
+                        "%sSynchronization");
+    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_sync, tvb,
+                           offset, 1, flags);
+
+    /* Collecting Flag */
+
+    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_COLLECTING, actor_flags_item,
+                        "%sCollecting");
+    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_collecting, tvb,
+                           offset, 1, flags);
+
+    /* Distributing Flag */
+
+    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_DISTRIB, actor_flags_item,
+                        "%sDistributing");
+    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_distrib, tvb,
+                           offset, 1, flags);
+
+    /* Defaulted Flag */
+
+    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_DEFAULTED, actor_flags_item,
+                        "%sDefaulted");
+    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_defaulted, tvb,
+                           offset, 1, flags);
+
+    /* Expired Flag */
+
+    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_EXPIRED, actor_flags_item,
+                        "%sExpired");
+    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_expired, tvb,
+                           offset, 1, flags);
+
+    if (sep != initial_sep)
+    {
+        /* We put something in; put in the terminating ")" */
+        proto_item_append_text(actor_flags_item, ")");
+    }
+    offset += 1;
+
+    /* Actor Reserved */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_actor_reserved, tvb,
+                        offset, 3, ENC_NA);
+    offset += 3;
+
+    /* Partner Type */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_type, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Partner Info Length */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_info_len, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Partner System Priority */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_sys_priority, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Partner System */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_sys, tvb,
+                        offset, 6, ENC_NA);
+    offset += 6;
+
+    /* Partner Key */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_key, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Partner Port Priority */
+
+    proto_tree_add_item(lacpdu_tree, hf_lacp_partner_port_priority, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Partner Port */
+
+    raw_word = tvb_get_ntohs(tvb, offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Partner Port = %d ", raw_word);
+    proto_tree_add_uint(lacpdu_tree, hf_lacp_partner_port, tvb,
+                        offset, 2, raw_word);
+    offset += 2;
+
     if (tree)
     {
-        /* Add LACP Heading */
-        lacpdu_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
-                0, -1, "Link Aggregation Control Protocol");
-        lacpdu_tree = proto_item_add_subtree(lacpdu_item, ett_lacp);
-
-        /* Version Number */
-
-        raw_octet = tvb_get_guint8(tvb, offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Version %d.  ", raw_octet);
-        proto_tree_add_uint(lacpdu_tree, hf_lacp_version_number, tvb,
-                offset, 1, raw_octet);
-        offset += 1;
-
-        /* Actor Type */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_actor_type, tvb,
-                offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        /* Actor Info Length */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_actor_info_len, tvb,
-                offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        /* Actor System Priority */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_actor_sys_priority, tvb,
-                offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* Actor System */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_actor_sys, tvb,
-                offset, 6, ENC_NA);
-        offset += 6;
-
-        /* Actor Key */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_actor_key, tvb,
-                offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* Actor Port Priority */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_actor_port_priority, tvb,
-                offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* Actor Port */
-
-        raw_word = tvb_get_ntohs(tvb, offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Actor Port = %d ", raw_word);
-        proto_tree_add_uint(lacpdu_tree, hf_lacp_actor_port, tvb,
-                offset, 2, raw_word);
-        offset += 2;
-
-        /* Actor State */
-
-        flags = tvb_get_guint8(tvb, offset);
-        actor_flags_item = proto_tree_add_uint(lacpdu_tree, hf_lacp_actor_state, tvb,
-                offset, 1, flags);
-        actor_flags_tree = proto_item_add_subtree(actor_flags_item, ett_lacp_a_flags);
-
-        sep = initial_sep;
-
-        /* Activity Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_ACTIVITY, actor_flags_item,
-                "%sActivity");
-        proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_activity, tvb,
-                offset, 1, flags);
-
-        /* Timeout Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_TIMEOUT, actor_flags_item,
-                "%sTimeout");
-        proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_timeout, tvb,
-                offset, 1, flags);
-
-        /* Aggregation Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_AGGREGATION, actor_flags_item,
-                "%sAggregation");
-        proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_aggregation, tvb,
-                offset, 1, flags);
-
-        /* Synchronization Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_SYNC, actor_flags_item,
-                "%sSynchronization");
-        proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_sync, tvb,
-                offset, 1, flags);
-
-        /* Collecting Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_COLLECTING, actor_flags_item,
-                "%sCollecting");
-        proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_collecting, tvb,
-                offset, 1, flags);
-
-        /* Distributing Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_DISTRIB, actor_flags_item,
-                "%sDistributing");
-        proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_distrib, tvb,
-                offset, 1, flags);
-
-        /* Defaulted Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_DEFAULTED, actor_flags_item,
-                "%sDefaulted");
-        proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_defaulted, tvb,
-                offset, 1, flags);
-
-        /* Expired Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_EXPIRED, actor_flags_item,
-                "%sExpired");
-        proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_expired, tvb,
-                offset, 1, flags);
-
-        if (sep != initial_sep)
-        {
-            /* We put something in; put in the terminating ")" */
-            proto_item_append_text(actor_flags_item, ")");
-        }
-        offset += 1;
-
-        /* Actor Reserved */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_actor_reserved, tvb,
-                offset, 3, ENC_NA);
-        offset += 3;
-
-        /* Partner Type */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_partner_type, tvb,
-                offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        /* Partner Info Length */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_partner_info_len, tvb,
-                offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-
-        /* Partner System Priority */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_partner_sys_priority, tvb,
-                offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* Partner System */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_partner_sys, tvb,
-                offset, 6, ENC_NA);
-        offset += 6;
-
-        /* Partner Key */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_partner_key, tvb,
-                offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* Partner Port Priority */
-
-        proto_tree_add_item(lacpdu_tree, hf_lacp_partner_port_priority, tvb,
-                offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        /* Partner Port */
-
-        raw_word = tvb_get_ntohs(tvb, offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "Partner Port = %d ", raw_word);
-        proto_tree_add_uint(lacpdu_tree, hf_lacp_partner_port, tvb,
-                offset, 2, raw_word);
-        offset += 2;
-
         /* Partner State */
 
         flags = tvb_get_guint8(tvb, offset);
