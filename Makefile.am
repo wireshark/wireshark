@@ -645,7 +645,7 @@ dumpcap_LDFLAGS = $(PIE_LDFLAGS)
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
 	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) \
-	@LUA_INCLUDES@ $(SBC_CFLAGS) -DTOP_SRCDIR=\"$(abs_top_srcdir)\"
+	@LUA_CFLAGS@ $(SBC_CFLAGS) -DTOP_SRCDIR=\"$(abs_top_srcdir)\"
 
 #
 # Build the version string

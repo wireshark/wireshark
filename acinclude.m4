@@ -773,233 +773,118 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 #
 # AC_WIRESHARK_LIBLUA_CHECK
 #
+# Sets $have_lua to yes or no.
+# If it's yes, it also sets $LUA_CFLAGS and $LUA_LIBS.
 AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
-	lua_ver=5.2
-	if test "x$lua_dir" != "x"
-	then
-		#
-		# The user specified a directory in which liblua resides,
-		# so add the "include" subdirectory of that directory to
-		# the include file search path and the "lib" subdirectory
-		# of that directory to the library search path.
-		#
-		# XXX - if there's also a liblua in a directory that's
-		# already in CPPFLAGS or LDFLAGS, this won't make us find
-		# the version in the specified directory, as the compiler
-		# and/or linker will search that other directory before it
-		# searches the specified directory.
-		#
-		wireshark_save_CPPFLAGS="$CPPFLAGS"
-		CPPFLAGS="$CPPFLAGS -I$lua_dir/include"
-		wireshark_save_LIBS="$LIBS"
-		LIBS="$LIBS -L$lua_dir/lib -llua -lm"
-		wireshark_save_LDFLAGS="$LDFLAGS"
-		LDFLAGS="$LDFLAGS -L$lua_dir/lib"
 
-		#
-		# Determine Lua version by reading the LUA_VERSION_NUM definition
-		# from lua.h under the given Lua directory. The value is 501 for
-		# Lua 5.1, 502 for Lua 5.2, etc.
-		#
-		AC_MSG_CHECKING(Lua version)
-		[[ -d "$lua_dir/include" ]] && grep -rq 'LUA_VERSION_NUM.*501' "$lua_dir/include" && lua_ver=5.1
-		AC_MSG_RESULT(Lua ${lua_ver})
-	else
-		#
-		# The user specified no directory in which liblua resides,
-		# we try to find out the lua version by looking at pathnames
-		# and we just add "-llua -lliblua" to the used libs.
-		#
-		AC_MSG_CHECKING(Lua version)
-		for i in 5.0 5.1 5.2
+	if test "x$want_lua_dir" = "x"
+	then
+		# The user didn't tell us where to find Lua.  Let's go look for it.
+
+		# First, try the standard (pkg-config) way.
+		PKG_CHECK_MODULES(LUA, lua, [have_lua=yes], [true])
+
+		# Unfortunately Lua's pkg-config file isn't standardly named.
+		# Apparently Debian, in particular, allows installation of multiple
+		# versions of Lua at the same time (thus each version has its own
+		# package name).
+		for ver in 5.2 -5.2 5.1 -5.1 5.0 -5.0
 		do
-			[[ -d "/usr/include/lua$i" ]] && lua_ver=$i
+			if test "x$have_lua" = "xyes"
+			then
+				break
+			fi
+
+			PKG_CHECK_MODULES(LUA, lua$ver, [have_lua=yes], [true])
 		done
-		AC_MSG_RESULT(Lua ${lua_ver})
-		wireshark_save_CPPFLAGS="$CPPFLAGS"
-		wireshark_save_LDFLAGS="$LDFLAGS"
-		wireshark_save_LIBS="$LIBS"
-		LIBS="$LIBS -llua -lm"
+
 	fi
 
-	#
-	# Make sure we have "lua.h", "lualib.h" and "lauxlib.h".  If we don't, it means we probably
-	# don't have liblua, so don't use it.
-	#
-	AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h,,
-	[
-		AC_CHECK_HEADERS(lua${lua_ver}/lua.h lua${lua_ver}/lualib.h lua${lua_ver}/lauxlib.h,
-		[
-			if test "x$lua_dir" != "x"
-			then
-				LUA_INCLUDES="-I$lua_dir/include/lua${lua_ver}"
-			else
-				#
-				# The user didn't specify a directory in which liblua resides;
-				# we must look for the headers in a "lua${lua_ver}" subdirectory of
-				# "/usr/include", "/usr/local/include", or "$prefix/include"
-				# as some systems apparently put the headers in a "lua${lua_ver}"
-				# subdirectory.
-				AC_MSG_CHECKING(for extraneous lua header directories)
-				found_lua_dir=""
-				lua_dir_list="/usr/include/lua${lua_ver} $prefix/include/lua${lua_ver}"
-				if test "x$ac_cv_enable_usr_local" = "xyes"
-				then
-					lua_dir_list="$lua_dir_list /usr/local/include/lua${lua_ver}"
-				fi
-				for lua_dir_ent in $lua_dir_list
-				do
-					if test -d $lua_dir_ent
-					then
-						LUA_INCLUDES="-I$lua_dir_ent"
-						found_lua_dir="$lua_dir_ent"
-						break
-					fi
-				done
-
-				if test "x$found_lua_dir" != "x"
-				then
-					AC_MSG_RESULT(found -- $found_lua_dir)
-				else
-					AC_MSG_RESULT(not found)
-					#
-					# Restore the versions of CPPFLAGS,
-					# LDFLAGS, and LIBS before we added the
-					# "--with-lua=" directory, as we didn't
-					# actually find lua there.
-					#
-					CPPFLAGS="$wireshark_save_CPPFLAGS"
-					LDFLAGS="$wireshark_save_LDFLAGS"
-					LIBS="$wireshark_save_LIBS"
-					LUA_LIBS=""
-					if test "x$want_lua" = "xyes"
-					then
-						# we found lua${lua_ver}/lua.h, but we don't know which include dir contains it
-						AC_MSG_ERROR(Header file lua.h was found as lua${lua_ver}/lua.h but we can't locate the include directory. Please set the DIR for the --with-lua configure parameter.)
-					else
-						#
-						# We couldn't find the header file; don't use the
-						# library, as it's probably not present.
-						#
-						want_lua=no
-					fi
-				fi
-			fi
-		],
-		[
-			#
-			# Restore the versions of CPPFLAGS, LDFLAGS,
-			# and LIBS before we added the "--with-lua="
-			# directory, as we didn't actually find lua
-			# there.
-			#
-			CPPFLAGS="$wireshark_save_CPPFLAGS"
-			LDFLAGS="$wireshark_save_LDFLAGS"
-			LIBS="$wireshark_save_LIBS"
-			LUA_LIBS=""
-			if test "x$lua_dir" != "x"
-			then
-				#
-				# The user used "--with-lua=" to specify a directory
-				# containing liblua, but we didn't find the header file
-				# there; that either means they didn't specify the
-				# right directory or are confused about whether liblua
-				# is, in fact, installed.  Report the error and give up.
-				#
-				AC_MSG_ERROR([liblua header not found in directory specified in --with-lua])
-			else
-				if test "x$want_lua" = "xyes"
-				then
-					#
-					# The user tried to force us to use the library, but we
-					# couldn't find the header file; report an error.
-					#
-					AC_MSG_ERROR(Header file lua.h not found.)
-				else
-					#
-					# We couldn't find the header file; don't use the
-					# library, as it's probably not present.
-					#
-					want_lua=no
-				fi
-			fi
-		])
-	])
-
-	if test "x$want_lua" != "xno"
+	if test "x$have_lua" != "xyes"
 	then
-		#
-		# Well, we at least have the lua header file.
-		#
-		# let's check if the libs are there
-		#
+		# We don't have pkg-config or the user specified the path to
+		# Lua (in $want_lua_dir).
+		# Let's look for the header file.
 
-		# At least on Suse 9.3 systems, liblualib needs linking
-		# against libm.
-		LIBS="$LIBS $LUA_LIBS -lm"
-
-		AC_CHECK_LIB(lua, luaL_openlibs,
-		[
-			#
-			#  Lua found
-			#
-			if test "x$lua_dir" != "x"
+		AC_MSG_CHECKING(for the location of lua.h)
+		if test "x$want_lua_dir" = "x"
+		then
+			# The user didn't tell us where to look so we'll look in some
+			# standard locations.
+			want_lua_dir="/usr /usr/local $prefix"
+		fi
+		for dir in $want_lua_dir
+		do
+			if test -r "$dir/include/lua.h"
 			then
-				#
-				# Put the "-I" and "-L" flags for lua into
-				# LUA_INCLUDES and LUA_LIBS, respectively.
-				#
-				LUA_LIBS="-L$lua_dir/lib -llua -lm"
-				LUA_INCLUDES="-I$lua_dir/include"
-			else
-				LUA_LIBS="-llua -lm"
-				LUA_INCLUDES=""
+				header_dir="$dir/include"
+				lua_dir=$dir
+				break
 			fi
-			AC_DEFINE(HAVE_LUA, 1, [Define to use Lua])
-			want_lua=yes
 
-		],[
-			#
-			# We could not find the libs, maybe we have version number in the lib name
-			#
-
-			LIBS="$wireshark_save_LIBS -llua${lua_ver} -lm"
-
-			AC_CHECK_LIB(lua${lua_ver}, luaL_openlibs,
-			[
-			    #
-			    #  Lua found
-			    #
-			    LUA_LIBS=" -llua${lua_ver} -lm"
-			    AC_DEFINE(HAVE_LUA, 1, [Define to use Lua])
-			    want_lua=yes
-			],[
-				#
-				# Restore the versions of CPPFLAGS, LDFLAGS,
-				# and LIBS before we added the "--with-lua="
-				# directory, as we didn't actually find lua
-				# there.
-				#
-				CPPFLAGS="$wireshark_save_CPPFLAGS"
-				LDFLAGS="$wireshark_save_LDFLAGS"
-				LIBS="$wireshark_save_LIBS"
-				LUA_LIBS=""
-				# User requested --with-lua but it isn't available
-				if test "x$want_lua" = "xyes"
+			for ver in 5.2 52 5.1 51 5.0 50
+			do
+				if test -r "$dir/include/lua$ver/lua.h"
 				then
-					AC_MSG_ERROR(Linking with liblua failed.)
+					header_dir="$dir/include/lua$ver"
+					lua_dir=$dir
+					break
 				fi
-				want_lua=no
+			done
+		done
+
+		if test "x$header_dir" = "x"
+		then
+			have_lua=no
+			AC_MSG_RESULT(not found)
+		else
+			AC_MSG_RESULT($header_dir)
+
+			AC_MSG_CHECKING(the Lua version)
+			lua_ver=`$AWK AS_ESCAPE('/LUA_VERSION_NUM/ { print $NF; }' $header_dir/lua.h | sed 's/0/./')`
+			AC_MSG_RESULT($lua_ver)
+
+			wireshark_save_CPPFLAGS="$CPPFLAGS"
+			CPPFLAGS="$CPPFLAGS -I$header_dir"
+			AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h, ,
+			[
+				have_lua=no
+				# Restore our CPPFLAGS
+				CPPFLAGS="$wireshark_save_CPPFLAGS"
+				break
 			])
-		])
 
-	CPPFLAGS="$wireshark_save_CPPFLAGS"
-	LDFLAGS="$wireshark_save_LDFLAGS"
-	LIBS="$wireshark_save_LIBS"
-	AC_SUBST(LUA_LIBS)
-	AC_SUBST(LUA_INCLUDES)
+			if test "x$have_lua" = "x"
+			then
+				# Restore our CPPFLAGS and set LUA_CFLAGS
+				CPPFLAGS="$wireshark_save_CPPFLAGS"
+				LUA_CFLAGS="-I$header_dir"
 
+				# We have the header files and they work.  Now let's check if we
+				# have the library and it works.
+				#
+				# XXX - if there's also a liblua in a directory that's
+				# already in CPPFLAGS or LDFLAGS, this won't make us find
+				# the version in the specified directory, as the compiler
+				# and/or linker will search that other directory before it
+				# searches the specified directory.
+				#
+				# XXX - lib64?
+				wireshark_save_LIBS="$LIBS"
+				LIBS="$LIBS -L$lua_dir/lib"
+				AC_SEARCH_LIBS(luaL_openlibs, [lua-${lua_ver} lua${lua_ver} lua],
+				[
+					LUA_LIBS="-L$lua_dir/lib $ac_cv_search_luaL_openlibs -lm"
+					LIBS="$wireshark_save_LIBS"
+					have_lua=yes
+				],[
+					LIBS="$wireshark_save_LIBS"
+					have_lua=no
+				], -lm)
+			fi
+		fi
 	fi
+
 ])
 
 #
@@ -1605,7 +1490,7 @@ AC_DEFUN([AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR],
 		# We're assuming this is clang, where
 		# -Werror=unknown-warning-option is the appropriate
 		# option to force the compiler to fail.
-		# 
+		#
 		ac_wireshark_unknown_warning_option_error="-Werror=unknown-warning-option"
 	    ],
 	    [

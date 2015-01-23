@@ -2355,8 +2355,6 @@ else
 fi
 
 dnl Lua check
-AC_MSG_CHECKING(whether to use liblua for the Lua scripting plugin)
-
 AC_ARG_WITH(lua,
   AC_HELP_STRING( [--with-lua@<:@=DIR@:>@],
                   [use liblua (located in directory DIR, if supplied) for the Lua scripting plugin @<:@default=yes, if available@:>@]),
@@ -2369,25 +2367,25 @@ AC_ARG_WITH(lua,
 		want_lua=yes
 	else
 		want_lua=yes
-		lua_dir=$withval
+		want_lua_dir=$withval
 	fi
 ],[
-	#
-	# Use liblua by default
-	#
+	# By default use Lua if we can find it
 	want_lua=ifavailable
 	lua_dir=
 ])
-if test "x$want_lua" = "xno" ; then
-	AC_MSG_RESULT(no)
-else
-	AC_MSG_RESULT(yes)
+if test "x$want_lua" != "xno" ; then
 	AC_WIRESHARK_LIBLUA_CHECK
-	if test "x$want_lua" = "xno" ; then
-		AC_MSG_RESULT(liblua not found - disabling support for the lua scripting plugin)
+
+	if test "x$want_lua" = "xyes" -a "x$have_lua" = "xno"
+	then
+                AC_MSG_ERROR([Lua support was requested, but is not available])
 	fi
+	AC_DEFINE(HAVE_LUA, 1, [Define to use Lua])
 fi
-AM_CONDITIONAL(HAVE_LIBLUA, test x$want_lua = xyes)
+AM_CONDITIONAL(HAVE_LIBLUA, test x$have_lua = xyes)
+AC_SUBST(LUA_LIBS)
+AC_SUBST(LUA_CFLAGS)
 
 
 dnl portaudio check
@@ -3197,7 +3195,7 @@ else
 	zlib_message="yes"
 fi
 
-if test "x$want_lua" = "xyes" ; then
+if test "x$have_lua" = "xyes" ; then
 	lua_message="yes"
 else
 	lua_message="no"
