@@ -62,6 +62,7 @@ wireshark-tap-register-cache.pkl
 
 # Generated makefile system #
 #############################
+.dirstamp
 *.sym
 aclocal.m4
 autom4te.cache
