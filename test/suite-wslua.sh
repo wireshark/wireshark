@@ -257,7 +257,7 @@ wslua_step_pinfo_test() {
 	fi
 
 	# Tshark catches lua script failures, so we have to parse the output.
-	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/nstime.lua > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/pinfo.lua > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		test_step_ok
 	else
