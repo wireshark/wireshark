@@ -37,7 +37,13 @@
 
 WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("ByteArray"),NOP);
 
-WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* Creates a `ByteArray` object. */
+WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) {
+    /* Creates a `ByteArray` object.
+
+       Starting in version 1.11.3, if the second argument is a boolean `true`,
+       then the first argyument is treated as a raw Lua string of bytes to use,
+       instead of a hexadecimal string.
+     */
 #define WSLUA_OPTARG_ByteArray_new_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d". */
 #define WSLUA_OPTARG_ByteArray_new_SEPARATOR 2 /* A string separator between hex bytes/words (default=" "),
                                                   or if the boolean value `true` is used, then the first argument
@@ -248,7 +254,10 @@ WSLUA_METHOD ByteArray_subset(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
-	/* Obtain a base64 decoded `ByteArray`. */
+	/* Obtain a base64 decoded `ByteArray`.
+
+       @since 1.11.3
+     */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2;
     gchar *data;
@@ -268,7 +277,10 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a `ByteArray`. */
+    /* Obtain a Lua string of the binary bytes in a `ByteArray`.
+
+       @since 1.11.3
+     */
 #define WSLUA_OPTARG_ByteArray_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
 #define WSLUA_OPTARG_ByteArray_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     ByteArray ba = checkByteArray(L,1);
@@ -291,7 +303,10 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_tohex(lua_State* L) {
-    /* Obtain a Lua string of the bytes in a `ByteArray` as hex-ascii, with given separator */
+    /* Obtain a Lua string of the bytes in a `ByteArray` as hex-ascii, with given separator
+
+       @since 1.11.3
+     */
 #define WSLUA_OPTARG_ByteArray_tohex_LOWERCASE 2 /* True to use lower-case hex characters (default=false). */
 #define WSLUA_OPTARG_ByteArray_tohex_SEPARATOR 3 /* A string separator to insert between hex bytes (default=nil). */
     ByteArray ba = checkByteArray(L,1);
@@ -622,7 +637,10 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
 }
 
 WSLUA_METHOD Tvb_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a `Tvb`. */
+    /* Obtain a Lua string of the binary bytes in a `Tvb`.
+
+       @since 1.11.3
+     */
 #define WSLUA_OPTARG_Tvb_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
 #define WSLUA_OPTARG_Tvb_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     Tvb tvb = checkTvb(L,1);
@@ -1242,7 +1260,10 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
 
 WSLUA_METHOD TvbRange_strsize(lua_State* L) {
         /* Find the size of a zero terminated string from a `TvbRange`.
-           The size of the string includes the terminating zero. */
+           The size of the string includes the terminating zero.
+
+           @since 1.11.3
+         */
 #define WSLUA_OPTARG_TvbRange_strsize_ENCODING 2 /* The encoding to use. Defaults to ENC_ASCII. */
     TvbRange tvbr = checkTvbRange(L,1);
     guint encoding = (guint)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_strsize_ENCODING, ENC_ASCII|ENC_NA);
@@ -1450,8 +1471,8 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
     return 0;
 }
 
-static int TvbRange_uncompress(lua_State* L) {
-	/* Obtain a uncompressed TvbRange from a TvbRange */
+WSLUA_METHOD TvbRange_uncompress(lua_State* L) {
+	/* Obtain an uncompressed TvbRange from a TvbRange */
 #define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
 #ifdef HAVE_LIBZ
@@ -1518,7 +1539,10 @@ WSLUA_METHOD TvbRange_offset(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_raw(lua_State* L) {
-    /* Obtain a Lua string of the binary bytes in a `TvbRange`. */
+    /* Obtain a Lua string of the binary bytes in a `TvbRange`.
+
+       @since 1.11.3
+     */
 #define WSLUA_OPTARG_TvbRange_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
 #define WSLUA_OPTARG_TvbRange_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     TvbRange tvbr = checkTvbRange(L,1);

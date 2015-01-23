@@ -164,7 +164,7 @@ register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)
 
 [[wsluarm_modules]]
 
-=== Wireshark's Lua API Reference Manual
+== Wireshark's Lua API Reference Manual
 
 This Part of the User Guide describes the Wireshark specific functions in the embedded Lua.
 

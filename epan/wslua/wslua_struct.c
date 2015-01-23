@@ -155,6 +155,7 @@
     so unpacking a 64-bit field (`i8`/`I8`) will lose precision.
     Use `e`/`E` to unpack into a Wireshark `Int64`/`UInt64` object instead.
 
+  @since 1.11.3
  */
 
 

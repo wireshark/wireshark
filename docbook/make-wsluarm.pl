@@ -310,7 +310,7 @@ my $asciidoc_template = {
 								"==== %s\n\n",
 	#class_desc =>                  "\t\t<para>%s</para>\n",
 	class_attr_header =>           "[[lua_class_attrib_%s]]\n\n" .
-								"==== %s\n\n",
+								"===== %s\n\n",
 	#class_attr_descr =>            "\t\t\t<para>%s%s</para>\n",
 	class_attr_footer =>           "// End %s\n\n",
 	function_header =>             "[[lua_fn_%s]]\n\n" .
