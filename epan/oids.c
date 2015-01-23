@@ -1009,7 +1009,10 @@ guint oid_encoded2subid_sub(wmem_allocator_t *scope, const guint8 *oid_bytes, gi
 		}
 
 		if( subids >= subid_overflow || subid > 0xffffffff) {
-			*subids_p=NULL;
+			/* scope may be NULL in which case we must free our
+			 * useless buffer before returning */
+			wmem_free(scope, *subids_p);
+			*subids_p = NULL;
 			return 0;
 		}
 
