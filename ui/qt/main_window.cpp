@@ -419,6 +419,10 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
+#if defined(Q_OS_WIN)
+    // For some reason "wireshark.ico" in image/wireshark.rc is jaggy.
+    setWindowIcon(wsApp->normalIcon());
+#endif
 }
 
 MainWindow::~MainWindow()
