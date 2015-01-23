@@ -1404,7 +1404,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	mi->is_duplicate = FALSE;
 	mi->request_available = FALSE;
 
-	if (tree)
+	/* if (tree) */
 	{
 		tokennum = 0;
 

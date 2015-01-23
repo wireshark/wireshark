@@ -319,10 +319,8 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	} /* end if user_mode == FALSE */
 
 	/* navigate through buffer */
-	if (tree)
+	/* if (tree) */
 	{
-		/* we are being asked for details */
-
 		guint16 au_headers_length = 0; /* total length of AU headers */
 		guint16 totalbits =0;          /* keeps track of total number of AU header bits treated (used to determine end of AU headers) */
 		int deltabits = -1;            /* keeps track of extra bits per AU header treated (used to determine end of AU heafers ) */

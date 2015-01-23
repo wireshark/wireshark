@@ -2138,8 +2138,7 @@ dissect_v52_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 
-    if (v52_tree != NULL) {
-
+    /* if (v52_tree != NULL) */ {
 
         message_type_tmp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
 

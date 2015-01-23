@@ -88,7 +88,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
     col_set_str(pinfo->cinfo, COL_INFO, proto_name);
 
-    if (tree) {
+    /* if (tree) */ {
         /* Set up structures needed to add the protocol subtree and manage it */
         proto_item *ti = NULL;
         proto_tree *tivoconnect_tree = NULL;
