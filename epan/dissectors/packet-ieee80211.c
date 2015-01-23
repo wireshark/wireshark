@@ -16538,12 +16538,12 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
             }
             while (tvb_reported_length_remaining(tvb, offset) > len_fcs) {
               sta_info_item = proto_tree_add_item(hdr_tree, hf_ieee80211_vht_ndp_annc_sta_info,
-                                                  tvb, offset, 2, ENC_NA);
+                                                  tvb, offset, 2, ENC_LITTLE_ENDIAN);
               sta_info_tree = proto_item_add_subtree(sta_info_item, ett_vht_ndp_annc_sta_info_tree);
               proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_aid12,
-                                  tvb, offset, 2, ENC_NA);
+                                  tvb, offset, 2, ENC_LITTLE_ENDIAN);
               proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_feedback_type,
-                                  tvb, offset, 2, ENC_NA);
+                                  tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
               sta_info = tvb_get_letohs(tvb, offset);
 
@@ -16553,7 +16553,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                                     tvb, offset, 2, sta_info);
               else
                 proto_tree_add_item(sta_info_tree, hf_ieee80211_vht_ndp_annc_sta_info_reserved,
-                                    tvb, offset, 2, ENC_NA);
+                                    tvb, offset, 2, ENC_LITTLE_ENDIAN);
               offset += 2;
             }
           }
