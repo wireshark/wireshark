@@ -36,7 +36,6 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 
@@ -341,6 +340,10 @@ static gint hf_sos_se = -1;
 static gint hf_sos_ah = -1;
 static gint hf_sos_al = -1;
 
+/* Comment */
+static gint hf_comment_header = -1;
+static gint hf_comment = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_jfif = -1;
 static gint ett_marker_segment = -1;
@@ -462,6 +465,32 @@ process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
     proto_tree_add_item(subtree, hf_sos_al, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* offset ++ */;
 }
+
+/*
+ * Process a Comment header (with length).
+ */
+static void
+process_comment_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
+        guint16 marker, const char *marker_name)
+{
+    proto_item *ti = NULL;
+    proto_tree *subtree = NULL;
+
+    if (! tree)
+        return;
+
+    ti = proto_tree_add_item(tree, hf_comment_header,
+            tvb, 0, -1, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_marker_segment);
+
+    proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
+    proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(subtree, hf_comment, tvb, 4, len-2, ENC_ASCII|ENC_NA);
+}
+
 
 /* Process an APP0 block.
  *
@@ -846,6 +875,9 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     case MARKER_SOS:
                         process_sos_header(subtree, tmp_tvb, len, marker, str);
                         break;
+                    case MARKER_COM:
+                        process_comment_header(subtree, tmp_tvb, len, marker, str);
+                        break;
                     default:
                         process_marker_segment(subtree, tmp_tvb, len, marker, str);
                         break;
@@ -1160,6 +1192,24 @@ proto_register_jfif(void)
               " position low, used before coding the band of coefficients specified by Ss and Se."
               " This parameter shall be set to zero for the sequential DCT processes. In the lossless"
               " mode of operations, this parameter specifies the point transform, Pt.",
+              HFILL
+          }
+        },
+
+        /* Header: Comment (MARKER_COM) */
+        { &hf_comment_header,
+          {   "Comment header",
+              IMG_JFIF ".header.comment",
+              FT_NONE, BASE_NONE, NULL, 0x00,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_comment,
+          {   "Comment",
+              IMG_JFIF ".comment",
+              FT_STRING, STR_ASCII, NULL, 0x0,
+              NULL,
               HFILL
           }
         },
