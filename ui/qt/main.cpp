@@ -486,7 +486,6 @@ int main(int argc, char *argv[])
     QString locale;
     QString *cf_name = NULL;
     QString *display_filter = NULL;
-    int optind_initial;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
 
     // In Qt 5, C strings are treated always as UTF-8 when converted to
