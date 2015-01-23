@@ -19,10 +19,6 @@
   <property name="windowTitle">
    <string>Wireshark - Analyse Association</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../image/toolbar.qrc">
-    <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
-  </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>

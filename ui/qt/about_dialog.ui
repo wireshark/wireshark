@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>About Wireshark</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../image/toolbar.qrc">
-    <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
     <widget class="QTabWidget" name="tabWidget">

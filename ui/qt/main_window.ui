@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Wireshark</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../image/toolbar.qrc">
-    <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
-  </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>true</bool>
   </property>
@@ -65,7 +61,6 @@
          </property>
         </spacer>
        </item>
-
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
@@ -90,14 +85,12 @@
       </layout>
      </widget>
     </item>
-
     <item>
      <widget class="SearchFrame" name="searchFrame" native="true"/>
     </item>
-       <item>
-        <widget class="ColumnEditorFrame" native="true"/>
-       </item>
-
+    <item>
+     <widget class="ColumnEditorFrame" name="columnEditorFrame"/>
+    </item>
     <item>
      <widget class="QStackedWidget" name="mainStack">
       <property name="enabled">
@@ -107,7 +100,6 @@
       <widget class="QWidget" name="packetPage"/>
      </widget>
     </item>
-
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -116,7 +108,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1622,7 +1614,7 @@
    <property name="toolTip">
     <string>Sametime statistics</string>
    </property>
-   </action>
+  </action>
   <action name="actionTelephonyISUPMessages">
    <property name="text">
     <string>&amp;ISUP Messages</string>

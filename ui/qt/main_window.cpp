@@ -181,6 +181,7 @@ MainWindow::MainWindow(QWidget *parent) :
     capture_session_init(&cap_session_, CaptureFile::globalCapFile());
 #endif
     main_ui_->setupUi(this);
+    setWindowIcon(wsApp->normalIcon());
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
     setForCapturedPackets(false);
@@ -419,10 +420,6 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
-#if defined(Q_OS_WIN)
-    // For some reason "wireshark.ico" in image/wireshark.rc is jaggy.
-    setWindowIcon(wsApp->normalIcon());
-#endif
 }
 
 MainWindow::~MainWindow()
