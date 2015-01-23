@@ -2649,9 +2649,9 @@ cf_open_error_message(int err, gchar *err_info _U_, gboolean for_writing,
   const char *errmsg;
   /* static char errmsg_errno[1024+1]; */
 
+#if 0
   if (err < 0) {
     /* Wiretap error. */
-#if 0
     switch (err) {
 
     case FTAP_ERR_NOT_REGULAR_FILE:
@@ -2760,8 +2760,8 @@ cf_open_error_message(int err, gchar *err_info _U_, gboolean for_writing,
       errmsg = errmsg_errno;
       break;
     }
-#endif
   } else
+#endif
     errmsg = file_open_error_message(err, for_writing);
   return errmsg;
 }
