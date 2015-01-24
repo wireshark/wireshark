@@ -58,9 +58,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/greproto.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include "packet-gre.h"
 
 void proto_register_erspan(void);
 void proto_reg_handoff_erspan(void);

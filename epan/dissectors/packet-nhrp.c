@@ -34,7 +34,6 @@
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
-#include <epan/greproto.h>
 #include <epan/nlpid.h>
 #include <epan/oui.h>
 #include <epan/afn.h>
@@ -42,6 +41,7 @@
 #include <epan/iana_snap_pid.h>
 #include "packet-llc.h"
 #include "packet-nhrp.h"
+#include "packet-gre.h"
 
 void proto_register_nhrp(void);
 void proto_reg_handoff_nhrp(void);

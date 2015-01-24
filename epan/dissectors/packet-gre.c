@@ -27,7 +27,6 @@
 #include <epan/etypes.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
-#include <epan/greproto.h>
 #include <epan/ipproto.h>
 #include <epan/llcsaps.h>
 #include "packet-gre.h"

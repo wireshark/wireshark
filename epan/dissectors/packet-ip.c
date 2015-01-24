@@ -37,7 +37,6 @@
 #include <epan/color_dissector_filters.h>
 #include <epan/reassemble.h>
 #include <epan/etypes.h>
-#include <epan/greproto.h>
 #include <epan/ppptypes.h>
 #include <epan/llcsaps.h>
 #include <epan/aftypes.h>
@@ -51,6 +50,7 @@
 #include "packet-ip.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
+#include "packet-gre.h"
 
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>

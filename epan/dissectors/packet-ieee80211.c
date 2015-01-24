@@ -91,7 +91,6 @@
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include <epan/etypes.h>
-#include <epan/greproto.h>
 #include <epan/oui.h>
 #include <epan/crc32-tvb.h>
 #include <epan/crypt/wep-wpadefs.h>
@@ -103,6 +102,7 @@
 #include "packet-wps.h"
 #include "packet-e212.h"
 #include "packet-sflow.h"
+#include "packet-gre.h"
 
 /*     Davide Schiera (2006-11-22): including AirPDcap project                */
 #include <epan/crypt/airpdcap_ws.h>
