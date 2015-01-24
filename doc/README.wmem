@@ -131,7 +131,7 @@ WARNING: You probably don't actually need these; use them only when you're
 Sometimes (though hopefully rarely) it may be necessary to store data in a wmem
 pool that requires additional cleanup before it is freed. For example, perhaps
 you have a pointer to a file-handle that needs to be closed. In this case, you
-can register a callback with the wmem_register_cleanup_callback function
+can register a callback with the wmem_register_callback function
 declared in wmem_user_cb.h. Every time the memory in a pool is freed, all
 registered cleanup functions are called first.
 

@@ -130,7 +130,9 @@ static expert_field ei_lua_proto_comments_error   = EI_INIT;
 
 dissector_handle_t lua_data_handle;
 
-static void lua_frame_end(void)
+static gboolean
+lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+        void *user_data _U_)
 {
     clear_outstanding_Tvb();
     clear_outstanding_TvbRange();
@@ -140,6 +142,9 @@ static void lua_frame_end(void)
     clear_outstanding_PrivateTable();
     clear_outstanding_TreeItem();
     clear_outstanding_FieldInfo();
+
+    /* keep invoking this callback later? */
+    return FALSE;
 }
 
 static int wslua_not_register_menu(lua_State* LS) {
@@ -201,7 +206,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
                     "Lua Error: did not find the %s dissector in the dissectors table", pinfo->current_proto);
     }
 
-    register_frame_end_routine(pinfo, lua_frame_end);
+    wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
 
     lua_pinfo = NULL;
     lua_tree = NULL;
@@ -301,7 +306,7 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
         lua_pop(L, 1);
     }
 
-    register_frame_end_routine(pinfo, lua_frame_end);
+    wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
 
     lua_pinfo = NULL;
     lua_tree = NULL;

@@ -50,7 +50,7 @@ typedef enum _wmem_cb_event_t {
  * allocator The allocator that triggered this callback.
  * event     The event type that triggered this callback.
  * user_data Whatever user_data was originally passed to the call to
- *                  wmem_register_cleanup_callback().
+ *                  wmem_register_callback().
  * @return          FALSE to unregister the callback, TRUE otherwise.
  */
 typedef gboolean (*wmem_user_cb_t) (wmem_allocator_t*, wmem_cb_event_t, void*);
