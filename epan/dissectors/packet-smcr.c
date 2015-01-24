@@ -63,7 +63,7 @@
 #define LLC_LEN_OFFSET 1
 #define LLC_CMD_RSP_OFFSET 3
 #define ACCEPT_CONFIRM_QP_OFFSET 38
-#define SMCR_CLC_ID "\xe2\xd4\xc3\xd9" /* EBCDIC 'SMCR' */
+#define SMCR_CLC_ID 0xe2d4c3d9 /*EBCDIC 'SMCR' */
 #define SMC_CLC_V1    0x10
 #define SMC_CLC_SMC_R 0x01
 
@@ -260,6 +260,7 @@ static int hf_smcr_rmbe_ctrl_write_blocked = -1;
 static int hf_smcr_rmbe_ctrl_urgent_pending = -1;
 static int hf_smcr_rmbe_ctrl_urgent_present = -1;
 static int hf_smcr_rmbe_ctrl_cons_update_requested = -1;
+static int hf_smcr_rmbe_ctrl_failover_validation = -1;
 static int hf_smcr_rmbe_ctrl_peer_conn_state_flags = -1;
 static int hf_smcr_rmbe_ctrl_peer_sending_done = -1;
 static int hf_smcr_rmbe_ctrl_peer_closed_conn = -1;
@@ -726,6 +727,8 @@ disect_smcr_rmbe_ctrl(tvbuff_t *tvb, proto_tree *tree)
 			tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(rmbe_ctrl_rw_status_flag_tree, hf_smcr_rmbe_ctrl_cons_update_requested,
 			tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rmbe_ctrl_rw_status_flag_tree, hf_smcr_rmbe_ctrl_failover_validation,
+			tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
 	rmbe_ctrl_peer_conn_state_flag_item =
 		proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_peer_conn_state_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
@@ -884,7 +887,7 @@ static gboolean
 dissect_smcr_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	void *data)
 {
-	if (tvb_memeql(tvb, CLC_MSG_BYTE_0, SMCR_CLC_ID, sizeof(SMCR_CLC_ID) != 0)) return FALSE;
+	if (tvb_get_ntohl(tvb, CLC_MSG_BYTE_0) != SMCR_CLC_ID) return FALSE;
 	dissect_smcr_tcp(tvb, pinfo, tree, data);
 	return TRUE;
 }
@@ -1368,6 +1371,11 @@ proto_register_smcr(void)
 		"Consumer Cursor Update Requested",
 		"smcr.rmbe.ctrl.cons.update.requested",
 		FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}},
+
+		{ &hf_smcr_rmbe_ctrl_failover_validation, {
+		"Failover Validation Indicator",
+		"smcr.rmbe.ctrl.failover.validation",
+		FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}},
 
 		{ &hf_smcr_rmbe_ctrl_peer_conn_state_flags, {
 		"Peer Connection State Flags",
