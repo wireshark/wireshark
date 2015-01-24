@@ -1935,7 +1935,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t * tvb, gint offset
 
   /* Calc indent string */
   indent_string = (char *)wmem_alloc(wmem_epan_scope(), (indent_level*2)+1);
-  memset(indent_string, ' ', indent_level*2);
+  memset(indent_string, ' ', (indent_level*2)+1);
   indent_string[indent_level*2] = '\0';
 
   /* Gets TK ID */
