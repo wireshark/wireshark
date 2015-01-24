@@ -744,12 +744,12 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
 {
     /* update the circuit details before passing to a subdissector */
     circuit_type ctype = CT_H223;
-    guint32 circuit_id = circuit_chain_lookup(call_info, vc);
     /* XXX - Not sure if these need to be saved */
-    pinfo->circuit_id = circuit_id;
+    pinfo->circuit_id = circuit_chain_lookup(call_info, vc);
     pinfo->ctype = ctype;
 
     TRY {
+        guint32 circuit_id = pinfo->circuit_id;
         circuit_t *subcircuit=find_circuit(ctype,circuit_id,pinfo->fd->num);
         proto_tree *vc_tree = NULL;
         proto_item *vc_item;

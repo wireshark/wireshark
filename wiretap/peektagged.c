@@ -311,7 +311,7 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
 {
     peektagged_section_header_t ap_hdr;
     int ret;
-    guint32 fileVersion;
+    guint32 fileVersion = 0;
     guint32 mediaType;
     guint32 mediaSubType = 0;
     int file_encap;

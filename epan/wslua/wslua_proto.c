@@ -2128,7 +2128,7 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
 #define WSLUA_ARG_Dissector_call_PINFO 3 /* The packet info. */
 #define WSLUA_ARG_Dissector_call_TREE 4 /* The tree on which to add the protocol items. */
 
-    Dissector d = checkDissector(L,1);
+    Dissector volatile d = checkDissector(L,1);
     Tvb tvb = checkTvb(L,WSLUA_ARG_Dissector_call_TVB);
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_call_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_call_TREE);
@@ -2539,7 +2539,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
 #define WSLUA_ARG_DissectorTable_try_TVB 3 /* The buffer to dissect. */
 #define WSLUA_ARG_DissectorTable_try_PINFO 4 /* The packet info. */
 #define WSLUA_ARG_DissectorTable_try_TREE 5 /* The tree on which to add the protocol items. */
-    DissectorTable dt = checkDissectorTable(L,1);
+    DissectorTable volatile dt = checkDissectorTable(L,1);
     Tvb tvb = checkTvb(L,WSLUA_ARG_DissectorTable_try_TVB);
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_DissectorTable_try_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_DissectorTable_try_TREE);
