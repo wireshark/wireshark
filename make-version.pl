@@ -25,14 +25,16 @@
 # If "version.conf" is present, it is parsed for configuration values.
 # Possible values are:
 #
-#   enable     - Enable or disable versioning.  Zero (0) disables, nonzero
-#		 enables.
-#   svn_client - Use svn client i.s.o. ugly internal SVN file hack
-#   format     - A strftime() formatted string to use as a template for
-#		 the version string. The sequence "%#" will substitute
-#		 the SVN revision number.
-#   pkg_enable - Enable or disable local package versioning.
-#   pkg_format - Like "format", but used for the local package version.
+#   enable       - Enable or disable versioning.  Zero (0) disables, nonzero
+#		   enables.
+#   svn_client   - Use svn client i.s.o. ugly internal SVN file hack
+#   tortoise_svn - Use TortoiseSVN client instead of ugly internal SVN
+#		   file hack
+#   format       - A strftime() formatted string to use as a template for
+#		   the version string. The sequence "%#" will substitute
+#		   the SVN revision number.
+#   pkg_enable   - Enable or disable local package versioning.
+#   pkg_format   - Like "format", but used for the local package version.
 #
 # If run with the "-r" or "--set-release" argument the AC_INIT macro in
 # configure.ac and the VERSION macro in config.nmake will have the
@@ -43,7 +45,8 @@
 #
 # enable: 1
 # svn_client: 1
-# format: SVN %Y%m%d%H%M%S
+# tortoise_svn: 0
+# format: git %Y%m%d%H%M%S
 # pkg_enable: 1
 # pkg_format: -%#
 
@@ -80,7 +83,7 @@ my %version_pref = (
 	"version_build" => 0,
 
 	"enable"        => 1,
-	"git_client"    => 0,
+	"git_client"    => 0,	# set if .git found and .git/svn not found
 	"svn_client"    => 1,
 	"tortoise_svn"  => 0,
 	"format"        => "git %Y%m%d%H%M%S",
@@ -581,7 +584,7 @@ sub update_versioned_files
 	&update_lib_releases;
 }
 
-# Print the SVN version to $version_file.
+# Print the version control system's version to $version_file.
 # Don't change the file if it is not needed.
 sub print_GIT_REVISION
 {
