@@ -73,8 +73,8 @@ my $num_commits = 0;
 my $commit_id = '';
 my $repo_branch = "unknown";
 my $git_description = undef;
-my $get_svn = 0;
-my $set_svn = 0;
+my $get_vcs = 0;
+my $set_vcs = 0;
 my $set_version = 0;
 my $set_release = 0;
 my %version_pref = (
@@ -367,7 +367,7 @@ sub read_repo_info {
 		$repo_branch = substr($repo_url, length($repo_root));
 	}
 
-	if ($get_svn) {
+	if ($get_vcs) {
 		print <<"Fin";
 Commit distance : $num_commits
 Commit ID       : $commit_id
@@ -615,7 +615,7 @@ sub print_VCS_REVISION
 		close OLDREV;
 	}
 
-	if (! $set_svn) { return; }
+	if (! $set_vcs) { return; }
 
 	if ($needs_update) {
 		# print "Updating $version_file so it contains:\n$VCS_REVISION";
@@ -637,16 +637,16 @@ sub get_config {
 	# XXX - Do we need an option to undo --set-release?
 	GetOptions(
 		   "help|h", \$show_help,
-		   "get-svn|g", \$get_svn,
-		   "set-svn|s", \$set_svn,
+		   "get-vcs|get-svn|g", \$get_vcs,
+		   "set-vcs|set-svn|s", \$set_vcs,
 		   "set-version|v", \$set_version,
 		   "set-release|r|package-version|p", \$set_release
 		   ) || pod2usage(2);
 
 	if ($show_help) { pod2usage(1); }
 
-	if ( !( $show_help || $get_svn || $set_svn || $set_version || $set_release ) ) {
-		$set_svn = 1;
+	if ( !( $show_help || $get_vcs || $set_vcs || $set_version || $set_release ) ) {
+		$set_vcs = 1;
 	}
 
 	if ($#ARGV >= 0) {
@@ -713,8 +713,8 @@ make-version.pl [options] [source directory]
   Options:
 
     --help, -h                 This help message
-    --get-svn, -g              Print the SVN revision and source.
-    --set-svn, -s              Set the information in version.h
+    --get-vcs, -g              Print the VCS revision and source.
+    --set-vcs, -s              Set the information in version.h
     --set-version, -v          Set the major, minor, and micro versions in
                                configure.ac, config.nmake, debian/changelog,
 			       and docbook/asciidoc.conf.
