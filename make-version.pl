@@ -87,7 +87,6 @@ my %version_pref = (
 	"svn_client"    => 1,
 	"tortoise_svn"  => 0,
 	"format"        => "git %Y%m%d%H%M%S",
-	"is_release"    => 0,
 
 	# Normal development builds
 	"pkg_enable" => 1,
