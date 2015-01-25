@@ -332,7 +332,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
 	gint sectionlen;
 	guint32 num_messages;
-	gint tvb_sectionend,tvb_sectionbegin, tvb_len;
+	gint tvb_sectionend, tvb_sectionbegin, tvb_len;
 	proto_tree *mgcp_tree, *ti;
 	const gchar *verb_name = "";
 
@@ -349,7 +349,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	 * for a valid MGCP verb or response code.  This isn't infallible,
 	 * but it's cheap and it's better than nothing.
 	 */
-	if (is_mgcp_verb(tvb,0,tvb_len, &verb_name) || is_mgcp_rspcode(tvb,0,tvb_len))
+	if (is_mgcp_verb(tvb, 0, tvb_len, &verb_name) || is_mgcp_rspcode(tvb, 0, tvb_len))
 	{
 		/*
 		 * Set the columns now, so that they'll be set correctly if we throw
@@ -368,7 +368,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			if (tree)
 			{
 				/* Create our mgcp subtree */
-				ti = proto_tree_add_item(tree,proto_mgcp,tvb,0,0, ENC_NA);
+				ti = proto_tree_add_item(tree, proto_mgcp, tvb, 0, 0, ENC_NA);
 				mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
 			}
 
@@ -377,7 +377,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			{
 				dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin,
 				                                    sectionlen, sectionlen),
-				                                    pinfo, tree, mgcp_tree,ti);
+				                                    pinfo, tree, mgcp_tree, ti);
 				tvb_sectionbegin = tvb_sectionend;
 			}
 			else
@@ -389,7 +389,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		if (mgcp_tree)
 		{
 			proto_item *tii = proto_tree_add_uint(mgcp_tree, hf_mgcp_messagecount, tvb,
-			                                     0 ,0 , num_messages);
+			                                     0 , 0 , num_messages);
 			PROTO_ITEM_SET_HIDDEN(tii);
 		}
 
@@ -403,16 +403,16 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		{
 			if (num_messages > 1)
 			{
-				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i messages)",num_messages);
+				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i messages)", num_messages);
 			}
 			else
 			{
-				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i message)",num_messages);
+				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i message)", num_messages);
 			}
 		}
 
-		sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
-		                               &tvb_sectionend,FALSE);
+		sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin, -1,
+		                               &tvb_sectionend, FALSE);
 		col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
 		                 tvb_format_text(tvb, tvb_sectionbegin, sectionlen));
 
@@ -465,7 +465,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	/* Declare variables */
 	gint sectionlen;
-	gint tvb_sectionend,tvb_sectionbegin, tvb_len;
+	gint tvb_sectionend, tvb_sectionbegin, tvb_len;
 	tvbuff_t *next_tvb;
 	const gchar *verb_name = "";
 
@@ -501,12 +501,12 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	 * for a valid MGCP verb or response code.  This isn't infallible,
 	 * but it's cheap and it's better than nothing.
 	 */
-	if (is_mgcp_verb(tvb,0,tvb_len,&verb_name) || is_mgcp_rspcode(tvb,0,tvb_len))
+	if (is_mgcp_verb(tvb, 0, tvb_len, &verb_name) || is_mgcp_rspcode(tvb, 0, tvb_len))
 	{
 		/* dissect first line */
 		tvb_sectionbegin = 0;
 		tvb_sectionend = tvb_sectionbegin;
-		sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend,FALSE);
+		sectionlen = tvb_find_line_end(tvb, 0, -1, &tvb_sectionend, FALSE);
 		if (sectionlen > 0)
 		{
 			dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
@@ -530,7 +530,7 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		/* Set the mgcp payload length correctly so we don't include any
 		   encapsulated SDP */
 		sectionlen = tvb_sectionend;
-		proto_item_set_len(ti,sectionlen);
+		proto_item_set_len(ti, sectionlen);
 
 		/* Display the raw text of the mgcp message if desired */
 
@@ -557,14 +557,14 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  */
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 {
-	gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
+	gint tvb_linebegin, tvb_lineend, tvb_len, linelen;
 
 	tvb_linebegin = 0;
 	tvb_len = tvb_reported_length(tvb);
 
 	do
 	{
-		tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend,FALSE);
+		tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, FALSE);
 		linelen = tvb_lineend - tvb_linebegin;
 		proto_tree_add_format_text(tree, tvb, tvb_linebegin, linelen);
 		tvb_linebegin = tvb_lineend;
@@ -599,7 +599,7 @@ static void mgcp_init_protocol(void)
  */
 static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const gchar **verb_name)
 {
-	int returnvalue = FALSE;
+	gboolean returnvalue = FALSE;
 	gchar word[5];
 
 	/* Read the string into 'word' and see if it looks like the start of a verb */
@@ -625,7 +625,7 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
 	/* May be whitespace after verb code - anything else is an error.. */
 	if (returnvalue && maxlength >= 5)
 	{
-		char next = tvb_get_guint8(tvb,4);
+		char next = tvb_get_guint8(tvb, 4);
 		if ((next != ' ') && (next != '\t'))
 		{
 			returnvalue = FALSE;
@@ -651,7 +651,7 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
  */
 static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength)
 {
-	int returnvalue = FALSE;
+	gboolean returnvalue = FALSE;
 	guint8 word[4];
 
 	/* Do 1st 3 characters look like digits? */
@@ -712,22 +712,22 @@ static gboolean is_rfc2234_alpha(guint8 c)
  */
 static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 {
-	gint returnvalue = -1, tvb_current_offset,counter;
+	gint returnvalue = -1, tvb_current_offset, counter;
 	guint8 tempchar, plus_minus;
 	gchar **buf;
 
 	tvb_current_offset = offset;
 	*hf = NULL;
-	buf=NULL;
+	buf = NULL;
 
 	if (len > 0)
 	{
-		tempchar = tvb_get_guint8(tvb,tvb_current_offset);
+		tempchar = tvb_get_guint8(tvb, tvb_current_offset);
 
 		switch (tempchar)
 		{
 			case 'K':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -735,7 +735,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				*hf = &hf_mgcp_param_rspack;
 				break;
 			case 'B':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -743,7 +743,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				*hf = &hf_mgcp_param_bearerinfo;
 				break;
 			case 'C':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -753,7 +753,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 			case 'I':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				   (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+				   (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
 				{
 					*hf = &hf_mgcp_param_connectionid;
 					tvb_current_offset--;
@@ -765,7 +765,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				}
 				break;
 			case 'N':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -778,7 +778,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 
 				/* X: is RequestIdentifier */
 				if (len > (tvb_current_offset - offset) &&
-				   (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+				   (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
 				{
 					*hf = &hf_mgcp_param_requestid;
 					tvb_current_offset--;
@@ -787,7 +787,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				/* X+...: or X-....: are vendor extension parameters */
 				else
 				if (len > (tvb_current_offset - offset) &&
-				    ((plus_minus = tvb_get_guint8(tvb,tvb_current_offset)) == '-' ||
+				    ((plus_minus = tvb_get_guint8(tvb, tvb_current_offset)) == '-' ||
 				     (plus_minus == '+')))
 				{
 					/* Move past + or - */
@@ -817,7 +817,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				}
 				break;
 			case 'L':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -827,7 +827,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 			case 'M':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				   (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+				   (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
 				{
 					*hf = &hf_mgcp_param_connectionmode;
 					tvb_current_offset--;
@@ -841,7 +841,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 			case 'R':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				    (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+				    (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
 				{
 					*hf = &hf_mgcp_param_reqevents;
 					tvb_current_offset--;
@@ -858,7 +858,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				}
 				break;
 			case 'S':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -867,7 +867,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				buf = &(mi->signalReq);
 				break;
 			case 'D':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -876,7 +876,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				mi->hasDigitMap = TRUE;
 				break;
 			case 'O':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -887,7 +887,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 			case 'P':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				    (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+				    (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
 				{
 					*hf = &hf_mgcp_param_connectionparam;
 					tvb_current_offset--;
@@ -901,7 +901,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 			case 'E':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				    (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+				    (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
 				{
 					*hf = &hf_mgcp_param_reasoncode;
 					tvb_current_offset--;
@@ -915,7 +915,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 			case 'Z':
 				tvb_current_offset++;
 				if (len > (tvb_current_offset - offset) &&
-				    (tempchar = tvb_get_guint8(tvb,tvb_current_offset)) == ':')
+				    (tempchar = tvb_get_guint8(tvb, tvb_current_offset)) == ':')
 				{
 					*hf = &hf_mgcp_param_specificendpoint;
 					tvb_current_offset--;
@@ -927,7 +927,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				}
 				break;
 			case 'F':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -935,7 +935,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				*hf = &hf_mgcp_param_reqinfo;
 				break;
 			case 'Q':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -943,7 +943,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				*hf = &hf_mgcp_param_quarantinehandling;
 				break;
 			case 'T':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -951,7 +951,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 				*hf = &hf_mgcp_param_detectedevents;
 				break;
 			case 'A':
-				if (tvb_get_guint8(tvb,tvb_current_offset+1) != ':')
+				if (tvb_get_guint8(tvb, tvb_current_offset+1) != ':')
 				{
 					*hf = &hf_mgcp_param_invalid;
 					break;
@@ -969,10 +969,10 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 
 		/* Add a recognised parameter type if we have one */
 		if (*hf != NULL && len > (tvb_current_offset - offset) &&
-		    tvb_get_guint8(tvb,tvb_current_offset) == ':')
+		    tvb_get_guint8(tvb, tvb_current_offset) == ':')
 		{
 			tvb_current_offset++;
-			tvb_current_offset = tvb_skip_wsp(tvb,tvb_current_offset, (len - tvb_current_offset + offset));
+			tvb_current_offset = tvb_skip_wsp(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
 			returnvalue = tvb_current_offset;
 
 			/* set the observedEvents or signalReq used in Voip Calls analysis */
@@ -1016,7 +1016,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
  */
 static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gint tvb_current_offset,tvb_previous_offset,tvb_len,tvb_current_len;
+	gint tvb_current_offset, tvb_previous_offset, tvb_len, tvb_current_len;
 	gint tokennum, tokenlen;
 	proto_item* hidden_item;
 	char *transid = NULL;
@@ -1045,7 +1045,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 		do
 		{
-			tvb_current_len = tvb_reported_length_remaining(tvb,tvb_previous_offset);
+			tvb_current_len = tvb_reported_length_remaining(tvb, tvb_previous_offset);
 			tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_current_len, ' ');
 			if (tvb_current_offset == -1)
 			{
@@ -1060,9 +1060,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			{
 				if (tokenlen > 4)
 					THROW(ReportedBoundsError);
-				code = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
-				g_strlcpy(mi->code,code,5);
-				if (is_mgcp_verb(tvb,tvb_previous_offset,tvb_current_len,&verb_description))
+				code = tvb_format_text(tvb, tvb_previous_offset, tokenlen);
+				g_strlcpy(mi->code, code, 5);
+				if (is_mgcp_verb(tvb, tvb_previous_offset, tvb_current_len, &verb_description))
 				{
 					mgcp_type = MGCP_REQUEST;
 					if (verb_description != NULL)
@@ -1077,12 +1077,12 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					                             strlen(code_with_verb) ? code_with_verb : code);
 				}
 				else
-				if (is_mgcp_rspcode(tvb,tvb_previous_offset,tvb_current_len))
+				if (is_mgcp_rspcode(tvb, tvb_previous_offset, tvb_current_len))
 				{
 					mgcp_type = MGCP_RESPONSE;
 					rspcode = atoi(code);
 					mi->rspcode = rspcode;
-					proto_tree_add_uint(tree,hf_mgcp_rsp_rspcode, tvb,
+					proto_tree_add_uint(tree, hf_mgcp_rsp_rspcode, tvb,
 					                    tvb_previous_offset, tokenlen, rspcode);
 				}
 				else
@@ -1092,7 +1092,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			}
 			if (tokennum == 1)
 			{
-				transid = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
+				transid = tvb_format_text(tvb, tvb_previous_offset, tokenlen);
 				/* XXX - what if this isn't a valid text string? */
 				mi->transid = (guint32)strtoul(transid, NULL, 10);
 				proto_tree_add_string(tree, hf_mgcp_transid, tvb,
@@ -1102,9 +1102,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			{
 				if (mgcp_type == MGCP_REQUEST)
 				{
-					endpointId = tvb_format_text(tvb, tvb_previous_offset,tokenlen);
+					endpointId = tvb_format_text(tvb, tvb_previous_offset, tokenlen);
 					mi->endpointId = wmem_strdup(wmem_packet_scope(), endpointId);
-					proto_tree_add_string(tree,hf_mgcp_req_endpoint, tvb,
+					proto_tree_add_string(tree, hf_mgcp_req_endpoint, tvb,
 					                      tvb_previous_offset, tokenlen, endpointId);
 				}
 				else
@@ -1132,15 +1132,15 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				if (tvb_current_offset < tvb_len )
 				{
 					tokenlen = tvb_find_line_end(tvb, tvb_previous_offset,
-					                             -1, &tvb_current_offset,FALSE);
+					                             -1, &tvb_current_offset, FALSE);
 				}
 				else
 				{
 					tokenlen = tvb_current_len;
 				}
-				proto_tree_add_string(tree,hf_mgcp_version, tvb,
+				proto_tree_add_string(tree, hf_mgcp_version, tvb,
 				                      tvb_previous_offset, tokenlen,
-				                      tvb_format_text(tvb,tvb_previous_offset,
+				                      tvb_format_text(tvb, tvb_previous_offset,
 				                      tokenlen));
 				break;
 			}
@@ -1207,7 +1207,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							mi->request_available = TRUE;
 							mgcp_call->responded = TRUE;
 							mi->req_num = mgcp_call->req_num;
-							g_strlcpy(mi->code,mgcp_call->code,5);
+							g_strlcpy(mi->code, mgcp_call->code, 5);
 							item = proto_tree_add_uint_format(tree, hf_mgcp_req_frame,
 							                                  tvb, 0, 0, mgcp_call->req_num,
 							                                  "This is a response to a request in frame %u",
@@ -1241,7 +1241,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 								if (tree)
 								{
 									proto_item* item;
-									item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0,0, mi->transid);
+									item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0, 0, mi->transid);
 									PROTO_ITEM_SET_HIDDEN(item);
 									item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup,
 									                           tvb, 0, 0, mi->transid);
@@ -1334,11 +1334,11 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 						if (tree)
 						{
 							proto_item* item;
-							item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0,0, mi->transid);
+							item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0, 0, mi->transid);
 							PROTO_ITEM_SET_HIDDEN(item);
-							item = proto_tree_add_uint(tree, hf_mgcp_req_dup, tvb, 0,0, mi->transid);
+							item = proto_tree_add_uint(tree, hf_mgcp_req_dup, tvb, 0, 0, mi->transid);
 							PROTO_ITEM_SET_GENERATED(item);
-							item = proto_tree_add_uint(tree, hf_mgcp_req_dup_frame, tvb, 0,0, mi->req_num);
+							item = proto_tree_add_uint(tree, hf_mgcp_req_dup_frame, tvb, 0, 0, mi->req_num);
 							PROTO_ITEM_SET_GENERATED(item);
 						}
 					}
@@ -1358,7 +1358,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					mgcp_call->transid   = mi->transid;
 					mgcp_call->responded = FALSE;
 					mgcp_call->req_time=pinfo->fd->abs_ts;
-					g_strlcpy(mgcp_call->code,mi->code,5);
+					g_strlcpy(mgcp_call->code, mi->code, 5);
 
 					/* Store it */
 					g_hash_table_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);
@@ -1422,30 +1422,30 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 		while (tvb_lineend < tvb_len)
 		{
 			old_lineend = tvb_lineend;
-			linelen = tvb_find_line_end(tvb, tvb_linebegin, -1,&tvb_lineend,FALSE);
+			linelen = tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, FALSE);
 			tvb_tokenbegin = tvb_parse_param(tvb, tvb_linebegin, linelen, &my_param);
 
 			if (my_param)
 			{
 				if (*my_param == hf_mgcp_param_connectionparam)
 				{
-					tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
+					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
 					dissect_mgcp_connectionparams(mgcp_param_tree, tvb, tvb_linebegin,
 					                              tvb_tokenbegin - tvb_linebegin, tokenlen);
 				}
 				else
 				if (*my_param == hf_mgcp_param_localconnoptions)
 				{
-					tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
+					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
 					dissect_mgcp_localconnectionoptions(mgcp_param_tree, tvb, tvb_linebegin,
 					                                    tvb_tokenbegin - tvb_linebegin, tokenlen);
 				}
 				else
 				{
-					tokenlen = tvb_find_line_end(tvb,tvb_tokenbegin,-1,&tvb_lineend,FALSE);
-					proto_tree_add_string(mgcp_param_tree,*my_param, tvb,
+					tokenlen = tvb_find_line_end(tvb, tvb_tokenbegin, -1, &tvb_lineend, FALSE);
+					proto_tree_add_string(mgcp_param_tree, *my_param, tvb,
 					                      tvb_linebegin, linelen,
-					                      tvb_format_text(tvb,tvb_tokenbegin, tokenlen));
+					                      tvb_format_text(tvb, tvb_tokenbegin, tokenlen));
 				}
 			}
 
@@ -1464,18 +1464,14 @@ static void
 dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len)
 {
 	proto_tree *tree = parent_tree;
-	proto_item *item = NULL;
 
-	gchar *tokenline = NULL;
-	gchar **tokens = NULL;
-	gchar **typval = NULL;
-	guint i = 0;
-	guint tokenlen = 0;
-	int hf_uint = -1;
-	int hf_string = -1;
+	gchar *tokenline;
+	gchar **tokens;
+	guint i;
 
 	if (parent_tree)
 	{
+		proto_item *item;
 		item = proto_tree_add_item(parent_tree, hf_mgcp_param_connectionparam, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
 		tree = proto_item_add_subtree(item, ett_mgcp_param_connectionparam);
 	}
@@ -1489,6 +1485,11 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 
 	for (i = 0; tokens[i] != NULL; i++)
 	{
+		gchar **typval;
+		guint tokenlen;
+		int hf_uint = -1;
+		int hf_string = -1;
+
 		tokenlen = (int)strlen(tokens[i]);
 		typval = wmem_strsplit(wmem_packet_scope(), tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
@@ -1576,18 +1577,14 @@ static void
 dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint offset, gint param_type_len, gint param_val_len)
 {
 	proto_tree *tree = parent_tree;
-	proto_item *item = NULL;
 
-	gchar *tokenline = NULL;
-	gchar **tokens = NULL;
-	gchar **typval = NULL;
-	guint i = 0;
-	guint tokenlen = 0;
-	int hf_uint = -1;
-	int hf_string = -1;
+	gchar *tokenline;
+	gchar **tokens;
+	guint i;
 
 	if (parent_tree)
 	{
+		proto_item *item;
 		item = proto_tree_add_item(parent_tree, hf_mgcp_param_localconnoptions, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
 		tree = proto_item_add_subtree(item, ett_mgcp_param_localconnectionoptions);
 	}
@@ -1600,6 +1597,11 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 	tokens = wmem_strsplit(wmem_packet_scope(), tokenline, ",", -1);
 	for (i = 0; tokens[i] != NULL; i++)
 	{
+		gchar **typval;
+		guint tokenlen;
+		int hf_uint;
+		int hf_string;
+
 		hf_uint = -1;
 		hf_string = -1;
 
@@ -1762,7 +1764,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
  */
 static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_offset)
 {
-	gint tvb_lineend,tvb_current_len,tvb_linebegin,maxoffset;
+	gint tvb_lineend, tvb_current_len, tvb_linebegin, maxoffset;
 	guint tempchar;
 
 	tvb_linebegin = offset;
@@ -1775,7 +1777,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
 	}
 	else
 	{
-		tvb_current_len = tvb_reported_length_remaining(tvb,offset);
+		tvb_current_len = tvb_reported_length_remaining(tvb, offset);
 	}
 
 	maxoffset = (tvb_current_len - 1) + offset;
@@ -1785,9 +1787,9 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
 	do
 	{
 		tvb_linebegin = tvb_lineend;
-		tvb_current_len = tvb_reported_length_remaining(tvb,tvb_linebegin);
-		tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend,FALSE);
-		tempchar = tvb_get_guint8(tvb,tvb_linebegin);
+		tvb_current_len = tvb_reported_length_remaining(tvb, tvb_linebegin);
+		tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend, FALSE);
+		tempchar = tvb_get_guint8(tvb, tvb_linebegin);
 	} while (tempchar != '\r' && tempchar != '\n' && tvb_lineend <= maxoffset);
 
 
@@ -1799,7 +1801,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
 	}
 	else
 	{
-		tvb_current_len = tvb_reported_length_remaining(tvb,offset);
+		tvb_current_len = tvb_reported_length_remaining(tvb, offset);
 	}
 
 	return tvb_current_len;
@@ -1828,7 +1830,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
  */
 static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_offset)
 {
-	gint tvb_current_offset, tvb_current_len, maxoffset,tvb_len;
+	gint tvb_current_offset, tvb_current_len, maxoffset, tvb_len;
 	guint8 tempchar;
 	tvb_current_len = len;
 	tvb_len = tvb_reported_length(tvb);
@@ -1858,7 +1860,7 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 		/* Do we have and characters following the . ? */
 		if (tvb_current_offset < maxoffset)
 		{
-			tempchar = tvb_get_guint8(tvb,tvb_current_offset+1);
+			tempchar = tvb_get_guint8(tvb, tvb_current_offset+1);
 			/* Are the characters that follow the dot a newline or carriage return ? */
 			if (tempchar == '\r' || tempchar == '\n')
 			{
@@ -1869,7 +1871,7 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 				}
 				else
 				{
-					tempchar = tvb_get_guint8(tvb,tvb_current_offset-1);
+					tempchar = tvb_get_guint8(tvb, tvb_current_offset-1);
 
 					/* Are the characters that follow the dot a newline or a
 					   carriage return ? */
@@ -1889,7 +1891,7 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 			}
 			else
 			{
-				tempchar = tvb_get_guint8(tvb,tvb_current_offset-1);
+				tempchar = tvb_get_guint8(tvb, tvb_current_offset-1);
 				if (tempchar == '\r' || tempchar == '\n')
 				{
 					break;
@@ -1910,7 +1912,7 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 	}
 	else
 	{
-		tvb_find_line_end(tvb,tvb_current_offset,tvb_current_len,next_offset,FALSE);
+		tvb_find_line_end(tvb, tvb_current_offset, tvb_current_len, next_offset, FALSE);
 	}
 
 	if (tvb_current_offset == offset)

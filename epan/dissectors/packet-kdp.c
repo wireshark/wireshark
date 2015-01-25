@@ -78,151 +78,147 @@ static int hf_kdp_dup_flag = -1;
 static void dissect_kdp(tvbuff_t *tvb,
                         packet_info *pinfo,
                         proto_tree *tree) {
+  proto_item *ti;
+  proto_tree *kdp_tree;
   guint body_len;
-  guint8 version = 0;
+  guint8 version;
   guint8 header_len = 0;
   guint8 packet_flags = 0;
   guint8 packet_errors = 0;
   guint32 sequence_number = G_MAXUINT32;
   guint32 ack_number = G_MAXUINT32;
   guint32 src_flowid = G_MAXUINT32;
-  int offset;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDP");
   col_clear(pinfo->cinfo, COL_INFO);
-  /* if (tree) */ {
-    proto_item *ti;
-    proto_tree *kdp_tree, *flags_tree;
-    ti = NULL;
-    kdp_tree = NULL;
-    flags_tree = NULL;
 
-    ti = proto_tree_add_item(tree, proto_kdp, tvb, 0, -1, ENC_NA);
-    kdp_tree = proto_item_add_subtree(ti, ett_kdp);
+  ti = proto_tree_add_item(tree, proto_kdp, tvb, 0, -1, ENC_NA);
+  kdp_tree = proto_item_add_subtree(ti, ett_kdp);
 
-    version = tvb_get_guint8(tvb, 0);
-    if (version != 2) {
-      /* Version other than 2 is really SDDP in UDP */
-      proto_tree_add_item(kdp_tree, hf_kdp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(kdp_tree, hf_kdp_xml_body, tvb, 0, -1, ENC_ASCII|ENC_NA);
+  version = tvb_get_guint8(tvb, 0);
+  if (version != 2) {
+    /* Version other than 2 is really SDDP in UDP */
+    proto_tree_add_item(kdp_tree, hf_kdp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdp_tree, hf_kdp_xml_body, tvb, 0, -1, ENC_ASCII|ENC_NA);
+  } else {
+    proto_tree *flags_tree;
+    header_len = tvb_get_guint8(tvb, 1) * 4;
+    body_len = tvb_reported_length(tvb);
+    if (header_len > body_len) {
+      body_len = 0;           /* malformed packet */
     } else {
-      header_len = tvb_get_guint8(tvb, 1) * 4;
-      body_len = tvb_reported_length(tvb);
-      if (header_len > body_len) {
-        body_len = 0;           /* malformed packet */
-      } else {
-        body_len = body_len - header_len;
-      }
-      packet_flags = tvb_get_guint8(tvb, 2);
-      packet_errors = tvb_get_guint8(tvb, 3);
-      proto_tree_add_item(kdp_tree, hf_kdp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(kdp_tree, hf_kdp_headerlen, tvb, 1, 1, ENC_BIG_ENDIAN);
-      ti = proto_tree_add_item(kdp_tree, hf_kdp_flags, tvb, 2, 1, ENC_BIG_ENDIAN);
-      flags_tree = proto_item_add_subtree(ti, ett_kdp_flags);
+      body_len = body_len - header_len;
+    }
+    packet_flags = tvb_get_guint8(tvb, 2);
+    packet_errors = tvb_get_guint8(tvb, 3);
+    proto_tree_add_item(kdp_tree, hf_kdp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdp_tree, hf_kdp_headerlen, tvb, 1, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(kdp_tree, hf_kdp_flags, tvb, 2, 1, ENC_BIG_ENDIAN);
+    flags_tree = proto_item_add_subtree(ti, ett_kdp_flags);
 
-      proto_tree_add_item(flags_tree, hf_kdp_drop_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_kdp_syn_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_kdp_ack_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_kdp_rst_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_kdp_bcst_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(flags_tree, hf_kdp_dup_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_kdp_drop_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_kdp_syn_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_kdp_ack_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_kdp_rst_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_kdp_bcst_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_kdp_dup_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-      proto_tree_add_item(kdp_tree, hf_kdp_errors, tvb, 3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdp_tree, hf_kdp_errors, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-      if (header_len > 4) {
-        offset = 4;
-        if (packet_flags & KDP_ACK_FLAG) {
-          proto_tree_add_item(kdp_tree, hf_kdp_destflowid, tvb, offset, 4, ENC_BIG_ENDIAN);
-          offset = offset + 4;
-        }
-
-        if (packet_flags & (KDP_SYN_FLAG | KDP_BCST_FLAG)) {
-          proto_tree_add_item(kdp_tree, hf_kdp_srcflowid, tvb, offset, 4, ENC_BIG_ENDIAN);
-          src_flowid = tvb_get_ntohl(tvb, offset);
-          offset = offset + 4;
-        }
-
-        proto_tree_add_item(kdp_tree, hf_kdp_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
-        sequence_number = tvb_get_ntohl(tvb, offset);
+    if (header_len > 4) {
+      int offset;
+      offset = 4;
+      if (packet_flags & KDP_ACK_FLAG) {
+        proto_tree_add_item(kdp_tree, hf_kdp_destflowid, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset = offset + 4;
+      }
 
-        if (packet_flags & KDP_ACK_FLAG) {
-          proto_tree_add_item(kdp_tree, hf_kdp_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
-          ack_number = tvb_get_ntohl(tvb, offset);
-          offset = offset + 4;
-        }
-        if (packet_flags & KDP_SYN_FLAG) {
-          proto_tree_add_item(kdp_tree, hf_kdp_maxsegmentsize, tvb, offset, 4, ENC_BIG_ENDIAN);
-          offset = offset + 4;
-        }
+      if (packet_flags & (KDP_SYN_FLAG | KDP_BCST_FLAG)) {
+        proto_tree_add_item(kdp_tree, hf_kdp_srcflowid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        src_flowid = tvb_get_ntohl(tvb, offset);
+        offset = offset + 4;
+      }
 
-        while (offset < ((body_len > 0) ? header_len - 4 : header_len)) {
-          guint8 option_number;
-          guint8 option_len = 0;
+      proto_tree_add_item(kdp_tree, hf_kdp_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
+      sequence_number = tvb_get_ntohl(tvb, offset);
+      offset = offset + 4;
 
-          option_number = tvb_get_guint8(tvb, offset);
+      if (packet_flags & KDP_ACK_FLAG) {
+        proto_tree_add_item(kdp_tree, hf_kdp_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ack_number = tvb_get_ntohl(tvb, offset);
+        offset = offset + 4;
+      }
+      if (packet_flags & KDP_SYN_FLAG) {
+        proto_tree_add_item(kdp_tree, hf_kdp_maxsegmentsize, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset = offset + 4;
+      }
 
-          proto_tree_add_item(kdp_tree, hf_kdp_optionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
+      while (offset < ((body_len > 0) ? header_len - 4 : header_len)) {
+        guint8 option_number;
+        guint8 option_len = 0;
+
+        option_number = tvb_get_guint8(tvb, offset);
+
+        proto_tree_add_item(kdp_tree, hf_kdp_optionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset = offset + 1;
+        if (option_number > 0) {
+          option_len = tvb_get_guint8(tvb, offset);
+          proto_tree_add_item(kdp_tree, hf_kdp_optionlen, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset = offset + 1;
-          if (option_number > 0) {
-            option_len = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(kdp_tree, hf_kdp_optionlen, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset = offset + 1;
-          }
-
-          switch (option_number) {
-          case 0:
-            break;
-          case 1:
-            proto_tree_add_item(kdp_tree, hf_kdp_option1, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset = offset + 2;
-            break;
-          case 2:
-            proto_tree_add_item(kdp_tree, hf_kdp_option2, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset = offset + 2;
-            break;
-          case 3:
-            proto_tree_add_item(kdp_tree, hf_kdp_option3, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset = offset + 2;
-            break;
-          case 4:
-            proto_tree_add_item(kdp_tree, hf_kdp_option4, tvb, offset, 0, ENC_NA);
-            break;
-          case 5:
-            proto_tree_add_item(kdp_tree, hf_kdp_option5, tvb, offset, 0, ENC_NA);
-            break;
-          case 6:
-            proto_tree_add_item(kdp_tree, hf_kdp_option6, tvb, offset, option_len - 2, ENC_NA);
-            offset = offset + option_len - 2;
-            break;
-          case 7:
-            proto_tree_add_item(kdp_tree, hf_kdp_option7, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset = offset + 2;
-            break;
-          case 8:
-            proto_tree_add_item(kdp_tree, hf_kdp_option8, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset = offset + 2;
-            break;
-          case 9:
-            proto_tree_add_item(kdp_tree, hf_kdp_option9, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset = offset + 2;
-            break;
-          default:
-            proto_tree_add_item(kdp_tree, hf_kdp_option_unknown, tvb, offset, option_len - 2, ENC_NA);
-            offset = offset + option_len - 2;
-            break;
-          }
         }
 
-        if (body_len > 0) {
-          proto_tree_add_item(kdp_tree, hf_kdp_fragment, tvb, offset, 2, ENC_BIG_ENDIAN);
+        switch (option_number) {
+        case 0:
+          break;
+        case 1:
+          proto_tree_add_item(kdp_tree, hf_kdp_option1, tvb, offset, 2, ENC_BIG_ENDIAN);
           offset = offset + 2;
-
-          proto_tree_add_item(kdp_tree, hf_kdp_fragtotal, tvb, offset, 2, ENC_BIG_ENDIAN);
+          break;
+        case 2:
+          proto_tree_add_item(kdp_tree, hf_kdp_option2, tvb, offset, 2, ENC_BIG_ENDIAN);
           offset = offset + 2;
-
-          proto_tree_add_item(kdp_tree, hf_kdp_body, tvb, offset, -1, ENC_NA);
+          break;
+        case 3:
+          proto_tree_add_item(kdp_tree, hf_kdp_option3, tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset = offset + 2;
+          break;
+        case 4:
+          proto_tree_add_item(kdp_tree, hf_kdp_option4, tvb, offset, 0, ENC_NA);
+          break;
+        case 5:
+          proto_tree_add_item(kdp_tree, hf_kdp_option5, tvb, offset, 0, ENC_NA);
+          break;
+        case 6:
+          proto_tree_add_item(kdp_tree, hf_kdp_option6, tvb, offset, option_len - 2, ENC_NA);
+          offset = offset + option_len - 2;
+          break;
+        case 7:
+          proto_tree_add_item(kdp_tree, hf_kdp_option7, tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset = offset + 2;
+          break;
+        case 8:
+          proto_tree_add_item(kdp_tree, hf_kdp_option8, tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset = offset + 2;
+          break;
+        case 9:
+          proto_tree_add_item(kdp_tree, hf_kdp_option9, tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset = offset + 2;
+          break;
+        default:
+          proto_tree_add_item(kdp_tree, hf_kdp_option_unknown, tvb, offset, option_len - 2, ENC_NA);
+          offset = offset + option_len - 2;
+          break;
         }
+      }
+
+      if (body_len > 0) {
+        proto_tree_add_item(kdp_tree, hf_kdp_fragment, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset = offset + 2;
+
+        proto_tree_add_item(kdp_tree, hf_kdp_fragtotal, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset = offset + 2;
+
+        proto_tree_add_item(kdp_tree, hf_kdp_body, tvb, offset, -1, ENC_NA);
       }
     }
   }

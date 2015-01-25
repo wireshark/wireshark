@@ -952,7 +952,7 @@ static void
 dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *edp_tree = NULL;
+	proto_tree *edp_tree;
 	proto_item *checksum_item;
 	proto_tree *checksum_tree;
 	guint32 offset = 0;
@@ -1059,7 +1059,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (tlv_type) {
 		case EDP_TYPE_NULL: /* Last TLV */
 			dissect_null_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
-			last = 1;
+			last = TRUE;
 			break;
 		case EDP_TYPE_DISPLAY: /* MIB II display string */
 			dissect_display_tlv(tvb, pinfo, offset, tlv_length, edp_tree);

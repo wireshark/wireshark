@@ -6625,7 +6625,7 @@ getprefix(const guint32 *addr, int prefix)
 static void
 netflow_init(void)
 {
-    /* keys & values are "se allocated"; se memory is freed as part of the init sequence */
+    /* keys & values are allocated using 'wmem_file_scope()' as thus freed as part of the init sequence */
     if (v9_v10_tmplt_table != NULL) {
         g_hash_table_destroy(v9_v10_tmplt_table);
     }
