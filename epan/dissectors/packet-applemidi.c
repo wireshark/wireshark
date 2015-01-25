@@ -132,7 +132,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
 	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", val_to_str( command, applemidi_commands, applemidi_unknown_command ) );
 
-	if ( tree ) {
+	/* if ( tree ) */ {
 		proto_item *ti;
 		ti = proto_tree_add_item( tree, proto_applemidi, tvb, 0, -1, ENC_NA  );
 		applemidi_tree = proto_item_add_subtree( ti, ett_applemidi );
