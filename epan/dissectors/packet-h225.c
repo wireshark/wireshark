@@ -52,7 +52,6 @@
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "packet-h225.h"
-#include <epan/h225-persistentdata.h>
 #include "packet-h235.h"
 #include "packet-h245.h"
 #include "packet-h323.h"
@@ -71,11 +70,39 @@
 
 void proto_register_h225(void);
 static void reset_h225_packet_info(h225_packet_info *pi);
+static void h225_init_routine(void);
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi);
+
+/* Item of ras request list*/
+typedef struct _h225ras_call_t {
+	guint32 requestSeqNum;
+	e_guid_t guid;
+	guint32	req_num;	/* frame number request seen */
+	guint32	rsp_num;	/* frame number response seen */
+	nstime_t req_time;	/* arrival time of request */
+	gboolean responded;	/* true, if request has been responded */
+	struct _h225ras_call_t *next_call; /* pointer to next ras request with same SequenceNumber and conversation handle */
+} h225ras_call_t;
+
+
+/* Item of ras-request key list*/
+typedef struct _h225ras_call_info_key {
+	guint	reqSeqNum;
+	conversation_t *conversation;
+} h225ras_call_info_key;
 
 static h225_packet_info pi_arr[5]; /* We assuming a maximum of 5 H225 messaages per packet */
 static int pi_current=0;
-h225_packet_info *h225_pi=&pi_arr[0];
+static h225_packet_info *h225_pi=&pi_arr[0];
+
+/* Global Memory Chunks for lists and Global hash tables*/
+
+static GHashTable *ras_calls[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+
+/* functions, needed using ras-request and halfcall matching*/
+static h225ras_call_t * find_h225ras_call(h225ras_call_info_key *h225ras_call_key ,int category);
+static h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packet_info *pinfo, e_guid_t *guid, int category);
+static h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pinfo, e_guid_t *guid, int category);
 
 static dissector_handle_t data_handle;
 /* Subdissector tables */
@@ -882,7 +909,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 103 "../../asn1/h225/packet-h225-template.c"
+#line 130 "../../asn1/h225/packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1130,7 +1157,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 107 "../../asn1/h225/packet-h225-template.c"
+#line 134 "../../asn1/h225/packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -7510,11 +7537,118 @@ static int dissect_RasMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 131 "../../asn1/h225/packet-h225-template.c"
+#line 158 "../../asn1/h225/packet-h225-template.c"
 
 
 /* Forward declaration we need below */
 void proto_reg_handoff_h225(void);
+
+/*
+ * Functions needed for Ras-Hash-Table
+ */
+
+/* compare 2 keys */
+static gint h225ras_call_equal(gconstpointer k1, gconstpointer k2)
+{
+	const h225ras_call_info_key* key1 = (const h225ras_call_info_key*) k1;
+	const h225ras_call_info_key* key2 = (const h225ras_call_info_key*) k2;
+
+	return (key1->reqSeqNum == key2->reqSeqNum &&
+	    key1->conversation == key2->conversation);
+}
+
+/* calculate a hash key */
+static guint h225ras_call_hash(gconstpointer k)
+{
+	const h225ras_call_info_key* key = (const h225ras_call_info_key*) k;
+
+	return key->reqSeqNum + GPOINTER_TO_UINT(key->conversation);
+}
+
+
+h225ras_call_t * find_h225ras_call(h225ras_call_info_key *h225ras_call_key ,int category)
+{
+	h225ras_call_t *h225ras_call = NULL;
+	h225ras_call = (h225ras_call_t *)g_hash_table_lookup(ras_calls[category], h225ras_call_key);
+
+	return h225ras_call;
+}
+
+h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packet_info *pinfo, e_guid_t *guid, int category)
+{
+	h225ras_call_info_key *new_h225ras_call_key;
+	h225ras_call_t *h225ras_call = NULL;
+
+
+	/* Prepare the value data.
+	   "req_num" and "rsp_num" are frame numbers;
+	   frame numbers are 1-origin, so we use 0
+	   to mean "we don't yet know in which frame
+	   the reply for this call appears". */
+	new_h225ras_call_key = wmem_new(wmem_file_scope(), h225ras_call_info_key);
+	new_h225ras_call_key->reqSeqNum = h225ras_call_key->reqSeqNum;
+	new_h225ras_call_key->conversation = h225ras_call_key->conversation;
+	h225ras_call = wmem_new(wmem_file_scope(), h225ras_call_t);
+	h225ras_call->req_num = pinfo->fd->num;
+	h225ras_call->rsp_num = 0;
+	h225ras_call->requestSeqNum = h225ras_call_key->reqSeqNum;
+	h225ras_call->responded = FALSE;
+	h225ras_call->next_call = NULL;
+	h225ras_call->req_time=pinfo->fd->abs_ts;
+	h225ras_call->guid=*guid;
+	/* store it */
+	g_hash_table_insert(ras_calls[category], new_h225ras_call_key, h225ras_call);
+
+	return h225ras_call;
+}
+
+h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pinfo, e_guid_t *guid, int category _U_)
+{
+	h225ras_call_t *h225ras_call = NULL;
+
+	/* Prepare the value data.
+	   "req_num" and "rsp_num" are frame numbers;
+	   frame numbers are 1-origin, so we use 0
+	   to mean "we don't yet know in which frame
+	   the reply for this call appears". */
+	h225ras_call = wmem_new(wmem_file_scope(), h225ras_call_t);
+	h225ras_call->req_num = pinfo->fd->num;
+	h225ras_call->rsp_num = 0;
+	h225ras_call->requestSeqNum = prev_call->requestSeqNum;
+	h225ras_call->responded = FALSE;
+	h225ras_call->next_call = NULL;
+	h225ras_call->req_time=pinfo->fd->abs_ts;
+	h225ras_call->guid=*guid;
+
+	prev_call->next_call = h225ras_call;
+	return h225ras_call;
+}
+
+/* Init routine for hash tables and delay calculation
+   This routine will be called by Wireshark, before it
+   is (re-)dissecting a trace file from beginning.
+   We need to discard and init any state we've saved */
+
+void
+h225_init_routine(void)
+{
+	int i;
+
+	/* free hash-tables for RAS SRT */
+	for(i=0;i<7;i++) {
+		if (ras_calls[i] != NULL) {
+			g_hash_table_destroy(ras_calls[i]);
+			ras_calls[i] = NULL;
+		}
+	}
+
+	/* create new hash-tables for RAS SRT */
+
+	for(i=0;i<7;i++) {
+		ras_calls[i] = g_hash_table_new(h225ras_call_hash, h225ras_call_equal);
+	}
+
+}
 
 static int
 dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -7592,8 +7726,8 @@ void proto_register_h225(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 	{ &hf_h221Manufacturer,
-		{ "H.221 Manufacturer", "h221.Manufacturer", FT_UINT32, BASE_HEX,
-		VALS(H221ManufacturerCode_vals), 0, NULL, HFILL }},
+		{ "H.225 Manufacturer", "h225.Manufacturer", FT_UINT32, BASE_HEX,
+		VALS(H221ManufacturerCode_vals), 0, "h225.H.221 Manufacturer", HFILL }},
 	{ &hf_h225_ras_req_frame,
       		{ "RAS Request Frame", "h225.ras.reqframe", FT_FRAMENUM, BASE_NONE,
       		NULL, 0, NULL, HFILL }},
@@ -10695,7 +10829,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 231 "../../asn1/h225/packet-h225-template.c"
+#line 365 "../../asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10945,7 +11079,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 237 "../../asn1/h225/packet-h225-template.c"
+#line 371 "../../asn1/h225/packet-h225-template.c"
   };
   module_t *h225_module;
 

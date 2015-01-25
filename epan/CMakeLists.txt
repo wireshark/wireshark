@@ -1592,7 +1592,6 @@ set(LIBWIRESHARK_FILES
 	geoip_db.c
 	golay.c
 	guid-utils.c
-	h225-persistentdata.c
 	in_cksum.c
 	ipproto.c
 	ipv4.c
