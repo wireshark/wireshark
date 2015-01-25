@@ -4260,7 +4260,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
 }
 
 static guint
-get_ndps_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_ndps_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohs(tvb, offset +2) + 4;
 }

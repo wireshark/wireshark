@@ -2159,7 +2159,7 @@ classify_packet(packet_info *pinfo)
 }
 
 static guint
-get_enip_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_enip_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
    guint16 plen;
 

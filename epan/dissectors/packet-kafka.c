@@ -153,7 +153,7 @@ dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 /* HELPERS */
 
 static guint
-get_kafka_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_kafka_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return 4 + tvb_get_ntohl(tvb, offset);
 }

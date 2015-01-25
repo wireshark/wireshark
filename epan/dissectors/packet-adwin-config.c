@@ -309,7 +309,8 @@ dissect_UDPOut(tvbuff_t *tvb, proto_tree *adwin_tree)
 }
 
 static guint
-get_adwin_TCPUpdate_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_adwin_TCPUpdate_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                        int offset, void *data _U_)
 {
 	/*
 	 * Return the length of the packet. (Doesn't include the length field itself)

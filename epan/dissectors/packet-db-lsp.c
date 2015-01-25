@@ -138,7 +138,8 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 static guint
-get_db_lsp_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_db_lsp_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb,
+                    int offset, void *data _U_)
 {
   if (tvb_get_ntohs (tvb, offset + 1) != 0x0301) {
     /* Unknown data, eat remaining data for this frame */

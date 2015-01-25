@@ -636,7 +636,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 static guint
-get_ancp_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_ancp_msg_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return (guint)tvb_get_ntohs(tvb, offset + 2) + 4; /* 2B len + 4B hdr */
 }

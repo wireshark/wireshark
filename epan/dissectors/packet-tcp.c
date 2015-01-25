@@ -2327,7 +2327,7 @@ again:
 void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  gboolean proto_desegment, guint fixed_len,
-                 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int),
+                 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
                  new_dissector_t dissect_pdu, void* dissector_data)
 {
     volatile int offset = 0;
@@ -2378,7 +2378,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Get the length of the PDU.
          */
-        plen = (*get_pdu_len)(pinfo, tvb, offset);
+        plen = (*get_pdu_len)(pinfo, tvb, offset, dissector_data);
         if (plen < fixed_len) {
             /*
              * Either:

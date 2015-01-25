@@ -138,7 +138,7 @@ static gint ett_wow = -1;
 static gint ett_wow_realms = -1;
 
 static guint
-get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
+get_wow_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	gint8 size_field_offset = -1;
 	guint8 cmd;

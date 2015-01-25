@@ -103,7 +103,8 @@ static gboolean xot_desegment = TRUE;
 /* desegmentation of X.25 packet sequences */
 static gboolean x25_desegment = FALSE;
 
-static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                             int offset, void *data _U_)
 {
    guint16 plen;
    int remain = tvb_length_remaining(tvb, offset);
@@ -119,7 +120,8 @@ static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
    return XOT_HEADER_LENGTH + plen;
 }
 
-static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                  int offset, void *data _U_)
 {
    int offset_before = offset; /* offset where we start this test */
    int offset_next = offset + XOT_HEADER_LENGTH + X25_MIN_HEADER_LENGTH;
@@ -143,7 +145,7 @@ static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb, int off
       /*
        * Get the length of the current X.25-over-TCP packet.
        */
-      plen = get_xot_pdu_len(pinfo, tvb, offset);
+      plen = get_xot_pdu_len(pinfo, tvb, offset, NULL);
       offset_next = offset + plen;
 
       /* Make sure we have enough data */
@@ -277,7 +279,7 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
    int offset = 0;
-   int len = get_xot_pdu_len_mult(pinfo, tvb, offset);
+   int len = get_xot_pdu_len_mult(pinfo, tvb, offset, NULL);
    tvbuff_t   *next_tvb;
    int offset_max = offset+MIN(len,tvb_length_remaining(tvb, offset));
    proto_item *ti;
@@ -292,7 +294,7 @@ static int dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    }
 
    while (offset <= offset_max - XOT_HEADER_LENGTH){
-      int plen = get_xot_pdu_len(pinfo, tvb, offset);
+      int plen = get_xot_pdu_len(pinfo, tvb, offset, NULL);
       next_tvb = tvb_new_subset(tvb, offset,plen, plen);
                                 /*MIN(plen,tvb_length_remaining(tvb, offset)),plen*/
 
@@ -315,14 +317,14 @@ static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                        XOT_HEADER_LENGTH,
                        get_xot_pdu_len,
                        dissect_xot_pdu, data);
-      len=get_xot_pdu_len(pinfo, tvb, 0);
+      len=get_xot_pdu_len(pinfo, tvb, 0, NULL);
    } else {
       /* Use length version that "peeks" into X25, possibly several XOT packets */
       tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
                        XOT_HEADER_LENGTH,
                        get_xot_pdu_len_mult,
                        dissect_xot_mult, data);
-      len=get_xot_pdu_len_mult(pinfo, tvb, 0);
+      len=get_xot_pdu_len_mult(pinfo, tvb, 0, NULL);
    }
    /*As tcp_dissect_pdus will not report the success/failure, we have to compute
      again */

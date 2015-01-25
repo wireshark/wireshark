@@ -2182,7 +2182,7 @@ dissector_handle_t skinny_handle;
 
 /* Get the length of a single SCCP PDU */
 static guint
-get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   guint32 hdr_data_length;
 

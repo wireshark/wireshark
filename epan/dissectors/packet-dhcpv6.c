@@ -1997,7 +1997,8 @@ dissect_dhcpv6_upstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static guint
-get_dhcpv6_bulk_leasequery_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_dhcpv6_bulk_leasequery_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                   int offset, void *data _U_)
 {
     return (tvb_get_ntohs(tvb, offset)+2);
 }

@@ -562,7 +562,8 @@ static int dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 /* callback for 'tcp_dissect_pdus()' to give it the length of the frame */
-static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
+                            int offset, void *data _U_)
 {
 	return tvb_get_ntohs(tvb, offset + 2);
 }

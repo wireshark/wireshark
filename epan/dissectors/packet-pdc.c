@@ -376,7 +376,8 @@ static int dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 /* function to provide TCP split packet combiner with size of packet */
-static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                 int offset, void *data _U_)
 {
 	guint  size;
 	guint  extra;

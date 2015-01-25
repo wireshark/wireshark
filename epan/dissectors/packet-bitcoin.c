@@ -385,7 +385,8 @@ static expert_field ei_bitcoin_command_unknown = EI_INIT;
 static gboolean bitcoin_desegment  = TRUE;
 
 static guint
-get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
+                       int offset, void *data _U_)
 {
   guint32 length;
   length = BITCOIN_HEADER_LENGTH;

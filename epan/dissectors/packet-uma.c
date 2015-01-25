@@ -1675,7 +1675,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 static guint
-get_uma_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_uma_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/* PDU length = Message length + length of length indicator */
 	return tvb_get_ntohs(tvb,offset)+2;

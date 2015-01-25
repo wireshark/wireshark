@@ -96,7 +96,8 @@ static const value_string types[] = {
 };
 
 static guint
-get_reload_framing_message_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_reload_framing_message_length(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                  int offset, void *data _U_)
 {
   /* Get the type */
   guint32 length = 9;

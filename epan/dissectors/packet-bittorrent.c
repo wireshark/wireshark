@@ -257,7 +257,8 @@ static struct client_information peer_id[] = {
 };
 
 static guint
-get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
+                          int offset, void *data _U_)
 {
    guint8  type;
    guint32 length;

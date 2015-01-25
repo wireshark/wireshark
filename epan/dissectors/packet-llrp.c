@@ -2702,7 +2702,7 @@ dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
 /* Determine length of LLRP message */
 static guint
-get_llrp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_llrp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* Peek into the header to determine the total message length */
     return (guint)tvb_get_ntohl(tvb, offset+2);

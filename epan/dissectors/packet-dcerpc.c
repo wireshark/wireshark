@@ -5094,11 +5094,13 @@ dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 static guint
-get_dcerpc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
+get_dcerpc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                   int offset _U_, void *data _U_)
 {
     guint8 drep[4];
     guint16 frag_len;
 
+    /* XXX: why does htis not take offset into account? */
     tvb_memcpy(tvb, (guint8 *)drep, 4, sizeof(drep));
     frag_len = dcerpc_tvb_get_ntohs(tvb, 8, drep);
 

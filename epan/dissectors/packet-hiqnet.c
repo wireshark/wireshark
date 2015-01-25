@@ -993,7 +993,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
 
 static guint
-get_hiqnet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_hiqnet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* length is at offset + 2 */
     return tvb_get_ntohl(tvb, offset + 2);
@@ -1021,7 +1021,7 @@ dissect_hiqnet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     /* loop on (possibly multiple) hiqnet PDUs in UDP payload */
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        plen = get_hiqnet_pdu_len(pinfo, tvb, offset);
+        plen = get_hiqnet_pdu_len(pinfo, tvb, offset, NULL);
         captured_length = tvb_captured_length_remaining(tvb, offset);
 
         if (captured_length > plen)

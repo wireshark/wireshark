@@ -236,7 +236,9 @@ static value_string_ext responseTypes_ext = VALUE_STRING_EXT_INIT(responseTypes)
 
 
 /* Get the length of a single HAZELCAST message */
-static guint get_hazelcast_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) {
+static guint get_hazelcast_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                       int offset, void *data _U_)
+{
 
     guint messageLength;
     guint headerKeyLength;

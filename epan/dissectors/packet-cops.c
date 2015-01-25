@@ -906,7 +906,7 @@ static int cops_tag_cls2syntax ( guint tag, guint cls ) {
 }
 
 static guint
-get_cops_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_cops_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /*
      * Get the length of the COPS message.

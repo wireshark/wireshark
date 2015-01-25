@@ -249,7 +249,8 @@ static expert_field ei_kdsp_cmdnum = EI_INIT;
 
 /* determine PDU length of protocol */
 static guint
-get_kdsp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_kdsp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
 {
   return tvb_get_ntohl(tvb, offset+8) + FRAME_HEADER_LEN; /* length is at offset 8 */
 }

@@ -2895,7 +2895,7 @@ dissect_pcep_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_i
 
 
 static guint
-get_pcep_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_pcep_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     guint16 plen;
 

@@ -623,7 +623,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 /* Get the CMPP PDU Length */
 static guint
-get_cmpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
+get_cmpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	return tvb_get_ntohl(tvb, offset);
 }

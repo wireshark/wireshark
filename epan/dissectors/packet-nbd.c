@@ -79,7 +79,7 @@ static const value_string nbd_type_vals[] = {
  * based on the information in the header.
  */
 static guint
-get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
+get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	guint32 magic, type, packet;
 	conversation_t *conversation;

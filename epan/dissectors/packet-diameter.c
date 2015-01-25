@@ -1302,7 +1302,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 static guint
-get_diameter_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_diameter_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
 {
 	/* Get the length of the Diameter packet. */
 	return tvb_get_ntoh24(tvb, offset + 1);

@@ -11058,7 +11058,7 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 
 static guint
-get_ff_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_ff_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return (tvb_get_ntohl(tvb, offset + 8));
 }

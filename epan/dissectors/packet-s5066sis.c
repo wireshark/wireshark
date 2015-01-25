@@ -42,7 +42,7 @@ void proto_register_s5066(void);
 void proto_reg_handoff_s5066(void);
 /* Main dissectors */
 static int dissect_s5066_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
-static guint get_s5066_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+static guint get_s5066_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
 static int dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 /* Client transport layer header dissctor */
 static guint dissect_s5066_client_transport_header(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 sapid, guint *client_app_id);
@@ -953,7 +953,7 @@ dissect_s5066_27(tvbuff_t *tvb, guint offset, proto_tree *tree, guint *client_ap
 }
 
 static guint
-get_s5066_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_s5066_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	guint16 plen;
 

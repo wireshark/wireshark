@@ -686,6 +686,10 @@ extern void lua_prime_all_fields(proto_tree* tree);
 
 extern int Proto_commit(lua_State* L);
 
+extern TreeItem create_TreeItem(proto_tree* tree, proto_item* item);
+
+extern void clear_outstanding_FuncSavers(void);
+
 extern void Int64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittleEndian);
 extern int Int64_unpack(lua_State* L, const gchar *buff, gboolean asLittleEndian);
 extern void UInt64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittleEndian);

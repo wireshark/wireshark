@@ -647,7 +647,7 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     return tvb_length(tvb);
 }
 static guint
-get_mongo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_mongo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   guint32 plen;
 

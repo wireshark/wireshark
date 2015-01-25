@@ -377,7 +377,7 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
 }
 
 static guint
-get_msg_length(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
+get_msg_length(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset, void *data _U_)
 {
   return (guint)tvb_get_ntohs(tvb, offset) + 2; /* length field is at offset 0,
                                                    +2 to account for the length field itself */

@@ -761,7 +761,7 @@ dissect_rem_caps_pdu(tvbuff_t *tvb, proto_tree *tree, int offset, int len, guint
 
 
 static guint
-get_agentx_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_agentx_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	guint8  flags;
 	guint32 plen;

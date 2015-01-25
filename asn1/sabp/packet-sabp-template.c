@@ -167,7 +167,7 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   guint32 type_length;
   int bit_offset;

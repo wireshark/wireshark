@@ -133,7 +133,8 @@ static const char* g_szMessageTypes[] =
   * This function reads the length information from
   * the transport header.
   */
-static guint get_opcua_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_opcua_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                   int offset, void *data _U_)
 {
     gint32 plen;
 

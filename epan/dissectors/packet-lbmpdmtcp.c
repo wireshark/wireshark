@@ -243,7 +243,8 @@ static int ett_lbmpdm_tcp = -1;
 static int hf_lbmpdm_tcp_tag = -1;
 static int hf_lbmpdm_tcp_channel = -1;
 
-static guint get_lbmpdm_tcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb, int offset)
+static guint get_lbmpdm_tcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb,
+                                       int offset, void *data _U_)
 {
     int encoding;
     int packet_len = 0;

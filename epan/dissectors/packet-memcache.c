@@ -240,7 +240,8 @@ is_memcache_request_or_reply(const gchar *data, int linelen, guint8 *opcode,
                              ReqRespDissector *reqresp_dissector);
 
 static guint
-get_memcache_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_memcache_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb,
+                      int offset, void *data _U_)
 {
   guint32 body_len;
 

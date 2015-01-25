@@ -588,7 +588,8 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 #define DBUS_HEADER_LEN 16
 
 static guint
-get_dbus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_dbus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
 {
 	guint32 (*get_guint32)(tvbuff_t *, const gint);
 

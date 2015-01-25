@@ -381,7 +381,7 @@ dissect_write_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
 
 /* determine PDU length of protocol  */
 static guint
-get_hdfsdata_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_hdfsdata_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   /* get data packet len, add FIRST_READ_FRAGMENT_LEN for first fragment (before len),
      SECOND_READ_FRAGMENT_LEN for second fragment (incl len), subtract 4 for length itself. */

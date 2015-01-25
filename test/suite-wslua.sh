@@ -67,7 +67,7 @@ wslua_step_dissector_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testin.txt
-		test_step_failed "subtest-1 exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-2 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -77,7 +77,7 @@ wslua_step_dissector_test() {
 	if [ $? -ne 0 ]; then
 		cat ./testin.txt
 		cat ./testout.txt
-		test_step_failed "subtest-1 didn't find pass marker"
+		test_step_failed "subtest-2 didn't find pass marker"
 	fi
 
 	# run tshark with the dissector script again, but in mode 3.
@@ -86,19 +86,49 @@ wslua_step_dissector_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testin.txt
-		test_step_failed "subtest-1 exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-3 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
 	# then run tshark again with the verification script. (it internally reads in testin.txt)
 	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua -X lua_script1:no_heur > testout.txt 2>&1
-	if grep -q "All tests passed!" testout.txt; then
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat ./testin.txt
+		cat ./testout.txt
+		test_step_failed "subtest-3 didn't find pass marker"
+		return
+	fi
+
+	# then run tshark again with the verification script. (it internally reads in testin.txt)
+	$TSHARK -r $CAPTURE_DIR/segmented_fpm.pcap -X lua_script:$TESTS_DIR/lua/dissectFPM.lua -o fpm.dissect_tcp:true -V > testin.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testin.txt
+		test_step_failed "subtest-4a exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	$TSHARK -r $CAPTURE_DIR/segmented_fpm.pcap -X lua_script:$TESTS_DIR/lua/dissectFPM.lua -o fpm.dissect_tcp:false -V > testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testout.txt
+		test_step_failed "subtest-4b exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# now compare the two files - they should be identical
+	if diff -q ./testin.txt ./testout.txt; then
+		rm ./testin.txt
+		rm ./testout.txt
 		test_step_ok
 	else
 		echo
 		cat ./testin.txt
 		cat ./testout.txt
-		test_step_failed "didn't find pass marker"
+		test_step_failed "subtest-4 the new and old tcp dissection methods differed"
 	fi
 }
 

@@ -1704,7 +1704,8 @@ evaluate_sdnv_64(tvbuff_t *tvb, int offset, int *bytecount)
 }
 
 static guint
-get_dtn_contact_header_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_dtn_contact_header_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                           int offset, void *data _U_)
 {
     int len, bytecount;
 
@@ -1763,7 +1764,7 @@ dissect_dtn_contact_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static guint
-get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     int    len, bytecount;
     guint8 conv_hdr = tvb_get_guint8(tvb, offset);

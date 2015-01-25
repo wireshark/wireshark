@@ -2107,7 +2107,7 @@ tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null)
 
 /* dissector helper: length of PDU */
 static guint
-get_mysql_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_mysql_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	guint plen= tvb_get_letoh24(tvb, offset);
 	return plen + 4; /* add length field + packet number */

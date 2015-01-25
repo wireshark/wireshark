@@ -6770,7 +6770,7 @@ dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 static guint
-get_r3_message_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_r3_message_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   return (guint) tvb_get_guint8 (tvb, offset + 3) + 1;
 }

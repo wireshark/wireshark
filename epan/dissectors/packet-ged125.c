@@ -980,8 +980,10 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 }
 
 static guint
-get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset _U_)
+get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                   int offset _U_, void *data _U_)
 {
+	/* XXX: why does this not use the offset to get the value? */
 	return tvb_get_ntohl(tvb, 0) + 8;
 }
 

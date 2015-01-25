@@ -522,7 +522,8 @@ static gboolean couchbase_desegment_body = TRUE;
 
 
 static guint
-get_couchbase_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_couchbase_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                      int offset, void *data _U_)
 {
   guint32 bodylen;
 

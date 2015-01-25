@@ -755,7 +755,7 @@ static const true_false_string set_not_set = { "Set", "Not set" };
 #define FRAME_HEADER_LEN    8
 
 static guint
-get_gryphon_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_gryphon_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     guint16 plen;
     int padded_len;

@@ -2912,7 +2912,8 @@ static int dissect_kademlia_udp_compressed_message(guint8 msg_type,
 }
 
 
-static guint get_edonkey_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_edonkey_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                     int offset, void *data _U_)
 {
     guint32 msg_len;
 

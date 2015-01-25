@@ -760,7 +760,8 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
  * determine PDU length of protocol etch
  */
 static guint
-get_etch_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_etch_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
 {
   /* length is at offset 4. we add magic bytes length + length size */
   return tvb_get_ntohl(tvb, offset + 4) + 8;

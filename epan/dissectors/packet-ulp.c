@@ -6484,7 +6484,7 @@ static int dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 static guint
-get_ulp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_ulp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   /* PDU length = Message length */
   return tvb_get_ntohs(tvb,offset);

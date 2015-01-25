@@ -183,7 +183,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 }
 
 static guint
-get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   guint8 flags;
   guint message_size;

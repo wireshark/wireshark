@@ -314,7 +314,9 @@ static int dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
-static guint get_tpncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset) {
+static guint get_tpncp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                               int offset, void *data _U_)
+{
   guint16 plen;
 
   /* Get the length of the DNS packet. */

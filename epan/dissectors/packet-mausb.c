@@ -621,7 +621,8 @@ static guint8 mausb_ep_handle_bus_num(guint16 handle) {
 }
 
 /* returns the length field of the MAUSB packet */
-static guint mausb_get_pkt_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint mausb_get_pkt_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                               int offset, void *data _U_)
 {
     return tvb_get_letohs(tvb, offset + 2);
 }
@@ -1176,7 +1177,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_mausb, tvb, 0,
-                mausb_get_pkt_len(pinfo, tvb, offset), ENC_NA);
+                mausb_get_pkt_len(pinfo, tvb, offset, NULL), ENC_NA);
 
     mausb_tree = proto_item_add_subtree(ti, ett_mausb);
 

@@ -122,7 +122,7 @@ static const true_false_string tfs_flag_type_rk = {
 };
 
 static guint
-get_rpkirtr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_rpkirtr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   guint32 plen;
 

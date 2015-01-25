@@ -77,7 +77,7 @@ void proto_reg_handoff_scop(void);
 static void dissect_scop_zip       (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_scop_bridge    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset);
+static guint get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data);
 
 /*  Initialize protocol and registered fields */
 static int proto_scop = -1;
@@ -221,7 +221,7 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
  *---------------------------------------------------------------
  */
 static guint
-get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_scop_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* Byte  0:   Protocol Type.
      * Byte  1:   Protocol Version.

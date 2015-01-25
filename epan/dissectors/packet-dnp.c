@@ -3469,7 +3469,8 @@ check_dnp3_header(tvbuff_t *tvb)
 }
 
 static guint
-get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
 {
   guint16 message_len;  /* need 16 bits as total can exceed 255 */
   guint16 data_crc;     /* No. of user data CRC bytes */

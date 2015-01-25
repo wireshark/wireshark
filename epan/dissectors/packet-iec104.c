@@ -1036,7 +1036,8 @@ static void get_QOI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 
 /* Find the APDU 104 (APDU=APCI+ASDU) length.
 Includes possible tvb_length-1 bytes that don't form an APDU */
-static guint get_iec104apdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_iec104apdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                int offset, void *data _U_)
 {
 	guint8 Val;
 	guint32 Off;

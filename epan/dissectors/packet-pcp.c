@@ -414,7 +414,7 @@ static const value_string packettypenames_creds[]= {
 };
 
 /* function prototypes */
-static guint get_pcp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+static guint get_pcp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
 static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -435,7 +435,8 @@ static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
 /* message length for dissect_tcp */
-static guint get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                 int offset, void *data _U_)
 {
     /* length is at the very start of the packet, after tcp header */
     return (guint)tvb_get_ntohl(tvb, offset);

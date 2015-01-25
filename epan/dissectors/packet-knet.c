@@ -544,7 +544,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int current_pr
  *
  */
 static guint
-get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return count_vle_bytes(tvb, offset) + dissect_content_length_vle(tvb, &offset, NULL);
 }

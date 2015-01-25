@@ -223,7 +223,7 @@ static const range_string optommp_mm_areas[] = {
 
 /* Function Prototypes */
 static guint get_optommp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
-    gint offset);
+    int offset, void *data _U_);
 static gint dissect_optommp_reassemble_tcp(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void *data);
 static gint dissect_optommp_reassemble_udp(tvbuff_t *tvb, packet_info *pinfo,
@@ -274,7 +274,7 @@ parameters:     pinfo: not used
 purpose:        Gets the message length depending on tcode and data_block len
 ****************************************************************************/
 static guint get_optommp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
-    gint offset)
+    int offset, void *data _U_)
 {
     guint len = OPTO_FRAME_HEADER_LEN;
     guint8 tcode = 0;

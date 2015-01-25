@@ -1362,7 +1362,7 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 static guint
-get_openwire_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_openwire_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     if (tvb_length_remaining(tvb, offset) >= 5)
     {

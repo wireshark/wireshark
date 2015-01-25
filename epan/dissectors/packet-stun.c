@@ -441,7 +441,8 @@ static const value_string federation_vals[] = {
 };
 
 static guint
-get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
 {
     guint16 type   = tvb_get_ntohs(tvb, offset);
     guint   length = tvb_get_ntohs(tvb, offset+2);

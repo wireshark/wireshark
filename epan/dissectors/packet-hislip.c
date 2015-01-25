@@ -852,7 +852,8 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 }
 
 static guint
-get_hislip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
+get_hislip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                       int offset, void *data _U_)
 {
 
     guint64 length;

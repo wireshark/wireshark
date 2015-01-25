@@ -49,7 +49,8 @@ static int hf_paltalk_content = -1;
 static gint ett_paltalk = -1;
 
 static guint
-dissect_paltalk_get_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+dissect_paltalk_get_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                        int offset, void *data _U_)
 {
     return tvb_get_ntohs(tvb, offset + 4) + PALTALK_HEADER_LENGTH;
 }

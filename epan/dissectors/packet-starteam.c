@@ -573,7 +573,8 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 static guint
-get_starteam_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_starteam_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
 {
   guint32 iPDULength = 0;
   if(tvb_length_remaining(tvb, offset) >= 8 && tvb_get_ntohl(tvb, offset + 0) == STARTEAM_MAGIC){

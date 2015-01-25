@@ -3973,7 +3973,7 @@ dissect_llmnr_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_dns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_dns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   guint16 plen;
 

@@ -471,7 +471,8 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
     return tvb_captured_length(tvb);
 }
 
-static guint elasticsearch_get_binary_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint elasticsearch_get_binary_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                                  int offset, void *data _U_)
 {
     /* length is two bytes into the packet, also the length doesn't include the starting 6 bytes */
     return (guint)tvb_get_ntohl(tvb, offset+ELASTICSEARCH_MESSAGE_LENGTH_OFFSET) + ELASTICSEARCH_HEADER_LENGTH;

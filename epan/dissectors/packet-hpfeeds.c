@@ -275,7 +275,7 @@ dissect_hpfeeds_subscribe_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
  * by the routine to re-assemble the protocol spread on multiple TCP packets
  */
 static guint
-get_hpfeeds_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_hpfeeds_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohl(tvb, offset + 0);
 }

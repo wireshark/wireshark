@@ -1205,7 +1205,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 /* Return length of L&G 8979 Protocol over TCP message (used for re-assembly)                         */
 /******************************************************************************************************/
 static guint
-get_lg8979_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
+get_lg8979_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
 {
 
     guint len;

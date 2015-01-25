@@ -44,6 +44,16 @@ TreeItem* push_TreeItem(lua_State*L, TreeItem t) {
     return pushTreeItem(L,t);
 }
 
+TreeItem create_TreeItem(proto_tree* tree, proto_item* item)
+{
+    TreeItem tree_item = (TreeItem)g_malloc(sizeof(struct _wslua_treeitem));
+    tree_item->tree = tree;
+    tree_item->item = item;
+    tree_item->expired = FALSE;
+
+    return tree_item;
+}
+
 CLEAR_OUTSTANDING(TreeItem, expired, TRUE)
 
 WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"),NOP);
@@ -254,10 +264,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
         nargs--;
     }
 
-    tree_item = (TreeItem)g_malloc(sizeof(struct _wslua_treeitem));
-    tree_item->item = item;
-    tree_item->tree = proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett);
-    tree_item->expired = FALSE;
+    tree_item = create_TreeItem(proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
 
     PUSH_TREEITEM(L,tree_item);
 
@@ -414,10 +421,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
         lua_remove(L,1);
     }
 
-    tree_item = (TreeItem)g_malloc(sizeof(struct _wslua_treeitem));
-    tree_item->item = item;
-    tree_item->tree = proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett);
-    tree_item->expired = FALSE;
+    tree_item = create_TreeItem(proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett), item);
 
     PUSH_TREEITEM(L,tree_item);
 

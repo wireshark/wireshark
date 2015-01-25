@@ -142,6 +142,7 @@ lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
     clear_outstanding_PrivateTable();
     clear_outstanding_TreeItem();
     clear_outstanding_FieldInfo();
+    clear_outstanding_FuncSavers();
 
     /* keep invoking this callback later? */
     return FALSE;
@@ -162,10 +163,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
-    lua_tree = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
-    lua_tree->tree = tree;
-    lua_tree->item = proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA);
-    lua_tree->expired = FALSE;
+    lua_tree = create_TreeItem(tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
     PROTO_ITEM_SET_HIDDEN(lua_tree->item);
 
     /*
@@ -280,10 +278,7 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
         return FALSE;
     }
 
-    lua_tree = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
-    lua_tree->tree = tree;
-    lua_tree->item = proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA);
-    lua_tree->expired = FALSE;
+    lua_tree = create_TreeItem(tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
     PROTO_ITEM_SET_HIDDEN(lua_tree->item);
 
     push_Tvb(L,tvb);

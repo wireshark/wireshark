@@ -267,7 +267,7 @@ test_djiuav(tvbuff_t *tvb)
 
 /* Get the length of the full pdu */
 static guint
-get_djiuav_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_djiuav_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	return tvb_get_guint8(tvb, offset + 2);
 }

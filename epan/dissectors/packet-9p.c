@@ -2153,12 +2153,13 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	return tvb_captured_length(tvb);
 }
 
-static guint get_9P_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_9P_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                int offset, void *data _U_)
 {
 	return (guint) tvb_get_letohl(tvb, offset);
 }
 
-static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4,
 			get_9P_message_len, dissect_9P_message, data);

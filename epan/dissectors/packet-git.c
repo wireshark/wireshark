@@ -60,7 +60,7 @@ static gboolean get_packet_length(tvbuff_t *tvb, int offset,
 }
 
 static guint
-get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   guint16 plen;
 

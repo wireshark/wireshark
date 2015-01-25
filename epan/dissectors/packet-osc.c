@@ -619,7 +619,7 @@ dissect_osc_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 /* OSC TCP */
 
 static guint
-get_osc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_osc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohl(tvb, offset) + 4;
 }

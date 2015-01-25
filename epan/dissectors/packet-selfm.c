@@ -2561,10 +2561,11 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 /* SEL Protocol "Response" messages include a "length" byte in offset 2 of each response message       */
 /******************************************************************************************************/
 static guint
-get_selfm_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
+get_selfm_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data _U_)
 {
     guint message_len=0;  /* message length, inclusive of header, data, crc */
 
+	/* XXX: this logic doesn't take into account the offset */
     /* Get length byte from message */
     if (tvb_length(tvb) > 2) {
         message_len = tvb_get_guint8(tvb, 2);

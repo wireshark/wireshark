@@ -79,7 +79,7 @@
 void proto_register_smpp(void);
 void proto_reg_handoff_smpp(void);
 static int dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
-static guint get_smpp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+static guint get_smpp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
 static int dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 
 /*
@@ -2375,7 +2375,7 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 }
 
 static guint
-get_smpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_smpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohl(tvb, offset);
 }

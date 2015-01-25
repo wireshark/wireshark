@@ -1370,7 +1370,7 @@ return offset;
 }
 
 static guint
-get_srvloc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_srvloc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /*
      * Get the length of the SRVLOC packet.

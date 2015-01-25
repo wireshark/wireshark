@@ -736,7 +736,8 @@ static guint dissect_s5066dts_warning(tvbuff_t *tvb, guint offset, proto_tree *t
     return offset;
 }
 
-static guint calculate_s5066dts_dpdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
+static guint calculate_s5066dts_dpdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                         int offset _U_, void *data _U_)
 {
     guint pdu_type;
     guint address_size;
@@ -744,6 +745,7 @@ static guint calculate_s5066dts_dpdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, 
     guint pdu_size;
     guint segmented_cpdu_size;
 
+    /* XXX: why is the offset not used to get this value? */
     if (tvb_get_guint8(tvb, 0) != 0x90)
         return 1;
     else if (tvb_get_guint8(tvb, 1) != 0xEB)
@@ -912,7 +914,7 @@ static int dissect_s5066dts_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         /* Cannot find sync pattern at dissect_s5066dts_raw()! */
         return 0;
     }
-    calculate_s5066dts_dpdu_len(pinfo, tvb, 0);
+    calculate_s5066dts_dpdu_len(pinfo, tvb, 0, NULL);
     dissect_s5066dts(tvb, pinfo, tree, NULL);
 
     return b_length;

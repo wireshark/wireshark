@@ -528,7 +528,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
 /* This function is called by tcp_dissect_pdus() to find the size of the
    message starting at tvb[offset]. */
 static guint
-pgsql_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+pgsql_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     gint n = 0;
     guchar type;

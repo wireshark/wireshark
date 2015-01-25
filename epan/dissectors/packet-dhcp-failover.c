@@ -351,7 +351,7 @@ static const value_string serverflag_vals[] =
 
 /* Code to actually dissect the packets */
 static guint
-get_dhcpfo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_dhcpfo_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/*
 	 * Return the length of the DHCP failover packet.

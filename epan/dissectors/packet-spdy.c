@@ -1639,7 +1639,7 @@ static int dissect_spdy_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static guint get_spdy_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
-                                  int offset)
+                                  int offset, void *data _U_)
 {
   return (guint)tvb_get_ntoh24(tvb, offset + 5) + 8;
 }

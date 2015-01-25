@@ -316,7 +316,8 @@ static gint32 xmcp_service_port = -1;
 static proto_item *xmcp_it_service_port = NULL;
 
 static guint
-get_xmcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_xmcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
 {
   return(XMCP_HDR_LEN + tvb_get_ntohs(tvb, offset+2));
 }

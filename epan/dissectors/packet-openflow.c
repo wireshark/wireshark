@@ -70,7 +70,8 @@ static const value_string openflow_version_values[] = {
 };
 
 static guint
-get_openflow_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_openflow_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
+                        int offset, void *data _U_)
 {
     return tvb_get_ntohs(tvb, offset + 2);
 }

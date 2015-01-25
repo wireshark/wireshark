@@ -70,7 +70,7 @@ static gint ett_ilp = -1;
 
 
 static guint
-get_ilp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_ilp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
   /* PDU length = Message length */
   return tvb_get_ntohs(tvb,offset);

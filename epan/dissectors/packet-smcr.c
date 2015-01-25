@@ -867,7 +867,7 @@ dissect_smcr_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_smcr_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_smcr_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	guint32 length;
 	length = tvb_get_ntohs(tvb, offset+CLC_MSG_LEN_OFFSET);

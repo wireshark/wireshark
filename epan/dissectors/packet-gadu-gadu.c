@@ -1975,7 +1975,8 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 }
 
 static guint
-get_gadu_gadu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_gadu_gadu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                      int offset, void *data _U_)
 {
 	guint32 len = tvb_get_letohl(tvb, offset + 4);
 

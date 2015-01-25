@@ -469,7 +469,8 @@ static gboolean lbttcp_packet_is_transport_client(packet_info * pinfo, const lbt
     return (is_transport_client_packet);
 }
 
-static guint get_lbttcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb, int offset)
+static guint get_lbttcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tvb,
+                                   int offset, void *data _U_)
 {
     return lbmc_get_message_length(tvb, offset);
 }

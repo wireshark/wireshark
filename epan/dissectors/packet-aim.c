@@ -1368,7 +1368,7 @@ dissect_aim_tlv_list(tvbuff_t *tvb, packet_info *pinfo, int offset,
 }
 
 static guint
-get_aim_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_aim_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	guint16 plen;
 

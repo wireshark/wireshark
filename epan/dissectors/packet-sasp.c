@@ -319,7 +319,7 @@ static const value_string set_mem_state_reply_response_code[] = {
 
 
 static guint
-get_sasp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_sasp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* Get the length of the SASP packet. */
     return tvb_get_ntohl(tvb, offset + 5);

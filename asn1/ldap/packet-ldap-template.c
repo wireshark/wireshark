@@ -1619,7 +1619,8 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 
 static guint
-get_sasl_ldap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_sasl_ldap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                      int offset, void *data _U_)
 {
 	/* sasl encapsulated ldap is 4 bytes plus the length in size */
 	return tvb_get_ntohl(tvb, offset)+4;
@@ -1633,7 +1634,8 @@ dissect_sasl_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 }
 
 static guint
-get_normal_ldap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_normal_ldap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                        int offset, void *data _U_)
 {
 	guint32 len;
 	gboolean ind;

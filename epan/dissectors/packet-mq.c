@@ -4021,7 +4021,8 @@ static int reassemble_mq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_reported_length(tvb);
 }
 
-static guint get_mq_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_mq_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                            int offset, void *data _U_)
 {
     if (tvb_reported_length_remaining(tvb, offset) >= 8)
     {

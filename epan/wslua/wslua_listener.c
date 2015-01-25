@@ -103,10 +103,7 @@ static int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt
 
     lua_pinfo = pinfo;
     lua_tvb = edt->tvb;
-    lua_tree = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
-    lua_tree->tree = edt->tree;
-    lua_tree->item = NULL;
-    lua_tree->expired = FALSE;
+    lua_tree = create_TreeItem(edt->tree, NULL);
 
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:

@@ -319,7 +319,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 static guint
-get_fcgi_record_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_fcgi_record_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
    return 8 + tvb_get_ntohs(tvb, offset + 4) + tvb_get_guint8(tvb, offset + 6);
 }

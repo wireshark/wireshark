@@ -1733,7 +1733,7 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
 #undef UcpHandleData
 
 static guint
-get_ucp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_ucp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     guint        intval=0;
     int          i;

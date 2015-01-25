@@ -1595,7 +1595,7 @@ dissect_c1222_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
  * \returns length of entire C12.22 message
  */
 static guint
-get_c1222_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
+get_c1222_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 {
   int orig_offset;
   guint length;

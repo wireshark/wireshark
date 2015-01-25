@@ -195,7 +195,9 @@ static guint dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, guint offse
 /**
  * Get the length of a particular PDU (+6 bytes for the frame)
  */
-static guint get_aol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) {
+static guint get_aol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                             int offset, void *data _U_)
+{
 	guint16 plen;
 
 	/* Get the PDU length */

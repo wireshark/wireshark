@@ -173,7 +173,7 @@ static const value_string gearman_command_names[] = {
 };
 
 static guint
-get_gearman_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_gearman_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     return tvb_get_ntohl(tvb, offset+8)+GEARMAN_COMMAND_HEADER_SIZE;
 }

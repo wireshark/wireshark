@@ -409,7 +409,7 @@ static gint dissect_netsync_cmd_nonexistent(tvbuff_t *tvb,  gint offset, proto_t
 }
 
 static guint
-get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_netsync_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	guint64 size = 0;
 	guint   size_bytes;

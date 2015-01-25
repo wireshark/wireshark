@@ -64,7 +64,7 @@ static ecm_interpretation tab_ecm_inter[] = {
 #define ECM_INTERPRETATION_SIZE (sizeof(tab_ecm_inter)/sizeof(ecm_interpretation))
 
 static int dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
-static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+static guint get_simulcrypt_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
 static void dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item, packet_info *pinfo _U_,
 				    tvbuff_t *tvb, proto_tree *tree, int offset,
 				    int container_data_length, guint16 iftype, gboolean is_subtree);
@@ -1405,7 +1405,8 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 
 /* determine PDU length of protocol foo */
 static guint
-get_simulcrypt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_simulcrypt_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                           int offset, void *data _U_)
 {
 	guint iLg;
 

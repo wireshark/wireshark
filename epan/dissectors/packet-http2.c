@@ -1361,7 +1361,8 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     return tvb_captured_length(tvb);
 }
 
-static guint get_http2_message_len( packet_info *pinfo _U_, tvbuff_t *tvb, int offset )
+static guint get_http2_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                                   int offset, void *data _U_)
 {
         if ( tvb_memeql( tvb, offset, kMagicHello, MAGIC_FRAME_LENGTH ) == 0 ) {
                 return MAGIC_FRAME_LENGTH;

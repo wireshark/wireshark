@@ -523,7 +523,9 @@ static int dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 /*--- get_erldp_pdu_len -------------------------------------------------*/
-static guint get_erldp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset) {
+static guint get_erldp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                               int offset, void *data _U_)
+{
   if (is_handshake(tvb, offset))
     return(2 + tvb_get_ntohs(tvb, offset));
 

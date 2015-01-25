@@ -447,7 +447,8 @@ static guint
 get_soupbintcp_pdu_len(
     packet_info *pinfo _U_,
     tvbuff_t    *tvb,
-    int          offset)
+    int          offset,
+    void        *data _U_)
 {
     /* Determine the length of the PDU using the SOUP header's 16-bit
        big-endian length (at offset zero).  We're guaranteed to get at

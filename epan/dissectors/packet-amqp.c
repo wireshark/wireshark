@@ -397,7 +397,7 @@ static void
 check_amqp_version(tvbuff_t *tvb, amqp_conv *conn);
 
 static guint
-get_amqp_1_0_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+get_amqp_1_0_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void* data);
 
 static guint
 dissect_amqp_1_0_list(tvbuff_t *tvb,
@@ -431,10 +431,10 @@ dissect_amqp_1_0_array(tvbuff_t *tvb,
                        const char *name);
 
 static guint
-get_amqp_0_10_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+get_amqp_0_10_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void* data);
 
 static guint
-get_amqp_0_9_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+get_amqp_0_9_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void* data);
 
 static void
 dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item);
@@ -2758,7 +2758,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_t *conv;
     amqp_conv *conn;
     guint fixed_length;
-    guint (*length_getter)(packet_info *, tvbuff_t *, int);
+    guint (*length_getter)(packet_info *, tvbuff_t *, int, void*);
     new_dissector_t dissector;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
@@ -2859,7 +2859,8 @@ check_amqp_version(tvbuff_t *tvb, amqp_conv *conn)
 }
 
 static guint
-get_amqp_1_0_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_amqp_1_0_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                         int offset, void *data _U_)
 {
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
     if (tvb_memeql(tvb, offset, "AMQP", 4) == 0)
@@ -2868,7 +2869,8 @@ get_amqp_1_0_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static guint
-get_amqp_0_10_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_amqp_0_10_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                          int offset, void *data _U_)
 {
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
     if (tvb_memeql(tvb, offset, "AMQP", 4) == 0)
@@ -2878,7 +2880,8 @@ get_amqp_0_10_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static guint
-get_amqp_0_9_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_amqp_0_9_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                         int offset, void *data _U_)
 {
     guint32 length;
 

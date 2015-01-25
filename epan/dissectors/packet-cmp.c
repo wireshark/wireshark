@@ -1604,7 +1604,8 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	return offset;
 }
 
-static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                             int offset, void *data _U_)
 {
 	guint32 plen;
 

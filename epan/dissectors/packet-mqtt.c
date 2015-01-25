@@ -167,7 +167,8 @@ static gboolean reassemble_mqtt_over_tcp = TRUE;
 
 #define GET_MQTT_PDU_LEN(msg_len, len_offset)    (msg_len + len_offset + MQTT_HDR_SIZE_BEFORE_LEN)
 
-static guint get_mqtt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint get_mqtt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                              int offset, void *data _U_)
 {
   guint64 msg_len;
   guint len_offset;

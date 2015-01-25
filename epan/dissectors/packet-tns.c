@@ -190,7 +190,7 @@ static const value_string tns_control_cmds[] = {
 };
 
 void proto_reg_handoff_tns(void);
-static guint get_tns_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+static guint get_tns_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
 static int dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 
 static void dissect_tns_service_options(tvbuff_t *tvb, int offset,
@@ -747,7 +747,7 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static guint
-get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_tns_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
 	/*
 	 * Get the length of the TNS message, including header

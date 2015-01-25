@@ -651,7 +651,7 @@ dissect_mbrtu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 /* Return length of Modbus/TCP message */
 static guint
-get_mbtcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+get_mbtcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     guint16 plen;
 
@@ -669,7 +669,8 @@ get_mbtcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 
 /* Return length of Modbus RTU over TCP message */
 static guint
-get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
+get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                  int offset _U_, void *data _U_)
 {
 
     /* Modbus/TCP frames include a "length" word in each message; Modbus RTU over TCP does not, so don't attempt to get one */
