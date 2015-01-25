@@ -1102,6 +1102,7 @@ DISSECTOR_SRC = \
 	packet-rsip.c		\
 	packet-rsl.c		\
 	packet-rstat.c		\
+	packet-rsvd.c		\
 	packet-rsvp.c		\
 	packet-rsync.c		\
 	packet-rtacser.c	\

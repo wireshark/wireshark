@@ -436,6 +436,7 @@ static int smb2_eo_tap = -1;
 
 static dissector_handle_t gssapi_handle  = NULL;
 static dissector_handle_t ntlmssp_handle = NULL;
+static dissector_handle_t rsvd_handle = NULL;
 
 static heur_dissector_list_t smb2_heur_subdissector_list;
 
@@ -1228,6 +1229,14 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000900DF, "FSCTL_WRITE_RAW_ENCRYPTED"},
 	{0x000900E3, "FSCTL_READ_RAW_ENCRYPTED"},
 	{0x000900F0, "FSCTL_EXTEND_VOLUME"},
+	{0x00090300, "FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT"},
+	{0x00090304, "FSCTL_SVHDX_SYNC_TUNNEL_REQUEST"},
+	{0x00090308, "FSCTL_SVHDX_SET_INITIATOR_INFORMATION"},
+	{0x0009030C, "FSCTL_SET_EXTERNAL_BACKING"},
+	{0x00090310, "FSCTL_GET_EXTERNAL_BACKING"},
+	{0x00090314, "FSCTL_DELETE_EXTERNAL_BACKING"},
+	{0x00090318, "FSCTL_ENUM_EXTERNAL_BACKING"},
+	{0x0009031F, "FSCTL_ENUM_OVERLAY"},
 	{0x000940B3, "FSCTL_ENUM_USN_DATA"},
 	{0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
 	{0x000940BB, "FSCTL_READ_USN_JOURNAL"},
@@ -4413,6 +4422,17 @@ dissect_smb2_FSCTL_LMR_REQUEST_RESILIENCY(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
+dissect_smb2_FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset _U_, gboolean data_in _U_)
+{
+	/* There is no out data */
+	if (!data_in) {
+		return;
+	}
+
+	/* There is nothing to do here ... */
+}
+
+static void
 dissect_windows_sockaddr_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, int len)
 {
 	proto_item *sub_item;
@@ -4897,6 +4917,13 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x0009003C: /* FSCTL_GET_COMPRESSION */
 		dissect_smb2_FSCTL_GET_COMPRESSION(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x00090300: /* FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT */
+		if (!data_in)
+			dissect_smb2_FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT(tvb, pinfo, tree, 0, dc);
+		break;
+	case 0x00090304: /* FSCTL_SVHDX_SYNC_TUNNEL or response */
+		call_dissector_with_data(rsvd_handle, tvb, pinfo, top_tree, &data_in);
 		break;
 	case 0x0009C040: /* FSCTL_SET_COMPRESSION */
 		dissect_smb2_FSCTL_SET_COMPRESSION(tvb, pinfo, tree, 0, data_in);
@@ -8616,6 +8643,7 @@ proto_reg_handoff_smb2(void)
 {
 	gssapi_handle  = find_dissector("gssapi");
 	ntlmssp_handle = find_dissector("ntlmssp");
+	rsvd_handle    = find_dissector("rsvd");
 	heur_dissector_add("netbios", dissect_smb2_heur, proto_smb2);
 	heur_dissector_add("smb_direct", dissect_smb2_heur, proto_smb2);
 }

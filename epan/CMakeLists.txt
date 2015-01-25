@@ -1190,6 +1190,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rsip.c
 	dissectors/packet-rsl.c
 	dissectors/packet-rstat.c
+	dissectors/packet-rsvd.c
 	dissectors/packet-rsvp.c
 	dissectors/packet-rsync.c
 	dissectors/packet-rtacser.c

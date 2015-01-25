@@ -122,6 +122,7 @@ AllJoyn Reliable Datagram Protocol
 HiQnet
 Elasticsearch
 Shared Memory Communications - RDMA
+Remote Shared Virtual Disk - RSVD
 Riemann
 MACsec Key Agreement - EAPoL-MKA
 DJI UAV Drone Control Protocol
