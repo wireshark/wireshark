@@ -106,8 +106,7 @@ $ENV{LANG} = "C";
 $ENV{LC_ALL} = "C";
 $ENV{GIT_PAGER} = "";
 
-# Run "svn info".  Parse out the most recent modification time and the
-# revision number.
+# Attempt to get revision information from the repository.
 sub read_repo_info {
 	my $line;
 	my $version_format = $version_pref{"format"};
