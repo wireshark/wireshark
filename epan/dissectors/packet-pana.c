@@ -644,9 +644,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                avp_item = proto_tree_add_text(pana_tree, tvb, offset, avp_length, "Attribute Value Pairs");
                avp_tree = proto_item_add_subtree(avp_item, ett_pana_avp);
 
-               if (avp_tree != NULL) {
-                       dissect_avps(avp_tvb, pinfo, avp_tree);
-               }
+               dissect_avps(avp_tvb, pinfo, avp_tree);
         }
 
 }

@@ -1822,7 +1822,7 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OML");
 
 	top_tree = tree;
-	if (tree) {
+	/* if (tree) */ {
 		guint8 msg_disc = tvb_get_guint8(tvb, offset);
 		guint8 len = tvb_get_guint8(tvb, offset+3);
 
