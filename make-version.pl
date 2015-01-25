@@ -32,7 +32,8 @@
 #		   file hack
 #   format       - A strftime() formatted string to use as a template for
 #		   the version string. The sequence "%#" will substitute
-#		   the SVN revision number.
+#		   the number of commits for Git or the revision number
+#		   for SVN.
 #   pkg_enable   - Enable or disable local package versioning.
 #   pkg_format   - Like "format", but used for the local package version.
 #
