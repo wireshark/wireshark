@@ -3813,7 +3813,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(msg_type, &rsl_msg_type_vals_ext,"unknown %u"));
 
     top_tree = tree;
-    if (tree) {
+    /* if (tree) */ {
         ti = proto_tree_add_item(tree, proto_rsl, tvb, 0, -1, ENC_NA);
 
         /* if nanoBTS specific vendor messages are not enabled, skip */
