@@ -336,8 +336,8 @@ show_version(const gchar *prog_name_str, GString *comp_info_str,
 const char *
 get_ws_vcs_version_info(void)
 {
-#ifdef GITVERSION
-	return VERSION " (" GITVERSION " from " GITBRANCH ")";
+#ifdef VCSVERSION
+	return VERSION " (" VCSVERSION " from " VCSBRANCH ")";
 #else
 	return VERSION;
 #endif

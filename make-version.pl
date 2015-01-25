@@ -223,8 +223,8 @@ sub read_repo_info {
 	} elsif ($version_pref{"tortoise_svn"}) {
 		# Dynamically generic template file needed by TortoiseSVN
 		open(TORTOISE, ">$tortoise_file");
-		print TORTOISE "#define GITVERSION \"\$WCREV\$\"\r\n";
-		print TORTOISE "#define GITBRANCH \"\$WCURL\$\"\r\n";
+		print TORTOISE "#define VCSVERSION \"\$WCREV\$\"\r\n";
+		print TORTOISE "#define VCSBRANCH \"\$WCURL\$\"\r\n";
 		close(TORTOISE);
 
 		$info_source = "Command line (SubWCRev)";
@@ -245,7 +245,7 @@ sub read_repo_info {
 		my $filepath = "$srcdir/config.nmake";
 		open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
 		while ($line = <CFGNMAKE>) {
-			if ($line =~ /^GIT_REVISION=(\d+)/) {
+			if ($line =~ /^VCS_REVISION=(\d+)/) {
 				$num_commits = $1;
 				$do_hack = 0;
 				last;
@@ -459,8 +459,8 @@ sub update_config_nmake
 
 	open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGNMAKE>) {
-		if ($line =~ /^GIT_REVISION=.*([\r\n]+)$/) {
-			$line = sprintf("GIT_REVISION=%d$1", $num_commits);
+		if ($line =~ /^VCS_REVISION=.*([\r\n]+)$/) {
+			$line = sprintf("VCS_REVISION=%d$1", $num_commits);
 		} elsif ($set_version && $line =~ /^VERSION_MAJOR=.*([\r\n]+)$/) {
 			$line = sprintf("VERSION_MAJOR=%d$1", $version_pref{"version_major"});
 		} elsif ($set_version && $line =~ /^VERSION_MINOR=.*([\r\n]+)$/) {
@@ -589,27 +589,27 @@ sub update_versioned_files
 
 # Print the version control system's version to $version_file.
 # Don't change the file if it is not needed.
-sub print_GIT_REVISION
+sub print_VCS_REVISION
 {
-	my $GIT_REVISION;
+	my $VCS_REVISION;
 	my $needs_update = 1;
 
 	if ($git_description) {
-		$GIT_REVISION = "#define GITVERSION \"" .
+		$VCS_REVISION = "#define VCSVERSION \"" .
 			$git_description . "\"\n" .
-			"#define GITBRANCH \"" . $repo_branch . "\"\n";
+			"#define VCSBRANCH \"" . $repo_branch . "\"\n";
 	} elsif ($last_change && $num_commits) {
-		$GIT_REVISION = "#define GITVERSION \"" . $vcs_name . " Rev " .
+		$VCS_REVISION = "#define VCSVERSION \"" . $vcs_name . " Rev " .
 			$num_commits . "\"\n" .
-			"#define GITBRANCH \"" . $repo_branch . "\"\n";
+			"#define VCSBRANCH \"" . $repo_branch . "\"\n";
 	} else {
-		$GIT_REVISION = "#define GITVERSION \"" . $vcs_name .
+		$VCS_REVISION = "#define VCSVERSION \"" . $vcs_name .
 			" Rev Unknown\"\n" .
-			"#define GITBRANCH \"unknown\"\n";
+			"#define VCSBRANCH \"unknown\"\n";
 	}
 	if (open(OLDREV, "<$version_file")) {
-		my $old_GIT_REVISION = <OLDREV> . <OLDREV>;
-		if ($old_GIT_REVISION eq $GIT_REVISION) {
+		my $old_VCS_REVISION = <OLDREV> . <OLDREV>;
+		if ($old_VCS_REVISION eq $VCS_REVISION) {
 			$needs_update = 0;
 		}
 		close OLDREV;
@@ -618,9 +618,9 @@ sub print_GIT_REVISION
 	if (! $set_svn) { return; }
 
 	if ($needs_update) {
-		# print "Updating $version_file so it contains:\n$GIT_REVISION";
+		# print "Updating $version_file so it contains:\n$VCS_REVISION";
 		open(VER, ">$version_file") || die ("Cannot write to $version_file ($!)\n");
-		print VER "$GIT_REVISION";
+		print VER "$VCS_REVISION";
 		close VER;
 		print "$version_file has been updated.\n";
 	} else {
@@ -677,7 +677,7 @@ sub get_config {
 
 &read_repo_info();
 
-&print_GIT_REVISION;
+&print_VCS_REVISION;
 
 if ($set_version || $set_release) {
 	if ($set_version) {
