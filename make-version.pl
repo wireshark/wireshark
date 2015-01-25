@@ -66,6 +66,7 @@ use English;
 my $version_file = 'version.h';
 my $package_string = "";
 my $vconf_file = 'version.conf';
+my $vcs_name = "Git";
 my $tortoise_file = "tortoise_template";
 my $last_change = 0;
 my $num_commits = 0;
@@ -211,6 +212,7 @@ sub read_repo_info {
 				if ($line =~ /Repository Root: (\S+)/) {
 					$repo_root = $1;
 				}
+				$vcs_name = "SVN";
 			}
 			1;
 		};
@@ -231,6 +233,7 @@ sub read_repo_info {
 		if ($tortoise == 0) {
 			$do_hack = 0;
 		}
+		$vcs_name = "SVN";
 
 		#clean up the template file
 		unlink($tortoise_file);
@@ -299,6 +302,7 @@ sub read_repo_info {
 					$num_commits = $1;
 					$repo_branch = $2;
 				}
+				$vcs_name = "Bzr";
 			}
 			1;
 			};
@@ -595,11 +599,12 @@ sub print_GIT_REVISION
 			$git_description . "\"\n" .
 			"#define GITBRANCH \"" . $repo_branch . "\"\n";
 	} elsif ($last_change && $num_commits) {
-		$GIT_REVISION = "#define GITVERSION \"Git Rev " .
+		$GIT_REVISION = "#define GITVERSION \"" . $vcs_name . " Rev " .
 			$num_commits . "\"\n" .
 			"#define GITBRANCH \"" . $repo_branch . "\"\n";
 	} else {
-		$GIT_REVISION = "#define GITVERSION \"Git Rev Unknown\"\n" .
+		$GIT_REVISION = "#define GITVERSION \"" . $vcs_name .
+			" Rev Unknown\"\n" .
 			"#define GITBRANCH \"unknown\"\n";
 	}
 	if (open(OLDREV, "<$version_file")) {
