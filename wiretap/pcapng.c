@@ -2470,8 +2470,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
             case(BLOCK_TYPE_ISB):
                 /* Another interface statistics report */
                 pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB");
-                if (wth->interface_data->len < wblock.data.if_stats.interface_id) {
-                    pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u > number_of_interfaces", wblock.data.if_stats.interface_id);
+                if (wth->interface_data->len <= wblock.data.if_stats.interface_id) {
+                    pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u >= number_of_interfaces", wblock.data.if_stats.interface_id);
                 } else {
                     /* Get the interface description */
                     wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, wblock.data.if_stats.interface_id);
@@ -2509,7 +2509,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 got_packet:
 
     /*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
-    pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
+    pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
 
     return TRUE;
 }
