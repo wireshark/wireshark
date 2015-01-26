@@ -43,6 +43,7 @@
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
+#include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
 #include "ui/software_update.h"
 #include "ui/utf8_entities.h"

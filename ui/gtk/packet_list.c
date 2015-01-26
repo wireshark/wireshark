@@ -39,6 +39,7 @@
 #include "ui/packet_list_utils.h"
 #include "ui/preference_utils.h"
 #include "ui/recent.h"
+#include "ui/recent_utils.h"
 
 #include "packet_list_store.h"
 #include "ui/gtk/packet_list.h"
