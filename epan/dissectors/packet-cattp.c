@@ -119,6 +119,7 @@ static const value_string cattp_reset_reason[] = {
 
 /* Forward declartion due to use of heuristic dissection preference. */
 void proto_reg_handoff_cattp(void);
+void proto_register_cattp(void);
 
 /* Dissection of SYN PDUs */
 static guint32
