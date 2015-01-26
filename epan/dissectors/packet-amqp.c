@@ -1,6 +1,6 @@
 /* packet-amqp.c
  *
- * AMQP v0-9, 0-10 Wireshark dissector
+ * AMQP 0-9, 0-9-1, 0-10 and AMQP 1.0 Wireshark dissector
  *
  * Author: Martin Sustrik <sustrik@imatix.com> (AMQP 0-9)
  * Author: Steve Huston <shuston@riverace.com> (extended for AMQP 0-10)
@@ -29,8 +29,8 @@
 
 /*
  * See
- *
  *     http://www.amqp.org/resources/download
+ *     http://www.rabbitmq.com/protocol.html
  *
  * for specifications for various versions of the AMQP protocol.
  */
@@ -78,7 +78,7 @@ typedef struct {
 
 #define MAX_BUFFER 256
 
-/* 0-9 defines */
+/* 0-9 and 0-9-1 defines */
 
 #define AMQP_0_9_FRAME_TYPE_METHOD                                      1
 #define AMQP_0_9_FRAME_TYPE_CONTENT_HEADER                              2
@@ -100,6 +100,7 @@ typedef struct {
 #define AMQP_0_9_CLASS_TX                                              90
 #define AMQP_0_9_CLASS_DTX                                            100
 #define AMQP_0_9_CLASS_TUNNEL                                         110
+#define AMQP_0_9_CLASS_CONFIRM                                         85
 
 #define AMQP_0_9_METHOD_CONNECTION_START                               10
 #define AMQP_0_9_METHOD_CONNECTION_START_OK                            11
@@ -133,6 +134,8 @@ typedef struct {
 #define AMQP_0_9_METHOD_EXCHANGE_DELETE_OK                             21
 #define AMQP_0_9_METHOD_EXCHANGE_BIND                                  30
 #define AMQP_0_9_METHOD_EXCHANGE_BIND_OK                               31
+#define AMQP_0_9_METHOD_EXCHANGE_UNBIND                                40
+#define AMQP_0_9_METHOD_EXCHANGE_UNBIND_OK                             41
 
 #define AMQP_0_9_METHOD_QUEUE_DECLARE                                  10
 #define AMQP_0_9_METHOD_QUEUE_DECLARE_OK                               11
@@ -159,7 +162,12 @@ typedef struct {
 #define AMQP_0_9_METHOD_BASIC_GET_EMPTY                                72
 #define AMQP_0_9_METHOD_BASIC_ACK                                      80
 #define AMQP_0_9_METHOD_BASIC_REJECT                                   90
-#define AMQP_0_9_METHOD_BASIC_RECOVER                                 100
+/* basic(100) is in 0-9 called Recover and in 0-9-1 Recover.Async,
+ * we will use the more recent 0-9-1 terminology */
+#define AMQP_0_9_METHOD_BASIC_RECOVER_ASYNC                           100
+#define AMQP_0_9_METHOD_BASIC_RECOVER                                 110
+#define AMQP_0_9_METHOD_BASIC_RECOVER_OK                              111
+#define AMQP_0_9_METHOD_BASIC_NACK                                    120
 
 #define AMQP_0_9_METHOD_FILE_QOS                                       10
 #define AMQP_0_9_METHOD_FILE_QOS_OK                                    11
@@ -199,6 +207,9 @@ typedef struct {
 #define AMQP_0_9_METHOD_DTX_START_OK                                   21
 
 #define AMQP_0_9_METHOD_TUNNEL_REQUEST                                 10
+
+#define AMQP_0_9_METHOD_CONFIRM_SELECT                                 10
+#define AMQP_0_9_METHOD_CONFIRM_SELECT_OK                              11
 
 /* AMQP 1.0 values */
 
@@ -754,7 +765,19 @@ dissect_amqp_0_9_method_basic_reject(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
+dissect_amqp_0_9_method_basic_recover_async(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree);
+
+static int
 dissect_amqp_0_9_method_basic_recover(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree);
+
+static int
+dissect_amqp_0_9_method_basic_recover_ok(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree);
+
+static int
+dissect_amqp_0_9_method_basic_nack(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
@@ -891,6 +914,14 @@ dissect_amqp_0_9_method_dtx_start_ok(tvbuff_t *tvb,
 
 static int
 dissect_amqp_0_9_method_tunnel_request(tvbuff_t *tvb, packet_info *pinfo,
+    int offset, proto_tree *args_tree);
+
+static int
+dissect_amqp_0_9_method_confirm_select(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree);
+
+static int
+dissect_amqp_0_9_method_confirm_select_ok(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
@@ -1840,6 +1871,7 @@ static int hf_amqp_method_stream_method_id = -1;
 static int hf_amqp_method_tx_method_id = -1;
 static int hf_amqp_method_dtx_method_id = -1;
 static int hf_amqp_method_tunnel_method_id = -1;
+static int hf_amqp_method_confirm_method_id = -1;
 static int hf_amqp_method_arguments = -1;
 static int hf_amqp_method_connection_start_version_major = -1;
 static int hf_amqp_method_connection_start_version_minor = -1;
@@ -1988,6 +2020,9 @@ static int hf_amqp_method_basic_ack_multiple = -1;
 static int hf_amqp_method_basic_reject_delivery_tag = -1;
 static int hf_amqp_method_basic_reject_requeue = -1;
 static int hf_amqp_method_basic_recover_requeue = -1;
+static int hf_amqp_method_basic_nack_delivery_tag = -1;
+static int hf_amqp_method_basic_nack_multiple = -1;
+static int hf_amqp_method_basic_nack_requeue = -1;
 static int hf_amqp_method_file_qos_prefetch_size = -1;
 static int hf_amqp_method_file_qos_prefetch_count = -1;
 static int hf_amqp_method_file_qos_global = -1;
@@ -2056,7 +2091,9 @@ static int hf_amqp_method_stream_deliver_exchange = -1;
 static int hf_amqp_method_stream_deliver_queue = -1;
 static int hf_amqp_method_dtx_start_dtx_identifier = -1;
 static int hf_amqp_method_tunnel_request_meta_data = -1;
+static int hf_amqp_method_confirm_select_nowait = -1;
 static int hf_amqp_field = -1;
+static int hf_amqp_field_timestamp = -1;
 static int hf_amqp_header_class_id = -1;
 static int hf_amqp_header_weight = -1;
 static int hf_amqp_header_body_size = -1;
@@ -2124,6 +2161,7 @@ static expert_field ei_amqp_field_short = EI_INIT;
 static expert_field ei_amqp_bad_length = EI_INIT;
 static expert_field ei_amqp_unknown_command_class = EI_INIT;
 static expert_field ei_amqp_unknown_tunnel_method = EI_INIT;
+static expert_field ei_amqp_unknown_confirm_method = EI_INIT;
 static expert_field ei_amqp_invalid_class_code = EI_INIT;
 static expert_field ei_amqp_unknown_access_method = EI_INIT;
 static expert_field ei_amqp_unknown_tx_method = EI_INIT;
@@ -2528,6 +2566,7 @@ static const value_string amqp_0_9_method_classes [] = {
     {AMQP_0_9_CLASS_TX,         "Tx"},
     {AMQP_0_9_CLASS_DTX,        "Dtx"},
     {AMQP_0_9_CLASS_TUNNEL,     "Tunnel"},
+    {AMQP_0_9_CLASS_CONFIRM,    "Confirm"},
     {0, NULL}
 };
 
@@ -2573,6 +2612,8 @@ static const value_string amqp_method_exchange_methods [] = {
     {21, "Delete-Ok"},
     {30, "Bind"},
     {31, "Bind-Ok"},
+    {40, "Unbind"},
+    {41, "Unbind-Ok"},
     {0, NULL}
 };
 
@@ -2605,7 +2646,12 @@ static const value_string amqp_method_basic_methods [] = {
     {72, "Get-Empty"},
     {80, "Ack"},
     {90, "Reject"},
-    {100, "Recover"},
+    /* basic(100) is in 0-9 called Recover and in 0-9-1 Recover.Async,
+     * we will use the more recent 0-9-1 terminology */
+    {100, "Recover-Async"},
+    {110, "Recover"},
+    {111, "Recover-Ok"},
+    {120, "Nack"},
     {0, NULL}
 };
 
@@ -2660,6 +2706,12 @@ static const value_string amqp_method_dtx_methods [] = {
 
 static const value_string amqp_method_tunnel_methods [] = {
     {10, "Request"},
+    {0, NULL}
+};
+
+static const value_string amqp_method_confirm_methods [] = {
+    {10, "Select"},
+    {11, "Select-Ok"},
     {0, NULL}
 };
 
@@ -2908,12 +2960,14 @@ static void
 dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item)
 {
     proto_tree *field_table_tree;
+    proto_item *ti;
     guint       namelen, vallen;
     guint8      type;
     const char *name;
     const char *amqp_typename;
     const char *value;
     int         field_start;
+    nstime_t    tv;
 
     field_table_tree = proto_item_add_subtree(item, ett_amqp);
 
@@ -2950,11 +3004,12 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             offset += vallen;
             length -= vallen;
             break;
-        case 'I':
+        case 'I': /* signed 32b integer */
             amqp_typename = "integer";
             if (length < 4)
                 goto too_short;
-            value  = wmem_strdup_printf(wmem_packet_scope(), "%d", tvb_get_ntohl(tvb, offset));
+            value  = wmem_strdup_printf(wmem_packet_scope(), "%d",
+                                        (gint32)tvb_get_ntohl(tvb, offset));
             offset += 4;
             length -= 4;
             break;
@@ -2970,27 +3025,138 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             amqp_typename =  "timestamp";
             if (length < 8)
                 goto too_short;
-            value   = "...";
+            tv.secs = (time_t)tvb_get_ntoh64(tvb, offset);
+            tv.nsecs = 0;
+
             offset += 8;
             length -= 8;
-            break;
+            ti = proto_tree_add_time(field_table_tree, hf_amqp_field_timestamp, tvb,
+                                field_start, offset - field_start, &tv);
+            proto_item_prepend_text(ti, "%s ", name);
+            continue;
         case 'F':
-            /*  TODO: make it recursive here  */
             amqp_typename =  "field table";
             if (length < 4)
                 goto too_short;
             vallen  = tvb_get_ntohl(tvb, offset);
+            ti = proto_tree_add_item(field_table_tree, hf_amqp_field, tvb,
+                offset, vallen, ENC_NA);
+            proto_item_set_text(ti, "%s (%s)", name, amqp_typename);
             offset += 4;
             length -= 4;
-            value = "...";
             if (length < vallen)
                 goto too_short;
+            dissect_amqp_0_9_field_table(tvb, pinfo, offset, vallen, ti);
             offset += vallen;
             length -= vallen;
-            break;
+            continue;
         case 'V':
             amqp_typename = "void";
             value = "";
+            break;
+        /* AMQP 0-9-1 types */
+        case 't':
+            amqp_typename = "boolean";
+            if (length < 1)
+                goto too_short;
+            value   = tvb_get_guint8(tvb, offset) ? "true" : "false";
+            offset += 1;
+            length -= 1;
+            break;
+        case 'b':
+            amqp_typename = "byte";
+            if (length < 1)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%d",
+                                         (gint8)tvb_get_guint8(tvb, offset));
+            offset += 1;
+            length -= 1;
+            break;
+        case 'B':
+            amqp_typename = "unsigned byte";
+            if (length < 1)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%u",
+                                         tvb_get_guint8(tvb, offset));
+            offset += 1;
+            length -= 1;
+            break;
+        case 'U':
+            amqp_typename = "short int";
+            if (length < 2)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%d",
+                                         (gint16)tvb_get_ntohs(tvb, offset));
+            offset += 2;
+            length -= 2;
+            break;
+        case 'u':
+            amqp_typename = "short uint";
+            if (length < 2)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%u",
+                                         tvb_get_ntohs(tvb, offset));
+            offset += 2;
+            length -= 2;
+            break;
+        case 'i':
+            amqp_typename = "unsigned integer";
+            if (length < 4)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%u",
+                                         tvb_get_ntohl(tvb, offset));
+            offset += 4;
+            length -= 4;
+            break;
+        case 'L':
+            amqp_typename = "long int";
+            if (length < 8)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%li",
+                                         (gint64)tvb_get_ntoh64(tvb, offset));
+            offset += 8;
+            length -= 8;
+            break;
+        case 'l':
+            amqp_typename = "long uint";
+            if (length < 8)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%lu",
+                                         tvb_get_ntoh64(tvb, offset));
+            offset += 8;
+            length -= 8;
+            break;
+        case 'f':
+            amqp_typename = "float";
+            if (length < 4)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%f",
+                                         tvb_get_ntohieee_float(tvb, offset));
+            offset += 4;
+            length -= 4;
+            break;
+        case 'd':
+            amqp_typename = "double";
+            if (length < 8)
+                goto too_short;
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%lf",
+                                         tvb_get_ntohieee_double(tvb, offset));
+            offset += 8;
+            length -= 8;
+            break;
+        case 's':
+            amqp_typename = "short string";
+            if (length < 1)
+                goto too_short;
+            vallen  = tvb_get_guint8(tvb, offset);
+            offset += 1;
+            length -= 1;
+            if (length < vallen)
+                goto too_short;
+            value  = (char*) tvb_get_string_enc(wmem_packet_scope(), tvb,
+                                                offset, vallen, ENC_UTF_8|ENC_NA);
+            offset += vallen;
+            length -= vallen;
             break;
         case 'A':
             /*  TODO: make it recursive here  */
@@ -7511,6 +7677,16 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 dissect_amqp_0_9_method_exchange_delete_ok(tvb,
                                                            11, args_tree);
                 break;
+            case AMQP_0_9_METHOD_EXCHANGE_UNBIND:
+                /* the same parameters as in bind */
+                dissect_amqp_0_9_method_exchange_bind(tvb,
+                                                      pinfo, 11, args_tree);
+                break;
+            case AMQP_0_9_METHOD_EXCHANGE_UNBIND_OK:
+                /* the same parameters as in bind-ok */
+                dissect_amqp_0_9_method_exchange_bind_ok(tvb,
+                                                         11, args_tree);
+                break;
             default:
                 expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_exchange_method, "Unknown exchange method %u", method_id);
             }
@@ -7640,9 +7816,21 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 dissect_amqp_0_9_method_basic_reject(tvb,
                                                      11, args_tree);
                 break;
+            case AMQP_0_9_METHOD_BASIC_RECOVER_ASYNC:
+                dissect_amqp_0_9_method_basic_recover_async(tvb,
+                                                            11, args_tree);
+                break;
             case AMQP_0_9_METHOD_BASIC_RECOVER:
                 dissect_amqp_0_9_method_basic_recover(tvb,
                                                       11, args_tree);
+                break;
+            case AMQP_0_9_METHOD_BASIC_RECOVER_OK:
+                dissect_amqp_0_9_method_basic_recover_ok(tvb,
+                                                         11, args_tree);
+                break;
+            case AMQP_0_9_METHOD_BASIC_NACK:
+                dissect_amqp_0_9_method_basic_nack(tvb,
+                                                   11, args_tree);
                 break;
             default:
                 expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_basic_method, "Unknown basic method %u", method_id);
@@ -7865,6 +8053,32 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             default:
                 expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_tunnel_method, "Unknown tunnel method %u", method_id);
+            }
+            break;
+        case AMQP_0_9_CLASS_CONFIRM:
+            method_id = tvb_get_ntohs(tvb, 9);
+            proto_tree_add_item(amqp_tree, hf_amqp_method_confirm_method_id,
+                                tvb, 9, 2, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
+                                     tvb, 11, length - 4, ENC_NA);
+            args_tree = proto_item_add_subtree(ti, ett_args);
+            switch (method_id) {
+            case AMQP_0_9_METHOD_CONFIRM_SELECT:
+                dissect_amqp_0_9_method_confirm_select(tvb,
+                                                       11, args_tree);
+                col_append_str(pinfo->cinfo, COL_INFO,
+                               "Confirm.Select ");
+                col_set_fence(pinfo->cinfo, COL_INFO);
+                break;
+            case AMQP_0_9_METHOD_CONFIRM_SELECT_OK:
+                dissect_amqp_0_9_method_confirm_select_ok(tvb,
+                                                          11, args_tree);
+                col_append_str(pinfo->cinfo, COL_INFO,
+                               "Confirm.Select-Ok ");
+                col_set_fence(pinfo->cinfo, COL_INFO);
+                break;
+            default:
+                expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_confirm_method, "Unknown confirm method %u", method_id);
             }
             break;
         default:
@@ -9082,6 +9296,19 @@ dissect_amqp_0_9_method_basic_reject(tvbuff_t *tvb,
     return offset;
 }
 
+/*  Dissection routine for method Basic.Recover-Async                     */
+
+static int
+dissect_amqp_0_9_method_basic_recover_async(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree)
+{
+    /*  requeue (bit)            */
+    proto_tree_add_item(args_tree, hf_amqp_method_basic_recover_requeue,
+        tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return offset;
+}
+
 /*  Dissection routine for method Basic.Recover                           */
 
 static int
@@ -9090,6 +9317,37 @@ dissect_amqp_0_9_method_basic_recover(tvbuff_t *tvb,
 {
     /*  requeue (bit)            */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_recover_requeue,
+        tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return offset;
+}
+
+/*  Dissection routine for method Basic.Recover-Ok                        */
+
+static int
+dissect_amqp_0_9_method_basic_recover_ok(tvbuff_t *tvb _U_,
+    int offset, proto_tree *args_tree _U_)
+{
+    return offset;
+}
+
+/*  Dissection routine for method Basic.Nack                              */
+
+static int
+dissect_amqp_0_9_method_basic_nack(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree)
+{
+    /*  delivery-tag (longlong)  */
+    proto_tree_add_item(args_tree, hf_amqp_method_basic_nack_delivery_tag,
+        tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    /*  multiple (bit)           */
+    proto_tree_add_item(args_tree, hf_amqp_method_basic_nack_multiple,
+        tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /*  requeue (bit)            */
+    proto_tree_add_item(args_tree, hf_amqp_method_basic_nack_requeue,
         tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return offset;
@@ -9739,6 +9997,28 @@ dissect_amqp_0_9_method_tunnel_request(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
+/*  Dissection routine for method Confirm.Select                          */
+
+static int
+dissect_amqp_0_9_method_confirm_select(tvbuff_t *tvb _U_,
+    int offset, proto_tree *args_tree _U_)
+{
+    /*  nowait (bit)             */
+    proto_tree_add_item(args_tree, hf_amqp_method_confirm_select_nowait,
+        tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return offset;
+}
+
+/*  Dissection routine for method Confirm.Select-Ok                       */
+
+static int
+dissect_amqp_0_9_method_confirm_select_ok(tvbuff_t *tvb _U_,
+    int offset, proto_tree *args_tree _U_)
+{
+    return offset;
+}
+
 
 /*  Dissection routine for content headers of class basic          */
 
@@ -9748,6 +10028,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *ti;
     guint16     prop_flags;
+    nstime_t    tv;
 
     prop_flags = tvb_get_ntohs(tvb, 19);
 
@@ -9827,8 +10108,10 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
 
     if (prop_flags & 0x8000) {
         /*  timestamp (timestamp)    */
-        proto_tree_add_item(prop_tree, hf_amqp_header_basic_timestamp,
-            tvb, offset, 8, ENC_BIG_ENDIAN);
+        tv.secs = (time_t)tvb_get_ntoh64(tvb, offset);
+        tv.nsecs = 0;
+        proto_tree_add_time(prop_tree, hf_amqp_header_basic_timestamp,
+                            tvb, offset, 8, &tv);
         offset += 8;
     }
     prop_flags <<= 1;
@@ -9875,6 +10158,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *ti;
     guint16     prop_flags;
+    nstime_t    tv;
 
     prop_flags = tvb_get_ntohs(tvb, 19);
 
@@ -9937,8 +10221,10 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
 
     if (prop_flags & 0x8000) {
         /*  timestamp (timestamp)    */
-        proto_tree_add_item(prop_tree, hf_amqp_header_file_timestamp,
-            tvb, offset, 8, ENC_BIG_ENDIAN);
+        tv.secs = (time_t)tvb_get_ntoh64(tvb, offset);
+        tv.nsecs = 0;
+        proto_tree_add_time(prop_tree, hf_amqp_header_file_timestamp,
+                            tvb, offset, 8, &tv);
         offset += 8;
     }
     prop_flags <<= 1;
@@ -9961,6 +10247,7 @@ dissect_amqp_0_9_content_header_stream(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *ti;
     guint16     prop_flags;
+    nstime_t    tv;
 
     prop_flags = tvb_get_ntohs(tvb, 19);
 
@@ -9999,8 +10286,10 @@ dissect_amqp_0_9_content_header_stream(tvbuff_t *tvb, packet_info *pinfo,
 
     if (prop_flags & 0x8000) {
         /*  timestamp (timestamp)    */
-        proto_tree_add_item(prop_tree, hf_amqp_header_stream_timestamp,
-            tvb, offset, 8, ENC_BIG_ENDIAN);
+        tv.secs = (time_t)tvb_get_ntoh64(tvb, offset);
+        tv.nsecs = 0;
+        proto_tree_add_time(prop_tree, hf_amqp_header_stream_timestamp,
+                            tvb, offset, 8, &tv);
         offset += 8;
     }
     /*prop_flags <<= 1;*/
@@ -12427,6 +12716,10 @@ proto_register_amqp(void)
             "Method", "amqp.method.method",
             FT_UINT16, BASE_DEC, VALS(amqp_method_tunnel_methods), 0x0,
             "Method ID", HFILL}},
+        {&hf_amqp_method_confirm_method_id, {
+            "Method", "amqp.method.method",
+            FT_UINT16, BASE_DEC, VALS(amqp_method_confirm_methods), 0x0,
+            "Method ID", HFILL}},
         {&hf_amqp_method_arguments, {
             "Arguments", "amqp.method.arguments",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -13020,6 +13313,18 @@ proto_register_amqp(void)
             "Requeue", "amqp.method.arguments.requeue",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL}},
+        {&hf_amqp_method_basic_nack_delivery_tag, {
+            "Delivery-Tag", "amqp.method.arguments.delivery_tag",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_method_basic_nack_multiple, {
+            "Multiple", "amqp.method.arguments.multiple",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}},
+        {&hf_amqp_method_basic_nack_requeue, {
+            "Requeue", "amqp.method.arguments.requeue",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}},
         {&hf_amqp_method_file_qos_prefetch_size, {
             "Prefetch-Size", "amqp.method.arguments.prefetch_size",
             FT_UINT32, BASE_DEC, NULL, 0,
@@ -13292,9 +13597,17 @@ proto_register_amqp(void)
             "Meta-Data", "amqp.method.arguments.meta_data",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL}},
+        {&hf_amqp_method_confirm_select_nowait, {
+            "Nowait", "amqp.method.arguments.nowait",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}},
         {&hf_amqp_field, {
             "AMQP", "amqp.field",
             FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_field_timestamp, {
+            "(timestamp)", "amqp.field.timestamp",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL}},
         {&hf_amqp_header_class_id, {
             "Class ID", "amqp.header.class",
@@ -13354,7 +13667,7 @@ proto_register_amqp(void)
             NULL, HFILL}},
         {&hf_amqp_header_basic_timestamp, {
             "Timestamp", "amqp.method.properties.timestamp",
-            FT_UINT64, BASE_DEC, NULL, 0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_header_basic_type, {
             "Type", "amqp.method.properties.type",
@@ -13402,7 +13715,7 @@ proto_register_amqp(void)
             NULL, HFILL}},
         {&hf_amqp_header_file_timestamp, {
             "Timestamp", "amqp.method.properties.timestamp",
-            FT_UINT64, BASE_DEC, NULL, 0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL}},
         {&hf_amqp_header_file_cluster_id, {
             "Cluster-Id", "amqp.method.properties.cluster_id",
@@ -13426,7 +13739,7 @@ proto_register_amqp(void)
             NULL, HFILL}},
         {&hf_amqp_header_stream_timestamp, {
             "Timestamp", "amqp.method.properties.timestamp",
-            FT_UINT64, BASE_DEC, NULL, 0,
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL}},
         {&hf_amqp_header_tunnel_headers, {
             "Headers", "amqp.method.properties.headers",
@@ -13516,6 +13829,7 @@ proto_register_amqp(void)
         { &ei_amqp_unknown_tx_method, { "amqp.unknown.method.tx", PI_PROTOCOL, PI_ERROR, "Unknown tx method", EXPFILL }},
         { &ei_amqp_unknown_dtx_method, { "amqp.unknown.method.dtx", PI_PROTOCOL, PI_ERROR, "Unknown dtx method", EXPFILL }},
         { &ei_amqp_unknown_tunnel_method, { "amqp.unknown.method.tunnel", PI_PROTOCOL, PI_ERROR, "Unknown tunnel method", EXPFILL }},
+        { &ei_amqp_unknown_confirm_method, { "amqp.unknown.method.confirm", PI_PROTOCOL, PI_ERROR, "Unknown confirm method", EXPFILL }},
         { &ei_amqp_unknown_method_class, { "amqp.unknown.method.class", PI_PROTOCOL, PI_ERROR, "Unknown method class", EXPFILL }},
         { &ei_amqp_unknown_header_class, { "amqp.unknown.header_class", PI_PROTOCOL, PI_ERROR, "Unknown header class", EXPFILL }},
         { &ei_amqp_unknown_sasl_command, { "amqp.unknown.sasl_command", PI_PROTOCOL, PI_ERROR, "Unknown SASL command", EXPFILL }},
