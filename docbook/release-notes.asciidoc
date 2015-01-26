@@ -15,12 +15,11 @@ The following vulnerabilities have been fixed.
 
 * ws-salink:2015-06[]
 +
-A dissector went awry.
-// Fixed in master: gXXX
+The pcapng file parser could crash.
+// Fixed in master: ga835c85
 // Fixed in master-1.12: gXXX
 // Fixed in master-1.10: gXXX
-(ws-buglink:XXX[])
-cve-idlink:2015-XXX[]
+(ws-buglink:10895[])
 
 
 The following bugs have been fixed:

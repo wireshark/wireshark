@@ -2262,7 +2262,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB");
                         *data_offset += bytes_read;
                         pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
-                        if (wth->number_of_interfaces < wblock.data.if_stats.interface_id) {
+                        if (wth->number_of_interfaces <= wblock.data.if_stats.interface_id) {
                                 pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u > number_of_interfaces", wblock.data.if_stats.interface_id);
                         } else {
                                 /* Get the interface description */
