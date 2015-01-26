@@ -1002,7 +1002,7 @@ static const value_string wtp_descriptor_type_vals[] = {
 
 static const value_string ac_information_type_vals[] = {
     { AC_INFORMATION_HARDWARE_VERSION, "AC Hardware Version" },
-    { AC_INFORMATION_SOFTWARE_VERSION, "AC  Software Version" },
+    { AC_INFORMATION_SOFTWARE_VERSION, "AC Software Version" },
     { 0,     NULL     }
 };
 /* ************************************************************************* */
