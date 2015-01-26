@@ -1737,7 +1737,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                 }
         }
 
-        if (tree && tp->id <= RTMPT_ID_MAX)
+        if (tp->id <= RTMPT_ID_MAX)
         {
                 sDesc = rtmpt_get_packet_desc(tvb, iBodyOffset, iBodyRemain, rconv, cdir, tp, &deschasopcode);
         }
