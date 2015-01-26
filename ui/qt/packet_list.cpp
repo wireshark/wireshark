@@ -231,7 +231,7 @@ packet_list_recent_write_all(FILE *rf) {
 
 #define MIN_COL_WIDTH_STR "...."
 
-Q_DECLARE_METATYPE(PacketList::ColumnActions);
+Q_DECLARE_METATYPE(PacketList::ColumnActions)
 
 PacketList::PacketList(QWidget *parent) :
     QTreeView(parent),
