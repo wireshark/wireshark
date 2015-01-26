@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V12.6.0 (2014-09)
+ * References: 3GPP TS 24.301 V12.7.0 (2014-12)
  */
 
 #include "config.h"
@@ -2322,7 +2322,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 /* Quality of Service Class Identifier (QCI), octet 3 (see 3GPP TS 23.203 [7]) */
 static const range_string nas_eps_qci_vals[] = {
-    { 0x00, 0x00, "UE -> NW Network selects the QCI / NW -> UE Reserved"},
+    { 0x00, 0x00, "Reserved"},
     { 0x01, 0x01, "QCI 1"},
     { 0x02, 0x02, "QCI 2"},
     { 0x03, 0x03, "QCI 3"},
@@ -2332,13 +2332,13 @@ static const range_string nas_eps_qci_vals[] = {
     { 0x07, 0x07, "QCI 7"},
     { 0x08, 0x08, "QCI 8"},
     { 0x09, 0x09, "QCI 9"},
-    { 0x0A, 0x40, "Reserved"},
+    { 0x0A, 0x40, "Spare"},
     { 0x41, 0x41, "QCI 65"},
     { 0x42, 0x42, "QCI 66"},
-    { 0x43, 0x44, "Reserved"},
+    { 0x43, 0x44, "Spare"},
     { 0x45, 0x45, "QCI 69"},
     { 0x46, 0x46, "QCI 70"},
-    { 0x47, 0x7F, "Reserved"},
+    { 0x47, 0x7F, "Spare"},
     { 0x80, 0xFE, "Operator-specific QCI"},
     { 0xFF, 0xFF, "Reserved"},
     { 0,    0,    NULL }
@@ -4009,6 +4009,8 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     ELEM_OPT_TLV( 0x34 , GSM_A_PDU_TYPE_GM, DE_PACKET_FLOW_ID , NULL );
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
+    /* C-   WLAN offload indication  WLAN offload indication 9.9.4.18 O  TV 1 */
+    ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4282,6 +4284,8 @@ nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* 37   T3396 value GPRS timer 3 9.9.3.16B O   TLV  3 */
     ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
+    /* C-   WLAN offload indication  WLAN offload indication 9.9.4.18 O  TV 1 */
+    ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }

@@ -51,7 +51,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 12.7.0 Release 12)
+ *   (3GPP TS 24.008 version 12.8.0 Release 12)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -362,7 +362,8 @@ static int hf_gsm_a_sm_enh_nsapi = -1;
 static int hf_gsm_a_sm_req_type = -1;
 static int hf_gsm_a_sm_notif_ind = -1;
 static int hf_gsm_a_sm_connectivity_type = -1;
-static int hf_gsm_a_sm_wlan_offload_accept = -1;
+static int hf_gsm_a_sm_wlan_utran_offload_accept = -1;
+static int hf_gsm_a_sm_wlan_eutran_offload_accept = -1;
 static int hf_gsm_a_gm_rac_ctrled_early_cm_sending = -1;
 static int hf_gsm_a_gm_rac_pseudo_sync = -1;
 static int hf_gsm_a_gm_rac_vgcs = -1;
@@ -5664,17 +5665,22 @@ de_sm_connectivity_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 /*
  * [12] 10.5.6.20 WLAN offload acceptability
  */
-static const range_string gsm_a_sm_wlan_offload_accept_vals[] = {
-	{ 0x0,	0x0, "Offloading the traffic of the PDN connection via a WLAN is not acceptable"},
-	{ 0x1,	0x1, "Offloading the traffic of the PDN connection via a WLAN is acceptable"},
-	{ 0x2,	0xF, "Offloading the traffic of the PDN connection via a WLAN is not acceptable"},
-	{ 0, 0, NULL }
+static const true_false_string gsm_a_sm_wlan_utran_offload_accept_value = {
+	"Offloading the traffic of the PDN connection via a WLAN when in Iu mode is acceptable",
+	"Offloading the traffic of the PDN connection via a WLAN when in Iu mode is not acceptable"
+};
+
+static const true_false_string gsm_a_sm_wlan_eutran_offload_accept_value = {
+	"Offloading the traffic of the PDN connection via a WLAN when in S1 mode is acceptable",
+	"Offloading the traffic of the PDN connection via a WLAN when in S1 mode is not acceptable"
 };
 
 static guint16
 de_sm_wlan_offload_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-	proto_tree_add_item(tree, hf_gsm_a_sm_wlan_offload_accept, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (offset<<3)+4, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_sm_wlan_utran_offload_accept, tvb, (offset<<3)+6, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_sm_wlan_eutran_offload_accept, tvb, (offset<<3)+7, 1, ENC_BIG_ENDIAN);
 
 	return (len);
 }
@@ -6683,6 +6689,8 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
+	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6890,6 +6898,8 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
+	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6948,6 +6958,8 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
 
+	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -7003,6 +7015,9 @@ dtap_sm_req_sec_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 - 253 */
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
+
+	/* C- WLAN offload acceptability 10.5.6.20 O TV 1 */
+	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -8070,9 +8085,14 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_connectivity_type_vals), 0x0F,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_sm_wlan_offload_accept,
-		  { "WLAN offload acceptability", "gsm_a.gm.sm.wlan_offload_accept",
-		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_wlan_offload_accept_vals), 0x0F,
+		{ &hf_gsm_a_sm_wlan_utran_offload_accept,
+		  { "WLAN UTRAN offload acceptability", "gsm_a.gm.sm.wlan_utran_offload_accept",
+		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_sm_wlan_utran_offload_accept_value), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_wlan_eutran_offload_accept,
+		  { "WLAN E-UTRAN offload acceptability", "gsm_a.gm.sm.wlan_eutran_offload_accept",
+		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_sm_wlan_eutran_offload_accept_value), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ctrled_early_cm_sending,
