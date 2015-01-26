@@ -59,10 +59,10 @@ void proto_reg_handoff_epl(void);
 #define UDP_PORT_EPL            3819
 #endif
 
-/* Allow heuristic dissection */
+/* Allow heuristic dissection and ASND manufacturer dissection */
 static heur_dissector_list_t heur_epl_subdissector_list;
 static heur_dissector_list_t heur_epl_data_subdissector_list;
-
+static dissector_table_t     epl_asnd_dissector_table;
 #if 0
 /* Container for tapping relevant data */
 typedef struct _epl_info_t {
@@ -164,14 +164,17 @@ static const value_string mtyp_vals[] = {
 #define EPL_SOA_SYNC_PRES_RESET         0x40
 #define EPL_SOA_SYNC_PRES_SET           0x80
 
-static const value_string soa_svid_vals[] = {
-	{EPL_SOA_NOSERVICE,           "NoService"        },
-	{EPL_SOA_IDENTREQUEST,        "IdentRequest"     },
-	{EPL_SOA_STATUSREQUEST,       "StatusRequest"    },
-	{EPL_SOA_NMTREQUESTINVITE,    "NMTRequestInvite" },
-	{EPL_SOA_SYNCREQUEST,         "SyncRequest"      },
-	{EPL_SOA_UNSPECIFIEDINVITE,   "UnspecifiedInvite"},
-	{0,NULL}
+static const range_string soa_svid_vals[] = {
+	{EPL_SOA_NOSERVICE,         EPL_SOA_NOSERVICE,          "NoService"},
+	{EPL_SOA_IDENTREQUEST,      EPL_SOA_IDENTREQUEST,       "IdentRequest"},
+	{EPL_SOA_STATUSREQUEST,     EPL_SOA_STATUSREQUEST,      "StatusRequest"},
+	{EPL_SOA_NMTREQUESTINVITE,  EPL_SOA_NMTREQUESTINVITE,   "NMTRequestInvite"},
+	{0x04,                      0x05,                       "Reserved"},
+	{EPL_SOA_SYNCREQUEST,       EPL_SOA_SYNCREQUEST,        "SyncRequest"},
+	{0x07,                      0x9F,                       "Reserved"},
+	{0xA0,                      0xFE,                       "Manufacturer Specific"},
+	{EPL_SOA_UNSPECIFIEDINVITE, EPL_SOA_UNSPECIFIEDINVITE,  "UnspecifiedInvite"},
+	{0,                         0,                          NULL}
 };
 
 /* ServiceID values for EPL message type "ASnd" */
@@ -186,34 +189,45 @@ static const value_string soa_svid_vals[] = {
 #define EPL_ASND_SYNCRESPONSE_SEC_VALID    0x02
 #define EPL_ASND_SYNCRESPONSE_MODE         0x80
 
-static const value_string soa_svid_id_vals[] = {
-	{EPL_SOA_NOSERVICE,           "NO_SERVICE"        },
-	{EPL_SOA_IDENTREQUEST,        "IDENT_REQUEST"     },
-	{EPL_SOA_STATUSREQUEST,       "STATUS_REQUEST"    },
-	{EPL_SOA_NMTREQUESTINVITE,    "NMT_REQUEST_INV"   },
-	{EPL_SOA_SYNCREQUEST,         "SYNC_REQUEST"      },
-	{EPL_SOA_UNSPECIFIEDINVITE,   "UNSPEC_INVITE"     },
-	{0,NULL}
+static const range_string soa_svid_id_vals[] = {
+	{EPL_SOA_NOSERVICE,         EPL_SOA_NOSERVICE,          "NO_SERVICE"},
+	{EPL_SOA_IDENTREQUEST,      EPL_SOA_IDENTREQUEST,       "IDENT_REQUEST"},
+	{EPL_SOA_STATUSREQUEST,     EPL_SOA_STATUSREQUEST,      "STATUS_REQUEST"},
+	{EPL_SOA_NMTREQUESTINVITE,  EPL_SOA_NMTREQUESTINVITE,   "NMT_REQUEST_INV"},
+	{0x04,                      0x05,                       "RESERVED"},
+	{EPL_SOA_SYNCREQUEST,       EPL_SOA_SYNCREQUEST,        "SYNC_REQUEST"},
+	{0x07,                      0x9F,                       "RESERVED"},
+	{0xA0,                      0xFE,                       "MANUFACTURER SPECIFIC"},
+	{EPL_SOA_UNSPECIFIEDINVITE, EPL_SOA_UNSPECIFIEDINVITE,  "UNSPEC_INVITE"},
+	{0,                         0,                          NULL}
 };
 
-static const value_string asnd_svid_vals[] = {
-	{EPL_ASND_IDENTRESPONSE,  "IdentResponse" },
-	{EPL_ASND_STATUSRESPONSE, "StatusResponse"},
-	{EPL_ASND_NMTREQUEST,     "NMTRequest"    },
-	{EPL_ASND_NMTCOMMAND,     "NMTCommand"    },
-	{EPL_ASND_SDO,            "SDO"           },
-	{EPL_ASND_SYNCRESPONSE,   "SyncResponse"  },
-	{0,NULL}
+static const range_string asnd_svid_vals[] = {
+	{0,                       0,                       "Reserved"},
+	{EPL_ASND_IDENTRESPONSE,  EPL_ASND_IDENTRESPONSE,  "IdentResponse"},
+	{EPL_ASND_STATUSRESPONSE, EPL_ASND_STATUSRESPONSE, "StatusResponse"},
+	{EPL_ASND_NMTREQUEST,     EPL_ASND_NMTREQUEST,     "NMTRequest"},
+	{EPL_ASND_NMTCOMMAND,     EPL_ASND_NMTCOMMAND,     "NMTCommand"},
+	{EPL_ASND_SDO,            EPL_ASND_SDO,            "SDO"},
+	{EPL_ASND_SYNCRESPONSE,   EPL_ASND_SYNCRESPONSE,   "SyncResponse"},
+	{0x07,                    0x9F,                    "Reserved"},
+	{0xA0,                    0xFE,                    "Manufacturer Specific"},
+	{0xFF,                    0xFF,                    "Reserved"},
+	{0,                       0,                        NULL}
 };
 
-static const value_string asnd_svid_id_vals[] = {
-	{EPL_ASND_IDENTRESPONSE,  "IDENT_RESPONSE" },
-	{EPL_ASND_STATUSRESPONSE, "STATUS_RESPONSE"},
-	{EPL_ASND_NMTREQUEST,     "NMT_REQUEST"    },
-	{EPL_ASND_NMTCOMMAND,     "NMT_COMMAND"    },
-	{EPL_ASND_SDO,            "SDO"            },
-	{EPL_ASND_SYNCRESPONSE,   "SYNC_RESPONSE"  },
-	{0,NULL}
+static const range_string asnd_svid_id_vals[] = {
+	{0,                       0,                       "RESERVED"},
+	{EPL_ASND_IDENTRESPONSE,  EPL_ASND_IDENTRESPONSE,  "IDENT_RESPONSE"},
+	{EPL_ASND_STATUSRESPONSE, EPL_ASND_STATUSRESPONSE, "STATUS_RESPONSE"},
+	{EPL_ASND_NMTREQUEST,     EPL_ASND_NMTREQUEST,     "NMT_REQUEST"},
+	{EPL_ASND_NMTCOMMAND,     EPL_ASND_NMTCOMMAND,     "NMT_COMMAND"},
+	{EPL_ASND_SDO,            EPL_ASND_SDO,            "SDO"},
+	{EPL_ASND_SYNCRESPONSE,   EPL_ASND_SYNCRESPONSE,   "SYNC_RESPONSE"},
+	{0x07,                    0x9F,                    "RESERVED"},
+	{0xA0,                    0xFE,                    "MANUFACTURER SPECIFIC"},
+	{0xFF,                    0xFF,                    "RESERVED"},
+	{0,                       0,                        NULL}
 };
 
 /* NMTCommand values for EPL message type "ASnd" */
@@ -2037,7 +2051,7 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
 	offset += 1;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)->%3d",
-					val_to_str(svid, soa_svid_id_vals, "UNKNOWN(%d)"), target);
+					rval_to_str(svid, soa_svid_id_vals, "Unknown"), target);
 
 	if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
 	{
@@ -2118,17 +2132,19 @@ gint
 dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
 {
 	guint8  svid;
+	gint size, reported_len;
+	tvbuff_t *next_tvb;
 	proto_item *item;
 	proto_tree *subtree;
 
 	/* get ServiceID of payload */
 	svid = tvb_get_guint8(tvb, offset);
-	item = proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid);
+	item = proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid );
 
 	offset += 1;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)  ",
-						val_to_str(svid, asnd_svid_id_vals, "UNKNOWN(%d)"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
+			rval_to_str(svid, asnd_svid_id_vals, "Unknown"));
 
 	switch (svid)
 	{
@@ -2154,6 +2170,21 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 			break;
 		case EPL_ASND_SYNCRESPONSE:
 			offset = dissect_epl_asnd_resp(epl_tree, tvb, pinfo, offset);
+			break;
+		default:
+			size = tvb_captured_length_remaining(tvb, offset);
+			reported_len = tvb_reported_length_remaining(tvb, offset);
+
+			next_tvb = tvb_new_subset(tvb, offset, size, reported_len);
+			/* Manufacturer specific entries for ASND services */
+			if ( svid >= 0xA0 && svid < 0xFF )
+			{
+				if (! dissector_try_uint(epl_asnd_dissector_table, svid, next_tvb, pinfo,
+						( epl_tree != NULL ? epl_tree->parent : epl_tree ) ) )
+					dissect_epl_payload ( epl_tree, tvb, pinfo, offset, size, EPL_ASND );
+			} else {
+				dissect_epl_payload ( epl_tree, tvb, pinfo, offset, size, EPL_ASND );
+			}
 			break;
 	}
 
@@ -2184,10 +2215,9 @@ dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 
 	svid = tvb_get_guint8(tvb, offset);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)  ",
-	val_to_str(svid, asnd_svid_id_vals, "UNKNOWN(%d)"));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)  ", rval_to_str(svid, asnd_svid_id_vals, "UNKNOWN(%d)"));
 
-	item = proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid);
+	item = proto_tree_add_uint(epl_tree, hf_epl_asnd_svid, tvb, offset, 1, svid );
 	offset += 1;
 
 	switch (svid)
@@ -3528,7 +3558,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_soa_svid,
 			{ "RequestedServiceID", "epl.soa.svid",
-				FT_UINT8, BASE_DEC, VALS(soa_svid_vals), 0x00, NULL, HFILL }
+				FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(soa_svid_vals), 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_soa_svtg,
 			{ "RequestedServiceTarget", "epl.soa.svtg",
@@ -3602,7 +3632,7 @@ proto_register_epl(void)
 		/* ASnd header */
 		{ &hf_epl_asnd_svid,
 			{ "Requested Service ID", "epl.asnd.svid",
-				FT_UINT8, BASE_DEC, VALS(asnd_svid_vals), 0x00, NULL, HFILL }
+				FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(asnd_svid_vals), 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_svtg,
 			{ "Requested Service Target", "epl.asnd.svtg",
@@ -4208,6 +4238,8 @@ proto_register_epl(void)
 	/* subdissector code */
 	heur_epl_subdissector_list = register_heur_dissector_list("epl");
 	heur_epl_data_subdissector_list = register_heur_dissector_list("epl_data");
+	epl_asnd_dissector_table = register_dissector_table("epl.asnd",
+	        "Manufacturer specific ASND service", FT_UINT8, BASE_DEC);
 
 	/* Registering protocol to be called by another dissector */
 	epl_handle = new_register_dissector("epl", dissect_epl, proto_epl);
