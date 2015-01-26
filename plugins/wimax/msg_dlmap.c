@@ -33,6 +33,7 @@
 #include "wimax_mac.h"
 #include "crc.h"
 #include "wimax_bits.h"
+#include "wimax_utils.h"
 
 extern	gboolean include_cor2_changes;
 
@@ -294,6 +295,7 @@ static gint hf_dlmapc_opid = -1;
 static gint hf_dlmapc_secid = -1;
 static gint hf_dlmapc_count = -1;
 
+#if 0
 static gint hf_109x_cmi = -1;
 static gint hf_109x_len = -1;
 static gint hf_109x_rcid = -1;
@@ -304,6 +306,7 @@ static gint hf_109x_dlie = -1;
 static gint hf_109x_symofs = -1;
 static gint hf_109x_subofs = -1;
 static gint hf_109x_rsv = -1;
+#endif
 
 static gint hf_308a_cmi = -1;
 static gint hf_308a_ulmap = -1;
@@ -2035,8 +2038,6 @@ static gint UL_interference_and_noise_level_IE(proto_tree *diuc_tree, gint offse
  * DL-MAP Plugin
  *******************************************************************/
 
-extern gint wimax_decode_ulmapc(proto_tree *base_tree, packet_info* pinfo, gint offset, gint length, tvbuff_t *tvb);
-
 static gint dissect_dlmap_ie(proto_tree *ie_tree, packet_info *pinfo, gint offset, gint length, tvbuff_t *tvb)
 {
 	/* decode a single DL-MAP IE and return the
@@ -2440,11 +2441,8 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 
 	return mac_len;
 }
-
-extern gint dissect_ulmap_ie(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb);
-extern gint wimax_decode_ulmap_reduced_aas(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb);
-
-gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
+#if 0
+static gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
 {
 	/* decode a SUB-DL-UL-MAP message 6.3.2.3.60 and return the length in bytes */
 	/* first three bits are 0x7, which following a compressed DL map indicates this message */
@@ -2525,6 +2523,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *b
 	/* return length */
 	return length;
 }
+#endif
 
 gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *base_tree)
 {
@@ -2997,7 +2996,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
-#endif
+
 		{
 			&hf_109x_cmi,
 			{
@@ -3070,6 +3069,7 @@ void proto_register_mac_mgmt_msg_dlmap(void)
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 			}
 		},
+#endif
 		{
 			&hf_308a_cmi,
 			{

@@ -30,6 +30,7 @@
 
 #include <epan/packet.h>
 #include "crc.h"
+#include "wimax_utils.h"
 
 extern gint proto_wimax;
 
@@ -40,11 +41,6 @@ static dissector_handle_t mac_generic_decoder_handle = NULL;
 static dissector_handle_t mac_header_type1_handle = NULL;
 static dissector_handle_t mac_header_type2_handle = NULL;
 static dissector_handle_t wimax_harq_map_handle = NULL;
-
-/* MAC Header dissector prototypes */
-extern gboolean is_down_link(packet_info *pinfo);
-extern gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree);
-extern gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_tree);
 
 #define WIMAX_PDU_PADDING_MASK           0xFF
 #define WIMAX_INVALID_PDU_MASK           0xF0

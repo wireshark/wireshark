@@ -33,6 +33,7 @@
 #include "crc.h"
 #include "wimax_mac.h"
 #include "wimax_bits.h"
+#include "wimax_utils.h"
 
 extern	gboolean include_cor2_changes;
 
@@ -66,7 +67,6 @@ extern gint harq;
 extern gint ir_type;
 extern gint N_layer;
 extern gint RCID_Type;
-extern gint RCID_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type);
 
 static gint proto_mac_mgmt_msg_ulmap_decoder = -1;
 

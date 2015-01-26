@@ -28,10 +28,19 @@
 
 #include <epan/packet.h>
 
+extern void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry);
+extern void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_t *tvb, guint  compound_tlv_len, packet_info *pinfo, guint offset);
+extern gint dissect_ulmap_ie(proto_tree *ie_tree, packet_info* pinfo, gint offset, gint length, tvbuff_t *tvb);
 extern guint get_service_type(void);
+extern void init_wimax_globals(void); /* defined in msg_ulmap.c */
 extern gboolean is_down_link(packet_info *pinfo);
+extern gint RCID_IE(proto_tree *diuc_tree, gint offset, gint length, tvbuff_t *tvb, gint RCID_Type);
 extern void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern gint wimax_decode_ulmapc(proto_tree *base_tree, packet_info* pinfo, gint offset, gint length, tvbuff_t *tvb);
+extern gint wimax_decode_ulmap_reduced_aas(proto_tree *ie_tree, gint offset, gint length, tvbuff_t *tvb);
+extern gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdu_tree);
+extern gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree);
 extern void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void wimax_hmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offset, guint length);
 extern void wimax_cmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offset, guint length);

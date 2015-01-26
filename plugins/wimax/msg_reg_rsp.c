@@ -42,8 +42,6 @@ void proto_reg_handoff_mac_mgmt_msg_reg_rsp(void);
 
 extern gboolean include_cor2_changes;
 
-extern void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len, packet_info *pinfo, guint offset, gint proto_registry);
-
 static dissector_handle_t dsc_rsp_handle = NULL;
 
 static gint proto_mac_mgmt_msg_reg_rsp_decoder = -1;

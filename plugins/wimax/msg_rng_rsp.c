@@ -39,9 +39,6 @@ void proto_reg_handoff_mac_mgmt_msg_rng_rsp(void);
 
 extern gboolean include_cor2_changes;
 
-/* external reference */
-extern void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_t *tvb, guint compound_tlv_len, packet_info *pinfo, guint offset);
-
 static dissector_handle_t sbc_rsp_handle = NULL;
 static dissector_handle_t reg_rsp_handle = NULL;
 

@@ -59,8 +59,6 @@ extern gint  scheduling_service_type;           /* declared in packet-wmx.c */
 
 extern address bs_address;			/* declared in packet-wmx.c */
 extern guint max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
-extern gboolean is_down_link(packet_info *pinfo);/* declared in packet-wmx.c */
-extern void init_wimax_globals(void);		/* defined in msg_ulmap.c */
 
 static dissector_handle_t mac_mgmt_msg_decoder_handle = NULL;
 static dissector_handle_t mac_ip_handle = NULL;
@@ -599,7 +597,7 @@ static const value_string last_ie_msgs[] =
 };
 
 /* Register Wimax defrag table init routine. */
-void wimax_defragment_init(void)
+static void wimax_defragment_init(void)
 {
 	gint i;
 
