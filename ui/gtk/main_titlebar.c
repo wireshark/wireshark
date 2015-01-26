@@ -75,7 +75,7 @@ main_titlebar_update(void)
         if ((prefs.gui_version_placement == version_title_only) ||
             (prefs.gui_version_placement == version_both)) {
             gchar *old_title = title;
-            title = g_strdup_printf("%s   [Wireshark %s]", title, get_ws_vcs_version_info());
+            title = g_strdup_printf("%s [Wireshark %s]", title, get_ws_vcs_version_info());
             g_free(old_title);
         }
         gtk_window_set_title(GTK_WINDOW(top_level), title);
@@ -108,7 +108,7 @@ set_titlebar_for_capture_in_progress(capture_file *cf)
 {
   gchar *window_name;
 
-  window_name = g_strdup_printf("Capturing from %s ", cf_get_tempfile_source(cf));
+  window_name = g_strdup_printf("Capturing from %s", cf_get_tempfile_source(cf));
   main_set_window_name(window_name);
   g_free(window_name);
 }
