@@ -27,16 +27,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -64,7 +55,7 @@
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
-          <string>900000000</string>
+          <string>900000000; </string>
          </property>
         </widget>
        </item>
@@ -108,7 +99,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>21</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1183,6 +1174,9 @@
    </property>
   </action>
   <action name="actionEditFindPacket">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Find Packet...</string>
    </property>
