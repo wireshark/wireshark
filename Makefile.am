@@ -1210,6 +1210,7 @@ EXTRA_DIST = \
 	wireshark.pc.in		\
 	wka.tmpl		\
 	CMakeLists.txt		\
+	CMakeListsCustom.txt.example		\
 	cmakeconfig.h.in	\
 	wsutil/CMakeLists.txt	\
 	CMakeOptions.txt	\
@@ -1254,6 +1255,7 @@ EXTRA_DIST = \
 	cmake/modules/FindSETCAP.cmake		\
 	cmake/modules/FindSH.cmake		\
 	cmake/modules/FindSMI.cmake		\
+	cmake/modules/FindWinSparkle.cmake		\
 	cmake/modules/FindWireshark.cmake	\
 	cmake/modules/FindWSWinLibs.cmake	\
 	cmake/modules/FindXMLLINT.cmake		\
@@ -1269,6 +1271,7 @@ EXTRA_DIST = \
 	cmake/modules/UseABICheck.cmake		\
 	cmake/modules/UseAsn2Wrs.cmake		\
 	cmake/modules/UseCheckAPI.cmake		\
+	cmake/modules/UseCustomIncludes.cmake		\
 	cmake/modules/UseLemon.cmake		\
 	cmake/modules/UseMakeDissectorReg.cmake	\
 	cmake/modules/UseMakeTapReg.cmake	\
