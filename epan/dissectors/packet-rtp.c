@@ -2406,17 +2406,17 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
           rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
         }
         for(i=0; i<hdr_extension_len; i++) {
+            ext_value=tvb_get_ntohl( tvb, hdrext_offset );
+
+            if (RTP_ED137_ptt_mask(ext_value)) {
+                col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
+            }
+            if (RTP_ED137_squ_mask(ext_value)) {
+                col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
+            }
             if ( tree ) {
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137, tvb, hdrext_offset, 4, ENC_NA);
                 rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137 );
-                ext_value=tvb_get_ntohl( tvb, hdrext_offset );
-
-                if (RTP_ED137_ptt_mask(ext_value)) {
-                    col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
-                }
-                if (RTP_ED137_squ_mask(ext_value)) {
-                    col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
-                }
 
                 /* Following bits are used from ED137 RTPRx/RTPTx Information field */
                 proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ptt_type, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
@@ -2495,17 +2495,17 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
         }
         for(i=0; i<hdr_extension_len; i++) {
+            ext_value=tvb_get_ntohl( tvb, hdrext_offset );
+
+            if (RTP_ED137A_ptt_mask(ext_value)) {
+                col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
+            }
+            if (RTP_ED137A_squ_mask(ext_value)) {
+                col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
+            }
             if ( tree ) {
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a, tvb, hdrext_offset, 4, ENC_NA);
                 rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137a );
-                ext_value=tvb_get_ntohl( tvb, hdrext_offset );
-
-                if (RTP_ED137A_ptt_mask(ext_value)) {
-                    col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
-                }
-                if (RTP_ED137A_squ_mask(ext_value)) {
-                    col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
-                }
 
                 /* Following bits are used from ED137A/B RTPRx Information field */
                 proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ptt_type, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
