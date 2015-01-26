@@ -47,6 +47,7 @@
 #include "ui/software_update.h"
 #include "ui/utf8_entities.h"
 
+#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/about_dlg.h"
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"

@@ -54,6 +54,8 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/filter_autocomplete.h"
 
+
+#include "ui/gtk/gui_stat_menu.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "filter_dlg.h"

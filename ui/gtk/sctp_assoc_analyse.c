@@ -30,6 +30,7 @@
 #include "ui/simple_dialog.h"
 #include <epan/stat_groups.h>
 
+#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/sctp_stat_gtk.h"

@@ -30,12 +30,12 @@
 #include <epan/packet.h>
 #include <epan/stat_tap_ui.h>
 
-
 #include "ui/gtk/graph_analysis.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/main.h"
+#include "ui/gtk/gui_stat_menu.h"
 
 void register_tap_listener_flow_graph(void);
 

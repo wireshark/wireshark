@@ -42,6 +42,7 @@
 
 #include "ui/simple_dialog.h"
 
+#include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/filter_dlg.h"
