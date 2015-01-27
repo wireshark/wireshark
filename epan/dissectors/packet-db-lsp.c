@@ -57,6 +57,10 @@ static int hf_text = -1;
 
 static gint ett_db_lsp = -1;
 
+static heur_dissector_list_t heur_subdissector_list;
+
+/* Use heuristic */
+static gboolean try_heuristic = TRUE;
 /* desegmentation of tcp payload */
 static gboolean db_lsp_desegment = TRUE;
 
@@ -163,6 +167,8 @@ dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *db_lsp_tree;
   proto_item *db_lsp_item;
   gint        offset = 0;
+  heur_dtbl_entry_t *hdtbl_entry;
+  proto_tree *data_subtree;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME_DISC);
   col_set_str (pinfo->cinfo, COL_INFO, PNAME_DISC);
@@ -170,6 +176,15 @@ dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   db_lsp_item = proto_tree_add_item (tree, proto_db_lsp_disc, tvb, offset, -1, ENC_NA);
   db_lsp_tree = proto_item_add_subtree (db_lsp_item, ett_db_lsp);
 
+  /* try the heuristic dissectors */
+  if (try_heuristic) {
+    data_subtree = proto_item_add_subtree(db_lsp_item, ett_db_lsp);
+    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, data_subtree, &hdtbl_entry, NULL)) {
+      return;
+    }
+  }
+
+  /* heuristic failed. Print remaining bytes as text */
   proto_tree_add_item (db_lsp_tree, hf_text, tvb, offset, -1, ENC_ASCII|ENC_NA);
 }
 
@@ -224,6 +239,8 @@ proto_register_db_lsp (void)
   new_register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
   register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
 
+  heur_subdissector_list = register_heur_dissector_list("db-lsp");
+
   proto_register_field_array (proto_db_lsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
@@ -237,6 +254,11 @@ proto_register_db_lsp (void)
                                   " To use this option, you must also enable \"Allow subdissectors"
                                   " to reassemble TCP streams\" in the TCP protocol settings.",
                                   &db_lsp_desegment);
+
+  prefs_register_bool_preference(db_lsp_module, "try_heuristic",
+                                  "Try heuristic sub-dissectors",
+                                  "Try to decode the payload using an heuristic sub-dissector",
+                                  &try_heuristic);
 }
 
 void
