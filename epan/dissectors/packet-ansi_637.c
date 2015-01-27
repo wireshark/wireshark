@@ -171,9 +171,9 @@ static const value_string ansi_trans_param_strings[] = {
  * from Table 2.7.1.3.2.4-4. Representation of DTMF Digits
  * 3GPP2 C.S0005-C (IS-2000 aka cdma2000)
  */
-static unsigned char air_digits[] = {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '?','1','2','3','4','5','6','7','8','9','0','*','#','?','?'
+static const unsigned char air_digits[] = {
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
+     '?','1','2','3','4','5','6','7','8','9','0','*','#','?','?','?'
 };
 
 /* Initialize the protocol and registered fields */
