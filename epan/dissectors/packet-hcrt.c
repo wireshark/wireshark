@@ -273,7 +273,6 @@ static gboolean dissect_hcrt_message(tvbuff_t* tvb, packet_info* pinfo, proto_tr
     addr_mode = (1 + ((b0_current & 0x40) >> 6));
     type = (b0_current & 0x30) >> 4;
 
-    body_len = 0;
     switch (type) {
         case HCRT_NOP:
             body_len = 4 * addr_mode * adl;
