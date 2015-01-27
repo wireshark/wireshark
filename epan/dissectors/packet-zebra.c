@@ -559,7 +559,7 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_INFO,
 		    request? "ZEBRA Request" : "ZEBRA Reply");
 
-	if (tree) {
+	/* if (tree) */ {
 		ti = proto_tree_add_item(tree, proto_zebra, tvb, offset, -1,
 					 ENC_NA);
 		zebra_tree = proto_item_add_subtree(ti, ett_zebra);
