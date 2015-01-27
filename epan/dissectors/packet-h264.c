@@ -2422,7 +2422,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                     val_to_str(type, h264_type_summary_values, "Unknown Type (%u)"));
 
-    if (tree) {
+    /* if (tree) */ {
         item = proto_tree_add_item(tree, proto_h264, tvb, 0, -1, ENC_NA);
         h264_tree = proto_item_add_subtree(item, ett_h264);
 

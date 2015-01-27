@@ -9219,7 +9219,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 
-	if (tree) { /* we are being asked for details */
+	/* if (tree) */ { /* we are being asked for details */
 		guint32 offset = 0;
 		guint32 txtimer = 0;
 		guint32 tslot = 0;
