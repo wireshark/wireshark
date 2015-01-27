@@ -60,6 +60,7 @@ static gint ett_hcrt_body = -1;
 static expert_field ei_hcrt_error = EI_INIT;
 
 void proto_reg_handoff_hcrt(void);
+void proto_register_hcrt(void);
 
 #define HCRT_HDR_LEN 4
 
