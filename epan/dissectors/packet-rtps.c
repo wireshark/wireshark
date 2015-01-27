@@ -1242,9 +1242,6 @@ int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbuff_t * 
   guint32 num_locators;
 
   num_locators = NEXT_guint32(tvb, offset, little_endian);
-  if (tree == NULL) {
-    return offset + 4 + ((num_locators > 0) ? (24 * num_locators) : 0);
-  }
 
   locator_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
                         ett_rtps_locator_udp_v4, NULL, "%s: %d Locators", label, num_locators);
@@ -5126,24 +5123,6 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
     return;
   }
 
-  /* Skip decoding the entire packet if (tree == NULL)
-   * Note that we still need to decode the statusInfo and the writer ID
-   */
-  if (tree == NULL) {
-    offset += 8;    /* Skip to writer entity ID */
-    wid = NEXT_guint32(tvb, offset, little_endian);
-    offset += 12;   /* Skip to keyHashPrefix */
-    if ((flags & FLAG_DATA_H) != 0) {
-      offset += 12;
-    }
-    offset += 4;  /* GUID Entity ID */
-    if ((flags & FLAG_DATA_I) != 0) {
-      status_info = NEXT_guint32(tvb, offset, little_endian);
-    }
-    info_summary_append_ex(pinfo, wid, status_info);
-    return;
-  }
-
   offset += 4;
 
 
@@ -5257,12 +5236,6 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
   if (octets_to_next_header < min_len) {
     expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
-    return;
-  }
-
-  /* Skip decoding the entire packet if (tree == NULL)
-   */
-  if (tree == NULL) {
     return;
   }
 
@@ -5526,11 +5499,6 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offs
     return;
   }
 
-  /* Skip decoding the entire packet if (tree == NULL) */
-  if (tree == NULL) {
-    return;
-  }
-
   offset += 4;
 
   /* readerEntityId */
@@ -5724,13 +5692,6 @@ static void dissect_NACK_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
   if (octets_to_next_header < 24) {
     expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= 24)");
-    return;
-  }
-
-  /* Skip decoding the entire packet if (tree == NULL)
-   * Note that we still need to decode the statusInfo and the writer ID
-   */
-  if (tree == NULL) {
     return;
   }
 
@@ -6360,24 +6321,6 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
     return;
   }
 
-  /* Skip decoding the entire packet if (tree == NULL)
-   * Note that we still need to decode the statusInfo and the writer ID
-   */
-  if (tree == NULL) {
-    offset += 12;
-    /* writerEntityId */
-    wid = NEXT_guint32(tvb, offset, little_endian);
-
-    offset += 12;
-    if ((flags & FLAG_RTPS_DATA_Q) != 0) {
-      /*offset = */dissect_parameter_sequence(tree, pinfo, tvb, offset, little_endian,
-                        octets_to_next_header - (offset - old_offset) + 4,
-                        "inlineQos", 0x0200, &status_info, vendor_id);
-    }
-    info_summary_append_ex(pinfo, wid, status_info);
-    return;
-  }
-
   offset += 4;
 
   /* extraFlags */
@@ -6557,24 +6500,6 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
     return;
   }
 
-  /* Skip decoding the entire packet if (tree == NULL)
-   * Note that we still need to decode the statusInfo and the writer ID
-   */
-  if (tree == NULL) {
-    offset += 12;
-    /* writerEntityId */
-    wid = NEXT_guint32(tvb, offset, little_endian);
-
-    offset += 24;
-    if ((flags & FLAG_RTPS_DATA_FRAG_Q) != 0) {
-      /*offset = */dissect_parameter_sequence(tree, pinfo, tvb, offset, little_endian,
-                        octets_to_next_header - (offset - old_offset) + 4,
-                        "inlineQos", 0x0200, &status_info, vendor_id);
-    }
-    info_summary_append_ex(pinfo, wid, status_info);
-    return;
-  }
-
   offset += 4;
 
   /* extraFlags */
@@ -6744,24 +6669,6 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
 
   if (octets_to_next_header < min_len) {
     expert_add_info_format(pinfo, octet_item, &ei_rtps_sm_octets_to_next_header_error, "(Error: should be >= %u)", min_len);
-    return;
-  }
-
-  /* Skip decoding the entire packet if (tree == NULL)
-   * Note that we still need to decode the statusInfo and the writer ID
-   */
-  if (tree == NULL) {
-    offset += 12;
-    /* writerEntityId */
-    wid = NEXT_guint32(tvb, offset, little_endian);
-
-    offset += 24;
-    if ((flags & FLAG_DATA_Q_v2) != 0) {
-      /*offset = */dissect_parameter_sequence(tree, pinfo, tvb, offset,
-                        little_endian, octets_to_next_header - (offset - old_offset) + 4,
-                        "inlineQos", 0x0200, &status_info, vendor_id);
-    }
-    info_summary_append_ex(pinfo, wid, status_info);
     return;
   }
 
