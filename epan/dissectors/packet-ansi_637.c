@@ -205,8 +205,8 @@ static const true_false_string tfs_number_mode_data_ansi_t1 = {
  * 3GPP2 C.S0005-C (IS-2000 aka cdma2000)
  */
 static const unsigned char air_digits[] = {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '?','1','2','3','4','5','6','7','8','9','0','*','#','?','?'
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
+     '?','1','2','3','4','5','6','7','8','9','0','*','#','?','?','?'
 };
 
 /* Initialize the protocol and registered fields */
