@@ -1519,6 +1519,7 @@ DISSECTOR_INCLUDES =	\
 	packet-hpext.h	\
 	packet-http.h	\
 	packet-i2c.h	\
+	packet-iana-oui.h \
 	packet-iax2.h	\
 	packet-icmp.h	\
 	packet-idmp.h	\

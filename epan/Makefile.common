@@ -202,7 +202,6 @@ LIBWIRESHARK_INCLUDES =		\
 	geoip_db.h		\
 	golay.h			\
 	guid-utils.h		\
-	iana_snap_pid.h		\
 	iax2_codec_type.h	\
 	in_cksum.h		\
 	ip_opts.h		\

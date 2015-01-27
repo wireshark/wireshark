@@ -1,4 +1,4 @@
-/* iana-snap-pid.h
+/* packet-iana-oui.h
  * SNAP PIDs for the IANA's OUI 00:00:5e
  * See
  *

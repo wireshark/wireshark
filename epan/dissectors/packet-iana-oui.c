@@ -24,8 +24,8 @@
 
 #include <epan/packet.h>
 #include "packet-llc.h"
+#include "packet-iana-oui.h"
 #include <epan/oui.h>
-#include <epan/iana_snap_pid.h>
 
 void proto_register_iana_oui(void);
 

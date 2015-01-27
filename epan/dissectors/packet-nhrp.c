@@ -38,7 +38,7 @@
 #include <epan/oui.h>
 #include <epan/afn.h>
 #include <epan/in_cksum.h>
-#include <epan/iana_snap_pid.h>
+#include "packet-iana-oui.h"
 #include "packet-llc.h"
 #include "packet-nhrp.h"
 #include "packet-gre.h"
