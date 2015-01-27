@@ -227,7 +227,7 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* frame type */
 	op_code =  tvb_get_guint8( tvb, offset ) & 0x0f;
-	offset += 1; /* step over op_code */
+	/*offset += 1;*/ /* step over op_code */
 
 	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", val_to_str_const( op_code, op_code_vals_text, "Unknown" ));
 
