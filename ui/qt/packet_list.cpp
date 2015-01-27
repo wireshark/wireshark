@@ -647,6 +647,11 @@ void PacketList::freeze()
 {
     setUpdatesEnabled(false);
     setModel(NULL);
+    // It looks like GTK+ sends a cursor-changed signal at this point but Qt doesn't
+    // call selectionChanged.
+    related_packet_delegate_.clear();
+    proto_tree_->clear();
+    byte_view_tab_->clear();
 }
 
 void PacketList::thaw()
@@ -654,10 +659,6 @@ void PacketList::thaw()
     setModel(packet_list_model_);
     setUpdatesEnabled(true);
     setColumnVisibility();
-    if (packet_list_model_->rowCount() == 0) {
-        proto_tree_->clear();
-        byte_view_tab_->clear();
-    }
 }
 
 void PacketList::clear() {
