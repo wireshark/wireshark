@@ -3773,7 +3773,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     if (data) {
         usb_trans_info_t *usb_trans_info = ((usb_conv_info_t *)data)->usb_trans_info;
-        if ((usb_trans_info->setup.request == 0x00) && (usb_trans_info->header_info & USB_HEADER_IS_LINUX)) {
+        if ((usb_trans_info->setup.request == 0x00) && (USB_HEADER_IS_LINUX(usb_trans_info->header_type))) {
             /* Skip Send Encapsulated Command header */
             offset += 7;
         }

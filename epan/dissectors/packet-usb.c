@@ -2909,7 +2909,7 @@ int
 dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                           tvbuff_t *tvb, int offset,
                           guint8 urb_type, usb_conv_info_t *usb_conv_info,
-                          guint8 header_info)
+                          usb_header_t header_type)
 {
     gint              req_type;
     proto_tree       *parent, *setup_tree;
@@ -2951,8 +2951,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
         offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
     }
 
-    if ((header_info & USB_HEADER_IS_LINUX) &&
-            (header_info & USB_HEADER_IS_64_BYTES)) {
+    if (header_type == USB_HEADER_LINUX_64_BYTES) {
         offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
     }
 
@@ -3167,7 +3166,7 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
  * Also adds request/response info to the tree for the given packet */
 usb_trans_info_t
 *usb_get_trans_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    guint8 header_info, usb_conv_info_t *usb_conv_info)
+                    usb_header_t header_type, usb_conv_info_t *usb_conv_info)
 {
     usb_trans_info_t *usb_trans_info;
     proto_item       *ti;
@@ -3183,7 +3182,7 @@ usb_trans_info_t
             usb_trans_info              = wmem_new0(wmem_file_scope(), usb_trans_info_t);
             usb_trans_info->request_in  = pinfo->fd->num;
             usb_trans_info->req_time    = pinfo->fd->abs_ts;
-            usb_trans_info->header_info = header_info;
+            usb_trans_info->header_type = header_type;
 
             wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
         }
@@ -3328,7 +3327,7 @@ dissect_usbpcap_iso_packets(packet_info *pinfo _U_, proto_tree *urb_tree, guint8
 
 static gint
 dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
-        guint8 header_info, tvbuff_t *tvb, gint offset,
+        usb_header_t header_type, tvbuff_t *tvb, gint offset,
         usb_conv_info_t *usb_conv_info)
 {
     guint32     iso_numdesc = 0;
@@ -3368,7 +3367,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     proto_tree_add_uint(urb_tree, hf_usb_iso_numdesc, tvb, offset, 4, iso_numdesc);
     offset += 4;
 
-    if (header_info & USB_HEADER_IS_64_BYTES) {
+    if (header_type == USB_HEADER_LINUX_64_BYTES) {
         offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, urb_tree);
     }
 
@@ -3423,7 +3422,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
 
 static void
 dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
-                   guint8 header_info)
+                   usb_header_t header_type)
 {
     gint                  offset = 0;
     int                   endpoint;
@@ -3450,20 +3449,29 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
        and store all status values in this struct
        at first, we read the fields required to create/identify
        the right conversation struct */
-    if (header_info & USB_HEADER_IS_LINUX) {
+    switch (header_type) {
+
+    case USB_HEADER_LINUX_48_BYTES:
+    case USB_HEADER_LINUX_64_BYTES:
         urb_type = tvb_get_guint8(tvb, 8);
         endpoint = tvb_get_guint8(tvb, 10) & 0x7F;
         device_address = (guint16)tvb_get_guint8(tvb, 11);
         bus_id = tvb_get_letohs(tvb, 12);
-    }
-    else if (header_info & USB_HEADER_IS_USBPCAP) {
+        break;
+
+    case USB_HEADER_USBPCAP:
         urb_type = tvb_get_guint8(tvb, 16) & 0x01 ? URB_COMPLETE : URB_SUBMIT;
         device_address = tvb_get_letohs(tvb, 19);
         endpoint = tvb_get_guint8(tvb, 21) & 0x7F;
         bus_id = tvb_get_letohs(tvb, 17);
-    }
-    else
+        break;
+
+    case USB_HEADER_MAUSB:
         return; /* invalid USB pseudo header */
+
+    default:
+        return; /* invalid USB pseudo header */
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
     urb_tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
@@ -3477,18 +3485,26 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     clear_usb_conv_tmp_data(usb_conv_info);
 
 
-    if (header_info & USB_HEADER_IS_LINUX) {
-        proto_item_set_len(urb_tree_ti, (header_info&USB_HEADER_IS_64_BYTES) ? 64 : 48);
-        offset = dissect_linux_usb_pseudo_header(tvb, pinfo, tree, usb_conv_info);
+    switch (header_type) {
 
-    } else if (header_info & USB_HEADER_IS_USBPCAP) {
+    case USB_HEADER_LINUX_48_BYTES:
+    case USB_HEADER_LINUX_64_BYTES:
+        proto_item_set_len(urb_tree_ti, (header_type == USB_HEADER_LINUX_64_BYTES) ? 64 : 48);
+        offset = dissect_linux_usb_pseudo_header(tvb, pinfo, tree, usb_conv_info);
+        break;
+
+    case USB_HEADER_USBPCAP:
         offset = dissect_usbpcap_buffer_packet_header(tvb, pinfo, tree, usb_conv_info, &win32_data_len);
         /* the length that we're setting here might have to be corrected
            if there's a transfer-specific pseudo-header following */
         proto_item_set_len(urb_tree_ti, offset);
+        break;
+
+    case USB_HEADER_MAUSB:
+        break;
     }
 
-    usb_conv_info->usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, header_info, usb_conv_info);
+    usb_conv_info->usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, header_type, usb_conv_info);
 
     if (usb_conv_info->transfer_type != URB_CONTROL) {
         usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
@@ -3500,18 +3516,28 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
             PROTO_ITEM_SET_GENERATED(item);
 
-            if (header_info & USB_HEADER_IS_LINUX) {
+            switch (header_type) {
+
+            case USB_HEADER_LINUX_48_BYTES:
+            case USB_HEADER_LINUX_64_BYTES:
                 /* bulk and interrupt transfers never contain a setup packet */
                 proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                 offset += 8;
-                if (header_info & USB_HEADER_IS_64_BYTES) {
+                if (header_type == USB_HEADER_LINUX_64_BYTES) {
                     offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
                 }
+                break;
+
+            case USB_HEADER_USBPCAP:
+                break;
+
+            case USB_HEADER_MAUSB:
+                break;
             }
             break;
 
     case URB_CONTROL:
-        if (header_info & USB_HEADER_IS_USBPCAP) {
+        if (header_type == USB_HEADER_USBPCAP) {
             proto_tree_add_item(tree, hf_usb_control_stage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             usbpcap_control_stage = tvb_get_guint8(tvb, offset);
             if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP)
@@ -3523,39 +3549,56 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         if (usb_conv_info->is_request) {
             if (usb_conv_info->is_setup) {
                 offset = dissect_usb_setup_request(pinfo, tree, tvb, offset,
-                                                   urb_type, usb_conv_info, header_info);
+                                                   urb_type, usb_conv_info, header_type);
 
             } else {
-                if (header_info & USB_HEADER_IS_LINUX) {
+                switch (header_type) {
+
+                case USB_HEADER_LINUX_48_BYTES:
+                case USB_HEADER_LINUX_64_BYTES:
                     proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                     offset += 8;
-                    if (header_info & USB_HEADER_IS_64_BYTES) {
+                    if (header_type == USB_HEADER_LINUX_64_BYTES) {
                         offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
                     }
+                    break;
+
+                case USB_HEADER_USBPCAP:
+                    break;
+
+                case USB_HEADER_MAUSB:
+                    break;
                 }
             }
         } else {
             /* this is a response */
 
-            if (header_info & USB_HEADER_IS_LINUX) {
+            switch (header_type) {
+
+            case USB_HEADER_LINUX_48_BYTES:
+            case USB_HEADER_LINUX_64_BYTES:
                 /* Skip setup header - it's never applicable for responses */
                 proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                 offset += 8;
-                if (header_info & USB_HEADER_IS_64_BYTES) {
+                if (header_type == USB_HEADER_LINUX_64_BYTES) {
                     offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
                 }
-            }
+                break;
 
-            /* Check if this is status stage */
-            if ((usb_conv_info->usb_trans_info) &&
-                (header_info & USB_HEADER_IS_USBPCAP) &&
-                (usbpcap_control_stage == USB_CONTROL_STAGE_STATUS)) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s Status",
-                    val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
-                        &setup_request_names_vals_ext, "Unknown type %x"));
-                /* There is no data to dissect */
-                return;
+            case USB_HEADER_USBPCAP:
+                /* Check if this is status stage */
+                if ((usb_conv_info->usb_trans_info) &&
+                    (usbpcap_control_stage == USB_CONTROL_STAGE_STATUS)) {
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Status",
+                        val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
+                            &setup_request_names_vals_ext, "Unknown type %x"));
+                    /* There is no data to dissect */
+                    return;
+                }
+                break;
 
+            case USB_HEADER_MAUSB:
+                break;
             }
 
             offset = dissect_usb_setup_response(pinfo, tree, tvb, offset,
@@ -3563,23 +3606,41 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
         break;
     case URB_ISOCHRONOUS:
-        if (header_info & USB_HEADER_IS_LINUX) {
-            offset = dissect_linux_usb_iso_transfer(pinfo, tree, header_info,
+        switch (header_type) {
+
+        case USB_HEADER_LINUX_48_BYTES:
+        case USB_HEADER_LINUX_64_BYTES:
+            offset = dissect_linux_usb_iso_transfer(pinfo, tree, header_type,
                     tvb, offset, usb_conv_info);
-        } else if (header_info & USB_HEADER_IS_USBPCAP) {
+            break;
+
+        case USB_HEADER_USBPCAP:
             offset = dissect_usbpcap_iso_packets(pinfo, tree,
                     urb_type, tvb, offset, win32_data_len, usb_conv_info);
+            break;
+
+        case USB_HEADER_MAUSB:
+            break;
         }
         break;
 
     default:
         /* unknown transfer type */
-        if (header_info & USB_HEADER_IS_LINUX) {
+        switch (header_type) {
+        case USB_HEADER_LINUX_48_BYTES:
+        case USB_HEADER_LINUX_64_BYTES:
             proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
             offset += 8;
-            if (header_info & USB_HEADER_IS_64_BYTES) {
+            if (header_type == USB_HEADER_LINUX_64_BYTES) {
                 offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
             }
+            break;
+
+        case USB_HEADER_USBPCAP:
+            break;
+
+        case USB_HEADER_MAUSB:
+            break;
         }
         break;
     }
@@ -3631,20 +3692,20 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 static void
 dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 {
-    dissect_usb_common(tvb, pinfo, parent, USB_HEADER_IS_LINUX);
+    dissect_usb_common(tvb, pinfo, parent, USB_HEADER_LINUX_48_BYTES);
 }
 
 static void
 dissect_linux_usb_mmapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 {
-    dissect_usb_common(tvb, pinfo, parent, USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES);
+    dissect_usb_common(tvb, pinfo, parent, USB_HEADER_LINUX_64_BYTES);
 }
 
 
 static void
 dissect_win32_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 {
-    dissect_usb_common(tvb, pinfo, parent, USB_HEADER_IS_USBPCAP);
+    dissect_usb_common(tvb, pinfo, parent, USB_HEADER_USBPCAP);
 }
 
 void

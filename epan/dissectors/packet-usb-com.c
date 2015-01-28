@@ -463,7 +463,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         {
             case SEND_ENCAPSULATED_COMMAND:
                 if ((usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM) &&
-                    (usb_trans_info->header_info & USB_HEADER_IS_LINUX)) {
+                    (USB_HEADER_IS_LINUX(usb_trans_info->header_type))) {
                     offset = call_dissector_only(mbim_control_handle, tvb, pinfo, tree, usb_conv_info);
                     break;
                 }

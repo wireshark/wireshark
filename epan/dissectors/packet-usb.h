@@ -41,18 +41,23 @@ typedef struct _usb_address_t {
 
 typedef struct _usb_conv_info_t usb_conv_info_t;
 
-/* header flags */
-#define USB_HEADER_IS_LINUX    (1 << 0)
-#define USB_HEADER_IS_64_BYTES (1 << 1)
-#define USB_HEADER_IS_USBPCAP  (1 << 2)
-#define USB_HEADER_IS_MAUSB    (1 << 3)
+/* header type */
+typedef enum {
+    USB_HEADER_LINUX_48_BYTES,
+    USB_HEADER_LINUX_64_BYTES,
+    USB_HEADER_USBPCAP,
+    USB_HEADER_MAUSB
+} usb_header_t;
+
+#define USB_HEADER_IS_LINUX(type) \
+    ((type) == USB_HEADER_LINUX_48_BYTES || (type) == USB_HEADER_LINUX_64_BYTES)
 
 /* there is one such structure for each request/response */
 typedef struct _usb_trans_info_t {
     guint32 request_in;
     guint32 response_in;
     nstime_t req_time;
-    guint8 header_info;
+    usb_header_t header_type;
 
     /* Valid only for SETUP transactions */
     struct _usb_setup {
@@ -235,7 +240,7 @@ int
 dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                           tvbuff_t *tvb, int offset,
                           guint8 urb_type, usb_conv_info_t *usb_conv_info,
-                          guint8 header_info);
+                          usb_header_t header_type);
 
 
 void
@@ -244,7 +249,7 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
 
 usb_trans_info_t
 *usb_get_trans_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    guint8 header_info, usb_conv_info_t *usb_conv_info);
+                    usb_header_t header_type, usb_conv_info_t *usb_conv_info);
 
 
 #endif
