@@ -6,6 +6,10 @@
  *
  * http://www.usb.org/developers/docs/usb_20_122909-2.zip
  *
+ * https://github.com/torvalds/linux/blob/master/Documentation/usb/usbmon.txt
+ *
+ * http://desowin.org/usbpcap/captureformat.html
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
