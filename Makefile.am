@@ -236,6 +236,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.packeteer \
 	radius/dictionary.paloalto \
 	radius/dictionary.patton \
+	radius/dictionary.perle \
 	radius/dictionary.propel \
 	radius/dictionary.prosoft \
 	radius/dictionary.proxim \
@@ -294,6 +295,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.telkom \
 	radius/dictionary.terena \
 	radius/dictionary.trapeze \
+	radius/dictionary.travelping \
 	radius/dictionary.tropos \
 	radius/dictionary.ukerna \
 	radius/dictionary.unix \

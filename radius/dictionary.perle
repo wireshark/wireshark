@@ -1,0 +1,523 @@
+#
+# Perle dictionary.
+#
+#       Perle Systems Ltd.
+#       http://www.perle.com/
+#
+# Version:  1.30  21-May-2008  Add attribute for clustered port access
+# Version:  1.20  30-Nov-2005  Add new line access right values for ports
+#                              up to 49.
+# Version:  1.10  11-Nov-2003  Add new line access right values
+# Version:  1.00  17-Jul-2003  original release for vendor specific field support
+#
+
+VENDOR		Perle	1966
+
+BEGIN-VENDOR	Perle
+
+#   Perle Extensions
+ATTRIBUTE   Perle-Clustered-Port-Access  99 integer
+ATTRIBUTE   Perle-User-Level            100 integer
+ATTRIBUTE   Perle-Line-Access-Port-1    101 integer
+ATTRIBUTE   Perle-Line-Access-Port-2    102 integer
+ATTRIBUTE   Perle-Line-Access-Port-3    103 integer
+ATTRIBUTE   Perle-Line-Access-Port-4    104 integer
+ATTRIBUTE   Perle-Line-Access-Port-5    105 integer
+ATTRIBUTE   Perle-Line-Access-Port-6    106 integer
+ATTRIBUTE   Perle-Line-Access-Port-7    107 integer
+ATTRIBUTE   Perle-Line-Access-Port-8    108 integer
+ATTRIBUTE   Perle-Line-Access-Port-9    109 integer
+ATTRIBUTE   Perle-Line-Access-Port-10   110 integer
+ATTRIBUTE   Perle-Line-Access-Port-11   111 integer
+ATTRIBUTE   Perle-Line-Access-Port-12   112 integer
+ATTRIBUTE   Perle-Line-Access-Port-13   113 integer
+ATTRIBUTE   Perle-Line-Access-Port-14   114 integer
+ATTRIBUTE   Perle-Line-Access-Port-15   115 integer
+ATTRIBUTE   Perle-Line-Access-Port-16   116 integer
+ATTRIBUTE   Perle-Line-Access-Port-17   117 integer
+ATTRIBUTE   Perle-Line-Access-Port-18   118 integer
+ATTRIBUTE   Perle-Line-Access-Port-19   119 integer
+ATTRIBUTE   Perle-Line-Access-Port-20   120 integer
+ATTRIBUTE   Perle-Line-Access-Port-21   121 integer
+ATTRIBUTE   Perle-Line-Access-Port-22   122 integer
+ATTRIBUTE   Perle-Line-Access-Port-23   123 integer
+ATTRIBUTE   Perle-Line-Access-Port-24   124 integer
+ATTRIBUTE   Perle-Line-Access-Port-25   125 integer
+ATTRIBUTE   Perle-Line-Access-Port-26   126 integer
+ATTRIBUTE   Perle-Line-Access-Port-27   127 integer
+ATTRIBUTE   Perle-Line-Access-Port-28   128 integer
+ATTRIBUTE   Perle-Line-Access-Port-29   129 integer
+ATTRIBUTE   Perle-Line-Access-Port-30   130 integer
+ATTRIBUTE   Perle-Line-Access-Port-31   131 integer
+ATTRIBUTE   Perle-Line-Access-Port-32   132 integer
+ATTRIBUTE   Perle-Line-Access-Port-33   133 integer
+ATTRIBUTE   Perle-Line-Access-Port-34   134 integer
+ATTRIBUTE   Perle-Line-Access-Port-35   135 integer
+ATTRIBUTE   Perle-Line-Access-Port-36   136 integer
+ATTRIBUTE   Perle-Line-Access-Port-37   137 integer
+ATTRIBUTE   Perle-Line-Access-Port-38   138 integer
+ATTRIBUTE   Perle-Line-Access-Port-39   139 integer
+ATTRIBUTE   Perle-Line-Access-Port-40   140 integer
+ATTRIBUTE   Perle-Line-Access-Port-41   141 integer
+ATTRIBUTE   Perle-Line-Access-Port-42   142 integer
+ATTRIBUTE   Perle-Line-Access-Port-43   143 integer
+ATTRIBUTE   Perle-Line-Access-Port-44   144 integer
+ATTRIBUTE   Perle-Line-Access-Port-45   145 integer
+ATTRIBUTE   Perle-Line-Access-Port-46   146 integer
+ATTRIBUTE   Perle-Line-Access-Port-47   147 integer
+ATTRIBUTE   Perle-Line-Access-Port-48   148 integer
+ATTRIBUTE   Perle-Line-Access-Port-49   149 integer
+
+#   Perle Clustered Port Access Values
+VALUE   Perle-Clustered-Port-Access  Disabled   0
+VALUE   Perle-Clustered-Port-Access  Enabled    1
+
+#   Perle User Level Values
+VALUE   Perle-User-Level    Admin           1
+VALUE   Perle-User-Level    Normal          2
+VALUE   Perle-User-Level    Restricted      3
+VALUE   Perle-User-Level    Menu            4
+
+#   Perle Line Access Right Values
+VALUE   Perle-Line-Access-Port-1    Disabled                0
+VALUE   Perle-Line-Access-Port-1    Read-Write              1
+VALUE   Perle-Line-Access-Port-1    Read-Input              2
+VALUE   Perle-Line-Access-Port-1    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-1    Read-Output             4
+VALUE   Perle-Line-Access-Port-1    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-1    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-1    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-2    Disabled                0
+VALUE   Perle-Line-Access-Port-2    Read-Write              1
+VALUE   Perle-Line-Access-Port-2    Read-Input              2
+VALUE   Perle-Line-Access-Port-2    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-2    Read-Output             4
+VALUE   Perle-Line-Access-Port-2    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-2    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-2    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-3    Disabled                0
+VALUE   Perle-Line-Access-Port-3    Read-Write              1
+VALUE   Perle-Line-Access-Port-3    Read-Input              2
+VALUE   Perle-Line-Access-Port-3    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-3    Read-Output             4
+VALUE   Perle-Line-Access-Port-3    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-3    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-3    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-4    Disabled                0
+VALUE   Perle-Line-Access-Port-4    Read-Write              1
+VALUE   Perle-Line-Access-Port-4    Read-Input              2
+VALUE   Perle-Line-Access-Port-4    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-4    Read-Output             4
+VALUE   Perle-Line-Access-Port-4    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-4    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-4    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-5    Disabled                0
+VALUE   Perle-Line-Access-Port-5    Read-Write              1
+VALUE   Perle-Line-Access-Port-5    Read-Input              2
+VALUE   Perle-Line-Access-Port-5    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-5    Read-Output             4
+VALUE   Perle-Line-Access-Port-5    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-5    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-5    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-6    Disabled                0
+VALUE   Perle-Line-Access-Port-6    Read-Write              1
+VALUE   Perle-Line-Access-Port-6    Read-Input              2
+VALUE   Perle-Line-Access-Port-6    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-6    Read-Output             4
+VALUE   Perle-Line-Access-Port-6    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-6    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-6    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-7    Disabled                0
+VALUE   Perle-Line-Access-Port-7    Read-Write              1
+VALUE   Perle-Line-Access-Port-7    Read-Input              2
+VALUE   Perle-Line-Access-Port-7    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-7    Read-Output             4
+VALUE   Perle-Line-Access-Port-7    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-7    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-7    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-8    Disabled                0
+VALUE   Perle-Line-Access-Port-8    Read-Write              1
+VALUE   Perle-Line-Access-Port-8    Read-Input              2
+VALUE   Perle-Line-Access-Port-8    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-8    Read-Output             4
+VALUE   Perle-Line-Access-Port-8    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-8    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-8    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-9    Disabled                0
+VALUE   Perle-Line-Access-Port-9    Read-Write              1
+VALUE   Perle-Line-Access-Port-9    Read-Input              2
+VALUE   Perle-Line-Access-Port-9    Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-9    Read-Output             4
+VALUE   Perle-Line-Access-Port-9    Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-9    Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-9    Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-10   Disabled                0
+VALUE   Perle-Line-Access-Port-10   Read-Write              1
+VALUE   Perle-Line-Access-Port-10   Read-Input              2
+VALUE   Perle-Line-Access-Port-10   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-10   Read-Output             4
+VALUE   Perle-Line-Access-Port-10   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-10   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-10   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-11   Disabled                0
+VALUE   Perle-Line-Access-Port-11   Read-Write              1
+VALUE   Perle-Line-Access-Port-11   Read-Input              2
+VALUE   Perle-Line-Access-Port-11   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-11   Read-Output             4
+VALUE   Perle-Line-Access-Port-11   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-11   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-11   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-12   Disabled                0
+VALUE   Perle-Line-Access-Port-12   Read-Write              1
+VALUE   Perle-Line-Access-Port-12   Read-Input              2
+VALUE   Perle-Line-Access-Port-12   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-12   Read-Output             4
+VALUE   Perle-Line-Access-Port-12   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-12   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-12   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-13   Disabled                0
+VALUE   Perle-Line-Access-Port-13   Read-Write              1
+VALUE   Perle-Line-Access-Port-13   Read-Input              2
+VALUE   Perle-Line-Access-Port-13   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-13   Read-Output             4
+VALUE   Perle-Line-Access-Port-13   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-13   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-13   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-14   Disabled                0
+VALUE   Perle-Line-Access-Port-14   Read-Write              1
+VALUE   Perle-Line-Access-Port-14   Read-Input              2
+VALUE   Perle-Line-Access-Port-14   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-14   Read-Output             4
+VALUE   Perle-Line-Access-Port-14   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-14   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-14   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-15   Disabled                0
+VALUE   Perle-Line-Access-Port-15   Read-Write              1
+VALUE   Perle-Line-Access-Port-15   Read-Input              2
+VALUE   Perle-Line-Access-Port-15   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-15   Read-Output             4
+VALUE   Perle-Line-Access-Port-15   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-15   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-15   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-16   Disabled                0
+VALUE   Perle-Line-Access-Port-16   Read-Write              1
+VALUE   Perle-Line-Access-Port-16   Read-Input              2
+VALUE   Perle-Line-Access-Port-16   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-16   Read-Output             4
+VALUE   Perle-Line-Access-Port-16   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-16   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-16   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-17   Disabled                0
+VALUE   Perle-Line-Access-Port-17   Read-Write              1
+VALUE   Perle-Line-Access-Port-17   Read-Input              2
+VALUE   Perle-Line-Access-Port-17   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-17   Read-Output             4
+VALUE   Perle-Line-Access-Port-17   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-17   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-17   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-18   Disabled                0
+VALUE   Perle-Line-Access-Port-18   Read-Write              1
+VALUE   Perle-Line-Access-Port-18   Read-Input              2
+VALUE   Perle-Line-Access-Port-18   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-18   Read-Output             4
+VALUE   Perle-Line-Access-Port-18   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-18   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-18   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-19   Disabled                0
+VALUE   Perle-Line-Access-Port-19   Read-Write              1
+VALUE   Perle-Line-Access-Port-19   Read-Input              2
+VALUE   Perle-Line-Access-Port-19   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-19   Read-Output             4
+VALUE   Perle-Line-Access-Port-19   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-19   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-19   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-20   Disabled                0
+VALUE   Perle-Line-Access-Port-20   Read-Write              1
+VALUE   Perle-Line-Access-Port-20   Read-Input              2
+VALUE   Perle-Line-Access-Port-20   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-20   Read-Output             4
+VALUE   Perle-Line-Access-Port-20   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-20   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-20   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-21   Disabled                0
+VALUE   Perle-Line-Access-Port-21   Read-Write              1
+VALUE   Perle-Line-Access-Port-21   Read-Input              2
+VALUE   Perle-Line-Access-Port-21   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-21   Read-Output             4
+VALUE   Perle-Line-Access-Port-21   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-21   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-21   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-22   Disabled                0
+VALUE   Perle-Line-Access-Port-22   Read-Write              1
+VALUE   Perle-Line-Access-Port-22   Read-Input              2
+VALUE   Perle-Line-Access-Port-22   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-22   Read-Output             4
+VALUE   Perle-Line-Access-Port-22   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-22   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-22   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-23   Disabled                0
+VALUE   Perle-Line-Access-Port-23   Read-Write              1
+VALUE   Perle-Line-Access-Port-23   Read-Input              2
+VALUE   Perle-Line-Access-Port-23   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-23   Read-Output             4
+VALUE   Perle-Line-Access-Port-23   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-23   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-23   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-24   Disabled                0
+VALUE   Perle-Line-Access-Port-24   Read-Write              1
+VALUE   Perle-Line-Access-Port-24   Read-Input              2
+VALUE   Perle-Line-Access-Port-24   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-24   Read-Output             4
+VALUE   Perle-Line-Access-Port-24   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-24   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-24   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-25   Disabled                0
+VALUE   Perle-Line-Access-Port-25   Read-Write              1
+VALUE   Perle-Line-Access-Port-25   Read-Input              2
+VALUE   Perle-Line-Access-Port-25   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-25   Read-Output             4
+VALUE   Perle-Line-Access-Port-25   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-25   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-25   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-26   Disabled                0
+VALUE   Perle-Line-Access-Port-26   Read-Write              1
+VALUE   Perle-Line-Access-Port-26   Read-Input              2
+VALUE   Perle-Line-Access-Port-26   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-26   Read-Output             4
+VALUE   Perle-Line-Access-Port-26   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-26   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-26   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-27   Disabled                0
+VALUE   Perle-Line-Access-Port-27   Read-Write              1
+VALUE   Perle-Line-Access-Port-27   Read-Input              2
+VALUE   Perle-Line-Access-Port-27   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-27   Read-Output             4
+VALUE   Perle-Line-Access-Port-27   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-27   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-27   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-28   Disabled                0
+VALUE   Perle-Line-Access-Port-28   Read-Write              1
+VALUE   Perle-Line-Access-Port-28   Read-Input              2
+VALUE   Perle-Line-Access-Port-28   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-28   Read-Output             4
+VALUE   Perle-Line-Access-Port-28   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-28   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-28   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-29   Disabled                0
+VALUE   Perle-Line-Access-Port-29   Read-Write              1
+VALUE   Perle-Line-Access-Port-29   Read-Input              2
+VALUE   Perle-Line-Access-Port-29   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-29   Read-Output             4
+VALUE   Perle-Line-Access-Port-29   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-29   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-29   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-30   Disabled                0
+VALUE   Perle-Line-Access-Port-30   Read-Write              1
+VALUE   Perle-Line-Access-Port-30   Read-Input              2
+VALUE   Perle-Line-Access-Port-30   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-30   Read-Output             4
+VALUE   Perle-Line-Access-Port-30   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-30   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-30   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-31   Disabled                0
+VALUE   Perle-Line-Access-Port-31   Read-Write              1
+VALUE   Perle-Line-Access-Port-31   Read-Input              2
+VALUE   Perle-Line-Access-Port-31   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-31   Read-Output             4
+VALUE   Perle-Line-Access-Port-31   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-31   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-31   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-32   Disabled                0
+VALUE   Perle-Line-Access-Port-32   Read-Write              1
+VALUE   Perle-Line-Access-Port-32   Read-Input              2
+VALUE   Perle-Line-Access-Port-32   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-32   Read-Output             4
+VALUE   Perle-Line-Access-Port-32   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-32   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-32   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-33   Disabled                0
+VALUE   Perle-Line-Access-Port-33   Read-Write              1
+VALUE   Perle-Line-Access-Port-33   Read-Input              2
+VALUE   Perle-Line-Access-Port-33   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-33   Read-Output             4
+VALUE   Perle-Line-Access-Port-33   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-33   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-33   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-34   Disabled                0
+VALUE   Perle-Line-Access-Port-34   Read-Write              1
+VALUE   Perle-Line-Access-Port-34   Read-Input              2
+VALUE   Perle-Line-Access-Port-34   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-34   Read-Output             4
+VALUE   Perle-Line-Access-Port-34   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-34   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-34   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-35   Disabled                0
+VALUE   Perle-Line-Access-Port-35   Read-Write              1
+VALUE   Perle-Line-Access-Port-35   Read-Input              2
+VALUE   Perle-Line-Access-Port-35   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-35   Read-Output             4
+VALUE   Perle-Line-Access-Port-35   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-35   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-35   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-36   Disabled                0
+VALUE   Perle-Line-Access-Port-36   Read-Write              1
+VALUE   Perle-Line-Access-Port-36   Read-Input              2
+VALUE   Perle-Line-Access-Port-36   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-36   Read-Output             4
+VALUE   Perle-Line-Access-Port-36   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-36   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-36   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-37   Disabled                0
+VALUE   Perle-Line-Access-Port-37   Read-Write              1
+VALUE   Perle-Line-Access-Port-37   Read-Input              2
+VALUE   Perle-Line-Access-Port-37   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-37   Read-Output             4
+VALUE   Perle-Line-Access-Port-37   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-37   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-37   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-38   Disabled                0
+VALUE   Perle-Line-Access-Port-38   Read-Write              1
+VALUE   Perle-Line-Access-Port-38   Read-Input              2
+VALUE   Perle-Line-Access-Port-38   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-38   Read-Output             4
+VALUE   Perle-Line-Access-Port-38   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-38   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-38   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-39   Disabled                0
+VALUE   Perle-Line-Access-Port-39   Read-Write              1
+VALUE   Perle-Line-Access-Port-39   Read-Input              2
+VALUE   Perle-Line-Access-Port-39   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-39   Read-Output             4
+VALUE   Perle-Line-Access-Port-39   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-39   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-39   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-40   Disabled                0
+VALUE   Perle-Line-Access-Port-40   Read-Write              1
+VALUE   Perle-Line-Access-Port-40   Read-Input              2
+VALUE   Perle-Line-Access-Port-40   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-40   Read-Output             4
+VALUE   Perle-Line-Access-Port-40   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-40   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-40   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-41   Disabled                0
+VALUE   Perle-Line-Access-Port-41   Read-Write              1
+VALUE   Perle-Line-Access-Port-41   Read-Input              2
+VALUE   Perle-Line-Access-Port-41   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-41   Read-Output             4
+VALUE   Perle-Line-Access-Port-41   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-41   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-41   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-42   Disabled                0
+VALUE   Perle-Line-Access-Port-42   Read-Write              1
+VALUE   Perle-Line-Access-Port-42   Read-Input              2
+VALUE   Perle-Line-Access-Port-42   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-42   Read-Output             4
+VALUE   Perle-Line-Access-Port-42   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-42   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-42   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-43   Disabled                0
+VALUE   Perle-Line-Access-Port-43   Read-Write              1
+VALUE   Perle-Line-Access-Port-43   Read-Input              2
+VALUE   Perle-Line-Access-Port-43   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-43   Read-Output             4
+VALUE   Perle-Line-Access-Port-43   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-43   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-43   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-44   Disabled                0
+VALUE   Perle-Line-Access-Port-44   Read-Write              1
+VALUE   Perle-Line-Access-Port-44   Read-Input              2
+VALUE   Perle-Line-Access-Port-44   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-44   Read-Output             4
+VALUE   Perle-Line-Access-Port-44   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-44   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-44   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-45   Disabled                0
+VALUE   Perle-Line-Access-Port-45   Read-Write              1
+VALUE   Perle-Line-Access-Port-45   Read-Input              2
+VALUE   Perle-Line-Access-Port-45   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-45   Read-Output             4
+VALUE   Perle-Line-Access-Port-45   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-45   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-45   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-46   Disabled                0
+VALUE   Perle-Line-Access-Port-46   Read-Write              1
+VALUE   Perle-Line-Access-Port-46   Read-Input              2
+VALUE   Perle-Line-Access-Port-46   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-46   Read-Output             4
+VALUE   Perle-Line-Access-Port-46   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-46   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-46   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-47   Disabled                0
+VALUE   Perle-Line-Access-Port-47   Read-Write              1
+VALUE   Perle-Line-Access-Port-47   Read-Input              2
+VALUE   Perle-Line-Access-Port-47   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-47   Read-Output             4
+VALUE   Perle-Line-Access-Port-47   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-47   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-47   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-48   Disabled                0
+VALUE   Perle-Line-Access-Port-48   Read-Write              1
+VALUE   Perle-Line-Access-Port-48   Read-Input              2
+VALUE   Perle-Line-Access-Port-48   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-48   Read-Output             4
+VALUE   Perle-Line-Access-Port-48   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-48   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-48   Read-Output-Input-Write 7
+
+VALUE   Perle-Line-Access-Port-49   Disabled                0
+VALUE   Perle-Line-Access-Port-49   Read-Write              1
+VALUE   Perle-Line-Access-Port-49   Read-Input              2
+VALUE   Perle-Line-Access-Port-49   Read-Input-Write        3
+VALUE   Perle-Line-Access-Port-49   Read-Output             4
+VALUE   Perle-Line-Access-Port-49   Read-Output-Write       5
+VALUE   Perle-Line-Access-Port-49   Read-Output-Input       6
+VALUE   Perle-Line-Access-Port-49   Read-Output-Input-Write 7
+
+END-VENDOR	Perle

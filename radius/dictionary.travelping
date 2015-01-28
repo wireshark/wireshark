@@ -1,0 +1,75 @@
+#
+# dictionary.travelping
+#
+
+VENDOR		Travelping			18681
+
+BEGIN-VENDOR	Travelping
+
+#
+#    Standard attribute
+#
+ATTRIBUTE	TP-Gateway-Version			1	string
+ATTRIBUTE	TP-Firmware-Variant			2	string
+ATTRIBUTE	TP-Firmware-Version			3	string
+ATTRIBUTE	TP-Gateway-Config			4	string
+ATTRIBUTE	TP-ENC-IV				5	string
+ATTRIBUTE	TP-Password				6	string
+ATTRIBUTE	TP-User-Agent				7	string
+ATTRIBUTE	TP-Auth-Reply				8	integer
+ATTRIBUTE	TP-Access-Class-Id			9	string
+ATTRIBUTE	TP-Host-Name				10	string
+ATTRIBUTE	TP-DHCP-Request-Option-List		11	string
+ATTRIBUTE	TP-DHCP-Parameter-Request-List		12	string
+ATTRIBUTE	TP-DHCP-Vendor-Class-Id			13	string
+ATTRIBUTE	TP-DHCP-Client-Id			14	string
+ATTRIBUTE	TP-Location-Id				15	string
+ATTRIBUTE	TP-NAT-IP-Address			16	ipaddr
+ATTRIBUTE	TP-Zone-Id				17	string
+ATTRIBUTE	TP-Monitor-Id				18	string
+ATTRIBUTE	TP-Related-Session-Id			19	string
+ATTRIBUTE	TP-Monitor-Session-Id			20	integer
+ATTRIBUTE	TP-Max-Input-Octets			21	integer64
+ATTRIBUTE	TP-Max-Output-Octets			22	integer64
+ATTRIBUTE	TP-Max-Total-Octets			23	integer64
+ATTRIBUTE	TP-Exit-Access-Class-Id			24	string
+ATTRIBUTE	TP-Access-Rule				25	string
+ATTRIBUTE	TP-Access-Group				26	string
+ATTRIBUTE	TP-NAT-Pool-Id				27	string
+ATTRIBUTE	TP-NAT-Port-Start			28	integer
+ATTRIBUTE	TP-NAT-Port-End				29	integer
+ATTRIBUTE	TP-Keep-Alive-Timeout			30	integer
+ATTRIBUTE	TP-TLS-Auth-Type			31	integer
+ATTRIBUTE	TP-TLS-Pre-Shared-Key			32	string
+ATTRIBUTE	TP-CAPWAP-Timestamp			33	integer
+ATTRIBUTE	TP-CAPWAP-WTP-Version			34	string
+ATTRIBUTE	TP-CAPWAP-Session-Id			35	octets
+ATTRIBUTE	TP-CAPWAP-Radio-Id			36	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-Id			37	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-RAT			38	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-RSSi			39	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-CREG			40	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-LAC			41	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-Latency			42	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-MCC			43	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-MNC			44	integer
+ATTRIBUTE	TP-CAPWAP-WWAN-Cell-Id			45	integer
+ATTRIBUTE	TP-CAPWAP-POWER-SAVE-IDLE-TIMEOUT	46	integer
+ATTRIBUTE	TP-CAPWAP-POWER-SAVE-BUSY-TIMEOUT	47	integer
+ATTRIBUTE	TP-CAPWAP-SSID				48	string
+ATTRIBUTE	TP-CAPWAP-Max-WIFI-Clients		49	integer
+ATTRIBUTE	TP-CAPWAP-Walled-Garden			50	string
+ATTRIBUTE	TP-CAPWAP-GPS-Latitude			51	string
+ATTRIBUTE	TP-CAPWAP-GPS-Longitude			52	string
+ATTRIBUTE	TP-CAPWAP-GPS-Altitude			53	string
+ATTRIBUTE	TP-CAPWAP-GPS-Hdop			54	string
+ATTRIBUTE	TP-CAPWAP-GPS-Timestamp			55	string
+ATTRIBUTE	TP-CAPWAP-Hardware-Version		56	string
+ATTRIBUTE	TP-CAPWAP-Software-Version		57	string
+ATTRIBUTE	TP-CAPWAP-Boot-Version			58	string
+ATTRIBUTE	TP-CAPWAP-Other-Software-Version	59	string
+
+VALUE	TP-TLS-Auth-Type		Pre-Shared-Key		0
+VALUE	TP-TLS-Auth-Type		X509-Subject-CommonName	1
+
+END-VENDOR	Travelping

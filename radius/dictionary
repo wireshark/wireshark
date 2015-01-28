@@ -237,6 +237,7 @@ $INCLUDE dictionary.nortel
 $INCLUDE dictionary.packeteer
 $INCLUDE dictionary.paloalto
 $INCLUDE dictionary.patton
+$INCLUDE dictionary.perle
 $INCLUDE dictionary.propel
 $INCLUDE dictionary.prosoft
 $INCLUDE dictionary.proxim
@@ -262,6 +263,7 @@ $INCLUDE dictionary.symbol
 $INCLUDE dictionary.telebit
 $INCLUDE dictionary.terena
 $INCLUDE dictionary.trapeze
+$INCLUDE dictionary.travelping
 $INCLUDE dictionary.tropos
 $INCLUDE dictionary.t_systems_nova
 $INCLUDE dictionary.ukerna
