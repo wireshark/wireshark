@@ -2887,21 +2887,18 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 
 
 static int
-try_dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
-                                        packet_info *pinfo _U_,
-                                        proto_tree *tree, guint8 header_info)
+dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
+                                    packet_info *pinfo _U_,
+                                    proto_tree *tree)
 {
-    if ((header_info & USB_HEADER_IS_LINUX) &&
-            (header_info & USB_HEADER_IS_64_BYTES)) {
-        proto_tree_add_item(tree, hf_usb_urb_interval, tvb, offset, 4, ENC_HOST_ENDIAN);
-        offset += 4;
-        proto_tree_add_item(tree, hf_usb_urb_start_frame, tvb, offset, 4, ENC_HOST_ENDIAN);
-        offset += 4;
-        proto_tree_add_item(tree, hf_usb_urb_copy_of_transfer_flags, tvb, offset, 4, ENC_HOST_ENDIAN);
-        offset += 4;
-        proto_tree_add_item(tree, hf_usb_iso_numdesc, tvb, offset, 4, ENC_HOST_ENDIAN);
-        offset += 4;
-    }
+    proto_tree_add_item(tree, hf_usb_urb_interval, tvb, offset, 4, ENC_HOST_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_usb_urb_start_frame, tvb, offset, 4, ENC_HOST_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_usb_urb_copy_of_transfer_flags, tvb, offset, 4, ENC_HOST_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_usb_iso_numdesc, tvb, offset, 4, ENC_HOST_ENDIAN);
+    offset += 4;
 
     return offset;
 }
@@ -2954,7 +2951,10 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
         offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
     }
 
-    offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+    if ((header_info & USB_HEADER_IS_LINUX) &&
+            (header_info & USB_HEADER_IS_64_BYTES)) {
+        offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+    }
 
     next_tvb = tvb_new_composite();
     tvb_composite_append(next_tvb, tvb_new_subset_remaining(setup_tvb, 1));
@@ -3368,7 +3368,9 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     proto_tree_add_uint(urb_tree, hf_usb_iso_numdesc, tvb, offset, 4, iso_numdesc);
     offset += 4;
 
-    offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, urb_tree, header_info);
+    if (header_info & USB_HEADER_IS_64_BYTES) {
+        offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, urb_tree);
+    }
 
     data_base = offset + iso_numdesc*16;
     for (i = 0; i<iso_numdesc; i++) {
@@ -3502,8 +3504,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 /* bulk and interrupt transfers never contain a setup packet */
                 proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                 offset += 8;
-
-                offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+                if (header_info & USB_HEADER_IS_64_BYTES) {
+                    offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+                }
             }
             break;
 
@@ -3526,10 +3529,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 if (header_info & USB_HEADER_IS_LINUX) {
                     proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                     offset += 8;
+                    if (header_info & USB_HEADER_IS_64_BYTES) {
+                        offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+                    }
                 }
-
-                offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
-
             }
         } else {
             /* this is a response */
@@ -3538,9 +3541,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 /* Skip setup header - it's never applicable for responses */
                 proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
                 offset += 8;
+                if (header_info & USB_HEADER_IS_64_BYTES) {
+                    offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+                }
             }
-
-            offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
 
             /* Check if this is status stage */
             if ((usb_conv_info->usb_trans_info) &&
@@ -3573,7 +3577,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         if (header_info & USB_HEADER_IS_LINUX) {
             proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
             offset += 8;
-            offset = try_dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree, header_info);
+            if (header_info & USB_HEADER_IS_64_BYTES) {
+                offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+            }
         }
         break;
     }
