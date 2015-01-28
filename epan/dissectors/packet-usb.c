@@ -215,6 +215,8 @@ static gboolean try_heuristics = TRUE;
 
 static dissector_handle_t linux_usb_handle;
 
+static dissector_handle_t data_handle;
+
 static dissector_table_t usb_bulk_dissector_table;
 static dissector_table_t usb_control_dissector_table;
 static dissector_table_t usb_interrupt_dissector_table;
@@ -1240,26 +1242,32 @@ dissect_usb_setup_clear_feature_request(packet_info *pinfo _U_, proto_tree *tree
                                         usb_conv_info_t  *usb_conv_info)
 {
     guint8 recip;
-    recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
 
-    /* feature selector */
-    switch (recip) {
-    case RQT_SETUP_RECIPIENT_DEVICE:
-        proto_tree_add_item(tree, hf_usb_device_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        break;
+    if (usb_conv_info) {
+        recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
 
-    case RQT_SETUP_RECIPIENT_INTERFACE:
-        proto_tree_add_item(tree, hf_usb_interface_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        break;
+        /* feature selector */
+        switch (recip) {
+        case RQT_SETUP_RECIPIENT_DEVICE:
+            proto_tree_add_item(tree, hf_usb_device_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
 
-    case RQT_SETUP_RECIPIENT_ENDPOINT:
-        proto_tree_add_item(tree, hf_usb_endpoint_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        break;
+        case RQT_SETUP_RECIPIENT_INTERFACE:
+            proto_tree_add_item(tree, hf_usb_interface_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
 
-    case RQT_SETUP_RECIPIENT_OTHER:
-    default:
+        case RQT_SETUP_RECIPIENT_ENDPOINT:
+            proto_tree_add_item(tree, hf_usb_endpoint_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
+
+        case RQT_SETUP_RECIPIENT_OTHER:
+        default:
+            proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
+        }
+    } else {
+        /* No conversation information, so recipient type is unknown */
         proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        break;
     }
     offset += 2;
 
@@ -2073,9 +2081,12 @@ dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree,
                                          tvbuff_t *tvb, int offset,
                                          usb_conv_info_t  *usb_conv_info)
 {
-    usb_trans_info_t *usb_trans_info;
+    usb_trans_info_t *usb_trans_info, trans_info;
 
-    usb_trans_info = usb_conv_info->usb_trans_info;
+    if (usb_conv_info)
+        usb_trans_info = usb_conv_info->usb_trans_info;
+    else
+        usb_trans_info = &trans_info;
 
     /* descriptor index */
     proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2321,26 +2332,32 @@ dissect_usb_setup_set_feature_request(packet_info *pinfo _U_, proto_tree *tree,
                                       usb_conv_info_t  *usb_conv_info)
 {
     guint8 recip;
-    recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
 
-    /* feature selector */
-    switch (recip) {
-    case RQT_SETUP_RECIPIENT_DEVICE:
-        proto_tree_add_item(tree, hf_usb_device_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        break;
+    if (usb_conv_info) {
+        recip = USB_RECIPIENT(usb_conv_info->usb_trans_info->setup.requesttype);
 
-    case RQT_SETUP_RECIPIENT_INTERFACE:
-        proto_tree_add_item(tree, hf_usb_interface_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        break;
+        /* feature selector */
+        switch (recip) {
+        case RQT_SETUP_RECIPIENT_DEVICE:
+            proto_tree_add_item(tree, hf_usb_device_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
 
-    case RQT_SETUP_RECIPIENT_ENDPOINT:
-        proto_tree_add_item(tree, hf_usb_endpoint_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        break;
+        case RQT_SETUP_RECIPIENT_INTERFACE:
+            proto_tree_add_item(tree, hf_usb_interface_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
 
-    case RQT_SETUP_RECIPIENT_OTHER:
-    default:
+        case RQT_SETUP_RECIPIENT_ENDPOINT:
+            proto_tree_add_item(tree, hf_usb_endpoint_wFeatureSelector, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
+
+        case RQT_SETUP_RECIPIENT_OTHER:
+        default:
+            proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            break;
+        }
+    } else {
+        /* No conversation information, so recipient type is unknown */
         proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        break;
     }
     offset += 2;
 
@@ -2663,6 +2680,15 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
     parent = proto_tree_get_parent_tree(tree);
 
+    if (!usb_conv_info) {
+        /*
+         * Not enough information to choose the next protocol.
+         * XXX - is there something we can still do here?
+         */
+        call_dissector(data_handle, next_tvb, pinfo, parent);
+        return tvb_captured_length(next_tvb);
+    }
+
     /* try dissect by "usb.device" */
     ret = dissector_try_uint_new(device_to_dissector,
             (guint32)(usb_conv_info->bus_id<<16 | usb_conv_info->device_address),
@@ -2914,14 +2940,14 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     gint              req_type;
     proto_tree       *parent, *setup_tree;
     tvbuff_t         *setup_tvb;
-    usb_trans_info_t *usb_trans_info;
+    usb_trans_info_t *usb_trans_info, trans_info;
     tvbuff_t         *next_tvb, *data_tvb;
 
     /* we should do the NULL check in all non-static functions */
-    if (!usb_conv_info)
-        return offset;
-
-    usb_trans_info = usb_conv_info->usb_trans_info;
+    if (usb_conv_info)
+        usb_trans_info = usb_conv_info->usb_trans_info;
+    else
+        usb_trans_info = &trans_info;
 
     parent = proto_tree_get_parent_tree(tree);
 
@@ -2930,7 +2956,8 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 
     req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
     usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
-    usb_conv_info->setup_requesttype = tvb_get_guint8(tvb, offset);
+    if (usb_conv_info)
+        usb_conv_info->setup_requesttype = tvb_get_guint8(tvb, offset);
     offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset);
 
     usb_trans_info->setup.request = tvb_get_guint8(tvb, offset);
@@ -2938,8 +2965,10 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     usb_trans_info->setup.wIndex  = tvb_get_letohs(tvb, offset+3);
     usb_trans_info->setup.wLength = tvb_get_letohs(tvb, offset+5);
 
-    if (req_type != RQT_SETUP_TYPE_CLASS)
-        usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
+    if (usb_conv_info) {
+        if (req_type != RQT_SETUP_TYPE_CLASS)
+            usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
+    }
 
     if (req_type == RQT_SETUP_TYPE_STANDARD) {
         offset = dissect_usb_standard_setup_request(pinfo, setup_tree, tvb, offset,
@@ -4434,6 +4463,8 @@ proto_reg_handoff_usb(void)
 {
     dissector_handle_t  linux_usb_mmapped_handle;
     dissector_handle_t  win32_usb_handle;
+
+    data_handle = find_dissector("data");
 
     linux_usb_mmapped_handle = create_dissector_handle(dissect_linux_usb_mmapped,
                                                        proto_usb);
