@@ -3112,7 +3112,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             amqp_typename = "long int";
             if (length < 8)
                 goto too_short;
-            value   = wmem_strdup_printf(wmem_packet_scope(), "%li",
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "i",
                                          (gint64)tvb_get_ntoh64(tvb, offset));
             offset += 8;
             length -= 8;
@@ -3121,7 +3121,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             amqp_typename = "long uint";
             if (length < 8)
                 goto too_short;
-            value   = wmem_strdup_printf(wmem_packet_scope(), "%lu",
+            value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "u",
                                          tvb_get_ntoh64(tvb, offset));
             offset += 8;
             length -= 8;
