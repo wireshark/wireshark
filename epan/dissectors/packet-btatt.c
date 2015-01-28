@@ -523,6 +523,9 @@ static wmem_tree_t *fragments = NULL;
 static wmem_tree_t *handle_to_uuid = NULL;
 
 static dissector_handle_t btatt_handle;
+static dissector_handle_t usb_hid_boot_keyboard_input_report_handle;
+static dissector_handle_t usb_hid_boot_keyboard_output_report_handle;
+static dissector_handle_t usb_hid_boot_mouse_input_report_handle;
 
 static dissector_table_t att_handle_dissector_table;
 static dissector_table_t att_uuid16_dissector_table;
@@ -2190,6 +2193,11 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += 2;
 
         break;
+    case 0x2A22: /* Boot Keyboard Input Report */
+        call_dissector_with_data(usb_hid_boot_keyboard_input_report_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
+        offset += length;
+
+        break;
     case 0x2A23: /* System ID */
         proto_tree_add_item(tree, hf_btatt_system_id_manufacturer_identifier, tvb, offset, 5, ENC_LITTLE_ENDIAN);
         offset += 5;
@@ -2235,6 +2243,16 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     case 0x2A31: /* Scan Refresh */
         proto_tree_add_item(tree, hf_btatt_scan_refresh, tvb, offset, 1, ENC_NA);
         offset += 1;
+
+        break;
+    case 0x2A32: /* Boot Keyboard Output Report */
+        call_dissector_with_data(usb_hid_boot_keyboard_output_report_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
+        offset += length;
+
+        break;
+    case 0x2A33: /* Boot Mouse Input Report */
+        call_dissector_with_data(usb_hid_boot_mouse_input_report_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
+        offset += length;
 
         break;
     case 0x2A38: /* Body Sensor Location */
@@ -2655,10 +2673,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
     case 0x2A18: /* Glucose Measurement */
     case 0x2A1C: /* Temperature Measurement */
     case 0x2A1E: /* Intermediate Temperature */
-    case 0x2A22: /* Boot Keyboard Input Report */
     case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */
-    case 0x2A32: /* Boot Keyboard Output Report */
-    case 0x2A33: /* Boot Mouse Input Report */
     case 0x2A34: /* Glucose Measurement Context */
     case 0x2A35: /* Blood Pressure Measurement */
     case 0x2A36: /* Intermediate Cuff Pressure */
@@ -4886,6 +4901,10 @@ void
 proto_reg_handoff_btatt(void)
 {
     gint i_array;
+
+    usb_hid_boot_keyboard_input_report_handle  = find_dissector("usbhid.boot_report.keyboard.input");
+    usb_hid_boot_keyboard_output_report_handle = find_dissector("usbhid.boot_report.keyboard.output");
+    usb_hid_boot_mouse_input_report_handle     = find_dissector("usbhid.boot_report.mouse.input");
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_ATT, btatt_handle);
     dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_ATT, btatt_handle);
