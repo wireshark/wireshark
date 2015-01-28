@@ -45,3 +45,16 @@ void proto_cb(GtkWidget *widget, gpointer data);
 void proto_disable_cb(GtkWidget *widget, gpointer data);
 
 #endif
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

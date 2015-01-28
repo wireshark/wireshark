@@ -79,7 +79,7 @@ static GSList *heur_protocol_list = NULL;
 typedef struct protocol_data {
   const char  *name;
   const char  *abbrev;
-  int  	      hfinfo_index;
+  int         hfinfo_index;
   gboolean    enabled;
   gboolean    was_enabled;
   GtkTreeIter iter;
@@ -144,8 +144,7 @@ build_heur_dissectors_treeview(void)
   g_object_unref(G_OBJECT(proto_store));
   gtk_widget_show(proto_list);
 
-  label = gtk_label_new("Disabling a heuristic dissector prevents higher "
-			"layer protocols from being displayed");
+  label = gtk_label_new("Disabling a heuristic dissector prevents higher layer protocols from being displayed");
   gtk_misc_set_alignment(GTK_MISC(label), 0.5f, 0.5f);
   gtk_widget_show(label);
   gtk_box_pack_start(GTK_BOX(proto_vb), label, FALSE, FALSE, 5);
@@ -276,8 +275,7 @@ build_protocols_treeview(void)
   g_object_unref(G_OBJECT(proto_store));
   gtk_widget_show(proto_list);
 
-  label = gtk_label_new("Disabling a protocol prevents higher "
-			"layer protocols from being displayed");
+  label = gtk_label_new("Disabling a protocol prevents higher layer protocols from being displayed");
   gtk_misc_set_alignment(GTK_MISC(label), 0.5f, 0.5f);
   gtk_widget_show(label);
   gtk_box_pack_start(GTK_BOX(proto_vb), label, FALSE, FALSE, 5);
@@ -681,55 +679,53 @@ create_protocol_list(void)
   /* Iterate over all the protocols */
 
   for (i = proto_get_first_protocol(&cookie); i != -1;
-       i = proto_get_next_protocol(&cookie)) {
-      if (proto_can_toggle_protocol(i)) {
-        p = (protocol_data_t *)g_malloc(sizeof(protocol_data_t));
-        protocol = find_protocol_by_id(i);
-        p->name = proto_get_protocol_name(i);
-        p->abbrev = proto_get_protocol_short_name(protocol);
-        p->hfinfo_index = i;
-        p->enabled = proto_is_protocol_enabled(protocol);
-        p->was_enabled = p->enabled;
-        protocol_list = g_slist_insert_sorted(protocol_list,
-					    p, protocol_data_compare);
-      }
+    i = proto_get_next_protocol(&cookie)) {
+    if (proto_can_toggle_protocol(i)) {
+      p = (protocol_data_t *)g_malloc(sizeof(protocol_data_t));
+      protocol = find_protocol_by_id(i);
+      p->name = proto_get_protocol_name(i);
+      p->abbrev = proto_get_protocol_short_name(protocol);
+      p->hfinfo_index = i;
+      p->enabled = proto_is_protocol_enabled(protocol);
+      p->was_enabled = p->enabled;
+      protocol_list = g_slist_insert_sorted(protocol_list, p, protocol_data_compare);
+    }
   }
 }
 #if defined(HEUR_DISSECTOR_LIST)
 static void
 get_heur_dissector(gpointer data, gpointer user_data)
 {
-	protocol_data_t *p;
-	const char *table_name = user_data;
-	heur_dtbl_entry_t *dtbl_entry = data;
-	int proto_id;
+  protocol_data_t *p;
+  const char *table_name = user_data;
+  heur_dtbl_entry_t *dtbl_entry = data;
+  int proto_id;
 
-	if(dtbl_entry){
-		p = g_malloc(sizeof(protocol_data_t));
-		proto_id = proto_get_id(dtbl_entry->protocol);
+  if(dtbl_entry){
+    p = g_malloc(sizeof(protocol_data_t));
+    proto_id = proto_get_id(dtbl_entry->protocol);
 
-		p->name = proto_get_protocol_name(proto_id);
-        p->abbrev = g_strdup_printf("%s(%s)",proto_get_protocol_short_name(dtbl_entry->protocol),table_name);
-        p->hfinfo_index = proto_id;
-		if(!proto_is_protocol_enabled(dtbl_entry->protocol)){
-			p->enabled = FALSE;
-		}else {
-			p->enabled = dtbl_entry->enabled;
-		}
-        p->was_enabled = p->enabled;
-        heur_protocol_list = g_slist_insert_sorted(heur_protocol_list,
-					    p, protocol_data_compare);
-	}
+    p->name = proto_get_protocol_name(proto_id);
+    p->abbrev = g_strdup_printf("%s(%s)",proto_get_protocol_short_name(dtbl_entry->protocol),table_name);
+    p->hfinfo_index = proto_id;
+    if(!proto_is_protocol_enabled(dtbl_entry->protocol)){
+      p->enabled = FALSE;
+    }else {
+      p->enabled = dtbl_entry->enabled;
+    }
+    p->was_enabled = p->enabled;
+    heur_protocol_list = g_slist_insert_sorted(heur_protocol_list, p, protocol_data_compare);
+  }
 }
 
 static void
 get_heur_dissector_tables(const char *table_name, gpointer table, gpointer w _U_)
 {
-	heur_dissector_list_t *list = table;
+  heur_dissector_list_t *list = table;
 
-	if(list){
-		g_slist_foreach (*list, get_heur_dissector, (gpointer)table_name);
-	}
+  if(list){
+    g_slist_foreach (*list, get_heur_dissector, (gpointer)table_name);
+  }
 
 }
 #endif
@@ -738,7 +734,7 @@ get_heur_dissector_tables(const char *table_name, gpointer table, gpointer w _U_
 static void
 create_heur_protocol_list(void)
 {
-	dissector_all_heur_tables_foreach_table(get_heur_dissector_tables, NULL);
+  dissector_all_heur_tables_foreach_table(get_heur_dissector_tables, NULL);
 
   gint i;
   void *cookie;
@@ -748,18 +744,17 @@ create_heur_protocol_list(void)
   /* Iterate over all the protocols */
 
   for (i = proto_get_first_protocol(&cookie); i != -1;
-       i = proto_get_next_protocol(&cookie)) {
-      if (proto_can_toggle_protocol(i)) {
-        p = g_malloc(sizeof(protocol_data_t));
-        protocol = find_protocol_by_id(i);
-        p->name = proto_get_protocol_name(i);
-        p->abbrev = proto_get_protocol_short_name(protocol);
-        p->hfinfo_index = i;
-        p->enabled = proto_is_protocol_enabled(protocol);
-        p->was_enabled = p->enabled;
-        protocol_list = g_slist_insert_sorted(protocol_list,
-					    p, protocol_data_compare);
-      }
+    i = proto_get_next_protocol(&cookie)) {
+    if (proto_can_toggle_protocol(i)) {
+      p = g_malloc(sizeof(protocol_data_t));
+      protocol = find_protocol_by_id(i);
+      p->name = proto_get_protocol_name(i);
+      p->abbrev = proto_get_protocol_short_name(protocol);
+      p->hfinfo_index = i;
+      p->enabled = proto_is_protocol_enabled(protocol);
+      p->was_enabled = p->enabled;
+      protocol_list = g_slist_insert_sorted(protocol_list, p, protocol_data_compare);
+    }
   }
 }
 #endif
@@ -858,3 +853,16 @@ proto_disable_cb(GtkWidget *w _U_, gpointer data _U_)
 
   simple_dialog_set_cb(dialog, proto_disable_dialog_cb, GINT_TO_POINTER(id));
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
