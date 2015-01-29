@@ -725,16 +725,12 @@ void TCPStreamDialog::fillWindowScale()
 
 QString TCPStreamDialog::streamDescription()
 {
-    char* src_addr = (char*)address_to_str(NULL, &graph_.src_address);
-    char* dst_addr = (char*)address_to_str(NULL, &graph_.dst_address);
     QString description(tr(" for %1:%2 %3 %4:%5")
-            .arg(src_addr)
+            .arg(address_to_qstring(&graph_.src_address))
             .arg(graph_.src_port)
             .arg(UTF8_RIGHTWARDS_ARROW)
-            .arg(dst_addr)
+            .arg(address_to_qstring(&graph_.dst_address))
             .arg(graph_.dst_port));
-    wmem_free(NULL, src_addr);
-    wmem_free(NULL, dst_addr);
     return description;
 }
 

@@ -196,10 +196,14 @@ QEvent::LanguageChange.
 
 If you're using GLib string functions or plain old C character array idioms in
 Qt-only code you're probably doing something wrong. QStrings are generally
-*much* safer and easier to use. They also make translations eaiser.
+*much* safer and easier to use. They also make translations easier.
 
 If you need to pass strings between Qt and GLib you can use qstring_strdup
 gchar_free_to_qstring, which are defined in ui/qt/qt_ui_utils.h.
+
+If you're calling a function that returns wmem-allocated memory it might make
+more sense to add a wrapper function to qt_ui_utils than to call wmem_free in
+your code.
 
 2.1.4 Mixing C and C++
 

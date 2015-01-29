@@ -29,6 +29,7 @@
 
 #include "ui/utf8_entities.h"
 
+#include "qt_ui_utils.h"
 #include "sequence_dialog.h"
 #include "stock_icon.h"
 #include "wireshark_application.h"
@@ -74,20 +75,17 @@ public:
         if (!call_info) {
             return;
         }
-        char* addr_str;
 
         // XXX Pull digit count from capture file precision
         setText(start_time_col_, QString::number(nstime_to_sec(&(call_info->start_rel_ts)), 'f', 6));
         setText(stop_time_col_, QString::number(nstime_to_sec(&(call_info->stop_rel_ts)), 'f', 6));
-        addr_str = (char*)address_to_display(NULL, &(call_info->initial_speaker));
-        setText(initial_speaker_col_, addr_str);
+        setText(initial_speaker_col_, address_to_display_qstring(&(call_info->initial_speaker)));
         setText(from_col_, call_info->from_identity);
         setText(to_col_, call_info->to_identity);
         setText(protocol_col_, ((call_info->protocol == VOIP_COMMON) && call_info->protocol_name) ?
                         call_info->protocol_name : voip_protocol_name[call_info->protocol]);
         setText(packets_col_, QString::number(call_info->npackets));
         setText(state_col_, voip_call_state_name[call_info->call_state]);
-        wmem_free(NULL, addr_str);
 
         /* Add comments based on the protocol */
         QString call_comments;
@@ -352,7 +350,7 @@ void VoipCallsDialog::prepareFilter()
     const h323_calls_info_t *h323info;
     const h245_address_t *h245_add = NULL;
     const gcp_ctx_t* ctx;
-    char* addr_str, *guid_str;
+    char *guid_str;
 
     if (filter_length < max_filter_length) {
         gtk_editable_insert_text(GTK_EDITABLE(main_display_filter_widget), filter_string_fwd->str, -1, &pos);
@@ -388,6 +386,7 @@ void VoipCallsDialog::prepareFilter()
                     );
                     break;
                 case VOIP_H323:
+                {
                     h323info = (h323_calls_info_t *)listinfo->prot_info;
 					guid_str = guid_to_str(NULL, &h323info->guid[0]);
                     g_string_append_printf(filter_string_fwd,
@@ -401,14 +400,13 @@ void VoipCallsDialog::prepareFilter()
 					wmem_free(NULL, guid_str);
                     while (listb) {
                         h245_add = (h245_address_t *)listb->data;
-                        addr_str = (char*)address_to_str(NULL, &h245_add->h245_address);
                         g_string_append_printf(filter_string_fwd,
                             " || (ip.addr == %s && tcp.port == %d && h245)",
-                            addr_str, h245_add->h245_port);
+                            address_to_qstring(&h245_add->h245_address), h245_add->h245_port);
                         listb = g_list_next(listb);
-                        wmem_free(NULL, addr_str);
                     }
                     g_string_append_printf(filter_string_fwd, ")");
+                }
                     break;
                 case TEL_H248:
                     ctx = (gcp_ctx_t *)listinfo->prot_info;

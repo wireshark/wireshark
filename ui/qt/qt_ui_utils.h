@@ -25,6 +25,10 @@
 
 // xxx - copied from ui/gtk/gui_utils.h
 
+/** @file
+ *  Utility functions for working with the Wireshark and GLib APIs.
+ */
+
 #include <stdio.h>
 
 #include "config.h"
@@ -66,6 +70,8 @@ struct remote_host_t {
     gboolean nocap_local;
 };
 
+struct _address;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
@@ -86,6 +92,22 @@ gchar *qstring_strdup(QString q_string);
  * @return A QString instance created from the input string.
  */
 QString gchar_free_to_qstring(gchar *glib_string);
+
+/** Convert an address to a QString using address_to_str().
+ *
+ * @param address A pointer to an address.
+ *
+ * @return A QString representation of the address. May be the null string (QString())
+ */
+const QString address_to_qstring(const struct _address *address);
+
+/** Convert an address to a QString using address_to_display().
+ *
+ * @param address A pointer to an address.
+ *
+ * @return A QString representation of the address. May be the null string (QString())
+ */
+const QString address_to_display_qstring(const struct _address *address);
 
 /**
  * Round the current size of a font up to its next "smooth" size.

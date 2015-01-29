@@ -27,6 +27,9 @@
 #include <ui/recent.h>
 #include <ui/ui_util.h>
 
+#include <epan/addr_resolv.h>
+#include <epan/to_str.h>
+
 #include <wsutil/str_util.h>
 
 #include <QFontDatabase>
@@ -35,7 +38,6 @@
 format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
     return (format_size_flags_e) ((int)lhs| (int)rhs);
 }
-
 
 /*
  * We might want to create our own "wsstring" class with convenience
@@ -51,6 +53,28 @@ QString gchar_free_to_qstring(gchar *glib_string) {
     QString *qt_string = new QString(glib_string);
     g_free(glib_string);
     return *qt_string;
+}
+
+const QString address_to_qstring(const _address *address)
+{
+    QString address_qstr = QString();
+    if (address) {
+        gchar *address_gchar_p = address_to_str(NULL, address);
+        address_qstr = address_gchar_p;
+        wmem_free(NULL, address_gchar_p);
+    }
+    return address_qstr;
+}
+
+const QString address_to_display_qstring(const _address *address)
+{
+    QString address_qstr = QString();
+    if (address) {
+        const gchar *address_gchar_p = address_to_display(NULL, address);
+        address_qstr = address_gchar_p;
+        wmem_free(NULL, (void *) address_gchar_p);
+    }
+    return address_qstr;
 }
 
 void smooth_font_size(QFont &font) {

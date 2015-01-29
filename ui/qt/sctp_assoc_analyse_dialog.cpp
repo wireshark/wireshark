@@ -23,11 +23,12 @@
 
 #include "sctp_assoc_analyse_dialog.h"
 #include "ui_sctp_assoc_analyse_dialog.h"
+
+#include "qt_ui_utils.h"
 #include "sctp_graph_dialog.h"
 #include "sctp_graph_arwnd_dialog.h"
 #include "sctp_graph_byte_dialog.h"
 #include "sctp_chunk_statistics_dialog.h"
-
 
 SCTPAssocAnalyseDialog::SCTPAssocAnalyseDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, SCTPAllAssocsDialog* caller) :
     QDialog(parent),
@@ -131,9 +132,7 @@ void SCTPAssocAnalyseDialog::fillTabs()
             store = (address *)(list->data);
             if (store->type != AT_NONE) {
                 if ((store->type == AT_IPv4) || (store->type == AT_IPv6)) {
-                    char* addr_str = (char*)address_to_str(NULL, store);
-                    ui->listWidgetEP1->addItem(QString("%1").arg(addr_str));
-                    wmem_free(NULL, addr_str);
+                    ui->listWidgetEP1->addItem(address_to_qstring(store));
                 }
             }
             list = g_list_next(list);
@@ -185,9 +184,7 @@ void SCTPAssocAnalyseDialog::fillTabs()
             store = (address *)(list->data);
             if (store->type != AT_NONE) {
                 if ((store->type == AT_IPv4) || (store->type == AT_IPv6)) {
-                    char* addr_str = (char*)address_to_str(NULL, store);
-                    ui->listWidgetEP2->addItem(QString("%1").arg(addr_str));
-                    wmem_free(NULL, addr_str);
+                    ui->listWidgetEP2->addItem(address_to_qstring(store));
                 }
             }
             list = g_list_next(list);

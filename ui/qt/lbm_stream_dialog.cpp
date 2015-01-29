@@ -28,6 +28,7 @@
 
 #include "file.h"
 
+#include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
 #include <QClipboard>
@@ -35,7 +36,6 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 #include <epan/packet_info.h>
-#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-lbm.h>
@@ -56,7 +56,7 @@ namespace
 class LBMSubstreamEntry
 {
     public:
-        LBMSubstreamEntry(guint64 channel, guint32 substream_id, const packet_info* pinfo, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port);
+        LBMSubstreamEntry(guint64 channel, guint32 substream_id, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port);
         ~LBMSubstreamEntry(void);
         void processPacket(guint32 frame, guint32 bytes);
         void setItem(QTreeWidgetItem * item);
@@ -79,7 +79,7 @@ class LBMSubstreamEntry
         QTreeWidgetItem * m_item;
 };
 
-LBMSubstreamEntry::LBMSubstreamEntry(guint64 channel, guint32 substream_id, const packet_info* pinfo, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port) :
+LBMSubstreamEntry::LBMSubstreamEntry(guint64 channel, guint32 substream_id, const address * source_address, guint16 source_port, const address * destination_address, guint16 destination_port) :
     m_channel(channel),
     m_substream_id(substream_id),
     m_first_frame((guint32)(~0)),
@@ -89,10 +89,10 @@ LBMSubstreamEntry::LBMSubstreamEntry(guint64 channel, guint32 substream_id, cons
     m_item(NULL)
 {
     m_endpoint_a = QString("%1:%2")
-        .arg(address_to_str(pinfo->pool, source_address))
+        .arg(address_to_qstring(source_address))
         .arg(source_port);
     m_endpoint_b = QString("%1:%2")
-        .arg(address_to_str(pinfo->pool, destination_address))
+        .arg(address_to_qstring(destination_address))
         .arg(destination_port);
 }
 
@@ -224,7 +224,7 @@ void LBMStreamEntry::processPacket(const packet_info * pinfo, const lbm_uim_stre
     {
         QTreeWidgetItem * item = NULL;
 
-        substream = new LBMSubstreamEntry(m_channel, stream_info->substream_id, pinfo, &(pinfo->src), pinfo->srcport, &(pinfo->dst), pinfo->destport);
+        substream = new LBMSubstreamEntry(m_channel, stream_info->substream_id, &(pinfo->src), pinfo->srcport, &(pinfo->dst), pinfo->destport);
         m_substreams.insert(stream_info->substream_id, substream);
         item = new QTreeWidgetItem();
         substream->setItem(item);
