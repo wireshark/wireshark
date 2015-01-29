@@ -21,6 +21,19 @@
 
 #include "config.h"
 
+/* see bug 10798: there is a bug in the compiler the buildbots use for Mac OSX
+   and SSE4.2, so we're not going to use SSE4.2 with Mac OSX right now, for
+   older Mac OSX compilers.
+ */
+#ifdef __APPLE__
+#if defined(__clang__) && (__clang_major__ >= 6)
+/* allow HAVE_SSE4_2 to be used for clang 6.0+ case because we know it works */
+#else
+/* don't allow it otherwise, for Mac OSX */
+#undef HAVE_SSE4_2
+#endif
+#endif
+
 #include <glib.h>
 #include "ws_symbol_export.h"
 #ifdef HAVE_SSE4_2
@@ -60,11 +73,8 @@ ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
 	if G_UNLIKELY(have_sse42 < 0)
 		have_sse42 = ws_cpuid_sse42();
 
-/*
-Commented out due to bug 10798
 	if (haystacklen >= 16 && have_sse42)
 		return _ws_mempbrk_sse42(haystack, haystacklen, needles);
-*/
 #endif
 
 	return _ws_mempbrk(haystack, haystacklen, needles);
