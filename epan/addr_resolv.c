@@ -2861,7 +2861,7 @@ udp_port_to_display(wmem_allocator_t *allocator, guint port)
         return wmem_utoa(allocator, port);
     }
 
-    return serv_name_lookup(port, PT_UDP);
+    return wmem_strdup(allocator, serv_name_lookup(port, PT_UDP));
 
 } /* udp_port_to_display */
 
@@ -2873,7 +2873,7 @@ dccp_port_to_display(wmem_allocator_t *allocator, guint port)
         return wmem_utoa(allocator, port);
     }
 
-    return serv_name_lookup(port, PT_DCCP);
+    return wmem_strdup(allocator, serv_name_lookup(port, PT_DCCP));
 
 } /* dccp_port_to_display */
 
@@ -2885,7 +2885,7 @@ tcp_port_to_display(wmem_allocator_t *allocator, guint port)
         return wmem_utoa(allocator, port);
     }
 
-    return serv_name_lookup(port, PT_TCP);
+    return wmem_strdup(allocator, serv_name_lookup(port, PT_TCP));
 
 } /* tcp_port_to_display */
 
@@ -2897,7 +2897,7 @@ sctp_port_to_display(wmem_allocator_t *allocator, guint port)
         return wmem_utoa(allocator, port);
     }
 
-    return serv_name_lookup(port, PT_SCTP);
+    return wmem_strdup(allocator, serv_name_lookup(port, PT_SCTP));
 
 } /* sctp_port_to_display */
 
