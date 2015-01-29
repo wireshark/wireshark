@@ -400,7 +400,7 @@ check_and_warn_user_startup(const QString &cf_name)
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *argv[])
 {
-    WiresharkApplication ws_app(argc, argv);
+    WiresharkApplication* ws_app;
     MainWindow *main_w;
 
     int                  opt;
@@ -447,6 +447,26 @@ int main(int argc, char *argv[])
      */
     init_process_policies();
     relinquish_special_privs_perm();
+
+    /* Get the compile-time version information string */
+    // XXX qtshark
+    comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
+                                              get_gui_compiled_info);
+
+    /* Assemble the run-time version information string */
+    // xxx qtshark
+    runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
+
+    /* If issued with -v, just print version and exit */
+    for (int i = 0; i < argc; i++) {
+        if (std::string(argv[i]) == "-v") {
+            show_version("Wireshark", comp_info_str, runtime_info_str);
+            exit(0);
+        }
+    }
+
+    /* Create The Wireshark app */
+    ws_app = new WiresharkApplication(argc, argv);
 
     /*
      * Attempt to get the pathname of the executable file.
@@ -538,15 +558,6 @@ int main(int argc, char *argv[])
     };
     static const char optstring[] = OPTSTRING;
 
-    /* Get the compile-time version information string */
-    // XXX qtshark
-    comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
-                                              get_gui_compiled_info);
-
-    /* Assemble the run-time version information string */
-    // xxx qtshark
-    runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
-
     /* Add it to the information to be reported on a crash. */
     ws_add_crash_info("Wireshark %s\n"
            "\n"
@@ -560,7 +571,7 @@ int main(int argc, char *argv[])
     WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 #endif  /* _WIN32 */
 
-    profile_store_persconffiles (TRUE);
+    profile_store_persconffiles(TRUE);
 
     /* Read the profile independent recent file.  We have to do this here so we can */
     /* set the profile before it can be set from the command line parameter */
@@ -713,7 +724,7 @@ int main(int argc, char *argv[])
     main_w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
+    main_w->connect(ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
             main_w, SLOT(openCaptureFile(QString&,QString&,unsigned int)));
 
     /* Init the "Open file" dialog directory */
@@ -804,7 +815,7 @@ int main(int argc, char *argv[])
 
     splash_update(RA_PREFERENCES, NULL, NULL);
 
-    prefs_p = ws_app.readConfigurationFiles (&gdp_path, &dp_path);
+    prefs_p = ws_app->readConfigurationFiles(&gdp_path, &dp_path);
 
     /*
      * To reset the options parser, set optreset to 1 on platforms that
