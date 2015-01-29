@@ -523,6 +523,19 @@ static int hf_capwap_fortinet_unknown_rid = -1;
 static int hf_capwap_fortinet_unknown_wid = -1;
 static int hf_capwap_fortinet_unknown = -1;
 
+static int hf_capwap_cisco_element_id = -1;
+static int hf_capwap_cisco_value = -1;
+static int hf_capwap_cisco_ap_name = -1;
+static int hf_capwap_cisco_mwar_type = -1;
+static int hf_capwap_cisco_mwar_hardware = -1;
+static int hf_capwap_cisco_mwar_software = -1;
+static int hf_capwap_cisco_mwar_active_ms = -1;
+static int hf_capwap_cisco_mwar_supported_ms = -1;
+static int hf_capwap_cisco_mwar_active_rad = -1;
+static int hf_capwap_cisco_mwar_supported_rad = -1;
+static int hf_capwap_cisco_ap_timesync = -1;
+static int hf_capwap_cisco_unknown = -1;
+
 static int hf_msg_fragments = -1;
 static int hf_msg_fragment = -1;
 static int hf_msg_fragment_overlap = -1;
@@ -575,6 +588,7 @@ static expert_field ei_capwap_msg_element_length = EI_INIT;
 static expert_field ei_capwap_message_element_type = EI_INIT;
 static expert_field ei_capwap_fortinet_mac_len = EI_INIT;
 static expert_field ei_capwap_message_element_fortinet_type = EI_INIT;
+static expert_field ei_capwap_message_element_cisco_type = EI_INIT;
 
 static const int * ieee80211_ofdm_control_band_support_flags[] = {
 	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit0,
@@ -1763,6 +1777,74 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
     return offset;
 }
 
+/* From Cisco WLC
+
+*/
+#define VSP_CISCO_AP_NAME 5
+#define VSP_CISCO_MWAR 6
+#define VSP_CISCO_AP_TIMESYNC 151
+
+
+static const value_string cisco_element_id_vals[] = {
+    { VSP_CISCO_AP_NAME, "AP Name" },
+    { VSP_CISCO_MWAR, "MWAR" },
+    { VSP_CISCO_AP_TIMESYNC, "AP Time Sync" },
+    { 0,     NULL     }
+};
+
+
+static int
+dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_msg_element_type_tree, guint offset, packet_info *pinfo _U_, guint optlen,  proto_item *msg_element_type_item)
+{
+    guint element_id;
+
+    proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    element_id = tvb_get_ntohs(tvb, offset);
+    proto_item_append_text(msg_element_type_item, ": Cisco %s", val_to_str(element_id, cisco_element_id_vals,"Unknown Vendor Specific Element Type (%02d)") );
+    offset += 2;
+
+    /* Remove length and element id to optlen */
+    optlen -= 6;
+    proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_value, tvb, offset, optlen, ENC_NA);
+
+    switch(element_id){
+        case VSP_CISCO_AP_NAME: /* AP Name (5) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            offset += optlen;
+        break;
+        case VSP_CISCO_MWAR: /* MWAR (6) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_hardware, tvb, offset, 4, ENC_ASCII|ENC_NA);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_software, tvb, offset, 4, ENC_ASCII|ENC_NA);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_active_ms, tvb, offset, 2, ENC_NA);
+            offset += 2;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_supported_ms, tvb, offset, 2, ENC_NA);
+            offset += 2;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_active_rad, tvb, offset, 2, ENC_NA);
+            offset += 2;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_supported_rad, tvb, offset, 2, ENC_NA);
+            offset += 2;
+        break;
+        case VSP_CISCO_AP_TIMESYNC: /* AP TIMESYNC (151) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_timesync, tvb, offset, 4, ENC_NA);
+            offset += 4;
+
+            offset += 1; /* Padding ? */
+        break;
+        default:
+            expert_add_info_format(pinfo, msg_element_type_item, &ei_capwap_message_element_cisco_type,
+                                 "Dissector for CAPWAP Vendor Specific (Cisco) Message Element"
+                                 " (%d) type not implemented", element_id);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_unknown, tvb, offset, optlen, ENC_NA);
+            offset += optlen;
+        break;
+    }
+
+    return offset;
+}
 /* Returns the number of bytes consumed by this option. */
 static int
 dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_tree, guint offset, packet_info *pinfo)
@@ -2091,6 +2173,9 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         switch(vendor_id){
             case VENDOR_FORTINET:
                 dissect_capwap_message_element_vendor_fortinet_type(tvb, sub_msg_element_type_tree, offset+8, pinfo, optlen, msg_element_type_item);
+            break;
+            case VENDOR_CISCO_WIFI:
+                dissect_capwap_message_element_vendor_cisco_type(tvb, sub_msg_element_type_tree, offset+8, pinfo, optlen, msg_element_type_item);
             break;
             default:
                 /* No default... */
@@ -5124,6 +5209,69 @@ proto_register_capwap_control(void)
         },
 
 
+        /* Cisco Vendor Specific*/
+
+        { &hf_capwap_cisco_element_id,
+            { "Cisco Element ID", "capwap.control.cisco.element_id",
+              FT_UINT16, BASE_DEC, VALS(cisco_element_id_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_value,
+            { "Cisco Value", "capwap.control.cisco.value",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_name,
+            { "AP Name", "capwap.control.cisco.ap_name",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_mwar_type,
+            { "Type", "capwap.control.cisco.mwar.type",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_mwar_hardware,
+            { "Hardware version", "capwap.control.cisco.mwar.hardware",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_mwar_software,
+            { "Software version", "capwap.control.cisco.mwar.software",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_mwar_active_ms,
+            { "Active MS", "capwap.control.cisco.mwar.active_ms",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_mwar_supported_ms,
+            { "Supported MS", "capwap.control.cisco.mwar.supported_ms",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_mwar_active_rad,
+            { "Active RAD", "capwap.control.cisco.mwar.active_rad",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_mwar_supported_rad,
+            { "Supported RAD", "capwap.control.cisco.mwar.supported_rad",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_timesync,
+            { "AP TimeSync", "capwap.control.cisco.ap_timesync",
+              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_unknown,
+            { "Unknown Data", "capwap.control.cisco.unknown",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
         /* Fragment entries */
         { &hf_msg_fragments,
             { "Message fragments", "capwap.fragments",
@@ -5214,7 +5362,8 @@ proto_register_capwap_control(void)
         { &ei_capwap_msg_element_length, { "capwap.message_element.length.bad", PI_MALFORMED, PI_ERROR, "Bad Message Element length", EXPFILL }},
         { &ei_capwap_message_element_type, { "capwap.message_element.type.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Type not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
         { &ei_capwap_fortinet_mac_len, { "capwap.control.fortinet.mac.length.bad", PI_MALFORMED, PI_ERROR, "Bad length: Should be a multiple of 6", EXPFILL }},
-        { &ei_capwap_message_element_fortinet_type, { "capwap.message_element.type.fortinet.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Fortinet Type not implemented", EXPFILL }}
+        { &ei_capwap_message_element_fortinet_type, { "capwap.message_element.type.fortinet.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Fortinet Type not implemented", EXPFILL }},
+        { &ei_capwap_message_element_cisco_type, { "capwap.message_element.type.fortinet.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for CAPWAP message element Cisco Type not implemented", EXPFILL }}
     };
 
     expert_module_t* expert_capwap;

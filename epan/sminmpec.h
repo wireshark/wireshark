@@ -88,6 +88,7 @@
 #define VENDOR_CACE                 32622
 /* Greater than 32,767 need to be tagged unsigned. */
 #define VENDOR_NTOP                 35632u
+#define VENDOR_CISCO_WIFI           4232704
 
 WS_DLL_PUBLIC value_string_ext sminmpec_values_ext;
 
