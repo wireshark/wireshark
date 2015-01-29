@@ -32,7 +32,10 @@
 
 static int proto_hcrt = -1;
 
-static gint udp_port_pref = 47000;
+static range_t *hcrt_port_range_default;
+
+#define HCRT_UDP_PORTS_DEFAULT "47000"
+
 static gint ethertype_pref = 0xf052;
 
 static int hf_hcrt_header = -1;
@@ -469,12 +472,15 @@ void proto_register_hcrt(void)
     expert_hcrt = expert_register_protocol(proto_hcrt);
     expert_register_field_array(expert_hcrt, ei, array_length(ei));
 
+    /* Set default UDP ports */
+    range_convert_str(&hcrt_port_range_default, HCRT_UDP_PORTS_DEFAULT, MAX_UDP_PORT);
+
     hcrt_module = prefs_register_protocol(proto_hcrt, proto_reg_handoff_hcrt);
-    prefs_register_uint_preference(hcrt_module,
+    prefs_register_range_preference(hcrt_module,
         "dissector_udp_port",
         "UDP port",
-        "The UDP port used in L3 communications",
-        10, &udp_port_pref);
+        "The UDP port used in L3 communications (default " HCRT_UDP_PORTS_DEFAULT ")",
+        &hcrt_port_range_default, MAX_UDP_PORT);
     prefs_register_uint_preference(hcrt_module,
         "dissector_ethertype",
         "Ethernet type",
@@ -486,7 +492,7 @@ void proto_reg_handoff_hcrt(void)
 {
     static dissector_handle_t hcrt_handle;
     static gboolean hcrt_prefs_initialized = FALSE;
-    static gint hcrt_udp_port;
+    static range_t* hcrt_port_range;
     static gint hcrt_ethertype;
 
     if (!hcrt_prefs_initialized) {
@@ -496,16 +502,16 @@ void proto_reg_handoff_hcrt(void)
         dissector_add_for_decode_as("tcp.port", hcrt_handle);
         hcrt_prefs_initialized = TRUE;
     } else {
-        dissector_delete_uint("udp.port", hcrt_udp_port, hcrt_handle);
         dissector_delete_uint("ethertype", hcrt_ethertype, hcrt_handle);
+        dissector_delete_uint_range("udp.port", hcrt_port_range, hcrt_handle);
+        g_free(hcrt_port_range);
     }
 
-    hcrt_udp_port = udp_port_pref;
+    hcrt_port_range = range_copy(hcrt_port_range_default);
     hcrt_ethertype = ethertype_pref;
 
     dissector_add_uint("ethertype", hcrt_ethertype, hcrt_handle);
-    dissector_add_uint("udp.port", hcrt_udp_port, hcrt_handle);
-
+    dissector_add_uint_range("udp.port", hcrt_port_range, hcrt_handle);
 }
 
 /*
