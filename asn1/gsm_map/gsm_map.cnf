@@ -272,6 +272,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 #.FN_BODY TBCD-STRING VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
  const char	*digit_str;
+ proto_tree *subtree;
 
  %(DEFAULT_BODY)s
 
@@ -280,8 +281,9 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
  if(tvb_reported_length(parameter_tvb)==0)
      return offset;
 
+ subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_tbcd_digits);
  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, 0, -1, NULL, FALSE);
- proto_tree_add_string(tree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, digit_str);
+ proto_tree_add_string(subtree, hf_gsm_map_TBCD_digits, parameter_tvb, 0, -1, digit_str);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY LongSignalInfo VAL_PTR = &parameter_tvb
@@ -541,29 +543,31 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 #.FN_BODY USSD-String VAL_PTR = &parameter_tvb
 
-  tvbuff_t	*parameter_tvb;
-  guint		length;
+  tvbuff_t   *parameter_tvb;
+  guint       length;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
      return offset;
 
   length = tvb_ensure_captured_length_remaining(parameter_tvb,0);
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ussd_string);
   switch(sms_encoding){
     case SMS_ENCODING_7BIT:
     case SMS_ENCODING_7BIT_LANG:
-	proto_tree_add_string(tree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_3GPP_TS_23_038_7BITS|ENC_NA));
-	break;
+      proto_tree_add_string(subtree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_3GPP_TS_23_038_7BITS|ENC_NA));
+      break;
     case SMS_ENCODING_8BIT:
-        /* XXX - ASCII, or some extended ASCII? */
-	proto_tree_add_string(tree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_ASCII|ENC_NA));
-	break;
+      /* XXX - ASCII, or some extended ASCII? */
+      proto_tree_add_string(subtree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_ASCII|ENC_NA));
+      break;
     case SMS_ENCODING_UCS2:
     case SMS_ENCODING_UCS2_LANG:
-	proto_tree_add_string(tree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_UCS_2|ENC_BIG_ENDIAN));
-	break;
+      proto_tree_add_string(subtree, hf_gsm_map_ussd_string, parameter_tvb, 0, length, tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, length, ENC_UCS_2|ENC_BIG_ENDIAN));
+      break;
     default:
-	break;
+      break;
   }
 
 #.FN_FTR ForwardingOptions
@@ -967,10 +971,10 @@ if (!actx->value_ptr)
 
  digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, 2, -1, NULL, FALSE);
 
- proto_tree_add_string(tree, hf_gsm_map_locationnumber_digits, tvb, 2, -1, digit_str);
+ proto_tree_add_string(subtree, hf_gsm_map_locationnumber_digits, tvb, 2, -1, digit_str);
 
  if ((na == 3) && (np==1))/*International Number & E164*/
-	dissect_e164_cc(tvb, tree, 2, E164_ENC_BCD);
+	dissect_e164_cc(tvb, subtree, 2, E164_ENC_BCD);
 
 #.FN_BODY EnhancedCheckIMEI-Arg/locationInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
