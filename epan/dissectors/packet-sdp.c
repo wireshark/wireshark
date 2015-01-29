@@ -956,15 +956,20 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
         if (!strcmp(media_info->media_proto[media_info->media_count], "RTP/AVP")) {
             media_format = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-            proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
-                                  tokenlen, val_to_str_ext((guint32)strtoul((char*)media_format, NULL, 10), &rtp_payload_type_vals_ext, "%u"));
-            idx = transport_info->media[transport_info->media_count].pt_count;
-            transport_info->media[transport_info->media_count].pt[idx] = (gint32)strtol((char*)media_format, NULL, 10);
-            DPRINT(("parsed media codec pt=%d, for media_count=%d",
-                    transport_info->media[transport_info->media_count].pt[idx],
-                    transport_info->media_count));
-           if (idx < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
-                transport_info->media[transport_info->media_count].pt_count++;
+            if (g_ascii_isdigit(media_format[0])) {
+                proto_tree_add_string(sdp_media_tree, hf_media_format, tvb, offset,
+                                      tokenlen, val_to_str_ext((guint32)strtoul((char*)media_format, NULL, 10), &rtp_payload_type_vals_ext, "%u"));
+                idx = transport_info->media[transport_info->media_count].pt_count;
+                transport_info->media[transport_info->media_count].pt[idx] = (gint32)strtol((char*)media_format, NULL, 10);
+                DPRINT(("parsed media codec pt=%d, for media_count=%d",
+                        transport_info->media[transport_info->media_count].pt[idx],
+                        transport_info->media_count));
+               if (idx < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
+                   transport_info->media[transport_info->media_count].pt_count++;
+            } else {
+                proto_tree_add_item(sdp_media_tree, hf_media_format, tvb, offset,
+                                    tokenlen, ENC_UTF_8|ENC_NA);
+            }
         } else {
             proto_tree_add_item(sdp_media_tree, hf_media_format, tvb, offset,
                                 tokenlen, ENC_UTF_8|ENC_NA);
