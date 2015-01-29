@@ -4379,7 +4379,7 @@ bssgp_suspend_nack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     /* Routeing Area Routeing Area/11.3.31 M TLV 8 */
     ELEM_MAND_TELV(0x1b,GSM_A_PDU_TYPE_GM, DE_RAI, NULL, ei_bssgp_missing_mandatory_element);
     /* Cause Cause/11.3.8 O TLV 3 */
-    ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
@@ -4851,9 +4851,9 @@ bssgp_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     /* Cause Cause/11.3.8 M TLV 3 */
     ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL, ei_bssgp_missing_mandatory_element);
     /* BVCI BVCI/11.3.6 C TLV 4 */
-    ELEM_MAND_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI, NULL);
     /* PDU In Error (note) PDU In Error/11.3.24 O TLV 3-? */
-    ELEM_MAND_TELV(0x15, BSSGP_PDU_TYPE, DE_BSSGP_PDU_IN_ERROR, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(0x15, BSSGP_PDU_TYPE, DE_BSSGP_PDU_IN_ERROR, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
@@ -4950,7 +4950,7 @@ bssgp_create_bss_pfc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     /* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
     ELEM_OPT_TELV(0x17, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
     /* T10 GPRS Timer/11.3.44 C (note 2) TLV 3 */
-    ELEM_MAND_TELV(BSSGP_IEI_GPRS_TIMER, BSSGP_PDU_TYPE, DE_BSSGP_GPRS_TIMER, " - T10", ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(BSSGP_IEI_GPRS_TIMER, BSSGP_PDU_TYPE, DE_BSSGP_GPRS_TIMER, " - T10");
     /* Inter RAT Handover Info Inter RAT Handover Info/11.3.94 O (note 3) TLV 3-? */
     ELEM_OPT_TELV(0x73, BSSGP_PDU_TYPE, DE_BSSGP_INTER_RAT_HO_INFO, NULL);
     /* E-UTRAN Inter RAT Handover Info E-UTRAN Inter RAT Handover Info/11.3.104 O (note 3) TLV 3-? */
@@ -5287,11 +5287,11 @@ bssgp_ps_ho_required_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     /* Target BSS to Source BSS Transparent Container (note)
      * Target BSS to Source BSS Transparent Container/11.3.80 C TLV 3-?
      */
-    ELEM_MAND_TELV(0x65,BSSGP_PDU_TYPE, DE_BSSGP_TARGET_BSS_TO_SOURCE_BSS_TRANSP_CONT, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(0x65,BSSGP_PDU_TYPE, DE_BSSGP_TARGET_BSS_TO_SOURCE_BSS_TRANSP_CONT, NULL);
     /* Target to Source Transparent Container (note)
      * Target to Source Transparent Container/11.3.86 C TLV 3-?
      */
-    ELEM_MAND_TELV(0x6b,BSSGP_PDU_TYPE, DE_BSSGP_TRG_TO_SRC_TRANSP_CONT, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(0x6b,BSSGP_PDU_TYPE, DE_BSSGP_TRG_TO_SRC_TRANSP_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
@@ -5590,7 +5590,7 @@ bssgp_perform_loc_response(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     /* LCS Cause (note 3) LCS Cause/11.3.58 O TLV 3-? */
     ELEM_OPT_TELV(BSSGP_IEI_LCS_CAUSE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAUSE, NULL);
     /* Velocity Data Velocity Data/11.3.96 O TLV 3-? */
-    ELEM_MAND_TELV(0x78, BSSGP_PDU_TYPE, DE_BSSGP_VELOCITY_DATA, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(0x78, BSSGP_PDU_TYPE, DE_BSSGP_VELOCITY_DATA, NULL);
     /* GANSS Positioning Data GANSS Positioning Data /11.3.101 O TLV 3-? */
     ELEM_OPT_TELV(0x7d, GSM_A_PDU_TYPE_BSSMAP, BE_GANSS_POS_DTA, NULL);
 
@@ -5863,7 +5863,7 @@ bssgp_mbms_session_start_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     /* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
     ELEM_OPT_TELV(0x17, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
     /* MBMS Session Repetition Number MBMS Session Repetition Number/11.3.93 O TLV 3 */
-    ELEM_MAND_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL);
 
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
@@ -5991,7 +5991,7 @@ bssgp_mbms_session_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     /* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
     ELEM_OPT_TELV(0x17, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
     /* MBMS Session Repetition Number MBMS Session Repetition Number/11.3.93 O TLV 3 */
-    ELEM_MAND_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL, ei_bssgp_missing_mandatory_element);
+    ELEM_OPT_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
