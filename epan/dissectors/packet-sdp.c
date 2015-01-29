@@ -144,6 +144,7 @@ static int hf_session_attribute_value = -1;
 /* hf_media subfields */
 static int hf_media_media = -1;
 static int hf_media_port = -1;
+static int hf_media_port_string = -1;
 static int hf_media_portcount = -1;
 static int hf_media_proto = -1;
 static int hf_media_format = -1;
@@ -866,6 +867,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     gint        offset, next_offset, tokenlen, idx;
     guint8     *media_format;
     gboolean    optional = FALSE;
+    proto_item *it;
 
     offset = 0;
 
@@ -903,8 +905,13 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                 media_info->media_port[media_info->media_count],
                 media_info->media_count));
 
-        proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                            atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA)));
+        it = proto_tree_add_string(sdp_media_tree, hf_media_port_string, tvb, offset, tokenlen,
+                                   media_info->media_port[media_info->media_count]);
+        if (g_ascii_isdigit(media_info->media_port[media_info->media_count][0])) {
+            PROTO_ITEM_SET_HIDDEN(it);
+            proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
+                                atoi(media_info->media_port[media_info->media_count]));
+        }
 
         offset = next_offset + 1;
         tokenlen = find_next_token_in_line(tvb, sdp_media_tree, &offset, &next_offset);
@@ -927,8 +934,13 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                 media_info->media_port[media_info->media_count],
                 media_info->media_count));
         /* XXX Remember Port */
-        proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
-                            atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA)));
+        it = proto_tree_add_string(sdp_media_tree, hf_media_port_string, tvb, offset, tokenlen,
+                                   media_info->media_port[media_info->media_count]);
+        if (g_ascii_isdigit(media_info->media_port[media_info->media_count][0])) {
+            PROTO_ITEM_SET_HIDDEN(it);
+            proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
+                                atoi(media_info->media_port[media_info->media_count]));
+        }
         offset = next_offset + 1;
     }
 
@@ -2850,6 +2862,11 @@ proto_register_sdp(void)
         { &hf_media_port,
             { "Media Port", "sdp.media.port",
               FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_media_port_string,
+            { "Media Port", "sdp.media.port_string",
+              FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_media_portcount,
