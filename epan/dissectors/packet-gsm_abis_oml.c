@@ -1817,55 +1817,54 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
 	proto_item *ti;
 	proto_tree *oml_tree;
-
 	int offset = 0;
+
+	guint8	    msg_disc = tvb_get_guint8(tvb, offset);
+	guint8	    len	     = tvb_get_guint8(tvb, offset+3);
+
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OML");
 
 	top_tree = tree;
-	/* if (tree) */ {
-		guint8 msg_disc = tvb_get_guint8(tvb, offset);
-		guint8 len = tvb_get_guint8(tvb, offset+3);
 
-		ti = proto_tree_add_item(tree, proto_abis_oml, tvb, 0, -1, ENC_NA);
-		oml_tree = proto_item_add_subtree(ti, ett_oml);
+	ti = proto_tree_add_item(tree, proto_abis_oml, tvb, 0, -1, ENC_NA);
+	oml_tree = proto_item_add_subtree(ti, ett_oml);
 
-		proto_tree_add_item(oml_tree, hf_oml_msg_disc, tvb, offset++,
-				    1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(oml_tree, hf_oml_placement, tvb, offset++,
-				    1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(oml_tree, hf_oml_sequence, tvb, offset++,
-				    1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(oml_tree, hf_oml_length, tvb, offset++,
-				    1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(oml_tree, hf_oml_msg_disc, tvb, offset++,
+			    1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(oml_tree, hf_oml_placement, tvb, offset++,
+			    1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(oml_tree, hf_oml_sequence, tvb, offset++,
+			    1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(oml_tree, hf_oml_length, tvb, offset++,
+			    1, ENC_LITTLE_ENDIAN);
 
-		if (global_oml_dialect == OML_DIALECT_ERICSSON) {
-			/* Ericsson OM2000 only sharese the common header above
-			 * and has completely custom/proprietary message format
-			 * after that header.  Thus, it makes more sense of
-			 * putting all of that into an external dissector and
-			 * call out to that dissector */
-			tvbuff_t *subtvb;
-			subtvb = tvb_new_subset_length(tvb, offset, len);
+	if (global_oml_dialect == OML_DIALECT_ERICSSON) {
+		/* Ericsson OM2000 only sharese the common header above
+		 * and has completely custom/proprietary message format
+		 * after that header.  Thus, it makes more sense of
+		 * putting all of that into an external dissector and
+		 * call out to that dissector */
+		tvbuff_t *subtvb;
+		subtvb = tvb_new_subset_length(tvb, offset, len);
 
-			if (sub_om2000)
-				call_dissector(sub_om2000, subtvb, pinfo, tree);
-		} else {
+		if (sub_om2000)
+			call_dissector(sub_om2000, subtvb, pinfo, tree);
+	} else {
 
-			switch (msg_disc) {
-			case ABIS_OM_MDISC_FOM:
-				offset = dissect_oml_fom(tvb, pinfo, oml_tree,
-							 offset, ti);
-				break;
-			case ABIS_OM_MDISC_MANUF:
-				offset = dissect_oml_manuf(tvb, pinfo, oml_tree,
-							   offset, ti);
-				break;
-			case ABIS_OM_MDISC_MMI:
-			case ABIS_OM_MDISC_TRAU:
-			default:
-				break;
-			}
+		switch (msg_disc) {
+		case ABIS_OM_MDISC_FOM:
+			offset = dissect_oml_fom(tvb, pinfo, oml_tree,
+						 offset, ti);
+			break;
+		case ABIS_OM_MDISC_MANUF:
+			offset = dissect_oml_manuf(tvb, pinfo, oml_tree,
+						   offset, ti);
+			break;
+		case ABIS_OM_MDISC_MMI:
+		case ABIS_OM_MDISC_TRAU:
+		default:
+			break;
 		}
 	}
 

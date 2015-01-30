@@ -461,9 +461,8 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                                                               tvb, offset, avp_data_length,
                                                                               ett_pana_avp, NULL, "AVP Value (EAP packet)");
                                         eap_tvb = tvb_new_subset_length(tvb, offset, avp_data_length);
-                                        if (eap_handle != NULL) {
-                                                call_dissector(eap_handle, eap_tvb, pinfo, avp_eap_tree);
-                                        }
+                                        DISSECTOR_ASSERT_HINT(eap_handle, "EAP Dissector not available");
+                                        call_dissector(eap_handle, eap_tvb, pinfo, avp_eap_tree);
                                         break;
                                 }
                                 case PANA_ENCAPSULATED: {
@@ -652,7 +651,7 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         guint32 avp_length;
 
         /* Get actual buffer length */
-        buffer_length = tvb_length(tvb);
+        buffer_length = tvb_captured_length(tvb);
 
         /* Check minimum buffer length */
         if(buffer_length < 12) {
@@ -925,7 +924,6 @@ proto_reg_handoff_pana(void)
         dissector_add_for_decode_as("udp.port", pana_handle);
 
         eap_handle = find_dissector("eap");
-/**        if(!eap_handle) fprintf(stderr,"PANA warning: EAP dissector not found\n"); **/
 
 }
 
