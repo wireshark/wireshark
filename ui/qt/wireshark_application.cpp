@@ -479,6 +479,31 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     wsApp = this;
     setApplicationName("Wireshark");
 
+#ifdef Q_OS_WIN
+    // Try to avoid library search path collisions. QCoreApplication will
+    // search QT_INSTALL_PREFIX/plugins for platform DLLs before searching
+    // the application directory. If
+    //
+    // - You have Qt version 5.x.y installed in the default location
+    //   (C:\Qt\5.x) on your machine.
+    //
+    // and
+    //
+    // - You install Wireshark that was built on a machine with Qt version
+    //   5.x.z installed in the default location.
+    //
+    // Qt5Core.dll will load qwindows.dll from your local C:\Qt\...\plugins
+    // directory. This may not be compatible with qwindows.dll from that
+    // same path on the build machine. We work around this by removing every
+    // except our application directory.
+
+    foreach (QString path, libraryPaths()) {
+        if (path.compare(applicationDirPath())) {
+            removeLibraryPath(path);
+        }
+    }
+#endif
+
     Q_INIT_RESOURCE(about);
     Q_INIT_RESOURCE(display_filter);
     Q_INIT_RESOURCE(i18n);
