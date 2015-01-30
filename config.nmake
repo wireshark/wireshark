@@ -209,7 +209,10 @@ NASM=$(WIRESHARK_LIB_DIR)\nasm-2.09.08\nasm.exe
 
 # Find native Python automatically if PYTHON(_DIR) wasn't defined
 !IF !DEFINED(PYTHON) && !DEFINED(PYTHON_DIR)
-!IF EXIST(c:\Python27\python.exe)
+!IF EXIST(c:\tools\python2\python.exe)
+# Chocolatey default
+PYTHON_DIR=C:\tools\python2
+!ELSE IF EXIST(c:\Python27\python.exe)
 PYTHON_VER=27
 !ELSE IF EXIST(c:\Python26\python.exe)
 PYTHON_VER=26
@@ -782,6 +785,9 @@ GTK_SCHEMAS_DIR=\share\glib-2.0\schemas
 CYGWIN_PATH=C:\cygwin\bin
 !ELSE IF EXIST(C:\cygwin64\bin)
 CYGWIN_PATH=C:\cygwin64\bin
+!ELSE IF EXIST(C:\tools\cygwin\bin)
+# Chocolatey default
+CYGWIN_PATH=C:\tools\cygwin\bin
 !ELSE
 !ERROR Could not locate Cygwin, please set CYGWIN_PATH explicitly in config.nmake
 !ENDIF
