@@ -873,7 +873,7 @@ rtp_dyn_payload_table_foreach_func(gpointer key, gpointer value, gpointer user_d
     guint pt = GPOINTER_TO_UINT(key);
     encoding_name_and_rate_t *encoding = (encoding_name_and_rate_t*) value;
 
-    DPRINT2(("pt=%d",pt));
+    DPRINT2(("pt=%d", pt));
     if (encoding) {
         DPRINT2(("encoding_name=%s",
                 encoding->encoding_name ? encoding->encoding_name : "NULL"));
@@ -1222,7 +1222,7 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
 {
     address null_addr;
     conversation_t* p_conv;
-    struct _rtp_conversation_info *p_conv_data = NULL;
+    struct _rtp_conversation_info *p_conv_data;
 
     /*
      * If this isn't the first time this packet has been processed,
@@ -1401,7 +1401,7 @@ static void
 process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             proto_tree *rtp_tree, unsigned int payload_type)
 {
-    struct _rtp_conversation_info *p_conv_data = NULL;
+    struct _rtp_conversation_info *p_conv_data;
     gboolean found_match = FALSE;
     int payload_len;
     struct srtp_info *srtp_info;
@@ -1416,7 +1416,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
         payload_len -= srtp_info->mki_len + srtp_info->auth_tag_len;
 #if 0
 #error Currently the srtp_info structure contains no cipher data, see packet-sdp.c adding dummy_srtp_info structure
-        if (p_conv_data->srtp_info->encryption_algorithm==SRTP_ENC_ALG_NULL) {
+        if (p_conv_data->srtp_info->encryption_algorithm == SRTP_ENC_ALG_NULL) {
             if (rtp_tree)
                 proto_tree_add_item(rtp_tree, hf_srtp_null_encrypted_payload, newtvb, offset, payload_len, ENC_NA);
         }
@@ -1453,7 +1453,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
                  * as that'd probably be the wrong dissector in this case.
                  * Just add it as data.
                  */
-                if(len==0)
+                if(len == 0)
                     proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA );
                 return;
             }
@@ -1521,10 +1521,10 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          unsigned int payload_type)
 {
     tvbuff_t *newtvb;
-    struct _rtp_conversation_info *p_conv_data= NULL;
+    struct _rtp_conversation_info *p_conv_data;
     gboolean must_desegment = FALSE;
     rtp_private_conv_info *finfo = NULL;
-    rtp_multisegment_pdu *msp = NULL;
+    rtp_multisegment_pdu *msp;
     guint32 seqno;
 
     /* Retrieve RTPs idea of a converation */
@@ -1535,7 +1535,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if(finfo == NULL || !desegment_rtp) {
         /* Hand the whole lot off to the subdissector */
-        newtvb=tvb_new_subset(tvb,offset,data_len,data_reported_len);
+        newtvb = tvb_new_subset(tvb, offset, data_len, data_reported_len);
         process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);
         return;
     }
@@ -1555,7 +1555,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 
     /* look for a pdu which we might be extending */
-    msp = (rtp_multisegment_pdu *)wmem_tree_lookup32_le(finfo->multisegment_pdus,seqno-1);
+    msp = (rtp_multisegment_pdu *)wmem_tree_lookup32_le(finfo->multisegment_pdus, seqno-1);
 
     if(msp && msp->startseq < seqno && msp->endseq >= seqno) {
         guint32 fid = msp->startseq;
@@ -1574,11 +1574,11 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                        seqno-msp->startseq, data_len,
                        FALSE, 0);
 
-        newtvb = process_reassembled_data(tvb,offset, pinfo, "Reassembled RTP", fd_head,
+        newtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RTP", fd_head,
                           &rtp_fragment_items, NULL, tree);
 
 #ifdef DEBUG_FRAGMENTS
-        g_debug("\tFragment Coalesced; fd_head=%p, newtvb=%p (len %d)",fd_head, newtvb,
+        g_debug("\tFragment Coalesced; fd_head=%p, newtvb=%p (len %d)", fd_head, newtvb,
             newtvb?tvb_reported_length(newtvb):0);
 #endif
 
@@ -1599,7 +1599,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 pinfo, fid, NULL);
 
                 /* we must need another segment */
-                msp->endseq = MIN(msp->endseq,seqno) + 1;
+                msp->endseq = MIN(msp->endseq, seqno) + 1;
             }
             else
             {
@@ -1644,7 +1644,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
         guint32 deseg_offset = pinfo->desegment_offset;
         guint32 frag_len = tvb_reported_length_remaining(newtvb, deseg_offset);
-        fragment_head *fd_head = NULL;
+        fragment_head *fd_head;
 
 #ifdef DEBUG_FRAGMENTS
         g_debug("\tRTP Must Desegment: tvb_len=%d ds_len=%d %d frag_len=%d ds_off=%d",
@@ -1658,7 +1658,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         msp = wmem_new(wmem_file_scope(), rtp_multisegment_pdu);
         msp->startseq = seqno;
         msp->endseq = seqno+1;
-        wmem_tree_insert32(finfo->multisegment_pdus,seqno,msp);
+        wmem_tree_insert32(finfo->multisegment_pdus, seqno, msp);
 
         /*
          * Add the fragment to the fragment table
@@ -1673,7 +1673,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             {
                 proto_item *rtp_tree_item;
                 rtp_tree_item = proto_tree_add_uint( tree, hf_rtp_reassembled_in,
-                                     newtvb, deseg_offset, tvb_reported_length_remaining(newtvb,deseg_offset),
+                                     newtvb, deseg_offset, tvb_reported_length_remaining(newtvb, deseg_offset),
                                      fd_head->reassembled_in);
                 PROTO_ITEM_SET_GENERATED(rtp_tree_item);
 #ifdef DEBUG_FRAGMENTS
@@ -1718,16 +1718,12 @@ static void
 dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint offset = 0;
-    guint8 octet1;
     int cnt;
     gboolean hdr_follow = TRUE;
-    proto_item *ti;
     proto_tree *rfc2198_tree;
-    proto_tree *rfc2198_hdr_tree = NULL;
-    rfc2198_hdr *hdr_last, *hdr_new;
+    rfc2198_hdr *hdr_last;
     rfc2198_hdr *hdr_chain = NULL;
-    struct _rtp_conversation_info *p_conv_data= NULL;
-    const gchar *payload_type_str;
+    struct _rtp_conversation_info *p_conv_data;
 
     /* Retrieve RTPs idea of a converation */
     p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
@@ -1738,6 +1734,12 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hdr_last = NULL;
     cnt = 0;
     while (hdr_follow) {
+        proto_item *ti;
+        proto_tree *rfc2198_hdr_tree;
+        const gchar *payload_type_str;
+        rfc2198_hdr *hdr_new;
+        guint8 octet1;
+
         cnt++;
         payload_type_str = NULL;
 
@@ -1805,13 +1807,14 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *rtp_hext_tree )
 {
     proto_tree *rtp_hext_rfc5285_tree = NULL;
-    guint ext_offset = 0, start_ext_offset;
+    guint ext_offset = 0;
 
     while (ext_offset < tvb_captured_length (tvb)) {
-        guint8 ext_hdr_hdr;
-        guint8 ext_id;
-        guint8 ext_length;
-        tvbuff_t *subtvb = NULL;
+        guint8    ext_hdr_hdr;
+        guint8    ext_id;
+        guint8    ext_length;
+        guint     start_ext_offset;
+        tvbuff_t *subtvb;
 
         /* Skip bytes with the value 0, they are padding */
         start_ext_offset = ext_offset;
@@ -1867,9 +1870,9 @@ dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
     guint ext_offset = 0, start_ext_offset;
 
     while (ext_offset + 2 < tvb_captured_length (tvb)) {
-        guint8 ext_id;
-        guint8 ext_length;
-        tvbuff_t *subtvb = NULL;
+        guint8    ext_id;
+        guint8    ext_length;
+        tvbuff_t *subtvb;
 
         /* Skip bytes with the value 0, they are padding */
         start_ext_offset = ext_offset;
@@ -1910,8 +1913,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_item *ti            = NULL;
     proto_tree *volatile rtp_tree = NULL;
-    proto_tree *rtp_csrc_tree = NULL;
-    proto_tree *rtp_hext_tree = NULL;
     guint8      octet1, octet2;
     unsigned int version;
     gboolean    padding_set;
@@ -1921,31 +1922,25 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     unsigned int payload_type;
     const gchar *payload_type_str = NULL;
     gboolean    is_srtp = FALSE;
-    unsigned int i            = 0;
-    unsigned int hdr_extension_len= 0;
-    unsigned int hdr_extension_id = 0;
-    volatile unsigned int padding_count;
+    unsigned int i;
     gint        length, reported_length;
     int         data_len;
     volatile unsigned int offset = 0;
     guint16     seq_num;
     guint32     timestamp;
     guint32     sync_src;
-    guint32     csrc_item;
-    struct _rtp_conversation_info *p_conv_data = NULL;
+    struct _rtp_conversation_info *p_conv_data;
     /*struct srtp_info *srtp_info = NULL;*/
     /*unsigned int srtp_offset;*/
-    unsigned int hdrext_offset = 0;
-    tvbuff_t     *newtvb = NULL;
     const char   *pt = NULL;
     /* Can tap up to 4 RTP packets within same packet */
     static struct _rtp_info rtp_info_arr[4];
-    static int rtp_info_current=0;
+    static int rtp_info_current = 0;
     struct _rtp_info *rtp_info;
 
     rtp_info_current++;
-    if (rtp_info_current==4) {
-        rtp_info_current=0;
+    if (rtp_info_current == 4) {
+        rtp_info_current = 0;
     }
     rtp_info = &rtp_info_arr[rtp_info_current];
 
@@ -1973,7 +1968,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         case RTP0_INVALID:
             if (!(tvb_memeql(tvb, 4, "ZRTP", 4)))
             {
-                call_dissector(zrtp_handle,tvb,pinfo,tree);
+                call_dissector(zrtp_handle, tvb,pinfo, tree);
                 return tvb_captured_length(tvb);
             }
         default:
@@ -2123,7 +2118,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     } else if (p_conv_data && p_conv_data->btvdp_info) {
         pt = (p_conv_data->btvdp_info->codec_dissector) ? dissector_handle_get_short_name(p_conv_data->btvdp_info->codec_dissector) : "Unknown";
     } else {
-        pt = (payload_type_str ? payload_type_str : val_to_str_ext(payload_type, &rtp_payload_type_vals_ext,"Unknown (%u)"));
+        pt = (payload_type_str ? payload_type_str : val_to_str_ext(payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)"));
     }
 
     col_add_fstr( pinfo->cinfo, COL_INFO,
@@ -2184,6 +2179,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
     /* CSRC list*/
     if ( csrc_count > 0 ) {
+        proto_tree *rtp_csrc_tree;
+        guint32 csrc_item;
         ti = proto_tree_add_item(rtp_tree, hf_rtp_csrc_items, tvb, offset,
                                      csrc_count * 4, ENC_NA);
         proto_item_append_text(ti, " (%u items)", csrc_count);
@@ -2202,6 +2199,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     /* Optional RTP header extension */
     if ( extension_set ) {
+        unsigned int hdr_extension_len;
+        unsigned int hdr_extension_id;
+
         /* Defined by profile field is 16 bits (2 octets) */
         hdr_extension_id = tvb_get_ntohs( tvb, offset );
         if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_prof_define, tvb, offset, 2, hdr_extension_id );
@@ -2211,6 +2211,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb, offset, 2, hdr_extension_len);
         offset += 2;
         if ( hdr_extension_len > 0 ) {
+            proto_tree *rtp_hext_tree = NULL;
+            tvbuff_t   *newtvb;
+
             if ( tree ) {
                 ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension_len * 4, ENC_NA);
                 rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext );
@@ -2229,10 +2232,14 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
             else {
                 if ( !(dissector_try_uint(rtp_hdr_ext_dissector_table, hdr_extension_id, newtvb, pinfo, rtp_hext_tree)) ) {
-                    hdrext_offset = offset;
-                    for ( i = 0; i < hdr_extension_len; i++ ) {
-                        if ( tree ) proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
-                        hdrext_offset += 4;
+                    if ( tree ) {
+                        unsigned int hdrext_offset;
+
+                        hdrext_offset = offset;
+                        for ( i = 0; i < hdr_extension_len; i++ ) {
+                            proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
+                            hdrext_offset += 4;
+                        }
                     }
                 }
             }
@@ -2248,6 +2255,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
          * the packet; it contains the number of octets
          * that can be ignored at the end of the packet.
          */
+        volatile unsigned int padding_count;
         if (tvb_captured_length(tvb) < tvb_reported_length(tvb)) {
             /*
              * We don't *have* the last octet of the
@@ -2389,29 +2397,23 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static void
 dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-    unsigned int offset = 0;
-    unsigned int hdr_extension_len = 0;
-    proto_item *ti            = NULL;
-    proto_item *ti2           = NULL;
-    proto_tree *rtp_hext_tree = NULL;
-    proto_tree *rtp_hext_tree2 = NULL;
-    unsigned int i;
-    guint32 ext_value;
-    unsigned int ft_type = 0;
-    unsigned int bss_qidx = 0;
-    unsigned int bss_qidx_ml = 0;
+    unsigned int hdr_extension_len;
 
     hdr_extension_len = tvb_reported_length(tvb)/4;
 
     if ( hdr_extension_len > 0 ) {
-        unsigned int hdrext_offset = 0;
+        proto_tree   *rtp_hext_tree = NULL;
+        unsigned int  offset = 0;
+        unsigned int  hdrext_offset = 0;
+        unsigned int  i;
 
         if ( tree ) {
-          ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
-          rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
+            proto_item *ti;
+            ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
+            rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
         }
         for(i=0; i<hdr_extension_len; i++) {
-            ext_value=tvb_get_ntohl( tvb, hdrext_offset );
+            guint32 ext_value = tvb_get_ntohl( tvb, hdrext_offset );
 
             if (RTP_ED137_ptt_mask(ext_value)) {
                 col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
@@ -2420,6 +2422,9 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
             }
             if ( tree ) {
+                proto_item *ti2;
+                proto_tree *rtp_hext_tree2;
+
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137, tvb, hdrext_offset, 4, ENC_NA);
                 rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137 );
 
@@ -2432,17 +2437,19 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
                 if (RTP_ED137_extended_information(ext_value)) {
                 /* Extended information is used */
+                    unsigned int ft_type;
                     proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ft_type, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ft_len, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
 
-                    ft_type=RTP_ED137_feature_type(ext_value);
+                    ft_type = RTP_ED137_feature_type(ext_value);
                     switch (ft_type) {
                         case RTP_ED137_feature_bss_type:
-                            bss_qidx=RTP_ED137_feature_bss_qidx(ext_value);
-                            bss_qidx_ml=RTP_ED137_feature_bss_qidx_ml(ext_value);
-                            if (RTP_ED137_feature_bss_qidx_ml_rssi==bss_qidx_ml) {
+                        {
+                            unsigned int bss_qidx    = RTP_ED137_feature_bss_qidx(ext_value);
+                            unsigned int bss_qidx_ml = RTP_ED137_feature_bss_qidx_ml(ext_value);
+                            if (RTP_ED137_feature_bss_qidx_ml_rssi == bss_qidx_ml) {
                                 /* Special handling for RSSI method */
-                                if (bss_qidx<=RTP_ED137_feature_bss_qidx_rssi_max) {
+                                if (bss_qidx <= RTP_ED137_feature_bss_qidx_rssi_max) {
                                     /* Correct range */
                                     proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ft_bss_rssi_qidx, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                                 }
@@ -2458,6 +2465,7 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                             proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ft_bss_qidx_ml, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                             proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ft_bss_nu, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                             break;
+                        }
                         default:
                             proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ft_value, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                             break;
@@ -2478,29 +2486,23 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 static void
 dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-    unsigned int offset = 0;
-    unsigned int hdr_extension_len = 0;
-    proto_item *ti            = NULL;
-    proto_item *ti2           = NULL;
-    proto_tree *rtp_hext_tree = NULL;
-    proto_tree *rtp_hext_tree2 = NULL;
-    unsigned int i;
-    guint32 ext_value;
-    unsigned int ft_type = 0;
-    unsigned int sqi_qidx = 0;
-    unsigned int sqi_qidx_ml = 0;
+    unsigned int hdr_extension_len;
 
     hdr_extension_len = tvb_reported_length(tvb)/4;
 
     if ( hdr_extension_len > 0 ) {
+        proto_tree *rtp_hext_tree = NULL;
+        unsigned int offset = 0;
         unsigned int hdrext_offset = 0;
+        unsigned int i;
 
         if ( tree ) {
+            proto_item *ti;
             ti = proto_tree_add_item(tree, hf_rtp_hdr_ed137s, tvb, offset, hdr_extension_len * 4, ENC_NA);
             rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext_ed137s );
         }
         for(i=0; i<hdr_extension_len; i++) {
-            ext_value=tvb_get_ntohl( tvb, hdrext_offset );
+            guint32 ext_value = tvb_get_ntohl( tvb, hdrext_offset );
 
             if (RTP_ED137A_ptt_mask(ext_value)) {
                 col_append_str(pinfo->cinfo, COL_INFO, ", PTT");
@@ -2509,6 +2511,9 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 col_append_str(pinfo->cinfo, COL_INFO, ", SQU");
             }
             if ( tree ) {
+                proto_item *ti2;
+                proto_tree *rtp_hext_tree2;
+
                 ti2 = proto_tree_add_item(rtp_hext_tree, hf_rtp_hdr_ed137a, tvb, hdrext_offset, 4, ENC_NA);
                 rtp_hext_tree2 = proto_item_add_subtree( ti2, ett_hdr_ext_ed137a );
 
@@ -2524,17 +2529,22 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
                 if (RTP_ED137A_extended_information(ext_value)) {
                     /* Extended information is used */
+                    unsigned int ft_type;
                     proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_type, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_len, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
 
-                    ft_type=RTP_ED137A_feature_type(ext_value);
+                    ft_type = RTP_ED137A_feature_type(ext_value);
                     switch (ft_type) {
                         case RTP_ED137A_feature_sqi_type:
-                            sqi_qidx=RTP_ED137A_feature_sqi_qidx(ext_value);
-                            sqi_qidx_ml=RTP_ED137A_feature_sqi_qidx_ml(ext_value);
-                            if (RTP_ED137A_feature_sqi_qidx_ml_rssi==sqi_qidx_ml) {
+                        {
+                            unsigned int sqi_qidx;
+                            unsigned int sqi_qidx_ml;
+
+                            sqi_qidx    = RTP_ED137A_feature_sqi_qidx(ext_value);
+                            sqi_qidx_ml = RTP_ED137A_feature_sqi_qidx_ml(ext_value);
+                            if (RTP_ED137A_feature_sqi_qidx_ml_rssi == sqi_qidx_ml) {
                                 /* Special handling for RSSI method */
-                                if (sqi_qidx<=RTP_ED137A_feature_sqi_qidx_rssi_max) {
+                                if (sqi_qidx <= RTP_ED137A_feature_sqi_qidx_rssi_max) {
                                     /* Correct range */
                                     proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_sqi_rssi_qidx, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                                 }
@@ -2549,6 +2559,7 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                             }
                             proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_sqi_qidx_ml, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                             break;
+                        }
                         default:
                             proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_value, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                             break;
@@ -2585,14 +2596,15 @@ static void
 get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 {
     /* Conversation and current data */
-    conversation_t *p_conv = NULL;
-    struct _rtp_conversation_info *p_conv_data = NULL;
+    struct _rtp_conversation_info *p_conv_data;
 
     /* Use existing packet info if available */
     p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
 
     if (!p_conv_data)
     {
+        conversation_t *p_conv;
+
         /* First time, get info from conversation */
         p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
                                    pinfo->ptype,
@@ -2639,7 +2651,7 @@ static void
 show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Conversation and current data */
-    struct _rtp_conversation_info *p_conv_data = NULL;
+    struct _rtp_conversation_info *p_conv_data;
     proto_tree *rtp_setup_tree;
     proto_item *ti;
 
@@ -2672,10 +2684,11 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    proto_item *ti            = NULL;
-    proto_tree *pkt_ccc_tree      = NULL;
 
     if ( tree ) {
+        proto_item *ti;
+        proto_tree *pkt_ccc_tree;
+
         ti = proto_tree_add_item(tree, proto_pkt_ccc, tvb, 0, 12, ENC_NA);
         pkt_ccc_tree = proto_item_add_subtree(ti, ett_pkt_ccc);
 
@@ -3690,11 +3703,12 @@ proto_reg_handoff_rtp(void)
 {
     static gboolean rtp_prefs_initialized = FALSE;
     static dissector_handle_t rtp_rfc2198_handle;
-    static dissector_handle_t rtp_hdr_ext_ed137_handle;
-    static dissector_handle_t rtp_hdr_ext_ed137a_handle;
     static guint rtp_saved_rfc2198_pt;
 
     if (!rtp_prefs_initialized) {
+        dissector_handle_t rtp_hdr_ext_ed137_handle;
+        dissector_handle_t rtp_hdr_ext_ed137a_handle;
+
         rtp_handle = find_dissector("rtp");
         rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
 
