@@ -86,6 +86,8 @@ static gint ett_kafka_response_topic     = -1;
 static gint ett_kafka_response_partition = -1;
 
 static expert_field ei_kafka_message_decompress = EI_INIT;
+static expert_field ei_kafka_bad_string_length = EI_INIT;
+static expert_field ei_kafka_bad_bytes_length = EI_INIT;
 
 static guint kafka_port = 0;
 
@@ -175,16 +177,17 @@ dissect_kafka_array(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 }
 
 static int
-dissect_kafka_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+dissect_kafka_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     gint16 len;
+    proto_item *pi;
 
     len = (gint16) tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_kafka_string_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(tree, hf_kafka_string_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     if (len < -1) {
-        /* TODO expert info */
+        expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
     }
     else if (len == -1) {
         proto_tree_add_string(tree, hf_item, tvb, offset, 0, NULL);
@@ -198,16 +201,17 @@ dissect_kafka_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *
 }
 
 static int
-dissect_kafka_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+dissect_kafka_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     gint32 len;
+    proto_item *pi;
 
     len = (gint32) tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_kafka_bytes_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(tree, hf_kafka_bytes_len, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     if (len < -1) {
-        /* TODO expert info */
+        expert_add_info(pinfo, pi, &ei_kafka_bad_bytes_length);
     }
     else if (len == -1) {
         proto_tree_add_bytes(tree, hf_item, tvb, offset, 0, NULL);
@@ -221,16 +225,17 @@ dissect_kafka_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *p
 }
 
 static tvbuff_t *
-kafka_get_bytes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+kafka_get_bytes(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
     gint32 len;
+    proto_item *pi;
 
     len = (gint32) tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_kafka_bytes_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(tree, hf_kafka_bytes_len, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     if (len < -1) {
-        /* TODO expert info */
+        expert_add_info(pinfo, pi, &ei_kafka_bad_bytes_length);
         return NULL;
     }
     else if (len == -1) {
@@ -1231,6 +1236,8 @@ proto_register_kafka(void)
 
     static ei_register_info ei[] = {
         { &ei_kafka_message_decompress, { "kafka.decompress_failed", PI_UNDECODED, PI_WARN, "Failed to decompress message", EXPFILL }},
+        { &ei_kafka_bad_string_length, { "kafka.bad_string_length", PI_MALFORMED, PI_WARN, "Invalid string length field", EXPFILL }},
+        { &ei_kafka_bad_bytes_length, { "kafka.bad_bytes_length", PI_MALFORMED, PI_WARN, "Invalid byte length field", EXPFILL }},
     };
 
     expert_module_t* expert_kafka;
