@@ -113,6 +113,8 @@ typedef struct {
 #define AMQP_0_9_METHOD_CONNECTION_REDIRECT                            42
 #define AMQP_0_9_METHOD_CONNECTION_CLOSE                               50
 #define AMQP_0_9_METHOD_CONNECTION_CLOSE_OK                            51
+#define AMQP_0_9_METHOD_CONNECTION_BLOCKED                             60
+#define AMQP_0_9_METHOD_CONNECTION_UNBLOCKED                           61
 
 #define AMQP_0_9_METHOD_CHANNEL_OPEN                                   10
 #define AMQP_0_9_METHOD_CHANNEL_OPEN_OK                                11
@@ -594,6 +596,14 @@ dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb,
 
 static int
 dissect_amqp_0_9_method_connection_close_ok(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree);
+
+static int
+dissect_amqp_0_9_method_connection_blocked(tvbuff_t *tvb,
+    int offset, proto_tree *args_tree);
+
+static int
+dissect_amqp_0_9_method_connection_unblocked(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
@@ -1911,6 +1921,7 @@ static int hf_amqp_0_10_method_connection_close_reply_code = -1;
 static int hf_amqp_method_connection_close_reply_text = -1;
 static int hf_amqp_method_connection_close_class_id = -1;
 static int hf_amqp_method_connection_close_method_id = -1;
+static int hf_amqp_method_connection_blocked_reason = -1;
 static int hf_amqp_method_channel_open_out_of_band = -1;
 static int hf_amqp_method_channel_open_ok_channel_id = -1;
 static int hf_amqp_method_channel_flow_active = -1;
@@ -2582,6 +2593,8 @@ static const value_string amqp_method_connection_methods [] = {
     {42, "Redirect"},
     {50, "Close"},
     {51, "Close-Ok"},
+    {60, "Blocked"},
+    {61, "Unblocked"},
     {0, NULL}
 };
 
@@ -7555,6 +7568,14 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 dissect_amqp_0_9_method_connection_close_ok(tvb,
                                                             11, args_tree);
                 break;
+            case AMQP_0_9_METHOD_CONNECTION_BLOCKED:
+                dissect_amqp_0_9_method_connection_blocked(tvb,
+                                                           11, args_tree);
+                break;
+            case AMQP_0_9_METHOD_CONNECTION_UNBLOCKED:
+                dissect_amqp_0_9_method_connection_unblocked(tvb,
+                                                             11, args_tree);
+                break;
             default:
                 expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_connection_method, "Unknown connection method %u", method_id);
             }
@@ -8375,6 +8396,29 @@ dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb,
 
 static int
 dissect_amqp_0_9_method_connection_close_ok(tvbuff_t *tvb _U_,
+    int offset, proto_tree *args_tree _U_)
+{
+    return offset;
+}
+
+/*  Dissection routine for method Connection.Blocked                      */
+
+static int
+dissect_amqp_0_9_method_connection_blocked(tvbuff_t *tvb _U_,
+    int offset, proto_tree *args_tree _U_)
+{
+    /*  reason (shortstr)  */
+    proto_tree_add_item(args_tree, hf_amqp_method_connection_blocked_reason,
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    offset += 1 + tvb_get_guint8(tvb, offset);
+
+    return offset;
+}
+
+/*  Dissection routine for method Connection.Unblocked                    */
+
+static int
+dissect_amqp_0_9_method_connection_unblocked(tvbuff_t *tvb _U_,
     int offset, proto_tree *args_tree _U_)
 {
     return offset;
@@ -12876,6 +12920,10 @@ proto_register_amqp(void)
         {&hf_amqp_method_connection_close_method_id, {
             "Method-Id", "amqp.method.arguments.method_id",
              FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_method_connection_blocked_reason, {
+            "Reason", "amqp.method.arguments.reason",
+             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_method_channel_open_out_of_band, {
             "Out-Of-Band", "amqp.method.arguments.out_of_band",
