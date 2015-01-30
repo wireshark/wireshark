@@ -397,6 +397,36 @@ check_and_warn_user_startup(const QString &cf_name)
 }
 #endif
 
+#ifdef _WIN32
+// Try to avoid library search path collisions. QCoreApplication will
+// search QT_INSTALL_PREFIX/plugins for platform DLLs before searching
+// the application directory. If
+//
+// - You have Qt version 5.x.y installed in the default location
+//   (C:\Qt\5.x) on your machine.
+//
+// and
+//
+// - You install Wireshark that was built on a machine with Qt version
+//   5.x.z installed in the default location.
+//
+// Qt5Core.dll will load qwindows.dll from your local C:\Qt\5.x\...\plugins
+// directory. This may not be compatible with qwindows.dll from that
+// same path on the build machine. At any rate, loading DLLs from paths
+// you don't control is ill-advised. We work around this by removing every
+// path except our application directory.
+
+static inline void
+reset_library_path(void)
+{
+    QString app_path = QDir(get_progfile_dir()).path();
+    foreach (QString path, QCoreApplication::libraryPaths()) {
+        QCoreApplication::removeLibraryPath(path);
+    }
+    QCoreApplication::addLibraryPath(app_path);
+}
+#endif
+
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *argv[])
 {
@@ -465,14 +495,18 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* Create The Wireshark app */
-    ws_app = new WiresharkApplication(argc, argv);
-
     /*
      * Attempt to get the pathname of the executable file.
      */
-    /* init_progfile_dir_error = */ init_progfile_dir(QCoreApplication::applicationFilePath().toUtf8().constData(), NULL);
+    /* init_progfile_dir_error = */ init_progfile_dir(argv[0], main);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
+
+#ifdef _WIN32
+    reset_library_path();
+#endif
+
+    /* Create The Wireshark app */
+    ws_app = new WiresharkApplication(argc, argv);
 
     /* initialize the funnel mini-api */
     // xxx qtshark
