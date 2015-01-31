@@ -487,11 +487,126 @@ int main(int argc, char *argv[])
     // xxx qtshark
     runtime_info_str = get_runtime_version_info(get_wireshark_runtime_info);
 
-    /* If issued with -v, just print version and exit */
-    for (int i = 0; i < argc; i++) {
-        if (std::string(argv[i]) == "-v") {
-            show_version("Wireshark", comp_info_str, runtime_info_str);
-            exit(0);
+    /*
+     * In order to have the -X opts assigned before the wslua machine starts
+     * we need to call getopt_long before epan_init() gets called.
+     *
+     * In addition, we process "console only" parameters (ones where we
+     * send output to the console and exit) here, so we don't start Qt
+     * if we're only showing command-line help or version information.
+     *
+     * XXX - this pre-scan is done before we start Qt, so we haven't
+     * run WiresharkApplication's constructor on the arguments.  That
+     * means that Qt arguments have not been removed from the argument
+     * list; those arguments begin with "--", and will be treated as an
+     * error by getopt_long().
+     *
+     * We thus ignore errors - *and* set "opterr" to 0 to suppress the
+     * error messages.
+     *
+     * XXX - is there some way to parse and remove Qt arguments without
+     * starting up the GUI, which we can call before calling this?
+     *
+     * In order to handle, for example, -o options, we also need to call it
+     * *after* epan_init() gets called, so that the dissectors have had a
+     * chance to register their preferences, so we have another getopt_long()
+     * call later.
+     *
+     * XXX - can we do this all with one getopt_long() call, saving the
+     * arguments we can't handle until after initializing libwireshark,
+     * and then process them after initializing libwireshark?
+     *
+     * Note that we don't want to initialize libwireshark until after the
+     * GUI is up, as that can take a while, and we want a window of some
+     * sort up to show progress while that's happening.
+     */
+    // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
+#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
+    static const struct option long_options[] = {
+        {(char *)"help", no_argument, NULL, 'h'},
+        {(char *)"read-file", required_argument, NULL, 'r' },
+        {(char *)"read-filter", required_argument, NULL, 'R' },
+        {(char *)"display-filter", required_argument, NULL, 'Y' },
+        {(char *)"version", no_argument, NULL, 'v'},
+        LONGOPT_CAPTURE_COMMON
+        {0, 0, 0, 0 }
+    };
+    static const char optstring[] = OPTSTRING;
+
+    opterr = 0;
+
+    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
+        switch (opt) {
+            case 'C':        /* Configuration Profile */
+                if (profile_exists (optarg, FALSE)) {
+                    set_profile_name (optarg);
+                } else {
+                    cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
+                    exit(1);
+                }
+                break;
+            case 'D':        /* Print a list of capture devices and exit */
+#ifdef HAVE_LIBPCAP
+                if_list = capture_interface_list(&err, &err_str,main_window_update);
+                if (if_list == NULL) {
+                    if (err == 0)
+                        cmdarg_err("There are no interfaces on which a capture can be done");
+                    else {
+                        cmdarg_err("%s", err_str);
+                        g_free(err_str);
+                    }
+                    exit(2);
+                }
+#ifdef _WIN32
+                create_console();
+#endif /* _WIN32 */
+                capture_opts_print_interfaces(if_list);
+                free_interface_list(if_list);
+#ifdef _WIN32
+                destroy_console();
+#endif /* _WIN32 */
+                exit(0);
+#else /* HAVE_LIBPCAP */
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
+#endif /* HAVE_LIBPCAP */
+                break;
+            case 'h':        /* Print help and exit */
+                print_usage(TRUE);
+                exit(0);
+                break;
+#ifdef _WIN32
+            case 'i':
+                if (strcmp(optarg, "-") == 0)
+                    set_stdin_capture(TRUE);
+                break;
+#endif
+            case 'P':        /* Personal file directory path settings - change these before the Preferences and alike are processed */
+                if (!persfilepath_opt(opt, optarg)) {
+                    cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
+                    exit(2);
+                }
+                break;
+            case 'v':        /* Show version and exit */
+#ifdef _WIN32
+                create_console();
+#endif
+                show_version("Wireshark", comp_info_str, runtime_info_str);
+#ifdef _WIN32
+                destroy_console();
+#endif
+                exit(0);
+                break;
+            case 'X':
+                /*
+                 *  Extension command line options have to be processed before
+                 *  we call epan_init() as they are supposed to be used by dissectors
+                 *  or taps very early in the registration process.
+                 */
+                ex_opt_add(optarg);
+                break;
+            case '?':        /* Ignore errors - the "real" scan will catch them. */
+                break;
         }
     }
 
@@ -579,19 +694,6 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForTr(utf8codec);
 #endif
 
-    // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
-#define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
-    static const struct option long_options[] = {
-        {(char *)"help", no_argument, NULL, 'h'},
-        {(char *)"read-file", required_argument, NULL, 'r' },
-        {(char *)"read-filter", required_argument, NULL, 'R' },
-        {(char *)"display-filter", required_argument, NULL, 'Y' },
-        {(char *)"version", no_argument, NULL, 'v'},
-        LONGOPT_CAPTURE_COMMON
-        {0, 0, 0, 0 }
-    };
-    static const char optstring[] = OPTSTRING;
-
     /* Add it to the information to be reported on a crash. */
     ws_add_crash_info("Wireshark %s\n"
            "\n"
@@ -616,121 +718,6 @@ int main(int argc, char *argv[])
                       rf_path, strerror(rf_open_errno));
     }
     wsApp->emitAppSignal(WiresharkApplication::StaticRecentFilesRead);
-
-    /*
-     * In order to have the -X opts assigned before the wslua machine starts
-     * we need to call getopt_long before epan_init() gets called.
-     *
-     * In addition, we process "console only" parameters (ones where we
-     * send output to the console and exit) here, so we don't start GTK+
-     * if we're only showing command-line help or version information.
-     *
-     * XXX - with the GTK+ version, this pre-scan was done before we started
-     * GTK+, so we hadn't run gtk_init() on the arguments.  That meant that
-     * GTK+ arguments had not been removed from the argument list; those
-     * arguments begin with "--", and would be treated as an error by
-     * getopt_long().
-     *
-     * We thus ignored errors - *and* set "opterr" to 0 to suppress the
-     * error messages.
-     *
-     * That's not the case here - the call to WiresharkApplication's
-     * constructor above does that (WiresharkApplication is a subclass
-     * of QApplication, and QApplication's constructor handles the Qt
-     * arguments).
-     *
-     * This means that there's some UI popped up before here.  Can we
-     * move the call to the constructor after here?
-     *
-     * In order to handle, for example, -o options, we also need to call it
-     * *after* epan_init() gets called, so that the dissectors have had a
-     * chance to register their preferences, so we have another getopt_long()
-     * call later.
-     *
-     * XXX - can we do this all with one getopt_long() call, saving the
-     * arguments we can't handle until after initializing libwireshark,
-     * and then process them after initializing libwireshark?
-     *
-     * Note that we don't want to initialize libwireshark until after the
-     * GUI is up, as that can take a while, and we want a window of some
-     * sort up to show progress while that's happening.
-     */
-    opterr = 0;
-
-    while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
-        switch (opt) {
-            case 'C':        /* Configuration Profile */
-                if (profile_exists (optarg, FALSE)) {
-                    set_profile_name (optarg);
-                } else {
-                    cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
-                    exit(1);
-                }
-                break;
-            case 'D':        /* Print a list of capture devices and exit */
-#ifdef HAVE_LIBPCAP
-                if_list = capture_interface_list(&err, &err_str,main_window_update);
-                if (if_list == NULL) {
-                    if (err == 0)
-                        cmdarg_err("There are no interfaces on which a capture can be done");
-                    else {
-                        cmdarg_err("%s", err_str);
-                        g_free(err_str);
-                    }
-                    exit(2);
-                }
-#ifdef _WIN32
-                create_console();
-#endif /* _WIN32 */
-                capture_opts_print_interfaces(if_list);
-                free_interface_list(if_list);
-#ifdef _WIN32
-                destroy_console();
-#endif /* _WIN32 */
-                exit(0);
-#else /* HAVE_LIBPCAP */
-                capture_option_specified = TRUE;
-                arg_error = TRUE;
-#endif /* HAVE_LIBPCAP */
-                break;
-            case 'h':        /* Print help and exit */
-                print_usage(TRUE);
-                exit(0);
-                break;
-#ifdef _WIN32
-            case 'i':
-                if (strcmp(optarg, "-") == 0)
-                    set_stdin_capture(TRUE);
-                break;
-#endif
-            case 'P':        /* Personal file directory path settings - change these before the Preferences and alike are processed */
-                if (!persfilepath_opt(opt, optarg)) {
-                    cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
-                    exit(2);
-                }
-                break;
-            case 'v':        /* Show version and exit */
-#ifdef _WIN32
-                create_console();
-#endif
-                show_version("Wireshark", comp_info_str, runtime_info_str);
-#ifdef _WIN32
-                destroy_console();
-#endif
-                exit(0);
-                break;
-            case 'X':
-                /*
-                 *  Extension command line options have to be processed before
-                 *  we call epan_init() as they are supposed to be used by dissectors
-                 *  or taps very early in the registration process.
-                 */
-                ex_opt_add(optarg);
-                break;
-            case '?':        /* Ignore errors - the "real" scan will catch them. */
-                break;
-        }
-    }
 
     /* Init the "Open file" dialog directory */
     /* (do this after the path settings are processed) */
