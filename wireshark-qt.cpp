@@ -503,8 +503,8 @@ int main(int argc, char *argv[])
      * XXX - this pre-scan is done before we start Qt, so we haven't
      * run WiresharkApplication's constructor on the arguments.  That
      * means that Qt arguments have not been removed from the argument
-     * list; those arguments begin with "--", and will be treated as an
-     * error by getopt_long().
+     * list; those arguments begin with "-", and may be treated as
+     * errors by getopt_long(). 
      *
      * We thus ignore errors - *and* set "opterr" to 0 to suppress the
      * error messages.
