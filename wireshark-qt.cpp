@@ -477,6 +477,12 @@ int main(int argc, char *argv[])
     init_process_policies();
     relinquish_special_privs_perm();
 
+    /*
+     * Attempt to get the pathname of the executable file.
+     */
+    /* init_progfile_dir_error = */ init_progfile_dir(argv[0], main);
+    g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
+
     /* Get the compile-time version information string */
     // XXX qtshark
     comp_info_str = get_compiled_version_info(get_wireshark_qt_compiled_info,
@@ -608,12 +614,6 @@ int main(int argc, char *argv[])
                 break;
         }
     }
-
-    /*
-     * Attempt to get the pathname of the executable file.
-     */
-    /* init_progfile_dir_error = */ init_progfile_dir(argv[0], main);
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
 
 #ifdef _WIN32
     reset_library_path();
