@@ -50,6 +50,20 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
     return ep_strdup_printf(fmt, val);
 }
 
+const gchar *
+val_to_str_wmem(wmem_allocator_t *scope, const guint32 val, const value_string *vs, const char *fmt)
+{
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(fmt != NULL);
+
+    ret = try_val_to_str(val, vs);
+    if (ret != NULL)
+        return ret;
+
+    return wmem_strdup_printf(scope, fmt, val);
+}
+
 /* Tries to match val against each element in the value_string array vs.
    Returns the associated string ptr on a match.
    Returns 'unknown_str', on failure. */
@@ -313,6 +327,20 @@ val_to_str_ext(const guint32 val, value_string_ext *vse, const char *fmt)
         return ret;
 
     return ep_strdup_printf(fmt, val);
+}
+
+const gchar *
+val_to_str_ext_wmem(wmem_allocator_t *scope, const guint32 val, value_string_ext *vse, const char *fmt)
+{
+    const gchar *ret;
+
+    DISSECTOR_ASSERT(fmt != NULL);
+
+    ret = try_val_to_str_ext(val, vse);
+    if (ret != NULL)
+        return ret;
+
+    return wmem_strdup_printf(scope, fmt, val);
 }
 
 /* Like val_to_str_const for extended value strings */

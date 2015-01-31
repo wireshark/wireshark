@@ -29,6 +29,7 @@ extern "C" {
 
 #include <glib.h>
 #include "ws_symbol_export.h"
+#include "wmem/wmem.h"
 
 /* VALUE TO STRING MATCHING */
 
@@ -118,6 +119,11 @@ G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
 const gchar *
+val_to_str_wmem(wmem_allocator_t *scope, const guint32 val, const value_string *vs, const char *fmt)
+G_GNUC_PRINTF(4, 0);
+
+WS_DLL_PUBLIC
+const gchar *
 val_to_str_const(const guint32 val, const value_string *vs, const char *unknown_str);
 
 WS_DLL_PUBLIC
@@ -195,8 +201,13 @@ value_string_ext_free(const value_string_ext *vse);
 
 WS_DLL_PUBLIC
 const gchar *
-val_to_str_ext(const guint32 val, value_string_ext *vs, const char *fmt)
+val_to_str_ext(const guint32 val, value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(3, 0);
+
+WS_DLL_PUBLIC
+const gchar *
+val_to_str_ext_wmem(wmem_allocator_t *scope, const guint32 val, value_string_ext *vse, const char *fmt)
+G_GNUC_PRINTF(4, 0);
 
 WS_DLL_PUBLIC
 const gchar *
