@@ -546,7 +546,7 @@ int main(int argc, char *argv[])
                 break;
             case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
-                if_list = capture_interface_list(&err, &err_str,main_window_update);
+                if_list = capture_interface_list(&err, &err_str, NULL);
                 if (if_list == NULL) {
                     if (err == 0)
                         cmdarg_err("There are no interfaces on which a capture can be done");
