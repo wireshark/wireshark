@@ -430,7 +430,6 @@ reset_library_path(void)
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *argv[])
 {
-    WiresharkApplication* ws_app;
     MainWindow *main_w;
 
     int                  opt;
@@ -621,7 +620,7 @@ int main(int argc, char *argv[])
 #endif
 
     /* Create The Wireshark app */
-    ws_app = new WiresharkApplication(argc, argv);
+    WiresharkApplication ws_app(argc, argv);
 
     /* initialize the funnel mini-api */
     // xxx qtshark
@@ -745,7 +744,7 @@ int main(int argc, char *argv[])
     main_w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
+    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
             main_w, SLOT(openCaptureFile(QString&,QString&,unsigned int)));
 
     /* Init the "Open file" dialog directory */
@@ -836,7 +835,7 @@ int main(int argc, char *argv[])
 
     splash_update(RA_PREFERENCES, NULL, NULL);
 
-    prefs_p = ws_app->readConfigurationFiles(&gdp_path, &dp_path);
+    prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path);
 
     /*
      * To reset the options parser, set optreset to 1 on platforms that
