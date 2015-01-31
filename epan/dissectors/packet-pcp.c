@@ -24,7 +24,9 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <glib.h>
 #include "packet-tcp.h"
+#include "packet-ssl-utils.h"
 
 void proto_register_pcp(void);
 void proto_reg_handoff_pcp(void);
@@ -32,6 +34,7 @@ void proto_reg_handoff_pcp(void);
 #define PCP_PORT 44321
 #define PCP_HEADER_LEN 12
 
+static dissector_handle_t pcp_handle;
 
 static int proto_pcp = -1;
 static int hf_pcp_pdu_length = -1;
@@ -41,15 +44,20 @@ static int hf_pcp_pdu_error = -1;
 static int hf_pcp_pdu_padding = -1;
 static int hf_pcp_creds_number_of = -1;
 static int hf_pcp_creds_type = -1;
-static int hf_pcp_creds_vala = -1;
-static int hf_pcp_creds_valb = -1;
-static int hf_pcp_creds_valc = -1;
+static int hf_pcp_creds_version = -1;
 static int hf_pcp_start = -1;
 static int hf_pcp_start_status = -1;
 static int hf_pcp_start_zero = -1;
 static int hf_pcp_start_version = -1;
 static int hf_pcp_start_licensed = -1;
-static int hf_pcp_start_authorize = -1;
+static int hf_pcp_features_flags = -1;
+static int hf_pcp_features_flags_secure = -1;
+static int hf_pcp_features_flags_compress = -1;
+static int hf_pcp_features_flags_auth = -1;
+static int hf_pcp_features_flags_creds_reqd = -1;
+static int hf_pcp_features_flags_secure_ack = -1;
+static int hf_pcp_features_flags_no_nss_init = -1;
+static int hf_pcp_features_flags_container = -1;
 static int hf_pcp_pmns_traverse = -1;
 static int hf_pcp_pmns_subtype = -1;
 static int hf_pcp_pmns_namelen = -1;
@@ -126,7 +134,7 @@ static int hf_pcp_text = -1;
 static int hf_pcp_text_ident = -1;
 static int hf_pcp_text_buflen = -1;
 static int hf_pcp_text_buffer = -1;
-
+static int hf_pcp_user_auth_payload = -1;
 
 static gint ett_pcp = -1;
 static gint ett_pcp_pdu_length = -1;
@@ -144,7 +152,7 @@ static gint ett_pcp_start_status = -1;
 static gint ett_pcp_start_zero = -1;
 static gint ett_pcp_start_version = -1;
 static gint ett_pcp_start_licensed = -1;
-static gint ett_pcp_start_authorize = -1;
+static gint ett_pcp_start_features = -1;
 static gint ett_pcp_pmns_traverse = -1;
 static gint ett_pcp_pmns_subtype = -1;
 static gint ett_pcp_pmns_namelen = -1;
@@ -226,44 +234,69 @@ static expert_field ei_pcp_type_nosupport_unsupported = EI_INIT;
 static expert_field ei_pcp_type_unknown_unknown_value = EI_INIT;
 static expert_field ei_pcp_unimplemented_value = EI_INIT;
 static expert_field ei_pcp_unimplemented_packet_type = EI_INIT;
+static expert_field ei_pcp_ssl_upgrade = EI_INIT;
+static expert_field ei_pcp_ssl_upgrade_failed = EI_INIT;
+
+/* Magic numbers */
+#define PCP_SECURE_ACK_SUCCESSFUL 0
+
+static const value_string pcp_feature_flags[] = {
+#define PCP_PDU_FLAG_SECURE         0x1
+      { PCP_PDU_FLAG_SECURE,        "SECURE" },
+#define PCP_PDU_FLAG_COMPRESS       0x2
+      { PCP_PDU_FLAG_COMPRESS,      "COMPRESS" },
+#define PCP_PDU_FLAG_AUTH           0x4
+      { PCP_PDU_FLAG_AUTH,          "AUTH"},
+#define PCP_PDU_FLAG_CREDS_REQD     0x8
+      { PCP_PDU_FLAG_CREDS_REQD,    "CREDS_REQD" },
+#define PCP_PDU_FLAG_SECURE_ACK     0x10
+      { PCP_PDU_FLAG_SECURE_ACK,    "SECURE_ACK" },
+#define PCP_PDU_FLAG_NO_NSS_INIT    0x20
+      { PCP_PDU_FLAG_NO_NSS_INIT,   "NO_NSS_INIT" },
+#define PCP_PDU_FLAG_CONTAINER      0x40
+      { PCP_PDU_FLAG_CONTAINER,     "CONTAINER" },
+      { 0, NULL }
+};
 
 /* packet types */
 static const value_string packettypenames[] = {
-    #define    START_OR_ERROR 0x7000
-    { 0x7000, "START/ERROR" },
-    #define    RESULT 0x7001
-    { 0x7001, "RESULT" },
-    #define    PROFILE 0x7002
-    { 0x7002, "PROFILE"},
-    #define    FETCH 0x7003
-    { 0x7003, "FETCH"},
-    #define    DESC_REQ 0x7004
-    { 0x7004, "DESC_REQ"},
-    #define    DESC 0x7005
-    { 0x7005, "DESC"},
-    #define    INSTANCE_REQ 0x7006
-    { 0x7006, "INSTANCE_REQ" },
-    #define    INSTANCE 0x7007
-    { 0x7007, "INSTANCE" },
-    #define    TEXT_REQ 0x7008
-    { 0x7008, "TEXT_REQ" },
-    #define    TEXT 0x7009
-    { 0x7009, "TEXT" },
-    #define    CONTROL_REQ 0x700a
-    { 0x700a, "CONTROL_REQ" },  /* unimplemented (pmlc/pmlogger only) */
-    #define    DATA_X 0x700b
-    { 0x700b, "DATA_X" },       /* unimplemented (pmlc/pmlogger only) */
-    #define    CREDS 0x700c
-    { 0x700c, "CREDS" },
-    #define    PMNS_IDS 0x700d
-    { 0x700d, "PMNS_IDS" },
-    #define    PMNS_NAMES 0x700e
-    { 0x700e, "PMNS_NAMES" },
-    #define    PMNS_CHILD 0x700f
-    { 0x700f, "PMNS_CHILD" },
-    #define    PMNS_TRAVERSE 0x7010 /*also type FINISH as per pcp headers, but I can not see it used */
-    { 0x7010, "PMNS_TRAVERSE" },
-    {      0, NULL }
+#define PCP_PDU_START_OR_ERROR  0x7000
+       {PCP_PDU_START_OR_ERROR, "START/ERROR" },
+#define PCP_PDU_RESULT          0x7001
+       {PCP_PDU_RESULT,         "RESULT" },
+#define PCP_PDU_PROFILE         0x7002
+       {PCP_PDU_PROFILE,        "PROFILE"},
+#define PCP_PDU_FETCH           0x7003
+       {PCP_PDU_FETCH,          "FETCH"},
+#define PCP_PDU_DESC_REQ        0x7004
+       {PCP_PDU_DESC_REQ,       "DESC_REQ"},
+#define PCP_PDU_DESC            0x7005
+       {PCP_PDU_DESC,           "DESC"},
+#define PCP_PDU_INSTANCE_REQ    0x7006
+       {PCP_PDU_INSTANCE_REQ,   "INSTANCE_REQ" },
+#define PCP_PDU_INSTANCE        0x7007
+       {PCP_PDU_INSTANCE,       "INSTANCE" },
+#define PCP_PDU_TEXT_REQ        0x7008
+       {PCP_PDU_TEXT_REQ,       "TEXT_REQ" },
+#define PCP_PDU_TEXT            0x7009
+       {PCP_PDU_TEXT,           "TEXT" },
+#define PCP_PDU_CONTROL_REQ     0x700a
+       {PCP_PDU_CONTROL_REQ,    "CONTROL_REQ" },  /* unimplemented (pmlc/pmlogger only) */
+#define PCP_PDU_DATA_X          0x700b
+       {PCP_PDU_DATA_X,         "DATA_X" },       /* unimplemented (pmlc/pmlogger only) */
+#define PCP_PDU_CREDS           0x700c
+       {PCP_PDU_CREDS,          "CREDS" },
+#define PCP_PDU_PMNS_IDS        0x700d
+       {PCP_PDU_PMNS_IDS,       "PMNS_IDS" },
+#define PCP_PDU_PMNS_NAMES      0x700e
+       {PCP_PDU_PMNS_NAMES,     "PMNS_NAMES" },
+#define PCP_PDU_PMNS_CHILD      0x700f
+       {PCP_PDU_PMNS_CHILD,     "PMNS_CHILD" },
+#define PCP_PDU_PMNS_TRAVERSE   0x7010 /*also type FINISH as per pcp headers, but I can not see it used */
+       {PCP_PDU_PMNS_TRAVERSE,  "PMNS_TRAVERSE" },
+#define PCP_PDU_USER_AUTH       0x7011
+       {PCP_PDU_USER_AUTH,      "USER_AUTH" },
+       { 0, NULL }
 };
 
 static const value_string packettypenames_pm_units_space[] = {
@@ -415,6 +448,7 @@ static const value_string packettypenames_creds[]= {
 
 /* function prototypes */
 static guint get_pcp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
+static const gchar *get_pcp_features_to_string(guint16 feature_flags);
 static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -431,8 +465,10 @@ static int dissect_pcp_message_instance_req(tvbuff_t *tvb, packet_info *pinfo, p
 static int dissect_pcp_message_instance(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_text_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_message_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+static int dissect_pcp_message_user_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
 /* message length for dissect_tcp */
 static guint get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
@@ -442,6 +478,32 @@ static guint get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     return (guint)tvb_get_ntohl(tvb, offset);
 }
 
+static const gchar *get_pcp_features_to_string(guint16 feature_flags)
+{
+    const value_string *flag_under_test;
+    wmem_strbuf_t *string_buffer;
+    gsize string_length;
+
+    string_buffer = wmem_strbuf_new(wmem_packet_scope(), "");
+
+    /* Build the comma-separated list of feature flags as a string. EG 'SECURE, COMPRESS, AUTH, ' */
+    flag_under_test = &pcp_feature_flags[0];
+    while (flag_under_test->value) {
+        if (feature_flags & flag_under_test->value) {
+            wmem_strbuf_append_printf(string_buffer, "%s, ", flag_under_test->strptr);
+        }
+        flag_under_test++;
+    }
+
+    /* Cleanup the last remaining ', ' from the string */
+    string_length = wmem_strbuf_get_len(string_buffer);
+    if (string_length > 2) {
+        wmem_strbuf_truncate(string_buffer, string_length - 2);
+    }
+
+    return wmem_strbuf_get_str(string_buffer);
+}
+
 static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     guint32 creds_length;
@@ -449,27 +511,23 @@ static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
-                    val_to_str(CREDS, packettypenames, "Unknown Type:0x%02x"));
+                    val_to_str(PCP_PDU_CREDS, packettypenames, "Unknown Type:0x%02x"));
 
     /* first is the number of creds */
     proto_tree_add_item(tree, hf_pcp_creds_number_of, tvb, offset, 4, ENC_BIG_ENDIAN);
     /* store the number of creds so we know how long to interate for */
     creds_length = tvb_get_ntohl(tvb, offset);
     offset += 4;
-    /* go through each __pmCreds struct */
+    /* go through each __pmVersionCred struct */
     for (i = 0; i < creds_length; i++) {
-        /* __pmCred.c_type */
+        /* __pmVersionCred.c_type */
         proto_tree_add_item(tree, hf_pcp_creds_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        /* __pmCred.c_vala - Usually the PDU version */
-        proto_tree_add_item(tree, hf_pcp_creds_vala, tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* __pmVersionCred.c_version */
+        proto_tree_add_item(tree, hf_pcp_creds_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        /* __pmCred.c_valb - Unused */
-        proto_tree_add_item(tree, hf_pcp_creds_valb, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        /* __pmCred.c_valc - Unused */
-        proto_tree_add_item(tree, hf_pcp_creds_valc, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+        /* __pmVersionCred.c_flags */
+        offset = dissect_pcp_partial_features(tvb, pinfo, tree, offset);
     }
     return offset;
 }
@@ -500,38 +558,46 @@ static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tr
      |> unsigned int    zero : 1 bit
         unsigned int    version : 7 bits
         unsigned int    licensed : 8 bits
-        unsigned int    authorize : 16 bits
+        unsigned int    features : 16 bits
 */
 static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     /* create a start tree tree to hold the information*/
     proto_item *pcp_start_item;
     proto_tree *pcp_start_tree;
-    guint32     bits_offset;
+    guint32     status;
 
     pcp_start_item = proto_tree_add_item(tree, hf_pcp_start, tvb, 0, -1, ENC_NA);
     pcp_start_tree = proto_item_add_subtree(pcp_start_item, ett_pcp);
-
-    bits_offset = offset*8;
 
     /* append the type of packet, we can't look this up as it clashes with ERROR */
     col_append_str(pinfo->cinfo, COL_INFO, "[START]");
 
     /* status */
+    status = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(pcp_start_tree, hf_pcp_start_status, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    bits_offset += 32; /* 4 bytes */
-    /* zero bit and version bits */
-    proto_tree_add_bits_item(pcp_start_tree, hf_pcp_start_zero, tvb, bits_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(pcp_start_tree, hf_pcp_start_version, tvb, bits_offset+1, 7, ENC_BIG_ENDIAN);
-    offset += 1;
-    /*bits_offset += 8;*/
-    /* licensed */
-    proto_tree_add_item(pcp_start_tree, hf_pcp_start_licensed, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    /* authorize */
-    proto_tree_add_item(pcp_start_tree, hf_pcp_start_authorize, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+    if(tvb_reported_length_remaining(tvb, offset) == 0){
+        /* Most likely we're in a SSL upgrade if this is the end of the start packet */
+        if(status == PCP_SECURE_ACK_SUCCESSFUL) {
+            expert_add_info(pinfo, tree, &ei_pcp_ssl_upgrade);
+            ssl_starttls_ack(find_dissector("ssl"), pinfo, pcp_handle);
+        }
+        else {
+            expert_add_info(pinfo, tree, &ei_pcp_ssl_upgrade_failed);
+        }
+    }
+    else {
+        /* zero bit and version bits */
+        proto_tree_add_item(pcp_start_tree, hf_pcp_start_zero, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pcp_start_tree, hf_pcp_start_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        /* licensed */
+        proto_tree_add_item(pcp_start_tree, hf_pcp_start_licensed, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        /* features */
+        offset = dissect_pcp_partial_features(tvb, pinfo, pcp_start_tree, offset);
+    }
     return offset;
 }
 
@@ -549,7 +615,7 @@ static int dissect_pcp_message_pmns_traverse(tvbuff_t *tvb, packet_info *pinfo, 
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
-                    val_to_str(PMNS_TRAVERSE, packettypenames, "Unknown Type:0x%02x"));
+                    val_to_str(PCP_PDU_PMNS_TRAVERSE, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_pmns_traverse_item = proto_tree_add_item(tree, hf_pcp_pmns_traverse, tvb, offset, -1, ENC_NA);
     pcp_pmns_traverse_tree = proto_item_add_subtree(pcp_pmns_traverse_item, ett_pcp);
@@ -605,7 +671,7 @@ static int dissect_pcp_message_pmns_names(tvbuff_t *tvb, packet_info *pinfo, pro
     guint32     i;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PMNS_NAMES, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_PMNS_NAMES, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_pmns_names_item = proto_tree_add_item(tree, hf_pcp_pmns_names, tvb, offset, -1, ENC_NA);
     pcp_pmns_names_tree = proto_item_add_subtree(pcp_pmns_names_item, ett_pcp);
@@ -680,7 +746,7 @@ static int dissect_pcp_message_pmns_child(tvbuff_t *tvb, packet_info *pinfo, pro
     pcp_pmns_child_tree = proto_item_add_subtree(pcp_pmns_child_item, ett_pcp);
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PMNS_CHILD, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_PMNS_CHILD, packettypenames, "Unknown Type:0x%02x"));
 
     /* subtype */
     proto_tree_add_item(pcp_pmns_child_tree, hf_pcp_pmns_subtype, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -712,7 +778,7 @@ static int dissect_pcp_message_pmns_ids(tvbuff_t *tvb, packet_info *pinfo, proto
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
-                    val_to_str(PMNS_IDS, packettypenames, "Unknown Type:0x%02x"));
+                    val_to_str(PCP_PDU_PMNS_IDS, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_pmns_ids_item = proto_tree_add_item(tree, hf_pcp_pmns_ids, tvb, offset, -1, ENC_NA);
     pcp_pmns_ids_tree = proto_item_add_subtree(pcp_pmns_ids_item, ett_pcp);
@@ -756,7 +822,7 @@ static int dissect_pcp_message_profile(tvbuff_t *tvb, packet_info *pinfo, proto_
     guint32     i;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PROFILE, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_PROFILE, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_profile_item = proto_tree_add_item(tree, hf_pcp_profile, tvb, offset, -1, ENC_NA);
     pcp_profile_tree = proto_item_add_subtree(pcp_profile_item, ett_pcp);
@@ -818,7 +884,7 @@ static int dissect_pcp_message_fetch(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]",
-                    val_to_str(FETCH, packettypenames, "Unknown Type:0x%02x"));
+                    val_to_str(PCP_PDU_FETCH, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_fetch_item = proto_tree_add_item(tree, hf_pcp_fetch, tvb, offset, -1, ENC_NA);
     pcp_fetch_tree = proto_item_add_subtree(pcp_fetch_item, ett_pcp);
@@ -880,7 +946,7 @@ static int dissect_pcp_message_result(tvbuff_t *tvb, packet_info *pinfo, proto_t
     guint32     j;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(RESULT, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_RESULT, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_results_item = proto_tree_add_item(tree, hf_pcp_results, tvb, offset, -1, ENC_NA);
     pcp_results_tree = proto_item_add_subtree(pcp_results_item, ett_pcp);
@@ -1029,7 +1095,7 @@ static int dissect_pcp_message_desc_req(tvbuff_t *tvb, packet_info *pinfo, proto
     guint32     bits_offset;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(DESC_REQ, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_DESC_REQ, packettypenames, "Unknown Type:0x%02x"));
 
     bits_offset = offset*8;
     /* subtree for packet type */
@@ -1082,7 +1148,7 @@ static int dissect_pcp_message_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint32     bits_offset;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(DESC, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_DESC, packettypenames, "Unknown Type:0x%02x"));
 
     /* root desc tree */
     pcp_desc_item = proto_tree_add_item(tree, hf_pcp_desc, tvb, offset, 4, ENC_NA);
@@ -1149,7 +1215,7 @@ static int dissect_pcp_message_instance_req(tvbuff_t *tvb, packet_info *pinfo, p
     guint32     name_len;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(INSTANCE_REQ, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_INSTANCE_REQ, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_instance_req_item = proto_tree_add_item(tree, hf_pcp_instance_req, tvb, offset, -1, ENC_NA);
     pcp_instance_req_tree = proto_item_add_subtree(pcp_instance_req_item, ett_pcp);
@@ -1192,7 +1258,7 @@ static int dissect_pcp_message_text_req(tvbuff_t *tvb, packet_info *pinfo, proto
     guint32     type;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(TEXT_REQ, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_TEXT_REQ, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_text_req_item = proto_tree_add_item(tree, hf_pcp_text_req, tvb, offset, -1, ENC_NA);
     pcp_text_req_tree = proto_item_add_subtree(pcp_text_req_item, ett_pcp);
@@ -1232,7 +1298,7 @@ static int dissect_pcp_message_text(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint32     buflen;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(TEXT, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_TEXT, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_text_item = proto_tree_add_item(tree, hf_pcp_text, tvb, offset, -1, ENC_NA);
     pcp_text_tree = proto_item_add_subtree(pcp_text_item, ett_pcp);
@@ -1251,6 +1317,21 @@ static int dissect_pcp_message_text(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     offset += buflen;
 
     return offset;
+}
+
+/* USER_AUTH packet format
+     int            ident
+     int            buflen
+     char           buffer
+*/
+static int dissect_pcp_message_user_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    /* append the type of packet */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_USER_AUTH, packettypenames, "Unknown Type:0x%02x"));
+
+    proto_tree_add_item(tree, hf_pcp_user_auth_payload, tvb, offset, -1, ENC_NA);
+
+    return tvb_reported_length(tvb);
 }
 
 /* INSTANCE packet type
@@ -1274,7 +1355,7 @@ static int dissect_pcp_message_instance(tvbuff_t *tvb, packet_info *pinfo, proto
     guint32     padding;
 
     /* append the type of packet */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(INSTANCE, packettypenames, "Unknown Type:0x%02x"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_INSTANCE, packettypenames, "Unknown Type:0x%02x"));
 
     pcp_instances_item = proto_tree_add_item(tree, hf_pcp_instances, tvb, offset, -1, ENC_NA);
     pcp_instances_tree = proto_item_add_subtree(pcp_instances_item, ett_pcp);
@@ -1373,7 +1454,34 @@ static int dissect_pcp_partial_when(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     return offset;
 }
 
-/* MAIN DISSECTING ROUTINE (after passed from dissect_tcp, all packets hit function) */
+static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint16     feature_flags;
+    const gchar *feature_flags_string;
+
+    static const int * pcp_feature_flags_header_fields[] = {
+            &hf_pcp_features_flags_container,
+            &hf_pcp_features_flags_no_nss_init,
+            &hf_pcp_features_flags_secure_ack,
+            &hf_pcp_features_flags_creds_reqd,
+            &hf_pcp_features_flags_auth,
+            &hf_pcp_features_flags_compress,
+            &hf_pcp_features_flags_secure,
+            NULL
+    };
+
+    feature_flags = tvb_get_ntohs(tvb, offset);
+    feature_flags_string = get_pcp_features_to_string(feature_flags);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Features=[%s]", feature_flags_string);
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_pcp_features_flags, ett_pcp_start_features, pcp_feature_flags_header_fields, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+/* MAIN DISSECTING ROUTINE (after passed from dissect_tcp, all non-ssl packets hit function) */
 static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *root_pcp_item;
@@ -1410,11 +1518,11 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* dissect the rest of the packet depending on the type */
     switch (packet_type) {
-        case CREDS:
+        case PCP_PDU_CREDS:
             dissect_pcp_message_creds(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case START_OR_ERROR:
+        case PCP_PDU_START_OR_ERROR:
             err_bytes = tvb_get_ntohl(tvb, offset); /* get the first 4 bytes, determine if this is an error or not */
             /* errors are signed and are all negative so check for a negative number.
                It's the only way we can differentiate between start/error packets */
@@ -1425,56 +1533,60 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             }
             break;
 
-        case PMNS_TRAVERSE:
+        case PCP_PDU_PMNS_TRAVERSE:
             dissect_pcp_message_pmns_traverse(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case PMNS_NAMES:
+        case PCP_PDU_PMNS_NAMES:
             dissect_pcp_message_pmns_names(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case PMNS_CHILD:
+        case PCP_PDU_PMNS_CHILD:
             dissect_pcp_message_pmns_child(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case PMNS_IDS:
+        case PCP_PDU_PMNS_IDS:
             dissect_pcp_message_pmns_ids(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case PROFILE:
+        case PCP_PDU_PROFILE:
             dissect_pcp_message_profile(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case FETCH:
+        case PCP_PDU_FETCH:
             dissect_pcp_message_fetch(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case RESULT:
+        case PCP_PDU_RESULT:
             dissect_pcp_message_result(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case DESC_REQ:
+        case PCP_PDU_DESC_REQ:
             dissect_pcp_message_desc_req(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case DESC:
+        case PCP_PDU_DESC:
             dissect_pcp_message_desc(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case INSTANCE_REQ:
+        case PCP_PDU_INSTANCE_REQ:
             dissect_pcp_message_instance_req(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case INSTANCE:
+        case PCP_PDU_INSTANCE:
             dissect_pcp_message_instance(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case TEXT_REQ:
+        case PCP_PDU_TEXT_REQ:
             dissect_pcp_message_text_req(tvb, pinfo, pcp_tree, offset);
             break;
 
-        case TEXT:
+        case PCP_PDU_TEXT:
             dissect_pcp_message_text(tvb, pinfo, pcp_tree, offset);
+            break;
+
+        case PCP_PDU_USER_AUTH:
+            dissect_pcp_message_user_auth(tvb, pinfo, pcp_tree, offset);
             break;
 
         default:
@@ -1489,7 +1601,7 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 static int dissect_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    /* pass all packets through TCP-reassembally */
+    /* pass all packets through TCP-reassembly */
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PCP_HEADER_LEN, get_pcp_message_len, dissect_pcp_message, data);
     return tvb_length(tvb);
 }
@@ -1547,22 +1659,8 @@ void proto_register_pcp(void)
             NULL, HFILL
           }
         },
-        { &hf_pcp_creds_vala,
-          { "Credentials Value A", "pcp.creds.vala",
-            FT_UINT8, BASE_DEC,
-            NULL, 0x0,
-            NULL, HFILL
-          }
-        },
-        { &hf_pcp_creds_valb,
-          { "Credentials Value B", "pcp.creds.valb",
-            FT_UINT8, BASE_DEC,
-            NULL, 0x0,
-            NULL, HFILL
-          }
-        },
-        { &hf_pcp_creds_valc,
-          { "Credentials Value C", "pcp.creds.valc",
+        { &hf_pcp_creds_version,
+          { "Credentials Version", "pcp.creds.version",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL
@@ -1576,16 +1674,16 @@ void proto_register_pcp(void)
           }
         },
         { &hf_pcp_start_zero,
-          { "Start Compatibility Bit", "pcp.start.zero",
-            FT_BOOLEAN, BASE_NONE,
-            NULL, 0x0,
+          { "Start Bit", "pcp.start.zero",
+            FT_BOOLEAN, 8,
+            TFS(&tfs_set_notset), 0x80,
             NULL, HFILL
           }
         },
         { &hf_pcp_start_version,
           { "Version", "pcp.start.version",
             FT_UINT8, BASE_DEC, /* not a real 8 bit int, only uses 7 bits */
-            NULL, 0x0,
+            NULL, 0x7F,
             NULL, HFILL
           }
         },
@@ -1603,10 +1701,59 @@ void proto_register_pcp(void)
             NULL, HFILL
           }
         },
-        { &hf_pcp_start_authorize,
-          { "Authorize", "pcp.start.authorize",
-            FT_UINT16, BASE_DEC,
+        { &hf_pcp_features_flags,
+          { "Features", "pcp.features.flags",
+            FT_UINT16, BASE_HEX,
             NULL, 0x0,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_secure,
+          { "Secure", "pcp.features.flags.secure",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_SECURE,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_compress,
+          { "Compression", "pcp.features.flags.compression",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_COMPRESS,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_auth,
+          { "Authentication", "pcp.features.flags.auth",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_AUTH,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_creds_reqd,
+          { "Credentials Required", "pcp.features.flags.creds_reqd",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_CREDS_REQD,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_secure_ack,
+          { "Secure Acknowledgement", "pcp.features.flags.secure_ack",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_SECURE_ACK,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_no_nss_init,
+          { "No NSS Init", "pcp.features.flags.no_nss_init",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_NO_NSS_INIT,
+            NULL, HFILL
+          }
+        },
+        { &hf_pcp_features_flags_container,
+          { "Container", "pcp.features.flags.container",
+            FT_BOOLEAN, 16,
+            TFS(&tfs_set_notset), PCP_PDU_FLAG_CONTAINER,
             NULL, HFILL
           }
         },
@@ -2142,6 +2289,13 @@ void proto_register_pcp(void)
             NULL, HFILL
           }
         },
+        { &hf_pcp_user_auth_payload,
+          { "User Authentication Payload", "pcp.user_auth_payload",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL
+          }
+        },
     };
 
     static gint *ett[] = {
@@ -2161,7 +2315,7 @@ void proto_register_pcp(void)
         &ett_pcp_start_zero,
         &ett_pcp_start_version,
         &ett_pcp_start_licensed,
-        &ett_pcp_start_authorize,
+        &ett_pcp_start_features,
         &ett_pcp_pmns_traverse,
         &ett_pcp_pmns_subtype,
         &ett_pcp_pmns_namelen,
@@ -2245,6 +2399,8 @@ void proto_register_pcp(void)
         { &ei_pcp_type_unknown_unknown_value, { "pcp.pmid.type.unknown.unknown_value", PI_UNDECODED, PI_WARN, "PM_TYPE_UNKNOWN: Unknown Value Type", EXPFILL }},
         { &ei_pcp_unimplemented_value, { "pcp.pmid.type.unimplemented", PI_UNDECODED, PI_WARN, "Unimplemented Value Type", EXPFILL }},
         { &ei_pcp_unimplemented_packet_type, { "pcp.type.unimplemented", PI_UNDECODED, PI_WARN, "Unimplemented Packet Type", EXPFILL }},
+        { &ei_pcp_ssl_upgrade, { "pcp.ssl_upgrade", PI_COMMENTS_GROUP, PI_COMMENT, "SSL upgrade via SECURE_ACK", EXPFILL }},
+        { &ei_pcp_ssl_upgrade_failed, { "pcp.ssl_upgrade_failed", PI_RESPONSE_CODE, PI_WARN, "SSL upgrade via SECURE_ACK failed", EXPFILL }},
     };
 
     expert_module_t* expert_pcp;
@@ -2260,8 +2416,6 @@ void proto_register_pcp(void)
 
 void proto_reg_handoff_pcp(void)
 {
-    dissector_handle_t pcp_handle;
-
     pcp_handle = new_create_dissector_handle(dissect_pcp, proto_pcp);
     dissector_add_uint("tcp.port", PCP_PORT, pcp_handle);
 }
