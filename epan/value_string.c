@@ -114,7 +114,7 @@ val64_to_str(const guint64 val, const val64_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 const gchar *
@@ -490,7 +490,7 @@ str_to_str(const gchar *val, const string_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 /* Like try_val_to_str_idx except for string_string */
@@ -538,7 +538,7 @@ rval_to_str(const guint32 val, const range_string *rs, const char *fmt)
     if(ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 /* Like val_to_str_const except for range_string */
