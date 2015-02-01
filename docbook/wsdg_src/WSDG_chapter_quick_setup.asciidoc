@@ -31,7 +31,16 @@ configuration.
 [WARNING]
 ====
 Unless you know exactly what you are doing, you
-should strictly follow the recommendations below.
+should strictly follow the recommendations below. They are known to work
+and if the build breaks, please re-read this guide carefully.
+
+Known traps are:
+
+. Not using the correct (x86 or x64) version of the Visual Studio command prompt.
+
+. Not copying win32.mak to the newer versions of the SDK.
+
+. Not copying/downloading the correct version of vcredist_xYY.exe.
 ====
 
 [[ChSetupPowerShell]]
@@ -88,6 +97,7 @@ It's possible to compile Wireshark with a wide range
 of Microsoft C compiler variants. For details see
 <<ChToolsMSChain>>!
 
+[TIP]
 For VS2013 (and later) Microsoft has left out a required file from the
 include files to build with nmake.  To fix this copy Win32.Mak from the Win 7 SDK
 into an appropriate path for use with VS2013, e.g.
@@ -352,7 +362,7 @@ Make sure your repository path doesn't contain spaces.
 
 From the Start Menu (or Start Screen), navigate to the Visual Studio 2013 ->
 Visual Studio Tools directory and choose the Command Prompt appropriate for
-the build you wish to make, e.g. VS2013 x86 Native Tools Command Prompt for a 32 bit version.
+the build you wish to make, e.g. VS2013 x86 Native Tools Command Prompt for a 32-bit version, VS2013 x64 Native Tools Command Prompt for a 64-bit version.
 
 [TIP]
 .Pin the items to the Task Bar
@@ -536,6 +546,14 @@ http://nsis.sourceforge.net[Download] and install NSIS
 You may check the `MAKENSIS` setting in the file 'config.nmake' in the Wireshark
 sources. Note that the 32-bit version of NSIS will work for both 32-bit and
 64-bit versions of Wireshark.
+
+Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in ./wireshark-winXX-libs (where XX is 32 or 64) you will need to download the appropriate file and place it in ./wireshark-winXX-libs before starting this step.
+
+If building an x86 version using a Visual Studio "Express" edition or an x64 version with any edition, then you must have the appropriate vcredist file for your compiler in the support libraries directory (vcredist_x86.exe in wireshark-32-libs or vcredist_x64.exe in wireshark-win64-libs).
+
+The files can be located in the Visual Studio install directory for non-Express edition builds, or downloaded from Microsoft for Expresss edition builds.
+
+Note you must use the correct version of vcredist for your compiler, unfortunately they all have the same name (vcredist_x86.exe or vcredist_x64.exe).  You can use Windows Explorer and examine the Properties >> Details tab for a vcredist file to determine which compiler version the file is for use with.
 
 . If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
 
