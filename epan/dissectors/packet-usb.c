@@ -2653,6 +2653,30 @@ usb_tap_queue_packet(packet_info *pinfo, guint8 urb_type,
 }
 
 
+static gboolean
+is_usb_standard_setup_request(usb_trans_info_t *usb_trans_info)
+{
+    guint8 type, recip;
+
+    type = USB_TYPE(usb_trans_info->setup.requesttype);
+    recip = USB_RECIPIENT(usb_trans_info->setup.requesttype);
+
+    if (type != RQT_SETUP_TYPE_STANDARD)
+        return FALSE;
+
+    /* the USB standards defines the GET_DESCRIPTOR request only as a
+       request to a device
+       if it's not aimed at a device, it's a non-standard request that
+       should be handled by a class-specific dissector */
+    if (usb_trans_info->setup.request == USB_SETUP_GET_DESCRIPTOR &&
+            recip != RQT_SETUP_RECIPIENT_DEVICE) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
 static gint
 try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pinfo,
         usb_conv_info_t *usb_conv_info, guint8 urb_type)
@@ -2751,7 +2775,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
             /* for standard control requests and responses, there's no
                need to query dissector tables */
-            if (USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_STANDARD)
+            if (is_usb_standard_setup_request(usb_trans_info))
                 break;
 
             ctrl_recip = USB_RECIPIENT(usb_trans_info->setup.requesttype);
@@ -2863,7 +2887,7 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
     parent = proto_tree_get_parent_tree(tree);
 
     if (usb_conv_info && usb_conv_info->usb_trans_info) {
-        if (USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_STANDARD) {
+        if (is_usb_standard_setup_request(usb_conv_info->usb_trans_info)) {
             offset = dissect_usb_standard_setup_response(pinfo, parent, tvb, offset, usb_conv_info);
         }
         else {
@@ -2970,7 +2994,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
             usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
     }
 
-    if (req_type == RQT_SETUP_TYPE_STANDARD) {
+    if (is_usb_standard_setup_request(usb_trans_info)) {
         offset = dissect_usb_standard_setup_request(pinfo, setup_tree, tvb, offset,
                                                         usb_conv_info, usb_trans_info);
     }
