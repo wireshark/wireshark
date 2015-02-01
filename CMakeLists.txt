@@ -639,7 +639,7 @@ if(ENABLE_HTML_GUIDES)
 	set(PACKAGELIST ${PACKAGELIST} DOXYGEN)
 endif()
 
-set(PROGLIST text2pcap mergecap capinfos captype editcap reordercap dumpcap)
+set(PROGLIST)
 
 #Sort the package list
 list(SORT PACKAGELIST)
@@ -1477,7 +1477,8 @@ if(ENABLE_APPLICATION_BUNDLE)
 	# with a static version installed in /usr/local/lib rather than
 	# the system version in /usr/lib).
 	#
-	# Also add -Wl,-rpath,@executable_path/../lib and
+	# Also add -Wl,-rpath,@executable_path/../Frameworks,
+	# -Wl,-rpath,@executable_path/../lib and
 	# -Wl,-rpath,/usr/local/lib, so that, if we build an app
 	# bundle, we can tweak all the executable images, shared
 	# libraries, and plugins in the bundle to look for non-system
@@ -1486,11 +1487,12 @@ if(ENABLE_APPLICATION_BUNDLE)
 	#
 
 	set(CMAKE_EXE_LINKER_FLAGS
-	"-Wl,-headerpad_max_install_names -Wl,-search_paths_first -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,/usr/local/lib ${CMAKE_EXE_LINKER_FLAGS}"
+	"-Wl,-headerpad_max_install_names -Wl,-search_paths_first -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,@executable_path/../lib -Wl,-rpath,/usr/local/lib ${CMAKE_EXE_LINKER_FLAGS}"
 	)
 
 	# Add files to the app bundle
 	# Wireshark.app/Contents
+	file(WRITE ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo "APPLWshk\n")
 	set(BUNDLE_CONTENTS_FILES
 		${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
 	)
@@ -1554,11 +1556,13 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	add_executable(wireshark MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
+	set(PROGLIST ${PROGLIST} wireshark)
 	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
 	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
 		set_target_properties(wireshark PROPERTIES OUTPUT_NAME Wireshark)
 	endif()
+
 	if(ENABLE_APPLICATION_BUNDLE)
 		set_target_properties(
 			wireshark PROPERTIES
@@ -1630,6 +1634,8 @@ macro(set_extra_executable_properties _executable _folder)
 		FOLDER ${_folder}
 	)
 
+	set(PROGLIST ${PROGLIST} ${_executable})
+
 	if(ENABLE_APPLICATION_BUNDLE)
 		set_target_properties(${_executable} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY run/Wireshark.app/Contents/MacOS
@@ -1665,6 +1671,7 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	# wireshark and wireshark-gtk share wireshark_FILES
 
 	add_executable(wireshark-gtk ${wireshark_FILES})
+	set(PROGLIST ${PROGLIST} wireshark-gtk)
 	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
 	target_link_libraries(wireshark-gtk ${wireshark_gtk_LIBS})
@@ -2060,15 +2067,14 @@ ADD_CUSTOM_COMMAND(
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
-ADD_CUSTOM_COMMAND(
-	OUTPUT ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
-	COMMAND ${CMAKE_COMMAND} -E echo APPLWshk > ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo
-)
-
-ADD_CUSTOM_TARGET(osx-app
-	COMMAND ${CMAKE_SOURCE_DIR}/packaging/macosx/osx-app.sh
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
-)
+	add_custom_target(app_bundle ALL)
+	set_target_properties(app_bundle PROPERTIES FOLDER "Copy Tasks")
+	add_custom_command(TARGET app_bundle
+		POST_BUILD
+		COMMAND "${CMAKE_SOURCE_DIR}/packaging/macosx/osx-app.sh"
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/run"
+	)
+	add_dependencies(app_bundle ${PROGLIST})
 endif()
 
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
