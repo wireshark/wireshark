@@ -791,7 +791,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
                            dlm3_cmd,
                            "packet-dlm3.c internal bug"));
 
-  if (parent_tree) {
+  /* if (parent_tree) */ {
     offset = 0;
 
     item = proto_tree_add_item(parent_tree, proto_dlm3, tvb, offset,
