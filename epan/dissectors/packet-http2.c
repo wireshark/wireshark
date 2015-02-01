@@ -1413,7 +1413,8 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0) {
         /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n)
            see if there's a valid frame type (0-11 are defined at the moment) */
-        if (tvb_reported_length(tvb)<2 || tvb_get_guint8(tvb, 2)>HTTP2_BLOCKED)
+        if (tvb_captured_length(tvb)<4 || tvb_get_guint8(tvb, 3)>HTTP2_BLOCKED)
+
             return (FALSE);
     }
 
