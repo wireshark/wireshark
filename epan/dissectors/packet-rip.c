@@ -354,6 +354,11 @@ proto_register_rip(void)
         &hfi_rip_family,
         &hfi_rip_route_tag,
         &hfi_rip_zero_padding,
+        &hfi_rip_digest_offset,
+        &hfi_rip_key_id,
+        &hfi_rip_auth_data_len,
+        &hfi_rip_auth_seq_num,
+        &hfi_rip_authentication_data,
     };
 #endif /* HAVE_HFI_SECTION_INIT */
 
