@@ -53,11 +53,19 @@ PS$>cinst VisualStudioCommunity2013
 ----
 
 [TIP]
-.You can use other Microsoft C compiler variants
+.You can use other Microsoft C compiler variants, but VS2013 is used
+to build the development releases and is the preferred option.
 ====
 It's possible to compile Wireshark with a wide range
 of Microsoft C compiler variants. For details see
 <<ChToolsMSChain>>!
+
+For VS2013 (and later) Microsoft has left out a required file from the
+include files to build with nmake.  To fix this copy Win32.Mak from the Win 7 SDK
+into an appropriate path for use with VS2013, e.g.
+----
+xcopy C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include\Win32.Mak C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include
+----
 ====
 
 
