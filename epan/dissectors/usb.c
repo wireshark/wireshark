@@ -3498,6 +3498,7 @@ static const value_string usb_products_vals[] = {
     { 0x03f07702, "HP PhotoSmart 817" },
     { 0x03f07704, "DeskJet D4100" },
     { 0x03f07717, "CM8050 Color MFP with Edgeline Technology" },
+    { 0x03f07778, "Counterfeit flash drive [Kingston]" },
     { 0x03f07802, "HP PhotoSmart 417" },
     { 0x03f07804, "DeskJet D1360" },
     { 0x03f07817, "Color LaserJet CP3505" },
