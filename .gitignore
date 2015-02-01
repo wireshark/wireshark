@@ -204,6 +204,8 @@ _libs_check_
 /wireshark-gtk*
 doc/ws.css
 ui/qt/config.pri
+packaging/nsis/all-manifest.nsh
+packaging/nsis/gtk-dll-manifest.nsh
 
 # Misc #
 ########
