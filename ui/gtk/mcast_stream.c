@@ -60,7 +60,7 @@
 #endif
 
 gint32  mcast_stream_trigger         =     50; /* limit for triggering the burst alarm (in packets per second) */
-gint32  mcast_stream_bufferalarm     =  10000; /* limit for triggernig the buffer alarm (in bytes) */
+gint32  mcast_stream_bufferalarm     =  10000; /* limit for triggering the buffer alarm (in bytes) */
 guint16 mcast_stream_burstint        =    100; /* burst interval in ms */
 gint32  mcast_stream_emptyspeed      =   5000; /* outgoing speed for single stream (kbps)*/
 gint32  mcast_stream_cumulemptyspeed = 100000; /* outgoiong speed for all streams (kbps)*/
