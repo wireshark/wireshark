@@ -3019,7 +3019,7 @@ static void
 dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item)
 {
     proto_tree *field_table_tree;
-    int         field_start, index;
+    int         field_start, idex;
     guint       vallen;
     const char *name;
 
