@@ -608,7 +608,10 @@ static int hf_mysql_exec_field_float = -1;
 static int hf_mysql_exec_field_time_length = -1;
 static int hf_mysql_exec_field_time_sign = -1;
 static int hf_mysql_exec_field_time_days = -1;
-
+static int hf_mysql_auth_switch_request_status = -1;
+static int hf_mysql_auth_switch_request_name = -1;
+static int hf_mysql_auth_switch_request_data = -1;
+static int hf_mysql_auth_switch_response_data = -1;
 
 static dissector_handle_t ssl_handle;
 
@@ -663,7 +666,9 @@ typedef enum mysql_state {
 	ROW_PACKET,
 	RESPONSE_PREPARE,
 	PREPARED_PARAMETERS,
-	PREPARED_FIELDS
+	PREPARED_FIELDS,
+	AUTH_SWITCH_REQUEST,
+	AUTH_SWITCH_RESPONSE
 } mysql_state_t;
 
 #ifdef CTDEBUG
@@ -725,6 +730,8 @@ static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int of
 static int mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
 static int mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
+static int mysql_dissect_auth_switch_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static void mysql_dissect_exec_string(tvbuff_t *tvb, int *param_offset, proto_item *field_tree);
 static void mysql_dissect_exec_datetime(tvbuff_t *tvb, int *param_offset, proto_item *field_tree);
 static void mysql_dissect_exec_tiny(tvbuff_t *tvb, int *param_offset, proto_item *field_tree);
@@ -963,6 +970,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	/* optional: authentication plugin */
 	if (conn_data->clnt_caps_ext & MYSQL_CAPS_PA)
 	{
+		conn_data->state = AUTH_SWITCH_REQUEST;
 		lenstr= my_tvb_strsize(tvb,offset);
 		proto_tree_add_item(login_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		offset += lenstr;
@@ -1185,6 +1193,10 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 	my_stmt_data_t *stmt_data;
 	int stmt_pos, param_offset;
 
+	if(conn_data->state == AUTH_SWITCH_RESPONSE){
+		return mysql_dissect_auth_switch_response(tvb, pinfo, offset, tree, conn_data);
+	}
+
 	tf = proto_tree_add_item(tree, hf_mysql_request, tvb, offset, 1, ENC_NA);
 	req_tree = proto_item_add_subtree(tf, ett_request);
 
@@ -1287,10 +1299,12 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 			proto_tree_add_item(req_tree, hf_mysql_charset, tvb, offset, 1, ENC_NA);
 			offset += 2; /* for charset */
 		}
+		conn_data->state = RESPONSE_OK;
 
 		/* optional: authentication plugin */
 		if (conn_data->clnt_caps_ext & MYSQL_CAPS_PA)
 		{
+			conn_data->state = AUTH_SWITCH_REQUEST;
 			lenstr= my_tvb_strsize(tvb,offset);
 			proto_tree_add_item(req_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 			offset += lenstr;
@@ -1316,7 +1330,6 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 				connattrs_length -= length;
 			}
 		}
-		conn_data->state= RESPONSE_OK;
 		break;
 
 	case MYSQL_REFRESH:
@@ -1569,6 +1582,11 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		case PREPARED_FIELDS:
 			offset = mysql_dissect_field_packet(tvb, offset, tree, conn_data);
 			break;
+
+		case AUTH_SWITCH_REQUEST:
+			offset = mysql_dissect_auth_switch_request(tvb, pinfo, offset, tree, conn_data);
+			break;
+
 
 		default:
 			ti = proto_tree_add_item(tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
@@ -2023,7 +2041,46 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree, mysq
 }
 
 
+static int
+mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data _U_)
+{
+	gint lenstr;
 
+	col_set_str(pinfo->cinfo, COL_INFO, "Auth Switch Request" );
+	conn_data->state = AUTH_SWITCH_RESPONSE;
+
+	/* Status (Always 0xfe) */
+	proto_tree_add_item(tree, hf_mysql_auth_switch_request_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	/* name */
+	lenstr = my_tvb_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_mysql_auth_switch_request_name, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+	offset += lenstr;
+
+	/* Data */
+	lenstr = my_tvb_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_mysql_auth_switch_request_data, tvb, offset, lenstr, ENC_NA);
+	offset += lenstr;
+
+	return offset + tvb_reported_length_remaining(tvb, offset);
+
+}
+static int
+mysql_dissect_auth_switch_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data _U_)
+{
+	gint lenstr;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Auth Switch Response" );
+
+	/* Data */
+	lenstr = my_tvb_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_mysql_auth_switch_response_data, tvb, offset, lenstr, ENC_NA);
+	offset += lenstr;
+
+	return offset + tvb_reported_length_remaining(tvb, offset);
+
+}
 /*
  get length of string in packet buffer
 
@@ -3100,6 +3157,26 @@ void proto_register_mysql(void)
 		{ &hf_mysql_exec_field_time_days,
 		{ "Days", "mysql.exec.field.time.days",
 		FT_INT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_auth_switch_request_status,
+		{ "Status", "mysql.auth_switch_request.status",
+		FT_UINT8, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_auth_switch_request_name,
+		{ "Auth Method Name", "mysql.auth_switch_request.name",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_auth_switch_request_data,
+		{ "Auth Method Data", "mysql.auth_switch_request.data",
+		FT_BYTES, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_auth_switch_response_data,
+		{ "Auth Method Data", "mysql.auth_switch_response.data",
+		FT_BYTES, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 	};
 
