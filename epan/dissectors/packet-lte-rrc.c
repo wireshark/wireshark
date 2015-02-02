@@ -2414,7 +2414,7 @@ static int hf_lte_rrc_ue_Category = -1;           /* INTEGER_1_5 */
 static int hf_lte_rrc_pdcp_Parameters = -1;       /* PDCP_Parameters */
 static int hf_lte_rrc_phyLayerParameters = -1;    /* PhyLayerParameters */
 static int hf_lte_rrc_rf_Parameters = -1;         /* RF_Parameters */
-static int hf_lte_rrc_measParameters = -1;        /* MeasParameters */
+static int hf_lte_rrc_measParameters = -1;        /* T_measParameters */
 static int hf_lte_rrc_featureGroupIndicators = -1;  /* T_featureGroupIndicators */
 static int hf_lte_rrc_interRAT_Parameters = -1;   /* T_interRAT_Parameters */
 static int hf_lte_rrc_utraFDD = -1;               /* IRAT_ParametersUTRA_FDD */
@@ -2593,7 +2593,7 @@ static int hf_lte_rrc_supported_r12 = -1;         /* T_supported_r12 */
 static int hf_lte_rrc_asynchronous_r12 = -1;      /* T_asynchronous_r12 */
 static int hf_lte_rrc_supportedCellGrouping_r12 = -1;  /* BIT_STRING_SIZE_1_15 */
 static int hf_lte_rrc_supportedNAICS_2CRS_AP_r12 = -1;  /* BIT_STRING_SIZE_1_maxNAICS_Entries_r12 */
-static int hf_lte_rrc_bandEUTRA_r10 = -1;         /* FreqBandIndicator */
+static int hf_lte_rrc_bandEUTRA_r10 = -1;         /* T_bandEUTRA_r10 */
 static int hf_lte_rrc_bandParametersUL_r10 = -1;  /* BandParametersUL_r10 */
 static int hf_lte_rrc_bandParametersDL_r10 = -1;  /* BandParametersDL_r10 */
 static int hf_lte_rrc_bandEUTRA_v1090 = -1;       /* FreqBandIndicator_v9e0 */
@@ -6222,6 +6222,13 @@ static void set_freq_band_indicator(guint32 value, asn1_ctx_t *actx)
   }
 }
 
+static void remove_last_freq_band_indicator(asn1_ctx_t *actx)
+{
+  meas_capabilities_item_band_mappings_t *mappings = private_data_meas_capabilities_item_band_mappings(actx);
+  if ((mappings->number_of_bands_set > 0) && (mappings->number_of_bands_set < 256)) {
+    mappings->number_of_bands_set--;
+  }
+}
 
 /* Cell type for simultaneousPUCCH-PUSCH-r10 */
 static simult_pucch_pusch_cell_type private_data_get_simult_pucch_pusch_cell_type(asn1_ctx_t *actx)
@@ -11359,13 +11366,8 @@ dissect_lte_rrc_MBMS_SAI_InterFreqList_r11(tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_lte_rrc_FreqBandIndicator_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, maxFBI2, &value, FALSE);
-
-  set_freq_band_indicator(value, actx);
-
-
+                                                            1U, maxFBI2, NULL, FALSE);
 
   return offset;
 }
@@ -36127,12 +36129,8 @@ dissect_lte_rrc_MultiBandInfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_lte_rrc_FreqBandIndicator_v9e0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            maxFBI_Plus1, maxFBI2, &value, FALSE);
-
-  set_freq_band_indicator(value, actx);
-
+                                                            maxFBI_Plus1, maxFBI2, NULL, FALSE);
 
   return offset;
 }
@@ -37029,7 +37027,7 @@ dissect_lte_rrc_InterFreqBandInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                    ett_lte_rrc_InterFreqBandInfo, InterFreqBandInfo_sequence);
 
   mappings = private_data_meas_capabilities_item_band_mappings(actx);
-  if (mappings->number_of_interfreq_serving_read <= mappings->number_of_bands_set) {
+  if (mappings->number_of_interfreq_serving_read < mappings->number_of_bands_set) {
     guint16 serving_band = mappings->band_by_item[mappings->number_of_interfreq_serving_read];
     guint16 target_band = mappings->band_by_item[mappings->number_of_interfreq_target_read++];
     if (mappings->number_of_interfreq_target_read == mappings->number_of_bands_set) {
@@ -37128,6 +37126,21 @@ static int
 dissect_lte_rrc_MeasParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MeasParameters, MeasParameters_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_measParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  meas_capabilities_item_band_mappings_t *mappings;
+  offset = dissect_lte_rrc_MeasParameters(tvb, offset, actx, tree, hf_index);
+
+  /* Clear band mapping once measParameters IE has been decoded */
+  mappings = private_data_meas_capabilities_item_band_mappings(actx);
+  mappings->number_of_bands_set = 0;
+
 
   return offset;
 }
@@ -38106,6 +38119,17 @@ dissect_lte_rrc_PhyLayerParameters_v1020(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+
+static int
+dissect_lte_rrc_T_bandEUTRA_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_lte_rrc_FreqBandIndicator(tvb, offset, actx, tree, hf_index);
+
+  remove_last_freq_band_indicator(actx);
+
+  return offset;
+}
+
+
 static const value_string lte_rrc_CA_BandwidthClass_r10_vals[] = {
   {   0, "a" },
   {   1, "b" },
@@ -38218,7 +38242,7 @@ dissect_lte_rrc_BandParametersDL_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t BandParameters_r10_sequence[] = {
-  { &hf_lte_rrc_bandEUTRA_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_FreqBandIndicator },
+  { &hf_lte_rrc_bandEUTRA_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_bandEUTRA_r10 },
   { &hf_lte_rrc_bandParametersUL_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_BandParametersUL_r10 },
   { &hf_lte_rrc_bandParametersDL_r10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_BandParametersDL_r10 },
   { NULL, 0, 0, NULL }
@@ -40365,7 +40389,7 @@ static const per_sequence_t UE_EUTRA_Capability_sequence[] = {
   { &hf_lte_rrc_pdcp_Parameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PDCP_Parameters },
   { &hf_lte_rrc_phyLayerParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhyLayerParameters },
   { &hf_lte_rrc_rf_Parameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_RF_Parameters },
-  { &hf_lte_rrc_measParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_MeasParameters },
+  { &hf_lte_rrc_measParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_measParameters },
   { &hf_lte_rrc_featureGroupIndicators, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_featureGroupIndicators },
   { &hf_lte_rrc_interRAT_Parameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_interRAT_Parameters },
   { &hf_lte_rrc_nonCriticalExtension_124, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_UE_EUTRA_Capability_v920_IEs },
@@ -42016,7 +42040,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2476 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2483 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -51776,7 +51800,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_bandEUTRA_r10,
       { "bandEUTRA-r10", "lte-rrc.bandEUTRA_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "FreqBandIndicator", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_bandParametersUL_r10,
       { "bandParametersUL-r10", "lte-rrc.bandParametersUL_r10",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -52751,7 +52775,7 @@ void proto_register_lte_rrc(void) {
         "RSRQ_Range_v12xy", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2646 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2653 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -54674,7 +54698,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3269 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3276 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -54747,7 +54771,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3326 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3333 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

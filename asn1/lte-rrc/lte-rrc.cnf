@@ -1815,23 +1815,15 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 %(DEFAULT_BODY)s
   set_freq_band_indicator(value, actx);
 
-#.FN_BODY FreqBandIndicator-v9e0 VAL_PTR=&value
-  guint32 value;
-%(DEFAULT_BODY)s
-  set_freq_band_indicator(value, actx);
-
-#.FN_BODY FreqBandIndicator-r11 VAL_PTR=&value
-  guint32 value;
-%(DEFAULT_BODY)s
-  set_freq_band_indicator(value, actx);
-
+#.FN_FTR BandParameters-r10/bandEUTRA-r10
+  remove_last_freq_band_indicator(actx);
 
 #.FN_BODY InterFreqBandInfo
   meas_capabilities_item_band_mappings_t *mappings;
   proto_item *it;
 %(DEFAULT_BODY)s
   mappings = private_data_meas_capabilities_item_band_mappings(actx);
-  if (mappings->number_of_interfreq_serving_read <= mappings->number_of_bands_set) {
+  if (mappings->number_of_interfreq_serving_read < mappings->number_of_bands_set) {
     guint16 serving_band = mappings->band_by_item[mappings->number_of_interfreq_serving_read];
     guint16 target_band = mappings->band_by_item[mappings->number_of_interfreq_target_read++];
     if (mappings->number_of_interfreq_target_read == mappings->number_of_bands_set) {
@@ -1844,6 +1836,13 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     proto_item_append_text(it, " -> band %%u", target_band);
     PROTO_ITEM_SET_GENERATED(it);
   }
+
+#.FN_BODY UE-EUTRA-Capability/measParameters
+  meas_capabilities_item_band_mappings_t *mappings;
+%(DEFAULT_BODY)s
+  /* Clear band mapping once measParameters IE has been decoded */
+  mappings = private_data_meas_capabilities_item_band_mappings(actx);
+  mappings->number_of_bands_set = 0;
 
 #.FN_BODY ReleaseCause VAL_PTR=&value
   guint32 value;

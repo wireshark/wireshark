@@ -2159,6 +2159,13 @@ static void set_freq_band_indicator(guint32 value, asn1_ctx_t *actx)
   }
 }
 
+static void remove_last_freq_band_indicator(asn1_ctx_t *actx)
+{
+  meas_capabilities_item_band_mappings_t *mappings = private_data_meas_capabilities_item_band_mappings(actx);
+  if ((mappings->number_of_bands_set > 0) && (mappings->number_of_bands_set < 256)) {
+    mappings->number_of_bands_set--;
+  }
+}
 
 /* Cell type for simultaneousPUCCH-PUSCH-r10 */
 static simult_pucch_pusch_cell_type private_data_get_simult_pucch_pusch_cell_type(asn1_ctx_t *actx)
