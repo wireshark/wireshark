@@ -2202,7 +2202,7 @@ dissect_subclv_bw_ct(tvbuff_t *tvb, proto_tree *tree, int offset, int sublen)
         bw = tvb_get_ntohieee_float(tvb, offset)*8/1000000;
         proto_tree_add_float_format_value(ntree, hf_isis_lsp_bw_ct7, tvb, offset, 4,
             bw, "%.2f Mbps", bw);
-        offset += 4;
+        /*offset += 4;*/
     }
 }
 
