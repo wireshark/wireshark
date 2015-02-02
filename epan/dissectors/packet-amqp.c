@@ -3019,16 +3019,16 @@ static void
 dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, int offset, guint length, proto_item *item)
 {
     proto_tree *field_table_tree;
-    int         field_start, idex;
+    int         field_start, idx;
     guint       vallen;
     const char *name;
 
     field_table_tree = proto_item_add_subtree(item, ett_amqp);
-    index = 0;
+    idx = 0;
 
     while (length != 0) {
         field_start = offset;
-        name = wmem_strdup_printf(wmem_packet_scope(), "[%i]", index);
+        name = wmem_strdup_printf(wmem_packet_scope(), "[%i]", idx);
 
         vallen = dissect_amqp_0_9_field_value(tvb, pinfo, offset, length, name, field_table_tree);
         if(vallen == 0)
@@ -3036,7 +3036,7 @@ dissect_amqp_0_9_field_array(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         offset += vallen;
         length -= vallen;
 
-        index++;
+        idx++;
     }
     return;
 
