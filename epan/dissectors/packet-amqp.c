@@ -3104,7 +3104,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value  = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT32_MODIFIER "i",
                                     (gint32)tvb_get_ntohl(tvb, offset));
         offset += 4;
-        length -= 4;
         break;
     case 'D':
         amqp_typename = "decimal";
@@ -3113,7 +3112,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value  = wmem_strdup_printf(wmem_packet_scope(), "%f",
                                     tvb_get_ntohl(tvb, offset+1) / pow(10, tvb_get_guint8(tvb, offset)));
         offset += 5;
-        length -= 5;
         break;
     case 'S': /* long string, UTF-8 encoded */
         amqp_typename = "string";
@@ -3126,17 +3124,14 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             return 0; /* too short */
         value  = (char*) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, vallen, ENC_UTF_8|ENC_NA);
         offset += vallen;
-        length -= vallen;
         break;
     case 'T': /* timestamp (u64) */
-        amqp_typename =  "timestamp";
         if (length < 8)
             return 0; /* too short */
         tv.secs = (time_t)tvb_get_ntoh64(tvb, offset);
         tv.nsecs = 0;
 
         offset += 8;
-        length -= 8;
         ti = proto_tree_add_time(field_table_tree, hf_amqp_field_timestamp, tvb,
                             value_start, offset - value_start, &tv);
         proto_item_prepend_text(ti, "%s ", name);
@@ -3155,7 +3150,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         proto_item_set_text(ti, "%s (%s)", name, amqp_typename);
         dissect_amqp_0_9_field_table(tvb, pinfo, offset, vallen, ti);
         offset += vallen;
-        length -= vallen;
         return offset - value_start;
     case 'V':
         amqp_typename = "void";
@@ -3168,7 +3162,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             return 0; /* too short */
         value   = tvb_get_guint8(tvb, offset) ? "true" : "false";
         offset += 1;
-        length -= 1;
         break;
     case 'b': /* signed 8-bit */
         amqp_typename = "byte";
@@ -3177,7 +3170,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value   = wmem_strdup_printf(wmem_packet_scope(), "%d",
                                      (gint8)tvb_get_guint8(tvb, offset));
         offset += 1;
-        length -= 1;
         break;
     case 'B': /* unsigned 8-bit */
         amqp_typename = "unsigned byte";
@@ -3186,7 +3178,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value   = wmem_strdup_printf(wmem_packet_scope(), "%u",
                                      tvb_get_guint8(tvb, offset));
         offset += 1;
-        length -= 1;
         break;
     case 's': /* signed 16-bit */
         amqp_typename = "short int";
@@ -3195,7 +3186,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT16_MODIFIER "i",
                                     (gint16)tvb_get_ntohs(tvb, offset));
         offset += 2;
-        length -= 2;
         break;
     case 'u': /* unsigned 16-bit */
         amqp_typename = "short uint";
@@ -3204,7 +3194,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT16_MODIFIER "u",
                                      tvb_get_ntohs(tvb, offset));
         offset += 2;
-        length -= 2;
         break;
     case 'i': /* unsigned 32-bit */
         amqp_typename = "unsigned integer";
@@ -3213,7 +3202,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT32_MODIFIER "u",
                                      tvb_get_ntohl(tvb, offset));
         offset += 4;
-        length -= 4;
         break;
     case 'l': /* signed 64-bit */
         amqp_typename = "long int";
@@ -3222,7 +3210,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "i",
                                      (gint64)tvb_get_ntoh64(tvb, offset));
         offset += 8;
-        length -= 8;
         break;
     case 'f': /* 32-bit float */
         amqp_typename = "float";
@@ -3231,7 +3218,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value   = wmem_strdup_printf(wmem_packet_scope(), "%f",
                                      tvb_get_ntohieee_float(tvb, offset));
         offset += 4;
-        length -= 4;
         break;
     case 'd': /* 64-bit float */
         amqp_typename = "double";
@@ -3240,7 +3226,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         value   = wmem_strdup_printf(wmem_packet_scope(), "%f",
                                      tvb_get_ntohieee_double(tvb, offset));
         offset += 8;
-        length -= 8;
         break;
     case 'A': /* array */
         amqp_typename = "array";
@@ -3256,10 +3241,8 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         proto_item_set_text(ti, "%s (%s)", name, amqp_typename);
         dissect_amqp_0_9_field_array(tvb, pinfo, offset, vallen, ti);
         offset += vallen;
-        length -= vallen;
         return offset - value_start;
     case 'x': /* byte array */
-        amqp_typename = "byte array";
         if (length < 4)
             return 0; /* too short */
         vallen  = tvb_get_ntohl(tvb, offset);
@@ -3271,7 +3254,6 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
                                  offset, vallen, ENC_NA);
         proto_item_prepend_text(ti, "%s ", name);
         offset += vallen;
-        length -= vallen;
         return offset - value_start;
     default:
         amqp_typename = "";
