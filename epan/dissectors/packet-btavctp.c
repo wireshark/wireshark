@@ -132,7 +132,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item      *ti;
     proto_tree      *btavctp_tree;
     proto_item      *pitem;
-    proto_item      *ipid_item;
+    proto_item      *ipid_item = NULL;
     btavctp_data_t  *avctp_data;
     btl2cap_data_t  *l2cap_data;
     tvbuff_t        *next_tvb;
