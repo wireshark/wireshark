@@ -264,11 +264,11 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			rtp_write_sample(&sample, tapinfo->save_file);
 		}
 	}
-    else if (tapinfo->mode == TAP_MARK && tapinfo->tap_mark_packet) {
-        if (rtp_stream_info_cmp(&new_stream_info, tapinfo->filter_stream_fwd)==0
-                || rtp_stream_info_cmp(&new_stream_info, tapinfo->filter_stream_rev)==0)
+	else if (tapinfo->mode == TAP_MARK && tapinfo->tap_mark_packet) {
+		if (rtp_stream_info_cmp(&new_stream_info, tapinfo->filter_stream_fwd)==0
+		    || rtp_stream_info_cmp(&new_stream_info, tapinfo->filter_stream_rev)==0)
 		{
-            tapinfo->tap_mark_packet(tapinfo, pinfo->fd);
+			tapinfo->tap_mark_packet(tapinfo, pinfo->fd);
 		}
 	}
 	return 0;
@@ -365,20 +365,20 @@ static const mimetype_and_clock mimetype_and_clock_map[] = {
 	{"G729D",	8000},			/* [RFC3551][RFC4856] */
 	{"G729E",	8000},			/* [RFC3551][RFC4856] */
 	{"GSM-EFR",	8000},			/* [RFC3551] */
-	{"H263-1998",	90000},		/* [RFC2429],[RFC3555] */
-	{"H263-2000",	90000},		/* [RFC2429],[RFC3555] */
-	{"H264",	90000},         /* [RFC3984] */
+	{"H263-1998",	90000},			/* [RFC2429],[RFC3555] */
+	{"H263-2000",	90000},			/* [RFC2429],[RFC3555] */
+	{"H264",	90000},			/* [RFC3984] */
 	{"MP1S",	90000},			/* [RFC2250],[RFC3555] */
 	{"MP2P",	90000},			/* [RFC2250],[RFC3555] */
 	{"MP4V-ES",	90000},			/* [RFC3016] */
-	{"mpa-robust",	90000},		/* [RFC3119] */
+	{"mpa-robust",	90000},			/* [RFC3119] */
 	{"pointer",	90000},			/* [RFC2862] */
 	{"raw",		90000},			/* [RFC4175] */
 	{"red",		1000},			/* [RFC4102] */
 	{"SMV",		8000},			/* [RFC3558] */
 	{"SMV0",	8000},			/* [RFC3558] */
 	{"t140",	1000},			/* [RFC4103] */
-	{"telephone-event", 8000},  /* [RFC4733] */
+	{"telephone-event", 8000},		/* [RFC4733] */
 };
 
 #define NUM_DYN_CLOCK_VALUES	(sizeof mimetype_and_clock_map / sizeof mimetype_and_clock_map[0])
