@@ -253,6 +253,7 @@ FORMS += \
     remote_capture_dialog.ui  \
     remote_settings_dialog.ui  \
     resolved_addresses_dialog.ui \
+    rtp_analysis_dialog.ui   \
     rtp_stream_dialog.ui   \
     sctp_all_assocs_dialog.ui   \
     sctp_assoc_analyse_dialog.ui \
@@ -325,6 +326,7 @@ HEADERS += $$HEADERS_WS_C \
     remote_capture_dialog.h  \
     remote_settings_dialog.h    \
     resolved_addresses_dialog.h \
+    rtp_analysis_dialog.h  \
     rtp_stream_dialog.h  \
     sctp_all_assocs_dialog.h  \
     sctp_assoc_analyse_dialog.h \
@@ -712,6 +714,7 @@ SOURCES += \
     remote_settings_dialog.cpp \
     response_time_delay_dialog.cpp \
     resolved_addresses_dialog.cpp \
+    rtp_analysis_dialog.cpp  \
     rtp_stream_dialog.cpp  \
     sctp_all_assocs_dialog.cpp  \
     sctp_assoc_analyse_dialog.cpp \

@@ -500,6 +500,7 @@
       <string>RTP</string>
      </property>
      <addaction name="actionTelephonyRTPStreams"/>
+     <addaction name="actionTelephonyRTPStreamAnalysis"/>
     </widget>
     <widget class="QMenu" name="menuANSI">
      <property name="title">
@@ -2533,6 +2534,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Space</string>
+   </property>
+  </action>
+  <action name="actionTelephonyRTPStreamAnalysis">
+   <property name="text">
+    <string>Analyze RTP Stream</string>
+   </property>
+   <property name="toolTip">
+    <string>RTP Stream Analysis</string>
    </property>
   </action>
  </widget>

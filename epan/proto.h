@@ -2170,7 +2170,8 @@ WS_DLL_PUBLIC const char *proto_get_protocol_filter_name(const int proto_id);
  * unchanged. May be NULL.
  */
 WS_DLL_PUBLIC void proto_get_frame_protocols(const wmem_list_t *layers,
-      gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp, gboolean *is_ssl);
+      gboolean *is_ip, gboolean *is_tcp, gboolean *is_udp, gboolean *is_sctp,
+      gboolean *is_ssl, gboolean *is_rtp);
 
 /** Find a protocol by name in a layer list.
  * @param layers Protocol layer list

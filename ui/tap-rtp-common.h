@@ -27,14 +27,42 @@
  * Foundation,  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef TAP_RTP_COMMON_H_INCLUDED
-#define TAP_RTP_COMMON_H_INCLUDED
+#ifndef __TAP_RTP_COMMON_H__
+#define __TAP_RTP_COMMON_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/* type of error when saving voice in a file didn't succeed */
+typedef enum {
+    TAP_RTP_WRONG_CODEC,
+    TAP_RTP_WRONG_LENGTH,
+    TAP_RTP_PADDING_ERROR,
+    TAP_RTP_SHORT_FRAME,
+    TAP_RTP_FILE_OPEN_ERROR,
+    TAP_RTP_FILE_WRITE_ERROR,
+    TAP_RTP_NO_DATA
+} error_type_t;
+
+typedef struct _tap_rtp_save_info_t {
+    FILE *fp;
+    guint32 count;
+    error_type_t error_type;
+    gboolean saved;
+} tap_rtp_save_info_t;
+
+struct _rtp_stream_info;
 
 void rtpstream_reset_cb(void*);
-void rtp_write_header(rtp_stream_info_t*, FILE*);
+void rtp_write_header(struct _rtp_stream_info*, FILE*);
 int rtpstream_packet(void*, packet_info*, epan_dissect_t *, const void *);
 
-#endif /*TAP_RTP_COMMON_H_INCLUDED*/
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __TAP_RTP_COMMON_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

@@ -66,13 +66,15 @@ QByteArray gstring_free_to_qbytearray(GString *glib_gstring)
     return qt_ba;
 }
 
-const QString address_to_qstring(const _address *address)
+const QString address_to_qstring(const _address *address, bool enclose)
 {
     QString address_qstr = QString();
     if (address) {
+        if (enclose && address->type == AT_IPv6) address_qstr += "[";
         gchar *address_gchar_p = address_to_str(NULL, address);
-        address_qstr = address_gchar_p;
+        address_qstr += address_gchar_p;
         wmem_free(NULL, address_gchar_p);
+        if (enclose && address->type == AT_IPv6) address_qstr += "]";
     }
     return address_qstr;
 }

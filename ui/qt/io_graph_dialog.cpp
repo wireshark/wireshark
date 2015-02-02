@@ -31,8 +31,8 @@
 #include "ui/utf8_entities.h"
 
 #include "qt_ui_utils.h"
-#include "tango_colors.h"
 
+#include "color_utils.h"
 #include "qcustomplot.h"
 #include "stock_icon.h"
 #include "syntax_line_edit.h"
@@ -78,21 +78,7 @@ const int num_cols_ = 7;
 
 // Available colors
 // XXX - Add custom
-QList<QRgb> colors_ = QList<QRgb>()
-        << tango_aluminium_6 // Bar outline (use black instead)?
-        << tango_sky_blue_5
-        << tango_butter_6
-        << tango_chameleon_5
-        << tango_scarlet_red_5
-        << tango_plum_5
-        << tango_orange_6
-        << tango_aluminium_3
-        << tango_sky_blue_3
-        << tango_butter_3
-        << tango_chameleon_3
-        << tango_scarlet_red_3
-        << tango_plum_3
-        << tango_orange_3;
+QList<QRgb> colors_ = ColorUtils::graph_colors_;
 
 const qreal graph_line_width_ = 1.0;
 

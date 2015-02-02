@@ -484,7 +484,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-static int
+static gboolean
 rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *rtpinfo_arg)
 {
 	user_data_t	       *user_data    = (user_data_t *)user_data_arg;
@@ -493,10 +493,10 @@ rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	/* we ignore packets that are not displayed */
 	if (pinfo->fd->flags.passed_dfilter == 0)
-		return 0;
+		return FALSE;
 	/* also ignore RTP Version != 2 */
 	else if (rtpinfo->info_version != 2)
-		return 0;
+		return FALSE;
 	/* is it the forward direction?  */
 	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src
 		 && (CMP_ADDRESS(&(user_data->src_fwd), &(pinfo->src)) == 0)
@@ -548,7 +548,7 @@ rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 #endif
 	}
 
-	return 0;
+	return FALSE;
 }
 
 /*
@@ -606,7 +606,7 @@ rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 		g_snprintf(color_str, sizeof(color_str), "#ffffbfffbfff");
 	}
 	else if (statinfo->flags & STAT_FLAG_DUP_PKT) {
-		g_snprintf(status, sizeof(status), "Suspected duplicate(MAC address) only delta time calculated");
+		g_snprintf(status, sizeof(status), "Suspected duplicate (MAC address) only delta time calculated");
 		/* color = Yellow; */
 		g_snprintf(color_str, sizeof(color_str), "#ffffffff0000");
 	}
@@ -3212,7 +3212,7 @@ draw_stat(user_data_t *user_data)
 		user_data->forward.statinfo.max_delta, user_data->forward.statinfo.max_nr,
 		user_data->forward.statinfo.max_jitter, user_data->forward.statinfo.mean_jitter,
 		user_data->forward.statinfo.max_skew,
-		f_expected, f_expected, f_lost, f_perc,
+		f_total_nr, f_expected, f_lost, f_perc,
 		user_data->forward.statinfo.sequence,
 		f_duration / 1000,
 		f_duration * (f_clock_drift - 1.0),
@@ -3231,7 +3231,7 @@ draw_stat(user_data_t *user_data)
 		user_data->reversed.statinfo.max_delta, user_data->reversed.statinfo.max_nr,
 		user_data->reversed.statinfo.max_jitter, user_data->reversed.statinfo.mean_jitter,
 		user_data->reversed.statinfo.max_skew,
-		r_expected, r_expected, r_lost, r_perc,
+		r_total_nr, r_expected, r_lost, r_perc,
 		user_data->reversed.statinfo.sequence,
 		r_duration / 1000,
 		r_duration * (r_clock_drift - 1.0),
@@ -3543,9 +3543,9 @@ create_rtp_dialog(user_data_t* user_data)
 	GtkWidget *player_bt;
 #endif /* HAVE_LIBPORTAUDIO */
 	GtkWidget *graph_bt;
-	gchar	   label_forward[150];
-	gchar	   label_forward_tree[150];
-	gchar	   label_reverse[150];
+	gchar	   label_forward[200];
+	gchar	   label_forward_tree[200];
+	gchar	   label_reverse[200];
 	char *src_addr, *dst_addr;
 
 	window = dlg_window_new("Wireshark: RTP Stream Analysis");  /* transient_for top_level */
@@ -3566,7 +3566,7 @@ create_rtp_dialog(user_data_t* user_data)
 
 	g_snprintf(label_forward_tree, sizeof(label_forward_tree),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X \n"
-		"Note many things affects the accurasy of the analysis, use with caution",
+		"Note many things affects the accuracy of the analysis, use with caution",
 		src_addr, user_data->port_src_fwd, dst_addr, user_data->port_dst_fwd, user_data->ssrc_fwd);
 	wmem_free(NULL, src_addr);
 	wmem_free(NULL, dst_addr);
@@ -3575,7 +3575,7 @@ create_rtp_dialog(user_data_t* user_data)
 	dst_addr = (char*)address_to_display(NULL, &(user_data->dst_rev));
 	g_snprintf(label_reverse, sizeof(label_reverse),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X \n"
-		"Note many things affects the accurasy of the analysis, use with caution",
+		"Note many things affects the accuracy of the analysis, use with caution",
 		src_addr, user_data->port_src_rev, dst_addr, user_data->port_dst_rev, user_data->ssrc_rev);
 	wmem_free(NULL, src_addr);
 	wmem_free(NULL, dst_addr);
@@ -3931,7 +3931,7 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	guint32	      ssrc_rev	    = 0;
 	unsigned int  version_fwd;
 
-	gchar	      filter_text[256];
+	const gchar  *filter_text = "rtp && rtp.version && rtp.ssrc && (ip || ipv6)";
 	dfilter_t    *sfcode;
 	gchar        *err_msg;
 	capture_file *cf;
@@ -3943,7 +3943,6 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	rtp_stream_info_t *strinfo;
 
 	/* Try to compile the filter. */
-	g_strlcpy(filter_text, "rtp && rtp.version && rtp.ssrc && (ip || ipv6)", sizeof(filter_text));
 	if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
 		g_free(err_msg);

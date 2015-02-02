@@ -39,6 +39,10 @@
  *  @todo what's this?
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 void rtp_analysis(
     address *ip_src_fwd,
     guint32  port_src_fwd,
@@ -88,7 +92,7 @@ typedef struct _tap_rtp_stat_t {
     double          sumt2;
     double          sumtTS;
     double          time;       /**< Unit is ms */
-    double          start_time;
+    double          start_time; /**< Unit is ms */
     double          lastnominaltime;
     double          max_delta;
     double          max_jitter;
@@ -126,6 +130,10 @@ struct _rtp_info;
 extern int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
                               packet_info *pinfo,
                               const struct _rtp_info *rtpinfo);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __RTP_ANALYSIS_H__ */
 

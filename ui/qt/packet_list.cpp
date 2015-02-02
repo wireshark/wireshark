@@ -506,7 +506,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     /* walk the list of a available protocols in the packet to see what we have */
     if (cap_file_ != NULL && cap_file_->edt != NULL)
-        proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, &is_sctp, NULL);
+        proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, &is_sctp, NULL, NULL);
 
     QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
     conv_menu_.clear();

@@ -216,6 +216,10 @@ preferences_dialog.$(OBJEXT): ui_preferences_dialog.h
 
 print_dialog.$(OBJEXT): ui_print_dialog.h
 
+rtp_analysis_dialog.$(OBJEXT): ui_rtp_analysis_dialog.h
+
+rtp_stream_dialog.$(OBJEXT): ui_rtp_stream_dialog.h
+
 profile_dialog.$(OBJEXT): ui_profile_dialog.h
 
 protocol_hierarchy_dialog.$(OBJEXT): ui_protocol_hierarchy_dialog.h

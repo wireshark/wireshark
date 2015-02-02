@@ -92,7 +92,7 @@ void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
             .arg("palette(text)")   // Foreground
             .arg(ColorUtils::fromColorT(&prefs.gui_text_valid).name())        // Valid
             .arg(ColorUtils::fromColorT(&prefs.gui_text_invalid).name())      // Invalid
-            .arg(ColorUtils::fromColorT(&prefs.gui_text_deprecated).name())   // VDeprecated
+            .arg(ColorUtils::fromColorT(&prefs.gui_text_deprecated).name())   // Deprecated
             ;
     setStyleSheet(style_sheet_);
 }

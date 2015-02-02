@@ -82,10 +82,11 @@ QByteArray gstring_free_to_qbytearray(GString *glib_gstring);
 /** Convert an address to a QString using address_to_str().
  *
  * @param address A pointer to an address.
+ * @param enclose Enclose IPv6 addresses in square brackets.
  *
  * @return A QString representation of the address. May be the null string (QString())
  */
-const QString address_to_qstring(const struct _address *address);
+const QString address_to_qstring(const struct _address *address, bool enclose = false);
 
 /** Convert an address to a QString using address_to_display().
  *

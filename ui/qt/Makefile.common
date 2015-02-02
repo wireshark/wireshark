@@ -77,6 +77,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_remote_capture_dialog.h	\
 	ui_remote_settings_dialog.h	\
 	ui_resolved_addresses_dialog.h	\
+	ui_rtp_analysis_dialog.h	\
 	ui_rtp_stream_dialog.h	\
 	ui_sctp_all_assocs_dialog.h	\
 	ui_sctp_assoc_analyse_dialog.h	\
@@ -210,6 +211,7 @@ MOC_HDRS =	\
 	resolved_addresses_dialog.h	\
 	response_time_delay_dialog.h	\
 	search_frame.h	\
+	rtp_analysis_dialog.h	\
 	rtp_stream_dialog.h	\
 	sctp_all_assocs_dialog.h	\
 	sctp_assoc_analyse_dialog.h	\
@@ -289,6 +291,7 @@ UI_FILES =	\
 	remote_capture_dialog.ui	\
 	remote_settings_dialog.ui	\
 	resolved_addresses_dialog.ui	\
+	rtp_analysis_dialog.ui	\
 	rtp_stream_dialog.ui	\
 	sctp_all_assocs_dialog.ui	\
 	sctp_assoc_analyse_dialog.ui	\
@@ -440,6 +443,7 @@ WIRESHARK_QT_SRC =	\
 	remote_settings_dialog.cpp	\
 	resolved_addresses_dialog.cpp	\
 	response_time_delay_dialog.cpp	\
+	rtp_analysis_dialog.cpp	\
 	rtp_stream_dialog.cpp	\
 	sctp_all_assocs_dialog.cpp	\
 	sctp_assoc_analyse_dialog.cpp	\

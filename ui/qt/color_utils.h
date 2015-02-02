@@ -53,6 +53,7 @@ public:
     static const QColor expert_color_foreground; /* black */
     static const QColor hidden_proto_item;       /* gray */
 
+    static const QList<QRgb> graph_colors_;
 signals:
 
 public slots:

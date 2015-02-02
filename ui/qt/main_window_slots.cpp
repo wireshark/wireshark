@@ -107,6 +107,7 @@
 #include "qt_ui_utils.h"
 #include "resolved_addresses_dialog.h"
 #include "rtp_stream_dialog.h"
+#include "rtp_analysis_dialog.h"
 #include "sctp_all_assocs_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
 #include "sctp_graph_dialog.h"
@@ -956,7 +957,7 @@ void MainWindow::recentActionTriggered() {
 void MainWindow::setMenusForSelectedPacket()
 {
 //    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE;
-    gboolean is_tcp = FALSE, is_sctp = FALSE;
+    gboolean is_tcp = FALSE, is_sctp = FALSE, is_rtp = FALSE;
 
 //    /* Making the menu context-sensitive allows for easier selection of the
 //       desired item and has the added benefit, with large captures, of
@@ -999,7 +1000,7 @@ void MainWindow::setMenusForSelectedPacket()
 
         if (capture_file_.capFile()->edt)
         {
-            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, NULL, &is_tcp, NULL, &is_sctp, NULL);
+            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, NULL, &is_tcp, NULL, &is_sctp, NULL, &is_rtp);
         }
     }
 //    if (cfile.edt && cfile.edt->tree) {
@@ -1160,6 +1161,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionSCTPAnalyseThisAssociation->setEnabled(is_sctp);
     main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
     main_ui_->actionSCTPFilterThisAssociation->setEnabled(is_sctp);
+    main_ui_->actionTelephonyRTPStreamAnalysis->setEnabled(is_rtp);
 
 //    while (list_entry != NULL) {
 //        dissector_filter_t *filter_entry;
@@ -2905,6 +2907,14 @@ void MainWindow::on_actionTelephonyRTPStreams_triggered()
     connect(rtp_stream_dialog, SIGNAL(updateFilter(QString&, bool)),
             this, SLOT(filterPackets(QString&, bool)));
     rtp_stream_dialog->show();
+}
+
+void MainWindow::on_actionTelephonyRTPStreamAnalysis_triggered()
+{
+    RtpAnalysisDialog *rtp_analysis_dialog = new  RtpAnalysisDialog(*this, capture_file_);
+    connect(rtp_analysis_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    rtp_analysis_dialog->show();
 }
 
 void MainWindow::on_actionTelephonyRTSPPacketCounter_triggered()
