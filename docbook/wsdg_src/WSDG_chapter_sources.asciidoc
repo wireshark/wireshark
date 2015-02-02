@@ -162,6 +162,16 @@ upload a key for each computer that you use.
 in many Linux distributions. You can also install it as a
 https://pypi.python.org/pypi/git-review[Python package]. (This step
 isn't strictly necessary but it makes working with Gerrit much easier.)
+To install it from Chocolatey run
++
+--
+----
+# Make sure "Scripts" is in our path
+PS$>$env:path += ";C:\tools\python2\Scripts"
+PS$>choco install pip
+PS$>choco install git-review -source python
+----
+--
 
 . Now on to the command line. First, make sure `git` works:
 +
@@ -1094,9 +1104,9 @@ installing the _qt-devel_ package.
 
 [[ChSrcOSX]]
 
-==== MAC OS X: .dmg packages
+==== Mac OS X: .dmg packages
 
-The MAC OS X Package is built using OS X packaging tools, based on information
+The Mac OS X Package is built using OS X packaging tools, based on information
 found in the source tree under 'packaging/macosx'.
 
 In the wireshark directory, type:
@@ -1105,7 +1115,7 @@ In the wireshark directory, type:
 $ make osx-package
 ----
 
-to build the MAC OS X Package.
+to build the Mac OS X Package.
 
 [[ChSrcNSIS]]
 

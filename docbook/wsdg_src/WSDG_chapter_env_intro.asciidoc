@@ -228,7 +228,7 @@ for the following systems:
   obtains an .rpm file from which the package manager checks the dependencies
   and installs the software.
 
-* MAC OS X (.dmg file). The typical MAC OS X end user is used to get a .dmg file
+* Mac OS X (.dmg file). The typical Mac OS X end user is used to get a .dmg file
   which will install all the required things for him. The other requirement is
   to have the X11.app installed.
 
@@ -583,4 +583,3 @@ corresponding "Wireshark-win__bits__-_x_._y_._z_.exe" installer packages.
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Introduction -->
 ++++++++++++++++++++++++++++++++++++++
-

@@ -103,14 +103,18 @@ systems such as NuGet and Chocolatey mature.
 Although Cygwin consists of several separate packages, the installation
 and update is done through a single utility, 'setup-x86.exe' or
 'setup-x86_64.exe', which acts similarly to other web based installers.
-All tools will be installed into one base folder.  The default is
-'C:\cygwin'.
+Alternatively you can install Cygwin and its packages using Chocolatey.
+
+==== Installing Cygwin using the Cygwin installer
 
 You will find 'setup-x86.exe', for 32-bit systems, and
 'setup-x86_64.exe', for 64-bit systems, at
 http://www.cygwin.com/install.html[].  Click on the link for the
 appropriate setup utility to download it.  After the download completes,
 run it.
+
+All tools will be installed into one base folder.  The default is
+'C:\cygwin'.
 
 The setup utility will ask you for some settings. The defaults
 should usually work well, at least initially.
@@ -155,6 +159,25 @@ between:
 * 'Uninstall.' Uninstall this package.
 
 * 'Reinstall.' Reinstall this package.
+
+==== Installing Cygwin using Chocolatey
+
+Chocolatey supports Cygwin as an external package source.
+To install Cygwin itself run
+
+----
+PS$>choco install cygwin
+# You might also need to install cyg-get:
+PS$>choco install cyg-get
+----
+
+Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.
+
+One or more Cygwin packages can be installed using "-source cygwin":
+
+----
+PS$>choco install unzip wget asciidoc -source cygwin
+----
 
 [[ChToolsGNUChain]]
 
@@ -373,7 +396,7 @@ requires a a $$C++$$ redistributable
 You can use Chocolatey to install Visual Studio, e.g:
 
 ----
-PS:\> cinst VisualStudioCommunity2013
+PS:\> choco install VisualStudioCommunity2013
 ----
 
 ==== cl.exe (C Compiler)
@@ -631,7 +654,7 @@ http://msdn.microsoft.com/en-us/library/windows/hardware/ff551063%28v=vs.85%29.a
 You can also use Chocolatey to install WinDbg:
 
 ----
-PS:\> cinst windbg
+PS:\> choco install windbg
 ----
 
 To debug Wireshark using WinDbg, open the built copy of Wireshark using
@@ -700,10 +723,11 @@ a symbolic link, which causes confusion outside Cygwin.
 You can also use Chocolatey to install Python:
 
 ----
-PS:\> cinst Python2
+PS:\> choco install Python2
 ----
 
-You can verify your Python version by running
+Chocolatey installs Python 2 into 'C:\tools\python2' by default. You can
+verify your Python version by running
 
 ----
 $ python --version
@@ -712,14 +736,19 @@ $ python --version
 on UNIX and Linux and
 
 ----
+rem Official package
 C:> cd python27
 C:Python27> python --version
+
+rem Chocolatey
+C:> cd \tools\python2
+C:\tools\python2> python --version
 ----
 
 on Windows. You should see something like
 
 ----
-Python 2.7.3
+Python 2.7.9
 ----
 
 Your version string may vary of course.
@@ -782,13 +811,13 @@ should be straightforward.
 You may also use Chocolatey to install either package:
 
 ----
-PS:\> cinst ActivePerl
+PS:\> choco install ActivePerl
 ----
 
 or
 
 ----
-PS:\> cinst StrawberryPerl
+PS:\> choco install StrawberryPerl
 ----
 
 After correct installation, typing at the command
@@ -828,7 +857,13 @@ in various places.
 
 Sed is available for most of the UNIX-like platforms
 and as the sed package from the
-<<ChToolsCygwin,Cygwin setup>>.
+<<ChToolsCygwin,Cygwin setup>>. It is also available via Chocolatey:
+
+// XXX Is sed part of the base Cygwin install?
+
+----
+PS$>choco install sed -source cygwin
+----
 
 If sed isn't already installed or available
 as a package for your platform, you can get it at
@@ -859,7 +894,8 @@ However, the version string may vary.
 
 A native Windows sed package can be obtained from
 http://gnuwin32.sourceforge.net/[]. The
-installation should be straightforward.
+installation should be straightforward. A Chocolatey package
+(devbox-sed) is available but has not been tested.
 
 [[ChToolsBison]]
 
@@ -948,7 +984,7 @@ https://chocolatey.org/[Chocolatey] package. Note that the executable is named
 `win_flex`.
 
 ----
-PS:\>cinst winflexbison
+PS:\>choco install winflexbison
 ----
 
 Native packages are available from other sources such as
@@ -1009,7 +1045,7 @@ The Git command line tools for Windows can be found at
 http://git-scm.com/download/win[] and can also be installed using Chocolatey:
 
 ----
-PS:\> cinst git
+PS:\> choco install git
 ----
 
 After correct installation, typing at the command
@@ -1036,7 +1072,7 @@ Poshgit provides git command completion and alters the prompt to indicate the lo
 copy status.  You can install it using Chocolatey:
 
 ----
-PS:\>cinst poshgit
+PS:\>choco install poshgit
 ----
 
 [[ChToolsGitGUI]]
@@ -1119,7 +1155,7 @@ GNU wget is available for most of the UNIX-like platforms and as the wget
 package from the <<ChToolsCygwin,Cygwin setup>> and also using Chocolatey:
 
 ----
-PS$> cinst Wget
+PS$> choco install Wget
 ----
 
 You will only need wget, if you want to use the Windows automated library
@@ -1168,9 +1204,14 @@ The NSIS (Nullsoft Scriptable Install System) is used to generate
 needed to be installed, including all required DLLs, plugins, and supporting
 files.
 
-To install it, simply download the latest released version (currently 2.46)
-from http://nsis.sourceforge.net[] and start the downloaded installer. You will
-need NSIS version 2. Version 3 is not yet supported.
+To install it, download the latest released version (currently 2.46) from
+http://nsis.sourceforge.net[] and start the downloaded installer. You will
+need NSIS version 2. Version 3 is not yet supported. You can also install it
+using Chocolatey:
+
+----
+PS$> choco install nsis
+----
 
 You can find more instructions on using NSIS in <<ChSrcNSIS>>.
 

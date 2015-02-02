@@ -34,6 +34,34 @@ Unless you know exactly what you are doing, you
 should strictly follow the recommendations below.
 ====
 
+[[ChSetupPowerShell]]
+
+==== Install PowerShell
+
+PowerShell 2.0 or later is required for building Wireshark and the NSIS package.
+Windows 7 and later include compatible versions. It is also required by
+Chocolatey.
+
+If you are running Windows Vista and have thus far managed to not install
+PowerShell 2.0, either directly or via anything that requires it, you must now
+install PowerShell 2.0. You can download it from
+https://www.microsoft.com/powershell[]
+
+[[ChSetupChocolatey]]
+
+==== Optional: Install Chocolatey
+
+https://chocolatey.org/[Chocolatey] is a native package manager for Windows.
+There are https://chocolatey.org/packages[packages] for most of the software
+listed below. Along with traditional Windows packages it supports Cygwin and
+and the Python Package Index.
+
+// ...such as:
+// - Active Perl and/or StrawberryPerl
+// - Devbox-UnZip and/or 7zip and/or peazip
+// - Wget
+// - Git (a native win32 (MSYS) version)
+
 [[ChSetupMSVC]]
 
 ==== Install Microsoft C compiler and SDK
@@ -49,7 +77,7 @@ Uncheck all the optional components (unless you want to use them for purposes ot
 You can use Chocolatey to install Visual Studio:
 
 ----
-PS$>cinst VisualStudioCommunity2013
+PS$>choco install VisualStudioCommunity2013
 ----
 
 [TIP]
@@ -77,6 +105,8 @@ certainly not work (at least without a lot of advanced
 tweaking). For further details on this topic, see
 <<ChToolsGNUChain>>.
 ====
+// XXX This is changing in regard to Clang:
+// http://llvm.org/docs/GettingStartedVS.html
 
 // XXX - mention the compiler and PSDK web installers -
 // which significantly reduce download size - and find out the
@@ -128,7 +158,6 @@ sure it doesn't install Visual Studio 2010 SP1 out of order.
 
 [[ChSetupQt]]
 
-
 ==== Install Qt
 
 The main Wireshark application uses the Qt windowing toolkit. To install Qt
@@ -145,7 +174,7 @@ Wireshark project (uiqtWireshark.pro), however.
 You can also use Chocolatey to install Qt (there are packages for x86 & x64 and various MSVC compilers, e.g.
 
 ----
-PS$>cinst qt-sdk-windows-x86-msvc2013_opengl
+PS$>choco install qt-sdk-windows-x86-msvc2013_opengl
 ----
 
 [[ChSetupCygwin]]
@@ -198,32 +227,15 @@ Why is this recommended? Cygwin's bash version is required, as no native Win32
 version is available. As additional packages can easily be added, Perl and
 other packages are also used.
 
-[[ChSetupPowerShell]]
+Alternatively you can install Cygwin and its packages using Chocolatey:
 
-==== Install PowerShell
+----
+PS$>choco install cygwin
+PS$>choco install cyg-get
+PS$>choco install unzip wget asciidoc [...] -source cygwin
+----
 
-PowerShell 2.0 or later is required for building Wireshark and the NSIS package.
-Windows 7 and later include compatible versions.
-
-If you are running Windows Vista and have thus far managed to not install
-PowerShell 2.0, either directly or via anything that requires it, you must now
-install PowerShell 2.0. You can download it from
-https://www.microsoft.com/powershell[]
-
-[[ChSetupChocolatey]]
-
-==== Optional: Install Chocolatey
-
-As an alternative to Cygwin you can install some packages using
-https://chocolatey.org/[Chocolatey], a native package manager for Windows.
-Wireshark's build environment currently supports the _winflexbison_ package but
-support for more packages should appear in the future.
-
-// ...such as:
-// - Active Perl and/or StrawberryPerl
-// - Devbox-UnZip and/or 7zip and/or peazip
-// - Wget
-// - Git (a native win32 version)
+Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.
 
 [[ChSetupPython]]
 
@@ -234,6 +246,14 @@ Python into the default location ('C:\Python27').
 
 Why is this recommended? Cygwin's Python package doesn't work on some machines,
 so the Win32 native package is recommended (and it's faster).  Note that Python 3.x isn't currently supported.
+
+Alternatively you can install Python using Chocolatey:
+
+----
+PS$>choco install python2
+----
+
+Chocolatey installs Python 2 in 'C:\tools\python2' by default.
 
 [[ChSetupsubversion]]
 
@@ -272,7 +292,7 @@ http://code.google.com/p/tortoisegit/.
 
 The command line client can be installed (and updated) using Chocolatey:
 ----
-PS$> cinst git
+PS$> choco install git
 ----
 
 ===== Others
