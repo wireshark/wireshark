@@ -1,8 +1,7 @@
 /* packet-selfm.c
- * Routines for Schweitzer Engineering Laboratories Fast Message Protocol (SEL FM) Dissection
+ * Routines for Schweitzer Engineering Laboratories (SEL) Protocols Dissection
  * By Chris Bontje (cbontje[AT]gmail.com
- * Copyright 2012-2013,
- *
+ * Copyright 2012-2015,
  *
  ************************************************************************************************
  * Wireshark - Network traffic analyzer
@@ -25,27 +24,33 @@
  *
  ************************************************************************************************
  * Schweitzer Engineering Labs ("SEL") manufactures and sells digital protective relay equipment
- * for use in industrial high-voltage installations.  SEL FM protocol evolved over time as a
+ * for use in industrial high-voltage installations.  SEL Protocol evolved over time as a
  * (semi)proprietary method for auto-configuration of connected SEL devices for retrieval of
  * analog and digital status data.  The protocol itself supports embedded binary messages
  * (which are what this dissector looks for) slip-streamed in the data stream with normal
  * ASCII text data.  A combination of both are used for full auto-configuration of devices,
  * but a wealth of information can be extracted from the binary messages alone.
  *
- * Documentation on Fast Meter and Fast SER messages available from www.selinc.com in
+ * 'SEL Protocol' encompasses several message types, including
+ * - Fast Meter
+ * - Fast Operate
+ * - Fast SER
+ * - Fast Message
+ *
+ * Documentation on Fast Meter and Fast Message standards available from www.selinc.com in
  * SEL Application Guides AG95-10_20091109.pdf and AG_200214.pdf
  ************************************************************************************************
  * Dissector Notes:
  *
- * 1) SEL Fast Message protocol over TCP is normally tunneled via a Telnet connection.  As Telnet
+ * 1) All SEL Protocol messages over TCP are normally tunneled via a Telnet connection.  As Telnet
  * has special handling for the 0xFF character ("IAC"), normally a pair of 0xFF's are inserted
  * to represent an actual payload byte of 0xFF.  A function from the packet-telnet.c dissector has
  * been borrowed to automatically pre-process any Ethernet-based packet and remove these 'extra'
  * 0xFF bytes.  Wireshark Notes on Telnet 0xFF doubling are discussed here:
  * http://www.wireshark.org/lists/wireshark-bugs/201204/msg00198.html
  *
- * 2) The auto-configuration process itself will exchange several "configuration" messages that
- * describe various data regions (METER, DEMAND, PEAK, etc) that will later have corresponding
+ * 2) The auto-configuration process for Fast Meter will exchange several "configuration" messages
+ * that describe various data regions (METER, DEMAND, PEAK, etc) that will later have corresponding
  * "data" messages.  This dissector code will currently save and accurately retrieve the 3 sets
  * of these exchanges:
  *             0xA5C1, 0xA5D1, "METER" region
@@ -234,7 +239,7 @@ static expert_field ei_selfm_crc16_incorrect = EI_INIT;
 
 #define PORT_SELFM    0
 
-#define CMD_FAST_SER            0xA546
+#define CMD_FAST_MSG            0xA546
 #define CMD_CLEAR_STATBIT       0xA5B9
 #define CMD_RELAY_DEF           0xA5C0
 #define CMD_FM_CONFIG           0xA5C1
@@ -273,50 +278,50 @@ static expert_field ei_selfm_crc16_incorrect = EI_INIT;
 
 
 /* Fast SER Function Codes, "response" or "ACK" messages are the same as the request, but have the MSB set */
-#define FAST_SER_MESSAGE_DEF            0x00
-#define FAST_SER_EN_UNS_DATA            0x01
-#define FAST_SER_DIS_UNS_DATA           0x02
-#define FAST_SER_PING                   0x05
-#define FAST_SER_READ_REQ               0x10
-#define FAST_SER_GEN_UNS_DATA           0x12
-#define FAST_SER_SOE_STATE_REQ          0x16
-#define FAST_SER_UNS_RESP               0x18
-#define FAST_SER_UNS_WRITE              0x20
-#define FAST_SER_UNS_WRITE_REQ          0x21
-#define FAST_SER_DEVDESC_REQ            0x30
-#define FAST_SER_DATAFMT_REQ            0x31
-#define FAST_SER_UNS_DATAFMT_RESP       0x32
-#define FAST_SER_BITLABEL_REQ           0x33
-#define FAST_SER_MGMT_REQ               0x40
-#define FAST_SER_MESSAGE_DEF_ACK        0x80
-#define FAST_SER_EN_UNS_DATA_ACK        0x81
-#define FAST_SER_DIS_UNS_DATA_ACK       0x82
-#define FAST_SER_PING_ACK               0x85
-#define FAST_SER_READ_RESP              0x90
-#define FAST_SER_SOE_STATE_RESP         0x96
-#define FAST_SER_UNS_RESP_ACK           0x98
-#define FAST_SER_DEVDESC_RESP           0xB0
-#define FAST_SER_DATAFMT_RESP           0xB1
-#define FAST_SER_BITLABEL_RESP          0xB3
+#define FAST_MSG_CFG_BLOCK              0x00
+#define FAST_MSG_EN_UNS_DATA            0x01
+#define FAST_MSG_DIS_UNS_DATA           0x02
+#define FAST_MSG_PING                   0x05
+#define FAST_MSG_READ_REQ               0x10
+#define FAST_MSG_GEN_UNS_DATA           0x12
+#define FAST_MSG_SOE_STATE_REQ          0x16
+#define FAST_MSG_UNS_RESP               0x18
+#define FAST_MSG_UNS_WRITE              0x20
+#define FAST_MSG_UNS_WRITE_REQ          0x21
+#define FAST_MSG_DEVDESC_REQ            0x30
+#define FAST_MSG_DATAFMT_REQ            0x31
+#define FAST_MSG_UNS_DATAFMT_RESP       0x32
+#define FAST_MSG_BITLABEL_REQ           0x33
+#define FAST_MSG_MGMT_REQ               0x40
+#define FAST_MSG_CFG_BLOCK_RESP         0x80
+#define FAST_MSG_EN_UNS_DATA_ACK        0x81
+#define FAST_MSG_DIS_UNS_DATA_ACK       0x82
+#define FAST_MSG_PING_ACK               0x85
+#define FAST_MSG_READ_RESP              0x90
+#define FAST_MSG_SOE_STATE_RESP         0x96
+#define FAST_MSG_UNS_RESP_ACK           0x98
+#define FAST_MSG_DEVDESC_RESP           0xB0
+#define FAST_MSG_DATAFMT_RESP           0xB1
+#define FAST_MSG_BITLABEL_RESP          0xB3
 
 
 /* Fast SER Sequence Byte Masks */
-#define FAST_SER_SEQ_FIR     0x80
-#define FAST_SER_SEQ_FIN     0x40
-#define FAST_SER_SEQ_CNT     0x3f
+#define FAST_MSG_SEQ_FIR     0x80
+#define FAST_MSG_SEQ_FIN     0x40
+#define FAST_MSG_SEQ_CNT     0x3f
 
 /* Fast SER Tag Data Types */
-#define FAST_SER_TAGTYPE_CHAR8        0x0011   /* 1 x 8-bit character per item */
-#define FAST_SER_TAGTYPE_CHAR16       0x0012   /* 2 x 8-bit characters per item */
-#define FAST_SER_TAGTYPE_DIGWORD8_BL  0x0021   /* 8-bit binary item, with labels */
-#define FAST_SER_TAGTYPE_DIGWORD8     0x0022   /* 8-bit binary item, without labels */
-#define FAST_SER_TAGTYPE_DIGWORD16_BL 0x0023   /* 16-bit binary item, with labels */
-#define FAST_SER_TAGTYPE_DIGWORD16    0x0024   /* 16-bit binary item, without labels */
-#define FAST_SER_TAGTYPE_INT16        0x0031   /* 16-bit signed integer */
-#define FAST_SER_TAGTYPE_UINT16       0x0032   /* 16-bit unsigned integer */
-#define FAST_SER_TAGTYPE_INT32        0x0033   /* 32-bit signed integer */
-#define FAST_SER_TAGTYPE_UINT32       0x0034   /* 32-bit unsigned integer */
-#define FAST_SER_TAGTYPE_FLOAT        0x0041   /* 32-bit floating point */
+#define FAST_MSG_TAGTYPE_CHAR8        0x0011   /* 1 x 8-bit character per item */
+#define FAST_MSG_TAGTYPE_CHAR16       0x0012   /* 2 x 8-bit characters per item */
+#define FAST_MSG_TAGTYPE_DIGWORD8_BL  0x0021   /* 8-bit binary item, with labels */
+#define FAST_MSG_TAGTYPE_DIGWORD8     0x0022   /* 8-bit binary item, without labels */
+#define FAST_MSG_TAGTYPE_DIGWORD16_BL 0x0023   /* 16-bit binary item, with labels */
+#define FAST_MSG_TAGTYPE_DIGWORD16    0x0024   /* 16-bit binary item, without labels */
+#define FAST_MSG_TAGTYPE_INT16        0x0031   /* 16-bit signed integer */
+#define FAST_MSG_TAGTYPE_UINT16       0x0032   /* 16-bit unsigned integer */
+#define FAST_MSG_TAGTYPE_INT32        0x0033   /* 32-bit signed integer */
+#define FAST_MSG_TAGTYPE_UINT32       0x0034   /* 32-bit unsigned integer */
+#define FAST_MSG_TAGTYPE_FLOAT        0x0041   /* 32-bit floating point */
 
 
 /* Globals for SEL Protocol Preferences */
@@ -357,9 +362,9 @@ typedef struct {
 } fm_config_frame;
 
 /**************************************************************************************/
-/* Fast SER Message Data Item struct */
+/* Fast Message Data Item struct */
 /**************************************************************************************/
-/* Holds Configuration Information required to decode a Fast SER Data Item            */
+/* Holds Configuration Information required to decode a Fast Message Data Item        */
 /* Each data region format is returned as a sequential list of tags, w/o reference to */
 /* an absolute address.  The format information will consist of a name, a data type   */
 /* and a quantity of values contained within the data item.  We will retrieve this    */
@@ -374,9 +379,9 @@ typedef struct {
 } fastser_dataitem;
 
 /**************************************************************************************/
-/* Fast SER Message Data Region struct */
+/* Fast Message Data Region struct */
 /**************************************************************************************/
-/* Holds Configuration Information required to decode a Fast SER Data Region          */
+/* Holds Configuration Information required to decode a Fast Message Data Region          */
 /* Each data region format is returned as a sequential list of tags, w/o reference to */
 typedef struct {
     gchar    name[10+1];                        /* Name of Data Region, 10 chars, null-terminated              */
@@ -386,7 +391,7 @@ typedef struct {
 /* Fast Unsolicited SER Index Lookup */
 /**************************************************************************************/
 /* Holds user-configurable naming information for Unsolicited Fast SER word bits      */
-/* that will later be present in an 0xA546 with only an index position reference      */
+/* that will later be present in an 0xA546 msg with only an index position reference  */
 typedef struct {
     gchar    *name;                     /* Name of Word Bit, 8 chars, null-terminated */
 } fastser_uns_wordbit;
@@ -404,7 +409,7 @@ typedef struct {
 
 
 static const value_string selfm_msgtype_vals[] = {
-    { CMD_FAST_SER,              "Fast SER Block"                                  },  /* 0xA546 */
+    { CMD_FAST_MSG,              "Fast Message Block"                              },  /* 0xA546 */
     { CMD_CLEAR_STATBIT,         "Clear Status Bits Command"                       },  /* 0xA5B9 */
     { CMD_RELAY_DEF,             "Relay Definition Block"                          },  /* 0xA5C0 */
     { CMD_FM_CONFIG,             "Fast Meter Configuration Block"                  },  /* 0xA5C1 */
@@ -693,48 +698,48 @@ static const value_string selfm_foconfig_alt_funccode_vals[] = {
 
 /* Fast SER Message Function Codes */
 static const value_string selfm_fastser_func_code_vals[] = {
-    { FAST_SER_MESSAGE_DEF,       "Fast SER Message Definition Block" },
-    { FAST_SER_EN_UNS_DATA,       "Enable Unsolicited Data" },
-    { FAST_SER_DIS_UNS_DATA,      "Disable Unsolicited Data" },
-    { FAST_SER_PING,              "Ping Message" },
-    { FAST_SER_READ_REQ,          "Read Request" },
-    { FAST_SER_GEN_UNS_DATA,      "Generic Unsolicited Data" },
-    { FAST_SER_SOE_STATE_REQ,     "SOE Present State Request" },
-    { FAST_SER_UNS_RESP,          "Unsolicited Fast SER Data Response" },
-    { FAST_SER_UNS_WRITE,         "Unsolicited Write" },
-    { FAST_SER_UNS_WRITE_REQ,     "Unsolicited Write Request" },
-    { FAST_SER_DEVDESC_REQ,       "Device Description Request" },
-    { FAST_SER_DATAFMT_REQ,       "Data Format Request" },
-    { FAST_SER_UNS_DATAFMT_RESP,  "Unsolicited Data Format Response" },
-    { FAST_SER_BITLABEL_REQ,      "Bit Label Request" },
-    { FAST_SER_MGMT_REQ,          "Management Request" },
-    { FAST_SER_MESSAGE_DEF_ACK,   "Fast SER Message Definition Block ACK" },
-    { FAST_SER_EN_UNS_DATA_ACK,   "Enable Unsolicited Data ACK" },
-    { FAST_SER_DIS_UNS_DATA_ACK,  "Disable Unsolicited Data ACK" },
-    { FAST_SER_PING_ACK,          "Ping Message ACK" },
-    { FAST_SER_READ_RESP,         "Read Response" },
-    { FAST_SER_SOE_STATE_RESP,    "SOE Present State Response" },
-    { FAST_SER_UNS_RESP_ACK,      "Unsolicited Fast SER Data Response ACK" },
-    { FAST_SER_DEVDESC_RESP,      "Device Description Response" },
-    { FAST_SER_DATAFMT_RESP,      "Data Format Response" },
-    { FAST_SER_BITLABEL_RESP,     "Bit Label Response" },
+    { FAST_MSG_CFG_BLOCK,         "Fast Message Configuration Block Request" },
+    { FAST_MSG_EN_UNS_DATA,       "Enable Unsolicited Data" },
+    { FAST_MSG_DIS_UNS_DATA,      "Disable Unsolicited Data" },
+    { FAST_MSG_PING,              "Ping Message" },
+    { FAST_MSG_READ_REQ,          "Read Request" },
+    { FAST_MSG_GEN_UNS_DATA,      "Generic Unsolicited Data" },
+    { FAST_MSG_SOE_STATE_REQ,     "SOE Present State Request" },
+    { FAST_MSG_UNS_RESP,          "Unsolicited Fast SER Data Response" },
+    { FAST_MSG_UNS_WRITE,         "Unsolicited Write" },
+    { FAST_MSG_UNS_WRITE_REQ,     "Unsolicited Write Request" },
+    { FAST_MSG_DEVDESC_REQ,       "Device Description Request" },
+    { FAST_MSG_DATAFMT_REQ,       "Data Format Request" },
+    { FAST_MSG_UNS_DATAFMT_RESP,  "Unsolicited Data Format Response" },
+    { FAST_MSG_BITLABEL_REQ,      "Bit Label Request" },
+    { FAST_MSG_MGMT_REQ,          "Management Request" },
+    { FAST_MSG_CFG_BLOCK_RESP,    "Fast Message Configuration Block Response" },
+    { FAST_MSG_EN_UNS_DATA_ACK,   "Enable Unsolicited Data ACK" },
+    { FAST_MSG_DIS_UNS_DATA_ACK,  "Disable Unsolicited Data ACK" },
+    { FAST_MSG_PING_ACK,          "Ping Message ACK" },
+    { FAST_MSG_READ_RESP,         "Read Response" },
+    { FAST_MSG_SOE_STATE_RESP,    "SOE Present State Response" },
+    { FAST_MSG_UNS_RESP_ACK,      "Unsolicited Fast SER Data Response ACK" },
+    { FAST_MSG_DEVDESC_RESP,      "Device Description Response" },
+    { FAST_MSG_DATAFMT_RESP,      "Data Format Response" },
+    { FAST_MSG_BITLABEL_RESP,     "Bit Label Response" },
     { 0,                           NULL }
 };
 static value_string_ext selfm_fastser_func_code_vals_ext =
     VALUE_STRING_EXT_INIT(selfm_fastser_func_code_vals);
 
 static const value_string selfm_fastser_tagtype_vals[] = {
-    { FAST_SER_TAGTYPE_CHAR8,        "1 x 8-bit character per item" },
-    { FAST_SER_TAGTYPE_CHAR16,       "2 x 8-bit characters per item" },
-    { FAST_SER_TAGTYPE_DIGWORD8_BL,  "8-bit binary item, with labels" },
-    { FAST_SER_TAGTYPE_DIGWORD8,     "8-bit binary item, without labels" },
-    { FAST_SER_TAGTYPE_DIGWORD16_BL, "16-bit binary item, with labels" },
-    { FAST_SER_TAGTYPE_DIGWORD16,    "16-bit binary item, without labels" },
-    { FAST_SER_TAGTYPE_INT16,        "16-bit Signed Integer" },
-    { FAST_SER_TAGTYPE_UINT16,       "16-bit Unsigned Integer" },
-    { FAST_SER_TAGTYPE_INT32,        "32-bit Signed Integer" },
-    { FAST_SER_TAGTYPE_UINT32,       "32-bit Unsigned Integer" },
-    { FAST_SER_TAGTYPE_FLOAT,        "IEEE Floating Point" },
+    { FAST_MSG_TAGTYPE_CHAR8,        "1 x 8-bit character per item" },
+    { FAST_MSG_TAGTYPE_CHAR16,       "2 x 8-bit characters per item" },
+    { FAST_MSG_TAGTYPE_DIGWORD8_BL,  "8-bit binary item, with labels" },
+    { FAST_MSG_TAGTYPE_DIGWORD8,     "8-bit binary item, without labels" },
+    { FAST_MSG_TAGTYPE_DIGWORD16_BL, "16-bit binary item, with labels" },
+    { FAST_MSG_TAGTYPE_DIGWORD16,    "16-bit binary item, without labels" },
+    { FAST_MSG_TAGTYPE_INT16,        "16-bit Signed Integer" },
+    { FAST_MSG_TAGTYPE_UINT16,       "16-bit Unsigned Integer" },
+    { FAST_MSG_TAGTYPE_INT32,        "32-bit Signed Integer" },
+    { FAST_MSG_TAGTYPE_UINT32,       "32-bit Unsigned Integer" },
+    { FAST_MSG_TAGTYPE_FLOAT,        "IEEE Floating Point" },
     { 0,  NULL }
 };
 
@@ -1657,9 +1662,9 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
     tvbuff_t          *data_tvb, *payload_tvb;
 
     /* Decode sequence byte components */
-    seq_cnt = seq_byte & FAST_SER_SEQ_CNT;
-    seq_fir = ((seq_byte & FAST_SER_SEQ_FIR) >> 7);
-    seq_fin = ((seq_byte & FAST_SER_SEQ_FIN) >> 6);
+    seq_cnt = seq_byte & FAST_MSG_SEQ_CNT;
+    seq_fir = ((seq_byte & FAST_MSG_SEQ_FIR) >> 7);
+    seq_fin = ((seq_byte & FAST_MSG_SEQ_FIN) >> 6);
 
     base_addr = tvb_get_ntohl(tvb, offset);  /* 32-bit field with base address to read */
     num_addr = tvb_get_ntohs(tvb, offset+4); /* 16-bit field with number of 16-bit addresses to read */
@@ -1734,21 +1739,21 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
                     /* Data Item size (in bytes) determined by data type and quantity within item */
                     switch (dataitem->data_type) {
-                        case FAST_SER_TAGTYPE_CHAR8:
-                        case FAST_SER_TAGTYPE_DIGWORD8_BL:
-                        case FAST_SER_TAGTYPE_DIGWORD8:
+                        case FAST_MSG_TAGTYPE_CHAR8:
+                        case FAST_MSG_TAGTYPE_DIGWORD8_BL:
+                        case FAST_MSG_TAGTYPE_DIGWORD8:
                             data_size = 1 * dataitem->quantity;    /* 1 byte per qty */
                             break;
-                        case FAST_SER_TAGTYPE_CHAR16:
-                        case FAST_SER_TAGTYPE_DIGWORD16_BL:
-                        case FAST_SER_TAGTYPE_DIGWORD16:
-                        case FAST_SER_TAGTYPE_INT16:
-                        case FAST_SER_TAGTYPE_UINT16:
+                        case FAST_MSG_TAGTYPE_CHAR16:
+                        case FAST_MSG_TAGTYPE_DIGWORD16_BL:
+                        case FAST_MSG_TAGTYPE_DIGWORD16:
+                        case FAST_MSG_TAGTYPE_INT16:
+                        case FAST_MSG_TAGTYPE_UINT16:
                             data_size = 2 * dataitem->quantity;    /* 2 bytes per qty */
                             break;
-                        case FAST_SER_TAGTYPE_INT32:
-                        case FAST_SER_TAGTYPE_UINT32:
-                        case FAST_SER_TAGTYPE_FLOAT:
+                        case FAST_MSG_TAGTYPE_INT32:
+                        case FAST_MSG_TAGTYPE_UINT32:
+                        case FAST_MSG_TAGTYPE_FLOAT:
                             data_size = 4 * dataitem->quantity;    /* 4 bytes per qty */
                             break;
 
@@ -1773,8 +1778,8 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                     /* Data Item Type determines how to decode */
                     switch (dataitem->data_type) {
 
-                        case FAST_SER_TAGTYPE_DIGWORD8_BL:
-                        case FAST_SER_TAGTYPE_DIGWORD8:
+                        case FAST_MSG_TAGTYPE_DIGWORD8_BL:
+                        case FAST_MSG_TAGTYPE_DIGWORD8:
 
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
 
@@ -1803,14 +1808,14 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
                             break;
 
-                        case FAST_SER_TAGTYPE_CHAR8:
-                        case FAST_SER_TAGTYPE_CHAR16:
+                        case FAST_MSG_TAGTYPE_CHAR8:
+                        case FAST_MSG_TAGTYPE_CHAR16:
                             item_val_str_ptr = tvb_get_string_enc(wmem_packet_scope(), payload_tvb, payload_offset, data_size, ENC_ASCII);
                             proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, data_size, "Value: %s", item_val_str_ptr);
                             payload_offset += data_size;
                             break;
 
-                        case FAST_SER_TAGTYPE_INT16:
+                        case FAST_MSG_TAGTYPE_INT16:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
                                 fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_int16, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
                                 proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
@@ -1818,7 +1823,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                             }
                             break;
 
-                        case FAST_SER_TAGTYPE_UINT16:
+                        case FAST_MSG_TAGTYPE_UINT16:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
                                 fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_uint16, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
                                 proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
@@ -1826,7 +1831,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                             }
                             break;
 
-                        case FAST_SER_TAGTYPE_INT32:
+                        case FAST_MSG_TAGTYPE_INT32:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
                                 fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_int32, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
                                 proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
@@ -1834,7 +1839,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                             }
                             break;
 
-                        case FAST_SER_TAGTYPE_UINT32:
+                        case FAST_MSG_TAGTYPE_UINT32:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
                                 fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_uint32, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
                                 proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
@@ -1842,7 +1847,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                             }
                             break;
 
-                        case FAST_SER_TAGTYPE_FLOAT:
+                        case FAST_MSG_TAGTYPE_FLOAT:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
                                 fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_float, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
                                 proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
@@ -1895,7 +1900,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     len = tvb_get_guint8(tvb, offset);
 
-    fastser_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastser, NULL, "Fast SER Message Details");
+    fastser_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastser, NULL, "Fast Message Details");
 
     /* Reported length */
     proto_tree_add_item(fastser_tree, hf_selfm_fastser_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1919,9 +1924,9 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     /* Get Sequence Byte, add to Tree */
     seq = tvb_get_guint8(tvb, offset);
-    seq_cnt = seq & FAST_SER_SEQ_CNT;
-    seq_fir = seq & FAST_SER_SEQ_FIR;
-    seq_fin = seq & FAST_SER_SEQ_FIN;
+    seq_cnt = seq & FAST_MSG_SEQ_CNT;
+    seq_fir = seq & FAST_MSG_SEQ_FIR;
+    seq_fin = seq & FAST_MSG_SEQ_FIN;
 
     fastser_seq_item = proto_tree_add_uint_format_value(fastser_tree, hf_selfm_fastser_seq, tvb, offset, 1, seq, "0x%02x (", seq);
     if (seq_fir) proto_item_append_text(fastser_seq_item, "FIR, ");
@@ -1941,7 +1946,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     /* Depending on Function Code used, remaining section of packet will be handled differently. */
     switch (funccode) {
 
-        case FAST_SER_EN_UNS_DATA:   /* 0x01 - Enabled Unsolicited Data Transfers */
+        case FAST_MSG_EN_UNS_DATA:   /* 0x01 - Enabled Unsolicited Data Transfers */
 
             /* Function code to enable */
             fc_enable = tvb_get_guint8(tvb, offset);
@@ -1957,7 +1962,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             break;
 
-        case FAST_SER_DIS_UNS_DATA:   /* 0x02 - Disable Unsolicited Data Transfers */
+        case FAST_MSG_DIS_UNS_DATA:   /* 0x02 - Disable Unsolicited Data Transfers */
 
             /* Function code to disable */
             fc_enable = tvb_get_guint8(tvb, offset);
@@ -1974,7 +1979,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             break;
 
 
-        case FAST_SER_READ_REQ:     /* 0x10 - Read Request */
+        case FAST_MSG_READ_REQ:     /* 0x10 - Read Request */
 
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
 
@@ -1988,7 +1993,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             offset += 6;
             break;
 
-        case FAST_SER_GEN_UNS_DATA: /* 0x12 - Generic Unsolicited Data */
+        case FAST_MSG_GEN_UNS_DATA: /* 0x12 - Generic Unsolicited Data */
 
             num_addr = len - 14; /* 12 header bytes + 2-byte CRC, whatever is left is the data portion of this message */
             num_reg = num_addr / 2;
@@ -2001,7 +2006,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             break;
 
-        case FAST_SER_SOE_STATE_REQ: /* 0x16 - SOE Present State Request */
+        case FAST_MSG_SOE_STATE_REQ: /* 0x16 - SOE Present State Request */
 
             /* 4 bytes - "Origination Path" */
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_req_orig, tvb, offset, 4, ENC_NA);
@@ -2009,7 +2014,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             break;
 
-        case FAST_SER_UNS_RESP:     /* 0x18 - Unsolicited Fast SER Data Response */
+        case FAST_MSG_UNS_RESP:     /* 0x18 - Unsolicited Fast SER Data Response */
 
             /* 4 bytes - "Origination Path" */
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_orig, tvb, offset, 4, ENC_NA);
@@ -2081,7 +2086,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             break;
 
 
-        case FAST_SER_UNS_WRITE:    /* 0x20 - Unsolicited Write */
+        case FAST_MSG_UNS_WRITE:    /* 0x20 - Unsolicited Write */
 
             /* Write Address Region #1 and #2, along with number of 16-bit registers */
             addr1 =   tvb_get_ntohs(tvb, offset);
@@ -2105,7 +2110,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             break;
 
-        case FAST_SER_DATAFMT_REQ:   /* 0x31 - Data Format Request */
+        case FAST_MSG_DATAFMT_REQ:   /* 0x31 - Data Format Request */
 
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
 
@@ -2120,7 +2125,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             break;
 
-        case FAST_SER_BITLABEL_REQ:  /* 0x33 - Bit Label Request */
+        case FAST_MSG_BITLABEL_REQ:  /* 0x33 - Bit Label Request */
 
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2132,7 +2137,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             break;
 
 
-        case FAST_SER_MESSAGE_DEF_ACK: /* 0x80 (resp to 0x00) - Fast SER Message Definition Acknowledge */
+        case FAST_MSG_CFG_BLOCK_RESP: /* 0x80 (resp to 0x00) - Fast Message Configuration Block Response */
 
              /* Routing Support */
              proto_tree_add_item(fastser_tree, hf_selfm_fastser_def_route_sup, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2177,13 +2182,13 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
              break;
 
-        case FAST_SER_READ_RESP:     /* 0x90 (resp to 0x10) - Read Response */
+        case FAST_MSG_READ_RESP:     /* 0x90 (resp to 0x10) - Read Response */
 
             offset = dissect_fastser_readresp_frame( tvb, fastser_tree, pinfo, offset, seq);
 
             break;
 
-        case FAST_SER_SOE_STATE_RESP: /* 0x96 - (resp to 0x16) SOE Present State Response */
+        case FAST_MSG_SOE_STATE_RESP: /* 0x96 - (resp to 0x16) SOE Present State Response */
 
             /* 16-bit field with number of blocks of present state data */
             proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_numblks, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2202,7 +2207,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             break;
 
-        case FAST_SER_DEVDESC_RESP:  /* 0xB0 (resp to 0x30) - Device Description Response */
+        case FAST_MSG_DEVDESC_RESP:  /* 0xB0 (resp to 0x30) - Device Description Response */
 
             /* Add FID / RID ASCII data to tree */
             fid_str_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 50, ENC_ASCII);
@@ -2234,7 +2239,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             for (cnt=0; cnt<num_reg; cnt++) {
 
                 fastser_datareg_tree = proto_tree_add_subtree_format(fastser_tree, tvb, offset, 18,
-                                ett_selfm_fastser_datareg, NULL, "Fast SER Data Region #%d", cnt+1);
+                                ett_selfm_fastser_datareg, NULL, "Fast Message Data Region #%d", cnt+1);
 
                 /* 10-Byte Region description */
                 region_name_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 10, ENC_ASCII);
@@ -2266,7 +2271,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             break;
 
-        case FAST_SER_DATAFMT_RESP: /* 0xB1 (resp to 0x31) - Data Format Response */
+        case FAST_MSG_DATAFMT_RESP: /* 0xB1 (resp to 0x31) - Data Format Response */
 
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
 
@@ -2297,7 +2302,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             }
             break;
 
-        case FAST_SER_BITLABEL_RESP: /* 0xB3 (resp to 0x33) - Bit Label Response */
+        case FAST_MSG_BITLABEL_RESP: /* 0xB3 (resp to 0x33) - Bit Label Response */
 
             /* The data in this response is a variable length string containing the names of 8 digital bits. */
             /* Each name is max 8 chars and each is null-seperated */
@@ -2357,7 +2362,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
     gchar         **uns_ser_split_str;
 
     /* Make entries in Protocol column on summary display */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SEL Fast Msg");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SEL Protocol");
     col_clear(pinfo->cinfo, COL_INFO);
 
     len = tvb_length(selfm_tvb);
@@ -2410,12 +2415,12 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             wmem_list_prepend(fm_conv_data->fm_config_frames, frame_ptr);
         }
 
-        /* 2. Fill conversation data array with Fast SER Data Item info from Data Format Response Messages.   */
+        /* 2. Fill conversation data array with Fast Msg Data Item info from Data Format Response Messages.   */
         /* These format definitions will later be retrieved to decode Read Response messages.                 */
-        if ((CMD_FAST_SER == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_SER_DATAFMT_RESP)) {
+        if ((CMD_FAST_MSG == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_MSG_DATAFMT_RESP)) {
 
             seq = tvb_get_guint8(selfm_tvb, offset+10);
-            seq_cnt = seq & FAST_SER_SEQ_CNT;
+            seq_cnt = seq & FAST_MSG_SEQ_CNT;
 
             base_addr = tvb_get_ntohl(selfm_tvb, offset+12); /* 32-bit field with base address to read */
             num_items = tvb_get_ntohs(selfm_tvb, offset+16);
@@ -2447,7 +2452,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         /* 3. Attempt re-assembly during first pass with Read Response Messages data payloads that span multiple */
         /* packets.  The final data payload will be assembled on the packet with the seq_fin bit set.            */
-        if ((CMD_FAST_SER == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_SER_READ_RESP)) {
+        if ((CMD_FAST_MSG == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_MSG_READ_RESP)) {
 
             seq = tvb_get_guint8(selfm_tvb, offset+10);
 
@@ -2462,10 +2467,10 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         /* 4. Fill conversation data array with Fast SER Data Region info from Device Desc Response Messages. This */
         /*    will retrieve a data region name (associated to an address) that can later be displayed in the tree. */
-        if ((CMD_FAST_SER == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_SER_DEVDESC_RESP)) {
+        if ((CMD_FAST_MSG == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_MSG_DEVDESC_RESP)) {
 
             seq = tvb_get_guint8(selfm_tvb, offset+10);
-            seq_cnt = seq & FAST_SER_SEQ_CNT;
+            seq_cnt = seq & FAST_MSG_SEQ_CNT;
 
             num_items = tvb_get_ntohs(selfm_tvb, offset+102);
 
@@ -2496,7 +2501,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     if (tree) {
 
-        selfm_item = proto_tree_add_protocol_format(tree, proto_selfm, selfm_tvb, 0, len, "SEL Fast Message");
+        selfm_item = proto_tree_add_protocol_format(tree, proto_selfm, selfm_tvb, 0, len, "SEL Protocol");
         selfm_tree = proto_item_add_subtree(selfm_item, ett_selfm);
 
         /* Set INFO column with SEL Protocol Message Type */
@@ -2529,7 +2534,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
                     case CMD_FASTOP_CONFIG:
                         dissect_foconfig_frame(selfm_tvb, selfm_tree, offset);
                         break;
-                    case CMD_FAST_SER:
+                    case CMD_FAST_MSG:
                         dissect_fastser_frame(selfm_tvb, selfm_tree, pinfo, offset);
                         break;
                     case CMD_FASTOP_RB_CTRL:
@@ -2588,7 +2593,7 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     tvbuff_t      *selfm_tvb;
     gint length = tvb_length(tvb);
 
-    /* Check for a SEL FM packet.  It should begin with 0xA5 */
+    /* Check for a SEL Protocol packet.  It should begin with 0xA5 */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {
         /* Not a SEL Protocol packet, just happened to use the same port */
         return 0;
@@ -2618,7 +2623,7 @@ dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
     gint length = tvb_length(tvb);
 
-    /* Check for a SEL FM packet.  It should begin with 0xA5 */
+    /* Check for a SEL Protocol packet.  It should begin with 0xA5 */
     if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {
         /* Not a SEL Protocol packet, just happened to use the same port */
         return 0;
@@ -2811,11 +2816,11 @@ proto_register_selfm(void)
         { &hf_selfm_fastser_seq,
         { "Sequence Byte", "selfm.fastser.seq", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_seq_fir,
-        { "FIR", "selfm.fastser.seq_fir", FT_BOOLEAN, 8, NULL, FAST_SER_SEQ_FIR, NULL, HFILL }},
+        { "FIR", "selfm.fastser.seq_fir", FT_BOOLEAN, 8, NULL, FAST_MSG_SEQ_FIR, NULL, HFILL }},
         { &hf_selfm_fastser_seq_fin,
-        { "FIN", "selfm.fastser.seq_fin", FT_BOOLEAN, 8, NULL, FAST_SER_SEQ_FIN, NULL, HFILL }},
+        { "FIN", "selfm.fastser.seq_fin", FT_BOOLEAN, 8, NULL, FAST_MSG_SEQ_FIN, NULL, HFILL }},
         { &hf_selfm_fastser_seq_cnt,
-        { "Count", "selfm.fastser.seq_cnt", FT_UINT8, BASE_DEC, NULL, FAST_SER_SEQ_CNT, "Frame Count Number", HFILL }},
+        { "Count", "selfm.fastser.seq_cnt", FT_UINT8, BASE_DEC, NULL, FAST_MSG_SEQ_CNT, "Frame Count Number", HFILL }},
         { &hf_selfm_fastser_resp_num,
         { "Response Number", "selfm.fastser.resp_num", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_crc16,
@@ -2985,7 +2990,7 @@ proto_register_selfm(void)
     register_init_routine(&selfm_init);
 
     /* Register the protocol name and description */
-    proto_selfm = proto_register_protocol("SEL Fast Message", "SEL Fast Message", "selfm");
+    proto_selfm = proto_register_protocol("SEL Protocol", "SEL Protocol", "selfm");
 
     /* Registering protocol to be called by another dissector */
     new_register_dissector("selfm", dissect_selfm_simple, proto_selfm);
@@ -3018,8 +3023,8 @@ proto_register_selfm(void)
                        10, &global_selfm_tcp_port);
 
     /* SEL Protocol Preference - Disable/Enable CRC verification, */
-    prefs_register_bool_preference(selfm_module, "crc_verification", "Validate Fast SER CRC16",
-                                  "Perform CRC16 validation on Fast SER Messages",
+    prefs_register_bool_preference(selfm_module, "crc_verification", "Validate Fast Message CRC16",
+                                  "Perform CRC16 validation on Fast Messages",
                                   &selfm_crc16);
 
     prefs_register_string_preference(selfm_module, "ser_list",
