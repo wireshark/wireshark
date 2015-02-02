@@ -1447,6 +1447,18 @@ print_statistics_loop(gboolean machine_readable)
 
     for (if_entry = g_list_first(if_list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
         if_info = (if_info_t *)if_entry->data;
+
+#ifdef __linux__
+        /* On Linux nf* interfaces don't collect stats properly and don't allows multiple
+         * connections. We avoid collecting stats on them.
+         */
+        if (!strncmp(if_info->name, "nf", 2)) {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Skipping interface %s for stats",
+                if_info->name);
+            continue;
+        }
+#endif
+
 #ifdef HAVE_PCAP_OPEN
         pch = pcap_open(if_info->name, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
 #else
