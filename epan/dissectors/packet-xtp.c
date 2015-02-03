@@ -967,7 +967,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 				" Seq=%" G_GINT64_MODIFIER "u", xtph->seq);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", xtph->dlen);
 
-	if (tree) {
+	/* if (tree) */ {
 		ti = proto_tree_add_item(tree, proto_xtp, tvb, 0, -1, ENC_NA);
 		/** add summary **/
 		proto_item_append_text(ti,
