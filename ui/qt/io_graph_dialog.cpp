@@ -53,8 +53,6 @@
 //   UAT. We should add a "graph color" preference.
 // - We retap and redraw more than we should.
 // - Smoothing doesn't seem to match GTK+
-// - We don't register a tap listener ("-z io,stat", bottom of gtk/io_stat.c)
-// - Hovering over a graph when the file is closed clears the graph.
 
 // To do:
 // - Use scroll bars?
@@ -338,6 +336,7 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, int co
     ti->setData(sma_period_col_, Qt::UserRole, moving_average);
 
     connect(this, SIGNAL(recalcGraphData(capture_file *)), iog, SLOT(recalcGraphData(capture_file *)));
+    connect(&cap_file_, SIGNAL(captureFileClosing()), iog, SLOT(captureFileClosing()));
     connect(iog, SIGNAL(requestRetap()), this, SLOT(scheduleRetap()));
     connect(iog, SIGNAL(requestRecalc()), this, SLOT(scheduleRecalc()));
     connect(iog, SIGNAL(requestReplot()), this, SLOT(scheduleReplot()));
@@ -949,7 +948,7 @@ void IOGraphDialog::updateStatistics()
         cap_file_.retapPackets();
         ui->ioPlot->setFocus();
     } else {
-        if (need_recalc_) {
+        if (need_recalc_ && !file_closed_) {
             need_recalc_ = false;
             need_replot_ = true;
             emit recalcGraphData(cap_file_.capFile());
@@ -1083,7 +1082,6 @@ void IOGraphDialog::loadProfileGraphs()
         g_free(err);
     }
 }
-
 
 // Slots
 
@@ -1919,8 +1917,12 @@ void IOGraph::recalcGraphData(capture_file *cap_file)
         }
 //        qDebug() << "=rgd i" << i << ts << val;
     }
-//    qDebug() << "=rgd" << num_items_ << hf_index_;
     emit requestReplot();
+}
+
+void IOGraph::captureFileClosing()
+{
+    remove_tap_listener(this);
 }
 
 void IOGraph::setInterval(int interval)

@@ -90,6 +90,7 @@ public:
 
 public slots:
     void recalcGraphData(capture_file *cap_file);
+    void captureFileClosing();
 
 signals:
     void requestReplot();
