@@ -464,6 +464,7 @@ static int hf_mysql_cap_ignore_sigpipe = -1;
 static int hf_mysql_cap_transactions = -1;
 static int hf_mysql_cap_reserved = -1;
 static int hf_mysql_cap_secure_connect = -1;
+static int hf_mysql_extcaps_server = -1;
 static int hf_mysql_extcaps_client = -1;
 static int hf_mysql_cap_multi_statements = -1;
 static int hf_mysql_cap_multi_results = -1;
@@ -537,6 +538,7 @@ static int hf_mysql_connattrs_value = -1;
 static int hf_mysql_thread_id  = -1;
 static int hf_mysql_salt = -1;
 static int hf_mysql_salt2 = -1;
+static int hf_mysql_auth_plugin_length = -1;
 static int hf_mysql_auth_plugin = -1;
 static int hf_mysql_charset = -1;
 static int hf_mysql_passwd = -1;
@@ -691,6 +693,7 @@ static const value_string state_vals[] = {
 
 typedef struct mysql_conn_data {
 	guint16 srv_caps;
+	guint16 srv_caps_ext;
 	guint16 clnt_caps;
 	guint16 clnt_caps_ext;
 	mysql_state_t state;
@@ -910,9 +913,16 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	offset = mysql_dissect_server_status(tvb, offset, greeting_tree, NULL);
 
-	/* 13 bytes unused */
-	proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 13, ENC_NA);
-	offset += 13;
+	/* 2 bytes ExtCAPS */
+	offset = mysql_dissect_extcaps(tvb, offset, greeting_tree, hf_mysql_extcaps_server, &conn_data->srv_caps_ext);
+
+	/* 1 byte Auth Plugin Length */
+	proto_tree_add_item(greeting_tree, hf_mysql_auth_plugin_length, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	/* 10 bytes unused */
+	proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 10, ENC_NA);
+	offset += 10;
 
 	/* 4.1+ server: rest of salt */
 	if (tvb_reported_length_remaining(tvb, offset)) {
@@ -2512,6 +2522,11 @@ void proto_register_mysql(void)
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_SC,
 		NULL, HFILL }},
 
+		{ &hf_mysql_extcaps_server,
+		{ "Extended Server Capabilities", "mysql.extcaps.server",
+		FT_UINT16, BASE_HEX, NULL, 0x0,
+		"MySQL Extended Capabilities", HFILL }},
+
 		{ &hf_mysql_extcaps_client,
 		{ "Extended Client Capabilities", "mysql.extcaps.client",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -2640,6 +2655,11 @@ void proto_register_mysql(void)
 		{ &hf_mysql_salt2,
 		{ "Salt", "mysql.salt2",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_auth_plugin_length,
+		{ "Authentication Plugin Length", "mysql.auth_plugin.length",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_auth_plugin,
