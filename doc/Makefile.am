@@ -252,7 +252,6 @@ EXTRA_DIST =				\
 	README.epan_child		\
 	README.heuristic		\
 	README.idl2wrs			\
-	README.malloc			\
 	README.packaging		\
 	README.plugins			\
 	README.qt			\

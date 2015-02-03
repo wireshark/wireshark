@@ -25,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "emem.h"
 #include "wmem/wmem.h"
 #include "proto.h"
 #include "to_str.h"

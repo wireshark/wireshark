@@ -1576,7 +1576,6 @@ set(LIBWIRESHARK_FILES
 	dissector_filters.c
 	dvb_chartbl.c
 	dwarf.c
-	emem.c
 	epan.c
 	ex-opt.c
 	except.c

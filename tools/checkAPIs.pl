@@ -151,10 +151,6 @@ my %APIs = (
                 'proto_tree_add_text', # replaced with proto_tree_add_subtree[_format], expert_add_info[_format], or proto_tree_add_expert[_format]
                 'proto_tree_add_text_valist', # replaced with proto_tree_add_subtree_format, expert_add_info_format, or proto_tree_add_expert_format
 
-                # wmem calls should replace all emem calls (see doc/README.wmem)
-                'ep_alloc',
-                'ep_alloc0',
-                'ep_strdup_printf',
                 # Locale-unsafe APIs
                 # These may have unexpected behaviors in some locales (e.g.,
                 # "I" isn't always the upper-case form of "i", and "i" isn't

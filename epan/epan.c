@@ -45,7 +45,6 @@
 #include "tap.h"
 #include "addr_resolv.h"
 #include "oids.h"
-#include "emem.h"
 #include "wmem/wmem.h"
 #include "expert.h"
 
@@ -91,8 +90,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	  register_cb cb,
 	  gpointer client_data)
 {
-	/* initialize memory allocation subsystems */
-	emem_init();
+	/* initialize memory allocation subsystem */
 	wmem_init();
 
 	/* initialize the GUID to name mapping table */
@@ -332,7 +330,6 @@ epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
 	dissect_record(edt, file_type_subtype, phdr, tvb, fd, cinfo);
 
 	/* free all memory allocated */
-	ep_free_all();
 	wmem_leave_packet_scope();
 }
 
@@ -347,7 +344,6 @@ epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
 	tap_push_tapped_queue(edt);
 
 	/* free all memory allocated */
-	ep_free_all();
 	wmem_leave_packet_scope();
 }
 
@@ -362,7 +358,6 @@ epan_dissect_file_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	dissect_file(edt, phdr, tvb, fd, cinfo);
 
 	/* free all memory allocated */
-	ep_free_all();
 	wmem_leave_packet_scope();
 }
 
@@ -376,7 +371,6 @@ epan_dissect_file_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	tap_push_tapped_queue(edt);
 
 	/* free all memory allocated */
-	ep_free_all();
 	wmem_leave_packet_scope();
 }
 

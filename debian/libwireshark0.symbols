@@ -435,11 +435,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_tv_short@Base 1.9.1
  elem_v@Base 1.9.1
  elem_v_short@Base 1.9.1
- emem_init@Base 1.9.1
  empty_tcp_stream@Base 1.9.1
- ep_alloc0@Base 1.9.1
- ep_alloc@Base 1.9.1
- ep_strdup_printf@Base 1.9.1
  epan_cleanup@Base 1.9.1
  epan_dissect_cleanup@Base 1.9.1
  epan_dissect_fake_protocols@Base 1.9.1

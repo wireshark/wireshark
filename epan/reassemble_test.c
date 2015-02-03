@@ -58,7 +58,6 @@
 
 #include "config.h"
 
-#include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/proto.h>
@@ -1552,9 +1551,6 @@ main(int argc _U_, char **argv _U_)
         test_fragment_add_seq_check_multiple
 #endif
     };
-
-    /* initialise stuff */
-    emem_init();
 
     /* a tvbuff for testing with */
     data = (char *)g_malloc(DATA_LEN);

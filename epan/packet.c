@@ -45,7 +45,6 @@
 #include "tvbuff.h"
 #include "epan_dissect.h"
 
-#include "emem.h"
 #include "wmem/wmem.h"
 
 #include <epan/exceptions.h>
@@ -486,8 +485,6 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		frame_dissector_data.pkt_comment = NULL;
 	frame_dissector_data.file_type_subtype = file_type_subtype;
 
-	EP_CHECK_CANARY(("before dissecting record %d",fd->num));
-
 	TRY {
 		/* Add this tvbuffer into the data_src list */
 		add_new_data_source(&edt->pi, edt->tvb, record_type);
@@ -507,8 +504,6 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 					       record_type);
 	}
 	ENDTRY;
-
-	EP_CHECK_CANARY(("after dissecting record %d",fd->num));
 
 	fd->flags.visited = 1;
 }
@@ -545,8 +540,6 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	frame_delta_abs_time(edt->session, fd, fd->frame_ref_num, &edt->pi.rel_ts);
 
 
-	EP_CHECK_CANARY(("before dissecting file %d",fd->num));
-
 	TRY {
 		const gchar *pkt_comment;
 
@@ -576,8 +569,6 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 					       "[Malformed Record: Packet Length]" );
 	}
 	ENDTRY;
-
-	EP_CHECK_CANARY(("after dissecting file %d",fd->num));
 
 	fd->flags.visited = 1;
 }
@@ -622,13 +613,9 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 
 	if (handle->is_new) {
-		EP_CHECK_CANARY(("before calling handle->dissector.new_d for %s",handle->name));
 		len = (*handle->dissector.new_d)(tvb, pinfo, tree, data);
-		EP_CHECK_CANARY(("after calling handle->dissector.new_d for %s",handle->name));
 	} else {
-		EP_CHECK_CANARY(("before calling handle->dissector.old for %s",handle->name));
 		(*handle->dissector.old)(tvb, pinfo, tree);
-		EP_CHECK_CANARY(("after calling handle->dissector.old for %s",handle->name));
 		len = tvb_length(tvb);
 		if (len == 0) {
 			/*
@@ -2055,15 +2042,11 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 
 		pinfo->heur_list_name = hdtbl_entry->list_name;
 
-		EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s", proto_get_protocol_filter_name(proto_id)));
 		if ((hdtbl_entry->dissector)(tvb, pinfo, tree, data)) {
-			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has accepted and dissected packet", proto_get_protocol_filter_name(proto_id)));
 			*heur_dtbl_entry = hdtbl_entry;
 			status = TRUE;
 			break;
 		} else {
-			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has returned false", proto_get_protocol_filter_name(proto_id)));
-
 			/*
 			 * That dissector didn't accept the packet, so
 			 * remove its protocol's name from the list
@@ -2465,8 +2448,6 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	}
 
 	pinfo->heur_list_name = heur_dtbl_entry->list_name;
-
-	EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s", proto_get_protocol_filter_name(proto_id)));
 
 	/* call the dissector, as we have saved the result heuristic failure is an error */
 	if(!(*heur_dtbl_entry->dissector)(tvb, pinfo, tree, data))
