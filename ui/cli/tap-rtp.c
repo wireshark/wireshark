@@ -84,14 +84,13 @@ rtp_streams_stat_draw(void *arg _U_)
         /* payload type */
         if (strinfo->payload_type > 95) {
         if (strinfo->payload_type_name != NULL) {
-            payload_type = g_strdup(strinfo->payload_type_name);
+            payload_type = wmem_strdup(NULL, strinfo->payload_type_name);
         }else{
-            payload_type = g_strdup_printf("Unknown(%u)", strinfo->payload_type);
+            payload_type = wmem_strdup_printf(NULL, "Unknown(%u)", strinfo->payload_type);
         }
 
         }else{
-            payload_type = g_strdup(val_to_str_ext(strinfo->payload_type, &rtp_payload_type_vals_ext,
-                "Unknown (%u)"));
+            payload_type = val_to_str_ext_wmem(NULL, strinfo->payload_type, &rtp_payload_type_vals_ext, "Unknown (%u)");
         }
 
         /* packet count, lost packets */
@@ -125,6 +124,7 @@ rtp_streams_stat_draw(void *arg _U_)
         g_free(payload_type);
         wmem_free(NULL, src_addr);
         wmem_free(NULL, dst_addr);
+        wmem_free(NULL, payload_type);
     }
 
     printf("==============================================================\n");

@@ -235,7 +235,9 @@ gtk_scsistat_init(const char *opt_arg, void* userdata _U_)
 	init_srt_table(&rs->srt_table, 256, vbox, hf_name);
 
 	for(i=0; i<256; i++){
-		init_srt_table_row(&rs->srt_table, i, val_to_str_ext(i, rs->cdbnames_ext, "Unknown-0x%02x"));
+		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, rs->cdbnames_ext, "Unknown-0x%02x");
+		init_srt_table_row(&rs->srt_table, i, tmp_str);
+		wmem_free(NULL, tmp_str);
 	}
 
 

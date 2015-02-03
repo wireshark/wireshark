@@ -282,7 +282,7 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     while(list)
     {
         strinfo = (rtp_stream_info_t *)list->data;
-        g_free(strinfo->payload_type_name);
+        wmem_free(NULL, strinfo->payload_type_name);
         list = g_list_next(list);
     }
     g_list_free(tapinfo->rtp_stream_list);
@@ -625,11 +625,11 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
             if (p_conv_data && p_conv_data->rtp_dyn_payload) {
                 const gchar *encoding_name = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, strinfo->payload_type);
                 if (encoding_name) {
-                    strinfo->payload_type_name = g_strdup(encoding_name);
+                    strinfo->payload_type_name = wmem_strdup(NULL, encoding_name);
                 }
             }
         }
-        if (!strinfo->payload_type_name) strinfo->payload_type_name = g_strdup(val_to_str_ext(strinfo->payload_type, &rtp_payload_type_short_vals_ext, "%u"));
+        if (!strinfo->payload_type_name) strinfo->payload_type_name = (gchar*)val_to_str_ext_wmem(NULL, strinfo->payload_type, &rtp_payload_type_short_vals_ext, "%u");
         strinfo->packet_count = 0;
         strinfo->start_fd = pinfo->fd;
         strinfo->start_rel_time = pinfo->rel_ts;
@@ -932,47 +932,49 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
         comment = g_strdup_printf("t38:t30 Ind:%s",val_to_str(t38_info->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
         line_style = 1;
     } else if (t38_info->type_msg == 1) {	/* 1=data */
+        gchar *tmp_str1, *tmp_str2;
         switch(t38_info->Data_Field_field_type_value) {
             case 0: /* hdlc-data */
                 break;
             case 2: /* hdlc-fcs-OK */
             case 4: /* hdlc-fcs-OK-sig-end */
-                frame_label = g_strdup_printf("%s %s",
-                        val_to_str_ext(t38_info->t30_Facsimile_Control & 0x7F,
+                tmp_str1 = val_to_str_ext_wmem(NULL, t38_info->t30_Facsimile_Control & 0x7F,
                             &t30_facsimile_control_field_vals_short_ext,
-                            "Ukn (0x%02X)"),
+                            "Ukn (0x%02X)");
+                frame_label = g_strdup_printf("%s %s",
+                        tmp_str1,
                         t38_info->desc);
-                comment      = g_strdup_printf("t38:%s:HDLC:%s",
-                        val_to_str(t38_info->data_value,
-                            t38_T30_data_vals,
-                            "Ukn (0x%02X)"),
-                        val_to_str_ext(t38_info->t30_Facsimile_Control & 0x7F,
+                wmem_free(NULL, tmp_str1);
+
+                tmp_str1 = val_to_str_ext_wmem(NULL, t38_info->t30_Facsimile_Control & 0x7F,
                             &t30_facsimile_control_field_vals_ext,
-                            "Ukn (0x%02X)"));
+                            "Ukn (0x%02X)");
+                tmp_str2 = val_to_str_wmem(NULL, t38_info->data_value,
+                            t38_T30_data_vals,
+                            "Ukn (0x%02X)");
+                comment      = g_strdup_printf("t38:%s:HDLC:%s", tmp_str2, tmp_str1);
+                wmem_free(NULL, tmp_str1);
+                wmem_free(NULL, tmp_str2);
                 break;
             case 3: /* hdlc-fcs-BAD */
             case 5: /* hdlc-fcs-BAD-sig-end */
                 frame_label = g_strdup(t38_info->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
+                tmp_str1    = val_to_str_wmem(NULL, t38_info->data_value, t38_T30_data_vals, "Ukn (0x%02X)");
                 comment    = g_strdup_printf("WARNING: received t38:%s:HDLC:%s",
-                        val_to_str(t38_info->data_value,
-                            t38_T30_data_vals,
-                            "Ukn (0x%02X)"),
+                        tmp_str1,
                         t38_info->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
+                wmem_free(NULL, tmp_str1);
                 break;
             case 7: /* t4-non-ecm-sig-end */
                 duration = nstime_to_sec(&pinfo->rel_ts) - t38_info->time_first_t4_data;
-                frame_label = g_strdup_printf("t4-non-ecm-data:%s",
-                        val_to_str(t38_info->data_value,
-                            t38_T30_data_vals,
-                            "Ukn (0x%02X)") );
+                tmp_str1    = val_to_str_wmem(NULL, t38_info->data_value, t38_T30_data_vals, "Ukn (0x%02X)");
+                frame_label = g_strdup_printf("t4-non-ecm-data:%s", tmp_str1);
                 comment     = g_strdup_printf("t38:t4-non-ecm-data:%s Duration: %.2fs %s",
-                        val_to_str(t38_info->data_value,
-                            t38_T30_data_vals,
-                            "Ukn (0x%02X)"),
-                        duration, t38_info->desc_comment );
+                        tmp_str1, duration, t38_info->desc_comment );
                 insert_to_graph_t38(tapinfo, pinfo, edt, frame_label, comment,
                         (guint16)conv_num, &(pinfo->src), &(pinfo->dst),
                         line_style, t38_info->frame_num_first_t4_data);
+                wmem_free(NULL, tmp_str1);
                 break;
         }
     }

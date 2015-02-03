@@ -35,6 +35,7 @@
 
 #include <glib.h>
 #include <epan/timestamp.h>
+#include <epan/value_string.h>
 
 #include <QFont>
 #include <QString>
@@ -108,6 +109,26 @@ const QString address_to_qstring(const struct _address *address);
  * @return A QString representation of the address. May be the null string (QString())
  */
 const QString address_to_display_qstring(const struct _address *address);
+
+/** Convert a value_string to a QString using val_to_str_wmem().
+ *
+ * @param val The value to convert to string.
+ * @param vs value_string array.
+ * @param fmt Formatting for value not in array.
+ *
+ * @return A QString representation of the value_string.
+ */
+const QString val_to_qstring(const guint32 val, const value_string *vs, const char *fmt);
+
+/** Convert an value_string_ext to a QString using val_to_str_ext_wmem().
+ *
+ * @param val The value to convert to string.
+ * @param vse value_string_ext array.
+ * @param fmt Formatting for value not in array.
+ *
+ * @return A QString representation of the value_string_ext.
+ */
+const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt);
 
 /**
  * Round the current size of a font up to its next "smooth" size.

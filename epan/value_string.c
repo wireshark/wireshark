@@ -50,7 +50,7 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
     return ep_strdup_printf(fmt, val);
 }
 
-const gchar *
+gchar *
 val_to_str_wmem(wmem_allocator_t *scope, const guint32 val, const value_string *vs, const char *fmt)
 {
     const gchar *ret;
@@ -59,7 +59,7 @@ val_to_str_wmem(wmem_allocator_t *scope, const guint32 val, const value_string *
 
     ret = try_val_to_str(val, vs);
     if (ret != NULL)
-        return ret;
+        return wmem_strdup(scope, ret);
 
     return wmem_strdup_printf(scope, fmt, val);
 }
@@ -326,10 +326,10 @@ val_to_str_ext(const guint32 val, value_string_ext *vse, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
-const gchar *
+gchar *
 val_to_str_ext_wmem(wmem_allocator_t *scope, const guint32 val, value_string_ext *vse, const char *fmt)
 {
     const gchar *ret;
@@ -338,7 +338,7 @@ val_to_str_ext_wmem(wmem_allocator_t *scope, const guint32 val, value_string_ext
 
     ret = try_val_to_str_ext(val, vse);
     if (ret != NULL)
-        return ret;
+        return wmem_strdup(scope, ret);
 
     return wmem_strdup_printf(scope, fmt, val);
 }

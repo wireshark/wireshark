@@ -118,7 +118,7 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
-const gchar *
+gchar *
 val_to_str_wmem(wmem_allocator_t *scope, const guint32 val, const value_string *vs, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 
@@ -205,7 +205,7 @@ val_to_str_ext(const guint32 val, value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 WS_DLL_PUBLIC
-const gchar *
+gchar *
 val_to_str_ext_wmem(wmem_allocator_t *scope, const guint32 val, value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(4, 0);
 

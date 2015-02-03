@@ -103,7 +103,7 @@ public:
         if (stream_info->payload_type_name != NULL) {
             setText(payload_col_, stream_info->payload_type_name);
         } else {
-            setText(payload_col_, val_to_str_ext(stream_info->payload_type,
+            setText(payload_col_, val_ext_to_qstring(stream_info->payload_type,
                                                  &rtp_payload_type_short_vals_ext,
                                                  "Unknown (%u)"));
         }

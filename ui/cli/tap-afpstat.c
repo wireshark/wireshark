@@ -74,6 +74,7 @@ afpstat_draw(void *pss)
 	afpstat_t *ss = (afpstat_t *)pss;
 	guint32 i;
 	guint64 td;
+	gchar* tmp_str;
 	printf("\n");
 	printf("===================================================================\n");
 	printf("AFP SRT Statistics:\n");
@@ -94,13 +95,15 @@ afpstat_draw(void *pss)
 			td = 0;
 		}
 
+		tmp_str = val_to_str_ext_wmem(NULL, i, &CommandCode_vals_ext, "Unknown (%u)");
 		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
-		       val_to_str_ext(i, &CommandCode_vals_ext, "Unknown (%u)"),
+		       tmp_str,
 		       ss->proc[i].num,
 		       (int)ss->proc[i].min.secs, ss->proc[i].min.nsecs/10000,
 		       (int)ss->proc[i].max.secs, ss->proc[i].max.nsecs/10000,
 		       td/100000, td%100000
 		);
+		wmem_free(NULL, tmp_str);
 	}
 	printf("===================================================================\n");
 }

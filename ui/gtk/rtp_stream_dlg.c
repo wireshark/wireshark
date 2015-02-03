@@ -691,7 +691,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
     double perc;
     int i;
     char *savelocale;
-    char *src_addr, *dst_addr;
+    gchar *tmp_str;
 
     /* save the current locale */
     savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
@@ -699,19 +699,17 @@ add_to_list_store(rtp_stream_info_t* strinfo)
         in g_snprintf("%f") functions */
     setlocale(LC_NUMERIC, "C");
 
-    src_addr = (char*)address_to_display(NULL, &(strinfo->src_addr));
-    dst_addr = (char*)address_to_display(NULL, &(strinfo->dest_addr));
-
-    data[0] = g_strdup(src_addr);
+    data[0] = (gchar*)address_to_display(NULL, &(strinfo->src_addr));
     data[1] = NULL;
-    data[2] = g_strdup(dst_addr);
+    data[2] = (gchar*)address_to_display(NULL, &(strinfo->dest_addr));
     data[3] = NULL;
-    data[4] = g_strdup_printf("0x%X", strinfo->ssrc);
+    data[4] = wmem_strdup_printf(NULL, "0x%X", strinfo->ssrc);
     if (strinfo->payload_type_name != NULL) {
-        data[5] = g_strdup(strinfo->payload_type_name);
+        data[5] = wmem_strdup(NULL, strinfo->payload_type_name);
     } else {
-        data[5] = g_strdup(val_to_str_ext(strinfo->payload_type, &rtp_payload_type_short_vals_ext,
-            "Unknown (%u)"));
+        tmp_str = val_to_str_ext_wmem(NULL, strinfo->payload_type, &rtp_payload_type_short_vals_ext, "Unknown (%u)");
+        data[5] = wmem_strdup(NULL, tmp_str);
+        wmem_free(NULL, tmp_str);
     }
     data[6] = NULL;
 
@@ -723,14 +721,14 @@ add_to_list_store(rtp_stream_info_t* strinfo)
     } else {
         perc = 0;
     }
-    data[7] = g_strdup_printf("%d (%.1f%%)", lost, perc);
+    data[7] = wmem_strdup_printf(NULL, "%d (%.1f%%)", lost, perc);
     data[8] = NULL;
     data[9] = NULL;
     data[10] = NULL;
     if (strinfo->problem)
-        data[11] = g_strdup("X");
+        data[11] = wmem_strdup(NULL, "X");
     else
-        data[11] = g_strdup("");
+        data[11] = wmem_strdup(NULL, "");
 
     /* restore previous locale setting */
     setlocale(LC_NUMERIC, savelocale);
@@ -757,9 +755,7 @@ add_to_list_store(rtp_stream_info_t* strinfo)
                 -1);
 
     for (i = 0; i < NUM_COLS-1; i++)
-        g_free(data[i]);
-	wmem_free(NULL, src_addr);
-	wmem_free(NULL, dst_addr);
+        wmem_free(NULL, data[i]);
 
     /* Update the top label with the number of detected streams */
     g_snprintf(label_text, sizeof(label_text),

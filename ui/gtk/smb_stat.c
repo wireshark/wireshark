@@ -175,7 +175,9 @@ gtk_smbstat_init(const char *opt_arg, void *userdata _U_)
 
 	init_srt_table(&ss->smb_srt_table, 256, vbox, "smb.cmd");
 	for(i=0;i<256;i++){
-		init_srt_table_row(&ss->smb_srt_table, i, val_to_str_ext(i, &smb_cmd_vals_ext, "Unknown(0x%02x)"));
+		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, &smb_cmd_vals_ext, "Unknown(0x%02x)");
+		init_srt_table_row(&ss->smb_srt_table, i, tmp_str);
+		wmem_free(NULL, tmp_str);
 	}
 
 
@@ -183,7 +185,9 @@ gtk_smbstat_init(const char *opt_arg, void *userdata _U_)
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	init_srt_table(&ss->trans2_srt_table, 256, vbox, "smb.trans2.cmd");
 	for(i=0;i<256;i++){
-		init_srt_table_row(&ss->trans2_srt_table, i, val_to_str_ext(i, &trans2_cmd_vals_ext, "Unknown(0x%02x)"));
+		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, &trans2_cmd_vals_ext, "Unknown(0x%02x)");
+		init_srt_table_row(&ss->trans2_srt_table, i, tmp_str);
+		wmem_free(NULL, tmp_str);
 	}
 
 
@@ -191,7 +195,9 @@ gtk_smbstat_init(const char *opt_arg, void *userdata _U_)
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	init_srt_table(&ss->nt_trans_srt_table, 256, vbox, "smb.nt.function");
 	for(i=0;i<256;i++){
-		init_srt_table_row(&ss->nt_trans_srt_table, i, val_to_str_ext(i, &nt_cmd_vals_ext, "Unknown(0x%02x)"));
+		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, &nt_cmd_vals_ext, "Unknown(0x%02x)");
+		init_srt_table_row(&ss->nt_trans_srt_table, i, tmp_str);
+		wmem_free(NULL, tmp_str);
 	}
 
 

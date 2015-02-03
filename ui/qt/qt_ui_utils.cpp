@@ -77,6 +77,26 @@ const QString address_to_display_qstring(const _address *address)
     return address_qstr;
 }
 
+const QString val_to_qstring(const guint32 val, const value_string *vs, const char *fmt)
+{
+    QString val_qstr = QString();
+    gchar* gchar_p = val_to_str_wmem(NULL, val, vs, fmt);
+    val_qstr = gchar_p;
+    wmem_free(NULL, gchar_p);
+
+    return val_qstr;
+}
+
+const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt)
+{
+    QString val_qstr = QString();
+    gchar* gchar_p = val_to_str_ext_wmem(NULL, val, vse, fmt);
+    val_qstr = gchar_p;
+    wmem_free(NULL, gchar_p);
+
+    return val_qstr;
+}
+
 void smooth_font_size(QFont &font) {
     QFontDatabase fdb;
 #if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)

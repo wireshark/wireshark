@@ -41,7 +41,7 @@ static guint8 scsi_program = 0;
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _scsi_procedure_t {
-	const char *proc;
+	char       *proc;
 	int         num;
 	nstime_t    min;
 	nstime_t    max;
@@ -226,7 +226,7 @@ scsistat_init(const char *opt_arg, void* userdata _U_)
 	}
 	rs->procedures = g_new(scsi_procedure_t,MAX_PROCEDURES);
 	for(i=0; i < MAX_PROCEDURES; i++) {
-		rs->procedures[i].proc	    = val_to_str_ext(i, rs->cdbnames_ext, "Unknown-0x%02x");
+		rs->procedures[i].proc	    = val_to_str_ext_wmem(NULL, i, rs->cdbnames_ext, "Unknown-0x%02x");
 		rs->procedures[i].num	    = 0;
 		rs->procedures[i].min.secs  = 0;
 		rs->procedures[i].min.nsecs = 0;
@@ -238,6 +238,9 @@ scsistat_init(const char *opt_arg, void* userdata _U_)
 	error_string = register_tap_listener("scsi", rs, filter, 0, scsistat_reset, scsistat_packet, scsistat_draw);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
+		for(i=0; i < MAX_PROCEDURES; i++) {
+			wmem_free(NULL, rs->procedures[i].proc);
+		}
 		g_free(rs->procedures);
 		g_free(rs->filter);
 		g_free(rs);

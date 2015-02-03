@@ -100,6 +100,8 @@ smbstat_draw(void *pss)
 	smbstat_t *ss = (smbstat_t *)pss;
 	guint32 i;
 	guint64 td;
+	gchar* tmp_str;
+
 	printf("\n");
 	printf("=================================================================\n");
 	printf("SMB SRT Statistics:\n");
@@ -126,13 +128,15 @@ smbstat_draw(void *pss)
 
 		td = ((td / ss->proc[i].num) + 500) / 1000;
 
+		tmp_str = val_to_str_ext_wmem(NULL, i, &smb_cmd_vals_ext, "Unknown (0x%02x)");
 		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
-		       val_to_str_ext(i, &smb_cmd_vals_ext, "Unknown (0x%02x)"),
+		       tmp_str,
 		       ss->proc[i].num,
 		       (int)(ss->proc[i].min.secs), (ss->proc[i].min.nsecs+500)/1000,
 		       (int)(ss->proc[i].max.secs), (ss->proc[i].max.nsecs+500)/1000,
 		       td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
 		);
+		wmem_free(NULL, tmp_str);
 	}
 
 	printf("\n");
@@ -147,13 +151,15 @@ smbstat_draw(void *pss)
 		td = ((guint64)(ss->trans2[i].tot.secs)) * NANOSECS_PER_SEC + ss->trans2[i].tot.nsecs;
 		td = ((td / ss->trans2[i].num) + 500) / 1000;
 
+		tmp_str = val_to_str_ext_wmem(NULL, i, &trans2_cmd_vals_ext, "Unknown (0x%02x)");
 		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
-		       val_to_str_ext(i, &trans2_cmd_vals_ext, "Unknown (0x%02x)"),
+		       tmp_str,
 		       ss->trans2[i].num,
 		       (int)(ss->trans2[i].min.secs), (ss->trans2[i].min.nsecs+500)/1000,
 		       (int)(ss->trans2[i].max.secs), (ss->trans2[i].max.nsecs+500)/1000,
 		       td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
 		);
+		wmem_free(NULL, tmp_str);
 	}
 
 	printf("\n");
@@ -167,13 +173,15 @@ smbstat_draw(void *pss)
 		td = ((guint64)(ss->nt_trans[i].tot.secs)) * NANOSECS_PER_SEC + ss->nt_trans[i].tot.nsecs;
 		td = ((td / ss->nt_trans[i].num) + 500) / 1000;
 
+		tmp_str = val_to_str_ext_wmem(NULL, i, &nt_cmd_vals_ext, "Unknown (0x%02x)");
 		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
-		       val_to_str_ext(i, &nt_cmd_vals_ext, "Unknown (0x%02x)"),
+		       tmp_str,
 		       ss->nt_trans[i].num,
 		       (int)(ss->nt_trans[i].min.secs), (ss->nt_trans[i].min.nsecs+500)/1000,
 		       (int)(ss->nt_trans[i].max.secs), (ss->nt_trans[i].max.nsecs+500)/1000,
 		       td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
 		);
+		wmem_free(NULL, tmp_str);
 	}
 
 	printf("=================================================================\n");

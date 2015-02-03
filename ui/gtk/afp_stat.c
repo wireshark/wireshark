@@ -151,7 +151,9 @@ gtk_afpstat_init(const char *opt_arg, void *userdata _U_)
 
 	init_srt_table(&ss->afp_srt_table, 256, vbox, "afp.command");
 	for(i=0;i<256;i++){
-		init_srt_table_row(&ss->afp_srt_table, i, val_to_str_ext(i, &CommandCode_vals_ext, "Unknown(%u)"));
+		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, &CommandCode_vals_ext, "Unknown(%u)");
+		init_srt_table_row(&ss->afp_srt_table, i, tmp_str);
+		wmem_free(NULL, tmp_str);
 	}
 
 
