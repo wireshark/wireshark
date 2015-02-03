@@ -690,6 +690,7 @@ static int hf_ospf_v3_lsa_attached_router = -1;
 static int hf_ospf_v3_lsa_referenced_ls_type = -1;
 static int hf_ospf_mpls_encoding = -1;
 static int hf_ospf_lsa_external_type = -1;
+static int hf_ospf_lsa_tos = -1;
 static int hf_ospf_v3_lsa_type = -1;
 static int hf_ospf_metric = -1;
 static int hf_ospf_prefix_length = -1;
@@ -2391,7 +2392,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
                     gboolean disassemble_body)
 {
     proto_tree *ospf_lsa_tree;
-    proto_item *ti, *hidden_item;
+    proto_item *ti, *lsa_ti, *hidden_item;
 
     guint8               ls_type;
     guint16              ls_length;
@@ -2420,11 +2421,11 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     if (disassemble_body) {
         ospf_lsa_tree = proto_tree_add_subtree_format(tree, tvb, offset, ls_length,
-                                 ett_ospf_lsa, NULL, "%s",
+                                 ett_ospf_lsa, &lsa_ti, "%s",
                                  val_to_str(ls_type, ls_type_vals, "Unknown (%d)"));
     } else {
         ospf_lsa_tree = proto_tree_add_subtree(tree, tvb, offset, OSPF_LSA_HEADER_LENGTH,
-                                 ett_ospf_lsa, NULL, "LSA Header");
+                                 ett_ospf_lsa, &lsa_ti, "LSA Header");
     }
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_age, tvb,
@@ -2583,7 +2584,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         offset += 4;
 
         if (offset == end_offset)
-                proto_tree_add_expert_format(ospf_lsa_tree, pinfo, &ei_ospf_lsa_constraint_missing, tvb, offset - 4, 4, "(>= 1 router-IDs  required");
+                proto_tree_add_expert_format(ospf_lsa_tree, pinfo, &ei_ospf_lsa_constraint_missing, tvb, offset - 4, 4, "1 or more router-IDs required");
 
         while (offset < end_offset) {
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_network_attachrtr,
@@ -2615,35 +2616,27 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     case OSPF_LSTYPE_ASEXT:
     case OSPF_LSTYPE_ASEXT7:
+    {
+        gboolean first_block = 1;
+
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_asext_netmask,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_external_type, tvb, offset, 1, ENC_NA);
+        if ((offset+12) > end_offset)
+                expert_add_info_format(pinfo, lsa_ti, &ei_ospf_lsa_constraint_missing, "1 or more forwarding blocks required");
 
-        /* the metric field of a AS-external LAS is specified in 3 bytes */
-        ti = proto_tree_add_item(ospf_lsa_tree, hf_ospf_metric, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_asext_fwdaddr,
-                            tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_asext_extrtrtag,
-                            tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        if (offset == end_offset)
-                expert_add_info_format(pinfo, ti, &ei_ospf_lsa_constraint_missing, "(>= 1 TOS forwarding blocks required");
-
-        /* Metric specific information, if any */
         while (offset < end_offset) {
-            options = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_external_type, tvb, offset, 1, ENC_NA);
-            proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "%s: %u, Metric: %u",
-                                metric_type_str, options & 0x7F,
-                                tvb_get_ntoh24(tvb, offset + 1));
-            offset += 4;
+
+            /* TOS field is only present for the metric-specific (2nd and subsequent) blocks */
+            if (first_block == 0) {
+                proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_tos, tvb, offset, 1, ENC_NA);
+            }
+            offset += 1;
+
+            proto_tree_add_item(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
 
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_asext_fwdaddr,
                                 tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2652,8 +2645,11 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_asext_extrtrtag,
                                 tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
+
+            first_block = 0;
         }
         break;
+    }
 
     case OSPF_LSTYPE_OP_LINKLOCAL:
     case OSPF_LSTYPE_OP_AREALOCAL:
@@ -3681,6 +3677,7 @@ proto_register_ospf(void)
       { &hf_ospf_v3_lsa_link_local_interface_address, { "Link-local Interface Address", "ospf.v3.lsa.link_local_interface_address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_referenced_advertising_router, { "Referenced Advertising Router", "ospf.v3.lsa.referenced_advertising_router", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_lsa_external_type, { "External Type", "ospf.lsa.asext.type", FT_BOOLEAN, 8, TFS(&tfs_lsa_external_type), 0x80, NULL, HFILL }},
+      { &hf_ospf_lsa_tos, { "TOS", "ospf.lsa.tos", FT_BOOLEAN, 8, NULL, 0x7f, NULL, HFILL }},
       { &hf_ospf_v3_lsa_type, { "Type", "ospf.v3.lsa.type", FT_UINT8, BASE_DEC, VALS(ospf_v3_lsa_type_vals), 0, NULL, HFILL }},
       { &hf_ospf_metric, { "Metric", "ospf.metric", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_ospf_prefix_length, { "PrefixLength", "ospf.prefix_length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
