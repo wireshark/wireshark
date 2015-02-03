@@ -280,7 +280,7 @@ static int hf_bootp_option43_arubaap_controllerip = -1;			/* 43: ArubaAP*/
 static int hf_bootp_option43_arubaiap = -1;				/* 43: ArubaIAP*/
 static int hf_bootp_option43_arubaiap_nameorg = -1;			/* 43: ArubaIAP: Name Organisation*/
 static int hf_bootp_option43_arubaiap_ampip = -1;			/* 43: ArubaIAP: AMP IP Address*/
-static int hf_bootp_option43_arubaiap_password = -1;			/* 43 :ArubaIAP: Passwod*/
+static int hf_bootp_option43_arubaiap_password = -1;			/* 43 :ArubaIAP: Password*/
 
 static int hf_bootp_option_netbios_over_tcpip_name_server = -1;		/* 44 */
 static int hf_bootp_option_netbios_over_tcpip_dd_name_server = -1;	/* 45 */
