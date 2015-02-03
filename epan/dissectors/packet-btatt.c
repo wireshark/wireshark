@@ -1599,8 +1599,7 @@ get_uuid_from_handle(packet_info *pinfo, guint32 handle,
     wmem_tree_t     *sub_wmemtree;
     uuid_t           uuid;
 
-    uuid.size = 0;
-    uuid.bt_uuid = 0;
+    memset(&uuid, 0, sizeof uuid);
 
     frame_number = pinfo->fd->num;
 
