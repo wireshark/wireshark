@@ -590,24 +590,105 @@ static expert_field ei_capwap_fortinet_mac_len = EI_INIT;
 static expert_field ei_capwap_message_element_fortinet_type = EI_INIT;
 static expert_field ei_capwap_message_element_cisco_type = EI_INIT;
 
-static const int * ieee80211_ofdm_control_band_support_flags[] = {
-	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit0,
-	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit1,
-	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit2,
-	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit3,
-	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit4,
-	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit5,
-	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit6,
-	&hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit7,
-	NULL
+static const int *ieee80211_ofdm_control_band_support_flags[] = {
+    &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit0,
+    &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit1,
+    &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit2,
+    &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit3,
+    &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit4,
+    &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit5,
+    &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit6,
+    &hf_capwap_msg_element_type_ieee80211_ofdm_control_band_support_bit7,
+    NULL
 };
 
-static const int * ieee80211_ie_flags[] = {
-	&hf_capwap_msg_element_type_ieee80211_ie_flags_b,
-	&hf_capwap_msg_element_type_ieee80211_ie_flags_p,
-	&hf_capwap_msg_element_type_ieee80211_ie_flags_rsv,
+static const int *ieee80211_ie_flags[] = {
+    &hf_capwap_msg_element_type_ieee80211_ie_flags_b,
+    &hf_capwap_msg_element_type_ieee80211_ie_flags_p,
+    &hf_capwap_msg_element_type_ieee80211_ie_flags_rsv,
+    NULL
+};
 
-	NULL
+static const int *capwap_ac_descriptor_security_flags[] = {
+    &hf_capwap_msg_element_type_ac_descriptor_security_r,
+    &hf_capwap_msg_element_type_ac_descriptor_security_s,
+    &hf_capwap_msg_element_type_ac_descriptor_security_x,
+    NULL
+};
+
+static const int *capwap_ac_descriptor_dtls_flags[] = {
+    &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_r,
+    &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_d,
+    &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_c,
+    NULL
+};
+
+static const int *capwap_wtp_frame_tunnel_mode_flags[] = {
+    &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_n,
+    &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_e,
+    &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_l,
+    &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_r,
+    NULL
+};
+
+static int const *ieee80211_add_wlan_capability_flags[] = {
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_e,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_i,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_c,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_f,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_p,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_s,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_b,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_a,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_m,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_q,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_t,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_d,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_v,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_o,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_k,
+    &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_l,
+    NULL
+};
+
+static const int *ieee80211_station_capabilities_flags[] ={
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_e,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_i,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_c,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_f,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_p,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_s,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_b,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_a,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_m,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_q,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_t,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_d,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_v,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_o,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_k,
+    &hf_capwap_msg_element_type_ieee80211_station_capabilities_l,
+    NULL
+};
+
+static const int * ieee80211_update_wlan_capability_flags[] = {
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_e,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_i,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_c,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_f,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_p,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_s,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_b,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_a,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_m,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_q,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_t,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_d,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_v,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_o,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_k,
+    &hf_capwap_msg_element_type_ieee80211_update_wlan_capability_l,
+    NULL
 };
 
 /* ************************************************************************* */
@@ -1880,23 +1961,15 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_max_wtp, tvb, offset+10, 2, ENC_BIG_ENDIAN);
 
         /* AC Descriptor Security Flags... */
-        msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_security, tvb, offset+12, 1, ENC_NA);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ac_descriptor_security_flags);
-
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_security_r, tvb, offset+12, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_security_s, tvb, offset+12, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_security_x, tvb, offset+12, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+12,
+hf_capwap_msg_element_type_ac_descriptor_security, ett_capwap_ac_descriptor_security_flags, capwap_ac_descriptor_security_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_rmac_field, tvb, offset+13, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_reserved, tvb, offset+14, 1, ENC_BIG_ENDIAN);
 
         /* AC Descriptor DTLS Flags... */
-        msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_descriptor_dtls_policy, tvb, offset+15, 1, ENC_NA);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ac_descriptor_dtls_flags);
-
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_dtls_policy_r, tvb, offset+15, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_dtls_policy_d, tvb, offset+15, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ac_descriptor_dtls_policy_c, tvb, offset+15, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+15,
+hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_dtls_flags,  capwap_ac_descriptor_dtls_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
 
         offset_end = offset + optlen -4;
         offset += 4 + 12;
@@ -2244,15 +2317,10 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
                            "WTP Frame Tunnel Mode length %u wrong, must be = 1", optlen);
         break;
         }
-        msg_element_type_item_flag = proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_frame_tunnel_mode, tvb, offset+4, 1, ENC_NA);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_wtp_frame_tunnel_mode);
 
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_wtp_frame_tunnel_mode_n, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_wtp_frame_tunnel_mode_e, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_wtp_frame_tunnel_mode_l, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_wtp_frame_tunnel_mode_r, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+4,
+hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mode, capwap_wtp_frame_tunnel_mode_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         break;
-
     case TYPE_WTP_MAC_TYPE: /* WTP MAC Type (44) */
         if (optlen != 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
@@ -2333,24 +2401,8 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        msg_element_type_item_flag =  proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ieee80211_add_wlan_capability);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_e, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_i, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_c, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_f, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_p, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_s, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_b, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_a, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_m, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_q, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_t, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_d, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_v, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_o, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_k, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_l, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+6,
+hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_add_wlan_capability, ieee80211_add_wlan_capability_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_index, tvb, offset+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_status, tvb, offset+9, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
@@ -2528,24 +2580,8 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_association_id, tvb, offset+5, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_flags, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_mac_address, tvb, offset+8, 6, ENC_NA);
-       msg_element_type_item_flag =  proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ieee80211_station_capabilities);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_e, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_i, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_c, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_f, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_p, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_s, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_b, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_a, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_m, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_q, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_t, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_d, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_v, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_o, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_k, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_station_capabilities_l, tvb, offset+14, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+14,
+hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_station_capabilities, ieee80211_station_capabilities_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_wlan_id, tvb, offset+16, 1, ENC_BIG_ENDIAN);
 
         offset += 17;
@@ -2626,24 +2662,8 @@ hf_capwap_msg_element_type_ieee80211_ie_flags, ett_capwap_ieee80211_ie_flags, ie
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        msg_element_type_item_flag =  proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_ieee80211_update_wlan_capability);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_e, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_i, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_c, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_f, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_p, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_s, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_b, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_a, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_m, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_q, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_t, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_d, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_v, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_o, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_k, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_capability_l, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(sub_msg_element_type_tree, tvb, offset+6,
+hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee80211_update_wlan_capability, ieee80211_update_wlan_capability_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_key_index, tvb, offset+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_key_status, tvb, offset+9, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_update_wlan_key_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
