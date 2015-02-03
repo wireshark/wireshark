@@ -67,6 +67,7 @@ public:
 
     explicit FilterAction(QObject *parent, Action action, ActionType type, ActionDirection direction);
     explicit FilterAction(QObject *parent, Action action, ActionType type);
+    explicit FilterAction(QObject *parent, Action action);
 
     Action action() { return action_; }
     static const QList<Action> actions();

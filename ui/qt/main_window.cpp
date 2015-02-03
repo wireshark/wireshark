@@ -1786,10 +1786,8 @@ void MainWindow::setForCapturedPackets(bool have_captured_packets)
 //                         have_captured_packets);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/NextPacketInConversation",
 //                         have_captured_packets);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/Summary",
-//                         have_captured_packets);
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
-//                         have_captured_packets);
+    main_ui_->actionStatisticsCaptureFileProperties->setEnabled(have_captured_packets);
+    main_ui_->actionStatisticsProtocolHierarchy->setEnabled(have_captured_packets);
     main_ui_->actionStatisticsIOGraph->setEnabled(have_captured_packets);
 }
 

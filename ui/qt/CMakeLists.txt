@@ -80,6 +80,7 @@ set(WIRESHARK_QT_HEADERS
 	profile_dialog.h
 	progress_bar.h
 	proto_tree.h
+	protocol_hierarchy_dialog.h
 	qcustomplot.h
 	recent_file_status.h
 	rtp_stream_dialog.h
@@ -179,6 +180,7 @@ set(WIRESHARK_QT_SRC
 	profile_dialog.cpp
 	progress_bar.cpp
 	proto_tree.cpp
+	protocol_hierarchy_dialog.cpp
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
@@ -263,6 +265,7 @@ set(WIRESHARK_QT_UI
 	preferences_dialog.ui
 	print_dialog.ui
 	profile_dialog.ui
+	protocol_hierarchy_dialog.ui
 	rtp_stream_dialog.ui
 	sctp_all_assocs_dialog.ui
 	sctp_assoc_analyse_dialog.ui

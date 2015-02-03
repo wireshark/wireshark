@@ -237,6 +237,7 @@ FORMS += \
     preferences_dialog.ui \
     print_dialog.ui \
     profile_dialog.ui \
+    protocol_hierarchy_dialog.ui \
     remote_capture_dialog.ui  \
     remote_settings_dialog.ui  \
     rtp_stream_dialog.ui   \
@@ -291,6 +292,7 @@ HEADERS += $$HEADERS_WS_C \
     preferences_dialog.h \
     print_dialog.h \
     profile_dialog.h \
+    protocol_hierarchy_dialog.h \
     remote_capture_dialog.h  \
     remote_settings_dialog.h    \
     rtp_stream_dialog.h  \
@@ -650,6 +652,7 @@ SOURCES += \
     profile_dialog.cpp \
     progress_bar.cpp \
     proto_tree.cpp \
+    protocol_hierarchy_dialog.cpp \
     qcustomplot.cpp \
     qt_ui_utils.cpp \
     recent_file_status.cpp \

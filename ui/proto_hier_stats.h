@@ -22,6 +22,14 @@
 #ifndef __UI_PROTO_HIER_STATS_H__
 #define __UI_PROTO_HIER_STATS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/** @file
+ * Protocol Hierarchy Statistics
+ */
+
 #include <epan/proto.h>
 
 typedef struct {
@@ -41,10 +49,14 @@ typedef struct {
 	double	last_time;	/* seconds (msec resolution) of last packet  */
 } ph_stats_t;
 
-
-ph_stats_t *ph_stats_new(void);
+struct _capture_file;
+ph_stats_t *ph_stats_new(struct _capture_file *cf);
 
 void ph_stats_free(ph_stats_t *ps);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __UI_PROTO_HIER_STATS_H__ */
 

@@ -132,6 +132,14 @@ G_GNUC_PRINTF(3, 0);
 const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
+/** Convert bits per second value human-readable QString using format_size().
+ *
+ * @param val The value to convert to string.
+ *
+ * @return A QString representation of the data rate.
+ */
+const QString bits_s_to_qstring(const double val);
+
 /**
  * Round the current size of a font up to its next "smooth" size.
  * If a smooth size can't be found the font is left unchanged.

@@ -97,6 +97,12 @@ const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const
     return val_qstr;
 }
 
+const QString bits_s_to_qstring(const double val)
+{
+    return gchar_free_to_qstring(
+                format_size(val, format_size_unit_none|format_size_prefix_si));
+}
+
 void smooth_font_size(QFont &font) {
     QFontDatabase fdb;
 #if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)

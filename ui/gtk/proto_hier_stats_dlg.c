@@ -21,6 +21,7 @@
 
 
 #include "config.h"
+#include "globals.h"
 
 #include <string.h>
 
@@ -548,7 +549,7 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
     const char *current_filter;
 
     /* Get the statistics. */
-    ps = ph_stats_new();
+    ps = ph_stats_new(&cfile);
     if (ps == NULL) {
         /* The user gave up before we finished; don't pop up
            a statistics window. */

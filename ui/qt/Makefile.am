@@ -184,6 +184,8 @@ print_dialog.cpp print_dialog.h: ui_print_dialog.h
 
 profile_dialog.cpp profile_dialog.h: ui_profile_dialog.h
 
+protocol_hierarchy_dialog.cpp protocol_hierarchy_dialog.h: ui_protocol_hierarchy_dialog.h
+
 remote_capture_dialog.cpp remote_capture_dialog.h: ui_remote_capture_dialog.h
 
 remote_settings_dialog.cpp remote_settings_dialog.h: ui_remote_settings_dialog.h

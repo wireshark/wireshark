@@ -39,6 +39,15 @@ FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterA
     setText(actionTypeName(type));
 }
 
+FilterAction::FilterAction(QObject *parent, FilterAction::Action action) :
+    QAction(parent),
+    action_(action),
+    type_(ActionTypePlain),
+    direction_(ActionDirectionAToAny)
+{
+    setText(actionName(action));
+}
+
 
 const QList<FilterAction::Action> FilterAction::actions() {
     static const QList<Action> actions_ = QList<Action>()

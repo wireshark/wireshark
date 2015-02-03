@@ -375,6 +375,7 @@ private slots:
     void on_actionCaptureStop_triggered();
 
     void on_actionStatisticsCaptureFileProperties_triggered();
+    void on_actionStatisticsProtocolHierarchy_triggered();
     void on_actionStatisticsFlowGraph_triggered();
     void openTcpStreamDialog(int graph_type);
     void on_actionStatisticsTcpStreamStevens_triggered();

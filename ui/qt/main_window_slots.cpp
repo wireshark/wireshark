@@ -87,6 +87,7 @@
 #include "preferences_dialog.h"
 #include "print_dialog.h"
 #include "profile_dialog.h"
+#include "protocol_hierarchy_dialog.h"
 #include "qt_ui_utils.h"
 #include "rtp_stream_dialog.h"
 #include "sctp_all_assocs_dialog.h"
@@ -2701,6 +2702,14 @@ void MainWindow::on_actionStatisticsCaptureFileProperties_triggered()
     connect(capture_file_properties_dialog, SIGNAL(captureCommentChanged()),
             this, SLOT(updateForUnsavedChanges()));
     capture_file_properties_dialog->show();
+}
+
+void MainWindow::on_actionStatisticsProtocolHierarchy_triggered()
+{
+    ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
+    connect(phd, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    phd->show();
 }
 
 #ifdef HAVE_LIBPCAP

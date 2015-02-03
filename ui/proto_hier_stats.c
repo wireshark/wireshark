@@ -22,8 +22,7 @@
 
 #include "config.h"
 
-
-#include "globals.h"
+#include "file.h"
 #include "frame_tvbuff.h"
 #include "ui/proto_hier_stats.h"
 #include "ui/progress_dlg.h"
@@ -132,7 +131,7 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 }
 
 static gboolean
-process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
+process_record(capture_file *cf, frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 {
 	epan_dissect_t			edt;
 	struct wtap_pkthdr              phdr;
@@ -143,14 +142,14 @@ process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 
 	/* Load the record from the capture file */
 	ws_buffer_init(&buf, 1500);
-	if (!cf_read_record_r(&cfile, frame, &phdr, &buf))
+	if (!cf_read_record_r(cf, frame, &phdr, &buf))
 		return FALSE;	/* failure */
 
 	/* Dissect the record   tree  not visible */
-	epan_dissect_init(&edt, cfile.epan, TRUE, FALSE);
+	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	/* Don't fake protocols. We need them for the protocol hierarchy */
 	epan_dissect_fake_protocols(&edt, FALSE);
-	epan_dissect_run(&edt, cfile.cd_t, &phdr, frame_tvbuff_new_buffer(frame, &buf), frame, cinfo);
+	epan_dissect_run(&edt, cf->cd_t, &phdr, frame_tvbuff_new_buffer(frame, &buf), frame, cinfo);
 
 	/* Get stats from this protocol tree */
 	process_tree(edt.tree, ps, frame->pkt_len);
@@ -173,7 +172,7 @@ process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 }
 
 ph_stats_t*
-ph_stats_new(void)
+ph_stats_new(capture_file *cf)
 {
 	ph_stats_t	*ps;
 	guint32		framenum;
@@ -188,6 +187,8 @@ ph_stats_new(void)
 	int		progbar_nextstep;
 	int		progbar_quantum;
 
+	if (!cf) return NULL;
+
 	/* Initialize the data */
 	ps = g_new(ph_stats_t, 1);
 	ps->tot_packets = 0;
@@ -200,7 +201,7 @@ ph_stats_new(void)
 	progbar_nextstep = 0;
 	/* When we reach the value that triggers a progress bar update,
 	   bump that value by this amount. */
-	progbar_quantum = cfile.count/N_PROGBAR_UPDATES;
+	progbar_quantum = cf->count/N_PROGBAR_UPDATES;
 	/* Count of packets at which we've looked. */
 	count = 0;
 	/* Progress so far. */
@@ -212,8 +213,8 @@ ph_stats_new(void)
 	tot_packets = 0;
 	tot_bytes = 0;
 
-	for (framenum = 1; framenum <= cfile.count; framenum++) {
-		frame = frame_data_sequence_find(cfile.frames, framenum);
+	for (framenum = 1; framenum <= cf->count; framenum++) {
+		frame = frame_data_sequence_find(cf->frames, framenum);
 
 		/* Create the progress bar if necessary.
 		   We check on every iteration of the loop, so that
@@ -223,7 +224,7 @@ ph_stats_new(void)
 		   to get to the next progress bar step). */
 		if (progbar == NULL)
 			progbar = delayed_create_progress_dlg(
-			    cfile.window, "Computing",
+			    cf->window, "Computing",
 			    "protocol hierarchy statistics",
 			    TRUE, &stop_flag, &start_time, progbar_val);
 
@@ -237,13 +238,13 @@ ph_stats_new(void)
 			/* let's not divide by zero. I should never be started
 			 * with count == 0, so let's assert that
 			 */
-			g_assert(cfile.count > 0);
+			g_assert(cf->count > 0);
 
-			progbar_val = (gfloat) count / cfile.count;
+			progbar_val = (gfloat) count / cf->count;
 
 			if (progbar != NULL) {
 				g_snprintf(status_str, sizeof(status_str),
-					"%4u of %u frames", count, cfile.count);
+					"%4u of %u frames", count, cf->count);
 				update_progress_dlg(progbar, progbar_val, status_str);
 			}
 
@@ -272,7 +273,7 @@ ph_stats_new(void)
 			}
 
 			/* we don't care about colinfo */
-			if (!process_record(frame, NULL, ps)) {
+			if (!process_record(cf, frame, NULL, ps)) {
 				/*
 				 * Give up, and set "stop_flag" so we
 				 * just abort rather than popping up
