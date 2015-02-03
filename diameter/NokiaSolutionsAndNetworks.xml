@@ -13,7 +13,7 @@
 </application>
 
 
-<application>
+<application id="16777302" name="3GPP Sy" uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm">
 
     <avp name="Account-State" code="60528" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="UTF8String" />

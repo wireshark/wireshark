@@ -1774,6 +1774,11 @@ dictionary_load(void)
 
 			item[0].value = p->code;
 			item[0].strptr = p->name;
+			if (!p->name) {
+				report_failure("Diameter Dictionary: Invalid Application (empty name): id=%d\n", p->code);
+				continue;
+			}
+
 			wmem_array_append_one(arr,item);
 		}
 
@@ -1793,7 +1798,7 @@ dictionary_load(void)
 			item[0].strptr = v->name;
 
 			if (v->name == NULL) {
-				report_failure("Diameter Dictionary: Invalid Vendor (empty name): code==%d\n",v->code);
+				report_failure("Diameter Dictionary: Invalid Vendor (empty name): code==%d\n", v->code);
 				continue;
 			}
 

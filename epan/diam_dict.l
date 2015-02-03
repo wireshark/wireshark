@@ -512,11 +512,11 @@ description_attr description=\042
 <TYPE_ATTRS,GAVP_ATTRS,ENUM_ATTRS>{stop}			{ BEGIN IN_AVP; }
 <TYPE_ATTRS,GAVP_ATTRS,ENUM_ATTRS>{stop_end}		{ BEGIN IN_AVP; }
 
-<IN_AVP>{avp_end} { D(("avp_end")); BEGIN IN_APPL; }
+<IN_AVP>{avp_end} { D(("avp_end\n")); BEGIN IN_APPL; }
 
 <IN_APPL>{application_end} |
 <IN_APPL>{base_end} {
-	BEGIN IN_DICT;
+	D(("application_end\n")); BEGIN IN_DICT;
 }
 
 <IN_DICT>{dictionary_end} {

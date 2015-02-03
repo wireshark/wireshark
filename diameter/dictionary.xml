@@ -6616,6 +6616,7 @@
 	16777238 is defined in Cisco.xml
 	16777267 is defined in TGPP.xml
 	16777292 is defined in TGPP.xml
+	16777302 is defined in NokiaSolutionsAndNetworks.xml
 	16777304 is defined in SKT.xml
 	16777317 is defined in NokiaSolutionsAndNetworks.xml
 	-->
@@ -6634,7 +6635,6 @@
 	<application id="16777269"	name="Ericsson HSI"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777272"	name="3GPP S6b"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
 	<application id="16777291"	name="3GPP SLh"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
-	<application id="16777302"	name="3GPP Sy"			uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
 	<application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)"	uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777327"	name="Ericsson Sx"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="4294967295"	name="Relay"			uri="http://www.ietf.org/rfc/rfc6733.txt?number=6733"></application>
