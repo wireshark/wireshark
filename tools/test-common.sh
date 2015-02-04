@@ -90,13 +90,6 @@ fi
 ##############################################################################
 ### Set up environment variables for fuzz testing			   ###
 ##############################################################################
-# Initialize ep_ allocated memory to 0xBADDCAFE and freed memory
-# to 0xDEADBEEF
-export WIRESHARK_DEBUG_SCRUB_MEMORY=
-# Verify that ep_ allocated memory is not passed to certain routines
-# which need the memory to be persistent.
-export WIRESHARK_EP_VERIFY_POINTERS=
-export WIRESHARK_SE_VERIFY_POINTERS=
 # Use the Wmem strict allocator which does canaries and scrubbing etc.
 export WIRESHARK_DEBUG_WMEM_OVERRIDE=strict
 # Abort if a dissector adds too many items to the tree

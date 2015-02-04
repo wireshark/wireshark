@@ -91,8 +91,6 @@ if [ "$BIN_DIR" = "." ]; then
 fi
 
 if [ "$TOOL" != "callgrind" ]; then
-    export WIRESHARK_DEBUG_EP_NO_CHUNKS=
-    export WIRESHARK_DEBUG_SE_NO_CHUNKS=
     export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
     export G_SLICE=always-malloc # or debug-blocks
 fi

@@ -16,11 +16,6 @@
  *      env                               \
  *        G_DEBUG=gc-friendly             \
  *        G_SLICE=always-malloc           \
- *        WIRESHARK_DEBUG_EP_NO_CHUNKS=1  \
- *        WIRESHARK_DEBUG_SE_NO_CHUNKS=1  \
- *        WIRESHARK_DEBUG_SE_USE_CANARY=1 \
- *        WIRESHARK_EP_VERIFY_POINTERS=1  \
- *        WIRESHARK_SE_VERIFY_POINTERS=1  \
  *      valgrind --leak-check=full --show-reachable=yes ./reassemble_test
  *
  *  2. Debug functions have been added which will print information

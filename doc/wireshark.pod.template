@@ -2743,39 +2743,6 @@ On Windows, Wireshark normally stores all application data in %APPDATA% or
 %USERPROFILE%.  You can override the default location by exporting this
 environment variable to specify an alternate location.
 
-=item WIRESHARK_DEBUG_EP_NO_CHUNKS
-
-Normally per-packet memory is allocated in large "chunks."  This behavior
-doesn't work well with debugging tools such as Valgrind or ElectricFence.
-Export this environment variable to force individual allocations.
-Note: disabling chunks also disables canaries (see below).
-
-=item WIRESHARK_DEBUG_SE_NO_CHUNKS
-
-Normally per-file memory is allocated in large "chunks."  This behavior
-doesn't work well with debugging tools such as Valgrind or ElectricFence.
-Export this environment variable to force individual allocations.
-Note: disabling chunks also disables canaries (see below).
-
-=item WIRESHARK_DEBUG_EP_NO_CANARY
-
-Normally per-packet memory allocations are separated by "canaries" which
-allow detection of memory overruns.  This comes at the expense of some extra
-memory usage.  Exporting this environment variable disables these canaries.
-
-=item WIRESHARK_DEBUG_SE_USE_CANARY
-
-Exporting this environment variable causes per-file memory allocations to be
-protected with "canaries" which allow for detection of memory overruns.
-This comes at the expense of significant extra memory usage.
-
-=item WIRESHARK_DEBUG_SCRUB_MEMORY
-
-If this environment variable is set, the contents of per-packet and
-per-file memory is initialized to 0xBADDCAFE when the memory is allocated
-and is reset to 0xDEADBEEF when the memory is freed.  This functionality is
-useful mainly to developers looking for bugs in the way memory is handled.
-
 =item WIRESHARK_DEBUG_WMEM_OVERRIDE
 
 Setting this environment variable forces the wmem framework to use the
@@ -2834,20 +2801,6 @@ it will, on some OSes, assuming your environment is configured correctly,
 generate a core dump file.  This can be useful to developers attempting to
 troubleshoot a problem with a protocol dissector.
 
-=item WIRESHARK_EP_VERIFY_POINTERS
-
-This environment variable, if set, causes certain uses of pointers to be
-audited to ensure they do not point to memory that is deallocated after each
-packet has been fully dissected.  This can be useful to developers writing or
-auditing code.
-
-=item WIRESHARK_SE_VERIFY_POINTERS
-
-This environment variable, if set, causes certain uses of pointers to be
-audited to ensure they do not point to memory that is deallocated after when
-a capture file is closed.  This can be useful to developers writing or
-auditing code.
-
 =item WIRESHARK_QUIT_AFTER_CAPTURE
 
 Cause B<Wireshark> to exit after the end of the capture session.  This
@@ -2855,13 +2808,6 @@ doesn't automatically start a capture; you must still use B<-k> to do
 that.  You must also specify an autostop condition, e.g.  B<-c> or B<-a
 duration:...>.  This means that you will not be able to see the results
 of the capture after it stops; it's primarily useful for testing.
-
-=item WIRESHARK_ABORT_ON_OUT_OF_MEMORY
-
-This environment variable, if present, causes abort(3) to be called if certain
-out-of-memory conditions (which normally result in an exception and an
-explanatory error message) are experienced.  This can be useful to developers
-debugging out-of-memory conditions.
 
 =back
 
