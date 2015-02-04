@@ -6966,6 +6966,36 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb)
 	return offsearch.finfo;
 }
 
+
+static gboolean
+check_for_undecoded(proto_node *node, const gpointer data)
+{
+	field_info *fi = PNODE_FINFO(node);
+	gchar* decoded = (gchar*)data;
+	gint i;
+	guint byte;
+	guint bit;
+
+	if (fi && fi->hfinfo->type != FT_PROTOCOL) {
+		for (i = fi->start; i < fi->start + fi->length; i++) {
+			byte = i / 8;
+			bit = i % 8;
+			decoded[byte] |= (1 << bit);
+		}
+	}
+
+	return FALSE;
+}
+
+gchar*
+proto_find_undecoded_data(proto_tree *tree, guint length)
+{
+	gchar* decoded = (gchar*)wmem_alloc0(wmem_packet_scope(), length / 8 + 1);
+
+	proto_tree_traverse_pre_order(tree, check_for_undecoded, decoded);
+	return decoded;
+}
+
 /* Dumps the protocols in the registration database to stdout.	An independent
  * program can take this output and format it into nice tables or HTML or
  * whatever.

@@ -2569,6 +2569,11 @@ prefs_register_modules(void)
                                    "Display all byte fields with a space character between each byte in the packet list.",
                                    &prefs.display_byte_fields_with_spaces);
 
+    prefs_register_bool_preference(protocols_module, "enable_incomplete_dissectors_check",
+                                   "Look for incomplete dissectors",
+                                   "Look for dissectors that left some bytes undecoded.",
+                                   &prefs.enable_incomplete_dissectors_check);
+
     /* Obsolete preferences
      * These "modules" were reorganized/renamed to correspond to their GUI
      * configuration screen within the preferences dialog

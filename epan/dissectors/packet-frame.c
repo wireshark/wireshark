@@ -40,6 +40,7 @@
 #include <wsutil/md5.h>
 
 #include "packet-frame.h"
+#include "log.h"
 
 #include "color.h"
 #include "color_filters.h"
@@ -91,6 +92,7 @@ static gint ett_comments = -1;
 
 static expert_field ei_comments_text = EI_INIT;
 static expert_field ei_arrive_time_out_of_range = EI_INIT;
+static expert_field ei_incomplete = EI_INIT;
 
 static int frame_tap = -1;
 
@@ -626,6 +628,32 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		pinfo->frame_end_routines = NULL;
 	}
 
+	if (prefs.enable_incomplete_dissectors_check && tree && tree->tree_data->visible) {
+		gchar* decoded;
+		guint length;
+		guint i;
+		guint byte;
+		guint bit;
+
+		length = tvb_captured_length(tvb);
+		decoded = proto_find_undecoded_data(tree, length);
+
+		for (i = 0; i < length; i++) {
+			byte = i / 8;
+			bit = i % 8;
+			if (!(decoded[byte] & (1 << bit))) {
+				field_info* fi = proto_find_field_from_offset(tree, i, tvb);
+				g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING,
+					"Dissector %s incomplete in frame %u: undecoded byte number %u "
+					"(0x%.4X+%u)\n",
+					(fi ? fi->hfinfo->abbrev : "[unknown]"),
+					pinfo->fd->num, i, i - i % 16, i % 16);
+				expert_add_info_format(pinfo, tree, &ei_incomplete,
+					"Undecoded byte number: %u (0x%.4X+%u)", i, i - i % 16, i % 16);
+			}
+		}
+        }
+
 	return tvb_captured_length(tvb);
 }
 
@@ -819,6 +847,7 @@ proto_register_frame(void)
 	static ei_register_info ei[] = {
 		{ &ei_comments_text, { "frame.comment.expert", PI_COMMENTS_GROUP, PI_COMMENT, "Formatted comment", EXPFILL }},
 		{ &ei_arrive_time_out_of_range, { "frame.time_invalid", PI_SEQUENCE, PI_NOTE, "Arrival Time: Fractional second out of range (0-1000000000)", EXPFILL }},
+		{ &ei_incomplete, { "frame.incomplete", PI_UNDECODED, PI_WARN, "Incomplete dissector", EXPFILL }}
 	};
 
 	module_t *frame_module;
