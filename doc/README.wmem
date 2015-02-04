@@ -1,19 +1,19 @@
 1. Introduction
 
-The 'emem' memory manager (described in README.malloc) has been a part of
-Wireshark since 2005 and has served us well, but is starting to show its age.
-The framework has become increasingly difficult to maintain, and limitations
-in the API have blocked progress on other long-term goals such as multi-
-threading, and opening multiple files at once.
+The 'wmem' memory manager is Wireshark's memory management framework, replacing
+the old 'emem' framework which was removed in Wireshark 2.0.
 
-The 'wmem' memory manager is a new memory management framework that replaces
-emem. It provides a significantly updated API, a more modular design, and it
-isn't all jammed into one 2500-line file.
+In order to make memory management easier and to reduce the probability of
+memory leaks, Wireshark provides its own memory management API. This API is
+implemented inside epan/wmem/ and provides memory pools and functions that make
+it easy to manage memory even in the face of exceptions (which many dissector
+functions can raise).
+
+Correct use of these functions will make your code faster, and greatly reduce
+the chances that it will leak memory in exceptional cases.
 
 Wmem was originally conceived in this email to the wireshark-dev mailing list:
 https://www.wireshark.org/lists/wireshark-dev/201210/msg00178.html
-
-The wmem code can now be found in epan/wmem/ in the Wireshark source tree.
 
 2. Usage for Consumers
 
@@ -39,25 +39,19 @@ Dissectors that include the wmem header file will have three pools available
 to them automatically: wmem_packet_scope(), wmem_file_scope() and
 wmem_epan_scope();
 
-The packet pool is scoped to the dissection of each packet, replacing
-emem's ep_ allocators. The file pool is scoped to the dissection of each file,
-replacing emem's se_ allocators. For example:
-
-    ep_malloc(32);
-    se_malloc(sizeof(guint));
-
-could be replaced with
-
-    wmem_alloc(wmem_packet_scope(), 32);
-    wmem_alloc(wmem_file_scope(),   sizeof(guint));
+The packet pool is scoped to the dissection of each packet, meaning that any
+memory allocated in it will be automatically freed at the end of the current
+packet. The file pool is similarly scoped to the dissection of each file,
+meaning that any memory allocated in it will be automatically freed when the
+current capture file is closed.
 
 NB: Using these pools outside of the appropriate scope (eg using the packet
     pool when there isn't a packet being dissected) will throw an assertion.
     See the comment in epan/wmem/wmem_scopes.c for details.
 
 The epan pool is scoped to the library's lifetime - memory allocated in it is
-not freed until epan_cleanup() is called, which is typically at the end of the
-program.
+not freed until epan_cleanup() is called, which is typically at the very end of
+the program.
 
 2.1.2 Pinfo Pool
 
