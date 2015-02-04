@@ -1045,11 +1045,15 @@ static int inap_opcode_type;
 #define INAP_OPCODE_RETURN_ERROR  3
 #define INAP_OPCODE_REJECT        4
 
+static int hf_inap_cause_indicator = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;
 static gint ett_inapisup_parameter = -1;
 static gint ett_inap_HighLayerCompatibility = -1;
 static gint ett_inap_extention_data = -1;
+static gint ett_inap_cause = -1;
+
 
 /*--- Included file: packet-inap-ett.c ---*/
 #line 1 "../../asn1/inap/packet-inap-ett.c"
@@ -1291,7 +1295,7 @@ static gint ett_inap_T_problem_01 = -1;
 static gint ett_inap_InvokeId = -1;
 
 /*--- End of included file: packet-inap-ett.c ---*/
-#line 83 "../../asn1/inap/packet-inap-template.c"
+#line 87 "../../asn1/inap/packet-inap-template.c"
 
 static expert_field ei_inap_unknown_invokeData = EI_INIT;
 static expert_field ei_inap_unknown_returnResultData = EI_INIT;
@@ -1421,7 +1425,7 @@ static const value_string inap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-inap-table.c ---*/
-#line 89 "../../asn1/inap/packet-inap-template.c"
+#line 93 "../../asn1/inap/packet-inap-template.c"
 
 const value_string inap_general_problem_strings[] = {
 {0,"General Problem Unrecognized Component"},
@@ -2505,8 +2509,26 @@ dissect_inap_Carrier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_inap_Cause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 302 "../../asn1/inap/inap.cnf"
+ /*
+  * -- Indicates the cause for interface related information. Refer to the Q.763 Cause  parameter for encoding
+  * -- For the use of cause and location values refer to Q.850.
+  */
+tvbuff_t *parameter_tvb;
+guint8 Cause_value;
+proto_tree *subtree;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+ subtree = proto_item_add_subtree(actx->created_item, ett_inap_cause);
+
+ dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
+
+
 
   return offset;
 }
@@ -8982,7 +9004,7 @@ static int dissect_PAR_taskRefused_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-inap-fn.c ---*/
-#line 103 "../../asn1/inap/packet-inap-template.c"
+#line 107 "../../asn1/inap/packet-inap-template.c"
 /*
 TC-Invokable OPERATION ::=
   {activateServiceFiltering | activityTest | analysedInformation |
@@ -9332,7 +9354,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-inap-table2.c ---*/
-#line 124 "../../asn1/inap/packet-inap-template.c"
+#line 128 "../../asn1/inap/packet-inap-template.c"
 
 
 static guint8 inap_pdu_type = 0;
@@ -9412,6 +9434,10 @@ void proto_register_inap(void) {
   static hf_register_info hf[] = {
 
 
+	  { &hf_inap_cause_indicator, /* Currently not enabled */
+	  { "Cause indicator", "inap.cause_indicator",
+	  FT_UINT8, BASE_DEC | BASE_EXT_STRING, &q850_cause_code_vals_ext, 0x7f,
+	  NULL, HFILL } },
 
 
 /*--- Included file: packet-inap-hfarr.c ---*/
@@ -11658,7 +11684,7 @@ void proto_register_inap(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 205 "../../asn1/inap/packet-inap-template.c"
+#line 213 "../../asn1/inap/packet-inap-template.c"
   };
 
 
@@ -11672,6 +11698,7 @@ void proto_register_inap(void) {
 	&ett_inapisup_parameter,
 	&ett_inap_HighLayerCompatibility,
     &ett_inap_extention_data,
+	&ett_inap_cause,
 
 /*--- Included file: packet-inap-ettarr.c ---*/
 #line 1 "../../asn1/inap/packet-inap-ettarr.c"
@@ -11913,7 +11940,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 219 "../../asn1/inap/packet-inap-template.c"
+#line 228 "../../asn1/inap/packet-inap-template.c"
   };
 
   static ei_register_info ei[] = {

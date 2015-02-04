@@ -298,6 +298,23 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
  subtree = proto_item_add_subtree(actx->created_item, ett_inap_HighLayerCompatibility);
  dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree);
 
+ #.FN_BODY Cause VAL_PTR = &parameter_tvb
+ /*
+  * -- Indicates the cause for interface related information. Refer to the Q.763 Cause  parameter for encoding
+  * -- For the use of cause and location values refer to Q.850.
+  */
+tvbuff_t *parameter_tvb;
+guint8 Cause_value;
+proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+ subtree = proto_item_add_subtree(actx->created_item, ett_inap_cause);
+
+ dissect_q931_cause_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree, hf_inap_cause_indicator, &Cause_value, isup_parameter_type_value);
+
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC|BASE_EXT_STRING  STRINGS = &isup_calling_partys_category_value_ext
 

@@ -74,11 +74,15 @@ static int inap_opcode_type;
 #define INAP_OPCODE_RETURN_ERROR  3
 #define INAP_OPCODE_REJECT        4
 
+static int hf_inap_cause_indicator = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;
 static gint ett_inapisup_parameter = -1;
 static gint ett_inap_HighLayerCompatibility = -1;
 static gint ett_inap_extention_data = -1;
+static gint ett_inap_cause = -1;
+
 #include "packet-inap-ett.c"
 
 static expert_field ei_inap_unknown_invokeData = EI_INIT;
@@ -200,6 +204,10 @@ void proto_register_inap(void) {
   static hf_register_info hf[] = {
 
 
+	  { &hf_inap_cause_indicator, /* Currently not enabled */
+	  { "Cause indicator", "inap.cause_indicator",
+	  FT_UINT8, BASE_DEC | BASE_EXT_STRING, &q850_cause_code_vals_ext, 0x7f,
+	  NULL, HFILL } },
 
 #include "packet-inap-hfarr.c"
   };
@@ -215,6 +223,7 @@ void proto_register_inap(void) {
 	&ett_inapisup_parameter,
 	&ett_inap_HighLayerCompatibility,
     &ett_inap_extention_data,
+	&ett_inap_cause,
 #include "packet-inap-ettarr.c"
   };
 
