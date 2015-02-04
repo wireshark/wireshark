@@ -1,8 +1,8 @@
--- 3GPP TS 36.355 V11.6.0 (2014-06)
+-- 3GPP TS 36.355 V12.3.0 (2014-12)
 --
 
 LPP-PDU-Definitions {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) lpp (7) version1 (1) lpp-PDU-Definitions (1) }
 
 DEFINITIONS AUTOMATIC TAGS ::=
@@ -215,11 +215,11 @@ AccessTypes ::= SEQUENCE {
 }
 
 
-ARFCN-ValueEUTRA ::= INTEGER (0..maxEARFCN) 
+ARFCN-ValueEUTRA ::= INTEGER (0..maxEARFCN)
 
 ARFCN-ValueEUTRA-v9a0 ::=	INTEGER (maxEARFCN-Plus1..maxEARFCN2)
 
-maxEARFCN					INTEGER ::= 65535	-- Maximum value of EUTRA carrier frequency 
+maxEARFCN					INTEGER ::= 65535	-- Maximum value of EUTRA carrier frequency
 
 maxEARFCN-Plus1				INTEGER ::= 65536	-- Lowest value extended EARFCN range
 
@@ -340,7 +340,7 @@ EPDU-ID ::= INTEGER (1..256)
 
 EPDU-Name ::= VisibleString (SIZE (1..32))
 
-EPDU-Body ::= OCTET STRING 
+EPDU-Body ::= OCTET STRING
 
 
 HorizontalVelocity ::= SEQUENCE {
@@ -448,7 +448,7 @@ CommonIEsRequestLocationInformation ::= SEQUENCE {
 LocationInformationType ::= ENUMERATED {
 	locationEstimateRequired,
 	locationMeasurementsRequired,
-	locationEstimatePreferred, 
+	locationEstimatePreferred,
 	locationMeasurementsPreferred,
 	...
 }
@@ -483,9 +483,9 @@ QoS ::= SEQUENCE {
 	verticalCoordinateRequest	BOOLEAN,
 	verticalAccuracy			VerticalAccuracy		OPTIONAL,	-- Need ON
 	responseTime				ResponseTime			OPTIONAL,	-- Need ON
-	velocityRequest				BOOLEAN,				
+	velocityRequest				BOOLEAN,
 	...
-}	
+}
 
 HorizontalAccuracy ::= SEQUENCE {
 	accuracy		INTEGER(0..127),
@@ -494,14 +494,16 @@ HorizontalAccuracy ::= SEQUENCE {
 }
 
 VerticalAccuracy ::= SEQUENCE {
-	accuracy		INTEGER(0..127), 
+	accuracy		INTEGER(0..127),
 	confidence		INTEGER(0..100),
 	...
 }
 
 ResponseTime ::= SEQUENCE {
-	time			INTEGER (1..128),
-	...
+	time								INTEGER (1..128),
+	...,
+	[[	responseTimeEarlyFix-r12		INTEGER (1..128)		OPTIONAL		-- Need ON
+	]]
 }
 
 Environment ::= ENUMERATED {
@@ -516,7 +518,9 @@ CommonIEsProvideLocationInformation ::= SEQUENCE {
 	locationEstimate			LocationCoordinates		OPTIONAL,
 	velocityEstimate			Velocity				OPTIONAL,
 	locationError				LocationError			OPTIONAL,
-	...
+	...,
+	[[	earlyFixReport-r12		EarlyFixReport-r12		OPTIONAL
+	]]
 }
 
 LocationCoordinates ::= CHOICE {
@@ -548,9 +552,14 @@ LocationError ::= SEQUENCE {
 LocationFailureCause ::= ENUMERATED {
 	undefined,
 	requestedMethodNotSupported,
-	positionMethodFailure, 
+	positionMethodFailure,
 	periodicLocationMeasurementsNotAvailable,
 	...
+}
+
+EarlyFixReport-r12 ::= ENUMERATED {
+	noMoreMessages,
+	moreMessagesOnTheWay
 }
 
 
@@ -568,7 +577,7 @@ CommonIEsAbort ::= SEQUENCE {
 CommonIEsError ::= SEQUENCE {
 	errorCause		ENUMERATED {
 		undefined,
-		lppMessageHeaderError, 
+		lppMessageHeaderError,
 		lppMessageBodyError,
 		epduError,
 		incorrectDataValue,
@@ -621,7 +630,7 @@ OTDOA-NeighbourCellInfoElement ::= SEQUENCE {
 	physCellId							INTEGER (0..503),
 	cellGlobalId						ECGI				OPTIONAL,		-- Need ON
 	earfcn								ARFCN-ValueEUTRA	OPTIONAL,		-- Cond NotSameAsRef0
-	cpLength							ENUMERATED {normal, extended, ...} 
+	cpLength							ENUMERATED {normal, extended, ...}
 															OPTIONAL,		-- Cond NotSameAsRef1
 	prsInfo								PRS-Info			OPTIONAL,		-- Cond NotSameAsRef2
 	antennaPortConfig					ENUMERATED {ports-1-or-2, ports-4, ...}
@@ -781,19 +790,24 @@ GNSS-GenericAssistDataElement ::= SEQUENCE {
 	gnss-Almanac					GNSS-Almanac					OPTIONAL,	-- Need ON
 	gnss-UTC-Model					GNSS-UTC-Model					OPTIONAL,	-- Need ON
 	gnss-AuxiliaryInformation		GNSS-AuxiliaryInformation		OPTIONAL,	-- Need ON
-	...
+	...,
+	[[
+		bds-DifferentialCorrections-r12
+									BDS-DifferentialCorrections-r12	OPTIONAL,	-- Cond	GNSS-ID-BDS
+		bds-GridModel-r12			BDS-GridModelParameter-r12		OPTIONAL	-- Cond	GNSS-ID-BDS
+	]]
 }
 
 
 GNSS-ReferenceTime ::= SEQUENCE  {
 	gnss-SystemTime				GNSS-SystemTime,
 	referenceTimeUnc			INTEGER (0..127)					OPTIONAL,	-- Cond noFTA
-	gnss-ReferenceTimeForCells  SEQUENCE (SIZE (1..16)) OF 
+	gnss-ReferenceTimeForCells  SEQUENCE (SIZE (1..16)) OF
 									GNSS-ReferenceTimeForOneCell	OPTIONAL,	-- Need ON
 	...
 }
 
-GNSS-ReferenceTimeForOneCell  ::= SEQUENCE {	
+GNSS-ReferenceTimeForOneCell  ::= SEQUENCE {
 	networkTime 				NetworkTime,
 	referenceTimeUnc			INTEGER (0..127),
 	bsAlign						ENUMERATED {true}	OPTIONAL,
@@ -828,13 +842,13 @@ NetworkTime ::= SEQUENCE {
 	secondsFromFrameStructureStart 				INTEGER(0..12533),
 	fractionalSecondsFromFrameStructureStart 	INTEGER(0..3999999),
 	frameDrift									INTEGER (-64..63) 	OPTIONAL,	-- Cond GNSSsynch
-	cellID 		CHOICE { 
+	cellID 		CHOICE {
 				eUTRA		SEQUENCE {
 							physCellId			INTEGER (0..503),
 							cellGlobalIdEUTRA	CellGlobalIdEUTRA-AndUTRA	OPTIONAL,	-- Need ON
 							earfcn				ARFCN-ValueEUTRA,
 							...,
-							[[ earfcn-v9a0		ARFCN-ValueEUTRA-v9a0 OPTIONAL	-- Cond EARFCN-max 
+							[[ earfcn-v9a0		ARFCN-ValueEUTRA-v9a0 OPTIONAL	-- Cond EARFCN-max
 							]]
 							},
 				uTRA		SEQUENCE {
@@ -892,9 +906,9 @@ KlobucharModelParameter ::= SEQUENCE {
 
 
 NeQuickModelParameter ::= SEQUENCE {
-	ai0 			INTEGER (0..4095),
- 	ai1 			INTEGER (0..4095),
- 	ai2 			INTEGER (0..4095),
+	ai0 			INTEGER (0..2047),
+ 	ai1 			INTEGER (-1024..1023),
+ 	ai2 			INTEGER (-8192..8191),
 	ionoStormFlag1	INTEGER (0..1)		OPTIONAL,	-- Need OP
 	ionoStormFlag2	INTEGER (0..1)		OPTIONAL,	-- Need OP
 	ionoStormFlag3	INTEGER (0..1)		OPTIONAL,	-- Need OP
@@ -939,7 +953,7 @@ GNSS-DifferentialCorrections ::= SEQUENCE {
 DGNSS-SgnTypeList ::= SEQUENCE (SIZE (1..3)) OF DGNSS-SgnTypeElement
 
 DGNSS-SgnTypeElement ::= SEQUENCE {
-	gnss-SignalID		 GNSS-SignalID, 
+	gnss-SignalID		 GNSS-SignalID,
  	gnss-StatusHealth	 INTEGER (0..7),
 	dgnss-SatList		 DGNSS-SatList,
 	...
@@ -950,17 +964,17 @@ DGNSS-SatList ::= SEQUENCE (SIZE (1..64)) OF DGNSS-CorrectionsElement
 DGNSS-CorrectionsElement ::= SEQUENCE {
 	svID		 		SV-ID,
 	iod 				BIT STRING (SIZE(11)),
-	udre				INTEGER (0..3),		
+	udre				INTEGER (0..3),
 	pseudoRangeCor		INTEGER (-2047..2047),
 	rangeRateCor		INTEGER (-127..127),
 	udreGrowthRate		INTEGER (0..7)			OPTIONAL,	-- Need ON
-	udreValidityTime	INTEGER (0..7)			OPTIONAL,	-- Need ON	
+	udreValidityTime	INTEGER (0..7)			OPTIONAL,	-- Need ON
 	...
 }
 
 
 GNSS-NavigationModel ::= SEQUENCE {
-	nonBroadcastIndFlag 	INTEGER (0..1), 
+	nonBroadcastIndFlag 	INTEGER (0..1),
 	gnss-SatelliteList 		GNSS-NavModelSatelliteList,
 	...
 }
@@ -969,11 +983,13 @@ GNSS-NavModelSatelliteList ::= SEQUENCE (SIZE(1..64)) OF GNSS-NavModelSatelliteE
 
 GNSS-NavModelSatelliteElement ::= SEQUENCE {
 	svID 				SV-ID,
-	svHealth 			BIT STRING (SIZE(8)), 	
-	iod 				BIT STRING (SIZE(11)),	
+	svHealth 			BIT STRING (SIZE(8)),
+	iod 				BIT STRING (SIZE(11)),
 	gnss-ClockModel		GNSS-ClockModel,
 	gnss-OrbitModel		GNSS-OrbitModel,
-	...
+	...,
+	[[	svHealthExt-v12xy BIT STRING (SIZE(4))			OPTIONAL		-- Need ON
+	]]
 }
 
 GNSS-ClockModel ::= CHOICE {
@@ -982,8 +998,9 @@ GNSS-ClockModel ::= CHOICE {
 	cnav-ClockModel			CNAV-ClockModel, 				-- Model-3
 	glonass-ClockModel		GLONASS-ClockModel,				-- Model-4
 	sbas-ClockModel			SBAS-ClockModel,				-- Model-5
-	...
-} 
+	...,
+	bds-ClockModel-r12		BDS-ClockModel-r12				-- Model-6
+}
 
 GNSS-OrbitModel ::= CHOICE {
 	keplerianSet	 		NavModelKeplerianSet,			-- Model-1
@@ -991,21 +1008,23 @@ GNSS-OrbitModel ::= CHOICE {
 	cnav-KeplerianSet		NavModelCNAV-KeplerianSet,		-- Model-3
 	glonass-ECEF			NavModel-GLONASS-ECEF, 			-- Model-4
 	sbas-ECEF				NavModel-SBAS-ECEF,				-- Model-5
-	...
+	...,
+	bds-KeplerianSet-r12	NavModel-BDS-KeplerianSet-r12	-- Model-6
 }
 
 
 StandardClockModelList ::= SEQUENCE (SIZE(1..2)) OF StandardClockModelElement
 
 StandardClockModelElement ::= SEQUENCE {
- 	stanClockToc 	INTEGER (0..16383), 
- 	stanClockAF2 	INTEGER (-2048..2047), 
- 	stanClockAF1 	INTEGER (-131072..131071), 
- 	stanClockAF0 	INTEGER (-134217728..134217727),
- 	stanClockTgd 	INTEGER (-512..511) 				OPTIONAL,	-- Need ON
- 	stanModelID 	INTEGER (0..1) 						OPTIONAL,	-- Need ON
- 	...
-} 
+	stanClockToc			INTEGER (0..16383),
+	stanClockAF2			INTEGER (-32..31),
+	stanClockAF1			INTEGER (-1048576..1048575),
+	stanClockAF0			INTEGER (-1073741824..1073741823),
+	stanClockTgd			INTEGER (-512..511)				OPTIONAL,	-- Need ON
+	sisa					INTEGER (0..255),
+	stanModelID				INTEGER (0..1)					OPTIONAL,	-- Need ON
+	...
+}
 
 
 NAV-ClockModel ::= SEQUENCE {
@@ -1054,8 +1073,19 @@ SBAS-ClockModel ::= SEQUENCE {
 }
 
 
+BDS-ClockModel-r12 ::= SEQUENCE {
+	bdsAODC-r12			INTEGER (0..31),
+	bdsToc-r12			INTEGER (0..131071),
+	bdsA0-r12			INTEGER (-8388608..8388607),
+	bdsA1-r12			INTEGER (-2097152..2097151),
+	bdsA2-r12			INTEGER (-1024..1023),
+	bdsTgd1-r12			INTEGER (-512..511),
+	...
+}
+
+
 NavModelKeplerianSet ::= SEQUENCE {
-	keplerToe 		 INTEGER (0 .. 16383), 
+	keplerToe 		 INTEGER (0 .. 16383),
 	keplerW			 INTEGER (-2147483648..2147483647),
 	keplerDeltaN	 INTEGER (-32768..32767),
 	keplerM0		 INTEGER (-2147483648..2147483647),
@@ -1167,7 +1197,30 @@ NavModel-SBAS-ECEF ::= SEQUENCE {
 }
 
 
-GNSS-RealTimeIntegrity ::= SEQUENCE { 
+NavModel-BDS-KeplerianSet-r12 ::= SEQUENCE {
+	bdsAODE-r12		 		INTEGER (0..31),
+	bdsURAI-r12				INTEGER (0..15),
+	bdsToe-r12				INTEGER (0..131071),
+	bdsAPowerHalf-r12		INTEGER (0..4294967295),
+	bdsE-r12				INTEGER (0..4294967295),
+	bdsW-r12				INTEGER (-2147483648..2147483647),
+	bdsDeltaN-r12			INTEGER (-32768..32767),
+	bdsM0-r12				INTEGER (-2147483648..2147483647),
+	bdsOmega0-r12			INTEGER (-2147483648..2147483647),
+	bdsOmegaDot-r12			INTEGER (-8388608..8388607),
+	bdsI0-r12				INTEGER (-2147483648..2147483647),
+	bdsIDot-r12				INTEGER (-8192..8191),
+	bdsCuc-r12				INTEGER (-131072..131071),
+	bdsCus-r12				INTEGER (-131072..131071),
+	bdsCrc-r12				INTEGER (-131072..131071),
+	bdsCrs-r12				INTEGER (-131072..131071),
+	bdsCic-r12				INTEGER (-131072..131071),
+	bdsCis-r12				INTEGER (-131072..131071),
+	...
+}
+
+
+GNSS-RealTimeIntegrity ::= SEQUENCE {
  	gnss-BadSignalList 	GNSS-BadSignalList,
 	...
 }
@@ -1175,7 +1228,7 @@ GNSS-RealTimeIntegrity ::= SEQUENCE {
 GNSS-BadSignalList ::= SEQUENCE (SIZE(1..64)) OF BadSignalElement
 
 BadSignalElement ::= SEQUENCE {
- 	badSVID 			SV-ID, 						 
+ 	badSVID 			SV-ID,
  	badSignalID 		GNSS-SignalIDs 	OPTIONAL,	-- Need OP
 	...
 }
@@ -1223,10 +1276,10 @@ GNSS-AcquisitionAssistElement  ::= SEQUENCE {
 	intCodePhase				INTEGER (0..127),
 	codePhaseSearchWindow		INTEGER (0..31),
 	azimuth						INTEGER (0..511),
-	elevation					INTEGER (0..127),		
+	elevation					INTEGER (0..127),
 	...,
 	codePhase1023				BOOLEAN				OPTIONAL, 	-- Need OP
-	dopplerUncertaintyExt-r10	ENUMERATED {	d60, 
+	dopplerUncertaintyExt-r10	ENUMERATED {	d60,
 												d80,
 											 	d100,
 			 									d120,
@@ -1235,39 +1288,44 @@ GNSS-AcquisitionAssistElement  ::= SEQUENCE {
 
 
 GNSS-Almanac ::= SEQUENCE {
- 	weekNumber 					INTEGER (0..255)	OPTIONAL,	-- Need ON
+	weekNumber 					INTEGER (0..255)	OPTIONAL,	-- Need ON
 	toa 						INTEGER (0..255) 	OPTIONAL,	-- Need ON
 	ioda 						INTEGER (0..3) 		OPTIONAL,	-- Need ON
 	completeAlmanacProvided		BOOLEAN,
 	gnss-AlmanacList			GNSS-AlmanacList,
-	...
+	...,
+	[[	toa-ext-v12xy			INTEGER (256..1023)	OPTIONAL,	-- Need ON
+		ioda-ext-v12xy			INTEGER (4..15)		OPTIONAL	-- Need ON
+	]]
 }
 
 GNSS-AlmanacList ::= SEQUENCE (SIZE(1..64)) OF GNSS-AlmanacElement
 
 GNSS-AlmanacElement ::= CHOICE {
-	keplerianAlmanacSet	 	AlmanacKeplerianSet,		-- Model-1
- 	keplerianNAV-Almanac 	AlmanacNAV-KeplerianSet, 	-- Model-2
-	keplerianReducedAlmanac	AlmanacReducedKeplerianSet,	-- Model-3
-	keplerianMidiAlmanac	AlmanacMidiAlmanacSet, 		-- Model-4
-	keplerianGLONASS		AlmanacGLONASS-AlmanacSet, 	-- Model-5
-	ecef-SBAS-Almanac		AlmanacECEF-SBAS-AlmanacSet,-- Model-6
-	...
+	keplerianAlmanacSet	 			AlmanacKeplerianSet,		-- Model-1
+ 	keplerianNAV-Almanac 			AlmanacNAV-KeplerianSet,	-- Model-2
+	keplerianReducedAlmanac			AlmanacReducedKeplerianSet,	-- Model-3
+	keplerianMidiAlmanac			AlmanacMidiAlmanacSet,		-- Model-4
+	keplerianGLONASS				AlmanacGLONASS-AlmanacSet,	-- Model-5
+	ecef-SBAS-Almanac				AlmanacECEF-SBAS-AlmanacSet,-- Model-6
+	...,
+	keplerianBDS-Almanac-r12		AlmanacBDS-AlmanacSet-r12	-- Model-7
 }
 
 
 AlmanacKeplerianSet ::= SEQUENCE {
 	svID					SV-ID,
- 	kepAlmanacE			 	INTEGER (0..2047),
+	kepAlmanacE			 	INTEGER (0..2047),
 	kepAlmanacDeltaI		INTEGER (-1024..1023),
 	kepAlmanacOmegaDot		INTEGER (-1024..1023),
- 	kepSVHealth 			INTEGER (0..15), 			 
-	kepAlmanacAPowerHalf	INTEGER (-65536..65535),
+	kepSV-StatusINAV 		BIT STRING (SIZE (4)),
+	kepSV-StatusFNAV		BIT STRING (SIZE (2))			OPTIONAL,	-- Need ON
+	kepAlmanacAPowerHalf	INTEGER (-4096..4095),
 	kepAlmanacOmega0		INTEGER (-32768..32767),
 	kepAlmanacW			 	INTEGER (-32768..32767),
 	kepAlmanacM0			INTEGER (-32768..32767),
-	kepAlmanacAF0			INTEGER (-8192..8191),
-	kepAlmanacAF1			INTEGER (-1024..1023),
+	kepAlmanacAF0			INTEGER (-32768..32767),
+	kepAlmanacAF1			INTEGER (-4096..4095),
 	...
 }
 
@@ -1351,12 +1409,30 @@ AlmanacECEF-SBAS-AlmanacSet ::= SEQUENCE {
 }
 
 
-GNSS-UTC-Model ::= CHOICE {
-	utcModel1			UTC-ModelSet1,	-- Model-1
-	utcModel2			UTC-ModelSet2,	-- Model-2
-	utcModel3			UTC-ModelSet3,	-- Model-3
-	utcModel4			UTC-ModelSet4,	-- Model-4
+AlmanacBDS-AlmanacSet-r12 ::= SEQUENCE {
+	svID					SV-ID,
+	bdsAlmToa-r12			INTEGER (0..255)						OPTIONAL,	-- Cond NotSameForAllSV
+	bdsAlmSqrtA-r12			INTEGER (0..16777215),
+	bdsAlmE-r12				INTEGER (0..131071),
+	bdsAlmW-r12				INTEGER (-8388608..8388607),
+	bdsAlmM0-r12			INTEGER (-8388608..8388607),
+	bdsAlmOmega0-r12		INTEGER (-8388608..8388607),
+	bdsAlmOmegaDot-r12		INTEGER (-65536..65535),
+	bdsAlmDeltaI-r12		INTEGER (-32768..32767),
+	bdsAlmA0-r12			INTEGER (-1024..1023),
+	bdsAlmA1-r12			INTEGER (-1024..1023),
+	bdsSvHealth-r12			BIT STRING (SIZE(9))					OPTIONAL,	-- Cond SV-ID
 	...
+}
+
+
+GNSS-UTC-Model ::= CHOICE {
+	utcModel1			UTC-ModelSet1,			-- Model-1
+	utcModel2			UTC-ModelSet2,			-- Model-2
+	utcModel3			UTC-ModelSet3,			-- Model-3
+	utcModel4			UTC-ModelSet4,			-- Model-4
+	...,
+	utcModel5-r12		UTC-ModelSet5-r12		-- Model-5
 }
 
 
@@ -1411,6 +1487,17 @@ UTC-ModelSet4 ::= SEQUENCE {
 }
 
 
+UTC-ModelSet5-r12 ::= SEQUENCE {
+	utcA0-r12			INTEGER (-2147483648..2147483647),
+	utcA1-r12			INTEGER (-8388608..8388607),
+	utcDeltaTls-r12		INTEGER (-128..127),
+	utcWNlsf-r12		INTEGER (0..255),
+	utcDN-r12			INTEGER (0..255),
+	utcDeltaTlsf-r12	INTEGER (-128..127),
+	...
+}
+
+
 GNSS-AuxiliaryInformation ::= CHOICE {
 	gnss-ID-GPS		GNSS-ID-GPS,
 	gnss-ID-GLONASS	GNSS-ID-GLONASS,
@@ -1432,7 +1519,48 @@ GNSS-ID-GLONASS-SatElement ::= SEQUENCE {
 	signalsAvailable	GNSS-SignalIDs,
 	channelNumber		INTEGER (-7..13)		OPTIONAL,		-- Cond FDMA
 	...
-}	
+}
+
+
+BDS-DifferentialCorrections-r12 ::= SEQUENCE {
+	dbds-RefTime-r12			INTEGER (0..3599),
+	bds-SgnTypeList-r12			BDS-SgnTypeList-r12,
+	...
+}
+
+BDS-SgnTypeList-r12 ::= SEQUENCE (SIZE (1..3)) OF BDS-SgnTypeElement-r12
+
+BDS-SgnTypeElement-r12 ::= SEQUENCE {
+	gnss-SignalID				GNSS-SignalID				OPTIONAL,	-- Need ON
+	dbds-CorrectionList-r12		DBDS-CorrectionList-r12,
+	...
+}
+
+DBDS-CorrectionList-r12 ::= SEQUENCE (SIZE (1..64)) OF DBDS-CorrectionElement-r12
+
+DBDS-CorrectionElement-r12 ::= SEQUENCE {
+	svID 						SV-ID,
+	bds-UDREI-r12				INTEGER (0..15),
+	bds-RURAI-r12				INTEGER (0..15),
+	bds-ECC-DeltaT-r12			INTEGER (-4096..4095),
+	...
+}
+
+
+BDS-GridModelParameter-r12 ::= SEQUENCE {
+	bds-RefTime-r12			INTEGER (0..3599),
+	gridIonList-r12			GridIonList-r12,
+	...
+}
+
+GridIonList-r12 ::= SEQUENCE (SIZE (1..320)) OF GridIonElement-r12
+
+GridIonElement-r12 ::= SEQUENCE {
+	igp-ID-r12				INTEGER (1..320),
+	dt-r12					INTEGER (0..511),
+	givei-r12				INTEGER (0..15) ,
+	...
+}
 
 
 A-GNSS-RequestAssistanceData ::= SEQUENCE {
@@ -1443,13 +1571,13 @@ A-GNSS-RequestAssistanceData ::= SEQUENCE {
 
 
 GNSS-CommonAssistDataReq ::= SEQUENCE {
-	gnss-ReferenceTimeReq		 		GNSS-ReferenceTimeReq		 		
+	gnss-ReferenceTimeReq		 		GNSS-ReferenceTimeReq
 																OPTIONAL, -- Cond RefTimeReq
-	gnss-ReferenceLocationReq			GNSS-ReferenceLocationReq		 	
+	gnss-ReferenceLocationReq			GNSS-ReferenceLocationReq
 																OPTIONAL, -- Cond RefLocReq
-	gnss-IonosphericModelReq			GNSS-IonosphericModelReq	 			
+	gnss-IonosphericModelReq			GNSS-IonosphericModelReq
 																OPTIONAL, -- Cond IonoModReq
-	gnss-EarthOrientationParametersReq	GNSS-EarthOrientationParametersReq	
+	gnss-EarthOrientationParametersReq	GNSS-EarthOrientationParametersReq
 																OPTIONAL, -- Cond EOPReq
 	...
 }
@@ -1469,14 +1597,20 @@ GNSS-GenericAssistDataReqElement ::= SEQUENCE {
 	gnss-AlmanacReq					GNSS-AlmanacReq					OPTIONAL, -- Cond AlmanacReq
 	gnss-UTCModelReq				GNSS-UTC-ModelReq				OPTIONAL, -- Cond UTCModReq
 	gnss-AuxiliaryInformationReq	GNSS-AuxiliaryInformationReq	OPTIONAL, -- Cond AuxInfoReq
-	...
+	...,
+	[[
+		bds-DifferentialCorrectionsReq-r12
+									BDS-DifferentialCorrectionsReq-r12
+																	OPTIONAL,	-- Cond DBDS-Req
+		bds-GridModelReq-r12		BDS-GridModelReq-r12			OPTIONAL	-- Cond BDS-GridModReq
+	]]
 }
 
 
 GNSS-ReferenceTimeReq ::= SEQUENCE {
-	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,
-	gps-TOW-assistReq		BOOLEAN								OPTIONAL, -- Cond gps
-	notOfLeapSecReq			BOOLEAN								OPTIONAL, -- Cond glonass
+    	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,
+    	gps-TOW-assistReq		BOOLEAN								OPTIONAL, -- Cond gps
+    	notOfLeapSecReq			BOOLEAN								OPTIONAL, -- Cond glonass
 	...
 }
 
@@ -1521,7 +1655,7 @@ GNSS-NavigationModelReq ::= 	CHOICE {
 }
 
 
-StoredNavListInfo ::= SEQUENCE { 
+StoredNavListInfo ::= SEQUENCE {
 	gnss-WeekOrDay			INTEGER (0..4095),
 	gnss-Toe				INTEGER (0..255),
 	t-toeLimit				INTEGER (0..15),
@@ -1533,16 +1667,16 @@ SatListRelatedDataList ::= SEQUENCE (SIZE (1..64)) OF SatListRelatedDataElement
 
 SatListRelatedDataElement ::= SEQUENCE {
 	svID 				SV-ID,
-	iod 				BIT STRING (SIZE(11)),
-	clockModelID		INTEGER (1..8)			OPTIONAL,
-orbitModelID		INTEGER (1..8)			OPTIONAL,
-	...
+    	iod 				BIT STRING (SIZE(11)),
+    	clockModelID		INTEGER (1..8)			OPTIONAL,
+     orbitModelID		INTEGER (1..8)			OPTIONAL,
+    	...
 }
 
-ReqNavListInfo ::=	SEQUENCE { 
+ReqNavListInfo ::=	SEQUENCE {
 	svReqList				BIT STRING (SIZE (64)),
-	clockModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
-	orbitModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,	
+    	clockModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
+	orbitModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
 	addNavparamReq			BOOLEAN				OPTIONAL,	-- Cond orbitModelID-2
 	...
 }
@@ -1559,7 +1693,7 @@ GNSS-DataBitAssistanceReq ::= 	SEQUENCE {
 	gnss-TOD-FracReq	INTEGER (0..999)		OPTIONAL,
 	dataBitInterval		INTEGER (0..15),
 	gnss-SignalType		GNSS-SignalIDs,
-	gnss-DataBitsReq	GNSS-DataBitsReqSatList	OPTIONAL, 
+	gnss-DataBitsReq	GNSS-DataBitsReqSatList	OPTIONAL,
 	...
 }
 
@@ -1594,6 +1728,17 @@ GNSS-AuxiliaryInformationReq ::= 	SEQUENCE {
 }
 
 
+BDS-DifferentialCorrectionsReq-r12 ::= 	SEQUENCE {
+	dgnss-SignalsReq			GNSS-SignalIDs,
+	...
+}
+
+
+BDS-GridModelReq-r12 ::= 	SEQUENCE {
+	...
+}
+
+
 A-GNSS-ProvideLocationInformation ::= SEQUENCE {
 	gnss-SignalMeasurementInformation	GNSS-SignalMeasurementInformation		OPTIONAL,
 	gnss-LocationInformation			GNSS-LocationInformation				OPTIONAL,
@@ -1611,8 +1756,8 @@ GNSS-SignalMeasurementInformation ::= SEQUENCE {
 
 MeasurementReferenceTime  ::= SEQUENCE {
 	gnss-TOD-msec		INTEGER (0..3599999),
-	gnss-TOD-frac		INTEGER (0..3999)			OPTIONAL,		
-	gnss-TOD-unc		INTEGER (0..127)			OPTIONAL,		
+	gnss-TOD-frac		INTEGER (0..3999)			OPTIONAL,
+	gnss-TOD-unc		INTEGER (0..127)			OPTIONAL,
 	gnss-TimeID			GNSS-ID,
 	networkTime			CHOICE {
 		eUTRA	SEQUENCE {
@@ -1650,7 +1795,7 @@ MeasurementReferenceTime  ::= SEQUENCE {
 				...
 				},
 		...
-		}		OPTIONAL,												
+		}		OPTIONAL,
 	...
 }
 
@@ -1678,10 +1823,10 @@ GNSS-SatMeasElement ::= SEQUENCE {
 	svID 				SV-ID,
 	cNo 				INTEGER (0..63),
 	mpathDet 			ENUMERATED {notMeasured (0), low (1), medium (2), high (3), ...},
-	carrierQualityInd 	INTEGER (0..3) 				OPTIONAL, 	 
+	carrierQualityInd 	INTEGER (0..3) 				OPTIONAL,
 	codePhase 			INTEGER (0..2097151),
 	integerCodePhase 	INTEGER (0..127) 			OPTIONAL,
-	codePhaseRMSError 	INTEGER (0..63), 						 
+	codePhaseRMSError 	INTEGER (0..63),
 	doppler 			INTEGER (-32768..32767) 	OPTIONAL,
 	adr 				INTEGER (0..33554431) 		OPTIONAL,
 	...
@@ -1690,7 +1835,7 @@ GNSS-SatMeasElement ::= SEQUENCE {
 
 GNSS-LocationInformation ::= SEQUENCE {
 	measurementReferenceTime		MeasurementReferenceTime,
-	agnss-List						GNSS-ID-Bitmap,					
+	agnss-List						GNSS-ID-Bitmap,
 	...
 }
 
@@ -1702,7 +1847,7 @@ A-GNSS-RequestLocationInformation ::= SEQUENCE {
 
 
 GNSS-PositioningInstructions ::= SEQUENCE {
-	gnss-Methods				GNSS-ID-Bitmap,	
+	gnss-Methods				GNSS-ID-Bitmap,
 	fineTimeAssistanceMeasReq	BOOLEAN,
 	adrMeasReq					BOOLEAN,
 	multiFreqMeasReq			BOOLEAN,
@@ -1724,7 +1869,7 @@ GNSS-SupportList ::= SEQUENCE (SIZE(1..16)) OF GNSS-SupportElement
 GNSS-SupportElement ::= SEQUENCE {
 	gnss-ID							GNSS-ID,
 	sbas-IDs						SBAS-IDs					OPTIONAL,	-- Cond GNSS-ID-SBAS
-	agnss-Modes						PositioningModes, 
+	agnss-Modes						PositioningModes,
 	gnss-Signals					GNSS-SignalIDs,
 	fta-MeasSupport					SEQUENCE {
 										cellTime	AccessTypes,
@@ -1737,7 +1882,7 @@ GNSS-SupportElement ::= SEQUENCE {
 }
 
 AssistanceDataSupportList ::= SEQUENCE {
-	gnss-CommonAssistanceDataSupport	GNSS-CommonAssistanceDataSupport,
+    	gnss-CommonAssistanceDataSupport	GNSS-CommonAssistanceDataSupport,
 	gnss-GenericAssistanceDataSupport	GNSS-GenericAssistanceDataSupport,
 	...
 }
@@ -1745,13 +1890,13 @@ AssistanceDataSupportList ::= SEQUENCE {
 
 
 GNSS-CommonAssistanceDataSupport ::= SEQUENCE {
-	gnss-ReferenceTimeSupport		 		GNSS-ReferenceTimeSupport		 		
+	gnss-ReferenceTimeSupport		 		GNSS-ReferenceTimeSupport
 																OPTIONAL, -- Cond RefTimeSup
-	gnss-ReferenceLocationSupport			GNSS-ReferenceLocationSupport		 	
+	gnss-ReferenceLocationSupport			GNSS-ReferenceLocationSupport
 																OPTIONAL, -- Cond RefLocSup
-	gnss-IonosphericModelSupport			GNSS-IonosphericModelSupport	 			
+	gnss-IonosphericModelSupport			GNSS-IonosphericModelSupport
 																OPTIONAL, -- Cond IonoModSup
-	gnss-EarthOrientationParametersSupport	GNSS-EarthOrientationParametersSupport	
+	gnss-EarthOrientationParametersSupport	GNSS-EarthOrientationParametersSupport
 																OPTIONAL, -- Cond EOPSup
 	...
 }
@@ -1781,12 +1926,12 @@ GNSS-EarthOrientationParametersSupport ::= 	SEQUENCE {
 }
 
 
-GNSS-GenericAssistanceDataSupport ::= 
+GNSS-GenericAssistanceDataSupport ::=
 								SEQUENCE (SIZE (1..16)) OF GNSS-GenericAssistDataSupportElement
 
 GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 	gnss-ID 							GNSS-ID,
-	sbas-ID								SBAS-ID 					OPTIONAL, -- Cond GNSS-ID-SBAS
+	sbas-ID								SBAS-ID 					OPTIONAL, -- Cond GNSSIDSBAS
 	gnss-TimeModelsSupport				GNSS-TimeModelListSupport
 																	OPTIONAL, -- Cond TimeModSup
 	gnss-DifferentialCorrectionsSupport	GNSS-DifferentialCorrectionsSupport
@@ -1805,7 +1950,14 @@ GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 																	OPTIONAL, -- Cond UTCModSup
 	gnss-AuxiliaryInformationSupport	GNSS-AuxiliaryInformationSupport
 																	OPTIONAL, -- Cond AuxInfoSup
-	...
+	...,
+	[[
+		bds-DifferentialCorrectionsSupport-r12
+										BDS-DifferentialCorrectionsSupport-r12
+																	OPTIONAL, -- Cond DBDS-Sup
+		bds-GridModelSupport-r12		BDS-GridModelSupport-r12
+																	OPTIONAL	 -- Cond BDS-GridModSup
+	]]
 }
 
 
@@ -1826,12 +1978,14 @@ GNSS-NavigationModelSupport ::= SEQUENCE {
 									model-2 	(1),
 									model-3		(2),
 									model-4		(3),
-									model-5		(4) } (SIZE (1..8))		OPTIONAL,
+									model-5		(4),
+									model-6		(5) } (SIZE (1..8))		OPTIONAL,
 	orbitModel		BIT STRING { 	model-1 	(0),
 									model-2 	(1),
 									model-3		(2),
 									model-4		(3),
-									model-5		(4) } (SIZE (1..8))		OPTIONAL,
+									model-5		(4),
+									model-6		(5) } (SIZE (1..8))		OPTIONAL,
 	...
 }
 
@@ -1859,7 +2013,8 @@ GNSS-AlmanacSupport ::= 	SEQUENCE {
 										model-3		(2),
 										model-4		(3),
 										model-5		(4),
-										model-6 	(5) } (SIZE (1..8))		OPTIONAL,
+										model-6 	(5),
+										model-7		(6) } (SIZE (1..8))		OPTIONAL,
 	...
 }
 
@@ -1868,12 +2023,24 @@ GNSS-UTC-ModelSupport ::= 	SEQUENCE {
 	utc-Model		BIT STRING { 	model-1 	(0),
 									model-2 	(1),
 									model-3		(2),
-									model-4		(3) } (SIZE (1..8))		OPTIONAL,
+									model-4		(3),
+									model-5		(4) } (SIZE (1..8))		OPTIONAL,
 	...
 }
 
 
 GNSS-AuxiliaryInformationSupport ::= 	SEQUENCE {
+	...
+}
+
+
+BDS-DifferentialCorrectionsSupport-r12 ::= 	SEQUENCE {
+	gnssSignalIDs			GNSS-SignalIDs,
+	...
+}
+
+
+BDS-GridModelSupport-r12 ::= 	SEQUENCE {
 	...
 }
 
@@ -1894,7 +2061,7 @@ A-GNSS-Error ::= CHOICE {
 
 
 GNSS-LocationServerErrorCauses ::= SEQUENCE {
-	cause		ENUMERATED	{	
+	cause		ENUMERATED	{
 					undefined,
 					undeliveredAssistanceDataIsNotSupportedByServer,
 					undeliveredAssistanceDataIsSupportedButCurrentlyNotAvailableByServer,								undeliveredAssistanceDataIsPartlyNotSupportedAndPartlyNotAvailableByServer,
@@ -1906,7 +2073,7 @@ GNSS-LocationServerErrorCauses ::= SEQUENCE {
 
 GNSS-TargetDeviceErrorCauses ::= SEQUENCE {
 	cause		ENUMERATED {	undefined,
-								thereWereNotEnoughSatellitesReceived, 
+								thereWereNotEnoughSatellitesReceived,
 								assistanceDataMissing,
 								notAllRequestedMeasurementsPossible,
 								...
@@ -1919,41 +2086,42 @@ GNSS-TargetDeviceErrorCauses ::= SEQUENCE {
 
 
 GNSS-ID ::= SEQUENCE {
-	gnss-id				ENUMERATED{ gps, sbas, qzss, galileo, glonass, ...},
+	gnss-id				ENUMERATED{ gps, sbas, qzss, galileo, glonass, ..., bds },
 	...
 }
 
 
 GNSS-ID-Bitmap ::= SEQUENCE {
-	gnss-ids			BIT STRING {	gps 		(0),	
+	gnss-ids			BIT STRING {	gps 		(0),
 										sbas 		(1),
 										qzss		(2),
 										galileo		(3),
-										glonass		(4)	 } (SIZE (1..16)),
+										glonass		(4),
+										bds			(5) } (SIZE (1..16)),
 	...
 }
 
 
-GNSS-SignalID	::= SEQUENCE { 
+GNSS-SignalID	::= SEQUENCE {
 	gnss-SignalID		INTEGER (0 .. 7),
 	...
 }
 
 
-GNSS-SignalIDs	::= SEQUENCE { 
+GNSS-SignalIDs	::= SEQUENCE {
 	gnss-SignalIDs		BIT STRING (SIZE(8)),
 	...
 }
 
 
-SBAS-ID ::= SEQUENCE { 
+SBAS-ID ::= SEQUENCE {
 	sbas-id				ENUMERATED { waas, egnos, msas, gagan, ...},
 	...
 }
 
 
-SBAS-IDs ::= SEQUENCE { 
-	sbas-IDs		BIT STRING {	waas 		(0),	
+SBAS-IDs ::= SEQUENCE {
+	sbas-IDs		BIT STRING {	waas 		(0),
 									egnos 		(1),
 									msas		(2),
 									gagan		(3)	 } (SIZE (1..8)),
@@ -1961,7 +2129,7 @@ SBAS-IDs ::= SEQUENCE {
 }
 
 
-SV-ID ::= SEQUENCE { 
+SV-ID ::= SEQUENCE {
 	satellite-id		INTEGER(0..63),
 	...
 }
@@ -1992,7 +2160,7 @@ MeasuredResultsElement ::= SEQUENCE {
 	rsrq-Result		INTEGER (0..34)						OPTIONAL,
 	ue-RxTxTimeDiff	INTEGER (0..4095)					OPTIONAL,
 	...,
-	[[ arfcnEUTRA-v9a0		ARFCN-ValueEUTRA-v9a0 		OPTIONAL		-- Cond EARFCN-max 
+	[[ arfcnEUTRA-v9a0		ARFCN-ValueEUTRA-v9a0 		OPTIONAL		-- Cond EARFCN-max
 	]]
 }
 
@@ -2026,7 +2194,7 @@ ECID-Error ::= CHOICE {
 
 
 ECID-LocationServerErrorCauses ::= SEQUENCE {
-	cause		ENUMERATED	{	undefined,								
+	cause		ENUMERATED	{	undefined,
 								...
 							},
 	...
