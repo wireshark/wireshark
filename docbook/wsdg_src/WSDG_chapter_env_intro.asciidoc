@@ -27,24 +27,23 @@ which will provide a lot of general information about it.
 === Supported Platforms
 
 Wireshark currently runs on most UNIX platforms and various Windows
-platforms. It requires GTK+, GLib, libpcap and some other libraries in
+platforms. It requires Qt, GLib, libpcap and some other libraries in
 order to run.
 
-As Wireshark is developed in a platform independent way and uses libraries
-(such as the GTK+ GUI library) which are available for a lot of different platforms,
+As Wireshark is developed in a platform independent way and uses libraries (such
+as the Qt GUI library) which are available for many different platforms,
 it's thus available on a wide variety of platforms.
 
 If a binary package is not available for your platform, you should
 download the source and try to build it. Please report your experiences
 to mailto:wireshark-dev-list-email:[][wireshark-dev-list-email:[]].
 
-Binary packages are available for at least the following platforms:
+Binary packages are available for the following platforms along with many
+others:
 
 ==== Unix
 
 * Apple Mac OS X
-
-* BeOS
 
 * FreeBSD
 
@@ -56,15 +55,7 @@ Binary packages are available for at least the following platforms:
 
 * OpenBSD
 
-* SCO UnixWare/OpenUnix
-
-* SGI Irix
-
-* Sun Solaris/Intel
-
-* Sun Solaris/Sparc
-
-* Tru64 UNIX (formerly Digital UNIX)
+* Oracle Solaris
 
 ==== Linux
 
@@ -321,8 +312,6 @@ The Buildbot runs on a platform collection that represents the different
 
 * Solaris SPARC (Solaris, big endian, gcc)
 
-* Mac OS-X PPC (BSD, big endian, gcc)
-
 * Mac OS-X x86 (BSD, little endian, Clang)
 
 * Mac OS-X x86-64 (BSD, little endian, Clang)
@@ -352,9 +341,7 @@ course).
 You will find lots of useful information on the Wireshark homepage at
 wireshark-web-site:[].
 
-
 [[ChIntroWiki]]
-
 
 ==== Wiki
 
