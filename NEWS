@@ -15,6 +15,20 @@ What's New
   New and Updated Features
 
    The following features are new (or have been significantly updated)
+   since version 1.99.1:
+     * Qt port:
+          + The welcome screen layout has been updated.
+          + The Preferences dialog no longer crashes on Windows.
+          + The packet list header menu has been added.
+          + Statistics tree plugins are now supported.
+          + The window icon is now displayed properly in the Windows
+            taskbar.
+          + A packet list an byte view selection bug has been fixed
+            ([1]Bug 10896)
+          + The RTP Streams dialog has been added.
+          + The Protocol Hierarchy Statistics dialog has been added.
+
+   The following features are new (or have been significantly updated)
    since version 1.99.0:
      * Qt port:
           + You can now show and hide toolbars and major widgets using the
@@ -35,6 +49,11 @@ What's New
        distribution, number of resource record per response section, and
        stats data (min, max, avg) for values such as query name length or
        DNS payload.
+     * HPFEEDS stats: + A new stats tree has been added to the statistics
+       menu. Now it is possible to collect stats per channel (messages
+       count and payload size), and opcode distribution.
+     * HTTP2 stats: + A new stats tree has been added to the statistics
+       menu. Now it is possible to collect stats (type distribution).
 
    The following features are new (or have been significantly updated)
    since version 1.12.0:
@@ -67,7 +86,7 @@ What's New
    Couchbase, CP "Cooper" 2179, DJI UAV Drone Control Protocol, Dynamic
    Source Routing (RFC 4728), Elasticsearch, ETSI Card Application Toolkit
    - Transport Protocol, Generic Network Virtualization Encapsulation
-   (Geneve), GVSP, HiQnet, IPMI Trace, iSER, KNXnetIP, MACsec Key
+   (Geneve), GVSP, HCrt, HiQnet, IPMI Trace, iSER, KNXnetIP, MACsec Key
    Agreement - EAPoL-MKA, MCPE (Minecraft Pocket Edition), OptoMMP, RakNet
    games library, Riemann, S7 Communication, Shared Memory Communications
    - RDMA, Stateless Transport Tunneling, and ZVT Kassenschnittstelle
@@ -84,8 +103,9 @@ What's New
   Major API Changes
 
    The libwireshark API has undergone some major changes:
-     * Many of the ep_ and se_ memory allocation routines and methods that
-       invoked them implicitly have been removed.
+     * The emem framework (including all ep_ and se_ memory allocation
+       routines) has been completely removed in favour of wmem which is
+       now fully mature.
      * The (long-since-broken) Python bindings support has been removed.
        If you want to write dissectors in something other than C, use Lua.
      __________________________________________________________________
@@ -93,14 +113,14 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [1]https://www.wireshark.org/download.html.
+   [2]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [2]download page on the Wireshark web site.
+   found on the [3]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -113,69 +133,70 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([3]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([4]Bug 1419)
 
-   The BER dissector might infinitely loop. ([4]Bug 1516)
+   The BER dissector might infinitely loop. ([5]Bug 1516)
 
-   Capture filters aren't applied when capturing from named pipes. ([5]Bug
+   Capture filters aren't applied when capturing from named pipes. ([6]Bug
    1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([6]Bug 2234)
+   ([7]Bug 2234)
 
-   Resolving ([7]Bug 9044) reopens ([8]Bug 3528) so that Wireshark no
+   Resolving ([8]Bug 9044) reopens ([9]Bug 3528) so that Wireshark no
    longer automatically decodes gzip data when following a TCP stream.
 
-   Application crash when changing real-time option. ([9]Bug 4035)
+   Application crash when changing real-time option. ([10]Bug 4035)
 
-   Hex pane display issue after startup. ([10]Bug 4056)
+   Hex pane display issue after startup. ([11]Bug 4056)
 
-   Packet list rows are oversized. ([11]Bug 4357)
+   Packet list rows are oversized. ([12]Bug 4357)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([12]Bug 4985)
+   ([13]Bug 4985)
 
    The 64-bit version of Wireshark will leak memory on Windows when the
-   display depth is set to 16 bits ([13]Bug 9914)
+   display depth is set to 16 bits ([14]Bug 9914)
 
-   Wireshark should let you work with multiple capture files. ([14]Bug
+   Wireshark should let you work with multiple capture files. ([15]Bug
    10488)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [15]Wireshark's Q&A site and on the
+   Community support is available on [16]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [16]the web site.
+   all of Wireshark's mailing lists can be found on [17]the web site.
 
    Official Wireshark training and certification are available from
-   [17]Wireshark University.
+   [18]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [18]Wireshark web site.
+   A complete FAQ is available on the [19]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2015-01-20 20:55:56 UTC
+   Last updated 2015-02-04 18:54:49 UTC
 
 References
 
-   1. https://www.wireshark.org/download.html
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9914
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  15. http://ask.wireshark.org/
-  16. https://www.wireshark.org/lists/
-  17. http://www.wiresharktraining.com/
-  18. https://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10896
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9914
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  16. http://ask.wireshark.org/
+  17. https://www.wireshark.org/lists/
+  18. http://www.wiresharktraining.com/
+  19. https://www.wireshark.org/faq.html
