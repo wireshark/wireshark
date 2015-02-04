@@ -87,6 +87,22 @@
     </widget>
    </item>
   </layout>
+  <action name="actionCopyAsCsv">
+   <property name="text">
+    <string>Copy as CSV</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy stream list as CSV.</string>
+   </property>
+  </action>
+  <action name="actionCopyAsYaml">
+   <property name="text">
+    <string>Copy as YAML</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy stream list as YAML.</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>

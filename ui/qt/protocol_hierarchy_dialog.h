@@ -27,6 +27,9 @@
 
 #include <QMenu>
 
+class QPushButton;
+class QTreeWidgetItem;
+
 namespace Ui {
 class ProtocolHierarchyDialog;
 }
@@ -63,10 +66,13 @@ signals:
 private slots:
     void showProtoHierMenu(QPoint pos);
     void filterActionTriggered();
+    void on_actionCopyAsCsv_triggered();
+    void on_actionCopyAsYaml_triggered();
     void on_buttonBox_helpRequested();
 
 private:
     Ui::ProtocolHierarchyDialog *ui;
+    QPushButton *copy_button_;
     QMenu ctx_menu_;
     PercentBarDelegate percent_bar_delegate_;
     QString display_filter_;
@@ -74,6 +80,7 @@ private:
     // Callback for g_node_children_foreach
     static void addTreeNode(GNode *node, gpointer data);
     void updateWidgets();
+    QList<QVariant> protoHierRowData(QTreeWidgetItem *item) const;
 };
 
 #endif // PROTOCOL_HIERARCHY_DIALOG_H
