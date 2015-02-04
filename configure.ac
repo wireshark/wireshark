@@ -2128,9 +2128,9 @@ AC_SUBST(randpkt_man)
 
 AC_SUBST(wiresharkfilter_man)
 
-dnl Checks for "gethostbyname()" - and "-lnsl", if we need it to get
-dnl "gethostbyname()".
-AC_WIRESHARK_GETHOSTBY_LIB_CHECK
+dnl Checks for "getaddrinfo()" - and "-lnsl", if we need it to get
+dnl "getaddrinfo()".
+AC_WIRESHARK_GETADDRINFO_LIB_CHECK
 
 dnl Checks for "connect()", used as a proxy for "socket()" - and
 dnl "-lsocket", if we need it to get "connect()".

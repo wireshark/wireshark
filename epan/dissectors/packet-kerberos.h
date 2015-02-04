@@ -68,7 +68,7 @@ int dissect_krb5_cname(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *
 int dissect_krb5_realm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_);
 guint32 kerberos_output_keytype(void);
 
-guint get_krb_pdu_len(packet_info *, tvbuff_t *tvb, int offset, void *data);
+guint get_krb_pdu_len(packet_info *, tvbuff_t *tvb, int offset, void *data _U_);
 
 gint kerberos_rm_to_reclen(guint krb_rm);
 

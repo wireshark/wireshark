@@ -268,25 +268,27 @@ yes
 ])
 
 #
-# AC_WIRESHARK_GETHOSTBY_LIB_CHECK
+# AC_WIRESHARK_GETADDRINFO_LIB_CHECK
 #
-# Checks whether we need "-lnsl" to get "gethostby*()", which we use
-# in "resolv.c".
+# Checks whether we need "-lnsl" to get "getaddrinfo()", which we use
+# in "addr_resolv.c".
 #
 # Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
 # GNU Autoconf 2.13; the comment came from there.
 # Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14.
 #
-AC_DEFUN([AC_WIRESHARK_GETHOSTBY_LIB_CHECK],
+AC_DEFUN([AC_WIRESHARK_GETADDRINFO_LIB_CHECK],
 [
+    # Comments below apply to gethostbyname(), from which this was
+    # migrated:
     # msh@cis.ufl.edu says -lnsl (and -lsocket) are needed for his 386/AT,
     # to get the SysV transport functions.
     # chad@anasazi.com says the Pyramid MIS-ES running DC/OSx (SVR4)
     # needs -lnsl.
     # The nsl library prevents programs from opening the X display
     # on Irix 5.2, according to dickey@clark.net.
-    AC_CHECK_FUNC(gethostbyname, ,
-	AC_CHECK_LIB(nsl, gethostbyname, NSL_LIBS="-lnsl"))
+    AC_CHECK_FUNC(getaddrinfo, ,
+	AC_CHECK_LIB(nsl, getaddrinfo, NSL_LIBS="-lnsl"))
     AC_SUBST(NSL_LIBS)
 ])
 
@@ -294,7 +296,7 @@ AC_DEFUN([AC_WIRESHARK_GETHOSTBY_LIB_CHECK],
 # AC_WIRESHARK_SOCKET_LIB_CHECK
 #
 # Checks whether we need "-lsocket" to get "socket()", which is used
-# by libpcap on some platforms - and, in effect, "gethostby*()" on
+# by libpcap on some platforms - and, in effect, "getaddrinfo()" on
 # most if not all platforms (so that it can use NIS or DNS or...
 # to look up host names).
 #

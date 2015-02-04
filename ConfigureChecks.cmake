@@ -76,7 +76,7 @@ cmake_pop_check_state()
 # and there's not actually a function named floorl()
 #
 check_symbol_exists("floorl" "math.h"    HAVE_FLOORL)
-check_function_exists("gethostbyname2"   HAVE_GETHOSTBYNAME2)
+check_function_exists("getaddrinfo"      HAVE_GETADDRINFO)
 check_function_exists("getopt_long"      HAVE_GETOPT_LONG)
 if(HAVE_GETOPT_LONG)
     if(HAVE_GETOPT_H)

@@ -3185,7 +3185,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
     fd_set rfds, wfds;
     async_hostent_t ahe;
 #else /* HAVE_C_ARES */
-    struct hostent      *hp;
+    struct addrinfo hint, *result = NULL;
 #endif /* HAVE_C_ARES */
 
     /*
@@ -3234,16 +3234,23 @@ get_host_ipaddr(const char *host, guint32 *addrp)
         }
         return FALSE;
 #else /* ! HAVE_C_ARES */
-        hp = gethostbyname(host);
-        if (hp == NULL) {
-            /* No. */
-            return FALSE;
-            /* Apparently, some versions of gethostbyaddr can
-             * return IPv6 addresses. */
-        } else if (hp->h_length <= (int) sizeof (struct in_addr)) {
-            memcpy(&ipaddr, hp->h_addr, hp->h_length);
-        } else {
-            return FALSE;
+        /*
+         * This can be slow, particularly for capture files with lots of
+         * addresses. Should we just return FALSE instead?
+         */
+        memset(&hint, 0, sizeof(hint));
+        hint.ai_family = AF_INET;
+        if (getaddrinfo(host, NULL, &hint, &result) == 0) {
+            /* Probably more checks than necessary */
+            if (result != NULL) {
+                gboolean ret_val = FALSE;
+                if (result->ai_family == AF_INET && result->ai_addrlen == 4) {
+                    memcpy(&ipaddr, result->ai_addr->sa_data, result->ai_addrlen);
+                    ret_val = TRUE;
+                }
+                freeaddrinfo(result);
+                return ret_val;
+            }
         }
 #endif /* HAVE_C_ARES */
     } else {
@@ -3274,8 +3281,8 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     int nfds;
     fd_set rfds, wfds;
     async_hostent_t ahe;
-#elif defined(HAVE_GETHOSTBYNAME2)
-    struct hostent *hp;
+#elif defined(HAVE_GETADDRINFO)
+    struct addrinfo hint, *result = NULL;
 #endif /* HAVE_C_ARES */
 
     if (str_to_ip6(host, addrp))
@@ -3319,11 +3326,24 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     if (ahe.addr_size == ahe.copied) {
         return TRUE;
     }
-#elif defined(HAVE_GETHOSTBYNAME2)
-    hp = gethostbyname2(host, AF_INET6);
-    if (hp != NULL && hp->h_length == sizeof(struct e_in6_addr)) {
-        memcpy(addrp, hp->h_addr, hp->h_length);
-        return TRUE;
+#elif defined(HAVE_GETADDRINFO)
+    /*
+     * This can be slow, particularly for capture files with lots of
+     * addresses. Should we just return FALSE instead?
+     */
+    memset(&hint, 0, sizeof(hint));
+    hint.ai_family = AF_INET6;
+    if (getaddrinfo(host, NULL, &hint, &result) == 0) {
+        /* Probably more checks than necessary */
+        if (result != NULL) {
+            gboolean ret_val = FALSE;
+            if (result->ai_family == AF_INET6 && result->ai_addrlen == sizeof(struct e_in6_addr)) {
+                memcpy(addrp, result->ai_addr->sa_data, result->ai_addrlen);
+                ret_val = TRUE;
+            }
+            freeaddrinfo(result);
+            return ret_val;
+        }
     }
 #endif
 
@@ -3336,17 +3356,24 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
  * that we don't know)
  */
 const char* host_ip_af(const char *host
-#ifndef HAVE_GETHOSTBYNAME2
+#ifndef HAVE_GETADDRINFO
         _U_
 #endif
         )
 {
-#ifdef HAVE_GETHOSTBYNAME2
-    struct hostent *h;
-    return (h = gethostbyname2(host, AF_INET6)) && h->h_addrtype == AF_INET6 ? "ip6" : "ip";
-#else
-    return "ip";
+    const char *af = "ip";
+#ifdef HAVE_GETADDRINFO
+    struct addrinfo hint, *result = NULL;
+    memset(&hint, 0, sizeof(hint));
+    hint.ai_family = AF_UNSPEC;
+    if (getaddrinfo(host, NULL, &hint, &result) == 0) {
+        if (result->ai_family == AF_INET6) {
+            af = "ip6";
+        }
+        freeaddrinfo(result);
+    }
 #endif
+    return af;
 }
 
 GHashTable *
