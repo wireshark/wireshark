@@ -2067,7 +2067,7 @@ ADD_CUSTOM_COMMAND(
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
-	add_custom_target(app_bundle ALL)
+	add_custom_target(app_bundle)
 	set_target_properties(app_bundle PROPERTIES FOLDER "Copy Tasks")
 	add_custom_command(TARGET app_bundle
 		POST_BUILD
