@@ -691,6 +691,7 @@ static int hf_ospf_v3_lsa_referenced_ls_type = -1;
 static int hf_ospf_mpls_encoding = -1;
 static int hf_ospf_lsa_external_type = -1;
 static int hf_ospf_lsa_tos = -1;
+static int hf_ospf_lsa_external_tos = -1;
 static int hf_ospf_v3_lsa_type = -1;
 static int hf_ospf_metric = -1;
 static int hf_ospf_prefix_length = -1;
@@ -2600,39 +2601,30 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_uint(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 4,
-                            tvb_get_ntoh24(tvb, offset + 1));
-        offset += 4;
+        if ((offset+4) > end_offset)
+                expert_add_info_format(pinfo, lsa_ti, &ei_ospf_lsa_constraint_missing, "1 or more TOS metrics required");
 
-        /* Metric specific information, if any */
         while (offset < end_offset) {
-            proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "%s: %u, Metric: %u",
-                                metric_type_str,
-                                tvb_get_guint8(tvb, offset),
-                                tvb_get_ntoh24(tvb, offset + 1));
-            offset += 4;
+            proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_tos, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 3,
+                                ENC_BIG_ENDIAN);
+            offset += 3;
         }
         break;
 
     case OSPF_LSTYPE_ASEXT:
     case OSPF_LSTYPE_ASEXT7:
-    {
-        gboolean first_block = 1;
-
         proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_asext_netmask,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         if ((offset+12) > end_offset)
-                expert_add_info_format(pinfo, lsa_ti, &ei_ospf_lsa_constraint_missing, "1 or more forwarding blocks required");
+                expert_add_info_format(pinfo, lsa_ti, &ei_ospf_lsa_constraint_missing, "1 or more TOS forwarding blocks required");
 
         while (offset < end_offset) {
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_external_type, tvb, offset, 1, ENC_NA);
-
-            /* TOS field is only present for the metric-specific (2nd and subsequent) blocks */
-            if (first_block == 0) {
-                proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_tos, tvb, offset, 1, ENC_NA);
-            }
+            proto_tree_add_item(ospf_lsa_tree, hf_ospf_lsa_external_tos, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_metric, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -2645,11 +2637,8 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_ls_asext_extrtrtag,
                                 tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-
-            first_block = 0;
         }
         break;
-    }
 
     case OSPF_LSTYPE_OP_LINKLOCAL:
     case OSPF_LSTYPE_OP_AREALOCAL:
@@ -3677,7 +3666,8 @@ proto_register_ospf(void)
       { &hf_ospf_v3_lsa_link_local_interface_address, { "Link-local Interface Address", "ospf.v3.lsa.link_local_interface_address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_referenced_advertising_router, { "Referenced Advertising Router", "ospf.v3.lsa.referenced_advertising_router", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ospf_lsa_external_type, { "External Type", "ospf.lsa.asext.type", FT_BOOLEAN, 8, TFS(&tfs_lsa_external_type), 0x80, NULL, HFILL }},
-      { &hf_ospf_lsa_tos, { "TOS", "ospf.lsa.tos", FT_BOOLEAN, 8, NULL, 0x7f, NULL, HFILL }},
+      { &hf_ospf_lsa_tos, { "TOS", "ospf.lsa.tos", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_ospf_lsa_external_tos, { "TOS", "ospf.lsa.tos", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
       { &hf_ospf_v3_lsa_type, { "Type", "ospf.v3.lsa.type", FT_UINT8, BASE_DEC, VALS(ospf_v3_lsa_type_vals), 0, NULL, HFILL }},
       { &hf_ospf_metric, { "Metric", "ospf.metric", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_ospf_prefix_length, { "PrefixLength", "ospf.prefix_length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
