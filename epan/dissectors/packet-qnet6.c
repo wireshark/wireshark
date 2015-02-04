@@ -22,12 +22,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -1497,9 +1491,9 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
 {
 #define PAIRS 6
   proto_item *ti;
-  proto_tree *stree, *srctree, *dstree, *sstree;
+  proto_tree *stree, *srctree, *dstree, *sstree = NULL;
   guint32 total_len, off, len, rlen;
-  gint lr_start, i, hf_index_off, hf_index_len, hf_index;
+  gint lr_start, i, hf_index_off = -1, hf_index_len = -1, hf_index = -1;
   guint8 type;
   guint8 const *p, *name[PAIRS];
 
