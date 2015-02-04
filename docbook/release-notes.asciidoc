@@ -22,6 +22,20 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 1.99.1:
+
+* Qt port:
+
+** The welcome screen layout has been updated.
+** The Preferences dialog no longer crashes on Windows.
+** The packet list header menu has been added.
+** Statistics tree plugins are now supported.
+** The window icon is now displayed properly in the Windows taskbar.
+** A packet list an byte view selection bug has been fixed (ws-buglink:10896[])
+** The RTP Streams dialog has been added.
+** The Protocol Hierarchy Statistics dialog has been added.
+
+The following features are new (or have been significantly updated)
 since version 1.99.0:
 
 * Qt port:
