@@ -2381,6 +2381,9 @@ if test "x$want_lua" != "xno" ; then
 	then
                 AC_MSG_ERROR([Lua support was requested, but is not available])
 	fi
+fi
+if test "x$have_lua" = "xyes"
+then
 	AC_DEFINE(HAVE_LUA, 1, [Define to use Lua])
 fi
 AM_CONDITIONAL(HAVE_LIBLUA, test x$have_lua = xyes)
