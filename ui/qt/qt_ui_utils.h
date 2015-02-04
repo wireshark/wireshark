@@ -118,7 +118,8 @@ const QString address_to_display_qstring(const struct _address *address);
  *
  * @return A QString representation of the value_string.
  */
-const QString val_to_qstring(const guint32 val, const value_string *vs, const char *fmt);
+const QString val_to_qstring(const guint32 val, const value_string *vs, const char *fmt)
+G_GNUC_PRINTF(3, 0);
 
 /** Convert an value_string_ext to a QString using val_to_str_ext_wmem().
  *
@@ -128,7 +129,8 @@ const QString val_to_qstring(const guint32 val, const value_string *vs, const ch
  *
  * @return A QString representation of the value_string_ext.
  */
-const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt);
+const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt)
+G_GNUC_PRINTF(3, 0);
 
 /**
  * Round the current size of a font up to its next "smooth" size.
