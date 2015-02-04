@@ -662,6 +662,33 @@ proto_tree *subtree;
 
 #.END
 
+#.FN_BODY AdditionalCallingPartyNumber VAL_PTR = &parameter_tvb
+/*
+* Digits {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE(
+*	bound.&minDigitsLength .. bound.&maxDigitsLength))
+*-- Indicates the address signalling digits.
+*-- Refer to ETSI EN 300 356 1 [23] Generic Number & Generic Digits parameters for encoding.
+*-- The coding of the subfields 'NumberQualifier' in Generic Number and 'TypeOfDigits' in
+*-- Generic Digits are irrelevant to the CAP;
+*-- the ASN.1 tags are sufficient to identify the parameter.
+*-- The ISUP format does not allow to exclude these subfields,
+*-- therefore the value is network operator specific.
+*--
+*-- The following parameters shall use Generic Number:
+*--  - AdditionalCallingPartyNumber for InitialDP
+*
+*/
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+	return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_camel_additionalcallingpartynumber);
+  dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
+
 #.TYPE_ATTR
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 DateAndTime	TYPE = FT_STRING DISPLAY = BASE_NONE

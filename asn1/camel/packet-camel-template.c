@@ -137,6 +137,7 @@ static gint ett_camel_stat = -1;
 static gint ett_camel_calledpartybcdnumber = -1;
 static gint ett_camel_callingpartynumber = -1;
 static gint ett_camel_locationnumber = -1;
+static gint ett_camel_additionalcallingpartynumber = -1;
 
 #include "packet-camel-ett.c"
 
@@ -1403,6 +1404,7 @@ void proto_register_camel(void) {
 	&ett_camel_calledpartybcdnumber,
 	&ett_camel_callingpartynumber,
 	&ett_camel_locationnumber,
+	&ett_camel_additionalcallingpartynumber,
 
 #include "packet-camel-ettarr.c"
   };

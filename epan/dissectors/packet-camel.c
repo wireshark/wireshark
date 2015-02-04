@@ -634,6 +634,7 @@ static gint ett_camel_stat = -1;
 static gint ett_camel_calledpartybcdnumber = -1;
 static gint ett_camel_callingpartynumber = -1;
 static gint ett_camel_locationnumber = -1;
+static gint ett_camel_additionalcallingpartynumber = -1;
 
 
 /*--- Included file: packet-camel-ett.c ---*/
@@ -834,7 +835,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 142 "../../asn1/camel/packet-camel-template.c"
+#line 143 "../../asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
@@ -1179,7 +1180,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 302 "../../asn1/camel/packet-camel-template.c"
+#line 303 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1269,7 +1270,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 304 "../../asn1/camel/packet-camel-template.c"
+#line 305 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -1429,7 +1430,32 @@ dissect_camel_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_camel_AdditionalCallingPartyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_camel_Digits(implicit_tag, tvb, offset, actx, tree, hf_index);
+/*
+* Digits {PARAMETERS-BOUND : bound} ::= OCTET STRING (SIZE(
+*	bound.&minDigitsLength .. bound.&maxDigitsLength))
+*-- Indicates the address signalling digits.
+*-- Refer to ETSI EN 300 356 1 [23] Generic Number & Generic Digits parameters for encoding.
+*-- The coding of the subfields 'NumberQualifier' in Generic Number and 'TypeOfDigits' in
+*-- Generic Digits are irrelevant to the CAP;
+*-- the ASN.1 tags are sufficient to identify the parameter.
+*-- The ISUP format does not allow to exclude these subfields,
+*-- therefore the value is network operator specific.
+*--
+*-- The following parameters shall use Generic Number:
+*--  - AdditionalCallingPartyNumber for InitialDP
+*
+*/
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+	return offset;
+  subtree = proto_item_add_subtree(actx->created_item, ett_camel_additionalcallingpartynumber);
+  dissect_isup_generic_number_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
+
 
   return offset;
 }
@@ -7045,7 +7071,7 @@ static int dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 373 "../../asn1/camel/packet-camel-template.c"
+#line 374 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7252,7 +7278,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 375 "../../asn1/camel/packet-camel-template.c"
+#line 376 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8104,7 +8130,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1219 "../../asn1/camel/packet-camel-template.c"
+#line 1220 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -10218,7 +10244,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1392 "../../asn1/camel/packet-camel-template.c"
+#line 1393 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10233,6 +10259,7 @@ void proto_register_camel(void) {
 	&ett_camel_calledpartybcdnumber,
 	&ett_camel_callingpartynumber,
 	&ett_camel_locationnumber,
+	&ett_camel_additionalcallingpartynumber,
 
 
 /*--- Included file: packet-camel-ettarr.c ---*/
@@ -10433,7 +10460,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1408 "../../asn1/camel/packet-camel-template.c"
+#line 1410 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
