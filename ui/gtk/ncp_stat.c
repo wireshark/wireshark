@@ -298,13 +298,16 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 {
 	ncpstat_t *ss=(ncpstat_t *)pss;
     const ncp_req_hash_value *request_val=(const ncp_req_hash_value *)prv;
+    gchar* tmp_str;
 
 	/* if we haven't seen the request, just ignore it */
 	if(!request_val || request_val->ncp_rec==0){
 		return 0;
 	}
     /* By Group */
-    init_srt_table_row(&ss->ncp_srt_table, request_val->ncp_rec->group, val_to_str(request_val->ncp_rec->group, ncp_group_vals, "Unknown(%u)"));
+    tmp_str = val_to_str_wmem(NULL, request_val->ncp_rec->group, ncp_group_vals, "Unknown(%u)");
+    init_srt_table_row(&ss->ncp_srt_table, request_val->ncp_rec->group, tmp_str);
+    wmem_free(NULL, tmp_str);
     add_srt_table_data(&ss->ncp_srt_table, request_val->ncp_rec->group, &request_val->req_frame_time, pinfo);
     /* By NCP number without subfunction*/
     if (request_val->ncp_rec->subfunc==0) {
@@ -392,15 +395,21 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	}
     /* By NDS verb */
     if (request_val->ncp_rec->func==0x68) {
-        init_srt_table_row(&ss->nds_srt_table, (request_val->nds_request_verb), val_to_str(request_val->nds_request_verb, ncp_nds_verb_vals, "Unknown(%u)"));
+        tmp_str = val_to_str_wmem(NULL, request_val->nds_request_verb, ncp_nds_verb_vals, "Unknown(%u)");
+        init_srt_table_row(&ss->nds_srt_table, (request_val->nds_request_verb), tmp_str);
+        wmem_free(NULL, tmp_str);
         add_srt_table_data(&ss->nds_srt_table, (request_val->nds_request_verb), &request_val->req_frame_time, pinfo);
     }
     if (request_val->ncp_rec->func==0x5c) {
-        init_srt_table_row(&ss->sss_srt_table, (request_val->req_nds_flags), val_to_str(request_val->req_nds_flags, sss_verb_enum, "Unknown(%u)"));
+        tmp_str = val_to_str_wmem(NULL, request_val->req_nds_flags, sss_verb_enum, "Unknown(%u)");
+        init_srt_table_row(&ss->sss_srt_table, (request_val->req_nds_flags), tmp_str);
+        wmem_free(NULL, tmp_str);
         add_srt_table_data(&ss->sss_srt_table, (request_val->req_nds_flags), &request_val->req_frame_time, pinfo);
     }
     if (request_val->ncp_rec->func==0x5e) {
-        init_srt_table_row(&ss->nmas_srt_table, (request_val->req_nds_flags), val_to_str(request_val->req_nds_flags, nmas_subverb_enum, "Unknown(%u)"));
+        tmp_str = val_to_str_wmem(NULL, request_val->req_nds_flags, nmas_subverb_enum, "Unknown(%u)");
+        init_srt_table_row(&ss->nmas_srt_table, (request_val->req_nds_flags), tmp_str);
+        wmem_free(NULL, tmp_str);
         add_srt_table_data(&ss->nmas_srt_table, (request_val->req_nds_flags), &request_val->req_frame_time, pinfo);
     }
     return 1;

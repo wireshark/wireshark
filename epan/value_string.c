@@ -47,7 +47,7 @@ val_to_str(const guint32 val, const value_string *vs, const char *fmt)
     if (ret != NULL)
         return ret;
 
-    return ep_strdup_printf(fmt, val);
+    return wmem_strdup_printf(wmem_packet_scope(), fmt, val);
 }
 
 gchar *

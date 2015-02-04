@@ -853,6 +853,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
     gchar *frame_label = NULL;
     gchar *comment = NULL;
     seq_analysis_item_t *tmp_gai, *gai = NULL;
+    gchar *tmp_str1, *tmp_str2;
     guint16 line_style = 2;
     double duration;
     int conv_num = -1;
@@ -928,11 +929,12 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
 
     /* add the item to the graph list */
     if (t38_info->type_msg == 0) { /* 0=t30-indicator */
-        frame_label = g_strdup(val_to_str(t38_info->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
-        comment = g_strdup_printf("t38:t30 Ind:%s",val_to_str(t38_info->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
+        tmp_str1 = val_to_str_wmem(NULL, t38_info->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)");
+        frame_label = g_strdup(tmp_str1);
+        comment = g_strdup_printf("t38:t30 Ind:%s", tmp_str1);
+        wmem_free(NULL, tmp_str1);
         line_style = 1;
     } else if (t38_info->type_msg == 1) {	/* 1=data */
-        gchar *tmp_str1, *tmp_str2;
         switch(t38_info->Data_Field_field_type_value) {
             case 0: /* hdlc-data */
                 break;
@@ -1518,7 +1520,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     voip_calls_info_t *tmp_listinfo;
     voip_calls_info_t *callsinfo = NULL;
     h245_address_t *h245_add = NULL;
-    gchar *comment;
+    gchar *comment, *tmp_str;
 
     const q931_packet_info *pi = (const q931_packet_info *)q931_info;
 
@@ -1751,10 +1753,12 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         if (!comment)
             comment = g_strdup_printf("AC_ISDN  trunk:%u", tapinfo->actrace_trunk );
 
-        add_to_graph(tapinfo, pinfo, edt, val_to_str(pi->message_type, q931_message_type_vals, "<unknown>") , comment, callsinfo->call_num,
+        tmp_str = val_to_str_wmem(NULL, pi->message_type, q931_message_type_vals, "<unknown (%d)>");
+        add_to_graph(tapinfo, pinfo, edt, tmp_str, comment, callsinfo->call_num,
                 tapinfo->actrace_direction?&pstn_add:&(pinfo->src),
                 tapinfo->actrace_direction?&(pinfo->src):&pstn_add,
                 1 );
+        wmem_free(NULL, tmp_str);
 
         g_free(comment);
         g_free((char *)pstn_add.data);
@@ -2936,7 +2940,7 @@ sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *ed
     sccp_assoc_info_t* assoc = msg->data.co.assoc;
     GList *list;
     voip_calls_info_t *callsinfo = NULL;
-    const gchar *label = NULL;
+    gchar *label = NULL;
     const gchar *comment = NULL;
     /* check whether we already have this assoc in the list */
 
@@ -3013,9 +3017,9 @@ sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *ed
     }
 
     if (msg->data.co.label) {
-        label = msg->data.co.label;
+        label = wmem_strdup(NULL, msg->data.co.label);
     } else {
-        label = val_to_str(msg->type, sccp_payload_values, "Unknown(%d)");
+        label = val_to_str_wmem(NULL, msg->type, sccp_payload_values, "Unknown(%d)");
     }
 
     if (msg->data.co.comment) {
@@ -3025,6 +3029,7 @@ sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *ed
     }
 
     add_to_graph(tapinfo, pinfo, edt, label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+    wmem_free(NULL, label);
 
     ++(tapinfo->npackets);
 

@@ -68,6 +68,7 @@ static void camelcounter_draw(void *phs)
 {
   struct camelcounter_t * p_counter= (struct camelcounter_t *)phs;
   int i;
+  gchar *tmp_str;
   printf("\n");
   printf("CAMEL Message and Response Status Counter:\n");
   printf("------------------------------------------\n");
@@ -75,7 +76,9 @@ static void camelcounter_draw(void *phs)
   for (i=0; i<camel_MAX_NUM_OPR_CODES; i++) {
     /* Message counter */
     if (p_counter->camel_msg[i] != 0) {
-      printf("%30s ", val_to_str(i, camel_opr_code_strings, "Unknown message "));
+      tmp_str = val_to_str_wmem(NULL, i, camel_opr_code_strings, "Unknown message (%d)");
+      printf("%30s ", tmp_str);
+      wmem_free(NULL, tmp_str);
       printf("%6d\n", p_counter->camel_msg[i]);
     }
   } /* Message Type */

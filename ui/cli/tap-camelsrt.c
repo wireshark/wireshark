@@ -100,6 +100,7 @@ static void camelsrt_draw(void *phs)
   double x, delay, delay_max, delay_min, delta;
   double criteria[NB_CRITERIA] = { 5.0, 10.0, 75.0, 90.0, 95.0, 99.0, 99.90 };
   double delay_criteria[NB_CRITERIA];
+  gchar* tmp_str;
 
   printf("\n");
   printf("Camel Service Response Time (SRT) Statistics:\n");
@@ -108,8 +109,9 @@ static void camelsrt_draw(void *phs)
   printf("|-------------------------|---------|-----------|-----------|-----------|-----------|-----------|\n");
 
   j = 1;
+  tmp_str = val_to_str_wmem(NULL, j, camelSRTtype_naming, "Unknown Message 0x%02x");
   printf("|%24s |%8u |%8.2f s |%8.2f s |%8.2f s |%10u |%10u |\n",
-         val_to_str(j, camelSRTtype_naming, "Unknown Message 0x%02x"),
+         tmp_str,
          hs->stats[j].num,
          nstime_to_sec(&(hs->stats[j].min)),
          nstime_to_sec(&(hs->stats[j].max)),
@@ -117,16 +119,19 @@ static void camelsrt_draw(void *phs)
          hs->stats[j].min_num,
          hs->stats[j].max_num
          );
+  wmem_free(NULL, tmp_str);
   for (j=2; j<NB_CAMELSRT_CATEGORY; j++) {
     if (hs->stats[j].num == 0) {
+      tmp_str = val_to_str_wmem(NULL, j, camelSRTtype_naming, "Unknown Message 0x%02x");
       printf("|%24s |%8u |%8.2f ms|%8.2f ms|%8.2f ms|%10u |%10u |\n",
-             val_to_str(j, camelSRTtype_naming, "Unknown Message 0x%02x"),
-             0, 0.0, 0.0, 0.0, 0, 0);
+             tmp_str, 0, 0.0, 0.0, 0.0, 0, 0);
+      wmem_free(NULL, tmp_str);
       continue;
     }
 
+    tmp_str = val_to_str_wmem(NULL, j, camelSRTtype_naming, "Unknown Message 0x%02x");
     printf("|%24s |%8u |%8.2f ms|%8.2f ms|%8.2f ms|%10u |%10u |\n",
-           val_to_str(j, camelSRTtype_naming, "Unknown Message 0x%02x"),
+           tmp_str,
            hs->stats[j].num,
            MIN(9999, nstime_to_msec(&(hs->stats[j].min))),
            MIN(9999, nstime_to_msec(&(hs->stats[j].max))),
@@ -134,6 +139,7 @@ static void camelsrt_draw(void *phs)
            hs->stats[j].min_num,
            hs->stats[j].max_num
            );
+    wmem_free(NULL, tmp_str);
   } /* j category */
 
   printf("=================================================================================================\n");
@@ -183,11 +189,15 @@ static void camelsrt_draw(void *phs)
         delay_criteria[z] = delay;
       } /* z criteria */
       /* Append the result to the table */
-      printf("X%24s |", val_to_str(j, camelSRTtype_naming, "Unknown") );
+      tmp_str = val_to_str_wmem(NULL, j, camelSRTtype_naming, "Unknown Message 0x%02x");
+      printf("X%24s |", tmp_str);
+      wmem_free(NULL, tmp_str);
       for (z=0; z<NB_CRITERIA; z++) printf("%8.2f |", MIN(9999, delay_criteria[z]));
       printf("\n");
     } else { /* count */
-      printf("X%24s |", val_to_str(j, camelSRTtype_naming, "Unknown") );
+      tmp_str = val_to_str_wmem(NULL, j, camelSRTtype_naming, "Unknown Message 0x%02x");
+      printf("X%24s |", tmp_str);
+      wmem_free(NULL, tmp_str);
       for (z=0; z<NB_CRITERIA; z++) printf("%8.2f |", 0.0);
       printf("\n");
     } /* count */

@@ -159,6 +159,7 @@ static void
 radiusstat_draw(void *prs)
 {
 	radiusstat_t *rs = (radiusstat_t *)prs;
+	gchar* tmp_str;
 	int i;
 
 	/* printing results */
@@ -173,12 +174,14 @@ radiusstat_draw(void *prs)
 	printf("Type           | Messages   |    Min RTD    |    Max RTD    |    Avg RTD    | Min in Frame | Max in Frame |\n");
 	for (i=0; i<RADIUS_CAT_NUM_TIMESTATS; i++) {
 		if (rs->rtd[i].num) {
+			tmp_str = val_to_str_wmem(NULL, i, radius_message_code, "Other (%d)");
 			printf("%s | %7u    | %8.2f msec | %8.2f msec | %8.2f msec |  %10u  |  %10u  |\n",
-			       val_to_str(i, radius_message_code, "Other  "), rs->rtd[i].num,
+			       tmp_str, rs->rtd[i].num,
 			       nstime_to_msec(&(rs->rtd[i].min)), nstime_to_msec(&(rs->rtd[i].max)),
 			       get_average(&(rs->rtd[i].tot), rs->rtd[i].num),
 			       rs->rtd[i].min_num, rs->rtd[i].max_num
 			);
+			wmem_free(NULL, tmp_str);
 		}
 	}
 	printf("===========================================================================================================\n");

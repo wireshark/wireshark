@@ -228,81 +228,104 @@ h225counter_draw(void *phs)
 {
 	h225counter_t *hs = (h225counter_t *)phs;
 	int i, j;
+	gchar* tmp_str;
 
 	printf("================== H225 Message and Reason Counter ==================\n");
 	printf("RAS-Messages:\n");
 	for (i=0; i<=RAS_MSG_TYPES; i++) {
 		if (hs->ras_msg[i] != 0) {
-			printf("  %s : %u\n", val_to_str(i, h225_RasMessage_vals, "unknown ras-messages  "), hs->ras_msg[i]);
+			tmp_str = val_to_str_wmem(NULL, i, h225_RasMessage_vals, "unknown ras-messages (%d)");
+			printf("  %s : %u\n", tmp_str, hs->ras_msg[i]);
+			wmem_free(NULL, tmp_str);
 			/* reason counter */
 			switch (i) {
 			case 2: /* GRJ */
 				for (j=0; j<=GRJ_REASONS; j++) {
 					if (hs->grj_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, GatekeeperRejectReason_vals, "unknown reason   "), hs->grj_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, GatekeeperRejectReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->grj_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 5: /* RRJ */
 				for (j=0; j<=RRJ_REASONS; j++) {
 					if (hs->rrj_reason[j] != 0 ) {
-						printf("    %s : %u\n", val_to_str(j, RegistrationRejectReason_vals, "unknown reason   "), hs->rrj_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, RegistrationRejectReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->rrj_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 6: /* URQ */
 				for (j=0; j<=URQ_REASONS; j++) {
 					if (hs->urq_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, UnregRequestReason_vals, "unknown reason   "), hs->urq_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, UnregRequestReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->urq_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 8: /* URJ */
 				for (j=0; j<=URJ_REASONS; j++) {
 					if (hs->urj_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, UnregRejectReason_vals, "unknown reason   "), hs->urj_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, UnregRejectReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->urj_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 11: /* ARJ */
 				for (j=0; j<=ARJ_REASONS; j++) {
 					if (hs->arj_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, AdmissionRejectReason_vals, "unknown reason   "), hs->arj_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, AdmissionRejectReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->arj_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 14: /* BRJ */
 				for (j=0; j<=BRJ_REASONS; j++) {
 					if (hs->brj_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, BandRejectReason_vals, "unknown reason   "), hs->brj_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, BandRejectReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->brj_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 15: /* DRQ */
 				for (j=0; j<=DRQ_REASONS; j++) {
 					if (hs->drq_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, DisengageReason_vals, "unknown reason   "), hs->drq_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, DisengageReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->drq_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 17: /* DRJ */
 				for (j=0; j<=DRJ_REASONS; j++) {
 					if (hs->drj_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, DisengageRejectReason_vals, "unknown reason   "), hs->drj_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, DisengageRejectReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->drj_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 20: /* LRJ */
 				for (j=0; j<=LRJ_REASONS; j++) {
 					if (hs->lrj_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, LocationRejectReason_vals, "unknown reason   "), hs->lrj_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, DisengageRejectReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->lrj_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 29: /* IRQNak */
 				for (j=0; j<= IRQNAK_REASONS; j++) {
 					if (hs->irqnak_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, InfoRequestNakReason_vals, "unknown reason   "), hs->irqnak_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, InfoRequestNakReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->irqnak_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
@@ -315,20 +338,26 @@ h225counter_draw(void *phs)
 	printf("Call Signalling:\n");
 	for (i=0; i<=CS_MSG_TYPES; i++) {
 		if (hs->cs_msg[i] != 0) {
-			printf("  %s : %u\n", val_to_str(i, T_h323_message_body_vals, "unknown cs-messages   "), hs->cs_msg[i]);
+			tmp_str = val_to_str_wmem(NULL, i, T_h323_message_body_vals, "unknown cs-messages (%d)");
+			printf("  %s : %u\n", tmp_str, hs->cs_msg[i]);
+			wmem_free(NULL, tmp_str);
 			/* reason counter */
 			switch (i) {
 			case 5: /* ReleaseComplete */
 				for (j=0; j<=REL_CMP_REASONS; j++) {
 					if (hs->rel_cmp_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, h225_ReleaseCompleteReason_vals, "unknown reason   "), hs->rel_cmp_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, h225_ReleaseCompleteReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->rel_cmp_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;
 			case 6: /* Facility */
 				for (j=0; j<=FACILITY_REASONS; j++) {
 					if (hs->facility_reason[j] != 0) {
-						printf("    %s : %u\n", val_to_str(j, FacilityReason_vals, "unknown reason   "), hs->facility_reason[j]);
+						tmp_str = val_to_str_wmem(NULL, j, FacilityReason_vals, "unknown reason (%d)");
+						printf("    %s : %u\n", tmp_str, hs->facility_reason[j]);
+						wmem_free(NULL, tmp_str);
 					}
 				}
 				break;

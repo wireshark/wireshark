@@ -145,6 +145,7 @@ static void draw_items_for_severity(GArray *items, const gchar *label)
     guint         n;
     expert_entry *ei;
     int           total = 0;
+    gchar        *tmp_str;
 
     /* Don't print title if no items */
     if (items->len == 0) {
@@ -167,10 +168,12 @@ static void draw_items_for_severity(GArray *items, const gchar *label)
     /* Items */
     for (n=0; n < items->len; n++) {
         ei = &g_array_index(items, expert_entry, n);
+        tmp_str = val_to_str_wmem(NULL, ei->group, expert_group_vals, "Unknown (%d)");
         printf("%12u %10s %18s  %s\n",
               ei->frequency,
-              val_to_str(ei->group, expert_group_vals, "Unknown"),
+              tmp_str,
               ei->protocol, ei->summary);
+        wmem_free(NULL, tmp_str);
     }
 }
 

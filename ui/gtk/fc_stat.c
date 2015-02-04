@@ -118,6 +118,7 @@ gtk_fcstat_init(const char *opt_arg, void *userdata _U_)
 	GtkWidget *vbox;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
+	gchar* tmp_str;
 
 	if(!strncmp(opt_arg,"fc,srt,",7)){
 		filter=opt_arg+7;
@@ -154,7 +155,9 @@ gtk_fcstat_init(const char *opt_arg, void *userdata _U_)
 
 	init_srt_table(&fc->fc_srt_table, 256, vbox, NULL);
 	for(i=0;i<256;i++){
-		init_srt_table_row(&fc->fc_srt_table, i, val_to_str(i, fc_fc4_val, "Unknown(0x%02x)"));
+		tmp_str = val_to_str_wmem(NULL, i, fc_fc4_val, "Unknown(0x%02x)");
+		init_srt_table_row(&fc->fc_srt_table, i, tmp_str);
+		wmem_free(NULL, tmp_str);
 	}
 
 

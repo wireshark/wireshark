@@ -739,14 +739,25 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			}
 			else
 			{
+				gchar* tmp_str;
 				error = (sctp_error_info_t *)g_malloc(sizeof(sctp_error_info_t));
 				error->frame_number = pinfo->fd->num;
 				error->chunk_info[0] = '\0';
 				if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
-					g_strlcpy(error->chunk_info, val_to_str(tvb_get_guint8(sctp_info->tvb[0],0),chunk_type_values,"Reserved"), 200);
+				{
+					tmp_str = val_to_str_wmem(NULL, tvb_get_guint8(sctp_info->tvb[0],0),chunk_type_values,"Reserved (%d)");
+					g_strlcpy(error->chunk_info, tmp_str, 200);
+					wmem_free(NULL, tmp_str);
+				}
 				else
+				{
 					for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
-						g_strlcat(error->chunk_info, val_to_str(tvb_get_guint8(sctp_info->tvb[chunk_number],0),chunk_type_values,"Reserved"), 200);
+					{
+						tmp_str = val_to_str_wmem(NULL, tvb_get_guint8(sctp_info->tvb[chunk_number],0),chunk_type_values,"Reserved (%d)");
+						g_strlcat(error->chunk_info, tmp_str, 200);
+						wmem_free(NULL, tmp_str);
+					}
+				}
 				error->info_text = "INFOS";
 				info->error_info_list = g_list_append(info->error_info_list, error);
 			}

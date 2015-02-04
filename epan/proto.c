@@ -5477,6 +5477,7 @@ static const value_string hf_display[] = {
 static void
 tmp_fld_check_assert(header_field_info *hfinfo)
 {
+	gchar* tmp_str;
 
 	/* The field must have a name (with length > 0) */
 	if (!hfinfo->name || !hfinfo->name[0]) {
@@ -5584,10 +5585,11 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case BASE_OCT:
 				case BASE_DEC_HEX:
 				case BASE_HEX_DEC:
+					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 					g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
 						hfinfo->name, hfinfo->abbrev,
-						ftype_name(hfinfo->type),
-						val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+						ftype_name(hfinfo->type), tmp_str);
+					wmem_free(NULL, tmp_str);
 			}
 			/* FALL THROUGH */
 		case FT_UINT8:
@@ -5611,11 +5613,12 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case BASE_CUSTOM: /* hfinfo_numeric_value_format() treats this as decimal */
 					break;
 				default:
+					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 					g_error("Field '%s' (%s) is an integral value (%s)"
 						" but is being displayed as %s\n",
 						hfinfo->name, hfinfo->abbrev,
-						ftype_name(hfinfo->type),
-						val_to_str(hfinfo->display, hf_display, "(Unknown: 0x%x)"));
+						ftype_name(hfinfo->type), tmp_str);
+					wmem_free(NULL, tmp_str);
 			}
 			break;
 		case FT_BYTES:
@@ -5630,9 +5633,10 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case SEP_SPACE:
 					break;
 				default:
-				g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE\n",
-					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
+					g_error("Field '%s' (%s) is an byte array but is being displayed as %s instead of BASE_NONE, SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE\n",
+						hfinfo->name, hfinfo->abbrev, tmp_str);
+					wmem_free(NULL, tmp_str);
 			}
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
@@ -5646,11 +5650,13 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 
 		case FT_PROTOCOL:
 		case FT_FRAMENUM:
-			if (hfinfo->display != BASE_NONE)
+			if (hfinfo->display != BASE_NONE) {
+				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
 					hfinfo->name, hfinfo->abbrev,
-					ftype_name(hfinfo->type),
-					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+					ftype_name(hfinfo->type), tmp_str);
+				wmem_free(NULL, tmp_str);
+			}
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,
@@ -5663,11 +5669,12 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_ABSOLUTE_TIME:
 			if (!(hfinfo->display == ABSOLUTE_TIME_LOCAL ||
 			      hfinfo->display == ABSOLUTE_TIME_UTC   ||
-			      hfinfo->display == ABSOLUTE_TIME_DOY_UTC))
+			      hfinfo->display == ABSOLUTE_TIME_DOY_UTC)) {
+				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				g_error("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time\n",
-					hfinfo->name, hfinfo->abbrev,
-					ftype_name(hfinfo->type),
-					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+					hfinfo->name, hfinfo->abbrev, ftype_name(hfinfo->type), tmp_str);
+				wmem_free(NULL, tmp_str);
+			}
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,
@@ -5684,11 +5691,12 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					break;
 
 				default:
+					tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Unknown: 0x%x)");
 					g_error("Field '%s' (%s) is an string value (%s)"
 						" but is being displayed as %s\n",
 						hfinfo->name, hfinfo->abbrev,
-						ftype_name(hfinfo->type),
-						val_to_str(hfinfo->display, hf_display, "(Unknown: 0x%x)"));
+						ftype_name(hfinfo->type), tmp_str);
+					wmem_free(NULL, tmp_str);
 			}
 
 			if (hfinfo->bitmask != 0)
@@ -5702,11 +5710,14 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			break;
 
 		default:
-			if (hfinfo->display != BASE_NONE)
+			if (hfinfo->display != BASE_NONE) {
+				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
 					hfinfo->name, hfinfo->abbrev,
 					ftype_name(hfinfo->type),
-					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+					tmp_str);
+				wmem_free(NULL, tmp_str);
+			}
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,

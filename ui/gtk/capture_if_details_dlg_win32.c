@@ -655,7 +655,7 @@ supported_list(LPADAPTER adapter)
 {
     unsigned char values[10000];
     int           length;
-
+    gchar* tmp_str;
 
     g_warning("supported_list_unhandled");
     length = sizeof(values);
@@ -663,7 +663,9 @@ supported_list(LPADAPTER adapter)
         guint32 *value = (guint32 *)values;
 
         while (length >= 4) {
-            printf("OID: 0x%08X %s\n", *value, val_to_str(*value, oid_vals, "unknown"));
+            tmp_str = val_to_str_wmem(NULL, *value, oid_vals, "unknown (%d)");
+            printf("OID: 0x%08X %s\n", *value, tmp_str);
+            wmem_free(NULL, tmp_str);
 
             value++;
             length -= 4;
@@ -1009,6 +1011,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
     unsigned char          mac[6];
     const gchar           *manuf_name;
     GString               *Rates;
+    gchar                 *tmp_str;
 
 
     if (bssid_list->num_items != 0) {
@@ -1073,16 +1076,19 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
             }
 
             /* Network Type */
-            g_snprintf(nettype_buff, sizeof(nettype_buff), "%s",
-                val_to_str(bssid_item->net_type, win32_802_11_network_type_vals, "(0x%x)"));
+            tmp_str = val_to_str_wmem(NULL, bssid_item->net_type, win32_802_11_network_type_vals, "(0x%x)");
+            g_snprintf(nettype_buff, sizeof(nettype_buff), "%s", tmp_str);
+            wmem_free(NULL, tmp_str);
 
             /* Infrastructure Mode */
-            g_snprintf(infra_buff, sizeof(infra_buff), "%s",
-                val_to_str(bssid_item->mode, win32_802_11_infra_mode_vals, "(0x%x)"));
+            tmp_str = val_to_str_wmem(NULL, bssid_item->mode, win32_802_11_infra_mode_vals, "(0x%x)");
+            g_snprintf(infra_buff, sizeof(infra_buff), "%s", tmp_str);
+            wmem_free(NULL, tmp_str);
 
             /* Channel */
-            g_snprintf(freq_buff, sizeof(freq_buff), "%s",
-                val_to_str(bssid_item->config.ds_config, win32_802_11_channel_vals, "(%u kHz)"));
+            tmp_str = val_to_str_wmem(NULL, bssid_item->config.ds_config, win32_802_11_channel_vals, "(%u kHz)");
+            g_snprintf(freq_buff, sizeof(freq_buff), "%s", tmp_str);
+            wmem_free(NULL, tmp_str);
 
             /* XXX - IE Length is currently not really supported here */
             {
@@ -1118,8 +1124,9 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
                     len -= 2;
 
 #ifdef DEBUG_IE
-                    g_warning("ID: %s (%u) Len: %u",
-                        val_to_str(id, ie_id_vals, "0x%x"), id, el_len);
+                    tmp_str = val_to_str_wmem(NULL, id, ie_id_vals, "0x%x");
+                    g_warning("ID: %s (%u) Len: %u", tmp_str, id, el_len);
+                    wmem_free(NULL, tmp_str);
 #endif
 
                     switch (id) {
@@ -1228,7 +1235,7 @@ capture_if_details_802_11(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPADA
     const gchar       *manuf_name;
     struct ndis_bssid_list    *bssid_list;
     struct ndis_configuration *configuration;
-
+    gchar* tmp_str;
 
     add_string_to_grid(grid, row, "Current network", "");
 
@@ -1265,8 +1272,9 @@ capture_if_details_802_11(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPADA
 
     /* Network type in use */
     if (wpcap_packet_request_uint(adapter, OID_802_11_NETWORK_TYPE_IN_USE, &uint_value)) {
-        add_string_to_grid(grid, row, "Network type used",
-            val_to_str(uint_value, win32_802_11_network_type_vals, "(0x%x)"));
+        tmp_str = val_to_str_wmem(NULL, uint_value, win32_802_11_network_type_vals, "(0x%x)");
+        add_string_to_grid(grid, row, "Network type used", tmp_str);
+        wmem_free(NULL, tmp_str);
         entries++;
     } else {
         add_string_to_grid(grid, row, "Network type used", "-");
@@ -1274,8 +1282,9 @@ capture_if_details_802_11(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPADA
 
     /* Infrastructure mode */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_INFRASTRUCTURE_MODE, &uint_value)) {
-        add_string_to_grid(grid, row, "Infrastructure mode",
-            val_to_str(uint_value, win32_802_11_infra_mode_vals, "(0x%x)"));
+        tmp_str = val_to_str_wmem(NULL, uint_value, win32_802_11_infra_mode_vals, "(0x%x)");
+        add_string_to_grid(grid, row, "Infrastructure mode", tmp_str);
+        wmem_free(NULL, tmp_str);
         entries++;
     } else {
         add_string_to_grid(grid, row, "Infrastructure mode", "-");
@@ -1283,8 +1292,9 @@ capture_if_details_802_11(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPADA
 
     /* Authentication mode */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_AUTHENTICATION_MODE, &uint_value)) {
-        add_string_to_grid(grid, row, "Authentication mode",
-            val_to_str(uint_value, win32_802_11_auth_mode_vals, "(0x%x)"));
+        tmp_str = val_to_str_wmem(NULL, uint_value, win32_802_11_auth_mode_vals, "(0x%x)");
+        add_string_to_grid(grid, row, "Authentication mode", tmp_str);
+        wmem_free(NULL, tmp_str);
         entries++;
     } else {
         add_string_to_grid(grid, row, "Authentication mode", "-");
@@ -1292,8 +1302,9 @@ capture_if_details_802_11(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPADA
 
     /* Encryption (WEP) status */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_ENCRYPTION_STATUS, &uint_value)) {
-        add_string_to_grid(grid, row, "Encryption status",
-            val_to_str(uint_value, win32_802_11_encryption_status_vals, "(0x%x)"));
+        tmp_str = val_to_str_wmem(NULL, uint_value, win32_802_11_encryption_status_vals, "(0x%x)");
+        add_string_to_grid(grid, row, "Encryption status", tmp_str);
+        wmem_free(NULL, tmp_str);
         entries++;
     } else {
         add_string_to_grid(grid, row, "Encryption status", "-");
@@ -1438,8 +1449,9 @@ capture_if_details_802_11(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPADA
     if (wpcap_packet_request(adapter, OID_802_11_CONFIGURATION, FALSE /* !set */, (char *) values, &length)) {
         configuration = (struct ndis_configuration *) values;
 
-        add_string_to_grid(grid, row, "Channel",
-            val_to_str(configuration->ds_config, win32_802_11_channel_freq_vals, "(%u kHz)"));
+        tmp_str = val_to_str_wmem(NULL, configuration->ds_config, win32_802_11_channel_freq_vals, "(%u kHz)");
+        add_string_to_grid(grid, row, "Channel", tmp_str);
+        wmem_free(NULL, tmp_str);
         entries++;
     } else {
         add_string_to_grid(grid, row, "Channel", "-");
@@ -1794,7 +1806,7 @@ capture_if_details_general(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPAD
     int             length;
     unsigned short  ushort_value;
     int             entries = 0;
-    gchar          *size_str;
+    gchar          *size_str, *tmp_str;
 
 
     /* general */
@@ -1862,8 +1874,9 @@ capture_if_details_general(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPAD
         uint_array_size /= sizeof(unsigned int);
         i = 0;
         while (uint_array_size--) {
-            add_string_to_grid(grid, row, "Media supported",
-                val_to_str(uint_array[i], win32_802_3_medium_vals, "(0x%x)"));
+            tmp_str = val_to_str_wmem(NULL, uint_array[i], win32_802_3_medium_vals, "(0x%x)");
+            add_string_to_grid(grid, row, "Media supported", tmp_str);
+            wmem_free(NULL, tmp_str);
             i++;
         }
     } else {
@@ -1876,8 +1889,9 @@ capture_if_details_general(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPAD
         uint_array_size /= sizeof(unsigned int);
         i = 0;
         while (uint_array_size--) {
-            add_string_to_grid(grid, row, "Medium in use",
-                  val_to_str(uint_array[i], win32_802_3_medium_vals, "(0x%x)"));
+            tmp_str = val_to_str_wmem(NULL, uint_array[i], win32_802_3_medium_vals, "(0x%x)");
+            add_string_to_grid(grid, row, "Medium in use", tmp_str);
+            wmem_free(NULL, tmp_str);
             i++;
         }
     } else {
@@ -1886,8 +1900,9 @@ capture_if_details_general(GtkWidget *grid, GtkWidget *main_vb, guint *row, LPAD
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_PHYSICAL_MEDIUM, &physical_medium)) {
         entries++;
-        add_string_to_grid(grid, row, "Physical medium",
-            val_to_str(physical_medium, win32_802_3_physical_medium_vals, "(0x%x)"));
+        tmp_str = val_to_str_wmem(NULL, physical_medium, win32_802_3_physical_medium_vals, "(0x%x)");
+        add_string_to_grid(grid, row, "Physical medium", tmp_str);
+        wmem_free(NULL, tmp_str);
     } else {
         add_string_to_grid(grid, row, "Physical medium", "-");
     }

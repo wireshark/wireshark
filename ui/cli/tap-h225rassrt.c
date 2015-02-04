@@ -172,6 +172,7 @@ h225rassrt_draw(void *phs)
 	h225rassrt_t *hs = (h225rassrt_t *)phs;
 	int i;
 	timestat_t *rtd_temp;
+	gchar* tmp_str;
 
 	printf("======================================== H225 RAS Service Response Time ========================================\n");
 	printf("H225 RAS Service Response Time (SRT) Statistics:\n");
@@ -179,12 +180,14 @@ h225rassrt_draw(void *phs)
 	for (i=0; i<NUM_RAS_STATS; i++) {
 		rtd_temp = &(hs->ras_rtd[i].stats);
 		if (rtd_temp->num) {
+			tmp_str = val_to_str_wmem(NULL, i, ras_message_category, "Unknown (%d)   ");
 			printf("%s | %10u   | %9.2f msec | %9.2f msec | %9.2f msec |  %10u  |  %10u  |\n",
-			       val_to_str(i, ras_message_category, "Unknown       "), rtd_temp->num,
+			       tmp_str, rtd_temp->num,
 			       nstime_to_msec(&(rtd_temp->min)), nstime_to_msec(&(rtd_temp->max)),
 			       get_average(&(rtd_temp->tot), rtd_temp->num),
 			       rtd_temp->min_num, rtd_temp->max_num
 			);
+			wmem_free(NULL, tmp_str);
 		}
 	}
 	printf("================================================================================================================\n");
@@ -192,11 +195,13 @@ h225rassrt_draw(void *phs)
 	for (i=0; i<NUM_RAS_STATS; i++) {
 		rtd_temp = &(hs->ras_rtd[i].stats);
 		if (rtd_temp->num) {
+			tmp_str = val_to_str_wmem(NULL, i, ras_message_category, "Unknown (%d)   ");
 			printf("%s | %10u   |    %10u   |    %10u   |    %10u   |\n",
-			       val_to_str(i, ras_message_category, "Unknown       "),
+			       tmp_str,
 			       hs->ras_rtd[i].open_req_num, hs->ras_rtd[i].disc_rsp_num,
 			       hs->ras_rtd[i].req_dup_num, hs->ras_rtd[i].rsp_dup_num
 			);
+			wmem_free(NULL, tmp_str);
 		}
 	}
 	printf("================================================================================================================\n");

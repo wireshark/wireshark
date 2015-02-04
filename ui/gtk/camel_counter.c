@@ -97,6 +97,7 @@ static void gtk_camelcounter_draw(void *phs)
   struct camelcounter_t *p_counter=(struct camelcounter_t *)phs;
   int i;
   char str[256];
+  gchar* tmp_str;
   GtkListStore *store;
   GtkTreeIter iter;
 
@@ -108,7 +109,9 @@ static void gtk_camelcounter_draw(void *phs)
   for(i=0;i<camel_MAX_NUM_OPR_CODES;i++) {
     /* Message counter */
     if(p_counter->camel_msg[i]!=0) {
-      g_snprintf(str, 256, "Request %s", val_to_str(i,camel_opr_code_strings,"Unknown message "));
+      tmp_str = val_to_str_wmem(NULL, i,camel_opr_code_strings,"Unknown message (%d)");
+      g_snprintf(str, 256, "Request %s", tmp_str);
+      wmem_free(NULL, tmp_str);
 
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter,

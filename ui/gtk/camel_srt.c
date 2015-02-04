@@ -135,6 +135,7 @@ static void gtk_camelsrt_init(const char *opt_arg, void *userdata _U_)
   GtkWidget *vbox;
   GtkWidget *bbox;
   GtkWidget *close_bt;
+  gchar* tmp_str;
   int i;
 
   if(strncmp(opt_arg,"camel,srt,",10) == 0){
@@ -175,8 +176,9 @@ static void gtk_camelsrt_init(const char *opt_arg, void *userdata _U_)
 
   init_srt_table(&p_camelsrt->camel_srt_table, NB_CAMELSRT_CATEGORY, vbox, NULL);
   for(i=0 ;i<NB_CAMELSRT_CATEGORY; i++) {
-    init_srt_table_row(&p_camelsrt->camel_srt_table, i,
-		       val_to_str(i,camelSRTtype_naming,"Unknown"));
+    tmp_str = val_to_str_wmem(NULL,i,camelSRTtype_naming,"Unknown (%d)");
+    init_srt_table_row(&p_camelsrt->camel_srt_table, i, tmp_str);
+    wmem_free(NULL, tmp_str);
   }
 
   error_string=register_tap_listener("CAMEL",

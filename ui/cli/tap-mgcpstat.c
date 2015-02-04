@@ -143,6 +143,7 @@ static void
 mgcpstat_draw(void *pms)
 {
 	mgcpstat_t *ms = (mgcpstat_t *)pms;
+	gchar* tmp_str;
 	int i;
 
 	/* printing results */
@@ -157,12 +158,14 @@ mgcpstat_draw(void *pms)
 	printf("Type    | Messages   |    Min RTD    |    Max RTD    |    Avg RTD    | Min in Frame | Max in Frame |\n");
 	for (i=0; i<NUM_TIMESTATS; i++) {
 		if (ms->rtd[i].num) {
+			tmp_str = val_to_str_wmem(NULL, i, mgcp_mesage_type, "Other (%d)");
 			printf("%s | %7u    | %8.2f msec | %8.2f msec | %8.2f msec |  %10u  |  %10u  |\n",
-			       val_to_str(i, mgcp_mesage_type, "Other  "), ms->rtd[i].num,
+			       tmp_str, ms->rtd[i].num,
 			       nstime_to_msec(&(ms->rtd[i].min)), nstime_to_msec(&(ms->rtd[i].max)),
 			       get_average(&(ms->rtd[i].tot), ms->rtd[i].num),
 			       ms->rtd[i].min_num, ms->rtd[i].max_num
 			);
+			wmem_free(NULL, tmp_str);
 		}
 	}
 	printf("=====================================================================================================\n");

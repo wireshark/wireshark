@@ -1269,9 +1269,11 @@ ipmi_fmt_channel(gchar *s, guint32 v)
 		{ 0x0f, "System Interface" },
 		{ 0, NULL }
 	};
+	gchar* tmp_str;
 
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%02x)",
-			val_to_str(v, chan_vals, "Channel #%d"), v);
+	tmp_str = val_to_str_wmem(NULL, v, chan_vals, "Channel #%d");
+	g_snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%02x)", tmp_str, v);
+	wmem_free(NULL, tmp_str);
 }
 
 void

@@ -1164,6 +1164,7 @@ static const enum_val_t oml_dialect_enumvals[] = {
 static void format_custom_msgtype(gchar *out, guint32 in)
 {
 	const gchar *tmp = NULL;
+	gchar *tmp_str;
 
 	switch (global_oml_dialect) {
 	case OML_DIALECT_SIEMENS:
@@ -1174,21 +1175,23 @@ static void format_custom_msgtype(gchar *out, guint32 in)
 		break;
 	case OML_DIALECT_ETSI:
 	default:
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s",
-			   val_to_str(in, oml_fom_msgtype_vals, "Unknown 0x%02x"));
-		return;
+		/* Handled by tmp == NULL below */
+		break;
 	}
 
 	if (tmp)
 		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
-	else
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s",
-			   val_to_str(in, oml_fom_msgtype_vals, "Unknown 0x%02x"));
+	else {
+		tmp_str = val_to_str_wmem(NULL, in, oml_fom_msgtype_vals, "Unknown 0x%02x");
+		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
+		wmem_free(NULL, tmp_str);
+	}
 }
 
 static void format_custom_attr(gchar *out, guint32 in)
 {
 	const gchar *tmp = NULL;
+	gchar *tmp_str;
 
 	switch (global_oml_dialect) {
 	case OML_DIALECT_SIEMENS:
@@ -1199,16 +1202,17 @@ static void format_custom_attr(gchar *out, guint32 in)
 		break;
 	case OML_DIALECT_ETSI:
 	default:
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s",
-			   val_to_str(in, oml_fom_attr_vals, "Unknown 0x%02x"));
-		return;
+		/* Handled by tmp == NULL below */
+		break;
 	}
 
 	if (tmp)
 		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
-	else
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s",
-			   val_to_str(in, oml_fom_attr_vals, "Unknown 0x%02x"));
+	else {
+		tmp_str = val_to_str_wmem(NULL, in, oml_fom_attr_vals, "Unknown 0x%02x");
+		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
+		wmem_free(NULL, tmp_str);
+	}
 }
 
 /* Section 9.4.4: Administrative State */

@@ -142,10 +142,12 @@ format_packet_type(
     gchar   *buf,
     guint32  value)
 {
+    gchar* tmp_str;
+
+    tmp_str = val_to_str_wmem(NULL, value, pkt_type_val, "Unknown packet");
     g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str(value, pkt_type_val, "Unknown packet"),
-               (char)(value & 0xff));
+               "%s (%c)", tmp_str, (char)(value & 0xff));
+    wmem_free(NULL, tmp_str);
 }
 
 
@@ -160,10 +162,12 @@ format_reject_code(
     gchar   *buf,
     guint32  value)
 {
+    gchar* tmp_str;
+
+    tmp_str = val_to_str_wmem(NULL, value, reject_code_val, "Unknown reject code");
     g_snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str(value, reject_code_val, "Unknown reject code"),
-               (char)(value & 0xff));
+               "%s (%c)", tmp_str, (char)(value & 0xff));
+    wmem_free(NULL, tmp_str);
 }
 
 

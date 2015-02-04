@@ -179,6 +179,7 @@ mgcpstat_draw(void *pms)
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
 	int i;
 	char str[3][256];
+	gchar* tmp_str;
 	GtkListStore *store;
 	GtkTreeIter iter;
 
@@ -195,9 +196,11 @@ mgcpstat_draw(void *pms)
 		g_snprintf(str[0], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
 		g_snprintf(str[1], sizeof(char[256]), "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
 		g_snprintf(str[2], sizeof(char[256]), "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
+		tmp_str = val_to_str_wmem(NULL,i,mgcp_mesage_type,"Other (%d)");
+
 		gtk_list_store_append(store, &iter);
 		gtk_list_store_set(store, &iter,
-			0, val_to_str(i, mgcp_mesage_type,"Other"),
+			0, tmp_str,
 			1, ms->rtd[i].num,
 			2, str[0],
 			3, str[1],
@@ -205,6 +208,7 @@ mgcpstat_draw(void *pms)
 			5, ms->rtd[i].min_num,
 			6, ms->rtd[i].max_num,
 			-1);
+		wmem_free(NULL, tmp_str);
 	}
 }
 

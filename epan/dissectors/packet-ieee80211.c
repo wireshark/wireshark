@@ -9517,33 +9517,39 @@ static void
 rsn_gcs_base_custom(gchar *result, guint32 gcs)
 {
   gchar oui_result[SHORT_STR];
+  gchar *tmp_str;
 
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gcs >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
-             val_to_str(gcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d"));
+  tmp_str = val_to_str_wmem(NULL, gcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d");
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  wmem_free(NULL, tmp_str);
 }
 
 static void
 rsn_pcs_base_custom(gchar *result, guint32 pcs)
 {
   gchar oui_result[SHORT_STR];
+  gchar *tmp_str;
 
   oui_result[0] = '\0';
   oui_base_custom(oui_result, pcs >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
-             val_to_str(pcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d"));
+  tmp_str = val_to_str_wmem(NULL, pcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d");
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  wmem_free(NULL, tmp_str);
 
 }
 static void
 rsn_akms_base_custom(gchar *result, guint32 akms)
 {
   gchar oui_result[SHORT_STR];
+  gchar *tmp_str;
 
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
-             val_to_str(akms & 0xFF, ieee80211_rsn_keymgmt_vals, "Unknown %d"));
+  tmp_str = val_to_str_wmem(NULL, akms & 0xFF, ieee80211_rsn_keymgmt_vals, "Unknown %d");
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  wmem_free(NULL, tmp_str);
 }
 
 static gchar *
@@ -9574,11 +9580,13 @@ static void
 rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
 {
   gchar oui_result[SHORT_STR];
+  gchar *tmp_str;
 
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gmcs >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
-             val_to_str(gmcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d"));
+  tmp_str = val_to_str_wmem(NULL, gmcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d");
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  wmem_free(NULL, tmp_str);
 }
 
 static void
@@ -9697,33 +9705,38 @@ static void
 wpa_mcs_base_custom(gchar *result, guint32 mcs)
 {
   gchar oui_result[SHORT_STR];
+  gchar *tmp_str;
 
   oui_result[0] = '\0';
   oui_base_custom(oui_result, mcs >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
-             val_to_str(mcs & 0xFF, ieee80211_wfa_ie_wpa_cipher_vals, "Unknown %d"));
+  tmp_str = val_to_str_wmem(NULL, mcs & 0xFF, ieee80211_wfa_ie_wpa_cipher_vals, "Unknown %d");
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  wmem_free(NULL, tmp_str);
 }
 
 static void
 wpa_ucs_base_custom(gchar *result, guint32 ucs)
 {
   gchar oui_result[SHORT_STR];
+  gchar *tmp_str;
 
   oui_result[0] = '\0';
   oui_base_custom(oui_result, ucs >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
-             val_to_str(ucs & 0xFF, ieee80211_wfa_ie_wpa_cipher_vals, "Unknown %d"));
-
+  tmp_str = val_to_str_wmem(NULL, ucs & 0xFF, ieee80211_wfa_ie_wpa_cipher_vals, "Unknown %d");
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  wmem_free(NULL, tmp_str);
 }
 static void
 wpa_akms_base_custom(gchar *result, guint32 akms)
 {
   gchar oui_result[SHORT_STR];
+  gchar *tmp_str;
 
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result,
-             val_to_str(akms & 0xFF, ieee80211_wfa_ie_wpa_keymgmt_vals, "Unknown %d"));
+  tmp_str = val_to_str_wmem(NULL, akms & 0xFF, ieee80211_wfa_ie_wpa_keymgmt_vals, "Unknown %d");
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  wmem_free(NULL, tmp_str);
 }
 
 static gchar *

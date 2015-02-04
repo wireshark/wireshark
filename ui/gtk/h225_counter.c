@@ -293,6 +293,7 @@ h225counter_draw(void *phs)
 	h225counter_t *hs=(h225counter_t *)phs;
 	int i,j;
 	char str[256];
+	gchar* tmp_str;
 	GtkListStore *store;
 	GtkTreeIter iter;
 
@@ -303,10 +304,12 @@ h225counter_draw(void *phs)
 
 	for(i=0;i<=RAS_MSG_TYPES;i++) {
 		if(hs->ras_msg[i]!=0) {
-			g_snprintf(str, 256, "%s", val_to_str(i,h225_RasMessage_vals,"unknown ras-messages"));
+			tmp_str = val_to_str_wmem(NULL,i,h225_RasMessage_vals,"unknown ras-messages (%d)");
+			g_snprintf(str, 256, "%s", tmp_str);
+			wmem_free(NULL, tmp_str);
 			gtk_list_store_append(store, &iter);
 			gtk_list_store_set(store, &iter,
-				   0, val_to_str(i,h225_RasMessage_vals,"unknown ras-messages"),
+				   0, str,
 				   1, hs->ras_msg[i], -1);
 
 			/* reason counter */
@@ -314,8 +317,9 @@ h225counter_draw(void *phs)
 			case 2: /* GRJ */
 				for(j=0;j<=GRJ_REASONS;j++) {
 					if(hs->grj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,GatekeeperRejectReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,GatekeeperRejectReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -326,8 +330,9 @@ h225counter_draw(void *phs)
 			case 5: /* RRJ */
 				for(j=0;j<=RRJ_REASONS;j++) {
 					if(hs->rrj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,RegistrationRejectReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,RegistrationRejectReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -338,8 +343,9 @@ h225counter_draw(void *phs)
 			case 6: /* URQ */
 				for(j=0;j<=URQ_REASONS;j++) {
 					if(hs->urq_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,UnregRequestReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,UnregRequestReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -350,8 +356,9 @@ h225counter_draw(void *phs)
 			case 8: /* URJ */
 				for(j=0;j<=URJ_REASONS;j++) {
 					if(hs->urj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,UnregRejectReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,UnregRejectReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -362,8 +369,9 @@ h225counter_draw(void *phs)
 			case 11: /* ARJ */
 				for(j=0;j<=ARJ_REASONS;j++) {
 					if(hs->arj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,AdmissionRejectReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,AdmissionRejectReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -374,8 +382,9 @@ h225counter_draw(void *phs)
 			case 14: /* BRJ */
 				for(j=0;j<=BRJ_REASONS;j++) {
 					if(hs->brj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,BandRejectReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,BandRejectReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -386,8 +395,9 @@ h225counter_draw(void *phs)
 			case 15: /* DRQ */
 				for(j=0;j<=DRQ_REASONS;j++) {
 					if(hs->drq_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,DisengageReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,DisengageReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -398,8 +408,9 @@ h225counter_draw(void *phs)
 			case 17: /* DRJ */
 				for(j=0;j<=DRJ_REASONS;j++) {
 					if(hs->drj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,DisengageRejectReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,DisengageRejectReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_set(store, &iter,
 							0, str,
 							1, hs->drj_reason[j], -1);
@@ -409,8 +420,9 @@ h225counter_draw(void *phs)
 			case 20: /* LRJ */
 				for(j=0;j<=LRJ_REASONS;j++) {
 					if(hs->lrj_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,LocationRejectReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,LocationRejectReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -421,8 +433,9 @@ h225counter_draw(void *phs)
 			case 29: /* IRQNak */
 				for(j=0;j<=IRQNAK_REASONS;j++) {
 					if(hs->irqnak_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,InfoRequestNakReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,InfoRequestNakReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -439,18 +452,21 @@ h225counter_draw(void *phs)
 
 	for(i=0;i<=CS_MSG_TYPES;i++) {
 		if(hs->cs_msg[i]!=0) {
+			tmp_str = val_to_str_wmem(NULL,i,T_h323_message_body_vals,"unknown cs-messages");
 			gtk_list_store_append(store, &iter);
 			gtk_list_store_set(store, &iter,
-				   0, val_to_str(i,T_h323_message_body_vals,"unknown cs-messages"),
+				   0, tmp_str,
 				   1, hs->cs_msg[i], -1);
+			wmem_free(NULL, tmp_str);
 
 			/* reason counter */
 			switch(i) {
 			case 5: /* ReleaseComplete */
 				for(j=0;j<=REL_CMP_REASONS;j++) {
 					if(hs->rel_cmp_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,h225_ReleaseCompleteReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,h225_ReleaseCompleteReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
@@ -461,8 +477,9 @@ h225counter_draw(void *phs)
 			case 6: /* Facility */
 				for(j=0;j<=FACILITY_REASONS;j++) {
 					if(hs->facility_reason[j]!=0) {
-						g_snprintf(str, 256,"    %s",
-								val_to_str(j,FacilityReason_vals,"unknown reason"));
+						tmp_str = val_to_str_wmem(NULL,j,FacilityReason_vals,"unknown reason (%d)");
+						g_snprintf(str, 256,"    %s", tmp_str);
+						wmem_free(NULL, tmp_str);
 						gtk_list_store_append(store, &iter);
 						gtk_list_store_set(store, &iter,
 							0, str,
