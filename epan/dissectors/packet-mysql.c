@@ -1064,7 +1064,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	/* optional: connection attributes */
-	if (conn_data->clnt_caps_ext & MYSQL_CAPS_CA)
+	if (conn_data->clnt_caps_ext & MYSQL_CAPS_CA && tvb_reported_length_remaining(tvb, offset))
 	{
 		proto_tree *connattrs_tree;
 		int lenfle;
