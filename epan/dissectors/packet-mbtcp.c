@@ -1880,7 +1880,7 @@ proto_reg_handoff_mbrtu(void)
     mbrtu_port = global_mbus_rtu_port;
 
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
-    dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_MODBUS, modbus_handle);
+    dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_MODBUS, mbrtu_handle);
 
 }
 
