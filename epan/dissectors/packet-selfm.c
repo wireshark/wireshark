@@ -147,65 +147,65 @@ static int hf_selfm_alt_fastop_len            = -1;
 static int hf_selfm_alt_fastop_code           = -1;
 static int hf_selfm_alt_fastop_valid          = -1;
 
-static int hf_selfm_fastser_len                    = -1;
-static int hf_selfm_fastser_routing_addr           = -1;
-static int hf_selfm_fastser_status                 = -1;
-static int hf_selfm_fastser_funccode               = -1;
-static int hf_selfm_fastser_seq                    = -1;
-static int hf_selfm_fastser_seq_fir                = -1;
-static int hf_selfm_fastser_seq_fin                = -1;
-static int hf_selfm_fastser_seq_cnt                = -1;
-static int hf_selfm_fastser_resp_num               = -1;
-static int hf_selfm_fastser_crc16                  = -1;
-static int hf_selfm_fastser_def_route_sup          = -1;
-static int hf_selfm_fastser_def_rx_stat            = -1;
-static int hf_selfm_fastser_def_tx_stat            = -1;
-static int hf_selfm_fastser_def_rx_maxfr           = -1;
-static int hf_selfm_fastser_def_tx_maxfr           = -1;
-static int hf_selfm_fastser_def_rx_num_fc          = -1;
-static int hf_selfm_fastser_def_rx_fc              = -1;
-static int hf_selfm_fastser_def_tx_num_fc          = -1;
-static int hf_selfm_fastser_def_tx_fc              = -1;
-static int hf_selfm_fastser_uns_en_fc              = -1;
-static int hf_selfm_fastser_uns_en_fc_data         = -1;
-static int hf_selfm_fastser_uns_dis_fc             = -1;
-static int hf_selfm_fastser_uns_dis_fc_data        = -1;
-static int hf_selfm_fastser_baseaddr               = -1;
-static int hf_selfm_fastser_numwords               = -1;
-static int hf_selfm_fastser_flags                  = -1;
-static int hf_selfm_fastser_datafmt_resp_numitem   = -1;
-static int hf_selfm_fastser_dataitem_qty           = -1;
-static int hf_selfm_fastser_dataitem_type          = -1;
-static int hf_selfm_fastser_dataitem_uint16        = -1;
-static int hf_selfm_fastser_dataitem_int16         = -1;
-static int hf_selfm_fastser_dataitem_uint32        = -1;
-static int hf_selfm_fastser_dataitem_int32         = -1;
-static int hf_selfm_fastser_dataitem_float         = -1;
-static int hf_selfm_fastser_devdesc_num_region     = -1;
-static int hf_selfm_fastser_devdesc_num_ctrl       = -1;
-static int hf_selfm_fastser_unsresp_orig           = -1;
-static int hf_selfm_fastser_unsresp_doy            = -1;
-static int hf_selfm_fastser_unsresp_year           = -1;
-static int hf_selfm_fastser_unsresp_todms          = -1;
-static int hf_selfm_fastser_unsresp_num_elmt       = -1;
-static int hf_selfm_fastser_unsresp_elmt_idx       = -1;
-static int hf_selfm_fastser_unsresp_elmt_ts_ofs    = -1;
-static int hf_selfm_fastser_unsresp_elmt_status    = -1;
-static int hf_selfm_fastser_unsresp_eor            = -1;
-static int hf_selfm_fastser_unsresp_elmt_statword  = -1;
-static int hf_selfm_fastser_unswrite_addr1         = -1;
-static int hf_selfm_fastser_unswrite_addr2         = -1;
-static int hf_selfm_fastser_unswrite_num_reg       = -1;
-static int hf_selfm_fastser_unswrite_reg_val       = -1;
-static int hf_selfm_fastser_soe_req_orig           = -1;
-static int hf_selfm_fastser_soe_resp_numblks       = -1;
-static int hf_selfm_fastser_soe_resp_orig          = -1;
-static int hf_selfm_fastser_soe_resp_numbits       = -1;
-static int hf_selfm_fastser_soe_resp_pad           = -1;
-static int hf_selfm_fastser_soe_resp_doy           = -1;
-static int hf_selfm_fastser_soe_resp_year          = -1;
-static int hf_selfm_fastser_soe_resp_tod           = -1;
-/* static int hf_selfm_fastser_soe_resp_data          = -1; */
+static int hf_selfm_fastmsg_len                    = -1;
+static int hf_selfm_fastmsg_routing_addr           = -1;
+static int hf_selfm_fastmsg_status                 = -1;
+static int hf_selfm_fastmsg_funccode               = -1;
+static int hf_selfm_fastmsg_seq                    = -1;
+static int hf_selfm_fastmsg_seq_fir                = -1;
+static int hf_selfm_fastmsg_seq_fin                = -1;
+static int hf_selfm_fastmsg_seq_cnt                = -1;
+static int hf_selfm_fastmsg_resp_num               = -1;
+static int hf_selfm_fastmsg_crc16                  = -1;
+static int hf_selfm_fastmsg_def_route_sup          = -1;
+static int hf_selfm_fastmsg_def_rx_stat            = -1;
+static int hf_selfm_fastmsg_def_tx_stat            = -1;
+static int hf_selfm_fastmsg_def_rx_maxfr           = -1;
+static int hf_selfm_fastmsg_def_tx_maxfr           = -1;
+static int hf_selfm_fastmsg_def_rx_num_fc          = -1;
+static int hf_selfm_fastmsg_def_rx_fc              = -1;
+static int hf_selfm_fastmsg_def_tx_num_fc          = -1;
+static int hf_selfm_fastmsg_def_tx_fc              = -1;
+static int hf_selfm_fastmsg_uns_en_fc              = -1;
+static int hf_selfm_fastmsg_uns_en_fc_data         = -1;
+static int hf_selfm_fastmsg_uns_dis_fc             = -1;
+static int hf_selfm_fastmsg_uns_dis_fc_data        = -1;
+static int hf_selfm_fastmsg_baseaddr               = -1;
+static int hf_selfm_fastmsg_numwords               = -1;
+static int hf_selfm_fastmsg_flags                  = -1;
+static int hf_selfm_fastmsg_datafmt_resp_numitem   = -1;
+static int hf_selfm_fastmsg_dataitem_qty           = -1;
+static int hf_selfm_fastmsg_dataitem_type          = -1;
+static int hf_selfm_fastmsg_dataitem_uint16        = -1;
+static int hf_selfm_fastmsg_dataitem_int16         = -1;
+static int hf_selfm_fastmsg_dataitem_uint32        = -1;
+static int hf_selfm_fastmsg_dataitem_int32         = -1;
+static int hf_selfm_fastmsg_dataitem_float         = -1;
+static int hf_selfm_fastmsg_devdesc_num_region     = -1;
+static int hf_selfm_fastmsg_devdesc_num_ctrl       = -1;
+static int hf_selfm_fastmsg_unsresp_orig           = -1;
+static int hf_selfm_fastmsg_unsresp_doy            = -1;
+static int hf_selfm_fastmsg_unsresp_year           = -1;
+static int hf_selfm_fastmsg_unsresp_todms          = -1;
+static int hf_selfm_fastmsg_unsresp_num_elmt       = -1;
+static int hf_selfm_fastmsg_unsresp_elmt_idx       = -1;
+static int hf_selfm_fastmsg_unsresp_elmt_ts_ofs    = -1;
+static int hf_selfm_fastmsg_unsresp_elmt_status    = -1;
+static int hf_selfm_fastmsg_unsresp_eor            = -1;
+static int hf_selfm_fastmsg_unsresp_elmt_statword  = -1;
+static int hf_selfm_fastmsg_unswrite_addr1         = -1;
+static int hf_selfm_fastmsg_unswrite_addr2         = -1;
+static int hf_selfm_fastmsg_unswrite_num_reg       = -1;
+static int hf_selfm_fastmsg_unswrite_reg_val       = -1;
+static int hf_selfm_fastmsg_soe_req_orig           = -1;
+static int hf_selfm_fastmsg_soe_resp_numblks       = -1;
+static int hf_selfm_fastmsg_soe_resp_orig          = -1;
+static int hf_selfm_fastmsg_soe_resp_numbits       = -1;
+static int hf_selfm_fastmsg_soe_resp_pad           = -1;
+static int hf_selfm_fastmsg_soe_resp_doy           = -1;
+static int hf_selfm_fastmsg_soe_resp_year          = -1;
+static int hf_selfm_fastmsg_soe_resp_tod           = -1;
+/* static int hf_selfm_fastmsg_soe_resp_data          = -1; */
 
 
 /* Initialize the subtree pointers */
@@ -226,13 +226,13 @@ static gint ett_selfm_fmdata_ai             = -1;
 static gint ett_selfm_fmdata_dig            = -1;
 static gint ett_selfm_fmdata_ai_ch          = -1;
 static gint ett_selfm_fmdata_dig_ch         = -1;
-static gint ett_selfm_fastser               = -1;
-static gint ett_selfm_fastser_seq           = -1;
-static gint ett_selfm_fastser_def_fc        = -1;
-static gint ett_selfm_fastser_datareg       = -1;
-static gint ett_selfm_fastser_tag           = -1;
-static gint ett_selfm_fastser_element_list  = -1;
-static gint ett_selfm_fastser_element       = -1;
+static gint ett_selfm_fastmsg               = -1;
+static gint ett_selfm_fastmsg_seq           = -1;
+static gint ett_selfm_fastmsg_def_fc        = -1;
+static gint ett_selfm_fastmsg_datareg       = -1;
+static gint ett_selfm_fastmsg_tag           = -1;
+static gint ett_selfm_fastmsg_element_list  = -1;
+static gint ett_selfm_fastmsg_element       = -1;
 
 /* Expert fields */
 static expert_field ei_selfm_crc16_incorrect = EI_INIT;
@@ -277,7 +277,7 @@ static expert_field ei_selfm_crc16_incorrect = EI_INIT;
 #define FM_CONFIG_ANA_SFTYPE_NONE       0xFF
 
 
-/* Fast SER Function Codes, "response" or "ACK" messages are the same as the request, but have the MSB set */
+/* Fast Message Function Codes, "response" or "ACK" messages are the same as the request, but have the MSB set */
 #define FAST_MSG_CFG_BLOCK              0x00
 #define FAST_MSG_EN_UNS_DATA            0x01
 #define FAST_MSG_DIS_UNS_DATA           0x02
@@ -305,12 +305,12 @@ static expert_field ei_selfm_crc16_incorrect = EI_INIT;
 #define FAST_MSG_BITLABEL_RESP          0xB3
 
 
-/* Fast SER Sequence Byte Masks */
+/* Fast Message Sequence Byte Masks */
 #define FAST_MSG_SEQ_FIR     0x80
 #define FAST_MSG_SEQ_FIN     0x40
 #define FAST_MSG_SEQ_CNT     0x3f
 
-/* Fast SER Tag Data Types */
+/* Fast Message Tag Data Types */
 #define FAST_MSG_TAGTYPE_CHAR8        0x0011   /* 1 x 8-bit character per item */
 #define FAST_MSG_TAGTYPE_CHAR16       0x0012   /* 2 x 8-bit characters per item */
 #define FAST_MSG_TAGTYPE_DIGWORD8_BL  0x0021   /* 8-bit binary item, with labels */
@@ -376,16 +376,16 @@ typedef struct {
     gchar    name[10+1];                        /* Name of Data Item, 10 chars, null-terminated             */
     guint16  quantity;                          /* Quantity of values within Data Item                      */
     guint16  data_type;                         /* Data Item Type, Char, Int, FP, etc                       */
-} fastser_dataitem;
+} fastmsg_dataitem;
 
 /**************************************************************************************/
 /* Fast Message Data Region struct */
 /**************************************************************************************/
-/* Holds Configuration Information required to decode a Fast Message Data Region          */
+/* Holds Configuration Information required to decode a Fast Message Data Region      */
 /* Each data region format is returned as a sequential list of tags, w/o reference to */
 typedef struct {
     gchar    name[10+1];                        /* Name of Data Region, 10 chars, null-terminated              */
-} fastser_dataregion;
+} fastmsg_dataregion;
 
 /**************************************************************************************/
 /* Fast Unsolicited SER Index Lookup */
@@ -402,8 +402,8 @@ typedef struct {
 /**************************************************************************************/
 typedef struct {
     wmem_list_t *fm_config_frames;      /* List contains a fm_config_data struct for each Fast Meter configuration frame */
-    wmem_list_t *fastser_dataitems;     /* List contains a fastser_dataitem struct for each Fast SER Data Item */
-    wmem_tree_t *fastser_dataregions;   /* Tree contains a fastser_dataregion struct for each Fast SER Data Region */
+    wmem_list_t *fastmsg_dataitems;     /* List contains a fastmsg_dataitem struct for each Fast Message Data Item */
+    wmem_tree_t *fastmsg_dataregions;   /* Tree contains a fastmsg_dataregion struct for each Fast Message Data Region */
     wmem_tree_t *fastser_uns_wordbits;  /* Tree contains a fastser_uns_wordbit struct for each comma-separated entry in the 'SER List' User Preference */
 } fm_conversation;
 
@@ -445,9 +445,9 @@ static const value_string selfm_relaydef_proto_vals[] = {
     { 0x0008,  "IEC 61850" },
     { 0x0100,  "SEL Fast Meter w/ Fast Operate" },
     { 0x0101,  "SEL Limited Multidrop (LMD) w/ Fast Operate" },
-    { 0x0200,  "SEL Fast Meter w/ Fast SER" },
-    { 0x0300,  "SEL Fast Meter w/ Fast Operate and Fast SER" },
-    { 0x0301,  "SEL Limited Multidrop (LMD) w/ Fast Operate and Fast SER" },
+    { 0x0200,  "SEL Fast Meter w/ Fast Message" },
+    { 0x0300,  "SEL Fast Meter w/ Fast Operate and Fast Message" },
+    { 0x0301,  "SEL Limited Multidrop (LMD) w/ Fast Operate and Fast Message" },
     { 0,                         NULL }
 };
 static value_string_ext selfm_relaydef_proto_vals_ext = VALUE_STRING_EXT_INIT(selfm_relaydef_proto_vals);
@@ -696,8 +696,8 @@ static const value_string selfm_foconfig_alt_funccode_vals[] = {
     { 0,                   NULL }
 };
 
-/* Fast SER Message Function Codes */
-static const value_string selfm_fastser_func_code_vals[] = {
+/* Fast Message Function Codes */
+static const value_string selfm_fastmsg_func_code_vals[] = {
     { FAST_MSG_CFG_BLOCK,         "Fast Message Configuration Block Request" },
     { FAST_MSG_EN_UNS_DATA,       "Enable Unsolicited Data" },
     { FAST_MSG_DIS_UNS_DATA,      "Disable Unsolicited Data" },
@@ -725,10 +725,10 @@ static const value_string selfm_fastser_func_code_vals[] = {
     { FAST_MSG_BITLABEL_RESP,     "Bit Label Response" },
     { 0,                           NULL }
 };
-static value_string_ext selfm_fastser_func_code_vals_ext =
-    VALUE_STRING_EXT_INIT(selfm_fastser_func_code_vals);
+static value_string_ext selfm_fastmsg_func_code_vals_ext =
+    VALUE_STRING_EXT_INIT(selfm_fastmsg_func_code_vals);
 
-static const value_string selfm_fastser_tagtype_vals[] = {
+static const value_string selfm_fastmsg_tagtype_vals[] = {
     { FAST_MSG_TAGTYPE_CHAR8,        "1 x 8-bit character per item" },
     { FAST_MSG_TAGTYPE_CHAR16,       "2 x 8-bit characters per item" },
     { FAST_MSG_TAGTYPE_DIGWORD8_BL,  "8-bit binary item, with labels" },
@@ -745,7 +745,7 @@ static const value_string selfm_fastser_tagtype_vals[] = {
 
 
 /* Fast Message Unsolicited Write COM Port Codes */
-static const value_string selfm_fastser_unswrite_com_vals[] = {
+static const value_string selfm_fastmsg_unswrite_com_vals[] = {
     { 0x0100,   "COM01" },
     { 0x0200,   "COM02" },
     { 0x0300,   "COM03" },
@@ -763,8 +763,8 @@ static const value_string selfm_fastser_unswrite_com_vals[] = {
     { 0x0F00,   "COM15" },
     { 0,  NULL }
 };
-static value_string_ext selfm_fastser_unswrite_com_vals_ext =
-    VALUE_STRING_EXT_INIT(selfm_fastser_unswrite_com_vals);
+static value_string_ext selfm_fastmsg_unswrite_com_vals_ext =
+    VALUE_STRING_EXT_INIT(selfm_fastmsg_unswrite_com_vals);
 
 /* Tables for reassembly of fragments. */
 static reassembly_table selfm_reassembly_table;
@@ -910,14 +910,14 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
 
 /******************************************************************************************************/
 /* Execute dissection of Data Item definition info before loading GUI tree                            */
-/* Load configuration information into fastser_dataitem struct                                        */
+/* Load configuration information into fastmsg_dataitem struct                                        */
 /******************************************************************************************************/
-static fastser_dataitem* fastser_dataitem_save(tvbuff_t *tvb, int offset)
+static fastmsg_dataitem* fastmsg_dataitem_save(tvbuff_t *tvb, int offset)
 {
-    fastser_dataitem *dataitem;
+    fastmsg_dataitem *dataitem;
 
     /* get a new dataitem and initialize it */
-    dataitem = wmem_new(wmem_file_scope(), fastser_dataitem);
+    dataitem = wmem_new(wmem_file_scope(), fastmsg_dataitem);
 
     /* retrieve data item name and terminate with a null */
     tvb_memcpy(tvb, dataitem->name, offset, 10);
@@ -933,14 +933,14 @@ static fastser_dataitem* fastser_dataitem_save(tvbuff_t *tvb, int offset)
 
 /******************************************************************************************************/
 /* Execute dissection of Data Region definition info before loading GUI tree                          */
-/* Load configuration information into fastser_dataregion struct                                      */
+/* Load configuration information into fastmsg_dataregion struct                                      */
 /******************************************************************************************************/
-static fastser_dataregion* fastser_dataregion_save(tvbuff_t *tvb, int offset)
+static fastmsg_dataregion* fastmsg_dataregion_save(tvbuff_t *tvb, int offset)
 {
-    fastser_dataregion *dataregion;
+    fastmsg_dataregion *dataregion;
 
     /* get a new dataregion and initialize it */
-    dataregion = wmem_new(wmem_file_scope(), fastser_dataregion);
+    dataregion = wmem_new(wmem_file_scope(), fastmsg_dataregion);
 
     /* retrieve data region name and terminate with a null */
     tvb_memcpy(tvb, dataregion->name, offset, 10);
@@ -957,11 +957,11 @@ static const gchar*
 region_lookup(packet_info *pinfo, guint32 base_addr)
 {
     fm_conversation    *conv;
-    fastser_dataregion *dataregion = NULL;
+    fastmsg_dataregion *dataregion = NULL;
 
     conv = (fm_conversation *)p_get_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0);
     if (conv) {
-        dataregion = (fastser_dataregion*)wmem_tree_lookup32(conv->fastser_dataregions, base_addr);
+        dataregion = (fastmsg_dataregion*)wmem_tree_lookup32(conv->fastmsg_dataregions, base_addr);
     }
 
     if (dataregion) {
@@ -1636,21 +1636,21 @@ dissect_alt_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, in
 
 }
 
-/**************************************************************************************************************************/
-/* Code to dissect Fast SER Read Response Messages  */
-/**************************************************************************************************************************/
-/* Each Read Response frame can have a maximum data size of 117 x 16-bit words (or 234 bytes) -  this is due to the 20    */
-/* the 20 bytes of overhead and 254 max frame size. In the event of a larger data payload than 234 bytes, the FIR and FIN */
-/* bits will be used to indicate either the first frame, last frame, or a neither/middle frame.                           */
-/* We can use the FIN bit to attempt a reassembly of the data payload since all messages will arrive sequentially.        */
-/**************************************************************************************************************************/
+/************************************************************************************************************************/
+/* Code to dissect Fast Message Read Response Messages  */
+/************************************************************************************************************************/
+/* Each Read Response frame can have a maximum data size of 117 x 16-bit words (or 234 bytes) -  this is due to the 20  */
+/* bytes of overhead and 254 max frame size. In the event of a larger data payload than 234 bytes, the FIR and FIN      */
+/* bits will be used to indicate either the first frame, last frame, or a neither/middle frame.                         */
+/* We can use the FIN bit to attempt a reassembly of the data payload since all messages will arrive sequentially.      */
+/************************************************************************************************************************/
 
 static int
-dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_info *pinfo, int offset, guint8 seq_byte)
+dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_info *pinfo, int offset, guint8 seq_byte)
 {
-    proto_item        *fastser_tag_value_item=NULL, *fmdata_dig_item=NULL;
+    proto_item        *fastmsg_tag_value_item=NULL, *fmdata_dig_item=NULL;
     proto_item        *pi_baseaddr=NULL, *pi_fnum=NULL, *pi_type=NULL, *pi_qty=NULL;
-    proto_tree        *fastser_tag_tree=NULL, *fmdata_dig_tree=NULL;
+    proto_tree        *fastmsg_tag_tree=NULL, *fmdata_dig_tree=NULL;
     guint32           base_addr;
     guint16           data_size, num_addr, cnt;
     guint8            *item_val_str_ptr;
@@ -1658,7 +1658,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
     gboolean          seq_fir, seq_fin, save_fragmented;
     int               payload_offset=0;
     fm_conversation   *conv;
-    fastser_dataitem  *dataitem;
+    fastmsg_dataitem  *dataitem;
     tvbuff_t          *data_tvb, *payload_tvb;
 
     /* Decode sequence byte components */
@@ -1672,10 +1672,10 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
     /* Append Column Info w/ Base Address */
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x [%s]", base_addr, region_lookup(pinfo, base_addr));
 
-    pi_baseaddr = proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+    pi_baseaddr = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
 
-    proto_tree_add_item(fastser_tree, hf_selfm_fastser_numwords, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_numwords, tvb, offset+4, 2, ENC_BIG_ENDIAN);
     offset += 6;
 
     /* Setup a new tvb representing just the data payload of this particular message */
@@ -1697,7 +1697,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
         payload_tvb = process_reassembled_data(data_tvb, 0, pinfo,
             "Reassembled Data Response Payload", frag_msg, &selfm_frag_items,
-            NULL, fastser_tree);
+            NULL, fastmsg_tree);
 
         if (payload_tvb) { /* Reassembled */
           /* We have the complete payload */
@@ -1727,11 +1727,11 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
         conv = (fm_conversation *)p_get_proto_data(wmem_file_scope(), pinfo, proto_selfm, 0);
 
         if (conv) {
-            /* Start at front of list and cycle through possible instances of multiple fastser_dataitem frames, looking for match */
-            wmem_list_frame_t *frame = wmem_list_head(conv->fastser_dataitems);
+            /* Start at front of list and cycle through possible instances of multiple fastmsg_dataitem frames, looking for match */
+            wmem_list_frame_t *frame = wmem_list_head(conv->fastmsg_dataitems);
 
             while (frame) {
-                dataitem = (fastser_dataitem *)wmem_list_frame_data(frame);
+                dataitem = (fastmsg_dataitem *)wmem_list_frame_data(frame);
 
                 /* If the stored base address of the current data item matches the current base address of this response frame */
                 /* mark that the config data was found and attempt further dissection */
@@ -1762,14 +1762,14 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                             break;
                     }
 
-                    fastser_tag_tree = proto_tree_add_subtree_format(fastser_tree, payload_tvb, payload_offset, data_size,
-                                    ett_selfm_fastser_tag, NULL, "Data Item Name: %s", dataitem->name);
+                    fastmsg_tag_tree = proto_tree_add_subtree_format(fastmsg_tree, payload_tvb, payload_offset, data_size,
+                                    ett_selfm_fastmsg_tag, NULL, "Data Item Name: %s", dataitem->name);
 
                     /* Load some information from the stored Data Format Response message into the tree for reference */
-                    pi_fnum = proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, data_size, "Using frame number %d (Index Pos: %d) as Data Format Reference",dataitem->fnum, dataitem->index_pos );
-                    pi_type = proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, data_size, "Data_Type: %s (%#x)",
-                                      val_to_str_const(dataitem->data_type, selfm_fastser_tagtype_vals, "Unknown Data Type"), dataitem->data_type);
-                    pi_qty = proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, data_size, "Quantity: %d",dataitem->quantity );
+                    pi_fnum = proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Using frame number %d (Index Pos: %d) as Data Format Reference",dataitem->fnum, dataitem->index_pos );
+                    pi_type = proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Data_Type: %s (%#x)",
+                                      val_to_str_const(dataitem->data_type, selfm_fastmsg_tagtype_vals, "Unknown Data Type"), dataitem->data_type);
+                    pi_qty = proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Quantity: %d",dataitem->quantity );
 
                     PROTO_ITEM_SET_GENERATED(pi_fnum);
                     PROTO_ITEM_SET_GENERATED(pi_type);
@@ -1783,7 +1783,7 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
 
-                                fmdata_dig_tree = proto_tree_add_subtree_format(fastser_tag_tree, payload_tvb, payload_offset, 1,
+                                fmdata_dig_tree = proto_tree_add_subtree_format(fastmsg_tag_tree, payload_tvb, payload_offset, 1,
                                                     ett_selfm_fmdata_dig, &fmdata_dig_item, "8-bit Binary Items (Row: %2d)", cnt);
 
                                 /* Display the bit pattern on the digital channel proto_item */
@@ -1811,46 +1811,46 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
                         case FAST_MSG_TAGTYPE_CHAR8:
                         case FAST_MSG_TAGTYPE_CHAR16:
                             item_val_str_ptr = tvb_get_string_enc(wmem_packet_scope(), payload_tvb, payload_offset, data_size, ENC_ASCII);
-                            proto_tree_add_text(fastser_tag_tree, payload_tvb, payload_offset, data_size, "Value: %s", item_val_str_ptr);
+                            proto_tree_add_text(fastmsg_tag_tree, payload_tvb, payload_offset, data_size, "Value: %s", item_val_str_ptr);
                             payload_offset += data_size;
                             break;
 
                         case FAST_MSG_TAGTYPE_INT16:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
-                                fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_int16, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
-                                proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
+                                fastmsg_tag_value_item = proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fastmsg_dataitem_int16, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
+                                proto_item_prepend_text(fastmsg_tag_value_item, "Value %d ", cnt);
                                 payload_offset += data_size/dataitem->quantity;
                             }
                             break;
 
                         case FAST_MSG_TAGTYPE_UINT16:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
-                                fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_uint16, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
-                                proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
+                                fastmsg_tag_value_item = proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fastmsg_dataitem_uint16, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
+                                proto_item_prepend_text(fastmsg_tag_value_item, "Value %d ", cnt);
                                 payload_offset += data_size/dataitem->quantity;
                             }
                             break;
 
                         case FAST_MSG_TAGTYPE_INT32:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
-                                fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_int32, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
-                                proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
+                                fastmsg_tag_value_item = proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fastmsg_dataitem_int32, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
+                                proto_item_prepend_text(fastmsg_tag_value_item, "Value %d ", cnt);
                                 payload_offset += data_size/dataitem->quantity;
                             }
                             break;
 
                         case FAST_MSG_TAGTYPE_UINT32:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
-                                fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_uint32, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
-                                proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
+                                fastmsg_tag_value_item = proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fastmsg_dataitem_uint32, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
+                                proto_item_prepend_text(fastmsg_tag_value_item, "Value %d ", cnt);
                                 payload_offset += data_size/dataitem->quantity;
                             }
                             break;
 
                         case FAST_MSG_TAGTYPE_FLOAT:
                             for (cnt=1; cnt <= dataitem->quantity; cnt++) {
-                                fastser_tag_value_item = proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_float, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
-                                proto_item_prepend_text(fastser_tag_value_item, "Value %d ", cnt);
+                                fastmsg_tag_value_item = proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fastmsg_dataitem_float, payload_tvb, payload_offset, data_size/dataitem->quantity, ENC_BIG_ENDIAN);
+                                proto_item_prepend_text(fastmsg_tag_value_item, "Value %d ", cnt);
                                 payload_offset += data_size/dataitem->quantity;
                             }
                             break;
@@ -1879,17 +1879,17 @@ dissect_fastser_readresp_frame(tvbuff_t *tvb, proto_tree *fastser_tree, packet_i
 
 
 /******************************************************************************************************/
-/* Code to dissect Fast SER Frames       */
+/* Code to dissect Fast Message Frames       */
 /******************************************************************************************************/
 static int
-dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
+dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset)
 {
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item    *fastser_def_fc_item, *fastser_seq_item, *fastser_elementlist_item;
-    proto_item    *fastser_tag_item;
-    proto_item    *pi_baseaddr, *fastser_crc16_item;
-    proto_tree    *fastser_tree, *fastser_def_fc_tree=NULL, *fastser_seq_tree=NULL, *fastser_elementlist_tree=NULL;
-    proto_tree    *fastser_element_tree=NULL, *fastser_datareg_tree=NULL, *fastser_tag_tree=NULL;
+    proto_item    *fastmsg_def_fc_item, *fastmsg_seq_item, *fastmsg_elementlist_item;
+    proto_item    *fastmsg_tag_item;
+    proto_item    *pi_baseaddr, *fastmsg_crc16_item;
+    proto_tree    *fastmsg_tree, *fastmsg_def_fc_tree=NULL, *fastmsg_seq_tree=NULL, *fastmsg_elementlist_tree=NULL;
+    proto_tree    *fastmsg_element_tree=NULL, *fastmsg_datareg_tree=NULL, *fastmsg_tag_tree=NULL;
     gint          cnt, num_elements, elmt_status32_ofs=0, elmt_status, null_offset;
     guint8        len, funccode, seq, rx_num_fc, tx_num_fc;
     guint8        seq_cnt, seq_fir, seq_fin, elmt_idx, fc_enable;
@@ -1900,25 +1900,25 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
     len = tvb_get_guint8(tvb, offset);
 
-    fastser_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastser, NULL, "Fast Message Details");
+    fastmsg_tree = proto_tree_add_subtree(tree, tvb, offset, len-2, ett_selfm_fastmsg, NULL, "Fast Message Details");
 
     /* Reported length */
-    proto_tree_add_item(fastser_tree, hf_selfm_fastser_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* 5-byte Future Routing Address */
-    proto_tree_add_item(fastser_tree, hf_selfm_fastser_routing_addr, tvb, offset+1, 5, ENC_NA);
+    proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_routing_addr, tvb, offset+1, 5, ENC_NA);
     offset += 6;
 
     /* Add Status Byte to tree */
-    proto_tree_add_item(fastser_tree, hf_selfm_fastser_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_status, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Get Function Code, add to tree */
     funccode = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(fastser_tree, hf_selfm_fastser_funccode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_funccode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Append Column Info w/ Function Code */
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_ext_const(funccode, &selfm_fastser_func_code_vals_ext, "Unknown Function Code"));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_ext_const(funccode, &selfm_fastmsg_func_code_vals_ext, "Unknown Function Code"));
 
     offset += 1;
 
@@ -1928,19 +1928,19 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     seq_fir = seq & FAST_MSG_SEQ_FIR;
     seq_fin = seq & FAST_MSG_SEQ_FIN;
 
-    fastser_seq_item = proto_tree_add_uint_format_value(fastser_tree, hf_selfm_fastser_seq, tvb, offset, 1, seq, "0x%02x (", seq);
-    if (seq_fir) proto_item_append_text(fastser_seq_item, "FIR, ");
-    if (seq_fin) proto_item_append_text(fastser_seq_item, "FIN, ");
-    proto_item_append_text(fastser_seq_item, "Count %u)", seq_cnt);
+    fastmsg_seq_item = proto_tree_add_uint_format_value(fastmsg_tree, hf_selfm_fastmsg_seq, tvb, offset, 1, seq, "0x%02x (", seq);
+    if (seq_fir) proto_item_append_text(fastmsg_seq_item, "FIR, ");
+    if (seq_fin) proto_item_append_text(fastmsg_seq_item, "FIN, ");
+    proto_item_append_text(fastmsg_seq_item, "Count %u)", seq_cnt);
 
-    fastser_seq_tree = proto_item_add_subtree(fastser_seq_item, ett_selfm_fastser_seq);
-    proto_tree_add_boolean(fastser_seq_tree, hf_selfm_fastser_seq_fir, tvb, offset, 1, seq);
-    proto_tree_add_boolean(fastser_seq_tree, hf_selfm_fastser_seq_fin, tvb, offset, 1, seq);
-    proto_tree_add_item(fastser_seq_tree, hf_selfm_fastser_seq_cnt, tvb, offset, 1, ENC_BIG_ENDIAN);
+    fastmsg_seq_tree = proto_item_add_subtree(fastmsg_seq_item, ett_selfm_fastmsg_seq);
+    proto_tree_add_boolean(fastmsg_seq_tree, hf_selfm_fastmsg_seq_fir, tvb, offset, 1, seq);
+    proto_tree_add_boolean(fastmsg_seq_tree, hf_selfm_fastmsg_seq_fin, tvb, offset, 1, seq);
+    proto_tree_add_item(fastmsg_seq_tree, hf_selfm_fastmsg_seq_cnt, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Add Response Number to tree */
-    proto_tree_add_item(fastser_tree, hf_selfm_fastser_resp_num, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_resp_num, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Depending on Function Code used, remaining section of packet will be handled differently. */
@@ -1950,13 +1950,13 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             /* Function code to enable */
             fc_enable = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_uns_en_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_uns_en_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Append Column Info w/ "Enable" Function Code */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Function to Enable (%#x)", fc_enable);
 
             /* 3-byte Function Code data */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_uns_en_fc_data, tvb, offset+1, 3, ENC_NA);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_uns_en_fc_data, tvb, offset+1, 3, ENC_NA);
 
             offset += 4;
 
@@ -1966,13 +1966,13 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             /* Function code to disable */
             fc_enable = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_uns_dis_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_uns_dis_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Append Column Info w/ "Disable" Function Code */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Function to Disable (%#x)", fc_enable);
 
             /* 1-byte Function Code data */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_uns_dis_fc_data, tvb, offset+1, 1, ENC_NA);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_uns_dis_fc_data, tvb, offset+1, 1, ENC_NA);
 
             offset += 2;
 
@@ -1986,10 +1986,10 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* Append Column Info w/ Base Address */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x [%s]", base_addr, region_lookup(pinfo, base_addr));
 
-            pi_baseaddr = proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            pi_baseaddr = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
 
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_numwords, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_numwords, tvb, offset+4, 2, ENC_BIG_ENDIAN);
             offset += 6;
             break;
 
@@ -2000,7 +2000,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
             /* For the number of registers, step through and retrieve/print each 16-bit component */
             for (cnt=0; cnt < num_reg; cnt++) {
-                proto_tree_add_item(fastser_tree, hf_selfm_fastser_unswrite_reg_val, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unswrite_reg_val, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
 
@@ -2009,7 +2009,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_SOE_STATE_REQ: /* 0x16 - SOE Present State Request */
 
             /* 4 bytes - "Origination Path" */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_req_orig, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_req_orig, tvb, offset, 4, ENC_NA);
             offset += 4;
 
             break;
@@ -2017,17 +2017,17 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_UNS_RESP:     /* 0x18 - Unsolicited Fast SER Data Response */
 
             /* 4 bytes - "Origination Path" */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_orig, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_orig, tvb, offset, 4, ENC_NA);
             offset += 4;
 
             /* Timestamp: 2-byte day-of-year, 2-byte year, 4-byte time-of-day in milliseconds  */
             /* XXX - We can use a built-in function to convert the tod_ms to a readable time format, is there anything for day_of_year? */
             tod_ms = tvb_get_ntohl(tvb, offset+4);
 
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_doy, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_year, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_todms, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_text(fastser_tree, tvb, offset+4, 4, "Time of Day (decoded): %s", time_msecs_to_str(wmem_packet_scope(), tod_ms));
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_doy, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_year, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_todms, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_text(fastmsg_tree, tvb, offset+4, 4, "Time of Day (decoded): %s", time_msecs_to_str(wmem_packet_scope(), tod_ms));
             offset += 8;
 
             /* Build element tree */
@@ -2035,8 +2035,8 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* The general formula is: (Length - 34) / 4 */
             num_elements = (len-34) / 4;
 
-            fastser_elementlist_item = proto_tree_add_uint(fastser_tree, hf_selfm_fastser_unsresp_num_elmt, tvb, offset, (4*num_elements), num_elements);
-            fastser_elementlist_tree = proto_item_add_subtree(fastser_elementlist_item, ett_selfm_fastser_element_list);
+            fastmsg_elementlist_item = proto_tree_add_uint(fastmsg_tree, hf_selfm_fastmsg_unsresp_num_elmt, tvb, offset, (4*num_elements), num_elements);
+            fastmsg_elementlist_tree = proto_item_add_subtree(fastmsg_elementlist_item, ett_selfm_fastmsg_element_list);
 
             /* "Reported New Status" word for up to 32 index elements is following the upcoming 0xFFFFFFFE End-of-record indicator
                Search for that indicator and use the detected tvb offset+4 to retrieve the proper 32-bit status word.
@@ -2060,27 +2060,27 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 elmt_status = ((elmt_status32 >> cnt) & 0x01);
 
                 /* Build the tree */
-                fastser_element_tree = proto_tree_add_subtree_format(fastser_elementlist_tree, tvb, offset, 4, ett_selfm_fastser_element, NULL,
+                fastmsg_element_tree = proto_tree_add_subtree_format(fastmsg_elementlist_tree, tvb, offset, 4, ett_selfm_fastmsg_element, NULL,
                     "Reported Event %d (Index: %d [%s], New State: %s)", cnt+1, elmt_idx, fastser_uns_wordbit_lookup(pinfo, elmt_idx),
                                                                          val_to_str_const(elmt_status, selfm_ser_status_vals, "Unknown"));
 
                 /* Add Index Number and Timestamp offset to tree */
-                proto_tree_add_item(fastser_element_tree, hf_selfm_fastser_unsresp_elmt_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(fastser_element_tree, hf_selfm_fastser_unsresp_elmt_ts_ofs, tvb, offset+1, 3, ENC_BIG_ENDIAN);
-                proto_tree_add_text(fastser_element_tree, tvb, offset+1, 3,
+                proto_tree_add_item(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_ts_ofs, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_text(fastmsg_element_tree, tvb, offset+1, 3,
                     "SER Element Timestamp Offset (decoded): %s", time_msecs_to_str(wmem_packet_scope(), tod_ms + (elmt_ts_offset/1000)));
-                proto_tree_add_uint(fastser_element_tree, hf_selfm_fastser_unsresp_elmt_status, tvb, elmt_status32_ofs, 4, elmt_status);
+                proto_tree_add_uint(fastmsg_element_tree, hf_selfm_fastmsg_unsresp_elmt_status, tvb, elmt_status32_ofs, 4, elmt_status);
 
                 offset += 4;
 
             }
 
             /* 4-byte End-of-Record Terminator 0xFFFFFFFE */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_eor, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_eor, tvb, offset, 4, ENC_NA);
             offset += 4;
 
             /* 4-byte Element Status word */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unsresp_elmt_statword, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unsresp_elmt_statword, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             break;
@@ -2096,15 +2096,15 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* Append Column Info w/ Address Information */
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x, %#x", addr1, addr2);
 
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unswrite_addr1, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unswrite_addr2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_unswrite_num_reg, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unswrite_addr1, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unswrite_addr2, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unswrite_num_reg, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
             offset += 6;
 
             /* For the number of registers, step through and retrieve/print each 16-bit component */
             for (cnt=0; cnt < num_reg; cnt++) {
-                proto_tree_add_item(fastser_tree, hf_selfm_fastser_unswrite_reg_val, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_unswrite_reg_val, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
 
@@ -2118,7 +2118,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x [%s]", base_addr, region_lookup(pinfo, base_addr));
 
             /* Add Base Address to Tree */
-            pi_baseaddr = proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            pi_baseaddr = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
 
             offset += 4;
@@ -2128,7 +2128,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_BITLABEL_REQ:  /* 0x33 - Bit Label Request */
 
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Append Column Info w/ Base Address */
@@ -2140,17 +2140,17 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_CFG_BLOCK_RESP: /* 0x80 (resp to 0x00) - Fast Message Configuration Block Response */
 
              /* Routing Support */
-             proto_tree_add_item(fastser_tree, hf_selfm_fastser_def_route_sup, tvb, offset, 1, ENC_BIG_ENDIAN);
+             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_route_sup, tvb, offset, 1, ENC_BIG_ENDIAN);
              offset += 1;
 
              /* RX / TX Status */
-             proto_tree_add_item(fastser_tree, hf_selfm_fastser_def_rx_stat, tvb, offset, 1, ENC_BIG_ENDIAN);
-             proto_tree_add_item(fastser_tree, hf_selfm_fastser_def_tx_stat, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_rx_stat, tvb, offset, 1, ENC_BIG_ENDIAN);
+             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_tx_stat, tvb, offset+1, 1, ENC_BIG_ENDIAN);
              offset += 2;
 
              /* Max Frames RX/TX */
-             proto_tree_add_item(fastser_tree, hf_selfm_fastser_def_rx_maxfr, tvb, offset, 1, ENC_BIG_ENDIAN);
-             proto_tree_add_item(fastser_tree, hf_selfm_fastser_def_tx_maxfr, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_rx_maxfr, tvb, offset, 1, ENC_BIG_ENDIAN);
+             proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_tx_maxfr, tvb, offset+1, 1, ENC_BIG_ENDIAN);
              offset += 2;
 
              /* 6 bytes of reserved space */
@@ -2158,25 +2158,25 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
              /* Number of Supported RX Function Codes */
              rx_num_fc = tvb_get_guint8(tvb, offset);
-             fastser_def_fc_item = proto_tree_add_item(fastser_tree, hf_selfm_fastser_def_rx_num_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
-             fastser_def_fc_tree = proto_item_add_subtree(fastser_def_fc_item, ett_selfm_fastser_def_fc);
+             fastmsg_def_fc_item = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_rx_num_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
+             fastmsg_def_fc_tree = proto_item_add_subtree(fastmsg_def_fc_item, ett_selfm_fastmsg_def_fc);
              offset += 1;
 
              /* Add Supported RX Function Codes to tree */
              for (cnt=0; cnt<rx_num_fc; cnt++) {
-                 proto_tree_add_item(fastser_def_fc_tree, hf_selfm_fastser_def_rx_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
+                 proto_tree_add_item(fastmsg_def_fc_tree, hf_selfm_fastmsg_def_rx_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
                  offset += 2;
              }
 
              /* Number of Supported TX Function Codes */
              tx_num_fc = tvb_get_guint8(tvb, offset);
-             fastser_def_fc_item = proto_tree_add_item(fastser_tree, hf_selfm_fastser_def_tx_num_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
-             fastser_def_fc_tree = proto_item_add_subtree(fastser_def_fc_item, ett_selfm_fastser_def_fc);
+             fastmsg_def_fc_item = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_def_tx_num_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
+             fastmsg_def_fc_tree = proto_item_add_subtree(fastmsg_def_fc_item, ett_selfm_fastmsg_def_fc);
              offset += 1;
 
              /* Add Supported TX Function Codes to tree */
              for (cnt=0; cnt<tx_num_fc; cnt++) {
-                 proto_tree_add_item(fastser_def_fc_tree, hf_selfm_fastser_def_tx_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
+                 proto_tree_add_item(fastmsg_def_fc_tree, hf_selfm_fastmsg_def_tx_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
                  offset += 2;
              }
 
@@ -2184,24 +2184,24 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
 
         case FAST_MSG_READ_RESP:     /* 0x90 (resp to 0x10) - Read Response */
 
-            offset = dissect_fastser_readresp_frame( tvb, fastser_tree, pinfo, offset, seq);
+            offset = dissect_fastmsg_readresp_frame( tvb, fastmsg_tree, pinfo, offset, seq);
 
             break;
 
         case FAST_MSG_SOE_STATE_RESP: /* 0x96 - (resp to 0x16) SOE Present State Response */
 
             /* 16-bit field with number of blocks of present state data */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_numblks, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_numblks, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* XXX - With examples, need to loop through each one of these items based on the num_blocks */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_orig, tvb, offset, 4, ENC_NA);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_numbits, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_pad, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_doy, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_year, tvb, offset+8, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_tod, tvb, offset+10, 4, ENC_BIG_ENDIAN);
-            /* proto_tree_add_item(fastser_tree, hf_selfm_fastser_soe_resp_data, tvb, offset+14, 2, ENC_BIG_ENDIAN); */
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_orig, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_numbits, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_pad, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_doy, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_year, tvb, offset+8, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_tod, tvb, offset+10, 4, ENC_BIG_ENDIAN);
+            /* proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_soe_resp_data, tvb, offset+14, 2, ENC_BIG_ENDIAN); */
 
             offset += 14;
 
@@ -2212,13 +2212,13 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* Add FID / RID ASCII data to tree */
             fid_str_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 50, ENC_ASCII);
             rid_str_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+50, 40, ENC_ASCII);
-            proto_tree_add_text(fastser_tree, tvb, offset, 50, "FID: %s", fid_str_ptr);
-            proto_tree_add_text(fastser_tree, tvb, offset+50, 40, "RID: %s", rid_str_ptr);
+            proto_tree_add_text(fastmsg_tree, tvb, offset, 50, "FID: %s", fid_str_ptr);
+            proto_tree_add_text(fastmsg_tree, tvb, offset+50, 40, "RID: %s", rid_str_ptr);
             offset += 90;
 
             /* 16-bit field with number of data areas */
             num_reg = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_devdesc_num_region, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_devdesc_num_region, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* Maximum size of 7 regions per message, check the seq_cnt to determine if we have stepped into
@@ -2231,31 +2231,31 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             }
 
             /* 16-bit field with number of control areas */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_devdesc_num_ctrl, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_devdesc_num_ctrl, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* Each 18-byte data area description has a 10 byte region name, followed by 32-bit base, */
             /* 16-bit message word count and 16-bit flag field */
             for (cnt=0; cnt<num_reg; cnt++) {
 
-                fastser_datareg_tree = proto_tree_add_subtree_format(fastser_tree, tvb, offset, 18,
-                                ett_selfm_fastser_datareg, NULL, "Fast Message Data Region #%d", cnt+1);
+                fastmsg_datareg_tree = proto_tree_add_subtree_format(fastmsg_tree, tvb, offset, 18,
+                                ett_selfm_fastmsg_datareg, NULL, "Fast Message Data Region #%d", cnt+1);
 
                 /* 10-Byte Region description */
                 region_name_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 10, ENC_ASCII);
-                proto_tree_add_text(fastser_datareg_tree, tvb, offset, 10, "Data Region Name: %s", region_name_ptr);
+                proto_tree_add_text(fastmsg_datareg_tree, tvb, offset, 10, "Data Region Name: %s", region_name_ptr);
                 offset += 10;
 
                 /* 32-bit field with base address of data region */
-                proto_tree_add_item(fastser_datareg_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_datareg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 /* 16-bit field with number of 16-bit words in region */
-                proto_tree_add_item(fastser_datareg_tree, hf_selfm_fastser_numwords, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_datareg_tree, hf_selfm_fastmsg_numwords, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
                 /* 16-bit flag field */
-                proto_tree_add_item(fastser_datareg_tree, hf_selfm_fastser_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_datareg_tree, hf_selfm_fastmsg_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
             }
@@ -2276,7 +2276,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             base_addr = tvb_get_ntohl(tvb, offset); /* 32-bit field with base address to read */
 
             /* Add Base Address to Tree */
-            pi_baseaddr = proto_tree_add_item(fastser_tree, hf_selfm_fastser_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            pi_baseaddr = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_baseaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(pi_baseaddr, " [%s]", region_lookup(pinfo, base_addr));
 
             offset += 4;
@@ -2285,18 +2285,18 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%#x [%s]", base_addr, region_lookup(pinfo, base_addr));
 
             /* 16-bit field with number of data items to follow */
-            proto_tree_add_item(fastser_tree, hf_selfm_fastser_datafmt_resp_numitem, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_datafmt_resp_numitem, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             while ((tvb_reported_length_remaining(tvb, offset)) > 2) {
                 /* Data Item record name 10 bytes */
                 tag_name_ptr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 10, ENC_ASCII);
-                fastser_tag_item = proto_tree_add_text(fastser_tree, tvb, offset, 14, "Data Item Record Name: %s", tag_name_ptr);
-                fastser_tag_tree = proto_item_add_subtree(fastser_tag_item, ett_selfm_fastser_tag);
+                fastmsg_tag_item = proto_tree_add_text(fastmsg_tree, tvb, offset, 14, "Data Item Record Name: %s", tag_name_ptr);
+                fastmsg_tag_tree = proto_item_add_subtree(fastmsg_tag_item, ett_selfm_fastmsg_tag);
 
                 /* Data item qty and type */
-                proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_qty, tvb, offset+10, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(fastser_tag_tree, hf_selfm_fastser_dataitem_type, tvb, offset+12, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fastmsg_dataitem_qty, tvb, offset+10, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fastmsg_dataitem_type, tvb, offset+12, 2, ENC_BIG_ENDIAN);
 
                 offset += 14;
             }
@@ -2311,7 +2311,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             /* find the null separators and add the bit label text strings to the tree */
             for (null_offset = offset; null_offset < len; null_offset++) {
                 if ((tvb_memeql(tvb, null_offset, "\x00", 1) == 0) && (tvb_reported_length_remaining(tvb, offset) > 2)) {
-                    proto_tree_add_text(fastser_tree, tvb, offset, (null_offset-offset), "Bit Label #%d Name: %s", cnt,
+                    proto_tree_add_text(fastmsg_tree, tvb, offset, (null_offset-offset), "Bit Label #%d Name: %s", cnt,
                        tvb_format_text(tvb, offset, (null_offset-offset)));
                     offset = null_offset+1; /* skip the null */
                     cnt++;
@@ -2325,17 +2325,17 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     } /* func_code */
 
     /* Add CRC16 to Tree */
-    fastser_crc16_item = proto_tree_add_item(fastser_tree, hf_selfm_fastser_crc16, tvb, offset, 2, ENC_BIG_ENDIAN);
+    fastmsg_crc16_item = proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_crc16, tvb, offset, 2, ENC_BIG_ENDIAN);
     crc16 = tvb_get_ntohs(tvb, offset);
 
     /* If option is enabled, validate the CRC16 */
     if (selfm_crc16) {
         crc16_calc = crc16_plain_tvb_offset_seed(tvb, 0, len-2, 0xFFFF);
         if (crc16_calc != crc16) {
-            expert_add_info_format(pinfo, fastser_crc16_item, &ei_selfm_crc16_incorrect, "Incorrect CRC - should be 0x%04x", crc16_calc);
+            expert_add_info_format(pinfo, fastmsg_crc16_item, &ei_selfm_crc16_incorrect, "Incorrect CRC - should be 0x%04x", crc16_calc);
         }
         else {
-            proto_item_append_text(fastser_crc16_item, " [OK]");
+            proto_item_append_text(fastmsg_crc16_item, " [OK]");
         }
 
     }
@@ -2382,8 +2382,8 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
         if (fm_conv_data == NULL) {
             fm_conv_data = wmem_new(wmem_file_scope(), fm_conversation);
             fm_conv_data->fm_config_frames = wmem_list_new(wmem_file_scope());
-            fm_conv_data->fastser_dataitems = wmem_list_new(wmem_file_scope());
-            fm_conv_data->fastser_dataregions = wmem_tree_new(wmem_file_scope());
+            fm_conv_data->fastmsg_dataitems = wmem_list_new(wmem_file_scope());
+            fm_conv_data->fastmsg_dataregions = wmem_tree_new(wmem_file_scope());
             fm_conv_data->fastser_uns_wordbits = wmem_tree_new(wmem_file_scope());
             conversation_add_proto_data(conversation, proto_selfm, (void *)fm_conv_data);
 
@@ -2439,13 +2439,13 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             /* Enter the single frame multiple times, retrieving a single dataitem per entry */
             for (cnt = 1; (cnt <= num_items); cnt++) {
-                fastser_dataitem *dataitem_ptr = fastser_dataitem_save(selfm_tvb, offset);
+                fastmsg_dataitem *dataitem_ptr = fastmsg_dataitem_save(selfm_tvb, offset);
                 dataitem_ptr->fnum = pinfo->fd->num;
                 dataitem_ptr->base_address = base_addr;
                 dataitem_ptr->index_pos = cnt;
 
-                /* Store the data item configuration info in the fastser_dataitems list */
-                wmem_list_append(fm_conv_data->fastser_dataitems, dataitem_ptr);
+                /* Store the data item configuration info in the fastmsg_dataitems list */
+                wmem_list_append(fm_conv_data->fastmsg_dataitems, dataitem_ptr);
                 offset += 14;
             }
         }
@@ -2456,17 +2456,17 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             seq = tvb_get_guint8(selfm_tvb, offset+10);
 
-            /* Set offset to where the dissect_fastser_readresp_frame function would normally be called, */
+            /* Set offset to where the dissect_fastmsg_readresp_frame function would normally be called, */
             /* right before base address & num_items */
             offset = 12;
 
             /* Call the same read response function that will be called during GUI dissection */
-            offset = dissect_fastser_readresp_frame( selfm_tvb, tree, pinfo, offset, seq);
+            offset = dissect_fastmsg_readresp_frame( selfm_tvb, tree, pinfo, offset, seq);
 
         }
 
-        /* 4. Fill conversation data array with Fast SER Data Region info from Device Desc Response Messages. This */
-        /*    will retrieve a data region name (associated to an address) that can later be displayed in the tree. */
+        /* 4. Fill conversation data array with Fast Message Data Region info from Device Desc Response Messages.  This */
+        /*    will retrieve a data region name (associated to an address) that can later be displayed in the tree.      */
         if ((CMD_FAST_MSG == msg_type) && (tvb_get_guint8(selfm_tvb, offset+9) == FAST_MSG_DEVDESC_RESP)) {
 
             seq = tvb_get_guint8(selfm_tvb, offset+10);
@@ -2489,10 +2489,10 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             /* Enter the single frame multiple times, retrieving a single data region per entry */
             for (cnt = 1; (cnt <= num_items); cnt++) {
                 guint32 base_address = tvb_get_ntohl(selfm_tvb, offset+10);
-                fastser_dataregion *dataregion_ptr = fastser_dataregion_save(selfm_tvb, offset);
+                fastmsg_dataregion *dataregion_ptr = fastmsg_dataregion_save(selfm_tvb, offset);
 
-                /* Store the data region info in the fastser_dataregions tree */
-                wmem_tree_insert32(fm_conv_data->fastser_dataregions, base_address, dataregion_ptr);
+                /* Store the data region info in the fastmsg_dataregions tree */
+                wmem_tree_insert32(fm_conv_data->fastmsg_dataregions, base_address, dataregion_ptr);
                 offset += 18;
             }
         }
@@ -2535,7 +2535,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
                         dissect_foconfig_frame(selfm_tvb, selfm_tree, offset);
                         break;
                     case CMD_FAST_MSG:
-                        dissect_fastser_frame(selfm_tvb, selfm_tree, pinfo, offset);
+                        dissect_fastmsg_frame(selfm_tvb, selfm_tree, pinfo, offset);
                         break;
                     case CMD_FASTOP_RB_CTRL:
                     case CMD_FASTOP_BR_CTRL:
@@ -2570,7 +2570,7 @@ get_selfm_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data 
 {
     guint message_len=0;  /* message length, inclusive of header, data, crc */
 
-	/* XXX: this logic doesn't take into account the offset */
+    /* XXX: this logic doesn't take into account the offset */
     /* Get length byte from message */
     if (tvb_length(tvb) > 2) {
         message_len = tvb_get_guint8(tvb, 2);
@@ -2804,127 +2804,127 @@ proto_register_selfm(void)
         { "Operate Code", "selfm.alt_fastop.code", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_alt_fastop_valid,
         { "Operate Code Validation", "selfm.alt_fastop.valid", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        /* "Fast SER Message" specific fields */
-        { &hf_selfm_fastser_len,
-        { "Length", "selfm.fastser.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_routing_addr,
-        { "Routing Address (future)", "selfm.fastser.routing_addr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_status,
-        { "Status Byte", "selfm.fastser.status", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_funccode,
-        { "Function Code", "selfm.fastser.funccode", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_seq,
-        { "Sequence Byte", "selfm.fastser.seq", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_seq_fir,
-        { "FIR", "selfm.fastser.seq_fir", FT_BOOLEAN, 8, NULL, FAST_MSG_SEQ_FIR, NULL, HFILL }},
-        { &hf_selfm_fastser_seq_fin,
-        { "FIN", "selfm.fastser.seq_fin", FT_BOOLEAN, 8, NULL, FAST_MSG_SEQ_FIN, NULL, HFILL }},
-        { &hf_selfm_fastser_seq_cnt,
-        { "Count", "selfm.fastser.seq_cnt", FT_UINT8, BASE_DEC, NULL, FAST_MSG_SEQ_CNT, "Frame Count Number", HFILL }},
-        { &hf_selfm_fastser_resp_num,
-        { "Response Number", "selfm.fastser.resp_num", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_crc16,
-        { "CRC-16", "selfm.fastser.crc16", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_route_sup,
-        { "Routing Support", "selfm.fastser.def_route_sup", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_rx_stat,
-        { "Status RX", "selfm.fastser.def_rx_stat", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_tx_stat,
-        { "Status TX", "selfm.fastser.def_tx_stat", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_rx_maxfr,
-        { "Max Frames RX", "selfm.fastser.def_rx_maxfr", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_tx_maxfr,
-        { "Max Frames TX", "selfm.fastser.def_tx_maxfr", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_rx_num_fc,
-        { "Number of Supported RX Function Codes", "selfm.fastser.def_rx_num_fc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_rx_fc,
-        { "Receive Function Code", "selfm.fastser.def_rx_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_tx_num_fc,
-        { "Number of Supported TX Function Codes", "selfm.fastser.def_tx_num_fc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_def_tx_fc,
-        { "Transmit Function Code", "selfm.fastser.def_tx_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_uns_en_fc,
-        { "Function Code to Enable", "selfm.fastser.uns_en_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_uns_en_fc_data,
-        { "Function Code Data", "selfm.fastser.uns_en_fc_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_uns_dis_fc,
-        { "Function Code to Disable", "selfm.fastser.uns_dis_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_uns_dis_fc_data,
-        { "Function Code Data", "selfm.fastser.uns_dis_fc_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_orig,
-        { "Origination path", "selfm.fastser.unsresp_orig", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_doy,
-        { "Day of Year", "selfm.fastser.unsresp_doy", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_year,
-        { "Year", "selfm.fastser.unsresp_year", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_todms,
-        { "Time of Day (in ms)", "selfm.fastser.unsresp_todms", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_num_elmt,
-        { "Number of SER Elements", "selfm.fastser.unsresp_num_elmt", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_elmt_idx,
-        { "SER Element Index", "selfm.fastser.unsresp_elmt_idx", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_elmt_ts_ofs,
-        { "SER Element Timestamp Offset (us)", "selfm.fastser.unsresp_elmt_ts_ofs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_elmt_status,
-        { "SER Element Status", "selfm.fastser.unsresp_elmt_status", FT_UINT8, BASE_DEC, VALS(selfm_ser_status_vals), 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_eor,
-        { "End of Record Indicator", "selfm.fastser.unsresp_eor", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unsresp_elmt_statword,
-        { "SER Element Status Word", "selfm.fastser.unsresp_elmt_statword", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unswrite_addr1,
-        { "Write Address Region #1", "selfm.fastser.unswrite_addr1", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_unswrite_com_vals_ext, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unswrite_addr2,
-        { "Write Address Region #2", "selfm.fastser.unswrite_addr2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unswrite_num_reg,
-        { "Number of Registers", "selfm.fastser.unswrite_num_reg", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_unswrite_reg_val,
-        { "Register Value", "selfm.fastser.unswrite_reg_val", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_baseaddr,
-        { "Base Address", "selfm.fastser.baseaddr", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_numwords,
-        { "Number of 16-bit Words", "selfm.fastser.numwords", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_flags,
-        { "Flag Word", "selfm.fastser.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_datafmt_resp_numitem,
-        { "Number of Data Items Records", "selfm.fastser.datafmt_resp_numitem", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_dataitem_qty,
-        { "Data Item Quantity", "selfm.fastser.dataitem_qty", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_dataitem_type,
-        { "Data Item Type", "selfm.fastser.dataitem_type", FT_UINT16, BASE_HEX, VALS(selfm_fastser_tagtype_vals), 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_dataitem_uint16,
-        { "(uint16)", "selfm.fastser.dataitem_uint16", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_dataitem_int16,
-        { "(int16)", "selfm.fastser.dataitem_int16", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_dataitem_uint32,
-        { "(uint32)", "selfm.fastser.dataitem_uint32", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_dataitem_int32,
-        { "(int32)", "selfm.fastser.dataitem_int32", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_dataitem_float,
-        { "(float)", "selfm.fastser.dataitem_float", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_devdesc_num_region,
-        { "Number of Data Regions", "selfm.fastser.devdesc_num_region", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_devdesc_num_ctrl,
-        { "Number of Control Regions", "selfm.fastser.devdesc_num_ctrl", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_soe_req_orig,
-        { "Origination path", "selfm.fastser.soe_req_orig", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_soe_resp_numblks,
-        { "Number of Blocks", "selfm.fastser.soe_resp_numblks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_soe_resp_orig,
-        { "Origination path", "selfm.fastser.soe_resp_orig", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_soe_resp_numbits,
-        { "Number of Bits", "selfm.fastser.soe_resp_numbits", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_soe_resp_pad,
-        { "Pad Byte", "selfm.fastser.soe_resp_pad", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_soe_resp_doy,
-        { "Day of Year", "selfm.fastser.soe_resp_doy", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_soe_resp_year,
-        { "Year", "selfm.fastser.soe_resp_year", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fastser_soe_resp_tod,
-        { "Time of Day (ms)", "selfm.fastser.soe_resp_tod", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        /* { &hf_selfm_fastser_soe_resp_data,
-        { "Packed Binary State Data", "selfm.fastser.soe_resp_data", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}, */
+        /* "Fast Message" specific fields */
+        { &hf_selfm_fastmsg_len,
+        { "Length", "selfm.fastmsg.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_routing_addr,
+        { "Routing Address (future)", "selfm.fastmsg.routing_addr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_status,
+        { "Status Byte", "selfm.fastmsg.status", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_funccode,
+        { "Function Code", "selfm.fastmsg.funccode", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastmsg_func_code_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_seq,
+        { "Sequence Byte", "selfm.fastmsg.seq", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_seq_fir,
+        { "FIR", "selfm.fastmsg.seq_fir", FT_BOOLEAN, 8, NULL, FAST_MSG_SEQ_FIR, NULL, HFILL }},
+        { &hf_selfm_fastmsg_seq_fin,
+        { "FIN", "selfm.fastmsg.seq_fin", FT_BOOLEAN, 8, NULL, FAST_MSG_SEQ_FIN, NULL, HFILL }},
+        { &hf_selfm_fastmsg_seq_cnt,
+        { "Count", "selfm.fastmsg.seq_cnt", FT_UINT8, BASE_DEC, NULL, FAST_MSG_SEQ_CNT, "Frame Count Number", HFILL }},
+        { &hf_selfm_fastmsg_resp_num,
+        { "Response Number", "selfm.fastmsg.resp_num", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_crc16,
+        { "CRC-16", "selfm.fastmsg.crc16", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_route_sup,
+        { "Routing Support", "selfm.fastmsg.def_route_sup", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_rx_stat,
+        { "Status RX", "selfm.fastmsg.def_rx_stat", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_tx_stat,
+        { "Status TX", "selfm.fastmsg.def_tx_stat", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_rx_maxfr,
+        { "Max Frames RX", "selfm.fastmsg.def_rx_maxfr", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_tx_maxfr,
+        { "Max Frames TX", "selfm.fastmsg.def_tx_maxfr", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_rx_num_fc,
+        { "Number of Supported RX Function Codes", "selfm.fastmsg.def_rx_num_fc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_rx_fc,
+        { "Receive Function Code", "selfm.fastmsg.def_rx_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastmsg_func_code_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_tx_num_fc,
+        { "Number of Supported TX Function Codes", "selfm.fastmsg.def_tx_num_fc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_def_tx_fc,
+        { "Transmit Function Code", "selfm.fastmsg.def_tx_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastmsg_func_code_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_uns_en_fc,
+        { "Function Code to Enable", "selfm.fastmsg.uns_en_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastmsg_func_code_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_uns_en_fc_data,
+        { "Function Code Data", "selfm.fastmsg.uns_en_fc_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_uns_dis_fc,
+        { "Function Code to Disable", "selfm.fastmsg.uns_dis_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastmsg_func_code_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_uns_dis_fc_data,
+        { "Function Code Data", "selfm.fastmsg.uns_dis_fc_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_orig,
+        { "Origination path", "selfm.fastmsg.unsresp_orig", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_doy,
+        { "Day of Year", "selfm.fastmsg.unsresp_doy", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_year,
+        { "Year", "selfm.fastmsg.unsresp_year", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_todms,
+        { "Time of Day (in ms)", "selfm.fastmsg.unsresp_todms", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_num_elmt,
+        { "Number of SER Elements", "selfm.fastmsg.unsresp_num_elmt", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_elmt_idx,
+        { "SER Element Index", "selfm.fastmsg.unsresp_elmt_idx", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_elmt_ts_ofs,
+        { "SER Element Timestamp Offset (us)", "selfm.fastmsg.unsresp_elmt_ts_ofs", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_elmt_status,
+        { "SER Element Status", "selfm.fastmsg.unsresp_elmt_status", FT_UINT8, BASE_DEC, VALS(selfm_ser_status_vals), 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_eor,
+        { "End of Record Indicator", "selfm.fastmsg.unsresp_eor", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unsresp_elmt_statword,
+        { "SER Element Status Word", "selfm.fastmsg.unsresp_elmt_statword", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unswrite_addr1,
+        { "Write Address Region #1", "selfm.fastmsg.unswrite_addr1", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &selfm_fastmsg_unswrite_com_vals_ext, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unswrite_addr2,
+        { "Write Address Region #2", "selfm.fastmsg.unswrite_addr2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unswrite_num_reg,
+        { "Number of Registers", "selfm.fastmsg.unswrite_num_reg", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_unswrite_reg_val,
+        { "Register Value", "selfm.fastmsg.unswrite_reg_val", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_baseaddr,
+        { "Base Address", "selfm.fastmsg.baseaddr", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_numwords,
+        { "Number of 16-bit Words", "selfm.fastmsg.numwords", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_flags,
+        { "Flag Word", "selfm.fastmsg.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_datafmt_resp_numitem,
+        { "Number of Data Items Records", "selfm.fastmsg.datafmt_resp_numitem", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_dataitem_qty,
+        { "Data Item Quantity", "selfm.fastmsg.dataitem_qty", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_dataitem_type,
+        { "Data Item Type", "selfm.fastmsg.dataitem_type", FT_UINT16, BASE_HEX, VALS(selfm_fastmsg_tagtype_vals), 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_dataitem_uint16,
+        { "(uint16)", "selfm.fastmsg.dataitem_uint16", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_dataitem_int16,
+        { "(int16)", "selfm.fastmsg.dataitem_int16", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_dataitem_uint32,
+        { "(uint32)", "selfm.fastmsg.dataitem_uint32", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_dataitem_int32,
+        { "(int32)", "selfm.fastmsg.dataitem_int32", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_dataitem_float,
+        { "(float)", "selfm.fastmsg.dataitem_float", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_devdesc_num_region,
+        { "Number of Data Regions", "selfm.fastmsg.devdesc_num_region", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_devdesc_num_ctrl,
+        { "Number of Control Regions", "selfm.fastmsg.devdesc_num_ctrl", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_soe_req_orig,
+        { "Origination path", "selfm.fastmsg.soe_req_orig", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_soe_resp_numblks,
+        { "Number of Blocks", "selfm.fastmsg.soe_resp_numblks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_soe_resp_orig,
+        { "Origination path", "selfm.fastmsg.soe_resp_orig", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_soe_resp_numbits,
+        { "Number of Bits", "selfm.fastmsg.soe_resp_numbits", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_soe_resp_pad,
+        { "Pad Byte", "selfm.fastmsg.soe_resp_pad", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_soe_resp_doy,
+        { "Day of Year", "selfm.fastmsg.soe_resp_doy", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_soe_resp_year,
+        { "Year", "selfm.fastmsg.soe_resp_year", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fastmsg_soe_resp_tod,
+        { "Time of Day (ms)", "selfm.fastmsg.soe_resp_tod", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        /* { &hf_selfm_fastmsg_soe_resp_data,
+        { "Packed Binary State Data", "selfm.fastmsg.soe_resp_data", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}, */
 
-        /* "Fast SER Message" Re-assembly header fields */
+        /* "Fast Message" Re-assembly header fields */
         { &hf_selfm_fragment,
         { "SEL Fast Msg Response Data Fragment", "selfm.respdata.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "SEL Fast Message Response Data Fragment", HFILL }},
         { &hf_selfm_fragments,
@@ -2971,13 +2971,13 @@ proto_register_selfm(void)
         &ett_selfm_fmdata_dig,
         &ett_selfm_fmdata_ai_ch,
         &ett_selfm_fmdata_dig_ch,
-        &ett_selfm_fastser,
-        &ett_selfm_fastser_seq,
-        &ett_selfm_fastser_def_fc,
-        &ett_selfm_fastser_tag,
-        &ett_selfm_fastser_element_list,
-        &ett_selfm_fastser_element,
-        &ett_selfm_fastser_datareg,
+        &ett_selfm_fastmsg,
+        &ett_selfm_fastmsg_seq,
+        &ett_selfm_fastmsg_def_fc,
+        &ett_selfm_fastmsg_tag,
+        &ett_selfm_fastmsg_element_list,
+        &ett_selfm_fastmsg_element,
+        &ett_selfm_fastmsg_datareg,
         &ett_selfm_fragment,
         &ett_selfm_fragments
 
