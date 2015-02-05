@@ -3402,7 +3402,7 @@ proto_register_capwap_control(void)
         /* AC Descriptor Security Flags... */
         { &hf_capwap_msg_element_type_ac_descriptor_security,
             { "Security Flags", "capwap.control.message_element.ac_descriptor.security",
-              FT_NONE, BASE_NONE, NULL, 0x0,
+              FT_UINT8, BASE_HEX, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ac_descriptor_security_s,
@@ -3434,7 +3434,7 @@ proto_register_capwap_control(void)
         /* AC Descriptor DTLS Policy Flags... */
         { &hf_capwap_msg_element_type_ac_descriptor_dtls_policy,
             { "DTLS Policy Flags", "capwap.control.message_element.ac_descriptor.dtls_policy",
-              FT_NONE, BASE_NONE, NULL, 0x0,
+              FT_UINT8, BASE_HEX, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ac_descriptor_dtls_policy_d,
@@ -3835,7 +3835,7 @@ proto_register_capwap_control(void)
 
         { &hf_capwap_msg_element_type_wtp_frame_tunnel_mode,
             { "WTP Frame Tunnel Mode", "capwap.control.message_element.wtp_frame_tunnel_mode",
-              FT_NONE, BASE_NONE, NULL, 0x0,
+              FT_UINT8, BASE_BASE_HEX, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_wtp_frame_tunnel_mode_n,
