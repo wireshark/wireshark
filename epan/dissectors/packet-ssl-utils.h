@@ -31,13 +31,13 @@
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
 #include <wsutil/wsgcrypt.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <gnutls/x509.h>
 #include <gnutls/pkcs12.h>
 
-#include <epan/conversation.h>
 #include "ws_symbol_export.h"
 
 /* #define SSL_FAST 1 */
@@ -353,6 +353,16 @@ typedef struct _SslSession {
     guint32 version;
     gint8 client_cert_type;
     gint8 server_cert_type;
+
+    /* The address/proto/port of the server as determined from heuristics
+     * (e.g. ClientHello) or set externally (via ssl_set_master_secret()). */
+    address srv_addr;
+    port_type srv_ptype;
+    guint srv_port;
+
+    /* The Application layer protocol if known (for STARTTLS support) */
+    dissector_handle_t   app_handle;
+    guint32              last_nontls_frame;
 } SslSession;
 
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
@@ -388,10 +398,6 @@ typedef struct _SslDecryptSession {
     guint16 version_netorder;
     StringInfo app_data_segment;
     SslSession session;
-
-    address srv_addr;
-    port_type srv_ptype;
-    guint srv_port;
 
 } SslDecryptSession;
 
@@ -452,14 +458,29 @@ gboolean ssldecrypt_uat_fld_password_chk_cb(void*, const char*, unsigned, const 
 extern void
 ssl_lib_init(void);
 
-/** Initialize an ssl session struct
- @param ssl pointer to ssl session struct to be initialized */
-extern void
-ssl_session_init(SslDecryptSession* ssl);
+/** Retrieve a SslSession, creating it if it did not already exist.
+ * @param conversation The SSL conversation.
+ * @param ssl_handle The dissector handle for SSL or DTLS.
+ */
+extern SslDecryptSession *
+ssl_get_session(conversation_t *conversation, dissector_handle_t ssl_handle);
 
 /** Set server address and port */
 extern void
-ssl_set_server(SslDecryptSession* ssl, address *addr, port_type ptype, guint32 port);
+ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port);
+
+/** Marks this packet as the last one before switching to SSL that is supposed
+ * to encapsulate this protocol.
+ * @param ssl_handle The dissector handle for SSL or DTLS.
+ * @param pinfo Packet Info.
+ * @param app_handle Dissector handle for the protocol inside the decrypted
+ * Application Data record.
+ * @return 0 for the first STARTTLS acknowledgement (success) or if ssl_handle
+ * is NULL. >0 if STARTTLS was started before.
+ */
+extern guint32
+ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+                 dissector_handle_t app_handle);
 
 /** set the data and len for the stringInfo buffer. buf should be big enough to
  * contain the provided data
@@ -561,7 +582,7 @@ extern gint
 ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data);
 
 extern gint
-ssl_packet_from_server(SslDecryptSession* ssl, GTree* associations, packet_info *pinfo);
+ssl_packet_from_server(SslSession *session, GTree *associations, packet_info *pinfo);
 
 /* add to packet data a copy of the specified real data */
 extern void

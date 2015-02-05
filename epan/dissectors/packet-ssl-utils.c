@@ -3829,7 +3829,7 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
     }
 
     /* we need to know which side of the conversation is speaking */
-    if (ssl_packet_from_server(ssl_session, associations, pinfo)) {
+    if (ssl_packet_from_server(&ssl_session->session, associations, pinfo)) {
         dummy.addr = pinfo->src;
         dummy.port = port = pinfo->srcport;
     } else {
@@ -3976,11 +3976,20 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher _U_, guchar* iv _U_, gint iv_len _U_)
 #endif /* defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT) */
 
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
-void
-ssl_session_init(SslDecryptSession* ssl_session)
+SslDecryptSession *
+ssl_get_session(conversation_t *conversation, dissector_handle_t ssl_handle)
 {
-    ssl_debug_printf("ssl_session_init: initializing ptr %p size %" G_GSIZE_MODIFIER "u\n",
-                     (void *)ssl_session, sizeof(SslDecryptSession));
+    void               *conv_data;
+    SslDecryptSession  *ssl_session;
+    int                 proto_ssl;
+
+    proto_ssl = dissector_handle_get_protocol_index(ssl_handle);
+    conv_data = conversation_get_proto_data(conversation, proto_ssl);
+    if (conv_data != NULL)
+        return (SslDecryptSession *)conv_data;
+
+    /* no previous SSL conversation info, initialize it. */
+    ssl_session = wmem_new0(wmem_file_scope(), SslDecryptSession);
 
     /* data_len is the part that is meaningful, not the allocated length */
     ssl_session->master_secret.data_len = 0;
@@ -3999,19 +4008,63 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->client_data_for_iv.data = ssl_session->_client_data_for_iv;
     ssl_session->app_data_segment.data = NULL;
     ssl_session->app_data_segment.data_len = 0;
-    SET_ADDRESS(&ssl_session->srv_addr, AT_NONE, 0, NULL);
-    ssl_session->srv_ptype = PT_NONE;
-    ssl_session->srv_port = 0;
     ssl_session->handshake_data.data=NULL;
     ssl_session->handshake_data.data_len=0;
+
+    /* Initialize parameters which are not necessary specific to decryption. */
+    ssl_session->session.version = SSL_VER_UNKNOWN;
+    SET_ADDRESS(&ssl_session->session.srv_addr, AT_NONE, 0, NULL);
+    ssl_session->session.srv_ptype = PT_NONE;
+    ssl_session->session.srv_port = 0;
+
+    conversation_add_proto_data(conversation, proto_ssl, ssl_session);
+    return ssl_session;
 }
 
 void
-ssl_set_server(SslDecryptSession* ssl, address *addr, port_type ptype, guint32 port)
+ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port)
 {
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &ssl->srv_addr, addr);
-    ssl->srv_ptype = ptype;
-    ssl->srv_port = port;
+    WMEM_COPY_ADDRESS(wmem_file_scope(), &session->srv_addr, addr);
+    session->srv_ptype = ptype;
+    session->srv_port = port;
+}
+
+guint32
+ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+                 dissector_handle_t app_handle)
+{
+    conversation_t  *conversation;
+    SslSession      *session;
+
+    /* Ignore if the SSL dissector is disabled. */
+    if (!ssl_handle)
+        return 0;
+    /* The caller should always pass a valid handle to its own dissector. */
+    DISSECTOR_ASSERT(app_handle);
+
+    conversation = find_or_create_conversation(pinfo);
+    session = &ssl_get_session(conversation, ssl_handle)->session;
+
+    ssl_debug_printf("%s: old frame %d, app_handle=%p (%s)\n", G_STRFUNC,
+                     session->last_nontls_frame,
+                     (void *)session->app_handle,
+                     dissector_handle_get_dissector_name(session->app_handle));
+    ssl_debug_printf("%s: current frame %d, app_handle=%p (%s)\n", G_STRFUNC,
+                     pinfo->fd->num, (void *)app_handle,
+                     dissector_handle_get_dissector_name(app_handle));
+
+    /* Do not switch again if a dissector did it before. */
+    if (session->last_nontls_frame) {
+        ssl_debug_printf("%s: not overriding previous app handle!\n", G_STRFUNC);
+        return session->last_nontls_frame;
+    }
+
+    session->app_handle = app_handle;
+    /* The SSL dissector should be called first for this conversation. */
+    conversation_set_dissector(conversation, ssl_handle);
+    /* SSL starts after this frame. */
+    session->last_nontls_frame = pinfo->fd->num;
+    return 0;
 }
 
 /* Hash Functions for TLS/DTLS sessions table and private keys table*/
@@ -4178,11 +4231,13 @@ ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data)
 }
 
 int
-ssl_packet_from_server(SslDecryptSession* ssl, GTree* associations, packet_info *pinfo)
+ssl_packet_from_server(SslSession *session, GTree *associations, packet_info *pinfo)
 {
     gint ret;
-    if (ssl && (ssl->srv_ptype != PT_NONE)) {
-        ret = (ssl->srv_ptype == pinfo->ptype) && (ssl->srv_port == pinfo->srcport) && ADDRESSES_EQUAL(&ssl->srv_addr, &pinfo->src);
+    if (session->srv_ptype != PT_NONE) {
+        ret = (session->srv_ptype == pinfo->ptype) &&
+              (session->srv_port == pinfo->srcport) &&
+              ADDRESSES_EQUAL(&session->srv_addr, &pinfo->src);
     } else {
         ret = ssl_association_find(associations, pinfo->srcport, pinfo->ptype == PT_TCP) != 0;
     }

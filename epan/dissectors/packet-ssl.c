@@ -545,7 +545,6 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 
     conversation_t    *conversation;
-    void              *conv_data;
     proto_item        *ti;
     proto_tree        *ssl_tree;
     guint32            offset;
@@ -594,21 +593,16 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      *       in addition to conv_version
      */
     conversation = find_or_create_conversation(pinfo);
-
-    conv_data = conversation_get_proto_data(conversation, proto_ssl);
-
-    /* PAOLO: manage ssl decryption data */
-    /*get a valid ssl session pointer*/
-    if (conv_data != NULL)
-        ssl_session = (SslDecryptSession *)conv_data;
-    else {
-        ssl_session = (SslDecryptSession *)wmem_alloc0(wmem_file_scope(), sizeof(SslDecryptSession));
-        ssl_session_init(ssl_session);
-        ssl_session->session.version = SSL_VER_UNKNOWN;
-        conversation_add_proto_data(conversation, proto_ssl, ssl_session);
-    }
+    ssl_session = ssl_get_session(conversation, ssl_handle);
     session = &ssl_session->session;
-    is_from_server = ssl_packet_from_server(ssl_session, ssl_associations, pinfo);
+    is_from_server = ssl_packet_from_server(session, ssl_associations, pinfo);
+
+    if (session->last_nontls_frame != 0 &&
+        session->last_nontls_frame >= pinfo->fd->num) {
+        /* This conversation started at a different protocol and STARTTLS was
+         * used, but this packet comes too early. */
+        return 0;
+    }
 
     /* try decryption only the first time we see this packet
      * (to keep cipher synchronized) */
@@ -775,7 +769,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
      * add decrypted data to this packet info */
     ssl_debug_printf("decrypt_ssl3_record: app_data len %d, ssl state 0x%02X\n",
         record_length, ssl->state);
-    direction = ssl_packet_from_server(ssl, ssl_associations, pinfo);
+    direction = ssl_packet_from_server(&ssl->session, ssl_associations, pinfo);
 
     /* retrieve decoder for this packet direction */
     if (direction != 0) {
@@ -819,12 +813,12 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
 static void
 process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
-                    proto_tree *tree, SslAssociation *association);
+                    proto_tree *tree, SslSession *session);
 
 static void
 desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
               guint32 seq, guint32 nxtseq,
-              SslAssociation *association,
+              SslSession *session,
               proto_tree *root_tree, proto_tree *tree,
               SslFlow *flow)
 {
@@ -934,7 +928,7 @@ again:
          * contain a continuation of a higher-level PDU.
          * Call the normal subdissector.
          */
-        process_ssl_payload(tvb, offset, pinfo, tree, association);
+        process_ssl_payload(tvb, offset, pinfo, tree, session);
         called_dissector = TRUE;
 
         /* Did the subdissector ask us to desegment some more data
@@ -988,7 +982,7 @@ again:
             add_new_data_source(pinfo, next_tvb, "Reassembled SSL");
 
             /* call subdissector */
-            process_ssl_payload(next_tvb, 0, pinfo, tree, association);
+            process_ssl_payload(next_tvb, 0, pinfo, tree, session);
             called_dissector = TRUE;
 
             /*
@@ -1228,15 +1222,18 @@ again:
 
 static void
 process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
-                    proto_tree *tree, SslAssociation *association)
+                    proto_tree *tree, SslSession *session)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
+    guint16 saved_match_port;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if (association && association->handle) {
-        ssl_debug_printf("dissect_ssl3_record found association %p\n", (void *)association);
+    if (session->app_handle) {
+        ssl_debug_printf("%s: found handle %p (%s)\n", G_STRFUNC,
+                         (void *)session->app_handle,
+                         dissector_handle_get_dissector_name(session->app_handle));
 
         if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
                                     pinfo, proto_tree_get_root(tree), &hdtbl_entry, NULL)) {
@@ -1246,7 +1243,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
                 guint8 tags = EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
                               EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT;
 
-                exp_pdu_data = load_export_pdu_tags(pinfo, dissector_handle_get_dissector_name(association->handle), -1,
+                exp_pdu_data = load_export_pdu_tags(pinfo, dissector_handle_get_dissector_name(session->app_handle), -1,
                                                     &tags, 1);
 
                 exp_pdu_data->tvb_captured_length = tvb_captured_length(next_tvb);
@@ -1255,13 +1252,21 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 
                 tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
             }
-            call_dissector(association->handle, next_tvb, pinfo, proto_tree_get_root(tree));
+            saved_match_port = pinfo->match_uint;
+            if (ssl_packet_from_server(session, ssl_associations, pinfo)) {
+                pinfo->match_uint = pinfo->srcport;
+            } else {
+                pinfo->match_uint = pinfo->destport;
+            }
+            call_dissector(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree));
+            pinfo->match_uint = saved_match_port;
         }
     }
 }
 
 static void
-dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, SslAssociation *association)
+dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
+                    proto_tree *tree, SslSession *session)
 {
     gboolean     save_fragmented;
     guint16      save_can_desegment;
@@ -1290,8 +1295,10 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     if (ssl_desegment_app_data) {
         /* Yes. */
         pinfo->can_desegment = 2;
-        desegment_ssl(next_tvb, pinfo, 0, appl_data->seq, appl_data->nxtseq, association, proto_tree_get_root(tree), tree, appl_data->flow);
-    } else if (association && association->handle) {
+        desegment_ssl(next_tvb, pinfo, 0, appl_data->seq, appl_data->nxtseq,
+                      session, proto_tree_get_root(tree), tree,
+                      appl_data->flow);
+    } else if (session->app_handle) {
         /* No - just call the subdissector.
            Mark this as fragmented, so if somebody throws an exception,
            we don't report it as a malformed frame. */
@@ -1299,7 +1306,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
 
-        process_ssl_payload(next_tvb, 0, pinfo, tree, association);
+        process_ssl_payload(next_tvb, 0, pinfo, tree, session);
         pinfo->fragmented = save_fragmented;
     }
 
@@ -1345,7 +1352,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     guint8          next_byte;
     proto_tree     *ti;
     proto_tree     *ssl_record_tree;
-    SslAssociation *association;
     guint32         available_bytes;
 
     ti = NULL;
@@ -1557,7 +1563,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file,
                              &ssl_master_key_map);
             ssl_finalize_decryption(ssl, &ssl_master_key_map);
-            ssl_change_cipher(ssl, ssl_packet_from_server(ssl, ssl_associations, pinfo));
+            ssl_change_cipher(ssl, ssl_packet_from_server(session, ssl_associations, pinfo));
         }
         break;
     case SSL_ID_ALERT:
@@ -1622,23 +1628,30 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         /* show on info column what we are decoding */
         col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
 
-        /* we need dissector information when the selected packet is shown.
-         * ssl session pointer is NULL at that time, so we can't access
-         * info cached there*/
-        association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
-        association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype == PT_TCP);
-        association = association ? association: ssl_association_find(ssl_associations, 0, pinfo->ptype == PT_TCP);
+        /* app_handle discovery is done here instead of dissect_ssl_payload()
+         * because the protocol name needs to be displayed below. */
+        if (!session->app_handle) {
+            /* Unknown protocol handle, ssl_starttls_ack was not called before.
+             * Try to find an appropriate dissection handle and cache it. */
+            SslAssociation *association;
+            association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
+            association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype == PT_TCP);
+            association = association ? association: ssl_association_find(ssl_associations, 0, pinfo->ptype == PT_TCP);
+            if (association) session->app_handle = association->handle;
+        }
 
         proto_item_set_text(ssl_record_tree,
            "%s Record Layer: %s Protocol: %s",
             val_to_str_const(session->version, ssl_version_short_names, "SSL"),
             val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-            association?association->info:"Application Data");
+            session->app_handle
+            ? dissector_handle_get_dissector_name(session->app_handle)
+            : "Application Data");
 
         proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb,
                        offset, record_length, ENC_NA);
 
-        dissect_ssl_payload(tvb, pinfo, offset, tree, association);
+        dissect_ssl_payload(tvb, pinfo, offset, tree, session);
 
         break;
     case SSL_ID_HEARTBEAT:
@@ -1659,7 +1672,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             gboolean plaintext = TRUE;
             /* heartbeats before ChangeCipherSpec are unencrypted */
             if (ssl) {
-                if (ssl_packet_from_server(ssl, ssl_associations, pinfo)) {
+                if (ssl_packet_from_server(session, ssl_associations, pinfo)) {
                     plaintext = ssl->server == NULL;
                 } else {
                     plaintext = ssl->client == NULL;
@@ -1919,7 +1932,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 if (ssl) {
                     /* ClientHello is first packet so set direction and try to
                      * find a private key matching the server port */
-                    ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
+                    ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
                     ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
                 }
                 ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
@@ -2571,7 +2584,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (ssl) {
-      ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
+      ssl_set_server(&ssl->session, &pinfo->dst, pinfo->ptype, pinfo->destport);
       ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
     }
 
@@ -3201,7 +3214,6 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
                            guint32 client_seq, guint32 server_seq)
 {
     conversation_t    *conversation;
-    void              *conv_data;
     SslDecryptSession *ssl;
     guint              iv_len;
 
@@ -3214,20 +3226,11 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
         conversation = conversation_new(frame_num, addr_srv, addr_cli, ptype, port_srv, port_cli, 0);
         ssl_debug_printf("  new conversation = %p created\n", (void *)conversation);
     }
-    conv_data = conversation_get_proto_data(conversation, proto_ssl);
-
-    if (conv_data) {
-        ssl = (SslDecryptSession *)conv_data;
-    } else {
-        ssl = (SslDecryptSession *)wmem_alloc0(wmem_file_scope(), sizeof(SslDecryptSession));
-        ssl_session_init(ssl);
-        ssl->session.version = SSL_VER_UNKNOWN;
-        conversation_add_proto_data(conversation, proto_ssl, ssl);
-    }
+    ssl = ssl_get_session(conversation, ssl_handle);
 
     ssl_debug_printf("  conversation = %p, ssl_session = %p\n", (void *)conversation, (void *)ssl);
 
-    ssl_set_server(ssl, addr_srv, ptype, port_srv);
+    ssl_set_server(&ssl->session, addr_srv, ptype, port_srv);
 
     /* version */
     if ((ssl->session.version==SSL_VER_UNKNOWN) && (version!=SSL_VER_UNKNOWN)) {
