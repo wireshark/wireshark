@@ -588,7 +588,7 @@ dissect_amqp_0_9_method_connection_tune_ok(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_connection_open(tvbuff_t *tvb,
+dissect_amqp_0_9_method_connection_open(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -600,7 +600,7 @@ dissect_amqp_0_9_method_connection_redirect(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb,
+dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -632,7 +632,7 @@ dissect_amqp_0_9_method_channel_flow_ok(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_channel_close(tvbuff_t *tvb,
+dissect_amqp_0_9_method_channel_close(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -680,7 +680,7 @@ dissect_amqp_0_9_method_exchange_bind_ok(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_exchange_delete(tvbuff_t *tvb,
+dissect_amqp_0_9_method_exchange_delete(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -692,7 +692,7 @@ dissect_amqp_0_9_method_queue_declare(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_queue_declare_ok(tvbuff_t *tvb,
+dissect_amqp_0_9_method_queue_declare_ok(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -712,7 +712,7 @@ dissect_amqp_0_9_method_queue_unbind_ok(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_queue_purge(tvbuff_t *tvb,
+dissect_amqp_0_9_method_queue_purge(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -720,7 +720,7 @@ dissect_amqp_0_9_method_queue_purge_ok(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_queue_delete(tvbuff_t *tvb,
+dissect_amqp_0_9_method_queue_delete(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -752,7 +752,7 @@ dissect_amqp_0_9_method_basic_cancel_ok(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_basic_publish(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_publish(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -760,15 +760,15 @@ dissect_amqp_0_9_method_basic_return(tvbuff_t *tvb,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_basic_deliver(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_deliver(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_basic_get(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_get(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
-dissect_amqp_0_9_method_basic_get_ok(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_get_ok(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree);
 
 static int
@@ -7583,9 +7583,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Connection.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Connection.%s ",
                             val_to_str( method_id, amqp_method_connection_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
             switch (method_id) {
             case AMQP_0_9_METHOD_CONNECTION_START:
                 dissect_amqp_0_9_method_connection_start(tvb,
@@ -7613,7 +7612,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_CONNECTION_OPEN:
                 dissect_amqp_0_9_method_connection_open(tvb,
-                                                        11, args_tree);
+                                                        pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_CONNECTION_OPEN_OK:
                 dissect_amqp_0_9_method_connection_open_ok(tvb,
@@ -7625,7 +7624,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_CONNECTION_CLOSE:
                 dissect_amqp_0_9_method_connection_close(tvb,
-                                                         11, args_tree);
+                                                         pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_CONNECTION_CLOSE_OK:
                 dissect_amqp_0_9_method_connection_close_ok(tvb,
@@ -7651,9 +7650,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Channel.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Channel.%s ",
                             val_to_str( method_id, amqp_method_channel_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
 
             switch (method_id) {
             case AMQP_0_9_METHOD_CHANNEL_OPEN:
@@ -7674,7 +7672,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_CHANNEL_CLOSE:
                 dissect_amqp_0_9_method_channel_close(tvb,
-                                                      11, args_tree);
+                                                      pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_CHANNEL_CLOSE_OK:
                 dissect_amqp_0_9_method_channel_close_ok(tvb,
@@ -7713,14 +7711,12 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                                        11, args_tree);
                 col_append_str(pinfo->cinfo, COL_INFO,
                                "Access.Request ");
-                col_set_fence(pinfo->cinfo, COL_INFO);
                 break;
             case AMQP_0_9_METHOD_ACCESS_REQUEST_OK:
                 dissect_amqp_0_9_method_access_request_ok(tvb,
                                                           11, args_tree);
                 col_append_str(pinfo->cinfo, COL_INFO,
                                "Access.Request-Ok ");
-                col_set_fence(pinfo->cinfo, COL_INFO);
                 break;
             default:
                 expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_access_method, "Unknown access method %u", method_id);
@@ -7733,9 +7729,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Exchange.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Exchange.%s ",
                             val_to_str( method_id, amqp_method_exchange_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
             switch (method_id) {
             case AMQP_0_9_METHOD_EXCHANGE_DECLARE:
                 dissect_amqp_0_9_method_exchange_declare(tvb,
@@ -7755,7 +7750,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_EXCHANGE_DELETE:
                 dissect_amqp_0_9_method_exchange_delete(tvb,
-                                                        11, args_tree);
+                                                        pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_EXCHANGE_DELETE_OK:
                 dissect_amqp_0_9_method_exchange_delete_ok(tvb,
@@ -7782,9 +7777,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Queue.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Queue.%s ",
                             val_to_str( method_id, amqp_method_queue_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
 
             switch (method_id) {
             case AMQP_0_9_METHOD_QUEUE_DECLARE:
@@ -7793,7 +7787,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_QUEUE_DECLARE_OK:
                 dissect_amqp_0_9_method_queue_declare_ok(tvb,
-                                                         11, args_tree);
+                                                         pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_QUEUE_BIND:
                 dissect_amqp_0_9_method_queue_bind(tvb,
@@ -7813,7 +7807,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_QUEUE_PURGE:
                 dissect_amqp_0_9_method_queue_purge(tvb,
-                                                    11, args_tree);
+                                                    pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_QUEUE_PURGE_OK:
                 dissect_amqp_0_9_method_queue_purge_ok(tvb,
@@ -7821,7 +7815,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_QUEUE_DELETE:
                 dissect_amqp_0_9_method_queue_delete(tvb,
-                                                     11, args_tree);
+                                                     pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_QUEUE_DELETE_OK:
                 dissect_amqp_0_9_method_queue_delete_ok(tvb,
@@ -7839,9 +7833,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Basic.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Basic.%s ",
                             val_to_str( method_id, amqp_method_basic_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
 
             switch (method_id) {
             case AMQP_0_9_METHOD_BASIC_QOS:
@@ -7870,7 +7863,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_BASIC_PUBLISH:
                 dissect_amqp_0_9_method_basic_publish(tvb,
-                                                      11, args_tree);
+                                                      pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_BASIC_RETURN:
                 dissect_amqp_0_9_method_basic_return(tvb,
@@ -7878,15 +7871,15 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 break;
             case AMQP_0_9_METHOD_BASIC_DELIVER:
                 dissect_amqp_0_9_method_basic_deliver(tvb,
-                                                      11, args_tree);
+                                                      pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_BASIC_GET:
                 dissect_amqp_0_9_method_basic_get(tvb,
-                                                  11, args_tree);
+                                                  pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_BASIC_GET_OK:
                 dissect_amqp_0_9_method_basic_get_ok(tvb,
-                                                     11, args_tree);
+                                                     pinfo, 11, args_tree);
                 break;
             case AMQP_0_9_METHOD_BASIC_GET_EMPTY:
                 dissect_amqp_0_9_method_basic_get_empty(tvb,
@@ -7928,9 +7921,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "File.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "File.%s ",
                             val_to_str( method_id, amqp_method_file_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
 
             switch (method_id) {
             case AMQP_0_9_METHOD_FILE_QOS:
@@ -8001,9 +7993,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Stream.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Stream.%s ",
                             val_to_str( method_id, amqp_method_stream_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
 
             switch (method_id) {
             case AMQP_0_9_METHOD_STREAM_QOS:
@@ -8054,9 +8045,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Tx.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Tx.%s ",
                             val_to_str( method_id, amqp_method_tx_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
 
             switch (method_id) {
             case AMQP_0_9_METHOD_TX_SELECT:
@@ -8095,9 +8085,8 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                      tvb, 11, length - 4, ENC_NA);
             args_tree = proto_item_add_subtree(ti, ett_args);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Dtx.%s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Dtx.%s ",
                             val_to_str( method_id, amqp_method_dtx_methods, "Unknown (%u)"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
 
             switch (method_id) {
             case AMQP_0_9_METHOD_DTX_SELECT:
@@ -8133,7 +8122,6 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                                        pinfo, 11, args_tree);
                 col_append_str(pinfo->cinfo, COL_INFO,
                                "Tunnel.Request ");
-                col_set_fence(pinfo->cinfo, COL_INFO);
                 break;
             default:
                 expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_tunnel_method, "Unknown tunnel method %u", method_id);
@@ -8152,14 +8140,12 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                                                        11, args_tree);
                 col_append_str(pinfo->cinfo, COL_INFO,
                                "Confirm.Select ");
-                col_set_fence(pinfo->cinfo, COL_INFO);
                 break;
             case AMQP_0_9_METHOD_CONFIRM_SELECT_OK:
                 dissect_amqp_0_9_method_confirm_select_ok(tvb,
                                                           11, args_tree);
                 col_append_str(pinfo->cinfo, COL_INFO,
                                "Confirm.Select-Ok ");
-                col_set_fence(pinfo->cinfo, COL_INFO);
                 break;
             default:
                 expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_confirm_method, "Unknown confirm method %u", method_id);
@@ -8182,6 +8168,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         ti = proto_tree_add_item(amqp_tree, hf_amqp_header_properties,
                                  tvb, 21, length - 14, ENC_NA);
         prop_tree = proto_item_add_subtree(ti, ett_props);
+        col_append_str(pinfo->cinfo, COL_INFO, "Content-Header ");
         switch (class_id) {
         case AMQP_0_9_CLASS_BASIC:
             dissect_amqp_0_9_content_header_basic(tvb,
@@ -8202,24 +8189,21 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         default:
             expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_header_class, "Unknown header class %u", class_id);
         }
-        col_append_str(pinfo->cinfo, COL_INFO, "Content-Header ");
-        col_set_fence(pinfo->cinfo, COL_INFO);
         break;
     case AMQP_0_9_FRAME_TYPE_CONTENT_BODY:
         proto_tree_add_item(amqp_tree, hf_amqp_payload,
                             tvb, 7, length, ENC_NA);
         col_append_str(pinfo->cinfo, COL_INFO, "Content-Body ");
-        col_set_fence(pinfo->cinfo, COL_INFO);
         break;
     case AMQP_0_9_FRAME_TYPE_HEARTBEAT:
         col_append_str(pinfo->cinfo, COL_INFO,
                        "Heartbeat ");
-        col_set_fence(pinfo->cinfo, COL_INFO);
         break;
     default:
         expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %u", frame_type);
     }
 
+    col_set_fence(pinfo->cinfo, COL_INFO);
     return tvb_reported_length(tvb);
 }
 
@@ -8373,12 +8357,14 @@ dissect_amqp_0_9_method_connection_tune_ok(tvbuff_t *tvb,
 /*  Dissection routine for method Connection.Open                         */
 
 static int
-dissect_amqp_0_9_method_connection_open(tvbuff_t *tvb,
+dissect_amqp_0_9_method_connection_open(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  virtual-host (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_open_virtual_host,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "vhost=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  capabilities (shortstr)  */
@@ -8429,7 +8415,7 @@ dissect_amqp_0_9_method_connection_redirect(tvbuff_t *tvb,
 /*  Dissection routine for method Connection.Close                        */
 
 static int
-dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb,
+dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  reply-code (short)       */
@@ -8440,6 +8426,8 @@ dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb,
     /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_close_reply_text,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "reply=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  class-id (short)         */
@@ -8467,7 +8455,7 @@ dissect_amqp_0_9_method_connection_close_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Blocked                      */
 
 static int
-dissect_amqp_0_9_method_connection_blocked(tvbuff_t *tvb _U_,
+dissect_amqp_0_9_method_connection_blocked(tvbuff_t *tvb,
     int offset, proto_tree *args_tree _U_)
 {
     /*  reason (shortstr)  */
@@ -8544,7 +8532,7 @@ dissect_amqp_0_9_method_channel_flow_ok(tvbuff_t *tvb,
 /*  Dissection routine for method Channel.Close                           */
 
 static int
-dissect_amqp_0_9_method_channel_close(tvbuff_t *tvb,
+dissect_amqp_0_9_method_channel_close(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  reply-code (short)       */
@@ -8555,6 +8543,8 @@ dissect_amqp_0_9_method_channel_close(tvbuff_t *tvb,
     /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_close_reply_text,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "reply=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  class-id (short)         */
@@ -8684,6 +8674,8 @@ dissect_amqp_0_9_method_exchange_declare(tvbuff_t *tvb, packet_info *pinfo,
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_declare_exchange,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "x=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  type (shortstr)          */
@@ -8747,16 +8739,22 @@ dissect_amqp_0_9_method_exchange_bind(tvbuff_t *tvb, packet_info *pinfo,
     /*  destination (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_bind_destination,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "dx=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  source (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_bind_source,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "sx=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_bind_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "bk=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -8786,7 +8784,7 @@ dissect_amqp_0_9_method_exchange_bind_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Exchange.Delete                         */
 
 static int
-dissect_amqp_0_9_method_exchange_delete(tvbuff_t *tvb,
+dissect_amqp_0_9_method_exchange_delete(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  ticket (short)           */
@@ -8797,6 +8795,8 @@ dissect_amqp_0_9_method_exchange_delete(tvbuff_t *tvb,
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_delete_exchange,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "x=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  if-unused (bit)          */
@@ -8835,6 +8835,8 @@ dissect_amqp_0_9_method_queue_declare(tvbuff_t *tvb, packet_info *pinfo,
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "q=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  passive (bit)            */
@@ -8871,12 +8873,14 @@ dissect_amqp_0_9_method_queue_declare(tvbuff_t *tvb, packet_info *pinfo,
 /*  Dissection routine for method Queue.Declare-Ok                        */
 
 static int
-dissect_amqp_0_9_method_queue_declare_ok(tvbuff_t *tvb,
+dissect_amqp_0_9_method_queue_declare_ok(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_ok_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "q=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  message-count (long)     */
@@ -8908,16 +8912,22 @@ dissect_amqp_0_9_method_queue_bind(tvbuff_t *tvb, packet_info *pinfo,
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_bind_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "q=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_bind_exchange,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "x=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_bind_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "bk=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -8960,16 +8970,22 @@ dissect_amqp_0_9_method_queue_unbind(tvbuff_t *tvb, packet_info *pinfo,
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "q=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_exchange,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "x=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "rk=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  arguments (table)        */
@@ -8994,7 +9010,7 @@ dissect_amqp_0_9_method_queue_unbind_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Queue.Purge                             */
 
 static int
-dissect_amqp_0_9_method_queue_purge(tvbuff_t *tvb,
+dissect_amqp_0_9_method_queue_purge(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  ticket (short)           */
@@ -9005,6 +9021,8 @@ dissect_amqp_0_9_method_queue_purge(tvbuff_t *tvb,
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_purge_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "q=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -9031,7 +9049,7 @@ dissect_amqp_0_9_method_queue_purge_ok(tvbuff_t *tvb,
 /*  Dissection routine for method Queue.Delete                            */
 
 static int
-dissect_amqp_0_9_method_queue_delete(tvbuff_t *tvb,
+dissect_amqp_0_9_method_queue_delete(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  ticket (short)           */
@@ -9042,6 +9060,8 @@ dissect_amqp_0_9_method_queue_delete(tvbuff_t *tvb,
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_delete_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "q=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  if-unused (bit)          */
@@ -9121,6 +9141,8 @@ dissect_amqp_0_9_method_basic_consume(tvbuff_t *tvb, packet_info *pinfo,
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "q=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  consumer-tag (shortstr)  */
@@ -9204,7 +9226,7 @@ dissect_amqp_0_9_method_basic_cancel_ok(tvbuff_t *tvb,
 /*  Dissection routine for method Basic.Publish                           */
 
 static int
-dissect_amqp_0_9_method_basic_publish(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_publish(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  ticket (short)           */
@@ -9215,11 +9237,15 @@ dissect_amqp_0_9_method_basic_publish(tvbuff_t *tvb,
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_publish_exchange,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "x=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_publish_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "rk=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  mandatory (bit)          */
@@ -9265,7 +9291,7 @@ dissect_amqp_0_9_method_basic_return(tvbuff_t *tvb,
 /*  Dissection routine for method Basic.Deliver                           */
 
 static int
-dissect_amqp_0_9_method_basic_deliver(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_deliver(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  consumer-tag (shortstr)  */
@@ -9286,11 +9312,15 @@ dissect_amqp_0_9_method_basic_deliver(tvbuff_t *tvb,
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_exchange,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "x=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "rk=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -9299,7 +9329,7 @@ dissect_amqp_0_9_method_basic_deliver(tvbuff_t *tvb,
 /*  Dissection routine for method Basic.Get                               */
 
 static int
-dissect_amqp_0_9_method_basic_get(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_get(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  ticket (short)           */
@@ -9310,6 +9340,8 @@ dissect_amqp_0_9_method_basic_get(tvbuff_t *tvb,
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "q=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  no-ack (bit)             */
@@ -9322,7 +9354,7 @@ dissect_amqp_0_9_method_basic_get(tvbuff_t *tvb,
 /*  Dissection routine for method Basic.Get-Ok                            */
 
 static int
-dissect_amqp_0_9_method_basic_get_ok(tvbuff_t *tvb,
+dissect_amqp_0_9_method_basic_get_ok(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *args_tree)
 {
     /*  delivery-tag (longlong)  */
@@ -9338,11 +9370,15 @@ dissect_amqp_0_9_method_basic_get_ok(tvbuff_t *tvb,
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ok_exchange,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "x=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ok_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "rk=%s ",
+        tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  message-count (long)     */
@@ -10143,6 +10179,8 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
         /*  content-type (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_content_type,
             tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "type=%s ",
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -10273,6 +10311,8 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
         /*  content-type (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_file_content_type,
             tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "type=%s ",
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -10362,6 +10402,8 @@ dissect_amqp_0_9_content_header_stream(tvbuff_t *tvb, packet_info *pinfo,
         /*  content-type (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_stream_content_type,
             tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "type=%s ",
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA));
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
