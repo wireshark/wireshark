@@ -1335,7 +1335,7 @@ foreach(_install_file ${INSTALL_FILES})
 	get_filename_component(_install_basename "${_install_file}" NAME)
 if (APPLE)
 	add_custom_command(TARGET copy_data_files POST_BUILD
-		COMMAND cp
+		COMMAND ${CMAKE_COMMAND} -E copy
 			"${_install_file}"
 			"${DATAFILE_DIR}/${_install_basename}"
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
