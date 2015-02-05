@@ -1340,7 +1340,6 @@ foreach(_install_file ${INSTALL_FILES})
 			"${DATAFILE_DIR}/${_install_basename}"
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
-endif()
 endforeach()
 
 if(ENABLE_EXTCAP)
