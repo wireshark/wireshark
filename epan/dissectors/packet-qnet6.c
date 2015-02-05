@@ -4078,7 +4078,7 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data
   qtype = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(qnet6_tree, hf_qnet6_l4_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
-  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(qtype, qnet6_type_vals, "Unknown LWL4 Type %u packets"));
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(qtype, qnet6_type_vals, "Unknown LWL4 Type %u packets"));
   /*
    * flags
    */
