@@ -3090,8 +3090,9 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (next_tvb == NULL)
         { /* make a new subset */
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(data_handle,next_tvb, pinfo, tree);
+            call_dissector(data_handle, next_tvb, pinfo, tree);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Fragment ID: %u, Fragment Offset: %u)", fragment_id, fragment_offset);
+            return;
         }
         else
         {
