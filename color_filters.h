@@ -40,13 +40,13 @@ typedef struct _color_filter {
     color_t    bg_color;            /* background color for packets that match */
     color_t    fg_color;            /* foreground color for packets that match */
     gboolean   disabled;            /* set if the filter is disabled */
-    gboolean   selected;            /* set if the filter is selected in the color dialog box */
+    gboolean   selected;            /* set if the filter is selected in the color dialog box. GTK+ only. */
 
                                     /* only used inside of color_filters.c */
     struct epan_dfilter *c_colorfilter;  /* compiled filter expression */
 
                                     /* only used outside of color_filters.c (beside init) */
-    void      *color_edit_dlg_info; /* if filter is being edited, ptr to req'd info */
+    void      *color_edit_dlg_info; /* if filter is being edited, ptr to req'd info. GTK+ only. */
 } color_filter_t;
 
 
@@ -120,7 +120,7 @@ void color_filters_clone(gpointer user_data);
  * @param user_data will be returned by each call to to color_filter_add_cb()
  * @return TRUE, if read succeeded
  */
-gboolean color_filters_import(gchar *path, gpointer user_data);
+gboolean color_filters_import(const gchar *path, const gpointer user_data);
 
 /** Read filters from the global filter file (not the users file).
  *
@@ -160,9 +160,7 @@ gboolean color_filters_write(GSList *cfl);
  * @param only_selected TRUE if only the selected filters should be saved
  * @return TRUE, if write succeeded
  */
-gboolean color_filters_export(gchar *path, GSList *cfl, gboolean only_selected);
-
-
+gboolean color_filters_export(const gchar *path, const GSList *cfl, gboolean only_selected);
 
 /** Create a new color filter (g_malloc'ed).
  *
@@ -182,9 +180,6 @@ color_filter_t *color_filter_new(
  * @param colorf the color filter to be removed
  */
 void color_filter_delete(color_filter_t *colorf);
-
-
-
 
 /** Delete a filter list including all entries.
  *

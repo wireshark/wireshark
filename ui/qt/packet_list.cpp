@@ -643,6 +643,12 @@ void PacketList::redrawVisiblePackets() {
     header()->update();
 }
 
+void PacketList::recolorPackets()
+{
+    packet_list_model_->resetColorized();
+    redrawVisiblePackets();
+}
+
 void PacketList::freeze()
 {
     setUpdatesEnabled(false);

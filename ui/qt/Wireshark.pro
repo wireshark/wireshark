@@ -209,6 +209,7 @@ FORMS += \
     capture_file_properties_dialog.ui \
     capture_interfaces_dialog.ui \
     capture_preferences_frame.ui \
+    coloring_rules_dialog.ui \
     column_preferences_frame.ui \
     column_editor_frame.ui \
     compiled_filter_output.ui \
@@ -264,6 +265,7 @@ HEADERS += $$HEADERS_WS_C \
     capture_file_properties_dialog.h \
     capture_interfaces_dialog.h \
     capture_preferences_frame.h \
+    coloring_rules_dialog.h \
     column_preferences_frame.h \
     column_editor_frame.h \
     compiled_filter_output.h \
@@ -558,7 +560,6 @@ HEADERS += \
     capture_filter_edit.h \
     capture_filter_syntax_worker.h \
     capture_info_dialog.h \
-    color_dialog.h \
     color_utils.h \
     display_filter_combo.h \
     display_filter_edit.h \
@@ -605,8 +606,8 @@ SOURCES += \
     capture_info_dialog.cpp \
     capture_interfaces_dialog.cpp \
     capture_preferences_frame.cpp \
-    color_dialog.cpp \
     color_utils.cpp \
+    coloring_rules_dialog.cpp \
     column_preferences_frame.cpp \
     column_editor_frame.cpp \
     compiled_filter_output.cpp \

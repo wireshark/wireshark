@@ -314,6 +314,7 @@ private slots:
     void on_actionViewZoomOut_triggered();
     void on_actionViewNormalSize_triggered();
     void on_actionViewColorizePacketList_triggered(bool checked);
+    void on_actionViewColoringRules_triggered();
     void on_actionViewResizeColumns_triggered();
     void on_actionViewReload_triggered();
 

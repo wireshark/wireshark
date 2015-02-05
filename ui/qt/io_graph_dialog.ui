@@ -109,7 +109,7 @@
      <item>
       <widget class="QToolButton" name="newToolButton">
        <property name="toolTip">
-        <string>Change the dissection behavior for a protocol.</string>
+        <string>Add a new graph.</string>
        </property>
        <property name="text">
         <string/>
@@ -123,7 +123,7 @@
      <item>
       <widget class="QToolButton" name="deleteToolButton">
        <property name="toolTip">
-        <string>Remove this dissection behavior.</string>
+        <string>Remove this graph.</string>
        </property>
        <property name="icon">
         <iconset resource="../../image/toolbar.qrc">
@@ -134,7 +134,7 @@
      <item>
       <widget class="QToolButton" name="copyToolButton">
        <property name="toolTip">
-        <string>Copy this dissection behavior.</string>
+        <string>Duplicate this graph.</string>
        </property>
        <property name="text">
         <string/>

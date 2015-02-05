@@ -63,6 +63,7 @@ public:
     QString packetComment();
     void setPacketComment(QString new_comment);
     QString allPacketComments();
+    void recolorPackets();
 
 protected:
     void showEvent (QShowEvent *event);

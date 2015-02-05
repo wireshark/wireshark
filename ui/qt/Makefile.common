@@ -33,6 +33,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_capture_file_properties_dialog.h	\
 	ui_capture_interfaces_dialog.h	\
 	ui_capture_preferences_frame.h	\
+	ui_coloring_rules_dialog.h	\
 	ui_column_preferences_frame.h	\
 	ui_column_editor_frame.h	\
 	ui_compiled_filter_output.h		\
@@ -128,7 +129,7 @@ MOC_HDRS =	\
 	capture_info_dialog.h	\
 	capture_interfaces_dialog.h	\
 	capture_preferences_frame.h	\
-	color_dialog.h	\
+	coloring_rules_dialog.h	\
 	color_utils.h	\
 	column_preferences_frame.h	\
 	column_editor_frame.h	\
@@ -211,6 +212,7 @@ UI_FILES =	\
 	capture_file_properties_dialog.ui 	\
 	capture_interfaces_dialog.ui 	\
 	capture_preferences_frame.ui	\
+	coloring_rules_dialog.ui	\
 	column_preferences_frame.ui	\
 	column_editor_frame.ui	\
 	compiled_filter_output.ui \
@@ -329,8 +331,8 @@ WIRESHARK_QT_SRC =	\
 	capture_info_dialog.cpp	\
 	capture_interfaces_dialog.cpp	\
 	capture_preferences_frame.cpp	\
-	color_dialog.cpp	\
 	color_utils.cpp	\
+	coloring_rules_dialog.cpp	\
 	column_preferences_frame.cpp	\
 	column_editor_frame.cpp	\
 	compiled_filter_output.cpp \

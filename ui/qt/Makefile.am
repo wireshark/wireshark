@@ -128,6 +128,8 @@ capture_interfaces_dialog.cpp capture_interfaces_dialog.h: ui_capture_interfaces
 
 capture_preferences_frame.cpp capture_preferences_frame.h: ui_capture_preferences_frame.h
 
+coloring_rules_dialog.cpp coloring_rules_dialog.h: ui_coloring_rules_dialog.h
+
 column_editor_frame.cpp column_editor_frame.h: ui_column_editor_frame.h
 
 column_preferences_frame.cpp column_preferences_frame.h: ui_column_preferences_frame.h

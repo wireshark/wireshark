@@ -291,6 +291,7 @@
     <addaction name="actionViewCollapseAll"/>
     <addaction name="separator"/>
     <addaction name="actionViewColorizePacketList"/>
+    <addaction name="actionViewColoringRules"/>
     <addaction name="separator"/>
     <addaction name="actionViewResizeColumns"/>
     <addaction name="separator"/>
@@ -2246,9 +2247,23 @@
     <string>RTP Streams</string>
    </property>
   </action>
+  <action name="actionViewColoringRules">
+   <property name="text">
+    <string>&amp;Coloring Rules...</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit the packet list coloring rules.</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>AccordionFrame</class>
+   <extends>QFrame</extends>
+   <header>accordion_frame.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>MainStatusBar</class>
    <extends>QStatusBar</extends>
@@ -2264,12 +2279,6 @@
    <class>SearchFrame</class>
    <extends>QWidget</extends>
    <header>search_frame.h</header>
-  </customwidget>
-  <customwidget>
-   <class>AccordionFrame</class>
-   <extends>QFrame</extends>
-   <header>accordion_frame.h</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ColumnEditorFrame</class>

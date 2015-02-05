@@ -60,6 +60,16 @@ QColor ColorUtils::fromColorT(color_t color)
     return fromColorT(&color);
 }
 
+const color_t ColorUtils::toColorT(const QColor color)
+{
+    color_t colort;
+    colort.red = (color.red() << 8) | color.red();
+    colort.green = (color.green() << 8) | color.green();
+    colort.blue = (color.blue() << 8) | color.blue();
+
+    return colort;
+}
+
 QRgb ColorUtils::alphaBlend(const QColor &color1, const QColor &color2, qreal alpha)
 {
     alpha = qBound(0.0, alpha, 1.0);

@@ -73,6 +73,7 @@
 
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
+#include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
 #include "decode_as_dialog.h"
 #include "endpoint_dialog.h"
@@ -1984,6 +1985,13 @@ void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
     color_filters_enable(checked);
     packet_list_->packetListModel()->resetColorized();
     packet_list_->update();
+}
+
+void MainWindow::on_actionViewColoringRules_triggered()
+{
+    ColoringRulesDialog coloring_rules_dialog(this);
+
+    coloring_rules_dialog.exec();
 }
 
 void MainWindow::on_actionViewResizeColumns_triggered()

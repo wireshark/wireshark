@@ -35,8 +35,8 @@ set(WIRESHARK_QT_HEADERS
 	capture_info_dialog.h
 	capture_interfaces_dialog.h
 	capture_preferences_frame.h
-	color_dialog.h
 	color_utils.h
+	coloring_rules_dialog.h
 	column_preferences_frame.h
 	column_editor_frame.h
 	compiled_filter_output.h
@@ -135,9 +135,9 @@ set(WIRESHARK_QT_SRC
 	capture_filter_syntax_worker.cpp
 	capture_info_dialog.cpp
 	capture_interfaces_dialog.cpp
-	color_dialog.cpp
-	color_utils.cpp
 	capture_preferences_frame.cpp
+	color_utils.cpp
+	coloring_rules_dialog.cpp
 	column_preferences_frame.cpp
 	column_editor_frame.cpp
 	compiled_filter_output.cpp
@@ -237,6 +237,7 @@ set(WIRESHARK_QT_UI
 	capture_file_properties_dialog.ui
 	capture_interfaces_dialog.ui
 	capture_preferences_frame.ui
+	coloring_rules_dialog.ui
 	column_preferences_frame.ui
 	column_editor_frame.ui
 	compiled_filter_output.ui
