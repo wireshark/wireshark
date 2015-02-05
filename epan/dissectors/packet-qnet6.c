@@ -1596,8 +1596,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
 
       if ((off <= rlen) && (len <= rlen))
         {/* bad value of source * name */
-          /* FIXME remove tvb_get_ptr */
-          name[i] = tvb_get_ptr(tvb, lr_start + off + QNX_QNET6_LR_PKT_SIZE /* sizeof(struct qnet6_lr_pkt) */, len);
+          name[i] = tvb_get_string_enc(wmem_packet_scope(), tvb, lr_start + off + QNX_QNET6_LR_PKT_SIZE /* sizeof(struct qnet6_lr_pkt) */, len, ENC_ASCII|ENC_NA);
           /*
            * struct qnet6_lr_pkt is 64 bit aligned
            */
@@ -1609,7 +1608,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
           else
             {
               p = name[i];
-              if(*(p + 1) == QNET_LR_SA_FAMILY_MAC)
+              if(strlen(p) && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
                 {
                   ti = proto_tree_add_string(sstree, hf_index, tvb, lr_start + off + QNX_QNET6_LR_PKT_SIZE, len, p+2);
                   PROTO_ITEM_SET_GENERATED(ti);
@@ -1626,22 +1625,24 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
     {
     case QNET_LR_TYPE_REQUEST:
       p = name[2];
-      if (*(p + 1) == QNET_LR_SA_FAMILY_MAC)
+      if (p && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
         {
           col_add_fstr(pinfo->cinfo, COL_INFO,
                         "Who is \"%s.%s\"? Tell \"%s.%s\"@%02x:%02x:%02x:%02x:%02x:%02x",
-                        name[3], name[4], name[0], name[1],
+                        name[3] ? (char*)name[3] : "?", name[4] ? (char*)name[4] : "?",
+                        name[0] ? (char*)name[0] : "?", name[1] ? (char*)name[1] : "?",
                         *(p + 2), *(p + 3), *(p + 4),
                         *(p + 5), *(p + 6), *(p + 7));
         }
       break;
     case QNET_LR_TYPE_REPLY:
       p = name[2];
-      if (*(p + 1) == QNET_LR_SA_FAMILY_MAC)
+      if (p && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
         {
           col_add_fstr(pinfo->cinfo, COL_INFO,
                         "To \"%s.%s\", \"%s.%s\" is at %02x:%02x:%02x:%02x:%02x:%02x",
-                        name[3], name[4], name[0], name[1],
+                        name[3] ? (char*)name[3] : "?", name[4] ? (char*)name[4] : "?",
+                        name[0] ? (char*)name[0] : "?", name[1] ? (char*)name[1] : "?",
                         *(p + 2), *(p + 3), *(p + 4),
                         *(p + 5), *(p + 6), *(p + 7));
         }
@@ -4632,7 +4633,7 @@ proto_register_qnet6(void)
       NULL, 0, "LR Message destination domain name length", HFILL}
      },
     {&hf_qnet6_lr_dst_domain_generated,
-     {"domain",
+     {"Domain",
       "qnet6.lr.dst.domain", FT_STRING, BASE_NONE,
       NULL, 0, "LR Message destination domain name", HFILL}
      },
