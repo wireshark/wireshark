@@ -3929,7 +3929,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_appearance_subcategory_running_walking_sensor,
-            {"Subcategory", "btatt.appearance.subcategory.watch",
+            {"Subcategory", "btatt.appearance.subcategory.running_walking_sensor",
             FT_UINT16, BASE_DEC_HEX, VALS(appearance_subcategory_running_walking_sensor_vals), 0x003F,
             NULL, HFILL}
         },
