@@ -405,6 +405,8 @@ static void FoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gu
       else
          g_snprintf ( szText, nMax, "FoE BUSY (%d/%d)", foe.aFoeHeaderDataUnion.v2.Done, foe.aFoeHeaderDataUnion.v2.Entire);
       break;
+   default:
+      g_snprintf ( szText, nMax, "FoE Unknown");
    }
 }
 
