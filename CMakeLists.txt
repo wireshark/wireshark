@@ -1315,6 +1315,7 @@ endif(WIN32)
 # Copy ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
 add_custom_target(copy_data_files ALL DEPENDS ${INSTALL_FILES})
 set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
+add_dependencies(copy_data_files html_docs)
 if(ENABLE_APPLICATION_BUNDLE)
 	add_custom_command(TARGET copy_data_files PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}"
@@ -1335,7 +1336,7 @@ foreach(_install_file ${INSTALL_FILES})
 	get_filename_component(_install_basename "${_install_file}" NAME)
 if (APPLE)
 	add_custom_command(TARGET copy_data_files POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 			"${_install_file}"
 			"${DATAFILE_DIR}/${_install_basename}"
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
