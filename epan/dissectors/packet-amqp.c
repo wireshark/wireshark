@@ -11186,7 +11186,7 @@ static void
 format_amqp_0_10_sequence_set(tvbuff_t *tvb, guint offset, guint length,
                               proto_item *item)
 {
-    guint values;
+    gint values;
 
     /* Must be 4-byte values */
     if ((length % 4) != 0) {
