@@ -33,6 +33,7 @@
 #include "packet-xmpp-other.h"
 #include "packet-xmpp-gtalk.h"
 #include "packet-xmpp-conference.h"
+#include "packet-ssl-utils.h"
 
 tvbparse_wanted_t *want_ignore;
 tvbparse_wanted_t *want_stream_end_tag;
@@ -712,6 +713,7 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_item *proceed_item;
     proto_tree *proceed_tree;
+    guint32 ssl_proceed;
 
     xmpp_attr_info attrs_info [] = {
         {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL},
@@ -726,11 +728,11 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         expert_add_info(pinfo, proceed_item, &ei_xmpp_starttls_missing);
     }
 
-    if (xmpp_info->ssl_proceed && xmpp_info->ssl_proceed != pinfo->fd->num) {
-        expert_add_info_format(pinfo, proceed_item, &ei_xmpp_proceed_already_in_frame, "Already saw PROCEED in frame %u", xmpp_info->ssl_proceed);
-    }
-    else {
-        xmpp_info->ssl_proceed = pinfo->fd->num;
+    ssl_proceed =
+        ssl_starttls_ack(find_dissector("ssl"), pinfo, find_dissector("xmpp"));
+    if (ssl_proceed > 0 && ssl_proceed != pinfo->fd->num) {
+        expert_add_info_format(pinfo, proceed_item, &ei_xmpp_proceed_already_in_frame,
+                               "Already saw PROCEED in frame %u", ssl_proceed);
     }
 
     xmpp_display_attrs(proceed_tree, packet, pinfo, tvb, attrs_info, array_length(attrs_info));

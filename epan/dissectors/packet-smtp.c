@@ -36,6 +36,7 @@
 #include <epan/reassemble.h>
 #include <wsutil/base64.h>
 #include "packet-ssl.h"
+#include "packet-ssl-utils.h"
 
 /* RFC 2821 */
 #define TCP_PORT_SMTP      25
@@ -109,6 +110,7 @@ static const fragment_items smtp_data_frag_items = {
   "DATA fragments"
 };
 
+static  dissector_handle_t smtp_handle;
 static  dissector_handle_t ssl_handle;
 static  dissector_handle_t imf_handle;
 static  dissector_handle_t ntlmssp_handle;
@@ -167,7 +169,6 @@ struct smtp_session_state {
   guint32  msg_read_len;        /* Length of BDAT message read so far */
   guint32  msg_tot_len;         /* Total length of BDAT message */
   gboolean msg_last;            /* Is this the last BDAT chunk */
-  guint32  last_nontls_frame;   /* last non-TLS frame; 0 if not known or no TLS */
   guint32  username_cmd_frame;  /* AUTH command contains username */
   guint32  user_pass_cmd_frame; /* AUTH command contains username and password */
   guint32  user_pass_frame;     /* Frame contains username and password */
@@ -412,29 +413,6 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_add_proto_data(conversation, proto_smtp, session_state);
   }
 
-  /* Are we doing TLS?
-   * FIXME In my understanding of RFC 2487 client and server can send SMTP cmds
-   * after a rejected TLS negotiation
-   */
-  if (session_state->last_nontls_frame != 0 && pinfo->fd->num > session_state->last_nontls_frame) {
-    guint16 save_can_desegment;
-    guint32 save_last_nontls_frame;
-
-    /* This is TLS, not raw SMTP. TLS can desegment */
-    save_can_desegment   = pinfo->can_desegment;
-    pinfo->can_desegment = pinfo->saved_can_desegment;
-
-    /* Make sure the SSL dissector will not be called again after decryption */
-    save_last_nontls_frame = session_state->last_nontls_frame;
-    session_state->last_nontls_frame = 0;
-
-    call_dissector(ssl_handle, tvb, pinfo, tree);
-
-    pinfo->can_desegment = save_can_desegment;
-    session_state->last_nontls_frame = save_last_nontls_frame;
-    return;
-  }
-
   /* Is this a request or a response? */
   request = pinfo->destport == pinfo->match_uint;
 
@@ -486,7 +464,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
           return;
         } else {
-          linelen = tvb_length_remaining(tvb, loffset);
+          linelen = tvb_reported_length_remaining(tvb, loffset);
           next_offset = loffset + linelen;
         }
       }
@@ -507,7 +485,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_strneql(tvb, loffset, "\r\n.\r\n", 5) == 0)
           eom_seen = TRUE;
 
-        length_remaining = tvb_length_remaining(tvb, loffset);
+        length_remaining = tvb_captured_length_remaining(tvb, loffset);
         if (length_remaining == tvb_reported_length_remaining(tvb, loffset) &&
             tvb_strneql(tvb, loffset + length_remaining - 2, "\r\n", 2) == 0)
           session_state->crlf_seen = TRUE;
@@ -543,7 +521,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                * We are handling a BDAT message.
                * Check if we have reached end of the data chunk.
                */
-              session_state->msg_read_len += tvb_length_remaining(tvb, loffset);
+              session_state->msg_read_len += tvb_reported_length_remaining(tvb, loffset);
 
               if (session_state->msg_read_len == session_state->msg_tot_len) {
                 /*
@@ -762,7 +740,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SMTP_PDU_MESSAGE:
       /* Column Info */
-      length_remaining = tvb_length_remaining(tvb, offset);
+      length_remaining = tvb_reported_length_remaining(tvb, offset);
       col_set_str(pinfo->cinfo, COL_INFO, smtp_data_desegment ? "C: DATA fragment" : "C: Message Body");
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %d byte%s", length_remaining,
                         plurality (length_remaining, "", "s"));
@@ -770,7 +748,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (smtp_data_desegment) {
         frag_msg = fragment_add_seq_next(&smtp_data_reassembly_table, tvb, 0,
                                          pinfo, spd_frame_data->conversation_id, NULL,
-                                         tvb_length(tvb), spd_frame_data->more_frags);
+                                         tvb_reported_length(tvb),
+                                         spd_frame_data->more_frags);
       } else {
         /*
          * Message body.
@@ -1061,7 +1040,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (session_state->smtp_state == SMTP_STATE_AWAITING_STARTTLS_RESPONSE) {
               if (code == 220) {
                 /* This is the last non-TLS frame. */
-                session_state->last_nontls_frame = pinfo->fd->num;
+                ssl_starttls_ack(ssl_handle, pinfo, smtp_handle);
               }
               session_state->smtp_state =  SMTP_STATE_READING_CMDS;
             }
@@ -1309,8 +1288,6 @@ proto_register_smtp(void)
 void
 proto_reg_handoff_smtp(void)
 {
-  dissector_handle_t smtp_handle;
-
   smtp_handle = find_dissector("smtp");
   dissector_add_uint("tcp.port", TCP_PORT_SMTP, smtp_handle);
   ssl_dissector_add(TCP_PORT_SSL_SMTP, "smtp", TRUE);

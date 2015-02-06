@@ -41,6 +41,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
+#include "packet-ssl-utils.h"
 
 void proto_register_mysql(void);
 void proto_reg_handoff_mysql(void);
@@ -615,6 +616,7 @@ static int hf_mysql_auth_switch_request_name = -1;
 static int hf_mysql_auth_switch_request_data = -1;
 static int hf_mysql_auth_switch_response_data = -1;
 
+static dissector_handle_t mysql_handle;
 static dissector_handle_t ssl_handle;
 
 static expert_field ei_mysql_eof = EI_INIT;
@@ -1001,6 +1003,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Response: SSL Handshake");
 		conn_data->frame_start_ssl = pinfo->fd->num;
+		ssl_starttls_ack(ssl_handle, pinfo, mysql_handle);
 	}
 	if (conn_data->clnt_caps & MYSQL_CAPS_CU) /* 4.1 protocol */
 	{
@@ -2291,26 +2294,6 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-	gboolean is_ssl;
-	conversation_t  *conversation;
-	mysql_conn_data_t  *conn_data;
-
-	is_ssl = proto_is_frame_protocol(pinfo->layers, "ssl");
-
-	/* Check there is already a conversation */
-	conversation = find_or_create_conversation(pinfo);
-	conn_data = (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
-
-	if(conn_data){
-		/* Check if flag (frame_start_ssl) is > to actual packet number and no already call SSL dissector */
-		if(conn_data->frame_start_ssl && conn_data->frame_start_ssl < pinfo->fd->num && !(is_ssl)) {
-			/* Call SSL dissector */
-			call_dissector(ssl_handle, tvb, pinfo, tree);
-			return tvb_reported_length(tvb);
-		}
-
-	}
-
 	tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment, 3,
 			 get_mysql_pdu_len, dissect_mysql_pdu, data);
 
@@ -3216,7 +3199,6 @@ void proto_register_mysql(void)
 /* dissector registration */
 void proto_reg_handoff_mysql(void)
 {
-	dissector_handle_t mysql_handle;
 	ssl_handle = find_dissector("ssl");
 	mysql_handle = new_create_dissector_handle(dissect_mysql, proto_mysql);
 	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);

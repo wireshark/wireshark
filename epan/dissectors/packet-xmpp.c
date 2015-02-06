@@ -362,7 +362,6 @@ expert_field ei_xmpp_required_attribute = EI_INIT;
 
 static dissector_handle_t xmpp_handle;
 
-static dissector_handle_t ssl_handle;
 static dissector_handle_t xml_handle;
 
 static void
@@ -392,7 +391,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     conversation = find_or_create_conversation(pinfo);
     xmpp_info = (xmpp_conv_info_t *)conversation_get_proto_data(conversation, proto_xmpp);
 
-    if ((!xmpp_info || !xmpp_info->ssl_proceed) && xmpp_desegment)
+    if (!xmpp_info && xmpp_desegment)
     {
         indx = tvb_reported_length(tvb) - 1;
         if (indx >= 0)
@@ -416,27 +415,6 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "XMPP");
 
     col_clear(pinfo->cinfo, COL_INFO);
-
-    if (xmpp_info && xmpp_info->ssl_proceed &&
-            xmpp_info->ssl_proceed < pinfo->fd->num)
-    {
-        guint16 save_can_desegment;
-        guint32 save_ssl_proceed;
-
-        /* Make sure SSL/TLS can desegment */
-        save_can_desegment = pinfo->can_desegment;
-        pinfo->can_desegment = pinfo->saved_can_desegment;
-
-        /* Make sure the SSL dissector will not be called again after decryption */
-        save_ssl_proceed = xmpp_info->ssl_proceed;
-        xmpp_info->ssl_proceed = 0;
-
-        call_dissector(ssl_handle, tvb, pinfo, tree);
-
-        pinfo->can_desegment = save_can_desegment;
-        xmpp_info->ssl_proceed = save_ssl_proceed;
-        return;
-    }
 
     /*if tree == NULL then xmpp_item and xmpp_tree will also NULL*/
     xmpp_item = proto_tree_add_item(tree, proto_xmpp, tvb, 0, -1, ENC_NA);
@@ -477,7 +455,6 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         xmpp_info->ibb_sessions    = wmem_tree_new(wmem_file_scope());
         xmpp_info->gtalk_sessions  = wmem_tree_new(wmem_file_scope());
         xmpp_info->ssl_start   = 0;
-        xmpp_info->ssl_proceed = 0;
         conversation_add_proto_data(conversation, proto_xmpp, (void *) xmpp_info);
     }
 
@@ -1443,7 +1420,6 @@ proto_register_xmpp(void) {
 
 void
 proto_reg_handoff_xmpp(void) {
-    ssl_handle = find_dissector("ssl");
     xml_handle  = find_dissector("xml");
 
     dissector_add_uint("tcp.port", XMPP_PORT, xmpp_handle);
