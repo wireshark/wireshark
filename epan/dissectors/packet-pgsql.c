@@ -27,10 +27,14 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+#include "packet-ssl-utils.h"
 #include "packet-tcp.h"
 
 void proto_register_pgsql(void);
 void proto_reg_handoff_pgsql(void);
+
+static dissector_handle_t pgsql_handle;
+static dissector_handle_t ssl_handle;
 
 static int proto_pgsql = -1;
 static int hf_frontend = -1;
@@ -87,6 +91,10 @@ static gint ett_values = -1;
 static guint pgsql_port = 5432;
 static gboolean pgsql_desegment = TRUE;
 static gboolean first_message = TRUE;
+
+typedef struct pgsql_conn_data {
+    gboolean    ssl_requested;
+} pgsql_conn_data_t;
 
 static const value_string fe_messages[] = {
     { 'p', "Password message" },
@@ -158,7 +166,8 @@ static const value_string format_vals[] = {
 };
 
 static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
-                                 gint n, proto_tree *tree)
+                                 gint n, proto_tree *tree,
+                                 pgsql_conn_data_t *conv_data)
 {
     guchar c;
     gint i, siz;
@@ -291,8 +300,8 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
         /* SSL request */
         case 80877103:
-            /* There's nothing to parse here, but what do we do if the
-               SSL negotiation succeeds? */
+            /* Next reply will be a single byte. */
+            conv_data->ssl_requested = TRUE;
             break;
 
         /* Cancellation request */
@@ -551,12 +560,22 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 {
     proto_item *ti, *hidden_item;
     proto_tree *ptree;
+    conversation_t      *conversation;
+    pgsql_conn_data_t   *conn_data;
 
     gint n;
     guchar type;
     const char *typestr;
     guint length;
     gboolean fe = (pinfo->match_uint == pinfo->destport);
+
+    conversation = find_or_create_conversation(pinfo);
+    conn_data = (pgsql_conn_data_t *)conversation_get_proto_data(conversation, proto_pgsql);
+    if (!conn_data) {
+        conn_data = wmem_new(wmem_file_scope(), pgsql_conn_data_t);
+        conn_data->ssl_requested = FALSE;
+        conversation_add_proto_data(conversation, proto_pgsql, conn_data);
+    }
 
     n = 0;
     type = tvb_get_guint8(tvb, 0);
@@ -596,7 +615,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                     ( first_message ? "" : "/" ), type);
     first_message = FALSE;
 
-    if (tree) {
+    {
         ti = proto_tree_add_item(tree, proto_pgsql, tvb, 0, -1, ENC_NA);
         ptree = proto_item_add_subtree(ti, ett_pgsql);
 
@@ -610,12 +629,12 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         n += 4;
 
         if (fe)
-            dissect_pgsql_fe_msg(type, length, tvb, n, ptree);
+            dissect_pgsql_fe_msg(type, length, tvb, n, ptree, conn_data);
         else
             dissect_pgsql_be_msg(type, length, tvb, n, ptree);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* This function is called once per TCP packet. It sets COL_PROTOCOL and
@@ -625,21 +644,38 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_pgsql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    /* conversation_t *cv; */
+    conversation_t      *conversation;
+    pgsql_conn_data_t   *conn_data;
 
     first_message = TRUE;
 
-    /* We don't use conversation data yet, but... */
-    /* cv = find_or_create_conversation(pinfo); */
+    conversation = find_or_create_conversation(pinfo);
+    conn_data = (pgsql_conn_data_t *)conversation_get_proto_data(conversation, proto_pgsql);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGSQL");
     col_set_str(pinfo->cinfo, COL_INFO,
                     (pinfo->match_uint == pinfo->destport) ?
                      ">" : "<");
 
+    if (conn_data && conn_data->ssl_requested) {
+        /* Response to SSLRequest. */
+        switch (tvb_get_guint8(tvb, 0)) {
+        case 'S':   /* Willing to perform SSL */
+            /* Next packet will start using SSL. */
+            ssl_starttls_ack(ssl_handle, pinfo, pgsql_handle);
+            break;
+        case 'N':   /* Unwilling to perform SSL */
+        default:    /* ErrorMessage when server does not support SSL. */
+            /* TODO: maybe add expert info here? */
+            break;
+        }
+        conn_data->ssl_requested = FALSE;
+        return tvb_captured_length(tvb);
+    }
+
     tcp_dissect_pdus(tvb, pinfo, tree, pgsql_desegment, 5,
                      pgsql_length, dissect_pgsql_msg, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -865,7 +901,6 @@ void
 proto_reg_handoff_pgsql(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t pgsql_handle;
     static guint saved_pgsql_port;
 
     if (!initialized) {
@@ -877,6 +912,8 @@ proto_reg_handoff_pgsql(void)
 
     dissector_add_uint("tcp.port", pgsql_port, pgsql_handle);
     saved_pgsql_port = pgsql_port;
+
+    ssl_handle = find_dissector("ssl");
 }
 
 /*

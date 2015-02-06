@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include "packet-ssl.h"
+#include "packet-ssl-utils.h"
 
 void proto_register_imap(void);
 void proto_reg_handoff_imap(void);
@@ -49,10 +50,15 @@ static gint ett_imap = -1;
 static gint ett_imap_reqresp = -1;
 
 static dissector_handle_t imap_handle;
+static dissector_handle_t ssl_handle;
 
 #define TCP_PORT_IMAP     143
 #define TCP_PORT_SSL_IMAP 993
 #define MAX_BUFFER        1024
+
+typedef struct imap_state {
+  gboolean  ssl_requested;
+} imap_state_t;
 
 static void
 dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -78,11 +84,19 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guchar          *command_token;
   int             iter;
   int             commandlen;
+  conversation_t *conversation;
+  imap_state_t   *session_state;
 
-  tokenbuf = (guchar *)wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
-  command_token = (guchar *)wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
-  memset(tokenbuf, '\0', MAX_BUFFER);
-  memset(command_token, '\0', MAX_BUFFER);
+  conversation = find_or_create_conversation(pinfo);
+  session_state = (imap_state_t *)conversation_get_proto_data(conversation, proto_imap);
+  if (!session_state) {
+    session_state = wmem_new0(wmem_file_scope(), imap_state_t);
+    session_state->ssl_requested = FALSE;
+    conversation_add_proto_data(conversation, proto_imap, session_state);
+  }
+
+  tokenbuf = (guchar *)wmem_alloc0(wmem_packet_scope(), MAX_BUFFER);
+  command_token = (guchar *)wmem_alloc0(wmem_packet_scope(), MAX_BUFFER);
   commandlen = 0;
   folder_offset = 0;
   folder_tokenlen = 0;
@@ -104,14 +118,14 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", format_text(line, linelen));
 
-  if (tree) {
+  {
     ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1, ENC_NA);
     imap_tree = proto_item_add_subtree(ti, ett_imap);
 
     hidden_item = proto_tree_add_boolean(imap_tree, hf_imap_isrequest, tvb, 0, 0, is_request);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    while(tvb_reported_length_remaining(tvb, offset) > 0) {
 
       /*
        * Find the end of each line
@@ -161,7 +175,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           for (iter = 0; iter < tokenlen && iter < MAX_BUFFER-1; iter++) {
             tokenbuf[iter] = g_ascii_tolower(line[iter]);
           }
-          if ( TRUE == is_request && strncmp(tokenbuf,"uid",tokenlen) == 0) {
+          if (tree && is_request && strncmp(tokenbuf, "uid", tokenlen) == 0) {
             proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
             /*
              * UID is a precursor to a command, if following the tag,
@@ -209,7 +223,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
           }
 
-          if (commandlen > 0 && (
+          if (tree && commandlen > 0 && (
               strncmp(command_token, "select", commandlen) == 0 ||
               strncmp(command_token, "examine", commandlen) == 0 ||
               strncmp(command_token, "create", commandlen) == 0 ||
@@ -228,7 +242,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII|ENC_NA);
           }
 
-          if ( is_request && (NULL != folder_line) && strncmp(command_token, "copy", commandlen) == 0) {
+          if (tree && is_request && (NULL != folder_line) && strncmp(command_token, "copy", commandlen) == 0) {
             /*
              * Handle the copy command separately since folder
              * is the second argument for this command.
@@ -241,6 +255,20 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII|ENC_NA);
           }
 
+          /* If not yet switched to TLS, check for STARTTLS. */
+          if (session_state->ssl_requested) {
+            if (!is_request && session_state->ssl_requested &&
+              strncmp(tokenbuf, "ok", tokenlen) == 0) {
+              /* STARTTLS accepted, next reply will be TLS. */
+              ssl_starttls_ack(ssl_handle, pinfo, imap_handle);
+            }
+            session_state->ssl_requested = FALSE;
+          }
+          if (is_request && commandlen > 0 &&
+            strncmp(command_token, "starttls", commandlen) == 0) {
+            /* If next response is OK, then TLS should be commenced. */
+            session_state->ssl_requested = TRUE;
+          }
         }
 
         /*
@@ -332,6 +360,7 @@ proto_reg_handoff_imap(void)
 {
   dissector_add_uint("tcp.port", TCP_PORT_IMAP, imap_handle);
   ssl_dissector_add(TCP_PORT_SSL_IMAP, "imap", TRUE);
+  ssl_handle = find_dissector("ssl");
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
