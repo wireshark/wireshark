@@ -101,6 +101,7 @@
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
 #include "packet-ssl.h"
+#include "packet-ssl-utils.h"
 #include "packet-smb-common.h"
 
 #include "packet-ber.h"
@@ -1863,33 +1864,6 @@ this_was_not_sasl:
 
 this_was_not_normal_ldap:
 
-	/* perhaps it was SSL? */
-	if(ldap_info &&
-	   ldap_info->start_tls_frame &&
-	   ( pinfo->fd->num >= ldap_info->start_tls_frame)) {
-
-	  /* we have started TLS and so this may be an SSL layer */
-	  guint32 old_start_tls_frame;
-
-	  /* temporarily dissect this port as SSL */
-	  dissector_delete_uint("tcp.port", tcp_port, ldap_handle);
-	  ssl_dissector_add(tcp_port, "ldap", TRUE);
-
-	  old_start_tls_frame = ldap_info->start_tls_frame;
-	  ldap_info->start_tls_frame = 0; /* make sure we don't call SSL again */
-	  pinfo->can_desegment++; /* ignore this LDAP layer so SSL can use the TCP resegment */
-
-	  call_dissector(ssl_handle, tvb, pinfo, tree);
-
-	  ldap_info->start_tls_frame = old_start_tls_frame;
-	  ssl_dissector_delete(tcp_port, "ldap", TRUE);
-
-	  /* restore ldap as the dissector for this port */
-	  dissector_add_uint("tcp.port", tcp_port, ldap_handle);
-
-	  /* we are done */
-	  return tvb_captured_length(tvb);
-	}
 	/* Ok it might be a strange case of SASL still
 	 * It has been seen with Exchange setup to MS AD
 	 * when Exchange pretend that there is SASL but in fact data are still

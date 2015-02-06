@@ -56,6 +56,7 @@ PasswordPolicyResponseValue	B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
 
 	tvbuff_t	*parameter_tvb;
 	const gchar *name;
+	ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)actx->private_data;
 
 #.FN_PARS LDAPOID VAL_PTR = &parameter_tvb
 
@@ -78,22 +79,11 @@ PasswordPolicyResponseValue	B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
 		}
 	}
 
-	if(((hf_index == hf_ldap_responseName) || (hf_index == hf_ldap_requestName)) &&
-	    !strcmp(object_identifier_id, "1.3.6.1.4.1.1466.20037")) {
-
-		/* we have agreed start_tls */
-		ldap_conv_info_t *ldap_info = NULL;
-
-		ldap_info = (ldap_conv_info_t *)actx->private_data;
-
-		if(ldap_info) {
-			if(hf_index == hf_ldap_responseName)
-				/* TLS in the next frame */
-				ldap_info->start_tls_frame = (actx->pinfo->fd->num) + 1;
-			else
-				/* remember we have asked to start_tls */
-				ldap_info->start_tls_pending = TRUE;
-		}
+	/* Has the client requested the Start TLS operation? */
+	if (ldap_info && hf_index == hf_ldap_requestName &&
+		!strcmp(object_identifier_id, "1.3.6.1.4.1.1466.20037")) {
+		/* remember we have asked to start_tls */
+		ldap_info->start_tls_pending = TRUE;
 	}
 
 #.FN_BODY MessageID VAL_PTR = &MessageID
@@ -150,19 +140,6 @@ PasswordPolicyResponseValue	B "1.3.6.1.4.1.42.2.27.8.5.1"  "passwordPolicy"
      default:
    	break;
     }
-  }
-
-  if(ldap_info && (ProtocolOp == LDAP_RES_EXTENDED)) {
-	/* this is an extend result */
-
-	if(ldap_info->start_tls_pending && !ldap_info->start_tls_frame) {
-		/* XXX: some directories do not correctly return the responseName in the extendedResponse so we don't know start_tls has been negotiated */
-
-		col_append_str(actx->pinfo->cinfo, COL_INFO, "[LDAP_START_TLS_OID responseName missing] ");
-		ldap_info->start_tls_frame = (actx->pinfo->fd->num) + 1;
-	}
-
-	ldap_info->start_tls_pending = FALSE;
   }
 
 
@@ -453,6 +430,20 @@ ldap_conv_info_t *ldap_info;
 
   if(ldm_tree)
     proto_item_append_text(ldm_tree, " %%s", valstr);
+
+#.FN_BODY ExtendedResponse/_untag/resultCode
+  guint32  resultCode;
+  ldap_conv_info_t *ldap_info = (ldap_conv_info_t *)actx->private_data;
+
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                               &resultCode);
+  /* If Start TLS request was sent and resultCode is success... */
+  if (ldap_info && ldap_info->start_tls_pending &&
+      hf_index == hf_ldap_extendedResponse_resultCode && resultCode == 0) {
+    /* The conversation will continue using SSL */
+    ssl_starttls_ack(find_dissector("ssl"), actx->pinfo, ldap_handle);
+    ldap_info->start_tls_pending = FALSE;
+  }
 
 
 #.FN_BODY AttributeValue
