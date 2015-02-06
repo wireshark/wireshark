@@ -3435,7 +3435,6 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             guint8    *reassembled_data;
 
             sub_item = proto_tree_add_item(main_tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-            offset = tvb_captured_length(tvb);
 
             reassembled_data = get_value(pinfo, request_data->parameters.read_write.handle, bluetooth_data, &reassembled_length);
             if (reassembled_data) {
@@ -3446,7 +3445,6 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         } else {
             proto_tree_add_item(main_tree, hf_btatt_value, tvb, offset, -1, ENC_NA);
-            offset = tvb_captured_length(tvb);
         }
 
         offset = tvb_reported_length(tvb);
