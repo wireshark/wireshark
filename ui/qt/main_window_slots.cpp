@@ -243,6 +243,12 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
 
 void MainWindow::layoutPanes()
 {
+    QVector<unsigned> new_layout = QVector<unsigned>() << prefs.gui_layout_type
+                                                       << prefs.gui_layout_content_1
+                                                       << prefs.gui_layout_content_2
+                                                       << prefs.gui_layout_content_3;
+    if (cur_layout_ == new_layout) return;
+
     QSplitter *parents[3];
 
     // Reparent all widgets and add them back in the proper order below.
@@ -253,6 +259,8 @@ void MainWindow::layoutPanes()
     empty_pane_.setParent(main_ui_->mainStack);
     extra_split_.setParent(main_ui_->mainStack);
 
+    // XXX We should try to preserve geometries if we can, e.g. by
+    // checking to see if the layout type is the same.
     switch(prefs.gui_layout_type) {
     case(layout_type_2):
     case(layout_type_1):
@@ -328,6 +336,10 @@ void MainWindow::layoutPanes()
         }
         widget->setVisible(show);
     }
+    if (capture_file_.isValid() && capture_file_.capFile()->current_row >= 0) {
+        cf_select_packet(capture_file_.capFile(), capture_file_.capFile()->current_row);
+    }
+    cur_layout_ = new_layout;
 }
 
 void MainWindow::layoutToolbars()

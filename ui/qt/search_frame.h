@@ -54,14 +54,14 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 private:
-    void enableWidgets();
+    void updateWidgets();
 
     Ui::SearchFrame *sf_ui_;
     capture_file *cap_file_;
 
 private slots:
-    void on_searchTypeComboBox_currentIndexChanged(int index);
-    void on_searchLineEdit_textChanged(const QString &search_string);
+    void on_searchTypeComboBox_currentIndexChanged(int);
+    void on_searchLineEdit_textChanged(const QString &);
     void on_findButton_clicked();
     void on_cancelButton_clicked();
     void changeEvent(QEvent* event);

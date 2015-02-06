@@ -159,6 +159,7 @@ QMenu* MainWindow::findOrAddMenu(QMenu *parent_menu, QString& menu_text) {
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     main_ui_(new Ui::MainWindow),
+    cur_layout_(QVector<unsigned>()),
     df_combo_box_(new DisplayFilterCombo()),
     previous_focus_(NULL),
     show_hide_actions_(NULL),

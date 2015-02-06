@@ -108,6 +108,7 @@ private:
     QMenu *open_recent_menu_;
     QSplitter master_split_;
     QSplitter extra_split_;
+    QVector<unsigned> cur_layout_;
     MainWelcome *main_welcome_;
     DisplayFilterCombo *df_combo_box_;
     CaptureFile capture_file_;
