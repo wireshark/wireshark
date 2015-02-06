@@ -56,7 +56,7 @@ static void rtpstream_draw(void *ti_ptr)
     g_signal_emit_by_name(top_level, "signal_rtpstream_update");
 */
     if (tapinfo && tapinfo->tap_draw) {
-        tapinfo->tap_draw(ti_ptr);
+        tapinfo->tap_draw(tapinfo);
     }
     return;
 }

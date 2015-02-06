@@ -315,10 +315,8 @@ bool RtpStreamDialog::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
-void RtpStreamDialog::tapDraw(void *tapinfo_ptr)
+void RtpStreamDialog::tapDraw(rtpstream_tapinfo_t *tapinfo)
 {
-    rtpstream_tapinfo_t *tapinfo = (rtpstream_tapinfo_t *) tapinfo_ptr;
-
     RtpStreamDialog *rtp_stream_dialog = static_cast<RtpStreamDialog *>(tapinfo->tap_data);
     if (rtp_stream_dialog) {
         rtp_stream_dialog->updateStreams();
