@@ -1374,7 +1374,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_new_subset_remaining@Base 1.9.1
  tvb_offset_exists@Base 1.9.1
  tvb_offset_from_real_beginning@Base 1.9.1
- tvb_pbrk_guint8@Base 1.9.1
+ tvb_pbrk_compile@Base 1.99.2
+ tvb_pbrk_pattern_guint8@Base 1.99.2
  tvb_raw_offset@Base 1.9.1
  tvb_reported_length@Base 1.9.1
  tvb_reported_length_remaining@Base 1.9.1

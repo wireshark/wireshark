@@ -197,6 +197,10 @@ static expert_field ei_sdp_invalid_line_fields = EI_INIT;
 static expert_field ei_sdp_invalid_line_space  = EI_INIT;
 static expert_field ei_sdp_invalid_conversion = EI_INIT;
 
+/* patterns used for tvb_pbrk_pattern_guint8 */
+static tvb_pbrk_pattern pbrk_digits = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_alpha = INIT_PBRK_PATTERN;
+
 #define SDP_RTP_PROTO       0x00000001
 #define SDP_SRTP_PROTO      0x00000002
 #define SDP_T38_PROTO       0x00000004
@@ -821,7 +825,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
     offset = next_offset + 1;
 
     if (strcmp((char*)field_name, "ipbcp") == 0) {
-        offset = tvb_pbrk_guint8(tvb, offset, -1,"0123456789", NULL);
+        offset = tvb_pbrk_pattern_guint8(tvb, offset, -1,&pbrk_digits, NULL);
 
         if (offset == -1)
             return;
@@ -832,7 +836,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
 
         proto_tree_add_item(sdp_session_attribute_tree, hf_ipbcp_version, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 
-        offset = tvb_pbrk_guint8(tvb, offset, -1,"ABCDEFGHIJKLMNOPQRSTUVWXYZ", NULL);
+        offset = tvb_pbrk_pattern_guint8(tvb, offset, -1,&pbrk_alpha, NULL);
 
         if (offset == -1)
             return;
@@ -3086,6 +3090,10 @@ proto_register_sdp(void)
 
     /* Register for tapping */
     sdp_tap = register_tap("sdp");
+
+    /* compile patterns */
+    tvb_pbrk_compile(&pbrk_digits, "0123456789");
+    tvb_pbrk_compile(&pbrk_alpha, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 }
 
 void

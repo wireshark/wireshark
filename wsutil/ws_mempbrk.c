@@ -36,49 +36,53 @@
 
 #include <glib.h>
 #include "ws_symbol_export.h"
-#ifdef HAVE_SSE4_2
-#include "ws_cpuid.h"
-#endif
 #include "ws_mempbrk.h"
 
-const guint8 *
-_ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
+
+void
+tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *needles)
 {
-	gchar         tmp[256] = { 0 };
-	const guint8 *haystack_end;
+    const gchar *n = needles;
+    while (*n) {
+        pattern->patt[(int)*n] = 1;
+        n++;
+    }
 
-	while (*needles)
-		tmp[*needles++] = 1;
-
-	haystack_end = haystack + haystacklen;
-	while (haystack < haystack_end) {
-		if (tmp[*haystack])
-			return haystack;
-		haystack++;
-	}
-
-	return NULL;
+#ifdef HAVE_SSE4_2
+    ws_mempbrk_sse42_compile(pattern, needles);
+#endif
 }
+
+
+const guint8 *
+ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle)
+{
+    const guint8 *haystack_end = haystack + haystacklen;
+
+    while (haystack < haystack_end) {
+        if (pattern->patt[*haystack]) {
+            if (found_needle)
+                *found_needle = *haystack;
+            return haystack;
+        }
+        haystack++;
+    }
+
+    return NULL;
+}
+
 
 WS_DLL_PUBLIC const guint8 *
-ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
+tvb_pbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle)
 {
 #ifdef HAVE_SSE4_2
-	static int have_sse42 = -1;
-#endif
-	if (*needles == 0)
-		return NULL;
-
-#ifdef HAVE_SSE4_2
-	if G_UNLIKELY(have_sse42 < 0)
-		have_sse42 = ws_cpuid_sse42();
-
-	if (haystacklen >= 16 && have_sse42)
-		return _ws_mempbrk_sse42(haystack, haystacklen, needles);
+    if (haystacklen >= 16 && pattern->use_sse42)
+        return ws_mempbrk_sse42_exec(haystack, haystacklen, pattern, found_needle);
 #endif
 
-	return _ws_mempbrk(haystack, haystacklen, needles);
+    return ws_mempbrk_exec(haystack, haystacklen, pattern, found_needle);
 }
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

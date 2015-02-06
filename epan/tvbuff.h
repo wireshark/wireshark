@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/guid-utils.h>
 #include <epan/wmem/wmem.h>
+#include "wsutil/ws_mempbrk.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -505,14 +506,18 @@ WS_DLL_PUBLIC const guint8 *tvb_get_ptr(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC gint tvb_find_guint8(tvbuff_t *tvb, const gint offset,
     const gint maxlength, const guint8 needle);
 
-/** Find first occurrence of any of the needles in tvbuff, starting at offset.
+
+/** Find first occurrence of any of the needles of the pre-compiled pattern in
+ * tvbuff, starting at offset. The passed in pattern must have been "compiled"
+ * before-hand, using tvb_pbrk_compile() above.
  * Searches at most maxlength number of bytes. Returns the offset of the
  * found needle, or -1 if not found and the found needle.
  * Will not throw an exception, even if
  * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
  * the boundary is reached before finding needle. */
-WS_DLL_PUBLIC gint tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset,
-    const gint maxlength, const guint8 *needles, guchar *found_needle);
+WS_DLL_PUBLIC gint tvb_pbrk_pattern_guint8(tvbuff_t *tvb, const gint offset,
+    const gint maxlength, const tvb_pbrk_pattern* pattern, guchar *found_needle);
+
 
 /** Find size of stringz (NUL-terminated string) by looking for terminating
  * NUL.  The size of the string includes the terminating NUL.

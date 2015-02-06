@@ -44,7 +44,6 @@
 #include "wsutil/unicode-utils.h"
 #include "wsutil/nstime.h"
 #include "wsutil/time_util.h"
-#include "wsutil/ws_mempbrk.h"
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
@@ -753,17 +752,6 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 	THROW(BoundsError);
 	/* not reached */
 	return NULL;
-}
-
-static inline const guint8*
-guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, guchar *found_needle)
-{
-	const guint8 *result = ws_mempbrk(haystack, haystacklen, needles);
-
-	if (result && found_needle)
-		*found_needle = *result;
-
-	return result;
 }
 
 
@@ -1906,21 +1894,22 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 }
 
 static inline gint
-tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle)
+tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const tvb_pbrk_pattern* pattern, guchar *found_needle)
 {
 	const guint8 *ptr;
 	const guint8 *result;
 
 	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr */
 
-	result = guint8_pbrk(ptr, limit, needles, found_needle);
+	result = tvb_pbrk_exec(ptr, limit, pattern, found_needle);
 	if (!result)
 		return -1;
 
 	return (gint) ((result - ptr) + abs_offset);
 }
 
-/* Find first occurrence of any of the needles in tvbuff, starting at offset.
+
+/* Find first occurrence of any of the pattern chars in tvbuff, starting at offset.
  * Searches at most maxlength number of bytes; if maxlength is -1, searches
  * to end of tvbuff.
  * Returns the offset of the found needle, or -1 if not found.
@@ -1928,7 +1917,8 @@ tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const guin
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 gint
-tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const guint8 *needles, guchar *found_needle)
+tvb_pbrk_pattern_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength,
+			const tvb_pbrk_pattern* pattern, guchar *found_needle)
 {
 	const guint8 *result;
 	guint	      abs_offset;
@@ -1950,7 +1940,7 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 
 	/* If we have real data, perform our search now. */
 	if (tvb->real_data) {
-		result = guint8_pbrk(tvb->real_data + abs_offset, limit, needles, found_needle);
+		result = tvb_pbrk_exec(tvb->real_data + abs_offset, limit, pattern, found_needle);
 		if (result == NULL) {
 			return -1;
 		}
@@ -1959,10 +1949,10 @@ tvb_pbrk_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 		}
 	}
 
-	if (tvb->ops->tvb_pbrk_guint8)
-		return tvb->ops->tvb_pbrk_guint8(tvb, abs_offset, limit, needles, found_needle);
+	if (tvb->ops->tvb_pbrk_pattern_guint8)
+		return tvb->ops->tvb_pbrk_pattern_guint8(tvb, abs_offset, limit, pattern, found_needle);
 
-	return tvb_pbrk_guint8_generic(tvb, abs_offset, limit, needles, found_needle);
+	return tvb_pbrk_guint8_generic(tvb, abs_offset, limit, pattern, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
@@ -3048,6 +3038,8 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 	}
 }
 
+
+static tvb_pbrk_pattern pbrk_crlf = INIT_PBRK_PATTERN;
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
@@ -3070,16 +3062,11 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 gint
 tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, const gboolean desegment)
 {
-#ifdef WIN32
-	static const char __declspec(align(16)) crlf[] = "\r\n" ;
-#else
-	static const char crlf[] __attribute__((aligned(16))) = "\r\n" ;
-#endif
-
 	gint   eob_offset;
 	gint   eol_offset;
 	int    linelen;
 	guchar found_needle = 0;
+	static gboolean compiled = FALSE;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -3091,10 +3078,15 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	 */
 	eob_offset = offset + len;
 
+	if (!compiled) {
+		tvb_pbrk_compile(&pbrk_crlf, "\r\n");
+		compiled = TRUE;
+	}
+
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_pbrk_guint8(tvb, offset, len, crlf, &found_needle);
+	eol_offset = tvb_pbrk_pattern_guint8(tvb, offset, len, &pbrk_crlf, &found_needle);
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
@@ -3172,6 +3164,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	return linelen;
 }
 
+static tvb_pbrk_pattern pbrk_crlf_dquote = INIT_PBRK_PATTERN;
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
@@ -3198,11 +3191,18 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 	guchar   c = 0;
 	gint     eob_offset;
 	int      linelen;
+	static gboolean compiled = FALSE;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	if (len == -1)
 		len = _tvb_captured_length_remaining(tvb, offset);
+
+	if (!compiled) {
+		tvb_pbrk_compile(&pbrk_crlf_dquote, "\r\n\"");
+		compiled = TRUE;
+	}
+
 	/*
 	 * XXX - what if "len" is still -1, meaning "offset is past the
 	 * end of the tvbuff"?
@@ -3225,7 +3225,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 			/*
 			 * Look either for a CR, an LF, or a '"'.
 			 */
-			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len, "\r\n\"", &c);
+			char_offset = tvb_pbrk_pattern_guint8(tvb, cur_offset, len, &pbrk_crlf_dquote, &c);
 		}
 		if (char_offset == -1) {
 			/*

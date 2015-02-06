@@ -237,6 +237,18 @@ static expert_field ei_sip_header_not_terminated = EI_INIT;
 static expert_field ei_sip_odd_register_response = EI_INIT;
 static expert_field ei_sip_sipsec_malformed = EI_INIT;
 
+/* patterns used for tvb_pbrk_pattern_guint8 */
+static tvb_pbrk_pattern pbrk_comma_semi = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_whitespace = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_param_end = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_param_end_colon_brackets = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_header_end_dquote = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_quotes = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_tab_sp_fslash = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_addr_end = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_via_param_end = INIT_PBRK_PATTERN;
+
+
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
 #define SIP_METHOD_INVALID  0
@@ -1110,7 +1122,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
          */
         int end_offset;
 
-        end_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, ",;", NULL);
+        end_offset = tvb_pbrk_pattern_guint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_comma_semi, NULL);
 
         if (end_offset != -1)
         {
@@ -1150,14 +1162,14 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
     while (parameter_end_offset < line_end_offset)
     {
         parameter_end_offset++;
-        parameter_end_offset = tvb_pbrk_guint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, ">,;? \r:[]", &c);
+        parameter_end_offset = tvb_pbrk_pattern_guint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, &pbrk_param_end_colon_brackets, &c);
         if (parameter_end_offset == -1)
         {
             parameter_end_offset = line_end_offset;
             break;
         }
 
-        /* after adding character to this switch() , update also string in tvb_pbrk_guint8() call above */
+        /* after adding character to this switch() , update also pbrk_param_end_colon_brackets */
         switch (c) {
             case '>':
             case ',':
@@ -1196,14 +1208,14 @@ uri_host_end_found:
         while (parameter_end_offset < line_end_offset)
         {
             parameter_end_offset++;
-            parameter_end_offset = tvb_pbrk_guint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, ">,;? \r", &c);
+            parameter_end_offset = tvb_pbrk_pattern_guint8(tvb, parameter_end_offset, line_end_offset - parameter_end_offset, &pbrk_param_end, &c);
             if (parameter_end_offset == -1)
             {
                 parameter_end_offset = line_end_offset;
                 break;
             }
 
-            /* after adding character to this switch(), update also string in tvb_pbrk_guint8() call above */
+            /* after adding character to this switch(), update also pbrk_param_end */
             switch (c) {
                 case '>':
                 case ',':
@@ -1568,7 +1580,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
         /* Put the contact parameters in the tree */
 
         while (current_offset < uri_offsets->name_addr_end) {
-            queried_offset = tvb_pbrk_guint8(tvb, current_offset, uri_offsets->name_addr_end - current_offset, ",;", &c);
+            queried_offset = tvb_pbrk_pattern_guint8(tvb, current_offset, uri_offsets->name_addr_end - current_offset, &pbrk_comma_semi, &c);
 
             if (queried_offset == -1) {
                 /* Reached line end */
@@ -1669,7 +1681,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
     while(current_offset< line_end_offset){
         c = '\0';
         queried_offset++;
-        queried_offset = (queried_offset < line_end_offset) ? tvb_pbrk_guint8(tvb, queried_offset, line_end_offset - queried_offset, "\r\n,;\"", &c) : -1;
+        queried_offset = (queried_offset < line_end_offset) ? tvb_pbrk_pattern_guint8(tvb, queried_offset, line_end_offset - queried_offset, &pbrk_header_end_dquote, &c) : -1;
         if (queried_offset != -1)
         {
             switch (c) {
@@ -1698,7 +1710,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                 /* We have an opening quote but no closing quote. */
                 current_offset = line_end_offset;
             } else {
-                current_offset = tvb_pbrk_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, ",;", &c);
+                current_offset = tvb_pbrk_pattern_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, &pbrk_comma_semi, &c);
                 if(current_offset==-1){
                     /* Last parameter, line end */
                     current_offset = line_end_offset;
@@ -1797,7 +1809,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
     name = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, par_name_end_offset-start_offset, ENC_UTF_8|ENC_NA);
 
     /* Find end of parameter, it can be a quoted string so check for quoutes too */
-    queried_offset = tvb_pbrk_guint8(tvb, par_name_end_offset, line_end_offset - par_name_end_offset, "'\"", &c);
+    queried_offset = tvb_pbrk_pattern_guint8(tvb, par_name_end_offset, line_end_offset - par_name_end_offset, &pbrk_quotes, &c);
     if (queried_offset == -1) {
         /* Last parameter, line end */
         current_offset = line_end_offset;
@@ -2166,7 +2178,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
         {
             int transport_start_offset = current_offset;
 
-            current_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, "\t /", &c);
+            current_offset = tvb_pbrk_pattern_guint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_tab_sp_fslash, &c);
             if (current_offset != -1){
                 proto_tree_add_item(tree, hf_sip_via_transport, tvb, transport_start_offset,
                                     current_offset - transport_start_offset, ENC_UTF_8|ENC_NA);
@@ -2195,7 +2207,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
         address_start_offset = current_offset;
         while (current_offset < line_end_offset)
         {
-            current_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, "[] \t:;", &c);
+            current_offset = tvb_pbrk_pattern_guint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_addr_end, &c);
             if (current_offset == -1)
             {
                 current_offset = line_end_offset;
@@ -2330,7 +2342,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
             parameter_name_end = current_offset;
 
             /* Read until end of parameter value */
-            current_offset = tvb_pbrk_guint8(tvb, current_offset, line_end_offset - current_offset, "\t;, ", NULL);
+            current_offset = tvb_pbrk_pattern_guint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_via_param_end, NULL);
             if (current_offset == -1)
                 current_offset = line_end_offset;
 
@@ -3407,7 +3419,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             if (hf_index != POS_AUTHENTICATION_INFO)
                             {
                                 /* The first time comma_offset is "start of parameters" */
-                                comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n", NULL);
+                                comma_offset = tvb_pbrk_pattern_guint8(tvb, value_offset, line_end_offset - value_offset, &pbrk_whitespace, NULL);
                                 proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
                                                     tvb, value_offset, comma_offset - value_offset,
                                                     ENC_UTF_8|ENC_NA);
@@ -5945,6 +5957,17 @@ void proto_register_sip(void)
     sip_tap = register_tap("sip");
 
     ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", FT_STRING, BASE_NONE);
+
+    /* compile patterns */
+    tvb_pbrk_compile(&pbrk_comma_semi, ",;");
+    tvb_pbrk_compile(&pbrk_whitespace, " \t\r\n");
+    tvb_pbrk_compile(&pbrk_param_end, ">,;? \r");
+    tvb_pbrk_compile(&pbrk_param_end_colon_brackets, ">,;? \r:[]");
+    tvb_pbrk_compile(&pbrk_header_end_dquote, "\r\n,;\"");
+    tvb_pbrk_compile(&pbrk_quotes, "'\"");
+    tvb_pbrk_compile(&pbrk_tab_sp_fslash, "\t /");
+    tvb_pbrk_compile(&pbrk_addr_end, "[] \t:;");
+    tvb_pbrk_compile(&pbrk_via_param_end, "\t;, ");
 
 }
 

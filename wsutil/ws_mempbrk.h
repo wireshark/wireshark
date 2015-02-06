@@ -24,13 +24,30 @@
 
 #include "ws_symbol_export.h"
 
-WS_DLL_PUBLIC const guint8 *ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles);
+/** The pattern object used for tvb_pbrk_pattern_guint8().
+ */
+typedef struct {
+    gchar patt[256];
+    gboolean use_sse42;
+    void *mask;
+} tvb_pbrk_pattern;
 
-#ifdef HAVE_SSE4_2
-const char *_ws_mempbrk_sse42(const char* haystack, size_t haystacklen, const char *needles);
-#endif
+/** The value to use when initializing a tvb_pbrk_pattern variable.
+ * For example:
+ *    static tvb_pbrk_pattern pbrk_mypattern = INIT_PBRK_PATTERN;
+ */
+#define INIT_PBRK_PATTERN { { 0 }, FALSE, NULL }
 
-const guint8 *_ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles);
+/** Compile the pattern for the needles to find using tvb_pbrk_pattern_guint8().
+ */
+WS_DLL_PUBLIC void tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *needles);
+
+WS_DLL_PUBLIC const guint8 *tvb_pbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
+
+void ws_mempbrk_sse42_compile(tvb_pbrk_pattern* pattern, const gchar *needles);
+const char *ws_mempbrk_sse42_exec(const char* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
+
+const guint8 *ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
 
 
 #endif /* __WS_MEMPBRK_H__ */

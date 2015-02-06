@@ -23,7 +23,7 @@
 #ifdef HAVE_SSE4_2
 
 #include <glib.h>
-
+#include "ws_cpuid.h"
 
 #ifdef WIN32
   #include <tmmintrin.h>
@@ -59,6 +59,23 @@ __m128i_shift_right (__m128i value, unsigned long int offset)
                            _mm_loadu_si128 (cast_128aligned__m128i(___m128i_shift_right + offset)));
 }
 
+
+void
+ws_mempbrk_sse42_compile(tvb_pbrk_pattern* pattern, const gchar *needles)
+{
+    size_t length = strlen(needles);
+
+    pattern->use_sse42 = ws_cpuid_sse42() && (length <= 16);
+
+    if (pattern->use_sse42) {
+        __m128i *pmask = NULL;
+        pattern->mask = g_malloc(sizeof(__m128i));
+        pmask = (__m128i *) pattern->mask;
+        *pmask = _mm_setzero_si128();
+        memcpy(pmask, needles, length);
+    }
+}
+
 /* We use 0x2:
         _SIDD_SBYTE_OPS
         | _SIDD_CMP_EQUAL_ANY
@@ -92,80 +109,11 @@ __m128i_shift_right (__m128i value, unsigned long int offset)
    X for case 1.  */
 
 const char *
-_ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
+ws_mempbrk_sse42_exec(const char *s, size_t slen, const tvb_pbrk_pattern* pattern, guchar *found_needle)
 {
   const char *aligned;
-  __m128i mask;
+  __m128i *pmask = (__m128i *) pattern->mask;
   int offset;
-
-#if __has_feature(address_sanitizer) || defined(__SANITIZE_ADDRESS__)
-  {
-    /* As 'a' is not guarantueed to have a size of at least 16 bytes, and is not
-     * aligned, _mm_load_si128() cannot be used when ASAN is enabled. That
-     * triggers a buffer overflow which is harmless as 'a' is guaranteed to be
-     * '\0' terminated, and the PCMISTRI instruction always ignored everything
-     * starting from EOS ('\0'). A false positive indeed. */
-    size_t length;
-
-    length = strlen(a);
-    /* Don't use SSE4.2 if the length of A > 16. */
-    if (length > 16)
-      return _ws_mempbrk(s, slen, a);
-
-    mask = _mm_setzero_si128();
-    memcpy(&mask, a, length);
-  }
-#else /* else if ASAN is disabled */
-  offset = (int) ((size_t) a & 15);
-  aligned = (const char *) ((size_t) a & -16L);
-  if (offset != 0)
-    {
-      int length;
-
-      /* Load masks.  */
-      /* cast safe - _mm_load_si128() it's 16B aligned */
-      mask = __m128i_shift_right(_mm_load_si128 (cast_128aligned__m128i(aligned)), offset);
-
-      /* Find where the NULL terminator is.  */
-      length = _mm_cmpistri (mask, mask, 0x3a);
-      if (length == 16 - offset)
-        {
-          /* There is no NULL terminator.  */
-          __m128i mask1 = _mm_load_si128 (cast_128aligned__m128i(aligned + 16));
-          int idx = _mm_cmpistri (mask1, mask1, 0x3a);
-          length += idx;
-
-          /* Don't use SSE4.2 if the length of A > 16.  */
-          if (length > 16)
-            return _ws_mempbrk(s, slen, a);
-
-          if (idx != 0)
-            {
-              /* Combine mask0 and mask1.  We could play games with
-                 palignr, but frankly this data should be in L1 now
-                 so do the merge via an unaligned load.  */
-              mask = _mm_loadu_si128 (cast_128aligned__m128i(a));
-            }
-        }
-    }
-  else
-    {
-      int length;
-
-      /* A is aligned.  (cast safe) */
-      mask = _mm_load_si128 (cast_128aligned__m128i(a));
-
-      /* Find where the NULL terminator is.  */
-      length = _mm_cmpistri (mask, mask, 0x3a);
-      if (length == 16)
-        {
-          /* There is no NULL terminator.  Don't use SSE4.2 if the length
-             of A > 16.  */
-          if (a[16] != 0)
-            return _ws_mempbrk(s, slen, a);
-        }
-    }
-#endif /* ASAN disabled */
 
   offset = (int) ((size_t) s & 15);
   aligned = (const char *) ((size_t) s & -16L);
@@ -174,18 +122,23 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
       /* Check partial string. cast safe it's 16B aligned */
       __m128i value = __m128i_shift_right (_mm_load_si128 (cast_128aligned__m128i(aligned)), offset);
 
-      int length = _mm_cmpistri (mask, value, 0x2);
+      int length = _mm_cmpistri (*pmask, value, 0x2);
       /* No need to check ZFlag since ZFlag is always 1.  */
-      int cflag = _mm_cmpistrc (mask, value, 0x2);
+      int cflag = _mm_cmpistrc (*pmask, value, 0x2);
+      /* XXX: why does this compare value with value? */
       int idx = _mm_cmpistri (value, value, 0x3a);
 
-      if (cflag)
+      if (cflag) {
+        if (found_needle)
+                *found_needle = *(s + length);
         return s + length;
+      }
+
       /* Find where the NULL terminator is.  */
       if (idx < 16 - offset)
       {
-         /* fond NUL @ 'idx', need to switch to slower mempbrk */
-         return _ws_mempbrk(s + idx + 1, slen - idx - 1, a); /* slen is bigger than 16 & idx < 16 so no undeflow here */
+         /* found NUL @ 'idx', need to switch to slower mempbrk */
+         return ws_mempbrk_exec(s + idx + 1, slen - idx - 1, pattern, found_needle); /* slen is bigger than 16 & idx < 16 so no undeflow here */
       }
       aligned += 16;
       slen -= (16 - offset);
@@ -196,23 +149,27 @@ _ws_mempbrk_sse42(const char *s, size_t slen, const char *a)
   while (slen >= 16)
     {
       __m128i value = _mm_load_si128 (cast_128aligned__m128i(aligned));
-      int idx = _mm_cmpistri (mask, value, 0x2);
-      int cflag = _mm_cmpistrc (mask, value, 0x2);
-      int zflag = _mm_cmpistrz (mask, value, 0x2);
+      int idx = _mm_cmpistri (*pmask, value, 0x2);
+      int cflag = _mm_cmpistrc (*pmask, value, 0x2);
+      int zflag = _mm_cmpistrz (*pmask, value, 0x2);
 
-      if (cflag)
+      if (cflag) {
+        if (found_needle)
+            *found_needle = *(aligned + idx);
         return aligned + idx;
+      }
+
       if (zflag)
       {
          /* found NUL, need to switch to slower mempbrk */
-         return _ws_mempbrk(aligned, slen, a);
+         return ws_mempbrk_exec(aligned, slen, pattern, found_needle);
       }
       aligned += 16;
       slen -= 16;
     }
 
     /* XXX, use mempbrk_slow here? */
-    return _ws_mempbrk(aligned, slen, a);
+    return ws_mempbrk_exec(aligned, slen, pattern, found_needle);
 }
 
 #endif /* HAVE_SSE4_2 */
