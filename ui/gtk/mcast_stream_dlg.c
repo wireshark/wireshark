@@ -180,9 +180,9 @@ mcaststream_on_select_row(GtkTreeSelection *selection, gpointer data _U_)
 
     if (gtk_tree_selection_get_selected(selection, NULL, &list_iter))
     {
+        gtk_tree_model_get(GTK_TREE_MODEL(list_store), &list_iter, MC_COL_DATA, &selected_stream_fwd, -1);
         src_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->src_addr));
         dst_addr = (char*)address_to_display(NULL, &(selected_stream_fwd->dest_addr));
-        gtk_tree_model_get(GTK_TREE_MODEL(list_store), &list_iter, MC_COL_DATA, &selected_stream_fwd, -1);
         g_snprintf(label_text, sizeof(label_text), "Selected: %s:%u -> %s:%u",
             src_addr,
             selected_stream_fwd->src_port,
