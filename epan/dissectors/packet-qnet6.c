@@ -3595,7 +3595,9 @@ dissect_qnet6_kif(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint *
        */
       if (rlen < 4 + 4 + 4 + 4 + 4 + 4)
         return ret;
-      ti = proto_tree_add_string(stree, hf_qnet6_kif_connect, tvb, *poffset, 2 * 2 + 4 * 5 + (khdr.msgtype & QNET_KIF_CRED) ? (4 * 4 + 4 * 7) : 0, "qnet connect message");
+      ti = proto_tree_add_string(stree, hf_qnet6_kif_connect, tvb, *poffset,
+                                 2 * 2 + 4 * 5 + ((khdr.msgtype & QNET_KIF_CRED) ? (4 * 4 + 4 * 7) : 0),
+                                 "qnet connect message");
       stree1 = proto_item_add_subtree(ti, ett_qnet6_kif_connect);
       /*
        * msgtype
