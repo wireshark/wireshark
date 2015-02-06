@@ -162,6 +162,17 @@ static int hf_isis_lsp_bw_ct7 = -1;
 static int hf_isis_lsp_spb_link_metric = -1;
 static int hf_isis_lsp_spb_port_count = -1;
 static int hf_isis_lsp_spb_port_id = -1;
+static int hf_isis_lsp_adj_sid_flags = -1;
+static int hf_isis_lsp_adj_sid_family_flag = -1;
+static int hf_isis_lsp_adj_sid_backup_flag = -1;
+static int hf_isis_lsp_adj_sid_value_flag = -1;
+static int hf_isis_lsp_adj_sid_local_flag = -1;
+static int hf_isis_lsp_adj_sid_set_flag = -1;
+static int hf_isis_lsp_adj_sid_weight = -1;
+static int hf_isis_lsp_adj_sid_system_id = -1;
+static int hf_isis_lsp_adj_sid_sli_label = -1;
+static int hf_isis_lsp_adj_sid_sli_index = -1;
+static int hf_isis_lsp_adj_sid_sli_ipv6 = -1;
 static int hf_isis_lsp_spb_sr_bit = -1;
 static int hf_isis_lsp_spb_spvid = -1;
 /* Generated from convert_proto_tree_add_text.pl */
@@ -310,6 +321,7 @@ static gint ett_isis_lsp_subclv_admin_group = -1;
 static gint ett_isis_lsp_subclv_unrsv_bw = -1;
 static gint ett_isis_lsp_subclv_bw_ct = -1;
 static gint ett_isis_lsp_subclv_spb_link_metric = -1;
+static gint ett_isis_lsp_adj_sid_flags = -1;
 static gint ett_isis_lsp_clv_unknown = -1;
 static gint ett_isis_lsp_clv_partition_dis = -1;
 static gint ett_isis_lsp_clv_prefix_neighbors = -1;
@@ -359,6 +371,7 @@ static expert_field ei_isis_lsp_long_packet = EI_INIT;
 static expert_field ei_isis_lsp_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_authentication = EI_INIT;
 static expert_field ei_isis_lsp_clv_mt = EI_INIT;
+static expert_field ei_isis_lsp_malformed_subtlv = EI_INIT;
 
 
 static const value_string isis_lsp_istype_vals[] = {
@@ -368,10 +381,20 @@ static const value_string isis_lsp_istype_vals[] = {
     { ISIS_LSP_TYPE_LEVEL_2,    "Level 2"},
     { 0, NULL } };
 
+static const int * adj_sid_flags[] = {
+    &hf_isis_lsp_adj_sid_family_flag,
+    &hf_isis_lsp_adj_sid_backup_flag,
+    &hf_isis_lsp_adj_sid_value_flag,
+    &hf_isis_lsp_adj_sid_local_flag,
+    &hf_isis_lsp_adj_sid_set_flag,
+    NULL,
+};
+
 static const true_false_string tfs_up_down = { "Up", "Down" };
 static const true_false_string tfs_notsupported_supported = { "Not Supported", "Supported" };
 static const true_false_string tfs_internal_external = { "Internal", "External" };
 static const true_false_string tfs_external_internal = { "External", "Internal" };
+static const true_false_string tfs_ipv6_ipv4 = { "IPv6", "IPv4" };
 
 static const value_string isis_lsp_sr_alg_vals[] = {
     { ISIS_SR_ALG_SPF, "Shortest Path First (SPF)" },
@@ -380,6 +403,7 @@ static const value_string isis_lsp_sr_alg_vals[] = {
 
 /*
 http://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml#isis-tlv-codepoints-22-23-141-222-223
+http://ietfreport.isoc.org/idref/draft-ietf-isis-segment-routing-extensions/
 */
 static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 3, "Administrative group (color)" },
@@ -405,6 +429,8 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 28, "MTU" },
     { 29, "SPB-Metric" },
     { 30, "SPB-A-OALG" },
+    { 31, "Adj-SID" },          /* Suggested Value */
+    { 32, "LAN-Adj-SID" },      /* Suggested Value */
     { 250, "Reserved for Cisco-specific extensions" },
     { 251, "Reserved for Cisco-specific extensions" },
     { 252, "Reserved for Cisco-specific extensions" },
@@ -2253,6 +2279,76 @@ dissect_subclv_spb_link_metric(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /*
+ * Name : dissect_subclv_adj_sid()
+ *
+ * Description : called by function dissect_sub_clv_tlv_22_22_23_141_222_223()
+ *
+ *   Dissects LAN-Adj-SID & Adj-SID subclv
+ *
+ * Input :
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : protocol display tree to fill out.
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   int : subtlv type
+ *   int : subtlv length
+ *
+ * Output:
+ *   void
+ */
+
+static void
+dissect_subclv_adj_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        int local_offset, int subtype, int sublen)
+{
+    int offset = local_offset;
+    proto_item *ti;
+    int sli_len;
+    guint8 flags;
+
+    flags = tvb_get_guint8(tvb, offset);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_isis_lsp_adj_sid_flags,
+                               ett_isis_lsp_adj_sid_flags, adj_sid_flags, ENC_BIG_ENDIAN);
+
+    offset++;
+
+    proto_tree_add_item(tree, hf_isis_lsp_adj_sid_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* Only present in LAN-Adj-SID, not Adj-SID */
+    if (subtype == 32) {
+        proto_tree_add_item(tree, hf_isis_lsp_adj_sid_system_id, tvb, offset, 6, ENC_NA);
+        offset += 6;
+    }
+
+    sli_len = local_offset + sublen - offset;
+    switch(sli_len) {
+        case 3:
+            if (!((flags & 0x30) == 0x30))
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb,
+                                local_offset, sublen, "V & L flags must be set");
+            proto_tree_add_item(tree, hf_isis_lsp_adj_sid_sli_label, tvb, offset, sli_len, ENC_BIG_ENDIAN);
+            break;
+        case 4:
+            if (flags & 0x30)
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb,
+                                local_offset, sublen, "V & L flags must be unset");
+            proto_tree_add_item(tree, hf_isis_lsp_adj_sid_sli_index, tvb, offset, sli_len, ENC_BIG_ENDIAN);
+            break;
+        case 16:
+            if (!(flags & 0x20))
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb,
+                                local_offset, sublen, "V flag must be set");
+            ti = proto_tree_add_item(tree, hf_isis_lsp_adj_sid_sli_ipv6, tvb, offset, sli_len, ENC_NA);
+            /* L flag set */
+            if (flags & 0x10)
+                proto_item_append_text(ti, "Globally unique");
+            break;
+        default:
+            break;
+    }
+    offset += sli_len;
+}
+/*
  * Name: dissect_sub_clv_tlv_22_22_23_141_222_223
  *
  * Description: Decode a sub tlv's for all those tlv
@@ -2325,6 +2421,10 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
       case 29:
         dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
                                        sub_tlv_offset+13+i, clv_code, clv_len);
+        break;
+      case 31:
+      case 32:
+        dissect_subclv_adj_sid(tvb, pinfo, subtree, sub_tlv_offset+13+i, clv_code, clv_len);
         break;
       default:
         proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, sub_tlv_offset+13+i, clv_len, ENC_NA);
@@ -3284,6 +3384,72 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
 
+        { &hf_isis_lsp_adj_sid_flags,
+            { "Flags", "isis.lsp.adj_sid.flags",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_family_flag,
+            { "Outgoing Encapsulation", "isis.lsp.adj_sid.flags.f",
+              FT_BOOLEAN, 8, TFS(&tfs_ipv6_ipv4), 0x80,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_backup_flag,
+            { "Backup", "isis.lsp.adj_sid.flags.b",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_value_flag,
+            { "Value", "isis.lsp.adj_sid.flags.v",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_local_flag,
+            { "Local Significance", "isis.lsp.adj_sid.flags.l",
+              FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_set_flag,
+            { "Set", "isis.lsp.adj_sid.flags.s",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x8,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_weight,
+            { "Weight", "isis.lsp.adj_sid.weight",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_system_id,
+            { "System-ID", "isis.lsp.adj_sid.system_id",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_sli_label,
+            { "SID/Label/Index", "isis.lsp.adj_sid.sli_label",
+              FT_UINT24, BASE_DEC, NULL, 0xFFFFF,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_sli_index,
+            { "SID/Label/Index", "isis.lsp.adj_sid.sli_index",
+              FT_UINT64, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        { &hf_isis_lsp_adj_sid_sli_ipv6,
+            { "SID/Label/Index", "isis.lsp.adj_sid.sli_ipv6",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
         { &hf_isis_lsp_spb_sr_bit,
             { "SR Bit", "isis.lsp.spb.sr_bit",
               FT_UINT8, BASE_DEC, NULL, 0,
@@ -3967,6 +4133,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_subclv_unrsv_bw,
         &ett_isis_lsp_subclv_bw_ct,
         &ett_isis_lsp_subclv_spb_link_metric,
+        &ett_isis_lsp_adj_sid_flags,
         &ett_isis_lsp_clv_unknown,
         &ett_isis_lsp_clv_partition_dis,
         &ett_isis_lsp_clv_prefix_neighbors,
@@ -4018,6 +4185,7 @@ proto_register_isis_lsp(void)
         { &ei_isis_lsp_subtlv, { "isis.lsp.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown SubTLV", EXPFILL }},
         { &ei_isis_lsp_authentication, { "isis.lsp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
         { &ei_isis_lsp_clv_mt, { "isis.lsp.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
+        { &ei_isis_lsp_malformed_subtlv, { "isis.lsp.subtlv.malformed", PI_MALFORMED, PI_ERROR, "malformed SubTLV", EXPFILL }},
     };
 
     expert_module_t* expert_isis_lsp;
