@@ -555,11 +555,15 @@ static unsigned size_strbuf = 8192;
 static unsigned len_strbuf = 0;
 
 extern void ddict_unused(void);
-void ddict_unused(void) {
+void
+ddict_unused(void)
+{
 	yy_top_state();
 }
 
-static void append_to_buffer(const char* txt, unsigned len) {
+static void
+append_to_buffer(const char* txt, unsigned len)
+{
 
 	if (strbuf == NULL) {
 		read_ptr = write_ptr = strbuf = (char*)g_malloc(size_strbuf);
@@ -575,7 +579,9 @@ static void append_to_buffer(const char* txt, unsigned len) {
 
 }
 
-static size_t file_input(char* buf, size_t max) {
+static size_t
+file_input(char* buf, size_t max)
+{
 	size_t read_cnt;
 
 	read_cnt = fread(buf,1,max,yyin);
@@ -590,7 +596,9 @@ static size_t file_input(char* buf, size_t max) {
 }
 
 
-static size_t string_input(char* buf, size_t max) {
+static size_t
+string_input(char* buf, size_t max)
+{
 	if (read_ptr >= write_ptr ) {
 		return YY_NULL;
 	} else if ( read_ptr + max > write_ptr ) {
@@ -603,7 +611,9 @@ static size_t string_input(char* buf, size_t max) {
 	return max;
 }
 
-static FILE* ddict_open(const char* system_directory, const char* filename) {
+static FILE *
+ddict_open(const char* system_directory, const char* filename)
+{
 	FILE* fh;
 	char* fname;
 	if (system_directory) {
@@ -623,7 +633,9 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 	return fh;
 }
 
-ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg) {
+ddict_t *
+ddict_scan(const char* system_directory, const char* filename, int dbg)
+{
 
 	debugging = dbg;
 
@@ -684,7 +696,9 @@ ddict_t* ddict_scan(const char* system_directory, const char* filename, int dbg)
 	return dict;
 }
 
-void ddict_free(ddict_t* d) {
+void
+ddict_free(ddict_t* d)
+{
 	ddict_application_t *p, *pn;
 	ddict_vendor_t *v, *vn;
 	ddict_cmd_t *c, *cn;
@@ -739,7 +753,9 @@ void ddict_free(ddict_t* d) {
 	g_free(d);
 }
 
-void ddict_print(FILE* fh, ddict_t* d) {
+void
+ddict_print(FILE* fh, ddict_t* d)
+{
 	ddict_application_t* p;
 	ddict_vendor_t* v;
 	ddict_cmd_t* c;
@@ -801,12 +817,16 @@ void ddict_print(FILE* fh, ddict_t* d) {
  * warnings by the Windows VC compiler).
  */
 
-int yywrap(void) {
+int
+yywrap(void)
+{
     return 1;
 }
 
 #ifdef TEST_DIAM_DICT_STANDALONE
-int main(int argc, char** argv) {
+int
+main(int argc, char** argv)
+{
 	ddict_t* d;
 	char* dname = NULL;
 	char* fname;
