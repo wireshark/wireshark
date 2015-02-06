@@ -530,7 +530,7 @@ static guint32 dissect_cfdp_filestore_resp_tlv(tvbuff_t *tvb, proto_tree *tree, 
 
         aux_byte = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint(cfdp_filestore_resp_tree, hf_cfdp_action_code, tvb, offset, 1, aux_byte);
-        switch(aux_byte & 0xF0){
+        switch((aux_byte & 0xF0) >> 4){
             case 0:
                 proto_tree_add_uint(cfdp_filestore_resp_tree, hf_cfdp_status_code_1, tvb, offset, 1, aux_byte);
                 break;
