@@ -1971,7 +1971,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2A01: /* Appearance */
-        switch (tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0xFFC0) {
+        switch ((tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0xFFC0) >> 6) {
         case 0x003: /* Watch */
             hfs = hfx_btatt_appearance_watch;
             break;
