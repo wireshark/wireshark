@@ -450,79 +450,65 @@ result in a window that updates in semi-real time.
 === Packet colorization
 
 A very useful mechanism available in Wireshark is packet colorization. You can
-set up Wireshark so that it will colorize packets according to a filter. This
-allows you to emphasize the packets you are (usually) interested in.
+set up Wireshark so that it will colorize packets according to a display filter.
+This allows you to emphasize the packets you might be interested in.
 
-You can find a lot of Coloring Rule examples at the _Wireshark Wiki Coloring
+You can find a lot of coloring rule examples at the _Wireshark Wiki Coloring
 Rules page_ at
-link:wireshark-wiki-site:[]ColoringRules[wireshark-wiki-site:[]ColoringRules[]].
+link:wireshark-wiki-site:[]ColoringRules[wireshark-wiki-site:[]ColoringRules].
 
-There are two types of coloring rules in Wireshark; temporary ones that are only
-used until you quit the program, and permanent ones that will be saved to a
-preference file so that they are available on a next session.
+There are two types of coloring rules in Wireshark: temporary rules that are
+only in effect until you quit the program, and permanent rules that are saved
+in a preference file so that they are available the next time you run Wireshark.
 
-Temporary coloring rules can be added by selecting a packet and pressing the
-kbd:[Ctrl] key together with one of the number keys. This will create a coloring
-rule based on the currently selected conversation. It will try to create a
-conversation filter based on TCP first, then UDP, then IP and at last Ethernet.
-Temporary filters can also be created by selecting the menu:Colorize with
-Filter[Color X] menu items when right-clicking in the packet detail pane.
+Temporary rules can be added by selecting a packet and pressing the kbd:[Ctrl]
+key together with one of the number keys. This will create a coloring rule based
+on the currently selected conversation. It will try to create a conversation
+filter based on TCP first, then UDP, then IP and at last Ethernet. Temporary
+filters can also be created by selecting the menu:Colorize with Filter[Color X]
+menu items when right-clicking in the packet detail pane.
 
-To permanently colorize packets, select menu:View[Coloring Rules...].
-Wireshark will pop up the ``Coloring Rules'' dialog box as
-shown in <<ChCustColoringRulesDialog>>.
+To permanently colorize packets, select menu:View[Coloring Rules...]. Wireshark
+will display the ``Coloring Rules'' dialog box as shown in
+<<ChCustColoringRulesDialog>>.
 
 [[ChCustColoringRulesDialog]]
 .The ``Coloring Rules'' dialog box
 image::wsug_graphics/ws-coloring-rules-dialog.png[]
 
-Once the Coloring Rules dialog box is up, there are a number of buttons you can
-use depending on whether or not you have any color filters installed already.
+If this is the first time using the Coloring Rules dialog and you're using the
+default configuration profile you should see the default rules, shown above.
 
 [NOTE]
 .The first match wins
 ====
-In general, more specific rules should be listed before more general rules. For
-example, if you have a color rule for UDP before the one for DNS, the color rule
-for DNS will never be applied (as DNS uses UDP, so the UDP rule will match
-first).
+More specific rules should usually be listed before more general rules. For
+example, if you have a coloring rule for UDP before the one for DNS, the rule
+for DNS may not be applied (DNS is typically carried over UDP and the UDP rule
+will match first).
 ====
 
-If this is the first time you have used Coloring Rules, click on the
-button:[New] button which will bring up the Edit color filter dialog box as
-shown in <<ChCustEditColorDialog>>.
+You can create a new rule by clicking on the button:[+] button. You can delete
+one or more rules by clicking the button:[-] button. The ``copy'' button will
+duplicate a rule.
 
-[[ChCustEditColorDialog]]
-.The ``Edit Color Filter'' dialog box
-image::wsug_graphics/ws-edit-color-rule-dialog.png[]
-
-In the ``Edit Color Filter'' dialog box, simply enter a name for the color
-filter and enter a filter string in the Filter text field.
-<<ChCustEditColorDialog>> shows the values _arp_ and _arp_ which means that the
-name of the color filter is _arp_ and the filter will select protocols of type
-_arp_. Once you have entered these values, you can choose a foreground and
-background color for packets that match the filter expression. Click on
-button:[Foreground color...] or button:[Background color...] to achieve this and
-Wireshark will pop up the Choose foreground/background color for protocol dialog
-box as shown in <<ChCustChooseColorDialog>>.
+You can edit a rule by double-clicking on its name or filter. In
+<<ChCustColoringRulesDialog>> the name of the rule ``Checksum Errors'' is being
+edited. Clicking on the button:[Foreground] and button:[Background] buttons will
+open a color chooser (<<ChCustChooseColorDialog>>) for the foreground (text) and
+background colors respectively.
 
 [[ChCustChooseColorDialog]]
-.The ``Choose color'' dialog box
+.A color chooser
 image::wsug_graphics/ws-choose-color-rule.png[]
 
-Select the color you desire for the selected packets and click on OK.
-
-You must select a color in the colorbar next to the colorwheel to load values
-into the RGB values. Alternatively, you can set the values to select the color
-you want.
+The color chooser appearance depends on your operating system. The OS X color
+picker is shown. Select the color you desire for the selected packets and click
+button:[OK].
 
 <<ChCustColorFilterMany>> shows an example of several color filters being used
-in Wireshark. You may not like the color choices, so feel free to choose
-your own.
-
-If you are uncertain which coloring rule actually took place for a specific
-packet, have a look at the ``Coloring Rule Name: ...'' and ``Coloring Rule String:
-...'' fields.
+in Wireshark. Note that the frame detail shows that the ``Bad TCP'' rule rule
+was applied, along with the matching filter.
 
 [[ChCustColorFilterMany]]
 .Using color filters with Wireshark

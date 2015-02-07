@@ -194,7 +194,7 @@ void ColoringRulesDialog::updateWidgets()
     }
 
     if (error_text.isEmpty()) {
-        hint += tr("Double click to edit. Drag to move.");
+        hint += tr("Double click to edit. Drag to move. Rules are processed in order until a match is found.");
     } else {
         hint += error_text;
     }

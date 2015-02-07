@@ -54,7 +54,6 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-details-pane-popup-menu.png	\
 	wsug_graphics/ws-details-pane.png		\
 	wsug_graphics/ws-display-filter-tcp.png		\
-	wsug_graphics/ws-edit-color-rule-dialog.png	\
 	wsug_graphics/ws-edit-menu.png			\
 	wsug_graphics/ws-enabled-protocols.png		\
 	wsug_graphics/ws-expert-colored-tree.png	\
