@@ -267,6 +267,7 @@ void ColoringRulesDialog::addColoringRule(bool disabled, QString name, QString f
     QTreeWidgetItem *ti = new QTreeWidgetItem(ui->coloringRulesTreeWidget);
 
     ti->setFlags(ti->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
+    ti->setFlags(ti->flags() & ~(Qt::ItemIsDropEnabled));
     ti->setCheckState(name_col_, disabled ? Qt::Unchecked : Qt::Checked);
     ti->setText(name_col_, name);
     ti->setText(filter_col_, filter);
