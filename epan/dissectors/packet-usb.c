@@ -2545,10 +2545,10 @@ static const value_string bmrequesttype_recipient_vals[] = {
 /* Dissector used for standard usb setup requests */
 static int
 dissect_usb_standard_setup_request(packet_info *pinfo, proto_tree *tree ,
-                                   tvbuff_t *tvb, int offset,
-                                   usb_conv_info_t  *usb_conv_info,
+                                   tvbuff_t *tvb, usb_conv_info_t  *usb_conv_info,
                                    usb_trans_info_t *usb_trans_info)
 {
+    gint offset = 0;
     const usb_setup_dissector_table_t *tmp;
     usb_setup_dissector dissector;
 
@@ -2993,7 +2993,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
         /* there's no point in checking the return value as there's no
            fallback for standard setup requests */
         dissect_usb_standard_setup_request(pinfo, setup_tree,
-                next_tvb, 0, usb_conv_info, usb_trans_info);
+                next_tvb, usb_conv_info, usb_trans_info);
     }
     else {
         /* no standard request - pass it on to class-specific dissectors */
