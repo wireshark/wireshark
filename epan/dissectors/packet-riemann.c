@@ -223,7 +223,7 @@ riemann_get_guint64(tvbuff_t *tvb, guint offset, guint *len)
             return 0;
         }
         b = tvb_get_guint8(tvb, offset++);
-        num |= ((b & 0x7f) << shift);
+        num |= ((guint64)(b & 0x7f) << shift);
         shift += 7;
         (*len)++;
         if ((b & 0x80) == 0) {
