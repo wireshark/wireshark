@@ -2427,27 +2427,27 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_size, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%g m)", rfc1867_size(tvb, cur_offset));
+        proto_item_append_text(ti, " (%g m)", rfc1867_size(tvb, cur_offset));
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_horizontal_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%g)", rfc1867_size(tvb, cur_offset));
+        proto_item_append_text(ti, " (%g m)", rfc1867_size(tvb, cur_offset));
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_vertical_precision, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%g)", rfc1867_size(tvb, cur_offset));
+        proto_item_append_text(ti, " (%g m)", rfc1867_size(tvb, cur_offset));
         cur_offset++;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_latitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%s)", rfc1867_angle(tvb, cur_offset, "NS"));
+        proto_item_append_text(ti, " (%s)", rfc1867_angle(tvb, cur_offset, "NS"));
         cur_offset += 4;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_longitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%s)", rfc1867_angle(tvb, cur_offset, "EW"));
+        proto_item_append_text(ti, " (%s)", rfc1867_angle(tvb, cur_offset, "EW"));
         cur_offset += 4;
 
         ti = proto_tree_add_item(rr_tree, hf_dns_loc_altitude, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, "(%g m)", ((gint32)tvb_get_ntohl(tvb, cur_offset) - 10000000)/100.0);
+        proto_item_append_text(ti, " (%g m)", ((gint32)tvb_get_ntohl(tvb, cur_offset) - 10000000)/100.0);
       } else {
         proto_tree_add_item(rr_tree, hf_dns_loc_unknown_data, tvb, cur_offset, data_len, ENC_NA);
       }
