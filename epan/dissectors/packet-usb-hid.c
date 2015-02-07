@@ -1331,6 +1331,8 @@ dissect_usb_hid_control_std_intf(tvbuff_t *tvb, packet_info *pinfo,
 
     /* XXX - can we do some plausibility checks here? */
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBHID");
+
     /* we can't use usb_conv_info->is_request since usb_conv_info
        was replaced with the interface conversation */
     if (usb_trans_info->request_in == pinfo->fd->num) {
