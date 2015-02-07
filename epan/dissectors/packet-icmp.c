@@ -85,7 +85,17 @@ static int hf_icmp_ident_le = -1;
 static int hf_icmp_seq_num = -1;
 static int hf_icmp_seq_num_le = -1;
 static int hf_icmp_mtu = -1;
+static int hf_icmp_num_addrs = -1;
+static int hf_icmp_addr_entry_size = -1;
+static int hf_icmp_lifetime = -1;
+static int hf_icmp_pointer = -1;
+static int hf_icmp_router_address = -1;
+static int hf_icmp_pref_level = -1;
 static int hf_icmp_redir_gw = -1;
+static int hf_icmp_originate_timestamp = -1;
+static int hf_icmp_receive_timestamp = -1;
+static int hf_icmp_transmit_timestamp = -1;
+static int hf_icmp_address_mask = -1;
 static int hf_icmp_length = -1;
 static int hf_icmp_length_original_datagram = -1;
 
@@ -125,6 +135,7 @@ static int hf_icmp_int_info_ifindex = -1;
 static int hf_icmp_int_info_ipaddr = -1;
 static int hf_icmp_int_info_name = -1;
 static int hf_icmp_int_info_mtu = -1;
+static int hf_icmp_int_info_index = -1;
 static int hf_icmp_int_info_afi = -1;
 static int hf_icmp_int_info_ipv4 = -1;
 static int hf_icmp_int_info_ipv6 = -1;
@@ -634,7 +645,6 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	guint8 if_index_flag;
 	guint8 ipaddr_flag;
 	guint8 name_flag;
-	guint32 if_index;
 	guint16 afi;
 	struct e_in6_addr ipaddr_v6;
 	guint8 int_name_length = 0;
@@ -681,19 +691,9 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 
 	/*if ifIndex is set, next 32 bits are ifIndex */
 	if (if_index_flag) {
-		if (obj_end_offset >= offset + 4) {
-			if_index = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_text(ext_object_tree,
-					    tvb, offset, 4,
-					    "Interface Index: %u",
-					    if_index);
-			offset += 4;
-		} else {
-			proto_tree_add_text(ext_object_tree,
-					    tvb, offset, 4,
-					    "Interface Index:(truncated)");
-			return FALSE;
-		}
+
+		proto_tree_add_item(ext_object_tree, hf_icmp_int_info_index, tvb, offset, 4, ENC_NA);
+		offset += 4;
 	}
 
 	/* IP Address Sub Object */
@@ -1390,21 +1390,14 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		break;
 
 	case ICMP_RTRADVERT:
-		num_addrs = tvb_get_guint8(tvb, 4);
-		proto_tree_add_text(icmp_tree, tvb, 4, 1,
-				    "Number of addresses: %u", num_addrs);
-		addr_entry_size = tvb_get_guint8(tvb, 5);
-		proto_tree_add_text(icmp_tree, tvb, 5, 1,
-				    "Address entry size: %u",
-				    addr_entry_size);
-		proto_tree_add_text(icmp_tree, tvb, 6, 2, "Lifetime: %s",
-				    time_secs_to_str(wmem_packet_scope(), tvb_get_ntohs
-						     (tvb, 6)));
+		proto_tree_add_item(icmp_tree, hf_icmp_num_addrs, tvb, 4, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(icmp_tree, hf_icmp_addr_entry_size, tvb, 5, 1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(icmp_tree, hf_icmp_lifetime, tvb, 6, 2, ENC_BIG_ENDIAN);
+		proto_item_append_text(ti, " (%s)", time_secs_to_str(wmem_packet_scope(), tvb_get_ntohs(tvb, 6)));
 		break;
 
 	case ICMP_PARAMPROB:
-		proto_tree_add_text(icmp_tree, tvb, 4, 1, "Pointer: %u",
-				    tvb_get_guint8(tvb, 4));
+		proto_tree_add_item(icmp_tree, hf_icmp_pointer, tvb, 4, 1, ENC_BIG_ENDIAN);
 		if (icmp_original_dgram_length > 0) {
 			proto_tree_add_item(icmp_tree, hf_icmp_length,
 						 tvb, 5, 1,
@@ -1590,20 +1583,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 	case ICMP_RTRADVERT:
 		if (addr_entry_size == 2) {
 			for (i = 0; i < num_addrs; i++) {
-				proto_tree_add_text(icmp_tree, tvb,
-						    8 + (i * 8), 4,
-						    "Router address: %s",
-						    tvb_ip_to_str(tvb,
-								  8 +
-								  (i *
-								   8)));
-				proto_tree_add_text(icmp_tree, tvb,
-						    12 + (i * 8), 4,
-						    "Preference level: %d",
-						    tvb_get_ntohl(tvb,
-								  12 +
-								  (i *
-								   8)));
+				proto_tree_add_item(icmp_tree, hf_icmp_router_address, tvb, 8 + (i * 8), 4, ENC_NA);
+				proto_tree_add_item(icmp_tree, hf_icmp_pref_level, tvb, 12 + (i * 8), 4, ENC_NA);
 			}
 			if ((icmp_code == 0) || (icmp_code == 16)) {
 				/* Mobile-Ip */
@@ -1626,31 +1607,22 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 				    (pinfo->fd->abs_ts.nsecs / 1000000)) %
 			    86400000);
 
-			orig_ts =
-			    get_best_guess_mstimeofday(tvb, 8, frame_ts);
-			proto_tree_add_text(icmp_tree, tvb, 8, 4,
-					    "Originate timestamp: %s after midnight UTC",
-					    time_msecs_to_str(wmem_packet_scope(), orig_ts));
+			orig_ts = get_best_guess_mstimeofday(tvb, 8, frame_ts);
+			ti = proto_tree_add_item(icmp_tree, hf_icmp_originate_timestamp, tvb, 8, 4, ENC_BIG_ENDIAN);
+			proto_item_append_text(ti, " (%s after midnight UTC)", time_secs_to_str(wmem_packet_scope(), orig_ts));
 
-			proto_tree_add_text(icmp_tree, tvb, 12, 4,
-					    "Receive timestamp: %s after midnight UTC",
-					    time_msecs_to_str
-					    (wmem_packet_scope(), get_best_guess_mstimeofday
-					     (tvb, 12, orig_ts)));
-			proto_tree_add_text(icmp_tree, tvb, 16, 4,
-					    "Transmit timestamp: %s after midnight UTC",
-					    time_msecs_to_str
-					    (wmem_packet_scope(), get_best_guess_mstimeofday
-					     (tvb, 16, orig_ts)));
+			ti = proto_tree_add_item(icmp_tree, hf_icmp_receive_timestamp, tvb, 12, 4, ENC_BIG_ENDIAN);
+			proto_item_append_text(ti, " (%s after midnight UTC)", time_secs_to_str(wmem_packet_scope(), get_best_guess_mstimeofday(tvb, 12, frame_ts)));
+
+			ti = proto_tree_add_item(icmp_tree, hf_icmp_transmit_timestamp, tvb, 16, 4, ENC_BIG_ENDIAN);
+			proto_item_append_text(ti, " (%s after midnight UTC)", time_secs_to_str(wmem_packet_scope(), get_best_guess_mstimeofday(tvb, 16, frame_ts)));
+
 		}
 		break;
 
 	case ICMP_MASKREQ:
 	case ICMP_MASKREPLY:
-		proto_tree_add_text(icmp_tree, tvb, 8, 4,
-				    "Address mask: %s (0x%08x)",
-				    tvb_ip_to_str(tvb, 8),
-				    tvb_get_ntohl(tvb, 8));
+		proto_tree_add_item(icmp_tree, hf_icmp_address_mask, tvb, 8, 4, ENC_BIG_ENDIAN);
 		break;
 	}
 
@@ -1710,6 +1682,56 @@ void proto_register_icmp(void)
 
 		{&hf_icmp_mtu,
 		 {"MTU of next hop", "icmp.mtu", FT_UINT16, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_num_addrs,
+		 {"Number of addresses", "icmp.num_addrs", FT_UINT8, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_addr_entry_size,
+		 {"Number of addresses", "icmp.addr_entry_size", FT_UINT8, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_lifetime,
+		 {"Lifetime", "icmp.lifetime", FT_UINT16, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_pointer,
+		 {"Pointer", "icmp.pointer", FT_UINT32, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_router_address,
+		 {"Router address", "icmp.router_address", FT_IPv4, BASE_NONE, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_pref_level,
+		 {"Preference level", "icmp.pref_level", FT_INT32, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_originate_timestamp,
+		 {"Originate timestamp", "icmp.originate_timestamp", FT_UINT32, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_receive_timestamp,
+		 {"Receive timestamp", "icmp.receive_timestamp", FT_UINT32, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_transmit_timestamp,
+		 {"Transmit timestamp", "icmp.transmit_timestamp", FT_UINT32, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_address_mask,
+		 {"Address Mask", "icmp.address_mask", FT_IPv4, BASE_NONE, NULL,
 		  0x0,
 		  NULL, HFILL}},
 
@@ -1947,6 +1969,11 @@ void proto_register_icmp(void)
 		 {"MTU", "icmp.int_info.mtu", FT_BOOLEAN, 8, NULL,
 		  INT_INFO_MTU,
 		  "True: MTU present; False: MTU not present", HFILL}},
+		{&hf_icmp_int_info_index,
+		 {"Interface Index", "icmp.int_info.index",
+		  FT_UINT32, BASE_DEC,
+		  NULL, 0x0,
+		  NULL, HFILL}},
 		{&hf_icmp_int_info_afi,
 		 {"Address Family Identifier", "icmp.int_info.afi",
 		  FT_UINT16, BASE_DEC,
