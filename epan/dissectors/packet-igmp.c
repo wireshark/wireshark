@@ -237,12 +237,12 @@ static const true_false_string tfs_s = {
 #define IGMP_V3_BLOCK_OLD_SOURCES	6
 
 static const value_string vs_record_type[] = {
-	{IGMP_V3_MODE_IS_INCLUDE, 	"Mode Is Include"		},
-	{IGMP_V3_MODE_IS_EXCLUDE, 	"Mode Is Exclude"		},
+	{IGMP_V3_MODE_IS_INCLUDE,	"Mode Is Include"		},
+	{IGMP_V3_MODE_IS_EXCLUDE,	"Mode Is Exclude"		},
 	{IGMP_V3_CHANGE_TO_INCLUDE_MODE,"Change To Include Mode"	},
 	{IGMP_V3_CHANGE_TO_EXCLUDE_MODE,"Change To Exclude Mode"	},
-	{IGMP_V3_ALLOW_NEW_SOURCES, 	"Allow New Sources"		},
-	{IGMP_V3_BLOCK_OLD_SOURCES, 	"Block Old Sources"		},
+	{IGMP_V3_ALLOW_NEW_SOURCES,	"Allow New Sources"		},
+	{IGMP_V3_BLOCK_OLD_SOURCES,	"Block Old Sources"		},
 	{ 0,	NULL}
 };
 
