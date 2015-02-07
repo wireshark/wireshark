@@ -1759,7 +1759,8 @@ proto_register_usb_hid(void)
 
         { &hf_usb_hid_bDescriptorType,
         { "bDescriptorType", "usbhid.descriptor.hid.bDescriptorType", FT_UINT8,
-            BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            BASE_HEX|BASE_EXT_STRING, &hid_descriptor_type_vals_ext,
+            0x00, NULL, HFILL }},
 
         { &hf_usb_hid_wInterfaceNumber,
         { "wInterfaceNumber", "usbhid.descriptor.hid.wInterfaceNumber", FT_UINT16,
