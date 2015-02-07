@@ -31,6 +31,8 @@
 
 #include "ui/utf8_entities.h"
 
+#include "wsutil/filesystem.h"
+
 #include "color_utils.h"
 #include "display_filter_combo.h"
 #include "syntax_line_edit.h"
@@ -72,7 +74,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     conversation_colors_(NULL)
 {
     ui->setupUi(this);
-    setWindowTitle(wsApp->windowTitleString(tr("Coloring Rules")));
+    setWindowTitle(wsApp->windowTitleString(QStringList() << tr("Coloring Rules") << get_profile_name()));
 
     // XXX Use recent settings instead
     resize(parent->width() * 2 / 3, parent->height() * 4 / 5);
