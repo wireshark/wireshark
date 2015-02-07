@@ -1173,10 +1173,10 @@ get_conversation(packet_info *pinfo,
     return conversation;
 }
 
-uuid_t
+bluetooth_uuid_t
 get_uuid(tvbuff_t *tvb, gint offset, gint size)
 {
-    uuid_t  uuid;
+    bluetooth_uuid_t  uuid;
 
     uuid.bt_uuid = 0;
 
@@ -1204,7 +1204,7 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
 }
 
 gchar *
-print_uuid(uuid_t *uuid)
+print_uuid(bluetooth_uuid_t *uuid)
 {
     if (uuid->bt_uuid) {
         return wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
@@ -1230,7 +1230,7 @@ print_uuid(uuid_t *uuid)
 }
 
 gchar *
-print_numeric_uuid(uuid_t *uuid)
+print_numeric_uuid(bluetooth_uuid_t *uuid)
 {
     if (uuid && uuid->size > 0)
         return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);

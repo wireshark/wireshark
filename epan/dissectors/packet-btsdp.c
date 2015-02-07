@@ -1036,10 +1036,10 @@ service_info_t* btsdp_get_service_info(wmem_tree_key_t* key)
     return (service_info_t *)wmem_tree_lookup32_array_le(service_infos, key);
 }
 
-static uuid_t
+static bluetooth_uuid_t
 get_specified_uuid(wmem_array_t  *uuid_array)
 {
-    uuid_t  uuid;
+    bluetooth_uuid_t uuid;
 
 /* Try to find UUID that is already use in RFCOMM or L2CAP, otherwise try to
    return last one (most generic).
@@ -1047,12 +1047,12 @@ get_specified_uuid(wmem_array_t  *uuid_array)
     if (uuid_array) {
         guint32  i_uuid;
         guint32  size;
-        uuid_t  *p_uuid = NULL;
+        bluetooth_uuid_t *p_uuid = NULL;
 
         size = wmem_array_get_count(uuid_array);
 
         for (i_uuid = 0; i_uuid < size; i_uuid += 1) {
-            p_uuid = (uuid_t *) wmem_array_index(uuid_array, i_uuid);
+            p_uuid = (bluetooth_uuid_t *) wmem_array_index(uuid_array, i_uuid);
             if (dissector_get_uint_handle(btrfcomm_service_table, p_uuid->bt_uuid))
                 break;
             if (dissector_get_uint_handle(btl2cap_service_table, p_uuid->bt_uuid))
@@ -1062,7 +1062,7 @@ get_specified_uuid(wmem_array_t  *uuid_array)
         if (p_uuid) return *p_uuid;
     }
 
-    memset(&uuid, 0, sizeof(uuid_t));
+    memset(&uuid, 0, sizeof(bluetooth_uuid_t));
     return uuid;
 }
 
@@ -1280,7 +1280,7 @@ get_int_by_size(tvbuff_t *tvb, gint off, gint size)
 }
 
 static gint
-dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, uuid_t *uuid)
+dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, bluetooth_uuid_t *uuid)
 {
     proto_item  *item;
 
@@ -1928,7 +1928,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
     guint32          value;
     gint             length;
     guint32          i_protocol;
-    uuid_t           uuid;
+    bluetooth_uuid_t uuid;
     service_info_t  *record = NULL;
 
     list_offset = offset;
@@ -2052,7 +2052,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-        gint offset, gint attribute, uuid_t service_uuid,
+        gint offset, gint attribute, bluetooth_uuid_t service_uuid,
         gint service_did_vendor_id, gint service_did_vendor_id_source,
         service_info_t  *service_info, wmem_strbuf_t **pinfo_buf)
 {
@@ -2089,7 +2089,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint8        *new_str;
     guint32        value;
     guint64        value_64;
-    uuid_t         uuid;
+    bluetooth_uuid_t uuid;
     gchar         *uuid_str;
     gint           length;
     gint           protocol_order;
@@ -3444,7 +3444,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
 static gint
 dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, uuid_t uuid, gint service_offset,
+        packet_info *pinfo, bluetooth_uuid_t uuid, gint service_offset,
         service_info_t  *service_info, gint number_of_attributes, gboolean attribute_only)
 {
     proto_tree          *attribute_tree;
@@ -3708,7 +3708,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
 static gint
 dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, uuid_t *uuid)
+        packet_info *pinfo, bluetooth_uuid_t *uuid)
 {
     proto_item  *list_item;
     proto_tree  *list_tree;
@@ -3717,10 +3717,10 @@ dissect_attribute_id_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     gint         previous_offset;
     gint         service_offset;
     gint         bytes_to_go;
-    uuid_t       empty_uuid;
+    bluetooth_uuid_t empty_uuid;
 
     if (!uuid)
-        memset(&empty_uuid, 0, sizeof(uuid_t));
+        memset(&empty_uuid, 0, sizeof(bluetooth_uuid_t));
 
     start_offset = offset;
     list_item = proto_tree_add_item(tree, hf_attribute_id_list, tvb, offset, 0, ENC_NA);
@@ -3755,7 +3755,7 @@ dissect_sdp_error_response(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint
 dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, uuid_t *service_uuid, btl2cap_data_t *l2cap_data)
+        packet_info *pinfo, bluetooth_uuid_t *service_uuid, btl2cap_data_t *l2cap_data)
 {
     proto_item      *list_item;
     proto_tree      *list_tree;
@@ -3769,7 +3769,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     gint             element_length;
     gint             new_offset;
     gint             service_offset;
-    uuid_t           uuid;
+    bluetooth_uuid_t uuid;
     wmem_tree_key_t  key[10];
     guint32          k_interface_id;
     guint32          k_adapter_id;
@@ -3783,10 +3783,10 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
     service_info_t  *service_info;
     wmem_array_t    *uuid_array;
 
-    uuid_array = wmem_array_new(wmem_packet_scope(), sizeof(uuid_t));
+    uuid_array = wmem_array_new(wmem_packet_scope(), sizeof(bluetooth_uuid_t));
 
     offset = get_type_length(tvb, offset, &len);
-    memset(&uuid, 0, sizeof(uuid_t));
+    memset(&uuid, 0, sizeof(bluetooth_uuid_t));
 
     list_item = proto_tree_add_item(tree, hf_attribute_list, tvb,
             start_offset, len + (offset - start_offset), ENC_NA);
@@ -3904,7 +3904,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
 static gint
 dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb,
         gint offset, packet_info *pinfo, gint attribute_list_byte_count,
-        uuid_t *service_uuid, btl2cap_data_t *l2cap_data)
+        bluetooth_uuid_t *service_uuid, btl2cap_data_t *l2cap_data)
 {
     proto_item   *lists_item;
     proto_tree   *lists_tree;
@@ -3947,13 +3947,13 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
     proto_item   *ti;
     proto_tree   *st;
     proto_tree   *sub_tree = NULL;
-    uuid_t        empty_uuid;
+    bluetooth_uuid_t empty_uuid;
     wmem_array_t *uuid_array = NULL;
 
     start_offset = offset;
-    memset(&empty_uuid, 0, sizeof(uuid_t));
+    memset(&empty_uuid, 0, sizeof(bluetooth_uuid_t));
     if (!pinfo->fd->flags.visited)
-        uuid_array = wmem_array_new(wmem_file_scope(), sizeof(uuid_t));
+        uuid_array = wmem_array_new(wmem_file_scope(), sizeof(bluetooth_uuid_t));
 
     ti = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsdp_service_search_pattern);
@@ -3966,7 +3966,7 @@ dissect_sdp_service_search_request(proto_tree *tree, tvbuff_t *tvb, gint offset,
         wmem_strbuf_t  *str = NULL;
         gint            entry_offset;
         gint            entry_size;
-        uuid_t          uuid;
+        bluetooth_uuid_t uuid;
 
         size = dissect_sdp_type(sub_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &str);
 
@@ -4140,7 +4140,7 @@ dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
 {
     guint32        record_handle;
     wmem_array_t  *uuid_array;
-    uuid_t         uuid;
+    bluetooth_uuid_t uuid;
 
     proto_tree_add_item(tree, hf_sdp_service_record_handle, tvb, offset, 4, ENC_BIG_ENDIAN);
     record_handle = tvb_get_ntohl(tvb, offset);
@@ -4173,7 +4173,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
     gboolean       is_continued;
     tvbuff_t      *new_tvb;
     guint32        record_handle = 0;
-    uuid_t         uuid;
+    bluetooth_uuid_t uuid;
 
     proto_tree_add_item(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     attribute_list_byte_count = tvb_get_ntohs(tvb, offset);
@@ -4191,7 +4191,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
         uuid_array = get_uuids(pinfo, record_handle, l2cap_data);
         uuid = get_specified_uuid(uuid_array);
     } else {
-        memset(&uuid, 0, sizeof(uuid_t));
+        memset(&uuid, 0, sizeof(bluetooth_uuid_t));
     }
 
     if (is_first && !is_continued) {
@@ -4239,15 +4239,15 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     gint            size;
     gint            bytes_to_go;
     wmem_strbuf_t  *info_buf = NULL;
-    uuid_t          empty_uuid;
+    bluetooth_uuid_t empty_uuid;
     wmem_array_t   *uuid_array = NULL;
-    uuid_t          uuid;
+    bluetooth_uuid_t uuid;
 
-    memset(&empty_uuid, 0, sizeof(uuid_t));
+    memset(&empty_uuid, 0, sizeof(bluetooth_uuid_t));
     if (!pinfo->fd->flags.visited)
-        uuid_array = wmem_array_new(wmem_file_scope(), sizeof(uuid_t));
+        uuid_array = wmem_array_new(wmem_file_scope(), sizeof(bluetooth_uuid_t));
     else
-        uuid_array = wmem_array_new(wmem_packet_scope(), sizeof(uuid_t));
+        uuid_array = wmem_array_new(wmem_packet_scope(), sizeof(bluetooth_uuid_t));
 
     start_offset = offset;
     pitem = proto_tree_add_item(tree, hf_service_search_pattern, tvb, offset, 0, ENC_NA);
@@ -4260,9 +4260,9 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     while (bytes_to_go > 0) {
         gint            entry_offset;
         gint            entry_size;
-        uuid_t          a_uuid;
+        bluetooth_uuid_t a_uuid;
 
-        memset(&a_uuid, 0, sizeof(uuid_t));
+        memset(&a_uuid, 0, sizeof(bluetooth_uuid_t));
 
         size = dissect_sdp_type(next_tree, pinfo, tvb, offset, -1, empty_uuid, 0, 0, NULL, &info_buf);
         proto_item_append_text(pitem,"%s", wmem_strbuf_get_str(info_buf));
@@ -4303,7 +4303,7 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
     gboolean       is_first;
     gboolean       is_continued;
     tvbuff_t      *new_tvb;
-    uuid_t         uuid;
+    bluetooth_uuid_t uuid;
     wmem_array_t  *uuid_array = NULL;
 
     proto_tree_add_item(tree, hf_attribute_list_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);

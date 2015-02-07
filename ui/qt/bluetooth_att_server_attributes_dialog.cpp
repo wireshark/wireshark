@@ -39,7 +39,7 @@ static const int column_number_uuid_name = 2;
 
 
 static const gchar *
-bt_print_uuid(uuid_t *uuid)
+bt_print_uuid(bluetooth_uuid_t *uuid)
 {
     if (uuid->bt_uuid) {
         return val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown");
@@ -66,7 +66,7 @@ bt_print_uuid(uuid_t *uuid)
 
 
 static gchar *
-bt_print_numeric_uuid(uuid_t *uuid)
+bt_print_numeric_uuid(bluetooth_uuid_t *uuid)
 {
     if (uuid && uuid->size > 0)
         return bytes_to_str(wmem_packet_scope(), uuid->data, uuid->size);

@@ -1359,7 +1359,7 @@ union request_parameters_union {
     struct _read_by_type {
         guint16  starting_handle;
         guint16  ending_handle;
-        uuid_t   uuid;
+        bluetooth_uuid_t uuid;
     } read_by_type;
 
     struct _find_information {
@@ -1377,7 +1377,7 @@ typedef struct _request_data_t {
 } request_data_t;
 
 typedef struct _handle_data_t {
-    uuid_t  uuid;
+    bluetooth_uuid_t uuid;
 } handle_data_t;
 
 typedef struct _mtu_data_t {
@@ -1572,7 +1572,7 @@ save_request(packet_info *pinfo, guint8 opcode, union request_parameters_union p
 }
 
 static void
-save_handle(packet_info *pinfo, uuid_t uuid, guint32 handle,
+save_handle(packet_info *pinfo, bluetooth_uuid_t uuid, guint32 handle,
         bluetooth_data_t *bluetooth_data)
 {
     if (!handle && uuid.size != 2 && uuid.size != 16)
@@ -1612,7 +1612,7 @@ save_handle(packet_info *pinfo, uuid_t uuid, guint32 handle,
     }
 }
 
-static uuid_t
+static bluetooth_uuid_t
 get_uuid_from_handle(packet_info *pinfo, guint32 handle,
         bluetooth_data_t *bluetooth_data)
 {
@@ -1620,7 +1620,7 @@ get_uuid_from_handle(packet_info *pinfo, guint32 handle,
     guint32          frame_number;
     handle_data_t   *handle_data;
     wmem_tree_t     *sub_wmemtree;
-    uuid_t           uuid;
+    bluetooth_uuid_t uuid;
 
     memset(&uuid, 0, sizeof uuid);
 
@@ -1647,11 +1647,11 @@ get_uuid_from_handle(packet_info *pinfo, guint32 handle,
 static int
 dissect_handle_uint(proto_tree *tree, packet_info *pinfo, gint hf,
         tvbuff_t *tvb, gint offset, bluetooth_data_t *bluetooth_data,
-        uuid_t *uuid, guint16 handle)
+        bluetooth_uuid_t *uuid, guint16 handle)
 {
     proto_item        *sub_item;
     proto_tree        *sub_tree;
-    uuid_t             local_uuid;
+    bluetooth_uuid_t   local_uuid;
 
     sub_item = proto_tree_add_uint(tree, hf, tvb, 0, 0, handle);
     PROTO_ITEM_SET_GENERATED(sub_item);
@@ -1683,12 +1683,13 @@ dissect_handle_uint(proto_tree *tree, packet_info *pinfo, gint hf,
 
 static int
 dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
-        tvbuff_t *tvb, gint offset, bluetooth_data_t *bluetooth_data, uuid_t *uuid)
+        tvbuff_t *tvb, gint offset, bluetooth_data_t *bluetooth_data,
+        bluetooth_uuid_t *uuid)
 {
     proto_item        *sub_item;
     proto_tree        *sub_tree;
     guint16            handle;
-    uuid_t             local_uuid;
+    bluetooth_uuid_t   local_uuid;
 
     sub_item = proto_tree_add_item(tree, hf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     handle = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -1719,13 +1720,13 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
 
 static gint
 dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *pinfo, tvbuff_t *old_tvb,
-        gint old_offset, gint length, guint16 handle, uuid_t uuid, bluetooth_data_t *bluetooth_data)
+        gint old_offset, gint length, guint16 handle, bluetooth_uuid_t uuid, bluetooth_data_t *bluetooth_data)
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
     tvbuff_t    *tvb;
     gint         offset = 0;
-    uuid_t       sub_uuid;
+    bluetooth_uuid_t sub_uuid;
     guint16      sub_handle;
     guint32      value;
     const gint  **hfs;
@@ -2735,7 +2736,7 @@ dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item  *main_item;
     proto_tree  *main_tree;
     proto_item  *patron_item = NULL;
-    uuid_t       uuid;
+    bluetooth_uuid_t uuid;
 
     main_item = proto_tree_add_item(tree, (gint) GPOINTER_TO_UINT(wmem_list_frame_data(wmem_list_tail(pinfo->layers))), tvb, 0, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btgatt);
@@ -2751,7 +2752,7 @@ dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 }
 
 static gboolean
-is_long_attribute_value(uuid_t uuid)
+is_long_attribute_value(bluetooth_uuid_t uuid)
 {
     switch (uuid.bt_uuid) {
     case 0x2901: /* Characteristic User Description */
@@ -2921,7 +2922,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bluetooth_data_t  *bluetooth_data;
     request_data_t    *request_data;
     guint16            handle;
-    uuid_t             uuid;
+    bluetooth_uuid_t   uuid;
     guint              mtu;
 
     uuid.size = 0;

@@ -205,7 +205,7 @@ typedef struct _uuid_t {
     guint16  bt_uuid;
     guint8   size;
     guint8   data[16];
-} uuid_t;
+} bluetooth_uuid_t;
 
 typedef struct _bluetooth_uuid_custom {
     const guint8  uuid[16];
@@ -223,9 +223,9 @@ extern guint32           max_disconnect_in_frame;
 extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb,
         gint offset, guint8 *bdaddr);
 
-extern uuid_t  get_uuid(tvbuff_t *tvb, gint offset, gint size);
-extern gchar  *print_uuid(uuid_t *uuid);
-extern gchar  *print_numeric_uuid(uuid_t *uuid);
+extern bluetooth_uuid_t  get_uuid(tvbuff_t *tvb, gint offset, gint size);
+extern gchar  *print_uuid(bluetooth_uuid_t *uuid);
+extern gchar  *print_numeric_uuid(bluetooth_uuid_t *uuid);
 
 extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, guint8 size, bluetooth_data_t *bluetooth_data);

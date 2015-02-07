@@ -195,7 +195,7 @@ typedef struct _service_info_t {
     guint32  type;
     guint32  channel;
 
-    uuid_t   uuid;
+    bluetooth_uuid_t uuid;
     gint     protocol_order; /* main service protocol has 0, goep -1, additional protocol 1, 2... */
     gint     protocol;
 

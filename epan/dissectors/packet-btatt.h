@@ -27,7 +27,7 @@
 
 typedef struct _tap_handles_t {
     guint32   handle;
-    uuid_t    uuid;
+    bluetooth_uuid_t uuid;
 } tap_handles_t;
 
 #endif
