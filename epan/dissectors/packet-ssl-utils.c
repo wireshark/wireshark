@@ -1167,6 +1167,26 @@ const value_string tls_cert_status_type[] = {
     { 0, NULL }
 };
 
+/* string_string is inappropriate as it compares strings while
+ * "byte strings MUST NOT be truncated" (RFC 7301) */
+typedef struct ssl_alpn_protocol {
+    const guint8    *proto_name;
+    size_t           proto_name_len;
+    const char      *dissector_name;
+} ssl_alpn_protocol_t;
+/* http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#alpn-protocol-ids */
+static const ssl_alpn_protocol_t ssl_alpn_protocols[] = {
+    { "http/1.1",   sizeof("http/1.1"),     "http" },
+    /* SPDY moves so fast, just 1, 2 and 3 are registered with IANA but there
+     * already exists 3.1 as of this writing... match the prefix. */
+    { "spdy/",      sizeof("spdy/") - 1,    "spdy" },
+    { "stun.turn",  sizeof("stun.turn"),    "turnchannel" },
+    { "stun.nat-discovery", sizeof("stun.nat-discovery"), "stun" },
+    /* draft-ietf-httpbis-http2-16 */
+    { "h2-",         sizeof("h2-") - 1,     "http2" }, /* draft versions */
+    { "h2",          sizeof("h2"),          "http2" }, /* final version */
+};
+
 /* we keep this internal to packet-ssl-utils, as there should be
    no need to access it any other way.
 
@@ -4978,7 +4998,8 @@ ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
 static gint
 ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset, guint32 ext_len)
+                               proto_tree *tree, guint32 offset, guint32 ext_len,
+                               gboolean is_client, SslSession *session)
 {
     guint16 alpn_length;
     guint8 name_length;
@@ -4997,6 +5018,39 @@ ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     ti = proto_tree_add_item(tree, hf->hf.hs_ext_alpn_list,
                              tvb, offset, alpn_length, ENC_NA);
     alpn_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_alpn);
+
+    /* If ALPN is given in ServerHello, then ProtocolNameList MUST contain
+     * exactly one "ProtocolName". */
+    if (!is_client) {
+        guint8 *proto_name;
+        size_t i;
+
+        name_length = tvb_get_guint8(tvb, offset);
+        /* '\0'-terminated string for prefix/full string comparison purposes. */
+        proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1,
+                                        name_length, ENC_ASCII);
+        for (i = 0; i < G_N_ELEMENTS(ssl_alpn_protocols); i++) {
+            const ssl_alpn_protocol_t *alpn_proto = &ssl_alpn_protocols[i];
+
+            if (name_length >= alpn_proto->proto_name_len &&
+                (memcmp(proto_name, alpn_proto->proto_name,
+                        alpn_proto->proto_name_len) == 0)) {
+
+                dissector_handle_t handle;
+                /* ProtocolName match, so set the App data dissector handle.
+                 * This may override protocols given via the UAT dialog, but
+                 * since the ALPN hint is precise, do it anyway. */
+                handle = find_dissector(alpn_proto->dissector_name);
+                ssl_debug_printf("%s: changing handle %p to %p (%s)", G_STRFUNC,
+                                 (void *)session->app_handle,
+                                 (void *)handle, alpn_proto->dissector_name);
+                /* if dissector is disabled, do not overwrite previous one */
+                if (handle)
+                    session->app_handle = handle;
+                break;
+            }
+        }
+    }
 
     while (alpn_length > 0) {
         name_length = tvb_get_guint8(tvb, offset);
@@ -5998,7 +6052,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_ALPN:
-            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, ext_len);
+            offset = ssl_dissect_hnd_hello_ext_alpn(hf, tvb, ext_tree, offset, ext_len, is_client, session);
             break;
         case SSL_HND_HELLO_EXT_NPN:
             offset = ssl_dissect_hnd_hello_ext_npn(hf, tvb, ext_tree, offset, ext_len);
