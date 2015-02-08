@@ -31,7 +31,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-enum _wmem_allocator_type_t;
 struct _wmem_user_cb_container_t;
 
 /* See section "4. Internal Design" of doc/README.wmem for details
