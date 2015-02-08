@@ -88,6 +88,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/main_menubar_private.h"
+#include "ui/gtk/main_toolbar.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/uat_gui.h"
 #include "ui/gtk/gui_utils.h"
