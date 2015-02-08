@@ -34,6 +34,8 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 #include <QMenu>
+#include <QTreeWidgetItem>
+
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/to_str.h>

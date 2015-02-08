@@ -36,15 +36,13 @@
 #include "ui/help_url.h"
 
 #include <QApplication>
-#include <QFileInfo>
+#include <QDir>
 #include <QFont>
 #include <QIcon>
-#include <QList>
-#include <QSocketNotifier>
-#include <QThread>
 #include <QTimer>
 #include <QTranslator>
 
+class QSocketNotifier;
 
 // Recent items:
 // - Read from prefs

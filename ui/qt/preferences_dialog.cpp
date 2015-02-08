@@ -41,6 +41,7 @@
 #include "wireshark_application.h"
 
 #include <QColorDialog>
+#include <QComboBox>
 #include <QFileDialog>
 #include <QFrame>
 #include <QHBoxLayout>

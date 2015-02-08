@@ -36,8 +36,11 @@
 
 #include "wireshark_application.h"
 
+#include <QCheckBox>
 #include <QDesktopServices>
+#include <QDialogButtonBox>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QUrl>
 
 const QString table_name_ = QObject::tr("Endpoint");

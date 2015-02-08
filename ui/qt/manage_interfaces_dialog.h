@@ -28,11 +28,13 @@
 #include "capture_opts.h"
 
 #include <QDialog>
-#include <QLineEdit>
-#include <QTableWidget>
 #include <QStyledItemDelegate>
-#include <QTreeWidgetItem>
-#include <QStandardItemModel>
+
+class QTreeWidget;
+class QTreeWidgetItem;
+class QStandardItemModel;
+
+class QLineEdit;
 
 class PathChooserDelegate : public QStyledItemDelegate
 {

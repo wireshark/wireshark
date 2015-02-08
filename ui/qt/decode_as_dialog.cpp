@@ -31,6 +31,7 @@
 
 #include "wireshark_application.h"
 
+#include <QComboBox>
 #include <QFont>
 #include <QFontMetrics>
 #include <QLineEdit>

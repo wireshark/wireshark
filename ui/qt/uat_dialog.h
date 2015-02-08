@@ -30,11 +30,11 @@
 
 #include "syntax_line_edit.h"
 
-#include <QComboBox>
 #include <QDialog>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QTreeWidgetItem>
+
+class QComboBox;
+class QPushButton;
+class QTreeWidgetItem;
 
 namespace Ui {
 class UatDialog;

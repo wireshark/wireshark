@@ -34,13 +34,15 @@
 #include "filter_action.h"
 #include "wireshark_dialog.h"
 
-#include <QPushButton>
-#include <QCheckBox>
 #include <QDialog>
-#include <QDialogButtonBox>
 #include <QMenu>
-#include <QTabWidget>
-#include <QTreeWidget>
+#include <QTreeWidgetItem>
+
+class QCheckBox;
+class QDialogButtonBox;
+class QPushButton;
+class QTabWidget;
+class QTreeWidget;
 
 namespace Ui {
 class TrafficTableDialog;

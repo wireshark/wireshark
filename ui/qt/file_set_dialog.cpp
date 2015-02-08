@@ -39,6 +39,7 @@
 #include <QDateTime>
 #include <QFontMetrics>
 #include <QFont>
+#include <QTreeWidgetItem>
 #include <QUrl>
 
 Q_DECLARE_METATYPE(fileset_entry *)

@@ -38,6 +38,8 @@
 #include <QDir>
 #include <QFont>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QTreeWidgetItem>
 #include <QUrl>
 
 Q_DECLARE_METATYPE(GList *)

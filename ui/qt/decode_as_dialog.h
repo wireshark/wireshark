@@ -28,10 +28,11 @@
 
 #include "cfile.h"
 
-#include <QComboBox>
 #include <QDialog>
 #include <QMap>
-#include <QTreeWidgetItem>
+
+class QTreeWidgetItem;
+class QComboBox;
 
 namespace Ui {
 class DecodeAsDialog;

@@ -38,6 +38,7 @@
 #include "syntax_line_edit.h"
 #include "wireshark_application.h"
 
+#include <QComboBox>
 #include <QTreeWidgetItemIterator>
 #include <QLineEdit>
 #include <QKeyEvent>

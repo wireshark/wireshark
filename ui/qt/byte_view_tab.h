@@ -31,7 +31,9 @@
 #include "cfile.h"
 
 #include <QTabWidget>
-#include <QTreeWidget>
+
+class QTreeWidget;
+class QTreeWidgetItem;
 
 class ByteViewTab : public QTabWidget
 {

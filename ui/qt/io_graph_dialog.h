@@ -36,14 +36,15 @@
 #include "syntax_line_edit.h"
 #include "wireshark_dialog.h"
 
-#include <QComboBox>
 #include <QIcon>
-#include <QLineEdit>
 #include <QMenu>
-#include <QRubberBand>
-#include <QTimer>
-#include <QTreeWidgetItem>
 #include "qcustomplot.h"
+
+class QComboBox;
+class QLineEdit;
+class QRubberBand;
+class QTimer;
+class QTreeWidgetItem;
 
 // GTK+ sets this to 100000 (NUM_IO_ITEMS)
 const int max_io_items_ = 250000;

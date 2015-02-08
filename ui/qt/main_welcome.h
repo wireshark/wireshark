@@ -23,8 +23,10 @@
 #define MAIN_WELCOME_H
 
 #include <QFrame>
-#include <QListWidget>
-#include <QTreeWidgetItem>
+
+class QListWidget;
+class QListWidgetItem;
+class QTreeWidgetItem;
 
 #include "splash_overlay.h"
 #include "interface_tree.h"

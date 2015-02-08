@@ -30,10 +30,12 @@
 #include "wireshark_application.h"
 
 #include <QClipboard>
+#include <QMenu>
 #include <QMessageBox>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 #include <QMenu>
+
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/to_str.h>

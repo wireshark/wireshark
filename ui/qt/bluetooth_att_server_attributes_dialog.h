@@ -32,10 +32,9 @@
 #include "epan/tap.h"
 
 #include <QMenu>
-#include <QPushButton>
-#include <QTreeWidget>
 
 class QAbstractButton;
+class QPushButton;
 class QTreeWidgetItem;
 
 typedef struct _tapinfo_t {

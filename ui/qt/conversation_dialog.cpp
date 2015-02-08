@@ -33,6 +33,8 @@
 
 #include "wireshark_application.h"
 
+#include <QCheckBox>
+#include <QDialogButtonBox>
 #include <QMessageBox>
 #include <QPushButton>
 

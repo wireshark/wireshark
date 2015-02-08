@@ -36,10 +36,12 @@
 #include <QCheckBox>
 #include <QClipboard>
 #include <QContextMenuEvent>
+#include <QDialogButtonBox>
 #include <QList>
 #include <QMap>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTabWidget>
 #include <QTreeWidget>
 #include <QTextStream>
 #include <QToolButton>

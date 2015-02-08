@@ -30,7 +30,8 @@
 #include "fileset.h"
 
 #include <QDialog>
-#include <QTreeWidgetItem>
+
+class QTreeWidgetItem;
 
 namespace Ui {
 class FileSetDialog;

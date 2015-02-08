@@ -37,8 +37,9 @@
 #include "wireshark_dialog.h"
 
 #include <QMetaType>
-#include <QTreeWidgetItem>
-#include <QAbstractButton>
+
+class QTreeWidgetItem;
+class QAbstractButton;
 
 Q_DECLARE_METATYPE(export_object_entry_t *)
 

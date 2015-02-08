@@ -65,6 +65,8 @@
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMutableListIterator>
+#include <QSocketNotifier>
+#include <QThread>
 #include <QTimer>
 #include <QUrl>
 

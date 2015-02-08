@@ -46,6 +46,8 @@
 #include <QCheckBox>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QLineEdit>
+#include <QStandardItemModel>
 #include <QTreeWidgetItemIterator>
 
 // To do:

@@ -23,7 +23,8 @@
 #define ACCORDION_FRAME_H
 
 #include <QFrame>
-#include <QPropertyAnimation>
+
+class QPropertyAnimation;
 
 class AccordionFrame : public QFrame
 {

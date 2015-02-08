@@ -31,7 +31,10 @@
 #include "cfile.h"
 #include <epan/packet_info.h>
 #include <QDialog>
-#include <QTreeWidgetItem>
+
+class QHeaderView;
+class QMenu;
+class QTreeWidgetItem;
 
 namespace Ui
 {

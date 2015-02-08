@@ -32,6 +32,7 @@
 
 #include "qt_ui_utils.h"
 
+#include <QLineEdit>
 #include <QKeyEvent>
 #include <QTreeWidgetItemIterator>
 

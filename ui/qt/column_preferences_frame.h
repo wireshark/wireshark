@@ -23,8 +23,10 @@
 #define COLUMN_PREFERENCES_FRAME_H
 
 #include <QFrame>
-#include <QComboBox>
-#include <QTreeWidgetItem>
+
+class QComboBox;
+class QLineEdit;
+class QTreeWidgetItem;
 
 namespace Ui {
 class ColumnPreferencesFrame;

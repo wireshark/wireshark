@@ -39,9 +39,12 @@
 #include <QFontMetrics>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QRubberBand>
 #include <QSpacerItem>
+#include <QTimer>
 #include <QTreeWidget>
 #include <QVariant>
 

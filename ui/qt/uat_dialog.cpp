@@ -31,10 +31,12 @@
 
 #include "qt_ui_utils.h"
 
+#include <QComboBox>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QFont>
 #include <QKeyEvent>
+#include <QPushButton>
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 #include <QUrl>

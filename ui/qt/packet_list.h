@@ -29,7 +29,6 @@
 #include "related_packet_delegate.h"
 
 #include <QTreeView>
-#include <QTreeWidget>
 #include <QMenu>
 
 class QAction;

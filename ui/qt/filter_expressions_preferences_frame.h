@@ -23,8 +23,9 @@
 #define FILTER_EXPRESSIONS_PREFERENCES_FRAME_H
 
 #include <QFrame>
-#include <QLineEdit>
-#include <QTreeWidgetItem>
+
+class QLineEdit;
+class QTreeWidgetItem;
 
 namespace Ui {
 class FilterExpressionsPreferencesFrame;

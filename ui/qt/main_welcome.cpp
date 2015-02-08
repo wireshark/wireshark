@@ -34,8 +34,11 @@
 #include "wireshark_application.h"
 #include "interface_tree.h"
 
-#include <QWidget>
+#include <QListWidget>
 #include <QResizeEvent>
+#include <QTreeWidgetItem>
+#include <QWidget>
+
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
 #include <QGraphicsBlurEffect>
 #endif

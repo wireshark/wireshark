@@ -23,8 +23,9 @@
 #define PROFILE_DIALOG_H
 
 #include <QDialog>
-#include <QTreeWidgetItem>
-#include <QPushButton>
+
+class QPushButton;
+class QTreeWidgetItem;
 
 namespace Ui {
 class ProfileDialog;
