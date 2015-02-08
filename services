@@ -1224,8 +1224,8 @@ realm-rusd        688/tcp # ApplianceWare managment protocol [Stacy_Kenworthy] [
 realm-rusd        688/udp # ApplianceWare managment protocol [Stacy_Kenworthy] [Stacy_Kenworthy]
 nmap              689/tcp # NMAP [Peter_Dennis_Bartok] [Peter_Dennis_Bartok]
 nmap              689/udp # NMAP [Peter_Dennis_Bartok] [Peter_Dennis_Bartok]
-vatp              690/tcp # Velazquez Application Transfer Protocol [Velneo] [Velneo]
-vatp              690/udp # Velazquez Application Transfer Protocol [Velneo] [Velneo]
+vatp              690/tcp # Velneo Application Transfer Protocol [Velneo] [David_Gutierrez] 2015-02-03
+vatp              690/udp # Velneo Application Transfer Protocol [Velneo] [David_Gutierrez] 2015-02-03
 msexch-routing    691/tcp # MS Exchange Routing [David_Lemson] [David_Lemson]
 msexch-routing    691/udp # MS Exchange Routing [David_Lemson] [David_Lemson]
 hyperwave-isp     692/tcp # Hyperwave-ISP [Gerald_Mesaric] [Gerald_Mesaric]
@@ -9110,10 +9110,10 @@ xtlserv          6116/tcp # XicTools License Manager Service [Stephen_R_Whiteley
 daylitetouch     6117/tcp # Daylite Touch Sync [Brent_Gulanowski] [Brent_Gulanowski] 2009-08-26
 tipc             6118/udp # Transparent Inter Process Communication [Ericsson] [Erik_Hugne] 2012-09-05
 spdy             6121/tcp # SPDY for a faster web [Matthew_Lloyd] [Matthew_Lloyd] 2010-04-26
-bex-webadmin     6122/tcp # Backup Express Web Server [Chi_Shih_Chang] [Chi_Shih_Chang] 2008-03-19
-bex-webadmin     6122/udp # Backup Express Web Server [Chi_Shih_Chang] [Chi_Shih_Chang] 2008-03-19
-backup-express   6123/tcp # Backup Express [Chi_Shih_Chang] [Chi_Shih_Chang] 2008-03-19
-backup-express   6123/udp # Backup Express [Chi_Shih_Chang] [Chi_Shih_Chang] 2008-03-19
+bex-webadmin     6122/tcp # Backup Express Web Server [Catalogic_Software_Inc] [Chi_Shih_Chang] 2008-03-19 2015-02-04
+bex-webadmin     6122/udp # Backup Express Web Server [Catalogic_Software_Inc] [Chi_Shih_Chang] 2008-03-19 2015-02-04
+backup-express   6123/tcp # Backup Express [Catalogic_Software_Inc] [Chi_Shih_Chang] 2008-03-19 2015-02-04
+backup-express   6123/udp # Backup Express [Catalogic_Software_Inc] [Chi_Shih_Chang] 2008-03-19 2015-02-04
 pnbs             6124/tcp # Phlexible Network Backup Service [William_R_Lear_2] [William_R_Lear_2] 2008-10-23
 pnbs             6124/udp # Phlexible Network Backup Service [William_R_Lear_2] [William_R_Lear_2] 2008-10-23
 damewaremobgtwy  6130/tcp # The DameWare Mobile Gateway Service [SolarWinds] [David_Gayler] 2013-05-29
@@ -10779,8 +10779,8 @@ xpilot          15345/udp # XPilot Contact Port [Bert_Gijsbers] [Bert_Gijsbers]
 3link           15363/udp # 3Link Negotiation [Brant_Thomsen] [Brant_Thomsen] 2003-01
 cisco-snat      15555/tcp # Cisco Stateful NAT [Kaushik_Biswas] [Kaushik_Biswas] 2006-03
 cisco-snat      15555/udp # Cisco Stateful NAT [Kaushik_Biswas] [Kaushik_Biswas] 2006-03
-bex-xr          15660/tcp # Backup Express Restore Server [Chi_Shih_Chang] [Chi_Shih_Chang] 2008-03-19
-bex-xr          15660/udp # Backup Express Restore Server [Chi_Shih_Chang] [Chi_Shih_Chang] 2008-03-19
+bex-xr          15660/tcp # Backup Express Restore Server [Catalogic_Software_Inc] [Chi_Shih_Chang] 2008-03-19 2015-02-04
+bex-xr          15660/udp # Backup Express Restore Server [Catalogic_Software_Inc] [Chi_Shih_Chang] 2008-03-19 2015-02-04
 ptp             15740/tcp # Picture Transfer Protocol [Petronel_Bigioi] [Petronel_Bigioi] 2004-11 Defined TXT keys: guid=<Device guid>
 ptp             15740/udp # Picture Transfer Protocol [Petronel_Bigioi] [Petronel_Bigioi] 2004-11 Defined TXT keys: guid=<Device guid>
 2ping           15998/udp # 2ping Bi-Directional Ping Service [Ryan_Finnie] [Ryan_Finnie] 2010-10-06
