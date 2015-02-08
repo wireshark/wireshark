@@ -121,6 +121,7 @@ which ATN standard is supported ?
 #include <epan/packet.h>
 #include <epan/address.h>
 #include <epan/conversation.h>
+#include <epan/osi-utils.h>
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-atn-ulcs.h"
@@ -387,8 +388,8 @@ guint32 get_aircraft_24_bit_address_from_nsap(
 		guint32 adr_prefix =0;
 
 		/* check NSAP address type*/
-		if( (pinfo->src.type != AT_OSI) ||
-				(pinfo->dst.type != AT_OSI)) {
+		if( (pinfo->src.type != get_osi_address_type()) ||
+				(pinfo->dst.type != get_osi_address_type())) {
 				return ars; }
 
 		/* 20 octets address length required */
@@ -459,7 +460,7 @@ int check_heur_msg_type(packet_info *pinfo  _U_)
 		guint32 adr_prefix =0;
 
 		/* check NSAP address type*/
-		if( (pinfo->src.type != AT_OSI) || (pinfo->dst.type != AT_OSI)) {
+		if( (pinfo->src.type != get_osi_address_type()) || (pinfo->dst.type != get_osi_address_type())) {
 				return t; }
 
 		/* check NSAP address length; 20 octets address length required */

@@ -27,9 +27,11 @@
 #include <epan/packet.h>
 #include <epan/llcsaps.h>
 #include <epan/ppptypes.h>
-#include <epan/sna-utils.h>
+#include <epan/address_types.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/to_str-int.h>
+#include "wsutil/pint.h"
 
 /*
  * http://www.wanresources.com/snacell.html
@@ -302,6 +304,8 @@ static gint ett_sna_control_05hpr_type = -1;
 static gint ett_sna_control_0e = -1;
 
 static dissector_handle_t data_handle;
+
+static int sna_address_type = -1;
 
 /* Defragment fragmented SNA BIUs*/
 static gboolean sna_defragment = TRUE;
@@ -805,6 +809,17 @@ enum parse {
 	KL
 };
 
+/*
+ * Structure used to represent an FID Type 4 address; gives the layout of the
+ * data pointed to by an AT_SNA "address" structure if the size is
+ * SNA_FID_TYPE_4_ADDR_LEN.
+ */
+#define	SNA_FID_TYPE_4_ADDR_LEN	6
+struct sna_fid_type_4_addr {
+	guint32	saf;
+	guint16	ef;
+};
+
 typedef enum next_dissection_enum next_dissection_t;
 
 static void dissect_xid (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
@@ -813,6 +828,50 @@ static void dissect_nlp (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_gds (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
 static void dissect_control(tvbuff_t*, int, int, proto_tree*, int, enum parse);
+
+static gboolean sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len _U_)
+{
+	const guint8 *addrdata;
+	struct sna_fid_type_4_addr sna_fid_type_4_addr;
+
+	switch (addr->len) {
+
+	case 1:
+		addrdata = (const guint8 *)addr->data;
+		word_to_hex(buf, addrdata[0]);
+		buf[4] = '\0';
+		break;
+
+	case 2:
+		addrdata = (const guint8 *)addr->data;
+		word_to_hex(buf, pntoh16(&addrdata[0]));
+		buf[4] = '\0';
+		break;
+
+	case SNA_FID_TYPE_4_ADDR_LEN:
+		/* FID Type 4 */
+		memcpy(&sna_fid_type_4_addr, addr->data, SNA_FID_TYPE_4_ADDR_LEN);
+
+		buf = dword_to_hex(buf, sna_fid_type_4_addr.saf);
+		*buf++ = '.';
+		buf = word_to_hex(buf, sna_fid_type_4_addr.ef);
+		*buf++ = '\0'; /* NULL terminate */
+		break;
+	default:
+		buf[0] = '\0';
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+static int sna_address_str_len(const address* addr _U_)
+{
+	/* We could do this based on address length, but 14 bytes isn't THAT much space */
+	return 14;
+}
+
 
 /* --------------------------------------------------------------------
  * Chapter 2 High-Performance Routing (HPR) Headers
@@ -1668,14 +1727,14 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Set DST addr */
-	TVB_SET_ADDRESS(&pinfo->net_dst, AT_SNA, tvb, 2, SNA_FID01_ADDR_LEN);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_SNA, tvb, 2, SNA_FID01_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->net_dst, sna_address_type, tvb, 2, SNA_FID01_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->dst, sna_address_type, tvb, 2, SNA_FID01_ADDR_LEN);
 
 	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 4, 2, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
-	TVB_SET_ADDRESS(&pinfo->net_src, AT_SNA, tvb, 4, SNA_FID01_ADDR_LEN);
-	TVB_SET_ADDRESS(&pinfo->src, AT_SNA, tvb, 4, SNA_FID01_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->net_src, sna_address_type, tvb, 4, SNA_FID01_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->src, sna_address_type, tvb, 4, SNA_FID01_ADDR_LEN);
 
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 6, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, 8, 2, ENC_BIG_ENDIAN);
@@ -1720,15 +1779,15 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* Set DST addr */
-	TVB_SET_ADDRESS(&pinfo->net_dst, AT_SNA, tvb, 2, SNA_FID2_ADDR_LEN);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_SNA, tvb, 2, SNA_FID2_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->net_dst, sna_address_type, tvb, 2, SNA_FID2_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->dst, sna_address_type, tvb, 2, SNA_FID2_ADDR_LEN);
 
 	/* Byte 3 */
 	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 3, 1, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
-	TVB_SET_ADDRESS(&pinfo->net_src, AT_SNA, tvb, 3, SNA_FID2_ADDR_LEN);
-	TVB_SET_ADDRESS(&pinfo->src, AT_SNA, tvb, 3, SNA_FID2_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->net_src, sna_address_type, tvb, 3, SNA_FID2_ADDR_LEN);
+	TVB_SET_ADDRESS(&pinfo->src, sna_address_type, tvb, 3, SNA_FID2_ADDR_LEN);
 
 	id = tvb_get_ntohs(tvb, 4);
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 4, 2, ENC_BIG_ENDIAN);
@@ -1918,8 +1977,8 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dst = wmem_new0(pinfo->pool, struct sna_fid_type_4_addr);
 	dst->saf = dsaf;
 	dst->ef = def;
-	SET_ADDRESS(&pinfo->net_dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, dst);
-	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, dst);
+	SET_ADDRESS(&pinfo->net_dst, sna_address_type, SNA_FID_TYPE_4_ADDR_LEN, dst);
+	SET_ADDRESS(&pinfo->dst, sna_address_type, SNA_FID_TYPE_4_ADDR_LEN, dst);
 
 	oef = tvb_get_ntohs(tvb, 20);
 	proto_tree_add_uint(tree, hf_sna_th_oef, tvb, offset+2, 2, oef);
@@ -1928,8 +1987,8 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	src = wmem_new0(pinfo->pool, struct sna_fid_type_4_addr);
 	src->saf = osaf;
 	src->ef = oef;
-	SET_ADDRESS(&pinfo->net_src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, src);
-	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN, src);
+	SET_ADDRESS(&pinfo->net_src, sna_address_type, SNA_FID_TYPE_4_ADDR_LEN, src);
+	SET_ADDRESS(&pinfo->src, sna_address_type, SNA_FID_TYPE_4_ADDR_LEN, src);
 
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, offset+6, 2, ENC_BIG_ENDIAN);
@@ -3421,6 +3480,8 @@ proto_register_sna(void)
 	proto_sna_xid = proto_register_protocol(
 	    "Systems Network Architecture XID", "SNA XID", "sna_xid");
 	register_dissector("sna_xid", dissect_sna_xid, proto_sna_xid);
+
+	sna_address_type = address_type_dissector_register("AT_SNA", "SNA Address", sna_fid_to_str_buf, sna_address_str_len);
 
 	/* Register configuration options */
 	sna_module = prefs_register_protocol(proto_sna, NULL);

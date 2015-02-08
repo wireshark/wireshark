@@ -25,6 +25,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/address_types.h>
+#include <epan/to_str-int.h>
 
 void proto_register_j1939(void);
 
@@ -49,6 +51,7 @@ static gint ett_j1939 = -1;
 static gint ett_j1939_can = -1;
 static gint ett_j1939_message = -1;
 
+static int j1939_address_type = -1;
 static dissector_table_t   subdissector_pgn_table;
 
 static const value_string j1939_address_vals[] = {
@@ -215,7 +218,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* Set source address */
     src_addr = (guint8*)wmem_alloc(pinfo->pool, 1);
     *src_addr = (guint8)(can_id.id & 0xFF);
-    SET_ADDRESS(&pinfo->src, AT_J1939, 1, (const void*)src_addr);
+    SET_ADDRESS(&pinfo->src, j1939_address_type, 1, (const void*)src_addr);
 
     pgn = (can_id.id & 0x3FFFF00) >> 8;
 
@@ -236,7 +239,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* Fill in "destination" address even if its "broadcast" */
     dest_addr = (guint8*)wmem_alloc(pinfo->pool, 1);
     *dest_addr = (guint8)((can_id.id & 0xFF00) >> 8);
-    SET_ADDRESS(&pinfo->dst, AT_J1939, 1, (const void*)dest_addr);
+    SET_ADDRESS(&pinfo->dst, j1939_address_type, 1, (const void*)dest_addr);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "PGN: %d", pgn);
 
@@ -253,7 +256,21 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_tree_add_item(msg_tree, hf_j1939_data, tvb, 0, -1, ENC_NA);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
+}
+
+static gboolean J1939_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+    const guint8 *addrdata = (const guint8 *)addr->data;
+
+    buf = uint_to_str_back(buf, *addrdata);
+    *buf = '\0';
+    return TRUE;
+}
+
+static int J1939_addr_str_len(const address* addr _U_)
+{
+    return 11; /* Leaves required space (10 bytes) for uint_to_str_back() */
 }
 
 void proto_register_j1939(void)
@@ -319,6 +336,8 @@ void proto_register_j1939(void)
     new_register_dissector("j1939", dissect_j1939, proto_j1939);
 
     subdissector_pgn_table = register_dissector_table("j1939.pgn", "PGN Handle", FT_UINT32, BASE_DEC);
+
+    j1939_address_type = address_type_dissector_register("AT_J1939", "J1939 Address", J1939_addr_to_str, J1939_addr_str_len);
 }
 
 /*

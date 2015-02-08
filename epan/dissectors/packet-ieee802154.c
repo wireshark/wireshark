@@ -66,9 +66,11 @@
 #include <epan/crc16-tvb.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <epan/address_types.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
+#include <epan/to_str-int.h>
 #include <epan/show_exception.h>
 #include <wsutil/pint.h>
 
@@ -294,6 +296,7 @@ static expert_field ei_ieee802154_decrypt_error = EI_INIT;
 static expert_field ei_ieee802154_dst = EI_INIT;
 static expert_field ei_ieee802154_src = EI_INIT;
 
+static int ieee802_15_4_short_address_type = -1;
 /*
  * Dissector handles
  *  - beacon dissection is always heuristic.
@@ -386,6 +389,31 @@ static gboolean ieee802154_extend_auth = TRUE;
 #define IEEE802154_CRC_SEED     0x0000
 #define IEEE802154_CRC_XOROUT   0xFFFF
 #define ieee802154_crc_tvb(tvb, offset)   (crc16_ccitt_tvb_seed(tvb, offset, IEEE802154_CRC_SEED) ^ IEEE802154_CRC_XOROUT)
+
+
+static gboolean ieee802_15_4_short_address_to_str(const address* addr, gchar *buf, int buf_len)
+{
+    guint16 ieee_802_15_4_short_addr = pletoh16(addr->data);
+
+    if (ieee_802_15_4_short_addr == 0xffff)
+    {
+        g_strlcpy(buf, "Broadcast", buf_len);
+        return TRUE;
+    }
+
+    *buf++ = '0';
+    *buf++ = 'x';
+    buf = word_to_hex(buf, ieee_802_15_4_short_addr);
+    *buf = '\0'; /* NULL terminate */
+
+    return TRUE;
+}
+
+static int ieee802_15_4_short_address_str_len(const address* addr _U_)
+{
+    return 11;
+}
+
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -716,8 +744,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             ieee_hints->dst16 = packet->dst16;
         }
 
-        TVB_SET_ADDRESS(&pinfo->dl_dst, AT_IEEE_802_15_4_SHORT, tvb, offset, 2);
-        TVB_SET_ADDRESS(&pinfo->dst, AT_IEEE_802_15_4_SHORT, tvb, offset, 2);
+        TVB_SET_ADDRESS(&pinfo->dl_dst, ieee802_15_4_short_address_type, tvb, offset, 2);
+        TVB_SET_ADDRESS(&pinfo->dst, ieee802_15_4_short_address_type, tvb, offset, 2);
 
         if (tree) {
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst16, tvb, offset, 2, packet->dst16);
@@ -810,8 +838,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
         }
 
-        TVB_SET_ADDRESS(&pinfo->dl_src, AT_IEEE_802_15_4_SHORT, tvb, offset, 2);
-        TVB_SET_ADDRESS(&pinfo->src, AT_IEEE_802_15_4_SHORT, tvb, offset, 2);
+        TVB_SET_ADDRESS(&pinfo->dl_src, ieee802_15_4_short_address_type, tvb, offset, 2);
+        TVB_SET_ADDRESS(&pinfo->src, ieee802_15_4_short_address_type, tvb, offset, 2);
 
         /* Add the addressing info to the tree. */
         if (tree) {
@@ -2754,6 +2782,8 @@ void proto_register_ieee802154(void)
 
     expert_ieee802154 = expert_register_protocol(proto_ieee802154);
     expert_register_field_array(expert_ieee802154, ei, array_length(ei));
+
+    ieee802_15_4_short_address_type = address_type_dissector_register("AT_IEEE_802_15_4_SHORT", "IEEE 802.15.4 16-bit short address", ieee802_15_4_short_address_to_str, ieee802_15_4_short_address_str_len);
 
     /* add a user preference to set the 802.15.4 ethertype */
     ieee802154_module = prefs_register_protocol(proto_ieee802154,

@@ -129,6 +129,7 @@ which ATN standard is supported ?
 #include <epan/packet.h>
 #include <epan/address.h>
 #include <epan/conversation.h>
+#include <epan/osi-utils.h>
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-atn-ulcs.h"
@@ -276,7 +277,7 @@ static int hf_atn_ulcs_ACSE_requirements_authentication = -1;
 static int hf_atn_ulcs_ACSE_requirements_application_context_negotiation = -1;
 
 /*--- End of included file: packet-atn-ulcs-hf.c ---*/
-#line 194 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 195 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 
 /*--- Included file: packet-atn-ulcs-ett.c ---*/
@@ -308,7 +309,7 @@ static gint ett_atn_ulcs_RelativeDistinguishedName = -1;
 static gint ett_atn_ulcs_AttributeTypeAndValue = -1;
 
 /*--- End of included file: packet-atn-ulcs-ett.c ---*/
-#line 196 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 197 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 static gint ett_atn_ulcs = -1;
 static gint ett_atn_acse = -1;
 
@@ -1599,7 +1600,7 @@ static int dissect_ACSE_apdu_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-atn-ulcs-fn.c ---*/
-#line 200 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 201 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 
 #if 0
 /* re-implementing external data: packet-per.c */
@@ -1790,8 +1791,8 @@ guint32 get_aircraft_24_bit_address_from_nsap(
 		guint32 adr_prefix =0;
 
 		/* check NSAP address type*/
-		if( (pinfo->src.type != AT_OSI) ||
-				(pinfo->dst.type != AT_OSI)) {
+		if( (pinfo->src.type != get_osi_address_type()) ||
+				(pinfo->dst.type != get_osi_address_type())) {
 				return ars; }
 
 		/* 20 octets address length required */
@@ -1862,7 +1863,7 @@ int check_heur_msg_type(packet_info *pinfo  _U_)
 		guint32 adr_prefix =0;
 
 		/* check NSAP address type*/
-		if( (pinfo->src.type != AT_OSI) || (pinfo->dst.type != AT_OSI)) {
+		if( (pinfo->src.type != get_osi_address_type()) || (pinfo->dst.type != get_osi_address_type())) {
 				return t; }
 
 		/* check NSAP address length; 20 octets address length required */
@@ -2484,7 +2485,7 @@ void proto_register_atn_ulcs (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-ulcs-hfarr.c ---*/
-#line 792 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 793 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				{&hf_atn_ses_type,
 				{ "SPDU Type",
 					"atn-ulcs.ses.type",
@@ -2572,7 +2573,7 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 850 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 851 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				&ett_atn_ses,
 				&ett_atn_pres,
 				&ett_atn_acse,

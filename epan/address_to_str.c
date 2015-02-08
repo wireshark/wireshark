@@ -53,9 +53,9 @@
 #include "to_str.h"
 #include "value_string.h"
 #include "addr_resolv.h"
+#include "address_types.h"
 #include "wsutil/pint.h"
 #include "wsutil/str_util.h"
-#include "sna-utils.h"
 #include "osi-utils.h"
 #include <epan/dissectors/packet-mtp3.h>
 #include <stdio.h>
@@ -219,20 +219,6 @@ ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct)
     return buf;
 }
 
-static void
-vines_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
-{
-    if (buf_len < 14) {
-        g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
-        return;
-    }
-
-    buf = dword_to_hex(buf, pntoh32(&addrp[0])); /* 8 bytes */
-    *buf++ = '.'; /* 1 byte */
-    buf = word_to_hex(buf, pntoh16(&addrp[4])); /* 4 bytes */
-    *buf = '\0'; /* 1 byte */
-}
-
 /*
  This function is very fast and this function is called a lot.
  XXX update the address_to_str stuff to use this function.
@@ -252,113 +238,6 @@ eui64_to_str(wmem_allocator_t *scope, const guint64 ad) {
     p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],
     p_eui64[4], p_eui64[5], p_eui64[6], p_eui64[7] );
     return buf;
-}
-
-static void
-usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
-{
-    if(pletoh32(&addrp[0])==0xffffffff){
-        g_snprintf(buf, buf_len, "host");
-    } else {
-        g_snprintf(buf, buf_len, "%d.%d.%d", pletoh16(&addrp[8]),
-                        pletoh32(&addrp[0]), pletoh32(&addrp[4]));
-    }
-}
-
-static void
-tipc_addr_to_str_buf( const guint8 *data, gchar *buf, int buf_len){
-    guint8 zone;
-    guint16 subnetwork;
-    guint16 processor;
-    guint32 tipc_address;
-
-    tipc_address = data[0];
-    tipc_address = (tipc_address << 8) ^ data[1];
-    tipc_address = (tipc_address << 8) ^ data[2];
-    tipc_address = (tipc_address << 8) ^ data[3];
-
-    processor = tipc_address & 0x0fff;
-
-    tipc_address = tipc_address >> 12;
-    subnetwork = tipc_address & 0x0fff;
-
-    tipc_address = tipc_address >> 12;
-    zone = tipc_address & 0xff;
-
-    g_snprintf(buf,buf_len,"%u.%u.%u",zone,subnetwork,processor);
-}
-
-static void
-ib_addr_to_str_buf( const address *addr, gchar *buf, int buf_len){
-    if (addr->len >= 16) { /* GID is 128bits */
-        #define PREAMBLE_STR_LEN ((int)(sizeof("GID: ") - 1))
-        g_snprintf(buf,buf_len,"GID: ");
-        if (buf_len < PREAMBLE_STR_LEN ||
-                inet_ntop(AF_INET6, addr->data, buf + PREAMBLE_STR_LEN,
-                          buf_len - PREAMBLE_STR_LEN) == NULL ) /* Returns NULL if no space and does not touch buf */
-            g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR ); /* Let the unexpected value alert user */
-    } else {    /* this is a LID (16 bits) */
-        guint16 lid_number;
-
-        memcpy((void *)&lid_number, addr->data, sizeof lid_number);
-        g_snprintf(buf,buf_len,"LID: %u",lid_number);
-    }
-}
-
-/* FC Network Header Network Address Authority Identifiers */
-
-#define FC_NH_NAA_IEEE          1   /* IEEE 802.1a */
-#define FC_NH_NAA_IEEE_E        2   /* IEEE Exteneded */
-#define FC_NH_NAA_LOCAL         3
-#define FC_NH_NAA_IP            4   /* 32-bit IP address */
-#define FC_NH_NAA_IEEE_R        5   /* IEEE Registered */
-#define FC_NH_NAA_IEEE_R_E      6   /* IEEE Registered Exteneded */
-/* according to FC-PH 3 draft these are now reclaimed and reserved */
-#define FC_NH_NAA_CCITT_INDV    12  /* CCITT 60 bit individual address */
-#define FC_NH_NAA_CCITT_GRP     14  /* CCITT 60 bit group address */
-
-static void
-fcwwn_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
-{
-    int fmt;
-    guint8 oui[6];
-    gchar *ethptr, *manuf_name;
-
-    if (buf_len < 200) {  /* This is mostly for manufacturer name */
-        g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
-        return;
-    }
-
-    ethptr = bytes_to_hexstr_punct(buf, addrp, 8, ':'); /* 23 bytes */
-    fmt = (addrp[0] & 0xF0) >> 4;
-    switch (fmt) {
-
-    case FC_NH_NAA_IEEE:
-    case FC_NH_NAA_IEEE_E:
-        memcpy (oui, &addrp[2], 6);
-
-        manuf_name = get_manuf_name(NULL, oui);
-        g_snprintf (ethptr, buf_len-23, " (%s)", manuf_name);
-        wmem_free(NULL, manuf_name);
-        break;
-
-    case FC_NH_NAA_IEEE_R:
-        oui[0] = ((addrp[0] & 0x0F) << 4) | ((addrp[1] & 0xF0) >> 4);
-        oui[1] = ((addrp[1] & 0x0F) << 4) | ((addrp[2] & 0xF0) >> 4);
-        oui[2] = ((addrp[2] & 0x0F) << 4) | ((addrp[3] & 0xF0) >> 4);
-        oui[3] = ((addrp[3] & 0x0F) << 4) | ((addrp[4] & 0xF0) >> 4);
-        oui[4] = ((addrp[4] & 0x0F) << 4) | ((addrp[5] & 0xF0) >> 4);
-        oui[5] = ((addrp[5] & 0x0F) << 4) | ((addrp[6] & 0xF0) >> 4);
-
-        manuf_name = get_manuf_name(NULL, oui);
-        g_snprintf (ethptr, buf_len-23, " (%s)", manuf_name);
-        wmem_free(NULL, manuf_name);
-        break;
-
-    default:
-        *ethptr = '\0';
-        break;
-    }
 }
 
 static void
@@ -418,30 +297,23 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     case AT_AX25:
         addr.len = AX25_ADDR_LEN;
         break;
-    case AT_IEEE_802_15_4_SHORT:
-        addr.len = 2;
-        break;
     case AT_ARCNET:
-    case AT_J1939:
         addr.len = 1;
         break;
-    case AT_DEVICENET:
-        addr.len = 1;
-        addr.data = GUINT_TO_POINTER((tvb_get_guint8(tvb, offset) & 0x3F));
-        return address_to_str(scope, &addr);
-    case AT_OSI:
-    case AT_SNA:
     case AT_SS7PC:
     case AT_STRINGZ:
     case AT_URI:
-    case AT_TIPC:
     case AT_IB:
         /* Have variable length fields, use tvb_address_var_to_str() */
     case AT_USB:
         /* These addresses are not supported through tvb accessor */
     default:
+        /* XXX - Removed because of dynamic address type range
+           XXX - Should we check that range?
         g_assert_not_reached();
         return NULL;
+        */
+        break;
     }
 
     switch (addr.len) {
@@ -485,131 +357,21 @@ gchar*
 address_to_str(wmem_allocator_t *scope, const address *addr)
 {
     gchar *str;
+    int len = address_type_get_length(addr);
 
-    str=(gchar *)wmem_alloc(scope, MAX_ADDR_STR_LEN);
-    address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
+    if (len <= 0)
+        len = MAX_ADDR_STR_LEN;
+
+    str=(gchar *)wmem_alloc(scope, len);
+    address_to_str_buf(addr, str, len);
     return str;
 }
 
 void
 address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {
-    const guint8 *addrdata;
-    struct atalk_ddp_addr ddp_addr;
-    guint16 ieee_802_15_4_short_addr;
-
-    char temp[32];
-    char *tempptr = temp;
-
-    if (!buf || !buf_len)
-        return;
-
-    switch(addr->type){
-    case AT_NONE:
-        buf[0] = '\0';
-        break;
-    case AT_ETHER: /* 18 bytes */
-        tempptr = bytes_to_hexstr_punct(tempptr, (const guint8 *)addr->data, 6, ':'); /* 17 bytes */
-        break;
-    case AT_IPv4:
-        ip_to_str_buf((const guint8 *)addr->data, buf, buf_len);
-        break;
-    case AT_IPv6:
-        ip6_to_str_buf_len((const guchar *)addr->data, buf, buf_len);
-        break;
-    case AT_IPX: /* 22 bytes */
-        addrdata = (const guint8 *)addr->data;
-        tempptr = bytes_to_hexstr(tempptr, &addrdata[0], 4); /* 8 bytes */
-        *tempptr++ = '.'; /*1 byte */
-        tempptr = bytes_to_hexstr(tempptr, &addrdata[4], 6); /* 12 bytes */
-        break;
-    case AT_SNA:
-        sna_fid_to_str_buf(addr, buf, buf_len);
-        break;
-    case AT_ATALK:
-        memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
-        atalk_addr_to_str_buf(&ddp_addr, buf, buf_len);
-        break;
-    case AT_VINES:
-        vines_addr_to_str_buf((const guint8 *)addr->data, buf, buf_len);
-        break;
-    case AT_USB:
-        usb_addr_to_str_buf((const guint8 *)addr->data, buf, buf_len);
-        break;
-    case AT_OSI:
-        print_nsap_net_buf((const guint8 *)addr->data, addr->len, buf, buf_len);
-        break;
-    case AT_ARCNET: /* 5 bytes */
-        tempptr = g_stpcpy(tempptr, "0x"); /* 2 bytes */
-        tempptr = bytes_to_hexstr(tempptr, (const guint8 *)addr->data, 1); /* 2 bytes */
-        break;
-    case AT_FC: /* 9 bytes */
-        tempptr = bytes_to_hexstr_punct(tempptr, (const guint8 *)addr->data, 3, '.'); /* 8 bytes */
-        break;
-    case AT_FCWWN:
-        fcwwn_addr_to_str_buf((const guint8 *)addr->data, buf, buf_len);
-        break;
-    case AT_SS7PC:
-        mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);
-        break;
-    case AT_STRINGZ:
-        g_strlcpy(buf, (const gchar *)addr->data, buf_len);
-        break;
-        case AT_EUI64: /* 24 bytes */
-        tempptr = bytes_to_hexstr_punct(tempptr, (const guint8 *)addr->data, 8, ':'); /* 23 bytes */
-        break;
-    case AT_URI: {
-        int copy_len = addr->len < (buf_len - 1) ? addr->len : (buf_len - 1);
-        memcpy(buf, addr->data, copy_len );
-        buf[copy_len] = '\0';
-        }
-        break;
-    case AT_TIPC:
-        tipc_addr_to_str_buf((const guint8 *)addr->data, buf, buf_len);
-        break;
-    case AT_IB:
-        ib_addr_to_str_buf(addr, buf, buf_len);
-        break;
-    case AT_AX25:
-        addrdata = (const guint8 *)addr->data;
-        g_snprintf(buf, buf_len, "%c%c%c%c%c%c-%02d",
-                printable_char_or_period(addrdata[0] >> 1),
-                printable_char_or_period(addrdata[1] >> 1),
-                printable_char_or_period(addrdata[2] >> 1),
-                printable_char_or_period(addrdata[3] >> 1),
-                printable_char_or_period(addrdata[4] >> 1),
-                printable_char_or_period(addrdata[5] >> 1),
-                (addrdata[6] >> 1) & 0x0f );
-        break;
-    case AT_IEEE_802_15_4_SHORT:
-        ieee_802_15_4_short_addr = pletoh16(addr->data);
-        if (ieee_802_15_4_short_addr == 0xffff)
-            g_snprintf(buf, buf_len, "Broadcast");
-        else
-            g_snprintf(buf, buf_len, "0x%04x", ieee_802_15_4_short_addr);
-        break;
-    case AT_J1939:
-        addrdata = (const guint8 *)addr->data;
-        g_snprintf(buf, buf_len, "%d", addrdata[0]);
-        break;
-    case AT_DEVICENET:
-        addrdata = (const guint8 *)addr->data;
-        g_snprintf(buf, buf_len, "%d", addrdata[0] & 0x3f);
-        break;
-    default:
-        g_assert_not_reached();
-    }
-
-    /* copy to output buffer */
-    if (tempptr != temp) {
-        size_t temp_len = (size_t) (tempptr - temp);
-
-        if (temp_len < (size_t) buf_len) {
-            memcpy(buf, temp, temp_len);
-            buf[temp_len] = '\0';
-        } else
-            g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);/* Let the unexpected value alert user */
-    }
+    /* XXX - Keep this here for now to save changing all of the include headers */
+    address_type_to_string(addr, buf, buf_len);
 }
 
 /*

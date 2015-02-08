@@ -1556,6 +1556,7 @@ set(LIBWIRESHARK_FILES
 	addr_and_mask.c
 	addr_resolv.c
 	address_to_str.c
+	address_types.c
 	afn.c
 	aftypes.c
 	app_mem_usage.c
@@ -1612,7 +1613,6 @@ set(LIBWIRESHARK_FILES
 	req_resp_hdrs.c
 	show_exception.c
 	sminmpec.c
-	sna-utils.c
 	stat_tap_ui.c
 	stats_tree.c
 	strutil.c

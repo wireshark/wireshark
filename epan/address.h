@@ -40,10 +40,8 @@ typedef enum {
     AT_IPv4,               /* IPv4 */
     AT_IPv6,               /* IPv6 */
     AT_IPX,                /* IPX */
-    AT_SNA,                /* SNA */
     AT_ATALK,              /* Appletalk DDP */
     AT_VINES,              /* Banyan Vines */
-    AT_OSI,                /* OSI NSAP */
     AT_ARCNET,             /* ARCNET */
     AT_FC,                 /* Fibre Channel */
     AT_FCWWN,              /* Fibre Channel WWN */
@@ -51,19 +49,16 @@ typedef enum {
     AT_STRINGZ,            /* null-terminated string */
     AT_EUI64,              /* IEEE EUI-64 */
     AT_URI,                /* URI/URL/URN */
-    AT_TIPC,               /* TIPC Address Zone,Subnetwork,Processor */
     AT_IB,                 /* Infiniband GID/LID */
     AT_USB,                /* USB Device address
                             * (0xffffffff represents the host) */
     AT_AX25,               /* AX.25 */
-    AT_IEEE_802_15_4_SHORT,/* IEEE 802.15.4 16-bit short address */
-                           /* (the long addresses are EUI-64's */
-    AT_J1939,              /* J1939 */
-    AT_DEVICENET           /* DeviceNet */
+
+    AT_END_OF_LIST         /* Must be last in list */
 } address_type;
 
 typedef struct _address {
-    address_type  type;         /* type of address */
+    int           type;         /* type of address */
     int           hf;           /* the specific field that this addr is */
     int           len;          /* length of address, in bytes */
     const void  *data;          /* pointer to address data */
@@ -78,7 +73,7 @@ typedef struct _address {
  * @param addr_data [in] Pointer to the address data.
  */
 static inline void
-set_address(address *addr, address_type addr_type, int addr_len, const void * addr_data) {
+set_address(address *addr, int addr_type, int addr_len, const void * addr_data) {
     addr->data = addr_data;
     addr->type = addr_type;
     addr->hf   = -1;

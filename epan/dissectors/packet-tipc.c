@@ -34,6 +34,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
+#include <epan/address_types.h>
 #include <epan/reassemble.h>
 
 #include "packet-tcp.h"
@@ -183,6 +184,8 @@ static gint ett_tipc = -1;
 static gint ett_tipc_data = -1;
 
 static expert_field ei_tipc_words_unused_for_user = EI_INIT;
+
+static int tipc_address_type = -1;
 
 /* protocol preferences */
 static gboolean tipc_defragment = TRUE;
@@ -574,16 +577,12 @@ tipc_defragment_init(void)
 	    &addresses_reassembly_table_functions);
 }
 
-
 static gchar*
-tipc_addr_to_str(guint tipc_address)
+tipc_addr_value_to_buf(guint tipc_address, gchar *buf, int buf_len)
 {
 	guint8 zone;
 	guint16 subnetwork;
 	guint16 processor;
-	gchar *buff;
-
-	buff = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_TIPC_ADDRESS_STR_LEN);
 
 	processor = tipc_address & 0x0fff;
 
@@ -593,10 +592,39 @@ tipc_addr_to_str(guint tipc_address)
 	tipc_address = tipc_address >> 12;
 	zone = tipc_address & 0xff;
 
-	g_snprintf(buff, MAX_TIPC_ADDRESS_STR_LEN, "%u.%u.%u", zone, subnetwork, processor);
-
-	return buff;
+	g_snprintf(buf, buf_len, "%u.%u.%u", zone, subnetwork, processor);
+	return buf;
 }
+
+static gchar*
+tipc_addr_to_str(guint tipc_address)
+{
+	gchar *buf;
+
+	buf = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_TIPC_ADDRESS_STR_LEN);
+	return tipc_addr_value_to_buf(tipc_address, buf, MAX_TIPC_ADDRESS_STR_LEN);
+}
+
+static gboolean
+tipc_addr_to_str_buf(const address* addr, gchar *buf, int buf_len)
+{
+	const guint8 *data = (const guint8 *)addr->data;
+	guint32 tipc_address;
+
+	tipc_address = data[0];
+	tipc_address = (tipc_address << 8) ^ data[1];
+	tipc_address = (tipc_address << 8) ^ data[2];
+	tipc_address = (tipc_address << 8) ^ data[3];
+
+	tipc_addr_value_to_buf(tipc_address, buf, buf_len);
+	return TRUE;
+}
+
+static int tipc_addr_str_len(const address* addr _U_)
+{
+	return MAX_TIPC_ADDRESS_STR_LEN;
+}
+
 
 /*
    All name distributor messages have a data part containing one or more table elements with
@@ -2069,18 +2097,18 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				/* Data type header */
 				if (hdr_size > 5 && user <4) {
 					/* W6 Originating Processor */
-					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 24, 4);
+					TVB_SET_ADDRESS(&pinfo->src, tipc_address_type, tipc_tvb, offset + 24, 4);
 
 					/* W7 Destination Processor */
-					TVB_SET_ADDRESS(&pinfo->dst, AT_TIPC, tipc_tvb, offset + 28, 4);
+					TVB_SET_ADDRESS(&pinfo->dst, tipc_address_type, tipc_tvb, offset + 28, 4);
 				} else {
 					/* Short data hdr */
 					/* W2 Previous Processor */
-					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 8, 4);
+					TVB_SET_ADDRESS(&pinfo->src, tipc_address_type, tipc_tvb, offset + 8, 4);
 				}
 			} else {
 				/* W2 Previous Processor */
-				TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 8, 4);
+				TVB_SET_ADDRESS(&pinfo->src, tipc_address_type, tipc_tvb, offset + 8, 4);
 			}
 			break;
 		case TIPCv2:
@@ -2105,28 +2133,28 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			if (datatype_hdr) {
 				if (hdr_size > 6) {
 					/* W6 Originating Processor */
-					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 24, 4);
+					TVB_SET_ADDRESS(&pinfo->src, tipc_address_type, tipc_tvb, offset + 24, 4);
 
 					/* W7 Destination Processor */
-					TVB_SET_ADDRESS(&pinfo->dst, AT_TIPC, tipc_tvb, offset + 28, 4);
+					TVB_SET_ADDRESS(&pinfo->dst, tipc_address_type, tipc_tvb, offset + 28, 4);
 				} else {
 					/* W3 Previous Processor */
-					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 12, 4);
+					TVB_SET_ADDRESS(&pinfo->src, tipc_address_type, tipc_tvb, offset + 12, 4);
 				}
 
 			} else {
 				if (user != TIPCv2_NEIGHBOUR_DISCOVERY) {
 					/* W6 Originating Processor */
-					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 24, 4);
+					TVB_SET_ADDRESS(&pinfo->src, tipc_address_type, tipc_tvb, offset + 24, 4);
 
 					/* W7 Destination Processor */
-					TVB_SET_ADDRESS(&pinfo->dst, AT_TIPC, tipc_tvb, offset + 28, 4);
+					TVB_SET_ADDRESS(&pinfo->dst, tipc_address_type, tipc_tvb, offset + 28, 4);
 				} else {
 					/* W2 Destination Domain */
-					TVB_SET_ADDRESS(&pinfo->dst, AT_TIPC, tipc_tvb, offset + 8, 4);
+					TVB_SET_ADDRESS(&pinfo->dst, tipc_address_type, tipc_tvb, offset + 8, 4);
 
 					/* W3 Previous Node */
-					TVB_SET_ADDRESS(&pinfo->src, AT_TIPC, tipc_tvb, offset + 12, 4);
+					TVB_SET_ADDRESS(&pinfo->src, tipc_address_type, tipc_tvb, offset + 12, 4);
 				}
 			}
 			break;
@@ -2932,6 +2960,8 @@ proto_register_tipc(void)
 
 	/* Register configuration options */
 	tipc_module = prefs_register_protocol(proto_tipc, proto_reg_handoff_tipc);
+
+	tipc_address_type = address_type_dissector_register("tipc_address_type", "TIPC Address Zone,Subnetwork,Processor", tipc_addr_to_str_buf, tipc_addr_str_len);
 
 	/* Set default ports */
 	range_convert_str(&global_tipc_udp_port_range, DEFAULT_TIPC_PORT_RANGE, MAX_TCP_PORT);

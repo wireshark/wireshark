@@ -25,6 +25,7 @@ LIBWIRESHARK_SRC =		\
 	addr_and_mask.c		\
 	addr_resolv.c		\
 	address_to_str.c	\
+	address_types.c	\
 	afn.c			\
 	aftypes.c		\
 	app_mem_usage.c		\
@@ -80,7 +81,6 @@ LIBWIRESHARK_SRC =		\
 	req_resp_hdrs.c		\
 	show_exception.c	\
 	sminmpec.c		\
-	sna-utils.c		\
 	stat_tap_ui.c		\
 	stats_tree.c		\
 	strutil.c		\
@@ -146,6 +146,7 @@ LIBWIRESHARK_INCLUDES =		\
 	addr_and_mask.h		\
 	addr_resolv.h		\
 	address.h		\
+	address_types.h		\
 	afn.h			\
 	aftypes.h		\
 	app_mem_usage.h		\
@@ -235,7 +236,6 @@ LIBWIRESHARK_INCLUDES =		\
 	show_exception.h	\
 	slow_protocol_subtypes.h \
 	sminmpec.h		\
-	sna-utils.h		\
 	stat_tap_ui.h		\
 	stat_groups.h		\
 	stats_tree.h		\

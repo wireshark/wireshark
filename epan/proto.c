@@ -39,6 +39,7 @@
 #include "ptvcursor.h"
 #include "strutil.h"
 #include "addr_resolv.h"
+#include "address_types.h"
 #include "oids.h"
 #include "proto.h"
 #include "epan_dissect.h"
@@ -463,6 +464,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
+
+	/* Initialize the addres type subsystem */
+	address_types_initialize();
 
 	/* Register one special-case FT_TEXT_ONLY field for use when
 	   converting wireshark to new-style proto_tree. These fields

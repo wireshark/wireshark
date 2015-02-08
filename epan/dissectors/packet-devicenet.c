@@ -30,6 +30,8 @@
 #include <epan/uat.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/address_types.h>
+#include <epan/to_str-int.h>
 #include "packet-cip.h"
 
 void proto_register_devicenet(void);
@@ -105,6 +107,8 @@ static expert_field ei_devicenet_invalid_service = EI_INIT;
 static expert_field ei_devicenet_invalid_can_id = EI_INIT;
 static expert_field ei_devicenet_invalid_msg_id = EI_INIT;
 static expert_field ei_devicenet_frag_not_supported = EI_INIT;
+
+static int devicenet_address_type = -1;
 
 enum node_behavior {
     NODE_BEHAVIOR_8_8   = 0,
@@ -449,7 +453,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
         *src_address = (guint8)(can_id.id & MESSAGE_GROUP_1_MAC_ID_MASK);
-        SET_ADDRESS(&pinfo->src, AT_DEVICENET, 1, (const void*)src_address);
+        SET_ADDRESS(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
 
         message_id = can_id.id & MESSAGE_GROUP_1_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg1_vals, "Other Group 1 Message"));
@@ -474,7 +478,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
         *src_address = (guint8)((can_id.id & MESSAGE_GROUP_2_MAC_ID_MASK) >> 3);
-        SET_ADDRESS(&pinfo->src, AT_DEVICENET, 1, (const void*)src_address);
+        SET_ADDRESS(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
 
         content_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_contents, NULL, "Contents");
 
@@ -520,7 +524,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
         *src_address = (guint8)(can_id.id & MESSAGE_GROUP_3_MAC_ID_MASK);
-        SET_ADDRESS(&pinfo->src, AT_DEVICENET, 1, (const void*)src_address);
+        SET_ADDRESS(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
 
         message_id = can_id.id & MESSAGE_GROUP_3_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg3_vals, "Unknown"));
@@ -535,7 +539,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* XXX - This may be source address depending on message type.  Need to adjust accordingly) */
         dest_address = (guint8*)wmem_alloc(pinfo->pool, 1);
         *dest_address = (guint8)source_mac;
-        SET_ADDRESS(&pinfo->dst, AT_DEVICENET, 1, (const void*)dest_address);
+        SET_ADDRESS(&pinfo->dst, devicenet_address_type, 1, (const void*)dest_address);
         offset++;
 
         if (byte1 & MESSAGE_GROUP_3_FRAG_MASK)
@@ -771,7 +775,21 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     "Invalid CAN Message 0x%04X", can_id.id);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
+}
+
+static gboolean devicenet_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+    guint8 addrdata = *((guint8*)addr->data) & 0x3F;
+
+    buf = uint_to_str_back(buf, addrdata);
+    *buf = '\0';
+    return TRUE;
+}
+
+static int devicenet_addr_str_len(const address* addr _U_)
+{
+    return 11; /* Leaves required space (10 bytes) for uint_to_str_back() */
 }
 
 void proto_register_devicenet(void)
@@ -1003,6 +1021,8 @@ void proto_register_devicenet(void)
     expert_register_field_array(expert_devicenet, ei, array_length(ei));
 
     new_register_dissector("devicenet", dissect_devicenet, proto_devicenet);
+
+    devicenet_address_type = address_type_dissector_register("AT_DEVICENET", "DeviceNet Address", devicenet_addr_to_str, devicenet_addr_str_len);
 
     devicenet_module = prefs_register_protocol(proto_devicenet, NULL);
 

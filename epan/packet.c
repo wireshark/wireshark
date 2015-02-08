@@ -37,7 +37,6 @@
 #include "packet.h"
 #include "timestamp.h"
 
-#include "sna-utils.h"
 #include "osi-utils.h"
 #include "to_str.h"
 
