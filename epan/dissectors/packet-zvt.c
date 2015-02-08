@@ -90,13 +90,15 @@ typedef struct _apdu_info_t {
 #define CTRL_INIT          0x0693
 #define CTRL_PRINT_LINE    0x06D1
 
+static void dissect_zvt_reg(
+        tvbuff_t *tvb, gint offset, guint16 len, packet_info *pinfo, proto_tree *tree);
 static void dissect_zvt_auth(
         tvbuff_t *tvb, gint offset, guint16 len, packet_info *pinfo, proto_tree *tree);
 
 static const apdu_info_t apdu_info[] = {
     { CTRL_STATUS, 0, DIRECTION_PT_TO_ECR, NULL },
     { CTRL_INT_STATUS, 0, DIRECTION_PT_TO_ECR, NULL },
-    { CTRL_REGISTRATION, 4, DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_REGISTRATION, 4, DIRECTION_ECR_TO_PT, dissect_zvt_reg },
     /* authorisation has at least a 0x04 tag and 6 bytes for the amount */
     { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, dissect_zvt_auth },
     { CTRL_COMPLETION, 0, DIRECTION_PT_TO_ECR, NULL },
@@ -126,6 +128,8 @@ static int hf_zvt_ccrc = -1;
 static int hf_zvt_aprc = -1;
 static int hf_zvt_len = -1;
 static int hf_zvt_data = -1;
+static int hf_zvt_reg_pwd = -1;
+static int hf_zvt_reg_cfg = -1;
 static int hf_zvt_auth_tag = -1;
 
 static const value_string serial_char[] = {
@@ -188,6 +192,17 @@ static const value_string auth_tag[] = {
     { 0, NULL }
 };
 static value_string_ext auth_tag_ext = VALUE_STRING_EXT_INIT(auth_tag);
+
+
+static void
+dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_zvt_reg_pwd, tvb, offset, 3, ENC_NA);
+    offset += 3;
+    proto_tree_add_item(tree, hf_zvt_reg_cfg,
+            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+}
 
 
 static void
@@ -529,6 +544,12 @@ proto_register_zvt(void)
         { &hf_zvt_data,
           { "APDU data", "zvt.data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_reg_pwd,
+            { "Password", "zvt.reg.password",
+                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_reg_cfg,
+            { "Config byte", "zvt.reg.config_byte",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_zvt_auth_tag,
             { "Tag", "zvt.auth.tag", FT_UINT8,
                 BASE_HEX|BASE_EXT_STRING, &auth_tag_ext, 0, NULL, HFILL } }
