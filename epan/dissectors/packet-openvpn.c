@@ -58,6 +58,7 @@ void proto_reg_handoff_openvpn(void);
 #define P_DATA_V1                       6
 #define P_CONTROL_HARD_RESET_CLIENT_V2  7
 #define P_CONTROL_HARD_RESET_SERVER_V2  8
+#define P_DATA_V2                       9
 
 static gint ett_openvpn = -1;
 static gint ett_openvpn_data = -1;
@@ -77,6 +78,7 @@ static gint hf_openvpn_pid = -1;
 static gint hf_openvpn_plen = -1;
 static gint hf_openvpn_rsessionid = -1;
 static gint hf_openvpn_sessionid = -1;
+static gint hf_openvpn_peerid = -1;
 static gint proto_openvpn = -1;
 
 static dissector_handle_t openvpn_udp_handle;
@@ -102,6 +104,7 @@ static const value_string openvpn_message_types[] =
   {   P_DATA_V1,                       "P_DATA_V1" },
   {   P_CONTROL_HARD_RESET_CLIENT_V2,  "P_CONTROL_HARD_RESET_CLIENT_V2" },
   {   P_CONTROL_HARD_RESET_SERVER_V2,  "P_CONTROL_HARD_RESET_SERVER_V2" },
+  {   P_DATA_V2,                       "P_DATA_V2" },
   {   0, NULL }
 };
 
@@ -218,8 +221,12 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
   proto_tree_add_item(type_tree, hf_openvpn_keyid, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  /* if we have a P_CONTROL or P_ACK packet */
-  if (openvpn_opcode != P_DATA_V1) {
+  if (openvpn_opcode == P_DATA_V2) {
+    proto_tree_add_item(openvpn_tree, hf_openvpn_peerid, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+  } else if (openvpn_opcode != P_DATA_V1) {
+    /* if we have a P_CONTROL or P_ACK packet */
+
     /* read sessionid */
     msg_sessionid = tvb_get_bits32(tvb, offset*8+32, 32, ENC_BIG_ENDIAN);
     proto_tree_add_item(openvpn_tree, hf_openvpn_sessionid, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -447,6 +454,12 @@ proto_register_openvpn(void)
       { "Key ID", "openvpn.keyid",
       FT_UINT8, BASE_DEC,
       NULL, P_KEY_ID_MASK,
+      NULL, HFILL }
+    },
+    { &hf_openvpn_peerid,
+      { "Peer ID", "openvpn.peerid",
+      FT_UINT24, BASE_DEC,
+      NULL, 0x0,
       NULL, HFILL }
     },
     { &hf_openvpn_sessionid,
