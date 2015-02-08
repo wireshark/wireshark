@@ -4163,7 +4163,7 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dat
       /*
        * data after header
        */
-      if (cklen != 0)
+      if (cklen > 0)
         {
           crc = crc32_mpeg2_seed(tvb_get_ptr(tvb, 36 + 2, cklen), cklen, ~crc);
           crc = ~crc;
