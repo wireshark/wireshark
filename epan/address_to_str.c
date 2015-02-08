@@ -246,7 +246,6 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     address addr;
 
     addr.type = type;
-    addr.hf = -1;
 
     switch(type)
     {
@@ -325,11 +324,6 @@ gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_ty
    a table of routines to do operations such as address-to-name translation,
    address-to-string translation, and the like, and have this call them,
    and also have an address-to-string-with-a-name routine */
-/* XXX - use this, and that future address-to-string-with-a-name routine,
-   in "col_set_addr()"; it might also be useful to have address types
-   export the names of the source and destination address fields, so
-   that "col_set_addr()" need know nothing whatsoever about particular
-   address types */
 /* convert an address struct into a printable string */
 
 gchar*

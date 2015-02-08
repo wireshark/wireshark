@@ -57,7 +57,7 @@ struct _address_type_t {
     /* XXX - Include functions for name resolution? ***/
 };
 
-#define MAX_DISSECTOR_ADDR_TYPE     15
+#define MAX_DISSECTOR_ADDR_TYPE     20
 #define MAX_ADDR_TYPE_VALUE (AT_END_OF_LIST+MAX_DISSECTOR_ADDR_TYPE)
 
 static int num_dissector_addr_type;
@@ -119,13 +119,13 @@ int address_type_dissector_register(const char* name, const char* pretty_name,
 /******************************************************************************
  * AT_NONE
  ******************************************************************************/
-static gboolean none_addr_to_str(const address* addr _U_, gchar *buf, int buf_len _U_)
+gboolean none_addr_to_str(const address* addr _U_, gchar *buf, int buf_len _U_)
 {
     buf[0] = '\0';
     return TRUE;
 }
 
-static int none_addr_str_len(const address* addr _U_)
+int none_addr_str_len(const address* addr _U_)
 {
     return 1; /* NULL character for empty string */
 }
@@ -133,14 +133,14 @@ static int none_addr_str_len(const address* addr _U_)
 /******************************************************************************
  * AT_ETHER
  ******************************************************************************/
-static gboolean ether_to_str(const address* addr, gchar *buf, int buf_len _U_)
+gboolean ether_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     bytes_to_hexstr_punct(buf, (const guint8*)addr->data, 6, ':');
     buf[17] = '\0';
     return TRUE;
 }
 
-static int ether_str_len(const address* addr _U_)
+int ether_str_len(const address* addr _U_)
 {
     return 18;
 }

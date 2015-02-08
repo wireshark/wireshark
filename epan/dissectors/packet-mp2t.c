@@ -34,6 +34,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include <epan/address_types.h>
 
 #include <epan/tvbuff-int.h> /* XXX, for tvb_new_proxy() */
 
@@ -163,6 +164,7 @@ static int hf_mp2t_af_e_m_3 = -1;
 static int hf_mp2t_stuff_bytes = -1;
 static int hf_mp2t_pointer = -1;
 
+static int mp2t_no_address_type = -1;
 
 static const value_string mp2t_sync_byte_vals[] = {
     { MP2T_SYNC_BYTE, "Correct" },
@@ -529,8 +531,8 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
     /* It's possible that a fragment in the same packet set an address already
      * This will change the hash value, we need to make sure it's NULL */
 
-    SET_ADDRESS_HF(&pinfo->src, AT_NONE, 0, NULL, 0);
-    SET_ADDRESS_HF(&pinfo->dst, AT_NONE, 0, NULL, 0);
+    SET_ADDRESS(&pinfo->src, mp2t_no_address_type, 0, NULL);
+    SET_ADDRESS(&pinfo->dst, mp2t_no_address_type, 0, NULL);
 
     /* check length; send frame for reassembly */
     frag_msg = fragment_add_check(&mp2t_reassembly_table,
@@ -1510,6 +1512,8 @@ proto_register_mp2t(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_mp2t = expert_register_protocol(proto_mp2t);
     expert_register_field_array(expert_mp2t, ei, array_length(ei));
+
+    mp2t_no_address_type = address_type_dissector_register("AT_MP2T_NONE", "No MP2T Address", none_addr_to_str, none_addr_str_len, NULL);
 
     heur_subdissector_list = register_heur_dissector_list("mp2t.pid");
     /* Register init of processing of fragmented DEPI packets */

@@ -84,6 +84,7 @@
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
 #include <epan/addr_resolv.h>
+#include <epan/address_types.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
@@ -5228,6 +5229,9 @@ static const enum_val_t wlan_ignore_wep_options[] = {
   { NULL,         NULL,               0                     }
 };
 
+static int wlan_address_type = -1;
+static int wlan_bssid_address_type = -1;
+
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
@@ -5368,6 +5372,21 @@ wlan_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
   return 1;
 }
+
+const char* wlan_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+  if (is_src)
+    return "wlan.sa";
+
+  return "wlan.da";
+}
+
+const char* wlan_bssid_col_filter_str(const address* addr _U_, gboolean is_src _U_)
+{
+  return "wlan.bssid";
+}
+
+
 static void
 beacon_interval_base_custom(gchar *result, guint32 beacon_interval)
 {
@@ -16313,13 +16332,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       /*
        * All management frame types have the same header.
        */
-      TVB_SET_ADDRESS_HF(&pinfo->dl_src, AT_ETHER, tvb, 10, 6, hf_ieee80211_addr_sa);
+      TVB_SET_ADDRESS(&pinfo->dl_src, wlan_address_type, tvb, 10, 6);
       COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
-      TVB_SET_ADDRESS_HF(&pinfo->dl_dst, AT_ETHER, tvb, 4, 6, hf_ieee80211_addr_da);
+      TVB_SET_ADDRESS(&pinfo->dl_dst, wlan_address_type, tvb, 4, 6);
       COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
 
       /* for tap */
-      TVB_SET_ADDRESS_HF(&whdr->bssid, AT_ETHER, tvb, 16, 6, hf_ieee80211_addr_bssid);
+      TVB_SET_ADDRESS(&whdr->bssid, wlan_bssid_address_type, tvb, 16, 6);
       COPY_ADDRESS_SHALLOW(&whdr->src, &pinfo->dl_src);
       COPY_ADDRESS_SHALLOW(&whdr->dst, &pinfo->dl_dst);
       whdr->type = frame_type_subtype;
@@ -16956,14 +16975,14 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       dst = tvb_get_ptr(tvb, dst_offset, 6);
       bssid = tvb_get_ptr(tvb, bssid_offset, 6);
 
-      SET_ADDRESS_HF(&pinfo->dl_src, AT_ETHER, 6, src, hf_ieee80211_addr_sa);
+      SET_ADDRESS(&pinfo->dl_src, wlan_address_type, 6, src);
       COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
-      SET_ADDRESS_HF(&pinfo->dl_dst, AT_ETHER, 6, dst, hf_ieee80211_addr_da);
+      SET_ADDRESS(&pinfo->dl_dst, wlan_address_type, 6, dst);
       COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
 
       /* for tap */
 
-      SET_ADDRESS_HF(&whdr->bssid, AT_ETHER, 6, bssid, hf_ieee80211_addr_bssid);
+      SET_ADDRESS(&whdr->bssid, wlan_bssid_address_type, 6, bssid);
       COPY_ADDRESS_SHALLOW(&whdr->src, &pinfo->dl_src);
       COPY_ADDRESS_SHALLOW(&whdr->dst, &pinfo->dl_dst);
       whdr->type = frame_type_subtype;
@@ -26533,6 +26552,9 @@ proto_register_ieee80211 (void)
 
   wlan_tap = register_tap("wlan");
   register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet, wlan_hostlist_packet);
+
+  wlan_address_type = address_type_dissector_register("AT_ETHER_WLAN", "WLAN Address", ether_to_str, ether_str_len, wlan_col_filter_str);
+  wlan_bssid_address_type = address_type_dissector_register("AT_ETHER_BSSID", "WLAN BSSID Address", ether_to_str, ether_str_len, wlan_bssid_col_filter_str);
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);

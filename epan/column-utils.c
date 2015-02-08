@@ -1855,18 +1855,6 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
   /* For address types that have a filter, create a string */
   if (strlen(pinfo->cinfo->col_expr.col_expr[col]) > 0)
     address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
-
-  /* Some addresses (e.g. ieee80211) use a standard format like AT_ETHER but
-   * don't use the same hf_ value (and thus don't use the same filter string).
-   * Such address can use the SET_ADDRESS_HF macro to pass in the specific hf_
-   * value they use. If they did so, we overwrite the default filter string
-   * with their specific one here. See bug #7728 for further discussion.
-   * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7728 */
-  /* XXX - can the new address types fix this and prevent the need for this logic? */
-  if (addr->hf != -1) {
-    pinfo->cinfo->col_expr.col_expr[col] = proto_registrar_get_nth(addr->hf)->abbrev;
-  }
-
 }
 
 /* ------------------------ */

@@ -30,7 +30,13 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Types of addresses Wireshark knows about. */
+/* Types of "global" addresses Wireshark knows about. */
+/* Address types can be added here if there are many dissectors that use them or just
+ * within a specific dissector.
+ * If an address type is added here, it must be "registered" within address_types.c
+ * For dissector address types, just use the address_type_dissector_register function
+ * from address_types.h
+ */
 /* If a new address type is added here, a string representation procedure should also be */
 /* included in address_to_str_buf defined in address_to_str.c, for presentation purposes */
 
@@ -56,7 +62,6 @@ typedef enum {
 
 typedef struct _address {
     int           type;         /* type of address */
-    int           hf;           /* the specific field that this addr is */
     int           len;          /* length of address, in bytes */
     const void  *data;          /* pointer to address data */
 } address;
@@ -73,7 +78,6 @@ static inline void
 set_address(address *addr, int addr_type, int addr_len, const void * addr_data) {
     addr->data = addr_data;
     addr->type = addr_type;
-    addr->hf   = -1;
     addr->len  = addr_len;
 }
 #define SET_ADDRESS(addr, addr_type, addr_len, addr_data) \
@@ -98,47 +102,6 @@ set_address(address *addr, int addr_type, int addr_len, const void * addr_data) 
     do {                            \
         const void *TVB_SET_ADDRESS_data = (const void *)tvb_get_ptr(tvb, offset, addr_len); \
         set_address((addr), (addr_type), (addr_len), TVB_SET_ADDRESS_data); \
-    } while (0)
-
-/** Initialize an address with the given values including an associated field.
- *
- * @param addr [in,out] The address to initialize.
- * @param addr_type [in] Address type.
- * @param addr_len [in] The length in bytes of the address data. For example, 4 for
- *                 AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
- * @param addr_data [in] Pointer to the address data.
- * @param addr_hf [in] The header field index to associate with the address.
- */
-static inline void
-set_address_hf(address *addr, address_type addr_type, int addr_len, const void * addr_data, int addr_hf) {
-    addr->data = addr_data;
-    addr->type = addr_type;
-    addr->hf   = addr_hf;
-    addr->len  = addr_len;
-}
-#define SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) \
-    set_address_hf((addr), (addr_type), (addr_len), (addr_data), (addr_hf))
-
-/** Initialize an address from TVB data including an associated field.
- *
- * Same as SET_ADDRESS_HF but it takes a TVB and an offset. This is preferred
- * over passing the return value of tvb_get_ptr() to set_address().
- *
- * This calls tvb_get_ptr() (including throwing any exceptions) before
- * modifying the address.
- *
- * @param addr [in,out] The address to initialize.
- * @param addr_type [in] Address type.
- * @param tvb [in] Pointer to the TVB.
- * @param offset [in] Offset within the TVB.
- * @param addr_len [in] The length in bytes of the address data. For example, 4 for
- *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
- * @param addr_hf [in] The header field index to associate with the address.
- */
-#define TVB_SET_ADDRESS_HF(addr, addr_type, tvb, offset, addr_len, addr_hf) \
-    do {                            \
-        const void *TVB_SET_ADDRESS_data = (const void *) tvb_get_ptr(tvb, offset, addr_len); \
-        set_address_hf((addr), (addr_type), (addr_len), TVB_SET_ADDRESS_data, (addr_hf)); \
     } while (0)
 
 /** Compare two addresses.
@@ -194,7 +157,6 @@ copy_address(address *to, const address *from) {
 
     to->type = from->type;
     to->len = from->len;
-    to->hf = from->hf;
     to_data = (guint8 *)g_malloc(from->len);
     memcpy(to_data, from->data, from->len);
     to->data = to_data;
@@ -213,7 +175,6 @@ copy_address_shallow(address *to, const address *from) {
     /*
     to->type = from->type;
     to->len = from->len;
-    to->hf = from->hf;
     to->data = from->data;
     */
 }

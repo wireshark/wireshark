@@ -1638,8 +1638,8 @@ guint8
 dvbci_get_evt_from_addrs(packet_info *pinfo)
 {
     /* this should be working from C89 on */
-    static const address a_cam  = { AT_STRINGZ, -1, sizeof(ADDR_CAM), ADDR_CAM };
-    static const address a_host = { AT_STRINGZ, -1, sizeof(ADDR_HOST), ADDR_HOST };
+    static const address a_cam  = { AT_STRINGZ, sizeof(ADDR_CAM), ADDR_CAM };
+    static const address a_host = { AT_STRINGZ, sizeof(ADDR_HOST), ADDR_HOST };
 
     if ( ADDRESSES_EQUAL(&(pinfo->src), &a_cam) &&
          ADDRESSES_EQUAL(&(pinfo->dst), &a_host) ) {

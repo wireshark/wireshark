@@ -41,6 +41,14 @@ int address_type_dissector_register(const char* name, const char* pretty_name,
 
 void address_types_initialize(void);
 
+/* Address type functions used by multiple (dissector) address types */
+gboolean none_addr_to_str(const address* addr, gchar *buf, int buf_len);
+int none_addr_str_len(const address* addr);
+gboolean ether_to_str(const address* addr, gchar *buf, int buf_len);
+int ether_str_len(const address* addr);
+
+
+
 /* XXX - Temporary?  Here at least until all of the address type handling is finalized
  * Otherwise should be folded into address_types.c or just be handled with function pointers
  */
