@@ -34,6 +34,8 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
+#include <epan/address_types.h>
+#include <epan/to_str-int.h>
 #include "packet-mstp.h"
 
 void proto_register_mstp(void);
@@ -91,6 +93,7 @@ static int hf_mstp_frame_checksum_good = -1;
 static expert_field ei_mstp_frame_pdu_len = EI_INIT;
 static expert_field ei_mstp_frame_checksum_bad = EI_INIT;
 
+static int mstp_address_type = -1;
 
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 /* Accumulate "dataValue" into the CRC in crcValue. */
@@ -144,6 +147,29 @@ mstp_frame_type_text(guint32 val)
 	return val_to_str(val,
 		bacnet_mstp_frame_type_name,
 		"Unknown Frame Type (%u)");
+}
+
+static gboolean mstp_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+	*buf++ = '0';
+	*buf++ = 'x';
+	buf = bytes_to_hexstr(buf, (const guint8 *)addr->data, 1);
+	*buf = '\0'; /* NULL terminate */
+
+	return TRUE;
+}
+
+static int mstp_str_len(const address* addr _U_)
+{
+	return 5;
+}
+
+static const char* mstp_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+	if (is_src)
+		return "mstp.src";
+
+	return "mstp.dst";
 }
 
 /* dissects a BACnet MS/TP frame */
@@ -323,11 +349,10 @@ dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
 	/* set the MS/TP MAC address in the source/destination */
-	/* Use AT_ARCNET since it is similar to BACnet MS/TP */
-	TVB_SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, tvb, offset+3, 1);
-	TVB_SET_ADDRESS(&pinfo->dst,	AT_ARCNET, tvb, offset+3, 1);
-	TVB_SET_ADDRESS(&pinfo->dl_src,	AT_ARCNET, tvb, offset+4, 1);
-	TVB_SET_ADDRESS(&pinfo->src,	AT_ARCNET, tvb, offset+4, 1);
+	TVB_SET_ADDRESS(&pinfo->dl_dst,	mstp_address_type, tvb, offset+3, 1);
+	TVB_SET_ADDRESS(&pinfo->dst,	mstp_address_type, tvb, offset+3, 1);
+	TVB_SET_ADDRESS(&pinfo->dl_src,	mstp_address_type, tvb, offset+4, 1);
+	TVB_SET_ADDRESS(&pinfo->src,	mstp_address_type, tvb, offset+4, 1);
 
 #ifdef BACNET_MSTP_SUMMARY_IN_TREE
 	mstp_frame_type = tvb_get_guint8(tvb, offset+2);
@@ -434,6 +459,8 @@ proto_register_mstp(void)
 	subdissector_table = register_dissector_table("mstp.vendor_frame_type",
 	    "MSTP Vendor specific Frametypes", FT_UINT24, BASE_DEC);
 	/* Table_type: (Vendor ID << 16) + Frametype */
+
+	mstp_address_type = address_type_dissector_register("AT_MSTP", "BACnet MS/TP Address", mstp_to_str, mstp_str_len, mstp_col_filter_str);
 }
 
 void

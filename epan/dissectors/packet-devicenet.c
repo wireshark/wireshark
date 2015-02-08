@@ -1022,7 +1022,7 @@ void proto_register_devicenet(void)
 
     new_register_dissector("devicenet", dissect_devicenet, proto_devicenet);
 
-    devicenet_address_type = address_type_dissector_register("AT_DEVICENET", "DeviceNet Address", devicenet_addr_to_str, devicenet_addr_str_len);
+    devicenet_address_type = address_type_dissector_register("AT_DEVICENET", "DeviceNet Address", devicenet_addr_to_str, devicenet_addr_str_len, NULL);
 
     devicenet_module = prefs_register_protocol(proto_devicenet, NULL);
 

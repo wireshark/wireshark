@@ -95,20 +95,6 @@ WS_DLL_PUBLIC char	*decode_bitfield_value(char *buf, const guint64 val, const gu
 
 WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
 
-/*
- * Routines to take a DDP address and generate a string.
- */
-/*
- * Structure used to represent a DDP address; gives the layout of the
- * data pointed to by an AT_ATALK "address" structure.
- */
-struct atalk_ddp_addr {
-	guint16	net;
-	guint8	node;
-};
-
-extern gchar *atalk_addr_to_str(const struct atalk_ddp_addr *addrp);
-
 /** Turn an address type retrieved from a tvb into a string.
  *
  * @param scope memory allocation scheme used

@@ -240,22 +240,6 @@ eui64_to_str(wmem_allocator_t *scope, const guint64 ad) {
     return buf;
 }
 
-static void
-atalk_addr_to_str_buf(const struct atalk_ddp_addr *addrp, gchar *buf, int buf_len)
-{
-  g_snprintf(buf, buf_len, "%u.%u", addrp->net, addrp->node );
-}
-
-gchar *
-atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
-{
-  gchar *cur;
-
-  cur=(gchar *)wmem_alloc(wmem_packet_scope(), 14);
-  atalk_addr_to_str_buf(addrp, cur, 14);
-  return cur;
-}
-
 gchar*
 tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset)
 {
@@ -281,7 +265,6 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     case AT_IPX:
         addr.len = 10;
         break;
-    case AT_ATALK:
     case AT_FC:
         addr.len = 3;
         break;
@@ -297,12 +280,8 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, co
     case AT_AX25:
         addr.len = AX25_ADDR_LEN;
         break;
-    case AT_ARCNET:
-        addr.len = 1;
-        break;
     case AT_SS7PC:
     case AT_STRINGZ:
-    case AT_URI:
     case AT_IB:
         /* Have variable length fields, use tvb_address_var_to_str() */
     case AT_USB:

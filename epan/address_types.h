@@ -30,14 +30,14 @@ extern "C" {
 
 typedef gboolean (*AddrValueToString)(const address* addr, gchar *buf, int buf_len);
 typedef int (*AddrValueToStringLen)(const address* addr);
+typedef const char* (*AddrColFilterString)(const address* addr, gboolean src);
 
 struct _address_type_t;
 typedef struct _address_type_t address_type_t;
 
-void address_type_register(int address_type, address_type_t *at);
-
 int address_type_dissector_register(const char* name, const char* pretty_name,
-                                    AddrValueToString to_str_func, AddrValueToStringLen str_len_func);
+                                    AddrValueToString to_str_func, AddrValueToStringLen str_len_func,
+                                    AddrColFilterString col_filter_str_func);
 
 void address_types_initialize(void);
 
@@ -46,6 +46,7 @@ void address_types_initialize(void);
  */
 int address_type_get_length(const address* addr);
 void address_type_to_string(const address* addr, gchar *buf, int buf_len);
+const char* address_type_column_filter_string(const address* addr, gboolean src);
 
 
 #ifdef __cplusplus

@@ -38,6 +38,7 @@
 #include <epan/conversation_table.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/address_types.h>
 #include <wsutil/str_util.h>
 
 #include "packet-jxta.h"
@@ -161,6 +162,8 @@ static gint *const ett[] = {
     &ett_jxta_elem_2_flags
 };
 
+static int uri_address_type = -1;
+
 /**
 *   global preferences
 **/
@@ -191,13 +194,13 @@ typedef struct jxta_stream_conversation_data jxta_stream_conversation_data;
 
 static const char* jxta_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_URI))
+    if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == uri_address_type))
         return "jxta.message.src";
 
-    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == AT_URI))
+    if ((filter == CONV_FT_DST_ADDRESS) && (conv->dst_address.type == uri_address_type))
         return "jxta.message.dst";
 
-    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == AT_URI))
+    if ((filter == CONV_FT_ANY_ADDRESS) && (conv->src_address.type == uri_address_type))
         return "jxta.message.address";
 
     return CONV_FILTER_INVALID;
@@ -219,7 +222,7 @@ jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt 
 
 static const char* jxta_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
 {
-    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == AT_URI))
+    if ((filter == CONV_FT_ANY_ADDRESS) && (host->myaddress.type == uri_address_type))
         return "jxta.message.address";
 
     return CONV_FILTER_INVALID;
@@ -239,6 +242,27 @@ jxta_hostlist_packet(void *pit, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     add_hostlist_table_data(hash, &jxtahdr->src_address, 0, TRUE, 1, jxtahdr->size, &jxta_host_dissector_info, PT_NONE);
     add_hostlist_table_data(hash, &jxtahdr->dest_address, 0, FALSE, 1, jxtahdr->size, &jxta_host_dissector_info, PT_NONE);
     return 1;
+}
+
+static gboolean uri_to_str(const address* addr, gchar *buf, int buf_len)
+{
+    int copy_len = addr->len < (buf_len - 1) ? addr->len : (buf_len - 1);
+    memcpy(buf, addr->data, copy_len );
+    buf[copy_len] = '\0';
+    return TRUE;
+}
+
+static int uri_str_len(const address* addr)
+{
+    return addr->len+1;
+}
+
+static const char* uri_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+    if (is_src)
+        return "uri.src";
+
+    return "uri.dst";
 }
 
 /**
@@ -907,7 +931,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             col_append_str(pinfo->cinfo, COL_INFO, *current_token);
 
             if (NULL != found_addr) {
-                found_addr->type = AT_URI;
+                found_addr->type = uri_address_type;
                 found_addr->len = (int) strlen(*current_token);
                 found_addr->data = wmem_strdup(wmem_file_scope(), *current_token);
             }
@@ -1308,7 +1332,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             }
         }
 
-        if ((AT_URI == pinfo->src.type) && (AT_URI == pinfo->dst.type)) {
+        if ((uri_address_type == pinfo->src.type) && (uri_address_type == pinfo->dst.type)) {
             jxta_tap_header *tap_header = wmem_new(wmem_file_scope(), jxta_tap_header);
 
             tap_header->src_address = pinfo->src;
@@ -1380,7 +1404,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         PROTO_ITEM_SET_HIDDEN(tree_item);
         PROTO_ITEM_SET_GENERATED(tree_item);
 
-        if(AT_URI == pinfo->src.type) {
+        if(uri_address_type == pinfo->src.type) {
             tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_src, tvb, 0, 0, wmem_strbuf_get_str(src_addr));
             PROTO_ITEM_SET_HIDDEN(tree_item);
             PROTO_ITEM_SET_GENERATED(tree_item);
@@ -1396,7 +1420,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         PROTO_ITEM_SET_HIDDEN(tree_item);
         PROTO_ITEM_SET_GENERATED(tree_item);
 
-        if(AT_URI == pinfo->dst.type) {
+        if(uri_address_type == pinfo->dst.type) {
             tree_item = proto_tree_add_string(jxta_msg_tree, hf_uri_dst, tvb, 0, 0, wmem_strbuf_get_str(dst_addr));
             PROTO_ITEM_SET_HIDDEN(tree_item);
             PROTO_ITEM_SET_GENERATED(tree_item);
@@ -2343,6 +2367,8 @@ void proto_register_jxta(void)
 
     /* Register JXTA Sub-tree */
     proto_register_subtree_array(ett, array_length(ett));
+
+    uri_address_type = address_type_dissector_register("AT_URI", "URI/URL/URN", uri_to_str, uri_str_len, uri_col_filter_str);
 
     /* Register preferences */
     /* register re-init routine */

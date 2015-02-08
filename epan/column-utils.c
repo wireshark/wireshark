@@ -31,6 +31,7 @@
 #include "packet_info.h"
 #include "wsutil/pint.h"
 #include "addr_resolv.h"
+#include "address_types.h"
 #include "ipv6-utils.h"
 #include "osi-utils.h"
 #include "value_string.h"
@@ -1850,66 +1851,10 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
   if (!fill_col_exprs)
     return;
 
-  switch (addr->type) {
-  case AT_AX25:
-    if (is_src)
-      pinfo->cinfo->col_expr.col_expr[col] = "ax25.src";
-    else
-      pinfo->cinfo->col_expr.col_expr[col] = "ax25.dst";
+  pinfo->cinfo->col_expr.col_expr[col] = address_type_column_filter_string(addr, is_src);
+  /* For address types that have a filter, create a string */
+  if (strlen(pinfo->cinfo->col_expr.col_expr[col]) > 0)
     address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
-    break;
-
-  case AT_ETHER:
-    if (is_src)
-      pinfo->cinfo->col_expr.col_expr[col] = "eth.src";
-    else
-      pinfo->cinfo->col_expr.col_expr[col] = "eth.dst";
-    address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
-    break;
-
-  case AT_IPv4:
-    if (is_src)
-      pinfo->cinfo->col_expr.col_expr[col] = "ip.src";
-    else
-      pinfo->cinfo->col_expr.col_expr[col] = "ip.dst";
-    ip_to_str_buf((const guint8 *)addr->data, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
-    break;
-
-  case AT_IPv6:
-    if (is_src)
-      pinfo->cinfo->col_expr.col_expr[col] = "ipv6.src";
-    else
-      pinfo->cinfo->col_expr.col_expr[col] = "ipv6.dst";
-    address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
-    break;
-
-  case AT_ATALK:
-    if (is_src)
-      pinfo->cinfo->col_expr.col_expr[col] = "ddp.src";
-    else
-      pinfo->cinfo->col_expr.col_expr[col] = "ddp.dst";
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], pinfo->cinfo->col_buf[col], COL_MAX_LEN);
-    break;
-
-  case AT_ARCNET:
-    if (is_src)
-      pinfo->cinfo->col_expr.col_expr[col] = "arcnet.src";
-    else
-      pinfo->cinfo->col_expr.col_expr[col] = "arcnet.dst";
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], pinfo->cinfo->col_buf[col], COL_MAX_LEN);
-    break;
-
-  case AT_URI:
-    if (is_src)
-      pinfo->cinfo->col_expr.col_expr[col] = "uri.src";
-    else
-      pinfo->cinfo->col_expr.col_expr[col] = "uri.dst";
-    address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
-    break;
-
-  default:
-    break;
-  }
 
   /* Some addresses (e.g. ieee80211) use a standard format like AT_ETHER but
    * don't use the same hf_ value (and thus don't use the same filter string).
@@ -1917,6 +1862,7 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
    * value they use. If they did so, we overwrite the default filter string
    * with their specific one here. See bug #7728 for further discussion.
    * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7728 */
+  /* XXX - can the new address types fix this and prevent the need for this logic? */
   if (addr->hf != -1) {
     pinfo->cinfo->col_expr.col_expr[col] = proto_registrar_get_nth(addr->hf)->abbrev;
   }

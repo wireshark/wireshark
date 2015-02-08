@@ -26,7 +26,9 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include "packet-arcnet.h"
+#include <epan/address_types.h>
 #include <epan/arcnet_pids.h>
+#include <epan/to_str-int.h>
 #include "packet-ip.h"
 
 void proto_register_arcnet(void);
@@ -46,8 +48,33 @@ static int hf_arcnet_padding = -1;
 /* Initialize the subtree pointers */
 static gint ett_arcnet = -1;
 
+static int arcnet_address_type = -1;
+
 static dissector_table_t arcnet_dissector_table;
 static dissector_handle_t data_handle;
+
+static gboolean arcnet_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+  *buf++ = '0';
+  *buf++ = 'x';
+  buf = bytes_to_hexstr(buf, (const guint8 *)addr->data, 1);
+  *buf = '\0'; /* NULL terminate */
+
+  return TRUE;
+}
+
+static int arcnet_str_len(const address* addr _U_)
+{
+  return 5;
+}
+
+static const char* arcnet_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+  if (is_src)
+    return "arcnet.src";
+
+  return "arcnet.dst";
+}
 
 void
 capture_arcnet (const guchar *pd, int len, packet_counts *ld,
@@ -143,10 +170,10 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   src = tvb_get_guint8 (tvb, 0);
   dst = tvb_get_guint8 (tvb, 1);
-  TVB_SET_ADDRESS(&pinfo->dl_src,   AT_ARCNET, tvb, 0, 1);
-  TVB_SET_ADDRESS(&pinfo->src,      AT_ARCNET, tvb, 0, 1);
-  TVB_SET_ADDRESS(&pinfo->dl_dst,   AT_ARCNET, tvb, 1, 1);
-  TVB_SET_ADDRESS(&pinfo->dst,      AT_ARCNET, tvb, 1, 1);
+  TVB_SET_ADDRESS(&pinfo->dl_src,   arcnet_address_type, tvb, 0, 1);
+  TVB_SET_ADDRESS(&pinfo->src,      arcnet_address_type, tvb, 0, 1);
+  TVB_SET_ADDRESS(&pinfo->dl_dst,   arcnet_address_type, tvb, 1, 1);
+  TVB_SET_ADDRESS(&pinfo->dst,      arcnet_address_type, tvb, 1, 1);
 
   ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, ENC_NA);
 
@@ -352,6 +379,8 @@ proto_register_arcnet (void)
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_arcnet, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+
+  arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str);
 }
 
 

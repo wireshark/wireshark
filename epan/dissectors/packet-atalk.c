@@ -34,7 +34,9 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/address_types.h>
 #include <epan/to_str.h>
+#include <epan/to_str-int.h>
 #include <wiretap/wtap.h>
 #include "packet-atalk.h"
 #include "packet-afp.h"
@@ -340,6 +342,8 @@ static int hf_pap_seq      = -1;
 static int hf_pap_eof      = -1;
 
 static int hf_pap_pad = -1;
+
+static int atalk_address_type = -1;
 
 static const value_string pap_function_vals[] = {
   {PAPOpenConn       , "Open Connection Query"},
@@ -1164,6 +1168,42 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 /* -----------------------------
    ZIP protocol cf. inside appletalk chap. 8
 */
+/*
+ * Structure used to represent a DDP address; gives the layout of the
+ * data pointed to by an Appletalk "address" structure.
+ */
+struct atalk_ddp_addr {
+    guint16 net;
+    guint8  node;
+};
+
+static gboolean atalk_to_str(const address* addr, gchar *buf, int buf_len _U_)
+{
+    struct atalk_ddp_addr atalk;
+    memcpy(&atalk, addr->data, sizeof atalk);
+
+    buf = word_to_hex(buf, atalk.net);
+    *buf++ = '.';
+    buf = bytes_to_hexstr(buf, &atalk.node, 1);
+    *buf++ = '\0'; /* NULL terminate */
+
+    return TRUE;
+}
+
+static int atalk_str_len(const address* addr _U_)
+{
+    return 14;
+}
+
+const char* atalk_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+  if (is_src)
+    return "ddp.src";
+
+  return "ddp.dst";
+}
+
+
 static int
 dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -1404,10 +1444,10 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   src->node = snode;
   dst->net = 0;
   dst->node = dnode;
-  SET_ADDRESS(&pinfo->net_src, AT_ATALK, sizeof(struct atalk_ddp_addr), src);
-  SET_ADDRESS(&pinfo->src, AT_ATALK, sizeof(struct atalk_ddp_addr), src);
-  SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof(struct atalk_ddp_addr), dst);
-  SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof(struct atalk_ddp_addr), dst);
+  SET_ADDRESS(&pinfo->net_src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
+  SET_ADDRESS(&pinfo->src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
+  SET_ADDRESS(&pinfo->net_dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
+  SET_ADDRESS(&pinfo->dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
 
   pinfo->ptype = PT_DDP;
   pinfo->destport = dport;
@@ -1418,10 +1458,10 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
 
   if (tree) {
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
-                                        4, 3, atalk_addr_to_str(src));
+                                        4, 3, address_to_str(wmem_packet_scope(), &pinfo->src));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
-                                        6, 3, atalk_addr_to_str(dst));
+                                        6, 3, address_to_str(wmem_packet_scope(), &pinfo->dst));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
@@ -1455,10 +1495,10 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   src->node = ddp.snode;
   dst->net = ddp.dnet;
   dst->node = ddp.dnode;
-  SET_ADDRESS(&pinfo->net_src, AT_ATALK, sizeof(struct atalk_ddp_addr), src);
-  SET_ADDRESS(&pinfo->src, AT_ATALK, sizeof(struct atalk_ddp_addr), src);
-  SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof(struct atalk_ddp_addr), dst);
-  SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof(struct atalk_ddp_addr), dst);
+  SET_ADDRESS(&pinfo->net_src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
+  SET_ADDRESS(&pinfo->src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
+  SET_ADDRESS(&pinfo->net_dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
+  SET_ADDRESS(&pinfo->dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
 
   pinfo->ptype = PT_DDP;
   pinfo->destport = ddp.dport;
@@ -1473,11 +1513,11 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
 
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
-                                        4, 3, atalk_addr_to_str(src));
+                                        4, 3, address_to_str(wmem_packet_scope(), &pinfo->src));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
-                                        6, 3, atalk_addr_to_str(dst));
+                                        6, 3, address_to_str(wmem_packet_scope(), &pinfo->dst));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_hopcount,   tvb, 0, 1,
@@ -2022,6 +2062,8 @@ proto_register_atalk(void)
   /* subdissector code */
   ddp_dissector_table = register_dissector_table("ddp.type", "DDP packet type",
                                                  FT_UINT8, BASE_HEX);
+
+  atalk_address_type = address_type_dissector_register("AT_ATALK", "Appletalk DDP", atalk_to_str, atalk_str_len, atalk_col_filter_str);
 }
 
 void
