@@ -24,6 +24,7 @@
 
 #include <epan/packet.h>
 #include "packet-usb.h"
+#include "packet-usb-hid.h"
 #include "packet-btsdp.h"
 
 
