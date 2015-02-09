@@ -154,7 +154,7 @@ scsistat_draw(void *prs)
 		td = ((guint64)(rs->procedures[i].tot.secs)) * NANOSECS_PER_SEC + rs->procedures[i].tot.nsecs;
 		td = ((td / rs->procedures[i].num) + 500) / 1000;
 
-		printf("%-19s %6d %3d.%06d %3d.%06d %3u.%06u \n",
+		printf("%-19s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
 		       rs->procedures[i].proc,
 		       rs->procedures[i].num,
 		       (int)(rs->procedures[i].min.secs),
