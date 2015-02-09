@@ -1130,6 +1130,9 @@ protocol or field labels to the proto_tree:
         start_ptr, format, ...);
 
     proto_item *
+    proto_tree_add_bytes_with_length(tree, id, tvb, start, tvb_length, start_ptr, ptr_length);
+
+    proto_item *
     proto_tree_add_time(tree, id, tvb, start, length, value_ptr);
 
     proto_item *
@@ -1582,6 +1585,11 @@ any more.
 
 For proto_tree_add_bytes(), the 'value_ptr' argument is a pointer to a
 sequence of bytes.
+
+
+proto_tree_add_bytes_with_length() is similar to proto_tree_add_bytes,
+except that the length is not derived from the tvb length. Instead,
+the displayed data size is controlled by 'ptr_length'.
 
 For proto_tree_add_bytes_format() and proto_tree_add_bytes_format_value(), the
 'value_ptr' argument is a pointer to a sequence of bytes or NULL if the bytes

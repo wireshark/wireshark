@@ -1071,7 +1071,8 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr);
 
-/** Add a FT_BYTES to a proto_tree.
+/** Add a FT_BYTES to a proto_tree like proto_tree_add_bytes,
+ but used when the tvb data length does not match the bytes length.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -1081,7 +1082,7 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
  @param ptr_length length of data in start_ptr
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_new_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+proto_tree_add_bytes_with_length(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 gint length, const guint8 *start_ptr, gint ptr_length);
 
 /** Get and add a byte-array-based FT_* to a proto_tree.
