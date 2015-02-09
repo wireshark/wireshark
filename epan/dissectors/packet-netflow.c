@@ -2000,7 +2000,32 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum, guint
     }
 }
 
+/* Try to look up the transport name given the pen_type, ip_protocol and port_number.
+   If found, append to port number item */
+static void netflow_add_transport_info(guint64 pen_type, guint8 ip_protocol,
+                                       guint16 port_number, proto_item *ti)
+{
+    const char *port_str = "";
 
+    /* UDP */
+    if ((ip_protocol == IP_PROTO_UDP) || (pen_type == 180) || (pen_type == 181)) {
+        port_str = udp_port_to_display(wmem_packet_scope(), port_number);
+    }
+    /* TCP */
+    else if ((ip_protocol == IP_PROTO_TCP) || (pen_type == 182) || (pen_type == 183)) {
+        port_str = tcp_port_to_display(wmem_packet_scope(), port_number);
+    }
+    /* SCTP */
+    else if (ip_protocol == IP_PROTO_SCTP) {
+        port_str = sctp_port_to_display(wmem_packet_scope(), port_number);
+    }
+    else {
+        /* Didn't match any of these transports, so do nothing */
+        return;
+    }
+
+    proto_item_append_text(ti, " (%s)", port_str);
+}
 
 
 /* Main dissector function */
@@ -2841,6 +2866,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                          ixia_pie_seen = FALSE;
 
     guint8       ip_protocol = 0;
+    guint16      port_number;
 
     entries_p = tmplt_p->fields_p[fields_type];
     if (entries_p == NULL) {
@@ -2997,18 +3023,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 182: /*  tcpSourcePort */
             ti = proto_tree_add_item(pdutree, hf_cflow_srcport,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
-            /* Look up transport name for UDP or TCP ports */
-            if ((ip_protocol == IP_PROTO_UDP) || (ip_protocol == IP_PROTO_TCP) || (pen_type == 181) || (pen_type == 183)) {
-                guint16 port_number = tvb_get_ntohs(tvb, offset);
-                const char *port_str = "";
-                if ((pen_type == 180) || (ip_protocol == IP_PROTO_UDP))  {
-                    port_str = udp_port_to_display(wmem_packet_scope(), port_number);
-                }
-                else if ((pen_type == 182) || (ip_protocol == IP_PROTO_TCP)) {
-                    port_str = tcp_port_to_display(wmem_packet_scope(), port_number);
-                }
-                proto_item_append_text(ti, " (%s)", port_str);
-            }
+            port_number = tvb_get_ntohs(tvb, offset);
+            netflow_add_transport_info(pen_type, ip_protocol, port_number, ti);
             break;
 
         case 8: /* source IP */
@@ -3032,18 +3048,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case 183: /*  tcpDestinationPort */
             ti = proto_tree_add_item(pdutree, hf_cflow_dstport,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
-            /* Look up transport name for UDP or TCP ports */
-            if ((ip_protocol == IP_PROTO_UDP) || (ip_protocol == IP_PROTO_TCP) || (pen_type == 181) || (pen_type == 183)) {
-                guint16 port_number = tvb_get_ntohs(tvb, offset);
-                const char *port_str = "";
-                if ((pen_type == 181) || (ip_protocol == IP_PROTO_UDP))  {
-                    port_str = udp_port_to_display(wmem_packet_scope(), port_number);
-                }
-                else if ((pen_type == 183) || (ip_protocol == IP_PROTO_TCP)) {
-                    port_str = tcp_port_to_display(wmem_packet_scope(), port_number);
-                }
-                proto_item_append_text(ti, " (%s)", port_str);
-            }
+            port_number = tvb_get_ntohs(tvb, offset);
+            netflow_add_transport_info(pen_type, ip_protocol, port_number, ti);
             break;
 
         case 12: /* dest IP */
