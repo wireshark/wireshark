@@ -273,12 +273,12 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				break;
 
 			case IF_TRUE_GOTO:
-				fprintf(f, "%05d IF-TRUE-GOTO\t%d\n",
+				fprintf(f, "%05d IF-TRUE-GOTO\t%u\n",
 						id, arg1->value.numeric);
 				break;
 
 			case IF_FALSE_GOTO:
-				fprintf(f, "%05d IF-FALSE-GOTO\t%d\n",
+				fprintf(f, "%05d IF-FALSE-GOTO\t%u\n",
 						id, arg1->value.numeric);
 				break;
 

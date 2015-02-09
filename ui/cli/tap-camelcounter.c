@@ -79,7 +79,7 @@ static void camelcounter_draw(void *phs)
       tmp_str = val_to_str_wmem(NULL, i, camel_opr_code_strings, "Unknown message (%d)");
       printf("%30s ", tmp_str);
       wmem_free(NULL, tmp_str);
-      printf("%6d\n", p_counter->camel_msg[i]);
+      printf("%6u\n", p_counter->camel_msg[i]);
     }
   } /* Message Type */
   printf("------------------------------------------\n");

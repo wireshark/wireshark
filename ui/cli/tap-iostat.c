@@ -891,7 +891,7 @@ iostat_draw(void *arg)
         else
             spaces_s = &spaces[borderlen - col_w[j].val];
 
-        printf("%-2u%s|", j+1, spaces_s);
+        printf("%-2d%s|", j+1, spaces_s);
     }
     if (tabrow_w < borderlen) {
         filler_s = &spaces[tabrow_w+1];

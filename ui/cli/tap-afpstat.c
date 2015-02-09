@@ -96,7 +96,7 @@ afpstat_draw(void *pss)
 		}
 
 		tmp_str = val_to_str_ext_wmem(NULL, i, &CommandCode_vals_ext, "Unknown (%u)");
-		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
+		printf("%-25s %6u %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
 		       tmp_str,
 		       ss->proc[i].num,
 		       (int)ss->proc[i].min.secs, ss->proc[i].min.nsecs/10000,

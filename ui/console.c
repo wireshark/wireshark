@@ -83,7 +83,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
                 level = "Dbg ";
                 break;
             default:
-                fprintf(stderr, "unknown log_level %u\n", log_level);
+                fprintf(stderr, "unknown log_level %d\n", log_level);
                 level = NULL;
                 g_assert_not_reached();
         }
@@ -92,7 +92,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         time(&curr);
         today = localtime(&curr);
 
-        fprintf(stderr, "%02u:%02u:%02u %8s %s %s\n",
+        fprintf(stderr, "%02d:%02d:%02d %8s %s %s\n",
                 today->tm_hour, today->tm_min, today->tm_sec,
                 log_domain != NULL ? log_domain : "",
                 level, message);

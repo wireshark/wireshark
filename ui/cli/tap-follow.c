@@ -596,11 +596,11 @@ followDraw(
     address_to_str_buf(addr[node], buf, sizeof buf);
     if (addr[node]->type == AT_IPv6)
     {
-      printf("Node %u: [%s]:%d\n", node, buf, port[node]);
+      printf("Node %d: [%s]:%d\n", node, buf, port[node]);
     }
     else
     {
-      printf("Node %u: %s:%d\n", node, buf, port[node]);
+      printf("Node %d: %s:%d\n", node, buf, port[node]);
     }
   }
 
@@ -632,7 +632,7 @@ followDraw(
         break;
 
       case mode_ASCII:
-        printf("%s%d\n", node ? "\t" : "", sc.dlen);
+        printf("%s%u\n", node ? "\t" : "", sc.dlen);
         break;
 
       case mode_RAW:

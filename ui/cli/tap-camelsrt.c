@@ -124,7 +124,7 @@ static void camelsrt_draw(void *phs)
     if (hs->stats[j].num == 0) {
       tmp_str = val_to_str_wmem(NULL, j, camelSRTtype_naming, "Unknown Message 0x%02x");
       printf("|%24s |%8u |%8.2f ms|%8.2f ms|%8.2f ms|%10u |%10u |\n",
-             tmp_str, 0, 0.0, 0.0, 0.0, 0, 0);
+             tmp_str, 0U, 0.0, 0.0, 0.0, 0U, 0U);
       wmem_free(NULL, tmp_str);
       continue;
     }

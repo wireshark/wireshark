@@ -569,9 +569,9 @@ static void register_mibs(void) {
 		} else {
 			char* mod_name =  smiLoadModule(smi_modules[i].name);
 			if (mod_name)
-				D(2,("Loaded: '%s'[%d] as %s",smi_modules[i].name,i,mod_name ));
+				D(2,("Loaded: '%s'[%u] as %s",smi_modules[i].name,i,mod_name ));
 			else
-				D(1,("Failed to load: '%s'[%d]",smi_modules[i].name,i));
+				D(1,("Failed to load: '%s'[%u]",smi_modules[i].name,i));
 		}
 	}
 
@@ -722,7 +722,7 @@ static void register_mibs(void) {
 					/* HFILL */
 					HFILL_INIT(hf);
 
-					D(5,("\t\t\tIndex: name=%s subids=%d key_type=%d",
+					D(5,("\t\t\tIndex: name=%s subids=%u key_type=%d",
 						 key->name, key->num_subids, key->key_type ));
 
 					if (key->hfid == -2) {
@@ -889,7 +889,7 @@ static guint check_num_oid(const char* str) {
 	if (!r) return 0;
 
 	do {
-		D(9,("\tcheck_num_oid: '%c' %d",*r,n));
+		D(9,("\tcheck_num_oid: '%c' %u",*r,n));
 		switch(*r) {
 			case '.': case '\0':
 				n++;

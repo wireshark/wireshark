@@ -58,7 +58,8 @@ typedef struct _scsistat_t {
 	scsi_procedure_t *procedures;
 } scsistat_t;
 
-#define NANOSECS_PER_SEC 1000000000
+#define MICROSECS_PER_SEC 1000000
+#define NANOSECS_PER_SEC  1000000000
 
 static void
 scsistat_reset(void *prs)
@@ -153,14 +154,14 @@ scsistat_draw(void *prs)
 		td = ((guint64)(rs->procedures[i].tot.secs)) * NANOSECS_PER_SEC + rs->procedures[i].tot.nsecs;
 		td = ((td / rs->procedures[i].num) + 500) / 1000;
 
-		printf("%-19s %6d %3d.%06u %3d.%06u %3d.%06u \n",
+		printf("%-19s %6d %3d.%06d %3d.%06d %3u.%06u \n",
 		       rs->procedures[i].proc,
 		       rs->procedures[i].num,
 		       (int)(rs->procedures[i].min.secs),
 		       (rs->procedures[i].min.nsecs+500)/1000,
 		       (int)(rs->procedures[i].max.secs),
 		       (rs->procedures[i].max.nsecs+500)/1000,
-		       (int)(td/1000000), (int)(td%1000000)
+		       (td/MICROSECS_PER_SEC), (td%MICROSECS_PER_SEC)
 		);
 	}
 	printf("===========================================================\n");

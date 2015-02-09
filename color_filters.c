@@ -712,7 +712,7 @@ write_filter(gpointer filter_arg, gpointer data_arg)
 
     if ( (colorf->selected || !data->only_selected) &&
          (strstr(colorf->filter_name,CONVERSATION_COLOR_PREFIX)==NULL) ) {
-        fprintf(f,"%s@%s@%s@[%d,%d,%d][%d,%d,%d]\n",
+        fprintf(f,"%s@%s@%s@[%u,%u,%u][%u,%u,%u]\n",
                 colorf->disabled ? "!" : "",
                 colorf->filter_name,
                 colorf->filter_text,

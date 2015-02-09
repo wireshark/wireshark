@@ -129,7 +129,7 @@ smbstat_draw(void *pss)
 		td = ((td / ss->proc[i].num) + 500) / 1000;
 
 		tmp_str = val_to_str_ext_wmem(NULL, i, &smb_cmd_vals_ext, "Unknown (0x%02x)");
-		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
+		printf("%-25s %6u %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
 		       tmp_str,
 		       ss->proc[i].num,
 		       (int)(ss->proc[i].min.secs), (ss->proc[i].min.nsecs+500)/1000,

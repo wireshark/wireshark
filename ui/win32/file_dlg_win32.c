@@ -1942,7 +1942,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     if (range->remove_ignored && g_cf->current_frame && g_cf->current_frame->flags.ignored) {
         StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("0"));
     } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), selected_num ? 1 : 0);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), selected_num ? 1 : 0);
     }
     SetWindowText(cur_ctrl, static_val);
 
@@ -1951,7 +1951,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     if (range->remove_ignored && g_cf->current_frame && g_cf->current_frame->flags.ignored) {
         StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("0"));
     } else {
-        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%u"), selected_num ? 1 : 0);
+        StringCchPrintf(static_val, STATIC_LABEL_CHARS, _T("%d"), selected_num ? 1 : 0);
     }
     SetWindowText(cur_ctrl, static_val);
 

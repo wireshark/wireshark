@@ -187,10 +187,10 @@ wspstat_draw(void *psp)
 	for (i=1; i <= ((sp->num_pdus+1)/2); i++)
 	{
 		guint32 ii = i+sp->num_pdus/2;
-		printf("%-23s %9d", sp->pdu_stats[i ].type, sp->pdu_stats[i ].packets);
+		printf("%-23s %9u", sp->pdu_stats[i ].type, sp->pdu_stats[i ].packets);
 		printf(" || ");
 		if (ii< (sp->num_pdus) )
-			printf("%-23s %9d\n", sp->pdu_stats[ii].type, sp->pdu_stats[ii].packets);
+			printf("%-23s %9u\n", sp->pdu_stats[ii].type, sp->pdu_stats[ii].packets);
 		else
 			printf("\n");
 		}

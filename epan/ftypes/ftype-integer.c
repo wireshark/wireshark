@@ -478,7 +478,7 @@ integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	sprintf(buf, "%" G_GINT64_MODIFIER "d", fv->value.integer64);
+    sprintf(buf, "%" G_GINT64_MODIFIER "d", (gint64)fv->value.integer64);
 }
 
 static int

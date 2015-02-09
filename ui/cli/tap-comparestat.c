@@ -398,11 +398,11 @@ call_foreach_print_ip_tree(gpointer key _U_, gpointer value, gpointer user_data)
 
 	if (show_it) {
 		if (fInfo->fp->count < MERGED_FILES) {
-			printf("Packet id :%i, count:%i Problem:", fInfo->id, fInfo->fp->count);
+			printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
 			printf("Packet lost\n");
 		}
 		if (fInfo->fp->count > MERGED_FILES) {
-			printf("Packet id :%i, count:%i Problem:", fInfo->id, fInfo->fp->count);
+			printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
 			printf("More than two packets\n");
 			if (fInfo->fp->cksum == WRONG_CHKSUM) {
 				printf("Checksum error over IP header\n");
@@ -410,7 +410,7 @@ call_foreach_print_ip_tree(gpointer key _U_, gpointer value, gpointer user_data)
 		}
 		if (fInfo->fp->count == MERGED_FILES) {
 			if (fInfo->fp->cksum == WRONG_CHKSUM) {
-				printf("Packet id :%i, count:%i Problem:", fInfo->id, fInfo->fp->count);
+				printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
 				printf("Checksum error over IP header\n");
 				if (((delta < (average-cs->stats.variance)) || (delta > (average+cs->stats.variance))) && (delta > 0.0) && (cs->stats.variance != 0)) {
 					printf("Not arrived in time\n");
@@ -419,13 +419,13 @@ call_foreach_print_ip_tree(gpointer key _U_, gpointer value, gpointer user_data)
 					printf("Not correct order\n");
 				}
 			} else if (((delta < (average-cs->stats.variance)) || (delta > (average+cs->stats.variance))) && (delta > 0.0) && (cs->stats.variance != 0)) {
-				printf("Packet id :%i, count:%i Problem:", fInfo->id, fInfo->fp->count);
+				printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
 				printf("Package not arrived in time\n");
 				if ((nstime_cmp(&fInfo->fp->predecessor_time, &fInfo->zebra_time) > 0 || nstime_cmp(&fInfo->fp->partner->fp->predecessor_time, &fInfo->fp->partner->zebra_time) > 0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method) {
 					printf("Not correct order\n");
 				}
 			} else if ((nstime_cmp(&fInfo->fp->predecessor_time, &fInfo->zebra_time) > 0 || nstime_cmp(&fInfo->fp->partner->fp->predecessor_time, &fInfo->fp->partner->zebra_time) > 0) && fInfo->zebra_time.nsecs != MERGED_FILES && ON_method) {
-				printf("Packet id :%i, count:%i Problem:", fInfo->id, fInfo->fp->count);
+				printf("Packet id :%u, count:%u Problem:", fInfo->id, fInfo->fp->count);
 				printf("Not correct order\n");
 			}
 		}

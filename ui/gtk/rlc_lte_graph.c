@@ -1253,7 +1253,7 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     int xx1, xx2, yy1, yy2;
 
     debug(DBS_GRAPH_DRAWING)
-        printf("\nline element: (%.2f,%.2f)->(%.2f,%.2f), seg %d ...\n",
+        printf("\nline element: (%.2f,%.2f)->(%.2f,%.2f), seg %u ...\n",
                e->p.line.dim.x1, e->p.line.dim.y1,
                e->p.line.dim.x2, e->p.line.dim.y2, e->parent->num);
 

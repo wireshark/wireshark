@@ -7118,7 +7118,7 @@ proto_registrar_dump_values(void)
 					continue;
 				}
 				try_val_to_str_ext(0, vse_p); /* "prime" the extended value_string */
-				printf("E\t%s\t%d\t%s\t%s\n",
+				printf("E\t%s\t%u\t%s\t%s\n",
 				       hfinfo->abbrev,
 				       VALUE_STRING_EXT_VS_NUM_ENTRIES(vse_p),
 				       VALUE_STRING_EXT_VS_NAME(vse_p),

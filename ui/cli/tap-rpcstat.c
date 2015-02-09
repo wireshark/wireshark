@@ -199,7 +199,7 @@ rpcstat_draw(void *prs)
 	guint64 td;
 	printf("\n");
 	printf("==================================================================\n");
-	printf("%s Version %d SRT Statistics:\n", rs->prog, rs->version);
+	printf("%s Version %u SRT Statistics:\n", rs->prog, rs->version);
 	printf("Filter: %s\n", rs->filter ? rs->filter : "");
 	printf("Procedure        Calls    Min SRT    Max SRT    Avg SRT    Total\n");
 	for (i=0; i<rs->num_procedures; i++) {
@@ -298,8 +298,8 @@ rpcstat_init(const char *opt_arg, void *userdata _U_)
 	rpc_max_proc = -1;
 	g_hash_table_foreach(rpc_procs, (GHFunc)rpcstat_find_procs, NULL);
 	if (rpc_min_proc == -1) {
-		fprintf(stderr, "tshark: Invalid -z rpc,srt,%d,%d\n", rpc_program, rpc_version);
-		fprintf(stderr, "   Program:%d version:%d isn't supported by tshark.\n", rpc_program, rpc_version);
+		fprintf(stderr, "tshark: Invalid -z rpc,srt,%u,%u\n", rpc_program, rpc_version);
+		fprintf(stderr, "   Program:%u version:%u isn't supported by tshark.\n", rpc_program, rpc_version);
 		exit(1);
 	}
 

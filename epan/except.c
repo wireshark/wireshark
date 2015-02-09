@@ -216,11 +216,11 @@ G_GNUC_NORETURN WS_MSVC_NORETURN static void do_throw(except_t *except)
 static void unhandled_catcher(except_t *except)
 {
     if (except->except_message == NULL) {
-        fprintf(stderr, "Unhandled exception (group=%ld, code=%ld)\n",
+        fprintf(stderr, "Unhandled exception (group=%lu, code=%lu)\n",
                 except->except_id.except_group,
                 except->except_id.except_code);
     } else {
-        fprintf(stderr, "Unhandled exception (\"%s\", group=%ld, code=%ld)\n",
+        fprintf(stderr, "Unhandled exception (\"%s\", group=%lu, code=%lu)\n",
                 except->except_message, except->except_id.except_group,
                 except->except_id.except_code);
     }

@@ -2013,7 +2013,7 @@ static void draw_element_line(struct gtk_graph *g, struct element *e, cairo_t *c
     int xx1, xx2, yy1, yy2;
 
     debug(DBS_GRAPH_DRAWING) printf("line element: (%.2f,%.2f)->(%.2f,%.2f), "
-                                    "seg %d ... ", e->p.line.dim.x1, e->p.line.dim.y1,
+                                    "seg %u ... ", e->p.line.dim.x1, e->p.line.dim.y1,
                                     e->p.line.dim.x2, e->p.line.dim.y2, e->parent->num);
 
     /* Set our new colour (if changed) */

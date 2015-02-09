@@ -540,29 +540,29 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 
     /* Print geninfo start */
     fprintf(fh,
-            "  <proto name=\"geninfo\" pos=\"0\" showname=\"General information\" size=\"%u\">\n",
+            "  <proto name=\"geninfo\" pos=\"0\" showname=\"General information\" size=\"%d\">\n",
             frame_finfo->length);
 
     /* Print geninfo.num */
     fprintf(fh,
-            "    <field name=\"num\" pos=\"0\" show=\"%u\" showname=\"Number\" value=\"%x\" size=\"%u\"/>\n",
+            "    <field name=\"num\" pos=\"0\" show=\"%u\" showname=\"Number\" value=\"%x\" size=\"%d\"/>\n",
             num, num, frame_finfo->length);
 
     /* Print geninfo.len */
     fprintf(fh,
-            "    <field name=\"len\" pos=\"0\" show=\"%u\" showname=\"Frame Length\" value=\"%x\" size=\"%u\"/>\n",
+            "    <field name=\"len\" pos=\"0\" show=\"%u\" showname=\"Frame Length\" value=\"%x\" size=\"%d\"/>\n",
             len, len, frame_finfo->length);
 
     /* Print geninfo.caplen */
     fprintf(fh,
-            "    <field name=\"caplen\" pos=\"0\" show=\"%u\" showname=\"Captured Length\" value=\"%x\" size=\"%u\"/>\n",
+            "    <field name=\"caplen\" pos=\"0\" show=\"%u\" showname=\"Captured Length\" value=\"%x\" size=\"%d\"/>\n",
             caplen, caplen, frame_finfo->length);
 
     tmp = abs_time_to_str(NULL, timestamp, ABSOLUTE_TIME_LOCAL, TRUE);
 
     /* Print geninfo.timestamp */
     fprintf(fh,
-            "    <field name=\"timestamp\" pos=\"0\" show=\"%s\" showname=\"Captured Time\" value=\"%d.%09d\" size=\"%u\"/>\n",
+            "    <field name=\"timestamp\" pos=\"0\" show=\"%s\" showname=\"Captured Time\" value=\"%d.%09d\" size=\"%d\"/>\n",
             tmp, (int) timestamp->secs, timestamp->nsecs, frame_finfo->length);
 
     wmem_free(NULL, tmp);

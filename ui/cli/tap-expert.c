@@ -159,7 +159,7 @@ static void draw_items_for_severity(GArray *items, const gchar *label)
     }
 
     /* Title */
-    printf("\n%s (%u)\n", label, total);
+    printf("\n%s (%d)\n", label, total);
     printf("=============\n");
 
     /* Column headings */
@@ -169,7 +169,7 @@ static void draw_items_for_severity(GArray *items, const gchar *label)
     for (n=0; n < items->len; n++) {
         ei = &g_array_index(items, expert_entry, n);
         tmp_str = val_to_str_wmem(NULL, ei->group, expert_group_vals, "Unknown (%d)");
-        printf("%12u %10s %18s  %s\n",
+        printf("%12d %10s %18s  %s\n",
               ei->frequency,
               tmp_str,
               ei->protocol, ei->summary);

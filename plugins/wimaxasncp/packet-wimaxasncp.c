@@ -3333,7 +3333,7 @@ register_wimaxasncp_fields(const char* unused _U_)
             {
                 printf(
                     "%s\n"
-                    "  type                   = %d\n"
+                    "  type                   = %u\n"
                     "  description            = %s\n"
                     "  decoder                = %s\n"
                     "  hf_root                = %d\n"

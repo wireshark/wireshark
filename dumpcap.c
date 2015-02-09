@@ -1583,7 +1583,7 @@ report_capture_count(gboolean reportit)
 {
     /* Don't print this if we're a capture child. */
     if (!capture_child && reportit) {
-        fprintf(stderr, "\rPackets captured: %u\n", global_ld.packet_count);
+        fprintf(stderr, "\rPackets captured: %d\n", global_ld.packet_count);
         /* stderr could be line buffered */
         fflush(stderr);
     }
@@ -4981,7 +4981,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         level = "Dbg ";
         break;
     default:
-        fprintf(stderr, "unknown log_level %u\n", log_level);
+        fprintf(stderr, "unknown log_level %d\n", log_level);
         level = NULL;
         g_assert_not_reached();
     }

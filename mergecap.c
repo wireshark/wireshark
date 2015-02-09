@@ -479,7 +479,7 @@ main(int argc, char *argv[])
     }
 
     if (verbose)
-      fprintf(stderr, "Record: %u\n", count++);
+      fprintf(stderr, "Record: %d\n", count++);
 
     /* We simply write it, perhaps after truncating it; we could do other
      * things, like modify it. */
