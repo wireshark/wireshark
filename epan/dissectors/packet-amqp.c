@@ -44,6 +44,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"
+#include "packet-ssl.h"
 
 
 void proto_register_amqp(void);
@@ -51,6 +52,7 @@ void proto_reg_handoff_amqp(void);
 /*  Generic data  */
 
 static guint amqp_port = 5672;
+static guint amqps_port = 5671; /* AMQP over TLS/SSL */
 
 /*  Generic defines  */
 
@@ -405,8 +407,8 @@ typedef struct {
 
 /*  Private functions  */
 
-static void
-dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int
+dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static void
 check_amqp_version(tvbuff_t *tvb, amqp_conv *conn);
@@ -2827,22 +2829,20 @@ static struct amqp_defined_types_t amqp_1_0_defined_types[] = {
 
 /*  Main dissection routine  */
 
-static void
-dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     conversation_t *conv;
     amqp_conv *conn;
-    guint fixed_length;
-    guint (*length_getter)(packet_info *, tvbuff_t *, int, void*);
-    new_dissector_t dissector;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    /*  Minimal frame size is 8 bytes - smaller frames are malformed  */
+    /* We need at least 8 bytes to check the protocol and get the frame size */
     if (tvb_reported_length (tvb) < 8) {
-        expert_add_info_format(pinfo, NULL, &ei_amqp_bad_length, "Require frame at least 8 bytes long");
-        return;
+        /* But at this moment we don't know how much we will need */
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+        return -1; /* need more data */
     }
 
     /* Find (or build) conversation to remember the protocol version */
@@ -2855,27 +2855,24 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     check_amqp_version(tvb, conn);
     switch(conn->version) {
     case AMQP_V0_9:
-        length_getter = &get_amqp_0_9_message_len;
-        dissector = dissect_amqp_0_9_frame;
-        fixed_length = 7;
+        tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 7, get_amqp_0_9_message_len,
+                         dissect_amqp_0_9_frame, data);
         break;
     case AMQP_V0_10:
-        length_getter = &get_amqp_0_10_message_len;
-        dissector = dissect_amqp_0_10_frame;
-        fixed_length = 8;
+        tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_amqp_0_10_message_len,
+                         dissect_amqp_0_10_frame, data);
         break;
     case AMQP_V1_0:
-        length_getter = &get_amqp_1_0_message_len;
-        dissector = dissect_amqp_1_0_frame;
-        fixed_length = 8;
+        tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8, get_amqp_1_0_message_len,
+                         dissect_amqp_1_0_frame, data);
         break;
     default:
         col_append_str(pinfo->cinfo, COL_INFO, "AMQP (unknown version)");
         col_set_fence(pinfo->cinfo, COL_INFO);
-        return;
+        break;
     }
-    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, fixed_length,
-                     length_getter, dissector, NULL);
+
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -7533,15 +7530,16 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
     if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
-        guint8         proto_major;
-        guint8         proto_minor;
+        guint8         proto_id, proto_major, proto_minor;
         wmem_strbuf_t *strbuf;
 
+        proto_id = tvb_get_guint8(tvb, 5);
         proto_major = tvb_get_guint8(tvb, 6);
         proto_minor = tvb_get_guint8(tvb, 7);
         strbuf = wmem_strbuf_new_label(wmem_packet_scope());
         wmem_strbuf_append_printf(strbuf,
-                                  "Protocol-Header %u-%u",
+                                  "Protocol-Header %u-%u-%u",
+                                  proto_id,
                                   proto_major,
                                   proto_minor);
         col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(strbuf));
@@ -14001,31 +13999,34 @@ proto_register_amqp(void)
 
     proto_amqp = proto_register_protocol(
         "Advanced Message Queueing Protocol", "AMQP", "amqp");
+    new_register_dissector("amqp", dissect_amqp, proto_amqp);
     proto_register_field_array(proto_amqp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
     expert_amqp = expert_register_protocol(proto_amqp);
     expert_register_field_array(expert_amqp, ei, array_length(ei));
 
     amqp_module = prefs_register_protocol(proto_amqp, proto_reg_handoff_amqp);
-    prefs_register_uint_preference(amqp_module, "tcp.amqp_port",
+    prefs_register_uint_preference(amqp_module, "tcp.port",
                                    "AMQP listening TCP Port",
                                    "Set the TCP port for AMQP"
                                    "(if other than the default of 5672)",
                                    10, &amqp_port);
+    prefs_register_uint_preference(amqp_module, "ssl.port",
+                                   "AMQPS listening TCP Port",
+                                   "Set the TCP port for AMQP over TLS/SSL"
+                                   "(if other than the default of 5671)",
+                                   10, &amqps_port);
 }
 
 void
 proto_reg_handoff_amqp(void)
 {
-    static gboolean amqp_prefs_initialized = FALSE;
     static dissector_handle_t amqp_tcp_handle;
     static guint old_amqp_port = 0;
+    static guint old_amqps_port = 0;
 
-    /* Register as a heuristic TCP dissector */
-    if (amqp_prefs_initialized == FALSE) {
-        amqp_tcp_handle = create_dissector_handle(dissect_amqp, proto_amqp);
-        amqp_prefs_initialized = TRUE;
-    }
+    amqp_tcp_handle = find_dissector("amqp");
 
     /* Register TCP port for dissection */
     if (old_amqp_port != 0 && old_amqp_port != amqp_port){
@@ -14033,7 +14034,18 @@ proto_reg_handoff_amqp(void)
     }
 
     if (amqp_port != 0 && old_amqp_port != amqp_port) {
+        old_amqp_port = amqp_port;
         dissector_add_uint("tcp.port", amqp_port, amqp_tcp_handle);
+    }
+
+    /* Register for TLS/SSL payload dissection */
+    if (old_amqps_port != 0 && old_amqps_port != amqps_port){
+        ssl_dissector_delete(old_amqps_port, "amqp", TRUE);
+    }
+
+    if (amqps_port != 0 && old_amqps_port != amqps_port) {
+        old_amqps_port = amqps_port;
+        ssl_dissector_add(amqps_port, "amqp", TRUE);
     }
 }
 
