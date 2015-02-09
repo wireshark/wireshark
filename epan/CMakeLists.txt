@@ -413,6 +413,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bjnp.c
 	dissectors/packet-bluetooth.c
 	dissectors/packet-bmc.c
+	dissectors/packet-bmp.c
 	dissectors/packet-bofl.c
 	dissectors/packet-bootp.c
 	dissectors/packet-bootparams.c

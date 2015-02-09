@@ -8088,6 +8088,8 @@ proto_register_bgp(void)
       "Length of the AS number",
       "BGP dissector detect the length of the AS number in AS_PATH attributes automatically or manually (NOTE: Automatic detection is not 100% accurate)",
       &bgp_asn_len, asn_len, FALSE);
+
+    register_dissector("bgp", dissect_bgp, proto_bgp);
 }
 
 void

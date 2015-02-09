@@ -335,6 +335,7 @@ DISSECTOR_SRC = \
 	packet-bjnp.c		\
 	packet-bluetooth.c	\
 	packet-bmc.c		\
+	packet-bmp.c		\
 	packet-bofl.c		\
 	packet-bootp.c		\
 	packet-bootparams.c	\

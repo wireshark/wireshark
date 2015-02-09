@@ -140,6 +140,7 @@ ZVT Kassenschnittstelle
 ETSI Card Application Toolkit - Transport Protocol
 QNEX6 (QNET)
 Secure Socket Tunnel Protocol (SSTP)
+BGP Monitoring Prototol (BMP)
 --sort-and-group--
 
 === Updated Protocol Support
