@@ -76,6 +76,11 @@ static const char* arcnet_col_filter_str(const address* addr _U_, gboolean is_sr
   return "arcnet.dst";
 }
 
+static int arcnet_len(void)
+{
+  return 1;
+}
+
 void
 capture_arcnet (const guchar *pd, int len, packet_counts *ld,
                 gboolean has_offset, gboolean has_exception)
@@ -380,7 +385,7 @@ proto_register_arcnet (void)
   proto_register_field_array (proto_arcnet, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str);
+  arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str, arcnet_len);
 }
 
 

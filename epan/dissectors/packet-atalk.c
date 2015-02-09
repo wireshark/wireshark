@@ -1195,7 +1195,7 @@ static int atalk_str_len(const address* addr _U_)
     return 14;
 }
 
-const char* atalk_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* atalk_col_filter_str(const address* addr _U_, gboolean is_src)
 {
   if (is_src)
     return "ddp.src";
@@ -1203,6 +1203,10 @@ const char* atalk_col_filter_str(const address* addr _U_, gboolean is_src)
   return "ddp.dst";
 }
 
+static int atalk_len(void)
+{
+  return 3;
+}
 
 static int
 dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -2063,7 +2067,7 @@ proto_register_atalk(void)
   ddp_dissector_table = register_dissector_table("ddp.type", "DDP packet type",
                                                  FT_UINT8, BASE_HEX);
 
-  atalk_address_type = address_type_dissector_register("AT_ATALK", "Appletalk DDP", atalk_to_str, atalk_str_len, atalk_col_filter_str);
+  atalk_address_type = address_type_dissector_register("AT_ATALK", "Appletalk DDP", atalk_to_str, atalk_str_len, atalk_col_filter_str, atalk_len);
 }
 
 void

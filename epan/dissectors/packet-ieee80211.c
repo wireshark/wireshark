@@ -26553,8 +26553,8 @@ proto_register_ieee80211 (void)
   wlan_tap = register_tap("wlan");
   register_conversation_table(proto_wlan, TRUE, wlan_conversation_packet, wlan_hostlist_packet);
 
-  wlan_address_type = address_type_dissector_register("AT_ETHER_WLAN", "WLAN Address", ether_to_str, ether_str_len, wlan_col_filter_str);
-  wlan_bssid_address_type = address_type_dissector_register("AT_ETHER_BSSID", "WLAN BSSID Address", ether_to_str, ether_str_len, wlan_bssid_col_filter_str);
+  wlan_address_type = address_type_dissector_register("AT_ETHER_WLAN", "WLAN Address", ether_to_str, ether_str_len, wlan_col_filter_str, ether_len);
+  wlan_bssid_address_type = address_type_dissector_register("AT_ETHER_BSSID", "WLAN BSSID Address", ether_to_str, ether_str_len, wlan_bssid_col_filter_str, ether_len);
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);

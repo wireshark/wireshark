@@ -273,6 +273,19 @@ static int J1939_addr_str_len(const address* addr _U_)
     return 11; /* Leaves required space (10 bytes) for uint_to_str_back() */
 }
 
+static const char* J1939_col_filter_str(const address* addr _U_, gboolean is_src)
+{
+    if (is_src)
+        return "j1939.src_addr";
+
+    return "j1939.dst_addr";
+}
+
+static int J1939_addr_len(void)
+{
+    return 1;
+}
+
 void proto_register_j1939(void)
 {
     static hf_register_info hf[] = {
@@ -337,7 +350,7 @@ void proto_register_j1939(void)
 
     subdissector_pgn_table = register_dissector_table("j1939.pgn", "PGN Handle", FT_UINT32, BASE_DEC);
 
-    j1939_address_type = address_type_dissector_register("AT_J1939", "J1939 Address", J1939_addr_to_str, J1939_addr_str_len, NULL);
+    j1939_address_type = address_type_dissector_register("AT_J1939", "J1939 Address", J1939_addr_to_str, J1939_addr_str_len, J1939_col_filter_str, J1939_addr_len);
 }
 
 /*

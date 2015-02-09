@@ -2962,7 +2962,7 @@ proto_register_tipc(void)
 	tipc_module = prefs_register_protocol(proto_tipc, proto_reg_handoff_tipc);
 
 	tipc_address_type = address_type_dissector_register("tipc_address_type", "TIPC Address Zone,Subnetwork,Processor",
-														tipc_addr_to_str_buf, tipc_addr_str_len, NULL);
+														tipc_addr_to_str_buf, tipc_addr_str_len, NULL, NULL);
 
 	/* Set default ports */
 	range_convert_str(&global_tipc_udp_port_range, DEFAULT_TIPC_PORT_RANGE, MAX_TCP_PORT);

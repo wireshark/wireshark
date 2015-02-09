@@ -28,6 +28,7 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/etypes.h>
+#include <epan/addr_resolv.h>
 
 void proto_register_ismp(void);
 void proto_reg_handoff_ismp(void);
@@ -214,6 +215,24 @@ static const value_string edp_tuple_types[] =
 	{ EDP_TUPLE_IPX_ADDR,"IPX Address" },
 	{ 0,NULL }
 };
+
+static gchar*
+ipx_addr_to_str(const guint32 net, const guint8 *ad)
+{
+	gchar   *buf;
+	char    *name;
+
+	name = get_ether_name_if_known(ad);
+
+	if (name) {
+		buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(wmem_packet_scope(), net), name);
+	}
+	else {
+		buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(wmem_packet_scope(), net),
+								bytestring_to_str(wmem_packet_scope(), ad, 6, '\0'));
+	}
+	return buf;
+}
 
 /* Function to dissect EDP portion of ISMP message */
 static void

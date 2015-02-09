@@ -65,7 +65,6 @@ WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int b
 void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
 
 void	ip6_to_str_buf(const struct e_in6_addr *, gchar *);
-extern gchar*	ipx_addr_to_str(const guint32, const guint8 *);
 extern gchar*	ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct);
 WS_DLL_PUBLIC gchar*	eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
 
@@ -104,7 +103,7 @@ WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
  * @return A pointer to the formatted string
  *
  */
-WS_DLL_PUBLIC gchar* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset);
+WS_DLL_PUBLIC gchar* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint offset);
 
 /** Turn an address type retrieved from a tvb into a string.
  *

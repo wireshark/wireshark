@@ -172,6 +172,11 @@ static const char* mstp_col_filter_str(const address* addr _U_, gboolean is_src)
 	return "mstp.dst";
 }
 
+static int mstp_len(void)
+{
+	return 1;
+}
+
 /* dissects a BACnet MS/TP frame */
 /* preamble 0x55 0xFF is not included in Cimetrics U+4 output */
 void
@@ -460,7 +465,7 @@ proto_register_mstp(void)
 	    "MSTP Vendor specific Frametypes", FT_UINT24, BASE_DEC);
 	/* Table_type: (Vendor ID << 16) + Frametype */
 
-	mstp_address_type = address_type_dissector_register("AT_MSTP", "BACnet MS/TP Address", mstp_to_str, mstp_str_len, mstp_col_filter_str);
+	mstp_address_type = address_type_dissector_register("AT_MSTP", "BACnet MS/TP Address", mstp_to_str, mstp_str_len, mstp_col_filter_str, mstp_len);
 }
 
 void

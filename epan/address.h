@@ -37,9 +37,6 @@ extern "C" {
  * For dissector address types, just use the address_type_dissector_register function
  * from address_types.h
  */
-/* If a new address type is added here, a string representation procedure should also be */
-/* included in address_to_str_buf defined in address_to_str.c, for presentation purposes */
-
 typedef enum {
     AT_NONE,               /* no link-layer address */
     AT_ETHER,              /* MAC (Ethernet, 802.x, FDDI) address */

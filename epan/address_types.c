@@ -52,6 +52,7 @@ struct _address_type_t {
     AddrValueToString       addr_to_str;
     AddrValueToStringLen    addr_str_len;
     AddrColFilterString     addr_col_filter;
+    AddrFixedLen            addr_fixed_len;
 
     /* XXX - Some sort of compare functions (like ftype)? ***/
     /* XXX - Include functions for name resolution? ***/
@@ -88,7 +89,7 @@ static void address_type_register(int addr_type, address_type_t *at)
 
 int address_type_dissector_register(const char* name, const char* pretty_name,
                                     AddrValueToString to_str_func, AddrValueToStringLen str_len_func,
-                                    AddrColFilterString col_filter_str_func)
+                                    AddrColFilterString col_filter_str_func, AddrFixedLen fixed_len_func)
 {
     int addr_type;
 
@@ -108,8 +109,9 @@ int address_type_dissector_register(const char* name, const char* pretty_name,
     dissector_type_addresses[num_dissector_addr_type].addr_to_str = to_str_func;
     dissector_type_addresses[num_dissector_addr_type].addr_str_len = str_len_func;
     dissector_type_addresses[num_dissector_addr_type].addr_col_filter = col_filter_str_func;
+    dissector_type_addresses[num_dissector_addr_type].addr_fixed_len = fixed_len_func;
 
-	type_list[addr_type] = &dissector_type_addresses[num_dissector_addr_type];
+    type_list[addr_type] = &dissector_type_addresses[num_dissector_addr_type];
 
     num_dissector_addr_type++;
 
@@ -130,6 +132,11 @@ int none_addr_str_len(const address* addr _U_)
     return 1; /* NULL character for empty string */
 }
 
+int none_addr_len(void)
+{
+    return 0;
+}
+
 /******************************************************************************
  * AT_ETHER
  ******************************************************************************/
@@ -145,12 +152,17 @@ int ether_str_len(const address* addr _U_)
     return 18;
 }
 
-const char* ether_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* ether_col_filter_str(const address* addr _U_, gboolean is_src)
 {
     if (is_src)
         return "eth.src";
 
     return "eth.dst";
+}
+
+int ether_len(void)
+{
+    return 6;
 }
 
 /******************************************************************************
@@ -167,7 +179,7 @@ static int ipv4_str_len(const address* addr _U_)
     return MAX_IP_STR_LEN;
 }
 
-const char* ipv4_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* ipv4_col_filter_str(const address* addr _U_, gboolean is_src)
 {
     if (is_src)
         return "ip.src";
@@ -175,14 +187,134 @@ const char* ipv4_col_filter_str(const address* addr _U_, gboolean is_src)
     return "ip.dst";
 }
 
+static int ipv4_len(void)
+{
+    return 4;
+}
+
 /******************************************************************************
  * AT_IPv6
  ******************************************************************************/
-static gboolean ipv6_to_str(const address* addr, gchar *buf, int buf_len _U_)
+/* const char *
+ * inet_ntop6(src, dst, size)
+ *  convert IPv6 binary address into presentation (printable) format
+ * author:
+ *  Paul Vixie, 1996.
+ */
+static void
+ip6_to_str_buf_len(const guchar* src, char *buf, size_t buf_len)
 {
-    /* XXX - pull in ip6_to_str_buf_len as this should be the module for it */
+    struct { int base, len; } best, cur;
+    guint words[8];
+    int i;
 
-    ip6_to_str_buf((const struct e_in6_addr*)addr->data, buf/*, buf_len*/);
+    if (buf_len < MAX_IP6_STR_LEN) { /* buf_len < 40 */
+        g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
+        return;
+    }
+
+    /*
+     * Preprocess:
+     *  Copy the input (bytewise) array into a wordwise array.
+     *  Find the longest run of 0x00's in src[] for :: shorthanding.
+     */
+    for (i = 0; i < 16; i += 2) {
+        words[i / 2] = (src[i+1] << 0);
+        words[i / 2] |= (src[i] << 8);
+    }
+    best.base = -1; best.len = 0;
+    cur.base = -1;  cur.len = 0;
+    for (i = 0; i < 8; i++) {
+        if (words[i] == 0) {
+            if (cur.base == -1) {
+                cur.base = i;
+                cur.len = 1;
+            } else
+                cur.len++;
+        } else {
+            if (cur.base != -1) {
+                if (best.base == -1 || cur.len > best.len)
+                    best = cur;
+                cur.base = -1;
+            }
+        }
+    }
+    if (cur.base != -1) {
+        if (best.base == -1 || cur.len > best.len)
+            best = cur;
+    }
+    if (best.base != -1 && best.len < 2)
+        best.base = -1;
+
+    /* Is this address an encapsulated IPv4? */
+    /* XXX,
+     * Orginal code dated 1996 uses ::/96 as a valid IPv4-compatible addresses
+     * but since Feb 2006 ::/96 is deprecated one.
+     * Quoting wikipedia [0]:
+     * > The 96-bit zero-value prefix ::/96, originally known as IPv4-compatible
+     * > addresses, was mentioned in 1995[35] but first described in 1998.[41]
+     * > This class of addresses was used to represent IPv4 addresses within
+     * > an IPv6 transition technology. Such an IPv6 address has its first
+     * > (most significant) 96 bits set to zero, while its last 32 bits are the
+     * > IPv4 address that is represented.
+     * > In February 2006 the Internet Engineering Task Force (IETF) has deprecated
+     * > the use of IPv4-compatible addresses.[1] The only remaining use of this address
+     * > format is to represent an IPv4 address in a table or database with fixed size
+     * > members that must also be able to store an IPv6 address.
+     *
+     * If needed it can be fixed by changing next line:
+     *   if (best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
+     * to:
+     *   if (best.base == 0 && best.len == 5 && words[5] == 0xffff)
+     *
+     * [0] http://en.wikipedia.org/wiki/IPv6_address#Historical_notes
+     */
+
+    if (best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
+    {
+        /* best.len == 6 -> ::IPv4; 5 -> ::ffff:IPv4 */
+        buf = g_stpcpy(buf, "::");
+        if (best.len == 5)
+        buf = g_stpcpy(buf, "ffff:");
+        ip_to_str_buf(src + 12, buf, MAX_IP_STR_LEN);
+        /* max: 2 + 5 + 16 == 23 bytes */
+        return;
+    }
+
+    /*
+     * Format the result.
+     */
+    for (i = 0; i < 8; i++) {
+        /* Are we inside the best run of 0x00's? */
+        if (i == best.base) {
+            *buf++ = ':';
+            i += best.len;
+
+            /* Was it a trailing run of 0x00's? */
+            if (i == 8) {
+                *buf++ = ':';
+                break;
+            }
+        }
+        /* Are we following an initial run of 0x00s or any real hex? */
+        if (i != 0)
+            *buf++ = ':';
+
+        buf = word_to_hex_npad(buf, words[i]); /* max: 4B */
+        /* max: 8 * 4 + 7 == 39 bytes */
+    }
+    *buf = '\0'; /* 40 byte */
+}
+
+void
+ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf)
+{
+    ip6_to_str_buf_len((const guchar*)ad, buf, MAX_IP6_STR_LEN);
+}
+
+static gboolean ipv6_to_str(const address* addr, gchar *buf, int buf_len)
+{
+    ip6_to_str_buf_len((const guchar*)addr->data, buf, buf_len);
     return TRUE;
 }
 
@@ -191,12 +323,17 @@ static int ipv6_str_len(const address* addr _U_)
     return MAX_IP6_STR_LEN;
 }
 
-const char* ipv6_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* ipv6_col_filter_str(const address* addr _U_, gboolean is_src)
 {
     if (is_src)
         return "ipv6.src";
 
     return "ipv6.dst";
+}
+
+static int ipv6_len(void)
+{
+    return 16;
 }
 
 /******************************************************************************
@@ -216,6 +353,11 @@ static gboolean ipx_to_str(const address* addr, gchar *buf, int buf_len _U_)
 static int ipx_str_len(const address* addr _U_)
 {
     return 22;
+}
+
+static int ipx_len(void)
+{
+    return 10;
 }
 
 /******************************************************************************
@@ -240,6 +382,11 @@ static int vines_str_len(const address* addr _U_)
     return 14;
 }
 
+static int vines_len(void)
+{
+    return VINES_ADDR_LEN;
+}
+
 /******************************************************************************
  * AT_FC
  ******************************************************************************/
@@ -256,6 +403,10 @@ static int fc_str_len(const address* addr _U_)
     return 9;
 }
 
+static int fc_len(void)
+{
+    return 3;
+}
 
 /******************************************************************************
  * AT_FCWWN
@@ -324,6 +475,11 @@ static int fcwwn_str_len(const address* addr _U_)
     return 200;
 }
 
+static int fcwwn_len(void)
+{
+    return FCWWN_ADDR_LEN;
+}
+
 /******************************************************************************
  * AT_SS7PC
  * XXX - This should really be a dissector address type as its address string
@@ -366,7 +522,12 @@ static gboolean eui64_addr_to_str(const address* addr, gchar *buf, int buf_len _
 
 static int eui64_str_len(const address* addr _U_)
 {
-    return 24;
+    return EUI64_STR_LEN;
+}
+
+static int eui64_len(void)
+{
+    return 8;
 }
 
 /******************************************************************************
@@ -445,12 +606,17 @@ static int ax25_addr_str_len(const address* addr _U_)
     return 21; /* Leaves extra space (10 bytes) just for uint_to_str_back() */
 }
 
-const char* ax25_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* ax25_col_filter_str(const address* addr _U_, gboolean is_src)
 {
     if (is_src)
         return "ax25.src";
 
     return "ax25.dst";
+}
+
+static int ax25_len(void)
+{
+    return AX25_ADDR_LEN;
 }
 
 /******************************************************************************
@@ -468,7 +634,8 @@ void address_types_initialize(void)
         "No address",       /* pretty_name */
         none_addr_to_str,   /* addr_to_str */
         none_addr_str_len,  /* addr_str_len */
-        NULL                /* addr_col_filter */
+        NULL,               /* addr_col_filter */
+        none_addr_len       /* addr_fixed_len */
     };
 
     static address_type_t ether_address = {
@@ -477,7 +644,8 @@ void address_types_initialize(void)
         "Ethernet address", /* pretty_name */
         ether_to_str,       /* addr_to_str */
         ether_str_len,      /* addr_str_len */
-        ether_col_filter_str /* addr_col_filter */
+        ether_col_filter_str, /* addr_col_filter */
+        ether_len           /* addr_fixed_len */
     };
 
     static address_type_t ipv4_address = {
@@ -486,7 +654,8 @@ void address_types_initialize(void)
         "IPv4 address",     /* pretty_name */
         ipv4_to_str,        /* addr_to_str */
         ipv4_str_len,       /* addr_str_len */
-        ipv4_col_filter_str /* addr_col_filter */
+        ipv4_col_filter_str, /* addr_col_filter */
+        ipv4_len            /* addr_fixed_len */
     };
 
     static address_type_t ipv6_address = {
@@ -495,7 +664,8 @@ void address_types_initialize(void)
         "IPv6 address",     /* pretty_name */
         ipv6_to_str,        /* addr_to_str */
         ipv6_str_len,       /* addr_str_len */
-        ipv6_col_filter_str /* addr_col_filter */
+        ipv6_col_filter_str, /* addr_col_filter */
+        ipv6_len            /* addr_fixed_len */
    };
 
     static address_type_t ipx_address = {
@@ -504,7 +674,8 @@ void address_types_initialize(void)
         "IPX address",      /* pretty_name */
         ipx_to_str,         /* addr_to_str */
         ipx_str_len,        /* addr_str_len */
-        NULL                /* addr_col_filter */
+        NULL,               /* addr_col_filter */
+        ipx_len             /* addr_fixed_len */
     };
 
     static address_type_t vines_address = {
@@ -513,7 +684,8 @@ void address_types_initialize(void)
         "Banyan Vines address", /* pretty_name */
         vines_to_str,       /* addr_to_str */
         vines_str_len,      /* addr_str_len */
-        NULL                /* addr_col_filter */
+        NULL,                /* addr_col_filter */
+        vines_len          /*addr_fixed_len */
     };
 
     static address_type_t fc_address = {
@@ -522,7 +694,8 @@ void address_types_initialize(void)
         "FC address",   /* pretty_name */
         fc_to_str,      /* addr_to_str */
         fc_str_len,     /* addr_str_len */
-        NULL            /* addr_col_filter */
+        NULL,           /* addr_col_filter */
+        fc_len          /*addr_fixed_len */
     };
 
     static address_type_t fcwwn_address = {
@@ -531,7 +704,8 @@ void address_types_initialize(void)
         "Fibre Channel WWN",    /* pretty_name */
         fcwwn_to_str,   /* addr_to_str */
         fcwwn_str_len,  /* addr_str_len */
-        NULL            /* addr_col_filter */
+        NULL,           /* addr_col_filter */
+        fcwwn_len          /* addr_fixed_len */
     };
 
     static address_type_t ss7pc_address = {
@@ -540,7 +714,8 @@ void address_types_initialize(void)
         "SS7 Point Code",  /* pretty_name */
         ss7pc_to_str,      /* addr_to_str */
         ss7pc_str_len,     /* addr_str_len */
-        NULL               /* addr_col_filter */
+        NULL,              /* addr_col_filter */
+        NULL               /* addr_fixed_len */
     };
 
     static address_type_t stringz_address = {
@@ -549,7 +724,8 @@ void address_types_initialize(void)
         "String address",   /* pretty_name */
         stringz_addr_to_str, /* addr_to_str */
         stringz_addr_str_len, /* addr_str_len */
-        NULL                /* addr_col_filter */
+        NULL,              /* addr_col_filter */
+        NULL               /* addr_fixed_len */
     };
 
     static address_type_t eui64_address = {
@@ -558,7 +734,8 @@ void address_types_initialize(void)
         "IEEE EUI-64",     /* pretty_name */
         eui64_addr_to_str, /* addr_to_str */
         eui64_str_len,     /* addr_str_len */
-        NULL               /* addr_col_filter */
+        NULL,              /* addr_col_filter */
+        eui64_len          /* addr_fixed_len */
     };
 
     static address_type_t ib_address = {
@@ -567,7 +744,8 @@ void address_types_initialize(void)
         "Infiniband GID/LID",   /* pretty_name */
         ib_addr_to_str,  /* addr_to_str */
         ib_str_len,      /* addr_str_len */
-        NULL             /* addr_col_filter */
+        NULL,              /* addr_col_filter */
+        NULL               /* addr_fixed_len */
     };
 
     static address_type_t usb_address = {
@@ -576,7 +754,8 @@ void address_types_initialize(void)
         "USB Address",   /* pretty_name */
         usb_addr_to_str, /* addr_to_str */
         usb_addr_str_len, /* addr_str_len */
-        NULL             /* addr_col_filter */
+        NULL,              /* addr_col_filter */
+        NULL               /* addr_fixed_len */
     };
 
     static address_type_t ax25_address = {
@@ -585,7 +764,8 @@ void address_types_initialize(void)
         "AX.25 Address",  /* pretty_name */
         ax25_addr_to_str, /* addr_to_str */
         ax25_addr_str_len,/* addr_str_len */
-        ax25_col_filter_str /* addr_col_filter */
+        ax25_col_filter_str, /* addr_col_filter */
+        ax25_len          /* addr_fixed_len */
     };
 
     num_dissector_addr_type = 0;
@@ -616,8 +796,7 @@ void address_types_initialize(void)
 	g_assert(addr_type < MAX_ADDR_TYPE_VALUE);	\
 	result = type_list[addr_type];
 
-/* XXX - Temporary?  Here at least until all of the address type handling is finalized */
-int address_type_get_length(const address* addr)
+static int address_type_get_length(const address* addr)
 {
     address_type_t *at;
 
@@ -629,7 +808,29 @@ int address_type_get_length(const address* addr)
     return at->addr_str_len(addr);
 }
 
-void address_type_to_string(const address* addr, gchar *buf, int buf_len)
+/*XXX FIXME the code below may be called very very frequently in the future.
+  optimize it for speed and get rid of the slow sprintfs */
+/* XXX - perhaps we should have individual address types register
+   a table of routines to do operations such as address-to-name translation,
+   address-to-string translation, and the like, and have this call them,
+   and also have an address-to-string-with-a-name routine */
+/* convert an address struct into a printable string */
+
+gchar*
+address_to_str(wmem_allocator_t *scope, const address *addr)
+{
+    gchar *str;
+    int len = address_type_get_length(addr);
+
+    if (len <= 0)
+        len = MAX_ADDR_STR_LEN;
+
+    str=(gchar *)wmem_alloc(scope, len);
+    address_to_str_buf(addr, str, len);
+    return str;
+}
+
+void address_to_str_buf(const address* addr, gchar *buf, int buf_len)
 {
     address_type_t *at;
 
@@ -659,6 +860,41 @@ const char* address_type_column_filter_string(const address* addr, gboolean src)
     }
 
     return at->addr_col_filter(addr, src);
+}
+
+gchar*
+tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint offset)
+{
+    address addr;
+    address_type_t *at;
+
+    ADDR_TYPE_LOOKUP(type, at);
+
+    if (at == NULL)
+    {
+        return NULL;
+    }
+
+    /* The address type must have a fixed length to use this function */
+    /* For variable length fields, use tvb_address_var_to_str() */
+    if (at->addr_fixed_len == NULL)
+    {
+        g_assert_not_reached();
+        return NULL;
+    }
+
+    TVB_SET_ADDRESS(&addr, type, tvb, offset, at->addr_fixed_len());
+
+    return address_to_str(scope, &addr);
+}
+
+gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset, int length)
+{
+    address addr;
+
+    TVB_SET_ADDRESS(&addr, type, tvb, offset, length);
+
+    return address_to_str(scope, &addr);
 }
 
 

@@ -1555,7 +1555,6 @@ ADD_CUSTOM_COMMAND(
 set(LIBWIRESHARK_FILES
 	addr_and_mask.c
 	addr_resolv.c
-	address_to_str.c
 	address_types.c
 	afn.c
 	aftypes.c

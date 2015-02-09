@@ -24,7 +24,6 @@
 LIBWIRESHARK_SRC =		\
 	addr_and_mask.c		\
 	addr_resolv.c		\
-	address_to_str.c	\
 	address_types.c	\
 	afn.c			\
 	aftypes.c		\

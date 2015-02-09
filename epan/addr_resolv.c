@@ -3018,6 +3018,15 @@ add_ether_byip(const guint ip, const guint8 *eth)
 
 } /* add_ether_byip */
 
+gchar *
+ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct)
+{
+    gchar *buf = (gchar *)wmem_alloc(scope, 12);
+
+    *dword_to_hex_punct(buf, ad, punct) = '\0';
+    return buf;
+}
+
 const gchar *
 get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr)
 {

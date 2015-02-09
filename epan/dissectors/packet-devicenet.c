@@ -792,6 +792,11 @@ static int devicenet_addr_str_len(const address* addr _U_)
     return 11; /* Leaves required space (10 bytes) for uint_to_str_back() */
 }
 
+static int devicenet_addr_len(void)
+{
+    return 1;
+}
+
 void proto_register_devicenet(void)
 {
     module_t *devicenet_module;
@@ -1022,7 +1027,7 @@ void proto_register_devicenet(void)
 
     new_register_dissector("devicenet", dissect_devicenet, proto_devicenet);
 
-    devicenet_address_type = address_type_dissector_register("AT_DEVICENET", "DeviceNet Address", devicenet_addr_to_str, devicenet_addr_str_len, NULL);
+    devicenet_address_type = address_type_dissector_register("AT_DEVICENET", "DeviceNet Address", devicenet_addr_to_str, devicenet_addr_str_len, NULL, devicenet_addr_len);
 
     devicenet_module = prefs_register_protocol(proto_devicenet, NULL);
 
