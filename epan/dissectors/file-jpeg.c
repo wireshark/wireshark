@@ -37,10 +37,13 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <wiretap/wtap.h>
 
 void proto_register_jfif(void);
 void proto_reg_handoff_jfif(void);
+
+static expert_field ei_file_jpeg_first_identifier_not_jfif   = EI_INIT;
 
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
@@ -94,7 +97,6 @@ void proto_reg_handoff_jfif(void);
 #define MARKER_RST6     0xFFD6
 #define MARKER_RST7     0xFFD7
 
-#define MARKER_FFDB     0xFFDB
 #define MARKER_SOI      0xFFD8
 #define MARKER_EOI      0xFFD9
 #define MARKER_SOS      0xFFDA
@@ -590,8 +592,8 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
  * XXX - This code only works on US-ASCII systems!!!
  */
 static int
-process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
-        guint16 marker, const char *marker_name)
+process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 len,
+        guint16 marker, const char *marker_name, gboolean show_first_identifier_not_jfif)
 {
     proto_item *ti = NULL;
     proto_tree *subtree = NULL;
@@ -617,6 +619,12 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
     str = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &str_size, ENC_ASCII);
     ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, ENC_ASCII|ENC_NA);
     offset += str_size;
+
+    if (show_first_identifier_not_jfif && strcmp(str, "JFIF") != 0) {
+        expert_add_info_format(pinfo, ti, &ei_file_jpeg_first_identifier_not_jfif,
+                               "Initial App0 segment with \"JFIF\" Identifier not found");
+    }
+
     if (strcmp(str, "Exif") == 0) {
         /*
          * Endianness
@@ -790,14 +798,22 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     gint tvb_len = tvb_reported_length(tvb);
     gint32 start_entropy = 0;
     gint32 start_fill, start_marker;
+    gboolean show_first_identifier_not_jfif = FALSE;
 
     /* check if we have a full JFIF in tvb */
     if (tvb_len < 20)
         return 0;
+    /* Start Of Image marker must come first */
     if (tvb_get_ntohs(tvb, 0) != MARKER_SOI)
         return 0;
-    if (tvb_memeql(tvb, 6, "JFIF", 5))
+    /* Check identifier field in first App segment is "JFIF", although "Exif" from App1
+       can/does appear here too... */
+    if (tvb_memeql(tvb, 6, "Exif", 5) == 0) {
+        show_first_identifier_not_jfif = TRUE;
+    }
+    else if (tvb_memeql(tvb, 6, "JFIF", 5)) {
         return 0;
+    }
 
     /* Add summary to INFO column if it is enabled */
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(JPEG JFIF image)");
@@ -851,7 +867,8 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         process_app0_segment(subtree, tmp_tvb, len, marker, str);
                         break;
                     case MARKER_APP1:
-                        process_app1_segment(subtree, tmp_tvb, len, marker, str);
+                        process_app1_segment(subtree, tmp_tvb, pinfo, len, marker, str, show_first_identifier_not_jfif);
+                        show_first_identifier_not_jfif = FALSE;
                         break;
                     case MARKER_APP2:
                         process_app2_segment(subtree, tmp_tvb, len, marker, str);
@@ -1222,6 +1239,14 @@ proto_register_jfif(void)
         &ett_details,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_file_jpeg_first_identifier_not_jfif,
+          { IMG_JFIF ".app0-identifier-not-jfif", PI_MALFORMED, PI_WARN,
+            NULL, EXPFILL }},
+    };
+
+    expert_module_t* expert_jfif;
+
     /* Register the protocol name and description */
     proto_jfif = proto_register_protocol(
         "JPEG File Interchange Format",
@@ -1233,6 +1258,9 @@ proto_register_jfif(void)
      * and subtrees used */
     proto_register_field_array(proto_jfif, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_jfif = expert_register_protocol(proto_jfif);
+    expert_register_field_array(expert_jfif, ei, array_length(ei));
 
     new_register_dissector(IMG_JFIF, dissect_jfif, proto_jfif);
 }
