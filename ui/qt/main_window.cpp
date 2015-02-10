@@ -1589,7 +1589,7 @@ void MainWindow::setTitlebarForCaptureFile()
             // XXX - Use setWindowModified
             gchar *window_name;
             setWindowFilePath(NULL);
-            window_name = g_strdup_printf("Capturing from %s[*]", cf_get_tempfile_source(capture_file_.capFile())); //TODO : Fix Translate
+            window_name = g_strdup_printf("[*]%s", cf_get_tempfile_source(capture_file_.capFile())); //TODO : Fix Translate
             setWindowTitle(window_name);
             g_free(window_name);
         } else {
