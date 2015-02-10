@@ -46,7 +46,6 @@
 /* Initialize the protocol and registered fields */
 static int proto_ftam = -1;
 
-static const char *object_identifier_id;
 /* Declare the function to avoid a compiler warning */
 static int dissect_ftam_OR_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
