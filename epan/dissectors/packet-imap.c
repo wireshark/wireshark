@@ -125,7 +125,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hidden_item = proto_tree_add_boolean(imap_tree, hf_imap_isrequest, tvb, 0, 0, is_request);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    while(tvb_reported_length_remaining(tvb, offset) > 0) {
+    while(tvb_offset_exists(tvb, offset)) {
 
       /*
        * Find the end of each line
