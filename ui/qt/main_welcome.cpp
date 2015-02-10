@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include "version.h"
+
 #include <epan/prefs.h>
 
 #include "wsutil/ws_version_info.h"
@@ -51,7 +53,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
 {
     welcome_ui_->setupUi(this);
 
-    welcome_ui_->mainWelcomeBanner->setText("Welcome to Wireshark " VERSION "");
+    welcome_ui_->mainWelcomeBanner->setText(tr("Welcome to Wireshark."));
     recent_files_ = welcome_ui_->recentList;
 
     setStyleSheet(QString(
@@ -89,9 +91,54 @@ MainWelcome::MainWelcome(QWidget *parent) :
                 "}"
                 )
             .arg(tango_aluminium_4, 6, 16, QChar('0'));   // Text color
+
+    // XXX Is there a better term than "flavor"? Provider? Admonition (a la DocBook)?
+    // Release_source?
+    // Typical use cases are automated builds from wireshark.org and private,
+    // not-for-redistribution packages.
+    QString flavor = VERSION_FLAVOR;
+    if (flavor.isEmpty()) {
+        welcome_ui_->flavorBanner->hide();
+    } else {
+        // If needed there are a couple of ways we can make this customizable.
+        // - Add one or more classes, e.g. "note" or "warning" similar to
+        //   SyntaxLineEdit, which we can then expose vi #defines.
+        // - Just expose direct color values via #defines.
+        QString flavor_ss = QString(
+                    "QLabel {"
+                    "  border-radius: 0.25em;"
+                    "  color: %1;"
+                    "  background-color: %2;"
+                    "  padding: 0.25em;"
+                    "}"
+                    )
+                .arg("white") //   Text color
+                .arg("#2c4bc4"); // Background color. Matches capture start button.
+        //            .arg(tango_butter_5, 6, 16, QChar('0'));      // "Warning" background
+
+        welcome_ui_->flavorBanner->setText(flavor);
+        welcome_ui_->flavorBanner->setStyleSheet(flavor_ss);
+    }
     welcome_ui_->captureLabel->setStyleSheet(title_ss);
     welcome_ui_->recentLabel->setStyleSheet(title_ss);
     welcome_ui_->helpLabel->setStyleSheet(title_ss);
+
+    // XXX Add a "check for updates" link?
+    QString full_release = tr("You are running Wireshark ");
+    full_release += get_ws_vcs_version_info();
+    full_release += ".";
+#ifdef HAVE_SOFTWARE_UPDATE
+    if (prefs.gui_update_enabled) {
+        full_release += tr(" You receive automatic updates.");
+    } else {
+        full_release += tr(" You have disabled automatic updates.");
+    }
+#else
+    // XXX Is there a way to tell if the user installed Wireshark via an
+    // external package manager? If so we could say so here. We could
+    // also add a link to the download page.
+#endif
+    welcome_ui_->fullReleaseLabel->setText(full_release);
 
 #ifdef Q_OS_MAC
     recent_files_->setAttribute(Qt::WA_MacShowFocusRect, false);

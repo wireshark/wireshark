@@ -52,6 +52,8 @@ AC_DEFINE(VERSION_MAJOR, version_major, [Wireshark's major version])
 AC_DEFINE(VERSION_MINOR, version_minor, [Wireshark's minor version])
 AC_DEFINE(VERSION_MICRO, version_micro, [Wireshark's micro version])
 
+AC_DEFINE(VERSION_FLAVOR, "Development Build", [Wireshark's package flavor])
+
 AM_DISABLE_STATIC
 
 #

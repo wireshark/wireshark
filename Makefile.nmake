@@ -439,6 +439,7 @@ config.h	: config.h.win32 config.nmake
 	    -e s/@VERSION_MAJOR@/$(VERSION_MAJOR)/ \
 	    -e s/@VERSION_MINOR@/$(VERSION_MINOR)/ \
 	    -e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
+	    -e "s/@VERSION_FLAVOR@/$(VERSION_FLAVOR)/" \
 	    -e "s/@HAVE_C_ARES@/$(C_ARES_CONFIG)/" \
 	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
 	    -e "s/@HAVE_KFW@/$(KFW_CONFIG)/" \

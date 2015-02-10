@@ -249,6 +249,8 @@
 #define VERSION_MINOR @VERSION_MINOR@
 #define VERSION_MICRO @VERSION_MICRO@
 
+#define VERSION_FLAVOR "@VERSION_FLAVOR@"
+
 /* We shouldn't need this under Windows but we'll define it anyway. */
 #define HTML_VIEWER "mozilla"
 
