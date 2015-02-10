@@ -1914,7 +1914,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     tty_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_tty);
 
     /* Show the tty lines one at a time. */
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    while (tvb_offset_exists(tvb, offset)) {
         /* Find the end of the line. */
         int linelen = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
 

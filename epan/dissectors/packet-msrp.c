@@ -587,7 +587,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         /*
          * Process the headers
          */
-        while (tvb_reported_length_remaining(tvb, offset) > 0 && offset < end_line_offset  ) {
+        while (tvb_offset_exists(tvb, offset) && offset < end_line_offset  ) {
             /* 'desegment' is FALSE so will set next_offset to beyond the end of
                the buffer if no line ending is found */
             linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);

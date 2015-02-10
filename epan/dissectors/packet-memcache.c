@@ -1004,7 +1004,7 @@ incr_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
   int            tokenlen;
 
   /* expecting to read 'bytes' number of bytes from the buffer. */
-  if (tvb_reported_length_remaining (tvb, offset) != 0) {
+  if (tvb_offset_exists (tvb, offset)) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
                                  tvb_ensure_length_remaining (tvb, offset), &next_offset,
@@ -1055,7 +1055,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
   guint32       slabclass;
   guchar        response_chars[21];
 
-  while (tvb_reported_length_remaining (tvb, offset) != 0) {
+  while (tvb_offset_exists (tvb, offset)) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
                                  tvb_ensure_length_remaining (tvb, offset), &next_offset,
@@ -1168,7 +1168,7 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   gchar          response_chars[21]; /* cover uint64 (20 + 1) bytes*/
 
   /* expecting to read 'bytes' number of bytes from the buffer. */
-  while (tvb_reported_length_remaining (tvb, offset) != 0) {
+  while (tvb_offset_exists (tvb, offset)) {
     /* Find the end of the line. */
     linelen = tvb_find_line_end (tvb, offset,
                                  tvb_ensure_length_remaining (tvb, offset), &next_offset,

@@ -830,7 +830,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * Process the packet data, a line at a time.
      */
     saw_req_resp_or_header = FALSE; /* haven't seen anything yet */
-    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    while (tvb_offset_exists(tvb, offset)) {
         /*
          * We haven't yet concluded that this is a header.
          */

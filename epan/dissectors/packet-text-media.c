@@ -106,7 +106,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			proto_item_append_text(ti, ": %s", data_name);
 		subtree = proto_item_add_subtree(ti, ett_text_lines);
 		/* Read the media line by line */
-		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		while (tvb_offset_exists(tvb, offset)) {
 			/*
 			 * XXX - we need to be passed the parameters
 			 * of the content type via "pinfo->private_data",
