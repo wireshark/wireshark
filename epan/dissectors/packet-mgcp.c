@@ -557,10 +557,9 @@ static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  */
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 {
-	gint tvb_linebegin, tvb_lineend, tvb_len, linelen;
+	gint tvb_linebegin, tvb_lineend, linelen;
 
 	tvb_linebegin = 0;
-	tvb_len = tvb_reported_length(tvb);
 
 	do
 	{
@@ -568,7 +567,7 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 		linelen = tvb_lineend - tvb_linebegin;
 		proto_tree_add_format_text(tree, tvb, tvb_linebegin, linelen);
 		tvb_linebegin = tvb_lineend;
-	} while (tvb_lineend < tvb_len);
+	} while (tvb_offset_exists(tvb, tvb_lineend));
 }
 
 /* Discard and init any state we've saved */
@@ -1150,7 +1149,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				                                   tvb_current_len);
 			}
 			tokennum++;
-		} while (tvb_current_offset < tvb_len && tvb_previous_offset < tvb_len && tokennum <= 3);
+		} while (tvb_current_offset < tvb_len && tvb_offset_exists(tvb, tvb_current_offset) && tvb_previous_offset < tvb_len && tokennum <= 3);
 
 		switch (mgcp_type)
 		{
@@ -1419,7 +1418,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 		mgcp_param_tree = proto_item_add_subtree(mgcp_param_ti, ett_mgcp_param);
 
 		/* Parse the parameters */
-		while (tvb_lineend < tvb_len)
+		while (tvb_offset_exists(tvb, tvb_lineend))
 		{
 			old_lineend = tvb_lineend;
 			linelen = tvb_find_line_end(tvb, tvb_linebegin, -1, &tvb_lineend, FALSE);
@@ -1790,7 +1789,7 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_
 		tvb_current_len = tvb_reported_length_remaining(tvb, tvb_linebegin);
 		tvb_find_line_end(tvb, tvb_linebegin, tvb_current_len, &tvb_lineend, FALSE);
 		tempchar = tvb_get_guint8(tvb, tvb_linebegin);
-	} while (tempchar != '\r' && tempchar != '\n' && tvb_lineend <= maxoffset);
+	} while (tempchar != '\r' && tempchar != '\n' && tvb_lineend <= maxoffset && tvb_offset_exists(tvb, tvb_lineend));
 
 
 	*next_offset = tvb_lineend;

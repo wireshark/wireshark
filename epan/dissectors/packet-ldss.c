@@ -510,7 +510,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 		/* Grab each line from the packet, there should be 4 but lets
 		 * not walk off the end looking for more. */
-		while (offset < tvb_reported_length(tvb)) {
+		while (tvb_offset_exists(tvb, offset)) {
 			gint next_offset;
 			const guint8 *line;
 			int linelen;

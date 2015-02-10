@@ -1974,7 +1974,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
     /*
      * Show the SDP message a line at a time.
      */
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    while (tvb_offset_exists(tvb, offset)) {
         /*
          * Find the end of the line.
          */
@@ -2329,7 +2329,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     in_media_description = FALSE;
 
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    while (tvb_offset_exists(tvb, offset)) {
         /*
          * Find the end of the line.
          */

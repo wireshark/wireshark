@@ -454,7 +454,7 @@ find_first_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
 {
     gint offset = start, next_offset, line_len, boundary_start;
 
-    while (tvb_reported_length_remaining(tvb, offset + 2 + boundary_len) > 0) {
+    while (tvb_offset_exists(tvb, offset + 2 + boundary_len)) {
         boundary_start = offset;
         if (((tvb_strneql(tvb, offset, (const guint8 *)"--", 2) == 0)
                     && (tvb_strneql(tvb, offset + 2, boundary,  boundary_len) == 0)))
@@ -500,7 +500,7 @@ find_next_boundary(tvbuff_t *tvb, gint start, const guint8 *boundary,
 {
     gint offset = start, next_offset, line_len, boundary_start;
 
-    while (tvb_reported_length_remaining(tvb, offset + 2 + boundary_len) > 0) {
+    while (tvb_offset_exists(tvb, offset + 2 + boundary_len)) {
         line_len =  tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (line_len == -1) {
             return -1;

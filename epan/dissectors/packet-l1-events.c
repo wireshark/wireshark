@@ -83,7 +83,7 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			proto_item_append_text(ti, ": %s", data_name);
 		subtree = proto_item_add_subtree(ti, ett_l1_events);
 		/* Read the media line by line */
-		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		while (tvb_offset_exists(tvb, offset)) {
 			/*
 			 * XXX - we need to be passed the parameters
 			 * of the content type via data parameter,

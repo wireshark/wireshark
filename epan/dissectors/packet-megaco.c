@@ -3226,10 +3226,9 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
 
-    gint tvb_linebegin,tvb_lineend,tvb_len,linelen;
+    gint tvb_linebegin,tvb_lineend,linelen;
 
     tvb_linebegin = 0;
-    tvb_len = tvb_reported_length(tvb);
 
     proto_tree_add_text(tree, tvb, 0, -1,"-------------- (RAW text output) ---------------");
 
@@ -3239,7 +3238,7 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
                             "%s", tvb_format_text_wsp(tvb,tvb_linebegin,
                                                       linelen));
         tvb_linebegin = tvb_lineend;
-    } while ( tvb_lineend < tvb_len && linelen > 0);
+    } while (tvb_offset_exists(tvb, tvb_lineend) && linelen > 0);
 }
 
 /*

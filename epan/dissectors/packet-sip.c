@@ -2732,7 +2732,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         if(tvb_reported_length_remaining(tvb, next_offset) <= 0){
             is_no_header_termination = TRUE;
         }else{
-            while ((c = tvb_get_guint8(tvb, next_offset)) == ' ' || c == '\t')
+            while (tvb_offset_exists(tvb, next_offset) && ((c = tvb_get_guint8(tvb, next_offset)) == ' ' || c == '\t'))
             {
                 /*
                  * This line end is not a header seperator.

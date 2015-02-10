@@ -609,7 +609,7 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* process the rest of the header lines here */
         content_length = 0;
-        while (next_offset < tvb_len)
+        while (tvb_offset_exists(tvb, next_offset))
         {
             /* get next line */
             offset = next_offset;

@@ -843,7 +843,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	headers.transfer_encoding = NULL; /* transfer encoding not known yet */
 	headers.upgrade = 0; /* assume we're not upgrading */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
-	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+	while (tvb_offset_exists(tvb, offset)) {
 		/*
 		 * Find the end of the line.
 		 * XXX - what if we don't find it because the packet
@@ -3426,7 +3426,7 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_message_http,
 				tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_message_http);
-		while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		while (tvb_offset_exists(tvb, offset)) {
 			len = tvb_find_line_end(tvb, offset,
 					tvb_ensure_captured_length_remaining(tvb, offset),
 					&next_offset, FALSE);

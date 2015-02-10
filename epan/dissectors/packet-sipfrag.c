@@ -65,7 +65,7 @@ static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sipfrag_tree = proto_item_add_subtree(ti, ett_sipfrag);
 
     /* Show the sipfrag message a line at a time. */
-    while (tvb_reported_length_remaining(tvb, offset) > 0)
+    while (tvb_offset_exists(tvb, offset))
     {
         /* Find the end of the line. */
         linelen = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
