@@ -26,15 +26,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-13 USA.
  */
 
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 
 #define MAX_SERCOS_DEVICES (512)
+#define MAX_SERCOS_ADDRESS (511)
 #define SERCOS_SLAVE_GROUP_SIZE (128)
 
 #define COMMUNICATION_PHASE_0 (0x0)
@@ -69,8 +71,10 @@ static gint ett_siii_at_svcinfo = -1;
 static gint ett_siii_mdt_svch_data_error_info = -1;
 static gint ett_siii_mdt_svch_data = -1;
 static gint ett_siii_at_devstatus = -1;
+static gint ett_siii_at_sercosaddress = -1;
 static gint ett_siii_at = -1;
 static gint ett_siii_at_svc = -1;
+static gint ett_siii_at_sercos_address = -1;
 static gint ett_siii_at_devstats = -1;
 static gint ett_siii_at_svc_channel = -1;
 static gint ett_siii_at_dev_status = -1;
@@ -80,11 +84,14 @@ static gint ett_siii_mdt_hp_ctrl = -1;
 static gint ett_siii_mdt_hp_info = -1;
 static gint ett_siii_at_hp_stat = -1;
 static gint ett_siii_at_hp_info = -1;
+static gint ett_siii_recognized_devices = -1;
 
 static gint hf_siii_mdt_version = -1;
 static gint hf_siii_mdt_version_initprocvers = -1;
 static gint hf_siii_mdt_version_num_mdt_at_cp1_2 = -1;
-static gint hf_siii_mdt_version_revision = -1;
+static gint hf_siii_mdt_version_switch_off_sercos_telegrams = -1;
+static gint hf_siii_mdt_version_fast_cp_switch = -1;
+static gint hf_siii_mdt_version_transmission_of_communication_parameters_mdt0_cp0 = -1;
 static gint hf_siii_mdt_dev_control_top_control = -1;
 static gint hf_siii_at_dev_control_ident = -1;
 static gint hf_siii_mdt_dev_control_change_topology = -1;
@@ -114,6 +121,8 @@ static gint hf_siii_at_svch_stat = -1;
 /* static gint hf_siii_svch_data_telofs_offset = -1; */
 /* static gint hf_siii_svch_data_proccmd_proccmdexec = -1; */
 /* static gint hf_siii_svch_data_proccmd_proccmd = -1; */
+static gint hf_siii_at_cp0_support_functions = -1;
+static gint hf_siii_at_cp0_device_address = -1;
 static gint hf_siii_at_dev_status = -1;
 static gint hf_siii_at_dev_status_commwarning = -1;
 static gint hf_siii_at_dev_status_change_topology = -1;
@@ -134,6 +143,15 @@ static gint hf_siii_mdt_hotplug_control_svc_switch = -1;
 static gint hf_siii_at_hotplug_status_param = -1;
 static gint hf_siii_at_hotplug_status_hp0_finished = -1;
 static gint hf_siii_at_hotplug_status_error = -1;
+static gint hf_siii_service_channels = -1;
+static gint hf_siii_device_controls = -1;
+static gint hf_siii_device_status = -1;
+static gint hf_siii_idn_code = -1;
+static gint hf_siii_at_cp0_num_devices = -1;
+static gint hf_siii_at_cp0_sercos_address = -1;
+
+static expert_field ei_siii_cp_unknown = EI_INIT;
+
 
 /* Allow heuristic dissection */
 static heur_dissector_list_t heur_subdissector_list;
@@ -145,11 +163,20 @@ static const value_string siii_mdt_version_num_mdtat_cp1_2_text[]=
   {0, NULL}
 };
 
-static const value_string siii_mdt_version_initprocvers_text[]=
-{
-  {0x00, "No remote address allocation"},
-  {0x01, "Remote address allocation"},
-  {0, NULL}
+static const true_false_string siii_mdt_version_fast_cp_switch_text = {
+  "Transmission of MST (MDT0) interrupted during CP switch for CPS delay time (120ms)",
+  "CPS delay time reduce to the re-configuration time of the master"
+};
+
+
+static const true_false_string siii_switch_off_sercos_telegram_text = {
+  "Industrial Ethernet devices not used by application",
+  "Industrial Ethernet devices used by application"
+};
+
+static const true_false_string siii_mdt_version_initprocvers_text = {
+  "No remote address allocation",
+  "Remote address allocation"
 };
 
 #if 0
@@ -589,18 +616,14 @@ static const value_string siii_mdt_svch_dbe_text[]=
   {0, NULL}
 };
 
-static const value_string siii_mdt_svch_eot_text[]=
-{
-  {0x00, "Transmission in progress"},
-  {0x01, "Last transmission"},
-  {0, NULL}
+static const true_false_string siii_mdt_svch_eot_text = {
+  "Transmission in progress",
+  "Last transmission"
 };
 
-static const value_string siii_mdt_svch_rw_text[]=
-{
-  {0x00, "Read SVC INFO"},
-  {0x01, "Write SVC INFO"},
-  {0, NULL}
+static const true_false_string siii_mdt_svch_rw_text = {
+  "Read SVC INFO",
+  "Write SVC INFO"
 };
 
 static const value_string siii_mdt_devcontrol_topcontrol_text[]=
@@ -611,25 +634,14 @@ static const value_string siii_mdt_devcontrol_topcontrol_text[]=
   {0, NULL}
 };
 
-static const value_string siii_at_svch_valid_text[]=
-{
-  {0x00, "SVC not valid"},
-  {0x01, "SVC valid"},
-  {0, NULL}
+static const true_false_string siii_at_svch_error_text = {
+  "No error",
+  "Error in SVC"
 };
 
-static const value_string siii_at_svch_error_text[]=
-{
-  {0x00, "No error"},
-  {0x01, "Error in SVC"},
-  {0, NULL}
-};
-
-static const value_string siii_at_svch_busy_text[]=
-{
-  {0x00, "Step finished, slave ready for new step"},
-  {0x01, "Step in process, new step not allowed"},
-  {0, NULL}
+static const true_false_string siii_at_svch_busy_text = {
+  "Step finished, slave ready for new step",
+  "Step in process, new step not allowed"
 };
 
 
@@ -679,14 +691,6 @@ static const value_string siii_mst_type_text[]=
   {0, NULL}
 };
 
-static const value_string siii_mst_cyclecntvalid_text[]=
-{
-  {0x00, "Invalid"},
-  {0x01, "Valid"},
-  {0, NULL}
-};
-
-
 static const value_string siii_at_devstatus_errorconnection_text[]=
 {
   {0x00, "Error-free connection"},
@@ -700,6 +704,11 @@ static const value_string siii_at_devstatus_topstatus_text[]=
   {0x01, "Loopback on P-Channel and Fast Forward"},
   {0x02, "Loopback on S-Channel and Fast Forward"},
   {0, NULL}
+};
+
+static const true_false_string siii_at_cp0_support_functions_text = {
+  "Slave doesn't support one or more of the requested functions",
+  "Slave supports all requested functions"
 };
 
 static const value_string siii_at_devstatus_inactiveportstatus_text[]=
@@ -798,33 +807,34 @@ static void dissect_siii_mst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *subtree;
-  proto_tree *subtree2;
-  proto_item *ti;
+
+  static const int * ctrl_fields[] = {
+    &hf_siii_mdt_hotplug_control_svc_switch,
+    &hf_siii_mdt_hotplug_control_param,
+    NULL
+  };
 
   subtree = proto_tree_add_subtree(tree, tvb, 0, 8, ett_siii_mdt_hp, NULL, "Hot-Plug");
 
-  proto_tree_add_item(subtree, hf_siii_mdt_hotplug_address, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_mdt_hotplug_address, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 
-  ti = proto_tree_add_item(subtree, hf_siii_mdt_hp_ctrl, tvb, 2, 2, ENC_LITTLE_ENDIAN);
-  subtree2 = proto_item_add_subtree(ti, ett_siii_mdt_hp_ctrl);
-
-  proto_tree_add_item(subtree2, hf_siii_mdt_hotplug_control_svc_switch, tvb, 2, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree2, hf_siii_mdt_hotplug_control_param,      tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(subtree, tvb, 2, hf_siii_mdt_hp_ctrl,
+                                   ett_siii_mdt_hp_ctrl, ctrl_fields, ENC_LITTLE_ENDIAN);
 
   proto_tree_add_item(subtree, hf_siii_mdt_hp_info, tvb, 4, 4, ENC_NA);
 }
 
 static void dissect_siii_mdt_devctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree *subtree;
-  proto_item *ti;
+  static const int * ctrl_fields[] = {
+    &hf_siii_at_dev_control_ident,
+    &hf_siii_mdt_dev_control_change_topology,
+    &hf_siii_mdt_dev_control_top_control,
+    NULL
+  };
 
-  ti = proto_tree_add_item(tree, hf_siii_mdt_dev_control, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  subtree = proto_item_add_subtree(ti, ett_siii_mdt_devctrl);
-
-  proto_tree_add_item(subtree, hf_siii_at_dev_control_ident,            tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_mdt_dev_control_change_topology, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_mdt_dev_control_top_control,     tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(tree, tvb, 0, hf_siii_mdt_dev_control,
+                                   ett_siii_mdt_devctrl, ctrl_fields, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be needed in later versions */
@@ -832,45 +842,43 @@ static void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   proto_tree *subtree;
   proto_item *ti;
 
+  static const int * svch_fields[] = {
+    &hf_siii_mdt_svch_dbe, /* data block element */
+    &hf_siii_mdt_svch_eot, /* end of transmission */
+    &hf_siii_mdt_svch_rw,  /* read or write */
+    &hf_siii_mdt_svch_mhs, /* master hand shake */
+    NULL
+  };
+
   guint16 svc_ctrl = tvb_get_letohs(tvb, 0); /* service channel header */
-  guint32 svc_info = tvb_get_letohl(tvb, 2); /* service channel data */
   guint8  svc_dbe  = (svc_ctrl>>3) & 7;      /* accessed data block element */
 
-  ti = proto_tree_add_item(tree, hf_siii_mdt_svch_ctrl, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  subtree = proto_item_add_subtree(ti, ett_siii_mdt_svcctrl);
-
-  proto_tree_add_item(subtree, hf_siii_mdt_svch_dbe, tvb, 0, 2, ENC_LITTLE_ENDIAN); /* data block element */
-  proto_tree_add_item(subtree, hf_siii_mdt_svch_eot, tvb, 0, 2, ENC_LITTLE_ENDIAN); /* end of transmission */
-  proto_tree_add_item(subtree, hf_siii_mdt_svch_rw,  tvb, 0, 2, ENC_LITTLE_ENDIAN);  /* read or write */
-  proto_tree_add_item(subtree, hf_siii_mdt_svch_mhs, tvb, 0, 2, ENC_LITTLE_ENDIAN); /* master hand shake */
+  proto_tree_add_bitmask(tree, tvb, 0, hf_siii_mdt_svch_ctrl,
+                                   ett_siii_mdt_svcctrl, svch_fields, ENC_LITTLE_ENDIAN);
 
   ti = proto_tree_add_item(tree, hf_siii_mdt_svch_info, tvb, 2, 4, ENC_NA);
 
   if (1 == svc_dbe)
   {
     subtree = proto_item_add_subtree(ti, ett_siii_mdt_svcinfo);
-    proto_tree_add_text(subtree, tvb, 2, 4, "IDN code: %c-%u-%04d.%d.%d",
-      ((0xFFFF & svc_info)>>15)?'P':'S', /* private or sercos IDN */
-      (svc_info>>12)&7,                  /* parameter record */
-      (svc_info&4095),                   /* IDN */
-      (svc_info>>24) & 0xFF,             /* structure index */
-      (svc_info>>16) & 0xFF);            /* structure element */
+    proto_tree_add_item(subtree, hf_siii_idn_code, tvb, 2, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_siii_mdt_svch_idn, tvb, 2, 4, ENC_LITTLE_ENDIAN);
   }
 }
 
 static void dissect_siii_mdt_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_item *ti;
-  proto_tree *subtree;
+  static const int * version_fields[] = {
+    &hf_siii_mdt_version_switch_off_sercos_telegrams,
+    &hf_siii_mdt_version_fast_cp_switch,
+    &hf_siii_mdt_version_transmission_of_communication_parameters_mdt0_cp0,
+    &hf_siii_mdt_version_num_mdt_at_cp1_2,
+    &hf_siii_mdt_version_initprocvers,
+    NULL
+  };
 
-  ti = proto_tree_add_item(tree, hf_siii_mdt_version, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-  subtree = proto_item_add_subtree(ti, ett_siii_mdt_version);
-
-  proto_tree_add_item(subtree, hf_siii_mdt_version_num_mdt_at_cp1_2, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_mdt_version_initprocvers, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_mdt_version_revision, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, 0, hf_siii_mdt_version,
+                                   ett_siii_mdt_version, version_fields, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_siii_mdt_cp1_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint telno)
@@ -912,9 +920,9 @@ static void dissect_siii_mdt_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   /* offsets of service channel, device status and connections are unknown
    * this data could be extracted from svc communication during CP2
    */
-  proto_tree_add_text(tree, tvb, 0, 0, "Service Channels");
+  proto_tree_add_item(tree, hf_siii_service_channels, tvb, 0, 0, ENC_NA);
 
-  proto_tree_add_text(tree, tvb, 0, 0, "Device Controls");
+  proto_tree_add_item(tree, hf_siii_device_controls, tvb, 0, 0, ENC_NA);
 }
 
 static void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -965,60 +973,61 @@ static void dissect_siii_mdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   break;
 
   default:
-    proto_tree_add_text(tree, tvb, 6, -1, "CP is unknown");
+    proto_tree_add_expert(tree, pinfo, &ei_siii_cp_unknown, tvb, 6, -1);
   }
 }
 
+
 static void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be used in later versions */
 {
-  proto_tree *subtree;
-  proto_item *ti;
+  static const int * svch_fields[] = {
+    &hf_siii_at_svch_valid,
+    &hf_siii_at_svch_error,
+    &hf_siii_at_svch_busy,
+    &hf_siii_at_svch_ahs,
+    NULL
+  };
 
-  ti = proto_tree_add_item(tree, hf_siii_at_svch_stat, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  subtree = proto_item_add_subtree(ti, ett_siii_at_svcstat);
-
-  proto_tree_add_item(subtree, hf_siii_at_svch_valid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_svch_error, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_svch_busy,  tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_svch_ahs,   tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(tree, tvb, 0, hf_siii_at_svch_stat,
+                                   ett_siii_at_svcstat, svch_fields, ENC_LITTLE_ENDIAN);
 
   proto_tree_add_item(tree, hf_siii_at_svch_info, tvb, 2, 4, ENC_NA);
 }
 
 static void dissect_siii_at_devstat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree *subtree;
-  proto_item *ti;
+  static const int * status[] = {
+    &hf_siii_at_dev_status_commwarning,
+    &hf_siii_at_dev_status_change_topology,
+    &hf_siii_at_dev_status_top_status,
+    &hf_siii_at_dev_status_inactive_port_status,
+    &hf_siii_at_dev_status_errorconnection,
+    &hf_siii_at_dev_status_slave_valid,
+    &hf_siii_at_dev_status_proc_command_change,
+    &hf_siii_at_dev_status_parameterization_level_active,
+    NULL
+  };
 
-  ti = proto_tree_add_item(tree, hf_siii_at_dev_status,                             tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  subtree = proto_item_add_subtree(ti, ett_siii_at_devstatus);
-
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_commwarning,                   tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_change_topology,               tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_top_status,                    tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_inactive_port_status,          tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_errorconnection,               tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_slave_valid,                   tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_proc_command_change,           tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_parameterization_level_active, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(tree, tvb, 0, hf_siii_at_dev_status,
+                                   ett_siii_at_devstatus, status, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_siii_at_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *subtree;
-  proto_tree *subtree2;
-  proto_item *ti;
+
+  static const int * status[] = {
+    &hf_siii_at_hotplug_status_error,
+    &hf_siii_at_hotplug_status_hp0_finished,
+    &hf_siii_at_hotplug_status_param,
+    NULL
+  };
 
   subtree = proto_tree_add_subtree(tree, tvb, 0, 8, ett_siii_at_hp, NULL, "Hot-Plug");
 
-  proto_tree_add_item(subtree, hf_siii_at_hotplug_address,              tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_hotplug_address,              tvb, 0, 2, ENC_LITTLE_ENDIAN);
 
-  ti = proto_tree_add_item(subtree, hf_siii_at_hp_stat,                 tvb, 2, 2, ENC_LITTLE_ENDIAN);
-  subtree2 = proto_item_add_subtree(ti, ett_siii_at_hp_stat);
-
-  proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_error,        tvb, 2, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_hp0_finished, tvb, 2, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_param,        tvb, 2, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(subtree, tvb, 2, hf_siii_at_hp_stat, ett_siii_at_hp_stat, status, ENC_LITTLE_ENDIAN);
 
   proto_tree_add_item(subtree, hf_siii_at_hp_info,                      tvb, 4, 4, ENC_NA);
 }
@@ -1028,34 +1037,31 @@ static void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   guint16     seqcnt;           /* sequence counter */
   guint16     tfield;           /* topology field for sercos addresses */
   guint16     i;
-  static char outbuf[200];
+  proto_tree *subtree, *subtree2;
+  proto_item* ti;
 
- /* fixme: it would be nice to have this as subtree */
-  proto_tree_add_text(tree, tvb, 0, 1024, "Recognized Devices");
+  subtree = proto_tree_add_subtree(tree, tvb, 0, 1024, ett_siii_recognized_devices, NULL, "Recognized Devices");
 
   /* check sequence count field */
   seqcnt = tvb_get_letohs(tvb, 0);
-  g_snprintf(outbuf, sizeof(outbuf), "Number of Devices: %u", (0x1FF & seqcnt)-1);
-  proto_tree_add_text(tree, tvb, 0, 2, "%s", outbuf);
+  proto_tree_add_uint(subtree, hf_siii_at_cp0_num_devices, tvb, 0, 2, (MAX_SERCOS_ADDRESS & seqcnt)-1);
 
   /* check SERCOS address of each topology field */
   for (i = 1; i < MAX_SERCOS_DEVICES; ++i)
   {
     tfield = tvb_get_letohs(tvb, i*2);
 
-    if (tfield == 0)
+    if (tfield == 0xFFFF)
     {
-      g_snprintf(outbuf, sizeof(outbuf), "Device Address %u: No SERCOS Address", i);
-    }
-    else if (tfield == 0xFFFF)
-    {
-      g_snprintf(outbuf, sizeof(outbuf), "Device Address %u: No Device", i);
+      proto_tree_add_uint_format(subtree, hf_siii_at_cp0_sercos_address, tvb, i*2, 2, 0xFFFF, "Sercos Address %u: No Device", i);
     }
     else
     {
-      g_snprintf(outbuf, sizeof(outbuf), "Device Address %u: %u", i, tfield);
+      ti = proto_tree_add_uint_format(subtree, hf_siii_at_cp0_sercos_address, tvb, i*2, 2, (tfield & MAX_SERCOS_ADDRESS), "Sercos Address %u: %u", i, (tfield & MAX_SERCOS_ADDRESS));
+      subtree2  = proto_item_add_subtree(ti, ett_siii_at_sercos_address);
+      proto_tree_add_item(subtree2, hf_siii_at_cp0_support_functions,  tvb, i*2, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(subtree2, hf_siii_at_cp0_device_address,     tvb, i*2, 2, ENC_LITTLE_ENDIAN);
     }
-    proto_tree_add_text(tree, tvb, i*2, 2, "%s", outbuf);
   }
 }
 
@@ -1096,8 +1102,8 @@ static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   /* offsets of service channel, device status and connections are unknown
    * this data could be extracted from svc communication during CP2
    */
-  proto_tree_add_text(tree, tvb, 0, 0, "Service Channels");
-  proto_tree_add_text(tree, tvb, 0, 0, "Device Status");
+  proto_tree_add_item(tree, hf_siii_service_channels, tvb, 0, 0, ENC_NA);
+  proto_tree_add_item(tree, hf_siii_device_status, tvb, 0, 0, ENC_NA);
 }
 
 
@@ -1149,7 +1155,7 @@ static void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
 
     default:
-      proto_tree_add_text(tree, tvb, 6, -1, "CP is unknown");
+      proto_tree_add_expert(tree, pinfo, &ei_siii_cp_unknown, tvb, 6, -1);
     break;
     }
 }
@@ -1205,6 +1211,17 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_siii_mdt(tvb, pinfo, siii_tree);
 }
 
+static void
+sercosiii_idn_code_format( gchar *result, guint32 svc_info )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%c-%u-%04d.%d.%d",
+       ((0xFFFF & svc_info)>>15)?'P':'S', /* private or sercos IDN */
+      (svc_info>>12)&7,                  /* parameter record */
+      (svc_info&4095),                   /* IDN */
+      (svc_info>>24) & 0xFF,             /* structure index */
+      (svc_info>>16) & 0xFF);            /* structure element */
+}
+
 void
 proto_register_sercosiii(void)
 {
@@ -1215,19 +1232,30 @@ proto_register_sercosiii(void)
       FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }
     },
-    { &hf_siii_mdt_version_revision,
-      { "Revision Number", "siii.mdt.version.revision",
-      FT_UINT32, BASE_HEX, NULL, 0x7F,
-      NULL, HFILL }
-    },
     { &hf_siii_mdt_version_num_mdt_at_cp1_2,
       { "Number of MDTs and ATS in CP1 and CP2", "siii.mdt.version.num_mdt_at_cp1_2",
       FT_UINT32, BASE_HEX, VALS(siii_mdt_version_num_mdtat_cp1_2_text), 0x30000,
       NULL, HFILL }
     },
+    { &hf_siii_mdt_version_transmission_of_communication_parameters_mdt0_cp0,
+      { "Transmission of Communication parameters", "siii.mdt.version.mdt0_cp0_transm_comm_parameter",
+      FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x100000,
+      NULL, HFILL }
+    },
+    { &hf_siii_mdt_version_fast_cp_switch,
+      { "Fast CP switch", "siii.mdt.version.mdt0_cp0_fast_cp_switch",
+      FT_BOOLEAN, 32, TFS(&siii_mdt_version_fast_cp_switch_text), 0x200000,
+      NULL, HFILL }
+    },
+
+    { &hf_siii_mdt_version_switch_off_sercos_telegrams,
+      { "Switch off Sercos III telegrams", "siii.mdt.version.mdt0_cp0_switch_off_sercos_telegram",
+      FT_BOOLEAN, 32, TFS(&siii_switch_off_sercos_telegram_text), 0x400000,
+      NULL, HFILL }
+    },
     { &hf_siii_mdt_version_initprocvers,
       { "Initialization Procedure Version Number", "siii.mdt.version.initprocvers",
-      FT_UINT32, BASE_HEX, VALS(siii_mdt_version_initprocvers_text), 0xFF00,
+      FT_BOOLEAN, 32, TFS(&siii_mdt_version_initprocvers_text), 0xFF00,
       NULL, HFILL }
     },
 
@@ -1261,6 +1289,18 @@ proto_register_sercosiii(void)
     { &hf_siii_at_dev_status_commwarning,
       { "Communication Warning", "siii.at.devstatus.commwarning",
       FT_UINT16, BASE_DEC, NULL, 1<<15,
+      NULL, HFILL }
+    },
+
+    { &hf_siii_at_cp0_support_functions,
+      { "Support of requested functions", "siii.at.supfunctions",
+      FT_BOOLEAN, 16, TFS(&siii_at_cp0_support_functions_text), 1<<15,
+      NULL, HFILL }
+    },
+
+    { &hf_siii_at_cp0_device_address,
+      { "Sercos Address", "siii.at.sercosaddress",
+      FT_UINT16, BASE_DEC, NULL, MAX_SERCOS_ADDRESS,
       NULL, HFILL }
     },
 
@@ -1332,12 +1372,12 @@ proto_register_sercosiii(void)
     },
     { &hf_siii_mdt_svch_eot,
       {"End of element transmission", "siii.mdt.svch.eot",
-      FT_UINT16, BASE_DEC, VALS(siii_mdt_svch_eot_text), 0x04,
+      FT_BOOLEAN, 16, TFS(&siii_mdt_svch_eot_text), 0x04,
       NULL, HFILL }
     },
     { &hf_siii_mdt_svch_rw,
       {"Read/Write", "siii.mdt.svch.rw",
-      FT_UINT16, BASE_DEC, VALS(siii_mdt_svch_rw_text), 0x02,
+      FT_BOOLEAN, 16, TFS(&siii_mdt_svch_rw_text), 0x02,
       NULL, HFILL }
     },
     { &hf_siii_mdt_svch_mhs,
@@ -1347,17 +1387,17 @@ proto_register_sercosiii(void)
     },
     { &hf_siii_at_svch_valid,
       { "SVC process", "siii.mdt.svch.proc",
-      FT_UINT16, BASE_DEC, VALS(siii_at_svch_valid_text), 0x08,
+      FT_BOOLEAN, 16, TFS(&tfs_valid_not_valid), 0x08,
       NULL, HFILL }
     },
     { &hf_siii_at_svch_error,
       {"SVC Error", "siii.mdt.svch.error",
-      FT_UINT16, BASE_DEC, VALS(siii_at_svch_error_text), 0x04,
+      FT_BOOLEAN, 16, TFS(&siii_at_svch_error_text), 0x04,
       NULL, HFILL }
     },
     { &hf_siii_at_svch_busy,
       {"Busy", "siii.mdt.svch.busy",
-      FT_UINT16, BASE_DEC, VALS(siii_at_svch_busy_text), 0x02,
+      FT_BOOLEAN, 16, TFS(&siii_at_svch_busy_text), 0x02,
       NULL, HFILL }
     },
     { &hf_siii_at_svch_ahs,
@@ -1412,7 +1452,7 @@ proto_register_sercosiii(void)
     },
     { &hf_siii_mst_cyclecntvalid,
       { "Cycle Count Valid", "siii.cyclecntvalid",
-        FT_UINT8, BASE_DEC, VALS(siii_mst_cyclecntvalid_text), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_valid_invalid), 0x20,
         NULL, HFILL }
     },
     { &hf_siii_mst_telno,
@@ -1491,7 +1531,37 @@ proto_register_sercosiii(void)
       {"Error", "siii.at.hp.error",
         FT_UINT16, BASE_DEC, VALS(siii_at_hotplug_status_error_text), 0x200,
         NULL, HFILL }
-    }
+    },
+    { &hf_siii_service_channels,
+      {"Service Channels", "siii.service_channels",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_siii_device_controls,
+      {"Device Controls", "siii.device_controls",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_siii_device_status,
+      {"Device Status", "siii.device_status",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_siii_idn_code,
+      {"IDN code", "siii.idn_code",
+        FT_UINT32, BASE_CUSTOM, CF_FUNC(sercosiii_idn_code_format), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_siii_at_cp0_num_devices,
+      {"Number of Devices", "siii.at.cp0.num_devices",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_siii_at_cp0_sercos_address,
+      {"Sercos Address", "siii.at.cp0.sercos_address",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
   };
 
   /* Setup protocol subtree array */
@@ -1508,12 +1578,14 @@ proto_register_sercosiii(void)
 
     &ett_siii_at,
     &ett_siii_at_svc,
+    &ett_siii_at_sercos_address,
     &ett_siii_at_devstats,
     &ett_siii_at_svc_channel,
     &ett_siii_at_dev_status,
 
     &ett_siii_mdt_devctrl,
     &ett_siii_at_devstatus,
+    &ett_siii_at_sercosaddress,
 
     &ett_siii_mdt_svcctrl,
     &ett_siii_mdt_svcinfo,
@@ -1531,9 +1603,15 @@ proto_register_sercosiii(void)
     &ett_siii_mdt_hp_ctrl,
     &ett_siii_mdt_hp_info,
     &ett_siii_at_hp_stat,
-    &ett_siii_at_hp_info
+    &ett_siii_at_hp_info,
+    &ett_siii_recognized_devices
   };
 
+  static ei_register_info ei[] = {
+    { &ei_siii_cp_unknown, { "siii.cp_unknown", PI_PROTOCOL, PI_WARN, "CP is unknown", EXPFILL }},
+  };
+
+  expert_module_t* expert_siii;
 
   /* Register the protocol name and description */
   proto_siii = proto_register_protocol("SERCOS III V1.1",
@@ -1547,6 +1625,8 @@ proto_register_sercosiii(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_siii, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_siii = expert_register_protocol(proto_siii);
+  expert_register_field_array(expert_siii, ei, array_length(ei));
 }
 
 void
