@@ -150,7 +150,7 @@ gtk_gtpstat_init(const char *opt_arg, void *userdata _U_)
 	gtp->win = dlg_window_new("gtp-stat");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(gtp->win), TRUE);
 
-	gtk_window_set_default_size(GTK_WINDOW(gtp->win), 550, 400);
+	gtk_window_set_default_size(GTK_WINDOW(gtp->win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
 	gtpstat_set_title(gtp);
 
 	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);

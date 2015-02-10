@@ -138,7 +138,7 @@ gtk_smb2stat_init(const char *opt_arg, void *userdata _U_)
 
 	ss->win = dlg_window_new("smb2-stat");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(ss->win), 550, 400);
+	gtk_window_set_default_size(GTK_WINDOW(ss->win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
 	smb2stat_set_title(ss);
 
 	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);

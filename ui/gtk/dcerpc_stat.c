@@ -261,7 +261,7 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(rs->win), TRUE);
 
 	dcerpcstat_set_title(rs);
-	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
+	gtk_window_set_default_size(GTK_WINDOW(rs->win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
 
 	vbox =ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);

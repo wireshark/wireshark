@@ -143,7 +143,7 @@ gtk_ldapstat_init(const char *opt_arg, void *userdata _U_)
 
 	ldap->win = dlg_window_new("ldap-stat");
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(ldap->win), TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(ldap->win), 550, 400);
+	gtk_window_set_default_size(GTK_WINDOW(ldap->win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
 	ldapstat_set_title(ldap);
 
 	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);

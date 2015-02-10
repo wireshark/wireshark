@@ -149,7 +149,7 @@ static void gtk_camelsrt_init(const char *opt_arg, void *userdata _U_)
   p_camelsrt->win= dlg_window_new("camel-srt");  /* transient_for top_level */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(p_camelsrt->win), TRUE);
 
-  gtk_window_set_default_size(GTK_WINDOW(p_camelsrt->win), 550, 400);
+  gtk_window_set_default_size(GTK_WINDOW(p_camelsrt->win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
   camelsrt_set_title(p_camelsrt);
 
   vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);

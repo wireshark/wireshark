@@ -131,7 +131,7 @@ gtk_fcstat_init(const char *opt_arg, void *userdata _U_)
 	fc->win = dlg_window_new("fc-stat");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(fc->win), TRUE);
 
-	gtk_window_set_default_size(GTK_WINDOW(fc->win), 550, 400);
+	gtk_window_set_default_size(GTK_WINDOW(fc->win), SRT_PREFERRED_WIDTH, SRT_PREFERRED_HEIGHT);
 	fcstat_set_title(fc);
 
 	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);

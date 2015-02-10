@@ -44,6 +44,7 @@ enum
 	MIN_SRT_COLUMN,
 	MAX_SRT_COLUMN,
 	AVG_SRT_COLUMN,
+	SUM_SRT_COLUMN,
 	N_COLUMNS
 };
 
@@ -401,7 +402,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	GtkTreeSortable *sortable;
 	GtkTreeSelection  *sel;
 
-	static const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT", "Max SRT", "Avg SRT" };
+	static const char *default_titles[] = { "Index", "Procedure", "Calls", "Min SRT (s)", "Max SRT (s)", "Avg SRT (s)", "Sum SRT (s)" };
 
 	/* Create the store */
 	store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
@@ -410,7 +411,8 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 				    G_TYPE_UINT,   	/* Calls     */
 				    G_TYPE_POINTER,  /* Min SRT   */
 				    G_TYPE_POINTER,  /* Max SRT   */
-				    G_TYPE_UINT64);  /* Avg SRT   */
+				    G_TYPE_UINT64,   /* Avg SRT   */
+				    G_TYPE_UINT64);  /* Sum SRT   */
 
 	/* Create a view */
 	tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
@@ -440,6 +442,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 			gtk_tree_sortable_set_sort_func(sortable, i, srt_time_sort_func, GINT_TO_POINTER(i), NULL);
 			break;
 		case AVG_SRT_COLUMN:
+		case SUM_SRT_COLUMN:
 			column = gtk_tree_view_column_new_with_attributes (default_titles[i], renderer, NULL);
 			gtk_tree_view_column_set_cell_data_func(column, renderer, srt_avg_func,  GINT_TO_POINTER(i), NULL);
 			break;
@@ -538,6 +541,7 @@ add_srt_table_data(srt_stat_table *rst, int indx, const nstime_t *req_time, pack
 				   MIN_SRT_COLUMN,   NULL,
 				   MAX_SRT_COLUMN,   NULL,
 				   AVG_SRT_COLUMN,   (guint64)0,
+				   SUM_SRT_COLUMN,   (guint64)0,
 				   -1);
 	}
 
@@ -553,6 +557,7 @@ draw_srt_table_data(srt_stat_table *rst)
 {
 	int i;
 	guint64 td;
+	guint64 sum;
 	GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(rst->table));
 
 	for(i=0;i<rst->num_procs;i++){
@@ -566,6 +571,7 @@ draw_srt_table_data(srt_stat_table *rst)
 		   would take a capture with a duration of over 136 *years* to
 		   overflow the secs portion of td. */
 		td = ((guint64)(rst->procedures[i].stats.tot.secs))*NANOSECS_PER_SEC + rst->procedures[i].stats.tot.nsecs;
+		sum = (td + 500) / 1000;
 		td = ((td / rst->procedures[i].stats.num) + 500) / 1000;
 
 		gtk_list_store_set(store, &rst->procedures[i].iter,
@@ -573,6 +579,7 @@ draw_srt_table_data(srt_stat_table *rst)
 				   MIN_SRT_COLUMN,   &rst->procedures[i].stats.min,
 				   MAX_SRT_COLUMN,   &rst->procedures[i].stats.max,
 				   AVG_SRT_COLUMN,   td,
+				   SUM_SRT_COLUMN,   sum,
 				   -1);
 	}
 }

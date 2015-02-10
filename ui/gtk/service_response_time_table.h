@@ -29,6 +29,12 @@
 #include "wsutil/nstime.h"
 #include "epan/timestats.h"
 
+/** Suggested width of SRT window */
+#define SRT_PREFERRED_WIDTH 650
+
+/** Suggested height of SRT window */
+#define SRT_PREFERRED_HEIGHT 400
+
 /** @file
  *  Helper routines common to all service response time statistics tap.
  */
