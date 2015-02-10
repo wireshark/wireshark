@@ -41,7 +41,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/address.h>
 #include <epan/reassemble.h>
 #include "crc.h"
 #include "wimax_utils.h"

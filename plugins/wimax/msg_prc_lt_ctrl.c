@@ -29,8 +29,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "crc.h"
-#include "wimax_tlv.h"
 #include "wimax_mac.h"
 
 

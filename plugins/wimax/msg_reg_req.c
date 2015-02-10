@@ -31,7 +31,6 @@
 #define WIMAX_16E_2005
 
 #include <epan/packet.h>
-#include "crc.h"
 #include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"

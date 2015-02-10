@@ -26,7 +26,6 @@
 
 #include <epan/stats_tree.h>
 #include <epan/prefs.h>
-#include <epan/uat.h>
 #include <epan/uat-int.h>
 #include <epan/to_str.h>
 

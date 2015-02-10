@@ -29,7 +29,6 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
-#include <epan/address.h>
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>

@@ -30,7 +30,6 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include "crc.h"
 #include "wimax_mac.h"
 #include "wimax_bits.h"
 #include "wimax_utils.h"

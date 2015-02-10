@@ -29,7 +29,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "crc.h"
 #include "wimax_compact_ulmap_ie_decoder.h"
 
 /* MASKs */

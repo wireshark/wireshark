@@ -26,15 +26,12 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
-#include <epan/addr_resolv.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
-#include <wsutil/crc16.h>
 #include <wsutil/crc16-plain.h>
 #include "packet-pn.h"
 

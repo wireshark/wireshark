@@ -33,7 +33,6 @@
 */
 
 #include <epan/packet.h>
-#include "wimax_tlv.h"
 #include "wimax_mac.h"
 #include "wimax_utils.h"
 

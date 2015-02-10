@@ -22,8 +22,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "opcua_application_layer.h"
-#include "opcua_simpletypes.h"
 #include "opcua_security_layer.h"
 
 static int hf_opcua_security_tokenid = -1;

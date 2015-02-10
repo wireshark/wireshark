@@ -22,7 +22,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "opcua_simpletypes.h"
 #include "opcua_application_layer.h"
 
 /** NodeId encoding mask table */

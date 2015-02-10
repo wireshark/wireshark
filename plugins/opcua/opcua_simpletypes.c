@@ -27,7 +27,6 @@
 #include <epan/dissectors/packet-windows-common.h>
 #include "opcua_simpletypes.h"
 #include "opcua_hfindeces.h"
-#include "opcua_extensionobjectids.h"
 #include "opcua_statuscode.h"
 
 #define DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG           0x01
