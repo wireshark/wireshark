@@ -8429,8 +8429,12 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 						offset = dissect_nfs4_fh(tvb, offset,
 							pinfo, ds_tree, "fh", NULL, civ);
 
-					offset = dissect_rpc_opaque_auth(tvb, ds_tree,
-							offset, pinfo);
+					offset = dissect_nfs_utf8string(tvb, offset,
+							ds_tree, hf_nfs4_fattr_owner,
+							NULL);
+					offset = dissect_nfs_utf8string(tvb, offset,
+							ds_tree, hf_nfs4_fattr_owner_group,
+							NULL);
 				}
 			}
 		} else {
