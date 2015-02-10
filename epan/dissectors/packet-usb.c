@@ -2655,7 +2655,7 @@ is_usb_standard_setup_request(usb_trans_info_t *usb_trans_info)
 
 static gint
 try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pinfo,
-        usb_conv_info_t *usb_conv_info, guint8 urb_type)
+        usb_conv_info_t *usb_conv_info, guint8 urb_type, proto_tree *urb_tree)
 {
     int                      ret;
     wmem_tree_key_t          key[4];
@@ -2666,6 +2666,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     heur_dtbl_entry_t       *hdtbl_entry;
     heur_dissector_list_t    heur_subdissector_list = NULL;
     dissector_table_t        usb_dissector_table = NULL;
+    proto_item              *sub_item;
     device_product_data_t   *device_product_data;
     device_protocol_data_t  *device_protocol_data;
     guint8                   ctrl_recip;
@@ -2811,6 +2812,8 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
             }
 
             usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
+            sub_item = proto_tree_add_uint(urb_tree, hf_usb_bInterfaceClass, next_tvb, 0, 0, usb_conv_info->interfaceClass);
+            PROTO_ITEM_SET_GENERATED(sub_item);
             break;
 
         default:
@@ -2864,7 +2867,7 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
             /* Try to find a non-standard specific dissector */
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type);
+                offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type, tree);
             }
 
             length_remaining = tvb_reported_length_remaining(tvb, offset);
@@ -2998,7 +3001,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     else {
         /* no standard request - pass it on to class-specific dissectors */
         ret = try_dissect_next_protocol(
-                setup_tree, next_tvb, pinfo, usb_conv_info, urb_type);
+                setup_tree, next_tvb, pinfo, usb_conv_info, urb_type, tree);
         if (ret <= 0) {
             /* no class-specific dissector could handle it,
                dissect it as generic setup request */
@@ -3553,30 +3556,30 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     }
 
     switch(usb_conv_info->transfer_type) {
-        case URB_BULK:
-        case URB_INTERRUPT:
-            item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
-            PROTO_ITEM_SET_GENERATED(item);
+    case URB_BULK:
+    case URB_INTERRUPT:
+        item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
+        PROTO_ITEM_SET_GENERATED(item);
 
-            switch (header_type) {
+        switch (header_type) {
 
-            case USB_HEADER_LINUX_48_BYTES:
-            case USB_HEADER_LINUX_64_BYTES:
-                /* bulk and interrupt transfers never contain a setup packet */
-                proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
-                offset += 8;
-                if (header_type == USB_HEADER_LINUX_64_BYTES) {
-                    offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
-                }
-                break;
-
-            case USB_HEADER_USBPCAP:
-                break;
-
-            case USB_HEADER_MAUSB:
-                break;
+        case USB_HEADER_LINUX_48_BYTES:
+        case USB_HEADER_LINUX_64_BYTES:
+            /* bulk and interrupt transfers never contain a setup packet */
+            proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
+            offset += 8;
+            if (header_type == USB_HEADER_LINUX_64_BYTES) {
+                offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
             }
             break;
+
+        case USB_HEADER_USBPCAP:
+            break;
+
+        case USB_HEADER_MAUSB:
+            break;
+        }
+        break;
 
     case URB_CONTROL:
         if (header_type == USB_HEADER_USBPCAP) {
@@ -3722,7 +3725,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-        offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type);
+        offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type, tree);
     }
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
