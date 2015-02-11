@@ -1384,7 +1384,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint32          flags        = 0;
   guint32          cbDomain, cbUserName, cbPassword, cbAlternateShell, cbWorkingDir,
                    cbClientAddress, cbClientDir, cbAutoReconnectLen, wBlobLen, pduType = 0;
-  guint32          bMsgType;
+  guint32          bMsgType = 0xffffffff;
   guint32          encryptedLen = 0;
   conversation_t  *conversation;
   rdp_conv_info_t *rdp_info;

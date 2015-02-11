@@ -2031,8 +2031,8 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32	u32SubStart;
-	guint64 oxid;
-	guint64 oid;
+	guint64 oxid = 0;
+	guint64 oid = 0;
 	e_uuid_t ipid;
 	dcom_interface_t *dcom_if = NULL;
 	gchar ip[4];
