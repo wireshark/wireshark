@@ -197,8 +197,8 @@ static gint ett_hsrp2_md5_auth_tlv = -1;
 
 #define UDP_PORT_HSRP   1985
 #define UDP_PORT_HSRP2_V6   2029
-#define HSRP_DST_IP_ADDR "224.0.0.2"
-#define HSRP2_DST_IP_ADDR "224.0.0.102"
+#define HSRP_DST_IP_ADDR 0xE0000002
+#define HSRP2_DST_IP_ADDR 0xE0000066
 
 struct hsrp_packet {          /* Multicast to 224.0.0.2, TTL 1, UDP, port 1985 */
         guint8  version;      /* RFC2281 describes version 0 */
@@ -326,7 +326,8 @@ static int
 dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
         tvbuff_t   *next_tvb;
-        gchar dst[16];
+        guint32 hsrpv1 = g_htonl(HSRP_DST_IP_ADDR),
+                hsrpv2 = g_htonl(HSRP2_DST_IP_ADDR);
 
         /* Return if this isn't really HSRP traffic
          * (source and destination port must be UDP_PORT_HSRP on HSRPv1 or HSRPv2(IPv4))
@@ -338,9 +339,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         /*
          * To check whether this is an HSRPv1 packet or HSRPv2 on dest IPv4 addr.
          */
-        address_to_str_buf(&(pinfo->dst), dst, sizeof dst);
-
-        if (pinfo->dst.type == AT_IPv4 && strcmp(dst,HSRP_DST_IP_ADDR) == 0) {
+        if (pinfo->dst.type == AT_IPv4 && memcmp(pinfo->dst.data, &hsrpv1, 4) == 0) {
                 /* HSRPv1 */
                 guint8 opcode, state = 0;
 
@@ -425,7 +424,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
                         }
                 }
-        } else if ((pinfo->dst.type == AT_IPv4 && strcmp(dst,HSRP2_DST_IP_ADDR) == 0) ||
+        } else if ((pinfo->dst.type == AT_IPv4 && memcmp(pinfo->dst.data, &hsrpv2, 4) == 0) ||
                    (pinfo->dst.type == AT_IPv6 && pinfo->destport == UDP_PORT_HSRP2_V6)) {
                 /* HSRPv2 */
                 guint offset = 0, offset2;
