@@ -3663,12 +3663,12 @@ static void
 cancel_pipe_cb (gpointer w _U_)
 {
 #ifdef HAVE_PCAP_REMOTE
-  GtkWidget *remote_w;
   if (interface_management_w && G_IS_OBJECT(interface_management_w)) {
-      remote_w = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
-  }
-  if (remote_w != NULL && G_IS_OBJECT(remote_w))
+    GtkWidget *remote_w;
+    remote_w = g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
+    if (remote_w != NULL && G_IS_OBJECT(remote_w))
       window_destroy(remote_w);
+  }
 #endif
   window_destroy(GTK_WIDGET(interface_management_w));
   pipe_name = NULL;
