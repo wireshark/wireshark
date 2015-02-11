@@ -81,7 +81,7 @@ const QString time_s_label_ = QObject::tr("Time (s)");
 const QString window_size_label_ = QObject::tr("Window Size (B)");
 
 TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_type graph_type) :
-    QDialog(parent),
+    QDialog(NULL, Qt::Window),
     ui(new Ui::TCPStreamDialog),
     cap_file_(cf),
     ts_origin_conn_(true),

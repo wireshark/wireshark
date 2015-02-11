@@ -116,7 +116,7 @@ const QString AboutDialog::plugins_scan()
 }
 
 AboutDialog::AboutDialog(QWidget *parent) :
-    QDialog(parent),
+    QDialog(NULL),
     ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
