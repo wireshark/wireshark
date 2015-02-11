@@ -48,7 +48,6 @@
 # include <QSocketNotifier>
 #endif
 
-#include "about_dialog.h"
 #include "capture_file.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
@@ -57,9 +56,11 @@
 #include "file_set_dialog.h"
 #include "filter_action.h"
 #include "follow_stream_dialog.h"
-#include "main_welcome.h"
-#include "packet_list.h"
-#include "progress_bar.h"
+
+class ByteViewTab;
+class MainWelcome;
+class PacketList;
+class ProtoTree;
 
 class QAction;
 class QActionGroup;
@@ -175,7 +176,7 @@ private:
     QMenu* findOrAddMenu(QMenu *parent_menu, QString& menu_text);
 
 signals:
-    void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
+    void showProgress(struct progdlg **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
     void setCaptureFile(capture_file *cf);
     void setDissectedCaptureFile(capture_file *cf);
     void displayFilterSuccess(bool success);
@@ -316,6 +317,10 @@ private slots:
     void on_actionViewColorizePacketList_triggered(bool checked);
     void on_actionViewColoringRules_triggered();
     void on_actionViewResizeColumns_triggered();
+
+    void openPacketDialog(bool from_reference = false);
+    void on_actionViewShowPacketInNewWindow_triggered();
+    void on_actionViewShowPacketReferenceInNewWindow_triggered();
     void on_actionViewReload_triggered();
 
     void on_actionGoGoToPacket_triggered();

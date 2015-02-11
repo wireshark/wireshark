@@ -28,6 +28,8 @@ ByteViewTab::ByteViewTab(QWidget *parent) :
     QTabWidget(parent)
 {
     setAccessibleName(tr("Packet bytes"));
+    setTabPosition(QTabWidget::South);
+    setDocumentMode(true);
     addTab();
 }
 

@@ -72,6 +72,7 @@ set(WIRESHARK_QT_HEADERS
 	manage_interfaces_dialog.h
 	module_preferences_scroll_area.h
 	packet_comment_dialog.h
+	packet_dialog.h
 	packet_format_group_box.h
 	packet_list.h
 	packet_list_model.h
@@ -172,6 +173,7 @@ set(WIRESHARK_QT_SRC
 	manage_interfaces_dialog.cpp
 	module_preferences_scroll_area.cpp
 	packet_comment_dialog.cpp
+	packet_dialog.cpp
 	packet_format_group_box.cpp
 	packet_list.cpp
 	packet_list_model.cpp
@@ -264,6 +266,7 @@ set(WIRESHARK_QT_UI
 	manage_interfaces_dialog.ui
 	module_preferences_scroll_area.ui
 	packet_comment_dialog.ui
+	packet_dialog.ui
 	packet_format_group_box.ui
 	packet_range_group_box.ui
 	preferences_dialog.ui

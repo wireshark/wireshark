@@ -71,6 +71,7 @@
 #include "ui/software_update.h"
 #endif
 
+#include "about_dialog.h"
 #include "bluetooth_att_server_attributes_dialog.h"
 #include "capture_file_dialog.h"
 #include "capture_file_properties_dialog.h"
@@ -86,6 +87,8 @@
 #include "lbm_lbtrm_transport_dialog.h"
 #include "lbm_lbtru_transport_dialog.h"
 #include "packet_comment_dialog.h"
+#include "packet_dialog.h"
+#include "packet_list.h"
 #include "preferences_dialog.h"
 #include "print_dialog.h"
 #include "profile_dialog.h"
@@ -986,10 +989,8 @@ void MainWindow::setMenusForSelectedPacket()
 //                         frame_selected);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ResetColoring1-10",
 //                         tmp_color_filters_used());
-//    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ShowPacketinNewWindow",
-//                         frame_selected);
-//    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ShowPacketinNewWindow",
-//                         frame_selected);
+
+    main_ui_->actionViewShowPacketInNewWindow->setEnabled(frame_selected);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ManuallyResolveAddress",
 //                         frame_selected ? is_ip : FALSE);
 //    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SCTP",
@@ -1097,8 +1098,9 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     }
 
     if (capture_file_.capFile() != NULL && fi != NULL) {
+        header_field_info *hfinfo = capture_file_.capFile()->finfo_selected->hfinfo;
+
         /*
-        header_field_info *hfinfo = fi->hfinfo;
         const char *abbrev;
         char *prev_abbrev;
 
@@ -1112,8 +1114,10 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
         properties = prefs_is_registered_protocol(abbrev);
         */
         bool can_match_selected = proto_can_match_selected(capture_file_.capFile()->finfo_selected, capture_file_.capFile()->edt);
+        bool is_framenum = hfinfo && hfinfo->type == FT_FRAMENUM ? true : false;
 //        set_menu_sensitivity(ui_manager_tree_view_menu,
 //                             "/TreeViewPopup/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
+        main_ui_->actionViewShowPacketReferenceInNewWindow->setEnabled(is_framenum);
 //        set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/Copy",
 //                             TRUE);
 
@@ -2000,6 +2004,27 @@ void MainWindow::on_actionViewResizeColumns_triggered()
     for (int col = 0; col < packet_list_->packetListModel()->columnCount(); col++) {
         packet_list_->resizeColumnToContents(col);
     }
+}
+
+void MainWindow::openPacketDialog(bool from_reference)
+{
+    PacketDialog *packet_dialog = new PacketDialog(*this, capture_file_, from_reference);
+    connect(this, SIGNAL(monospaceFontChanged(QFont)),
+            packet_dialog, SIGNAL(monospaceFontChanged(QFont)));
+    zoomText(); // Emits monospaceFontChanged
+
+    packet_dialog->show();
+}
+
+void MainWindow::on_actionViewShowPacketInNewWindow_triggered()
+{
+    openPacketDialog();
+}
+
+// This is only used in ProtoTree. Defining it here makes more sense.
+void MainWindow::on_actionViewShowPacketReferenceInNewWindow_triggered()
+{
+    openPacketDialog(true);
 }
 
 void MainWindow::on_actionViewReload_triggered()

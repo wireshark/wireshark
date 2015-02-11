@@ -148,7 +148,7 @@ user_guide_url(const gchar *page) {
     } else {
 #endif /* ifdef DOC_DIR */
        /* try to open the HTML page from wireshark.org instead */
-        g_string_printf(url, "http://www.wireshark.org/docs/wsug_html_chunked/%s", page);
+        g_string_printf(url, "https://www.wireshark.org/docs/wsug_html_chunked/%s", page);
 #ifdef DOC_DIR
     }
 #endif /* ifdef DOC_DIR */
@@ -336,6 +336,8 @@ topic_action_url(topic_action_e action)
     case(HELP_RTP_ANALYSIS_DIALOG):
         url = user_guide_url("ChTelRTPAnalysis.html");
         break;
+    case(HELP_NEW_PACKET_DIALOG):
+        return user_guide_url("ChapterWork.html#ChWorkPacketSepView");
 
     case(TOPIC_ACTION_NONE):
     default:

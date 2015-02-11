@@ -97,7 +97,6 @@
        <bool>true</bool>
       </property>
       <widget class="MainWelcome" name="welcomePage"/>
-      <widget class="QWidget" name="packetPage"/>
      </widget>
     </item>
    </layout>
@@ -295,6 +294,7 @@
     <addaction name="separator"/>
     <addaction name="actionViewResizeColumns"/>
     <addaction name="separator"/>
+    <addaction name="actionViewShowPacketInNewWindow"/>
     <addaction name="actionViewReload"/>
    </widget>
    <widget class="QMenu" name="menuAnalyze">
@@ -2275,6 +2275,22 @@
   <action name="actionServices">
    <property name="text">
     <string>Services</string>
+   </property>
+  </action>
+  <action name="actionViewShowPacketInNewWindow">
+   <property name="text">
+    <string>Show Packet in New &amp;Window</string>
+   </property>
+   <property name="toolTip">
+    <string>Show this packet in a separate window.</string>
+   </property>
+  </action>
+  <action name="actionViewShowPacketReferenceInNewWindow">
+   <property name="text">
+    <string>Show Packet Reference in New Window</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the linked packet in a separate window.</string>
    </property>
   </action>
  </widget>

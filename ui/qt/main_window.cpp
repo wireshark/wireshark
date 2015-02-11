@@ -48,6 +48,7 @@
 #include "display_filter_edit.h"
 #include "export_dissection_dialog.h"
 #include "import_text_dialog.h"
+#include "packet_list.h"
 #include "proto_tree.h"
 #include "simple_dialog.h"
 #include "stock_icon.h"
@@ -274,12 +275,9 @@ MainWindow::MainWindow(QWidget *parent) :
     packet_list_ = new PacketList(&master_split_);
 
     proto_tree_ = new ProtoTree(&master_split_);
-    proto_tree_->setHeaderHidden(true);
     proto_tree_->installEventFilter(this);
 
     byte_view_tab_ = new ByteViewTab(&master_split_);
-    byte_view_tab_->setTabPosition(QTabWidget::South);
-    byte_view_tab_->setDocumentMode(true);
 
     packet_list_->setProtoTree(proto_tree_);
     packet_list_->setByteViewTab(byte_view_tab_);

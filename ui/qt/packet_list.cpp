@@ -411,8 +411,10 @@ PacketList::PacketList(QWidget *parent) :
 //    "     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
     decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
     ctx_menu_.addAction(decode_as_);
-//    "     <menuitem name='Print' action='/Print'/>\n"
+    // "Print" not ported intentionally
 //    "     <menuitem name='ShowPacketinNewWindow' action='/ShowPacketinNewWindow'/>\n"
+    action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
+    ctx_menu_.addAction(action);
 
     initHeaderContextMenu();
 
@@ -496,7 +498,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         for (src_le = cap_file_->edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
             source = (struct data_source *)src_le->data;
             source_name = get_data_source_name(source);
-            byte_view_tab_->addTab(source_name, get_data_source_tvb(source), cap_file_->edt->tree, proto_tree_, (packet_char_enc)cap_file_->current_frame->flags.encoding);
+            byte_view_tab_->addTab(source_name, get_data_source_tvb(source), cap_file_->edt->tree, proto_tree_, cap_file_->current_frame->flags.encoding);
             wmem_free(NULL, source_name);
         }
         byte_view_tab_->setCurrentIndex(0);

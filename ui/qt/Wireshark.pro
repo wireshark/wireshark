@@ -234,6 +234,7 @@ FORMS += \
     manage_interfaces_dialog.ui \
     module_preferences_scroll_area.ui \
     packet_comment_dialog.ui \
+    packet_dialog.ui \
     packet_format_group_box.ui \
     packet_range_group_box.ui \
     preferences_dialog.ui \
@@ -292,6 +293,7 @@ HEADERS += $$HEADERS_WS_C \
     manage_interfaces_dialog.h \
     module_preferences_scroll_area.h \
     packet_comment_dialog.h \
+    packet_dialog.h \
     packet_format_group_box.h \
     preferences_dialog.h \
     print_dialog.h \
@@ -646,6 +648,7 @@ SOURCES += \
     manage_interfaces_dialog.cpp \
     module_preferences_scroll_area.cpp \
     packet_comment_dialog.cpp \
+    packet_dialog.cpp \
     packet_format_group_box.cpp \
     packet_list.cpp \
     packet_list_model.cpp \

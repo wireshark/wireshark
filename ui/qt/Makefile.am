@@ -176,6 +176,8 @@ module_preferences_scroll_area.cpp module_preferences_scroll_area.h: ui_module_p
 
 packet_comment_dialog.cpp packet_comment_dialog.h: ui_packet_comment_dialog.h
 
+packet_dialog.cpp packet_dialog.h: ui_packet_dialog.h
+
 packet_format_group_box.cpp packet_format_group_box.h: ui_packet_format_group_box.h
 
 packet_range_group_box.cpp packet_range_group_box.h: ui_packet_range_group_box.h

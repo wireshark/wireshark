@@ -85,6 +85,7 @@
 
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/main_window.h"
+#include "ui/qt/splash_overlay.h"
 #include "ui/qt/wireshark_application.h"
 
 #include "caputils/capture-pcap-util.h"

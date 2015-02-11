@@ -163,35 +163,38 @@ ProtoTree::ProtoTree(QWidget *parent) :
 
     setAccessibleName(tr("Packet details"));
     setUniformRowHeights(true);
+    setHeaderHidden(true);
 
-    // XXX We might want to reimplement setParent() and fill in the context
-    // menu there.
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
-    ctx_menu_.addSeparator();
+    if (window()->findChild<QAction *>("actionViewExpandSubtrees")) {
+        // Assume we're a child of the main window.
+        // XXX We might want to reimplement setParent() and fill in the context
+        // menu there.
+        ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandSubtrees"));
+        ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
+        ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
+        ctx_menu_.addSeparator();
 //    "     <menuitem name='CreateAColumn' action='/Create a Column'/>\n"
-    action = window()->findChild<QAction *>("actionApply_as_Filter");
-    submenu = new QMenu();
-    action->setMenu(submenu);
-    ctx_menu_.addAction(action);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
+        action = window()->findChild<QAction *>("actionApply_as_Filter");
+        submenu = new QMenu();
+        action->setMenu(submenu);
+        ctx_menu_.addAction(action);
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
 
-    action = window()->findChild<QAction *>("actionPrepare_a_Filter");
-    submenu = new QMenu();
-    action->setMenu(submenu);
-    ctx_menu_.addAction(action);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
+        action = window()->findChild<QAction *>("actionPrepare_a_Filter");
+        submenu = new QMenu();
+        action->setMenu(submenu);
+        ctx_menu_.addAction(action);
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
 
 //    action = window()->findChild<QAction *>("actionColorize_with_Filter");
 //    submenu = new QMenu();
@@ -212,23 +215,23 @@ ProtoTree::ProtoTree(QWidget *parent) :
 //    "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
 //    "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
 //    "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
-    ctx_menu_.addSeparator();
+        ctx_menu_.addSeparator();
 
-    action = window()->findChild<QAction *>("actionCopy");
-    submenu = new QMenu();
-    action->setMenu(submenu);
-    ctx_menu_.addAction(action);
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyFieldName"));
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyValue"));
-    submenu->addSeparator();
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
+        action = window()->findChild<QAction *>("actionCopy");
+        submenu = new QMenu();
+        action->setMenu(submenu);
+        ctx_menu_.addAction(action);
+        submenu->addAction(window()->findChild<QAction *>("actionEditCopyDescription"));
+        submenu->addAction(window()->findChild<QAction *>("actionEditCopyFieldName"));
+        submenu->addAction(window()->findChild<QAction *>("actionEditCopyValue"));
+        submenu->addSeparator();
+        submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
 
-    action = window()->findChild<QAction *>("actionBytes");
-    subsubmenu = new QMenu();
-    action->setMenu(subsubmenu);
-    submenu->addAction(action);
-    subsubmenu->addSeparator();
+        action = window()->findChild<QAction *>("actionBytes");
+        subsubmenu = new QMenu();
+        action->setMenu(subsubmenu);
+        submenu->addAction(action);
+        subsubmenu->addSeparator();
 //    "        <menu name= 'Bytes' action='/Copy/Bytes'>\n"
 //    "           <menuitem name='OffsetHexText' action='/Copy/Bytes/OffsetHexText'/>\n"
 //    "           <menuitem name='OffsetHex' action='/Copy/Bytes/OffsetHex'/>\n"
@@ -245,11 +248,15 @@ ProtoTree::ProtoTree(QWidget *parent) :
 //    "     <menuitem name='ProtocolHelp' action='/ProtocolHelp'/>\n"
 //    "     <menuitem name='ProtocolPreferences' action='/ProtocolPreferences'/>\n"
 //    ctx_menu_.addSeparator();
-    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
-    ctx_menu_.addAction(decode_as_);
+        decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
+        ctx_menu_.addAction(decode_as_);
 //    "     <menuitem name='DisableProtocol' action='/DisableProtocol'/>\n"
 //    "     <menuitem name='ResolveName' action='/ResolveName'/>\n"
 //    "     <menuitem name='GotoCorrespondingPacket' action='/GotoCorrespondingPacket'/>\n"
+        ctx_menu_.addAction(window()->findChild<QAction *>("actionViewShowPacketReferenceInNewWindow"));
+    } else {
+        ctx_menu_.clear();
+    }
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
             this, SLOT(updateSelectionStatus(QTreeWidgetItem*)));
@@ -266,6 +273,8 @@ void ProtoTree::clear() {
 
 void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 {
+    if (ctx_menu_.isEmpty()) return; // We're in a PacketDialog
+
     decode_as_->setData(qVariantFromValue(true));
     ctx_menu_.exec(event->globalPos());
     decode_as_->setData(QVariant());
