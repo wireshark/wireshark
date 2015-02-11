@@ -1376,7 +1376,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 	guint TcpLen = tvb_reported_length(tvb);
 	guint8 Start, len, type, temp8;
-	guint16 temp16;
+	guint16 apci_txid, apci_rxid;
 	guint Off;
 	proto_item *it104, *ti;
 	proto_tree *it104tree;
@@ -1422,7 +1422,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 6, 2, ENC_LITTLE_ENDIAN);
 
 			if (len <= APDU_MAX_LEN) {
-				wmem_strbuf_append_printf(res, "%s %s (",
+				wmem_strbuf_append_printf(res, "%s %s ",
 					(pinfo->srcport == IEC104_PORT ? "->" : "<-"),
 					val_to_str_const(type, apci_types, "<ERR>"));
 			}
@@ -1432,17 +1432,19 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 			switch(type) {
 			case I_TYPE:
-				temp16 = tvb_get_letohs(tvb, Off + 2) >> 1;
-				wmem_strbuf_append_printf(res, "%d,", temp16);
-				proto_tree_add_uint(it104tree, hf_apcitx, tvb, Off+2, 2, temp16);
+				apci_txid = tvb_get_letohs(tvb, Off + 2) >> 1;
+				apci_rxid = tvb_get_letohs(tvb, Off + 4) >> 1;
+				wmem_strbuf_append_printf(res, "(%d,%d) ", apci_txid, apci_rxid);
+				proto_tree_add_uint(it104tree, hf_apcitx, tvb, Off+2, 2, apci_txid);
+				proto_tree_add_uint(it104tree, hf_apcirx, tvb, Off+4, 2, apci_rxid);
 				break;
 			case S_TYPE:
-				temp16 = tvb_get_letohs(tvb, Off + 4) >> 1;
-				wmem_strbuf_append_printf(res, "%d) ", temp16);
-				proto_tree_add_uint(it104tree, hf_apcirx, tvb, Off+4, 2, temp16);
+				apci_rxid = tvb_get_letohs(tvb, Off + 4) >> 1;
+				wmem_strbuf_append_printf(res, "(%d) ", apci_rxid);
+				proto_tree_add_uint(it104tree, hf_apcirx, tvb, Off+4, 2, apci_rxid);
 				break;
 			case U_TYPE:
-				wmem_strbuf_append_printf(res, "%s) ", val_to_str_const((temp8 >> 2) & 0x3F, u_types, "<ERR>"));
+				wmem_strbuf_append_printf(res, "(%s) ", val_to_str_const((temp8 >> 2) & 0x3F, u_types, "<ERR>"));
 				proto_tree_add_item(it104tree, hf_apciutype, tvb, Off + 2, 1, ENC_LITTLE_ENDIAN);
 				break;
 			}
