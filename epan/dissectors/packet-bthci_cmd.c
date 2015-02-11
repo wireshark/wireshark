@@ -2423,11 +2423,15 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
             num8 = tvb_get_guint8(tvb, offset);
             offset++;
+
             for (i=0; i<num8; i++) {
                 proto_tree_add_item(tree, hf_bthci_cmd_connection_handle,
-                        tvb, offset+(i*4), 2, ENC_LITTLE_ENDIAN);
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
                 proto_tree_add_item(tree, hf_bthci_cmd_num_compl_packets,
-                        tvb, offset+2+(i*4), 2, ENC_LITTLE_ENDIAN);
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
             }
             break;
 
