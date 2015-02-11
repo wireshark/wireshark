@@ -86,22 +86,22 @@ set(WSUTIL_FILES
 # -xarch=sse4_2 flag.
 #
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	set(HAVE_SSE4_2 TRUE)
+	set(COMPILER_CAN_HANDLE_SSE4_2 TRUE)
 	set(SSE4_2_FLAG "")
 else()
 	message(STATUS "Checking for c-compiler flag: -msse4.2")
-	check_c_compiler_flag(-msse4.2 HAVE_SSE4_2)
-	if(HAVE_SSE4_2)
+	check_c_compiler_flag(-msse4.2 COMPILER_CAN_HANDLE_SSE4_2)
+	if(COMPILER_CAN_HANDLE_SSE4_2)
 		set(SSE4_2_FLAG "-msse4.2")
 	else()
 		message(STATUS "Checking for c-compiler flag: -xarch=sse4_2")
-		check_c_compiler_flag(-xarch=sse4_2 HAVE_SSE4_2)
-		if(HAVE_SSE4_2)
+		check_c_compiler_flag(-xarch=sse4_2 COMPILER_CAN_HANDLE_SSE4_2)
+		if(COMPILER_CAN_HANDLE_SSE4_2)
 			set(SSE4_2_FLAG "-xarch=sse4_2")
 		endif()
 	endif()
 endif()
-if(HAVE_SSE4_2)
+if(COMPILER_CAN_HANDLE_SSE4_2)
 	#
 	# Make sure we have the necessary header for the SSE4.2 intrinsics
 	# and that we can use it.
@@ -110,17 +110,17 @@ if(HAVE_SSE4_2)
 	#
 	# Does this add the SSE4.2 flags to the beginning of CFLAGS?
 	#
+	# Note that if there's a mix of "enable SSE 4.2" and"disable
+	# SSE 4.2" flags, this may not indicate that we can use the
+	# header.  That's not a bug, that's a feature; the other flags
+	# may have been forced by the build process, e.g. in Gentoo
+	# Linux, and we want to check this with whatever flags will
+	# actually be used when building (see bug 10792).
+	#
 	cmake_push_check_state()
 	set(CMAKE_REQUIRED_FLAGS "${SSE4_2_FLAG}")
-	check_include_file("nmmintrin.h" CAN_USE_SSE4_2)
+	check_include_file("nmmintrin.h" HAVE_SSE4_2)
 	cmake_pop_check_state()
-	if(NOT CAN_USE_SSE4_2)
-		#
-		# OK, it's not working for some reason, perhaps because
-		# ${SSE4_2_FLAG} above didn't enable SSE 4.2 support.
-		#
-		set(HAVE_SSE4_2 FALSE)
-	endif()
 endif()
 if(HAVE_SSE4_2)
 	set(WSUTIL_FILES ${WSUTIL_FILES} ws_mempbrk_sse42.c)
