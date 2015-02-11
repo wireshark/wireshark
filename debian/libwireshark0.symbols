@@ -969,6 +969,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_ipxnet_format_value@Base 1.9.1
  proto_tree_add_item@Base 1.9.1
  proto_tree_add_item_new@Base 1.12.0~rc1
+ proto_tree_add_new_bytes@Base 1.99.3
  proto_tree_add_none_format@Base 1.9.1
  proto_tree_add_protocol_format@Base 1.9.1
  proto_tree_add_string@Base 1.9.1
@@ -1374,7 +1375,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_new_subset_remaining@Base 1.9.1
  tvb_offset_exists@Base 1.9.1
  tvb_offset_from_real_beginning@Base 1.9.1
- tvb_pbrk_compile@Base 1.99.2
  tvb_pbrk_pattern_guint8@Base 1.99.2
  tvb_raw_offset@Base 1.9.1
  tvb_reported_length@Base 1.9.1
