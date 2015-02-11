@@ -8,6 +8,7 @@
  *  ETSI TS 102 606 - Digital Video Broadcasting (DVB) - Generic Stream Encapsulation (GSE) Protocol
  *  ETSI TS 102 771 - Digital Video Broadcasting (DVB) - GSE implementation guidelines
  *  SatLabs sl_561 - Mode Adaptation Interfaces for DVB-S2 equipment
+ *  ETSI EN 301 545 - Digital Video Broadcasting (DVB) - Second Generation DVB Interactive Satellite System (DVB-RCS2)
  *
  * Copyright 2012, Tobias Rutz <tobias.rutz@work-microwave.de>
  *
@@ -115,6 +116,7 @@ static int hf_dvb_s2_gse_label3 = -1;
 static int hf_dvb_s2_gse_fragid = -1;
 static int hf_dvb_s2_gse_totlength = -1;
 static int hf_dvb_s2_gse_exthdr = -1;
+static int hf_dvb_s2_gse_ncr = -1;
 static int hf_dvb_s2_gse_data = -1;
 static int hf_dvb_s2_gse_crc32 = -1;
 
@@ -127,6 +129,7 @@ static gint ett_dvb_s2_bb_matype1 = -1;
 
 static gint ett_dvb_s2_gse = -1;
 static gint ett_dvb_s2_gse_hdr = -1;
+static gint ett_dvb_s2_gse_ncr = -1;
 
 static expert_field ei_dvb_s2_bb_crc = EI_INIT;
 static expert_field ei_dvb_s2_bb_header_ambiguous = EI_INIT;
@@ -548,8 +551,11 @@ static const value_string gse_labeltype[] = {
 
 #define DVB_S2_GSE_HDR_LENGTH_MASK      0x0FFF
 
+#define DVB_RCS2_NCR 0x0081
+
 static const range_string gse_proto_str[] = {
     {0x0000        , 0x00FF        , "not implemented"},
+    {DVB_RCS2_NCR  , DVB_RCS2_NCR  , "NCR"            },
     {0x0100        , 0x05FF        , "not implemented"},
     {0x0600        , 0x07FF        , "not implemented"},
     {ETHERTYPE_IP  , ETHERTYPE_IP  , "IPv4 Payload"   },
@@ -582,7 +588,8 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
     guint16     gse_hdr, data_len, padding_len, gse_proto = 0;
 
     proto_item *ti;
-    proto_tree *dvb_s2_gse_tree;
+    proto_item *ttf;
+    proto_tree *dvb_s2_gse_tree, *dvb_s2_gse_ncr_tree;
 
     tvbuff_t   *next_tvb;
 
@@ -708,8 +715,16 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
             } else
                 data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE);
 
-            proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_data, tvb, cur_off + new_off, data_len, ENC_NA);
-            new_off += data_len;
+            if (gse_proto == DVB_RCS2_NCR) {
+                ttf = proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_ncr, tvb, cur_off + new_off, data_len, ENC_NA);
+                dvb_s2_gse_ncr_tree = proto_item_add_subtree(ttf, ett_dvb_s2_gse_ncr);
+                proto_tree_add_item(dvb_s2_gse_ncr_tree, hf_dvb_s2_gse_data, tvb, cur_off + new_off, data_len, ENC_NA);
+                new_off += data_len;
+            }
+            else {
+                proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_data, tvb, cur_off + new_off, data_len, ENC_NA);
+                new_off += data_len;
+            }
         }
 
         /* add crc32 if last fragment */
@@ -1177,6 +1192,11 @@ void proto_register_dvb_s2_modeadapt(void)
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 "optional Extension Header", HFILL}
         },
+        {&hf_dvb_s2_gse_ncr, {
+                "NCR Packet", "dvb-s2_gse.ncr",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "GSE NCR PAcket", HFILL}
+        },
         {&hf_dvb_s2_gse_data, {
                 "PDU Data", "dvb-s2_gse.data",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1191,7 +1211,8 @@ void proto_register_dvb_s2_modeadapt(void)
 
     static gint *ett_gse[] = {
         &ett_dvb_s2_gse,
-        &ett_dvb_s2_gse_hdr
+        &ett_dvb_s2_gse_hdr,
+        &ett_dvb_s2_gse_ncr
     };
 
     static ei_register_info ei[] = {
