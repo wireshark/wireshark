@@ -813,7 +813,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Indicate what kind of message this is.
          */
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(frmtyp, frame_type, "- Invalid -"));
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(frmtyp, frame_type, "- Invalid -"));
     }
 
     if (tree == NULL)
