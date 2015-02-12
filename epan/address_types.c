@@ -429,7 +429,7 @@ static gboolean fcwwn_to_str(const address* addr, gchar *buf, int buf_len)
     const guint8 *addrp = (const guint8*)addr->data;
     int fmt;
     guint8 oui[6];
-    gchar *ethptr;
+    gchar *ethptr, *manuf_name;
 
     if (buf_len < 200) {  /* This is mostly for manufacturer name */
         g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
@@ -444,7 +444,9 @@ static gboolean fcwwn_to_str(const address* addr, gchar *buf, int buf_len)
     case FC_NH_NAA_IEEE_E:
         memcpy (oui, &addrp[2], 6);
 
-        g_snprintf (ethptr, buf_len-23, " (%s)", get_manuf_name(oui));
+        manuf_name = get_manuf_name(NULL, oui);
+        g_snprintf (ethptr, buf_len-23, " (%s)", manuf_name);
+        wmem_free(NULL, manuf_name);
         break;
 
     case FC_NH_NAA_IEEE_R:
@@ -455,7 +457,9 @@ static gboolean fcwwn_to_str(const address* addr, gchar *buf, int buf_len)
         oui[4] = ((addrp[4] & 0x0F) << 4) | ((addrp[5] & 0xF0) >> 4);
         oui[5] = ((addrp[5] & 0x0F) << 4) | ((addrp[6] & 0xF0) >> 4);
 
-        g_snprintf (ethptr, buf_len-23, " (%s)", get_manuf_name(oui));
+        manuf_name = get_manuf_name(NULL, oui);
+        g_snprintf (ethptr, buf_len-23, " (%s)", manuf_name);
+        wmem_free(NULL, manuf_name);
         break;
 
     default:
