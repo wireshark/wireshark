@@ -22,6 +22,8 @@
 #include "search_frame.h"
 #include "ui_search_frame.h"
 
+#include "file.h"
+
 #include <epan/proto.h>
 #include <epan/strutil.h>
 

@@ -25,6 +25,17 @@
 #include "ui_sctp_graph_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
 
+#include <file.h>
+#include <math.h>
+#include <epan/dissectors/packet-sctp.h>
+#include "epan/packet.h"
+
+#include "ui/tap-sctp-analysis.h"
+
+#include <QFileDialog>
+#include <QMessageBox>
+
+#include "qcustomplot.h"
 #include "wireshark_application.h"
 
 SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, int dir) :

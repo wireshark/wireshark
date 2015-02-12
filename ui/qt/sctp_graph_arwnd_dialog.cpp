@@ -23,9 +23,17 @@
 #include "ui_sctp_graph_arwnd_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
 
+#include <file.h>
+#include <math.h>
+#include <epan/dissectors/packet-sctp.h>
+#include "epan/packet.h"
+
+#include "ui/tap-sctp-analysis.h"
+
+#include "qcustomplot.h"
 #include "sctp_graph_dialog.h"
 
-SCTPGraphArwndDialog::SCTPGraphArwndDialog(QWidget *parent, sctp_assoc_info_t *assoc, capture_file *cf, int dir) :
+SCTPGraphArwndDialog::SCTPGraphArwndDialog(QWidget *parent, sctp_assoc_info_t *assoc, _capture_file *cf, int dir) :
     QDialog(parent),
     ui(new Ui::SCTPGraphArwndDialog),
     selected_assoc(assoc),

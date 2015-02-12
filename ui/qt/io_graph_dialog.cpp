@@ -22,6 +22,8 @@
 #include "io_graph_dialog.h"
 #include "ui_io_graph_dialog.h"
 
+#include "file.h"
+
 #include <epan/stat_tap_ui.h>
 #include "epan/stats_tree_priv.h"
 #include "epan/uat-int.h"
@@ -31,6 +33,8 @@
 #include "qt_ui_utils.h"
 #include "tango_colors.h"
 
+#include "qcustomplot.h"
+#include "syntax_line_edit.h"
 #include "wireshark_application.h"
 
 #include <QClipboard>

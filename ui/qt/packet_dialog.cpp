@@ -22,6 +22,8 @@
 #include "packet_dialog.h"
 #include "ui_packet_dialog.h"
 
+#include "file.h"
+
 #include "epan/column.h"
 #include "epan/ftypes/ftypes.h"
 

@@ -26,13 +26,13 @@
 
 #include <glib.h>
 
-#include "cfile.h"
-
 #include "ui/voip_calls.h"
 
 #include "wireshark_dialog.h"
 
 #include <QMenu>
+
+struct _capture_file;
 
 class QAbstractButton;
 class QTreeWidgetItem;
@@ -54,7 +54,7 @@ public slots:
 
 signals:
     void updateFilter(QString &filter, bool force = false);
-    void captureFileChanged(capture_file *cf);
+    void captureFileChanged(struct _capture_file *cf);
     void goToPacket(int packet_num);
 
 protected:

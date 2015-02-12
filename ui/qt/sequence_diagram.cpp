@@ -23,6 +23,8 @@
 
 #include "epan/addr_resolv.h"
 
+#include "ui/tap-sequence-analysis.h"
+
 #include "qt_ui_utils.h"
 
 #include <QFont>
@@ -42,7 +44,7 @@ WSCPSeqData::WSCPSeqData() :
 {
 }
 
-WSCPSeqData::WSCPSeqData(double key, seq_analysis_item_t *value) :
+WSCPSeqData::WSCPSeqData(double key, struct _seq_analysis_item *value) :
   key(key),
   value(value)
 {
@@ -93,7 +95,7 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     //    valueAxis->setTickLabelRotation(30);
 }
 
-void SequenceDiagram::setData(seq_analysis_info_t *sainfo)
+void SequenceDiagram::setData(_seq_analysis_info *sainfo)
 {
     data_->clear();
     sainfo_ = sainfo;
@@ -150,7 +152,7 @@ void SequenceDiagram::setSelectedPacket(int selected_packet)
     mParentPlot->replot();
 }
 
-seq_analysis_item_t *SequenceDiagram::itemForPosY(int ypos)
+_seq_analysis_item *SequenceDiagram::itemForPosY(int ypos)
 {
     double key_pos = qRound(key_axis_->pixelToCoord(ypos));
 

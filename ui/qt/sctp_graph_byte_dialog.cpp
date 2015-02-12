@@ -22,6 +22,14 @@
 #include "sctp_graph_byte_dialog.h"
 #include "ui_sctp_graph_byte_dialog.h"
 
+#include <file.h>
+#include <math.h>
+#include <epan/dissectors/packet-sctp.h>
+#include "epan/packet.h"
+
+#include "ui/tap-sctp-analysis.h"
+
+#include "qcustomplot.h"
 #include "sctp_graph_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
 

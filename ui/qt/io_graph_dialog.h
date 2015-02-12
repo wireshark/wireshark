@@ -26,25 +26,27 @@
 
 #include <glib.h>
 
-#include <file.h>
-
 #include "epan/epan_dissect.h"
-#include "epan/uat.h"
 
 #include "ui/io_graph_item.h"
 
-#include "syntax_line_edit.h"
 #include "wireshark_dialog.h"
 
 #include <QIcon>
 #include <QMenu>
-#include "qcustomplot.h"
 
 class QComboBox;
 class QLineEdit;
 class QRubberBand;
 class QTimer;
 class QTreeWidgetItem;
+
+class SyntaxLineEdit;
+
+class QCPBars;
+class QCPGraph;
+class QCPItemTracer;
+class QCustomPlot;
 
 // GTK+ sets this to 100000 (NUM_IO_ITEMS)
 const int max_io_items_ = 250000;

@@ -25,6 +25,7 @@
 
 #include "epan/strutil.h"
 #include "epan/to_str.h"
+#include "epan/uat-int.h"
 #include "epan/value_string.h"
 #include "ui/help_url.h"
 #include <wsutil/report_err.h>
@@ -43,7 +44,7 @@
 
 #include <QDebug>
 
-UatDialog::UatDialog(QWidget *parent, uat_t *uat) :
+UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     QDialog(parent),
     ui(new Ui::UatDialog),
     uat_(NULL),
@@ -82,7 +83,7 @@ UatDialog::~UatDialog()
     delete ui;
 }
 
-void UatDialog::setUat(uat_t *uat)
+void UatDialog::setUat(epan_uat *uat)
 {
     QString title(tr("Unknown User Accessible Table"));
 

@@ -23,25 +23,19 @@
 #define SCTP_GRAPH_DIALOG_H
 
 #include "config.h"
-#include "qcustomplot.h"
 #include <glib.h>
 
-#include <file.h>
-#include <math.h>
-#include <epan/dissectors/packet-sctp.h>
-#include "epan/packet.h"
-
-#include "ui/tap-sctp-analysis.h"
-
 #include <QDialog>
-#include <QObject>
-#include <QMessageBox>
-#include <QDir>
-#include <QFileDialog>
 
 namespace Ui {
 class SCTPGraphDialog;
 }
+
+class QCPAbstractPlottable;
+class QCustomPlot;
+
+struct _capture_file;
+struct _sctp_assoc_info;
 
 struct chunk_header {
     guint8  type;
@@ -94,12 +88,12 @@ class SCTPGraphDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SCTPGraphDialog(QWidget *parent = 0, sctp_assoc_info_t *assoc = NULL, capture_file *cf = NULL, int dir = 0);
+    explicit SCTPGraphDialog(QWidget *parent = 0, struct _sctp_assoc_info *assoc = NULL, struct _capture_file *cf = NULL, int dir = 0);
     ~SCTPGraphDialog();
     static void save_graph(QDialog *dlg, QCustomPlot *plot);
 
 public slots:
-    void setCaptureFile(capture_file *cf) { cap_file_ = cf; }
+    void setCaptureFile(struct _capture_file *cf) { cap_file_ = cf; }
 
 private slots:
     void on_pushButton_clicked();
@@ -116,8 +110,8 @@ private slots:
 
 private:
     Ui::SCTPGraphDialog *ui;
-    sctp_assoc_info_t     *selected_assoc;
-    capture_file *cap_file_;
+    struct _sctp_assoc_info *selected_assoc;
+    struct _capture_file *cap_file_;
     int frame_num;
     int direction;
     QVector<double> xt, yt, xs, ys, xg, yg, xd, yd, xn, yn;

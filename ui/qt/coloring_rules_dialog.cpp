@@ -24,10 +24,15 @@
 
 #include "config.h"
 
+#include <errno.h>
+
 #include <glib.h>
 
 #include "color.h"
 #include "color_filters.h"
+
+#include "epan/dfilter/dfilter.h"
+#include "epan/prefs.h"
 
 #include "ui/utf8_entities.h"
 

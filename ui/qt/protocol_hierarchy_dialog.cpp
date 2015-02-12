@@ -22,6 +22,8 @@
 #include "protocol_hierarchy_dialog.h"
 #include "ui_protocol_hierarchy_dialog.h"
 
+#include "cfile.h"
+
 #include "ui/proto_hier_stats.h"
 #include "ui/utf8_entities.h"
 

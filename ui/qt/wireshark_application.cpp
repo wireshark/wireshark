@@ -21,10 +21,15 @@
 
 #include "wireshark_application.h"
 
+#include <errno.h>
+
 #include "wsutil/filesystem.h"
 
 #include "epan/addr_resolv.h"
 #include "epan/disabled_protos.h"
+#include "epan/ftypes/ftypes.h"
+#include "epan/prefs.h"
+#include "epan/proto.h"
 #include "epan/tap.h"
 #include "epan/timestamp.h"
 
@@ -67,7 +72,6 @@
 #include <QMutableListIterator>
 #include <QSocketNotifier>
 #include <QThread>
-#include <QTimer>
 #include <QUrl>
 
 #ifdef Q_OS_WIN
@@ -668,7 +672,7 @@ void WiresharkApplication::allSystemsGo()
 #endif
 }
 
-e_prefs * WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path)
+_e_prefs *WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path)
 {
     int                  gpf_open_errno, gpf_read_errno;
     int                  cf_open_errno, df_open_errno;

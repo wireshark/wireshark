@@ -23,6 +23,8 @@
 
 #include <glib.h>
 
+#include "file.h"
+
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 

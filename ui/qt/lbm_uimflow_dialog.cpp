@@ -25,6 +25,9 @@
 
 #include "lbm_uimflow_dialog.h"
 #include "ui_lbm_uimflow_dialog.h"
+
+#include "file.h"
+
 #include <epan/dissectors/packet-lbm.h>
 #include <epan/packet_info.h>
 #include <epan/tap.h>
@@ -35,6 +38,7 @@
 #include "ui/utf8_entities.h"
 
 #include "qt_ui_utils.h"
+#include "sequence_diagram.h"
 #include "wireshark_application.h"
 
 #include <QDir>

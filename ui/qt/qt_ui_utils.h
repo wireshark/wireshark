@@ -29,16 +29,13 @@
  *  Utility functions for working with the Wireshark and GLib APIs.
  */
 
-#include <stdio.h>
-
 #include "config.h"
 
 #include <glib.h>
-#include <epan/timestamp.h>
-#include <epan/value_string.h>
 
-#include <QFont>
 #include <QString>
+
+class QFont;
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,16 +57,16 @@ extern "C" {
 //    CAPTURE_AUTH_PWD        /**< User/password authentication */
 //} capture_auth;
 
-struct remote_host_t {
-    gchar *remote_host;          /**< Host name or network address for remote capturing */
-    gchar *remote_port;          /**< TCP port of remote RPCAP server */
-    gint auth_type;              /**< Authentication type */
-    gchar *auth_username;        /**< Remote authentication parameters */
-    gchar *auth_password;        /**< Remote authentication parameters */
-    gboolean datatx_udp;
-    gboolean nocap_rpcap;
-    gboolean nocap_local;
-};
+//struct remote_host_t {
+//    gchar *remote_host;          /**< Host name or network address for remote capturing */
+//    gchar *remote_port;          /**< TCP port of remote RPCAP server */
+//    gint auth_type;              /**< Authentication type */
+//    gchar *auth_username;        /**< Remote authentication parameters */
+//    gchar *auth_password;        /**< Remote authentication parameters */
+//    gboolean datatx_udp;
+//    gboolean nocap_rpcap;
+//    gboolean nocap_local;
+//};
 
 struct _address;
 
@@ -118,7 +115,7 @@ const QString address_to_display_qstring(const struct _address *address);
  *
  * @return A QString representation of the value_string.
  */
-const QString val_to_qstring(const guint32 val, const value_string *vs, const char *fmt)
+const QString val_to_qstring(const guint32 val, const struct _value_string *vs, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 /** Convert an value_string_ext to a QString using val_to_str_ext_wmem().
@@ -129,7 +126,7 @@ G_GNUC_PRINTF(3, 0);
  *
  * @return A QString representation of the value_string_ext.
  */
-const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const char *fmt)
+const QString val_ext_to_qstring(const guint32 val, struct _value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
 /** Convert bits per second value human-readable QString using format_size().

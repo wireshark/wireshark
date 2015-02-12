@@ -19,16 +19,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "qt_ui_utils.h"
 
-#include <ui/recent.h>
-#include <ui/ui_util.h>
-
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
+#include <epan/value_string.h>
+
+#include <ui/recent.h>
+#include <ui/ui_util.h>
 
 #include <wsutil/str_util.h>
 

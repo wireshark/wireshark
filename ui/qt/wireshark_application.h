@@ -26,11 +26,6 @@
 
 #include <glib.h>
 
-#include "epan/prefs.h"
-
-#include "capture_opts.h"
-#include <capchild/capture_session.h>
-#include "file.h"
 #include "register.h"
 
 #include "ui/help_url.h"
@@ -41,6 +36,8 @@
 #include <QIcon>
 #include <QTimer>
 #include <QTranslator>
+
+struct _e_prefs;
 
 class QSocketNotifier;
 
@@ -77,7 +74,7 @@ public:
     void emitStatCommandSignal(const QString &menu_path, const char *arg, void *userdata);
     void allSystemsGo();
     void refreshLocalInterfaces();
-    e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
+    struct _e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
     QDir lastOpenDir();

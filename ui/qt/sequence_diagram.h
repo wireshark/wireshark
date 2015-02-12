@@ -28,20 +28,21 @@
 
 #include <epan/address.h>
 
-#include "ui/tap-sequence-analysis.h"
-
 #include <QObject>
 #include <QMultiMap>
 #include "qcustomplot.h"
+
+struct _seq_analysis_info;
+struct _seq_analysis_item;
 
 // Most of this is probably unnecessary
 class WSCPSeqData
 {
 public:
   WSCPSeqData();
-  WSCPSeqData(double key, seq_analysis_item_t *value);
+  WSCPSeqData(double key, _seq_analysis_item *value);
   double key;
-  seq_analysis_item_t *value;
+  struct _seq_analysis_item *value;
 };
 Q_DECLARE_TYPEINFO(WSCPSeqData, Q_MOVABLE_TYPE);
 
@@ -58,10 +59,10 @@ public:
     // getters:
 
     // setters:
-    void setData(seq_analysis_info_t *sainfo);
+    void setData(struct _seq_analysis_info *sainfo);
 
     // non-property methods:
-    seq_analysis_item_t *itemForPosY(int ypos);
+    struct _seq_analysis_item *itemForPosY(int ypos);
 
     // reimplemented virtual methods:
     virtual void clearData() { data_->clear(); }
@@ -81,7 +82,7 @@ private:
     QCPAxis *value_axis_;
     QCPAxis *comment_axis_;
     WSCPSeqDataMap *data_;
-    seq_analysis_info_t *sainfo_;
+    struct _seq_analysis_info *sainfo_;
     guint32 selected_packet_;
 };
 

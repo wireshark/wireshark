@@ -32,6 +32,8 @@
 
 #include "epan/packet.h"
 
+#include "ui/tap-sequence-analysis.h"
+
 #include "sequence_diagram.h"
 
 #include <QDialog>

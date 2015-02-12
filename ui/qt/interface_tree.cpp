@@ -21,6 +21,8 @@
 
 #include "interface_tree.h"
 
+#include "epan/prefs.h"
+
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_globals.h"
 #endif
