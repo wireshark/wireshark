@@ -643,6 +643,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_hash_ether_status@Base 1.99.3
  get_hash_ether_hexaddr@Base 1.99.3
  get_hash_ether_resolved_name@Base 1.99.3
+ get_hash_manuf_resolved_name@Base 1.99.3
  get_host_ipaddr6@Base 1.9.1
  get_host_ipaddr@Base 1.9.1
  get_hostlist_filter@Base 1.99.0

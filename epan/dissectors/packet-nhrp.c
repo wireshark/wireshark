@@ -920,10 +920,10 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
 
                     tvb_memcpy(tvb, manuf, offset, 3);
                     vendor_tree = proto_tree_add_subtree_format(nhrp_tree, tvb, offset, len,
-                        ett_nhrp_vendor_ext, NULL, "Extension Data: Vendor ID=%s, Data=%s", get_manuf_name(wmem_packet_scope(), manuf),
+                        ett_nhrp_vendor_ext, NULL, "Extension Data: Vendor ID=%s, Data=%s", get_manuf_name(manuf),
                         tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 3, len - 3));
                     proto_tree_add_bytes_format_value(vendor_tree, hf_nhrp_vendor_ext_id, tvb,
-                        offset, 3, manuf, "%s", get_manuf_name(wmem_packet_scope(), manuf));
+                        offset, 3, manuf, "%s", get_manuf_name(manuf));
                     if (len > 3) {
                         proto_tree_add_item(vendor_tree, hf_nhrp_vendor_ext_data, tvb, offset + 3, len - 3, ENC_NA);
                     }

@@ -71,10 +71,10 @@ manuf_hash_to_texbuff(gpointer key, gpointer value, gpointer user_data)
 {
     gchar string_buff[ADDRESS_STR_MAX];
     GtkTextBuffer *buffer = (GtkTextBuffer*)user_data;
-    gchar *name = (gchar *)value;
+    hashmanuf_t *manuf = (hashmanuf_t*)value;
     int eth_as_gint = *(int*)key;
 
-    g_snprintf(string_buff, ADDRESS_STR_MAX, "%.2X:%.2X:%.2X  %s\n",eth_as_gint>>16, (eth_as_gint>>8)&0xff, eth_as_gint&0xff,name);
+    g_snprintf(string_buff, ADDRESS_STR_MAX, "%.2X:%.2X:%.2X  %s\n",eth_as_gint>>16, (eth_as_gint>>8)&0xff, eth_as_gint&0xff, get_hash_manuf_resolved_name(manuf));
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
 }

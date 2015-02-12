@@ -59,6 +59,9 @@ typedef struct _e_addr_resolve {
 struct hashether;
 typedef struct hashether hashether_t;
 
+struct hashmanuf;
+typedef struct hashmanuf hashmanuf_t;
+
 typedef struct serv_port {
   gchar            *udp_name;
   gchar            *tcp_name;
@@ -177,7 +180,7 @@ gchar *get_ether_name_if_known(const guint8 *addr);
  * Given a sequence of 3 octets containing an OID, get_manuf_name()
  * returns the vendor name, or "%02x:%02x:%02x" if not known.
  */
-extern gchar *get_manuf_name(wmem_allocator_t *allocator, const guint8 *addr);
+extern const gchar *get_manuf_name(const guint8 *addr);
 
 /*
  * Given a sequence of 3 octets containing an OID, get_manuf_name_if_known()
@@ -222,6 +225,9 @@ extern const gchar *get_ipxnet_name(wmem_allocator_t *allocator, const guint32 a
 WS_DLL_PUBLIC guint get_hash_ether_status(hashether_t* ether);
 WS_DLL_PUBLIC char* get_hash_ether_hexaddr(hashether_t* ether);
 WS_DLL_PUBLIC char* get_hash_ether_resolved_name(hashether_t* ether);
+
+WS_DLL_PUBLIC char* get_hash_manuf_resolved_name(hashmanuf_t* manuf);
+
 
 /* returns the ethernet address corresponding to name or NULL if not known */
 extern guint8 *get_ether_addr(const gchar *name);
