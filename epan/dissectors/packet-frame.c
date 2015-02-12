@@ -643,13 +643,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			bit = i % 8;
 			if (!(decoded[byte] & (1 << bit))) {
 				field_info* fi = proto_find_field_from_offset(tree, i, tvb);
-				g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING,
-					"Dissector %s incomplete in frame %u: undecoded byte number %u "
-					"(0x%.4X+%u)\n",
-					(fi ? fi->hfinfo->abbrev : "[unknown]"),
-					pinfo->fd->num, i, i - i % 16, i % 16);
-				expert_add_info_format(pinfo, tree, &ei_incomplete,
-					"Undecoded byte number: %u (0x%.4X+%u)", i, i - i % 16, i % 16);
+				if (fi && fi->hfinfo->id != proto_frame) {
+					g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING,
+						"Dissector %s incomplete in frame %u: undecoded byte number %u "
+						"(0x%.4X+%u)",
+						(fi ? fi->hfinfo->abbrev : "[unknown]"),
+						pinfo->fd->num, i, i - i % 16, i % 16);
+					expert_add_info_format(pinfo, tree, &ei_incomplete,
+						"Undecoded byte number: %u (0x%.4X+%u)", i, i - i % 16, i % 16);
+				}
 			}
 		}
         }
