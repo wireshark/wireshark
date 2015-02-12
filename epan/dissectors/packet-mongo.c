@@ -400,6 +400,7 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 
   return document_length;
 }
+
 static int
 dissect_mongo_reply(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree)
 {
@@ -431,6 +432,7 @@ dissect_mongo_reply(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree 
   }
   return offset;
 }
+
 static int
 dissect_mongo_msg(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
@@ -572,6 +574,7 @@ dissect_mongo_kill_cursors(tvbuff_t *tvb, guint offset, proto_tree *tree)
   }
   return offset;
 }
+
 static int
 dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -1027,6 +1030,9 @@ proto_register_mongo(void)
   };
 
   proto_mongo = proto_register_protocol("Mongo Wire Protocol", "MONGO", "mongo");
+
+  /* Allow dissector to find be found by name. */
+  new_register_dissector("mongo", dissect_mongo, proto_mongo);
 
   proto_register_field_array(proto_mongo, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
