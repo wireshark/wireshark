@@ -24,19 +24,19 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef HAVE_SSE4_2
+#include <emmintrin.h>
+#endif
+
 /** The pattern object used for tvb_pbrk_pattern_guint8().
  */
 typedef struct {
     gchar patt[256];
+#ifdef HAVE_SSE4_2
     gboolean use_sse42;
-    void *mask;
+    __m128i mask;
+#endif
 } tvb_pbrk_pattern;
-
-/** The value to use when initializing a tvb_pbrk_pattern variable.
- * For example:
- *    static tvb_pbrk_pattern pbrk_mypattern = INIT_PBRK_PATTERN;
- */
-#define INIT_PBRK_PATTERN { { 0 }, FALSE, NULL }
 
 /** Compile the pattern for the needles to find using tvb_pbrk_pattern_guint8().
  */
@@ -44,8 +44,10 @@ WS_DLL_PUBLIC void tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *need
 
 WS_DLL_PUBLIC const guint8 *tvb_pbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
 
+#ifdef HAVE_SSE4_2
 void ws_mempbrk_sse42_compile(tvb_pbrk_pattern* pattern, const gchar *needles);
 const char *ws_mempbrk_sse42_exec(const char* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
+#endif
 
 const guint8 *ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
 

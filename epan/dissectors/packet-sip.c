@@ -238,15 +238,15 @@ static expert_field ei_sip_odd_register_response = EI_INIT;
 static expert_field ei_sip_sipsec_malformed = EI_INIT;
 
 /* patterns used for tvb_pbrk_pattern_guint8 */
-static tvb_pbrk_pattern pbrk_comma_semi = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_whitespace = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_param_end = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_param_end_colon_brackets = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_header_end_dquote = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_quotes = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_tab_sp_fslash = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_addr_end = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_via_param_end = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_comma_semi;
+static tvb_pbrk_pattern pbrk_whitespace;
+static tvb_pbrk_pattern pbrk_param_end;
+static tvb_pbrk_pattern pbrk_param_end_colon_brackets;
+static tvb_pbrk_pattern pbrk_header_end_dquote;
+static tvb_pbrk_pattern pbrk_quotes;
+static tvb_pbrk_pattern pbrk_tab_sp_fslash;
+static tvb_pbrk_pattern pbrk_addr_end;
+static tvb_pbrk_pattern pbrk_via_param_end;
 
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */

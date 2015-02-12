@@ -76,7 +76,7 @@ static expert_field ei_irc_tag_data_invalid = EI_INIT;
 /* This must be a null-terminated string */
 static const guint8 TAG_DELIMITER[] = {0x01, 0x00};
 /* patterns used for tvb_pbrk_pattern_guint8 */
-static tvb_pbrk_pattern pbrk_tag_delimiter = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_tag_delimiter;
 
 
 #define TCP_PORT_IRC            6667

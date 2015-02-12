@@ -140,8 +140,8 @@ static dissector_handle_t megaco_text_handle;
 static int megaco_tap = -1;
 
 /* patterns used for tvb_pbrk_pattern_guint8 */
-static tvb_pbrk_pattern pbrk_whitespace = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_braces = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_whitespace;
+static tvb_pbrk_pattern pbrk_braces;
 
 
 /*

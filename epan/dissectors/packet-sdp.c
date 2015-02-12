@@ -198,8 +198,8 @@ static expert_field ei_sdp_invalid_line_space  = EI_INIT;
 static expert_field ei_sdp_invalid_conversion = EI_INIT;
 
 /* patterns used for tvb_pbrk_pattern_guint8 */
-static tvb_pbrk_pattern pbrk_digits = INIT_PBRK_PATTERN;
-static tvb_pbrk_pattern pbrk_alpha = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_digits;
+static tvb_pbrk_pattern pbrk_alpha;
 
 #define SDP_RTP_PROTO       0x00000001
 #define SDP_SRTP_PROTO      0x00000002

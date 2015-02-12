@@ -68,11 +68,8 @@ ws_mempbrk_sse42_compile(tvb_pbrk_pattern* pattern, const gchar *needles)
     pattern->use_sse42 = ws_cpuid_sse42() && (length <= 16);
 
     if (pattern->use_sse42) {
-        __m128i *pmask = NULL;
-        pattern->mask = g_malloc(sizeof(__m128i));
-        pmask = (__m128i *) pattern->mask;
-        *pmask = _mm_setzero_si128();
-        memcpy(pmask, needles, length);
+        pattern->mask = _mm_setzero_si128();
+        memcpy(&(pattern->mask), needles, length);
     }
 }
 
@@ -112,7 +109,6 @@ const char *
 ws_mempbrk_sse42_exec(const char *s, size_t slen, const tvb_pbrk_pattern* pattern, guchar *found_needle)
 {
   const char *aligned;
-  __m128i *pmask = (__m128i *) pattern->mask;
   int offset;
 
   offset = (int) ((size_t) s & 15);
@@ -122,9 +118,9 @@ ws_mempbrk_sse42_exec(const char *s, size_t slen, const tvb_pbrk_pattern* patter
       /* Check partial string. cast safe it's 16B aligned */
       __m128i value = __m128i_shift_right (_mm_load_si128 (cast_128aligned__m128i(aligned)), offset);
 
-      int length = _mm_cmpistri (*pmask, value, 0x2);
+      int length = _mm_cmpistri (pattern->mask, value, 0x2);
       /* No need to check ZFlag since ZFlag is always 1.  */
-      int cflag = _mm_cmpistrc (*pmask, value, 0x2);
+      int cflag = _mm_cmpistrc (pattern->mask, value, 0x2);
       /* XXX: why does this compare value with value? */
       int idx = _mm_cmpistri (value, value, 0x3a);
 
@@ -149,9 +145,9 @@ ws_mempbrk_sse42_exec(const char *s, size_t slen, const tvb_pbrk_pattern* patter
   while (slen >= 16)
     {
       __m128i value = _mm_load_si128 (cast_128aligned__m128i(aligned));
-      int idx = _mm_cmpistri (*pmask, value, 0x2);
-      int cflag = _mm_cmpistrc (*pmask, value, 0x2);
-      int zflag = _mm_cmpistrz (*pmask, value, 0x2);
+      int idx = _mm_cmpistri (pattern->mask, value, 0x2);
+      int cflag = _mm_cmpistrc (pattern->mask, value, 0x2);
+      int zflag = _mm_cmpistrz (pattern->mask, value, 0x2);
 
       if (cflag) {
         if (found_needle)

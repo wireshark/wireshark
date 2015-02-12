@@ -3039,7 +3039,7 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 }
 
 
-static tvb_pbrk_pattern pbrk_crlf = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_crlf;
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
@@ -3164,7 +3164,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	return linelen;
 }
 
-static tvb_pbrk_pattern pbrk_crlf_dquote = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_crlf_dquote;
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the

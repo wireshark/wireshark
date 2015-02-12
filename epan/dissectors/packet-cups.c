@@ -104,7 +104,7 @@ static gint ett_cups = -1;
 static gint ett_cups_ptype = -1;
 
 /* patterns used for tvb_pbrk_pattern_guint8 */
-static tvb_pbrk_pattern pbrk_whitespace = INIT_PBRK_PATTERN;
+static tvb_pbrk_pattern pbrk_whitespace;
 
 /* This protocol is heavily related to IPP, but it is CUPS-specific
    and non-standard. */
