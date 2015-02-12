@@ -240,7 +240,9 @@ developer-guide.chm: $(WSDG_SOURCE)
 
 # -- Release Notes ------------------------------------------------------------------------
 
-release_notes_x: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
+release_notes_x: release-notes.html release-notes.txt
+
+release_notes_pdf: release-notes-a4.pdf release-notes-us.pdf
 
 # create html single page file
 release-notes.html: $(RELEASE_NOTES_SOURCE)
