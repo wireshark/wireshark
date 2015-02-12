@@ -192,12 +192,15 @@ typedef struct hashipxnet {
 #define HASHETHER_STATUS_RESOLVED_DUMMY 2
 #define HASHETHER_STATUS_RESOLVED_NAME  3
 
+#if 0
 typedef struct hashether {
+    struct hashether *next;
     guint             status;  /* (See above) */
     guint8            addr[6];
     char              hexaddr[6*3];
     char              resolved_name[MAXNAMELEN];
 } hashether_t;
+#endif
 /* internal ethernet type */
 
 typedef struct _ether
@@ -1365,22 +1368,6 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
     return name;
 
 } /* wka_name_lookup */
-
-
-guint get_hash_ether_status(hashether_t* ether)
-{
-    return ether->status;
-}
-
-char* get_hash_ether_hexaddr(hashether_t* ether)
-{
-    return ether->hexaddr;
-}
-
-char* get_hash_ether_resolved_name(hashether_t* ether)
-{
-    return ether->resolved_name;
-}
 
 static guint
 eth_addr_hash(gconstpointer key)

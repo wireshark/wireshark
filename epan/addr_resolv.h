@@ -56,8 +56,13 @@ typedef struct _e_addr_resolve {
   gboolean load_hosts_file_from_profile_only;
 } e_addr_resolve;
 
-struct hashether;
-typedef struct hashether hashether_t;
+
+typedef struct hashether {
+  guint             status;  /* (See above) */
+  guint8            addr[6];
+  char              hexaddr[6*3];
+  char              resolved_name[MAXNAMELEN];
+} hashether_t;
 
 typedef struct serv_port {
   gchar            *udp_name;
@@ -218,10 +223,6 @@ extern const gchar *eui64_to_display(wmem_allocator_t *allocator, const guint64 
 /* get_ipxnet_name returns the logical name if found in an ipxnets file,
  * or a string formatted with "%X" if not */
 extern const gchar *get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr);
-
-WS_DLL_PUBLIC guint get_hash_ether_status(hashether_t* ether);
-WS_DLL_PUBLIC char* get_hash_ether_hexaddr(hashether_t* ether);
-WS_DLL_PUBLIC char* get_hash_ether_resolved_name(hashether_t* ether);
 
 /* returns the ethernet address corresponding to name or NULL if not known */
 extern guint8 *get_ether_addr(const gchar *name);
