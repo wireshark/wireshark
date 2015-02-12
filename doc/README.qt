@@ -174,43 +174,10 @@ porting a feature, consider the following:
 
 2.1 Coding guidelines
 
-2.1.1 Name conventions
+Moved to the Developer's Guide:
 
-Most of the code in the ui/qt directory uses three APIs: Qt (which uses
-InterCapConvention), GLib (which uses underscore_convention), and the
-Wireshark API (which also uses underscore_convention). As a general rule
-Wireshark's Qt code uses InterCapConvention for class names,
-interCapConvention for methods, and underscore_convention for variables,
-with a trailing underscore for member variables.
+https://www.wireshark.org/docs/wsdg_html_chunked/ChUIQt.html
 
-2.1.2 Class layout
-
-Dialogs that work with capture file information shouldn't close just
-because the capture file closes. I.e. they should receive the
-setCaptureFile signal and react accordingly.
-
-In most cases you should handle the changeEvent in order to catch
-QEvent::LanguageChange.
-
-2.1.3 Strings
-
-If you're using GLib string functions or plain old C character array idioms in
-Qt-only code you're probably doing something wrong. QStrings are generally
-*much* safer and easier to use. They also make translations easier.
-
-If you need to pass strings between Qt and GLib you can use qstring_strdup
-gchar_free_to_qstring, which are defined in ui/qt/qt_ui_utils.h.
-
-If you're calling a function that returns wmem-allocated memory it might make
-more sense to add a wrapper function to qt_ui_utils than to call wmem_free in
-your code.
-
-2.1.4 Mixing C and C++
-
-Sometimes we have to call C++ functions from one of Wireshark's C callbacks and
-pass C++ objects to or from C. The C++ FAQ describes how to do this safely:
-
-http://www.parashift.com/c++-faq/mixing-c-and-cpp.html
 
 2.2 Changes
 
@@ -251,11 +218,6 @@ http://qt-project.org/doc/qt-4.8/linguist-manual.html
 
 3.2 Developing
 
-- Please avoid tr() in code, try add any strings in *.ui files; tr() on manually
-  created object (like QMenu) are not automatically retranslated, so you must
-  add a couple of code to manually translate them
-  NOTE: if your object life is short, so any time when your component needs to be shown
-  it is (re)created then it is ok to have tr() in code
-- For creating submenu in context menu please follow solution from ui/qt/proto_tree.cpp
-- Some new windows need also to override changeEvent() and do retranslateUi() like
-  summary_dialog.[ch] does
+Moved to the Developer's Guide:
+
+https://www.wireshark.org/docs/wsdg_html_chunked/ChUIQt.html
