@@ -60,9 +60,9 @@ eth_hash_to_texbuff(gpointer key, gpointer value, gpointer user_data)
                (guint8)((eth_as_gint64>>16)&0xff),
                (guint8)((eth_as_gint64>>8)&0xff),
                (guint8)(eth_as_gint64&0xff),
-               tp->status,
-               tp->hexaddr,
-               tp->resolved_name);
+               get_hash_ether_status(tp),
+               get_hash_ether_hexaddr(tp),
+               get_hash_ether_resolved_name(tp));
     gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
 }
