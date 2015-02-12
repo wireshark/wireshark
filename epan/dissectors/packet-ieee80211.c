@@ -247,6 +247,20 @@ typedef struct mimo_control
   guint8 remaining_matrix_segment;
 } mimo_control_t;
 
+typedef struct vht_mimo_control
+{
+  guint8 nc;
+  guint8 nr;
+  guint8 chan_width;
+  guint8 grouping;
+  gboolean codebook_info;
+  gboolean feedback_type;
+  guint8 remaining_feedback_segment;
+  gboolean first_feedback_segment;
+  guint8 reserved;
+  guint8 token;
+} vht_mimo_control_t;
+
 /* ************************************************************************* */
 /*                          Miscellaneous Constants                          */
 /* ************************************************************************* */
@@ -4218,6 +4232,8 @@ static int hf_ieee80211_ff_vht_mimo_cntrl_first_feedback_seg = -1;
 static int hf_ieee80211_ff_vht_mimo_cntrl_reserved = -1;
 static int hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number = -1;
 static int hf_ieee80211_vht_compressed_beamforming_report = -1;
+static int hf_ieee80211_vht_compressed_beamforming_report_snr = -1;
+static int hf_ieee80211_vht_compressed_beamforming_feedback_matrix = -1;
 static int hf_ieee80211_vht_group_id_management = -1;
 static int hf_ieee80211_vht_operation_mode_notification = -1;
 
@@ -5070,6 +5086,9 @@ static gint ett_vht_ndp_annc_token_tree = -1;
 static gint ett_vht_ndp_annc_sta_info_tree = -1;
 
 static gint ett_ff_vhtmimo_cntrl = -1;
+static gint ett_ff_vhtmimo_beamforming_report = -1;
+static gint ett_ff_vhtmimo_beamforming_report_snr = -1;
+static gint ett_ff_vhtmimo_beamforming_report_feedback_matrices = -1;
 
 static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
@@ -9069,10 +9088,11 @@ add_ff_action_unprotected_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 }
 
 static guint
-add_ff_vht_mimo_cntrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+add_ff_vht_mimo_cntrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, vht_mimo_control_t *cntrl)
 {
   proto_item *vht_mimo_item;
   proto_tree *vht_mimo_tree;
+  guint32 vht_mimo;
 
   vht_mimo_item = proto_tree_add_item(tree, hf_ieee80211_ff_vht_mimo_cntrl, tvb,
                                   offset, 3, ENC_NA);
@@ -9099,7 +9119,230 @@ add_ff_vht_mimo_cntrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, i
   proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number, tvb,
                       offset, 3, ENC_LITTLE_ENDIAN);
 
+  /* Fill vht_mimo_control_t for beamforming use */
+  vht_mimo = tvb_get_letoh24(tvb, offset);
+  cntrl->nc = (vht_mimo & 0x7) + 1;
+  cntrl->nr = ((vht_mimo & 0x38) >> 3) + 1;
+  cntrl->chan_width = (vht_mimo & 0xC0) >> 6;
+  cntrl->grouping = ((vht_mimo & 0x300) >> 8);
+  cntrl->codebook_info = (vht_mimo & 0x400) >> 10;
+  cntrl->feedback_type = (vht_mimo & 0x800) >> 11;
+  cntrl->remaining_feedback_segment = (vht_mimo & 0x7000) >> 12;
+  cntrl->first_feedback_segment = (vht_mimo & 0x8000) >> 15;
+  cntrl->reserved = (vht_mimo & 0x30000) >> 16;
+  cntrl->token = (vht_mimo & 0xfc0000) >> 18;
   return 3;
+}
+
+/* There is no easy way to skip all these subcarrier indices that must not
+ * be displayed when showing compressed beamforming feedback matrices
+ * Table 8-53g IEEE Std 802.11ac-2013 amendment.
+ *
+ * The irregular use of case statements in this function is to improve
+ * readability in what is otherwise a large funtion that does very little.
+ */
+static inline int vht_compressed_skip_scidx(guint8 nchan_width, guint8 ng, int scidx)
+{
+  switch(nchan_width) {
+    /* 20 MHz */
+    case 0:
+      /* No Grouping */
+      if (ng == 0)
+        switch (scidx) {
+          /* Pilot subcarriers */
+          case -21: case -7: case 7: case 21:
+          /* DC subcarrier */
+          case 0:
+            scidx++;
+          default:
+            break;
+        }
+      break;
+    /* 40 MHz */
+    case 1:
+      /* No Grouping */
+      if (ng == 0)
+        switch (scidx) {
+          /* Pilot subcarriers */
+          case -53: case -25: case -11: case 11: case 25: case 53:
+            scidx++;
+            break;
+          /* DC subcarriers */
+          case -1: case 0: case 1:
+            scidx = 2;
+          default:
+            break;
+        }
+      break;
+    /* 80 MHz */
+    case 2:
+      /* No Grouping */
+      if (ng == 0)
+        switch (scidx) {
+          /* Pilot subcarriers */
+          case -103: case -75: case -39: case -11: case 11: case 39: case 75: case 103:
+            scidx++;
+            break;
+          /* DC subcarriers, skip -1,0, 1 */
+          case -1:
+            scidx = 2;
+          default:
+            break;
+        }
+      break;
+    /* 160 MHz / 80+80 Mhz
+     * Skip values here assume 160 MHz, as vht_mimo_control_t does not let us differentiate
+     * between 160 MHz & 80-80MHz */
+    case 3:
+      switch (ng) {
+        /* No Grouping */
+        case 0:
+          /* DC subcarriers, skip -5 to 5*/
+          if (scidx == -5) {
+            scidx = 6;
+            break;
+          }
+          switch (scidx) {
+            /* Pilot subcarriers */
+            case -231: case -203: case -167: case -139: case -117: case -89: case -53: case -25:
+            case 25: case 53: case 89: case 117: case 139: case 167: case 203: case 231:
+              scidx++;
+              break;
+            /* Other subcarriers, skip -129 to -127, 127 to 129 */
+            case -129:
+              scidx = -126;
+              break;
+            case 127:
+              scidx = 130;
+              break;
+            default:
+              break;
+          }
+          break;
+        /* Grouping of 2 */
+        case 1:
+          switch (scidx) {
+            /* DC subcarriers */
+            case -128: case -4: case -2: case 0: case 2: case 4: case 128:
+              scidx++;
+            default:
+              break;
+          }
+          break;
+        /* Grouping of 4 */
+        case 2:
+          if (scidx == -2 || scidx == 2)
+            scidx++;
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+
+  return scidx;
+}
+
+static guint
+add_ff_vht_compressed_beamforming_report(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, vht_mimo_control_t *vht_cntrl)
+{
+  proto_item *vht_beam_item;
+  proto_tree *vht_beam_tree, *subtree;
+  int i, matrix_size, len, pos, ns, scidx = 0;
+  guint8 phi, psi, carry, ng, nchan_width;
+  /* Table 8-53d Order of angles in the Compressed Beamforming Feedback
+   * Matrix subfield, IEEE Std 802.11ac-2013 amendment */
+  const guint8 na_arr[8][8] = { {  0,  0,  0,  0,  0,  0,  0,  0 },
+                                {  2,  2,  0,  0,  0,  0,  0,  0 },
+                                {  4,  6,  6,  0,  0,  0,  0,  0 },
+                                {  6, 10, 12, 12,  0,  0,  0,  0 },
+                                {  8, 14, 18, 20, 20,  0,  0,  0 },
+                                { 10, 18, 24, 28, 30, 30,  0,  0 },
+                                { 12, 22, 30, 36, 40, 42, 42,  0 },
+                                { 14, 26, 36, 44, 50, 54, 56, 56 }
+                              };
+  /* Table 8-53g Subcarriers for which a Compressed Beamforming Feedback Matrix
+   * subfield is sent back. IEEE Std 802.11ac-2013 amendment */
+  const int ns_arr[4][3] = { {  52,  30,  16 },
+                             { 108,  58,  30 },
+                             { 234, 122,  62 },
+                             { 468, 244, 124 }
+                           };
+
+  vht_beam_item = proto_tree_add_item(tree, hf_ieee80211_vht_compressed_beamforming_report, tvb,
+                                  offset, -1, ENC_NA);
+  vht_beam_tree = proto_item_add_subtree(vht_beam_item, ett_ff_vhtmimo_beamforming_report);
+
+  subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, vht_cntrl->nc,
+                        ett_ff_vhtmimo_beamforming_report_snr, NULL, "Average Signal to Noise Ratio");
+
+  for (i = 1; i <= vht_cntrl->nc; i++)
+  {
+    guint8 snr;
+
+    snr = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format(subtree, hf_ieee80211_vht_compressed_beamforming_report_snr, tvb, offset, 1,
+                               snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
+    offset += 1;
+  }
+
+  subtree = proto_tree_add_subtree(vht_beam_tree, tvb, offset, -1,
+                        ett_ff_vhtmimo_beamforming_report_feedback_matrices, NULL, "Beamforming Feedback Matrics");
+  if (vht_cntrl->feedback_type) {
+    if (vht_cntrl->codebook_info) {
+      psi = 7; phi = 9;
+    } else {
+      psi = 5; phi = 7;
+    }
+  } else {
+    if (vht_cntrl->codebook_info) {
+      psi = 4; phi = 6;
+    } else {
+      psi = 2; phi = 4;
+    }
+  }
+
+  ng = vht_cntrl->grouping;
+  nchan_width = vht_cntrl->chan_width;
+  ns = ns_arr[nchan_width][ng];
+  switch(nchan_width) {
+    case 0:
+      scidx = -28;
+      break;
+    case 1:
+      scidx = -58;
+      break;
+    case 2:
+      scidx = -122;
+      break;
+    case 3:
+      /* This is -122 for 80+80MHz Channel Width but vht_mimo_control does not allow us
+       * to differentiate between 160MHz and 80+80Mhz */
+      scidx = -250;
+      break;
+  }
+
+  matrix_size = na_arr[vht_cntrl->nr - 1][vht_cntrl->nc -1] * (psi + phi)/2;
+  pos = 0;
+  for (i = 0; i < ns; i++) {
+    if (pos % 8)
+      carry = 1;
+    else
+      carry = 0;
+    len = roundup2((pos + matrix_size), 8)/8 - roundup2(pos, 8)/8;
+    scidx = vht_compressed_skip_scidx(nchan_width, ng, scidx);
+
+    /* TODO : For certain values from na_arr, there is always going be a carry over or overflow from the previous or
+       into the next octet. The largest of possible unaligned values can be 41 bytes long, and masking and shifting
+       whole buffers to show correct values with padding and overflow bits is hence skipped, we only mark the bytes
+       of interest instead */
+    proto_tree_add_none_format(subtree, hf_ieee80211_vht_compressed_beamforming_feedback_matrix, tvb,
+                                    offset - carry, len + carry, "Compressed Beamforming Feedback Matrix for subcarrier %d", scidx++);
+    offset += len;
+    pos += matrix_size;
+  }
+
+  return offset;
 }
 
 static guint
@@ -9108,6 +9351,7 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   guint start = offset;
   guint8 vht_action;
   proto_item *ti;
+  vht_mimo_control_t vht_mimo_cntrl;
 
   offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_CATEGORY_CODE);
 
@@ -9116,10 +9360,8 @@ add_ff_action_vht(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
 
   switch(vht_action){
     case VHT_ACT_VHT_COMPRESSED_BEAMFORMING:{
-      offset += add_ff_vht_mimo_cntrl(tree, tvb, pinfo, offset);
-      ti = proto_tree_add_item(tree, hf_ieee80211_vht_compressed_beamforming_report, tvb,
-                          offset, -1, ENC_NA);
-      expert_add_info(pinfo, ti, &ei_ieee80211_vht_action);
+      offset += add_ff_vht_mimo_cntrl(tree, tvb, pinfo, offset, &vht_mimo_cntrl);
+      offset = add_ff_vht_compressed_beamforming_report(tree, tvb, pinfo, offset, &vht_mimo_cntrl);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
     break;
@@ -20333,6 +20575,16 @@ proto_register_ieee80211 (void)
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
 
+    {&hf_ieee80211_vht_compressed_beamforming_report_snr,
+      {"Signal to Noise Ratio (SNR)", "wlan.vht.compressed_beamforming_report.snr",
+       FT_UINT8, BASE_HEX, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vht_compressed_beamforming_feedback_matrix,
+      {"Compressed Beamforming Feedback Matrix", "wlan.vht.compressed_beamforming_report.feedback_matrix",
+       FT_NONE, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
     {&hf_ieee80211_vht_group_id_management,
       {"Group ID Management","wlan.vht.group_id_management",
        FT_BYTES, BASE_NONE, NULL, 0,
@@ -26365,6 +26617,9 @@ proto_register_ieee80211 (void)
     &ett_vht_ndp_annc_sta_info_tree,
 
     &ett_ff_vhtmimo_cntrl,
+    &ett_ff_vhtmimo_beamforming_report,
+    &ett_ff_vhtmimo_beamforming_report_snr,
+    &ett_ff_vhtmimo_beamforming_report_feedback_matrices,
 
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
