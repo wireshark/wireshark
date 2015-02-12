@@ -2889,7 +2889,7 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
         last_offset = fragment_data->offset;
         if (first) {
             size = fragment_data->offset + fragment_data->length;
-            data = (guint8 *) wmem_alloc(wmem_packet_scope(), size);
+            data = (guint8 *) wmem_alloc(pinfo->pool, size);
 
             if (length)
                 *length = size;
