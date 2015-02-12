@@ -781,7 +781,9 @@ GTK_SCHEMAS_DIR=\share\glib-2.0\schemas
 # Set up the path to the Cygwin binaries
 # First check whether a 32-bit Cygwin installation exists
 # If not, check for a 64-bit Cygwin installation
-!IF EXIST(C:\cygwin\bin)
+!IF EXIST($(CYGWIN_PATH))
+# Do nothing
+!ELSE IF EXIST(C:\cygwin\bin)
 CYGWIN_PATH=C:\cygwin\bin
 !ELSE IF EXIST(C:\cygwin64\bin)
 CYGWIN_PATH=C:\cygwin64\bin
