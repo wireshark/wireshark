@@ -22,9 +22,11 @@
 #include "elided_label.h"
 
 #include <QFontMetrics>
+#include <QResizeEvent>
 
 ElidedLabel::ElidedLabel(QWidget *parent) :
-    QLabel(parent)
+    QLabel(parent),
+    small_text_(false)
 {
 }
 
@@ -34,25 +36,27 @@ void ElidedLabel::setUrl(const QString &url)
     updateText();
 }
 
-void ElidedLabel::resizeEvent(QResizeEvent *evt)
+void ElidedLabel::resizeEvent(QResizeEvent *)
 {
-    Q_UNUSED(evt)
     updateText();
 }
 
 void ElidedLabel::updateText()
 {
-    QString elided_text = fontMetrics().elidedText(full_text_, Qt::ElideMiddle, width());
+    int fudged_width = small_text_ ? width() * 1.2 : width();
+    QString elided_text = fontMetrics().elidedText(full_text_, Qt::ElideMiddle, fudged_width);
+    QString label_text = small_text_ ? "<small><i>" : "<i>";
+
     if (url_.length() > 0) {
-        QLabel::setText(QString("<i><a href=\"%1\">%2</a></i>")
+        label_text.append(QString("<a href=\"%1\">%2</a>")
                 .arg(url_)
                 .arg(elided_text)
                 );
     } else {
-        QLabel::setText(QString("<i>%1</i>")
-                .arg(elided_text)
-                );
+        label_text += elided_text;
     }
+    label_text += small_text_ ? "</i></small>" : "</i>";
+    QLabel::setText(label_text);
 }
 
 void ElidedLabel::clear()

@@ -30,11 +30,13 @@ class ElidedLabel : public QLabel
 public:
     explicit ElidedLabel(QWidget *parent = 0);
     void setUrl(const QString &url);
+    void setSmallText(bool small_text = true) { small_text_ = small_text; }
 
 protected:
-    void resizeEvent(QResizeEvent *evt);
+    void resizeEvent(QResizeEvent *);
 
 private:
+    bool small_text_;
     QString full_text_;
     QString url_;
 

@@ -27,6 +27,8 @@
 
 #include "frame_tvbuff.h"
 
+#include "ui/utf8_entities.h"
+
 #include "byte_view_tab.h"
 #include "proto_tree.h"
 #include "wireshark_application.h"
@@ -44,6 +46,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, bool from_reference
     packet_data_(NULL)
 {
     ui->setupUi(this);
+    ui->hintLabel->setSmallText();
 
     // XXX Use recent settings instead
     resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
@@ -98,10 +101,12 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, bool from_reference
 
     QStringList col_parts;
     for (int i = 0; i < cap_file_.capFile()->cinfo.num_cols; ++i) {
-        col_parts << QString("<b>%1</b>").arg(get_column_title(i));
-        col_parts << cap_file_.capFile()->cinfo.col_data[i];
+        // ElidedLabel doesn't support rich text / HTML
+        col_parts << QString("%1: %2")
+                     .arg(get_column_title(i))
+                     .arg(cap_file_.capFile()->cinfo.col_data[i]);
     }
-    col_info_ = col_parts.join(" ");
+    col_info_ = col_parts.join(" " UTF8_MIDDLE_DOT " ");
     setHintText();
 
     connect(this, SIGNAL(monospaceFontChanged(QFont)),
@@ -140,8 +145,7 @@ void PacketDialog::captureFileClosing()
 
 void PacketDialog::setHintText(QString &hint)
 {
-    ui->hintLabel->setText(QString("<small><i>%1</i></small>")
-                           .arg(hint.isEmpty() ? col_info_ : hint));
+    ui->hintLabel->setText(hint.isEmpty() ? col_info_ : hint);
 }
 
 void PacketDialog::on_buttonBox_helpRequested()
