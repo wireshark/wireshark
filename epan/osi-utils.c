@@ -220,10 +220,10 @@ print_area_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
  ******************************************************************************/
 static int osi_address_type = -1;
 
-static gboolean osi_address_to_str(const address* addr, gchar *buf, int buf_len)
+static int osi_address_to_str(const address* addr, gchar *buf, int buf_len)
 {
     print_nsap_net_buf((const guint8 *)addr->data, addr->len, buf, buf_len);
-    return TRUE;
+    return strlen(buf)+1;
 }
 
 static int osi_address_str_len(const address* addr _U_)
@@ -241,7 +241,7 @@ void register_osi_address_type(void)
     if (osi_address_type != -1)
         return;
 
-    osi_address_type = address_type_dissector_register("AT_OSI", "OSI Address", osi_address_to_str, osi_address_str_len, NULL, NULL);
+    osi_address_type = address_type_dissector_register("AT_OSI", "OSI Address", osi_address_to_str, osi_address_str_len, NULL, NULL, NULL, NULL);
 }
 
 

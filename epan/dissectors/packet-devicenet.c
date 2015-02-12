@@ -781,13 +781,14 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return tvb_captured_length(tvb);
 }
 
-static gboolean devicenet_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int devicenet_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     guint8 addrdata = *((guint8*)addr->data) & 0x3F;
+    gchar *start_buf = buf;
 
     buf = uint_to_str_back(buf, addrdata);
     *buf = '\0';
-    return TRUE;
+    return buf-start_buf+1;
 }
 
 static int devicenet_addr_str_len(const address* addr _U_)
@@ -1030,7 +1031,7 @@ void proto_register_devicenet(void)
 
     new_register_dissector("devicenet", dissect_devicenet, proto_devicenet);
 
-    devicenet_address_type = address_type_dissector_register("AT_DEVICENET", "DeviceNet Address", devicenet_addr_to_str, devicenet_addr_str_len, NULL, devicenet_addr_len);
+    devicenet_address_type = address_type_dissector_register("AT_DEVICENET", "DeviceNet Address", devicenet_addr_to_str, devicenet_addr_str_len, NULL, devicenet_addr_len, NULL, NULL);
 
     devicenet_module = prefs_register_protocol(proto_devicenet, NULL);
 

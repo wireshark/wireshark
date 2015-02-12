@@ -149,19 +149,19 @@ mstp_frame_type_text(guint32 val)
 		"Unknown Frame Type (%u)");
 }
 
-static gboolean mstp_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int mstp_str_len(const address* addr _U_)
+{
+	return 5;
+}
+
+static int mstp_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
 	*buf++ = '0';
 	*buf++ = 'x';
 	buf = bytes_to_hexstr(buf, (const guint8 *)addr->data, 1);
 	*buf = '\0'; /* NULL terminate */
 
-	return TRUE;
-}
-
-static int mstp_str_len(const address* addr _U_)
-{
-	return 5;
+	return mstp_str_len(addr);
 }
 
 static const char* mstp_col_filter_str(const address* addr _U_, gboolean is_src)
@@ -465,7 +465,7 @@ proto_register_mstp(void)
 	    "MSTP Vendor specific Frametypes", FT_UINT24, BASE_DEC);
 	/* Table_type: (Vendor ID << 16) + Frametype */
 
-	mstp_address_type = address_type_dissector_register("AT_MSTP", "BACnet MS/TP Address", mstp_to_str, mstp_str_len, mstp_col_filter_str, mstp_len);
+	mstp_address_type = address_type_dissector_register("AT_MSTP", "BACnet MS/TP Address", mstp_to_str, mstp_str_len, mstp_col_filter_str, mstp_len, NULL, NULL);
 }
 
 void

@@ -2968,32 +2968,7 @@ address_to_display(wmem_allocator_t *allocator, const address *addr)
 const gchar *
 get_addr_name(const address *addr)
 {
-    guint32 ip4_addr;
-    struct e_in6_addr ip6_addr;
-
-    /*
-     * Try to look up a name for this address.
-     * If it's not found, this might return a string corresponding to
-     * the address, or it might return NULL.
-     *
-     * Whatever string is returned has at least session scope.
-     */
-    switch (addr->type) {
-
-    case AT_ETHER:
-        return get_ether_name((const guint8 *)addr->data);
-
-    case AT_IPv4:
-        memcpy(&ip4_addr, addr->data, sizeof ip4_addr);
-        return get_hostname(ip4_addr);
-
-    case AT_IPv6:
-        memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
-        return get_hostname6(&ip6_addr);
-
-    default:
-        return NULL;
-    }
+    return solve_address_to_name(addr);
 }
 
 gchar *

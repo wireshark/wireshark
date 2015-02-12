@@ -605,7 +605,7 @@ tipc_addr_to_str(guint tipc_address)
 	return tipc_addr_value_to_buf(tipc_address, buf, MAX_TIPC_ADDRESS_STR_LEN);
 }
 
-static gboolean
+static int
 tipc_addr_to_str_buf(const address* addr, gchar *buf, int buf_len)
 {
 	const guint8 *data = (const guint8 *)addr->data;
@@ -617,7 +617,7 @@ tipc_addr_to_str_buf(const address* addr, gchar *buf, int buf_len)
 	tipc_address = (tipc_address << 8) ^ data[3];
 
 	tipc_addr_value_to_buf(tipc_address, buf, buf_len);
-	return TRUE;
+	return strlen(buf)+1;
 }
 
 static int tipc_addr_str_len(const address* addr _U_)
@@ -2962,7 +2962,7 @@ proto_register_tipc(void)
 	tipc_module = prefs_register_protocol(proto_tipc, proto_reg_handoff_tipc);
 
 	tipc_address_type = address_type_dissector_register("tipc_address_type", "TIPC Address Zone,Subnetwork,Processor",
-														tipc_addr_to_str_buf, tipc_addr_str_len, NULL, NULL);
+														tipc_addr_to_str_buf, tipc_addr_str_len, NULL, NULL, NULL, NULL);
 
 	/* Set default ports */
 	range_convert_str(&global_tipc_udp_port_range, DEFAULT_TIPC_PORT_RANGE, MAX_TCP_PORT);

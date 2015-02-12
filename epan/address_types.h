@@ -29,27 +29,33 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef gboolean (*AddrValueToString)(const address* addr, gchar *buf, int buf_len);
+typedef int (*AddrValueToString)(const address* addr, gchar *buf, int buf_len);
 typedef int (*AddrValueToStringLen)(const address* addr);
 typedef int (*AddrFixedLen)(void);
 typedef const char* (*AddrColFilterString)(const address* addr, gboolean src);
+typedef int (*AddrNameResolutionLen)(void);
+typedef const gchar* (*AddrNameResolutionToString)(const address* addr);
 
 struct _address_type_t;
 typedef struct _address_type_t address_type_t;
 
 int address_type_dissector_register(const char* name, const char* pretty_name,
                                     AddrValueToString to_str_func, AddrValueToStringLen str_len_func,
-                                    AddrColFilterString col_filter_str_func, AddrFixedLen fixed_len_func);
+                                    AddrColFilterString col_filter_str_func, AddrFixedLen fixed_len_func,
+                                    AddrNameResolutionToString name_res_str_func, AddrNameResolutionLen name_res_len_func);
 
 void address_types_initialize(void);
 
 /* Address type functions used by multiple (dissector) address types */
-gboolean none_addr_to_str(const address* addr, gchar *buf, int buf_len);
+int none_addr_to_str(const address* addr, gchar *buf, int buf_len);
 int none_addr_str_len(const address* addr);
 int none_addr_len(void);
-gboolean ether_to_str(const address* addr, gchar *buf, int buf_len);
+
+int ether_to_str(const address* addr, gchar *buf, int buf_len);
 int ether_str_len(const address* addr);
 int ether_len(void);
+const gchar* ether_name_resolution_str(const address* addr);
+int ether_name_resolution_len(void);
 
 
 

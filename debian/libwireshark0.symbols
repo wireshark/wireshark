@@ -44,6 +44,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  add_new_data_source@Base 1.9.1
  address_to_display@Base 1.99.2
  address_to_str@Base 1.12.0~rc1
+ address_with_resolution_to_str@Base 1.99.3
  address_to_str_buf@Base 1.9.1
  addresses_ports_reassembly_table_functions@Base 1.9.1
  addresses_reassembly_table_functions@Base 1.9.1

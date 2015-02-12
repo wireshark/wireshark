@@ -1177,7 +1177,13 @@ struct atalk_ddp_addr {
     guint8  node;
 };
 
-static gboolean atalk_to_str(const address* addr, gchar *buf, int buf_len _U_)
+
+static int atalk_str_len(const address* addr _U_)
+{
+    return 8;
+}
+
+static int atalk_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     struct atalk_ddp_addr atalk;
     memcpy(&atalk, addr->data, sizeof atalk);
@@ -1187,12 +1193,7 @@ static gboolean atalk_to_str(const address* addr, gchar *buf, int buf_len _U_)
     buf = bytes_to_hexstr(buf, &atalk.node, 1);
     *buf++ = '\0'; /* NULL terminate */
 
-    return TRUE;
-}
-
-static int atalk_str_len(const address* addr _U_)
-{
-    return 14;
+    return atalk_str_len(addr);
 }
 
 static const char* atalk_col_filter_str(const address* addr _U_, gboolean is_src)
@@ -2067,7 +2068,7 @@ proto_register_atalk(void)
   ddp_dissector_table = register_dissector_table("ddp.type", "DDP packet type",
                                                  FT_UINT8, BASE_HEX);
 
-  atalk_address_type = address_type_dissector_register("AT_ATALK", "Appletalk DDP", atalk_to_str, atalk_str_len, atalk_col_filter_str, atalk_len);
+  atalk_address_type = address_type_dissector_register("AT_ATALK", "Appletalk DDP", atalk_to_str, atalk_str_len, atalk_col_filter_str, atalk_len, NULL, NULL);
 }
 
 void

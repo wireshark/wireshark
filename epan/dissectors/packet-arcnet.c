@@ -53,19 +53,19 @@ static int arcnet_address_type = -1;
 static dissector_table_t arcnet_dissector_table;
 static dissector_handle_t data_handle;
 
-static gboolean arcnet_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int arcnet_str_len(const address* addr _U_)
+{
+  return 5;
+}
+
+static int arcnet_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
   *buf++ = '0';
   *buf++ = 'x';
   buf = bytes_to_hexstr(buf, (const guint8 *)addr->data, 1);
   *buf = '\0'; /* NULL terminate */
 
-  return TRUE;
-}
-
-static int arcnet_str_len(const address* addr _U_)
-{
-  return 5;
+  return arcnet_str_len(addr);
 }
 
 static const char* arcnet_col_filter_str(const address* addr _U_, gboolean is_src)
@@ -385,7 +385,7 @@ proto_register_arcnet (void)
   proto_register_field_array (proto_arcnet, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str, arcnet_len);
+  arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str, arcnet_len, NULL, NULL);
 }
 
 

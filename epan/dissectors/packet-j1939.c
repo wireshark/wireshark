@@ -259,13 +259,14 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_captured_length(tvb);
 }
 
-static gboolean J1939_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int J1939_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addrdata = (const guint8 *)addr->data;
+    gchar *start_buf = buf;
 
     buf = uint_to_str_back(buf, *addrdata);
     *buf = '\0';
-    return TRUE;
+    return buf-start_buf+1;
 }
 
 static int J1939_addr_str_len(const address* addr _U_)
@@ -350,7 +351,7 @@ void proto_register_j1939(void)
 
     subdissector_pgn_table = register_dissector_table("j1939.pgn", "PGN Handle", FT_UINT32, BASE_DEC);
 
-    j1939_address_type = address_type_dissector_register("AT_J1939", "J1939 Address", J1939_addr_to_str, J1939_addr_str_len, J1939_col_filter_str, J1939_addr_len);
+    j1939_address_type = address_type_dissector_register("AT_J1939", "J1939 Address", J1939_addr_to_str, J1939_addr_str_len, J1939_col_filter_str, J1939_addr_len, NULL, NULL);
 }
 
 /*

@@ -392,14 +392,14 @@ static gboolean ieee802154_extend_auth = TRUE;
 #define ieee802154_crc_tvb(tvb, offset)   (crc16_ccitt_tvb_seed(tvb, offset, IEEE802154_CRC_SEED) ^ IEEE802154_CRC_XOROUT)
 
 
-static gboolean ieee802_15_4_short_address_to_str(const address* addr, gchar *buf, int buf_len)
+static int ieee802_15_4_short_address_to_str(const address* addr, gchar *buf, int buf_len)
 {
     guint16 ieee_802_15_4_short_addr = pletoh16(addr->data);
 
     if (ieee_802_15_4_short_addr == 0xffff)
     {
         g_strlcpy(buf, "Broadcast", buf_len);
-        return TRUE;
+        return 10;
     }
 
     *buf++ = '0';
@@ -407,7 +407,7 @@ static gboolean ieee802_15_4_short_address_to_str(const address* addr, gchar *bu
     buf = word_to_hex(buf, ieee_802_15_4_short_addr);
     *buf = '\0'; /* NULL terminate */
 
-    return TRUE;
+    return 7;
 }
 
 static int ieee802_15_4_short_address_str_len(const address* addr _U_)
@@ -2790,7 +2790,7 @@ void proto_register_ieee802154(void)
     expert_register_field_array(expert_ieee802154, ei, array_length(ei));
 
     ieee802_15_4_short_address_type = address_type_dissector_register("AT_IEEE_802_15_4_SHORT", "IEEE 802.15.4 16-bit short address",
-                                        ieee802_15_4_short_address_to_str, ieee802_15_4_short_address_str_len, NULL, ieee802_15_4_short_address_len);
+                                        ieee802_15_4_short_address_to_str, ieee802_15_4_short_address_str_len, NULL, ieee802_15_4_short_address_len, NULL, NULL);
 
     /* add a user preference to set the 802.15.4 ethertype */
     ieee802154_module = prefs_register_protocol(proto_ieee802154,

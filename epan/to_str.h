@@ -52,6 +52,7 @@ extern "C" {
 struct     e_in6_addr;
 
 WS_DLL_PUBLIC gchar* address_to_str(wmem_allocator_t *scope, const address *addr);
+WS_DLL_PUBLIC gchar* address_with_resolution_to_str(wmem_allocator_t *scope, const address *addr);
 
 WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
 
