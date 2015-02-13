@@ -614,12 +614,6 @@ void MainWindow::captureFileClosed() {
 
     main_ui_->statusBar->popFileStatus();
 
-    if (df_combo_box_)
-    {
-        df_combo_box_->lineEdit()->setText("");
-        df_combo_box_->applyDisplayFilter();
-    }
-
     setTitlebarForSelectedTreeRow();
     setMenusForSelectedTreeRow();
 }
