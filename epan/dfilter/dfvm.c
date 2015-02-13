@@ -98,8 +98,8 @@ dfvm_dump(FILE *f, dfilter_t *df)
 	GSList		*range_list;
 	drange_node	*range_item;
 
-        /* First dump the constant initializations */
-        fprintf(f, "Constants:\n");
+	/* First dump the constant initializations */
+	fprintf(f, "Constants:\n");
 	length = df->consts->len;
 	for (id = 0; id < length; id++) {
 
@@ -140,8 +140,8 @@ dfvm_dump(FILE *f, dfilter_t *df)
 		}
 	}
 
-        fprintf(f, "\nInstructions:\n");
-        /* Now dump the operations */
+	fprintf(f, "\nInstructions:\n");
+	/* Now dump the operations */
 	length = df->insns->len;
 	for (id = 0; id < length; id++) {
 
@@ -176,8 +176,8 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				break;
 
 			case PUT_FVALUE:
-                                /* We already dumped these */
-                                g_assert_not_reached();
+				/* We already dumped these */
+				g_assert_not_reached();
 				break;
 
 			case MK_RANGE:
@@ -551,7 +551,7 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case PUT_FVALUE:
 #if 0
-                                /* These were handled in the constants initialization */
+				/* These were handled in the constants initialization */
 				accum = put_fvalue(df,
 						arg1->value.fvalue, arg2->value.numeric);
 				break;
@@ -613,3 +613,16 @@ dfvm_init_const(dfilter_t *df)
 
 	return;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

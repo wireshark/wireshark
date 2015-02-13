@@ -407,11 +407,11 @@ dfilter_apply_edt(dfilter_t *df, epan_dissect_t* edt)
 void
 dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree)
 {
-    int i;
+	int i;
 
-    for (i = 0; i < df->num_interesting_fields; i++) {
-        proto_tree_prime_hfid(tree, df->interesting_fields[i]);
-    }
+	for (i = 0; i < df->num_interesting_fields; i++) {
+		proto_tree_prime_hfid(tree, df->interesting_fields[i]);
+	}
 }
 
 GPtrArray *
@@ -439,3 +439,16 @@ dfilter_dump(dfilter_t *df)
 		printf("\n");
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

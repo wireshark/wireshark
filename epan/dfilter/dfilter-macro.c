@@ -541,7 +541,7 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 		 * Then we loop copying bytes from m->priv into
 		 * d-priv.  Since m->priv contains internal ACSII NULs
 		 * we use the length of m->text to stop the copy.
-                 */
+		 */
 
 		d->priv = g_strdup(m->text);
 		{
@@ -565,7 +565,7 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 		 * array into d->parts but then fixes-up the pointers
 		 * so that they point into the appropriate sections
 		 * of the d->priv.
-                 */
+		 */
 
 		do nparts++; while (m->parts[nparts]);
 		d->parts = (gchar **)g_memdup(m->parts,(nparts+1)*(guint)sizeof(void*));
@@ -737,3 +737,15 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 }
 #endif
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

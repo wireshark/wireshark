@@ -891,7 +891,7 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
-        int                     len_range;
+	int                     len_range;
 
 	DebugLog(("    5 check_relation_LHS_RANGE(%s)\n", relation_string));
 
@@ -965,33 +965,33 @@ check_relation_LHS_RANGE(dfwork_t *dfw, const char *relation_string,
 	else if (type2 == STTYPE_UNPARSED) {
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED)\n"));
 		s = (char*)stnode_data(st_arg2);
-                len_range = drange_get_total_length(sttype_range_drange(st_arg1));
+		len_range = drange_get_total_length(sttype_range_drange(st_arg1));
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = dfilter_fvalue_from_unparsed(dfw, FT_PCRE, s, FALSE);
 		}
 
-                /* The RHS should be FT_BYTES. However, there is a special case where
-                 * the range slice on the LHS is one byte long. In that case, it is natural
-                 * for the user to specify a normal hex integer on the RHS, with the "0x"
-                 * notation, as in "slice[0] == 0x10". We can't allow this for any
-                 * slices that are longer than one byte, because then we'd have to know
-                 * which endianness the byte string should be in. */
-                else if (len_range == 1 && strlen(s) == 4 && strncmp(s, "0x", 2) == 0) {
-                    /* Even if the RHS string starts with "0x", it still could fail to
-                     * be an integer.  Try converting it here. */
-                    fvalue = dfilter_fvalue_from_unparsed(dfw, FT_UINT8, s, allow_partial_value);
-                    if (fvalue) {
-                        FVALUE_FREE(fvalue);
-                        /* The value doees indeed fit into 8 bits. Create a BYTE_STRING
-                         * from it. Since we know that the last 2 characters are a valid
-                         * hex string, just use those directly. */
-                        fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, s+2, allow_partial_value);
-                    }
-                }
-                else {
-                    fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, s, allow_partial_value);
-                }
+		/* The RHS should be FT_BYTES. However, there is a special case where
+		 * the range slice on the LHS is one byte long. In that case, it is natural
+		 * for the user to specify a normal hex integer on the RHS, with the "0x"
+		 * notation, as in "slice[0] == 0x10". We can't allow this for any
+		 * slices that are longer than one byte, because then we'd have to know
+		 * which endianness the byte string should be in. */
+		else if (len_range == 1 && strlen(s) == 4 && strncmp(s, "0x", 2) == 0) {
+		    /* Even if the RHS string starts with "0x", it still could fail to
+		     * be an integer.  Try converting it here. */
+		    fvalue = dfilter_fvalue_from_unparsed(dfw, FT_UINT8, s, allow_partial_value);
+		    if (fvalue) {
+			FVALUE_FREE(fvalue);
+			/* The value doees indeed fit into 8 bits. Create a BYTE_STRING
+			 * from it. Since we know that the last 2 characters are a valid
+			 * hex string, just use those directly. */
+			fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, s+2, allow_partial_value);
+		    }
+		}
+		else {
+		    fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, s, allow_partial_value);
+		}
 		if (!fvalue) {
 			DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED): Could not convert from string!\n"));
 			THROW(TypeError);
@@ -1369,3 +1369,16 @@ dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated)
 				dfw, i++,ok_filter));
 	return ok_filter;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

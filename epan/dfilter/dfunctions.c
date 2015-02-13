@@ -55,7 +55,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
             fvalue_set_string(new_ft_string, s);
             wmem_free(NULL, s);
             *retval = g_list_append(*retval, new_ft_string);
-	}
+        }
         arg1 = arg1->next;
     }
 
@@ -196,8 +196,8 @@ static df_func_def_t
 df_functions[] = {
     { "lower", df_func_lower, FT_STRING, 1, 1, ul_semcheck_params },
     { "upper", df_func_upper, FT_STRING, 1, 1, ul_semcheck_params },
-    { "len", df_func_len, FT_UINT32, 1, 1, ul_semcheck_params },
-    { "size", df_func_size, FT_UINT32, 1, 1, ul_semcheck_field_param },
+    { "len",   df_func_len,   FT_UINT32, 1, 1, ul_semcheck_params },
+    { "size",  df_func_size,  FT_UINT32, 1, 1, ul_semcheck_field_param },
     { "count", df_func_count, FT_UINT32, 1, 1, ul_semcheck_field_param },
     { NULL, NULL, FT_NONE, 0, 0, NULL }
 };
@@ -217,3 +217,16 @@ df_func_lookup(char *name)
     }
     return NULL;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

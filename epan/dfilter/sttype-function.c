@@ -25,8 +25,8 @@
 
 typedef struct {
 	guint32		magic;
-    df_func_def_t *funcdef;
-    GSList *params;
+	df_func_def_t *funcdef;
+	GSList *params;
 } function_t;
 
 #define FUNCTION_MAGIC	0xe10f0f99
@@ -66,14 +66,14 @@ function_dup(gconstpointer data)
 static void
 slist_stnode_free(gpointer data, gpointer user_data _U_)
 {
-    stnode_free((stnode_t *)data);
+	stnode_free((stnode_t *)data);
 }
 
 void
 st_funcparams_free(GSList *params)
 {
-    g_slist_foreach(params, slist_stnode_free, NULL);
-    g_slist_free(params);
+	g_slist_foreach(params, slist_stnode_free, NULL);
+	g_slist_free(params);
 }
 
 static void
@@ -81,7 +81,7 @@ function_free(gpointer value)
 {
 	function_t	*stfuncrec = (function_t*)value;
 	assert_magic(stfuncrec, FUNCTION_MAGIC);
-    st_funcparams_free(stfuncrec->params);
+	st_funcparams_free(stfuncrec->params);
 	g_free(stfuncrec);
 }
 
@@ -107,7 +107,7 @@ sttype_function_funcdef(stnode_t *node)
 
 	stfuncrec = (function_t*)stnode_data(node);
 	assert_magic(stfuncrec, FUNCTION_MAGIC);
-    return stfuncrec->funcdef;
+	return stfuncrec->funcdef;
 }
 
 /* Get the parameters for a function stnode_t. */
@@ -118,7 +118,7 @@ sttype_function_params(stnode_t *node)
 
 	stfuncrec = (function_t*)stnode_data(node);
 	assert_magic(stfuncrec, FUNCTION_MAGIC);
-    return stfuncrec->params;
+	return stfuncrec->params;
 }
 
 
@@ -136,3 +136,15 @@ sttype_register_function(void)
 	sttype_register(&function_type);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
