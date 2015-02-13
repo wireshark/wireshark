@@ -30,15 +30,24 @@ You can also select and view packets the same way while Wireshark is capturing
 if you selected ``Update list of packets in real time'' in the ``Capture
 Preferences'' dialog box.
 
-In addition, you can view individual packets in a separate window as shown in
-<<ChWorkPacketSepView>>. Do this by selecting the packet in which you are
-interested in the packet list pane, and then select menu:View[Show Packet in New
-Window]. This allows you to easily compare two or even more packets.
+In addition you can view individual packets in a separate window as shown in
+<<ChWorkPacketSepView>>. You can do this by double-clicking on an item in the
+packet list or by selecting the packet in which you are interested in the packet
+list pane and selecting menu:View[Show Packet in New Window]. This allows you to
+easily compare two or more packets, even across multiple files.
 
 [[ChWorkPacketSepView]]
 
 .Viewing a packet in a separate window
 image::wsug_graphics/ws-packet-sep-win.png[]
+
+Along with double-clicking the packet list and using the main menu there are a
+number of other ways to open a new packet window:
+
+- Hold down the shift key and double-click on a frame link in the packet
+  details.
+- From <<PacketListPopupMenuTable>>.
+- From <<PacketDetailsPopupMenuTable>>.
 
 [[ChWorkDisplayPopUpSection]]
 

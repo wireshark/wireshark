@@ -433,7 +433,7 @@ PacketList::PacketList(QWidget *parent) :
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
     proto_tree_ = proto_tree;
 
-    connect(proto_tree_, SIGNAL(goToFrame(int)), this, SLOT(goToPacket(int)));
+    connect(proto_tree_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(proto_tree_, SIGNAL(relatedFrame(int)), this, SLOT(addRelatedFrame(int)));
 }
 

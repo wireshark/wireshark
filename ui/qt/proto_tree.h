@@ -51,7 +51,8 @@ private:
 signals:
     void protoItemSelected(QString &);
     void protoItemSelected(field_info *);
-    void goToFrame(int);
+    void openPacketInNewWindow(bool);
+    void goToPacket(int);
     void relatedFrame(int);
 
 public slots:
