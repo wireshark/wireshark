@@ -1594,7 +1594,7 @@ draw_ct_table_addresses(conversations_table *ct)
 
     while (iter_valid) {
         conv_item_t *conv_item;
-		char *src_addr, *dst_addr, *src_port, *dst_port;
+        char *src_addr, *dst_addr, *src_port, *dst_port;
 
         gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, CONV_INDEX_COLUMN, &idx, -1);
         conv_item = &g_array_index(ct->hash.conv_array, conv_item_t, idx);

@@ -28,14 +28,14 @@
 /* The LANalyzer format is documented (at least in part) in Novell document
    TID022037, which can be found at, among other places:
 
-	http://www.windowsecurity.com/whitepapers/Description_of_the_LANalysers_output_file.html
+     http://www.windowsecurity.com/whitepapers/Description_of_the_LANalysers_output_file.html
  */
 
 /*    Record header format */
 
 typedef struct {
-      guint8	record_type[2];
-      guint8	record_length[2];
+      guint8    record_type[2];
+      guint8    record_length[2];
 } LA_RecordHeader;
 
 #define LA_RecordHeaderSize 4
@@ -121,8 +121,8 @@ typedef guint16 TimeStamp[3];  /* 0.5 microseconds since start of trace */
 
 /* LANalyzer board types (which indicate the type of network on which
    the capture was done). */
-#define BOARD_325		226	/* LANalyzer 325 (Ethernet) */
-#define BOARD_325TR		227	/* LANalyzer 325TR (Token-ring) */
+#define BOARD_325               226     /* LANalyzer 325 (Ethernet) */
+#define BOARD_325TR             227     /* LANalyzer 325TR (Token-ring) */
 
 
 /*
@@ -266,7 +266,7 @@ static const guint8 z64[64] = {
       };
 
 typedef struct {
-	time_t	start;
+      time_t  start;
 } lanalyzer_t;
 
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
@@ -405,7 +405,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                   default:
                         *err = WTAP_ERR_UNSUPPORTED;
                         *err_info = g_strdup_printf("lanalyzer: board type %u unknown",
-						    board_type);
+                                                    board_type);
                         return WTAP_OPEN_ERROR;
                   }
                   break;
@@ -428,21 +428,21 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
       }
 }
 
-#define DESCRIPTOR_LEN	32
+#define DESCRIPTOR_LEN  32
 
 static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
                                             struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-      char		LE_record_type[2];
-      char		LE_record_length[2];
-      guint16		record_type, record_length;
-      int		record_data_size;
-      int		packet_size;
-      gchar		descriptor[DESCRIPTOR_LEN];
-      lanalyzer_t	*lanalyzer;
-      guint16		time_low, time_med, time_high, true_size;
-      guint64		t;
-      time_t		tsecs;
+      char         LE_record_type[2];
+      char         LE_record_length[2];
+      guint16      record_type, record_length;
+      int          record_data_size;
+      int          packet_size;
+      gchar        descriptor[DESCRIPTOR_LEN];
+      lanalyzer_t *lanalyzer;
+      guint16      time_low, time_med, time_high, true_size;
+      guint64      t;
+      time_t       tsecs;
 
       /* read the record type and length. */
       if (!wtap_read_bytes_or_eof(fh, LE_record_type, 2, err, err_info))
@@ -502,7 +502,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
       time_med = pletoh16(&descriptor[10]);
       time_high = pletoh16(&descriptor[12]);
       t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
-	    (((guint64)time_high) << 32);
+            (((guint64)time_high) << 32);
       tsecs = (time_t) (t/2000000);
       lanalyzer = (lanalyzer_t *)wth->priv;
       phdr->ts.secs = tsecs + lanalyzer->start;
@@ -623,8 +623,8 @@ static void my_timersub(const struct timeval *a,
  * Returns TRUE on success, FALSE on failure.
  *---------------------------------------------------*/
 static gboolean lanalyzer_dump(wtap_dumper *wdh,
-	const struct wtap_pkthdr *phdr,
-	const guint8 *pd, int *err, gchar **err_info _U_)
+        const struct wtap_pkthdr *phdr,
+        const guint8 *pd, int *err, gchar **err_info _U_)
 {
       double x;
       int    i;
@@ -667,7 +667,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
             /* collect some information for the
              * finally written header
              */
-		    /* XXX - this conversion could probably improved, if the start uses ns */
+            /* XXX - this conversion could probably improved, if the start uses ns */
             itmp->start   = tv;
             itmp->pkts    = 0;
             itmp->init    = TRUE;
@@ -743,8 +743,8 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
 
       tmp = g_malloc(sizeof(LA_TmpInfo));
       if (!tmp) {
-	      *err = errno;
-	      return FALSE;
+            *err = errno;
+            return FALSE;
             }
 
       ((LA_TmpInfo*)tmp)->init = FALSE;
@@ -768,7 +768,7 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
            + LA_IndexRecordSize;
 
       if (wtap_dump_file_seek(wdh, jump, SEEK_SET, err) == -1)
-	      return FALSE;
+            return FALSE;
 
       wdh->bytes_dumped = jump;
       return TRUE;
@@ -798,26 +798,26 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
             return FALSE;
 
       if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
-	    return FALSE;
+            return FALSE;
 
       if (!wtap_dump_file_write(wdh, &LA_HeaderRegularFake,
                                 sizeof LA_HeaderRegularFake, err))
-		return FALSE;
+            return FALSE;
       if (!wtap_dump_file_write(wdh, &LA_RxChannelNameFake,
                                 sizeof LA_RxChannelNameFake, err))
-		return FALSE;
+            return FALSE;
       if (!wtap_dump_file_write(wdh, &LA_TxChannelNameFake,
                                 sizeof LA_TxChannelNameFake, err))
-		return FALSE;
+            return FALSE;
       if (!wtap_dump_file_write(wdh, &LA_RxTemplateNameFake,
                                 sizeof LA_RxTemplateNameFake, err))
-		return FALSE;
+            return FALSE;
       if (!wtap_dump_file_write(wdh, &LA_TxTemplateNameFake,
                                 sizeof LA_TxTemplateNameFake, err))
-		return FALSE;
+            return FALSE;
       if (!wtap_dump_file_write(wdh, &LA_DisplayOptionsFake,
                                 sizeof LA_DisplayOptionsFake, err))
-		return FALSE;
+            return FALSE;
       /*-----------------------------------------------------------------*/
       if (!s16write(wdh, GUINT16_TO_LE(RT_Summary), err))         /* rid */
             return FALSE;

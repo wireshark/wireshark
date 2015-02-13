@@ -603,7 +603,7 @@ decode_iei_control_bits(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset
 
   control_bits = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_bitmask(bi->nsip_tree, bi->tvb, ie_start_offset, hf_nsip_control_bits,
-			       ett_nsip_control_bits, flags, ENC_NA);
+                         ett_nsip_control_bits, flags, ENC_NA);
   bi->offset++;
 
   if (control_bits & NSIP_MASK_CONTROL_BITS_R) {

@@ -43,7 +43,7 @@ static int hf_maddr        = -1;
 
 static int ett_rgmp = -1;
 
-#define MC_RGMP			0xe0000019
+#define MC_RGMP 0xe0000019
 
 static const value_string rgmp_types[] = {
     {IGMP_RGMP_LEAVE, "Leave"},

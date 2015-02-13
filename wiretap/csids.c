@@ -43,11 +43,11 @@ typedef struct {
 } csids_t;
 
 static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+        gint64 *data_offset);
 static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+        struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean csids_read_packet(FILE_T fh, csids_t *csids,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+        struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 struct csids_header {
   guint32 seconds; /* seconds since epoch */

@@ -1123,11 +1123,11 @@ msg_download_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint len,
  * 4.5.1.3
  */
 static const value_string akey_protocol_revision_vals[] = {
-	{ 0x02,	"2G A-key generation" },
-	{ 0x03,	"2G A-key and 3G Root Key generation" },
-	{ 0x04,	"3G Root Key generation" },
-	{ 0x05,	"Enhanced 3G Root Key generation" },
-	{ 0, NULL },
+    { 0x02,     "2G A-key generation" },
+    { 0x03,     "2G A-key and 3G Root Key generation" },
+    { 0x04,     "3G Root Key generation" },
+    { 0x05,     "Enhanced 3G Root Key generation" },
+    { 0, NULL },
 };
 
 static void

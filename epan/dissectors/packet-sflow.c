@@ -688,11 +688,11 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 
     TRY
     {
-	    if ((global_dissect_samp_headers == FALSE) ||
+        if ((global_dissect_samp_headers == FALSE) ||
             !dissector_try_uint(header_subdissector_table, header_proto, next_tvb, pinfo, sflow_245_header_tree))
-	    {
+        {
             call_dissector(data_handle, next_tvb, pinfo, sflow_245_header_tree);
-	    }
+        }
     }
 
     CATCH_BOUNDS_ERRORS {

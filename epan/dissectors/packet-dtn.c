@@ -1072,13 +1072,13 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
     /* This is really a SDNV but there are only 7 bits defined so leave it this way*/
 
     if (version == 4) {
-		static const gint *flags[] = {
-			&hf_bundle_payload_flags_replicate_hdr,
-			&hf_bundle_payload_flags_xmit_report,
-			&hf_bundle_payload_flags_discard_on_fail,
-			&hf_bundle_payload_flags_last_header,
-			NULL
-		};
+        static const gint *flags[] = {
+            &hf_bundle_payload_flags_replicate_hdr,
+            &hf_bundle_payload_flags_xmit_report,
+            &hf_bundle_payload_flags_discard_on_fail,
+            &hf_bundle_payload_flags_last_header,
+            NULL
+        };
         guint8      procflags;
 
         procflags = tvb_get_guint8(tvb, offset);
@@ -1088,8 +1088,8 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
         else {
             *lastheader = FALSE;
         }
-		proto_tree_add_bitmask(payload_tree, tvb, offset, hf_bundle_payload_flags,
-					ett_payload_flags, flags, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(payload_tree, tvb, offset, hf_bundle_payload_flags,
+                               ett_payload_flags, flags, ENC_BIG_ENDIAN);
         ++offset;
     }
     else {      /*Bundle Protocol Version 5*/

@@ -38,7 +38,7 @@
  * Expression, as the error message for an incorrect filter expression
  * is a bit larger than the filter expression.
  */
-#define SP_MAX_MSG_LEN	4096
+#define SP_MAX_MSG_LEN  4096
 
 
 /* Size of buffer to hold decimal representation of

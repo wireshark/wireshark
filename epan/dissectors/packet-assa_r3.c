@@ -6040,7 +6040,7 @@ dissect_r3_cmd_clearnvram (tvbuff_t *tvb, guint32 start_offset, guint32 length _
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_bitmask(tree, tvb, start_offset + 2, hf_r3_nvramclearoptions,
-			       ett_r3clearnvram, r3_nvramclearoptions, ENC_LITTLE_ENDIAN);
+                         ett_r3clearnvram, r3_nvramclearoptions, ENC_LITTLE_ENDIAN);
 }
 
 static void

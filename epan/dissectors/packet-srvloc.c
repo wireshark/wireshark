@@ -367,7 +367,7 @@ dissect_authblk(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     guint16     length;
 
-	proto_tree_add_item(tree, hf_srvloc_timestamp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_srvloc_timestamp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_srvloc_block_structure_descriptor, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
     length = tvb_get_ntohs(tvb, offset + 10);
     proto_tree_add_item(tree, hf_srvloc_authenticator_length, tvb, offset + 10, 2, ENC_BIG_ENDIAN);

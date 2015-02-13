@@ -231,7 +231,7 @@ call_rtse_external_type_callback(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
     }
 
     if (oid)
-    	offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
+   	offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
 
     return offset;
 }

@@ -1317,9 +1317,9 @@ struct file_extension_info {
  * and will likely just overwrite the pointer.
  */
 typedef enum {
-	WTAP_OPEN_NOT_MINE = 0,
-	WTAP_OPEN_MINE = 1,
-	WTAP_OPEN_ERROR = -1
+    WTAP_OPEN_NOT_MINE = 0,
+    WTAP_OPEN_MINE = 1,
+    WTAP_OPEN_ERROR = -1
 } wtap_open_return_val;
 
 typedef wtap_open_return_val (*wtap_open_routine_t)(struct wtap*, int *,
@@ -1345,8 +1345,8 @@ typedef wtap_open_return_val (*wtap_open_routine_t)(struct wtap*, int *,
  */
 
 typedef enum {
-	OPEN_INFO_MAGIC = 0,
-	OPEN_INFO_HEURISTIC = 1
+    OPEN_INFO_MAGIC = 0,
+    OPEN_INFO_HEURISTIC = 1
 } wtap_open_type;
 
 WS_DLL_PUBLIC void init_open_routines(void);

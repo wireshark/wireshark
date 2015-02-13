@@ -399,10 +399,10 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     next_tvb     = tvb_new_subset_remaining(tvb, 4);
 
-	if (!dissector_try_uint(pw_ach_subdissector_table, channel_type, next_tvb, pinfo, tree))
-	{
+    if (!dissector_try_uint(pw_ach_subdissector_table, channel_type, next_tvb, pinfo, tree))
+    {
         call_dissector(dissector_data, next_tvb, pinfo, tree);
-	}
+    }
 
     if (channel_type == ACH_TYPE_BFD_CV)
     {

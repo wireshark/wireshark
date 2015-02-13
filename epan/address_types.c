@@ -791,10 +791,10 @@ void address_types_initialize(void)
 }
 
 /* Given an address type id, return an address_type_t* */
-#define ADDR_TYPE_LOOKUP(addr_type, result)	\
-	/* Check input */		\
-	g_assert(addr_type < MAX_ADDR_TYPE_VALUE);	\
-	result = type_list[addr_type];
+#define ADDR_TYPE_LOOKUP(addr_type, result)    \
+    /* Check input */                          \
+    g_assert(addr_type < MAX_ADDR_TYPE_VALUE); \
+    result = type_list[addr_type];
 
 static int address_type_get_length(const address* addr)
 {

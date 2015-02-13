@@ -1100,8 +1100,8 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
         item = proto_tree_add_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, digit_str);
 
         /* Check for overdicadic digits, we used the standard digit map from tvbuff.c
-		 *  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
-		 * '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
+         *  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
+         * '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
          *
          */
         if(strchr(digit_str,'?')){
@@ -2171,10 +2171,10 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
         a_bigbuf);
 
     /* Check for overdicadic digits, we used the standard digit map from tvbuff.c
-		*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
-		* '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
-        *
-        */
+     *  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
+     * '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
+     *
+     */
     if(strchr(digit_str,'?')){
         expert_add_info(pinfo, item, &ei_gsm_a_dtap_end_mark_unexpected);
     }

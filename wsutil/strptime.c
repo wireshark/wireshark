@@ -27,7 +27,7 @@
 #include "config.h"
 
 #include <ctype.h>
-#include <string.h>		
+#include <string.h>
 #include <glib.h>
 
 #ifdef _LIBC

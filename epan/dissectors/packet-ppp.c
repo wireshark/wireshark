@@ -4116,13 +4116,13 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 mac_type;
     gint captured_length, reported_length, pad_length;
     tvbuff_t *next_tvb;
-	static const int * bcp_flags[] = {
-		&hf_bcp_fcs_present,
-		&hf_bcp_zeropad,
-		&hf_bcp_bcontrol,
-		&hf_bcp_pads,
-		NULL
-	};
+    static const int * bcp_flags[] = {
+        &hf_bcp_fcs_present,
+        &hf_bcp_zeropad,
+        &hf_bcp_bcontrol,
+        &hf_bcp_pads,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP BCP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -5457,7 +5457,7 @@ proto_reg_handoff_ppp(void)
     dissector_add_uint("osinl.excl", NLPID_PPP, ppp_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_PPP, ppp_hdlc_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_PPP, ppp_handle);
-	dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_PPP, ppp_hdlc_handle);
+    dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_PPP, ppp_hdlc_handle);
 }
 
 void

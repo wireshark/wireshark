@@ -1585,7 +1585,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
             /* flags */
             proto_tree_add_bitmask(a11_tree, tvb, offset, hf_a11_flags,
-			                ett_a11_flags, a11_flags, ENC_NA);
+                                   ett_a11_flags, a11_flags, ENC_NA);
             offset += 1;
 
             /* lifetime */
@@ -1905,7 +1905,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                /* flags */
                proto_tree_add_bitmask(a11_tree, tvb, offset, hf_a11_flags,
-			                ett_a11_flags, a11_flags, ENC_NA);
+                                      ett_a11_flags, a11_flags, ENC_NA);
                offset += 1;
 
                /* lifetime */

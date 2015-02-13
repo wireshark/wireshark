@@ -88,8 +88,8 @@ extern void prefs_main_write(void);
  * @param custom_occurrence custom occurrence
  */
 void column_prefs_add_custom(gint fmt, const gchar *title,
-			     const gchar *custom_field,
-			     gint custom_occurrence);
+                             const gchar *custom_field,
+                             gint custom_occurrence);
 
 /** Remove a column.
  *

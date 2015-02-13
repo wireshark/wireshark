@@ -40,17 +40,17 @@
 /*
  * Old filter file name.
  */
-#define FILTER_FILE_NAME	"filters"
+#define FILTER_FILE_NAME      "filters"
 
 /*
  * Capture filter file name.
  */
-#define CFILTER_FILE_NAME	"cfilters"
+#define CFILTER_FILE_NAME     "cfilters"
 
 /*
  * Display filter file name.
  */
-#define DFILTER_FILE_NAME	"dfilters"
+#define DFILTER_FILE_NAME     "dfilters"
 
 /*
  * List of capture filters - saved.
@@ -81,7 +81,7 @@ static GList *display_edited_filters = NULL;
  * and "*errno_return" is set to the error.
  */
 
-#define INIT_BUF_SIZE	128
+#define INIT_BUF_SIZE  128
 
 static GList *
 add_filter_entry(GList *fl, const char *filt_name, const char *filt_expr)
@@ -150,7 +150,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
   int         filt_name_index, filt_expr_index;
   int         line = 1;
 
-  *pref_path_return = NULL;	/* assume no error */
+  *pref_path_return = NULL;   /* assume no error */
 
   switch (list_type) {
 
@@ -198,14 +198,14 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
       /*
        * Did that fail because the file didn't exist?
        */
-	if (errno != ENOENT) {
-	/*
-	 * No.  Just give up.
-	 */
-	  *pref_path_return = ff_path;
-	  *errno_return = errno;
-	  return;
-	}
+        if (errno != ENOENT) {
+        /*
+         * No.  Just give up.
+         */
+          *pref_path_return = ff_path;
+          *errno_return = errno;
+          return;
+        }
 
       /*
        * Try to open the global "cfilters/dfilters" file */
@@ -213,17 +213,17 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
       ff_path = get_datafile_path(ff_name);
       if ((ff = ws_fopen(ff_path, "r")) == NULL) {
 
-	/*
-	 * Well, that didn't work, either.  Just give up.
-	 * Return an error if the file existed but we couldn't open it.
-	 */
-	if (errno != ENOENT) {
-	  *pref_path_return = ff_path;
-	  *errno_return = errno;
-	} else {
-	  g_free(ff_path);
-	}
-	return;
+        /*
+         * Well, that didn't work, either.  Just give up.
+         * Return an error if the file existed but we couldn't open it.
+         */
+        if (errno != ENOENT) {
+          *pref_path_return = ff_path;
+          *errno_return = errno;
+        } else {
+          g_free(ff_path);
+        }
+        return;
       }
     }
   }
@@ -243,7 +243,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
   for (line = 1; ; line++) {
     /* Lines in a filter file are of the form
 
-	"name" expression
+        "name" expression
 
        where "name" is a name, in quotes - backslashes in the name
        escape the next character, so quotes and backslashes can appear
@@ -254,7 +254,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
     c = skip_whitespace(ff);
 
     if (c == EOF)
-      break;	/* Nothing more to read */
+      break;    /* Nothing more to read */
     if (c == '\n')
       continue; /* Blank line. */
 
@@ -262,9 +262,9 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
        If it's not a quote, it's an error. */
     if (c != '"') {
       g_warning("'%s' line %d doesn't have a quoted filter name.", ff_path,
-		line);
+                line);
       while (c != '\n')
-	c = getc(ff);	/* skip to the end of the line */
+        c = getc(ff);   /* skip to the end of the line */
       continue;
     }
 
@@ -273,28 +273,28 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
     for (;;) {
       c = getc_crlf(ff);
       if (c == EOF || c == '\n')
-	break;	/* End of line - or end of file */
+        break;  /* End of line - or end of file */
       if (c == '"') {
-	/* Closing quote. */
-	if (filt_name_index >= filt_name_len) {
-	  /* Filter name buffer isn't long enough; double its length. */
-	  filt_name_len *= 2;
-	  filt_name = (char *)g_realloc(filt_name, filt_name_len + 1);
-	}
-	filt_name[filt_name_index] = '\0';
-	break;
+        /* Closing quote. */
+        if (filt_name_index >= filt_name_len) {
+          /* Filter name buffer isn't long enough; double its length. */
+          filt_name_len *= 2;
+          filt_name = (char *)g_realloc(filt_name, filt_name_len + 1);
+        }
+        filt_name[filt_name_index] = '\0';
+        break;
       }
       if (c == '\\') {
-	/* Next character is escaped */
-	c = getc_crlf(ff);
-	if (c == EOF || c == '\n')
-	  break;	/* End of line - or end of file */
+        /* Next character is escaped */
+        c = getc_crlf(ff);
+        if (c == EOF || c == '\n')
+          break;        /* End of line - or end of file */
       }
       /* Add this character to the filter name string. */
       if (filt_name_index >= filt_name_len) {
-	/* Filter name buffer isn't long enough; double its length. */
-	filt_name_len *= 2;
-	filt_name = (char *)g_realloc(filt_name, filt_name_len + 1);
+        /* Filter name buffer isn't long enough; double its length. */
+        filt_name_len *= 2;
+        filt_name = (char *)g_realloc(filt_name, filt_name_len + 1);
       }
       filt_name[filt_name_index] = c;
       filt_name_index++;
@@ -302,17 +302,17 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
 
     if (c == EOF) {
       if (!ferror(ff)) {
-	/* EOF, not error; no newline seen before EOF */
-	g_warning("'%s' line %d doesn't have a newline.", ff_path,
-		  line);
+        /* EOF, not error; no newline seen before EOF */
+        g_warning("'%s' line %d doesn't have a newline.", ff_path,
+                  line);
       }
-      break;	/* nothing more to read */
+      break;    /* nothing more to read */
     }
 
     if (c != '"') {
       /* No newline seen before end-of-line */
       g_warning("'%s' line %d doesn't have a closing quote.", ff_path,
-		line);
+                line);
       continue;
     }
 
@@ -321,17 +321,17 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
 
     if (c == EOF) {
       if (!ferror(ff)) {
-	/* EOF, not error; no newline seen before EOF */
-	g_warning("'%s' line %d doesn't have a newline.", ff_path,
-		  line);
+        /* EOF, not error; no newline seen before EOF */
+        g_warning("'%s' line %d doesn't have a newline.", ff_path,
+                  line);
       }
-      break;	/* nothing more to read */
+      break;    /* nothing more to read */
     }
 
     if (c == '\n') {
       /* No filter expression */
       g_warning("'%s' line %d doesn't have a filter expression.", ff_path,
-		line);
+                line);
       continue;
     }
 
@@ -341,9 +341,9 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
     for (;;) {
       /* Add this character to the filter expression string. */
       if (filt_expr_index >= filt_expr_len) {
-	/* Filter expressioin buffer isn't long enough; double its length. */
-	filt_expr_len *= 2;
-	filt_expr = (char *)g_realloc(filt_expr, filt_expr_len + 1);
+        /* Filter expressioin buffer isn't long enough; double its length. */
+        filt_expr_len *= 2;
+        filt_expr = (char *)g_realloc(filt_expr, filt_expr_len + 1);
       }
       filt_expr[filt_expr_index] = c;
       filt_expr_index++;
@@ -351,16 +351,16 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
       /* Get the next character. */
       c = getc_crlf(ff);
       if (c == EOF || c == '\n')
-	break;
+        break;
     }
 
     if (c == EOF) {
       if (!ferror(ff)) {
-	/* EOF, not error; no newline seen before EOF */
-	g_warning("'%s' line %d doesn't have a newline.", ff_path,
-		  line);
+        /* EOF, not error; no newline seen before EOF */
+        g_warning("'%s' line %d doesn't have a newline.", ff_path,
+                  line);
       }
-      break;	/* nothing more to read */
+      break;    /* nothing more to read */
     }
 
     /* We saw the ending newline; terminate the filter expression string */
@@ -452,7 +452,7 @@ add_to_filter_list(filter_list_type_t list_type, const char *name,
 {
   GList      **flpp;
 
-  flpp = get_filter_list(list_type);
+  flpp  = get_filter_list(list_type);
   *flpp = add_filter_entry(*flpp, name, expression);
 
   return g_list_last(*flpp);
@@ -466,7 +466,7 @@ remove_from_filter_list(filter_list_type_t list_type, GList *fl_entry)
 {
   GList      **flpp;
 
-  flpp = get_filter_list(list_type);
+  flpp  = get_filter_list(list_type);
   *flpp = remove_filter_entry(*flpp, fl_entry);
 }
 
@@ -483,14 +483,14 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
     int *errno_return)
 {
   const gchar *ff_name;
-  gchar      *ff_path, *ff_path_new;
-  GList      *fl;
-  GList      *flpp;
-  filter_def *filt;
-  FILE       *ff;
-  guchar     *p, c;
+  gchar       *ff_path, *ff_path_new;
+  GList       *fl;
+  GList       *flpp;
+  filter_def  *filt;
+  FILE        *ff;
+  guchar      *p, c;
 
-  *pref_path_return = NULL;	/* assume no error */
+  *pref_path_return = NULL;   /* assume no error */
 
   switch (list_type) {
 

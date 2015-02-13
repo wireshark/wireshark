@@ -166,7 +166,7 @@ set_conv_gui_data(gpointer data, gpointer user_data)
     g_string_append(conv_cmd_str, proto_get_protocol_filter_name(table->proto_id));
     cmd_string_list_ = g_list_append(cmd_string_list_, conv_cmd_str->str);
     ui_info.group = REGISTER_STAT_GROUP_CONVERSATION_LIST;
-    ui_info.title = NULL;	/* construct this from the protocol info? */
+    ui_info.title = NULL;   /* construct this from the protocol info? */
     ui_info.cli_string = g_string_free(conv_cmd_str, FALSE);
     ui_info.tap_init_cb = dissector_conversation_init;
     ui_info.index = -1;
@@ -191,7 +191,7 @@ set_host_gui_data(gpointer data, gpointer user_data)
 
     g_string_printf(host_cmd_str, "%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     ui_info.group = REGISTER_STAT_GROUP_ENDPOINT_LIST;
-    ui_info.title = NULL;	/* construct this from the protocol info? */
+    ui_info.title = NULL;   /* construct this from the protocol info? */
     ui_info.cli_string = g_string_free(host_cmd_str, FALSE);
     ui_info.tap_init_cb = dissector_hostlist_init;
     ui_info.index = -1;

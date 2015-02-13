@@ -103,9 +103,9 @@ typedef struct _sip_calls_info {
 
 /** defines specific ISUP data */
 typedef struct _isup_calls_info {
-    guint16			cic;
-    guint32			opc, dpc;
-    guint8			ni;
+    guint16 cic;
+    guint32 opc, dpc;
+    guint8  ni;
 } isup_calls_info_t;
 
 /* defines specific H245 data */
@@ -116,16 +116,16 @@ typedef struct _h245_address {
 
 /** defines specific H323 data */
 typedef struct _h323_calls_info {
-    e_guid_t *guid;	/* Call ID to identify a H225 */
-    GList*  h245_list;				/**< list of H245 Address and ports for tunneling off calls*/
-    address h225SetupAddr;			/**< we use the SETUP H225 IP to determine if packets are forward or reverse */
-    gboolean is_h245;
-    gboolean is_faststart_Setup;	/**< if faststart field is included in Setup*/
-    gboolean is_faststart_Proc;		/**< if faststart field is included in Proce, Alerting, Progress or Connect*/
-    gboolean is_h245Tunneling;
-    gint32 q931_crv;
-    gint32 q931_crv2;
-    guint requestSeqNum;
+    e_guid_t *guid;               /* Call ID to identify a H225 */
+    GList*    h245_list;          /**< list of H245 Address and ports for tunneling off calls*/
+    address   h225SetupAddr;      /**< we use the SETUP H225 IP to determine if packets are forward or reverse */
+    gboolean  is_h245;
+    gboolean  is_faststart_Setup; /**< if faststart field is included in Setup*/
+    gboolean  is_faststart_Proc;  /**< if faststart field is included in Proce, Alerting, Progress or Connect*/
+    gboolean  is_h245Tunneling;
+    gint32    q931_crv;
+    gint32    q931_crv2;
+    guint     requestSeqNum;
 } h323_calls_info_t;
 
 /**< defines specific MGCP data */
@@ -153,25 +153,25 @@ typedef struct _skinny_calls_info {
 
 /** defines a voip call */
 typedef struct _voip_calls_info {
-    voip_call_state call_state;
-    voip_call_active_state call_active_state;
-    gchar *call_id;
-    gchar *from_identity;
-    gchar *to_identity;
-    gpointer prot_info;
-    void(*free_prot_info)(gpointer);
-    address initial_speaker;
-    guint32 npackets;
-    voip_protocol protocol;
-    gchar *protocol_name;
-    gchar *call_comment;
-    guint16 call_num;
+    voip_call_state         call_state;
+    voip_call_active_state  call_active_state;
+    gchar                  *call_id;
+    gchar                  *from_identity;
+    gchar                  *to_identity;
+    gpointer                prot_info;
+    void (*free_prot_info)(gpointer);
+    address                 initial_speaker;
+    guint32                 npackets;
+    voip_protocol           protocol;
+    gchar                  *protocol_name;
+    gchar                  *call_comment;
+    guint16                 call_num;
     /**> The frame_data struct holds the frame number and timing information needed. */
-    frame_data *start_fd;
-    nstime_t start_rel_ts;
-    frame_data *stop_fd;
-    nstime_t stop_rel_ts;
-    gboolean selected; /* GTK+ only */
+    frame_data             *start_fd;
+    nstime_t                start_rel_ts;
+    frame_data             *stop_fd;
+    nstime_t                stop_rel_ts;
+    gboolean                selected; /* GTK+ only */
 
 } voip_calls_info_t;
 
@@ -184,46 +184,46 @@ typedef struct _voip_calls_info {
  */
 struct _h245_labels;
 typedef struct _voip_calls_tapinfo {
-    tap_reset_cb tap_reset;                 /**< tap reset callback */
-    tap_packet_cb tap_packet;               /**< tap per-packet callback */
-    tap_draw_cb tap_draw;                   /**< tap draw callback */
-    void *tap_data;                         /**< data for tap callbacks */
-    int ncalls;                             /**< number of call */
-    GQueue* callsinfos;                     /**< queue with all calls */
-    GHashTable* callsinfo_hashtable[1];     /**< array of hashes per voip protocol; currently only the one for SIP is used */
-    int npackets;                           /**< total number of packets of all calls */
-    voip_calls_info_t* filter_calls_fwd;    /**< used as filter in some tap modes */
-    int start_packets;
-    int completed_calls;
-    int rejected_calls;
-    seq_analysis_info_t* graph_analysis;
-    epan_t *session;                        /**< epan session */
-    int nrtp_streams;                       /**< number of rtp streams */
-    GList* rtp_stream_list;                 /**< list of rtp_stream_info_t */
-    guint32 rtp_evt_frame_num;
-    guint8 rtp_evt;
-    gboolean rtp_evt_end;
-    gchar *sdp_summary;
-    guint32 sdp_frame_num;
-    guint32 mtp3_opc;
-    guint32 mtp3_dpc;
-    guint8 mtp3_ni;
-    guint32 mtp3_frame_num;
-    struct _h245_labels *h245_labels;       /**< H.245 labels */
-    gchar *q931_calling_number;
-    gchar *q931_called_number;
-    guint8 q931_cause_value;
-    gint32 q931_crv;
-    guint32 q931_frame_num;
-    guint32 h225_frame_num;
-    guint16 h225_call_num;
-    int h225_cstype;                        /* XXX actually an enum */
-    gboolean h225_is_faststart;
-    guint32 actrace_frame_num;
-    gint32 actrace_trunk;
-    gint32 actrace_direction;
-    flow_show_options fs_option;
-    gboolean redraw;
+    tap_reset_cb          tap_reset; /**< tap reset callback */
+    tap_packet_cb         tap_packet; /**< tap per-packet callback */
+    tap_draw_cb           tap_draw; /**< tap draw callback */
+    void                 *tap_data; /**< data for tap callbacks */
+    int                   ncalls; /**< number of call */
+    GQueue*               callsinfos; /**< queue with all calls */
+    GHashTable*           callsinfo_hashtable[1]; /**< array of hashes per voip protocol; currently only the one for SIP is used */
+    int                   npackets; /**< total number of packets of all calls */
+    voip_calls_info_t    *filter_calls_fwd; /**< used as filter in some tap modes */
+    int                   start_packets;
+    int                   completed_calls;
+    int                   rejected_calls;
+    seq_analysis_info_t  *graph_analysis;
+    epan_t               *session; /**< epan session */
+    int                   nrtp_streams; /**< number of rtp streams */
+    GList*                rtp_stream_list; /**< list of rtp_stream_info_t */
+    guint32               rtp_evt_frame_num;
+    guint8                rtp_evt;
+    gboolean              rtp_evt_end;
+    gchar                *sdp_summary;
+    guint32               sdp_frame_num;
+    guint32               mtp3_opc;
+    guint32               mtp3_dpc;
+    guint8                mtp3_ni;
+    guint32               mtp3_frame_num;
+    struct _h245_labels  *h245_labels; /**< H.245 labels */
+    gchar                *q931_calling_number;
+    gchar                *q931_called_number;
+    guint8                q931_cause_value;
+    gint32                q931_crv;
+    guint32               q931_frame_num;
+    guint32               h225_frame_num;
+    guint16               h225_call_num;
+    int                   h225_cstype; /* XXX actually an enum */
+    gboolean              h225_is_faststart;
+    guint32               actrace_frame_num;
+    gint32                actrace_trunk;
+    gint32                actrace_direction;
+    flow_show_options     fs_option;
+    gboolean              redraw;
 } voip_calls_tapinfo_t;
 
 /****************************************************************************/
