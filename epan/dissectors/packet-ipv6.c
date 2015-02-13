@@ -1929,7 +1929,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         name = address_to_display(wmem_packet_scope(), &pinfo->src);
         if (ipv6_summary_in_tree) {
             SET_ADDRESS(&addr, AT_IPv6, 16, ipv6->ip6_src.bytes);
-            proto_item_append_text(ipv6_item, ", Src: %s (%s)", name, address_to_str(wmem_packet_scope(), &addr));
+            proto_item_append_text(ipv6_item, ", Src: %s", address_with_resolution_to_str(wmem_packet_scope(), &addr));
         }
         ti = proto_tree_add_string(ipv6_tree, hf_ipv6_src_host, tvb,
                                    offset + (int)offsetof(struct ip6_hdr, ip6_src),
@@ -2017,7 +2017,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         name = address_to_display(wmem_packet_scope(), &pinfo->dst);
         if (ipv6_summary_in_tree) {
             SET_ADDRESS(&addr, AT_IPv6, 16, ipv6->ip6_dst.bytes);
-            proto_item_append_text(ipv6_item, ", Dst: %s (%s)", name, address_to_str(wmem_packet_scope(), &addr));
+            proto_item_append_text(ipv6_item, ", Dst: %s", address_with_resolution_to_str(wmem_packet_scope(), &addr));
         }
         ti = proto_tree_add_string(ipv6_tree, hf_ipv6_dst_host, tvb,
                                    offset + (int)offsetof(struct ip6_hdr, ip6_dst),

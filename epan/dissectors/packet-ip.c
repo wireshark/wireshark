@@ -2232,8 +2232,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     memcpy(&addr, iph->ip_src.data, 4);
     src_host = get_hostname(addr);
     if (ip_summary_in_tree) {
-      proto_item_append_text(ti, ", Src: %s (%s)", src_host,
-                             address_to_str(wmem_packet_scope(), &iph->ip_src));
+      proto_item_append_text(ti, ", Src: %s", address_with_resolution_to_str(wmem_packet_scope(), &iph->ip_src));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
     item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
@@ -2296,8 +2295,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     memcpy(&addr, iph->ip_dst.data, 4);
     dst_host = get_hostname(addr);
     if (ip_summary_in_tree) {
-      proto_item_append_text(ti, ", Dst: %s (%s)", dst_host,
-                             address_to_str(wmem_packet_scope(), &iph->ip_dst));
+      proto_item_append_text(ti, ", Dst: %s", address_with_resolution_to_str(wmem_packet_scope(), &iph->ip_dst));
     }
 
     if (dst_off) {

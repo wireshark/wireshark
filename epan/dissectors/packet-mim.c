@@ -239,9 +239,9 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ 
         SET_ADDRESS(&ether_addr, AT_ETHER, 6, dst_addr);
 
         ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, FP_HEADER_SIZE,
-                                            "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %s (%s)",
+                                            "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %s",
                                             sswid, ssswid, slid,
-                                            get_ether_name(dst_addr), address_to_str(wmem_packet_scope(), &ether_addr));
+                                            address_with_resolution_to_str(wmem_packet_scope(), &ether_addr));
       } else {
         ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, FP_HEADER_SIZE,
                                             "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %03x.%02x.%04x",

@@ -16358,8 +16358,7 @@ set_src_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
   SET_ADDRESS(&ether_addr, AT_ETHER, 6, addr);
 
   col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
-        get_ether_name(addr), type);
-  col_add_str(pinfo->cinfo, COL_UNRES_DL_SRC, address_to_str(wmem_packet_scope(), &ether_addr));
+        address_with_resolution_to_str(wmem_packet_scope(), &ether_addr), type);
 }
 
 static void
@@ -16370,8 +16369,7 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, const char *type)
   SET_ADDRESS(&ether_addr, AT_ETHER, 6, addr);
 
   col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
-        get_ether_name(addr), type);
-  col_add_str(pinfo->cinfo, COL_UNRES_DL_DST, address_to_str(wmem_packet_scope(), &ether_addr));
+        address_with_resolution_to_str(wmem_packet_scope(), &ether_addr), type);
 }
 
 static guint32
