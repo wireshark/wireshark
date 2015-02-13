@@ -980,6 +980,43 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding);
 
+/** Add an item to a proto_tree, using the text label registered to that item.
+The item is extracted from the tvbuff handed to it, and the retrieved
+value is also set to *retval so the caller gets it back for other uses.
+
+This function retrieves the value even if the passed-in tree param is NULL,
+so that it can be used by dissectors at all times to both get the value
+and set the tree item to it.
+
+Like other proto_tree_add functions, if there is a tree and the value cannot
+be decoded from the tvbuff, then an expert info error is reported.
+
+This function accepts ENC_LITTLE_ENDIAN and ENC_BIG_ENDIAN for native number
+encoding in the tvbuff
+
+The length argument must
+be set to the appropriate size of the native type as in other proto_add routines.
+
+Integers of 8, 16, 24 and 32 bits can be retreived with these functions.
+
+@param tree the tree to append this item to
+@param hfindex field
+@param tvb the tv buffer of the current data
+@param start start of data in tvb (cannot be negative)
+@param length length of data in tvb (for strings can be -1 for remaining)
+@param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, ENC_BIG_ENDIAN, ENC_ASCII|ENC_STRING, etc.)
+@param[out] retval points to a gint/guint 8/16/32/64 or gfloat/gdouble which will be set
+@param[out] err gets set to 0 if no failure, else the errno code (EDOM or ERANGE)
+@return the newly created item, and value is set to the decoded value
+*/
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+const gint start, gint length, const guint encoding, gint32 *retval);
+
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+const gint start, gint length, const guint encoding, guint32 *retval);
+
 /** (DEPRECATED) Add a text-only node to a proto_tree.
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data

@@ -1126,6 +1126,14 @@ protocol or field labels to the proto_tree:
     proto_tree_add_item(tree, id, tvb, start, length, encoding);
 
     proto_item*
+    proto_tree_add_item_ret_int(tree, id, tvb, start, length, encoding,
+        *retval);
+
+    proto_item*
+    proto_tree_add_item_ret_uint(tree, id, tvb, start, length, encoding,
+        *retval);
+
+    proto_item*
     proto_tree_add_subtree(tree, tvb, start, length, idx, tree_item,
         text);
 
@@ -1531,6 +1539,12 @@ naturally expect them to. You'd type "sna.th.fid == 0xf" to find Adjacent
 Subarea Nodes. The user does not have to shift the value of the FID to
 the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
 in the past.
+
+proto_tree_add_item_ret_XXX()
+------------------------------
+proto_tree_add_item_ret_XXX is used when you want the displayed value returned
+for futher processing only integer and unsigned integer types up to 32 bits are
+supported usage of proper FT_ is checked.
 
 proto_tree_add_XXX_item()
 ---------------------
