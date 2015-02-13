@@ -40,7 +40,7 @@
 
 
 WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
-    QDialog(&parent),
+    QDialog(&parent, Qt::Window),
     cap_file_(capture_file),
     file_closed_(false)
 {
