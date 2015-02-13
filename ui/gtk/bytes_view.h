@@ -37,7 +37,7 @@ GtkWidget *bytes_view_new(void);
 void bytes_view_set_font(BytesView *bv, PangoFontDescription *font);
 
 void bytes_view_set_data(BytesView *bv, const guint8 *data, int len);
-void bytes_view_set_encoding(BytesView *bv, int enc);
+void bytes_view_set_encoding(BytesView *bv, packet_char_enc enc);
 void bytes_view_set_format(BytesView *bv, int format);
 void bytes_view_set_highlight_style(BytesView *bv, gboolean bold);
 

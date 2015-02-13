@@ -45,7 +45,7 @@ extern "C" {
    pragma clang diagnostic error/warning/ignored -Wxxx and
    pragma clang diagnostic push/pop were introduced in clang 2.8 */
 
-#if defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 402
+#if defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 402 && !defined(__clang__)
    /* gcc version is >= 4.2.0; we can use "GCC diagnostic ignored/warning
       -Wxxx" */
 #  define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)

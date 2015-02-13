@@ -843,7 +843,7 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
                   int bend, guint64 bmask, int bmask_le,
                   int astart, int aend,
                   int pstart, int pend,
-                  int encoding)
+                  packet_char_enc encoding)
 {
         bytes_view_set_encoding(BYTES_VIEW(bv), encoding);
         bytes_view_set_format(BYTES_VIEW(bv), recent.gui_bytes_view);
@@ -1057,7 +1057,8 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
 void
 packet_hex_reprint(GtkWidget *bv)
 {
-    int start, end, mask_le, encoding;
+    int start, end, mask_le;
+    packet_char_enc encoding;
     int astart, aend;
     int pstart, pend;
     guint64 mask;
@@ -1075,7 +1076,7 @@ packet_hex_reprint(GtkWidget *bv)
     pend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_END_KEY));
     data = get_byte_view_data_and_length(bv, &len);
     g_assert(data != NULL);
-    encoding = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
+    encoding = (packet_char_enc) GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
 
     /* stig: it should be done only for bitview... */
     if (recent.gui_bytes_view != BYTES_BITS)

@@ -29,6 +29,7 @@ extern "C" {
 
 #include <epan/tvbuff.h>
 #include <wsutil/nstime.h>
+#include <wsutil/ws_diag_control.h>
 #include "ws_symbol_export.h"
 
 struct _packet_info;
@@ -60,6 +61,7 @@ typedef enum {
 /** The frame number is the ordinal number of the frame in the capture, so
    it's 1-origin.  In various contexts, 0 as a frame number means "frame
    number unknown". */
+DIAG_OFF(pedantic)
 typedef struct _frame_data {
   GSList      *pfd;          /**< Per frame proto data */
   guint32      num;          /**< Frame number */
@@ -90,6 +92,7 @@ typedef struct _frame_data {
   guint32      frame_ref_num; /**< Previous reference frame (0 if this is one) */
   guint32      prev_dis_num; /**< Previous displayed frame (0 if first one) */
 } frame_data;
+DIAG_ON(pedantic)
 
 /* Utility routines used by packet*.c */
 WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);

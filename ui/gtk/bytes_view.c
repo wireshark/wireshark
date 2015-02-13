@@ -1425,11 +1425,9 @@ bytes_view_set_data(BytesView *bv, const guint8 *data, int len)
 }
 
 void
-bytes_view_set_encoding(BytesView *bv, int enc)
+bytes_view_set_encoding(BytesView *bv, packet_char_enc enc)
 {
-	g_assert(enc == PACKET_CHAR_ENC_CHAR_ASCII || enc == PACKET_CHAR_ENC_CHAR_EBCDIC);
-
-	bv->encoding = (packet_char_enc)enc;
+	bv->encoding = enc;
 }
 
 void
