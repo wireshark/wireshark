@@ -93,11 +93,11 @@ static int     (*p_pcap_setbuff) (pcap_t *, int dim);
 static int     (*p_pcap_next_ex) (pcap_t *, struct pcap_pkthdr **pkt_header, const u_char **pkt_data);
 #ifdef HAVE_PCAP_REMOTE
 static pcap_t* (*p_pcap_open) (const char *, int, int, int,
-                               struct pcap_rmtauth *, char *);
+			       struct pcap_rmtauth *, char *);
 static int     (*p_pcap_findalldevs_ex) (char *, struct pcap_rmtauth *,
-                                         pcap_if_t **, char *);
+					 pcap_if_t **, char *);
 static int     (*p_pcap_createsrcstr) (char *, int, const char *, const char *,
-                                       const char *, char *);
+				       const char *, char *);
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
 static struct pcap_samp* (*p_pcap_setsampling)(pcap_t *);
@@ -142,7 +142,7 @@ load_wpcap(void)
 		SYM(pcap_setfilter, FALSE),
 		SYM(pcap_geterr, FALSE),
 		SYM(pcap_compile, FALSE),
-                SYM(pcap_compile_nopcap, FALSE),
+		SYM(pcap_compile_nopcap, FALSE),
 		SYM(pcap_lookupnet, FALSE),
 #ifdef HAVE_PCAP_REMOTE
 		SYM(pcap_open, FALSE),
@@ -192,7 +192,7 @@ load_wpcap(void)
 		SYM(pcap_free_datalinks, TRUE),
 #endif
 #ifdef HAVE_BPF_IMAGE
-                SYM(bpf_image, FALSE),
+		SYM(bpf_image, FALSE),
 #endif
 		{ NULL, NULL, FALSE }
 	};
@@ -326,7 +326,7 @@ pcap_geterr(pcap_t *a)
 
 int
 pcap_compile(pcap_t *a, struct bpf_program *b, const char *c, int d,
-            bpf_u_int32 e)
+	     bpf_u_int32 e)
 {
 	g_assert(has_wpcap);
 	return p_pcap_compile(a, b, c, d, e);
@@ -334,7 +334,7 @@ pcap_compile(pcap_t *a, struct bpf_program *b, const char *c, int d,
 
 int
 pcap_compile_nopcap(int a, int b, struct bpf_program *c, const char *d, int e,
-            bpf_u_int32 f)
+		    bpf_u_int32 f)
 {
 	g_assert(has_wpcap);
 	return p_pcap_compile_nopcap(a, b, c, d, e, f);
@@ -350,23 +350,23 @@ pcap_lookupnet(const char *a, bpf_u_int32 *b, bpf_u_int32 *c, char *d)
 pcap_t*
 pcap_open_live(const char *a, int b, int c, int d, char *e)
 {
-    if (!has_wpcap) {
-	g_snprintf(e, PCAP_ERRBUF_SIZE,
-		   "unable to load WinPcap (wpcap.dll); can't open %s to capture",
-		   a);
-	return NULL;
-    }
-    return p_pcap_open_live(a, b, c, d, e);
+	if (!has_wpcap) {
+		g_snprintf(e, PCAP_ERRBUF_SIZE,
+			   "unable to load WinPcap (wpcap.dll); can't open %s to capture",
+			   a);
+		return NULL;
+	}
+	return p_pcap_open_live(a, b, c, d, e);
 }
 
 #ifdef HAVE_PCAP_OPEN_DEAD
 pcap_t*
 pcap_open_dead(int a, int b)
 {
-    if (!has_wpcap) {
-	return NULL;
-    }
-    return p_pcap_open_dead(a, b);
+	if (!has_wpcap) {
+		return NULL;
+	}
+	return p_pcap_open_dead(a, b);
 }
 #endif
 
@@ -374,10 +374,10 @@ pcap_open_dead(int a, int b)
 char *
 bpf_image(const struct bpf_insn *a, int b)
 {
-    if (!has_wpcap) {
-	return NULL;
-    }
-    return p_bpf_image(a, b);
+	if (!has_wpcap) {
+		return NULL;
+	}
+	return p_bpf_image(a, b);
 }
 #endif
 
@@ -385,28 +385,28 @@ bpf_image(const struct bpf_insn *a, int b)
 pcap_t*
 pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *f)
 {
-    if (!has_wpcap) {
-	g_snprintf(f, PCAP_ERRBUF_SIZE,
-		   "unable to load WinPcap (wpcap.dll); can't open %s to capture",
-		   a);
-	return NULL;
-    }
-    return p_pcap_open(a, b, c, d, e, f);
+	if (!has_wpcap) {
+		g_snprintf(f, PCAP_ERRBUF_SIZE,
+			   "unable to load WinPcap (wpcap.dll); can't open %s to capture",
+			   a);
+		return NULL;
+	}
+	return p_pcap_open(a, b, c, d, e, f);
 }
 
 int
 pcap_findalldevs_ex(char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *d)
 {
-    g_assert(has_wpcap);
-    return p_pcap_findalldevs_ex(a, b, c, d);
+	g_assert(has_wpcap);
+	return p_pcap_findalldevs_ex(a, b, c, d);
 }
 
 int
 pcap_createsrcstr(char *a, int b, const char *c, const char *d, const char *e,
-                  char *f)
+		  char *f)
 {
-    g_assert(has_wpcap);
-    return p_pcap_createsrcstr(a, b, c, d, e, f);
+	g_assert(has_wpcap);
+	return p_pcap_createsrcstr(a, b, c, d, e, f);
 }
 #endif
 
@@ -414,11 +414,11 @@ pcap_createsrcstr(char *a, int b, const char *c, const char *d, const char *e,
 struct pcap_samp *
 pcap_setsampling(pcap_t *a)
 {
-    g_assert(has_wpcap);
-    if (p_pcap_setsampling != NULL) {
-        return p_pcap_setsampling(a);
-    }
-    return NULL;
+	g_assert(has_wpcap);
+	if (p_pcap_setsampling != NULL) {
+		return p_pcap_setsampling(a);
+	}
+	return NULL;
 }
 #endif
 
@@ -433,9 +433,9 @@ void
 pcap_freecode(struct bpf_program *a)
 {
 	g_assert(has_wpcap);
-    if(p_pcap_freecode) {
-	    p_pcap_freecode(a);
-    }
+	if(p_pcap_freecode) {
+		p_pcap_freecode(a);
+	}
 }
 
 #ifdef HAVE_PCAP_FINDALLDEVS
@@ -678,31 +678,31 @@ int pcap_next_ex (pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 #ifdef HAVE_PCAP_REMOTE
 GList *
 get_remote_interface_list(const char *hostname, const char *port,
-                          int auth_type, const char *username,
-                          const char *passwd, int *err, char **err_str)
+			  int auth_type, const char *username,
+			  const char *passwd, int *err, char **err_str)
 {
-    struct pcap_rmtauth auth;
-    char source[PCAP_BUF_SIZE];
-    char errbuf[PCAP_ERRBUF_SIZE];
-    GList *result;
+	struct pcap_rmtauth auth;
+	char source[PCAP_BUF_SIZE];
+	char errbuf[PCAP_ERRBUF_SIZE];
+	GList *result;
 
-    if (pcap_createsrcstr(source, PCAP_SRC_IFREMOTE, hostname, port,
-                          NULL, errbuf) == -1) {
-        *err = CANT_GET_INTERFACE_LIST;
-        if (err_str != NULL)
-            *err_str = cant_get_if_list_error_message(errbuf);
-        return NULL;
-    }
+	if (pcap_createsrcstr(source, PCAP_SRC_IFREMOTE, hostname, port,
+			      NULL, errbuf) == -1) {
+		*err = CANT_GET_INTERFACE_LIST;
+		if (err_str != NULL)
+			*err_str = cant_get_if_list_error_message(errbuf);
+		return NULL;
+	}
 
-    auth.type = auth_type;
-    auth.username = g_strdup(username);
-    auth.password = g_strdup(passwd);
+	auth.type = auth_type;
+	auth.username = g_strdup(username);
+	auth.password = g_strdup(passwd);
 
-    result = get_interface_list_findalldevs_ex(source, &auth, err, err_str);
-    g_free(auth.username);
-    g_free(auth.password);
+	result = get_interface_list_findalldevs_ex(source, &auth, err, err_str);
+	g_free(auth.username);
+	g_free(auth.password);
 
-    return result;
+	return result;
 }
 #endif
 
@@ -988,3 +988,16 @@ get_runtime_caplibs_version(GString *str _U_)
 }
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

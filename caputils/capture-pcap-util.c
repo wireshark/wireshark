@@ -104,7 +104,7 @@
  */
 static void
 add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
-    const char *description _U_)
+			  const char *description _U_)
 {
 	CFStringRef name_CFString;
 	CFArrayRef interfaces;
@@ -188,7 +188,7 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
  */
 static void
 add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
-    const char *description _U_)
+			  const char *description _U_)
 {
 	char *wireless_path;
 	ws_statb64 statb;
@@ -226,7 +226,7 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
  */
 void
 add_unix_interface_ifinfo(if_info_t *if_info, const char *name _U_,
-    const char *description)
+			  const char *description)
 {
 	if_info->friendly_name = g_strdup(description);
 }
@@ -421,8 +421,8 @@ if_info_ip(if_info_t *if_info, pcap_if_t *d)
 #ifdef HAVE_PCAP_REMOTE
 GList *
 get_interface_list_findalldevs_ex(const char *source,
-                                  struct pcap_rmtauth *auth,
-                                  int *err, char **err_str)
+				  struct pcap_rmtauth *auth,
+				  int *err, char **err_str)
 {
 	GList  *il = NULL;
 	pcap_if_t *alldevs, *dev;
@@ -540,36 +540,36 @@ struct dlt_choice {
 #define DLT_CHOICE_SENTINEL { NULL, NULL, 0 }
 
 static struct dlt_choice dlt_choices[] = {
-	DLT_CHOICE(DLT_NULL, "BSD loopback"),
-	DLT_CHOICE(DLT_EN10MB, "Ethernet"),
-	DLT_CHOICE(DLT_IEEE802, "Token ring"),
-	DLT_CHOICE(DLT_ARCNET, "ARCNET"),
-	DLT_CHOICE(DLT_SLIP, "SLIP"),
-	DLT_CHOICE(DLT_PPP, "PPP"),
-	DLT_CHOICE(DLT_FDDI, "FDDI"),
-	DLT_CHOICE(DLT_ATM_RFC1483, "RFC 1483 IP-over-ATM"),
-	DLT_CHOICE(DLT_RAW, "Raw IP"),
-	DLT_CHOICE(DLT_SLIP_BSDOS, "BSD/OS SLIP"),
-	DLT_CHOICE(DLT_PPP_BSDOS, "BSD/OS PPP"),
-	DLT_CHOICE(DLT_ATM_CLIP, "Linux Classical IP-over-ATM"),
-	DLT_CHOICE(DLT_PPP_SERIAL, "PPP over serial"),
-	DLT_CHOICE(DLT_PPP_ETHER, "PPPoE"),
-	DLT_CHOICE(DLT_C_HDLC, "Cisco HDLC"),
-	DLT_CHOICE(DLT_IEEE802_11, "802.11"),
-	DLT_CHOICE(DLT_FRELAY, "Frame Relay"),
-	DLT_CHOICE(DLT_LOOP, "OpenBSD loopback"),
-	DLT_CHOICE(DLT_ENC, "OpenBSD encapsulated IP"),
-	DLT_CHOICE(DLT_LINUX_SLL, "Linux cooked"),
-	DLT_CHOICE(DLT_LTALK, "Localtalk"),
-	DLT_CHOICE(DLT_PFLOG, "OpenBSD pflog file"),
-	DLT_CHOICE(DLT_PRISM_HEADER, "802.11 plus Prism header"),
-	DLT_CHOICE(DLT_IP_OVER_FC, "RFC 2625 IP-over-Fibre Channel"),
-	DLT_CHOICE(DLT_SUNATM, "Sun raw ATM"),
-	DLT_CHOICE(DLT_IEEE802_11_RADIO, "802.11 plus BSD radio information header"),
+	DLT_CHOICE(DLT_NULL,		       "BSD loopback"),
+	DLT_CHOICE(DLT_EN10MB,		       "Ethernet"),
+	DLT_CHOICE(DLT_IEEE802,		       "Token ring"),
+	DLT_CHOICE(DLT_ARCNET,		       "ARCNET"),
+	DLT_CHOICE(DLT_SLIP,		       "SLIP"),
+	DLT_CHOICE(DLT_PPP,		       "PPP"),
+	DLT_CHOICE(DLT_FDDI,		       "FDDI"),
+	DLT_CHOICE(DLT_ATM_RFC1483,	       "RFC 1483 IP-over-ATM"),
+	DLT_CHOICE(DLT_RAW,		       "Raw IP"),
+	DLT_CHOICE(DLT_SLIP_BSDOS,	       "BSD/OS SLIP"),
+	DLT_CHOICE(DLT_PPP_BSDOS,	       "BSD/OS PPP"),
+	DLT_CHOICE(DLT_ATM_CLIP,	       "Linux Classical IP-over-ATM"),
+	DLT_CHOICE(DLT_PPP_SERIAL,	       "PPP over serial"),
+	DLT_CHOICE(DLT_PPP_ETHER,	       "PPPoE"),
+	DLT_CHOICE(DLT_C_HDLC,		       "Cisco HDLC"),
+	DLT_CHOICE(DLT_IEEE802_11,	       "802.11"),
+	DLT_CHOICE(DLT_FRELAY,		       "Frame Relay"),
+	DLT_CHOICE(DLT_LOOP,		       "OpenBSD loopback"),
+	DLT_CHOICE(DLT_ENC,		       "OpenBSD encapsulated IP"),
+	DLT_CHOICE(DLT_LINUX_SLL,	       "Linux cooked"),
+	DLT_CHOICE(DLT_LTALK,		       "Localtalk"),
+	DLT_CHOICE(DLT_PFLOG,		       "OpenBSD pflog file"),
+	DLT_CHOICE(DLT_PRISM_HEADER,	       "802.11 plus Prism header"),
+	DLT_CHOICE(DLT_IP_OVER_FC,	       "RFC 2625 IP-over-Fibre Channel"),
+	DLT_CHOICE(DLT_SUNATM,		       "Sun raw ATM"),
+	DLT_CHOICE(DLT_IEEE802_11_RADIO,       "802.11 plus BSD radio information header"),
 	DLT_CHOICE(DLT_APPLE_IP_OVER_IEEE1394, "Apple IP-over-IEEE 1394"),
-	DLT_CHOICE(DLT_ARCNET_LINUX, "Linux ARCNET"),
-	DLT_CHOICE(DLT_LINUX_IRDA, "Linux IrDA"),
-	DLT_CHOICE(DLT_IEEE802_11_RADIO_AVS, "802.11 plus AVS radio information header"),
+	DLT_CHOICE(DLT_ARCNET_LINUX,	       "Linux ARCNET"),
+	DLT_CHOICE(DLT_LINUX_IRDA,	       "Linux IrDA"),
+	DLT_CHOICE(DLT_IEEE802_11_RADIO_AVS,   "802.11 plus AVS radio information header"),
 	DLT_CHOICE_SENTINEL
 };
 
@@ -638,12 +638,25 @@ free_if_capabilities(if_capabilities_t *caps)
 const char *
 linktype_val_to_name(int dlt)
 {
-    return pcap_datalink_val_to_name(dlt);
+	return pcap_datalink_val_to_name(dlt);
 }
 
 int linktype_name_to_val(const char *linktype)
 {
-    return pcap_datalink_name_to_val(linktype);
+	return pcap_datalink_name_to_val(linktype);
 }
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -75,31 +75,31 @@ struct rtentry;
 #ifdef HAVE_PCAP_REMOTE
 GList *
 get_remote_interface_list(const char *hostname, const char *port,
-                          int auth_type, const char *username,
-                          const char *passwd, int *err, char **err_str)
+			  int auth_type, const char *username,
+			  const char *passwd, int *err, char **err_str)
 {
-    struct pcap_rmtauth auth;
-    char source[PCAP_BUF_SIZE];
-    char errbuf[PCAP_ERRBUF_SIZE];
-    GList *result;
+	struct pcap_rmtauth auth;
+	char source[PCAP_BUF_SIZE];
+	char errbuf[PCAP_ERRBUF_SIZE];
+	GList *result;
 
-    if (pcap_createsrcstr(source, PCAP_SRC_IFREMOTE, hostname, port,
-                          NULL, errbuf) == -1) {
-        *err = CANT_GET_INTERFACE_LIST;
-        if (err_str != NULL)
-            *err_str = cant_get_if_list_error_message(errbuf);
-        return NULL;
-    }
+	if (pcap_createsrcstr(source, PCAP_SRC_IFREMOTE, hostname, port,
+			      NULL, errbuf) == -1) {
+		*err = CANT_GET_INTERFACE_LIST;
+		if (err_str != NULL)
+			*err_str = cant_get_if_list_error_message(errbuf);
+		return NULL;
+	}
 
-    auth.type = auth_type;
-    auth.username = g_strdup(username);
-    auth.password = g_strdup(passwd);
+	auth.type = auth_type;
+	auth.username = g_strdup(username);
+	auth.password = g_strdup(passwd);
 
-    result = get_interface_list_findalldevs_ex(source, &auth, err, err_str);
-    g_free(auth.username);
-    g_free(auth.password);
+	result = get_interface_list_findalldevs_ex(source, &auth, err, err_str);
+	g_free(auth.username);
+	g_free(auth.password);
 
-    return result;
+	return result;
 }
 #endif
 
@@ -520,3 +520,16 @@ get_runtime_caplibs_version(GString *str _U_)
 }
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

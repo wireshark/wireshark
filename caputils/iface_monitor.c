@@ -239,7 +239,7 @@ iface_mon_get_sock(void)
 /*
  * Size of buffer for kernel network event.
  */
-#define NET_EVENT_DATA_SIZE	(KEV_MSG_HEADER_SIZE + sizeof (struct net_event_data))
+#define NET_EVENT_DATA_SIZE    (KEV_MSG_HEADER_SIZE + sizeof (struct net_event_data))
 
 void
 iface_mon_event(void)
@@ -341,7 +341,7 @@ iface_mon_event(void)
          * interface" when it goes up; on Lion (and possibly Mountain
          * Lion), an interface doesn't have to be up in order to
          * have a BPF device attached to it.
-	 */
+         */
         break;
     }
 }
@@ -373,3 +373,16 @@ iface_mon_event(void)
 #endif /* HAVE_LIBNL */
 
 #endif /* HAVE_LIBPCAP */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

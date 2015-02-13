@@ -884,3 +884,16 @@ const gchar *ws80211_chan_type_to_str(int type _U_)
 	return NULL;
 }
 #endif /* HAVE_LIBNL && HAVE_NL80211 */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
