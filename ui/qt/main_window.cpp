@@ -386,6 +386,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(packet_list_, SIGNAL(editColumn(int)), this, SLOT(showColumnEditor(int)));
     connect(main_ui_->columnEditorFrame, SIGNAL(columnEdited()),
             packet_list_, SLOT(redrawVisiblePackets()));
+    connect(packet_list_, SIGNAL(doubleClicked(QModelIndex)),
+            this, SLOT(openPacketDialog()));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
