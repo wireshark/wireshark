@@ -87,6 +87,17 @@ Dialogs that work with capture file information shouldn't close just because the
 capture file closes. Subclassing `WiresharkDialog` as described above can make
 it easier to persist across capture files.
 
+When you create a window with a row of standard ``OK'' and ``Close'' buttons at
+the bottom using Qt Creator you will end up with a subclass of QDialog. This is
+fine for traditional modal dialogs, but many times the ``dialog'' needs to behave
+like a QWindow instead.
+
+Modal dialogs should be constructed with `QDialog(parent)`. Modeless dialogs
+(windows) should be constructed with `QDialog(NULL, Qt::Window)`. Other
+combinations (particularly `QDialog(parent, Qt::Window)`) can lead to odd and
+inconsistent behavior. Again, subclassing `WiresharkDialog` will take care of
+this for you.
+
 ===== Strings
 
 If you're using GLib string functions or plain old C character array idioms in
