@@ -262,28 +262,34 @@ RejectProblem
   col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "Reject ");
 #.END
 
-#.FN_BODY AttributeId/globalForm  FN_VARIANT = _str  VAL_PTR = &attribute_identifier_id
-  attributeform = ATTRIBUTE_GLOBAL_FORM;
+#.FN_BODY AttributeId/globalForm  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
   %(DEFAULT_BODY)s
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
-#.FN_BODY AttributeId/localForm  VAL_PTR = &attribute_local_id
-  attributeform = ATTRIBUTE_LOCAL_FORM;
+#.FN_BODY AttributeId/localForm  VAL_PTR = &actx->external.indirect_reference
   %(DEFAULT_BODY)s
+  actx->external.indirect_ref_present = TRUE;
 
 #.FN_BODY Attribute/value
-  if(attributeform==ATTRIBUTE_GLOBAL_FORM){
-    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree);
-  } else if (dissector_try_uint(attribute_id_dissector_table, attribute_local_id, tvb, actx->pinfo, tree)) {
+  if(actx->external.direct_ref_present){
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  } else if (actx->external.indirect_ref_present &&
+             dissector_try_uint(attribute_id_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
     offset=tvb_length (tvb);
   } else {
     offset=dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
   }
 
 #.FN_PARS AttributeValueAssertion/id
-	FN_VARIANT = _str  VAL_PTR = &attributevalueassertion_id
+	FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
+
+#.FN_FTR AttributeValueAssertion/id
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY AttributeValueAssertion/value
-    offset=call_ber_oid_callback(attributevalueassertion_id, tvb, offset, actx->pinfo, tree);
+  if (actx->external.direct_ref_present) {
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  }
 
 #.FN_BODY Invoke/argument
     switch(opcode){
@@ -426,13 +432,8 @@ RejectProblem
 		break;
 	}
 
-#.FN_HDR ObjectClass/globalForm
-  objectclassform = OBJECTCLASS_GLOBAL_FORM;
 #.FN_PARS ObjectClass/globalForm
-  FN_VARIANT = _str  VAL_PTR = &objectclass_identifier_id
-
-#.FN_HDR ObjectClass/localForm
-  objectclassform = OBJECTCLASS_LOCAL_FORM;
+  FN_VARIANT = _str
 
 #.FN_PARS ActionTypeId/globalForm
   FN_VARIANT = _str  HF_INDEX = hf_cmip_actionType_OID  VAL_PTR = &object_identifier_id
@@ -450,9 +451,10 @@ RejectProblem
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY SetArgument/modificationList/_item/attributeValue
-  if(attributeform==ATTRIBUTE_GLOBAL_FORM){
-    offset=call_ber_oid_callback(attribute_identifier_id, tvb, offset, actx->pinfo, tree);
-  } else if (dissector_try_uint(attribute_id_dissector_table, attribute_local_id, tvb, actx->pinfo, tree)) {
+  if(actx->external.direct_ref_present){
+    offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  } else if (actx->external.indirect_ref_present &&
+             dissector_try_uint(attribute_id_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
     offset=tvb_length (tvb);
   } else {
     offset=dissect_unknown_ber(actx->pinfo, tvb, offset, tree);

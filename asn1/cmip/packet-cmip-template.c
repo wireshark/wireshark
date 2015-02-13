@@ -75,20 +75,7 @@ static int opcode_type;
 #define OPCODE_RETURN_ERROR  3
 #define OPCODE_REJECT        4
 
-static int attributeform;
-#define ATTRIBUTE_LOCAL_FORM  0
-#define ATTRIBUTE_GLOBAL_FORM 1
-static int attribute_local_id;
-static const char *attribute_identifier_id;
-
-static const char *attributevalueassertion_id;
-
 static const char *object_identifier_id;
-
-static int objectclassform;
-#define OBJECTCLASS_LOCAL_FORM  0
-#define OBJECTCLASS_GLOBAL_FORM 1
-static const char *objectclass_identifier_id;
 
 #include "packet-cmip-val.h"
 #include "packet-cmip-fn.c"
