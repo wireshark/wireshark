@@ -56,6 +56,7 @@
 #include "file_set_dialog.h"
 #include "filter_action.h"
 #include "follow_stream_dialog.h"
+#include "preferences_dialog.h"
 
 class ByteViewTab;
 class MainWelcome;
