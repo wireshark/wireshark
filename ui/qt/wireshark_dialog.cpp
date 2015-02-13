@@ -39,8 +39,8 @@
 // - Use a dynamic property + Q_PROPERTY for the subtitle.
 
 
-WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
-    QDialog(&parent, Qt::Window),
+WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
+    QDialog(NULL, Qt::Window),
     cap_file_(capture_file),
     file_closed_(false)
 {
