@@ -71,10 +71,10 @@ Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
 #define PUSH_PRIVATE_TABLE(L,c) {g_ptr_array_add(outstanding_PrivateTable,c);pushPrivateTable(L,c);}
 
 WSLUA_CLASS_DEFINE(NSTime,FAIL_ON_NULL("NSTime"),NOP);
-	/* NSTime represents a nstime_t.  This is an object with seconds and nanoseconds. */
+/* NSTime represents a nstime_t.  This is an object with seconds and nanoseconds. */
 
 WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
-	/* Creates a new NSTime object. */
+    /* Creates a new NSTime object. */
 #define WSLUA_OPTARG_NSTime_new_SECONDS 1 /* Seconds. */
 #define WSLUA_OPTARG_NSTime_new_NSECONDS 2 /* Nano seconds. */
     NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
@@ -233,7 +233,7 @@ int NSTime_register(lua_State* L) {
 WSLUA_CLASS_DEFINE(Address,FAIL_ON_NULL("Address"),NOP); /* Represents an address. */
 
 WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
-	/* Creates an Address Object representing an IP address. */
+    /* Creates an Address Object representing an IP address. */
 
 #define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = (Address)g_malloc(sizeof(address));
@@ -564,7 +564,7 @@ static int Column__gc(lua_State* L) {
 }
 
 WSLUA_METHOD Column_clear(lua_State *L) {
-	/* Clears a Column. */
+    /* Clears a Column. */
     Column c = checkColumn(L,1);
 
     if (!(c->cinfo)) return 0;
@@ -575,7 +575,7 @@ WSLUA_METHOD Column_clear(lua_State *L) {
 }
 
 WSLUA_METHOD Column_set(lua_State *L) {
-	/* Sets the text of a Column. */
+    /* Sets the text of a Column. */
 #define WSLUA_ARG_Column_set_TEXT 2 /* The text to which to set the Column. */
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_set_TEXT);
@@ -589,7 +589,7 @@ WSLUA_METHOD Column_set(lua_State *L) {
 }
 
 WSLUA_METHOD Column_append(lua_State *L) {
-	/* Appends text to a Column. */
+    /* Appends text to a Column. */
 #define WSLUA_ARG_Column_append_TEXT 2 /* The text to append to the Column. */
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_append_TEXT);
@@ -603,7 +603,7 @@ WSLUA_METHOD Column_append(lua_State *L) {
 }
 
 WSLUA_METHOD Column_prepend(lua_State *L) {
-	/* Prepends text to a Column. */
+    /* Prepends text to a Column. */
 #define WSLUA_ARG_Column_prepend_TEXT 2 /* The text to prepend to the Column. */
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_prepend_TEXT);
@@ -681,7 +681,7 @@ WSLUA_METAMETHOD Columns__tostring(lua_State *L) {
  * API docs to see this metamethod as a method, but oh well.
  */
 WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
-	/* Sets the text of a specific column. */
+    /* Sets the text of a specific column. */
 #define WSLUA_ARG_Columns__newindex_COLUMN 2 /* The name of the column to set. */
 #define WSLUA_ARG_Columns__newindex_TEXT 3 /* The text for the column. */
     Columns cols = checkColumns(L,1);
@@ -776,7 +776,7 @@ int Columns_register(lua_State *L) {
 }
 
 WSLUA_CLASS_DEFINE(PrivateTable,FAIL_ON_NULL_OR_EXPIRED("PrivateTable"),NOP);
-	/* PrivateTable represents the pinfo->private_table. */
+/* PrivateTable represents the pinfo->private_table. */
 
 WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
     /* Gets debugging type information about the private table. */
@@ -806,7 +806,7 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
 }
 
 static int PrivateTable__index(lua_State* L) {
-	/* Gets the text of a specific entry. */
+    /* Gets the text of a specific entry. */
     PrivateTable priv = checkPrivateTable(L,1);
     const gchar* name = luaL_checkstring(L,2);
     const gchar* string;
@@ -823,7 +823,7 @@ static int PrivateTable__index(lua_State* L) {
 }
 
 static int PrivateTable__newindex(lua_State* L) {
-	/* Sets the text of a specific entry. */
+    /* Sets the text of a specific entry. */
     PrivateTable priv = checkPrivateTable(L,1);
     const gchar* name = luaL_checkstring(L,2);
     const gchar* string = NULL;
@@ -921,10 +921,10 @@ lua_nstime_to_sec(const nstime_t *nstime)
 static double
 lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, guint32 prev_num)
 {
-	nstime_t del;
+    nstime_t del;
 
-	frame_delta_abs_time(pinfo->ws_pinfo->epan, fd, prev_num, &del);
-	return lua_nstime_to_sec(&del);
+    frame_delta_abs_time(pinfo->ws_pinfo->epan, fd, prev_num, &del);
+    return lua_nstime_to_sec(&del);
 }
 
 
@@ -1202,3 +1202,16 @@ int Pinfo_register(lua_State* L) {
     outstanding_PrivateTable = g_ptr_array_new();
     return 0;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

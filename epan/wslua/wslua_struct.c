@@ -176,10 +176,10 @@ typedef STRUCT_INT Inttype;
 typedef unsigned STRUCT_INT Uinttype;
 
 /* maximum size (in bytes) for integral types */
-#define MAXINTSIZE	32
+#define MAXINTSIZE  32
 
 /* is 'x' a power of 2? */
-#define isp2(x)		((x) > 0 && ((x) & ((x) - 1)) == 0)
+#define isp2(x)  ((x) > 0 && ((x) & ((x) - 1)) == 0)
 
 /* dummy structure to get padding/alignment requirements */
 struct cD {
@@ -188,13 +188,13 @@ struct cD {
 };
 
 
-#define PADDING		(sizeof(struct cD) - sizeof(gdouble))
-#define MAXALIGN  	(PADDING > sizeof(int) ? PADDING : sizeof(int))
+#define PADDING         (sizeof(struct cD) - sizeof(gdouble))
+#define MAXALIGN        (PADDING > sizeof(int) ? PADDING : sizeof(int))
 
 
 /* endian options */
-#define BIG	0
-#define LITTLE	1
+#define BIG     0
+#define LITTLE  1
 
 /* trick to determine native endianness of system */
 static union {
@@ -223,7 +223,7 @@ static int getnum (const gchar **fmt, int df) {
 }
 
 
-#define defaultoptions(h)	((h)->endian = native.endian, (h)->align = 1, (h)->noassign = FALSE)
+#define defaultoptions(h)    ((h)->endian = native.endian, (h)->align = 1, (h)->noassign = FALSE)
 
 
 /* gets size (number of bytes) for a given type */
@@ -667,6 +667,19 @@ WSLUA_META Struct_meta[] = {
 };
 
 LUALIB_API int Struct_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(Struct);
-    return 0;
+  WSLUA_REGISTER_CLASS(Struct);
+  return 0;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
