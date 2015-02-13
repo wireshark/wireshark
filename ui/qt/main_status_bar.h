@@ -30,8 +30,9 @@
 #include <QMenu>
 #include <QStatusBar>
 
-struct _capture_session;
-struct _capture_file;
+#include "cfile.h"
+
+#include "capchild/capture_session.h"
 
 class MainStatusBar : public QStatusBar
 {
@@ -49,7 +50,7 @@ private:
     ProgressBar progress_bar_;
     LabelStack packet_status_;
     LabelStack profile_status_;
-    struct _capture_file *cap_file_;
+    capture_file *cap_file_;
     QMenu profile_menu_;
     QMenu ctx_menu_;
     QAction *edit_action_;
@@ -60,7 +61,7 @@ signals:
 
 
 public slots:
-    void setCaptureFile(struct _capture_file *cf);
+    void setCaptureFile(capture_file *cf);
     void pushTemporaryStatus(QString &message);
     void popTemporaryStatus();
     void pushFileStatus(QString &message);
@@ -72,7 +73,7 @@ public slots:
     void pushFilterStatus(QString &message);
     void popFilterStatus();
     void pushProfileName();
-    void updateCaptureStatistics(struct _capture_session * cap_session);
+    void updateCaptureStatistics(capture_session * cap_session);
 
 private slots:
     void pushPacketStatus(QString &message);

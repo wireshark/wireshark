@@ -25,8 +25,6 @@
 
 #include "file.h"
 
-#include "capchild/capture_session.h"
-
 #include "epan/expert.h"
 #include "wsutil/filesystem.h"
 
@@ -42,6 +40,7 @@
 #include <QAction>
 
 #include "tango_colors.h"
+
 
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
 
@@ -225,7 +224,7 @@ void MainStatusBar::expertUpdate() {
     expert_status_.show();
 }
 
-void MainStatusBar::setCaptureFile(_capture_file *cf)
+void MainStatusBar::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
     comment_label_.setEnabled(cap_file_ != NULL);
@@ -316,7 +315,7 @@ void MainStatusBar::popProfileStatus() {
     profile_status_.popText(STATUS_CTX_MAIN);
 }
 
-void MainStatusBar::updateCaptureStatistics(struct _capture_session *cap_session)
+void MainStatusBar::updateCaptureStatistics(capture_session *cap_session _U_)
 {
     QString packets_str;
 
