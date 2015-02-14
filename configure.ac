@@ -2537,6 +2537,19 @@ AC_SUBST(LIBCAP_LIBS)
 
 dnl Checks for header files.
 dnl Some of these may not be needed: http://hacks.owlfolio.org/header-survey/
+dnl Note, however, that, whilst this script is generally run only on UN*Xes:
+dnl
+dnl     1) we also support building on and for Windows and not all of those
+dnl        headers are present on Windows, so the code has to check a
+dnl        #define *anyway* to determine whether to include the header
+dnl        file
+dnl
+dnl and
+dnl
+dnl     2) this might also be run on Windows with a sufficiently UNIXy
+dnl        environment such as Cygwin (although Wireshark should be built
+dnl        natively rather than using Cygwin).
+dnl
 AC_CHECK_HEADERS(fcntl.h getopt.h grp.h inttypes.h netdb.h pwd.h unistd.h)
 AC_CHECK_HEADERS(sys/ioctl.h sys/param.h sys/socket.h sys/sockio.h sys/stat.h sys/time.h sys/types.h sys/utsname.h sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
