@@ -867,7 +867,7 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		#
 		# The following are for C and C++
 		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-pedantic)
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wpedantic)
 		#
 		# Various code blocks this one.
 		#

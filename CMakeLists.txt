@@ -278,7 +278,7 @@ else()
 
 	set(WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS
 		# The following are for C and C++
-		-pedantic
+		-Wpedantic
 		#
 		# Various code blocks this one.
 		#

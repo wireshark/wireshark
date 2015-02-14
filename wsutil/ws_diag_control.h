@@ -45,28 +45,29 @@ extern "C" {
    pragma clang diagnostic error/warning/ignored -Wxxx and
    pragma clang diagnostic push/pop were introduced in clang 2.8 */
 
-#if defined(__GNUC__) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 402 && !defined(__clang__)
-   /* gcc version is >= 4.2.0; we can use "GCC diagnostic ignored/warning
-      -Wxxx" */
-#  define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)
-#  if ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406
-     /* gcc version is >= 4.6.0: we can use "GCC diagnostic push/pop" */
+#if defined(__GNUC__) && !defined(__clang__)
+#  define gcc_version ((__GNUC__ * 1000) + (__GNUC_MINOR__ * 10))
+#  if gcc_version >= 4080
+     /*
+      * gcc version is >= 4.8.0. We can use "GCC diagnostic push/pop" *and*
+      * gcc supports "-Wpedantic".
+      */
+#    define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)
 #    define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
 #    define DIAG_ON(x) DIAG_PRAGMA(pop)
-#  else
-     /* gcc version is between 4.2.0 and 4.6.0:
-        we can use "GCC diagnostic ignored/warning -Wxxx", but not
-        "GCC diagnostic push/pop" */
-#    define DIAG_OFF(x) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
-#    define DIAG_ON(x)  DIAG_PRAGMA(warning DIAG_JOINSTR(-W,x))
 #  endif
-#elif defined(__clang__) && ((__clang_major__ * 100) + __clang_minor__ >= 208)
-   /* clang version is >= 2.8: we can use "clang diagnostic ignored -Wxxx"
-      and "clang diagnostic push/pop" */
-#  define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(clang diagnostic x)
-#  define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
-#  define DIAG_ON(x) DIAG_PRAGMA(pop)
-#else
+#elif defined(__clang__)
+#  define clang_version ((__clang_major__ * 1000) + (__clang_minor__ * 10))
+#  if clang_version >= 2080
+     /* clang version is >= 2.8: we can use "clang diagnostic ignored -Wxxx"
+        and "clang diagnostic push/pop" */
+#    define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(clang diagnostic x)
+#    define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
+#    define DIAG_ON(x) DIAG_PRAGMA(pop)
+#  endif
+#endif
+
+#ifndef DIAG_OFF
    /* no gcc or clang, or gcc version < 4.2.0, or clang version < 2.8:
       we can't do anything */
 #  define DIAG_OFF(x)
