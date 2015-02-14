@@ -28,7 +28,9 @@
 
 #include "config.h"
 
+#include <epan/conversation.h>
 #include <epan/packet.h>
+#include "packet-scsi.h"
 
 void proto_reg_handoff_rsvd(void);
 void proto_register_rsvd(void);
@@ -71,6 +73,13 @@ static int hf_svhdx_tunnel_disk_info_file_size = -1;
 static int hf_svhdx_tunnel_disk_info_virtual_disk_id = -1;
 static int hf_svhdx_tunnel_validate_disk_reserved = -1;
 static int hf_svhdx_tunnel_validate_disk_is_valid_disk = -1;
+static int hf_svhdx_tunnel_srb_status_status_key = -1;
+static int hf_svhdx_tunnel_srb_status_reserved = -1;
+static int hf_svhdx_tunnel_srb_status_sense_info_auto_generated = -1;
+static int hf_svhdx_tunnel_srb_status_srb_status = -1;
+static int hf_svhdx_tunnel_srb_status_scsi_status = -1;
+static int hf_svhdx_tunnel_srb_status_sense_info_ex_length = -1;
+static int hf_svhdx_tunnel_srb_status_sense_data_ex = -1;
 
 static gint ett_rsvd = -1;
 static gint ett_svhdx_tunnel_op_header = -1;
@@ -87,6 +96,12 @@ static const value_string rsvd_operation_code_vals[] = {
         { 0, NULL }
 };
 
+static const value_string rsvd_sense_info_vals[] = {
+        { 0x0, "Sense Info Not Auto Generated" },
+        { 0x1, "Sense Info Auto Generated" },
+        { 0, NULL }
+};
+
 static const value_string rsvd_disk_type_vals[] = {
         { 0x02, "VHD_TYPE_FIXED" },
         { 0x03, "VHD_TYPE_DYNAMIC" },
@@ -98,7 +113,42 @@ static const value_string rsvd_disk_format_vals[] = {
         { 0, NULL }
 };
 
-static void
+/*
+ * We need this data to handle SCSI requests and responses, I think
+ */
+typedef struct _rsvd_task_data_t {
+        guint32 request_frame;
+        guint32 response_frame;
+        itlq_nexus_t *itlq;
+} rsvd_task_data_t;
+
+typedef struct _rsvd_conv_data_t {
+        wmem_map_t *tasks;
+        wmem_tree_t *itl;
+        rsvd_task_data_t *task;
+        conversation_t *conversation;
+} rsvd_conv_data_t;
+
+static rsvd_conv_data_t *rsvd_conv_data = NULL;
+
+static proto_tree *top_tree = NULL;
+
+static itl_nexus_t *
+get_itl_nexus(packet_info *pinfo)
+{
+    itl_nexus_t *itl = NULL;
+
+    if (!(itl = (itl_nexus_t *)wmem_tree_lookup32_le(rsvd_conv_data->itl, pinfo->fd->num))) {
+        itl = wmem_new(wmem_file_scope(), itl_nexus_t);
+        itl->cmdset = 0xff;
+        itl->conversation = rsvd_conv_data->conversation;
+        wmem_tree_insert32(rsvd_conv_data->itl, pinfo->fd->num, itl);
+    }
+
+    return itl;
+}
+
+static int
 dissect_RSVD_GET_FILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
     if (!request) {
@@ -122,21 +172,53 @@ dissect_RSVD_GET_FILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_file_info_virtual_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
        offset += 8;
     }
+
+    return offset;
 }
 
-static void
-dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+/*
+ * Dissect a tunnelled SCSI request and call the SCSI dissector where
+ * needed.
+ */
+static int
+dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request, guint64 request_id)
 {
     proto_tree *sub_tree;
     proto_item *sub_item;
     guint32 cdb_length;
     guint32 data_transfer_length;
     guint32 sense_info_ex_length;
+    conversation_t *conversation;
+
+    conversation = find_or_create_conversation(pinfo);
+    rsvd_conv_data = (rsvd_conv_data_t *)conversation_get_proto_data(conversation, proto_rsvd);
+
+    if (!rsvd_conv_data) {
+        rsvd_conv_data = wmem_new(wmem_file_scope(), rsvd_conv_data_t);
+        rsvd_conv_data->tasks = wmem_map_new(wmem_file_scope(),
+                                             g_direct_hash,
+                                             g_direct_equal);
+        rsvd_conv_data->itl   = wmem_tree_new(wmem_file_scope());
+        rsvd_conv_data->conversation = conversation;
+        conversation_add_proto_data(conversation, proto_rsvd, rsvd_conv_data);
+    }
+
+    rsvd_conv_data->task = NULL;
+    if (!pinfo->fd->flags.visited) {
+        rsvd_conv_data->task = wmem_new(wmem_file_scope(), rsvd_task_data_t);
+        rsvd_conv_data->task->request_frame=pinfo->fd->num;
+        rsvd_conv_data->task->response_frame=0;
+        rsvd_conv_data->task->itlq = NULL;
+        wmem_map_insert(rsvd_conv_data->tasks, (const void *)request_id,
+                        rsvd_conv_data->task);
+    } else {
+        rsvd_conv_data->task = (rsvd_task_data_t *)wmem_map_lookup(rsvd_conv_data->tasks, (void *)request_id);
+    }
 
     sub_tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len, ett_svhdx_tunnel_scsi_request, &sub_item, "SVHDX_TUNNEL_SCSI_%s", (request ? "REQUEST" : "RESPONSE"));
 
     if (request) {
-        /* tvbuff_t *scsi_cdb = NULL; */
+        tvbuff_t *scsi_cdb = NULL;
 
         /* Length */
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -173,6 +255,10 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
         offset += 4;
 
         /* CDBBuffer */
+        scsi_cdb = tvb_new_subset(tvb,
+                                  offset,
+                                  cdb_length,
+                                  tvb_reported_length_remaining(tvb, offset));
         proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_cdb, tvb, offset, cdb_length, ENC_NA);
         offset += cdb_length;
 
@@ -185,10 +271,29 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
             proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data, tvb, offset, data_transfer_length, ENC_NA);
             offset += data_transfer_length;
         }
+
+        /*
+         * Now the SCSI Request
+         */
+        if (rsvd_conv_data->task && !rsvd_conv_data->task->itlq) {
+            rsvd_conv_data->task->itlq = wmem_new(wmem_file_scope(),
+                                                  itlq_nexus_t);
+            rsvd_conv_data->task->itlq->first_exchange_frame = pinfo->fd->num;
+            rsvd_conv_data->task->itlq->last_exchange_frame = 0;
+            rsvd_conv_data->task->itlq->scsi_opcode = 0xffff;
+            rsvd_conv_data->task->itlq->task_flags = 0;
+            rsvd_conv_data->task->itlq->data_length = 0;
+            rsvd_conv_data->task->itlq->bidir_data_length = 0;
+            rsvd_conv_data->task->itlq->flags = 0;
+            rsvd_conv_data->task->itlq->alloc_len = 0;
+            rsvd_conv_data->task->itlq->fc_time = pinfo->fd->abs_ts;
+            rsvd_conv_data->task->itlq->extra_data = NULL;
+        }
+        if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
+            dissect_scsi_cdb(scsi_cdb, pinfo, top_tree, SCSI_DEV_SMC, rsvd_conv_data->task->itlq, get_itl_nexus(pinfo));
+        }
+
     } else {
-        guint16 statuses = 0;
-        guint8 auto_generated_sense = 0;
-        guint8 srb_status = 0;
         guint8 scsi_status = 0;
 
         /* Length */
@@ -196,18 +301,15 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
         offset += 2;
 
         /* A */
-        statuses = tvb_get_letohs(tvb, offset); /* Got two bytes here */
-        auto_generated_sense = statuses >> 15;
-        proto_tree_add_boolean(sub_tree, hf_svhdx_tunnel_scsi_auto_generated_sense, tvb, offset, 1, auto_generated_sense);
+        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_auto_generated_sense, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* SrbStatus */
-        srb_status = statuses & 0x07;
-        proto_tree_add_uint(sub_tree, hf_svhdx_tunnel_scsi_srb_status, tvb, offset, 1, srb_status);
+        proto_tree_add_bits_item(sub_tree, hf_svhdx_tunnel_scsi_srb_status, tvb, offset * 8 + 1, 7, ENC_BIG_ENDIAN);
         offset++;
 
         /* ScsiStatus */
-        scsi_status = statuses >> 8;
-        proto_tree_add_uint(sub_tree, hf_svhdx_tunnel_scsi_status, tvb, offset, 1, scsi_status);
+        scsi_status = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         /* CdbLength */
@@ -242,13 +344,94 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
 
         /* DataBuffer */
         if (data_transfer_length) {
+            tvbuff_t *data_tvb = NULL;
+            int tvb_len, tvb_rlen;
+
+            tvb_len = tvb_captured_length_remaining(tvb, offset);
+            if (tvb_len > (int)data_transfer_length)
+                tvb_len = data_transfer_length;
+
+            tvb_rlen = tvb_reported_length_remaining(tvb, offset);
+            if (tvb_rlen > (int)data_transfer_length)
+                tvb_rlen = data_transfer_length;
+
+            data_tvb = tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
+
+            if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
+                rsvd_conv_data->task->itlq->task_flags = SCSI_DATA_READ |
+                                                         SCSI_DATA_WRITE;
+                rsvd_conv_data->task->itlq->data_length = data_transfer_length;
+                rsvd_conv_data->task->itlq->bidir_data_length = data_transfer_length;
+                dissect_scsi_payload(data_tvb, pinfo, top_tree, request,
+                                     rsvd_conv_data->task->itlq,
+                                     get_itl_nexus(pinfo), 0);
+            }
+
             proto_tree_add_item(sub_tree, hf_svhdx_tunnel_scsi_data, tvb, offset, data_transfer_length, ENC_NA);
             offset += data_transfer_length;
         }
+
+        /*
+         * Now, the SCSI response
+         */
+        if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {
+            dissect_scsi_rsp(tvb, pinfo, top_tree, rsvd_conv_data->task->itlq, get_itl_nexus(pinfo), scsi_status);
+        }
     }
+
+    return offset;
 }
 
-static void
+static int
+dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
+{
+    if (request) {
+        proto_tree *gfi_sub_tree _U_;
+        proto_item *gfi_sub_item _U_;
+
+        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_SRB_STATUS_REQUEST");
+
+        /* StatusKey */
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_status_key, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        /* Reserved */
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_reserved, tvb, offset, 1, ENC_NA);
+        offset += 27;
+    } else {
+        proto_tree *gfi_sub_tree _U_;
+        proto_item *gfi_sub_item _U_;
+        guint8 sense_info_length;
+
+        gfi_sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_svhdx_tunnel_op_header, &gfi_sub_item, "RSVD_TUNNEL_SRB_STATUS_RESPONSE");
+
+        /* StatusKey */
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_status_key, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        /* SenseInfoAutoGenerated and SrbStatus */
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_sense_info_auto_generated, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_srb_status, tvb, offset * 8 + 1, 7, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        /* ScsiStatus */
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_scsi_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        /* SenseInfoExLength */
+        sense_info_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_sense_info_ex_length, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        /* SenseDataEx */
+        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_sense_data_ex, tvb, offset, sense_info_length, ENC_NA);
+        offset += sense_info_length;
+    }
+
+    return offset;
+}
+
+static int
 dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
     if (request) {
@@ -313,9 +496,11 @@ dissect_RSVD_GET_DISK_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_disk_info_virtual_disk_id, tvb, offset, 16, ENC_NA);
         offset += 16;
     }
+
+    return offset;
 }
 
-static void
+static int
 dissect_RSVD_VALIDATE_DISK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, gint16 len, gboolean request)
 {
     if (request) {
@@ -335,6 +520,8 @@ dissect_RSVD_VALIDATE_DISK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
         proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_validate_disk_is_valid_disk, tvb, offset, 1, ENC_NA);
         offset += 1;
     }
+
+    return offset;
 }
 
 static int
@@ -350,7 +537,10 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     proto_tree *sub_tree;
     guint       offset = 0;
     guint16 len;
+    guint64 request_id = 0;
     gboolean request = *(gboolean *)data;
+
+    top_tree = parent_tree;
 
     len = tvb_reported_length(tvb);
 
@@ -388,6 +578,7 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     offset += 4;
 
     /* RequestId */
+    request_id = tvb_get_ntoh64(tvb, offset);
     proto_tree_add_item(sub_tree, hf_svhdx_request_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
 
@@ -407,11 +598,11 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
      */
     switch (operation_code) {
     case 0x001:
-        dissect_RSVD_GET_FILE_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+        offset += dissect_RSVD_GET_FILE_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
         break;
 
     case 0x002:
-        dissect_RSVD_TUNNEL_SCSI(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+        offset += dissect_RSVD_TUNNEL_SCSI(tvb, pinfo, rsvd_tree, offset, len - offset, request, request_id);
         break;
 
     case 0x003:
@@ -423,21 +614,22 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
         break;
 
     case 0x004:
+        offset += dissect_RSVD_SRB_STATUS(tvb, pinfo, rsvd_tree, offset, len - offset, request);
         break;
 
     case 0x005:
-        dissect_RSVD_GET_DISK_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+        offset += dissect_RSVD_GET_DISK_INFO(tvb, pinfo, rsvd_tree, offset, len - offset, request);
         break;
 
     case 0x006:
-        dissect_RSVD_VALIDATE_DISK(tvb, pinfo, rsvd_tree, offset, len - offset, request);
+        offset += dissect_RSVD_VALIDATE_DISK(tvb, pinfo, rsvd_tree, offset, len - offset, request);
         break;
 
     default:
         break;
     }
 
-    return len;
+    return offset;
 }
 
 void
@@ -510,8 +702,8 @@ proto_register_rsvd(void)
                     NULL, 0, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_scsi_auto_generated_sense,
-                  {"AutoGeneratedSenseInfo", "rsvd.svhdx_auto_generated_sense_info", FT_BOOLEAN, 8,
-                   NULL, 0, NULL, HFILL }},
+                  {"AutoGeneratedSenseInfo", "rsvd.svhdx_auto_generated_sense_info", FT_UINT8, BASE_HEX,
+                    VALS(rsvd_sense_info_vals), 0x80, NULL, HFILL }},
 
                 { &hf_svhdx_tunnel_scsi_srb_status,
                   { "SrbStatus", "rsvd.svhdx_srb_status", FT_UINT8, BASE_HEX,
@@ -592,6 +784,34 @@ proto_register_rsvd(void)
 
                 { &hf_svhdx_tunnel_validate_disk_is_valid_disk,
                   { "IsValidDisk", "rsvd.svhdx_validate_disk_is_valid_disk", FT_BYTES, BASE_NONE,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_srb_status_status_key,
+                  { "StatusKey", "rsvd.svhdx_srb_status_key", FT_UINT8, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_srb_status_reserved,
+                  { "Reserved", "rsvd.svhdx_srb_status_reserved", FT_BYTES, BASE_NONE,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_srb_status_sense_info_auto_generated,
+                  { "SenseInfoAutoGenerated", "rsvd.svhdx_sense_info_auto_generated", FT_UINT8, BASE_HEX,
+                    VALS(rsvd_sense_info_vals), 0x80, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_srb_status_srb_status,
+                  { "SrbStatus", "rsvd.svhdx_srb_status_srb_status", FT_UINT8, BASE_HEX,
+                    NULL, 0x7f, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_srb_status_scsi_status,
+                  { "SrbStatus", "rsvd.svhdx_srb_status_scsi_status", FT_UINT8, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_srb_status_sense_info_ex_length,
+                  { "SenseInfoExLength", "rsvd.svhdx_srb_status_sense_info_ex_length", FT_UINT8, BASE_DEC,
+                    NULL, 0, NULL, HFILL }},
+
+                { &hf_svhdx_tunnel_srb_status_sense_data_ex,
+                  { "Reserved", "rsvd.svhdx_srb_status_sense_data_ex", FT_BYTES, BASE_NONE,
                     NULL, 0, NULL, HFILL }},
     };
 
