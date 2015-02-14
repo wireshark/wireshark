@@ -62,8 +62,8 @@ const char *conv_column_titles[CONV_NUM_COLUMNS] = {
     "Bytes B " UTF8_RIGHTWARDS_ARROW " A",
     "Rel Start",
     "Duration",
-    "bps A " UTF8_RIGHTWARDS_ARROW " B",
-    "bps B " UTF8_RIGHTWARDS_ARROW " A"
+    "Bits/s A " UTF8_RIGHTWARDS_ARROW " B",
+    "Bits/s B " UTF8_RIGHTWARDS_ARROW " A"
 };
 
 const char *conv_conn_a_title = "Connection A";

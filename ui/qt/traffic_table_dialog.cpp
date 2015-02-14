@@ -62,11 +62,9 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
     filter_(filter)
 {
     ui->setupUi(this);
-//    setAttribute(Qt::WA_DeleteOnClose, true);
 
-    QString window_name = QString("%1s").arg(table_name);
-    setWindowSubtitle(window_name);
-    ui->enabledTypesPushButton->setText(tr("%1 Types").arg(window_name));
+    ui->enabledTypesPushButton->setText(tr("%1 Types").arg(table_name));
+    setWindowSubtitle(QString("%1s").arg(table_name));
 
     // XXX Use recent settings instead
     resize(parent.width(), parent.height() * 3 / 4);

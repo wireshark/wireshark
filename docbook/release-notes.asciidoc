@@ -22,6 +22,16 @@ used for troubleshooting, analysis, development and education.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 1.99.2:
+
+* Qt port:
+
+** Several bugs have been fixed.
+** You can now open a packet in a new window.
+** The Bluetooth ATT Server Attributes dialog has been added.
+** The Coloring Rules dialog has been added.
+
+The following features are new (or have been significantly updated)
 since version 1.99.1:
 
 * Qt port:

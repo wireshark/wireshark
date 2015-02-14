@@ -54,13 +54,22 @@ image::wsug_graphics/ws-stats-summary.png[]
 
 * __File__: general information about the capture file.
 
-* __Time__: the timestamps when the first and the last packet were captured (and the time between them).
+* __Time__: the timestamps when the first and the last packet were captured (and
+  the time between them).
 
-* __Capture__: information from the time when the capture was done (only available if the packet data was captured from the network and not loaded from a file).
+* __Capture__: information from the time when the capture was done (only
+  available if the packet data was captured from the network and not loaded from
+  a file).
 
 * __Display__: some display related information.
 
-* __Traffic__: some statistics of the network traffic seen. If a display filter is set, you will see values in the Captured column, and if any packages are marked, you will see values in the Marked column. The values in the _Captured_ column will remain the same as before, while the values in the _Displayed_ column will reflect the values corresponding to the packets shown in the display. The values in the _Marked_ column will reflect the values corresponding to the marked packages.
+* __Traffic__: some statistics of the network traffic seen. If a display filter
+  is set, you will see values in the Captured column, and if any packages are
+  marked, you will see values in the Marked column. The values in the _Captured_
+  column will remain the same as before, while the values in the _Displayed_
+  column will reflect the values corresponding to the packets shown in the
+  display. The values in the _Marked_ column will reflect the values
+  corresponding to the marked packages.
 
 [[ChStatHierarchy]]
 
@@ -71,66 +80,55 @@ The protocol hierarchy of the captured packets.
 .The "Protocol Hierarchy" window
 image::wsug_graphics/ws-stats-hierarchy.png[]
 
-This is a tree of all the protocols in the capture. You can collapse or expand
-subtrees, by clicking on the plus / minus icons. By default, all trees are
-expanded.
+This is a tree of all the protocols in the capture. Each row contains the
+statistical values of one protocol. Two of the columns (_Percent Packets_ and
+_Percent Bytes_) serve double duty as bar graphs. If a display filter is set it
+will be shown at the bottom.
 
-Each row contains the statistical values of one protocol. The _Display filter_
-will show the current display filter.
+The button:[Copy] button will let you copy the window contents as CSV or YAML.
 
-The following columns containing the statistical values are available:
+.Protocol hierarchy columns
 
-* __Protocol__: this protocol's name
+_Protocol_:: This protocol's name
 
-* __% Packets__: the percentage of protocol packets, relative to all packets in
+_Percent Packets_:: The percentage of protocol packets relative to all packets in
   the capture
 
-* __Packets__: the absolute number of packets of this protocol
+_Packets_:: The total number of packets of this protocol
 
-* __Bytes__: the absolute number of bytes of this protocol
+_Percent Bytes_:: The percentage of protocol bytes relative to the total bytes in
+  the capture
 
-* __MBit/s__: the bandwidth of this protocol, relative to the capture time
+_Bytes_:: The total number of bytes of this protocol
 
-* __End Packets__: the absolute number of packets of this protocol (where this
-  protocol was the highest protocol to decode)
+_Bits/s_:: The bandwidth of this protocol relative to the capture time
 
-* __End Bytes__: the absolute number of bytes of this protocol (where this
-  protocol was the highest protocol to decode)
+_End Packets_:: The absolute number of packets of this protocol where it
+  was the highest protocol in the stack (last dissected)
 
-* __End MBit/s__: the bandwidth of this protocol, relative to the capture time
-  (where this protocol was the highest protocol to decode)
+_End Bytes_:: The absolute number of bytes of this protocol where it
+  was the highest protocol in the stack (last dissected)
 
+_End Bits/s_:: The bandwidth of this protocol relative to the capture time where
+  was the highest protocol in the stack (last dissected)
 
-[NOTE]
-====
-Packets will usually contain multiple protocols, so more than one protocol will
-be counted for each packet. Example: In the screenshot IP has 99,17% and TCP
-85,83% (which is together much more than 100%).
-====
+Packets usually contain multiple protocols. As a result more than one protocol will
+be counted for each packet. Example: In the screenshot IP has 99.9% and TCP
+98.5% (which is together much more than 100%).
 
-[NOTE]
-====
 Protocol layers can consist of packets that won't contain any higher layer
 protocol, so the sum of all higher layer packets may not sum up to the protocols
-packet count. Example: In the screenshot TCP has 85,83% but the sum of the
-subprotocols (HTTP, ...) is much less. This may be caused by TCP protocol
-overhead, e.g. TCP ACK packets won't be counted as packets of the higher layer).
-====
+packet count. Example: In the screenshot TCP has 98.5% but the sum of the
+subprotocols (SSL, HTTP, etc) is much less. This can be caused by continuation
+frames, TCP protocol overhead, and other undissected data.
 
-[NOTE]
-====
 A single packet can contain the same protocol more than once. In this case, the
-protocol is counted more than once. For example: in some tunneling
-configurations the IP layer can appear twice.
-====
+protocol is counted more than once. For example ICMP replies and many tunneling
+protocols will carry more than one IP header.
 
 [[ChStatConversations]]
 
 === Conversations
-
-Statistics of the captured conversations.
-
-==== What is a Conversation?
 
 A network conversation is the traffic between two specific endpoints. For
 example, an IP conversation is all the traffic between two IP addresses. The
@@ -139,9 +137,9 @@ description of the known endpoint types can be found in
 
 [[ChStatConversationsWindow]]
 
-==== The "Conversations" window
+==== The ``Conversations'' window
 
-The conversations window is similar to the endpoint Window; see
+The conversations window is similar to the endpoint Window. See
 <<ChStatEndpointsWindow>> for a description of their common features. Along with
 addresses, packet counters, and byte counters the conversation window adds four
 columns: the time in seconds between the start of the capture and the start of
@@ -149,19 +147,23 @@ the conversation ("Rel Start"), the duration of the conversation in seconds, and
 the average bits (not bytes) per second in each direction.
 
 .The "Conversations" window
-image::wsug_graphics/ws-stats-conversations.png[]
+image::wsug_graphics/ws-stats-conversations.png[scaledwidth="100%"]
 
 Each row in the list shows the statistical values for exactly one conversation.
 
 _Name resolution_ will be done if selected in the window and if it is active for
 the specific protocol layer (MAC layer for the selected Ethernet endpoints
-page).
+page). _Limit to display filter_ will only show conversations matching the
+current display filter.
 
-_Limit to display filter_ will only show conversations matching the current
-display filter.
+The button:[Copy] button will copy the list values to the clipboard in CSV
+(Comma Separated Values) or YAML format. The button:[Follow Stream...] button
+will show the stream contents as described in <<ChAdvFollowStream>> dialog. The
+button:[Graph...] button will show a graph as described in <<ChStatIOGraphs>>.
 
-The button:[Copy] button will copy the list values to the clipboard in CSV (Comma
-Separated Values) format.
+button:[Conversation Types] lets you choose which traffic type tabs are shown.
+See <<ChStatEndpointDefinition>> for a list of endpoint types. The enabled types
+are saved in your profile settings.
 
 [TIP]
 ====
@@ -169,22 +171,18 @@ This window will be updated frequently so it will be useful even if you open
 it before (or while) you are doing a live capture.
 ====
 
-[[ChStatConversationListWindow]]
-
-==== The protocol specific "Conversation List" windows
-
-Before the combined window described above was available, each of its pages was
-shown as a separate window. Even though the combined window is much more
-convenient to use, these separate windows are still available. The main reason
-is that they might process faster for very large capture files. However, as the
-functionality is exactly the same as in the combined window, they won't be
-discussed in detail here.
+// Removed:
+// [[ChStatConversationListWindow]]
 
 [[ChStatEndpoints]]
 
 === Endpoints
 
-Statistics of the endpoints captured.
+[[ChStatEndpointDefinition]]
+
+A network endpoint is the logical endpoint of separate protocol traffic of a
+specific protocol layer. The endpoint statistics of Wireshark will take the
+following endpoints into account:
 
 [TIP]
 ====
@@ -193,46 +191,52 @@ the right place to look. The list of Ethernet or IP endpoints is usually what
 you're looking for.
 ====
 
-[[ChStatEndpointDefinition]]
+.Endpoint and Conversation types
 
-==== What is an Endpoint?
+_Bluetooth_:: A MAC-48 address similar to Ethernet.
 
-A network endpoint is the logical endpoint of separate protocol traffic of a specific protocol layer. The endpoint statistics of Wireshark will take the following endpoints into account:
+_Ethernet_:: Identical to the Ethernet device's MAC-48 identifier.
 
-* __Ethernet__: an Ethernet endpoint is identical to the Ethernet's MAC address.
+_Fibre Channel_:: A MAC-48 address similar to Ethernet.
 
-* __Fibre Channel__: XXX - insert info here.
+_IEEE 802.11_:: A MAC-48 address similar to Ethernet.
 
-* __FDDI__: a FDDI endpoint is identical to the FDDI MAC address.
+_FDDI_:: Identical to the FDDI MAC-48 address.
 
-* __IPv4__: an IP endpoint is identical to its IP address.
+_IPv4_:: Identical to the 32-bit IPv4 address.
 
-* __IPX__: an IPX endpoint is concatenation of a 32 bit network number and 48 bit node address, be default the Ethernets' MAC address.
+_IPv6_:: Identical to the 128-bit IPv6 address.
 
-* __JXTA__: a JXTA endpoint is a 160 bit SHA-1 URN.
+_IPX_:: A concatenation of a 32 bit network number and 48 bit node address, by
+default the Ethernet interface's MAC-48 address.
 
-* __NCP__: XXX - insert info here.
+_JXTA_:: A 160 bit SHA-1 URN.
 
-* __RSVP__: XXX - insert info here.
+_NCP_:: Similar to IPX.
 
-* __SCTP__: a SCTP endpoint is a combination of the host IP addresses (plural) and the SCTP port used. So different SCTP ports on the same IP address are different SCTP endpoints, but the same SCTP port on different IP addresses of the same host are still the same endpoint.
+_RSVP_:: A combination of varios RSVP session attributes and IPv4 addresses.
 
-* __TCP__: a TCP endpoint is a combination of the IP address and the TCP port used, so different TCP ports on the same IP address are different TCP endpoints.
+_SCTP_:: A combination of the host IP addresses (plural) and
+the SCTP port used. So different SCTP ports on the same IP address are different
+SCTP endpoints, but the same SCTP port on different IP addresses of the same
+host are still the same endpoint.
 
-* __Token Ring__: a Token Ring endpoint is identical to the Token Ring MAC address.
+_TCP_:: A combination of the IP address and the TCP port used.
+Different TCP ports on the same IP address are different TCP endpoints.
 
-* __UDP__: a UDP endpoint is a combination of the IP address and the UDP port used, so different UDP ports on the same IP address are different UDP endpoints.
+_Token Ring_:: Identical to the Token Ring MAC-48 address.
 
-* __USB__: XXX - insert info here.
+_UDP_:: A combination of the IP address and the UDP port used, so different UDP
+ports on the same IP address are different UDP endpoints.
 
-* __WLAN__: XXX - insert info here.
+_USB_:: Identical to the 7-bit USB address.
 
 [NOTE]
-.Broadcast / multicast endpoints
+.Broadcast and multicast endpoints
 ====
-Broadcast / multicast traffic will be shown separately as additional endpoints.
-Of course, as these endpoints are virtual endpoints, the real traffic will be
-received by all (multicast: some) of the listed unicast endpoints.
+Broadcast and multicast traffic will be shown separately as additional
+endpoints. Of course, as these aren't physical endpoints the real traffic
+will be received by some or all of the listed unicast endpoints.
 ====
 
 [[ChStatEndpointsWindow]]
@@ -241,36 +245,39 @@ received by all (multicast: some) of the listed unicast endpoints.
 
 This window shows statistics about the endpoints captured.
 
-.The "Endpoints" window
-image::wsug_graphics/ws-stats-endpoints.png[]
+.The ``Endpoints'' window
+image::wsug_graphics/ws-stats-endpoints.png[scaledwidth="100%"]
 
-For each supported protocol, a tab is shown in this window. Each tab label shows the number of endpoints captured (e.g. the tab label "Ethernet: 5" tells you that five ethernet endpoints have been captured). If no endpoints of a specific protocol were captured, the tab label will be greyed out (although the related page can still be selected).
+For each supported protocol, a tab is shown in this window. Each tab label shows
+the number of endpoints captured (e.g. the tab label ``Ethernet &#183; 4'' tells
+you that four ethernet endpoints have been captured). If no endpoints of a
+specific protocol were captured, the tab label will be greyed out (although the
+related page can still be selected).
 
 Each row in the list shows the statistical values for exactly one endpoint.
 
-_Name resolution_ will be done if selected in the window and if it is active for the specific protocol layer (MAC layer for the selected Ethernet endpoints page). As you might have noticed, the first row has a name resolution of the first three bytes "Netgear", the second row's address was resolved to an IP address (using ARP) and the third was resolved to a broadcast (unresolved this would still be: ff:ff:ff:ff:ff:ff); the last two Ethernet addresses remain unresolved.
+_Name resolution_ will be done if selected in the window and if it is active for
+the specific protocol layer (MAC layer for the selected Ethernet endpoints
+page). _Limit to display filter_ will only show conversations matching the
+current display filter. Note that in this example we have GeoIP configured which
+gives us extra geographic columns. See <<ChGeoIPDbPaths>> for more information.
 
-_Limit to display filter_ will only show conversations matching the current display filter.
+The button:[Copy] button will copy the list values to the clipboard in CSV
+(Comma Separated Values) or YAML format. The button:[Map] button will show the
+endpoints mapped in your web browser.
 
-The button:[Copy] button will copy the list values to the clipboard in CSV (Comma Separated Values) format.
-
+button:[Endpoint Types] lets you choose which traffic type tabs are shown. See
+<<ChStatEndpointDefinition>> above for a list of endpoint types. The enabled
+types are saved in your profile settings.
 
 [TIP]
 ====
-This window will be updated frequently, so it will be useful, even if you open
+This window will be updated frequently, so it will be useful even if you open
 it before (or while) you are doing a live capture.
 ====
 
-[[ChStatEndpointListWindow]]
-
-==== The protocol specific "Endpoint List" windows
-
-Before the combined window described above was available, each of its pages was
-shown as a separate window. Even though the combined window is much more
-convenient to use, these separate windows are still available. The main reason
-is that they might process faster for very large capture files. However, as the
-functionality is exactly the same as in the combined window, they won't be
-discussed in detail here.
+// Removed:
+// [[ChStatEndpointListWindow]]
 
 [[ChStatIOGraphs]]
 
