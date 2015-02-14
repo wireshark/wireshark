@@ -27,10 +27,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_DIRENT_H
-#include <dirent.h>
-#endif
-
 #include <string.h>
 #include <errno.h>
 

@@ -26,14 +26,6 @@
 
 #include <time.h>
 
-#ifdef HAVE_DIRENT_H
-#include <dirent.h>
-#endif
-
-#ifdef HAVE_DIRECT_H
-#include <direct.h>
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

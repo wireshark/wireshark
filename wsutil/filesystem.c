@@ -29,10 +29,6 @@
  */
 #define _GNU_SOURCE
 
-#ifdef HAVE_DIRENT_H
-#include <dirent.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
