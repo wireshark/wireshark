@@ -2892,13 +2892,14 @@ dissect_pmip6_opt_lmaa(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     offset += 1;
 
     if (opt_code == 1) {
-        /* IPv4 addr */
-        proto_tree_add_item(opt_tree, hf_mip6_lmaa_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(hdr_item, ": %s", tvb_ip_to_str(tvb,offset));
-    }else if (opt_code == 2) {
         /* Ipv6 Addr */
         proto_tree_add_item(opt_tree, hf_mip6_lmaa_ipv6, tvb, offset, 16, ENC_NA);
         proto_item_append_text(hdr_item, ": %s", tvb_ip6_to_str(tvb,offset));
+    }else if (opt_code == 2) {
+        /* IPv4 addr */
+        proto_tree_add_item(opt_tree, hf_mip6_lmaa_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_item_append_text(hdr_item, ": %s", tvb_ip_to_str(tvb,offset));
+
     }
 
 }
