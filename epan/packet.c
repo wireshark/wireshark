@@ -27,10 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef HAVE_STDARG_H
 #include <stdarg.h>
-#endif
-
 #include <string.h>
 #include <time.h>
 

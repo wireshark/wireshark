@@ -35,11 +35,7 @@
 #ifndef __PROTO_H__
 #define __PROTO_H__
 
-#ifdef HAVE_STDARG_H
-# include <stdarg.h>
-#else
-# include <varargs.h>
-#endif
+#include <stdarg.h>
 
 #include <glib.h>
 

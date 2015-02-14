@@ -23,9 +23,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_STDDEF_H
 #include <stddef.h>
-#endif
 
 #include <epan/packet.h>
 #include <epan/to_str.h>

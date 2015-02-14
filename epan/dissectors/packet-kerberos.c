@@ -513,9 +513,6 @@ read_keytab_file_from_preferences(void)
 #ifdef _WIN32
 /* prevent redefinition warnings in kfw-2.5\inc\win_mac.h */
 #undef HAVE_GETADDRINFO
-#undef HAVE_STDARG_H
-#undef HAVE_STDLIB_H
-#undef HAVE_STRING_H
 #undef HAVE_SYS_TYPES_H
 #endif /* _WIN32 */
 #include <krb5.h>
@@ -4245,7 +4242,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1985 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1982 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5283,7 +5280,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2366 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2363 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5357,7 +5354,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2382 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 2379 "../../asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

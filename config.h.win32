@@ -119,12 +119,6 @@
 /* Define if you have the <snmp/version.h> header file.  */
 /* #undef HAVE_SNMP_VERSION_H */
 
-/* Define if you have the <stdarg.h> header file.  */
-#define HAVE_STDARG_H 1
-
-/* Define if you have the <stddef.h> header file.  */
-/* #undef HAVE_STDDEF_H */
-
 /* Define if you have the <sys/ioctl.h> header file.  */
 /* #undef HAVE_SYS_IOCTL_H */
 
