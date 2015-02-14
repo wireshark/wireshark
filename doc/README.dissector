@@ -1102,10 +1102,12 @@ protocol or field labels to the proto_tree:
     proto_tree_add_item(tree, id, tvb, start, length, encoding);
 
     proto_item*
-    proto_tree_add_subtree(tree, tvb, start, length, label);
+    proto_tree_add_subtree(tree, tvb, start, length, subtree_id, tree_item,
+        label);
 
     proto_item*
-    proto_tree_add_subtree_format(tree, tvb, start, length, format, ...);
+    proto_tree_add_subtree_format(tree, tvb, start, length, subtree_id,
+        tree_item. format, ...);
 
     proto_item*
     proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
