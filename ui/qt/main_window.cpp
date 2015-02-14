@@ -536,6 +536,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     // Make sure we kill any open dumpcap processes.
     delete main_welcome_;
 
+    // One of the many places we assume one main window.
     if(!wsApp->isInitialized()) {
         // If we're still initializing, QCoreApplication::quit() won't
         // exit properly because we are not in the event loop. This
@@ -544,6 +545,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         // instead so that we can do a normal exit here.
         exit(0);
     }
+    wsApp->quit();
 }
 
 const int min_sensible_dimension = 200;

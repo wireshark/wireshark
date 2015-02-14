@@ -37,7 +37,7 @@
 
 // To do:
 // - Use a dynamic property + Q_PROPERTY for the subtitle.
-
+// - Save and load recent geometry.
 
 WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
     QDialog(NULL, Qt::Window),

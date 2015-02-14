@@ -56,7 +56,6 @@ private:
     QString subtitle_;
 
 private slots:
-
 };
 
 #endif // WIRESHARK_DIALOG_H

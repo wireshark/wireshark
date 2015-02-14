@@ -66,6 +66,7 @@ protected slots:
 private:
     Ui::VoipCallsDialog *ui;
 
+    QWidget &parent_;
     voip_calls_tapinfo_t tapinfo_;
     QPushButton *prepare_button_;
     QPushButton *sequence_button_;

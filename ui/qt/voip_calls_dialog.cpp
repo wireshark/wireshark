@@ -160,7 +160,8 @@ public:
 
 VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flows) :
     WiresharkDialog(parent, cf),
-    ui(new Ui::VoipCallsDialog)
+    ui(new Ui::VoipCallsDialog),
+    parent_(parent)
 {
     ui->setupUi(this);
     ui->callTreeWidget->sortByColumn(start_time_col_, Qt::AscendingOrder);
@@ -450,7 +451,7 @@ void VoipCallsDialog::showSequence()
         cur_ga_item = g_list_next(cur_ga_item);
     }
 
-    SequenceDialog *sequence_dialog = new SequenceDialog(*parentWidget(), cap_file_, tapinfo_.graph_analysis);
+    SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, tapinfo_.graph_analysis);
     // XXX This goes away when we close the VoIP Calls dialog.
     connect(sequence_dialog, SIGNAL(goToPacket(int)),
             this, SIGNAL(goToPacket(int)));
