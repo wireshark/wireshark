@@ -2205,7 +2205,6 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
                                 and length fields and any padding */
     guint32 grace_period;
     guint8 restart_reason;
-    guint32 restart_ip;
     proto_tree *tlv_tree;
     proto_item *tree_item;
     proto_item *grace_tree_item;
@@ -2245,11 +2244,10 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
                                 restart_reason);
             break;
         case GRACE_TLV_IP:
-            restart_ip = tvb_get_ipv4(tvb, offset + 4);
             proto_tree_add_item(tlv_tree, hf_ospf_v2_grace_ip, tvb, offset + 4,
                                 tlv_length, ENC_BIG_ENDIAN);
-            proto_item_set_text(tree_item, "Restart IP: %s (%s)",
-                                get_hostname(restart_ip), tvb_ip_to_str(tvb, offset + 4));
+            proto_item_set_text(tree_item, "Restart IP: %s",
+                                tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset + 4));
             break;
         default:
             proto_item_set_text(tree_item, "Unknown grace-LSA TLV");

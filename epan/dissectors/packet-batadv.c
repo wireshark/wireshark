@@ -1655,7 +1655,6 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 	proto_tree *batadv_iv_ogm_tree = NULL;
 	guint8 type, version;
 	struct iv_ogm_packet_v15 *iv_ogm_packeth;
-	const guint8  *orig_addr;
 	tvbuff_t *next_tvb;
 	static const int * flags[] = {
 		&hf_batadv_iv_ogm_flags_directlink,
@@ -1681,13 +1680,11 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 	if (tree) {
 		proto_item *ti;
 
-		orig_addr = tvb_get_ptr(tvb, offset + 8, 6);
 		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
 						    tvb, offset,
 						    IV_OGM_PACKET_V15_SIZE + iv_ogm_packeth->tvlv_len,
-						    "B.A.T.M.A.N. IV OGM, Orig: %s (%s)",
-						    get_ether_name(orig_addr),
-						    tvb_ether_to_str(tvb, offset + 8));
+						    "B.A.T.M.A.N. IV OGM, Orig: %s",
+						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset + 8));
 		batadv_iv_ogm_tree = proto_item_add_subtree(ti, ett_batadv_iv_ogm);
 	}
 
@@ -1771,8 +1768,8 @@ static void dissect_batadv_tt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 	/* Set tree info */
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, 6,
-							"B.A.T.M.A.N. TT: %s (%s)",
-							get_ether_name(tvb_get_ptr(tvb, 0, 6)), tvb_ether_to_str(tvb, 0));
+							"B.A.T.M.A.N. TT: %s",
+							tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 0));
 	batadv_batman_tt_tree = proto_item_add_subtree(ti, ett_batadv_batman_tt);
 
 	proto_tree_add_item(batadv_batman_tt_tree, hf_batadv_batman_tt, tvb, 0, 6, ENC_NA);
@@ -2350,7 +2347,6 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 				    proto_tree *tree)
 {
 	struct icmp_packet_v15 *icmp_packeth;
-	const guint8  *dst_addr, *orig_addr;
 	proto_item *ti;
 	proto_tree *batadv_icmp_tree = NULL;
 
@@ -2371,15 +2367,11 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Set tree info */
 	if (tree) {
-		dst_addr = tvb_get_ptr(tvb, 4, 6);
-		orig_addr = tvb_get_ptr(tvb, 10, 6);
 		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
 						    tvb, 0, ICMP_PACKET_V14_SIZE,
-						    "B.A.T.M.A.N. ICMP, Orig: %s (%s), Dst: %s (%s)",
-						    get_ether_name(orig_addr),
-						    tvb_ether_to_str(tvb, 10),
-						    get_ether_name(dst_addr),
-						    tvb_ether_to_str(tvb, 4));
+						    "B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
+						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
+						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
 		batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
 	}
 
@@ -2946,7 +2938,6 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 					    proto_tree *tree)
 {
 	struct unicast_frag_packet_v15 *unicast_frag_packeth;
-	const guint8  *dest_addr;
 	gboolean save_fragmented;
 	fragment_head *frag_msg = NULL;
 	proto_tree *batadv_unicast_frag_tree = NULL;
@@ -2969,13 +2960,11 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 	if (tree) {
 		proto_item *ti;
 
-		dest_addr = tvb_get_ptr(tvb, 4, 6);
 		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
 						    tvb, 0,
 						    UNICAST_FRAG_PACKET_V15_SIZE,
-						    "B.A.T.M.A.N. Unicast Fragment, Dst: %s (%s)",
-						    get_ether_name(dest_addr),
-						    tvb_ether_to_str(tvb, 4));
+						    "B.A.T.M.A.N. Unicast Fragment, Dst: %s",
+						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
 		batadv_unicast_frag_tree = proto_item_add_subtree(ti,
 								  ett_batadv_unicast_frag);
 	}
@@ -3428,8 +3417,8 @@ static void dissect_vis_entry_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_item    *ti;
 
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_ENTRY_V6_SIZE,
-							    "VIS Entry: %s (%s)",
-							    get_ether_name(tvb_get_ptr(tvb, 0, 6)), tvb_ether_to_str(tvb, 0));
+							    "VIS Entry: %s",
+							    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 0));
 	batadv_vis_entry_tree = proto_item_add_subtree(ti, ett_batadv_vis_entry);
 
 	proto_tree_add_item(batadv_vis_entry_tree, hf_batadv_vis_entry_dst, tvb, 0, 6, ENC_NA);
@@ -3442,8 +3431,8 @@ static void dissect_vis_entry_v8(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_item *ti;
 
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_ENTRY_V8_SIZE,
-							    "VIS Entry: %s (%s)",
-							    get_ether_name(tvb_get_ptr(tvb, 6, 6)), tvb_ether_to_str(tvb, 6));
+							    "VIS Entry: %s",
+							    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 6));
 	batadv_vis_entry_tree = proto_item_add_subtree(ti, ett_batadv_vis_entry);
 
 	proto_tree_add_item(batadv_vis_entry_tree, hf_batadv_vis_entry_src, tvb, 0, 6, ENC_NA);
@@ -3592,8 +3581,8 @@ static void dissect_tt_entry_v14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_item *ti;
 
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, TT_ENTRY_V14_SIZE,
-							    "TT Entry: %s (%s)",
-							    get_ether_name(tvb_get_ptr(tvb, 1, 6)), tvb_ether_to_str(tvb, 1));
+							    "TT Entry: %s",
+							    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 1));
 	batadv_tt_entry_tree = proto_item_add_subtree(ti, ett_batadv_tt_entry);
 
 	proto_tree_add_bitmask(batadv_tt_entry_tree, tvb, 0, hf_batadv_tt_entry_flags,
@@ -3855,8 +3844,6 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 					    proto_tree *tree)
 {
 	struct unicast_tvlv_packet_v15 *unicast_tvlv_packeth;
-	const guint8  *dest_addr;
-	const guint8  *src_addr;
 
 	tvbuff_t *next_tvb;
 	int offset = 0;
@@ -3872,17 +3859,13 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 	if (tree) {
 		proto_item *ti;
 
-		dest_addr = tvb_get_ptr(tvb, 4, 6);
-		src_addr = tvb_get_ptr(tvb, 10, 6);
 		unicast_tvlv_packeth->tvlv_len = tvb_get_ntohs(tvb, 16);
 		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
 						    tvb, 0,
 						    UNICAST_TVLV_PACKET_V15_SIZE + unicast_tvlv_packeth->tvlv_len,
-						    "B.A.T.M.A.N. Unicast TVLV, Src: %s (%s) Dst: %s (%s)",
-						    get_ether_name(src_addr),
-						    tvb_ether_to_str(tvb, 10),
-						    get_ether_name(dest_addr),
-						    tvb_ether_to_str(tvb, 4));
+						    "B.A.T.M.A.N. Unicast TVLV, Src: %s Dst: %s",
+						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
+						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
 		batadv_unicast_tvlv_tree = proto_item_add_subtree(ti, ett_batadv_unicast_tvlv);
 	}
 
@@ -4230,7 +4213,6 @@ static int dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb,
 					     proto_tree *tree, int offset)
 {
 	proto_tree *change_tree = NULL;
-	const guint8 *addr;
 	static const int * flags[] = {
 		&hf_batadv_tvlv_tt_change_flags_del,
 		&hf_batadv_tvlv_tt_change_flags_roam,
@@ -4244,17 +4226,14 @@ static int dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb,
 		NULL
 	};
 
-	addr = tvb_get_ptr(tvb, offset + 4, 6);
-
 	/* Set tree info */
 	if (tree) {
 		proto_item *ti;
 
 		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
 						    tvb, offset, 12,
-						    "Entry, %s (%s)",
-						    get_ether_name(addr),
-						    tvb_ether_to_str(tvb, offset + 4));
+						    "Entry, %s",
+						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset + 4));
 		change_tree = proto_item_add_subtree(ti, ett_batadv_tvlv_tt_change);
 	}
 

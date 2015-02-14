@@ -2303,8 +2303,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
       cur_rt = tvb_get_ipv4(tvb, offset + 16);
       if (ip_summary_in_tree) {
-        proto_item_append_text(ti, ", Via: %s (%s)", get_hostname(cur_rt),
-                               tvb_ip_to_str(tvb, offset + 16));
+        proto_item_append_text(ti, ", Via: %s",
+            tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset + 16));
       }
       proto_tree_add_ipv4(ip_tree, hf_ip_cur_rt, tvb, offset + 16, 4, cur_rt);
       item = proto_tree_add_string(ip_tree, hf_ip_cur_rt_host, tvb,

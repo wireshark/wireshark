@@ -350,7 +350,7 @@ static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, p
 	guint32 ip_h;
 	const gchar *str;
 
-	len = tvb_length(tvb);
+	len = tvb_reported_length(tvb);
 	if (len != 4)
 		return "[wrong length for IP address]";
 
@@ -367,9 +367,8 @@ static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, p
 					   tvb, 0, len, ip, "%s", str);
 	} else {
 		str = tvb_ip_to_str(tvb, 0);
-		proto_tree_add_ipv4_format_value(tree, hf_radius_framed_ip_address,
-					   tvb, 0, len, ip, "%s (%s)",
-					   get_hostname(ip), str);
+		proto_tree_add_item(tree, hf_radius_framed_ip_address,
+					   tvb, 0, len, ENC_BIG_ENDIAN);
 	}
 
 	return str;
@@ -381,7 +380,7 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packe
 	guint32 ip_h;
 	const gchar *str;
 
-	len = tvb_length(tvb);
+	len = tvb_reported_length(tvb);
 	if (len != 4)
 		return "[wrong length for IP address]";
 
@@ -398,9 +397,8 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packe
 					   tvb, 0, len, ip, "%s", str);
 	} else {
 		str = tvb_ip_to_str(tvb, 0);
-		proto_tree_add_ipv4_format_value(tree, hf_radius_login_ip_host,
-					   tvb, 0, len, ip, "%s (%s)",
-					   get_hostname(ip), str);
+		proto_tree_add_item(tree, hf_radius_login_ip_host,
+					   tvb, 0, len, ENC_BIG_ENDIAN);
 	}
 
 	return str;

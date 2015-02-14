@@ -79,8 +79,6 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     guint32         offset=0;
 
-    const guint8*   src_addr;
-    const guint8*   dst_addr;
     guint8          attributes;
     guint8          portgroup;
     ethertype_data_t ethertype_data;
@@ -117,17 +115,16 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(vmlab_tree, hf_vmlab_eth_addr, tvb, offset, 6, ENC_NA);
     offset += 6;
 
-    dst_addr=tvb_get_ptr(tvb, offset, 6);
     proto_tree_add_item(vmlab_tree, hf_vmlab_eth_dst, tvb, offset, 6, ENC_NA);
     offset += 6;
 
     /* Source MAC*/
-    src_addr=tvb_get_ptr(tvb, offset, 6);
     proto_tree_add_item(vmlab_tree, hf_vmlab_eth_src, tvb, offset, 6, ENC_NA);
     offset += 6;
 
-    proto_item_append_text(ti, ", Src: %s (%s), Dst: %s (%s)",
-                           get_ether_name(src_addr), tvb_ether_to_str(tvb, offset-6), get_ether_name(dst_addr), tvb_ether_to_str(tvb, offset-12));
+    proto_item_append_text(ti, ", Src: %s, Dst: %s",
+                           tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset-6),
+                           tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset-12));
 
     /* Encapsulated Ethertype is also part of the block*/
     encap_proto = tvb_get_ntohs(tvb, offset);

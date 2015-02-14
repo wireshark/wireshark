@@ -1051,6 +1051,32 @@ gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_ty
     return address_to_str(scope, &addr);
 }
 
+gchar*
+tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint offset)
+{
+    address addr;
+    address_type_t *at;
+
+    ADDR_TYPE_LOOKUP(type, at);
+
+    if (at == NULL)
+    {
+        return NULL;
+    }
+
+    /* The address type must have a fixed length to use this function */
+    /* For variable length fields, use tvb_address_var_with_resolution_to_str() */
+    if (at->addr_fixed_len == NULL)
+    {
+        g_assert_not_reached();
+        return NULL;
+    }
+
+    TVB_SET_ADDRESS(&addr, type, tvb, offset, at->addr_fixed_len());
+
+    return address_with_resolution_to_str(scope, &addr);
+}
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

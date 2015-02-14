@@ -378,8 +378,8 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s",
 		     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
 	if (ip != 0) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
-				get_hostname(ip), tvb_ip_to_str(tvb, ip_pos));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s",
+				tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, ip_pos));
 	}
 
 

@@ -582,8 +582,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv4_value(
 {
     int          hf_value;
     guint32      ip;
-    const gchar *hostname;
-    const gchar *ip_str;
+    const gchar *addr_res;
 
     if (tlv_info->hf_ipv4 != -1)
     {
@@ -595,17 +594,15 @@ static void wimaxasncp_proto_tree_add_tlv_ipv4_value(
     }
 
     ip = tvb_get_ipv4(tvb, offset);
-    hostname = get_hostname(ip);
-    ip_str = tvb_ip_to_str(tvb, offset);
+    addr_res = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv4, offset);
 
     proto_tree_add_ipv4_format(
         tree, hf_value,
         tvb, offset, 4, ip,
-        "Value: %s (%s)", hostname, ip_str);
+        "Value: %s", addr_res);
 
     proto_item_append_text(
-        tlv_item, " - %s (%s)",
-        hostname, ip_str);
+        tlv_item, " - %s", addr_res);
 }
 
 /* ========================================================================= */
@@ -619,8 +616,7 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
 {
     int                hf_value;
     struct e_in6_addr  ip;
-    const gchar       *hostname;
-    const gchar       *ip_str;
+    const gchar *addr_res;
 
     if (tlv_info->hf_ipv4 != -1)
     {
@@ -632,17 +628,15 @@ static void wimaxasncp_proto_tree_add_tlv_ipv6_value(
     }
 
     tvb_get_ipv6(tvb, offset, &ip);
-    hostname = get_hostname6(&ip);
-    ip_str = tvb_ip6_to_str(tvb, offset);
+    addr_res = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_IPv6, offset);
 
     proto_tree_add_ipv6_format(
         tree, hf_value,
         tvb, offset, 16, (guint8 *)&ip,
-        "Value: %s (%s)", hostname, ip_str);
+        "Value: %s", addr_res);
 
     proto_item_append_text(
-        tlv_item, " - %s (%s)",
-        hostname, ip_str);
+        tlv_item, " - %s", addr_res);
 }
 
 /* ========================================================================= */
@@ -658,7 +652,6 @@ static void wimaxasncp_proto_tree_add_ether_value(
     int           hf_value;
     const guint8 *p;
     const gchar  *ether_name;
-    const gchar  *ether_str;
 
     if (tlv_info->hf_bsid != -1)
     {
@@ -670,18 +663,17 @@ static void wimaxasncp_proto_tree_add_ether_value(
     }
 
     p = tvb_get_ptr(tvb, offset, length);
-    ether_name = get_ether_name(p);
-    ether_str = tvb_ether_to_str(tvb, offset);
+    ether_name = tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset);
 
     proto_tree_add_ether_format(
         tree, hf_value,
         tvb, offset, length, p,
-        "Value: %s (%s)",
-        ether_name, ether_str);
+        "Value: %s",
+        ether_name);
 
     proto_item_append_text(
-        tlv_item, " - %s (%s)",
-        ether_name, ether_str);
+        tlv_item, " - %s",
+        ether_name);
 }
 
 /* ========================================================================= */

@@ -232,9 +232,6 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_tree *volatile ieee8021ah_tag_tree;
 
-    /* for parsing out ethernet addrs */
-    const guint8 *src_addr, *dst_addr;
-
     tci = tvb_get_ntohl( tvb, 0 );
 
         col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -266,16 +263,12 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_ieee8021ah_c_daddr, tvb, 4, 6, ENC_NA);
         proto_tree_add_item(tree, hf_ieee8021ah_c_saddr, tvb, 10, 6, ENC_NA);
 
-        /* parse out IP addrs */
-        dst_addr = tvb_get_ptr(tvb, 4, 6); /* safe to use this function? */
-        src_addr = tvb_get_ptr(tvb, 10, 6);
-
         /* add text to 802.1ad label */
         if (parent) {
-            proto_item_append_text(tree, ", I-SID: %d, C-Src: %s (%s), C-Dst: %s (%s)",
-                                   tci & IEEE8021AH_ISIDMASK, get_ether_name(src_addr),
-                                   tvb_ether_to_str(tvb, 10), get_ether_name(dst_addr),
-                                   tvb_ether_to_str(tvb, 4));
+            proto_item_append_text(tree, ", I-SID: %d, C-Src: %s, C-Dst: %s",
+                                   tci & IEEE8021AH_ISIDMASK,
+                                   tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
+                                   tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
         }
     }
 
