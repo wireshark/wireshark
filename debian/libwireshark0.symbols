@@ -1436,6 +1436,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_remove_record_idx@Base 1.9.1
  uat_save@Base 1.9.1
  uat_swap@Base 1.9.1
+ uat_update_record@Base 1.99.3
  udp_port_to_display@Base 1.99.2
  union_of_tap_listener_flags@Base 1.9.1
  update_crc10_by_bytes_tvb@Base 1.99.0
