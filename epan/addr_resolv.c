@@ -192,12 +192,12 @@ typedef struct hashipxnet {
 #define HASHETHER_STATUS_RESOLVED_DUMMY 2
 #define HASHETHER_STATUS_RESOLVED_NAME  3
 
-typedef struct hashether {
+struct hashether {
     guint             status;  /* (See above) */
     guint8            addr[6];
     char              hexaddr[6*3];
     char              resolved_name[MAXNAMELEN];
-} hashether_t;
+};
 /* internal ethernet type */
 
 typedef struct _ether
