@@ -1376,6 +1376,7 @@ libwireshark.so.5 libwireshark5 #MINVER#
  tvbparse_tree_add_elem@Base 1.9.1
  tvbparse_until@Base 1.9.1
  uat_add_record@Base 1.9.1
+ uat_update_record@Base 1.12.4
  uat_clear@Base 1.9.1
  uat_fld_chk_enum@Base 1.9.1
  uat_fld_chk_num_dec@Base 1.9.1

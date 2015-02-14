@@ -393,6 +393,8 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 		}
 
 		g_free(rec_tmp);
+	} else {
+		uat_update_record(dd->uat, dd->rec, TRUE);
 	}
 
 	dd->uat->changed = TRUE;

@@ -369,8 +369,10 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
     if (field->cb.chk && field->cb.chk(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.chk, field->fld_data, &err)) {
         field->cb.set(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.set, field->fld_data);
         ok_button_->setEnabled(true);
+        uat_update_record(uat_, rec, TRUE);
     } else {
         ok_button_->setEnabled(false);
+        uat_update_record(uat_, rec, FALSE);
     }
     uat_->changed = TRUE;
 }
@@ -395,9 +397,11 @@ void UatDialog::stringPrefTextChanged(const QString &text)
             field->cb.set(rec, txt.constData(), (unsigned) txt.size(), field->cbdata.set, field->fld_data);
             saved_string_pref_ = text;
             ss = SyntaxLineEdit::Valid;
+            uat_update_record(uat_, rec, TRUE);
         } else {
             enable_ok = false;
             ss = SyntaxLineEdit::Invalid;
+            uat_update_record(uat_, rec, FALSE);
         }
     }
 
