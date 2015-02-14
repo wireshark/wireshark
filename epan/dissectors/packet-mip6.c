@@ -2062,7 +2062,7 @@ dissect_mip6_opt_auth(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     offset++;
     proto_tree_add_item(opt_tree, hf_mip6_opt_auth_mobility_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(opt_tree, hf_mip6_opt_auth_auth_data, tvb, offset, optlen-4-2, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_auth_auth_data, tvb, offset, optlen-4-3, ENC_NA);
 
 }
 
