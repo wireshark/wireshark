@@ -455,7 +455,11 @@ void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int column) {
     fi = item->data(0, Qt::UserRole).value<field_info *>();
 
     if(fi->hfinfo->type == FT_FRAMENUM) {
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         if (QApplication::queryKeyboardModifiers() & Qt::ShiftModifier) {
+#else
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+#endif
             emit openPacketInNewWindow(true);
         } else {
             emit goToPacket(fi->value.value.uinteger);
