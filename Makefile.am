@@ -42,10 +42,11 @@ bin_PROGRAMS = \
 	@dumpcap_bin@		\
 	@reordercap_bin@	\
 	@rawshark_bin@		\
+	@androiddump_bin@	\
 	@echld_test_bin@
 
 EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype editcap \
-	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark \
+	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark androiddump \
 	echld_test
 
 #
@@ -531,6 +532,21 @@ rawshark_LDADD = \
 	@LIBSMI_LDFLAGS@
 
 rawshark_CFLAGS = $(AM_CLEAN_CFLAGS)
+
+if ENABLE_STATIC
+androiddump_LDFLAGS = -Wl,-static -all-static
+else
+androiddump_LDFLAGS = -export-dynamic
+endif
+
+# Libraries and plugin flags with which to link androiddump.
+androiddump_LDADD = \
+	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
+	@GLIB_LIBS@			\
+	@SOCKET_LIBS@
+
+androiddump_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \

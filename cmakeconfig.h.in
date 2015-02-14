@@ -397,6 +397,9 @@
    first (like Motorola and SPARC, unlike Intel and VAX). */
 #cmakedefine WORDS_BIGENDIAN 1
 
+/* Build androiddump with libpcap instead of wireshark stuff */
+#cmakedefine ANDROIDDUMP_USE_LIBPCAP 1
+
 /* Large file support */
 #cmakedefine _LARGEFILE_SOURCE
 #cmakedefine _LARGEFILE64_SOURCE

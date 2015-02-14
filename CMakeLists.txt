@@ -763,6 +763,9 @@ endif()
 if(HAVE_LIBSBC)
 	set(HAVE_SBC 1)
 endif()
+if(EXTCAP_ANDROIDDUMP_LIBPCAP)
+	set(ANDROIDDUMP_USE_LIBPCAP 1)
+endif()
 
 if (HAVE_LIBWINSPARKLE)
 	set(HAVE_SOFTWARE_UPDATE 1)
@@ -2081,6 +2084,39 @@ if (WIN32)
 		ADD_NSIS_UNINSTALLER_TARGET()
 		ADD_NSIS_PACKAGE_TARGET()
 	endif()
+endif()
+
+if(BUILD_androiddump)
+	if(EXTCAP_ANDROIDDUMP_LIBPCAP)
+		if(HAVE_LIBPCAP)
+			set(androiddump_LIBS
+				${GLIB2_LIBRARIES}
+				${PCAP_LIBRARIES}
+			)
+		else()
+			message(FATAL_ERROR "You try to build androiddump with libpcap but do not have it")
+		endif()
+	else()
+		set(androiddump_LIBS
+			wiretap
+			${GLIB2_LIBRARIES}
+			${CMAKE_DL_LIBS}
+		)
+	endif()
+	set(androiddump_FILES
+		${GLIB2_LIBRARIES}
+		extcap/androiddump.c
+	)
+
+	set(COPY_CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap)
+	add_executable(androiddump ${androiddump_FILES})
+	add_dependencies(androiddump gitversion)
+	set_target_properties(androiddump PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	set_target_properties(androiddump PROPERTIES FOLDER "Executables/Extcaps")
+	target_link_libraries(androiddump ${androiddump_LIBS})
+	install(TARGETS androiddump RUNTIME DESTINATION ${EXTCAP_DIR})
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${COPY_CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
 ADD_CUSTOM_COMMAND(

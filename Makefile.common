@@ -95,6 +95,10 @@ rawshark_SOURCES =	\
 	$(SHARK_COMMON_SRC)	\
 	rawshark.c
 
+# androiddump specifics
+androiddump_SOURCES =	\
+	extcap/androiddump.c
+
 # text2pcap specifics
 text2pcap_SOURCES = \
 	pcapio.c		\

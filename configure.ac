@@ -2296,6 +2296,38 @@ fi
 AC_SUBST(rawshark_bin)
 AC_SUBST(rawshark_man)
 
+dnl androiddump check
+AC_MSG_CHECKING(whether to build androiddump)
+
+AC_ARG_ENABLE(androiddump,
+  AC_HELP_STRING( [--enable-androiddump],
+                  [build androiddump @<:@default=yes@:>@]),
+    androiddump=$enableval,enable_androiddump=yes)
+
+if test "x$enable_androiddump" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+AC_ARG_ENABLE(androiddump_use_libpcap,
+  AC_HELP_STRING( [--enable-androiddump-use-libpcap],
+                  [build androiddump using libpcap @<:@default=no@:>@]),
+    androiddump_use_libpcap=$enableval,enable_androiddump_use_libpcap=no)
+
+if test "x$enable_androiddump_use_libpcap" = "xyes" ; then
+	AC_DEFINE(ANDROIDDUMP_USE_LIBPCAP, 1, [Androiddump will use Libpcap])
+fi
+
+if test "x$enable_androiddump" = "xyes" ; then
+	androiddump_bin="androiddump\$(EXEEXT)"
+	androiddump_man=""
+else
+	androiddump_bin=""
+	androiddump_man=""
+fi
+AC_SUBST(androiddump_bin)
+AC_SUBST(androiddump_man)
 
 # Enable/disable echld
 AC_ARG_ENABLE(echld,
@@ -3343,6 +3375,7 @@ echo "                    Build text2pcap : $enable_text2pcap"
 echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
+echo "                  Build androiddump : $enable_androiddump"
 echo "                        Build echld : $have_echld"
 echo ""
 echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"
