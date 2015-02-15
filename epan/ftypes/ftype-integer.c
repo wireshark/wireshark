@@ -478,7 +478,7 @@ integer64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 integer64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-    sprintf(buf, "%" G_GINT64_MODIFIER "d", (gint64)fv->value.integer64);
+	sprintf(buf, "%" G_GINT64_MODIFIER "d", (gint64)fv->value.integer64);
 }
 
 static int
@@ -1261,3 +1261,16 @@ ftype_register_integers(void)
 	ftype_register(FT_FRAMENUM, &framenum_type);
 	ftype_register(FT_EUI64, &eui64_type);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -402,3 +402,16 @@ ftype_register_string(void)
 	ftype_register(FT_UINT_STRING, &uint_string_type);
 	ftype_register(FT_STRINGZPAD, &stringzpad_type);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
