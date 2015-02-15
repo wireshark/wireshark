@@ -2233,7 +2233,6 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
 
 /** Find undecoded bytes in a tree
  @param tree tree of interest
- @param offset offset in the tvb
  @param length the length of the frame
  @return an array to be used as bitmap of decoded bytes */
 WS_DLL_PUBLIC gchar*
