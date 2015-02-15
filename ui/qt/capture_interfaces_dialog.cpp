@@ -89,6 +89,19 @@ enum
     col_num_columns_
 };
 
+static interface_t *find_device_by_if_name(const QString &interface_name)
+{
+    interface_t *device;
+    guint i;
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!interface_name.compare(device->display_name) && !device->hidden && device->type != IF_PIPE) {
+            return device;
+        }
+    }
+    return NULL;
+}
+
 class InterfaceTreeWidgetItem : public QTreeWidgetItem
 {
 public:
@@ -153,24 +166,20 @@ void CaptureInterfacesDialog::allFilterChanged()
 
 void CaptureInterfacesDialog::interfaceSelected()
 {
-    interface_t device;
+    interface_t *device;
 
     if (!ui->interfaceTree->selectedItems().size()) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            device.selected = false;
-            device.locked = true;
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            device->selected = false;
+            device->locked = true;
         }
         global_capture_opts.num_selected = 0;
         start_bt_->setEnabled(false);
         emit setSelectedInterfaces();
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            device.locked = false;
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            device->locked = false;
         }
     }
     updateWidgets();
@@ -242,14 +251,12 @@ void CaptureInterfacesDialog::SetTab(int index)
 
 void CaptureInterfacesDialog::on_capturePromModeCheckBox_toggled(bool checked)
 {
-    interface_t device;
+    interface_t *device;
     prefs.capture_prom_mode = checked;
     for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
+        device = &g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
 //        QString device_name = ui->interfaceTree->topLevelItem(row)->text(col_interface_);
-        device.pmode = checked;
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, deviceMap[row]);
-        g_array_insert_val(global_capture_opts.all_ifaces, deviceMap[row], device);
+        device->pmode = checked;
         QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
         ti->setText(col_pmode_, checked? tr("enabled"):tr("disabled"));
     }
@@ -446,15 +453,15 @@ void CaptureInterfacesDialog::updateInterfaces()
     gboolean      hassnap, pmode;
 
     if (global_capture_opts.all_ifaces->len > 0) {
-        interface_t device;
+        interface_t *device;
 
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             QList<int> *points;
 
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
             /* Continue if capture device is hidden */
-            if (device.hidden) {
+            if (device->hidden) {
                 continue;
             }
             deviceMap[ui->interfaceTree->topLevelItemCount()] = i;
@@ -465,9 +472,9 @@ void CaptureInterfacesDialog::updateInterfaces()
             ti->setFlags(ti->flags() | Qt::ItemIsEditable);
             ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(points));
 
-            ti->setText(col_interface_, device.display_name);
-            if (device.no_addresses > 0) {
-                QString addr_str = tr("%1: %2").arg(device.no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device.addresses);
+            ti->setText(col_interface_, device->display_name);
+            if (device->no_addresses > 0) {
+                QString addr_str = tr("%1: %2").arg(device->no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device->addresses);
                 QTreeWidgetItem *addr_ti = new QTreeWidgetItem(ti);
 
                 addr_str.replace('\n', ", ");
@@ -481,68 +488,66 @@ void CaptureInterfacesDialog::updateInterfaces()
             }
 
             QString linkname = "unknown";
-            if(capture_dev_user_linktype_find(device.name) != -1) {
-              device.active_dlt = capture_dev_user_linktype_find(device.name);
+            if(capture_dev_user_linktype_find(device->name) != -1) {
+              device->active_dlt = capture_dev_user_linktype_find(device->name);
             }
-            for (list = device.links; list != NULL; list = g_list_next(list)) {
+            for (list = device->links; list != NULL; list = g_list_next(list)) {
                 linkr = (link_row*)(list->data);
-                if (linkr->dlt == device.active_dlt) {
+                if (linkr->dlt == device->active_dlt) {
                     linkname = linkr->name;
                     break;
                 }
             }
 
-            pmode = capture_dev_user_pmode_find(device.name);
+            pmode = capture_dev_user_pmode_find(device->name);
             if (pmode != -1) {
-                device.pmode = pmode;
+                device->pmode = pmode;
             }
-            hassnap = capture_dev_user_hassnap_find(device.name);
-            snaplen = capture_dev_user_snaplen_find(device.name);
+            hassnap = capture_dev_user_hassnap_find(device->name);
+            snaplen = capture_dev_user_snaplen_find(device->name);
             if(snaplen != -1 && hassnap != -1) {
                 /* Default snap length set in preferences */
-                device.snaplen = snaplen;
-                device.has_snaplen = hassnap;
+                device->snaplen = snaplen;
+                device->has_snaplen = hassnap;
             } else {
                 /* No preferences set yet, use default values */
-                device.snaplen = WTAP_MAX_PACKET_SIZE;
-                device.has_snaplen = FALSE;
+                device->snaplen = WTAP_MAX_PACKET_SIZE;
+                device->has_snaplen = FALSE;
             }
 
-            QString snaplen_string = device.has_snaplen ? QString::number(device.snaplen) : tr("default");
+            QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : tr("default");
 
 #ifdef SHOW_BUFFER_COLUMN
-            if (capture_dev_user_buffersize_find(device.name) != -1) {
-                buffer = capture_dev_user_buffersize_find(device.name);
-                device.buffer = buffer;
+            if (capture_dev_user_buffersize_find(device->name) != -1) {
+                buffer = capture_dev_user_buffersize_find(device->name);
+                device->buffer = buffer;
             } else {
-                device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
+                device->buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
             }
 #endif
 
             ti->setText(col_link_, linkname);
 
-            ti->setText(col_pmode_, device.pmode ? tr("enabled") : tr("disabled"));
+            ti->setText(col_pmode_, device->pmode ? tr("enabled") : tr("disabled"));
 
             ti->setText(col_snaplen_, snaplen_string);
 #ifdef SHOW_BUFFER_COLUMN
-            ti->setText(col_buffer_, QString::number(device.buffer));
+            ti->setText(col_buffer_, QString::number(device->buffer));
 #endif
 #ifdef SHOW_MONITOR_COLUMN
-            ti->setText(col_monitor_, QString(device.monitor_mode_supported? (device.monitor_mode_enabled ? tr("enabled") : tr("disabled")) : tr("n/a")));
+            ti->setText(col_monitor_, QString(device->monitor_mode_supported? (device->monitor_mode_enabled ? tr("enabled") : tr("disabled")) : tr("n/a")));
 #endif
-            gchar* prefFilter = capture_dev_user_cfilter_find(device.name);
+            gchar* prefFilter = capture_dev_user_cfilter_find(device->name);
             if (prefFilter) {
-                device.cfilter = g_strdup(prefFilter);
+                device->cfilter = g_strdup(prefFilter);
             }
-            ti->setText(col_filter_, device.cfilter);
+            ti->setText(col_filter_, device->cfilter);
 
-            if (prefs.capture_device && strstr(prefs.capture_device, device.name) != NULL) {
-                device.selected = TRUE;
+            if (prefs.capture_device && strstr(prefs.capture_device, device->name) != NULL) {
+                device->selected = TRUE;
                 global_capture_opts.num_selected++;
             }
-            ti->setSelected(device.selected);
-            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+            ti->setSelected(device->selected);
         }
     }
 
@@ -573,7 +578,7 @@ void CaptureInterfacesDialog::updateLocalInterfaces()
 
 void CaptureInterfacesDialog::updateStatistics(void)
 {
-    interface_t device;
+    interface_t *device;
 
     for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
 
@@ -582,13 +587,13 @@ void CaptureInterfacesDialog::updateStatistics(void)
             if (!ti) {
                 continue;
             }
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
+            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
             QString device_name = ti->text(col_interface_);
-            if (device_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
+            if (device_name.compare(device->display_name) || device->hidden || device->type == IF_PIPE) {
                 continue;
             }
             QList<int> *points = ti->data(col_traffic_, Qt::UserRole).value<QList<int> *>();
-            points->append(device.packet_diff);
+            points->append(device->packet_diff);
             ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(points));
         }
     }
@@ -610,7 +615,7 @@ void CaptureInterfacesDialog::on_compileBPF_clicked()
 
 bool CaptureInterfacesDialog::saveOptionsToPreferences()
 {
-    interface_t device;
+    interface_t *device;
 
     if (ui->rbPcapng->isChecked()) {
         global_capture_opts.use_pcapng = true;
@@ -747,11 +752,11 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             QStringList link_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
-                if (device.active_dlt == -1) {
+                device = &g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
+                if (device->active_dlt == -1) {
                     continue;
                 }
-                link_list << QString("%1(%2)").arg(device.name).arg(device.active_dlt);
+                link_list << QString("%1(%2)").arg(device->name).arg(device->active_dlt);
             }
             g_free(prefs.capture_devices_linktypes);
             prefs.capture_devices_linktypes = qstring_strdup(link_list.join(","));
@@ -763,11 +768,11 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             QStringList buffer_size_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
-                if (device.buffer == -1) {
+                device = &g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
+                if (device->buffer == -1) {
                     continue;
                 }
-                buffer_size_list << QString("%1(%2)").arg(device.name).arg(device.buffer);
+                buffer_size_list << QString("%1(%2)").arg(device->name).arg(device->buffer);
             }
             g_free(prefs.capture_devices_buffersize);
             prefs.capture_devices_buffersize = qstring_strdup(buffer_size_list.join(","));
@@ -779,11 +784,11 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             QStringList snaplen_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
+                device = &g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
                 snaplen_list << QString("%1:%2(%3)")
-                                .arg(device.name)
-                                .arg(device.has_snaplen)
-                                .arg(device.has_snaplen ? device.snaplen : WTAP_MAX_PACKET_SIZE);
+                                .arg(device->name)
+                                .arg(device->has_snaplen)
+                                .arg(device->has_snaplen ? device->snaplen : WTAP_MAX_PACKET_SIZE);
             }
             g_free(prefs.capture_devices_snaplen);
             prefs.capture_devices_snaplen = qstring_strdup(snaplen_list.join(","));
@@ -794,11 +799,11 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             QStringList pmode_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
-                if (device.pmode == -1) {
+                device = &g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
+                if (device->pmode == -1) {
                     continue;
                 }
-                pmode_list << QString("%1(%2)").arg(device.name).arg(device.pmode);
+                pmode_list << QString("%1(%2)").arg(device->name).arg(device->pmode);
             }
             g_free(prefs.capture_devices_pmode);
             prefs.capture_devices_pmode = qstring_strdup(pmode_list.join(","));
@@ -810,11 +815,11 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             QStringList monitor_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
-                if (!device.monitor_mode_supported || (device.monitor_mode_supported && !device.monitor_mode_enabled)) {
+                device = &g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
+                if (!device->monitor_mode_supported || (device->monitor_mode_supported && !device->monitor_mode_enabled)) {
                     continue;
                 }
-                monitor_list << device.name;
+                monitor_list << device->name;
             }
             g_free(prefs.capture_devices_monitor_mode);
             prefs.capture_devices_monitor_mode = qstring_strdup(monitor_list.join(","));
@@ -826,11 +831,11 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
             QStringList filter_list;
 
             for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                device = g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
-                if (!device.cfilter) {
+                device = &g_array_index(global_capture_opts.all_ifaces, interface_t, deviceMap[row]);
+                if (!device->cfilter) {
                     continue;
                 }
-                filter_list << QString("%1(%2)").arg(device.name).arg(device.cfilter);
+                filter_list << QString("%1(%2)").arg(device->name).arg(device->cfilter);
             }
             g_free(prefs.capture_devices_filter);
             prefs.capture_devices_filter = qstring_strdup(filter_list.join(","));
@@ -916,21 +921,16 @@ QWidget* InterfaceTreeDelegate::createEditor( QWidget *parent, const QStyleOptio
     GList *links = NULL;
 
     if (index.column() > 1) {
-        interface_t device;
+        interface_t *device;
         QTreeWidgetItem *ti = tree_->topLevelItem(index.row());
         QString interface_name = ti->text(col_interface_);
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        device = find_device_by_if_name(interface_name);
+        if (device) {
 #ifdef SHOW_BUFFER_COLUMN
-            buffer = device.buffer;
+            buffer = device->buffer;
 #endif
-            snap = device.snaplen;
-            links = device.links;
-            if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
-                continue;
-            } else {
-                break;
-            }
+            snap = device->snaplen;
+            links = device->links;
         }
         switch (index.column()) {
         case col_interface_:
@@ -1029,56 +1029,41 @@ bool InterfaceTreeDelegate::eventFilter(QObject *object, QEvent *event)
 
 void InterfaceTreeDelegate::pmode_changed(QString index)
 {
-    interface_t device;
-    guint i;
+    interface_t *device;
     QTreeWidgetItem *ti = tree_->currentItem();
     if (!ti) {
         return;
     }
     QString interface_name = ti->text(col_interface_);
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
-            continue;
-        } else {
-            break;
-        }
+    device = find_device_by_if_name(interface_name);
+    if (!device) {
+        return;
     }
     if (!index.compare(QString(tr("enabled")))) {
-        device.pmode = true;
+        device->pmode = true;
     } else {
-        device.pmode = false;
+        device->pmode = false;
     }
-
-    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 }
 
 #ifdef SHOW_MONITOR_COLUMN
 void InterfaceTreeDelegate::monitor_changed(QString index)
 {
-    interface_t device;
-    guint i;
+    interface_t *device;
     QTreeWidgetItem *ti = tree_->currentItem();
     if (!ti) {
         return;
     }
     QString interface_name = ti->text(col_interface_);
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
-            continue;
-        } else {
-            break;
-        }
+    device = find_device_by_if_name(interface_name);
+    if (!device) {
+        return;
     }
     if (!index.compare(QString(tr("enabled")))) {
-        device.monitor_mode_enabled = true;
+        device->monitor_mode_enabled = true;
     } else {
-        device.monitor_mode_enabled = false;
+        device->monitor_mode_enabled = false;
     }
-    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 }
 #endif
 
@@ -1086,81 +1071,60 @@ void InterfaceTreeDelegate::link_changed(QString index)
 {
     GList *list;
     link_row *temp;
-    interface_t device;
-    guint i;
+    interface_t *device;
 
     QTreeWidgetItem *ti = tree_->currentItem();
     if (!ti) {
         return;
     }
     QString interface_name = ti->text(col_interface_);
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
-            continue;
-        } else {
-            break;
-        }
+    device = find_device_by_if_name(interface_name);
+    if (!device) {
+        return;
     }
-    for (list = device.links; list != NULL; list = g_list_next(list)) {
+    for (list = device->links; list != NULL; list = g_list_next(list)) {
         temp = (link_row*) (list->data);
         if (!index.compare(temp->name)) {
-            device.active_dlt = temp->dlt;
+            device->active_dlt = temp->dlt;
         }
     }
-    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 }
 
 void InterfaceTreeDelegate::snaplen_changed(int value)
 {
-    interface_t device;
-    guint i;
+    interface_t *device;
     QTreeWidgetItem *ti = tree_->currentItem();
     if (!ti) {
         return;
     }
     QString interface_name = ti->text(col_interface_);
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
-            continue;
-        } else {
-            break;
-        }
+    device = find_device_by_if_name(interface_name);
+    if (!device) {
+        return;
     }
     if (value != WTAP_MAX_PACKET_SIZE) {
-        device.has_snaplen = true;
-        device.snaplen = value;
+        device->has_snaplen = true;
+        device->snaplen = value;
     } else {
-        device.has_snaplen = false;
-        device.snaplen = WTAP_MAX_PACKET_SIZE;
+        device->has_snaplen = false;
+        device->snaplen = WTAP_MAX_PACKET_SIZE;
     }
-    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 }
 
 void InterfaceTreeDelegate::buffer_changed(int value)
 {
 #ifdef SHOW_BUFFER_COLUMN
-    interface_t device;
-    guint i;
+    interface_t *device;
     QTreeWidgetItem *ti = tree_->currentItem();
     if (!ti) {
         return;
     }
     QString interface_name = ti->text(col_interface_);
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (interface_name.compare(device.display_name) || device.hidden || device.type == IF_PIPE) {
-            continue;
-        } else {
-            break;
-        }
+    device = find_device_by_if_name(interface_name);
+    if (!device) {
+        return;
     }
-    device.buffer = value;
-    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+    device->buffer = value;
 #endif
 }
 
