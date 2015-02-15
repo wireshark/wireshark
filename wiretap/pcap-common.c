@@ -426,25 +426,11 @@ static const struct {
 	/*
 	 * 11 is DLT_ATM_RFC1483 on most platforms; the only libpcaps I've
 	 * seen that define anything other than DLT_ATM_RFC1483 as 11 are
-	 * the BSD/OS one, which defines DLT_FR as 11, and libpcap 0.5,
-	 * which define it as 100, mapping the kernel's value to 100, in
-	 * an attempt to hide the different values used on different
+	 * the BSD/OS one, which defines DLT_FR as 11.  We handle it as
+	 * Frame Relay on BSD/OS and LLC-encapsulated ATM on all other
 	 * platforms.
-	 *
-	 * If this is a platform where DLT_FR is defined as 11, we
-	 * don't handle 11 at all; otherwise, we handle it as
-	 * DLT_ATM_RFC1483 (this means we'd misinterpret Frame Relay
-	 * captures from BSD/OS if running on platforms other than BSD/OS,
-	 * but
-	 *
-	 *	1) we don't yet support DLT_FR
-	 *
-	 * and
-	 *
-	 *	2) nothing short of a heuristic would let us interpret
-	 *	   them correctly).
 	 */
-#if defined(DLT_FR) && (DLT_FR == 11)
+#if defined(__bsdi__) /* BSD/OS */
 	{ 11,		WTAP_ENCAP_FRELAY },
 #else
 	{ 11,		WTAP_ENCAP_ATM_RFC1483 },
@@ -462,9 +448,9 @@ static const struct {
 	 * as WTAP_ENCAP_NULL, otherwise, unless DLT_C_HDLC is defined
 	 * as 12, interpret it as WTAP_ENCAP_RAW_IP.
 	 */
-#if defined(DLT_LOOP) && (DLT_LOOP == 12)
+#if defined(__OpenBSD__)
 	{ 12,		WTAP_ENCAP_NULL },
-#elif defined(DLT_C_HDLC) && (DLT_C_HDLC == 12)
+#elif defined(__bsdi__) /* BSD/OS */
 	/*
 	 * Put entry for Cisco HDLC here.
 	 * XXX - is this just WTAP_ENCAP_CHDLC, i.e. does the frame
@@ -495,7 +481,7 @@ static const struct {
 	 * treate 13 as WTAP_ENCAP_ATM_RFC1483, but, on all other
 	 * systems, we can read OpenBSD DLT_ENC captures.
 	 */
-#if defined(DLT_ATM_RFC1483) && (DLT_ATM_RFC1483 == 13)
+#if defined(__bsdi__) /* BSD/OS */
 	{ 13,		WTAP_ENCAP_ATM_RFC1483 },
 #else
 	{ 13,		WTAP_ENCAP_ENC },
@@ -544,21 +530,24 @@ static const struct {
 	 *	DLT_I4L_IP with the ISDN4Linux patches for libpcap
 	 *	(and on SuSE 6.3).
 	 */
-#if defined(DLT_CIP) && (DLT_CIP == 16)
-	{ 16,		WTAP_ENCAP_LINUX_ATM_CLIP },
-#endif
-#if defined(DLT_HDLC) && (DLT_HDLC == 16)
+#if defined(__NetBSD__)
 	{ 16,		WTAP_ENCAP_CHDLC },
+#elif !defined(__bsdi__)
+	/*
+	 * If you care about the two different Linux interpretations
+	 * of 16, fix it yourself.
+	 */
+	{ 16,		WTAP_ENCAP_LINUX_ATM_CLIP },
 #endif
 
 	/*
 	 * 17 is DLT_LANE8023 in SuSE 6.3 libpcap; we don't currently
 	 * handle it.
 	 * It is also used as the PF (Packet Filter) logging format beginning
-	 * with OpenBSD 3.0; we use 17 for PF logs unless DLT_LANE8023 is
-	 * defined with the value 17.
+	 * with OpenBSD 3.0; we use 17 for PF logs on OpenBSD and don't
+	 * use it otherwise.
 	 */
-#if !defined(DLT_LANE8023) || (DLT_LANE8023 != 17)
+#if defined(__OpenBSD__)
 	{ 17,		WTAP_ENCAP_OLD_PFLOG },
 #endif
 
