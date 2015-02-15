@@ -1672,9 +1672,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "SNTP servers address: malformed option");
             break;
         }
-        for (i = 0; i < optlen; i += 16)
+        for (i = 0; i < optlen; i += 16) {
             ti = proto_tree_add_item(subtree, hf_sntp_servers, tvb, off + i, 16, ENC_NA);
             proto_item_prepend_text(ti, " %d ", i/16 + 1);
+        }
         break;
     case OPTION_LIFETIME:
         if (optlen != 4) {
