@@ -667,10 +667,10 @@ dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, int offset, int clv_code
 
         if ((flags & 0xC) == 0xC) {
             proto_tree_add_item(tree, hf_isis_lsp_sid_sli_label, tvb, offset, 3, ENC_BIG_ENDIAN);
-            offset += 3;
+            /*offset += 3;*/
         } else if (!(flags & 0xC)) {
             proto_tree_add_item(tree, hf_isis_lsp_sid_sli_index, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset +=4;
+            /*offset +=4;*/
         }
         break;
     default :
@@ -2394,7 +2394,7 @@ dissect_subclv_adj_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         default:
             break;
     }
-    offset += sli_len;
+    /*offset += sli_len;*/
 }
 /*
  * Name: dissect_sub_clv_tlv_22_22_23_141_222_223
