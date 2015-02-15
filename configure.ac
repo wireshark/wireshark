@@ -718,10 +718,11 @@ linux*)
 	AC_MSG_CHECKING([if nl80211.h is new enough])
 	  AC_TRY_COMPILE([#include <linux/nl80211.h>],
 	    [int x = NL80211_FREQUENCY_ATTR_MAX_TX_POWER;
-		x = NL80211_ATTR_SUPPORTED_IFTYPES;
-		x = NL80211_ATTR_SUPPORTED_COMMANDS;
-		x = NL80211_ATTR_WIPHY_FREQ;
-		x = NL80211_CHAN_NO_HT;],
+	     x |= NL80211_ATTR_SUPPORTED_IFTYPES;
+	     x |= NL80211_ATTR_SUPPORTED_COMMANDS;
+	     x |= NL80211_ATTR_WIPHY_FREQ;
+	     x |= NL80211_CHAN_NO_HT;
+	     (void)x;],
 	    [AC_MSG_RESULT(yes) AC_DEFINE(HAVE_NL80211, 1, [nl80211.h is new enough])],
 	    [AC_MSG_RESULT(no)])
 
