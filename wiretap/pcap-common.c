@@ -206,7 +206,7 @@ static const struct {
 	{ 105,		WTAP_ENCAP_IEEE_802_11 }, /* IEEE 802.11 */
 	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
 	{ 107,		WTAP_ENCAP_FRELAY },	/* Frame Relay */
-	{ 108,		WTAP_ENCAP_NULL },	/* OpenBSD loopback */
+	{ 108,		WTAP_ENCAP_LOOP },	/* OpenBSD loopback */
 	{ 109,		WTAP_ENCAP_ENC },	/* OpenBSD IPSEC enc */
 #if 0
 	{ 110,		WTAP_ENCAP_LANE_802_3 },/* ATM LANE 802.3 */
@@ -481,12 +481,12 @@ static const struct {
 	 * (it's just like DLT_NULL, only with the AF_ value in network
 	 * rather than host byte order - Wireshark figures out the
 	 * byte order from the data, so we don't care what byte order
-	 * it's in), so if DLT_LOOP is defined as 12, interpret 12
-	 * as WTAP_ENCAP_NULL, otherwise, unless DLT_C_HDLC is defined
-	 * as 12, interpret it as WTAP_ENCAP_RAW_IP.
+	 * it's in), so, on OpenBSD, interpret 12 as WTAP_ENCAP_LOOP,
+	 * otherwise, if we're not on BSD/OS, interpret it as
+	 * WTAP_ENCAP_RAW_IP.
 	 */
 #if defined(__OpenBSD__)
-	{ 12,		WTAP_ENCAP_NULL },
+	{ 12,		WTAP_ENCAP_LOOP },
 #elif defined(__bsdi__) /* BSD/OS */
 	/*
 	 * Put entry for Cisco HDLC here.

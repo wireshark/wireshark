@@ -290,6 +290,9 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
     case WTAP_ENCAP_NULL:
         capture_null(pd, caplen, counts);
         break;
+    case WTAP_ENCAP_LOOP:
+        capture_loop(pd, caplen, counts);
+        break;
     case WTAP_ENCAP_PPP:
         capture_ppp_hdlc(pd, 0, caplen, counts);
         break;

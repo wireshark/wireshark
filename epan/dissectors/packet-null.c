@@ -24,6 +24,7 @@
 
 #include "config.h"
 
+#include <wsutil/pint.h>
 
 #include <epan/packet.h>
 #include "packet-null.h"
@@ -63,6 +64,7 @@ static const value_string family_vals[] = {
 
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t data_handle;
+
 void
 capture_null( const guchar *pd, int len, packet_counts *ld )
 {
@@ -72,9 +74,7 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    * BSD drivers that use DLT_NULL - including the FreeBSD 3.2 ISDN-for-BSD
    * drivers, as well as the 4.4-Lite and FreeBSD loopback drivers -
    * stuff the AF_ value for the protocol, in *host* byte order, in the
-   * first four bytes.  (BSD drivers that use DLT_LOOP, such as recent
-   * OpenBSD loopback drivers, stuff it in *network* byte order in the
-   * first four bytes.)
+   * first four bytes.
    *
    * However, the IRIX and UNICOS/mp snoop socket mechanism supplies,
    * on loopback devices, a 4-byte header that has a 2 byte (big-endian)
@@ -191,8 +191,8 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    *
    * Otherwise, if the upper 16 bits are non-zero, either:
    *
-   *    it's a BSD DLT_NULL or DLT_LOOP header whose AF_ value
-   *    is not in our byte order;
+   *    it's a BSD DLT_NULL header whose AF_ value is not in our
+   *    byte order;
    *
    *    it's an IRIX or UNICOS/mp DLT_NULL header being read on
    *    a big-endian machine;
@@ -206,10 +206,10 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    * of the IRIX or UNICOS/mp DLT_NULL header, we should just get
    * the upper 16 bits as an AF_ value.
    *
-   * If it's a BSD DLT_NULL or DLT_LOOP header whose AF_ value is not
-   * in our byte order, then the upper 2 hex digits would be non-zero
-   * and the next 2 hex digits down would be zero, as AF_ values fit in
-   * 8 bits, and the upper 2 hex digits are the *lower* 8 bits of the value.
+   * If it's a BSD DLT_NULL header whose AF_ value is not in our byte
+   * order, then the upper 2 hex digits would be non-zero and the next
+   * 2 hex digits down would be zero, as AF_ values fit in 8 bits, and
+   * the upper 2 hex digits are the *lower* 8 bits of the value.
    *
    * If it's an IRIX or UNICOS/mp DLT_NULL header, the upper 2 hex digits
    * would be zero and the next 2 hex digits down would be non-zero, as
@@ -232,8 +232,8 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    *
    * If the upper 16 bits are zero, either:
    *
-   *    it's a BSD DLT_NULLor DLT_LOOP header whose AF_ value is in
-   *    our byte order;
+   *    it's a BSD DLT_NULL header whose AF_ value is in our byte
+   *    order;
    *
    *    it's an IRIX or UNICOS/mp DLT_NULL header being read on
    *    a little-endian machine;
@@ -245,8 +245,8 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    * we should *not* byte-swap it.  In the case of the IRIX or UNICOS/mp
    * DLT_NULL header, we should extract the AF_ value and byte-swap it.
    *
-   * If it's a BSD DLT_NULL or DLT_LOOP header whose AF_ value is
-   * in our byte order, the upper 6 hex digits would all be zero.
+   * If it's a BSD DLT_NULL header whose AF_ value is in our byte order,
+   * the upper 6 hex digits would all be zero.
    *
    * If it's an IRIX or UNICOS/mp DLT_NULL header, the upper 4 hex
    * digits would be zero and the next 2 hex digits would not be zero.
@@ -337,6 +337,35 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
         break;
       }
     }
+  }
+}
+
+void
+capture_loop( const guchar *pd, int len, packet_counts *ld )
+{
+  guint32 loop_family;
+
+  if (!BYTES_ARE_IN_FRAME(0, len, (int)sizeof(loop_family))) {
+    ld->other++;
+    return;
+  }
+  loop_family = pntoh32(&pd[0]);
+
+  switch (loop_family) {
+
+  case BSD_AF_INET:
+    capture_ip(pd, 4, len, ld);
+    break;
+
+  case BSD_AF_INET6_BSD:
+  case BSD_AF_INET6_FREEBSD:
+  case BSD_AF_INET6_DARWIN:
+    capture_ipv6(pd, 4, len, ld);
+    break;
+
+  default:
+    ld->other++;
+    break;
   }
 }
 
@@ -446,6 +475,42 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+/*
+ * OpenBSD DLT_LOOP; like DLT_NULL, but with the first 4 byte *always*
+ * being a *big-endian* type.
+ */
+static void
+dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  guint32       loop_family;
+  proto_tree    *fh_tree;
+  proto_item    *ti;
+  tvbuff_t      *next_tvb;
+
+  /* load the top pane info. This should be overwritten by
+     the next protocol in the stack */
+  col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
+  col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A");
+  col_set_str(pinfo->cinfo, COL_INFO, "Null/Loopback");
+
+  /* populate a tree in the second pane with the status of the link
+     layer (ie none) */
+  loop_family = tvb_get_ntohl(tvb, 0);
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, ENC_NA);
+    fh_tree = proto_item_add_subtree(ti, ett_null);
+    proto_tree_add_uint(fh_tree, hf_null_family, tvb, 0, 4, loop_family);
+  }
+
+  next_tvb = tvb_new_subset_remaining(tvb, 4);
+  if (!dissector_try_uint(null_dissector_table, loop_family,
+        next_tvb, pinfo, tree)) {
+    /* No sub-dissector found.  Label rest of packet as "Data" */
+    call_dissector(data_handle,next_tvb, pinfo, tree);
+  }
+}
+
 void
 proto_register_null(void)
 {
@@ -476,7 +541,7 @@ proto_register_null(void)
 void
 proto_reg_handoff_null(void)
 {
-  dissector_handle_t null_handle;
+  dissector_handle_t null_handle, loop_handle;
 
   /*
    * Get a handle for the PPP-in-HDLC-like-framing dissector and
@@ -489,6 +554,9 @@ proto_reg_handoff_null(void)
 
   null_handle = create_dissector_handle(dissect_null, proto_null);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_handle);
+
+  loop_handle = create_dissector_handle(dissect_loop, proto_null);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_LOOP, loop_handle);
 }
 
 /*

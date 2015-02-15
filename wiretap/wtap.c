@@ -259,7 +259,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "ATM PDUs - untruncated", "atm-pdus-untruncated" },
 
 	/* WTAP_ENCAP_NULL */
-	{ "NULL", "null" },
+	{ "NULL/Loopback", "null" },
 
 	/* WTAP_ENCAP_ASCEND */
 	{ "Lucent/Ascend access equipment", "ascend" },
@@ -737,6 +737,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_IPMI_TRACE */
 	{ "IPMI Trace Data Collection", "ipmi-trace" },
+
+	/* WTAP_ENCAP_LOOP */
+	{ "OpenBSD loopback", "loop" },
 };
 
 WS_DLL_LOCAL

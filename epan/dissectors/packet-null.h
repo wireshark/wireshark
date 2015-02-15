@@ -27,4 +27,7 @@
 WS_DLL_PUBLIC
 void capture_null(const guchar *, int, packet_counts *);
 
+WS_DLL_PUBLIC
+void capture_loop(const guchar *, int, packet_counts *);
+
 #endif
