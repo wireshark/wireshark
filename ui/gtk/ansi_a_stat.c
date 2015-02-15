@@ -185,12 +185,12 @@ static
 GtkWidget* create_list(void)
 {
 
-    GtkListStore *list_store;
-    GtkWidget *list;
+    GtkListStore      *list_store;
+    GtkWidget         *list;
     GtkTreeViewColumn *column;
-    GtkCellRenderer *renderer;
-    GtkTreeSortable *sortable;
-    GtkTreeView     *list_view;
+    GtkCellRenderer   *renderer;
+    GtkTreeSortable   *sortable;
+    GtkTreeView       *list_view;
     GtkTreeSelection  *selection;
 
     /* Create the store */
@@ -368,3 +368,15 @@ register_tap_listener_gtkansi_a_stat(void)
     }
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

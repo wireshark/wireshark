@@ -21,13 +21,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-  /* stats_tree modifications by Deon van der Westhuysen, November 2013
-  * support for
-  *  - sorting by column,
-  *  - display a generic number of columns(driven by stats_tree.c
-  *  - copy to clipboard
-  *  - export to text, CSV or XML file
-  */
+/* stats_tree modifications by Deon van der Westhuysen, November 2013
+ * support for
+ *  - sorting by column,
+ *  - display a generic number of columns(driven by stats_tree.c
+ *  - copy to clipboard
+ *  - export to text, CSV or XML file
+ */
 
 #include "config.h"
 #include <string.h>
@@ -63,18 +63,18 @@
 void register_tap_listener_stats_tree_stat(void);
 
 struct _st_node_pres {
-	GtkTreeIter*	iter;
+	GtkTreeIter *iter;
 };
 
 struct _tree_cfg_pres {
-	tap_param_dlg* stat_dlg;
+	tap_param_dlg *stat_dlg;
 };
 
 struct _tree_pres {
-	GString*	text;
-	GtkWidget*	win;
-	GtkTreeStore*   store;
-	GtkWidget*	tree;
+	GString*      text;
+	GtkWidget    *win;
+	GtkTreeStore *store;
+	GtkWidget*    tree;
 };
 
 /* Define fixed column indexes */
@@ -85,13 +85,13 @@ struct _tree_pres {
 static void
 draw_gtk_node(stat_node* node)
 {
-	GtkTreeIter* parent =  NULL;
-	stat_node* child;
-	int		num_columns= node->st->num_columns+N_RESERVED_COL;
-	gint	*columns = (gint*) g_malloc(sizeof(gint)*num_columns);
-	GValue	*values = (GValue*) g_malloc0(sizeof(GValue)*num_columns);
-	gchar	**valstrs = stats_tree_get_values_from_node(node);
-	int		count;
+	GtkTreeIter  *parent	  = NULL;
+	stat_node    *child;
+	int	      num_columns = node->st->num_columns+N_RESERVED_COL;
+	gint	     *columns	  = (gint*) g_malloc(sizeof(gint)*num_columns);
+	GValue	     *values	  = (GValue*) g_malloc0(sizeof(GValue)*num_columns);
+	gchar	    **valstrs	  = stats_tree_get_values_from_node(node);
+	int	      count;
 
 	columns[0]= 0;
 	g_value_init(values, G_TYPE_POINTER);
@@ -141,11 +141,11 @@ draw_gtk_node(stat_node* node)
 static void
 draw_gtk_tree(void *psp)
 {
-	stats_tree *st = (stats_tree *)psp;
-	stat_node* child;
-	int count;
-	gint sort_column= GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID;
-	GtkSortType order= GTK_SORT_DESCENDING;
+	stats_tree  *st		 = (stats_tree *)psp;
+	stat_node   *child;
+	int	     count;
+	gint	     sort_column = GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID;
+	GtkSortType  order	 = GTK_SORT_DESCENDING;
 
 	for (count = 0; count<st->num_columns; count++) {
 		gtk_tree_view_column_set_title(gtk_tree_view_get_column(GTK_TREE_VIEW(st->pr->tree),count),
@@ -182,9 +182,9 @@ static gboolean
 copy_tree_to_clipboard
 (GtkWidget *win _U_, stats_tree *st)
 {
-	gint sort_column= N_RESERVED_COL;	/* default */
-	GtkSortType order= GTK_SORT_DESCENDING;
-	GString *s;
+	gint	     sort_column = N_RESERVED_COL; /* default */
+	GtkSortType  order	 = GTK_SORT_DESCENDING;
+	GString	    *s;
 
 	gtk_tree_sortable_get_sort_column_id (GTK_TREE_SORTABLE (st->pr->store), &sort_column, &order);
 	s= stats_tree_format_as_str(st,ST_FORMAT_PLAIN,sort_column-N_RESERVED_COL,order==GTK_SORT_DESCENDING);
@@ -256,16 +256,16 @@ gtk_save_as_statstree(GtkWidget *win, GString *file_name, int *file_type)
 static gboolean
 save_as_dialog(GtkWidget *win _U_, stats_tree *st)
 {
-	gint sort_column= 1;	/* default */
-	GtkSortType order= GTK_SORT_DESCENDING;
-	GString *str_tree;
-	GString *file_name		= g_string_new("");
-	int file_type;
-	gchar *file_name_lower;
+	gint	     sort_column = 1; /* default */
+	GtkSortType  order	 = GTK_SORT_DESCENDING;
+	GString	    *str_tree;
+	GString	    *file_name	 = g_string_new("");
+	int	     file_type;
+	gchar	    *file_name_lower;
 	const gchar *file_ext;
-	FILE *f;
-	gboolean success= FALSE;
-	int last_errno;
+	FILE	    *f;
+	gboolean     success	 = FALSE;
+	int	     last_errno;
 
 #ifdef USE_WIN32_FILE_DIALOGS
 	if (win32_save_as_statstree(GDK_WINDOW_HWND(gtk_widget_get_window(st->pr->win)),
@@ -599,11 +599,24 @@ void gtk_stats_tree_cb(GtkAction *action, gpointer user_data _U_)
 	if(cfg){
 		tap_param_dlg_cb(action, cfg->pr->stat_dlg);
 	}else{
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Failed to find the stat tree named %s",
-                      abbr);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Failed to find the stat tree named %s",
+			      abbr);
 		return;
 	}
 
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

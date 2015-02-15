@@ -212,3 +212,16 @@ register_tap_listener_gtksmb2stat(void)
 	register_param_stat(&smb2_stat_dlg, "SMB2",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

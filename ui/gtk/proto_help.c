@@ -685,3 +685,16 @@ static void ph_logging_handler(const gchar *domain _U_, GLogLevelFlags level, co
 }
 #endif /* PH_DEBUG_LOG */
 #endif /* MAIN_MENU_USE_UIMANAGER */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

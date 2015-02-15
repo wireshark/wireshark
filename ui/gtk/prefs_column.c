@@ -384,7 +384,7 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data) {
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
     {
         gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
-	column_prefs_remove_link(clp);
+        column_prefs_remove_link(clp);
 
         /* Change the row selection to the next row (if available) or    */
         /*  the previous row (if available). If there's only one row     */
@@ -757,3 +757,16 @@ column_prefs_apply(GtkWidget *w _U_)
 void
 column_prefs_destroy(GtkWidget *w _U_) {
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

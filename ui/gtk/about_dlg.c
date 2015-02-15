@@ -78,9 +78,9 @@ static GtkWidget *about_wireshark_w;
 static void
 about_wireshark(GtkWidget *parent _U_, GtkWidget *main_vb)
 {
-  GtkWidget   *msg_label, *icon;
-  gchar       *message;
-  const char  *title = "Network Protocol Analyzer";
+  GtkWidget  *msg_label, *icon;
+  gchar      *message;
+  const char *title = "Network Protocol Analyzer";
 
   /*icon = xpm_to_widget_from_parent(parent, wssplash_xpm);*/
   icon = pixbuf_to_widget(wssplash_pb_data);
@@ -170,9 +170,9 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
     GtkWidget  *main_lb;
     GtkWidget  *prog_bar;
     GtkWidget  *percentage_lb;
-    gfloat     percentage;
-    gulong     ul_percentage;
-    gchar      tmp[100];
+    gfloat      percentage;
+    gulong      ul_percentage;
+    gchar       tmp[100];
     const char *action_msg;
 
     static gulong ul_sofar = 0;
@@ -204,35 +204,35 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       /* the action has changed */
       switch(action) {
       case RA_DISSECTORS:
-	action_msg = "Initializing dissectors ...";
-	break;
+        action_msg = "Initializing dissectors ...";
+        break;
       case RA_LISTENERS:
-	action_msg = "Initializing tap listeners ...";
-	break;
+        action_msg = "Initializing tap listeners ...";
+        break;
       case RA_REGISTER:
-	action_msg = "Registering dissector ...";
-	break;
+        action_msg = "Registering dissector ...";
+        break;
       case RA_PLUGIN_REGISTER:
-	action_msg = "Registering plugins ...";
-	break;
+        action_msg = "Registering plugins ...";
+        break;
       case RA_HANDOFF:
-	action_msg = "Handing off dissector ...";
-	break;
+        action_msg = "Handing off dissector ...";
+        break;
       case RA_PLUGIN_HANDOFF:
-	action_msg = "Handing off plugins ...";
-	break;
+        action_msg = "Handing off plugins ...";
+        break;
       case RA_LUA_PLUGINS:
-	action_msg = "Loading Lua plugins ...";
-	break;
+        action_msg = "Loading Lua plugins ...";
+        break;
       case RA_PREFERENCES:
-	action_msg = "Loading module preferences ...";
-	break;
+        action_msg = "Loading module preferences ...";
+        break;
       case RA_CONFIGURATION:
-	action_msg = "Loading configuration files ...";
-	break;
+        action_msg = "Loading configuration files ...";
+        break;
       default:
-	action_msg = "(Unknown action)";
-	break;
+        action_msg = "(Unknown action)";
+        break;
       }
       splash_update_label(win, action_msg);
       last_action = action;
@@ -240,9 +240,9 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 
     if(ul_count == 0) { /* get the count of dissectors */
       ul_count = register_count() + 6; /* additional 6 for:
-					  dissectors, listeners,
-					  registering plugins, handingoff plugins,
-					  preferences and configuration */
+                                          dissectors, listeners,
+                                          registering plugins, handingoff plugins,
+                                          preferences and configuration */
 #ifdef HAVE_LUA
       ul_count += wslua_count_plugins (); /* get count of lua plugins */
 #endif
@@ -253,9 +253,9 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
        so we need to strip off the leading elements to get back to the protocol */
     if(message) {
       if(!strncmp(message, "proto_register_", 15))
-	message += 15;
+        message += 15;
       else if(!strncmp(message, "proto_reg_handoff_", 18))
-	message += 18;
+        message += 18;
     }
     gtk_label_set_text(GTK_LABEL(main_lb), message ? message : "");
 
@@ -293,8 +293,8 @@ splash_destroy(GtkWidget *win)
 static GtkWidget *
 about_wireshark_page_new(void)
 {
-  GtkWidget   *main_box, *msg_label /*, *icon*/;
-  gchar       *message;
+  GtkWidget *main_box, *msg_label /*, *icon*/;
+  gchar     *message;
 
   main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_box), 12);
@@ -333,8 +333,8 @@ about_wireshark_page_new(void)
 static GtkWidget *
 about_authors_page_new(void)
 {
-  GtkWidget   *page;
-  char *absolute_path;
+  GtkWidget *page;
+  char      *absolute_path;
 
   absolute_path = get_datafile_path("AUTHORS-SHORT");
   page = text_page_new(absolute_path);
@@ -345,9 +345,9 @@ about_authors_page_new(void)
 static gboolean about_folders_callback(GtkWidget *widget, GdkEventButton *event, gint id _U_)
 {
   GtkTreeSelection *tree_selection;
-  GtkTreeModel *model;
-  GtkTreeIter  iter;
-  gchar        *path;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
+  gchar            *path;
 
   tree_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
 
@@ -376,17 +376,17 @@ about_folders_row(GtkWidget *table, const char *label, const char *dir, const ch
 static GtkWidget *
 about_folders_page_new(void)
 {
-  GtkWidget   *table;
-  const char *constpath;
-  char *path;
+  GtkWidget            *table;
+  const char           *constpath;
+  char                 *path;
   static const gchar *titles[] = { "Name", "Folder", "Typical Files"};
-  GtkWidget *scrolledwindow;
+  GtkWidget            *scrolledwindow;
 #if defined(HAVE_LIBSMI) || defined(HAVE_GEOIP) || defined(HAVE_EXTCAP)
-  gint i;
-  gchar **resultArray;
+  gint                  i;
+  gchar               **resultArray;
 #endif
 #if 0
-  const gchar * const *dirs;
+  const gchar *const  *dirs;
 #endif
 
   scrolledwindow = scrolled_window_new(NULL, NULL);
@@ -398,7 +398,7 @@ about_folders_page_new(void)
 
   /* connect a callback so we can spot a double-click */
   g_signal_connect(table, "button_press_event",
-		     G_CALLBACK(about_folders_callback), NULL);
+                   G_CALLBACK(about_folders_callback), NULL);
 
   simple_list_url_col(table, 1);
 
@@ -425,7 +425,7 @@ about_folders_page_new(void)
 #if 0
   dirs = g_get_system_data_dirs ();
   for (i = 0; dirs[i]; i++){
-	  g_warning("glibs data path %u %s",i+1,dirs[i]);
+    g_warning("glibs data path %u %s",i+1,dirs[i]);
   }
 #endif
   /* system */
@@ -458,7 +458,7 @@ about_folders_page_new(void)
 
   for(i = 0; resultArray[i]; i++)
     about_folders_row(table, "GeoIP path", g_strstrip(resultArray[i]),
-		      "GeoIP database search path");
+                      "GeoIP database search path");
   g_strfreev(resultArray);
   g_free(path);
 #endif
@@ -471,7 +471,7 @@ about_folders_page_new(void)
 
   for(i = 0; resultArray[i]; i++)
     about_folders_row(table, "MIB/PIB path", g_strstrip(resultArray[i]),
-		      "SMI MIB/PIB search path");
+                      "SMI MIB/PIB search path");
   g_strfreev(resultArray);
   g_free(path);
 #endif
@@ -484,7 +484,7 @@ about_folders_page_new(void)
 
   for(i = 0; resultArray[i]; i++)
     about_folders_row(table, "Extcap path", g_strstrip(resultArray[i]),
-		      "Extcap Plugins search path");
+                      "Extcap Plugins search path");
   g_strfreev(resultArray);
 #endif
 
@@ -496,8 +496,8 @@ about_folders_page_new(void)
 static GtkWidget *
 about_license_page_new(void)
 {
-  GtkWidget   *page;
-  char *absolute_path;
+  GtkWidget *page;
+  char      *absolute_path;
 
 #if defined(_WIN32)
   absolute_path = get_datafile_path("COPYING.txt");
@@ -512,14 +512,14 @@ about_license_page_new(void)
 void
 about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
 {
-  GtkWidget   *main_box, *main_nb, *bbox, *ok_btn;
-  GtkWidget   *page_lb, *about_page, *folders_page;
+  GtkWidget *main_box, *main_nb, *bbox, *ok_btn;
+  GtkWidget *page_lb, *about_page, *folders_page;
 
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
-  GtkWidget   *plugins_page;
+  GtkWidget *plugins_page;
 #endif
 
-  GtkWidget   *authors_page, *license_page;
+  GtkWidget *authors_page, *license_page;
 
   if (about_wireshark_w != NULL) {
     /* There's already an "About Wireshark" dialog box; reactivate it. */
@@ -593,3 +593,16 @@ about_wireshark_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   /* Note that we no longer have an "About Wireshark" dialog box. */
   about_wireshark_w = NULL;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

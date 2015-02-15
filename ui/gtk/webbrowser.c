@@ -44,30 +44,30 @@
  *
  * What Qt's "generic UNIX" openURL does is:
  *
- *	if it's a mailto: URL, use the "document lanuncher" if
- *	known, otherwise, use the results of detectWebBrowser
- *	as the "document launcher", and use that;
+ *      if it's a mailto: URL, use the "document lanuncher" if
+ *      known, otherwise, use the results of detectWebBrowser
+ *      as the "document launcher", and use that;
  *
- *	otherwise, use the "Web browser" if known, otherwise, use
- *	the results of detectWebBrowser as the "document launcher",
- *	and use that.
+ *      otherwise, use the "Web browser" if known, otherwise, use
+ *      the results of detectWebBrowser as the "document launcher",
+ *      and use that.
  *
  * detectWebBrowser:
  *
- *	looks for xdg-open and, if it finds it, uses that;
+ *      looks for xdg-open and, if it finds it, uses that;
  *
- *	otherwise, if the DEFAULT_BROWSER or BROWSER environment
- *	variable is set, use the first of those that's set (in
- *	that order) and, if that's an executable, uses that;
+ *      otherwise, if the DEFAULT_BROWSER or BROWSER environment
+ *      variable is set, use the first of those that's set (in
+ *      that order) and, if that's an executable, uses that;
  *
- *	otherwise, if the desktop environment is detected to be
- *	KDE, uses kfmclient;
+ *      otherwise, if the desktop environment is detected to be
+ *      KDE, uses kfmclient;
  *
- *	otherwise, if the desktop environment is detected to
- *	be GNOME, uses gnome-open;
+ *      otherwise, if the desktop environment is detected to
+ *      be GNOME, uses gnome-open;
  *
- *	otherwise, tries, in order, google-chrome, firefox,
- *	mozilla, and opera.
+ *      otherwise, tries, in order, google-chrome, firefox,
+ *      mozilla, and opera.
  *
  * (Its Windows openURL uses ShellExecute() on non-mailto URLs (it
  * does more exotic stuff for mailto: URLs).
@@ -83,21 +83,21 @@
  *
  * Perhaps the right strategy is to:
  *
- *	Check whether we're in a GNOME/KDE/XFCE session and, if
- *	we are, try xdg-open, as it works around, among other things,
- *	some kfmclient bugs, and run it synchronously (that will fail
- *	if we detect a GNOME/KDE/XFCE session but the launcher is
- *	missing, but so it goes).  If we don't have xdg-open, try
- *	the appropriate launcher for the environment, but ignore
- *	the return code from kfmclient, as it might be bogus (that's
- *	the bug xdg-open works around).
+ *      Check whether we're in a GNOME/KDE/XFCE session and, if
+ *      we are, try xdg-open, as it works around, among other things,
+ *      some kfmclient bugs, and run it synchronously (that will fail
+ *      if we detect a GNOME/KDE/XFCE session but the launcher is
+ *      missing, but so it goes).  If we don't have xdg-open, try
+ *      the appropriate launcher for the environment, but ignore
+ *      the return code from kfmclient, as it might be bogus (that's
+ *      the bug xdg-open works around).
  *
- *	Otherwise, try the "broken/unpredictable browser launchers",
- *	but run them in the background and leave them running, and
- *	ignore the exit code, and then try x-www-browser, and then
- *	try directly launching a user-specified browser.  (Beast tries
- *	a bunch of browsers, with the user not being allowed to
- *	specify which one they want.)
+ *      Otherwise, try the "broken/unpredictable browser launchers",
+ *      but run them in the background and leave them running, and
+ *      ignore the exit code, and then try x-www-browser, and then
+ *      try directly launching a user-specified browser.  (Beast tries
+ *      a bunch of browsers, with the user not being allowed to
+ *      specify which one they want.)
  *
  * On the other hand, see bug 2699, in which xdg-open is itself buggy.
  */
@@ -494,14 +494,27 @@ strreplace (const gchar *string,
 void
 browser_open_data_file(const gchar *filename)
 {
-    gchar *uri;
+  gchar *uri;
 
-    /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */
+  /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */
 
-    uri = data_file_url(filename);
+  uri = data_file_url(filename);
 
-    /* show the uri */
-    browser_open_url (uri);
+  /* show the uri */
+  browser_open_url (uri);
 
-    g_free(uri);
+  g_free(uri);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

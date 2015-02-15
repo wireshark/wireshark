@@ -124,7 +124,7 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
        reject attempts to type in characters other than digits?
        What about numbers > the maximum possible guint? */
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"The packet number you entered isn't a valid number.");
+                  "The packet number you entered isn't a valid number.");
     return;
   }
 
@@ -140,30 +140,42 @@ goto_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 void
 goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-    cf_goto_framenum(&cfile);
+  cf_goto_framenum(&cfile);
 }
 
 void
 goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    cf_goto_top_frame();
+  cf_goto_top_frame();
 }
 
 void
 goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    cf_goto_bottom_frame();
+  cf_goto_bottom_frame();
 }
 
 void
 goto_next_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    packet_list_next();
+  packet_list_next();
 }
 
 void
 goto_previous_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    packet_list_prev();
+  packet_list_prev();
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

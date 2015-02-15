@@ -517,7 +517,7 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	GtkWidget       *vers_label, *vers_combo_box;
 	GtkWidget       *filter_box, *filter_bt;
 	GtkWidget       *bbox, *start_button, *cancel_button;
-        GtkCellRenderer *cell_renderer;
+	GtkCellRenderer *cell_renderer;
 #if 0
 	GtkTreeIter      program_first_item_iter;
 #endif
@@ -565,17 +565,17 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	   (to show the children) but is "insensitive": ie: cannot be selected.
 	   (dcerpcstat_add_program_to_menu() does the actual work to add entries
 	    to the combo box).
-            XXX: A simpler alternative might be to just do away with all the two-level
-                 complexity and just use a standard ws_combo_box... even though the
-                 list of "program names" is quite large.
-            XXX: The gtkrc file distributed with Windows Wireshark has the
-                 "appears-as-list" GtkComboBox style property set to 1 and thus
-                 on Windows the entries for this combo box will appear as a tree-view.
-                 The default is 0(FALSE). In this case the the combo box entries will
-                 display as a menu with sub-menus.
-                 A possibility would be to set "appears-as-list" to 0  just for this
-                 particular combo box on Windows so that the entries will appear as a
-                 menu even on Windows).
+	    XXX: A simpler alternative might be to just do away with all the two-level
+		 complexity and just use a standard ws_combo_box... even though the
+		 list of "program names" is quite large.
+	    XXX: The gtkrc file distributed with Windows Wireshark has the
+		 "appears-as-list" GtkComboBox style property set to 1 and thus
+		 on Windows the entries for this combo box will appear as a tree-view.
+		 The default is 0(FALSE). In this case the the combo box entries will
+		 display as a menu with sub-menus.
+		 A possibility would be to set "appears-as-list" to 0  just for this
+		 particular combo box on Windows so that the entries will appear as a
+		 menu even on Windows).
 	*/
 	prog_combo_box = ws_combo_box_new_text_and_pointer_full(&cell_renderer);
 	{
@@ -725,3 +725,16 @@ register_tap_listener_gtkdcerpcstat(void)
 {
 	register_stat_tap_ui(&dcerpcstat_ui, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

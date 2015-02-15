@@ -116,9 +116,9 @@ static char *
 gtk_export_sslkeys_file(guint keylist_len)
 {
     GtkWidget *savesslkeys_dlg;
-    gchar *label;
+    gchar     *label;
     GtkWidget *dlg_lb;
-    char *pathname;
+    char      *pathname;
 
     /*
      * Build the dialog box we need.
@@ -150,8 +150,8 @@ gtk_export_sslkeys_file(guint keylist_len)
 void
 savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
 {
-    char *pathname;
-    guint keylist_len;
+    char  *pathname;
+    guint  keylist_len;
     gchar *keylist;
 
     keylist_len = ssl_session_key_count();
@@ -186,3 +186,16 @@ savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
     }
 }
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

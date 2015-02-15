@@ -51,9 +51,9 @@ struct camelsrt_t {
 static void camelsrt_set_title(struct camelsrt_t * p_camelsrt);
 static void camelsrt_reset(void *phs);
 static int camelsrt_packet(void *phs,
-			   packet_info *pinfo _U_,
-			   epan_dissect_t *edt _U_,
-			   const void *phi);
+                           packet_info *pinfo _U_,
+                           epan_dissect_t *edt _U_,
+                           const void *phi);
 
 static void camelsrt_draw(void *phs);
 static void win_destroy_cb(GtkWindow *win _U_, gpointer data);
@@ -81,9 +81,9 @@ static void camelsrt_reset(void *phs)
  * Then, if the measurement is provided, check if it is valid, and update the table
  */
 static int camelsrt_packet(void *phs,
-			   packet_info *pinfo _U_,
-			   epan_dissect_t *edt _U_,
-			   const void *phi)
+                           packet_info *pinfo _U_,
+                           epan_dissect_t *edt _U_,
+                           const void *phi)
 {
   struct camelsrt_t *hs=(struct camelsrt_t *)phs;
   const struct camelsrt_info_t * pi=(const struct camelsrt_info_t *)phi;
@@ -91,9 +91,9 @@ static int camelsrt_packet(void *phs,
 
   for (i=1; i<NB_CAMELSRT_CATEGORY; i++) {
     if ( pi->bool_msginfo[i] &&
-	 pi->msginfo[i].is_delta_time
-	 && pi->msginfo[i].request_available
-	 && !pi->msginfo[i].is_duplicate ) {
+         pi->msginfo[i].is_delta_time
+         && pi->msginfo[i].request_available
+         && !pi->msginfo[i].is_duplicate ) {
 
       add_srt_table_data(&hs->camel_srt_table, i, &pi->msginfo[i].req_time, pinfo);
 
@@ -182,12 +182,12 @@ static void gtk_camelsrt_init(const char *opt_arg, void *userdata _U_)
   }
 
   error_string=register_tap_listener("CAMEL",
-				     p_camelsrt,
-				     filter,
-				     0,
-				     camelsrt_reset,
-				     camelsrt_packet,
-				     camelsrt_draw);
+                                     p_camelsrt,
+                                     filter,
+                                     0,
+                                     camelsrt_reset,
+                                     camelsrt_packet,
+                                     camelsrt_draw);
 
   if(error_string){
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
@@ -230,5 +230,18 @@ void /* Next line mandatory */
 register_tap_listener_gtk_camelsrt(void)
 {
   register_param_stat(&camel_srt_dlg, "CAMEL",
-			REGISTER_STAT_GROUP_RESPONSE_TIME);
+                      REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

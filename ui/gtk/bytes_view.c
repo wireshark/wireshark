@@ -923,12 +923,12 @@ bytes_view_expose(GtkWidget *widget, GdkEventExpose *event)
 #if !GTK_CHECK_VERSION(2, 14, 0)
 static void
 _gtk_adjustment_configure(GtkAdjustment *adj,
-                          gdouble        value,
-                          gdouble        lower,
-                          gdouble        upper,
-                          gdouble        step_increment,
-                          gdouble        page_increment,
-                          gdouble        page_size)
+			  gdouble	 value,
+			  gdouble	 lower,
+			  gdouble	 upper,
+			  gdouble	 step_increment,
+			  gdouble	 page_increment,
+			  gdouble	 page_size)
 {
 	adj->value = value;
 	adj->lower = lower;
@@ -1486,3 +1486,16 @@ bytes_view_new(void)
 
 	return widget;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

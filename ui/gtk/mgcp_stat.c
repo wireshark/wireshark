@@ -52,7 +52,7 @@ typedef struct _mgcpstat_t {
 	char *filter;
 	GtkWidget *scrolled_window;
 	GtkTreeView *table;
-        timestat_t rtd[NUM_TIMESTATS];
+	timestat_t rtd[NUM_TIMESTATS];
 	guint32 open_req_num;
 	guint32 disc_rsp_num;
 	guint32 req_dup_num;
@@ -60,16 +60,16 @@ typedef struct _mgcpstat_t {
 } mgcpstat_t;
 
 static const value_string mgcp_mesage_type[] = {
-  {  0,	"EPCF"},
-  {  1,	"CRCX"},
-  {  2,	"MDCX"},
-  {  3,	"DLCX"},
-  {  4,	"RQNT"},
-  {  5,	"NTFY"},
-  {  6,	"AUEP"},
-  {  7, "AUCX"},
-  {  8, "RSIP"},
-  {  0, NULL}
+	{  0,	"EPCF"},
+	{  1,	"CRCX"},
+	{  2,	"MDCX"},
+	{  3,	"DLCX"},
+	{  4,	"RQNT"},
+	{  5,	"NTFY"},
+	{  6,	"AUEP"},
+	{  7, "AUCX"},
+	{  8, "RSIP"},
+	{  0, NULL}
 };
 
 static void
@@ -83,11 +83,11 @@ mgcpstat_reset(void *pms)
 		ms->rtd[i].min_num=0;
 		ms->rtd[i].max_num=0;
 		ms->rtd[i].min.secs=0;
-        	ms->rtd[i].min.nsecs=0;
-        	ms->rtd[i].max.secs=0;
-        	ms->rtd[i].max.nsecs=0;
-        	ms->rtd[i].tot.secs=0;
-        	ms->rtd[i].tot.nsecs=0;
+		ms->rtd[i].min.nsecs=0;
+		ms->rtd[i].max.secs=0;
+		ms->rtd[i].max.nsecs=0;
+		ms->rtd[i].tot.secs=0;
+		ms->rtd[i].tot.nsecs=0;
 	}
 
 	ms->open_req_num=0;
@@ -184,8 +184,8 @@ mgcpstat_draw(void *pms)
 	GtkTreeIter iter;
 
 	/* clear list before printing */
-  	store = GTK_LIST_STORE(gtk_tree_view_get_model(ms->table));
-  	gtk_list_store_clear(store);
+ 	store = GTK_LIST_STORE(gtk_tree_view_get_model(ms->table));
+	gtk_list_store_clear(store);
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		/* nothing seen, nothing to do */
@@ -227,13 +227,13 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static const stat_column titles[]={
-	{G_TYPE_STRING, LEFT, "Type" },
+	{G_TYPE_STRING, LEFT,  "Type" },
 	{G_TYPE_UINT, RIGHT,   "Messages" },
 	{G_TYPE_STRING, RIGHT, "Min SRT" },
 	{G_TYPE_STRING, RIGHT, "Max SRT" },
 	{G_TYPE_STRING, RIGHT, "Avg SRT" },
-	{G_TYPE_UINT, RIGHT,  "Min in Frame" },
-	{G_TYPE_UINT, RIGHT,  "Max in Frame" }
+	{G_TYPE_UINT, RIGHT,   "Min in Frame" },
+	{G_TYPE_UINT, RIGHT,   "Max in Frame" }
 };
 
 static void
@@ -313,3 +313,16 @@ register_tap_listener_gtkmgcpstat(void)
 	register_param_stat(&mgcp_srt_dlg, "MGCP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

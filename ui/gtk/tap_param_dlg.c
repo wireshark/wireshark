@@ -177,7 +177,7 @@ tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
             break;
 
         case PARAM_STRING:
-        case PARAM_UUID:	/* XXX - do as multiple fixed-length boxes */
+        case PARAM_UUID:    /* XXX - do as multiple fixed-length boxes */
         case PARAM_FILTER:
             g_string_append(params,
                             gtk_entry_get_text(GTK_ENTRY(dlg_data->param_items[i])));
@@ -394,3 +394,16 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
     gtk_widget_show_all(current_dlg->dlg);
     window_present(current_dlg->dlg);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

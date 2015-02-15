@@ -32,7 +32,7 @@
 #include "ui/gtk/gui_utils.h"
 
 
-#define	PROG_BAR_KEY	"progress_bar"
+#define PROG_BAR_KEY    "progress_bar"
 
 static gboolean delete_event_cb(GtkWidget *w, GdkEvent *event, gpointer data);
 static void stop_cb(GtkWidget *w, gpointer data);
@@ -41,15 +41,15 @@ static void stop_cb(GtkWidget *w, gpointer data);
  * Define the structure describing a progress dialog.
  */
 struct progdlg {
-	GtkWidget *dlg_w;	/* top-level window widget */
-	GTimeVal   start_time;
-	GTimeVal   last_time;   /* last time it was updated */
+    GtkWidget *dlg_w;       /* top-level window widget */
+    GTimeVal   start_time;
+    GTimeVal   last_time;   /* last time it was updated */
 
-	GtkLabel  *status_lb;
-	GtkLabel  *elapsed_lb;
-	GtkLabel  *time_left_lb;
-	GtkLabel  *percentage_lb;
-	gchar     *title;
+    GtkLabel  *status_lb;
+    GtkLabel  *elapsed_lb;
+    GtkLabel  *time_left_lb;
+    GtkLabel  *percentage_lb;
+    gchar     *title;
 };
 
 /*
@@ -227,8 +227,8 @@ create_progress_dlg(const gpointer top_level_window _U_, const gchar *task_title
 
 progdlg_t *
 delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title,
-			    const gchar *item_title, gboolean terminate_is_stop,
-			    gboolean *stop_flag, const GTimeVal *start_time, gfloat progress)
+                            const gchar *item_title, gboolean terminate_is_stop,
+                            gboolean *stop_flag, const GTimeVal *start_time, gfloat progress)
 {
     GTimeVal    time_now;
     gdouble     delta_time;
@@ -291,7 +291,7 @@ delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_t
      * Flush out the dialog so we don't see an "empty" one until first update.
      */
     while (gtk_events_pending())
-	    gtk_main_iteration();
+        gtk_main_iteration();
 
     /* set dialog start_time to the start of processing, not box creation */
     dlg->start_time = *start_time;
@@ -308,10 +308,10 @@ delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_t
 static gboolean
 delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data)
 {
-	gboolean *stop_flag = (gboolean *) data;
+    gboolean *stop_flag = (gboolean *) data;
 
-	*stop_flag = TRUE;
-	return TRUE;
+    *stop_flag = TRUE;
+    return TRUE;
 }
 
 /*
@@ -323,9 +323,9 @@ delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data)
 static void
 stop_cb(GtkWidget *w _U_, gpointer data)
 {
-	gboolean *stop_flag = (gboolean *) data;
+    gboolean *stop_flag = (gboolean *) data;
 
-	*stop_flag = TRUE;
+    *stop_flag = TRUE;
 }
 
 /*
@@ -334,65 +334,65 @@ stop_cb(GtkWidget *w _U_, gpointer data)
 void
 update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 {
-	GtkWidget *dlg_w = dlg->dlg_w;
-	GtkWidget *prog_bar;
-	GTimeVal   time_now;
-	gdouble    delta_time;
-	gulong     ul_left;
-	gulong     ul_elapsed;
-	gulong     ul_percentage;
-	gchar      tmp[100];
+    GtkWidget *dlg_w = dlg->dlg_w;
+    GtkWidget *prog_bar;
+    GTimeVal   time_now;
+    gdouble    delta_time;
+    gulong     ul_left;
+    gulong     ul_elapsed;
+    gulong     ul_percentage;
+    gchar      tmp[100];
 
 
-	/* calculate some timing values */
-	g_get_current_time(&time_now);
+    /* calculate some timing values */
+    g_get_current_time(&time_now);
 
-	delta_time = (time_now.tv_sec - dlg->last_time.tv_sec) * 1e6 +
-		time_now.tv_usec - dlg->last_time.tv_usec;
+    delta_time = (time_now.tv_sec - dlg->last_time.tv_sec) * 1e6 +
+        time_now.tv_usec - dlg->last_time.tv_usec;
 
-	/* after the first time don't update more than every 100ms */
-	if (dlg->last_time.tv_sec && delta_time < 100*1000)
-		return;
+    /* after the first time don't update more than every 100ms */
+    if (dlg->last_time.tv_sec && delta_time < 100*1000)
+        return;
 
-	dlg->last_time = time_now;
-	delta_time = (time_now.tv_sec - dlg->start_time.tv_sec) * 1e6 +
-		time_now.tv_usec - dlg->start_time.tv_usec;
+    dlg->last_time = time_now;
+    delta_time = (time_now.tv_sec - dlg->start_time.tv_sec) * 1e6 +
+        time_now.tv_usec - dlg->start_time.tv_usec;
 
-	ul_percentage = (gulong) (percentage * 100);
-	ul_elapsed = (gulong) (delta_time / 1000 / 1000);
+    ul_percentage = (gulong) (percentage * 100);
+    ul_elapsed = (gulong) (delta_time / 1000 / 1000);
 
-	/* update labels */
-	g_snprintf(tmp, sizeof(tmp), "%lu%% of %s", ul_percentage, dlg->title);
-	gtk_window_set_title(GTK_WINDOW(dlg_w), tmp);
+    /* update labels */
+    g_snprintf(tmp, sizeof(tmp), "%lu%% of %s", ul_percentage, dlg->title);
+    gtk_window_set_title(GTK_WINDOW(dlg_w), tmp);
 
-	gtk_label_set_text(dlg->status_lb, status);
+    gtk_label_set_text(dlg->status_lb, status);
 
-	g_snprintf(tmp, sizeof(tmp), "%lu%%", ul_percentage);
-	gtk_label_set_text(dlg->percentage_lb, tmp);
+    g_snprintf(tmp, sizeof(tmp), "%lu%%", ul_percentage);
+    gtk_label_set_text(dlg->percentage_lb, tmp);
 
-	g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_elapsed / 60,
-                   ul_elapsed % 60);
-	gtk_label_set_text(dlg->elapsed_lb, tmp);
+    g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_elapsed / 60,
+               ul_elapsed % 60);
+    gtk_label_set_text(dlg->elapsed_lb, tmp);
 
-	/* show "Time Left" only,
-	 * if at least 5% and 3 seconds running (to get a useful estimation) */
-	if (ul_percentage >= 5 && delta_time >= 3 * 1e6) {
-		ul_left = (gulong) ((delta_time / percentage - delta_time) / 1000 / 1000);
+    /* show "Time Left" only,
+     * if at least 5% and 3 seconds running (to get a useful estimation) */
+    if (ul_percentage >= 5 && delta_time >= 3 * 1e6) {
+        ul_left = (gulong) ((delta_time / percentage - delta_time) / 1000 / 1000);
 
-		g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_left / 60,
-                           ul_left % 60);
-		gtk_label_set_text(dlg->time_left_lb, tmp);
-	}
+        g_snprintf(tmp, sizeof(tmp), "%02lu:%02lu", ul_left / 60,
+                   ul_left % 60);
+        gtk_label_set_text(dlg->time_left_lb, tmp);
+    }
 
-	/* update progress bar */
-	prog_bar = (GtkWidget *)g_object_get_data(G_OBJECT(dlg_w), PROG_BAR_KEY);
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
+    /* update progress bar */
+    prog_bar = (GtkWidget *)g_object_get_data(G_OBJECT(dlg_w), PROG_BAR_KEY);
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
 
-	/*
-	 * Flush out the update and process any input events.
-	 */
-	while (gtk_events_pending())
-		gtk_main_iteration();
+    /*
+     * Flush out the update and process any input events.
+     */
+    while (gtk_events_pending())
+        gtk_main_iteration();
 }
 
 /*
@@ -407,3 +407,16 @@ destroy_progress_dlg(progdlg_t *dlg)
     g_free(dlg->title);
     g_free(dlg);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -83,71 +83,71 @@ airpcap_toolbar_fcs_filter_combo_cb(GtkWidget *fcs_filter_cb, gpointer user_data
 void
 airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
 {
-  /* We need to directly access the .dll functions here... */
-  gchar ebuf[AIRPCAP_ERRBUF_SIZE];
-  PAirpcapHandle ad;
+    /* We need to directly access the .dll functions here... */
+    gchar ebuf[AIRPCAP_ERRBUF_SIZE];
+    PAirpcapHandle ad;
 
-  gint n = 0;
-  gint i = 0;
-  airpcap_if_info_t* curr_if = NULL;
+    gint n = 0;
+    gint i = 0;
+    airpcap_if_info_t* curr_if = NULL;
 
-  /* Apply changes to the current adapter */
-  if( (airpcap_if_active != NULL)) {
-    ad = airpcap_if_open(airpcap_if_active->name, ebuf);
+    /* Apply changes to the current adapter */
+    if( (airpcap_if_active != NULL)) {
+        ad = airpcap_if_open(airpcap_if_active->name, ebuf);
 
-    if(ad) {
-      if(airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON) {
-        airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_OFF;
-        airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
-        /* Save configuration */
-        if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
-          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-        }
-        airpcap_if_close(ad);
-      } else {
-        airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_ON;
-        airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
-        /* Save configuration */
-        if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
-          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-        }
-        airpcap_if_close(ad);
-      }
-    }
-  } else {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No active AirPcap Adapter selected.");
-    return;
-  }
-
-  if (!(airpcap_if_list == NULL)) {
-    n = g_list_length(airpcap_if_list);
-
-    /* The same kind of settings should be propagated to all the adapters */
-    /* Apply this change to all the adapters !!! */
-    for(i = 0; i < n; i++) {
-      curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
-
-      if( (curr_if != NULL) && (curr_if != airpcap_if_selected) ) {
-        ad = airpcap_if_open(curr_if->name, ebuf);
         if(ad) {
-          curr_if->DecryptionOn = airpcap_if_selected->DecryptionOn;
-          airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
-          /* Save configuration for the curr_if */
-          if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-              "Unable to save configuration."
-              "\nIn order to store the configuration in the registry you"
-              "\nhave to close all other AirPcap-based applications and"
-              "\nhave Administrator privileges.");
-          }
-          airpcap_if_close(ad);
+            if(airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON) {
+                airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_OFF;
+                airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
+                /* Save configuration */
+                if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+                }
+                airpcap_if_close(ad);
+            } else {
+                airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_ON;
+                airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
+                /* Save configuration */
+                if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+                }
+                airpcap_if_close(ad);
+            }
         }
-      }
+    } else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No active AirPcap Adapter selected.");
+        return;
     }
-  } else {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "AirPcap Adapter Error.");
-    return;
-  }
+
+    if (!(airpcap_if_list == NULL)) {
+        n = g_list_length(airpcap_if_list);
+
+        /* The same kind of settings should be propagated to all the adapters */
+        /* Apply this change to all the adapters !!! */
+        for(i = 0; i < n; i++) {
+            curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
+
+            if( (curr_if != NULL) && (curr_if != airpcap_if_selected) ) {
+                ad = airpcap_if_open(curr_if->name, ebuf);
+                if(ad) {
+                    curr_if->DecryptionOn = airpcap_if_selected->DecryptionOn;
+                    airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
+                    /* Save configuration for the curr_if */
+                    if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
+                        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                                      "Unable to save configuration."
+                                      "\nIn order to store the configuration in the registry you"
+                                      "\nhave to close all other AirPcap-based applications and"
+                                      "\nhave Administrator privileges.");
+                    }
+                    airpcap_if_close(ad);
+                }
+            }
+        }
+    } else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "AirPcap Adapter Error.");
+        return;
+    }
 }
 
 /*
@@ -373,49 +373,62 @@ driver_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
 
 void airpcap_toolbar_show(GtkWidget *lcl_wireless_tb _U_)
 {
-  /*
-   * This will read the decryption keys from the preferences file, and will
-   * store them into the registry...
-   */
-  if(airpcap_if_list != NULL && g_list_length(airpcap_if_list) > 0){
-    if (!airpcap_check_decryption_keys(airpcap_if_list)) {
-      /* Ask the user what to do ...*/
-      airpcap_keys_check_w(NULL,NULL);
-    } else {
-      /* Keys from lists are equals, or Wireshark has got no keys */
-      airpcap_load_decryption_keys(airpcap_if_list);
+    /*
+     * This will read the decryption keys from the preferences file, and will
+     * store them into the registry...
+     */
+    if(airpcap_if_list != NULL && g_list_length(airpcap_if_list) > 0){
+        if (!airpcap_check_decryption_keys(airpcap_if_list)) {
+            /* Ask the user what to do ...*/
+            airpcap_keys_check_w(NULL,NULL);
+        } else {
+            /* Keys from lists are equals, or Wireshark has got no keys */
+            airpcap_load_decryption_keys(airpcap_if_list);
+        }
     }
-  }
 
-  switch (airpcap_dll_ret_val) {
+    switch (airpcap_dll_ret_val) {
 
-  case AIRPCAP_DLL_OK:
-    break;
+    case AIRPCAP_DLL_OK:
+        break;
 
-  case AIRPCAP_DLL_OLD:
-    if(recent.airpcap_driver_check_show) {
-      driver_warning_dialog = (GtkWidget *)simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-                        "WARNING: The version of AirPcap on this system\n"
-                        "does not support driver-level decryption.  Please\n"
-                        "download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
-      simple_dialog_check_set(driver_warning_dialog,"Don't show this message again.");
-      simple_dialog_set_cb(driver_warning_dialog, driver_warning_dialog_cb, NULL);
-    }
-    break;
+    case AIRPCAP_DLL_OLD:
+        if(recent.airpcap_driver_check_show) {
+            driver_warning_dialog = (GtkWidget *)simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+                                                               "WARNING: The version of AirPcap on this system\n"
+                                                               "does not support driver-level decryption.  Please\n"
+                                                               "download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
+            simple_dialog_check_set(driver_warning_dialog,"Don't show this message again.");
+            simple_dialog_set_cb(driver_warning_dialog, driver_warning_dialog_cb, NULL);
+        }
+        break;
 
 #if 0
-  /*
-   * XXX - Maybe we need to warn the user if one of the following happens???
-   */
-  case AIRPCAP_DLL_ERROR:
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
-    break;
+        /*
+         * XXX - Maybe we need to warn the user if one of the following happens???
+         */
+    case AIRPCAP_DLL_ERROR:
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DLL_ERROR\n");
+        break;
 
-  case AIRPCAP_DLL_NOT_FOUND:
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
-    break;
+    case AIRPCAP_DLL_NOT_FOUND:
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s","AIRPCAP_DDL_NOT_FOUND\n");
+        break;
 #endif
-  }
+    }
 }
 
 #endif /* HAVE_AIRPCAP */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

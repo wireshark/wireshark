@@ -364,40 +364,40 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
 void
 simple_dialog_close(gpointer dialog)
 {
-    window_destroy(GTK_WIDGET(dialog));
+  window_destroy(GTK_WIDGET(dialog));
 }
 
 void
 simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data)
 {
 
-    g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_FCT_KEY, callback_fct);
-    g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_DATA_KEY, data);
+  g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_FCT_KEY, callback_fct);
+  g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_DATA_KEY, data);
 }
 
 void
 simple_dialog_check_set(gpointer dialog, const gchar *text) {
-    GtkWidget *ask_cb = (GtkWidget *)g_object_get_data(G_OBJECT(dialog), CHECK_BUTTON);
+  GtkWidget *ask_cb = (GtkWidget *)g_object_get_data(G_OBJECT(dialog), CHECK_BUTTON);
 
-    gtk_button_set_label(GTK_BUTTON(ask_cb), text);
-    gtk_widget_show(ask_cb);
+  gtk_button_set_label(GTK_BUTTON(ask_cb), text);
+  gtk_widget_show(ask_cb);
 }
 
 gboolean
 simple_dialog_check_get(gpointer dialog) {
-    GtkWidget *ask_cb = (GtkWidget *)g_object_get_data(G_OBJECT(GTK_WIDGET(dialog)), CHECK_BUTTON);
+  GtkWidget *ask_cb = (GtkWidget *)g_object_get_data(G_OBJECT(GTK_WIDGET(dialog)), CHECK_BUTTON);
 
-    return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ask_cb));
+  return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ask_cb));
 }
 
 const char *
 simple_dialog_primary_start(void) {
-    return "<span weight=\"bold\" size=\"larger\">";
+  return "<span weight=\"bold\" size=\"larger\">";
 }
 
 const char *
 simple_dialog_primary_end(void) {
-    return "</span>";
+  return "</span>";
 }
 
 char *
@@ -519,3 +519,16 @@ simple_error_message_box(const char *msg_format, ...)
   do_simple_message_box(ESD_TYPE_ERROR, NULL, NULL, msg_format, ap);
   va_end(ap);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

@@ -57,7 +57,7 @@ typedef enum _radius_category {
 	RADIUS_CAT_DISCONNECT,
 	RADIUS_CAT_COA,
 	RADIUS_CAT_OTHERS,
-        RADIUS_CAT_NUM_TIMESTATS
+	RADIUS_CAT_NUM_TIMESTATS
 } radius_category;
 
 /* Summary of response-time calculations*/
@@ -242,8 +242,8 @@ radiusstat_draw(void *prs)
 	GtkTreeIter iter;
 
 	/* clear list before printing */
-  	store = GTK_LIST_STORE(gtk_tree_view_get_model(rs->table));
-  	gtk_list_store_clear(store);
+ 	store = GTK_LIST_STORE(gtk_tree_view_get_model(rs->table));
+ 	gtk_list_store_clear(store);
 
 	for(i=0; i<RADIUS_CAT_NUM_TIMESTATS; i++) {
 		/* nothing seen, nothing to do */
@@ -381,3 +381,16 @@ register_tap_listener_gtkradiusstat(void)
 	register_param_stat(&radius_srt_dlg, "RADIUS",
 		    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

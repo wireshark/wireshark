@@ -121,7 +121,7 @@ void tb80211_update_freq(void)
 
     tb80211_freq_cnt = tb80211_current_iface->frequencies->len;
     for (i = 0; i < tb80211_freq_cnt; i++) {
-	int freq;
+        int freq;
         freq = g_array_index(tb80211_current_iface->frequencies, int, i);
         str = g_strdup_printf("%d MHz (%d)", freq, ws80211_frequency_to_channel(freq));
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(tb80211_freq_list_box), str);
@@ -161,25 +161,25 @@ int get_selected_channel_type(void)
 static int
 tb80211_do_set_channel(char *iface, int freq, int type)
 {
-	gchar *freq_s;
-	const gchar *type_s;
-	gchar *data, *primary_msg, *secondary_msg;
-	int ret;
+    gchar *freq_s;
+    const gchar *type_s;
+    gchar *data, *primary_msg, *secondary_msg;
+    int ret;
 
-	freq_s = g_strdup_printf("%d", freq);
-	type_s = ws80211_chan_type_to_str(type);
-	ret = sync_interface_set_80211_chan(iface, freq_s, type_s,
-                                            &data, &primary_msg, &secondary_msg, main_window_update);
+    freq_s = g_strdup_printf("%d", freq);
+    type_s = ws80211_chan_type_to_str(type);
+    ret = sync_interface_set_80211_chan(iface, freq_s, type_s,
+                                        &data, &primary_msg, &secondary_msg, main_window_update);
 
-	/* Parse the error msg */
-	if (ret && primary_msg) {
-		return atoi(primary_msg);
-	}
-	g_free(data);
-	g_free(primary_msg);
-	g_free(secondary_msg);
-	g_free(freq_s);
-	return ret;
+    /* Parse the error msg */
+    if (ret && primary_msg) {
+        return atoi(primary_msg);
+    }
+    g_free(data);
+    g_free(primary_msg);
+    g_free(secondary_msg);
+    g_free(freq_s);
+    return ret;
 }
 
 /* Called on freq and type combo box change. */
@@ -203,7 +203,7 @@ tb80211_set_channel(void)
     err = tb80211_do_set_channel(tb80211_current_iface->ifname, new_freq, new_type);
     if (err) {
         info = g_strdup_printf("<b>Failed to set channel: %s</b>", g_strerror(abs(err)));
-	/* Try to set back to last working chan */
+        /* Try to set back to last working chan */
         err = tb80211_do_set_channel(tb80211_current_iface->ifname, tb80211_current_freq, tb80211_current_type);
         if (err) {
             gtk_combo_box_set_active(freq_combo, -1);
@@ -332,7 +332,7 @@ static void
 tb80211_add_label(const gchar *text, GtkWidget *tb)
 {
     GtkWidget     *label;
-    GtkToolItem	  *label_ti;
+    GtkToolItem   *label_ti;
 
     label_ti = gtk_tool_item_new();
     gtk_widget_show(GTK_WIDGET (label_ti));
@@ -345,7 +345,7 @@ tb80211_add_label(const gchar *text, GtkWidget *tb)
 GtkWidget *
 ws80211_toolbar_new(void)
 {
-    GtkToolItem	  *ti;
+    GtkToolItem   *ti;
     int ret;
 
     /* filter toolbar */
@@ -414,3 +414,16 @@ ws80211_toolbar_new(void)
 
     return tb80211_tb;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

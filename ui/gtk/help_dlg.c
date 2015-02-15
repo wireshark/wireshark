@@ -99,3 +99,16 @@ topic_menu_cb(GtkWidget *w _U_, GdkEventButton *event _U_, gpointer user_data)
     topic_action((topic_action_e)GPOINTER_TO_INT(user_data));
     return TRUE;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

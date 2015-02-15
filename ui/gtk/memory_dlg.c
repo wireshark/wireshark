@@ -121,24 +121,24 @@ get_it_value(io_stat_t *io, int graph, int idx)
 static void
 print_interval_string(char *buf, int buf_len, guint32 interval, io_stat_t *io)
 {
-        struct tm *tmp;
-        time_t sec_val = interval/1000 + io->start_time.secs;
-        gint32 nsec_val = interval%1000 + io->start_time.nsecs/1000000;
+    struct tm *tmp;
+    time_t sec_val = interval/1000 + io->start_time.secs;
+    gint32 nsec_val = interval%1000 + io->start_time.nsecs/1000000;
 
-        if (nsec_val >= 1000) {
-            sec_val++;
-            nsec_val -= 1000;
-        }
-        tmp = localtime (&sec_val);
-        if (INTERVAL >= 1000) {
-            g_snprintf(buf, buf_len, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
-        } else if (INTERVAL >= 100) {
-            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
-        } else if (INTERVAL >= 10) {
-            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
-        } else {
-            g_snprintf(buf, buf_len, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
-        }
+    if (nsec_val >= 1000) {
+        sec_val++;
+        nsec_val -= 1000;
+    }
+    tmp = localtime (&sec_val);
+    if (INTERVAL >= 1000) {
+        g_snprintf(buf, buf_len, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+    } else if (INTERVAL >= 100) {
+        g_snprintf(buf, buf_len, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
+    } else if (INTERVAL >= 10) {
+        g_snprintf(buf, buf_len, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
+    } else {
+        g_snprintf(buf, buf_len, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
+    }
 }
 
 static void
@@ -588,8 +588,8 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
         const char *label = memory_usage_get(i, NULL);
         GtkWidget *display_button;
 
-	if (!label)
-	    break;
+        if (!label)
+            break;
 
         display_button = gtk_toggle_button_new_with_label(label);
         gtk_box_pack_start(GTK_BOX(hbox), display_button, FALSE, FALSE, 0);
@@ -660,10 +660,10 @@ call_it(gpointer user_data)
     for (i = 0; i < MAX_GRAPHS; i++) {
         const char *label;
 
-	label = memory_usage_get(i, &io->graphs[i].items[idx]->bytes);
+        label = memory_usage_get(i, &io->graphs[i].items[idx]->bytes);
 
-	if (!label)
-	   break;
+        if (!label)
+           break;
 
         tmp = format_size(io->graphs[i].items[idx]->bytes, format_size_unit_bytes);
         g_snprintf(buf, sizeof(buf), "%s [%s]", label, tmp);
@@ -722,3 +722,16 @@ memory_stat_init(void)
     io->timer_id = g_timeout_add(INTERVAL, call_it, io);
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

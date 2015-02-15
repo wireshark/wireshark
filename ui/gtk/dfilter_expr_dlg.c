@@ -29,9 +29,9 @@
 /* Todo -
  * may want to check the enable field to decide if protocol should be in tree
  * improve speed of dialog box creation
- *	- I believe this is slow because of tree widget creation.
- *		1) could improve the widget
- *		2) keep a copy in memory after the first time.
+ *      - I believe this is slow because of tree widget creation.
+ *              1) could improve the widget
+ *              2) keep a copy in memory after the first time.
  * user can pop multiple tree dialogs by pressing the "Tree" button multiple
  *  times.  not a good thing.
  * Sort the protocols and children
@@ -52,18 +52,18 @@
 #include "ui/gtk/proto_hier_tree_model.h"
 
 
-#define E_DFILTER_EXPR_TREE_KEY			"dfilter_expr_tree"
-#define E_DFILTER_EXPR_CURRENT_VAR_KEY		"dfilter_expr_current_var"
-#define E_DFILTER_EXPR_RELATION_LIST_KEY	"dfilter_expr_relation_list"
-#define E_DFILTER_EXPR_RANGE_LABEL_KEY		"dfilter_expr_range_label"
-#define E_DFILTER_EXPR_RANGE_ENTRY_KEY		"dfilter_expr_range_entry"
-#define E_DFILTER_EXPR_VALUE_LABEL_KEY		"dfilter_expr_value_label"
-#define E_DFILTER_EXPR_VALUE_ENTRY_KEY		"dfilter_expr_value_entry"
-#define E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY "dfilter_expr_value_list_label"
-#define E_DFILTER_EXPR_VALUE_LIST_KEY		"dfilter_expr_value_list"
-#define E_DFILTER_EXPR_VALUE_LIST_SW_KEY	"dfilter_expr_value_list_sw"
-#define E_DFILTER_EXPR_OK_BT_KEY		"dfilter_expr_accept_bt"
-#define E_DFILTER_EXPR_VALUE_KEY		"dfilter_expr_value"
+#define E_DFILTER_EXPR_TREE_KEY                 "dfilter_expr_tree"
+#define E_DFILTER_EXPR_CURRENT_VAR_KEY          "dfilter_expr_current_var"
+#define E_DFILTER_EXPR_RELATION_LIST_KEY        "dfilter_expr_relation_list"
+#define E_DFILTER_EXPR_RANGE_LABEL_KEY          "dfilter_expr_range_label"
+#define E_DFILTER_EXPR_RANGE_ENTRY_KEY          "dfilter_expr_range_entry"
+#define E_DFILTER_EXPR_VALUE_LABEL_KEY          "dfilter_expr_value_label"
+#define E_DFILTER_EXPR_VALUE_ENTRY_KEY          "dfilter_expr_value_entry"
+#define E_DFILTER_EXPR_VALUE_LIST_LABEL_KEY     "dfilter_expr_value_list_label"
+#define E_DFILTER_EXPR_VALUE_LIST_KEY           "dfilter_expr_value_list"
+#define E_DFILTER_EXPR_VALUE_LIST_SW_KEY        "dfilter_expr_value_list_sw"
+#define E_DFILTER_EXPR_OK_BT_KEY                "dfilter_expr_accept_bt"
+#define E_DFILTER_EXPR_VALUE_KEY                "dfilter_expr_value"
 
 static void show_relations(GtkWidget *relation_list, ftenum_t ftype);
 static gboolean relation_is_presence_test(const char *string);
@@ -181,7 +181,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
          * If this has a value_string table (not a range_string table) associated with it,
          * fill up the list of values, otherwise clear the list of values.
          */
-	/* XXX: ToDo: Implement "range-string" filter ?   */
+        /* XXX: ToDo: Implement "range-string" filter ?   */
         if ((hfinfo->strings != NULL) &&
             ! (hfinfo->display & BASE_RANGE_STRING) &&
             ! (hfinfo->display & BASE_VAL64_STRING) &&
@@ -219,36 +219,36 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 static void
 show_relations(GtkWidget *relation_list, ftenum_t ftype)
 {
-        GtkTreeIter iter;
-	/*
-	 * Clear out the currently displayed list of relations.
-	 */
-        gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list))));
+    GtkTreeIter iter;
+    /*
+     * Clear out the currently displayed list of relations.
+     */
+    gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list))));
 
-	/*
-	 * Add the supported relations.
-	 */
-	add_relation_list(relation_list, "is present", TRUE);
-	add_relation_list(relation_list, "==",
-	    ftype_can_eq(ftype) || (ftype_can_slice(ftype) && ftype_can_eq(FT_BYTES)));
-	add_relation_list(relation_list, "!=",
-	    ftype_can_ne(ftype) || (ftype_can_slice(ftype) && ftype_can_ne(FT_BYTES)));
-	add_relation_list(relation_list, ">",
-	    ftype_can_gt(ftype) || (ftype_can_slice(ftype) && ftype_can_gt(FT_BYTES)));
+    /*
+     * Add the supported relations.
+     */
+    add_relation_list(relation_list, "is present", TRUE);
+    add_relation_list(relation_list, "==",
+                      ftype_can_eq(ftype) || (ftype_can_slice(ftype) && ftype_can_eq(FT_BYTES)));
+    add_relation_list(relation_list, "!=",
+                      ftype_can_ne(ftype) || (ftype_can_slice(ftype) && ftype_can_ne(FT_BYTES)));
+    add_relation_list(relation_list, ">",
+                      ftype_can_gt(ftype) || (ftype_can_slice(ftype) && ftype_can_gt(FT_BYTES)));
 
-	add_relation_list(relation_list, "<",
-	    ftype_can_lt(ftype) || (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)));
-	add_relation_list(relation_list, ">=",
-	    ftype_can_ge(ftype) || (ftype_can_slice(ftype) && ftype_can_ge(FT_BYTES)));
-	add_relation_list(relation_list, "<=",
-	    ftype_can_le(ftype) || (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)));
-	add_relation_list(relation_list, "contains",
-	    ftype_can_contains(ftype) || (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)));
-	add_relation_list(relation_list, "matches",
-	    ftype_can_matches(ftype) || (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)));
+    add_relation_list(relation_list, "<",
+                      ftype_can_lt(ftype) || (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)));
+    add_relation_list(relation_list, ">=",
+                      ftype_can_ge(ftype) || (ftype_can_slice(ftype) && ftype_can_ge(FT_BYTES)));
+    add_relation_list(relation_list, "<=",
+                      ftype_can_le(ftype) || (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)));
+    add_relation_list(relation_list, "contains",
+                      ftype_can_contains(ftype) || (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)));
+    add_relation_list(relation_list, "matches",
+                      ftype_can_matches(ftype) || (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)));
 
-        gtk_tree_model_get_iter_first(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list)), &iter);
-        gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)), &iter);
+    gtk_tree_model_get_iter_first(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list)), &iter);
+    gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)), &iter);
 }
 
 /*
@@ -258,7 +258,7 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
 static gboolean
 relation_is_presence_test(const char *string)
 {
-	return (strcmp(string, "is present") == 0);
+    return (strcmp(string, "is present") == 0);
 }
 
 static void
@@ -420,85 +420,85 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
                      GtkWidget *value_list_scrolled_win, GtkWidget *range_label,
                      GtkWidget *range_entry)
 {
-	/* Default values */
-	gboolean show_value_label = FALSE;
-	gboolean show_value_list = FALSE;
-	gboolean show_range = FALSE;
+    /* Default values */
+    gboolean show_value_label = FALSE;
+    gboolean show_value_list  = FALSE;
+    gboolean show_range       = FALSE;
 
-	/*
-	 * Either:
-	 *
-	 *	this is an FT_NONE variable, in which case you can
-	 *	only check whether it's present or absent in the
-	 *	protocol tree
-	 *
-	 * or
-	 *
-	 *	this is a Boolean variable, in which case you
-	 *	can't specify a value to compare with, you can
-	 *	only specify whether to test for the Boolean
-	 *	being true or to test for it being false
-	 *
-	 * or
-	 *
-	 *	this isn't a Boolean variable, in which case you
-	 *	can test for its presence in the protocol tree,
-	 *	and the relation is such a test, in
-	 *	which case you don't compare with a value
-	 *
-	 * so we hide the value entry.
-	 */
+    /*
+     * Either:
+     *
+     *  this is an FT_NONE variable, in which case you can
+     *  only check whether it's present or absent in the
+     *  protocol tree
+     *
+     * or
+     *
+     *  this is a Boolean variable, in which case you
+     *  can't specify a value to compare with, you can
+     *  only specify whether to test for the Boolean
+     *  being true or to test for it being false
+     *
+     * or
+     *
+     *  this isn't a Boolean variable, in which case you
+     *  can test for its presence in the protocol tree,
+     *  and the relation is such a test, in
+     *  which case you don't compare with a value
+     *
+     * so we hide the value entry.
+     */
 
-	switch (hfinfo->type) {
+    switch (hfinfo->type) {
 
-	case FT_BOOLEAN:
-		if (is_comparison) {
-			show_value_label = TRUE;  /* XXX: Allow value entry (contrary to the comment above) ?? */
-			show_value_list  = TRUE;
-		}
-		break;
+    case FT_BOOLEAN:
+        if (is_comparison) {
+            show_value_label = TRUE;  /* XXX: Allow value entry (contrary to the comment above) ?? */
+            show_value_list  = TRUE;
+        }
+        break;
 
-	case FT_UINT8:
-	case FT_UINT16:
-	case FT_UINT24:
-	case FT_UINT32:
-	case FT_INT8:
-	case FT_INT16:
-	case FT_INT24:
-	case FT_INT32:
-		if (is_comparison) {
-			show_value_label = TRUE;
-			if ((hfinfo->strings != NULL) && !(hfinfo->display & BASE_RANGE_STRING)) {
-			/*
-			 * We have a list of values to show.
-			 */
-				show_value_list = TRUE;
-			}
-		}
-		break;
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+    case FT_INT8:
+    case FT_INT16:
+    case FT_INT24:
+    case FT_INT32:
+        if (is_comparison) {
+            show_value_label = TRUE;
+            if ((hfinfo->strings != NULL) && !(hfinfo->display & BASE_RANGE_STRING)) {
+                /*
+                 * We have a list of values to show.
+                 */
+                show_value_list = TRUE;
+            }
+        }
+        break;
 
-	default:
-		/*
-		 * There is no list of names for values; only show the value_label if needed.
-		 */
-		if (is_comparison)
-			show_value_label = TRUE;
-		break;
-	}
+    default:
+        /*
+         * There is no list of names for values; only show the value_label if needed.
+         */
+        if (is_comparison)
+            show_value_label = TRUE;
+        break;
+    }
 
-	gtk_widget_set_sensitive(value_label,               show_value_label);
-	gtk_widget_set_sensitive(value_entry,               show_value_label);
+    gtk_widget_set_sensitive(value_label,               show_value_label);
+    gtk_widget_set_sensitive(value_entry,               show_value_label);
 
-	gtk_widget_set_sensitive(value_list_label,          show_value_list);
-	gtk_widget_set_sensitive(value_list_scrolled_win,   show_value_list);
+    gtk_widget_set_sensitive(value_list_label,          show_value_list);
+    gtk_widget_set_sensitive(value_list_scrolled_win,   show_value_list);
 
-	/*
-	 * Is this a comparison, and are ranges supported by this type?
-	 * If both are true, show the range stuff, otherwise hide it.
-	 */
-	show_range = (is_comparison && ftype_can_slice(hfinfo->type));
-	gtk_widget_set_sensitive(range_label, show_range);
-	gtk_widget_set_sensitive(range_entry, show_range);
+    /*
+     * Is this a comparison, and are ranges supported by this type?
+     * If both are true, show the range stuff, otherwise hide it.
+     */
+    show_range = (is_comparison && ftype_can_slice(hfinfo->type));
+    gtk_widget_set_sensitive(range_label, show_range);
+    gtk_widget_set_sensitive(range_entry, show_range);
 }
 
 static void
@@ -529,9 +529,9 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
          * testing for "false".
          */
         if (value != NULL)
-		value_display_string = g_strdup("1");
+            value_display_string = g_strdup("1");
         else
-		value_display_string = g_strdup("0");
+            value_display_string = g_strdup("0");
     } else {
         /*
          * Numeric type; get the value corresponding to the
@@ -685,7 +685,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     else if (strcmp(item_str, "matches") == 0)
         can_compare = ftype_can_matches(ftype);
     else
-        can_compare = TRUE;	/* not a comparison */
+        can_compare = TRUE;    /* not a comparison */
     if (!can_compare) {
         if (range_str == NULL) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -729,14 +729,14 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
          * for the type of the field; if a range string was
          * specified, must be valid for FT_BYTES.
          */
-    	if (strcmp(item_str, "contains") == 0) {
+        if (strcmp(item_str, "contains") == 0) {
             fvalue = fvalue_from_unparsed(ftype, stripped_value_str, TRUE,
                                           &err_msg);
-	}
-	else {
+        }
+        else {
             fvalue = fvalue_from_unparsed(ftype, stripped_value_str, FALSE,
                                           &err_msg);
-	}
+        }
         if (fvalue == NULL) {
             /*
              * It's not valid.
@@ -846,10 +846,10 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 static void
 dfilter_expr_dlg_cancel_cb(GtkWidget *w _U_, gpointer parent_w)
 {
-	/*
-	 * User pressed the cancel button; close the dialog box.
-	 */
-	window_destroy(GTK_WIDGET(parent_w));
+    /*
+     * User pressed the cancel button; close the dialog box.
+     */
+    window_destroy(GTK_WIDGET(parent_w));
 }
 
 /* Treat this as a cancel, by calling "prefs_main_cancel_cb()" */
@@ -857,20 +857,20 @@ static gboolean
 dfilter_expr_dlg_delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_,
                                  gpointer parent_w)
 {
-	dfilter_expr_dlg_cancel_cb(NULL, parent_w);
-	return FALSE;
+    dfilter_expr_dlg_cancel_cb(NULL, parent_w);
+    return FALSE;
 }
 
 static void
 dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
 {
-	/*
-	 * The dialog box is being destroyed; disconnect from the
-	 * "destroy" signal on the text entry box to which we're
-	 * attached, as the handler for that signal is supposed
-	 * to destroy us, but we're already gone.
-	 */
-	g_signal_handlers_disconnect_by_func(filter_te, dfilter_expr_dlg_cancel_cb, w);
+    /*
+     * The dialog box is being destroyed; disconnect from the
+     * "destroy" signal on the text entry box to which we're
+     * attached, as the handler for that signal is supposed
+     * to destroy us, but we're already gone.
+     */
+    g_signal_handlers_disconnect_by_func(filter_te, dfilter_expr_dlg_cancel_cb, w);
 }
 
 GtkWidget *
@@ -899,7 +899,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkListStore      *l_store;
     GtkTreeSelection  *l_sel;
 
-	proto_initialize_all_prefixes();
+    proto_initialize_all_prefixes();
 
     window = dlg_conf_window_new("Wireshark: Filter Expression");
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
@@ -1146,3 +1146,16 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     return window;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

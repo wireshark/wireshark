@@ -65,8 +65,8 @@ typedef struct {
 
 
 static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, int i, layout_pane_content_e content) {
-    GtkWidget	*radio_vb, *radio_lb;
-    GtkWidget	*radio_none_rb, *radio_plist_rb, *radio_pdetails_rb, *radio_pbytes_rb;
+    GtkWidget   *radio_vb, *radio_lb;
+    GtkWidget   *radio_none_rb, *radio_plist_rb, *radio_pdetails_rb, *radio_pbytes_rb;
     char buf[64];
 
 
@@ -120,20 +120,20 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, int i, layout_pa
 static void
 layout_type_changed_cb (GtkToggleButton * togglebutton, gpointer user_data)
 {
-	GtkWidget ** layout_type_buttons = (GtkWidget**) user_data;
-	static gboolean dampen_feedback_loop = FALSE;
+    GtkWidget ** layout_type_buttons = (GtkWidget**) user_data;
+    static gboolean dampen_feedback_loop = FALSE;
 
-	if (!dampen_feedback_loop) {
-		int i;
-		dampen_feedback_loop = TRUE;
-		for (i=0; i<LAYOUT_QTY; ++i) {
-			GtkToggleButton * tb = GTK_TOGGLE_BUTTON(layout_type_buttons[i]);
-			gboolean active = togglebutton==tb;
-			if (gtk_toggle_button_get_active(tb) != active)
-				gtk_toggle_button_set_active (tb, active);
-		}
-		dampen_feedback_loop = FALSE;
-	}
+    if (!dampen_feedback_loop) {
+        int i;
+        dampen_feedback_loop = TRUE;
+        for (i=0; i<LAYOUT_QTY; ++i) {
+            GtkToggleButton * tb = GTK_TOGGLE_BUTTON(layout_type_buttons[i]);
+            gboolean active = togglebutton==tb;
+            if (gtk_toggle_button_get_active(tb) != active)
+                gtk_toggle_button_set_active (tb, active);
+        }
+        dampen_feedback_loop = FALSE;
+    }
 }
 
 
@@ -176,7 +176,7 @@ static void layout_pane_set_content(GtkWidget * radio_vb, layout_pane_content_e 
 
 
 static void layout_set(GtkWidget * main_vb, layout_t *layout) {
-    GtkWidget	*radio_vb;
+    GtkWidget   *radio_vb;
     GtkWidget ** layout_type_buttons = (GtkWidget **)g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(layout_type_buttons[layout->type - 1]), TRUE);
@@ -190,7 +190,7 @@ static void layout_set(GtkWidget * main_vb, layout_t *layout) {
 }
 
 static void layout_get(GtkWidget * main_vb, layout_t *layout_out) {
-    GtkWidget	*radio_vb;
+    GtkWidget   *radio_vb;
     GtkWidget ** layout_type_buttons = (GtkWidget **)g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
     int i;
 
@@ -212,33 +212,33 @@ static void layout_get(GtkWidget * main_vb, layout_t *layout_out) {
 static void layout_validate(layout_t *layout, int pane) {
 
     switch (pane) {
-	case 1:
-	    if(layout->content[1] == layout->content[0]) {
-		layout->content[1] = layout_pane_content_none;
-	    }
-	    if(layout->content[2] == layout->content[0]) {
-		layout->content[2] = layout_pane_content_none;
-	    }
-	    break;
-	case 2:
-	    if(layout->content[0] == layout->content[1]) {
-		layout->content[0] = layout_pane_content_none;
-	    }
-	    if(layout->content[2] == layout->content[1]) {
-		layout->content[2] = layout_pane_content_none;
-	    }
-	    break;
-	case 3:
-	    if(layout->content[0] == layout->content[2]) {
-		layout->content[0] = layout_pane_content_none;
-	    }
-	    if(layout->content[1] == layout->content[2]) {
-		layout->content[1] = layout_pane_content_none;
-	    }
-	    break;
-	default:
-	    /* If the user selects "None" we're not going to intervene. */
-	    break;
+    case 1:
+        if(layout->content[1] == layout->content[0]) {
+            layout->content[1] = layout_pane_content_none;
+        }
+        if(layout->content[2] == layout->content[0]) {
+            layout->content[2] = layout_pane_content_none;
+        }
+        break;
+    case 2:
+        if(layout->content[0] == layout->content[1]) {
+            layout->content[0] = layout_pane_content_none;
+        }
+        if(layout->content[2] == layout->content[1]) {
+            layout->content[2] = layout_pane_content_none;
+        }
+        break;
+    case 3:
+        if(layout->content[0] == layout->content[2]) {
+            layout->content[0] = layout_pane_content_none;
+        }
+        if(layout->content[1] == layout->content[2]) {
+            layout->content[1] = layout_pane_content_none;
+        }
+        break;
+    default:
+        /* If the user selects "None" we're not going to intervene. */
+        break;
     }
 
 }
@@ -269,7 +269,7 @@ layout_defaults_cb (GtkWidget * w _U_, gpointer data)
 }
 
 #define ALTERN_COLORS_KEY               "altern_colors"
-#define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
+#define HEX_DUMP_HIGHLIGHT_STYLE_KEY    "hex_dump_highlight_style"
 #define FILTER_TOOLBAR_PLACEMENT_KEY    "filter_toolbar_show_in_statusbar"
 #define GUI_TOOLBAR_STYLE_KEY           "toolbar_style"
 #define GUI_FILTER_TOOLBAR_STYLE_KEY    "filter_toolbar_style"
@@ -300,17 +300,17 @@ static const enum_val_t toolbar_style_vals[] = {
 GtkWidget*
 layout_prefs_show(void)
 {
-    GtkWidget	*main_vb, *button_hb, *type_tb;
-    GtkWidget	*pane_fr, *pane_vb;
-    GtkWidget	*radio_hb, *radio_vb;
-    GtkWidget	*default_vb, *default_bt;
+    GtkWidget   *main_vb, *button_hb, *type_tb;
+    GtkWidget   *pane_fr, *pane_vb;
+    GtkWidget   *radio_hb, *radio_vb;
+    GtkWidget   *default_vb, *default_bt;
     GtkWidget   *main_grid, *hbox;
-    GtkWidget	*altern_colors_om;
-    GtkWidget	*highlight_style_om;
-    GtkWidget	*toolbar_style_om;
-	GtkWidget	*filter_toolbar_style_om;
-    GtkWidget	*filter_toolbar_placement_om;
-    GtkWidget	*window_title_te;
+    GtkWidget   *altern_colors_om;
+    GtkWidget   *highlight_style_om;
+    GtkWidget   *toolbar_style_om;
+    GtkWidget   *filter_toolbar_style_om;
+    GtkWidget   *filter_toolbar_placement_om;
+    GtkWidget   *window_title_te;
 
     GtkWidget ** layout_type_buttons = (GtkWidget **)g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
     GtkWidget *layout_pixbufs[LAYOUT_QTY];
@@ -348,15 +348,15 @@ layout_prefs_show(void)
     layout_pixbufs[5] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_6_pb_data, FALSE, NULL));
     for (i=0; i<LAYOUT_QTY; ++i)
     {
-	type_tb = gtk_toggle_button_new ();
-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(type_tb),
-	    (layout_type_e)(i + 1) == prefs.gui_layout_type);
+        type_tb = gtk_toggle_button_new ();
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(type_tb),
+                                      (layout_type_e)(i + 1) == prefs.gui_layout_type);
 
-	gtk_container_add (GTK_CONTAINER(type_tb), layout_pixbufs[i]);
+        gtk_container_add (GTK_CONTAINER(type_tb), layout_pixbufs[i]);
 
-	g_signal_connect(type_tb, "toggled", G_CALLBACK(layout_type_changed_cb), layout_type_buttons);
-	layout_type_buttons[i] = type_tb;
-	gtk_box_pack_start (GTK_BOX(button_hb), type_tb, TRUE, FALSE, 0);
+        g_signal_connect(type_tb, "toggled", G_CALLBACK(layout_type_changed_cb), layout_type_buttons);
+        layout_type_buttons[i] = type_tb;
+        gtk_box_pack_start (GTK_BOX(button_hb), type_tb, TRUE, FALSE, 0);
     }
 
     g_object_set_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY, layout_type_buttons);
@@ -497,3 +497,16 @@ layout_prefs_destroy(GtkWidget *main_vb)
     g_free(layout_type_buttons);
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -1076,11 +1076,11 @@ copy_binary_to_clipboard(const guint8 *data_p,
                          int           len)
 {
     static GtkTargetEntry target_entry[] = {
-         {(char *)"application/octet-stream", 0, 0}};
-	     /* XXX - this is not understood by most applications,
-              * but can be pasted into the better hex editors - is
-              * there something better that we can do?
-              */
+        {(char *)"application/octet-stream", 0, 0}};
+    /* XXX - this is not understood by most applications,
+     * but can be pasted into the better hex editors - is
+     * there something better that we can do?
+     */
 
     GtkClipboard  *cb;
     copy_binary_t *copy_data;
@@ -2023,11 +2023,24 @@ ws_gtk_grid_set_homogeneous(GtkGrid *grid, gboolean homogeneous)
 void
 gdk_cairo_set_source_rgba(cairo_t *cr, const GdkRGBA *rgba)
 {
-	GdkColor color;
+    GdkColor color;
 
-	gdkRGBAcolor_to_GdkColor(&color, rgba);
+    gdkRGBAcolor_to_GdkColor(&color, rgba);
 
-	gdk_cairo_set_source_color(cr, &color);
+    gdk_cairo_set_source_color(cr, &color);
 
 }
 #endif /* GTK_CHECK_VERSION(3,0,0) */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

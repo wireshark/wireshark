@@ -376,8 +376,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 find_frame_with_filter(char *filter)
 {
-	find_frame_cb(NULL, NULL);
-	gtk_entry_set_text(GTK_ENTRY(filter_text_box), filter);
+  find_frame_cb(NULL, NULL);
+  gtk_entry_set_text(GTK_ENTRY(filter_text_box), filter);
 }
 
 /*
@@ -439,23 +439,23 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
 static void
 hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *filter_tb, *hex_rb, *filter_entry;
+  GtkWidget   *filter_tb, *hex_rb, *filter_entry;
 
-    filter_tb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
-    hex_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_HEXDATA_KEY);
+  filter_tb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
+  hex_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_HEXDATA_KEY);
 
-    filter_entry = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),E_FIND_FILT_KEY);
-    gtk_widget_grab_focus(filter_entry);
+  filter_entry = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),E_FIND_FILT_KEY);
+  gtk_widget_grab_focus(filter_entry);
 
-    /* Disable AutoCompletion feature */
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hex_rb)) && g_signal_handler_is_connected(filter_tb, te_presskey_handler_id)) {
-      g_signal_handler_disconnect(filter_tb, te_presskey_handler_id);
-      g_signal_handler_disconnect(parent_w, win_presskey_handler_id);
-    }
+  /* Disable AutoCompletion feature */
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hex_rb)) && g_signal_handler_is_connected(filter_tb, te_presskey_handler_id)) {
+    g_signal_handler_disconnect(filter_tb, te_presskey_handler_id);
+    g_signal_handler_disconnect(parent_w, win_presskey_handler_id);
+  }
 
-    /* Re-check the display filter. */
-    find_filter_te_syntax_check_cb(filter_tb, parent_w);
-    return;
+  /* Re-check the display filter. */
+  find_filter_te_syntax_check_cb(filter_tb, parent_w);
+  return;
 }
 
 /*
@@ -465,47 +465,47 @@ hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 static void
 string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *string_rb, *packet_data_rb, *decode_data_rb, *summary_data_rb,
-                *data_combo_lb, *data_combo_cb, *data_case_cb, *filter_tb, *filter_entry;
+  GtkWidget   *string_rb, *packet_data_rb, *decode_data_rb, *summary_data_rb,
+    *data_combo_lb, *data_combo_cb, *data_case_cb, *filter_tb, *filter_entry;
 
-    string_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGDATA_KEY);
-    packet_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DATA_KEY);
-    decode_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DECODE_KEY);
-    summary_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_SUMMARY_KEY);
+  string_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGDATA_KEY);
+  packet_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DATA_KEY);
+  decode_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DECODE_KEY);
+  summary_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_SUMMARY_KEY);
 
-    data_combo_lb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_LABEL_KEY);
-    data_combo_cb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_KEY);
-    data_case_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CASE_SEARCH_KEY);
-    filter_tb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
+  data_combo_lb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_LABEL_KEY);
+  data_combo_cb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_KEY);
+  data_case_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CASE_SEARCH_KEY);
+  filter_tb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
 
-    filter_entry = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),E_FIND_FILT_KEY);
-    gtk_widget_grab_focus(filter_entry);
+  filter_entry = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),E_FIND_FILT_KEY);
+  gtk_widget_grab_focus(filter_entry);
 
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(string_rb))) {
-        gtk_widget_set_sensitive(GTK_WIDGET(packet_data_rb), TRUE);
-        gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), TRUE);
-        gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), TRUE);
-        gtk_widget_set_sensitive(GTK_WIDGET(data_combo_lb), TRUE);
-        gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), TRUE);
-        gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), TRUE);
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(string_rb))) {
+    gtk_widget_set_sensitive(GTK_WIDGET(packet_data_rb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(data_combo_lb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), TRUE);
 
-	/* Disable AutoCompletion feature */
-	if(g_signal_handler_is_connected(filter_tb, te_presskey_handler_id)) {
-	  g_signal_handler_disconnect(filter_tb, te_presskey_handler_id);
-	  g_signal_handler_disconnect(parent_w, win_presskey_handler_id);
-	}
-
-    } else {
-        gtk_widget_set_sensitive(GTK_WIDGET(packet_data_rb), FALSE);
-        gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), FALSE);
-        gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), FALSE);
-        gtk_widget_set_sensitive(GTK_WIDGET(data_combo_lb), FALSE);
-        gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), FALSE);
-        gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), FALSE);
+    /* Disable AutoCompletion feature */
+    if(g_signal_handler_is_connected(filter_tb, te_presskey_handler_id)) {
+      g_signal_handler_disconnect(filter_tb, te_presskey_handler_id);
+      g_signal_handler_disconnect(parent_w, win_presskey_handler_id);
     }
-    /* Re-check the display filter. */
-    find_filter_te_syntax_check_cb(filter_tb, parent_w);
-    return;
+
+  } else {
+    gtk_widget_set_sensitive(GTK_WIDGET(packet_data_rb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(decode_data_rb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(summary_data_rb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(data_combo_lb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(data_combo_cb), FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(data_case_cb), FALSE);
+  }
+  /* Re-check the display filter. */
+  find_filter_te_syntax_check_cb(filter_tb, parent_w);
+  return;
 }
 
 /*
@@ -515,29 +515,29 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 static void
 filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
-    GtkWidget   *filter_bt, *filter_rb, *filter_te, *filter_entry;
+  GtkWidget   *filter_bt, *filter_rb, *filter_te, *filter_entry;
 
-    filter_bt = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_BUTTON_KEY);
-    filter_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_FILTERDATA_KEY);
-    filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
+  filter_bt = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_BUTTON_KEY);
+  filter_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_FILTERDATA_KEY);
+  filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
 
-    filter_entry = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),E_FIND_FILT_KEY);
-    gtk_widget_grab_focus(filter_entry);
+  filter_entry = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),E_FIND_FILT_KEY);
+  gtk_widget_grab_focus(filter_entry);
 
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filter_rb)))
-    {
-        gtk_widget_set_sensitive(GTK_WIDGET(filter_bt), TRUE);
-	/* Enable AutoCompletion feature */
-	if(!g_signal_handler_is_connected(filter_te, te_presskey_handler_id)) {
-	  te_presskey_handler_id = g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
-	  win_presskey_handler_id = g_signal_connect(parent_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
-	}
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filter_rb)))
+  {
+    gtk_widget_set_sensitive(GTK_WIDGET(filter_bt), TRUE);
+    /* Enable AutoCompletion feature */
+    if(!g_signal_handler_is_connected(filter_te, te_presskey_handler_id)) {
+      te_presskey_handler_id = g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+      win_presskey_handler_id = g_signal_connect(parent_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
     }
-    else
-    {
-        gtk_widget_set_sensitive(GTK_WIDGET(filter_bt), FALSE);
-    }
-    return;
+  }
+  else
+  {
+    gtk_widget_set_sensitive(GTK_WIDGET(filter_bt), FALSE);
+  }
+  return;
 }
 
 static void
@@ -554,7 +554,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   gboolean         found_packet=FALSE;
   gboolean         hex_search;
   gboolean         string_search;
-  int		   string_type;
+  int              string_type;
 
   filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_FILT_KEY);
   up_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_BACKWARD_KEY);
@@ -732,10 +732,10 @@ find_previous_next(GtkWidget *w, gpointer d, search_direction dir)
     if (cfile.hex) {
       bytes = convert_string_to_hex(cfile.sfilter, &nbytes);
       if (bytes == NULL) {
-	/*
-	 * XXX - this shouldn't happen, as we've already successfully
-	 * translated the string once.
-	 */
+        /*
+         * XXX - this shouldn't happen, as we've already successfully
+         * translated the string once.
+         */
         return;
       }
       cf_find_packet_data(&cfile, bytes, nbytes, dir);
@@ -756,17 +756,17 @@ find_previous_next(GtkWidget *w, gpointer d, search_direction dir)
       g_free(string);
     } else {
       if (!dfilter_compile(cfile.sfilter, &sfcode, NULL)) {
-	/*
-	 * XXX - this shouldn't happen, as we've already successfully
-	 * translated the string once.
-	 */
+        /*
+         * XXX - this shouldn't happen, as we've already successfully
+         * translated the string once.
+         */
         return;
       }
       if (sfcode == NULL) {
-	/*
-	 * XXX - this shouldn't happen, as we've already found that the
-	 * string wasn't null.
-	 */
+        /*
+         * XXX - this shouldn't happen, as we've already found that the
+         * string wasn't null.
+         */
         return;
       }
       cf_find_packet_dfilter(&cfile, sfcode, dir);
@@ -787,3 +787,16 @@ find_previous_cb(GtkWidget *w , gpointer d)
 {
   find_previous_next(w, d, SD_BACKWARD);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

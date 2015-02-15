@@ -61,14 +61,14 @@ static tap_param_dlg h225_rassrt_dlg = {
 #define NUM_RAS_STATS 7
 
 static const value_string ras_message_category[] = {
-  {  0,	"Gatekeeper    "},
-  {  1,	"Registration  "},
-  {  2,	"UnRegistration"},
-  {  3,	"Admission     "},
-  {  4,	"Bandwidth     "},
-  {  5,	"Disengage     "},
-  {  6,	"Location      "},
-  {  0, NULL }
+	{  0,	"Gatekeeper    "},
+	{  1,	"Registration  "},
+	{  2,	"UnRegistration"},
+	{  3,	"Admission     "},
+	{  4,	"Bandwidth     "},
+	{  5,	"Disengage     "},
+	{  6,	"Location      "},
+	{  0, NULL }
 };
 
 typedef enum _ras_type {
@@ -120,11 +120,11 @@ h225rassrt_reset(void *phs)
 		hs->ras_rtd[i].stats.min_num = 0;
 		hs->ras_rtd[i].stats.max_num = 0;
 		hs->ras_rtd[i].stats.min.secs = 0;
-        	hs->ras_rtd[i].stats.min.nsecs = 0;
-        	hs->ras_rtd[i].stats.max.secs = 0;
-        	hs->ras_rtd[i].stats.max.nsecs = 0;
-        	hs->ras_rtd[i].stats.tot.secs = 0;
-        	hs->ras_rtd[i].stats.tot.nsecs = 0;
+		hs->ras_rtd[i].stats.min.nsecs = 0;
+		hs->ras_rtd[i].stats.max.secs = 0;
+		hs->ras_rtd[i].stats.max.nsecs = 0;
+		hs->ras_rtd[i].stats.tot.secs = 0;
+		hs->ras_rtd[i].stats.tot.nsecs = 0;
 		hs->ras_rtd[i].open_req_num = 0;
 		hs->ras_rtd[i].disc_rsp_num = 0;
 		hs->ras_rtd[i].req_dup_num = 0;
@@ -204,8 +204,8 @@ h225rassrt_draw(void *phs)
 
 	/* Now print Message and Reason Counter Table */
 	/* clear list before printing */
-  	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
-  	gtk_list_store_clear(store);
+ 	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
+ 	gtk_list_store_clear(store);
 
 	for(i=0;i<NUM_RAS_STATS;i++) {
 		/* nothing seen, nothing to do */
@@ -294,7 +294,7 @@ gtk_h225rassrt_init(const char *opt_arg, void *userdata _U_)
 
 	init_main_stat_window(hs->win, hs->vbox, "H.225 RAS Service Response Time", hs->filter);
 
-        /* init a scrolled window*/
+	/* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
 
 	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 11, titles);
@@ -331,3 +331,16 @@ register_tap_listener_gtk_h225rassrt(void)
 	register_param_stat(&h225_rassrt_dlg, "H.225 RAS",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

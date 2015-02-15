@@ -186,10 +186,10 @@ forget_rule_info(rule_info_t *rule_info)
 void
 firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-    GtkWidget	    *rule_w, *vbox, *txt_scrollw, *text;
+    GtkWidget       *rule_w, *vbox, *txt_scrollw, *text;
     GtkWidget       *label,  *product_combo_box;
-    GtkWidget	    *hbox,   *button_hbox, *button;
-    rule_info_t	    *rule_info;
+    GtkWidget       *hbox,   *button_hbox, *button;
+    rule_info_t     *rule_info;
     packet_info     *pinfo = &cfile.edt->pi;
     guint i;
 
@@ -272,15 +272,15 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     /* Create Copy Button */
     button = (GtkWidget *)g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_COPY);
     g_signal_connect(button, "clicked", G_CALLBACK(firewall_copy_cmd_cb), rule_info);
-	gtk_widget_set_tooltip_text(button, "Copy rule to clipboard");
+    gtk_widget_set_tooltip_text(button, "Copy rule to clipboard");
 
     /* Create Save Button */
     button = (GtkWidget *)g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_SAVE);
     g_signal_connect(button, "clicked", G_CALLBACK(firewall_save_as_cmd_cb), rule_info);
-	gtk_widget_set_tooltip_text(button, "Save the rule as currently displayed");
+    gtk_widget_set_tooltip_text(button, "Save the rule as currently displayed");
 
     button = (GtkWidget *)g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_CANCEL);
-	gtk_widget_set_tooltip_text(button, "Cancel the dialog");
+    gtk_widget_set_tooltip_text(button, "Cancel the dialog");
     window_set_cancel_button(rule_w, button, window_cancel_button_cb);
 
     button = (GtkWidget *)g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_HELP);
@@ -299,7 +299,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 
        gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(rule_w));
 
-	   */
+    */
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(product_combo_box), 0);  /* invokes select_product callback */
     gtk_widget_show_all(rule_w);
@@ -319,13 +319,13 @@ static void
 select_product(GtkWidget *w, gpointer data _U_)
 {
     guint prod = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
-    rule_info_t	*rule_info;
+    rule_info_t *rule_info;
     gchar name[MAX_RULE_LEN], addr_str[MAX_RULE_LEN];
     address *addr;
     rule_type_t rule_type = RT_NONE;
     gboolean sensitive = FALSE;
 
-    rule_info =(rule_info_t	*)g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
+    rule_info =(rule_info_t *)g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
 
     if (prod >= NUM_PRODS || !rule_info)
         return;
@@ -399,7 +399,7 @@ static void
 select_filter(GtkWidget *w, gpointer data _U_)
 {
     rule_type_t cur_type;
-    rule_info_t	*rule_info;
+    rule_info_t *rule_info;
     gpointer ptr;
 
     rule_info = (rule_info_t *)g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
@@ -424,7 +424,7 @@ select_filter(GtkWidget *w, gpointer data _U_)
 static void
 toggle_inbound(GtkToggleButton *t, gpointer data)
 {
-    rule_info_t	*rule_info = (rule_info_t *) data;
+    rule_info_t *rule_info = (rule_info_t *) data;
 
     rule_info->inbound = gtk_toggle_button_get_active(t);
 
@@ -435,7 +435,7 @@ toggle_inbound(GtkToggleButton *t, gpointer data)
 static void
 toggle_deny(GtkToggleButton *t, gpointer data)
 {
-    rule_info_t	*rule_info = (rule_info_t *) data;
+    rule_info_t *rule_info = (rule_info_t *) data;
 
     rule_info->deny = gtk_toggle_button_get_active(t);
 
@@ -652,7 +652,7 @@ firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
 static void
 firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
-    rule_info_t	*rule_info = (rule_info_t *)data;
+    rule_info_t *rule_info = (rule_info_t *)data;
 
     GtkTextIter start, end;
     GtkTextBuffer *buf;
@@ -667,8 +667,8 @@ firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
 static gboolean
 firewall_save_as_ok_cb(char *to_name, rule_info_t *rule_info)
 {
-    FILE 	*fh;
-    gchar	*rule;
+    FILE  *fh;
+    gchar *rule;
 
     GtkTextIter start, end;
     GtkTextBuffer *buf;
@@ -717,7 +717,7 @@ static void
 firewall_save_as_cmd_cb(GtkWidget *w, gpointer data)
 {
     GtkWidget   *caller = gtk_widget_get_toplevel(w);
-    rule_info_t	*rule_info = (rule_info_t *)data;
+    rule_info_t *rule_info = (rule_info_t *)data;
     char        *pathname;
 
     /*
@@ -738,3 +738,16 @@ firewall_save_as_cmd_cb(GtkWidget *w, gpointer data)
         g_free(pathname);
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

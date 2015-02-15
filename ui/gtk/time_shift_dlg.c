@@ -70,29 +70,29 @@ static GtkWidget *time_shift_frame_w;
 void
 time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  GtkWidget	*main_vb, *label,
-		*types_vb, *indent,
+  GtkWidget     *main_vb, *label,
+                *types_vb, *indent,
 
-		*timeshift_offset_hb,
-		*timeshift_offset_text_box,
+                *timeshift_offset_hb,
+                *timeshift_offset_text_box,
 
-		*settime_time_hb,
-		*settime_packetnumber_text_box,
-		*settime_time_text_box,
+                *settime_time_hb,
+                *settime_packetnumber_text_box,
+                *settime_time_text_box,
 
-		*adjtime_offset_hb,
-		*adjtime_packetnumber1_text_box,
-		*adjtime_packetnumber2_text_box,
-		*adjtime_time1_text_box,
-		*adjtime_time2_text_box,
+                *adjtime_offset_hb,
+                *adjtime_packetnumber1_text_box,
+                *adjtime_packetnumber2_text_box,
+                *adjtime_time1_text_box,
+                *adjtime_time2_text_box,
 
-		*undo_offset_hb,
-		*undo_type_hb,
+                *undo_offset_hb,
+                *undo_type_hb,
 
-		*timeshift_rb, *settime_rb,
-		*adjtime_rb, *undo_rb,
+                *timeshift_rb, *settime_rb,
+                *adjtime_rb, *undo_rb,
 
-		*bbox, *apply_bt, *close_bt, *help_bt;
+                *bbox, *apply_bt, *close_bt, *help_bt;
   GString * frame_str = g_string_new("");
   gint rb_size = 0, rb_spacing = 0, indent_width = 0;
 
@@ -125,7 +125,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(timeshift_rb, "Shift the time on the frames.");
 
   gtk_widget_style_get(timeshift_rb, "indicator-size", &rb_size,
-		      "indicator-spacing", &rb_spacing, NULL);
+                       "indicator-spacing", &rb_spacing, NULL);
   indent_width += rb_size + rb_spacing;
   /* Time Shift entry row */
   timeshift_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, DLG_BUTTON_SPACING, FALSE);
@@ -469,3 +469,16 @@ time_shift_frame_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   /* Note that we no longer have a "Time Shift" dialog box. */
   time_shift_frame_w = NULL;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

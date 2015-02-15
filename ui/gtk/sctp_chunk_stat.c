@@ -182,8 +182,8 @@ sctpstat_draw(void *phs)
 	/* Now print Message and Reason Counter Table */
 	/* clear list before printing */
 	/* XXX use an iter for new/modified ? */
-  	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
-  	gtk_list_store_clear(store);
+ 	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
+ 	gtk_list_store_clear(store);
 
 	for(tmp = list ; tmp ; tmp=tmp->next) {
 		src_addr = (char*)address_to_str(NULL, &tmp->src);
@@ -322,3 +322,16 @@ register_tap_listener_sctpstat(void)
 	register_param_stat(&sctp_stat_dlg, "Chunk Counter",
 	    REGISTER_STAT_GROUP_TELEPHONY_SCTP);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

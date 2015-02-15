@@ -43,8 +43,8 @@ void register_tap_listener_gtkncpstat(void);
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _ncpstat_t {
-	GtkWidget *win;
-	srt_stat_table ncp_srt_table;
+    GtkWidget *win;
+    srt_stat_table ncp_srt_table;
     srt_stat_table nds_srt_table;
     srt_stat_table func_srt_table;
     srt_stat_table sss_srt_table;
@@ -71,239 +71,239 @@ typedef struct _ncpstat_t {
 } ncpstat_t;
 
 static const value_string ncp_group_vals[] = {
-	{ 0, "Synchronization" },
-	{ 1, "Print" },
-	{ 2, "File System" },
-	{ 3, "Connection" },
-	{ 4, "File Server Environment" },
-	{ 5, "Message" },
-	{ 6, "Bindery" },
-	{ 7, "Queue Management System (QMS)" },
-	{ 8, "Accounting" },
-	{ 9, "Transaction Tracking" },
-	{ 10, "AFP" },
-	{ 11, "NCP Extension" },
-	{ 12, "Extended Attribute" },
-	{ 13, "Auditing" },
-	{ 14, "Enhanced File System" },
-	{ 15, "Migration" },
-	{ 16, "Novell Modular Authentication Services (NMAS)" },
-	{ 17, "Secret Store Services (SSS)" },
-	{ 18, "Packet Burst" },
-	{ 19, "Novell Directory Services (NDS)" },
-	{ 20, "Time Synchronization" },
-	{ 21, "Server Statistics" },
-	{ 22, "Remote" },
-	{ 0,  NULL}
+    { 0, "Synchronization" },
+    { 1, "Print" },
+    { 2, "File System" },
+    { 3, "Connection" },
+    { 4, "File Server Environment" },
+    { 5, "Message" },
+    { 6, "Bindery" },
+    { 7, "Queue Management System (QMS)" },
+    { 8, "Accounting" },
+    { 9, "Transaction Tracking" },
+    { 10, "AFP" },
+    { 11, "NCP Extension" },
+    { 12, "Extended Attribute" },
+    { 13, "Auditing" },
+    { 14, "Enhanced File System" },
+    { 15, "Migration" },
+    { 16, "Novell Modular Authentication Services (NMAS)" },
+    { 17, "Secret Store Services (SSS)" },
+    { 18, "Packet Burst" },
+    { 19, "Novell Directory Services (NDS)" },
+    { 20, "Time Synchronization" },
+    { 21, "Server Statistics" },
+    { 22, "Remote" },
+    { 0,  NULL}
 };
 
 static const value_string sss_verb_enum[] = {
-	{ 0x00000000, "Query Server" },
-	{ 0x00000001, "Read App Secrets" },
-	{ 0x00000002, "Write App Secrets" },
-	{ 0x00000003, "Add Secret ID" },
-	{ 0x00000004, "Remove Secret ID" },
-	{ 0x00000005, "Remove SecretStore" },
-	{ 0x00000006, "Enumerate Secret IDs" },
-	{ 0x00000007, "Unlock Store" },
-	{ 0x00000008, "Set Master Password" },
-	{ 0x00000009, "Get Service Information" },
-	{ 0x000000ff, "Fragment"},
-	{ 0x00000000, NULL}
+    { 0x00000000, "Query Server" },
+    { 0x00000001, "Read App Secrets" },
+    { 0x00000002, "Write App Secrets" },
+    { 0x00000003, "Add Secret ID" },
+    { 0x00000004, "Remove Secret ID" },
+    { 0x00000005, "Remove SecretStore" },
+    { 0x00000006, "Enumerate Secret IDs" },
+    { 0x00000007, "Unlock Store" },
+    { 0x00000008, "Set Master Password" },
+    { 0x00000009, "Get Service Information" },
+    { 0x000000ff, "Fragment"},
+    { 0x00000000, NULL}
 };
 
 static const value_string nmas_subverb_enum[] = {
-	{ 0, "Fragmented Ping" },
-	{ 2, "Client Put Data" },
-	{ 4, "Client Get Data" },
-	{ 6, "Client Get User NDS Credentials" },
-	{ 8, "Login Store Management" },
-	{ 10, "Writable Object Check" },
-	{ 1242, "Message Handler" },
-	{ 0,  NULL}
+    { 0, "Fragmented Ping" },
+    { 2, "Client Put Data" },
+    { 4, "Client Get Data" },
+    { 6, "Client Get User NDS Credentials" },
+    { 8, "Login Store Management" },
+    { 10, "Writable Object Check" },
+    { 1242, "Message Handler" },
+    { 0,  NULL}
 };
 
 static const value_string ncp_nds_verb_vals[] = {
-	{ 1, "Resolve Name" },
-	{ 2, "Read Entry Information" },
-	{ 3, "Read" },
-	{ 4, "Compare" },
-	{ 5, "List" },
-	{ 6, "Search Entries" },
-	{ 7, "Add Entry" },
-	{ 8, "Remove Entry" },
-	{ 9, "Modify Entry" },
-	{ 10, "Modify RDN" },
-	{ 11, "Create Attribute" },
-	{ 12, "Read Attribute Definition" },
-	{ 13, "Remove Attribute Definition" },
-	{ 14, "Define Class" },
-	{ 15, "Read Class Definition" },
-	{ 16, "Modify Class Definition" },
-	{ 17, "Remove Class Definition" },
-	{ 18, "List Containable Classes" },
-	{ 19, "Get Effective Rights" },
-	{ 20, "Add Partition" },
-	{ 21, "Remove Partition" },
-	{ 22, "List Partitions" },
-	{ 23, "Split Partition" },
-	{ 24, "Join Partitions" },
-	{ 25, "Add Replica" },
-	{ 26, "Remove Replica" },
-	{ 27, "Open Stream" },
-	{ 28, "Search Filter" },
-	{ 29, "Create Subordinate Reference" },
-	{ 30, "Link Replica" },
-	{ 31, "Change Replica Type" },
-	{ 32, "Start Update Schema" },
-	{ 33, "End Update Schema" },
-	{ 34, "Update Schema" },
-	{ 35, "Start Update Replica" },
-	{ 36, "End Update Replica" },
-	{ 37, "Update Replica" },
-	{ 38, "Synchronize Partition" },
-	{ 39, "Synchronize Schema" },
-	{ 40, "Read Syntaxes" },
-	{ 41, "Get Replica Root ID" },
-	{ 42, "Begin Move Entry" },
-	{ 43, "Finish Move Entry" },
-	{ 44, "Release Moved Entry" },
-	{ 45, "Backup Entry" },
-	{ 46, "Restore Entry" },
-	{ 47, "Save DIB (Obsolete)" },
-	{ 48, "Control" },
-	{ 49, "Remove Backlink" },
-	{ 50, "Close Iteration" },
-	{ 51, "Mutate Entry" },
-	{ 52, "Audit Skulking" },
-	{ 53, "Get Server Address" },
-	{ 54, "Set Keys" },
-	{ 55, "Change Password" },
-	{ 56, "Verify Password" },
-	{ 57, "Begin Login" },
-	{ 58, "Finish Login" },
-	{ 59, "Begin Authentication" },
-	{ 60, "Finish Authentication" },
-	{ 61, "Logout" },
-	{ 62, "Repair Ring (Obsolete)" },
-	{ 63, "Repair Timestamps" },
-	{ 64, "Create Back Link" },
-	{ 65, "Delete External Reference" },
-	{ 66, "Rename External Reference" },
-	{ 67, "Create Queue Entry Directory" },
-	{ 68, "Remove Queue Entry Directory" },
-	{ 69, "Merge Entries" },
-	{ 70, "Change Tree Name" },
-	{ 71, "Partition Entry Count" },
-	{ 72, "Check Login Restrictions" },
-	{ 73, "Start Join" },
-	{ 74, "Low Level Split" },
-	{ 75, "Low Level Join" },
-	{ 76, "Abort Partition Operation" },
-	{ 77, "Get All Servers" },
-	{ 78, "Partition Function" },
-	{ 79, "Read References" },
-	{ 80, "Inspect Entry" },
-	{ 81, "Get Remote Entry ID" },
-	{ 82, "Change Security" },
-	{ 83, "Check Console Operator" },
-	{ 84, "Start Move Tree" },
-	{ 85, "Move Tree" },
-	{ 86, "End Move Tree" },
-	{ 87, "Low Level Abort Join" },
-	{ 88, "Check Security Equivalence" },
-	{ 89, "Merge Tree" },
-	{ 90, "Sync External Reference" },
-	{ 91, "Resend Entry" },
-	{ 92, "New Schema Epoch" },
-	{ 93, "Statistics" },
-	{ 94, "Ping" },
-	{ 95, "Get Bindery Contexts" },
-	{ 96, "Monitor Connection" },
-	{ 97, "Get DS Statistics" },
-	{ 98, "Reset DS Counters" },
-	{ 99, "Console" },
-	{ 100, "Read Stream" },
-	{ 101, "Write Stream" },
-	{ 102, "Create Orphan Partition" },
-	{ 103, "Remove Orphan Partition" },
-	{ 104, "Link Orphan Partition" },
-	{ 105, "Set Distributed Reference Link (DRL)" },
-	{ 106, "Available" },
-	{ 107, "Available" },
-	{ 108, "Verify Distributed Reference Link (DRL)" },
-	{ 109, "Verify Partition" },
-	{ 110, "Iterator" },
-	{ 111, "Available" },
-	{ 112, "Close Stream" },
-	{ 113, "Available" },
-	{ 114, "Read Status" },
-	{ 115, "Partition Sync Status" },
-	{ 116, "Read Reference Data" },
-	{ 117, "Write Reference Data" },
-	{ 118, "Resource Event" },
-	{ 119, "DIB Request (obsolete)" },
-	{ 120, "Set Replication Filter" },
-	{ 121, "Get Replication Filter" },
-	{ 122, "Change Attribute Definition" },
-	{ 123, "Schema in Use" },
-	{ 124, "Remove Keys" },
-	{ 125, "Clone" },
-	{ 126, "Multiple Operations Transaction" },
-	{ 240, "Ping" },
-	{ 255, "EDirectory Call" },
-	{ 0,  NULL }
+    { 1, "Resolve Name" },
+    { 2, "Read Entry Information" },
+    { 3, "Read" },
+    { 4, "Compare" },
+    { 5, "List" },
+    { 6, "Search Entries" },
+    { 7, "Add Entry" },
+    { 8, "Remove Entry" },
+    { 9, "Modify Entry" },
+    { 10, "Modify RDN" },
+    { 11, "Create Attribute" },
+    { 12, "Read Attribute Definition" },
+    { 13, "Remove Attribute Definition" },
+    { 14, "Define Class" },
+    { 15, "Read Class Definition" },
+    { 16, "Modify Class Definition" },
+    { 17, "Remove Class Definition" },
+    { 18, "List Containable Classes" },
+    { 19, "Get Effective Rights" },
+    { 20, "Add Partition" },
+    { 21, "Remove Partition" },
+    { 22, "List Partitions" },
+    { 23, "Split Partition" },
+    { 24, "Join Partitions" },
+    { 25, "Add Replica" },
+    { 26, "Remove Replica" },
+    { 27, "Open Stream" },
+    { 28, "Search Filter" },
+    { 29, "Create Subordinate Reference" },
+    { 30, "Link Replica" },
+    { 31, "Change Replica Type" },
+    { 32, "Start Update Schema" },
+    { 33, "End Update Schema" },
+    { 34, "Update Schema" },
+    { 35, "Start Update Replica" },
+    { 36, "End Update Replica" },
+    { 37, "Update Replica" },
+    { 38, "Synchronize Partition" },
+    { 39, "Synchronize Schema" },
+    { 40, "Read Syntaxes" },
+    { 41, "Get Replica Root ID" },
+    { 42, "Begin Move Entry" },
+    { 43, "Finish Move Entry" },
+    { 44, "Release Moved Entry" },
+    { 45, "Backup Entry" },
+    { 46, "Restore Entry" },
+    { 47, "Save DIB (Obsolete)" },
+    { 48, "Control" },
+    { 49, "Remove Backlink" },
+    { 50, "Close Iteration" },
+    { 51, "Mutate Entry" },
+    { 52, "Audit Skulking" },
+    { 53, "Get Server Address" },
+    { 54, "Set Keys" },
+    { 55, "Change Password" },
+    { 56, "Verify Password" },
+    { 57, "Begin Login" },
+    { 58, "Finish Login" },
+    { 59, "Begin Authentication" },
+    { 60, "Finish Authentication" },
+    { 61, "Logout" },
+    { 62, "Repair Ring (Obsolete)" },
+    { 63, "Repair Timestamps" },
+    { 64, "Create Back Link" },
+    { 65, "Delete External Reference" },
+    { 66, "Rename External Reference" },
+    { 67, "Create Queue Entry Directory" },
+    { 68, "Remove Queue Entry Directory" },
+    { 69, "Merge Entries" },
+    { 70, "Change Tree Name" },
+    { 71, "Partition Entry Count" },
+    { 72, "Check Login Restrictions" },
+    { 73, "Start Join" },
+    { 74, "Low Level Split" },
+    { 75, "Low Level Join" },
+    { 76, "Abort Partition Operation" },
+    { 77, "Get All Servers" },
+    { 78, "Partition Function" },
+    { 79, "Read References" },
+    { 80, "Inspect Entry" },
+    { 81, "Get Remote Entry ID" },
+    { 82, "Change Security" },
+    { 83, "Check Console Operator" },
+    { 84, "Start Move Tree" },
+    { 85, "Move Tree" },
+    { 86, "End Move Tree" },
+    { 87, "Low Level Abort Join" },
+    { 88, "Check Security Equivalence" },
+    { 89, "Merge Tree" },
+    { 90, "Sync External Reference" },
+    { 91, "Resend Entry" },
+    { 92, "New Schema Epoch" },
+    { 93, "Statistics" },
+    { 94, "Ping" },
+    { 95, "Get Bindery Contexts" },
+    { 96, "Monitor Connection" },
+    { 97, "Get DS Statistics" },
+    { 98, "Reset DS Counters" },
+    { 99, "Console" },
+    { 100, "Read Stream" },
+    { 101, "Write Stream" },
+    { 102, "Create Orphan Partition" },
+    { 103, "Remove Orphan Partition" },
+    { 104, "Link Orphan Partition" },
+    { 105, "Set Distributed Reference Link (DRL)" },
+    { 106, "Available" },
+    { 107, "Available" },
+    { 108, "Verify Distributed Reference Link (DRL)" },
+    { 109, "Verify Partition" },
+    { 110, "Iterator" },
+    { 111, "Available" },
+    { 112, "Close Stream" },
+    { 113, "Available" },
+    { 114, "Read Status" },
+    { 115, "Partition Sync Status" },
+    { 116, "Read Reference Data" },
+    { 117, "Write Reference Data" },
+    { 118, "Resource Event" },
+    { 119, "DIB Request (obsolete)" },
+    { 120, "Set Replication Filter" },
+    { 121, "Get Replication Filter" },
+    { 122, "Change Attribute Definition" },
+    { 123, "Schema in Use" },
+    { 124, "Remove Keys" },
+    { 125, "Clone" },
+    { 126, "Multiple Operations Transaction" },
+    { 240, "Ping" },
+    { 255, "EDirectory Call" },
+    { 0,  NULL }
 };
 
 static void
 ncpstat_set_title(ncpstat_t *ss)
 {
-	set_window_title(ss->win, "NCP Service Response Time statistics");
+    set_window_title(ss->win, "NCP Service Response Time statistics");
 }
 
 static void
 ncpstat_reset(void *pss)
 {
-	ncpstat_t *ss=(ncpstat_t *)pss;
+    ncpstat_t *ss=(ncpstat_t *)pss;
 
-	reset_srt_table_data(&ss->ncp_srt_table);
-	reset_srt_table_data(&ss->func_srt_table);
-	reset_srt_table_data(&ss->nds_srt_table);
-	reset_srt_table_data(&ss->sss_srt_table);
-	reset_srt_table_data(&ss->nmas_srt_table);
-	reset_srt_table_data(&ss->sub_17_srt_table);
-	reset_srt_table_data(&ss->sub_21_srt_table);
-	reset_srt_table_data(&ss->sub_22_srt_table);
-	reset_srt_table_data(&ss->sub_23_srt_table);
-	reset_srt_table_data(&ss->sub_32_srt_table);
-	reset_srt_table_data(&ss->sub_34_srt_table);
-	reset_srt_table_data(&ss->sub_35_srt_table);
-	reset_srt_table_data(&ss->sub_36_srt_table);
-	reset_srt_table_data(&ss->sub_86_srt_table);
-	reset_srt_table_data(&ss->sub_87_srt_table);
-	reset_srt_table_data(&ss->sub_89_srt_table);
-	reset_srt_table_data(&ss->sub_90_srt_table);
-	reset_srt_table_data(&ss->sub_92_srt_table);
-	reset_srt_table_data(&ss->sub_94_srt_table);
-	reset_srt_table_data(&ss->sub_104_srt_table);
-	reset_srt_table_data(&ss->sub_111_srt_table);
-	reset_srt_table_data(&ss->sub_114_srt_table);
-	reset_srt_table_data(&ss->sub_123_srt_table);
-	reset_srt_table_data(&ss->sub_131_srt_table);
-	ncpstat_set_title(ss);
+    reset_srt_table_data(&ss->ncp_srt_table);
+    reset_srt_table_data(&ss->func_srt_table);
+    reset_srt_table_data(&ss->nds_srt_table);
+    reset_srt_table_data(&ss->sss_srt_table);
+    reset_srt_table_data(&ss->nmas_srt_table);
+    reset_srt_table_data(&ss->sub_17_srt_table);
+    reset_srt_table_data(&ss->sub_21_srt_table);
+    reset_srt_table_data(&ss->sub_22_srt_table);
+    reset_srt_table_data(&ss->sub_23_srt_table);
+    reset_srt_table_data(&ss->sub_32_srt_table);
+    reset_srt_table_data(&ss->sub_34_srt_table);
+    reset_srt_table_data(&ss->sub_35_srt_table);
+    reset_srt_table_data(&ss->sub_36_srt_table);
+    reset_srt_table_data(&ss->sub_86_srt_table);
+    reset_srt_table_data(&ss->sub_87_srt_table);
+    reset_srt_table_data(&ss->sub_89_srt_table);
+    reset_srt_table_data(&ss->sub_90_srt_table);
+    reset_srt_table_data(&ss->sub_92_srt_table);
+    reset_srt_table_data(&ss->sub_94_srt_table);
+    reset_srt_table_data(&ss->sub_104_srt_table);
+    reset_srt_table_data(&ss->sub_111_srt_table);
+    reset_srt_table_data(&ss->sub_114_srt_table);
+    reset_srt_table_data(&ss->sub_123_srt_table);
+    reset_srt_table_data(&ss->sub_131_srt_table);
+    ncpstat_set_title(ss);
 }
 
 static int
 ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
-	ncpstat_t *ss=(ncpstat_t *)pss;
+    ncpstat_t *ss=(ncpstat_t *)pss;
     const ncp_req_hash_value *request_val=(const ncp_req_hash_value *)prv;
     gchar* tmp_str;
 
-	/* if we haven't seen the request, just ignore it */
-	if(!request_val || request_val->ncp_rec==0){
-		return 0;
-	}
+    /* if we haven't seen the request, just ignore it */
+    if(!request_val || request_val->ncp_rec==0){
+        return 0;
+    }
     /* By Group */
     tmp_str = val_to_str_wmem(NULL, request_val->ncp_rec->group, ncp_group_vals, "Unknown(%u)");
     init_srt_table_row(&ss->ncp_srt_table, request_val->ncp_rec->group, tmp_str);
@@ -315,7 +315,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         add_srt_table_data(&ss->func_srt_table, request_val->ncp_rec->func, &request_val->req_frame_time, pinfo);
     }
     /* By Subfunction number */
-	if(request_val->ncp_rec->subfunc!=0){
+    if(request_val->ncp_rec->subfunc!=0){
         if (request_val->ncp_rec->func==17) {
             init_srt_table_row(&ss->sub_17_srt_table, (request_val->ncp_rec->subfunc), request_val->ncp_rec->name);
             add_srt_table_data(&ss->sub_17_srt_table, (request_val->ncp_rec->subfunc), &request_val->req_frame_time, pinfo);
@@ -392,7 +392,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             init_srt_table_row(&ss->sub_131_srt_table, (request_val->ncp_rec->subfunc), request_val->ncp_rec->name);
             add_srt_table_data(&ss->sub_131_srt_table, (request_val->ncp_rec->subfunc), &request_val->req_frame_time, pinfo);
         }
-	}
+    }
     /* By NDS verb */
     if (request_val->ncp_rec->func==0x68) {
         tmp_str = val_to_str_wmem(NULL, request_val->nds_request_verb, ncp_nds_verb_vals, "Unknown(%u)");
@@ -420,66 +420,66 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 static void
 ncpstat_draw(void *pss)
 {
-	ncpstat_t *ss=(ncpstat_t *)pss;
+    ncpstat_t *ss=(ncpstat_t *)pss;
 
-	draw_srt_table_data(&ss->ncp_srt_table);
-	draw_srt_table_data(&ss->func_srt_table);
-	draw_srt_table_data(&ss->nds_srt_table);
-	draw_srt_table_data(&ss->sss_srt_table);
-	draw_srt_table_data(&ss->nmas_srt_table);
-	draw_srt_table_data(&ss->sub_17_srt_table);
-	draw_srt_table_data(&ss->sub_21_srt_table);
-	draw_srt_table_data(&ss->sub_22_srt_table);
-	draw_srt_table_data(&ss->sub_23_srt_table);
-	draw_srt_table_data(&ss->sub_32_srt_table);
-	draw_srt_table_data(&ss->sub_34_srt_table);
-	draw_srt_table_data(&ss->sub_35_srt_table);
-	draw_srt_table_data(&ss->sub_36_srt_table);
-	draw_srt_table_data(&ss->sub_86_srt_table);
-	draw_srt_table_data(&ss->sub_87_srt_table);
-	draw_srt_table_data(&ss->sub_89_srt_table);
-	draw_srt_table_data(&ss->sub_90_srt_table);
-	draw_srt_table_data(&ss->sub_92_srt_table);
-	draw_srt_table_data(&ss->sub_94_srt_table);
-	draw_srt_table_data(&ss->sub_104_srt_table);
-	draw_srt_table_data(&ss->sub_111_srt_table);
-	draw_srt_table_data(&ss->sub_114_srt_table);
-	draw_srt_table_data(&ss->sub_123_srt_table);
-	draw_srt_table_data(&ss->sub_131_srt_table);
+    draw_srt_table_data(&ss->ncp_srt_table);
+    draw_srt_table_data(&ss->func_srt_table);
+    draw_srt_table_data(&ss->nds_srt_table);
+    draw_srt_table_data(&ss->sss_srt_table);
+    draw_srt_table_data(&ss->nmas_srt_table);
+    draw_srt_table_data(&ss->sub_17_srt_table);
+    draw_srt_table_data(&ss->sub_21_srt_table);
+    draw_srt_table_data(&ss->sub_22_srt_table);
+    draw_srt_table_data(&ss->sub_23_srt_table);
+    draw_srt_table_data(&ss->sub_32_srt_table);
+    draw_srt_table_data(&ss->sub_34_srt_table);
+    draw_srt_table_data(&ss->sub_35_srt_table);
+    draw_srt_table_data(&ss->sub_36_srt_table);
+    draw_srt_table_data(&ss->sub_86_srt_table);
+    draw_srt_table_data(&ss->sub_87_srt_table);
+    draw_srt_table_data(&ss->sub_89_srt_table);
+    draw_srt_table_data(&ss->sub_90_srt_table);
+    draw_srt_table_data(&ss->sub_92_srt_table);
+    draw_srt_table_data(&ss->sub_94_srt_table);
+    draw_srt_table_data(&ss->sub_104_srt_table);
+    draw_srt_table_data(&ss->sub_111_srt_table);
+    draw_srt_table_data(&ss->sub_114_srt_table);
+    draw_srt_table_data(&ss->sub_123_srt_table);
+    draw_srt_table_data(&ss->sub_131_srt_table);
 }
 
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-	ncpstat_t *ss=(ncpstat_t *)data;
+    ncpstat_t *ss=(ncpstat_t *)data;
 
-	remove_tap_listener(ss);
+    remove_tap_listener(ss);
 
-	free_srt_table_data(&ss->ncp_srt_table);
-	free_srt_table_data(&ss->func_srt_table);
-	free_srt_table_data(&ss->nds_srt_table);
-	free_srt_table_data(&ss->sss_srt_table);
-	free_srt_table_data(&ss->nmas_srt_table);
-	free_srt_table_data(&ss->sub_17_srt_table);
-	free_srt_table_data(&ss->sub_21_srt_table);
-	free_srt_table_data(&ss->sub_22_srt_table);
-	free_srt_table_data(&ss->sub_23_srt_table);
-	free_srt_table_data(&ss->sub_32_srt_table);
-	free_srt_table_data(&ss->sub_34_srt_table);
-	free_srt_table_data(&ss->sub_35_srt_table);
-	free_srt_table_data(&ss->sub_36_srt_table);
-	free_srt_table_data(&ss->sub_86_srt_table);
-	free_srt_table_data(&ss->sub_87_srt_table);
-	free_srt_table_data(&ss->sub_89_srt_table);
-	free_srt_table_data(&ss->sub_90_srt_table);
-	free_srt_table_data(&ss->sub_92_srt_table);
-	free_srt_table_data(&ss->sub_94_srt_table);
-	free_srt_table_data(&ss->sub_104_srt_table);
-	free_srt_table_data(&ss->sub_111_srt_table);
-	free_srt_table_data(&ss->sub_114_srt_table);
-	free_srt_table_data(&ss->sub_123_srt_table);
-	free_srt_table_data(&ss->sub_131_srt_table);
-	g_free(ss);
+    free_srt_table_data(&ss->ncp_srt_table);
+    free_srt_table_data(&ss->func_srt_table);
+    free_srt_table_data(&ss->nds_srt_table);
+    free_srt_table_data(&ss->sss_srt_table);
+    free_srt_table_data(&ss->nmas_srt_table);
+    free_srt_table_data(&ss->sub_17_srt_table);
+    free_srt_table_data(&ss->sub_21_srt_table);
+    free_srt_table_data(&ss->sub_22_srt_table);
+    free_srt_table_data(&ss->sub_23_srt_table);
+    free_srt_table_data(&ss->sub_32_srt_table);
+    free_srt_table_data(&ss->sub_34_srt_table);
+    free_srt_table_data(&ss->sub_35_srt_table);
+    free_srt_table_data(&ss->sub_36_srt_table);
+    free_srt_table_data(&ss->sub_86_srt_table);
+    free_srt_table_data(&ss->sub_87_srt_table);
+    free_srt_table_data(&ss->sub_89_srt_table);
+    free_srt_table_data(&ss->sub_90_srt_table);
+    free_srt_table_data(&ss->sub_92_srt_table);
+    free_srt_table_data(&ss->sub_94_srt_table);
+    free_srt_table_data(&ss->sub_104_srt_table);
+    free_srt_table_data(&ss->sub_111_srt_table);
+    free_srt_table_data(&ss->sub_114_srt_table);
+    free_srt_table_data(&ss->sub_123_srt_table);
+    free_srt_table_data(&ss->sub_131_srt_table);
+    g_free(ss);
 }
 
 
@@ -505,8 +505,8 @@ gtk_ncpstat_init(const char *opt_arg, void *userdata _U_)
 
     ss=(ncpstat_t *)g_malloc(sizeof(ncpstat_t));
 
-	ss->win = dlg_window_new("ncp-stat");  /* transient_for top_level */
-	gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
+    ss->win = dlg_window_new("ncp-stat");  /* transient_for top_level */
+    gtk_window_set_destroy_with_parent (GTK_WINDOW(ss->win), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 300, 400);
 
     ncpstat_set_title(ss);
@@ -710,21 +710,34 @@ gtk_ncpstat_init(const char *opt_arg, void *userdata _U_)
 }
 
 static tap_param ncp_stat_params[] = {
-	{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 };
 
 static tap_param_dlg ncp_stat_dlg = {
-	"NCP SRT Statistics",
-	"ncp,srt",
-	gtk_ncpstat_init,
-	-1,
-	G_N_ELEMENTS(ncp_stat_params),
-	ncp_stat_params
+    "NCP SRT Statistics",
+    "ncp,srt",
+    gtk_ncpstat_init,
+    -1,
+    G_N_ELEMENTS(ncp_stat_params),
+    ncp_stat_params
 };
 
 void
 register_tap_listener_gtkncpstat(void)
 {
-	register_param_stat(&ncp_stat_dlg, "NCP",
-	    REGISTER_STAT_GROUP_RESPONSE_TIME);
+    register_param_stat(&ncp_stat_dlg, "NCP",
+                        REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

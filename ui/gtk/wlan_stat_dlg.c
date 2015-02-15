@@ -1763,12 +1763,12 @@ wlanstat_dlg_create (void)
     hs->use_dfilter        = FALSE;
     hs->show_only_existing = FALSE;
 
-	display_name = cf_get_display_name(&cfile);
-	g_snprintf (title, sizeof(title), "Wireshark: WLAN Traffic Statistics: %s",
-		    display_name);
-	g_free(display_name);
-	wlanstat_dlg_w = window_new_with_geom (GTK_WINDOW_TOPLEVEL, title, "WLAN Statistics", GTK_WIN_POS_CENTER_ON_PARENT);
-	gtk_window_set_default_size (GTK_WINDOW(wlanstat_dlg_w), 750, 400);
+    display_name = cf_get_display_name(&cfile);
+    g_snprintf (title, sizeof(title), "Wireshark: WLAN Traffic Statistics: %s",
+                display_name);
+    g_free(display_name);
+    wlanstat_dlg_w = window_new_with_geom (GTK_WINDOW_TOPLEVEL, title, "WLAN Statistics", GTK_WIN_POS_CENTER_ON_PARENT);
+    gtk_window_set_default_size (GTK_WINDOW(wlanstat_dlg_w), 750, 400);
 
     vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(wlanstat_dlg_w), vbox);
@@ -1980,3 +1980,16 @@ register_tap_listener_wlanstat (void)
 
     SET_ADDRESS(&broadcast, AT_ETHER, 6, src);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

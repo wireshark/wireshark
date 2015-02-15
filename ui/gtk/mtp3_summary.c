@@ -56,13 +56,13 @@ typedef struct _my_columns_t {
 
 enum
 {
-   SI_COLUMN,
-   NUM_MSUS_COLUMN,
-   NUM_MSUS_SEC_COLUMN,
-   NUM_BYTES_COLUMN,
-   NUM_BYTES_MSU_COLUMN,
-   NUM_BYTES_SEC_COLUMN,
-   N_COLUMN /* The number of columns */
+    SI_COLUMN,
+    NUM_MSUS_COLUMN,
+    NUM_MSUS_SEC_COLUMN,
+    NUM_BYTES_COLUMN,
+    NUM_BYTES_MSU_COLUMN,
+    NUM_BYTES_SEC_COLUMN,
+    N_COLUMN /* The number of columns */
 };
 
 /* Create list */
@@ -440,3 +440,16 @@ void
 register_tap_listener_gtkmtp3_summary(void)
 {
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

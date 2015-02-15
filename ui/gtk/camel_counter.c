@@ -45,9 +45,9 @@
 
 static void gtk_camelcounter_reset(void *phs);
 static int gtk_camelcounter_packet(void *phs,
-				   packet_info *pinfo _U_,
-				   epan_dissect_t *edt _U_,
-				   const void *phi);
+                                   packet_info *pinfo _U_,
+                                   epan_dissect_t *edt _U_,
+                                   const void *phi);
 static void gtk_camelcounter_draw(void *phs);
 static void win_destroy_cb(GtkWindow *win _U_, gpointer data);
 static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_);
@@ -56,12 +56,12 @@ void register_tap_listener_gtk_camelcounter(void);
 /* following values represent the size of their valuestring arrays */
 
 struct camelcounter_t {
-  GtkWidget *win;
-  GtkWidget *vbox;
-  char *filter;
-  GtkWidget *scrolled_window;
+  GtkWidget   *win;
+  GtkWidget   *vbox;
+  char        *filter;
+  GtkWidget   *scrolled_window;
   GtkTreeView *table;
-  guint32 camel_msg[camel_MAX_NUM_OPR_CODES];
+  guint32      camel_msg[camel_MAX_NUM_OPR_CODES];
 };
 
 static void gtk_camelcounter_reset(void *phs)
@@ -80,9 +80,9 @@ static void gtk_camelcounter_reset(void *phs)
  * If there is a valid camel operation, increase the value in the array of counter
  */
 static int gtk_camelcounter_packet(void *phs,
-				   packet_info *pinfo _U_,
-				   epan_dissect_t *edt _U_,
-				   const void *phi)
+                                   packet_info *pinfo _U_,
+                                   epan_dissect_t *edt _U_,
+                                   const void *phi)
 {
   struct camelcounter_t * p_counter =(struct camelcounter_t *)phs;
   const struct camelsrt_info_t * pi=(const struct camelsrt_info_t *)phi;
@@ -95,11 +95,11 @@ static int gtk_camelcounter_packet(void *phs,
 static void gtk_camelcounter_draw(void *phs)
 {
   struct camelcounter_t *p_counter=(struct camelcounter_t *)phs;
-  int i;
-  char str[256];
-  gchar* tmp_str;
+  int           i;
+  char          str[256];
+  gchar        *tmp_str;
   GtkListStore *store;
-  GtkTreeIter iter;
+  GtkTreeIter   iter;
 
   /* Now print Message and Reason Counter Table */
   /* clear list before printing */
@@ -115,9 +115,9 @@ static void gtk_camelcounter_draw(void *phs)
 
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter,
-				   0, str,
-				   1, p_counter->camel_msg[i],
-				   -1);
+                         0, str,
+                         1, p_counter->camel_msg[i],
+                         -1);
     }
   } /* Message Type */
 }
@@ -143,10 +143,10 @@ static const stat_column titles[]={
 static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_)
 {
   struct camelcounter_t *p_camelcounter;
-  const char *filter=NULL;
-  GString *error_string;
-  GtkWidget *bbox;
-  GtkWidget *close_bt;
+  const char *filter = NULL;
+  GString    *error_string;
+  GtkWidget  *bbox;
+  GtkWidget  *close_bt;
 
   if(strncmp(opt_arg,"camel,counter,",14) == 0){
     filter=opt_arg+14;
@@ -163,7 +163,7 @@ static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_)
   p_camelcounter->win=dlg_window_new("Wireshark: CAMEL counters");
   gtk_window_set_destroy_with_parent (GTK_WINDOW(p_camelcounter->win), TRUE);
 
-	gtk_window_set_default_size(GTK_WINDOW(p_camelcounter->win), 500, 300);
+  gtk_window_set_default_size(GTK_WINDOW(p_camelcounter->win), 500, 300);
 
   p_camelcounter->vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(p_camelcounter->vbox), 12);
@@ -176,9 +176,9 @@ static void gtk_camelcounter_init(const char *opt_arg, void *userdata _U_)
   p_camelcounter->table = create_stat_table(p_camelcounter->scrolled_window, p_camelcounter->vbox, 2, titles);
 
   error_string=register_tap_listener("CAMEL", p_camelcounter, filter, 0,
-				       gtk_camelcounter_reset,
-				       gtk_camelcounter_packet,
-				       gtk_camelcounter_draw);
+                                     gtk_camelcounter_reset,
+                                     gtk_camelcounter_packet,
+                                     gtk_camelcounter_draw);
 
   if(error_string){
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
@@ -221,6 +221,19 @@ void  /* Next line mandatory */
 register_tap_listener_gtk_camelcounter(void)
 {
   register_param_stat(&camel_counter_dlg, "CAMEL Messages and Response Status",
-  			REGISTER_STAT_GROUP_TELEPHONY_GSM);
+                      REGISTER_STAT_GROUP_TELEPHONY_GSM);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

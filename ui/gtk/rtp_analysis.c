@@ -777,8 +777,8 @@ rtp_packet_save_payload(tap_rtp_save_info_t    *saveinfo,
 		* of the RTP data */
 		data   = rtpinfo->info_data + rtpinfo->info_payload_offset;
 		nchars = fwrite(data, sizeof(unsigned char),
-                                (rtpinfo->info_payload_len - rtpinfo->info_padding_count),
-                                saveinfo->fp);
+				(rtpinfo->info_payload_len - rtpinfo->info_padding_count),
+				saveinfo->fp);
 		if (nchars != (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) {
 			/* Write error or short write */
 			saveinfo->saved = FALSE;
@@ -828,7 +828,7 @@ on_destroy(GtkWidget *win _U_, user_data_t *user_data)
 		window_destroy(user_data->dlg.dialog_graph.window);
 
 	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows
-         *  is destroyed and cause an exception using GTK1*/
+	 *  is destroyed and cause an exception using GTK1*/
 	g_signal_handler_disconnect(user_data->dlg.notebook, user_data->dlg.notebook_signal_id);
 
 	g_free(user_data->f_tempname);
@@ -1229,8 +1229,8 @@ dialog_graph_draw(user_data_t* user_data)
 		      left_x_border + 0.5,
 		      user_data->dlg.dialog_graph.surface_height-bottom_y_border + 1.5);
 	cairo_line_to(cr,
-                      user_data->dlg.dialog_graph.surface_width - right_x_border + 1.5,
-                      user_data->dlg.dialog_graph.surface_height - bottom_y_border + 1.5);
+		      user_data->dlg.dialog_graph.surface_width - right_x_border + 1.5,
+		      user_data->dlg.dialog_graph.surface_height - bottom_y_border + 1.5);
 	cairo_stroke(cr);
 	cairo_destroy(cr);
 
@@ -4072,3 +4072,16 @@ register_tap_listener_rtp_analysis(void)
 {
 	register_stat_tap_ui(&rtp_analysis_ui, NULL);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -345,3 +345,16 @@ filter_save_frame_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 	/* Note that we no longer have a "Filter Save" dialog box. */
 	filter_save_frame_w = NULL;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

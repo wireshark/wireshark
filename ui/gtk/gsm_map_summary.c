@@ -64,16 +64,16 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   summary_tally summary;
   GtkWidget     *sum_open_w,
                 *main_vb, *file_fr, *data_fr, *file_box,
-		*data_box, *bbox, *close_bt,
-		*invoke_fr, *invoke_box,
-		*rr_fr, *rr_box,
-		*tot_fr, *tot_box;
+                *data_box, *bbox, *close_bt,
+                *invoke_fr, *invoke_box,
+                *rr_fr, *rr_box,
+                *tot_fr, *tot_box;
 
   gchar         string_buff[SUM_STR_MAX];
   double        seconds;
-  int		i;
-  int		tot_invokes, tot_rr;
-  double	tot_invokes_size, tot_rr_size;
+  int           i;
+  int           tot_invokes, tot_rr;
+  double        tot_invokes_size, tot_rr_size;
 
   if (cfile.state == FILE_CLOSED) {
     return;
@@ -352,3 +352,16 @@ void
 register_tap_listener_gtkgsm_map_summary(void)
 {
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

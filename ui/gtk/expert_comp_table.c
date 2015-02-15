@@ -271,7 +271,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     case ACTION_MATCH:
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
         main_filter_packets(&cfile, str, FALSE);
-	gdk_window_raise(gtk_widget_get_window(top_level));
+        gdk_window_raise(gtk_widget_get_window(top_level));
         break;
     case ACTION_PREPARE:
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
@@ -520,49 +520,49 @@ static const char *ui_desc_expert_filter_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
- * const gchar *label;			The label for the action. This field should typically be marked for translation,
- *								see gtk_action_group_set_translation_domain().
- *								If label is NULL, the label of the stock item with id stock_id is used.
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ * const gchar *name;           The name of the action.
+ * const gchar *stock_id;       The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;          The label for the action. This field should typically be marked for translation,
  *                              see gtk_action_group_set_translation_domain().
- * GCallback callback;			The function to call when the action is activated.
+ *                              If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;    The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;        The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;          The function to call when the action is activated.
  *
  */
 static const GtkActionEntry expert_popup_entries[] = {
-  { "/Apply as Filter",							NULL, "Apply as Filter",				NULL, NULL,								NULL },
-  { "/Prepare a Filter",						NULL, "Prepare a Filter",				NULL, NULL,								NULL },
-  { "/Find Frame",								NULL, "Find Frame",						NULL, NULL,								NULL },
-  { "/Find Frame/Find Frame",					NULL, "Find Frame",						NULL, NULL,								NULL },
-  { "/Find Frame/Find Next",					NULL, "Find Next" ,						NULL, NULL,								NULL },
-  { "/Find Frame/Find Previous",				NULL, "Find Previous",					NULL, NULL,								NULL },
-  { "/Colorize Procedure",						NULL, "Colorize Procedure",				NULL, NULL,								NULL },
-  { "/Apply as Filter/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(apply_as_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",				G_CALLBACK(apply_as_not_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				G_CALLBACK(apply_as_and_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				G_CALLBACK(apply_as_or_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			G_CALLBACK(apply_as_and_not_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			G_CALLBACK(apply_as_or_not_selected_cb) },
-  { "/Prepare a Filter/Selected",				NULL, "Selected",						NULL, "selcted",						G_CALLBACK(prep_as_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",				G_CALLBACK(prep_as_not_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				G_CALLBACK(prep_as_and_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				G_CALLBACK(prep_as_or_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			G_CALLBACK(prep_as_and_not_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			G_CALLBACK(prep_as_or_not_selected_cb) },
-  { "/Find Frame/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_selected_cb) },
-  { "/Find Frame/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_not_selected_cb) },
-  { "/Find Previous/Selected",					NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_prev_selected_cb) },
-  { "/Find Previous/Not Selected",				NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_prev_not_selected_cb) },
-  { "/Find Next/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_next_selected_cb) },
-  { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
-  { "/Colorize Procedure/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(color_selected_cb) },
-  { "/Colorize Procedure/Not Selected",			NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(color_not_selected_cb) },
-  { "/Internet Search",	    WIRESHARK_STOCK_INTERNET, "Internet Search",				NULL, "Internet Search",				NULL },
-  { "/For Info Text",							NULL, "For Info Text",					NULL, "For Info Text",					G_CALLBACK(internet_search_cb) },
-  { "/Copy",									NULL, "Copy",							NULL, "Copy",							NULL },
-  { "/Copy/Protocol Plus Summary",				NULL, "Protocol Plus Summary",			NULL, "Protocol Plus Summary",			G_CALLBACK(copy_cb) },
+    { "/Apply as Filter",                         NULL, "Apply as Filter",                NULL, NULL,                             NULL },
+    { "/Prepare a Filter",                        NULL, "Prepare a Filter",               NULL, NULL,                             NULL },
+    { "/Find Frame",                              NULL, "Find Frame",                     NULL, NULL,                             NULL },
+    { "/Find Frame/Find Frame",                   NULL, "Find Frame",                     NULL, NULL,                             NULL },
+    { "/Find Frame/Find Next",                    NULL, "Find Next" ,                     NULL, NULL,                             NULL },
+    { "/Find Frame/Find Previous",                NULL, "Find Previous",                  NULL, NULL,                             NULL },
+    { "/Colorize Procedure",                      NULL, "Colorize Procedure",             NULL, NULL,                             NULL },
+    { "/Apply as Filter/Selected",                NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(apply_as_selected_cb) },
+    { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " not Selected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",             NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",             G_CALLBACK(apply_as_not_selected_cb) },
+    { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             G_CALLBACK(apply_as_and_selected_cb) },
+    { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",            NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              G_CALLBACK(apply_as_or_selected_cb) },
+    { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         G_CALLBACK(apply_as_and_not_selected_cb) },
+    { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",        NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          G_CALLBACK(apply_as_or_not_selected_cb) },
+    { "/Prepare a Filter/Selected",               NULL, "Selected",                       NULL, "selcted",                        G_CALLBACK(prep_as_selected_cb) },
+    { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " not Selected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",             NULL, UTF8_HORIZONTAL_ELLIPSIS " not Selected",             G_CALLBACK(prep_as_not_selected_cb) },
+    { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             G_CALLBACK(prep_as_and_selected_cb) },
+    { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              G_CALLBACK(prep_as_or_selected_cb) },
+    { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         G_CALLBACK(prep_as_and_not_selected_cb) },
+    { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          G_CALLBACK(prep_as_or_not_selected_cb) },
+    { "/Find Frame/Selected",                     NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_selected_cb) },
+    { "/Find Frame/Not Selected",                 NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_not_selected_cb) },
+    { "/Find Previous/Selected",                  NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_prev_selected_cb) },
+    { "/Find Previous/Not Selected",              NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_prev_not_selected_cb) },
+    { "/Find Next/Selected",                      NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_next_selected_cb) },
+    { "/Find Next/Not Selected",                  NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_next_not_selected_cb) },
+    { "/Colorize Procedure/Selected",             NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(color_selected_cb) },
+    { "/Colorize Procedure/Not Selected",         NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(color_not_selected_cb) },
+    { "/Internet Search",     WIRESHARK_STOCK_INTERNET, "Internet Search",                NULL, "Internet Search",                NULL },
+    { "/For Info Text",                           NULL, "For Info Text",                  NULL, "For Info Text",                  G_CALLBACK(internet_search_cb) },
+    { "/Copy",                                    NULL, "Copy",                           NULL, "Copy",                           NULL },
+    { "/Copy/Protocol Plus Summary",              NULL, "Protocol Plus Summary",          NULL, "Protocol Plus Summary",          G_CALLBACK(copy_cb) },
 };
 
 int gselection_count = 0;
@@ -656,7 +656,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
 
     /* Create the first column, associating the "text" attribute of the
      * cell_renderer to the first column of the model
-	 */
+     */
     column = gtk_tree_view_column_new_with_attributes ("Group", renderer, NULL);
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -852,3 +852,16 @@ free_error_table_data(error_equiv_table *err)
     g_string_chunk_free(err->text);
     g_array_free(err->procs_array, TRUE);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

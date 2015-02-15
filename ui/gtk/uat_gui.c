@@ -1174,3 +1174,16 @@ static GtkWidget *uat_window(void *u) {
 void uat_window_cb(GtkWidget *u _U_, void *uat) {
 	uat_window(uat);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

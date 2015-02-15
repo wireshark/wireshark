@@ -477,7 +477,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_widget_show(bbox);
 
 	/* Setup cancel/delete/destroy signal handlers */
-        g_signal_connect(object_list->dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(object_list->dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(object_list->dlg, "destroy",
 		       G_CALLBACK(eo_win_destroy_cb), object_list);
 	window_set_cancel_button(object_list->dlg, cancel_bt,
@@ -515,3 +515,16 @@ eo_tftp_cb(GtkWidget *widget _U_, gpointer data _U_)
 	/* Call the export_object window */
 	export_object_window("tftp_eo", "TFTP", eo_tftp_packet, eo_tftp_cleanup);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

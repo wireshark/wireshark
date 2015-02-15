@@ -194,3 +194,16 @@ manual_addr_resolv_dlg(GtkWidget *w _U_, gpointer data)
   gtk_widget_show_all(man_addr_resolv_dlg);
   window_present(man_addr_resolv_dlg);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

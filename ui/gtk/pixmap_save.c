@@ -159,10 +159,10 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 
 		if (!ret) {
 			msg_dialog = gtk_message_dialog_new(GTK_WINDOW(save_as_w),
-                                          GTK_DIALOG_DESTROY_WITH_PARENT,
-                                          GTK_MESSAGE_ERROR,
-                                          GTK_BUTTONS_OK,
-                                          "%s", error->message);
+							    GTK_DIALOG_DESTROY_WITH_PARENT,
+							    GTK_MESSAGE_ERROR,
+							    GTK_BUTTONS_OK,
+							    "%s", error->message);
 			gtk_dialog_run(GTK_DIALOG(msg_dialog));
 			gtk_widget_destroy(msg_dialog);
 			continue;
@@ -172,3 +172,16 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 		return;
 	}
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -59,11 +59,11 @@ megacostat_reset(void *pms)
 		ms->rtd[i].min_num=0;
 		ms->rtd[i].max_num=0;
 		ms->rtd[i].min.secs=0;
-        	ms->rtd[i].min.nsecs=0;
-        	ms->rtd[i].max.secs=0;
-        	ms->rtd[i].max.nsecs=0;
-        	ms->rtd[i].tot.secs=0;
-        	ms->rtd[i].tot.nsecs=0;
+		ms->rtd[i].min.nsecs=0;
+		ms->rtd[i].max.secs=0;
+		ms->rtd[i].max.nsecs=0;
+		ms->rtd[i].tot.secs=0;
+		ms->rtd[i].tot.nsecs=0;
 	}
 
 	ms->open_req_num=0;
@@ -83,8 +83,8 @@ megacostat_draw(void *pms)
 	GtkTreeIter iter;
 
 	/* clear list before printing */
-  	store = GTK_LIST_STORE(gtk_tree_view_get_model(ms->table));
-  	gtk_list_store_clear(store);
+ 	store = GTK_LIST_STORE(gtk_tree_view_get_model(ms->table));
+ 	gtk_list_store_clear(store);
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		/* nothing seen, nothing to do */
@@ -225,3 +225,16 @@ register_tap_listener_gtkmegacostat(void)
 	register_param_stat(&megaco_srt_dlg, "MEGACO",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

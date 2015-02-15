@@ -83,19 +83,19 @@ typedef struct _h225counter_t {
 	GtkWidget *scrolled_window;
 	GtkTreeView *table;
 	guint32 ras_msg[RAS_MSG_TYPES + 1];
-        guint32 cs_msg[CS_MSG_TYPES + 1];
-        guint32 grj_reason[GRJ_REASONS + 1];
-        guint32 rrj_reason[RRJ_REASONS + 1];
-        guint32 urq_reason[URQ_REASONS + 1];
-        guint32 urj_reason[URJ_REASONS + 1];
-        guint32 arj_reason[ARJ_REASONS + 1];
-        guint32 brj_reason[BRJ_REASONS + 1];
-        guint32 drq_reason[DRQ_REASONS + 1];
-        guint32 drj_reason[DRJ_REASONS + 1];
-        guint32 lrj_reason[LRJ_REASONS + 1];
-        guint32 irqnak_reason[IRQNAK_REASONS + 1];
-        guint32 rel_cmp_reason[REL_CMP_REASONS + 1];
-        guint32 facility_reason[FACILITY_REASONS + 1];
+	guint32 cs_msg[CS_MSG_TYPES + 1];
+	guint32 grj_reason[GRJ_REASONS + 1];
+	guint32 rrj_reason[RRJ_REASONS + 1];
+	guint32 urq_reason[URQ_REASONS + 1];
+	guint32 urj_reason[URJ_REASONS + 1];
+	guint32 arj_reason[ARJ_REASONS + 1];
+	guint32 brj_reason[BRJ_REASONS + 1];
+	guint32 drq_reason[DRQ_REASONS + 1];
+	guint32 drj_reason[DRJ_REASONS + 1];
+	guint32 lrj_reason[LRJ_REASONS + 1];
+	guint32 irqnak_reason[IRQNAK_REASONS + 1];
+	guint32 rel_cmp_reason[REL_CMP_REASONS + 1];
+	guint32 facility_reason[FACILITY_REASONS + 1];
 } h225counter_t;
 
 
@@ -299,8 +299,8 @@ h225counter_draw(void *phs)
 
 	/* Now print Message and Reason Counter Table */
 	/* clear list before printing */
-  	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
-  	gtk_list_store_clear(store);
+ 	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
+ 	gtk_list_store_clear(store);
 
 	for(i=0;i<=RAS_MSG_TYPES;i++) {
 		if(hs->ras_msg[i]!=0) {
@@ -509,8 +509,8 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static const stat_column titles[]={
-  {G_TYPE_STRING, LEFT, "Message Type or Reason"},
-  {G_TYPE_UINT, RIGHT, "Count" }
+	{G_TYPE_STRING, LEFT, "Message Type or Reason"},
+	{G_TYPE_UINT, RIGHT, "Count" }
 };
 
 static void
@@ -541,7 +541,7 @@ gtk_h225counter_init(const char *opt_arg, void *userdata _U_)
 
 	init_main_stat_window(hs->win, hs->vbox, "H.225 Message and Message Reason Counter", hs->filter);
 
-        /* init a scrolled window*/
+	/* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
 
 	hs->table = create_stat_table(hs->scrolled_window, hs->vbox, 2, titles);
@@ -578,3 +578,16 @@ register_tap_listener_gtk_h225counter(void)
 	register_param_stat(&h225_counter_dlg, "_H.225",
 	    REGISTER_STAT_GROUP_TELEPHONY);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

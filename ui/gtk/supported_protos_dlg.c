@@ -163,18 +163,18 @@ static void supported_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 
 static void insert_text(GtkWidget *w, const char *buffer, int nchars)
 {
-    GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
-    GtkTextIter    iter;
+  GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
+  GtkTextIter    iter;
 
-    gtk_text_buffer_get_end_iter(buf, &iter);
+  gtk_text_buffer_get_end_iter(buf, &iter);
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_font(w, user_font_get_regular());
+  gtk_widget_override_font(w, user_font_get_regular());
 #else
-    gtk_widget_modify_font(w, user_font_get_regular());
+  gtk_widget_modify_font(w, user_font_get_regular());
 #endif
-    if (!g_utf8_validate(buffer, -1, NULL))
-        printf("Invalid utf8 encoding: %s\n", buffer);  /* ToDo: Don't use printf ?? */
-    gtk_text_buffer_insert(buf, &iter, buffer, nchars);
+  if (!g_utf8_validate(buffer, -1, NULL))
+    printf("Invalid utf8 encoding: %s\n", buffer);  /* ToDo: Don't use printf ?? */
+  gtk_text_buffer_insert(buf, &iter, buffer, nchars);
 }
 
 
@@ -210,17 +210,17 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     count = 0;
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
-	    count++;
-	    protocol = find_protocol_by_id(i);
-	    name = proto_get_protocol_name(i);
-	    short_name = proto_get_protocol_short_name(protocol);
-	    filter_name = proto_get_protocol_filter_name(i);
-	    if ((len = (int) strlen(name)) > namel)
-		    namel = len;
-	    if ((len = (int) strlen(short_name)) > short_namel)
-		    short_namel = len;
-	    if ((len = (int) strlen(filter_name)) > filter_namel)
-		    filter_namel = len;
+      count++;
+      protocol = find_protocol_by_id(i);
+      name = proto_get_protocol_name(i);
+      short_name = proto_get_protocol_short_name(protocol);
+      filter_name = proto_get_protocol_filter_name(i);
+      if ((len = (int) strlen(name)) > namel)
+        namel = len;
+      if ((len = (int) strlen(short_name)) > short_namel)
+        short_namel = len;
+      if ((len = (int) strlen(filter_name)) > filter_namel)
+        filter_namel = len;
     }
 
     len = g_snprintf(buffer, BUFF_LEN, proto_supported, count);
@@ -229,17 +229,17 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     /* ok, display the correctly aligned strings */
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
-	    protocol = find_protocol_by_id(i);
-	    name = proto_get_protocol_name(i);
-	    short_name = proto_get_protocol_short_name(protocol);
-	    filter_name = proto_get_protocol_filter_name(i);
+      protocol = find_protocol_by_id(i);
+      name = proto_get_protocol_name(i);
+      short_name = proto_get_protocol_short_name(protocol);
+      filter_name = proto_get_protocol_filter_name(i);
 
-	    /* the name used for sorting in the left column */
-	    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s\n",
-			   -short_namel,  short_name,
-			   -namel,	  name,
-			   -filter_namel, filter_name);
-	    insert_text(w, buffer, len);
+      /* the name used for sorting in the left column */
+      len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s\n",
+                       -short_namel,  short_name,
+                       -namel,	  name,
+                       -filter_namel, filter_name);
+      insert_text(w, buffer, len);
     }
 
     break;
@@ -252,21 +252,21 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
 
-	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-		 hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
+      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
+           hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
 
-		    if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
-			    continue;
+        if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
+          continue;
 
-		    if ((len = (int) strlen(hfinfo->abbrev)) > maxlen)
-			    maxlen = len;
-		    if ((len = (int) strlen(hfinfo->name)) > maxlen2)
-			    maxlen2 = len;
-		    if (hfinfo->blurb != NULL) {
-			    if ((len = (int) strlen(hfinfo->blurb)) > maxlen4)
-				maxlen4 = len;
-		    }
-	    }
+        if ((len = (int) strlen(hfinfo->abbrev)) > maxlen)
+          maxlen = len;
+        if ((len = (int) strlen(hfinfo->name)) > maxlen2)
+          maxlen2 = len;
+        if (hfinfo->blurb != NULL) {
+          if ((len = (int) strlen(hfinfo->blurb)) > maxlen4)
+            maxlen4 = len;
+        }
+      }
     }
 
     insert_text(w, dfilter_supported, (int) strlen(dfilter_supported));
@@ -274,46 +274,46 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     fcount = 0;
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
-	    protocol = find_protocol_by_id(i);
-	    name = proto_get_protocol_name(i);
-	    short_name = proto_get_protocol_short_name(protocol);
-	    filter_name = proto_get_protocol_filter_name(i);
+      protocol = find_protocol_by_id(i);
+      name = proto_get_protocol_name(i);
+      short_name = proto_get_protocol_short_name(protocol);
+      filter_name = proto_get_protocol_filter_name(i);
 
-	    count = 0;
-	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-		 hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
+      count = 0;
+      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
+           hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
 
-		    if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
-			    continue;
-		    count++;
-	    }
-	    fcount += count;
+        if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
+          continue;
+        count++;
+      }
+      fcount += count;
 
-	    len = g_snprintf(buffer, BUFF_LEN, "\n%s - %s (%s) [%d fields]:\n",
-			   short_name, name, filter_name, count);
-	    insert_text(w, buffer, len);
+      len = g_snprintf(buffer, BUFF_LEN, "\n%s - %s (%s) [%d fields]:\n",
+                       short_name, name, filter_name, count);
+      insert_text(w, buffer, len);
 
-	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-		 hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
+      for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
+           hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
 
-		    if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
-			    continue;
+        if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
+          continue;
 
-		    type_name = ftype_pretty_name(hfinfo->type);
-		    if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
-			    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s (%s)\n",
-					     -maxlen,  hfinfo->abbrev,
-					     -maxlen2, hfinfo->name,
-					     -maxlen4, hfinfo->blurb,
-					     type_name);
-		    } else {
-			    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s (%s)\n",
-					     -maxlen,  hfinfo->abbrev,
-					     -maxlen2, hfinfo->name,
-					     type_name);
-		    }
-		    insert_text(w, buffer, len);
-	    }
+        type_name = ftype_pretty_name(hfinfo->type);
+        if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
+          len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s (%s)\n",
+                           -maxlen,  hfinfo->abbrev,
+                           -maxlen2, hfinfo->name,
+                           -maxlen4, hfinfo->blurb,
+                           type_name);
+        } else {
+          len = g_snprintf(buffer, BUFF_LEN, "%*s %*s (%s)\n",
+                           -maxlen,  hfinfo->abbrev,
+                           -maxlen2, hfinfo->name,
+                           type_name);
+        }
+        insert_text(w, buffer, len);
+      }
     }
     len = g_snprintf(buffer, BUFF_LEN, "\n-- Total %d fields\n", fcount);
     insert_text(w, buffer, len);
@@ -344,3 +344,16 @@ void supported_redraw(void)
     set_supported_text(dfilter_text, DFILTER_SUPPORTED);
   }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
