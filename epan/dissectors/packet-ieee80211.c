@@ -4231,6 +4231,21 @@ static int hf_ieee80211_ff_vht_mimo_cntrl_remaining_feedback_seg = -1;
 static int hf_ieee80211_ff_vht_mimo_cntrl_first_feedback_seg = -1;
 static int hf_ieee80211_ff_vht_mimo_cntrl_reserved = -1;
 static int hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number = -1;
+
+static const int *hf_ieee80211_ff_vht_mimo_cntrl_fields[] = {
+  &hf_ieee80211_ff_vht_mimo_cntrl_nc_index,
+  &hf_ieee80211_ff_vht_mimo_cntrl_nr_index,
+  &hf_ieee80211_ff_vht_mimo_cntrl_channel_width,
+  &hf_ieee80211_ff_vht_mimo_cntrl_grouping,
+  &hf_ieee80211_ff_vht_mimo_cntrl_codebook_info,
+  &hf_ieee80211_ff_vht_mimo_cntrl_feedback_type,
+  &hf_ieee80211_ff_vht_mimo_cntrl_remaining_feedback_seg,
+  &hf_ieee80211_ff_vht_mimo_cntrl_first_feedback_seg,
+  &hf_ieee80211_ff_vht_mimo_cntrl_reserved,
+  &hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number,
+  NULL,
+};
+
 static int hf_ieee80211_vht_compressed_beamforming_report = -1;
 static int hf_ieee80211_vht_compressed_beamforming_report_snr = -1;
 static int hf_ieee80211_vht_compressed_beamforming_feedback_matrix = -1;
@@ -9090,34 +9105,10 @@ add_ff_action_unprotected_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 static guint
 add_ff_vht_mimo_cntrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, vht_mimo_control_t *cntrl)
 {
-  proto_item *vht_mimo_item;
-  proto_tree *vht_mimo_tree;
   guint32 vht_mimo;
 
-  vht_mimo_item = proto_tree_add_item(tree, hf_ieee80211_ff_vht_mimo_cntrl, tvb,
-                                  offset, 3, ENC_NA);
-  vht_mimo_tree = proto_item_add_subtree(vht_mimo_item, ett_ff_vhtmimo_cntrl);
-
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_nc_index, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_nr_index, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_channel_width, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_grouping, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_codebook_info, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_feedback_type, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_remaining_feedback_seg, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_first_feedback_seg, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_reserved, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(vht_mimo_tree, hf_ieee80211_ff_vht_mimo_cntrl_sounding_dialog_token_number, tvb,
-                      offset, 3, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_vht_mimo_cntrl,
+                        ett_ff_vhtmimo_cntrl, hf_ieee80211_ff_vht_mimo_cntrl_fields, ENC_LITTLE_ENDIAN);
 
   /* Fill vht_mimo_control_t for beamforming use */
   vht_mimo = tvb_get_letoh24(tvb, offset);
@@ -20512,7 +20503,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_vht_mimo_cntrl,
      {"VHT MIMO Control", "wlan.vht.mimo_control.control.",
-      FT_NONE, BASE_NONE, NULL, 0x0,
+      FT_UINT24, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_vht_mimo_cntrl_nc_index,
