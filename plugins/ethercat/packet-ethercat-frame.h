@@ -23,7 +23,10 @@
 #ifndef _PACKET_ETHERCAT_FRAME_H
 #define _PACKET_ETHERCAT_FRAME_H
 
+#include <wsutil/ws_diag_control.h>
+
 /* structure for decoding the header -----------------------------------------*/
+DIAG_OFF(pedantic)
 typedef union _EtherCATFrameParser
 {
    struct
@@ -34,8 +37,9 @@ typedef union _EtherCATFrameParser
    } v;
    guint16 hdr;
 } EtherCATFrameParserHDR;
+DIAG_ON(pedantic)
 typedef EtherCATFrameParserHDR *PEtherCATFrameParserHDR;
 
 #define EtherCATFrameParserHDR_Len (int)sizeof(EtherCATFrameParserHDR)
 
-#endif
+#endif /* _PACKET_ETHERCAT_FRAME_H */

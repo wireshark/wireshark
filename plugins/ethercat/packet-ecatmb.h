@@ -23,6 +23,9 @@
 #ifndef _PACKET_ECATMAILBOX_H_
 #define _PACKET_ECATMAILBOX_H_
 
+#include <wsutil/ws_diag_control.h>
+DIAG_OFF(pedantic)
+
 /* Ensure the same data layout for all platforms */
 
 typedef struct TETHERNET_ADDRESS
@@ -108,7 +111,6 @@ typedef union tEoeMacFilterOptionsUnion
    } v;
    guint16 Options;
 } EoeMacFilterOptionsUnion;
-
 
 typedef struct TETHERCAT_EOE_MACFILTER
 {
@@ -477,4 +479,5 @@ typedef struct TETHERCAT_SOE_HEADER
 
 extern void init_mbx_header(PETHERCAT_MBOX_HEADER pMbox, tvbuff_t *tvb, gint offset);
 
-#endif
+DIAG_ON(pedantic)
+#endif /* _PACKET_ECATMAILBOX_H_ */
