@@ -112,10 +112,10 @@ Generic Network Virtualization Encapsulation (Geneve)
 IPMI Trace
 iSER
 OptoMMP
-corosync/totemnet
-corosync/totemsrp
+corosync/totemnet  corosync cluster engine ( lowest levelencryption/decryption protocol)
+corosync/totemsrp corosync cluster engine ( totem single ring protocol)
 ceph
-GVSP
+GVSP GigE Vision (TM) Streaming Protocol
 HCrt
 Stateless Transport Tunneling
 CP ``Cooper'' 2179
@@ -138,6 +138,7 @@ MACsec Key Agreement - EAPoL-MKA
 DJI UAV Drone Control Protocol
 ZVT Kassenschnittstelle
 ETSI Card Application Toolkit - Transport Protocol
+QNEX6 (QNET)
 --sort-and-group--
 
 === Updated Protocol Support
