@@ -680,11 +680,11 @@ proto_register_zbee_zcl_identify(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_identify_identify_time,
-            { "Identify Time", "zbee_zcl_general.identify.attr.identify_time", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_seconds,
+            { "Identify Time", "zbee_zcl_general.identify.attr.identify_time", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_seconds),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_identify_identify_timeout,
-            { "Identify Timeout", "zbee_zcl_general.identify.identify_timeout", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_seconds,
+            { "Identify Timeout", "zbee_zcl_general.identify.identify_timeout", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_seconds),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_identify_srv_rx_cmd_id,
@@ -2579,7 +2579,7 @@ void proto_register_zbee_zcl_ota(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_query_jitter,
-            { "Query Jitter", "zbee_zcl_general.ota.query_jitter", FT_UINT8, BASE_CUSTOM, decode_zcl_time_in_seconds,
+            { "Query Jitter", "zbee_zcl_general.ota.query_jitter", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_seconds),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_manufacturer_code,
@@ -2637,7 +2637,7 @@ void proto_register_zbee_zcl_ota(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_image_size,
-            { "Image Size", "zbee_zcl_general.ota.image.size", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_size_in_bytes,
+            { "Image Size", "zbee_zcl_general.ota.image.size", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_size_in_bytes),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_file_offset,
@@ -2653,7 +2653,7 @@ void proto_register_zbee_zcl_ota(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_page_size,
-            { "Page Size", "zbee_zcl_general.ota.page.size", FT_UINT16, BASE_CUSTOM, decode_zcl_ota_size_in_bytes,
+            { "Page Size", "zbee_zcl_general.ota.page.size", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_size_in_bytes),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_rsp_spacing,
@@ -2661,15 +2661,15 @@ void proto_register_zbee_zcl_ota(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_current_time,
-            { "Current Time", "zbee_zcl_general.ota.current_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_curr_time,
+            { "Current Time", "zbee_zcl_general.ota.current_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_curr_time),
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_ota_request_time,
-            { "Request Time", "zbee_zcl_general.ota.request_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_req_time,
+            { "Request Time", "zbee_zcl_general.ota.request_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_req_time),
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_ota_upgrade_time,
-            { "Upgrade Time", "zbee_zcl_general.ota.upgrade_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_upgr_time,
+            { "Upgrade Time", "zbee_zcl_general.ota.upgrade_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_ota_upgr_time),
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_ota_data_size,
@@ -3719,7 +3719,7 @@ proto_register_zbee_zcl_pwr_prof(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_pwr_prof_id,
-            { "Power Profile ID", "zbee_zcl_general.pwrprof.pwrprofid", FT_UINT8, BASE_CUSTOM, decode_power_profile_id, 0x00,
+            { "Power Profile ID", "zbee_zcl_general.pwrprof.pwrprofid", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_profile_id), 0x00,
             "Identifier of the specific profile", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_currency,
@@ -3727,7 +3727,7 @@ proto_register_zbee_zcl_pwr_prof(void)
             "Local unit of currency (ISO 4217) used in the price field.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_price,
-            { "Price", "zbee_zcl_general.pwrprof.price", FT_UINT32, BASE_CUSTOM, decode_price_in_cents, 0x0,
+            { "Price", "zbee_zcl_general.pwrprof.price", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_price_in_cents), 0x0,
             "Price of the energy of a specific Power Profile.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_price_trailing_digit,
@@ -3743,7 +3743,7 @@ proto_register_zbee_zcl_pwr_prof(void)
             "Identifier of the specific phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_scheduled_time,
-            { "Scheduled Time", "zbee_zcl_general.pwrprof.scheduledtime", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_minutes, 0x0,
+            { "Scheduled Time", "zbee_zcl_general.pwrprof.scheduledtime", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
             NULL, HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_macro_phase_id,
@@ -3751,7 +3751,7 @@ proto_register_zbee_zcl_pwr_prof(void)
             "Identifier of the specific energy phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_expect_duration,
-            { "Expected Duration", "zbee_zcl_general.pwrprof.expecduration", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_minutes, 0x0,
+            { "Expected Duration", "zbee_zcl_general.pwrprof.expecduration", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
             "The estimated duration of the specific phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_num_of_trans_phases,
@@ -3759,15 +3759,15 @@ proto_register_zbee_zcl_pwr_prof(void)
             NULL, HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_peak_power,
-            { "Peak Power", "zbee_zcl_general.pwrprof.peakpower", FT_UINT16, BASE_CUSTOM, decode_power_in_watt, 0x0,
+            { "Peak Power", "zbee_zcl_general.pwrprof.peakpower", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_power_in_watt), 0x0,
             "The estimated power for the specific phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_energy,
-            { "Energy", "zbee_zcl_general.pwrprof.energy", FT_UINT16, BASE_CUSTOM, decode_energy, 0x0,
+            { "Energy", "zbee_zcl_general.pwrprof.energy", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_energy), 0x0,
             "The estimated energy consumption for the accounted phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_max_active_delay,
-            { "Max Activation Delay", "zbee_zcl_general.pwrprof.maxactivdelay", FT_UINT16, BASE_CUSTOM, func_decode_delayinminute, 0x0,
+            { "Max Activation Delay", "zbee_zcl_general.pwrprof.maxactivdelay", FT_UINT16, BASE_CUSTOM, CF_FUNC(func_decode_delayinminute), 0x0,
             "The maximum interruption time between the end of the previous phase and the beginning of the specific phase.", HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_pwr_prof_count,
@@ -3783,11 +3783,11 @@ proto_register_zbee_zcl_pwr_prof(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_start_after,
-            { "Start After", "zbee_zcl_general.pwrprof.startafter", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_minutes, 0x0,
+            { "Start After", "zbee_zcl_general.pwrprof.startafter", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
             NULL, HFILL } },
 
         { &hf_zbee_zcl_pwr_prof_stop_before,
-            { "Stop Before", "zbee_zcl_general.pwrprof.stopbefore", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_minutes, 0x0,
+            { "Stop Before", "zbee_zcl_general.pwrprof.stopbefore", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
             NULL, HFILL } },
 
 /* Begin Options fields */
@@ -3805,7 +3805,7 @@ proto_register_zbee_zcl_pwr_prof(void)
 /* End Options fields */
 
         { &hf_zbee_zcl_pwr_prof_pwr_prof_stime,
-            { "Power Profile Start Time", "zbee_zcl_general.pwrprof.pwrprofstime", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_minutes, 0x0,
+            { "Power Profile Start Time", "zbee_zcl_general.pwrprof.pwrprofstime", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_time_in_minutes), 0x0,
             NULL, HFILL } }
 
   };

@@ -514,13 +514,13 @@ proto_register_soupbintcp(void)
 
         { &hf_soupbintcp_packet_type,
           { "Packet Type", "soupbintcp.packet_type",
-            FT_UINT8, BASE_CUSTOM, format_packet_type, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_packet_type), 0x0,
             "Message type code",
             HFILL }},
 
         { &hf_soupbintcp_reject_code,
           { "Login Reject Code", "soupbintcp.reject_code",
-            FT_UINT8, BASE_CUSTOM, format_reject_code, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_reject_code), 0x0,
             "Login reject reason code",
             HFILL }},
 

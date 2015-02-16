@@ -5684,7 +5684,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_provider_rssi,
             { "RSSI", "mbim.control.provider.rssi",
-               FT_UINT32, BASE_CUSTOM, mbim_rssi_fmt, 0,
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_rssi_fmt), 0,
               NULL, HFILL }
         },
         { &hf_mbim_provider_error_rate,
@@ -5879,7 +5879,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_signal_state_info_rssi,
             { "RSSI", "mbim.control.signal_state_info.rssi",
-               FT_UINT32, BASE_CUSTOM, mbim_rssi_fmt, 0,
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(mbim_rssi_fmt), 0,
               NULL, HFILL }
         },
         { &hf_mbim_signal_state_info_error_rate,

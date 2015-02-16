@@ -250,7 +250,7 @@ proto_register_erspan(void)
 			0x03ff, NULL, HFILL }},
 
 		{ &hf_erspan_timestamp,
-		{ "Timestamp",	"erspan.timestamp", FT_UINT32, BASE_CUSTOM, erspan_fmt_timestamp,
+		{ "Timestamp",	"erspan.timestamp", FT_UINT32, BASE_CUSTOM, CF_FUNC(erspan_fmt_timestamp),
 			0, NULL, HFILL }},
 
 		{ &hf_erspan_unknown4,

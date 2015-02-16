@@ -1393,37 +1393,37 @@ proto_register_ouch(void)
 
         { &hf_ouch_bbo_weight_indicator,
           { "BBO Weight Indicator", "ouch.bbo_weight_indicator",
-            FT_UINT8, BASE_CUSTOM, format_bbo_weight_indicator, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_bbo_weight_indicator), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_broken_trade_reason,
           { "Broken Trade Reason", "ouch.broken_trade_reason",
-            FT_UINT8, BASE_CUSTOM, format_broken_trade_reason, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_broken_trade_reason), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_buy_sell_indicator,
           { "Buy/Sell Indicator", "ouch.buy_sell_indicator",
-            FT_UINT8, BASE_CUSTOM, format_buy_sell_indicator, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_buy_sell_indicator), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_cancel_reason,
           { "Cancel Reason", "ouch.cancel_reason",
-            FT_UINT8, BASE_CUSTOM, format_cancel_reason, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_cancel_reason), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_capacity,
           { "Capacity", "ouch.capacity",
-            FT_UINT8, BASE_CUSTOM, format_capacity, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_capacity), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_cross_type,
           { "Cross Type", "ouch.cross_type",
-            FT_UINT8, BASE_CUSTOM, format_cross_type, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_cross_type), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_customer_type,
           { "Customer Type", "ouch.customer_type",
-            FT_UINT8, BASE_CUSTOM, format_customer_type, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_customer_type), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_decrement_shares,
@@ -1433,12 +1433,12 @@ proto_register_ouch(void)
 
         { &hf_ouch_display,
           { "Display", "ouch.display",
-            FT_UINT8, BASE_CUSTOM, format_display, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_display), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_event_code,
           { "Event Code", "ouch.event_code",
-            FT_UINT8, BASE_CUSTOM, format_event_code, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_event_code), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_executed_shares,
@@ -1448,7 +1448,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_execution_price,
           { "Execution Price", "ouch.execution_price",
-            FT_UINT32, BASE_CUSTOM, format_price, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_price), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_existing_order_token,
@@ -1463,12 +1463,12 @@ proto_register_ouch(void)
 
         { &hf_ouch_iso_eligible,
           { "Intermarket Sweep Eligibility", "ouch.iso_eligible",
-            FT_UINT8, BASE_CUSTOM, format_iso_eligibility, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_iso_eligibility), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_liquidity_flag,
           { "Liquidity Flag", "ouch.liquidity_flag",
-            FT_UINT8, BASE_CUSTOM, format_liquidity_flag, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_liquidity_flag), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_match_number,
@@ -1488,7 +1488,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_new_execution_price,
           { "New Execution Price", "ouch.new_execution_price",
-            FT_UINT32, BASE_CUSTOM, format_price, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_price), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_order_reference_number,
@@ -1498,7 +1498,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_order_state,
           { "Order State", "ouch.order_state",
-            FT_UINT8, BASE_CUSTOM, format_order_state, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_order_state), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_order_token,
@@ -1508,7 +1508,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_packet_type,
           { "Packet Type", "ouch.packet_type",
-            FT_UINT8, BASE_CUSTOM, format_packet_type, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_packet_type), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_previous_order_token,
@@ -1518,12 +1518,12 @@ proto_register_ouch(void)
 
         { &hf_ouch_price,
           { "Price", "ouch.price",
-            FT_UINT32, BASE_CUSTOM, format_price, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_price), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_price_correction_reason,
           { "Price Correction Reason", "ouch.price_correction_reason",
-            FT_UINT8, BASE_CUSTOM, format_price_correction_reason, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_price_correction_reason), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_quantity_prevented_from_trading,
@@ -1534,7 +1534,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_reject_reason,
           { "Reject Reason", "ouch.reject_reason",
-            FT_UINT8, BASE_CUSTOM, format_reject_reason, 0x0,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_reject_reason), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_replacement_order_token,
@@ -1554,7 +1554,7 @@ proto_register_ouch(void)
 
         { &hf_ouch_tif,
           { "Time In Force", "ouch.tif",
-            FT_UINT32, BASE_CUSTOM, format_tif, 0x0,
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_tif), 0x0,
             NULL, HFILL }},
 
         { &hf_ouch_timestamp,

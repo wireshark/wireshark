@@ -991,12 +991,12 @@ proto_register_gmr1_rach(void)
 		},
 		{ &hf_rach_gps_pos_lat,
 		  { "Latitude", "gmr1.rach.gps_pos.latitude",
-		    FT_INT24, BASE_CUSTOM, rach_gps_pos_lat_fmt, 0x7ffff0,
+		    FT_INT24, BASE_CUSTOM, CF_FUNC(rach_gps_pos_lat_fmt), 0x7ffff0,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_gps_pos_long,
 		  { "Longitude", "gmr1.rach.gps_pos.longitude",
-		    FT_INT24, BASE_CUSTOM, rach_gps_pos_long_fmt, 0x0fffff,
+		    FT_INT24, BASE_CUSTOM, CF_FUNC(rach_gps_pos_long_fmt), 0x0fffff,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_mes_pwr_class,
@@ -1006,7 +1006,7 @@ proto_register_gmr1_rach(void)
 		},
 		{ &hf_rach_sp_hplmn_id,
 		  { "SP/HPLMN ID", "gmr1.rach.sp_hplmn_id",
-		    FT_UINT24, BASE_CUSTOM, rach_sp_hplmn_id_fmt, 0x0fffff,
+		    FT_UINT24, BASE_CUSTOM, CF_FUNC(rach_sp_hplmn_id_fmt), 0x0fffff,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_pd,
@@ -1021,27 +1021,27 @@ proto_register_gmr1_rach(void)
 		},
 		{ &hf_rach_number_grp1,
 		  { "Group 1", "gmr1.rach.number.grp1",
-		    FT_UINT16, BASE_CUSTOM, rach_dialed_num_grp1234_fmt, 0x3ff0,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(rach_dialed_num_grp1234_fmt), 0x3ff0,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_number_grp2,
 		  { "Group 2", "gmr1.rach.number.grp2",
-		    FT_UINT16, BASE_CUSTOM, rach_dialed_num_grp1234_fmt, 0x0ffc,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(rach_dialed_num_grp1234_fmt), 0x0ffc,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_number_grp3,
 		  { "Group 3", "gmr1.rach.number.grp3",
-		    FT_UINT16, BASE_CUSTOM, rach_dialed_num_grp1234_fmt, 0x03ff,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(rach_dialed_num_grp1234_fmt), 0x03ff,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_number_grp4,
 		  { "Group 4", "gmr1.rach.number.grp4",
-		    FT_UINT16, BASE_CUSTOM, rach_dialed_num_grp1234_fmt, 0xffc0,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(rach_dialed_num_grp1234_fmt), 0xffc0,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_number_grp5,
 		  { "Group 5", "gmr1.rach.number.grp5",
-		    FT_UINT16, BASE_CUSTOM, rach_dialed_num_grp5_fmt, 0x3ff8,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(rach_dialed_num_grp5_fmt), 0x3ff8,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_msc_id,
@@ -1051,7 +1051,7 @@ proto_register_gmr1_rach(void)
 		},
 		{ &hf_rach_gps_timestamp,
 		  { "GPS Timestamp", "gmr1.rach.gps_timestamp",
-		    FT_UINT16, BASE_CUSTOM, rach_gps_timestamp_fmt, 0xffff,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(rach_gps_timestamp_fmt), 0xffff,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_software_version,

@@ -1901,7 +1901,7 @@ proto_register_abis_oml(void)
 		},
 		{ &hf_oml_fom_msgtype,
 			{ "FOM Message Type", "gsm_abis_oml.fom.msg_type",
-			  FT_UINT8, BASE_CUSTOM, &format_custom_msgtype, 0,
+			  FT_UINT8, BASE_CUSTOM, CF_FUNC(format_custom_msgtype), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_objclass,
@@ -1926,7 +1926,7 @@ proto_register_abis_oml(void)
 		},
 		{ &hf_oml_fom_attr_tag,
 			{ "FOM Attribute ID", "gsm_abis_oml.fom.attr_id",
-			  FT_UINT8, BASE_CUSTOM, &format_custom_attr, 0,
+			  FT_UINT8, BASE_CUSTOM, CF_FUNC(format_custom_attr), 0,
 			  NULL, HFILL }
 		},
 		{ &hf_oml_fom_attr_len,

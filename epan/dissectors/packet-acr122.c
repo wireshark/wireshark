@@ -755,12 +755,12 @@ proto_register_acr122(void)
         },
         { &hf_led_t1_duration,
             { "T1 Duration",                     "acr122.led.t1_duration",
-            FT_UINT8, BASE_CUSTOM, duration_base, 0x00,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(duration_base), 0x00,
             "Initial Blinking State", HFILL }
         },
         { &hf_led_t2_duration,
             { "T2 Duration",                     "acr122.led.t2_duration",
-            FT_UINT8, BASE_CUSTOM, duration_base, 0x00,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(duration_base), 0x00,
             "Toggle Blinking State", HFILL }
         },
         { &hf_led_number_of_repetition,
@@ -780,7 +780,7 @@ proto_register_acr122(void)
         },
         { &hf_timeout,
             { "Timeout",                         "acr122.timeout",
-            FT_UINT8, BASE_CUSTOM, timeout_base, 0x00,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(timeout_base), 0x00,
             NULL, HFILL }
         },
         { &hf_status_word_led_reserved,

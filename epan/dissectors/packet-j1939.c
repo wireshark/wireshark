@@ -319,11 +319,11 @@ void proto_register_j1939(void)
         },
         { &hf_j1939_src_addr,
             {"Source Address", "j1939.src_addr",
-            FT_UINT32, BASE_CUSTOM, j1939_fmt_address, 0x000000FF, NULL, HFILL }
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(j1939_fmt_address), 0x000000FF, NULL, HFILL }
         },
         { &hf_j1939_dst_addr,
             {"Destination Address", "j1939.dst_addr",
-            FT_UINT32, BASE_CUSTOM, j1939_fmt_address, 0x0000FF00, NULL, HFILL }
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(j1939_fmt_address), 0x0000FF00, NULL, HFILL }
         },
         { &hf_j1939_group_extension,
             {"Group Extension", "j1939.group_extension",

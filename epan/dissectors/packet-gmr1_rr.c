@@ -2004,7 +2004,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_timing_ofs_value,
 		  { "Timing Offset value", "gmr1.rr.timing_offset.value",
-		    FT_INT16, BASE_CUSTOM, rr_timing_ofs_value_fmt, 0x00,
+		    FT_INT16, BASE_CUSTOM, CF_FUNC(rr_timing_ofs_value_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_tmsi_ptmsi,
@@ -2014,7 +2014,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_wait_ind_timeout,
 		  { "T3122/T3142 timeout", "gmr1.rr.wait_ind.timeout",
-		    FT_UINT8, BASE_CUSTOM, rr_gen_ie_seconds_fmt, 0x00,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(rr_gen_ie_seconds_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_mif_mes1_ab,
@@ -2059,7 +2059,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_freq_ofs_value,
 		  { "Frequency Offset value", "gmr1.rr.frequency_offset.value",
-		    FT_INT16, BASE_CUSTOM, rr_freq_ofs_value_fmt, 0x00,
+		    FT_INT16, BASE_CUSTOM, CF_FUNC(rr_freq_ofs_value_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_freq_ofs_spare,
@@ -2094,12 +2094,12 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_pos_upd_info_dist,
 		  { "GPS Update Distance", "gmr1.rr.pos_upd_info.distance",
-		    FT_UINT8, BASE_CUSTOM, rr_pos_upd_info_dist_fmt, 0xfe,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(rr_pos_upd_info_dist_fmt), 0xfe,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_pos_upd_info_time,
 		  { "GPS Update Timer", "gmr1.rr.pos_upd_info.time",
-		    FT_UINT8, BASE_CUSTOM, rr_pos_upd_info_time_fmt, 0xff,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(rr_pos_upd_info_time_fmt), 0xff,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_bcch_carrier_arfcn,
@@ -2134,7 +2134,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_gps_timestamp,
 		  { "GPS timestamp", "gmr1.rr.gps_timestamp",
-		    FT_UINT16, BASE_CUSTOM, rr_gps_timestamp_fmt, 0xffff,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(rr_gps_timestamp_fmt), 0xffff,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_gps_power_control_params,
@@ -2164,7 +2164,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_gps_almanac_pn,
 		  { "Page Number", "gmr1.rr.gps_almanac.pn",
-		    FT_UINT8, BASE_CUSTOM, rr_gps_almanac_pn_fmt, 0xf8,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(rr_gps_almanac_pn_fmt), 0xf8,
 		    "See ICD-GPS-200", HFILL }
 		},
 		{ &hf_rr_gps_almanac_wn,
@@ -2244,7 +2244,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_pkt_freq_prm_dl_bw,
 		  { "Downlink Bandwidth", "gmr1.rr.pkt_freq_prm.dl_bw",
-		    FT_UINT8, BASE_CUSTOM, rr_pkt_freq_prm_xx_bw_fmt, 0x70,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(rr_pkt_freq_prm_xx_bw_fmt), 0x70,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_pkt_freq_prm_ul_freq_dist,
@@ -2254,7 +2254,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_pkt_freq_prm_ul_bw,
 		  { "Uplink Bandwidth", "gmr1.rr.pkt_freq_prm.ul_bw",
-		    FT_UINT8, BASE_CUSTOM, rr_pkt_freq_prm_xx_bw_fmt, 0x70,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(rr_pkt_freq_prm_xx_bw_fmt), 0x70,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_pkt_freq_prm_spare,
@@ -2384,7 +2384,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_pkt_pwr_ctrl_prm_par,
 		  { "Power Attenuation Request (PAR)", "gmr1.rr.pkt_pwr_ctrl_prm.par",
-		    FT_UINT8, BASE_CUSTOM, rr_pkt_pwr_ctrl_prm_par_fmt, 0x3f,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(rr_pkt_pwr_ctrl_prm_par_fmt), 0x3f,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_pkt_pwr_ctrl_prm_spare,

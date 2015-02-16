@@ -475,7 +475,7 @@ proto_register_aim_generic(void)
           BASE_HEX, VALS(aim_snac_generic_motd_motdtypes), 0x0, NULL, HFILL },
     },
     { &hf_generic_family,
-      { "Family", "aim_generic.family", FT_UINT16, BASE_CUSTOM, aim_generic_family, 0x0, NULL, HFILL },
+      { "Family", "aim_generic.family", FT_UINT16, BASE_CUSTOM, CF_FUNC(aim_generic_family), 0x0, NULL, HFILL },
     },
     { &hf_generic_version,
       { "Version", "aim_generic.version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },

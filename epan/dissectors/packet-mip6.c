@@ -4901,13 +4901,13 @@ proto_register_mip6(void)
 
     { &hf_mip6_opt_acc_net_id_sub_opt_geo_latitude_degrees,
       { "Latitude Degrees", "mip6.acc_net_id.geo.latitude_degrees",
-        FT_INT24, BASE_CUSTOM, degrees_base_custom, 0x0,
+        FT_INT24, BASE_CUSTOM, CF_FUNC(degrees_base_custom), 0x0,
         NULL, HFILL }
     },
 
     { &hf_mip6_opt_acc_net_id_sub_opt_geo_longitude_degrees,
       { "Longitude Degrees", "mip6.acc_net_id.geo.longitude_degrees",
-        FT_INT24, BASE_CUSTOM, degrees_base_custom, 0x0,
+        FT_INT24, BASE_CUSTOM, CF_FUNC(degrees_base_custom), 0x0,
         NULL, HFILL }
     },
 

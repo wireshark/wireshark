@@ -1366,7 +1366,7 @@ proto_register_zbee_zcl_appl_stats(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_appl_stats_utc_time,
-            { "UTC Time", "zbee_zcl_ha.applstats.utc_time", FT_UINT32, BASE_CUSTOM, decode_zcl_appl_stats_utc_time,
+            { "UTC Time", "zbee_zcl_ha.applstats.utc_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_appl_stats_utc_time),
             0x0, NULL, HFILL }},
 
         { &hf_zbee_zcl_appl_stats_log_length,

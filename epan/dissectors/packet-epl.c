@@ -3490,7 +3490,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_preq_pdov,
 			{ "PDOVersion", "epl.preq.pdov",
-				FT_UINT8, BASE_CUSTOM, elp_version, 0x00, NULL, HFILL }
+				FT_UINT8, BASE_CUSTOM, CF_FUNC(elp_version), 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_preq_size,
 			{ "Size", "epl.preq.size",
@@ -3566,7 +3566,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_soa_eplv,
 			{ "EPLVersion", "epl.soa.eplv",
-				FT_UINT8, BASE_CUSTOM, elp_version, 0x00, NULL, HFILL }
+				FT_UINT8, BASE_CUSTOM, CF_FUNC(elp_version), 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_soa_sync,
 			{ "SyncControl", "epl.soa.sync",
@@ -3672,7 +3672,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_identresponse_ever,
 			{ "EPLVersion", "epl.asnd.ires.eplver",
-				FT_UINT8, BASE_CUSTOM, elp_version, 0x00, NULL, HFILL }
+				FT_UINT8, BASE_CUSTOM, CF_FUNC(elp_version), 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_feat,
 			{ "FeatureFlags", "epl.asnd.ires.features",

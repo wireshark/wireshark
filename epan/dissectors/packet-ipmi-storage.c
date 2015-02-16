@@ -789,7 +789,7 @@ proto_register_ipmi_storage(void)
 
 		{ &hf_ipmi_stor_20_sdr_version,
 			{ "SDR Version",
-				"ipmi.st20.sdr_version", FT_UINT8, BASE_CUSTOM, ipmi_fmt_version, 0, NULL, HFILL }},
+				"ipmi.st20.sdr_version", FT_UINT8, BASE_CUSTOM, CF_FUNC(ipmi_fmt_version), 0, NULL, HFILL }},
 		{ &hf_ipmi_stor_20_rec_count,
 			{ "Record Count",
 				"ipmi.st20.rec_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -929,7 +929,7 @@ proto_register_ipmi_storage(void)
 
 		{ &hf_ipmi_stor_40_sel_version,
 			{ "SEL Version",
-				"ipmi.st40.sel_version", FT_UINT8, BASE_CUSTOM, ipmi_fmt_version, 0, NULL, HFILL }},
+				"ipmi.st40.sel_version", FT_UINT8, BASE_CUSTOM, CF_FUNC(ipmi_fmt_version), 0, NULL, HFILL }},
 		{ &hf_ipmi_stor_40_entries,
 			{ "Entries",
 				"ipmi.st40.rec_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},

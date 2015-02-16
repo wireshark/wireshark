@@ -684,7 +684,7 @@ proto_register_ipp(void)
             NULL, 0, NULL, HFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_ipp_version, { "Version", "ipp.version", FT_UINT16, BASE_CUSTOM, ipp_fmt_version, 0x0, NULL, HFILL }},
+      { &hf_ipp_version, { "Version", "ipp.version", FT_UINT16, BASE_CUSTOM, CF_FUNC(ipp_fmt_version), 0x0, NULL, HFILL }},
       { &hf_ipp_operation_id, { "Operation-id", "ipp.operation_id", FT_UINT16, BASE_HEX, VALS(operation_vals), 0x0, NULL, HFILL }},
       { &hf_ipp_status_code, { "Status-code", "ipp.status_code", FT_UINT16, BASE_HEX, VALS(status_vals), 0x0, NULL, HFILL }},
       { &hf_ipp_request_id, { "Request ID", "ipp.request_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},

@@ -806,7 +806,7 @@ proto_register_ipmi_chassis(void)
 				"ipmi.bootopt05.byte5", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo06_chan_num,
 			{ "Channel",
-				"ipmi.bootopt06.chan_num", FT_UINT8, BASE_CUSTOM, ipmi_fmt_channel, 0x0f, NULL, HFILL }},
+				"ipmi.bootopt06.chan_num", FT_UINT8, BASE_CUSTOM, CF_FUNC(ipmi_fmt_channel), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo06_session_id,
 			{ "Session ID",
 				"ipmi.bootopt06.session_id", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -930,7 +930,7 @@ proto_register_ipmi_chassis(void)
 
 		{ &hf_ipmi_chs_04_ival,
 			{ "Identify Interval in seconds",
-				"ipmi.ch04.interval", FT_UINT8, BASE_CUSTOM, ipmi_fmt_1s_1based, 0, NULL, HFILL }},
+				"ipmi.ch04.interval", FT_UINT8, BASE_CUSTOM, CF_FUNC(ipmi_fmt_1s_1based), 0, NULL, HFILL }},
 		{ &hf_ipmi_chs_04_perm_on,
 			{ "Turn on Identify indefinitely",
 				"ipmi.ch04.perm_on", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
@@ -975,7 +975,7 @@ proto_register_ipmi_chassis(void)
 				"ipmi.ch07.cause", FT_UINT8, BASE_HEX, VALS(vals_07_cause), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_chs_07_chan,
 			{ "Channel",
-				"ipmi.ch07.chan", FT_UINT8, BASE_CUSTOM, ipmi_fmt_channel, 0, NULL, HFILL }},
+				"ipmi.ch07.chan", FT_UINT8, BASE_CUSTOM, CF_FUNC(ipmi_fmt_channel), 0, NULL, HFILL }},
 
 		{ &hf_ipmi_chs_08_valid,
 			{ "Validity",

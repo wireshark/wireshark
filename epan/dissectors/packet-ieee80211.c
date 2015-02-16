@@ -19478,7 +19478,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_alloc_duration,
      {"Response Offset", "wlan.dynamic_allocation.alloc_duration",
-      FT_UINT32, BASE_CUSTOM, allocation_duration_base_custom, 0x7fff80,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0x7fff80,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ssw,
@@ -19853,7 +19853,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_tbtt_offset,
      {"TBTT Offset", "wlan.dmg_bss_param_change.tbtt_offset",
-      FT_UINT32, BASE_CUSTOM, allocation_duration_base_custom, 0xffffffff,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0xffffffff,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bi_duration,
@@ -19893,7 +19893,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_rx_antenna, /* DMG STA capa, bits [4..5] */
      {"Number of RX DMG Antennas", "wlan.dmg_capa.num_rx",
-      FT_UINT24, BASE_CUSTOM, extra_one_base_custom, GENMASK(5, 4),
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(extra_one_base_custom), GENMASK(5, 4),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_fast_link, /* DMG STA capa, bits [6] */
@@ -19903,12 +19903,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_num_sectors, /* DMG STA capa, bits [7..13] */
      {"Total Number of Sectors", "wlan.dmg_capa.num_sectors",
-      FT_UINT24, BASE_CUSTOM, extra_one_base_custom, GENMASK(13, 7),
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(extra_one_base_custom), GENMASK(13, 7),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_rxss_length, /* DMG STA capa, bits [14..19] */
      {"RXSS Length", "wlan.dmg_capa.rxss_len",
-      FT_UINT24, BASE_CUSTOM, extra_one_mul_two_base_custom, GENMASK(19, 14),
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(extra_one_mul_two_base_custom), GENMASK(19, 14),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_reciprocity, /* DMG STA capa, bits [20] */
@@ -20223,7 +20223,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_link_change_interval,
      {"Link Change Interval", "wlan.realy_trans_param.link_change_interval",
-      FT_UINT8, BASE_CUSTOM, allocation_duration_base_custom, 0xff,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0xff,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_data_sensing_time,
@@ -20851,7 +20851,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_beacon_interval,
      {"Beacon Interval", "wlan_mgt.fixed.beacon",
-      FT_UINT32, BASE_CUSTOM, beacon_interval_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(beacon_interval_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_fixed_parameters,
@@ -22304,7 +22304,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_oui,
      {"OUI", "wlan_mgt.tag.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       "OUI of vendor specific IE", HFILL }},
 
     {&hf_ieee80211_tag_oui_wfa_subtype,
@@ -22622,12 +22622,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_rsn_gcs,
      {"Group Cipher Suite", "wlan_mgt.rsn.gcs",
-      FT_UINT32, BASE_CUSTOM, rsn_gcs_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(rsn_gcs_base_custom), 0,
       "Contains the cipher suite selector used by the BSS to protect broadcast/multicast traffic", HFILL }},
 
     {&hf_ieee80211_rsn_gcs_oui,
      {"Group Cipher Suite OUI", "wlan_mgt.rsn.gcs.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_gcs_type,
@@ -22652,12 +22652,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_rsn_pcs,
      {"Pairwise Cipher Suite", "wlan_mgt.rsn.pcs",
-      FT_UINT32, BASE_CUSTOM, rsn_pcs_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(rsn_pcs_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_pcs_oui,
      {"Pairwise Cipher Suite OUI", "wlan_mgt.rsn.pcs.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_pcs_type,
@@ -22682,12 +22682,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_rsn_akms,
      {"Auth Key Management (AKM) Suite", "wlan_mgt.rsn.akms",
-      FT_UINT32, BASE_CUSTOM, rsn_akms_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(rsn_akms_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_akms_oui,
      {"Auth Key Management (AKM) OUI", "wlan_mgt.rsn.akms.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_akms_type,
@@ -22762,12 +22762,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_rsn_gmcs,
      {"Group Management Cipher Suite", "wlan_mgt.rsn.gmcs",
-      FT_UINT32, BASE_CUSTOM, rsn_gmcs_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(rsn_gmcs_base_custom), 0,
       "Contains the cipher suite selector used by the BSS to protect broadcast/multicast traffic", HFILL }},
 
     {&hf_ieee80211_rsn_gmcs_oui,
      {"Group Management Cipher Suite OUI", "wlan_mgt.rsn.gmcs.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_gmcs_type,
@@ -23451,22 +23451,22 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_vht_tpe_pwr_constr_20,
      {"Local Max Tx Pwr Constraint 20MHz", "wlan_mgt.vht.tpe.pwr_constr_20",
-      FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
+      FT_INT8, BASE_CUSTOM, CF_FUNC(vht_tpe_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_40,
      {"Local Max Tx Pwr Constraint 40MHz", "wlan_mgt.vht.tpe.pwr_constr_40",
-      FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
+      FT_INT8, BASE_CUSTOM, CF_FUNC(vht_tpe_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_80,
      {"Local Max Tx Pwr Constraint 80MHz", "wlan_mgt.vht.tpe.pwr_constr_80",
-      FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
+      FT_INT8, BASE_CUSTOM, CF_FUNC(vht_tpe_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_tpe_pwr_constr_160,
      {"Local Max Tx Pwr Constraint 160MHz/80+80 MHz", "wlan_mgt.vht.tpe.pwr_constr_160",
-      FT_INT8, BASE_CUSTOM, vht_tpe_custom , 0,
+      FT_INT8, BASE_CUSTOM, CF_FUNC(vht_tpe_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_txbf_csi_num_bf_ant,
@@ -23761,7 +23761,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_rsni,
      {"RSNI", "wlan_mgt.rsni",
-      FT_UINT8, BASE_CUSTOM, rsni_base_custom, 0x0,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(rsni_base_custom), 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask,
@@ -24151,7 +24151,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_request_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT8, BASE_CUSTOM, channel_number_custom, 0,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(channel_number_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_start_time,
@@ -24281,7 +24281,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_report_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.rep.channelnumber",
-      FT_UINT8, BASE_CUSTOM, channel_number_custom, 0,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(channel_number_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_start_time,
@@ -24954,7 +24954,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_neighbor_report_channel_number,
      {"Channel Number", "wlan_mgt.nreport.channumber",
-      FT_UINT8, BASE_CUSTOM, channel_number_custom, 0,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(channel_number_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_phy_type,
@@ -24994,12 +24994,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_wfa_ie_wpa_mcs,
      {"Multicast Cipher Suite", "wlan_mgt.wfa.ie.wpa.mcs",
-      FT_UINT32, BASE_CUSTOM, wpa_mcs_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(wpa_mcs_base_custom), 0,
       "Contains the cipher suite selector used by the BSS to protect broadcast/multicasttraffic", HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_mcs_oui,
      {"Multicast Cipher Suite OUI", "wlan_mgt.wfa.ie.wpa.mcs.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_mcs_type,
@@ -25024,12 +25024,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_wfa_ie_wpa_ucs,
      {"Unicast Cipher Suite", "wlan_mgt.wfa.ie.wpa.ucs",
-      FT_UINT32, BASE_CUSTOM, wpa_ucs_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(wpa_ucs_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_ucs_oui,
      {"Unicast Cipher Suite OUI", "wlan_mgt.wfa.ie.wpau.cs.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_ucs_type,
@@ -25054,12 +25054,12 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_wfa_ie_wpa_akms,
      {"Auth Key Management (AKM) Suite", "wlan_mgt.wfa.ie.wpa.akms",
-      FT_UINT32, BASE_CUSTOM, wpa_akms_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(wpa_akms_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_akms_oui,
      {"Auth Key Management (AKM) OUI", "wlan_mgt.wfa.ie.wpa.akms.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_akms_type,
@@ -25419,7 +25419,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_atheros_ie_xr_xr_beacon,
      {"XR Beacon Interval", "wlan_mgt.atheros.ie.xr.xr_beacon",
-      FT_UINT32, BASE_CUSTOM, beacon_interval_base_custom, 0,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(beacon_interval_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_atheros_ie_xr_base_cap,
@@ -26093,7 +26093,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_wapi_param_set_akm_suite_oui,
      {"AKM Suite OUI", "wlan_mgt.wapi.akm_suite.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_wapi_param_set_akm_suite_type,
@@ -26108,7 +26108,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_oui,
      {"Unicast Cipher Suite OUI", "wlan_mgt.wapi.unicast_cipher.suite.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_wapi_param_set_ucast_cipher_suite_type,
@@ -26118,7 +26118,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_oui,
      {"Multicast Cipher Suite OUI", "wlan_mgt.wapi.multicast_cipher.suite.oui",
-      FT_UINT24, BASE_CUSTOM, oui_base_custom, 0,
+      FT_UINT24, BASE_CUSTOM, CF_FUNC(oui_base_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type,

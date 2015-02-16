@@ -1914,7 +1914,7 @@ proto_register_homeplug(void)
 
     { &hf_homeplug_ns_mhz,
       { "Mhz", "homeplug.ns.mhz",
-      FT_UINT16, BASE_CUSTOM, homeplug_fmt_mhz, 0x0, NULL, HFILL }
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(homeplug_fmt_mhz), 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_ns_fails_robo,

@@ -358,7 +358,7 @@ hfi_netlink_route_ifi_flags_label(char *label, guint32 value)
 
 static header_field_info hfi_netlink_route_ifi_flags NETLINK_ROUTE_HFI_INIT =
 	{ "Device flags", "netlink-route.ifi_flags", FT_UINT32, BASE_CUSTOM,
-	  &hfi_netlink_route_ifi_flags_label, 0x00, NULL, HFILL };
+	  CF_FUNC(hfi_netlink_route_ifi_flags_label), 0x00, NULL, HFILL };
 
 static const true_false_string hfi_netlink_route_ifi_flags_iff_up_tfs = { "Up", "Down" };
 
@@ -495,7 +495,7 @@ hfi_netlink_route_ifa_flags_label(char *label, guint32 value)
 
 static header_field_info hfi_netlink_route_ifa_flags NETLINK_ROUTE_HFI_INIT =
 	{ "Address flags", "netlink-route.ifa_flags", FT_UINT8, BASE_CUSTOM,
-	  &hfi_netlink_route_ifa_flags_label, 0x00, NULL, HFILL };
+	  CF_FUNC(hfi_netlink_route_ifa_flags_label), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifa_scope NETLINK_ROUTE_HFI_INIT =
 	{ "Address scope", "netlink-route.ifa_scope", FT_UINT8, BASE_DEC,
@@ -765,7 +765,7 @@ hfi_netlink_route_nd_states_label(char *label, guint32 value)
 
 static header_field_info hfi_netlink_route_nd_state NETLINK_ROUTE_HFI_INIT =
 	{ "State", "netlink-route.nd_state", FT_UINT16, BASE_CUSTOM,
-	  &hfi_netlink_route_nd_states_label, 0x00, NULL, HFILL };
+	  CF_FUNC(hfi_netlink_route_nd_states_label), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_nd_flags NETLINK_ROUTE_HFI_INIT =
 	{ "Flags", "netlink-route.nd_flags", FT_UINT8, BASE_HEX,

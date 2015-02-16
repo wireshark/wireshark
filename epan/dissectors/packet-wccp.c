@@ -2881,7 +2881,7 @@ proto_register_wccp(void)
        NULL, HFILL }
     },
     { &hf_command_element_shutdown_ip,
-      {"Command Extension Length", "wccp.command_element_shudown_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      {"Command Extension Length", "wccp.command_element_shudown_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
        NULL, HFILL }
     },
     { &hf_service_info_type,
@@ -2961,7 +2961,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_router_identity_ip,
-      { "IP Address", "wccp.router_identity.ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "IP Address", "wccp.router_identity.ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_router_identity_receive_id,
@@ -2969,7 +2969,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_router_identity_send_to_ip,
-      { "Sent To IP Address", "wccp.router_identity.send_to_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Sent To IP Address", "wccp.router_identity.send_to_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_router_identity_received_from_num,
@@ -2977,7 +2977,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_web_cache_identity_ip,
-      { "Web-Cache IP Address", "wccp.web_cache_identity.ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Web-Cache IP Address", "wccp.web_cache_identity.ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_web_cache_identity_hash_rev,
@@ -3016,7 +3016,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_assignment_key_ip,
-      { "Assignment Key IP Address", "wccp.assignment_key.ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Assignment Key IP Address", "wccp.assignment_key.ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_assignment_key_change_num,
@@ -3032,11 +3032,11 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_router_identity_router_ip,
-      { "Router IP Address", "wccp.router_identity.router_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Router IP Address", "wccp.router_identity.router_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_router_identity_received_from_ip,
-      { "Received From IP Address/Target Web Cache IP", "wccp.router_identity.received_from_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Received From IP Address/Target Web Cache IP", "wccp.router_identity.received_from_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_wc_view_info_change_num,
@@ -3044,11 +3044,11 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_wc_view_info_router_ip,
-      { "Router IP", "wccp.wc_view_info.router_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Router IP", "wccp.wc_view_info.router_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_wc_view_info_wc_ip,
-      { "Web Cache IP", "wccp.wc_view_info.wc_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Web Cache IP", "wccp.wc_view_info.wc_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_wc_view_router_num,
@@ -3060,7 +3060,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_wc_identity_ip_address,
-      { "Web Cache Identity", "wccp.hf_wc_identity_ip_address", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Web Cache Identity", "wccp.hf_wc_identity_ip_address", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         "The IP identifying the Web Cache", HFILL }
     },
     { &hf_router_assignment_element_change_num,
@@ -3072,7 +3072,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_assignment_info_router_ip,
-      { "Router IP", "wccp.assignment_info.router_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Router IP", "wccp.assignment_info.router_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_hash_buckets_assignment_wc_num,
@@ -3080,23 +3080,23 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_hash_buckets_assignment_wc_ip,
-      { "WC IP", "wccp.hash_buckets_assignment.wc_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "WC IP", "wccp.hash_buckets_assignment.wc_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_router_view_ip,
-      { "Router IP Address", "wccp.router_view.ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Router IP Address", "wccp.router_view.ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_router_query_info_ip,
-      { "Web-Cache Identity Element IP address", "wccp.router_query_info.ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Web-Cache Identity Element IP address", "wccp.router_query_info.ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_router_query_info_send_to_ip,
-      { "Sent To IP Address", "wccp.router_query_info.send_to_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Sent To IP Address", "wccp.router_query_info.send_to_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_router_query_info_target_ip,
-      { "Target IP Address", "wccp.router_query_info.target_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Target IP Address", "wccp.router_query_info.target_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_capability_element_type,
@@ -3172,11 +3172,11 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_value_element_src_ip,
-      { "Source Address", "wccp.value_element.src_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Source Address", "wccp.value_element.src_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_value_element_dest_ip,
-      { "Destination Address", "wccp.value_element.dest_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Destination Address", "wccp.value_element.dest_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_value_element_src_port,
@@ -3188,7 +3188,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_value_element_web_cache_ip,
-      { "Web Cache Address", "wccp.value_element.web_cache_ip", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Web Cache Address", "wccp.value_element.web_cache_ip", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_mask_value_set_list_num_elements,
@@ -3244,7 +3244,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_web_cache_value_element_wc_address,
-      { "Web-Cache Address", "wccp.web_cache_value_element.wc_address", FT_UINT32, BASE_CUSTOM, wccp_fmt_ipadddress, 0x0,
+      { "Web-Cache Address", "wccp.web_cache_value_element.wc_address", FT_UINT32, BASE_CUSTOM, CF_FUNC(wccp_fmt_ipadddress), 0x0,
         NULL, HFILL }
     },
     { &hf_web_cache_value_element_num_values,
@@ -3386,4 +3386,3 @@ proto_reg_handoff_wccp(void)
  * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-

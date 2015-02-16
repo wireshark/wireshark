@@ -428,7 +428,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
     *
     * Token/Magic number that is at the start of all ES packets
     */
-    proto_tree_add_item(tree, hf_elasticsearch_header_token, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_elasticsearch_header_token, tvb, offset, 2, ENC_ASCII|ENC_NA);
     offset += 2;
 
     /* Message length */
@@ -531,7 +531,7 @@ void proto_register_elasticsearch(void) {
         { &hf_elasticsearch_version,
             { "Version", "elasticsearch.version",
                 FT_UINT32, BASE_CUSTOM,
-                elasticsearch_format_version, 0x0,
+                CF_FUNC(elasticsearch_format_version), 0x0,
                 NULL, HFILL
             }
         },

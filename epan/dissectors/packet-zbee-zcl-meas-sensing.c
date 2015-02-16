@@ -313,19 +313,19 @@ proto_register_zbee_zcl_illum_meas(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_measured_value,
-            { "Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value", FT_UINT16, BASE_CUSTOM, decode_illum_meas_value,
+            { "Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_meas_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_min_measured_value,
-            { "Min Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value.min", FT_UINT16, BASE_CUSTOM, decode_illum_meas_min_value,
+            { "Min Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value.min", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_meas_min_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_max_measured_value,
-            { "Max Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value.max", FT_UINT16, BASE_CUSTOM, decode_illum_meas_max_value,
+            { "Max Measured Value", "zbee_zcl_meas_sensing.illummeas.attr.value.max", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_meas_max_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_tolerance,
-            { "Tolerance", "zbee_zcl_meas_sensing.illummeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, decode_illum_meas_tolerance,
+            { "Tolerance", "zbee_zcl_meas_sensing.illummeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_meas_tolerance),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_illum_meas_sensor_type,
@@ -628,19 +628,19 @@ proto_register_zbee_zcl_temp_meas(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_measured_value,
-            { "Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value", FT_INT16, BASE_CUSTOM, decode_temp_meas_value,
+            { "Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_temp_meas_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_min_measured_value,
-            { "Min Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value.min", FT_INT16, BASE_CUSTOM, decode_temp_meas_min_value,
+            { "Min Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value.min", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_temp_meas_min_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_max_measured_value,
-            { "Max Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value.max", FT_INT16, BASE_CUSTOM, decode_temp_meas_max_value,
+            { "Max Measured Value", "zbee_zcl_meas_sensing.tempmeas.attr.value.max", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_temp_meas_max_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_temp_meas_tolerance,
-            { "Tolerance", "zbee_zcl_meas_sensing.tempmeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, decode_temp_meas_tolerance,
+            { "Tolerance", "zbee_zcl_meas_sensing.tempmeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_temp_meas_tolerance),
             0x00, NULL, HFILL } }
 
     };
@@ -980,19 +980,19 @@ proto_register_zbee_zcl_press_meas(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_measured_value,
-            { "Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value", FT_INT16, BASE_CUSTOM, decode_press_meas_value,
+            { "Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_press_meas_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_min_measured_value,
-            { "Min Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value.min", FT_INT16, BASE_CUSTOM, decode_press_meas_min_value,
+            { "Min Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value.min", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_press_meas_min_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_max_measured_value,
-            { "Max Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value.max", FT_INT16, BASE_CUSTOM, decode_press_meas_max_value,
+            { "Max Measured Value", "zbee_zcl_meas_sensing.pressmeas.attr.value.max", FT_INT16, BASE_CUSTOM, CF_FUNC(decode_press_meas_max_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_tolerance,
-            { "Tolerance", "zbee_zcl_meas_sensing.pressmeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, decode_press_meas_tolerance,
+            { "Tolerance", "zbee_zcl_meas_sensing.pressmeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_press_meas_tolerance),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_press_meas_scaled_value,
@@ -1308,19 +1308,19 @@ proto_register_zbee_zcl_relhum_meas(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_relhum_meas_measured_value,
-            { "Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value", FT_UINT16, BASE_CUSTOM, decode_relhum_meas_value,
+            { "Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_relhum_meas_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_relhum_meas_min_measured_value,
-            { "Min Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value.min", FT_UINT16, BASE_CUSTOM, decode_relhum_meas_min_value,
+            { "Min Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value.min", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_relhum_meas_min_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_relhum_meas_max_measured_value,
-            { "Max Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value.max", FT_UINT16, BASE_CUSTOM, decode_relhum_meas_max_value,
+            { "Max Measured Value", "zbee_zcl_meas_sensing.relhummeas.attr.value.max", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_relhum_meas_max_value),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_relhum_meas_tolerance,
-            { "Tolerance", "zbee_zcl_meas_sensing.relhummeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, decode_relhum_meas_tolerance,
+            { "Tolerance", "zbee_zcl_meas_sensing.relhummeas.attr.tolerance", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_relhum_meas_tolerance),
             0x00, NULL, HFILL } }
 
     };

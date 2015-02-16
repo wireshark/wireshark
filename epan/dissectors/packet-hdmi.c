@@ -258,7 +258,7 @@ proto_register_hdmi(void)
                 FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_hdmi_edid_version,
             { "EDID Version", "hdmi.edid.version",
-                FT_UINT16, BASE_CUSTOM, hdmi_fmt_edid_version, 0, NULL, HFILL } }
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(hdmi_fmt_edid_version), 0, NULL, HFILL } }
 
     };
 

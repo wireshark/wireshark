@@ -455,7 +455,7 @@ static hf_register_info hf_ipmi_vita[] = {
 			FT_UINT8, BASE_HEX, VALS(str_vita_vso_std), 0x3, NULL, HFILL }},
 	{ &hf_vita_rev,
 		{ "VSO Specification Revision", "ipmi.vita.vso.rev",
-			FT_UINT8, BASE_CUSTOM, ipmi_fmt_version, 0, NULL, HFILL }},
+			FT_UINT8, BASE_CUSTOM, CF_FUNC(ipmi_fmt_version), 0, NULL, HFILL }},
 	{ &hf_vita_max_fruid,
 		{ "Max FRU Device ID", "ipmi.vita.max.fruid",
 			FT_UINT8, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},

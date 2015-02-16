@@ -760,7 +760,7 @@ proto_register_llc(void)
 
 		{ &hf_llc_dsap_sap,
 		{ "SAP",	"llc.dsap.sap", FT_UINT8, BASE_CUSTOM,
-			llc_sap_value, 0xFE, "Service Access Point", HFILL }},
+			CF_FUNC(llc_sap_value), 0xFE, "Service Access Point", HFILL }},
 
 		{ &hf_llc_dsap_ig,
 		{ "IG Bit",	"llc.dsap.ig", FT_BOOLEAN, 8,
@@ -772,7 +772,7 @@ proto_register_llc(void)
 
 		{ &hf_llc_ssap_sap,
 		{ "SAP",	"llc.ssap.sap", FT_UINT8, BASE_CUSTOM,
-			llc_sap_value, 0xFE, "Service Access Point", HFILL }},
+			CF_FUNC(llc_sap_value), 0xFE, "Service Access Point", HFILL }},
 
 		{ &hf_llc_ssap_cr,
 		{ "CR Bit", "llc.ssap.cr", FT_BOOLEAN, 8,

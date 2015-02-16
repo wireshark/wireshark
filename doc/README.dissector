@@ -140,7 +140,7 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
                 --For all other types:
 
                   BASE_NONE
-FIELDCONVERT    VALS(x), VALS64(x), RVALS(x), TFS(x), NULL
+FIELDCONVERT    VALS(x), VALS64(x), RVALS(x), TFS(x), CF_FUNC(x), NULL
 BITMASK         Used to mask a field not 8-bit aligned or with a size other
                 than a multiple of 8 bits
 FIELDDESCR      A brief description of the field, or NULL. [Please do not use ""].
@@ -956,6 +956,10 @@ If the Boolean field is to be displayed as "False" or "True", the
 
 Wireshark predefines a whole range of ready made "true_false_string"s
 in tfs.h, included via packet.h.
+
+-- Custom
+Custom fields (BASE_CUSTOM) should use CF_FUNC(&custom_format_func) for the
+'strings' field.
 
 bitmask
 -------

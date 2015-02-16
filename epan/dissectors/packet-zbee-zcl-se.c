@@ -660,11 +660,11 @@ proto_register_zbee_zcl_msg(void)
 /* End of 'Extended Message Control' fields */
 
         { &hf_zbee_zcl_msg_start_time,
-            { "Start Time", "zbee_zcl_se.msg.message.start_time", FT_UINT32, BASE_CUSTOM, decode_zcl_msg_start_time,
+            { "Start Time", "zbee_zcl_se.msg.message.start_time", FT_UINT32, BASE_CUSTOM, CF_FUNC(decode_zcl_msg_start_time),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_msg_duration,
-            { "Duration", "zbee_zcl_se.msg.message.duration", FT_UINT16, BASE_CUSTOM, decode_zcl_msg_duration,
+            { "Duration", "zbee_zcl_se.msg.message.duration", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_zcl_msg_duration),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_msg_message_length,

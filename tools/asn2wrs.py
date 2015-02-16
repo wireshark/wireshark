@@ -1047,7 +1047,7 @@ class EthCtx:
 
     def eth_dummy_eag_field_required(self):
         if (not self.dummy_eag_field):
-            self.dummy_eag_field = 'dummy_eag_field'
+            self.dummy_eag_field = 'eag_field'
 
     #--- eth_clean --------------------------------------------------------------
     def eth_clean(self):
@@ -1342,7 +1342,8 @@ class EthCtx:
                                'ref' : [f]}
             self.field[f]['ethname'] = nm
         if (self.dummy_eag_field):
-            self.dummy_eag_field = 'hf_%s_%s' % (self.eproto, self.dummy_eag_field)
+            # Prepending "dummy_" avoids matching checkhf.pl.
+            self.dummy_eag_field = 'dummy_hf_%s_%s' % (self.eproto, self.dummy_eag_field)
         #--- type dependencies -------------------
         (self.eth_type_ord1, self.eth_dep_cycle) = dependency_compute(self.type_ord, self.type_dep, map_fn = lambda t: self.type[t]['ethname'], ignore_fn = lambda t: self.type[t]['import'])
         i = 0
@@ -8057,4 +8058,3 @@ if __name__ == '__main__':
 # c-basic-offset: 4; tab-width: 8; indent-tabs-mode: nil
 # vi: set shiftwidth=4 tabstop=8 expandtab:
 # :indentSize=4:tabSize=8:noTabs=true:
-

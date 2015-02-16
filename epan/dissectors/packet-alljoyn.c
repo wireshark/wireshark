@@ -2753,7 +2753,7 @@ proto_register_AllJoyn(void)
         },
         {&hf_alljoyn_mess_body_header_typeid,
          {"Type ID", "alljoyn.message.typeid",
-          FT_UINT8, BASE_CUSTOM, alljoyn_typeid, 0,
+          FT_UINT8, BASE_CUSTOM, CF_FUNC(alljoyn_typeid), 0,
           NULL, HFILL}
         },
 
@@ -3045,4 +3045,3 @@ proto_reg_handoff_AllJoyn(void)
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

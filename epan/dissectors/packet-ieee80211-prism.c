@@ -545,7 +545,7 @@ static hf_register_info hf_prism[] = {
       NULL, HFILL }},
 
     { &hf_ieee80211_prism_did_rate,
-     {"Data rate (Mb/s)", "prism.did.rate", FT_UINT32, BASE_CUSTOM, prism_rate_base_custom, 0x0,
+     {"Data rate (Mb/s)", "prism.did.rate", FT_UINT32, BASE_CUSTOM, CF_FUNC(prism_rate_base_custom), 0x0,
       "Speed this frame was sent/received at", HFILL }},
 
     { &hf_ieee80211_prism_did_istx,

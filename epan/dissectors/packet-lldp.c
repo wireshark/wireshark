@@ -4435,11 +4435,11 @@ proto_register_lldp(void)
 		},
 		{ &hf_ieee_802_3_mdi_requested_power,
 			{ "PD Requested Power Value", "lldp.ieee.802_3.mdi_pde_requested", FT_UINT16, BASE_CUSTOM,
-			mdi_power_base, 0, NULL, HFILL }
+			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_mdi_allocated_power,
 			{ "PSE Allocated Power Value", "lldp.ieee.802_3.mdi_pse_allocated", FT_UINT16, BASE_CUSTOM,
-			mdi_power_base, 0, NULL, HFILL }
+			CF_FUNC(mdi_power_base), 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_3_aggregation_status,
 			{ "Aggregation Status", "lldp.ieee.802_3.aggregation_status", FT_UINT8, BASE_HEX,
@@ -4595,7 +4595,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_media_loc_lat,
 			{ "Latitude", "lldp.media.loc.latitude", FT_UINT64, BASE_CUSTOM,
-			latitude_base, 0x0, NULL, HFILL }
+			CF_FUNC(latitude_base), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_long_resolution,
 			{ "Longitude Resolution", "lldp.media.loc.long_resolution", FT_UINT8, BASE_DEC,
@@ -4603,7 +4603,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_media_loc_long,
 			{ "Longitude", "lldp.media.loc.longitude", FT_UINT64, BASE_CUSTOM,
-			longitude_base, 0x0, NULL, HFILL }
+			CF_FUNC(longitude_base), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_alt_type,
 			{ "Altitude Type", "lldp.media.loc.alt_type", FT_UINT8, BASE_DEC,
@@ -4663,7 +4663,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_media_power_value,
 			{ "Power Value", "lldp.media.power.value", FT_UINT16, BASE_CUSTOM,
-			media_power_base, 0x0, NULL, HFILL }
+			CF_FUNC(media_power_base), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_hardware,
 			{ "Hardware Revision", "lldp.media.hardware", FT_STRINGZPAD, BASE_NONE,

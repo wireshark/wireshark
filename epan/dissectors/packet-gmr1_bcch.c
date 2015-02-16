@@ -1098,7 +1098,7 @@ proto_register_gmr1_bcch(void)
 		},
 		{ &hf_seg1a_syncinfo_sa_freq_offset,
 		  { "SA_FREQ_OFFSET", "gmr1.bcch.seg1a.syncinfo.sa_freq_offset",
-		    FT_UINT8, BASE_CUSTOM, seg1a_syncinfo_sa_freq_offset_fmt, 0x00,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(seg1a_syncinfo_sa_freq_offset_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg1a_rachctrl_max_retrans,
@@ -1193,7 +1193,7 @@ proto_register_gmr1_bcch(void)
 		},
 		{ &hf_seg1a_miscinfo_sb_reselection_hysteresis,
 		  { "SB_RESELECTION_HYSTERESIS", "gmr1.bcch.seg1a.miscinfo.sb_reselection_hysteresis",
-		    FT_UINT8, BASE_CUSTOM, segx_half_db_value_fmt, 0x00,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(segx_half_db_value_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg1a_miscinfo_spare,
@@ -1275,12 +1275,12 @@ proto_register_gmr1_bcch(void)
 		},
 		{ &hf_seg2a_selcrit_rxlev_select_min,
 		  { "RXLEV_SELECT_MIN", "gmr1.bcch.seg2a.selcrit.rxlev_select_min",
-		    FT_UINT8, BASE_CUSTOM, segx_half_db_value_fmt, 0x00,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(segx_half_db_value_fmt), 0x00,
 		    "Adjustment to threshold to camp-on system", HFILL }
 		},
 		{ &hf_seg2a_miscinfo_sb_selection_power,
 		  { "SB_SELECTION_POWER", "gmr1.bcch.seg2a.miscinfo.sb_selection_power",
-		    FT_UINT8, BASE_CUSTOM, segx_half_db_value_fmt, 0x00,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(segx_half_db_value_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg2a_lainfo_sa_pch_config,
@@ -1357,32 +1357,32 @@ proto_register_gmr1_bcch(void)
 		},
 		{ &hf_seg3a_satpos_latitude,
 		  { "Latitude", "gmr1.bcch.seg3a.satpos.latitude",
-		    FT_INT8, BASE_CUSTOM, seg3a_latitude_fmt, 0x00,
+		    FT_INT8, BASE_CUSTOM, CF_FUNC(seg3a_latitude_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg3a_satpos_longitude,
 		  { "Longitude", "gmr1.bcch.seg3a.satpos.longitude",
-		    FT_UINT16, BASE_CUSTOM, seg3a_longitude_fmt, 0x00,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(seg3a_longitude_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg3a_satpos_radius,
 		  { "Radius", "gmr1.bcch.seg3a.satpos.radius",
-		    FT_INT16, BASE_CUSTOM, seg3a_satpos_radius_fmt, 0x00,
+		    FT_INT16, BASE_CUSTOM, CF_FUNC(seg3a_satpos_radius_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg3a_beam_latitude,
 		  { "Latitude", "gmr1.bcch.seg3a.beam.latitude",
-		    FT_INT16, BASE_CUSTOM, seg3a_latitude_fmt, 0x00,
+		    FT_INT16, BASE_CUSTOM, CF_FUNC(seg3a_latitude_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg3a_beam_longitude,
 		  { "Longitude", "gmr1.bcch.seg3a.beam.longitude",
-		    FT_UINT16, BASE_CUSTOM, seg3a_longitude_fmt, 0x00,
+		    FT_UINT16, BASE_CUSTOM, CF_FUNC(seg3a_longitude_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg3a_miscinfo_sb_reselection_timer,
 		  { "SB_RESELECTION_TIMER", "gmr1.bcch.seg3a.sb_reselection_timer",
-		    FT_UINT8, BASE_CUSTOM, seg3a_miscinfo_sb_reselection_timer_fmt, 0x00,
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(seg3a_miscinfo_sb_reselection_timer_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg3a_spare,

@@ -2693,7 +2693,7 @@ proto_register_enip(void)
 
       { &hf_enip_lir_revision,
         { "Revision", "enip.lir.revision",
-          FT_UINT16, BASE_CUSTOM, enip_fmt_lir_revision, 0,
+          FT_UINT16, BASE_CUSTOM, CF_FUNC(enip_fmt_lir_revision), 0,
           "ListIdentity Reply: Revision", HFILL }},
 
       { &hf_enip_lir_status,

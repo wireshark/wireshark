@@ -7145,7 +7145,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_nbar_appl_id,
          {"ApplicationID", "cflow.appl_id",
-          FT_UINT32, BASE_CUSTOM, nbar_fmt_id, 0x0,
+          FT_UINT32, BASE_CUSTOM, CF_FUNC(nbar_fmt_id), 0x0,
           "Application ID (NBAR)", HFILL}
         },
         {&hf_cflow_nbar_appl_name,

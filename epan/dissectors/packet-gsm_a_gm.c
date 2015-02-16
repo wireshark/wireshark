@@ -8427,7 +8427,7 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_rac_dlmc_max_nb_dl_ts,
 		  { "DLMC - Maximum Number of Downlink Timeslots", "gsm_a.gm.gmm.rac.dlmc.max_nb_dl_ts",
-		    FT_UINT8, BASE_CUSTOM, &gsm_a_gm_dlmc_max_nb_dl_ts_fmt, 0x0,
+		    FT_UINT8, BASE_CUSTOM, CF_FUNC(gsm_a_gm_dlmc_max_nb_dl_ts_fmt), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers,

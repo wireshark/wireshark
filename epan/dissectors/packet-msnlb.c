@@ -348,7 +348,7 @@ proto_register_msnlb(void)
     { &hf_msnlb_version,
       { "Version", "msnlb.version",
         FT_UINT32, BASE_CUSTOM,
-        version_base_custom, 0,
+        CF_FUNC(version_base_custom), 0,
         NULL, HFILL }
     },
     { &hf_msnlb_uniquehostid,

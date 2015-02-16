@@ -712,7 +712,7 @@ proto_register_epm (void)
         { &hf_epm_uuid,
           { "UUID", "epm.uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_epm_uuid_version,
-          { "Version", "epm.uuid_version", FT_UINT16, BASE_CUSTOM, epm_fmt_uuid_version, 0x0, NULL, HFILL }},
+          { "Version", "epm.uuid_version", FT_UINT16, BASE_CUSTOM, CF_FUNC(epm_fmt_uuid_version), 0x0, NULL, HFILL }},
         { &hf_epm_annotation,
           { "Annotation", "epm.annotation", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_epm_proto_named_pipes,

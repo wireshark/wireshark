@@ -979,10 +979,10 @@ void proto_register_s5066dts (void)
                 { "C_PDU Segment", "s5066dts.segmented_cpdu", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_dest_addr,
-                { "Destination Address", "s5066dts.dest_addr", FT_UINT32, BASE_CUSTOM, s5066dts_address_format, 0x0, NULL, HFILL }
+                { "Destination Address", "s5066dts.dest_addr", FT_UINT32, BASE_CUSTOM, CF_FUNC(s5066dts_address_format), 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_src_addr,
-                { "Source Address", "s5066dts.src_addr", FT_UINT32, BASE_CUSTOM, s5066dts_address_format, 0x0, NULL, HFILL }
+                { "Source Address", "s5066dts.src_addr", FT_UINT32, BASE_CUSTOM, CF_FUNC(s5066dts_address_format), 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_header_crc,
                 { "CRC on header", "s5066dts.header_crc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }

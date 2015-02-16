@@ -742,7 +742,7 @@ SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11 TYPE=FT_UIN
   proto_item_append_text(actx->created_item, "s");
 
 #.TYPE_ATTR
-SystemInformationBlockType16-r11/timeInfo-r11/localTimeOffset-r11 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_localTimeOffset_fmt
+SystemInformationBlockType16-r11/timeInfo-r11/localTimeOffset-r11 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_localTimeOffset_fmt)
 
 #.FN_BODY SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 VAL_PTR=&timeInfo
   guint64 timeInfo;
@@ -793,7 +793,7 @@ SystemInformationBlockType1/cellSelectionInfo/q-RxLevMinOffset STRINGS=VALS(lte_
   proto_item_append_text(actx->created_item, "dB");
 
 #.TYPE_ATTR
-RLF-Report-r9/eag_1/timeConnFailure-r10 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_timeConnFailure_r10_fmt
+RLF-Report-r9/eag_1/timeConnFailure-r10 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_timeConnFailure_r10_fmt)
 
 #.FN_BODY LogMeasInfo-r10/relativeTimeStamp-r10
 %(DEFAULT_BODY)s
@@ -1058,7 +1058,7 @@ RSRQ-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
 RSRQ-Range-v12xy DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
 
 #.TYPE_ATTR
-MeasResultForECID-r9/ue-RxTxTimeDiffResult-r9 DISPLAY=BASE_CUSTOM STRINGS=&lte_rrc_ue_RxTxTimeDiffResult_fmt
+MeasResultForECID-r9/ue-RxTxTimeDiffResult-r9 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_ue_RxTxTimeDiffResult_fmt)
 
 #.FN_BODY SoundingRS-UL-ConfigDedicated/setup/duration
   actx->created_item = proto_tree_add_bits_item(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN);

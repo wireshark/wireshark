@@ -2307,7 +2307,7 @@ proto_register_dhcpv6(void)
         { &hf_cablelabs_ipv6_server,
           { "IPv6 address", "dhcpv6.cablelabs.ipv6_server", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_cablelabs_docsis_version_number,
-          { "DOCSIS Version Number", "dhcpv6.cablelabs.docsis_version_number", FT_UINT16, BASE_CUSTOM, cablelabs_fmt_docsis_version, 0x0, NULL, HFILL}},
+          { "DOCSIS Version Number", "dhcpv6.cablelabs.docsis_version_number", FT_UINT16, BASE_CUSTOM, CF_FUNC(cablelabs_fmt_docsis_version), 0x0, NULL, HFILL}},
     };
 
     static gint *ett[] = {
