@@ -403,7 +403,7 @@ const gchar* dfilter_macro_apply(const gchar* text, gchar** error) {
 	return dfilter_macro_apply_recurse(text, 0, error);
 }
 
-static void macro_update(void* mp, gchar** error _U_) {
+static void macro_update(void* mp, gchar** error) {
 	dfilter_macro_t* m = (dfilter_macro_t*)mp;
 	GPtrArray* parts;
 	GArray* args_pos;
@@ -411,8 +411,21 @@ static void macro_update(void* mp, gchar** error _U_) {
 	gchar* w;
 	gchar* part;
 	int argc = 0;
+	guint i;
 
 	DUMP_MACRO(m);
+
+	*error = NULL;
+
+	for (i = 0; i < num_macros; i++) {
+		if (m == &(macros[i])) continue;
+
+		if ( g_str_equal(m->name,macros[i].name) ) {
+			*error = g_strdup_printf("macro '%s' exists already", m->name);
+			m->usable = FALSE;
+			return;
+		}
+	}
 
 	/* Invalidate the display filter in case it's in use */
 	if (dfilter_macro_uat && dfilter_macro_uat->post_update_cb)
@@ -578,9 +591,7 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 	return d;
 }
 
-static gboolean macro_name_chk(void *mp, const char *in_name, guint name_len,
-		const void *u1 _U_, const void *u2 _U_, char **error) {
-	dfilter_macro_t* m = (dfilter_macro_t*)mp;
+static gboolean macro_name_chk(void* r _U_, const char* in_name, guint name_len, const void* u1 _U_, const void* u2 _U_, char** error) {
 	guint i;
 
 	if (name_len == 0) {
@@ -592,22 +603,6 @@ static gboolean macro_name_chk(void *mp, const char *in_name, guint name_len,
 		if (!(in_name[i] == '_' || g_ascii_isalnum(in_name[i]) ) ) {
 			*error = g_strdup("invalid char in name");
 			return FALSE;
-		}
-	}
-
-	/* When loading (!m->name) or when adding/changing the an item with a
-	 * different name, check for uniqueness. NOTE: if a duplicate already
-	 * exists (because the user manually edited the file), then this will
-	 * not trigger a warning. */
-	if (!m->name || !g_str_equal(m->name, in_name)) {
-		for (i = 0; i < num_macros; i++) {
-			/* This a string field which is always NUL-terminated,
-			 * so no need to check name_len. */
-			if (g_str_equal(in_name, macros[i].name)) {
-				*error = g_strdup_printf("macro '%s' already exists",
-							 in_name);
-				return FALSE;
-			}
 		}
 	}
 
