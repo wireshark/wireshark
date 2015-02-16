@@ -1056,6 +1056,18 @@ static const char *msgflags_str[] = {
 	"RP--", "RP-T", "RPE-", "RPET"
 };
 
+static const int *diameter_flags_fields[] = {
+	&hf_diameter_flags_request,
+	&hf_diameter_flags_proxyable,
+	&hf_diameter_flags_error,
+	&hf_diameter_flags_T,
+	&hf_diameter_flags_reserved4,
+	&hf_diameter_flags_reserved5,
+	&hf_diameter_flags_reserved6,
+	&hf_diameter_flags_reserved7,
+	NULL
+};
+
 static int
 dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1093,22 +1105,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	version_item = proto_tree_add_item(diam_tree,hf_diameter_version,tvb,0,1,ENC_BIG_ENDIAN);
 	proto_tree_add_item(diam_tree,hf_diameter_length,tvb,1,3,ENC_BIG_ENDIAN);
 
-	pi = proto_tree_add_item(diam_tree,hf_diameter_flags,tvb,4,1,ENC_BIG_ENDIAN);
-	{
-		proto_tree *pt = proto_item_add_subtree(pi,ett_diameter_flags);
-		proto_tree_add_item(pt,hf_diameter_flags_request,tvb,4,1,ENC_BIG_ENDIAN);
-		proto_tree_add_item(pt,hf_diameter_flags_proxyable,tvb,4,1,ENC_BIG_ENDIAN);
-		proto_tree_add_item(pt,hf_diameter_flags_error,tvb,4,1,ENC_BIG_ENDIAN);
-		proto_tree_add_item(pt,hf_diameter_flags_T,tvb,4,1,ENC_BIG_ENDIAN);
-		proto_tree_add_item(pt,hf_diameter_flags_reserved4,tvb,4,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x08) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
-		pi = proto_tree_add_item(pt,hf_diameter_flags_reserved5,tvb,4,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x04) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
-		pi = proto_tree_add_item(pt,hf_diameter_flags_reserved6,tvb,4,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x02) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
-		pi = proto_tree_add_item(pt,hf_diameter_flags_reserved7,tvb,4,1,ENC_BIG_ENDIAN);
-		if (flags_bits & 0x01) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
-	}
+	pi = proto_tree_add_bitmask(diam_tree, tvb, 4, hf_diameter_flags, ett_diameter_flags, diameter_flags_fields, ENC_BIG_ENDIAN);
+	if (flags_bits & 0x0f) expert_add_info(c->pinfo, pi, &ei_diameter_reserved_bit_set);
 
 	cmd_item = proto_tree_add_item(diam_tree,hf_diameter_code,tvb,5,3,ENC_BIG_ENDIAN);
 
