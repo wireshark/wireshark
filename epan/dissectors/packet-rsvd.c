@@ -131,6 +131,14 @@ typedef struct _rsvd_conv_data_t {
 
 static rsvd_conv_data_t *rsvd_conv_data = NULL;
 
+#if !GLIB_CHECK_VERSION(2,22,0)
+static gboolean
+g_int64_equal(gconstpointer v1, gconstpointer v2)
+{
+  return *((const gint64*) v1) == *((const gint64*) v2);
+}
+#endif
+
 static proto_tree *top_tree = NULL;
 
 static itl_nexus_t *
