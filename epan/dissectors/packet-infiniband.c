@@ -25,13 +25,13 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/show_exception.h>
+#include <epan/g_int64_hash_routines.h>
 #include <wiretap/erf.h>
 
 #include "packet-infiniband.h"
@@ -1488,23 +1488,6 @@ static heur_dissector_list_t heur_dissectors_payload;
 static heur_dissector_list_t heur_dissectors_cm_private;
 
 /* ----- This sections contains various utility functions indirectly related to Infiniband dissection ---- */
-
-/* g_int64_hash, g_int64_equal are defined starting glib 2.22 - otherwise, we'll have to
-   provide them ourselves! */
-#if !GLIB_CHECK_VERSION(2,22,0)
-guint
-g_int64_hash (gconstpointer v)
-{
-  return (guint) *(const gint64*) v;
-}
-
-gboolean
-g_int64_equal (gconstpointer v1,
-               gconstpointer v2)
-{
-  return *((const gint64*) v1) == *((const gint64*) v2);
-}
-#endif
 
 static void table_destroy_notify(gpointer data) {
     g_free(data);

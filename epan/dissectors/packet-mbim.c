@@ -35,19 +35,12 @@
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
+#include <epan/g_int64_hash_routines.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
 #include "packet-usb.h"
 #include "packet-mbim.h"
-
-#if !GLIB_CHECK_VERSION(2,22,0)
-static gboolean
-g_int64_equal(gconstpointer v1, gconstpointer v2)
-{
-  return *((const gint64*) v1) == *((const gint64*) v2);
-}
-#endif
 
 void proto_register_mbim(void);
 void proto_reg_handoff_mbim(void);
