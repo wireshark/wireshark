@@ -4584,6 +4584,9 @@ ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map)
         ssl_debug_printf("%s can't generate keyring material\n", G_STRFUNC);
         return;
     }
+    /* Save Client Random/ Session ID for "SSL Export Session keys" */
+    ssl_save_master_key("Client Random", mk_map->crandom,
+                        &ssl->client_random, &ssl->master_secret);
     ssl_save_master_key("Session ID", mk_map->session,
                         &ssl->session_id, &ssl->master_secret);
     ssl_save_master_key("Session Ticket", mk_map->session,

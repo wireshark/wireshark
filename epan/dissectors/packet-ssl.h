@@ -25,7 +25,10 @@
 
 #include "ws_symbol_export.h"
 
+/** Maps Session-ID to pre-master secrets. */
 WS_DLL_PUBLIC GHashTable *ssl_session_hash;
+/** Maps Client Random to pre-master secrets. */
+WS_DLL_PUBLIC GHashTable *ssl_crandom_hash;
 
 WS_DLL_PUBLIC void ssl_dissector_add(guint port, const gchar *protocol, gboolean tcp);
 WS_DLL_PUBLIC void ssl_dissector_delete(guint port, const gchar *protocol, gboolean tcp);

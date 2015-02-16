@@ -251,8 +251,9 @@ ssl_proto_tree_add_segment_data(
 
 
 static ssl_master_key_map_t       ssl_master_key_map;
-/* ssl_session_hash is used by "Export SSL Session Keys" */
-GHashTable *ssl_session_hash   = NULL;
+/* used by "Export SSL Session Keys" */
+GHashTable *ssl_session_hash;
+GHashTable *ssl_crandom_hash;
 
 static GHashTable         *ssl_key_hash             = NULL;
 static GTree              *ssl_associations         = NULL;
@@ -301,6 +302,7 @@ ssl_init(void)
 
     /* for "Export SSL Session Keys" */
     ssl_session_hash = ssl_master_key_map.session;
+    ssl_crandom_hash = ssl_master_key_map.crandom;
 
     /* We should have loaded "keys_list" by now. Mark it obsolete */
     if (ssl_module) {

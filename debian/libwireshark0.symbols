@@ -1149,6 +1149,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ssl_dissector_add@Base 1.9.1
  ssl_dissector_delete@Base 1.9.1
  ssl_session_hash@Base 1.9.1
+ ssl_crandom_hash@Base 1.99.4
  ssl_set_master_secret@Base 1.9.1
  start_requested_stats@Base 1.9.1
  stat_node_array_sortcmp@Base 1.12.0~rc1
