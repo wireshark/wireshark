@@ -25,15 +25,17 @@ extern "C" {
 
 #include <glib.h>
 
+#include "ws_symbol_export.h"
+
 /* g_int64_hash, g_int64_equal are defined starting glib 2.22 - otherwise,
    we have to provide them ourselves */
 #if !GLIB_CHECK_VERSION(2,22,0)
-guint
+WS_DLL_PUBLIC guint
 g_int64_hash (gconstpointer v);
 
-gboolean
+WS_DLL_PUBLIC gboolean
 g_int64_equal (gconstpointer v1,
-               gconstpointer v2)
+               gconstpointer v2);
 #endif /* !GLIB_CHECK_VERSION(2,22,0) */
 
 #ifdef __cplusplus
