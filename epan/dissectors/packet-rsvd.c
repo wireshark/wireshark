@@ -196,8 +196,8 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
     if (!rsvd_conv_data) {
         rsvd_conv_data = wmem_new(wmem_file_scope(), rsvd_conv_data_t);
         rsvd_conv_data->tasks = wmem_map_new(wmem_file_scope(),
-                                             g_direct_hash,
-                                             g_direct_equal);
+                                             wmem_int64_hash,
+                                             g_int64_equal);
         rsvd_conv_data->itl   = wmem_tree_new(wmem_file_scope());
         rsvd_conv_data->conversation = conversation;
         conversation_add_proto_data(conversation, proto_rsvd, rsvd_conv_data);
@@ -205,14 +205,17 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
 
     rsvd_conv_data->task = NULL;
     if (!pinfo->fd->flags.visited) {
+        guint64 *key_copy = wmem_new(wmem_file_scope(), guint64);
+
+        *key_copy = request_id;
         rsvd_conv_data->task = wmem_new(wmem_file_scope(), rsvd_task_data_t);
         rsvd_conv_data->task->request_frame=pinfo->fd->num;
         rsvd_conv_data->task->response_frame=0;
         rsvd_conv_data->task->itlq = NULL;
-        wmem_map_insert(rsvd_conv_data->tasks, (const void *)request_id,
+        wmem_map_insert(rsvd_conv_data->tasks, (const void *)key_copy,
                         rsvd_conv_data->task);
     } else {
-        rsvd_conv_data->task = (rsvd_task_data_t *)wmem_map_lookup(rsvd_conv_data->tasks, (void *)request_id);
+        rsvd_conv_data->task = (rsvd_task_data_t *)wmem_map_lookup(rsvd_conv_data->tasks, (const void *)&request_id);
     }
 
     sub_tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len, ett_svhdx_tunnel_scsi_request, &sub_item, "SVHDX_TUNNEL_SCSI_%s", (request ? "REQUEST" : "RESPONSE"));
