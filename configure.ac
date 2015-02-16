@@ -1743,25 +1743,29 @@ fi
 AC_PATH_PROG(UIC, uic)
 if test "x$UIC" = x
 then
-	AC_PATH_PROG(UIC, uic-qt4)
+	AC_PATH_PROG(UIC, uic-qt5)
 	if test "x$UIC" = x
 	then
-		if test "x$with_qt" = "xyes"; then
-			#
-			# If you want to build with Qt, you'd better
-			# have uic.
-			#
-			AC_MSG_ERROR(I couldn't find uic or uic-qt4; make sure it's installed and in your path)
-		else
-			#
-			# We shouldn't fail here, as the user's not
-			# building with Qt, and we shouldn't force them
-			# to have Qt installed if they're not doing so.
-			# "make dist" will fail if they do that, but
-			# we don't know whether they'll be doing that,
-			# so this is the best we can do.
-			#
-			UIC=uic
+		AC_PATH_PROG(UIC, uic-qt4)
+		if test "x$UIC" = x
+		then
+			if test "x$with_qt" = "xyes"; then
+				#
+				# If you want to build with Qt, you'd better
+				# have uic.
+				#
+				AC_MSG_ERROR(I couldn't find uic or uic-qt5 or uic-qt4; make sure it's installed and in your path)
+			else
+				#
+				# We shouldn't fail here, as the user's not
+				# building with Qt, and we shouldn't force them
+				# to have Qt installed if they're not doing so.
+				# "make dist" will fail if they do that, but
+				# we don't know whether they'll be doing that,
+				# so this is the best we can do.
+				#
+				UIC=uic
+			fi
 		fi
 	fi
 fi
@@ -1769,25 +1773,29 @@ AC_SUBST(UIC)
 AC_PATH_PROG(MOC, moc)
 if test "x$MOC" = x
 then
-	AC_PATH_PROG(MOC, moc-qt4)
+	AC_PATH_PROG(MOC, moc-qt5)
 	if test "x$MOC" = x
 	then
-		if test "x$with_qt" = "xyes"; then
-			#
-			# If you want to build with Qt, you'd better
-			# have moc.
-			#
-			AC_MSG_ERROR(I couldn't find moc or moc-qt4; make sure it's installed and in your path)
-		else
-			#
-			# We shouldn't fail here, as the user's not
-			# building with Qt, and we shouldn't force them
-			# to have Qt installed if they're not doing so.
-			# "make dist" will fail if they do that, but
-			# we don't know whether they'll be doing that,
-			# so this is the best we can do.
-			#
-			MIC=moc
+		AC_PATH_PROG(MOC, moc-qt4)
+		if test "x$MOC" = x
+		then
+			if test "x$with_qt" = "xyes"; then
+				#
+				# If you want to build with Qt, you'd better
+				# have moc.
+				#
+				AC_MSG_ERROR(I couldn't find moc or moc-qt5 or moc-qt4; make sure it's installed and in your path)
+			else
+				#
+				# We shouldn't fail here, as the user's not
+				# building with Qt, and we shouldn't force them
+				# to have Qt installed if they're not doing so.
+				# "make dist" will fail if they do that, but
+				# we don't know whether they'll be doing that,
+				# so this is the best we can do.
+				#
+				MIC=moc
+			fi
 		fi
 	fi
 fi
@@ -1795,25 +1803,29 @@ AC_SUBST(MOC)
 AC_PATH_PROG(RCC, rcc)
 if test "x$RCC" = x
 then
-	AC_PATH_PROG(RCC, rcc)
+	AC_PATH_PROG(RCC, rcc-qt5)
 	if test "x$RCC" = x
 	then
-		if test "x$with_qt" = "xyes"; then
-			#
-			# If you want to build with Qt, you'd better
-			# have moc.
-			#
-			AC_MSG_ERROR(I couldn't find rcc; make sure it's installed and in your path)
-		else
-			#
-			# We shouldn't fail here, as the user's not
-			# building with Qt, and we shouldn't force them
-			# to have Qt installed if they're not doing so.
-			# "make dist" will fail if they do that, but
-			# we don't know whether they'll be doing that,
-			# so this is the best we can do.
-			#
-			RCC=rcc
+		AC_PATH_PROG(RCC, rcc)
+		if test "x$RCC" = x
+		then
+			if test "x$with_qt" = "xyes"; then
+				#
+				# If you want to build with Qt, you'd better
+				# have moc.
+				#
+				AC_MSG_ERROR(I couldn't find rcc or rcc-qt5; make sure it's installed and in your path)
+			else
+				#
+				# We shouldn't fail here, as the user's not
+				# building with Qt, and we shouldn't force them
+				# to have Qt installed if they're not doing so.
+				# "make dist" will fail if they do that, but
+				# we don't know whether they'll be doing that,
+				# so this is the best we can do.
+				#
+				RCC=rcc
+			fi
 		fi
 	fi
 fi
