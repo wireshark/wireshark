@@ -199,12 +199,12 @@ struct hashether {
     char              resolved_name[MAXNAMELEN];
 };
 
-typedef struct hashmanuf {
+struct hashmanuf {
     guint             status;  /* (See above) */
     guint8            addr[3];
     char              hexaddr[3*3];
     char              resolved_name[MAXNAMELEN];
-} hashmanuf_t;
+};
 
 /* internal ethernet type */
 typedef struct _ether
