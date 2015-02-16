@@ -515,9 +515,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     conversation_t     *conversation=NULL;
     stun_conv_info_t   *stun_info;
     stun_transaction_t *stun_trans;
-    wmem_tree_key_t transaction_id_key[2];
-    guint32         transaction_id[3];
-    heur_dtbl_entry_t *hdtbl_entry;
+    wmem_tree_key_t     transaction_id_key[2];
+    guint32             transaction_id[3];
+    heur_dtbl_entry_t  *hdtbl_entry;
+	guint               reported_length;
 
     /*
      * Check if the frame is really meant for us.
@@ -525,6 +526,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     /* First, make sure we have enough data to do the check. */
     captured_length = tvb_captured_length(tvb);
+	reported_length = tvb_reported_length(tvb);
     if (captured_length < MIN_HDR_LEN)
         return 0;
 
@@ -533,7 +535,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     /* STUN Channel Data message ? */
     if (msg_type & 0xC000) {
-        guint reported_length = tvb_reported_length(tvb);
 
         /* two first bits not NULL => should be a channel-data message */
         if (msg_type == 0xFFFF)
@@ -572,7 +573,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         return 0;
 
     /* check if payload enough */
-    if (tvb_reported_length(tvb) != (msg_length + STUN_HDR_LEN))
+	if (reported_length != (msg_length + STUN_HDR_LEN))
         return 0;
 
     /* The message seems to be a valid STUN message! */
@@ -731,6 +732,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
     if (msg_length != 0) {
         guint offset;
+		const gchar       *attribute_name_str;
 
         ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, STUN_HDR_LEN, msg_length, ENC_NA);
         att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
@@ -740,10 +742,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         while (offset < (STUN_HDR_LEN + msg_length)) {
             att_type = tvb_get_ntohs(tvb, offset);     /* Type field in attribute header */
             att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
+			attribute_name_str = val_to_str_ext_const(att_type, &attributes_ext, "Unknown");
             if(att_all_tree){
                 ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
                                                 tvb, offset, ATTR_HDR_LEN+att_length,
-                                                att_type, "%s", val_to_str_ext_const(att_type, &attributes_ext, "Unknown"));
+												att_type, "%s", attribute_name_str);
                 att_tree = proto_item_add_subtree(ti, ett_stun_att);
                 ti = proto_tree_add_uint(att_tree, hf_stun_att_type, tvb,
                                          offset, 2, att_type);
@@ -815,6 +818,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case RESPONSE_ORIGIN:
             case OTHER_ADDRESS:
             case MS_ALT_MAPPED_ADDRESS:
+			{
+                const gchar       *addr_str;
+				guint16            att_port;
+
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
@@ -824,18 +831,21 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length < 4)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+				att_port = tvb_get_ntohs(tvb, offset + 2);
+
                 switch (tvb_get_guint8(tvb, offset+1)) {
                 case 1:
                     if (att_length < 8)
                         break;
+					addr_str = tvb_ip_to_str(tvb, offset + 4);
                     proto_tree_add_item(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                    proto_item_append_text(att_tree, ": %s:%d", tvb_ip_to_str(tvb,offset+4),tvb_get_ntohs(tvb,offset+2));
+					proto_item_append_text(att_tree, ": %s:%d", addr_str, att_port);
                     col_append_fstr(
                         pinfo->cinfo, COL_INFO,
                         " %s: %s:%d",
-                        val_to_str_ext_const(att_type, &attributes_ext, "Unknown"),
-                        tvb_ip_to_str(tvb,offset+4),
-                        tvb_get_ntohs(tvb,offset+2)
+						attribute_name_str,
+						addr_str,
+						att_port
                         );
                     break;
 
@@ -846,7 +856,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
                 }
                 break;
-
+			}
             case CHANGE_REQUEST:
                 if (att_length < 4)
                     break;
@@ -855,17 +865,22 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 break;
 
             case USERNAME:
+			{
+				const gchar       *user_name_str;
+
                 proto_tree_add_item(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
+				user_name_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8 | ENC_NA);
+				proto_item_append_text(att_tree, ": %s", user_name_str);
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
                     " user: %s",
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
+					user_name_str);
+
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, hf_stun_att_padding,
                                         tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
-
+			}
             case MESSAGE_INTEGRITY:
                 if (att_length < 20)
                     break;
@@ -883,31 +898,34 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
                 {
-                    int human_error_num = tvb_get_guint8(tvb, offset+2) * 100 + tvb_get_guint8(tvb, offset+3);
+                    int           human_error_num = tvb_get_guint8(tvb, offset+2) * 100 + tvb_get_guint8(tvb, offset+3);
+					const gchar  *error_str = val_to_str_ext_const(human_error_num, &error_code_ext, "*Unknown error code*");
                     proto_item_append_text(
                         att_tree,
                         " %d (%s)",
                         human_error_num, /* human readable error code */
-                        val_to_str_ext_const(human_error_num, &error_code_ext, "*Unknown error code*")
+						error_str
                         );
                     col_append_fstr(
                         pinfo->cinfo, COL_INFO,
                         " error-code: %d (%s)",
                         human_error_num,
-                        val_to_str_ext_const(human_error_num, &error_code_ext, "*Unknown error code*")
+						error_str
                         );
                 }
                 if (att_length < 5)
                     break;
-                proto_tree_add_item(att_tree, hf_stun_att_error_reason, tvb, offset+4, att_length-4, ENC_UTF_8|ENC_NA);
+				proto_tree_add_item(att_tree, hf_stun_att_error_reason, tvb, offset + 4, att_length - 4, ENC_UTF_8 | ENC_NA);
+				{
+					const gchar  *error_reas_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 4, att_length - 4, ENC_UTF_8 | ENC_NA);
 
-                proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, att_length-4, ENC_UTF_8|ENC_NA));
-                col_append_fstr(
-                    pinfo->cinfo, COL_INFO,
-                    " %s",
-                    tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, att_length-4, ENC_UTF_8|ENC_NA)
-                    );
-
+					proto_item_append_text(att_tree, ": %s", error_reas_str);
+					col_append_fstr(
+						pinfo->cinfo, COL_INFO,
+						" %s",
+						error_reas_str
+						);
+				}
 
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
@@ -921,17 +939,19 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 break;
 
             case REALM:
+			{
+				const gchar  *realm_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8 | ENC_NA);
                 proto_tree_add_item(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
+				proto_item_append_text(att_tree, ": %s", realm_str);
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
                     " realm: %s",
-                    tvb_get_string_enc(wmem_packet_scope(), tvb,offset, att_length, ENC_UTF_8|ENC_NA)
+					realm_str
                     );
                 if (att_length % 4 != 0)
                     proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
-
+			}
             case NONCE:
                 proto_tree_add_item(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
                 proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
@@ -996,7 +1016,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         col_append_fstr(
                             pinfo->cinfo, COL_INFO,
                             " %s: %s:%d",
-                            val_to_str_ext_const(att_type, &attributes_ext, "Unknown"),
+							attribute_name_str,
                             ipstr,
                             port
                             );
@@ -1113,11 +1133,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
                 {
                     guint8  protoCode = tvb_get_guint8(tvb, offset);
-                    proto_item_append_text(att_tree, ": %s", val_to_str(protoCode, transportnames, "Unknown (0x%8x)"));
+					const gchar *protoCode_str = val_to_str(protoCode, transportnames, "Unknown (0x%8x)");
+
+					proto_item_append_text(att_tree, ": %s", protoCode_str);
                     col_append_fstr(
                         pinfo->cinfo, COL_INFO,
                         " %s",
-                        val_to_str(protoCode, transportnames, "Unknown (0x%8x)")
+						protoCode_str
                         );
                 }
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+1, 3, ENC_NA);
@@ -1237,7 +1259,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         }
     }
 
-    return tvb_reported_length(tvb);
+	return reported_length;
 }
 
 static int
