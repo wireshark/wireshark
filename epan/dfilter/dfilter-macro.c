@@ -403,7 +403,7 @@ const gchar* dfilter_macro_apply(const gchar* text, gchar** error) {
 	return dfilter_macro_apply_recurse(text, 0, error);
 }
 
-static void macro_update(void* mp, gchar** error _U_) {
+static void macro_update(void* mp, gchar** error) {
 	dfilter_macro_t* m = (dfilter_macro_t*)mp;
 	GPtrArray* parts;
 	GArray* args_pos;
@@ -411,6 +411,8 @@ static void macro_update(void* mp, gchar** error _U_) {
 	gchar* w;
 	gchar* part;
 	int argc = 0;
+
+	*error = NULL;
 
 	DUMP_MACRO(m);
 
