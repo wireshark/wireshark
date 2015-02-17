@@ -599,7 +599,7 @@ static int dissect_h248_AuditReplyV1(gboolean implicit_tag, tvbuff_t *tvb, int o
 static int dissect_h248_EventParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_h248_SigParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 static int dissect_h248_SigParamValueV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_h248_ValueV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+
 #if 0
 static const value_string context_id_type[] = {
     {NULL_CONTEXT,"0 (Null Context)"},
@@ -3251,7 +3251,7 @@ static const ber_sequence_t SigParameter_sequence[] = {
 
 static int
 dissect_h248_SigParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 433 "../../asn1/h248/h248.cnf"
+#line 390 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
 	if (h248_version > 1) {
 		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -3487,7 +3487,7 @@ static const ber_sequence_t EventParameter_sequence[] = {
 
 static int
 dissect_h248_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 424 "../../asn1/h248/h248.cnf"
+#line 381 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
 	if (h248_version > 1) {
 		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -4386,7 +4386,7 @@ dissect_h248_ServiceChangeProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_h248_SCreasonValueOctetStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 383 "../../asn1/h248/h248.cnf"
+#line 371 "../../asn1/h248/h248.cnf"
  tvbuff_t	*parameter_tvb;
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4408,19 +4408,8 @@ static const ber_sequence_t SCreasonValue_sequence_of[1] = {
 
 static int
 dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 371 "../../asn1/h248/h248.cnf"
-/* H248 v1 support */
-	if ( h248_version > 1 ) {
-		/* Not V1, so call "standard" function */
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SCreasonValue_sequence_of, hf_index, ett_h248_SCreasonValue);
-
-} else {
-	/* V1 so Value == octet string */
-	offset = dissect_h248_ValueV1( implicit_tag, tvb, offset, actx, tree, hf_index);
-};
-
-
 
   return offset;
 }
@@ -5344,42 +5333,6 @@ static int
 dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SigParameterV1_sequence, hf_index, ett_h248_SigParameterV1);
-
-  return offset;
-}
-
-
-
-static int
-dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 393 "../../asn1/h248/h248.cnf"
-	guint8 i;
-	guint32 len;
-
-#line 398 "../../asn1/h248/h248.cnf"
-/* check tvb to verify all values ascii or not.  If so, output string, else hex */
-	len=tvb_reported_length_remaining(tvb, offset);
-	if ( curr_info.par && curr_info.par->dissector) {
-		curr_info.par->dissector(tree, /*next_*/tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
-	} else {
-		/* if no registered dissector create output */
-		for( i=0;i<len;i++) {
-			if(!g_ascii_isprint(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
-				/* not ascii or NULL character so do string as hex string */
-				proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s",
-					(proto_registrar_get_nth(hf_index))->name,
-					tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, len));
-				return len;
-			};
-		};
-		/* if here, then string is ascii */
-		proto_tree_add_text(tree, tvb, offset, len,"%s: %s",
-					(proto_registrar_get_nth(hf_index))->name,
-					tvb_format_text(tvb, 0, len));
-	}
-	offset = len;
-
-
 
   return offset;
 }
