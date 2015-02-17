@@ -69,6 +69,9 @@ PA-FX-FAST-REQUEST
 ADDR-TYPE TYPE_PREFIX
 Applications TYPE_PREFIX
 
+#.MAKE_ENUM
+PADATA-TYPE PROT_PREFIX UPPER_CASE
+
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	guint32 msgtype;
@@ -136,7 +139,7 @@ Applications TYPE_PREFIX
 #.FN_FTR PADATA-TYPE
 	if(tree){
 		proto_item_append_text(tree, " %s",
-			val_to_str(private_data->padata_type, krb5_preauthentication_types,
+			val_to_str(private_data->padata_type, kerberos_PADATA_TYPE_vals,
 			"Unknown:%d"));
 	}
 
@@ -149,22 +152,22 @@ Applications TYPE_PREFIX
 	}
 
 	switch(private_data->padata_type){
-	case KRB5_PA_TGS_REQ:
+	case KERBEROS_PA_TGS_REQ:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
 		break;
-	case KRB5_PA_PK_AS_REQ:
+	case KERBEROS_PA_PK_AS_REQ:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
 		break;
- 	case KRB5_PA_PK_AS_REP:
+	case KERBEROS_PA_PK_AS_REP:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsRep);
 		break;
-	case KRB5_PA_PAC_REQUEST:
+	case KERBEROS_PA_PAC_REQUEST:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_KERB_PA_PAC_REQUEST);
 		break;
-	case KRB5_PA_S4U2SELF:
+	case KERBEROS_PA_FOR_USER: /* S4U2SELF */
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U2Self);
 		break;
-	case KRB5_PADATA_S4U_X509_USER:
+	case KERBEROS_PA_FOR_X509_USER:
 		if(private_data->msg_type == KRB5_MSG_AS_REQ){
 			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_x509af_Certificate);
 		}else if(private_data->is_enc_padata){
@@ -173,35 +176,35 @@ Applications TYPE_PREFIX
 			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_S4U_X509_USER);
 		}
 		break;
-	case KRB5_PA_PROV_SRV_LOCATION:
+	case KERBEROS_PA_PROV_SRV_LOCATION:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PA_PROV_SRV_LOCATION);
 		break;
-	case KRB5_PA_ENC_TIMESTAMP:
+	case KERBEROS_PA_ENC_TIMESTAMP:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_ENC_TIMESTAMP);
 		break;
-	case KRB5_PA_ENCTYPE_INFO:
+	case KERBEROS_PA_ETYPE_INFO:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO);
 		break;
-	case KRB5_PA_ENCTYPE_INFO2:
+	case KERBEROS_PA_ETYPE_INFO2:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO2);
 		break;
-	case KRB5_PA_PW_SALT:
+	case KERBEROS_PA_PW_SALT:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PW_SALT);
 		break;
-	case KRB5_PA_AUTHENTICATION_SET:
+	case KERBEROS_PA_AUTHENTICATION_SET:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_AUTHENTICATION_SET);
 		break;
-	case KRB5_PADATA_FX_FAST:
+	case KERBEROS_PA_FX_FAST:
 		if(private_data->msg_type == KRB5_MSG_AS_REQ || private_data->msg_type == KRB5_MSG_TGS_REQ){
 			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REQUEST);
 		}else{
 			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REPLY);
 		}
 		break;
-	case KRB5_PADATA_ENCRYPTED_CHALLENGE:
+	case KERBEROS_PA_ENCRYPTED_CHALLENGE:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_EncryptedChallenge);
 		break;
-	case KRB5_PA_PAC_OPTIONS:
+	case KERBEROS_PA_PAC_OPTIONS:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_PAC_OPTIONS);
 		break;
 	default:

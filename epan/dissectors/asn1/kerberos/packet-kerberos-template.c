@@ -1251,59 +1251,6 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree _U_,
  * unless it's expired.
  */
 
-/* pre-authentication type constants */
-#define KRB5_PA_TGS_REQ			1
-#define KRB5_PA_ENC_TIMESTAMP		2
-#define KRB5_PA_PW_SALT			3
-#define KRB5_PA_ENC_ENCKEY		4
-#define KRB5_PA_ENC_UNIX_TIME		5
-#define KRB5_PA_ENC_SANDIA_SECURID	6
-#define KRB5_PA_SESAME			7
-#define KRB5_PA_OSF_DCE			8
-#define KRB5_PA_CYBERSAFE_SECUREID	9
-#define KRB5_PA_AFS3_SALT		10
-#define KRB5_PA_ENCTYPE_INFO		11
-#define KRB5_PA_SAM_CHALLENGE		12
-#define KRB5_PA_SAM_RESPONSE		13
-#define KRB5_PA_PK_AS_REQ		14
-#define KRB5_PA_PK_AS_REP		15
-#define KRB5_PA_DASS			16
-#define KRB5_PA_PK_AS_REP_17		17
-#define KRB5_PA_ENCTYPE_INFO2		19
-#define KRB5_PA_USE_SPECIFIED_KVNO	20
-#define KRB5_PA_SAM_REDIRECT		21
-#define KRB5_PA_GET_FROM_TYPED_DATA	22
-#define KRB5_PA_SAM_ETYPE_INFO		23
-#define KRB5_PA_ALT_PRINC		24
-#define KRB5_PA_SAM_CHALLENGE2		30
-#define KRB5_PA_SAM_RESPONSE2		31
-#define KRB5_TD_PKINIT_CMS_CERTIFICATES	101
-#define KRB5_TD_KRB_PRINCIPAL		102
-#define KRB5_TD_KRB_REALM		103
-#define KRB5_TD_TRUSTED_CERTIFIERS	104
-#define KRB5_TD_CERTIFICATE_INDEX	105
-#define KRB5_TD_APP_DEFINED_ERROR	106
-#define KRB5_TD_REQ_NONCE		107
-#define KRB5_TD_REQ_SEQ			108
-/* preauthentication types >127 (i.e. negative ones) are app specific.
-   however since Microsoft is the dominant(only?) user of types in this range
-   we also treat the type as unsigned.
-*/
-#define KRB5_PA_PAC_REQUEST		128    /* (Microsoft extension) */
-#define KRB5_PA_FOR_USER		129    /* Impersonation (Microsoft extension) See [MS-SFU]. XXX - replaced by KRB5_PA_S4U2SELF */
-#define KRB5_PA_S4U2SELF		129
-#define KRB5_PADATA_S4U_X509_USER	130 /* certificate protocol transition request */
-#define KRB5_PADATA_FX_COOKIE	133
-#define KRB5_PA_AUTHENTICATION_SET 134
-#define KRB5_PADATA_FX_FAST		136
-#define KRB5_PADATA_FX_ERROR	137
-#define KRB5_PADATA_ENCRYPTED_CHALLENGE	138
-#define KRB5_PADATA_PKINIT_KX	147
-#define KRB5_ENCPADATA_REQ_ENC_PA_REP	149
-#define KRB5_PA_PAC_OPTIONS		167
-
-
-#define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
 /* Principal name-type */
 #define KRB5_NT_UNKNOWN		0
 #define KRB5_NT_PRINCIPAL	1
@@ -1509,55 +1456,6 @@ static const value_string krb5_princ_types[] = {
 	{ 0                            , NULL },
 };
 #endif
-
-static const value_string krb5_preauthentication_types[] = {
-	{ KRB5_PA_TGS_REQ              , "PA-TGS-REQ" },
-	{ KRB5_PA_ENC_TIMESTAMP        , "PA-ENC-TIMESTAMP" },
-	{ KRB5_PA_PW_SALT              , "PA-PW-SALT" },
-	{ KRB5_PA_ENC_ENCKEY           , "PA-ENC-ENCKEY" },
-	{ KRB5_PA_ENC_UNIX_TIME        , "PA-ENC-UNIX-TIME" },
-	{ KRB5_PA_ENC_SANDIA_SECURID   , "PA-PW-SALT" },
-	{ KRB5_PA_SESAME               , "PA-SESAME" },
-	{ KRB5_PA_OSF_DCE              , "PA-OSF-DCE" },
-	{ KRB5_PA_CYBERSAFE_SECUREID   , "PA-CYBERSAFE-SECURID" },
-	{ KRB5_PA_AFS3_SALT            , "PA-AFS3-SALT" },
-	{ KRB5_PA_ENCTYPE_INFO         , "PA-ENCTYPE-INFO" },
-	{ KRB5_PA_ENCTYPE_INFO2         , "PA-ENCTYPE-INFO2" },
-	{ KRB5_PA_SAM_CHALLENGE        , "PA-SAM-CHALLENGE" },
-	{ KRB5_PA_SAM_RESPONSE         , "PA-SAM-RESPONSE" },
-	{ KRB5_PA_PK_AS_REQ            , "PA-PK-AS-REQ" },
-	{ KRB5_PA_PK_AS_REP            , "PA-PK-AS-REP" },
-	{ KRB5_PA_DASS                 , "PA-DASS" },
-	{ KRB5_PA_PK_AS_REP_17         , "PA-PK-AS-REP-17" },
-	{ KRB5_PA_USE_SPECIFIED_KVNO   , "PA-USE-SPECIFIED-KVNO" },
-	{ KRB5_PA_SAM_REDIRECT         , "PA-SAM-REDIRECT" },
-	{ KRB5_PA_GET_FROM_TYPED_DATA  , "PA-GET-FROM-TYPED-DATA" },
-	{ KRB5_PA_SAM_ETYPE_INFO       , "PA-SAM-ETYPE-INFO" },
-	{ KRB5_PA_ALT_PRINC            , "PA-ALT-PRINC" },
-	{ KRB5_PA_SAM_CHALLENGE2       , "PA-SAM-CHALLENGE2" },
-	{ KRB5_PA_SAM_RESPONSE2        , "PA-SAM-RESPONSE2" },
-	{ KRB5_TD_PKINIT_CMS_CERTIFICATES, "TD-PKINIT-CMS-CERTIFICATES" },
-	{ KRB5_TD_KRB_PRINCIPAL        , "TD-KRB-PRINCIPAL" },
-	{ KRB5_TD_KRB_REALM , "TD-KRB-REALM" },
-	{ KRB5_TD_TRUSTED_CERTIFIERS   , "TD-TRUSTED-CERTIFIERS" },
-	{ KRB5_TD_CERTIFICATE_INDEX    , "TD-CERTIFICATE-INDEX" },
-	{ KRB5_TD_APP_DEFINED_ERROR    , "TD-APP-DEFINED-ERROR" },
-	{ KRB5_TD_REQ_NONCE            , "TD-REQ-NONCE" },
-	{ KRB5_TD_REQ_SEQ              , "TD-REQ-SEQ" },
-	{ KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
-	{ KRB5_PA_FOR_USER             , "PA-FOR-USER" },
-	{ KRB5_PADATA_S4U_X509_USER    , "PA-S4U-X509-USER" },
-	{ KRB5_PADATA_FX_COOKIE        , "PA-FX-COOKIE" },
-	{ KRB5_PA_AUTHENTICATION_SET   , "KRB5-PA-AUTHENTICATION-SET" },
-	{ KRB5_PA_PAC_OPTIONS          , "PA-PAC-OPTIONS" },
-	{ KRB5_PADATA_FX_FAST          , "PA-FX-FAST" },
-	{ KRB5_PADATA_FX_ERROR         , "PA-FX-ERROR" },
-	{ KRB5_PADATA_ENCRYPTED_CHALLENGE , "PA-ENCRYPTED-CHALLENGE" },
-	{ KRB5_PADATA_PKINIT_KX        , "PA-PKINIT-KX" },
-	{ KRB5_ENCPADATA_REQ_ENC_PA_REP , "PA-REQ-ENC-PA-REP" },
-	{ KRB5_PA_PROV_SRV_LOCATION    , "PA-PROV-SRV-LOCATION" },
-	{ 0                            , NULL },
-};
 
 #define KRB5_AD_IF_RELEVANT			1
 #define KRB5_AD_INTENDED_FOR_SERVER		2
