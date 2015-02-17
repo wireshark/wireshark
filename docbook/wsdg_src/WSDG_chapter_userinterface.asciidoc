@@ -98,6 +98,27 @@ combinations (particularly `QDialog(parent, Qt::Window)`) can lead to odd and
 inconsistent behavior. Again, subclassing `WiresharkDialog` will take care of
 this for you.
 
+Most of the dialogs in ui/qt share many similarities, including method names,
+widget names, and behavior. Most dialogs should have the following, although
+it's not strictly required:
+
+- An `updateWidgets()` method, which enables and disables widgets depending on
+  the current state and constraints of the dialog. For example, the Coloring
+  Rules dialog disables the button:[Save] button if the user has entered an
+  invalid display filter.
+- A `hintLabel()` widget subclassed from `QLabel` or `ElidedLabel`, placed just
+  above the dialog button box. The hint label provides guidance and feedback to
+  the user.
+- A context menu (`ctx_menu_`) for additional actions not present in the
+  button box.
+- If the dialog box contains a `QTreeWidget` you might want to add your own
+  `QTreeWidgetItem` subclass with the following methods:
+[horizontal]
+  `drawData()`:: Draws column data with any needed formatting.
+  `colData()`:: Returns the data for each column as a `QVariant`. Used for
+    copying as CSV, YAML, etc.
+  `operator<()`:: Allows sorting columns based on their raw data.
+
 ===== Strings
 
 If you're using GLib string functions or plain old C character array idioms in
