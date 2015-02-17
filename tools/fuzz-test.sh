@@ -45,14 +45,18 @@ CONFIG_PROFILE=
 # Run under valgrind ?
 VALGRIND=0
 
+# Run under AddressSanitizer ?
+ASAN=0
+
 # The maximum permitted amount of memory leaked. Eventually this should be
 # worked down to zero, but right now that would fail on every single capture.
 # Only has effect when running under valgrind.
 MAX_LEAK=`expr 1024 \* 100`
 
 # To do: add options for file names and limits
-while getopts ":2b:C:d:e:gp:P:" OPTCHAR ; do
+while getopts "2b:C:d:e:agp:P:" OPTCHAR ; do
     case $OPTCHAR in
+        a) ASAN=1 ;;
         2) TWO_PASS="-2 " ;;
         b) BIN_DIR=$OPTARG ;;
         C) CONFIG_PROFILE="-C $OPTARG " ;;
@@ -109,7 +113,7 @@ if [ $FOUND -eq 0 ] ; then
     cat <<FIN
 Error: No valid capture files found.
 
-Usage: `basename $0` [-2] [-b bin_dir] [-C config_profile] [-d work_dir] [-e error probability] [-g] [-p passes] capture file 1 [capture file 2]...
+Usage: `basename $0` [-2] [-b bin_dir] [-C config_profile] [-d work_dir] [-e error probability] [-g] [-a] [-p passes] capture file 1 [capture file 2]...
 FIN
     exit 1
 fi
@@ -188,8 +192,14 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
             # longer then MAX_CPU_TIME seconds. (ulimit may not be supported
             # well on some platforms, particularly cygwin.)
             (
-                ulimit -S -t $MAX_CPU_TIME -v $MAX_VMEM -s $MAX_STACK
+                ulimit -S -t $MAX_CPU_TIME -s $MAX_STACK
                 ulimit -c unlimited
+
+                # Don't enable ulimit -v when use ASAN see
+                # https://code.google.com/p/address-sanitizer/wiki/AddressSanitizer#ulimit_-v
+                if [ $ASAN -eq 0 ]; then
+                    ulimit -v $MAX_VMEM
+                fi
 
                 "$RUNNER" $COMMON_ARGS $ARGS $TMP_DIR/$TMP_FILE \
                     > /dev/null 2>> $TMP_DIR/$ERR_FILE
