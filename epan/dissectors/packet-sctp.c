@@ -4521,7 +4521,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SET_ADDRESS(&sctp_info.ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
   dissect_sctp_packet(tvb, pinfo, tree, FALSE);
-  if (!pinfo->flags.in_error_pkt)
+  if (!pinfo->flags.in_error_pkt && sctp_info.number_of_tvbs > 0)
     tap_queue_packet(sctp_tap, pinfo, &sctp_info);
 }
 
