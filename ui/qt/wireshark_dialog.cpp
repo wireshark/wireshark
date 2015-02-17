@@ -44,6 +44,7 @@ WiresharkDialog::WiresharkDialog(QWidget &, CaptureFile &capture_file) :
     cap_file_(capture_file),
     file_closed_(false)
 {
+    setWindowIcon(wsApp->normalIcon());
     connect(&cap_file_, SIGNAL(captureFileClosing()), this, SLOT(captureFileClosing()));
     connect(&cap_file_, SIGNAL(captureFileClosed()), this, SLOT(captureFileClosing()));
     setWindowTitleFromSubtitle();
