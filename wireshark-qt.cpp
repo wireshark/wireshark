@@ -49,6 +49,7 @@
 #endif
 #include <wsutil/report_err.h>
 #include <wsutil/u3.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #include <epan/addr_resolv.h>
@@ -481,7 +482,8 @@ int main(int argc, char *argv[])
     /*
      * Attempt to get the pathname of the executable file.
      */
-    /* init_progfile_dir_error = */ init_progfile_dir(argv[0], main);
+    /* init_progfile_dir_error = */ init_progfile_dir(argv[0],
+        (progfile_main_t) get_gui_compiled_info);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
 
     /* Get the compile-time version information string */
@@ -528,6 +530,7 @@ int main(int argc, char *argv[])
      */
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
+DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"read-file", required_argument, NULL, 'r' },
@@ -537,6 +540,7 @@ int main(int argc, char *argv[])
         LONGOPT_CAPTURE_COMMON
         {0, 0, 0, 0 }
     };
+DIAG_ON(cast-qual)
     static const char optstring[] = OPTSTRING;
 
     opterr = 0;

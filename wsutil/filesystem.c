@@ -479,7 +479,7 @@ init_progfile_dir(const char *arg0
 #ifdef _WIN32
     _U_
 #endif
-, int (*main_addr)(int, char **)
+, progfile_main_t main_addr
 #if defined(_WIN32) || !defined(HAVE_DLADDR)
     _U_
 #endif
