@@ -412,9 +412,9 @@ static void macro_update(void* mp, gchar** error) {
 	gchar* part;
 	int argc = 0;
 
-	*error = NULL;
-
 	DUMP_MACRO(m);
+
+	*error = NULL;
 
 	/* Invalidate the display filter in case it's in use */
 	if (dfilter_macro_uat && dfilter_macro_uat->post_update_cb)
