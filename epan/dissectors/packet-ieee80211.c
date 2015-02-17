@@ -5407,7 +5407,7 @@ wlan_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
   return 1;
 }
 
-const char* wlan_col_filter_str(const address* addr _U_, gboolean is_src)
+static const char* wlan_col_filter_str(const address* addr _U_, gboolean is_src)
 {
   if (is_src)
     return "wlan.sa";
@@ -5415,7 +5415,7 @@ const char* wlan_col_filter_str(const address* addr _U_, gboolean is_src)
   return "wlan.da";
 }
 
-const char* wlan_bssid_col_filter_str(const address* addr _U_, gboolean is_src _U_)
+static const char* wlan_bssid_col_filter_str(const address* addr _U_, gboolean is_src _U_)
 {
   return "wlan.bssid";
 }
@@ -5424,25 +5424,25 @@ const char* wlan_bssid_col_filter_str(const address* addr _U_, gboolean is_src _
 static void
 beacon_interval_base_custom(gchar *result, guint32 beacon_interval)
 {
-   double temp_double;
+  double temp_double;
 
-   temp_double = (double)beacon_interval;
-   g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double * 1024 / 1000000));
+  temp_double = (double)beacon_interval;
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double * 1024 / 1000000));
 }
 
 static void
 allocation_duration_base_custom(gchar *result, guint32 allocation_duration)
 {
-   double temp_double;
+  double temp_double;
 
-   temp_double = (double)allocation_duration;
-   g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double / 1000000));
+  temp_double = (double)allocation_duration;
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double / 1000000));
 }
 
 static void
 extra_one_base_custom(gchar *result, guint32 value)
 {
-   g_snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
 }
 
 static void
