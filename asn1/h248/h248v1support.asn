@@ -38,7 +38,7 @@ BEGIN
 		
 	}
 	
-	ValueV1 ::= OCTET STRING
+--	ValueV1 ::= OCTET STRING
 	EventParamValueV1 ::= OCTET STRING
 	SigParamValueV1 ::= OCTET STRING
 
