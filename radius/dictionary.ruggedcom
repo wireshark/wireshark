@@ -1,0 +1,11 @@
+# -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+#
+
+VENDOR		RuggedCom			15004
+
+BEGIN-VENDOR	RuggedCom
+
+ATTRIBUTE	RuggedCom-Privilege-level		2	string
+
+END-VENDOR RuggedCom
