@@ -45,13 +45,14 @@
 
 static sctp_allassocs_info_t sctp_tapinfo_struct = {0, NULL, FALSE, NULL};
 
-static
-void free_first(gpointer data, gpointer user_data _U_)
+static void
+free_first(gpointer data, gpointer user_data _U_)
 {
 	g_free(data);
 }
 
-static void tsn_free(gpointer data, gpointer user_data _U_)
+static void
+tsn_free(gpointer data, gpointer user_data _U_)
 {
 	tsn_t *tsn;
 
@@ -65,7 +66,8 @@ static void tsn_free(gpointer data, gpointer user_data _U_)
 }
 
 
-static void reset(void *arg)
+static void
+reset(void *arg)
 {
 	sctp_allassocs_info_t *tapdata = (sctp_allassocs_info_t *)arg;
 	GList* list;
@@ -158,7 +160,8 @@ static void reset(void *arg)
 }
 
 
-static sctp_assoc_info_t *calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
+static sctp_assoc_info_t *
+calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
 {
 	gboolean ok = FALSE;
 
@@ -205,7 +208,8 @@ static sctp_assoc_info_t *calc_checksum(const struct _sctp_info *check_data, sct
 }
 
 
-static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
+static sctp_assoc_info_t *
+find_assoc(sctp_tmp_info_t *needle)
 {
 	sctp_allassocs_info_t *assoc_info;
 	sctp_assoc_info_t *info = NULL;
@@ -226,7 +230,8 @@ static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 	return NULL;
 }
 
-static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * info, guint32 direction, guint32 type)
+static sctp_assoc_info_t *
+add_chunk_count(address *vadd, sctp_assoc_info_t *info, guint32 direction, guint32 type)
 {
 	GList *list;
 	address *v=NULL;
@@ -278,7 +283,8 @@ static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * i
 	return info;
 }
 
-static sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, guint16 direction)
+static sctp_assoc_info_t *
+add_address(address *vadd, sctp_assoc_info_t *info, guint16 direction)
 {
 	GList *list;
 	address *v=NULL;
@@ -307,10 +313,10 @@ static sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, 
 }
 
 static int
-packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const void *data)
+packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
-	const struct _sctp_info *sctp_info = (const struct _sctp_info *) data;
-	guint32 chunk_number = 0, tsnumber,framenumber;
+	const struct _sctp_info *sctp_info = (const struct _sctp_info *)data;
+	guint32 chunk_number = 0, tsnumber, framenumber;
 	sctp_tmp_info_t tmp_info;
 	sctp_assoc_info_t *info = NULL;
 	sctp_error_info_t *error = NULL;
@@ -327,7 +333,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 	int i;
 	guint8 idx = 0;
 
-	framenumber=pinfo->fd->num;
+	framenumber = PINFO_FD_NUM(pinfo);
 
 	type = sctp_info->ip_src.type;
 
@@ -408,7 +414,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		{
 			info = (sctp_assoc_info_t *)g_malloc(sizeof(sctp_assoc_info_t));
 			memset(info, 0, sizeof(sctp_assoc_info_t));
-		    info->assoc_id = sctp_info->assoc_index;
+			info->assoc_id = sctp_info->assoc_index;
 			info->src.type = tmp_info.src.type;
 			info->src.len  = tmp_info.src.len;
 			addr = (guint8 *)g_malloc(tmp_info.dst.len);
@@ -818,12 +824,12 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->min_usecs = tsn->usecs;
 
 				if (tsn->secs > info->max_secs)
-					{
-						info->max_secs  = tsn->secs;
-						info->max_usecs = tsn->usecs;
-					}
-					else if (tsn->secs == info->max_secs && tsn->usecs > info->max_usecs)
-						info->max_usecs = tsn->usecs;
+				{
+					info->max_secs  = tsn->secs;
+					info->max_usecs = tsn->usecs;
+				}
+				else if (tsn->secs == info->max_secs && tsn->usecs > info->max_usecs)
+					info->max_usecs = tsn->usecs;
 			}
 			sack->frame_number = tsn->frame_number = pinfo->fd->num;
 		}
@@ -866,7 +872,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					info->max_tsn2 = tsnumber;
 				info->instream2 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET);
 				info->outstream2 = tvb_get_ntohs(sctp_info->tvb[0],INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET);
-	            info->arwnd2 = tvb_get_ntohl(sctp_info->tvb[0],INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
+				info->arwnd2 = tvb_get_ntohl(sctp_info->tvb[0],INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 				info->tsn2 = g_list_prepend(info->tsn2, tsn);
 			}
 			else if (info->direction == 1)
@@ -893,32 +899,31 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			for (chunk_number = 1; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 			{
 				type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
-					if (type == IPV4ADDRESS_PARAMETER_ID)
-					{
-						store = (address *)g_malloc(sizeof (address));
-						store->type = AT_IPv4;
-						store->len  = 4;
-						store->data = g_malloc(4);
-						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
-						info = add_address(store, info, info->direction);
-					}
-					else if (type == IPV6ADDRESS_PARAMETER_ID)
-					{
-						store = (address *)g_malloc(sizeof (address));
-						store->type = AT_IPv6;
-						store->len  = 16;
-						store->data = g_malloc(16);
-						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
-						info = add_address(store, info, info->direction);
-					}
-					}
+				if (type == IPV4ADDRESS_PARAMETER_ID)
+				{
+					store = (address *)g_malloc(sizeof (address));
+					store->type = AT_IPv4;
+					store->len  = 4;
+					store->data = g_malloc(4);
+					tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
+					info = add_address(store, info, info->direction);
+				}
+				else if (type == IPV6ADDRESS_PARAMETER_ID)
+				{
+					store = (address *)g_malloc(sizeof (address));
+					store->type = AT_IPv6;
+					store->len  = 16;
+					store->data = g_malloc(16);
+					tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
+					info = add_address(store, info, info->direction);
+				}
+			}
 			if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_ACK_CHUNK_ID)
 			{
 				info->initack = TRUE;
 				info->initack_dir = info->direction;
 			}
-			else
-			if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
+			else if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
 			{
 				info->init = TRUE;
 			}
@@ -1060,7 +1065,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 								info->n_forward_chunks_ep2++;
 							}
 						}
-						if(tsnumber > info->max_tsn2)
+						if (tsnumber > info->max_tsn2)
 						{
 							info->max_tsn2 = tsnumber;
 							if (datachunk)
@@ -1092,8 +1097,10 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 				{
 					tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
 					length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET);
+
 					if (sack->first_tsn == 0)
 						sack->first_tsn = tsnumber;
+
 					t_s_n = (guint8 *)g_malloc(length);
 					tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
 					sack->tsns = g_list_append(sack->tsns, t_s_n);
@@ -1185,13 +1192,15 @@ remove_tap_listener_sctp_stat(void)
 }
 
 
-void sctp_stat_scan(void)
+void
+sctp_stat_scan(void)
 {
 	if (!sctp_tapinfo_struct.is_registered)
 		register_tap_listener_sctp_stat();
 }
 
-const sctp_allassocs_info_t* sctp_stat_get_info(void)
+const sctp_allassocs_info_t *
+sctp_stat_get_info(void)
 {
 	return &sctp_tapinfo_struct;
 }
