@@ -111,6 +111,7 @@ NONGENERATED_HEADER_FILES = \
 	ipfix.h			\
 	iptrace.h		\
 	iseries.h		\
+	json.h          \
 	mime_file.h		\
 	k12.h			\
 	lanalyzer.h		\
