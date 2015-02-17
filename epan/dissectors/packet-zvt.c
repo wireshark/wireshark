@@ -130,6 +130,8 @@ static int hf_zvt_len = -1;
 static int hf_zvt_data = -1;
 static int hf_zvt_reg_pwd = -1;
 static int hf_zvt_reg_cfg = -1;
+static int hf_zvt_cc = -1;
+static int hf_zvt_reg_svc_byte = -1;
 static int hf_zvt_auth_tag = -1;
 
 static const value_string serial_char[] = {
@@ -200,8 +202,25 @@ dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
 {
     proto_tree_add_item(tree, hf_zvt_reg_pwd, tvb, offset, 3, ENC_NA);
     offset += 3;
+
     proto_tree_add_item(tree, hf_zvt_reg_cfg,
-            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* check for the optional part CC|0x03|service byte */
+    if (tvb_captured_length_remaining(tvb, offset)>=4 &&
+            tvb_get_guint8(tvb, offset+2)==0x03) {
+
+        proto_tree_add_item(tree, hf_zvt_cc,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        offset++; /* 0x03 */
+
+        proto_tree_add_item(tree, hf_zvt_reg_svc_byte,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
 }
 
 
@@ -549,6 +568,14 @@ proto_register_zvt(void)
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_zvt_reg_cfg,
             { "Config byte", "zvt.reg.config_byte",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+        /* we don't call the filter zvt.reg.cc, the currency code
+           appears in several apdus */
+        { &hf_zvt_cc,
+            { "Currency Code (CC)", "zvt.cc",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_reg_svc_byte,
+            { "Service byte", "zvt.reg.service_byte",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_zvt_auth_tag,
             { "Tag", "zvt.auth.tag", FT_UINT8,
