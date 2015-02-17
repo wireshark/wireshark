@@ -30,6 +30,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <glib/gstdio.h>
 
 #include "ws80211_utils.h"
+#include "wsutil/ws_diag_control.h"
 
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
 #include <string.h>
@@ -42,7 +43,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <netlink/genl/genl.h>
 #include <netlink/genl/family.h>
 #include <netlink/genl/ctrl.h>
+DIAG_OFF(pedantic)
 #include <netlink/msg.h>
+DIAG_ON(pedantic)
 #include <netlink/attr.h>
 
 #include <linux/nl80211.h>

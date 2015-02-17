@@ -20,6 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "config.h"
+#include "wsutil/ws_diag_control.h"
 
 #ifdef HAVE_LIBPCAP
 
@@ -35,7 +36,9 @@
 #include <string.h>
 #include <errno.h>
 
+DIAG_OFF(pedantic)
 #include <netlink/msg.h>
+DIAG_ON(pedantic)
 #include <netlink/attr.h>
 #include <netlink/route/link.h>
 
