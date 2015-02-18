@@ -3223,7 +3223,7 @@ get_eui64_name(const guint64 addr_eui64)
   }
 
   if (!gbl_resolv_flags.mac_name || ((mtp = manuf_name_lookup(addr)) == NULL)) {
-    cur=ep_strdup_printf("%02x:%02x:%02x%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
+    cur=ep_strdup_printf("%02x:%02x:%02x:%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
     return cur;
   }
   cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", mtp->name, addr[3], addr[4], addr[5], addr[6], addr[7]);
