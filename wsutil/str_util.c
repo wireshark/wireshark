@@ -136,7 +136,7 @@ format_size(gint64 size, format_size_flags_e flags)
 		power = 1024;
 	}
 
-DIAG_OFF(format=)
+DIAG_OFF(format)
 	if (size / power / power / power / power >= 10) {
 		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power / power / power / power, prefix[pfx_off]);
 	} else if (size / power / power / power >= 10) {
@@ -149,7 +149,7 @@ DIAG_OFF(format=)
 		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d", size);
 		is_small = TRUE;
 	}
-DIAG_ON(format=)
+DIAG_ON(format)
 
 	switch (flags & FORMAT_SIZE_UNIT_MASK) {
 		case format_size_unit_none:
