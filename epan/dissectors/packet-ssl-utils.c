@@ -4635,44 +4635,35 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
 
 /** keyfile handling */
 
-/* returns >0 on success and outputs regexes in regexes_out */
-static guint
-ssl_compile_keyfile_regexes(GRegex ***regexes_out)
+static GRegex *
+ssl_compile_keyfile_regex(void)
 {
 #define OCTET "(?:[[:xdigit:]]{2})"
-#define SSL_REGEX_MK "(" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})"
-    const gchar *patterns[] = {
-        "RSA (" OCTET "{8}) " SSL_REGEX_MK,
-        "RSA Session-ID:(" OCTET "+) Master-Key:" SSL_REGEX_MK,
-        "CLIENT_RANDOM (" OCTET "{32}) " SSL_REGEX_MK
-    };
-#undef SSL_REGEX_MK
+    const gchar *pattern =
+        "(?:"
+        /* First part of encrypted RSA pre-master secret */
+        "RSA (?<encrypted_pmk>" OCTET "{8}) "
+        /* Matches Server Hellos having a Session ID */
+        "|RSA Session-ID:(?<session_id>" OCTET "+) Master-Key:"
+        /* Matches Client Hellos having this Client.Random */
+        "|CLIENT_RANDOM (?<client_random>" OCTET "{32}) "
+        ")(?<master_secret>" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})";
 #undef OCTET
-    static GRegex **regexes = NULL;
-    unsigned i;
+    static GRegex *regex = NULL;
     GError *gerr = NULL;
 
-    if (!regexes) {
-        regexes = (GRegex**) g_malloc(array_length(patterns) * sizeof(GRegex *));
-        for (i = 0; i < array_length(patterns); i++) {
-            regexes[i] = g_regex_new(patterns[i], G_REGEX_OPTIMIZE,
-                    G_REGEX_MATCH_ANCHORED, &gerr);
-            if (gerr) {
-                ssl_debug_printf("%s failed to compile %s: %s\n", G_STRFUNC,
-                        patterns[i], gerr->message);
-                g_error_free(gerr);
-                /* failed to compile some regexes, free resources and fail */
-                while (i-- > 0)
-                    g_regex_unref(regexes[i]);
-                g_free(regexes);
-                regexes = NULL;
-                return 0;
-            }
+    if (!regex) {
+        regex = g_regex_new(pattern, G_REGEX_OPTIMIZE,
+                            G_REGEX_MATCH_ANCHORED, &gerr);
+        if (gerr) {
+            ssl_debug_printf("%s failed to compile regex: %s\n", G_STRFUNC,
+                             gerr->message);
+            g_error_free(gerr);
+            regex = NULL;
         }
     }
 
-    *regexes_out = regexes;
-    return array_length(patterns);
+    return regex;
 }
 
 static gboolean
@@ -4695,19 +4686,22 @@ file_needs_reopen(FILE *fp, const char *filename)
             open_stat.st_size > current_stat.st_size;
 }
 
+typedef struct ssl_master_key_match_group {
+    const char *re_group_name;
+    GHashTable *master_key_ht;
+} ssl_master_key_match_group_t;
+
 void
 ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
                  const ssl_master_key_map_t *mk_map)
 {
     unsigned i;
-    guint re_count;
-    GRegex **regexes = NULL;
-    GHashTable *hts[] = {
-        mk_map->pre_master,
-        mk_map->session,
-        mk_map->crandom
+    GRegex *regex;
+    ssl_master_key_match_group_t mk_groups[] = {
+        { "encrypted_pmk",  mk_map->pre_master },
+        { "session_id",     mk_map->session },
+        { "client_random",  mk_map->crandom },
     };
-
     /* no need to try if no key log file is configured. */
     if (!ssl_keylog_filename) {
         ssl_debug_printf("%s dtls/ssl.keylog_file is not configured!\n",
@@ -4734,8 +4728,8 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
      *     (This format allows non-RSA SSL connections to be decrypted, i.e.
      *     ECDHE-RSA.)
      */
-    re_count = ssl_compile_keyfile_regexes(&regexes);
-    if (re_count == 0)
+    regex = ssl_compile_keyfile_regex();
+    if (!regex)
         return;
 
     ssl_debug_printf("trying to use SSL keylog in %s\n", ssl_keylog_filename);
@@ -4758,6 +4752,7 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
     for (;;) {
         char buf[512], *line;
         gsize bytes_read;
+        GMatchInfo *mi;
 
         line = fgets(buf, sizeof(buf), *keylog_file);
         if (!line)
@@ -4775,33 +4770,40 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
         }
 
         ssl_debug_printf("  checking keylog line: %s\n", line);
-        for (i = 0; i < re_count; i++) {
+        if (g_regex_match(regex, line, G_REGEX_MATCH_ANCHORED, &mi)) {
             gchar *hex_key, *hex_ms;
-            StringInfo *ms, *key;
-            GMatchInfo *mi;
-            if (!g_regex_match(regexes[i], line, G_REGEX_MATCH_ANCHORED, &mi)) {
-                g_match_info_free(mi);
-                continue;
-            }
+            StringInfo *key = wmem_new(wmem_file_scope(), StringInfo);
+            StringInfo *ms = wmem_new(wmem_file_scope(), StringInfo);
+            GHashTable *ht = NULL;
 
             /* convert from hex to bytes and save to hashtable */
-            hex_key = g_match_info_fetch(mi, 1);
-            hex_ms = g_match_info_fetch(mi, 2);
-            g_match_info_free(mi);
-
-            key = (StringInfo *) wmem_alloc(wmem_file_scope(), sizeof(StringInfo));
-            ms = (StringInfo *) wmem_alloc(wmem_file_scope(), sizeof(StringInfo));
-            from_hex(key, hex_key, strlen(hex_key));
+            hex_ms = g_match_info_fetch_named(mi, "master_secret");
+            /* There is always a match, otherwise the regex is wrong. */
+            DISSECTOR_ASSERT(hex_ms);
             from_hex(ms, hex_ms, strlen(hex_ms));
-            g_hash_table_insert(hts[i], key, ms);
-            g_free(hex_key);
             g_free(hex_ms);
-            ssl_debug_printf("    matched type %d\n", i);
-            break; /* found a match, no need to continue */
-        }
 
-        if (i == re_count)
+            /* Find a master key from any format (CLIENT_RANDOM, SID, ...) */
+            for (i = 0; i < G_N_ELEMENTS(mk_groups); i++) {
+                ssl_master_key_match_group_t *g = &mk_groups[i];
+                hex_key = g_match_info_fetch_named(mi, g->re_group_name);
+                if (hex_key && *hex_key) {
+                    ssl_debug_printf("    matched %s\n", g->re_group_name);
+                    ht = g->master_key_ht;
+                    from_hex(key, hex_key, strlen(hex_key));
+                    g_free(hex_key);
+                    break;
+                }
+                g_free(hex_key);
+            }
+            DISSECTOR_ASSERT(ht); /* Cannot be reached, or regex is wrong. */
+
+            g_hash_table_insert(ht, key, ms);
+        } else {
             ssl_debug_printf("    unrecognized line\n");
+        }
+        /* always free match info even if there is no match. */
+        g_match_info_free(mi);
     }
 }
 
