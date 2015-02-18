@@ -722,18 +722,22 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
  *
  * \param n points to the new record
  * \param err is updated to point to an error string if needed
+ * \return FALSE if error; TRUE otherwise
  */
-static void
+static gboolean
 c1222_uat_data_update_cb(void* n, char** err)
 {
   c1222_uat_data_t* new_rec = (c1222_uat_data_t *)n;
 
   if (new_rec->keynum > 0xff) {
     *err = g_strdup("Invalid key number; must be less than 256");
+    return FALSE;
   }
   if (new_rec->keylen != EAX_SIZEOF_KEY) {
     *err = g_strdup("Invalid key size; must be 16 bytes");
+    return FALSE;
   }
+  return TRUE;
 }
 
 /**

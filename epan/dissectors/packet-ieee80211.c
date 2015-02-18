@@ -172,7 +172,7 @@ uat_wep_key_record_copy_cb(void* n, const void* o, size_t siz _U_)
   return new_key;
 }
 
-static void
+static gboolean
 uat_wep_key_record_update_cb(void* r, char** err)
 {
   uat_wep_key_record_t* rec = (uat_wep_key_record_t *)r;
@@ -180,37 +180,44 @@ uat_wep_key_record_update_cb(void* r, char** err)
 
   if (rec->string == NULL) {
     *err = g_strdup("Key can't be blank");
-  } else {
-    g_strstrip(rec->string);
-    dk = parse_key_string(rec->string, rec->key);
-
-    if (dk != NULL) {
-      switch (dk->type) {
-        case AIRPDCAP_KEY_TYPE_WEP:
-        case AIRPDCAP_KEY_TYPE_WEP_40:
-        case AIRPDCAP_KEY_TYPE_WEP_104:
-          if (rec->key != AIRPDCAP_KEY_TYPE_WEP) {
-            *err = g_strdup("Invalid key format");
-          }
-          break;
-       case AIRPDCAP_KEY_TYPE_WPA_PWD:
-         if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PWD) {
-           *err = g_strdup("Invalid key format");
-         }
-         break;
-       case AIRPDCAP_KEY_TYPE_WPA_PSK:
-         if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PSK) {
-           *err = g_strdup("Invalid key format");
-         }
-         break;
-       default:
-         *err = g_strdup("Invalid key format");
-         break;
-       }
-    } else {
-      *err = g_strdup("Invalid key format");
-    }
+    return FALSE;
   }
+
+  g_strstrip(rec->string);
+  dk = parse_key_string(rec->string, rec->key);
+
+  if (dk != NULL) {
+    switch (dk->type) {
+      case AIRPDCAP_KEY_TYPE_WEP:
+      case AIRPDCAP_KEY_TYPE_WEP_40:
+      case AIRPDCAP_KEY_TYPE_WEP_104:
+        if (rec->key != AIRPDCAP_KEY_TYPE_WEP) {
+          *err = g_strdup("Invalid key format");
+          return FALSE;
+        }
+        break;
+      case AIRPDCAP_KEY_TYPE_WPA_PWD:
+        if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PWD) {
+          *err = g_strdup("Invalid key format");
+          return FALSE;
+        }
+        break;
+      case AIRPDCAP_KEY_TYPE_WPA_PSK:
+        if (rec->key != AIRPDCAP_KEY_TYPE_WPA_PSK) {
+          *err = g_strdup("Invalid key format");
+          return FALSE;
+        }
+        break;
+      default:
+        *err = g_strdup("Invalid key format");
+        return FALSE;
+        break;
+    }
+  } else {
+    *err = g_strdup("Invalid key format");
+    return FALSE;
+  }
+  return TRUE;
 }
 
 static void

@@ -375,9 +375,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	}
 
 	if (dd->uat->update_cb) {
-		dd->uat->update_cb(dd->rec, &err);
-
-		if (err) {
+		if (!dd->uat->update_cb(dd->rec, &err)) {
 			tmp_err = err;
 			err = g_strdup_printf("error updating record: %s", tmp_err);
 			g_free(tmp_err);

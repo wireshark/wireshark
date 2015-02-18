@@ -1213,11 +1213,14 @@ static void* uat_bootp_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 	return new_record;
 }
 
-static void uat_bootp_record_update_cb(void* r, char** err) {
+static gboolean uat_bootp_record_update_cb(void* r, char** err) {
 	uat_bootp_record_t* rec = (uat_bootp_record_t *)r;
 
-	if ((rec->opt == 0) || (rec->opt >=BOOTP_OPT_NUM-1))
+	if ((rec->opt == 0) || (rec->opt >=BOOTP_OPT_NUM-1)) {
 		*err = g_strdup_printf("Option must be between 1 and %d", BOOTP_OPT_NUM-2);
+		return FALSE;
+	}
+	return TRUE;
 }
 
 static void uat_bootp_record_free_cb(void*r) {

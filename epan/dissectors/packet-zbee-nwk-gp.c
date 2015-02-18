@@ -618,13 +618,14 @@ zbee_gp_security_parse_key(const gchar *key_str, guint8 *key_buf, gboolean byte_
 }
 
 /* UAT record update callback. */
-static void
+static gboolean
 uat_key_record_update_cb(void *r, char **err)
 {
     uat_key_record_t *rec = (uat_key_record_t *)r;
 
     if (rec->string == NULL) {
          *err = g_strdup_printf("Key can't be blank.");
+         return FALSE;
     } else {
         g_strstrip(rec->string);
         if (rec->string[0] != 0) {
@@ -632,11 +633,14 @@ uat_key_record_update_cb(void *r, char **err)
             if (!zbee_gp_security_parse_key(rec->string, rec->key, rec->byte_order)) {
                 *err = g_strdup_printf("Expecting %d hexadecimal bytes or a %d character double-quoted string",
                     ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
+                return FALSE;
             }
         } else {
             *err = g_strdup_printf("Key can't be blank.");
+            return FALSE;
         }
     }
+    return TRUE;
 }
 
 /*FUNCTION:------------------------------------------------------

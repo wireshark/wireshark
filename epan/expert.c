@@ -121,13 +121,15 @@ static GArray *uat_saved_fields = NULL;
 UAT_CSTRING_CB_DEF(uat_expert_entries, field, expert_level_entry_t)
 UAT_VS_DEF(uat_expert_entries, severity, expert_level_entry_t, guint32, PI_ERROR, "Error")
 
-static void uat_expert_update_cb(void *r, char **err)
+static gboolean uat_expert_update_cb(void *r, char **err)
 {
 	expert_level_entry_t *rec = (expert_level_entry_t *)r;
 
 	if (expert_registrar_get_byname(rec->field) == NULL) {
 		*err = g_strdup_printf("Expert Info field doesn't exist");
+		return FALSE;
 	}
+	return TRUE;
 }
 
 static void *uat_expert_copy_cb(void *n, const void *o, size_t siz _U_)

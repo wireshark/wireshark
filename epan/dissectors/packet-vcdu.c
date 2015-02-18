@@ -182,14 +182,15 @@ static guint          num_channels_uat = 0;
 
 UAT_DEC_CB_DEF(uat_bitchannels, channel, uat_channel_t)
 
-static void
+static gboolean
 vcdu_uat_data_update_cb(void *p, char **err) {
     uat_channel_t *ud = (uat_channel_t *)p;
 
     if (ud->channel >= 64) {
         *err = g_strdup("Channel must be between 0-63.");
-        return;
+        return FALSE;
     }
+    return TRUE;
 }
 
 static void

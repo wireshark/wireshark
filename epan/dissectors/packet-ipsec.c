@@ -354,7 +354,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key)
 }
 
 
-static void uat_esp_sa_record_update_cb(void* r, char** err _U_) {
+static gboolean uat_esp_sa_record_update_cb(void* r, char** err _U_) {
   uat_esp_sa_record_t* rec = (uat_esp_sa_record_t *)r;
 
   /* Compute keys & lengths once and for all */
@@ -374,6 +374,7 @@ static void uat_esp_sa_record_update_cb(void* r, char** err _U_) {
     rec->authentication_key_length = 0;
     rec->authentication_key = NULL;
   }
+  return TRUE;
 }
 
 static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {

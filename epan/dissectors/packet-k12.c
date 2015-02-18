@@ -296,7 +296,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 	call_dissector(sub_handle, tvb, pinfo, tree);
 }
 
-static void
+static gboolean
 k12_update_cb(void* r, char** err)
 {
 	k12_handles_t* h = (k12_handles_t *)r;
@@ -316,12 +316,13 @@ k12_update_cb(void* r, char** err)
 			h->handles[i] = data_handle;
 			g_strfreev(protos);
 			*err = g_strdup_printf("Could not find dissector for: '%s'",protos[i]);
-			return;
+			return FALSE;
 		}
 	}
 
 	g_strfreev(protos);
 	*err = NULL;
+	return TRUE;
 }
 
 static void*

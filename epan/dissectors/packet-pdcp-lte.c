@@ -248,7 +248,7 @@ static void update_key_from_string(const char *stringKey, guint8 *binaryKey, gbo
 }
 
 /* Update by checking whether the 3 key strings are valid or not, and storing result */
-static void uat_ue_keys_record_update_cb(void* record, char** error _U_) {
+static gboolean uat_ue_keys_record_update_cb(void* record, char** error _U_) {
     uat_ue_keys_record_t* rec = (uat_ue_keys_record_t *)record;
 
     /* Check and convert RRC key */
@@ -259,6 +259,8 @@ static void uat_ue_keys_record_update_cb(void* record, char** error _U_) {
 
     /* Check and convert Integrity key */
     update_key_from_string(rec->rrcIntegrityKeyString, rec->rrcIntegrityBinaryKey, &rec->rrcIntegrityKeyOK);
+
+    return TRUE;
 }
 
 /* Free heap parts of record */

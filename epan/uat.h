@@ -84,33 +84,36 @@ typedef void (*uat_post_update_cb_t)(void);
 
 /*
  * Copy CB
+ * copy(dest,orig,len)
+ *
  * used to copy a record
  * optional, memcpy will be used if not given
- * copy(dest,orig,len)
  */
 typedef void* (*uat_copy_cb_t)(void*, const void*, size_t);
 
 /*
- *
  * Free CB
+ * free(record)
  *
  * destroy a record's child data
  * (do not free the container, it will be handled by uat)
  * it is optional, no child data will be freed if no present
- * free(record)
  */
 typedef void (*uat_free_cb_t)(void*);
 
 /*
  * Update CB
+ * update(record,&error)
  *
  * to be called after any record fields had been updated
  * optional, record will be updated always if not given
- * update(record,&error)
+ * it will return TRUE if OK or else
+ * it will return FALSE and set *error to inform the user on what's
+ * wrong with the given input
  * The error string must be allocated with g_malloc() or
  * a routine that calls it.
  */
-typedef void (*uat_update_cb_t)(void* , char** );
+typedef gboolean (*uat_update_cb_t)(void *, char**);
 
 
 /*******
@@ -119,31 +122,39 @@ typedef void (*uat_update_cb_t)(void* , char** );
  ********/
 
 /*
+ * Check CB
+ * chk(record, ptr, len, chk_data, fld_data, &error)
+ *
  * given an input string (ptr, len) checks if the value is OK for a field in the record.
  * it will return TRUE if OK or else
- * it will return FALSE and may set *error to inform the user on what's
+ * it will return FALSE and set *error to inform the user on what's
  * wrong with the given input
+ * The error string must be allocated with g_malloc() or
+ * a routine that calls it.
  * optional, if not given any input is considered OK and the set cb will be called
- * chk(record, ptr, len, chk_data, fld_data, &error)
  */
 typedef gboolean (*uat_fld_chk_cb_t)(void*, const char*, unsigned, const void*, const void*, char**);
 
 /*
  * Set Field CB
+ * set(record, ptr, len, set_data, fld_data)
  *
  * given an input string (ptr, len) sets the value of a field in the record,
  * it will return TRUE if OK or else
- * it will return FALSE and may set *error to inform the user on what's
+ * it will return FALSE and set *error to inform the user on what's
  * wrong with the given input
+ * The error string must be allocated with g_malloc() or
+ * a routine that calls it.
  * it is mandatory
- * set(record, ptr, len, set_data, fld_data)
  */
 typedef void (*uat_fld_set_cb_t)(void*, const char*, unsigned, const void*, const void*);
 
 /*
+ * Convert-to-string CB
+ * tostr(record, &out_ptr, &out_len, tostr_data, fld_data)
+ *
  * given a record returns a string representation of the field
  * mandatory
- * tostr(record, &out_ptr, &out_len, tostr_data, fld_data)
  */
 typedef void (*uat_fld_tostr_cb_t)(void*, const char**, unsigned*, const void*, const void*);
 

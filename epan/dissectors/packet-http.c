@@ -154,7 +154,7 @@ static guint num_header_fields = 0;
 
 static GHashTable* header_fields_hash = NULL;
 
-static void
+static gboolean
 header_fields_update_cb(void *r, char **err)
 {
 	header_field_t *rec = (header_field_t *)r;
@@ -162,13 +162,13 @@ header_fields_update_cb(void *r, char **err)
 
 	if (rec->header_name == NULL) {
 		*err = g_strdup("Header name can't be empty");
-		return;
+		return FALSE;
 	}
 
 	g_strstrip(rec->header_name);
 	if (rec->header_name[0] == 0) {
 		*err = g_strdup("Header name can't be empty");
-		return;
+		return FALSE;
 	}
 
 	/* Check for invalid characters (to avoid asserting out when
@@ -177,10 +177,11 @@ header_fields_update_cb(void *r, char **err)
 	c = proto_check_field_name(rec->header_name);
 	if (c) {
 		*err = g_strdup_printf("Header name can't contain '%c'", c);
-		return;
+		return FALSE;
 	}
 
 	*err = NULL;
+	return TRUE;
 }
 
 static void *

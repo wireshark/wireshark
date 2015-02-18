@@ -403,7 +403,7 @@ const gchar* dfilter_macro_apply(const gchar* text, gchar** error) {
 	return dfilter_macro_apply_recurse(text, 0, error);
 }
 
-static void macro_update(void* mp, gchar** error) {
+static gboolean macro_update(void* mp, gchar** error) {
 	dfilter_macro_t* m = (dfilter_macro_t*)mp;
 	GPtrArray* parts;
 	GArray* args_pos;
@@ -492,7 +492,7 @@ done:
 
 	DUMP_MACRO(m);
 
-	return;
+	return TRUE;
 }
 
 static void macro_free(void* r) {

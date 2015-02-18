@@ -3419,7 +3419,7 @@ static struct _sccp_ul {
   {0, FALSE, NULL}
 };
 
-static void
+static gboolean
 sccp_users_update_cb(void *r, char **err)
 {
   sccp_user_t *u = (sccp_user_t *)r;
@@ -3429,24 +3429,25 @@ sccp_users_update_cb(void *r, char **err)
   empty = range_empty();
   if (ranges_are_equal(u->called_pc, empty)) {
           *err = g_strdup("Must specify a PC");
-          return;
+          return FALSE;
   }
 
   if (ranges_are_equal(u->called_ssn, empty)) {
           *err = g_strdup("Must specify an SSN");
-          return;
+          return FALSE;
   }
 
   for (c=user_list; c->handlep; c++) {
     if (c->id == u->user) {
       u->uses_tcap = c->uses_tcap;
       u->handlep   = c->handlep;
-      return;
+      return TRUE;
     }
   }
 
   u->uses_tcap = FALSE;
   u->handlep   = &data_handle;
+  return TRUE;
 }
 
 static void *

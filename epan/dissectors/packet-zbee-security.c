@@ -159,12 +159,13 @@ static void* uat_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     return new_key;
 }
 
-static void uat_key_record_update_cb(void* r, char** err) {
+static gboolean uat_key_record_update_cb(void* r, char** err) {
     uat_key_record_t* rec = (uat_key_record_t *)r;
     guint8 key[ZBEE_SEC_CONST_KEYSIZE];
 
     if (rec->string == NULL) {
         *err = g_strdup("Key can't be blank");
+        return FALSE;
     } else {
         g_strstrip(rec->string);
 
@@ -173,11 +174,14 @@ static void uat_key_record_update_cb(void* r, char** err) {
             if ( !zbee_security_parse_key(rec->string, key, rec->byte_order) ) {
                 *err = g_strdup_printf("Expecting %d hexadecimal bytes or\n"
                         "a %d character double-quoted string", ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
+                return FALSE;
             }
         } else {
             *err = g_strdup("Key can't be blank");
+            return FALSE;
         }
     }
+    return TRUE;
 }
 
 static void uat_key_record_free_cb(void*r) {

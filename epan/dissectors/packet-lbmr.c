@@ -1968,13 +1968,14 @@ static uat_field_t lbmr_tag_array[] =
 /*----------------------------------------------------------------------------*/
 /* UAT callback functions.                                                    */
 /*----------------------------------------------------------------------------*/
-static void lbmr_tag_update_cb(void * record, char * * error_string)
+static gboolean lbmr_tag_update_cb(void * record, char * * error_string)
 {
     lbmr_tag_entry_t * tag = (lbmr_tag_entry_t *)record;
 
     if (tag->name == NULL)
     {
         *error_string = g_strdup_printf("Tag name can't be empty");
+        return FALSE;
     }
     else
     {
@@ -1982,8 +1983,10 @@ static void lbmr_tag_update_cb(void * record, char * * error_string)
         if (tag->name[0] == 0)
         {
             *error_string = g_strdup_printf("Tag name can't be empty");
+            return FALSE;
         }
     }
+    return TRUE;
 }
 
 static void * lbmr_tag_copy_cb(void * destination, const void * source, size_t length _U_)

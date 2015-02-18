@@ -65,16 +65,17 @@ static void *uat_plen_record_copy_cb(void *n, const void *o, size_t siz _U_) {
 	return n;
 }
 
-static void
+static gboolean
 uat_plen_record_update_cb(void *r, char **err)
 {
 	uat_plen_record_t *rec = (uat_plen_record_t*)r;
 	if (rec->packet_range->nranges < 1) {
 		*err = g_strdup("Invalid range string");
-		return;
+		return FALSE;
 	}
 
 	*err = NULL;
+	return TRUE;
 }
 
 static void uat_plen_record_free_cb(void*r) {

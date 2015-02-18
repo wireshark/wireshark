@@ -128,11 +128,14 @@ static uat_devicenet_record_t *uat_devicenet_records = NULL;
 static uat_t *devicenet_uat = NULL;
 static guint num_devicenet_records_uat = 0;
 
-static void uat_devicenet_record_update_cb(void* r, char** err) {
+static gboolean uat_devicenet_record_update_cb(void* r, char** err) {
     uat_devicenet_record_t* rec = (uat_devicenet_record_t *)r;
 
-    if (rec->mac_id > 63)
+    if (rec->mac_id > 63) {
         *err = g_strdup_printf("MAC ID must be between 0-63");
+        return FALSE;
+    }
+    return TRUE;
 }
 
 UAT_DEC_CB_DEF(uat_devicenet_records, mac_id, uat_devicenet_record_t)

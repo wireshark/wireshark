@@ -773,18 +773,22 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
  *
  * \param n points to the new record
  * \param err is updated to point to an error string if needed
+ * \return FALSE if error; TRUE otherwise
  */
-static void
+static gboolean
 c1222_uat_data_update_cb(void* n, char** err)
 {
   c1222_uat_data_t* new_rec = (c1222_uat_data_t *)n;
 
   if (new_rec->keynum > 0xff) {
     *err = g_strdup("Invalid key number; must be less than 256");
+    return FALSE;
   }
   if (new_rec->keylen != EAX_SIZEOF_KEY) {
     *err = g_strdup("Invalid key size; must be 16 bytes");
+    return FALSE;
   }
+  return TRUE;
 }
 
 /**
@@ -1562,7 +1566,7 @@ static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1044 "../../asn1/c1222/packet-c1222-template.c"
+#line 1048 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1948,7 +1952,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1325 "../../asn1/c1222/packet-c1222-template.c"
+#line 1329 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1971,7 +1975,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1335 "../../asn1/c1222/packet-c1222-template.c"
+#line 1339 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {

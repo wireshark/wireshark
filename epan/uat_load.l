@@ -249,12 +249,11 @@ comment #[^\n]*\n
 
 	rec = uat_add_record(uat, record, valid_record);
 
-	if ((uat->update_cb) && (rec != NULL))
-		uat->update_cb(rec,&err);
-
-	if (err) {
-		error = err;
-		yyterminate();
+	if ((uat->update_cb) && (rec != NULL)) {
+		if (!uat->update_cb(rec,&err)) {
+			error = err;
+			yyterminate();
+		}
 	}
 
 	valid_record = TRUE;

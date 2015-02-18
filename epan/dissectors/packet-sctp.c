@@ -538,20 +538,20 @@ sctp_chunk_type_free_cb(void* r)
   if (rec->type_name) g_free(rec->type_name);
 }
 
-static void
+static gboolean
 sctp_chunk_type_update_cb(void *r, char **err)
 {
   type_field_t *rec = (type_field_t *)r;
   char c;
   if (rec->type_name == NULL) {
     *err = g_strdup("Header name can't be empty");
-    return;
+    return FALSE;
   }
 
   g_strstrip(rec->type_name);
   if (rec->type_name[0] == 0) {
     *err = g_strdup("Header name can't be empty");
-    return;
+    return FALSE;
   }
 
   /* Check for invalid characters (to avoid asserting out when
@@ -560,10 +560,11 @@ sctp_chunk_type_update_cb(void *r, char **err)
   c = proto_check_field_name(rec->type_name);
   if (c) {
     *err = g_strdup_printf("Header name can't contain '%c'", c);
-    return;
+    return FALSE;
   }
 
   *err = NULL;
+  return TRUE;
 }
 
 static struct _sctp_info sctp_info;
