@@ -1458,63 +1458,6 @@ static const value_string w2k_pac_types[] = {
 	{ 0, NULL },
 };
 
-#if 0
-static const value_string krb5_princ_types[] = {
-	{ KRB5_NT_UNKNOWN              , "Unknown" },
-	{ KRB5_NT_PRINCIPAL            , "Principal" },
-	{ KRB5_NT_SRV_INST             , "Service and Instance" },
-	{ KRB5_NT_SRV_HST              , "Service and Host" },
-	{ KRB5_NT_SRV_XHST             , "Service and Host Components" },
-	{ KRB5_NT_UID                  , "Unique ID" },
-	{ KRB5_NT_X500_PRINCIPAL       , "Encoded X.509 Distinguished Name" },
-	{ KRB5_NT_SMTP_NAME            , "SMTP Name" },
-	{ KRB5_NT_ENTERPRISE           , "Enterprise Name" },
-	{ KRB5_NT_MS_PRINCIPAL         , "NT 4.0 style name (MS specific)" },
-	{ KRB5_NT_MS_PRINCIPAL_AND_SID , "NT 4.0 style name with SID (MS specific)"},
-	{ KRB5_NT_ENT_PRINCIPAL_AND_SID, "UPN and SID (MS specific)"},
-	{ KRB5_NT_PRINCIPAL_AND_SID    , "Principal name and SID (MS specific)"},
-	{ KRB5_NT_SRV_INST_AND_SID     , "SPN and SID (MS specific)"},
-	{ 0                            , NULL },
-};
-#endif
-
-#define KRB5_AD_IF_RELEVANT			1
-#define KRB5_AD_INTENDED_FOR_SERVER		2
-#define KRB5_AD_INTENDED_FOR_APPLICATION_CLASS	3
-#define KRB5_AD_KDC_ISSUED			4
-#define KRB5_AD_OR				5
-#define KRB5_AD_MANDATORY_TICKET_EXTENSIONS	6
-#define KRB5_AD_IN_TICKET_EXTENSIONS		7
-#define KRB5_AD_MANDATORY_FOR_KDC		8
-#define KRB5_AD_OSF_DCE				64
-#define KRB5_AD_SESAME				65
-#define KRB5_AD_OSF_DCE_PKI_CERTID		66
-#define KRB5_AD_WIN2K_PAC				128
-#define KRB5_AD_SIGNTICKET			0xffffffef
-
-static const value_string krb5_ad_types[] = {
-	{ KRB5_AD_IF_RELEVANT	  		, "AD-IF-RELEVANT" },
-	{ KRB5_AD_INTENDED_FOR_SERVER		, "AD-Intended-For-Server" },
-	{ KRB5_AD_INTENDED_FOR_APPLICATION_CLASS	, "AD-Intended-For-Application-Class" },
-	{ KRB5_AD_KDC_ISSUED			, "AD-KDCIssued" },
-	{ KRB5_AD_OR 				, "AD-AND-OR" },
-	{ KRB5_AD_MANDATORY_TICKET_EXTENSIONS	, "AD-Mandatory-Ticket-Extensions" },
-	{ KRB5_AD_IN_TICKET_EXTENSIONS		, "AD-IN-Ticket-Extensions" },
-	{ KRB5_AD_MANDATORY_FOR_KDC			, "AD-MANDATORY-FOR-KDC" },
-	{ KRB5_AD_OSF_DCE				, "AD-OSF-DCE" },
-	{ KRB5_AD_SESAME				, "AD-SESAME" },
-	{ KRB5_AD_OSF_DCE_PKI_CERTID		, "AD-OSF-DCE-PKI-CertID" },
-	{ KRB5_AD_WIN2K_PAC				, "AD-Win2k-PAC" },
-	{ KRB5_AD_SIGNTICKET			, "AD-SignTicket" },
-	{ 0	, NULL },
-};
-#if 0
-static const value_string krb5_transited_types[] = {
-	{ 1                           , "DOMAIN-X500-COMPRESS" },
-	{ 0                           , NULL }
-};
-#endif
-
 static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_TICKET,		"Ticket" },
 	{ KRB5_MSG_AUTHENTICATOR,	"Authenticator" },

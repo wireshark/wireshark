@@ -29,7 +29,6 @@ AD-AND-OR
 AD-KDCIssued
 AD-LoginAlias
 AD-MANDATORY-FOR-KDC
-AUTHDATA-TYPE
 ChangePasswdDataMS
 EtypeList
 KRB5SignedPath
@@ -71,6 +70,7 @@ Applications TYPE_PREFIX
 
 #.MAKE_ENUM
 PADATA-TYPE PROT_PREFIX UPPER_CASE
+AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
@@ -376,21 +376,18 @@ PADATA-TYPE PROT_PREFIX UPPER_CASE
 ##endif
 	}
 
-#.FN_BODY AuthorizationData/_item/ad-type
+#.FN_BODY AUTHDATA-TYPE VAL_PTR=&(private_data->ad_type)
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
-	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									&(private_data->ad_type));
-#.TYPE_ATTR
-AuthorizationData/_item/ad-type STRINGS=VALS(krb5_ad_types)
+%(DEFAULT_BODY)s
 
 #.FN_BODY AuthorizationData/_item/ad-data
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
 	switch(private_data->ad_type){
-	case KRB5_AD_WIN2K_PAC:
+	case KERBEROS_AD_WIN2K_PAC:
 		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_krb5_AD_WIN2K_PAC);
 		break;
-	case KRB5_AD_IF_RELEVANT:
+	case KERBEROS_AD_IF_RELEVANT:
 		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_IF_RELEVANT);
 		break;
 	default:
