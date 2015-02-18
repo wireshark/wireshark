@@ -140,11 +140,6 @@ typedef gboolean (*uat_fld_chk_cb_t)(void*, const char*, unsigned, const void*, 
  * set(record, ptr, len, set_data, fld_data)
  *
  * given an input string (ptr, len) sets the value of a field in the record,
- * it will return TRUE if OK or else
- * it will return FALSE and set *error to inform the user on what's
- * wrong with the given input
- * The error string must be allocated with g_malloc() or
- * a routine that calls it.
  * it is mandatory
  */
 typedef void (*uat_fld_set_cb_t)(void*, const char*, unsigned, const void*, const void*);
