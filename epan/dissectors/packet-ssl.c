@@ -663,6 +663,21 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         case SSL_VER_SSLv3:
         case SSL_VER_TLS:
+        case SSL_VER_TLSv1DOT1:
+        case SSL_VER_TLSv1DOT2:
+            /* SSLv3/TLS record headers need at least 1+2+2 = 5 bytes. */
+            if (tvb_reported_length_remaining(tvb, offset) < 5) {
+                if (ssl_desegment && pinfo->can_desegment) {
+                    pinfo->desegment_offset = offset;
+                    pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                    need_desegmentation = TRUE;
+                } else {
+                    /* Not enough bytes available. Stop here. */
+                    offset = tvb_reported_length(tvb);
+                }
+                break;
+            }
+
             /* the version tracking code works too well ;-)
              * at times, we may visit a v2 client hello after
              * we already know the version of the connection;
