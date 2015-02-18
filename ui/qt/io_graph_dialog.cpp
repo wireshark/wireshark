@@ -183,7 +183,6 @@ static void io_graph_free_cb(void* p) {
 } // extern "C"
 
 
-#include <QDebug>
 Q_DECLARE_METATYPE(IOGraph *)
 
 IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
@@ -210,7 +209,6 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     setWindowSubtitle(tr("IO Graphs"));
     setAttribute(Qt::WA_DeleteOnClose, true);
     QCustomPlot *iop = ui->ioPlot;
-    qDebug() << "=iop" << iop->rect() << iop->geometry() << iop->devicePixelRatio();
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As..."));
@@ -261,7 +259,6 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     iop->plotLayout()->insertRow(0);
     iop->plotLayout()->addElement(0, 0, title);
     title->setText(tr("Wireshark IO Graphs: %1").arg(cap_file_.fileTitle()));
-    title->setAntialiased(false);
 
     tracer_ = new QCPItemTracer(iop);
     iop->addItem(tracer_);
