@@ -116,6 +116,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ess.c	\
 	packet-ftam.c	\
 	packet-goose.c	\
+	packet-gsm_map.c	\
 	packet-HI2Operations.c	\
 	packet-h225.c	\
 	packet-h235.c	\
@@ -136,11 +137,13 @@ ASN1_DISSECTOR_SRC = \
 	packet-isdn-sup.c	\
 	packet-kerberos.c	\
 	packet-lcsap.c	\
+	packet-ldap.c	\
 	packet-logotypecertextn.c	\
 	packet-lpp.c	\
 	packet-lppa.c	\
 	packet-lppe.c	\
 	packet-lte-rrc.c	\
+	packet-m3ap.c	\
 	packet-mcpe.c	\
 	packet-mms.c	\
 	packet-mpeg-audio.c	\
@@ -168,6 +171,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-qsig.c	\
 	packet-raknet.c \
 	packet-ranap.c	\
+	packet-rnsap.c	\
 	packet-ros.c	\
 	packet-rrc.c	\
 	packet-rrlp.c	\
@@ -183,6 +187,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-t124.c	\
 	packet-t125.c	\
 	packet-t38.c	\
+	packet-tango.c	\
 	packet-tetra.c	\
 	packet-ulp.c	\
 	packet-wlancertextn.c	\
@@ -199,15 +204,10 @@ ASN1_DISSECTOR_SRC = \
 DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-coseventcomm.c	\
 	packet-cosnaming.c	\
-	packet-gsm_map.c	\
-	packet-ldap.c	\
-	packet-m3ap.c	\
 	packet-p1.c	\
 	packet-parlay.c	\
 	packet-pkcs12.c	\
-	packet-rnsap.c	\
 	packet-snmp.c	\
-	packet-tango.c	\
 	packet-tcap.c	\
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
 

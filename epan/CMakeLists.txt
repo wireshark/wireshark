@@ -212,6 +212,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-ess.c
 	dissectors/packet-ftam.c
 	dissectors/packet-goose.c
+	dissectors/packet-gsm_map.c
 	dissectors/packet-HI2Operations.c
 	dissectors/packet-h225.c
 	dissectors/packet-h235.c
@@ -231,11 +232,13 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-isdn-sup.c
 	dissectors/packet-kerberos.c
 	dissectors/packet-lcsap.c
+	dissectors/packet-ldap.c
 	dissectors/packet-logotypecertextn.c
 	dissectors/packet-lpp.c
 	dissectors/packet-lppa.c
 	dissectors/packet-lppe.c
 	dissectors/packet-lte-rrc.c
+	dissectors/packet-m3ap.c
 	dissectors/packet-mms.c
 	dissectors/packet-mpeg-audio.c
 	dissectors/packet-mpeg-pes.c
@@ -256,10 +259,12 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-pkixqualified.c
 	dissectors/packet-pkixtsp.c
 	dissectors/packet-pktap.c
+	dissectors/packet-pres.c
 	dissectors/packet-q932.c
 	dissectors/packet-q932-ros.c
 	dissectors/packet-qsig.c
 	dissectors/packet-ranap.c
+	dissectors/packet-rnsap.c
 	dissectors/packet-ros.c
 	dissectors/packet-rrc.c
 	dissectors/packet-rrlp.c
@@ -271,7 +276,11 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
 	dissectors/packet-sv.c
+	dissectors/packet-t124.c
+	dissectors/packet-t125.c
 	dissectors/packet-t38.c
+	dissectors/packet-tango.c
+	dissectors/packet-tetra.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
 	dissectors/packet-x2ap.c
@@ -284,20 +293,11 @@ set(ASN1_DISSECTOR_SRC
 set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-coseventcomm.c
 	dissectors/packet-cosnaming.c
-	dissectors/packet-gsm_map.c
-	dissectors/packet-ldap.c
-	dissectors/packet-m3ap.c
 	dissectors/packet-p1.c
 	dissectors/packet-parlay.c
 	dissectors/packet-pkcs12.c
-	dissectors/packet-pres.c
-	dissectors/packet-rnsap.c
 	dissectors/packet-snmp.c
-	dissectors/packet-t124.c
-	dissectors/packet-t125.c
-	dissectors/packet-tango.c
 	dissectors/packet-tcap.c
-	dissectors/packet-tetra.c
 )
 
 set(DISSECTOR_SRC
