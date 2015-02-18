@@ -47,15 +47,7 @@
 QList<MessagePair> message_queue_;
 ESD_TYPE_E max_severity_ = ESD_TYPE_INFO;
 
-#ifdef _MSC_VER
-#pragma warning(push)
-// Disable "warning C4566: character represented by universal-character-name '\uFFFF' cannot be represented in the current code page (1252)"
-#pragma warning(disable:4566)
-#endif
-const char *primary_delimiter_ = "\uffff";
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+const char *primary_delimiter_ = "__CB754A38-94A2-4E59-922D-DD87EDC80E22__";
 
 const char *
 simple_dialog_primary_start(void) {
