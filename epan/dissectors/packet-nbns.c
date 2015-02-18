@@ -1299,15 +1299,15 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              tvb, offset, 2, header.dgm_length,
                                              "%u bytes", header.dgm_length);
         }
+        offset += 2;
 
         if (tree) {
-            header.pkt_offset = tvb_get_ntohs(tvb, offset+2);
+            header.pkt_offset = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint_format_value(nbdgm_tree, hf_nbdgm_packet_offset,
                                              tvb, offset, 2, header.pkt_offset,
                                              "%u bytes", header.pkt_offset);
         }
-
-        offset += 4;
+        offset += 2;
 
         name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
 
