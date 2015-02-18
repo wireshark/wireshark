@@ -6398,7 +6398,14 @@ void QCPAxisPainterPrivate::placeTickLabel(QCPPainter *painter, double position,
       CachedLabel *newCachedLabel = new CachedLabel;
       TickLabelData labelData = getTickLabelData(painter->font(), text);
       newCachedLabel->offset = getTickLabelDrawOffset(labelData)+labelData.rotatedTotalBounds.topLeft();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+      QSize clSize = labelData.rotatedTotalBounds.size();
+      clSize *= painter->device()->devicePixelRatio();
+      newCachedLabel->pixmap = QPixmap(clSize);
+      newCachedLabel->pixmap.setDevicePixelRatio(painter->device()->devicePixelRatio());
+#else
       newCachedLabel->pixmap = QPixmap(labelData.rotatedTotalBounds.size());
+#endif
       newCachedLabel->pixmap.fill(Qt::transparent);
       QCPPainter cachePainter(&newCachedLabel->pixmap);
       cachePainter.setPen(painter->pen());
@@ -9064,6 +9071,13 @@ QCustomPlot::QCustomPlot(QWidget *parent) :
   currentLocale.setNumberOptions(QLocale::OmitGroupSeparator);
   setLocale(currentLocale);
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  QSize pbSize = mPaintBuffer.size();
+  pbSize *= devicePixelRatio();
+  mPaintBuffer = QPixmap(pbSize);
+  mPaintBuffer.setDevicePixelRatio(devicePixelRatio());
+#endif
+
   // create initial layers:
   mLayers.append(new QCPLayer(this, QLatin1String("background")));
   mLayers.append(new QCPLayer(this, QLatin1String("grid")));
@@ -10683,7 +10697,14 @@ void QCustomPlot::paintEvent(QPaintEvent *event)
 void QCustomPlot::resizeEvent(QResizeEvent *event)
 {
   // resize and repaint the buffer:
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  QSize pbSize = event->size();
+  pbSize *= devicePixelRatio();
+  mPaintBuffer = QPixmap(pbSize);
+  mPaintBuffer.setDevicePixelRatio(devicePixelRatio());
+#else
   mPaintBuffer = QPixmap(event->size());
+#endif
   setViewport(rect());
   replot(rpQueued); // queued update is important here, to prevent painting issues in some contexts
 }
