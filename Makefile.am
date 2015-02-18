@@ -1449,8 +1449,9 @@ endif
 uninstall-local:
 if BUILDING_WIRESHARK
 if NOT_OS_X
-	rm -f $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
+	rm -f $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	rm -f $(DESTDIR)$(datadir)/applications/wireshark.desktop
+	rm -f $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
 	for size in 16 24 32 48 64 128 256; \
 	do \
 		rm -f $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/wireshark.png ; \
