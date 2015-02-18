@@ -21,7 +21,7 @@
 
 include(UseABICheck)
 
-set(CLEAN_FILES
+set(WIRETAP_FILES
 	5views.c
 	aethra.c
 	ascendtext.c
@@ -80,17 +80,9 @@ set(CLEAN_FILES
 	wtap.c
 )
 
-set(DIRTY_FILES
-)
-
-set(WIRETAP_FILES
-	${CLEAN_FILES}
-	${DIRTY_FILES}
-)
-
 if (WERROR)
 	set_source_files_properties(
-		${CLEAN_FILES}
+		${WIRETAP_FILES}
 		PROPERTIES
 		COMPILE_FLAGS -Werror
 	)

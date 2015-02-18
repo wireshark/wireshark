@@ -227,13 +227,9 @@ set(WIRESHARK_QT_TAP_SRC
 	stats_tree_dialog.cpp
 )
 
-set(CLEAN_FILES
+set(WIRESHARK_QT_FILES
 	${WIRESHARK_QT_SRC}
 	${WIRESHARK_QT_TAP_SRC}
-)
-
-set(DIRTY_FILES
-	qcustomplot.cpp
 )
 
 set(WIRESHARK_QT_UI
@@ -349,14 +345,14 @@ endif()
 
 if (WERROR)
 	set_source_files_properties(
-		${CLEAN_FILES}
+		${WIRESHARK_QT_FILES}
 		PROPERTIES
 		COMPILE_FLAGS -Werror
 	)
 	# The Qt headers generate a ton of shortening errors on 64-bit systems.
 	if (CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set_source_files_properties(
-			${CLEAN_FILES}
+			${WIRESHARK_QT_FILES}
 			PROPERTIES
 			COMPILE_FLAGS -Wno-shorten-64-to-32
 		)
@@ -377,7 +373,6 @@ add_library(qtui STATIC
 	${WIRESHARK_QT_MOC_SRC}
 	${WIRESHARK_QT_QRC_SRC}
 	${WIRESHARK_QT_TS_QM}
-	${DIRTY_FILES}
 	wireshark-tap-register.c
 )
 set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")

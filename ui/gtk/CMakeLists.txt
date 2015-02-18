@@ -137,9 +137,6 @@ if(ENABLE_EXTCAP)
 	)
 endif()
 
-set(WIRESHARK_DIRTY_TAP_SRC
-)
-
 set(WIRESHARK_TAP_SRC
 	afp_stat.c
 	ansi_a_stat.c
@@ -246,7 +243,6 @@ register_tap_files(wireshark-tap-register.c
 add_library(gtkui STATIC
 	${WIRESHARK_GTK_SRC}
 	${WIRESHARK_TAP_SRC}
-	${WIRESHARK_DIRTY_TAP_SRC}
 	${PLATFORM_UI_SRC}
 	wireshark-tap-register.c
 )
