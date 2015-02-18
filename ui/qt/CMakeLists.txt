@@ -185,6 +185,7 @@ set(WIRESHARK_QT_SRC
 	progress_bar.cpp
 	proto_tree.cpp
 	protocol_hierarchy_dialog.cpp
+	qcustomplot.cpp
 	qt_ui_utils.cpp
 	recent_file_status.cpp
 	related_packet_delegate.cpp
