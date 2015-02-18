@@ -212,7 +212,7 @@ typedef struct _e_prefs {
   gchar       *saved_at_version;
   gboolean     unknown_prefs; /* unknown or obsolete pref(s) */
   gboolean     unknown_colorfilters; /* unknown or obsolete color filter(s) */
-  guint        gui_qt_language; /* Qt Translation language selection */
+  gboolean     gui_qt_packet_list_separator;
   gboolean     gui_packet_editor; /* Enable Packet Editor */
   gboolean     st_enable_burstinfo;
   gboolean     st_burst_showcount;

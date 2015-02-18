@@ -47,6 +47,9 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->layout4ToolButton->setStyleSheet(image_pad_ss);
     ui->layout5ToolButton->setStyleSheet(image_pad_ss);
     ui->layout6ToolButton->setStyleSheet(image_pad_ss);
+
+    pref_packet_list_separator_ = prefFromPrefPtr(&prefs.gui_qt_packet_list_separator);
+    ui->packetListSeparatorCheckBox->setChecked(pref_packet_list_separator_->stashed_val.boolval);
 }
 
 LayoutPreferencesFrame::~LayoutPreferencesFrame()
@@ -282,6 +285,13 @@ void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
     updateWidgets();
     pref_layout_content_3_->stashed_val.enumval = pref_layout_content_3_->default_val.enumval;
     updateWidgets();
+
+    ui->packetListSeparatorCheckBox->setChecked(pref_packet_list_separator_->default_val.boolval);
+}
+
+void LayoutPreferencesFrame::on_packetListSeparatorCheckBox_toggled(bool checked)
+{
+    pref_packet_list_separator_->stashed_val.boolval = (gboolean) checked;
 }
 
 /*

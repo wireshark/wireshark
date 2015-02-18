@@ -32,6 +32,7 @@
 #include <QMenu>
 #include <QTime>
 #include <QTreeView>
+#include <QPainter>
 
 class OverlayScrollBar;
 
@@ -81,6 +82,7 @@ protected:
 
 protected slots:
     void rowsInserted(const QModelIndex &parent, int start, int end);
+    void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const;
 
 private:
     PacketListModel *packet_list_model_;

@@ -49,6 +49,7 @@ private:
     pref_t *pref_layout_content_1_;
     pref_t *pref_layout_content_2_;
     pref_t *pref_layout_content_3_;
+    pref_t *pref_packet_list_separator_;
 
     void updateWidgets();
 
@@ -72,6 +73,7 @@ private slots:
     void on_pane3PacketBytesRadioButton_toggled(bool checked);
     void on_pane3NoneRadioButton_toggled(bool checked);
     void on_restoreButtonBox_clicked(QAbstractButton *button);
+    void on_packetListSeparatorCheckBox_toggled(bool checked);
 
 };
 

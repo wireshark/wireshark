@@ -442,6 +442,18 @@ PacketList::PacketList(QWidget *parent) :
             this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
 }
 
+void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QTreeView::drawRow(painter, option, index);
+
+    if (prefs.gui_qt_packet_list_separator) {
+        QRect rect = visualRect(index);
+
+        painter->setPen(QColor(Qt::white));
+        painter->drawLine(0, rect.y() + rect.height() - 1, width(), rect.y() + rect.height() - 1);
+    }
+}
+
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
     proto_tree_ = proto_tree;
 
