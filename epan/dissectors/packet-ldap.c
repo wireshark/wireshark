@@ -620,7 +620,7 @@ static guint num_attribute_types = 0;
 
 static GHashTable* attribute_types_hash = NULL;
 
-static void
+static gboolean
 attribute_types_update_cb(void *r, char **err)
 {
   attribute_type_t *rec = (attribute_type_t *)r;
@@ -628,13 +628,13 @@ attribute_types_update_cb(void *r, char **err)
 
   if (rec->attribute_type == NULL) {
     *err = g_strdup("Attribute type can't be empty");
-    return;
+    return FALSE;
   }
 
   g_strstrip(rec->attribute_type);
   if (rec->attribute_type[0] == 0) {
     *err = g_strdup("Attribute type can't be empty");
-    return;
+    return FALSE;
   }
 
   /* Check for invalid characters (to avoid asserting out when
@@ -643,10 +643,11 @@ attribute_types_update_cb(void *r, char **err)
   c = proto_check_field_name(rec->attribute_type);
   if (c) {
     *err = g_strdup_printf("Attribute type can't contain '%c'", c);
-    return;
+    return FALSE;
   }
 
   *err = NULL;
+  return TRUE;
 }
 
 static void *
@@ -3806,7 +3807,7 @@ static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 882 "../../asn1/ldap/packet-ldap-template.c"
+#line 883 "../../asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -5699,7 +5700,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2206 "../../asn1/ldap/packet-ldap-template.c"
+#line 2207 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5773,7 +5774,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2220 "../../asn1/ldap/packet-ldap-template.c"
+#line 2221 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5939,7 +5940,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2369 "../../asn1/ldap/packet-ldap-template.c"
+#line 2370 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }

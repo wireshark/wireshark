@@ -1368,7 +1368,7 @@ snmp_users_free_cb(void* p)
 	g_free(ue->engine.data);
 }
 
-static void
+static gboolean
 snmp_users_update_cb(void* p _U_, char** err)
 {
 	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
@@ -1379,7 +1379,7 @@ snmp_users_update_cb(void* p _U_, char** err)
 
 	if (num_ueas == 0)
 		/* Nothing to update */
-		return;
+		return FALSE;
 
 	if (! ue->user.userName.len)
 		g_string_append_printf(es,"no userName\n");
@@ -1414,9 +1414,10 @@ snmp_users_update_cb(void* p _U_, char** err)
 	if (es->len) {
 		es = g_string_truncate(es,es->len-1);
 		*err = g_string_free(es, FALSE);
+		return FALSE;
 	}
 
-	return;
+	return TRUE;
 }
 
 static void

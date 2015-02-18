@@ -406,7 +406,7 @@ static guint num_attribute_types = 0;
 
 static GHashTable* attribute_types_hash = NULL;
 
-static void
+static gboolean
 attribute_types_update_cb(void *r, char **err)
 {
   attribute_type_t *rec = (attribute_type_t *)r;
@@ -414,13 +414,13 @@ attribute_types_update_cb(void *r, char **err)
 
   if (rec->attribute_type == NULL) {
     *err = g_strdup("Attribute type can't be empty");
-    return;
+    return FALSE;
   }
 
   g_strstrip(rec->attribute_type);
   if (rec->attribute_type[0] == 0) {
     *err = g_strdup("Attribute type can't be empty");
-    return;
+    return FALSE;
   }
 
   /* Check for invalid characters (to avoid asserting out when
@@ -429,10 +429,11 @@ attribute_types_update_cb(void *r, char **err)
   c = proto_check_field_name(rec->attribute_type);
   if (c) {
     *err = g_strdup_printf("Attribute type can't contain '%c'", c);
-    return;
+    return FALSE;
   }
 
   *err = NULL;
+  return TRUE;
 }
 
 static void *
