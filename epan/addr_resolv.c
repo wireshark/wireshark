@@ -3117,7 +3117,7 @@ ep_eui64_to_display(const guint64 addr_eui64)
     *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
 
     if (!gbl_resolv_flags.mac_name || ((name = manuf_name_lookup(addr)) == NULL)) {
-        cur=ep_strdup_printf("%02x:%02x:%02x%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
+        cur=ep_strdup_printf("%02x:%02x:%02x:%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
         return cur;
     }
     cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", name, addr[3], addr[4], addr[5], addr[6], addr[7]);
