@@ -40,7 +40,9 @@ DIAG_OFF(pedantic)
 #include <netlink/msg.h>
 DIAG_ON(pedantic)
 #include <netlink/attr.h>
+DIAG_OFF(pedantic)
 #include <netlink/route/link.h>
+DIAG_ON(pedantic)
 
 #ifndef IFF_UP
 /*

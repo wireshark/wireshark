@@ -40,7 +40,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <net/if.h>
 #include <sys/ioctl.h>
 
+DIAG_OFF(pedantic)
 #include <netlink/genl/genl.h>
+DIAG_ON(pedantic)
 #include <netlink/genl/family.h>
 #include <netlink/genl/ctrl.h>
 DIAG_OFF(pedantic)
