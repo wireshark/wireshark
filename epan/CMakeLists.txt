@@ -290,14 +290,17 @@ set(ASN1_DISSECTOR_SRC
 )
 
 set(DIRTY_ASN1_DISSECTOR_SRC
-	dissectors/packet-coseventcomm.c
-	dissectors/packet-cosnaming.c
 	dissectors/packet-p1.c
-	dissectors/packet-parlay.c
 	dissectors/packet-pkcs12.c
 	dissectors/packet-snmp.c
-	dissectors/packet-tango.c
 	dissectors/packet-tcap.c
+)
+
+set(DIRTY_CORBA_IDL_DISSECTOR_SRC
+	dissectors/packet-coseventcomm.c
+	dissectors/packet-cosnaming.c
+	dissectors/packet-parlay.c
+	dissectors/packet-tango.c
 )
 
 set(DISSECTOR_SRC
@@ -1473,6 +1476,7 @@ set(DISSECTOR_FILES
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
+	${DIRTY_CORBA_IDL_DISSECTOR_SRC}
 	${CUSTOM_DISSECTOR_SRC}
 	${CUSTOM_DIRTY_ASN1_DISSECTOR_SRC}
 )

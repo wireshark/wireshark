@@ -26,7 +26,8 @@ AM_CPPFLAGS = -I$(srcdir)/../.. -I$(srcdir)/.. \
 include Makefile.common
 
 libdirtydissectors_la_SOURCES = \
-	$(DIRTY_ASN1_DISSECTOR_SRC)
+	$(DIRTY_ASN1_DISSECTOR_SRC) \
+	$(DIRTY_CORBA_IDL_DISSECTOR_SRC)
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
@@ -38,6 +39,7 @@ libfiledissectors_la_SOURCES = \
 libdissectors_la_SOURCES = \
 	$(DISSECTOR_SRC) \
 	$(ASN1_DISSECTOR_SRC) \
+	$(CORBA_IDL_DISSECTOR_SRC) \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)
 libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)

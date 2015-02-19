@@ -198,18 +198,28 @@ ASN1_DISSECTOR_SRC = \
 	packet-x509sat.c
 
 #
+# idl2wrs-generated CORBA IDL dissectors without warnings.
+#
+CORBA_IDL_DISSECTOR_SRC =
+
+#
 # asn2wrs-generated ASN.1 dissectors with warnings.
-# and idl2wrs-generated dissectors
+#
 DIRTY_ASN1_DISSECTOR_SRC = \
-	packet-coseventcomm.c	\
-	packet-cosnaming.c	\
 	packet-p1.c	\
-	packet-parlay.c	\
 	packet-pkcs12.c	\
 	packet-snmp.c	\
-	packet-tango.c	\
 	packet-tcap.c	\
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
+
+#
+# idl2wrs-generated CORBA IDL dissectors with warnings.
+#
+DIRTY_CORBA_IDL_DISSECTOR_SRC = \
+	packet-coseventcomm.c	\
+	packet-cosnaming.c	\
+	packet-parlay.c	\
+	packet-tango.c
 
 FILE_DISSECTOR_SRC = \
 	file-elf.c	\
@@ -1763,4 +1773,5 @@ ALL_DISSECTORS_SRC =	\
 	$(FILE_DISSECTOR_SRC)	\
 	$(PIDL_DISSECTOR_SRC)	\
 	$(ASN1_DISSECTOR_SRC)	\
-	$(DIRTY_ASN1_DISSECTOR_SRC)
+	$(DIRTY_ASN1_DISSECTOR_SRC)	\
+	$(DIRTY_CORBA_IDL_DISSECTOR_SRC)
