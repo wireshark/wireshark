@@ -7,6 +7,7 @@ ChangePasswdData
 Applications ONLY_ENUM
 
 #.FIELD_RENAME
+Authenticator/_untag/subkey authenticator_subkey
 KDC-REQ-BODY/etype kDC-REQ-BODY_etype
 KRB-SAFE-BODY/user-data kRB-SAFE-BODY_user_data
 EncKrbPrivPart/user-data encKrbPrivPart_user_data
@@ -18,8 +19,12 @@ PA-ENC-TIMESTAMP/cipher pA-ENC-TIMESTAMP_cipher
 EncryptedAPREPData/cipher encryptedAPREPData_cipher
 EncryptedKrbPrivData/cipher encryptedKrbPrivData_cipher
 EncryptedKrbCredData/cipher encryptedKrbCredData_cipher
+EncAPRepPart/_untag/subkey encAPRepPart_subkey
+EncTicketPart/_untag/key encTicketPart_key
+EncKDCRepPart/key encKDCRepPart_key
 KRB-CRED/_untag/enc-part kRB_CRED_enc_part
 KRB-PRIV/_untag/enc-part kRB_PRIV_enc_part
+KrbCredInfo/key krbCredInfo_key
 AP-REP/_untag/enc-part aP_REP_enc_part
 KDC-REP/enc-part kDC_REP_enc_part
 Ticket/_untag/enc-part ticket_enc_part
@@ -376,14 +381,79 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 
 #.FN_BODY EncryptionKey
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  int start_offset = offset;
 
   %(DEFAULT_BODY)s
 
   if (private_data->key.keytype != 0 && private_data->key.keylength > 0) {
 ##ifdef HAVE_KERBEROS
-    add_encryption_key(actx->pinfo, private_data->key.keytype, private_data->key.keylength, private_data->key.keyvalue, "key");
+    int length = offset - start_offset;
+    private_data->last_added_key = NULL;
+    private_data->save_encryption_key_fn(tvb, start_offset, length, actx, tree,
+                                         private_data->save_encryption_key_parent_hf_index,
+                                         hf_index);
+    private_data->last_added_key = NULL;
 ##endif
   }
+
+#.FN_BODY Authenticator/_untag/subkey
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
+  private_data->save_encryption_key_parent_hf_index = hf_kerberos_authenticator;
+  private_data->save_encryption_key_fn = save_Authenticator_subkey;
+%(DEFAULT_BODY)s
+  private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
+  private_data->save_encryption_key_fn = saved_encryption_key_fn;
+
+#.FN_BODY EncAPRepPart/_untag/subkey
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
+  private_data->save_encryption_key_parent_hf_index = hf_kerberos_encAPRepPart;
+  private_data->save_encryption_key_fn = save_EncAPRepPart_subkey;
+%(DEFAULT_BODY)s
+  private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
+  private_data->save_encryption_key_fn = saved_encryption_key_fn;
+
+#.FN_BODY EncKDCRepPart/key
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
+  switch (private_data->msg_type) {
+  case KERBEROS_APPLICATIONS_AS_REP:
+    private_data->save_encryption_key_parent_hf_index = hf_kerberos_encASRepPart;
+    break;
+  case KERBEROS_APPLICATIONS_TGS_REP:
+    private_data->save_encryption_key_parent_hf_index = hf_kerberos_encTGSRepPart;
+    break;
+  default:
+    private_data->save_encryption_key_parent_hf_index = -1;
+  }
+  private_data->save_encryption_key_fn = save_EncKDCRepPart_key;
+%(DEFAULT_BODY)s
+  private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
+  private_data->save_encryption_key_fn = saved_encryption_key_fn;
+
+#.FN_BODY EncTicketPart/_untag/key
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
+  private_data->save_encryption_key_parent_hf_index = hf_kerberos_encTicketPart;
+  private_data->save_encryption_key_fn = save_EncTicketPart_key;
+%(DEFAULT_BODY)s
+  private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
+  private_data->save_encryption_key_fn = saved_encryption_key_fn;
+
+#.FN_BODY KrbCredInfo/key
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
+  kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
+  private_data->save_encryption_key_parent_hf_index = hf_kerberos_ticket_info_item;
+  private_data->save_encryption_key_fn = save_KrbCredInfo_key;
+%(DEFAULT_BODY)s
+  private_data->save_encryption_key_parent_hf_index = save_encryption_key_parent_hf_index;
+  private_data->save_encryption_key_fn = saved_encryption_key_fn;
 
 #.FN_BODY AUTHDATA-TYPE VAL_PTR=&(private_data->ad_type)
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);

@@ -85,6 +85,11 @@ typedef struct kerberos_key {
 	const guint8 *keyvalue;
 } kerberos_key_t;
 
+typedef void (*kerberos_key_save_fn)(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
+				     asn1_ctx_t *actx _U_, proto_tree *tree _U_,
+				     int parent_hf_index _U_,
+				     int hf_index _U_);
+
 typedef struct {
 	guint32 msg_type;
 	gboolean is_win2k_pkinit;
@@ -99,6 +104,9 @@ typedef struct {
 	guint32 ad_type;
 	guint32 addr_type;
 	guint32 checksum_type;
+	enc_key_t *last_added_key;
+	gint save_encryption_key_parent_hf_index;
+	kerberos_key_save_fn save_encryption_key_fn;
 } kerberos_private_data_t;
 
 static dissector_handle_t kerberos_handle_udp;
@@ -340,6 +348,72 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	new_key->keylength=keylength;
 	/*XXX this needs to be freed later */
 	new_key->keyvalue=(char *)g_memdup(keyvalue, keylength);
+}
+
+static void
+save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
+		    asn1_ctx_t *actx _U_, proto_tree *tree _U_,
+		    int parent_hf_index _U_,
+		    int hf_index _U_)
+{
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	const char *parent = proto_registrar_get_name(parent_hf_index);
+	const char *element = proto_registrar_get_name(hf_index);
+	char origin[KRB_MAX_ORIG_LEN] = { 0, };
+
+	g_snprintf(origin, KRB_MAX_ORIG_LEN, "%s_%s", parent, element);
+
+	add_encryption_key(actx->pinfo,
+			   private_data->key.keytype,
+			   private_data->key.keylength,
+			   private_data->key.keyvalue,
+			   origin);
+	private_data->last_added_key = enc_key_list;
+}
+
+static void
+save_Authenticator_subkey(tvbuff_t *tvb, int offset, int length,
+			  asn1_ctx_t *actx, proto_tree *tree,
+			  int parent_hf_index,
+			  int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_EncAPRepPart_subkey(tvbuff_t *tvb, int offset, int length,
+			 asn1_ctx_t *actx, proto_tree *tree,
+			 int parent_hf_index,
+			 int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_EncKDCRepPart_key(tvbuff_t *tvb, int offset, int length,
+		       asn1_ctx_t *actx, proto_tree *tree,
+		       int parent_hf_index,
+		       int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_EncTicketPart_key(tvbuff_t *tvb, int offset, int length,
+		       asn1_ctx_t *actx, proto_tree *tree,
+		       int parent_hf_index,
+		       int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_KrbCredInfo_key(tvbuff_t *tvb, int offset, int length,
+		     asn1_ctx_t *actx, proto_tree *tree,
+		     int parent_hf_index,
+		     int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
 }
 
 static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
@@ -1105,6 +1179,71 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	new_key->contents = g_memdup(keyvalue, keylength);
 	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u", origin, pinfo->num);
 	service_key_list = g_slist_append(service_key_list, (gpointer) new_key);
+}
+
+static void
+save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
+		    asn1_ctx_t *actx _U_, proto_tree *tree _U_,
+		    int parent_hf_index _U_,
+		    int hf_index _U_)
+{
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	const char *parent = proto_registrar_get_name(parent_hf_index);
+	const char *element = proto_registrar_get_name(hf_index);
+	char origin[KRB_MAX_ORIG_LEN] = { 0, };
+
+	g_snprintf(origin, KRB_MAX_ORIG_LEN, "%s_%s", parent, element);
+
+	add_encryption_key(actx->pinfo,
+			   private_data->key.keytype,
+			   private_data->key.keylength,
+			   private_data->key.keyvalue,
+			   origin);
+}
+
+static void
+save_Authenticator_subkey(tvbuff_t *tvb, int offset, int length,
+			  asn1_ctx_t *actx, proto_tree *tree,
+			  int parent_hf_index,
+			  int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_EncAPRepPart_subkey(tvbuff_t *tvb, int offset, int length,
+			 asn1_ctx_t *actx, proto_tree *tree,
+			 int parent_hf_index,
+			 int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_EncKDCRepPart_key(tvbuff_t *tvb, int offset, int length,
+		       asn1_ctx_t *actx, proto_tree *tree,
+		       int parent_hf_index,
+		       int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_EncTicketPart_key(tvbuff_t *tvb, int offset, int length,
+		       asn1_ctx_t *actx, proto_tree *tree,
+		       int parent_hf_index,
+		       int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_KrbCredInfo_key(tvbuff_t *tvb, int offset, int length,
+		     asn1_ctx_t *actx, proto_tree *tree,
+		     int parent_hf_index,
+		     int hf_index)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
 }
 
 static void
