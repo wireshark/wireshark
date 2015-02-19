@@ -70,7 +70,7 @@ run_tests(void)
 
 
     /* check that no catch at all is called when there is no exn */
-    ex_thrown = finally_called = 0;
+    finally_called = 0;
     TRY {
     }
     CATCH(BoundsError) {
@@ -133,7 +133,6 @@ run_tests(void)
             THROW(BoundsError);
         }
         CATCH_ALL {
-            ex_thrown += 10;
             RETHROW;
         }
         FINALLY {
@@ -171,7 +170,6 @@ run_tests(void)
                 printf("05: Looping exception\n");
                 failed = TRUE;
             } else {
-                ex_thrown += 10;
                 THROW(BoundsError);
             }
         }
