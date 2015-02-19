@@ -123,23 +123,6 @@ MainWelcome::MainWelcome(QWidget *parent) :
     welcome_ui_->recentLabel->setStyleSheet(title_ss);
     welcome_ui_->helpLabel->setStyleSheet(title_ss);
 
-    // XXX Add a "check for updates" link?
-    QString full_release = tr("You are running Wireshark ");
-    full_release += get_ws_vcs_version_info();
-    full_release += ".";
-#ifdef HAVE_SOFTWARE_UPDATE
-    if (prefs.gui_update_enabled) {
-        full_release += tr(" You receive automatic updates.");
-    } else {
-        full_release += tr(" You have disabled automatic updates.");
-    }
-#else
-    // XXX Is there a way to tell if the user installed Wireshark via an
-    // external package manager? If so we could say so here. We could
-    // also add a link to the download page.
-#endif
-    welcome_ui_->fullReleaseLabel->setText(full_release);
-
 #ifdef Q_OS_MAC
     recent_files_->setAttribute(Qt::WA_MacShowFocusRect, false);
     welcome_ui_->interfaceTree->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -161,7 +144,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     recent_files_->setTextElideMode(Qt::ElideLeft);
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(destroySplashOverlay()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
     connect(welcome_ui_->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
             this, SLOT(interfaceDoubleClicked(QTreeWidgetItem*,int)));
     connect(welcome_ui_->interfaceTree, SIGNAL(interfaceUpdated(const char*,bool)),
@@ -192,11 +175,29 @@ InterfaceTree *MainWelcome::getInterfaceTree()
     return welcome_ui_->interfaceTree;
 }
 
-void MainWelcome::destroySplashOverlay()
+void MainWelcome::appInitialized()
 {
+    // XXX Add a "check for updates" link?
+    QString full_release = tr("You are running Wireshark ");
+    full_release += get_ws_vcs_version_info();
+    full_release += ".";
+#ifdef HAVE_SOFTWARE_UPDATE
+    if (prefs.gui_update_enabled) {
+        full_release += tr(" You receive automatic updates.");
+    } else {
+        full_release += tr(" You have disabled automatic updates.");
+    }
+#else
+    // XXX Is there a way to tell if the user installed Wireshark via an
+    // external package manager? If so we could say so here. We could
+    // also add a link to the download page.
+#endif
+    welcome_ui_->fullReleaseLabel->setText(full_release);
+
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
     welcome_ui_->childContainer->setGraphicsEffect(NULL);
 #endif
+
     delete splash_overlay_;
     splash_overlay_ = NULL;
 }

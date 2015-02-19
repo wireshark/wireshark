@@ -63,7 +63,7 @@ signals:
     void captureFilterSyntaxChanged(bool valid);
 
 private slots:
-    void destroySplashOverlay();
+    void appInitialized();
     void interfaceDoubleClicked(QTreeWidgetItem *item, int column);
     void updateRecentFiles();
     void openRecentItem(QListWidgetItem *item);
