@@ -947,7 +947,7 @@ DISSECTOR_SRC = \
 	packet-nb_rtpmux.c	\
 	packet-nbd.c		\
 	packet-nbipx.c		\
-	packet-nbns.c		\
+	packet-nbt.c		\
 	packet-ncp-nmas.c	\
 	packet-ncp-sss.c	\
 	packet-ncp2222.c	\

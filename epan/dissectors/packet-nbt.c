@@ -1,6 +1,5 @@
-/* packet-nbns.c
- * Routines for NetBIOS-over-TCP packet disassembly (the name dates back
- * to when it had only NBNS)
+/* packet-nbt.c
+ * Routines for NetBIOS-over-TCP packet disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
  * Wireshark - Network traffic analyzer

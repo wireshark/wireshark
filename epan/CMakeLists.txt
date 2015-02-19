@@ -1027,7 +1027,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-nb_rtpmux.c
 	dissectors/packet-nbd.c
 	dissectors/packet-nbipx.c
-	dissectors/packet-nbns.c
+	dissectors/packet-nbt.c
 	dissectors/packet-ncp-nmas.c
 	dissectors/packet-ncp-sss.c
 	dissectors/packet-ncp.c
