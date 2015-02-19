@@ -48,7 +48,7 @@ VERSION_EXTRA=$(WIRESHARK_VERSION_EXTRA)
 !IFDEF WIRESHARK_VERSION_FLAVOR
 VERSION_FLAVOR=$(WIRESHARK_VERSION_FLAVOR)
 !ELSE
-VERSION_FLAVOR="Development Build"
+VERSION_FLAVOR=Development Build
 !ENDIF
 
 # The version of the wiretap library. Recommended: Leave unchanged.
