@@ -969,7 +969,7 @@ static void address_with_resolution_to_str_buf(const address* addr, gchar *buf, 
         buf[pos++] = '(';
     }
 
-    addr_len = at->addr_to_str(addr, &buf[pos], buf_len-pos);
+    addr_len = at->addr_to_str(addr, &buf[pos], (int)(buf_len-pos));
     pos += addr_len;
 
     if (!empty)

@@ -223,7 +223,7 @@ static int osi_address_type = -1;
 static int osi_address_to_str(const address* addr, gchar *buf, int buf_len)
 {
     print_nsap_net_buf((const guint8 *)addr->data, addr->len, buf, buf_len);
-    return strlen(buf)+1;
+    return (int)strlen(buf)+1;
 }
 
 static int osi_address_str_len(const address* addr _U_)

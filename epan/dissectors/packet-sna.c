@@ -862,7 +862,7 @@ static int sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len _U_)
 		return 1;
 	}
 
-	return strlen(buf)+1;
+	return (int)strlen(buf)+1;
 }
 
 
