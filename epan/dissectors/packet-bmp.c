@@ -383,7 +383,7 @@ dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     } else {
         proto_tree_add_item(subtree, hf_term_reason, tvb, offset, term_len, ENC_BIG_ENDIAN);
     }
-    offset += term_len;
+    /*offset += term_len;*/
 }
 
 
