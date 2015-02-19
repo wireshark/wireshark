@@ -529,8 +529,7 @@ static int hf_oss_scm_udid_valid = -1;
 static int hf_oss_spdo_connection_valid = -1;
 static int hf_oss_spdo_payload = -1;
 static int hf_oss_spdo_producer = -1;
-static int hf_oss_spdo_producer_time = -1;
-static int hf_oss_spdo_time_value_sn = -1;
+static int hf_oss_spdo_ct = -1;
 static int hf_oss_spdo_time_request = -1;
 static int hf_oss_spdo_time_request_to = -1;
 static int hf_oss_spdo_time_request_from = -1;
@@ -978,7 +977,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
     if ( b_ID == OPENSAFETY_MSG_SPDO_DATA_WITH_TIME_REQUEST )
     {
-        item = proto_tree_add_uint_format_value(spdo_tree, hf_oss_spdo_time_value_sn, message_tvb, 0, 0, ct,
+        item = proto_tree_add_uint_format_value(spdo_tree, hf_oss_spdo_ct, message_tvb, 0, 0, ct,
                                                 "0x%04X [%d] (%s)", ct, ct,
                                                 (validSCMUDID ? "Complete" : "Low byte only"));
         PROTO_ITEM_SET_GENERATED(item);
@@ -994,7 +993,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     }
     else
     {
-        item = proto_tree_add_uint_format_value(spdo_tree, hf_oss_spdo_producer_time, message_tvb, 0, 0, ct,
+        item = proto_tree_add_uint_format_value(spdo_tree, hf_oss_spdo_ct, message_tvb, 0, 0, ct,
                 "0x%04X [%d] (%s)", ct, ct, (validSCMUDID ? "Complete" : "Low byte only"));
         PROTO_ITEM_SET_GENERATED(item);
 
@@ -2683,11 +2682,8 @@ proto_register_opensafety(void)
         { &hf_oss_spdo_producer,
           { "Producer", "opensafety.spdo.producer",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
-        { &hf_oss_spdo_producer_time,
-          { "Internal Time Producer", "opensafety.spdo.time.producer",
-            FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
-        { &hf_oss_spdo_time_value_sn,
-          { "Internal Time SN", "opensafety.spdo.time.sn",
+        { &hf_oss_spdo_ct,
+          { "Consecutive Time", "opensafety.spdo.ct",
             FT_UINT16,  BASE_HEX, NULL,    0x0, NULL, HFILL } },
         { &hf_oss_spdo_time_request,
           { "Time Request Counter", "opensafety.spdo.time.request_counter",
