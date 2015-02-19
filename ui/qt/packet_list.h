@@ -65,7 +65,7 @@ public:
     void recolorPackets();
 
 protected:
-    void showEvent (QShowEvent *event);
+    void showEvent (QShowEvent *);
     void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
     void contextMenuEvent(QContextMenuEvent *event);
 
@@ -78,6 +78,7 @@ private:
     QMenu ctx_menu_;
     QAction *decode_as_;
     int ctx_column_;
+    QByteArray column_state_;
 
     RelatedPacketDelegate related_packet_delegate_;
     QMenu header_ctx_menu_;
@@ -115,12 +116,14 @@ public slots:
     void setTimeReference();
     void unsetAllTimeReferences();
     void redrawVisiblePackets();
+    void applyRecentColumnWidths();
 
 private slots:
     void addRelatedFrame(int related_frame);
     void showHeaderMenu(QPoint pos);
     void headerMenuTriggered();
     void columnVisibilityTriggered();
+    void sectionResized(int, int, int);
 };
 
 #endif // PACKET_LIST_H

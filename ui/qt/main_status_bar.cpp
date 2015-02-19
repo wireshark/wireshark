@@ -174,7 +174,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(pushProfileName()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
-    connect(wsApp, SIGNAL(configurationProfileChanged(const gchar *)),
+    connect(wsApp, SIGNAL(profileNameChanged(const gchar *)),
             this, SLOT(pushProfileName()));
     connect(&profile_status_, SIGNAL(mousePressedAt(QPoint,Qt::MouseButton)),
             this, SLOT(showProfileMenu(QPoint,Qt::MouseButton)));

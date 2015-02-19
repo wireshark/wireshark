@@ -93,19 +93,8 @@ packet_list_append(column_info *cinfo, frame_data *fdata)
 // Copied from ui/gtk/packet_list.c
 void packet_list_resize_column(gint col)
 {
-    Q_UNUSED(col)
-    // xxx qtshark
-//    gint col_width;
-//    const gchar *long_str;
-
-//g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: packet_list_resize_column %d", col);
-//    long_str = packet_list_get_widest_column_string(packetlist, col);
-//    if(!long_str || strcmp("",long_str)==0)
-//        /* If we get an empty string leave the width unchanged */
-//        return;
-//    column = gtk_tree_view_get_column (GTK_TREE_VIEW(packetlist->view), col);
-//    col_width = get_default_col_size (packetlist->view, long_str);
-//    gtk_tree_view_column_set_fixed_width(column, col_width);
+    if (!gbl_cur_packet_list) return;
+    gbl_cur_packet_list->resizeColumnToContents(col);
 }
 
 void
@@ -425,9 +414,11 @@ PacketList::PacketList(QWidget *parent) :
 
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePackets()));
+
     header()->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(header(), SIGNAL(customContextMenuRequested(QPoint)),
                 SLOT(showHeaderMenu(QPoint)));
+    connect(header(), SIGNAL(sectionResized(int,int,int)), this, SLOT(sectionResized(int,int,int)));
 }
 
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
@@ -448,22 +439,7 @@ PacketListModel *PacketList::packetListModel() const {
     return packet_list_model_;
 }
 
-void PacketList::showEvent (QShowEvent *event) {
-    Q_UNUSED(event);
-
-    for (int i = 0; i < prefs.num_cols; i++) {
-        int fmt, col_width;
-        const char *long_str;
-
-        fmt = get_column_format(i);
-        long_str = get_column_width_string(fmt, i);
-        if (long_str) {
-            col_width = packet_list_model_->columnTextSize(long_str);
-        } else {
-            col_width = packet_list_model_->columnTextSize(MIN_COL_WIDTH_STR);
-        }
-        setColumnWidth(i, col_width);
-    }
+void PacketList::showEvent (QShowEvent *) {
     setColumnVisibility();
 }
 
@@ -636,6 +612,7 @@ void PacketList::redrawVisiblePackets() {
     int row = currentIndex().row();
 
     prefs.num_cols = g_list_length(prefs.col_list);
+    col_cleanup(&cap_file_->cinfo);
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
 
     packet_list_model_->resetColumns();
@@ -645,6 +622,37 @@ void PacketList::redrawVisiblePackets() {
 
     update();
     header()->update();
+}
+
+// Column widths should
+// - Load from recent when we load a new profile (including at starting up).
+// - Persist across freezes and thaws.
+// - Persist across file closing and opening.
+// - Save to recent when we save our profile (including shutting down).
+
+void PacketList::applyRecentColumnWidths()
+{
+    // Either we've just started up or a profile has changed. Read
+    // the recent settings, apply them, and save the header state.
+    for (int i = 0; i < prefs.num_cols; i++) {
+        int col_width = recent_get_column_width(i);
+
+        if (col_width < 1) {
+            int fmt;
+            const char *long_str;
+
+            fmt = get_column_format(i);
+            long_str = get_column_width_string(fmt, i);
+            if (long_str) {
+                col_width = packet_list_model_->columnTextSize(long_str);
+            } else {
+                col_width = packet_list_model_->columnTextSize(MIN_COL_WIDTH_STR);
+            }
+        }
+        setColumnWidth(i, col_width);
+    }
+    column_state_ = header()->saveState();
+    redrawVisiblePackets();
 }
 
 void PacketList::recolorPackets()
@@ -668,6 +676,12 @@ void PacketList::thaw()
 {
     setModel(packet_list_model_);
     setUpdatesEnabled(true);
+
+    // Resetting the model resets our column widths so we restore them here.
+    // We don't reapply the recent settings because the user could have
+    // resized the columns manually since they were initially loaded.
+    header()->restoreState(column_state_);
+
     setColumnVisibility();
 }
 
@@ -690,7 +704,7 @@ void PacketList::writeRecent(FILE *rf) {
     gchar xalign;
 
     fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
-    for (col = 0; col < packet_list_model_->columnCount(); col++) {
+    for (col = 0; col < prefs.num_cols; col++) {
         if (col > 0) {
             fprintf (rf, ",");
         }
@@ -851,6 +865,10 @@ QString PacketList::allPacketComments()
 
 void PacketList::setCaptureFile(capture_file *cf)
 {
+    if (cf) {
+        // We're opening. Restore our column widths.
+        header()->restoreState(column_state_);
+    }
     cap_file_ = cf;
     packet_list_model_->setCaptureFile(cf);
 }
@@ -1004,7 +1022,7 @@ void PacketList::showHeaderMenu(QPoint pos)
         header_actions_[caAlignLeft]->setChecked(true);
         break;
     case COLUMN_XALIGN_CENTER:
-        header_actions_[caAlignCenter]->setChecked(true);\
+        header_actions_[caAlignCenter]->setChecked(true);
         break;
     case COLUMN_XALIGN_RIGHT:
         header_actions_[caAlignRight]->setChecked(true);
@@ -1099,6 +1117,16 @@ void PacketList::columnVisibilityTriggered()
 
     set_column_visible(ha->data().toInt(), ha->isChecked());
     setColumnVisibility();
+}
+
+void PacketList::sectionResized(int, int, int)
+{
+    // For some reason the width of column 1 gets set to 32 when we open a file after
+    // closing a previous one. I (Gerald) am not sure if this is a bug in Qt or if it's
+    // our doing. Either way this catches that and fixes it.
+    if (isVisible()) {
+        column_state_ = header()->saveState();
+    }
 }
 
 /*

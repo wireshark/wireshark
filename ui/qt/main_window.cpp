@@ -70,7 +70,6 @@
 #include <QtMacExtras/QMacNativeToolBar>
 #endif
 
-#include <QDebug>
 
 //menu_recent_file_write_all
 
@@ -200,6 +199,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
 
+    connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateNameResolutionActions()));
@@ -322,7 +322,9 @@ MainWindow::MainWindow(QWidget *parent) :
             wsApp, SLOT(updateTaps()));
 
     connect(wsApp, SIGNAL(columnsChanged()),
-            this, SLOT(recreatePacketList()));
+            packet_list_, SLOT(applyRecentColumnWidths()));
+    connect(wsApp, SIGNAL(recentFilesRead()),
+            this, SLOT(applyRecentPaneGeometry()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
     connect(wsApp, SIGNAL(appInitialized()),
@@ -591,6 +593,16 @@ void MainWindow::saveWindowGeometry()
     if (prefs.gui_geometry_save_maximized) {
         // On OS X this is false when it shouldn't be
         recent.gui_geometry_main_maximized = isMaximized();
+    }
+
+    if (master_split_.sizes().length() > 0) {
+        recent.gui_geometry_main_upper_pane = master_split_.sizes()[0];
+    }
+
+    if (master_split_.sizes().length() > 2) {
+        recent.gui_geometry_main_lower_pane = master_split_.sizes()[1];
+    } else if (extra_split_.sizes().length() > 0) {
+        recent.gui_geometry_main_lower_pane = extra_split_.sizes()[0];
     }
 }
 

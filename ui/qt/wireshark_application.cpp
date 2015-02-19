@@ -328,7 +328,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     }
 
     /* Get the current geometry, before writing it to disk */
-//    main_save_window_geometry(top_level);
+    emit profileChanging();
 
     if (profile_exists(get_profile_name(), FALSE)) {
         /* Write recent file for profile we are leaving, if it still exists */
@@ -337,7 +337,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     /* Set profile name and update the status bar */
     set_profile_name (profile_name);
-    emit configurationProfileChanged(profile_name);
+    emit profileNameChanged(profile_name);
 
     /* Reset current preferences and apply the new */
     prefs_reset();
@@ -362,6 +362,10 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     prefs_to_capture_opts();
     prefs_apply_all();
+
+    emit preferencesChanged();
+    emit recentFilesRead();
+    emit columnsChanged();
     emit filterExpressionsChanged();
 //    macros_post_update();
 
@@ -553,7 +557,7 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
     case PacketDissectionChanged:
         emit packetDissectionChanged();
         break;
-    case StaticRecentFilesRead:
+    case RecentFilesRead:
         emit recentFilesRead();
         break;
     case FieldsChanged:

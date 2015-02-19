@@ -721,7 +721,6 @@ DIAG_ON(cast-qual)
                       "Could not open common recent file\n\"%s\": %s.",
                       rf_path, strerror(rf_open_errno));
     }
-    wsApp->emitAppSignal(WiresharkApplication::StaticRecentFilesRead);
 
     /* Init the "Open file" dialog directory */
     /* (do this after the path settings are processed) */
@@ -765,7 +764,6 @@ DIAG_ON(cast-qual)
             "Could not open recent file\n\"%s\": %s.",
             rf_path, g_strerror(rf_open_errno));
     }
-    wsApp->emitAppSignal(WiresharkApplication::StaticRecentFilesRead);
 
     if (recent.gui_fileopen_remembered_dir &&
         test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
@@ -1282,6 +1280,8 @@ DIAG_ON(cast-qual)
     }
 
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, prefs_p->num_cols, TRUE);
+    wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged); // We read "recent" widths above.
+    wsApp->emitAppSignal(WiresharkApplication::RecentFilesRead); // Must be emitted after PreferencesChanged.
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 

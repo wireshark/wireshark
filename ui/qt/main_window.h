@@ -145,7 +145,6 @@ private:
     QSocketNotifier *pipe_notifier_;
 #endif
 
-    void saveWindowGeometry();
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
     void mergeCaptureFile();
@@ -189,16 +188,17 @@ public slots:
     void filterPackets(QString& new_filter = *new QString(), bool force = false);
     void updateForUnsavedChanges();
     void layoutPanes();
+    void applyRecentPaneGeometry();
     void layoutToolbars();
     void updateNameResolutionActions();
 
     void captureCapturePrepared(capture_session *);
-    void captureCaptureUpdateStarted(capture_session *cap_session);
-    void captureCaptureUpdateFinished(capture_session *cap_session);
-    void captureCaptureFixedStarted(capture_session *cap_session);
+    void captureCaptureUpdateStarted(capture_session *);
+    void captureCaptureUpdateFinished(capture_session *);
+    void captureCaptureFixedStarted(capture_session *);
     void captureCaptureFixedFinished(capture_session *cap_session);
-    void captureCaptureStopping(capture_session *cap_session);
-    void captureCaptureFailed(capture_session *cap_session);
+    void captureCaptureStopping(capture_session *);
+    void captureCaptureFailed(capture_session *);
 
     void captureFileOpened();
     void captureFileReadStarted();
@@ -206,7 +206,6 @@ public slots:
     void captureFileClosing();
     void captureFileClosed();
 
-    void configurationProfileChanged(const gchar *profile_name);
     void filterExpressionsChanged();
 
 private slots:
@@ -218,6 +217,7 @@ private slots:
     void stopCapture();
 
     void loadWindowGeometry();
+    void saveWindowGeometry();
     void updateRecentFiles();
     void recentActionTriggered();
     void setMenusForFollowStream();
@@ -226,7 +226,6 @@ private slots:
     void interfaceSelectionChanged();
     void captureFilterSyntaxChanged(bool valid);
     void redissectPackets();
-    void recreatePacketList();
     void fieldsChanged();
     void showColumnEditor(int column);
     void addStatsPluginsToMenu();
@@ -427,7 +426,7 @@ private slots:
     void on_actionStatisticsHTTPRequests_triggered();
     void on_actionStatisticsHTTPLoadDistribution_triggered();
     void on_actionStatisticsPacketLen_triggered();
-    void statCommandIOGraph(const char *arg = NULL, void *userdata = NULL);
+    void statCommandIOGraph(const char *, void *);
     void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();
     void on_actionStatisticsDNS_triggered();

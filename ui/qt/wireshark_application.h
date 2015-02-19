@@ -65,7 +65,7 @@ public:
         FilterExpressionsChanged,
         PacketDissectionChanged,
         PreferencesChanged,
-        StaticRecentFilesRead,
+        RecentFilesRead,
         FieldsChanged
     };
 
@@ -118,7 +118,8 @@ signals:
     void recentFilesRead();
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
     void splashUpdate(register_action_e action, const char *message);
-    void configurationProfileChanged(const gchar *profile_name);
+    void profileChanging();
+    void profileNameChanged(const gchar *profile_name);
 
     void columnsChanged(); // XXX This recreates the packet list. We might want to rename it accordingly.
     void filterExpressionsChanged();

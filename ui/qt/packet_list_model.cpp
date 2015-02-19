@@ -22,6 +22,7 @@
 #include "packet_list_model.h"
 
 #include <wsutil/nstime.h>
+#include <epan/column.h>
 #include <epan/prefs.h>
 
 #include "ui/packet_list_utils.h"
@@ -329,7 +330,7 @@ QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
     if (orientation == Qt::Horizontal && section < prefs.num_cols) {
         switch (role) {
         case Qt::DisplayRole:
-            return cap_file_->cinfo.col_title[section];
+            return get_column_title(section);
         default:
             break;
         }

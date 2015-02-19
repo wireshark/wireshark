@@ -246,6 +246,11 @@ void MainWindow::filterPackets(QString& new_filter, bool force)
     }
 }
 
+// A new layout should be applied when it differs from the old layout AND
+// at the following times:
+// - At startup
+// - When the preferences change
+// - When the profile changes
 void MainWindow::layoutPanes()
 {
     QVector<unsigned> new_layout = QVector<unsigned>() << prefs.gui_layout_type
@@ -259,7 +264,7 @@ void MainWindow::layoutPanes()
 
     // Reparent all widgets and add them back in the proper order below.
     // This hides each widget as well.
-    packet_list_->freeze(); // Clears tree and byte view tab.
+    packet_list_->freeze(); // Clears tree and byte view tabs.
     packet_list_->setParent(main_ui_->mainStack);
     proto_tree_->setParent(main_ui_->mainStack);
     byte_view_tab_->setParent(main_ui_->mainStack);
@@ -346,6 +351,54 @@ void MainWindow::layoutPanes()
     packet_list_->thaw();
     cf_select_packet(capture_file_.capFile(), current_row);  // XXX Doesn't work for row 0?
     cur_layout_ = new_layout;
+}
+
+// The recent layout geometry should be applied after the layout has been
+// applied AND at the following times:
+// - At startup
+// - When the profile changes
+void MainWindow::applyRecentPaneGeometry()
+{
+    // XXX This shrinks slightly each time the application is run. For some
+    // reason the master_split_ geometry is two pixels shorter when
+    // saveWindowGeometry is invoked.
+
+    // This is also an awful lot of trouble to go through to reuse the GTK+
+    // pane settings. We might want to add gui.geometry_main_master_sizes
+    // and gui.geometry_main_extra_sizes and save QSplitter::saveState in
+    // each.
+
+    // Force a geometry recalculation
+    QWidget *cur_w = main_ui_->mainStack->currentWidget();
+    main_ui_->mainStack->setCurrentWidget(&master_split_);
+    QRect geom = master_split_.geometry();
+    QList<int> master_sizes = master_split_.sizes();
+    QList<int> extra_sizes = extra_split_.sizes();
+    main_ui_->mainStack->setCurrentWidget(cur_w);
+
+    int master_last_size = master_split_.orientation() == Qt::Vertical ? geom.height() : geom.width();
+    int extra_last_size = extra_split_.orientation() == Qt::Vertical ? geom.height() : geom.width();
+
+    if (recent.gui_geometry_main_upper_pane > 0) {
+        master_sizes[0] = recent.gui_geometry_main_upper_pane + 1; // Add back mystery pixel
+        master_last_size -= recent.gui_geometry_main_upper_pane + master_split_.handleWidth();
+    }
+
+    if (recent.gui_geometry_main_lower_pane > 0) {
+        if (master_sizes.length() > 2) {
+            master_sizes[1] = recent.gui_geometry_main_lower_pane + 1; // Add back mystery pixel
+            master_last_size -= recent.gui_geometry_main_lower_pane + master_split_.handleWidth();
+        } else if (extra_sizes.length() > 0) {
+            extra_sizes[0] = recent.gui_geometry_main_lower_pane; // No mystery pixel
+            extra_last_size -= recent.gui_geometry_main_lower_pane + extra_split_.handleWidth();
+            extra_sizes.last() = extra_last_size;
+        }
+    }
+
+    master_sizes.last() = master_last_size;
+
+    master_split_.setSizes(master_sizes);
+    extra_split_.setSizes(extra_sizes);
 }
 
 void MainWindow::layoutToolbars()
@@ -453,8 +506,7 @@ void MainWindow::captureCapturePrepared(capture_session *) {
 #endif // HAVE_LIBPCAP
 }
 
-void MainWindow::captureCaptureUpdateStarted(capture_session *cap_session) {
-    Q_UNUSED(cap_session);
+void MainWindow::captureCaptureUpdateStarted(capture_session *) {
 #ifdef HAVE_LIBPCAP
 
     /* We've done this in "prepared" above, but it will be cleared while
@@ -466,8 +518,7 @@ void MainWindow::captureCaptureUpdateStarted(capture_session *cap_session) {
     setForCapturedPackets(true);
 #endif // HAVE_LIBPCAP
 }
-void MainWindow::captureCaptureUpdateFinished(capture_session *cap_session) {
-    Q_UNUSED(cap_session);
+void MainWindow::captureCaptureUpdateFinished(capture_session *) {
 #ifdef HAVE_LIBPCAP
 
     /* The capture isn't stopping any more - it's stopped. */
@@ -489,13 +540,11 @@ void MainWindow::captureCaptureUpdateFinished(capture_session *cap_session) {
     }
 #endif // HAVE_LIBPCAP
 }
-void MainWindow::captureCaptureFixedStarted(capture_session *cap_session) {
-    Q_UNUSED(cap_session);
+void MainWindow::captureCaptureFixedStarted(capture_session *) {
 #ifdef HAVE_LIBPCAP
 #endif // HAVE_LIBPCAP
 }
-void MainWindow::captureCaptureFixedFinished(capture_session *cap_session) {
-    Q_UNUSED(cap_session);
+void MainWindow::captureCaptureFixedFinished(capture_session *) {
 #ifdef HAVE_LIBPCAP
 
     /* The capture isn't stopping any more - it's stopped. */
@@ -514,16 +563,14 @@ void MainWindow::captureCaptureFixedFinished(capture_session *cap_session) {
     }
 #endif // HAVE_LIBPCAP
 }
-void MainWindow::captureCaptureStopping(capture_session *cap_session) {
-    Q_UNUSED(cap_session);
+void MainWindow::captureCaptureStopping(capture_session *) {
 #ifdef HAVE_LIBPCAP
 
     capture_stopping_ = true;
     setMenusForCaptureStopping();
 #endif // HAVE_LIBPCAP
 }
-void MainWindow::captureCaptureFailed(capture_session *cap_session) {
-    Q_UNUSED(cap_session);
+void MainWindow::captureCaptureFailed(capture_session *) {
 #ifdef HAVE_LIBPCAP
     /* Capture isn't stopping any more. */
     capture_stopping_ = false;
@@ -617,23 +664,6 @@ void MainWindow::captureFileClosed() {
 
     setTitlebarForSelectedTreeRow();
     setMenusForSelectedTreeRow();
-}
-
-void MainWindow::configurationProfileChanged(const gchar *profile_name) {
-    Q_UNUSED(profile_name);
-    /* Update window view and redraw the toolbar */
-//    main_titlebar_update();
-    filterExpressionsChanged();
-//    toolbar_redraw_all();
-
-    /* Reload list of interfaces on welcome page */
-//    welcome_if_panel_reload();
-
-    /* Recreate the packet list according to new preferences */
-    recreatePacketList();
-
-    /* Reload pane geometry, must be done after recreating the list */
-    //    main_pane_load_window_geometry();
 }
 
 void MainWindow::filterExpressionsChanged()
@@ -1250,20 +1280,6 @@ void MainWindow::redissectPackets()
     main_ui_->statusBar->expertUpdate();
 }
 
-void MainWindow::recreatePacketList()
-{
-    prefs.num_cols = g_list_length(prefs.col_list);
-
-    col_cleanup(&CaptureFile::globalCapFile()->cinfo);
-    build_column_format_array(&CaptureFile::globalCapFile()->cinfo, prefs.num_cols, FALSE);
-
-    packet_list_->redrawVisiblePackets();
-    packet_list_->hide();
-    packet_list_->show();
-
-    CaptureFile::globalCapFile()->columns_changed = FALSE; /* Reset value */
-}
-
 void MainWindow::fieldsChanged()
 {
     // Reload color filters
@@ -1286,7 +1302,7 @@ void MainWindow::fieldsChanged()
 
     if (have_custom_cols(&CaptureFile::globalCapFile()->cinfo)) {
         /* Recreate packet list according to new/changed/deleted fields */
-        recreatePacketList();
+        packet_list_->redrawVisiblePackets();
     } else if (CaptureFile::globalCapFile()->state != FILE_CLOSED) {
         /* Redissect packets if we have any */
         redissectPackets();
@@ -2457,10 +2473,8 @@ void MainWindow::on_actionStatisticsPacketLen_triggered()
     openStatisticsTreeDialog("plen");
 }
 
-void MainWindow::statCommandIOGraph(const char *arg, void *userdata)
+void MainWindow::statCommandIOGraph(const char *, void *)
 {
-    Q_UNUSED(arg);
-    Q_UNUSED(userdata);
     IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_);
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     iog_dialog->show();

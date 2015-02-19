@@ -102,6 +102,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
 #endif
 {
 #if !defined(Q_OS_WIN)
+    setDirectory(wsApp->lastOpenDir());
     // Add extra widgets
     // http://qt-project.org/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
     setOption(QFileDialog::DontUseNativeDialog, true);
