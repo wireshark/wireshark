@@ -2011,7 +2011,7 @@ if (!$result || $help_flag) {
 if ($pre_commit) {
     my $filename = $ARGV[0];
     # if the filename is packet-*.c or packet-*.h, then we set the abort and termoutput groups.
-    if ($filename =~ /\bpacket-\w+\.[ch]$/) {
+    if ($filename =~ /\bpacket-[^\/\\]+\.[ch]$/) {
         push @apiGroups, "abort";
         push @apiGroups, "termoutput";
     }
