@@ -86,8 +86,12 @@ if(KERBEROS_FOUND)
   include(CheckSymbolExists)
   set(CMAKE_REQUIRED_INCLUDES ${KERBEROS_INCLUDE_DIRS})
   set(CMAKE_REQUIRED_LIBRARIES ${KERBEROS_LIBRARIES})
+  #see also HAVE_HEIMDAL_KERBEROS in cmakeconfig.h.in
   check_symbol_exists("heimdal_version" "krb5.h" HAVE_HEIMDAL_KERBEROS)
+  # see also HAVE_KRB5_PAC_VERIFY cmakeconfig.h.in
   check_symbol_exists("krb5_pac_verify" "krb5.h" HAVE_KRB5_PAC_VERIFY)
+  # see also HAVE_KRB5_C_FX_CF2_SIMPLE in cmakeconfig.h.in
+  check_symbol_exists("krb5_c_fx_cf2_simple" "krb5.h" HAVE_KRB5_C_FX_CF2_SIMPLE)
   set(CMAKE_REQUIRED_INCLUDES)
   set(CMAKE_REQUIRED_LIBRARIES)
   if(NOT HAVE_HEIMDAL_KERBEROS)

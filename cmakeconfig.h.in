@@ -88,6 +88,9 @@
 /* Define to 1 if you have the `krb5_pac_verify' function. */
 #cmakedefine HAVE_KRB5_PAC_VERIFY 1
 
+/* Define to 1 if you have the `krb5_c_fx_cf2_simple' function. */
+#cmakedefine HAVE_KRB5_C_FX_CF2_SIMPLE 1
+
 /* Define to 1 if you have the `inflatePrime' function. */
 #cmakedefine HAVE_INFLATEPRIME 1
 

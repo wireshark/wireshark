@@ -80,6 +80,8 @@ typedef struct _enc_key_t {
 	char id_str[KRB_MAX_ID_STR_LEN+1];
 	struct _enc_key_t	*same_list;
 	guint num_same;
+	struct _enc_key_t	*src1;
+	struct _enc_key_t	*src2;
 } enc_key_t;
 extern enc_key_t *enc_key_list;
 extern wmem_map_t *kerberos_longterm_keys;

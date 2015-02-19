@@ -71,6 +71,13 @@
 #include "packet-gssapi.h"
 #include "packet-x509af.h"
 
+#define KEY_USAGE_FAST_REQ_CHKSUM       50
+#define KEY_USAGE_FAST_ENC              51
+#define KEY_USAGE_FAST_REP              52
+#define KEY_USAGE_FAST_FINISHED         53
+#define KEY_USAGE_ENC_CHALLENGE_CLIENT  54
+#define KEY_USAGE_ENC_CHALLENGE_KDC     55
+
 void proto_register_kerberos(void);
 void proto_reg_handoff_kerberos(void);
 
@@ -114,6 +121,15 @@ typedef struct {
 	guint learnt_key_ids;
 	wmem_list_t *decryption_keys;
 	wmem_list_t *learnt_keys;
+	guint32 within_PA_TGS_REQ;
+	enc_key_t *PA_TGS_REQ_key;
+	enc_key_t *PA_TGS_REQ_subkey;
+	guint32 fast_type;
+	guint32 fast_armor_within_armor_value;
+	enc_key_t *PA_FAST_ARMOR_AP_key;
+	enc_key_t *PA_FAST_ARMOR_AP_subkey;
+	enc_key_t *fast_armor_key;
+	enc_key_t *fast_strengthen_key;
 } kerberos_private_data_t;
 
 static dissector_handle_t kerberos_handle_udp;
@@ -131,13 +147,15 @@ static int dissect_kerberos_PA_S4U_X509_USER(gboolean implicit_tag _U_, tvbuff_t
 static int dissect_kerberos_ETYPE_INFO(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_ETYPE_INFO2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_AD_IF_RELEVANT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
-static int dissect_kerberos_PA_AUTHENTICATION_SET(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_PA_AUTHENTICATION_SET_ELEM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_FX_FAST_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_FX_FAST_REPLY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_PAC_OPTIONS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_KERB_AD_RESTRICTION_ENTRY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_SEQUENCE_OF_ENCTYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_KrbFastReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_KrbFastResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
@@ -213,6 +231,7 @@ static gint hf_krb_ad_ap_options = -1;
 static gint hf_krb_ad_ap_options_cbt = -1;
 static gint hf_krb_ad_target_principal = -1;
 static gint hf_krb_key_hidden_item = -1;
+static gint hf_kerberos_KrbFastResponse = -1;
 #ifdef HAVE_KERBEROS
 static gint hf_krb_patimestamp = -1;
 static gint hf_krb_pausec = -1;
@@ -571,13 +590,21 @@ add_encryption_key(packet_info *pinfo,
 		   proto_item *key_hidden_item,
 		   tvbuff_t *key_tvb,
 		   int keytype, int keylength, const char *keyvalue,
-		   const char *origin)
+		   const char *origin,
+		   enc_key_t *src1, enc_key_t *src2)
 {
 	wmem_allocator_t *key_scope = NULL;
 	enc_key_t *new_key = NULL;
+	const char *methodl = "learnt";
+	const char *methodu = "Learnt";
 	proto_item *item = NULL;
 
 	private_data->last_added_key = NULL;
+
+	if (src1 != NULL && src2 != NULL) {
+		methodl = "derived";
+		methodu = "Derived";
+	}
 
 	if(pinfo->fd->visited){
 		/*
@@ -596,7 +623,8 @@ add_encryption_key(packet_info *pinfo,
 	}
 
 	new_key = wmem_new0(key_scope, enc_key_t);
-	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt in frame %u",origin,pinfo->num);
+	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s %s in frame %u",
+		   methodl, origin, pinfo->num);
 	new_key->fd_num = pinfo->num;
 	new_key->id = ++private_data->learnt_key_ids;
 	g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "%d.%u",
@@ -604,6 +632,8 @@ add_encryption_key(packet_info *pinfo,
 	new_key->keytype=keytype;
 	new_key->keylength=keylength;
 	memcpy(new_key->keyvalue, keyvalue, MIN(keylength, KRB_MAX_KEY_LENGTH));
+	new_key->src1 = src1;
+	new_key->src2 = src2;
 
 	if(!pinfo->fd->visited){
 		/*
@@ -617,12 +647,30 @@ add_encryption_key(packet_info *pinfo,
 
 	item = proto_tree_add_expert_format(key_tree, pinfo, &ei_kerberos_learnt_keytype,
 			key_tvb, 0, keylength,
-			"Learnt %s keytype %d (id=%d.%u) (%02x%02x%02x%02x...)",
-			origin, keytype, pinfo->num, new_key->id,
+			"%s %s keytype %d (id=%d.%u) (%02x%02x%02x%02x...)",
+			methodu, origin, keytype, pinfo->num, new_key->id,
 			keyvalue[0] & 0xFF, keyvalue[1] & 0xFF,
 			keyvalue[2] & 0xFF, keyvalue[3] & 0xFF);
 	if (item != NULL && key_hidden_item != NULL) {
 		proto_tree_move_item(key_tree, key_hidden_item, item);
+	}
+	if (src1 != NULL) {
+		enc_key_t *sek = src1;
+		expert_add_info_format(pinfo, item, &ei_kerberos_learnt_keytype,
+				       "SRC1 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       sek->key_origin, sek->keytype,
+				       sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+	}
+	if (src2 != NULL) {
+		enc_key_t *sek = src2;
+		expert_add_info_format(pinfo, item, &ei_kerberos_learnt_keytype,
+				       "SRC2 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       sek->key_origin, sek->keytype,
+				       sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
 	}
 
 	kerberos_key_list_append(private_data->learnt_keys, new_key);
@@ -650,7 +698,9 @@ save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
 			   private_data->key.keytype,
 			   private_data->key.keylength,
 			   private_data->key.keyvalue,
-			   origin);
+			   origin,
+			   NULL,
+			   NULL);
 }
 
 static void
@@ -659,7 +709,25 @@ save_Authenticator_subkey(tvbuff_t *tvb, int offset, int length,
 			  int parent_hf_index,
 			  int hf_index)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+
 	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+
+	if (private_data->last_decryption_key == NULL) {
+		return;
+	}
+	if (private_data->last_added_key == NULL) {
+		return;
+	}
+
+	if (private_data->within_PA_TGS_REQ != 0) {
+		private_data->PA_TGS_REQ_key = private_data->last_decryption_key;
+		private_data->PA_TGS_REQ_subkey = private_data->last_added_key;
+	}
+	if (private_data->fast_armor_within_armor_value != 0) {
+		private_data->PA_FAST_ARMOR_AP_key = private_data->last_decryption_key;
+		private_data->PA_FAST_ARMOR_AP_subkey = private_data->last_added_key;
+	}
 }
 
 static void
@@ -698,6 +766,19 @@ save_KrbCredInfo_key(tvbuff_t *tvb, int offset, int length,
 	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
 }
 
+static void
+save_KrbFastResponse_strengthen_key(tvbuff_t *tvb, int offset, int length,
+				    asn1_ctx_t *actx, proto_tree *tree,
+				    int parent_hf_index,
+				    int hf_index)
+{
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+
+	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+
+	private_data->fast_strengthen_key = private_data->last_added_key;
+}
+
 static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				kerberos_private_data_t *private_data,
 				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
@@ -712,6 +793,24 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				     ek->keytype, usage, ek->key_origin, ek->id_str, ek->num_same,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+	if (ek->src1 != NULL) {
+		sek = ek->src1;
+		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
+				       "SRC1 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       sek->key_origin, sek->keytype,
+				       sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+	}
+	if (ek->src2 != NULL) {
+		sek = ek->src2;
+		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
+				       "SRC2 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       sek->key_origin, sek->keytype,
+				       sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+	}
 	sek = ek->same_list;
 	while (sek != NULL) {
 		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
@@ -764,6 +863,58 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 #endif /* HAVE_KRB5_PAC_VERIFY */
 
 static krb5_context krb5_ctx;
+
+static void
+krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
+	      enc_key_t *ek1 _U_, const char *p1 _U_,
+	      enc_key_t *ek2 _U_, const char *p2 _U_,
+	      const char *origin _U_)
+{
+#ifdef HAVE_KRB5_C_FX_CF2_SIMPLE
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	krb5_error_code ret;
+	krb5_keyblock k1;
+	krb5_keyblock k2;
+	krb5_keyblock *k = NULL;
+
+	if (!krb_decrypt) {
+		return;
+	}
+
+	if (ek1 == NULL) {
+		return;
+	}
+
+	if (ek2 == NULL) {
+		return;
+	}
+
+	k1.magic = KV5M_KEYBLOCK;
+	k1.enctype = ek1->keytype;
+	k1.length = ek1->keylength;
+	k1.contents = (guint8 *)ek1->keyvalue;
+
+	k2.magic = KV5M_KEYBLOCK;
+	k2.enctype = ek2->keytype;
+	k2.length = ek2->keylength;
+	k2.contents = (guint8 *)ek2->keyvalue;
+
+	ret = krb5_c_fx_cf2_simple(krb5_ctx, &k1, p1, &k2, p2, &k);
+	if (ret != 0) {
+		return;
+	}
+
+	add_encryption_key(actx->pinfo,
+			   private_data,
+			   tree, NULL, tvb,
+			   k->enctype, k->length,
+			   (const char *)k->contents,
+			   origin,
+			   ek1, ek2);
+
+	krb5_free_keyblock(krb5_ctx, k);
+#endif
+}
 
 USES_APPLE_DEPRECATED_API
 void
@@ -874,6 +1025,12 @@ decrypt_krb5_with_cb_try_key(gpointer __key _U_, gpointer value, gpointer userda
 	enc_key_t *ek = (enc_key_t *)value;
 	krb5_error_code ret;
 	krb5_keytab_entry key;
+#ifdef HAVE_KRB5_C_FX_CF2_SIMPLE
+	enc_key_t *ak = state->private_data->fast_armor_key;
+	enc_key_t *sk = state->private_data->fast_strengthen_key;
+	gboolean try_with_armor_key = FALSE;
+	gboolean try_with_strengthen_key = FALSE;
+#endif
 
 	if (state->ek != NULL) {
 		/*
@@ -881,6 +1038,173 @@ decrypt_krb5_with_cb_try_key(gpointer __key _U_, gpointer value, gpointer userda
 		 */
 		return;
 	}
+
+#ifdef HAVE_KRB5_C_FX_CF2_SIMPLE
+	if (ak != NULL && ak != ek && ak->keytype == state->keytype && ek->fd_num == -1) {
+		switch (state->usage) {
+		case KEY_USAGE_ENC_CHALLENGE_CLIENT:
+		case KEY_USAGE_ENC_CHALLENGE_KDC:
+			if (ek->fd_num == -1) {
+				/* Challenges are based on a long term key */
+				try_with_armor_key = TRUE;
+			}
+			break;
+		}
+
+		/*
+		 * If we already have a strengthen_key
+		 * we don't need to try with the armor key
+		 * again
+		 */
+		if (sk != NULL) {
+			try_with_armor_key = FALSE;
+		}
+	}
+
+	if (sk != NULL && sk != ek && sk->keytype == state->keytype && sk->keytype == ek->keytype) {
+		switch (state->usage) {
+		case 3:
+			if (ek->fd_num == -1) {
+				/* AS-REP is based on a long term key */
+				try_with_strengthen_key = TRUE;
+			}
+			break;
+		case 8:
+		case 9:
+			if (ek->fd_num != -1) {
+				/* TGS-REP is not based on a long term key */
+				try_with_strengthen_key = TRUE;
+			}
+			break;
+		}
+	}
+
+	if (try_with_armor_key) {
+		krb5_keyblock k1;
+		krb5_keyblock k2;
+		krb5_keyblock *k = NULL;
+		const char *p1 = NULL;
+
+		k1.magic = KV5M_KEYBLOCK;
+		k1.enctype = ak->keytype;
+		k1.length = ak->keylength;
+		k1.contents = (guint8 *)ak->keyvalue;
+
+		k2.magic = KV5M_KEYBLOCK;
+		k2.enctype = ek->keytype;
+		k2.length = ek->keylength;
+		k2.contents = (guint8 *)ek->keyvalue;
+
+		switch (state->usage) {
+		case KEY_USAGE_ENC_CHALLENGE_CLIENT:
+			p1 = "clientchallengearmor";
+			break;
+		case KEY_USAGE_ENC_CHALLENGE_KDC:
+			p1 = "kdcchallengearmor";
+			break;
+		default:
+			/*
+			 * Should never be called!
+			 */
+			/*
+			 * try the next one...
+			 */
+			return;
+		}
+
+		ret = krb5_c_fx_cf2_simple(krb5_ctx,
+					   &k1, p1,
+					   &k2, "challengelongterm",
+					   &k);
+		if (ret != 0) {
+			/*
+			 * try the next one...
+			 */
+			return;
+		}
+
+		ret = state->decrypt_cb_fn(k,
+					   state->usage,
+					   state->decrypt_cb_data);
+		if (ret == 0) {
+			add_encryption_key(state->pinfo,
+					   state->private_data,
+					   state->tree,
+					   NULL,
+					   state->cryptotvb,
+					   k->enctype, k->length,
+					   (const char *)k->contents,
+					   p1,
+					   ak, ek);
+			krb5_free_keyblock(krb5_ctx, k);
+			/*
+			 * remember the key and stop traversing
+			 */
+			state->ek = state->private_data->last_added_key;
+			return;
+		}
+		krb5_free_keyblock(krb5_ctx, k);
+		/*
+		 * don't stop traversing...
+		 * try the next one...
+		 */
+		return;
+	}
+
+	if (try_with_strengthen_key) {
+		krb5_keyblock k1;
+		krb5_keyblock k2;
+		krb5_keyblock *k = NULL;
+
+		k1.magic = KV5M_KEYBLOCK;
+		k1.enctype = sk->keytype;
+		k1.length = sk->keylength;
+		k1.contents = (guint8 *)sk->keyvalue;
+
+		k2.magic = KV5M_KEYBLOCK;
+		k2.enctype = ek->keytype;
+		k2.length = ek->keylength;
+		k2.contents = (guint8 *)ek->keyvalue;
+
+		ret = krb5_c_fx_cf2_simple(krb5_ctx,
+					   &k1, "strengthenkey",
+					   &k2, "replykey",
+					   &k);
+		if (ret != 0) {
+			/*
+			 * try the next one...
+			 */
+			return;
+		}
+
+		ret = state->decrypt_cb_fn(k,
+					   state->usage,
+					   state->decrypt_cb_data);
+		if (ret == 0) {
+			add_encryption_key(state->pinfo,
+					   state->private_data,
+					   state->tree,
+					   NULL,
+					   state->cryptotvb,
+					   k->enctype, k->length,
+					   (const char *)k->contents,
+					    "strengthen-reply-key",
+					   sk, ek);
+			krb5_free_keyblock(krb5_ctx, k);
+			/*
+			 * remember the key and stop traversing
+			 */
+			state->ek = state->private_data->last_added_key;
+			return;
+		}
+		krb5_free_keyblock(krb5_ctx, k);
+		/*
+		 * don't stop traversing...
+		 * try the next one...
+		 */
+		return;
+	}
+#endif
 
 	/* shortcircuit and bail out if enctypes are not matching */
 	if ((state->keytype != -1) && (ek->keytype != state->keytype)) {
@@ -1407,6 +1731,15 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 static krb5_context krb5_ctx;
 
 USES_APPLE_DEPRECATED_API
+
+static void
+krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
+	      enc_key_t *ek1 _U_, const char *p1 _U_,
+	      enc_key_t *ek2 _U_, const char *p2 _U_,
+	      const char *origin _U_)
+{
+/* TODO: use krb5_crypto_fx_cf2() from Heimdal */
+}
 void
 read_keytab_file(const char *filename)
 {
@@ -1667,6 +2000,13 @@ save_KrbCredInfo_key(tvbuff_t *tvb, int offset, int length,
 		     int hf_index)
 {
 	save_encryption_key(tvb, offset, length, actx, tree, parent_hf_index, hf_index);
+}
+
+static void
+save_KrbFastResponse_strengthen_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
+				    asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
+{
+	save_encryption_key(tvb, offset, length, actx, tree, hf_index);
 }
 
 static void
@@ -2425,6 +2765,141 @@ dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 	}
 	return offset;
 }
+
+static int
+dissect_krb5_decrypt_KrbFastReq(gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+				proto_tree *tree, int hf_index _U_)
+{
+	guint8 *plaintext;
+	int length;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
+
+	private_data->fast_armor_key = NULL;
+	if (private_data->PA_FAST_ARMOR_AP_subkey != NULL) {
+		krb5_fast_key(actx, tree, tvb,
+			      private_data->PA_FAST_ARMOR_AP_subkey,
+			      "subkeyarmor",
+			      private_data->PA_FAST_ARMOR_AP_key,
+			      "ticketarmor",
+			      "KrbFastReq_FAST_armorKey");
+		if (private_data->PA_TGS_REQ_subkey != NULL) {
+			enc_key_t *explicit_armor_key = private_data->last_added_key;
+
+			/*
+			 * See [MS-KILE] 3.3.5.7.4 Compound Identity
+			 */
+			krb5_fast_key(actx, tree, tvb,
+				      explicit_armor_key,
+				      "explicitarmor",
+				      private_data->PA_TGS_REQ_subkey,
+				      "tgsarmor",
+				      "KrbFastReq_explicitArmorKey");
+		}
+		private_data->fast_armor_key = private_data->last_added_key;
+	} else if (private_data->PA_TGS_REQ_subkey != NULL) {
+		krb5_fast_key(actx, tree, tvb,
+			      private_data->PA_TGS_REQ_subkey,
+			      "subkeyarmor",
+			      private_data->PA_TGS_REQ_key,
+			      "ticketarmor",
+			      "KrbFastReq_TGS_armorKey");
+		private_data->fast_armor_key = private_data->last_added_key;
+	}
+
+	/* RFC6113 :
+	 * KrbFastResponse encrypted with usage
+	 * KEY_USAGE_FAST_ENC 51
+	 */
+	plaintext=decrypt_krb5_data_asn1(tree, actx, KEY_USAGE_FAST_ENC,
+					 next_tvb, NULL);
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 FastReq");
+
+		offset=dissect_kerberos_KrbFastReq(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_decrypt_KrbFastResponse(gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+				     proto_tree *tree, int hf_index _U_)
+{
+	guint8 *plaintext;
+	int length;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
+
+	/*
+	 * RFC6113 :
+	 * KrbFastResponse encrypted with usage
+	 * KEY_USAGE_FAST_REP 52
+	 */
+	plaintext=decrypt_krb5_data_asn1(tree, actx, KEY_USAGE_FAST_REP,
+					 next_tvb, NULL);
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Krb5 FastRep");
+
+		private_data->fast_armor_key = private_data->last_decryption_key;
+		offset=dissect_kerberos_KrbFastResponse(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_decrypt_EncryptedChallenge(gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+					proto_tree *tree, int hf_index _U_)
+{
+	guint8 *plaintext;
+	int length;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	tvbuff_t *next_tvb;
+	int usage = 0;
+	const char *name = NULL;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
+
+	/* RFC6113 :
+	 * KEY_USAGE_ENC_CHALLENGE_CLIENT  54
+	 * KEY_USAGE_ENC_CHALLENGE_KDC     55
+	 */
+	if (kerberos_private_is_kdc_req(private_data)) {
+		usage = KEY_USAGE_ENC_CHALLENGE_CLIENT;
+		name = "Krb5 CHALLENGE_CLIENT";
+	} else {
+		usage = KEY_USAGE_ENC_CHALLENGE_KDC;
+		name = "Krb5 CHALLENGE_KDC";
+	}
+	plaintext=decrypt_krb5_data_asn1(tree, actx, usage, next_tvb, NULL);
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, name);
+
+		offset=dissect_kerberos_PA_ENC_TS_ENC(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
 #endif
 
 static const int *hf_krb_pa_supported_enctypes_fields[] = {
@@ -3136,6 +3611,28 @@ kerberos_display_key(gpointer data, gpointer userdata)
 					    ek->id_str, ek->num_same,
 					    ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 					    ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+	if (ek->src1 != NULL) {
+		sek = ek->src1;
+		expert_add_info_format(state->pinfo,
+				       item,
+				       state->expindex,
+				       "SRC1 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       sek->key_origin, sek->keytype,
+				       sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+	}
+	if (ek->src2 != NULL) {
+		sek = ek->src2;
+		expert_add_info_format(state->pinfo,
+				       item,
+				       state->expindex,
+				       "SRC2 %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       sek->key_origin, sek->keytype,
+				       sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+	}
 	sek = ek->same_list;
 	while (sek != NULL) {
 		expert_add_info_format(state->pinfo,
@@ -3599,6 +4096,9 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_key_hidden_item,
 	  { "KeyHiddenItem", "krb5.key_hidden_item",
 	    FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+	{ &hf_kerberos_KrbFastResponse,
+	   { "KrbFastResponse", "kerberos.KrbFastResponse_element",
+	    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 #ifdef HAVE_KERBEROS
 	{ &hf_krb_patimestamp,
 	  { "patimestamp", "kerberos.patimestamp",
