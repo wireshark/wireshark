@@ -184,6 +184,8 @@ static gint hf_krb_pa_supported_enctypes_fast_supported = -1;
 static gint hf_krb_pa_supported_enctypes_compound_identity_supported = -1;
 static gint hf_krb_pa_supported_enctypes_claims_supported = -1;
 static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled = -1;
+static gint hf_krb_ad_ap_options = -1;
+static gint hf_krb_ad_ap_options_cbt = -1;
 #include "packet-kerberos-hf.c"
 
 /* Initialize the subtree pointers */
@@ -199,6 +201,7 @@ static gint ett_krb_pac_server_checksum = -1;
 static gint ett_krb_pac_privsvr_checksum = -1;
 static gint ett_krb_pac_client_info_type = -1;
 static gint ett_krb_pa_supported_enctypes = -1;
+static gint ett_krb_ad_ap_options = -1;
 #include "packet-kerberos-ett.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
@@ -1793,6 +1796,29 @@ dissect_kerberos_PA_SUPPORTED_ENCTYPES(gboolean implicit_tag _U_, tvbuff_t *tvb 
 	return offset;
 }
 
+static const int *hf_krb_ad_ap_options_fields[] = {
+	&hf_krb_ad_ap_options_cbt,
+	NULL,
+};
+
+static const true_false_string set_tfs = {
+	"Set", "Not set"
+};
+
+static int
+dissect_kerberos_AD_AP_OPTIONS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
+			       int offset _U_, asn1_ctx_t *actx _U_,
+			       proto_tree *tree _U_, int hf_index _U_)
+{
+	actx->created_item = proto_tree_add_bitmask(tree, tvb, offset,
+						    hf_krb_ad_ap_options,
+						    ett_krb_ad_ap_options,
+						    hf_krb_ad_ap_options_fields,
+						    ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
 /* Dissect a GSSAPI checksum as per RFC1964. This is NOT ASN.1 encoded.
  */
 static int
@@ -2653,6 +2679,12 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_pa_supported_enctypes_resource_sid_compression_disabled,
 	  { "resource-sid-compression-disabled", "kerberos.supported_entypes.resource-sid-compression-disabled",
 	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00080000, NULL, HFILL }},
+	{ &hf_krb_ad_ap_options,
+	  { "AD-AP-Options", "kerberos.ad_ap_options",
+	    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_krb_ad_ap_options_cbt,
+	  { "ChannelBindings", "kerberos.ad_ap_options.cbt",
+	    FT_BOOLEAN, 32, TFS(&set_tfs), 0x00004000, NULL, HFILL }},
 
 #include "packet-kerberos-hfarr.c"
 	};
@@ -2671,6 +2703,7 @@ void proto_register_kerberos(void) {
 		&ett_krb_pac_privsvr_checksum,
 		&ett_krb_pac_client_info_type,
 		&ett_krb_pa_supported_enctypes,
+		&ett_krb_ad_ap_options,
 #include "packet-kerberos-ettarr.c"
 	};
 

@@ -192,6 +192,8 @@ static gint hf_krb_pa_supported_enctypes_fast_supported = -1;
 static gint hf_krb_pa_supported_enctypes_compound_identity_supported = -1;
 static gint hf_krb_pa_supported_enctypes_claims_supported = -1;
 static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled = -1;
+static gint hf_krb_ad_ap_options = -1;
+static gint hf_krb_ad_ap_options_cbt = -1;
 
 /*--- Included file: packet-kerberos-hf.c ---*/
 #line 1 "./asn1/kerberos/packet-kerberos-hf.c"
@@ -406,7 +408,7 @@ static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc = -1;
 static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 188 "./asn1/kerberos/packet-kerberos-template.c"
+#line 190 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -421,6 +423,7 @@ static gint ett_krb_pac_server_checksum = -1;
 static gint ett_krb_pac_privsvr_checksum = -1;
 static gint ett_krb_pac_client_info_type = -1;
 static gint ett_krb_pa_supported_enctypes = -1;
+static gint ett_krb_ad_ap_options = -1;
 
 /*--- Included file: packet-kerberos-ett.c ---*/
 #line 1 "./asn1/kerberos/packet-kerberos-ett.c"
@@ -497,7 +500,7 @@ static gint ett_kerberos_PA_FX_FAST_REPLY = -1;
 static gint ett_kerberos_KrbFastArmoredRep = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 203 "./asn1/kerberos/packet-kerberos-template.c"
+#line 206 "./asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
@@ -617,7 +620,7 @@ typedef enum _KERBEROS_PADATA_TYPE_enum {
 } KERBEROS_PADATA_TYPE_enum;
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 215 "./asn1/kerberos/packet-kerberos-template.c"
+#line 218 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -2199,6 +2202,29 @@ dissect_kerberos_PA_SUPPORTED_ENCTYPES(gboolean implicit_tag _U_, tvbuff_t *tvb 
 	return offset;
 }
 
+static const int *hf_krb_ad_ap_options_fields[] = {
+	&hf_krb_ad_ap_options_cbt,
+	NULL,
+};
+
+static const true_false_string set_tfs = {
+	"Set", "Not set"
+};
+
+static int
+dissect_kerberos_AD_AP_OPTIONS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
+			       int offset _U_, asn1_ctx_t *actx _U_,
+			       proto_tree *tree _U_, int hf_index _U_)
+{
+	actx->created_item = proto_tree_add_bitmask(tree, tvb, offset,
+						    hf_krb_ad_ap_options,
+						    ett_krb_ad_ap_options,
+						    hf_krb_ad_ap_options_fields,
+						    ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
 /* Dissect a GSSAPI checksum as per RFC1964. This is NOT ASN.1 encoded.
  */
 static int
@@ -3139,6 +3165,9 @@ dissect_kerberos_T_ad_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 	case KERBEROS_AD_TOKEN_RESTRICTIONS:
 		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_KERB_AD_RESTRICTION_ENTRY);
 		break;
+	case KERBEROS_AD_AP_OPTIONS:
+		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_AP_OPTIONS);
+		break;
 	default:
 		offset=dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 	}
@@ -3280,7 +3309,7 @@ static const value_string kerberos_ADDR_TYPE_vals[] = {
 
 static int
 dissect_kerberos_ADDR_TYPE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 406 "./asn1/kerberos/kerberos.cnf"
+#line 409 "./asn1/kerberos/kerberos.cnf"
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &(private_data->addr_type));
@@ -3789,7 +3818,7 @@ static const ber_sequence_t KDC_REQ_BODY_sequence[] = {
 
 static int
 dissect_kerberos_KDC_REQ_BODY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 410 "./asn1/kerberos/kerberos.cnf"
+#line 413 "./asn1/kerberos/kerberos.cnf"
 	conversation_t *conversation;
 
 	/*
@@ -4041,7 +4070,7 @@ dissect_kerberos_AP_REP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_kerberos_T_kRB_SAFE_BODY_user_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 433 "./asn1/kerberos/kerberos.cnf"
+#line 436 "./asn1/kerberos/kerberos.cnf"
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
 	tvbuff_t *new_tvb;
 	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
@@ -4291,14 +4320,14 @@ dissect_kerberos_METHOD_DATA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_kerberos_T_encrypted_pa_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 449 "./asn1/kerberos/kerberos.cnf"
+#line 452 "./asn1/kerberos/kerberos.cnf"
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
 	private_data->is_enc_padata = TRUE;
 
 
   offset = dissect_kerberos_METHOD_DATA(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-#line 453 "./asn1/kerberos/kerberos.cnf"
+#line 456 "./asn1/kerberos/kerberos.cnf"
 	private_data->is_enc_padata = FALSE;
 
 
@@ -4382,7 +4411,7 @@ dissect_kerberos_EncAPRepPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_kerberos_T_encKrbPrivPart_user_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 441 "./asn1/kerberos/kerberos.cnf"
+#line 444 "./asn1/kerberos/kerberos.cnf"
 	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
 	tvbuff_t *new_tvb;
 	offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &new_tvb);
@@ -4883,7 +4912,7 @@ dissect_kerberos_PA_S4U2Self(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_kerberos_T_subject_certificate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 403 "./asn1/kerberos/kerberos.cnf"
+#line 406 "./asn1/kerberos/kerberos.cnf"
 	offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset,hf_index, dissect_x509af_Certificate);
 
 
@@ -5146,7 +5175,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 2238 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2264 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5565,6 +5594,12 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_pa_supported_enctypes_resource_sid_compression_disabled,
 	  { "resource-sid-compression-disabled", "kerberos.supported_entypes.resource-sid-compression-disabled",
 	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00080000, NULL, HFILL }},
+	{ &hf_krb_ad_ap_options,
+	  { "AD-AP-Options", "kerberos.ad_ap_options",
+	    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_krb_ad_ap_options_cbt,
+	  { "ChannelBindings", "kerberos.ad_ap_options.cbt",
+	    FT_BOOLEAN, 32, TFS(&set_tfs), 0x00004000, NULL, HFILL }},
 
 
 /*--- Included file: packet-kerberos-hfarr.c ---*/
@@ -6403,7 +6438,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2658 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2690 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -6420,6 +6455,7 @@ void proto_register_kerberos(void) {
 		&ett_krb_pac_privsvr_checksum,
 		&ett_krb_pac_client_info_type,
 		&ett_krb_pa_supported_enctypes,
+		&ett_krb_ad_ap_options,
 
 /*--- Included file: packet-kerberos-ettarr.c ---*/
 #line 1 "./asn1/kerberos/packet-kerberos-ettarr.c"
@@ -6496,7 +6532,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2675 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2708 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
