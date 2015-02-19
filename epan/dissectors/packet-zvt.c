@@ -79,6 +79,7 @@ typedef struct _apdu_info_t {
 
 /* control code 0 is not defined in the specification */
 #define ZVT_CTRL_NONE      0x0000
+
 #define CTRL_STATUS        0x040F
 #define CTRL_INT_STATUS    0x04FF
 #define CTRL_REGISTRATION  0x0600
@@ -92,21 +93,21 @@ typedef struct _apdu_info_t {
 
 static void dissect_zvt_reg(
         tvbuff_t *tvb, gint offset, guint16 len, packet_info *pinfo, proto_tree *tree);
-static void dissect_zvt_auth(
+static void dissect_zvt_bitmap_apdu(
         tvbuff_t *tvb, gint offset, guint16 len, packet_info *pinfo, proto_tree *tree);
 
 static const apdu_info_t apdu_info[] = {
-    { CTRL_STATUS, 0, DIRECTION_PT_TO_ECR, NULL },
-    { CTRL_INT_STATUS, 0, DIRECTION_PT_TO_ECR, NULL },
-    { CTRL_REGISTRATION, 4, DIRECTION_ECR_TO_PT, dissect_zvt_reg },
+    { CTRL_STATUS,        0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_INT_STATUS,    0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_REGISTRATION,  4, DIRECTION_ECR_TO_PT, dissect_zvt_reg },
     /* authorisation has at least a 0x04 tag and 6 bytes for the amount */
-    { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, dissect_zvt_auth },
-    { CTRL_COMPLETION, 0, DIRECTION_PT_TO_ECR, NULL },
-    { CTRL_ABORT, 0, DIRECTION_PT_TO_ECR, NULL },
-    { CTRL_END_OF_DAY, 0, DIRECTION_ECR_TO_PT, NULL },
-    { CTRL_DIAG, 0,  DIRECTION_ECR_TO_PT, NULL },
-    { CTRL_INIT, 0, DIRECTION_ECR_TO_PT, NULL },
-    { CTRL_PRINT_LINE, 0, DIRECTION_PT_TO_ECR, NULL }
+    { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, dissect_zvt_bitmap_apdu },
+    { CTRL_COMPLETION,    0, DIRECTION_PT_TO_ECR, dissect_zvt_bitmap_apdu },
+    { CTRL_ABORT,         0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_END_OF_DAY,    0, DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_DIAG,          0,  DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_INIT,          0, DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_PRINT_LINE,    0, DIRECTION_PT_TO_ECR, NULL }
 };
 
 void proto_register_zvt(void);
@@ -132,7 +133,7 @@ static int hf_zvt_reg_pwd = -1;
 static int hf_zvt_reg_cfg = -1;
 static int hf_zvt_cc = -1;
 static int hf_zvt_reg_svc_byte = -1;
-static int hf_zvt_auth_tag = -1;
+static int zvt_bitmap = -1;
 
 static const value_string serial_char[] = {
     { STX, "Start of text (STX)" },
@@ -161,40 +162,103 @@ static const value_string ctrl_field[] = {
 };
 static value_string_ext ctrl_field_ext = VALUE_STRING_EXT_INIT(ctrl_field);
 
-#define AUTH_TAG_TIMEOUT       0x01
-#define AUTH_TAG_MAX_STAT_INFO 0x02
-#define AUTH_TAG_AMOUNT        0x04
-#define AUTH_TAG_PUMP_NR       0x05
-#define AUTH_TAG_TLV_CONTAINER 0x06
-#define AUTH_TAG_EXP_DATE      0x0E
-#define AUTH_TAG_PAYMENT_TYPE  0x19
-#define AUTH_TAG_CARD_NUM      0x22
-#define AUTH_TAG_T2_DAT        0x23
-#define AUTH_TAG_T3_DAT        0x24
-#define AUTH_TAG_T1_DAT        0x2D
-#define AUTH_TAG_CVV_CVC       0x3A
-#define AUTH_TAG_ADD_DATA      0x3C
-#define AUTH_TAG_CC            0x49
+#define BMP_TIMEOUT       0x01
+#define BMP_MAX_STAT_INFO 0x02
+#define BMP_AMOUNT        0x04
+#define BMP_PUMP_NR       0x05
+#define BMP_TLV_CONTAINER 0x06
+#define BMP_EXP_DATE      0x0E
+#define BMP_PAYMENT_TYPE  0x19
+#define BMP_CARD_NUM      0x22
+#define BMP_T2_DAT        0x23
+#define BMP_T3_DAT        0x24
+#define BMP_T1_DAT        0x2D
+#define BMP_CVV_CVC       0x3A
+#define BMP_ADD_DATA      0x3C
+#define BMP_CC            0x49
 
-static const value_string auth_tag[] = {
-    { AUTH_TAG_TIMEOUT,       "Timeout" },
-    { AUTH_TAG_MAX_STAT_INFO, "max. status info" },
-    { AUTH_TAG_AMOUNT,        "Amount" },
-    { AUTH_TAG_PUMP_NR,       "Pump number" },
-    { AUTH_TAG_TLV_CONTAINER, "TLV container" },
-    { AUTH_TAG_EXP_DATE,      "Exipry date" },
-    { AUTH_TAG_PAYMENT_TYPE,  "Payment type" },
-    { AUTH_TAG_CARD_NUM,      "Card number" },
-    { AUTH_TAG_T2_DAT,        "Track 2 data" },
-    { AUTH_TAG_T3_DAT,        "Track 3 data" },
-    { AUTH_TAG_T1_DAT,        "Track 1 data" },
-    { AUTH_TAG_CVV_CVC,       "CVV / CVC" },
-    { AUTH_TAG_ADD_DATA,      "Additional data" },
-    { AUTH_TAG_CC,            "Currency code (CC)" },
+/* XXX - handle a TVL container as special bitmap */
+static const value_string bitmap[] = {
+    { BMP_TIMEOUT,       "Timeout" },
+    { BMP_MAX_STAT_INFO, "max. status info" },
+    { BMP_AMOUNT,        "Amount" },
+    { BMP_PUMP_NR,       "Pump number" },
+    { BMP_TLV_CONTAINER, "TLV container" },
+    { BMP_EXP_DATE,      "Exipry date" },
+    { BMP_PAYMENT_TYPE,  "Payment type" },
+    { BMP_CARD_NUM,      "Card number" },
+    { BMP_T2_DAT,        "Track 2 data" },
+    { BMP_T3_DAT,        "Track 3 data" },
+    { BMP_T1_DAT,        "Track 1 data" },
+    { BMP_CVV_CVC,       "CVV / CVC" },
+    { BMP_ADD_DATA,      "Additional data" },
+    { BMP_CC,            "Currency code (CC)" },
     { 0, NULL }
 };
-static value_string_ext auth_tag_ext = VALUE_STRING_EXT_INIT(auth_tag);
+static value_string_ext bitmap_ext = VALUE_STRING_EXT_INIT(bitmap);
 
+
+/* dissect one "bitmap", i.e BMP and the corresponding data */
+static gint
+dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint    offset_start;
+    guint8  bmp;
+
+    offset_start = offset;
+
+    bmp = tvb_get_guint8(tvb, offset);
+    if (try_val_to_str(bmp, bitmap) == NULL)
+        return -1;
+
+    proto_tree_add_item(tree, zvt_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    switch (bmp) {
+        case BMP_TIMEOUT:
+            offset++;
+            break;
+        case BMP_MAX_STAT_INFO:
+            offset++;
+            break;
+        case BMP_AMOUNT:
+            offset += 6;
+            break;
+        case BMP_PUMP_NR:
+            offset++;
+            break;
+        case BMP_EXP_DATE:
+            offset += 2;
+            break;
+        case BMP_PAYMENT_TYPE:
+            offset++;
+            break;
+        case BMP_CVV_CVC:
+            offset += 2;
+            break;
+        case BMP_CC:
+            offset += 2;
+            break;
+        case BMP_CARD_NUM:
+        case BMP_T2_DAT:
+        case BMP_T3_DAT:
+        case BMP_T1_DAT:
+        case BMP_TLV_CONTAINER:
+        case BMP_ADD_DATA:
+            /* the bitmaps are not TLV but only TV, there's no length field
+               the tags listed above have variable length
+               -> if we see one of those tags, we have to stop the
+               dissection and report an error to the caller */
+            return -1;
+
+        default:
+            g_assert_not_reached();
+            break;
+    };
+
+    return offset - offset_start;
+}
 
 static void
 dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
@@ -224,66 +288,23 @@ dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
 }
 
 
+/* dissect an APDU that contains a sequence of bitmaps */
 static void
-dissect_zvt_auth(tvbuff_t *tvb, gint offset, guint16 len,
+dissect_zvt_bitmap_apdu(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint    offset_start;
-    guint8  auth_tag_byte;
+    gint offset_start, ret;
 
     offset_start = offset;
 
     while (offset - offset_start < len) {
-        auth_tag_byte = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_zvt_auth_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-
-        switch (auth_tag_byte) {
-            case AUTH_TAG_TIMEOUT:
-                offset++;
-                break;
-            case AUTH_TAG_MAX_STAT_INFO:
-                offset++;
-                break;
-            case AUTH_TAG_AMOUNT:
-                offset += 6;
-                break;
-            case AUTH_TAG_PUMP_NR:
-                offset++;
-                break;
-            case AUTH_TAG_EXP_DATE:
-                offset += 2;
-                break;
-            case AUTH_TAG_PAYMENT_TYPE:
-                offset++;
-                break;
-            case AUTH_TAG_CVV_CVC:
-                offset += 2;
-                break;
-            case AUTH_TAG_CC:
-                offset += 2;
-                break;
-            case AUTH_TAG_CARD_NUM:
-            case AUTH_TAG_T2_DAT:
-            case AUTH_TAG_T3_DAT:
-            case AUTH_TAG_T1_DAT:
-            case AUTH_TAG_TLV_CONTAINER:
-            case AUTH_TAG_ADD_DATA:
-                /* the data items in the authentication apdu consist of
-                   a tag and the item data - there's no length field
-                   the tag listed above have a variable length
-                   -> if we see one of those tags, we have to stop the
-                      dissection (or we have to parse the corresponding
-                      data) */
-                return;
-            default:
-                /* since there's no length field, we can't skip
-                   unknown data items - if we see an unknown data item,
-                   we have to stop */
-                return;
-        };
+        ret = dissect_zvt_bitmap(tvb, offset, pinfo, tree);
+        if (ret <=0)
+            break;
+        offset += ret;
     }
 }
+
 
 static void
 zvt_set_addresses(packet_info *pinfo _U_, zvt_direction_t dir)
@@ -577,9 +598,9 @@ proto_register_zvt(void)
         { &hf_zvt_reg_svc_byte,
             { "Service byte", "zvt.reg.service_byte",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_zvt_auth_tag,
-            { "Tag", "zvt.auth.tag", FT_UINT8,
-                BASE_HEX|BASE_EXT_STRING, &auth_tag_ext, 0, NULL, HFILL } }
+        { &zvt_bitmap,
+            { "Bitmap", "zvt.bitmap", FT_UINT8,
+                BASE_HEX|BASE_EXT_STRING, &bitmap_ext, 0, NULL, HFILL } }
     };
 
 
