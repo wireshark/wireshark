@@ -669,14 +669,26 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				kerberos_private_data_t *private_data _U_,
 				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
 {
+	proto_item *item = NULL;
+	enc_key_t *sek = NULL;
 
-	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
+	item = proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     cryptotvb, 0, 0,
 				     "Decrypted keytype %d usage %d "
 				     "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
 				     ek->keytype, usage, ek->key_origin, ek->id_str, ek->num_same,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+	sek = ek->same_list;
+	while (sek != NULL) {
+		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
+				       "Decrypted keytype %d usage %d "
+				       "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       sek->keytype, usage, sek->key_origin, sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+		sek = sek->same_list;
+	}
 }
 
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
@@ -689,7 +701,10 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 			     krb5_cksumtype checksum,
 			     const char *reason)
 {
-	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
+	proto_item *item = NULL;
+	enc_key_t *sek = NULL;
+
+	item = proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
 				     tvb, 0, 0,
 				     "%s checksum %d keytype %d "
 				     "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
@@ -697,6 +712,17 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 				     ek->id_str, ek->num_same,
 				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
 				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+	sek = ek->same_list;
+	while (sek != NULL) {
+		expert_add_info_format(pinfo, item, &ei_kerberos_decrypted_keytype,
+				       "%s checksum %d keytype %d "
+				       "using %s (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       reason, checksum, sek->keytype, sek->key_origin,
+				       sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+		sek = sek->same_list;
+	}
 }
 #endif /* HAVE_KRB5_PAC_VERIFY */
 
