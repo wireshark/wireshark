@@ -90,7 +90,7 @@ mcpe_dissect_detail_0xA0(tvbuff_t *tvb, proto_tree *raknet_tree, gint offset)
         item_size = 3;
         proto_tree_add_item(raknet_tree, hf_mcpe_general_packet_number, tvb,
                             offset, item_size, ENC_BIG_ENDIAN);
-        offset += item_size;
+        /*offset += item_size;*/
     }
 }
 
