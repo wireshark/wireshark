@@ -279,7 +279,6 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-t124.c
 	dissectors/packet-t125.c
 	dissectors/packet-t38.c
-	dissectors/packet-tango.c
 	dissectors/packet-tetra.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
@@ -297,6 +296,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-parlay.c
 	dissectors/packet-pkcs12.c
 	dissectors/packet-snmp.c
+	dissectors/packet-tango.c
 	dissectors/packet-tcap.c
 )
 
