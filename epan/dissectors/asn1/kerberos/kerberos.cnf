@@ -366,6 +366,12 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 #.FN_BODY EncryptionKey/keytype VAL_PTR=&gbl_keytype
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
+  private_data->key_hidden_item = proto_tree_add_item(tree, hf_krb_key_hidden_item,
+                                                      tvb, 0, 0, ENC_NA);
+  if (private_data->key_hidden_item != NULL) {
+    proto_item_set_hidden(private_data->key_hidden_item);
+  }
+
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                   &gbl_keytype);
   private_data->key.keytype = gbl_keytype;

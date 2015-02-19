@@ -101,6 +101,7 @@ typedef struct {
 	guint32 enctype;
 	kerberos_key_t key;
 	proto_tree *key_tree;
+	proto_item *key_hidden_item;
 	tvbuff_t *key_tvb;
 	kerberos_callbacks *callbacks;
 	guint32 ad_type;
@@ -208,6 +209,7 @@ static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled = -1;
 static gint hf_krb_ad_ap_options = -1;
 static gint hf_krb_ad_ap_options_cbt = -1;
 static gint hf_krb_ad_target_principal = -1;
+static gint hf_krb_key_hidden_item = -1;
 #ifdef HAVE_KERBEROS
 static gint hf_krb_patimestamp = -1;
 static gint hf_krb_pausec = -1;
@@ -236,6 +238,7 @@ static gint ett_krb_pa_enc_ts_enc = -1;
 #include "packet-kerberos-ett.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
+static expert_field ei_kerberos_learnt_keytype = EI_INIT;
 static expert_field ei_kerberos_address = EI_INIT;
 static expert_field ei_krb_gssapi_dlglen = EI_INIT;
 
@@ -532,27 +535,33 @@ static void insert_longterm_keys_into_key_map(wmem_map_t *key_map)
 static void
 add_encryption_key(packet_info *pinfo,
 		   kerberos_private_data_t *private_data,
-		   proto_tree *key_tree _U_,
-		   tvbuff_t *key_tvb _U_,
+		   proto_tree *key_tree,
+		   proto_item *key_hidden_item,
+		   tvbuff_t *key_tvb,
 		   int keytype, int keylength, const char *keyvalue,
 		   const char *origin)
 {
-	/*
-	 * As long as we have enc_key_list, we need to
-	 * use wmem_epan_scope(), when that's gone
-	 * we can dynamically select the scope based on
-	 * how long we'll need the particular key.
-	 */
-	wmem_allocator_t *key_scope = wmem_epan_scope();
-	enc_key_t *new_key;
+	wmem_allocator_t *key_scope = NULL;
+	enc_key_t *new_key = NULL;
+	proto_item *item = NULL;
 
 	private_data->last_added_key = NULL;
 
 	if(pinfo->fd->visited){
-		return;
+		/*
+		 * We already processed this,
+		 * we can use a shortterm scope
+		 */
+		key_scope = wmem_packet_scope();
+	} else {
+		/*
+		 * As long as we have enc_key_list, we need to
+		 * use wmem_epan_scope(), when that's gone
+		 * we can dynamically select the scope based on
+		 * how long we'll need the particular key.
+		 */
+		key_scope = wmem_epan_scope();
 	}
-
-	insert_longterm_keys_into_key_map(kerberos_all_keys);
 
 	new_key = wmem_new0(key_scope, enc_key_t);
 	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt in frame %u",origin,pinfo->num);
@@ -560,13 +569,30 @@ add_encryption_key(packet_info *pinfo,
 	new_key->id = ++private_data->learnt_key_ids;
 	g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "%d.%u",
 		   new_key->fd_num, new_key->id);
-	new_key->next=enc_key_list;
-	enc_key_list=new_key;
 	new_key->keytype=keytype;
 	new_key->keylength=keylength;
 	memcpy(new_key->keyvalue, keyvalue, MIN(keylength, KRB_MAX_KEY_LENGTH));
 
-	kerberos_key_map_insert(kerberos_all_keys, new_key);
+	if(!pinfo->fd->visited){
+		/*
+		 * Only keep it if we don't processed it before.
+		 */
+		new_key->next=enc_key_list;
+		enc_key_list=new_key;
+		insert_longterm_keys_into_key_map(kerberos_all_keys);
+		kerberos_key_map_insert(kerberos_all_keys, new_key);
+	}
+
+	item = proto_tree_add_expert_format(key_tree, pinfo, &ei_kerberos_learnt_keytype,
+			key_tvb, 0, keylength,
+			"Learnt %s keytype %d (id=%d.%u) (%02x%02x%02x%02x...)",
+			origin, keytype, pinfo->num, new_key->id,
+			keyvalue[0] & 0xFF, keyvalue[1] & 0xFF,
+			keyvalue[2] & 0xFF, keyvalue[3] & 0xFF);
+	if (item != NULL && key_hidden_item != NULL) {
+		proto_tree_move_item(key_tree, key_hidden_item, item);
+	}
+
 	private_data->last_added_key = new_key;
 }
 
@@ -586,6 +612,7 @@ save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
 	add_encryption_key(actx->pinfo,
 			   private_data,
 			   private_data->key_tree,
+			   private_data->key_hidden_item,
 			   private_data->key_tvb,
 			   private_data->key.keytype,
 			   private_data->key.keylength,
@@ -3430,6 +3457,9 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_ad_target_principal,
 	  { "Target Principal", "kerberos.ad_target_principal",
 	    FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_krb_key_hidden_item,
+	  { "KeyHiddenItem", "krb5.key_hidden_item",
+	    FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 #ifdef HAVE_KERBEROS
 	{ &hf_krb_patimestamp,
 	  { "patimestamp", "kerberos.patimestamp",
@@ -3467,6 +3497,7 @@ void proto_register_kerberos(void) {
 
 	static ei_register_info ei[] = {
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decryted keytype", EXPFILL }},
+		{ &ei_kerberos_learnt_keytype, { "kerberos.learnt_keytype", PI_SECURITY, PI_CHAT, "Learnt keytype", EXPFILL }},
 		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
 		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen is not the same as number of bytes remaining", EXPFILL }},
 	};
