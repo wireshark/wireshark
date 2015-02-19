@@ -1691,27 +1691,27 @@ proto_register_mausb(void)
 
         /* Flag Subfields */
         { &hf_mausb_flag_host,
-            { "Host", "mausb.flags.host", FT_BOOLEAN, 4,
-              TFS(&tfs_set_notset), MAUSB_FLAG_HOST,
+            { "Host", "mausb.flags.host", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), (MAUSB_FLAG_HOST << MAUSB_FLAG_OFFSET),
               NULL, HFILL
             }
         },
         { &hf_mausb_flag_retry,
-            { "Retry", "mausb.flags.retry", FT_BOOLEAN, 4,
-              TFS(&tfs_yes_no), MAUSB_FLAG_RETRY,
+            { "Retry", "mausb.flags.retry", FT_BOOLEAN, 8,
+              TFS(&tfs_yes_no), (MAUSB_FLAG_RETRY << MAUSB_FLAG_OFFSET),
               NULL, HFILL
             }
         },
         { &hf_mausb_flag_timestamp,
-            { "Timestamp", "mausb.flags.timestamp", FT_BOOLEAN, 4,
+            { "Timestamp", "mausb.flags.timestamp", FT_BOOLEAN, 8,
               TFS(&tfs_present_not_present),
-              MAUSB_FLAG_TIMESTAMP,
+              (MAUSB_FLAG_TIMESTAMP << MAUSB_FLAG_OFFSET),
               NULL, HFILL
             }
         },
         { &hf_mausb_flag_reserved,
-            { "Reserved", "mausb.flags.reserved", FT_BOOLEAN, 4,
-              TFS(&tfs_set_notset), MAUSB_FLAG_RESERVED,
+            { "Reserved", "mausb.flags.reserved", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), (MAUSB_FLAG_RESERVED << MAUSB_FLAG_OFFSET),
               NULL, HFILL
             }
         },
