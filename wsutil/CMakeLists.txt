@@ -104,24 +104,36 @@ else()
 endif()
 if(COMPILER_CAN_HANDLE_SSE4_2)
 	#
-	# Make sure we have the necessary header for the SSE4.2 intrinsics
-	# and that we can use it.
+	# Make sure we have the necessary headers for the SSE4.2 intrinsics
+	# and that we can use them.
 	#
+	# First, check whether we have emmintrin.h and can use it
+	# *without* the SSE 4.2 flag.
+	#
+	check_include_file("emmintrin.h" EMMINTRIN_H_WORKS)
 
 	#
-	# Does this add the SSE4.2 flags to the beginning of CFLAGS?
+	# OK, if that works, see whether we have nmmintrin.h and
+	# can use it *with* the SSE 4.2 flag.
 	#
-	# Note that if there's a mix of "enable SSE 4.2" and"disable
-	# SSE 4.2" flags, this may not indicate that we can use the
-	# header.  That's not a bug, that's a feature; the other flags
-	# may have been forced by the build process, e.g. in Gentoo
-	# Linux, and we want to check this with whatever flags will
-	# actually be used when building (see bug 10792).
-	#
-	cmake_push_check_state()
-	set(CMAKE_REQUIRED_FLAGS "${SSE4_2_FLAG}")
-	check_include_file("nmmintrin.h" HAVE_SSE4_2)
-	cmake_pop_check_state()
+	if(EMMINTRIN_H_WORKS)
+		#
+		# Does this add the SSE4.2 flags to the beginning of
+		# CFLAGS?
+		#
+		# Note that if there's a mix of "enable SSE 4.2" and
+		# "disable SSE 4.2" flags, this may not indicate that
+		# we can use the header.  That's not a bug, that's a
+		# feature; the other flags may have been forced by
+		# the build process, e.g. in Gentoo Linux, and we want
+		# to check this with whatever flags will actually be
+		# used when building (see bug 10792).
+		#
+		cmake_push_check_state()
+		set(CMAKE_REQUIRED_FLAGS "${SSE4_2_FLAG}")
+		check_include_file("nmmintrin.h" HAVE_SSE4_2)
+		cmake_pop_check_state()
+	endif()
 endif()
 if(HAVE_SSE4_2)
 	set(WSUTIL_FILES ${WSUTIL_FILES} ws_mempbrk_sse42.c)

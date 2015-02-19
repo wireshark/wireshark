@@ -1131,36 +1131,62 @@ if test "x$ac_sse4_2_flag" != x; then
 	#
 	# OK, we have a compiler flag to enable SSE 4.2.
 	#
-	# Make sure we have the necessary header for the SSE4.2 intrinsics
-	# and that we can use it.
+	# Make sure we have the necessary headers for the SSE4.2 intrinsics
+	# and that we can use them.
 	#
-	AC_MSG_CHECKING([whether there is nmmintrin.h header and we can use it])
-
+	# First, check whether we have emmintrin.h and can use it
+	# *without* the SSE 4.2 flag.
 	#
-	# Add the SSE4.2 flags to the beginning of CFLAGS, in case the
-	# user explicitly specified -mno-sse4.2 (or in case Gentoo's build
-	# tools did so); if they did so, we only want this to work if
-	# we can use the #pragma to override that for ws_mempbrk_sse42.c,
-	# and putting it at the beginning means that the CFLAGS setting
-	# in the environment will come later and override it.
-	#
-	saved_CFLAGS="$CFLAGS"
-	CFLAGS="$ac_sse4_2_flag $CFLAGS"
+	AC_MSG_CHECKING([whether there is emmintrin.h header and we can use it])
 	AC_TRY_COMPILE(
-		[#include <nmmintrin.h>],
+		[#include <emmintrin.h>],
 		[return 0;],
 		[
-		        have_sse42=yes
-		        AC_DEFINE(HAVE_SSE4_2, 1, [Support SSSE4.2 (Streaming SIMD Extensions 4.2) instructions])
-			CFLAGS_SSE42="$ac_sse4_2_flag"
+		        emmintrin_h_works=yes
 		        AC_MSG_RESULT([yes])
 		],
 		[
-		        have_sse42=no
+			emmintrin_h_works=no
 		        AC_MSG_RESULT([no])
 		]
 	)
-	CFLAGS="$saved_CFLAGS"
+
+	#
+	# OK, if that works, see whether we have nmmintrin.h and
+	# can use it *with* the SSE 4.2 flag.
+	#
+	if test "x$emmintrin_h_works" = "xyes"; then
+		#
+		# Add the SSE4.2 flags to the beginning of CFLAGS,
+		# in case the user explicitly specified -mno-sse4.2
+		# (or in case Gentoo's build tools did so); if they
+		# did so, we only want this to work if we can use
+		# the #pragma to override that for ws_mempbrk_sse42.c,
+		# and putting it at the beginning means that the
+		# CFLAGS setting in the environment will come later
+		# and override it.
+		#
+		AC_MSG_CHECKING([whether there is nmmintrin.h header and we can use it])
+		saved_CFLAGS="$CFLAGS"
+		CFLAGS="$ac_sse4_2_flag $CFLAGS"
+		AC_TRY_COMPILE(
+			[#include <nmmintrin.h>],
+			[return 0;],
+			[
+				have_sse42=yes
+				AC_DEFINE(HAVE_SSE4_2, 1, [Support SSSE4.2 (Streaming SIMD Extensions 4.2) instructions])
+				CFLAGS_SSE42="$ac_sse4_2_flag"
+				AC_MSG_RESULT([yes])
+			],
+			[
+				have_sse42=no
+				AC_MSG_RESULT([no])
+			]
+		)
+		CFLAGS="$saved_CFLAGS"
+	else
+		have_sse42=no
+	fi
 else
 	have_sse42=no
 fi
