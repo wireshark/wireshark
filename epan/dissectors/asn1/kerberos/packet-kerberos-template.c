@@ -173,6 +173,16 @@ static gint hf_krb_pac_upn_dns_name = -1;
 static gint hf_krb_pac_server_checksum = -1;
 static gint hf_krb_pac_privsvr_checksum = -1;
 static gint hf_krb_pac_client_info_type = -1;
+static gint hf_krb_pa_supported_enctypes = -1;
+static gint hf_krb_pa_supported_enctypes_des_cbc_crc = -1;
+static gint hf_krb_pa_supported_enctypes_des_cbc_md5 = -1;
+static gint hf_krb_pa_supported_enctypes_rc4_hmac = -1;
+static gint hf_krb_pa_supported_enctypes_aes128_cts_hmac_sha1_96 = -1;
+static gint hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96 = -1;
+static gint hf_krb_pa_supported_enctypes_fast_supported = -1;
+static gint hf_krb_pa_supported_enctypes_compound_identity_supported = -1;
+static gint hf_krb_pa_supported_enctypes_claims_supported = -1;
+static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled = -1;
 #include "packet-kerberos-hf.c"
 
 /* Initialize the subtree pointers */
@@ -187,6 +197,7 @@ static gint ett_krb_pac_upn_dns_info = -1;
 static gint ett_krb_pac_server_checksum = -1;
 static gint ett_krb_pac_privsvr_checksum = -1;
 static gint ett_krb_pac_client_info_type = -1;
+static gint ett_krb_pa_supported_enctypes = -1;
 #include "packet-kerberos-ett.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
@@ -1749,6 +1760,38 @@ dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 }
 #endif
 
+static const int *hf_krb_pa_supported_enctypes_fields[] = {
+	&hf_krb_pa_supported_enctypes_des_cbc_crc,
+	&hf_krb_pa_supported_enctypes_des_cbc_md5,
+	&hf_krb_pa_supported_enctypes_rc4_hmac,
+	&hf_krb_pa_supported_enctypes_aes128_cts_hmac_sha1_96,
+	&hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96,
+	&hf_krb_pa_supported_enctypes_fast_supported,
+	&hf_krb_pa_supported_enctypes_compound_identity_supported,
+	&hf_krb_pa_supported_enctypes_claims_supported,
+	&hf_krb_pa_supported_enctypes_resource_sid_compression_disabled,
+	NULL,
+};
+
+static const true_false_string supported_tfs = {
+	"Supported", "Not supported"
+};
+
+static int
+dissect_kerberos_PA_SUPPORTED_ENCTYPES(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
+				       int offset _U_, asn1_ctx_t *actx _U_,
+				       proto_tree *tree _U_, int hf_index _U_)
+{
+	actx->created_item = proto_tree_add_bitmask(tree, tvb, offset,
+						    hf_krb_pa_supported_enctypes,
+						    ett_krb_pa_supported_enctypes,
+						    hf_krb_pa_supported_enctypes_fields,
+						    ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
 /* Dissect a GSSAPI checksum as per RFC1964. This is NOT ASN.1 encoded.
  */
 static int
@@ -2579,6 +2622,36 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_pac_upn_dns_name, {
 		"DNS Name", "kerberos.pac.upn.dns_name", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes,
+	  { "SupportedEnctypes", "kerberos.supported_entypes",
+	    FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_des_cbc_crc,
+	  { "des-cbc-crc", "kerberos.supported_entypes.des-cbc-crc",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000001, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_des_cbc_md5,
+	  { "des-cbc-md5", "kerberos.supported_entypes.des-cbc-md5",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000002, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_rc4_hmac,
+	  { "rc4-hmac", "kerberos.supported_entypes.rc4-hmac",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000004, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_aes128_cts_hmac_sha1_96,
+	  { "aes128-cts-hmac-sha1-96", "kerberos.supported_entypes.aes128-cts-hmac-sha1-96",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000008, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96,
+	  { "aes256-cts-hmac-sha1-96", "kerberos.supported_entypes.aes256-cts-hmac-sha1-96",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00000010, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_fast_supported,
+	  { "fast-supported", "kerberos.supported_entypes.fast-supported",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00010000, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_compound_identity_supported,
+	  { "compound-identity-supported", "kerberos.supported_entypes.compound-identity-supported",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00020000, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_claims_supported,
+	  { "claims-supported", "kerberos.supported_entypes.claims-supported",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00040000, NULL, HFILL }},
+	{ &hf_krb_pa_supported_enctypes_resource_sid_compression_disabled,
+	  { "resource-sid-compression-disabled", "kerberos.supported_entypes.resource-sid-compression-disabled",
+	    FT_BOOLEAN, 32, TFS(&supported_tfs), 0x00080000, NULL, HFILL }},
 
 #include "packet-kerberos-hfarr.c"
 	};
@@ -2596,6 +2669,7 @@ void proto_register_kerberos(void) {
 		&ett_krb_pac_server_checksum,
 		&ett_krb_pac_privsvr_checksum,
 		&ett_krb_pac_client_info_type,
+		&ett_krb_pa_supported_enctypes,
 #include "packet-kerberos-ettarr.c"
 	};
 

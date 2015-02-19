@@ -211,6 +211,9 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 	case KERBEROS_PA_ENCRYPTED_CHALLENGE:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_EncryptedChallenge);
 		break;
+	case KERBEROS_PA_SUPPORTED_ETYPES:
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SUPPORTED_ENCTYPES);
+		break;
 	case KERBEROS_PA_PAC_OPTIONS:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_PAC_OPTIONS);
 		break;
