@@ -66,7 +66,7 @@ get_heuristic_handle(tvbuff_t *tvb)
 	 * The bit pattern shown below is the basis.  A bit of "x" is a variable field.
 	 *
 	 * IPv4 Header: 0100 0101 xxxx xx00                     ==> Pattern for standard IPv4 20-byte header
-	 * IPv6 Header: 0110 xxxx xxxx 0000 0000 0000 0000 0000 ==> Pattern for standard IPv6 header with no flow label
+	 * IPv6 Header: 0110 xxxx xxxx xxxx xxxx xxxx xxxx xxxx ==> Pattern for standard IPv6 header with variable TC and Flow
 	 * PPP/HDLC:    1111 1111 0000 0011 xx00 0000 0010 0001 ==> HDLC-like framing for PPP (FF 03 x0 21)
 	 * PPP/HDLC:	1111 1111 0000 0011 0000 0000 0101 0111	==> HDLC-like framing for PPP IPv6 (FF 03 00 57)
 	 */
@@ -84,8 +84,8 @@ get_heuristic_handle(tvbuff_t *tvb)
 	if ( byte0 == 0x45 && ipv4_handle )
 		return ipv4_handle;
 
-	/* Look for IPv6 with no flow label */
-	else if ( hi_nibble(byte0) == 6 && lo_nibble(byte1) == 0 && byte2 == 0 && byte3 == 0 && ipv6_handle )
+	/* Look for IPv6 */
+	else if ( hi_nibble(byte0) == 6 && ipv6_handle )
 		return ipv6_handle;
 
 	/* Look for PPP/HDLC for LCP and IPv4 */
