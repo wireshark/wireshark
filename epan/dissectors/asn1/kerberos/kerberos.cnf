@@ -378,6 +378,8 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 
   private_data->key.keylength = tvb_reported_length(out_tvb);
   private_data->key.keyvalue = tvb_get_ptr(out_tvb, 0, private_data->key.keylength);
+  private_data->key_tree = tree;
+  private_data->key_tvb = out_tvb;
 
 #.FN_BODY EncryptionKey
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);

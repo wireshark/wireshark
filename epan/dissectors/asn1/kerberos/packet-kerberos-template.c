@@ -100,6 +100,8 @@ typedef struct {
 	guint32 is_enc_padata;
 	guint32 enctype;
 	kerberos_key_t key;
+	proto_tree *key_tree;
+	tvbuff_t *key_tvb;
 	kerberos_callbacks *callbacks;
 	guint32 ad_type;
 	guint32 addr_type;
@@ -331,9 +333,16 @@ read_keytab_file_from_preferences(void)
 enc_key_t *enc_key_list=NULL;
 
 static void
-add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue, const char *origin)
+add_encryption_key(packet_info *pinfo,
+		   kerberos_private_data_t *private_data,
+		   proto_tree *key_tree _U_,
+		   tvbuff_t *key_tvb _U_,
+		   int keytype, int keylength, const char *keyvalue,
+		   const char *origin)
 {
 	enc_key_t *new_key;
+
+	private_data->last_added_key = NULL;
 
 	if(pinfo->fd->visited){
 		return;
@@ -348,6 +357,8 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	new_key->keylength=keylength;
 	/*XXX this needs to be freed later */
 	new_key->keyvalue=(char *)g_memdup(keyvalue, keylength);
+
+	private_data->last_added_key = new_key;
 }
 
 static void
@@ -364,11 +375,13 @@ save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
 	g_snprintf(origin, KRB_MAX_ORIG_LEN, "%s_%s", parent, element);
 
 	add_encryption_key(actx->pinfo,
+			   private_data,
+			   private_data->key_tree,
+			   private_data->key_tvb,
 			   private_data->key.keytype,
 			   private_data->key.keylength,
 			   private_data->key.keyvalue,
 			   origin);
-	private_data->last_added_key = enc_key_list;
 }
 
 static void
