@@ -114,9 +114,26 @@ static int hf_mausb_tflag_neg = -1;
 static int hf_mausb_tflag_eot = -1;
 static int hf_mausb_tflag_type = -1;
 static int hf_mausb_tflag_rsvd = -1;
+static int hf_mausb_num_iso_hdr = -1;
+static int hf_mausb_iflags = -1;
+static int hf_mausb_iflag_mtd = -1;
+static int hf_mausb_iflag_hdr_format = -1;
+static int hf_mausb_iflag_asap = -1;
 static int hf_mausb_stream_id = -1;
 static int hf_mausb_seq_num = -1;
 static int hf_mausb_req_id = -1;
+static int hf_mausb_present_time = -1;
+static int hf_mausb_uframe = -1;
+static int hf_mausb_frame = -1;
+static int hf_mausb_num_segs = -1;
+
+static int hf_mausb_timestamp = -1;
+static int hf_mausb_delta = -1;
+static int hf_mausb_nom_interval = -1;
+
+
+
+static int hf_mausb_mtd = -1;
 static int hf_mausb_rem_size_credit = -1;
 static int hf_mausb_payload = -1;
 
@@ -391,6 +408,31 @@ static const value_string mausb_status_string[] = {
     { 0, NULL}
 };
 
+
+/* Nuber of Isochronous Headers, per 6.5.1.7 */
+#define MAUSB_NUM_ISO_HDR_MASK 0x0fff
+
+/* I-Flags, per 6.5.1.8 */
+#define MAUSB_IFLAG_ASAP       (1 << 0)
+#define MAUSB_IFLAG_HDR_FORMAT (3 << 1)
+#define MAUSB_IFLAG_MTD        (1 << 3)
+#define MAUSB_IFLAG_OFFSET     12
+#define MAUSB_IFLAG_MASK       (0xF << MAUSB_IFLAG_OFFSET)
+
+/* Presentation Time, per 6.5.1.9 */
+#define MAUSB_PRESENT_TIME_MASK 0x000fffff
+#define MAUSB_UFRAME_MASK       0x00000007
+#define MAUSB_FRAME_MASK        0x000ffff8
+
+/* Number of Segments, per 6.5.1.10 */
+#define MAUSB_NUM_SEGS_MASK     0xfff00000
+
+/* MA USB Global Time fields, per 6.6.1 */
+#define MAUSB_DELTA_MASK        0x00000fff
+#define MAUSB_INTERVAL_MASK     0xfffff000
+
+
+
 #define MAUSB_TOKEN_MASK  0x03ff
 #define MAUSB_MGMT_PAD_MASK  0xfffc
 #define MAUSB_MGMT_NUM_EP_DES_MASK 0x001f
@@ -522,6 +564,25 @@ static const value_string mausb_tflag_string[] = {
 
 const true_false_string tfs_ep_handle_resp_dir = { "IN", "OUT or Control" };
 
+/* TODO: Short/Medium/Long Format */
+/* The meaning of the format number is based on the Iso packet contents */
+static const value_string mausb_iflag_string[] = {
+    { (0 << 1),                                      "Format 0"            },
+    { (0 << 1) | MAUSB_IFLAG_MTD,                    "Format 0 (MTD)"      },
+    { (0 << 1) | MAUSB_IFLAG_ASAP,                   "Format 0 (ASAP)"     },
+    { (0 << 1) | MAUSB_IFLAG_MTD | MAUSB_IFLAG_ASAP, "Format 0 (MTD, ASAP)"},
+    { (1 << 1),                                      "Format 1"            },
+    { (1 << 1) | MAUSB_IFLAG_MTD,                    "Format 1 (MTD)"      },
+    { (1 << 1) | MAUSB_IFLAG_ASAP,                   "Format 1 (ASAP)"     },
+    { (1 << 1) | MAUSB_IFLAG_MTD | MAUSB_IFLAG_ASAP, "Format 1 (MTD, ASAP)"},
+    { (2 << 1),                                      "Format 2"            },
+    { (2 << 1) | MAUSB_IFLAG_MTD,                    "Format 2 (MTD)"      },
+    { (2 << 1) | MAUSB_IFLAG_ASAP,                   "Format 2 (ASAP)"     },
+    { (2 << 1) | MAUSB_IFLAG_MTD | MAUSB_IFLAG_ASAP, "Format 2 (MTD, ASAP)"},
+    { 0, NULL}
+};
+
+
 #define MAUSB_TRANSFER_TYPE_OFFSET 3 /* Offset from start of TFlags Field */
                                      /* (EPS not included) */
 #define MAUSB_TRANSFER_TYPE_CTRL      (0 << MAUSB_TRANSFER_TYPE_OFFSET)
@@ -555,12 +616,22 @@ struct mausb_header {
         guint16 token;
         struct {
             guint8   eps_tflags;
-            guint16  stream_id;
+            union {
+                guint16  stream_id;
+                guint16  num_headers_iflags;
+            } u1;
             /* DWORD 3 */
             guint32  seq_num; /* Note: only 24 bits used */
             guint8   req_id;
             /* DWORD 4 */
-            guint32  credit;
+            union {
+                guint32  credit;
+                guint32  present_time_num_seg;
+            } u2;
+            /* DWORD 5 */
+            guint32  timestamp;
+            /* DWORD 6 */
+            guint32  tx_dly; /* Note: if no timestamp, tx_dly will be in DWORD 5 */
         } s;
     } u;
 };
@@ -603,6 +674,21 @@ static gboolean mausb_is_transfer_ack(struct mausb_header *header)
 static gint8 mausb_tx_type(struct mausb_header *header)
 {
     return (header->u.s.eps_tflags >> MAUSB_TFLAG_OFFSET) & MAUSB_TFLAG_TRANSFER_TYPE;
+}
+
+static gboolean mausb_is_iso_pkt(struct mausb_header *header)
+{
+    return MAUSB_TX_TYPE_ISOC == mausb_tx_type(header);
+}
+
+static gboolean mausb_has_timestamp(struct mausb_header *header)
+{
+    return (MAUSB_FLAG_TIMESTAMP << MAUSB_FLAG_OFFSET) & header->ver_flags;
+}
+
+static gboolean mausb_has_mtd(struct mausb_header *header)
+{
+    return (MAUSB_IFLAG_MTD << MAUSB_IFLAG_OFFSET) & header->u.s.u1.num_headers_iflags;
 }
 
 static gboolean mausb_has_setup_data(struct mausb_header *header)
@@ -659,6 +745,9 @@ static gint ett_mausb = -1;
 static gint ett_mausb_flags = -1;
 static gint ett_mausb_ep_handle = -1;
 static gint ett_mausb_tflags = -1;
+static gint ett_mausb_iflags = -1;
+static gint ett_mausb_present_time = -1;
+static gint ett_mausb_timestamp = -1;
 static gint ett_mgmt = -1;
 static gint ett_dev_cap = -1;
 
@@ -838,6 +927,40 @@ static gint dissect_ep_handle(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 }
 
+/* dissects presentation time & subfields */
+static void dissect_mausb_present_time(proto_tree *tree, tvbuff_t *tvb,
+            gint offset)
+{
+    proto_item *ti;
+    proto_tree *present_time_tree;
+
+    ti = proto_tree_add_item(tree, hf_mausb_present_time, tvb,
+        offset, 4, ENC_LITTLE_ENDIAN);
+
+    present_time_tree = proto_item_add_subtree(ti, ett_mausb_present_time);
+    proto_tree_add_item(present_time_tree, hf_mausb_uframe, tvb,
+        offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(present_time_tree, hf_mausb_frame, tvb,
+        offset, 4, ENC_LITTLE_ENDIAN);
+
+}
+
+static void dissect_mausb_timestamp(proto_tree *tree, tvbuff_t *tvb,
+            gint offset)
+{
+    proto_item *ti;
+    proto_tree *timestamp_tree;
+
+    ti = proto_tree_add_item(tree, hf_mausb_timestamp, tvb,
+        offset, 4, ENC_LITTLE_ENDIAN);
+
+    timestamp_tree = proto_item_add_subtree(ti, ett_mausb_timestamp);
+    proto_tree_add_item(timestamp_tree, hf_mausb_delta, tvb,
+        offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(timestamp_tree, hf_mausb_nom_interval, tvb,
+        offset, 4, ENC_LITTLE_ENDIAN);
+
+}
 
 /* gets the size of the endpoint descriptors in a EPHandleReq packet */
 static guint8 mausb_get_size_ep_des(tvbuff_t *tvb, gint offset)
@@ -1243,6 +1366,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *mausb_tree;
     proto_tree *flags_tree;
     proto_tree *tflags_tree;
+    proto_tree *iflags_tree;
     /* Other misc. local variables. */
     struct mausb_header header;
     gint offset = 0;
@@ -1392,7 +1516,6 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     }
     else if (mausb_is_data_pkt(&header)) {
-        /* TODO: Isochronous Packet Fields */
 
         /* EPS */
         header.u.s.eps_tflags = tvb_get_guint8(tvb, offset);
@@ -1420,17 +1543,33 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tflags_tree, hf_mausb_tflag_rsvd, tvb,
                 offset, 1, ENC_LITTLE_ENDIAN);
-
         offset += 1;
 
-        /* Stream ID (non-iso) */
-        header.u.s.stream_id = tvb_get_letohs(tvb, offset);
-        proto_tree_add_item(mausb_tree, hf_mausb_stream_id, tvb,
-            offset, 2, ENC_LITTLE_ENDIAN);
-        offset += 2;
+        if (mausb_is_iso_pkt(&header)) {
+            /* Number of Headers */
+            header.u.s.u1.num_headers_iflags = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item(mausb_tree, hf_mausb_num_iso_hdr, tvb,
+                offset, 2, ENC_LITTLE_ENDIAN);
 
-        /* Number of Headers (iso) */
-        /* I-Flags (iso) */
+            /* I-Flags */
+            ti = proto_tree_add_item(mausb_tree, hf_mausb_iflags, tvb,
+                offset, 1, ENC_LITTLE_ENDIAN);
+
+            iflags_tree = proto_item_add_subtree(ti, ett_mausb_iflags);
+                proto_tree_add_item(iflags_tree, hf_mausb_iflag_asap, tvb,
+                    offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(iflags_tree, hf_mausb_iflag_hdr_format, tvb,
+                    offset, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(iflags_tree, hf_mausb_iflag_mtd, tvb,
+                    offset, 1, ENC_LITTLE_ENDIAN);
+
+        } else {
+            /* Stream ID */
+            header.u.s.u1.stream_id = tvb_get_letohs(tvb, offset);
+            proto_tree_add_item(mausb_tree, hf_mausb_stream_id, tvb,
+                offset, 2, ENC_LITTLE_ENDIAN);
+        }
+        offset += 2;
 
         /* Sequence Number */
         header.u.s.seq_num = tvb_get_letoh24(tvb, offset);
@@ -1446,14 +1585,39 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
-        /* Remaining Size/Credit (non-iso) */
-        header.u.s.credit = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(mausb_tree, hf_mausb_rem_size_credit, tvb,
-            offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
+        if (mausb_is_iso_pkt(&header)) {
+            /* Presentation Time */
+            header.u.s.u2.present_time_num_seg = tvb_get_letohl(tvb, offset);
+            dissect_mausb_present_time(mausb_tree, tvb, offset);
 
-        /* Presentation Time (iso) */
-        /* Number of Segments (iso) */
+            /* Number of Segments */
+            proto_tree_add_item(mausb_tree, hf_mausb_num_segs, tvb,
+                offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+
+            /* MA USB Timestamp */
+            if (mausb_has_timestamp(&header)) {
+                header.u.s.timestamp = tvb_get_letohl(tvb, offset);
+                dissect_mausb_timestamp(mausb_tree, tvb, offset);
+                offset += 4;
+            }
+
+            /* Media Time/Transmission Delay */
+            if (mausb_has_mtd(&header)) {
+                header.u.s.tx_dly = tvb_get_letohl(tvb, offset);
+                proto_tree_add_item(mausb_tree, hf_mausb_mtd, tvb,
+                    offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+
+        /* Not Iso */
+        } else {
+            /* Remaining Size/Credit */
+            header.u.s.u2.credit = tvb_get_letohl(tvb, offset);
+            proto_tree_add_item(mausb_tree, hf_mausb_rem_size_credit, tvb,
+                offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
 
         /* If this packet contains USB Setup Data */
         if (mausb_has_setup_data(&header)) {
@@ -1687,6 +1851,36 @@ proto_register_mausb(void)
         },
 
 
+        { &hf_mausb_num_iso_hdr,
+            { "Number of Iso Headers", "mausb.numisohdr", FT_UINT16, BASE_DEC,
+              NULL, MAUSB_NUM_ISO_HDR_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_iflags,
+            { "Isochronous Flags", "mausb.iflag", FT_UINT16, BASE_HEX,
+              VALS(mausb_iflag_string), MAUSB_IFLAG_MASK, NULL, HFILL
+            }
+        },
+
+        /* I-Flag Subfields */
+        { &hf_mausb_iflag_mtd,
+            { "MTD Valid", "mausb.iflag.mtd", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), MAUSB_IFLAG_MTD << MAUSB_IFLAG_OFFSET,
+              NULL, HFILL
+            }
+        },
+        { &hf_mausb_iflag_hdr_format,
+            { "Isochronous Header Format", "mausb.iflag.ihf", FT_UINT8, BASE_HEX,
+              NULL, MAUSB_IFLAG_HDR_FORMAT << MAUSB_IFLAG_OFFSET, NULL, HFILL
+            }
+        },
+        { &hf_mausb_iflag_asap,
+            { "ASAP", "mausb.iflag.asap", FT_BOOLEAN, 8,
+              TFS(&tfs_set_notset), MAUSB_IFLAG_ASAP << MAUSB_IFLAG_OFFSET,
+              NULL, HFILL
+            }
+        },
+
         { &hf_mausb_stream_id,
             { "Stream ID", "mausb.streamid", FT_UINT16, BASE_DEC,
               NULL, 0, NULL, HFILL
@@ -1699,6 +1893,46 @@ proto_register_mausb(void)
         },
         { &hf_mausb_req_id,
             { "Request ID", "mausb.reqid", FT_UINT8, BASE_DEC,
+              NULL, 0, NULL, HFILL
+            }
+        },
+        { &hf_mausb_present_time,
+            { "Presentation Time", "mausb.presenttime", FT_UINT32, BASE_DEC,
+              NULL, MAUSB_PRESENT_TIME_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_uframe,
+            { "Microframe Number", "mausb.uframe", FT_UINT32, BASE_DEC,
+              NULL, MAUSB_UFRAME_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_frame,
+            { "Frame Number", "mausb.frame", FT_UINT32, BASE_DEC,
+              NULL, MAUSB_FRAME_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_num_segs,
+            { "Number of Segments", "mausb.numseg", FT_UINT32, BASE_DEC,
+              NULL, MAUSB_NUM_SEGS_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_timestamp,
+            { "Timestamp", "mausb.timestamp", FT_UINT32, BASE_DEC,
+              NULL, 0, NULL, HFILL
+            }
+        },
+        { &hf_mausb_delta,
+            { "Delta", "mausb.delta", FT_UINT32, BASE_DEC,
+              NULL, MAUSB_DELTA_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_nom_interval,
+            { "Nominal Bus Interval", "mausb.nomitvl", FT_UINT32, BASE_DEC,
+              NULL, MAUSB_INTERVAL_MASK, NULL, HFILL
+            }
+        },
+        { &hf_mausb_mtd,
+            { "Media Time/Transmission Delay", "mausb.mtd", FT_UINT32, BASE_DEC,
               NULL, 0, NULL, HFILL
             }
         },
@@ -1927,6 +2161,9 @@ proto_register_mausb(void)
         &ett_mausb_flags,
         &ett_mausb_ep_handle,
         &ett_mausb_tflags,
+        &ett_mausb_iflags,
+        &ett_mausb_present_time,
+        &ett_mausb_timestamp,
         &ett_mgmt,
         &ett_dev_cap
     };
