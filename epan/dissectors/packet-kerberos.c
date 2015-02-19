@@ -115,10 +115,13 @@ typedef struct {
 	guint32 ad_type;
 	guint32 addr_type;
 	guint32 checksum_type;
+	enc_key_t *last_decryption_key;
 	enc_key_t *last_added_key;
 	gint save_encryption_key_parent_hf_index;
 	kerberos_key_save_fn save_encryption_key_fn;
 	guint learnt_key_ids;
+	wmem_list_t *decryption_keys;
+	wmem_list_t *learnt_keys;
 } kerberos_private_data_t;
 
 static dissector_handle_t kerberos_handle_udp;
@@ -438,7 +441,7 @@ static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc = -1;
 static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 218 "./asn1/kerberos/packet-kerberos-template.c"
+#line 221 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -535,7 +538,7 @@ static gint ett_kerberos_PA_FX_FAST_REPLY = -1;
 static gint ett_kerberos_KrbFastArmoredRep = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 239 "./asn1/kerberos/packet-kerberos-template.c"
+#line 242 "./asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 static expert_field ei_kerberos_learnt_keytype = EI_INIT;
@@ -657,7 +660,7 @@ typedef enum _KERBEROS_PADATA_TYPE_enum {
 } KERBEROS_PADATA_TYPE_enum;
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 252 "./asn1/kerberos/packet-kerberos-template.c"
+#line 255 "./asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -685,6 +688,9 @@ kerberos_new_private_data(void)
 	if (p == NULL) {
 		return NULL;
 	}
+
+	p->decryption_keys = wmem_list_new(wmem_packet_scope());
+	p->learnt_keys = wmem_list_new(wmem_packet_scope());
 
 	return p;
 }
@@ -955,6 +961,19 @@ static void insert_longterm_keys_into_key_map(wmem_map_t *key_map)
 }
 
 static void
+kerberos_key_list_append(wmem_list_t *key_list, enc_key_t *new_key)
+{
+	enc_key_t *existing = NULL;
+
+	existing = (enc_key_t *)wmem_list_find(key_list, new_key);
+	if (existing != NULL) {
+		return;
+	}
+
+	wmem_list_append(key_list, new_key);
+}
+
+static void
 add_encryption_key(packet_info *pinfo,
 		   kerberos_private_data_t *private_data,
 		   proto_tree *key_tree,
@@ -1015,6 +1034,7 @@ add_encryption_key(packet_info *pinfo,
 		proto_tree_move_item(key_tree, key_hidden_item, item);
 	}
 
+	kerberos_key_list_append(private_data->learnt_keys, new_key);
 	private_data->last_added_key = new_key;
 }
 
@@ -1088,7 +1108,7 @@ save_KrbCredInfo_key(tvbuff_t *tvb, int offset, int length,
 }
 
 static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
-				kerberos_private_data_t *private_data _U_,
+				kerberos_private_data_t *private_data,
 				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
 {
 	proto_item *item = NULL;
@@ -1111,6 +1131,8 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
 		sek = sek->same_list;
 	}
+	kerberos_key_list_append(private_data->decryption_keys, ek);
+	private_data->last_decryption_key = ek;
 }
 
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
@@ -1119,6 +1141,7 @@ static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
 
 #ifdef HAVE_KRB5_PAC_VERIFY
 static void used_signing_key(proto_tree *tree, packet_info *pinfo,
+			     kerberos_private_data_t *private_data,
 			     enc_key_t *ek, tvbuff_t *tvb,
 			     krb5_cksumtype checksum,
 			     const char *reason)
@@ -1145,6 +1168,7 @@ static void used_signing_key(proto_tree *tree, packet_info *pinfo,
 				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
 		sek = sek->same_list;
 	}
+	kerberos_key_list_append(private_data->decryption_keys, ek);
 }
 #endif /* HAVE_KRB5_PAC_VERIFY */
 
@@ -1725,6 +1749,7 @@ verify_krb5_pac_try_key(gpointer __key _U_, gpointer value, gpointer userdata)
 static void
 verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	krb5_error_code ret;
 	krb5_data checksum_data = {0,0,NULL};
 	int length = tvb_captured_length(pactvb);
@@ -1773,11 +1798,13 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 			 verify_krb5_pac_try_key,
 			 &state);
 	if (state.server_ek != NULL) {
-		used_signing_key(tree, actx->pinfo, state.server_ek, pactvb,
+		used_signing_key(tree, actx->pinfo, private_data,
+				 state.server_ek, pactvb,
 				 state.server_checksum, "Verified Server");
 	}
 	if (state.kdc_ek != NULL) {
-		used_signing_key(tree, actx->pinfo, state.kdc_ek, pactvb,
+		used_signing_key(tree, actx->pinfo, private_data,
+				 state.kdc_ek, pactvb,
 				 state.kdc_checksum, "Verified KDC");
 	}
 
@@ -6099,7 +6126,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 3039 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3066 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -6142,6 +6169,51 @@ dissect_krb5_realm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 	return dissect_kerberos_Realm(FALSE, tvb, offset, actx, tree, hf_kerberos_realm);
 }
 
+struct kerberos_display_key_state {
+	proto_tree *tree;
+	packet_info *pinfo;
+	expert_field *expindex;
+	const char *name;
+	tvbuff_t *tvb;
+	gint start;
+	gint length;
+};
+
+static void
+kerberos_display_key(gpointer data, gpointer userdata)
+{
+	struct kerberos_display_key_state *state =
+		(struct kerberos_display_key_state *)userdata;
+	const enc_key_t *ek = (const enc_key_t *)data;
+	proto_item *item = NULL;
+	enc_key_t *sek = NULL;
+
+	item = proto_tree_add_expert_format(state->tree,
+					    state->pinfo,
+					    state->expindex,
+					    state->tvb,
+					    state->start,
+					    state->length,
+					    "%s %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+					    state->name,
+					    ek->key_origin, ek->keytype,
+					    ek->id_str, ek->num_same,
+					    ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
+					    ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+	sek = ek->same_list;
+	while (sek != NULL) {
+		expert_add_info_format(state->pinfo,
+				       item,
+				       state->expindex,
+				       "%s %s keytype %d (id=%s same=%u) (%02x%02x%02x%02x...)",
+				       state->name,
+				       sek->key_origin, sek->keytype,
+				       sek->id_str, sek->num_same,
+				       sek->keyvalue[0] & 0xFF, sek->keyvalue[1] & 0xFF,
+				       sek->keyvalue[2] & 0xFF, sek->keyvalue[3] & 0xFF);
+		sek = sek->same_list;
+	}
+}
 
 static gint
 dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -6239,6 +6311,34 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	} CATCH_BOUNDS_ERRORS {
 		RETHROW;
 	} ENDTRY;
+
+	if (kerberos_tree != NULL) {
+		struct kerberos_display_key_state display_state = {
+			.tree = kerberos_tree,
+			.pinfo = pinfo,
+			.expindex = &ei_kerberos_learnt_keytype,
+			.name = "Provides",
+			.tvb = tvb,
+		};
+
+		wmem_list_foreach(private_data->learnt_keys,
+				  kerberos_display_key,
+				  &display_state);
+	}
+
+	if (kerberos_tree != NULL) {
+		struct kerberos_display_key_state display_state = {
+			.tree = kerberos_tree,
+			.pinfo = pinfo,
+			.expindex = &ei_kerberos_decrypted_keytype,
+			.name = "Used",
+			.tvb = tvb,
+		};
+
+		wmem_list_foreach(private_data->decryption_keys,
+				  kerberos_display_key,
+				  &display_state);
+	}
 
 	proto_item_set_len(item, offset);
 	return offset;
@@ -7417,7 +7517,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 3512 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3612 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -7516,7 +7616,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 3535 "./asn1/kerberos/packet-kerberos-template.c"
+#line 3635 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
