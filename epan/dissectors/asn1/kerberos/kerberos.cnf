@@ -38,7 +38,6 @@ Krb5int32
 Krb5uint32
 PA-ClientCanonicalized
 PA-ClientCanonicalizedNames
-PA-ENC-TS-ENC
 PA-ENC-SAM-RESPONSE-ENC
 PA-PAC-REQUEST
 PA-SAM-CHALLENGE-2
