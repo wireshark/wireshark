@@ -596,7 +596,7 @@ tipc_addr_value_to_buf(guint tipc_address, gchar *buf, int buf_len)
 	return buf;
 }
 
-static gchar*
+static gchar *
 tipc_addr_to_str(guint tipc_address)
 {
 	gchar *buf;
@@ -617,10 +617,11 @@ tipc_addr_to_str_buf(const address* addr, gchar *buf, int buf_len)
 	tipc_address = (tipc_address << 8) ^ data[3];
 
 	tipc_addr_value_to_buf(tipc_address, buf, buf_len);
-	return strlen(buf)+1;
+	return (int)(strlen(buf)+1);
 }
 
-static int tipc_addr_str_len(const address* addr _U_)
+static int
+tipc_addr_str_len(const address* addr _U_)
 {
 	return MAX_TIPC_ADDRESS_STR_LEN;
 }

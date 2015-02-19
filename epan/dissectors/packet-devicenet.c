@@ -788,7 +788,7 @@ static int devicenet_addr_to_str(const address* addr, gchar *buf, int buf_len _U
 
     buf = uint_to_str_back(buf, addrdata);
     *buf = '\0';
-    return buf-start_buf+1;
+    return (int)(buf-start_buf+1);
 }
 
 static int devicenet_addr_str_len(const address* addr _U_)
