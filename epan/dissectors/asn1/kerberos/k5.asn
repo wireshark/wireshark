@@ -862,6 +862,13 @@ PA-PAC-OPTIONS ::= SEQUENCE {
 	flags [0] PAC-OPTIONS-FLAGS
 }
 
+-- [MS-KILE]
+-- captures show that [UNIVERSAL 16] is required to parse it
+KERB-AD-RESTRICTION-ENTRY ::= [UNIVERSAL 16] SEQUENCE {
+	restriction-type	[0] Int32,
+	restriction		[1] OCTET STRING -- LSAP_TOKEN_INFO_INTEGRITY structure
+}
+
 END
 
 -- etags -r '/\([A-Za-z][-A-Za-z0-9]*\).*::=/\1/' k5.asn1
