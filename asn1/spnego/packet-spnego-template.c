@@ -1032,6 +1032,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 		offset += checksum_size;
 
 	} else {
+		int returned_offset;
 		int inner_token_len = 0;
 
 		/*
@@ -1042,23 +1043,39 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 		checksum_size = ec;
 
-		inner_token_len = tvb_reported_length_remaining(tvb, offset) -
-					ec;
+		inner_token_len = tvb_reported_length_remaining(tvb, offset);
+		if (inner_token_len > ec) {
+			inner_token_len -= ec;
+		}
 
-		pinfo->gssapi_wrap_tvb = tvb_new_subset(tvb, offset,
-						inner_token_len, inner_token_len);
+		/*
+		 * We handle only the two common cases for now
+		 * (rrc == 0 and rrc == ec)
+		 */
+		if (rrc == ec) {
+			proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum,
+					    tvb, offset, checksum_size, ENC_NA);
+			offset += checksum_size;
+		}
+
+		returned_offset = offset;
+		pinfo->gssapi_wrap_tvb = tvb_new_subset_length(tvb, offset,
+						inner_token_len);
 
 		offset += inner_token_len;
 
-		proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
-				    checksum_size, ENC_NA);
+		if (rrc == 0) {
+			proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum,
+					    tvb, offset, checksum_size, ENC_NA);
+			offset += checksum_size;
+		}
 
 		/*
 		 * Return an offset that puts our caller before the inner
 		 * token. This is better than before, but we still see the
 		 * checksum included in the LDAP query at times.
 		 */
-		return offset - inner_token_len;
+		return returned_offset;
 	}
 
 	if(pinfo->decrypt_gssapi_tvb){
