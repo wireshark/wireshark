@@ -40,6 +40,7 @@ capture_file cfile;
 // To do:
 // - Add getters and (if needed) setters:
 //   - Full filename
+//   - Capture state (stopped, prepared, running).
 
 QString CaptureFile::no_capture_file_ = QObject::tr("[no capture file]");
 

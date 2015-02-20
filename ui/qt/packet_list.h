@@ -28,10 +28,12 @@
 #include "proto_tree.h"
 #include "related_packet_delegate.h"
 
-#include <QTreeView>
 #include <QMenu>
+#include <QTime>
+#include <QTreeView>
 
 class QAction;
+class QTimerEvent;
 
 class PacketList : public QTreeView
 {
@@ -63,12 +65,17 @@ public:
     void setPacketComment(QString new_comment);
     QString allPacketComments();
     void recolorPackets();
+    void setAutoScroll(bool enabled = true);
+    void setCaptureInProgress(bool in_progress = false) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress; }
 
 protected:
     void showEvent (QShowEvent *);
     void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
     void contextMenuEvent(QContextMenuEvent *event);
+    void timerEvent(QTimerEvent *event);
 
+protected slots:
+    void rowsInserted(const QModelIndex &parent, int start, int end);
 
 private:
     PacketListModel *packet_list_model_;
@@ -87,6 +94,10 @@ private:
     int header_ctx_column_;
     QAction *show_hide_separator_;
     QList<QAction *>show_hide_actions_;
+    bool capture_in_progress_;
+    int tail_timer_id_;
+    bool tail_at_end_;
+    bool rows_inserted_;
 
     void markFramesReady();
     void setFrameMark(gboolean set, frame_data *fdata);
@@ -94,12 +105,12 @@ private:
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();
     void initHeaderContextMenu();
-
 signals:
     void packetDissectionChanged();
     void packetSelectionChanged();
     void showPreferences(PreferencesDialog::PreferencesPane start_pane);
     void editColumn(int column);
+    void packetListScrolled(bool at_end);
 
 public slots:
     void setCaptureFile(capture_file *cf);
@@ -124,6 +135,7 @@ private slots:
     void headerMenuTriggered();
     void columnVisibilityTriggered();
     void sectionResized(int, int, int);
+    void vScrollBarActionTriggered(int);
 };
 
 #endif // PACKET_LIST_H

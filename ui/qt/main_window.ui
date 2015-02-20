@@ -225,6 +225,8 @@
     <addaction name="actionGoPreviousPacket"/>
     <addaction name="actionGoFirstPacket"/>
     <addaction name="actionGoLastPacket"/>
+    <addaction name="separator"/>
+    <addaction name="actionGoAutoScroll"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -568,6 +570,7 @@
    <addaction name="actionGoGoToPacket"/>
    <addaction name="actionGoFirstPacket"/>
    <addaction name="actionGoLastPacket"/>
+   <addaction name="actionGoAutoScroll"/>
    <addaction name="separator"/>
    <addaction name="actionViewColorizePacketList"/>
    <addaction name="separator"/>
@@ -2291,6 +2294,17 @@
    </property>
    <property name="toolTip">
     <string>Show the linked packet in a separate window.</string>
+   </property>
+  </action>
+  <action name="actionGoAutoScroll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto Scroll in Li&amp;ve Capture</string>
+   </property>
+   <property name="toolTip">
+    <string>Automatically scroll to the last packet during a live capture.</string>
    </property>
   </action>
  </widget>

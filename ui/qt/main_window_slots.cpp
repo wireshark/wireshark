@@ -415,11 +415,14 @@ void MainWindow::layoutToolbars()
     main_ui_->mainToolBar->setToolButtonStyle(tbstyle);
 }
 
-void MainWindow::updateNameResolutionActions()
+void MainWindow::updatePreferenceActions()
 {
     main_ui_->actionViewNameResolutionPhysical->setChecked(gbl_resolv_flags.mac_name);
     main_ui_->actionViewNameResolutionNetwork->setChecked(gbl_resolv_flags.network_name);
     main_ui_->actionViewNameResolutionTransport->setChecked(gbl_resolv_flags.transport_name);
+
+    // Should this be a "recent" setting?
+    main_ui_->actionGoAutoScroll->setChecked(prefs.capture_auto_scroll);
 }
 
 void MainWindow::filterAction(QString &action_filter, FilterAction::Action action, FilterAction::ActionType type)
@@ -2691,6 +2694,11 @@ void MainWindow::on_actionGoGoToPacket_triggered() {
         main_ui_->goToFrame->animatedShow();
     }
     main_ui_->goToLineEdit->setFocus();
+}
+
+void MainWindow::on_actionGoAutoScroll_toggled(bool checked)
+{
+    packet_list_->setAutoScroll(checked);
 }
 
 void MainWindow::resetPreviousFocus() {

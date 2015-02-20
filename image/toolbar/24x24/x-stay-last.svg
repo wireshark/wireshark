@@ -27,16 +27,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="23.291667"
-     inkscape:cx="10.503891"
+     inkscape:zoom="23.369223"
+     inkscape:cx="15.441568"
      inkscape:cy="12"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1028"
-     inkscape:window-height="728"
-     inkscape:window-x="132"
-     inkscape:window-y="821"
+     inkscape:window-width="1300"
+     inkscape:window-height="732"
+     inkscape:window-x="70"
+     inkscape:window-y="702"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -54,7 +54,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -97,9 +97,9 @@
        inkscape:connector-curvature="0"
        id="path4115"
        d="m 1.5,1032.8622 c 21,0 21,0 21,0"
-       style="fill:#ef2929;stroke:#ef2929;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1" />
+       style="fill:#babdb6;stroke:#babdb6;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1" />
     <path
-       style="fill:none;stroke:#73d216;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#babdb6;stroke:#babdb6;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 1.4999999,1038.8622 c 20.9999991,0 20.9999991,0 20.9999991,0"
        id="path4117"
        inkscape:connector-curvature="0" />
@@ -107,9 +107,9 @@
        inkscape:connector-curvature="0"
        id="path4119"
        d="m 1.4999999,1035.8622 c 20.9999991,0 20.9999991,0 20.9999991,0"
-       style="fill:none;stroke:#3465a4;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1" />
+       style="fill:#babdb6;stroke:#babdb6;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1" />
     <path
-       style="fill:none;stroke:#3465a4;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#babdb6;stroke:#babdb6;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 1.4999999,1041.8622 c 20.9999991,0 20.9999991,0 20.9999991,0"
        id="path4121"
        inkscape:connector-curvature="0" />
@@ -117,9 +117,9 @@
        inkscape:connector-curvature="0"
        id="path4123"
        d="m 1.5,1047.8622 c 21,0 21,0 21,0"
-       style="fill:#f57900;stroke:#f57900;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1" />
+       style="fill:#babdb6;stroke:#babdb6;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1" />
     <path
-       style="fill:none;stroke:#75507b;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#babdb6;stroke:#babdb6;stroke-width:1px;stroke-linecap:square;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 1.4999999,1044.8622 c 20.9999991,0 20.9999991,0 20.9999991,0"
        id="path4125"
        inkscape:connector-curvature="0" />
@@ -143,7 +143,25 @@
        inkscape:rounded="1"
        inkscape:randomized="0"
        d="M 28,14 C 17.607695,14 17.607695,14 22.803847,5.0000001 28,-4 28,-4 33.196152,4.9999999 38.392305,14 38.392305,14 28,14 z"
-       transform="matrix(0.58076952,0,0,-0.31746032,1.2384534,1050.3066)"
+       transform="matrix(0.58076952,0,0,-0.31746032,15.238453,1050.3066)"
        inkscape:transform-center-y="0.59532957" />
+    <path
+       inkscape:transform-center-x="-6.9566908e-05"
+       transform="matrix(-0.58076952,0,0,-0.31746032,32.761547,1050.3066)"
+       d="M 28,14 C 17.607695,14 17.607695,14 22.803847,5.0000001 28,-4 28,-4 33.196152,4.9999999 38.392305,14 38.392305,14 28,14 z"
+       inkscape:randomized="0"
+       inkscape:rounded="1"
+       inkscape:flatsided="true"
+       sodipodi:arg2="2.6179939"
+       sodipodi:arg1="1.5707963"
+       sodipodi:r2="3"
+       sodipodi:r1="6"
+       sodipodi:cy="8"
+       sodipodi:cx="28"
+       sodipodi:sides="3"
+       id="path4550"
+       style="fill:#3465a4;fill-opacity:1;stroke:#3465a4;stroke-width:2.32891345;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       sodipodi:type="star"
+       inkscape:transform-center-y="0.5953435" />
   </g>
 </svg>

@@ -102,7 +102,7 @@
 #endif
 
 #ifdef HAVE_LIBPCAP
-gboolean auto_scroll_live;
+gboolean auto_scroll_live; /* GTK+ only? */
 #endif
 
 static int read_packet(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,

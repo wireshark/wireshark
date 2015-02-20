@@ -60,11 +60,12 @@
 #include <QScrollBar>
 #include <QTabWidget>
 #include <QTextEdit>
+#include <QTimerEvent>
 #include <QTreeWidget>
 
 // To do:
-// - Heading context menus
 // - Catch column reordering and rebuild the column list accoringly.
+// - Use a timer to trigger automatic scrolling.
 
 // If we ever add the ability to open multiple capture files we might be
 // able to use something like QMap<capture_file *, PacketList *> to match
@@ -72,6 +73,7 @@
 static PacketList *gbl_cur_packet_list = NULL;
 
 const int max_comments_to_fetch_ = 20000000; // Arbitrary
+const int tail_update_interval_ = 100; // Milliseconds.
 
 guint
 packet_list_append(column_info *cinfo, frame_data *fdata)
@@ -135,13 +137,7 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
 gboolean
 packet_list_check_end(void)
 {
-    if (gbl_cur_packet_list) {
-        QScrollBar *sb = gbl_cur_packet_list->verticalScrollBar();
-        if (sb && sb->isVisible() && sb->value() == sb->maximum()) {
-            return TRUE;
-        }
-    }
-    return FALSE;
+    return FALSE; // GTK+ only.
 }
 
 void
@@ -230,7 +226,9 @@ PacketList::PacketList(QWidget *parent) :
     byte_view_tab_(NULL),
     cap_file_(NULL),
     decode_as_(NULL),
-    ctx_column_(-1)
+    ctx_column_(-1),
+    capture_in_progress_(false),
+    tail_timer_id_(0)
 {
     QMenu *submenu, *subsubmenu;
     QAction *action;
@@ -419,6 +417,8 @@ PacketList::PacketList(QWidget *parent) :
     connect(header(), SIGNAL(customContextMenuRequested(QPoint)),
                 SLOT(showHeaderMenu(QPoint)));
     connect(header(), SIGNAL(sectionResized(int,int,int)), this, SLOT(sectionResized(int,int,int)));
+
+    connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(vScrollBarActionTriggered(int)));
 }
 
 void PacketList::setProtoTree (ProtoTree *proto_tree) {
@@ -517,6 +517,27 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu_.exec(event->globalPos());
     ctx_column_ = -1;
     decode_as_->setData(QVariant());
+}
+
+// Auto scroll if:
+// - We're not at the end
+// - We are capturing
+// - actionGoAutoScroll in the main UI is checked.
+// - It's been more than tail_update_interval_ ms since we last scrolled
+// - The last user-set vertical scrollbar position was at the end.
+
+// Using a timer assumes that we can save CPU overhead by updating
+// periodically. If that's not the case we can dispense with it and call
+// scrollToBottom() from rowsInserted().
+void PacketList::timerEvent(QTimerEvent *event)
+{
+    if (rows_inserted_
+            && event->timerId() == tail_timer_id_
+            && capture_in_progress_
+            && tail_at_end_) {
+        scrollToBottom();
+        rows_inserted_ = false;
+    }
 }
 
 void PacketList::markFramesReady()
@@ -659,6 +680,18 @@ void PacketList::recolorPackets()
 {
     packet_list_model_->resetColorized();
     redrawVisiblePackets();
+}
+
+void PacketList::setAutoScroll(bool enabled)
+{
+    tail_at_end_ = enabled;
+    if (enabled) {
+        scrollToBottom();
+        if (tail_timer_id_ < 1) tail_timer_id_ = startTimer(tail_update_interval_);
+    } else if (tail_timer_id_ > 0) {
+        killTimer(tail_timer_id_);
+        tail_timer_id_ = 0;
+    }
 }
 
 void PacketList::freeze()
@@ -1127,6 +1160,25 @@ void PacketList::sectionResized(int, int, int)
     if (isVisible()) {
         column_state_ = header()->saveState();
     }
+}
+
+// We need to tell when the user has scrolled the packet list, either to
+// the end or anywhere other than the end.
+void PacketList::vScrollBarActionTriggered(int)
+{
+    // If we're scrolling with a mouse wheel or trackpad sliderPosition can end up
+    // past the end.
+    tail_at_end_ = (verticalScrollBar()->sliderPosition() >= verticalScrollBar()->maximum());
+
+    if (capture_in_progress_ && prefs.capture_auto_scroll) {
+        emit packetListScrolled(tail_at_end_);
+    }
+}
+
+void PacketList::rowsInserted(const QModelIndex &parent, int start, int end)
+{
+    QTreeView::rowsInserted(parent, start, end);
+    rows_inserted_ = true;
 }
 
 /*

@@ -190,7 +190,7 @@ public slots:
     void layoutPanes();
     void applyRecentPaneGeometry();
     void layoutToolbars();
-    void updateNameResolutionActions();
+    void updatePreferenceActions();
 
     void captureCapturePrepared(capture_session *);
     void captureCaptureUpdateStarted(capture_session *);
@@ -324,6 +324,7 @@ private slots:
     void on_actionViewReload_triggered();
 
     void on_actionGoGoToPacket_triggered();
+    void on_actionGoAutoScroll_toggled(bool checked);
     void resetPreviousFocus();
 
 #ifdef HAVE_LIBPCAP

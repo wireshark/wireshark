@@ -74,7 +74,7 @@ void packet_list_queue_draw(void);
 void packet_list_select_first_row(void);
 void packet_list_select_last_row(void);
 void packet_list_moveto_end(void);
-gboolean packet_list_check_end(void);
+gboolean packet_list_check_end(void); /* GTK+ only */
 gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
 void packet_list_resize_column(gint col);
 

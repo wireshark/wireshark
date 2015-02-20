@@ -187,7 +187,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setForCapturedPackets(false);
     setMenusForSelectedPacket();
     setMenusForSelectedTreeRow();
-    setForCaptureInProgress(false);
     setMenusForFileSet(false);
     interfaceSelectionChanged();
     loadWindowGeometry();
@@ -202,7 +201,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateNameResolutionActions()));
+    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updatePreferenceActions()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
@@ -286,7 +285,8 @@ MainWindow::MainWindow(QWidget *parent) :
     initShowHideMainWidgets();
     initTimeDisplayFormatMenu();
     initTimePrecisionFormatMenu();
-    updateNameResolutionActions();
+    updatePreferenceActions();
+    setForCaptureInProgress(false);
 
     connect(&capture_file_, SIGNAL(captureCapturePrepared(capture_session *)),
             this, SLOT(captureCapturePrepared(capture_session *)));
@@ -388,6 +388,8 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(redrawVisiblePackets()));
     connect(packet_list_, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(openPacketDialog()));
+    connect(packet_list_, SIGNAL(packetListScrolled(bool)),
+            main_ui_->actionGoAutoScroll, SLOT(setChecked(bool)));
 
     connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),
             main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
@@ -1420,6 +1422,7 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionGoGoToPacket->setIcon(StockIcon("go-jump"));
     main_ui_->actionGoFirstPacket->setIcon(StockIcon("go-first"));
     main_ui_->actionGoLastPacket->setIcon(StockIcon("go-last"));
+    main_ui_->actionGoAutoScroll->setIcon(StockIcon("x-stay-last"));
 
     main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));
     main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
@@ -1818,11 +1821,12 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
-//#ifdef HAVE_LIBPCAP
+#ifdef HAVE_LIBPCAP
+    packet_list_->setCaptureInProgress(capture_in_progress);
 //    set_toolbar_for_capture_in_progress(capture_in_progress);
 
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
-//#endif
+#endif
 }
 
 /*
