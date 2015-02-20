@@ -1286,7 +1286,7 @@ static hashmanuf_t *manuf_hash_new_entry(const guint8 *addr, char* name)
         manuf_value->resolved_name[0] = '\0';
     }
     /* Values returned by bytes_to_hexstr_punct() are *not* null-terminated */
-    endp = bytes_to_hexstr_punct(manuf_value->hexaddr, addr, sizeof(manuf_value->hexaddr), ':');
+    endp = bytes_to_hexstr_punct(manuf_value->hexaddr, addr, sizeof(manuf_value->addr), ':');
     *endp = '\0';
 
     g_hash_table_insert(manuf_hashtable, manuf_key, manuf_value);
