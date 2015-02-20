@@ -76,6 +76,18 @@ filter_expression_init(gboolean enable_prefs)
 		prefs.filter_expressions = pfilter_expression_head;
 }
 
+void
+filter_expression_free(struct filter_expression *list_head)
+{
+    if (list_head == NULL)
+        return;
+    filter_expression_free(list_head->next);
+    g_free(list_head->label);
+    g_free(list_head->expression);
+}
+
+
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

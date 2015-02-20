@@ -3125,6 +3125,13 @@ prefs_reset(void)
     oids_cleanup();
 
     /*
+     * Free the filter expression list.
+     */
+
+    filter_expression_free(*pfilter_expression_head);
+    *pfilter_expression_head = NULL;
+
+    /*
      * Reset the non-dissector preferences.
      */
     init_prefs();

@@ -3798,7 +3798,6 @@ void change_configuration_profile (const gchar *profile_name)
     /* Set profile name and update the status bar */
     set_profile_name (profile_name);
     profile_bar_update ();
-    filter_expression_reinit(FILTER_EXPRESSION_REINIT_DESTROY);
 
     /* Reset current preferences and apply the new */
     prefs_reset();

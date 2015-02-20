@@ -499,6 +499,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fc_fc4_val@Base 1.9.1
  fetch_tapped_data@Base 1.9.1
  filter_expression_new@Base 1.9.1
+ filter_expression_free@Base 1.99.3
  find_and_mark_frame_depended_upon@Base 1.12.0~rc1
  find_circuit@Base 1.9.1
  find_color_conversation_filter@Base 1.99.2

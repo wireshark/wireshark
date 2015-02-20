@@ -87,16 +87,6 @@ filter_expression_save_dlg_init(gpointer filter_tb, gpointer filter_te)
 	}
 }
 
-static void
-filter_expression_nuke(struct filter_expression *fe)
-{
-	if (fe == NULL)
-		return;
-	filter_expression_nuke(fe->next);
-	g_free(fe->label);
-	g_free(fe->expression);
-}
-
 void
 filter_expression_reinit(int what)
 {
@@ -113,7 +103,7 @@ filter_expression_reinit(int what)
 		}
 	}
 	if (what == FILTER_EXPRESSION_REINIT_DESTROY) {
-		filter_expression_nuke(*pfilter_expression_head);
+		filter_expression_free(*pfilter_expression_head);
 		*pfilter_expression_head = NULL;
 		return;
 	}
@@ -146,7 +136,7 @@ filter_expression_reinit(int what)
 			filter_expression_new(fe->label, fe->expression,
 			    fe->enabled);
 		}
-		filter_expression_nuke(prevhead);
+		filter_expression_free(prevhead);
 
 		/* Create the buttons again */
 		fe = *pfilter_expression_head;
