@@ -2306,24 +2306,6 @@ again:
     }
 }
 
-/*
- * Loop for dissecting PDUs within a TCP stream; assumes that a PDU
- * consists of a fixed-length chunk of data that contains enough information
- * to determine the length of the PDU, followed by rest of the PDU.
- *
- * The first three arguments are the arguments passed to the dissector
- * that calls this routine.
- *
- * "proto_desegment" is the dissector's flag controlling whether it should
- * desegment PDUs that cross TCP segment boundaries.
- *
- * "fixed_len" is the length of the fixed-length part of the PDU.
- *
- * "get_pdu_len()" is a routine called to get the length of the PDU from
- * the fixed-length part of the PDU; it's passed "pinfo", "tvb" and "offset".
- *
- * "dissect_pdu()" is the routine to dissect a PDU.
- */
 void
 tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  gboolean proto_desegment, guint fixed_len,
@@ -2379,6 +2361,16 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Get the length of the PDU.
          */
         plen = (*get_pdu_len)(pinfo, tvb, offset, dissector_data);
+        if (plen == 0) {
+            /*
+             * Support protocols which have a variable length which cannot
+             * always be determined within the given fixed_len.
+             */
+            DISSECTOR_ASSERT(proto_desegment && pinfo->can_desegment);
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return;
+        }
         if (plen < fixed_len) {
             /*
              * Either:

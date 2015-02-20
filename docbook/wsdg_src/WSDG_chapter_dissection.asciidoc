@@ -594,7 +594,7 @@ effect.
         guchar *decompressed_buffer = (guchar*)g_malloc(orig_size);
         offset += 2;
         decompress_packet(tvb_get_ptr(tvb, offset, -1),
-                tvb_length_remaining(tvb, offset),
+                tvb_captured_length_remaining(tvb, offset),
                 decompressed_buffer, orig_size);
         /* Now re-setup the tvb buffer to have the new data */
         next_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, orig_size, orig_size);
@@ -618,7 +618,7 @@ So armed with the size, a buffer is allocated to receive the uncompressed data
 using +g_malloc()+, and the packet is decompressed into it. The +tvb_get_ptr()+
 function is useful to get a pointer to the raw data of the packet from the
 offset onwards. In this case the decompression routine also needs to know the
-length, which is given by the +tvb_length_remaining()+ function.
+length, which is given by the +tvb_captured_length_remaining()+ function.
 
 Next we build a new tvb buffer from this data, using the
 +tvb_new_child_real_data()+ call. This data is a child of our original data, so
@@ -700,7 +700,7 @@ if (flags & FL_FRAGMENT) { /* fragmented */
         msg_fragment_table, /* list of message fragments */
         msg_reassembled_table, /* list of reassembled messages */
         msg_num, /* fragment sequence number */
-        tvb_length_remaining(tvb, offset), /* fragment length - to the end */
+        tvb_captured_length_remaining(tvb, offset), /* fragment length - to the end */
         flags & FL_FRAG_LAST); /* More fragments? */
 ----
 ====
@@ -922,25 +922,28 @@ This function is implemented in 'epan/dissectors/packet-tcp.h'.
 #define FRAME_HEADER_LEN 8
 
 /* This method dissects fully reassembled messages */
-static int dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int
+dissect_foo_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* TODO: implement your dissecting code */
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* determine PDU length of protocol foo */
-static guint get_foo_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
+static guint
+get_foo_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
     /* TODO: change this to your needs */
     return (guint)tvb_get_ntohl(tvb, offset+4); /* e.g. length is at offset 4 */
 }
 
 /* The main dissecting routine */
-static int dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LEN,
                      get_foo_message_len, dissect_foo_message, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 ...
@@ -951,15 +954,19 @@ As you can see this is really simple. Just call +tcp_dissect_pdus()+ in your
 main dissection routine and move you message parsing code into another function.
 This function gets called whenever a message has been reassembled.
 
-The parameters tvb, pinfo, treeand dataare just handed over to
+The parameters tvb, pinfo, tree and data are just handed over to
 +tcp_dissect_pdus()+. The 4th parameter is a flag to indicate if the data should
 be reassembled or not. This could be set according to a dissector preference as
 well. Parameter 5 indicates how much data has at least to be available to be
 able to determine the length of the foo message. Parameter 6 is a function
 pointer to a method that returns this length. It gets called when at least the
 number of bytes given in the previous parameter is available. Parameter 7 is a
-function pointer to your real message dissector. Parameter 8 is a the data
+function pointer to your real message dissector. Parameter 8 is the data
 passed in from parent dissector.
+
+Protocols which need more data before the message length can be determined can
+return zero. Other values smaller than the fixed length will result in an
+exception.
 
 [[ChDissectTap]]
 

@@ -2972,16 +2972,17 @@ The arguments to tcp_dissect_pdus are:
     a routine that takes as arguments a packet_info pointer, a tvbuff
     pointer and an offset value representing the offset into the tvbuff
     at which a PDU begins, and a void pointer for user data, and should
-    return - *without* throwing an exception (it is guaranteed that the
+    return the total length of the PDU in bytes (or 0 if more bytes are
+    needed to determine the message length).
+    The routine must not throw exceptions (it is guaranteed that the
     number of bytes specified by the previous argument to
     tcp_dissect_pdus is available, but more data might not be available,
-    so don't refer to any data past that) - the total length of the PDU,
-    in bytes;
+    so don't refer to any data past that);
 
     a new_dissector_t routine to dissect the pdu that's passed a tvbuff
     pointer, packet_info pointer, proto_tree pointer and a void pointer for
     user data, with the tvbuff containing a possibly-reassembled PDU. (The
-    "reported_length" of the tvbuff will be the length of the PDU).
+    "reported_length" of the tvbuff will be the length of the PDU);
 
     a void pointer to user data that is passed to the length-determining
     routine, and the dissector routine referenced in the previous parameter.
