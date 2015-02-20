@@ -282,6 +282,19 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	/*XXX this needs to be freed later */
 	new_key->keyvalue=(char *)g_memdup(keyvalue, keylength);
 }
+
+static void used_encryption_key(proto_tree *tree, packet_info *pinfo,
+				enc_key_t *ek, int usage, tvbuff_t *cryptotvb)
+{
+	proto_tree_add_expert_format(tree, pinfo, &ei_kerberos_decrypted_keytype,
+				     cryptotvb, 0, 0,
+				     "Decrypted keytype %d usage %d in frame %u "
+				     "using %s (%02x%02x%02x%02x...)",
+				     ek->keytype, usage, pinfo->fd->num, ek->key_origin,
+				     ek->keyvalue[0] & 0xFF, ek->keyvalue[1] & 0xFF,
+				     ek->keyvalue[2] & 0xFF, ek->keyvalue[3] & 0xFF);
+}
+
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 #if defined(HAVE_MIT_KERBEROS)
@@ -416,9 +429,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		if(ret == 0){
 			char *user_data;
 
-			expert_add_info_format(pinfo, NULL, &ei_kerberos_decrypted_keytype,
-								   "Decrypted keytype %d in frame %u using %s",
-								   ek->keytype, pinfo->num, ek->key_origin);
+			used_encryption_key(tree, pinfo, ek, usage, cryptotvb);
 
 			user_data=data.data;
 			if (datalen) {
@@ -575,9 +586,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 		if((ret == 0) && (length>0)){
 			char *user_data;
 
-			expert_add_info_format(pinfo, NULL, &ei_kerberos_decrypted_keytype,
-								   "Decrypted keytype %d in frame %u using %s",
-								   ek->keytype, pinfo->num, ek->key_origin);
+			used_encryption_key(tree, pinfo, ek, usage, cryptotvb);
 
 			krb5_crypto_destroy(krb5_ctx, crypto);
 			/* return a private wmem_alloced blob to the caller */
