@@ -479,7 +479,7 @@ init_progfile_dir(const char *arg0
 #ifdef _WIN32
     _U_
 #endif
-, progfile_main_t main_addr
+, void *function_addr
 #if defined(_WIN32) || !defined(HAVE_DLADDR)
     _U_
 #endif
@@ -575,7 +575,7 @@ init_progfile_dir(const char *arg0
 
     execname = get_executable_path();
 #ifdef HAVE_DLADDR
-    if (main_addr != NULL && execname == NULL) {
+    if (function_addr != NULL && execname == NULL) {
         /*
          * Try to use dladdr() to find the pathname of the executable.
          * dladdr() is not guaranteed to give you anything better than
@@ -585,7 +585,7 @@ init_progfile_dir(const char *arg0
          * path and obviate the need for us to determine the absolute
          * path.
          */
-        if (dladdr((void *)main_addr, &info))
+        if (dladdr(function_addr, &info))
             execname = info.dli_fname;
     }
 #endif

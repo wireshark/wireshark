@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
      * Attempt to get the pathname of the executable file.
      */
     /* init_progfile_dir_error = */ init_progfile_dir(argv[0],
-        (progfile_main_t) get_gui_compiled_info);
+        (void *) get_gui_compiled_info);
     g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
 
     /* Get the compile-time version information string */
