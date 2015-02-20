@@ -368,9 +368,17 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
   if (!key_string)
     key_string = g_strdup("");
 
-  /* If the pressed key is SHIFT then we have nothing to do with the pressed key. */
-  if( k == GDK_Shift_L || k == GDK_Shift_R)
+  /* Ignore Ctrl combinations (Ctrl-C, Ctrl-V, Ctrl-Right, ...). */
+  if (event->state & GDK_CONTROL_MASK)
     goto exit;
+  /* Pressing modifiers such as Shift or Ctrl should not hide the list. */
+  switch (k) {
+  case GDK_Shift_L:
+  case GDK_Shift_R:
+  case GDK_KEY_Control_L:
+  case GDK_KEY_Control_R:
+    goto exit;
+  }
 
   if (popup_win)
     gtk_widget_show(popup_win);
