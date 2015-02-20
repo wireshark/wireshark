@@ -64,6 +64,7 @@ check_include_file("winsock2.h"          HAVE_WINSOCK2_H)
 
 #Functions
 include(CheckFunctionExists)
+include(CheckSymbolExists)
 check_function_exists("chown"            HAVE_CHOWN)
 
 cmake_push_check_state()
@@ -107,7 +108,6 @@ check_struct_has_member("struct stat"     st_flags sys/stat.h   HAVE_ST_FLAGS)
 check_struct_has_member("struct tm"       tm_zone  time.h       HAVE_TM_ZONE)
 
 #Symbols but NOT enums or types
-include(CheckSymbolExists)
 check_symbol_exists(tzname "time.h" HAVE_TZNAME)
 
 # Check for stuff that isn't testable via the tests above
