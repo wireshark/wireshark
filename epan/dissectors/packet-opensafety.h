@@ -228,7 +228,7 @@ static const value_string opensafety_ssdo_sacmd_values[] = {
     { 0, NULL }
 };
 
-static const true_false_string opensafety_sacmd_acc   = { "Write Access", "Read Access" };
+static const true_false_string opensafety_sacmd_acc   = { "Download", "Upload" };
 static const true_false_string opensafety_sacmd_abrt  = { "Abort Transfer", "Successful Transfer" };
 static const true_false_string opensafety_sacmd_seg   = { "Segmented Access", "Expedited Access" };
 static const true_false_string opensafety_sacmd_ini   = { "Initiate", "No Initiate" };
@@ -377,8 +377,122 @@ static const value_string opensafety_abort_codes[] = {
 };
 static value_string_ext opensafety_abort_codes_ext = VALUE_STRING_EXT_INIT(opensafety_abort_codes);
 
-static const true_false_string opensafety_message_direction = { "Request", "Response" };
+static const true_false_string opensafety_message_direction = { "Response", "Request" };
+static const true_false_string opensafety_spdo_direction = { "Producer", "Consumer" };
 static const true_false_string opensafety_addparam_request = { "Header only", "Header & Data" };
+
+typedef struct _opensafety_packet_spdo
+{
+    guint16 timerequest;
+
+    gboolean conn_valid;
+
+    gboolean counter_40bit;
+
+    union {
+        guint16 b16;
+        guint64 b40;
+    } counter;
+
+    struct {
+        gboolean enabled40bit;
+        gboolean requested40bit;
+    } flags;
+
+} opensafety_packet_spdo;
+
+typedef struct _opensafety_packet_ssdo
+{
+    gboolean is_slim;
+
+    struct {
+        gboolean end_segment;
+        gboolean initiate;
+        gboolean toggle;
+        gboolean segmented;
+        gboolean abort_transfer;
+        gboolean preload;
+        gboolean read_access;
+    } sacmd;
+} opensafety_packet_ssdo;
+
+typedef struct _opensafety_packet_snmt
+{
+    guint8 ext_msg_id;
+
+    struct {
+        gboolean exists;
+        guint8 id;
+        guint8 set;
+        gboolean full;
+    } add_param;
+
+    struct {
+        guint16 actual;
+        guint16 additional;
+    } add_saddr;
+
+    guint64 init_ct;
+
+    gchar * scm_udid;
+    gchar * sn_udid;
+
+    guint8 error_code;
+} opensafety_packet_snmt;
+
+typedef struct _opensafety_packet_frame
+{
+    gboolean malformed;
+
+    guint16 subframe1;
+    guint16 subframe2;
+
+    guint length;
+
+    tvbuff_t *frame_tvb;
+
+} opensafety_packet_frame;
+
+typedef struct _opensafety_packet_crc
+{
+    guint8  type;
+
+    guint16 frame1;
+    guint16 frame2;
+
+    gboolean valid1;
+    gboolean valid2;
+} opensafety_packet_crc;
+
+typedef struct _opensafety_packet_info
+{
+    opensafety_packet_frame frame;
+
+    guint16 saddr;
+    guint16 sdn;
+
+    guint16 sender;
+    guint16 receiver;
+
+    gboolean is_request;
+
+    guint8  msg_id;    /**< The exact transported message id */
+    guint8  msg_type;  /**< Only represents the general type, e.g. SPDO, SSDO, Slim SSDO and SNMT */
+    guint8  msg_len;
+    guint   frame_len;
+
+    guint8   scm_udid[6];
+    gboolean scm_udid_valid;
+
+    opensafety_packet_crc crc;
+
+    union {
+        opensafety_packet_snmt *snmt;
+        opensafety_packet_ssdo *ssdo;
+        opensafety_packet_spdo *spdo;
+    } payload;
+
+} opensafety_packet_info;
 
 #ifdef __cplusplus
 }
