@@ -135,10 +135,10 @@ typedef enum {
 } software_update_channel_e;
 
 typedef struct _e_prefs {
-  gint          pr_format;
-  gint          pr_dest;
-  const gchar *pr_file;
-  const gchar *pr_cmd;
+  gint         pr_format;
+  gint         pr_dest;
+  gchar       *pr_file;
+  gchar       *pr_cmd;
   GList       *col_list;
   gint         num_cols;
   color_t      st_client_fg, st_client_bg, st_server_fg, st_server_bg;
@@ -157,8 +157,8 @@ typedef struct _e_prefs {
   color_t      gui_marked_bg;
   color_t      gui_ignored_fg;
   color_t      gui_ignored_bg;
-  const gchar *gui_colorized_fg;
-  const gchar *gui_colorized_bg;
+  gchar       *gui_colorized_fg;
+  gchar       *gui_colorized_bg;
   gboolean     gui_geometry_save_position;
   gboolean     gui_geometry_save_size;
   gboolean     gui_geometry_save_maximized;
@@ -174,7 +174,7 @@ typedef struct _e_prefs {
   gboolean     gui_use_pref_save;
   gchar       *gui_webbrowser;
   gchar       *gui_window_title;
-  const gchar *gui_start_title;
+  gchar       *gui_start_title;
   version_info_e gui_version_placement;
   gboolean     gui_auto_scroll_on_expand;
   guint        gui_auto_scroll_percentage;

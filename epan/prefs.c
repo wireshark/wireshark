@@ -73,7 +73,6 @@ static void try_convert_to_custom_column(gpointer *el_data);
 #define OLD_GPF_NAME    "wireshark.conf" /* old name for global preferences file */
 
 static gboolean prefs_initialized = FALSE;
-static gboolean prefs_pre_initialized = FALSE;
 static gchar *gpf_path = NULL;
 static gchar *cols_hidden_list = NULL;
 
@@ -210,6 +209,7 @@ static wmem_tree_t *prefs_top_level_modules = NULL;
 void
 prefs_init(void)
 {
+    memset(&prefs, 0, sizeof(prefs));
     prefs_modules = wmem_tree_new(wmem_epan_scope());
     prefs_top_level_modules = wmem_tree_new(wmem_epan_scope());
 }
@@ -2040,11 +2040,6 @@ prefs_register_modules(void)
         return;
     }
 
-    /* Ensure the "global" preferences have been initialized so the
-     * preference API has the proper default values to work from
-     */
-    pre_init_prefs();
-
     /* GUI
      * These are "simple" GUI preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -2826,11 +2821,11 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
     return TRUE;
 }
 
-/* Initialize non-dissector preferences to wired-in default values.
- * (The dissector preferences are assumed to be set to those values
- * by the dissectors.)
- * They may be overridden by the global preferences file or the
- *  user's preferences file.
+/* Initialize non-dissector preferences to wired-in default values Called
+ * at program startup and any time the profile changes. (The dissector
+ * preferences are assumed to be set to those values by the dissectors.)
+ * They may be overridden by the global preferences file or the user's
+ * preferences file.
  */
 static void
 init_prefs(void)
@@ -2840,6 +2835,12 @@ init_prefs(void)
 
     uat_load_all();
 
+    /*
+     * Ensure the "global" preferences have been initialized so the
+     * preference API has the proper default values to work from
+     */
+    pre_init_prefs();
+
     prefs_register_modules();
 
     filter_expression_init(TRUE);
@@ -2847,8 +2848,12 @@ init_prefs(void)
     prefs_initialized = TRUE;
 }
 
-/* Initialize non-dissector preferences used by the "register preference" API
- * to default values so the default values can be used when registered
+/*
+ * Initialize non-dissector preferences used by the "register preference" API
+ * to default values so the default values can be used when registered.
+ *
+ * String, filename, and directory preferences will be g_freed so they must
+ * be g_mallocated.
  */
 static void
 pre_init_prefs(void)
@@ -2862,13 +2867,12 @@ pre_init_prefs(void)
         "Protocol", "%p", "Length",      "%L",
         "Info",     "%i"};
 
-    if (prefs_pre_initialized)
-        return;
-
     prefs.pr_format  = PR_FMT_TEXT;
     prefs.pr_dest    = PR_DEST_CMD;
-    prefs.pr_file    = "wireshark.out";
-    prefs.pr_cmd     = "lpr";
+    if (prefs.pr_file) g_free(prefs.pr_file);
+    prefs.pr_file    = g_strdup("wireshark.out");
+    if (prefs.pr_cmd) g_free(prefs.pr_cmd);
+    prefs.pr_cmd     = g_strdup("lpr");
 
     prefs.gui_altern_colors = FALSE;
     prefs.gui_expert_composite_eyecandy = FALSE;
@@ -2878,15 +2882,16 @@ pre_init_prefs(void)
     prefs.filter_toolbar_show_in_statusbar = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
     prefs.gui_toolbar_filter_style = TB_STYLE_TEXT;
-    /* These string prefs will be strduped shortly, so we can safely cast away
-     * their constness in these assignments */
+    /* These will be g_freed, so they must be g_mallocated. */
+    if (prefs.gui_gtk2_font_name) g_free(prefs.gui_gtk2_font_name);
 #ifdef _WIN32
-    prefs.gui_gtk2_font_name         = (char *) "Lucida Console 10";
+    prefs.gui_gtk2_font_name         = g_strdup("Lucida Console 10");
 #else
-    prefs.gui_gtk2_font_name         = (char *) "Monospace 10";
+    prefs.gui_gtk2_font_name         = g_strdup("Monospace 10");
 #endif
     /* We try to find the best font in the Qt code */
-    prefs.gui_qt_font_name           = (char *) "";
+    if (prefs.gui_qt_font_name) g_free(prefs.gui_qt_font_name);
+    prefs.gui_qt_font_name           = g_strdup("");
     prefs.gui_marked_fg.pixel        =     65535;
     prefs.gui_marked_fg.red          =     65535;
     prefs.gui_marked_fg.green        =     65535;
@@ -2903,8 +2908,10 @@ pre_init_prefs(void)
     prefs.gui_ignored_bg.red         =     65535;
     prefs.gui_ignored_bg.green       =     65535;
     prefs.gui_ignored_bg.blue        =     65535;
-    prefs.gui_colorized_fg           = "000000,000000,000000,000000,000000,000000,000000,000000,000000,000000";
-    prefs.gui_colorized_bg           = "ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0";
+    if (prefs.gui_colorized_fg) g_free(prefs.gui_colorized_fg);
+    prefs.gui_colorized_fg           = g_strdup("000000,000000,000000,000000,000000,000000,000000,000000,000000,000000");
+    if (prefs.gui_colorized_fg) g_free(prefs.gui_colorized_fg);
+    prefs.gui_colorized_bg           = g_strdup("ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0");
     prefs.st_client_fg.pixel         =     0;
     prefs.st_client_fg.red           = 32767;
     prefs.st_client_fg.green         =     0;
@@ -2941,7 +2948,8 @@ pre_init_prefs(void)
     prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
     prefs.gui_recent_df_entries_max  = 10;
     prefs.gui_recent_files_count_max = 10;
-    prefs.gui_fileopen_dir           = (char *) get_persdatafile_dir();
+    if (prefs.gui_fileopen_dir) g_free(prefs.gui_fileopen_dir);
+    prefs.gui_fileopen_dir           = g_strdup(get_persdatafile_dir());
     prefs.gui_fileopen_preview       = 3;
     prefs.gui_ask_unsaved            = TRUE;
     prefs.gui_find_wrap              = TRUE;
@@ -2949,13 +2957,16 @@ pre_init_prefs(void)
     prefs.gui_update_enabled         = TRUE;
     prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
     prefs.gui_update_interval        = 60*60*24; /* Seconds */
+    if (prefs.gui_webbrowser) g_free(prefs.gui_webbrowser);
 #ifdef HTML_VIEWER
-    prefs.gui_webbrowser             = (char *) HTML_VIEWER " %s";
+    prefs.gui_webbrowser             = g_strdup(HTML_VIEWER " %s");
 #else
-    prefs.gui_webbrowser             = (char *) "";
+    prefs.gui_webbrowser             = g_strdup("");
 #endif
-    prefs.gui_window_title           = (char *) "";
-    prefs.gui_start_title            = "The World's Most Popular Network Protocol Analyzer";
+    if (prefs.gui_window_title) g_free(prefs.gui_window_title);
+    prefs.gui_window_title           = g_strdup("");
+    if (prefs.gui_start_title) g_free(prefs.gui_start_title);
+    prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
     prefs.gui_version_placement      = version_both;
     prefs.gui_auto_scroll_on_expand  = FALSE;
     prefs.gui_auto_scroll_percentage = 0;
@@ -2965,18 +2976,20 @@ pre_init_prefs(void)
     prefs.gui_layout_content_3       = layout_pane_content_pbytes;
     prefs.gui_packet_editor          = FALSE;
 
-    prefs.col_list = NULL;
-    for (i = 0; i < DEF_NUM_COLS; i++) {
-        cfmt = g_new(fmt_data,1);
-        cfmt->title = g_strdup(col_fmt[i * 2]);
-        parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
-        cfmt->visible = TRUE;
-        cfmt->resolved = TRUE;
-        cfmt->custom_field = NULL;
-        cfmt->custom_occurrence = 0;
-        prefs.col_list = g_list_append(prefs.col_list, cfmt);
+    if (!prefs.col_list) {
+        /* First time through */
+        for (i = 0; i < DEF_NUM_COLS; i++) {
+            cfmt = g_new(fmt_data,1);
+            cfmt->title = g_strdup(col_fmt[i * 2]);
+            parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
+            cfmt->visible = TRUE;
+            cfmt->resolved = TRUE;
+            cfmt->custom_field = NULL;
+            cfmt->custom_occurrence = 0;
+            prefs.col_list = g_list_append(prefs.col_list, cfmt);
+        }
+        prefs.num_cols  = DEF_NUM_COLS;
     }
-    prefs.num_cols  = DEF_NUM_COLS;
 
 /* set the default values for the capture dialog box */
     prefs.capture_prom_mode             = TRUE;
@@ -2989,10 +3002,12 @@ pre_init_prefs(void)
     prefs.capture_auto_scroll           = TRUE;
     prefs.capture_show_info             = FALSE;
 
-    prefs.capture_columns               = NULL;
-    for (i = 0; i < num_capture_cols; i++) {
-        col_name = g_strdup(capture_cols[i]);
-        prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
+    if (!prefs.capture_columns) {
+        /* First time through */
+        for (i = 0; i < num_capture_cols; i++) {
+            col_name = g_strdup(capture_cols[i]);
+            prefs.capture_columns = g_list_append(prefs.capture_columns, col_name);
+        }
     }
 
     prefs.console_log_level          =
@@ -3013,8 +3028,6 @@ pre_init_prefs(void)
     prefs.st_sort_showfullname = FALSE;
     prefs.display_hidden_proto_items = FALSE;
     prefs.display_byte_fields_with_spaces = FALSE;
-
-    prefs_pre_initialized = TRUE;
 }
 
 /*
