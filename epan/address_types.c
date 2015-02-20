@@ -492,7 +492,7 @@ static int fcwwn_to_str(const address* addr, gchar *buf, int buf_len _U_)
     const guint8 *addrp = (const guint8*)addr->data;
 
     buf = bytes_to_hexstr_punct(buf, addrp, 8, ':'); /* 23 bytes */
-    buf[23] = '\0';
+    *buf = '\0';
 
     return fcwwn_str_len(addr);
 }
