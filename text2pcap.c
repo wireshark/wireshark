@@ -112,6 +112,7 @@
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <wsutil/crash_info.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #include <time.h>
@@ -1534,11 +1535,13 @@ parse_options (int argc, char *argv[])
     GString *runtime_info_str;
     int   c;
     char *p;
+DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"version", no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
+DIAG_ON(cast-qual)
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);

@@ -81,13 +81,14 @@
 # include "wsutil/strptime.h"
 #endif
 
-#include <wsutil/privileges.h>
+#include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
-#include <wsutil/report_err.h>
-#include <wsutil/strnatcmp.h>
 #include <wsutil/md5.h>
 #include <wsutil/plugins.h>
-#include <wsutil/crash_info.h>
+#include <wsutil/privileges.h>
+#include <wsutil/report_err.h>
+#include <wsutil/strnatcmp.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
@@ -881,11 +882,13 @@ main(int argc, char *argv[])
     int           i, j, err;
     gchar        *err_info;
     int           opt;
+DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"version", no_argument, NULL, 'V'},
         {0, 0, 0, 0 }
     };
+DIAG_ON(cast-qual)
 
     char         *p;
     guint32       snaplen            = 0; /* No limit               */
@@ -1074,7 +1077,7 @@ main(int argc, char *argv[])
             break;
 
         case 'E':
-            err_prob = strtod(optarg, &p);
+            err_prob = g_ascii_strtod(optarg, &p);
             if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
                 fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
                         optarg);

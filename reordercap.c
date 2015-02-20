@@ -46,8 +46,9 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
-#include <wsutil/file_util.h>
 #include <wsutil/crash_info.h>
+#include <wsutil/file_util.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 /* Show command-line usage */
@@ -197,11 +198,13 @@ main(int argc, char *argv[])
     FrameRecord_t *prevFrame = NULL;
 
     int opt;
+DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"version", no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
+DIAG_ON(cast-qual)
     int file_count;
     char *infile;
     char *outfile;

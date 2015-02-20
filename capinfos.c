@@ -81,9 +81,10 @@
 #include <zlib.h>     /* to get the libz version number */
 #endif
 
-#include <wsutil/privileges.h>
-#include <wsutil/filesystem.h>
 #include <wsutil/crash_info.h>
+#include <wsutil/filesystem.h>
+#include <wsutil/privileges.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #ifdef HAVE_PLUGINS
@@ -1118,11 +1119,13 @@ main(int argc, char *argv[])
   gchar *err_info;
   int    opt;
   int    overall_error_status;
+DIAG_OFF(cast-qual)
   static const struct option long_options[] = {
       {(char *)"help", no_argument, NULL, 'h'},
       {(char *)"version", no_argument, NULL, 'v'},
       {0, 0, 0, 0 }
   };
+DIAG_ON(cast-qual)
 
   int status = 0;
 #ifdef HAVE_PLUGINS

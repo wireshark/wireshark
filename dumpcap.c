@@ -72,6 +72,7 @@
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #ifndef HAVE_GETOPT_LONG
@@ -888,8 +889,10 @@ compile_capture_filter(const char *iface, pcap_t *pcap_h,
      * third argument to pcap_compile() as a const pointer.  Cast
      * away the warning.
      */
+DIAG_OFF(cast-qual)
     if (pcap_compile(pcap_h, fcode, (char *)cfilter, 1, netmask) < 0)
         return FALSE;
+DIAG_ON(cast-qual)
     return TRUE;
 }
 
@@ -4225,12 +4228,14 @@ main(int argc, char *argv[])
     GString          *comp_info_str;
     GString          *runtime_info_str;
     int               opt;
+DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"version", no_argument, NULL, 'v'},
         LONGOPT_CAPTURE_COMMON
         {0, 0, 0, 0 }
     };
+DIAG_ON(cast-qual)
 
     gboolean          arg_error             = FALSE;
 

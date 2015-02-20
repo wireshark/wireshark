@@ -57,13 +57,14 @@
 #endif /* HAVE_LIBPORTAUDIO */
 
 #include <wsutil/clopts_common.h>
+#include <wsutil/copyright_info.h>
 #include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_err.h>
 #include <wsutil/u3.h>
-#include <wsutil/copyright_info.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #include <wiretap/merge.h>
@@ -2176,6 +2177,7 @@ main(int argc, char *argv[])
 #endif
 
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
+DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
         {(char *)"help", no_argument, NULL, 'h'},
         {(char *)"read-file", required_argument, NULL, 'r' },
@@ -2185,6 +2187,7 @@ main(int argc, char *argv[])
         LONGOPT_CAPTURE_COMMON
         {0, 0, 0, 0 }
     };
+DIAG_ON(cast-qual)
     static const char optstring[] = OPTSTRING;
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);

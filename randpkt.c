@@ -48,6 +48,7 @@
 #include <glib.h>
 #include "wiretap/wtap.h"
 #include "wsutil/file_util.h"
+#include <wsutil/ws_diag_control.h>
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -512,10 +513,12 @@ main(int argc, char **argv)
 	char			*produce_filename = NULL;
 	int			produce_max_bytes = 5000;
 	pkt_example		*example;
+DIAG_OFF(cast-qual)
 	static const struct option long_options[] = {
 		{(char *)"help", no_argument, NULL, 'h'},
 		{0, 0, 0, 0 }
 	};
+DIAG_ON(cast-qual)
 
 #ifdef _WIN32
 	arg_list_utf_16to8(argc, argv);

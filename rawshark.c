@@ -68,11 +68,12 @@
 
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/privileges.h>
-#include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/file_util.h>
 #include <wsutil/plugins.h>
+#include <wsutil/privileges.h>
 #include <wsutil/report_err.h>
+#include <wsutil/ws_diag_control.h>
 
 #include "globals.h"
 #include <epan/packet.h>
@@ -440,11 +441,13 @@ main(int argc, char *argv[])
     GPtrArray           *disp_fields = g_ptr_array_new();
     guint                fc;
     gboolean             skip_pcap_header = FALSE;
+DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
       {(char *)"help", no_argument, NULL, 'h'},
       {(char *)"version", no_argument, NULL, 'v'},
       {0, 0, 0, 0 }
     };
+DIAG_ON(cast-qual)
 
 #define OPTSTRING_INIT "d:F:hlnN:o:pr:R:sS:t:v"
 

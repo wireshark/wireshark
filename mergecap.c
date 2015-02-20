@@ -54,10 +54,11 @@
 #endif
 
 #include <wsutil/clopts_common.h>
-#include <wsutil/strnatcmp.h>
-#include <wsutil/file_util.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
+#include <wsutil/file_util.h>
+#include <wsutil/strnatcmp.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #include <wiretap/merge.h>
@@ -215,11 +216,13 @@ main(int argc, char *argv[])
   GString            *comp_info_str;
   GString            *runtime_info_str;
   int                 opt;
+DIAG_OFF(cast-qual)
   static const struct option long_options[] = {
       {(char *)"help", no_argument, NULL, 'h'},
       {(char *)"version", no_argument, NULL, 'V'},
       {0, 0, 0, 0 }
   };
+DIAG_ON(cast-qual)
   gboolean            do_append          = FALSE;
   gboolean            verbose            = FALSE;
   int                 in_file_count      = 0;

@@ -73,10 +73,11 @@
 #include <wsutil/clopts_common.h>
 #include <wsutil/cmdarg_err.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/privileges.h>
-#include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/file_util.h>
+#include <wsutil/privileges.h>
 #include <wsutil/report_err.h>
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/ws_version_info.h>
 
 #include "globals.h"
@@ -948,12 +949,14 @@ main(int argc, char *argv[])
   GString             *runtime_info_str;
   char                *init_progfile_dir_error;
   int                  opt;
+DIAG_OFF(cast-qual)
   static const struct option long_options[] = {
     {(char *)"help", no_argument, NULL, 'h'},
     {(char *)"version", no_argument, NULL, 'v'},
     LONGOPT_CAPTURE_COMMON
     {0, 0, 0, 0 }
   };
+DIAG_ON(cast-qual)
   gboolean             arg_error = FALSE;
 
 #ifdef _WIN32
