@@ -62,7 +62,6 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QMetaObject>
-#include <QPropertyAnimation>
 #include <QTabWidget>
 #include <QToolButton>
 #include <QTreeWidget>
@@ -192,6 +191,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setForCaptureInProgress(false);
     setMenusForFileSet(false);
     interfaceSelectionChanged();
+    loadWindowGeometry();
 
     //To prevent users use features before initialization complete
     //Otherwise unexpected problems may occur
@@ -204,8 +204,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateNameResolutionActions()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
-
-    connect(wsApp, SIGNAL(recentFilesRead()), this, SLOT(loadWindowGeometry()));
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
@@ -548,62 +546,29 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     wsApp->quit();
 }
 
-const int min_sensible_dimension = 200;
-const int geom_animation_duration = 150;
+// Apply recent settings to the main window geometry.
+// We haven't loaded the preferences at this point so we assume that the
+// position and size preference are enabled.
 void MainWindow::loadWindowGeometry()
 {
-    QWidget shadow_main(wsApp->desktop());
-    shadow_main.setVisible(false);
-
-    // Start off with the Widget defaults
-    shadow_main.restoreGeometry(saveGeometry());
-
-    // Apply any saved settings
-
-    // Note that we're saving and restoring the outer window frame
-    // position and the inner client area size.
-//    if (prefs.gui_geometry_save_position) {
-        shadow_main.move(recent.gui_geometry_main_x, recent.gui_geometry_main_y);
-//    }
-
-    // XXX Preferences haven't been loaded at this point. For now we
-    // assume default (true) values for everything.
-
-    if (// prefs.gui_geometry_save_size &&
-            recent.gui_geometry_main_width > min_sensible_dimension &&
-            recent.gui_geometry_main_height > min_sensible_dimension) {
-        shadow_main.resize(recent.gui_geometry_main_width, recent.gui_geometry_main_height);
-    }
-
-    // Let Qt move and resize our window if needed (e.g. if it's offscreen)
-    QByteArray geom = shadow_main.saveGeometry();
+    int min_sensible_dimension_ = 200;
 
 #ifndef Q_OS_MAC
-    if (/* prefs.gui_geometry_save_maximized && */ recent.gui_geometry_main_maximized) {
+    if (prefs.gui_geometry_save_maximized && recent.gui_geometry_main_maximized) {
         setWindowState(Qt::WindowMaximized);
     } else
 #endif
-    if (strlen (get_conn_cfilter()) < 1) {
-        QPropertyAnimation *pos_anim = new QPropertyAnimation(this, "pos");
-        QPropertyAnimation *size_anim = new QPropertyAnimation(this, "size");
+    {
+//        if (prefs.gui_geometry_save_position) {
+            move(recent.gui_geometry_main_x, recent.gui_geometry_main_y);
+//        }
 
-        shadow_main.restoreGeometry(geom);
-
-        pos_anim->setDuration(geom_animation_duration);
-        pos_anim->setStartValue(pos());
-        pos_anim->setEndValue(shadow_main.pos());
-        pos_anim->setEasingCurve(QEasingCurve::InOutQuad);
-        size_anim->setDuration(geom_animation_duration);
-        size_anim->setStartValue(size());
-        size_anim->setEasingCurve(QEasingCurve::InOutQuad);
-        size_anim->setEndValue(shadow_main.size());
-
-        pos_anim->start(QAbstractAnimation::DeleteWhenStopped);
-        size_anim->start(QAbstractAnimation::DeleteWhenStopped);
-    } else {
-        restoreGeometry(geom);
+        if (// prefs.gui_geometry_save_size &&
+                recent.gui_geometry_main_width > min_sensible_dimension_ &&
+                recent.gui_geometry_main_height > min_sensible_dimension_) {
+            resize(recent.gui_geometry_main_width, recent.gui_geometry_main_height);
+        }
     }
-
 }
 
 void MainWindow::saveWindowGeometry()
