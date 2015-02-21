@@ -1385,7 +1385,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_new_subset_remaining@Base 1.9.1
  tvb_offset_exists@Base 1.9.1
  tvb_offset_from_real_beginning@Base 1.9.1
- tvb_pbrk_pattern_guint8@Base 1.99.2
  tvb_raw_offset@Base 1.9.1
  tvb_reported_length@Base 1.9.1
  tvb_reported_length_remaining@Base 1.9.1
@@ -1401,6 +1400,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_strsize@Base 1.9.1
  tvb_uncompress@Base 1.9.1
  tvb_unicode_strsize@Base 1.9.1
+ tvb_ws_mempbrk_pattern_guint8@Base 1.99.3
  tvbparse_casestring@Base 1.9.1
  tvbparse_char@Base 1.9.1
  tvbparse_chars@Base 1.9.1
