@@ -34,7 +34,7 @@ struct tvb_ops {
 	void *(*tvb_memcpy)(struct tvbuff *tvb, void *target, guint offset, guint length);
 
 	gint (*tvb_find_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle);
-	gint (*tvb_pbrk_pattern_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, const tvb_pbrk_pattern* pattern, guchar *found_needle);
+	gint (*tvb_ws_mempbrk_pattern_guint8)(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbrk_pattern* pattern, guchar *found_needle);
 
 	tvbuff_t *(*tvb_clone)(tvbuff_t *tvb, guint abs_offset, guint abs_length);
 };

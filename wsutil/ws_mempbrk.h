@@ -28,7 +28,7 @@
 #include <emmintrin.h>
 #endif
 
-/** The pattern object used for tvb_pbrk_pattern_guint8().
+/** The pattern object used for ws_mempbrk_exec().
  */
 typedef struct {
     gchar patt[256];
@@ -36,12 +36,14 @@ typedef struct {
     gboolean use_sse42;
     __m128i mask;
 #endif
-} tvb_pbrk_pattern;
+} ws_mempbrk_pattern;
 
-/** Compile the pattern for the needles to find using tvb_pbrk_pattern_guint8().
+/** Compile the pattern for the needles to find using ws_mempbrk_exec().
  */
-WS_DLL_PUBLIC void tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *needles);
+WS_DLL_PUBLIC void ws_mempbrk_compile(ws_mempbrk_pattern* pattern, const gchar *needles);
 
-WS_DLL_PUBLIC const guint8 *tvb_pbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
+/** Scan for the needles specified by the compiled pattern.
+ */
+WS_DLL_PUBLIC const guint8 *ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, guchar *found_needle);
 
 #endif /* __WS_MEMPBRK_H__ */

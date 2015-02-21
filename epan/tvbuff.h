@@ -509,14 +509,14 @@ WS_DLL_PUBLIC gint tvb_find_guint8(tvbuff_t *tvb, const gint offset,
 
 /** Find first occurrence of any of the needles of the pre-compiled pattern in
  * tvbuff, starting at offset. The passed in pattern must have been "compiled"
- * before-hand, using tvb_pbrk_compile() above.
+ * before-hand, using ws_mempbrk_compile().
  * Searches at most maxlength number of bytes. Returns the offset of the
  * found needle, or -1 if not found and the found needle.
  * Will not throw an exception, even if
  * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
  * the boundary is reached before finding needle. */
-WS_DLL_PUBLIC gint tvb_pbrk_pattern_guint8(tvbuff_t *tvb, const gint offset,
-    const gint maxlength, const tvb_pbrk_pattern* pattern, guchar *found_needle);
+WS_DLL_PUBLIC gint tvb_ws_mempbrk_pattern_guint8(tvbuff_t *tvb, const gint offset,
+    const gint maxlength, const ws_mempbrk_pattern* pattern, guchar *found_needle);
 
 
 /** Find size of stringz (NUL-terminated string) by looking for terminating

@@ -1894,14 +1894,14 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 }
 
 static inline gint
-tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const tvb_pbrk_pattern* pattern, guchar *found_needle)
+tvb_ws_mempbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbrk_pattern* pattern, guchar *found_needle)
 {
 	const guint8 *ptr;
 	const guint8 *result;
 
 	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr */
 
-	result = tvb_pbrk_exec(ptr, limit, pattern, found_needle);
+	result = ws_mempbrk_exec(ptr, limit, pattern, found_needle);
 	if (!result)
 		return -1;
 
@@ -1917,8 +1917,8 @@ tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const tvb_
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 gint
-tvb_pbrk_pattern_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength,
-			const tvb_pbrk_pattern* pattern, guchar *found_needle)
+tvb_ws_mempbrk_pattern_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength,
+			const ws_mempbrk_pattern* pattern, guchar *found_needle)
 {
 	const guint8 *result;
 	guint	      abs_offset;
@@ -1940,7 +1940,7 @@ tvb_pbrk_pattern_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength,
 
 	/* If we have real data, perform our search now. */
 	if (tvb->real_data) {
-		result = tvb_pbrk_exec(tvb->real_data + abs_offset, limit, pattern, found_needle);
+		result = ws_mempbrk_exec(tvb->real_data + abs_offset, limit, pattern, found_needle);
 		if (result == NULL) {
 			return -1;
 		}
@@ -1949,10 +1949,10 @@ tvb_pbrk_pattern_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength,
 		}
 	}
 
-	if (tvb->ops->tvb_pbrk_pattern_guint8)
-		return tvb->ops->tvb_pbrk_pattern_guint8(tvb, abs_offset, limit, pattern, found_needle);
+	if (tvb->ops->tvb_ws_mempbrk_pattern_guint8)
+		return tvb->ops->tvb_ws_mempbrk_pattern_guint8(tvb, abs_offset, limit, pattern, found_needle);
 
-	return tvb_pbrk_guint8_generic(tvb, abs_offset, limit, pattern, found_needle);
+	return tvb_ws_mempbrk_guint8_generic(tvb, abs_offset, limit, pattern, found_needle);
 }
 
 /* Find size of stringz (NUL-terminated string) by looking for terminating
@@ -3039,7 +3039,7 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 }
 
 
-static tvb_pbrk_pattern pbrk_crlf;
+static ws_mempbrk_pattern pbrk_crlf;
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
@@ -3079,14 +3079,14 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	eob_offset = offset + len;
 
 	if (!compiled) {
-		tvb_pbrk_compile(&pbrk_crlf, "\r\n");
+		ws_mempbrk_compile(&pbrk_crlf, "\r\n");
 		compiled = TRUE;
 	}
 
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_pbrk_pattern_guint8(tvb, offset, len, &pbrk_crlf, &found_needle);
+	eol_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, len, &pbrk_crlf, &found_needle);
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
@@ -3164,7 +3164,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	return linelen;
 }
 
-static tvb_pbrk_pattern pbrk_crlf_dquote;
+static ws_mempbrk_pattern pbrk_crlf_dquote;
 /*
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the
@@ -3199,7 +3199,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 		len = _tvb_captured_length_remaining(tvb, offset);
 
 	if (!compiled) {
-		tvb_pbrk_compile(&pbrk_crlf_dquote, "\r\n\"");
+		ws_mempbrk_compile(&pbrk_crlf_dquote, "\r\n\"");
 		compiled = TRUE;
 	}
 
@@ -3225,7 +3225,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 			/*
 			 * Look either for a CR, an LF, or a '"'.
 			 */
-			char_offset = tvb_pbrk_pattern_guint8(tvb, cur_offset, len, &pbrk_crlf_dquote, &c);
+			char_offset = tvb_ws_mempbrk_pattern_guint8(tvb, cur_offset, len, &pbrk_crlf_dquote, &c);
 		}
 		if (char_offset == -1) {
 			/*

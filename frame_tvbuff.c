@@ -139,13 +139,13 @@ frame_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
 }
 
 static gint
-frame_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const tvb_pbrk_pattern* pattern, guchar *found_needle)
+frame_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbrk_pattern* pattern, guchar *found_needle)
 {
 	struct tvb_frame *frame_tvb = (struct tvb_frame *) tvb;
 
 	frame_cache(frame_tvb);
 
-	return tvb_pbrk_pattern_guint8(tvb, abs_offset, limit, pattern, found_needle);
+	return tvb_ws_mempbrk_pattern_guint8(tvb, abs_offset, limit, pattern, found_needle);
 }
 
 static guint

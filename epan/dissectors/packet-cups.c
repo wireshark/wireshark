@@ -103,8 +103,8 @@ static int hf_cups_make_model = -1;
 static gint ett_cups = -1;
 static gint ett_cups_ptype = -1;
 
-/* patterns used for tvb_pbrk_pattern_guint8 */
-static tvb_pbrk_pattern pbrk_whitespace;
+/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+static ws_mempbrk_pattern pbrk_whitespace;
 
 /* This protocol is heavily related to IPP, but it is CUPS-specific
    and non-standard. */
@@ -289,7 +289,7 @@ get_unquoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
     guint l = 0;
     gint o;
 
-    o = tvb_pbrk_pattern_guint8(tvb, offset, -1, &pbrk_whitespace, NULL);
+    o = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, &pbrk_whitespace, NULL);
     if (o != -1) {
         l = o - offset;
         s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
@@ -394,7 +394,7 @@ proto_register_cups(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* compile patterns */
-    tvb_pbrk_compile(&pbrk_whitespace, " \t\r\n");
+    ws_mempbrk_compile(&pbrk_whitespace, " \t\r\n");
 }
 
 void

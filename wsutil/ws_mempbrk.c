@@ -40,7 +40,7 @@
 #include "ws_mempbrk_int.h"
 
 void
-tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *needles)
+ws_mempbrk_compile(ws_mempbrk_pattern* pattern, const gchar *needles)
 {
     const gchar *n = needles;
     while (*n) {
@@ -55,7 +55,7 @@ tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *needles)
 
 
 const guint8 *
-ws_mempbrk_portable_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle)
+ws_mempbrk_portable_exec(const guint8* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, guchar *found_needle)
 {
     const guint8 *haystack_end = haystack + haystacklen;
 
@@ -73,7 +73,7 @@ ws_mempbrk_portable_exec(const guint8* haystack, size_t haystacklen, const tvb_p
 
 
 WS_DLL_PUBLIC const guint8 *
-tvb_pbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle)
+ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const ws_mempbrk_pattern* pattern, guchar *found_needle)
 {
 #ifdef HAVE_SSE4_2
     if (haystacklen >= 16 && pattern->use_sse42)

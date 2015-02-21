@@ -139,9 +139,9 @@ static dissector_handle_t megaco_text_handle;
 
 static int megaco_tap = -1;
 
-/* patterns used for tvb_pbrk_pattern_guint8 */
-static tvb_pbrk_pattern pbrk_whitespace;
-static tvb_pbrk_pattern pbrk_braces;
+/* patterns used for tvb_ws_mempbrk_pattern_guint8 */
+static ws_mempbrk_pattern pbrk_whitespace;
+static ws_mempbrk_pattern pbrk_braces;
 
 
 /*
@@ -456,7 +456,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * pathNAME = ["*"] NAME *("/" / "*"/ ALPHA / DIGIT /"_" / "$" )["@" pathDomainName ]
      */
 
-    tvb_current_offset = tvb_pbrk_pattern_guint8(tvb, tvb_current_offset, -1, &pbrk_whitespace, &needle);
+    tvb_current_offset = tvb_ws_mempbrk_pattern_guint8(tvb, tvb_current_offset, -1, &pbrk_whitespace, &needle);
     if (tvb_current_offset == -1) {
         expert_add_info_format(pinfo, ti, &ei_megaco_parse_error,
             "[ Parse error: no body in MEGACO message (missing SEP after mId) ]");
@@ -3289,7 +3289,7 @@ static gint megaco_tvb_find_token(tvbuff_t* tvb, gint offset, gint maxlength){
     guchar needle;
 
     do {
-        pos = tvb_pbrk_pattern_guint8(tvb, pos + 1, maxlength, &pbrk_braces, &needle);
+        pos = tvb_ws_mempbrk_pattern_guint8(tvb, pos + 1, maxlength, &pbrk_braces, &needle);
         if(pos == -1)
             return -1;
         switch(needle){
@@ -3570,8 +3570,8 @@ proto_register_megaco(void)
     megaco_tap = register_tap("megaco");
 
     /* compile patterns */
-    tvb_pbrk_compile(&pbrk_whitespace, " \t\r\n");
-    tvb_pbrk_compile(&pbrk_braces, "{}");
+    ws_mempbrk_compile(&pbrk_whitespace, " \t\r\n");
+    ws_mempbrk_compile(&pbrk_braces, "{}");
 
 }
 
