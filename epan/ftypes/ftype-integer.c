@@ -449,19 +449,19 @@ uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, 
 static gboolean
 uint56_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0xFFFFFFFFFFFFFF);
+	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFF));
 }
 
 static gboolean
 uint48_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0xFFFFFFFFFFFF);
+	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_GUINT64_CONSTANT(0xFFFFFFFFFFFF));
 }
 
 static gboolean
 uint40_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0xFFFFFFFFFF);
+	return _uint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_GUINT64_CONSTANT(0xFFFFFFFFFF));
 }
 
 static gboolean
@@ -532,19 +532,19 @@ sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, 
 static gboolean
 sint56_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0x7FFFFFFFFFFFFF, -0x80000000000000);
+	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_GINT64_CONSTANT(0x7FFFFFFFFFFFFF), G_GINT64_CONSTANT(-0x80000000000000));
 }
 
 static gboolean
 sint48_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0x7FFFFFFFFFFF, -0x800000000000);
+	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_GINT64_CONSTANT(0x7FFFFFFFFFFF), G_GINT64_CONSTANT(-0x800000000000));
 }
 
 static gboolean
 sint40_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, 0x7FFFFFFFFF, -0x8000000000);
+	return _sint64_from_unparsed (fv, s, allow_partial_value, err_msg, G_GINT64_CONSTANT(0x7FFFFFFFFF), G_GINT64_CONSTANT(-0x8000000000));
 }
 
 static int
