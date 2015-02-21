@@ -104,6 +104,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  capture_ieee80211@Base 1.9.1
  capture_ipfc@Base 1.9.1
  capture_llap@Base 1.9.1
+ capture_loop@Base 1.99.3
  capture_null@Base 1.9.1
  capture_pktap@Base 1.12.0~rc1
  capture_ppi@Base 1.9.1
@@ -563,8 +564,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  fvalue_from_unparsed@Base 1.9.1
  fvalue_get@Base 1.9.1
  fvalue_get_floating@Base 1.9.1
- fvalue_get_integer64@Base 1.9.1
+ fvalue_get_sinteger64@Base 1.99.3
  fvalue_get_sinteger@Base 1.9.1
+ fvalue_get_uinteger64@Base 1.99.3
  fvalue_get_uinteger@Base 1.9.1
  fvalue_string_repr_len@Base 1.9.1
  fvalue_to_string_repr@Base 1.9.1
@@ -873,6 +875,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_field_is_referenced@Base 1.9.1
  proto_find_field_from_offset@Base 1.9.1
  proto_find_finfo@Base 1.9.1
+ proto_find_undecoded_data@Base 1.99.3
  proto_frame@Base 1.9.1
  proto_free_deregistered_fields@Base 1.12.0~rc1
  proto_get_data_protocol@Base 1.9.1
@@ -941,6 +944,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_bytes_format_value@Base 1.9.1
  proto_tree_add_bytes_item@Base 1.12.0~rc1
  proto_tree_add_bytes_with_bytes@Base 1.99.3
+ proto_tree_add_bytes_with_length@Base 1.99.3
  proto_tree_add_debug_text@Base 1.9.1
  proto_tree_add_double@Base 1.9.1
  proto_tree_add_double_format@Base 1.9.1
