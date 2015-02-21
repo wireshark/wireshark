@@ -528,6 +528,11 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         return;
     }
 
+    if (!testCaptureFileClose(TRUE, *new QString(" before quitting"))) {
+        event->ignore();
+        return;
+    }
+
 #ifdef HAVE_LIBPCAP
     capture_interfaces_dialog_.close();
 #endif

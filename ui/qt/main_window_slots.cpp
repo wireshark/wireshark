@@ -129,7 +129,7 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
     // was a file name given as function parameter?
     name_param = !cf_path.isEmpty();
 
-    testCaptureFileClose(false);
+    if (!testCaptureFileClose(false)) return;
 
     for (;;) {
 

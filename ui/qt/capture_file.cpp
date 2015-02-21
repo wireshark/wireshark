@@ -152,15 +152,11 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         // Signals and slots handled elsewhere.
         break;
 
-//    case(cf_cb_file_save_started): // data = string
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save started");
-//        break;
-//    case(cf_cb_file_save_finished):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save finished");
-//        break;
-//    case(cf_cb_file_save_failed):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save failed");
-//        break;
+    case(cf_cb_file_save_started): // data = string
+    case(cf_cb_file_save_finished):
+    case(cf_cb_file_save_failed):
+        // Ignored
+        break;
     default:
         g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: main_cf_callback %d %p", event, data);
         g_warning("CaptureFile::captureFileCallback: event %u unknown", event);
