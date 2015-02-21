@@ -32,6 +32,7 @@
 #include <nmmintrin.h>
 #include <string.h>
 #include "ws_mempbrk.h"
+#include "ws_mempbrk_int.h"
 
 /* __has_feature(address_sanitizer) is used later for Clang, this is for
  * compatibility with other compilers (such as GCC and MSVC) */

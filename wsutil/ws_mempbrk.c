@@ -37,7 +37,7 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 #include "ws_mempbrk.h"
-
+#include "ws_mempbrk_int.h"
 
 void
 tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *needles)

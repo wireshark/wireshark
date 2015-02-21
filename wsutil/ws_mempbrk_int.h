@@ -1,4 +1,4 @@
-/* ws_mempbrk.h
+/* ws_mempbrk_int.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,29 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WS_MEMPBRK_H__
-#define __WS_MEMPBRK_H__
+#ifndef __WS_MEMPBRK_INT_H__
+#define __WS_MEMPBRK_INT_H__
 
-#include "ws_symbol_export.h"
+const guint8 *ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
 
 #ifdef HAVE_SSE4_2
-#include <emmintrin.h>
+void ws_mempbrk_sse42_compile(tvb_pbrk_pattern* pattern, const gchar *needles);
+const char *ws_mempbrk_sse42_exec(const char* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
 #endif
 
-/** The pattern object used for tvb_pbrk_pattern_guint8().
- */
-typedef struct {
-    gchar patt[256];
-#ifdef HAVE_SSE4_2
-    gboolean use_sse42;
-    __m128i mask;
-#endif
-} tvb_pbrk_pattern;
-
-/** Compile the pattern for the needles to find using tvb_pbrk_pattern_guint8().
- */
-WS_DLL_PUBLIC void tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *needles);
-
-WS_DLL_PUBLIC const guint8 *tvb_pbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
-
-#endif /* __WS_MEMPBRK_H__ */
+#endif /* __WS_MEMPBRK_INT_H__ */

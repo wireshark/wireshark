@@ -123,6 +123,7 @@ libwsutil_nonrepl_INCLUDES = \
 	ws_cpuid.h	\
 	ws_diag_control.h \
 	ws_mempbrk.h	\
+	ws_mempbrk_int.h	\
 	ws_version_info.h
 
 # Header files that are not generated from other files
