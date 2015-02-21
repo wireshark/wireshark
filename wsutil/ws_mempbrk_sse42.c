@@ -135,7 +135,7 @@ ws_mempbrk_sse42_exec(const char *s, size_t slen, const tvb_pbrk_pattern* patter
       if (idx < 16 - offset)
       {
          /* found NUL @ 'idx', need to switch to slower mempbrk */
-         return ws_mempbrk_exec(s + idx + 1, slen - idx - 1, pattern, found_needle); /* slen is bigger than 16 & idx < 16 so no undeflow here */
+         return ws_mempbrk_portable_exec(s + idx + 1, slen - idx - 1, pattern, found_needle); /* slen is bigger than 16 & idx < 16 so no undeflow here */
       }
       aligned += 16;
       slen -= (16 - offset);
@@ -159,14 +159,14 @@ ws_mempbrk_sse42_exec(const char *s, size_t slen, const tvb_pbrk_pattern* patter
       if (zflag)
       {
          /* found NUL, need to switch to slower mempbrk */
-         return ws_mempbrk_exec(aligned, slen, pattern, found_needle);
+         return ws_mempbrk_portable_exec(aligned, slen, pattern, found_needle);
       }
       aligned += 16;
       slen -= 16;
     }
 
     /* XXX, use mempbrk_slow here? */
-    return ws_mempbrk_exec(aligned, slen, pattern, found_needle);
+    return ws_mempbrk_portable_exec(aligned, slen, pattern, found_needle);
 }
 
 #endif /* HAVE_SSE4_2 */

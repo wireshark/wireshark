@@ -55,7 +55,7 @@ tvb_pbrk_compile(tvb_pbrk_pattern* pattern, const gchar *needles)
 
 
 const guint8 *
-ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle)
+ws_mempbrk_portable_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle)
 {
     const guint8 *haystack_end = haystack + haystacklen;
 
@@ -80,7 +80,7 @@ tvb_pbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern
         return ws_mempbrk_sse42_exec(haystack, haystacklen, pattern, found_needle);
 #endif
 
-    return ws_mempbrk_exec(haystack, haystacklen, pattern, found_needle);
+    return ws_mempbrk_portable_exec(haystack, haystacklen, pattern, found_needle);
 }
 
 

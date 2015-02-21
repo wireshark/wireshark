@@ -22,7 +22,7 @@
 #ifndef __WS_MEMPBRK_INT_H__
 #define __WS_MEMPBRK_INT_H__
 
-const guint8 *ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
+const guint8 *ws_mempbrk_portable_exec(const guint8* haystack, size_t haystacklen, const tvb_pbrk_pattern* pattern, guchar *found_needle);
 
 #ifdef HAVE_SSE4_2
 void ws_mempbrk_sse42_compile(tvb_pbrk_pattern* pattern, const gchar *needles);
