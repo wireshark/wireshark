@@ -29,6 +29,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
+#include "packet-tcp.h"
 
 /*
  * The information used comes from:
@@ -155,7 +156,7 @@ tvb_unmasked(tvbuff_t *tvb, const guint offset, guint payload_length, const guin
 }
 
 static int
-dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ws_tree, guint8 opcode, guint payload_length, guint8 mask, const guint8* masking_key)
+dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ws_tree, guint8 opcode, guint payload_length, gboolean mask, const guint8* masking_key)
 {
   guint               offset = 0;
   proto_item         *ti_unmask, *ti;
@@ -309,63 +310,33 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
 
 
 static int
-dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item   *ti, *ti_len;
-  guint8        fin, opcode, mask;
-  guint         length, short_length, payload_length, recurse_length;
-  guint         payload_offset, mask_offset, recurse_offset;
+  guint8        fin, opcode;
+  gboolean      mask;
+  guint         short_length, payload_length;
+  guint         payload_offset, mask_offset;
   proto_tree   *ws_tree     = NULL;
   const guint8 *masking_key = NULL;
   tvbuff_t     *tvb_payload;
 
-  length = tvb_length(tvb);
-  if (length < 2) {
-    pinfo->desegment_len = 2;
-    return 0;
-  }
-
   short_length = tvb_get_guint8(tvb, 1) & MASK_WS_PAYLOAD_LEN;
+  mask_offset = 2;
   if (short_length == 126) {
-    if (length < 2+2) {
-      pinfo->desegment_len = 2+2;
-      return 0;
-    }
     payload_length = tvb_get_ntohs(tvb, 2);
-    mask_offset = 2+2;
-  }
-  else if (short_length == 127) {
-    if (length < 2+8) {
-      pinfo->desegment_len = 2+8;
-      return 0;
-    }
+    mask_offset += 2;
+  } else if (short_length == 127) {
     /* warning C4244: '=' : conversion from 'guint64' to 'guint ', possible loss of data */
     payload_length = (guint)tvb_get_ntoh64(tvb, 2);
-    mask_offset = 2+8;
-  }
-  else{
+    mask_offset += 8;
+  } else {
     payload_length = short_length;
-    mask_offset = 2;
   }
 
   /* Mask */
-  mask = (tvb_get_guint8(tvb, 1) & MASK_WS_MASK) >> 4;
+  mask = (tvb_get_guint8(tvb, 1) & MASK_WS_MASK) != 0;
   payload_offset = mask_offset + (mask ? 4 : 0);
-
-  if (payload_offset + payload_length < payload_length) {
-    /* Integer overflow, which means the packet contains a ridiculous
-     * payload length. Just take what we've got available.
-     * See bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8448 */
-    payload_length = tvb_reported_length_remaining(tvb, payload_offset);
-  }
-
-  if (length < payload_offset + payload_length) {
-    /* XXXX Warning desegment_len is 32 bits */
-    pinfo->desegment_len = payload_offset + payload_length - length;
-    return 0;
-  }
-
-  /* We've got the entire message! */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WebSocket");
   col_set_str(pinfo->cinfo, COL_INFO, "WebSocket");
@@ -410,15 +381,48 @@ dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   tvb_payload = tvb_new_subset_remaining(tvb, payload_offset);
   dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, opcode, payload_length, mask, masking_key);
 
-  /* Call this function recursively, to see if we have enough data to parse another websocket message */
+  return tvb_captured_length(tvb);
+}
 
-  recurse_offset = payload_offset + payload_length;
-  if (length > recurse_offset) {
-    recurse_length = dissect_websocket(tvb_new_subset_remaining(tvb, payload_offset+payload_length), pinfo, tree, data);
-    if (pinfo->desegment_len) pinfo->desegment_offset += recurse_offset;
-    return recurse_offset + recurse_length;
+static guint
+get_websocket_frame_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+  guint         frame_length, payload_length;
+  gboolean      mask;
+
+  frame_length = 2;                 /* flags, opcode and Payload length */
+  mask = tvb_get_guint8(tvb, offset + 1) & MASK_WS_MASK;
+
+  payload_length = tvb_get_guint8(tvb, offset + 1) & MASK_WS_PAYLOAD_LEN;
+  offset += 2; /* Skip flags, opcode and Payload length */
+
+  /* Check for Extended Payload Length. */
+  if (payload_length == 126) {
+    if (tvb_reported_length_remaining(tvb, offset) < 2)
+      return 0; /* Need more data. */
+
+    payload_length = tvb_get_ntohs(tvb, offset);
+    frame_length += 2;              /* Extended payload length */
+  } else if (payload_length == 127) {
+    if (tvb_reported_length_remaining(tvb, offset) < 8)
+      return 0; /* Need more data. */
+
+    payload_length = (guint)tvb_get_ntoh64(tvb, offset);
+    frame_length += 8;              /* Extended payload length */
   }
-  return recurse_offset;
+  if (mask)
+    frame_length += 4;              /* Masking-key */
+  frame_length += payload_length;   /* Payload data */
+  return frame_length;
+}
+
+static int
+dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  /* Need at least two bytes for flags, opcode and Payload length. */
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2,
+                   get_websocket_frame_length, dissect_websocket_frame, data);
+  return tvb_captured_length(tvb);
 }
 
 
