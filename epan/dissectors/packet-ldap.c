@@ -4156,6 +4156,7 @@ static void
 				if (decr_tvb) {
 					proto_item *enc_item = NULL;
 					proto_tree *enc_tree = NULL;
+					guint decr_len = tvb_reported_length(decr_tvb);
 
 					/*
 					* The LDAP message was encrypted in the packet, and has
@@ -4166,14 +4167,14 @@ static void
 					if (sasl_tree) {
 						enc_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
 							"GSS-API Encrypted payload (%d byte%s)",
-							sasl_len - ver_len,
-							plurality(sasl_len - ver_len, "", "s"));
+							decr_len, plurality(decr_len, "", "s"));
 						enc_tree = proto_item_add_subtree(enc_item, ett_ldap_payload);
 					}
 					dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
 				} else if (plain_tvb) {
 					proto_item *plain_item = NULL;
 					proto_tree *plain_tree = NULL;
+					guint plain_len = tvb_reported_length(plain_tvb);
 
 					/*
 					* The LDAP message wasn't encrypted in the packet;
@@ -4184,8 +4185,7 @@ static void
 					if (sasl_tree) {
 						plain_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
 							"GSS-API payload (%d byte%s)",
-							sasl_len - ver_len,
-							plurality(sasl_len - ver_len, "", "s"));
+							plain_len, plurality(plain_len, "", "s"));
 						plain_tree = proto_item_add_subtree(plain_item, ett_ldap_payload);
 					}
 
