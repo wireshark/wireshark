@@ -1,6 +1,7 @@
 /* packet-websocket.c
  * Routines for WebSocket dissection
  * Copyright 2012, Alexis La Goutte <alexis.lagoutte@gmail.com>
+ *           2015, Peter Wu <peter@lekensteyn.nl>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -41,6 +42,7 @@
 void proto_register_websocket(void);
 void proto_reg_handoff_websocket(void);
 
+static dissector_handle_t data_handle;
 static dissector_handle_t text_lines_handle;
 static dissector_handle_t json_handle;
 static dissector_handle_t sip_handle;
@@ -65,30 +67,19 @@ static int hf_ws_payload_length_ext_16 = -1;
 static int hf_ws_payload_length_ext_64 = -1;
 static int hf_ws_masking_key = -1;
 static int hf_ws_payload = -1;
-static int hf_ws_payload_unmask = -1;
+static int hf_ws_masked_payload = -1;
 static int hf_ws_payload_continue = -1;
-static int hf_ws_payload_text = -1;
-static int hf_ws_payload_text_mask = -1;
-static int hf_ws_payload_text_unmask = -1;
-static int hf_ws_payload_binary = -1;
-static int hf_ws_payload_binary_mask = -1;
-static int hf_ws_payload_binary_unmask = -1;
 static int hf_ws_payload_close = -1;
-static int hf_ws_payload_close_mask = -1;
-static int hf_ws_payload_close_unmask = -1;
 static int hf_ws_payload_close_status_code = -1;
 static int hf_ws_payload_close_reason = -1;
 static int hf_ws_payload_ping = -1;
-static int hf_ws_payload_ping_mask = -1;
-static int hf_ws_payload_ping_unmask = -1;
 static int hf_ws_payload_pong = -1;
-static int hf_ws_payload_pong_mask = -1;
-static int hf_ws_payload_pong_unmask = -1;
 static int hf_ws_payload_unknown = -1;
 
 static gint ett_ws = -1;
 static gint ett_ws_pl = -1;
 static gint ett_ws_mask = -1;
+static gint ett_ws_control_close = -1;
 
 static expert_field ei_ws_payload_unknown = EI_INIT;
 
@@ -155,161 +146,139 @@ tvb_unmasked(tvbuff_t *tvb, packet_info *pinfo, const guint offset, guint payloa
   return tvb_new_real_data(data_unmask, unmasked_length, payload_length);
 }
 
-static int
-dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ws_tree, guint8 opcode, guint payload_length, gboolean mask, const guint8* masking_key)
+static void
+dissect_websocket_control_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 opcode)
 {
-  guint               offset = 0;
-  proto_item         *ti_unmask, *ti;
+  proto_item         *ti;
+  proto_tree         *subtree;
+  const guint         offset = 0, length = tvb_reported_length(tvb);
+
+  switch (opcode) {
+    case WS_CLOSE: /* Close */
+      ti = proto_tree_add_item(tree, hf_ws_payload_close, tvb, offset, length, ENC_NA);
+      subtree = proto_item_add_subtree(ti, ett_ws_control_close);
+      /* Close frame MAY contain a body. */
+      if (length >= 2) {
+        proto_tree_add_item(subtree, hf_ws_payload_close_status_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        if (length > 2)
+          proto_tree_add_item(subtree, hf_ws_payload_close_reason, tvb, offset+2, length-2, ENC_UTF_8|ENC_NA);
+      }
+      break;
+
+    case WS_PING: /* Ping */
+      proto_tree_add_item(tree, hf_ws_payload_ping, tvb, offset, length, ENC_NA);
+      break;
+
+    case WS_PONG: /* Pong */
+      proto_tree_add_item(tree, hf_ws_payload_pong, tvb, offset, length, ENC_NA);
+      break;
+
+    default: /* Unknown */
+      ti = proto_tree_add_item(tree, hf_ws_payload_unknown, tvb, offset, length, ENC_NA);
+      expert_add_info_format(pinfo, ti, &ei_ws_payload_unknown, "Dissector for Websocket Opcode (%d)"
+        " code not implemented, Contact Wireshark developers"
+        " if you want this supported", opcode);
+      break;
+  }
+}
+
+static void
+dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *pl_tree, guint8 opcode)
+{
+  proto_item         *ti;
+  const guint         offset = 0, length = tvb_reported_length(tvb);
   dissector_handle_t  handle = NULL;
-  proto_tree         *pl_tree, *mask_tree = NULL;
-  tvbuff_t           *payload_tvb         = NULL;
   heur_dtbl_entry_t  *hdtbl_entry;
   conversation_t     *conv;
   http_conv_t        *http_conv = NULL;
 
-  /* Payload */
-  ti = proto_tree_add_item(ws_tree, hf_ws_payload, tvb, offset, payload_length, ENC_NA);
-  pl_tree = proto_item_add_subtree(ti, ett_ws_pl);
-  if (mask) {
-    payload_tvb = tvb_unmasked(tvb, pinfo, offset, payload_length, masking_key);
-    tvb_set_child_real_data_tvbuff(tvb, payload_tvb);
-    add_new_data_source(pinfo, payload_tvb, payload_length > tvb_captured_length(payload_tvb) ? "Unmasked Data (truncated)" : "Unmasked Data");
-    ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, payload_tvb, offset, payload_length, ENC_NA);
-    if (payload_length > tvb_captured_length(payload_tvb)) {
-      proto_item_append_text(ti, " [truncated]");
-    }
-    mask_tree = proto_item_add_subtree(ti, ett_ws_mask);
-  } else {
-    payload_tvb = tvb_new_subset(tvb, offset, payload_length, -1);
-  }
-
+  /* try to find a dissector which accepts the data. */
   conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-  if (conv)
+  if (conv) {
     http_conv = (http_conv_t *)conversation_get_proto_data(conv, proto_http);
 
-  if (http_conv)
-    handle = dissector_get_uint_handle(port_subdissector_table, http_conv->server_port);
+    if (http_conv)
+      handle = dissector_get_uint_handle(port_subdissector_table, http_conv->server_port);
+  }
 
-  if (handle)
-    call_dissector_only(handle, payload_tvb, pinfo, tree, NULL);
-  else
-    dissector_try_heuristic(heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, NULL);
+  if (handle) {
+    call_dissector_only(handle, tvb, pinfo, tree, NULL);
+    return; /* handle found, assume dissector took care of it. */
+  } else if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+    return; /* heuristics dissector handled it. */
+  }
 
-  /* Extension Data */
-  /* TODO: Add dissector of Extension (not extension available for the moment...) */
-
-  /* Application Data */
+  /* no dissector wanted it, try to print something appropriate. */
   switch (opcode) {
-
-    case WS_CONTINUE: /* Continue */
-      proto_tree_add_item(pl_tree, hf_ws_payload_continue, tvb, offset, payload_length, ENC_NA);
-      /* TODO: Add Fragmentation support... */
-    break;
-
     case WS_TEXT: /* Text */
-    if (mask) {
-
-      proto_tree_add_item(pl_tree, hf_ws_payload_text_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text_unmask, payload_tvb, offset, payload_length, ENC_UTF_8|ENC_NA);
-      PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text, payload_tvb, offset, payload_length, ENC_UTF_8|ENC_NA);
-      PROTO_ITEM_SET_HIDDEN(ti_unmask);
-    } else {
+    {
       const gchar  *saved_match_string = pinfo->match_string;
 
       pinfo->match_string = NULL;
       switch (pref_text_type) {
       case WEBSOCKET_TEXT:
-          call_dissector(text_lines_handle, payload_tvb, pinfo, pl_tree);
-          break;
-      case WEBSOCKET_JSON:
-          call_dissector(json_handle, payload_tvb, pinfo, pl_tree);
-          break;
-      case WEBSOCKET_SIP:
-          call_dissector(sip_handle, payload_tvb, pinfo, pl_tree);
-          break;
       case WEBSOCKET_NONE:
-          /* falltrough */
       default:
-          proto_tree_add_item(pl_tree, hf_ws_payload_text, tvb, offset, payload_length, ENC_UTF_8|ENC_NA);
-          break;
+        /* Assume that most text protocols are line-based. */
+        call_dissector(text_lines_handle, tvb, pinfo, tree);
+        break;
+      case WEBSOCKET_JSON:
+        call_dissector(json_handle, tvb, pinfo, tree);
+        break;
+      case WEBSOCKET_SIP:
+        call_dissector(sip_handle, tvb, pinfo, tree);
+        break;
       }
       pinfo->match_string = saved_match_string;
     }
-    offset += payload_length;
     break;
 
     case WS_BINARY: /* Binary */
-    if (mask) {
-      proto_tree_add_item(pl_tree, hf_ws_payload_binary_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary_unmask, payload_tvb, offset, payload_length, ENC_NA);
-      PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary, payload_tvb, offset, payload_length, ENC_NA);
-      PROTO_ITEM_SET_HIDDEN(ti_unmask);
-    } else {
-      proto_tree_add_item(pl_tree, hf_ws_payload_binary, tvb, offset, payload_length, ENC_NA);
-    }
-    offset += payload_length;
-    break;
-
-    case WS_CLOSE: /* Close */
-    if (mask) {
-      proto_tree_add_item(pl_tree, hf_ws_payload_close_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_unmask, payload_tvb, offset, payload_length, ENC_NA);
-      PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close, payload_tvb, offset, payload_length, ENC_NA);
-      PROTO_ITEM_SET_HIDDEN(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_status_code, payload_tvb, offset, 2, ENC_BIG_ENDIAN);
-      PROTO_ITEM_SET_GENERATED(ti_unmask);
-
-      if (payload_length > 2) {
-        ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_reason, payload_tvb, offset+2, payload_length-2, ENC_ASCII|ENC_NA);
-        PROTO_ITEM_SET_GENERATED(ti_unmask);
-      }
-    } else {
-      proto_tree_add_item(pl_tree, hf_ws_payload_close, tvb, offset, payload_length, ENC_NA);
-      proto_tree_add_item(pl_tree, hf_ws_payload_close_status_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-      if (payload_length > 2) {
-        proto_tree_add_item(pl_tree, hf_ws_payload_close_reason, tvb, offset+2, payload_length-2, ENC_ASCII|ENC_NA);
-      }
-    }
-    offset += payload_length;
-    break;
-
-    case WS_PING: /* Ping */
-    if (mask) {
-      proto_tree_add_item(pl_tree, hf_ws_payload_ping_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping_unmask, payload_tvb, offset, payload_length, ENC_NA);
-      PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping, payload_tvb, offset, payload_length, ENC_NA);
-      PROTO_ITEM_SET_HIDDEN(ti_unmask);
-    } else {
-      proto_tree_add_item(pl_tree, hf_ws_payload_ping, tvb, offset, payload_length, ENC_NA);
-    }
-    offset += payload_length;
-    break;
-
-    case WS_PONG: /* Pong */
-    if (mask) {
-      proto_tree_add_item(pl_tree, hf_ws_payload_pong_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong_unmask, payload_tvb, offset, payload_length, ENC_NA);
-      PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong, payload_tvb, offset, payload_length, ENC_NA);
-      PROTO_ITEM_SET_HIDDEN(ti_unmask);
-    } else {
-      proto_tree_add_item(pl_tree, hf_ws_payload_pong, tvb, offset, payload_length, ENC_NA);
-    }
-    offset += payload_length;
-    break;
+      call_dissector(data_handle, tvb, pinfo, tree);
+      break;
 
     default: /* Unknown */
-      ti = proto_tree_add_item(pl_tree, hf_ws_payload_unknown, tvb, offset, payload_length, ENC_NA);
+      ti = proto_tree_add_item(pl_tree, hf_ws_payload_unknown, tvb, offset, length, ENC_NA);
       expert_add_info_format(pinfo, ti, &ei_ws_payload_unknown, "Dissector for Websocket Opcode (%d)"
         " code not implemented, Contact Wireshark developers"
         " if you want this supported", opcode);
-    break;
+      break;
   }
-  return offset;
+}
+
+static void
+dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ws_tree, guint8 opcode)
+{
+  const guint         offset = 0, length = tvb_reported_length(tvb);
+  proto_item         *ti;
+  proto_tree         *pl_tree;
+  tvbuff_t           *tvb_appdata;
+
+  /* Payload */
+  ti = proto_tree_add_item(ws_tree, hf_ws_payload, tvb, offset, length, ENC_NA);
+  pl_tree = proto_item_add_subtree(ti, ett_ws_pl);
+
+  /* Extension Data */
+  /* TODO: Add dissector of Extension (not extension available for the moment...) */
+
+
+  /* Application Data */
+  if (opcode == WS_CONTINUE) {
+    proto_tree_add_item(tree, hf_ws_payload_continue, tvb, offset, length, ENC_NA);
+    /* TODO: Add Fragmentation support (needs FIN bit)
+     * https://tools.ietf.org/html/rfc6455#section-5.4 */
+    return;
+  }
+  /* Right now this is exactly the same, this may change when exts. are added.
+  tvb_appdata = tvb_new_subset(tvb, offset, length, length);
+  */
+  tvb_appdata = tvb;
+
+  if (opcode & 8) { /* Control frames have MSB set. */
+    dissect_websocket_control_frame(tvb_appdata, pinfo, pl_tree, opcode);
+  } else {
+    dissect_websocket_data_frame(tvb_appdata, pinfo, tree, pl_tree, opcode);
+  }
 }
 
 
@@ -381,8 +350,16 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   }
 
   if (payload_length > 0) {
-    tvb_payload = tvb_new_subset_remaining(tvb, payload_offset);
-    dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, opcode, payload_length, mask, masking_key);
+    /* Always unmask payload data before analysing it. */
+    if (mask) {
+      ti = proto_tree_add_item(ws_tree, hf_ws_masked_payload, tvb, payload_offset, payload_length, ENC_NA);
+      tvb_payload = tvb_unmasked(tvb, pinfo, payload_offset, payload_length, masking_key);
+      tvb_set_child_real_data_tvbuff(tvb, tvb_payload);
+      add_new_data_source(pinfo, tvb_payload, "Unmasked data");
+    } else {
+      tvb_payload = tvb_new_subset(tvb, payload_offset, payload_length, payload_length);
+    }
+    dissect_websocket_payload(tvb_payload, pinfo, tree, ws_tree, opcode);
   }
 
   return tvb_captured_length(tvb);
@@ -479,10 +456,10 @@ proto_register_websocket(void)
     { &hf_ws_payload,
       { "Payload", "websocket.payload",
       FT_NONE, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
+      "Payload (after unmasking)", HFILL }
     },
-    { &hf_ws_payload_unmask,
-      { "Unmask Payload", "websocket.payload.unmask",
+    { &hf_ws_masked_payload,
+      { "Masked payload", "websocket.masked_payload",
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
@@ -491,53 +468,13 @@ proto_register_websocket(void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
-    { &hf_ws_payload_text,
-      { "Text", "websocket.payload.text",
-      FT_STRING, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_text_mask,
-      { "Text", "websocket.payload.text_mask",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_text_unmask,
-      { "Text unmask", "websocket.payload.text_unmask",
-      FT_STRING, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_binary,
-      { "Binary", "websocket.payload.binary",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_binary_mask,
-      { "Binary", "websocket.payload.binary_mask",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_binary_unmask,
-      { "Binary", "websocket.payload.binary_unmask",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
     { &hf_ws_payload_close,
       { "Close", "websocket.payload.close",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_close_mask,
-      { "Close", "websocket.payload.close_mask",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_close_unmask,
-      { "Unmask Close", "websocket.payload.close_unmask",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
+      FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
     { &hf_ws_payload_close_status_code,
-      { "Close", "websocket.payload.close.status_code",
+      { "Status code", "websocket.payload.close.status_code",
       FT_UINT16, BASE_DEC, VALS(ws_close_status_code_vals), 0x0,
       NULL, HFILL }
     },
@@ -551,28 +488,8 @@ proto_register_websocket(void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
-    { &hf_ws_payload_ping_mask,
-      { "Ping", "websocket.payload.ping_mask",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_ping_unmask,
-      { "Ping", "websocket.payload.ping_unmask",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
     { &hf_ws_payload_pong,
       { "Pong", "websocket.payload.pong",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_pong_mask,
-      { "Pong", "websocket.payload.pong_mask",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }
-    },
-    { &hf_ws_payload_pong_unmask,
-      { "Pong", "websocket.payload.pong_unmask",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
@@ -587,7 +504,8 @@ proto_register_websocket(void)
   static gint *ett[] = {
     &ett_ws,
     &ett_ws_pl,
-    &ett_ws_mask
+    &ett_ws_mask,
+    &ett_ws_control_close,
   };
 
   static ei_register_info ei[] = {
@@ -638,6 +556,7 @@ proto_register_websocket(void)
 void
 proto_reg_handoff_websocket(void)
 {
+  data_handle = find_dissector("data");
   text_lines_handle = find_dissector("data-text-lines");
   json_handle = find_dissector("json");
   sip_handle = find_dissector("sip");
@@ -645,7 +564,7 @@ proto_reg_handoff_websocket(void)
   proto_http = proto_get_id_by_filter_name("http");
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2
