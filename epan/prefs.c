@@ -2910,7 +2910,7 @@ pre_init_prefs(void)
     prefs.gui_ignored_bg.blue        =     65535;
     if (prefs.gui_colorized_fg) g_free(prefs.gui_colorized_fg);
     prefs.gui_colorized_fg           = g_strdup("000000,000000,000000,000000,000000,000000,000000,000000,000000,000000");
-    if (prefs.gui_colorized_fg) g_free(prefs.gui_colorized_fg);
+    if (prefs.gui_colorized_bg) g_free(prefs.gui_colorized_bg);
     prefs.gui_colorized_bg           = g_strdup("ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0");
     prefs.st_client_fg.pixel         =     0;
     prefs.st_client_fg.red           = 32767;
