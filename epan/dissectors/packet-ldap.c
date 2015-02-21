@@ -4157,6 +4157,7 @@ static void
 
 				if (decr_tvb) {
 					proto_tree *enc_tree = NULL;
+					guint decr_len = tvb_reported_length(decr_tvb);
 
 					/*
 					* The LDAP message was encrypted in the packet, and has
@@ -4165,14 +4166,14 @@ static void
 					col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
 
 					if (sasl_tree) {
-						enc_tree = proto_tree_add_subtree_format(sasl_tree, gssapi_tvb, ver_len, -1,
+						enc_tree = proto_tree_add_subtree_format(sasl_tree, decr_tvb, 0, -1,
 							ett_ldap_payload, NULL, "GSS-API Encrypted payload (%d byte%s)",
-							sasl_len - ver_len,
-							plurality(sasl_len - ver_len, "", "s"));
+							decr_len, plurality(decr_len, "", "s"));
 					}
 					dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
 				} else if (plain_tvb) {
 					proto_tree *plain_tree = NULL;
+					guint plain_len = tvb_reported_length(plain_tvb);
 
 					/*
 					* The LDAP message wasn't encrypted in the packet;
@@ -4181,10 +4182,9 @@ static void
 					col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
 
 					if (sasl_tree) {
-						plain_tree = proto_tree_add_subtree_format(sasl_tree, gssapi_tvb, ver_len, -1,
+						plain_tree = proto_tree_add_subtree_format(sasl_tree, plain_tvb, 0, -1,
 							ett_ldap_payload, NULL, "GSS-API payload (%d byte%s)",
-							sasl_len - ver_len,
-							plurality(sasl_len - ver_len, "", "s"));
+							plain_len, plurality(plain_len, "", "s"));
 					}
 
 					dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, is_mscldap);
