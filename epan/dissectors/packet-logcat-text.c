@@ -114,7 +114,7 @@ static int get_tag(const gchar *frame, const gchar *token, tvbuff_t *tvb,
         proto_tree *maintree, gint start_offset, packet_info *pinfo) {
     gchar *p = g_strstr_len(frame + start_offset, -1, token);
     int offset = (int)(p - frame);
-    guint8 *src_addr = wmem_strdup(wmem_packet_scope(), token);
+    guint8 *src_addr = wmem_strdup(pinfo->pool, token);
     gint tok_len = (gint)strlen(token);
 
     proto_tree_add_string(maintree, hf_logcat_text_tag, tvb, offset, tok_len,
