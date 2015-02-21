@@ -116,17 +116,17 @@ dword_to_hex_punct(char *out, guint32 dword, char punct)
 char *
 qword_to_hex(char *out, guint64 qword)
 {
-	out = dword_to_hex(out, qword >> 32);
-	out = dword_to_hex(out, qword & 0xffffffff);
+	out = dword_to_hex(out, (guint32)(qword >> 32));
+	out = dword_to_hex(out, (guint32)(qword & 0xffffffff));
 	return out;
 }
 
 char *
 qword_to_hex_punct(char *out, guint64 qword, char punct)
 {
-	out = dword_to_hex_punct(out, qword >> 32, punct);
+	out = dword_to_hex_punct(out, (guint32)(qword >> 32), punct);
 	*out++ = punct;
-	out = dword_to_hex_punct(out, qword & 0xffffffff, punct);
+	out = dword_to_hex_punct(out, (guint32)(qword & 0xffffffff), punct);
 	return out;
 }
 
