@@ -47,6 +47,13 @@ public:
      */
     bool isValid() const;
 
+    /** Get the current selected row
+     *
+     * @return the current selected index of the packet list if the capture
+     * file is open and a packet is selected, otherwise -1.
+     */
+    int currentRow();
+
     /** Return a filename suitable for use in a window title.
      *
      * @return One of: the basename of the capture file without an extension,

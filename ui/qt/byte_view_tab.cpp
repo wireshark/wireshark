@@ -24,6 +24,10 @@
 #include <QTabBar>
 #include <QTreeWidgetItem>
 
+// To do:
+// - We might want to add a callback to free_data_sources in so that we
+//   don't have to blindly call clear().
+
 ByteViewTab::ByteViewTab(QWidget *parent) :
     QTabWidget(parent)
 {

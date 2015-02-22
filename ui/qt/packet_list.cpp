@@ -639,7 +639,7 @@ void PacketList::redrawVisiblePackets() {
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
 
     packet_list_model_->resetColumns();
-    if (row > 0) {
+    if (row >= 0) {
         setCurrentIndex(packet_list_model_->index(row, 0));
     }
 
@@ -880,7 +880,7 @@ void PacketList::goLastPacket(void) {
 // XXX We can jump to the wrong packet if a display filter is applied
 void PacketList::goToPacket(int packet) {
     int row = packet_list_model_->packetNumberToRow(packet);
-    if (row > 0) {
+    if (row >= 0) {
         setCurrentIndex(packet_list_model_->index(row, 0));
     }
 }

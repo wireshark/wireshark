@@ -68,6 +68,13 @@ bool CaptureFile::isValid() const
     return false;
 }
 
+int CaptureFile::currentRow()
+{
+    if (isValid())
+        return cap_file_->current_row;
+    return -1;
+}
+
 void CaptureFile::retapPackets()
 {
     if (cap_file_) {
