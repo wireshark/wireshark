@@ -5401,7 +5401,15 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case BASE_OCT:
 				case BASE_DEC_HEX:
 				case BASE_HEX_DEC:
+					break;
 				case BASE_CUSTOM: /* hfinfo_numeric_value_format() treats this as decimal */
+					if (hfinfo->type == FT_INT64 ||
+					    hfinfo->type == FT_UINT64) {
+						/* BASE_CUSTOM not supported yet */
+						g_error("Field '%s' (%s) is a 64-bit field (%s) but is being displayed with BASE_CUSTOM\n",
+							hfinfo->name, hfinfo->abbrev,
+							ftype_name(hfinfo->type));
+					}
 					break;
 				default:
 					g_error("Field '%s' (%s) is an integral value (%s)"
@@ -6133,6 +6141,7 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 	guint64            value;
 	char               tmp[ITEM_LABEL_LENGTH+1];
 
+	/* DOES NOT HANDLE BASE_CUSTOM */
 	/* Pick the proper format string */
 	if (is_signed)
 		format = hfinfo_int64_format(hfinfo);
@@ -6266,8 +6275,7 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 				return ptr;
 
 			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				;
+				g_assert_not_reached();
 		}
 	return ptr;
 }
@@ -6358,8 +6366,7 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 			format = "0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "u)";
 			break;
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			;
+			g_assert_not_reached();
 	}
 	return format;
 }
@@ -6387,8 +6394,7 @@ hfinfo_int64_format(const header_field_info *hfinfo)
 			format = "0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)";
 			break;
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			;
+			g_assert_not_reached();
 	}
 	return format;
 }
