@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="pl_PL">
+<TS version="2.1" language="pl_PL">
 <context>
     <name>Abbreviation</name>
     <message>
@@ -41,6 +41,49 @@
     </message>
 </context>
 <context>
+    <name>BluetoothAttServerAttributesDialog</name>
+    <message>
+        <source>Bluetooth ATT Server Attributes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Handle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UUID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UUID Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Devices</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove duplicates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy All</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
@@ -64,6 +107,17 @@
     <message>
         <source>Bytes %1-%2</source>
         <translation>Bajty %1-%2</translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFile</name>
+    <message>
+        <source> [closing]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> [closed]</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -166,11 +220,11 @@
     </message>
     <message>
         <source>Wireshark: Open Capture File</source>
-        <translation>Wireshark: Otwórz</translation>
+        <translation type="vanished">Wireshark: Otwórz</translation>
     </message>
     <message>
         <source>Wireshark: Save Capture File As</source>
-        <translation>Wireshark: Zapisz jako</translation>
+        <translation type="vanished">Wireshark: Zapisz jako</translation>
     </message>
     <message>
         <source>Save as:</source>
@@ -178,7 +232,7 @@
     </message>
     <message>
         <source>Wireshark: Export Specified Packets</source>
-        <translation>Wireshark: Eksportuj wybrane pakiety</translation>
+        <translation type="vanished">Wireshark: Eksportuj wybrane pakiety</translation>
     </message>
     <message>
         <source>Export as:</source>
@@ -186,7 +240,7 @@
     </message>
     <message>
         <source>Wireshark: Merge Capture File</source>
-        <translation>Wireshark: Scalenie plików zrzutu</translation>
+        <translation type="vanished">Wireshark: Scalenie plików zrzutu</translation>
     </message>
     <message>
         <source>-</source>
@@ -223,6 +277,22 @@
     <message>
         <source>unknown</source>
         <translation>nieznany</translation>
+    </message>
+    <message>
+        <source>Open Capture File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Capture File As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Specified Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merge Capture File</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -389,6 +459,18 @@
 </source>
         <translation>Stworzony dzięki Wiresharkowi %1</translation>
     </message>
+    <message>
+        <source>Details</source>
+        <translation type="unfinished">Szczegóły</translation>
+    </message>
+    <message>
+        <source>Capture file comments</source>
+        <translation type="unfinished">Komentarze pliku zrzutu</translation>
+    </message>
+    <message>
+        <source>Capture File Properties</source>
+        <translation type="unfinished">Preferencje pliku zrzutu</translation>
+    </message>
 </context>
 <context>
     <name>CaptureFilterCombo</name>
@@ -412,7 +494,7 @@
     <name>CaptureInterfacesDialog</name>
     <message>
         <source>Wireshark: Capture interfaces</source>
-        <translation>Wireshark: Interfejsy</translation>
+        <translation type="vanished">Wireshark: Interfejsy</translation>
     </message>
     <message>
         <source>Input</source>
@@ -717,6 +799,10 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <source>Capture to a permanent file</source>
         <translation>Przechwytuj do pliku</translation>
     </message>
+    <message>
+        <source>Capture Interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CapturePreferencesFrame</name>
@@ -770,6 +856,132 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
 </context>
 <context>
+    <name>ColoringRulesDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Okno</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Nazwa</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add a new coloring rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete this coloring rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this coloring rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the foreground color for this rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Foreground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set the background color for this rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coloring Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a file and add its filters to the end of the list.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save filters in a file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>the &quot;@&quot; symbol will be ignored.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Coloring Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export %1 Coloring Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your coloring rules file contains unknown rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to save coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ColumnEditorFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Ramka</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation type="unfinished">Tytuł</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation type="unfinished">Nazwa pola</translation>
+    </message>
+    <message>
+        <source>Occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Anuluj</translation>
+    </message>
+    <message>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
@@ -789,7 +1001,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Field name</source>
-        <translation>Pole</translation>
+        <translation type="vanished">Pole</translation>
     </message>
     <message>
         <source>Field occurence</source>
@@ -797,7 +1009,15 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Field occurrence</source>
-        <translation>Występowanie pola</translation>
+        <translation type="vanished">Występowanie pola</translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation type="unfinished">Nazwa pola</translation>
+    </message>
+    <message>
+        <source>Field Occurrence</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -846,7 +1066,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <name>DecodeAsDialog</name>
     <message>
         <source>Wireshark: Decode As</source>
-        <translation>Wireshark: Dekoduj jako</translation>
+        <translation type="vanished">Wireshark: Dekoduj jako</translation>
     </message>
     <message>
         <source>Field</source>
@@ -908,6 +1128,10 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <source>unknown</source>
         <translation>nieznany</translation>
     </message>
+    <message>
+        <source>Decode As</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterCombo</name>
@@ -936,7 +1160,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Invalid filter</source>
-        <translation>Nieprawidłowy filtr</translation>
+        <translation type="vanished">Nieprawidłowy filtr</translation>
     </message>
     <message>
         <source>Bookmark this filter string</source>
@@ -953,6 +1177,10 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
         <translation>&quot;%1&quot; może mieć nieoczekiwany rezultat (zobacz Podręcznik Użytkownika)</translation>
+    </message>
+    <message>
+        <source>Invalid filter: </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -978,11 +1206,11 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <name>ExportDissectionDialog</name>
     <message>
         <source>Wireshark: Export Packet Dissections</source>
-        <translation>Wireshark: Eksport prezentacji pakietu</translation>
+        <translation type="vanished">Wireshark: Eksport prezentacji pakietu</translation>
     </message>
     <message>
         <source>Export as:</source>
-        <translation>Eksportuj jako:</translation>
+        <translation type="vanished">Eksportuj jako:</translation>
     </message>
     <message>
         <source>Plain text (*.txt)</source>
@@ -1003,6 +1231,14 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <source>C Arrays - bytes (*.c, *.h)</source>
         <translation>Tablica w języku C - bajty (*.c, *.h)</translation>
+    </message>
+    <message>
+        <source>Export Packet Dissections</source>
+        <translation type="unfinished">Eksportuj prezentację pakietów</translation>
+    </message>
+    <message>
+        <source>Export As:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1037,7 +1273,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: %1 object list</source>
-        <translation>Wireshark: lista obiektów %1</translation>
+        <translation type="vanished">Wireshark: lista obiektów %1</translation>
     </message>
     <message>
         <source>Tap registration error</source>
@@ -1053,11 +1289,11 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: Save Object As...</source>
-        <translation>Wireshark: Zapisz obiekt jako...</translation>
+        <translation type="vanished">Wireshark: Zapisz obiekt jako...</translation>
     </message>
     <message>
         <source>Wireshark: Save All Objects In...</source>
-        <translation>Wireshark: Zapisz wszystkie obiekty jako...</translation>
+        <translation type="vanished">Wireshark: Zapisz wszystkie obiekty jako...</translation>
     </message>
     <message>
         <source>Object Export</source>
@@ -1066,6 +1302,22 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <source>Some files could not be saved.</source>
         <translation>Pewne pliki nie zostały zapisane.</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 object list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Object As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save All Objects In</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1107,7 +1359,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: No files in Set</source>
-        <translation>Wireshark: Brak plików w zbiorze</translation>
+        <translation type="vanished">Wireshark: Brak plików w zbiorze</translation>
     </message>
     <message>
         <source>No capture loaded</source>
@@ -1119,7 +1371,15 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: %1 File%2 in Set</source>
-        <translation>Wireshark: %1 Plik%2 ze zbioru</translation>
+        <translation type="vanished">Wireshark: %1 Plik%2 ze zbioru</translation>
+    </message>
+    <message>
+        <source>No files in Set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 File%2 in Set</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1277,7 +1537,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: Save stream content as</source>
-        <translation>Wireshark: Zapisz zawartość strumiania jako</translation>
+        <translation type="vanished">Wireshark: Zapisz zawartość strumiania jako</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
@@ -1299,6 +1559,26 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <source>
 [Stream output truncated]</source>
         <translation>Obcięto dane strumiania</translation>
+    </message>
+    <message>
+        <source>Save Stream Content As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow TCP Stream (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow UDP Stream (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow SSL Stream (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File closed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1349,7 +1629,11 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: Font</source>
-        <translation>Wireshark: Czcionka</translation>
+        <translation type="vanished">Wireshark: Czcionka</translation>
+    </message>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1365,7 +1649,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <source>Dialog</source>
         <translation>Okno</translation>
     </message>
-    <message utf8="true">
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
@@ -1449,15 +1733,15 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Change the dissection behavior for a protocol.</source>
-        <translation>Nowa reguła.</translation>
+        <translation type="vanished">Nowa reguła.</translation>
     </message>
     <message>
         <source>Remove this dissection behavior.</source>
-        <translation>Usuń regułę.</translation>
+        <translation type="vanished">Usuń regułę.</translation>
     </message>
     <message>
         <source>Copy this dissection behavior.</source>
-        <translation>Kopiuj regułę.</translation>
+        <translation type="vanished">Kopiuj regułę.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -1677,11 +1961,11 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark IO Graphs: </source>
-        <translation>Wireshark Wykres: </translation>
+        <translation type="vanished">Wireshark Wykres: </translation>
     </message>
     <message>
         <source>No Capture Data</source>
-        <translation>Brak przechwyconych danych</translation>
+        <translation type="vanished">Brak przechwyconych danych</translation>
     </message>
     <message>
         <source>All packets</source>
@@ -1745,14 +2029,38 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation>Wireshark: Zapisz obraz jako...</translation>
+        <translation type="vanished">Wireshark: Zapisz obraz jako...</translation>
+    </message>
+    <message>
+        <source>Add a new graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IO Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark IO Graphs: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ImportTextDialog</name>
     <message>
         <source>Wireshark: Import from Hex Dump</source>
-        <translation>Wireshark: importowanie z postaci szesnastkowej</translation>
+        <translation type="vanished">Wireshark: importowanie z postaci szesnastkowej</translation>
     </message>
     <message>
         <source>Import From</source>
@@ -1944,7 +2252,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: Import text file</source>
-        <translation>Wireshark: Importuj plik tekstowy</translation>
+        <translation type="vanished">Wireshark: Importuj plik tekstowy</translation>
     </message>
     <message>
         <source>Example: %1</source>
@@ -1953,6 +2261,14 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     <message>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(Żaden format nie będzie zastosowany)&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>Import From Hex Dump</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Text File</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2816,7 +3132,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
         <source>LBM UIM Flows</source>
         <translation>Przepływy LBM UIM</translation>
     </message>
-    <message utf8="true">
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
@@ -3060,7 +3376,11 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation>Wireshark: Zapisz obraz jako...</translation>
+        <translation type="vanished">Wireshark: Zapisz obraz jako...</translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3182,7 +3502,11 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Open the Capture Properties dialog</source>
-        <translation>Otwórz okno Ustawień Przechwytywania</translation>
+        <translation type="vanished">Otwórz okno Ustawień Przechwytywania</translation>
+    </message>
+    <message>
+        <source>Open the Capture File Properties dialog</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3193,7 +3517,7 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <source>Capture filter:</source>
-        <translation>Filtr przechwytywania:</translation>
+        <translation type="vanished">Filtr przechwytywania:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;
@@ -3224,7 +3548,7 @@ In-depth discussions about Wireshark and protocol analysis.
 &lt;/p&gt;
 
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;
 &lt;body&gt;
 
 &lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Podręcznik użytkownika&lt;/a&gt;&lt;/h2&gt;
@@ -3255,21 +3579,95 @@ Dyskusje o Wireshku i analizie protokołów.
     <message>
         <source>Capture
 live packets from your network</source>
-        <translation>Przechwytuj pakiety</translation>
+        <translation type="vanished">Przechwytuj pakiety</translation>
     </message>
     <message>
         <source>Open
 a recent capture file</source>
-        <translation>Otwórz ostatni plik</translation>
+        <translation type="vanished">Otwórz ostatni plik</translation>
     </message>
     <message>
         <source>Learn
 more about Wireshark</source>
-        <translation>Naucz się więcej o Wiresharku</translation>
+        <translation type="vanished">Naucz się więcej o Wiresharku</translation>
     </message>
     <message>
         <source>not found</source>
         <translation>nie znaleziono</translation>
+    </message>
+    <message>
+        <source>Welcome to Wireshark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h2&gt;Open&lt;/h2&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h2&gt;Capture&lt;/h2&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…using this filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h2&gt;Learn&lt;/h2&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;http://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;http://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are running Wireshark </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> You receive automatic updates.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> You have disabled automatic updates.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4161,7 +4559,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Protocol Hierarchy</source>
-        <translation>Hierarchia protokołów</translation>
+        <translation type="vanished">Hierarchia protokołów</translation>
     </message>
     <message>
         <source>Capinfos</source>
@@ -4549,11 +4947,11 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing . . .</source>
-        <translation>Proszę czekać. Trwa inicjowanie Wiresharka . . .</translation>
+        <translation type="vanished">Proszę czekać. Trwa inicjowanie Wiresharka . . .</translation>
     </message>
     <message>
         <source>Wireshark: Export Selected Packet Bytes</source>
-        <translation>Wireshark: Eksportuj wybrane bajty pakietu</translation>
+        <translation type="vanished">Wireshark: Eksportuj wybrane bajty pakietu</translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
@@ -4955,6 +5353,98 @@ more about Wireshark</source>
         <source>SIP Flows</source>
         <translation>Przepływy SIP</translation>
     </message>
+    <message>
+        <source>RTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bluetooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Protocol Hierarchy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show a summary of protocols present in the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DNS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DNS statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HPFEEDS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>hpfeeds statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP2 statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Coloring Rules...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit the packet list coloring rules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ATT Server Attributes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Devices</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Services</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Packet in New &amp;Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show this packet in a separate window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show Packet Reference in New Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the linked packet in a separate window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please wait while Wireshark is initializing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Selected Packet Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export SSL Session Keys (%1 key%2</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPreferencesFrame</name>
@@ -5050,7 +5540,7 @@ more about Wireshark</source>
         <source>English</source>
         <translation type="obsolete">English</translation>
     </message>
-    <message utf8="true">
+    <message>
         <source>Français</source>
         <translation type="obsolete">Français</translation>
     </message>
@@ -5186,7 +5676,7 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Wireshark: </source>
-        <translation>Wireshark: </translation>
+        <translation type="vanished">Wireshark: </translation>
     </message>
 </context>
 <context>
@@ -5200,7 +5690,26 @@ more about Wireshark</source>
     <name>PacketCommentDialog</name>
     <message>
         <source>Wireshark: Packet Comment</source>
-        <translation>Wireshark: Komentarz pakietu</translation>
+        <translation type="vanished">Wireshark: Komentarz pakietu</translation>
+    </message>
+    <message>
+        <source>Packet Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Okno</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished">&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Packet %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5296,7 +5805,7 @@ more about Wireshark</source>
         <source>Frame %1: %2 
 
 </source>
-        <translation>Ramka %1: %2 </translation>
+        <translation type="vanished">Ramka %1: %2 </translation>
     </message>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
@@ -5311,6 +5820,44 @@ more about Wireshark</source>
 Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</source>
         <translation>Referencje czasu nie działają z aktualnie używanym formatem czasu.
 Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quot;?</translation>
+    </message>
+    <message>
+        <source>Align Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize To Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve Names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove This Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frame %1: %2
+
+</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5375,7 +5922,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <name>PreferencesDialog</name>
     <message>
         <source>Wireshark: Preferences</source>
-        <translation>Wireshark: Preferencje</translation>
+        <translation type="vanished">Wireshark: Preferencje</translation>
     </message>
     <message>
         <source>Appearance</source>
@@ -5407,7 +5954,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Wireshark: </source>
-        <translation>Wireshark: </translation>
+        <translation type="vanished">Wireshark: </translation>
     </message>
     <message>
         <source>Search:</source>
@@ -5441,12 +5988,16 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <source>Changed</source>
         <translation>Zmienione</translation>
     </message>
+    <message>
+        <source>Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PrintDialog</name>
     <message>
         <source>Wireshark: Print</source>
-        <translation>Wireshark: Drukowanie</translation>
+        <translation type="vanished">Wireshark: Drukowanie</translation>
     </message>
     <message>
         <source>Packet Format</source>
@@ -5488,12 +6039,16 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <source>Unable to print to %1.</source>
         <translation>Nie można drukować do %1.</translation>
     </message>
+    <message>
+        <source>Print</source>
+        <translation type="unfinished">Drukuj</translation>
+    </message>
 </context>
 <context>
     <name>ProfileDialog</name>
     <message>
         <source>Wireshark: Configuration Profiles</source>
-        <translation>Wireshark: Konfiguracja Profili</translation>
+        <translation type="vanished">Wireshark: Konfiguracja Profili</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -5518,6 +6073,10 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <message>
         <source>Profile Error</source>
         <translation>Błąd w profilu</translation>
+    </message>
+    <message>
+        <source>Configuration Profiles</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5553,6 +6112,93 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <message>
         <source>, %1 bytes</source>
         <translation>, %1 bajtów</translation>
+    </message>
+</context>
+<context>
+    <name>ProtocolHierarchyDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Okno</translation>
+    </message>
+    <message>
+        <source>Protocol</source>
+        <translation type="unfinished">Protokół</translation>
+    </message>
+    <message>
+        <source>Percent Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished">Pakiety</translation>
+    </message>
+    <message>
+        <source>Percent Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bits/s</source>
+        <translation type="unfinished">Bity/s</translation>
+    </message>
+    <message>
+        <source>End Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>End Bits/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as CSV</source>
+        <translation type="unfinished">Kopiuj jako CSV</translation>
+    </message>
+    <message>
+        <source>Copy stream list as CSV.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as YAML</source>
+        <translation type="unfinished">Kopiuj jako YAML</translation>
+    </message>
+    <message>
+        <source>Copy stream list as YAML.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocol Hierarchy Statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopiuj</translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation type="unfinished">jako CSV</translation>
+    </message>
+    <message>
+        <source>as YAML</source>
+        <translation type="unfinished">jako YAML</translation>
+    </message>
+    <message>
+        <source>No display filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5757,6 +6403,18 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <source>Tunneling: %1  Fast Start: %2</source>
         <translation>Tunelowanie: %1  Szybki Start: %2</translation>
     </message>
+    <message>
+        <source>[no capture file]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New coloring rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (%L2%)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RemoteCaptureDialog</name>
@@ -5850,6 +6508,189 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <message>
         <source>milliseconds</source>
         <translation>milisekundy</translation>
+    </message>
+</context>
+<context>
+    <name>RtpStreamDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Okno</translation>
+    </message>
+    <message>
+        <source>Source Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destination Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destination Port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSRC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Payload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished">Pakiety</translation>
+    </message>
+    <message>
+        <source>Lost</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Delta (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max Jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mean Jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation type="unfinished">Status</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find Reverse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find the reverse stream matching the selected forward stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mark the packets of the selected stream(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>M</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo stream selection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go To Setup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the setup packet for this stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <translation type="unfinished">G</translation>
+    </message>
+    <message>
+        <source>Prepare Filter</source>
+        <translation type="unfinished">Przygotuj filtr</translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export As RTPDump</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export the stream payload as rtpdump</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analyze</source>
+        <translation type="unfinished">Analizuj</translation>
+    </message>
+    <message>
+        <source>Open the analysis window for the selected stream(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as CSV</source>
+        <translation type="unfinished">Kopiuj jako CSV</translation>
+    </message>
+    <message>
+        <source>Copy stream list as CSV.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as YAML</source>
+        <translation type="unfinished">Kopiuj jako YAML</translation>
+    </message>
+    <message>
+        <source>Copy stream list as YAML.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopiuj</translation>
+    </message>
+    <message>
+        <source>as CSV</source>
+        <translation type="unfinished">jako CSV</translation>
+    </message>
+    <message>
+        <source>as YAML</source>
+        <translation type="unfinished">jako YAML</translation>
+    </message>
+    <message>
+        <source>%1 streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 selected, %2 total packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save RTPDump As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6523,7 +7364,11 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation>Wireshark: Zapisz obraz jako...</translation>
+        <translation type="vanished">Wireshark: Zapisz obraz jako...</translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6647,7 +7492,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <source>Flow</source>
         <translation>Przepływ</translation>
     </message>
-    <message utf8="true">
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
@@ -6875,11 +7720,19 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation>Wireshark: Zapisz obraz jako...</translation>
+        <translation type="vanished">Wireshark: Zapisz obraz jako...</translation>
     </message>
     <message>
         <source>No data</source>
         <translation>Brak danych</translation>
+    </message>
+    <message>
+        <source>Call Flow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6996,15 +7849,15 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source> Stats Tree</source>
-        <translation>Statystyki</translation>
+        <translation type="vanished">Statystyki</translation>
     </message>
     <message>
         <source>%1 already open</source>
-        <translation>%1 jest już otwarty</translation>
+        <translation type="vanished">%1 jest już otwarty</translation>
     </message>
     <message>
         <source>Each type of tree can only be generated one at time.</source>
-        <translation>Każdy typ drzewa może być wygenerowany tylko raz.</translation>
+        <translation type="vanished">Każdy typ drzewa może być wygenerowany tylko raz.</translation>
     </message>
     <message>
         <source>%1 failed to attach to tap</source>
@@ -7012,7 +7865,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Wireshark: Save stats tree as ...</source>
-        <translation>Wireshark: Zapisz statystyki jako...</translation>
+        <translation type="vanished">Wireshark: Zapisz statystyki jako...</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
@@ -7025,6 +7878,10 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <message>
         <source>Error saving file %1</source>
         <translation>Błąd podczas zapisywania pliku %1</translation>
+    </message>
+    <message>
+        <source>Save Statistics As</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7083,7 +7940,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Capture file comments</source>
-        <translation>Komentarze pliku zrzutu</translation>
+        <translation type="vanished">Komentarze pliku zrzutu</translation>
     </message>
     <message>
         <source>OS</source>
@@ -7319,11 +8176,11 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Wireshark - Capture File Properties</source>
-        <translation>Wireshark - Preferencje Pliku Zrzutu</translation>
+        <translation type="vanished">Wireshark - Preferencje Pliku Zrzutu</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation>Szczegóły</translation>
+        <translation type="vanished">Szczegóły</translation>
     </message>
 </context>
 <context>
@@ -7505,9 +8362,9 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
-        <translation>Wireshark: Zapisz obraz jako...</translation>
+        <translation type="vanished">Wireshark: Zapisz obraz jako...</translation>
     </message>
-    <message utf8="true">
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
@@ -7797,12 +8654,16 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <source>Switch to the Stevens-style Time / Sequence graph</source>
         <translation>Przełącz na wykres czasu/sekwencji Stevensa</translation>
     </message>
+    <message>
+        <source>Save Graph As</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TimeShiftDialog</name>
     <message>
         <source>Wireshark: Time Shift</source>
-        <translation>Wireshark: Przesunięcie Czasu</translation>
+        <translation type="vanished">Wireshark: Przesunięcie Czasu</translation>
     </message>
     <message>
         <source>Shift all packets by</source>
@@ -7848,6 +8709,10 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
         <source>Time shifting is not available capturing packets.</source>
         <translation>Przesunięcie czasu nie jest dostępne w czasie zgrywania.</translation>
     </message>
+    <message>
+        <source>Time Shift</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TrafficTableDialog</name>
@@ -7873,7 +8738,7 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     </message>
     <message>
         <source>Wireshark: %1s</source>
-        <translation>Wireshark: %1s</translation>
+        <translation type="vanished">Wireshark: %1s</translation>
     </message>
     <message>
         <source>%1 Types</source>
@@ -8000,6 +8865,14 @@ Czy chcesz przełączyć format do &quot;Sekundy od początku przechywytania&quo
     <message>
         <source>No Audio</source>
         <translation>Brak Audio</translation>
+    </message>
+    <message>
+        <source>SIP Flows</source>
+        <translation type="unfinished">Przepływy SIP</translation>
+    </message>
+    <message>
+        <source>VoIP Calls</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
