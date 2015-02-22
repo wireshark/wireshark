@@ -3935,8 +3935,8 @@ mfserver         2266/tcp # M-Files Server [Samppa_Lahtinen] [Samppa_Lahtinen] 2
 mfserver         2266/udp # M-files Server [Samppa_Lahtinen] [Samppa_Lahtinen] 2004-06
 ontobroker       2267/tcp # OntoBroker [Dr_Michael_Erdmann] [Dr_Michael_Erdmann] 2004-12
 ontobroker       2267/udp # OntoBroker [Dr_Michael_Erdmann] [Dr_Michael_Erdmann] 2004-12
-amt              2268/tcp # AMT [IESG] [IETF_Chair] 2004-12 2014-12-17 [RFC-ietf-mboned-auto-multicast-18]
-amt              2268/udp # AMT [IESG] [IETF_Chair] 2004-12 2014-12-17 [RFC-ietf-mboned-auto-multicast-18]
+amt              2268/tcp # AMT [IESG] [IETF_Chair] 2004-12 2014-12-17 [RFC7450]
+amt              2268/udp # AMT [IESG] [IETF_Chair] 2004-12 2014-12-17 [RFC7450]
 mikey            2269/tcp # MIKEY [Karl_Norrman] [Karl_Norrman] 2004-12
 mikey            2269/udp # MIKEY [Karl_Norrman] [Karl_Norrman] 2004-12
 starschool       2270/tcp # starSchool [Adam_Ernst] [Adam_Ernst] 2004-12
