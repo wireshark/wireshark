@@ -6665,12 +6665,13 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 	char               tmp[ITEM_LABEL_LENGTH+1];
 
 	/* Pick the proper format string */
-	if (is_signed)
+	if (is_signed) {
 		format = hfinfo_int64_format(hfinfo);
-	else
+		value = fvalue_get_sinteger64(&fi->value);
+	} else {
 		format = hfinfo_uint64_format(hfinfo);
-
-	value = fvalue_get_uinteger64(&fi->value);
+		value = fvalue_get_uinteger64(&fi->value);
+	}
 
 	/* Format the temporary string */
 	if (IS_BASE_DUAL(hfinfo->display))
