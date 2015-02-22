@@ -216,7 +216,18 @@ Wireshark user configuration directory (~/.wireshark/languages/ on unix)
 More information about Qt Linguist
 http://qt-project.org/doc/qt-4.8/linguist-manual.html
 
-3.2 Developing
+3.2 Translate !
+
+You can now directly translate with Transifex Website
+https://www.transifex.com/projects/p/wireshark/
+
+Every week, translation is automatically resynced with the source code through the following steps
+* pull ts from Transifex
+* lupdate ts file
+* push and commit on Gerrit
+* push ts on Transifex
+
+4 Developing
 
 Moved to the Developer's Guide:
 
