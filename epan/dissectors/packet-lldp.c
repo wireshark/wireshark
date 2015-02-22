@@ -1167,6 +1167,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	case 5:	/* Network address */
 	{
 		/* Get network address family */
+		proto_tree_add_item(chassis_tree, hf_lldp_network_address_family, tvb, offset, 1, ENC_BIG_ENDIAN);
 		addr_family = tvb_get_guint8(tvb,offset);
 
 		offset++;
