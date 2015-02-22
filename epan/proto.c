@@ -1731,7 +1731,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 */
 			if (encoding)
 				encoding = ENC_LITTLE_ENDIAN;
-			proto_tree_set_uint64(new_fi,
+			proto_tree_set_int64(new_fi,
 				get_int64_value(tree, tvb, start, length, encoding));
 			break;
 
