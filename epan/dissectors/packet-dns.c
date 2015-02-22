@@ -2685,6 +2685,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             /* Intentional fall-through */
           case O_CLIENT_SUBNET:{
             guint16 family;
+            guint16 addr_len = optlen - 4;
             union {
               guint32 addr;
               guint8 bytes[16];
@@ -2698,21 +2699,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             proto_tree_add_item(rropt_tree, hf_dns_opt_client_scope, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
             cur_offset += 1;
 
-            if (optlen-4 > 16) {
+            if (addr_len > 16) {
               expert_add_info(pinfo, rroptlen, &ei_dns_opt_bad_length);
               /* Avoid stack-smashing which occurs otherwise with the
                * following tvb_memcpy. */
-              optlen = 20;
+              addr_len = 16;
             }
-            tvb_memcpy(tvb, ip_addr.bytes, cur_offset, (optlen - 4));
+            tvb_memcpy(tvb, ip_addr.bytes, cur_offset, addr_len);
             switch(family) {
               case AFNUM_INET:
               proto_tree_add_ipv4(rropt_tree, hf_dns_opt_client_addr4, tvb,
-                                  cur_offset, (optlen - 4), ip_addr.addr);
+                                  cur_offset, addr_len, ip_addr.addr);
               break;
               case AFNUM_INET6:
               proto_tree_add_ipv6(rropt_tree, hf_dns_opt_client_addr6, tvb,
-                                  cur_offset, (optlen - 4), ip_addr.bytes);
+                                  cur_offset, addr_len, ip_addr.bytes);
               break;
               default:
               proto_tree_add_item(rropt_tree, hf_dns_opt_client_addr, tvb, cur_offset, (optlen - 4),
