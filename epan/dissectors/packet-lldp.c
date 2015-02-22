@@ -2474,7 +2474,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 			temp64bit = tvb_get_ntoh40(tvb, offset);
 			temp64bit = temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF);
 			if (tree)
-				proto_tree_add_string_format_value(tree, hf_media_loc_lat, tvb, offset, 5, "", "%s (0x%" G_GINT64_MODIFIER "X)",
+				proto_tree_add_string_format_value(tree, hf_media_loc_lat, tvb, offset, 5, "", "%s (0x%010" G_GINT64_MODIFIER "X)",
 				    get_latitude_or_longitude(0, temp64bit),
 				    temp64bit);
 
@@ -2487,7 +2487,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 o
 			temp64bit = tvb_get_ntoh40(tvb, offset);
 			temp64bit = temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF);
 			if (tree)
-				proto_tree_add_string_format_value(tree, hf_media_loc_long, tvb, offset, 5, "", "%s (0x%" G_GINT64_MODIFIER "X)",
+				proto_tree_add_string_format_value(tree, hf_media_loc_long, tvb, offset, 5, "", "%s (0x%010" G_GINT64_MODIFIER "X)",
 				    get_latitude_or_longitude(1, temp64bit),
 				    temp64bit);
 
