@@ -938,10 +938,18 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 			}
 		}
 
-		/* Now try the ones that don't use it. */
+		/*
+		 * Now try the heuristic types that have no extensions
+		 * to check; we try those before the ones that have
+		 * extensions that *don't* match this file's extension,
+		 * on the theory that files of those types generally
+		 * have one of the type's extensions, and, as this file
+		 * *doesn't* have one of those extensions, it's probably
+		 * *not* one of those files.
+		 */
 		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
-			/* Does this type use that extension? */
-			if (!heuristic_uses_extension(i, extension)) {
+			/* Does this type have any extensions? */
+			if (open_routines[i].extensions == NULL) {
 				/* No. */
 				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
 					/* I/O error - give up */
@@ -969,6 +977,51 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 					break;
 
 				case 1:
+					/* We found the file type */
+					g_free(extension);
+					goto success;
+				}
+			}
+		}
+
+		/*
+		 * Now try the ones that have extensions where none of
+		 * them matches this file's extensions.
+		 */
+		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
+			/*
+			 * Does this type have extensions and is this file's
+			 * extension one of them?
+			 */
+			if (open_routines[i].extensions != NULL &&
+			    !heuristic_uses_extension(i, extension)) {
+				/* Yes and no. */
+				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+					/* Error - give up */
+					g_free(extension);
+					wtap_close(wth);
+					return NULL;
+				}
+
+				/* Set wth with wslua data if any - this is how we pass the data
+				 * to the file reader, kind of like priv but not free'd later.
+				 */
+				wth->wslua_data = open_routines[i].wslua_data;
+
+				switch ((*open_routines[i].open_routine)(wth,
+				    err, err_info)) {
+
+				case WTAP_OPEN_ERROR:
+					/* Error - give up */
+					g_free(extension);
+					wtap_close(wth);
+					return NULL;
+
+				case WTAP_OPEN_NOT_MINE:
+					/* No error, but not that type of file */
+					break;
+
+				case WTAP_OPEN_MINE:
 					/* We found the file type */
 					g_free(extension);
 					goto success;
