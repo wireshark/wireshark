@@ -174,9 +174,6 @@ static const char *hfinfo_number_value_format64(const header_field_info *hfinfo,
 static const char *hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
 static const char *hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value);
 
-static const char* hfinfo_uint64_format(const header_field_info *hfinfo);
-static const char* hfinfo_int64_format(const header_field_info *hfinfo);
-
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi);
 
@@ -6659,38 +6656,39 @@ fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed)
 static void
 fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 {
-	const char        *format = NULL;
 	header_field_info *hfinfo = fi->hfinfo;
 	guint64            value;
-	char               tmp[ITEM_LABEL_LENGTH+1];
 
-	/* Pick the proper format string */
-	if (is_signed) {
-		format = hfinfo_int64_format(hfinfo);
+	char               buf[32];
+	const char        *out;
+
+	if (is_signed)
 		value = fvalue_get_sinteger64(&fi->value);
-	} else {
-		format = hfinfo_uint64_format(hfinfo);
-		value = fvalue_get_uinteger64(&fi->value);
-	}
-
-	/* Format the temporary string */
-	if (IS_BASE_DUAL(hfinfo->display))
-		g_snprintf(tmp, ITEM_LABEL_LENGTH, format, value, value);
 	else
-		g_snprintf(tmp, ITEM_LABEL_LENGTH, format, value);
+		value = fvalue_get_uinteger64(&fi->value);
 
-	if (hfinfo->strings) {
+	/* Fill in the textual info */
+	if (hfinfo->display == BASE_CUSTOM) {
+		gchar tmp[ITEM_LABEL_LENGTH];
+		const custom_fmt_func_64_t fmtfunc64 = (const custom_fmt_func_64_t)hfinfo->strings;
+
+		DISSECTOR_ASSERT(fmtfunc64);
+		fmtfunc64(tmp, value);
+		label_fill(label_str, 0, hfinfo, tmp);
+	}
+	else if (hfinfo->strings) {
 		const char *val_str = hf_try_val64_to_str_const(value, hfinfo, "Unknown");
 
-		if ((hfinfo->display & FIELD_DISPLAY_E_MASK) == BASE_NONE) {
+		out = hfinfo_number_vals_format64(hfinfo, buf, value);
+		if (out == NULL) /* BASE_NONE so don't put integer in descr */
 			label_fill(label_str, 0, hfinfo, val_str);
-		}
-		else {
-			label_fill_descr(label_str, 0, hfinfo, val_str, tmp);
-		}
+		else
+			label_fill_descr(label_str, 0, hfinfo, val_str, out);
 	}
 	else {
-		label_fill(label_str, 0, hfinfo, tmp);
+		out = hfinfo_number_value_format64(hfinfo, buf, value);
+
+		label_fill(label_str, 0, hfinfo, out);
 	}
 }
 
@@ -6830,8 +6828,7 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 				return ptr;
 
 			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				;
+				g_assert_not_reached();
 		}
 	return ptr;
 }
@@ -6871,8 +6868,7 @@ hfinfo_number_value_format_display64(const header_field_info *hfinfo, int displa
 				return ptr;
 
 			default:
-				DISSECTOR_ASSERT_NOT_REACHED();
-				;
+				g_assert_not_reached();
 		}
 	return ptr;
 }
@@ -7001,64 +6997,6 @@ hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[32], guint
 		display = BASE_HEX;
 
 	return hfinfo_number_value_format_display64(hfinfo, display, buf, value);
-}
-
-static const char *
-hfinfo_uint64_format(const header_field_info *hfinfo)
-{
-	const char *format = NULL;
-
-	/* Pick the proper format string */
-	switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
-		case BASE_DEC:
-			format = "%" G_GINT64_MODIFIER "u";
-			break;
-		case BASE_DEC_HEX:
-			format = "%" G_GINT64_MODIFIER "u (0x%016" G_GINT64_MODIFIER "x)";
-			break;
-		case BASE_OCT: /* I'm lazy */
-			format = "%#" G_GINT64_MODIFIER "o";
-			break;
-		case BASE_HEX:
-			format = "0x%016" G_GINT64_MODIFIER "x";
-			break;
-		case BASE_HEX_DEC:
-			format = "0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "u)";
-			break;
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			;
-	}
-	return format;
-}
-
-static const char *
-hfinfo_int64_format(const header_field_info *hfinfo)
-{
-	const char *format = NULL;
-
-	/* Pick the proper format string */
-	switch (hfinfo->display & FIELD_DISPLAY_E_MASK) {
-		case BASE_DEC:
-			format = "%" G_GINT64_MODIFIER "d";
-			break;
-		case BASE_DEC_HEX:
-			format = "%" G_GINT64_MODIFIER "d (0x%016" G_GINT64_MODIFIER "x)";
-			break;
-		case BASE_OCT: /* I'm lazy */
-			format = "%#" G_GINT64_MODIFIER "o";
-			break;
-		case BASE_HEX:
-			format = "0x%016" G_GINT64_MODIFIER "x";
-			break;
-		case BASE_HEX_DEC:
-			format = "0x%016" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)";
-			break;
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			;
-	}
-	return format;
 }
 
 const char *
