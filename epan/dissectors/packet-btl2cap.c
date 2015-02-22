@@ -2036,12 +2036,12 @@ proto_register_btl2cap(void)
         },
         { &hf_btl2cap_info_window,
           { "Extended Window Size", "btl2cap.info_window",
-            FT_UINT32, BASE_DEC, NULL, 0x01,
+            FT_UINT32, BASE_DEC, NULL, 0x0100,
             "Extended Window Size support", HFILL }
         },
         { &hf_btl2cap_info_unicast,
           { "Unicast Connectionless Data Reception", "btl2cap.info_unicast",
-            FT_UINT32, BASE_DEC, NULL, 0x02,
+            FT_UINT32, BASE_DEC, NULL, 0x0200,
             "Unicast Connectionless Data Reception support", HFILL }
         },
         { &hf_btl2cap_info_fixedchans,
