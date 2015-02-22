@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2015-02-15)
+(last updated 2015-02-20)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1370,9 +1370,9 @@ Decimal
     Yasuhiro Kohata
       kohata&rd.nttdata.jp
 339
-  Siemens EMIS
-    Shrikanth Naik
-      shrikanth.naik&siemens.com
+  Siemens Industry Inc.
+    Bala Marimuthu
+      marimuthu.bala&siemens.com
 340
   Kendall Square Research (KSR)
     Dave Hudson
@@ -14618,9 +14618,9 @@ Decimal
     Kevin Hoff
       kevin.hoff&cirque-networks.com
 3654
-  NaviNet Internet Services
-    Douglas McPherson
-      dougm&navinet.net
+  NaviNet
+    Jeffrey Johnson
+      itcambridge&navinet.net
 3655
   Germanischer Lloyd AG
     Stefan Christiansen
@@ -54662,9 +54662,9 @@ Decimal
     Ed Moses
       ed.moses&potlatchcorp.com
 13777
-  Rakuten
-    Kenji Nakayama
-      knakayama&rakuten.co.jp
+  Rakuten Inc.
+    Neal Sato
+      ops-corp-pen&mail.rakuten.com
 13778
   Sociedade Diginet, LdaJacques
     ludovico Zacarias
@@ -77161,8 +77161,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       helfrich&rz-zw.fh-kl.de
 19402
   Robert W. Baird & Co
-    Gordon Craig
-      gcraig&rwbaird.com
+    IT Infrastructure Services
+      OIDAdmin&rwbaird.com
 19403
   Westbridge Technology, Inc.
     Guy Hussussian
@@ -126671,7 +126671,7 @@ Decentralization / Helenic Public Administra
     Mark S. Johnson
       mark.johnson&ipaper.com
 31773
-  GEWI Hard- und Software Entwicklungsgesellschaft mbH
+  GEWI Europe GmbH & Co. KG
     Hagen Geppert
       hagen.geppert&gewi.com
 31774
@@ -159860,9 +159860,9 @@ Decentralization / Helenic Public Administra
     Patrik Csokas
       oid.admin&enprovia.com
 40070
-  Nearbuy Systems
+  RetailNext
     Nathan Mueller
-      nate&nearbuysystems.com
+      nate&retailnext.net
 40071
   P. St. Onge
     P. St. Onge
@@ -172674,7 +172674,7 @@ Decentralization / Helenic Public Administra
 43273
   Control Center Apps GmbH
     Christoph Knittel
-      christoph.knittel&controlcenterapps.com
+      christoph.knittel&cca.io
 43274
   "Group of Companies "RosIntegracija" LLC.
     Dmitriy Gvozdyuk
@@ -180680,9 +180680,9 @@ Decentralization / Helenic Public Administra
     Lars J. Aas
       lars.aas&eyasys.no
 45275
-  Energy Essentials
+  Energy Essentials Group B.V.
     Rob Lemmens
-      rob&energyessentials.nl
+      it&energyessentials.nl
 45276
   iTEAM (Instituto de Telecomunicaciones y Aplicaciones Multimedia, Grupo COMM)
     Juan Carlos Guerri Cebollada
@@ -180895,6 +180895,154 @@ Decentralization / Helenic Public Administra
   KOSHIN DENKI KOGYO CO., LTD.
     Michihiro Kobayashi
       mchkoba&koshindenki.com
+45329
+  Kristin School
+    Tony Bigby
+      tbigby&kristin.school.nz
+45330
+  Fineline Solutions Ltd.
+    Patrick Keys
+      patrick&fineline.uk.com
+45331
+  San Fernando Valley Community Mental Health Center, Inc.
+    Stephen Dowd
+      pki&sfvcmhc.org
+45332
+  East Side Oncology Clinic PLLC
+    Nagender Mankan MD
+      eastsidehemoncology&gmail.com
+45333
+  NeatApps, Inc.
+    Dave Neathery
+      dave&neatapps.com
+45334
+  Nextys
+    Ramon Zambelli
+      ramon.zambelli&nextys.com
+45335
+  Matthias Blümel IT-Dienstleistungen
+    Matthias Blümel
+      info&bluemel-it.de
+45336
+  Microbase
+    Antonis Psaras
+      apsaras&microbase.gr
+45337
+  voria.net
+    Robert S. Quattlebaum
+      darconeous&gmail.com
+45338
+  Tableau Software, Inc.
+    Braxton Ehle
+      behle&tableau.com
+45339
+  JSC "Housing Construction Savings Bank of Kazakhstan"
+    Glebova Serafima
+      glebova.s&hcsbk.kz
+45340
+  Half-Baked Software
+    Michael Thomas Richter
+      ttmrichter&gmail.com
+45341
+  NEXT Srl
+    ing. Denis Ioan
+      d.ioan&next-italia.it
+45342
+  IWD Ltd.
+    Sandor Takacs
+      sandor.takacs&iwd.hu
+45343
+  Thum+Mahr GmbH
+    Benedikt Geltenpoth
+      bgeltenpoth&thummahr.de
+45344
+  ZhenJiang College
+    Teng Bin
+      zjtengbin&163.com
+45345
+  Smithee, Spelvin, Agnew & Plinge, Inc.
+    Meadhbh Hamrick
+      meadhbh&smithee.us
+45346
+  Velocloud Networks, Inc.
+    Christopher Szeles
+      chris&velocloud.net
+45347
+  The Centers for Families and Children
+    Dennis Anderson
+      it.contact&thecentersohio.org
+45348
+  Megvii Inc.
+    Kai Jia
+      jiakai&megvii.com
+45349
+  VGNet Networking
+    J.H. van Gils
+      support&vgnet.nl
+45350
+  jorde.it
+    Stefan Jorde
+      stefan&jorde.it
+45351
+  XPSoft sas
+    Luca Poretti
+      poretti&xpsoft.it
+45352
+  AMERGINT Technologies Inc.
+    Brian Willette
+      bwillette&amergint.com
+45353
+  BRS Sistemas Eletrônicos
+    Marcelo Richter
+      marcelo&brs.ind.br
+45354
+  E2G srl
+    Marco Nicoloso
+      marco.nicoloso&e2g.it
+45355
+  Staffordshire Police
+    John Dunning
+      John.Dunning&staffordshire.pnn.police.uk
+45356
+  Liveblock Auctions International
+    Roe Peterson
+      roe&liveblockauctions.com
+45357
+  CUBENet GmbH
+    Karsten Schramm
+      kschramm&cube.net
+45358
+  Integral Business Solutions
+    Peter Barry
+      pbarry&go-integral.com
+45359
+  ARC Informatique
+    Benoît LEPEUPLE
+      pm&arcinfo.com
+45360
+  Valley Christian School
+    James Paul
+      jppaul&valleybible.com
+45361
+  OC Software Engineering
+    Clay Cover
+      ccover&ocsofte.com
+45362
+  Coca-Cola Erfrischungsgetraenke AG
+    Sandra Seitz
+      sandra.seitz&cceag.de
+45363
+  Advanced Training LLC
+    Ruslan V. Karmanov
+      info&atraining.ru
+45364
+  TRIADE InformationSystems GmbH
+    Klaus Eulenbach
+      klaus.eulenbach&triade.de
+45365
+  Om Vindhyavasini College of IT & Management
+    Neelkamal Nimavat
+      nimavat&omvvim.edu.in
 
 
 End of Document
