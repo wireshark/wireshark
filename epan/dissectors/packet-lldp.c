@@ -1036,7 +1036,7 @@ media_power_base(gchar *buf, guint32 value) {
 static void
 get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 {
-	guint64 value = (unmasked_value & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
+	guint64 value = unmasked_value & G_GINT64_CONSTANT(0x03FFFFFFFF);
 	guint64 tempValue = value;
 	gboolean negativeNum = FALSE;
 	guint32 integerPortion = 0;
@@ -4595,7 +4595,7 @@ proto_register_lldp(void)
 			NULL, 0xFC, NULL, HFILL }
 		},
 		{ &hf_media_loc_lat,
-			{ "Latitude", "lldp.media.loc.latitude", FT_UINT64, BASE_CUSTOM,
+			{ "Latitude", "lldp.media.loc.latitude", FT_UINT40, BASE_CUSTOM,
 			CF_FUNC(latitude_base), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_long_resolution,
@@ -4603,7 +4603,7 @@ proto_register_lldp(void)
 			NULL, 0xFC, NULL, HFILL }
 		},
 		{ &hf_media_loc_long,
-			{ "Longitude", "lldp.media.loc.longitude", FT_UINT64, BASE_CUSTOM,
+			{ "Longitude", "lldp.media.loc.longitude", FT_UINT40, BASE_CUSTOM,
 			CF_FUNC(longitude_base), 0x0, NULL, HFILL }
 		},
 		{ &hf_media_loc_alt_type,
