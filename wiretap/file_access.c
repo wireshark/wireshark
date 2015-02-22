@@ -1011,17 +1011,17 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 				switch ((*open_routines[i].open_routine)(wth,
 				    err, err_info)) {
 
-				case WTAP_OPEN_ERROR:
-					/* Error - give up */
+				case -1:
+					/* I/O error - give up */
 					g_free(extension);
 					wtap_close(wth);
 					return NULL;
 
-				case WTAP_OPEN_NOT_MINE:
-					/* No error, but not that type of file */
+				case 0:
+					/* No I/O error, but not that type of file */
 					break;
 
-				case WTAP_OPEN_MINE:
+				case 1:
 					/* We found the file type */
 					g_free(extension);
 					goto success;
