@@ -1082,7 +1082,7 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 			direction = "East";
 	}
 
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%04" G_GINT64_MODIFIER "u degrees %s (0x%16" G_GINT64_MODIFIER "X))",
+	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%04" G_GINT64_MODIFIER "u degrees %s (0x%010" G_GINT64_MODIFIER "X)",
 	    integerPortion, tempValue, direction, value);
 }
 
