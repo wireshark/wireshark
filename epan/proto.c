@@ -166,13 +166,13 @@ static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_sign
 static void fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed);
 
 static const char *hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[32], guint32 value);
-static const char *hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[32], guint64 value);
+static const char *hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[48], guint64 value);
 static const char *hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32 value);
-static const char *hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[32], guint64 value);
+static const char *hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[48], guint64 value);
 static const char *hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
-static const char *hfinfo_number_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value);
+static const char *hfinfo_number_value_format64(const header_field_info *hfinfo, char buf[48], guint64 value);
 static const char *hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint32 value);
-static const char *hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value);
+static const char *hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[48], guint64 value);
 
 static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi);
@@ -4244,7 +4244,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 	const gchar        *abbrev        = NULL;
 
 	const char *hf_str_val;
-	char number_buf[32];
+	char number_buf[48];
 	const char *number_out;
 	char *tmpbuf, *str;
 	int *field_idx;
@@ -6566,7 +6566,7 @@ fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed)
 	guint64     unshifted_value;
 	guint64     value;
 
-	char        buf[32];
+	char        buf[48];
 	const char *out;
 
 	header_field_info *hfinfo = fi->hfinfo;
@@ -6659,7 +6659,7 @@ fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed)
 	header_field_info *hfinfo = fi->hfinfo;
 	guint64            value;
 
-	char               buf[32];
+	char               buf[48];
 	const char        *out;
 
 	if (is_signed)
@@ -6834,9 +6834,9 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 }
 
 static const char *
-hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[32], guint64 value)
+hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[48], guint64 value)
 {
-	char *ptr = &buf[31];
+	char *ptr = &buf[47];
 	gboolean isint = IS_FT_INT(hfinfo->type);
 
 	*ptr = '\0';
@@ -6889,7 +6889,7 @@ hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint3
 }
 
 static const char *
-hfinfo_number_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value)
+hfinfo_number_value_format64(const header_field_info *hfinfo, char buf[64], guint64 value)
 {
 	int display = hfinfo->display;
 
@@ -6935,7 +6935,7 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint
 }
 
 static const char *
-hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[32], guint64 value)
+hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[64], guint64 value)
 {
 	/* Get the underlying BASE_ value */
 	int display = hfinfo->display & FIELD_DISPLAY_E_MASK;
@@ -6983,7 +6983,7 @@ hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32
 }
 
 static const char *
-hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[32], guint64 value)
+hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[64], guint64 value)
 {
 	/* Get the underlying BASE_ value */
 	int display = hfinfo->display & FIELD_DISPLAY_E_MASK;
@@ -7750,7 +7750,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			if (filter != NULL) {
 				guint64 number;
 
-				char buf [64];
+				char buf [48];
 				const char *out;
 
 				if (is_signed_num)
