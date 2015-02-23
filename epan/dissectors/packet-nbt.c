@@ -515,8 +515,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 static void
 nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, int offset, int is_wack)
 {
-    guint16     opcode, flag;
-    proto_item *tf;
+    guint16     flag;
     static const int * req_flags[] = {
         &hf_nbns_flags_response,
         &hf_nbns_flags_opcode,
@@ -562,15 +561,14 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
     if (!nbns_tree)
         return;
 
-    opcode = (guint16) ((flag & F_OPCODE) >> OPCODE_SHIFT);
     if (flag & F_RESPONSE) {
         if (!is_wack) {
-            tf = proto_tree_add_bitmask(nbns_tree, tvb, offset, hf_nbns_flags, ett_nbns_flags, resp_flags, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(nbns_tree, tvb, offset, hf_nbns_flags, ett_nbns_flags, resp_flags, ENC_BIG_ENDIAN);
         } else {
-            tf = proto_tree_add_bitmask(nbns_tree, tvb, offset, hf_nbns_flags, ett_nbns_flags, resp_wack_flags, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(nbns_tree, tvb, offset, hf_nbns_flags, ett_nbns_flags, resp_wack_flags, ENC_BIG_ENDIAN);
         }
     } else {
-        tf = proto_tree_add_bitmask(nbns_tree, tvb, offset, hf_nbns_flags, ett_nbns_flags, req_flags, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(nbns_tree, tvb, offset, hf_nbns_flags, ett_nbns_flags, req_flags, ENC_BIG_ENDIAN);
     }
 }
 
