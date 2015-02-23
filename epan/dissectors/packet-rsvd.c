@@ -284,6 +284,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
                                                   itlq_nexus_t);
             rsvd_conv_data->task->itlq->first_exchange_frame = pinfo->fd->num;
             rsvd_conv_data->task->itlq->last_exchange_frame = 0;
+            rsvd_conv_data->task->itlq->lun = 0xffff;
             rsvd_conv_data->task->itlq->scsi_opcode = 0xffff;
             rsvd_conv_data->task->itlq->task_flags = 0;
             rsvd_conv_data->task->itlq->data_length = 0;
