@@ -203,10 +203,10 @@ int ether_name_resolution_len(void)
 /******************************************************************************
  * AT_IPv4
  ******************************************************************************/
-static gboolean ipv4_to_str(const address* addr, gchar *buf, int buf_len)
+static int ipv4_to_str(const address* addr, gchar *buf, int buf_len)
 {
     ip_to_str_buf((const guint8*)addr->data, buf, buf_len);
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int ipv4_str_len(const address* addr _U_)
@@ -249,7 +249,7 @@ int ipv4_name_res_len(void)
  *  Paul Vixie, 1996.
  */
 static void
-ip6_to_str_buf_len(const guchar* src, char *buf, size_t buf_len)
+ip6_to_str_buf_len(const guchar* src, char *buf, int buf_len)
 {
     struct { int base, len; } best, cur;
     guint words[8];
@@ -359,10 +359,10 @@ ip6_to_str_buf(const struct e_in6_addr *ad, gchar *buf)
     ip6_to_str_buf_len((const guchar*)ad, buf, MAX_IP6_STR_LEN);
 }
 
-static gboolean ipv6_to_str(const address* addr, gchar *buf, int buf_len)
+static int ipv6_to_str(const address* addr, gchar *buf, int buf_len)
 {
     ip6_to_str_buf_len((const guchar*)addr->data, buf, buf_len);
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int ipv6_str_len(const address* addr _U_)
@@ -398,7 +398,7 @@ int ipv6_name_res_len(void)
 /******************************************************************************
  * AT_IPX
  ******************************************************************************/
-static gboolean ipx_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int ipx_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addrdata = (const guint8 *)addr->data;
 
@@ -406,7 +406,7 @@ static gboolean ipx_to_str(const address* addr, gchar *buf, int buf_len _U_)
     *buf++ = '.'; /*1 byte */
     buf = bytes_to_hexstr(buf, &addrdata[4], 6); /* 12 bytes */
     *buf++ = '\0'; /* NULL terminate */
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int ipx_str_len(const address* addr _U_)
@@ -424,7 +424,7 @@ static int ipx_len(void)
  * XXX - This functionality should really be in packet-vines.c as a dissector
  * address type, but need to resolve "address type" as "field type"
  ******************************************************************************/
-static gboolean vines_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int vines_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addr_data = (const guint8 *)addr->data;
 
@@ -433,7 +433,7 @@ static gboolean vines_to_str(const address* addr, gchar *buf, int buf_len _U_)
     buf = word_to_hex(buf, pntoh16(&addr_data[4])); /* 4 bytes */
     *buf = '\0'; /* NULL terminate */
 
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int vines_str_len(const address* addr _U_)
@@ -449,12 +449,12 @@ static int vines_len(void)
 /******************************************************************************
  * AT_FC
  ******************************************************************************/
-static gboolean fc_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int fc_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     buf = bytes_to_hexstr_punct(buf, (const guint8 *)addr->data, 3, '.');
     *buf = '\0'; /* NULL terminate */
 
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int fc_str_len(const address* addr _U_)
@@ -541,10 +541,10 @@ int fcwwn_name_res_len(void)
  * XXX - This should really be a dissector address type as its address string
  * is partially determined by a dissector preference.
  ******************************************************************************/
-static gboolean ss7pc_to_str(const address* addr, gchar *buf, int buf_len)
+static int ss7pc_to_str(const address* addr, gchar *buf, int buf_len)
 {
     mtp3_addr_to_str_buf((const mtp3_addr_pc_t *)addr->data, buf, buf_len);
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int ss7pc_str_len(const address* addr _U_)
@@ -555,10 +555,10 @@ static int ss7pc_str_len(const address* addr _U_)
 /******************************************************************************
  * AT_STRINGZ
  ******************************************************************************/
-static gboolean stringz_addr_to_str(const address* addr, gchar *buf, int buf_len)
+static int stringz_addr_to_str(const address* addr, gchar *buf, int buf_len)
 {
     g_strlcpy(buf, (const gchar *)addr->data, buf_len);
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int stringz_addr_str_len(const address* addr)
@@ -569,11 +569,11 @@ static int stringz_addr_str_len(const address* addr)
 /******************************************************************************
  * AT_EUI64
  ******************************************************************************/
-static gboolean eui64_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int eui64_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     buf = bytes_to_hexstr_punct(buf, (const guint8 *)addr->data, 8, ':');
     *buf = '\0'; /* NULL terminate */
-    return TRUE;
+    return sizeof(buf) + 1;
 }
 
 static int eui64_str_len(const address* addr _U_)
@@ -589,7 +589,7 @@ static int eui64_len(void)
 /******************************************************************************
  * AT_IB
  ******************************************************************************/
-static gboolean
+static int
 ib_addr_to_str( const address *addr, gchar *buf, int buf_len){
     if (addr->len >= 16) { /* GID is 128bits */
         #define PREAMBLE_STR_LEN ((int)(sizeof("GID: ") - 1))
@@ -605,7 +605,7 @@ ib_addr_to_str( const address *addr, gchar *buf, int buf_len){
         g_snprintf(buf,buf_len,"LID: %u",lid_number);
     }
 
-    return TRUE;
+    return sizeof(buf) + 1;
 }
 
 static int ib_str_len(const address* addr _U_)
@@ -618,7 +618,7 @@ static int ib_str_len(const address* addr _U_)
  * XXX - This functionality should really be in packet-usb.c as a dissector
  * address type, but currently need support of AT_USB in conversation_table.c
  ******************************************************************************/
-static gboolean usb_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int usb_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addrp = (const guint8 *)addr->data;
 
@@ -629,7 +629,7 @@ static gboolean usb_addr_to_str(const address* addr, gchar *buf, int buf_len _U_
                         pletoh32(&addrp[0]), pletoh32(&addrp[4]));
     }
 
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int usb_addr_str_len(const address* addr _U_)
@@ -640,7 +640,7 @@ static int usb_addr_str_len(const address* addr _U_)
 /******************************************************************************
  * AT_AX25
  ******************************************************************************/
-static gboolean ax25_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
+static int ax25_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addrdata = (const guint8 *)addr->data;
 
@@ -654,7 +654,7 @@ static gboolean ax25_addr_to_str(const address* addr, gchar *buf, int buf_len _U
     buf = uint_to_str_back(buf, (addrdata[6] >> 1) & 0x0f);
     *buf = '\0'; /* NULL terminate */
 
-    return TRUE;
+    return (int)(strlen(buf)+1);
 }
 
 static int ax25_addr_str_len(const address* addr _U_)
@@ -953,11 +953,11 @@ static void address_with_resolution_to_str_buf(const address* addr, gchar *buf, 
     /* Copy the resolved name */
     pos = g_strlcpy(buf, at->addr_name_res_str(addr), buf_len);
 
-    /* Don't wrap "emptyness" in parathesis */
+    /* Don't wrap "emptyness" in parentheses */
     if (addr->type == AT_NONE)
         return;
 
-    /* Make sure there is enough room for the address string wrapped in parathesis */
+    /* Make sure there is enough room for the address string wrapped in parentheses */
     if ((int)(pos + 4 + at->addr_str_len(addr)) >= buf_len)
         return;
 
@@ -970,7 +970,7 @@ static void address_with_resolution_to_str_buf(const address* addr, gchar *buf, 
     }
 
     addr_len = at->addr_to_str(addr, &buf[pos], (int)(buf_len-pos));
-    pos += addr_len;
+    pos += addr_len - 1; /* addr_len includes the trailing '\0' */
 
     if (!empty)
     {
