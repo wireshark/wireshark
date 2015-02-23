@@ -1333,7 +1333,7 @@ pcap_byteswap_nflog_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd)
 
 	p = pd;
 	nfhdr = (struct nflog_hdr *)pd;
-	if (!(nfhdr->nflog_version) == 0) {
+	if (nfhdr->nflog_version != 0) {
 		/* Unknown NFLOG version */
 		return;
 	}
