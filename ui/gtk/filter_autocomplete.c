@@ -375,8 +375,8 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event, gpoint
   switch (k) {
   case GDK_Shift_L:
   case GDK_Shift_R:
-  case GDK_KEY_Control_L:
-  case GDK_KEY_Control_R:
+  case GDK_Control_L:
+  case GDK_Control_R:
     goto exit;
   }
 
