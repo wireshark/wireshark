@@ -1545,6 +1545,7 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
                              err, err_info))
             return FALSE;
     }
+    (phdr)->caplen = (phdr)->len = record_length;
 
 #define GENERATE_CASE_V30(phdr,type,acttype) \
     case NSPR_PDPKTRACEFULLTX_V##type:\
