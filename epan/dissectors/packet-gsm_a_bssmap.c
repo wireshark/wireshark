@@ -6089,7 +6089,7 @@ bssmap_vgcs_vbs_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_len = len;
 
     /* Channel Type 3.2.2.11    MSC-BSS M (note 2)  5-13 */
-    ELEM_MAND_TV(BE_CURR_CHAN_1, GSM_A_PDU_TYPE_BSSMAP, BE_CURR_CHAN_1, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
+    ELEM_MAND_TLV(BE_CHAN_TYPE, GSM_A_PDU_TYPE_BSSMAP, BE_CHAN_TYPE, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
     /* Assignment Requirement   3.2.2.52    MSC-BSS M   2 */
     ELEM_MAND_TV(BE_ASS_REQ, GSM_A_PDU_TYPE_BSSMAP, BE_ASS_REQ, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
     /* Cell Identifier  3.2.2.17    MSC-BSS M   3-10 */
@@ -6127,7 +6127,7 @@ bssmap_vgcs_vbs_ass_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_len = len;
 
     /* Channel Type 3.2.2.11    BSS-MSC M (note 3, 4)   5 */
-    ELEM_OPT_TV(BE_CURR_CHAN_1, GSM_A_PDU_TYPE_BSSMAP, BE_CURR_CHAN_1, NULL);
+    ELEM_MAND_TLV(BE_CHAN_TYPE, GSM_A_PDU_TYPE_BSSMAP, BE_CHAN_TYPE, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
     /* Cell Identifier  3.2.2.17    BSS-MSC M   3-10 */
     ELEM_MAND_TLV(BE_CELL_ID, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
     /* Chosen Channel   3.2.2.33    BSS-MSC O (note 2)  2 */
