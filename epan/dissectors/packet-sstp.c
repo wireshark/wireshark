@@ -31,6 +31,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include "packet-tcp.h"
 
 #define SSTP_BITMASK_MAJORVERSION 0xF0
 #define SSTP_BITMASK_MINORVERSION 0x0F
@@ -183,12 +184,11 @@ static const value_string attrib_status[] = {
   {0, NULL}
 };
 
-static void
-dissect_sstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint16 sstp_control_flag;
   guint32 offset = 0;
-  guint32 pdu_length;
   guint8 sstp_major;
   guint8 sstp_minor;
   proto_item *ti;
@@ -204,21 +204,6 @@ dissect_sstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   ti = proto_tree_add_item(tree, proto_sstp, tvb, 0, -1, ENC_NA);
   sstp_tree = proto_item_add_subtree(ti, ett_sstp);
-
-  if (tvb_reported_length(tvb) < 4) {
-    /* We don't have enough data to know how long our PDU is. */
-    pinfo->desegment_offset = offset;
-    pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-    return;
-  }
-
-  pdu_length = tvb_get_ntohs(tvb, SSTP_OFFSET_LENGTH);
-  if (tvb_reported_length(tvb) < pdu_length) {
-    /* We have the length but not the full PDU */
-    pinfo->desegment_offset = offset;
-    pinfo->desegment_len = pdu_length;
-    return;
-  }
 
   sstp_control_flag = tvb_get_guint8(tvb, SSTP_OFFSET_ISCONTROL) & SSTP_BITMASK_CONTROLFLAG;
   sstp_minor = (tvb_get_guint8(tvb, SSTP_OFFSET_MINORVERSION) & SSTP_BITMASK_MINORVERSION); /* leftmost 4 bit */
@@ -343,6 +328,20 @@ dissect_sstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_next = tvb_new_subset_remaining(tvb, SSTP_OFFSET_DATA);
     call_dissector(ppp_handle, tvb_next, pinfo, tree);
   }
+
+  return tvb_captured_length(tvb);
+}
+
+static guint
+get_sstp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+  return tvb_get_ntohs(tvb, offset+SSTP_OFFSET_LENGTH);
+}
+
+static void
+dissect_sstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SSTP_OFFSET_LENGTH+SSTP_FSIZE_LENGTH, get_sstp_pdu_len, dissect_sstp_pdu, NULL);
 }
 
 void

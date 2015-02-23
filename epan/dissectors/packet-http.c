@@ -2922,6 +2922,13 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				break;
 			}
 			if (conv_data->upgrade == UPGRADE_SSTP && conv_data->response_code == 200 && pinfo->fd->num >= conv_data->startframe) {
+				/* Increase pinfo->can_desegment because we are traversing
+				 * http and want to preserve desegmentation functionality for
+				 * the proxied protocol
+				 */
+				if (pinfo->can_desegment > 0)
+					pinfo->can_desegment++;
+
 				call_dissector_only(sstp_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
