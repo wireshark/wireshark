@@ -572,11 +572,6 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
     } else {
         tf = proto_tree_add_bitmask(nbns_tree, tvb, offset, hf_nbns_flags, ett_nbns_flags, req_flags, ENC_BIG_ENDIAN);
     }
-
-    proto_item_append_text(tf, " (%s)", val_to_str_const(opcode, opcode_vals, "Unknown operation"));
-    if (flag & F_RESPONSE && !is_wack) {
-        proto_item_append_text(tf, " response, %s", val_to_str_const(flag & F_RCODE, rcode_vals, "Unknown error"));
-    }
 }
 
 static void
