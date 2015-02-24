@@ -87,7 +87,14 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TTE ");
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Bogus TTEthernet Frame");
+    if (tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2) <= IEEE_802_3_MAX_LEN)
+    {
+        col_set_str(pinfo->cinfo, COL_INFO, "TTEthernet Frame");
+    }
+    else
+    {
+        col_set_str(pinfo->cinfo, COL_INFO, "Bogus TTEthernet Frame");
+    }
 
     if (tree) {
 
