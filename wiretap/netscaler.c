@@ -905,7 +905,7 @@ static gboolean nstrace_set_start_time(wtap *wth)
         fpp = (nspr_pktrace##fullpart##_v10_t *) &nstrace_buf[nstrace_buf_offset];\
         (phdr)->rec_type = REC_TYPE_PACKET;\
         /*\
-         * XXX - we can't do this in the seek-read routine,\
+         * XXX - we can't set time stamps in the seek-read routine,\
          * as the time stamps in the records are relative to\
          * the previous packet.\
          */\
@@ -1299,14 +1299,19 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
-#define PACKET_DESCRIBE(phdr) \
-    /*\
-     * XXX - we can't set time stamps in the seek-read routine,\
-     * as the time stamps in the records are relative to\
-     * the previous packet.\
-     */\
-    (phdr)->rec_type = REC_TYPE_PACKET;\
-    (phdr)->presence_flags = 0;
+#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,fpp,type,acttype) \
+    do {\
+        fpp = (nspr_pktrace##fullpart##_v10_t *) pd;\
+        (phdr)->rec_type = REC_TYPE_PACKET;\
+        /*\
+         * XXX - we can't set time stamps in the seek-read routine,\
+         * as the time stamps in the records are relative to\
+         * the previous packet.\
+         */\
+        (phdr)->presence_flags = 0;\
+        TRACE_##FULLPART##_V##type##_REC_LEN_OFF(phdr,v##type##_##fullpart,fpp,pktrace##fullpart##_v##type);\
+        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
+    }while(0)
 
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
@@ -1355,20 +1360,14 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            fp = (nspr_pktracefull_v10_t *) pd;\
-            PACKET_DESCRIBE(phdr);\
-            TRACE_FULL_V##type##_REC_LEN_OFF(phdr,v##type##_full,fp,pktracefull_v##type);\
-            (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
+            PACKET_DESCRIBE(phdr,FULL,full,fp,type,acttype);\
             break;
 
 #define GENERATE_CASE_PART(phdr,type,acttype) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            pp = (nspr_pktracepart_v10_t *) pd;\
-            PACKET_DESCRIBE(phdr);\
-            TRACE_PART_V##type##_REC_LEN_OFF(phdr,v##type##_part,pp,pktracepart_v##type);\
-            (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
+            PACKET_DESCRIBE(phdr,PART,part,pp,type,acttype);\
             break;
 
     switch (pletoh16(&(( nspr_header_v10_t*)pd)->ph_RecordType))
