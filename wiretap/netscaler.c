@@ -1039,7 +1039,6 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #define TIMEDEFV20(fp,type) \
     do {\
-        wth->phdr.rec_type = REC_TYPE_PACKET;\
         wth->phdr.presence_flags |= WTAP_HAS_TS;\
         nsg_creltime += ns_hrtime2nsec(pletoh32(fp->type##_RelTimeHr));\
         wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
@@ -1048,7 +1047,6 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #define TIMEDEFV23(fp,type) \
     do {\
-        wth->phdr.rec_type = REC_TYPE_PACKET;\
         wth->phdr.presence_flags |= WTAP_HAS_TS;\
         /* access _AbsTimeHr as a 64bit value */\
         nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
@@ -1058,7 +1056,6 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #define TIMEDEFV30(fp,type) \
     do {\
-        wth->phdr.rec_type = REC_TYPE_PACKET;\
         wth->phdr.presence_flags |= WTAP_HAS_TS;\
         /* access _AbsTimeHr as a 64bit value */\
         nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
@@ -1074,7 +1071,6 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #define PPSIZEDEFV20(phdr,pp,ver) \
     do {\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
         (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
         (phdr)->len = pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
         (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)pp);\
@@ -1102,7 +1098,6 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #define FPSIZEDEFV30(phdr,fp,ver)\
     do {\
-        (phdr)->rec_type = REC_TYPE_PACKET;\
         (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
         (phdr)->len = pletoh16(&fp->fp_PktSizeOrg) + nspr_pktracefull_v##ver##_s;\
         (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
@@ -1111,6 +1106,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define PACKET_DESCRIBE(phdr,FPTIMEDEF,SIZEDEF,ver,enumprefix,type,structname,TYPE)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)&nstrace_buf[nstrace_buf_offset];\
+        (phdr)->rec_type = REC_TYPE_PACKET;\
         TIMEDEFV##ver(fp,type);\
         SIZEDEF##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
@@ -1236,6 +1232,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 #define PACKET_DESCRIBE(phdr,FPTIMEDEF,SIZEDEF,ver,enumprefix,type,structname,TYPE)\
     do {\
     nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
+    (phdr)->rec_type = REC_TYPE_PACKET;\
     TIMEDEFV##ver(fp,type);\
     SIZEDEF##ver((phdr),fp,ver);\
     TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
