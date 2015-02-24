@@ -351,7 +351,7 @@ dissect_option_route(guchar parm_type, int offset, guchar parm_len,
     netl = tvb_get_guint8(tvb, this_hop);
     proto_tree_add_text(osi_route_tree, tvb, this_hop, netl + 1,
                         "Hop #%3u NETL: %2u, NET: %s", cnt_hops++, netl,
-                        print_nsap_net(tvb_get_ptr(tvb, this_hop + 1, netl), netl));
+                        print_nsap_net(tvb, this_hop + 1, netl));
     this_hop += 1 + netl;
   }
 }
@@ -549,8 +549,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
         case OSI_OPT_ADDRESS_MASK:
           proto_tree_add_bytes_format_value(osi_option_tree, hf_osi_options_address_mask, tvb, offset, parm_len,
                               tvb_get_ptr(tvb, offset, parm_len), "%s",
-                              print_area(tvb_get_ptr(tvb, offset, parm_len),
-                                         parm_len));
+                              print_area(tvb, offset, parm_len));
           break;
 
         case OSI_OPT_SNPA_MASK:

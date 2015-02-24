@@ -152,7 +152,7 @@ esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
       offset++;
       proto_tree_add_text(esis_area_tree, tvb, offset, sal,
                           " SA: %s",
-                          print_nsap_net( tvb_get_ptr(tvb, offset, sal), sal ) );
+                          print_nsap_net(tvb, offset, sal ) );
       offset += sal;
       len    -= ( sal + 1 );
     }
@@ -173,7 +173,7 @@ esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
     proto_tree_add_text( tree, tvb, offset, netl + 1,
                          "### Network Entity Title Section ###");
     proto_tree_add_uint_format_value(tree, hf_esis_netl, tvb, offset++, 1, netl, "%2u Octets", netl);
-    proto_tree_add_string( tree, hf_esis_net, tvb, offset, netl, print_nsap_net( tvb_get_ptr(tvb, offset, netl), netl ) );
+    proto_tree_add_string( tree, hf_esis_net, tvb, offset, netl, print_nsap_net( tvb, offset, netl ) );
     offset += netl;
     len    -= ( netl + 1 );
 
@@ -195,7 +195,7 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
                          "### Destination Address Section ###" );
     proto_tree_add_uint_format_value(tree, hf_esis_dal, tvb, offset++, 1, tmpl, "%2u Octets", tmpl);
     proto_tree_add_string( tree, hf_esis_da, tvb, offset, tmpl,
-                         print_nsap_net( tvb_get_ptr(tvb, offset, tmpl), tmpl ) );
+                         print_nsap_net( tvb, offset, tmpl ) );
     offset += tmpl;
     len    -= ( tmpl + 1 );
     tmpl    = (int) tvb_get_guint8(tvb, offset);
@@ -219,7 +219,7 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree) {
                            "### Network Entity Title Section ###" );
       proto_tree_add_uint_format_value(tree, hf_esis_netl, tvb, offset++, 1, tmpl, "%2u Octets", tmpl );
       proto_tree_add_string( tree, hf_esis_net, tvb, offset, tmpl,
-                           print_nsap_net( tvb_get_ptr(tvb, offset, tmpl), tmpl ) );
+                           print_nsap_net( tvb, offset, tmpl ) );
       offset += tmpl;
       len    -= ( tmpl + 1 );
     }

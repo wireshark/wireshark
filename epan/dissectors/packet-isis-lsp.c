@@ -2774,7 +2774,7 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
          * Lets turn the area address into "standard" 0000.0000.etc
          * format string.
          */
-        sbuf =  print_area( tvb_get_ptr(tvb, offset+1, mylen), mylen );
+        sbuf =  print_area( tvb, offset+1, mylen );
         /* and spit it out */
         if ( tree ) {
             proto_tree_add_text ( tree, tvb, offset, mylen + 1,

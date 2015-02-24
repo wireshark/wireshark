@@ -2770,7 +2770,7 @@ dissect_rsvp_ifid_tlv(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_objec
                                   "%sISIS-Area TLV - Invalid Length field", tlv_name);
               break;
             }
-            ip_str = print_nsap_net(tvb_get_ptr(tvb, offset+tlv_off+5, isis_len), isis_len);
+            ip_str = print_nsap_net(tvb, offset+tlv_off+5, isis_len);
             rsvp_ifid_subtree = proto_tree_add_subtree_format(rsvp_object_tree, tvb,
                                       offset+tlv_off, tlv_len,
                                       subtree_type, NULL, "%sISIS-Area TLV - %s", tlv_name,
@@ -5844,10 +5844,10 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                     proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+5,
                                         sobj_len-4,
                                         "NSAP address: %s",
-                                        print_nsap_net(tvb_get_ptr(tvb, offset2+l+5, nsap_len), nsap_len));
+                                        print_nsap_net(tvb, offset2+l+5, nsap_len));
                     if (i < 4) {
                         proto_item_append_text(ti, "%s NSAP TNA: %s", c,
-                                               print_nsap_net(tvb_get_ptr(tvb, offset2+l+5, nsap_len), nsap_len));
+                                               print_nsap_net(tvb, offset2+l+5, nsap_len));
                     }
                     break;
 
@@ -6099,7 +6099,7 @@ dissect_rsvp_call_id(proto_tree *ti, proto_tree *rsvp_object_tree,
 
         case 3:
             offset4 = offset3 + 20;
-            str = print_nsap_net(tvb_get_ptr(tvb, offset3, 20), 20);
+            str = print_nsap_net(tvb, offset3, 20);
             proto_tree_add_text(rsvp_object_tree, tvb, offset3, 20,
                                 "Source Transport Network addr: %s", str);
             break;

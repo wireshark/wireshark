@@ -41,12 +41,12 @@
  * "dissect_nsap()" in epan/dissectors/packet-isup.c.
  */
 gchar *
-print_nsap_net( const guint8 *ad, int length )
+print_nsap_net( tvbuff_t *tvb, const gint offset, int length )
 {
   gchar *cur;
 
   cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_NSAP_LEN * 3 + 50);
-  print_nsap_net_buf( ad, length, cur, MAX_NSAP_LEN * 3 + 50);
+  print_nsap_net_buf( tvb_get_ptr(tvb, offset, length), length, cur, MAX_NSAP_LEN * 3 + 50);
   return( cur );
 }
 
@@ -141,12 +141,12 @@ print_system_id_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
 }
 
 gchar *
-print_area(const guint8 *ad, int length)
+print_area(tvbuff_t *tvb, const gint offset, int length)
 {
   gchar *cur;
 
   cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_AREA_LEN * 3 + 20);
-  print_area_buf(ad, length, cur, MAX_AREA_LEN * 3 + 20);
+  print_area_buf(tvb_get_ptr(tvb, offset, length), length, cur, MAX_AREA_LEN * 3 + 20);
   return cur;
 }
 

@@ -225,7 +225,6 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     cksum_status_t  cksum_status;
     int             offset;
     guchar          src_len, dst_len, nsel, opt_len = 0;
-    const guint8   *dst_addr, *src_addr;
     guint           next_length;
     proto_tree     *discpdu_tree;
     gboolean        save_in_error_pkt;
@@ -389,14 +388,13 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 FIXED_PART_LEN + 1 + dst_len);
         return;
     }
-    dst_addr = tvb_get_ptr(tvb, offset, dst_len);
     nsel     = tvb_get_guint8(tvb, offset + dst_len - 1);
     TVB_SET_ADDRESS(&pinfo->net_dst, get_osi_address_type(), tvb, offset, dst_len);
     TVB_SET_ADDRESS(&pinfo->dst, get_osi_address_type(), tvb, offset, dst_len);
     proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
             NULL,
             "%s",
-            print_nsap_net(dst_addr, dst_len));
+            print_nsap_net(tvb, offset, dst_len));
     offset += dst_len;
     opt_len -= dst_len;
 
@@ -427,14 +425,13 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 FIXED_PART_LEN + 1 + dst_len + 1 + src_len);
         return;
     }
-    src_addr = tvb_get_ptr(tvb, offset, src_len);
     TVB_SET_ADDRESS(&pinfo->net_src, get_osi_address_type(), tvb, offset, src_len);
     TVB_SET_ADDRESS(&pinfo->src, get_osi_address_type(), tvb, offset, src_len);
     proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_src, tvb,
             offset, src_len,
             NULL,
             "%s",
-            print_nsap_net(src_addr, src_len));
+            print_nsap_net(tvb, offset, src_len));
 
     offset += src_len;
     opt_len -= src_len;
