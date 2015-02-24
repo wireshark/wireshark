@@ -900,9 +900,28 @@ static gboolean nstrace_set_start_time(wtap *wth)
 /*
 ** Netscaler trace format read routines.
 */
-#define PACKET_DESCRIBE(phdr) \
-    (phdr)->rec_type = REC_TYPE_PACKET;\
-    (phdr)->presence_flags = WTAP_HAS_TS;
+#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,fpp,type) \
+    do {\
+        fpp = (nspr_pktrace##fullpart##_v10_t *) &nstrace_buf[nstrace_buf_offset];\
+        (phdr)->rec_type = REC_TYPE_PACKET;\
+        /*\
+         * XXX - we can't do this in the seek-read routine,\
+         * as the time stamps in the records are relative to\
+         * the previous packet.\
+         */\
+        (phdr)->presence_flags = WTAP_HAS_TS;\
+        nsg_creltime += ns_hrtime2nsec(pletoh32(&fpp->fpp##_RelTimeHr));\
+        (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
+        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        TRACE_##FULLPART##_V##type##_REC_LEN_OFF(phdr,v##type##_##fullpart,fpp,pktrace##fullpart##_v##type);\
+        ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
+        memcpy(ws_buffer_start_ptr(wth->frame_buffer), fpp, (phdr)->caplen);\
+        *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
+        nstrace->nstrace_buf_offset = nstrace_buf_offset + (phdr)->caplen;\
+        nstrace->nstrace_buflen = nstrace_buflen;\
+        nstrace->nsg_creltime = nsg_creltime;\
+        return TRUE;\
+    }while(0)
 
 static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
@@ -927,47 +946,13 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            fp = (nspr_pktracefull_v10_t *) &nstrace_buf[nstrace_buf_offset];\
-            /*\
-             * XXX - we can't do this in the seek-read routine,\
-             * as the time stamps in the records are relative to\
-             * the previous packet.\
-             */\
-            PACKET_DESCRIBE(phdr);\
-            nsg_creltime += ns_hrtime2nsec(pletoh32(&fp->fp_RelTimeHr));\
-            (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
-            (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
-            TRACE_FULL_V##type##_REC_LEN_OFF(phdr,v##type##_full,fp,pktracefull_v##type);\
-            ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-            memcpy(ws_buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
-            *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
-            nstrace->nstrace_buf_offset = nstrace_buf_offset + (phdr)->len;\
-            nstrace->nstrace_buflen = nstrace_buflen;\
-            nstrace->nsg_creltime = nsg_creltime;\
-            return TRUE;
+            PACKET_DESCRIBE(phdr,FULL,full,fp,type);
 
 #define GENERATE_CASE_PART(phdr,type,acttype) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            pp = (nspr_pktracepart_v10_t *) &nstrace_buf[nstrace_buf_offset];\
-            /*\
-             * XXX - we can't do this in the seek-read routine,\
-             * as the time stamps in the records are relative to\
-             * the previous packet.\
-             */\
-            PACKET_DESCRIBE(phdr);\
-            nsg_creltime += ns_hrtime2nsec(pletoh32(&pp->pp_RelTimeHr));\
-            (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
-            (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
-            TRACE_PART_V##type##_REC_LEN_OFF(phdr,v##type##_part,pp,pktracepart_v##type);\
-            ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-            memcpy(ws_buffer_start_ptr(wth->frame_buffer), pp, (phdr)->caplen);\
-            *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
-            nstrace->nstrace_buf_offset = nstrace_buf_offset + (phdr)->caplen;\
-            nstrace->nsg_creltime = nsg_creltime;\
-            nstrace->nstrace_buflen = nstrace_buflen;\
-            return TRUE;\
+            PACKET_DESCRIBE(phdr,PART,part,pp,type);
 
             switch (pletoh16(&(( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))
             {
