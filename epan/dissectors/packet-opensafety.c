@@ -93,11 +93,12 @@ static const value_string message_crc_type[] = {
 #define OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE 0xE8
 #define OPENSAFETY_SNMT_MESSAGE_TYPE      0xA0
 
+/* We shift the values by 5, otherwise they won't get picked up by the
+ * hf_field value dissection */
 static const value_string message_id_values[] = {
-    { OPENSAFETY_SPDO_MESSAGE_TYPE,      "openSAFETY SPDO" },
-    { OPENSAFETY_SSDO_MESSAGE_TYPE,      "openSAFETY SSDO" },
-    { OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE, "openSAFETY Slim SSDO" },
-    { OPENSAFETY_SNMT_MESSAGE_TYPE,      "openSAFETY SNMT" },
+    { OPENSAFETY_SPDO_MESSAGE_TYPE >> 5,      "openSAFETY SPDO" },
+    { OPENSAFETY_SSDO_MESSAGE_TYPE >> 5,      "openSAFETY SSDO" },
+    { OPENSAFETY_SNMT_MESSAGE_TYPE >> 5,      "openSAFETY SNMT" },
     { 0, NULL }
 };
 
@@ -628,48 +629,45 @@ void proto_reg_handoff_opensafety(void);
 
 /* Tracks the information that the packet pinfo has been received by receiver, and adds that information to the tree, using pos, as
  * byte position in the PDU */
-#define PACKET_RECEIVER(pinfo, recv, pos, posnet, sdn)                       { \
-        proto_item *psf_item = NULL; \
-        proto_tree *psf_tree  = NULL; \
-        psf_item = proto_tree_add_uint(opensafety_tree, hf_oss_msg_receiver, message_tvb, pos, 2, recv); \
-        psf_tree = proto_item_add_subtree(psf_item, ett_opensafety_node); \
-        psf_item = proto_tree_add_uint(psf_tree, hf_oss_msg_node, message_tvb, pos, 2, recv);\
-        PROTO_ITEM_SET_GENERATED(psf_item); \
-        if ( sdn > 0 ) \
-        { \
-            psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn, "0x%04X", sdn); \
-        } else if ( sdn <= 0 ) { \
-            psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn * -1, "0x%04X", sdn * -1); \
-            expert_add_info(pinfo, psf_item, &ei_scmudid_unknown ); \
-        } \
-        PROTO_ITEM_SET_GENERATED(psf_item); \
-        }
+static void
+opensafety_packet_node(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *tree,
+        gint hf_field, guint16 saddr, guint16 posInFrame, guint16 posSdnInFrame, guint16 sdn )
+{
+    proto_item *psf_item = NULL;
+    proto_tree *psf_tree  = NULL;
+
+    psf_item = proto_tree_add_uint(tree, hf_field, message_tvb, posInFrame, 2, saddr);
+    psf_tree = proto_item_add_subtree(psf_item, ett_opensafety_node);
+    psf_item = proto_tree_add_uint(psf_tree, hf_oss_msg_node, message_tvb, posInFrame, 2, saddr);
+    PROTO_ITEM_SET_GENERATED(psf_item);
+
+    if ( sdn > 0 )
+    {
+        psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb,
+                posSdnInFrame, 2, sdn, "0x%04X", sdn);
+    } else if ( sdn <= 0 ) {
+        psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb,
+                posSdnInFrame, 2, sdn * -1, "0x%04X", sdn * -1);
+        expert_add_info(pinfo, psf_item, &ei_scmudid_unknown );
+    }
+    PROTO_ITEM_SET_GENERATED(psf_item);
+}
+
 
 /* Tracks the information that the packet pinfo has been sent by sender, and received by everyone else, and adds that information to
  * the tree, using pos, as byte position in the PDU */
-#define PACKET_SENDER(pinfo, sender, pos, posnet, sdn)                { \
-        proto_item *psf_item = NULL; \
-        proto_tree *psf_tree  = NULL; \
-        psf_item = proto_tree_add_uint(opensafety_tree, hf_oss_msg_sender, message_tvb, pos, 2, sender); \
-        psf_tree = proto_item_add_subtree(psf_item, ett_opensafety_node); \
-        psf_item = proto_tree_add_uint(psf_tree, hf_oss_msg_node, message_tvb, pos, 2, sender);\
-        PROTO_ITEM_SET_GENERATED(psf_item); \
-        if ( sdn > 0 ) \
-        { \
-            psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn, "0x%04X", sdn); \
-        } else if ( sdn <= 0 ) { \
-            psf_item = proto_tree_add_uint_format_value(psf_tree, hf_oss_msg_network, message_tvb, posnet, 2, sdn * -1, "0x%04X", sdn * -1); \
-            expert_add_info(pinfo, psf_item, &ei_scmudid_unknown ); \
-        } \
-        PROTO_ITEM_SET_GENERATED(psf_item); \
-        }
+
 
 /* Tracks the information that the packet pinfo has been sent by sender, and received by receiver, and adds that information to
  * the tree, using pos for the sender and pos2 for the receiver, as byte position in the PDU */
-#define PACKET_SENDER_RECEIVER(pinfo, send, pos, recv, pos2, posnet, sdn)         { \
-        PACKET_RECEIVER(pinfo, recv, pos2, posnet, sdn); \
-        PACKET_SENDER(pinfo, send, pos, posnet, sdn); \
-        }
+static void
+opensafety_packet_sendreceiv(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *tree,
+        guint16 send, guint16 pos,
+        guint16 recv, guint16 pos2, guint16 posnet, guint16 sdn)
+{
+        opensafety_packet_node (message_tvb, pinfo, tree, hf_oss_msg_receiver, recv, pos2, posnet, sdn );
+        opensafety_packet_node (message_tvb, pinfo, tree, hf_oss_msg_sender, send, pos, posnet, sdn );
+}
 
 static guint16
 findFrame1Position ( tvbuff_t *message_tvb, guint16 byte_offset, guint8 dataLength, gboolean checkIfSlimMistake )
@@ -923,9 +921,9 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         guint16 frameStart1, guint16 frameStart2, gboolean validSCMUDID, guint8 *scm_udid)
 {
     proto_item *item;
-    proto_tree *spdo_tree, *node_tree;
+    proto_tree *spdo_tree;
     guint16     ct;
-    gint16      taddr;
+    gint16      taddr, sdn;
     guint       dataLength;
     guint8      tr, b_ID, conn_Valid;
 
@@ -934,16 +932,17 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     conn_Valid = ( (tvb_get_guint8(message_tvb, frameStart1 + 1) & 0x04) == 0x04);
 
     /* Network address is xor'ed into the start of the second frame, but only legible, if the scm given is valid */
-    taddr = ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^ ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) );
+    sdn = ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^
+            ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) );
     if ( ! validSCMUDID )
-        taddr = ( -1 * taddr );
+        sdn = ( -1 * sdn );
 
     /* An SPDO is always sent by the producer, to everybody else */
-    PACKET_SENDER( pinfo, OSS_FRAME_ADDR_T(message_tvb, frameStart1), OSS_FRAME_POS_ADDR + frameStart1, frameStart2, taddr );
+    opensafety_packet_node ( message_tvb, pinfo, opensafety_tree, hf_oss_msg_sender,
+            OSS_FRAME_ADDR_T(message_tvb, frameStart1),
+            OSS_FRAME_POS_ADDR + frameStart1, frameStart2, sdn );
 
-    item = proto_tree_add_uint_format_value(opensafety_tree, hf_oss_msg_category, message_tvb,
-                                            OSS_FRAME_POS_ID + frameStart1, 1, OPENSAFETY_SPDO_MESSAGE_TYPE,
-                                            "%s", val_to_str_const(OPENSAFETY_SPDO_MESSAGE_TYPE, message_id_values, "Unknown") );
+    item = proto_tree_add_item(opensafety_tree, hf_oss_msg_category, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, ENC_NA );
     PROTO_ITEM_SET_GENERATED(item);
 
     spdo_tree = proto_item_add_subtree(item, ett_opensafety_spdo);
@@ -984,12 +983,8 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
         proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request, message_tvb,
                             OSS_FRAME_POS_ADDR + frameStart2 + 4, 1, tr);
-        item = proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request_from, message_tvb,
-                            OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
-        node_tree = proto_item_add_subtree(item, ett_opensafety_node);
-        item = proto_tree_add_uint(node_tree, hf_oss_msg_node,  message_tvb,
-                OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
-        PROTO_ITEM_SET_GENERATED(item);
+        opensafety_packet_node ( message_tvb, pinfo, spdo_tree, hf_oss_spdo_time_request_from, taddr,
+                OSS_FRAME_POS_ADDR + frameStart2 + 3, frameStart2, sdn );
     }
     else
     {
@@ -999,13 +994,10 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
         if ( b_ID == OPENSAFETY_MSG_SPDO_DATA_WITH_TIME_RESPONSE )
         {
-            proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request,    message_tvb, OSS_FRAME_POS_ADDR + frameStart2 + 4, 1, tr);
-            item = proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request_to, message_tvb,
-                    OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
-            node_tree = proto_item_add_subtree(item, ett_opensafety_node);
-            item = proto_tree_add_uint(node_tree, hf_oss_msg_node,  message_tvb,
-                    OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request, message_tvb,
+                    OSS_FRAME_POS_ADDR + frameStart2 + 4, 1, tr);
+            opensafety_packet_node ( message_tvb, pinfo, spdo_tree, hf_oss_spdo_time_request_to, taddr,
+                    OSS_FRAME_POS_ADDR + frameStart2 + 3, frameStart2, sdn );
         }
     }
 
@@ -1223,30 +1215,23 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         sdn =  ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ^
                         ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) );
 
-        PACKET_SENDER_RECEIVER ( pinfo, taddr, frameStart2 + 3, OSS_FRAME_ADDR_T(message_tvb, frameStart1),
-                                 frameStart1, frameStart2, sdn );
+        opensafety_packet_sendreceiv ( message_tvb, pinfo, opensafety_tree, taddr,
+                frameStart2 + 3, OSS_FRAME_ADDR_T(message_tvb, frameStart1), frameStart1, frameStart2, sdn );
     }
     else if ( ! isResponse )
     {
-        PACKET_SENDER(pinfo, OSS_FRAME_ADDR_T(message_tvb, frameStart1), frameStart1, frameStart2,
-                      -1 * ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^ ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) ) );
+        opensafety_packet_node ( message_tvb, pinfo, opensafety_tree, hf_oss_msg_sender,
+                OSS_FRAME_ADDR_T(message_tvb, frameStart1), frameStart1, frameStart2, -1 * ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^
+                        ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) ) );
     }
     else if ( isResponse )
     {
-        PACKET_RECEIVER(pinfo, OSS_FRAME_ADDR_T(message_tvb, frameStart1), frameStart1, frameStart2,
-                        -1 * ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^ ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) ) );
+        opensafety_packet_node( message_tvb, pinfo, opensafety_tree, hf_oss_msg_receiver,
+                OSS_FRAME_ADDR_T(message_tvb, frameStart1), frameStart1, frameStart2, -1 * ( ( OSS_FRAME_ADDR_T(message_tvb, frameStart1) ) ^
+                        ( OSS_FRAME_ADDR_T2(message_tvb, frameStart2, scm_udid[0], scm_udid[1]) ) ) );
     }
 
-    if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_REQUEST ) ||
-         ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_RESPONSE ) )
-        item = proto_tree_add_uint_format_value(opensafety_tree, hf_oss_msg_category, message_tvb,
-                                                OSS_FRAME_POS_ID + frameStart1, 1,
-                                                OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE,
-                                                "%s", val_to_str_const(OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE, message_id_values, "Unknown") );
-    else
-        item = proto_tree_add_uint_format_value(opensafety_tree, hf_oss_msg_category, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1,
-                                                OPENSAFETY_SSDO_MESSAGE_TYPE,
-                                                "%s", val_to_str_const(OPENSAFETY_SSDO_MESSAGE_TYPE, message_id_values, "Unknown") );
+    item = proto_tree_add_item(opensafety_tree, hf_oss_msg_category, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, ENC_NA );
     PROTO_ITEM_SET_GENERATED(item);
 
     ssdo_tree = proto_item_add_subtree(item, ett_opensafety_ssdo);
@@ -1495,6 +1480,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     guint8      db0, byte, errcode;
     guint       dataLength;
     char       *tempString;
+    gboolean    isRequest;
 
     dataLength = OSS_FRAME_LENGTH_T(message_tvb, frameStart1);
 
@@ -1512,38 +1498,47 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     if ( ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 ) &&
          ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_STOP) == 0 || (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_OP) == 0 ) )
     {
-        PACKET_RECEIVER( pinfo, addr, OSS_FRAME_POS_ADDR + frameStart1, frameStart2, sdn );
+        opensafety_packet_node( message_tvb, pinfo, opensafety_tree, hf_oss_msg_receiver, addr,
+                OSS_FRAME_POS_ADDR + frameStart1, frameStart2, sdn );
     }
     else
     {
-        PACKET_SENDER_RECEIVER ( pinfo, taddr, frameStart2 + 3, addr, OSS_FRAME_POS_ADDR + frameStart1,
-                             frameStart2, sdn );
+        opensafety_packet_sendreceiv ( message_tvb, pinfo, opensafety_tree, taddr, frameStart2 + 3,
+                addr, OSS_FRAME_POS_ADDR + frameStart1, frameStart2, sdn );
     }
 
-    item = proto_tree_add_uint_format_value(opensafety_tree, hf_oss_msg_category, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1,
-                                            OPENSAFETY_SNMT_MESSAGE_TYPE,
-                                            "%s", val_to_str_const(OPENSAFETY_SNMT_MESSAGE_TYPE, message_id_values, "Unknown") );
+    item = proto_tree_add_item(opensafety_tree, hf_oss_msg_category, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, ENC_NA );
     PROTO_ITEM_SET_GENERATED(item);
 
     snmt_tree = proto_item_add_subtree(item, ett_opensafety_snmt);
 
+    isRequest = FALSE;
     if ( ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SNMT_RESPONSE_UDID ) ||
          ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SNMT_SADR_ASSIGNED ) ||
          ( OSS_FRAME_ID_T(message_tvb, frameStart1) == OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE ) )
+    {
         proto_tree_add_boolean(snmt_tree, hf_oss_msg_direction, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, OPENSAFETY_RESPONSE);
+    }
     else
+    {
         proto_tree_add_boolean(snmt_tree, hf_oss_msg_direction, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, OPENSAFETY_REQUEST);
+        isRequest = TRUE;
+    }
 
-    proto_tree_add_uint_format_value(snmt_tree, hf_oss_msg, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1,
-                                     OSS_FRAME_ID_T(message_tvb, frameStart1),
-                                     "%s", val_to_str_const(OSS_FRAME_ID_T(message_tvb, frameStart1), message_type_values, "Unknown") );
+    proto_tree_add_item(snmt_tree, hf_oss_msg, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1, ENC_NA );
 
-    if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SN_RESET_GUARDING_SCM) == 0 )
+    if ( isRequest )
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
     }
-    else if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 )
+    else
+    {
+        proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
+        proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, frameStart2 + 3, 2, taddr);
+    }
+
+    if ( (OSS_FRAME_ID_T(message_tvb, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 )
     {
         byte = tvb_get_guint8(message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1);
 
@@ -1558,9 +1553,6 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                     db0, "%s [Request via SN Fail] (0x%02X)", val_to_str_const(byte, sn_fail_error_group, "Unknown"), db0);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(byte, sn_fail_error_group, "Unknown"));
         }
-
-        proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
-        proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
 
         if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_FAIL) == 0 )
         {
@@ -1633,8 +1625,6 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         }
         else if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SN_ASSIGN_UDID_SCM) == 0 )
         {
-            proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
-            proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
             item = proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + frameStart1 + 1, 6, ENC_NA);
 
             if ( global_scm_udid_autoset == TRUE )
@@ -2460,7 +2450,7 @@ proto_register_opensafety(void)
             FT_UINT8,   BASE_HEX, VALS(message_type_values),   0x0, NULL, HFILL } },
         { &hf_oss_msg_category,
           { "Type",  "opensafety.msg.type",
-            FT_UINT16,   BASE_HEX, VALS(message_id_values),   0x0, NULL, HFILL } },
+            FT_UINT8,   BASE_HEX, VALS(message_id_values),   0xE0, NULL, HFILL } },
         { &hf_oss_msg_direction,
           { "Direction",  "opensafety.msg.direction",
             FT_BOOLEAN,   BASE_NONE, TFS(&opensafety_message_direction),   0x0, NULL, HFILL } },
