@@ -1459,7 +1459,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		    && (tvb_get_ntohs(tvb, 8 + 2) >
 			(guint) icmp_original_dgram_length * 4)) {
 			set_actual_length(next_tvb,
-					  icmp_original_dgram_length * 4);
+					  ((tvb_get_guint8(tvb, 8) & 0x0f) + icmp_original_dgram_length) * 4);
 		} else {
 			/* There is a collision between RFC 1812 and draft-ietf-mpls-icmp-02.
 			   We don't know how to decode the 128th and following bytes of the ICMP payload.
