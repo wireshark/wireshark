@@ -1036,7 +1036,6 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v5 *batman_packeth;
-	const guint8  *prev_sender_addr, *orig_addr;
 	gint i;
 
 	tvbuff_t *next_tvb;
@@ -1056,11 +1055,9 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+4);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+5);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+6);
-	orig_addr = tvb_get_ptr(tvb, offset+8, 6);
 	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+8, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset+8, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset+8, 6);
-	prev_sender_addr = tvb_get_ptr(tvb, offset+14, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &batman_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &batman_packeth->orig);
 	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+14, 6);
 
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+20);
@@ -1104,10 +1101,10 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_num_tt, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1137,7 +1134,6 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v7 *batman_packeth;
-	const guint8  *prev_sender_addr, *orig_addr;
 	gint i;
 
 	tvbuff_t *next_tvb;
@@ -1155,11 +1151,9 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
-	orig_addr = tvb_get_ptr(tvb, offset+6, 6);
 	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+6, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset+6, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset+6, 6);
-	prev_sender_addr = tvb_get_ptr(tvb, offset+12, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &batman_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &batman_packeth->orig);
 	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+12, 6);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+18);
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+19);
@@ -1195,10 +1189,10 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1229,7 +1223,6 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v9 *batman_packeth;
-	const guint8  *prev_sender_addr, *orig_addr;
 	gint i;
 
 	tvbuff_t *next_tvb;
@@ -1247,11 +1240,9 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
-	orig_addr = tvb_get_ptr(tvb, offset+6, 6);
 	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+6, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset+6, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset+6, 6);
-	prev_sender_addr = tvb_get_ptr(tvb, offset+12, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &batman_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &batman_packeth->orig);
 	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+12, 6);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+18);
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+19);
@@ -1288,10 +1279,10 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1329,7 +1320,6 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v10 *batman_packeth;
-	const guint8  *prev_sender_addr, *orig_addr;
 	gint i;
 
 	tvbuff_t *next_tvb;
@@ -1347,11 +1337,9 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
-	orig_addr = tvb_get_ptr(tvb, offset+8, 6);
 	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+8, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset+8, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset+8, 6);
-	prev_sender_addr = tvb_get_ptr(tvb, offset+14, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &batman_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &batman_packeth->orig);
 	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+14, 6);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+21);
@@ -1388,10 +1376,10 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno32, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1428,7 +1416,6 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v11 *batman_packeth;
-	const guint8  *prev_sender_addr, *orig_addr;
 	gint i;
 
 	tvbuff_t *next_tvb;
@@ -1446,11 +1433,9 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
-	orig_addr = tvb_get_ptr(tvb, offset+8, 6);
 	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+8, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset+8, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset+8, 6);
-	prev_sender_addr = tvb_get_ptr(tvb, offset+14, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &batman_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &batman_packeth->orig);
 	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+14, 6);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+21);
@@ -1486,10 +1471,10 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno32, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1520,7 +1505,6 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree *batadv_batman_tree = NULL;
 	guint8 type;
 	struct batman_packet_v14 *batman_packeth;
-	const guint8  *prev_sender_addr, *orig_addr;
 	gint i;
 
 	tvbuff_t *next_tvb;
@@ -1539,11 +1523,9 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
-	orig_addr = tvb_get_ptr(tvb, offset+8, 6);
 	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+8, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset+8, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset+8, 6);
-	prev_sender_addr = tvb_get_ptr(tvb, offset+14, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &batman_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &batman_packeth->orig);
 	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+14, 6);
 	batman_packeth->gw_flags = tvb_get_guint8(tvb, offset+20);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+21);
@@ -1582,10 +1564,10 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_seqno32, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, prev_sender_addr);
+	proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_prev_sender, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	tgw = proto_tree_add_item(batadv_batman_tree, hf_batadv_batman_gwflags, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1810,7 +1792,6 @@ static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct bcast_packet_v6 *bcast_packeth;
-	const guint8  *orig_addr;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -1820,10 +1801,9 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	bcast_packeth = (struct bcast_packet_v6 *)wmem_alloc(wmem_packet_scope(), sizeof(struct bcast_packet_v6));
 
 	bcast_packeth->version = tvb_get_guint8(tvb, 1);
-	orig_addr = tvb_get_ptr(tvb, 2, 6);
 	TVB_SET_ADDRESS(&bcast_packeth->orig, AT_ETHER, tvb, 2, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 2, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 2, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &bcast_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &bcast_packeth->orig);
 	bcast_packeth->seqno = tvb_get_ntohs(tvb, 8);
 
 	/* Set info column */
@@ -1847,7 +1827,7 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_bcast_tree, hf_batadv_bcast_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1869,7 +1849,6 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct bcast_packet_v10 *bcast_packeth;
-	const guint8  *orig_addr;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -1879,10 +1858,9 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	bcast_packeth = (struct bcast_packet_v10 *)wmem_alloc(wmem_packet_scope(), sizeof(struct bcast_packet_v10));
 
 	bcast_packeth->version = tvb_get_guint8(tvb, 1);
-	orig_addr = tvb_get_ptr(tvb, 2, 6);
 	TVB_SET_ADDRESS(&bcast_packeth->orig, AT_ETHER, tvb, 2, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 2, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 2, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &bcast_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &bcast_packeth->orig);
 	bcast_packeth->ttl = tvb_get_guint8(tvb, 8);
 	bcast_packeth->seqno = tvb_get_ntohl(tvb, 9);
 
@@ -1907,7 +1885,7 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_bcast_tree, hf_batadv_bcast_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1933,7 +1911,6 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct bcast_packet_v14 *bcast_packeth;
-	const guint8  *orig_addr;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -1947,10 +1924,9 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	bcast_packeth->ttl = tvb_get_guint8(tvb, 2);
 	bcast_packeth->reserved = tvb_get_guint8(tvb, 3);
 	bcast_packeth->seqno = tvb_get_ntohl(tvb, 4);
-	orig_addr = tvb_get_ptr(tvb, 8, 6);
 	TVB_SET_ADDRESS(&bcast_packeth->orig, AT_ETHER, tvb, 8, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 8, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 8, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &bcast_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &bcast_packeth->orig);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", bcast_packeth->seqno);
@@ -1985,7 +1961,7 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_seqno32, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_ether(batadv_bcast_tree, hf_batadv_bcast_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_bcast_tree, hf_batadv_bcast_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	tap_queue_packet(batadv_tap, pinfo, bcast_packeth);
@@ -2039,8 +2015,6 @@ static void dissect_batadv_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct icmp_packet_v6 *icmp_packeth;
-	const guint8  *dst_addr, *orig_addr;
-
 	tvbuff_t *next_tvb;
 	gint length_remaining;
 	int offset = 0;
@@ -2050,21 +2024,17 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	icmp_packeth->version = tvb_get_guint8(tvb, 1);
 	icmp_packeth->msg_type = tvb_get_guint8(tvb, 2);
-	dst_addr = tvb_get_ptr(tvb, 3, 6);
 	TVB_SET_ADDRESS(&icmp_packeth->dst, AT_ETHER, tvb, 3, 6);
-	orig_addr = tvb_get_ptr(tvb, 9, 6);
 	TVB_SET_ADDRESS(&icmp_packeth->orig, AT_ETHER, tvb, 9, 6);
 
-    /* XXX - presume some of these are copy/paste errors (some should use dst_addr?), but keeping code for now */
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 9, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 9, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 9, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 9, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &icmp_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &icmp_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &icmp_packeth->dst);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &icmp_packeth->dst);
 
 	icmp_packeth->ttl = tvb_get_guint8(tvb, 15);
 	icmp_packeth->uid = tvb_get_guint8(tvb, 16);
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 17);
-
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
@@ -2092,10 +2062,10 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset, 6, dst_addr);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2170,7 +2140,6 @@ dissect_batadv_icmp_rr_v15(proto_tree *batadv_icmp_tree, tvbuff_t *tvb,
 static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct icmp_packet_v7 *icmp_packeth;
-	const guint8  *dst_addr, *orig_addr;
 	proto_item *ti;
 	proto_tree *batadv_icmp_tree = NULL;
 
@@ -2183,16 +2152,13 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	icmp_packeth->version = tvb_get_guint8(tvb, 1);
 	icmp_packeth->msg_type = tvb_get_guint8(tvb, 2);
 	icmp_packeth->ttl = tvb_get_guint8(tvb, 3);
-	dst_addr = tvb_get_ptr(tvb, 4, 6);
 	TVB_SET_ADDRESS(&icmp_packeth->dst, AT_ETHER, tvb, 4, 6);
-	orig_addr = tvb_get_ptr(tvb, 10, 6);
 	TVB_SET_ADDRESS(&icmp_packeth->orig, AT_ETHER, tvb, 10, 6);
 
-    /* XXX - presume some of these are copy/paste errors (some should use dst_addr?), but keeping code for now */
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 10, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &icmp_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &icmp_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &icmp_packeth->dst);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &icmp_packeth->dst);
 
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 16);
 	icmp_packeth->uid = tvb_get_guint8(tvb, 17);
@@ -2225,10 +2191,10 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset, 6, dst_addr);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2256,7 +2222,6 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct icmp_packet_v14 *icmp_packeth;
-	const guint8  *dst_addr, *orig_addr;
 	proto_item *ti;
 	proto_tree *batadv_icmp_tree = NULL;
 
@@ -2269,16 +2234,13 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	icmp_packeth->version = tvb_get_guint8(tvb, 1);
 	icmp_packeth->ttl = tvb_get_guint8(tvb, 2);
 	icmp_packeth->msg_type = tvb_get_guint8(tvb, 3);
-	dst_addr = tvb_get_ptr(tvb, 4, 6);
 	TVB_SET_ADDRESS(&icmp_packeth->dst, AT_ETHER, tvb, 4, 6);
-	orig_addr = tvb_get_ptr(tvb, 10, 6);
 	TVB_SET_ADDRESS(&icmp_packeth->orig, AT_ETHER, tvb, 10, 6);
 
-    /* XXX - presume some of these are copy/paste errors (some should use dst_addr?), but keeping code for now */
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 10, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &icmp_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &icmp_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &icmp_packeth->dst);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &icmp_packeth->dst);
 
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 16);
 	icmp_packeth->uid = tvb_get_guint8(tvb, 17);
@@ -2312,10 +2274,10 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset, 6, dst_addr);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2479,7 +2441,6 @@ static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct unicast_packet_v6 *unicast_packeth;
-	const guint8  *dest_addr;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -2489,10 +2450,9 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	unicast_packeth = (struct unicast_packet_v6 *)wmem_alloc(wmem_packet_scope(), sizeof(struct unicast_packet_v6));
 
 	unicast_packeth->version = tvb_get_guint8(tvb, 1);
-	dest_addr = tvb_get_ptr(tvb, 2, 6);
 	TVB_SET_ADDRESS(&unicast_packeth->dest, AT_ETHER, tvb, 2, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 2, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 2, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &unicast_packeth->dest);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &unicast_packeth->dest);
 
 	unicast_packeth->ttl = tvb_get_guint8(tvb, 8);
 
@@ -2517,7 +2477,7 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	proto_tree_add_item(batadv_unicast_tree, hf_batadv_unicast_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_unicast_tree, hf_batadv_unicast_dst, tvb, offset, 6, dest_addr);
+	proto_tree_add_item(batadv_unicast_tree, hf_batadv_unicast_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_unicast_tree, hf_batadv_unicast_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2540,7 +2500,6 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct unicast_packet_v14 *unicast_packeth;
-	const guint8  *dest_addr;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -2553,10 +2512,9 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 	unicast_packeth->version = tvb_get_guint8(tvb, 1);
 	unicast_packeth->ttl = tvb_get_guint8(tvb, 2);
 	unicast_packeth->ttvn = tvb_get_guint8(tvb, 3);
-	dest_addr = tvb_get_ptr(tvb, 4, 6);
 	TVB_SET_ADDRESS(&unicast_packeth->dest, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 4, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &unicast_packeth->dest);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &unicast_packeth->dest);
 
 	/* Set info column */
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -2589,7 +2547,7 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 	proto_tree_add_item(batadv_unicast_tree, hf_batadv_unicast_ttvn, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_unicast_tree, hf_batadv_unicast_dst, tvb, offset, 6, dest_addr);
+	proto_tree_add_item(batadv_unicast_tree, hf_batadv_unicast_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	tap_queue_packet(batadv_tap, pinfo, unicast_packeth);
@@ -2629,7 +2587,6 @@ static void dissect_batadv_unicast_4addr(tvbuff_t *tvb, packet_info *pinfo, prot
 static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct unicast_4addr_packet_v14 *unicast_4addr_packeth;
-	const guint8  *dest_addr, *src_addr;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -2642,14 +2599,13 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	unicast_4addr_packeth->version = tvb_get_guint8(tvb, 1);
 	unicast_4addr_packeth->ttl = tvb_get_guint8(tvb, 2);
 	unicast_4addr_packeth->ttvn = tvb_get_guint8(tvb, 3);
-	dest_addr = tvb_get_ptr(tvb, 4, 6);
 	TVB_SET_ADDRESS(&unicast_4addr_packeth->dest, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 4, 6);
-	src_addr = tvb_get_ptr(tvb, 10, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &unicast_4addr_packeth->dest);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &unicast_4addr_packeth->dest);
+
 	TVB_SET_ADDRESS(&unicast_4addr_packeth->src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 10, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &unicast_4addr_packeth->src);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &unicast_4addr_packeth->src);
 	unicast_4addr_packeth->subtype = tvb_get_guint8(tvb, 16);
 	unicast_4addr_packeth->reserved = tvb_get_guint8(tvb, 17);
 
@@ -2684,10 +2640,10 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_ttvn, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_dst, tvb, offset, 6, dest_addr);
+	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_src, tvb, offset, 6, src_addr);
+	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_src, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2739,7 +2695,6 @@ static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto
 static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct unicast_frag_packet_v12 *unicast_frag_packeth;
-	const guint8  *dest_addr, *orig_addr;
 	gboolean save_fragmented;
 	fragment_head *frag_msg = NULL;
 	proto_tree *batadv_unicast_frag_tree = NULL;
@@ -2752,16 +2707,14 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	unicast_frag_packeth = (struct unicast_frag_packet_v12 *)wmem_alloc(wmem_packet_scope(), sizeof(struct unicast_frag_packet_v12));
 
 	unicast_frag_packeth->version = tvb_get_guint8(tvb, 1);
-	dest_addr = tvb_get_ptr(tvb, 2, 6);
 	TVB_SET_ADDRESS(&unicast_frag_packeth->dest, AT_ETHER, tvb, 2, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 2, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 2, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &unicast_frag_packeth->dest);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &unicast_frag_packeth->dest);
 	unicast_frag_packeth->ttl = tvb_get_guint8(tvb, 8);
 	unicast_frag_packeth->flags = tvb_get_guint8(tvb, 9);
-	orig_addr = tvb_get_ptr(tvb, 10, 6);
 	TVB_SET_ADDRESS(&unicast_frag_packeth->orig, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 10, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &unicast_frag_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &unicast_frag_packeth->orig);
 	unicast_frag_packeth->seqno = tvb_get_ntohs(tvb, 16);
 
 	save_fragmented = pinfo->fragmented;
@@ -2788,7 +2741,7 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_unicast_frag_tree, hf_batadv_unicast_frag_dst, tvb, offset, 6, dest_addr);
+	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2798,7 +2751,7 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 					ett_batadv_batman_flags, unicast_frag_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_unicast_frag_tree, hf_batadv_unicast_frag_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2834,7 +2787,6 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct unicast_frag_packet_v14 *unicast_frag_packeth;
-	const guint8  *dest_addr, *orig_addr;
 	gboolean save_fragmented;
 	fragment_head *frag_msg = NULL;
 	proto_tree *batadv_unicast_frag_tree = NULL;
@@ -2849,16 +2801,14 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	unicast_frag_packeth->version = tvb_get_guint8(tvb, 1);
 	unicast_frag_packeth->ttl = tvb_get_guint8(tvb, 2);
 	unicast_frag_packeth->ttvn = tvb_get_guint8(tvb, 3);
-	dest_addr = tvb_get_ptr(tvb, 4, 6);
 	TVB_SET_ADDRESS(&unicast_frag_packeth->dest, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 4, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &unicast_frag_packeth->dest);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &unicast_frag_packeth->dest);
 	unicast_frag_packeth->flags = tvb_get_guint8(tvb, 10);
 	unicast_frag_packeth->align = tvb_get_guint8(tvb, 11);
-	orig_addr = tvb_get_ptr(tvb, 12, 6);
 	TVB_SET_ADDRESS(&unicast_frag_packeth->orig, AT_ETHER, tvb, 12, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 12, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 12, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &unicast_frag_packeth->orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &unicast_frag_packeth->orig);
 	unicast_frag_packeth->seqno = tvb_get_ntohs(tvb, 18);
 
 	save_fragmented = pinfo->fragmented;
@@ -2891,7 +2841,7 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_ttvn, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_unicast_frag_tree, hf_batadv_unicast_frag_dst, tvb, offset, 6, dest_addr);
+	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_bitmask(batadv_unicast_frag_tree, tvb, offset, hf_batadv_unicast_frag_flags,
@@ -2901,7 +2851,7 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	/* Skip 1 byte of padding. */
 	offset += 1;
 
-	proto_tree_add_ether(batadv_unicast_frag_tree, hf_batadv_unicast_frag_orig, tvb, offset, 6, orig_addr);
+	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3088,7 +3038,6 @@ static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v6 *vis_packeth;
-	const guint8  *vis_orig_addr, *target_orig_addr, *sender_orig_addr;
 	proto_tree *batadv_vis_tree = NULL;
 
 	tvbuff_t *next_tvb;
@@ -3104,17 +3053,13 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	vis_packeth->entries = tvb_get_guint8(tvb, 4);
 	vis_packeth->ttl = tvb_get_guint8(tvb, 5);
 
-	vis_orig_addr = tvb_get_ptr(tvb, 6, 6);
 	TVB_SET_ADDRESS(&vis_packeth->vis_orig, AT_ETHER, tvb, 6, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 6, 6);
-	target_orig_addr = tvb_get_ptr(tvb, 12, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &vis_packeth->vis_orig);
 	TVB_SET_ADDRESS(&vis_packeth->target_orig, AT_ETHER, tvb, 12, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 12, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 12, 6);
-	sender_orig_addr = tvb_get_ptr(tvb, 18, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &vis_packeth->target_orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &vis_packeth->target_orig);
 	TVB_SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, tvb, 18, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 18, 6);
-
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &vis_packeth->sender_orig);
 
 
 	/* Set info column */
@@ -3151,13 +3096,13 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_vis_orig, tvb, offset, 6, vis_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_vis_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_target_orig, tvb, offset, 6, target_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_target_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_sender_orig, tvb, offset, 6, sender_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_sender_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	tap_queue_packet(batadv_tap, pinfo, vis_packeth);
@@ -3213,7 +3158,6 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v10 *vis_packeth;
-	const guint8  *vis_orig_addr, *target_orig_addr, *sender_orig_addr;
 	proto_tree *batadv_vis_tree = NULL;
 
 	tvbuff_t *next_tvb;
@@ -3228,16 +3172,13 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	vis_packeth->seqno = tvb_get_ntohl(tvb, 4);
 	vis_packeth->ttl = tvb_get_guint8(tvb, 8);
 
-	vis_orig_addr = tvb_get_ptr(tvb, 9, 6);
 	TVB_SET_ADDRESS(&vis_packeth->vis_orig, AT_ETHER, tvb, 9, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 9, 6);
-	target_orig_addr = tvb_get_ptr(tvb, 15, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &vis_packeth->vis_orig);
 	TVB_SET_ADDRESS(&vis_packeth->target_orig, AT_ETHER, tvb, 15, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 15, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 15, 6);
-	sender_orig_addr = tvb_get_ptr(tvb, 21, 6);
-	TVB_SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, tvb, 21, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 21, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &vis_packeth->target_orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &vis_packeth->target_orig);
+    TVB_SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, tvb, 21, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &vis_packeth->sender_orig);
 
 
 	/* Set info column */
@@ -3275,13 +3216,13 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_vis_orig, tvb, offset, 6, vis_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_vis_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_target_orig, tvb, offset, 6, target_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_target_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_sender_orig, tvb, offset, 6, sender_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_sender_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	tap_queue_packet(batadv_tap, pinfo, vis_packeth);
@@ -3312,7 +3253,6 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v14 *vis_packeth;
-	const guint8  *vis_orig_addr, *target_orig_addr, *sender_orig_addr;
 	proto_tree *batadv_vis_tree = NULL;
 
 	tvbuff_t *next_tvb;
@@ -3328,16 +3268,13 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	vis_packeth->entries = tvb_get_guint8(tvb, 8);
 	vis_packeth->reserved = tvb_get_guint8(tvb, 9);
 
-	vis_orig_addr = tvb_get_ptr(tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 10, 6);
 	TVB_SET_ADDRESS(&vis_packeth->vis_orig, AT_ETHER, tvb, 10, 6);
-	target_orig_addr = tvb_get_ptr(tvb, 16, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &vis_packeth->vis_orig);
 	TVB_SET_ADDRESS(&vis_packeth->target_orig, AT_ETHER, tvb, 16, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 16, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 16, 6);
-	sender_orig_addr = tvb_get_ptr(tvb, 22, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &vis_packeth->target_orig);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &vis_packeth->target_orig);
 	TVB_SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, tvb, 22, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 22, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &vis_packeth->sender_orig);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
@@ -3377,13 +3314,13 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* Skip 1 byte of padding. */
 	offset += 1;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_vis_orig, tvb, offset, 6, vis_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_vis_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_target_orig, tvb, offset, 6, target_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_target_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_vis_tree, hf_batadv_vis_sender_orig, tvb, offset, 6, sender_orig_addr);
+	proto_tree_add_item(batadv_vis_tree, hf_batadv_vis_sender_orig, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	tap_queue_packet(batadv_tap, pinfo, vis_packeth);
@@ -3462,7 +3399,6 @@ static void dissect_batadv_tt_query(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	struct tt_query_packet_v14 *tt_query_packeth;
-	const guint8  *dst_addr, *src_addr;
 	proto_tree *batadv_tt_query_tree = NULL;
 
 	tvbuff_t *next_tvb;
@@ -3476,14 +3412,14 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	tt_query_packeth->ttl = tvb_get_guint8(tvb, 2);
 	tt_query_packeth->flags = tvb_get_guint8(tvb, 3);
 
-	dst_addr = tvb_get_ptr(tvb, 4, 6);
 	TVB_SET_ADDRESS(&tt_query_packeth->dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 4, 6);
-	src_addr = tvb_get_ptr(tvb, 10, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &tt_query_packeth->dst);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &tt_query_packeth->dst);
+
 	TVB_SET_ADDRESS(&tt_query_packeth->src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 10, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &tt_query_packeth->src);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &tt_query_packeth->src);
+
 	tt_query_packeth->ttvn = tvb_get_guint8(tvb, 16);
 	tt_query_packeth->tt_data = tvb_get_ntohs(tvb, 17);
 
@@ -3527,10 +3463,10 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 					ett_batadv_tt_query_flags, tt_query_flags, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_ether(batadv_tt_query_tree, hf_batadv_tt_query_dst, tvb, offset, 6, dst_addr);
+	proto_tree_add_item(batadv_tt_query_tree, hf_batadv_tt_query_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_tt_query_tree, hf_batadv_tt_query_src, tvb, offset, 6, src_addr);
+	proto_tree_add_item(batadv_tt_query_tree, hf_batadv_tt_query_src, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(batadv_tt_query_tree, hf_batadv_tt_query_ttvn, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3612,7 +3548,6 @@ static void dissect_batadv_roam_adv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct roam_adv_packet_v14 *roam_adv_packeth;
-	const guint8  *dst_addr, *src_addr, *client_addr;
 	proto_tree *batadv_roam_adv_tree = NULL;
 
 	tvbuff_t *next_tvb;
@@ -3623,15 +3558,12 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	roam_adv_packeth->version = tvb_get_guint8(tvb, 1);
 	roam_adv_packeth->ttl = tvb_get_guint8(tvb, 2);
-	dst_addr = tvb_get_ptr(tvb, 4, 6);
 	TVB_SET_ADDRESS(&roam_adv_packeth->dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&pinfo->dst, AT_ETHER, tvb, 4, 6);
-	src_addr = tvb_get_ptr(tvb, 10, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &roam_adv_packeth->dst);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &roam_adv_packeth->dst);
 	TVB_SET_ADDRESS(&roam_adv_packeth->src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 10, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, 10, 6);
-	client_addr = tvb_get_ptr(tvb, 16, 6);
+	COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &roam_adv_packeth->src);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &roam_adv_packeth->src);
 	TVB_SET_ADDRESS(&roam_adv_packeth->client, AT_ETHER, tvb, 16, 6);
 
 	/* Set info column */
@@ -3661,13 +3593,13 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 	/* Skip 1 byte of padding. */
 	offset += 1;
 
-	proto_tree_add_ether(batadv_roam_adv_tree, hf_batadv_roam_adv_dst, tvb, offset, 6, dst_addr);
+	proto_tree_add_item(batadv_roam_adv_tree, hf_batadv_roam_adv_dst, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_roam_adv_tree, hf_batadv_roam_adv_src, tvb, offset, 6, src_addr);
+	proto_tree_add_item(batadv_roam_adv_tree, hf_batadv_roam_adv_src, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	proto_tree_add_ether(batadv_roam_adv_tree, hf_batadv_roam_adv_client, tvb, offset, 6, client_addr);
+	proto_tree_add_item(batadv_roam_adv_tree, hf_batadv_roam_adv_client, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	tap_queue_packet(batadv_tap, pinfo, roam_adv_packeth);
