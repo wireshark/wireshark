@@ -251,7 +251,7 @@ static int cond_not_char(tvbparse_t* tt, const int offset, const tvbparse_wanted
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_NOT_CHAR) g_warning("cond_not_char: control='%s'",wanted->control.str);
 #endif
 
-    if (! offset < tt->end_offset ) {
+    if ( offset >= tt->end_offset ) {
         return -1;
     }
 
