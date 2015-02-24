@@ -1549,7 +1549,7 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     case NSPR_PDPKTRACEFULLTXB_V##type:\
     case NSPR_PDPKTRACEFULLRX_V##type:\
     case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-    TRACE_V##type##_REC_LEN_OFF((phdr),v##type##_full,fp,pktracefull_v##type);\
+        TRACE_V##type##_REC_LEN_OFF((phdr),v##type##_full,fp,pktracefull_v##type);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
         break;
 
