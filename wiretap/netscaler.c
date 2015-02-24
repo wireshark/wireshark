@@ -491,7 +491,6 @@ typedef struct nspr_pktracepart_v26
     TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)
 
 #define TRACE_PART_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    (phdr)->rec_type = REC_TYPE_PACKET;\
     (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
     (phdr)->len =  pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v10_s;\
     (phdr)->caplen =  pletoh16(&pp->nsprRecordSize);\
@@ -901,6 +900,10 @@ static gboolean nstrace_set_start_time(wtap *wth)
 /*
 ** Netscaler trace format read routines.
 */
+#define PACKET_DESCRIBE(phdr) \
+    (phdr)->rec_type = REC_TYPE_PACKET;\
+    (phdr)->presence_flags = WTAP_HAS_TS;
+
 static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
@@ -930,8 +933,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
              * as the time stamps in the records are relative to\
              * the previous packet.\
              */\
-            (phdr)->rec_type = REC_TYPE_PACKET;\
-            (phdr)->presence_flags = WTAP_HAS_TS;\
+            PACKET_DESCRIBE(phdr);\
             nsg_creltime += ns_hrtime2nsec(pletoh32(&fp->fp_RelTimeHr));\
             (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
             (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
@@ -954,8 +956,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
              * as the time stamps in the records are relative to\
              * the previous packet.\
              */\
-            (phdr)->rec_type = REC_TYPE_PACKET;\
-            (phdr)->presence_flags = WTAP_HAS_TS;\
+            PACKET_DESCRIBE(phdr);\
             nsg_creltime += ns_hrtime2nsec(pletoh32(&pp->pp_RelTimeHr));\
             (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
             (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
@@ -1010,6 +1011,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
     return FALSE;
 }
+
+#undef PACKET_DESCRIBE
 
 #define TIMEDEFV20(fp,type) \
     do {\
@@ -1311,6 +1314,15 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
+#define PACKET_DESCRIBE(phdr) \
+    /*\
+     * XXX - we can't set time stamps in the seek-read routine,\
+     * as the time stamps in the records are relative to\
+     * the previous packet.\
+     */\
+    (phdr)->rec_type = REC_TYPE_PACKET;\
+    (phdr)->presence_flags = 0;
+
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
@@ -1359,6 +1371,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
             fp = (nspr_pktracefull_v10_t *) pd;\
+            PACKET_DESCRIBE(phdr);\
             TRACE_FULL_V##type##_REC_LEN_OFF(phdr,v##type##_full,fp,pktracefull_v##type);\
             (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
             break;
@@ -1368,6 +1381,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
             pp = (nspr_pktracepart_v10_t *) pd;\
+            PACKET_DESCRIBE(phdr);\
             TRACE_PART_V##type##_REC_LEN_OFF(phdr,v##type##_part,pp,pktracepart_v##type);\
             (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##acttype;\
             break;
@@ -1383,6 +1397,8 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
 
     return TRUE;
 }
+
+#undef PACKET_DESCRIBE
 
 #define PACKET_DESCRIBE(phdr,FPTIMEDEF,SIZEDEF,ver,enumprefix,type,structname,TYPE)\
     do {\
