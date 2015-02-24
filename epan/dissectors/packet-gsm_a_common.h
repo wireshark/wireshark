@@ -25,8 +25,16 @@
  *   (3GPP TS 24.008 version 6.7.0 Release 6)
  *   (3GPP TS 24.008 version 6.8.0 Release 6)
  *
+ *   Reference [12]
+ *   Digital cellular telecommunications system (Phase 2+);
+ *   Group Call Control (GCC) protocol
+ *   (GSM 04.68 version 8.1.0 Release 1999)
+ *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
+ *
+ * Added Dissection of Group Call Control (GCC) protocol.
+ * Copyright 2015, Michail Koreshkov <michail.koreshkov [at] zte.com.cn
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1083,6 +1091,12 @@ typedef enum
     DE_TP_EPC_ELLIPSOID_POINT_WITH_ALT, /* ellipsoidPointWithAltitude */
     DE_TP_EPC_HORIZONTAL_VELOCITY,      /* horizontalVelocity */
     DE_TP_EPC_GNSS_TOD_MSEC,            /* gnss-TOD-msec */
+    /* Group Call Control Service Information Elements ETSI TS 100 948 V8.1.0 (GSM 04.68 version 8.1.0 Release 1999) */
+    DE_GCC_CALL_REF,                    /* Call Reference */
+    DE_GCC_CALL_STATE,                  /* Call state */
+    DE_GCC_CAUSE,                       /* Cause */
+    DE_GCC_ORIG_IND,                    /* Originator indication */
+    DE_GCC_STATE_ATTR,                  /* State attributes */
     DE_NONE                             /* NONE */
 }
 dtap_elem_idx_t;
