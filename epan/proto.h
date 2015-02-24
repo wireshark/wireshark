@@ -98,6 +98,9 @@ typedef void (*custom_fmt_func_64_t)(gchar *, guint64);
  * header_field_info.strings */
 #define RVALS(x) (const struct _range_string*)(x)
 
+/** Cast a ft_framenum_type_t, used to set header_field_info.strings */
+#define FRAMENUM_TYPE(x) GINT_TO_POINTER(x)
+
 struct _protocol;
 
 /** Structure for information about a protocol */

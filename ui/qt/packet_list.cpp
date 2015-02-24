@@ -425,7 +425,8 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
     proto_tree_ = proto_tree;
 
     connect(proto_tree_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
-    connect(proto_tree_, SIGNAL(relatedFrame(int)), this, SLOT(addRelatedFrame(int)));
+    connect(proto_tree_, SIGNAL(relatedFrame(int,ft_framenum_type_t)),
+            &related_packet_delegate_, SLOT(addRelatedFrame(int,ft_framenum_type_t)));
 }
 
 void PacketList::setByteViewTab (ByteViewTab *byte_view_tab) {
@@ -456,12 +457,13 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     if (!cap_file_->edt) return;
 
     if (proto_tree_ && cap_file_->edt->tree) {
-        proto_tree_->fillProtocolTree(cap_file_->edt->tree);
         packet_info *pi = &cap_file_->edt->pi;
+        related_packet_delegate_.setCurrentFrame(pi->fd->num);
+        proto_tree_->fillProtocolTree(cap_file_->edt->tree);
         conversation_t *conv = find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
                                                 pi->srcport, pi->destport, 0);
         if (conv) {
-            related_packet_delegate_.setConversationSpan(conv->setup_frame, conv->last_frame);
+            related_packet_delegate_.setConversation(conv);
         }
         viewport()->update();
     }
@@ -1036,11 +1038,6 @@ void PacketList::unsetAllTimeReferences()
         }
     }
     redrawVisiblePackets();
-}
-
-void PacketList::addRelatedFrame(int related_frame)
-{
-    related_packet_delegate_.addRelatedFrame(related_frame);
 }
 
 void PacketList::showHeaderMenu(QPoint pos)

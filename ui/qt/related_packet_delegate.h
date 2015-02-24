@@ -26,16 +26,23 @@
 
 #include "epan/conversation.h"
 
-#include <QList>
+#include <QHash>
 #include <QStyledItemDelegate>
+
+class QPainter;
+struct conversation;
 
 class RelatedPacketDelegate : public QStyledItemDelegate
 {
+    Q_OBJECT
 public:
-    RelatedPacketDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) { clear(); }
+    RelatedPacketDelegate(QWidget *parent = 0);
     void clear();
-    void addRelatedFrame(int frame_num);
-    void setConversationSpan(int first_frame, int last_frame);
+    void setCurrentFrame(guint32 current_frame) { current_frame_ = current_frame; }
+    void setConversation(struct conversation *conv);
+
+public slots:
+    void addRelatedFrame(int frame_num, ft_framenum_type_t framenum_type = FT_FRAMENUM_NONE);
 
 protected:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -44,10 +51,11 @@ protected:
                    const QModelIndex &index) const;
 
 private:
-    QList<int> related_frames_;
-    int first_frame_;
-    int last_frame_;
+    QHash<int, ft_framenum_type_t> related_frames_;
+    struct conversation *conv_;
+    guint32 current_frame_;
 
+    void drawArrow(QPainter *painter, QPoint tail, QPoint head, int head_size) const;
 signals:
 
 

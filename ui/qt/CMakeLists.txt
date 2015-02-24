@@ -85,6 +85,7 @@ set(WIRESHARK_QT_HEADERS
 	protocol_hierarchy_dialog.h
 	qcustomplot.h
 	recent_file_status.h
+	related_packet_delegate.h
 	rtp_stream_dialog.h
 	sctp_all_assocs_dialog.h
 	sctp_assoc_analyse_dialog.h
@@ -119,7 +120,6 @@ endif()
 file(GLOB EXTRA_QT_HEADERS
 	packet_list_record.h
 	qt_ui_utils.h
-	related_packet_delegate.h
 	sparkline_delegate.h
 	stock_icon.h
 )

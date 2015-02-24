@@ -97,6 +97,14 @@ enum ftenum {
 
 typedef enum ftenum ftenum_t;
 
+enum ft_framenum_type {
+    FT_FRAMENUM_NONE,
+    FT_FRAMENUM_REQUEST,
+    FT_FRAMENUM_RESPONSE
+};
+
+typedef enum ft_framenum_type ft_framenum_type_t;
+
 struct _ftype_t;
 typedef struct _ftype_t ftype_t;
 

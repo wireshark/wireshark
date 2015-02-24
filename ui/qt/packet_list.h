@@ -130,7 +130,6 @@ public slots:
     void applyRecentColumnWidths();
 
 private slots:
-    void addRelatedFrame(int related_frame);
     void showHeaderMenu(QPoint pos);
     void headerMenuTriggered();
     void columnVisibilityTriggered();

@@ -107,7 +107,8 @@ proto_tree_draw_node(proto_node *node, gpointer data)
             item->setData(0, Qt::FontRole, font);
 
             if (fi->hfinfo->type == FT_FRAMENUM) {
-                proto_tree->emitRelatedFrame(fi->value.value.uinteger);
+                ft_framenum_type_t framenum_type = (ft_framenum_type_t)GPOINTER_TO_INT(fi->hfinfo->strings);
+                proto_tree->emitRelatedFrame(fi->value.value.uinteger, framenum_type);
             }
         }
     }
@@ -294,9 +295,9 @@ void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {
     proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, invisibleRootItem());
 }
 
-void ProtoTree::emitRelatedFrame(int related_frame)
+void ProtoTree::emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_type)
 {
-    emit relatedFrame(related_frame);
+    emit relatedFrame(related_frame, framenum_type);
 }
 
 void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {

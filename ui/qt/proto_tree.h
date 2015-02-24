@@ -37,7 +37,7 @@ class ProtoTree : public QTreeWidget
 public:
     explicit ProtoTree(QWidget *parent = 0);
     void fillProtocolTree(proto_tree *protocol_tree);
-    void emitRelatedFrame(int related_frame);
+    void emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_type = FT_FRAMENUM_NONE);
     void clear();
 
 protected:
@@ -53,7 +53,7 @@ signals:
     void protoItemSelected(field_info *);
     void openPacketInNewWindow(bool);
     void goToPacket(int);
-    void relatedFrame(int);
+    void relatedFrame(int, ft_framenum_type_t);
 
 public slots:
     void setMonospaceFont(const QFont &mono_font);

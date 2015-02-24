@@ -5177,12 +5177,12 @@ proto_register_dns(void)
 
     { &hf_dns_response_in,
       { "Response In", "dns.response_in",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
         "The response to this DNS query is in this frame", HFILL }},
 
     { &hf_dns_response_to,
       { "Request In", "dns.response_to",
-        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
         "This is a response to the DNS query in this frame", HFILL }},
 
     { &hf_dns_time,

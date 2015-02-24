@@ -1872,7 +1872,7 @@ void proto_register_icmp(void)
 
 		{&hf_icmp_resp_in,
 		 {"Response frame", "icmp.resp_in", FT_FRAMENUM, BASE_NONE,
-		  NULL, 0x0,
+		  FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
 		  "The frame number of the corresponding response",
 		  HFILL}},
 
@@ -1884,7 +1884,7 @@ void proto_register_icmp(void)
 
 		{&hf_icmp_resp_to,
 		 {"Request frame", "icmp.resp_to", FT_FRAMENUM, BASE_NONE,
-		  NULL, 0x0,
+		  FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
 		  "The frame number of the corresponding request", HFILL}},
 
 		{&hf_icmp_resptime,

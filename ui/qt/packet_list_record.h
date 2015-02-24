@@ -35,6 +35,8 @@
 #include <QList>
 #include <QVariant>
 
+struct conversation;
+
 class PacketListRecord
 {
 public:
@@ -44,6 +46,7 @@ public:
     frame_data *frameData() const { return fdata_; }
     // packet_list->col_to_text in gtk/packet_list_store.c
     static int textColumn(int column) { return cinfo_column_.value(column, -1); }
+    struct conversation *conversation() { return conv_; }
 
     int columnTextSize(const char *str);
     static void resetColumns(column_info *cinfo);
@@ -62,6 +65,9 @@ private:
     unsigned data_ver_;
     /** Has this record been colorized? */
     bool colorized_;
+
+    /** Conversation. Used by RelatedPacketDelegate */
+    struct conversation *conv_;
 
     void dissect(capture_file *cap_file, bool dissect_color = false);
     void cacheColumnStrings(column_info *cinfo);

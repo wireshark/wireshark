@@ -22,21 +22,44 @@
 #include "related_packet_delegate.h"
 #include "packet_list_record.h"
 
-#include <QPainter>
+#include "color_utils.h"
+
 #include <QApplication>
+#include <QPainter>
+
+// To do:
+// - Add other frame types and symbols (ACKs, etc).
+// - Add tooltips. It looks like this needs to be done in
+//   PacketListModel::data.
+// - Add "Go -> Next Related" and "Go -> Previous Related"?
+// - Apply as filter?
+
+RelatedPacketDelegate::RelatedPacketDelegate(QWidget *parent) :
+    QStyledItemDelegate(parent),
+    conv_(NULL),
+    current_frame_(0)
+{
+    clear();
+}
 
 void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
-    int en_w = option.fontMetrics.height() / 2;
-
     QStyleOptionViewItemV4 optv4 = option;
     QStyledItemDelegate::initStyleOption(&optv4, index);
+    int em_w = optv4.fontMetrics.height();
+    int en_w = (em_w + 1) / 2;
 
     optv4.features |= QStyleOptionViewItemV4::HasDecoration;
     optv4.decorationSize.setHeight(1);
-    optv4.decorationSize.setWidth(en_w);
+    optv4.decorationSize.setWidth(em_w);
     QStyledItemDelegate::paint(painter, optv4, index);
+
+    guint32 setup_frame = 0, last_frame = 0;
+    if (conv_) {
+        setup_frame = (int) conv_->setup_frame;
+        last_frame = (int) conv_->last_frame;
+    }
 
     const frame_data *fd;
     PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
@@ -62,41 +85,78 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     } else {
         fg = optv4.palette.color(cg, QPalette::Text);
     }
-    qreal alpha = 0.20; // Arbitrary. Should arguably be a preference.
 
-    // We draw in the same place more than once so we first draw on a
-    // QImage at 100% opacity then draw that on our packet list item.
-    QImage overlay = QImage(en_w * 2, optv4.rect.height(), QImage::Format_ARGB32_Premultiplied);
-    QPainter op(&overlay);
+    fg = ColorUtils::alphaBlend(fg, optv4.palette.color(cg, QPalette::Base), 0.5);
+    QPen line_pen(fg);
+    line_pen.setWidth(optv4.fontMetrics.lineWidth());
+    line_pen.setJoinStyle(Qt::RoundJoin);
 
-    overlay.fill(Qt::transparent);
-    op.setPen(fg);
-    op.translate(en_w + 0.5, 0.5);
-    op.setRenderHint(QPainter::Antialiasing, true);
+    painter->setPen(line_pen);
+    painter->translate(optv4.rect.x(), optv4.rect.y());
+    painter->translate(en_w + 0.5, 0.5);
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    int height = optv4.rect.height();
+
+    // Uncomment to make the boundary visible.
+//    painter->save();
+//    painter->setPen(Qt::darkRed);
+//    painter->drawRect(QRectF(0.5, 0.5, en_w - 1, height - 1));
+//    painter->restore();
 
     // The current decorations are based on what looked good and were easy
-    // to code. W might want to improve them by drawing small dots or tick
-    // marks for frames in the same conversation XOR draw a gap for unrelated
-    // frames.
-    if (first_frame_ > 0 && last_frame_ > 0 && first_frame_ != last_frame_) {
-        int height = optv4.rect.height();
-        if ((int) fd->num == first_frame_) {
-            op.drawLine(0, height / 2, 0, height);
-            op.drawLine(1, height / 2, en_w, height / 2);
-        } else if ((int) fd->num > first_frame_ && (int) fd->num < last_frame_) {
-            op.drawLine(0, 0, 0, height);
-        } else if ((int) fd->num == last_frame_) {
-            op.drawLine(0, 0, 0, height / 2);
-            op.drawLine(1, height / 2, en_w, height / 2);
+    // to code.
+
+    // Vertical line. Lower and upper half for the start and end of the
+    // conversation respectively, solid for conversation member, dashed
+    // for other packets in the start-end range.
+    if (setup_frame > 0 && last_frame > 0 && setup_frame != last_frame) {
+        if (fd->num == setup_frame) {
+            painter->drawLine(0, height / 2, 0, height);
+            painter->drawLine(1, height / 2, en_w - 1, height / 2);
+        } else if (fd->num > setup_frame && fd->num < last_frame) {
+            painter->save();
+            if (conv_ != record->conversation()) {
+                QPen other_pen(line_pen);
+                other_pen.setStyle(Qt::DashLine);
+                painter->setPen(other_pen);
+            }
+            painter->drawLine(0, 0, 0, height);
+            painter->restore();
+        } else if (fd->num == last_frame) {
+            painter->drawLine(0, 0, 0, height / 2);
+            painter->drawLine(1, height / 2, en_w, height / 2);
         }
     }
+
+    // Related packet indicator. Rightward arrow for requests, leftward
+    // arrow for responses, circle for others.
     if (related_frames_.contains(fd->num)) {
-        op.setBrush(fg);
-        op.drawEllipse(QPointF(0.0, optv4.rect.height() / 2), 2, 2);
+        painter->setBrush(fg);
+        switch (related_frames_[fd->num]) {
+        // Request and response arrows are moved forward one pixel in order to
+        // maximize white space between the heads and the conversation line.
+        case FT_FRAMENUM_REQUEST:
+        {
+            int hh = height / 2;
+            QPoint tail(2 - en_w, hh);
+            QPoint head(en_w, hh);
+            drawArrow(painter, tail, head, hh / 2);
+            break;
+        }
+        case FT_FRAMENUM_RESPONSE:
+        {
+            int hh = height / 2;
+            QPoint tail(en_w - 1, hh);
+            QPoint head(1 - en_w, hh);
+            drawArrow(painter, tail, head, hh / 2);
+            break;
+        }
+        case FT_FRAMENUM_NONE:
+        default:
+            painter->drawEllipse(QPointF(0.0, optv4.rect.height() / 2), 2, 2);
+        }
     }
 
-    painter->setOpacity(alpha);
-    painter->drawImage(optv4.rect.x(), optv4.rect.y(), overlay);
     painter->restore();
 }
 
@@ -106,21 +166,47 @@ QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
                  QStyledItemDelegate::sizeHint(option, index).height());
 }
 
+void RelatedPacketDelegate::drawArrow(QPainter *painter, QPoint tail, QPoint head, int head_size) const
+{
+    int x_mul = head.x() > tail.x() ? -1 : 1;
+    QPoint head_points[] = {
+        head,
+        QPoint(head.x() + (head_size * x_mul), head.y() + (head_size / 2)),
+        QPoint(head.x() + (head_size * x_mul), head.y() - (head_size / 2)),
+    };
+
+    painter->drawLine(tail.x(), tail.y(), head.x() + (head_size * x_mul), head.y());
+    painter->drawPolygon(head_points, 3);
+}
+
 void RelatedPacketDelegate::clear()
 {
     related_frames_.clear();
-    first_frame_ = last_frame_ = -1;
+    current_frame_ = 0;
+    conv_ = NULL;
 }
 
-void RelatedPacketDelegate::addRelatedFrame(int frame_num)
+void RelatedPacketDelegate::addRelatedFrame(int frame_num, ft_framenum_type_t framenum_type)
 {
-    related_frames_ << frame_num;
+    related_frames_[frame_num] = framenum_type;
+    // Last match wins. Last match might not make sense, however.
+    if (current_frame_ > 0) {
+        switch (framenum_type) {
+        case FT_FRAMENUM_REQUEST:
+            related_frames_[current_frame_] = FT_FRAMENUM_RESPONSE;
+            break;
+        case FT_FRAMENUM_RESPONSE:
+            related_frames_[current_frame_] = FT_FRAMENUM_REQUEST;
+            break;
+        default:
+            break;
+        }
+    }
 }
 
-void RelatedPacketDelegate::setConversationSpan(int first_frame, int last_frame)
+void RelatedPacketDelegate::setConversation(conversation *conv)
 {
-    first_frame_ = first_frame;
-    last_frame_ = last_frame;
+    conv_ = conv;
 }
 
 /*
