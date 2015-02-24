@@ -45,7 +45,7 @@ public:
     ~ModulePreferencesScrollArea();
 
 protected:
-    void showEvent(QShowEvent *evt);
+    void showEvent(QShowEvent *);
     void resizeEvent(QResizeEvent *evt);
 
 private:

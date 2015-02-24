@@ -47,6 +47,15 @@ Q_DECLARE_METATYPE(pref_t *)
 
 const char *pref_prop_ = "pref_ptr";
 
+// Escape our ampersands so that Qt won't try to interpret them as
+// mnemonics.
+static const QString title_to_shortcut(const char *title) {
+    QString shortcut_str(title);
+    shortcut_str.replace('&', "&&");
+    return shortcut_str;
+}
+
+
 extern "C" {
 // Callbacks prefs routines
 
@@ -77,7 +86,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
     }
     case PREF_BOOL:
     {
-        QCheckBox *bool_cb = new QCheckBox(pref->title);
+        QCheckBox *bool_cb = new QCheckBox(title_to_shortcut(pref->title));
         bool_cb->setToolTip(tooltip);
         bool_cb->setProperty(pref_prop_, qVariantFromValue(pref));
         vb->addWidget(bool_cb);
@@ -94,7 +103,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
             vb->addWidget(label);
             QButtonGroup *enum_bg = new QButtonGroup();
             for (ev = pref->info.enum_info.enumvals; ev && ev->description; ev++) {
-                QRadioButton *enum_rb = new QRadioButton(ev->description);
+                QRadioButton *enum_rb = new QRadioButton(title_to_shortcut(ev->description));
                 enum_rb->setToolTip(tooltip);
                 QStyleOption style_opt;
                 enum_rb->setProperty(pref_prop_, qVariantFromValue(pref));
@@ -301,9 +310,8 @@ ModulePreferencesScrollArea::~ModulePreferencesScrollArea()
     delete ui;
 }
 
-void ModulePreferencesScrollArea::showEvent(QShowEvent *evt)
+void ModulePreferencesScrollArea::showEvent(QShowEvent *)
 {
-    Q_UNUSED(evt)
     updateWidgets();
 }
 
