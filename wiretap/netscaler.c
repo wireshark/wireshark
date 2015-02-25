@@ -1420,6 +1420,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
 #define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
+        (phdr)->rec_type = REC_TYPE_PACKET;\
         FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
@@ -1541,6 +1542,17 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     return TRUE;
 }
 
+#undef PACKET_DESCRIBE
+
+#define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
+    do {\
+        nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
+        (phdr)->rec_type = REC_TYPE_PACKET;\
+        FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
+        TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
+        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
+        return TRUE;\
+    }while(0)
 
 static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
@@ -1603,16 +1615,13 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
             return FALSE;
         }
     }
-    (phdr)->caplen = (phdr)->len = record_length;
 
 #define GENERATE_CASE_V30(phdr,ver,HEADERVER) \
     case NSPR_PDPKTRACEFULLTX_V##ver:\
     case NSPR_PDPKTRACEFULLTXB_V##ver:\
     case NSPR_PDPKTRACEFULLRX_V##ver:\
     case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-        TRACE_V##ver##_REC_LEN_OFF((phdr),v##ver##_full,fp,pktracefull_v##ver);\
-        (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
-        break;
+        PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
         switch ((( nspr_hd_v20_t*)pd)->phd_RecordType)
         {
