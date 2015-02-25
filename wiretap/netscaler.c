@@ -968,17 +968,17 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             ((nstrace_buflen - nstrace_buf_offset) >= ((gint32)sizeof(fp->nsprRecordType))))
         {
 
-#define GENERATE_CASE_FULL(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEFULLTX_V##type:\
-        case NSPR_PDPKTRACEFULLTXB_V##type:\
-        case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,full,fp,type,HEADERVER);
+#define GENERATE_CASE_FULL(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEFULLTX_V##ver:\
+        case NSPR_PDPKTRACEFULLTXB_V##ver:\
+        case NSPR_PDPKTRACEFULLRX_V##ver:\
+            PACKET_DESCRIBE(phdr,FULL,full,fp,ver,HEADERVER);
 
-#define GENERATE_CASE_PART(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEPARTTX_V##type:\
-        case NSPR_PDPKTRACEPARTTXB_V##type:\
-        case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(phdr,PART,part,pp,type,HEADERVER);
+#define GENERATE_CASE_PART(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEPARTTX_V##ver:\
+        case NSPR_PDPKTRACEPARTTXB_V##ver:\
+        case NSPR_PDPKTRACEPARTRX_V##ver:\
+            PACKET_DESCRIBE(phdr,PART,part,pp,ver,HEADERVER);
 
             switch (pletoh16(&(( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))
             {
@@ -1127,31 +1127,31 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
             switch ((( nspr_hd_v20_t*)&nstrace_buf[nstrace_buf_offset])->phd_RecordType)
             {
 
-#define GENERATE_CASE_FULL(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEFULLTX_V##type:\
-        case NSPR_PDPKTRACEFULLTXB_V##type:\
-        case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+#define GENERATE_CASE_FULL(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEFULLTX_V##ver:\
+        case NSPR_PDPKTRACEFULLTXB_V##ver:\
+        case NSPR_PDPKTRACEFULLRX_V##ver:\
+            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_FULL_V25(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEFULLTX_V##type:\
-        case NSPR_PDPKTRACEFULLTXB_V##type:\
-        case NSPR_PDPKTRACEFULLRX_V##type:\
-        case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+#define GENERATE_CASE_FULL_V25(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEFULLTX_V##ver:\
+        case NSPR_PDPKTRACEFULLTXB_V##ver:\
+        case NSPR_PDPKTRACEFULLRX_V##ver:\
+        case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
+            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEPARTTX_V##type:\
-        case NSPR_PDPKTRACEPARTTXB_V##type:\
-        case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(phdr,PART,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
+#define GENERATE_CASE_PART(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEPARTTX_V##ver:\
+        case NSPR_PDPKTRACEPARTTXB_V##ver:\
+        case NSPR_PDPKTRACEPARTRX_V##ver:\
+            PACKET_DESCRIBE(phdr,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART_V25(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEPARTTX_V##type:\
-        case NSPR_PDPKTRACEPARTTXB_V##type:\
-        case NSPR_PDPKTRACEPARTRX_V##type:\
-        case NSPR_PDPKTRACEPARTNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,PART,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
+#define GENERATE_CASE_PART_V25(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEPARTTX_V##ver:\
+        case NSPR_PDPKTRACEPARTTXB_V##ver:\
+        case NSPR_PDPKTRACEPARTRX_V##ver:\
+        case NSPR_PDPKTRACEPARTNEWRX_V##ver:\
+            PACKET_DESCRIBE(phdr,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
                 GENERATE_CASE_FULL(&wth->phdr,20,200);
                 GENERATE_CASE_PART(&wth->phdr,20,200);
@@ -1283,12 +1283,12 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
             switch (hdp->phd_RecordType)
             {
 
-#define GENERATE_CASE_V30(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEFULLTX_V##type:\
-        case NSPR_PDPKTRACEFULLTXB_V##type:\
-        case NSPR_PDPKTRACEFULLRX_V##type:\
-        case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+#define GENERATE_CASE_V30(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEFULLTX_V##ver:\
+        case NSPR_PDPKTRACEFULLTXB_V##ver:\
+        case NSPR_PDPKTRACEFULLRX_V##ver:\
+        case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
+            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
                 GENERATE_CASE_V30(&wth->phdr,30, 300);
 
@@ -1491,31 +1491,31 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
         }
     }
 
-#define GENERATE_CASE_FULL(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEFULLTX_V##type:\
-        case NSPR_PDPKTRACEFULLTXB_V##type:\
-        case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+#define GENERATE_CASE_FULL(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEFULLTX_V##ver:\
+        case NSPR_PDPKTRACEFULLTXB_V##ver:\
+        case NSPR_PDPKTRACEFULLRX_V##ver:\
+            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_FULL_V25(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEFULLTX_V##type:\
-        case NSPR_PDPKTRACEFULLTXB_V##type:\
-        case NSPR_PDPKTRACEFULLRX_V##type:\
-        case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+#define GENERATE_CASE_FULL_V25(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEFULLTX_V##ver:\
+        case NSPR_PDPKTRACEFULLTXB_V##ver:\
+        case NSPR_PDPKTRACEFULLRX_V##ver:\
+        case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
+            PACKET_DESCRIBE(phdr,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEPARTTX_V##type:\
-        case NSPR_PDPKTRACEPARTTXB_V##type:\
-        case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(phdr,PART,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
+#define GENERATE_CASE_PART(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEPARTTX_V##ver:\
+        case NSPR_PDPKTRACEPARTTXB_V##ver:\
+        case NSPR_PDPKTRACEPARTRX_V##ver:\
+            PACKET_DESCRIBE(phdr,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART_V25(phdr,type,HEADERVER) \
-        case NSPR_PDPKTRACEPARTTX_V##type:\
-        case NSPR_PDPKTRACEPARTTXB_V##type:\
-        case NSPR_PDPKTRACEPARTRX_V##type:\
-        case NSPR_PDPKTRACEPARTNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,PART,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
+#define GENERATE_CASE_PART_V25(phdr,ver,HEADERVER) \
+        case NSPR_PDPKTRACEPARTTX_V##ver:\
+        case NSPR_PDPKTRACEPARTTXB_V##ver:\
+        case NSPR_PDPKTRACEPARTRX_V##ver:\
+        case NSPR_PDPKTRACEPARTNEWRX_V##ver:\
+            PACKET_DESCRIBE(phdr,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
     switch ((( nspr_hd_v20_t*)pd)->phd_RecordType)
     {
@@ -1607,12 +1607,12 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     }
     (phdr)->caplen = (phdr)->len = record_length;
 
-#define GENERATE_CASE_V30(phdr,type,HEADERVER) \
-    case NSPR_PDPKTRACEFULLTX_V##type:\
-    case NSPR_PDPKTRACEFULLTXB_V##type:\
-    case NSPR_PDPKTRACEFULLRX_V##type:\
-    case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-        TRACE_V##type##_REC_LEN_OFF((phdr),v##type##_full,fp,pktracefull_v##type);\
+#define GENERATE_CASE_V30(phdr,ver,HEADERVER) \
+    case NSPR_PDPKTRACEFULLTX_V##ver:\
+    case NSPR_PDPKTRACEFULLTXB_V##ver:\
+    case NSPR_PDPKTRACEFULLRX_V##ver:\
+    case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
+        TRACE_V##ver##_REC_LEN_OFF((phdr),v##ver##_full,fp,pktracefull_v##ver);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         break;
 
