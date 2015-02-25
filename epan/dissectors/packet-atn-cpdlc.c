@@ -5427,17 +5427,18 @@ dissect_atn_cpdlc_heur(
 					TRY {
 						dissect_ProtectedGroundPDUs_PDU(tvb, pinfo, NULL, NULL);
 						is_atn_cpdlc = TRUE;
-						is_pm = TRUE;
-						break;}
+						is_pm = TRUE;}
 					CATCH_ALL{
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE;}
 					ENDTRY;
+					if (is_atn_cpdlc) {
+						break;
+					}
 					TRY {
 		        dissect_GroundPDUs_PDU(tvb, pinfo, NULL, NULL);
 						is_pm = FALSE;
-						is_atn_cpdlc = TRUE;
-						break;}
+						is_atn_cpdlc = TRUE;}
 					CATCH_ALL{
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE;}
@@ -5447,17 +5448,18 @@ dissect_atn_cpdlc_heur(
 					TRY {
 						dissect_ProtectedAircraftPDUs_PDU(tvb, pinfo, NULL, NULL);
 						is_atn_cpdlc = TRUE;
-						is_pm = TRUE;
-						break;}
+						is_pm = TRUE;}
 					CATCH_ALL {
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE; }
 					ENDTRY;
+					if (is_atn_cpdlc) {
+						break;
+					}
 					TRY{
 						dissect_AircraftPDUs_PDU(tvb, pinfo, NULL, NULL);
 						is_atn_cpdlc = TRUE;
-						is_pm = FALSE;
-						break;}
+						is_pm = FALSE;}
 					CATCH_ALL{
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE;}
@@ -7921,7 +7923,7 @@ void proto_register_atn_cpdlc (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-cpdlc-hfarr.c ---*/
-#line 307 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 309 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 			};
 
 		static gint *ett[] = {
@@ -8072,7 +8074,7 @@ void proto_register_atn_cpdlc (void)
     &ett_atn_cpdlc_WindSpeed,
 
 /*--- End of included file: packet-atn-cpdlc-ettarr.c ---*/
-#line 311 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 313 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 				&ett_atn_cpdlc
 		};
 
