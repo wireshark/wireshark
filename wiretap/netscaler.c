@@ -507,17 +507,6 @@ typedef struct nspr_pktracepart_v26
     __TNV1L(phdr,enumprefix,structprefix,structname,nicno,phd.ph_DevNo)\
     __TNO(phdr,enumprefix,structprefix,structname,eth,Data)
 
-#define TRACE_FULL_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    (phdr)->len = pletoh16(&(fp)->nsprRecordSize);\
-    (phdr)->caplen = (phdr)->len;\
-    TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)
-
-#define TRACE_PART_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
-    (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
-    (phdr)->len =  pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v10_s;\
-    (phdr)->caplen =  pletoh16(&pp->nsprRecordSize);\
-    TRACE_V10_REC_LEN_OFF(phdr,enumprefix,structprefix,structname)
-
 #define TRACE_V20_REC_LEN_OFF(phdr,enumprefix,structprefix,structname) \
     __TNO(phdr,enumprefix,structprefix,structname,dir,RecordType)\
     __TNL(phdr,enumprefix,structprefix,structname,dir,RecordType)\
@@ -926,6 +915,19 @@ static gboolean nstrace_set_start_time(wtap *wth)
 /*
 ** Netscaler trace format read routines.
 */
+#define PARTSIZEDEFV10(phdr,pp,ver) \
+    do {\
+        (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
+        (phdr)->len = pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
+        (phdr)->caplen = pletoh16(&pp->nsprRecordSize);\
+    }while(0)
+
+#define FULLSIZEDEFV10(phdr,fp,ver) \
+    do {\
+        (phdr)->len = pletoh16(&(fp)->nsprRecordSize);\
+        (phdr)->caplen = (phdr)->len;\
+    }while(0)
+
 #define PACKET_DESCRIBE(phdr,FULLPART,fullpart,ver,type,HEADERVER) \
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
@@ -939,7 +941,8 @@ static gboolean nstrace_set_start_time(wtap *wth)
         nsg_creltime += ns_hrtime2nsec(pletoh32(&type->type##_RelTimeHr));\
         (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
         (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
-        TRACE_##FULLPART##_V##ver##_REC_LEN_OFF(phdr,v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
+        FULLPART##SIZEDEFV##ver((phdr),type,ver);\
+        TRACE_V##ver##_REC_LEN_OFF((phdr),v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
         buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
         memcpy(buffer_start_ptr(wth->frame_buffer), type, (phdr)->caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
@@ -1335,7 +1338,8 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
          * the previous packet.\
          */\
         (phdr)->presence_flags = 0;\
-        TRACE_##FULLPART##_V##ver##_REC_LEN_OFF(phdr,v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
+        FULLPART##SIZEDEFV##ver((phdr),type,ver);\
+        TRACE_V##ver##_REC_LEN_OFF(phdr,v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
     }while(0)
 
