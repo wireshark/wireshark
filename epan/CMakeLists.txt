@@ -196,6 +196,9 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-acp133.c
 	dissectors/packet-acse.c
 	dissectors/packet-ansi_tcap.c
+	dissectors/packet-atn-ulcs.c
+	dissectors/packet-atn-cm.c
+	dissectors/packet-atn-cpdlc.c
 	dissectors/packet-c1222.c
 	dissectors/packet-camel.c
 	dissectors/packet-cdt.c
