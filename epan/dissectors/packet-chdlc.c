@@ -47,6 +47,7 @@ void proto_reg_handoff_slarp(void);
 
 static int proto_chdlc = -1;
 static int hf_chdlc_addr = -1;
+static int hf_chdlc_control = -1;
 static int hf_chdlc_proto = -1;
 static int hf_chdlc_clns_padding = -1;
 
@@ -161,7 +162,6 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
-  guint8      addr;
   guint16     proto;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CHDLC");
@@ -185,14 +185,14 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
   }
 
-  addr = tvb_get_guint8(tvb, 0);
   proto = tvb_get_ntohs(tvb, 2);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_chdlc, tvb, 0, 4, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_chdlc);
 
-    proto_tree_add_uint(fh_tree, hf_chdlc_addr, tvb, 0, 1, addr);
+    proto_tree_add_item(fh_tree, hf_chdlc_addr, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(fh_tree, hf_chdlc_control, tvb, 1, 1, ENC_NA);
   }
 
   decode_fcs(tvb, fh_tree, chdlc_fcs_decode, 2);
@@ -207,6 +207,9 @@ proto_register_chdlc(void)
     { &hf_chdlc_addr,
       { "Address", "chdlc.address", FT_UINT8, BASE_HEX,
         VALS(chdlc_address_vals), 0x0, NULL, HFILL }},
+    { &hf_chdlc_control,
+      { "Control", "chdlc.control", FT_UINT8, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
     { &hf_chdlc_proto,
       { "Protocol", "chdlc.protocol", FT_UINT16, BASE_HEX,
         VALS(chdlc_vals), 0x0, NULL, HFILL }},
@@ -225,7 +228,7 @@ proto_register_chdlc(void)
   proto_register_field_array(proto_chdlc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-/* subdissector code */
+  /* subdissector code */
   subdissector_table = register_dissector_table("chdlc.protocol",
                                                 "Cisco HDLC protocol",
                                                 FT_UINT16, BASE_HEX);
