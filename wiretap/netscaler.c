@@ -1288,8 +1288,10 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
         case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-        PACKET_DESCRIBE(phdr, TIMEDEF, FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
-        GENERATE_CASE_V30(&wth->phdr,30, 300);
+            PACKET_DESCRIBE(phdr, TIMEDEF, FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+
+                GENERATE_CASE_V30(&wth->phdr,30, 300);
+
 #undef GENERATE_CASE_V30
 
                 case NSPR_ABSTIME_V20:
