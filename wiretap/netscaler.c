@@ -1057,46 +1057,46 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define TIMEDEFV25(fp,type) TIMEDEFV24(fp,type)
 #define TIMEDEFV26(fp,type) TIMEDEFV24(fp,type)
 
-#define PPSIZEDEFV20(phdr,pp,ver) \
+#define PARTSIZEDEFV20(phdr,pp,ver) \
     do {\
         (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
         (phdr)->len = pletoh16(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
         (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)pp);\
     }while(0)
 
-#define PPSIZEDEFV21(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
-#define PPSIZEDEFV22(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
-#define PPSIZEDEFV23(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
-#define PPSIZEDEFV24(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
-#define PPSIZEDEFV25(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
-#define PPSIZEDEFV26(phdr,pp,ver) PPSIZEDEFV20(phdr,pp,ver)
+#define PARTSIZEDEFV21(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
+#define PARTSIZEDEFV22(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
+#define PARTSIZEDEFV23(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
+#define PARTSIZEDEFV24(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
+#define PARTSIZEDEFV25(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
+#define PARTSIZEDEFV26(phdr,pp,ver) PARTSIZEDEFV20(phdr,pp,ver)
 
-#define FPSIZEDEFV20(phdr,fp,ver)\
+#define FULLSIZEDEFV20(phdr,fp,ver)\
     do {\
         (phdr)->len = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         (phdr)->caplen = (phdr)->len;\
     }while(0)
 
-#define FPSIZEDEFV21(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
-#define FPSIZEDEFV22(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
-#define FPSIZEDEFV23(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
-#define FPSIZEDEFV24(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
-#define FPSIZEDEFV25(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
-#define FPSIZEDEFV26(phdr,fp,ver) FPSIZEDEFV20(phdr,fp,ver)
+#define FULLSIZEDEFV21(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
+#define FULLSIZEDEFV22(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
+#define FULLSIZEDEFV23(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
+#define FULLSIZEDEFV24(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
+#define FULLSIZEDEFV25(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
+#define FULLSIZEDEFV26(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
 
-#define FPSIZEDEFV30(phdr,fp,ver)\
+#define FULLSIZEDEFV30(phdr,fp,ver)\
     do {\
         (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
         (phdr)->len = pletoh16(&fp->fp_PktSizeOrg) + nspr_pktracefull_v##ver##_s;\
         (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
     }while(0)
 
-#define PACKET_DESCRIBE(phdr,SIZEDEF,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)&nstrace_buf[nstrace_buf_offset];\
         (phdr)->rec_type = REC_TYPE_PACKET;\
         TIMEDEFV##ver(fp,type);\
-        SIZEDEF##ver((phdr),fp,ver);\
+        FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
@@ -1131,27 +1131,27 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(phdr,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
 
 #define GENERATE_CASE_FULL_V25(phdr,type,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
         case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
 
 #define GENERATE_CASE_PART(phdr,type,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(phdr,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,PART,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
 
 #define GENERATE_CASE_PART_V25(phdr,type,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
         case NSPR_PDPKTRACEPARTNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,PART,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
 
                 GENERATE_CASE_FULL(&wth->phdr,20,200);
                 GENERATE_CASE_PART(&wth->phdr,20,200);
@@ -1217,12 +1217,12 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
-#define PACKET_DESCRIBE(phdr,SIZEDEF,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
         (phdr)->rec_type = REC_TYPE_PACKET;\
         TIMEDEFV##ver(fp,type);\
-        SIZEDEF##ver((phdr),fp,ver);\
+        FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
@@ -1288,7 +1288,7 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
         case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
 
                 GENERATE_CASE_V30(&wth->phdr,30, 300);
 
@@ -1419,10 +1419,10 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
 
 #undef PACKET_DESCRIBE
 
-#define PACKET_DESCRIBE(phdr,SIZEDEF,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
-        SIZEDEF##ver((phdr),fp,ver);\
+        FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         return TRUE;\
@@ -1495,27 +1495,27 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(phdr,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
 
 #define GENERATE_CASE_FULL_V25(phdr,type,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
         case NSPR_PDPKTRACEFULLNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,FPSIZEDEFV,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,FULL,type,v##type##_full,fp,pktracefull_v##type,HEADERVER);
 
 #define GENERATE_CASE_PART(phdr,type,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(phdr,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,PART,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
 
 #define GENERATE_CASE_PART_V25(phdr,type,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
         case NSPR_PDPKTRACEPARTNEWRX_V##type:\
-            PACKET_DESCRIBE(phdr,PPSIZEDEFV,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
+            PACKET_DESCRIBE(phdr,PART,type,v##type##_part,pp,pktracepart_v##type,HEADERVER);
 
     switch ((( nspr_hd_v20_t*)pd)->phd_RecordType)
     {
