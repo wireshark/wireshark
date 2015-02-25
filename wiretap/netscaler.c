@@ -926,9 +926,9 @@ static gboolean nstrace_set_start_time(wtap *wth)
 /*
 ** Netscaler trace format read routines.
 */
-#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,fpp,type,HEADERVER) \
+#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,ver,fpp,HEADERVER) \
     do {\
-        fpp = (nspr_pktrace##fullpart##_v10_t *) &nstrace_buf[nstrace_buf_offset];\
+        fpp = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         (phdr)->rec_type = REC_TYPE_PACKET;\
         /*\
          * XXX - we can't set time stamps in the seek-read routine,\
@@ -939,7 +939,7 @@ static gboolean nstrace_set_start_time(wtap *wth)
         nsg_creltime += ns_hrtime2nsec(pletoh32(&fpp->fpp##_RelTimeHr));\
         (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
         (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
-        TRACE_##FULLPART##_V##type##_REC_LEN_OFF(phdr,v##type##_##fullpart,fpp,pktrace##fullpart##_v##type);\
+        TRACE_##FULLPART##_V##ver##_REC_LEN_OFF(phdr,v##ver##_##fullpart,fpp,pktrace##fullpart##_v##ver);\
         buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
         memcpy(buffer_start_ptr(wth->frame_buffer), fpp, (phdr)->caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
@@ -972,13 +972,13 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
-            PACKET_DESCRIBE(phdr,FULL,full,fp,ver,HEADERVER);
+            PACKET_DESCRIBE(phdr,FULL,full,ver,fp,HEADERVER);
 
 #define GENERATE_CASE_PART(phdr,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
-            PACKET_DESCRIBE(phdr,PART,part,pp,ver,HEADERVER);
+            PACKET_DESCRIBE(phdr,PART,part,ver,pp,HEADERVER);
 
             switch (pletoh16(&(( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))
             {
@@ -1325,9 +1325,9 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
-#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,fpp,type,HEADERVER) \
+#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,ver,fpp,HEADERVER) \
     do {\
-        fpp = (nspr_pktrace##fullpart##_v10_t *) pd;\
+        fpp = (nspr_pktrace##fullpart##_v##ver##_t *) pd;\
         (phdr)->rec_type = REC_TYPE_PACKET;\
         /*\
          * XXX - we can't set time stamps in the seek-read routine,\
@@ -1335,7 +1335,7 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
          * the previous packet.\
          */\
         (phdr)->presence_flags = 0;\
-        TRACE_##FULLPART##_V##type##_REC_LEN_OFF(phdr,v##type##_##fullpart,fpp,pktrace##fullpart##_v##type);\
+        TRACE_##FULLPART##_V##ver##_REC_LEN_OFF(phdr,v##ver##_##fullpart,fpp,pktrace##fullpart##_v##ver);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
     }while(0)
 
@@ -1395,14 +1395,14 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,full,fp,type,HEADERVER);\
+            PACKET_DESCRIBE(phdr,FULL,full,type,fp,HEADERVER);\
             break;
 
 #define GENERATE_CASE_PART(phdr,type,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(phdr,PART,part,pp,type,HEADERVER);\
+            PACKET_DESCRIBE(phdr,PART,part,type,pp,HEADERVER);\
             break;
 
     switch (pletoh16(&(( nspr_header_v10_t*)pd)->ph_RecordType))
