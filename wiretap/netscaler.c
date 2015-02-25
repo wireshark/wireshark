@@ -900,7 +900,7 @@ static gboolean nstrace_set_start_time(wtap *wth)
 /*
 ** Netscaler trace format read routines.
 */
-#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,fpp,type) \
+#define PACKET_DESCRIBE(phdr,FULLPART,fullpart,fpp,type,HEADERVER) \
     do {\
         fpp = (nspr_pktrace##fullpart##_v10_t *) &nstrace_buf[nstrace_buf_offset];\
         (phdr)->rec_type = REC_TYPE_PACKET;\
@@ -946,13 +946,13 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
         case NSPR_PDPKTRACEFULLTX_V##type:\
         case NSPR_PDPKTRACEFULLTXB_V##type:\
         case NSPR_PDPKTRACEFULLRX_V##type:\
-            PACKET_DESCRIBE(phdr,FULL,full,fp,type);
+            PACKET_DESCRIBE(phdr,FULL,full,fp,type,HEADERVER);
 
 #define GENERATE_CASE_PART(phdr,type,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##type:\
         case NSPR_PDPKTRACEPARTTXB_V##type:\
         case NSPR_PDPKTRACEPARTRX_V##type:\
-            PACKET_DESCRIBE(phdr,PART,part,pp,type);
+            PACKET_DESCRIBE(phdr,PART,part,pp,type,HEADERVER);
 
             switch (pletoh16(&(( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))
             {
