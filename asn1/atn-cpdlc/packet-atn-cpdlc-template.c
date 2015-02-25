@@ -227,17 +227,18 @@ dissect_atn_cpdlc_heur(
 					TRY {
 						dissect_ProtectedGroundPDUs_PDU(tvb, pinfo, NULL);
 						is_atn_cpdlc = TRUE;
-						is_pm = TRUE;
-						break;}
+						is_pm = TRUE;}
 					CATCH_ALL{
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE;}
 					ENDTRY;
+					if (is_atn_cpdlc) {
+						break;
+					}
 					TRY {
 		        dissect_GroundPDUs_PDU(tvb, pinfo, NULL);
 						is_pm = FALSE;
-						is_atn_cpdlc = TRUE;
-						break;}
+						is_atn_cpdlc = TRUE;}
 					CATCH_ALL{
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE;}
@@ -247,17 +248,18 @@ dissect_atn_cpdlc_heur(
 					TRY {
 						dissect_ProtectedAircraftPDUs_PDU(tvb, pinfo, NULL);
 						is_atn_cpdlc = TRUE;
-						is_pm = TRUE;
-						break;}
+						is_pm = TRUE;}
 					CATCH_ALL {
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE; }
 					ENDTRY;
+					if (is_atn_cpdlc) {
+						break;
+					}
 					TRY{
 						dissect_AircraftPDUs_PDU(tvb, pinfo, NULL);
 						is_atn_cpdlc = TRUE;
-						is_pm = FALSE;
-						break;}
+						is_pm = FALSE;}
 					CATCH_ALL{
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE;}
