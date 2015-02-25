@@ -3120,6 +3120,12 @@
 			<enum name="P-GW" code="9"/>
 			<enum name="HSGW" code="10"/>
 			<enum name="E-CSCF" code="11"/>
+      <enum name="MME" code="12"/>
+      <enum name="TRF" code="13"/>
+      <enum name="TF" code="14"/>
+      <enum name="ATCF" code="15"/>
+      <enum name="Proxy Function" code="16"/>
+      <enum name="ePDG" code="17"/>
 		</avp>
 		<avp name="Service-Specific-Data" code="863" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -6599,7 +6605,11 @@
 			<enum name="UNIDENTIFIED_SUBSCRIBER" code="5"/>
 		</avp>
 
-	</base>
+    <avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Address"/>
+    </avp>
+
+  </base>
 
 	<!---
 	Duplicates should be avoided
