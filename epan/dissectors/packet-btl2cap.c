@@ -131,6 +131,8 @@ static int hf_btl2cap_le_psm = -1;
 static int hf_btl2cap_flags_reserved = -1;
 static int hf_btl2cap_flags_continuation = -1;
 static int hf_btl2cap_data = -1;
+static int hf_btl2cap_connect_in_frame = -1;
+static int hf_btl2cap_disconnect_in_frame = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btl2cap = -1;
@@ -181,6 +183,7 @@ typedef struct _psm_data_t {
     guint32       remote_cid;
     guint16       psm;
     gboolean      local_service;
+    guint32       connect_in_frame;
     guint32       disconnect_in_frame;
     config_data_t in;
     config_data_t out;
@@ -679,6 +682,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         psm_data->interface_id = k_interface_id;
         psm_data->adapter_id   = k_adapter_id;
         psm_data->chandle      = k_chandle;
+        psm_data->connect_in_frame = pinfo->fd->num;
         psm_data->disconnect_in_frame = max_disconnect_in_frame;
 
         key[0].length = 1;
@@ -2108,6 +2112,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 psm_data->remote_cid == key_cid) &&
                 psm_data->disconnect_in_frame > pinfo->fd->num) {
             config_data_t  *config_data;
+            proto_item     *sub_item;
 
             psm = psm_data->psm;
             l2cap_data->local_cid = psm_data->local_cid;
@@ -2120,6 +2125,17 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 config_data = &(psm_data->in);
             else
                 config_data = &(psm_data->out);
+
+            if (psm_data->connect_in_frame > 0 && psm_data->connect_in_frame < G_MAXUINT32) {
+                sub_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_connect_in_frame, tvb, 0, 0, psm_data->connect_in_frame);
+                PROTO_ITEM_SET_GENERATED(sub_item);
+            }
+
+            if (psm_data->disconnect_in_frame > 0 && psm_data->disconnect_in_frame < G_MAXUINT32) {
+                sub_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_disconnect_in_frame, tvb, 0, 0, psm_data->disconnect_in_frame);
+                PROTO_ITEM_SET_GENERATED(sub_item);
+            }
+
             if (config_data->mode == 0) {
                 offset = dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, l2cap_data);
             } else {
@@ -2595,6 +2611,16 @@ proto_register_btl2cap(void)
         { &hf_btl2cap_data,
           { "Data",           "btl2cap.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_connect_in_frame,
+            { "Connect in frame",                            "btl2cap.connect_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_disconnect_in_frame,
+            { "Disconnect in frame",                         "btl2cap.disconnect_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
     };
