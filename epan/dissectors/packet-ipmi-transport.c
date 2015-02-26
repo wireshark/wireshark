@@ -1033,7 +1033,6 @@ static const value_string cc01[] = {
 	{ 0x80, "Parameter not supported" },
 	{ 0x81, "Attempt to set the 'set in progress' value (in parameter #0) when not in the 'set complete' state" },
 	{ 0x82, "Attempt to write read-only parameter" },
-	{ 0x83, "Attempt to read write-only parameter" },
 	{ 0, NULL }
 };
 
@@ -1068,7 +1067,7 @@ rq02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_uint_format_value(tree, hf_ipmi_trn_02_param, tvb, 1, 1,
 			pno, "%s (0x%02x)", desc, pno);
 	proto_tree_add_item(tree, hf_ipmi_trn_02_set, tvb, 2, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_trn_02_block, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_02_block, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1120,6 +1119,7 @@ rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 static const value_string cc02[] = {
 	{ 0x80, "Parameter not supported" },
+	{ 0x83, "Attempt to read write-only parameter" },
 	{ 0, NULL }
 };
 
