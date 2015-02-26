@@ -1,6 +1,7 @@
 /* packet-ipmi-transport.c
  * Sub-dissectors for IPMI messages (netFn=Transport)
  * Copyright 2007-2008, Alexey Neyman, Pigeon Point Systems <avn@pigeonpoint.com>
+ * Copyright 2015, Dmitry Bazhenov, Pigeon Point Systems <dima_b@pigeonpoint.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -61,6 +62,10 @@ static gint ett_ipmi_trn_lan24_byte8 = -1;
 static gint ett_ipmi_trn_lan25_byte1 = -1;
 static gint ett_ipmi_trn_lan25_byte2 = -1;
 static gint ett_ipmi_trn_lan25_byte34 = -1;
+static gint ett_ipmi_trn_lan50_byte1 = -1;
+static gint ett_ipmi_trn_lan55_byte3 = -1;
+static gint ett_ipmi_trn_lan56_byte2 = -1;
+static gint ett_ipmi_trn_lan64_byte1 = -1;
 static gint ett_ipmi_trn_serial03_byte1 = -1;
 static gint ett_ipmi_trn_serial04_byte1 = -1;
 static gint ett_ipmi_trn_serial05_byte1 = -1;
@@ -208,6 +213,90 @@ static gint hf_ipmi_trn_lan25_address = -1;
 static gint hf_ipmi_trn_lan25_uprio = -1;
 static gint hf_ipmi_trn_lan25_cfi = -1;
 static gint hf_ipmi_trn_lan25_vlan_id = -1;
+
+static gint hf_ipmi_trn_lan26_gen_event = -1;
+static gint hf_ipmi_trn_lan26_thresh_number = -1;
+static gint hf_ipmi_trn_lan26_reset_interval = -1;
+static gint hf_ipmi_trn_lan26_lock_interval = -1;
+
+static gint hf_ipmi_trn_lan50_ipv6_only = -1;
+static gint hf_ipmi_trn_lan50_both_ipv4_ipv6 = -1;
+static gint hf_ipmi_trn_lan50_ipv6_alerting = -1;
+
+static gint hf_ipmi_trn_lan51_enables = -1;
+
+static gint hf_ipmi_trn_lan52_traffic_class = -1;
+
+static gint hf_ipmi_trn_lanXX_hop_limit = -1;
+
+static gint hf_ipmi_trn_lan54_flow_label = -1;
+
+static gint hf_ipmi_trn_lan55_static_addr_max = -1;
+static gint hf_ipmi_trn_lan55_dynamic_addr_max = -1;
+static gint hf_ipmi_trn_lan55_dhcpv6_support = -1;
+static gint hf_ipmi_trn_lan55_slaac_support = -1;
+
+static gint hf_ipmi_trn_lanXX_addr_selector = -1;
+static gint hf_ipmi_trn_lanXX_addr_type = -1;
+static gint hf_ipmi_trn_lanXX_addr_enable = -1;
+static gint hf_ipmi_trn_lanXX_addr = -1;
+static gint hf_ipmi_trn_lanXX_prefix_len = -1;
+static gint hf_ipmi_trn_lanXX_addr_status = -1;
+
+static gint hf_ipmi_trn_lanXX_max_duid_blocks = -1;
+
+static gint hf_ipmi_trn_lanXX_duid_selector = -1;
+static gint hf_ipmi_trn_lanXX_block_selector = -1;
+static gint hf_ipmi_trn_lanXX_duid = -1;
+
+static gint hf_ipmi_trn_lanXX_timing_support = -1;
+
+static gint hf_ipmi_trn_lanXX_iface_selector = -1;
+static gint hf_ipmi_trn_lan63_sol_max_delay = -1;
+static gint hf_ipmi_trn_lan63_sol_timeout = -1;
+static gint hf_ipmi_trn_lan63_sol_max_rt = -1;
+static gint hf_ipmi_trn_lan63_req_timeout = -1;
+static gint hf_ipmi_trn_lan63_req_max_rt = -1;
+static gint hf_ipmi_trn_lan63_req_max_rc = -1;
+static gint hf_ipmi_trn_lan63_cnf_max_delay = -1;
+static gint hf_ipmi_trn_lan63_cnf_timeout = -1;
+static gint hf_ipmi_trn_lan63_cnf_max_rt = -1;
+static gint hf_ipmi_trn_lan63_cnf_max_rd = -1;
+static gint hf_ipmi_trn_lan63_ren_timeout = -1;
+static gint hf_ipmi_trn_lan63_ren_max_rt = -1;
+static gint hf_ipmi_trn_lan63_reb_timeout = -1;
+static gint hf_ipmi_trn_lan63_reb_max_rt = -1;
+static gint hf_ipmi_trn_lan63_inf_max_delay = -1;
+static gint hf_ipmi_trn_lan63_inf_timeout = -1;
+static gint hf_ipmi_trn_lan63_inf_max_rt = -1;
+static gint hf_ipmi_trn_lan63_rel_timeout = -1;
+static gint hf_ipmi_trn_lan63_rel_max_rc = -1;
+static gint hf_ipmi_trn_lan63_dec_timeout = -1;
+static gint hf_ipmi_trn_lan63_dec_max_rc = -1;
+static gint hf_ipmi_trn_lan63_hop_count_limit = -1;
+
+static gint hf_ipmi_trn_lan64_static_cfg = -1;
+static gint hf_ipmi_trn_lan64_dynamic_cfg = -1;
+
+static gint hf_ipmi_trn_lanXX_router_selector = -1;
+static gint hf_ipmi_trn_lanXX_router_mac = -1;
+static gint hf_ipmi_trn_lanXX_router_prefix = -1;
+
+static gint hf_ipmi_trn_lan73_num_dynamic_sets = -1;
+
+static gint hf_ipmi_trn_lan80_max_rtr_solicitation_delay = -1;
+static gint hf_ipmi_trn_lan80_rtr_solicitation_interval = -1;
+static gint hf_ipmi_trn_lan80_max_rtr_solicitations = -1;
+static gint hf_ipmi_trn_lan80_dup_addr_detect_transmits = -1;
+static gint hf_ipmi_trn_lan80_max_multicast_solicit = -1;
+static gint hf_ipmi_trn_lan80_max_unicast_solicit = -1;
+static gint hf_ipmi_trn_lan80_max_anycast_delay_time = -1;
+static gint hf_ipmi_trn_lan80_max_neighbor_advertisement = -1;
+static gint hf_ipmi_trn_lan80_reachable_time = -1;
+static gint hf_ipmi_trn_lan80_retrans_timer = -1;
+static gint hf_ipmi_trn_lan80_delay_first_probe_time = -1;
+static gint hf_ipmi_trn_lan80_max_random_factor = -1;
+static gint hf_ipmi_trn_lan80_min_random_factor = -1;
 
 static gint hf_ipmi_trn_serial03_connmode = -1;
 static gint hf_ipmi_trn_serial03_terminal = -1;
@@ -515,6 +604,7 @@ static const value_string lan18_dst_type_vals[] = {
 
 static const value_string lan19_af_vals[] = {
 	{ 0x00, "IPv4 Address followed by Ethernet/802.3 MAC Address" },
+	{ 0x01, "IPv6 Address" },
 	{ 0, NULL }
 };
 
@@ -539,6 +629,37 @@ static const value_string lan24_priv_vals[] = {
 static const value_string lan25_af_vals[] = {
 	{ 0x00, "VLAN ID not used" },
 	{ 0x01, "802.1q VLAN TAG" },
+	{ 0, NULL }
+};
+
+static const value_string lan51_enables[] = {
+	{ 0, "IPv6 addressing disabled" },
+	{ 1, "Enable IPv6 addressing only. IPv5 addressing is disabled" },
+	{ 2, "Enable IPv6 and IPv4 addressing simultaneously" },
+	{ 0, NULL }
+};
+
+static const value_string lanXX_addr_type[] = {
+	{ 0, "Static" },
+	{ 1, "SLAAC" },
+	{ 2, "DHCPv6" },
+	{ 0, NULL }
+};
+
+static const value_string lanXX_addr_status[] = {
+	{ 0, "Active (in-use)" },
+	{ 1, "Disabled" },
+	{ 2, "Pending" },
+	{ 3, "Failed" },
+	{ 4, "Deprecated" },
+	{ 5, "Invalid" },
+	{ 0, NULL }
+};
+
+static const value_string lanXX_timing_support[] = {
+	{ 0, "Not supported" },
+	{ 1, "Global" },
+	{ 2, "Per interface" },
 	{ 0, NULL }
 };
 
@@ -875,6 +996,9 @@ lan_19(tvbuff_t *tvb, proto_tree *tree)
 		proto_tree_add_item(tree, hf_ipmi_trn_lan19_ip, tvb, 3, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_trn_lan19_mac, tvb, 7, 6, ENC_NA);
 		return;
+	} else if (v == 1) {
+		proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr, tvb, 2, 16, ENC_NA);
+		return;
 	}
 
 	proto_tree_add_item(tree, hf_ipmi_trn_lan19_address, tvb, 2, -1, ENC_NA);
@@ -966,6 +1090,236 @@ lan_25(tvbuff_t *tvb, proto_tree *tree)
 	}
 }
 
+static void
+lan_26(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lan26_gen_event, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan26_thresh_number, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan26_reset_interval, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan26_lock_interval, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_50(tvbuff_t *tvb, proto_tree *tree)
+{
+	static const int *byte1[] = { &hf_ipmi_trn_lan50_ipv6_only,
+			&hf_ipmi_trn_lan50_both_ipv4_ipv6,
+			&hf_ipmi_trn_lan50_ipv6_alerting, NULL };
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Data 1",  NULL, ett_ipmi_trn_lan50_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
+}
+
+static void
+lan_51(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lan51_enables, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_52(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lan52_traffic_class, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_53_78(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_hop_limit, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_54(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lan54_flow_label, tvb, 0, 3, ENC_BIG_ENDIAN);
+}
+
+static void
+lan_55(tvbuff_t *tvb, proto_tree *tree)
+{
+	static const int *byte3[] = { &hf_ipmi_trn_lan55_dhcpv6_support,
+			&hf_ipmi_trn_lan55_slaac_support, NULL };
+	proto_tree_add_item(tree, hf_ipmi_trn_lan55_static_addr_max, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan55_dynamic_addr_max, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL,  NULL, ett_ipmi_trn_lan55_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
+}
+
+static void
+lan_56(tvbuff_t *tvb, proto_tree *tree)
+{
+	static const int *byte2[] = { &hf_ipmi_trn_lanXX_addr_type,
+			&hf_ipmi_trn_lanXX_addr_enable, NULL };
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL,  NULL, ett_ipmi_trn_lan56_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr, tvb, 2, 16, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_prefix_len, tvb, 18, 1, ENC_LITTLE_ENDIAN);
+	if (tvb_captured_length(tvb) > 19) {
+		proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr_status, tvb, 19, 1, ENC_LITTLE_ENDIAN);
+	}
+}
+
+static void
+lan_57_60(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_max_duid_blocks, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_58_61(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_duid_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_block_selector, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_duid, tvb, 2, -1, ENC_NA);
+}
+
+static void
+lan_59(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr_type, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr, tvb, 2, 16, ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_prefix_len, tvb, 18, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr_status, tvb, 19, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_62_79(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_timing_support, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_63(tvbuff_t *tvb, proto_tree *tree)
+{
+	guint8 v;
+
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_iface_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_block_selector, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+
+	v = tvb_get_guint8(tvb, 1);
+	if (v == 0) {
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_sol_max_delay, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_sol_timeout, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_sol_max_rt, tvb, 4, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_req_timeout, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_req_max_rt, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_req_max_rc, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_cnf_max_delay, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_cnf_timeout, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_cnf_max_rt, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_cnf_max_rd, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_ren_timeout, tvb, 12, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_ren_max_rt, tvb, 13, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_reb_timeout, tvb, 14, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_reb_max_rt, tvb, 15, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_inf_max_delay, tvb, 16, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_inf_timeout, tvb, 17, 1, ENC_LITTLE_ENDIAN);
+	} else if (v == 1) {
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_inf_max_rt, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_rel_timeout, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_rel_max_rc, tvb, 4, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_dec_timeout, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_dec_max_rc, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan63_hop_count_limit, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_01_param_data, tvb, 8, -1, ENC_NA);
+	} else {
+		proto_tree_add_item(tree, hf_ipmi_trn_01_param_data, tvb, 2, -1, ENC_NA);
+	}
+}
+
+static void
+lan_64(tvbuff_t *tvb, proto_tree *tree)
+{
+	static const int *byte1[] = { &hf_ipmi_trn_lan64_static_cfg,
+			&hf_ipmi_trn_lan64_dynamic_cfg, NULL };
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL,  NULL, ett_ipmi_trn_lan64_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
+}
+
+static void
+lan_65_69(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr, tvb, 0, 16, ENC_NA);
+}
+
+static void
+lan_66_70(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_router_mac, tvb, 0, 6, ENC_NA);
+}
+
+static void
+lan_67_71(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_prefix_len, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_68_72(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_router_prefix, tvb, 0, 16, ENC_NA);
+}
+
+static void
+lan_73(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lan73_num_dynamic_sets, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_74(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_router_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_addr, tvb, 1, 16, ENC_NA);
+}
+
+static void
+lan_75(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_router_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_router_mac, tvb, 1, 6, ENC_NA);
+}
+
+static void
+lan_76(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_router_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_prefix_len, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+}
+
+static void
+lan_77(tvbuff_t *tvb, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_router_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_router_prefix, tvb, 1, 16, ENC_NA);
+}
+
+static void
+lan_80(tvbuff_t *tvb, proto_tree *tree)
+{
+	guint8 v;
+
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_iface_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_lanXX_block_selector, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+
+	v = tvb_get_guint8(tvb, 1);
+	if (v == 0) {
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_max_rtr_solicitation_delay, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_rtr_solicitation_interval, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_max_rtr_solicitations, tvb, 4, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_dup_addr_detect_transmits, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_max_multicast_solicit, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_max_unicast_solicit, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_max_anycast_delay_time, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_max_neighbor_advertisement, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_reachable_time, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_retrans_timer, tvb, 11, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_delay_first_probe_time, tvb, 12, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_max_random_factor, tvb, 13, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan80_min_random_factor, tvb, 14, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_trn_01_param_data, tvb, 15, -1, ENC_NA);
+	} else {
+		proto_tree_add_item(tree, hf_ipmi_trn_01_param_data, tvb, 2, -1, ENC_NA);
+	}
+}
+
 static struct {
 	void (*intrp)(tvbuff_t *tvb, proto_tree *tree);
 	const char *name;
@@ -996,6 +1350,61 @@ static struct {
 	{ lan_23, "Cipher Suite Entries (RMCP+)" },
 	{ lan_24, "Cipher Suite Privilege Levels (RMCP+)" },
 	{ lan_25, "Destination Address VLAN TAGs" },
+	{ lan_26, "Bad Password Threshold" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ NULL, "Reserved" },
+	{ lan_50, "IPv6/IPv4 Support" },
+	{ lan_51, "IPv6/IPv4 Addressing enables" },
+	{ lan_52, "IPv6 Header Static Traffic Class" },
+	{ lan_53_78, "IPv6 Header Static Hop Limit" },
+	{ lan_54, "IPv6 Header Flow Label" },
+	{ lan_55, "IPv6 Status" },
+	{ lan_56, "IPv6 Static Addresses" },
+	{ lan_57_60, "IPv6 DHCPv6 Static DUID storage length" },
+	{ lan_58_61, "IPv6 DHCPv6 Static DUIDs" },
+	{ lan_59, "IPv6 Dynamic Addresses" },
+	{ lan_57_60, "IPv6 DHCPv6 Dynamic DUID storage length" },
+	{ lan_58_61, "IPv6 DHCPv6 Dynamic DUIDs" },
+	{ lan_62_79, "IPv6 DHCPv6 Timing Configuration Support" },
+	{ lan_63, "IPv6 DHCPv6 Timing Configuration" },
+	{ lan_64, "IPv6 Router Address Configuration Control" },
+	{ lan_65_69, "IPv6 Static Router 1 IP Address" },
+	{ lan_66_70, "IPv6 Static Router 1 MAC Address" },
+	{ lan_67_71, "IPv6 Static Router 1 Prefix Length" },
+	{ lan_68_72, "IPv6 Static Router 1 Prefix Value" },
+	{ lan_65_69, "IPv6 Static Router 2 IP Address" },
+	{ lan_66_70, "IPv6 Static Router 2 MAC Address" },
+	{ lan_67_71, "IPv6 Static Router 2 Prefix Length" },
+	{ lan_68_72, "IPv6 Static Router 2 Prefix Value" },
+	{ lan_73, "Number of Dynamic Router Info Sets" },
+	{ lan_74, "IPv6 Dynamic Router Info IP Address" },
+	{ lan_75, "IPv6 Dynamic Router Info MAC Address" },
+	{ lan_76, "IPv6 Dynamic Router Info Prefix Length" },
+	{ lan_77, "IPv6 Dynamic Router Info Prefix Value" },
+	{ lan_53_78, "IPv6 Dynamic Router Received Hop Limit" },
+	{ lan_62_79, "IPv6 NDISC/SLAAC Timing Configuration Support" },
+	{ lan_80, "IPv6 NDISC/SLAAC Timing Configuration" },
 };
 
 /* Set LAN Configuration Parameters
@@ -1021,7 +1430,7 @@ rq01(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_trn_01_param, tvb, 1, 1,
 			pno, "%s (0x%02x)", desc, pno);
-	if (pno < array_length(lan_options)) {
+	if (pno < array_length(lan_options) && lan_options[pno].intrp) {
 		next = tvb_new_subset_remaining(tvb, 2);
 		lan_options[pno].intrp(next, tree);
 	} else {
@@ -1108,7 +1517,7 @@ rs02(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_ipmi_trn_parameter, NULL, "Parameter: %s", desc);
 
 	if (tvb_captured_length(tvb) > 1) {
-		if (pno < array_length(lan_options)) {
+		if (pno < array_length(lan_options) && lan_options[pno].intrp) {
 			next = tvb_new_subset_remaining(tvb, 1);
 			lan_options[pno].intrp(next, subtree);
 		} else {
@@ -2347,6 +2756,226 @@ proto_register_ipmi_transport(void)
 			{ "VLAN ID",
 				"ipmi.lan25.vlan_id", FT_UINT16, BASE_HEX, NULL, 0x0fff, NULL, HFILL }},
 
+		{ &hf_ipmi_trn_lan26_gen_event,
+			{ "Generate a Session Audit sensor \"Invalid password disable\" event message",
+				"ipmi.lan26.gen_event", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan26_thresh_number,
+			{ "Bad Password Threshold number",
+				"ipmi.lan26.thresh_number", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan26_reset_interval,
+			{ "Attempt Count Reset Interval",
+				"ipmi.lan26.reset_interval", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan26_lock_interval,
+			{ "User Lockout Interval",
+				"ipmi.lan26.lock_interval", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan50_ipv6_only,
+			{ "Support IPv6 addressing only",
+				"ipmi.lan50.ipv6_only", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan50_both_ipv4_ipv6,
+			{ "Support both IPv4 and IPv6 simultaneously",
+				"ipmi.lan50.both", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan50_ipv6_alerting,
+			{ "Support IPv6 destinations for LAN Alerting",
+				"ipmi.lan50.both", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan51_enables,
+			{ "Enables",
+				"ipmi.lan51.enables", FT_UINT8, BASE_HEX, VALS(lan51_enables), 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan52_traffic_class,
+			{ "Traffic Class",
+				"ipmi.lan52.class", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lanXX_hop_limit,
+			{ "Hop Limit",
+				"ipmi.lanXX.hop_limit", FT_UINT8, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan54_flow_label,
+			{ "Flow Label",
+				"ipmi.lan.flow_label", FT_UINT24, BASE_HEX, NULL, 0xFFFFF, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan55_static_addr_max,
+			{ "Static Address Max",
+				"ipmi.lan55.static_max", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan55_dynamic_addr_max,
+			{ "Dynamic Address Max",
+				"ipmi.lan55.dynamic_max", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan55_dhcpv6_support,
+			{ "DHCPv6 is supported",
+				"ipmi.lan55.dhcpv6", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan55_slaac_support,
+			{ "SLAAC is supported",
+				"ipmi.lan55.slaac", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lanXX_addr_selector,
+			{ "Address Selector",
+				"ipmi.lanXX.addr_sel", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_addr_type,
+			{ "Address source/type",
+				"ipmi.lanXX.addr_type", FT_UINT8, BASE_DEC, VALS(lanXX_addr_type), 0xF, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_addr_enable,
+			{ "Address is enabled",
+				"ipmi.lanXX.addr_enable", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_addr,
+			{ "IPv6 Address",
+				"ipmi.lanXX.addr", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_prefix_len,
+			{ "Prefix Length",
+				"ipmi.lanXX.prefix_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_addr_status,
+			{ "Address status",
+				"ipmi.lanXX.addr_status", FT_UINT8, BASE_DEC, VALS(lanXX_addr_status), 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lanXX_max_duid_blocks,
+			{ "Maximum number of 16-byte blocks",
+				"ipmi.lanXX.max_duid_blocks", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lanXX_duid_selector,
+			{ "DUID selector",
+				"ipmi.lanXX.duid_sel", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_block_selector,
+			{ "Block selector",
+				"ipmi.lanXX.block_sel", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_duid,
+			{ "DUID data",
+				"ipmi.lanXX.duid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lanXX_timing_support,
+			{ "Timing Configuration Support",
+				"ipmi.lanXX.timing_support", FT_UINT8, BASE_DEC, VALS(lanXX_timing_support), 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lanXX_iface_selector,
+			{ "IPv6 Interface selector",
+				"ipmi.lanXX.iface_sel", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_sol_max_delay,
+			{ "SOL_MAX_DELAY",
+				"ipmi.lan63.sol_max_delay", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_sol_timeout,
+			{ "SOL_TIMEOUT",
+				"ipmi.lan63.sol_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_sol_max_rt,
+			{ "SOL_MAX_RT",
+				"ipmi.lan63.sol_max_rt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_req_timeout,
+			{ "REQ_TIMEOUT",
+				"ipmi.lan63.req_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_req_max_rt,
+			{ "REQ_MAX_RT",
+				"ipmi.lan63.req_max_rt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_req_max_rc,
+			{ "REQ_MAX_RC",
+				"ipmi.lan63.req_max_rc", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_cnf_max_delay,
+			{ "CNF_MAX_DELAY",
+				"ipmi.lan63.cnf_max_delay", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_cnf_timeout,
+			{ "CNF_TIMEOUT",
+				"ipmi.lan63.cnf_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_cnf_max_rt,
+			{ "CNF_MAX_RT",
+				"ipmi.lan63.cnf_max_rt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_cnf_max_rd,
+			{ "CNF_MAX_RD",
+				"ipmi.lan63.cnf_max_rd", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_ren_timeout,
+			{ "REN_TIMEOUT",
+				"ipmi.lan63.ren_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_ren_max_rt,
+			{ "REN_MAX_RT",
+				"ipmi.lan63.ren_max_rt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_reb_timeout,
+			{ "REB_TIMEOUT",
+				"ipmi.lan63.reb_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_reb_max_rt,
+			{ "REB_MAX_RT",
+				"ipmi.lan63.reb_max_rt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_inf_max_delay,
+			{ "INF_MAX_DELAY",
+				"ipmi.lan63.inf_max_delay", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_inf_timeout,
+			{ "INF_TIMEOUT",
+				"ipmi.lan63.inf_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_inf_max_rt,
+			{ "INF_MAX_RT",
+				"ipmi.lan63.inf_max_rt", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_rel_timeout,
+			{ "REL_TIMEOUT",
+				"ipmi.lan63.rel_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_rel_max_rc,
+			{ "REL_MAX_RC",
+				"ipmi.lan63.rel_max_rc", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_dec_timeout,
+			{ "DEC_TIMEOUT",
+				"ipmi.lan63.dec_timeout", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_dec_max_rc,
+			{ "DEC_MAX_RC",
+				"ipmi.lan63.dec_max_rc", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan63_hop_count_limit,
+			{ "HOP_COUNT_LIMIT",
+				"ipmi.lan63.hop_count_limit", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan64_static_cfg,
+			{ "Enable static router address",
+				"ipmi.lan64.static_cfg", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan64_dynamic_cfg,
+			{ "Enable dynamic router address configuration",
+				"ipmi.lan64.dynamic_cfg", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lanXX_router_selector,
+			{ "Router selector",
+				"ipmi.lanXX.router_sel", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_router_mac,
+			{ "MAC Address",
+				"ipmi.lanXX.mac", FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lanXX_router_prefix,
+			{ "Prefix Value",
+				"ipmi.lanXX.prefix", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan73_num_dynamic_sets,
+			{ "Number of Dynamic Router Info sets",
+				"ipmi.lanXX.num_dynamic_sets", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_ipmi_trn_lan80_max_rtr_solicitation_delay,
+			{ "MAX_RTR_SOLICITATIOIN_DELAY",
+				"ipmi.lan80.max_rtr_sol_delay", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_rtr_solicitation_interval,
+			{ "RTR_SOLICITATIOIN_INTERVAL",
+				"ipmi.lan80.rtr_sol_interval", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_max_rtr_solicitations,
+			{ "MAX_RTR_SOLICITATIOINS",
+				"ipmi.lan80.max_rtr_sols", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_dup_addr_detect_transmits,
+			{ "DupAddrDetectTransmits",
+				"ipmi.lan80.dup_addr_transmits", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_max_multicast_solicit,
+			{ "MAX_MULTICAST_SOLICIT",
+				"ipmi.lan80.max_mcast_sol", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_max_unicast_solicit,
+			{ "MAX_UNICAST_SOLICIT",
+				"ipmi.lan80.max_ucast_sol", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_max_anycast_delay_time,
+			{ "MAX_ANYCAST_DELAY_TIME",
+				"ipmi.lan80.max_anycast_delay", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_max_neighbor_advertisement,
+			{ "MAX_NEIGHBOR_ADVERTISEMENT",
+				"ipmi.lan80.max_neigh_adv", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_reachable_time,
+			{ "REACHABLE_TIME",
+				"ipmi.lan80.reach_time", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_retrans_timer,
+			{ "RETRANS_TIMER",
+				"ipmi.lan80.retrans_timer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_delay_first_probe_time,
+			{ "DELAY_FIRST_PROBE_TIME",
+				"ipmi.lan80.delay_first_probe", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_max_random_factor,
+			{ "MAX_RANDOM_FACTOR",
+				"ipmi.lan80.max_rand", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ &hf_ipmi_trn_lan80_min_random_factor,
+			{ "MIN_RANDOM_FACTOR",
+				"ipmi.lan80.min_rand", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
 		{ &hf_ipmi_trn_serial03_connmode,
 			{ "Connection Mode",
 				"ipmi.serial03.connmode", FT_BOOLEAN, 8, TFS(&serial03_connmode_tfs), 0x80, NULL, HFILL }},
@@ -3109,6 +3738,10 @@ proto_register_ipmi_transport(void)
 		&ett_ipmi_trn_lan25_byte1,
 		&ett_ipmi_trn_lan25_byte2,
 		&ett_ipmi_trn_lan25_byte34,
+		&ett_ipmi_trn_lan50_byte1,
+		&ett_ipmi_trn_lan55_byte3,
+		&ett_ipmi_trn_lan56_byte2,
+		&ett_ipmi_trn_lan64_byte1,
 		&ett_ipmi_trn_serial03_byte1,
 		&ett_ipmi_trn_serial04_byte1,
 		&ett_ipmi_trn_serial05_byte1,
