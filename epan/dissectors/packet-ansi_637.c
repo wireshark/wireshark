@@ -776,8 +776,10 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
 
             temp_offset = offset;
-            text_decoder(tvb_out, pinfo, subtree, temp_offset, encoding, num_fields,
-                num_bits, 3 /* (5 bits used from 'temp_offset' octet for encoding */, 0);
+            if (num_fields) {
+                text_decoder(tvb_out, pinfo, subtree, temp_offset, encoding, num_fields,
+                    num_bits, 3 /* (5 bits used from 'temp_offset' octet for encoding */, 0);
+            }
 
             offset += (record_len - 1);
 
@@ -1139,8 +1141,10 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
         }
     }
 
-    text_decoder(tvb, pinfo, tree, offset, encoding, num_fields,
-        num_fields * encoding_bit_len, unused_bits, fill_bits);
+    if (num_fields) {
+        text_decoder(tvb, pinfo, tree, offset, encoding, num_fields,
+            num_fields * encoding_bit_len, unused_bits, fill_bits);
+    }
 
     if (reserved_bits > 0)
     {
