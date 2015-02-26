@@ -39,6 +39,8 @@ unsigned PacketListRecord::col_data_ver_ = 1;
 
 PacketListRecord::PacketListRecord(frame_data *frameData) :
     fdata_(frameData),
+    lines_(1),
+    line_count_changed_(false),
     data_ver_(0),
     colorized_(false),
     conv_(NULL)
@@ -178,8 +180,11 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
     }
 
     col_text_.clear();
+    lines_ = 1;
+    line_count_changed_ = false;
 
     for (int column = 0; column < cinfo->num_cols; ++column) {
+        int col_lines = 1;
 
 #ifdef MINIMIZE_STRING_COPYING
         int text_col = cinfo_column_.value(column, -1);
@@ -239,16 +244,23 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         }
 #else // MINIMIZE_STRING_COPYING
         // XXX Use QContiguousCache?
+        QByteArray col_text;
         if (!get_column_resolved(column) && cinfo->col_expr.col_expr_val[column]) {
             /* Use the unresolved value in col_expr_val */
-            col_text_.append(cinfo->col_expr.col_expr_val[column]);
+            col_text = cinfo->col_expr.col_expr_val[column];
         } else {
             int text_col = cinfo_column_.value(column, -1);
 
             if (text_col < 0) {
                 col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
             }
-            col_text_.append(cinfo->col_data[column]);
+            col_text = cinfo->col_data[column];
+        }
+        col_text_.append(col_text);
+        col_lines += col_text.count('\n');
+        if (col_lines > lines_) {
+            lines_ = col_lines;
+            line_count_changed_ = true;
         }
 #endif // MINIMIZE_STRING_COPYING
     }

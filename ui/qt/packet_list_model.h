@@ -45,14 +45,14 @@ public:
     explicit PacketListModel(QObject *parent = 0, capture_file *cf = NULL);
     void setCaptureFile(capture_file *cf);
     QModelIndex index(int row, int column,
-                      const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &index) const;
+                      const QModelIndex & = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &) const;
     int packetNumberToRow(int packet_num) const;
     guint recreateVisibleRows();
     void clear();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex & = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                              int role = Qt::DisplayRole) const;
@@ -66,9 +66,10 @@ public:
 
 signals:
     void goToPacket(int);
+    void itemHeightChanged(const QModelIndex &index) const;
 
 public slots:
-    void setMonospaceFont(const QFont &mono_font);
+    void setMonospaceFont(const QFont &mono_font, int row_height);
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
 private:
@@ -79,13 +80,17 @@ private:
     QVector<PacketListRecord *> physical_rows_;
     QMap<int, int> number_to_row_;
 
-    int header_height_;
+    int row_height_;
+    int line_spacing_;
 
     static int sort_column_;
     static int text_sort_column_;
     static Qt::SortOrder sort_order_;
     static capture_file *sort_cap_file_;
     static bool recordLessThan(PacketListRecord *r1, PacketListRecord *r2);
+
+private slots:
+    void emitItemHeightChanged(const QModelIndex &index);
 };
 
 #endif // PACKET_LIST_MODEL_H

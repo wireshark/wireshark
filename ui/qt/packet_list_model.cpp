@@ -38,9 +38,14 @@
 #include <QModelIndex>
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
-    QAbstractItemModel(parent)
+    QAbstractItemModel(parent),
+    row_height_(-1),
+    line_spacing_(0)
 {
     setCaptureFile(cf);
+    connect(this, SIGNAL(itemHeightChanged(QModelIndex)),
+            this, SLOT(emitItemHeightChanged(QModelIndex)),
+            Qt::QueuedConnection);
 }
 
 void PacketListModel::setCaptureFile(capture_file *cf)
@@ -50,11 +55,8 @@ void PacketListModel::setCaptureFile(capture_file *cf)
 }
 
 // Packet list records have no children (for now, at least).
-QModelIndex PacketListModel::index(int row, int column, const QModelIndex &parent)
-            const
+QModelIndex PacketListModel::index(int row, int column, const QModelIndex &) const
 {
-    Q_UNUSED(parent);
-
     if (row >= visible_rows_.count() || row < 0 || !cap_file_ || column >= prefs.num_cols)
         return QModelIndex();
 
@@ -64,9 +66,8 @@ QModelIndex PacketListModel::index(int row, int column, const QModelIndex &paren
 }
 
 // Everything is under the root.
-QModelIndex PacketListModel::parent(const QModelIndex &index) const
+QModelIndex PacketListModel::parent(const QModelIndex &) const
 {
-    Q_UNUSED(index);
     return QModelIndex();
 }
 
@@ -133,9 +134,12 @@ int PacketListModel::columnTextSize(const char *str)
     return fm.width(str);
 }
 
-void PacketListModel::setMonospaceFont(const QFont &mono_font)
+void PacketListModel::setMonospaceFont(const QFont &mono_font, int row_height)
 {
+    QFontMetrics fm(mono_font_);
     mono_font_ = mono_font;
+    row_height_ = row_height;
+    line_spacing_ = fm.lineSpacing();
 }
 
 // The Qt MVC documentation suggests using QSortFilterProxyModel for sorting
@@ -235,6 +239,11 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     }
 }
 
+void PacketListModel::emitItemHeightChanged(const QModelIndex &index)
+{
+    emit dataChanged(index, index);
+}
+
 int PacketListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.column() >= prefs.num_cols)
@@ -243,10 +252,8 @@ int PacketListModel::rowCount(const QModelIndex &parent) const
     return visible_rows_.count();
 }
 
-int PacketListModel::columnCount(const QModelIndex &parent) const
+int PacketListModel::columnCount(const QModelIndex &) const
 {
-    Q_UNUSED(parent);
-
     return prefs.num_cols;
 }
 
@@ -313,7 +320,20 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
     {
         int column = index.column();
-        return record->columnString(cap_file_, column);
+        QVariant column_string = record->columnString(cap_file_, column);
+        // We don't know an item's sizeHint until we fetch its text here.
+        // Assume each line count is 1. If the line count changes, emit
+        // itemHeightChanged which triggers another redraw (including a
+        // fetch of SizeHintRole and DisplayRole) in the next event loop.
+        if (column == 0 && record->lineCountChanged())
+            emit itemHeightChanged(index);
+        return column_string;
+    }
+    case Qt::SizeHintRole:
+    {
+        // We assume that inter-line spacing is 0.
+        QSize size = QSize(-1, row_height_ + ((record->lineCount() - 1) * line_spacing_));
+        return size;
     }
     default:
         return QVariant();

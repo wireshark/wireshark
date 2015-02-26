@@ -238,7 +238,6 @@ PacketList::PacketList(QWidget *parent) :
     setItemsExpandable(false);
     setRootIsDecorated(false);
     setSortingEnabled(true);
-    setUniformRowHeights(true);
     setAccessibleName("Packet list");
     setItemDelegateForColumn(0, &related_packet_delegate_);
 
@@ -912,7 +911,11 @@ void PacketList::setCaptureFile(capture_file *cf)
 
 void PacketList::setMonospaceFont(const QFont &mono_font)
 {
-    packet_list_model_->setMonospaceFont(mono_font);
+    setFont(mono_font);
+    // qtreeview.cpp does something similar in Qt 5 so this *should* be
+    // safe...
+    int row_height = itemDelegate()->sizeHint(viewOptions(), QModelIndex()).height();
+    packet_list_model_->setMonospaceFont(mono_font, row_height);
     redrawVisiblePackets();
 }
 

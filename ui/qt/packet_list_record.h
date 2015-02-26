@@ -51,14 +51,17 @@ public:
     int columnTextSize(const char *str);
     static void resetColumns(column_info *cinfo);
     void resetColorized();
+    inline int lineCount() { return lines_; }
+    inline int lineCountChanged() { return line_count_changed_; }
 
 private:
     /** The column text for some columns */
     QList<QByteArray> col_text_;
 
     frame_data *fdata_;
+    int lines_;
+    bool line_count_changed_;
     static QMap<int, int> cinfo_column_;
-
 
     /** Data versions. Used to invalidate col_text_ */
     static unsigned col_data_ver_;
