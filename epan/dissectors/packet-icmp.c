@@ -86,6 +86,7 @@ static int hf_icmp_seq_num_le = -1;
 static int hf_icmp_mtu = -1;
 static int hf_icmp_redir_gw = -1;
 static int hf_icmp_length = -1;
+static int hf_icmp_length_original_datagram = -1;
 
 /* Mobile ip */
 static int hf_icmp_mip_type = -1;
@@ -1364,13 +1365,13 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 * interpret the 6th octet as length of the original datagram
 		 */
 		if (icmp_original_dgram_length > 0) {
-			ti = proto_tree_add_item(icmp_tree, hf_icmp_length,
+			proto_tree_add_item(icmp_tree, hf_icmp_length,
 						 tvb, 5, 1,
 						 ENC_BIG_ENDIAN);
-			proto_item_append_text(ti,
-					       "Length of original datagram: %u",
-					       icmp_original_dgram_length *
-					       4);
+			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
+						 tvb, 5, 1,
+						 icmp_original_dgram_length * 4);
+			PROTO_ITEM_SET_GENERATED(ti);
 		}
 
 
@@ -1399,13 +1400,13 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		proto_tree_add_text(icmp_tree, tvb, 4, 1, "Pointer: %u",
 				    tvb_get_guint8(tvb, 4));
 		if (icmp_original_dgram_length > 0) {
-			ti = proto_tree_add_item(icmp_tree, hf_icmp_length,
+			proto_tree_add_item(icmp_tree, hf_icmp_length,
 						 tvb, 5, 1,
 						 ENC_BIG_ENDIAN);
-			proto_item_append_text(ti,
-					       " Length of original datagram: %u",
-					       icmp_original_dgram_length *
-					       4);
+			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
+						 tvb, 5, 1,
+						 icmp_original_dgram_length * 4);
+			PROTO_ITEM_SET_GENERATED(ti);
 		}
 		break;
 
@@ -1416,13 +1417,13 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 
 	case ICMP_TIMXCEED:
 		if (icmp_original_dgram_length > 0) {
-			ti = proto_tree_add_item(icmp_tree, hf_icmp_length,
+			proto_tree_add_item(icmp_tree, hf_icmp_length,
 						 tvb, 5, 1,
 						 ENC_BIG_ENDIAN);
-			proto_item_append_text(ti,
-					       " Length of original datagram: %u",
-					       icmp_original_dgram_length *
-					       4);
+			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
+						 tvb, 5, 1,
+						 icmp_original_dgram_length * 4);
+			PROTO_ITEM_SET_GENERATED(ti);
 		}
 	}
 
@@ -1896,10 +1897,15 @@ void proto_register_icmp(void)
 		  HFILL}},
 
 		{&hf_icmp_length,
-		 {"Length of original datagram", "icmp.length", FT_UINT8,
+		 {"Length", "icmp.length", FT_UINT8,
 		  BASE_DEC, NULL,
 		  0x0,
 		  "The length of the original datagram", HFILL}},
+		{&hf_icmp_length_original_datagram,
+		 {"Length of original datagram", "icmp.length.original_datagram", FT_UINT8,
+		  BASE_DEC, NULL,
+		  0x0,
+		  "The length of the original datagram (length * 4)", HFILL}},
 		{&hf_icmp_int_info_role,
 		 {"Interface Role", "icmp.int_info.role",
 		  FT_UINT8, BASE_DEC, VALS(interface_role_str),
