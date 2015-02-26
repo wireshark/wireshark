@@ -1512,9 +1512,9 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean         next;
     void            *data;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     if (length <= 0)
-        return tvb_length(tvb);
+        return tvb_reported_length(tvb);
 
     if (!command_number) {
         proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_NA | ENC_ASCII);
@@ -1756,7 +1756,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         i_char += i_char_fix;
         proto_item_set_len(command_item, i_char);
     } else {
-        length = tvb_length_remaining(tvb, offset);
+        length = tvb_reported_length_remaining(tvb, offset);
         if (length < 0)
             length = 0;
         offset += length;
@@ -1908,9 +1908,9 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (role == ROLE_UNKNOWN) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Data: %s",
-                tvb_format_text(tvb, 0, tvb_length(tvb)));
+                tvb_format_text(tvb, 0, tvb_reported_length(tvb)));
         proto_tree_add_item(main_tree, hf_data, tvb, 0, -1, ENC_NA | ENC_ASCII);
-        return tvb_length(tvb);
+        return tvb_reported_length(tvb);
     }
 
     /* save fragments */
@@ -1977,7 +1977,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         fragment->role              = role;
         fragment->index             = previous_fragment ? previous_fragment->index + previous_fragment->length : 0;
         fragment->reassemble_state  = REASSEMBLE_FRAGMENT;
-        fragment->length            = tvb_length(tvb);
+        fragment->length            = tvb_reported_length(tvb);
         fragment->data              = (guint8 *) wmem_alloc(wmem_file_scope(), fragment->length);
         fragment->previous_fragment = previous_fragment;
         tvb_memcpy(tvb, fragment->data, offset, fragment->length);
@@ -1985,7 +1985,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         wmem_tree_insert32_array(fragments, key, fragment);
 
         /* Detect reassemble end character: \r for HS or \n for AG */
-        length = tvb_length(tvb);
+        length = tvb_reported_length(tvb);
         at_stream = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, length, ENC_ASCII);
 
         reassemble_start_offset = 0;
@@ -2134,7 +2134,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (fragment->index > 0 && fragment->length > 0) {
             proto_tree_add_item(main_tree, hf_fragment, tvb, offset,
-                                tvb_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
+                                tvb_reported_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
             reassembled_tvb = tvb_new_child_real_data(tvb, at_data,
                     fragment->index + fragment->length, fragment->index + fragment->length);
             add_new_data_source(pinfo, reassembled_tvb, "Reassembled HFP");
@@ -2144,7 +2144,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (reassembled_tvb) {
             guint reassembled_offset = 0;
 
-            while (tvb_length(reassembled_tvb) > reassembled_offset) {
+            while (tvb_reported_length(reassembled_tvb) > reassembled_offset) {
                 reassembled_offset = dissect_at_command(reassembled_tvb,
                         pinfo, main_tree, reassembled_offset, role, command_number);
                 command_number += 1;
@@ -2152,7 +2152,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             offset = tvb_captured_length(tvb);
         } else {
-            while (tvb_length(tvb) > (guint) offset) {
+            while (tvb_reported_length(tvb) > (guint) offset) {
                 offset = dissect_at_command(tvb, pinfo, main_tree, offset, role, command_number);
                 command_number += 1;
             }

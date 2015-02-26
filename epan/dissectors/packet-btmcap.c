@@ -110,7 +110,7 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     guint32     bluetooth_clock_sync_time;
     guint64     timestamp_sync_time;
 
-    main_item = proto_tree_add_item(tree, proto_btmcap, tvb, offset, -1, ENC_NA);
+    main_item = proto_tree_add_item(tree, proto_btmcap, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btmcap);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MCAP");
@@ -291,24 +291,24 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 col_append_str(pinfo->cinfo, COL_INFO, " (Reserved)");
             }
 
-            if ((op_code == 0x03 || op_code == 0x05 || op_code == 0x07) && tvb_length_remaining(tvb, offset)) {
+            if ((op_code == 0x03 || op_code == 0x05 || op_code == 0x07) && tvb_reported_length_remaining(tvb, offset)) {
                     expert_add_info_format(pinfo, pitem, &ei_btmcap_response_parameters_bad,
                             "The Response Parameters for MD_RECONNECT_MDL_RSP shall have length zero.");
-            } else if (tvb_length_remaining(tvb, offset)) {
-                pitem = proto_tree_add_item(main_tree, hf_btmcap_response_parameters, tvb, offset, -1, ENC_NA);
+            } else if (tvb_reported_length_remaining(tvb, offset)) {
+                pitem = proto_tree_add_item(main_tree, hf_btmcap_response_parameters, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
                 if (response_code != 0x00) {
                     expert_add_info_format(pinfo, pitem, &ei_btmcap_response_parameters_bad,
                             "When the Response Code is not Success, the Response Parameters shall have length zero.");
                 }
-                offset += tvb_length_remaining(tvb, offset);
+                offset += tvb_reported_length_remaining(tvb, offset);
             }
         }
     }
 
-    if (tvb_length_remaining(tvb, offset)) {
-        pitem = proto_tree_add_item(main_tree, hf_btmcap_data, tvb, offset, -1, ENC_NA);
+    if (tvb_reported_length_remaining(tvb, offset)) {
+        pitem = proto_tree_add_item(main_tree, hf_btmcap_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
         expert_add_info(pinfo, pitem, &ei_btmcap_unexpected_data);
-        offset = tvb_length(tvb);
+        offset = tvb_reported_length(tvb);
     }
 
     return offset;

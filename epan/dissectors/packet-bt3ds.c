@@ -107,9 +107,9 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     offset += 1;
 
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_expert(main_tree, pinfo, &ei_unexpected_data, tvb, offset, -1);
-        offset += tvb_length_remaining(tvb, offset);
+        offset += tvb_reported_length_remaining(tvb, offset);
     }
 
     return offset;

@@ -1336,7 +1336,7 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     proto_item  *cont_item;
     guint length;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     if (length == 0)  {
         proto_tree_add_expert(tree, pinfo, &ei_btsdp_continuation_state_none, tvb, offset, -1);
     } else if (length > 17) {
@@ -1435,7 +1435,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
     if (is_first) *is_first = TRUE;
     if (is_continued) *is_continued = TRUE;
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     if (length == 0)  {
         return offset;
     } else if (length > 17) {
@@ -1832,7 +1832,7 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
     }
 
     pitem = proto_tree_add_item(ptree, hf_data_element_value, tvb, offset,  0, ENC_NA);
-    if (length > tvb_length_remaining(tvb, offset)) {
+    if (length > tvb_reported_length_remaining(tvb, offset)) {
         expert_add_info(pinfo, pitem, &ei_data_element_value_large);
         length = 0;
     }
@@ -3654,7 +3654,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
     }
 
     if (!attribute_only) {
-        attribute_item = proto_tree_add_none_format(tree, hf_service_attribute, tvb, offset, -1,
+        attribute_item = proto_tree_add_none_format(tree, hf_service_attribute, tvb, offset, tvb_reported_length_remaining(tvb, offset),
                         "Service Attribute: %s%s (0x%x)", profile_speficic, attribute_name, id);
         attribute_tree = proto_item_add_subtree(attribute_item, ett_btsdp_attribute);
     } else {
@@ -3685,7 +3685,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
         offset = new_offset;
 
         if (!attribute_only){
-            attribute_value_item = proto_tree_add_item(attribute_tree, hf_service_attribute_value, tvb, offset, -1, ENC_NA);
+            attribute_value_item = proto_tree_add_item(attribute_tree, hf_service_attribute_value, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
             attribute_value_tree = proto_item_add_subtree(attribute_value_item, ett_btsdp_attribute_value);
 
             dissect_sdp_type(attribute_value_tree, pinfo, tvb, offset, id, uuid,
@@ -4115,7 +4115,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
         gint        new_offset = 0;
         gint        new_length;
 
-        new_length = tvb_length(new_tvb);
+        new_length = tvb_reported_length(new_tvb);
 
         reassembled_item = proto_tree_add_item(tree, (is_continued) ? hf_partial_record_handle_list : hf_reassembled_record_handle_list,new_tvb, 0, new_length, ENC_NA);
         proto_item_append_text(reassembled_item, " [count = %u]", new_length / 4);
@@ -4214,7 +4214,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
         reassembled_item = proto_tree_add_item(tree,
                 (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
-                new_tvb, 0, tvb_length(new_tvb), ENC_NA);
+                new_tvb, 0, tvb_reported_length(new_tvb), ENC_NA);
         reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
         PROTO_ITEM_SET_GENERATED(reassembled_item);
 
@@ -4339,13 +4339,13 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
 
         reassembled_item = proto_tree_add_item(tree,
                 (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
-                new_tvb, 0, tvb_length(new_tvb), ENC_NA);
+                new_tvb, 0, tvb_reported_length(new_tvb), ENC_NA);
         reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
         PROTO_ITEM_SET_GENERATED(reassembled_item);
 
         if (!is_continued)
             dissect_sdp_service_attribute_list_array(reassembled_tree, new_tvb, 0,
-                    pinfo, tvb_length(new_tvb), &uuid, l2cap_data);
+                    pinfo, tvb_reported_length(new_tvb), &uuid, l2cap_data);
     }
 
     return offset;
@@ -4367,7 +4367,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return 0;
     l2cap_data = (btl2cap_data_t *) data;
 
-    ti = proto_tree_add_item(tree, proto_btsdp, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_btsdp, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     st = proto_item_add_subtree(ti, ett_btsdp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");

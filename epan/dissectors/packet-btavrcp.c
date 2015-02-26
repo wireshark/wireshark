@@ -1007,7 +1007,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint            event_id;
     guint            packet_type;
     guint            parameter_length;
-    guint            length;
+    gint             length;
     wmem_tree_key_t  key[7];
     guint32          k_interface_id;
     guint32          k_adapter_id;
@@ -1039,7 +1039,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(tree, hf_btavrcp_bt_pdu_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else {
 
-        if (tvb_length_remaining(tvb, offset) == 0) {
+        if (tvb_reported_length_remaining(tvb, offset) == 0) {
             col_append_str(pinfo->cinfo, COL_INFO, " - No PDU ID");
             return offset;
         }
@@ -1072,9 +1072,9 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (parameter_length == 0) return offset;
 
-    length = tvb_ensure_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     if (packet_type == PACKET_TYPE_START) {
-        if (pinfo->fd->flags.visited == 0) {
+        if (pinfo->fd->flags.visited == 0 && tvb_captured_length_remaining(tvb, offset) == length) {
             k_interface_id = interface_id;
             k_adapter_id   = adapter_id;
             k_chandle      = chandle;
@@ -1124,7 +1124,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_append_str(pinfo->cinfo, COL_INFO, " [start]");
         return offset;
     } else if (packet_type == PACKET_TYPE_CONTINUE) {
-        if (pinfo->fd->flags.visited == 0) {
+        if (pinfo->fd->flags.visited == 0 && tvb_captured_length_remaining(tvb, offset) == length) {
             k_interface_id = interface_id;
             k_adapter_id   = adapter_id;
             k_chandle      = chandle;
@@ -1672,7 +1672,7 @@ dissect_vendor_dependant(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         col_append_fstr(pinfo->cinfo, COL_INFO, " - Volume: %u%%", volume_percent);
                         break;
                     default:
-                        proto_tree_add_item(tree, hf_btavrcp_data, tvb, offset, -1, ENC_NA);
+                        proto_tree_add_item(tree, hf_btavrcp_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
                         offset = tvb_reported_length(tvb);
                         break;
                 }
@@ -1924,7 +1924,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 folder_depth = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
-                pitem = proto_tree_add_none_format(tree, hf_btavrcp_currect_path, tvb, offset, -1, "Current Path: /");
+                pitem = proto_tree_add_none_format(tree, hf_btavrcp_currect_path, tvb, offset, tvb_reported_length_remaining(tvb, offset), "Current Path: /");
                 col_append_str(pinfo->cinfo, COL_INFO, "Current Path: /");
                 ptree = proto_item_add_subtree(pitem, ett_btavrcp_path);
 
@@ -2124,7 +2124,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return 0;
     avctp_data = (btavctp_data_t *) data;
 
-    ti = proto_tree_add_item(tree, proto_btavrcp, tvb, offset, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_btavrcp, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
     btavrcp_tree = proto_item_add_subtree(ti, ett_btavrcp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVRCP");
@@ -2335,7 +2335,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        pitem = proto_tree_add_item(btavrcp_tree, hf_btavrcp_data, tvb, offset, -1, ENC_NA);
+        pitem = proto_tree_add_item(btavrcp_tree, hf_btavrcp_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
         expert_add_info(pinfo, pitem, &ei_btavrcp_unexpected_data);
     }
 

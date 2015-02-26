@@ -151,7 +151,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         return 0;
     l2cap_data = (btl2cap_data_t *) data;
 
-    ti = proto_tree_add_item(tree, proto_btavctp, tvb, offset, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_btavctp, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
     btavctp_tree = proto_item_add_subtree(ti, ett_btavctp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVCTP");
@@ -222,7 +222,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     avctp_data->chandle      = l2cap_data->chandle;
     avctp_data->psm          = l2cap_data->psm;
 
-    length = tvb_ensure_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
 
     /* reassembling */
     next_tvb = tvb_new_subset_length(tvb, offset, length);

@@ -628,7 +628,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         return 0;
     l2cap_data = (btl2cap_data_t *) data;
 
-    ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RFCOMM");
@@ -808,7 +808,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         /* len */
         offset = get_le_multi_byte_value(tvb, offset, ctrl_tree, &length, hf_mcc_len);
 
-        if (length > (guint32) tvb_length_remaining(tvb, offset)) {
+        if (length > (guint32) tvb_reported_length_remaining(tvb, offset)) {
             expert_add_info_format(pinfo, ctrl_tree, &ei_btrfcomm_mcc_length_bad, "Huge MCC length: %u", length);
             return offset;
         }
@@ -1218,11 +1218,11 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     gboolean    is_at_cmd;
     guint       i, length;
 
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DUN");
 
-    ti = proto_tree_add_item(tree, proto_btdun, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_btdun, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     st = proto_item_add_subtree(ti, ett_btdun);
 
     is_at_cmd = TRUE;
@@ -1236,7 +1236,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                      (pinfo->p2p_dir == P2P_DIR_SENT) ? "Sent" : "Rcvd",
                      tvb_format_text(tvb, 0, length));
 
-           proto_tree_add_item(st, hf_dun_at_cmd, tvb, 0, -1, ENC_ASCII|ENC_NA);
+           proto_tree_add_item(st, hf_dun_at_cmd, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
     }
     else {
         /* ... or raw PPP */
@@ -1252,7 +1252,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         }
     }
 
-    return length;
+    return tvb_reported_length(tvb);
 }
 
 void
@@ -1295,11 +1295,12 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item *ti;
     proto_tree *st;
     gboolean    ascii_only;
-    guint       i, length = tvb_length(tvb);
+    guint       i;
+    guint       length = tvb_captured_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
 
-    ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     st = proto_item_add_subtree(ti, ett_btspp);
 
     length = MIN(length, 60);
@@ -1312,12 +1313,12 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s%s\"",
                      (pinfo->p2p_dir == P2P_DIR_SENT) ? "Sent" : "Rcvd",
                      tvb_format_text(tvb, 0, length),
-                     (tvb_length(tvb) > length) ? "..." : "");
+                     (tvb_captured_length(tvb) > length) ? "..." : "");
     }
 
-    proto_tree_add_item(st, hf_spp_data, tvb, 0, -1, ENC_NA);
+    proto_tree_add_item(st, hf_spp_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 void
@@ -1361,17 +1362,17 @@ dissect_btgnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GNSS");
 
-    main_item = proto_tree_add_item(tree, proto_btgnss, tvb, 0, -1, ENC_NA);
+    main_item = proto_tree_add_item(tree, proto_btgnss, tvb, 0, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btgnss);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
             (pinfo->p2p_dir == P2P_DIR_SENT) ? "Sent" : "Rcvd",
-            tvb_format_text(tvb, 0, tvb_length(tvb)));
+            tvb_format_text(tvb, 0, tvb_captured_length(tvb)));
 
     /* GNSS using NMEA-0183 protocol, but it is not available */
-    proto_tree_add_item(main_tree, hf_gnss_data, tvb, 0, -1, ENC_NA | ENC_ASCII);
+    proto_tree_add_item(main_tree, hf_gnss_data, tvb, 0, tvb_reported_length(tvb), ENC_NA | ENC_ASCII);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 void

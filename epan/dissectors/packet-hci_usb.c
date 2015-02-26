@@ -172,7 +172,8 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bluetooth_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if (!pinfo->fd->flags.visited && usb_conv_info->endpoint <= 0x02) {
+    if (!pinfo->fd->flags.visited && usb_conv_info->endpoint <= 0x02 &&
+            tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
         fragment_info_t  *fragment_info;
 
         fragment_info = (fragment_info_t *) wmem_tree_lookup32(fragment_info_table, session_id);
@@ -199,11 +200,11 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        fragment_info->remaining_length -= tvb_ensure_length_remaining(tvb, offset);
+        fragment_info->remaining_length -= tvb_reported_length_remaining(tvb, offset);
 
         fragment_add_seq_check(&hci_usb_reassembly_table,
                                tvb, offset, pinfo, session_id, NULL,
-                               fragment_info->fragment_id, tvb_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
+                               fragment_info->fragment_id, tvb_reported_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? FALSE : TRUE);
         if (fragment_info->remaining_length > 0)
             fragment_info->fragment_id += 1;
         else
@@ -220,7 +221,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_complete, tvb, offset, -1, ENC_NA);
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        if (reassembled->len > tvb_ensure_length_remaining(tvb, offset)) {
+        if (reassembled->len > (guint) tvb_reported_length_remaining(tvb, offset)) {
             next_tvb = process_reassembled_data(tvb, 0, pinfo,
                     "Reassembled HCI_USB",
                     reassembled, &hci_usb_msg_frag_items,
@@ -250,7 +251,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(ttree, hf_bthci_usb_data, tvb, offset, -1, ENC_NA);
     }
 
-    offset += tvb_length_remaining(tvb, offset);
+    offset += tvb_reported_length_remaining(tvb, offset);
 
     pinfo->p2p_dir = p2p_dir_save;
 

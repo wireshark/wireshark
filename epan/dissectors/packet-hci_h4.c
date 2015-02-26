@@ -110,7 +110,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }
 
-    return tvb_length(tvb);
+    return 1;
 }
 
 

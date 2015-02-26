@@ -68,7 +68,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
 
-    ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
 
     switch (pinfo->p2p_dir) {
@@ -226,9 +226,9 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
         SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(localhost_addr_name) + 1, localhost_addr_name);
     }
 
-    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_data, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_data, tvb, offset, tvb_reported_length(tvb), ENC_NA);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 
