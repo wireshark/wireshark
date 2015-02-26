@@ -1250,16 +1250,15 @@ smpp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     (*offset) += len;
 }
 
-/* NOTE - caller must free the returned string! */
 static const char *
-smpp_handle_string_return(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
+smpp_handle_string_return(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int field, int *offset)
 {
     gint         len;
     const char   *str;
 
     len = tvb_strsize(tvb, *offset);
     if (len > 1) {
-        str = (char *)tvb_get_stringz(wmem_packet_scope(), tvb, *offset, &len);
+        str = (char *)tvb_get_stringz(pinfo->pool, tvb, *offset, &len);
         proto_tree_add_string(tree, field, tvb, *offset, len, str);
     } else {
         str = "";
@@ -1944,10 +1943,10 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_npi, &offset);
-    src_str = smpp_handle_string_return(tree, tvb, hf_smpp_source_addr, &offset);
+    src_str = smpp_handle_string_return(tree, tvb, pinfo, hf_smpp_source_addr, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_dest_addr_ton, &offset);
     smpp_handle_int1(tree, tvb, hf_smpp_dest_addr_npi, &offset);
-    dst_str = smpp_handle_string_return(tree, tvb, hf_smpp_destination_addr, &offset);
+    dst_str = smpp_handle_string_return(tree, tvb, pinfo, hf_smpp_destination_addr, &offset);
     flag = tvb_get_guint8(tvb, offset);
     udhi = flag & 0x40;
     proto_tree_add_uint(tree, hf_smpp_esm_submit_msg_mode,
