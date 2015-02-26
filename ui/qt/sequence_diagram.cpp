@@ -95,6 +95,11 @@ SequenceDiagram::SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *
     //    valueAxis->setTickLabelRotation(30);
 }
 
+SequenceDiagram::~SequenceDiagram()
+{
+    delete data_;
+}
+
 void SequenceDiagram::setData(_seq_analysis_info *sainfo)
 {
     data_->clear();

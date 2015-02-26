@@ -55,6 +55,7 @@ class SequenceDiagram : public QCPAbstractPlottable
     Q_OBJECT
 public:
     explicit SequenceDiagram(QCPAxis *keyAxis, QCPAxis *valueAxis, QCPAxis *commentAxis);
+    virtual ~SequenceDiagram();
 
     // getters:
 

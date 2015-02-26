@@ -52,9 +52,9 @@ gchar *qstring_strdup(QString q_string) {
 }
 
 QString gchar_free_to_qstring(gchar *glib_string) {
-    QString *qt_string = new QString(glib_string);
+    QString qt_string(glib_string);
     g_free(glib_string);
-    return *qt_string;
+    return qt_string;
 }
 
 const QString address_to_qstring(const _address *address)
