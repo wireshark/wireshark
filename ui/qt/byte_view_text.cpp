@@ -105,6 +105,7 @@ void ByteViewText::setFieldHighlight(int start, int end, guint32 mask, int mask_
     Q_UNUSED(mask_le);
     f_bound_ = QPair<guint, guint>(qMax(0, start), qMax(0, end));
     f_bound_save_ = f_bound_;
+    scrollToByte(start);
     viewport()->update();
 }
 
@@ -210,6 +211,7 @@ void ByteViewText::mousePressEvent (QMouseEvent *event) {
         while (*iter) {
             if (fi == (*iter)->data(0, Qt::UserRole).value<field_info *>()) {
                 tree_widget_->setCurrentItem((*iter));
+                tree_widget_->scrollToItem((*iter));
             }
 
             iter++;
