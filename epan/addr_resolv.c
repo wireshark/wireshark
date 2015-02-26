@@ -3208,9 +3208,9 @@ get_host_ipaddr(const char *host, guint32 *addrp)
     int nfds;
     fd_set rfds, wfds;
     async_hostent_t ahe;
-#else /* HAVE_C_ARES */
+#elif defined(HAVE_GETADDRINFO)
     struct addrinfo hint, *result = NULL;
-#endif /* HAVE_C_ARES */
+#endif
 
     /*
      * don't change it to inet_pton(AF_INET), they are not 100% compatible.
@@ -3257,7 +3257,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
             return TRUE;
         }
         return FALSE;
-#else /* ! HAVE_C_ARES */
+#elif defined(HAVE_GETADDRINFO)
         /*
          * This can be slow, particularly for capture files with lots of
          * addresses. Should we just return FALSE instead?
@@ -3276,7 +3276,7 @@ get_host_ipaddr(const char *host, guint32 *addrp)
                 return ret_val;
             }
         }
-#endif /* HAVE_C_ARES */
+#endif
     } else {
         /* Does the string really contain dotted-quad IP?
          * Check against inet_atons that accept strings such as
