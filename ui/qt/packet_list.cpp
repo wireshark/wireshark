@@ -849,7 +849,7 @@ QString PacketList::allPacketComments()
         char *pkt_comment = cf_get_comment(cap_file_, fdata);
 
         if (pkt_comment) {
-            buf_str.append(QString(tr("Frame %1: %2 \n\n")).arg(framenum).arg(pkt_comment));
+            buf_str.append(QString(tr("Frame %1: %2\n\n")).arg(framenum).arg(pkt_comment));
             g_free(pkt_comment);
         }
         if (buf_str.length() > max_comments_to_fetch_) {
