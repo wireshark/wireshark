@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-gprscdr.c                                                           */
-/* ../../tools/asn2wrs.py -b -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . -O ../../epan/dissectors GenericChargingDataTypesV1250.asn GPRSChargingDataTypesV641.asn GPRSChargingDataTypesV1250.asn */
+/* ../../tools/asn2wrs.py -b -p gprscdr -c ./gprscdr.cnf -s ./packet-gprscdr-template -D . -O ../../epan/dissectors GenericChargingDataTypesV1250.asn GPRSChargingDataTypesV641.asn GPRSChargingDataTypesV1260.asn */
 
 /* Input file: packet-gprscdr-template.c */
 
@@ -394,6 +394,7 @@ static int hf_gprscdr_ServiceConditionChange_envelopeClosure = -1;
 static int hf_gprscdr_ServiceConditionChange_eCGIChange = -1;
 static int hf_gprscdr_ServiceConditionChange_tAIChange = -1;
 static int hf_gprscdr_ServiceConditionChange_userLocationChange = -1;
+static int hf_gprscdr_ServiceConditionChange_userCSGInformationChange = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
 #line 45 "../../asn1/gprscdr/packet-gprscdr-template.c"
@@ -2537,6 +2538,7 @@ static const value_string gprscdr_ChangeCondition_vals[] = {
   {  10, "eCGIChange" },
   {  11, "tAIChange" },
   {  12, "userLocationChange" },
+  {  13, "userCSGInformationChange" },
   { 0, NULL }
 };
 
@@ -2587,42 +2589,6 @@ dissect_gprscdr_PresenceReportingAreaStatus(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const ber_sequence_t ChangeOfCharCondition_sequence[] = {
-  { &hf_gprscdr_qosRequested, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
-  { &hf_gprscdr_qosNegotiated, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
-  { &hf_gprscdr_dataVolumeGPRSUplink, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
-  { &hf_gprscdr_dataVolumeGPRSDownlink, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
-  { &hf_gprscdr_changeCondition_01, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChangeCondition },
-  { &hf_gprscdr_changeTime  , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
-  { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
-  { &hf_gprscdr_ePCQoSInformation, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_EPCQoSInformation },
-  { &hf_gprscdr_chargingID  , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
-  { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_ChangeOfCharCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChangeOfCharCondition_sequence, hf_index, ett_gprscdr_ChangeOfCharCondition);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SEQUENCE_OF_ChangeOfCharCondition_sequence_of[1] = {
-  { &hf_gprscdr_listOfTrafficVolumes_item_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_ChangeOfCharCondition },
-};
-
-static int
-dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_ChangeOfCharCondition_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_ChangeOfCharCondition);
-
-  return offset;
-}
-
-
 
 static int
 dissect_gprscdr_CSGId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -2660,6 +2626,43 @@ static int
 dissect_gprscdr_UserCSGInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UserCSGInformation_sequence, hf_index, ett_gprscdr_UserCSGInformation);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ChangeOfCharCondition_sequence[] = {
+  { &hf_gprscdr_qosRequested, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
+  { &hf_gprscdr_qosNegotiated, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
+  { &hf_gprscdr_dataVolumeGPRSUplink, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
+  { &hf_gprscdr_dataVolumeGPRSDownlink, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
+  { &hf_gprscdr_changeCondition_01, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_gprscdr_ChangeCondition },
+  { &hf_gprscdr_changeTime  , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
+  { &hf_gprscdr_userLocationInformation, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_ePCQoSInformation, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_EPCQoSInformation },
+  { &hf_gprscdr_chargingID  , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ChargingID },
+  { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
+  { &hf_gprscdr_userCSGInformation, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UserCSGInformation },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_ChangeOfCharCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ChangeOfCharCondition_sequence, hf_index, ett_gprscdr_ChangeOfCharCondition);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_ChangeOfCharCondition_sequence_of[1] = {
+  { &hf_gprscdr_listOfTrafficVolumes_item_01, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_ChangeOfCharCondition },
+};
+
+static int
+dissect_gprscdr_SEQUENCE_OF_ChangeOfCharCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_ChangeOfCharCondition_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_ChangeOfCharCondition);
 
   return offset;
 }
@@ -2957,6 +2960,7 @@ static const asn_namedbit ServiceConditionChange_bits[] = {
   { 29, &hf_gprscdr_ServiceConditionChange_eCGIChange, -1, -1, "eCGIChange", NULL },
   { 30, &hf_gprscdr_ServiceConditionChange_tAIChange, -1, -1, "tAIChange", NULL },
   { 31, &hf_gprscdr_ServiceConditionChange_userLocationChange, -1, -1, "userLocationChange", NULL },
+  { 32, &hf_gprscdr_ServiceConditionChange_userCSGInformationChange, -1, -1, "userCSGInformationChange", NULL },
   { 0, NULL, 0, 0, NULL, NULL }
 };
 
@@ -3021,6 +3025,7 @@ static const ber_sequence_t ChangeOfServiceCondition_sequence[] = {
   { &hf_gprscdr_applicationServiceProviderIdentity, BER_CLASS_CON, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
   { &hf_gprscdr_aDCRuleBaseName, BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ADCRuleBaseName },
   { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
+  { &hf_gprscdr_userCSGInformation, BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_UserCSGInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3303,6 +3308,7 @@ static const ber_sequence_t EPDGRecord_set[] = {
   { &hf_gprscdr_iMSsignalingContext, BER_CLASS_CON, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_NULL },
   { &hf_gprscdr_servedIMEI  , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMEI },
   { &hf_gprscdr_rATType     , BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RATType },
+  { &hf_gprscdr_sGWChange   , BER_CLASS_CON, 34, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SGWChange },
   { &hf_gprscdr_p_GWAddressUsed, BER_CLASS_CON, 36, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_gprscdr_GSNAddress },
   { &hf_gprscdr_p_GWPLMNIdentifier, BER_CLASS_CON, 37, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
   { &hf_gprscdr_startTime   , BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TimeStamp },
@@ -3327,8 +3333,8 @@ dissect_gprscdr_EPDGRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 const value_string gprscdr_GPRSRecord_vals[] = {
   {  20, "sgsnPDPRecord" },
-  {  22, "sgsnMMRecord" },
   {  21, "ggsnPDPRecord" },
+  {  22, "sgsnMMRecord" },
   {  23, "sgsnSMORecord" },
   {  24, "sgsnSMTRecord" },
   {  70, "egsnPDPRecord" },
@@ -3342,8 +3348,8 @@ const value_string gprscdr_GPRSRecord_vals[] = {
 
 static const ber_choice_t GPRSRecord_choice[] = {
   {  20, &hf_gprscdr_sgsnPDPRecord_01, BER_CLASS_CON, 20, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNPDPRecord },
-  {  22, &hf_gprscdr_sgsnMMRecord, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNMMRecord },
   {  21, &hf_gprscdr_ggsnPDPRecord_01, BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_gprscdr_GGSNPDPRecordV750 },
+  {  22, &hf_gprscdr_sgsnMMRecord, BER_CLASS_CON, 22, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNMMRecord },
   {  23, &hf_gprscdr_sgsnSMORecord_01, BER_CLASS_CON, 23, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNSMORecord },
   {  24, &hf_gprscdr_sgsnSMTRecord_01, BER_CLASS_CON, 24, BER_FLAGS_IMPLTAG, dissect_gprscdr_SGSNSMTRecord },
   {  70, &hf_gprscdr_egsnPDPRecord_01, BER_CLASS_CON, 70, BER_FLAGS_IMPLTAG, dissect_gprscdr_EGSNPDPRecordV750 },
@@ -4774,6 +4780,10 @@ proto_register_gprscdr(void)
     { &hf_gprscdr_ServiceConditionChange_userLocationChange,
       { "userLocationChange", "gprscdr.userLocationChange",
         FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChange_userCSGInformationChange,
+      { "userCSGInformationChange", "gprscdr.userCSGInformationChange",
+        FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/

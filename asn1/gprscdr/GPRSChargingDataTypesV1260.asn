@@ -1,4 +1,7 @@
-GPRSChargingDataTypesV1250 {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version1 (0)}
+--
+-- 3GPP TS 32.298
+--
+GPRSChargingDataTypesV1260 {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version1 (0)}
 DEFINITIONS IMPLICIT TAGS	::=
 
 BEGIN
@@ -13,7 +16,7 @@ CallingNumber,
 CellId,
 Diagnostics, 
 DiameterIdentity,
---GSNAddress,
+-- GSNAddress,
 IPAddress,
 LCSCause,
 LCSClientIdentity,
@@ -42,29 +45,29 @@ DefaultGPRS-Handling,
 DefaultSMS-Handling,
 NotificationToMSUser,
 ServiceKey
-FROM MAP-MS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-MS-DataTypes (11) version6 (6)}
+FROM MAP-MS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-MS-DataTypes (11) version15 (15)}
 -- from TS 29.002 [214]
 
 IMEI,
 IMSI,
 ISDN-AddressString,
 RAIdentity
-FROM MAP-CommonDataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
+FROM MAP-CommonDataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
 -- from TS 29.002 [214]
 
 CallReferenceNumber
-FROM MAP-CH-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CH-DataTypes (13) version13 (13)}
+FROM MAP-CH-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0)gsm-Network (1) modules (3) map-CH-DataTypes (13) version15 (15)}
 -- from TS 29.002 [214]
 
 Ext-GeographicalInformation,
 LCSClientType,
 LCS-Priority,
 LocationType
-FROM MAP-LCS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-LCS-DataTypes (25) version13 (13) }
+FROM MAP-LCS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-LCS-DataTypes (25) version15 (15) }
 -- from TS 29.002 [214]
 
 LocationMethod
-FROM SS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version13 (13)}
+FROM SS-DataTypes {itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version15 (15)}
 -- from TS 24.080 [209] 
 
 ;
@@ -81,10 +84,10 @@ GPRSRecord	::= CHOICE
 --
 {
 	sgsnPDPRecord			[20] SGSNPDPRecord,
-	sgsnMMRecord			[22] SGSNMMRecord,
 -- WS bacward compabillity addition
 	ggsnPDPRecord			[21] GGSNPDPRecordV750,
 -- WS mod END
+	sgsnMMRecord			[22] SGSNMMRecord,
 	sgsnSMORecord			[23] SGSNSMORecord,
 	sgsnSMTRecord			[24] SGSNSMTRecord,
 --	sgsnMTLCSRecord			[25] SGSNMTLCSRecord,
@@ -339,7 +342,8 @@ EPDGRecord 	::= SET
 	chChSelectionMode			[24] ChChSelectionMode OPTIONAL,
 	iMSsignalingContext			[25] NULL OPTIONAL,
 	servedIMEI					[29] IMEI OPTIONAL,
-	rATType						[30] RATType OPTIONAL,
+	rATType						[30] RATType OPTIONAL, 
+	sGWChange					[34] SGWChange OPTIONAL,
 	p-GWAddressUsed				[36] GSNAddress OPTIONAL,
 	p-GWPLMNIdentifier			[37] PLMN-Id OPTIONAL,
 	startTime					[38] TimeStamp OPTIONAL,
@@ -763,7 +767,9 @@ CauseForRecClosing	::= INTEGER
 -- In PGW-CDR and SGW-CDR the value servingNodeChange is used for partial record
 -- generation due to Serving Node Address list Overflow
 -- In SGSN servingNodeChange indicates the SGSN change
--- 	
+-- 
+-- sWGChange value is used in both the S-GW and ePDG for inter serving node change
+-- 
 -- LCS related causes belong to the MAP error causes acc. TS 29.002 [214]
 --
 -- cause codes 0 to 15 are defined 'CauseForTerm' (cause for termination)
@@ -801,7 +807,8 @@ ChangeCondition	::= ENUMERATED
 	dT-Removal								(9),
 	eCGIChange								(10),	-- bearer modification. "ECGI Change"
 	tAIChange								(11),	-- bearer modification. "TAI Change"
-	userLocationChange						(12)	-- bearer modification. "User Location Change"
+	userLocationChange						(12),	-- bearer modification. "User Location Change"
+	userCSGInformationChange				(13) 	-- bearer modification. "User CSG info Change"
 }
 
 ChangeOfCharCondition	::= SEQUENCE
@@ -821,7 +828,8 @@ ChangeOfCharCondition	::= SEQUENCE
 	userLocationInformation		[8] OCTET STRING OPTIONAL,
 	ePCQoSInformation			[9] EPCQoSInformation OPTIONAL,
 	chargingID					[10] ChargingID OPTIONAL,
-	presenceReportingAreaStatus [11] PresenceReportingAreaStatus OPTIONAL
+	presenceReportingAreaStatus [11] PresenceReportingAreaStatus OPTIONAL,
+	userCSGInformation			[12] UserCSGInformation OPTIONAL
 }
 
 ChangeOfMBMSCondition	::= SEQUENCE
@@ -843,32 +851,33 @@ ChangeOfServiceCondition	::= SEQUENCE
 -- Used for Flow based Charging and Application based Charging service data container
 --
 {
-	ratingGroup 					[1] RatingGroupId,
-	chargingRuleBaseName			[2] ChargingRuleBaseName OPTIONAL,
-	resultCode						[3] ResultCode OPTIONAL,
-	localSequenceNumber				[4] LocalSequenceNumber OPTIONAL,
-	timeOfFirstUsage				[5] TimeStamp OPTIONAL,
-	timeOfLastUsage					[6] TimeStamp OPTIONAL,
-	timeUsage 						[7] CallDuration OPTIONAL,
-	serviceConditionChange			[8] ServiceConditionChange,
-	qoSInformationNeg				[9] EPCQoSInformation OPTIONAL,
-	servingNodeAddress 				[10] GSNAddress OPTIONAL,
-	datavolumeFBCUplink				[12] DataVolumeGPRS OPTIONAL,
-	datavolumeFBCDownlink			[13] DataVolumeGPRS OPTIONAL,
-	timeOfReport					[14] TimeStamp,
-	failureHandlingContinue			[16] FailureHandlingContinue OPTIONAL,
-	serviceIdentifier				[17] ServiceIdentifier OPTIONAL,
-	pSFurnishChargingInformation	[18] PSFurnishChargingInformation OPTIONAL,
-	aFRecordInformation				[19] SEQUENCE OF AFRecordInformation OPTIONAL,
-	userLocationInformation			[20] OCTET STRING OPTIONAL,
-	eventBasedChargingInformation	[21] EventBasedChargingInformation OPTIONAL,
-	timeQuotaMechanism				[22] TimeQuotaMechanism OPTIONAL,
-	serviceSpecificInfo				[23] SEQUENCE OF ServiceSpecificInfo OPTIONAL,
+	ratingGroup 						[1] RatingGroupId,
+	chargingRuleBaseName				[2] ChargingRuleBaseName OPTIONAL,
+	resultCode							[3] ResultCode OPTIONAL,
+	localSequenceNumber					[4] LocalSequenceNumber OPTIONAL,
+	timeOfFirstUsage					[5] TimeStamp OPTIONAL,
+	timeOfLastUsage						[6] TimeStamp OPTIONAL,
+	timeUsage 							[7] CallDuration OPTIONAL,
+	serviceConditionChange				[8] ServiceConditionChange,
+	qoSInformationNeg					[9] EPCQoSInformation OPTIONAL,
+	servingNodeAddress 					[10] GSNAddress OPTIONAL,
+	datavolumeFBCUplink					[12] DataVolumeGPRS OPTIONAL,
+	datavolumeFBCDownlink				[13] DataVolumeGPRS OPTIONAL,
+	timeOfReport						[14] TimeStamp,
+	failureHandlingContinue				[16] FailureHandlingContinue OPTIONAL,
+	serviceIdentifier					[17] ServiceIdentifier OPTIONAL,
+	pSFurnishChargingInformation		[18] PSFurnishChargingInformation OPTIONAL,
+	aFRecordInformation					[19] SEQUENCE OF AFRecordInformation OPTIONAL,
+	userLocationInformation				[20] OCTET STRING OPTIONAL,
+	eventBasedChargingInformation		[21] EventBasedChargingInformation OPTIONAL,
+	timeQuotaMechanism					[22] TimeQuotaMechanism OPTIONAL,
+	serviceSpecificInfo					[23] SEQUENCE OF ServiceSpecificInfo OPTIONAL,
 	threeGPP2UserLocationInformation	[24] OCTET STRING OPTIONAL,
 	sponsorIdentity						[25] OCTET STRING OPTIONAL,
 	applicationServiceProviderIdentity	[26] OCTET STRING OPTIONAL,
 	aDCRuleBaseName						[27] ADCRuleBaseName OPTIONAL,
-	presenceReportingAreaStatus 		[28] PresenceReportingAreaStatus OPTIONAL
+	presenceReportingAreaStatus 		[28] PresenceReportingAreaStatus OPTIONAL,
+	userCSGInformation					[29] UserCSGInformation OPTIONAL
 }
 
 ChangeLocation	::= SEQUENCE
@@ -904,7 +913,7 @@ ChChSelectionMode		::= ENUMERATED
 	aPNSpecific					(2),	-- For SGSN only
 	homeDefault					(3),	-- For SGSN, S-GW, P-GW, TDF and IP-Edge
 	roamingDefault				(4),	-- For SGSN, S-GW, P-GW, TDF and IP-Edge
-	visitingDefault				(5) ,	-- For SGSN, S-GW, P-GW, TDF and IP-Edge
+	visitingDefault				(5),	-- For SGSN, S-GW, P-GW, TDF and IP-Edge
 	fixedDefault				(6)		-- For TDF and IP-Edge 
 }
 
@@ -1117,13 +1126,16 @@ ServiceConditionChange	::= BIT STRING
 	rAIChange								(22),	-- bearer modification. "RAI Change"
 	dCCAServiceSpecificUnitExhausted		(23),	-- DCCA quota reauthorization
 	recordClosure							(24),	-- PGW-CDR closure
-	timeLimit								(25),	-- intermediate recording. From "Service Data	- -	Time Limit" Change-Condition AVP value
-	volumeLimit								(26),	-- intermediate recording.From "Service Data 	- -	Volume Limit" Change-Condition AVP value
+	timeLimit								(25),	-- intermediate recording. From "Service Data
+													--Time Limit" Change-Condition AVP value
+	volumeLimit								(26),	-- intermediate recording.From "Service Data
+													--Volume Limit" Change-Condition AVP value
 	serviceSpecificUnitLimit				(27),	-- intermediate recording
 	envelopeClosure 						(28),	
 	eCGIChange								(29),	-- bearer modification. "ECGI Change"
 	tAIChange								(30),	-- bearer modification. "TAI Change"
-	userLocationChange						(31)	-- bearer modification. "User Location Change"
+	userLocationChange						(31),	-- bearer modification. "User Location Change"
+	userCSGInformationChange				(32)	-- bearer modification. "User CSG info Change"
 }
 --
 -- Trigger and cause values for IP flow level recording are defined for support of independent
@@ -1161,7 +1173,7 @@ SGSNChange	::= BOOLEAN
 
 SGWChange		::= BOOLEAN
 --
--- present if first record after inter S-GW change
+-- present if first record after inter serving node change (SGW, ePDG, HSGW)
 --
 
 TimeQuotaMechanism		::= SEQUENCE

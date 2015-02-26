@@ -25,7 +25,7 @@ EXPORT_FILES = \
 ASN_FILE_LIST = \
 	GenericChargingDataTypesV1250.asn \
 	GPRSChargingDataTypesV641.asn \
-	GPRSChargingDataTypesV1250.asn
+	GPRSChargingDataTypesV1260.asn
 
 INCLUDED_ASN_FILE_LIST = \
 	3GPPGenericChargingDataTypes.asn \
