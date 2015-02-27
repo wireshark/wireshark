@@ -3105,11 +3105,10 @@ static const value_string mip6_opt_acc_net_id_sub_opt_op_id_type[] = {
     {  0,    NULL}
 };
 
-static float degrees_convert_fixed_to_float(guint value)
+static float
+degrees_convert_fixed_to_float(guint value)
 {
-    guint mantissa = 0, exponent = 0, sign = 0, position = 0, mask = 1, *ptrNumber = NULL, i;
-    float floatNumber = 0;
-    ptrNumber = (guint *)&floatNumber;
+    guint mantissa = 0, exponent = 0, sign = 0, position = 0, mask = 1, i;
 
     if (!value)
         return 0;
@@ -3138,11 +3137,11 @@ static float degrees_convert_fixed_to_float(guint value)
 
     exponent = (position - 15 + 127) << 23;
 
-    *ptrNumber = (mantissa | exponent);/* club mantissa, exponent and sign*/
-    return floatNumber;
+    return (float)(mantissa | exponent); /* club mantissa, exponent and sign*/
 }
 
-static void degrees_base_custom(gchar *str, guint degrees)
+static void
+degrees_base_custom(gchar *str, guint degrees)
 {
     g_snprintf(str, ITEM_LABEL_LENGTH, "%f", degrees_convert_fixed_to_float(degrees) );
 }
