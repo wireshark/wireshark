@@ -2900,7 +2900,7 @@ AC_CHECK_FUNC(popcount,
   POPCOUNT_LO="popcount.lo")
 AC_SUBST(POPCOUNT_LO)
 
-AC_CHECK_FUNCS(getprotobynumber gethostbyname2)
+AC_CHECK_FUNCS(getprotobynumber)
 AC_CHECK_FUNCS(issetugid)
 AC_CHECK_FUNCS(mmap mprotect sysconf)
 
