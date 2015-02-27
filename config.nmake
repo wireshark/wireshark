@@ -1191,7 +1191,7 @@ VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 # a portable version work, as the C runtime doesn't have to be
 # installed on the target machine.
 #
-MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 8\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC80.CRT\*.*
+MSVCR_DLL=$(VCINSTALLDIR)\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC80.CRT\*.*
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008EE"
 #
@@ -1215,7 +1215,7 @@ VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 # a portable version work, as the C runtime doesn't have to be
 # installed on the target machine.
 #
-MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC90.CRT\*.*
+MSVCR_DLL=$(VCINSTALLDIR)\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC90.CRT\*.*
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010EE"
 #
@@ -1227,6 +1227,7 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\$(PROCESSOR_ARC
 # vcredist_x86.exe or vcredist_x64.exe, from Microsoft first, and copy
 # it to the lib folder!!!
 VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
+
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2010"
 #
 # For MSVC 2010 non-Express Edition, we "Install a particular Visual C++
@@ -1241,7 +1242,7 @@ VCREDIST_EXE=$(VCREDIST_DIR)\vcredist_$(TARGET_MACHINE).exe
 # C++ assembly as a private assembly for the application", starting
 # with Visual Studio 2010.
 #
-MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT\*.*
+MSVCR_DLL=$(VCINSTALLDIR)\redist\$(TARGET_MACHINE)\Microsoft.VC100.CRT\*.*
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2012" || "$(MSVC_VARIANT)" == "MSVC2012EE"
 #
 # EE version added as per bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9227
@@ -1258,7 +1259,7 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 10.0\VC\redist\$(TARGET_MACHI
 # C++ assembly as a private assembly for the application", starting
 # with Visual Studio 2010.
 #
-MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 11.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC110.CRT\*.*
+MSVCR_DLL=$(VCINSTALLDIR)\redist\$(TARGET_MACHINE)\Microsoft.VC110.CRT\*.*
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2013" || "$(MSVC_VARIANT)" == "MSVC2013EE"
 #
 # EE version added as per bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9227
@@ -1275,7 +1276,7 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 11.0\VC\redist\$(TARGET_MACHI
 # C++ assembly as a private assembly for the application", starting
 # with Visual Studio 2010.
 #
-MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 12.0\VC\redist\$(TARGET_MACHINE)\Microsoft.VC120.CRT\*.*
+MSVCR_DLL=$(VCINSTALLDIR)\redist\$(TARGET_MACHINE)\Microsoft.VC120.CRT\*.*
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
