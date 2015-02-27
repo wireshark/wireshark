@@ -2902,7 +2902,7 @@ AC_SUBST(POPCOUNT_LO)
 
 AC_CHECK_FUNCS(getprotobynumber)
 AC_CHECK_FUNCS(issetugid)
-AC_CHECK_FUNCS(mmap mprotect sysconf)
+AC_CHECK_FUNCS(sysconf)
 
 dnl blank for now, but will be used in future
 AC_SUBST(wireshark_SUBDIRS)
