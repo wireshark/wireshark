@@ -833,6 +833,7 @@ static int sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len _U_)
 {
 	const guint8 *addrdata;
 	struct sna_fid_type_4_addr sna_fid_type_4_addr;
+	gchar *bufp = buf;
 
 	switch (addr->len) {
 
@@ -852,10 +853,10 @@ static int sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len _U_)
 		/* FID Type 4 */
 		memcpy(&sna_fid_type_4_addr, addr->data, SNA_FID_TYPE_4_ADDR_LEN);
 
-		buf = dword_to_hex(buf, sna_fid_type_4_addr.saf);
-		*buf++ = '.';
-		buf = word_to_hex(buf, sna_fid_type_4_addr.ef);
-		*buf++ = '\0'; /* NULL terminate */
+		bufp = dword_to_hex(bufp, sna_fid_type_4_addr.saf);
+		*bufp++ = '.';
+		bufp = word_to_hex(bufp, sna_fid_type_4_addr.ef);
+		*bufp++ = '\0'; /* NULL terminate */
 		break;
 	default:
 		buf[0] = '\0';
