@@ -540,12 +540,10 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ENDTRY;
 	}
 
-	/* XXX - copy it to some buffer associated with "*pinfo", rather than
-	   just making "trn_shost_nonsr" static? */
 	SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, trn_shost_nonsr);
-	SET_ADDRESS(&pinfo->src,	AT_ETHER, 6, trn_shost_nonsr);
+	COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
 	SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, trh->dst.data);
-	SET_ADDRESS(&pinfo->dst,	AT_ETHER, 6, trh->dst.data);
+	COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
 
 	/* protocol analysis tree */
 	if (tree) {

@@ -714,12 +714,12 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      *=====================================================
      */
     /* Clear out the addressing strings. */
-    SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
-    SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
-    SET_ADDRESS(&pinfo->dl_dst, AT_NONE, 0, NULL);
-    SET_ADDRESS(&pinfo->dl_src, AT_NONE, 0, NULL);
     SET_ADDRESS(&pinfo->net_dst, AT_NONE, 0, NULL);
+    COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
+    COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
     SET_ADDRESS(&pinfo->net_src, AT_NONE, 0, NULL);
+    COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
+    COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 
     /* Get and display the destination PAN, if present. */
     if ( (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) ||
@@ -751,7 +751,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
 
         TVB_SET_ADDRESS(&pinfo->dl_dst, ieee802_15_4_short_address_type, tvb, offset, 2);
-        TVB_SET_ADDRESS(&pinfo->dst, ieee802_15_4_short_address_type, tvb, offset, 2);
+        COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
 
         if (tree) {
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst16, tvb, offset, 2, packet->dst16);
@@ -776,7 +776,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
          * epan/addr_resolv.c.
          */
         SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, 8, p_addr);
-        SET_ADDRESS(&pinfo->dst, AT_EUI64, 8, p_addr);
+        COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(wmem_packet_scope(), packet->dst64));
@@ -845,7 +845,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
 
         TVB_SET_ADDRESS(&pinfo->dl_src, ieee802_15_4_short_address_type, tvb, offset, 2);
-        TVB_SET_ADDRESS(&pinfo->src, ieee802_15_4_short_address_type, tvb, offset, 2);
+        COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
 
         /* Add the addressing info to the tree. */
         if (tree) {
@@ -889,7 +889,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
          * epan/addr_resolv.c.
          */
         SET_ADDRESS(&pinfo->dl_src, AT_EUI64, 8, p_addr);
-        SET_ADDRESS(&pinfo->src, AT_EUI64, 8, p_addr);
+        COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(wmem_packet_scope(), packet->src64));

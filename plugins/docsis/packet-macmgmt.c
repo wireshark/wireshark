@@ -146,7 +146,6 @@ static const value_string mgmt_type_vals[] = {
 static void
 dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  const guint8 *src, *dst;
   guint16 msg_len;
   proto_item *mgt_hdr_it;
   proto_tree *mgt_hdr_tree;
@@ -157,12 +156,10 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   col_clear(pinfo->cinfo, COL_INFO);
 
-  src = tvb_get_ptr (tvb, 6, 6);
-  dst = tvb_get_ptr (tvb, 0, 6);
-  SET_ADDRESS (&pinfo->dl_src, AT_ETHER, 6, src);
-  SET_ADDRESS (&pinfo->src, AT_ETHER, 6, src);
-  SET_ADDRESS (&pinfo->dl_dst, AT_ETHER, 6, dst);
-  SET_ADDRESS (&pinfo->dst, AT_ETHER, 6, dst);
+  TVB_SET_ADDRESS (&pinfo->dl_src, AT_ETHER, tvb, 6, 6);
+  COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
+  TVB_SET_ADDRESS (&pinfo->dl_dst, AT_ETHER, tvb, 0, 6);
+  COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
 
   if (tree)
     {

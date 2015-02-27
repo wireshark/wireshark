@@ -430,12 +430,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
 
             SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
+            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 
             SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
-            SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 10, "broadcast");
-            SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 10, "broadcast");
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
+            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -462,12 +462,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_initiator_addresss, btle_tree, tvb, offset, dst_bd_addr);
 
             SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
+            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 
             SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
+            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -487,12 +487,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, dst_bd_addr);
 
             SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
+            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 
             SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
+            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -511,12 +511,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, src_bd_addr);
 
             SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
+            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 
             SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
-            SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 10, "broadcast");
-            SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 10, "broadcast");
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
+            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -546,12 +546,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset, dst_bd_addr);
 
             SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->dl_src,  AT_ETHER, 6, src_bd_addr);
-            SET_ADDRESS(&pinfo->src,     AT_ETHER, 6, src_bd_addr);
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
+            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 
             SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dl_dst,  AT_ETHER, 6, dst_bd_addr);
-            SET_ADDRESS(&pinfo->dst,     AT_ETHER, 6, dst_bd_addr);
+            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
+            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -663,12 +663,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 g_snprintf(str_addr, str_addr_len, "unknown_0x%08x", connection_address->access_address);
 
                 SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, str_addr_len, str_addr);
-                SET_ADDRESS(&pinfo->dl_src,  AT_STRINGZ, str_addr_len, str_addr);
-                SET_ADDRESS(&pinfo->src,     AT_STRINGZ, str_addr_len, str_addr);
+                COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
+                COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 
                 SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, str_addr_len, str_addr);
-                SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, str_addr_len, str_addr);
-                SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, str_addr_len, str_addr);
+                COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
+                COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 
                 if (!pinfo->fd->flags.visited) {
                     address *addr;

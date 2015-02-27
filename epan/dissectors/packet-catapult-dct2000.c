@@ -2602,9 +2602,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         TVB_SET_ADDRESS(&pinfo->net_src,
                                     (source_addr_length == 4) ? AT_IPv4 : AT_IPv6,
                                     tvb, source_addr_offset, source_addr_length);
-                        TVB_SET_ADDRESS(&pinfo->src,
-                                    (source_addr_length == 4) ? AT_IPv4 : AT_IPv6,
-                                    tvb, source_addr_offset, source_addr_length);
+                        COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
 
                         proto_tree_add_item(ipprim_tree,
                                             (source_addr_length == 4) ?
@@ -2645,9 +2643,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         TVB_SET_ADDRESS(&pinfo->net_dst,
                                     (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
                                     tvb, dest_addr_offset, dest_addr_length);
-                        TVB_SET_ADDRESS(&pinfo->dst,
-                                    (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
-                                    tvb, dest_addr_offset, dest_addr_length);
+                        COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
                         proto_tree_add_item(ipprim_tree,
                                             (dest_addr_length == 4) ?
                                                 hf_catapult_dct2000_ipprim_dst_addr_v4 :
@@ -2756,9 +2752,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         TVB_SET_ADDRESS(&pinfo->net_dst,
                                     (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
                                     tvb, dest_addr_offset, dest_addr_length);
-                        TVB_SET_ADDRESS(&pinfo->dst,
-                                    (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
-                                    tvb, dest_addr_offset, dest_addr_length);
+                        COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
                         proto_tree_add_item(sctpprim_tree,
                                             (dest_addr_length == 4) ?
                                                 hf_catapult_dct2000_sctpprim_dst_addr_v4 :

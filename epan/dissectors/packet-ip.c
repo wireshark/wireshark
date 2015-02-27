@@ -2224,8 +2224,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
   src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
   TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv4, tvb, offset + IPH_SRC, 4);
-  SET_ADDRESS(&pinfo->src, AT_IPv4, 4, pinfo->net_src.data);
-  SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, pinfo->net_src.data);
+  COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+  COPY_ADDRESS_SHALLOW(&iph->ip_src, &pinfo->src);
   if (tree) {
     const char *src_host;
 
@@ -2266,8 +2266,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   dst32 = tvb_get_ntohl(tvb, offset + IPH_DST + dst_off);
   TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv4, tvb, offset + IPH_DST + dst_off, 4);
-  SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, pinfo->net_dst.data);
-  SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, pinfo->net_dst.data);
+  COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+  COPY_ADDRESS_SHALLOW(&iph->ip_dst, &pinfo->net_dst);
 
   /* If an IP is destined for an IP address in the Local Network Control Block
    * (e.g. 224.0.0.0/24), the packet should never be routed and the TTL would

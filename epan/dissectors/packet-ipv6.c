@@ -1870,9 +1870,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     set_actual_length(tvb, plen + (guint)sizeof (struct ip6_hdr));
 
     TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset + IP6H_SRC, 16);
-    TVB_SET_ADDRESS(&pinfo->src, AT_IPv6,     tvb, offset + IP6H_SRC, 16);
+    COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
     TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset + IP6H_DST, 16);
-    TVB_SET_ADDRESS(&pinfo->dst, AT_IPv6,     tvb, offset + IP6H_DST, 16);
+    COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 
     ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, ENC_NA);
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
