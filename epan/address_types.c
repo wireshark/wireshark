@@ -401,12 +401,13 @@ int ipv6_name_res_len(void)
 static int ipx_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addrdata = (const guint8 *)addr->data;
+    gchar *bufp = buf;
 
-    buf = bytes_to_hexstr(buf, &addrdata[0], 4); /* 8 bytes */
-    *buf++ = '.'; /*1 byte */
-    buf = bytes_to_hexstr(buf, &addrdata[4], 6); /* 12 bytes */
-    *buf++ = '\0'; /* NULL terminate */
-    return (int)(strlen(buf)+1);
+    bufp = bytes_to_hexstr(bufp, &addrdata[0], 4); /* 8 bytes */
+    *bufp++ = '.'; /*1 byte */
+    bufp = bytes_to_hexstr(bufp, &addrdata[4], 6); /* 12 bytes */
+    *bufp++ = '\0'; /* NULL terminate */
+    return (int)(bufp - buf);
 }
 
 static int ipx_str_len(const address* addr _U_)
@@ -427,13 +428,14 @@ static int ipx_len(void)
 static int vines_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addr_data = (const guint8 *)addr->data;
+    gchar *bufp = buf;
 
-    buf = dword_to_hex(buf, pntoh32(&addr_data[0])); /* 8 bytes */
-    *buf++ = '.'; /* 1 byte */
-    buf = word_to_hex(buf, pntoh16(&addr_data[4])); /* 4 bytes */
-    *buf = '\0'; /* NULL terminate */
+    bufp = dword_to_hex(bufp, pntoh32(&addr_data[0])); /* 8 bytes */
+    *bufp++ = '.'; /* 1 byte */
+    bufp = word_to_hex(bufp, pntoh16(&addr_data[4])); /* 4 bytes */
+    *bufp++ = '\0'; /* NULL terminate */
 
-    return (int)(strlen(buf)+1);
+    return (int)(bufp - buf);
 }
 
 static int vines_str_len(const address* addr _U_)
@@ -451,10 +453,12 @@ static int vines_len(void)
  ******************************************************************************/
 static int fc_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
-    buf = bytes_to_hexstr_punct(buf, (const guint8 *)addr->data, 3, '.');
-    *buf = '\0'; /* NULL terminate */
+    gchar *bufp = buf;
 
-    return (int)(strlen(buf)+1);
+    bufp = bytes_to_hexstr_punct(bufp, (const guint8 *)addr->data, 3, '.');
+    *bufp++ = '\0'; /* NULL terminate */
+
+    return (int)(bufp - buf);
 }
 
 static int fc_str_len(const address* addr _U_)
@@ -643,18 +647,19 @@ static int usb_addr_str_len(const address* addr _U_)
 static int ax25_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
     const guint8 *addrdata = (const guint8 *)addr->data;
+    gchar *bufp = buf;
 
-    *buf++ = printable_char_or_period(addrdata[0] >> 1);
-    *buf++ = printable_char_or_period(addrdata[1] >> 1);
-    *buf++ = printable_char_or_period(addrdata[2] >> 1);
-    *buf++ = printable_char_or_period(addrdata[3] >> 1);
-    *buf++ = printable_char_or_period(addrdata[4] >> 1);
-    *buf++ = printable_char_or_period(addrdata[5] >> 1);
-    *buf++ = '-';
-    buf = uint_to_str_back(buf, (addrdata[6] >> 1) & 0x0f);
-    *buf = '\0'; /* NULL terminate */
+    *bufp++ = printable_char_or_period(addrdata[0] >> 1);
+    *bufp++ = printable_char_or_period(addrdata[1] >> 1);
+    *bufp++ = printable_char_or_period(addrdata[2] >> 1);
+    *bufp++ = printable_char_or_period(addrdata[3] >> 1);
+    *bufp++ = printable_char_or_period(addrdata[4] >> 1);
+    *bufp++ = printable_char_or_period(addrdata[5] >> 1);
+    *bufp++ = '-';
+    bufp = uint_to_str_back(bufp, (addrdata[6] >> 1) & 0x0f);
+    *bufp++ = '\0'; /* NULL terminate */
 
-    return (int)(strlen(buf)+1);
+    return (int)(bufp - buf);
 }
 
 static int ax25_addr_str_len(const address* addr _U_)
