@@ -23,8 +23,9 @@
 
 #include "config.h"
 
+#include <string.h>
+
 #include <glib.h>
-#include <memory.h>
 
 #include "codec-g722.h"
 

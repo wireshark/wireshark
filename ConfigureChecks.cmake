@@ -30,7 +30,6 @@ check_include_file("fcntl.h"             HAVE_FCNTL_H)
 check_include_file("getopt.h"            HAVE_GETOPT_H)
 check_include_file("grp.h"               HAVE_GRP_H)
 check_include_file("inttypes.h"          HAVE_INTTYPES_H)
-check_include_file("memory.h"            HAVE_MEMORY_H)
 check_include_file("netinet/in.h"        HAVE_NETINET_IN_H)
 check_include_file("netdb.h"             HAVE_NETDB_H)
 # We need to set the path to Wpdpack in order to find Ntddndis.h
