@@ -86,6 +86,8 @@ typedef struct kerberos_key {
 
 typedef struct {
 	guint32 msg_type;
+	guint32 errorcode;
+	gboolean try_nt_status;
 	guint32 etype;
 	guint32 padata_type;
 	guint32 is_enc_padata;
@@ -122,6 +124,9 @@ static gint hf_krb_rm_reserved = -1;
 static gint hf_krb_rm_reclen = -1;
 static gint hf_krb_provsrv_location = -1;
 static gint hf_krb_pw_salt = -1;
+static gint hf_krb_ext_error_nt_status = -1;
+static gint hf_krb_ext_error_reserved = -1;
+static gint hf_krb_ext_error_flags = -1;
 static gint hf_krb_address_ip = -1;
 static gint hf_krb_address_netbios = -1;
 static gint hf_krb_address_ipv6 = -1;
@@ -187,7 +192,6 @@ static expert_field ei_krb_gssapi_dlglen = EI_INIT;
 static dissector_handle_t krb4_handle=NULL;
 
 /* Global variables */
-static guint32 krb5_errorcode;
 static guint32 gbl_keytype;
 static gboolean gbl_do_col_info;
 
@@ -1533,16 +1537,62 @@ dissect_krb5_PA_PROV_SRV_LOCATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_krb5_PW_SALT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
 {
-	guint length;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	gint length;
+	guint32 nt_status = 0;
+	guint32 reserved = 0;
+	guint32 flags = 0;
 
-	/* Microsoft stores a special 12 byte blob here
+	/*
+	 * Microsoft stores a special 12 byte blob here
+	 * [MS-KILE] 2.2.1 KERB-EXT-ERROR
 	 * guint32 NT_status
-	 * guint32 unknown
-	 * guint32 unknown
-	 * However RFC 4120 section 5.2.7.3 leaves it undefined.
-	 * Therefore we only print the hex value.
+	 * guint32 reserved (== 0)
+	 * guint32 flags (at least 0x00000001 is set)
 	 */
 	length = tvb_reported_length_remaining(tvb, offset);
+	if (length <= 0) {
+		return offset;
+	}
+	if (length != 12) {
+		goto no_error;
+	}
+
+	if (private_data->errorcode == 0) {
+		goto no_error;
+	}
+
+	if (!private_data->try_nt_status) {
+		goto no_error;
+	}
+
+	nt_status = tvb_get_letohl(tvb, offset);
+	reserved = tvb_get_letohl(tvb, offset + 4);
+	flags = tvb_get_letohl(tvb, offset + 8);
+
+	if (nt_status == 0 || reserved != 0 || flags == 0) {
+		goto no_error;
+	}
+
+	proto_tree_add_item(tree, hf_krb_ext_error_nt_status, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO,
+			" NT Status: %s",
+			val_to_str(nt_status, NT_errors,
+			"Unknown error code %#x"));
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_ext_error_reserved, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_ext_error_flags, tvb, offset, 4,
+			ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+
+ no_error:
 	proto_tree_add_item(tree, hf_krb_pw_salt, tvb, offset, length, ENC_NA);
 	offset += length;
 
@@ -2105,6 +2155,15 @@ void proto_register_kerberos(void) {
 		NULL, 0, "PacketCable PROV SRV Location", HFILL }},
 	{ &hf_krb_pw_salt,
 		{ "pw-salt", "kerberos.pw_salt", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_ext_error_nt_status, /* we keep kerberos.smb.nt_status for compat reasons */
+		{ "NT Status", "kerberos.smb.nt_status", FT_UINT32, BASE_HEX,
+		VALS(NT_errors), 0, "NT Status code", HFILL }},
+	{ &hf_krb_ext_error_reserved,
+		{ "Reserved", "kerberos.ext_error.reserved", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_ext_error_flags,
+		{ "Flags", "kerberos.ext_error.flags", FT_UINT32, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_address_ip, {
 		"IP Address", "kerberos.addr_ip", FT_IPv4, BASE_NONE,

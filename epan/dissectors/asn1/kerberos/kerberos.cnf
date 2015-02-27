@@ -87,21 +87,24 @@ guint32 msgtype;
 	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
 ##endif
 
-#.FN_BODY ERROR-CODE VAL_PTR = &krb5_errorcode
+#.FN_BODY ERROR-CODE VAL_PTR = &private_data->errorcode
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 %(DEFAULT_BODY)s
 
 #.FN_FTR ERROR-CODE
-	if(krb5_errorcode) {
+	if (private_data->errorcode) {
 		col_add_fstr(actx->pinfo->cinfo, COL_INFO,
 			"KRB Error: %s",
-			val_to_str(krb5_errorcode, krb5_error_codes,
+			val_to_str(private_data->errorcode, krb5_error_codes,
 			"Unknown error code %#x"));
 	}
 
 	return offset;
 #.END
 #.FN_BODY KRB-ERROR/_untag/e-data
-	switch(krb5_errorcode){
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+
+	switch (private_data->errorcode) {
 	case KRB5_ET_KRB5KDC_ERR_BADOPTION:
 	case KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED:
 	case KRB5_ET_KRB5KDC_ERR_KEY_EXP:
@@ -109,6 +112,7 @@ guint32 msgtype;
 		/* ms windows kdc sends e-data of this type containing a "salt"
 		 * that contains the nt_status code for these error codes.
 		 */
+		private_data->try_nt_status = TRUE;
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_PA_DATA);
 		break;
 	case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
