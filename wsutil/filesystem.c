@@ -717,9 +717,23 @@ DIAG_ON(pedantic)
                 if (!started_with_special_privs())
                     running_in_build_directory_flag = TRUE;
             }
+            else if (!started_with_special_privs()) {
+                /*
+                 * Check for the CMake output directory. As people may name
+                 * their directories "run" (really?), also check for the
+                 * CMakeCache.txt file before assuming a CMake output dir.
+                 */
+                if (strcmp(dir_end, "/run") == 0) {
+                    gchar *cmake_file;
+                    cmake_file = g_strdup_printf("%.*s/CMakeCache.txt",
+                                                 (int)(dir_end - prog_pathname),
+                                                 prog_pathname);
+                    if (file_exists(cmake_file))
+                        running_in_build_directory_flag = TRUE;
+                    g_free(cmake_file);
+                }
 #ifdef __APPLE__
-            else {
-                if (!started_with_special_privs()) {
+                if (!running_in_build_directory_flag) {
                     /*
                      * Scan up the path looking for a component
                      * named "Contents".  If we find it, we assume
@@ -761,8 +775,8 @@ DIAG_ON(pedantic)
                         p--;
                     }
                 }
-            }
 #endif
+            }
         }
 
         /*

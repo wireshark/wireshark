@@ -174,33 +174,6 @@ What needs to be done?
   appropriately for OS X. We currently use NSIS for the Windows installer but
   should probably use WiX instead.
 - Add support for cmake configurations.
-- Automatically figure out if *shark is running from the build directory
-  (making WIRESHARK_RUN_FROM_BUILD_DIRECTORY unnecessary like it is with
-  autofoo).
-  Sadly:
-
-      $ file run/qtshark
-      run/qtshark: Mach-O 64-bit x86_64 executable
-
-  so what you're running from the build directory is the executable
-  itself.  autofoo includes libtool in our case, so what you're running
-  from the build directory is a script that then runs the executable,
-  and the executable is in a .libs directory; the code that checks for
-  "running from the build directory?" checks for that.  The actual
-  executable isn't supposed to be run directly - it's expected to be run
-  by the wrapper script and might not even work if run directly, as it
-  won't find the relevant shared libraries.
-
-  We could perhaps check for the executable being in a "run" directory
-  instead, if the build drops it there.  However, it's possible, at
-  least on OS X, to copy the executable to another directory and have
-  it run, so the guarantee that it's in a "run" directory is not as
-  strong.
-- Get plugins loading when running *shark from the build directory.
-  That might involve handling ".libs" and "run" differently.  The chance
-  that a random directory the executable was ultimately placed in would
-  be named "run" might also be a bit bigger than the chance that it's
-  named ".libs".
 - Get cross-compilation working (or ensure it does). It works with autofoo--and
   people use it.
 - Handle -DFORTIFY_SOURCE=2 appropriately.  (Do a Web search for
