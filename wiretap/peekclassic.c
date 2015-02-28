@@ -134,7 +134,7 @@ static const peekclassic_encap_lookup_t peekclassic_encap[] = {
 	(sizeof (peekclassic_encap) / sizeof (peekclassic_encap[0]))
 
 typedef struct {
-	struct timeval reference_time;
+	time_t reference_time;
 } peekclassic_t;
 
 static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
@@ -153,7 +153,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 {
 	peekclassic_header_t ep_hdr;
-	struct timeval reference_time;
+	time_t reference_time;
 	int file_encap;
 	peekclassic_t *peekclassic;
 
@@ -298,10 +298,8 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 		ep_hdr.secondary.v567.linkSpeed =
 		    g_ntohl(ep_hdr.secondary.v567.linkSpeed);
 
-		/* Get the reference time as a "struct timeval" */
-		reference_time.tv_sec  =
-		    ep_hdr.secondary.v567.timeDate - mac2unix;
-		reference_time.tv_usec = 0;
+		/* Get the reference time as a time_t */
+		reference_time = ep_hdr.secondary.v567.timeDate - mac2unix;
 		break;
 
 	default:
@@ -573,8 +571,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	/* timestamp is in milliseconds since reference_time */
-	phdr->ts.secs  = peekclassic->reference_time.tv_sec
-	    + (timestamp / 1000);
+	phdr->ts.secs  = peekclassic->reference_time + (timestamp / 1000);
 	phdr->ts.nsecs = 1000 * (timestamp % 1000) * 1000;
 	phdr->len      = length;
 	phdr->caplen   = sliceLength;
