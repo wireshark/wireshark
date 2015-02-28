@@ -403,8 +403,8 @@ static gchar *
 time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
 {
   const gchar  *lf = want_lf ? "\n" : "";
-  static gchar  time_string_buf[20];
-  char         *time_string_ctime;
+  static gchar  time_string_buf[4+1+2+1+2+1+2+1+2+1+2+1+1];
+  struct tm *ti_tm;
 
   if (cf_info->times_known && cf_info->packet_count > 0) {
     if (time_as_secs) {
@@ -412,20 +412,21 @@ time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
       g_snprintf(time_string_buf, 20, "%lu%s", (unsigned long)timer, lf);
       return time_string_buf;
     } else {
-      time_string_ctime = ctime(&timer);
-      if (time_string_ctime == NULL) {
+      ti_tm = localtime(&timer);
+      if (ti_tm == NULL) {
         g_snprintf(time_string_buf, 20, "Not representable%s", lf);
         return time_string_buf;
       }
-      if (!want_lf) {
-        /*
-         * The ctime() function returns a string formatted as:
-         *   "Www Mmm dd hh:mm:ss yyyy\n"
-         * The unwanted '\n' is the 24th character.
-         */
-        time_string_ctime[24] = '\0';
-      }
-      return time_string_ctime;
+      g_snprintf(time_string_buf, sizeof time_string_buf,
+             "%04d-%02d-%02d %02d:%02d:%02d%s",
+             ti_tm->tm_year + 1900,
+             ti_tm->tm_mon + 1,
+             ti_tm->tm_mday,
+             ti_tm->tm_hour,
+             ti_tm->tm_min,
+             ti_tm->tm_sec,
+             lf);
+      return time_string_buf;
     }
   }
 
@@ -511,9 +512,9 @@ print_stats(const gchar *filename, capture_info *cf_info)
     if (cap_duration) /* XXX - shorten to hh:mm:ss */
                           print_value("Capture duration:    ", 0, " seconds",   cf_info->duration);
     if (cap_start_time)
-                          printf     ("Start time:          %s", time_string(start_time_t, cf_info, TRUE));
+                          printf     ("First packet time:   %s", time_string(start_time_t, cf_info, TRUE));
     if (cap_end_time)
-                          printf     ("End time:            %s", time_string(stop_time_t, cf_info, TRUE));
+                          printf     ("Last packet time:    %s", time_string(stop_time_t, cf_info, TRUE));
     if (cap_data_rate_byte) {
                           printf     ("Data byte rate:      ");
       if (machine_readable) {
