@@ -21,10 +21,6 @@
 #ifndef __WTAP_H__
 #define __WTAP_H__
 
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
 #include <glib.h>
 #include <time.h>
 #include <wsutil/buffer.h>

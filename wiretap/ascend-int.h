@@ -24,10 +24,6 @@
 #ifndef __ASCEND_INT_H__
 #define __ASCEND_INT_H__
 
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
 #include <glib.h>
 #include "ws_symbol_export.h"
 

@@ -54,10 +54,6 @@
 #include <getopt.h>
 #endif
 
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
 #ifdef HAVE_LIBZ
 #include <zlib.h>     /* to get the libz version number */
 #endif

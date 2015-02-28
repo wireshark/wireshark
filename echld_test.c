@@ -32,7 +32,6 @@
 # include <sys/types.h>
 #endif
 
-#include <sys/time.h>
 #include <sys/uio.h>
 
 #ifdef HAVE_UNISTD_H
