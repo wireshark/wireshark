@@ -3108,36 +3108,33 @@ static const value_string mip6_opt_acc_net_id_sub_opt_op_id_type[] = {
 static float
 degrees_convert_fixed_to_float(guint value)
 {
-    guint mantissa = 0, exponent = 0, sign = 0, position = 0, mask = 1, i;
-
     if (!value)
         return 0;
 
-    /* If negative number save sign bit and take 2' complement*/
-    if (value & 0x800000) /* Input value is 24 bit number*/
-    {
-        value -= 1;
-        value ^= -1;
-        sign = 1;
+    /*
+     * RFC 6757 section 3.1.2:
+     *
+     * "A 24-bit {latitude,longitude} degree value encoded as a two's
+     * complement, fixed point number with 9 whole bits."
+     *
+     * "9 whole bits" presumably includes the sign bit; 1 sign bit
+     * plus 8 more bits supports values between -256 and 255, which
+     * is sufficient to cover -180 to 180.  9 bits plus a sign bit
+     * would waste a bit.
+     *
+     * So we have 1 sign bit plus 8 bits of integral value, followed
+     * by a binary point, followed by 15 bits of fractional value.
+     * That means that to get the value, we treat the fixed-point
+     * number as an integer and divide it by 2^15 = 32768.
+     */
+
+    /* Sign-extend to 32 bits */
+    if (value & 0x800000) {
+        value |= 0xFF000000;
     }
 
-    /* Find position of left most 1*/
-    for (i = 0; i<24; i++)
-    {
-        if (value & mask)
-            position = i;
-        mask = (mask << 1);
-    }
-
-    mantissa = (value << (32 - position - 8 - 1));
-    mantissa &= 0x007FFFFF;
-
-    if (sign)
-        mantissa = (mantissa | 0x80000000);
-
-    exponent = (position - 15 + 127) << 23;
-
-    return (float)(mantissa | exponent); /* club mantissa, exponent and sign*/
+    /* Cast to a signed value, and divide by 32768; do a floating-point divide */
+    return ((float)(gint)value) / 32768.0f;
 }
 
 static void
