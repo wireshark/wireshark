@@ -548,7 +548,10 @@ LR-TYPE ::= INTEGER {
 --	pausec[1]		Krb5int32 OPTIONAL
 --}
 
+-- WS put extensions found elsewhere here
 -- draft-brezak-win2k-krb-authz-01
+-- MS-KILE: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-kile
+-- MS-SFU: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu
 PA-PAC-REQUEST ::= SEQUENCE {
 	include-pac[0]		BOOLEAN -- Indicates whether a PAC 
 					-- should be included or not
@@ -841,14 +844,6 @@ PA-ServerReferralData ::= SEQUENCE {
 	requested-principal-name [2] PrincipalName OPTIONAL,
 	referral-valid-until     [3] KerberosTime OPTIONAL,
 	...
-}
--- WS put extensions found elsewhere here
--- MS-KILE: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-kile
--- MS-SFU: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu
-
-KERB-PA-PAC-REQUEST ::= SEQUENCE { 
-include-pac[0] BOOLEAN --If TRUE, and no pac present, include PAC. 
-                       --If FALSE, and PAC present, remove PAC 
 }
 
 PAC-OPTIONS-FLAGS ::= BIT STRING {
