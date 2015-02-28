@@ -232,7 +232,6 @@ static char* param_get_packet_count(char** err) {
 
 static echld_bool_t param_set_dfilter(char* val , char** err) {
 	dfilter_t *dfn = NULL;
-	gchar *err_msg;
 
 	if (child.state != IDLE && child.state != DONE ) {
 		*err = g_strdup("Only while idle or done");
