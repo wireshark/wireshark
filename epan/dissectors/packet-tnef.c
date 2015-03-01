@@ -607,7 +607,10 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
     }
 
-    offset += length;
+    /* check for overflow */
+    if (offset + length > (guint32)offset) {
+      offset += length;
+    }
 
     proto_tree_add_item(attr_tree, hf_tnef_attribute_checksum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
