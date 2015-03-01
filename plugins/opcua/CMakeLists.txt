@@ -65,6 +65,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 register_dissector_files(plugin.c
 	plugin
 	${DISSECTOR_SRC}
+	${DISSECTOR_SUPPORT_SRC}
 )
 
 add_plugin_library(opcua)

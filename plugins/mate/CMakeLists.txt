@@ -71,6 +71,7 @@ endif()
 register_dissector_files(plugin.c
 	plugin
 	${DISSECTOR_SRC}
+	${DISSECTOR_SUPPORT_SRC}
 )
 
 add_plugin_library(mate)
