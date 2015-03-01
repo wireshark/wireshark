@@ -685,7 +685,7 @@ void PacketList::recolorPackets()
 void PacketList::setAutoScroll(bool enabled)
 {
     tail_at_end_ = enabled;
-    if (enabled) {
+    if (enabled && capture_in_progress_) {
         scrollToBottom();
         if (tail_timer_id_ < 1) tail_timer_id_ = startTimer(tail_update_interval_);
     } else if (tail_timer_id_ > 0) {
