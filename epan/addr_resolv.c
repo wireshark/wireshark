@@ -889,7 +889,7 @@ try_resolv:
             fill_dummy_ip4(addr, tp);
             return tp;
         }
-#elif defined(HAVE_GETADDRINFO)
+
         /*
          * The Windows "gethostbyaddr()" insists on translating 0.0.0.0 to
          * the name of the host on which it's running; to work around that
@@ -899,6 +899,7 @@ try_resolv:
          * Presumably getaddrinfo() behaves the same way.  Anyway, we should
          * never get to this code on Windows since those builds include c-ares.
          */
+#elif defined(HAVE_GETADDRINFO)
         if (addr != 0) {
             struct sockaddr_in sin;
 
@@ -908,6 +909,17 @@ try_resolv:
             if (getnameinfo((struct sockaddr *)&sin, sizeof(sin),
                             tp->name, sizeof(tp->name),
                             NULL, 0, NI_NAMEREQD) == 0) {
+                return tp;
+            }
+        }
+#elif defined(HAVE_GETHOSTBYNAME)
+        if (addr != 0) {
+            struct hostent *hostp;
+
+            hostp = gethostbyaddr((const char *)&addr, 4, AF_INET);
+
+            if (hostp != NULL && hostp->h_name[0] != '\0') {
+                g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
                 return tp;
             }
         }
@@ -943,6 +955,8 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
     async_dns_queue_msg_t *caqm;
 #elif defined(HAVE_GETADDRINFO)
     struct sockaddr_in6 sin6;
+#elif defined(HAVE_GETHOSTBYNAME)
+    struct hostent *hostp;
 #endif
 #endif /* INET6 */
 
@@ -991,14 +1005,22 @@ try_resolv:
             return tp;
         }
 #elif defined(HAVE_GETADDRINFO)
-            memset(&sin6, 0, sizeof(sin6));
-            sin6.sin6_family      = AF_INET6;
-            memcpy(sin6.sin6_addr.s6_addr, addr, sizeof(*addr));
-            if (getnameinfo((struct sockaddr *)&sin6, sizeof(sin6),
-                            tp->name, sizeof(tp->name),
-                            NULL, 0, NI_NAMEREQD) == 0) {
-                return tp;
-            }
+        memset(&sin6, 0, sizeof(sin6));
+        sin6.sin6_family      = AF_INET6;
+        memcpy(sin6.sin6_addr.s6_addr, addr, sizeof(*addr));
+        if (getnameinfo((struct sockaddr *)&sin6, sizeof(sin6),
+                        tp->name, sizeof(tp->name),
+                        NULL, 0, NI_NAMEREQD) == 0) {
+            return tp;
+        }
+#elif defined(HAVE_GETHOSTBYNAME)
+        /* Quick hack to avoid DNS/YP timeout */
+        hostp = gethostbyaddr((const char *)addr, sizeof(*addr), AF_INET6);
+
+        if (hostp != NULL && hostp->h_name[0] != '\0') {
+            g_strlcpy(tp->name, hostp->h_name, MAXNAMELEN);
+            return tp;
+        }
 #endif
 #endif /* INET6 */
     }
@@ -3249,6 +3271,8 @@ get_host_ipaddr(const char *host, guint32 *addrp)
     async_hostent_t ahe;
 #elif defined(HAVE_GETADDRINFO)
     struct addrinfo hint, *result = NULL;
+#elif defined(HAVE_GETHOSTBYNAME)
+    struct hostent *hp;
 #endif
 
     /*
@@ -3315,6 +3339,18 @@ get_host_ipaddr(const char *host, guint32 *addrp)
                 return ret_val;
             }
         }
+#elif defined(HAVE_GETHOSTBYNAME)
+        hp = gethostbyname(host);
+        if (hp == NULL) {
+            /* No. */
+            return FALSE;
+            /* Apparently, some versions of gethostbyaddr can
+             * return IPv6 addresses. */
+         } else if (hp->h_length <= (int) sizeof (struct in_addr)) {
+             memcpy(&ipaddr, hp->h_addr, hp->h_length);
+         } else {
+             return FALSE;
+         }
 #endif
     } else {
         /* Does the string really contain dotted-quad IP?
@@ -3346,6 +3382,8 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
     async_hostent_t ahe;
 #elif defined(HAVE_GETADDRINFO)
     struct addrinfo hint, *result = NULL;
+#elif defined(HAVE_GETHOSTBYNAME2)
+    struct hostent *hp;
 #endif /* HAVE_C_ARES */
 
     if (str_to_ip6(host, addrp))
@@ -3408,6 +3446,12 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
             return ret_val;
         }
     }
+#elif defined(HAVE_GETHOSTBYNAME2)
+    hp = gethostbyname2(host, AF_INET6);
+    if (hp != NULL && hp->h_length == sizeof(struct e_in6_addr)) {
+        memcpy(addrp, hp->h_addr, hp->h_length);
+        return TRUE;
+    }
 #endif
 
     return FALSE;
@@ -3418,8 +3462,9 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
  * Return "ip6" if it is IPv6, "ip" otherwise (including the case
  * that we don't know)
  */
-const char* host_ip_af(const char *host
-#ifndef HAVE_GETADDRINFO
+const char *
+host_ip_af(const char *host
+#if !defined(HAVE_GETADDRINFO) || !defined(HAVE_GETHOSTBYNAME2)
         _U_
 #endif
         )
@@ -3435,6 +3480,9 @@ const char* host_ip_af(const char *host
         }
         freeaddrinfo(result);
     }
+#elif defined(HAVE_GETHOSTBYNAME2)
+    struct hostent *h;
+    return (h = gethostbyname2(host, AF_INET6)) && h->h_addrtype == AF_INET6 ? "ip6" : "ip";
 #endif
     return af;
 }

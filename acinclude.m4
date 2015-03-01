@@ -276,8 +276,35 @@ AC_DEFUN([AC_WIRESHARK_GETADDRINFO_LIB_CHECK],
     AC_CHECK_FUNCS(getaddrinfo, ,
 	AC_CHECK_LIB(nsl, getaddrinfo,
 		     [
-		         NSL_LIBS="-lnsl"
+			 NSL_LIBS="-lnsl"
 			 AC_DEFINE(HAVE_GETADDRINFO, 1, [Defined if we have getaddrinfo])
+		     ]))
+    AC_SUBST(NSL_LIBS)
+])
+
+#
+# AC_WIRESHARK_GETHOSTBY_LIB_CHECK
+#
+# Checks whether we need "-lnsl" to get "gethostby*()", which we use
+# in "resolv.c".
+#
+# Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
+# GNU Autoconf 2.13; the comment came from there.
+# Done by Guy Harris <guy@alum.mit.edu> on 2000-01-14.
+#
+AC_DEFUN([AC_WIRESHARK_GETHOSTBY_LIB_CHECK],
+[
+    # msh@cis.ufl.edu says -lnsl (and -lsocket) are needed for his 386/AT,
+    # to get the SysV transport functions.
+    # chad@anasazi.com says the Pyramid MIS-ES running DC/OSx (SVR4)
+    # needs -lnsl.
+    # The nsl library prevents programs from opening the X display
+    # on Irix 5.2, according to dickey@clark.net.
+    AC_CHECK_FUNCS(gethostbyname, ,
+	AC_CHECK_LIB(nsl, gethostbyname,
+		     [
+			NSL_LIBS="-lnsl"
+			AC_DEFINE(HAVE_GETHOSTBYNAME, 1, [Defined if we have gethostbyname])
 		     ]))
     AC_SUBST(NSL_LIBS)
 ])
@@ -286,9 +313,9 @@ AC_DEFUN([AC_WIRESHARK_GETADDRINFO_LIB_CHECK],
 # AC_WIRESHARK_SOCKET_LIB_CHECK
 #
 # Checks whether we need "-lsocket" to get "socket()", which is used
-# by libpcap on some platforms - and, in effect, "getaddrinfo()" on
-# most if not all platforms (so that it can use NIS or DNS or...
-# to look up host names).
+# by libpcap on some platforms - and, in effect, "gethostbyname()" or
+# "getaddrinfo()" on most if not all platforms (so that it can use NIS or
+# DNS or... to look up host names).
 #
 # Adapted from stuff in the AC_PATH_XTRA macro in "acspecific.m4" in
 # GNU Autoconf 2.13; the comment came from there.
@@ -1105,8 +1132,8 @@ AC_DEFUN([AC_WIRESHARK_ADNS_CHECK],
 		AC_CHECK_LIB(adns, adns_init,
 		  [
 		    ADNS_LIBS=-ladns
-	    	AC_DEFINE(HAVE_GNU_ADNS, 1, [Define to use GNU ADNS library])
-		have_good_adns=yes
+		    AC_DEFINE(HAVE_GNU_ADNS, 1, [Define to use GNU ADNS library])
+		    have_good_adns=yes
 		  ],, $SOCKET_LIBS $NSL_LIBS
 		)
 	else
@@ -1136,8 +1163,8 @@ AC_DEFUN([AC_WIRESHARK_LIBCAP_CHECK],
 		AC_CHECK_LIB(cap, cap_set_flag,
 		  [
 		    LIBCAP_LIBS=-lcap
-	    	AC_DEFINE(HAVE_LIBCAP, 1, [Define to use the libcap library])
-		have_good_libcap=yes
+		    AC_DEFINE(HAVE_LIBCAP, 1, [Define to use the libcap library])
+		    have_good_libcap=yes
 		  ],,
 		)
 	else

@@ -2187,10 +2187,6 @@ AC_SUBST(randpkt_man)
 
 AC_SUBST(wiresharkfilter_man)
 
-dnl Checks for "getaddrinfo()" - and "-lnsl", if we need it to get
-dnl "getaddrinfo()".
-AC_WIRESHARK_GETADDRINFO_LIB_CHECK
-
 dnl Checks for "connect()", used as a proxy for "socket()" - and
 dnl "-lsocket", if we need it to get "connect()".
 AC_WIRESHARK_SOCKET_LIB_CHECK
@@ -2685,7 +2681,7 @@ AC_MSG_CHECKING(whether to use the c-ares library if available)
 
 AC_ARG_WITH(c-ares,
   AC_HELP_STRING( [--with-c-ares@<:@=DIR@:>@],
-                  [use c-ares (located in directory DIR, if supplied) - supersedes --with-adns @<:@default=yes, if present@:>@]),
+		  [use c-ares (located in directory DIR, if supplied) - supersedes --with-adns @<:@default=yes, if present@:>@]),
 [
 if   test "x$withval" = "xno";  then
 	want_c_ares=no
@@ -2710,7 +2706,7 @@ AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
 
 AC_ARG_WITH(adns,
   AC_HELP_STRING( [--with-adns@<:@=DIR@:>@],
-                  [use GNU ADNS (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
+		  [use GNU ADNS (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
 [
 if   test "x$withval" = "xno";  then
 	want_adns=no
@@ -2728,6 +2724,31 @@ else
 	AC_WIRESHARK_ADNS_CHECK
 fi
 AC_SUBST(ADNS_LIBS)
+
+if test "x$have_good_c_ares" != "xyes" -a "x$have_good_adns" != "xyes"; then
+	# We don't have an asynchronous name resolver, look for a synchronous one
+
+	dnl Checks for "getaddrinfo()" - and "-lnsl", if we need it to get
+	dnl "getaddrinfo()".
+	AC_WIRESHARK_GETADDRINFO_LIB_CHECK
+
+	if test "x$ac_cv_func_getaddrinfo" != "xyes" ; then
+		# We don't have the modern name resolver, try older stuff
+
+		dnl Checks for "gethostbyname()" - and "-lnsl", if we need it to get
+		dnl "gethostbyname()".
+		AC_WIRESHARK_GETHOSTBY_LIB_CHECK
+
+		if test "x$ac_cv_func_gethostbyname" != "xyes" ; then
+			# Hopefully this never actually happens.
+			# The code works even without name resolvers but we
+			# alert the user to this unusual condition.
+			AC_MSG_ERROR(Couldn't find any name resolvers!)
+		fi
+
+		AC_CHECK_FUNCS(gethostbyname2)
+	fi
+fi
 
 dnl GEOIP Check
 GEOIP_LIBS=''
