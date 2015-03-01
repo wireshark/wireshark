@@ -55,7 +55,17 @@ guint16 crc16_x25_ccitt_tvb(tvbuff_t *tvb, guint len)
     tvb_ensure_bytes_exist(tvb, 0, len);  /* len == -1 not allowed */
     buf = tvb_get_ptr(tvb, 0, len);
 
-    return crc16_x25_ccitt(buf, len);
+    return crc16_x25_ccitt_seed(buf, len, 0xFFFF);
+}
+
+guint16 crc16_r3_ccitt_tvb(tvbuff_t *tvb, int offset, guint len)
+{
+    const guint8 *buf;
+
+    tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
+    buf = tvb_get_ptr(tvb, offset, len);
+
+    return crc16_x25_ccitt_seed(buf, len, 0);
 }
 
 guint16 crc16_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len)

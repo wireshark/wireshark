@@ -166,6 +166,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  crc16_ccitt_tvb_seed@Base 1.9.1
  crc16_plain_tvb_offset@Base 1.9.1
  crc16_plain_tvb_offset_seed@Base 1.9.1
+ crc16_r3_ccitt_tvb@Base 1.99.3
  crc16_x25_ccitt_tvb@Base 1.9.1
  crc32_0x0AA725CF_tvb_offset_seed@Base 1.12.0~rc1
  crc32_802_tvb@Base 1.9.1

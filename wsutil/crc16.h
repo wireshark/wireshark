@@ -50,7 +50,7 @@ WS_DLL_PUBLIC guint16 crc16_ccitt(const guint8 *buf, guint len);
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
  @return The CRC16 X.25 CCITT checksum. */
-WS_DLL_PUBLIC guint16 crc16_x25_ccitt(const guint8 *buf, guint len);
+WS_DLL_PUBLIC guint16 crc16_x25_ccitt_seed(const guint8 *buf, guint len, guint16 seed);
 
 /** Compute CRC16 CCITT checksum of a buffer of data.  If computing the
  *  checksum over multiple buffers and you want to feed the partial CRC16

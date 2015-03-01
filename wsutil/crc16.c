@@ -335,9 +335,9 @@ guint16 crc16_ccitt(const guint8 *buf, guint len)
        ^ crc16_ccitt_xorout;
 }
 
-guint16 crc16_x25_ccitt(const guint8 *buf, guint len)
+guint16 crc16_x25_ccitt_seed(const guint8 *buf, guint len, guint16 seed)
 {
-    return crc16_unreflected(buf,len,crc16_ccitt_start,crc16_ccitt_table);
+    return crc16_unreflected(buf,len,seed,crc16_ccitt_table);
 }
 
 guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed)
