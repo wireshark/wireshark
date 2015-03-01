@@ -28,6 +28,7 @@
 #include <epan/expert.h>
 #include <epan/exported_pdu.h>
 #include <epan/tap.h>
+#include <epan/prefs.h>
 #include <wiretap/wtap.h>
 
 static int proto_logcat = -1;
@@ -56,6 +57,8 @@ static dissector_handle_t data_text_lines_handle;
 static gint exported_pdu_tap = -1;
 
 static expert_field ei_invalid_payload_length = EI_INIT;
+
+static gboolean  pref_one_line_info_column = TRUE;
 
 const value_string priority_vals[] = {
     { 0x00,  "Unknown" },
@@ -165,10 +168,12 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     log = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_length, ENC_ASCII);
 
     /* New line characters convert to spaces to ensure column Info display one line */
+    if (pref_one_line_info_column) {
     while ((c = g_utf8_strchr(log, string_length, '\n')))
         *c = ' ';
     while ((c = g_utf8_strchr(log, string_length, '\r')))
         *c = ' ';
+    }
 
     subitem = proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_ASCII | ENC_NA);
     subtree = proto_item_add_subtree(subitem, ett_logcat_log);
@@ -199,6 +204,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 void
 proto_register_logcat(void)
 {
+    module_t         *module;
     expert_module_t  *expert_module;
     static hf_register_info hf[] = {
         { &hf_logcat_version,
@@ -287,6 +293,12 @@ proto_register_logcat(void)
     expert_register_field_array(expert_module, ei, array_length(ei));
 
     exported_pdu_tap = register_export_pdu_tap("Logcat");
+
+    module = prefs_register_protocol(proto_logcat, NULL);
+    prefs_register_bool_preference(module, "oneline_info_column",
+            "Use oneline info column",
+            "Use oneline info column by replace all new characters by spaces",
+            &pref_one_line_info_column);
 }
 
 
