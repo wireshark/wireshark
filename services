@@ -10144,6 +10144,9 @@ twds             8937/tcp # Transaction Warehouse Data Service [Lance_M_Steenson
 ub-dns-control   8953/tcp # unbound dns nameserver control [NLnet_Labs_Support] [NLnet_Labs_Support] 2011-05-10 2011-07-11
 cumulus-admin    8954/tcp # Cumulus Admin Port [Thomas_Schleu] [Thomas_Schleu]
 cumulus-admin    8954/udp # Cumulus Admin Port [Thomas_Schleu] [Thomas_Schleu]
+nod-provider     8980/tcp # Network of Devices Provider [David_Muller] [David_Muller] 2015-02-22
+nod-provider     8980/udp # Network of Devices Provider [David_Muller] [David_Muller] 2015-02-22
+nod-client       8981/udp # Network of Devices Client [David_Muller] [David_Muller] 2015-02-22
 sunwebadmins     8989/tcp # Sun Web Server SSL Admin Service [Jyri_J_Virkki] [Jyri_J_Virkki] 2005-12
 sunwebadmins     8989/udp # Sun Web Server SSL Admin Service [Jyri_J_Virkki] [Jyri_J_Virkki] 2005-12
 http-wmap        8990/tcp # webmail HTTP service [Fred_Batty] [Fred_Batty] 2007-12-03
