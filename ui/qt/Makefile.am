@@ -228,6 +228,22 @@ uat_dialog.cpp uat_dialog.h: ui_uat_dialog.h
 
 voip_calls_dialog.cpp voip_calls_dialog.h: ui_voip_calls_dialog.h
 
+
+#
+# translation files
+#
+
+if HAVE_LRELEASE
+AM_V_LRELEASE = $(am__v_LRELEASE_@AM_V@)
+am__v_LRELEASE_ = $(am__v_LRELEASE_@AM_DEFAULT_V@)
+am__v_LRELEASE_0 = @echo "  LRELEASE     " $@;
+
+%.qm: %.ts
+	$(AM_V_LRELEASE)$(LRELEASE) -silent $<
+
+dist_pkgdata_DATA = $(QM_FILES)
+endif		# HAVE_LRELEASE
+
 doxygen:
 if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg

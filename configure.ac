@@ -1877,6 +1877,29 @@ then
 fi
 AC_SUBST(RCC)
 
+AC_PATH_PROG(LRELEASE, lrelease)
+if test "x$LRELEASE" = x; then
+	AC_PATH_PROG(LRELEASE, lrelease-qt5)
+	if test "x$LRELEASE" = x; then
+		AC_PATH_PROG(LRELEASE, lrelease-qt4)
+	fi
+fi
+# Debian/Ubuntu ship a package qtchooser that installs placeholders for
+# the Qt tools like lrelease - check if the lrelease that we found is
+# really the one that's part of Qt linguist
+if (test "x$LRELEASE" != x) ; then
+	AC_MSG_CHECKING([if $LRELEASE is usable])
+	if (sh -c $LRELEASE -help 2> /dev/null | grep -i linguist 2>&1 > /dev/null ) ; then
+		AC_MSG_RESULT(yes)
+		have_lrelease="yes"
+		AC_SUBST(LRELEASE)
+	else
+		AC_MSG_RESULT(no)
+		have_lrelease="no"
+	fi
+fi
+AM_CONDITIONAL(HAVE_LRELEASE, test "x$have_lrelease" = "xyes")
+
 # Error out if a glib header other than a "top level" header
 #  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)
 #  is used.
