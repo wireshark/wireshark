@@ -129,8 +129,6 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
     // was a file name given as function parameter?
     name_param = !cf_path.isEmpty();
 
-    if (!testCaptureFileClose(false)) return;
-
     for (;;) {
 
         if (cf_path.isEmpty()) {
@@ -161,6 +159,10 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& read_filter, unsigne
             } else {
                 return;
             }
+        }
+
+        if (!testCaptureFileClose(false)) {
+            return;
         }
 
         if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
