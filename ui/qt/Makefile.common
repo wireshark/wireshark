@@ -305,15 +305,8 @@ TS_FILES =	\
 #
 # .qm files.
 #
-# Should be auto-generated ?
-QM_FILES =	\
-	wireshark_de.qm		\
-	wireshark_en.qm		\
-	wireshark_fr.qm		\
-	wireshark_it.qm		\
-	wireshark_ja_JP.qm	\
-	wireshark_pl.qm		\
-	wireshark_zh_CN.qm
+# Should they be auto-generated ?
+QM_FILES = $(TS_FILES:.ts=.qm)
 
 #
 # The .rcc.cpp files generated from them.
