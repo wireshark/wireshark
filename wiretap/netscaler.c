@@ -889,6 +889,14 @@ static gboolean nstrace_set_start_time(wtap *wth)
 /*
 ** Netscaler trace format read routines.
 */
+#define TIMEDEFV10(phdr,fp,type) \
+    do {\
+        (phdr)->presence_flags = WTAP_HAS_TS;\
+        nsg_creltime += ns_hrtime2nsec(pletoh32(&type->type##_RelTimeHr));\
+        (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
+        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+    }while(0)
+
 #define PARTSIZEDEFV10(phdr,pp,ver) \
     do {\
         (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
@@ -906,15 +914,7 @@ static gboolean nstrace_set_start_time(wtap *wth)
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         (phdr)->rec_type = REC_TYPE_PACKET;\
-        /*\
-         * XXX - we can't set time stamps in the seek-read routine,\
-         * as the time stamps in the records are relative to\
-         * the previous packet.\
-         */\
-        (phdr)->presence_flags = WTAP_HAS_TS;\
-        nsg_creltime += ns_hrtime2nsec(pletoh32(&type->type##_RelTimeHr));\
-        (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
-        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        TIMEDEFV##ver((phdr),fp,type);\
         FULLPART##SIZEDEFV##ver((phdr),type,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
         ws_buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
@@ -1002,37 +1002,28 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
-#define TIMEDEFV20(fp,type) \
+#define TIMEDEFV20(phdr,fp,type) \
     do {\
-        wth->phdr.presence_flags |= WTAP_HAS_TS;\
+        (phdr)->presence_flags = WTAP_HAS_TS;\
         nsg_creltime += ns_hrtime2nsec(pletoh32(fp->type##_RelTimeHr));\
-        wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
-        wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
+        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
     }while(0)
 
-#define TIMEDEFV23(fp,type) \
+#define TIMEDEFV23(phdr,fp,type) \
     do {\
-        wth->phdr.presence_flags |= WTAP_HAS_TS;\
+        (phdr)->presence_flags = WTAP_HAS_TS;\
         /* access _AbsTimeHr as a 64bit value */\
         nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
-        wth->phdr.ts.secs = (guint32) (nsg_creltime / 1000000000);\
-        wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+        (phdr)->ts.secs = (guint32) (nsg_creltime / 1000000000);\
+        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
     }while(0)
 
-#define TIMEDEFV30(fp,type) \
-    do {\
-        wth->phdr.presence_flags |= WTAP_HAS_TS;\
-        /* access _AbsTimeHr as a 64bit value */\
-        nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
-        wth->phdr.ts.secs = (guint32) (nsg_creltime / 1000000000);\
-        wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
-    }while(0)
-
-#define TIMEDEFV21(fp,type) TIMEDEFV20(fp,type)
-#define TIMEDEFV22(fp,type) TIMEDEFV20(fp,type)
-#define TIMEDEFV24(fp,type) TIMEDEFV23(fp,type)
-#define TIMEDEFV25(fp,type) TIMEDEFV24(fp,type)
-#define TIMEDEFV26(fp,type) TIMEDEFV24(fp,type)
+#define TIMEDEFV21(phdr,fp,type) TIMEDEFV20(phdr,fp,type)
+#define TIMEDEFV22(phdr,fp,type) TIMEDEFV20(phdr,fp,type)
+#define TIMEDEFV24(phdr,fp,type) TIMEDEFV23(phdr,fp,type)
+#define TIMEDEFV25(phdr,fp,type) TIMEDEFV24(phdr,fp,type)
+#define TIMEDEFV26(phdr,fp,type) TIMEDEFV24(phdr,fp,type)
 
 #define PARTSIZEDEFV20(phdr,pp,ver) \
     do {\
@@ -1061,18 +1052,11 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define FULLSIZEDEFV25(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
 #define FULLSIZEDEFV26(phdr,fp,ver) FULLSIZEDEFV20(phdr,fp,ver)
 
-#define FULLSIZEDEFV30(phdr,fp,ver)\
-    do {\
-        (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
-        (phdr)->len = pletoh16(&fp->fp_PktSizeOrg) + nspr_pktracefull_v##ver##_s;\
-        (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
-    }while(0)
-
 #define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)&nstrace_buf[nstrace_buf_offset];\
         (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver(fp,type);\
+        TIMEDEFV##ver((phdr),fp,type);\
         FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
@@ -1194,11 +1178,27 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
+#define TIMEDEFV30(phdr,fp,type) \
+    do {\
+        (phdr)->presence_flags = WTAP_HAS_TS;\
+        /* access _AbsTimeHr as a 64bit value */\
+        nsg_creltime = pletoh64(fp->type##_AbsTimeHr);\
+        (phdr)->ts.secs = (guint32) (nsg_creltime / 1000000000);\
+        (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
+    }while(0)
+
+#define FULLSIZEDEFV30(phdr,fp,ver)\
+    do {\
+        (phdr)->presence_flags |= WTAP_HAS_CAP_LEN;\
+        (phdr)->len = pletoh16(&fp->fp_PktSizeOrg) + nspr_pktracefull_v##ver##_s;\
+        (phdr)->caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
+    }while(0)
+
 #define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
         (phdr)->rec_type = REC_TYPE_PACKET;\
-        TIMEDEFV##ver(fp,type);\
+        TIMEDEFV##ver((phdr),fp,type);\
         FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
@@ -1302,16 +1302,21 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
 
 #undef PACKET_DESCRIBE
 
+/*
+ * XXX - for these, we can't set the time stamp in the seek-read
+ * routine, because the time stamps are relative.
+ */
+#undef TIMEDEFV10
+#define TIMEDEFV10(phdr,fp,type) \
+    do {\
+        (phdr)->presence_flags = 0;\
+    }while(0)
+
 #define PACKET_DESCRIBE(phdr,FULLPART,fullpart,ver,type,HEADERVER) \
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) pd;\
         (phdr)->rec_type = REC_TYPE_PACKET;\
-        /*\
-         * XXX - we can't set time stamps in the seek-read routine,\
-         * as the time stamps in the records are relative to\
-         * the previous packet.\
-         */\
-        (phdr)->presence_flags = 0;\
+        TIMEDEFV##ver((phdr),fp,type);\
         FULLPART##SIZEDEFV##ver((phdr),type,ver);\
         TRACE_V##ver##_REC_LEN_OFF(phdr,v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
@@ -1386,10 +1391,26 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
 
 #undef PACKET_DESCRIBE
 
+/*
+ * XXX - for these, we can't set the time stamp in the seek-read
+ * routine, because the time stamps are relative.
+ */
+#undef TIMEDEFV20
+#define TIMEDEFV20(phdr,fp,type) \
+    do {\
+        (phdr)->presence_flags = 0;\
+    }while(0)
+
+#undef TIMEDEFV21
+#undef TIMEDEFV22
+#define TIMEDEFV21(phdr,fp,type) TIMEDEFV20(phdr,fp,type)
+#define TIMEDEFV22(phdr,fp,type) TIMEDEFV20(phdr,fp,type)
+
 #define PACKET_DESCRIBE(phdr,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
         (phdr)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((phdr),fp,type);\
         FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
@@ -1404,6 +1425,7 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     guint hdrlen;
     guint8 *pd;
     unsigned int bytes_to_read;
+    guint64 nsg_creltime;
 
     *err = 0;
 
@@ -1503,6 +1525,7 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
         (phdr)->rec_type = REC_TYPE_PACKET;\
+        TIMEDEFV##ver((phdr),fp,type);\
         FULLPART##SIZEDEFV##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
@@ -1517,6 +1540,7 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     guint hdrlen;
     guint8 *pd;
     unsigned int bytes_to_read;
+    guint64 nsg_creltime;
 
     *err = 0;
 
