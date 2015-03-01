@@ -400,10 +400,16 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
   return bytes_to_str(wmem_packet_scope(), ad, ad_len);
 }
 
+static const gchar *
+tvb_arpproaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
+{
+    return arpproaddr_to_str(tvb_get_ptr(tvb, offset, ad_len), ad_len, type);
+}
+
 #define MAX_E164_STR_LEN                20
 
 static const gchar *
-atmarpnum_to_str(const guint8 *ad, int ad_tl)
+atmarpnum_to_str(tvbuff_t *tvb, int offset, int ad_tl)
 {
   int    ad_len = ad_tl & ATMARP_LEN_MASK;
   gchar *cur;
@@ -418,10 +424,10 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
     cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_E164_STR_LEN+3+1);
     if (ad_len > MAX_E164_STR_LEN) {
       /* Can't show it all. */
-      memcpy(cur, ad, MAX_E164_STR_LEN);
+      tvb_memcpy(tvb, cur, offset, MAX_E164_STR_LEN);
       g_snprintf(&cur[MAX_E164_STR_LEN], 3+1, "...");
     } else {
-      memcpy(cur, ad, ad_len);
+      tvb_memcpy(tvb, cur, offset, ad_len);
       cur[ad_len + 1] = '\0';
     }
     return cur;
@@ -431,12 +437,12 @@ atmarpnum_to_str(const guint8 *ad, int ad_tl)
      *
      * XXX - break down into subcomponents.
      */
-    return bytes_to_str(wmem_packet_scope(), ad, ad_len);
+    return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
   }
 }
 
 static const gchar *
-atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
+atmarpsubaddr_to_str(tvbuff_t *tvb, int offset, int ad_tl)
 {
   int ad_len = ad_tl & ATMARP_LEN_MASK;
 
@@ -452,7 +458,7 @@ atmarpsubaddr_to_str(const guint8 *ad, int ad_tl)
    *
    * XXX - break down into subcomponents?
    */
-  return bytes_to_str(wmem_packet_scope(), ad, ad_len);
+  return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
 }
 
 const value_string arp_hrd_vals[] = {
@@ -847,8 +853,6 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const gchar  *op_str;
   int           sha_offset, ssa_offset, spa_offset;
   int           tha_offset, tsa_offset, tpa_offset;
-  const guint8 *sha_val, *ssa_val, *spa_val;
-  const guint8 *tha_val, *tsa_val, *tpa_val;
   const gchar  *sha_str, *ssa_str, *spa_str;
   const gchar  *tha_str, *tsa_str, *tpa_str;
   proto_tree   *tl_tree;
@@ -880,48 +884,30 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Extract the addresses.  */
   sha_offset = MIN_ATMARP_HEADER_SIZE;
-  if (ar_shl != 0) {
-    sha_val = tvb_get_ptr(tvb, sha_offset, ar_shl);
-    sha_str = atmarpnum_to_str(sha_val, ar_shtl);
-  } else {
-    sha_val = NULL;
-    sha_str = "<No address>";
-  }
+  sha_str = atmarpnum_to_str(tvb, sha_offset, ar_shtl);
 
   ssa_offset = sha_offset + ar_shl;
   if (ar_ssl != 0) {
-    ssa_val = tvb_get_ptr(tvb, ssa_offset, ar_ssl);
-    ssa_str = atmarpsubaddr_to_str(ssa_val, ar_sstl);
+    ssa_str = atmarpsubaddr_to_str(tvb, ssa_offset, ar_sstl);
   } else {
-    ssa_val = NULL;
     ssa_str = NULL;
   }
 
   spa_offset = ssa_offset + ar_ssl;
-  spa_val = tvb_get_ptr(tvb, spa_offset, ar_spln);
-  spa_str = arpproaddr_to_str(spa_val, ar_spln, ar_pro);
+  spa_str = tvb_arpproaddr_to_str(tvb, spa_offset, ar_spln, ar_pro);
 
   tha_offset = spa_offset + ar_spln;
-  if (ar_thl != 0) {
-    tha_val = tvb_get_ptr(tvb, tha_offset, ar_thl);
-    tha_str = atmarpnum_to_str(tha_val, ar_thtl);
-  } else {
-    tha_val = NULL;
-    tha_str = "<No address>";
-  }
+  tha_str = atmarpnum_to_str(tvb, tha_offset, ar_thtl);
 
   tsa_offset = tha_offset + ar_thl;
   if (ar_tsl != 0) {
-    tsa_val = tvb_get_ptr(tvb, tsa_offset, ar_tsl);
-    tsa_str = atmarpsubaddr_to_str(tsa_val, ar_tstl);
+    tsa_str = atmarpsubaddr_to_str(tvb, tsa_offset, ar_tstl);
   } else {
-    tsa_val = NULL;
     tsa_str = NULL;
   }
 
   tpa_offset = tsa_offset + ar_tsl;
-  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_tpln);
-  tpa_str = arpproaddr_to_str(tpa_val, ar_tpln, ar_pro);
+  tpa_str = tvb_arpproaddr_to_str(tvb, tpa_offset, ar_tpln, ar_pro);
 
   switch (ar_op) {
 
@@ -1181,9 +1167,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (ar_ssl != 0)
       proto_tree_add_bytes_format_value(arp_tree, hf_atmarp_src_atm_subaddr, tvb, ssa_offset,
-                                  ar_ssl,
-                                  ssa_val,
-                                  "%s", ssa_str);
+                                  ar_ssl, NULL, "%s", ssa_str);
 
     if (ar_spln != 0) {
       proto_tree_add_item(arp_tree,
@@ -1198,9 +1182,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (ar_tsl != 0)
       proto_tree_add_bytes_format_value(arp_tree, hf_atmarp_dst_atm_subaddr, tvb, tsa_offset,
-                                  ar_tsl,
-                                  tsa_val,
-                                  "%s", tsa_str);
+                                  ar_tsl, NULL, "%s", tsa_str);
 
     if (ar_tpln != 0) {
       proto_tree_add_item(arp_tree,
@@ -1229,7 +1211,7 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item  *ti;
   const gchar *op_str;
   int          sha_offset, spa_offset, tha_offset, tpa_offset;
-  const guint8 /* *sha_val, */ *spa_val, /* *tha_val, */ *tpa_val;
+  const gchar *spa_str, *tpa_str;
   gboolean     is_gratuitous;
 
   /* Hardware Address Type */
@@ -1282,10 +1264,8 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Target Protocol Address */
   tpa_offset = tha_offset + ar_hln;
 
-  /* sha_val = tvb_get_ptr(tvb, sha_offset, ar_hln); */
-  spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
-  /* tha_val = tvb_get_ptr(tvb, tha_offset, ar_hln); */
-  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
+  spa_str = tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro);
+  tpa_str = tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro);
 
   /* ARP requests/replies with the same sender and target protocol
      address are flagged as "gratuitous ARPs", i.e. ARPs sent out as,
@@ -1294,7 +1274,7 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      provoke complaints if some other machine has the same IPv4 address,
      replies are used to announce relocation of network address, like
      in failover solutions. */
-  if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) && (memcmp(spa_val, tpa_val, ar_pln) == 0))
+  if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) && (strcmp(spa_str, tpa_str) == 0))
     is_gratuitous = TRUE;
   else
     is_gratuitous = FALSE;
@@ -1302,42 +1282,33 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (ar_op) {
     case ARPOP_REQUEST:
       if (is_gratuitous)
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
-                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)", tpa_str);
       else
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
-                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
-                     arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
       break;
     case ARPOP_REPLY:
       if (is_gratuitous)
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
-                      arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)", spa_str);
       else
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                     arpproaddr_to_str(spa_val, ar_pln, ar_pro),
-/*                   arphrdaddr_to_str(sha_val, ar_hln, ar_hrd)); */
+                     spa_str,
                      tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
       break;
     case ARPOP_RREQUEST:
     case ARPOP_IREQUEST:
       col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
-/*                 arphrdaddr_to_str(tha_val, ar_hln, ar_hrd), */
                    tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
-/*                 arphrdaddr_to_str(sha_val, ar_hln, ar_hrd)); */
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
       break;
     case ARPOP_RREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-/*                 arphrdaddr_to_str(tha_val, ar_hln, ar_hrd), */
                    tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+                   tpa_str);
       break;
     case ARPOP_IREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-/*                 arphrdaddr_to_str(sha_val, ar_hln, ar_hrd), */
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   spa_str);
       break;
     default:
       col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
@@ -1406,7 +1377,6 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item   *ti, *item;
   const gchar  *op_str;
   int           sha_offset, spa_offset, tha_offset, tpa_offset;
-  const guint8 *spa_val, *tpa_val;
   gboolean      is_gratuitous;
   gboolean      duplicate_detected = FALSE;
   guint32       duplicate_ip       = 0;
@@ -1556,9 +1526,6 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
-  tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
-
   /* ARP requests/replies with the same sender and target protocol
      address are flagged as "gratuitous ARPs", i.e. ARPs sent out as,
      in effect, an announcement that the machine has MAC address
@@ -1566,7 +1533,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      provoke complaints if some other machine has the same IPv4 address,
      replies are used to announce relocation of network address, like
      in failover solutions. */
-  if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) && (memcmp(spa_val, tpa_val, ar_pln) == 0))
+  if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) &&
+      (tvb_memeql(tvb, spa_offset, tvb_get_ptr(tvb, tpa_offset, ar_pln), ar_pln) == 0))
     is_gratuitous = TRUE;
   else
     is_gratuitous = FALSE;
@@ -1575,19 +1543,19 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_REQUEST:
       if (is_gratuitous)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
-                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
       else
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
-                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
-                     arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro),
+                     tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
     case ARPOP_REPLY:
       if (is_gratuitous)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
-                     arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                     tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       else
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                     arpproaddr_to_str(spa_val, ar_pln, ar_pro),
+                     tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro),
                      tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
       break;
     case ARPOP_RREQUEST:
@@ -1601,7 +1569,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_DRARPREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
                    tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_DRARPERROR:
@@ -1611,7 +1579,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_IREPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ATMARPOP_NAK:
@@ -1621,79 +1589,79 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ARPOP_MARS_REQUEST:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_MULTI:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS MULTI request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_MSERV:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS MSERV request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_JOIN:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS JOIN request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_LEAVE:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS LEAVE from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_NAK:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS NAK from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_UNSERV:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS UNSERV request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_SJOIN:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS SJOIN request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_SLEAVE:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS SLEAVE from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_GROUPLIST_REQUEST:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS grouplist request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_GROUPLIST_REPLY:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS grouplist reply from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MARS_REDIRECT_MAP:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MARS redirect map from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_MAPOS_UNARP:
       col_add_fstr(pinfo->cinfo, COL_INFO, "MAPOS UNARP request from %s at %s",
                    tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
-                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+                   tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
       break;
 
     case ARPOP_EXP1:
