@@ -413,6 +413,13 @@ function State:get_timestamp(line, file_position, seeking)
             end
         end
         self.tyear = curr_year
+
+        -- XXX - but for purposes of testing, we just force the year to
+        -- 2014, so that we can compare the result of this code reading
+        -- an Acme log with the result of the pcap-ng reader reading a
+        -- pcap-ng file with the same packets - the time stamps in
+        -- pcap-ng files are times since the Epoch, so the year is known
+        self.tyear = 2014
     end
 
     -- if this message's month is less than previous message's, then year wrapped
