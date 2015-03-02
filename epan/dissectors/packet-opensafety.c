@@ -987,9 +987,6 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     /* allow only valid SPDO flags */
     spdoFlags = ( tr & ( OPENSAFETY_SPDO_FEATURE_FLAGS << 2 ) ) >> 2;
 
-    /* determine the ct value. if complete it can be used for analysis of the package */
-    ct = tvb_get_guint8(message_tvb, frameStart1 + 3);
-
     if ( (OPENSAFETY_SPDO_FEAT_40BIT_AVAIL & spdoFlags ) == OPENSAFETY_SPDO_FEAT_40BIT_AVAIL )
         requested40bit = TRUE;
     if ( requested40bit && ( (OPENSAFETY_SPDO_FEAT_40BIT_USED & spdoFlags ) == OPENSAFETY_SPDO_FEAT_40BIT_USED ) )
