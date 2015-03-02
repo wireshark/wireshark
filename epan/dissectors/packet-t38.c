@@ -396,7 +396,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	for (fd_i=fd_head->next;fd_i && fd_i->len + dfpos <= size;fd_i=fd_i->next) {
 	  if (fd_i->len) {
 	    if(!last_fd || last_fd->offset!=fd_i->offset){
-	      memcpy(data+dfpos,tvb_get_ptr(fd_i->tvb_data,0,fd_i->len),fd_i->len);
+	      tvb_memcpy(fd_i->tvb_data, data+dfpos, 0, fd_i->len);
 	      dfpos += fd_i->len;
 	    } else {
 	      /* duplicate/retransmission/overlap */

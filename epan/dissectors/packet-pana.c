@@ -410,12 +410,10 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                         break;
                                 }
                                 case PANA_UTF8STRING: {
-                                        const guint8 *data;
-                                        data = tvb_get_ptr(tvb, offset, avp_data_length);
+                                        guint8 *data = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, avp_data_length, ENC_UTF_8);
                                         proto_tree_add_string_format(single_avp_tree, hf_pana_avp_data_string, tvb,
                                                                      offset, avp_data_length, data,
-                                                                     "UTF8String: %*.*s",
-                                                                     avp_data_length, avp_data_length, data);
+                                                                     "UTF8String: %s", data);
                                         break;
                                 }
                                 case PANA_OCTET_STRING: {

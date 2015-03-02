@@ -548,7 +548,7 @@ dissect_osi_options(guchar opt_len, tvbuff_t *tvb, int offset, proto_tree *tree)
 
         case OSI_OPT_ADDRESS_MASK:
           proto_tree_add_bytes_format_value(osi_option_tree, hf_osi_options_address_mask, tvb, offset, parm_len,
-                              tvb_get_ptr(tvb, offset, parm_len), "%s",
+                              NULL, "%s",
                               print_area(tvb, offset, parm_len));
           break;
 

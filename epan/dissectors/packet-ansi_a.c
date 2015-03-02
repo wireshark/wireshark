@@ -6358,7 +6358,6 @@ elem_is2000_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 static guint8
 elem_auth_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p _U_)
 {
-    const guint8        *bytes_p;
     guint8              oct;
     guint32             curr_offset;
     const gchar         *str;
@@ -6380,10 +6379,8 @@ elem_auth_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
             break;
         }
 
-        bytes_p = tvb_get_ptr(tvb, curr_offset, len);
-
         proto_tree_add_bytes_format(tree, hf_ansi_a_auth_event, tvb, curr_offset, len,
-            bytes_p,
+            NULL,
             "%s",
             str);
     }

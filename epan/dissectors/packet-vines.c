@@ -535,7 +535,6 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8  vip_proto;
 	proto_tree *vip_tree, *tctl_tree;
 	proto_item *ti;
-	const guint8     *dst_addr;
 	gboolean is_broadcast = FALSE;
 	tvbuff_t *next_tvb;
 
@@ -555,12 +554,11 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	TVB_SET_ADDRESS(&pinfo->net_src, AT_VINES, tvb, offset+12, VINES_ADDR_LEN);
 	COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
-	dst_addr = tvb_get_ptr(tvb, offset+6, VINES_ADDR_LEN);
 	TVB_SET_ADDRESS(&pinfo->net_dst, AT_VINES, tvb, offset+6, VINES_ADDR_LEN);
 	COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
 
 	/* helpers to transport control */
-	if (memcmp(dst_addr, bcast_addr, VINES_ADDR_LEN) == 0)
+	if (tvb_memeql(tvb, offset+6, bcast_addr, VINES_ADDR_LEN) == 0)
 		is_broadcast = TRUE;
 
 	/*

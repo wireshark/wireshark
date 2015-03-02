@@ -959,10 +959,7 @@ static int check_control_digest(l2tpv3_tunnel_t *tunnel,
             break;
     }
 
-    if (memcmp(digest, tvb_get_ptr(tvb, idx + 1, avp_len - 1), avp_len - 1) != 0)
-        return -1;
-
-    return 0;
+    return tvb_memeql(tvb, idx + 1, digest, avp_len - 1);
 }
 
 static void store_cma_nonce(l2tpv3_tunnel_t *tunnel,

@@ -482,9 +482,7 @@ static void reassembly_add_segment(channel_sequence_analysis_status *status,
         return;
     }
 
-    segment_data = (guint8 *)wmem_alloc(wmem_file_scope(), length);
-    /* TODO: is there a better way to do this? */
-    memcpy(segment_data, tvb_get_ptr(tvb, offset, length), length);
+    segment_data = (guint8 *)tvb_memdup(wmem_file_scope(),tvb, offset, length);
 
     /* Add new segment */
     status->reassembly_info->segments[segment_number].frameNum = frame;

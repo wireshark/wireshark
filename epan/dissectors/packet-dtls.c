@@ -623,7 +623,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   }
   else if (dtls_is_null_cipher(ssl->session.cipher)) {
     /* Non-encrypting cipher NULL-XXX */
-    memcpy(dtls_decrypted_data.data, tvb_get_ptr(tvb, offset, record_length), record_length);
+    tvb_memcpy(tvb, dtls_decrypted_data.data, offset, record_length);
     dtls_decrypted_data_avail = dtls_decrypted_data.data_len = record_length;
     ret = 1;
   }

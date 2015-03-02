@@ -26,6 +26,7 @@
 #include <epan/prefs.h>
 
 #include <epan/etypes.h>
+#include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
 #include <epan/ipproto.h>
 
@@ -4150,7 +4151,7 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dat
       /*
        * qnet is using initial seed 0 not 0xffffffff
        */
-      crc = crc32_mpeg2_seed(tvb_get_ptr(tvb, 2, 36 - 4), 36 - 4, 0);
+      crc = crc32_mpeg2_tvb_offset_seed(tvb, 2, 36 - 4, 0);
       crc = ~crc;
       /*
        * 2. cksum crc field with 4 bytes 0
@@ -4165,7 +4166,7 @@ dissect_qnet6(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * dat
        */
       if (cklen > 0)
         {
-          crc = crc32_mpeg2_seed(tvb_get_ptr(tvb, 36 + 2, cklen), cklen, ~crc);
+          crc = crc32_mpeg2_tvb_offset_seed(tvb, 36 + 2, cklen, ~crc);
           crc = ~crc;
         }
       /*

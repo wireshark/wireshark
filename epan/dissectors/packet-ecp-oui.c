@@ -159,7 +159,6 @@ dissect_vdp_fi_macvid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 	gint i;
 	guint16 entries;
 	guint32 tempOffset = offset;
-	const guint8 *mac_addr = NULL;
 
 	proto_tree *ecp_vdp_tlv_fi_subtree;
 
@@ -171,11 +170,7 @@ dissect_vdp_fi_macvid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 	tempOffset += 2;
 
 	for (i=0; i < entries; i++) {
-		mac_addr = tvb_get_ptr(tvb, tempOffset, 6);
-
-		if (tree) {
-			proto_tree_add_ether(ecp_vdp_tlv_fi_subtree, hf_ecp_vdp_mac, tvb, tempOffset, 6, mac_addr);
-		}
+		proto_tree_add_item(ecp_vdp_tlv_fi_subtree, hf_ecp_vdp_mac, tvb, tempOffset, 6, ENC_NA);
 
 		tempOffset += 6;
 

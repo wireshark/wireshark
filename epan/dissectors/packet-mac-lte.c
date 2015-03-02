@@ -4861,10 +4861,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Data SDUs treated identically for Uplink or downlink channels */
         proto_item *sdu_ti;
-        const guint8 *pdu_data;
         volatile guint16 data_length;
-        int i;
-        char buff[64];
         gboolean rlc_called_for_sdu = FALSE;
 
         /* Break out if meet padding */
@@ -5003,15 +5000,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Show bytes too, if won't be hidden (slow). There must be a nicer way of doing this! */
         if (!rlc_called_for_sdu) {
-            pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
-            for (i=0; i < data_length; i++) {
-                g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
-                if (i >= 30) {
-                    g_snprintf(buff+(i*2), 4, "...");
-                    break;
-                }
+            if (pdu_lengths[n] >= 30)
+            {
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 30));
+                proto_item_append_text(sdu_ti, "...");
             }
-            proto_item_append_text(sdu_ti, "%s", buff);
+            else
+            {
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, pdu_lengths[n]));
+            }
         }
 
         offset += data_length;
@@ -5399,10 +5396,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     for (; n < number_of_headers; n++) {
 
         proto_item *sdu_ti;
-        const guint8 *pdu_data;
         volatile guint16 data_length;
-        int i;
-        char buff[64];
 
         /* Break out if meet padding */
         if (lcids[n] == PADDING_LCID) {
@@ -5430,17 +5424,15 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                                                  NULL, "SDU (%s, length=%u bytes): ",
                                                  val_to_str_const(lcids[n], mch_lcid_vals, "Unknown"),
                                                  data_length);
-
-            /* Show bytes too.  There must be a nicer way of doing this! */
-            pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
-            for (i=0; i < data_length; i++) {
-                g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
-                if (i >= 30) {
-                    g_snprintf(buff+(i*2), 4, "...");
-                    break;
-                }
+            if (pdu_lengths[n] >= 30)
+            {
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 30));
+                proto_item_append_text(sdu_ti, "...");
             }
-            proto_item_append_text(sdu_ti, "%s", buff);
+            else
+            {
+                proto_item_append_text(sdu_ti, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, pdu_lengths[n]));
+            }
         }
 
         offset += data_length;

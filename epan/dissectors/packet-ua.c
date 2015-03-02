@@ -211,9 +211,7 @@ static void _dissect_ua_msg(tvbuff_t       *tvb,
                     }
                 case 0x01: /* remote IP */
                     {
-                    remote_rtp_addr.type = AT_IPv4;
-                    remote_rtp_addr.len  = 4;
-                    remote_rtp_addr.data = tvb_get_ptr(tvb, suboffset+2, 4);
+                    TVB_SET_ADDRESS(&remote_rtp_addr, AT_IPv4, tvb, suboffset+2, 4);
                     break;
                     }
                 case 0x02: /* remote port */

@@ -513,11 +513,11 @@ static const value_string channelised_type[] = {
 
 /* Copy of atm_guess_traffic_type from atm.c in /wiretap */
 static void
-erf_atm_guess_lane_type(const guint8 *pd, guint len,
+erf_atm_guess_lane_type(tvbuff_t *tvb, int offset, guint len,
     union wtap_pseudo_header *pseudo_header)
 {
   if (len >= 2) {
-    if (pd[0] == 0xff && pd[1] == 0x00) {
+    if (tvb_get_ntohs(tvb, offset) == 0xFF00) {
       /*
        * Looks like LE Control traffic.
        */
@@ -537,7 +537,7 @@ erf_atm_guess_lane_type(const guint8 *pd, guint len,
 }
 
 static void
-erf_atm_guess_traffic_type(const guint8 *pd, guint len,
+erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, guint len,
     union wtap_pseudo_header *pseudo_header)
 {
   /*
@@ -577,7 +577,8 @@ erf_atm_guess_traffic_type(const guint8 *pd, guint len,
    */
 
   if (len >= 3) {
-    if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
+    guint8 mtp3b;
+    if (tvb_get_ntoh24(tvb, offset) == 0xAAAA03) {
       /*
        * Looks like a SNAP header; assume it's LLC
        * multiplexed RFC 1483 traffic.
@@ -591,7 +592,7 @@ erf_atm_guess_traffic_type(const guint8 *pd, guint len,
        * Ethernet header) we can try it as a SSCOP frame.
        */
       pseudo_header->atm.aal = AAL_SIGNALLING;
-    } else if (pd[0] == 0x83 || pd[0] == 0x81) {
+    } else if (((mtp3b = tvb_get_guint8(tvb, offset)) == 0x83) || (mtp3b == 0x81)) {
       /*
        * MTP3b headers often encapsulate
        * a SCCP or MTN in the 3G network.
@@ -604,7 +605,7 @@ erf_atm_guess_traffic_type(const guint8 *pd, guint len,
        * Assume it's LANE.
        */
       pseudo_header->atm.type = TRAF_LANE;
-      erf_atm_guess_lane_type(pd, len, pseudo_header);
+      erf_atm_guess_lane_type(tvb, offset, len, pseudo_header);
     }
   } else {
     /*
@@ -1193,8 +1194,6 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32             atm_hdr  = 0;
   proto_tree         *erf_tree;
   proto_item         *erf_item;
-  guint               atm_pdu_caplen;
-  const guint8       *atm_pdu;
   erf_hdlc_type_vals  hdlc_type;
   guint8              first_byte;
   tvbuff_t           *new_tvb;
@@ -1297,9 +1296,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
         pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
         /* Try to guess the type according to the first bytes */
-        atm_pdu_caplen = tvb_length(new_tvb);
-        atm_pdu = tvb_get_ptr(new_tvb, 0, atm_pdu_caplen);
-        erf_atm_guess_traffic_type(atm_pdu, atm_pdu_caplen, pinfo->pseudo_header);
+        erf_atm_guess_traffic_type(new_tvb, 0, tvb_captured_length(new_tvb), pinfo->pseudo_header);
         break;
 
       case ERF_AAL5_LLC:
@@ -1345,9 +1342,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
       pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
       /* Try to guess the type according to the first bytes */
-      atm_pdu_caplen = tvb_length(new_tvb);
-      atm_pdu = tvb_get_ptr(new_tvb, 0, atm_pdu_caplen);
-      erf_atm_guess_traffic_type(atm_pdu, atm_pdu_caplen, pinfo->pseudo_header);
+      erf_atm_guess_traffic_type(new_tvb, 0, tvb_captured_length(new_tvb), pinfo->pseudo_header);
       break;
 
     case ERF_AAL5_LLC:

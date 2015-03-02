@@ -311,17 +311,17 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Ethernet");
 
-  dst_addr = tvb_get_ptr(tvb, 0, 6);
-  dst_addr_name = get_ether_name(dst_addr);
-  SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst_addr);
+  TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, 0, 6);
   COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
   COPY_ADDRESS_SHALLOW(&ehdr->dst, &pinfo->dl_dst);
+  dst_addr = (const guint8*)pinfo->dst.data;
+  dst_addr_name = get_ether_name(dst_addr);
 
-  src_addr = tvb_get_ptr(tvb, 6, 6);
-  src_addr_name = get_ether_name(src_addr);
-  SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src_addr);
+  TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 6, 6);
   COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
   COPY_ADDRESS_SHALLOW(&ehdr->src, &pinfo->dl_src);
+  src_addr = (const guint8*)pinfo->src.data;
+  src_addr_name = get_ether_name(src_addr);
 
   ehdr->type = tvb_get_ntohs(tvb, 12);
 

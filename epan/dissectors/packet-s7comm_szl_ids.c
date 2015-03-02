@@ -3980,8 +3980,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                 szl_item_tree = proto_item_add_subtree(szl_item, ett_s7comm_szl);
                 proto_item_append_text(szl_item, " [Fragment, continuation of previous data]");
 
-                proto_tree_add_bytes(szl_item_tree, hf_s7comm_userdata_szl_data, tvb, offset, len,
-                    tvb_get_ptr (tvb, offset, len));
+                proto_tree_add_item(szl_item_tree, hf_s7comm_userdata_szl_data, tvb, offset, len, ENC_NA);
                 offset += len;
                 col_append_fstr(pinfo->cinfo, COL_INFO, " SZL data fragment");
             } else {
@@ -4105,8 +4104,7 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                                 break;
                         }
                         if (szl_decoded == FALSE) {
-                            proto_tree_add_bytes(szl_item_tree, hf_s7comm_userdata_szl_partial_list, tvb, offset, list_len,
-                                    tvb_get_ptr (tvb, offset, list_len));
+                            proto_tree_add_item(szl_item_tree, hf_s7comm_userdata_szl_partial_list, tvb, offset, list_len, ENC_NA);
                             offset += list_len;
                         }
                     } /* ...for */
@@ -4123,13 +4121,11 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
         szl_item = proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_tree, tvb, offset, tbytes, ENC_NA);
         szl_item_tree = proto_item_add_subtree(szl_item, ett_s7comm_szl);
         proto_item_append_text(szl_item, " [Fragment, complete response doesn't fit one PDU]");
-        proto_tree_add_bytes(szl_item_tree, hf_s7comm_userdata_szl_data, tvb, offset, tbytes,
-            tvb_get_ptr (tvb, offset, tbytes));
+        proto_tree_add_item(szl_item_tree, hf_s7comm_userdata_szl_data, tvb, offset, tbytes, ENC_NA);
         offset += tbytes;
     }
     if (know_data == FALSE && dlength > 4) {
-        proto_tree_add_bytes(data_tree, hf_s7comm_userdata_szl_data, tvb, offset, dlength - 4,
-            tvb_get_ptr (tvb, offset, dlength - 4));
+        proto_tree_add_item(data_tree, hf_s7comm_userdata_szl_data, tvb, offset, dlength - 4, ENC_NA);
         offset += dlength;
     }
     return offset;
