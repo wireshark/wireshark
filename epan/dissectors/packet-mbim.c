@@ -5067,6 +5067,35 @@ dissect_mbim_bulk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return FALSE;
 }
 
+static int
+dissect_mbim_decode_as(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    usb_conv_info_t *usb_conv_info;
+    usb_trans_info_t *usb_trans_info;
+
+    if (!data) {
+        return 0;
+    }
+
+    usb_conv_info = (usb_conv_info_t *)data;
+    usb_trans_info = usb_conv_info->usb_trans_info;
+
+    switch (usb_conv_info->transfer_type) {
+        case URB_CONTROL:
+            if (((usb_trans_info->setup.request == 0x00) &&
+                 (USB_HEADER_IS_LINUX(usb_trans_info->header_type) || (pinfo->srcport != NO_ENDPOINT))) ||
+                ((usb_trans_info->setup.request == 0x01) && (pinfo->srcport != NO_ENDPOINT))) {
+                return dissect_mbim_control(tvb, pinfo, tree, usb_conv_info);
+            }
+            break;
+        case URB_BULK:
+            return dissect_mbim_bulk(tvb, pinfo, tree, usb_conv_info);
+        default:
+            break;
+    }
+    return 0;
+}
+
 static void
 mbim_reassembly_init(void)
 {
@@ -7983,9 +8012,9 @@ void
 proto_reg_handoff_mbim(void)
 {
     static gboolean initialized = FALSE, mbim_control_decode_unknown_itf_prev = FALSE;
-    dissector_handle_t mbim_control_handle;
 
     if (!initialized) {
+        dissector_handle_t mbim_decode_as_handle = new_create_dissector_handle(dissect_mbim_decode_as, proto_mbim);
         bertlv_handle = find_dissector("gsm_sim.bertlv");
         etsi_cat_handle = find_dissector("etsi_cat");
         gsm_sms_handle = find_dissector("gsm_sms");
@@ -7995,11 +8024,14 @@ proto_reg_handoff_mbim(void)
         ip_handle = find_dissector("ip");
         data_handle = find_dissector("data");
         heur_dissector_add("usb.bulk", dissect_mbim_bulk_heur, proto_mbim);
+        dissector_add_for_decode_as("usb.device", mbim_decode_as_handle);
+        dissector_add_for_decode_as("usb.product", mbim_decode_as_handle);
+        dissector_add_for_decode_as("usb.protocol", mbim_decode_as_handle);
         initialized = TRUE;
     }
     heur_dissector_set_enabled("usb.bulk", dissect_mbim_bulk_heur, proto_mbim, mbim_bulk_heuristic);
     if (mbim_control_decode_unknown_itf != mbim_control_decode_unknown_itf_prev) {
-        mbim_control_handle = find_dissector("mbim.control");
+        dissector_handle_t mbim_control_handle = find_dissector("mbim.control");
         if (mbim_control_decode_unknown_itf) {
             dissector_add_uint("usb.control", IF_CLASS_UNKNOWN, mbim_control_handle);
         } else {
