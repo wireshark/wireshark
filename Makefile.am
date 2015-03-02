@@ -916,11 +916,17 @@ EXTRA_DIST = \
 	image/languages/pl.svg		\
 	image/languages/zh_CN.svg	\
 	image/layout_1.png		\
+	image/layout_1@2x.png		\
 	image/layout_2.png		\
+	image/layout_2@2x.png		\
 	image/layout_3.png		\
+	image/layout_3@2x.png		\
 	image/layout_4.png		\
+	image/layout_4@2x.png		\
 	image/layout_5.png		\
+	image/layout_5@2x.png		\
 	image/layout_6.png		\
+	image/layout_6@2x.png		\
 	image/libwireshark.rc.in	\
 	image/libwsutil.rc.in		\
 	image/lo16-app-wireshark.png	\
