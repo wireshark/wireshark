@@ -194,7 +194,9 @@ enum fip_flag {
 
 static int proto_fip            = -1;
 static int hf_fip_ver           = -1;
+static int hf_fip_reserved12    = -1;
 static int hf_fip_op            = -1;
+static int hf_fip_reserved8     = -1;
 static int hf_fip_disc_subcode  = -1;
 static int hf_fip_ls_subcode    = -1;
 static int hf_fip_ctrl_subcode  = -1;
@@ -397,7 +399,9 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         "FIP %s", info);
     fip_tree = proto_item_add_subtree(ti, ett_fip);
     proto_tree_add_item(fip_tree, hf_fip_ver, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fip_tree, hf_fip_reserved12, tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(fip_tree, hf_fip_op, tvb, 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fip_tree, hf_fip_reserved8, tvb, 4, 1, ENC_NA);
     switch (op) {
     case FIP_OP_DISC:
         proto_tree_add_item(fip_tree, hf_fip_disc_subcode, tvb, 5, 1, ENC_BIG_ENDIAN);
@@ -554,10 +558,19 @@ proto_register_fip(void)
             FT_UINT8, BASE_DEC, NULL, 0xf0,
             NULL, HFILL}},
 
+        { &hf_fip_reserved12,
+          { "Reserved", "fip.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x0fff,
+            NULL, HFILL}},
 
         { &hf_fip_op,
           { "Opcode", "fip.opcode",
             FT_UINT16, BASE_HEX, VALS(fip_opcodes), 0,
+            NULL, HFILL}},
+
+        { &hf_fip_reserved8,
+          { "Reserved", "fip.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL}},
 
         { &hf_fip_disc_subcode,
