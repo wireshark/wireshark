@@ -42,6 +42,7 @@ void proto_reg_handoff_rsp(void);
 
 static int proto_rmcp = -1;
 static int hf_rmcp_version = -1;
+static int hf_rmcp_reserved = -1;
 static int hf_rmcp_sequence = -1;
 static int hf_rmcp_class = -1;
 static int hf_rmcp_type = -1;
@@ -123,6 +124,7 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		rmcp_tree = proto_item_add_subtree(ti, ett_rmcp);
 
 		proto_tree_add_item(rmcp_tree, hf_rmcp_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(rmcp_tree, hf_rmcp_reserved, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(rmcp_tree, hf_rmcp_sequence, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 
 		field_tree = proto_tree_add_subtree_format(rmcp_tree, tvb, 3, 1,
@@ -187,6 +189,10 @@ proto_register_rmcp(void)
 			"Version", "rmcp.version",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			"RMCP Version", HFILL }},
+		{ &hf_rmcp_reserved, {
+			"Reserved", "rmcp.version",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"RMCP Reserved", HFILL }},
 		{ &hf_rmcp_sequence, {
 			"Sequence", "rmcp.sequence",
 			FT_UINT8, BASE_HEX, NULL, 0,
