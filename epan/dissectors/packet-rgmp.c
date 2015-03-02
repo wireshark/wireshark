@@ -37,6 +37,7 @@ void proto_reg_handoff_rgmp(void);
 
 static int proto_rgmp      = -1;
 static int hf_type         = -1;
+static int hf_reserved     = -1;
 static int hf_checksum     = -1;
 static int hf_checksum_bad = -1;
 static int hf_maddr        = -1;
@@ -80,7 +81,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     offset += 1;
 
     /* reserved */
-
+    proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
@@ -100,6 +101,11 @@ proto_register_rgmp(void)
         { &hf_type,
           { "Type", "rgmp.type", FT_UINT8, BASE_HEX,
             VALS(rgmp_types), 0, "RGMP Packet Type", HFILL }
+        },
+
+        { &hf_reserved,
+          { "Reserved", "rgmp.reserved", FT_UINT8, BASE_HEX,
+            NULL, 0, "RGMP Reserved", HFILL }
         },
 
         { &hf_checksum,

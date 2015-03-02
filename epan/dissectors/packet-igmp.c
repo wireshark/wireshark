@@ -120,6 +120,7 @@ void proto_reg_handoff_igmp(void);
 
 static int proto_igmp = -1;
 static int hf_type = -1;
+static int hf_reserved = -1;
 static int hf_version = -1;
 static int hf_group_type = -1;
 static int hf_reply_code = -1;
@@ -696,6 +697,7 @@ dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 	tree = dissect_igmp_common(tvb, pinfo, parent_tree, &offset, &type, 1);
 
 	/* skip unused byte */
+	proto_tree_add_item(tree, hf_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* checksum */
@@ -930,6 +932,10 @@ proto_register_igmp(void)
 		{ &hf_type,
 			{ "Type", "igmp.type", FT_UINT8, BASE_HEX,
 			  VALS(commands), 0, "IGMP Packet Type", HFILL }},
+
+		{ &hf_reserved,
+			{ "Reserved", "igmp.reserved", FT_UINT8, BASE_HEX,
+			  NULL, 0, "IGMP Reserved", HFILL }},
 
 		{ &hf_version,
 			{ "IGMP Version", "igmp.version", FT_UINT8, BASE_DEC,
