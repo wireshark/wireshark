@@ -90,8 +90,8 @@ static void address_type_register(int addr_type, address_type_t *at)
     DISSECTOR_ASSERT(at->pretty_name);
     DISSECTOR_ASSERT(at->addr_to_str);
     DISSECTOR_ASSERT(at->addr_str_len);
-    DISSECTOR_ASSERT(((at->addr_name_res_str != NULL) && (at->addr_name_res_str != NULL)) ||
-                     ((at->addr_name_res_len == NULL) && (at->addr_name_res_len == NULL)));
+    DISSECTOR_ASSERT(((at->addr_name_res_str != NULL) && (at->addr_name_res_len != NULL)) ||
+                     ((at->addr_name_res_str == NULL) && (at->addr_name_res_len == NULL)));
 
     type_list[addr_type] = at;
 }
