@@ -63,6 +63,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/rtp_pt.h>
 #include <epan/prefs.h>
+#include <wsutil/report_err.h>
 
 #include <codecs/codecs.h>
 
@@ -1260,7 +1261,8 @@ on_bt_check_clicked(GtkButton *button _U_, gpointer user_data)
 }
 
 /****************************************************************************/
-static void channel_draw(rtp_channel_info_t* rci)
+static void
+channel_draw(rtp_channel_info_t *rci)
 {
 	int i, imax;
 	int j;
@@ -1671,6 +1673,17 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
         rci->surface=NULL;
     }
     gtk_widget_get_allocation(widget, &widget_alloc);
+
+#if !defined(_WIN32)
+	/* Bug 2630: X11 can't handle pixmaps larger than 32k.  Just truncate
+	 * the graph for now (to avoid the crash).
+	 */
+	if (widget_alloc.width > G_MAXINT16-1) {
+		widget_alloc.width = G_MAXINT16-1;
+		report_failure("Channel graph truncated to 32k samples");
+	}
+#endif
+
     rci->surface = gdk_window_create_similar_surface (gtk_widget_get_window(widget),
             CAIRO_CONTENT_COLOR,
             widget_alloc.width,
@@ -1687,6 +1700,17 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
         rci->pixmap=NULL;
     }
     gtk_widget_get_allocation(widget, &widget_alloc);
+
+#if !defined(_WIN32)
+	/* Bug 2630: X11 can't handle pixmaps larger than 32k.  Just truncate
+	 * the graph for now (to avoid the crash).
+	 */
+	if (widget_alloc.width > G_MAXINT16-1) {
+		widget_alloc.width = G_MAXINT16-1;
+		report_failure("Channel graph truncated to 32k samples");
+	}
+#endif
+
     rci->pixmap = gdk_pixmap_new(gtk_widget_get_window(widget),
                     widget_alloc.width,
                     widget_alloc.height,
@@ -1789,7 +1813,7 @@ button_press_event_channel(GtkWidget *widget _U_, GdkEventButton *event _U_, gpo
 
 /****************************************************************************/
 static void
-add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _U_ )
+add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter)
 {
 	GString *label;
 	GtkWidget *viewport;
