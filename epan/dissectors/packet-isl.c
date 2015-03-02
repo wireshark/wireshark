@@ -59,6 +59,7 @@ static int hf_isl_control = -1;
 static int hf_isl_vlan_id = -1;
 static int hf_isl_bpdu = -1;
 static int hf_isl_index = -1;
+static int hf_isl_reserved = -1;
 /* static int hf_isl_crc = -1; */
 static int hf_isl_src_vlan_id = -1;
 static int hf_isl_explorer = -1;
@@ -243,6 +244,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     proto_tree_add_item(fh_tree, hf_isl_vlan_id, payload_tvb, 6, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(fh_tree, hf_isl_bpdu, payload_tvb, 6, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(fh_tree, hf_isl_index, payload_tvb, 8, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(fh_tree, hf_isl_reserved, payload_tvb, 10, 2, ENC_BIG_ENDIAN);
   }
 
   switch (type) {
@@ -364,6 +366,9 @@ proto_register_isl(void)
     { &hf_isl_index,
       { "Index",              "isl.index", FT_UINT16, BASE_DEC, NULL, 0x0,
         "Port index of packet source", HFILL }},
+    { &hf_isl_reserved,
+      { "Reserved",           "isl.reserved", FT_UINT16, BASE_HEX, NULL, 0x0,
+        "ISL Reserved", HFILL }},
 #if 0
     { &hf_isl_crc,
       { "CRC",                "isl.crc", FT_UINT32, BASE_HEX, NULL, 0x0,
