@@ -22,6 +22,10 @@
 
 #include <stdlib.h>
 
+/* WS modification starts here */
+#define JSMN_STRICT
+/* WS modification ends here */
+
 #include "jsmn.h"
 
 #include "log.h"
@@ -333,6 +337,7 @@ void jsmn_init(jsmn_parser *parser) {
 	parser->toksuper = -1;
 }
 
+/* WS modification starts here */
 gboolean jsmn_is_json(const guint8* buf, const size_t len)
 {
 	/* We expect no more than 1024 tokens */
@@ -372,6 +377,7 @@ gboolean jsmn_is_json(const guint8* buf, const size_t len)
 
 	return ret;
 }
+/* WS modification ends here */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
