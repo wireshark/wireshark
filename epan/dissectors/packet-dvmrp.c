@@ -64,6 +64,7 @@ static int hf_type = -1;
 static int hf_code_v1 = -1;
 static int hf_checksum = -1;
 static int hf_checksum_bad = -1;
+static int hf_reserved = -1;
 static int hf_commands = -1;
 static int hf_command = -1;
 static int hf_count = -1;
@@ -339,6 +340,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 2;
 
 	/* skip unused byte */
+	proto_tree_add_item(parent_tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* PROBE and NEIGHBORS 2 packets have capabilities flags, unused
@@ -721,6 +723,10 @@ proto_register_dvmrp(void)
 		{ &hf_checksum_bad,
 			{ "Bad Checksum", "dvmrp.checksum_bad", FT_BOOLEAN, BASE_NONE,
 			  NULL, 0x0, "Bad DVMRP Checksum", HFILL }},
+
+		{ &hf_reserved,
+			{ "Reserved", "dvmrp.reserved", FT_UINT16, BASE_HEX,
+			  NULL, 0, "DVMRP v3 Reserved", HFILL }},
 
 		{ &hf_commands,
 			{ "Commands", "dvmrp.commands", FT_NONE, BASE_NONE,
