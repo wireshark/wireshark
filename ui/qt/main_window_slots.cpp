@@ -2022,12 +2022,29 @@ void MainWindow::on_actionViewResizeColumns_triggered()
 
 void MainWindow::openPacketDialog(bool from_reference)
 {
-    PacketDialog *packet_dialog = new PacketDialog(*this, capture_file_, from_reference);
-    connect(this, SIGNAL(monospaceFontChanged(QFont)),
-            packet_dialog, SIGNAL(monospaceFontChanged(QFont)));
-    zoomText(); // Emits monospaceFontChanged
+    frame_data * fdata;
 
-    packet_dialog->show();
+    /* Find the frame for which we're popping up a dialog */
+    if(from_reference) {
+        guint32 framenum = fvalue_get_uinteger(&(capture_file_.capFile()->finfo_selected->value));
+        if (framenum == 0)
+            return;
+
+        fdata = frame_data_sequence_find(capture_file_.capFile()->frames, framenum);
+    } else {
+        fdata = capture_file_.capFile()->current_frame;
+    }
+
+    /* If we have a frame, pop up the dialog */
+    if (fdata) {
+        PacketDialog *packet_dialog = new PacketDialog(*this, capture_file_, fdata);
+
+        connect(this, SIGNAL(monospaceFontChanged(QFont)),
+                packet_dialog, SIGNAL(monospaceFontChanged(QFont)));
+        zoomText(); // Emits monospaceFontChanged
+
+        packet_dialog->show();
+    }
 }
 
 void MainWindow::on_actionViewShowPacketInNewWindow_triggered()

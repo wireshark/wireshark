@@ -39,7 +39,7 @@ class PacketDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit PacketDialog(QWidget &parent, CaptureFile &cf, bool from_reference = false);
+    explicit PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata);
     ~PacketDialog();
 
 signals:

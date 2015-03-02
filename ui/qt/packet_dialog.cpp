@@ -42,7 +42,7 @@
 // - Copy over experimental packet editing code.
 // - Fix ElidedText width.
 
-PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, bool from_reference) :
+PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) :
     WiresharkDialog(parent, cf),
     ui(new Ui::PacketDialog),
     packet_data_(NULL)
@@ -52,16 +52,6 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, bool from_reference
 
     // XXX Use recent settings instead
     resize(parent.width() * 4 / 5, parent.height() * 4 / 5);
-
-    frame_data * fdata = cap_file_.capFile()->current_frame;
-
-    if(from_reference) {
-        guint32 framenum = fvalue_get_uinteger(&(cap_file_.capFile()->finfo_selected->value));
-        if (framenum < 1) reject();
-
-        fdata = frame_data_sequence_find(cap_file_.capFile()->frames, framenum);
-    }
-    if (!fdata) reject();
 
     setWindowSubtitle(tr("Packet %1").arg(fdata->num));
 
