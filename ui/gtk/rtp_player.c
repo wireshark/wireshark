@@ -66,7 +66,7 @@
 #include <epan/rtp_pt.h>
 #include <epan/codecs.h>
 #include <epan/prefs.h>
-#include <wsutil/report_err.h>
+#include <epan/report_err.h>
 
 #include "../globals.h"
 #include "ui/simple_dialog.h"
