@@ -1092,7 +1092,6 @@ void MainWindow::exportSelectedPackets() {
                formats that don't support comments trimmed from it,
                so run the dialog again, to let the user decide
                whether to save in one of those formats or give up. */
-            discard_comments = FALSE;
             continue;
 
         case CANCELLED:
