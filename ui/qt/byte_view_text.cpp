@@ -388,7 +388,6 @@ void ByteViewText::drawOffsetLine(QPainter &painter, const guint offset, const i
     if (text.length() > 0) {
         flushOffsetFragment(painter, ascii_x, row_y, state, text);
     }
-    state = StateNormal;
 
     // Offset. Must be drawn last in order for offset_state to be set.
     if (show_offset_) {
