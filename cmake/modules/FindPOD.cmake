@@ -56,7 +56,7 @@ MACRO(pod2manhtml _sourcefile _manext)
 		COMMAND
 			${PERL_EXECUTABLE} ${POD2HTML_EXECUTABLE}
 			--title="${_basefile} - The Wireshark Network Analyzer ${CPACK_PACKAGE_VERSION}"
-			--css=${CMAKE_SOURCE_DIR}/docbook/ws.css
+			--css=ws.css
 			--noindex
 			${_sourcefile}.pod
 			> ${_outhtml}
