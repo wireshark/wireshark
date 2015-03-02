@@ -173,6 +173,9 @@ WS_DLL_PUBLIC const gchar* get_hostname6(const struct e_in6_addr *ad);
    "%02x:%02x:%02x:%02x:%02x:%02x" */
 WS_DLL_PUBLIC gchar *get_ether_name(const guint8 *addr);
 
+/* Same as get_ether_name with tvb support */
+WS_DLL_PUBLIC gchar *tvb_get_ether_name(tvbuff_t *tvb, gint offset);
+
 /* get_ether_name returns the logical name if found in ethers files else NULL */
 gchar *get_ether_name_if_known(const guint8 *addr);
 

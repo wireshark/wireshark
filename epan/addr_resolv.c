@@ -3016,6 +3016,12 @@ get_ether_name(const guint8 *addr)
 
 } /* get_ether_name */
 
+gchar *
+tvb_get_ether_name(tvbuff_t *tvb, gint offset)
+{
+    return get_ether_name(tvb_get_ptr(tvb, offset, 6));
+}
+
 /* Look for a (non-dummy) ether name in the hash, and return it if found.
  * If it's not found, simply return NULL.
  */

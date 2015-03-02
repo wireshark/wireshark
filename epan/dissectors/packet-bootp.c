@@ -5174,7 +5174,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    && hlen == 6) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
 				     tvb_arphrdaddr_to_str(tvb, 28, hlen, htype),
-				     get_ether_name(tvb_get_ptr(tvb, 28, hlen)));
+				     tvb_get_ether_name(tvb, 28));
 		}
 		else {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
