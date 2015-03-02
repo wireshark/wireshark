@@ -86,7 +86,6 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 QTreeWidgetItem *parent = current->parent();
                 field_info *parent_fi = NULL;
                 int f_start = -1, f_end = -1, f_len = -1;
-                guint32 bmask = 0x00;
                 int fa_start = -1, fa_end = -1, fa_len = -1;
                 int p_start = -1, p_end = -1, p_len = -1;
                 guint len = tvb_length(fi->ds_tvb);
@@ -124,28 +123,8 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
                 }
 
                 /* bmask = finfo->hfinfo->bitmask << hfinfo_bitshift(finfo->hfinfo); */ /* (value & mask) >> shift */
-                if (fi->hfinfo) bmask = fi->hfinfo->bitmask;
                 fa_start = fi->appendix_start;
                 fa_len = fi->appendix_length;
-
-                if (!FI_GET_FLAG(fi, FI_LITTLE_ENDIAN) &&
-                    !FI_GET_FLAG(fi, FI_BIG_ENDIAN)) {
-                    /* unknown endianess - disable mask */
-                    bmask = 0x00;
-                }
-
-                if (bmask == 0x00) {
-                    int bito = FI_GET_BITS_OFFSET(fi);
-                    int bitc = FI_GET_BITS_SIZE(fi);
-                    int bitt = bito + bitc;
-
-                    /* construct mask using bito & bitc */
-                    /* XXX, mask has only 32 bit, later we can store bito&bitc, and use them (which should be faster) */
-                    if (bitt > 0 && bitt < 32) {
-
-                        bmask = ((1 << bitc) - 1) << ((8-bitt) & 7);
-                    }
-                }
 
                 if (p_start >= 0 && p_len > 0 && (guint)p_start < len) {
                     p_end = p_start + p_len;
@@ -159,7 +138,6 @@ void ByteViewTab::protoTreeItemChanged(QTreeWidgetItem *current) {
 
                 if (f_end == -1 && fa_end != -1) {
                     f_start = fa_start;
-                    bmask = 0x00;
                     f_end = fa_end;
                     fa_start = fa_end = -1;
                 }
