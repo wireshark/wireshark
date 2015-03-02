@@ -2059,9 +2059,12 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
             } else
                 add_ipv4_name(host_addr[0], cp);
 
+#if 0
             /*
              * Add the aliases, too, if there are any.
-             * XXX - host_lookup() only returns the first entry.
+             * XXX - except we only store the last one added.  The name
+	     * resolver returns the first name in the hosts file, we should
+	     * too.
              */
             while ((cp = strtok(NULL, " \t")) != NULL) {
                 if (is_ipv6) {
@@ -2070,6 +2073,7 @@ read_hosts_file (const char *hostspath, gboolean store_entries)
                 } else
                     add_ipv4_name(host_addr[0], cp);
             }
+#endif
         }
     }
     g_free(line);
