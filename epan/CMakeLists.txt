@@ -335,6 +335,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-adb_service.c
 	dissectors/packet-adwin-config.c
 	dissectors/packet-adwin.c
+	dissectors/packet-aeron.c
 	dissectors/packet-afp.c
 	dissectors/packet-afs.c
 	dissectors/packet-agentx.c

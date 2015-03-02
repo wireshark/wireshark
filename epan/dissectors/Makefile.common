@@ -251,6 +251,7 @@ DISSECTOR_SRC = \
 	packet-adb_service.c	\
 	packet-adwin-config.c	\
 	packet-adwin.c		\
+	packet-aeron.c		\
 	packet-afp.c		\
 	packet-afs.c		\
 	packet-agentx.c		\

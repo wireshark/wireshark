@@ -175,6 +175,7 @@ C15 Call History Protocol dissection (C15ch)
 Thrift
 IP Detail Record (IPDR)
 Performance Co-Pilot Proxy
+Aeron
 --sort-and-group--
 
 === Updated Protocol Support
