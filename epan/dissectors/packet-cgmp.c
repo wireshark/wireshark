@@ -37,6 +37,7 @@ void proto_reg_handoff_cgmp(void);
 static int proto_cgmp = -1;
 static int hf_cgmp_version = -1;
 static int hf_cgmp_type = -1;
+static int hf_cgmp_reserved = -1;
 static int hf_cgmp_count = -1;
 static int hf_cgmp_gda = -1;
 static int hf_cgmp_usa = -1;
@@ -71,7 +72,9 @@ dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    ENC_BIG_ENDIAN);
 		offset += 1;
 
-		offset += 2;	/* skip reserved field */
+		proto_tree_add_item(cgmp_tree, hf_cgmp_reserved, tvb, offset, 2,
+		    ENC_BIG_ENDIAN);
+		offset += 2;
 
 		count = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(cgmp_tree, hf_cgmp_count, tvb, offset, 1,
@@ -102,6 +105,10 @@ proto_register_cgmp(void)
 
 		{ &hf_cgmp_type,
 		{ "Type",	"cgmp.type",	FT_UINT8, BASE_DEC, VALS(type_vals), 0x0F,
+			NULL, HFILL }},
+
+		{ &hf_cgmp_reserved,
+		{ "Reserved",	"cgmp.reserved", FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_cgmp_count,
