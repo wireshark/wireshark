@@ -47,12 +47,31 @@ The LLDP dissector could crash.
 (ws-buglink:10983[])
 //cve-idlink:2015-XXX[]
 
+* ws-salink:2015-10[]
++
+The TNEF dissector could go into an infinite loop. Discovered by Vlad Tsyrklevich.
+// Fixed in master: g608cf32
+// Fixed in master-1.12: gc654450
+// Fixed in master-1.10: g44a46a1
+(ws-buglink:11023[])
+//cve-idlink:2015-XXX[]
+
+* ws-salink:2015-11[]
++
+The SCSI OSD dissector could go into an infinite loop. Discovered by Vlad Tsyrklevich.
+// Fixed in master: gc35ca6c
+// Fixed in master-1.12: g957412f
+(ws-buglink:11024[])
+//cve-idlink:2015-XXX[]
+
 
 The following bugs have been fixed:
 
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
 // for bugnumber in `git log --stat v1.12.4rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* RTP player crashes on decode of long call: BadAlloc (insufficient resources for operation). (ws-buglink:2630[])
 
 * "Telephony->SCTP->Analyse This Association" crashes Wireshark on manufactured SCTP packet. (ws-buglink:9849[])
 
@@ -163,12 +182,14 @@ RSL
 RSYNC
 RTMPT
 RTP
+SCSI OSD
 SDP
 SMB Pipe
 SMPP
 SYNCHROPHASOR
 TETRA
 TiVoConnect
+TNEF
 USB HID
 V.52
 VSS-Monitoring
