@@ -3234,7 +3234,7 @@ proto_register_http(void)
 	    { &hf_http_time,
 	      { "Time since request", "http.time",
 		FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
-		"Time since the request was send", HFILL }},
+		"Time since the request was sent", HFILL }},
 	    { &hf_http_chunked_trailer_part,
 	      { "trailer-part", "http.chunked_trailer_part",
 		FT_STRING, BASE_NONE, NULL, 0,
