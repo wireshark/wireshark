@@ -20,7 +20,7 @@ The WCP dissector could crash.
 // Fixed in master-1.12: gc59e0a8
 // Fixed in master-1.10: gabebbb9
 (ws-buglink:10844[])
-//cve-idlink:2015-XXX[]
+cve-idlink:2015-2188[]
 
 * ws-salink:2015-08[]
 +
@@ -29,7 +29,7 @@ The pcapng file parser could crash.
 // Fixed in master-1.12: g175ede4
 // Fixed in master-1.10: gde0eeb5
 (ws-buglink:10895[])
-//cve-idlink:2015-XXX[]
+cve-idlink:2015-2189[]
 
 * ws-salink:2015-10[]
 +
@@ -38,7 +38,7 @@ The TNEF dissector could go into an infinite loop. Discovered by Vlad Tsyrklevic
 // Fixed in master-1.12: gc654450
 // Fixed in master-1.10: g44a46a1
 (ws-buglink:11023[])
-//cve-idlink:2015-XXX[]
+cve-idlink:2015-2190[]
 
 
 The following bugs have been fixed:
@@ -89,6 +89,7 @@ There are no new protocols in this release.
 --sort-and-group--
 ANSI IS-637-A
 DHCP
+GSM MAP
 H.248
 IPv6
 Juniper Jmirror
