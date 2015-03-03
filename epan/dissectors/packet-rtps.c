@@ -77,6 +77,7 @@ static const char *const SM_EXTRA_TMINUS = "(t-)";
 /***************************************************************************/
 /* Protocol Fields Identifiers */
 static int proto_rtps                           = -1;
+static int hf_rtps_magic                        = -1;
 static int hf_rtps_protocol_version             = -1;
 static int hf_rtps_protocol_version_major       = -1;
 static int hf_rtps_protocol_version_minor       = -1;
@@ -7437,6 +7438,9 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   ti = proto_tree_add_item(tree, proto_rtps, tvb, 0, -1, ENC_NA);
   rtps_tree = proto_item_add_subtree(ti, ett_rtps);
 
+  /* magic */
+  proto_tree_add_item(rtps_tree, hf_rtps_magic, tvb, 0, 4, ENC_NA | ENC_ASCII);
+
   /*  Protocol Version */
   version = rtps_util_add_protocol_version(rtps_tree, tvb, offset+4);
 
@@ -7637,6 +7641,16 @@ void proto_register_rtps(void) {
 
   static hf_register_info hf[] = {
 
+    { &hf_rtps_magic, {
+        "magic",
+        "rtps.magic",
+        FT_STRING,
+        BASE_NONE,
+        NULL,
+        0,
+        "RTPS magic",
+        HFILL }
+    },
     /* Protocol Version (composed as major.minor) -------------------------- */
     { &hf_rtps_protocol_version, {
         "version",
