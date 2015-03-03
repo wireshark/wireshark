@@ -2425,6 +2425,21 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
 	guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
+/** Add bits for a FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32
+    header field to a proto_tree, with the format generating the
+    string for the value and with the field name being included automatically.
+ @param tree the tree to append this item to
+ @param hf_index field index
+ @param tvb the tv buffer of the current data
+ @param bit_offset start of data in tvb expressed in bits
+ @param no_of_bits length of data in tvb expressed in bit
+ @param value data to display
+ @param format printf like format string
+ @return the newly created item */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_uint64_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
+	guint64 value, const char *format, ...) G_GNUC_PRINTF(7,8);
+
 /** Add bits for a FT_BOOLEAN header field to a proto_tree, with
     the format generating the string for the value and with the field
     name being included automatically.
@@ -2441,6 +2456,22 @@ proto_item *
 proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
 	guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
+/** Add bits for a FT_BOOLEAN header field to a proto_tree, with
+    the format generating the string for the value and with the field
+    name being included automatically.
+ @param tree the tree to append this item to
+ @param hf_index field index
+ @param tvb the tv buffer of the current data
+ @param bit_offset start of data in tvb expressed in bits
+ @param no_of_bits length of data in tvb expressed in bit
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+proto_item *
+proto_tree_add_boolean_bits_format_value64(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
+	guint64 value, const char *format, ...) G_GNUC_PRINTF(7,8);
+
 /** Add bits for a FT_INT8, FT_INT16, FT_INT24 or FT_INT32
     header field to a proto_tree, with the format generating the
     string for the value and with the field name being included automatically.
@@ -2456,6 +2487,22 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, t
 proto_item *
 proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
 	gint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
+
+/** Add bits for a FT_INT8, FT_INT16, FT_INT24 or FT_INT32
+    header field to a proto_tree, with the format generating the
+    string for the value and with the field name being included automatically.
+ @param tree the tree to append this item to
+ @param hf_index field index
+ @param tvb the tv buffer of the current data
+ @param bit_offset start of data in tvb expressed in bits
+ @param no_of_bits length of data in tvb expressed in bit
+ @param value data to display
+ @param format printf like format string
+ @param ... printf like parameters
+ @return the newly created item */
+proto_item *
+proto_tree_add_int64_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
+	gint64 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_FLOAT header field to a proto_tree, with
     the format generating the string for the value and with the field
