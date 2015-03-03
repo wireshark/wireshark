@@ -31,8 +31,6 @@
 #include "display_filter_combo.h"
 #include "wireshark_application.h"
 
-#include <QCompleter>
-
 // If we ever add support for multiple windows this will need to be replaced.
 static DisplayFilterCombo *cur_display_filter_combo = NULL;
 
@@ -40,6 +38,10 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     QComboBox(parent)
 {
     setEditable(true);
+    // Enabling autocompletion here gives us two simultaneous completions:
+    // Inline (highlighted text) for entire filters, handled here and popup
+    // completion for fields handled by DisplayFilterEdit.
+    setAutoCompletion(false);
     setLineEdit(new DisplayFilterEdit(this, false));
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     setAccessibleName(tr("Display filter selector"));
@@ -73,7 +75,6 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
             "  left: 1px;"
             "}"
             );
-    completer()->setCompletionMode(QCompleter::PopupCompletion);
 #ifndef QT_NO_TOOLTIP
     setToolTip(tr("Select from previously used filters"));
 #endif // QT_NO_TOOLTIP
