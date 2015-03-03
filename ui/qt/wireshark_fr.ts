@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr_FR">
+<TS version="2.1" language="fr">
 <context>
     <name>Abbreviation</name>
     <message>
@@ -20,7 +20,7 @@
     <message>
         <location filename="about_dialog.ui" line="36"/>
         <source>Wireshark</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="72"/>
@@ -38,29 +38,9 @@
         <translation>Dossiers</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="obsolete">Nom</translation>
-    </message>
-    <message>
-        <source>Folder</source>
-        <translation type="obsolete">Dossier</translation>
-    </message>
-    <message>
-        <source>Typical Files</source>
-        <translation type="obsolete">Fichiers typiques</translation>
-    </message>
-    <message>
         <location filename="about_dialog.ui" line="193"/>
         <source>Plugins</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Type</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation type="obsolete">Chemin</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="219"/>
@@ -118,7 +98,7 @@
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.cpp" line="138"/>
         <source>Copy All</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier Tout</translation>
     </message>
 </context>
 <context>
@@ -142,80 +122,31 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="235"/>
+        <location filename="byte_view_text.cpp" line="237"/>
         <source>Byte %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Octets %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="238"/>
+        <location filename="byte_view_text.cpp" line="240"/>
         <source>Bytes %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Octets %1-%2</translation>
     </message>
 </context>
 <context>
     <name>CaptureFile</name>
     <message>
-        <location filename="capture_file.cpp" line="128"/>
+        <location filename="capture_file.cpp" line="129"/>
         <source> [closing]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Fermeture]</translation>
     </message>
     <message>
-        <location filename="capture_file.cpp" line="133"/>
+        <location filename="capture_file.cpp" line="134"/>
         <source> [closed]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Fermer]</translation>
     </message>
 </context>
 <context>
     <name>CaptureFileDialog</name>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="560"/>
-        <source>Open Capture File</source>
-        <oldsource>Wireshark: Open Capture File</oldsource>
-        <translation type="unfinished">Wireshark: Ouvrir un fichier de capture</translation>
-    </message>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="493"/>
-        <source>Display Filter:</source>
-        <translation>Filtre d&apos;affichage:</translation>
-    </message>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="511"/>
-        <source>&amp;MAC name resolution</source>
-        <oldsource>Enable &amp;network name resolution</oldsource>
-        <translation>Résolution d&apos;adresse &amp;MAC</translation>
-    </message>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="515"/>
-        <source>&amp;Transport name resolution</source>
-        <oldsource>Use &amp;external name resolver</oldsource>
-        <translation>Résolution du nom de &amp;Transport</translation>
-    </message>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="519"/>
-        <source>&amp;Network name resolution</source>
-        <translation>Résolution de nom &amp;Réseau</translation>
-    </message>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="523"/>
-        <source>&amp;External name resolver</source>
-        <translation>Résolution de nom &amp;externe</translation>
-    </message>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="624"/>
-        <source>Export Specified Packets</source>
-        <oldsource>Wireshark: Export Specified Packets</oldsource>
-        <translation type="unfinished">Wireshark: Export des paquets specifiés</translation>
-    </message>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="628"/>
-        <source>Export as:</source>
-        <translation>Exporter sous:</translation>
-    </message>
-    <message>
-        <location filename="capture_file_dialog.cpp" line="394"/>
-        <source>All Files (*.*)</source>
-        <translation>Tous les fichiers (*.*)</translation>
-    </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="160"/>
         <location filename="capture_file_dialog.cpp" line="173"/>
@@ -242,6 +173,11 @@
         <location filename="capture_file_dialog.cpp" line="174"/>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
         <translation>Le format de fichier dans lequel vous voulez sauvegarder ne prendre pas en charge les commentaires. Voulez-vous supprimer les commentaires et enregistrer dans le format que vous avez choisi?</translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="394"/>
+        <source>All Files (*.*)</source>
+        <translation>Tous les fichiers (*.*)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="436"/>
@@ -299,9 +235,34 @@
         <translation>Insérer des paquets à partir du fichier sélectionné après le fichier en cours. Horodatage des paquets seront ignorés.</translation>
     </message>
     <message>
+        <location filename="capture_file_dialog.cpp" line="493"/>
+        <source>Display Filter:</source>
+        <translation>Filtre d&apos;affichage:</translation>
+    </message>
+    <message>
         <location filename="capture_file_dialog.cpp" line="502"/>
         <source>Automatic</source>
         <translation>Automatique</translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="511"/>
+        <source>&amp;MAC name resolution</source>
+        <translation>Résolution d&apos;adresse &amp;MAC</translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="515"/>
+        <source>&amp;Transport name resolution</source>
+        <translation>Résolution du nom de &amp;Transport</translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="519"/>
+        <source>&amp;Network name resolution</source>
+        <translation>Résolution de nom &amp;Réseau</translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="523"/>
+        <source>&amp;External name resolver</source>
+        <translation>Résolution de nom &amp;externe</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="529"/>
@@ -309,10 +270,16 @@
         <translation>Compresser avec g&amp;zip</translation>
     </message>
     <message>
+        <location filename="capture_file_dialog.cpp" line="560"/>
+        <source>Open Capture File</source>
+        <oldsource>Wireshark: Open Capture File</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="capture_file_dialog.cpp" line="596"/>
         <source>Save Capture File As</source>
         <oldsource>Wireshark: Save Capture File As</oldsource>
-        <translation type="unfinished">Wireshark: Sauvegarder le fichier de capture sous </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="602"/>
@@ -320,10 +287,21 @@
         <translation>Sauvegarder sous:</translation>
     </message>
     <message>
+        <location filename="capture_file_dialog.cpp" line="624"/>
+        <source>Export Specified Packets</source>
+        <oldsource>Wireshark: Export Specified Packets</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="628"/>
+        <source>Export as:</source>
+        <translation>Exporter sous:</translation>
+    </message>
+    <message>
         <location filename="capture_file_dialog.cpp" line="657"/>
         <source>Merge Capture File</source>
         <oldsource>Wireshark: Merge Capture File</oldsource>
-        <translation type="unfinished">Wireshark: Fusion de fichier de capture</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="759"/>
@@ -380,22 +358,22 @@
     <message>
         <location filename="capture_file_properties_dialog.ui" line="26"/>
         <source>Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Détails</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.ui" line="40"/>
         <source>Capture file comments</source>
-        <translation type="unfinished">Commentaires du fichier de capture</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="54"/>
         <source>Refresh</source>
-        <translation type="unfinished">Rafraichir</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="59"/>
         <source>Copy To Clipboard</source>
-        <translation type="unfinished">Copier dans le Presse-papiers</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="64"/>
@@ -415,7 +393,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="156"/>
         <source>File</source>
-        <translation type="unfinished">Fichier</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="160"/>
@@ -425,17 +403,17 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="165"/>
         <source>Length</source>
-        <translation type="unfinished">Longueur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="171"/>
         <source> (gzip compressed)</source>
-        <translation type="unfinished">(compressé gzip)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="174"/>
         <source>Format</source>
-        <translation type="unfinished">Format</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="188"/>
@@ -445,22 +423,22 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="198"/>
         <source>Time</source>
-        <translation type="unfinished">Temps</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="203"/>
         <source>First packet</source>
-        <translation type="unfinished">Premier paquet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="209"/>
         <source>Last packet</source>
-        <translation type="unfinished">Dernier paquet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="229"/>
         <source>Elapsed</source>
-        <translation type="unfinished">Passé</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="238"/>
@@ -490,32 +468,32 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="277"/>
         <source>Interface</source>
-        <translation type="unfinished">Interface</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="278"/>
         <source>Dropped packets</source>
-        <translation type="unfinished">Paquets supprimés</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="279"/>
         <source>Capture filter</source>
-        <translation type="unfinished">Filtre de capture</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="280"/>
         <source>Link type</source>
-        <translation type="unfinished">Taille du lien</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="281"/>
         <source>Packet size limit</source>
-        <translation type="unfinished">Limite de taille de paquets </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="311"/>
         <source>none</source>
-        <translation type="unfinished">aucun</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="314"/>
@@ -545,7 +523,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="337"/>
         <source>Marked</source>
-        <translation type="unfinished">Marqués</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="341"/>
@@ -555,7 +533,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="358"/>
         <source>Packets</source>
-        <translation type="unfinished">Paquets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="376"/>
@@ -619,43 +597,19 @@
 <context>
     <name>CaptureInterfacesDialog</name>
     <message>
-        <source>Wireshark: Capture interfaces</source>
-        <translation type="vanished">Wireshark: Liste des interfaces de capture</translation>
-    </message>
-    <message>
         <location filename="capture_interfaces_dialog.ui" line="21"/>
         <source>Input</source>
         <translation>Entrée</translation>
     </message>
     <message>
-        <source>Capture</source>
-        <translation type="vanished">Capture</translation>
-    </message>
-    <message>
         <location filename="capture_interfaces_dialog.ui" line="43"/>
         <source>Interface</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="48"/>
         <source>Traffic</source>
         <translation>Trafic</translation>
-    </message>
-    <message>
-        <source>Link-layer header</source>
-        <translation type="vanished">Entete de couche de liaison</translation>
-    </message>
-    <message>
-        <source>Snaplen [B]</source>
-        <translation type="vanished">longueur capturée</translation>
-    </message>
-    <message>
-        <source>Buffer [MB]</source>
-        <translation type="vanished">tampom [MB]</translation>
-    </message>
-    <message>
-        <source>Mon. Mode</source>
-        <translation type="vanished">Mode moniteur</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="78"/>
@@ -666,22 +620,6 @@
         <location filename="capture_interfaces_dialog.ui" line="88"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vous voulez sans doute pour activer cela. Habituellement, une carte réseau ne capture que le trafic envoyé à sa propre adresse réseau. Si vous voulez capturer tout le trafic que la carte réseau peut recevoi», cochez cette case. Voir la FAQ pour plus de détails sur la capture des paquets à partir d&apos;une commutation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Capture packets in promiscuous mode</source>
-        <translation type="vanished">Capture de Paquets en mode promiscuous</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture summary dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Afficher la boîte de dialogue de résumé de capture lors de la capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show the capture summary dialog while capturing</source>
-        <translation type="vanished">Afficher la boîte de dialogue de résumé de capture lors de la capture</translation>
-    </message>
-    <message>
-        <source>Add pipe...</source>
-        <translation type="vanished">Ajouter un pipe...</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="168"/>
@@ -696,16 +634,12 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="196"/>
         <source>pcap-ng</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="203"/>
         <source>pcap</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Capture directly to file</source>
-        <translation type="vanished">Capture directement dans un fichier</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="259"/>
@@ -733,10 +667,6 @@
         <location filename="capture_interfaces_dialog.ui" line="734"/>
         <source>Kilobytes</source>
         <translation>Kiloctets</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">Octets</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="357"/>
@@ -776,10 +706,6 @@
         <location filename="capture_interfaces_dialog.ui" line="681"/>
         <source>packets</source>
         <translation>paquets</translation>
-    </message>
-    <message>
-        <source>Reuse old files</source>
-        <translation type="vanished">Reutiliser les anciens fichiers</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="53"/>
@@ -883,7 +809,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="501"/>
         <source>Options</source>
-        <translation></translation>
+        <translation type="unfinished">Options</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="509"/>
@@ -1059,10 +985,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="vanished">Arreter</translation>
     </message>
 </context>
 <context>
@@ -1266,7 +1188,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="column_editor_frame.ui" line="78"/>
         <source>Field Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nom du champs</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="101"/>
@@ -1310,13 +1232,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="column_preferences_frame.ui" line="45"/>
         <source>Field Name</source>
         <oldsource>Field name</oldsource>
-        <translation type="unfinished">nom du champs</translation>
+        <translation type="unfinished">Nom du champs</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="50"/>
         <source>Field Occurrence</source>
         <oldsource>Field occurrence</oldsource>
-        <translation type="unfinished">Occurrence d&apos;un champ</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1367,10 +1289,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 </context>
 <context>
     <name>DecodeAsDialog</name>
-    <message>
-        <source>Wireshark: Decode As</source>
-        <translation type="vanished">Wireshark: Décoder comme</translation>
-    </message>
     <message>
         <location filename="decode_as_dialog.ui" line="24"/>
         <source>Field</source>
@@ -1468,15 +1386,8 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>DisplayFilterEdit</name>
     <message>
-        <location filename="display_filter_edit.cpp" line="95"/>
-        <location filename="display_filter_edit.cpp" line="339"/>
-        <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation>Appliquer un filtre d&apos;affichage %1 &lt;%2/&gt;</translation>
-    </message>
-    <message>
         <location filename="display_filter_edit.cpp" line="90"/>
         <source>Display filter entry</source>
-        <oldsource>Dispaly filter entry</oldsource>
         <translation>Filtre d&apos;entrée</translation>
     </message>
     <message>
@@ -1484,6 +1395,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_edit.cpp" line="336"/>
         <source>Enter a display filter %1</source>
         <translation>Entrer a filtrage d&apos;affichage %1</translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="95"/>
+        <location filename="display_filter_edit.cpp" line="339"/>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation>Appliquer un filtre d&apos;affichage %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="140"/>
@@ -1509,7 +1426,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_edit.cpp" line="286"/>
         <source>Invalid filter: </source>
         <oldsource>Invalid filter</oldsource>
-        <translation type="unfinished">Filtre invalide</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1541,13 +1458,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="export_dissection_dialog.cpp" line="62"/>
         <source>Export Packet Dissections</source>
         <oldsource>Wireshark: Export Packet Dissections</oldsource>
-        <translation type="unfinished">Wireshark: Export des paquets analysés</translation>
+        <translation type="unfinished">Exporter analyse des paquets</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="64"/>
         <source>Export As:</source>
         <oldsource>Export as:</oldsource>
-        <translation type="unfinished">Exporter sous:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="68"/>
@@ -1635,7 +1552,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="export_object_dialog.cpp" line="187"/>
         <source> tap: </source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="260"/>
@@ -1646,14 +1563,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="export_object_dialog.cpp" line="277"/>
         <source>Save All Objects In</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark: Save Object As...</source>
-        <translation type="vanished">Wireshark: Sauvegarder les objets sous...</translation>
-    </message>
-    <message>
-        <source>Wireshark: Save All Objects In...</source>
-        <translation type="vanished">Wireshark: Sauvegarder tous les objects dans...</translation>
     </message>
     <message>
         <location filename="export_object_dialog.cpp" line="316"/>
@@ -1684,7 +1593,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="file_set_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation></translation>
+        <translation type="unfinished">Dialogue</translation>
     </message>
     <message>
         <location filename="file_set_dialog.ui" line="30"/>
@@ -1712,10 +1621,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Taille</translation>
     </message>
     <message>
-        <source>Wireshark: No files in Set</source>
-        <translation type="vanished">Wireshark: Aucun fichier dans la liste</translation>
-    </message>
-    <message>
         <location filename="file_set_dialog.cpp" line="96"/>
         <source>No files in Set</source>
         <translation type="unfinished"></translation>
@@ -1734,10 +1639,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="file_set_dialog.cpp" line="126"/>
         <source>%1 File%2 in Set</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Wireshark: %1 File%2 in Set</source>
-        <translation type="vanished">Wireshark :%1 Fichier%2 dans la liste</translation>
     </message>
 </context>
 <context>
@@ -1765,36 +1666,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 </context>
 <context>
     <name>FollowStreamDialog</name>
-    <message>
-        <location filename="follow_stream_dialog.ui" line="20"/>
-        <source>Follow Stream</source>
-        <translation>Suivre flux</translation>
-    </message>
-    <message>
-        <location filename="follow_stream_dialog.ui" line="36"/>
-        <source>Hint.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="follow_stream_dialog.ui" line="61"/>
-        <source>Show data as</source>
-        <translation>Afficher les données comme</translation>
-    </message>
-    <message>
-        <location filename="follow_stream_dialog.ui" line="88"/>
-        <source>Stream</source>
-        <translation>Flux</translation>
-    </message>
-    <message>
-        <location filename="follow_stream_dialog.ui" line="102"/>
-        <source>Find:</source>
-        <translation>Trouver:</translation>
-    </message>
-    <message>
-        <location filename="follow_stream_dialog.ui" line="112"/>
-        <source>Find &amp;Next</source>
-        <translation>Trouver Suiva&amp;nt</translation>
-    </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="98"/>
         <source>Hide this stream</source>
@@ -1992,6 +1863,36 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Error reading temporary file</source>
         <translation>Erreur de lecture du fichier temporaire</translation>
     </message>
+    <message>
+        <location filename="follow_stream_dialog.ui" line="20"/>
+        <source>Follow Stream</source>
+        <translation>Suivre flux</translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.ui" line="36"/>
+        <source>Hint.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.ui" line="61"/>
+        <source>Show data as</source>
+        <translation>Afficher les données comme</translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.ui" line="88"/>
+        <source>Stream</source>
+        <translation>Flux</translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.ui" line="102"/>
+        <source>Find:</source>
+        <translation>Trouver:</translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.ui" line="112"/>
+        <source>Find &amp;Next</source>
+        <translation>Trouver Suiva&amp;nt</translation>
+    </message>
 </context>
 <context>
     <name>FontColorPreferencesFrame</name>
@@ -2028,13 +1929,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="font_color_preferences_frame.ui" line="129"/>
         <source>Sample &quot;Follow Stream&quot; client text</source>
-        <oldsource>Sample stream client text</oldsource>
         <translation>Exemple de texte de suivi de flux (coté client)</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="149"/>
         <source>Sample &quot;Follow Stream&quot; server text</source>
-        <oldsource>Sample stream server text</oldsource>
         <translation>Exemple de texte de suivi de flux (coté serveur)</translation>
     </message>
     <message>
@@ -2051,10 +1950,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="font_color_preferences_frame.ui" line="219"/>
         <source>Sample deprecated filter</source>
         <translation>Exemple de filtre obsoléte</translation>
-    </message>
-    <message>
-        <source>Wireshark: Font</source>
-        <translation type="vanished">Wireshark: Police</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.cpp" line="197"/>
@@ -2143,18 +2038,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Lissage</translation>
     </message>
     <message>
-        <source>Change the dissection behavior for a protocol.</source>
-        <translation type="vanished">Modifier le comportement de dissection d&apos;un protocole.</translation>
-    </message>
-    <message>
         <location filename="io_graph_dialog.ui" line="126"/>
         <source>Remove this graph.</source>
         <oldsource>Remove this dissection behavior.</oldsource>
-        <translation type="unfinished">Supprimer la dissection.</translation>
-    </message>
-    <message>
-        <source>Copy this dissection behavior.</source>
-        <translation type="vanished">Copier la dissection.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="112"/>
@@ -2189,7 +2076,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.ui" line="187"/>
         <source>zooms</source>
-        <translation></translation>
+        <translation type="unfinished">Zoom</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="210"/>
@@ -2224,7 +2111,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.ui" line="298"/>
         <source>0</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="303"/>
@@ -2235,7 +2122,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.ui" line="309"/>
         <source>+</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="314"/>
@@ -2409,50 +2296,42 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="221"/>
         <source>0.001 sec</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="222"/>
         <source>0.01 sec</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="223"/>
         <source>0.1 sec</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="224"/>
         <source>1 sec</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="225"/>
         <source>10 sec</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="226"/>
         <source>1 min</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="227"/>
         <source>10 min</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="253"/>
         <source>Time (s)</source>
         <translation>Temps (s)</translation>
-    </message>
-    <message>
-        <source>Wireshark IO Graphs: </source>
-        <translation type="vanished">Wireshark IO Graphiques:</translation>
-    </message>
-    <message>
-        <source>No Capture Data</source>
-        <translation type="vanished">Aucune donnée de capture</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="209"/>
@@ -2487,7 +2366,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="830"/>
         <source>%1 %2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="831"/>
@@ -2502,7 +2381,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="835"/>
         <source>%1 (%2s%3).</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="846"/>
@@ -2522,39 +2401,31 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="1472"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1473"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1474"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1476"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1487"/>
         <source>Save Graph As</source>
-        <translation type="unfinished">Wireshar: Sauvegarder le graphique sous...</translation>
-    </message>
-    <message>
-        <source>Wireshark: Save Graph As...</source>
-        <translation type="vanished">Wireshar: Sauvegarder le graphique sous...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ImportTextDialog</name>
-    <message>
-        <source>Wireshark: Import from Hex Dump</source>
-        <translation type="vanished">Wireshark: Import depuis du texte</translation>
-    </message>
     <message>
         <location filename="import_text_dialog.ui" line="38"/>
         <source>Import From</source>
@@ -2685,7 +2556,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.ui" line="296"/>
         <source>Ethernet</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="303"/>
@@ -2695,12 +2566,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.ui" line="306"/>
         <source>SCTP</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="313"/>
         <source>PPI:</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="320"/>
@@ -2720,7 +2591,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.ui" line="353"/>
         <source>Tag:</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="360"/>
@@ -2730,7 +2601,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.ui" line="363"/>
         <source>UDP</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="370"/>
@@ -2750,7 +2621,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.ui" line="390"/>
         <source>TCP</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="397"/>
@@ -2765,7 +2636,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.ui" line="411"/>
         <source>Ethertype (hex):</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="418"/>
@@ -2780,7 +2651,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.ui" line="428"/>
         <source>SCTP (Data)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="435"/>
@@ -2790,11 +2661,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.ui" line="438"/>
         <source>IPv4</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Wireshark: Import text file</source>
-        <translation type="vanished">Wireshark: Import depuis un fichier texte</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="import_text_dialog.cpp" line="58"/>
@@ -2828,10 +2695,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="interface_tree.cpp" line="65"/>
         <source>Waiting for startup%1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Waiting for startup</source>
-        <translation type="vanished">Démarrage en cours</translation>
     </message>
     <message>
         <location filename="interface_tree.cpp" line="186"/>
@@ -4243,7 +4106,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="474"/>
         <source>Save Graph As</source>
-        <translation type="unfinished">Wireshar: Sauvegarder le graphique sous...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4315,87 +4178,87 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="156"/>
+        <location filename="main_status_bar.cpp" line="157"/>
         <source>Manage Profiles...</source>
         <translation>Gérer les profils ...</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="160"/>
+        <location filename="main_status_bar.cpp" line="161"/>
         <source>New...</source>
         <translation>Nouveau...</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="163"/>
+        <location filename="main_status_bar.cpp" line="164"/>
         <source>Edit...</source>
         <translation>Editer...</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="166"/>
+        <location filename="main_status_bar.cpp" line="167"/>
         <source>Delete</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="170"/>
+        <location filename="main_status_bar.cpp" line="171"/>
         <source>Switch to</source>
         <translation>Passer à</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="193"/>
+        <location filename="main_status_bar.cpp" line="194"/>
         <source> is the highest expert info level</source>
         <translation>c&apos;est le plus haut niveau d&apos;information expert</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="198"/>
+        <location filename="main_status_bar.cpp" line="199"/>
         <source>ERROR</source>
         <translation>ERREUR</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="202"/>
+        <location filename="main_status_bar.cpp" line="203"/>
         <source>WARNING</source>
         <translation>ATTENTION</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="206"/>
+        <location filename="main_status_bar.cpp" line="207"/>
         <source>NOTE</source>
         <translation>NOTE</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="210"/>
+        <location filename="main_status_bar.cpp" line="211"/>
         <source>CHAT</source>
         <translation>CHAT</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="217"/>
+        <location filename="main_status_bar.cpp" line="218"/>
         <source>No expert info</source>
         <translation>Pas d&apos;information experte</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="300"/>
+        <location filename="main_status_bar.cpp" line="301"/>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="325"/>
+        <location filename="main_status_bar.cpp" line="326"/>
         <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
         <translation>Paquets: %1 %4 Affichés: %2 %4 Marqués: %3</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="331"/>
+        <location filename="main_status_bar.cpp" line="332"/>
         <source> %1 Dropped: %2</source>
         <translation>%1 Supprimés: %2</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="334"/>
+        <location filename="main_status_bar.cpp" line="335"/>
         <source> %1 Ignored: %2</source>
         <translation>%1 Ignorés: %2</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="339"/>
+        <location filename="main_status_bar.cpp" line="340"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation>%1  Temps de chargement: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="347"/>
+        <location filename="main_status_bar.cpp" line="348"/>
         <source>No Packets</source>
         <translation>Pas de paquets</translation>
     </message>
@@ -4403,29 +4266,9 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>MainWelcome</name>
     <message>
-        <location filename="main_welcome.cpp" line="181"/>
-        <source>You are running Wireshark </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_welcome.cpp" line="186"/>
-        <source> You receive automatic updates.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_welcome.cpp" line="188"/>
-        <source> You have disabled automatic updates.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_welcome.cpp" line="239"/>
-        <source>not found</source>
-        <translation>Non trouvé</translation>
-    </message>
-    <message>
         <location filename="main_welcome.ui" line="20"/>
         <source>Form</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="63"/>
@@ -4499,107 +4342,33 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User&apos;s Guide&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wiki&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Guide d&apos;utilisateur&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wiki&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <location filename="main_welcome.cpp" line="181"/>
+        <source>You are running Wireshark </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capture
-live packets from the network</source>
-        <translation type="obsolete">Capture
-Paquet temps reel depuis le réseau</translation>
+        <location filename="main_welcome.cpp" line="186"/>
+        <source> You receive automatic updates.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Capture filter:</source>
-        <translation type="vanished">Filtre de capture:</translation>
+        <location filename="main_welcome.cpp" line="188"/>
+        <source> You have disabled automatic updates.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;
-&lt;body&gt;
-
-&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-How to install Wireshark and how to use each of its features.&lt;br/&gt;
-Other formats and command-line man pages can be found on&lt;br/&gt;
-the &lt;a href=&quot;http://www.wireshark.org/docs/&quot;&gt;documentation page&lt;/a&gt;.
-&lt;/p&gt;
-
-&lt;h2&gt;&lt;a href=&quot;http://wiki.wireshark.org/&quot;&gt;The Wireshark Wiki&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-User-contributed pages on different aspects of using Wireshark.&lt;br/&gt;
-Capturing in different environments, filtering, specific protocols,&lt;br/&gt;
-and a variety of other information.
-&lt;/p&gt;
-
-&lt;h2&gt;&lt;a href=&quot;http://ask.wireshark.org/&quot;&gt;Wireshark Q&amp;amp;A&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-Question and answer site for Wireshark and protocol analysis.
-&lt;/p&gt;
-
-&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-In-depth discussions about Wireshark and protocol analysis.
-&lt;/p&gt;
-
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;
-&lt;body&gt;
-
-&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;Guide d&apos;utilisateur&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-Comment installer Wireshark et comment utiliser ses fonctionnalités.&lt;br/&gt;
-Les autres formats et ligne de commande peut etre trouver &lt;br/&gt;
-sur la &lt;a href=&quot;http://www.wireshark.org/docs/&quot;&gt;page de documentation&lt;/a&gt;.
-&lt;/p&gt;
-
-&lt;h2&gt;&lt;a href=&quot;http://wiki.wireshark.org/&quot;&gt;Le Wiki Wiresharki&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-Page de contribution des utilisateurs sur les différents aspect de Wireshark.&lt;br/&gt;
-La capture dans différents environnement, le filtrage et certain protocol specifique,&lt;br/&gt;
-et un ensemble d&apos;autres information.
-&lt;/p&gt;
-
-&lt;h2&gt;&lt;a href=&quot;http://ask.wireshark.org/&quot;&gt;Wireshark Q&amp;amp;R&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-Le site de Questions et Réponse pour Wireshark et l&apos;analyse de protocole.
-&lt;/p&gt;
-
-&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Liste de diffusion&lt;/a&gt;&lt;/h2&gt;
-&lt;p&gt;
-Discussions en profondeur sur Wireshark et analyse de protocoles.
-&lt;/p&gt;
-
-&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Capture
-live packets from your network</source>
-        <translation type="vanished">Capture
-en direct des paquets de votre réseau</translation>
-    </message>
-    <message>
-        <source>Open
-a recent capture file</source>
-        <translation type="vanished">Ouvrir
-un des derniers fichiers de capture</translation>
-    </message>
-    <message>
-        <source>Learn
-more about Wireshark</source>
-        <translation type="vanished">Apprendre
-plus a propos de Wireshark</translation>
+        <location filename="main_welcome.cpp" line="239"/>
+        <source>not found</source>
+        <translation>Non trouvé</translation>
     </message>
 </context>
 <context>
     <name>MainWindow</name>
     <message>
         <location filename="main_window.ui" line="14"/>
-        <location filename="main_window.ui" line="682"/>
+        <location filename="main_window.ui" line="685"/>
         <source>Wireshark</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>900000000; </source>
-        <translation type="obsolete">90000000; </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_window.ui" line="74"/>
@@ -4610,10 +4379,6 @@ plus a propos de Wireshark</translation>
         <location filename="main_window.ui" line="81"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="obsolete">Fichier</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="119"/>
@@ -4636,22 +4401,25 @@ plus a propos de Wireshark</translation>
         <translation>Exporter Objets</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation type="obsolete">Editer</translation>
+        <location filename="main_window.ui" line="237"/>
+        <source>&amp;Zoom</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="476"/>
-        <location filename="main_window.ui" line="2228"/>
+        <location filename="main_window.ui" line="245"/>
+        <source>&amp;Time Display Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="270"/>
+        <source>Name Resolution</source>
+        <translation type="unfinished">Résolution de nom</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="478"/>
+        <location filename="main_window.ui" line="2231"/>
         <source>Copy</source>
         <translation>Copier</translation>
-    </message>
-    <message>
-        <source>Capture</source>
-        <translation type="obsolete">Capture</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Aide</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="191"/>
@@ -4659,1417 +4427,37 @@ plus a propos de Wireshark</translation>
         <translation>Page du manuel</translation>
     </message>
     <message>
-        <source>Go</source>
-        <translation type="obsolete">Aller</translation>
-    </message>
-    <message>
-        <source>View</source>
-        <translation type="obsolete">Voir</translation>
-    </message>
-    <message>
-        <source>Analyze</source>
-        <translation type="obsolete">Analyse</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="306"/>
-        <location filename="main_window.ui" line="2218"/>
+        <location filename="main_window.ui" line="308"/>
+        <location filename="main_window.ui" line="2221"/>
         <source>Apply as Filter</source>
         <translation>Appliquer comme un Filtre</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="317"/>
-        <location filename="main_window.ui" line="2223"/>
+        <location filename="main_window.ui" line="319"/>
+        <location filename="main_window.ui" line="2226"/>
         <source>Prepare a Filter</source>
         <translation>Préparer un Filtre</translation>
     </message>
     <message>
-        <source>toolBar</source>
-        <translation type="obsolete">Barre d&apos;outils</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="596"/>
-        <source>Open</source>
-        <translation>Ouvrir</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="599"/>
-        <source>Open a capture file</source>
-        <translation>Ouvrir un fichier de capture</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="602"/>
-        <source>Ctrl+O</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="610"/>
-        <source>Quit</source>
-        <translation>Quitter</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="613"/>
-        <source>Quit Wireshark</source>
-        <translation>Quitter Wireshark</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="616"/>
-        <source>Ctrl+Q</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="630"/>
-        <source>Start capturing packets</source>
-        <translation>Démarrer la capture de paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="778"/>
-        <source>Next Packet</source>
-        <translation>Paquet suivant</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="781"/>
-        <source>Go to the next packet</source>
-        <translation>ALler au paquet suviant</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="784"/>
-        <source>Ctrl+Down</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="789"/>
-        <source>Previous Packet</source>
-        <translation>Paquet précédent</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="792"/>
-        <source>Go to the previous packet</source>
-        <translation>Aller au paquet précédent</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="795"/>
-        <source>Ctrl+Up</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="800"/>
-        <source>First Packet</source>
-        <translation>Premier paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="803"/>
-        <source>Go to the first packet</source>
-        <translation>Aller au premier paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="806"/>
-        <source>Ctrl+Home</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="811"/>
-        <source>Last Packet</source>
-        <translation>Dernier paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="814"/>
-        <source>Go to the last packet</source>
-        <translation>Aller au dernier paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="817"/>
-        <source>Ctrl+End</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="825"/>
-        <source>E&amp;xpand Subtrees</source>
-        <translation>E&amp;tendre les sous menus</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="828"/>
-        <source>Expand the current packet detail</source>
-        <translation>Etendre les détails du paquet en cours</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="831"/>
-        <source>Shift+Right</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="836"/>
-        <source>&amp;Expand All</source>
-        <translation>&amp;Etendre tout</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="839"/>
-        <source>Expand packet details</source>
-        <translation>Etendre les détails du paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="842"/>
-        <source>Ctrl+Right</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="847"/>
-        <source>Collapse &amp;All</source>
-        <translation>Reduire &amp;Tout</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="850"/>
-        <source>Collapse all packet details</source>
-        <translation>Reduire les détails de tous les paquets</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="853"/>
-        <source>Ctrl+Left</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="858"/>
-        <source>Go to Packet...</source>
-        <translation>Aller au Paquet...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="861"/>
-        <source>Go to specified packet</source>
-        <translation>Aller au paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="864"/>
-        <source>Ctrl+G</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="869"/>
-        <source>&amp;Merge...</source>
-        <translation>&amp;Fusionner...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="872"/>
-        <source>Merge one or more files</source>
-        <translation>Fusionner un ou plusieurs fichiers</translation>
-    </message>
-    <message>
-        <source>&amp;Import...</source>
-        <translation type="obsolete">&amp;Importer...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="880"/>
-        <source>Import a file</source>
-        <translation>Importer un fichier</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="885"/>
-        <source>&amp;Save</source>
-        <translation>&amp;Sauvegarder</translation>
-    </message>
-    <message>
-        <source>Save the current file</source>
-        <translation type="vanished">Sauvegarder le fichier en cours</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="891"/>
-        <source>Ctrl+S</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="899"/>
-        <source>Save &amp;As...</source>
-        <translation>Sauveg&amp;arder sous...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="902"/>
-        <source>Save as a different file</source>
-        <translation>Sauvegarder dans un fichier différent</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="905"/>
-        <source>Ctrl+Shift+S</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="910"/>
-        <source>Export Specified Packets...</source>
-        <translation>Export les Paquets Specifiés...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="971"/>
-        <source>Options</source>
-        <translation>Options</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1015"/>
-        <source>As Plain &amp;Text...</source>
-        <translation>En &amp;Texte...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1020"/>
-        <source>As CSV...</source>
-        <translation>En CSV...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1025"/>
-        <source>As &quot;C&quot; Arrays...</source>
-        <translation>En Tableau &quot;C&quot;...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1030"/>
-        <source>As PSML XML...</source>
-        <translation>En PSML XML...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1035"/>
-        <source>As PDML XML...</source>
-        <translation>En PDML XML...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1040"/>
-        <source>&amp;HTTP...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1045"/>
-        <source>&amp;DICOM...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1050"/>
-        <source>&amp;SMB...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1055"/>
-        <source>Description</source>
-        <translation>Description</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1058"/>
-        <location filename="main_window.ui" line="1312"/>
-        <source>Ctrl+Shift+D</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1063"/>
-        <source>Field Name</source>
-        <translation>Nom du champs</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1066"/>
-        <source>Ctrl+Shift+F</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1071"/>
-        <source>Value</source>
-        <translation>Valeur</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1074"/>
-        <source>Ctrl+Shift+V</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1079"/>
-        <source>As Filter</source>
-        <translation>Comme un Filtre</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1082"/>
-        <source>Ctrl+Shift+C</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1087"/>
-        <location filename="main_window.ui" line="1132"/>
-        <source>&amp;Selected</source>
-        <translation>&amp;Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1092"/>
-        <location filename="main_window.ui" line="1137"/>
-        <source>&amp;Not Selected</source>
-        <translation>&amp;Non Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1095"/>
-        <location filename="main_window.ui" line="1140"/>
-        <source>Not Selected</source>
-        <translation>Non Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1100"/>
-        <location filename="main_window.ui" line="1145"/>
-        <source>... &amp;and Selected</source>
-        <translation>.. &amp;Et Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1103"/>
-        <location filename="main_window.ui" line="1148"/>
-        <source>... and Selected</source>
-        <translation>... et Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1108"/>
-        <location filename="main_window.ui" line="1153"/>
-        <source>... &amp;or Selected</source>
-        <translation>... &amp;ou Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1111"/>
-        <location filename="main_window.ui" line="1156"/>
-        <source>... or Selected</source>
-        <translation>... ou Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1116"/>
-        <location filename="main_window.ui" line="1161"/>
-        <source>... a&amp;nd not Selected</source>
-        <translation>... e&amp;t non Séléctionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1119"/>
-        <location filename="main_window.ui" line="1164"/>
-        <source>... and not Selected</source>
-        <translation>... et non Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1124"/>
-        <location filename="main_window.ui" line="1169"/>
-        <source>... o&amp;r not Selected</source>
-        <translation>... o&amp;u non Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1127"/>
-        <location filename="main_window.ui" line="1172"/>
-        <source>... or not Selected</source>
-        <translation>... ou not Sélectionné</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1180"/>
-        <source>Display Filters...</source>
-        <translation>Afficher les Filtres...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1188"/>
-        <source>Display Filter &amp;Macros...</source>
-        <translation>Afficher les filtres &amp;Macros...</translation>
-    </message>
-    <message>
-        <source>Apply as Column</source>
-        <translation type="vanished">Appliquer comme une colonne</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1207"/>
-        <source>&amp;Find Packet...</source>
-        <translation>&amp;Trouver un Paquet...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1210"/>
-        <source>Find a packet</source>
-        <translation>Trouver un paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1213"/>
-        <source>Ctrl+F</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1218"/>
-        <source>Find Ne&amp;xt...</source>
-        <translation>Trouver paquet &amp;suivant...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1221"/>
-        <source>Find the next packet</source>
-        <translation>Trouver le paquet suivant</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1224"/>
-        <source>Ctrl+N</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1229"/>
-        <source>Find Pre&amp;vious...</source>
-        <translation>Trouver paquet &amp;précédent...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1232"/>
-        <source>Find the previous packet</source>
-        <translation>Trouver le paquet précédent</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1235"/>
-        <source>Ctrl+B</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1240"/>
-        <source>&amp;Mark/Unmark Packet</source>
-        <translation>&amp;Marquer/Démarquer un paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1243"/>
-        <source>Mark or unmark this packet</source>
-        <translation>Marquer ou Démarquer ce paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1246"/>
-        <source>Ctrl+M</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1251"/>
-        <source>Mark All Displayed</source>
-        <translation>Marquer tout comme Affichées</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1254"/>
-        <source>Mark all displayed packets</source>
-        <translation>Marquer tous les paquets affichés</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1257"/>
-        <source>Ctrl+Shift+M</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1262"/>
-        <source>Unmark All Displayed</source>
-        <translation>Démarquer tous affichés</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1265"/>
-        <source>Unmark all displayed packets</source>
-        <translation>Démarquer tous paquets affichés</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1268"/>
-        <source>Meta+Alt+M</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1273"/>
-        <source>Next Mark</source>
-        <translation>Marque suivante</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1276"/>
-        <source>Go to the next marked packet</source>
-        <translation>Aller au prochain paquet marqués</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1279"/>
-        <source>Meta+Shift+N</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1284"/>
-        <source>Previous Mark</source>
-        <translation>Marque Précédente</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1287"/>
-        <source>Go to the previous marked packet</source>
-        <translation>Aller au paquet précédent marqué</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1290"/>
-        <source>Meta+Shift+B</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1295"/>
-        <source>&amp;Ignore/Unignore Packet</source>
-        <translation>&amp;Ignorer/Ne plus ignorer un paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1298"/>
-        <source>Ignore or unignore this packet</source>
-        <translation>Ignorer ou ne plus ignorer ce paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1301"/>
-        <source>Ctrl+D</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1323"/>
-        <source>Ctrl+Alt+D</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="vanished">Sommaire</translation>
-    </message>
-    <message>
-        <source>Protocol Hierarchy</source>
-        <translation type="vanished">Hiérarchie des Protocoles</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1428"/>
-        <source>Capture File Properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1431"/>
-        <source>Capture file properties</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1439"/>
-        <source>&amp;Protocol Hierarchy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1442"/>
-        <source>Show a summary of protocols present in the capture file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1447"/>
-        <source>Capinfos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1452"/>
-        <source>Reordercap</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1457"/>
-        <source>Time Sequence (Stevens)</source>
-        <translation>Séquence de temps (Stevens)</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1460"/>
-        <source>TCP time sequence graph (Stevens)</source>
-        <translation>Diagramme de séquence de temps de TCP (Stevens)</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1465"/>
-        <source>Throughput</source>
-        <translation>Débit</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1468"/>
-        <source>TCP througput</source>
-        <translation>Débit TCP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1473"/>
-        <source>Round Trip Time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1476"/>
-        <source>TCP round trip time</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1481"/>
-        <source>Window Scaling</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1484"/>
-        <source>TCP window scaling</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1492"/>
-        <source>Follow TCP Stream</source>
-        <translation>Suivre le flux TCP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1500"/>
-        <source>Follow UDP Stream</source>
-        <translation>Suivre le flux UDP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1508"/>
-        <source>Follow SSL Stream</source>
-        <translation>Suivre le flux SSL</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1513"/>
-        <source>Time Sequence (tcptrace)</source>
-        <translation>Séquence de temps (tcptrace)</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1516"/>
-        <source>TCP time sequence graph (tcptrace)</source>
-        <translation>Diagramme de séquence de temps de TCP (tcptrace)</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1521"/>
-        <source>Analyse this Association</source>
-        <translation>Analyser cette assoication</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1526"/>
-        <source>Show All Associations</source>
-        <translation>Afficher toutes les assoications</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1531"/>
-        <source>Flow Graph</source>
-        <translation>Graphique des flux</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1534"/>
-        <source>Flow sequence diagram</source>
-        <translation>Diagramme de séquence des flux</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1539"/>
-        <source>ANCP</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1542"/>
-        <source>ANCP statistics</source>
-        <translation>statistiques ANCP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1547"/>
-        <source>Packets sorted by Instance ID</source>
-        <translation>Paquets triés par Instance ID</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1550"/>
-        <source>BACapp statistics sorted by instance ID</source>
-        <translation>Statistiques BACAPP triés par instance ID</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1555"/>
-        <source>Packets sorted by IP</source>
-        <translation>Paquets triés par IP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1558"/>
-        <source>BACapp statistics sorted by IP</source>
-        <translation>Statistiques BACapp triés par IP </translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1563"/>
-        <source>Packets sorted by object type</source>
-        <translation>Paquets triés par object type</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1566"/>
-        <source>BACapp statistics sorted by object type</source>
-        <translation>Statistiques BACap triés par objet type</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1571"/>
-        <source>Packets sorted by service</source>
-        <translation>Paquets triés par service</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1574"/>
-        <source>BACapp statistics sorted by service</source>
-        <translation>Statistiques BACapp triés par service</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1579"/>
-        <source>Collectd</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1582"/>
-        <source>Collectd statistics</source>
-        <translation>Statistiques Collectd</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1587"/>
-        <source>DNS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1590"/>
-        <source>DNS statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1595"/>
-        <source>HART-IP</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1598"/>
-        <source>HART-IP statistics</source>
-        <translation>Statistiques HART-IP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1603"/>
-        <source>HPFEEDS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1606"/>
-        <source>hpfeeds statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1611"/>
-        <source>HTTP2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1614"/>
-        <source>HTTP2 statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1619"/>
-        <location filename="main_window.ui" line="1667"/>
-        <source>Packet Counter</source>
-        <translation>Compteur de paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1622"/>
-        <source>HTTP packet counter</source>
-        <translation>Compteur de paquet HTTP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1627"/>
-        <source>Requests</source>
-        <translation>Requetes</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1630"/>
-        <source>HTTP requests</source>
-        <translation>Requetes HTTP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1635"/>
-        <source>Load Distribution</source>
-        <translation>Répartiton de charge</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1638"/>
-        <source>HTTP load distribution</source>
-        <translation>Répartition de charge HTTP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1643"/>
-        <source>Packet Lengths</source>
-        <translation>Longueur de Paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1646"/>
-        <source>Packet length statistics</source>
-        <translation>Statistiques de longueur de paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1651"/>
-        <source>Sametime</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1654"/>
-        <source>Sametime statistics</source>
-        <translation>Statistiques Sametime</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1659"/>
-        <source>&amp;ISUP Messages</source>
-        <translation>Messages &amp;ISUP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1662"/>
-        <source>ISUP message statistics</source>
-        <translation>Statistiques de message ISUP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1670"/>
-        <source>RTSP packet counts</source>
-        <translation>Compteur de paquet RTSP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1675"/>
-        <source>SM&amp;PP Operations</source>
-        <translation>Opérations SM&amp;PP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1678"/>
-        <source>SMPP operation statistics</source>
-        <translation>Statistiques des opérations SMPP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1683"/>
-        <source>&amp;UCP Messages</source>
-        <translation>Messages &amp;UCP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1686"/>
-        <source>UCP message statistics</source>
-        <translation>statistiques des messages UCP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1691"/>
-        <source>Decode &amp;As...</source>
-        <translation>Decoder &amp;comme...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1694"/>
-        <source>Change the way packets are dissected</source>
-        <translation>Modifier la manière dont les paquets sont analysés</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1704"/>
-        <source>Advertisements by Topic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1709"/>
-        <location filename="main_window.ui" line="1744"/>
-        <source>Advertisements by Source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1714"/>
-        <source>Advertisements by Transport</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1719"/>
-        <source>Queries by Topic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1724"/>
-        <location filename="main_window.ui" line="1754"/>
-        <source>Queries by Receiver</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1729"/>
-        <source>Wildcard Queries by Pattern</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1734"/>
-        <source>Wildcard Queries by Receiver</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1739"/>
-        <source>Advertisements by Queue</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1749"/>
-        <source>Queries by Queue</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1759"/>
-        <source>Streams</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1764"/>
-        <source>Stream Flow Graph</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1769"/>
-        <source>LBT-RM</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1774"/>
-        <source>LBT-RU</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1779"/>
-        <location filename="main_window.ui" line="1782"/>
-        <source>Filter this Association</source>
-        <translation>Filtrer cette association</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1787"/>
-        <source>Export PDUs to File...</source>
-        <translation>Exporter PDU vers un Fichier...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1792"/>
-        <source>&amp;I/O Graph</source>
-        <translation>Graphique &amp;I/O</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1795"/>
-        <source>Create graphs based on display filter fields</source>
-        <translation>Créer des graphiques basés sur des filtres d&apos;affichage</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1806"/>
-        <source>&amp;Main Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1809"/>
-        <source>Show or hide the main toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1820"/>
-        <source>&amp;Filter Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1823"/>
-        <source>Show or hide the display filter toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1828"/>
-        <source>&amp;TFTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1833"/>
-        <source>Conversations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1836"/>
-        <source>Conversations at different protocol levels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1841"/>
-        <source>Endpoints</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1844"/>
-        <source>Endpoints at different protocol levels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1852"/>
-        <source>Colorize Packet List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1855"/>
-        <source>Draw packets using your coloring rules</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1860"/>
-        <source>&amp;Zoom In</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1863"/>
-        <source>Enlarge the main window text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1866"/>
-        <source>Ctrl++</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1871"/>
-        <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1874"/>
-        <source>Ctrl+-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1879"/>
-        <source>Normal Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1882"/>
-        <source>Ctrl+0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1887"/>
-        <source>Resize Columns</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1890"/>
-        <source>Resize packet list columns to fit contents</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1893"/>
-        <source>Ctrl+Shift+R</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1901"/>
-        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1904"/>
-        <location filename="main_window.ui" line="1929"/>
-        <location filename="main_window.ui" line="1957"/>
-        <source>Show packet times as the date and time of day.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1907"/>
-        <source>Meta+Alt+1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1915"/>
-        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1918"/>
-        <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1926"/>
-        <source>Time of Day (01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1932"/>
-        <source>Meta+Alt+2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1940"/>
-        <source>Seconds Since 1970-01-01</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1943"/>
-        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1946"/>
-        <source>Meta+Alt+3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1954"/>
-        <source>Seconds Since Beginning of Capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1960"/>
-        <source>Meta+Alt+4</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1968"/>
-        <source>Seconds Since Previous Captured Packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1971"/>
-        <source>Show packet times as the seconds since the previous captured packet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1974"/>
-        <source>Meta+Alt+5</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1982"/>
-        <source>Seconds Since Previous Displayed Packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1985"/>
-        <source>Show packet times as the seconds since the previous displayed packet.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1988"/>
-        <source>Meta+Alt+6</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1996"/>
-        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1999"/>
-        <source>Show packet times as the UTC date and time of day.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2002"/>
-        <source>Meta+Alt+7</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2010"/>
-        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2013"/>
-        <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2021"/>
-        <source>UTC Time of Day (01:02:03.123456)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2024"/>
-        <source>Show packet times as the UTC time of day.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2027"/>
-        <source>Meta+Alt+8</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2035"/>
-        <source>Automatic (from capture file)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2038"/>
-        <source>Use the time precision indicated in the capture file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2046"/>
-        <source>Seconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2054"/>
-        <source>Tenths of a second</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2062"/>
-        <source>Hundredths of a second</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2070"/>
-        <source>Milliseconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2078"/>
-        <source>Microseconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2086"/>
-        <source>Nanoseconds</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2094"/>
-        <source>Display Seconds With Hours and Minutes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2097"/>
-        <source>Display seconds with hours and minutes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2105"/>
-        <source>Resolve &amp;Physical Addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2108"/>
-        <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2116"/>
-        <source>Resolve &amp;Network Addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2119"/>
-        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2127"/>
-        <source>Resolve &amp;Transport Addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2130"/>
-        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2141"/>
-        <source>Wire&amp;less Toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2144"/>
-        <source>Show or hide the wireless toolbar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2158"/>
-        <source>&amp;Status Bar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2161"/>
-        <source>Show or hide the status bar</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2172"/>
-        <source>Packet &amp;List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2175"/>
-        <source>Show or hide the packet list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2186"/>
-        <source>Packet &amp;Details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2189"/>
-        <source>Show or hide the packet details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2200"/>
-        <source>Packet &amp;Bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2203"/>
-        <source>Show or hide the packet bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2208"/>
-        <source>Follow...</source>
-        <translation type="unfinished">Suivre...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2233"/>
-        <source>Bytes</source>
-        <translation type="unfinished">Octets</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2238"/>
-        <source>&amp;VoIP Calls</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2241"/>
-        <source>All VoIP Calls</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2246"/>
-        <source>SIP &amp;Flows</source>
+        <location filename="main_window.ui" line="330"/>
+        <location filename="main_window.ui" line="2216"/>
+        <source>SCTP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2249"/>
-        <source>SIP Flows</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2254"/>
-        <source>RTP Streams</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2259"/>
-        <source>&amp;Coloring Rules...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2262"/>
-        <source>Edit the packet list coloring rules.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2267"/>
-        <source>ATT Server Attributes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2272"/>
-        <source>Devices</source>
-        <translation type="unfinished"></translation>
+        <location filename="main_window.ui" line="364"/>
+        <source>TCP Stream Graphs</source>
+        <translation>Graphique des flux TCP</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2277"/>
-        <source>Services</source>
+        <location filename="main_window.ui" line="374"/>
+        <source>BACnet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2282"/>
-        <source>Show Packet in New &amp;Window</source>
+        <location filename="main_window.ui" line="383"/>
+        <source>HTTP</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2285"/>
-        <source>Show this packet in a separate window.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2290"/>
-        <source>Show Packet Reference in New Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="2293"/>
-        <source>Show the linked packet in a separate window.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show/hide the main toolbar</source>
-        <translation type="vanished">Afficher / masquer la barre d&apos;outils principale</translation>
-    </message>
-    <message>
-        <source>Display Filter</source>
-        <translation type="vanished">Filte d&apos;affichage</translation>
-    </message>
-    <message>
-        <source>Show/hide the display filter toolbar</source>
-        <translation type="vanished">Afficher / masquer la barre de filtre d&apos;affichage</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1306"/>
-        <source>Ignore All Displayed</source>
-        <translation>Ignorer tous les affichés</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="67"/>
@@ -6097,589 +4485,1879 @@ plus a propos de Wireshark</translation>
         <translation>&amp;Aller</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="231"/>
+        <location filename="main_window.ui" line="233"/>
         <source>&amp;View</source>
         <translation>&amp;Vue</translation>
     </message>
     <message>
-        <source>Toolbars</source>
-        <translation type="vanished">Barre d&apos;outils</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="302"/>
+        <location filename="main_window.ui" line="304"/>
         <source>&amp;Analyze</source>
         <translation>&amp;Analyser</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="335"/>
+        <location filename="main_window.ui" line="337"/>
         <source>Follow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="358"/>
+        <location filename="main_window.ui" line="360"/>
         <source>&amp;Statistics</source>
         <translation>&amp;Statistiques</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="389"/>
-        <location filename="main_window.ui" line="1699"/>
+        <location filename="main_window.ui" line="391"/>
+        <location filename="main_window.ui" line="1702"/>
         <source>29West</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="393"/>
+        <location filename="main_window.ui" line="395"/>
         <source>Topics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="405"/>
+        <location filename="main_window.ui" line="407"/>
         <source>Queues</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="414"/>
+        <location filename="main_window.ui" line="416"/>
         <source>UIM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="448"/>
+        <location filename="main_window.ui" line="450"/>
         <source>Telephon&amp;y</source>
         <translation>Telephon&amp;ie</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="458"/>
+        <location filename="main_window.ui" line="454"/>
+        <source>RTSP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="460"/>
         <source>RTP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="472"/>
+        <location filename="main_window.ui" line="474"/>
         <source>&amp;Edit</source>
         <translation>&amp;Editer</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="513"/>
+        <location filename="main_window.ui" line="515"/>
         <source>Bluetooth</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="536"/>
+        <location filename="main_window.ui" line="538"/>
         <source>Main Toolbar</source>
         <translation>Barre d&apos;outils principale</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="582"/>
+        <location filename="main_window.ui" line="585"/>
         <source>Display Filter Toolbar</source>
         <translation>Barre de filtrage d&apos;affichage</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="652"/>
-        <source>Close this capture file</source>
+        <location filename="main_window.ui" line="599"/>
+        <source>Open</source>
+        <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="602"/>
+        <source>Open a capture file</source>
+        <translation>Ouvrir un fichier de capture</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="605"/>
+        <source>Ctrl+O</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="888"/>
-        <source>Save this capture file</source>
+        <location filename="main_window.ui" line="613"/>
+        <source>Quit</source>
+        <translation>Quitter</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="616"/>
+        <source>Quit Wireshark</source>
+        <translation>Quitter Wireshark</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="619"/>
+        <source>Ctrl+Q</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="957"/>
-        <source>Reload this file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1196"/>
-        <source>Create a Column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1199"/>
-        <source>Create a packet list column from the selected field.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1309"/>
-        <source>Ignore all displayed packets</source>
-        <translation>Ignorer tous les paquets affichés</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1317"/>
-        <source>Unignore All Displayed</source>
-        <translation>Ne plus ignorer tous les affichés</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1320"/>
-        <source>Unignore all displayed packets</source>
-        <translation>Ne plus ignorer tous les paquets affichés</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1328"/>
-        <source>Set/Unset Time Reference</source>
-        <translation>Fixer/Defixer le Temps de Réference</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1331"/>
-        <source>Set or unset a time reference for this packet</source>
-        <translation>Fixer ou défixer le temps de réference de ce paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1334"/>
-        <source>Ctrl+T</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1339"/>
-        <source>Unset All Time References</source>
-        <translation>Défixer tous les Temps de Réferences</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1342"/>
-        <source>Remove all time references</source>
-        <translation>Supprimer tous les temps de réferences</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1345"/>
-        <source>Ctrl+Alt+T</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1350"/>
-        <source>Next Time Reference</source>
-        <translation>Prochain Temps de Réference</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1353"/>
-        <source>Go to the next time reference</source>
-        <translation>Aller au prochain temps de réference</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1356"/>
-        <source>Ctrl+Alt+N</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1361"/>
-        <source>Previous Time Reference</source>
-        <translation>Précédent Temps de réference</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1364"/>
-        <source>Go to the previous time reference</source>
-        <translation>Aller au précédent temps de réference</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1367"/>
-        <source>Ctrl+Alt+B</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1372"/>
-        <source>Time Shift...</source>
-        <translation>Décalage de temps...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1375"/>
-        <source>Shift or change packet timestamps</source>
-        <translation>Décalager ou changer le temps des paquets</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1378"/>
-        <source>Ctrl+Shift+T</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1383"/>
-        <source>Packet Comment...</source>
-        <translation>Commentaire de Paquet...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1386"/>
-        <source>Add or change a packet comment</source>
-        <translation>Ajouter ou changer le commentaire d&apos;un paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1394"/>
-        <source>Configuration Profiles...</source>
-        <translation>Profils de Configuration...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1397"/>
-        <source>Configuration profiles</source>
-        <translation>Profils de configuration</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1400"/>
-        <source>Manage your configuration profiles</source>
-        <translation>Gerer mes profils de configuration</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1411"/>
-        <source>&amp;Preferences...</source>
-        <translation>&amp;Préferences...</translation>
-    </message>
-    <message>
-        <source>Manage configuration profiles</source>
-        <translation type="obsolete">Gerer les profils de configuration</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1403"/>
-        <source>Ctrl+Shift+A</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Preferences...</source>
-        <translation type="obsolete">Préferences...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1414"/>
-        <source>Manage Wireshark&apos;s preferences</source>
-        <translation>Gerer les préferences de Wireshark</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1417"/>
-        <source>Ctrl+Shift+P</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="913"/>
-        <source>Export specified packets</source>
-        <translation>Exporter les paquets specifiés</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="328"/>
-        <location filename="main_window.ui" line="2213"/>
-        <source>SCTP</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation type="obsolete">Statistiques</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="362"/>
-        <source>TCP Stream Graphs</source>
-        <translation>Graphique des flux TCP</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="372"/>
-        <source>BACnet</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="381"/>
-        <source>HTTP</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Telephony</source>
-        <translation type="obsolete">Téléphonie</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="452"/>
-        <source>RTSP</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="877"/>
-        <source>&amp;Import from Hex Dump...</source>
-        <translation>&amp;Importer depuis hex dump...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="918"/>
-        <source>Export Packet &amp;Bytes...</source>
-        <translation>Exporter les &amp;données des paquets...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="921"/>
-        <source>Ctrl+H</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="926"/>
-        <source>Export SSL Session Keys...</source>
-        <translation>Exporter les clés de sessions SSL...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="931"/>
-        <source>&amp;Print...</source>
-        <translation>Im&amp;primer...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="934"/>
-        <source>Ctrl+P</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="939"/>
-        <source>List Files</source>
-        <translation>Liste des fichiers</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="944"/>
-        <source>Next File</source>
-        <translation>Fichier suivant</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="949"/>
-        <source>Previous File</source>
-        <translation>Ficher précedent</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="954"/>
-        <source>&amp;Reload</source>
-        <translation>&amp;Recharger</translation>
-    </message>
-    <message>
-        <source>Reload the current file</source>
-        <translation type="vanished">Recharger le fichier en cours</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="960"/>
-        <location filename="main_window.ui" line="1010"/>
-        <source>Ctrl+R</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="968"/>
-        <source>&amp;Options...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="974"/>
-        <source>Capture options</source>
-        <translation>Options de capture</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="977"/>
-        <source>Ctrl+K</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="988"/>
-        <source>Capture &amp;Filters...</source>
-        <translation>&amp;Filtre de Capture...</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="991"/>
-        <source>Capture filters</source>
-        <translation>Filtres de Capture</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="996"/>
-        <source>Refresh Interfaces</source>
-        <translation>Actualiser les interfaces</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="999"/>
-        <source>Refresh interfaces</source>
-        <translation>Actualiser les interfaces</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1004"/>
-        <source>&amp;Restart</source>
-        <translation>&amp;Redémarrager</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="1007"/>
-        <source>Restart current capture</source>
-        <translation>Redémarrer la capture en cours</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="641"/>
-        <source>Stop capturing packets</source>
-        <translation>Arrêter la capturer de paquet</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="235"/>
-        <source>&amp;Zoom</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="243"/>
-        <source>&amp;Time Display Format</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="268"/>
-        <source>Name Resolution</source>
-        <translation type="unfinished">Résolution de nom</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="649"/>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="655"/>
-        <source>Ctrl+W</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="666"/>
-        <source>No files found</source>
-        <translation>Pas de fichier trouvé</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="671"/>
-        <source>&amp;Contents</source>
-        <translation>&amp;Aide</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="674"/>
-        <source>F1</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="758"/>
-        <source>&amp;About Wireshark</source>
-        <translation>&amp;A Propos de Wireshark</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="687"/>
-        <source>Wireshark Filter</source>
-        <translation>Filtre Wireshark</translation>
-    </message>
-    <message>
-        <source>Show interface details</source>
-        <translation type="vanished">Voir les détails des interfaces</translation>
-    </message>
-    <message>
-        <location filename="main_window.ui" line="627"/>
+        <location filename="main_window.ui" line="630"/>
         <source>&amp;Start</source>
         <translation>&amp;Démarrer</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="633"/>
-        <location filename="main_window.ui" line="644"/>
-        <source>Ctrl+E</source>
-        <translation></translation>
+        <source>Start capturing packets</source>
+        <translation>Démarrer la capture de paquet</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="638"/>
+        <location filename="main_window.ui" line="636"/>
+        <location filename="main_window.ui" line="647"/>
+        <source>Ctrl+E</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="641"/>
         <source>S&amp;top</source>
         <translation>Arre&amp;ter</translation>
     </message>
     <message>
-        <source>Close the current capture file</source>
-        <translation type="vanished">Fermer le fichier de capture en cours</translation>
+        <location filename="main_window.ui" line="644"/>
+        <source>Stop capturing packets</source>
+        <translation>Arrêter la capturer de paquet</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="692"/>
+        <location filename="main_window.ui" line="652"/>
+        <source>Close</source>
+        <translation>Fermer</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="658"/>
+        <source>Ctrl+W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="669"/>
+        <source>No files found</source>
+        <translation>Pas de fichier trouvé</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="674"/>
+        <source>&amp;Contents</source>
+        <translation>&amp;Aide</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="677"/>
+        <source>F1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="690"/>
+        <source>Wireshark Filter</source>
+        <translation>Filtre Wireshark</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="695"/>
         <source>TShark</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="697"/>
+        <location filename="main_window.ui" line="700"/>
         <source>RawShark</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="702"/>
+        <location filename="main_window.ui" line="705"/>
         <source>Dumpcap</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="707"/>
+        <location filename="main_window.ui" line="710"/>
         <source>Mergecap</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="712"/>
+        <location filename="main_window.ui" line="715"/>
         <source>Editcap</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="717"/>
+        <location filename="main_window.ui" line="720"/>
         <source>Text2cap</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="726"/>
+        <location filename="main_window.ui" line="729"/>
         <source>Website</source>
         <translation>Site Web</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="731"/>
+        <location filename="main_window.ui" line="734"/>
         <source>FAQ&apos;s</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="736"/>
+        <location filename="main_window.ui" line="739"/>
         <source>Downloads</source>
         <translation>Téléchargements</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="745"/>
+        <location filename="main_window.ui" line="748"/>
         <source>Wiki</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="753"/>
+        <location filename="main_window.ui" line="756"/>
         <source>Sample Captures</source>
         <translation>Captures d&apos;Exemple</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="770"/>
+        <location filename="main_window.ui" line="761"/>
+        <source>&amp;About Wireshark</source>
+        <translation>&amp;A Propos de Wireshark</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="773"/>
         <source>Ask (Q&amp;&amp;A)</source>
         <translation>Questions (Q&amp;&amp;A)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="609"/>
-        <source>Loading: %1</source>
-        <translation>Chargement: %1</translation>
+        <location filename="main_window.ui" line="781"/>
+        <source>Next Packet</source>
+        <translation>Paquet suivant</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="713"/>
-        <location filename="main_window_slots.cpp" line="172"/>
-        <source>Invalid Display Filter</source>
-        <translation>Filtre d&apos;affichage invalide</translation>
+        <location filename="main_window.ui" line="784"/>
+        <source>Go to the next packet</source>
+        <translation>ALler au paquet suviant</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="714"/>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation>Le filtre %1 n&apos;est pas un filtre d&apos;affichage valide (%2).</translation>
+        <location filename="main_window.ui" line="787"/>
+        <source>Ctrl+Down</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="645"/>
-        <source>Save packets before merging?</source>
-        <translation>Sauvegarder les paquets avant la fusion?</translation>
+        <location filename="main_window.ui" line="792"/>
+        <source>Previous Packet</source>
+        <translation>Paquet précédent</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="263"/>
+        <location filename="main_window.ui" line="795"/>
+        <source>Go to the previous packet</source>
+        <translation>Aller au paquet précédent</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="798"/>
+        <source>Ctrl+Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="803"/>
+        <source>First Packet</source>
+        <translation>Premier paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="806"/>
+        <source>Go to the first packet</source>
+        <translation>Aller au premier paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="809"/>
+        <source>Ctrl+Home</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="814"/>
+        <source>Last Packet</source>
+        <translation>Dernier paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="817"/>
+        <source>Go to the last packet</source>
+        <translation>Aller au dernier paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="820"/>
+        <source>Ctrl+End</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="828"/>
+        <source>E&amp;xpand Subtrees</source>
+        <translation>E&amp;tendre les sous menus</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="831"/>
+        <source>Expand the current packet detail</source>
+        <translation>Etendre les détails du paquet en cours</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="834"/>
+        <source>Shift+Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="839"/>
+        <source>&amp;Expand All</source>
+        <translation>&amp;Etendre tout</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="842"/>
+        <source>Expand packet details</source>
+        <translation>Etendre les détails du paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="845"/>
+        <source>Ctrl+Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="850"/>
+        <source>Collapse &amp;All</source>
+        <translation>Reduire &amp;Tout</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="853"/>
+        <source>Collapse all packet details</source>
+        <translation>Reduire les détails de tous les paquets</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="856"/>
+        <source>Ctrl+Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="861"/>
+        <source>Go to Packet...</source>
+        <translation>Aller au Paquet...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="864"/>
+        <source>Go to specified packet</source>
+        <translation>Aller au paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="867"/>
+        <source>Ctrl+G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="872"/>
+        <source>&amp;Merge...</source>
+        <translation>&amp;Fusionner...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="875"/>
+        <source>Merge one or more files</source>
+        <translation>Fusionner un ou plusieurs fichiers</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="880"/>
+        <source>&amp;Import from Hex Dump...</source>
+        <translation>&amp;Importer depuis hex dump...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="883"/>
+        <source>Import a file</source>
+        <translation>Importer un fichier</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="888"/>
+        <source>&amp;Save</source>
+        <translation>&amp;Sauvegarder</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="894"/>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="902"/>
+        <source>Save &amp;As...</source>
+        <translation>Sauveg&amp;arder sous...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="905"/>
+        <source>Save as a different file</source>
+        <translation>Sauvegarder dans un fichier différent</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="908"/>
+        <source>Ctrl+Shift+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="913"/>
+        <source>Export Specified Packets...</source>
+        <translation>Export les Paquets Specifiés...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="916"/>
+        <source>Export specified packets</source>
+        <translation>Exporter les paquets specifiés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="921"/>
+        <source>Export Packet &amp;Bytes...</source>
+        <translation>Exporter les &amp;données des paquets...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="924"/>
+        <source>Ctrl+H</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="929"/>
+        <source>Export SSL Session Keys...</source>
+        <translation>Exporter les clés de sessions SSL...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="934"/>
+        <source>&amp;Print...</source>
+        <translation>Im&amp;primer...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="937"/>
+        <source>Ctrl+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="942"/>
+        <source>List Files</source>
+        <translation>Liste des fichiers</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="947"/>
+        <source>Next File</source>
+        <translation>Fichier suivant</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="952"/>
+        <source>Previous File</source>
+        <translation>Ficher précedent</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="957"/>
+        <source>&amp;Reload</source>
+        <translation>&amp;Recharger</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="963"/>
+        <location filename="main_window.ui" line="1013"/>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="971"/>
+        <source>&amp;Options...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="974"/>
+        <source>Options</source>
+        <translation>Options</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="977"/>
+        <source>Capture options</source>
+        <translation>Options de capture</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="980"/>
+        <source>Ctrl+K</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="991"/>
+        <source>Capture &amp;Filters...</source>
+        <translation>&amp;Filtre de Capture...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="994"/>
+        <source>Capture filters</source>
+        <translation>Filtres de Capture</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="999"/>
+        <source>Refresh Interfaces</source>
+        <translation>Actualiser les interfaces</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1002"/>
+        <source>Refresh interfaces</source>
+        <translation>Actualiser les interfaces</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1007"/>
+        <source>&amp;Restart</source>
+        <translation>&amp;Redémarrager</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1010"/>
+        <source>Restart current capture</source>
+        <translation>Redémarrer la capture en cours</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1018"/>
+        <source>As Plain &amp;Text...</source>
+        <translation>En &amp;Texte...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1023"/>
+        <source>As CSV...</source>
+        <translation>En CSV...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1028"/>
+        <source>As &quot;C&quot; Arrays...</source>
+        <translation>En Tableau &quot;C&quot;...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1033"/>
+        <source>As PSML XML...</source>
+        <translation>En PSML XML...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1038"/>
+        <source>As PDML XML...</source>
+        <translation>En PDML XML...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1043"/>
+        <source>&amp;HTTP...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1048"/>
+        <source>&amp;DICOM...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1053"/>
+        <source>&amp;SMB...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1058"/>
+        <source>Description</source>
+        <translation>Description</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1061"/>
+        <location filename="main_window.ui" line="1315"/>
+        <source>Ctrl+Shift+D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1066"/>
+        <source>Field Name</source>
+        <translation>Nom du champs</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1069"/>
+        <source>Ctrl+Shift+F</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1074"/>
+        <source>Value</source>
+        <translation>Valeur</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1077"/>
+        <source>Ctrl+Shift+V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1082"/>
+        <source>As Filter</source>
+        <translation>Comme un Filtre</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1085"/>
+        <source>Ctrl+Shift+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1090"/>
+        <location filename="main_window.ui" line="1135"/>
+        <source>&amp;Selected</source>
+        <translation>&amp;Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1095"/>
+        <location filename="main_window.ui" line="1140"/>
+        <source>&amp;Not Selected</source>
+        <translation>&amp;Non Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1098"/>
+        <location filename="main_window.ui" line="1143"/>
+        <source>Not Selected</source>
+        <translation>Non Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1103"/>
+        <location filename="main_window.ui" line="1148"/>
+        <source>... &amp;and Selected</source>
+        <translation>.. &amp;Et Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1106"/>
+        <location filename="main_window.ui" line="1151"/>
+        <source>... and Selected</source>
+        <translation>... et Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1111"/>
+        <location filename="main_window.ui" line="1156"/>
+        <source>... &amp;or Selected</source>
+        <translation>... &amp;ou Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1114"/>
+        <location filename="main_window.ui" line="1159"/>
+        <source>... or Selected</source>
+        <translation>... ou Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1119"/>
+        <location filename="main_window.ui" line="1164"/>
+        <source>... a&amp;nd not Selected</source>
+        <translation>... e&amp;t non Séléctionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1122"/>
+        <location filename="main_window.ui" line="1167"/>
+        <source>... and not Selected</source>
+        <translation>... et non Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1127"/>
+        <location filename="main_window.ui" line="1172"/>
+        <source>... o&amp;r not Selected</source>
+        <translation>... o&amp;u non Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1130"/>
+        <location filename="main_window.ui" line="1175"/>
+        <source>... or not Selected</source>
+        <translation>... ou not Sélectionné</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1183"/>
+        <source>Display Filters...</source>
+        <translation>Afficher les Filtres...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1191"/>
+        <source>Display Filter &amp;Macros...</source>
+        <translation>Afficher les filtres &amp;Macros...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="655"/>
+        <source>Close this capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="891"/>
+        <source>Save this capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="960"/>
+        <source>Reload this file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1199"/>
+        <source>Create a Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1202"/>
+        <source>Create a packet list column from the selected field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1210"/>
+        <source>&amp;Find Packet...</source>
+        <translation>&amp;Trouver un Paquet...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1213"/>
+        <source>Find a packet</source>
+        <translation>Trouver un paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1216"/>
+        <source>Ctrl+F</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1221"/>
+        <source>Find Ne&amp;xt...</source>
+        <translation>Trouver paquet &amp;suivant...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1224"/>
+        <source>Find the next packet</source>
+        <translation>Trouver le paquet suivant</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1227"/>
+        <source>Ctrl+N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1232"/>
+        <source>Find Pre&amp;vious...</source>
+        <translation>Trouver paquet &amp;précédent...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1235"/>
+        <source>Find the previous packet</source>
+        <translation>Trouver le paquet précédent</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1238"/>
+        <source>Ctrl+B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1243"/>
+        <source>&amp;Mark/Unmark Packet</source>
+        <translation>&amp;Marquer/Démarquer un paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1246"/>
+        <source>Mark or unmark this packet</source>
+        <translation>Marquer ou Démarquer ce paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1249"/>
+        <source>Ctrl+M</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1254"/>
+        <source>Mark All Displayed</source>
+        <translation>Marquer tout comme Affichées</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1257"/>
+        <source>Mark all displayed packets</source>
+        <translation>Marquer tous les paquets affichés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1260"/>
+        <source>Ctrl+Shift+M</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1265"/>
+        <source>Unmark All Displayed</source>
+        <translation>Démarquer tous affichés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1268"/>
+        <source>Unmark all displayed packets</source>
+        <translation>Démarquer tous paquets affichés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1271"/>
+        <source>Meta+Alt+M</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1276"/>
+        <source>Next Mark</source>
+        <translation>Marque suivante</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1279"/>
+        <source>Go to the next marked packet</source>
+        <translation>Aller au prochain paquet marqués</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1282"/>
+        <source>Meta+Shift+N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1287"/>
+        <source>Previous Mark</source>
+        <translation>Marque Précédente</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1290"/>
+        <source>Go to the previous marked packet</source>
+        <translation>Aller au paquet précédent marqué</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1293"/>
+        <source>Meta+Shift+B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1298"/>
+        <source>&amp;Ignore/Unignore Packet</source>
+        <translation>&amp;Ignorer/Ne plus ignorer un paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1301"/>
+        <source>Ignore or unignore this packet</source>
+        <translation>Ignorer ou ne plus ignorer ce paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1304"/>
+        <source>Ctrl+D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1309"/>
+        <source>Ignore All Displayed</source>
+        <translation>Ignorer tous les affichés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1312"/>
+        <source>Ignore all displayed packets</source>
+        <translation>Ignorer tous les paquets affichés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1320"/>
+        <source>Unignore All Displayed</source>
+        <translation>Ne plus ignorer tous les affichés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1323"/>
+        <source>Unignore all displayed packets</source>
+        <translation>Ne plus ignorer tous les paquets affichés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1326"/>
+        <source>Ctrl+Alt+D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1331"/>
+        <source>Set/Unset Time Reference</source>
+        <translation>Fixer/Defixer le Temps de Réference</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1334"/>
+        <source>Set or unset a time reference for this packet</source>
+        <translation>Fixer ou défixer le temps de réference de ce paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1337"/>
+        <source>Ctrl+T</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1342"/>
+        <source>Unset All Time References</source>
+        <translation>Défixer tous les Temps de Réferences</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1345"/>
+        <source>Remove all time references</source>
+        <translation>Supprimer tous les temps de réferences</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1348"/>
+        <source>Ctrl+Alt+T</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1353"/>
+        <source>Next Time Reference</source>
+        <translation>Prochain Temps de Réference</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1356"/>
+        <source>Go to the next time reference</source>
+        <translation>Aller au prochain temps de réference</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1359"/>
+        <source>Ctrl+Alt+N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1364"/>
+        <source>Previous Time Reference</source>
+        <translation>Précédent Temps de réference</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1367"/>
+        <source>Go to the previous time reference</source>
+        <translation>Aller au précédent temps de réference</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1370"/>
+        <source>Ctrl+Alt+B</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1375"/>
+        <source>Time Shift...</source>
+        <translation>Décalage de temps...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1378"/>
+        <source>Shift or change packet timestamps</source>
+        <translation>Décalager ou changer le temps des paquets</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1381"/>
+        <source>Ctrl+Shift+T</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1386"/>
+        <source>Packet Comment...</source>
+        <translation>Commentaire de Paquet...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1389"/>
+        <source>Add or change a packet comment</source>
+        <translation>Ajouter ou changer le commentaire d&apos;un paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1397"/>
+        <source>Configuration Profiles...</source>
+        <translation>Profils de Configuration...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1400"/>
+        <source>Configuration profiles</source>
+        <translation>Profils de configuration</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1403"/>
+        <source>Manage your configuration profiles</source>
+        <translation>Gerer mes profils de configuration</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1406"/>
+        <source>Ctrl+Shift+A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1414"/>
+        <source>&amp;Preferences...</source>
+        <translation>&amp;Préferences...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1417"/>
+        <source>Manage Wireshark&apos;s preferences</source>
+        <translation>Gerer les préferences de Wireshark</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1420"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1431"/>
+        <source>Capture File Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1434"/>
+        <source>Capture file properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1442"/>
+        <source>&amp;Protocol Hierarchy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1445"/>
+        <source>Show a summary of protocols present in the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1450"/>
+        <source>Capinfos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1455"/>
+        <source>Reordercap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1460"/>
+        <source>Time Sequence (Stevens)</source>
+        <translation>Séquence de temps (Stevens)</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1463"/>
+        <source>TCP time sequence graph (Stevens)</source>
+        <translation>Diagramme de séquence de temps de TCP (Stevens)</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1468"/>
+        <source>Throughput</source>
+        <translation>Débit</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1471"/>
+        <source>TCP througput</source>
+        <translation>Débit TCP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1476"/>
+        <source>Round Trip Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1479"/>
+        <source>TCP round trip time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1484"/>
+        <source>Window Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1487"/>
+        <source>TCP window scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1495"/>
+        <source>Follow TCP Stream</source>
+        <translation>Suivre le flux TCP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1503"/>
+        <source>Follow UDP Stream</source>
+        <translation>Suivre le flux UDP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1511"/>
+        <source>Follow SSL Stream</source>
+        <translation>Suivre le flux SSL</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1516"/>
+        <source>Time Sequence (tcptrace)</source>
+        <translation>Séquence de temps (tcptrace)</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1519"/>
+        <source>TCP time sequence graph (tcptrace)</source>
+        <translation>Diagramme de séquence de temps de TCP (tcptrace)</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1524"/>
+        <source>Analyse this Association</source>
+        <translation>Analyser cette assoication</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1529"/>
+        <source>Show All Associations</source>
+        <translation>Afficher toutes les assoications</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1534"/>
+        <source>Flow Graph</source>
+        <translation>Graphique des flux</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1537"/>
+        <source>Flow sequence diagram</source>
+        <translation>Diagramme de séquence des flux</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1542"/>
+        <source>ANCP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1545"/>
+        <source>ANCP statistics</source>
+        <translation>statistiques ANCP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1550"/>
+        <source>Packets sorted by Instance ID</source>
+        <translation>Paquets triés par Instance ID</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1553"/>
+        <source>BACapp statistics sorted by instance ID</source>
+        <translation>Statistiques BACAPP triés par instance ID</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1558"/>
+        <source>Packets sorted by IP</source>
+        <translation>Paquets triés par IP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1561"/>
+        <source>BACapp statistics sorted by IP</source>
+        <translation>Statistiques BACapp triés par IP </translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1566"/>
+        <source>Packets sorted by object type</source>
+        <translation>Paquets triés par object type</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1569"/>
+        <source>BACapp statistics sorted by object type</source>
+        <translation>Statistiques BACap triés par objet type</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1574"/>
+        <source>Packets sorted by service</source>
+        <translation>Paquets triés par service</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1577"/>
+        <source>BACapp statistics sorted by service</source>
+        <translation>Statistiques BACapp triés par service</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1582"/>
+        <source>Collectd</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1585"/>
+        <source>Collectd statistics</source>
+        <translation>Statistiques Collectd</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1590"/>
+        <source>DNS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1593"/>
+        <source>DNS statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1598"/>
+        <source>HART-IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1601"/>
+        <source>HART-IP statistics</source>
+        <translation>Statistiques HART-IP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1606"/>
+        <source>HPFEEDS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1609"/>
+        <source>hpfeeds statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1614"/>
+        <source>HTTP2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1617"/>
+        <source>HTTP2 statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1622"/>
+        <location filename="main_window.ui" line="1670"/>
+        <source>Packet Counter</source>
+        <translation>Compteur de paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1625"/>
+        <source>HTTP packet counter</source>
+        <translation>Compteur de paquet HTTP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1630"/>
+        <source>Requests</source>
+        <translation>Requetes</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1633"/>
+        <source>HTTP requests</source>
+        <translation>Requetes HTTP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1638"/>
+        <source>Load Distribution</source>
+        <translation>Répartiton de charge</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1641"/>
+        <source>HTTP load distribution</source>
+        <translation>Répartition de charge HTTP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1646"/>
+        <source>Packet Lengths</source>
+        <translation>Longueur de Paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1649"/>
+        <source>Packet length statistics</source>
+        <translation>Statistiques de longueur de paquet</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1654"/>
+        <source>Sametime</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1657"/>
+        <source>Sametime statistics</source>
+        <translation>Statistiques Sametime</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1662"/>
+        <source>&amp;ISUP Messages</source>
+        <translation>Messages &amp;ISUP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1665"/>
+        <source>ISUP message statistics</source>
+        <translation>Statistiques de message ISUP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1673"/>
+        <source>RTSP packet counts</source>
+        <translation>Compteur de paquet RTSP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1678"/>
+        <source>SM&amp;PP Operations</source>
+        <translation>Opérations SM&amp;PP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1681"/>
+        <source>SMPP operation statistics</source>
+        <translation>Statistiques des opérations SMPP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1686"/>
+        <source>&amp;UCP Messages</source>
+        <translation>Messages &amp;UCP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1689"/>
+        <source>UCP message statistics</source>
+        <translation>statistiques des messages UCP</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1694"/>
+        <source>Decode &amp;As...</source>
+        <translation>Decoder &amp;comme...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1697"/>
+        <source>Change the way packets are dissected</source>
+        <translation>Modifier la manière dont les paquets sont analysés</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1707"/>
+        <source>Advertisements by Topic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1712"/>
+        <location filename="main_window.ui" line="1747"/>
+        <source>Advertisements by Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1717"/>
+        <source>Advertisements by Transport</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1722"/>
+        <source>Queries by Topic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1727"/>
+        <location filename="main_window.ui" line="1757"/>
+        <source>Queries by Receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1732"/>
+        <source>Wildcard Queries by Pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1737"/>
+        <source>Wildcard Queries by Receiver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1742"/>
+        <source>Advertisements by Queue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1752"/>
+        <source>Queries by Queue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1762"/>
+        <source>Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1767"/>
+        <source>Stream Flow Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1772"/>
+        <source>LBT-RM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1777"/>
+        <source>LBT-RU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1782"/>
+        <location filename="main_window.ui" line="1785"/>
+        <source>Filter this Association</source>
+        <translation>Filtrer cette association</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1790"/>
+        <source>Export PDUs to File...</source>
+        <translation>Exporter PDU vers un Fichier...</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1795"/>
+        <source>&amp;I/O Graph</source>
+        <translation>Graphique &amp;I/O</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1798"/>
+        <source>Create graphs based on display filter fields</source>
+        <translation>Créer des graphiques basés sur des filtres d&apos;affichage</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1809"/>
+        <source>&amp;Main Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1812"/>
+        <source>Show or hide the main toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1823"/>
+        <source>&amp;Filter Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1826"/>
+        <source>Show or hide the display filter toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1831"/>
+        <source>&amp;TFTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1836"/>
+        <source>Conversations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1839"/>
+        <source>Conversations at different protocol levels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1844"/>
+        <source>Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1847"/>
+        <source>Endpoints at different protocol levels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1855"/>
+        <source>Colorize Packet List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1858"/>
+        <source>Draw packets using your coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1863"/>
+        <source>&amp;Zoom In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1866"/>
+        <source>Enlarge the main window text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1869"/>
+        <source>Ctrl++</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1874"/>
+        <source>Zoom Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1877"/>
+        <source>Ctrl+-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1882"/>
+        <source>Normal Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1885"/>
+        <source>Ctrl+0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1890"/>
+        <source>Resize Columns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1893"/>
+        <source>Resize packet list columns to fit contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1896"/>
+        <source>Ctrl+Shift+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1904"/>
+        <source>Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1907"/>
+        <location filename="main_window.ui" line="1932"/>
+        <location filename="main_window.ui" line="1960"/>
+        <source>Show packet times as the date and time of day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1910"/>
+        <source>Meta+Alt+1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1918"/>
+        <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1921"/>
+        <source>Show packet times as the year, day of the year and time of day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1929"/>
+        <source>Time of Day (01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1935"/>
+        <source>Meta+Alt+2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1943"/>
+        <source>Seconds Since 1970-01-01</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1946"/>
+        <source>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1949"/>
+        <source>Meta+Alt+3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1957"/>
+        <source>Seconds Since Beginning of Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1963"/>
+        <source>Meta+Alt+4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1971"/>
+        <source>Seconds Since Previous Captured Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1974"/>
+        <source>Show packet times as the seconds since the previous captured packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1977"/>
+        <source>Meta+Alt+5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1985"/>
+        <source>Seconds Since Previous Displayed Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1988"/>
+        <source>Show packet times as the seconds since the previous displayed packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1991"/>
+        <source>Meta+Alt+6</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="1999"/>
+        <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2002"/>
+        <source>Show packet times as the UTC date and time of day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2005"/>
+        <source>Meta+Alt+7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2013"/>
+        <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2016"/>
+        <source>Show packet times as the UTC year, day of the year and time of day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2024"/>
+        <source>UTC Time of Day (01:02:03.123456)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2027"/>
+        <source>Show packet times as the UTC time of day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2030"/>
+        <source>Meta+Alt+8</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2038"/>
+        <source>Automatic (from capture file)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2041"/>
+        <source>Use the time precision indicated in the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2049"/>
+        <source>Seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2057"/>
+        <source>Tenths of a second</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2065"/>
+        <source>Hundredths of a second</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2073"/>
+        <source>Milliseconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2081"/>
+        <source>Microseconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2089"/>
+        <source>Nanoseconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2097"/>
+        <source>Display Seconds With Hours and Minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2100"/>
+        <source>Display seconds with hours and minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2108"/>
+        <source>Resolve &amp;Physical Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2111"/>
+        <source>Show names for known MAC addresses. Lookups use a local database.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2119"/>
+        <source>Resolve &amp;Network Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2122"/>
+        <source>Show names for known IPv4, IPv6, and IPX addresses. Lookups can generate network traffic.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2130"/>
+        <source>Resolve &amp;Transport Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2133"/>
+        <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2144"/>
+        <source>Wire&amp;less Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2147"/>
+        <source>Show or hide the wireless toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2161"/>
+        <source>&amp;Status Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2164"/>
+        <source>Show or hide the status bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2175"/>
+        <source>Packet &amp;List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2178"/>
+        <source>Show or hide the packet list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2189"/>
+        <source>Packet &amp;Details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2192"/>
+        <source>Show or hide the packet details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2203"/>
+        <source>Packet &amp;Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2206"/>
+        <source>Show or hide the packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2211"/>
+        <source>Follow...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2236"/>
+        <source>Bytes</source>
+        <translation type="unfinished">Octets</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2241"/>
+        <source>&amp;VoIP Calls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2244"/>
+        <source>All VoIP Calls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2249"/>
+        <source>SIP &amp;Flows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2252"/>
+        <source>SIP Flows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2257"/>
+        <source>RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2262"/>
+        <source>&amp;Coloring Rules...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2265"/>
+        <source>Edit the packet list coloring rules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2270"/>
+        <source>ATT Server Attributes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2275"/>
+        <source>Devices</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2280"/>
+        <source>Services</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2285"/>
+        <source>Show Packet in New &amp;Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2288"/>
+        <source>Show this packet in a separate window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2293"/>
+        <source>Show Packet Reference in New Window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2296"/>
+        <source>Show the linked packet in a separate window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2304"/>
+        <source>Auto Scroll in Li&amp;ve Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2307"/>
+        <source>Automatically scroll to the last packet during a live capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="262"/>
         <source>Check for Updates...</source>
         <translation>Verifier les mises à jour...</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="267"/>
+        <location filename="main_window.cpp" line="266"/>
         <source>splitterMaster</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="268"/>
+        <location filename="main_window.cpp" line="267"/>
         <source>splitterExtra</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="271"/>
+        <location filename="main_window.cpp" line="270"/>
         <source>emptyPane</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="646"/>
+        <location filename="main_window.cpp" line="647"/>
+        <source>Save packets before merging?</source>
+        <translation>Sauvegarder les paquets avant la fusion?</translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="648"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>une capture temporaire ne peut pas etre fusionner.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="652"/>
+        <location filename="main_window.cpp" line="654"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Sauvegarder les changements dans &quot;%1&quot; avant la fusion?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="654"/>
+        <location filename="main_window.cpp" line="656"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Les changements doivent etre sauvegarder avant la fusion de fichier.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="802"/>
+        <location filename="main_window.cpp" line="715"/>
+        <location filename="main_window_slots.cpp" line="174"/>
+        <source>Invalid Display Filter</source>
+        <translation>Filtre d&apos;affichage invalide</translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="716"/>
+        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
+        <translation>Le filtre %1 n&apos;est pas un filtre d&apos;affichage valide (%2).</translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="804"/>
         <source> before importing a new capture</source>
         <translation> avant l&apos;import d&apos;une nouvelle capture</translation>
     </message>
@@ -6697,7 +6375,7 @@ plus a propos de Wireshark</translation>
         <location filename="main_window.cpp" line="1204"/>
         <location filename="main_window.cpp" line="1229"/>
         <source>.</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1267"/>
@@ -6750,7 +6428,6 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="main_window.cpp" line="1316"/>
         <source>Stop and Quit without Saving</source>
-        <oldsource>Stop and Quit without Saving)</oldsource>
         <translation>Arreter et Quitter sans Sauvegarder</translation>
     </message>
     <message>
@@ -6769,87 +6446,84 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Continuer sans &amp;Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1595"/>
+        <location filename="main_window.cpp" line="1596"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nom du fichier ne peut pas être mappé à l&apos;UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1607"/>
-        <location filename="main_window.cpp" line="1613"/>
-        <location filename="main_window.cpp" line="1628"/>
+        <location filename="main_window.cpp" line="1608"/>
+        <location filename="main_window.cpp" line="1614"/>
+        <location filename="main_window.cpp" line="1629"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>L&apos;analyseur de réseau Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="875"/>
-        <source>Clear Menu</source>
-        <translation>Effacer les fichiers récemment ouverts</translation>
+        <location filename="main_window_slots.cpp" line="614"/>
+        <source>Loading: %1</source>
+        <translation>Chargement: %1</translation>
     </message>
     <message>
-        <source>Please wait while Wireshark is initializing . . .</source>
-        <translation type="vanished">S&apos;il vous plaît patienter pendant que Wireshark est en cours d&apos;initialisation. . .</translation>
-    </message>
-    <message>
-        <source>Wireshark: Export Selected Packet Bytes</source>
-        <translation type="vanished">Wireshark: Exporter la selection de paquets octets</translation>
-    </message>
-    <message>
-        <location filename="main_window_slots.cpp" line="704"/>
+        <location filename="main_window_slots.cpp" line="711"/>
         <source>No interface selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="713"/>
+        <location filename="main_window_slots.cpp" line="720"/>
         <source>Invalid capture filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1371"/>
+        <location filename="main_window_slots.cpp" line="882"/>
+        <source>Clear Menu</source>
+        <translation>Effacer les fichiers récemment ouverts</translation>
+    </message>
+    <message>
+        <location filename="main_window_slots.cpp" line="1378"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1516"/>
+        <location filename="main_window_slots.cpp" line="1523"/>
         <source>Export Selected Packet Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1518"/>
+        <location filename="main_window_slots.cpp" line="1525"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Raw data (*.bin *.dat *.raw);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1575"/>
+        <location filename="main_window_slots.cpp" line="1582"/>
         <source>No Keys</source>
         <translation>Aucune clés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1576"/>
+        <location filename="main_window_slots.cpp" line="1583"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1582"/>
+        <location filename="main_window_slots.cpp" line="1589"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1587"/>
+        <location filename="main_window_slots.cpp" line="1594"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>Clé de Session SSL (*.keys *.txt);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1694"/>
+        <location filename="main_window_slots.cpp" line="1701"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Impossible de copier le texte. Essayer un autre item.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2070"/>
+        <location filename="main_window_slots.cpp" line="2094"/>
         <source>No filter available. Try another </source>
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2756"/>
+        <location filename="main_window_slots.cpp" line="2785"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
@@ -6880,10 +6554,6 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <location filename="main_window_preferences_frame.ui" line="60"/>
         <source>This folder:</source>
         <translation>Ce Dossier:</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation type="obsolete">Sélectionner...</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="73"/>
@@ -6955,10 +6625,6 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <location filename="main_window_preferences_frame.ui" line="224"/>
         <source>Icons &amp; Text</source>
         <translation>Icones et Texte</translation>
-    </message>
-    <message>
-        <source>Filter toolbar style:</source>
-        <translation type="vanished">Style de barre d&apos;outil filtre:</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="249"/>
@@ -7100,10 +6766,6 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Wireshark: Packet Comment</source>
-        <translation type="vanished">Wireshark: Commentaire de Paquet</translation>
-    </message>
-    <message>
         <location filename="packet_comment_dialog.cpp" line="32"/>
         <source>Packet Comment</source>
         <translation type="unfinished"></translation>
@@ -7122,7 +6784,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_dialog.cpp" line="66"/>
+        <location filename="packet_dialog.cpp" line="56"/>
         <source>Packet %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7132,7 +6794,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="packet_format_group_box.ui" line="14"/>
         <source>GroupBox</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="17"/>
@@ -7203,78 +6865,48 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
 <context>
     <name>PacketList</name>
     <message>
-        <source>Follow...</source>
-        <translation type="vanished">Suivre...</translation>
-    </message>
-    <message>
-        <source>Apply as Filter</source>
-        <translation type="vanished">Appliquer comme filtre</translation>
-    </message>
-    <message>
-        <source>Prepare a Filter</source>
-        <translation type="vanished">Préparer un Filtre</translation>
-    </message>
-    <message>
-        <source>Colorize with Filter</source>
-        <translation type="vanished">Coloriser avec ce filtre</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="vanished">Copier</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">Octets</translation>
-    </message>
-    <message>
-        <location filename="packet_list.cpp" line="579"/>
+        <location filename="packet_list.cpp" line="600"/>
         <source>Align Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="580"/>
+        <location filename="packet_list.cpp" line="601"/>
         <source>Align Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="581"/>
+        <location filename="packet_list.cpp" line="602"/>
         <source>Align Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="583"/>
+        <location filename="packet_list.cpp" line="604"/>
         <source>Column Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="584"/>
+        <location filename="packet_list.cpp" line="605"/>
         <source>Edit Column</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="585"/>
+        <location filename="packet_list.cpp" line="606"/>
         <source>Resize To Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="586"/>
+        <location filename="packet_list.cpp" line="607"/>
         <source>Resolve Names</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="591"/>
+        <location filename="packet_list.cpp" line="612"/>
         <source>Remove This Column</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="852"/>
+        <location filename="packet_list.cpp" line="885"/>
         <source>Frame %1: %2
-
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Frame %1: %2 
 
 </source>
         <translation>Trame %1: %2
@@ -7282,17 +6914,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="856"/>
+        <location filename="packet_list.cpp" line="889"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Taille maximum de commentaire dépassé %1 Arrêt !]</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="972"/>
+        <location filename="packet_list.cpp" line="1005"/>
         <source>Change Time Display Format?</source>
         <translation>Changer le format d&apos;affichage du temps?</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="973"/>
+        <location filename="packet_list.cpp" line="1006"/>
         <source>Time References don&apos;t work well with the currently selected Time Display Format.
 Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</source>
         <translation>Le temps de Références ne fonctionnent pas bien avec le format d&apos;affichage sélectionné.
@@ -7304,7 +6936,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="packet_range_group_box.ui" line="14"/>
         <source>Form</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="packet_range_group_box.ui" line="17"/>
@@ -7384,10 +7016,6 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
 <context>
     <name>PreferencesDialog</name>
     <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialogue</translation>
-    </message>
-    <message>
         <location filename="preferences_dialog.ui" line="39"/>
         <source>Appearance</source>
         <translation>Apparence</translation>
@@ -7411,26 +7039,6 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <location filename="preferences_dialog.ui" line="59"/>
         <source>Capture</source>
         <translation>Capture</translation>
-    </message>
-    <message>
-        <source>Filter Expressions</source>
-        <translation type="obsolete">Expression de Filtre</translation>
-    </message>
-    <message>
-        <source>Name Resolution</source>
-        <translation type="obsolete">Résolution de nom</translation>
-    </message>
-    <message>
-        <source>Protocols</source>
-        <translation type="obsolete">Protocoles</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation type="obsolete">Statistiques</translation>
-    </message>
-    <message>
-        <source>Wireshark: Preferences</source>
-        <translation type="vanished">Wireshark: Préferences</translation>
     </message>
     <message>
         <location filename="preferences_dialog.ui" line="64"/>
@@ -7491,10 +7099,6 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
 <context>
     <name>PrintDialog</name>
     <message>
-        <source>Wireshark: Print</source>
-        <translation type="vanished">Wireshark: Impression</translation>
-    </message>
-    <message>
         <location filename="print_dialog.ui" line="21"/>
         <source>Packet Format</source>
         <translation>Format des Paquets</translation>
@@ -7553,10 +7157,6 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Wireshark: Configuration Profiles</source>
-        <translation type="vanished">Wireshark: Profil de Configuration</translation>
-    </message>
-    <message>
         <location filename="profile_dialog.ui" line="46"/>
         <source>Create a new profile using default settings.</source>
         <translation>Crée un nouveau profil en utilisant les paramètres par défaut.</translation>
@@ -7600,26 +7200,6 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <translation>Détail du paquet</translation>
     </message>
     <message>
-        <source>Apply as Filter</source>
-        <translation type="vanished">Appliquer comme Filtre</translation>
-    </message>
-    <message>
-        <source>Prepare a Filter</source>
-        <translation type="vanished">Preparer un Filtre</translation>
-    </message>
-    <message>
-        <source>Colorize with Filter</source>
-        <translation type="vanished">Coloriser avec ce filtre</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="vanished">Copier</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">Octets</translation>
-    </message>
-    <message>
         <location filename="proto_tree.cpp" line="323"/>
         <source>, 1 byte</source>
         <translation>, 1 octet</translation>
@@ -7650,7 +7230,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="37"/>
         <source>Packets</source>
-        <translation type="unfinished">Paquets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="42"/>
@@ -7741,16 +7321,6 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
 <context>
     <name>QObject</name>
     <message>
-        <location filename="preferences_dialog.cpp" line="101"/>
-        <source>Has this preference been changed?</source>
-        <translation>Cette préférence a été changé?</translation>
-    </message>
-    <message>
-        <location filename="preferences_dialog.cpp" line="105"/>
-        <source>Default value is empty</source>
-        <translation>La valeur par défaut est vide</translation>
-    </message>
-    <message>
         <location filename="module_preferences_scroll_area.cpp" line="177"/>
         <source>Edit...</source>
         <translation>Editer...</translation>
@@ -7761,10 +7331,20 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <translation>Parcourir...</translation>
     </message>
     <message>
+        <location filename="preferences_dialog.cpp" line="101"/>
+        <source>Has this preference been changed?</source>
+        <translation>Cette préférence a été changé?</translation>
+    </message>
+    <message>
+        <location filename="preferences_dialog.cpp" line="105"/>
+        <source>Default value is empty</source>
+        <translation>La valeur par défaut est vide</translation>
+    </message>
+    <message>
         <location filename="tcp_stream_dialog.cpp" line="76"/>
         <source>Average Througput (bits/s)</source>
         <oldsource>Avgerage Througput (bits/s)</oldsource>
-        <translation type="unfinished">Debit moyen (bits/s)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="77"/>
@@ -7887,7 +7467,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <translation>%1 intervale SMA</translation>
     </message>
     <message>
-        <location filename="capture_file.cpp" line="44"/>
+        <location filename="capture_file.cpp" line="45"/>
         <source>[no capture file]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7914,12 +7494,12 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="filter_action.cpp" line="66"/>
         <source>Apply as Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Appliquer comme un Filtre</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="69"/>
         <source>Prepare a Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Préparer un Filtre</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="72"/>
@@ -8168,7 +7748,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="rtp_stream_dialog.ui" line="75"/>
         <source>Packets</source>
-        <translation type="unfinished">Paquets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="80"/>
@@ -8361,22 +7941,22 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="14"/>
         <source>Wireshark - SCTP Associations</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="62"/>
         <source>ID</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="67"/>
         <source>Port 1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="72"/>
         <source>Port 2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="77"/>
@@ -8416,7 +7996,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="157"/>
         <source>0</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="162"/>
@@ -8427,7 +8007,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="168"/>
         <source>+</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="173"/>
@@ -8493,7 +8073,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="234"/>
         <source>Shift+Up</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="239"/>
@@ -8504,7 +8084,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="245"/>
         <source>Shift+Left</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="250"/>
@@ -8515,7 +8095,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="256"/>
         <source>Shift+Right</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="261"/>
@@ -8526,7 +8106,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="267"/>
         <source>Shift+Down</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="272"/>
@@ -8541,7 +8121,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="278"/>
         <source>PgUp</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="283"/>
@@ -8556,7 +8136,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="289"/>
         <source>PgDown</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="294"/>
@@ -8571,7 +8151,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="300"/>
         <source>D</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="305"/>
@@ -8586,7 +8166,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="311"/>
         <source>G</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="316"/>
@@ -8601,7 +8181,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="322"/>
         <source>Z</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="327"/>
@@ -8616,7 +8196,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="333"/>
         <source>S</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="338"/>
@@ -8631,7 +8211,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="344"/>
         <source>T</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="349"/>
@@ -8661,7 +8241,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="366"/>
         <source>1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="371"/>
@@ -8676,7 +8256,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="377"/>
         <source>2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="382"/>
@@ -8691,7 +8271,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="388"/>
         <source>3</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="393"/>
@@ -8706,7 +8286,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="399"/>
         <source>5</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="404"/>
@@ -8721,7 +8301,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="410"/>
         <source>4</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8803,7 +8383,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <location filename="sctp_assoc_analyse_dialog.ui" line="475"/>
         <location filename="sctp_assoc_analyse_dialog.ui" line="489"/>
         <source>TextLabel</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_assoc_analyse_dialog.ui" line="180"/>
@@ -8839,7 +8419,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <location filename="sctp_assoc_analyse_dialog.ui" line="247"/>
         <location filename="sctp_assoc_analyse_dialog.ui" line="447"/>
         <source>Port:</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_assoc_analyse_dialog.ui" line="261"/>
@@ -9014,7 +8594,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_graph_arwnd_dialog.ui" line="32"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_arwnd_dialog.ui" line="51"/>
@@ -9044,7 +8624,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_graph_arwnd_dialog.cpp" line="113"/>
         <source>Arwnd</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_arwnd_dialog.cpp" line="121"/>
@@ -9077,7 +8657,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_graph_byte_dialog.ui" line="32"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_byte_dialog.ui" line="51"/>
@@ -9118,7 +8698,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_graph_byte_dialog.cpp" line="123"/>
         <source>Received Bytes</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_byte_dialog.cpp" line="169"/>
@@ -9156,7 +8736,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_graph_dialog.ui" line="32"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.ui" line="81"/>
@@ -9206,7 +8786,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_graph_dialog.cpp" line="310"/>
         <source>TSN</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="345"/>
@@ -9216,7 +8796,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_graph_dialog.cpp" line="346"/>
         <source>TSNs</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="427"/>
@@ -9226,31 +8806,27 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sctp_graph_dialog.cpp" line="437"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="438"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="439"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="441"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="448"/>
         <source>Save Graph As</source>
-        <translation type="unfinished">Wireshar: Sauvegarder le graphique sous...</translation>
-    </message>
-    <message>
-        <source>Wireshark: Save Graph As...</source>
-        <translation type="vanished">Wireshar: Sauvegarder le graphique sous...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9258,7 +8834,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="search_frame.ui" line="14"/>
         <source>Frame</source>
-        <translation></translation>
+        <translation type="unfinished">Trame</translation>
     </message>
     <message>
         <location filename="search_frame.ui" line="32"/>
@@ -9400,6 +8976,68 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <name>SequenceDialog</name>
     <message>
         <location filename="sequence_dialog.cpp" line="60"/>
+        <source>Call Flow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="124"/>
+        <source>Save As...</source>
+        <translation>Sauvegarder sous...</translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="279"/>
+        <source>No data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="sequence_dialog.cpp" line="281"/>
+        <source>%Ln node(s)</source>
+        <translation>
+            <numerusform>%n noeud</numerusform>
+            <numerusform>%n noeuds</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location filename="sequence_dialog.cpp" line="282"/>
+        <source>%Ln item(s)</source>
+        <translation>
+            <numerusform>%n item</numerusform>
+            <numerusform>%n items</numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="303"/>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="304"/>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="305"/>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="307"/>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="308"/>
+        <source>ASCII (*.txt)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="319"/>
+        <source>Save Graph As</source>
+        <oldsource>Wireshark: Save Graph As...</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="sequence_dialog.cpp" line="60"/>
         <source>Flow</source>
         <translation>Flux</translation>
     </message>
@@ -9485,7 +9123,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="sequence_dialog.ui" line="226"/>
         <source>0</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="231"/>
@@ -9616,68 +9254,6 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <source>Show only TCP flow information</source>
         <translation>Afficher seulement les informations des flux TCP</translation>
     </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="60"/>
-        <source>Call Flow</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="124"/>
-        <source>Save As...</source>
-        <translation>Sauvegarder sous...</translation>
-    </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="279"/>
-        <source>No data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="281"/>
-        <source>%Ln node(s)</source>
-        <translation>
-            <numerusform>%n noeud</numerusform>
-            <numerusform>%n noeuds</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location filename="sequence_dialog.cpp" line="282"/>
-        <source>%Ln item(s)</source>
-        <translation>
-            <numerusform>%n item</numerusform>
-            <numerusform>%n items</numerusform>
-        </translation>
-    </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="303"/>
-        <source>Portable Document Format (*.pdf)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="304"/>
-        <source>Portable Network Graphics (*.png)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="305"/>
-        <source>Windows Bitmap (*.bmp)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="307"/>
-        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="308"/>
-        <source>ASCII (*.txt)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="sequence_dialog.cpp" line="319"/>
-        <source>Save Graph As</source>
-        <oldsource>Wireshark: Save Graph As...</oldsource>
-        <translation type="unfinished">Wireshar: Sauvegarder le graphique sous...</translation>
-    </message>
 </context>
 <context>
     <name>SimpleDialog</name>
@@ -9692,7 +9268,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="splash_overlay.ui" line="17"/>
         <source>Form</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="131"/>
@@ -9713,7 +9289,7 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <location filename="splash_overlay.cpp" line="140"/>
         <source>Registering plugins</source>
         <oldsource>Registering dissector</oldsource>
-        <translation type="unfinished">Enregistrement analyseurs</translation>
+        <translation>Enregistrement plugins</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="143"/>
@@ -9721,21 +9297,9 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Registering Python dissectors</source>
-        <translation type="vanished">Enregistrement analyseurs Python</translation>
-    </message>
-    <message>
-        <source>Handing off dissector</source>
-        <translation type="vanished">Remise d&apos;analyseurs</translation>
-    </message>
-    <message>
         <location filename="splash_overlay.cpp" line="146"/>
         <source>Handing off plugins</source>
         <translation>Remise de plugins</translation>
-    </message>
-    <message>
-        <source>Handing off Python dissectors</source>
-        <translation type="vanished">Remise d&apos;analyseurs Python</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="149"/>
@@ -9823,26 +9387,9 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
         <translation>Impossible de trouver la configuration pour %1.</translation>
     </message>
     <message>
-        <source> Stats Tree</source>
-        <translation type="vanished">Arbre de Stats</translation>
-    </message>
-    <message>
-        <source>%1 already open</source>
-        <translation type="vanished">%1 déjà ouvert</translation>
-    </message>
-    <message>
-        <source>Each type of tree can only be generated one at time.</source>
-        <oldsource>Each type of tree can only be generated one at at time.</oldsource>
-        <translation type="vanished">Chaque type d&apos;arbre ne peut être générée d&apos;une fois.</translation>
-    </message>
-    <message>
         <location filename="stats_tree_dialog.cpp" line="156"/>
         <source>%1 failed to attach to tap</source>
         <translation>%1 Impossible de joindre le tap</translation>
-    </message>
-    <message>
-        <source>Wireshark: Save stats tree as ...</source>
-        <translation type="vanished">Wireshark: Sauvegarder le stats tree sous...</translation>
     </message>
     <message>
         <location filename="stats_tree_dialog.cpp" line="268"/>
@@ -9852,297 +9399,17 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
     <message>
         <location filename="stats_tree_dialog.cpp" line="270"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="stats_tree_dialog.cpp" line="274"/>
         <source>Plain text file (*.txt)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="stats_tree_dialog.cpp" line="318"/>
         <source>Error saving file %1</source>
         <translation>Erreur pour sauvegarder le fichier %1</translation>
-    </message>
-</context>
-<context>
-    <name>SummaryDialog</name>
-    <message>
-        <source>Wireshark - Summary</source>
-        <translation type="vanished">Wireshark - Sommaire</translation>
-    </message>
-    <message>
-        <source>File capture details</source>
-        <translation type="vanished">Détails du fichier de capture</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="vanished">Fichier</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Nom</translation>
-    </message>
-    <message>
-        <source>/</source>
-        <translation type="vanished">/</translation>
-    </message>
-    <message>
-        <source>Length</source>
-        <translation type="vanished">Longueur</translation>
-    </message>
-    <message>
-        <source>Format</source>
-        <translation type="vanished">Format</translation>
-    </message>
-    <message>
-        <source>Encapsulation</source>
-        <translation type="vanished">Encapsulation</translation>
-    </message>
-    <message>
-        <source>Time</source>
-        <translation type="vanished">Temps</translation>
-    </message>
-    <message>
-        <source>First packet</source>
-        <translation type="vanished">Premier paquet</translation>
-    </message>
-    <message>
-        <source>Last packet</source>
-        <translation type="vanished">Dernier paquet</translation>
-    </message>
-    <message>
-        <source>Elapsed</source>
-        <translation type="vanished">Passé</translation>
-    </message>
-    <message>
-        <source>Capture</source>
-        <translation type="vanished">Capture</translation>
-    </message>
-    <message>
-        <source>Capture file comments</source>
-        <translation type="vanished">Commentaires du fichier de capture</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation type="vanished">Inconnu</translation>
-    </message>
-    <message>
-        <source>Capture app</source>
-        <translation type="vanished">Application de Capture</translation>
-    </message>
-    <message>
-        <source>Capture statistics</source>
-        <translation type="vanished">Statistiques de Capture</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">Trafic</translation>
-    </message>
-    <message>
-        <source>Captured</source>
-        <translation type="vanished">Capturés</translation>
-    </message>
-    <message>
-        <source>Displayed</source>
-        <translation type="vanished">Affichés</translation>
-    </message>
-    <message>
-        <source>Marked</source>
-        <translation type="vanished">Marqués</translation>
-    </message>
-    <message>
-        <source>Interface</source>
-        <translation type="vanished">Interface</translation>
-    </message>
-    <message>
-        <source>Dropped packets</source>
-        <translation type="vanished">Paquets supprimés</translation>
-    </message>
-    <message>
-        <source>Capture filter</source>
-        <translation type="vanished">Filtre de capture</translation>
-    </message>
-    <message>
-        <source>Link type</source>
-        <oldsource>Link size</oldsource>
-        <translation type="vanished">Taille du lien</translation>
-    </message>
-    <message>
-        <source>Packet size limit</source>
-        <translation type="vanished">Limite de taille de paquets </translation>
-    </message>
-    <message>
-        <source>Display filter</source>
-        <translation type="vanished">Filtre d&apos;affichage</translation>
-    </message>
-    <message>
-        <source>Ignored packets</source>
-        <translation type="vanished">Paquets ignorés</translation>
-    </message>
-    <message>
-        <source>Comment summary</source>
-        <translation type="vanished">Résumé des commentaires</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">Rafraichir</translation>
-    </message>
-    <message>
-        <source>Copy To Clipboard</source>
-        <translation type="vanished">Copier dans le Presse-papiers</translation>
-    </message>
-    <message>
-        <source>Summary created by Wireshark %1
-
-</source>
-        <translation type="vanished">Sommaire creé par Wireshark %1</translation>
-    </message>
-    <message>
-        <source>File: 
-</source>
-        <translation type="vanished">Fichier:</translation>
-    </message>
-    <message>
-        <source>Name:		%1
-</source>
-        <translation type="vanished">Nom:\t\t%1\n</translation>
-    </message>
-    <message>
-        <source>Length:		%1 bytes
-</source>
-        <translation type="vanished">Longueur:\n\n%1 octets\n</translation>
-    </message>
-    <message>
-        <source>Format:		%1%2
-</source>
-        <translation type="vanished">Format:\t\t%1%2\n</translation>
-    </message>
-    <message>
-        <source> (gzip compressed)</source>
-        <translation type="vanished">(compressé gzip)</translation>
-    </message>
-    <message>
-        <source>Encapsulation:		%1
-</source>
-        <translation type="vanished">Encapsulation:\t\t%1\n</translation>
-    </message>
-    <message>
-        <source>Time:
-</source>
-        <translation type="vanished">Temps:\n</translation>
-    </message>
-    <message>
-        <source>First packet:		%1
-</source>
-        <translation type="vanished">Premier Paquet:\t%1\n</translation>
-    </message>
-    <message>
-        <source>Last packet:		%1
-</source>
-        <translation type="vanished">Dernier paquet:\t%1\n</translation>
-    </message>
-    <message>
-        <source>Elapsed:		%1
-</source>
-        <translation type="vanished">Passé:\t\t%1\n</translation>
-    </message>
-    <message>
-        <source>Capture:
-</source>
-        <translation type="vanished">Capture:\n</translation>
-    </message>
-    <message>
-        <source>OS:	%1
-</source>
-        <translation type="vanished">OS:\t%1\n</translation>
-    </message>
-    <message>
-        <source>Capture application:	%1
-</source>
-        <translation type="vanished">Application de Capture:\t%1\n</translation>
-    </message>
-    <message>
-        <source>Dropped packets:	%1
-</source>
-        <translation type="vanished">Paquets supprimés:\t%1\n</translation>
-    </message>
-    <message>
-        <source>Capture filter:		%1
-</source>
-        <translation type="vanished">Filtre de Capture:\t\t%1\n</translation>
-    </message>
-    <message>
-        <source>Link type:		%1
-</source>
-        <translation type="vanished">Link type:\t\t%1\n</translation>
-    </message>
-    <message>
-        <source>Packet size limit:	%1
-</source>
-        <translation type="vanished">Paquet taille limit:\t%1\n</translation>
-    </message>
-    <message>
-        <source>Statistics:
-</source>
-        <translation type="vanished">Statistiques:\n</translation>
-    </message>
-    <message>
-        <source>%1:	%2</source>
-        <translation type="vanished">%1:\t%2</translation>
-    </message>
-    <message>
-        <source>Capture File Comments:
-</source>
-        <translation type="vanished">Commentaires du fichier de capture:</translation>
-    </message>
-    <message>
-        <source>Not representable</source>
-        <translation type="vanished">non représentable</translation>
-    </message>
-    <message>
-        <source>%1 bytes (%2 Mbytes)</source>
-        <translation type="vanished">%1 octets (%2 Moctets)</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation type="vanished">inconnu</translation>
-    </message>
-    <message>
-        <source>none</source>
-        <translation type="vanished">aucun</translation>
-    </message>
-    <message>
-        <source>%u bytes</source>
-        <translation type="vanished">%u octets</translation>
-    </message>
-    <message>
-        <source>Packets</source>
-        <translation type="vanished">Paquets</translation>
-    </message>
-    <message>
-        <source>Between first and last packet</source>
-        <translation type="vanished">Entre le premier et le dernier paquet</translation>
-    </message>
-    <message>
-        <source>Avg. packets/sec</source>
-        <translation type="vanished">Moyenne paquets/sec</translation>
-    </message>
-    <message>
-        <source>Avg. packet size</source>
-        <translation type="vanished">Moyenne taille de paquet</translation>
-    </message>
-    <message>
-        <source>Bytes</source>
-        <translation type="vanished">Octets</translation>
-    </message>
-    <message>
-        <source>Avg. bytes/sec</source>
-        <translation type="vanished">Moyenne octets/sec</translation>
-    </message>
-    <message>
-        <source>Avg. MBit/sec</source>
-        <translation type="vanished">Moyenne MBit/sec</translation>
     </message>
 </context>
 <context>
@@ -10267,7 +9534,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="207"/>
         <source>0</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="212"/>
@@ -10278,7 +9545,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="218"/>
         <source>+</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="223"/>
@@ -10344,7 +9611,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="284"/>
         <source>Shift+Up</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="289"/>
@@ -10355,7 +9622,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="295"/>
         <source>Shift+Left</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="300"/>
@@ -10366,7 +9633,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="306"/>
         <source>Shift+Right</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="311"/>
@@ -10377,7 +9644,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="317"/>
         <source>Shift+Down</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="322"/>
@@ -10392,7 +9659,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="328"/>
         <source>PgUp</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="333"/>
@@ -10407,7 +9674,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="339"/>
         <source>PgDown</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="347"/>
@@ -10417,7 +9684,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="350"/>
         <source>D</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="355"/>
@@ -10432,7 +9699,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="361"/>
         <source>G</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="366"/>
@@ -10447,7 +9714,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="372"/>
         <source>Z</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="377"/>
@@ -10462,7 +9729,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="383"/>
         <source>S</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="388"/>
@@ -10477,7 +9744,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="394"/>
         <source>T</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="399"/>
@@ -10508,7 +9775,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="416"/>
         <source>1</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="421"/>
@@ -10524,12 +9791,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="427"/>
         <source>2</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="432"/>
         <source>Time / Sequence (Stevens)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="435"/>
@@ -10539,7 +9806,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="438"/>
         <source>3</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="443"/>
@@ -10555,12 +9822,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="449"/>
         <source>5</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="454"/>
         <source>Time / Sequence (tcptrace)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="457"/>
@@ -10570,7 +9837,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.ui" line="460"/>
         <source>4</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="211"/>
@@ -10590,12 +9857,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.cpp" line="496"/>
         <source>Sequence Numbers (Stevens)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="521"/>
         <source>Sequence Numbers (tcptrace)</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="572"/>
@@ -10670,19 +9937,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.cpp" line="991"/>
         <source>Save Graph As</source>
-        <translation type="unfinished">Wireshar: Sauvegarder le graphique sous...</translation>
-    </message>
-    <message>
-        <source>Wireshark: Save Graph As...</source>
-        <translation type="vanished">Wireshar: Sauvegarder le graphique sous...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TimeShiftDialog</name>
-    <message>
-        <source>Wireshark: Time Shift</source>
-        <translation type="vanished">Wireshark: Décalage du Temps</translation>
-    </message>
     <message>
         <location filename="time_shift_dialog.ui" line="25"/>
         <source>Shift all packets by</source>
@@ -10691,7 +9950,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="time_shift_dialog.ui" line="38"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[-][[hh:]mm:]ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="time_shift_dialog.ui" line="62"/>
@@ -10717,7 +9976,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="time_shift_dialog.ui" line="160"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="time_shift_dialog.ui" line="169"/>
@@ -10876,7 +10135,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="voip_calls_dialog.ui" line="63"/>
         <source>Packets</source>
-        <translation type="unfinished">Paquets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="68"/>
