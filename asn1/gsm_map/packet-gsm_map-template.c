@@ -209,7 +209,6 @@ static proto_tree *top_tree;
 static int application_context_version;
 static guint ProtocolId;
 static guint AccessNetworkProtocolId;
-static const char *obj_id = NULL;
 static int gsm_map_tap = -1;
 static guint8 gsmmap_pdu_type = 0;
 static guint8 gsm_map_pdu_size = 0;
