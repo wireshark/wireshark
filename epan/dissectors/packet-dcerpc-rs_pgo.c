@@ -117,7 +117,7 @@ static gint ett_rs_pgo_result_t = -1;
 
 static gint ett_rs_pgo = -1;
 
-static e_uuid_t uuid_rs_pgo =
+static e_guid_t uuid_rs_pgo =
   { 0x4c878280, 0x3000, 0x0000, {0x0d, 0x00, 0x02, 0x87, 0x14, 0x00, 0x00,
                                  0x00}
 };
@@ -324,7 +324,7 @@ dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
   proto_tree *tree = NULL;
   int old_offset = offset;
   guint32 person_dtm, group_dtm, org_dtm;
-  e_uuid_t uuid1;
+  e_guid_t uuid1;
 
 
   if (di->conformant_run)
@@ -354,10 +354,10 @@ dissect_rs_cache_data_t (tvbuff_t * tvb, int offset,
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
                      " siteid %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x person_dtm:%u group_dtm:%u org_dtm:%u",
-                     uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0],
-                     uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3],
-                     uuid1.Data4[4], uuid1.Data4[5], uuid1.Data4[6],
-                     uuid1.Data4[7], person_dtm, group_dtm, org_dtm);
+                     uuid1.data1, uuid1.data2, uuid1.data3, uuid1.data4[0],
+                     uuid1.data4[1], uuid1.data4[2], uuid1.data4[3],
+                     uuid1.data4[4], uuid1.data4[5], uuid1.data4[6],
+                     uuid1.data4[7], person_dtm, group_dtm, org_dtm);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -480,7 +480,7 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  e_uuid_t id;
+  e_guid_t id;
   guint32 unix_num, quota;
 
   if (di->conformant_run)
@@ -510,10 +510,10 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
                      " sec_rgy_pgo_item_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x unix_num:%u quota:%u",
-                     id.Data1, id.Data2, id.Data3, id.Data4[0],
-                     id.Data4[1], id.Data4[2], id.Data4[3],
-                     id.Data4[4], id.Data4[5], id.Data4[6],
-                     id.Data4[7], unix_num, quota);
+                     id.data1, id.data2, id.data3, id.data4[0],
+                     id.data4[1], id.data4[2], id.data4[3],
+                     id.data4[4], id.data4[5], id.data4[6],
+                     id.data4[7], unix_num, quota);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -541,7 +541,7 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  e_uuid_t source;
+  e_guid_t source;
   guint32 handle, valid;
 
   if (di->conformant_run)
@@ -568,10 +568,10 @@ dissect_sec_rgy_cursor_t (tvbuff_t * tvb, int offset,
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
                      " sec_rgy_cursor_t - source %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x handle:%u valid:%u",
-                     source.Data1, source.Data2, source.Data3,
-                     source.Data4[0], source.Data4[1], source.Data4[2],
-                     source.Data4[3], source.Data4[4], source.Data4[5],
-                     source.Data4[6], source.Data4[7], handle, valid);
+                     source.data1, source.data2, source.data3,
+                     source.data4[0], source.data4[1], source.data4[2],
+                     source.data4[3], source.data4[4], source.data4[5],
+                     source.data4[6], source.data4[7], handle, valid);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -658,7 +658,7 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   int old_offset = offset;
-  e_uuid_t id;
+  e_guid_t id;
 
   if (di->conformant_run)
     {
@@ -679,9 +679,9 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
 
   col_append_fstr (pinfo->cinfo, COL_INFO,
                      " rs_pgo_id_key_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                     id.Data1, id.Data2, id.Data3, id.Data4[0],
-                     id.Data4[1], id.Data4[2], id.Data4[3],
-                     id.Data4[4], id.Data4[5], id.Data4[6], id.Data4[7]);
+                     id.data1, id.data2, id.data3, id.data4[0],
+                     id.data4[1], id.data4[2], id.data4[3],
+                     id.data4[4], id.data4[5], id.data4[6], id.data4[7]);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;

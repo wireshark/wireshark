@@ -128,7 +128,7 @@ static gint proto_dcerpc_eventlog = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_eventlog = {
+static e_guid_t uuid_dcerpc_eventlog = {
 	0x82273fdc, 0xe32a, 0x18c3,
 	{ 0x3f, 0x78, 0x82, 0x79, 0x29, 0xdc, 0x23, 0xea }
 };

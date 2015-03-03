@@ -171,7 +171,7 @@ static gint proto_dcerpc_mapi = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_mapi = {
+static e_guid_t uuid_dcerpc_mapi = {
 	0xa4f1db00, 0xca47, 0x1067,
 	{ 0xb3, 0x1f, 0x00, 0xdd, 0x01, 0x06, 0x62, 0xda }
 };

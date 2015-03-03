@@ -986,7 +986,7 @@ sub ProcessInterface($$)
 
 		$self->pidl_def("/* Version information */\n\n");
 
-		$self->pidl_def("static e_uuid_t uuid_dcerpc_$x->{NAME} = {");
+		$self->pidl_def("static e_guid_t uuid_dcerpc_$x->{NAME} = {");
 		$self->pidl_def("\t0x" . substr($if_uuid, 1, 8)
 		. ", 0x" . substr($if_uuid, 10, 4)
 		. ", 0x" . substr($if_uuid, 15, 4) . ",");

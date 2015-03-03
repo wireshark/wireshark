@@ -23,9 +23,6 @@
 #ifndef __PACKET_AIM_H__
 #define __PACKET_AIM_H__
 
-/* For e_uuid_t */
-#include "packet-dcerpc.h"
-
 typedef struct _aim_tlv {
   guint16 valueid;
   const char *desc;

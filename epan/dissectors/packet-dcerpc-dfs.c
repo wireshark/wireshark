@@ -233,7 +233,7 @@ static gint proto_dcerpc_netdfs = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_netdfs = {
+static e_guid_t uuid_dcerpc_netdfs = {
 	0x4fc742e0, 0x4a10, 0x11cf,
 	{ 0x82, 0x73, 0x00, 0xaa, 0x00, 0x4a, 0xe6, 0x73 }
 };

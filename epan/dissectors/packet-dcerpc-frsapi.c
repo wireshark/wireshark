@@ -44,7 +44,7 @@ IDL  implicit_handle(handle_t rpc_binding)
 IDL ] interface frsapi
 */
 
-static e_uuid_t uuid_dcerpc_frsapi = {
+static e_guid_t uuid_dcerpc_frsapi = {
 	0xd049b186, 0x814f, 0x11d1,
 	{ 0x9a, 0x3c, 0x00, 0xc0, 0x4f, 0xc9, 0xb2, 0x32 }
 };

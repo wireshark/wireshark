@@ -41,7 +41,7 @@ static gint proto_dcerpc_rfr = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_rfr = {
+static e_guid_t uuid_dcerpc_rfr = {
 	0x1544f5e0, 0x613c, 0x11d1,
 	{ 0x93, 0xdf, 0x00, 0xc0, 0x4f, 0xd7, 0xbd, 0x09 }
 };

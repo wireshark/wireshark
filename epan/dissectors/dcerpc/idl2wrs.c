@@ -881,7 +881,7 @@ static void parseheader(void)
 		fprintf(stderr, "ERROR: no uuid found\n");
 		Exit(10);
 	}
-	FPRINTF(eth_code,"static e_uuid_t uuid_dcerpc_%s = {\n", ifname);
+	FPRINTF(eth_code,"static e_guid_t uuid_dcerpc_%s = {\n", ifname);
 	FPRINTF(eth_code,"	  0x%c%c%c%c%c%c%c%c, 0x%c%c%c%c, 0x%c%c%c%c,\n",uuid[1],uuid[2],uuid[3],uuid[4],uuid[5],uuid[6],uuid[7],uuid[8],uuid[10],uuid[11],uuid[12],uuid[13],uuid[15],uuid[16],uuid[17],uuid[18]);
 	FPRINTF(eth_code,"	  { 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c, 0x%c%c}\n",uuid[20],uuid[21],uuid[22],uuid[23],uuid[25],uuid[26],uuid[27],uuid[28],uuid[29],uuid[30],uuid[31],uuid[32],uuid[33],uuid[34],uuid[35],uuid[36]);
 	FPRINTF(eth_code,"};\n");

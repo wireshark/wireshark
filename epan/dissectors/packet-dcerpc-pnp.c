@@ -42,7 +42,7 @@ static gint ett_dcerpc_pnp = -1;
  * and \pipe\ntsvcs or \pipe\plugplay named pipes as endpoint.
  */
 
-static e_uuid_t uuid_dcerpc_pnp = {
+static e_guid_t uuid_dcerpc_pnp = {
 	0x8d9f4e40, 0xa03d, 0x11ce,
 	{ 0x8f, 0x69, 0x08, 0x00, 0x3e, 0x30, 0x05, 0x1b }
 };

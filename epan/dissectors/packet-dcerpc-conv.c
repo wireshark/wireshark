@@ -45,7 +45,7 @@ static int hf_conv_who_are_you2_resp_casuuid = -1;
 static gint ett_conv = -1;
 
 
-static e_uuid_t uuid_conv = { 0x333a2276, 0x0000, 0x0000, { 0x0d, 0x00, 0x00, 0x80, 0x9c, 0x00, 0x00, 0x00 } };
+static e_guid_t uuid_conv = { 0x333a2276, 0x0000, 0x0000, { 0x0d, 0x00, 0x00, 0x80, 0x9c, 0x00, 0x00, 0x00 } };
 static guint16  ver_conv = 3;
 
 
@@ -58,16 +58,16 @@ conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 	 *         [in]    uuid_t          *actuid,
 	 *         [in]    unsigned32      boot_time,
 	 */
-	e_uuid_t actuid;
+	e_guid_t actuid;
 
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you_rqst_actuid, &actuid);
 	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you_rqst_boot_time, NULL);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "conv_who_are_you request actuid: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			     actuid.Data1, actuid.Data2, actuid.Data3,
-			     actuid.Data4[0], actuid.Data4[1], actuid.Data4[2], actuid.Data4[3],
-			     actuid.Data4[4], actuid.Data4[5], actuid.Data4[6], actuid.Data4[7]);
+			     actuid.data1, actuid.data2, actuid.data3,
+			     actuid.data4[0], actuid.data4[1], actuid.data4[2], actuid.data4[3],
+			     actuid.data4[4], actuid.data4[5], actuid.data4[6], actuid.data4[7]);
 
 	return offset;
 }
@@ -104,16 +104,16 @@ conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 	 *         [in]    uuid_t          *actuid,
 	 *         [in]    unsigned32      boot_time,
 	 */
-	e_uuid_t actuid;
+	e_guid_t actuid;
 
 	offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_rqst_actuid, &actuid);
 	offset = dissect_ndr_time_t(tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_rqst_boot_time, NULL);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "conv_who_are_you2 request actuid: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			     actuid.Data1, actuid.Data2, actuid.Data3,
-			     actuid.Data4[0], actuid.Data4[1], actuid.Data4[2], actuid.Data4[3],
-			     actuid.Data4[4], actuid.Data4[5], actuid.Data4[6], actuid.Data4[7]);
+			     actuid.data1, actuid.data2, actuid.data3,
+			     actuid.data4[0], actuid.data4[1], actuid.data4[2], actuid.data4[3],
+			     actuid.data4[4], actuid.data4[5], actuid.data4[6], actuid.data4[7]);
 
 	return offset;
 }
@@ -129,7 +129,7 @@ conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 	 *         [out]   unsigned32      *st
 	 */
 	guint32 seq, st;
-	e_uuid_t cas_uuid;
+	e_guid_t cas_uuid;
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_resp_seq, &seq);
 	offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_conv_who_are_you2_resp_casuuid, &cas_uuid);
@@ -138,9 +138,9 @@ conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "conv_who_are_you2 response seq:%u st:%s cas:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 			     seq, val_to_str_ext(st, &dce_error_vals_ext, "%u"),
-			     cas_uuid.Data1, cas_uuid.Data2, cas_uuid.Data3,
-			     cas_uuid.Data4[0], cas_uuid.Data4[1], cas_uuid.Data4[2], cas_uuid.Data4[3],
-			     cas_uuid.Data4[4], cas_uuid.Data4[5], cas_uuid.Data4[6], cas_uuid.Data4[7]);
+			     cas_uuid.data1, cas_uuid.data2, cas_uuid.data3,
+			     cas_uuid.data4[0], cas_uuid.data4[1], cas_uuid.data4[2], cas_uuid.data4[3],
+			     cas_uuid.data4[4], cas_uuid.data4[5], cas_uuid.data4[6], cas_uuid.data4[7]);
 
 	return offset;
 }

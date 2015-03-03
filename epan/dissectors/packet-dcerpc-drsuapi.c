@@ -587,7 +587,7 @@ drsuapi_dissect_a_string(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 
 /* INCLUDED FILE : ETH_CODE */
-static e_uuid_t uuid_dcerpc_drsuapi = {
+static e_guid_t uuid_dcerpc_drsuapi = {
 	  0xe3514235, 0x4b06, 0x11d1,
 	  { 0xab, 0x04, 0x00, 0xc0, 0x4f, 0xc2, 0xdc, 0xd2}
 };

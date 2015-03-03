@@ -120,7 +120,7 @@ dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
 {
     guint16  sequence_id;
-    e_uuid_t uuid;
+    e_guid_t uuid;
 
 
     /* MRP_SequenceID */

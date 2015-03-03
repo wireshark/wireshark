@@ -419,7 +419,7 @@ dissect_aim_msg_minityping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tr
 typedef struct _aim_client_plugin
 {
 	const char *name;
-	e_uuid_t uuid;
+	e_guid_t uuid;
 } aim_client_plugin;
 
 static const aim_client_plugin known_client_plugins[] = {
@@ -435,7 +435,7 @@ static const aim_client_plugin known_client_plugins[] = {
 };
 
 static const
-aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
+aim_client_plugin *aim_find_plugin ( e_guid_t uuid)
 {
 	int i;
 
@@ -443,7 +443,7 @@ aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
 	{
 		const aim_client_plugin *plugin = &(known_client_plugins[i]);
 
-		if(memcmp(&(plugin->uuid), &uuid, sizeof(e_uuid_t)) == 0)
+		if(memcmp(&(plugin->uuid), &uuid, sizeof(e_guid_t)) == 0)
 			return plugin;
 	}
 
@@ -451,15 +451,15 @@ aim_client_plugin *aim_find_plugin ( e_uuid_t uuid)
 }
 
 static int
-dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_plugin_uuid)
+dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_guid_t* out_plugin_uuid)
 {
 	const aim_client_plugin *plugin = NULL;
-	e_uuid_t uuid;
+	e_guid_t uuid;
 
-	uuid.Data1 = tvb_get_ntohl(tvb, offset);
-	uuid.Data2 = tvb_get_ntohs(tvb, offset+4);
-	uuid.Data3 = tvb_get_ntohs(tvb, offset+6);
-	tvb_memcpy(tvb, uuid.Data4, offset+8, 8);
+	uuid.data1 = tvb_get_ntohl(tvb, offset);
+	uuid.data2 = tvb_get_ntohs(tvb, offset+4);
+	uuid.data3 = tvb_get_ntohs(tvb, offset+6);
+	tvb_memcpy(tvb, uuid.data4, offset+8, 8);
 	if (out_plugin_uuid)
 		*out_plugin_uuid = uuid;
 
@@ -467,10 +467,10 @@ dissect_aim_plugin(proto_tree *entry, tvbuff_t *tvb, int offset, e_uuid_t* out_p
 
 	proto_tree_add_text(entry, tvb, offset, 16,
 		"Plugin: %s {%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
-		plugin ? plugin->name:"Unknown", uuid.Data1, uuid.Data2,
-		uuid.Data3, uuid.Data4[0], uuid.Data4[1], uuid.Data4[2],
-		uuid.Data4[3], uuid.Data4[4],	uuid.Data4[5], uuid.Data4[6],
-		uuid.Data4[7]
+		plugin ? plugin->name:"Unknown", uuid.data1, uuid.data2,
+		uuid.data3, uuid.data4[0], uuid.data4[1], uuid.data4[2],
+		uuid.data4[3], uuid.data4[4],	uuid.data4[5], uuid.data4[6],
+		uuid.data4[7]
 	);
 
 	return offset+16;
@@ -506,19 +506,19 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 }
 
 static int
-is_uuid_null(e_uuid_t uuid)
+is_uuid_null(e_guid_t uuid)
 {
-	return (uuid.Data1 == 0) &&
-	       (uuid.Data2 == 0) &&
-	       (uuid.Data3 == 0) &&
-	       (uuid.Data4[0] == 0) &&
-	       (uuid.Data4[1] == 0) &&
-	       (uuid.Data4[2] == 0) &&
-	       (uuid.Data4[3] == 0) &&
-	       (uuid.Data4[4] == 0) &&
-	       (uuid.Data4[5] == 0) &&
-	       (uuid.Data4[6] == 0) &&
-	       (uuid.Data4[7] == 0);
+	return (uuid.data1 == 0) &&
+	       (uuid.data2 == 0) &&
+	       (uuid.data3 == 0) &&
+	       (uuid.data4[0] == 0) &&
+	       (uuid.data4[1] == 0) &&
+	       (uuid.data4[2] == 0) &&
+	       (uuid.data4[3] == 0) &&
+	       (uuid.data4[4] == 0) &&
+	       (uuid.data4[5] == 0) &&
+	       (uuid.data4[6] == 0) &&
+	       (uuid.data4[7] == 0);
 }
 
 static int
@@ -527,7 +527,7 @@ dissect_aim_tlv_value_extended_data(proto_tree *entry, guint16 valueid _U_, tvbu
 	int offset = 0;
 	guint16 length/*, protocol_version*/;
 	int start_offset;
-	e_uuid_t plugin_uuid;
+	e_guid_t plugin_uuid;
 
 	length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_text(entry, tvb, offset, 2, "Length: %d", length); offset+=2;

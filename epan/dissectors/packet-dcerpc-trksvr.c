@@ -45,7 +45,7 @@ static gint ett_dcerpc_trksvr = -1;
   IDL ] interface trksvr
   IDL {
 */
-static e_uuid_t uuid_dcerpc_trksvr = {
+static e_guid_t uuid_dcerpc_trksvr = {
 	0x4da1c422, 0x943d, 0x11d1,
 	{ 0xac, 0xae, 0x00, 0xc0, 0x4f, 0xc2, 0xaa, 0x3f }
 };

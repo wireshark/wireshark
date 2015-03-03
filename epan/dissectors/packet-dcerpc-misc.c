@@ -48,7 +48,7 @@ static gint proto_dcerpc_misc = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_misc = {
+static e_guid_t uuid_dcerpc_misc = {
 	0x12345678, 0x1234, 0x1234,
 	{ 0x12, 0x34, 0xab, 0xcd, 0xef, 0x12, 0x34, 0x56 }
 };

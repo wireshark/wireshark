@@ -60,26 +60,26 @@ typedef struct _dcerpcstat_t {
 	GtkWidget *win;
 	srt_stat_table srt_table;
 	const char *prog;
-	e_uuid_t uuid;
+	e_guid_t uuid;
 	guint16 ver;
 	int num_procedures;
 } dcerpcstat_t;
 
 
 static gboolean
-uuid_equal(e_uuid_t *uuid1, e_uuid_t *uuid2)
+uuid_equal(e_guid_t *uuid1, e_guid_t *uuid2)
 {
-	if( (uuid1->Data1    != uuid2->Data1)
-	  ||(uuid1->Data2    != uuid2->Data2)
-	  ||(uuid1->Data3    != uuid2->Data3)
-	  ||(uuid1->Data4[0] != uuid2->Data4[0])
-	  ||(uuid1->Data4[1] != uuid2->Data4[1])
-	  ||(uuid1->Data4[2] != uuid2->Data4[2])
-	  ||(uuid1->Data4[3] != uuid2->Data4[3])
-	  ||(uuid1->Data4[4] != uuid2->Data4[4])
-	  ||(uuid1->Data4[5] != uuid2->Data4[5])
-	  ||(uuid1->Data4[6] != uuid2->Data4[6])
-	  ||(uuid1->Data4[7] != uuid2->Data4[7]) ){
+	if( (uuid1->data1    != uuid2->data1)
+	  ||(uuid1->data2    != uuid2->data2)
+	  ||(uuid1->data3    != uuid2->data3)
+	  ||(uuid1->data4[0] != uuid2->data4[0])
+	  ||(uuid1->data4[1] != uuid2->data4[1])
+	  ||(uuid1->data4[2] != uuid2->data4[2])
+	  ||(uuid1->data4[3] != uuid2->data4[3])
+	  ||(uuid1->data4[4] != uuid2->data4[4])
+	  ||(uuid1->data4[5] != uuid2->data4[5])
+	  ||(uuid1->data4[6] != uuid2->data4[6])
+	  ||(uuid1->data4[7] != uuid2->data4[7]) ){
 		return FALSE;
 	}
 	return TRUE;
@@ -187,7 +187,7 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 	dcerpc_sub_dissector *procs;
-	e_uuid_t uuid;
+	e_guid_t uuid;
 	guint d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
 	int major, minor;
 	guint16 ver;
@@ -213,17 +213,17 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 		   "dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n",
 		   &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)
 	   == 13) {
-		uuid.Data1    = d1;
-		uuid.Data2    = d2;
-		uuid.Data3    = d3;
-		uuid.Data4[0] = d40;
-		uuid.Data4[1] = d41;
-		uuid.Data4[2] = d42;
-		uuid.Data4[3] = d43;
-		uuid.Data4[4] = d44;
-		uuid.Data4[5] = d45;
-		uuid.Data4[6] = d46;
-		uuid.Data4[7] = d47;
+		uuid.data1    = d1;
+		uuid.data2    = d2;
+		uuid.data3    = d3;
+		uuid.data4[0] = d40;
+		uuid.data4[1] = d41;
+		uuid.data4[2] = d42;
+		uuid.data4[3] = d43;
+		uuid.data4[4] = d44;
+		uuid.data4[5] = d45;
+		uuid.data4[6] = d46;
+		uuid.data4[7] = d47;
 		if(pos) {
 			filter = opt_arg+pos;
 		} else {
@@ -249,7 +249,7 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 		g_free(rs);
 		fprintf(stderr,
 			"wireshark: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n",
-			uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],ver);
+			uuid.data1,uuid.data2,uuid.data3,uuid.data4[0],uuid.data4[1],uuid.data4[2],uuid.data4[3],uuid.data4[4],uuid.data4[5],uuid.data4[6],uuid.data4[7],ver);
 		exit(1);
 	}
 	hf_opnum = dcerpc_get_proto_hf_opnum(&uuid, ver);
@@ -338,7 +338,7 @@ gtk_dcerpcstat_init(const char *opt_arg, void* userdata _U_)
 
 
 
-static e_uuid_t          *dcerpc_uuid_program;
+static e_guid_t          *dcerpc_uuid_program;
 static guint16            dcerpc_version;
 static GtkWidget         *dlg = NULL;
 static GtkWidget         *filter_entry;
@@ -360,12 +360,12 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	str = g_string_new("dcerpc,srt");
 	g_string_append_printf(str,
 	    ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%u.%u",
-	    dcerpc_uuid_program->Data1, dcerpc_uuid_program->Data2,
-	    dcerpc_uuid_program->Data3,
-	    dcerpc_uuid_program->Data4[0], dcerpc_uuid_program->Data4[1],
-	    dcerpc_uuid_program->Data4[2], dcerpc_uuid_program->Data4[3],
-	    dcerpc_uuid_program->Data4[4], dcerpc_uuid_program->Data4[5],
-	    dcerpc_uuid_program->Data4[6], dcerpc_uuid_program->Data4[7],
+	    dcerpc_uuid_program->data1, dcerpc_uuid_program->data2,
+	    dcerpc_uuid_program->data3,
+	    dcerpc_uuid_program->data4[0], dcerpc_uuid_program->data4[1],
+	    dcerpc_uuid_program->data4[2], dcerpc_uuid_program->data4[3],
+	    dcerpc_uuid_program->data4[4], dcerpc_uuid_program->data4[5],
+	    dcerpc_uuid_program->data4[6], dcerpc_uuid_program->data4[7],
 	    dcerpc_version, 0);
 	filter = gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0] != 0){

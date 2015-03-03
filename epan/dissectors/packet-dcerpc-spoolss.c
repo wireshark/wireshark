@@ -7246,7 +7246,7 @@ proto_register_dcerpc_spoolss(void)
 		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_datatype,
-		  { "Datatype", "spoolss.Datatype", FT_STRING, BASE_NONE,
+		  { "Datatype", "spoolss.datatype", FT_STRING, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_textstatus,
@@ -8547,7 +8547,7 @@ proto_register_dcerpc_spoolss(void)
 
 /* Protocol handoff */
 
-static e_uuid_t uuid_dcerpc_spoolss = {
+static e_guid_t uuid_dcerpc_spoolss = {
 	0x12345678, 0x1234, 0xabcd,
 	{ 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab }
 };

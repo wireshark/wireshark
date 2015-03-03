@@ -519,7 +519,7 @@ dissect_ndr_time_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_ndr_uuid_t(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    proto_tree *tree, dcerpc_info *di, guint8 *drep,
-                   int hfindex, e_uuid_t *pdata)
+                   int hfindex, e_guid_t *pdata)
 {
     /* Some callers expect us to initialize pdata, even in error conditions, so
      * do it right away in case we forget later */

@@ -38,7 +38,7 @@ static int hf_rs_repmgr_opnum = -1;
 
 
 static gint ett_rs_repmgr = -1;
-static e_uuid_t uuid_rs_repmgr =
+static e_guid_t uuid_rs_repmgr =
   { 0xb62dc198, 0xdfd4, 0x11ca, {0x94, 0x8f, 0x08, 0x00, 0x1e, 0x02, 0x59,
                                  0x4c} };
 

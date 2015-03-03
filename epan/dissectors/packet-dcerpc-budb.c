@@ -293,7 +293,7 @@ budb_dissect_NameString_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 /* INCLUDED FILE : ETH_CODE */
-static e_uuid_t uuid_dcerpc_budb = {
+static e_guid_t uuid_dcerpc_budb = {
 	  0xeb814e2a, 0x0099, 0x11ca,
 	  { 0x86, 0x78, 0x02, 0x60, 0x8c, 0x2e, 0xa9, 0x6e}
 };

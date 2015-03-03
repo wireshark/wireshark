@@ -40,7 +40,7 @@ static int proto_krb5rpc = -1;
 static gint ett_krb5rpc = -1;
 
 
-static e_uuid_t uuid_krb5rpc =
+static e_guid_t uuid_krb5rpc =
   { 0x8f73de50, 0x768c, 0x11ca, {0xbf, 0xfc, 0x08, 0x00, 0x1e, 0x03, 0x94,
                                  0x31}
 };

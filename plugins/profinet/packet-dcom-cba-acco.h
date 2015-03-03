@@ -48,7 +48,7 @@ typedef struct cba_ldev_s {
 extern GList *cba_pdevs;
 
 extern cba_pdev_t *
-cba_pdev_find(packet_info *pinfo, const address *addr, e_uuid_t *ipid);
+cba_pdev_find(packet_info *pinfo, const address *addr, e_guid_t *ipid);
 
 extern void
 cba_pdev_link(packet_info *pinfo, cba_pdev_t *pdev, dcom_interface_t *pdev_interf);
@@ -63,7 +63,7 @@ extern void
 cba_ldev_link_acco(packet_info *pinfo, cba_ldev_t *ldev, dcom_interface_t *acco_interf);
 
 extern cba_ldev_t *
-cba_ldev_find(packet_info *pinfo, const address *addr, e_uuid_t *ipid);
+cba_ldev_find(packet_info *pinfo, const address *addr, e_guid_t *ipid);
 
 extern cba_ldev_t *
 cba_ldev_add(packet_info *pinfo, cba_pdev_t *pdev, const char *name);

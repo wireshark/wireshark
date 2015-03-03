@@ -717,17 +717,17 @@ static gchar *policy_hnd_to_file_id(const e_ctx_hnd *hnd) {
 gchar *file_id;
 	file_id = wmem_strdup_printf(wmem_packet_scope(),
 			"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			hnd->uuid.Data1,
-			hnd->uuid.Data2,
-			hnd->uuid.Data3,
-			hnd->uuid.Data4[0],
-			hnd->uuid.Data4[1],
-			hnd->uuid.Data4[2],
-			hnd->uuid.Data4[3],
-			hnd->uuid.Data4[4],
-			hnd->uuid.Data4[5],
-			hnd->uuid.Data4[6],
-			hnd->uuid.Data4[7]);
+			hnd->uuid.data1,
+			hnd->uuid.data2,
+			hnd->uuid.data3,
+			hnd->uuid.data4[0],
+			hnd->uuid.data4[1],
+			hnd->uuid.data4[2],
+			hnd->uuid.data4[3],
+			hnd->uuid.data4[4],
+			hnd->uuid.data4[5],
+			hnd->uuid.data4[6],
+			hnd->uuid.data4[7]);
 	return file_id;
 }
 static guint smb2_eo_files_hash(gconstpointer k) {
@@ -738,17 +738,17 @@ int	are_equal;
 	const e_ctx_hnd *key1 = (const e_ctx_hnd *)k1;
 	const e_ctx_hnd *key2 = (const e_ctx_hnd *)k2;
 
-	are_equal = (key1->uuid.Data1==key2->uuid.Data1 &&
-		key1->uuid.Data2==key2->uuid.Data2 &&
-		key1->uuid.Data3==key2->uuid.Data3 &&
-		key1->uuid.Data4[0]==key2->uuid.Data4[0] &&
-		key1->uuid.Data4[1]==key2->uuid.Data4[1] &&
-		key1->uuid.Data4[2]==key2->uuid.Data4[2] &&
-		key1->uuid.Data4[3]==key2->uuid.Data4[3] &&
-		key1->uuid.Data4[4]==key2->uuid.Data4[4] &&
-		key1->uuid.Data4[5]==key2->uuid.Data4[5] &&
-		key1->uuid.Data4[6]==key2->uuid.Data4[6] &&
-		key1->uuid.Data4[7]==key2->uuid.Data4[7]);
+	are_equal = (key1->uuid.data1==key2->uuid.data1 &&
+		key1->uuid.data2==key2->uuid.data2 &&
+		key1->uuid.data3==key2->uuid.data3 &&
+		key1->uuid.data4[0]==key2->uuid.data4[0] &&
+		key1->uuid.data4[1]==key2->uuid.data4[1] &&
+		key1->uuid.data4[2]==key2->uuid.data4[2] &&
+		key1->uuid.data4[3]==key2->uuid.data4[3] &&
+		key1->uuid.data4[4]==key2->uuid.data4[4] &&
+		key1->uuid.data4[5]==key2->uuid.data4[5] &&
+		key1->uuid.data4[6]==key2->uuid.data4[6] &&
+		key1->uuid.data4[7]==key2->uuid.data4[7]);
 
 	return are_equal;
 }
@@ -4201,9 +4201,9 @@ smb2_set_dcerpc_file_id(packet_info *pinfo, smb2_info_t *si)
 	/*
 	 * the first 8 bytes are the persistent part of the file handle
 	 */
-	persistent =  si->saved->policy_hnd.uuid.Data1;
-	persistent |= ((guint64)si->saved->policy_hnd.uuid.Data2) << 32;
-	persistent |= ((guint64)si->saved->policy_hnd.uuid.Data3) << 48;
+	persistent =  si->saved->policy_hnd.uuid.data1;
+	persistent |= ((guint64)si->saved->policy_hnd.uuid.data2) << 32;
+	persistent |= ((guint64)si->saved->policy_hnd.uuid.data3) << 48;
 
 	dcerpc_set_transport_salt(persistent, pinfo);
 }

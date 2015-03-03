@@ -48,7 +48,7 @@ static gint proto_dcerpc_initshutdown = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_initshutdown = {
+static e_guid_t uuid_dcerpc_initshutdown = {
 	0x894de0c0, 0x0d55, 0x11d3,
 	{ 0xa3, 0x22, 0x00, 0xc0, 0x4f, 0xa3, 0x21, 0xa1 }
 };

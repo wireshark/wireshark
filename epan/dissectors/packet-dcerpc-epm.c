@@ -74,7 +74,7 @@ static expert_field ei_epm_proto_undecoded = EI_INIT;
 
 
 /* the UUID is identical for interface versions 3 and 4 */
-static e_uuid_t uuid_epm = { 0xe1af8308, 0x5d1f, 0x11c9, { 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa } };
+static e_guid_t uuid_epm = { 0xe1af8308, 0x5d1f, 0x11c9, { 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa } };
 static guint16  ver_epm3 = 3;
 static guint16  ver_epm4 = 4;
 
@@ -330,7 +330,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         int old_offset = offset;
         guint16 len;
         guint8 proto_id;
-        e_uuid_t uuid;
+        e_guid_t uuid;
         proto_item *pi;
 
         tr = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_epm_tower_floor, &it, "Floor %d ", ii+1);
@@ -352,19 +352,19 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                 proto_tree_add_guid_format (tr, hf_epm_uuid, tvb, offset+1, 16, (e_guid_t *) &uuid,
                               "UUID: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
                               uuid_name,
-                              uuid.Data1, uuid.Data2, uuid.Data3,
-                              uuid.Data4[0], uuid.Data4[1],
-                              uuid.Data4[2], uuid.Data4[3],
-                              uuid.Data4[4], uuid.Data4[5],
-                              uuid.Data4[6], uuid.Data4[7]);
+                              uuid.data1, uuid.data2, uuid.data3,
+                              uuid.data4[0], uuid.data4[1],
+                              uuid.data4[2], uuid.data4[3],
+                              uuid.data4[4], uuid.data4[5],
+                              uuid.data4[6], uuid.data4[7]);
             } else {
                 proto_tree_add_guid_format (tr, hf_epm_uuid, tvb, offset+1, 16, (e_guid_t *) &uuid,
                               "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                              uuid.Data1, uuid.Data2, uuid.Data3,
-                              uuid.Data4[0], uuid.Data4[1],
-                              uuid.Data4[2], uuid.Data4[3],
-                              uuid.Data4[4], uuid.Data4[5],
-                              uuid.Data4[6], uuid.Data4[7]);
+                              uuid.data1, uuid.data2, uuid.data3,
+                              uuid.data4[0], uuid.data4[1],
+                              uuid.data4[2], uuid.data4[3],
+                              uuid.data4[4], uuid.data4[5],
+                              uuid.data4[6], uuid.data4[7]);
             }
             proto_tree_add_item(tr, hf_epm_uuid_version, tvb, offset+17, 2, ENC_BIG_ENDIAN); /* Major/minor bytes treated as big endian */
 
@@ -376,11 +376,11 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                     proto_item_append_text(tr, "UUID: %s", s);
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
                 } else {
-                    proto_item_append_text(tr, "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x Version %d.%d", uuid.Data1, uuid.Data2, uuid.Data3,
-                                           uuid.Data4[0], uuid.Data4[1],
-                                           uuid.Data4[2], uuid.Data4[3],
-                                           uuid.Data4[4], uuid.Data4[5],
-                                           uuid.Data4[6], uuid.Data4[7],
+                    proto_item_append_text(tr, "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x Version %d.%d", uuid.data1, uuid.data2, uuid.data3,
+                                           uuid.data4[0], uuid.data4[1],
+                                           uuid.data4[2], uuid.data4[3],
+                                           uuid.data4[4], uuid.data4[5],
+                                           uuid.data4[6], uuid.data4[7],
                                            tvb_get_guint8(tvb, offset+17),
                                            tvb_get_guint8(tvb, offset+18));
                 }

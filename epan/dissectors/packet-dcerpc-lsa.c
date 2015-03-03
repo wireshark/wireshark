@@ -522,7 +522,7 @@ static gint proto_dcerpc_lsarpc = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_lsarpc = {
+static e_guid_t uuid_dcerpc_lsarpc = {
 	0x12345778, 0x1234, 0xabcd,
 	{ 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab }
 };

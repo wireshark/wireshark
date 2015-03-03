@@ -63,8 +63,8 @@ typedef struct dcom_interface_s {
     void            *private_data;
     gint            first_packet;
 
-    e_uuid_t        iid;
-    e_uuid_t        ipid;   /* the DCE/RPC Object UUID */
+    e_guid_t        iid;
+    e_guid_t        ipid;   /* the DCE/RPC Object UUID */
 } dcom_interface_t;
 
 typedef int (*dcom_dissect_fn_t) (tvbuff_t *tvb, gint offset, packet_info *pinfo,
@@ -74,19 +74,19 @@ typedef struct dcom_marshaler_s {
     dcom_object_t   *parent;
     void            *private_data;
 
-    e_uuid_t        uuid;
+    e_guid_t        uuid;
     dcom_dissect_fn_t routine;
 } dcom_marshaler_t;
 
-WS_DLL_PUBLIC dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid);
-WS_DLL_PUBLIC dcom_interface_t *dcom_interface_find(packet_info *pinfo, const address *addr, e_uuid_t *ipid);
+WS_DLL_PUBLIC dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_guid_t *iid, guint64 oxid, guint64 oid, e_guid_t *ipid);
+WS_DLL_PUBLIC dcom_interface_t *dcom_interface_find(packet_info *pinfo, const address *addr, e_guid_t *ipid);
 #ifdef DEBUG
 extern void dcom_interface_dump(void);
 #endif
-extern int dcom_register_rountine(dcom_dissect_fn_t routine, e_uuid_t* uuid);
+extern int dcom_register_rountine(dcom_dissect_fn_t routine, e_guid_t* uuid);
 extern void dcom_register_common_routines_(void);
 
-extern dcom_dissect_fn_t dcom_get_rountine_by_uuid(const e_uuid_t* uuid);
+extern dcom_dissect_fn_t dcom_get_rountine_by_uuid(const e_guid_t* uuid);
 
 /* the essential DCOM this and that, starting every call */
 WS_DLL_PUBLIC int
@@ -113,12 +113,12 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 extern int
 dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep,
-	int hfindex, e_uuid_t *uuid);
+	int hfindex, e_guid_t *uuid);
 
 extern int
 dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep,
-	int hfindex, int field_index, e_uuid_t *uuid);
+	int hfindex, int field_index, e_guid_t *uuid);
 
 extern int
 dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
@@ -179,7 +179,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 extern int
 dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
-                       guint64 *oxid, guint64 *oid, e_uuid_t *ipid);
+                       guint64 *oxid, guint64 *oid, e_guid_t *ipid);
 extern int
 dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex, dcom_interface_t **interf);

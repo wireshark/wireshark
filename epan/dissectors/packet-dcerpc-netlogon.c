@@ -470,7 +470,7 @@ typedef struct _seen_packet {
 
 static seen_packet seen;
 
-static e_uuid_t uuid_dcerpc_netlogon = {
+static e_guid_t uuid_dcerpc_netlogon = {
     0x12345678, 0x1234, 0xabcd,
     { 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0xcf, 0xfb }
 };

@@ -681,16 +681,16 @@ static expert_field ei_pn_io_iocr_type = EI_INIT;
 static expert_field ei_pn_io_frame_id = EI_INIT;
 static expert_field ei_pn_io_nr_of_tx_port_groups = EI_INIT;
 
-static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
+static e_guid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
 
-static e_uuid_t uuid_pn_io_controller = { 0xDEA00002, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
+static e_guid_t uuid_pn_io_controller = { 0xDEA00002, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_controller = 1;
 
-static e_uuid_t uuid_pn_io_supervisor = { 0xDEA00003, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
+static e_guid_t uuid_pn_io_supervisor = { 0xDEA00003, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_supervisor = 1;
 
-static e_uuid_t uuid_pn_io_parameterserver = { 0xDEA00004, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
+static e_guid_t uuid_pn_io_parameterserver = { 0xDEA00004, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_parameterserver = 1;
 
 /* Allow heuristic dissection */
@@ -2639,7 +2639,7 @@ GList *pnio_ars;
 
 typedef struct pnio_ar_s {
     /* generic */
-    e_uuid_t     aruuid;
+    e_guid_t     aruuid;
     guint16      inputframeid;
     guint16      outputframeid;
 
@@ -2719,7 +2719,7 @@ static int dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
 
 
 static pnio_ar_t *
-pnio_ar_find_by_aruuid(packet_info *pinfo _U_, e_uuid_t *aruuid)
+pnio_ar_find_by_aruuid(packet_info *pinfo _U_, e_guid_t *aruuid)
 {
     GList     *ars;
     pnio_ar_t *ar;
@@ -2729,7 +2729,7 @@ pnio_ar_find_by_aruuid(packet_info *pinfo _U_, e_uuid_t *aruuid)
     for(ars = pnio_ars; ars != NULL; ars = g_list_next(ars)) {
         ar = (pnio_ar_t *)ars->data;
 
-        if (memcmp(&ar->aruuid, aruuid, sizeof(e_uuid_t)) == 0) {
+        if (memcmp(&ar->aruuid, aruuid, sizeof(e_guid_t)) == 0) {
             return ar;
         }
     }
@@ -2739,14 +2739,14 @@ pnio_ar_find_by_aruuid(packet_info *pinfo _U_, e_uuid_t *aruuid)
 
 
 static pnio_ar_t *
-pnio_ar_new(e_uuid_t *aruuid)
+pnio_ar_new(e_guid_t *aruuid)
 {
     pnio_ar_t *ar;
 
 
     ar = (pnio_ar_t *)wmem_alloc0(wmem_file_scope(), sizeof(pnio_ar_t));
 
-    memcpy(&ar->aruuid, aruuid, sizeof(e_uuid_t));
+    memcpy(&ar->aruuid, aruuid, sizeof(e_guid_t));
 
     ar->controlleralarmref  = 0xffff;
     ar->devicealarmref      = 0xffff;
@@ -3802,7 +3802,7 @@ dissect_Maintenance_block(tvbuff_t *tvb, int offset,
 /* dissect the read/write header */
 static int
 dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, e_uuid_t *aruuid)
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, e_guid_t *aruuid)
 {
     guint32 u32Api;
     guint16 u16SlotNr;
@@ -3843,8 +3843,8 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t ** ar)
 {
-    e_uuid_t aruuid;
-    e_uuid_t null_uuid;
+    e_guid_t aruuid;
+    e_guid_t null_uuid;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -3862,8 +3862,8 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_record_data_length, u32RecDataLen);
 
-    memset(&null_uuid, 0, sizeof(e_uuid_t));
-    if (memcmp(&aruuid, &null_uuid, sizeof (e_uuid_t)) == 0) {
+    memset(&null_uuid, 0, sizeof(e_guid_t));
+    if (memcmp(&aruuid, &null_uuid, sizeof (e_guid_t)) == 0) {
         offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_target_ar_uuid, &aruuid);
     }
@@ -3886,8 +3886,8 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
 {
-    e_uuid_t aruuid;
-    e_uuid_t null_uuid;
+    e_guid_t aruuid;
+    e_guid_t null_uuid;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -3905,8 +3905,8 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_record_data_length, u32RecDataLen);
 
-    memset(&null_uuid, 0, sizeof(e_uuid_t));
-    if (memcmp(&aruuid, &null_uuid, sizeof (e_uuid_t)) == 0) {
+    memset(&null_uuid, 0, sizeof(e_guid_t));
+    if (memcmp(&aruuid, &null_uuid, sizeof (e_guid_t)) == 0) {
         offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_target_ar_uuid, &aruuid);
         offset = dissect_pn_padding(tvb, offset, pinfo, tree, 8);
@@ -3930,7 +3930,7 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
 {
-    e_uuid_t aruuid;
+    e_guid_t aruuid;
     guint16  u16AddVal1;
     guint16  u16AddVal2;
     guint32  u32Status;
@@ -3983,7 +3983,7 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar)
 {
-    e_uuid_t aruuid;
+    e_guid_t aruuid;
     guint16  u16AddVal1;
     guint16  u16AddVal2;
 
@@ -4029,7 +4029,7 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     pnio_ar_t **ar)
 {
-    e_uuid_t    ar_uuid;
+    e_guid_t    ar_uuid;
     guint16     u16SessionKey;
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -4124,7 +4124,7 @@ dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint32 u32RecDataLen,
     pnio_ar_t **ar)
 {
-    e_uuid_t    ar_uuid;
+    e_guid_t    ar_uuid;
     guint16     u16SessionKey;
     guint16     u16Command;
     proto_item *sub_item;
@@ -4467,7 +4467,7 @@ static int
 dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
-    e_uuid_t  uuid;
+    e_guid_t  uuid;
     guint16   u16Role;
     guint8    u8LengthDomainName;
     guint8    u8NumberOfMrpInstances;
@@ -4536,7 +4536,7 @@ static int
 dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
-    e_uuid_t  uuid;
+    e_guid_t  uuid;
     guint16   u16Role;
     guint16   u16Version;
     guint8    u8LengthDomainName;
@@ -4616,7 +4616,7 @@ static int
 dissect_PDInterfaceMrpDataCheck_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
-    e_uuid_t uuid;
+    e_guid_t uuid;
     guint32 u32Check;
     guint8 u8NumberOfMrpInstances;
 
@@ -4673,7 +4673,7 @@ static int
 dissect_PDPortMrpData_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
-    e_uuid_t uuid;
+    e_guid_t uuid;
     guint8  u8MrpInstance;
 
     /* added BlockVersionLow == 1 */
@@ -5380,7 +5380,7 @@ dissect_MrpInstanceDataAdjust_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
     guint8  u8MrpInstance;
-    e_uuid_t uuid;
+    e_guid_t uuid;
     guint16 u16Role;
     guint8  u8LengthDomainName;
     char*   pDomainName;
@@ -5428,7 +5428,7 @@ dissect_MrpInstanceDataReal_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
     guint8  u8MrpInstance;
-    e_uuid_t uuid;
+    e_guid_t uuid;
     guint16 u16Role;
     guint16 u16Version;
     guint8  u8LengthDomainName;
@@ -5478,7 +5478,7 @@ dissect_MrpInstanceDataCheck_block(tvbuff_t *tvb, int offset,
 {
     guint8  u8MrpInstance;
     guint32 u32Check;
-    e_uuid_t uuid;
+    e_guid_t uuid;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -5628,7 +5628,7 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
 {
     guint16   u16SlotNr;
     guint16   u16SubslotNr;
-    e_uuid_t  uuid;
+    e_guid_t  uuid;
     guint32   u32ReservedIntervalBegin;
     guint32   u32ReservedIntervalEnd;
     guint32   u32PLLWindow;
@@ -5814,7 +5814,7 @@ static int
 dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
-    e_uuid_t uuid;
+    e_guid_t uuid;
     guint32  u32MaxBridgeDelay;
     guint32  u32NumberOfPorts;
     guint32  u32MaxPortTxDelay;
@@ -6320,8 +6320,8 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
 {
     guint16     u16NumberOfARs;
     guint16     u16NumberofEntries;
-    e_uuid_t    aruuid;
-    e_uuid_t    uuid;
+    e_guid_t    aruuid;
+    e_guid_t    uuid;
     guint16     u16ARType;
     char       *pStationName;
     guint16     u16NameLength;
@@ -6665,7 +6665,7 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
     guint64  u64ActualLocaltimeStamp;
     guint16  u16NumberOfLogEntries;
     guint64  u64LocaltimeStamp;
-    e_uuid_t aruuid;
+    e_guid_t aruuid;
     guint32  u32EntryDetail;
     dcerpc_info        di; /* fake dcerpc_info struct */
     dcerpc_call_value  call_data;
@@ -6753,7 +6753,7 @@ dissect_FSParameter_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
     guint32 u32FSParameterMode;
-    e_uuid_t FSParameterUUID;
+    e_guid_t FSParameterUUID;
 
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -6867,8 +6867,8 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
 {
     guint16    u16ARType;
     guint32    u32ARProperties;
-    e_uuid_t   aruuid;
-    e_uuid_t   uuid;
+    e_guid_t   aruuid;
+    e_guid_t   uuid;
     guint16    u16SessionKey;
     guint8     mac[6];
     guint16    u16TimeoutFactor;
@@ -6952,7 +6952,7 @@ dissect_ARBlockRes_block(tvbuff_t *tvb, int offset,
     pnio_ar_t **ar)
 {
     guint16    u16ARType;
-    e_uuid_t   uuid;
+    e_guid_t   uuid;
     guint16    u16SessionKey;
     guint8     mac[6];
     guint16    u16UDPRTPort;
@@ -7525,7 +7525,7 @@ dissect_PDSubFrameBlock_block(tvbuff_t *tvb, int offset,
         dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_subframe_data_position, &u32SubFrameData);
         /* Bit 7: SubframeData.reserved_1 */
         dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_subframe_reserved1, &u32SubFrameData);
-        /* Bit 8 - 15: SubframeData.DataLength */
+        /* Bit 8 - 15: SubframeData.dataLength */
         dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_subframe_data_length, &u32SubFrameData);
         /* Bit 16 - 31: SubframeData.reserved_2 */
         offset =
@@ -7550,7 +7550,7 @@ dissect_IRInfoBlock_block(tvbuff_t *tvb, int offset,
     guint16  u16SubframeOffset;
     guint32  u32SubframeData;
     guint16  u16IOCRReference;
-    e_uuid_t IRDataUUID;
+    e_guid_t IRDataUUID;
 
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {

@@ -187,7 +187,7 @@ static gint proto_dcerpc_dnsserver = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_dnsserver = {
+static e_guid_t uuid_dcerpc_dnsserver = {
 	0x50abc2a4, 0x574d, 0x40b3,
 	{ 0x9d, 0x66, 0xee, 0x4f, 0xd5, 0xfb, 0xa0, 0x76 }
 };

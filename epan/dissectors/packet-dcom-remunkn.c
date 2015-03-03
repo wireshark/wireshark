@@ -52,11 +52,11 @@ static gint ett_remunk_rqi_result = -1;
 
 
 static gint ett_remunk = -1;
-static e_uuid_t uuid_remunk = { 0x00000131, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
+static e_guid_t uuid_remunk = { 0x00000131, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_remunk = 0;
 static int proto_remunk = -1;
 
-static e_uuid_t ipid_remunk = { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
+static e_guid_t ipid_remunk = { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 
 /* There is a little bit confusion about the IRemUnknown2 interface UUIDs */
 /* DCOM documentation tells us: 0x00000142 (7 methods) */
@@ -65,14 +65,14 @@ static e_uuid_t ipid_remunk = { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 
 /* There is some evidence, that the DCOM documentation is wrong, so using 143 for IRemUnknown2 now. */
 
 static gint ett_remunk2 = -1;
-static e_uuid_t uuid_remunk2 = { 0x00000143, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
+static e_guid_t uuid_remunk2 = { 0x00000143, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_remunk2 = 0;
 static int proto_remunk2 = -1;
 
 
 typedef struct remunk_remqueryinterface_call_s {
     guint        iid_count;
-    e_uuid_t    *iids;
+    e_guid_t    *iids;
 } remunk_remqueryinterface_call_t;
 
 
@@ -80,12 +80,12 @@ static int
 dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
                                       packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-    e_uuid_t     ipid;
+    e_guid_t     ipid;
     guint32      u32Refs;
     guint16      u16IIDs;
     guint32      u32ArraySize;
     guint32      u32ItemIdx;
-    e_uuid_t     iid;
+    e_guid_t     iid;
     remunk_remqueryinterface_call_t *call;
 
 
@@ -105,9 +105,9 @@ dissect_remunk_remqueryinterface_rqst(tvbuff_t *tvb, int offset,
 
     /* limit the allocation to a reasonable size */
     if(u32ArraySize < 100) {
-        call = (remunk_remqueryinterface_call_t *)wmem_alloc(wmem_file_scope(), sizeof(remunk_remqueryinterface_call_t) + u32ArraySize * sizeof(e_uuid_t));
+        call = (remunk_remqueryinterface_call_t *)wmem_alloc(wmem_file_scope(), sizeof(remunk_remqueryinterface_call_t) + u32ArraySize * sizeof(e_guid_t));
         call->iid_count = u32ArraySize;
-        call->iids = (e_uuid_t *) (call+1);
+        call->iids = (e_guid_t *) (call+1);
         di->call_data->private_data = call;
     } else {
         call = NULL;
@@ -136,12 +136,12 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
     proto_tree  *sub_tree;
     guint32      u32HResult;
     guint32      u32SubStart;
-    e_uuid_t     iid;
-    e_uuid_t     iid_null = DCERPC_UUID_NULL;
+    e_guid_t     iid;
+    e_guid_t     iid_null = DCERPC_UUID_NULL;
     remunk_remqueryinterface_call_t *call = (remunk_remqueryinterface_call_t *)di->call_data->private_data;
     guint64      oxid;
     guint64      oid;
-    e_uuid_t     ipid;
+    e_guid_t     ipid;
 
 
     offset = dissect_dcom_that(tvb, offset, pinfo, tree, di, drep);
@@ -216,7 +216,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
     guint32      u32Pointer;
     guint32      u32IntRefs;
     guint32      u32ItemIdx;
-    e_uuid_t     ipid;
+    e_guid_t     ipid;
     guint32      u32PublicRefs;
     guint32      u32PrivateRefs;
     const gchar *pszFormat;
@@ -260,7 +260,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
         /* update subtree */
         proto_item_append_text(sub_item, "[%u]: IPID=%s, PublicRefs=%u, PrivateRefs=%u",
                                u32ItemIdx,
-                               guids_resolve_uuid_to_str(&ipid),
+                               guids_resolve_guid_to_str(&ipid),
                                u32PublicRefs, u32PrivateRefs);
         proto_item_set_len(sub_item, offset - u32SubStart);
 

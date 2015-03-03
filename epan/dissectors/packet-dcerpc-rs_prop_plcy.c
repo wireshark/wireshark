@@ -38,7 +38,7 @@ static int hf_rs_prop_plcy_opnum = -1;
 
 
 static gint ett_rs_prop_plcy = -1;
-static e_uuid_t uuid_rs_prop_plcy =
+static e_guid_t uuid_rs_prop_plcy =
   { 0xe6ac5cb8, 0xde3e, 0x11ca, {0x93, 0x76, 0x08, 0x00, 0x1e, 0x03, 0x94,
                                  0xc7} };
 

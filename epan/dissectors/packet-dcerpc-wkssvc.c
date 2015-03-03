@@ -481,7 +481,7 @@ static gint proto_dcerpc_wkssvc = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_wkssvc = {
+static e_guid_t uuid_dcerpc_wkssvc = {
 	0x6bffd098, 0xa112, 0x3610,
 	{ 0x98, 0x33, 0x46, 0xc3, 0xf8, 0x7e, 0x34, 0x5a }
 };

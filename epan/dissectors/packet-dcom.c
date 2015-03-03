@@ -220,17 +220,17 @@ static expert_field ei_dcom_hresult_expert = EI_INIT;
 static expert_field ei_dcom_dualstringarray_mult_ip = EI_INIT;
 
 /* this/that extension UUIDs */
-static e_uuid_t uuid_debug_ext =    { 0xf1f19680, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
-static e_uuid_t uuid_ext_error_ext ={ 0xf1f19681, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
+static e_guid_t uuid_debug_ext =    { 0xf1f19680, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
+static e_guid_t uuid_ext_error_ext ={ 0xf1f19681, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
 
 /* general DCOM UUIDs */
-static const e_uuid_t ipid_rem_unknown =  { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
-static const e_uuid_t iid_unknown =	  { 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
-static const e_uuid_t uuid_null =	  { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} };
-static const e_uuid_t iid_class_factory = { 0x00000001, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_guid_t ipid_rem_unknown =  { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_guid_t iid_unknown =	  { 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_guid_t uuid_null =	  { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} };
+static const e_guid_t iid_class_factory = { 0x00000001, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 #if 0
-static const e_uuid_t iid_act_prop_in =   { 0x000001A2, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
-static const e_uuid_t iid_act_prop_out =  { 0x000001A3, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_guid_t iid_act_prop_in =   { 0x000001A2, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_guid_t iid_act_prop_out =  { 0x000001A3, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 #endif
 
 static GList *dcom_machines   = NULL;
@@ -272,15 +272,15 @@ void dcom_interface_dump(void) {
 			for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
 				interf = (dcom_interface_t *)interfaces->data;
 				g_warning("  Interface(#%4u): iid:%s",
-					  interf->first_packet, guids_resolve_uuid_to_str(&interf->iid));
-				g_warning("   ipid:%s", guids_resolve_uuid_to_str(&interf->ipid));
+					  interf->first_packet, guids_resolve_guid_to_str(&interf->iid));
+				g_warning("   ipid:%s", guids_resolve_guid_to_str(&interf->ipid));
 			}
 		}
 	}
 }
 #endif
 
-dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const address *addr _U_, e_uuid_t *ipid)
+dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const address *addr _U_, e_guid_t *ipid)
 {
 	dcom_interface_t *interf;
 	GList *interfaces;
@@ -294,7 +294,7 @@ dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const address *add
 	for(interfaces = dcom_interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
 		interf = (dcom_interface_t *)interfaces->data;
 
-		if(memcmp(&interf->ipid, ipid, sizeof(e_uuid_t)) == 0) {
+		if(memcmp(&interf->ipid, ipid, sizeof(e_guid_t)) == 0) {
 			return interf;
 		}
 	}
@@ -303,7 +303,7 @@ dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const address *add
 }
 
 
-dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid)
+dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_guid_t *iid, guint64 oxid, guint64 oid, e_guid_t *ipid)
 {
 	GList *dcom_iter;
 	dcom_machine_t *machine;
@@ -377,7 +377,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_
 	dcom_iter = object->interfaces;
 	while(dcom_iter != NULL) {
 		interf = (dcom_interface_t *)dcom_iter->data;
-		if(memcmp(&interf->ipid, ipid, sizeof(e_uuid_t)) == 0) {
+		if(memcmp(&interf->ipid, ipid, sizeof(e_guid_t)) == 0) {
 			break;
 		}
 		dcom_iter = g_list_next(dcom_iter);
@@ -701,7 +701,7 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
 	guint32 u32ArrayRes;
 
 	guint32 u32ExtentSize;
-	e_uuid_t uuidExtend;
+	e_guid_t uuidExtend;
 	const char *uuid_name;
 
 
@@ -745,14 +745,14 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
 			/* look for a registered uuid name */
 			if((uuid_name = guids_get_uuid_name(&uuidExtend)) != NULL) {
 				proto_tree_add_guid_format_value(sub_tree, hf_dcom_extent_id, tvb,
-								 offset, sizeof(e_uuid_t), (e_guid_t *) &uuidExtend,
+								 offset, sizeof(e_guid_t), (e_guid_t *) &uuidExtend,
 								 "%s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
 								 uuid_name,
-								 uuidExtend.Data1, uuidExtend.Data2, uuidExtend.Data3,
-								 uuidExtend.Data4[0], uuidExtend.Data4[1],
-								 uuidExtend.Data4[2], uuidExtend.Data4[3],
-								 uuidExtend.Data4[4], uuidExtend.Data4[5],
-								 uuidExtend.Data4[6], uuidExtend.Data4[7]);
+								 uuidExtend.data1, uuidExtend.data2, uuidExtend.data3,
+								 uuidExtend.data4[0], uuidExtend.data4[1],
+								 uuidExtend.data4[2], uuidExtend.data4[3],
+								 uuidExtend.data4[4], uuidExtend.data4[5],
+								 uuidExtend.data4[6], uuidExtend.data4[7]);
 				u32VariableOffset += 16;
 			} else {
 				u32VariableOffset = dissect_dcom_UUID(tvb, u32VariableOffset, pinfo, sub_tree, di, drep,
@@ -795,7 +795,7 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 	guint16 u16VersionMinor;
 	guint32 u32Flags;
 	guint32 u32Res;
-	e_uuid_t uuidCausality;
+	e_guid_t uuidCausality;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
@@ -821,13 +821,13 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 
 	/* update subtree header */
 	proto_item_append_text(sub_item, ", V%u.%u, Causality ID: %s",
-		u16VersionMajor, u16VersionMinor, guids_resolve_uuid_to_str(&uuidCausality));
+		u16VersionMajor, u16VersionMinor, guids_resolve_guid_to_str(&uuidCausality));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
 	if(memcmp(&di->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0,
 			(e_guid_t *) &di->call_data->object_uuid,
-			"Object UUID/IPID: %s", guids_resolve_uuid_to_str(&di->call_data->object_uuid));
+			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid));
 		PROTO_ITEM_SET_GENERATED(pi);
 	}
 
@@ -861,7 +861,7 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 	if(memcmp(&di->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0,
 			(e_guid_t *) &di->call_data->object_uuid,
-			"Object UUID/IPID: %s", guids_resolve_uuid_to_str(&di->call_data->object_uuid));
+			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid));
 		PROTO_ITEM_SET_GENERATED(pi);
 	}
 
@@ -1459,11 +1459,11 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 int
 dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep,
-	int hfindex, e_uuid_t *pdata)
+	int hfindex, e_guid_t *pdata)
 {
 	const gchar *uuid_name;
 	header_field_info *hfi;
-	e_uuid_t uuid;
+	e_guid_t uuid;
 
 
 	/* get the UUID, but don't put it into the tree */
@@ -1477,20 +1477,20 @@ dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 		proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid,
 			  "%s: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
 			  hfi->name, uuid_name,
-			  uuid.Data1, uuid.Data2, uuid.Data3,
-			  uuid.Data4[0], uuid.Data4[1],
-			  uuid.Data4[2], uuid.Data4[3],
-			  uuid.Data4[4], uuid.Data4[5],
-			  uuid.Data4[6], uuid.Data4[7]);
+			  uuid.data1, uuid.data2, uuid.data3,
+			  uuid.data4[0], uuid.data4[1],
+			  uuid.data4[2], uuid.data4[3],
+			  uuid.data4[4], uuid.data4[5],
+			  uuid.data4[6], uuid.data4[7]);
 	} else {
 		proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid,
 			  "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 			  hfi->name,
-			  uuid.Data1, uuid.Data2, uuid.Data3,
-			  uuid.Data4[0], uuid.Data4[1],
-			  uuid.Data4[2], uuid.Data4[3],
-			  uuid.Data4[4], uuid.Data4[5],
-			  uuid.Data4[6], uuid.Data4[7]);
+			  uuid.data1, uuid.data2, uuid.data3,
+			  uuid.data4[0], uuid.data4[1],
+			  uuid.data4[2], uuid.data4[3],
+			  uuid.data4[4], uuid.data4[5],
+			  uuid.data4[6], uuid.data4[7]);
 	}
 
 	if(pdata != NULL) {
@@ -1504,7 +1504,7 @@ dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 int
 dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep,
-	int hfindex, int field_index, e_uuid_t *uuid)
+	int hfindex, int field_index, e_guid_t *uuid)
 {
 	const gchar *uuid_name;
 	proto_item *pi;
@@ -1535,11 +1535,11 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	}
 
 	proto_item_append_text(pi, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			  uuid->Data1, uuid->Data2, uuid->Data3,
-			  uuid->Data4[0], uuid->Data4[1],
-			  uuid->Data4[2], uuid->Data4[3],
-			  uuid->Data4[4], uuid->Data4[5],
-			  uuid->Data4[6], uuid->Data4[7]);
+			  uuid->data1, uuid->data2, uuid->data3,
+			  uuid->data4[0], uuid->data4[1],
+			  uuid->data4[2], uuid->data4[3],
+			  uuid->data4[4], uuid->data4[5],
+			  uuid->data4[6], uuid->data4[7]);
 
 	if(uuid_name) {
 		proto_item_append_text(pi, ")");
@@ -1876,7 +1876,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex _U_,
-		       guint64 *oxid, guint64 *oid, e_uuid_t *ipid)
+		       guint64 *oxid, guint64 *oid, e_guid_t *ipid)
 {
 	guint32	u32Flags;
 	guint32	u32PublicRefs;
@@ -1904,7 +1904,7 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* append info to subtree header */
 	proto_item_append_text(sub_item, ": PublicRefs=%u IPID=%s",
-		u32PublicRefs, guids_resolve_uuid_to_str(ipid));
+		u32PublicRefs, guids_resolve_guid_to_str(ipid));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
 	return offset;
@@ -1915,14 +1915,14 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /*
  *
  *static void
- *print_uuid(const e_uuid_t* uuid)
+ *print_uuid(const e_guid_t* uuid)
 *{
  *    proto_tree_add_debug_text(NULL, "UUID:(%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)\n",
- *            uuid->Data1, uuid->Data2, uuid->Data3,
- *            uuid->Data4[0], uuid->Data4[1],
- *            uuid->Data4[2], uuid->Data4[3],
- *            uuid->Data4[4], uuid->Data4[5],
- *            uuid->Data4[6], uuid->Data4[7]);
+ *            uuid->data1, uuid->data2, uuid->data3,
+ *            uuid->data4[0], uuid->data4[1],
+ *            uuid->data4[2], uuid->data4[3],
+ *            uuid->data4[4], uuid->data4[5],
+ *            uuid->data4[6], uuid->data4[7]);
  *
  *    return;
  *}
@@ -1930,7 +1930,7 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
  */
 
 int
-dcom_register_rountine(dcom_dissect_fn_t routine, e_uuid_t* uuid)
+dcom_register_rountine(dcom_dissect_fn_t routine, e_guid_t* uuid)
 {
 	dcom_marshaler_t *marshaler;
 
@@ -1957,7 +1957,7 @@ dcom_register_rountine(dcom_dissect_fn_t routine, e_uuid_t* uuid)
 
 
 dcom_dissect_fn_t
-dcom_get_rountine_by_uuid(const e_uuid_t* uuid)
+dcom_get_rountine_by_uuid(const e_guid_t* uuid)
 {
 	dcom_marshaler_t *marsh;
 	GList *marshalers;
@@ -1971,7 +1971,7 @@ dcom_get_rountine_by_uuid(const e_uuid_t* uuid)
 		marsh = (dcom_marshaler_t *)marshalers->data;
 		/*print_uuid(&marsh->uuid);*/
 		/*print_uuid(uuid);*/
-		if(memcmp(&marsh->uuid, uuid, sizeof(e_uuid_t)) == 0) {
+		if(memcmp(&marsh->uuid, uuid, sizeof(e_guid_t)) == 0) {
 		    return marsh->routine;
 		}
 	}
@@ -1983,7 +1983,7 @@ dcom_get_rountine_by_uuid(const e_uuid_t* uuid)
 static int
 dissect_dcom_CUSTOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		               proto_tree *tree, dcerpc_info *di, guint8 *drep, int hfindex,
-		               e_uuid_t *clsid, e_uuid_t *iid)
+		               e_guid_t *clsid, e_guid_t *iid)
 {
 	guint32    u32CBExtension;
 	guint32    u32Size;
@@ -2026,14 +2026,14 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
 	guint32	u32Signature;
 	guint32	u32Flags;
-	e_uuid_t iid;
-	e_uuid_t clsid;
+	e_guid_t iid;
+	e_guid_t clsid;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32	u32SubStart;
 	guint64 oxid = 0;
 	guint64 oid = 0;
-	e_uuid_t ipid;
+	e_guid_t ipid;
 	dcom_interface_t *dcom_if = NULL;
 	gchar ip[4];
 

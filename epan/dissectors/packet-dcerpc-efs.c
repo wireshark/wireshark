@@ -68,7 +68,7 @@ static gint proto_dcerpc_efs = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_efs = {
+static e_guid_t uuid_dcerpc_efs = {
 	0xc681d488, 0xd850, 0x11d0,
 	{ 0x8c, 0x52, 0x00, 0xc0, 0x4f, 0xd9, 0x0f, 0x7e }
 };

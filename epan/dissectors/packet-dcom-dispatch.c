@@ -81,7 +81,7 @@ static gint ett_dispatch_flags = -1;
 static gint ett_dispatch_params = -1;
 static gint ett_dispatch_excepinfo = -1;
 
-static e_uuid_t uuid_dispatch = { 0x00020400, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
+static e_guid_t uuid_dispatch = { 0x00020400, 0x0000, 0x0000, { 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46 } };
 static guint16  ver_dispatch = 0;
 static gint ett_dispatch = -1;
 static int proto_dispatch = -1;
@@ -173,7 +173,7 @@ int
 dissect_IDispatch_GetIDsOfNames_rqst(tvbuff_t *tvb, int offset,
                                      packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-    e_uuid_t riid;
+    e_guid_t riid;
     guint32  u32Lcid;
     gchar    szName[1000] = { 0 };
     guint32  u32Names;
@@ -256,7 +256,7 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
                               packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 u32DispIdMember;
-    e_uuid_t riid;
+    e_guid_t riid;
     guint32 u32Lcid;
     guint32 u32Flags;
     guint32 u32Args;

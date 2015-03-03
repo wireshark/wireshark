@@ -52,7 +52,7 @@ static gint ett_dcerpc_tapi = -1;
   IDL ] interface tapi
   IDL {
 */
-static e_uuid_t uuid_dcerpc_tapi = {
+static e_guid_t uuid_dcerpc_tapi = {
 	0x2f5f6520, 0xca46, 0x1067,
 	{ 0xb3, 0x19, 0x00, 0xdd, 0x01, 0x06, 0x62, 0xda }
 };

@@ -30,7 +30,7 @@ typedef struct tagCOMVERSION
 
 typedef struct tagORPC_EXTENT
     {
-        e_uuid_t id;
+        e_guid_t id;
         guint32 size;
 /*        guint8 data[];  */
     } ORPC_EXTENT;
@@ -46,7 +46,7 @@ typedef struct tagORPCTHIS {
     COMVERSION version;
     guint32 flags;
     guint32 reserved1;
-    e_uuid_t  cid;
+    e_guid_t  cid;
     ORPC_EXTENT_ARRAY *extensions;
  } ORPCTHIS;
 

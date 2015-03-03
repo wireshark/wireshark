@@ -49,7 +49,7 @@ typedef struct _rpc_procedure_t {
 typedef struct _rpcstat_t {
 	const char *prog;
 	char *filter;
-	e_uuid_t uuid;
+	e_guid_t uuid;
 	guint16 ver;
 	guint32 num_procedures;
 	rpc_procedure_t *procedures;
@@ -83,17 +83,17 @@ dcerpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	}
 
 	/* we are only interested in certain program/versions */
-	if (   (ri->call_data->uuid.Data1    != rs->uuid.Data1)
-	    || (ri->call_data->uuid.Data2    != rs->uuid.Data2)
-	    || (ri->call_data->uuid.Data3    != rs->uuid.Data3)
-	    || (ri->call_data->uuid.Data4[0] != rs->uuid.Data4[0])
-	    || (ri->call_data->uuid.Data4[1] != rs->uuid.Data4[1])
-	    || (ri->call_data->uuid.Data4[2] != rs->uuid.Data4[2])
-	    || (ri->call_data->uuid.Data4[3] != rs->uuid.Data4[3])
-	    || (ri->call_data->uuid.Data4[4] != rs->uuid.Data4[4])
-	    || (ri->call_data->uuid.Data4[5] != rs->uuid.Data4[5])
-	    || (ri->call_data->uuid.Data4[6] != rs->uuid.Data4[6])
-	    || (ri->call_data->uuid.Data4[7] != rs->uuid.Data4[7])
+	if (   (ri->call_data->uuid.data1    != rs->uuid.data1)
+	    || (ri->call_data->uuid.data2    != rs->uuid.data2)
+	    || (ri->call_data->uuid.data3    != rs->uuid.data3)
+	    || (ri->call_data->uuid.data4[0] != rs->uuid.data4[0])
+	    || (ri->call_data->uuid.data4[1] != rs->uuid.data4[1])
+	    || (ri->call_data->uuid.data4[2] != rs->uuid.data4[2])
+	    || (ri->call_data->uuid.data4[3] != rs->uuid.data4[3])
+	    || (ri->call_data->uuid.data4[4] != rs->uuid.data4[4])
+	    || (ri->call_data->uuid.data4[5] != rs->uuid.data4[5])
+	    || (ri->call_data->uuid.data4[6] != rs->uuid.data4[6])
+	    || (ri->call_data->uuid.data4[7] != rs->uuid.data4[7])
 	    || (ri->call_data->ver           != rs->ver)) {
 		return 0;
 	}
@@ -179,7 +179,7 @@ dcerpcstat_init(const char *opt_arg, void *userdata _U_)
 	rpcstat_t *rs;
 	guint32 i, max_procs;
 	dcerpc_sub_dissector *procs;
-	e_uuid_t uuid;
+	e_guid_t uuid;
 	guint d1, d2, d3, d40, d41, d42, d43, d44, d45, d46, d47;
 	int major, minor;
 	guint16 ver;
@@ -203,17 +203,17 @@ dcerpcstat_init(const char *opt_arg, void *userdata _U_)
 		"dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d%n",
 		&d1, &d2, &d3, &d40, &d41, &d42, &d43, &d44, &d45, &d46, &d47,
 		&major, &minor, &pos) == 13) {
-		uuid.Data1    = d1;
-		uuid.Data2    = d2;
-		uuid.Data3    = d3;
-		uuid.Data4[0] = d40;
-		uuid.Data4[1] =	d41;
-		uuid.Data4[2] =	d42;
-		uuid.Data4[3] =	d43;
-		uuid.Data4[4] =	d44;
-		uuid.Data4[5] =	d45;
-		uuid.Data4[6] =	d46;
-		uuid.Data4[7] =	d47;
+		uuid.data1    = d1;
+		uuid.data2    = d2;
+		uuid.data3    = d3;
+		uuid.data4[0] = d40;
+		uuid.data4[1] =	d41;
+		uuid.data4[2] =	d42;
+		uuid.data4[3] =	d43;
+		uuid.data4[4] =	d44;
+		uuid.data4[5] =	d45;
+		uuid.data4[6] =	d46;
+		uuid.data4[7] =	d47;
 		if (pos) {
 			filter = opt_arg+pos;
 		} else {
@@ -237,7 +237,7 @@ dcerpcstat_init(const char *opt_arg, void *userdata _U_)
 	rs->prog = dcerpc_get_proto_name(&uuid, ver);
 	if (!rs->prog) {
 		g_free(rs);
-		fprintf(stderr, "tshark: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n", uuid.Data1, uuid.Data2, uuid.Data3, uuid.Data4[0], uuid.Data4[1], uuid.Data4[2], uuid.Data4[3], uuid.Data4[4], uuid.Data4[5], uuid.Data4[6], uuid.Data4[7], ver);
+		fprintf(stderr, "tshark: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%u not supported\n", uuid.data1, uuid.data2, uuid.data3, uuid.data4[0], uuid.data4[1], uuid.data4[2], uuid.data4[3], uuid.data4[4], uuid.data4[5], uuid.data4[6], uuid.data4[7], ver);
 		exit(1);
 	}
 	procs = dcerpc_get_proto_sub_dissector(&uuid, ver);

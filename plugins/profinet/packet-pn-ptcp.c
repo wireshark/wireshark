@@ -216,7 +216,7 @@ dissect_PNPTCP_Subdomain(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 u16FrameID)
 {
     guint8   mac[6];
-    e_uuid_t uuid;
+    e_guid_t uuid;
 
 
     /* MasterSourceAddress */
@@ -234,11 +234,11 @@ dissect_PNPTCP_Subdomain(tvbuff_t *tvb, int offset,
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     proto_item_append_text(item, ", Subdomain=%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-        uuid.Data1, uuid.Data2, uuid.Data3,
-        uuid.Data4[0], uuid.Data4[1],
-        uuid.Data4[2], uuid.Data4[3],
-        uuid.Data4[4], uuid.Data4[5],
-        uuid.Data4[6], uuid.Data4[7]);
+        uuid.data1, uuid.data2, uuid.data3,
+        uuid.data4[0], uuid.data4[1],
+        uuid.data4[2], uuid.data4[3],
+        uuid.data4[4], uuid.data4[5],
+        uuid.data4[6], uuid.data4[7]);
 
     return offset;
 }
@@ -434,7 +434,7 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length)
 {
     guint8   subType;
-    e_uuid_t uuid;
+    e_guid_t uuid;
 
     /* OUI already dissected! */
 
@@ -450,11 +450,11 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
         /* IRDataUUID */
         offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_ptcp_irdata_uuid, &uuid);
         proto_item_append_text(item, ": IRDataUUID=%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                                      uuid.Data1, uuid.Data2, uuid.Data3,
-                                      uuid.Data4[0], uuid.Data4[1],
-                                      uuid.Data4[2], uuid.Data4[3],
-                                      uuid.Data4[4], uuid.Data4[5],
-                                      uuid.Data4[6], uuid.Data4[7]);
+                                      uuid.data1, uuid.data2, uuid.data3,
+                                      uuid.data4[0], uuid.data4[1],
+                                      uuid.data4[2], uuid.data4[3],
+                                      uuid.data4[4], uuid.data4[5],
+                                      uuid.data4[6], uuid.data4[7]);
 
         break;
     default:

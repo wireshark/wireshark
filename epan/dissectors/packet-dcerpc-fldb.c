@@ -46,7 +46,7 @@ static gint ett_fldb_vlconf_cell = -1;
 static gint ett_fldb_afsNameString_t = -1;
 
 
-static e_uuid_t uuid_fldb =
+static e_guid_t uuid_fldb =
   { 0x4d37f2dd, 0xed43, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x2e, 0x00, 0x00, 0x01}
 };
 static guint16 ver_fldb = 4;
@@ -641,7 +641,7 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
   guint32       maxtotallatency, hardmaxtotallatency, minimumpouncedally;
   guint32       defaultmaxreplicalatency, reclaimdally, whenlocked;
   guint32       spare1, spare2, spare3, spare4;
-  e_uuid_t      siteowner, siteobjid;
+  e_guid_t      siteowner, siteobjid;
   gint          i;
 #define MAXNSERVERS 16
 #define MAXVOLTYPES 8
@@ -731,11 +731,11 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
                             hf_fldb_vldbentry_siteowner, &siteowner);
         col_append_fstr (pinfo->cinfo, COL_INFO,
                          " SiteOwner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                         siteowner.Data1, siteowner.Data2, siteowner.Data3,
-                         siteowner.Data4[0], siteowner.Data4[1],
-                         siteowner.Data4[2], siteowner.Data4[3],
-                         siteowner.Data4[4], siteowner.Data4[5],
-                         siteowner.Data4[6], siteowner.Data4[7]);
+                         siteowner.data1, siteowner.data2, siteowner.data3,
+                         siteowner.data4[0], siteowner.data4[1],
+                         siteowner.data4[2], siteowner.data4[3],
+                         siteowner.data4[4], siteowner.data4[5],
+                         siteowner.data4[6], siteowner.data4[7]);
     }
 
 /*                afsUUID         siteObjID[MAXNSERVERS]; */
@@ -746,11 +746,11 @@ dissect_vldbentry (tvbuff_t *tvb, int offset,
                             hf_fldb_vldbentry_siteobjid, &siteobjid);
         col_append_fstr (pinfo->cinfo, COL_INFO,
                          " SiteObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                         siteobjid.Data1, siteobjid.Data2, siteobjid.Data3,
-                         siteobjid.Data4[0], siteobjid.Data4[1],
-                         siteobjid.Data4[2], siteobjid.Data4[3],
-                         siteobjid.Data4[4], siteobjid.Data4[5],
-                         siteobjid.Data4[6], siteobjid.Data4[7]);
+                         siteobjid.data1, siteobjid.data2, siteobjid.data3,
+                         siteobjid.data4[0], siteobjid.data4[1],
+                         siteobjid.data4[2], siteobjid.data4[3],
+                         siteobjid.data4[4], siteobjid.data4[5],
+                         siteobjid.data4[6], siteobjid.data4[7]);
     }
 
   /* afsHyper        VolIDs[MAXVOLTYPES]; */
@@ -977,7 +977,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, int offset,
                                dcerpc_info *di, guint8 *drep)
 {
   const guint8 *namestring;
-  e_uuid_t      owner, objid;
+  e_guid_t      owner, objid;
   guint32       creationquota, creationuses, deletedflag;
   guint32       spare2, spare3, spare4, spare5;
 
@@ -1015,20 +1015,20 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t *tvb, int offset,
   offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fldb_uuid_owner, &owner);
   col_append_fstr (pinfo->cinfo, COL_INFO,
                      " Owner - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                     owner.Data1, owner.Data2, owner.Data3, owner.Data4[0],
-                     owner.Data4[1], owner.Data4[2], owner.Data4[3],
-                     owner.Data4[4], owner.Data4[5], owner.Data4[6],
-                     owner.Data4[7]);
+                     owner.data1, owner.data2, owner.data3, owner.data4[0],
+                     owner.data4[1], owner.data4[2], owner.data4[3],
+                     owner.data4[4], owner.data4[5], owner.data4[6],
+                     owner.data4[7]);
 
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fldb_uuid_objid,
                         &objid);
   col_append_fstr (pinfo->cinfo, COL_INFO,
                      " ObjID - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                     objid.Data1, objid.Data2, objid.Data3, objid.Data4[0],
-                     objid.Data4[1], objid.Data4[2], objid.Data4[3],
-                     objid.Data4[4], objid.Data4[5], objid.Data4[6],
-                     objid.Data4[7]);
+                     objid.data1, objid.data2, objid.data3, objid.data4[0],
+                     objid.data4[1], objid.data4[2], objid.data4[3],
+                     objid.data4[4], objid.data4[5], objid.data4[6],
+                     objid.data4[7]);
 
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep, hf_fldb_creationquota,

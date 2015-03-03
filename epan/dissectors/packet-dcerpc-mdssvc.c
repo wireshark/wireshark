@@ -69,7 +69,7 @@ static gint proto_dcerpc_mdssvc = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_mdssvc = {
+static e_guid_t uuid_dcerpc_mdssvc = {
 	0x885d85fb, 0xc754, 0x4062,
 	{ 0xa0, 0xe7, 0x68, 0x72, 0xce, 0x00, 0x64, 0xf4 }
 };

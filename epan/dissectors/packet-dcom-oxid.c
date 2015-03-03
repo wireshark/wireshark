@@ -55,7 +55,7 @@ static int hf_oxid_ds_array = -1;
 
 static gint ett_oxid = -1;
 
-static e_uuid_t uuid_oxid = { 0x99fcfec4, 0x5260, 0x101b, { 0xbb, 0xcb, 0x00, 0xaa, 0x00, 0x21, 0x34, 0x7a } };
+static e_guid_t uuid_oxid = { 0x99fcfec4, 0x5260, 0x101b, { 0xbb, 0xcb, 0x00, 0xaa, 0x00, 0x21, 0x34, 0x7a } };
 static guint16  ver_oxid = 0;
 
 
@@ -213,7 +213,7 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
 {
     guint32 u32Pointer;
     guint32 u32ArraySize;
-    e_uuid_t ipid;
+    e_guid_t ipid;
     guint32 u32AuthnHint;
     guint16 u16VersionMajor;
     guint16 u16VersionMinor;

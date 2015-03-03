@@ -42,7 +42,7 @@ static gint ett_dcerpc_rras = -1;
  * and the \pipe\ROUTER named pipe as endpoint.
  */
 
-static e_uuid_t uuid_dcerpc_rras = {
+static e_guid_t uuid_dcerpc_rras = {
 	0x8f09f000, 0xb7ed, 0x11ce,
 	{ 0xbb, 0xd2, 0x00, 0x00, 0x1a, 0x18, 0x1c, 0xad }
 };

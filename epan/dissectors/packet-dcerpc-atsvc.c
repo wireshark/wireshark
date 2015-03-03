@@ -103,7 +103,7 @@ static gint proto_dcerpc_atsvc = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_atsvc = {
+static e_guid_t uuid_dcerpc_atsvc = {
 	0x1ff70682, 0x0a51, 0x30e8,
 	{ 0x07, 0x6d, 0x74, 0x0b, 0xe8, 0xce, 0xe9, 0x8b }
 };

@@ -80,7 +80,7 @@ static int hf_svcctl_password_size = -1;
 static gint ett_dcerpc_svcctl = -1;
 static gint ett_dcerpc_svcctl_service_type_bits = -1;
 
-static e_uuid_t uuid_dcerpc_svcctl = {
+static e_guid_t uuid_dcerpc_svcctl = {
 	0x367abb81, 0x9844, 0x35f1,
 	{ 0xad, 0x32, 0x98, 0xf0, 0x38, 0x00, 0x10, 0x03 }
 };

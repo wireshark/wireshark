@@ -32,7 +32,7 @@ static gint proto_dcerpc_wzcsvc = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_wzcsvc = {
+static e_guid_t uuid_dcerpc_wzcsvc = {
 	0x621dff68, 0x3c39, 0x4c6c,
 	{ 0xaa, 0xe3, 0xe6, 0x8e, 0x2c, 0x65, 0x03, 0xad }
 };

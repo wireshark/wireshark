@@ -290,7 +290,7 @@ static gint ett_fileexp_afsbundled_stat = -1;
 /* vars for our macro(s) */
 static int hf_error_st = -1;
 
-static e_uuid_t uuid_fileexp =
+static e_guid_t uuid_fileexp =
   { 0x4d37f2dd, 0xed93, 0x0000, {0x02, 0xc0, 0x37, 0xcf, 0x1e, 0x00, 0x00, 0x00}
 };
 static guint16 ver_fileexp = 4;
@@ -757,7 +757,7 @@ dissect_afsAcl (tvbuff_t *tvb, int offset,
   proto_tree *tree       = NULL;
   int         old_offset = offset;
   guint32     acl_len;
-  e_uuid_t    uuid1, defaultcell;
+  e_guid_t    uuid1, defaultcell;
 
   if (di->conformant_run)
     {
@@ -778,21 +778,21 @@ dissect_afsAcl (tvbuff_t *tvb, int offset,
                         hf_fileexp_afsacl_uuid1, &uuid1);
   col_append_fstr (pinfo->cinfo, COL_INFO,
                    " - %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                   uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0],
-                   uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3],
-                   uuid1.Data4[4], uuid1.Data4[5], uuid1.Data4[6],
-                   uuid1.Data4[7]);
+                   uuid1.data1, uuid1.data2, uuid1.data3, uuid1.data4[0],
+                   uuid1.data4[1], uuid1.data4[2], uuid1.data4[3],
+                   uuid1.data4[4], uuid1.data4[5], uuid1.data4[6],
+                   uuid1.data4[7]);
 
   offset =
     dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep,
                         hf_fileexp_afsacl_defaultcell_uuid, &defaultcell);
   col_append_fstr (pinfo->cinfo, COL_INFO,
                      "  %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                     defaultcell.Data1, defaultcell.Data2, defaultcell.Data3,
-                     defaultcell.Data4[0], defaultcell.Data4[1],
-                     defaultcell.Data4[2], defaultcell.Data4[3],
-                     defaultcell.Data4[4], defaultcell.Data4[5],
-                     defaultcell.Data4[6], defaultcell.Data4[7]);
+                     defaultcell.data1, defaultcell.data2, defaultcell.data3,
+                     defaultcell.data4[0], defaultcell.data4[1],
+                     defaultcell.data4[2], defaultcell.data4[3],
+                     defaultcell.data4[4], defaultcell.data4[5],
+                     defaultcell.data4[6], defaultcell.data4[7]);
 
   offset += (acl_len - 38);
 
@@ -941,7 +941,7 @@ dissect_afsstorestatus (tvbuff_t *tvb, int offset,
   guint32     spare5, spare6, accesstime_usec, changetime_usec, owner, group, mode;
   guint32     trunc_high, trunc_low, length_high, length_low, devicetype;
   guint32     cmask, modtime_usec;
-  e_uuid_t    typeuuid;
+  e_guid_t    typeuuid;
 
   if (di->conformant_run)
     {
@@ -1371,7 +1371,7 @@ dissect_afsuuid (tvbuff_t *tvb, int offset,
 */
 /*HEREN*/
 
-  e_uuid_t uuid1;
+  e_guid_t uuid1;
 
   proto_item *item       = NULL;
   proto_tree *tree       = NULL;
@@ -1389,7 +1389,7 @@ dissect_afsuuid (tvbuff_t *tvb, int offset,
 
   offset = dissect_ndr_uuid_t (tvb, offset, pinfo, tree, di, drep, hf_fileexp_afsuuid_uuid, &uuid1);
 
-  col_append_fstr (pinfo->cinfo, COL_INFO, ":%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", uuid1.Data1, uuid1.Data2, uuid1.Data3, uuid1.Data4[0], uuid1.Data4[1], uuid1.Data4[2], uuid1.Data4[3], uuid1.Data4[4], uuid1.Data4[5], uuid1.Data4[6], uuid1.Data4[7]);
+  col_append_fstr (pinfo->cinfo, COL_INFO, ":%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x", uuid1.data1, uuid1.data2, uuid1.data3, uuid1.data4[0], uuid1.data4[1], uuid1.data4[2], uuid1.data4[3], uuid1.data4[4], uuid1.data4[5], uuid1.data4[6], uuid1.data4[7]);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -1706,7 +1706,7 @@ dissect_fetchstatus (tvbuff_t *tvb, int offset,
   guint32     devicenumber, blocksused, clientspare1, devicenumberhighbits;
   guint32     agtypeunique, himaxspare, lomaxspare, pathconfspare, spare4;
   guint32     spare5, spare6;
-  e_uuid_t    typeuuid, objectuuid;
+  e_guid_t    typeuuid, objectuuid;
 
   if (di->conformant_run)
     {

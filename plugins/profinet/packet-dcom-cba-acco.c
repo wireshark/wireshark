@@ -155,41 +155,41 @@ static expert_field ei_cba_acco_pdev_find_unknown_interface = EI_INIT;
 
 static int proto_ICBAAccoMgt = -1;
 static gint ett_ICBAAccoMgt = -1;
-static e_uuid_t uuid_ICBAAccoMgt = { 0xcba00041, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
+static e_guid_t uuid_ICBAAccoMgt = { 0xcba00041, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoMgt = 0;
 
 static int proto_ICBAAccoMgt2 = -1;
-static e_uuid_t uuid_ICBAAccoMgt2 = { 0xcba00046, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
+static e_guid_t uuid_ICBAAccoMgt2 = { 0xcba00046, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoMgt2 = 0;
 
 static int proto_ICBAAccoCallback = -1;
 static gint ett_ICBAAccoCallback = -1;
 static gint ett_ICBAAccoCallback_Buffer = -1;
 static gint ett_ICBAAccoCallback_Item = -1;
-static e_uuid_t uuid_ICBAAccoCallback = { 0xcba00042, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
+static e_guid_t uuid_ICBAAccoCallback = { 0xcba00042, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoCallback = 0;
 
 static int proto_ICBAAccoCallback2 = -1;
-static e_uuid_t uuid_ICBAAccoCallback2 = { 0xcba00047, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
+static e_guid_t uuid_ICBAAccoCallback2 = { 0xcba00047, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoCallback2 = 0;
 
 static int proto_ICBAAccoServer = -1;
 static gint ett_ICBAAccoServer = -1;
-static e_uuid_t uuid_ICBAAccoServer = { 0xcba00043, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
+static e_guid_t uuid_ICBAAccoServer = { 0xcba00043, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoServer = 0;
 
 static int proto_ICBAAccoServer2 = -1;
-static e_uuid_t uuid_ICBAAccoServer2 = { 0xcba00048, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
+static e_guid_t uuid_ICBAAccoServer2 = { 0xcba00048, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoServer2 = 0;
 
 static int      proto_ICBAAccoServerSRT = -1;
 static gint     ett_ICBAAccoServerSRT   = -1;
-static e_uuid_t uuid_ICBAAccoServerSRT  = { 0xcba00045, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
+static e_guid_t uuid_ICBAAccoServerSRT  = { 0xcba00045, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoServerSRT   = 0;
 
 static int      proto_ICBAAccoSync = -1;
 static gint     ett_ICBAAccoSync   = -1;
-static e_uuid_t uuid_ICBAAccoSync  = { 0xcba00044, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
+static e_guid_t uuid_ICBAAccoSync  = { 0xcba00044, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 static guint16  ver_ICBAAccoSync   = 0;
 
 
@@ -467,7 +467,7 @@ cba_object_dump(void)
 
 
 cba_pdev_t *
-cba_pdev_find(packet_info *pinfo, const address *addr, e_uuid_t *ipid)
+cba_pdev_find(packet_info *pinfo, const address *addr, e_guid_t *ipid)
 {
     cba_pdev_t       *pdev;
     dcom_interface_t *interf;
@@ -478,11 +478,11 @@ cba_pdev_find(packet_info *pinfo, const address *addr, e_uuid_t *ipid)
         pdev = (cba_pdev_t *)interf->parent->private_data;
         if (pdev == NULL) {
             expert_add_info_format(pinfo, NULL, &ei_cba_acco_pdev_find, "pdev_find: no pdev for IP:%s IPID:%s",
-                address_to_str(wmem_packet_scope(), addr), guids_resolve_uuid_to_str(ipid));
+                address_to_str(wmem_packet_scope(), addr), guids_resolve_guid_to_str(ipid));
         }
     } else {
         expert_add_info_format(pinfo, NULL, &ei_cba_acco_pdev_find_unknown_interface, "pdev_find: unknown interface of IP:%s IPID:%s",
-            address_to_str(wmem_packet_scope(), addr), guids_resolve_uuid_to_str(ipid));
+            address_to_str(wmem_packet_scope(), addr), guids_resolve_guid_to_str(ipid));
         pdev = NULL;
     }
 
@@ -591,7 +591,7 @@ cba_ldev_add(packet_info *pinfo, cba_pdev_t *pdev, const char *name)
 
 
 cba_ldev_t *
-cba_ldev_find(packet_info *pinfo, const address *addr, e_uuid_t *ipid) {
+cba_ldev_find(packet_info *pinfo, const address *addr, e_guid_t *ipid) {
     dcom_interface_t *interf;
     cba_ldev_t       *ldev;
 

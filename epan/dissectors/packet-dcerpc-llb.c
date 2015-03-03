@@ -39,7 +39,7 @@ static int hf_llb_opnum = -1;
 static gint ett_llb = -1;
 
 
-static e_uuid_t uuid_llb =
+static e_guid_t uuid_llb =
   { 0x333b33c3, 0x0000, 0x0000, {0x0d, 0x00, 0x00, 0x87, 0x84, 0x00, 0x00,
                                  0x00} };
 static guint16 ver_llb = 4;

@@ -631,18 +631,18 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 	} else if ( (len==16) /* GUIDs are always 16 bytes */
 	&& (attributedesc_string && !strncmp("DomainGuid", attributedesc_string, 10))) {
 		guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
-		e_uuid_t uuid;
+		e_guid_t uuid;
 
 		/* This octet string contained a GUID */
 		dissect_dcerpc_uuid_t(tvb, offset, actx->pinfo, tree, drep, hf_ldap_guid, &uuid);
 
 		ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
 		g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                          uuid.Data1, uuid.Data2, uuid.Data3,
-                          uuid.Data4[0], uuid.Data4[1],
-                          uuid.Data4[2], uuid.Data4[3],
-                          uuid.Data4[4], uuid.Data4[5],
-                          uuid.Data4[6], uuid.Data4[7]);
+                          uuid.data1, uuid.data2, uuid.data3,
+                          uuid.data4[0], uuid.data4[1],
+                          uuid.data4[2], uuid.data4[3],
+                          uuid.data4[4], uuid.data4[5],
+                          uuid.data4[6], uuid.data4[7]);
 
 		goto finished;
 	} else if (attributedesc_string && !strncmp("NtVer", attributedesc_string, 5)){
@@ -1741,18 +1741,18 @@ static void
 dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
-	e_uuid_t uuid;
+	e_guid_t uuid;
 
 	/* This octet string contained a GUID */
 	dissect_dcerpc_uuid_t(tvb, 0, pinfo, tree, drep, hf_ldap_guid, &uuid);
 
 	ldapvalue_string=(char*)wmem_alloc(wmem_packet_scope(), 1024);
 	g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                   uuid.Data1, uuid.Data2, uuid.Data3,
-                   uuid.Data4[0], uuid.Data4[1],
-                   uuid.Data4[2], uuid.Data4[3],
-                   uuid.Data4[4], uuid.Data4[5],
-                   uuid.Data4[6], uuid.Data4[7]);
+                   uuid.data1, uuid.data2, uuid.data3,
+                   uuid.data4[0], uuid.data4[1],
+                   uuid.data4[2], uuid.data4[3],
+                   uuid.data4[4], uuid.data4[5],
+                   uuid.data4[6], uuid.data4[7]);
 }
 
 static int

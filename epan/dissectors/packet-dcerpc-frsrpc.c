@@ -221,7 +221,7 @@ static gint proto_dcerpc_frsrpc = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_frsrpc = {
+static e_guid_t uuid_dcerpc_frsrpc = {
 	0xf5cc59b4, 0x4264, 0x101a,
 	{ 0x8c, 0x59, 0x08, 0x00, 0x2b, 0x2f, 0x84, 0x26 }
 };

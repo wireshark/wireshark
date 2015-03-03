@@ -192,7 +192,7 @@ static gint proto_dcerpc_winreg = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_winreg = {
+static e_guid_t uuid_dcerpc_winreg = {
 	0x338cd001, 0x2244, 0x31f1,
 	{ 0xaa, 0xaa, 0x90, 0x00, 0x38, 0x00, 0x10, 0x03 }
 };

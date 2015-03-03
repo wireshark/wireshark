@@ -70,7 +70,7 @@ dissect_browser_long_pointer(tvbuff_t *tvb, int offset,
  IDL {
 */
 
-static e_uuid_t uuid_dcerpc_browser = {
+static e_guid_t uuid_dcerpc_browser = {
 	0x6bffd098, 0xa112, 0x3610,
 	{ 0x98, 0x33, 0x01, 0x28, 0x92, 0x02, 0x01, 0x62 }
 };

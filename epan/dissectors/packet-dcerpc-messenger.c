@@ -46,7 +46,7 @@ static gint ett_dcerpc_messenger = -1;
  *   a dynamic UDP port
  */
 
-static e_uuid_t uuid_dcerpc_messenger = {
+static e_guid_t uuid_dcerpc_messenger = {
 	0x5a7b91f8, 0xff00, 0x11d0,
 	{ 0xa9, 0xb2, 0x00, 0xc0, 0x4f, 0xb6, 0xe6, 0xfc}
 };

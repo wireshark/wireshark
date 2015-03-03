@@ -141,7 +141,7 @@ static gint proto_dcerpc_frstrans = -1;
 /* Version information */
 
 
-static e_uuid_t uuid_dcerpc_frstrans = {
+static e_guid_t uuid_dcerpc_frstrans = {
 	0x897e2e5f, 0x93f3, 0x4376,
 	{ 0x9c, 0x9c, 0xfd, 0x22, 0x77, 0x49, 0x5c, 0x27 }
 };

@@ -200,7 +200,7 @@ dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* dissect a 16 byte UUID address */
 int
 dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, e_uuid_t *uuid)
+                    proto_tree *tree, int hfindex, e_guid_t *uuid)
 {
     guint8 drep[2] = { 0,0 };
 

@@ -55,7 +55,7 @@ extern int dissect_pn_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, int hfindex, guint32 *pdata);
 
 extern int dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                    proto_tree *tree, int hfindex, e_uuid_t *uuid);
+                    proto_tree *tree, int hfindex, e_guid_t *uuid);
 
 extern int dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, guint32 length);

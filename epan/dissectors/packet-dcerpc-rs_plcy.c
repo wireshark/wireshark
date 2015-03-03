@@ -38,7 +38,7 @@ static int proto_dcerpc_rs_plcy = -1;
 static int hf_rs_plcy_opnum = -1;
 static gint ett_dcerpc_rs_plcy = -1;
 
-static e_uuid_t uuid_dcerpc_rs_plcy = {
+static e_guid_t uuid_dcerpc_rs_plcy = {
 	0x4c878280, 0x4000, 0x0000,
 	{ 0x0D, 0x00, 0x02, 0x87, 0x14, 0x00, 0x00, 0x00 }
 };

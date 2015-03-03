@@ -38,7 +38,7 @@ static int hf_rs_prop_attr_opnum = -1;
 
 
 static gint ett_rs_prop_attr = -1;
-static e_uuid_t uuid_rs_prop_attr =
+static e_guid_t uuid_rs_prop_attr =
   { 0x0eff23e6, 0x555a, 0x11cd, {0x95, 0xbf, 0x08, 0x00, 0x09, 0x27, 0x84,
                                  0xc3} };
 

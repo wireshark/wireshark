@@ -203,7 +203,7 @@ butc_dissect_NameString_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 
 /* INCLUDED FILE : ETH_CODE */
-static e_uuid_t uuid_dcerpc_butc = {
+static e_guid_t uuid_dcerpc_butc = {
 	  0x1d193c08, 0x000b, 0x11ca,
 	  { 0xba, 0x1d, 0x02, 0x60, 0x8c, 0x2e, 0xa9, 0x6e}
 };
