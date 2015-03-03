@@ -195,12 +195,14 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 # End ROS
 #----------------------------------------------------------------------------------------
 
-#.FN_PARS PrivateExtension/extId  FN_VARIANT = _str  VAL_PTR = &obj_id
+#.FN_BODY PrivateExtension/extId  FN_VARIANT = _str  VAL_PTR = &actx->external.direct_reference
+%(DEFAULT_BODY)s
+  actx->external.direct_ref_present = (actx->external.direct_reference != NULL) ? TRUE : FALSE;
 
 #.FN_BODY PrivateExtension/extType
   proto_tree_add_text(tree, tvb, offset, -1, "Extension Data");
-  if (obj_id){
-	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, tree);
+  if (actx->external.direct_ref_present){
+	 offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
   }else{
 	 call_dissector(data_handle, tvb, actx->pinfo, tree);
 	 offset = tvb_length_remaining(tvb,offset);
