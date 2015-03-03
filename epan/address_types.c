@@ -227,14 +227,14 @@ static int ipv4_len(void)
     return 4;
 }
 
-const gchar* ipv4_name_res_str(const address* addr)
+static const gchar* ipv4_name_res_str(const address* addr)
 {
     guint32 ip4_addr;
     memcpy(&ip4_addr, addr->data, sizeof ip4_addr);
     return get_hostname(ip4_addr);
 }
 
-int ipv4_name_res_len(void)
+static int ipv4_name_res_len(void)
 {
     return MAX_ADDR_STR_LEN; /* XXX - This can be lower */
 }
@@ -383,14 +383,14 @@ static int ipv6_len(void)
     return 16;
 }
 
-const gchar* ipv6_name_res_str(const address* addr)
+static const gchar* ipv6_name_res_str(const address* addr)
 {
     struct e_in6_addr ip6_addr;
     memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
     return get_hostname6(&ip6_addr);
 }
 
-int ipv6_name_res_len(void)
+static int ipv6_name_res_len(void)
 {
     return MAX_ADDR_STR_LEN; /* XXX - This can be lower */
 }
@@ -506,7 +506,7 @@ static int fcwwn_len(void)
     return FCWWN_ADDR_LEN;
 }
 
-const gchar* fcwwn_name_res_str(const address* addr)
+static const gchar* fcwwn_name_res_str(const address* addr)
 {
     const guint8 *addrp = (const guint8*)addr->data;
     int fmt;
@@ -535,7 +535,7 @@ const gchar* fcwwn_name_res_str(const address* addr)
     return "";
 }
 
-int fcwwn_name_res_len(void)
+static int fcwwn_name_res_len(void)
 {
     return MAX_ADDR_STR_LEN; /* XXX - This can be lower */
 }
