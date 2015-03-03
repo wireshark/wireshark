@@ -33,6 +33,9 @@
 #include <epan/packet.h>
 #include "packet-tcp.h"
 
+void proto_register_sstp(void);
+void proto_reg_handoff_sstp(void);
+
 #define SSTP_BITMASK_MAJORVERSION 0xF0
 #define SSTP_BITMASK_MINORVERSION 0x0F
 #define SSTP_BITMASK_CONTROLFLAG 0x01
