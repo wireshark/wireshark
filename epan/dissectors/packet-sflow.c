@@ -85,6 +85,12 @@ static gboolean global_analyze_samp_ip_headers = FALSE;
 #define EXPANDED_FLOWSAMPLE 3
 #define EXPANDED_COUNTERSSAMPLE 4
 
+static const value_string sflow_agent_address_types[] = {
+    { ADDR_TYPE_IPV4, "IPv4" },
+    { ADDR_TYPE_IPV6, "IPv6" },
+    { 0, NULL }
+};
+
 static const value_string sflow_245_sampletype[] = {
     { FLOWSAMPLE,              "Flow sample"},
     { COUNTERSSAMPLE,          "Counters sample"},
@@ -325,7 +331,7 @@ struct sflow_address_type {
 /* Initialize the protocol and registered fields */
 static int proto_sflow = -1;
 static int hf_sflow_version = -1;
-/*static int hf_sflow_245_agent_address_type = -1; */
+static int hf_sflow_agent_address_type = -1;
 static int hf_sflow_agent_address_v4 = -1;
 static int hf_sflow_agent_address_v6 = -1;
 static int hf_sflow_5_sub_agent_id = -1;
@@ -2298,6 +2304,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
+    proto_tree_add_item(sflow_245_tree, hf_sflow_agent_address_type, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset = dissect_sflow_245_address_type(tvb, pinfo, sflow_245_tree, offset,
                                             &addr_type, &addr_details);
     switch (sflow_addr_type) {
@@ -2354,6 +2361,10 @@ proto_register_sflow(void) {
             { "Datagram version", "sflow_245.version",
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "sFlow datagram version", HFILL}},
+        { &hf_sflow_agent_address_type,
+            { "Agent address type", "sflow_245.agenttype",
+                FT_UINT32, BASE_DEC, VALS(sflow_agent_address_types), 0x0,
+                "sFlow agent address type", HFILL}},
         { &hf_sflow_agent_address_v4,
             { "Agent address", "sflow_245.agent",
                 FT_IPv4, BASE_NONE, NULL, 0x0,
