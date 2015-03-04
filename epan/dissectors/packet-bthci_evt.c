@@ -113,6 +113,7 @@ static int hf_bthci_evt_link_type_hv2 = -1;
 static int hf_bthci_evt_link_type_hv3 = -1;
 static int hf_bthci_evt_page_scan_mode = -1;
 static int hf_bthci_evt_page_scan_repetition_mode = -1;
+static int hf_bthci_evt_reserved = -1;
 static int hf_bthci_evt_page_scan_period_mode = -1;
 static int hf_bthci_evt_num_keys = -1;
 static int hf_bthci_evt_num_keys_read = -1;
@@ -1594,7 +1595,7 @@ dissect_bthci_evt_inquire_result_with_rssi(tvbuff_t *tvb, int offset,
         proto_tree_add_item(tree, hf_bthci_evt_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
-        /* reserved byte */
+        proto_tree_add_item(tree, hf_bthci_evt_reserved, tvb, offset, 1, ENC_NA);
         offset += 1;
 
         call_dissector(btcommon_cod_handle, tvb_new_subset_length(tvb, offset, 3), pinfo, tree);
@@ -4086,6 +4087,11 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_page_scan_repetition_mode,
           { "Page Scan Repetition Mode",        "bthci_evt.page_scan_repetition_mode",
             FT_UINT8, BASE_HEX, VALS(bthci_cmd_page_scan_repetition_modes), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_reserved,
+          { "Reserved",        "bthci_evt.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_evt_page_scan_period_mode,
