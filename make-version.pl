@@ -542,7 +542,7 @@ sub update_debian_changelog
 }
 
 # Read Makefile.am for each library, then write back out an updated version.
-sub update_lib_releases
+sub update_automake_lib_releases
 {
 	my $line;
 	my $contents = "";
@@ -579,6 +579,37 @@ sub update_lib_releases
 	}
 }
 
+# Read CMakeLists.txt for each library, then write back out an updated version.
+sub update_cmake_lib_releases
+{
+	my $line;
+	my $contents = "";
+	my $version = "";
+	my $filedir;
+	my $filepath;
+
+	return if (!$set_version);
+
+	for $filedir ("epan", "wiretap") {	# "wsutil"
+		$contents = "";
+		$filepath = $filedir . "/CMakeLists.txt";
+		open(CMAKELISTS_TXT, "< $filepath") || die "Can't read $filepath!";
+		while ($line = <CMAKELISTS_TXT>) {
+			# set(FULL_SO_VERSION "0.0.0")
+
+			if ($line =~ /^(set\s*\(\s*FULL_SO_VERSION\s+"\d+\.\d+\.)\d+(".*)/) {
+				$line = sprintf("$1%d$2\n", $version_pref{"version_micro"});
+			}
+			$contents .= $line
+		}
+
+		open(CMAKELISTS_TXT, "> $filepath") || die "Can't write $filepath!";
+		print(CMAKELISTS_TXT $contents);
+		close(CMAKELISTS_TXT);
+		print "$filepath has been updated.\n";
+	}
+}
+
 # Update distributed files that contain any version information
 sub update_versioned_files
 {
@@ -587,7 +618,8 @@ sub update_versioned_files
 	&update_config_nmake;
 	&update_release_notes;
 	&update_debian_changelog;
-	&update_lib_releases;
+	&update_automake_lib_releases;
+	&update_cmake_lib_releases;
 }
 
 # Print the version control system's version to $version_file.
