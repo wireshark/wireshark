@@ -149,8 +149,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
             this, SLOT(interfaceDoubleClicked(QTreeWidgetItem*,int)));
     connect(welcome_ui_->interfaceTree, SIGNAL(interfaceUpdated(const char*,bool)),
             welcome_ui_->captureFilterComboBox, SIGNAL(interfacesChanged()));
-    connect(welcome_ui_->captureFilterComboBox, SIGNAL(pushFilterSyntaxStatus(QString&)),
-            this, SIGNAL(pushFilterSyntaxStatus(QString&)));
+    connect(welcome_ui_->captureFilterComboBox, SIGNAL(pushFilterSyntaxStatus(const QString&)),
+            this, SIGNAL(pushFilterSyntaxStatus(const QString&)));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(popFilterSyntaxStatus()),
             this, SIGNAL(popFilterSyntaxStatus()));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)),

@@ -59,18 +59,17 @@ private:
 signals:
     void editCaptureComment();
 
-
 public slots:
     void setCaptureFile(capture_file *cf);
-    void pushTemporaryStatus(QString &message);
+    void pushTemporaryStatus(const QString &message);
     void popTemporaryStatus();
-    void pushFileStatus(QString &message, QString &messagetip);
+    void pushFileStatus(const QString &message, const QString &messagetip);
     void popFileStatus();
-    void pushFieldStatus(QString &message);
+    void pushFieldStatus(const QString &message);
     void popFieldStatus();
-    void pushByteStatus(QString &message);
+    void pushByteStatus(const QString &message);
     void popByteStatus();
-    void pushFilterStatus(QString &message);
+    void pushFilterStatus(const QString &message);
     void popFilterStatus();
     void pushProfileName();
     void updateCaptureStatistics(capture_session * cap_session);

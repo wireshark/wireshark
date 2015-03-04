@@ -59,11 +59,11 @@ private:
     CaptureFilterSyntaxWorker *syntax_worker_;
 
 signals:
-    void pushFilterSyntaxStatus(QString&);
+    void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
     void captureFilterSyntaxChanged(bool valid);
     void startCapture();
-    void addBookmark(QString filter);
+    void addBookmark(const QString filter);
 
 };
 

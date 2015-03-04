@@ -54,7 +54,7 @@ protected:
 
 signals:
     void monospaceFontChanged(const QFont &mono_font);
-    void byteFieldHovered(QString &);
+    void byteFieldHovered(const QString &);
 
 public slots:
     void protoTreeItemChanged(QTreeWidgetItem *current);

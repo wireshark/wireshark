@@ -75,8 +75,8 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent) :
     completer()->setCompletionMode(QCompleter::PopupCompletion);
 
     connect(this, SIGNAL(interfacesChanged()), cf_edit_, SLOT(checkFilter()));
-    connect(cf_edit_, SIGNAL(pushFilterSyntaxStatus(QString&)),
-            this, SIGNAL(pushFilterSyntaxStatus(QString&)));
+    connect(cf_edit_, SIGNAL(pushFilterSyntaxStatus(const QString&)),
+            this, SIGNAL(pushFilterSyntaxStatus(const QString&)));
     connect(cf_edit_, SIGNAL(popFilterSyntaxStatus()),
             this, SIGNAL(popFilterSyntaxStatus()));
     connect(cf_edit_, SIGNAL(captureFilterSyntaxChanged(bool)),

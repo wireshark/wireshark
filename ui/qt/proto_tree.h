@@ -49,7 +49,7 @@ private:
     QFont mono_font_;
 
 signals:
-    void protoItemSelected(QString &);
+    void protoItemSelected(const QString &);
     void protoItemSelected(field_info *);
     void openPacketInNewWindow(bool);
     void goToPacket(int);

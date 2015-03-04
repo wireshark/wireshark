@@ -57,7 +57,7 @@ public:
     void setFieldAppendixHighlight(int start, int end);
 
 signals:
-    void byteFieldHovered(QString &);
+    void byteFieldHovered(const QString &);
 
 public slots:
     void setMonospaceFont(const QFont &mono_font);

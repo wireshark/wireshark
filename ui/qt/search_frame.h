@@ -48,7 +48,7 @@ public slots:
     void findFrameWithFilter(QString &filter);
 
 signals:
-    void pushFilterSyntaxStatus(QString&);
+    void pushFilterSyntaxStatus(const QString&);
 
 protected:
     void keyPressEvent(QKeyEvent *event);

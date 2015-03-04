@@ -56,9 +56,9 @@ private:
     QToolButton *apply_button_;
 
 signals:
-    void pushFilterSyntaxStatus(QString&);
+    void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
-    void pushFilterSyntaxWarning(QString&);
+    void pushFilterSyntaxWarning(const QString&);
     void filterPackets(QString& new_filter, bool force);
     void addBookmark(QString filter);
 

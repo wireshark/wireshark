@@ -231,7 +231,7 @@ void MainStatusBar::setCaptureFile(capture_file *cf)
     comment_label_.setEnabled(cap_file_ != NULL);
 }
 
-void MainStatusBar::pushTemporaryStatus(QString &message) {
+void MainStatusBar::pushTemporaryStatus(const QString &message) {
     info_status_.pushText(message, STATUS_CTX_TEMPORARY);
 }
 
@@ -239,7 +239,7 @@ void MainStatusBar::popTemporaryStatus() {
     info_status_.popText(STATUS_CTX_TEMPORARY);
 }
 
-void MainStatusBar::pushFileStatus(QString &message, QString &messagetip ) {
+void MainStatusBar::pushFileStatus(const QString &message, const QString &messagetip ) {
     info_status_.pushText(message, STATUS_CTX_FILE);
     info_status_.setToolTip(messagetip);
     expertUpdate();
@@ -250,7 +250,7 @@ void MainStatusBar::popFileStatus() {
     info_status_.setToolTip("");
 }
 
-void MainStatusBar::pushFieldStatus(QString &message) {
+void MainStatusBar::pushFieldStatus(const QString &message) {
     if (message.isNull()) {
         popFieldStatus();
     } else {
@@ -262,7 +262,7 @@ void MainStatusBar::popFieldStatus() {
     info_status_.popText(STATUS_CTX_FIELD);
 }
 
-void MainStatusBar::pushByteStatus(QString &message)
+void MainStatusBar::pushByteStatus(const QString &message)
 {
     if (message.isNull()) {
         popByteStatus();
@@ -276,7 +276,7 @@ void MainStatusBar::popByteStatus()
     info_status_.popText(STATUS_CTX_BYTE);
 }
 
-void MainStatusBar::pushFilterStatus(QString &message) {
+void MainStatusBar::pushFilterStatus(const QString &message) {
     info_status_.pushText(message, STATUS_CTX_FILTER);
     expertUpdate();
 }

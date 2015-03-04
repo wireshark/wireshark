@@ -213,10 +213,11 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
-    connect(df_edit, SIGNAL(pushFilterSyntaxStatus(QString&)), main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
+    connect(df_edit, SIGNAL(pushFilterSyntaxStatus(const QString&)),
+            main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
     connect(df_edit, SIGNAL(popFilterSyntaxStatus()), main_ui_->statusBar, SLOT(popFilterStatus()));
-    connect(df_edit, SIGNAL(pushFilterSyntaxWarning(QString&)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
+    connect(df_edit, SIGNAL(pushFilterSyntaxWarning(const QString&)),
+            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
     connect(df_edit, SIGNAL(filterPackets(QString&,bool)), this, SLOT(filterPackets(QString&,bool)));
     connect(df_edit, SIGNAL(addBookmark(QString)), this, SLOT(addDisplayFilterButton(QString)));
     connect(this, SIGNAL(displayFilterSuccess(bool)), df_edit, SLOT(displayFilterSuccess(bool)));
@@ -234,8 +235,8 @@ MainWindow::MainWindow(QWidget *parent) :
     // https://bugreports.qt-project.org/browse/QTBUG-7174
 
     main_ui_->searchFrame->hide();
-    connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(QString&)),
-            main_ui_->statusBar, SLOT(pushTemporaryStatus(QString&)));
+    connect(main_ui_->searchFrame, SIGNAL(pushFilterSyntaxStatus(const QString&)),
+            main_ui_->statusBar, SLOT(pushTemporaryStatus(const QString&)));
 
     main_ui_->columnEditorFrame->hide();
 
@@ -338,8 +339,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(startCapture()));
     connect(main_welcome_, SIGNAL(recentFileActivated(QString&)),
             this, SLOT(openCaptureFile(QString&)));
-    connect(main_welcome_, SIGNAL(pushFilterSyntaxStatus(QString&)),
-            main_ui_->statusBar, SLOT(pushFilterStatus(QString&)));
+    connect(main_welcome_, SIGNAL(pushFilterSyntaxStatus(const QString&)),
+            main_ui_->statusBar, SLOT(pushFilterStatus(const QString&)));
     connect(main_welcome_, SIGNAL(popFilterSyntaxStatus()),
             main_ui_->statusBar, SLOT(popFilterStatus()));
 
@@ -391,15 +392,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(packet_list_, SIGNAL(packetListScrolled(bool)),
             main_ui_->actionGoAutoScroll, SLOT(setChecked(bool)));
 
-    connect(proto_tree_, SIGNAL(protoItemSelected(QString&)),
-            main_ui_->statusBar, SLOT(pushFieldStatus(QString&)));
+    connect(proto_tree_, SIGNAL(protoItemSelected(const QString&)),
+            main_ui_->statusBar, SLOT(pushFieldStatus(const QString&)));
     connect(proto_tree_, SIGNAL(protoItemSelected(field_info *)),
             this, SLOT(setMenusForSelectedTreeRow(field_info *)));
     connect(proto_tree_, SIGNAL(openPacketInNewWindow(bool)),
             this, SLOT(openPacketDialog(bool)));
 
-    connect(byte_view_tab_, SIGNAL(byteFieldHovered(QString&)),
-            main_ui_->statusBar, SLOT(pushByteStatus(QString&)));
+    connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
+            main_ui_->statusBar, SLOT(pushByteStatus(const QString&)));
 
     connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
             this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
