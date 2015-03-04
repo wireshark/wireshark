@@ -163,7 +163,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
 
     out << table_row_begin
         << table_vheader_tmpl.arg(tr("Length"))
-        << table_data_tmpl.arg(gchar_free_to_qstring(format_size(summary.file_length, format_size_unit_bytes)))
+        << table_data_tmpl.arg(file_size_to_qstring(summary.file_length))
         << table_row_end;
 
     QString format_str = wtap_file_type_subtype_string(summary.file_type);

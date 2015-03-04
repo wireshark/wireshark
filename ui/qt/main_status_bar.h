@@ -76,9 +76,9 @@ public slots:
     void updateCaptureStatistics(capture_session * cap_session);
 
 private slots:
-    void pushPacketStatus(QString &message);
+    void pushPacketStatus(const QString &message);
     void popPacketStatus();
-    void pushProfileStatus(QString &message);
+    void pushProfileStatus(const QString &message);
     void popProfileStatus();
     void toggleBackground(bool enabled);
     void switchToProfile();

@@ -637,7 +637,9 @@ void MainWindow::captureFileReadFinished() {
     setForCapturedPackets(true);
 
     main_ui_->statusBar->popFileStatus();
-    QString msg = QString().sprintf("%s", get_basename(capture_file_.capFile()->filename));
+    QString msg = QString("%1 (%2)")
+            .arg(capture_file_.capFile()->filename)
+            .arg(file_size_to_qstring(capture_file_.capFile()->f_datalen));
     main_ui_->statusBar->pushFileStatus(msg);
     emit setDissectedCaptureFile(capture_file_.capFile());
 }

@@ -118,7 +118,7 @@ const QString address_to_display_qstring(const struct _address *address);
 const QString val_to_qstring(const guint32 val, const struct _value_string *vs, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
-/** Convert an value_string_ext to a QString using val_to_str_ext_wmem().
+/** Convert a value_string_ext to a QString using val_to_str_ext_wmem().
  *
  * @param val The value to convert to string.
  * @param vse value_string_ext array.
@@ -129,13 +129,21 @@ G_GNUC_PRINTF(3, 0);
 const QString val_ext_to_qstring(const guint32 val, struct _value_string_ext *vse, const char *fmt)
 G_GNUC_PRINTF(3, 0);
 
-/** Convert bits per second value human-readable QString using format_size().
+/** Convert a bits per second value to a human-readable QString using format_size().
  *
  * @param val The value to convert to string.
  *
- * @return A QString representation of the data rate.
+ * @return A QString representation of the data rate in SI units.
  */
-const QString bits_s_to_qstring(const double val);
+const QString bits_s_to_qstring(const double bits_s);
+
+/** Convert a file size value to a human-readable QString using format_size().
+ *
+ * @param val The value to convert to string.
+ *
+ * @return A QString representation of the file size in SI units.
+ */
+const QString file_size_to_qstring(const gint64 size);
 
 /**
  * Round the current size of a font up to its next "smooth" size.

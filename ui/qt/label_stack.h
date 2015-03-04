@@ -33,7 +33,8 @@ class LabelStack : public QLabel
 public:
     explicit LabelStack(QWidget *parent = 0);
     void setTemporaryContext(const int ctx);
-    void pushText(QString &text, int ctx);
+    void pushText(const QString &text, int ctx);
+    void setShrinkable(bool shrinkable = true);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -41,6 +42,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
+    void paintEvent (QPaintEvent *event);
 
 private:
     typedef struct _StackItem {
@@ -50,6 +52,7 @@ private:
 
     int temporary_ctx_;
     QList<StackItem> labels_;
+    bool shrinkable_;
     QTime  temporary_epoch_;
     QTimer temporary_timer_;
 

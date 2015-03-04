@@ -130,6 +130,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     info_progress_hb->setContentsMargins(0, 0, 0, 0);
 
     info_status_.setTemporaryContext(STATUS_CTX_TEMPORARY);
+    info_status_.setShrinkable(true);
 
     info_progress_hb->addWidget(&expert_status_);
     info_progress_hb->addWidget(&comment_label_);
@@ -282,7 +283,7 @@ void MainStatusBar::popFilterStatus() {
     info_status_.popText(STATUS_CTX_FILTER);
 }
 
-void MainStatusBar::pushPacketStatus(QString &message) {
+void MainStatusBar::pushPacketStatus(const QString &message) {
     packet_status_.pushText(message, STATUS_CTX_MAIN);
 }
 
@@ -290,7 +291,7 @@ void MainStatusBar::popPacketStatus() {
     packet_status_.popText(STATUS_CTX_MAIN);
 }
 
-void MainStatusBar::pushProfileStatus(QString &message) {
+void MainStatusBar::pushProfileStatus(const QString &message) {
     profile_status_.pushText(message, STATUS_CTX_MAIN);
 }
 

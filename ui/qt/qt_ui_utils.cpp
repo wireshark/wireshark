@@ -99,10 +99,16 @@ const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const
     return val_qstr;
 }
 
-const QString bits_s_to_qstring(const double val)
+const QString bits_s_to_qstring(const double bits_s)
 {
     return gchar_free_to_qstring(
-                format_size(val, format_size_unit_none|format_size_prefix_si));
+                format_size(bits_s, format_size_unit_none|format_size_prefix_si));
+}
+
+const QString file_size_to_qstring(const gint64 size)
+{
+    return gchar_free_to_qstring(
+                format_size(size, format_size_unit_bytes|format_size_prefix_si));
 }
 
 void smooth_font_size(QFont &font) {

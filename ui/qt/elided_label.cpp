@@ -28,6 +28,8 @@ ElidedLabel::ElidedLabel(QWidget *parent) :
     QLabel(parent),
     small_text_(false)
 {
+    QFontMetrics fm(font());
+    setMinimumWidth(fm.height() * 5); // em-widths
 }
 
 void ElidedLabel::setUrl(const QString &url)
@@ -43,6 +45,8 @@ void ElidedLabel::resizeEvent(QResizeEvent *)
 
 void ElidedLabel::updateText()
 {
+    // XXX We should probably move text drawing to PaintEvent to match
+    // LabelStack.
     int fudged_width = small_text_ ? width() * 1.2 : width();
     QString elided_text = fontMetrics().elidedText(full_text_, Qt::ElideMiddle, fudged_width);
     QString label_text = small_text_ ? "<small><i>" : "<i>";

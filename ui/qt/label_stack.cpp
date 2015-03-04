@@ -20,8 +20,10 @@
  */
 
 #include "label_stack.h"
-#include <QMouseEvent>
+
 #include <QContextMenuEvent>
+#include <QPainter>
+#include <QMouseEvent>
 
 #include "tango_colors.h"
 
@@ -32,12 +34,13 @@ const int temporary_flash_timeout_ = temporary_interval_ / 5;
 const int num_flashes_ = 3;
 
 LabelStack::LabelStack(QWidget *parent) :
-    QLabel(parent)
+    QLabel(parent),
+    temporary_ctx_(-1),
+    shrinkable_(false)
 {
 #ifdef Q_OS_MAC
     setAttribute(Qt::WA_MacSmallSize, true);
 #endif
-    temporary_ctx_ = -1;
     fillLabel();
 
     connect(&temporary_timer_, SIGNAL(timeout()), this, SLOT(updateTemporaryStatus()));
@@ -77,7 +80,7 @@ void LabelStack::fillLabel() {
     setText(si.text);
 }
 
-void LabelStack::pushText(QString &text, int ctx) {
+void LabelStack::pushText(const QString &text, int ctx) {
     popText(ctx);
 
     if (ctx == temporary_ctx_) {
@@ -92,6 +95,18 @@ void LabelStack::pushText(QString &text, int ctx) {
     si.text = text;
     si.ctx = ctx;
     labels_.prepend(si);
+    fillLabel();
+}
+
+void LabelStack::setShrinkable(bool shrinkable)
+{
+    shrinkable_ = shrinkable;
+    int min_width = 0;
+
+    if (shrinkable) {
+        min_width = fontMetrics().height() * 5; // em-widths
+    }
+    setMinimumWidth(min_width);
     fillLabel();
 }
 
@@ -119,6 +134,25 @@ void LabelStack::mouseMoveEvent(QMouseEvent *event)
 void LabelStack::contextMenuEvent(QContextMenuEvent *event)
 {
     emit mousePressedAt(QPoint(event->globalPos()), Qt::RightButton);
+}
+
+void LabelStack::paintEvent(QPaintEvent *event)
+{
+    if (!shrinkable_) {
+        QLabel::paintEvent(event);
+        return;
+    }
+
+    // Other "elided label" examples draw the label text by hand,
+    // reimplementing QLabel::paintEvent. Disabling updates and letting
+    // QLabel do the work for us seems to work, however.
+    QString elided_text = fontMetrics().elidedText(text(), Qt::ElideMiddle, width());
+    QString full_text = text();
+    setUpdatesEnabled(false);
+    setText(elided_text);
+    QLabel::paintEvent(event);
+    setText(full_text);
+    setUpdatesEnabled(true);
 }
 
 void LabelStack::popText(int ctx) {
