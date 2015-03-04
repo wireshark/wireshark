@@ -103,6 +103,8 @@ struct _usb_conv_info_t {
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
 
     void *class_data;	/* private class/id decode data */
+
+    wmem_array_t *alt_settings;
 };
 
 /* This is what a tap will tap */
