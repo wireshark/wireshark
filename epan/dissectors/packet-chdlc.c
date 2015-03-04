@@ -33,6 +33,7 @@
 #include "packet-ppp.h"
 #include "packet-ip.h"
 #include "packet-juniper.h"
+#include <epan/expert.h>
 
 /*
  * See section 4.3.1 of RFC 1547, and
@@ -58,9 +59,10 @@ static int hf_slarp_ptype = -1;
 static int hf_slarp_address = -1;
 static int hf_slarp_netmask = -1;
 static int hf_slarp_mysequence = -1;
-/* static int hf_slarp_yoursequence = -1; */
+static int hf_slarp_yoursequence = -1;
+static int hf_slarp_reliability = -1;
 
-
+static expert_field ei_slarp_reliability = EI_INIT;
 static gint ett_slarp = -1;
 
 static dissector_handle_t data_handle;
@@ -282,6 +284,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32     addr;
   guint32     mysequence;
   guint32     yoursequence;
+  proto_item* reliability_item;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLARP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -319,8 +322,13 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
       proto_tree_add_uint(slarp_tree, hf_slarp_mysequence, tvb, 4, 4,
                           mysequence);
-      proto_tree_add_uint(slarp_tree, hf_slarp_mysequence, tvb, 8, 4,
+      proto_tree_add_uint(slarp_tree, hf_slarp_yoursequence, tvb, 8, 4,
                           yoursequence);
+      reliability_item = proto_tree_add_item(slarp_tree, hf_slarp_reliability, tvb,
+        12, 2, ENC_BIG_ENDIAN);
+      if (tvb_get_ntohs(tvb, 12) != 0xFFFF) {
+        expert_add_info(pinfo, reliability_item, &ei_slarp_reliability);
+      }
     }
     break;
 
@@ -338,6 +346,8 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_slarp(void)
 {
+  expert_module_t* expert_slarp;
+
   static hf_register_info hf[] = {
     { &hf_slarp_ptype,
       { "Packet type", "slarp.ptype", FT_UINT32, BASE_DEC,
@@ -353,19 +363,28 @@ proto_register_slarp(void)
     { &hf_slarp_mysequence,
       { "Outgoing sequence number", "slarp.mysequence", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
-#if 0
     { &hf_slarp_yoursequence,
       { "Returned sequence number", "slarp.yoursequence", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
-#endif
+    { &hf_slarp_reliability,
+      { "Reliability", "slarp.reliability", FT_UINT16, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_slarp,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_slarp_reliability, { "slarp.reliability.invalid", PI_MALFORMED, PI_ERROR,
+      "Reliability must be 0xFFFF", EXPFILL }}
+  };
+
   proto_slarp = proto_register_protocol("Cisco SLARP", "SLARP", "slarp");
   proto_register_field_array(proto_slarp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_slarp = expert_register_protocol(proto_slarp);
+  expert_register_field_array(expert_slarp, ei, array_length(ei));
 }
 
 void
