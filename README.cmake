@@ -185,7 +185,10 @@ What needs to be done?
   that a random directory the executable was ultimately placed in would
   be named "run" might also be a bit bigger than the chance that it's
   named ".libs".
-- Get cross-compilation working (or ensure it does). It works with autofoo.
+- Get the test suite running in a cmake build.  Currently at least the Lua
+  parts fail.
+- Get cross-compilation working (or ensure it does). It works with autofoo--and
+  people use it.
 - Handle -DFORTIFY_SOURCE=2 appropriately.  (Do a Web search for
   "cmake fortify" for some information.)
 - Add support for Visual Studio code anlaysis similar to ENABLE_CODE_ANALYSIS in
