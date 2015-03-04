@@ -245,6 +245,12 @@ typedef struct _device_protocol_data_t {
     guint  device_address;
 } device_protocol_data_t;
 
+typedef struct _usb_alt_setting_t {
+    guint8 altSetting;
+    guint8 interfaceClass;
+    guint8 interfaceSubclass;
+    guint8 interfaceProtocol;
+} usb_alt_setting_t;
 
 /* http://www.usb.org/developers/docs/USB_LANGIDs.pdf */
 static const value_string usb_langid_vals[] = {
@@ -1091,6 +1097,7 @@ get_usb_conv_info(conversation_t *conversation)
         usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
         usb_conv_info->deviceVendor      = DEV_VENDOR_UNKNOWN;
         usb_conv_info->deviceProduct     = DEV_PRODUCT_UNKNOWN;
+        usb_conv_info->alt_settings      = wmem_array_new(wmem_file_scope(), sizeof(usb_alt_setting_t));
         usb_conv_info->transactions      = wmem_tree_new(wmem_file_scope());
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
@@ -1665,18 +1672,30 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     class_str = val_to_str_ext(usb_conv_info->interfaceClass, &usb_class_vals_ext, "unknown (0x%X)");
     proto_item_append_text(item, " (%u.%u): class %s", interface_num, alt_setting, class_str);
 
-    if (!pinfo->fd->flags.visited && (alt_setting == 0)) {
+    if (!pinfo->fd->flags.visited) {
+        usb_alt_setting_t alternate_setting;
+
         /* Register conversation for this interface in case CONTROL messages are sent to it */
         usb_trans_info->interface_info = get_usb_iface_conv_info(pinfo, interface_num);
 
-        /* in interface conversations, endpoint has no meaning */
-        usb_trans_info->interface_info->endpoint = NO_ENDPOINT8;
+        alternate_setting.altSetting = alt_setting;
+        alternate_setting.interfaceClass = tvb_get_guint8(tvb, offset);
+        alternate_setting.interfaceSubclass = tvb_get_guint8(tvb, offset+1);
+        alternate_setting.interfaceProtocol = tvb_get_guint8(tvb, offset+2);
+        wmem_array_append_one(usb_trans_info->interface_info->alt_settings, alternate_setting);
 
-        usb_trans_info->interface_info->interfaceClass = tvb_get_guint8(tvb, offset);
-        usb_trans_info->interface_info->interfaceSubclass = tvb_get_guint8(tvb, offset+1);
-        usb_trans_info->interface_info->interfaceProtocol = tvb_get_guint8(tvb, offset+2);
-        usb_trans_info->interface_info->deviceVendor      = usb_conv_info->deviceVendor;
-        usb_trans_info->interface_info->deviceProduct     = usb_conv_info->deviceProduct;
+        if (alt_setting == 0) {
+            /* By default let's assume alternate setting 0 will be used */
+
+            /* in interface conversations, endpoint has no meaning */
+            usb_trans_info->interface_info->endpoint = NO_ENDPOINT8;
+
+            usb_trans_info->interface_info->interfaceClass = alternate_setting.interfaceClass;
+            usb_trans_info->interface_info->interfaceSubclass = alternate_setting.interfaceSubclass;
+            usb_trans_info->interface_info->interfaceProtocol = alternate_setting.interfaceProtocol;
+            usb_trans_info->interface_info->deviceVendor      = usb_conv_info->deviceVendor;
+            usb_trans_info->interface_info->deviceProduct     = usb_conv_info->deviceProduct;
+        }
     }
     offset += 1;
 
@@ -2380,21 +2399,43 @@ dissect_usb_setup_set_feature_response(packet_info *pinfo _U_, proto_tree *tree 
 
 /* 9.4.10 */
 static int
-dissect_usb_setup_set_interface_request(packet_info *pinfo _U_, proto_tree *tree,
+dissect_usb_setup_set_interface_request(packet_info *pinfo, proto_tree *tree,
                                         tvbuff_t *tvb, int offset,
                                         usb_conv_info_t  *usb_conv_info _U_)
 {
+    guint8 alt_setting, interface_num;
+
     /* alternate setting */
-    proto_tree_add_item(tree, hf_usb_bAlternateSetting, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    alt_setting = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(tree, hf_usb_bAlternateSetting, tvb, offset, 2, alt_setting);
     offset += 2;
 
     /* interface */
-    proto_tree_add_item(tree, hf_usb_wInterface, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    interface_num = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(tree, hf_usb_wInterface, tvb, offset, 2, interface_num);
     offset += 2;
 
     /* zero */
     proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        guint i, count;
+        usb_conv_info_t *iface_conv_info = get_usb_iface_conv_info(pinfo, interface_num);
+
+        /* update the conversation info with the selected alternate setting */
+        count = wmem_array_get_count(iface_conv_info->alt_settings);
+        for (i = 0; i < count; i++) {
+            usb_alt_setting_t *alternate_setting = (usb_alt_setting_t *)wmem_array_index(iface_conv_info->alt_settings, i);
+
+            if (alternate_setting->altSetting == alt_setting) {
+                iface_conv_info->interfaceClass = alternate_setting->interfaceClass;
+                iface_conv_info->interfaceSubclass = alternate_setting->interfaceSubclass;
+                iface_conv_info->interfaceProtocol = alternate_setting->interfaceProtocol;
+                break;
+            }
+        }
+    }
 
     return offset;
 }
