@@ -41,6 +41,7 @@ static int hf_src_machine_id = -1;
 static int hf_dst_machine_id = -1;
 static int hf_policy_id = -1;
 static int hf_filler = -1;
+static int hf_unknown_data = -1;
 static int hf_id_num = -1;
 static int hf_report_code = -1;
 static int hf_ha_mode = -1;
@@ -334,7 +335,8 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 break;
         case 9: dissect_policy_change(tvb, offset, ntree); /* FWHAP_POLICY_CHANGE */
                 break;
-        default: break;
+        default: proto_tree_add_item(ntree, hf_unknown_data, tvb, offset, -1, ENC_NA);
+                break;
     }
   }
 
@@ -469,6 +471,8 @@ proto_register_cpha(void)
     { "Policy ID", "cpha.policy_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_filler,
     { "Filler", "cpha.filler", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    { &hf_unknown_data,
+    { "Data", "cpha.unknown_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     { &hf_id_num,
     { "Number of IDs reported", "cpha.id_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_report_code,
