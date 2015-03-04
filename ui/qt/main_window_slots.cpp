@@ -45,6 +45,7 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
+#include <wsutil/str_util.h>
 
 #include "epan/addr_resolv.h"
 #include "epan/column.h"
@@ -612,7 +613,8 @@ void MainWindow::captureFileReadStarted() {
 
     main_ui_->statusBar->popFileStatus();
     QString msg = QString(tr("Loading: %1")).arg(get_basename(capture_file_.capFile()->filename));
-    main_ui_->statusBar->pushFileStatus(msg);
+    QString msgtip = QString();
+    main_ui_->statusBar->pushFileStatus(msg, msgtip);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
     WiresharkApplication::processEvents();
 }
@@ -637,10 +639,12 @@ void MainWindow::captureFileReadFinished() {
     setForCapturedPackets(true);
 
     main_ui_->statusBar->popFileStatus();
-    QString msg = QString("%1 (%2)")
+    QString msg = QString().sprintf("%s", get_basename(capture_file_.capFile()->filename));
+    QString msgtip = QString("%1 (%2)")
             .arg(capture_file_.capFile()->filename)
             .arg(file_size_to_qstring(capture_file_.capFile()->f_datalen));
-    main_ui_->statusBar->pushFileStatus(msg);
+    main_ui_->statusBar->pushFileStatus(msg, msgtip);
+
     emit setDissectedCaptureFile(capture_file_.capFile());
 }
 

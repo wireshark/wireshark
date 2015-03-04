@@ -239,13 +239,15 @@ void MainStatusBar::popTemporaryStatus() {
     info_status_.popText(STATUS_CTX_TEMPORARY);
 }
 
-void MainStatusBar::pushFileStatus(QString &message) {
+void MainStatusBar::pushFileStatus(QString &message, QString &messagetip ) {
     info_status_.pushText(message, STATUS_CTX_FILE);
+    info_status_.setToolTip(messagetip);
     expertUpdate();
 }
 
 void MainStatusBar::popFileStatus() {
     info_status_.popText(STATUS_CTX_FILE);
+    info_status_.setToolTip("");
 }
 
 void MainStatusBar::pushFieldStatus(QString &message) {

@@ -64,7 +64,7 @@ public slots:
     void setCaptureFile(capture_file *cf);
     void pushTemporaryStatus(QString &message);
     void popTemporaryStatus();
-    void pushFileStatus(QString &message);
+    void pushFileStatus(QString &message, QString &messagetip);
     void popFileStatus();
     void pushFieldStatus(QString &message);
     void popFieldStatus();
