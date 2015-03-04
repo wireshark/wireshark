@@ -271,6 +271,7 @@ static const value_string sccp_ssn_values[] = {
   { 0x95,  "SGSN (MAP)" },
   { 0x96,  "GGSN (MAP)" },
   /* The following national network subsystem numbers have been allocated for use within GSM/UMTS networks:*/
+  { 0xf8,  "CSS (MAP)" },
   { 0xf9,  "PCAP" },
   { 0xfa,  "BSC (BSSAP-LE)" },
   { 0xfb,  "MSC (BSSAP-LE)" },
