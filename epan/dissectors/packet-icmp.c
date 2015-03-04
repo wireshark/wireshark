@@ -79,6 +79,7 @@ static int hf_icmp_type = -1;
 static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;
 static int hf_icmp_checksum_bad = -1;
+static int hf_icmp_unused = -1;
 static int hf_icmp_ident = -1;
 static int hf_icmp_ident_le = -1;
 static int hf_icmp_seq_num = -1;
@@ -1377,9 +1378,14 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 
 		switch (icmp_code) {
 		case ICMP_FRAG_NEEDED:
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4,
+					2, ENC_NA);
 			proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6,
-					    2, ENC_BIG_ENDIAN);
+					2, ENC_BIG_ENDIAN);
 			break;
+		default:
+			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4,
+					4, ENC_NA);
 		}
 		break;
 
@@ -1673,6 +1679,11 @@ void proto_register_icmp(void)
 
 		{&hf_icmp_checksum_bad,
 		 {"Bad Checksum", "icmp.checksum_bad", FT_BOOLEAN,
+		  BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_unused,
+		 {"Unused", "icmp.unused", FT_BYTES,
 		  BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}},
 
