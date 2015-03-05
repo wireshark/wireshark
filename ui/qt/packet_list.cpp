@@ -1159,6 +1159,7 @@ void PacketList::sectionResized(int, int, int)
     // our doing. Either way this catches that and fixes it.
     if (isVisible()) {
         column_state_ = header()->saveState();
+        redrawVisiblePackets();
     }
 }
 
