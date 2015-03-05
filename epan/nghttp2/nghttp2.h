@@ -54,6 +54,24 @@ extern "C" {
 /**
  * @macro
  *
+ * The seriazlied form of ALPN protocol identifier this library
+ * supports.  Notice that first byte is the length of following
+ * protocol identifier.  This is the same wire format of `TLS ALPN
+ * extension <https://tools.ietf.org/html/rfc7301>`_.  This is useful
+ * to process incoming ALPN tokens in wire format.
+ */
+#define NGHTTP2_PROTO_ALPN "\x5h2-14"
+
+/**
+ * @macro
+ *
+ * The length of :macro:`NGHTTP2_PROTO_ALPN`.
+ */
+#define NGHTTP2_PROTO_ALPN_LEN (sizeof(NGHTTP2_PROTO_ALPN) - 1)
+
+/**
+ * @macro
+ *
  * The protocol version identification string of this library
  * supports.  This identifier is used if HTTP/2 is used over cleartext
  * TCP.
@@ -203,7 +221,7 @@ typedef enum {
    */
   NGHTTP2_ERR_INVALID_ARGUMENT = -501,
   /**
-   * Ouf of buffer space.
+   * Out of buffer space.
    */
   NGHTTP2_ERR_BUFFER_ERROR = -502,
   /**
@@ -328,6 +346,16 @@ typedef enum {
    */
   NGHTTP2_ERR_DATA_EXIST = -529,
   /**
+   * The current session is closing due to a connection error or
+   * `nghttp2_session_terminate_session()` is called.
+   */
+  NGHTTP2_ERR_SESSION_CLOSING = -530,
+  /**
+   * Invalid HTTP header field was received and stream is going to be
+   * closed.
+   */
+  NGHTTP2_ERR_HTTP_HEADER = -531,
+  /**
    * The errors < :enum:`NGHTTP2_ERR_FATAL` mean that the library is
    * under unexpected condition and processing was terminated (e.g.,
    * out of memory).  If application receives this error code, it must
@@ -362,7 +390,9 @@ typedef enum {
    */
   NGHTTP2_NV_FLAG_NONE = 0,
   /**
-   * Indicates that this name/value pair must not be indexed.
+   * Indicates that this name/value pair must not be indexed ("Literal
+   * Header Field never Indexed" representation must be used in HPACK
+   * encoding).  Other implementation calls this bit as "sensitive".
    */
   NGHTTP2_NV_FLAG_NO_INDEX = 0x01
 } nghttp2_nv_flag;
@@ -1301,6 +1331,9 @@ typedef int (*nghttp2_on_frame_send_callback)(nghttp2_session *session,
  * `nghttp2_session_recv()` and `nghttp2_session_send()` functions
  * immediately return :enum:`NGHTTP2_ERR_CALLBACK_FAILURE`.
  *
+ * `nghttp2_session_get_stream_user_data()` can be used to get
+ * associated data.
+ *
  * To set this callback to :type:`nghttp2_session_callbacks`, use
  * `nghttp2_session_callbacks_set_on_frame_not_send_callback()`.
  */
@@ -1349,6 +1382,27 @@ typedef int (*nghttp2_on_stream_close_callback)(nghttp2_session *session,
  * not need to care about that because the header name/value pairs are
  * emitted transparently regardless of CONTINUATION frames.
  *
+ * The server applications probably create an object to store
+ * information about new stream if ``frame->hd.type ==
+ * NGHTTP2_HEADERS`` and ``frame->headers.cat ==
+ * NGHTTP2_HCAT_REQUEST``.  If |session| is configured as server side,
+ * ``frame->headers.cat`` is either ``NGHTTP2_HCAT_REQUEST``
+ * containing request headers or ``NGHTTP2_HCAT_HEADERS`` containing
+ * trailer headers and never get PUSH_PROMISE in this callback.
+ *
+ * For the client applications, ``frame->hd.type`` is either
+ * ``NGHTTP2_HEADERS`` or ``NGHTTP2_PUSH_PROMISE``.  In case of
+ * ``NGHTTP2_HEADERS``, ``frame->headers.cat ==
+ * NGHTTP2_HCAT_RESPONSE`` means that it is the first response
+ * headers, but it may be non-final response which is indicated by 1xx
+ * status code.  In this case, there may be zero or more HEADERS frame
+ * with ``frame->headers.cat == NGHTTP2_HCAT_HEADERS`` which has
+ * non-final response code and finally client gets exactly one HEADERS
+ * frame with ``frame->headers.cat == NGHTTP2_HCAT_HEADERS``
+ * containing final response headers (non-1xx status code).  The
+ * trailer headers also has ``frame->headers.cat ==
+ * NGHTTP2_HCAT_HEADERS`` which does not containg any status code.
+ *
  * The implementation of this function must return 0 if it succeeds or
  * :enum:`NGHTTP2_ERR_CALLBACK_FAILURE`.  If nonzero value other than
  * :enum:`NGHTTP2_ERR_CALLBACK_FAILURE` is returned, it is treated as
@@ -1374,7 +1428,8 @@ typedef int (*nghttp2_on_begin_headers_callback)(nghttp2_session *session,
  *
  * If :enum:`NGHTTP2_NV_FLAG_NO_INDEX` is set in |flags|, the receiver
  * must not index this name/value pair when forwarding it to the next
- * hop.
+ * hop.  More specifically, "Literal Header Field never Indexed"
+ * representation must be used in HPACK encoding.
  *
  * When this callback is invoked, ``frame->hd.type`` is either
  * :enum:`NGHTTP2_HEADERS` or :enum:`NGHTTP2_PUSH_PROMISE`.  After all
@@ -1384,21 +1439,14 @@ typedef int (*nghttp2_on_begin_headers_callback)(nghttp2_session *session,
  * :type:`nghttp2_on_frame_recv_callback` for the |frame| will not be
  * invoked.
  *
- * The |name| may be ``NULL`` if the |namelen| is 0.  The same thing
- * can be said about the |value|.
+ * The |value| may be ``NULL`` if the |valuelen| is 0.
  *
- * Please note that nghttp2 library does not perform any validity
- * check against the |name| and the |value|.  For example, the
- * |namelen| could be 0, and/or the |value| contains ``0x0a`` or
- * ``0x0d``.  The application must check them if it matters.  The
- * helper function `nghttp2_check_header_name()` and
- * `nghttp2_check_header_value()` provide simple validation against
- * HTTP2 header field construction rule.
- *
- * HTTP/2 specification requires that pseudo header fields (header
- * field starting with ':') must appear in front of regular header
- * fields.  The library does not validate this requirement.  The
- * application must check them if it matters.
+ * Please note that unless `nghttp2_option_set_no_http_messaging()` is
+ * used, nghttp2 library does perform validation against the |name|
+ * and the |value| using `nghttp2_check_header_name()` and
+ * `nghttp2_check_header_value()`.  In addition to this, nghttp2
+ * performs vaidation based on HTTP Messaging rule, which is briefly
+ * explained in `HTTP Messaging`_ section.
  *
  * If the application uses `nghttp2_session_mem_recv()`, it can return
  * :enum:`NGHTTP2_ERR_PAUSE` to make `nghttp2_session_mem_recv()`
@@ -1865,6 +1913,18 @@ void nghttp2_option_set_peer_max_concurrent_streams(nghttp2_option *option,
  * return error :enum:`NGHTTP2_ERR_BAD_PREFACE`, which is fatal error.
  */
 void nghttp2_option_set_recv_client_preface(nghttp2_option *option, int val);
+
+/**
+ * @function
+ *
+ * By default, nghttp2 library enforces subset of HTTP Messaging rules
+ * described in `HTTP/2 specification, section 8
+ * <https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-8>`_.
+ * See `HTTP Messaging`_ section for details.  For those applications
+ * who use nghttp2 library as non-HTTP use, give nonzero to |val| to
+ * disable this enforcement.
+ */
+void nghttp2_option_set_no_http_messaging(nghttp2_option *option, int val);
 
 /**
  * @function
@@ -2462,6 +2522,43 @@ int nghttp2_session_terminate_session2(nghttp2_session *session,
 /**
  * @function
  *
+ * Signals to the client that the server started graceful shutdown
+ * procedure.
+ *
+ * This function is only usable for server.  If this function is
+ * called with client side session, this function returns
+ * :enum:`NGHTTP2_ERR_INVALID_STATE`.
+ *
+ * To gracefully shutdown HTTP/2 session, server should call this
+ * function to send GOAWAY with last_stream_id (1u << 31) - 1.  And
+ * after some delay (e.g., 1 RTT), send another GOAWAY with the stream
+ * ID that the server has some processing using
+ * `nghttp2_submit_goaway()`.  See also
+ * `nghttp2_session_get_last_proc_stream_id()`.
+ *
+ * Unlike `nghttp2_submit_goaway()`, this function just sends GOAWAY
+ * and does nothing more.  This is a mere indication to the client
+ * that session shutdown is imminent.  The application should call
+ * `nghttp2_submit_goaway()` with appropriate last_stream_id after
+ * this call.
+ *
+ * If one or more GOAWAY frame have been already sent by either
+ * `nghttp2_submit_goaway()` or `nghttp2_session_terminate_session()`,
+ * this function has no effect.
+ *
+ * This function returns 0 if it succeeds, or one of the following
+ * negative error codes:
+ *
+ * :enum:`NGHTTP2_ERR_NOMEM`
+ *     Out of memory.
+ * :enum:`NGHTTP2_ERR_INVALID_STATE`
+ *     The |session| is initialized as client.
+ */
+int nghttp2_submit_shutdown_notice(nghttp2_session *session);
+
+/**
+ * @function
+ *
  * Returns the value of SETTINGS |id| notified by a remote endpoint.
  * The |id| must be one of values defined in
  * :enum:`nghttp2_settings_id`.
@@ -2976,6 +3073,9 @@ int nghttp2_submit_settings(nghttp2_session *session, uint8_t flags,
  *
  * The client side is not allowed to use this function.
  *
+ * To submit response headers and data, use
+ * `nghttp2_submit_response()`.
+ *
  * This function returns assigned promised stream ID if it succeeds,
  * or one of the following negative error codes:
  *
@@ -3058,6 +3158,13 @@ int nghttp2_submit_ping(nghttp2_session *session, uint8_t flags,
  * keep this memory after the return of this function.  If the
  * |opaque_data_len| is 0, the |opaque_data| could be ``NULL``.
  *
+ * After successful transmission of GOAWAY, following things happen.
+ * All incoming streams having strictly more than |last_stream_id| are
+ * closed.  All incoming HEADERS which starts new stream are simply
+ * ignored.  After all active streams are handled, both
+ * `nghttp2_session_want_read()` and `nghttp2_session_want_write()`
+ * return 0 and the application can close session.
+ *
  * This function returns 0 if it succeeds, or one of the following
  * negative error codes:
  *
@@ -3070,6 +3177,19 @@ int nghttp2_submit_ping(nghttp2_session *session, uint8_t flags,
 int nghttp2_submit_goaway(nghttp2_session *session, uint8_t flags,
                           int32_t last_stream_id, uint32_t error_code,
                           const uint8_t *opaque_data, size_t opaque_data_len);
+
+/**
+ * @function
+ *
+ * Returns the last stream ID of a stream for which
+ * :type:`nghttp2_on_frame_recv_callback` was invoked most recently.
+ * The returned value can be used as last_stream_id parameter for
+ * `nghttp2_submit_goaway()` and
+ * `nghttp2_session_terminate_session2()`.
+ *
+ * This function always succeeds.
+ */
+int32_t nghttp2_session_get_last_proc_stream_id(nghttp2_session *session);
 
 /**
  * @function

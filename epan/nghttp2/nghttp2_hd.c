@@ -37,8 +37,8 @@
 #define MAKE_STATIC_ENT(I, N, V, NH, VH)                                       \
   {                                                                            \
     {                                                                          \
-      { (uint8_t *) N, (uint8_t *)V, sizeof(N) - 1, sizeof(V) - 1, 0 }         \
-      , NH, VH, 1, NGHTTP2_HD_FLAG_NONE                                        \
+      { (uint8_t *)(N), (uint8_t *)(V), sizeof((N)) - 1, sizeof((V)) - 1, 0 }  \
+      , (NH), (VH), 1, NGHTTP2_HD_FLAG_NONE                                    \
     }                                                                          \
     , I                                                                        \
   }

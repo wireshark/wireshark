@@ -46,7 +46,12 @@ typedef int (*nghttp2_compar)(const void *lhs, const void *rhs);
 typedef enum {
   NGHTTP2_ERR_CREDENTIAL_PENDING = -101,
   NGHTTP2_ERR_IGN_HEADER_BLOCK = -103,
-  NGHTTP2_ERR_IGN_PAYLOAD = -104
+  NGHTTP2_ERR_IGN_PAYLOAD = -104,
+  /*
+   * Invalid HTTP header field was received but it can be treated as
+   * if it was not received because of compatibility reasons.
+   */
+  NGHTTP2_ERR_IGN_HTTP_HEADER = -105,
 } nghttp2_internal_error;
 
 #endif /* NGHTTP2_INT_H */
