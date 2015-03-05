@@ -32,6 +32,7 @@
 #include <epan/prefs.h>
 
 #include "packet-tcp.h"
+#include "packet-bgp.h"
 
 void proto_register_bmp(void);
 void proto_reg_handoff_bmp(void);
@@ -414,6 +415,7 @@ static void
 dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 bmp_type, guint16 len)
 {
     guint8  flags;
+    proto_item *item = NULL;
     proto_item *ti = NULL;
     proto_item *subtree = NULL;
 
@@ -435,7 +437,8 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
     proto_tree_add_bitmask(subtree, tvb, offset, hf_peer_flags, ett_bmp_peer_flags, peer_flags, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(subtree, hf_peer_distinguisher, tvb, offset, 8, ENC_NA);
+    item = proto_tree_add_item(subtree, hf_peer_distinguisher, tvb, offset, 8, ENC_NA);
+    proto_item_set_text(item, "Peer Distinguisher: %s", decode_bgp_rd(tvb, offset));
     offset += 8;
 
     if (flags & BMP_PEER_FLAG_IPV6) {
@@ -690,7 +693,7 @@ proto_register_bmp(void)
             { "Reserved", "bmp.peer.flags.reserved", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), BMP_PEER_FLAG_RES, NULL, HFILL }},
         { &hf_peer_distinguisher,
-            { "Peer Distinguisher", "bmp.peer.distinguisher", FT_NONE, BASE_NONE,
+            { "Peer Distinguisher", "bmp.peer.distinguisher", FT_BYTES, BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_peer_ipv4_address,
             { "Address", "bmp.peer.ip.addr", FT_IPv4, BASE_NONE,

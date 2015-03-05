@@ -68,6 +68,7 @@
 #include <epan/to_str.h>
 #include "packet-ip.h"
 #include "packet-ldp.h"
+#include "packet-bgp.h"
 
 void proto_register_bgp(void);
 void proto_reg_handoff_bgp(void);
@@ -1854,7 +1855,7 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
     return(2 + length);
 }
 
-static const char*
+const char*
 decode_bgp_rd(tvbuff_t *tvb, gint offset)
 {
     guint16 rd_type;
