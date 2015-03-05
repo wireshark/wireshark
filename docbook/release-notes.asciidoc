@@ -30,9 +30,11 @@ since version 1.99.2:
 ** You can now open a packet in a new window.
 ** The Bluetooth ATT Server Attributes dialog has been added.
 ** The Coloring Rules dialog has been added.
-** Many translations have been updated.
+** Many translations have been updated. Chinese, Italian and Polish
+   translations are complete.
 ** General user interface and usability improvements.
 ** Automatic scrolling during capture now works.
+** The related packet indicator has been updated.
 
 The following features are new (or have been significantly updated)
 since version 1.99.1:

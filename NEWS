@@ -1,4 +1,4 @@
-                         Wireshark 1.99.2 Release Notes
+                         Wireshark 1.99.3 Release Notes
 
    This is an experimental release intended to test new features for
    Wireshark 2.0.
@@ -13,6 +13,19 @@ What is Wireshark?
 What's New
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 1.99.2:
+     * Qt port:
+          + Several bugs have been fixed.
+          + You can now open a packet in a new window.
+          + The Bluetooth ATT Server Attributes dialog has been added.
+          + The Coloring Rules dialog has been added.
+          + Many translations have been updated. Chinese, Italian and
+            Polish translations are complete.
+          + General user interface and usability improvements.
+          + Automatic scrolling during capture now works.
+          + The related packet indicator has been updated.
 
    The following features are new (or have been significantly updated)
    since version 1.99.1:
@@ -82,14 +95,19 @@ What's New
   New Protocol Support
 
    (LISP) TCP Control Message, AllJoyn Reliable Datagram Protocol, Android
-   ADB, Android Logcat text, ceph, corosync/totemnet, corosync/totemsrp,
-   Couchbase, CP "Cooper" 2179, DJI UAV Drone Control Protocol, Dynamic
-   Source Routing (RFC 4728), Elasticsearch, ETSI Card Application Toolkit
-   - Transport Protocol, Generic Network Virtualization Encapsulation
-   (Geneve), GVSP, HCrt, HiQnet, IPMI Trace, iSER, KNXnetIP, MACsec Key
-   Agreement - EAPoL-MKA, MCPE (Minecraft Pocket Edition), OptoMMP, RakNet
-   games library, Riemann, S7 Communication, Shared Memory Communications
-   - RDMA, Stateless Transport Tunneling, and ZVT Kassenschnittstelle
+   ADB, Android Logcat text, BGP Monitoring Prototol (BMP), ceph,
+   corosync/totemnet corosync cluster engine ( lowest
+   levelencryption/decryption protocol), corosync/totemsrp corosync
+   cluster engine ( totem single ring protocol), Couchbase, CP "Cooper"
+   2179, DJI UAV Drone Control Protocol, Dynamic Source Routing (RFC
+   4728), Elasticsearch, ETSI Card Application Toolkit - Transport
+   Protocol, Generic Network Virtualization Encapsulation (Geneve), GVSP
+   GigE Vision (TM) Streaming Protocol, HCrt, HiQnet, IPMI Trace, iSER,
+   KNXnetIP, MACsec Key Agreement - EAPoL-MKA, MCPE (Minecraft Pocket
+   Edition), OptoMMP, QNEX6 (QNET), RakNet games library, Remote Shared
+   Virtual Disk - RSVD, Riemann, S7 Communication, Secure Socket Tunnel
+   Protocol (SSTP), Shared Memory Communications - RDMA, Stateless
+   Transport Tunneling, and ZVT Kassenschnittstelle
 
   Updated Protocol Support
 
@@ -177,7 +195,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [19]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2015-02-04 18:54:49 UTC
+   Last updated 2015-03-05 18:06:26 UTC
 
 References
 
