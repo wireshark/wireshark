@@ -297,7 +297,7 @@ proto_register_logcat(void)
     module = prefs_register_protocol(proto_logcat, NULL);
     prefs_register_bool_preference(module, "oneline_info_column",
             "Use oneline info column",
-            "Use oneline info column by replace all new characters by spaces",
+            "Use oneline info column by replace all new line characters by spaces",
             &pref_one_line_info_column);
 }
 
