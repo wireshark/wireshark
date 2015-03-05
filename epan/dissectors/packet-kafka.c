@@ -276,7 +276,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
             offset += 4;
 
             if (raw) {
-                payload = tvb_child_uncompress(tvb, raw, 0, tvb_length(raw));
+                payload = tvb_child_uncompress(tvb, raw, 0, tvb_captured_length(raw));
                 if (payload) {
                     add_new_data_source(pinfo, payload, "Uncompressed Message");
                     dissect_kafka_message_set(payload, pinfo, subtree, 0, FALSE);
@@ -284,7 +284,7 @@ dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int s
                     decrypt_item = proto_tree_add_item(subtree, hf_kafka_message_value, raw, 0, -1, ENC_NA);
                     expert_add_info(pinfo, decrypt_item, &ei_kafka_message_decompress);
                 }
-                offset += tvb_length(raw);
+                offset += tvb_captured_length(raw);
             }
             else {
                 proto_tree_add_bytes(subtree, hf_kafka_message_value, tvb, offset, 0, NULL);
@@ -963,7 +963,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             if (matcher == NULL || matcher->request_frame >= PINFO_FD_NUM(pinfo)) {
                 col_set_str(pinfo->cinfo, COL_INFO, "Kafka Response (Unknown API, Missing Request)");
                 /* TODO: expert info, don't have request, can't dissect */
-                return tvb_length(tvb);
+                return tvb_captured_length(tvb);
             }
 
             wmem_queue_pop(match_queue);
@@ -1006,7 +1006,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1016,7 +1016,7 @@ dissect_kafka_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4,
             get_kafka_pdu_len, dissect_kafka, data);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1172,7 +1172,7 @@ proto_register_kafka(void)
         },
         { &hf_kafka_request_frame,
             { "Request Frame", "kafka.request_frame",
-               FT_FRAMENUM, BASE_NONE, 0, 0,
+               FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0,
                NULL, HFILL }
         },
         { &hf_kafka_broker_nodeid,
@@ -1214,7 +1214,7 @@ proto_register_kafka(void)
         },
         { &hf_kafka_response_frame,
             { "Response Frame", "kafka.reponse_frame",
-               FT_FRAMENUM, BASE_NONE, 0, 0,
+               FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0,
                NULL, HFILL }
         }
     };
