@@ -989,9 +989,11 @@ parse_arg(tvbuff_t     *tvb,
             offset = pad_according_to_type(offset, tvb_reported_length(tvb), type_id);
 
             (*signature)++; /* Advance past the '(' or '{'. */
+            (*signature_length)--;
 
             /* *signature should never be NULL but just make sure to avoid potential issues. */
-            while(*signature && **signature != type_stop && tvb_reported_length_remaining(tvb, offset) > 0) {
+            while(*signature && **signature && **signature != type_stop
+                    && tvb_reported_length_remaining(tvb, offset) > 0) {
                 offset = parse_arg(tvb,
                                    pinfo,
                                    header_item,
