@@ -80,6 +80,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  is_default_profile@Base 1.12.0~rc1
  isdigit_string@Base 1.10.0
  isprint_string@Base 1.10.0
+ jsmn_init@Base 1.99.4
+ jsmn_is_json@Base 1.99.4
  linear2alaw@Base 1.12.0~rc1
  linear2ulaw@Base 1.12.0~rc1
  md5_append@Base 1.12.0~rc1
@@ -141,8 +143,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  started_with_special_privs@Base 1.10.0
  test_for_directory@Base 1.12.0~rc1
  test_for_fifo@Base 1.12.0~rc1
- tvb_pbrk_compile@Base 1.99.3
- tvb_pbrk_exec@Base 1.99.3
  type_util_gdouble_to_guint64@Base 1.10.0
  type_util_guint64_to_gdouble@Base 1.10.0
  u3_active@Base 1.12.0~rc1
@@ -164,5 +164,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_buffer_free@Base 1.99.0
  ws_buffer_init@Base 1.99.0
  ws_buffer_remove_start@Base 1.99.0
+ ws_mempbrk_compile@Base 1.99.4
+ ws_mempbrk_exec@Base 1.99.4
  ws_utf8_char_len@Base 1.12.0~rc1
  ws_xton@Base 1.12.0~rc1
