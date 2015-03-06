@@ -193,11 +193,12 @@ packet_list_get_row_data(gint row)
     return NULL;
 }
 
+// Called from cf_continue_tail and cf_finish_tail when auto_scroll_live
+// is enabled.
 void
 packet_list_moveto_end(void)
 {
-    if (gbl_cur_packet_list)
-        gbl_cur_packet_list->goLastPacket();
+    // gbl_cur_packet_list->scrollToBottom();
 }
 
 /* Redraw the packet list *and* currently-selected detail */
