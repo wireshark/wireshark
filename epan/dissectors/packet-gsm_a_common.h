@@ -25,15 +25,21 @@
  *   (3GPP TS 24.008 version 6.7.0 Release 6)
  *   (3GPP TS 24.008 version 6.8.0 Release 6)
  *
- *   Reference [12]
+ *   Reference [9]
  *   Digital cellular telecommunications system (Phase 2+);
  *   Group Call Control (GCC) protocol
  *   (GSM 04.68 version 8.1.0 Release 1999)
+ *
+ *   Reference [10]
+ *   Digital cellular telecommunications system (Phase 2+);
+ *   Broadcast Call Control (BCC) protocol
+ *   (3GPP TS 44.069 version 11.0.0 Release 11)
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
  *
  * Added Dissection of Group Call Control (GCC) protocol.
+ * Added Dissection of Broadcast Call Control (BCC) protocol.
  * Copyright 2015, Michail Koreshkov <michail.koreshkov [at] zte.com.cn
  *
  * Wireshark - Network traffic analyzer
@@ -1097,6 +1103,13 @@ typedef enum
     DE_GCC_CAUSE,                       /* Cause */
     DE_GCC_ORIG_IND,                    /* Originator indication */
     DE_GCC_STATE_ATTR,                  /* State attributes */
+    /* Broadcast Call Control Information Elements ETSI TS 144 069 V10.0.0 (3GPP TS 44.069 version 10.0.0 Release 10) */
+    DE_BCC_CALL_REF,                    /* Call Reference */
+    DE_BCC_CALL_STATE,                  /* Call state */
+    DE_BCC_CAUSE,                       /* Cause */
+    DE_BCC_ORIG_IND,                    /* Originator indication */
+    DE_BCC_STATE_ATTR,                  /* State attributes */
+    DE_BCC_COMPR_OTDI,					/* Compressed otdi */
     DE_NONE                             /* NONE */
 }
 dtap_elem_idx_t;

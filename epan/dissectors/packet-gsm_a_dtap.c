@@ -23,6 +23,7 @@
  * In association with Intracom Telecom SA
  *
  * Added Dissection of Group Call Control (GCC) protocol.
+ * Added Dissection of Broadcast Call Control (BCC) protocol.
  * Copyright 2015, Michail Koreshkov <michail.koreshkov [at] zte.com.cn
  *
  * Title        3GPP            Other
@@ -86,6 +87,11 @@
  *   Group Call Control (GCC) protocol
  *   (GSM 04.68 version 8.1.0 Release 1999)
  *
+ *   Reference [13]
+ *   Digital cellular telecommunications system (Phase 2+);
+ *   Broadcast Call Control (BCC) protocol
+ *   (3GPP TS 44.069 version 11.0.0 Release 11)
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -134,6 +140,20 @@ const value_string gsm_a_dtap_msg_gcc_strings[] = {
     { 0x38, "Status" },
     { 0x39, "Get Status" },
     { 0x3A, "Set Parameter" },
+    { 0, NULL }
+};
+
+const value_string gsm_a_dtap_msg_bcc_strings[] = {
+    { 0x31,	"Immediate Setup" },
+    { 0x32,	"Setup" },
+    { 0x33,	"Connect" },
+    { 0x34,	"Termination" },
+    { 0x35,	"Termination Request" },
+    { 0x36,	"Termination Reject" },
+    { 0x38,	"Status" },
+    { 0x39,	"Get Status" },
+    { 0x3A,	"Set Parameter" },
+    { 0x3B,	"Immediate Setup 2" },
     { 0, NULL }
 };
 
@@ -352,6 +372,13 @@ static const value_string gsm_dtap_elem_strings[] = {
     { DE_GCC_CAUSE,                        "Cause"},
     { DE_GCC_ORIG_IND,                     "Originator indication"},
     { DE_GCC_STATE_ATTR,                   "State attributes"},
+    /* Broadcast Call Control Information Elements ETSI TS 144 069 V10.0.0 (3GPP TS 44.069 version 10.0.0 Release 10) */
+    {DE_BCC_CALL_REF,                      "Call Reference"},
+    {DE_BCC_CALL_STATE,                    "Call state"},
+    {DE_BCC_CAUSE,                         "Cause"},
+    {DE_BCC_ORIG_IND,                      "Originator indication"},
+    {DE_BCC_STATE_ATTR,                    "State attributes"},
+    {DE_BCC_COMPR_OTDI,                    "Compressed otdi"},
     { 0, NULL }
 };
 value_string_ext gsm_dtap_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_dtap_elem_strings);
@@ -426,6 +453,7 @@ static const true_false_string tfs_acceptable_not_acceptable = { "Acceptable", "
 
 #define DTAP_MM_IEI_MASK    0x3f
 #define DTAP_GCC_IEI_MASK   0x3f
+#define	DTAP_BCC_IEI_MASK   0x3f
 #define DTAP_CC_IEI_MASK    0x3f
 #define DTAP_SMS_IEI_MASK   0xff
 #define DTAP_SS_IEI_MASK    0x3f
@@ -435,6 +463,7 @@ static const true_false_string tfs_acceptable_not_acceptable = { "Acceptable", "
 static int proto_a_dtap = -1;
 
 static int hf_gsm_a_dtap_msg_gcc_type = -1;
+static int hf_gsm_a_dtap_msg_bcc_type = -1;
 static int hf_gsm_a_dtap_msg_mm_type = -1;
 static int hf_gsm_a_dtap_msg_cc_type = -1;
 static int hf_gsm_a_seq_no = -1;
@@ -648,6 +677,26 @@ static int hf_gsm_a_dtap_gcc_state_attr_oi         = -1;
 static int hf_gsm_a_dtap_gcc_spare_1 = -1;
 static int hf_gsm_a_dtap_gcc_spare_3 = -1;
 static int hf_gsm_a_dtap_gcc_spare_4 = -1;
+
+static int hf_gsm_a_dtap_bcc_call_ref              = -1;
+static int hf_gsm_a_dtap_bcc_call_ref_has_priority = -1;
+static int hf_gsm_a_dtap_bcc_call_priority         = -1;
+static int hf_gsm_a_dtap_bcc_call_state            = -1;
+static int hf_gsm_a_dtap_bcc_cause                 = -1;
+static int hf_gsm_a_dtap_bcc_cause_structure       = -1;
+static int hf_gsm_a_dtap_bcc_orig_ind              = -1;
+static int hf_gsm_a_dtap_bcc_state_attr            = -1;
+static int hf_gsm_a_dtap_bcc_state_attr_da         = -1;
+static int hf_gsm_a_dtap_bcc_state_attr_ua         = -1;
+static int hf_gsm_a_dtap_bcc_state_attr_comm       = -1;
+static int hf_gsm_a_dtap_bcc_state_attr_oi         = -1;
+static int hf_gsm_a_dtap_bcc_compr_otdi            = -1;
+
+static int hf_gsm_a_dtap_bcc_spare_1 = -1;
+static int hf_gsm_a_dtap_bcc_spare_3 = -1;
+static int hf_gsm_a_dtap_bcc_spare_4 = -1;
+
+
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -4056,6 +4105,190 @@ de_gcc_state_attr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     return 1;
 }
 
+static const value_string bcc_call_ref_priority[] = {
+    { 0, "reserved"},
+    { 1, "level 4"},
+    { 2, "level 3"},
+    { 3, "level 2"},
+    { 4, "level 1"},
+    { 5, "level 0"},
+    { 6, "level B"},
+    { 7, "level A"},
+    { 0, NULL }
+};
+static guint16
+de_bcc_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+    guint32 value;
+
+    curr_offset = offset;
+
+    value = tvb_get_ntohl(tvb, curr_offset);
+
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_ref, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+
+    if (value & 0x10){
+        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_priority, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_spare_1, tvb, curr_offset, 4, ENC_NA);
+    }
+    else{
+        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_ref_has_priority, tvb, curr_offset, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_spare_4, tvb, curr_offset, 4, ENC_NA);
+    }
+
+    curr_offset += 4;
+
+    return(curr_offset - offset);
+}
+
+static const range_string bcc_call_state_vals[] = {
+    {0, 0,  "U0"},
+    {1, 1,  "U1"},
+    {2, 2,  "U2"},
+    {3, 3,  "U3"},
+    {4, 4,  "U4"},
+    {5, 5,  "U5"},
+    {6, 6,  "U0.p"},
+    {7, 7,  "U6"},
+    {8, 15, "Reserved"},
+    {0, 0, NULL }
+};
+
+static guint16
+de_bcc_call_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_call_state, tvb, offset, 2, ENC_NA);
+
+    return 1;
+}
+
+static const range_string bcc_cause_vals[] = {
+    {0,   2,   "Unspecified"},
+    {3,   3,   "Illegal MS"},
+    {4,   4,   "Unspecified"},
+    {5,   5,   "IMEI not accepted"},
+    {6,   6,   "Illegal ME"},
+    {7,   7,   "Unspecified"},
+    {8,   8,   "Service not authorized"},
+    {9,   9,   "Application not supported on the protocol"},
+    {10,  10,  "RR connection aborted"},
+    {11,  15,  "Unspecified"},
+    {16,  16,  "Normal call clearing"},
+    {17,  17,  "Network failure"},
+    {18,  19,  "Unspecified"},
+    {20,  20,  "Busy"},
+    {21,  21,  "Unspecified"},
+    {22,  22,  "Congestion"},
+    {23,  23,  "User not originator of call"},
+    {24,  24,  "Network wants to maintain call"},
+    {25,  29,  "Unspecified"},
+    {30,  30,  "Response to GET STATUS"},
+    {31,  31,  "Unspecified"},
+    {32,  32,  "Service option not supported"},
+    {33,  33,  "Requested service option not subscribed"},
+    {34,  34,  "Service option temporarily out of order"},
+    {35,  37,  "Unspecified"},
+    {38,  38,  "Call cannot be identified"},
+    {39,  47,  "Unspecified"},
+    {48,  63,  "Retry upon entry into a new cell"},
+    {64,  80,   "Unspecified"},
+    {81,  81,  "Invalid transaction identifier value"},
+    {82,  94,  "Unspecified"},
+    {95,  95,  "Semantically incorrect message"},
+    {96,  96,  "Invalid mandatory information"},
+    {97,  97,  "Message type non-existent or not implemented"},
+    {98,  98,  "Message type not compatible with the protocol state"},
+    {99,  99,  "Information element non-existent or not implemented"},
+    {100, 100, "Message type not compatible with the protocol state"},
+    {101, 111, "Unspecified"},
+    {112, 112, "Protocol error, unspecified"},
+    {113, 127, "Unspecified"},
+    {0, 0, NULL }
+};
+
+static const true_false_string bcc_cause_structure_val = {
+    "cause_part [diagnostics]",
+    "cause_part <cause>"
+};
+
+static guint16
+de_bcc_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+
+    int curr_len;
+    curr_len = len;
+
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_cause_structure, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_cause, tvb, curr_offset, 1, ENC_NA);
+
+    curr_offset++;
+    curr_len--;
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
+
+    return(curr_offset - offset);
+}
+
+static const true_false_string bcc_orig_ind_vals = {
+    "The MS is the originator of the call",
+    "The MS is not the originator of the call"
+};
+static guint16
+de_bcc_orig_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_spare_3, tvb, curr_offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_orig_ind, tvb, curr_offset, 1, ENC_NA);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
+static const true_false_string bcc_state_attr_da = {
+    "User connection in the downlink attached (D-ATT = T)",
+    "User connection in the downlink not attached (D-ATT = F)"
+};
+static const true_false_string bcc_state_attr_ua = {
+    "User connection in the uplink attached (U-ATT = T)",
+    "User connection in the uplink not attached (U-ATT = F)"
+};
+static const true_false_string bcc_state_attr_comm = {
+    "Communication with its peer entity is enabled in both directions  (COMM = T)",
+    "Communication with its peer entity is not enabled in both directions (COMM = F)"
+};
+static const true_false_string bcc_state_attr_oi = {
+    "The MS is the originator of the call (ORIG = T)",
+    "The MS is not the originator of the call (ORIG = F)"
+};
+static guint16
+de_bcc_state_attr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_state_attr, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_state_attr_da, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_state_attr_ua, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_state_attr_comm, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_state_attr_oi, tvb, offset, 1, ENC_NA);
+
+    return 1;
+}
+
+static guint16
+de_bcc_compr_otdi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_gsm_a_dtap_bcc_compr_otdi, tvb, offset, len, ENC_NA);
+
+    return len;
+}
+
 guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
     /* Mobility Management Information Elements 10.5.3 */
     de_auth_param_rand,                  /* Authentication Parameter RAND */
@@ -4148,6 +4381,13 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     de_gcc_cause,                        /* Cause  */
     de_gcc_orig_ind,                     /* Originator indication */
     de_gcc_state_attr,                   /* State attributes */
+                                         /* BCC Elements */
+    de_bcc_call_ref,                     /* Call Reference */
+    de_bcc_call_state,                   /* Call state */
+    de_bcc_cause,                        /* Cause  */
+    de_bcc_orig_ind,                     /* Originator indication */
+    de_bcc_state_attr,                   /* State attributes */
+    de_bcc_compr_otdi,                   /* Compressed otdi */
     NULL,                                /* NONE */
 };
 
@@ -4339,6 +4579,243 @@ dtap_gcc_set_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_NA);
     ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_GCC_STATE_ATTR, NULL);
 
+}
+
+/*
+ * [13] 8.1 CONNECT
+ */
+static void
+dtap_bcc_connect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, NULL);
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_NA);
+
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_ORIG_IND, "(Broadcast call reference)");
+}
+
+/*
+ * [13] 8.2 GET STATUS
+ */
+static void
+dtap_bcc_get_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_dtap_extraneous_data);
+}
+
+/*
+ * [13] 8.3 IMMEDIATE SETUP
+ */
+static void
+dtap_bcc_imm_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+    guint8  oct;
+    proto_tree *subtree;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /*
+     * special dissection for Cipher Key Sequence Number
+     */
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
+
+    subtree =
+    proto_tree_add_subtree(tree,
+        tvb, curr_offset, 1, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM], NULL,
+        val_to_str_ext_const(DE_CIPH_KEY_SEQ_NUM, &gsm_common_elem_strings_ext, ""));
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
+
+    switch (oct & 0x07)
+    {
+    case 0x07:
+        proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_ciphering_key_sequence_number, tvb, curr_offset, 1,
+            oct, "No key is available");
+        break;
+
+    default:
+        proto_tree_add_item(subtree, hf_gsm_a_dtap_ciphering_key_sequence_number, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        break;
+    }
+
+    curr_offset++;
+    curr_len--;
+
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast identity)");
+}
+
+/*
+ * [13] 8.3a IMMEDIATE SETUP 2
+ */
+static void
+dtap_bcc_imm_setup2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+    guint8  oct;
+    proto_tree *subtree;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /*
+     * special dissection for Cipher Key Sequence Number
+     */
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
+
+    subtree =
+    proto_tree_add_subtree(tree,
+        tvb, curr_offset, 1, ett_gsm_common_elem[DE_CIPH_KEY_SEQ_NUM], NULL,
+        val_to_str_ext_const(DE_CIPH_KEY_SEQ_NUM, &gsm_common_elem_strings_ext, ""));
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
+
+    switch (oct & 0x07)
+    {
+    case 0x07:
+        proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_ciphering_key_sequence_number, tvb, curr_offset, 1,
+            oct, "No key is available");
+        break;
+
+    default:
+        proto_tree_add_item(subtree, hf_gsm_a_dtap_ciphering_key_sequence_number, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        break;
+    }
+
+    curr_offset++;
+    curr_len--;
+
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, NULL);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_TMSI_STAT, NULL)
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Group identity)");
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_COMPR_OTDI, NULL);
+}
+
+/*
+ * [13] 8.4 SET PARAMETER
+ */
+static void
+dtap_bcc_set_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 4, ENC_NA);
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_STATE_ATTR, NULL);
+
+}
+
+/*
+ * [13] 8.5 SETUP
+ */
+static void
+dtap_bcc_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast identity)");
+    ELEM_OPT_TLV(0x7e, GSM_A_PDU_TYPE_DTAP, DE_USER_USER, "(Originator-to-dispatcher information)");
+}
+
+/*
+ * [13] 8.6 STATUS
+ */
+static void
+dtap_bcc_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, NULL);
+    ELEM_OPT_TV_SHORT(0xa0, GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_STATE, NULL);
+    ELEM_OPT_TV_SHORT(0xb0, GSM_A_PDU_TYPE_DTAP, DE_BCC_STATE_ATTR, NULL);
+}
+
+/*
+ * [13] 8.7 TERMINATION
+ */
+static void
+dtap_bcc_term(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, NULL);
+}
+
+/*
+ * [13] 8.8 TERMINATION REJECT
+ */
+static void
+dtap_bcc_term_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_BCC_CAUSE, "(Reject Cause)");
+}
+
+/*
+ * [13] 8.9 TERMINATION REQUEST
+ */
+static void
+dtap_bcc_term_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_BCC_CALL_REF, "(Broadcast call reference)");
 }
 
 /*
@@ -6099,6 +6576,22 @@ static void (*dtap_msg_gcc[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     NULL,                       /* NONE */
 };
 
+#define NUM_GSM_DTAP_MSG_BCC (sizeof(gsm_a_dtap_msg_bcc_strings)/sizeof(value_string))
+static gint ett_gsm_dtap_msg_bcc[NUM_GSM_DTAP_MSG_BCC];
+static void (*dtap_msg_bcc[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
+    dtap_bcc_imm_setup,         /* IMMEDIATE SETUP */
+    dtap_bcc_setup,             /* SETUP */
+    dtap_bcc_connect,           /* CONNECT */
+    dtap_bcc_term,              /* TERMINATION */
+    dtap_bcc_term_req,          /* TERMINATION REQUEST */
+    dtap_bcc_term_rej,          /* TERMINATION REJECT */
+    dtap_bcc_status,            /* STATUS */
+    dtap_bcc_get_status,        /* GET STATUS */
+    dtap_bcc_set_param,         /* SET PARAMETER */
+    dtap_bcc_imm_setup2,        /* IMMEDIATE SETUP 2 */
+    NULL,                       /* NONE */
+};
+
 #define NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
 static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len) = {
@@ -6331,6 +6824,17 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         ti = (oct_1 & DTAP_TI_MASK) >> 4;
         nsd = TRUE;
         break;
+    case 1:
+        msg_str = try_val_to_str_idx((guint32) (oct & DTAP_BCC_IEI_MASK), gsm_a_dtap_msg_bcc_strings, &idx);
+        if (msg_str != NULL)
+        {
+            ett_tree = ett_gsm_dtap_msg_bcc[idx];
+            dtap_msg_fcn = dtap_msg_bcc[idx];
+        }
+        hf_idx = hf_gsm_a_dtap_msg_bcc_type;
+        ti = (oct_1 & DTAP_TI_MASK) >> 4;
+        nsd = TRUE;
+        break;
     case 3:
         msg_str = try_val_to_str_idx((guint32) (oct & DTAP_CC_IEI_MASK), gsm_a_dtap_msg_cc_strings, &idx);
         if (msg_str != NULL)
@@ -6554,6 +7058,11 @@ proto_register_gsm_a_dtap(void)
         { &hf_gsm_a_dtap_msg_gcc_type,
           { "DTAP Group Call Control Message Type", "gsm_a.dtap.msg_gcc_type",
             FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_gcc_strings), 0x3f,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_msg_bcc_type,
+          { "DTAP Broadcast Call Control Message Type", "gsm_a.dtap.msg_bcc_type",
+            FT_UINT8, BASE_HEX, VALS(gsm_a_dtap_msg_bcc_strings), 0x3f,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_msg_mm_type,
@@ -7103,6 +7612,86 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_gcc_spare_4,
           { "Spare_4 (This field shall be ignored)", "gsm_a.dtap.gcc.spare_4",
+            FT_UINT32, BASE_DEC, NULL, 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_call_ref,
+        { "Call Reference", "gsm_a.dtap.bcc.call_ref",
+            FT_UINT32, BASE_DEC, NULL, 0xffffffe0,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_call_ref_has_priority,
+          { "Call Reference includes priority", "gsm_a.dtap.bcc.call_ref_has_priority",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_call_priority,
+          { "Call Priority", "gsm_a.dtap.bcc.call_priority",
+            FT_UINT32, BASE_DEC, VALS(bcc_call_ref_priority), 0x0000000e,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_call_state,
+          { "Call state", "gsm_a.dtap.bcc.call_state",
+            FT_UINT24, BASE_DEC|BASE_RANGE_STRING, RVALS(bcc_call_state_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_cause_structure,
+          { "Cause structure", "gsm_a.dtap.bcc.cause_structure",
+            FT_BOOLEAN, 8, TFS(&bcc_cause_structure_val), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_cause,
+          { "Cause", "gsm_a.dtap.bcc.cause",
+            FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(bcc_cause_vals), 0x7f,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_orig_ind,
+          { "Originator indication", "gsm_a.dtap.bcc.orig_ind",
+            FT_BOOLEAN, 8, TFS(&bcc_orig_ind_vals), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_state_attr,
+          { "State attributes", "gsm_a.dtap.bcc.state_attr",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_state_attr_da,
+          { "DA", "gsm_a.dtap.bcc.state_attr_da",
+            FT_BOOLEAN, 8, TFS(&bcc_state_attr_da), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_state_attr_ua,
+          { "UA", "gsm_a.dtap.bcc.state_attr_ua",
+            FT_BOOLEAN, 8, TFS(&bcc_state_attr_ua), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_state_attr_comm,
+          { "COMM", "gsm_a.dtap.bcc.state_attr_comm",
+            FT_BOOLEAN, 8, TFS(&bcc_state_attr_comm), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_state_attr_oi,
+          { "OI", "gsm_a.dtap.bcc.state_attr_oi",
+            FT_BOOLEAN, 8, TFS(&bcc_state_attr_oi), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_compr_otdi,
+          { "Compressed otdi", "gsm_a.dtap.bcc.compr_otdi",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_spare_1,
+          { "Spare_1 (This field shall be ignored)", "gsm_a.dtap.bcc.spare_1",
+            FT_UINT32, BASE_DEC, NULL, 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_spare_3,
+          { "Spare_3 (This field shall be ignored)", "gsm_a.dtap.bcc.spare_3",
+            FT_UINT8, BASE_DEC, NULL, 0x0e,
+            NULL, HFILL }
+        },
+        { &hf_gsm_a_dtap_bcc_spare_4,
+          { "Spare_4 (This field shall be ignored)", "gsm_a.dtap.bcc.spare_4",
             FT_UINT32, BASE_DEC, NULL, 0x00000010,
             NULL, HFILL }
         },
