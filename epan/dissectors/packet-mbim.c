@@ -7688,12 +7688,12 @@ proto_register_mbim(void)
         },
         { &hf_mbim_request_in,
             { "Request In", "mbim.control.request_in",
-               FT_FRAMENUM, BASE_NONE, NULL, 0,
+               FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0,
               NULL, HFILL }
         },
         { &hf_mbim_response_in,
             { "Response In", "mbim.control.response_in",
-               FT_FRAMENUM, BASE_NONE, NULL, 0,
+               FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0,
               NULL, HFILL }
         },
         { &hf_mbim_descriptor,
