@@ -2715,15 +2715,14 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
        this is the (device or interface) class we're using */
     guint32                  usb_class;
 
-    if (tvb_captured_length(next_tvb) == 0)
-        return 0;
-
     if (!usb_conv_info) {
         /*
          * Not enough information to choose the next protocol.
          * XXX - is there something we can still do here?
          */
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        if (tvb_reported_length(next_tvb) > 0)
+            call_dissector(data_handle, next_tvb, pinfo, tree);
+
         return tvb_captured_length(next_tvb);
     }
 
@@ -2905,11 +2904,8 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
             offset = dissect_usb_standard_setup_response(pinfo, parent, tvb, offset, usb_conv_info);
         }
         else {
-            /* Try to find a non-standard specific dissector */
-            if (tvb_reported_length_remaining(tvb, offset) > 0) {
-                next_tvb = tvb_new_subset_remaining(tvb, offset);
-                offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type, tree);
-            }
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type, tree);
 
             length_remaining = tvb_reported_length_remaining(tvb, offset);
             if (length_remaining > 0) {
