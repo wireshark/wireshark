@@ -96,6 +96,7 @@ static gint hf_gsm_sms_ud_multiple_messages_msg_part = -1;
 static gint hf_gsm_sms_tp_mti_up = -1;
 static gint hf_gsm_sms_tp_mti_down = -1;
 static gint hf_gsm_sms_tp_mms = -1;
+static gint hf_gsm_sms_tp_lp = -1;
 static gint hf_gsm_sms_tp_vpf = -1;
 static gint hf_gsm_sms_tp_sri = -1;
 static gint hf_gsm_sms_tp_srr = -1;
@@ -383,6 +384,11 @@ static const value_string vp_type_strings[] = {
 static const true_false_string mms_bool_strings = {
     "No more messages are waiting for the MS in this SC",
     "More messages are waiting for the MS in this SC"
+};
+
+static const true_false_string lp_bool_strings = {
+    "The message has either been forwarded or is a spawned message",
+    "The message has not been forwarded and is not a spawned message"
 };
 
 static const true_false_string sri_bool_strings = {
@@ -2028,6 +2034,7 @@ dis_msg_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     proto_tree_add_item(tree, hf_gsm_sms_tp_rp, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_sri, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_lp, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -2088,7 +2095,6 @@ dis_msg_deliver_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     udhi = oct & 0x40;
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if (length < 2)
@@ -2378,6 +2384,7 @@ dis_msg_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_srq, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_tp_lp, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_mms, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -2749,6 +2756,11 @@ proto_register_gsm_sms(void)
               { "TP-MMS", "gsm_sms.tp-mms",
                 FT_BOOLEAN, 8, TFS(&mms_bool_strings), 0x04,
                 "TP-More-Messages-to-Send", HFILL }
+            },
+            { &hf_gsm_sms_tp_lp,
+              { "TP-LP", "gsm_sms.tp-lp",
+                FT_BOOLEAN, 8, TFS(&lp_bool_strings), 0x08,
+                "TP-Loop-Prevention", HFILL }
             },
             { &hf_gsm_sms_tp_sri,
               { "TP-SRI", "gsm_sms.tp-sri",
