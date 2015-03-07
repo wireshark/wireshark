@@ -20,8 +20,8 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <ftypes-int.h>
+#include <epan/to_str-int.h>
 #include <string.h>
 
 #include <epan/exceptions.h>
@@ -141,25 +141,14 @@ static void
 val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char * volatile buf)
 {
 	guint length;
-	const guint8 *c;
-	unsigned int i;
 
 	g_assert(rtype == FTREPR_DFILTER);
 
 	TRY {
 		length = tvb_length(fv->value.tvb);
-		c = tvb_get_ptr(fv->value.tvb, 0, length);
 
-		for (i = 0; i < length; i++) {
-			if (i == 0) {
-				sprintf((char *)buf, "%02x", *c++);
-				buf += 2;
-			}
-			else {
-				sprintf((char *)buf, ":%02x", *c++);
-				buf += 3;
-			}
-		}
+		buf = bytes_to_hexstr_punct(buf, tvb_get_ptr(fv->value.tvb, 0, length), length, ':');
+		*buf = '\0';
 	}
 	CATCH_ALL {
 		/* nothing */

@@ -20,13 +20,13 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <ftypes-int.h>
 #include <string.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/oids.h>
 #include <epan/osi-utils.h>
+#include <epan/to_str-int.h>
 
 #define CMP_MATCHES cmp_matches
 
@@ -140,39 +140,26 @@ system_id_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf)
 static void
 bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 {
-	guint8 *c;
-	char *write_cursor;
-	unsigned int i;
 	char separator;
 
-	c = fv->value.bytes->data;
-	write_cursor = buf;
-
-	for (i = 0; i < fv->value.bytes->len; i++) {
-		if (i == 0) {
-			sprintf(write_cursor, "%02x", *c++);
-			write_cursor += 2;
-		}
-		else {
-			switch(field_display)
-			{
-			case SEP_DOT:
-				separator = '.';
-				break;
-			case SEP_DASH:
-				separator = '-';
-				break;
-			case SEP_SPACE:
-			case SEP_COLON:
-			case BASE_NONE:
-			default:
-				separator = ':';
-				break;
-			}
-			sprintf(write_cursor, "%c%02x", separator, *c++);
-			write_cursor += 3;
-		}
+	switch(field_display)
+	{
+	case SEP_DOT:
+		separator = '.';
+		break;
+	case SEP_DASH:
+		separator = '-';
+		break;
+	case SEP_SPACE:
+	case SEP_COLON:
+	case BASE_NONE:
+	default:
+		separator = ':';
+		break;
 	}
+
+	buf = bytes_to_hexstr_punct(buf, fv->value.bytes->data, fv->value.bytes->len, separator);
+	*buf = '\0';
 }
 
 static void

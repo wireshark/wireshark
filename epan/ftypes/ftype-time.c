@@ -344,9 +344,15 @@ absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *
 	gchar *rep = abs_time_to_str(NULL, &fv->value.time, ABSOLUTE_TIME_LOCAL,
 		rtype == FTREPR_DISPLAY);
 	if (rtype == FTREPR_DFILTER) {
-		sprintf(buf, "\"%s\"", rep);
-	} else {
-		strcpy(buf, rep);
+		*buf++ = '\"';
+	}
+
+	strcpy(buf, rep);
+
+	if (rtype == FTREPR_DFILTER) {
+		buf += strlen(rep);
+		*buf++ = '\"';
+		*buf++ = '\0';
 	}
 	wmem_free(NULL, rep);
 }

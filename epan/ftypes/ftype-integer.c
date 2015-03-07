@@ -20,11 +20,11 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include "ftypes-int.h"
 #include <epan/addr_resolv.h>
+#include <epan/to_str-int.h>
 
 #include <wsutil/pint.h>
 
@@ -243,16 +243,9 @@ integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 }
 
 static int
-uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display)
+uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
-	if (field_display == BASE_HEX)
-	{
-		return 11;	/* fits 0x%08x */
-	}
-	else
-	{
-		return 10;	/* enough for 2^32-1, in decimal */
-	}
+	return 10;	/* enough for 2^32-1, in decimal or 0xXXXXXXXX */
 }
 
 static void
@@ -261,7 +254,11 @@ uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 	if (field_display == BASE_HEX)
 	{
 		/* This format perfectly fits into 11 bytes. */
-		sprintf(buf, "0x%08x", fv->value.uinteger);
+		*buf++ = '0';
+		*buf++ = 'x';
+
+		buf = dword_to_hex(buf, fv->value.uinteger);
+		*buf++ = '\0';
 	}
 	else
 	{
@@ -304,7 +301,7 @@ ipxnet_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	sprintf(buf, "0x%08x", fv->value.uinteger);
+	uinteger_to_repr(fv, rtype, BASE_HEX, buf);
 }
 
 static gboolean
