@@ -229,7 +229,8 @@ PacketList::PacketList(QWidget *parent) :
     decode_as_(NULL),
     ctx_column_(-1),
     capture_in_progress_(false),
-    tail_timer_id_(0)
+    tail_timer_id_(0),
+    rows_inserted_(false)
 {
     QMenu *submenu, *subsubmenu;
     QAction *action;
