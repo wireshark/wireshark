@@ -225,7 +225,7 @@ sint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 static int
 integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return 11;	/* enough for 12^31-1, in decimal */
+	return 11;	/* enough for 2^31-1, in decimal */
 }
 
 static void
@@ -243,15 +243,30 @@ integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 }
 
 static int
-uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display)
 {
-	return 10;	/* enough for 2^32-1, in decimal */
+	if (field_display == BASE_HEX)
+	{
+		return 11;	/* fits 0x%08x */
+	}
+	else
+	{
+		return 10;	/* enough for 2^32-1, in decimal */
+	}
 }
 
 static void
-uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
+uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 {
-	guint32_to_str_buf(fv->value.uinteger, buf, 11);
+	if (field_display == BASE_HEX)
+	{
+		/* This format perfectly fits into 11 bytes. */
+		sprintf(buf, "0x%08x", fv->value.uinteger);
+	}
+	else
+	{
+		guint32_to_str_buf(fv->value.uinteger, buf, 11);
+	}
 }
 
 static gboolean
