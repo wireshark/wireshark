@@ -148,11 +148,9 @@ void LabelStack::paintEvent(QPaintEvent *event)
     // QLabel do the work for us seems to work, however.
     QString elided_text = fontMetrics().elidedText(text(), Qt::ElideMiddle, width());
     QString full_text = text();
-    setUpdatesEnabled(false);
     setText(elided_text);
     QLabel::paintEvent(event);
     setText(full_text);
-    setUpdatesEnabled(true);
 }
 
 void LabelStack::popText(int ctx) {
