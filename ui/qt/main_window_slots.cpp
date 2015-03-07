@@ -727,7 +727,6 @@ void MainWindow::startCapture() {
     }
 
     /* XXX - we might need to init other pref data as well... */
-//    main_auto_scroll_live_changed(auto_scroll_live);
 
     /* XXX - can this ever happen? */
     if (cap_session_.state != CAPTURE_STOPPED)
@@ -742,6 +741,9 @@ void MainWindow::startCapture() {
 
     CaptureFile::globalCapFile()->window = this;
     if (capture_start(&global_capture_opts, &cap_session_, main_window_update)) {
+        /* enable autoscroll timer as needed. */
+        packet_list_->setAutoScroll(main_ui_->actionGoAutoScroll->isChecked());
+
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -837,6 +839,9 @@ void MainWindow::stopCapture() {
 #ifdef HAVE_LIBPCAP
     capture_stop(&cap_session_);
 #endif // HAVE_LIBPCAP
+
+    /* disable autoscroll timer if any. */
+    packet_list_->setAutoScroll(false);
 }
 
 // XXX - Copied from ui/gtk/menus.c

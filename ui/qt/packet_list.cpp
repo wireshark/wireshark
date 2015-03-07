@@ -685,6 +685,8 @@ void PacketList::recolorPackets()
     redrawVisiblePackets();
 }
 
+/* Enable autoscroll timer. Note: must be called after the capture is started,
+ * otherwise the timer will not be executed. */
 void PacketList::setAutoScroll(bool enabled)
 {
     tail_at_end_ = enabled;
