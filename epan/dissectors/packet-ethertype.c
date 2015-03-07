@@ -40,6 +40,7 @@
 #include "packet-vlan.h"
 #include "packet-ieee8021ah.h"
 #include "packet-vines.h"
+#include "packet-llc.h"
 
 
 void proto_register_ethertype(void);
@@ -231,6 +232,9 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
 		break;
 	case ETHERTYPE_BPQ:
 		capture_bpq(pd, offset, len, ld);
+		break;
+	case ETHERTYPE_JUMBO_LLC:
+		capture_llc(pd, offset, len, ld);
 		break;
 	default:
 		ld->other++;
