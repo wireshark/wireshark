@@ -100,7 +100,9 @@ typedef enum ftenum ftenum_t;
 enum ft_framenum_type {
     FT_FRAMENUM_NONE,
     FT_FRAMENUM_REQUEST,
-    FT_FRAMENUM_RESPONSE
+    FT_FRAMENUM_RESPONSE,
+    FT_FRAMENUM_ACK,
+    FT_FRAMENUM_DUP_ACK
 };
 
 typedef enum ft_framenum_type ft_framenum_type_t;

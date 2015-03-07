@@ -5216,7 +5216,7 @@ proto_register_tcp(void)
             "This is duplicate ACK number #", HFILL }},
 
         { &hf_tcp_analysis_duplicate_ack_frame,
-        { "Duplicate to the ACK in frame",      "tcp.analysis.duplicate_ack_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        { "Duplicate to the ACK in frame",      "tcp.analysis.duplicate_ack_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_DUP_ACK), 0x0,
             "This is a duplicate to the ACK in frame #", HFILL }},
 
         { &hf_tcp_continuation_to,
@@ -5228,7 +5228,7 @@ proto_register_tcp(void)
             NULL, HFILL}},
 
         { &hf_tcp_analysis_acks_frame,
-          { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+          { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0,
             "Which previous segment is this an ACK for", HFILL}},
 
         { &hf_tcp_analysis_bytes_in_flight,

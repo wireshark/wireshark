@@ -28,9 +28,13 @@
 #include <QPainter>
 
 // To do:
-// - Add other frame types and symbols (ACKs, etc).
-// - Add tooltips. It looks like this needs to be done in
-//   PacketListModel::data.
+// - Add other frame types and symbols. If `tshark -G fields | grep FT_FRAMENUM`
+//   is any indication, we should add "reassembly" and "reassembly error"
+//   fields.
+// - Don't add *too* many frame types and symbols. The goal is context, not
+//   clutter.
+// - Add tooltips. It looks like this needs to be done in ::helpEvent
+//   or PacketListModel::data.
 // - Add "Go -> Next Related" and "Go -> Previous Related"?
 // - Apply as filter?
 
@@ -49,6 +53,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     QStyledItemDelegate::initStyleOption(&optv4, index);
     int em_w = optv4.fontMetrics.height();
     int en_w = (em_w + 1) / 2;
+    int line_w = (optv4.fontMetrics.lineWidth());
 
     optv4.features |= QStyleOptionViewItemV4::HasDecoration;
     optv4.decorationSize.setHeight(1);
@@ -88,7 +93,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
     fg = ColorUtils::alphaBlend(fg, optv4.palette.color(cg, QPalette::Base), 0.5);
     QPen line_pen(fg);
-    line_pen.setWidth(optv4.fontMetrics.lineWidth());
+    line_pen.setWidth(line_w);
     line_pen.setJoinStyle(Qt::RoundJoin);
 
     painter->setPen(line_pen);
@@ -111,8 +116,12 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     // for other packets in the start-end range.
     if (setup_frame > 0 && last_frame > 0 && setup_frame != last_frame) {
         if (fd->num == setup_frame) {
-            painter->drawLine(0, height / 2, 0, height);
-            painter->drawLine(1, height / 2, en_w - 1, height / 2);
+            QPoint start_line[] = {
+                QPoint(en_w - 1, height / 2),
+                QPoint(0, height / 2),
+                QPoint(0, height)
+            };
+            painter->drawPolyline(start_line, 3);
         } else if (fd->num > setup_frame && fd->num < last_frame) {
             painter->save();
             if (conv_ != record->conversation()) {
@@ -123,8 +132,12 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
             painter->drawLine(0, 0, 0, height);
             painter->restore();
         } else if (fd->num == last_frame) {
-            painter->drawLine(0, 0, 0, height / 2);
-            painter->drawLine(1, height / 2, en_w, height / 2);
+            QPoint end_line[] = {
+                QPoint(en_w - 1, height / 2),
+                QPoint(0, height / 2),
+                QPoint(0, 0)
+            };
+            painter->drawPolyline(end_line, 3);
         }
     }
 
@@ -151,6 +164,20 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
             drawArrow(painter, tail, head, hh / 2);
             break;
         }
+        case FT_FRAMENUM_ACK:
+        {
+            QRect bbox (2 - en_w, height / 3, em_w - 2, height / 2);
+            drawCheckMark(painter, bbox);
+            break;
+        }
+        case FT_FRAMENUM_DUP_ACK:
+        {
+            QRect bbox (2 - en_w, (height / 3) - (line_w * 2), em_w - 2, height / 2);
+            drawCheckMark(painter, bbox);
+            bbox.moveTop(bbox.top() + (line_w * 3));
+            drawCheckMark(painter, bbox);
+            break;
+        }
         case FT_FRAMENUM_NONE:
         default:
             painter->drawEllipse(QPointF(0.0, optv4.rect.height() / 2), 2, 2);
@@ -166,7 +193,7 @@ QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
                  QStyledItemDelegate::sizeHint(option, index).height());
 }
 
-void RelatedPacketDelegate::drawArrow(QPainter *painter, QPoint tail, QPoint head, int head_size) const
+void RelatedPacketDelegate::drawArrow(QPainter *painter, const QPoint tail, const QPoint head, int head_size) const
 {
     int x_mul = head.x() > tail.x() ? -1 : 1;
     QPoint head_points[] = {
@@ -177,6 +204,16 @@ void RelatedPacketDelegate::drawArrow(QPainter *painter, QPoint tail, QPoint hea
 
     painter->drawLine(tail.x(), tail.y(), head.x() + (head_size * x_mul), head.y());
     painter->drawPolygon(head_points, 3);
+}
+
+void RelatedPacketDelegate::drawCheckMark(QPainter *painter, const QRect bbox) const
+{
+    QPoint cm_points[] = {
+        QPoint(bbox.x(), bbox.y() + (bbox.height() / 2)),
+        QPoint(bbox.x() + (bbox.width() / 4), bbox.y() + (bbox.height() * 3 / 4)),
+        bbox.topRight()
+    };
+    painter->drawPolyline(cm_points, 3);
 }
 
 void RelatedPacketDelegate::clear()

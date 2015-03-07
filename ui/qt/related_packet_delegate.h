@@ -55,7 +55,8 @@ private:
     struct conversation *conv_;
     guint32 current_frame_;
 
-    void drawArrow(QPainter *painter, QPoint tail, QPoint head, int head_size) const;
+    void drawArrow(QPainter *painter, const QPoint tail, const QPoint head, int head_size) const;
+    void drawCheckMark(QPainter *painter, const QRect bbox) const;
 signals:
 
 
