@@ -274,14 +274,14 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = (length & LAPDM_LEN) >> LAPDM_LEN_SHIFT;
     /*n_s = (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT;*/
     m = (length & LAPDM_M) >> LAPDM_M_SHIFT;
-    available_length = tvb_reported_length(tvb) - LAPDM_HEADER_LEN;
+    available_length = tvb_captured_length(tvb) - LAPDM_HEADER_LEN;
 
     /* No point in doing anything if no payload
      */
     if( !MIN(len, available_length) )
         return;
 
-    payload = tvb_new_subset(tvb, LAPDM_HEADER_LEN, MIN(len,available_length), -1);
+    payload = tvb_new_subset(tvb, LAPDM_HEADER_LEN, MIN(len,available_length), len);
 
     /* Potentially segmented I frame
      */
