@@ -2240,6 +2240,29 @@ if(DOC_DIR)
 	)
 endif()
 
+# Test suite wrapper
+if(ENABLE_APPLICATION_BUNDLE)
+	set(TEST_SH_BIN_DIR ${CMAKE_BINARY_DIR}/run)
+else()
+	set(TEST_SH_BIN_DIR $<TARGET_FILE_DIR:epan>)
+	if (NOT "${CYGPATH_EXECUTABLE}" STREQUAL "CYGPATH_EXECUTABLE-NOTFOUND")
+		execute_process(
+		    COMMAND ${CYGPATH_EXECUTABLE} -u ${TEST_SH_BIN_DIR}
+		    OUTPUT_VARIABLE _cygwin_path
+		)
+	        string(STRIP "${_cygwin_path}" _cygwin_path)
+		set(TEST_SH_BIN_DIR ${_cygwin_path})
+	endif()
+endif()
+
+add_custom_target(test-sh ALL
+	COMMAND ${CMAKE_COMMAND}
+                -DTEST_SH_BIN_DIR=${TEST_SH_BIN_DIR}
+                -DTEST_SH_DIR=${CMAKE_SOURCE_DIR}/test
+                -P ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
+	DEPENDS ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
+)
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #
