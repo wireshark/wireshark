@@ -21,6 +21,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+# The files we want to test are in the build directory.
+WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1
+export WIRESHARK_RUN_FROM_BUILD_DIRECTORY
+
 # Set WS_SYSTEM to our system type, e.g. Windows, Linux, Darwin
 # http://support.microsoft.com/kb/100843
 if [ -n "${OS#Windows}" ] ; then

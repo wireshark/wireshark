@@ -19,91 +19,98 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-# This file is to be included/run from epan/CMakeLists.txt
-
 set(WSLUA_MODULES
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lua_bitop.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lrexlib.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lrexlib_glib.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lrexlib_glib_f.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_int64.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_tvb.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_proto.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_tree.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_pinfo.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_listener.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_gui.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_dir.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_util.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_field.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_file.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_struct.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_dumper.c
-	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_internals.c
+	${CMAKE_CURRENT_SOURCE_DIR}/lua_bitop.c
+	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib.c
+	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib_glib.c
+	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib_glib_f.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_int64.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tvb.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_proto.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_tree.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_pinfo.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_listener.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_gui.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_dir.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_util.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_field.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_file.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_struct.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_dumper.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua_internals.c
 )
+set (WSLUA_MODULES ${WSLUA_MODULES} PARENT_SCOPE)
 
 set(WSLUA_FILES
 	${WSLUA_MODULES}
-	taps_wslua.c
-	register_wslua.c
-	wslua/init_wslua.c
-)
-
-# Used with untypical CWD
-set(WSLUA_TAPS_USED
-	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-http.h
-	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ip.h
-	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-udp.h
-	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-h225.h
-	${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ieee80211.h
+	${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
+	${CMAKE_CURRENT_BINARY_DIR}/register_wslua.c
+	${CMAKE_CURRENT_SOURCE_DIR}/init_wslua.c
+	PARENT_SCOPE
 )
 
 # make-taps.pl depends on the current working directory
 # to find the dissector files (contents of taps file
 # depend on this actually, so just changing the paths
 # in these lists won't help).
-ADD_CUSTOM_COMMAND(
-    OUTPUT
-      ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
-      ${CMAKE_CURRENT_BINARY_DIR}/taps.txt
-    COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/make-taps.pl
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/taps
-      ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
-      ${CMAKE_CURRENT_BINARY_DIR}/taps.txt
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua
-    WORKING_DIRECTORY
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua
-    DEPENDS
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/taps
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/make-taps.pl
-      # Only here to add dependencies for the taps "source"files
-      ${WSLUA_TAPS_USED}
-)
 
-ADD_CUSTOM_COMMAND(
-    OUTPUT
-      declare_wslua.h
-      register_wslua.c
-    COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/make-reg.pl
-      ${WSLUA_MODULES}
-    DEPENDS
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/make-reg.pl
-      ${WSLUA_MODULES}
-      # ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
-)
+macro(WSLUA_GENERATE_TAP_SRC)
+	# Used with untypical CWD
+	set(WSLUA_TAPS_USED
+		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-http.h
+		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ip.h
+		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-udp.h
+		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-h225.h
+		${CMAKE_SOURCE_DIR}/epan/dissectors/packet-ieee80211.h
+	)
+
+	ADD_CUSTOM_COMMAND(
+	    OUTPUT
+	      ${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
+	      ${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
+	    COMMAND ${PERL_EXECUTABLE}
+	      ${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
+	      ${CMAKE_SOURCE_DIR}/epan/wslua/taps
+	      ${CMAKE_BINARY_DIR}/epan/wslua/taps_wslua.c
+	      ${CMAKE_BINARY_DIR}/epan/wslua/taps.txt
+	      ${CMAKE_SOURCE_DIR}/epan/wslua
+	    WORKING_DIRECTORY
+	      ${CMAKE_SOURCE_DIR}/epan/wslua
+	    DEPENDS
+	      ${CMAKE_SOURCE_DIR}/epan/wslua/taps
+	      ${CMAKE_SOURCE_DIR}/epan/wslua/make-taps.pl
+	      # Only here to add dependencies for the taps "source"files
+	      ${WSLUA_TAPS_USED}
+	)
+endmacro()
+
+macro(WSLUA_GENERATE_REG_SRC)
+	ADD_CUSTOM_COMMAND(
+	    OUTPUT
+	      ${CMAKE_BINARY_DIR}/epan/wslua/declare_wslua.h
+	      ${CMAKE_BINARY_DIR}/epan/wslua/register_wslua.c
+	    COMMAND ${PERL_EXECUTABLE}
+	      ${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
+	      ${WSLUA_MODULES}
+	    WORKING_DIRECTORY
+	      ${CMAKE_BINARY_DIR}/epan/wslua
+	    DEPENDS
+	      ${CMAKE_SOURCE_DIR}/epan/wslua/make-reg.pl
+	      ${WSLUA_MODULES}
+	      # ${CMAKE_CURRENT_BINARY_DIR}/taps_wslua.c
+	)
+endmacro()
 
 ADD_CUSTOM_COMMAND(
     OUTPUT init.lua
     COMMAND ${PERL_EXECUTABLE}
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/make-init-lua.pl
+      ${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.pl
       ${CMAKE_SOURCE_DIR}
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/template-init.lua
+      ${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
       > init.lua
     DEPENDS
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/make-init-lua.pl
-      ${CMAKE_CURRENT_SOURCE_DIR}/wslua/template-init.lua
+      ${CMAKE_CURRENT_SOURCE_DIR}/make-init-lua.pl
+      ${CMAKE_CURRENT_SOURCE_DIR}/template-init.lua
       ${CMAKE_SOURCE_DIR}/epan/ftypes/ftypes.h
       ${CMAKE_SOURCE_DIR}/wiretap/wtap.h
       ${CMAKE_SOURCE_DIR}/epan/epan.h
@@ -119,10 +126,9 @@ set_target_properties(wsluaauxiliary PROPERTIES FOLDER "Auxiliary")
 
 install(
     FILES
-	wslua/console.lua
-	wslua/dtd_gen.lua
+	console.lua
+	dtd_gen.lua
 	${CMAKE_CURRENT_BINARY_DIR}/init.lua
     DESTINATION
 	${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
 )
-

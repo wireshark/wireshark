@@ -31,7 +31,9 @@ endif()
 
 
 if (HAVE_LIBLUA)
-	include( wslua/CMakeLists.txt )
+	add_subdirectory( wslua )
+	WSLUA_GENERATE_TAP_SRC()
+	WSLUA_GENERATE_REG_SRC()
 endif()
 source_group(wslua FILES ${WSLUA_FILES})
 
@@ -43,6 +45,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/dissectors
 	${CMAKE_CURRENT_SOURCE_DIR}/ftypes
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua
+	${CMAKE_CURRENT_BINARY_DIR}/wslua
 	${CMAKE_CURRENT_SOURCE_DIR}/nghttp2
 )
 

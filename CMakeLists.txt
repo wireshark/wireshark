@@ -1401,18 +1401,18 @@ if(LUA_FOUND)
 	)
 	add_custom_command(TARGET copy_data_files PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${CMAKE_BINARY_DIR}/epan/init.lua"
-			"${DATAFILE_DIR}/lua"
+			"${CMAKE_BINARY_DIR}/epan/wslua/init.lua"
+			"${DATAFILE_DIR}"
 	)
 	add_custom_command(TARGET copy_data_files PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 			"${CMAKE_SOURCE_DIR}/epan/wslua/console.lua"
-			"${DATAFILE_DIR}/lua"
+			"${DATAFILE_DIR}"
 	)
 	add_custom_command(TARGET copy_data_files PRE_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 			"${CMAKE_SOURCE_DIR}/epan/wslua/dtd_gen.lua"
-			"${DATAFILE_DIR}/lua"
+			"${DATAFILE_DIR}"
 	)
 	add_dependencies(copy_data_files wsluaauxiliary)
 endif(LUA_FOUND)

@@ -814,9 +814,15 @@ int wslua_init(register_cb cb, gpointer client_data) {
 
     /* load system's init.lua */
     if (running_in_build_directory()) {
-        /* Running from build directory, load generated file */
+        /* Running from build directory, try the source directory (Autotools) */
         filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
                                    G_DIR_SEPARATOR_S "init.lua", get_progfile_dir());
+        if (( ! file_exists(filename))) {
+            /* Try the CMake output directory */
+            g_free(filename);
+            filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "init.lua",
+                                       get_progfile_dir());
+        }
     } else {
         filename = get_datafile_path("init.lua");
     }
@@ -923,4 +929,3 @@ lua_State* wslua_state(void) { return L; }
  * vi: set shiftwidth=4 tabstop=4 expandtab:
  * :indentSize=4:tabSize=4:noTabs=true:
  */
-

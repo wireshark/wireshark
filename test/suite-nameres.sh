@@ -157,7 +157,7 @@ name_resolution_cleanup_step() {
 
 name_resolution_prep_step() {
 	CUSTOM_PROFILE_PATH="$CONF_PATH/profiles/$CUSTOM_PROFILE_NAME"
-	TS_NR_ENV="WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ${HOME_ENV}=${HOME_PATH}"
+	TS_NR_ENV="${HOME_ENV}=${HOME_PATH}"
 
 	name_resolution_cleanup_step
 	mkdir -p "$CUSTOM_PROFILE_PATH"

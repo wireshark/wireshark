@@ -165,9 +165,15 @@ char* wslua_get_actual_filename(const char* fname) {
     g_free(filename);
 
     if (running_in_build_directory()) {
-        /* Running in build directory, try wslua source directory */
+        /* Running in build directory, try the source directory (Autotools) */
         filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
                                    G_DIR_SEPARATOR_S "%s", get_datafile_dir(), fname_clean);
+        if (( ! file_exists(filename))) {
+            /* Try the CMake output directory */
+            g_free(filename);
+            filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+                                       get_progfile_dir(), fname_clean);
+        }
         if ( file_exists(filename) ) {
             return filename;
         }
