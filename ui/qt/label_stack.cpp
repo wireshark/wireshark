@@ -24,6 +24,7 @@
 #include <QContextMenuEvent>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QStyleOption>
 
 #include "tango_colors.h"
 
@@ -143,14 +144,18 @@ void LabelStack::paintEvent(QPaintEvent *event)
         return;
     }
 
-    // Other "elided label" examples draw the label text by hand,
-    // reimplementing QLabel::paintEvent. Disabling updates and letting
-    // QLabel do the work for us seems to work, however.
+    QFrame::paintEvent(event);
+
     QString elided_text = fontMetrics().elidedText(text(), Qt::ElideMiddle, width());
-    QString full_text = text();
-    setText(elided_text);
-    QLabel::paintEvent(event);
-    setText(full_text);
+    QPainter painter(this);
+    QRect contents_rect = contentsRect();
+    QStyleOption opt;
+
+    contents_rect.adjust(margin(), margin(), -margin(), -margin());
+    opt.initFrom(this);
+
+    style()->drawItemText(&painter, contents_rect, alignment(), opt.palette,
+                          isEnabled(), elided_text, foregroundRole());
 }
 
 void LabelStack::popText(int ctx) {
