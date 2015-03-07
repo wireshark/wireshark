@@ -1745,7 +1745,7 @@ void proto_register_gvsp(void)
 
         {& hf_gvsp_sc_zone_direction,
         { "Zone Directions Mask", "gvsp.zonedirection",
-        FT_BOOLEAN, 32, TFS(&directionnames), 0,
+        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
