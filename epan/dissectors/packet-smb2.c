@@ -215,6 +215,10 @@ static int hf_smb2_ioctl_shadow_copy_num_labels = -1;
 static int hf_smb2_ioctl_shadow_copy_count = -1;
 static int hf_smb2_ioctl_shadow_copy_label = -1;
 static int hf_smb2_compression_format = -1;
+static int hf_smb2_checksum_algorithm = -1;
+static int hf_smb2_integrity_reserved = -1;
+static int hf_smb2_integrity_flags = -1;
+static int hf_smb2_integrity_flags_enforcement_off = -1;
 static int hf_smb2_FILE_OBJECTID_BUFFER = -1;
 static int hf_smb2_lease_key = -1;
 static int hf_smb2_lease_state = -1;
@@ -416,6 +420,7 @@ static gint ett_smb2_DH2C_buffer = -1;
 static gint ett_smb2_dh2x_flags = -1;
 static gint ett_smb2_APP_INSTANCE_buffer = -1;
 static gint ett_smb2_svhdx_open_device_context = -1;
+static gint ett_smb2_integrity_flags = -1;
 static gint ett_smb2_find_flags = -1;
 static gint ett_smb2_file_directory_info = -1;
 static gint ett_smb2_both_directory_info = -1;
@@ -1185,6 +1190,12 @@ static const value_string compression_format_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string checksum_algorithm_vals[] = {
+	{ 0x0000, "CHECKSUM_TYPE_NONE" },
+	{ 0x0002, "CHECKSUM_TYPE_CRC64" },
+	{ 0xFFFF, "CHECKSUM_TYPE_UNCHANGED" },
+	{ 0, NULL }
+};
 
 /* Note: All uncommented are "dissector not implemented" */
 static const value_string smb2_ioctl_vals[] = {
@@ -1229,6 +1240,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000900DF, "FSCTL_WRITE_RAW_ENCRYPTED"},
 	{0x000900E3, "FSCTL_READ_RAW_ENCRYPTED"},
 	{0x000900F0, "FSCTL_EXTEND_VOLUME"},
+	{0x0009027C, "FSCTL_GET_INTEGRITY_INFORMATION"},
 	{0x00090300, "FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT"},
 	{0x00090304, "FSCTL_SVHDX_SYNC_TUNNEL_REQUEST"},
 	{0x00090308, "FSCTL_SVHDX_SET_INITIATOR_INFORMATION"},
@@ -1253,6 +1265,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000980C8, "FSCTL_SET_ZERO_DATA"},
 	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
 	{0x0009C040, "FSCTL_SET_COMPRESSION"},			      /* dissector implemented */
+	{0x0009C280, "FSCTL_SET_INTEGRITY_INFORMATION"},
 	{0x0011C017, "FSCTL_PIPE_TRANSCEIVE"},			      /* dissector implemented */
 	{0x00140078, "FSCTL_SRV_REQUEST_RESUME_KEY"},
 	{0x001401D4, "FSCTL_LMR_REQUEST_RESILIENCY"},		      /* dissector implemented */
@@ -4815,6 +4828,7 @@ dissect_smb2_FSCTL_GET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 	return offset;
 }
+
 static int
 dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
@@ -4827,6 +4841,31 @@ dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	/* compression format */
 	proto_tree_add_item(tree, hf_smb2_compression_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
+
+	return offset;
+}
+
+static int
+dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
+{
+	const int *integrity_flags[] = {
+		&hf_smb2_integrity_flags_enforcement_off,
+		NULL
+	};
+
+	/* There is no out data */
+	if (!data_in) {
+		return offset;
+	}
+
+	proto_tree_add_item(tree, hf_smb2_checksum_algorithm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_smb2_integrity_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_integrity_flags, ett_smb2_integrity_flags, integrity_flags, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
 	return offset;
 }
@@ -4927,6 +4966,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		break;
 	case 0x0009C040: /* FSCTL_SET_COMPRESSION */
 		dissect_smb2_FSCTL_SET_COMPRESSION(tvb, pinfo, tree, 0, data_in);
+		break;
+	case 0x0009C280: /* FSCTL_SET_INTEGRITY_INFORMATION request or response */
+		dissect_smb2_FSCTL_SET_INTEGRITY_INFORMATION(tvb, pinfo, tree, 0, data_in);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), ENC_NA);
@@ -8034,6 +8076,22 @@ proto_register_smb2(void)
 		  { "Compression Format", "smb2.compression_format", FT_UINT16, BASE_DEC,
 		    VALS(compression_format_vals), 0, "Compression to use", HFILL }},
 
+		{ &hf_smb2_checksum_algorithm,
+		  { "Checksum Algorithm", "smb2.checksum_algorithm", FT_UINT16, BASE_HEX,
+		    VALS(checksum_algorithm_vals), 0, "Checksum algorithm to use", HFILL}},
+
+		{ &hf_smb2_integrity_reserved,
+		  { "Reserved", "smb2.integrity_reserved", FT_UINT16, BASE_DEC,
+		    NULL, 0, "Reserved Field", HFILL}},
+
+		{ &hf_smb2_integrity_flags,
+		  { "Flags", "smb2.integrity_flags", FT_UINT32, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_integrity_flags_enforcement_off,
+		  { "FSCTL_INTEGRITY_FLAG_CHECKSUM_ENFORCEMENT_OFF", "smb2.integrity_flags_enforcement", FT_BOOLEAN, 32,
+		    NULL, 0x1, "If checksum error enforcement is off", HFILL }},
+
 		{ &hf_smb2_share_type,
 		  { "Share Type", "smb2.share_type", FT_UINT8, BASE_HEX,
 		    VALS(smb2_share_type_vals), 0, "Type of share", HFILL }},
@@ -8607,6 +8665,7 @@ proto_register_smb2(void)
 		&ett_smb2_dh2x_flags,
 		&ett_smb2_APP_INSTANCE_buffer,
 		&ett_smb2_svhdx_open_device_context,
+		&ett_smb2_integrity_flags,
 		&ett_smb2_transform_enc_alg,
 		&ett_smb2_buffercode,
 		&ett_smb2_ioctl_network_interface_capabilities,
