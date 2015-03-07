@@ -60,7 +60,6 @@ typedef struct _stat_tap_ui {
     const char            *title;      /* title of statistic */
     const char            *cli_string; /* initial part of the "-z" argument for statistic */
     void (* tap_init_cb)(const char *, void*); /* callback to init function of the tap */
-    gint                   index;      /* initiate this value always with "-1" */
     size_t                 nparams;    /* number of parameters */
     tap_param             *params;     /* pointer to table of parameter info */
 } stat_tap_ui;

@@ -179,7 +179,6 @@ static stat_tap_ui dhcpstat_ui = {
 	NULL,
 	"bootp,stat",
 	dhcpstat_init,
-	-1,
 	0,
 	NULL
 };

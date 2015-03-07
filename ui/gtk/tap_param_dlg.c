@@ -76,7 +76,6 @@ register_param_stat(tap_param_dlg *info, const char *name,
     ui_info.title = full_name;
     ui_info.cli_string = info->init_string;
     ui_info.tap_init_cb = info->tap_init_cb;
-    ui_info.index = -1;
     ui_info.nparams = info->nparams;
     ui_info.params = info->params;
     register_stat_tap_ui(&ui_info, NULL);

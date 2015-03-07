@@ -437,7 +437,6 @@ static stat_tap_ui sipstat_ui = {
 	NULL,
 	"sip,stat",
 	sipstat_init,
-	-1,
 	0,
 	NULL
 };

@@ -325,7 +325,6 @@ static stat_tap_ui httpstat_ui = {
 	NULL,
 	"http,stat",
 	httpstat_init,
-	-1,
 	0,
 	NULL
 };

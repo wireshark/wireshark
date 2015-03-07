@@ -158,7 +158,6 @@ static stat_tap_ui ansi_a_stat_ui = {
     NULL,
     "ansi_a",
     ansi_a_stat_init,
-    -1,
     0,
     NULL
 };

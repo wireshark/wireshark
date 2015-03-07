@@ -136,7 +136,6 @@ static stat_tap_ui megacostat_ui = {
 	NULL,
 	"megaco,rtd",
 	megacostat_init,
-	-1,
 	0,
 	NULL
 };

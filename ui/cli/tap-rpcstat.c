@@ -347,7 +347,6 @@ static stat_tap_ui rpcstat_ui = {
 	NULL,
 	"rpc,srt",
 	rpcstat_init,
-	-1,
 	0,
 	NULL
 };

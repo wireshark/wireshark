@@ -1007,7 +1007,6 @@ static stat_tap_ui expert_comp_ui = {
     NULL,
     "expert_comp",
     expert_comp_init,
-    -1,
     0,
     NULL
 };

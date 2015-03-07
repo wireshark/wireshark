@@ -254,7 +254,6 @@ static stat_tap_ui camelsrt_ui = {
   NULL,
   "camel,srt",
   camelsrt_init,
-  -1,
   0,
   NULL
 };

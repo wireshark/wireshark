@@ -78,7 +78,6 @@ static stat_tap_ui svstat_ui = {
 	NULL,
 	"sv",
 	svstat_init,
-	-1,
 	0,
 	NULL
 };

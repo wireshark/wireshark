@@ -90,7 +90,6 @@ static stat_tap_ui smbsids_ui = {
 	NULL,
 	"smb,sids",
 	smbsids_init,
-	-1,
 	0,
 	NULL
 };

@@ -1524,7 +1524,6 @@ static stat_tap_ui iostat_ui = {
     NULL,
     "io,stat",
     iostat_init,
-    -1,
     0,
     NULL
 };

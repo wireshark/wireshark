@@ -579,7 +579,6 @@ static stat_tap_ui comparestat_ui = {
 	NULL,
 	"compare",
 	comparestat_init,
-	-1,
 	0,
 	NULL
 };

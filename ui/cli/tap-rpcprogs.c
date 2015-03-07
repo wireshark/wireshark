@@ -230,7 +230,6 @@ static stat_tap_ui rpcprogs_ui = {
 	NULL,
 	"rpc,programs",
 	rpcprogs_init,
-	-1,
 	0,
 	NULL
 };

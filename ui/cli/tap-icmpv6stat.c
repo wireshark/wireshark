@@ -315,7 +315,6 @@ static stat_tap_ui icmpv6stat_ui = {
     NULL,
     "icmpv6,srt",
     icmpv6stat_init,
-    -1,
     0,
     NULL
 };

@@ -209,7 +209,6 @@ static stat_tap_ui protohierstat_ui = {
 	NULL,
 	"io,phs",
 	protohierstat_init,
-	-1,
 	0,
 	NULL
 };

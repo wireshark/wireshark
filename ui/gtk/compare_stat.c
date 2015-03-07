@@ -1054,7 +1054,6 @@ static stat_tap_ui compare_stat_ui = {
 	NULL,
 	"compare",
 	gtk_comparestat_init,
-	-1,
 	0,
 	NULL
 };

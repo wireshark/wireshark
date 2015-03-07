@@ -275,7 +275,6 @@ WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
     ui_info.title = NULL;
     ui_info.cli_string = arg;
     ui_info.tap_init_cb = statcmd_init;
-    ui_info.index = -1;
     ui_info.nparams = 0;
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, sc);

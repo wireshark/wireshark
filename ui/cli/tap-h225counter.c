@@ -403,7 +403,6 @@ static stat_tap_ui h225counter_ui = {
 	NULL,
 	"h225,counter",
 	h225counter_init,
-	-1,
 	0,
 	NULL
 };

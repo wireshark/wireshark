@@ -281,7 +281,6 @@ static stat_tap_ui wspstat_ui = {
 	NULL,
 	"wsp,stat",
 	wspstat_init,
-	-1,
 	0,
 	NULL
 };

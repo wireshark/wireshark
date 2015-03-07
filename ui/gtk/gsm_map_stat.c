@@ -451,7 +451,6 @@ static stat_tap_ui gsm_map_stat_ui = {
     NULL,
     "gsm_map",
     gsm_map_stat_gtk_init,
-    -1,
     0,
     NULL
 };

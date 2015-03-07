@@ -180,7 +180,6 @@ static void register_menu_cb(const char *name,
     ui_info.title = NULL;
     ui_info.cli_string = name;
     ui_info.tap_init_cb = init_funnel_cmd;
-    ui_info.index = -1;
     ui_info.nparams = 0;
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, mcb);

@@ -139,7 +139,6 @@ static stat_tap_ui hosts_ui = {
 	NULL,
 	TAP_NAME,
 	hosts_init,
-	-1,
 	0,
 	NULL
 };

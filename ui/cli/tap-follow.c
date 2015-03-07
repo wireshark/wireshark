@@ -1006,7 +1006,6 @@ static stat_tap_ui followTcp_ui = {
   NULL,
   STR_FOLLOW_TCP,
   followTcp,
-  -1,
   0,
   NULL
 };
@@ -1016,7 +1015,6 @@ static stat_tap_ui followUdp_ui = {
   NULL,
   STR_FOLLOW_UDP,
   followUdp,
-  -1,
   0,
   NULL
 };
@@ -1026,7 +1024,6 @@ static stat_tap_ui followSsl_ui = {
   NULL,
   STR_FOLLOW_SSL,
   followSsl,
-  -1,
   0,
   NULL
 };

@@ -134,7 +134,6 @@ static stat_tap_ui protocolinfo_ui = {
 	NULL,
 	"proto,colinfo",
 	protocolinfo_init,
-	-1,
 	0,
 	NULL
 };

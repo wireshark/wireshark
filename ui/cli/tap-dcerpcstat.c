@@ -293,7 +293,6 @@ static stat_tap_ui dcerpcstat_ui = {
 	NULL,
 	"dcerpc,srt",
 	dcerpcstat_init,
-	-1,
 	0,
 	NULL
 };

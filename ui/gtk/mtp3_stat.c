@@ -419,7 +419,6 @@ static stat_tap_ui mtp3_stat_ui = {
     NULL,
     "mtp3,msus",
     mtp3_stat_gtk_init,
-    -1,
     0,
     NULL
 };

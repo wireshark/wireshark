@@ -158,7 +158,6 @@ static stat_tap_ui rtp_streams_stat_ui = {
     NULL,
     "rtp,streams",
     rtp_streams_stat_init,
-    -1,
     0,
     NULL
 };

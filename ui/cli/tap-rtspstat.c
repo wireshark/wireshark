@@ -277,7 +277,6 @@ static stat_tap_ui rtspstat_ui = {
 	NULL,
 	"rtsp,stat",
 	rtspstat_init,
-	-1,
 	0,
 	NULL
 };

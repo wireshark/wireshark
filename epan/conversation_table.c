@@ -169,7 +169,6 @@ set_conv_gui_data(gpointer data, gpointer user_data)
     ui_info.title = NULL;   /* construct this from the protocol info? */
     ui_info.cli_string = g_string_free(conv_cmd_str, FALSE);
     ui_info.tap_init_cb = dissector_conversation_init;
-    ui_info.index = -1;
     ui_info.nparams = 0;
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, table);
@@ -194,7 +193,6 @@ set_host_gui_data(gpointer data, gpointer user_data)
     ui_info.title = NULL;   /* construct this from the protocol info? */
     ui_info.cli_string = g_string_free(host_cmd_str, FALSE);
     ui_info.tap_init_cb = dissector_hostlist_init;
-    ui_info.index = -1;
     ui_info.nparams = 0;
     ui_info.params = NULL;
     register_stat_tap_ui(&ui_info, table);

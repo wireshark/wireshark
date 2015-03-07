@@ -388,7 +388,6 @@ static stat_tap_ui flow_graph_ui = {
 	NULL,
 	"flow_graph",
 	flow_graph_init_tap,
-	-1,
 	0,
 	NULL
 };

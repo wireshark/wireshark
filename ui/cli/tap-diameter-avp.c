@@ -272,7 +272,6 @@ static stat_tap_ui diameteravp_ui = {
 	NULL,
 	"diameter,avp",
 	diameteravp_init,
-	-1,
 	0,
 	NULL
 };

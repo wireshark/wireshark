@@ -946,7 +946,6 @@ static stat_tap_ui voip_calls_ui = {
 	NULL,
 	"voip,calls",
 	voip_calls_dlg_init_taps,
-	-1,
 	0,
 	NULL
 };

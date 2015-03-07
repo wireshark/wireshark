@@ -2179,7 +2179,6 @@ static stat_tap_ui io_stat_ui = {
     NULL,
     "io,stat",
     io_graph_init,
-    -1,
     0,
     NULL
 };

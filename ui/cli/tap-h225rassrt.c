@@ -242,7 +242,6 @@ static stat_tap_ui h225rassrt_ui = {
 	NULL,
 	"h225,srt",
 	h225rassrt_init,
-	-1,
 	0,
 	NULL
 };

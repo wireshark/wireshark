@@ -258,7 +258,6 @@ static stat_tap_ui scsistat_ui = {
 	NULL,
 	"scsi,srt",
 	scsistat_init,
-	-1,
 	0,
 	NULL
 };

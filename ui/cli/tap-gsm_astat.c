@@ -344,7 +344,6 @@ static stat_tap_ui gsm_a_stat_ui = {
     NULL,
     "gsm_a",
     gsm_a_stat_init,
-    -1,
     0,
     NULL
 };

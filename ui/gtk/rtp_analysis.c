@@ -4062,7 +4062,6 @@ static stat_tap_ui rtp_analysis_ui = {
 	NULL,
 	"rtp",
 	rtp_analysis_init,
-	-1,
 	0,
 	NULL
 };

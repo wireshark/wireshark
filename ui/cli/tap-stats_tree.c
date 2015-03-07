@@ -120,7 +120,6 @@ register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	ui_info.title = NULL;
 	ui_info.cli_string = cfg->pr->init_string;
 	ui_info.tap_init_cb = init_stats_tree;
-	ui_info.index = -1;
 	ui_info.nparams = 0;
 	ui_info.params = NULL;
 	register_stat_tap_ui(&ui_info, NULL);

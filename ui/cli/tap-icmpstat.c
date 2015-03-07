@@ -314,7 +314,6 @@ static stat_tap_ui icmpstat_ui = {
     NULL,
     "icmp,srt",
     icmpstat_init,
-    -1,
     0,
     NULL
 };

@@ -160,7 +160,6 @@ static stat_tap_ui afpstat_ui = {
 	NULL,
 	"afp,srt",
 	afpstat_init,
-	-1,
 	0,
 	NULL
 };

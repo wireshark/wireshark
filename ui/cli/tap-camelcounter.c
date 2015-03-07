@@ -124,7 +124,6 @@ static stat_tap_ui camelcounter_ui = {
   NULL,
   "camel,counter",
   camelcounter_init,
-  -1,
   0,
   NULL
 };

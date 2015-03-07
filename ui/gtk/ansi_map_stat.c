@@ -351,7 +351,6 @@ static stat_tap_ui ansi_map_ui = {
     NULL,
     "ansi_map",
     ansi_map_stat_gtk_init,
-    -1,
     0,
     NULL
 };

@@ -269,7 +269,6 @@ static stat_tap_ui expert_stat_ui = {
     NULL,
     "expert",
     expert_stat_init,
-    -1,
     0,
     NULL
 };

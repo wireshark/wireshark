@@ -3830,7 +3830,6 @@ static stat_tap_ui iax2_analysis_ui = {
 	NULL,
 	"IAX2",	/* XXX - should be "iax2" */
 	iax2_analysis_init,
-	-1,
 	0,
 	NULL
 };

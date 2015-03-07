@@ -545,7 +545,6 @@ static stat_tap_ui mac_lte_stat_ui = {
     NULL,
     "mac-lte,stat",
     mac_lte_stat_init,
-    -1,
     0,
     NULL
 };

@@ -221,7 +221,6 @@ static stat_tap_ui mgcpstat_ui = {
 	NULL,
 	"mgcp,rtd",
 	mgcpstat_init,
-	-1,
 	0,
 	NULL
 };

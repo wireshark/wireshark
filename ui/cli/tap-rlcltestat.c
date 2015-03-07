@@ -406,7 +406,6 @@ static stat_tap_ui rlc_lte_stat_ui = {
     NULL,
     "rlc-lte,stat",
     rlc_lte_stat_init,
-    -1,
     0,
     NULL
 };

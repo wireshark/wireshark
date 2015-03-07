@@ -237,7 +237,6 @@ static stat_tap_ui radiusstat_ui = {
 	NULL,
 	"radius,rtd",
 	radiusstat_init,
-	-1,
 	0,
 	NULL
 };

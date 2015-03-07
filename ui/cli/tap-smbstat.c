@@ -259,7 +259,6 @@ static stat_tap_ui smbstat_ui = {
 	NULL,
 	"smb,srt",
 	smbstat_init,
-	-1,
 	0,
 	NULL
 };

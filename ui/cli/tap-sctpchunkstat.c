@@ -250,7 +250,6 @@ static stat_tap_ui sctpstat_ui = {
 	NULL,
 	"sctp,stat",
 	sctpstat_init,
-	-1,
 	0,
 	NULL
 };
