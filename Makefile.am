@@ -1273,6 +1273,7 @@ EXTRA_DIST = \
 	cmake/modules/FindYACC.cmake		\
 	cmake/modules/FindYAPP.cmake		\
 	cmake/modules/FindZLIB.cmake		\
+	cmake/modules/GenerateTestSh.cmake	\
 	cmake/modules/gmxTestLargeFiles.cmake	\
 	cmake/modules/hhc.cmake	\
 	cmake/modules/LICENSE.txt		\
