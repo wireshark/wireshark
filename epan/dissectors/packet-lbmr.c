@@ -4576,13 +4576,13 @@ static int dissect_lbmr_pser(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             proto_tree * ctxinst_tree = NULL;
             proto_item * ctxinst_item = NULL;
             guint8 opt_type = tvb_get_guint8(tvb, curr_offset + O_LBMR_PSER_OPT_HDR_T_TYPE);
-            guint8 option_len = tvb_get_guint8(tvb, O_LBMR_PSER_OPT_HDR_T_LEN);
+            guint8 option_len = tvb_get_guint8(tvb, curr_offset + O_LBMR_PSER_OPT_HDR_T_LEN);
 
             switch (opt_type)
             {
                 case LBMR_PSER_OPT_SRC_CTXINST_TYPE:
                 case LBMR_PSER_OPT_STORE_CTXINST_TYPE:
-                    ctxinst_item = proto_tree_add_item(opts_tree, hf_lbmr_pser_opt_ctxinst, tvb, offset, L_LBMR_PSER_OPT_CTXINST_T, ENC_NA);
+                    ctxinst_item = proto_tree_add_item(opts_tree, hf_lbmr_pser_opt_ctxinst, tvb, curr_offset, L_LBMR_PSER_OPT_CTXINST_T, ENC_NA);
                     ctxinst_tree = proto_item_add_subtree(ctxinst_item, ett_lbmr_pser_opt_ctxinst);
                     proto_tree_add_item(ctxinst_tree, hf_lbmr_pser_opt_ctxinst_len, tvb, curr_offset + O_LBMR_PSER_OPT_CTXINST_T_LEN, L_LBMR_PSER_OPT_CTXINST_T_LEN, ENC_BIG_ENDIAN);
                     proto_tree_add_item(ctxinst_tree, hf_lbmr_pser_opt_ctxinst_type, tvb, curr_offset + O_LBMR_PSER_OPT_CTXINST_T_TYPE, L_LBMR_PSER_OPT_CTXINST_T_TYPE, ENC_BIG_ENDIAN);
@@ -4596,6 +4596,9 @@ static int dissect_lbmr_pser(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     curr_offset += option_len;
                     opt_len -= option_len;
                     expert_add_info_format(pinfo, NULL, &ei_lbmr_analysis_invalid_value, "Unknown LBMR PSER option 0x%02x", opt_type);
+                    if (option_len == 0) {
+                        return (len);
+                    }
                     break;
             }
         }
