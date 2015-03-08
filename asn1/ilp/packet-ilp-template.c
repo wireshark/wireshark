@@ -33,6 +33,8 @@
 #include "packet-per.h"
 #include "packet-tcp.h"
 #include "packet-gsm_map.h"
+#include "packet-e164.h"
+#include "packet-e212.h"
 
 #define PNAME  "OMA Internal Location Protocol"
 #define PSNAME "ILP"
@@ -57,9 +59,11 @@ static int proto_ilp = -1;
 static gboolean ilp_desegment = TRUE;
 
 #include "packet-ilp-hf.c"
+static int hf_ilp_mobile_directory_number = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ilp = -1;
+static gint ett_ilp_setid = -1;
 #include "packet-ilp-ett.c"
 
 /* Include constants */
@@ -93,11 +97,16 @@ void proto_register_ilp(void) {
   static hf_register_info hf[] = {
 
 #include "packet-ilp-hfarr.c"
+    { &hf_ilp_mobile_directory_number,
+      { "Mobile Directory Number", "ilp.mobile_directory_number",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_ilp,
+    &ett_ilp_setid,
 #include "packet-ilp-ettarr.c"
   };
 

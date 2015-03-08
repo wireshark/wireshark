@@ -33,6 +33,8 @@
 #include "packet-per.h"
 #include "packet-tcp.h"
 #include "packet-gsm_map.h"
+#include "packet-e164.h"
+#include "packet-e212.h"
 
 #define PNAME  "OMA UserPlane Location Protocol"
 #define PSNAME "ULP"
@@ -59,9 +61,12 @@ static int proto_ulp = -1;
 static gboolean ulp_desegment = TRUE;
 
 #include "packet-ulp-hf.c"
+static int hf_ulp_mobile_directory_number = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
+static gint ett_ulp_setid = -1;
+static gint ett_ulp_thirdPartyId = -1;
 #include "packet-ulp-ett.c"
 
 /* Include constants */
@@ -95,11 +100,17 @@ void proto_register_ulp(void) {
   static hf_register_info hf[] = {
 
 #include "packet-ulp-hfarr.c"
+    { &hf_ulp_mobile_directory_number,
+      { "Mobile Directory Number", "ulp.mobile_directory_number",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }}
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_ulp,
+    &ett_ulp_setid,
+    &ett_ulp_thirdPartyId,
 #include "packet-ulp-ettarr.c"
   };
 

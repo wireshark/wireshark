@@ -66,6 +66,35 @@ guint32 IlpMessage;
     call_dissector(lpp_handle, lpp_tvb, %(ACTX)s->pinfo, tree);
   }
 
+#.FN_BODY SETId/msisdn VAL_PTR=&msisdn_tvb
+  tvbuff_t *msisdn_tvb;
+%(DEFAULT_BODY)s
+  if (msisdn_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
+    dissect_e164_msisdn(msisdn_tvb, subtree, 0, 8, E164_ENC_BCD);
+  }
+
+#.FN_BODY SETId/mdn VAL_PTR=&mdn_tvb
+  tvbuff_t *mdn_tvb;
+%(DEFAULT_BODY)s
+  if (mdn_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
+    proto_tree_add_string(subtree, hf_ilp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_wmem_packet_str(mdn_tvb, 0, 8, NULL, FALSE));
+  }
+
+#.FN_BODY SETId/imsi VAL_PTR=&imsi_tvb
+  tvbuff_t *imsi_tvb;
+%(DEFAULT_BODY)s
+  if (imsi_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ilp_setid);
+    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, FALSE);
+  }
 
 #.TYPE_ATTR
 IPAddress/ipv4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL

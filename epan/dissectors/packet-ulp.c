@@ -41,6 +41,8 @@
 #include "packet-per.h"
 #include "packet-tcp.h"
 #include "packet-gsm_map.h"
+#include "packet-e164.h"
+#include "packet-e212.h"
 
 #define PNAME  "OMA UserPlane Location Protocol"
 #define PSNAME "ULP"
@@ -375,10 +377,10 @@ static int hf_ulp_setSessionID = -1;              /* SetSessionID */
 static int hf_ulp_slpSessionID = -1;              /* SlpSessionID */
 static int hf_ulp_sessionId = -1;                 /* INTEGER_0_65535 */
 static int hf_ulp_setId = -1;                     /* SETId */
-static int hf_ulp_msisdn = -1;                    /* OCTET_STRING_SIZE_8 */
-static int hf_ulp_mdn = -1;                       /* OCTET_STRING_SIZE_8 */
+static int hf_ulp_msisdn = -1;                    /* T_msisdn */
+static int hf_ulp_mdn = -1;                       /* T_mdn */
 static int hf_ulp_minsi = -1;                     /* BIT_STRING_SIZE_34 */
-static int hf_ulp_imsi = -1;                      /* OCTET_STRING_SIZE_8 */
+static int hf_ulp_imsi = -1;                      /* T_imsi */
 static int hf_ulp_nai = -1;                       /* IA5String_SIZE_1_1000 */
 static int hf_ulp_iPAddress = -1;                 /* IPAddress */
 static int hf_ulp_sessionSlpID = -1;              /* OCTET_STRING_SIZE_4 */
@@ -645,10 +647,12 @@ static int hf_ulp_rand = -1;                      /* BIT_STRING_SIZE_128 */
 static int hf_ulp_slpFQDN = -1;                   /* FQDN */
 static int hf_ulp_ThirdParty_item = -1;           /* ThirdPartyID */
 static int hf_ulp_logicalName = -1;               /* IA5String_SIZE_1_1000 */
+static int hf_ulp_msisdn_01 = -1;                 /* T_msisdn_01 */
 static int hf_ulp_emailaddr = -1;                 /* IA5String_SIZE_1_1000 */
 static int hf_ulp_sip_uri = -1;                   /* T_sip_uri */
 static int hf_ulp_ims_public_identity = -1;       /* T_ims_public_identity */
 static int hf_ulp_min_01 = -1;                    /* BIT_STRING_SIZE_34 */
+static int hf_ulp_mdn_01 = -1;                    /* T_mdn_01 */
 static int hf_ulp_uri = -1;                       /* T_uri */
 static int hf_ulp_appProvider = -1;               /* IA5String_SIZE_1_24 */
 static int hf_ulp_appName = -1;                   /* IA5String_SIZE_1_32 */
@@ -690,10 +694,13 @@ static int hf_ulp_GANSSSignals_signal7 = -1;
 static int hf_ulp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 62 "../../asn1/ulp/packet-ulp-template.c"
+#line 64 "../../asn1/ulp/packet-ulp-template.c"
+static int hf_ulp_mobile_directory_number = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
+static gint ett_ulp_setid = -1;
+static gint ett_ulp_thirdPartyId = -1;
 
 /*--- Included file: packet-ulp-ett.c ---*/
 #line 1 "../../asn1/ulp/packet-ulp-ett.c"
@@ -911,7 +918,7 @@ static gint ett_ulp_PolygonArea = -1;
 static gint ett_ulp_PolygonDescription = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 66 "../../asn1/ulp/packet-ulp-template.c"
+#line 71 "../../asn1/ulp/packet-ulp-template.c"
 
 /* Include constants */
 
@@ -934,7 +941,7 @@ static gint ett_ulp_PolygonDescription = -1;
 #define maxWimaxBSMeas                 32
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 69 "../../asn1/ulp/packet-ulp-template.c"
+#line 74 "../../asn1/ulp/packet-ulp-template.c"
 
 
 
@@ -979,9 +986,41 @@ dissect_ulp_Version(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static int
-dissect_ulp_OCTET_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ulp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 71 "../../asn1/ulp/ulp.cnf"
+  tvbuff_t *msisdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       8, 8, FALSE, NULL);
+                                       8, 8, FALSE, &msisdn_tvb);
+
+  if (msisdn_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ulp_setid);
+    dissect_e164_msisdn(msisdn_tvb, subtree, 0, 8, E164_ENC_BCD);
+  }
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_T_mdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 81 "../../asn1/ulp/ulp.cnf"
+  tvbuff_t *mdn_tvb;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, &mdn_tvb);
+
+  if (mdn_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ulp_setid);
+    proto_tree_add_string(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_wmem_packet_str(mdn_tvb, 0, 8, NULL, FALSE));
+  }
+
+
 
   return offset;
 }
@@ -992,6 +1031,27 @@ static int
 dissect_ulp_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      34, 34, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 91 "../../asn1/ulp/ulp.cnf"
+  tvbuff_t *imsi_tvb;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, &imsi_tvb);
+
+  if (imsi_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ulp_setid);
+    dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, FALSE);
+  }
+
+
 
   return offset;
 }
@@ -1060,10 +1120,10 @@ static const value_string ulp_SETId_vals[] = {
 };
 
 static const per_choice_t SETId_choice[] = {
-  {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
-  {   1, &hf_ulp_mdn             , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   0, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_T_msisdn },
+  {   1, &hf_ulp_mdn             , ASN1_EXTENSION_ROOT    , dissect_ulp_T_mdn },
   {   2, &hf_ulp_minsi           , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
-  {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_T_imsi },
   {   4, &hf_ulp_nai             , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   5, &hf_ulp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ulp_IPAddress },
   { 0, NULL, 0, NULL }
@@ -1732,6 +1792,16 @@ static int
 dissect_ulp_ProtLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_OCTET_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, NULL);
 
   return offset;
 }
@@ -3685,8 +3755,29 @@ dissect_ulp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static int
+dissect_ulp_T_msisdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 101 "../../asn1/ulp/ulp.cnf"
+  tvbuff_t *msisdn_tvb;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, &msisdn_tvb);
+
+  if (msisdn_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ulp_thirdPartyId);
+    dissect_e164_msisdn(msisdn_tvb, subtree, 0, 8, E164_ENC_BCD);
+  }
+
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "../../asn1/ulp/ulp.cnf"
+#line 112 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3699,7 +3790,7 @@ dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "../../asn1/ulp/ulp.cnf"
+#line 117 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3711,12 +3802,32 @@ dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static int
+dissect_ulp_T_mdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 121 "../../asn1/ulp/ulp.cnf"
+  tvbuff_t *mdn_tvb;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, &mdn_tvb);
+
+  if (mdn_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_ulp_thirdPartyId);
+    proto_tree_add_string(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_wmem_packet_str(mdn_tvb, 0, 8, NULL, FALSE));
+  }
+
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_ulp_T_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "../../asn1/ulp/ulp.cnf"
+#line 132 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%#", 69,
                                                       NULL);
-
 
 
 
@@ -3738,12 +3849,12 @@ static const value_string ulp_ThirdPartyID_vals[] = {
 
 static const per_choice_t ThirdPartyID_choice[] = {
   {   0, &hf_ulp_logicalName     , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
-  {   1, &hf_ulp_msisdn          , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   1, &hf_ulp_msisdn_01       , ASN1_EXTENSION_ROOT    , dissect_ulp_T_msisdn_01 },
   {   2, &hf_ulp_emailaddr       , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   3, &hf_ulp_sip_uri         , ASN1_EXTENSION_ROOT    , dissect_ulp_T_sip_uri },
   {   4, &hf_ulp_ims_public_identity, ASN1_EXTENSION_ROOT    , dissect_ulp_T_ims_public_identity },
   {   5, &hf_ulp_min_01          , ASN1_EXTENSION_ROOT    , dissect_ulp_BIT_STRING_SIZE_34 },
-  {   6, &hf_ulp_mdn             , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_8 },
+  {   6, &hf_ulp_mdn_01          , ASN1_EXTENSION_ROOT    , dissect_ulp_T_mdn_01 },
   {   7, &hf_ulp_uri             , ASN1_EXTENSION_ROOT    , dissect_ulp_T_uri },
   { 0, NULL, 0, NULL }
 };
@@ -6480,7 +6591,7 @@ static int dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 72 "../../asn1/ulp/packet-ulp-template.c"
+#line 77 "../../asn1/ulp/packet-ulp-template.c"
 
 
 static guint
@@ -7736,11 +7847,11 @@ void proto_register_ulp(void) {
     { &hf_ulp_msisdn,
       { "msisdn", "ulp.msisdn",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_8", HFILL }},
+        NULL, HFILL }},
     { &hf_ulp_mdn,
       { "mdn", "ulp.mdn",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_8", HFILL }},
+        NULL, HFILL }},
     { &hf_ulp_minsi,
       { "min", "ulp.min",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -7748,7 +7859,7 @@ void proto_register_ulp(void) {
     { &hf_ulp_imsi,
       { "imsi", "ulp.imsi",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_8", HFILL }},
+        NULL, HFILL }},
     { &hf_ulp_nai,
       { "nai", "ulp.nai",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -8813,6 +8924,10 @@ void proto_register_ulp(void) {
       { "logicalName", "ulp.logicalName",
         FT_STRING, BASE_NONE, NULL, 0,
         "IA5String_SIZE_1_1000", HFILL }},
+    { &hf_ulp_msisdn_01,
+      { "msisdn", "ulp.msisdn",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_msisdn_01", HFILL }},
     { &hf_ulp_emailaddr,
       { "emailaddr", "ulp.emailaddr",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -8829,6 +8944,10 @@ void proto_register_ulp(void) {
       { "min", "ulp.min",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
+    { &hf_ulp_mdn_01,
+      { "mdn", "ulp.mdn",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_mdn_01", HFILL }},
     { &hf_ulp_uri,
       { "uri", "ulp.uri",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -8983,12 +9102,18 @@ void proto_register_ulp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 98 "../../asn1/ulp/packet-ulp-template.c"
+#line 103 "../../asn1/ulp/packet-ulp-template.c"
+    { &hf_ulp_mobile_directory_number,
+      { "Mobile Directory Number", "ulp.mobile_directory_number",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }}
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_ulp,
+    &ett_ulp_setid,
+    &ett_ulp_thirdPartyId,
 
 /*--- Included file: packet-ulp-ettarr.c ---*/
 #line 1 "../../asn1/ulp/packet-ulp-ettarr.c"
@@ -9206,7 +9331,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PolygonDescription,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 104 "../../asn1/ulp/packet-ulp-template.c"
+#line 115 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;
