@@ -1377,6 +1377,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-vp8.c
 	dissectors/packet-vrrp.c
 	dissectors/packet-vrt.c
+	dissectors/packet-vsip.c
 	dissectors/packet-vssmonitoring.c
 	dissectors/packet-vtp.c
 	dissectors/packet-vuze-dht.c

@@ -146,6 +146,7 @@ ETSI Card Application Toolkit - Transport Protocol
 QNEX6 (QNET)
 Secure Socket Tunnel Protocol (SSTP)
 BGP Monitoring Prototol (BMP)
+Video Services over IP (VSIP)
 --sort-and-group--
 
 === Updated Protocol Support
