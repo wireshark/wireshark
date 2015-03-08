@@ -439,12 +439,17 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         length_ilv = tvb_get_ntohl(tvb, offset+12);
         proto_tree_add_uint_format_value(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv_length,
                                    tvb,  offset+12, 4, length_ilv, "%u Bytes", length_ilv);
-        if (length_ilv > 0)
+        offset += 8;
+        if (length_ilv > 0) {
             proto_tree_add_item(meta_data_ilv_tree, hf_forces_redirect_tlv_meta_data_tlv_meta_data_ilv,
-                                   tvb, offset+8, length_ilv, ENC_NA);
+                                   tvb, offset, length_ilv, ENC_NA);
+
+            if (offset + length_ilv > offset) {
+                offset += length_ilv;
+            }
+        }
 
         proto_item_set_len(ti, length_ilv + 8);
-        offset += length_ilv + 8;
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0)
