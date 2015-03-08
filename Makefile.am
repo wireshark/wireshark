@@ -902,7 +902,6 @@ EXTRA_DIST = \
 	image/expert_indicators.svg	\
 	image/expert_none.png	\
 	image/expert_note.png	\
-	image/expert_ok.png	\
 	image/expert_warn.png	\
 	image/file_dlg_win32.rc \
 	image/hi16-app-wireshark.png	\

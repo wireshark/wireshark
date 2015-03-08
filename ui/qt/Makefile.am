@@ -233,42 +233,7 @@ if HAVE_DOXYGEN
 	$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
 
-checkapi: checkapi-base checkapi-todo
-
-checkapi-base:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g deprecated-gtk -build \
-	-sourcedir=$(srcdir) \
-	$(WIRESHARK_GTK_SRC) \
-	$(WIRESHARK_TAP_SRC) \
-	capture_if_details_dlg_win32.c
-
-checkapi-todo:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
-	-sourcedir=$(srcdir) \
-	$(WIRESHARK_GTK_SRC) \
-	$(WIRESHARK_TAP_SRC) \
-	capture_if_details_dlg_win32.c
-
-expert_indicators.h:
-	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
-	echo >> $@
-	for elevel in chat error none note warn ; do \
-		gdk-pixbuf-csource --raw --name=expert_$${elevel}_pb_data ../../image/expert_$${elevel}.png >> $@ ;\
-	done
-
-network_icons.h:
-	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
-	echo >> $@
-	for icon in bluetooth usb wired wireless ; do \
-		gdk-pixbuf-csource --raw --name=network_$${icon}_pb_data ../../image/toolbar/network_$${icon}_16.png >> $@ ;\
-	done
-
-remote_icons.h:
-	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
-	echo >> $@
-	for icon in arrow globe sat ; do \
-		gdk-pixbuf-csource --raw --name=remote_$${icon}_pb_data ../../image/toolbar/remote_$${icon}_16.png >> $@ ;\
-	done
+#checkapi: checkapi-base checkapi-todo
 
 # XXX to be created
 #	Makefile.nmake
