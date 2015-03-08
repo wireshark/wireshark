@@ -898,11 +898,16 @@ EXTRA_DIST = \
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
 	image/expert_chat.png	\
+	image/expert_chat@2x.png	\
 	image/expert_error.png	\
+	image/expert_error@2x.png	\
 	image/expert_indicators.svg	\
 	image/expert_none.png	\
+	image/expert_none@2x.png	\
 	image/expert_note.png	\
+	image/expert_note@2x.png	\
 	image/expert_warn.png	\
+	image/expert_warn@2x.png	\
 	image/file_dlg_win32.rc \
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\

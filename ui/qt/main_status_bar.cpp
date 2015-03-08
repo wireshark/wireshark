@@ -190,6 +190,8 @@ void MainStatusBar::hideExpert() {
 }
 
 void MainStatusBar::expertUpdate() {
+    // <img> won't load @2x versions in Qt versions earlier than 5.4.
+    // We might have to switch to a QPushButton.
     QString img_text = "<img src=\":/expert/expert_";
     QString tt_text = tr(" is the highest expert info level");
 
