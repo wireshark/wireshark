@@ -2421,7 +2421,10 @@ static void ieee802154_da_prompt(packet_info *pinfo _U_, gchar* result)
     ieee802154_hints_t *hints;
     hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                 proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IEEE 802.15.4 PAN 0x%04x as", hints->src_pan);
+    if (hints)
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IEEE 802.15.4 PAN 0x%04x as", hints->src_pan);
+    else
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IEEE 802.15.4 PAN Unknown");
 } /* iee802154_da_prompt */
 
 /* Returns the value to index the panid decode table with (source PAN)*/
@@ -2430,7 +2433,10 @@ static gpointer ieee802154_da_value(packet_info *pinfo _U_)
     ieee802154_hints_t *hints;
     hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                 proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
-    return GUINT_TO_POINTER((guint)(hints->src_pan));
+    if (hints)
+        return GUINT_TO_POINTER((guint)(hints->src_pan));
+    else
+        return NULL;
 } /* iee802154_da_value */
 
 /*FUNCTION:------------------------------------------------------

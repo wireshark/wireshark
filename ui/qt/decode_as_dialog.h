@@ -59,6 +59,8 @@ private:
     QMap<QString, const char *> ui_name_to_name_;
 
     QString entryString(const gchar *table_name, gpointer value);
+    static void resetChangedList(const gchar *table_name, ftenum_t selector_type,
+                          gpointer key, gpointer value, gpointer user_data);
     static void buildChangedList(const gchar *table_name, ftenum_t selector_type,
                           gpointer key, gpointer value, gpointer user_data);
     static void buildDceRpcChangedList(gpointer data, gpointer user_data);

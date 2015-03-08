@@ -52,6 +52,13 @@ const char *default_proto_ = "HTTP";
 const char *default_int_selector_ = "0"; // Arbitrary
 const char *default_str_selector_ = "foo"; // Arbitrary
 
+typedef struct _dissector_info_t {
+    QString             proto_name;
+    dissector_handle_t  dissector_handle;
+} dissector_info_t;
+
+Q_DECLARE_METATYPE(dissector_info_t *)
+
 DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_new) :
     QDialog(parent),
     ui(new Ui::DecodeAsDialog),
@@ -306,6 +313,11 @@ void DecodeAsDialog::buildChangedList(const gchar *table_name, ftenum_t selector
     }
     item->setText(proto_col_, current_proto_name);
 
+    dissector_info_t  *dissector_info = new dissector_info_t();
+    dissector_info->proto_name = current_proto_name;
+    dissector_info->dissector_handle = current_dh;
+    item->setData(proto_col_, Qt::UserRole, QVariant::fromValue<dissector_info_t *>(dissector_info));
+
     da_dlg->ui->decodeAsTreeWidget->addTopLevelItem(item);
 }
 
@@ -333,6 +345,7 @@ void DecodeAsDialog::addRecord(bool copy_from_current)
         ti->setText(selector_col_, cur_ti->text(selector_col_));
         ti->setText(default_col_, cur_ti->text(default_col_));
         ti->setText(proto_col_, cur_ti->text(proto_col_));
+        ti->setData(proto_col_, Qt::UserRole, cur_ti->data(proto_col_, Qt::UserRole));
     }
 
     activateLastItem();
@@ -393,10 +406,14 @@ void DecodeAsDialog::decodeAddProtocol(const gchar *table_name, const gchar *pro
     Q_UNUSED(table_name);
     Q_UNUSED(value);
 
-    QSet<QString> *proto_set = (QSet<QString> *)user_data;
-    if (!proto_set) return;
+    QSet<dissector_info_t *> *dissector_info_set = (QSet<dissector_info_t *> *)user_data;
+    if (!dissector_info_set) return;
 
-    proto_set->insert(proto_name);
+    dissector_info_t  *dissector_info = new dissector_info_t();
+    dissector_info->proto_name = proto_name;
+    dissector_info->dissector_handle = (dissector_handle_t) value;
+
+    dissector_info_set->insert(dissector_info);
 }
 
 void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
@@ -408,12 +425,11 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
     if (current_text.isEmpty()) current_text = default_proto_;
 
     item->setText(table_col_, text);
-    item->setText(selector_col_, QString());
     fillTypeColumn(item);
 
     selector_combo_box_->clear();
 
-    QSet<QString> proto_set; // We want a unique list
+    QSet<dissector_info_t *> dissector_info_set;
     GList *cur;
     for (cur = decode_as_list; cur; cur = cur->next) {
         decode_as_t *entry = (decode_as_t *) cur->data;
@@ -427,7 +443,7 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
                 }
                 selector_combo_box_->setCurrentIndex(entry->default_index_value);
             }
-            entry->populate_list(entry->table_name, decodeAddProtocol, &proto_set);
+            entry->populate_list(entry->table_name, decodeAddProtocol, &dissector_info_set);
         }
     }
     if (selector_combo_box_->count() > 0) {
@@ -441,12 +457,17 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
         }
     }
 
-    QList<QString> proto_list = proto_set.toList();
-    qSort(proto_list);
     cur_proto_combo_box_->clear();
     cur_proto_combo_box_->addItem(DECODE_AS_NONE);
     cur_proto_combo_box_->insertSeparator(cur_proto_combo_box_->count());
-    cur_proto_combo_box_->addItems(proto_list);
+
+    QSetIterator<dissector_info_t *> i(dissector_info_set);
+    while (i.hasNext()) {
+        dissector_info_t  *dissector_info = i.next();
+
+        cur_proto_combo_box_->addItem(dissector_info->proto_name, QVariant::fromValue<dissector_info_t *>(dissector_info));
+    }
+
     cur_proto_combo_box_->setCurrentIndex(cur_proto_combo_box_->findText(current_text));
 }
 
@@ -485,6 +506,7 @@ void DecodeAsDialog::curProtoCurrentIndexChanged(const QString &text)
     QTreeWidgetItem *item = ui->decodeAsTreeWidget->currentItem();
     if (!item) return;
     item->setText(proto_col_, text);
+    item->setData(proto_col_, Qt::UserRole, cur_proto_combo_box_->itemData(cur_proto_combo_box_->findText(text)));
 }
 
 void DecodeAsDialog::curProtoDestroyed()
@@ -492,9 +514,85 @@ void DecodeAsDialog::curProtoDestroyed()
     cur_proto_combo_box_ = NULL;
 }
 
+void DecodeAsDialog::resetChangedList(const gchar *table_name,
+        ftenum_t selector_type, gpointer key, gpointer value _U_, gpointer user_data _U_)
+{
+/*    DecodeAsDialog *da_dlg = (DecodeAsDialog *)user_data; */
+    switch (selector_type) {
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+        dissector_reset_uint(table_name, GPOINTER_TO_UINT(key));
+        break;
+    case FT_STRING:
+    case FT_STRINGZ:
+    case FT_UINT_STRING:
+    case FT_STRINGZPAD:
+        dissector_reset_string(table_name, (gchar *) key);
+        break;
+    default:
+        break;
+    }
+}
+
 void DecodeAsDialog::on_buttonBox_accepted()
 {
+    /* Reset all dissector tables, then apply all rules from GUI */
+
+    dissector_all_tables_foreach_changed(resetChangedList, this);
+
+    for (int i = 0; i < ui->decodeAsTreeWidget->topLevelItemCount(); i++) {
+        QTreeWidgetItem   *item = ui->decodeAsTreeWidget->topLevelItem(i);
+        ftenum_t           selector_type = get_dissector_table_selector_type(ui_name_to_name_[item->text(table_col_)]);
+        dissector_info_t  *dissector_info;
+        QVariant           variant = item->data(proto_col_, Qt::UserRole);
+        decode_as_t       *decode_as_entry;
+
+        if (variant == QVariant::Invalid) {
+            continue;
+        }
+
+        dissector_info = variant.value<dissector_info_t *>();
+
+        for (GList *cur = decode_as_list; cur; cur = cur->next) {
+            decode_as_entry = (decode_as_t *) cur->data;
+
+            if (!g_strcmp0(decode_as_entry->table_name, ui_name_to_name_[item->text(table_col_)])) {
+                gpointer  selector_value;
+
+                switch (selector_type) {
+                case FT_UINT8:
+                case FT_UINT16:
+                case FT_UINT24:
+                case FT_UINT32:
+                    selector_value = GUINT_TO_POINTER(g_ascii_strtoull(item->text(selector_col_).toUtf8().constData(), NULL, 0));
+                    break;
+                case FT_STRING:
+                case FT_STRINGZ:
+                case FT_UINT_STRING:
+                case FT_STRINGZPAD:
+                    selector_value = (gpointer) item->text(selector_col_).toUtf8().constData();
+                    break;
+                default:
+                    continue;
+                }
+
+                if (item->text(proto_col_) == "(none)" || !dissector_info->dissector_handle) {
+                    decode_as_entry->reset_value(decode_as_entry->table_name, selector_value);
+                    break;
+                } else {
+                    decode_as_entry->change_value(decode_as_entry->table_name, selector_value, &dissector_info->dissector_handle, (char *) item->text(proto_col_).toUtf8().constData());
+                    break;
+                }
+            }
+        }
+
+        delete(dissector_info);
+    }
+
     save_decode_as_entries();
+    wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
 }
 
 void DecodeAsDialog::on_buttonBox_helpRequested()

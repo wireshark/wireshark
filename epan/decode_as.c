@@ -77,15 +77,50 @@ void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_l
 
 gboolean decode_as_default_reset(const char *name, const gpointer pattern)
 {
-    dissector_reset_uint(name, GPOINTER_TO_UINT(pattern));
+    switch (get_dissector_table_selector_type(name)) {
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT24:
+    case FT_UINT32:
+        dissector_reset_uint(name, GPOINTER_TO_UINT(pattern));
+        return TRUE;
+    case FT_STRING:
+    case FT_STRINGZ:
+    case FT_UINT_STRING:
+    case FT_STRINGZPAD:
+        dissector_reset_string(name, (!pattern)?"":(gchar *) pattern);
+        return TRUE;
+    default:
+        return FALSE;
+    };
+
     return TRUE;
 }
 
 gboolean decode_as_default_change(const char *name, const gpointer pattern, gpointer handle, gchar* list_name _U_)
 {
     dissector_handle_t* dissector = (dissector_handle_t*)handle;
-    if (dissector != NULL)
-        dissector_change_uint(name, GPOINTER_TO_UINT(pattern), *dissector);
+    if (dissector != NULL) {
+        switch (get_dissector_table_selector_type(name)) {
+        case FT_UINT8:
+        case FT_UINT16:
+        case FT_UINT24:
+        case FT_UINT32:
+            dissector_change_uint(name, GPOINTER_TO_UINT(pattern), *dissector);
+            return TRUE;
+        case FT_STRING:
+        case FT_STRINGZ:
+        case FT_UINT_STRING:
+        case FT_STRINGZPAD:
+            dissector_change_string(name, (!pattern)?"":(gchar *) pattern, *dissector);
+            return TRUE;
+        default:
+            return FALSE;
+        };
+
+        return FALSE;
+    }
+
     return TRUE;
 }
 
