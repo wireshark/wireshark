@@ -9064,6 +9064,7 @@ max              6074/udp # Microsoft Max [Jay_Beavers] [Jay_Beavers] 2006-02
 dpm-acm          6075/tcp # Microsoft DPM Access Control Manager [Prabu_Ambravaneswara] [Prabu_Ambravaneswara] 2009-10-29
 msft-dpm-cert    6076/tcp # Microsoft DPM WCF Certificates [Microsoft_Corporation] [Prateek_Sharma] 2011-08-04
 iconstructsrv    6077/tcp # iConstruct Server [iConstruct_Aus_Pty_Ltd] [Afshin_Jafari] 2012-12-21
+gue              6080/udp # Generic UDP Encapsulation [Tom_Herbert] [Tom_Herbert] 2015-03-05 [draft-herbert-gue]
 geneve           6081/udp # Generic Network Virtualization Encapsulation (Geneve) [Jesse_Gross] [Jesse_Gross] 2014-03-27 [draft-gross-geneve-00]
 p25cai           6082/udp # APCO Project 25 Common Air Interface - UDP encapsulation [APCO_Project] [APCO_Project] 2011-05-13
 miami-bcast      6083/udp # telecomsoftware miami broadcast [Peter_Steiner] [Peter_Steiner] 2011-02-22
@@ -10110,8 +10111,8 @@ dxspider         8873/udp # dxspider linking protocol [Dirk_Koopman] [Dirk_Koopm
 cddbp-alt        8880/tcp # CDDBP [Steve_Scherf] [Steve_Scherf]
 cddbp-alt        8880/udp # CDDBP [Steve_Scherf] [Steve_Scherf]
 galaxy4d         8881/tcp # Galaxy4D Online Game Engine [Galaxy4D] [Olivier_St-Laurent] 2012-06-18
-secure-mqtt      8883/tcp # Secure MQTT [Arthur_Barr] [Arthur_Barr] 2008-02-27
-secure-mqtt      8883/udp # Secure MQTT [Arthur_Barr] [Arthur_Barr] 2008-02-27
+secure-mqtt      8883/tcp # Secure MQTT [OASIS] [Robin_Cover] 2008-02-27 2015-03-06
+secure-mqtt      8883/udp # Secure MQTT [OASIS] [Robin_Cover] 2008-02-27 2015-03-06
 ddi-tcp-1        8888/tcp # NewsEDGE server TCP (TCP 1) [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8888
 ddi-udp-1        8888/udp # NewsEDGE server UDP (UDP 1) [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8888
 ddi-tcp-2        8889/tcp # Desktop Data TCP 1 [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8889
@@ -11003,6 +11004,8 @@ wnn6            22273/tcp # wnn6 [Yasunari_Gon_Yamasit] [Yasunari_Gon_Yamasit]
 wnn6            22273/udp # wnn6 [Yasunari_Gon_Yamasit] [Yasunari_Gon_Yamasit]
 cis             22305/tcp # CompactIS Tunnel [Justin_Paupore] [Justin_Paupore] 2007-08-16
 cis             22305/udp # CompactIS Tunnel [Justin_Paupore] [Justin_Paupore] 2007-08-16
+shrewd-control  22335/tcp # Initium Labs Security and Automation Control [Initium_Labs_LLC] [Manbir_Sahni] 2015-03-06
+shrewd-stream   22335/udp # Initium Labs Security and Automation Streaming [Initium_Labs_LLC] [Manbir_Sahni] 2015-03-06
 cis-secure      22343/tcp # CompactIS Secure Tunnel [Justin_Paupore] [Justin_Paupore] 2007-08-16
 cis-secure      22343/udp # CompactIS Secure Tunnel [Justin_Paupore] [Justin_Paupore] 2007-08-16
 wibukey         22347/tcp # WibuKey Standard WkLan [Wolfgang_Voelker] [Wolfgang_Voelker] 2007-06
@@ -11075,6 +11078,7 @@ binkp           24554/tcp # BINKP [Max_Masyutin] [Max_Masyutin]
 binkp           24554/udp # BINKP [Max_Masyutin] [Max_Masyutin]
 bilobit         24577/tcp # bilobit Service [bilobit_GmbH] [Martin_Schmuker] 2014-08-15
 bilobit-update  24577/udp # bilobit Service Update [bilobit_GmbH] [Martin_Schmuker] 2014-08-15
+sdtvwcam        24666/tcp # Service used by SmarDTV to communicate between a CAM and a second screen application [SmarDTV] [Vincent_Demortier] 2015-03-04
 canditv         24676/tcp # Canditv Message Service [Gary_Aston] [Gary_Aston] 2009-03-10
 canditv         24676/udp # Canditv Message Service [Gary_Aston] [Gary_Aston] 2009-03-10
 flashfiler      24677/tcp # FlashFiler [Ben_Oram] [Ben_Oram]
