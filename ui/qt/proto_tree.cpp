@@ -361,7 +361,7 @@ void ProtoTree::expand(const QModelIndex & index) {
     field_info *fi;
 
     fi = index.data(Qt::UserRole).value<field_info *>();
-    g_assert(fi);
+    if (!fi) return;
 
     if(prefs.gui_auto_scroll_on_expand) {
         ScrollHint scroll_hint = PositionAtTop;
@@ -388,7 +388,7 @@ void ProtoTree::collapse(const QModelIndex & index) {
     field_info *fi;
 
     fi = index.data(Qt::UserRole).value<field_info *>();
-    g_assert(fi);
+    if (!fi) return;
 
     /*
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
@@ -454,6 +454,7 @@ void ProtoTree::itemDoubleClick(QTreeWidgetItem *item, int column) {
     field_info *fi;
 
     fi = item->data(0, Qt::UserRole).value<field_info *>();
+    if (!fi || !fi->hfinfo) return;
 
     if(fi->hfinfo->type == FT_FRAMENUM) {
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
