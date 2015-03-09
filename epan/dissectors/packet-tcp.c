@@ -826,7 +826,7 @@ tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
 {
     if( !tcppd ) {
         tcppd = wmem_new(wmem_file_scope(), struct tcp_per_packet_data_t);
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_tcp, 0, tcppd);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num, tcppd);
     }
 
     if (!tcpd)
@@ -857,7 +857,7 @@ tcp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
     PROTO_ITEM_SET_GENERATED(item);
 
     if( !tcppd )
-        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, 0);
+        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
 
     if( tcppd ) {
         item = proto_tree_add_time(tree, hf_tcp_ts_delta, tvb, 0, 0,
@@ -2320,6 +2320,8 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *next_tvb;
     proto_item *item=NULL;
     const char *saved_proto;
+    guint8 curr_layer_num;
+    wmem_list_frame_t *frame;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /*
@@ -2423,15 +2425,12 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         }
 
-        /*
-         * Do not display the the PDU length if it crosses the boundary of the
-         * packet and no more packets are available.
-         *
-         * XXX - we don't necessarily know whether more packets are
-         * available; we might be doing a one-pass read through the
-         * capture in TShark, or we might be doing a live capture in
-         * Wireshark.
-         */
+        curr_layer_num = pinfo->curr_layer_num-1;
+        frame = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+        while (frame && (proto_tcp != (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame)))) {
+            frame = wmem_list_frame_prev(frame);
+            curr_layer_num--;
+        }
 #if 0
         if (captured_length_remaining >= plen || there are more packets)
         {
@@ -2439,13 +2438,13 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /*
                  * Display the PDU length as a field
                  */
-                item=proto_tree_add_uint((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, 1),
+                item=proto_tree_add_uint((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, curr_layer_num),
                                          hf_tcp_pdu_size,
                                          tvb, offset, plen, plen);
                 PROTO_ITEM_SET_GENERATED(item);
 #if 0
         } else {
-                item = proto_tree_add_expert_format((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, 1),
+                item = proto_tree_add_expert_format((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, curr_layer_num),
                                         tvb, offset, -1,
                     "PDU Size: %u cut short at %u",plen,captured_length_remaining);
                 PROTO_ITEM_SET_GENERATED(item);
@@ -4366,7 +4365,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, ENC_NA);
         }
         tcp_tree = proto_item_add_subtree(ti, ett_tcp);
-        p_add_proto_data(pinfo->pool, pinfo, proto_tcp, 1, tcp_tree);
+        p_add_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num, tcp_tree);
 
         proto_tree_add_uint_format_value(tcp_tree, hf_tcp_srcport, tvb, offset, 2, tcph->th_sport,
                                    "%s (%u)", src_port_str, tcph->th_sport);
@@ -4447,7 +4446,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Do we need to calculate timestamps relative to the tcp-stream? */
     if (tcp_calculate_ts) {
-        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, 0);
+        tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
 
         /*
          * Calculate the timestamps relative to this conversation (but only on the
