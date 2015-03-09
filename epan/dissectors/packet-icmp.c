@@ -80,6 +80,7 @@ static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;
 static int hf_icmp_checksum_bad = -1;
 static int hf_icmp_unused = -1;
+static int hf_icmp_reserved = -1;
 static int hf_icmp_ident = -1;
 static int hf_icmp_ident_le = -1;
 static int hf_icmp_seq_num = -1;
@@ -119,6 +120,7 @@ static int hf_icmp_mip_x = -1;
 static int hf_icmp_mip_reserved = -1;
 static int hf_icmp_mip_coa = -1;
 static int hf_icmp_mip_challenge = -1;
+static int hf_icmp_mip_content = -1;
 
 /* extensions RFC 4884*/
 static int hf_icmp_ext = -1;
@@ -129,6 +131,7 @@ static int hf_icmp_ext_checksum_bad = -1;
 static int hf_icmp_ext_length = -1;
 static int hf_icmp_ext_class = -1;
 static int hf_icmp_ext_c_type = -1;
+static int hf_icmp_ext_data = -1;
 
 /* Interface information extension RFC 5837 */
 static int hf_icmp_int_info_ifindex = -1;
@@ -139,6 +142,9 @@ static int hf_icmp_int_info_index = -1;
 static int hf_icmp_int_info_afi = -1;
 static int hf_icmp_int_info_ipv4 = -1;
 static int hf_icmp_int_info_ipv6 = -1;
+static int hf_icmp_int_info_ipunknown = -1;
+static int hf_icmp_int_info_name_length = -1;
+static int hf_icmp_int_info_name_string = -1;
 static int hf_icmp_int_info_role = -1;
 static int hf_icmp_int_info_reserved = -1;
 static gint ett_icmp_interface_info_object = -1;
@@ -149,6 +155,7 @@ static int hf_icmp_mpls_label = -1;
 static int hf_icmp_mpls_exp = -1;
 static int hf_icmp_mpls_s = -1;
 static int hf_icmp_mpls_ttl = -1;
+static int hf_icmp_mpls_data = -1;
 
 static gint ett_icmp = -1;
 static gint ett_icmp_mip = -1;
@@ -342,8 +349,6 @@ static const value_string interface_role_str[] = {
 #define MPLS_STACK_ENTRY_C_TYPE                  1
 #define MPLS_EXTENDED_PAYLOAD_C_TYPE             1
 
-#define INET6_ADDRLEN                           16
-
 static conversation_t *_find_or_create_conversation(packet_info * pinfo)
 {
 	conversation_t *conv = NULL;
@@ -475,8 +480,7 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 		default:
 			/* data, if any */
 			if (length != 0) {
-				proto_tree_add_text(mip_tree, tvb, offset,
-						    length, "Contents");
+				proto_tree_add_item(mip_tree, hf_icmp_mip_content, tvb, offset, length - 4, ENC_NA);
 				offset += length;
 			}
 
@@ -517,10 +521,7 @@ dissect_mpls_extended_payload_object(tvbuff_t * tvb, gint offset,
 		/* This object contains some portion of the original packet
 		   that could not fit in the 128 bytes of the ICMP payload */
 		if (obj_trunc_length > 4) {
-			proto_tree_add_text(ext_object_tree, tvb,
-					    offset, obj_trunc_length - 4,
-					    "Data (%d bytes)",
-					    obj_trunc_length - 4);
+			proto_tree_add_item(ext_object_tree, hf_icmp_ext_data, tvb, offset, obj_trunc_length - 4, ENC_NA);
 		}
 		break;
 	default:
@@ -614,10 +615,7 @@ dissect_mpls_stack_entry_object(tvbuff_t * tvb, gint offset,
 		}
 
 		if (offset < obj_end_offset) {
-			proto_tree_add_text(ext_object_tree, tvb, offset,
-					    obj_end_offset - offset,
-					    "%d junk bytes",
-					    obj_end_offset - offset);
+			proto_tree_add_item(ext_object_tree, hf_icmp_mpls_data, tvb, offset, obj_end_offset - offset, ENC_NA);
 		}
 		break;
 
@@ -647,7 +645,6 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	guint8 ipaddr_flag;
 	guint8 name_flag;
 	guint16 afi;
-	struct e_in6_addr ipaddr_v6;
 	guint8 int_name_length = 0;
 
 	unknown_object = FALSE;
@@ -704,7 +701,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 
 		/*
 		 * if afi = 1, IPv4 address, 2 bytes afi, 2 bytes rsvd, 4 bytes IP addr
-		 * if afi = 2, IPv6 address, 2 bytes afi, 2 bytes rsvd, 6 bytes IP addr
+		 * if afi = 2, IPv6 address, 2 bytes afi, 2 bytes rsvd, 16 bytes IP addr
 		 */
 		int_ipaddr_object_tree = proto_tree_add_subtree(ext_object_tree, tvb, offset,
 					 afi == 1 ? 8 : 10, ett_icmp_interface_ipaddr, NULL,
@@ -713,30 +710,23 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 		proto_tree_add_uint(int_ipaddr_object_tree,
 				    hf_icmp_int_info_afi, tvb, offset, 2,
 				    afi);
+		offset += 2;
 
-		/* skip reserved */
-		offset += 4;
-		if (afi == 1 && (obj_end_offset >= offset + 4)) {
-			proto_tree_add_ipv4(int_ipaddr_object_tree,
-					    hf_icmp_int_info_ipv4, tvb,
-					    offset, 4, tvb_get_ntohl(tvb,
-								     offset));
-			offset += 4;
-		} else if (afi == 2
-			   && (obj_end_offset >= offset + INET6_ADDRLEN)) {
-			tvb_get_ipv6(tvb, offset, &ipaddr_v6);
-			proto_tree_add_ipv6(int_ipaddr_object_tree,
-					    hf_icmp_int_info_ipv6, tvb,
-					    offset, INET6_ADDRLEN,
-					    (guint8 *) & ipaddr_v6);
-			offset += INET6_ADDRLEN;
-		} else {
-			proto_tree_add_text(int_ipaddr_object_tree, tvb,
-					    offset,
-					    offset - obj_end_offset,
-					    "Bad IP Address");
+		proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_reserved, tvb, offset, 2, ENC_NA);
+		offset += 2;
+
+		switch(afi){
+			case 1: /* IPv4 */
+			proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_int_info_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+			break;
+			case 2: /* IPv6 */
+			proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_int_info_ipv6, tvb, offset, 16, ENC_NA);
+			break;
+			default: /* Unknown ?! */
+			proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_int_info_ipunknown, tvb, offset, offset - obj_end_offset, ENC_NA);
 			return FALSE;
 		}
+
 	}
 
 	/* Interface Name Sub Object */
@@ -747,16 +737,10 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 						 offset, int_name_length, ett_icmp_interface_name, NULL,
 						 "Interface Name Sub-Object");
 
-			proto_tree_add_text(int_name_object_tree, tvb,
-					    offset, 1, "Length: %u",
-					    int_name_length);
+			proto_tree_add_item(int_name_object_tree, hf_icmp_int_info_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 		if (obj_end_offset >= offset + 1 + int_name_length) {
-
-			proto_tree_add_text(int_name_object_tree, tvb,
-					    offset + 1, int_name_length,
-					    "Interface Name: %s",
-					    tvb_format_text(tvb, offset + 1, int_name_length));
+			proto_tree_add_item(int_name_object_tree, hf_icmp_int_info_name_string, tvb, offset + 1, int_name_length, ENC_ASCII|ENC_NA);
 		}
 	}
 
@@ -788,17 +772,14 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 
 	reported_length = tvb_reported_length_remaining(tvb, offset);
 
-	if (reported_length < 4 /* Common header */ ) {
-		proto_tree_add_text(tree, tvb, offset,
-				    reported_length,
-				    "ICMP Multi-Part Extensions (truncated)");
-		return;
-	}
-
 	/* Add a tree for multi-part extensions RFC 4884 */
 	ti = proto_tree_add_none_format(tree, hf_icmp_ext, tvb,
 					offset, reported_length,
 					"ICMP Multi-Part Extensions");
+
+	if (reported_length < 4 /* Common header */ ) {
+		return;
+	}
 
 	ext_tree = proto_item_add_subtree(ti, ett_icmp_ext);
 
@@ -926,11 +907,7 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 					    class_num, c_type);
 
 			if (obj_trunc_length > 4) {
-				proto_tree_add_text(ext_object_tree, tvb,
-						    offset,
-						    obj_trunc_length - 4,
-						    "Data (%d bytes)",
-						    obj_trunc_length - 4);
+				proto_tree_add_item(ext_object_tree, hf_icmp_ext_data, tvb, offset, obj_trunc_length - 4, ENC_NA);
 			}
 		}
 
@@ -1648,6 +1625,11 @@ void proto_register_icmp(void)
 		  BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}},
 
+		{&hf_icmp_reserved,
+		 {"Reserved", "icmp.reserved", FT_BYTES,
+		  BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+
 		{&hf_icmp_ident,
 		 {"Identifier (BE)", "icmp.ident", FT_UINT16, BASE_DEC_HEX,
 		  NULL, 0x0,
@@ -1821,6 +1803,11 @@ void proto_register_icmp(void)
 		  NULL, 0x0,
 		  NULL, HFILL}},
 
+		{&hf_icmp_mip_content,
+		 {"Content", "icmp.mip.content", FT_BYTES, BASE_NONE,
+		  NULL, 0x0,
+		  NULL, HFILL}},
+
 		{&hf_icmp_ext,
 		 {"ICMP Extensions", "icmp.ext", FT_NONE, BASE_NONE, NULL,
 		  0x0,
@@ -1861,6 +1848,10 @@ void proto_register_icmp(void)
 		  0x0,
 		  NULL, HFILL}},
 
+		{&hf_icmp_ext_data,
+		 {"Data", "icmp.ext.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL}},
+
 		{&hf_icmp_mpls_label,
 		 {"Label", "icmp.mpls.label", FT_UINT24, BASE_DEC, NULL,
 		  0x00fffff0,
@@ -1878,6 +1869,11 @@ void proto_register_icmp(void)
 
 		{&hf_icmp_mpls_ttl,
 		 {"Time to live", "icmp.mpls.ttl", FT_UINT8, BASE_DEC,
+		  NULL, 0x0,
+		  NULL, HFILL}},
+
+		{&hf_icmp_mpls_data,
+		 {"Data", "icmp.mpls.data", FT_BYTES, BASE_NONE ,
 		  NULL, 0x0,
 		  NULL, HFILL}},
 
@@ -1975,7 +1971,19 @@ void proto_register_icmp(void)
 		{&hf_icmp_int_info_ipv6,
 		 {"Source", "icmp.int_info.ipv6", FT_IPv6, BASE_NONE, NULL,
 		  0x0,
-		  NULL, HFILL}}
+		  NULL, HFILL}},
+		{&hf_icmp_int_info_ipunknown,
+		 {"Source", "icmp.int_info.ipunknown", FT_BYTES, BASE_NONE, NULL,
+		  0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_int_info_name_length,
+		 {"Name Length", "icmp.int_info.name_length", FT_UINT8, BASE_DEC, NULL,
+		  0x0,
+		  NULL, HFILL}},
+		{&hf_icmp_int_info_name_string,
+		 {"Name", "icmp.int_info.name", FT_STRING, BASE_NONE, NULL,
+		  0x0,
+		  NULL, HFILL}},
 	};
 
 	static gint *ett[] = {
