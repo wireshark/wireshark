@@ -1,6 +1,6 @@
 /* packet-card_app_toolkit
  * Routines for packet dissection of
- *	ETSI TS 102 223 v12.0.0  (Release 12 / 2014-05)
+ *	ETSI TS 102 223 v12.2.0  (Release 12 / 2015-03)
  *	3GPP TS 11.14 v8.17.0 (Release 1999 / 2004-09)
  *	3GPP TS 31.111 v9.7.0 (Release 9 / 2012-03)
  * Copyright 2010-2011 by Harald Welte <laforge@gnumonks.org>
@@ -627,6 +627,7 @@ static const value_string event_list_vals[] = {
 	{ 0x19, "Profile Container" },
 	{ 0x1a, "Void" },
 	{ 0x1b, "Secured Profile Container" },
+	{ 0x1c, "Poll Interval Negotiation" },
 	{ 0, NULL }
 };
 static value_string_ext event_list_vals_ext = VALUE_STRING_EXT_INIT(event_list_vals);

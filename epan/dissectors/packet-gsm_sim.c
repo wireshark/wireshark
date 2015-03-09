@@ -321,6 +321,7 @@ static int hf_tp_support_refresh_enforcement_policy = -1;
 /* 33th byte */
 static int hf_tp_support_dns_addr_req = -1;
 static int hf_tp_support_nw_access_name_reuse = -1;
+static int hf_tp_ev_poll_intv_nego = -1;
 static int hf_tp_rfu11 = -1;
 
 static int hf_cat_ber_tag = -1;
@@ -688,6 +689,7 @@ static const int *tprof_b32_fields[] = {
 static const int *tprof_b33_fields[] = {
 	&hf_tp_support_dns_addr_req,
 	&hf_tp_support_nw_access_name_reuse,
+	&hf_tp_ev_poll_intv_nego,
 	&hf_tp_rfu11,
 	NULL
 };
@@ -2836,9 +2838,14 @@ proto_register_gsm_sim(void)
 			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
 			  NULL, HFILL }
 		},
+		{ &hf_tp_ev_poll_intv_nego,
+			{ "Event: Poll Interval Negotiation", "gsm_sim.tp.evt.poll_intv_nego",
+			  FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+			  NULL, HFILL }
+		},
 		{ &hf_tp_rfu11,
 			{ "RFU", "gsm_sim.tp.rfu",
-			  FT_UINT8, BASE_HEX, NULL, 0xfc,
+			  FT_UINT8, BASE_HEX, NULL, 0xf8,
 			  NULL, HFILL },
 		},
 
