@@ -162,6 +162,7 @@ static gint ett_icmp_ext_object = -1;
 static gint ett_icmp_mpls_stack_object = -1;
 
 static expert_field ei_icmp_resp_not_found = EI_INIT;
+static expert_field ei_icmp_checksum = EI_INIT;
 
 
 /* ICMP definitions */
@@ -1196,7 +1197,7 @@ static int
 dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 {
 	proto_tree *icmp_tree = NULL;
-	proto_item *ti;
+	proto_item *ti, *checksum_item;
 	guint8 icmp_type;
 	guint8 icmp_code;
 	guint8 icmp_original_dgram_length;
@@ -1298,6 +1299,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		proto_item_append_text(ti, " (%s)", code_str);
 	}
 
+	checksum_item = proto_tree_add_item(icmp_tree, hf_icmp_checksum, tvb, 2, 2, ENC_BIG_ENDIAN);
+
 	if (!pinfo->fragmented && captured_length >= reported_length
 	    && !pinfo->flags.in_error_pkt) {
 		/* The packet isn't part of a fragmented datagram, isn't
@@ -1306,33 +1309,19 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 
 		computed_cksum = ip_checksum_tvb(tvb, 0, reported_length);
 		if (computed_cksum == 0) {
-			proto_tree_add_uint_format_value(icmp_tree,
-						   hf_icmp_checksum, tvb,
-						   2, 2, cksum,
-						   "0x%04x [correct]",
-						   cksum);
-			item =
-			    proto_tree_add_boolean(icmp_tree,
-						   hf_icmp_checksum_bad,
-						   tvb, 2, 2, FALSE);
+			item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad, tvb, 2, 2, FALSE);
 			PROTO_ITEM_SET_HIDDEN(item);
+			proto_item_append_text(checksum_item, " [correct]");
 		} else {
-			proto_tree_add_uint_format_value(icmp_tree,
-						   hf_icmp_checksum, tvb,
-						   2, 2, cksum,
-						   "0x%04x [incorrect, should be 0x%04x]",
-						   cksum,
-						   in_cksum_shouldbe(cksum,
-								     computed_cksum));
-			item =
-			    proto_tree_add_boolean(icmp_tree,
-						   hf_icmp_checksum_bad,
-						   tvb, 2, 2, TRUE);
+			item = proto_tree_add_boolean(icmp_tree, hf_icmp_checksum_bad, tvb, 2, 2, TRUE);
 			PROTO_ITEM_SET_HIDDEN(item);
+			proto_item_append_text(checksum_item, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
+			expert_add_info_format(pinfo, checksum_item, &ei_icmp_checksum,
+						"ICMPv4 Checksum Incorrect, should be 0x%04x", in_cksum_shouldbe(cksum, computed_cksum));
 		}
 	} else {
-		proto_tree_add_uint(icmp_tree, hf_icmp_checksum, tvb, 2, 2,
-				    cksum);
+		proto_item_append_text(checksum_item, " [%s]",
+					pinfo->flags.in_error_pkt ? "in ICMP error packet" : "fragmented datagram");
 	}
 
 	/* Decode the second 4 bytes of the packet. */
@@ -2005,6 +1994,7 @@ void proto_register_icmp(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
+		{ &ei_icmp_checksum, { "icmp.checksum_bad.expert", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
 	};
 
 	module_t *icmp_module;
