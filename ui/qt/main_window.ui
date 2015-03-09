@@ -1206,11 +1206,8 @@
    </property>
   </action>
   <action name="actionAnalyzeCreateAColumn">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
-    <string>Create a Column</string>
+    <string>Apply as Column</string>
    </property>
    <property name="toolTip">
     <string>Create a packet list column from the selected field.</string>

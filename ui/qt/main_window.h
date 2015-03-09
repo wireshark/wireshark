@@ -356,6 +356,7 @@ private slots:
 #endif
 
     void matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type);
+    void on_actionAnalyzeCreateAColumn_triggered();
     void on_actionAnalyzeAAFSelected_triggered();
     void on_actionAnalyzeAAFNotSelected_triggered();
     void on_actionAnalyzeAAFAndSelected_triggered();

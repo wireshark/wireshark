@@ -167,8 +167,13 @@ ProtoTree::ProtoTree(QWidget *parent) :
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewExpandAll"));
         ctx_menu_.addAction(window()->findChild<QAction *>("actionViewCollapseAll"));
         ctx_menu_.addSeparator();
-//    "     <menuitem name='CreateAColumn' action='/Create a Column'/>\n"
+
+        action = window()->findChild<QAction *>("actionAnalyzeCreateAColumn");
+        ctx_menu_.addAction(action);
+        ctx_menu_.addSeparator();
+
         action = window()->findChild<QAction *>("actionApply_as_Filter");
+
         submenu = new QMenu();
         action->setMenu(submenu);
         ctx_menu_.addAction(action);

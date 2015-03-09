@@ -86,8 +86,10 @@ extern void prefs_main_write(void);
  * @param title column title
  * @param custom_field column custom field
  * @param custom_occurrence custom occurrence
+ *
+ * @return The index of the inserted column
  */
-void column_prefs_add_custom(gint fmt, const gchar *title,
+gint column_prefs_add_custom(gint fmt, const gchar *title,
                              const gchar *custom_field,
                              gint custom_occurrence);
 

@@ -273,11 +273,12 @@ prefs_main_write(void)
   }
 }
 
-void
+gint
 column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field, gint custom_occurrence)
 {
     GList *clp;
     fmt_data *cfmt, *last_cfmt;
+    gint colnr;
 
     cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
     /*
@@ -291,13 +292,16 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field,
     cfmt->custom_occurrence = custom_occurrence;
     cfmt->resolved = TRUE;
 
+    colnr = g_list_length(prefs.col_list);
+
     if (custom_field) {
         cfmt->visible = TRUE;
         clp = g_list_last(prefs.col_list);
         last_cfmt = (fmt_data *) clp->data;
         if (last_cfmt->fmt == COL_INFO) {
             /* Last column is COL_INFO, add custom column before this */
-            prefs.col_list = g_list_insert(prefs.col_list, cfmt, g_list_length(prefs.col_list)-1);
+            colnr -= 1;
+            prefs.col_list = g_list_insert(prefs.col_list, cfmt, colnr);
         } else {
             prefs.col_list = g_list_append(prefs.col_list, cfmt);
         }
@@ -305,6 +309,8 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field,
         cfmt->visible = FALSE;  /* Will be set to TRUE in visible_toggled() when added to list */
         prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
+
+    return colnr;
 }
 
 void

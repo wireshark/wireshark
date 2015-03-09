@@ -1233,8 +1233,8 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 //        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/AsFilter",
 //                             proto_can_match_selected(cf->finfo_selected, cf->edt));
 
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/CreateAColumn",
-//                             hfinfo->type != FT_NONE);
+        main_ui_->actionAnalyzeCreateAColumn->setEnabled(can_match_selected);
+
         main_ui_->actionAnalyzeAAFSelected->setEnabled(can_match_selected);
         main_ui_->actionAnalyzeAAFNotSelected->setEnabled(can_match_selected);
         main_ui_->actionAnalyzeAAFAndSelected->setEnabled(can_match_selected);
@@ -1287,7 +1287,8 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
         main_ui_->actionEditCopyFieldName->setEnabled(false);
         main_ui_->actionEditCopyValue->setEnabled(false);
         main_ui_->actionEditCopyAsFilter->setEnabled(false);
-//        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/CreateAColumn", FALSE);
+
+        main_ui_->actionAnalyzeCreateAColumn->setEnabled(false);
 
         main_ui_->actionAnalyzeAAFSelected->setEnabled(false);
         main_ui_->actionAnalyzeAAFNotSelected->setEnabled(false);
@@ -2190,6 +2191,22 @@ void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::Act
     }
 
     filterAction(field_filter, action, filter_type);
+}
+
+void MainWindow::on_actionAnalyzeCreateAColumn_triggered()
+{
+    gint colnr = 0;
+
+    if ( capture_file_.capFile() != 0 && capture_file_.capFile()->finfo_selected != 0 )
+    {
+        colnr = column_prefs_add_custom(COL_CUSTOM, capture_file_.capFile()->finfo_selected->hfinfo->name,
+                    capture_file_.capFile()->finfo_selected->hfinfo->abbrev,0);
+
+        packet_list_->redrawVisiblePackets();
+        packet_list_->resizeColumnToContents(colnr);
+
+        prefs_main_write();
+    }
 }
 
 // XXX We could probably create the analyze and prepare actions
