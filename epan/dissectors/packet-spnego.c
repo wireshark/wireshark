@@ -1504,11 +1504,13 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 		 * We handle only the two common cases for now
 		 * (rrc == 0 and rrc == ec)
 		 */
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 		if (rrc == ec) {
 			proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum,
 					    tvb, offset, checksum_size, ENC_NA);
 			offset += checksum_size;
 		}
+#endif
 
 		returned_offset = offset;
 		pinfo->gssapi_wrap_tvb = tvb_new_subset_length(tvb, offset,
@@ -1516,10 +1518,12 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 		offset += inner_token_len;
 
-		if (rrc == 0) {
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+		if (rrc == 0)
+#endif
+		{
 			proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum,
 					    tvb, offset, checksum_size, ENC_NA);
-			offset += checksum_size;
 		}
 
 		/*
@@ -1971,7 +1975,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1426 "../../asn1/spnego/packet-spnego-template.c"
+#line 1414 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1994,7 +1998,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1436 "../../asn1/spnego/packet-spnego-template.c"
+#line 1424 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* Register protocol */
