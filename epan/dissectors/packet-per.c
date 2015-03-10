@@ -565,10 +565,11 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 
 /* XXX we don't do >64k length strings   yet */
 static guint32
-dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_,const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
+dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len,
+                                               gboolean has_extension _U_, guint16 lb _U_, guint16 ub, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
 	guint32 length;
-	gboolean byte_aligned;
+	gboolean byte_aligned, use_canonical_order;
 	guint8 *buf;
 	guint char_pos;
 	int bits_per_char;
@@ -674,6 +675,11 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		BYTE_ALIGN_OFFSET(offset);
 	}
 
+	/* 30.5: if "ub" is less than or equal to 2^b-1, then "v" is the value specified in above , else
+	   the characters are placed in the canonical order defined in ITU-T Rec. X.680 | ISO/IEC 8824-1,
+	   clause 43. The first is assigned the value zero and the next in canonical order is assigned a value
+	   that is one greater than the value assigned to the previous character in the canonical order. These are the values "v" */
+	use_canonical_order = (ub <= ((guint16)(1<<bits_per_char)-1)) ? FALSE : TRUE;
 
 	buf = (guint8 *)wmem_alloc(actx->pinfo->pool, length+1);
 	old_offset=offset;
@@ -687,11 +693,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
 			val=(val<<1)|bit;
 		}
-		/* ALIGNED PER does not do any remapping of chars if
-		   bitsperchar is 8
-		*/
-		/* If alphabet is not provided, do not do any remapping either */
-		if((bits_per_char==8) || (alphabet==NULL)){
+		if(use_canonical_order == FALSE){
 			buf[char_pos]=val;
 		} else {
 			if (val < alphabet_length){
@@ -746,17 +748,15 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_
   } else {
     alphabet_ptr = sort_alphabet(sorted_alphabet, alphabet, alphabet_length);
   }
-  return dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, alphabet_ptr, alphabet_length, value_tvb);
+  /* Not a known-multiplier character string: enforce lb and ub to max values */
+  return dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, 0, 65535, alphabet_ptr, alphabet_length, value_tvb);
 }
 
-/* dissect a constrained IA5String that consists of the full ASCII set,
-   i.e. no FROM stuff limiting the alphabet
-*/
 guint32
 dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
 	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension,
-		NULL, 128, NULL);
+		0, 127, NULL, 128, NULL);
 
 	return offset;
 }
@@ -765,7 +765,7 @@ guint32
 dissect_per_NumericString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
 	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension,
-		" 0123456789", 11, NULL);
+		32, 57, " 0123456789", 11, NULL);
 
 	return offset;
 }
@@ -773,14 +773,14 @@ guint32
 dissect_per_PrintableString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
 	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension,
-		" '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74, NULL);
+		32, 122, " '()+,-.*0123456789:=?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 74, NULL);
 	return offset;
 }
 guint32
 dissect_per_VisibleString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
 {
 	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension,
-		" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", 95, NULL);
+		32, 126, " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~", 95, NULL);
 	return offset;
 }
 guint32
@@ -827,7 +827,7 @@ guint32
 dissect_per_UTF8String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_)
 {
 	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree,
-		hf_index, min_len, max_len, has_extension, NULL, 256, NULL);
+		hf_index, min_len, max_len, has_extension, 0, 255, NULL, 256, NULL);
 	return offset;
 }
 
