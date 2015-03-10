@@ -131,7 +131,7 @@ G_GNUC_PRINTF(3, 0);
 
 /** Convert a bits per second value to a human-readable QString using format_size().
  *
- * @param val The value to convert to string.
+ * @param bits_s The value to convert to string.
  *
  * @return A QString representation of the data rate in SI units.
  */
@@ -139,7 +139,7 @@ const QString bits_s_to_qstring(const double bits_s);
 
 /** Convert a file size value to a human-readable QString using format_size().
  *
- * @param val The value to convert to string.
+ * @param size The value to convert to string.
  *
  * @return A QString representation of the file size in SI units.
  */
