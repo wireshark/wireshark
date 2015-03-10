@@ -81,7 +81,8 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 6743: ICMP Locator Update message for ILNPv6
  * RFC 6775: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
  * RFC 7112: Implications of Oversized IPv6 Header Chains
- * http://www.iana.org/assignments/icmpv6-parameters (last updated 2014-01-30)
+ * RFC 7400: 6LoWPAN-GHC: Generic Header Compression for IPv6 over Low-Power Wireless Personal Area Networks (6LoWPANs)
+ * http://www.iana.org/assignments/icmpv6-parameters (last updated 2015-01-22)
  */
 
 static int proto_icmpv6 = -1;
@@ -232,6 +233,9 @@ static int hf_icmpv6_opt_abro_version_low = -1;
 static int hf_icmpv6_opt_abro_version_high = -1;
 static int hf_icmpv6_opt_abro_valid_lifetime = -1;
 static int hf_icmpv6_opt_abro_6lbr_address = -1;
+static int hf_icmpv6_opt_6cio_unassigned1 = -1;
+static int hf_icmpv6_opt_6cio_flag_g = -1;
+static int hf_icmpv6_opt_6cio_unassigned2 = -1;
 
 /* RFC 2710: Multicast Listener Discovery for IPv6 */
 static int hf_icmpv6_mld_mrd = -1;
@@ -444,6 +448,12 @@ static int hf_icmpv6_rpl_opt_prefix_plifetime = -1;
 static int hf_icmpv6_rpl_opt_prefix_length = -1;
 static int hf_icmpv6_rpl_opt_targetdesc = -1;
 
+/* RFC6743 Locator Update (156) */
+static int hf_icmpv6_ilnp_nb_locs = -1;
+static int hf_icmpv6_ilnp_locator = -1;
+static int hf_icmpv6_ilnp_preference = -1;
+static int hf_icmpv6_ilnp_lifetime = -1;
+
 static int hf_icmpv6_da_status = -1;
 static int hf_icmpv6_da_rsv = -1;
 static int hf_icmpv6_da_lifetime = -1;
@@ -549,7 +559,7 @@ static dissector_handle_t data_handle;
 #define ICMP6_MCAST_ROUTER_TERM         153
 #define ICMP6_FMIPV6_MESSAGES           154
 #define ICMP6_RPL_CONTROL               155
-#define ICMP6_ILNPV6                    156 /* Pending IANA assignment */
+#define ICMP6_ILNPV6                    156
 #define ICMP6_6LOWPANND_DAR             157
 #define ICMP6_6LOWPANND_DAC             158
 
@@ -820,6 +830,7 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_ADDR_REGISTRATION        33
 #define ND_OPT_6LOWPAN_CONTEXT          34
 #define ND_OPT_AUTH_BORDER_ROUTER       35
+#define ND_OPT_6CIO                     36
 
 static const value_string option_vals[] = {
 /*  1 */   { ND_OPT_SOURCE_LINKADDR,           "Source link-layer address" },
@@ -856,7 +867,8 @@ static const value_string option_vals[] = {
 /* 33 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [RFC6775] */
 /* 34 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [RFC6775] */
 /* 35 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },            /* [RFC6775] */
-/* 36-137  Unassigned */
+/* 36 */   { ND_OPT_6CIO,                      "6LoWPAN Capability Indication Option" },   /* [RFC7400] */
+/* 37-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
 /* 140-252 Unassigned */
@@ -1085,7 +1097,9 @@ static const value_string rpl_option_vals[] = {
     { 0, NULL }
 };
 
-
+/* RFC 7400 */
+#define ND_OPT_6CIO_FLAG_G          0x0001
+#define ND_OPT_6CIO_FLAG_UNASSIGNED 0xFFFE
 
 static int
 dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -2219,7 +2233,19 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
             }
             break;
+            case ND_OPT_6CIO: /* 6LoWPAN Capability Indication Option (35) */
+            {
 
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6cio_unassigned1, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6cio_flag_g, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                opt_offset += 2;
+
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_6cio_unassigned2, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                opt_offset += 4;
+
+
+            }
+            break;
             default :
                 expert_add_info_format(pinfo, ti, &ei_icmpv6_undecoded_option,
                                        "Dissector for ICMPv6 Option (%d)"
@@ -3799,7 +3825,32 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             case ICMP6_ILNPV6: /* Locator Update (156) */
             {
-                /*TODO Add support of Locator Update : RFC6743 */
+                guint8 nb_locs, i;
+                /* Number of locs */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_nb_locs, tvb, offset, 1, ENC_BIG_ENDIAN);
+                nb_locs = tvb_get_guint8(tvb, offset);
+                offset += 1;
+
+                /* Reserved */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                /* Reserved */
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_NA);
+                offset += 2;
+
+                /* Locator / Preference / Lifetime */
+                for (i=0; i < nb_locs; i++){
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_locator, tvb, offset, 8, ENC_NA);
+                    offset += 8;
+
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_preference, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_ilnp_lifetime, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+
+                }
                 break;
             }
             case ICMP6_6LOWPANND_DAR:
@@ -4284,6 +4335,15 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_abro_6lbr_address,
           { "6LBR Address", "icmpv6.opt.abro.6lbr_address", FT_IPv6, BASE_NONE, NULL, 0x00,
             "IPv6 address of the 6LBR that is the origin of the included version number", HFILL }},
+        { &hf_icmpv6_opt_6cio_unassigned1,
+          { "Unassigned", "icmpv6.opt.6cio.unassigned1", FT_UINT16, BASE_HEX, NULL, ND_OPT_6CIO_FLAG_UNASSIGNED,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_6cio_flag_g,
+          { "G", "icmpv6.opt.6cio.flag_g", FT_UINT16, BASE_HEX, NULL, ND_OPT_6CIO_FLAG_G,
+            NULL, HFILL }},
+        { &hf_icmpv6_opt_6cio_unassigned2,
+          { "Unassigned", "icmpv6.opt.6cio.unassigned2", FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }},
 
         /* RFC2710:  Multicast Listener Discovery for IPv6 */
         { &hf_icmpv6_mld_mrd,
@@ -4871,6 +4931,21 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_rpl_opt_targetdesc,
            { "Descriptor", "icmpv6.rpl.opt.targetdesc.descriptor", FT_UINT32, BASE_HEX, NULL, 0x0,
              "Opaque Data", HFILL }},
+
+        /* RFC6743 Locator Update (156) */
+
+        { &hf_icmpv6_ilnp_nb_locs,
+          { "Num of Locs", "icmpv6.ilnp.nb_locs", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "The number of 64-bit Locator values that are advertised in this message", HFILL }},
+        { &hf_icmpv6_ilnp_locator,
+          { "Locator", "icmpv6.ilnp.nb_locs", FT_UINT64, BASE_HEX, NULL, 0x0,
+            "The 64-bit Locator values currently valid for the sending ILNPv6 node", HFILL }},
+        { &hf_icmpv6_ilnp_preference,
+          { "Preference", "icmpv6.ilnp.nb_locs", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The preferability of each Locator relative to other valid Locator values", HFILL }},
+        { &hf_icmpv6_ilnp_lifetime,
+          { "Lifetime", "icmpv6.ilnp.nb_locs", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "The maximum number of seconds that this particular Locator may be considered valid", HFILL }},
 
         /* 6lowpan-nd: Neighbour Discovery for 6LoWPAN Networks */
         { &hf_icmpv6_da_status,
