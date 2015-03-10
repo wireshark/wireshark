@@ -2250,9 +2250,9 @@ endif()
 add_custom_target(test-sh ALL
 	COMMAND ${CMAKE_COMMAND}
 		-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
-                -DTEST_SH_BIN_DIR=${TEST_SH_BIN_DIR}
-                -DTEST_SH_SRC_DIR=${CMAKE_SOURCE_DIR}/test
-                -P ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
+		-DTEST_SH_BIN_DIR=${TEST_SH_BIN_DIR}
+		-DTEST_SH_SRC_DIR=${CMAKE_SOURCE_DIR}/test
+		-P ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 	DEPENDS ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 )
 
