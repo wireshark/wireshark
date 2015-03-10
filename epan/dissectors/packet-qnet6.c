@@ -1615,7 +1615,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
     {
     case QNET_LR_TYPE_REQUEST:
       p = name[2];
-      if (p && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
+      if (p && strlen(p) && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
         {
           col_add_fstr(pinfo->cinfo, COL_INFO,
                         "Who is \"%s.%s\"? Tell \"%s.%s\"@%02x:%02x:%02x:%02x:%02x:%02x",
@@ -1627,7 +1627,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
       break;
     case QNET_LR_TYPE_REPLY:
       p = name[2];
-      if (p && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
+      if (p && strlen(p) && (*(p + 1) == QNET_LR_SA_FAMILY_MAC))
         {
           col_add_fstr(pinfo->cinfo, COL_INFO,
                         "To \"%s.%s\", \"%s.%s\" is at %02x:%02x:%02x:%02x:%02x:%02x",
