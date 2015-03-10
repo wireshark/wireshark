@@ -269,7 +269,7 @@ be spent on more interesting tasks.
   be narrowed down to a few commits, making a fix much easier.
 
 * "Health status" overview of the sources. A quick look at:
-  http://buildbot.wireshark.org/trunk/[] gives a good "feeling" if the sources
+  https://buildbot.wireshark.org/trunk/[] gives a good "feeling" if the sources
   are currently "well". On the other hand, if all is "red", an update of a
   personal source tree might better be done later ...
 
