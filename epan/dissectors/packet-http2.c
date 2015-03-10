@@ -1422,23 +1422,20 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-
-    /* It is not easy to write a good http2 heuristic,
-       this heuristic is disabled by default
-     */
-
-    if (!global_http2_heur)
-    {
-        return FALSE;
-    }
+    conversation_t *conversation;
 
     if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0) {
         /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n)
-           see if there's a valid frame type (0-11 are defined at the moment) */
-        if (tvb_captured_length(tvb)<4 || tvb_get_guint8(tvb, 3)>HTTP2_BLOCKED)
-
-            return (FALSE);
+           see if there's a valid frame type (0-11 are defined at the moment).
+           This is weak heuristics, so it is disabled by default. */
+        if (!global_http2_heur ||
+            tvb_captured_length(tvb)<4 || tvb_get_guint8(tvb, 3)>HTTP2_BLOCKED)
+            return FALSE;
     }
+
+    /* Once switched to HTTP2, then future messages are also part of HTTP2. */
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, http2_handle);
 
     dissect_http2(tvb, pinfo, tree, data);
 
@@ -1857,8 +1854,9 @@ proto_register_http2(void)
     http2_module = prefs_register_protocol(proto_http2, NULL);
 
     prefs_register_bool_preference(http2_module, "heuristic_http2",
-        "Enable HTTP2 heuristic (disabled by default)",
-        "The HTTP2 heuristic is weak and there are some false positives",
+        "Enable weak HTTP2 detection heuristic",
+        "The weak HTTP2 heuristic has some false positives and is disabled by "
+        "default. The stronger HTTP2 Magic Hello heuristic is always enabled.",
         &global_http2_heur);
 
     new_register_dissector("http2", dissect_http2, proto_http2);
