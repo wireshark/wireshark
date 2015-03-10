@@ -348,7 +348,7 @@ typedef struct _pcap_queue_element {
  */
 static const char please_report[] =
     "Please report this to the Wireshark developers.\n"
-    "http://bugs.wireshark.org/\n"
+    "https://bugs.wireshark.org/\n"
     "(This is not a crash; please do not report it as such.)";
 
 /*
@@ -777,15 +777,7 @@ get_capture_device_open_failure_messages(const char *open_err_str,
                  "\n"
                  "In order to capture packets, WinPcap must be installed; see\n"
                  "\n"
-                 "        http://www.winpcap.org/\n"
-                 "\n"
-                 "or the mirror at\n"
-                 "\n"
-                 "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
-                 "\n"
-                 "or the mirror at\n"
-                 "\n"
-                 "        http://winpcap.cs.pu.edu.tw/\n"
+                 "        https://www.winpcap.org/\n"
                  "\n"
                  "for a downloadable version of WinPcap and for instructions on how to install\n"
                  "WinPcap.");
@@ -797,8 +789,8 @@ get_capture_device_open_failure_messages(const char *open_err_str,
                  "\n"
                  "Help can be found at:\n"
                  "\n"
-                 "       http://wiki.wireshark.org/WinPcap\n"
-                 "       http://wiki.wireshark.org/CaptureSetup\n",
+                 "       https://wiki.wireshark.org/WinPcap\n"
+                 "       https://wiki.wireshark.org/CaptureSetup\n",
                  iface);
     }
 #else
@@ -1277,11 +1269,11 @@ get_if_capabilities(const char *devicename, gboolean monitor_mode
      *
      * See the mail threads starting at
      *
-     *    http://www.winpcap.org/pipermail/winpcap-users/2006-September/001421.html
+     *    https://www.winpcap.org/pipermail/winpcap-users/2006-September/001421.html
      *
      * and
      *
-     *    http://www.winpcap.org/pipermail/winpcap-users/2008-May/002498.html
+     *    https://www.winpcap.org/pipermail/winpcap-users/2008-May/002498.html
      */
 #ifndef _WIN32
 #define xx_free free  /* hack so checkAPIs doesn't complain */
@@ -3163,7 +3155,7 @@ capture_loop_dispatch(loop_data *ld,
 
             /*
              * WinPcap's remote capturing feature doesn't work with pcap_dispatch(),
-             * see http://wiki.wireshark.org/CaptureSetup_2fWinPcapRemote
+             * see https://wiki.wireshark.org/CaptureSetup_2fWinPcapRemote
              * This should be fixed in the WinPcap 4.0 alpha release.
              *
              * For reference, an example remote interface:
@@ -4527,7 +4519,7 @@ DIAG_ON(cast-qual)
     /*        This behaviour will apparently be changed in the kernel    */
     /*        to allow the kill (signal) in this case.                   */
     /*        See the following for details:                             */
-    /*           http://www.mail-archive.com/  [wrapped]                 */
+    /*           https://www.mail-archive.com/  [wrapped]                */
     /*             linux-security-module@vger.kernel.org/msg02913.html   */
     /*                                                                   */
     /*        It is therefore conceivable that if dumpcap somehow hangs  */
@@ -4575,7 +4567,7 @@ DIAG_ON(cast-qual)
         case 'h':        /* Print help and exit */
             printf("Dumpcap (Wireshark) %s\n"
                    "Capture network packets and dump them into a pcapng or pcap file.\n"
-                   "See http://www.wireshark.org for more information.\n",
+                   "See https://www.wireshark.org for more information.\n",
                    get_ws_vcs_version_info());
             print_usage(stdout);
             exit_main(0);
@@ -5208,7 +5200,7 @@ signal_pipe_check_running(void)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

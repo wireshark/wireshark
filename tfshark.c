@@ -1158,7 +1158,7 @@ DIAG_ON(cast-qual)
     case 'h':        /* Print help and exit */
       printf("TFShark (Wireshark) %s\n"
              "Dump and analyze network traffic.\n"
-             "See http://www.wireshark.org for more information.\n",
+             "See https://www.wireshark.org for more information.\n",
              get_ws_vcs_version_info());
       print_usage(stdout);
       return 0;
@@ -1508,7 +1508,7 @@ DIAG_ON(cast-qual)
               "Sorry, but TFShark has to terminate now!\n"
               "\n"
               "Some infos / workarounds can be found at:\n"
-              "http://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
+              "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
       err = ENOMEM;
     }
     ENDTRY;
@@ -2823,7 +2823,7 @@ failure_message_cont(const char *msg_format, va_list ap)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

@@ -23,7 +23,7 @@
 
 /* This dissector supports DVB-CI as defined in EN50221 and
  * CI+ (www.ci-plus.com).
- * For more details, see http://wiki.wireshark.org/DVB-CI.
+ * For more details, see https://wiki.wireshark.org/DVB-CI.
  *
  * The pcap input format for this dissector is documented at
  * http://www.kaiser.cx/pcap-dvbci.html.

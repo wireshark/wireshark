@@ -231,7 +231,7 @@ load_wpcap(void)
 
 /*
  * The official list of WinPcap mirrors is at
- * http://www.winpcap.org/misc/mirrors.htm
+ * https://www.winpcap.org/misc/mirrors.htm
  */
 char *
 cant_load_winpcap_err(const char *app_name)
@@ -242,15 +242,7 @@ cant_load_winpcap_err(const char *app_name)
 "\n"
 "In order to capture packets, WinPcap must be installed; see\n"
 "\n"
-"        http://www.winpcap.org/\n"
-"\n"
-"or the mirror at\n"
-"\n"
-"        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
-"\n"
-"or the mirror at\n"
-"\n"
-"        http://winpcap.cs.pu.edu.tw/\n"
+"        https://www.winpcap.org/\n"
 "\n"
 "for a downloadable version of WinPcap and for instructions on how to install\n"
 "WinPcap.",
@@ -741,7 +733,7 @@ get_interface_list(int *err, char **err_str)
 	 * PacketGetAdapterNames.  According to the documentation
 	 * I could find:
 	 *
-	 *	http://www.winpcap.org/docs/man/html/Packet32_8c.html#a43
+	 *	https://www.winpcap.org/docs/man/html/Packet32_8c.html#a43
 	 *
 	 * this means that:
 	 *
@@ -990,7 +982,7 @@ get_runtime_caplibs_version(GString *str _U_)
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

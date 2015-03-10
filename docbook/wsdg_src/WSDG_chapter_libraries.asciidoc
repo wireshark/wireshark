@@ -24,8 +24,8 @@ build Wireshark.
 .Our libraries are freely available
 ====
 All libraries required to build Wireshark on Windows are available for download at
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and
-http://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
 See <<ChLibsSetup>> for an easier way to install them.
 ====
 
@@ -106,7 +106,7 @@ as described in <<ChToolsWin32Verify>>.
 
 Then it will download the zipped libraries (together around 45MB for x86 and 52MB for x64) from the
 server location at
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] into the
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] into the
 directory specified by WIRESHARK_LIB_DIR and install (unzip) all required
 library files there.
 
@@ -207,7 +207,7 @@ http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 Wireshark uses the source libSMI distribution at
 http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 LibSMI is cross-compiled using MinGW32. It's stored in the libsmi zip archive at
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsCares]]
 
@@ -256,7 +256,7 @@ http://www.zlib.net/[].
 ==== Win32 MSVC
 
 The zlib sources are downloaded from
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
 locally.
 
 [[ChLibsPcap]]
@@ -278,7 +278,7 @@ platform, you can get it at http://www.tcpdump.org/[].
 ==== Win32 MSVC: WinPcap
 
 You can get the "Windows packet capture library" at:
-http://www.winpcap.org/install/[]
+https://www.winpcap.org/install/[]
 
 [[ChLibsGNUTLS]]
 
@@ -293,14 +293,14 @@ protocols (aka: HTTPS).
 
 If this library isn't already installed or available as a
 package for your platform, you can get it at
-http://www.gnu.org/software/gnutls/download.html[].
+https://www.gnu.org/software/gnutls/download.html[].
 
 [[ChLibsWin32GNUTLS]]
 
 ==== Win32 MSVC
 
 We provide a package cross-compiled using MinGW32 at
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsGcrypt]]
 
@@ -315,7 +315,7 @@ support for many ciphers, such as DES, 3DES, AES, Blowfish, and others..
 
 If this library isn't already installed or available as a
 package for your platform, you can get it at
-http://directory.fsf.org/security/libgcrypt.html[].
+https://directory.fsf.org/wiki/Libgcrypt[].
 
 [[ChLibsWin32Gcrypt]]
 
@@ -343,7 +343,7 @@ http://web.mit.edu/Kerberos/dist/[].
 ==== Win32 MSVC
 
 We provide a package at
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsLua]]
 
@@ -364,7 +364,7 @@ http://www.lua.org/download.html[].
 ==== Win32 MSVC
 
 We provide a copy of the official package at
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsPortAudio]]
 
@@ -385,7 +385,7 @@ http://www.portaudio.com/download.html[].
 ==== Win32 MSVC
 
 The PortAudio sources are downloaded from
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
 locally.
 
 [[ChLibsGeoIP]]
@@ -408,7 +408,7 @@ http://www.maxmind.com/app/c[].
 ==== Win32 MSVC
 
 We provide a package cross-compiled using MinGW32 at
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Libraries -->

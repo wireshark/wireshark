@@ -148,7 +148,7 @@ MSVC_VARIANT=MSVC2013
 ##         when vcvarsall.bat is called to set up the build environment.
 ##        [*]One possibility: download the Windows 7 Platform SDK and copy
 ##         win32.mak from ...\Microsoft SDKs\Windows\v7.[something]\include
-##         See: http://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
+##         See: https://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
 ##    2. Dec 28,2012: "VS2012 Update 1" is required to use VS 2012 to build an .exe which
 ##        will run on Windows XP (as well as on later versions of Windows).
 ##        ToDo: It appears that some special setup is required to to do this.
@@ -175,7 +175,7 @@ MSVC_VARIANT=MSVC2013
 ##         when vcvarsall.bat is called to set up the build environment.
 ##        [*]One possibility: download the Windows 7 Platform SDK and copy
 ##         win32.mak from ...\Microsoft SDKs\Windows\v7.[something]\include
-##         See: http://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
+##         See: https://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
 #MSVC_VARIANT=MSVC2013EE
 
 # The default if we haven't set a system environment variable or

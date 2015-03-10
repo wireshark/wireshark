@@ -664,7 +664,7 @@ cf_read(capture_file *cf, gboolean reloading)
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
                    "More information and workarounds can be found at\n"
-                   "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                   "https://wiki.wireshark.org/KnownBugs/OutOfMemory",
                    "Sorry, but Wireshark has run out of memory and has to terminate now.");
 #if 0
     /* Could we close the current capture and free up memory from that? */
@@ -837,7 +837,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
                    "More information and workarounds can be found at\n"
-                   "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                   "https://wiki.wireshark.org/KnownBugs/OutOfMemory",
                    "Sorry, but Wireshark has run out of memory and has to terminate now.");
 #if 0
     /* Could we close the current capture and free up memory from that? */

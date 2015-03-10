@@ -5029,7 +5029,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
  * matching first before calling dissect_ppp_raw_hdlc().  Otherwise, if we call
  * it directly for USB captures, some captures like the following will not be
  * dissected correctly:
- * http://wiki.wireshark.org/SampleCaptures#head-886e340c31ca977f321c921f81cbec4c21bb7738
+ * https://wiki.wireshark.org/SampleCaptures#head-886e340c31ca977f321c921f81cbec4c21bb7738
  *
  * NOTE: I don't know if these heuristics are sufficient.  Time will tell ...
  */

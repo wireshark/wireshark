@@ -337,7 +337,7 @@ More information on the name change can be found here:
 question("Where can I get help?")
 answer("""
 Community support is available on the
-<a href="http://ask.wireshark.org/">Q&amp;A site</a> and on the
+<a href="https://ask.wireshark.org/">Q&amp;A site</a> and on the
 wireshark-users mailing list.  Subscription information and archives for
 all of Wireshark's mailing lists can be found at %s.  An IRC channel
 dedicated to Wireshark can be found at %s.
@@ -514,7 +514,7 @@ libpcap.
 
 <br />
 
-See <a href="http://wiki.wireshark.org/CaptureSetup/NetworkMedia">the list of
+See <a href="https://wiki.wireshark.org/CaptureSetup/NetworkMedia">the list of
 supported capture media on various OSes</a> for details (several items
 in there say "Unknown", which doesn't mean "Wireshark can't capture on
 them", it means "we don't know whether it can capture on them"; we
@@ -570,42 +570,9 @@ Yes, but if you want to capture packets as a normal user, you must make sure
 npf.sys is loaded. Wireshark's installer enables this by default. This is not a
 concern if you run Wireshark as Administrator, but this is discouraged. See the
 <a
-href="http://wiki.wireshark.org/CaptureSetup/CapturePrivileges#windows">CapturePrivileges</a>
+href="https://wiki.wireshark.org/CaptureSetup/CapturePrivileges#windows">CapturePrivileges</a>
 page on the wiki for more details.
 """)
-
-#################################################################
-section("Downloading Wireshark")
-#################################################################
-
-
-question("""Why do I get an error when I try to run the Win32 installer?""")
-
-answer("""
-The program you used to download it may have downloaded it incorrectly.
-Web browsers and download accelerators sometimes may do this.
-
-<br />
-
-Try downloading it with, for example:
-<ul>
-<li>Wget, for which Windows binaries are available from <a
-href="http://www.christopherlewis.com/WGet/WGetFiles.htm">Christopher Lewis</a>
-or
-<a href="http://www.jensroesner.de/wgetgui/">wGetGUI</a>, which offers a GUI
-interface that uses wget;
-
-<li>WS_FTP from <a href="http://www.ipswitch.com/">Ipswitch</a>,
-
-<li>the <code>ftp</code> command that comes with Windows.
-
-</ul>
-
-If you use the <code>ftp</code> command, make sure you do the transfer in
-binary mode rather than ASCII mode, by using the <code>binary</code> command
-before transferring the file.
-""")
-
 
 
 #################################################################
@@ -876,8 +843,8 @@ Some switches have the ability to replicate all traffic on all ports to
 a single port so that you can plug your analyzer into that single port to
 sniff all traffic.  You would have to check the documentation for the
 switch to see if this is possible and, if so, to see how to do this.
-See <a href="http://wiki.wireshark.org/SwitchReference">the switch
-reference page</a> on <a href="http://wiki.wireshark.org/">the Wireshark
+See <a href="https://wiki.wireshark.org/SwitchReference">the switch
+reference page</a> on <a href="https://wiki.wireshark.org/">the Wireshark
 Wiki</a> for information on some switches.  (Note that it's a Wiki, so
 you can update or fix that information, or add additional information on
 those switches or information on new switches, yourself.)
@@ -941,7 +908,7 @@ network interface.
 In the case of token ring interfaces, the drivers for some of them, on
 Windows, may require you to enable promiscuous mode in order to capture
 in promiscuous mode.  See <a
-href="http://wiki.wireshark.org/CaptureSetup/TokenRing">the Wireshark
+href="https://wiki.wireshark.org/CaptureSetup/TokenRing">the Wireshark
 Wiki item on Token Ring capturing</a> for details.
 
 <br />
@@ -1049,8 +1016,8 @@ be used to capture traffic on, for example, your T1/E1 link.
 
 <br />
 
-See <a href="http://wiki.wireshark.org/CaptureSetup/SS7">the SS7 capture
-setup page</a> on <a href="http://wiki.wireshark.org/">the Wireshark
+See <a href="https://wiki.wireshark.org/CaptureSetup/SS7">the SS7 capture
+setup page</a> on <a href="https://wiki.wireshark.org/">the Wireshark
 Wiki</a> for current information on capturing SS7 traffic on TDM
 links.
 """)
@@ -1264,7 +1231,7 @@ In order to see the raw Ethernet packets, rather than "de-VLANized"
 packets, you would have to capture not on the virtual interface for the
 VLAN, but on the interface corresponding to the physical network device,
 if possible.  See <a
-href="http://wiki.wireshark.org/CaptureSetup/VLAN">the Wireshark Wiki
+href="https://wiki.wireshark.org/CaptureSetup/VLAN">the Wireshark Wiki
 item on VLAN capturing</a> for details.
 """)
 
@@ -1435,7 +1402,7 @@ On Windows 2000, Windows XP, and Windows Server 2003, but
 be able to capture on the "GenericDialupAdapter" with WinPcap 3.1.  (3.1
 beta releases called it the "NdisWanAdapter"; if you're using a 3.1 beta
 release, you should un-install it and install the final 3.1 release.)
-See <a href="http://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
+See <a href="https://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
 Wiki item on PPP capturing</a> for details.
 
 <br />
@@ -1579,7 +1546,7 @@ On Windows 2000, Windows XP, and Windows Server 2003, but
 be able to capture on the "GenericDialupAdapter" with WinPcap 3.1.  (3.1
 beta releases called it the "NdisWanAdapter"; if you're using a 3.1 beta
 release, you should un-install it and install the final 3.1 release.)
-See <a href="http://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
+See <a href="https://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
 Wiki item on PPP capturing</a> for details.
 """)
 
@@ -1607,7 +1574,7 @@ On Windows 2000, Windows XP, and Windows Server 2003, but
 be able to capture on the "GenericDialupAdapter" with WinPcap 3.1.  (3.1
 beta releases called it the "NdisWanAdapter"; if you're using a 3.1 beta
 release, you should un-install it and install the final 3.1 release.)
-See <a href="http://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
+See <a href="https://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
 Wiki item on PPP capturing</a> for details.
 """)
 
@@ -1713,7 +1680,7 @@ your account sufficient privileges to capture packets.  Only those
 interfaces that Wireshark can open for capturing show up in that list; if
 you don't have sufficient privileges to capture on any interfaces, no
 interfaces will show up in the list.  See
-<a href="http://wiki.wireshark.org/CaptureSetup/CapturePrivileges">the
+<a href="https://wiki.wireshark.org/CaptureSetup/CapturePrivileges">the
 Wireshark Wiki item on capture privileges</a> for details on how to give
 a particular account or account group capture privileges on platforms
 where that can be done.
@@ -1724,7 +1691,7 @@ If you are running Wireshark from an account with sufficient privileges,
 then note that Wireshark relies on the libpcap library, and on the
 facilities that come with the OS on which it's running in order to do
 captures.  On some OSes, those facilities aren't present by default; see
-<a href="http://wiki.wireshark.org/CaptureSetup/CaptureSupport">the
+<a href="https://wiki.wireshark.org/CaptureSetup/CaptureSupport">the
 Wireshark Wiki item on adding capture support</a> for details.
 
 <br />
@@ -1900,7 +1867,7 @@ communicate with any DNS or NIS servers.
 <br />
 
 See <a
-href="http://wiki.wireshark.org/CaptureSetup/WLAN">the Wireshark
+href="https://wiki.wireshark.org/CaptureSetup/WLAN">the Wireshark
 Wiki item on 802.11 capturing</a> for details.
 """)
 
@@ -1970,7 +1937,7 @@ is boring.  Where can I find more interesting captures?
 
 answer("""
 We have a collection of strange and exotic sample capture
-files at %s""" % (selflink("http://wiki.wireshark.org/SampleCaptures")))
+files at %s""" % (selflink("https://wiki.wireshark.org/SampleCaptures")))
 
 
 question("""
@@ -2076,8 +2043,8 @@ How do I filter a capture to see traffic for virus XXX?
 answer("""
 For some viruses/worms there might be a capture filter to recognize the
 virus traffic.  Check the <a
-href="http://wiki.wireshark.org/CaptureFilters">CaptureFilters</a> page
-on the <a href="http://wiki.wireshark.org/">Wireshark Wiki</a> to see if
+href="https://wiki.wireshark.org/CaptureFilters">CaptureFilters</a> page
+on the <a href="https://wiki.wireshark.org/">Wireshark Wiki</a> to see if
 anybody's added such a filter.
 
 <br />

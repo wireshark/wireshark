@@ -65,7 +65,7 @@ gboolean rlc_is_ciphered(packet_info * pinfo);
 /* and implemented by this dissector, using the definitions      */
 /* below. A link to an example program showing you how to encode */
 /* these headers and send RLC PDUs on a UDP socket is provided   */
-/* at http://wiki.wireshark.org/RLC                              */
+/* at https://wiki.wireshark.org/RLC                              */
 /*                                                               */
 /* A heuristic dissecter (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames.       */

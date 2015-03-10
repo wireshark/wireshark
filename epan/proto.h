@@ -738,7 +738,7 @@ typedef proto_node proto_item;
 /** The protocol field indicates a packet comment */
 #define PI_COMMENTS_GROUP       0x0b000000
 
-/* add more, see http://wiki.wireshark.org/Development/ExpertInfo */
+/* add more, see https://wiki.wireshark.org/Development/ExpertInfo */
 
 
 /** is this protocol field hidden from the protocol tree display (used for filtering only)? */

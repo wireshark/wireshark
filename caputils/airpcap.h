@@ -730,13 +730,13 @@ gboolean AirpcapStoreCurConfigAsAdapterDefault(PAirpcapHandle AdapterHandle);
   \brief Set the BPF kernel filter for an adapter
   \param AdapterHandle Handle to the adapter.
   \param Instructions pointer to the first BPF instruction in the array. Corresponds to the  bf_insns
-   in a bpf_program structure (see the WinPcap documentation at http://www.winpcap.org/devel.htm).
+   in a bpf_program structure (see the WinPcap documentation at https://www.winpcap.org/devel.htm).
   \param Len Number of instructions in the array pointed by the previous field. Corresponds to the bf_len in
-  a a bpf_program structure (see the WinPcap documentation at http://www.winpcap.org/devel.htm).
+  a a bpf_program structure (see the WinPcap documentation at https://www.winpcap.org/devel.htm).
   \return TRUE on success.
 
   The AirPcap driver is able to perform kernel-level filtering using the standard BPF pseudo-machine format. You can read
-  the WinPcap documentation at http://www.winpcap.org/devel.htm for more details on the BPF filtering mechanism.
+  the WinPcap documentation at https://www.winpcap.org/devel.htm for more details on the BPF filtering mechanism.
 
   A filter can be automatically created by using the pcap_compile() function of the WinPcap API. This function
   converts a human readable text expression with the tcpdump/libpcap syntax into a BPF program.

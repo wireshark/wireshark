@@ -122,7 +122,7 @@ static gint ett_prism_did = -1;
  * I'm not sure where these DID values come from, but they work with
  * at least one capture file.  However, in
  *
- *    http://ask.wireshark.org/questions/14963/how-to-get-the-field-did-unknown-4041-into-the-column
+ *    https://ask.wireshark.org/questions/14963/how-to-get-the-field-did-unknown-4041-into-the-column
  *
  * somebody reports a capture where *different* DID values, corresponding
  * to

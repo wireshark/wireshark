@@ -71,7 +71,7 @@ PKG_CONFIG_VERSION=0.28
 # and un-comment the GTK_VERSION=2.* line.
 #
 # If you don't want to build with GTK+ at all, comment out both lines.
-# 
+#
 QT_VERSION=5.2.1
 GTK_VERSION=2.24.17
 #GTK_VERSION=3.5.2
@@ -108,10 +108,6 @@ LIBSMI_VERSION=0.4.8
 LIBGPG_ERROR_VERSION=1.10
 #
 # libgcrypt is required for GnuTLS.
-# XXX - the link for "Libgcrypt source code" at
-# http://www.gnupg.org/download/#libgcrypt is for 1.5.0, and is a bzip2
-# file, but http://directory.fsf.org/project/libgcrypt/ lists only
-# 1.4.6.
 #
 LIBGCRYPT_VERSION=1.5.0
 GNUTLS_VERSION=2.12.19
@@ -1947,7 +1943,7 @@ CXXFLAGS="-g -O2"
 # fix that file.
 #
 if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
-    echo "This script does not support any versions of OS X before Snow Leopard" 1>&2 
+    echo "This script does not support any versions of OS X before Snow Leopard" 1>&2
     exit 1
 fi
 
@@ -2246,7 +2242,7 @@ echo "make install"
 echo ""
 
 echo "Make sure you are allowed capture access to the network devices"
-echo "See: http://wiki.wireshark.org/CaptureSetup/CapturePrivileges"
+echo "See: https://wiki.wireshark.org/CaptureSetup/CapturePrivileges"
 
 echo ""
 

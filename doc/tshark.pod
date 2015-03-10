@@ -1529,7 +1529,7 @@ created. Only one capture comment may be set per output file.
 =head1 CAPTURE FILTER SYNTAX
 
 See the manual page of pcap-filter(7) or, if that doesn't exist, tcpdump(8),
-or, if that doesn't exist, L<http://wiki.wireshark.org/CaptureFilters>.
+or, if that doesn't exist, L<https://wiki.wireshark.org/CaptureFilters>.
 
 =head1 READ FILTER SYNTAX
 

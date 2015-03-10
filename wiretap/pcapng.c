@@ -22,9 +22,11 @@
  */
 
 /* File format reference:
- *   http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
+ *   https://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
+ * File format specification:
+ *   https://github.com/pcapng/pcapng
  * Related Wiki page:
- *   http://wiki.wireshark.org/Development/PcapNg
+ *   https://wiki.wireshark.org/Development/PcapNg
  */
 
 #include "config.h"
@@ -3838,7 +3840,7 @@ int pcapng_dump_can_write_encap(int wtap_encap)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

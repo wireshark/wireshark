@@ -227,7 +227,7 @@ Wireshark should let you work with multiple capture files. (ws-buglink:10488[])
 
 == Getting Help
 
-Community support is available on http://ask.wireshark.org/[Wireshark's
+Community support is available on https://ask.wireshark.org/[Wireshark's
 Q&A site] and on the wireshark-users mailing list. Subscription
 information and archives for all of Wireshark's mailing lists can be
 found on https://www.wireshark.org/lists/[the web site].

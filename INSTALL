@@ -4,7 +4,7 @@ directly from Git, as files such as the configuration script are not
 checked into Git, but need to be generated from the autoconf and
 automake files.
 
-See http://wiki.wireshark.org/Development if you would like to build the
+See https://wiki.wireshark.org/Development if you would like to build the
 source code checked out directly from Git.
 
 Installation

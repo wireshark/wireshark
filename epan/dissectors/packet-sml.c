@@ -26,7 +26,7 @@ SML dissector is based on v1.03 (12.11.2008) specifications of "smart message la
 
 Link to specifications: http://www.vde.com/de/fnn/arbeitsgebiete/messwesen/Sym2/infomaterial/seiten/sml-spezifikation.aspx
 
-Short description of the SML protocol on the SML Wireshark Wiki page:  http://wiki.wireshark.org/SML
+Short description of the SML protocol on the SML Wireshark Wiki page:  https://wiki.wireshark.org/SML
 */
 
 #include "config.h"

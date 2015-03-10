@@ -100,7 +100,7 @@ typedef struct pdcp_lte_info
 /* and implemented by this dissector, using the definitions      */
 /* below. A link to an example program showing you how to encode */
 /* these headers and send LTE PDCP PDUs on a UDP socket is       */
-/* provided at http://wiki.wireshark.org/PDCP-LTE                */
+/* provided at https://wiki.wireshark.org/PDCP-LTE                */
 /*                                                               */
 /* A heuristic dissecter (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames.       */

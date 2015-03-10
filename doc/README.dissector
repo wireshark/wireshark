@@ -2148,7 +2148,7 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
 
   - TEST YOUR DISSECTOR BEFORE SUBMITTING IT.
     Use fuzz-test.sh and/or randpkt against your dissector.  These are
-    described at <http://wiki.wireshark.org/FuzzTesting>.
+    described at <https://wiki.wireshark.org/FuzzTesting>.
 
   - Subscribe to <mailto:wireshark-dev[AT]wireshark.org> by sending an email to
     <mailto:wireshark-dev-request[AT]wireshark.org?body="help"> or visiting
@@ -2166,13 +2166,13 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
     you previously ran 'git config --add remote.origin.push HEAD:refs/for/master'
     then only 'git push' is needed.)
 
-  - Create a Wiki page on the protocol at <http://wiki.wireshark.org>.
+  - Create a Wiki page on the protocol at <https://wiki.wireshark.org>.
     A template is provided so it is easy to setup in a consistent style.
-      See: <http://wiki.wireshark.org/HowToEdit>
-      and  <http://wiki.wireshark.org/ProtocolReference>
+      See: <https://wiki.wireshark.org/HowToEdit>
+      and  <https://wiki.wireshark.org/ProtocolReference>
 
   - If possible, add sample capture files to the sample captures page at
-    <http://wiki.wireshark.org/SampleCaptures>.  These files are used by
+    <https://wiki.wireshark.org/SampleCaptures>.  These files are used by
     the automated build system for fuzz testing.
 
   - If you don't think the wiki is the right place for your sample capture,

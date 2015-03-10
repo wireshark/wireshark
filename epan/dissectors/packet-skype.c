@@ -25,7 +25,7 @@
 /*
  * Documentation that formed the basis of the packet decoding:
  * https://github.com/matthiasbock/OpenSkype/wiki/Skype's-UDP-Format
- * For additional information see: http://wiki.wireshark.org/Skype
+ * For additional information see: https://wiki.wireshark.org/Skype
  *
  *  TODO:
  *  - Authentication

@@ -100,7 +100,7 @@ void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gb
 /* and implemented by this dissector, using the definitions      */
 /* below. A link to an example program showing you how to encode */
 /* these headers and send LTE RLC PDUs on a UDP socket is        */
-/* provided at http://wiki.wireshark.org/RLC-LTE                 */
+/* provided at https://wiki.wireshark.org/RLC-LTE                 */
 /*                                                               */
 /* A heuristic dissecter (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames.       */

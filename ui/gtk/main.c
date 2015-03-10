@@ -391,7 +391,7 @@ static void selected_ptree_info_answered_cb(gpointer dialog _U_, gint btn, gpoin
     case(ESD_BTN_OK):
         if (cfile.finfo_selected) {
             /* open wiki page using the protocol abbreviation */
-            selected_proto_url = g_strdup_printf("http://wiki.wireshark.org/Protocols/%s", proto_abbrev);
+            selected_proto_url = g_strdup_printf("https://wiki.wireshark.org/Protocols/%s", proto_abbrev);
             browser_open_url(selected_proto_url);
             g_free(selected_proto_url);
         }
@@ -470,7 +470,7 @@ static void selected_ptree_ref_answered_cb(gpointer dialog _U_, gint btn, gpoint
     case(ESD_BTN_OK):
         if (cfile.finfo_selected) {
             /* open reference page using the protocol abbreviation */
-            selected_proto_url = g_strdup_printf("http://www.wireshark.org/docs/dfref/%c/%s", proto_abbrev[0], proto_abbrev);
+            selected_proto_url = g_strdup_printf("https://www.wireshark.org/docs/dfref/%c/%s", proto_abbrev[0], proto_abbrev);
             browser_open_url(selected_proto_url);
             g_free(selected_proto_url);
         }
@@ -1177,7 +1177,7 @@ print_usage(gboolean for_help_option) {
         output = stdout;
         fprintf(output, "Wireshark %s\n"
             "Interactively dump and analyze network traffic.\n"
-            "See http://www.wireshark.org for more information.\n",
+            "See https://www.wireshark.org for more information.\n",
             get_ws_vcs_version_info());
     } else {
         output = stderr;
@@ -2106,7 +2106,7 @@ check_and_warn_user_startup(gchar *cf_name _U_)
         "This could be dangerous.\n\n"
         "If you're running Wireshark this way in order to perform live capture, "
         "you may want to be aware that there is a better way documented at\n"
-        "http://wiki.wireshark.org/CaptureSetup/CapturePrivileges", cur_user, cur_group);
+        "https://wiki.wireshark.org/CaptureSetup/CapturePrivileges", cur_user, cur_group);
         g_free(cur_user);
         g_free(cur_group);
         simple_dialog_check_set(priv_warning_dialog, "Don't show this message again.");

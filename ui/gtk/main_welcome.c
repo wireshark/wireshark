@@ -495,7 +495,7 @@ typedef struct _recent_item_status {
 /*
  * Fetch the status of a file.
  * This function might be called as a thread. We can't use any drawing
- * routines here: http://developer.gnome.org/gdk/2.24/gdk-Threads.html
+ * routines here: https://developer.gnome.org/gdk3/stable/gdk3-Threads.html
  */
 static void *
 get_recent_item_status(void *data)
@@ -1096,25 +1096,9 @@ fill_capture_box(void)
                                   "must be installed; see\n"
                                   "\n"
 #if GTK_CHECK_VERSION(2,18,0)
-                                  "        <a href=\"http://www.winpcap.org/\">http://www.winpcap.org/</a>\n"
+                                  "        <a href=\"https://www.winpcap.org/\">https://www.winpcap.org/</a>\n"
 #else
-                                  "        http://www.winpcap.org/\n"
-#endif
-                                  "\n"
-                                  "or the mirror at\n"
-                                  "\n"
-#if GTK_CHECK_VERSION(2,18,0)
-                                  "        <a href=\"http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\">http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/</a>\n"
-#else
-                                  "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
-#endif
-                                  "\n"
-                                  "or the mirror at\n"
-                                  "\n"
-#if GTK_CHECK_VERSION(2,18,0)
-                                  "        <a href=\"http://winpcap.cs.pu.edu.tw/\">http://winpcap.cs.pu.edu.tw/</a>\n"
-#else
-                                  "        http://winpcap.cs.pu.edu.tw/\n"
+                                  "        https://www.winpcap.org/\n"
 #endif
                                   "\n"
                                   "for a downloadable version of WinPcap "
@@ -1452,7 +1436,7 @@ get_welcome_window(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -16,12 +16,12 @@ are saved to a capture file, it's helpful to know a bit about the capture file
 contents.
 
 Wireshark uses the
-link:http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html[pcapng] file
+link:https://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html[pcapng] file
 format as the default format to save captured packets. It is very flexible
 but other tools may not support it.
 
 Wireshark also supports the
-link:http://wiki.wireshark.org/Development/LibpcapFileFormat[libpcap] file
+link:https://wiki.wireshark.org/Development/LibpcapFileFormat[libpcap] file
 format. This is a much simpler format and is well established. However, it has
 some drawbacks: it's not extensible and lacks some information that would be
 really helpful (e.g. being able to add a comment to a packet such as ``the
@@ -51,7 +51,7 @@ The following data is saved for each packet:
 * The packet's raw bytes
 
 A detailed description of the libpcap file format can be found at:
-link:$$http://wiki.wireshark.org/Development/LibpcapFileFormat$$[]
+link:$$https://wiki.wireshark.org/Development/LibpcapFileFormat$$[]
 
 [[ChIOFileNotContentSection]]
 
@@ -407,7 +407,7 @@ contains the following:
 [database]
 source=Wikipedia
 version=1
-url_template=http://${language}.wikipedia.org/wiki/${PATH}
+url_template=https://${language}.wikipedia.org/wiki/${PATH}
 
 # Substitution data for the location template.
 # Each occurrence of the keys below in the location template will be
@@ -446,7 +446,7 @@ configuration:
 [database]
 source=Wikipedia
 version=1
-location=http://en.wikipedia.org/wiki/
+location=https://en.wikipedia.org/wiki/
 
 [map]
 tcp=TCP

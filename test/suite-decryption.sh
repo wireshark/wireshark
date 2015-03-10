@@ -58,7 +58,7 @@ TS_DC_ARGS=""
 DIFF_OUT=./diff-output.txt
 
 # WPA PSK
-# http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=wpa-Induction.pcap
+# https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=wpa-Induction.pcap
 decryption_step_80211_wpa_psk() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-o "wlan.enable_decryption: TRUE" \
@@ -75,7 +75,7 @@ decryption_step_80211_wpa_psk() {
 }
 
 # DTLS
-# http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
+# https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
 decryption_step_dtls() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-Tfields -e data.data \
@@ -90,7 +90,7 @@ decryption_step_dtls() {
 }
 
 # SSL, using the server's private key
-# http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
+# https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
 decryption_step_ssl() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
 		-r "$CAPTURE_DIR/rsasnakeoil2.pcap" -Y http \
@@ -247,7 +247,7 @@ decryption_suite() {
 }
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

@@ -302,7 +302,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
 "\n"
 "Help about capturing can be found at\n"
 "\n"
-"       http://wiki.wireshark.org/CaptureSetup"
+"       https://wiki.wireshark.org/CaptureSetup"
 #ifdef _WIN32
 "\n\n"
 "Wireless (Wi-Fi/WLAN):\n"
@@ -592,7 +592,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
             "\n"
             "Help about capturing can be found at\n"
             "\n"
-            "       http://wiki.wireshark.org/CaptureSetup"
+            "       https://wiki.wireshark.org/CaptureSetup"
 #ifdef _WIN32
             "\n\n"
             "Wireless (Wi-Fi/WLAN):\n"
@@ -799,7 +799,7 @@ capture_stat_stop(if_stat_cache_t *sc) {
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

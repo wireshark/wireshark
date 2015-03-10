@@ -400,7 +400,7 @@ C<tshark -G fields> on the command line
 
 =item *
 
-The Wireshark wiki: L<http://wiki.wireshark.org/DisplayFilters>
+The Wireshark wiki: L<https://wiki.wireshark.org/DisplayFilters>
 
 =back
 
@@ -415,7 +415,7 @@ See L<http://developer.gnome.org/glib/2.32/glib-regex-syntax.html/> or L<http://
 
 This manpage does not describe the capture filter syntax, which is
 different. See the manual page of pcap-filter(7) or, if that doesn't exist,
-tcpdump(8), or, if that doesn't exist, L<http://wiki.wireshark.org/CaptureFilters>
+tcpdump(8), or, if that doesn't exist, L<https://wiki.wireshark.org/CaptureFilters>
 for a description of capture filters.
 
 =head1 SEE ALSO

@@ -1,7 +1,7 @@
 /* expert.h
  * Collecting of Expert information.
  *
- * For further info, see: http://wiki.wireshark.org/Development/ExpertInfo
+ * For further info, see: https://wiki.wireshark.org/Development/ExpertInfo
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -195,7 +195,7 @@ WS_DLL_PUBLIC const value_string expert_checksum_vals[];
 #endif /* __EXPERT_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

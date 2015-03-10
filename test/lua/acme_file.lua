@@ -31,7 +31,7 @@
 
     To-do:
     - make it use Struct.tohex/fromhex now that we have the Struct library in Wireshark
-    - make it use a linux cooked-mode pseudo-header (see http://wiki.wireshark.org/SLL)
+    - make it use a linux cooked-mode pseudo-header (see https://wiki.wireshark.org/SLL)
     - make it use preferences, once I write C-code for Wireshark to do that :)
     - rewrite some of the pattern searches to use real regex/PCRE instead? It's not in Wireshark yet,
         but it's coming (see https://code.wireshark.org/review/#/c/332/)

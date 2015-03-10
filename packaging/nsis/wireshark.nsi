@@ -41,7 +41,7 @@ BrandingText "Wireshark Installer (tm)"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of ${PROGRAM_NAME}.\r\n\r\nBefore starting the installation, make sure ${PROGRAM_NAME} is not running.\r\n\r\nClick 'Next' to continue."
 ;!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network."
-;!define MUI_FINISHPAGE_LINK_LOCATION "http://www.winpcap.org"
+;!define MUI_FINISHPAGE_LINK_LOCATION "https://www.winpcap.org"
 
 ; NSIS shows Readme files by opening the Readme file with the default application for
 ; the file's extension. "README.win32" won't work in most cases, because extension "win32"
@@ -161,7 +161,7 @@ ShowInstDetails show
 ; ============================================================================
 
 Var EXTENSION
-; http://msdn.microsoft.com/en-us/library/windows/desktop/cc144148.aspx
+; https://msdn.microsoft.com/en-us/library/windows/desktop/cc144148.aspx
 Function Associate
     Push $R0
 !insertmacro PushFileExtensions
@@ -682,19 +682,19 @@ File "${STAGING_DIR}\help\faq.txt"
 
 ; Write the uninstall keys for Windows
 ; http://nsis.sourceforge.net/Add_uninstall_information_to_Add/Remove_Programs
-; http://msdn.microsoft.com/en-us/library/ms954376.aspx
-; http://msdn.microsoft.com/en-us/library/windows/desktop/aa372105.aspx
+; https://msdn.microsoft.com/en-us/library/ms954376.aspx
+; https://msdn.microsoft.com/en-us/library/windows/desktop/aa372105.aspx
 !define UNINSTALL_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}"
 
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Comments" "${DISPLAY_NAME}"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayIcon" "$INSTDIR\${PROGRAM_NAME_PATH_GTK},0"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayName" "${DISPLAY_NAME}"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "DisplayVersion" "${VERSION}"
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "HelpLink" "http://ask.wireshark.org/"
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "HelpLink" "https://ask.wireshark.org/"
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "InstallLocation" "$INSTDIR"
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Publisher" "The Wireshark developer community, http://www.wireshark.org"
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLInfoAbout" "http://www.wireshark.org"
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLUpdateInfo" "http://www.wireshark.org/download.html"
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Publisher" "The Wireshark developer community, https://www.wireshark.org"
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLInfoAbout" "https://www.wireshark.org"
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "URLUpdateInfo" "https://www.wireshark.org/download.html"
 
 WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "NoModify" 1
 WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "NoRepair" 1
@@ -720,7 +720,7 @@ SetOutPath $PROFILE
 ; To quote "http://download.microsoft.com/download/0/4/6/046bbd36-0812-4c22-a870-41911c6487a6/WindowsUserExperience.pdf"
 ; "Do not include Readme, Help, or Uninstall entries on the Programs menu."
 Delete "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.lnk"
-;WriteINIStr "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.url" "InternetShortcut" "URL" "http://www.wireshark.org/"
+;WriteINIStr "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.url" "InternetShortcut" "URL" "https://www.wireshark.org/"
 CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME_GTK}.lnk" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" "" "$INSTDIR\${PROGRAM_NAME_PATH_GTK}" 0 "" "" "${PROGRAM_FULL_NAME_GTK}"
 ;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Manual.lnk" "$INSTDIR\wireshark.html"
 ;CreateShortCut "$SMPROGRAMS\${PROGRAM_NAME}\Display Filters Manual.lnk" "$INSTDIR\wireshark-filter.html"
@@ -1248,7 +1248,7 @@ lbl_wireshark_notinstalled:
 FunctionEnd
 
 ;
-; Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+; Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 ;
 ; Local variables:
 ; c-basic-offset: 4

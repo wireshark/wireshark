@@ -73,40 +73,40 @@ topic_online_url(topic_action_e action)
 {
     switch(action) {
     case(ONLINEPAGE_HOME):
-        return "http://www.wireshark.org";
+        return "https://www.wireshark.org";
         break;
     case(ONLINEPAGE_WIKI):
-        return "http://wiki.wireshark.org";
+        return "https://wiki.wireshark.org";
         break;
     case(ONLINEPAGE_DOWNLOAD):
-        return "http://www.wireshark.org/download.html";
+        return "https://www.wireshark.org/download.html";
         break;
     case(ONLINEPAGE_USERGUIDE):
-        return "http://www.wireshark.org/docs/wsug_html_chunked/";
+        return "https://www.wireshark.org/docs/wsug_html_chunked/";
         break;
     case(ONLINEPAGE_FAQ):
         return "http://www.wireshark.org/faq.html";
         break;
     case(ONLINEPAGE_ASK):
-        return "http://ask.wireshark.org";
+        return "https://ask.wireshark.org";
         break;
     case(ONLINEPAGE_SAMPLE_FILES):
-        return "http://wiki.wireshark.org/SampleCaptures";
+        return "https://wiki.wireshark.org/SampleCaptures";
         break;
     case(ONLINEPAGE_CAPTURE_SETUP):
-        return "http://wiki.wireshark.org/CaptureSetup";
+        return "https://wiki.wireshark.org/CaptureSetup";
         break;
     case(ONLINEPAGE_NETWORK_MEDIA):
-        return "http://wiki.wireshark.org/CaptureSetup/NetworkMedia";
+        return "https://wiki.wireshark.org/CaptureSetup/NetworkMedia";
         break;
     case(ONLINEPAGE_SAMPLE_CAPTURES):
-        return "http://wiki.wireshark.org/SampleCaptures";
+        return "https://wiki.wireshark.org/SampleCaptures";
         break;
     case(ONLINEPAGE_SECURITY):
-        return "http://wiki.wireshark.org/Security";
+        return "https://wiki.wireshark.org/Security";
         break;
     case(ONLINEPAGE_CHIMNEY):
-        return "http://wiki.wireshark.org/CaptureSetup/Offloading#chimney";
+        return "https://wiki.wireshark.org/CaptureSetup/Offloading#chimney";
         break;
     default:
         return NULL;

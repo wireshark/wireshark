@@ -4,8 +4,8 @@
  *
  * For documentation of this protocol, see:
  *
- * http://wiki.wireshark.org/SMB2
- * http://msdn.microsoft.com/en-us/library/cc246482(PROT.10).aspx
+ * https://wiki.wireshark.org/SMB2
+ * https://msdn.microsoft.com/en-us/library/cc246482.aspx
  *
  * If you edit this file, keep the wiki updated as well.
  *

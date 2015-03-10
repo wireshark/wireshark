@@ -104,7 +104,7 @@ if (gui_enabled()) then
 	end
 	
 	function wiki_page()
-		browser_open_url("http://wiki.wireshark.org/Lua")
+		browser_open_url("https://wiki.wireshark.org/Lua")
 	end
 
 	register_menu("Lua/Evaluate", evaluate_lua, MENU_TOOLS_UNSORTED)

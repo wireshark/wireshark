@@ -37,7 +37,7 @@ run_user_scripts_when_superuser = false
 
 -- disable potentialy harmful lua functions when running superuser
 if running_superuser then
-    local hint = "has been disabled due to running Wireshark as superuser. See http://wiki.wireshark.org/CaptureSetup/CapturePrivileges for help in running Wireshark as an unprivileged user."
+    local hint = "has been disabled due to running Wireshark as superuser. See https://wiki.wireshark.org/CaptureSetup/CapturePrivileges for help in running Wireshark as an unprivileged user."
     local disabled_lib = {}
     setmetatable(disabled_lib,{ __index = function() error("this package ".. hint) end } );
 
