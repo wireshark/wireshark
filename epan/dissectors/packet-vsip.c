@@ -2062,7 +2062,7 @@ void proto_register_vsip(void)
           { "NumAddArgs", "vsip.ErrorVAResponse.NumAddArgs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_vsip_Version,
           { "Version", "vsip.Version", FT_UINT16, BASE_CUSTOM,
-             &vsip_fmt_revision, 0x0, NULL, HFILL } },
+             CF_FUNC(vsip_fmt_revision), 0x0, NULL, HFILL } },
        { &hf_vsip_Type,
           { "Type", "vsip.Type", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
              &EVsipMessageType_vals_ext, 0x0, NULL, HFILL } },
