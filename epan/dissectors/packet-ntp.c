@@ -704,6 +704,46 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 	return buff;
 }
 
+/* tvb_ntp_fmt_ts_sec - converts an NTP timestamps second part (32bits) to an human readable string.
+* TVB and an offset (IN).
+* returns pointer to filled buffer.  This buffer will be freed automatically once
+* dissection of the next packet occurs.
+*/
+const char *
+tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, gint offset)
+{
+	guint32		 tempstmp;
+	time_t		 temptime;
+	struct tm	*bd;
+	char		*buff;
+
+	tempstmp = tvb_get_ntohl(tvb, offset);
+	if (tempstmp == 0){
+		return "NULL";
+	}
+
+	/* We need a temporary variable here so the unsigned math
+	* works correctly (for years > 2036 according to RFC 2030
+	* chapter 3).
+	*/
+	temptime = (time_t)(tempstmp - NTP_BASETIME);
+	bd = gmtime(&temptime);
+	if (!bd){
+		return "Not representable";
+	}
+
+	buff = (char *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
+	g_snprintf(buff, NTP_TS_SIZE,
+		"%s %2d, %d %02d:%02d:%02d UTC",
+		mon_names[bd->tm_mon],
+		bd->tm_mday,
+		bd->tm_year + 1900,
+		bd->tm_hour,
+		bd->tm_min,
+		bd->tm_sec);
+	return buff;
+}
+
 void
 ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
 {

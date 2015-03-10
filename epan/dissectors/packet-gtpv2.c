@@ -408,6 +408,7 @@ static int hf_gtpv2_ip4cp_ipv4 = -1;
 static int hf_gtpv2_change_report_flags_sncr = -1;
 static int hf_gtpv2_change_report_flags_tzcr = -1;
 static int hf_gtpv2_action_indication_val = -1;
+static int hf_gtpv2_uli_timestamp = -1;
 static int hf_gtpv2_mbms_session_duration_days = -1;
 static int hf_gtpv2_mbms_session_duration_secs = -1;
 static int hf_gtpv2_node_features_prn = -1;
@@ -5280,7 +5281,16 @@ dissect_gtpv2_twan_Identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_gtpv2_uli_timestamp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+	const gchar *time_str;
+
+	/* Octets 5 to 8 are encoded in the same format as the first four octets of the 64-bit timestamp
+	 * format as defined in section 6 of IETF RFC 5905
+	 */
+
+	time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+	proto_tree_add_string(tree, hf_gtpv2_uli_timestamp, tvb, 0, 8, time_str);
+	proto_item_append_text(item, "%s", time_str);
+
 }
 /*
  * 8.102        MBMS Flags
@@ -7504,12 +7514,17 @@ void proto_register_gtpv2(void)
           FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_action_indication_vals_ext, 0x07,
           NULL , HFILL}
         },
-        { &hf_gtpv2_abs_time_mbms_data,
-          {"Absolute Time of MBMS Data Transfer", "gtpv2.abs_time_mbms_data",
-           FT_STRING, BASE_NONE, NULL, 0,
-           NULL, HFILL}
-        },
-        { &hf_gtpv2_mbms_session_duration_days,
+		{ &hf_gtpv2_uli_timestamp,
+		{ "ULI Timestamp", "gtpv2.uli_timestamp",
+		FT_STRING, BASE_NONE, NULL, 0,
+		NULL, HFILL }
+		},
+		{ &hf_gtpv2_abs_time_mbms_data,
+		{ "Absolute Time of MBMS Data Transfer", "gtpv2.abs_time_mbms_data",
+		FT_STRING, BASE_NONE, NULL, 0,
+		NULL, HFILL }
+		},
+		{ &hf_gtpv2_mbms_session_duration_days,
           {"MBMS Session Duration (days)", "gtpv2.mbms_session_duration_days",
            FT_UINT24, BASE_DEC, NULL, 0x00007F,
            NULL, HFILL}
