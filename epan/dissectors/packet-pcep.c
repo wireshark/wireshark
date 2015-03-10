@@ -35,6 +35,12 @@
  * "Optimizations of Label Switched Path State Synchronization Procedures for a Stateful PCE"
  *  (draft-ietf-pce-stateful-sync-optimizations-01)
  * (c) Copyright 2014 Simon Zhong <szhong[AT]juniper.net>
+ *
+ * Added support of "PCEP Extensions for Segment Routing"
+ *  (draft-ietf-pce-segment-routing-01) and
+ * "Conveying path setup type in PCEP messages"
+ *  (draft-ietf-pce-lsp-setup-type-00)
+ * (c) Copyright 2015 Francesco Fondelli <francesco.fondelli[AT]gmail.com>
  */
 
 #include "config.h"
@@ -79,6 +85,7 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_SUB_IPv6                    2
 #define PCEP_SUB_LABEL_CONTROL           3
 #define PCEP_SUB_UNNUMB_INTERFACE_ID     4
+#define PCEP_SUB_SR                      5
 #define PCEP_SUB_AUTONOMOUS_SYS_NUM     32
 #define PCEP_SUB_EXRS                   33
 #define PCEP_SUB_SRLG                   34
@@ -129,6 +136,7 @@ void proto_reg_handoff_pcep(void);
 #define P2MP_FRAGMENT_ERROR             18
 #define INVALID_OPERATION               19
 #define LSP_STATE_SYNCHRONIZATION_ERROR 20
+#define INVALID_PATH_SETUP_TYPE         21
 #define BAD_PARAMETER_VALUE             23
 #define LSP_INSTANTIATION_ERROR         24
 
@@ -344,6 +352,7 @@ static gint hf_PCEPF_SUBOBJ_EXRS = -1;
 static gint hf_PCEPF_SUBOBJ_PKSv4 = -1;
 static gint hf_PCEPF_SUBOBJ_PKSv6 = -1;
 static gint hf_PCEPF_SUBOBJ_XRO = -1;
+static gint hf_PCEPF_SUBOBJ_SR = -1;
 #if 0
 static gint hf_PCEPF_SUB_XRO_ATTRIB = -1;
 #endif
@@ -473,6 +482,17 @@ static int hf_pcep_subobj_pksv4_l = -1;
 static int hf_pcep_subobj_iro_ipv6_l = -1;
 static int hf_pcep_subobj_unnumb_interfaceID_l = -1;
 static int hf_pcep_subobj_iro_ipv4_l = -1;
+static int hf_pcep_subobj_sr_l = -1;
+static int hf_pcep_subobj_sr_length = -1;
+static int hf_pcep_subobj_sr_st = -1;
+static int hf_pcep_subobj_sr_flags = -1;
+static int hf_pcep_subobj_sr_flags_m = -1;
+static int hf_pcep_subobj_sr_flags_c = -1;
+static int hf_pcep_subobj_sr_flags_s = -1;
+static int hf_pcep_subobj_sr_flags_f = -1;
+static int hf_pcep_subobj_sr_sid = -1;
+static int hf_pcep_subobj_sr_nai_ipv4_node = -1;
+static int hf_pcep_subobj_sr_nai_ipv6_node = -1;
 
 static int hf_pcep_lsp_update_capability = -1;
 static int hf_pcep_lsp_include_db_version_capability = -1;
@@ -506,6 +526,11 @@ static int hf_pcep_lsp_error_code = -1;
 static int hf_pcep_rsvp_user_error_spec = -1;
 static int hf_pcep_lsp_state_db_version_number = -1;
 static int hf_pcep_speaker_entity_id = -1;
+static int hf_pcep_path_setup_type_reserved24 = -1;
+static int hf_pcep_path_setup_type = -1;
+static int hf_pcep_sr_capability_reserved16 = -1;
+static int hf_pcep_sr_capability_flags_reserved = -1;
+static int hf_pcep_sr_capability_msd = -1;
 
 static gint ett_pcep = -1;
 static gint ett_pcep_hdr = -1;
@@ -564,16 +589,16 @@ typedef enum {
 static const value_string message_type_vals[] = {
     {PCEP_MSG_OPEN,                                "Open"                                           },
     {PCEP_MSG_KEEPALIVE,                           "Keepalive"                                      },
-    {PCEP_MSG_PATH_COMPUTATION_REQUEST,            "Path Computation Request"                       },
-    {PCEP_MSG_PATH_COMPUTATION_REPLY,              "Path Computation Reply"                         },
-    {PCEP_MSG_NOTIFICATION,                        "Notification"                                   },
-    {PCEP_MSG_ERROR,                               "Error"                                          },
+    {PCEP_MSG_PATH_COMPUTATION_REQUEST,            "Path Computation Request (PCReq)"               },
+    {PCEP_MSG_PATH_COMPUTATION_REPLY,              "Path Computation Reply (PCRep)"                 },
+    {PCEP_MSG_NOTIFICATION,                        "Notification (PCNtf)"                           },
+    {PCEP_MSG_ERROR,                               "Error (PCErr)"                                  },
     {PCEP_MSG_CLOSE,                               "Close"                                          },
     {PCEP_MSG_PATH_COMPUTATION_MONITORING_REQUEST, "Path Computation Monitoring Request (PCMonReq)" },
     {PCEP_MSG_PATH_COMPUTATION_MONITORING_REPLY,   "Path Computation Monitoring Reply (PCMonRep)"   },
     {PCEP_MSG_PATH_COMPUTATION_LSP_STATE_REPORT,   "Path Computation LSP State Report (PCRpt)"      },
     {PCEP_MSG_PATH_COMPUTATION_LSP_UPDATE_REQUEST, "Path Computation LSP Update Request (PCUpd)"    },
-    {PCEP_MSG_INITIATE,                            "Initiate"                                       },
+    {PCEP_MSG_INITIATE,                            "Path Computation LSP Initiate (PCInitiate)"     },
     {0, NULL }
 };
 
@@ -614,6 +639,7 @@ static const value_string pcep_subobj_vals[] = {
     {PCEP_SUB_UNNUMB_INTERFACE_ID, "SUBOBJECT UNNUMBERED INTERFACE-ID"  },
     {PCEP_SUB_AUTONOMOUS_SYS_NUM,  "SUBOBJECT AUTONOMOUS SYSTEM NUMBER" },
     {PCEP_SUB_SRLG,                "SUBOBJECT SRLG"                     },
+    {PCEP_SUB_SR,                  "SUBOBJECT SR"                       },
     {PCEP_SUB_PKSv4,               "SUBOBJECT PATH KEY (IPv4)"          },
     {PCEP_SUB_PKSv6,               "SUBOBJECT PATH KEY (IPv6)"          },
     {0, NULL }
@@ -705,6 +731,8 @@ static const value_string pcep_tlvs_vals[] = {
     {21, "RSVP-ERROR-SPEC"          },
     {23, "LSP-DB-VERSION"           },
     {24, "SPEAKER-ENTITY-ID"        },
+    {26, "SR-PCE-CAPABILITY"        },
+    {27, "PATH-SETUP-TYPE"          },
     {0, NULL                        }
 };
 
@@ -885,6 +913,13 @@ static const value_string pcep_error_value_20_vals[] = {
     {0, NULL}
 };
 
+/* Error values for error type 21 */
+static const value_string pcep_error_value_21_vals[] = {
+    {1, "Unsupported path setup type"},
+    {2, "Mismatched path setup type"},
+    {0, NULL}
+};
+
 /*Error values for error type 23*/
 static const value_string pcep_error_value_23_vals[] = {
     {1, "SYMBOLIC-PATH-NAME in use"},
@@ -935,6 +970,21 @@ static const value_string pcep_tlv_lsp_error_code_vals[] = {
     {6, "LSP administratively brought down"     },
     {7, "LSP preempted"                         },
     {8, "RSVP signaling error"                  },
+    {0, NULL }
+};
+
+static const value_string pcep_pst_vals[] = {
+    {0, "Path is setup via RSVP-TE signaling (default)" },
+    {1, "Path is setup using Segment Routing" },
+    {0, NULL }
+};
+
+static const value_string pcep_sr_st_vals[] = {
+    {1, "IPv4 Node ID" },
+    {2, "IPv6 Node ID" },
+    {3, "IPv4 Adjacency" },
+    {4, "IPv6 Adjacency" },
+    {5, "Unnumbered Adjacency with IPv4 NodeIDs" },
     {0, NULL }
 };
 
@@ -1017,6 +1067,17 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 
             case 24:    /* SPEAKER-ENTITY-ID TLV */
                 proto_tree_add_item(tlv, hf_pcep_speaker_entity_id, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
+                break;
+
+            case 27:    /* PATH-SETUP-TYPE TLV */
+                proto_tree_add_item(tlv, hf_pcep_path_setup_type_reserved24, tvb, offset + 4 + j, 3, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_path_setup_type, tvb, offset + 4 + j + 3, 1, ENC_NA);
+                break;
+
+            case 28:    /* SR-PCE-CAPABILITY TLV */
+                proto_tree_add_item(tlv, hf_pcep_sr_capability_reserved16, tvb, offset + 4 + j, 2, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_sr_capability_flags_reserved, tvb, offset + 4 + j + 2, 1, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_sr_capability_msd, tvb, offset + 4 + j + 3, 1, ENC_NA);
                 break;
 
             default:
@@ -1168,7 +1229,6 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
     }
 }
 
-
 static void
 dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, tvbuff_t *tvb,  int offset, int obj_class, gint ett_pcep_obj, guint length)
 {
@@ -1209,6 +1269,81 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  packet_info *pinfo, 
             proto_tree_add_item(pcep_subobj_label_control, hf_pcep_subobj_label_control_label,      tvb, offset+4, length-4, ENC_NA);
             break;
 
+        default:
+            expert_add_info_format(pinfo, ti, &ei_pcep_non_defined_subobject,
+                                   "Non defined subobject for this object");
+            break;
+    }
+}
+
+static void
+dissect_subobj_sr(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, int obj_class, gint ett_pcep_obj, guint length)
+{
+    proto_tree *pcep_subobj_sr_tree = NULL;
+    proto_item *ti = NULL;
+    guint32 sid = 0;
+    guint8 st = 0;
+    static const int *subobj_sr_flags[] = {
+        &hf_pcep_subobj_sr_flags_m,
+        &hf_pcep_subobj_sr_flags_c,
+        &hf_pcep_subobj_sr_flags_s,
+        &hf_pcep_subobj_sr_flags_f,
+        NULL
+    };
+
+    ti = proto_tree_add_item(pcep_subobj_tree, hf_PCEPF_SUBOBJ_SR, tvb, offset, length, ENC_NA);
+    pcep_subobj_sr_tree = proto_item_add_subtree(ti, ett_pcep_obj);
+
+    if (length < 8) {
+        expert_add_info_format(pinfo, ti, &ei_pcep_subobject_bad_length,
+                               "Bad SR subobject: length %u < 8", length);
+        return;
+    }
+
+    sid = tvb_get_ntohl(tvb, offset + 4);
+    proto_item_append_text(ti, ": %u", sid);
+    st = ((tvb_get_guint8(tvb, offset + 2)) >> 4);
+
+    switch (obj_class) {
+        case PCEP_EXPLICIT_ROUTE_OBJ:
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_l, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_PCEPF_SUBOBJ_7F, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_length, tvb, offset + 1, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_st, tvb, offset + 2, 1, ENC_NA);
+            proto_tree_add_bitmask(pcep_subobj_sr_tree, tvb, offset + 2, hf_pcep_subobj_sr_flags, ett_pcep_obj, subobj_sr_flags, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_NA);
+            if ((st == 1) && (length == 12)) {
+                /* FF 'IPv4 Node ID' is specified as an IPv4 address. In this case, ST
+                 * value is 1, and the Length is 8 or 12 depending on either SID or
+                 * NAI or both are included in the subobject.
+                 */
+                proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv4_node, tvb,
+                                    offset + 8, 4, ENC_BIG_ENDIAN);
+            }
+            if ((st == 2) && (length == 24)) {
+                /* FF 'IPv6 Node ID' is specified as an IPv6 address. In this case, ST
+                 * value is 2, and the Length is 8 or 24 depending on either SID or
+                 * NAI or both are included in the subobject.
+                 */
+                proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv6_node, tvb,
+                                    offset + 8, 16, ENC_NA);
+            }
+            break;
+        case PCEP_RECORD_ROUTE_OBJ:
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_PCEPF_SUBOBJ, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_length, tvb, offset + 1, 1, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_st, tvb, offset + 2, 1, ENC_NA);
+            proto_tree_add_bitmask(pcep_subobj_sr_tree, tvb, offset + 2, hf_pcep_subobj_sr_flags, ett_pcep_obj, subobj_sr_flags, ENC_NA);
+            proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_sid, tvb, offset + 4, 4, ENC_NA);
+            if ((st == 1) && (length == 12)) {
+                proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv4_node, tvb,
+                                    offset + 8, 4, ENC_BIG_ENDIAN);
+            }
+            if ((st == 2) && (length == 24)) {
+                proto_tree_add_item(pcep_subobj_sr_tree, hf_pcep_subobj_sr_nai_ipv6_node, tvb,
+                                    offset + 8, 16, ENC_NA);
+            }
+            break;
         default:
             expert_add_info_format(pinfo, ti, &ei_pcep_non_defined_subobject,
                                    "Non defined subobject for this object");
@@ -1746,6 +1881,9 @@ dissect_pcep_explicit_route_obj(proto_tree *pcep_object_tree, packet_info *pinfo
             case PCEP_SUB_PKSv4:
                 dissect_subobj_pksv4(pcep_object_tree, pinfo, tvb, offset2, ett_pcep_obj_explicit_route, length);
                 break;
+            case PCEP_SUB_SR:
+                dissect_subobj_sr(pcep_object_tree, pinfo, tvb, offset2, obj_class, ett_pcep_obj_explicit_route, length);
+                break;
             default:
                 proto_tree_add_expert_format(pcep_object_tree, pinfo, &ei_pcep_non_defined_subobject,
                                              tvb, offset2, length,
@@ -2091,6 +2229,9 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
             break;
         case LSP_STATE_SYNCHRONIZATION_ERROR:
             err_str = val_to_str_const(error_value, pcep_error_value_20_vals, "Unknown");
+            break;
+        case INVALID_PATH_SETUP_TYPE:
+            err_str = val_to_str_const(error_value, pcep_error_value_21_vals, "Unknown");
             break;
         case BAD_PARAMETER_VALUE:
             err_str = val_to_str_const(error_value, pcep_error_value_23_vals, "Unknown");
@@ -2553,15 +2694,13 @@ dissect_pcep_obj_srp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
                                      obj_length, OBJ_HDR_LEN + OBJ_SRP_MIN_LEN);
         return;
     }
-    proto_tree_add_item(pcep_object_tree, hf_pcep_obj_srp_flags, tvb, offset2, 4, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(pcep_object_tree, hf_pcep_obj_srp_flags, tvb, offset2, 4, ENC_BIG_ENDIAN);
     srp_flags = proto_item_add_subtree(ti, ett_pcep_obj_srp);
     proto_tree_add_item(srp_flags, hf_pcep_obj_srp_flags_r, tvb, offset2, 4, ENC_BIG_ENDIAN);
-
     proto_tree_add_item(pcep_object_tree, hf_pcep_obj_srp_id_number, tvb, offset2 + 4, 4, ENC_BIG_ENDIAN);
 
     /*The object can have optional TLV(s)*/
-    offset2 += OPEN_OBJ_MIN_LEN;
+    offset2 += OBJ_SRP_MIN_LEN;
     obj_length -= OBJ_HDR_LEN + OBJ_SRP_MIN_LEN;
     dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_srp);
 }
@@ -2908,9 +3047,7 @@ get_pcep_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
 static int
 dissect_pcep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
-/* Set up structures needed to add the protocol subtree and manage it */
-
+    /* Set up structures needed to add the protocol subtree and manage it */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCEP");
 
     /* Clear out stuff in the info column */
@@ -3469,6 +3606,91 @@ proto_register_pcep(void)
         { &hf_pcep_lsp_delta_lsp_sync_capability_capability,
           { "LSP DELTA-LSP-SYNC-CAPABILITY Capability (D)", "pcep.stateful-pce-capability.delta-lsp-sync",
             FT_BOOLEAN, 32, TFS(&tfs_true_false), PCEP_TLV_STATEFUL_PCE_CAPABILITY_D,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_capability_reserved16,
+          { "Reserved", "pcep.sr.capability.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_capability_flags_reserved,
+          { "Flags (reserved)", "pcep.sr.capability.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_sr_capability_msd,
+          { "SR Capability (maximum SID depth)", "pcep.sr.capability.msd",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_path_setup_type_reserved24,
+          { "Reserved", "pcep.pst.reserved",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_path_setup_type,
+          { "Path Setup Type", "pcep.pst",
+            FT_UINT8, BASE_DEC, VALS(pcep_pst_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_PCEPF_SUBOBJ_SR,
+          { "SUBOBJECT: SR", "pcep.subobj.sr",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_l,
+          { "L", "pcep.subobj.sr.l",
+            FT_UINT8, BASE_DEC, VALS(pcep_route_l_obj_vals), Mask_L,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_length,
+          { "Length", "pcep.subobj.sr.length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_st,
+          { "SID Type", "pcep.subobj.sr.st",
+            FT_UINT8, BASE_DEC, VALS(pcep_sr_st_vals), 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_flags,
+          { "Flags", "pcep.subobj.sr.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_flags_m,
+          { "SID value represents an MPLS label w/o TC, S, and TTL (M)", "pcep.subobj.sr.flags.m",
+            FT_BOOLEAN, 12, TFS(&tfs_set_notset), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_flags_c,
+          { "SID value represents an MPLS label w/ TC, S, and TTL (C)", "pcep.subobj.sr.flags.c",
+            FT_BOOLEAN, 12, TFS(&tfs_set_notset), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_flags_s,
+          { "SID value is null (S)", "pcep.subobj.sr.flags.s",
+            FT_BOOLEAN, 12, TFS(&tfs_set_notset), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_flags_f,
+          { "NAI value is null (F)", "pcep.subobj.sr.flags.f",
+            FT_BOOLEAN, 12, TFS(&tfs_set_notset), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_sid,
+          { "SID", "pcep.subobj.sr.sid",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_ipv4_node,
+          { "NAI (IPv4 Node ID)", "pcep.subobj.sr.nai.ipv4node",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_subobj_sr_nai_ipv6_node,
+          { "NAI (IPv6 Node ID)", "pcep.subobj.sr.nai.ipv6node",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 

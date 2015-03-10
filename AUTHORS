@@ -2370,6 +2370,8 @@ Francesco Fondelli	<francesco.fondelli[AT]gmail.com> {
 	Support for Shared Use of Experimental TCP Options
 	Support for TCP Fast Open
 	OpenFlow heuristic logic
+	Path setup type in PCEP messages, draft-ietf-pce-lsp-setup-type-00
+	PCEP Extensions for Segment Routing, draft-ietf-pce-segment-routing-01
 }
 
 Artem Tamazov           <artem.tamazov[AT]tellabs.com> {
