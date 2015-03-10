@@ -1037,11 +1037,13 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 		 * We handle only the two common cases for now
 		 * (rrc == 0 and rrc == ec)
 		 */
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 		if (rrc == ec) {
 			proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum,
 					    tvb, offset, checksum_size, ENC_NA);
 			offset += checksum_size;
 		}
+#endif
 
 		returned_offset = offset;
 		pinfo->gssapi_wrap_tvb = tvb_new_subset_length(tvb, offset,
@@ -1049,10 +1051,12 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 		offset += inner_token_len;
 
-		if (rrc == 0) {
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+		if (rrc == 0)
+#endif
+		{
 			proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum,
 					    tvb, offset, checksum_size, ENC_NA);
-			offset += checksum_size;
 		}
 
 		/*
