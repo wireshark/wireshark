@@ -1851,7 +1851,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			/* Identifier is a UUID */
 			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
 					    tvb, optoff + 1, 16, ENC_LITTLE_ENDIAN);
-		/* From RFC 4631 paragraph 6.1 DHCPv4 Client Behavior:
+		/* From RFC 4361 paragraph 6.1 DHCPv4 Client Behavior:
 			To send an RFC 3315-style binding identifier in a DHCPv4 'client
 			identifier' option, the type of the 'client identifier' option is set
 			to 255.	*/
