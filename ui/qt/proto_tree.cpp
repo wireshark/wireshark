@@ -26,20 +26,14 @@
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 
+#include "color_utils.h"
+
 #include <QApplication>
 #include <QContextMenuEvent>
 #include <QDesktopServices>
 #include <QHeaderView>
 #include <QTreeWidgetItemIterator>
 #include <QUrl>
-
-QColor        expert_color_comment    ( 0xb7, 0xf7, 0x74 );        /* Green */
-QColor        expert_color_chat       ( 0x80, 0xb7, 0xf7 );        /* light blue */
-QColor        expert_color_note       ( 0xa0, 0xff, 0xff );        /* bright turquoise */
-QColor        expert_color_warn       ( 0xf7, 0xf2, 0x53 );        /* yellow */
-QColor        expert_color_error      ( 0xff, 0x5c, 0x5c );        /* pale red */
-QColor        expert_color_foreground ( 0x00, 0x00, 0x00 );        /* black */
-QColor        hidden_proto_item       ( 0x44, 0x44, 0x44 );        /* gray */
 
 /* Fill a single protocol tree item with its string value and set its color. */
 static void
@@ -117,24 +111,24 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
         switch(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
         case(PI_COMMENT):
-            item->setData(0, Qt::BackgroundRole, expert_color_comment);
+            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_comment);
             break;
         case(PI_CHAT):
-            item->setData(0, Qt::BackgroundRole, expert_color_chat);
+            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_chat);
             break;
         case(PI_NOTE):
-            item->setData(0, Qt::BackgroundRole, expert_color_note);
+            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_note);
             break;
         case(PI_WARN):
-            item->setData(0, Qt::BackgroundRole, expert_color_warn);
+            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_warn);
             break;
         case(PI_ERROR):
-            item->setData(0, Qt::BackgroundRole, expert_color_error);
+            item->setData(0, Qt::BackgroundRole, ColorUtils::expert_color_error);
             break;
         default:
             g_assert_not_reached();
         }
-        item->setData(0, Qt::ForegroundRole, expert_color_foreground);
+        item->setData(0, Qt::ForegroundRole, ColorUtils::expert_color_foreground);
     }
 
     item->setText(0, label_ptr);
@@ -300,6 +294,25 @@ void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {
 void ProtoTree::emitRelatedFrame(int related_frame, ft_framenum_type_t framenum_type)
 {
     emit relatedFrame(related_frame, framenum_type);
+}
+
+// XXX We select the first match, which might not be the desired item.
+void ProtoTree::goToField(int hf_id)
+{
+    if (hf_id < 0) return;
+
+    QTreeWidgetItemIterator iter(this);
+    while (*iter) {
+        field_info *fi = (*iter)->data(0, Qt::UserRole).value<field_info *>();
+
+        if (fi && fi->hfinfo) {
+            if (fi->hfinfo->id == hf_id) {
+                setCurrentItem(*iter);
+                break;
+            }
+        }
+        iter++;
+    }
 }
 
 void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {

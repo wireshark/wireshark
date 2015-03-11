@@ -961,6 +961,12 @@ void PacketList::goToPacket(int packet) {
     }
 }
 
+void PacketList::goToPacket(int packet, int hf_id)
+{
+    goToPacket(packet);
+    proto_tree_->goToField(hf_id);
+}
+
 void PacketList::markFrame()
 {
     int row = currentIndex().row();

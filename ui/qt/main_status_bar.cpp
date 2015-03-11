@@ -125,6 +125,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     comment_label_.setText("<a href><img src=\":/comment/capture_comment_update.png\"></img></a>");
     comment_label_.setToolTip(tr("Open the Capture File Properties dialog"));
     comment_label_.setEnabled(false);
+    connect(&expert_status_, SIGNAL(linkActivated(QString)), this, SIGNAL(showExpertInfo()));
     connect(&comment_label_, SIGNAL(linkActivated(QString)), this, SIGNAL(editCaptureComment()));
 
     info_progress_hb->setContentsMargins(0, 0, 0, 0);
@@ -192,7 +193,7 @@ void MainStatusBar::hideExpert() {
 void MainStatusBar::expertUpdate() {
     // <img> won't load @2x versions in Qt versions earlier than 5.4.
     // We might have to switch to a QPushButton.
-    QString img_text = "<img src=\":/expert/expert_";
+    QString img_text = "<a href><img src=\":/expert/expert_";
     QString tt_text = tr(" is the highest expert info level");
 
     switch(expert_get_highest_severity()) {
@@ -221,7 +222,7 @@ void MainStatusBar::expertUpdate() {
         break;
     }
 
-    img_text.append(".png\"></img>");
+    img_text.append(".png\"></img></a>");
     expert_status_.setText(img_text);
     expert_status_.setToolTip(tt_text);
     expert_status_.show();

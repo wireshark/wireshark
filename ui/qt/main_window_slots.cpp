@@ -79,7 +79,9 @@
 #include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
 #include "decode_as_dialog.h"
+#include "display_filter_edit.h"
 #include "endpoint_dialog.h"
+#include "expert_info_dialog.h"
 #include "export_object_dialog.h"
 #include "export_pdu_dialog.h"
 #if HAVE_EXTCAP
@@ -488,6 +490,12 @@ void MainWindow::filterAction(QString &action_filter, FilterAction::Action actio
         df_combo_box_->lineEdit()->setText(new_filter);
         df_combo_box_->lineEdit()->setFocus();
         break;
+    case FilterAction::ActionWebLookup:
+    {
+        QString url = QString("https://www.google.com/search?q=") + new_filter;
+        QDesktopServices::openUrl(QUrl(url));
+        break;
+    }
     case FilterAction::ActionCopy:
         wsApp->clipboard()->setText(new_filter);
         break;
@@ -2313,6 +2321,26 @@ void MainWindow::on_actionSCTPFilterThisAssociation_triggered()
         assoc = NULL;
         emit filterPackets(newFilter, false);
     }
+}
+
+void MainWindow::statCommandExpertInfo(const char *, void *)
+{
+    ExpertInfoDialog *expert_dialog = new ExpertInfoDialog(*this, capture_file_);
+    const DisplayFilterEdit *df_edit = dynamic_cast<DisplayFilterEdit *>(df_combo_box_->lineEdit());
+
+    expert_dialog->setDisplayFilter(df_edit->text());
+
+    connect(expert_dialog, SIGNAL(goToPacket(int, int)),
+            packet_list_, SLOT(goToPacket(int, int)));
+    connect(expert_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+
+    expert_dialog->show();
+}
+
+void MainWindow::on_actionAnalyzeExpertInfo_triggered()
+{
+    statCommandExpertInfo(NULL, NULL);
 }
 
 

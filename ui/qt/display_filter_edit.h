@@ -61,7 +61,6 @@ signals:
     void pushFilterSyntaxWarning(const QString&);
     void filterPackets(QString& new_filter, bool force);
     void addBookmark(QString filter);
-
 };
 
 #endif // DISPLAYFILTEREDIT_H

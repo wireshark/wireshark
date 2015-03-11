@@ -39,6 +39,7 @@ typedef struct expert_info_s {
 	guint32      packet_num;
 	int          group;
 	int          severity;
+	int          hf_index; /* hf_index of the expert item. Might be -1. */
 	const gchar *protocol;
 	gchar       *summary;
 	proto_item  *pitem;

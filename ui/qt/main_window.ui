@@ -351,6 +351,8 @@
     <addaction name="separator"/>
     <addaction name="menuSCTP"/>
     <addaction name="menuFollow"/>
+    <addaction name="separator"/>
+    <addaction name="actionAnalyzeExpertInfo"/>
    </widget>
    <widget class="QMenu" name="menuStatistics">
     <property name="enabled">
@@ -2317,6 +2319,14 @@
    </property>
    <property name="toolTip">
     <string>Automatically scroll to the last packet during a live capture.</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeExpertInfo">
+   <property name="text">
+    <string>Expert Info</string>
+   </property>
+   <property name="toolTip">
+    <string>Show expert notifications</string>
    </property>
   </action>
  </widget>

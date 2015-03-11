@@ -44,6 +44,15 @@ public:
     static QRgb alphaBlend(const QColor &color1, const QColor &color2, qreal alpha);
     static QRgb alphaBlend(const QBrush &brush1, const QBrush &brush2, qreal alpha);
 
+    // ...because they don't really fit anywhere else?
+    static const QColor expert_color_comment;    /* green */
+    static const QColor expert_color_chat;       /* light blue */
+    static const QColor expert_color_note;       /* bright turquoise */
+    static const QColor expert_color_warn;       /* yellow */
+    static const QColor expert_color_error;      /* pale red */
+    static const QColor expert_color_foreground; /* black */
+    static const QColor hidden_proto_item;       /* gray */
+
 signals:
 
 public slots:

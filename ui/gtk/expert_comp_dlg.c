@@ -1005,7 +1005,7 @@ expert_comp_dlg_launch(void)
 static stat_tap_ui expert_comp_ui = {
     REGISTER_STAT_GROUP_GENERIC,
     NULL,
-    "expert_comp",
+    "expert",
     expert_comp_init,
     0,
     NULL

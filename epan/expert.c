@@ -519,6 +519,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	ei->packet_num  = PINFO_FD_NUM(pinfo);
 	ei->group       = group;
 	ei->severity    = severity;
+	ei->hf_index    = hf_index;
 	ei->protocol    = pinfo->current_proto;
 	ei->summary     = wmem_strdup(wmem_packet_scope(), formatted);
 

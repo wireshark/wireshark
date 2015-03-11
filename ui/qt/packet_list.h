@@ -121,6 +121,7 @@ public slots:
     void goFirstPacket();
     void goLastPacket();
     void goToPacket(int packet);
+    void goToPacket(int packet, int hf_id);
     void markFrame();
     void markAllDisplayedFrames(bool set);
     void ignoreFrame();

@@ -406,6 +406,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(byte_view_tab_, SIGNAL(byteFieldHovered(const QString&)),
             main_ui_->statusBar, SLOT(pushByteStatus(const QString&)));
 
+    connect(main_ui_->statusBar, SIGNAL(showExpertInfo()),
+            this, SLOT(on_actionAnalyzeExpertInfo_triggered()));
+
     connect(main_ui_->statusBar, SIGNAL(editCaptureComment()),
             this, SLOT(on_actionStatisticsCaptureFileProperties_triggered()));
 

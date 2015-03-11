@@ -318,7 +318,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         break;
     case ACTION_WEB_LOOKUP:
         /* Lookup expert string on internet. Default search via www.google.com */
-        g_snprintf(str, sizeof(str), "http://www.google.com/search?hl=en&q=%s+'%s'", procedure->entries[0], procedure->entries[1]);
+        g_snprintf(str, sizeof(str), "https://www.google.com/search?hl=en&q=%s+'%s'", procedure->entries[0], procedure->entries[1]);
         browser_open_url(str);
         break;
     case ACTION_COPY:

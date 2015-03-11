@@ -57,6 +57,7 @@ private:
     QAction *delete_action_;
 
 signals:
+    void showExpertInfo();
     void editCaptureComment();
 
 public slots:

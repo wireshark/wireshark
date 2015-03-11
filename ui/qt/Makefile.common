@@ -39,6 +39,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_column_editor_frame.h	\
 	ui_compiled_filter_output.h		\
 	ui_decode_as_dialog.h	\
+	ui_expert_info_dialog.h	\
 	ui_export_object_dialog.h	\
 	ui_export_pdu_dialog.h	\
 	ui_extcap_options_dialog.h	\
@@ -144,6 +145,7 @@ MOC_HDRS =	\
 	display_filter_edit.h	\
 	elided_label.h	\
 	endpoint_dialog.h	\
+	expert_info_dialog.h	\
 	export_dissection_dialog.h	\
 	export_object_dialog.h	\
 	export_pdu_dialog.h	\
@@ -226,6 +228,7 @@ UI_FILES =	\
 	column_editor_frame.ui	\
 	compiled_filter_output.ui \
 	decode_as_dialog.ui	\
+	expert_info_dialog.ui	\
 	export_object_dialog.ui	\
 	export_pdu_dialog.ui	\
 	extcap_options_dialog.ui	\
@@ -347,6 +350,7 @@ WIRESHARK_QT_SRC =	\
 	display_filter_edit.cpp	\
 	elided_label.cpp	\
 	endpoint_dialog.cpp	\
+	expert_info_dialog.cpp	\
 	export_dissection_dialog.cpp	\
 	export_object_dialog.cpp	\
 	export_pdu_dialog.cpp	\

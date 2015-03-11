@@ -215,6 +215,7 @@ FORMS += \
     column_editor_frame.ui \
     compiled_filter_output.ui \
     decode_as_dialog.ui \
+    expert_info_dialog.ui \
     export_object_dialog.ui \
     export_pdu_dialog.ui \
     extcap_options_dialog.ui \
@@ -277,6 +278,7 @@ HEADERS += $$HEADERS_WS_C \
     decode_as_dialog.h \
     elided_label.h \
     endpoint_dialog.h \
+    expert_info_dialog.h \
     export_dissection_dialog.h \
     export_object_dialog.h \
     export_pdu_dialog.h \
@@ -628,6 +630,7 @@ SOURCES += \
     display_filter_edit.cpp \
     elided_label.cpp \
     endpoint_dialog.cpp \
+    expert_info_dialog.cpp \
     export_dissection_dialog.cpp \
     export_object_dialog.cpp \
     export_pdu_dialog.cpp \
