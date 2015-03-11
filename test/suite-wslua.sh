@@ -100,8 +100,18 @@ wslua_step_dissector_test() {
 		return
 	fi
 
-	# then run tshark again with the verification script. (it internally reads in testin.txt)
-	$TSHARK -r $CAPTURE_DIR/segmented_fpm.pcap -X lua_script:$TESTS_DIR/lua/dissectFPM.lua -o fpm.dissect_tcp:true -V > testin.txt 2>&1
+	FPM_ARGS="
+		-r $CAPTURE_DIR/segmented_fpm.pcap
+		-X lua_script:$TESTS_DIR/lua/dissectFPM.lua
+		-T fields
+		-e frame.number
+		-e fpm
+		-e fpm.version
+		-e fpm.type
+		-e fpm.length
+		"
+	# run tshark with the FPM dissector script, enabling dissect_tcp_pdus().
+	$TSHARK $FPM_ARGS -o fpm.dissect_tcp:true > testin.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
@@ -110,7 +120,8 @@ wslua_step_dissector_test() {
 		return
 	fi
 
-	$TSHARK -r $CAPTURE_DIR/segmented_fpm.pcap -X lua_script:$TESTS_DIR/lua/dissectFPM.lua -o fpm.dissect_tcp:false -V > testout.txt 2>&1
+	# run tshark with the FPM dissector script, disabling dissect_tcp_pdus().
+	$TSHARK $FPM_ARGS -o fpm.dissect_tcp:false > testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
@@ -480,7 +491,7 @@ wslua_suite() {
 	test_step_add "wslua tvb" wslua_step_tvb_test
 }
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8
