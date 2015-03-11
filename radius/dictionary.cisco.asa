@@ -1,11 +1,11 @@
 # -*- text -*-
-# Copyright (C) 2013 The FreeRADIUS Server project and contributors
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
 #
 #        Cisco Adaptative Security Appliance (ASA) Dictionary
 #
 #       http://www.cisco.com/en/US/docs/security/asa/asa90/configuration/guide/ref_extserver.html#wp1802187
 #
-#       $Id: 493179a693b0dcd893f92fc55a9205c7e817c191 $
+#       $Id: 5b6ff356a8f4e85fd8b057c3ecf30465cd487ba6 $
 #
 
 VENDOR		Cisco-ASA			3076
@@ -13,10 +13,10 @@ VENDOR		Cisco-ASA			3076
 BEGIN-VENDOR	Cisco-ASA
 
 ATTRIBUTE	ASA-Simultaneous-Logins			2	integer
-ATTRIBUTE	ASA-Primary-DNS				5	string
-ATTRIBUTE	ASA-Secondary-DNS			6	string
-ATTRIBUTE	ASA-Primary-WINS			7	string
-ATTRIBUTE	ASA-Secondary-WINS			8	string
+ATTRIBUTE	ASA-Primary-DNS				5	ipaddr
+ATTRIBUTE	ASA-Secondary-DNS			6	ipaddr
+ATTRIBUTE	ASA-Primary-WINS			7	ipaddr
+ATTRIBUTE	ASA-Secondary-WINS			8	ipaddr
 ATTRIBUTE	ASA-SEP-Card-Assignment			9	integer
 ATTRIBUTE	ASA-Tunneling-Protocols			11	integer
 ATTRIBUTE	ASA-IPsec-Sec-Association		12	string
@@ -54,9 +54,9 @@ ATTRIBUTE	ASA-IPsec-Client-Firewall-Filter-Name	57	string
 ATTRIBUTE	ASA-IPsec-Client-Firewall-Filter-Optional 58	integer
 ATTRIBUTE	ASA-IPsec-Backup-Servers		59	integer
 ATTRIBUTE	ASA-IPsec-Backup-Server-List		60	string
-ATTRIBUTE	ASA-DHCP-Network-Scope			61	string
+ATTRIBUTE	ASA-DHCP-Network-Scope			61	ipaddr
 ATTRIBUTE	ASA-Intercept-DHCP-Configure-Msg	62	integer
-ATTRIBUTE	ASA-MS-Client-Subnet-Mask		63	integer
+ATTRIBUTE	ASA-MS-Client-Subnet-Mask		63	ipaddr
 ATTRIBUTE	ASA-Allow-Network-Extension-Mode	64	integer
 ATTRIBUTE	ASA-Authorization-Type			65	integer
 ATTRIBUTE	ASA-Authorization-Required		66	integer
