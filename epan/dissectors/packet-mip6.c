@@ -1035,6 +1035,7 @@ static int hf_fmip6_lla = -1;
 static int hf_fmip6_lla_optcode = -1;
 
 static int hf_mip6_mnid_subtype = -1;
+static int hf_mip6_mnid_identifier = -1;
 static int hf_mip6_vsm_vid = -1;
 static int hf_mip6_vsm_subtype = -1;
 static int hf_mip6_vsm_subtype_3gpp = -1;
@@ -2016,8 +2017,8 @@ dissect_mip6_opt_mnid(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     len = optlen - MIP6_MNID_MNID_OFF;
 
     if (len > 0) {
-        str = tvb_format_text(tvb, offset, len);
-        proto_tree_add_text(opt_tree, tvb, offset, len, "Identifier: %s", str);
+        str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_UTF_8|ENC_NA);
+        proto_tree_add_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, len, str);
         proto_item_append_text(hdr_item, ": %s", str);
     }
 }
@@ -4410,6 +4411,11 @@ proto_register_mip6(void)
     { &hf_mip6_mnid_subtype,
       { "Subtype", "mip6.mnid.subtype",
         FT_UINT8, BASE_DEC, VALS(mip6_mnid_subtype_value), 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_mnid_identifier,
+      { "Identifier", "mip6.mnid.identifier",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_mip6_opt_auth_sub_type,
