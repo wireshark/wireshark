@@ -147,7 +147,8 @@ val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char * volatile
 	TRY {
 		length = tvb_length(fv->value.tvb);
 
-		buf = bytes_to_hexstr_punct(buf, tvb_get_ptr(fv->value.tvb, 0, length), length, ':');
+		if (length)
+			buf = bytes_to_hexstr_punct(buf, tvb_get_ptr(fv->value.tvb, 0, length), length, ':');
 		*buf = '\0';
 	}
 	CATCH_ALL {

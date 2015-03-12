@@ -158,7 +158,8 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf)
 		break;
 	}
 
-	buf = bytes_to_hexstr_punct(buf, fv->value.bytes->data, fv->value.bytes->len, separator);
+	if (fv->value.bytes->len)
+		buf = bytes_to_hexstr_punct(buf, fv->value.bytes->data, fv->value.bytes->len, separator);
 	*buf = '\0';
 }
 
