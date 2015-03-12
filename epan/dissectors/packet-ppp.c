@@ -5469,7 +5469,7 @@ dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     proto_tree_add_text(tree, tvb, offset, length,
-        "%s: %02x%02x:%02x%02x:%02x%x:%02x%02x", optp->name,
+        "%s: %02x%02x:%02x%02x:%02x%02x:%02x%02x", optp->name,
         tvb_get_guint8(tvb, offset + 2), tvb_get_guint8(tvb, offset + 3),
         tvb_get_guint8(tvb, offset + 4), tvb_get_guint8(tvb, offset + 5),
         tvb_get_guint8(tvb, offset + 6), tvb_get_guint8(tvb, offset + 7),
