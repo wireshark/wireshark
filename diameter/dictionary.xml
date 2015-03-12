@@ -6605,6 +6605,31 @@
 			<enum name="UNIDENTIFIED_SUBSCRIBER" code="5"/>
 		</avp>
 
+    <avp name="Reason-Header" code="3401" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Instance-Id" code="3402" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Route-Header-Received" code="3403" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="Route-Header-Transmitted" code="3404" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+    <avp name="SM-Device-Trigger-Information" code="3405" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <grouped>
+        <gavp name="MTC-IWF-Address"/>
+        <gavp name="Reference-Number"/>
+        <gavp name="Serving-Node"/>
+        <gavp name="Validity-Time"/>
+        <gavp name="Priority-Indication"/>
+        <gavp name="Application-Port-Identifier"/>
+      </grouped>
+    </avp>
+    <avp name="MTC-IWF-Address" code="3406" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Address"/>
+    </avp>
     <avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Address"/>
     </avp>
