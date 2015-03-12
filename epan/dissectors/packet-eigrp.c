@@ -2107,6 +2107,8 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
             break;
         }
 
+        proto_item_set_len(ti, 8);
+
         /*on to the next */
         offset += 6;
         limit -= 8;
