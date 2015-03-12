@@ -829,7 +829,9 @@ dissect_t38_T_primary_ifp_packet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 #line 248 "../../asn1/t38/t38.cnf"
     /* if is a valid t38 packet, add to tap */
-    if (p_t38_packet_conv && (!actx->pinfo->flags.in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum))
+    /* Note that t4-non-ecm-sig-end without first_t4_data is not valid */
+    if (p_t38_packet_conv && (!actx->pinfo->flags.in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum) &&
+        !(t38_info->type_msg == 1 && t38_info->Data_Field_field_type_value == 7 && t38_info->frame_num_first_t4_data == 0))
         tap_queue_packet(t38_tap, actx->pinfo, t38_info);
 
     if (p_t38_conv) p_t38_conv_info->last_seqnum = (gint32) seq_number;
@@ -921,14 +923,14 @@ static const per_choice_t T_error_recovery_choice[] = {
 
 static int
 dissect_t38_T_error_recovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 256 "../../asn1/t38/t38.cnf"
+#line 258 "../../asn1/t38/t38.cnf"
     primary_part = FALSE;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_t38_T_error_recovery, T_error_recovery_choice,
                                  NULL);
 
-#line 258 "../../asn1/t38/t38.cnf"
+#line 260 "../../asn1/t38/t38.cnf"
     primary_part = TRUE;
 
   return offset;
