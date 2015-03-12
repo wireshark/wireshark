@@ -737,20 +737,26 @@ static const value_string tkey_mode_vals[] = {
 #define TSSHFP_ALGO_RESERVED   (0)
 #define TSSHFP_ALGO_RSA        (1)
 #define TSSHFP_ALGO_DSA        (2)
+#define TSSHFP_ALGO_ECDSA      (3)
+#define TSSHFP_ALGO_ED25519    (4)
 
 #define TSSHFP_FTYPE_RESERVED  (0)
 #define TSSHFP_FTYPE_SHA1      (1)
+#define TSSHFP_FTYPE_SHA256    (2)
 
 static const value_string sshfp_algo_vals[] = {
   { TSSHFP_ALGO_RESERVED, "Reserved" },
   { TSSHFP_ALGO_RSA,      "RSA" },
   { TSSHFP_ALGO_DSA,      "DSA" },
+  { TSSHFP_ALGO_ECDSA,    "ECDSA" },
+  { TSSHFP_ALGO_ED25519,  "Ed25519" },
   { 0, NULL }
 };
 
 static const value_string sshfp_fingertype_vals[] = {
   { TSSHFP_FTYPE_RESERVED,  "Reserved" },
   { TSSHFP_FTYPE_SHA1,      "SHA1" },
+  { TSSHFP_FTYPE_SHA256,    "SHA256" },
   { 0, NULL }
 };
 
