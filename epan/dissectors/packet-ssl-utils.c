@@ -5821,6 +5821,22 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 }
 
+static void
+ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                             proto_tree *tree, guint32 offset,
+                             const SslSession *session,
+                             gint hf_sig_len, gint hf_sig);
+
+void
+ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                proto_tree *tree, guint32 offset,
+                                const SslSession *session)
+{
+    ssl_dissect_digitally_signed(hf, tvb, tree, offset, session,
+                                 hf->hf.hs_client_cert_vrfy_sig_len,
+                                 hf->hf.hs_client_cert_vrfy_sig);
+}
+
 void
 ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                          proto_tree *tree, guint32 offset,
@@ -6285,13 +6301,12 @@ dissect_ssl3_hnd_cli_keyex_rsa_psk(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 
-/* ServerKeyExchange algo-specific dissectors */
-
-/* dissects signed_params inside a ServerKeyExchange for some keyex algos */
+/* Dissects DigitallySigned (see RFC 5246 4.7 Cryptographic Attributes). */
 static void
-dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb,
-                               proto_tree *tree, guint32 offset,
-                               const SslSession *session)
+ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                             proto_tree *tree, guint32 offset,
+                             const SslSession *session,
+                             gint hf_sig_len, gint hf_sig)
 {
     gint        sig_len;
     proto_item *ti_algo;
@@ -6318,10 +6333,35 @@ dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* Sig */
     sig_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf->hf.hs_server_keyex_sig_len, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf->hf.hs_server_keyex_sig, tvb,
-                        offset + 2, sig_len, ENC_NA);
+    proto_tree_add_item(tree, hf_sig_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_sig, tvb, offset + 2, sig_len, ENC_NA);
+}
+
+/* ServerKeyExchange algo-specific dissectors */
+
+/* dissects signed_params inside a ServerKeyExchange for some keyex algos */
+static void
+dissect_ssl3_hnd_srv_keyex_sig(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset,
+                               const SslSession *session)
+{
+    /*
+     * TLSv1.2 (RFC 5246 sec 7.4.8)
+     *  struct {
+     *      digitally-signed struct {
+     *          opaque handshake_messages[handshake_messages_length];
+     *      }
+     *  } CertificateVerify;
+     *
+     * TLSv1.0/TLSv1.1 (RFC 5436 sec 7.4.8 and 7.4.3) works essentially the same
+     * as TLSv1.2, but the hash algorithms are not explicit in digitally-signed.
+     *
+     * SSLv3 (RFC 6101 sec 5.6.8) esseentially works the same as TLSv1.0 but it
+     * does more hashing including the master secret and padding.
+     */
+    ssl_dissect_digitally_signed(hf, tvb, tree, offset, session,
+                                 hf->hf.hs_server_keyex_sig_len,
+                                 hf->hf.hs_server_keyex_sig);
 }
 
 static void

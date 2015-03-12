@@ -133,8 +133,6 @@ static gint hf_ssl_alert_message_description  = -1;
 static gint hf_ssl_handshake_protocol         = -1;
 static gint hf_ssl_handshake_type             = -1;
 static gint hf_ssl_handshake_length           = -1;
-static gint hf_ssl_handshake_client_cert_vrfy_sig_len = -1;
-static gint hf_ssl_handshake_client_cert_vrfy_sig     = -1;
 static gint hf_ssl_handshake_cert_status      = -1;
 static gint hf_ssl_handshake_cert_status_type = -1;
 static gint hf_ssl_handshake_cert_status_len  = -1;
@@ -196,7 +194,6 @@ static gint ett_ssl_alert             = -1;
 static gint ett_ssl_handshake         = -1;
 static gint ett_ssl_heartbeat         = -1;
 static gint ett_ssl_certs             = -1;
-static gint ett_ssl_cli_sig           = -1;
 static gint ett_ssl_cert_status       = -1;
 static gint ett_ssl_ocsp_resp         = -1;
 static gint ett_pct_cipher_suites     = -1;
@@ -453,10 +450,6 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    const SslSession *session, guint32 record_length,
                                    gboolean decrypted);
-
-static void dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb,
-                                            proto_tree *tree,
-                                            guint32 offset, guint32 length);
 
 static void dissect_ssl3_hnd_cert_status(tvbuff_t *tvb,
                                          proto_tree *tree,
@@ -1989,7 +1982,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERT_VERIFY:
-                dissect_ssl3_hnd_cli_cert_verify(tvb, ssl_hand_tree, offset, length);
+                ssl_dissect_hnd_cli_cert_verify(&dissect_ssl3_hf, tvb, ssl_hand_tree, offset, session);
                 break;
 
             case SSL_HND_CLIENT_KEY_EXCHG:
@@ -2127,41 +2120,6 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 }
-
-static void
-dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb, proto_tree *tree,
-                                guint32 offset, guint32 length)
-{
-    proto_tree *ssl_sig_tree;
-
-    /*
-       struct {
-          Signature signature;
-       } CertificateVerify;
-
-       Signature is a digitally-signed struct {...}, depending on the algorithm
-
-       "A digitally-signed element is encoded as an opaque
-        vector <0..2^16-1>, where the length is specified by the
-        signing algorithm and key."
-
-        <> is a variable length vector. It starts with a length field
-        large enough to encode the largest possible length.
-
-        -> The signature starts with a two-byte length field.
-     */
-
-
-    ssl_sig_tree = proto_tree_add_subtree(tree, tvb, offset, length,
-            ett_ssl_cli_sig, NULL, "Signature with client's private key");
-
-    proto_tree_add_item(ssl_sig_tree, hf_ssl_handshake_client_cert_vrfy_sig_len,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
-    /* XXX check that ..._vrfy_sig_len == length-2 */
-    proto_tree_add_item(ssl_sig_tree, hf_ssl_handshake_client_cert_vrfy_sig,
-                        tvb, offset+2, length-2, ENC_NA);
-}
-
 
 static guint
 dissect_ssl3_ocsp_response(tvbuff_t *tvb, proto_tree *tree,
@@ -3768,16 +3726,6 @@ proto_register_ssl(void)
             FT_UINT24, BASE_HEX|BASE_EXT_STRING, &ssl_20_cipher_suites_ext, 0x0,
             "Cipher specification", HFILL }
         },
-        { &hf_ssl_handshake_client_cert_vrfy_sig_len,
-            { "Signature length", "ssl.handshake.client_cert_vrfy.sig_len",
-              FT_UINT16, BASE_DEC, NULL, 0x0,
-              "Length of CertificateVerify's signature", HFILL }
-        },
-        { &hf_ssl_handshake_client_cert_vrfy_sig,
-            { "Signature", "ssl.handshake.client_cert_vrfy.sig",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
-              "CertificateVerify's signature", HFILL }
-        },
         { &hf_ssl_handshake_cert_status,
           { "Certificate Status", "ssl.handshake.cert_status",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -4041,7 +3989,6 @@ proto_register_ssl(void)
         &ett_ssl_handshake,
         &ett_ssl_heartbeat,
         &ett_ssl_certs,
-        &ett_ssl_cli_sig,
         &ett_ssl_cert_status,
         &ett_ssl_ocsp_resp,
         &ett_pct_cipher_suites,

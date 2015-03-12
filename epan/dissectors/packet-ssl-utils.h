@@ -727,6 +727,8 @@ typedef struct ssl_common_dissect {
         gint hs_session_ticket_len;
         gint hs_session_ticket;
         gint hs_finished;
+        gint hs_client_cert_vrfy_sig_len;
+        gint hs_client_cert_vrfy_sig;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
     } hf;
@@ -808,6 +810,11 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           const SslSession *session);
 
 extern void
+ssl_dissect_hnd_cli_cert_verify(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                proto_tree *tree, guint32 offset,
+                                const SslSession *session);
+
+extern void
 ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                          proto_tree *tree, guint32 offset,
                          const SslSession *session, ssl_hfs_t *ssl_hfs);
@@ -835,6 +842,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
+        -1, -1,                                                         \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1328,6 +1336,16 @@ ssl_common_dissect_t name = {   \
       { "Verify Data", prefix ".handshake.verify_data",                 \
         FT_NONE, BASE_NONE, NULL, 0x0,                                  \
         "Opaque verification data", HFILL }                             \
+    },                                                                  \
+    { & name .hf.hs_client_cert_vrfy_sig_len,                           \
+      { "Signature length", prefix ".handshake.client_cert_vrfy.sig_len", \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of CertificateVerify's signature", HFILL }              \
+    },                                                                  \
+    { & name .hf.hs_client_cert_vrfy_sig,                               \
+      { "Signature", prefix ".handshake.client_cert_vrfy.sig",          \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "CertificateVerify's signature", HFILL }                        \
     }
 /* }}} */
 
