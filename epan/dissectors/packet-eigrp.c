@@ -496,6 +496,38 @@ static gint hf_eigrp_saf_data_length = -1;
 static gint hf_eigrp_saf_data_sequence = -1;
 static gint hf_eigrp_saf_data_type = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_eigrp_ipx_address = -1;
+static int hf_eigrp_release = -1;
+static int hf_eigrp_tlv_version = -1;
+static int hf_eigrp_ipv4_destination = -1;
+static int hf_eigrp_ipv6_destination = -1;
+static int hf_eigrp_appletalk_cable_range = -1;
+static int hf_eigrp_nexthop_address = -1;
+static int hf_eigrp_cable_range = -1;
+static int hf_eigrp_metric_delay = -1;
+static int hf_eigrp_metric_bandwidth = -1;
+static int hf_eigrp_checksum = -1;
+static int hf_eigrp_metric_comm_type = -1;
+static int ett_metric_comm_type = -1;
+static int hf_eigrp_extcomm_eigrp_flag = -1;
+static int hf_eigrp_extcomm_eigrp_tag = -1;
+static int hf_eigrp_extcomm_eigrp_res = -1;
+static int hf_eigrp_extcomm_eigrp_rid = -1;
+static int hf_eigrp_extcomm_eigrp_as = -1;
+static int hf_eigrp_extcomm_eigrp_sdly = -1;
+static int hf_eigrp_extcomm_eigrp_rel = -1;
+static int hf_eigrp_extcomm_eigrp_hop = -1;
+static int hf_eigrp_extcomm_eigrp_sbw = -1;
+static int hf_eigrp_extcomm_eigrp_load = -1;
+static int hf_eigrp_extcomm_eigrp_mtu = -1;
+static int hf_eigrp_extcomm_eigrp_xas = -1;
+static int hf_eigrp_extcomm_eigrp_xrid = -1;
+static int hf_eigrp_extcomm_eigrp_xproto = -1;
+static int hf_eigrp_extcomm_eigrp_xmetric = -1;
+
+
+
 static expert_field ei_eigrp_checksum_bad = EI_INIT;
 static expert_field ei_eigrp_unreachable = EI_INIT;
 static expert_field ei_eigrp_seq_addrlen = EI_INIT;
@@ -631,6 +663,20 @@ static const value_string eigrp_saf_srv2string[] = {
     { SAF_SERVICE_ID_PFR,       "Performance Routing"},
     { 0, NULL}
 };
+
+static const value_string eigrp_metric_comm_type_vals[] = {
+    { EIGRP_EXTCOMM_EIGRP,    "EIGRP_EXTCOMM_EIGRP"},
+    { EIGRP_EXTCOMM_VRR,      "EIGRP_EXTCOMM_VRR"},
+    { EIGRP_EXTCOMM_DAD,      "EIGRP_EXTCOMM_DAD"},
+    { EIGRP_EXTCOMM_VRHB,     "EIGRP_EXTCOMM_VRHB"},
+    { EIGRP_EXTCOMM_SRLM,     "EIGRP_EXTCOMM_SRLM"},
+    { EIGRP_EXTCOMM_SAR,      "EIGRP_EXTCOMM_SAR"},
+    { EIGRP_EXTCOMM_RPM,      "EIGRP_EXTCOMM_RPM"},
+    { EIGRP_EXTCOMM_SOO_ASFMT,  "EIGRP_EXTCOMM_SOO"},
+    { EIGRP_EXTCOMM_SOO_ADRFMT, "EIGRP_EXTCOMM_SOO"},
+    { 0, NULL}
+};
+
 
 /**
  *@fn void dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
@@ -795,10 +841,8 @@ dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
             break;
         case 10:
             /* IPX */
-            proto_tree_add_text(tree, tvb, offset, addr_len,
-                                "IPX Address = %08x.%04x.%04x.%04x",
-                                tvb_get_ntohl(tvb, 1), tvb_get_ntohs(tvb, 5),
-                                tvb_get_ntohs(tvb, 7), tvb_get_ntohs(tvb, 9));
+            proto_tree_add_bytes_format_value(tree, hf_eigrp_ipx_address, tvb, offset, addr_len, NULL,
+                                "IPX Address: %s", tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPX, 1));
             break;
         case 16:
             /* IPv6 */
@@ -837,15 +881,13 @@ dissect_eigrp_sw_version (tvbuff_t *tvb, proto_tree *tree,
 
     ios_rel_major = tvb_get_guint8(tvb, 0);
     ios_rel_minor = tvb_get_guint8(tvb, 1);
-    proto_tree_add_text(tree, tvb, offset, 2, "EIGRP Release: %u.%u",
-                        ios_rel_major, ios_rel_minor);
+    proto_tree_add_item(tree, hf_eigrp_release, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_item_append_text(ti, ": EIGRP=%u.%u", ios_rel_major, ios_rel_minor);
 
     eigrp_rel_major = tvb_get_guint8(tvb, 2);
     eigrp_rel_minor = tvb_get_guint8(tvb, 3);
-    proto_tree_add_text(tree,tvb,offset, 2, "EIGRP TLV version: %u.%u",
-                        eigrp_rel_major, eigrp_rel_minor);
+    proto_tree_add_item(tree, hf_eigrp_tlv_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_item_append_text(ti, ", TLV=%u.%u",
                            eigrp_rel_major, eigrp_rel_minor);
 }
@@ -1078,8 +1120,7 @@ dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                                 ENC_BIG_ENDIAN);
             offset += 1;
             SET_ADDRESS(&addr, AT_IPv4, 4, ip_addr);
-            ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len,
-                                         "Destination: %s", address_to_str(wmem_packet_scope(), &addr));
+            ti_dst = proto_tree_add_ipv4(tree, hf_eigrp_ipv4_destination, tvb, offset, addr_len, *ip_addr);
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',
@@ -1138,8 +1179,7 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
             }
 
             SET_ADDRESS(&addr_str, AT_IPv6, 16, addr.bytes);
-            ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len,
-                                         "Destination: %s", address_to_str(wmem_packet_scope(), &addr_str));
+            ti_dst = proto_tree_add_ipv6(tree, hf_eigrp_ipv6_destination, tvb, offset, addr_len, addr.bytes);
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',
@@ -1719,8 +1759,7 @@ dissect_eigrp_atalk_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
     /* cable tlv? */
     if (EIGRP_TLV_AT_CBL == tlv) {
-        proto_tree_add_text(tree, tvb, 0, 4, "AppleTalk Cable Range = %u-%u",
-                            tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
+        proto_tree_add_item(tree, hf_eigrp_appletalk_cable_range, tvb, 0, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_eigrp_atalk_routerid, tvb, 4, 4,
                             ENC_BIG_ENDIAN);
         proto_item_append_text(ti, ": Cable range= %u-%u, Router ID= %u",
@@ -1728,8 +1767,7 @@ dissect_eigrp_atalk_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                                tvb_get_ntohl(tvb, 4));
 
     } else {
-        proto_tree_add_text(tree, tvb, offset, 4, "NextHop Address = %u.%u",
-                            tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
+        proto_tree_add_item(tree, hf_eigrp_nexthop_address, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         /* dissect external data if needed */
@@ -1741,8 +1779,7 @@ dissect_eigrp_atalk_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
         offset = dissect_eigrp_legacy_metric(tree, tvb, offset);
 
         /* dissect cable range */
-        proto_tree_add_text(tree, tvb, offset, 4, "Cable range = %u-%u",
-                            tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
+        proto_tree_add_item(tree, hf_eigrp_cable_range, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, ": %u-%u",
                                tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
     }
@@ -2003,10 +2040,15 @@ static int
 dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limit)
 {
     int comm_type;
+    proto_item* ti;
+    proto_tree* type_tree;
 
     while (limit > 0) {
         comm_type = tvb_get_ntohs(tvb, offset);
-        offset++;
+        ti = proto_tree_add_uint(tree, hf_eigrp_metric_comm_type, tvb, offset, 2, comm_type);
+        type_tree = proto_item_add_subtree(ti, ett_metric_comm_type);
+
+        offset += 2;
 
         switch (comm_type) {
             /*
@@ -2014,16 +2056,13 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
              * routes, internal and external
              */
         case EIGRP_EXTCOMM_EIGRP:
-            proto_tree_add_text(tree, tvb, offset, 8,
-                                "Type(EIGRP_EXTCOMM_EIGRP): Flag(0x%02x) Tag(%u)",
-                                tvb_get_ntohs(tvb, 0),
-                                tvb_get_ntohl(tvb, 2));
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_tag, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             break;
+
         case EIGRP_EXTCOMM_VRR:
-            proto_tree_add_text(tree, tvb, offset, 8,
-                                "Type(EIGRP_EXTCOMM_VRR)): RES(0x%02x) RID(0x%04x)",
-                                tvb_get_ntohs(tvb, 0),
-                                tvb_get_ntohl(tvb, 2));
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_res, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_rid, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             break;
 
             /*
@@ -2031,24 +2070,20 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
              * applies to both internal and external
              */
         case EIGRP_EXTCOMM_DAD:
-            proto_tree_add_text(tree, tvb, offset, 8,
-                                "Type(EIGRP_EXTCOMM_DAD): AS(%u):SDLY(%u)",
-                                tvb_get_ntohs(tvb, 0),
-                                tvb_get_ntohl(tvb, 2));
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_as, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_sdly, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             break;
+
         case EIGRP_EXTCOMM_VRHB:
-            proto_tree_add_text(tree, tvb, offset, 8,
-                                "Type(EIGRP_EXTCOMM_VRHB): REL(%u) HOP(%u) SBW(%u)",
-                                tvb_get_guint8(tvb, 0),
-                                tvb_get_guint8(tvb, 1),
-                                tvb_get_ntohl(tvb, 2));
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_rel, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_hop, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_sbw, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             break;
+
         case EIGRP_EXTCOMM_SRLM:
-            proto_tree_add_text(tree, tvb, offset, 8,
-                                "Type(EIGRP_EXTCOMM_SRLM): RES(%u) LOAD(%u) MTU(%u)",
-                                tvb_get_guint8(tvb, 0),
-                                tvb_get_guint8(tvb, 1),
-                                tvb_get_ntohl(tvb, 2));
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_res, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_load, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_mtu, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             break;
 
             /*
@@ -2056,29 +2091,24 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
              * applies to only to external routes
              */
         case EIGRP_EXTCOMM_SAR:
-            proto_tree_add_text(tree, tvb, offset, 8,
-                                "Type(EIGRP_EXTCOMM_SAR): xAS(%u) xRID(%u)",
-                                tvb_get_ntohs(tvb, 0),
-                                tvb_get_ntohl(tvb, 2));
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_xas, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_xrid, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             break;
+
         case EIGRP_EXTCOMM_RPM:
-            proto_tree_add_text(tree, tvb, offset, 8,
-                                "Type(EIGRP_EXTCOMM_RPM): xProto(%u) xMETRIC(%u)",
-                                tvb_get_ntohs(tvb, 0),
-                                tvb_get_ntohl(tvb, 2));
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_xproto, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_xmetric, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             break;
 
         case EIGRP_EXTCOMM_SOO_ASFMT:
         case EIGRP_EXTCOMM_SOO_ADRFMT:
-            proto_tree_add_text(tree, tvb, offset, 8,
-                                "Type(EIGRP_EXTCOMM_SOO): AS(%u) TAG(%u)",
-                                tvb_get_ntohs(tvb, 0),
-                                tvb_get_ntohl(tvb, 2));
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_as, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(type_tree, hf_eigrp_extcomm_eigrp_tag, tvb, offset+2, 4, ENC_BIG_ENDIAN);
             break;
         }
 
         /*on to the next */
-        offset += 8;
+        offset += 6;
         limit -= 8;
 
         if (0 != limit%8) {
@@ -2247,9 +2277,9 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     big_num = tvb_get_ntoh64(sub_tvb, 8);
     big_num >>= 16;
     if (big_num == G_GUINT64_CONSTANT(0x0000ffffffffffff)) {
-        proto_tree_add_text(sub_tree, sub_tvb, 8, 6, "Delay: Infinity");
+        proto_tree_add_uint64_format_value(sub_tree, hf_eigrp_metric_delay, sub_tvb, 8, 6, big_num, "Infinity");
     } else {
-        proto_tree_add_text(sub_tree, sub_tvb, 8, 6, "Delay: %" G_GINT64_MODIFIER "u", big_num);
+        proto_tree_add_uint64(sub_tree, hf_eigrp_metric_delay, sub_tvb, 8, 6, big_num);
     }
 
     /* The path bandwidth measured in kilobyte per second as presented by
@@ -2260,9 +2290,9 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     big_num = tvb_get_ntoh64(sub_tvb, 14);
     big_num >>= 16;
     if (big_num == G_GUINT64_CONSTANT(0x0000ffffffffffff)) {
-        proto_tree_add_text(sub_tree, sub_tvb, 14, 6, "Bandwidth: Infinity");
+        proto_tree_add_uint64_format_value(sub_tree, hf_eigrp_metric_bandwidth, sub_tvb, 14, 6, big_num, "Infinity");
     } else {
-        proto_tree_add_text(sub_tree, sub_tvb, 14, 6, "Bandwidth: %" G_GINT64_MODIFIER "u", big_num);
+        proto_tree_add_uint64(sub_tree, hf_eigrp_metric_bandwidth, sub_tvb, 14, 6, big_num);
     }
     proto_tree_add_item(sub_tree, hf_eigrp_metric_reserved, sub_tvb, 20, 2,
                         ENC_BIG_ENDIAN);
@@ -2449,13 +2479,13 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     cacl_checksum = ip_checksum_tvb(tvb, 0, size);
 
     if (cacl_checksum == checksum) {
-        proto_tree_add_text(eigrp_tree, tvb, 2, 2,
-                            "Checksum: 0x%02x [incorrect]",
+        proto_tree_add_uint_format_value(eigrp_tree, hf_eigrp_checksum, tvb, 2, 2,
+                            checksum, "0x%02x [incorrect]",
                             checksum);
         expert_add_info(pinfo, ti, &ei_eigrp_checksum_bad);
     } else {
-        proto_tree_add_text(eigrp_tree, tvb, 2, 2,
-                            "Checksum: 0x%02x [correct]", checksum);
+        proto_tree_add_uint_format_value(eigrp_tree, hf_eigrp_checksum, tvb, 2, 2,
+                            checksum, "0x%02x [correct]", checksum);
     }
 
     /* Decode the EIGRP Flags Field */
@@ -2549,6 +2579,24 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* Return the amount of data this dissector was able to dissect */
     return(tvb_length(tvb));
+}
+
+static void
+eigrp_fmt_cable_range(gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%u-%u", (guint16)(( revision & 0xFFFF0000 ) >> 8), (guint16)(revision & 0xFFFF) );
+}
+
+static void
+eigrp_fmt_nexthop_address(gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint16)(( revision & 0xFFFF0000 ) >> 8), (guint16)(revision & 0xFFFF) );
+}
+
+static void
+eigrp_fmt_version(gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 /**
@@ -3253,6 +3301,35 @@ proto_register_eigrp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_eigrp_ipx_address, { "IPX Address", "eigrp.ipx_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_release, { "EIGRP Release", "eigrp.release_version", FT_UINT16, BASE_CUSTOM, CF_FUNC(eigrp_fmt_version), 0x0, NULL, HFILL }},
+      { &hf_eigrp_tlv_version, { "EIGRP TLV version", "eigrp.tlv_version", FT_UINT16, BASE_CUSTOM, CF_FUNC(eigrp_fmt_version), 0x0, NULL, HFILL }},
+      { &hf_eigrp_ipv4_destination, { "Destination", "eigrp.ipv4.destination", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_ipv6_destination, { "Destination", "eigrp.ipv6.destination", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_appletalk_cable_range, { "AppleTalk Cable Range", "eigrp.appletalk_cable_range", FT_UINT32, BASE_CUSTOM, CF_FUNC(eigrp_fmt_cable_range), 0x0, NULL, HFILL }},
+      { &hf_eigrp_nexthop_address, { "NextHop Address", "eigrp.nexthop_address", FT_UINT32, BASE_CUSTOM, CF_FUNC(eigrp_fmt_nexthop_address), 0x0, NULL, HFILL }},
+      { &hf_eigrp_cable_range, { "Cable range", "eigrp.cable_range", FT_UINT32, BASE_CUSTOM, CF_FUNC(eigrp_fmt_cable_range), 0x0, NULL, HFILL }},
+      { &hf_eigrp_metric_delay, { "Delay", "eigrp.metric.delay", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_metric_bandwidth, { "Bandwidth", "eigrp.metric.bandwidth", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_checksum, { "Checksum", "eigrp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_metric_comm_type, { "Type", "eigrp.metric.comm_type", FT_UINT16, BASE_DEC, VALS(eigrp_metric_comm_type_vals), 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_flag, { "FLAG", "eigrp.extcomm.flag", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_tag, { "TAG", "eigrp.extcomm.tag", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_res, { "RES", "eigrp.extcomm.res", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_rid, { "RID", "eigrp.extcomm.rid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_as, { "AS", "eigrp.extcomm.as", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_sdly, { "SDLY", "eigrp.extcomm.sdly", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_rel, { "RID", "eigrp.extcomm.rel", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_hop, { "AS", "eigrp.extcomm.hop", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_sbw, { "SDLY", "eigrp.extcomm.sbw", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_load, { "LOAD", "eigrp.extcomm.load", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_mtu, { "MTU", "eigrp.extcomm.mtu", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_xas, { "xAS", "eigrp.extcomm.xas", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_xrid, { "xRID", "eigrp.extcomm.xrid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_xproto, { "xProto", "eigrp.extcomm.xproto", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_eigrp_extcomm_eigrp_xmetric, { "xMETRIC", "eigrp.extcomm.xmetric", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -3274,6 +3351,8 @@ proto_register_eigrp(void)
         /* metric tlv specific */
         &ett_eigrp_metric_flags,
         &ett_eigrp_extdata_flags,
+
+        &ett_metric_comm_type
     };
 
     static ei_register_info ei[] = {
