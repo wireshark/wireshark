@@ -1233,6 +1233,7 @@ packet_list_get_row_data(gint row)
 	GtkTreeIter iter;
 	frame_data *fdata;
 
+	g_assert(row > 0);
 	gtk_tree_path_append_index(path, row-1);
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(packetlist), &iter, path);
 
