@@ -241,7 +241,7 @@ def check_licenses(options, args):
   licensecheck_path = 'licensecheck'
 
   licensecheck = subprocess.Popen([licensecheck_path,
-                                   '-l', '100',
+                                   '-l', '150',
                                    '-r', start_dir],
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
