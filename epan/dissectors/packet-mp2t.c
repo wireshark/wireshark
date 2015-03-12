@@ -524,9 +524,12 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
     fragment_head *frag_msg;
     tvbuff_t      *new_tvb;
     gboolean       save_fragmented;
+    address        save_src, save_dst;
 
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
+    COPY_ADDRESS_SHALLOW(&save_src, &pinfo->src);
+    COPY_ADDRESS_SHALLOW(&save_dst, &pinfo->dst);
 
     /* It's possible that a fragment in the same packet set an address already
      * This will change the hash value, we need to make sure it's NULL */
@@ -545,6 +548,9 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             "Reassembled MP2T",
             frag_msg, &mp2t_msg_frag_items,
             NULL, tree);
+
+    COPY_ADDRESS_SHALLOW(&pinfo->src, &save_src);
+    COPY_ADDRESS_SHALLOW(&pinfo->dst, &save_dst);
 
     if (new_tvb) {
         /* ti = */ proto_tree_add_item(tree, hf_msg_ts_packet_reassembled, tvb, 0, 0, ENC_NA);
