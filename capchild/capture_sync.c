@@ -1865,7 +1865,10 @@ static int
 sync_pipe_wait_for_child(int fork_child, gchar **msgp)
 {
     int fork_child_status;
-    int ret;
+#ifndef _WIN32
+    int retry_waitpid = 3;
+#endif
+    int ret = -1;
     GTimeVal start_time;
     GTimeVal end_time;
     float elapsed;
@@ -1898,37 +1901,43 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
         }
     }
 #else
-    if (waitpid(fork_child, &fork_child_status, 0) != -1) {
-        if (WIFEXITED(fork_child_status)) {
-            /*
-             * The child exited; return its exit status.  Do not treat this as
-             * an error.
-             */
-            ret = WEXITSTATUS(fork_child_status);
-        } else if (WIFSTOPPED(fork_child_status)) {
-            /* It stopped, rather than exiting.  "Should not happen." */
-            *msgp = g_strdup_printf("Child dumpcap process stopped: %s",
-                                    sync_pipe_signame(WSTOPSIG(fork_child_status)));
+    while (--retry_waitpid >= 0) {
+        if (waitpid(fork_child, &fork_child_status, 0) != -1) {
+            if (WIFEXITED(fork_child_status)) {
+                /*
+                 * The child exited; return its exit status.  Do not treat this as
+                 * an error.
+                 */
+                ret = WEXITSTATUS(fork_child_status);
+            } else if (WIFSTOPPED(fork_child_status)) {
+                /* It stopped, rather than exiting.  "Should not happen." */
+                *msgp = g_strdup_printf("Child dumpcap process stopped: %s",
+                                        sync_pipe_signame(WSTOPSIG(fork_child_status)));
+                ret = -1;
+            } else if (WIFSIGNALED(fork_child_status)) {
+                /* It died with a signal. */
+                *msgp = g_strdup_printf("Child dumpcap process died: %s%s",
+                                        sync_pipe_signame(WTERMSIG(fork_child_status)),
+                                        WCOREDUMP(fork_child_status) ? " - core dumped" : "");
+                ret = -1;
+            } else {
+                /* What?  It had to either have exited, or stopped, or died with
+                   a signal; what happened here? */
+                *msgp = g_strdup_printf("Bad status from waitpid(): %#o",
+                                        fork_child_status);
+                ret = -1;
+            }
+        } else if (errno != ECHILD) {
+            *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
             ret = -1;
-        } else if (WIFSIGNALED(fork_child_status)) {
-            /* It died with a signal. */
-            *msgp = g_strdup_printf("Child dumpcap process died: %s%s",
-                                    sync_pipe_signame(WTERMSIG(fork_child_status)),
-                                    WCOREDUMP(fork_child_status) ? " - core dumped" : "");
-            ret = -1;
+        } else if (errno == EINTR) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "sync_pipe_wait_for_child: waitpid returned EINTR. retrying.");
+            continue;
         } else {
-            /* What?  It had to either have exited, or stopped, or died with
-               a signal; what happened here? */
-            *msgp = g_strdup_printf("Bad status from waitpid(): %#o",
-                                    fork_child_status);
-            ret = -1;
+            /* errno == ECHILD ; echld might have already reaped the child */
+            ret = fetch_dumpcap_pid ? 0 : -1;
         }
-    } else if (errno != ECHILD) {
-        *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
-        ret = -1;
-    } else {
-        /* errno == ECHILD ; echld might have already reaped the child */
-        ret = fetch_dumpcap_pid ? 0 : -1;
+        break;
     }
 #endif
 
