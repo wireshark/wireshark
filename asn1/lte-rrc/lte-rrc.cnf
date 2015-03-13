@@ -77,6 +77,9 @@ VarRLF-Report-r10
 VarRLF-Report-r11
 VarShortMAC-Input
 
+#.NO_EMIT ONLY_VALS
+EAB-Config-r11/eab-Category-r11
+
 #.MAKE_ENUM
 RAT-Type TYPE_PREFIX
 Handover/targetRAT-Type TYPE_PREFIX
@@ -724,6 +727,9 @@ SystemInformationBlockType12-r9/messageIdentifier-r9 TYPE=FT_UINT16 DISPLAY=BASE
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_warningMessageSegment);
     dissect_lte_rrc_warningMessageSegment(warning_msg_seg_tvb, subtree, actx->pinfo, GPOINTER_TO_UINT(p_dcs));
   }
+
+#.TYPE_ATTR
+EAB-Config-r11/eab-Category-r11 STRINGS=VALS(lte_rrc_eab_category_vals)
 
 #.TYPE_ATTR
 SystemInformationBlockType16-r11/timeInfo-r11/dayLightSavingTime-r11 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_daylightSavingTime_vals)

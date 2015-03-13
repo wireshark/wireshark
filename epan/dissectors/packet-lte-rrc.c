@@ -5971,6 +5971,13 @@ static const true_false_string lte_rrc_duration_val = {
   "single"
 };
 
+static const value_string lte_rrc_eab_category_vals[] = {
+  { 0, "a - all UEs" },
+  { 1, "b - UEs not in their HPLMN/EHPLMN" },
+  { 2, "c - UEs not in the most preferred PLMN of the country where they are roaming in EF OPLMNwACT list, nor in their HPLMN/EHPLMN" },
+  { 0, NULL }
+};
+
 static const value_string lte_rrc_daylightSavingTime_vals[] = {
   { 0, "No adjustment for Daylight Saving Time"},
   { 1, "+1 hour adjustment for Daylight Saving Time"},
@@ -11199,13 +11206,6 @@ dissect_lte_rrc_SystemInformationBlockType13_r9(tvbuff_t *tvb _U_, int offset _U
   return offset;
 }
 
-
-static const value_string lte_rrc_T_eab_Category_r11_vals[] = {
-  {   0, "a" },
-  {   1, "b" },
-  {   2, "c" },
-  { 0, NULL }
-};
 
 
 static int
@@ -42040,7 +42040,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2483 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2490 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -46507,7 +46507,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_eab_Category_r11,
       { "eab-Category-r11", "lte-rrc.eab_Category_r11",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_eab_Category_r11_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(lte_rrc_eab_category_vals), 0,
         NULL, HFILL }},
     { &hf_lte_rrc_eab_BarringBitmap_r11,
       { "eab-BarringBitmap-r11", "lte-rrc.eab_BarringBitmap_r11",
@@ -52775,7 +52775,7 @@ void proto_register_lte_rrc(void) {
         "RSRQ_Range_v12xy", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2653 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2660 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -54698,7 +54698,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3276 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3283 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -54771,7 +54771,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3333 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3340 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }

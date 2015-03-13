@@ -1908,6 +1908,13 @@ static const true_false_string lte_rrc_duration_val = {
   "single"
 };
 
+static const value_string lte_rrc_eab_category_vals[] = {
+  { 0, "a - all UEs" },
+  { 1, "b - UEs not in their HPLMN/EHPLMN" },
+  { 2, "c - UEs not in the most preferred PLMN of the country where they are roaming in EF OPLMNwACT list, nor in their HPLMN/EHPLMN" },
+  { 0, NULL }
+};
+
 static const value_string lte_rrc_daylightSavingTime_vals[] = {
   { 0, "No adjustment for Daylight Saving Time"},
   { 1, "+1 hour adjustment for Daylight Saving Time"},
