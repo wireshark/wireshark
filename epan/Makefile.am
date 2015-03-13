@@ -162,6 +162,9 @@ oids_test_LDADD = \
 exntest: exntest.o except.o
 	$(LINK) $^ $(GLIB_LIBS)
 
+test-programs: $(EXTRA_PROGRAMS) exntest
+	cd wmem && $(MAKE) $@
+
 RUNLEX=$(top_srcdir)/tools/runlex.sh
 
 diam_dict_lex.h: diam_dict.c

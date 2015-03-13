@@ -1809,34 +1809,34 @@ if(NOT ${ENABLE_STATIC})
 	)
 endif()
 
-add_executable(wmem_test wmem/wmem_test.c ${WMEM_FILES})
+add_executable(wmem_test EXCLUDE_FROM_ALL wmem/wmem_test.c ${WMEM_FILES})
 target_link_libraries(wmem_test ${GLIB2_LIBRARIES})
 set_target_properties(wmem_test PROPERTIES
 	FOLDER "Tests"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-add_executable(exntest exntest.c except.c)
+add_executable(exntest EXCLUDE_FROM_ALL exntest.c except.c)
 target_link_libraries(exntest ${GLIB2_LIBRARIES})
 set_target_properties(exntest PROPERTIES
 	FOLDER "Tests"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-add_executable(oids_test oids_test.c)
-target_link_libraries(oids_test epan)
+add_executable(oids_test EXCLUDE_FROM_ALL oids_test.c)
+target_link_libraries(oids_test epan ${ZLIB_LIBRARIES})
 set_target_properties(oids_test PROPERTIES
 	FOLDER "Tests"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 )
 
-add_executable(reassemble_test reassemble_test.c)
+add_executable(reassemble_test EXCLUDE_FROM_ALL reassemble_test.c)
 target_link_libraries(reassemble_test epan)
 set_target_properties(reassemble_test PROPERTIES
 	FOLDER "Tests"
 )
 
-add_executable(tvbtest tvbtest.c)
+add_executable(tvbtest EXCLUDE_FROM_ALL tvbtest.c)
 target_link_libraries(tvbtest epan)
 set_target_properties(tvbtest PROPERTIES
 	FOLDER "Tests"

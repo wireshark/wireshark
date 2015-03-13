@@ -20,35 +20,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-if [ "$WS_SYSTEM" == "Windows" ] ; then
-	MAKE="nmake -f Makefile.nmake"
-else
-	MAKE=make
-fi
-
 unittests_step_test() {
-	( cd `dirname $DUT` && $MAKE `basename $DUT` ) >testout.txt 2>&1
-	if [ $? -ne 0 ]; then
-		echo
-		cat ./testout.txt
-		test_step_failed "make $DUT failed"
-		return
-	fi
-
-	# if we're on windows, we have to copy the test exe to the wireshark-gtk2
-	# dir before we can use them.
-	# {Note that 'INSTALL_DIR' must be a Windows Pathname)
-	if [ "$WS_SYSTEM" == "Windows" ] ; then
-		(cd `dirname $DUT` && $MAKE `basename $DUT`_install INSTALL_DIR='wireshark-gtk2\') > testout.txt 2>&1
-		if [ $? -ne 0 ]; then
-			echo
-			cat ./testout.txt
-			test_step_failed "install $DUT failed"
-			return
-		fi
-		DUT=$SOURCE_DIR/wireshark-gtk2/`basename $DUT`
-	fi
-
 	$DUT $ARGS > testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -60,43 +32,50 @@ unittests_step_test() {
 	test_step_ok
 }
 
-set_dut() {
-	if [ "$SOURCE_DIR" = "$WS_BIN_PATH" -o "$WS_SYSTEM" = "Windows" ]; then
-		DUT=$SOURCE_DIR/epan/$1
+check_dut() {
+	TEST_EXE=""
+	# WS_BIN_PATH must be checked first, otherwise when using Nmake
+	# we'll find a non-functional program in epan or epan/wmem.
+	for TEST_PATH in "$WS_BIN_PATH" "$SOURCE_DIR/epan" "$SOURCE_DIR/epan/wmem" ; do
+		if [ -x "$TEST_PATH/$1" ]; then
+			TEST_EXE=$TEST_PATH/$1
+			break
+		fi
+	done
+
+	if [ -n "$TEST_EXE" ]; then
+		DUT=$TEST_EXE
 	else
-		# In out-of-tree builds, all binaries end up in the same folder
-		# regardless of their path during in-tree builds, so we strip
-		# off any prefix part of the path (such as wmem/ for wmem_test)
-		DUT=$WS_BIN_PATH/${1##*/}
+		test_step_failed "$1 not found. Have you built test-programs?"
 	fi
 }
 
 unittests_step_exntest() {
-	set_dut exntest
+	check_dut exntest
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_oids_test() {
-	set_dut oids_test
+	check_dut oids_test
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_reassemble_test() {
-	set_dut reassemble_test
+	check_dut reassemble_test
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_tvbtest() {
-	set_dut tvbtest
+	check_dut tvbtest
 	ARGS=
 	unittests_step_test
 }
 
 unittests_step_wmem_test() {
-	set_dut wmem/wmem_test
+	check_dut wmem_test
 	ARGS=--verbose
 	unittests_step_test
 }

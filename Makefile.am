@@ -1590,6 +1590,9 @@ osx-install: osx-app
 		cp -pr $(srcdir)/packaging/macosx/Wireshark.app /Applications ; \
 	fi
 
+test-programs:
+	cd epan && $(MAKE) $@
+
 clean-local:
 	rm -rf $(top_stagedir)
 

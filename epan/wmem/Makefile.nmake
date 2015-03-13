@@ -37,9 +37,11 @@ wmem_test.exe: $(WMEM_TEST_OBJ) $(WMEM_TEST_LIBS)
 	link /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(WMEM_TEST_LIBS) $(GLIB_LIBS) $(WMEM_TEST_OBJ)
 
-wmem_test_install:
+wmem_test_install: wmem_test.exe
 	set copycmd=/y
-	if exist wmem_test.exe	xcopy wmem_test.exe	..\..\$(INSTALL_DIR) /d
+	xcopy wmem_test.exe ..\..\$(INSTALL_DIR) /d
+
+test-programs: wmem_test_install
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \

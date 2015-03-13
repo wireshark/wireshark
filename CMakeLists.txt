@@ -2301,7 +2301,7 @@ else()
 	set(TEST_SH_BIN_DIR $<TARGET_FILE_DIR:epan>)
 endif()
 
-add_custom_target(test-sh ALL
+add_custom_target(test-sh
 	COMMAND ${CMAKE_COMMAND}
 		-DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
 		-DTEST_SH_BIN_DIR=${TEST_SH_BIN_DIR}
@@ -2309,6 +2309,17 @@ add_custom_target(test-sh ALL
 		-P ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 	DEPENDS ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 )
+
+add_custom_target(test-programs
+	DEPENDS test-sh
+		exntest
+		oids_test
+		reassemble_test
+		tvbtest
+		wmem_test
+	COMMENT "Building unit test programs and wrapper"
+)
+
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

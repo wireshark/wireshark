@@ -553,6 +553,11 @@ text2pcap-scanner.c : text2pcap-scanner.l
 text2pcap-scanner.obj : text2pcap-scanner.c
 	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
+test-programs:
+	cd epan
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake test-programs
+	cd ..
+
 clean-local:
 	rm -f $(wireshark_gtk_OBJECTS) $(tshark_OBJECTS) $(tfshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr *.exe.manifest \
