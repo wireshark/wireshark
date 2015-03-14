@@ -29,6 +29,7 @@
 #include <epan/packet.h>
 #include <epan/crc16-tvb.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 #include "packet-rtacser.h"
 
@@ -72,6 +73,7 @@ static gint ett_synphasor	   = -1; /* root element for this protocol */
       static gint ett_data_digital = -1;
   /* used for command frames */
   static gint ett_command	   = -1;
+  static gint ett_status_word_mask = -1;
 
 /* handles to the header fields hf[] in proto_register_synphasor() */
 static int hf_sync		    = -1;
@@ -102,6 +104,29 @@ static int hf_data_statb10	    = -1;
 static int hf_data_statb05to04	    = -1;
 static int hf_data_statb03to00	    = -1;
 static int hf_command		    = -1;
+
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_synphasor_data = -1;
+static int hf_synphasor_checksum = -1;
+static int hf_synphasor_num_phasors = -1;
+static int hf_synphasor_num_analog_values = -1;
+static int hf_synphasor_num_digital_status_words = -1;
+static int hf_synphasor_rate_of_transmission = -1;
+static int hf_synphasor_phasor = -1;
+static int hf_synphasor_actual_frequency_value = -1;
+static int hf_synphasor_rate_change_frequency = -1;
+static int hf_synphasor_frequency_deviation_from_nominal = -1;
+static int hf_synphasor_analog_value = -1;
+static int hf_synphasor_digital_status_word = -1;
+static int hf_synphasor_conversion_factor = -1;
+static int hf_synphasor_factor_for_analog_value = -1;
+static int hf_synphasor_channel_name = -1;
+static int hf_synphasor_extended_frame_data = -1;
+static int hf_synphasor_unknown_data = -1;
+static int hf_synphasor_status_word_mask_normal_state = -1;
+static int hf_synphasor_status_word_mask_valid_bits = -1;
+
+static expert_field ei_synphasor_extended_frame_data = EI_INIT;
 
 static dissector_handle_t synphasor_udp_handle;
 
@@ -504,6 +529,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		gint	    offset;
 		guint16	    framesize;
 		tvbuff_t   *sub_tvb;
+		gboolean   crc_good;
 
 		temp_item = proto_tree_add_item(tree, proto_synphasor, tvb, 0, -1, ENC_NA);
 		proto_item_append_text(temp_item, ", %s", val_to_str_const(frame_type, typenames,
@@ -516,11 +542,12 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		offset = 14; /* header is 14 bytes long */
 
 		/* check CRC, call appropriate subdissector for the rest of the frame if CRC is correct*/
-		sub_item  = proto_tree_add_text(synphasor_tree, tvb, offset	, tvbsize - 16, "Data"	   );
-		temp_item = proto_tree_add_text(synphasor_tree, tvb, tvbsize - 2, 2	      , "Checksum:");
-		if (!check_crc(tvb, &crc)) {
+		sub_item  = proto_tree_add_item(synphasor_tree, hf_synphasor_data, tvb, offset, tvbsize - 16, ENC_NA);
+		crc_good = check_crc(tvb, &crc);
+		temp_item = proto_tree_add_uint(synphasor_tree, hf_synphasor_checksum, tvb, tvbsize - 2, 2, crc);
+		if (!crc_good) {
 			proto_item_append_text(sub_item,  ", not dissected because of wrong checksum");
-			proto_item_append_text(temp_item, " 0x%04x [incorrect]", crc);
+			proto_item_append_text(temp_item, " [incorrect]");
 		}
 		else {
 			/* create a new tvb to pass to the subdissector
@@ -546,7 +573,7 @@ static int dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 				default:
 					proto_item_append_text(sub_item, " of unknown type");
 			}
-			proto_item_append_text(temp_item, " 0x%04x [correct]", crc);
+			proto_item_append_text(temp_item, " [correct]");
 		}
 
 		/*offset += 2;*/ /* CRC */
@@ -680,9 +707,9 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		num_ph = tvb_get_ntohs(tvb, offset    );
 		num_an = tvb_get_ntohs(tvb, offset + 2);
 		num_dg = tvb_get_ntohs(tvb, offset + 4);
-		proto_tree_add_text(station_tree, tvb, offset	 , 2, "Number of phasors: %u",		    num_ph);
-		proto_tree_add_text(station_tree, tvb, offset + 2, 2, "Number of analog values: %u",	    num_an);
-		proto_tree_add_text(station_tree, tvb, offset + 4, 2, "Number of digital status words: %u", num_dg);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_phasors, tvb, offset, 2, num_ph);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_analog_values, tvb, offset + 2, 2, num_an);
+		proto_tree_add_uint(station_tree, hf_synphasor_num_digital_status_words, tvb, offset + 4, 2, num_dg);
 		offset += 6;
 
 		/* CHNAM, the channel names */
@@ -705,13 +732,14 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 
 	/* DATA_RATE */
 	{
-		proto_item *temp_item;
 		gint16 tmp = tvb_get_ntohs(tvb, offset);
-		temp_item  = proto_tree_add_text(config_tree, tvb, offset, 2, "Rate of transmission: "); offset += 2;
 		if (tmp > 0)
-			proto_item_append_text(temp_item, "%"G_GINT16_FORMAT" frame(s) per second", tmp);
+			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
+                        "%d frame(s) per second", tmp);
 		else
-			proto_item_append_text(temp_item, "1 frame per %"G_GINT16_FORMAT" second(s)", (gint16)-tmp);
+			proto_tree_add_int_format_value(config_tree, hf_synphasor_rate_of_transmission, tvb, offset, 2, tmp,
+                        "1 frame per %d second(s)", (gint16)-tmp);
+		offset += 2;
 	}
 
 	return offset;
@@ -826,12 +854,12 @@ static int dissect_command_frame(tvbuff_t    *tvb,
 	if (tvbsize > 2) {
 		if (tvb_get_ntohs(tvb, 0) == 0x0008) {
 			/* Command: Extended Frame, the extra data is ok */
-			proto_item *ti = proto_tree_add_text(command_tree, tvb, 2, tvbsize - 2, "Extended frame data");
+			proto_item *ti = proto_tree_add_item(command_tree, hf_synphasor_extended_frame_data, tvb, 2, tvbsize - 2, ENC_NA);
 			if (tvbsize % 2)
-				proto_item_append_text(ti, ", but size not multiple of 16-bit word");
+				expert_add_info(pinfo, ti, &ei_synphasor_extended_frame_data);
 		}
 		else
-			proto_tree_add_text(command_tree, tvb, 2, tvbsize - 2, "Unknown data");
+			proto_tree_add_item(command_tree, hf_synphasor_unknown_data, tvb, 2, tvbsize - 2, ENC_NA);
 	}
 
 	return tvbsize;
@@ -906,8 +934,8 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 		phasor_info *pi;
 
 		pi = (phasor_info *)wmem_array_index(block->phasors, j);
-		temp_item = proto_tree_add_text(phasor_tree, tvb, offset,
-						floating_point == block->format_ph ? 8 : 4,
+		temp_item = proto_tree_add_string_format(phasor_tree, hf_synphasor_phasor, tvb, offset,
+						floating_point == block->format_ph ? 8 : 4, pi->name,
 						"Phasor #%u: \"%s\"", j + 1, pi->name);
 
 		offset += dissect_single_phasor(tvb, offset,
@@ -939,26 +967,25 @@ static gint dissect_DFREQ(tvbuff_t *tvb, proto_tree *tree, config_block *block, 
 		gfloat tmp;
 
 		tmp = tvb_get_ntohieee_float(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 4, "Actual frequency value: %fHz", tmp); offset += 4;
+		proto_tree_add_float_format_value(tree, hf_synphasor_actual_frequency_value, tvb, offset, 4, tmp, "%fHz", tmp); offset += 4;
 
 		/* The standard doesn't clearly say how to interpret this value, but
 		 * http://www.pes-psrc.org/h/C37_118_H11_FAQ_Jan2008.pdf provides further information.
 		 * --> no scaling factor is applied to DFREQ
 		 */
 		tmp = tvb_get_ntohieee_float(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 4, "Rate of change of frequency: %fHz/s", tmp); offset += 4;
+		proto_tree_add_float_format_value(tree, hf_synphasor_rate_change_frequency, tvb, offset, 4, tmp, "%fHz/s", tmp); offset += 4;
 	}
 	else {
 		gint16 tmp;
 
 		tmp = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 2,
-				    "Frequency deviation from nominal: %" G_GINT16_FORMAT "mHz (actual frequency: %.3fHz)",
-				    tmp, block->fnom + (tmp / 1000.0));
+		proto_tree_add_int_format_value(tree, hf_synphasor_frequency_deviation_from_nominal, tvb, offset, 2, tmp,
+				    "%dmHz (actual frequency: %.3fHz)", tmp, block->fnom + (tmp / 1000.0));
 		offset += 2;
 
 		tmp = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 2, "Rate of change of frequency: %.3fHz/s", tmp / 100.0); offset += 2;
+		proto_tree_add_float_format_value(tree, hf_synphasor_rate_change_frequency, tvb, offset, 2, (gfloat)(tmp / 100.0), "%.3fHz/s", tmp / 100.0); offset += 2;
 	}
 	return offset;
 }
@@ -982,8 +1009,8 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 		proto_item *temp_item;
 		analog_info *ai = (analog_info *)wmem_array_index(block->analogs, j);
 
-		temp_item = proto_tree_add_text(analog_tree, tvb, offset,
-						floating_point == block->format_an ? 4 : 2,
+		temp_item = proto_tree_add_string_format(analog_tree, hf_synphasor_analog_value, tvb, offset,
+						floating_point == block->format_an ? 4 : 2, ai->name,
 						"Analog value #%u: \"%s\"", j + 1, ai->name);
 
 		if (floating_point == block->format_an) {
@@ -1016,7 +1043,7 @@ static gint dissect_DIGITAL(tvbuff_t *tvb, proto_tree *tree, config_block *block
 
 	for (j = 0; j < cnt; j++) {
 		guint16 tmp = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 2, "Digital status word #%u: 0x%04x", j + 1, tmp);
+		proto_tree_add_uint_format(tree, hf_synphasor_digital_status_word, tvb, offset, 2, tmp, "Digital status word #%u: 0x%04x", j + 1, tmp);
 		offset += 2;
 	}
 	return offset;
@@ -1044,8 +1071,8 @@ static gint dissect_PHUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 	 */
 	for (i = 0; i < cnt; i++) {
 		guint32 tmp = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_text(temp_tree, tvb, offset, 4,
-				    "#%u factor: %u * 10^-5, unit: %s",
+		proto_tree_add_uint_format(temp_tree, hf_synphasor_conversion_factor, tvb, offset, 4,
+				    tmp, "#%u factor: %u * 10^-5, unit: %s",
 				    i + 1,
 				    tmp & 0x00FFFFFF,
 				    tmp & 0xFF000000 ? "Ampere" : "Volt");
@@ -1074,8 +1101,8 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 	 */
 	for (i = 0; i < cnt; i++) {
 		gint32 tmp = tvb_get_ntohl(tvb, offset);
-		temp_item = proto_tree_add_text(temp_tree, tvb, offset, 4,
-						"Factor for analog value #%i: %s",
+		temp_item = proto_tree_add_uint_format(temp_tree, hf_synphasor_factor_for_analog_value, tvb, offset, 4,
+						tmp, "Factor for analog value #%i: %s",
 						i + 1,
 						try_rval_to_str((tmp >> 24) & 0x000000FF, conf_anconvnames));
 
@@ -1094,8 +1121,7 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 /* used by 'dissect_config_frame()' to dissect the DIGUNIT field */
 static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt)
 {
-	proto_item *temp_item;
-	proto_tree *temp_tree;
+	proto_tree *temp_tree, *mask_tree;
 	int i;
 
 	if (0 == cnt)
@@ -1109,11 +1135,10 @@ static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 	 * the status word
 	 */
 	for (i = 0; i < cnt; i++) {
-		guint32 tmp = tvb_get_ntohl(tvb, offset);
 
-		temp_item = proto_tree_add_text(temp_tree, tvb, offset, 4, "Mask for status word #%u: ", i + 1);
-		proto_item_append_text(temp_item, "normal state: 0x%04"G_GINT16_MODIFIER"x", (guint16)((tmp & 0xFFFF0000) >> 16));
-		proto_item_append_text(temp_item, ", valid bits: 0x%04"G_GINT16_MODIFIER"x", (guint16)( tmp & 0x0000FFFF));
+		mask_tree = proto_tree_add_subtree_format(temp_tree, tvb, offset, 4, ett_status_word_mask, NULL, "Mask for status word #%u: ", i + 1);
+		proto_tree_add_item(mask_tree, hf_synphasor_status_word_mask_normal_state, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mask_tree, hf_synphasor_status_word_mask_valid_bits, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		offset += 4;
 	}
@@ -1137,8 +1162,8 @@ static gint dissect_CHNAM(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cnt
 	for (i = 0; i < cnt; i++) {
 		char *str;
 		str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, CHNAM_LEN, ENC_ASCII);
-		proto_tree_add_text(temp_tree, tvb, offset, CHNAM_LEN,
-				    "%s #%i: \"%s\"", prefix, i+1, str);
+		proto_tree_add_string_format(temp_tree, hf_synphasor_channel_name, tvb, offset, CHNAM_LEN,
+				    str, "%s #%i: \"%s\"", prefix, i+1, str);
 		offset += CHNAM_LEN;
 	}
 
@@ -1267,7 +1292,28 @@ void proto_register_synphasor(void)
 	/* Data type for command frame */
 		{ &hf_command,
 		{ "Command", "synphasor.command", FT_UINT16, BASE_HEX,
-		  VALS(command_names), 0x000F, NULL, HFILL }}
+		  VALS(command_names), 0x000F, NULL, HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_synphasor_data, { "Data", "synphasor.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_checksum, { "Checksum", "synphasor.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_num_phasors, { "Number of phasors", "synphasor.num_phasors", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_num_analog_values, { "Number of analog values", "synphasor.num_analog_values", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_num_digital_status_words, { "Number of digital status words", "synphasor.num_digital_status_words", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_rate_of_transmission, { "Rate of transmission", "synphasor.rate_of_transmission", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_phasor, { "Phasor", "synphasor.phasor", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_actual_frequency_value, { "Actual frequency value", "synphasor.actual_frequency_value", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_rate_change_frequency, { "Rate of change of frequency", "synphasor.rate_change_frequency", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_frequency_deviation_from_nominal, { "Frequency deviation from nominal", "synphasor.frequency_deviation_from_nominal", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_analog_value, { "Analog value", "synphasor.analog_value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_digital_status_word, { "Digital status word", "synphasor.digital_status_word", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_conversion_factor, { "conversion factor", "synphasor.conversion_factor", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_factor_for_analog_value, { "Factor for analog value", "synphasor.factor_for_analog_value", FT_UINT32, BASE_DEC, NULL, 0x000000FF, NULL, HFILL }},
+      { &hf_synphasor_channel_name, { "Channel name", "synphasor.channel_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_extended_frame_data, { "Extended frame data", "synphasor.extended_frame_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_unknown_data, { "Unknown data", "synphasor.data.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_synphasor_status_word_mask_normal_state, { "Normal state", "synphasor.status_word_mask.normal_state", FT_UINT32, BASE_HEX, NULL, 0xFFFF0000, NULL, HFILL }},
+      { &hf_synphasor_status_word_mask_valid_bits, { "Valid bits", "synphasor.status_word_mask.valid_bits", FT_UINT32, BASE_HEX, NULL, 0x0000FFFF, NULL, HFILL }},
 	};
 
 	/* protocol subtree array */
@@ -1290,10 +1336,16 @@ void proto_register_synphasor(void)
 		&ett_data_phasors,
 		&ett_data_analog,
 		&ett_data_digital,
-		&ett_command
+		&ett_command,
+		&ett_status_word_mask
+	};
+
+	static ei_register_info ei[] = {
+		{ &ei_synphasor_extended_frame_data, { "synphasor.extended_frame_data.unaligned", PI_PROTOCOL, PI_WARN, "Size not multiple of 16-bit word", EXPFILL }},
 	};
 
 	module_t *synphasor_module;
+	expert_module_t* expert_synphasor;
 
 	/* register protocol */
 	proto_synphasor = proto_register_protocol(PROTOCOL_NAME,
@@ -1305,6 +1357,8 @@ void proto_register_synphasor(void)
 
 	proto_register_field_array(proto_synphasor, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_synphasor = expert_register_protocol(proto_synphasor);
+	expert_register_field_array(expert_synphasor, ei, array_length(ei));
 
 	/* register preferences */
 	synphasor_module = prefs_register_protocol(proto_synphasor, proto_reg_handoff_synphasor);
