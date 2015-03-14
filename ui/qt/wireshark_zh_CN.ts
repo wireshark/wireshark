@@ -1352,22 +1352,22 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>复制解析行为。</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="63"/>
+        <location filename="decode_as_dialog.cpp" line="70"/>
         <source>Decode As</source>
         <translation>解码</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="349"/>
+        <location filename="decode_as_dialog.cpp" line="362"/>
         <source>String</source>
         <translation>字符串</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="351"/>
+        <location filename="decode_as_dialog.cpp" line="364"/>
         <source>Integer, base </source>
         <translation>整形</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="363"/>
+        <location filename="decode_as_dialog.cpp" line="376"/>
         <source>unknown</source>
         <translation>未知</translation>
     </message>
@@ -4241,62 +4241,62 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>切换到</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="194"/>
+        <location filename="main_status_bar.cpp" line="196"/>
         <source> is the highest expert info level</source>
         <translation> 为最高专家信息级别</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="199"/>
+        <location filename="main_status_bar.cpp" line="201"/>
         <source>ERROR</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="203"/>
+        <location filename="main_status_bar.cpp" line="205"/>
         <source>WARNING</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="207"/>
+        <location filename="main_status_bar.cpp" line="209"/>
         <source>NOTE</source>
         <translation>通知</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="211"/>
+        <location filename="main_status_bar.cpp" line="213"/>
         <source>CHAT</source>
         <translation>会话</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="218"/>
+        <location filename="main_status_bar.cpp" line="220"/>
         <source>No expert info</source>
         <translation>无专家信息</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="301"/>
+        <location filename="main_status_bar.cpp" line="305"/>
         <source>Profile: </source>
         <translation>配置文件: </translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="326"/>
+        <location filename="main_status_bar.cpp" line="330"/>
         <source>Packets: %1 %4 Displayed: %2 %4 Marked: %3</source>
         <translation>分组: %1 %4 已显示: %2 %4 已标记: %3</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="332"/>
+        <location filename="main_status_bar.cpp" line="336"/>
         <source> %1 Dropped: %2</source>
         <translation> %1 已丢弃: %2</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="335"/>
+        <location filename="main_status_bar.cpp" line="339"/>
         <source> %1 Ignored: %2</source>
         <translation> %1 已忽略: %2</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="340"/>
+        <location filename="main_status_bar.cpp" line="344"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  加载时间: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="348"/>
+        <location filename="main_status_bar.cpp" line="352"/>
         <source>No Packets</source>
         <translation>无分组</translation>
     </message>
@@ -4361,6 +4361,37 @@ a:hover {
 &lt;body&gt;
 
 &lt;table&gt;&lt;tr&gt;
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
+
+&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
+
+&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
+
+&lt;/tr&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</source>
+        <oldsource>&lt;html&gt;&lt;head&gt;
+&lt;style&gt;
+a:link {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  color: inherit;
+  text-decoration: underline;
+}
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;table&gt;&lt;tr&gt;
 &lt;th&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
@@ -4376,8 +4407,8 @@ a:hover {
 &lt;th&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
 
 &lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head&gt;
+&lt;/body&gt;&lt;/html&gt;</oldsource>
+        <translation type="unfinished">&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
   color: inherit;
@@ -6374,223 +6405,223 @@ a:hover {
         <translation>在实时捕获时，自动滚动屏幕到最新的分组。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="262"/>
+        <location filename="main_window.cpp" line="263"/>
         <source>Check for Updates...</source>
         <translation>检查更新...</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="266"/>
+        <location filename="main_window.cpp" line="267"/>
         <source>splitterMaster</source>
         <translation>splitterMaster</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="267"/>
+        <location filename="main_window.cpp" line="268"/>
         <source>splitterExtra</source>
         <translation>splitterExtra</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="270"/>
+        <location filename="main_window.cpp" line="271"/>
         <source>emptyPane</source>
         <translation>空窗格</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="647"/>
+        <location filename="main_window.cpp" line="648"/>
         <source>Save packets before merging?</source>
         <translation>是否在合并之前保存分组?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="648"/>
+        <location filename="main_window.cpp" line="649"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>无法合并临时捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="654"/>
+        <location filename="main_window.cpp" line="655"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>是否在合并前保存对“%1”的改动?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="656"/>
+        <location filename="main_window.cpp" line="657"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>文件在合并之前,其改动必须先保存。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="715"/>
-        <location filename="main_window_slots.cpp" line="174"/>
+        <location filename="main_window.cpp" line="716"/>
+        <location filename="main_window_slots.cpp" line="175"/>
         <source>Invalid Display Filter</source>
         <translation>无效显示筛选器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="716"/>
+        <location filename="main_window.cpp" line="717"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>筛选器表达式 %1 不是有效的显示筛选器 (%2)。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="804"/>
+        <location filename="main_window.cpp" line="805"/>
         <source> before importing a new capture</source>
         <translation> 导入新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1116"/>
+        <location filename="main_window.cpp" line="1117"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>无法导出“%1”。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1117"/>
+        <location filename="main_window.cpp" line="1118"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1204"/>
-        <location filename="main_window.cpp" line="1229"/>
+        <location filename="main_window.cpp" line="1205"/>
+        <location filename="main_window.cpp" line="1230"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1267"/>
+        <location filename="main_window.cpp" line="1268"/>
         <source>You have unsaved packets</source>
         <translation>您有未保存的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1268"/>
+        <location filename="main_window.cpp" line="1269"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>若不保存,这些分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1271"/>
-        <location filename="main_window.cpp" line="1284"/>
+        <location filename="main_window.cpp" line="1272"/>
+        <location filename="main_window.cpp" line="1285"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>是否希望停止捕获,并保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1273"/>
+        <location filename="main_window.cpp" line="1274"/>
         <source>Do you want to save the captured packets</source>
         <translation>是否希望保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1275"/>
-        <location filename="main_window.cpp" line="1285"/>
+        <location filename="main_window.cpp" line="1276"/>
+        <location filename="main_window.cpp" line="1286"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1287"/>
+        <location filename="main_window.cpp" line="1288"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>若不保存,您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1290"/>
+        <location filename="main_window.cpp" line="1291"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>是否希望保存对捕获文件“%1”%2 的更改?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1296"/>
+        <location filename="main_window.cpp" line="1297"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>若不保存,您的更改将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1308"/>
+        <location filename="main_window.cpp" line="1309"/>
         <source>Stop and Save</source>
         <translation>停止并保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1316"/>
+        <location filename="main_window.cpp" line="1317"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止,并且不保存直接退出</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1319"/>
+        <location filename="main_window.cpp" line="1320"/>
         <source>Quit without Saving</source>
         <translation>不保存,直接退出</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1324"/>
+        <location filename="main_window.cpp" line="1325"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止并继续,而不必保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1327"/>
+        <location filename="main_window.cpp" line="1328"/>
         <source>Continue &amp;without Saving</source>
         <translation>不保存继续(&amp;w)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1596"/>
+        <location filename="main_window.cpp" line="1597"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1608"/>
-        <location filename="main_window.cpp" line="1614"/>
-        <location filename="main_window.cpp" line="1629"/>
+        <location filename="main_window.cpp" line="1609"/>
+        <location filename="main_window.cpp" line="1615"/>
+        <location filename="main_window.cpp" line="1630"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>The Wireshark Network Analyzer</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="614"/>
+        <location filename="main_window_slots.cpp" line="615"/>
         <source>Loading: %1</source>
         <translation>正在加载: %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="711"/>
+        <location filename="main_window_slots.cpp" line="715"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="720"/>
+        <location filename="main_window_slots.cpp" line="724"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获筛选器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="882"/>
+        <location filename="main_window_slots.cpp" line="891"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1378"/>
+        <location filename="main_window_slots.cpp" line="1387"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>请稍候,Wireshark正在初始化</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1523"/>
+        <location filename="main_window_slots.cpp" line="1532"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1525"/>
+        <location filename="main_window_slots.cpp" line="1534"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>原始数据 (*.bin *.dat *.raw);;任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1582"/>
+        <location filename="main_window_slots.cpp" line="1591"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1583"/>
+        <location filename="main_window_slots.cpp" line="1592"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1589"/>
+        <location filename="main_window_slots.cpp" line="1598"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>导出 SSL 会话密钥 (%1 密钥%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1594"/>
+        <location filename="main_window_slots.cpp" line="1603"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1701"/>
+        <location filename="main_window_slots.cpp" line="1710"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2094"/>
+        <location filename="main_window_slots.cpp" line="2103"/>
         <source>No filter available. Try another </source>
         <translation>无筛选器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2785"/>
+        <location filename="main_window_slots.cpp" line="2794"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
@@ -6932,47 +6963,47 @@ a:hover {
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="600"/>
+        <location filename="packet_list.cpp" line="603"/>
         <source>Align Left</source>
         <translation>左对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="601"/>
+        <location filename="packet_list.cpp" line="604"/>
         <source>Align Center</source>
         <translation>居中对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="602"/>
+        <location filename="packet_list.cpp" line="605"/>
         <source>Align Right</source>
         <translation>右对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="604"/>
+        <location filename="packet_list.cpp" line="607"/>
         <source>Column Preferences</source>
         <translation>列首选项</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="605"/>
+        <location filename="packet_list.cpp" line="608"/>
         <source>Edit Column</source>
         <translation>编辑列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="606"/>
+        <location filename="packet_list.cpp" line="609"/>
         <source>Resize To Contents</source>
         <translation>适应内容</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="607"/>
+        <location filename="packet_list.cpp" line="610"/>
         <source>Resolve Names</source>
         <translation>名称解析</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="612"/>
+        <location filename="packet_list.cpp" line="615"/>
         <source>Remove This Column</source>
         <translation>删除本列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="885"/>
+        <location filename="packet_list.cpp" line="890"/>
         <source>Frame %1: %2
 
 </source>
@@ -6980,17 +7011,17 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="889"/>
+        <location filename="packet_list.cpp" line="894"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ 注释文本超过 %1。正在停止。 ]</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1005"/>
+        <location filename="packet_list.cpp" line="1014"/>
         <source>Change Time Display Format?</source>
         <translation>更改时间显示格式?</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1006"/>
+        <location filename="packet_list.cpp" line="1015"/>
         <source>Time References don&apos;t work well with the currently selected Time Display Format.
 Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</source>
         <translation>时间参考与当前选中的时间显示格式搭配使用效果不佳。
@@ -7261,17 +7292,17 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
 <context>
     <name>ProtoTree</name>
     <message>
-        <location filename="proto_tree.cpp" line="164"/>
+        <location filename="proto_tree.cpp" line="165"/>
         <source>Packet details</source>
         <translation>分组详情</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="323"/>
+        <location filename="proto_tree.cpp" line="324"/>
         <source>, 1 byte</source>
         <translation>, 1 字节</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="325"/>
+        <location filename="proto_tree.cpp" line="326"/>
         <source>, %1 bytes</source>
         <translation>, %1 字节</translation>
     </message>
