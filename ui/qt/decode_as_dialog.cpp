@@ -468,6 +468,7 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
         cur_proto_combo_box_->addItem(dissector_info->proto_name, QVariant::fromValue<dissector_info_t *>(dissector_info));
     }
 
+    cur_proto_combo_box_->model()->sort(0);
     cur_proto_combo_box_->setCurrentIndex(cur_proto_combo_box_->findText(current_text));
 }
 
