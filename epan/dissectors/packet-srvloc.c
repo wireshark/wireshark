@@ -585,9 +585,11 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
                     }
                     if (svc == 50) {
                         byte_value = unicode_to_bytes(tvb, foffset, 16, TRUE); /* IP Address */
+                        prot = 0;
                         sscanf(byte_value,"%x",&prot);
                         proto_tree_add_ipv4(srvloc_tree, hf_srvloc_add_ref_ip, tvb, foffset+2, 16, prot);
                         byte_value = unicode_to_bytes(tvb, foffset+18, 8, FALSE); /* Port */
+                        prot = 0;
                         sscanf(byte_value,"%x",&prot);
                         ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_port, tvb, foffset+18, 4, prot);
                         proto_item_set_len(ti, 8);
@@ -595,14 +597,17 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
                     else
                     {
                         byte_value = unicode_to_bytes(tvb, foffset+2, 16, FALSE); /* IPX Network Address */
+                        prot = 0;
                         sscanf(byte_value,"%x",&prot);
                         ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_network, tvb, foffset+2, 4, prot);
                         proto_item_set_len(ti, 16);
                         byte_value = unicode_to_bytes(tvb, foffset+18, 24, FALSE); /* IPX Node Address */
+                        prot = 0;
                         sscanf(byte_value,"%x",&prot);
                         ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_node, tvb, foffset+18, 4, prot);
                         proto_item_set_len(ti, 24);
                         byte_value = unicode_to_bytes(tvb, foffset+42, 8, FALSE);  /* Socket */
+                        prot = 0;
                         sscanf(byte_value,"%x",&prot);
                         ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_socket, tvb, foffset+42, 4, prot);
                         proto_item_set_len(ti, 8);
@@ -656,23 +661,28 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
             }
             if (svc == 50) {
                 byte_value = unicode_to_bytes(tvb, foffset, 8, TRUE); /* IP Address */
+                prot = 0;
                 sscanf(byte_value,"%x",&prot);
                 proto_tree_add_ipv4(srvloc_tree, hf_srvloc_add_ref_ip, tvb, foffset+1, 8, prot);
                 byte_value = unicode_to_bytes(tvb, foffset+9, 4, FALSE); /* Port */
+                prot = 0;
                 sscanf(byte_value,"%x",&prot);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_port, tvb, foffset+9, 4, prot);
             }
             else
             {
                 byte_value = unicode_to_bytes(tvb, foffset+1, 8, FALSE); /* IPX Network Address */
+                prot = 0;
                 sscanf(byte_value,"%x",&prot);
                 ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_network, tvb, foffset+1, 4, prot);
                 proto_item_set_len(ti, 8);
                 byte_value = unicode_to_bytes(tvb, foffset+9, 12, FALSE); /* IPX Node Address */
+                prot = 0;
                 sscanf(byte_value,"%x",&prot);
                 ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_node, tvb, foffset+9, 4, prot);
                 proto_item_set_len(ti, 12);
                 byte_value = unicode_to_bytes(tvb, foffset+21, 4, FALSE);  /* Socket */
+                prot = 0;
                 sscanf(byte_value,"%x",&prot);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_socket, tvb, foffset+21, 4, prot);
             }
