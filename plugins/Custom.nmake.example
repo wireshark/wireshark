@@ -26,5 +26,5 @@ maintainer-clean: distclean
 
 install-plugins:
 !IFDEF ENABLE_LIBWIRESHARK
-	xcopy foo\*.dll ..\$(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy foo\*.dll ..\$(INSTALL_DIR)\plugins\ /d
 !ENDIF
