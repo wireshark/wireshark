@@ -37,8 +37,8 @@ chargen            19/udp # Character Generator
 ftp-data           20/tcp # File Transfer [Default Data] [Jon_Postel] [Jon_Postel]
 ftp-data           20/udp # File Transfer [Default Data] [Jon_Postel] [Jon_Postel]
 ftp-data           20/sctp # FTP [Randall_Stewart] [Randall_Stewart] [RFC4960]
-ftp                21/tcp # File Transfer [Control] [Jon_Postel] [Jon_Postel] [RFC959] Defined TXT keys: u=<username> p=<password> path=<path>
-ftp                21/udp # File Transfer [Control] [Jon_Postel] [Jon_Postel] [RFC959] Defined TXT keys: u=<username> p=<password> path=<path>
+ftp                21/tcp # File Transfer Protocol [Control] [Jon_Postel] [Jon_Postel] [RFC959] Defined TXT keys: u=<username> p=<password> path=<path>
+ftp                21/udp # File Transfer Protocol [Control] [Jon_Postel] [Jon_Postel] [RFC959] Defined TXT keys: u=<username> p=<password> path=<path>
 ftp                21/sctp # FTP [Randall_Stewart] [Randall_Stewart] [RFC4960] Defined TXT keys: u=<username> p=<password> path=<path>
 ssh                22/tcp # The Secure Shell (SSH) Protocol [RFC4251] Defined TXT keys: u=<username> p=<password>
 ssh                22/udp # The Secure Shell (SSH) Protocol [RFC4251] Defined TXT keys: u=<username> p=<password>
@@ -10164,6 +10164,7 @@ etlservicemgr    9001/tcp # ETL Service Manager [Stephen_McCrea] [Stephen_McCrea
 etlservicemgr    9001/udp # ETL Service Manager [Stephen_McCrea] [Stephen_McCrea] 2002-03 Known Unauthorized Use on port 9001
 dynamid          9002/tcp # DynamID authentication [Jerome_Dusautois] [Jerome_Dusautois] 2002-03
 dynamid          9002/udp # DynamID authentication [Jerome_Dusautois] [Jerome_Dusautois] 2002-03
+golem            9005/tcp # Golem Inter-System RPC [Jose_Luis_Tallon] [Jose_Luis_Tallon] 2015-03-09
 ogs-client       9007/udp # Open Grid Services Client [Gareth_Nelson_2] [Gareth_Nelson_2] 2008-08-22
 ogs-server       9008/tcp # Open Grid Services Server [Gareth_Nelson_2] [Gareth_Nelson_2] 2008-08-22
 pichat           9009/tcp # Pichat Server [Mark_Seuffert] [Mark_Seuffert] 2004-11
@@ -11376,6 +11377,7 @@ m3da-disc       44900/udp # M3DA Discovery is used for efficient machine-to-mach
 asmp            45000/tcp # NSi AutoStore Status Monitoring Protocol data transfer [Notable_Solutions_Inc] [Andrew_Andrews] 2011-09-01
 asmp-mon        45000/udp # NSi AutoStore Status Monitoring Protocol device monitoring [Notable_Solutions_Inc] [Andrew_Andrews] 2011-09-01
 asmps           45001/tcp # NSi AutoStore Status Monitoring Protocol secure data transfer [Notable_Solutions_Inc] [Andrew_Andrews] 2011-09-01
+rs-status       45002/tcp # Redspeed Status Monitor [Redspeed_International_Ltd] [Simon_Griffiths] 2015-03-10
 synctest        45045/tcp # Remote application control protocol [Eleks_Ltd] [Andriy_Skop] 2013-04-08
 invision-ag     45054/tcp # InVision AG [Matthias_Schroer] [Matthias_Schroer]
 invision-ag     45054/udp # InVision AG [Matthias_Schroer] [Matthias_Schroer]
