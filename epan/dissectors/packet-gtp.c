@@ -256,6 +256,8 @@ static int hf_gtp_earp_pci = -1;
 static int hf_gtp_cdr_app = -1;
 static int hf_gtp_cdr_rel = -1;
 static int hf_gtp_cdr_ver = -1;
+static int hf_gtp_cdr_length = -1;
+static int hf_gtp_cdr_context = -1;
 static int hf_gtp_cmn_flg_ppc = -1;
 static int hf_gtp_cmn_flg_mbs_srv_type = -1;
 static int hf_gtp_cmn_flg_mbs_ran_pcd_rdy = -1;
@@ -313,6 +315,7 @@ static int hf_gtp_reordering_required = -1;
 static int hf_gtp_sres = -1;
 static int hf_gtp_data_record_format = -1;
 static int hf_gtp_timezone = -1;
+static int hf_gtp_timezone_dst = -1;
 static int hf_gtp_authentication_length = -1;
 static int hf_gtp_send_n_pdu_number = -1;
 static int hf_gtp_sequence_number_up = -1;
@@ -345,6 +348,17 @@ static int hf_gtp_uplink_flow_label_signalling = -1;
 static int hf_gtp_extended_end_user_address = -1;
 static int hf_gtp_ciphering_key_ck = -1;
 static int hf_gtp_fqdn_length = -1;
+static int hf_gtp_seq_num_released = -1;
+static int hf_gtp_seq_num_canceled = -1;
+static int hf_gtp_requests_responded = -1;
+static int hf_gtp_hyphen_separator = -1;
+static int hf_gtp_ms_network_cap_content_len = -1;
+static int hf_gtp_iei = -1;
+static int hf_gtp_iei_mobile_id_len = -1;
+static int hf_gtp_qos_umts_length = -1;
+static int hf_gtp_num_ext_hdr_types = -1;
+static int hf_gtp_ext_hdr_type = -1;
+static int hf_gtp_tpdu_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp = -1;
@@ -384,6 +398,12 @@ static expert_field ei_gtp_undecoded = EI_INIT;
 static expert_field ei_gtp_message_not_found = EI_INIT;
 static expert_field ei_gtp_field_not_present = EI_INIT;
 static expert_field ei_gtp_wrong_next_field = EI_INIT;
+static expert_field ei_gtp_field_not_support_in_version = EI_INIT;
+static expert_field ei_gtp_guaranteed_bit_rate_value = EI_INIT;
+static expert_field ei_gtp_max_bit_rate_value = EI_INIT;
+static expert_field ei_gtp_ext_geo_loc_type = EI_INIT;
+static expert_field ei_gtp_iei = EI_INIT;
+static expert_field ei_gtp_unknown_extention_header = EI_INIT;
 
 static gboolean g_gtp_etsi_order = FALSE;
 
@@ -1735,6 +1755,7 @@ static dissector_handle_t ppp_handle;
 static dissector_handle_t sync_handle;
 static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
+static dissector_handle_t data_handle;
 static dissector_handle_t gtpv2_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_table_t bssap_pdu_type_table;
@@ -3494,7 +3515,7 @@ decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:        29.060 v4.0, chapter 7.7.13, page 50
  */
 static int
-decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16 ext_flow_label;
@@ -3512,7 +3533,8 @@ decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
 
         return 5;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Flow label/TEID Data I : GTP version not supported");
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtp_field_not_support_in_version,
+                    tvb, offset, 1, "Flow label/TEID Data I : GTP version not supported");
 
         return 3;
     }
@@ -3522,7 +3544,7 @@ decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
  * UMTS:        29.060 v4.0, chapter 7.7.14, page 42
  */
 static int
-decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16 flow_sig;
@@ -3538,7 +3560,8 @@ decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
         proto_tree_add_uint(tree, hf_gtp_teid_cp, tvb, offset, 5, teid_cp);
         return 5;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Flow label signalling/TEID control plane : GTP version not supported");
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtp_field_not_support_in_version,
+            tvb, offset, 1, "Flow label signalling/TEID control plane : GTP version not supported");
         return 3;
     }
 }
@@ -3547,7 +3570,7 @@ decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
  * UMTS:        29.060 v4.0, chapter 7.7.15, page 51
  */
 static int
-decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16     flow_ii;
@@ -3576,7 +3599,8 @@ decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
 
         return 6;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Flow data II/TEID Data II : GTP Version not supported");
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtp_field_not_support_in_version,
+            tvb, offset, 1, "Flow data II/TEID Data II : GTP Version not supported");
 
         return 4;
     }
@@ -3587,7 +3611,7 @@ decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
  * Check if all ms_reason types are included
  */
 static int
-decode_gtp_19(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_19(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint8 field19;
@@ -3602,7 +3626,8 @@ decode_gtp_19(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
         proto_tree_add_boolean(tree, hf_gtp_tear_ind, tvb, offset, 2, field19 & 0x01);
         break;
     default:
-        proto_tree_add_text(tree, tvb, offset, 1, "Information Element Type = 19 : GTP Version not supported");
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtp_field_not_support_in_version,
+            tvb, offset, 1, "Information Element Type = 19 : GTP Version not supported");
         break;
     }
 
@@ -4107,7 +4132,7 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
     len = tvb_get_guint8(tvb, offset);
     tf_tree = proto_tree_add_subtree(ext_tree_mm, tvb, offset, len + 1, ett_gtp_net_cap, NULL, "MS Network Capability");
 
-    proto_tree_add_text(tf_tree, tvb, offset, 1, "Length of MS network capability contents: %u", len);
+    proto_tree_add_uint(tf_tree, hf_gtp_ms_network_cap_content_len, tvb, offset, 1, len);
 
     offset++;
 /*
@@ -4140,18 +4165,21 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
     offset = offset + 2;
 
     if (con_len > 0) {
+        proto_item* ti;
+
         con_tree = proto_tree_add_subtree(ext_tree_mm, tvb, offset, con_len, ett_gtp_mm_cntxt, NULL, "Container");
 
         iei = tvb_get_guint8(tvb,offset);
+        ti = proto_tree_add_uint(con_tree, hf_gtp_iei, tvb, offset, 1, iei);
         if (iei == 0x23) {
-            proto_tree_add_text(con_tree, tvb, offset, 1, "Mobile identity IEI %u",iei);
+            proto_item_append_text(ti, " (Mobile identity)");
             offset++;
             len = tvb_get_guint8(tvb,offset);
-            proto_tree_add_text(con_tree, tvb, offset, 1, "Length %u",len);
+            proto_tree_add_uint(con_tree, hf_gtp_iei_mobile_id_len, tvb, offset, 1, len);
             offset++;
             de_mid(tvb, con_tree, pinfo, offset, len, NULL, 0);
         } else {
-            proto_tree_add_text(con_tree, tvb, offset, 1, "Unknown IEI %u - Later spec than TS 29.060 9.4.0 used?",iei);
+            expert_add_info(pinfo, ti, &ei_gtp_iei);
         }
     }
 
@@ -4195,7 +4223,7 @@ wrapped_tvb_get_guint8(tvbuff_t * tvb, int offset, int type)
   * type = 3!
   */
 static int
-decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos_str, guint8 type)
+decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const gchar * qos_str, guint8 type)
 {
 
     guint       length;
@@ -4240,14 +4268,14 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
     case 1:
         length = tvb_get_guint8(tvb, offset);
         ext_tree_qos = proto_tree_add_subtree(tree, tvb, offset, length + 1, ett_gtp_qos, NULL, qos_str);
-        proto_tree_add_text(ext_tree_qos, tvb, offset, 1, "Length: %u", length);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_umts_length, tvb, offset, 1, length);
         offset++;
         retval = length + 1;
         break;
     case 2:
         length = tvb_get_ntohs(tvb, offset + 1);
         ext_tree_qos = proto_tree_add_subtree(tree, tvb, offset, length + 3, ett_gtp_qos, NULL, qos_str);
-        proto_tree_add_text(ext_tree_qos, tvb, offset + 1, 2, "Length: %u", length);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_umts_length, tvb, offset + 1, 2, length);
         offset += 3;            /* +1 because of first 0x86 byte for UMTS QoS */
         retval = length + 3;
         break;
@@ -4266,7 +4294,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         hyphen = tvb_get_guint8(tvb, offset + 2);
         if (hyphen == ((guint8) '-')) {
             /* Hyphen is present, put in protocol tree */
-            proto_tree_add_text(ext_tree_qos, tvb, offset + 2, 1, "Hyphen separator: -");
+            proto_tree_add_item(ext_tree_qos, hf_gtp_hyphen_separator, tvb, offset + 2, 1, ENC_NA);
             offset++;           /* "Get rid" of hyphen */
         }
 
@@ -4557,7 +4585,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
             }
             /* Octet 16 */
             if(guar_dl_ext == 0)
-                proto_tree_add_text(ext_tree_qos, tvb, offset + (14 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Guaranteed bit rate for downlink in octet 13");
+                proto_tree_add_expert_format(ext_tree_qos, pinfo, &ei_gtp_guaranteed_bit_rate_value, tvb, offset + (14 - 1) * utf8_type + 1, utf8_type,
+                                           "Use the value indicated by the Guaranteed bit rate for downlink in octet 13");
             if ((guar_dl_ext > 0) && (guar_dl_ext <= 0x4a)) {
                 gd = 8600 + guar_dl_ext * 100;
                 proto_tree_add_uint_format_value(ext_tree_qos, hf_gtp_qos_guar_dl, tvb, offset + (14 - 1) * utf8_type + 1, utf8_type, gd,
@@ -4597,7 +4626,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
             }
             /* Octet 18 */
             if (guar_ul_ext == 0)
-                proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Guaranteed bit rate for uplink in octet 12");
+                proto_tree_add_expert_format(ext_tree_qos, pinfo, &ei_gtp_guaranteed_bit_rate_value, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type,
+                                           "Use the value indicated by the Guaranteed bit rate for uplink in octet 12");
             if ((guar_ul_ext > 0) && (guar_ul_ext <= 0x4a)) {
                 gd = 8600 + guar_ul_ext * 100;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
@@ -4621,7 +4651,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
              * rate for downlink (extended).
              */
             if (guar_dl_ext2 == 0)
-                proto_tree_add_text(ext_tree_qos, tvb, offset + (17 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Maximum bit rate for downlink in octet 9 and octet 15.");
+                proto_tree_add_expert_format(ext_tree_qos, pinfo, &ei_gtp_max_bit_rate_value, tvb, offset + (17 - 1) * utf8_type + 1, utf8_type,
+                                           "Use the value indicated by the Maximum bit rate for downlink in octet 9 and octet 15.");
 
             if ((max_dl_ext2 > 0) && (max_dl_ext2 <= 0x3d)) {
                 md = 256 + max_dl_ext2 * 4;
@@ -4640,7 +4671,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
             }
             /* Octet 20 Guaranteed bit rate for downlink (extended-2) */
             if (max_dl_ext2 == 0)
-                proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Maximum bit rate for downlink in octet 13 and octet 16.");
+                proto_tree_add_expert_format(ext_tree_qos, pinfo, &ei_gtp_max_bit_rate_value, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type,
+                                           "Use the value indicated by the Maximum bit rate for downlink in octet 13 and octet 16.");
             if ((max_dl_ext2 > 0) && (max_dl_ext2 <= 0x3d)) {
                 gd = 256 + max_dl_ext2 * 4;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
@@ -4664,7 +4696,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
              * rate for downlink (extended).
              */
             if (guar_ul_ext2 == 0)
-                proto_tree_add_text(ext_tree_qos, tvb, offset + (17 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Maximum bit rate for uplink in octet 9 and octet 15.");
+                proto_tree_add_expert_format(ext_tree_qos, pinfo, &ei_gtp_max_bit_rate_value, tvb, offset + (17 - 1) * utf8_type + 1, utf8_type,
+                                           "Use the value indicated by the Maximum bit rate for uplink in octet 9 and octet 15.");
 
             if ((max_ul_ext2 > 0) && (max_ul_ext2 <= 0x3d)) {
                 md = 256 + max_ul_ext2 * 4;
@@ -4683,7 +4716,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
             }
             /* Guaranteed bit rate for uplink (extended-2), octet 22 */
             if (max_ul_ext2 == 0)
-                proto_tree_add_text(ext_tree_qos, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, "Use the value indicated by the Maximum bit rate for uplink in octet 13 and octet 16.");
+                proto_tree_add_expert_format(ext_tree_qos, pinfo, &ei_gtp_max_bit_rate_value, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type,
+                                           "Use the value indicated by the Maximum bit rate for uplink in octet 13 and octet 16.");
             if ((max_ul_ext2 > 0) && (max_ul_ext2 <= 0x3d)) {
                 gd = 256 + max_ul_ext2 * 4;
                 proto_tree_add_uint_format(ext_tree_qos, hf_gtp_qos_guar_ul, tvb, offset + (16 - 1) * utf8_type + 1, utf8_type, gd,
@@ -4707,16 +4741,16 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
 
 /* Diameter 3GPP AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
 static int
-dissect_diameter_3gpp_qosprofile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_) {
+dissect_diameter_3gpp_qosprofile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
-    decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
+    decode_qos_umts(tvb, 0, pinfo, tree, "UMTS GTP QoS Profile", 3);
     return tvb_reported_length(tvb);
 }
 
 static const gchar *
-dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
+dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo)
 {
-    decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
+    decode_qos_umts(tvb, 0, pinfo, tree, "UMTS GTP QoS Profile", 3);
     return tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
 }
 
@@ -4810,9 +4844,9 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
         break;
     case 1:
         offset = offset + 5;
-        offset = offset + decode_qos_umts(tvb, offset, ext_tree_pdp, "QoS subscribed", 1);
-        offset = offset + decode_qos_umts(tvb, offset, ext_tree_pdp, "QoS requested", 1);
-        offset = offset + decode_qos_umts(tvb, offset, ext_tree_pdp, "QoS negotiated", 1);
+        offset = offset + decode_qos_umts(tvb, offset, pinfo, ext_tree_pdp, "QoS subscribed", 1);
+        offset = offset + decode_qos_umts(tvb, offset, pinfo, ext_tree_pdp, "QoS requested", 1);
+        offset = offset + decode_qos_umts(tvb, offset, pinfo, ext_tree_pdp, "QoS negotiated", 1);
         break;
     default:
         break;
@@ -5077,10 +5111,10 @@ decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * 
  *              24.008 v4.2, chapter 10.5.6.5
  */
 static int
-decode_gtp_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
-    return decode_qos_umts(tvb, offset, tree, "Quality of Service", 2);
+    return decode_qos_umts(tvb, offset, pinfo, tree, "Quality of Service", 2);
 }
 
 /* GPRS:        not present
@@ -5396,12 +5430,12 @@ decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     ext_tree_hdr_list = proto_tree_add_subtree(tree, tvb, offset, 2 + length, ett_gtp_hdr_list, NULL,
                             val_to_str_ext_const(GTP_EXT_HDR_LIST, &gtp_val_ext, "Unknown"));
 
-    proto_tree_add_text(ext_tree_hdr_list, tvb, offset + 1, 1, "Number of Extension Header Types in list (i.e., length) : %u", length);
+    proto_tree_add_item(ext_tree_hdr_list, hf_gtp_num_ext_hdr_types, tvb, offset + 1, 1, ENC_NA);
 
     for (i = 0; i < length; i++) {
         hdr = tvb_get_guint8(tvb, offset + 2 + i);
 
-        proto_tree_add_text(ext_tree_hdr_list, tvb, offset + 2 + i, 1, "No. %u --> Extension Header Type value : %s (0x%02x)", i + 1,
+        proto_tree_add_uint_format(ext_tree_hdr_list, hf_gtp_ext_hdr_type, tvb, offset + 2 + i, 1, hdr, "No. %u --> Extension Header Type value : %s (0x%02x)", i + 1,
                             val_to_str_const(hdr, next_extension_header_fieldvals, "Unknown Extension Header Type"), hdr);
     }
 
@@ -5415,12 +5449,14 @@ decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 static int
 decode_gtp_trigger_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
-
     guint16 length;
+    proto_item* ti;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    proto_tree_add_text(tree, tvb, offset, 3 + length, "%s length : %u", val_to_str_ext_const(GTP_EXT_TRIGGER_ID, &gtp_val_ext, "Unknown"), length);
+    ti = proto_tree_add_uint_format(tree, hf_gtp_ext_length, tvb, offset, 2, length, "%s length : %u",
+                                  val_to_str_ext_const(GTP_EXT_TRIGGER_ID, &gtp_val_ext, "Unknown"), length);
+    proto_item_set_len(ti, 3 + length);
 
     return 3 + length;
 
@@ -5433,12 +5469,14 @@ decode_gtp_trigger_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
 static int
 decode_gtp_omc_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
-
     guint16 length;
+    proto_item* ti;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    proto_tree_add_text(tree, tvb, offset, 3 + length, "%s length : %u", val_to_str_ext_const(GTP_EXT_OMC_ID, &gtp_val_ext, "Unknown"), length);
+    ti = proto_tree_add_uint_format(tree, hf_gtp_ext_length, tvb, offset, 2, length, "%s length : %u",
+                                  val_to_str_ext_const(GTP_EXT_OMC_ID, &gtp_val_ext, "Unknown"), length);
+    proto_item_set_len(ti, 3 + length);
 
     return 3 + length;
 
@@ -5460,7 +5498,8 @@ decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     ext_tree_chrg_addr = proto_tree_add_subtree_format(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_CHRG_ADDR], &te,
                                     "%s : ", val_to_str_ext_const(GTP_EXT_CHRG_ADDR, &gtp_val_ext, "Unknown"));
 
-    proto_tree_add_text(ext_tree_chrg_addr, tvb, offset + 1, 2, "%s length : %u", val_to_str_ext_const(GTP_EXT_CHRG_ADDR, &gtp_val_ext, "Unknown"), length);
+    proto_tree_add_uint_format(ext_tree_chrg_addr, hf_gtp_ext_length, tvb, offset + 1, 2, length,
+                                    "%s length : %u", val_to_str_ext_const(GTP_EXT_CHRG_ADDR, &gtp_val_ext, "Unknown"), length);
 
     switch (length) {
     case 4:
@@ -5699,9 +5738,10 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
     int     offset = 0;
     guint8  geo_loc_type;
     guint16 length = tvb_reported_length(tvb);
+    proto_item* ti;
 
     /* Geographic Location Type */
-    proto_tree_add_item(tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     geo_loc_type = tvb_get_guint8(tvb, offset);
     offset++;
 
@@ -5770,7 +5810,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
             proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, length - 1, "Unknown Location type data");
+            expert_add_info(pinfo, ti, &ei_gtp_ext_geo_loc_type);
             break;
     }
 
@@ -5788,6 +5828,7 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
     guint16     length;
     proto_tree *ext_tree, *rai_tree;
     guint8      geo_loc_type;
+    proto_item* ti;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_USR_LOC_INF], NULL,
@@ -5798,7 +5839,7 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
     offset = offset + 2;
     /* TODO add decoding of data */
     /* Geographic Location Type */
-    proto_tree_add_item(ext_tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(ext_tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     geo_loc_type = tvb_get_guint8(tvb, offset);
     offset++;
 
@@ -5836,7 +5877,7 @@ decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
             proto_tree_add_item(rai_tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         default:
-            proto_tree_add_text(tree, tvb, offset, length - 1, "Unknown Location type data");
+            expert_add_info(pinfo, ti, &ei_gtp_ext_geo_loc_type);
             break;
     }
 
@@ -5896,8 +5937,7 @@ decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pro
     proto_item_append_text(te, "GMT %c %d hours %d minutes", sign, data / 4, data % 4 * 15);
     offset++;
 
-    data = tvb_get_guint8(tvb, offset) & 0x3;
-    proto_tree_add_text(ext_tree, tvb, offset, 1, "%s", val_to_str_const(data, daylight_saving_time_vals, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_timezone_dst, tvb, offset, 1, ENC_NA);
 
     return 3 + length;
 
@@ -6729,11 +6769,11 @@ decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, prot
     proto_tree_add_uint(ext_tree, hf_gtp_xid_par_len, tvb, offset, 1, xid_par_len);
     offset++;
 
-    if (sndcpxid_handle) {
-        next_tvb = tvb_new_subset_remaining(tvb, offset);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (sndcpxid_handle)
         call_dissector(sndcpxid_handle, next_tvb, pinfo, tree);
-    } else
-        proto_tree_add_text(tree, tvb, offset, 0, "Data");
+    else
+        call_dissector(data_handle, next_tvb, pinfo, tree);
 
     return 4 + length;
 
@@ -7590,7 +7630,7 @@ decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     while (n < length) {
 
         number = tvb_get_ntohs(tvb, offset + 3 + n);
-        proto_tree_add_text(ext_tree_rel_pack, tvb, offset + 3 + n, 2, "%u", number);
+        proto_tree_add_uint_format(ext_tree_rel_pack, hf_gtp_seq_num_released, tvb, offset + 3 + n, 2, number, "%u", number);
         n = n + 2;
 
     }
@@ -7618,7 +7658,7 @@ decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     while (n < length) {
 
         number = tvb_get_ntohs(tvb, offset + 3 + n);
-        proto_tree_add_text(ext_tree_can_pack, tvb, offset + 3 + n, 2, "%u", number);
+        proto_tree_add_uint_format(ext_tree_can_pack, hf_gtp_seq_num_canceled, tvb, offset + 3 + n, 2, number, "%u", number);
         n += 2;
     }
 
@@ -7704,9 +7744,9 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
             cdr_length = tvb_get_ntohs(tvb, offset);
             cdr_dr_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, cdr_length+2,
                                     ett_gtp_cdr_dr, NULL, "Data record %d", i + 1);
-            proto_tree_add_text(cdr_dr_tree, tvb, offset, 2, "Length: %u", cdr_length);
+            proto_tree_add_uint(cdr_dr_tree, hf_gtp_cdr_length, tvb, offset, 2, cdr_length);
             offset+=2;
-            proto_tree_add_text(cdr_dr_tree, tvb, offset, cdr_length, "Content");
+            proto_tree_add_item(cdr_dr_tree, hf_gtp_cdr_context, tvb, offset, cdr_length, ENC_NA);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
 
             /* XXX this is for release 6, may not work for higher releases */
@@ -7757,7 +7797,7 @@ decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     while (n < length) {
 
         number = tvb_get_ntohs(tvb, offset + 3 + n);
-        proto_tree_add_text(ext_tree_data_resp, tvb, offset + 3 + n, 2, "%u", number);
+        proto_tree_add_uint_format(ext_tree_data_resp, hf_gtp_requests_responded, tvb, offset + 3 + n, 2, number, "%u", number);
         n = n + 2;
 
     }
@@ -7841,10 +7881,10 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 }
 
 static int
-decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
-    proto_tree_add_text(tree, tvb, offset, 1, "Unknown extension header");
+    proto_tree_add_expert(tree, pinfo, &ei_gtp_unknown_extention_header, tvb, offset, 1);
 
     return tvb_reported_length_remaining(tvb, offset);
 }
@@ -8219,7 +8259,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_TPDU) {
         if(tvb_reported_length_remaining(tvb, offset) > 0){
-            proto_tree_add_text(tree, tvb, offset, -1, "T-PDU Data %u bytes", tvb_reported_length_remaining(tvb, offset));
+            proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
 
             sub_proto = tvb_get_guint8(tvb, offset);
 
@@ -9111,6 +9151,16 @@ proto_register_gtp(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
+        { &hf_gtp_cdr_length,
+          { "Length", "gtp.cdr_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_gtp_cdr_context,
+          { "Context", "gtp.cdr_context",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
         {&hf_gtp_cmn_flg_ppc,
          { "Prohibit Payload Compression", "gtp.cmn_flg.ppc",
            FT_BOOLEAN, 8, NULL, 0x01,
@@ -9343,12 +9393,23 @@ proto_register_gtp(void)
       { &hf_gtp_tft_content_length, { "Content length", "gtp.tft_content_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_rab_setup_length, { "RAB setup length", "gtp.rab_setup_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_timezone, { "Timezone", "gtp.timezone", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_timezone_dst, { "DST", "gtp.timezone_dst", FT_UINT8, BASE_DEC, VALS(daylight_saving_time_vals), 0x03, NULL, HFILL }},
       { &hf_gtp_rfsp_index, { "RFSP Index", "gtp.rfsp_index", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_fqdn_length, { "FQDN length", "gtp.fqdn_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_number_of_data_records, { "Number of data records", "gtp.number_of_data_records", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_data_record_format, { "Data record format", "gtp.data_record_format", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_node_address_length, { "Node address length", "gtp.node_address_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
+      { &hf_gtp_seq_num_released, { "Sequence number released", "gtp.seq_num_released", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_seq_num_canceled, { "Sequence number cancelled", "gtp.seq_num_canceled", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_requests_responded, { "Requests responded", "gtp.requests_responded", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_hyphen_separator, { "Hyphen separator: -", "gtp.hyphen_separator", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ms_network_cap_content_len, { "Length of MS network capability contents", "gtp.ms_network_cap_content_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_iei, { "IEI", "gtp.iei", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_iei_mobile_id_len, { "Length", "gtp.iei.mobile_id_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_qos_umts_length, { "Length", "gtp.qos_umts_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_num_ext_hdr_types, { "Number of Extension Header Types in list (i.e., length)", "gtp.num_ext_hdr_types", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_ext_hdr_type, { "Extension Header Type", "gtp.ext_hdr_type", FT_UINT8, BASE_DEC, VALS(next_extension_header_fieldvals), 0x0, NULL, HFILL }},
+      { &hf_gtp_tpdu_data, { "T-PDU Data", "gtp.tpdu_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static ei_register_info ei[] = {
@@ -9359,6 +9420,12 @@ proto_register_gtp(void)
         { &ei_gtp_message_not_found, { "gtp.message_not_found", PI_PROTOCOL, PI_WARN, "Message not found", EXPFILL }},
         { &ei_gtp_field_not_present, { "gtp.field_not_present", PI_PROTOCOL, PI_WARN, "Field not present", EXPFILL }},
         { &ei_gtp_wrong_next_field, { "gtp.wrong_next_field", PI_PROTOCOL, PI_WARN, "Wrong next field", EXPFILL }},
+        { &ei_gtp_field_not_support_in_version, { "gtp.field_not_support_in_version", PI_PROTOCOL, PI_WARN, "GTP version not supported for field", EXPFILL }},
+        { &ei_gtp_guaranteed_bit_rate_value, { "gtp.guaranteed_bit_rate_value", PI_PROTOCOL, PI_NOTE, "Use the value indicated by the Guaranteed bit rate", EXPFILL }},
+        { &ei_gtp_max_bit_rate_value, { "gtp.max_bit_rate_value", PI_PROTOCOL, PI_NOTE, "Use the value indicated by the Maximum bit rate", EXPFILL }},
+        { &ei_gtp_ext_geo_loc_type, { "gtp.ext_geo_loc_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Location type data", EXPFILL }},
+        { &ei_gtp_iei, { "gtp.iei.unknown", PI_PROTOCOL, PI_WARN, "Unknown IEI - Later spec than TS 29.060 9.4.0 used?", EXPFILL }},
+        { &ei_gtp_unknown_extention_header, { "gtp.unknown_extention_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -9485,6 +9552,7 @@ proto_reg_handoff_gtp(void)
         sync_handle          = find_dissector("sync");
         gtpcdr_handle        = find_dissector("gtpcdr");
         sndcpxid_handle      = find_dissector("sndcpxid");
+        data_handle          = find_dissector("data");
         gtpv2_handle         = find_dissector("gtpv2");
         bssgp_handle         = find_dissector("bssgp");
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
