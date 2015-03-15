@@ -534,6 +534,8 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 // scrollToBottom() from rowsInserted().
 void PacketList::timerEvent(QTimerEvent *event)
 {
+    QTreeView::timerEvent(event);
+
     if (rows_inserted_
             && event->timerId() == tail_timer_id_
             && capture_in_progress_
@@ -692,8 +694,8 @@ void PacketList::setAutoScroll(bool enabled)
     tail_at_end_ = enabled;
     if (enabled && capture_in_progress_) {
         scrollToBottom();
-        if (tail_timer_id_ < 1) tail_timer_id_ = startTimer(tail_update_interval_);
-    } else if (tail_timer_id_ > 0) {
+        if (tail_timer_id_ == 0) tail_timer_id_ = startTimer(tail_update_interval_);
+    } else if (tail_timer_id_ != 0) {
         killTimer(tail_timer_id_);
         tail_timer_id_ = 0;
     }
