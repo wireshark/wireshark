@@ -196,6 +196,22 @@ static int hf_x263_sec_protocol_id = -1;
 static int hf_x25_reg_request_length = -1;
 static int hf_x25_reg_confirm_length = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_x25_call_duration = -1;
+static int hf_x25_segments_to_dte = -1;
+static int hf_x25_segments_from_dte = -1;
+static int hf_x25_dte_address = -1;
+static int hf_x25_data_network_identification_code = -1;
+static int hf_x25_facility_call_deflect_reason = -1;
+static int hf_x25_alternative_dte_address = -1;
+static int hf_x25_dce_address = -1;
+static int hf_x25_called_address = -1;
+static int hf_x25_calling_address = -1;
+static int hf_x25_clear_cause = -1;
+static int hf_x25_reset_cause = -1;
+static int hf_x25_restart_cause = -1;
+static int hf_x25_registration = -1;
+static int hf_x25_user_data = -1;
 
 static gint ett_x25 = -1;
 static gint ett_x25_gfi = -1;
@@ -566,91 +582,48 @@ x25_hash_add_proto_end(guint16 vc, guint32 frame)
         close_circuit(circuit, frame);
 }
 
-static const char *clear_code(unsigned char code)
-{
-    if (code == 0x00 || (code & 0x80) == 0x80)
-        return "DTE Originated";
+static const range_string clear_code_rvals[] = {
+    { 0x00, 0x00,  "DTE Originated" },
+    { 0x01, 0x01,  "Number Busy" },
+    { 0x03, 0x03,  "Invalid Facility Requested" },
+    { 0x05, 0x05,  "Network Congestion" },
+    { 0x09, 0x09,  "Out Of Order" },
+    { 0x0B, 0x0B,  "Access Barred" },
+    { 0x0D, 0x0D,  "Not Obtainable" },
+    { 0x11, 0x11,  "Remote Procedure Error" },
+    { 0x13, 0x13,  "Local Procedure Error" },
+    { 0x15, 0x15,  "RPOA Out Of Order" },
+    { 0x19, 0x19,  "Reverse Charging Acceptance Not Subscribed" },
+    { 0x21, 0x21,  "Incompatible Destination" },
+    { 0x29, 0x29,  "Fast Select Acceptance Not Subscribed" },
+    { 0x39, 0x39,  "Destination Absent" },
+    { 0x80, 0xff,  "DTE Originated" },
+    { 0, 0, NULL }
+};
 
-    switch(code)
-    {
-    case  0x01:
-        return "Number Busy";
-    case  0x03:
-        return "Invalid Facility Requested";
-    case  0x05:
-        return "Network Congestion";
-    case  0x09:
-        return "Out Of Order";
-    case  0x0B:
-        return "Access Barred";
-    case  0x0D:
-        return "Not Obtainable";
-    case  0x11:
-        return "Remote Procedure Error";
-    case  0x13:
-        return "Local Procedure Error";
-    case  0x15:
-        return "RPOA Out Of Order";
-    case  0x19:
-        return "Reverse Charging Acceptance Not Subscribed";
-    case  0x21:
-        return "Incompatible Destination";
-    case  0x29:
-        return "Fast Select Acceptance Not Subscribed";
-    case  0x39:
-        return "Destination Absent";
-    }
+static const range_string reset_code_rvals[] = {
+    { 0x00, 0x00,  "DTE Originated" },
+    { 0x01, 0x01,  "Out of order" },
+    { 0x03, 0x03,  "Remote Procedure Error" },
+    { 0x05, 0x05,  "Local Procedure Error" },
+    { 0x07, 0x07,  "Network Congestion" },
+    { 0x09, 0x09,  "Remote DTE operational" },
+    { 0x0F, 0x0F,  "Network operational" },
+    { 0x11, 0x11,  "Incompatible Destination" },
+    { 0x1D, 0x1D,  "Network out of order" },
+    { 0x80, 0xff,  "DTE Originated" },
+    { 0, 0, NULL }
+};
 
-    return wmem_strdup_printf(wmem_packet_scope(),"Unknown %02X", code);
-}
-
-static const char *reset_code(unsigned char code)
-{
-    if (code == 0x00 || (code & 0x80) == 0x80)
-        return "DTE Originated";
-
-    switch(code)
-    {
-    case 0x01:
-        return "Out of order";
-    case 0x03:
-        return "Remote Procedure Error";
-    case 0x05:
-        return "Local Procedure Error";
-    case 0x07:
-        return "Network Congestion";
-    case 0x09:
-        return "Remote DTE operational";
-    case 0x0F:
-        return "Network operational";
-    case 0x11:
-        return "Incompatible Destination";
-    case 0x1D:
-        return "Network out of order";
-    }
-
-    return wmem_strdup_printf(wmem_packet_scope(),"Unknown %02X", code);
-}
-
-static const char *restart_code(unsigned char code)
-{
-    if (code == 0x00 || (code & 0x80) == 0x80)
-        return "DTE Originated";
-
-    switch(code)
-    {
-    case 0x01:
-        return "Local Procedure Error";
-    case 0x03:
-        return "Network Congestion";
-    case 0x07:
-        return "Network Operational";
-    case 0x7F:
-        return "Registration/cancellation confirmed";
-    }
-
-    return wmem_strdup_printf(wmem_packet_scope(),"Unknown %02X", code);
-}
+static const range_string restart_code_rvals[] = {
+    { 0x00, 0x00,  "DTE Originated" },
+    { 0x01, 0x01,  "Local Procedure Error" },
+    { 0x03, 0x03,  "Network Congestion" },
+    { 0x07, 0x07,  "Network Operational" },
+    { 0x7F, 0x7F,  "Registration/cancellation confirmed" },
+    { 0x80, 0xff,  "DTE Originated" },
+    { 0, 0, NULL }
+};
 
 static char *
 dte_address_util(tvbuff_t *tvb, int offset, guint8 len)
@@ -832,8 +805,8 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                         return;
                     }
                     for (i = 0; (i<byte1); i+=4) {
-                        proto_tree_add_text(facility_tree, tvb, *offset+2+i, 4,
-                                            "Call duration: %u Day(s) %02X:%02X:%02X Hour(s)",
+                        proto_tree_add_bytes_format_value(facility_tree, hf_x25_call_duration, tvb, *offset+2+i, 4,
+                                            NULL, "%u Day(s) %02X:%02X:%02X Hour(s)",
                                             tvb_get_guint8(tvb, *offset+2+i),
                                             tvb_get_guint8(tvb, *offset+3+i),
                                             tvb_get_guint8(tvb, *offset+4+i),
@@ -850,18 +823,8 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                         return;
                     }
                     for (i = 0; (i<byte1); i+=8) {
-                        proto_tree_add_text(facility_tree, tvb, *offset+2+i, 4,
-                                            "Segments sent to DTE: %02X%02X%02X%02X",
-                                            tvb_get_guint8(tvb, *offset+2+i),
-                                            tvb_get_guint8(tvb, *offset+3+i),
-                                            tvb_get_guint8(tvb, *offset+4+i),
-                                            tvb_get_guint8(tvb, *offset+5+i));
-                        proto_tree_add_text(facility_tree, tvb, *offset+6+i, 4,
-                                            "Segments received from DTE: %02X%02X%02X%02X",
-                                            tvb_get_guint8(tvb, *offset+6+i),
-                                            tvb_get_guint8(tvb, *offset+7+i),
-                                            tvb_get_guint8(tvb, *offset+8+i),
-                                            tvb_get_guint8(tvb, *offset+9+i));
+                        proto_tree_add_item(facility_tree, hf_x25_segments_to_dte, tvb, *offset+2+i, 4, ENC_NA);
+                        proto_tree_add_item(facility_tree, hf_x25_segments_from_dte, tvb, *offset+6+i, 4, ENC_NA);
                     }
                 }
                 break;
@@ -885,8 +848,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     proto_tree_add_uint(facility_tree, hf_x25_facility_call_transfer_num_semi_octets, tvb, *offset+4, 1, byte3);
                     tmpbuf = dte_address_util(tvb, *offset + 4, byte3);
 
-                    proto_tree_add_text(facility_tree, tvb, *offset+4, byte1 - 2,
-                                        "DTE address: %s", tmpbuf);
+                    proto_tree_add_string(facility_tree, hf_x25_dte_address, tvb, *offset+4, byte1 - 2, tmpbuf);
                 }
                 break;
                 case X25_FAC_RPOA_SELECTION_EXT:
@@ -898,9 +860,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                         return;
                     }
                     for (i = 0; (i<byte1); i+=2) {
-                        proto_tree_add_text(facility_tree, tvb, *offset+2+i, 2,
-                                            "Data network identification code: %04X",
-                                            tvb_get_ntohs(tvb, *offset+2+i));
+                        proto_tree_add_item(facility_tree, hf_x25_data_network_identification_code, tvb, *offset+2+i, 2, ENC_BIG_ENDIAN);
                     }
                 }
                 break;
@@ -915,8 +875,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     byte2 = tvb_get_guint8(tvb, *offset+2) & 0x3F;
                     proto_tree_add_uint(facility_tree, hf_x25_facility_calling_addr_ext_num_semi_octets, tvb, *offset+2, 1, byte2);
                     tmpbuf = dte_address_util(tvb, *offset + 3, byte2);
-                    proto_tree_add_text(facility_tree, tvb, *offset+3, byte1 - 1,
-                                        "DTE address: %s", tmpbuf);
+                    proto_tree_add_string(facility_tree, hf_x25_dte_address, tvb, *offset+3, byte1 - 1, tmpbuf);
                 }
                 break;
                 case X25_FAC_MONETARY_UNIT:
@@ -937,8 +896,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     proto_tree_add_uint(facility_tree, hf_x25_facility_called_addr_ext_num_semi_octets, tvb, *offset+2, 1, byte2);
                     tmpbuf = dte_address_util(tvb, *offset+3, byte2);
 
-                    proto_tree_add_text(facility_tree, tvb, *offset+3, byte1 - 1,
-                                        "DTE address: %s", tmpbuf);
+                    proto_tree_add_string(facility_tree, hf_x25_dte_address, tvb, *offset+3, byte1 - 1, tmpbuf);
                 }
                 break;
                 case X25_FAC_ETE_TRANSIT_DELAY:
@@ -962,17 +920,16 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb, packet_info *pinfo
                     }
                     byte2 = tvb_get_guint8(tvb, *offset+2);
                     if ((byte2 & 0xC0) == 0xC0)
-                        proto_tree_add_text(facility_tree, tvb, *offset+2, 1,
-                                            "Reason: call DTE originated");
+                        proto_tree_add_uint_format_value(facility_tree, hf_x25_facility_call_deflect_reason, tvb, *offset+2, 1,
+                                            byte2, "call DTE originated");
                     else
-                        proto_tree_add_text(facility_tree, tvb, *offset+2, 1,
-                                            "Reason: unknown");
+                        proto_tree_add_uint_format_value(facility_tree, hf_x25_facility_call_deflect_reason, tvb, *offset+2, 1,
+                                            byte2, "unknown");
                     byte3 = tvb_get_guint8(tvb, *offset+3);
                     proto_tree_add_uint(facility_tree, hf_x25_facility_call_deflect_num_semi_octets, tvb, *offset+3, 1, byte3);
                     tmpbuf = dte_address_util(tvb, *offset+4, byte3);
 
-                    proto_tree_add_text(facility_tree, tvb, *offset+4, byte1 - 2,
-                                        "Alternative DTE address: %s", tmpbuf);
+                    proto_tree_add_string(facility_tree, hf_x25_alternative_dte_address, tvb, *offset+4, byte1 - 2, tmpbuf);
                 }
                 break;
                 case X25_FAC_PRIORITY:
@@ -1067,23 +1024,13 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 
     if (len1) {
         col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
-        if (tree)
-            proto_tree_add_text(tree, tvb, *offset,
-                                (len1 + 1) / 2,
-                                is_registration ?
-                                  "DCE address: %s" :
-                                  "Called address: %s",
-                                addr1);
+        proto_tree_add_string(tree, is_registration ? hf_x25_dce_address : hf_x25_called_address, tvb, *offset,
+                                (len1 + 1) / 2, addr1);
     }
     if (len2) {
         col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
-        if (tree)
-            proto_tree_add_text(tree, tvb, *offset + len1/2,
-                                (len2+1)/2+(len1%2+(len2+1)%2)/2,
-                                is_registration ?
-                                  "DTE address: %s" :
-                                  "Calling address: %s",
-                                addr2);
+        proto_tree_add_string(tree, is_registration ? hf_x25_dte_address : hf_x25_calling_address, tvb, *offset + len1/2,
+                                (len2+1)/2+(len1%2+(len2+1)%2)/2, addr2);
     }
     (*offset) += ((len1 + len2 + 1) / 2);
 }
@@ -1103,19 +1050,11 @@ x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     addr2=(char *)wmem_alloc(wmem_packet_scope(), 256);
 
     len1 = tvb_get_guint8(tvb, *offset);
-    if (tree) {
-        proto_tree_add_text(tree, tvb, *offset, 1,
-                    "Called address length: %u",
-                    len1);
-    }
+    proto_tree_add_item(tree, hf_x25_called_address_length, tvb, *offset, 1, ENC_NA);
     (*offset)++;
 
     len2 = tvb_get_guint8(tvb, *offset);
-    if (tree) {
-        proto_tree_add_text(tree, tvb, *offset, 1,
-                    "Calling address length: %u",
-                    len2);
-    }
+    proto_tree_add_item(tree, hf_x25_calling_address_length, tvb, *offset, 1, ENC_NA);
     (*offset)++;
 
     localoffset = *offset;
@@ -1154,19 +1093,13 @@ x25_toa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 
     if (len1) {
         col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
-        if (tree)
-            proto_tree_add_text(tree, tvb, *offset,
-                                (len1 + 1) / 2,
-                                "Called address: %s",
-                                addr1);
+        proto_tree_add_string(tree, hf_x25_called_address, tvb, *offset,
+                                (len1 + 1) / 2, addr1);
     }
     if (len2) {
         col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
-        if (tree)
-            proto_tree_add_text(tree, tvb, *offset + len1/2,
-                                (len2+1)/2+(len1%2+(len2+1)%2)/2,
-                                "Calling address: %s",
-                                addr2);
+        proto_tree_add_string(tree, hf_x25_calling_address, tvb, *offset + len1/2,
+                                (len2+1)/2+(len1%2+(len2+1)%2)/2, addr2);
     }
     (*offset) += ((len1 + len2 + 1) / 2);
 }
@@ -1688,7 +1621,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - %s", short_name,
-                    vc, clear_code(tvb_get_guint8(tvb, 3)),
+                    vc, rval_to_str(tvb_get_guint8(tvb, 3), clear_code_rvals, "Unknown (0x%02x)"),
                     val_to_str_ext(tvb_get_guint8(tvb, 4), &x25_clear_diag_vals_ext, "Unknown (0x%02x)"));
         x25_hash_add_proto_end(vc, pinfo->fd->num);
         if (x25_tree) {
@@ -1696,8 +1629,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb,
                     localoffset+2, 1, X25_CLEAR_REQUEST, "%s",
                     long_name);
-            proto_tree_add_text(x25_tree, tvb, 3, 1,
-                    "Cause: %s", clear_code(tvb_get_guint8(tvb, 3)));
+            proto_tree_add_item(x25_tree, hf_x25_clear_cause, tvb, 3, 1, ENC_NA);
             proto_tree_add_item(x25_tree, hf_x25_diagnostic, tvb, 4, 1, ENC_BIG_ENDIAN);
         }
         localoffset = x25_pkt_len;
@@ -1727,8 +1659,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (x25_tree) {
             proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
                     X25_DIAGNOSTIC);
-            proto_tree_add_text(x25_tree, tvb, 3, 1,
-                    "Diagnostic: %d", (int)tvb_get_guint8(tvb, 3));
+            proto_tree_add_item(x25_tree, hf_x25_diagnostic, tvb, 3, 1, ENC_NA);
         }
         localoffset = x25_pkt_len;
         break;
@@ -1769,17 +1700,15 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - Diag.:%d",
-                    short_name, vc, reset_code(tvb_get_guint8(tvb, 3)),
+                    short_name, vc, rval_to_str(tvb_get_guint8(tvb, 3), reset_code_rvals, "Unknown (0x%02x)"),
                     (int)tvb_get_guint8(tvb, 4));
         x25_hash_add_proto_end(vc, pinfo->fd->num);
         if (x25_tree) {
             proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
             proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb, 2, 1,
                     X25_RESET_REQUEST, "%s", long_name);
-            proto_tree_add_text(x25_tree, tvb, 3, 1,
-                    "Cause: %s", reset_code(tvb_get_guint8(tvb, 3)));
-            proto_tree_add_text(x25_tree, tvb, 4, 1,
-                    "Diagnostic: %d", (int)tvb_get_guint8(tvb, 4));
+            proto_tree_add_item(x25_tree, hf_x25_reset_cause, tvb, 3, 1, ENC_NA);
+            proto_tree_add_item(x25_tree, hf_x25_diagnostic, tvb, 4, 1, ENC_NA);
         }
         localoffset = x25_pkt_len;
         break;
@@ -1812,15 +1741,13 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s - Diag.:%d",
                     short_name,
-                    restart_code(tvb_get_guint8(tvb, 3)),
+                    rval_to_str(tvb_get_guint8(tvb, 3), restart_code_rvals, "Unknown (0x%02x)"),
                     (int)tvb_get_guint8(tvb, 4));
         if (x25_tree) {
             proto_tree_add_uint_format_value(x25_tree, hf_x25_type, tvb, 2, 1,
                     X25_RESTART_REQUEST, "%s", long_name);
-            proto_tree_add_text(x25_tree, tvb, 3, 1,
-                    "Cause: %s", restart_code(tvb_get_guint8(tvb, 3)));
-            proto_tree_add_text(x25_tree, tvb, 4, 1,
-                    "Diagnostic: %d", (int)tvb_get_guint8(tvb, 4));
+            proto_tree_add_item(x25_tree, hf_x25_restart_cause, tvb, 3, 1, ENC_NA);
+            proto_tree_add_item(x25_tree, hf_x25_diagnostic, tvb, 4, 1, ENC_NA);
         }
         localoffset = x25_pkt_len;
         break;
@@ -1844,9 +1771,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (localoffset < x25_pkt_len)
                         proto_tree_add_item( x25_tree, hf_x25_reg_request_length, tvb, localoffset, 1, ENC_BIG_ENDIAN);
                 if (localoffset+1 < x25_pkt_len)
-                        proto_tree_add_text(x25_tree, tvb, localoffset+1,
-                                tvb_get_guint8(tvb, localoffset) & 0x7F,
-                                "Registration");
+                        proto_tree_add_item(x25_tree, hf_x25_registration, tvb, localoffset+1, tvb_get_guint8(tvb, localoffset) & 0x7F, ENC_NA);
         }
         localoffset = tvb_reported_length(tvb);
         break;
@@ -1866,9 +1791,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (localoffset < x25_pkt_len)
                         proto_tree_add_item( x25_tree, hf_x25_reg_confirm_length, tvb, localoffset, 1, ENC_BIG_ENDIAN);
                 if (localoffset+1 < x25_pkt_len)
-                        proto_tree_add_text(x25_tree, tvb, localoffset+1,
-                                tvb_get_guint8(tvb, localoffset) & 0x7F,
-                                "Registration");
+                        proto_tree_add_item(x25_tree, hf_x25_registration, tvb, localoffset+1, tvb_get_guint8(tvb, localoffset) & 0x7F, ENC_NA);
         }
         localoffset = tvb_reported_length(tvb);
         break;
@@ -1970,9 +1893,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      * This isn't the last packet, so just
                      * show it as X.25 user data.
                      */
-                    proto_tree_add_text(x25_tree, tvb, localoffset, -1,
-                        "User data (%u byte%s)", payload_len,
-                        plurality(payload_len, "", "s"));
+                    proto_tree_add_item(x25_tree, hf_x25_user_data, tvb, localoffset, -1, ENC_NA);
                     return;
                 }
             }
@@ -2377,7 +2298,7 @@ proto_register_x25(void)
 
         { &hf_x25_segment,
           { "X.25 Fragment", "x25.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            "X25 Fragment", HFILL }},
+            NULL, HFILL }},
 
         { &hf_x25_segments,
           { "X.25 Fragments", "x25.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2398,6 +2319,23 @@ proto_register_x25(void)
         { &hf_x25_reg_confirm_diagnostic,
           { "Diagnostic", "x25.reg_confirm.diagnostic", FT_UINT8, BASE_DEC, VALS(x25_registration_code_vals), 0,
             NULL, HFILL }},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_x25_call_duration, { "Call duration", "x25.call_duration", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_segments_to_dte, { "Segments sent to DTE", "x25.segments_to_dte", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_segments_from_dte, { "Segments received from DTE", "x25.segments_from_dte", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_dte_address, { "DTE address", "x25.dte_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_data_network_identification_code, { "Data network identification code", "x25.data_network_identification_code", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_facility_call_deflect_reason, { "Reason", "x25.facility.call_deflect_reason", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_alternative_dte_address, { "Alternative DTE address", "x25.alternative_dte_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_dce_address, { "DCE address", "x25.dce_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_called_address, { "Called address", "x25.called_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_calling_address, { "Calling address", "x25.calling_address", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_clear_cause, { "Cause", "x25.clear_cause", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(clear_code_rvals), 0x0, NULL, HFILL }},
+      { &hf_x25_reset_cause, { "Cause", "x25.reset_cause", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(reset_code_rvals), 0x0, NULL, HFILL }},
+      { &hf_x25_restart_cause, { "Cause", "x25.restart_cause", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(restart_code_rvals), 0x0, NULL, HFILL }},
+      { &hf_x25_registration, { "Registration", "x25.registration", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_x25_user_data, { "User data", "x25.user_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
