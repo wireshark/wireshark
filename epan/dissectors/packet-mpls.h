@@ -48,6 +48,12 @@ enum {
 /* As RFC 6426:http://tools.ietf.org/html/rfc6426, Section: 7.4 */
 #define ACH_TYPE_ONDEMAND_CV          0x0025
 
+/* MPLS over UDP http://tools.ietf.org/html/draft-ietf-mpls-in-udp-11,
+ * udp destination port as defined in
+ * http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=6635
+ */
+#define UDP_PORT_MPLS_OVER_UDP        6635
+
 /*
  * FF: private data passed from the MPLS dissector to subdissectors
  * (data parameter).
