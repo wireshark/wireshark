@@ -175,6 +175,9 @@ set(NSIS_DEFINES
 	PARENT_SCOPE
 )
 
+# We want to sign all of the executables that we ship in the official
+# installers. This means that uninstall.exe must be built separately AND
+# that building the installer itself won't overwrite uninstall.exe
 macro( ADD_NSIS_UNINSTALLER_TARGET )
 	set (_nsis_source_dir ${CMAKE_SOURCE_DIR}/packaging/nsis )
 	set (_nsis_binary_dir ${CMAKE_BINARY_DIR}/packaging/nsis )
@@ -198,11 +201,6 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 
 	add_custom_target(nsis_package
 		DEPENDS
-			${PROGLIST}
-			plugins
-			copy_data_files
-			user_guides
-			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
 			${_nsis_package}
 	)
 	# qt-dll-manifest.nsh. Created using Wireshark.exe.
@@ -215,7 +213,17 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis to match
 	# the NMake environment for now.
 	add_custom_command(OUTPUT ${_nsis_package}
-		DEPENDS ${NSIS_FILES} ${DATAFILE_DIR}/uninstall.exe
+		DEPENDS
+			${NSIS_FILES}
+			${PROGLIST}
+			plugins
+			copy_data_files
+			user_guides
+			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
+			# We depend on the uninstaller target and not the
+			# file itself, otherwise uninstall.exe will get
+			# clobbered.
+			nsis_uninstaller
 		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
 			wireshark.nsi
 		WORKING_DIRECTORY ${_nsis_source_dir}

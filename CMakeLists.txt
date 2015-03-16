@@ -19,12 +19,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-#=to do:
-# - Make NSIS targets top-level
-#   - Move nsis/CMakeLists.txt to UseNSIS.cmake
-#
-# - Make CHM depend on HHC_EXECUTABLE (separate commit)
-
 project(Wireshark C CXX)
 
 cmake_minimum_required(VERSION 2.8.3)
