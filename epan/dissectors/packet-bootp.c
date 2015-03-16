@@ -143,7 +143,9 @@ static int hf_bootp_hw_ether_addr = -1;
 static int hf_bootp_server = -1;
 static int hf_bootp_file = -1;
 static int hf_bootp_cookie = -1;
+static int hf_bootp_vendor_specific_options = -1;
 static int hf_bootp_dhcp = -1;
+static int hf_bootp_fqdn_flags = -1;
 static int hf_bootp_fqdn_s = -1;
 static int hf_bootp_fqdn_o = -1;
 static int hf_bootp_fqdn_e = -1;
@@ -154,11 +156,19 @@ static int hf_bootp_fqdn_rcode2 = -1;
 static int hf_bootp_fqdn_name = -1;
 static int hf_bootp_fqdn_asciiname = -1;
 static int hf_bootp_pkt_mta_cap_len = -1;
+static int hf_bootp_pkt_mta_cap_type = -1;
 static int hf_bootp_docsis_cm_cap_type = -1;
 static int hf_bootp_docsis_cm_cap_len = -1;
 static int hf_bootp_client_identifier_uuid = -1;
+static int hf_bootp_client_id_iaid = -1;
+static int hf_bootp_client_id_duid_type = -1;
+static int hf_bootp_client_hardware_address = -1;
 static int hf_bootp_client_identifier_duid_llt_hw_type = -1;
 static int hf_bootp_client_identifier_duid_ll_hw_type = -1;
+static int hf_bootp_client_identifier_time = -1;
+static int hf_bootp_client_identifier_link_layer_address = -1;
+static int hf_bootp_client_identifier_enterprise_num = -1;
+static int hf_bootp_client_identifier = -1;
 static int hf_bootp_option_type = -1;
 static int hf_bootp_option_length = -1;
 static int hf_bootp_option_value = -1;
@@ -299,6 +309,7 @@ static int hf_bootp_option_dhcp_max_message_size = -1;			/* 57 */
 static int hf_bootp_option_renewal_time_value = -1;			/* 58 */
 static int hf_bootp_option_rebinding_time_value = -1;			/* 59 */
 static int hf_bootp_option_vendor_class_id = -1;			/* 60 */
+static int hf_bootp_option_vendor_class_data = -1;			/* 60 */
 
 static int hf_bootp_option_novell_netware_ip_domain = -1;		/* 62 */
 
@@ -409,6 +420,16 @@ static int hf_bootp_option_sip_server_enc = -1;				/* 120 */
 static int hf_bootp_option_sip_server_name = -1;				/* 120 */
 static int hf_bootp_option_sip_server_address = -1;				/* 120 */
 static int hf_bootp_option_sip_server_address_stringz = -1;		/* 120 */
+static int hf_bootp_option_classless_static_route = -1;			/* 120 */
+static int hf_bootp_option_rfc3825_error = -1;					/* 123 */
+static int hf_bootp_option_rfc3825_latitude = -1;				/* 123 */
+static int hf_bootp_option_rfc3825_longitude = -1;				/* 123 */
+static int hf_bootp_option_rfc3825_latitude_res = -1;			/* 123 */
+static int hf_bootp_option_rfc3825_longitude_res = -1;			/* 123 */
+static int hf_bootp_option_rfc3825_altitude = -1;				/* 123 */
+static int hf_bootp_option_rfc3825_altitide_res = -1;			/* 123 */
+static int hf_bootp_option_rfc3825_altitude_type = -1;			/* 123 */
+static int hf_bootp_option_rfc3825_map_datum = -1;				/* 123 */
 static int hf_bootp_option_cl_dss_id_option = -1;			/* 123 CL */
 static int hf_bootp_option_cl_dss_id_len = -1;				/* 123 CL */
 static int hf_bootp_option_cl_dss_id = -1;				/* 123 CL */
@@ -450,8 +471,15 @@ static int hf_bootp_option_end = -1;					/* 255 */
 static int hf_bootp_option_end_overload = -1;				/* 255 (with overload)*/
 static int hf_bootp_vendor_unknown_suboption = -1;
 static int hf_bootp_suboption_data = -1;
+static int hf_bootp_pc_ietf_ccc_suboption = -1;
+static int hf_bootp_pc_i05_ccc_suboption = -1;
 
-
+static int hf_bootp_cl_ietf_ccc_dev_realm_unc_key_nom_timeout = -1;
+static int hf_bootp_cl_ietf_ccc_dev_realm_unc_key_max_timeout = -1;
+static int hf_bootp_cl_ietf_ccc_dev_realm_unc_key_max_retries = -1;
+static int hf_bootp_cl_ietf_ccc_dev_prov_unc_key_nom_timeout = -1;
+static int hf_bootp_cl_ietf_ccc_dev_prov_unc_key_max_timeout = -1;
+static int hf_bootp_cl_ietf_ccc_dev_prov_unc_key_max_retries = -1;
 
 static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
@@ -465,8 +493,12 @@ static gint ett_bootp_option125_suboption = -1;
 static gint ett_bootp_option125_tr111_suboption = -1;
 static gint ett_bootp_option125_cl_suboption = -1;
 static gint ett_bootp_fqdn = -1;
+static gint ett_bootp_fqdn_flags = -1;
+static gint ett_bootp_filename_option = -1;
+static gint ett_bootp_server_hostname = -1;
 
 static expert_field ei_bootp_bad_length = EI_INIT;
+static expert_field ei_bootp_bad_bitfield = EI_INIT;
 static expert_field ei_bootp_missing_subopt_length = EI_INIT;
 static expert_field ei_bootp_missing_subopt_value = EI_INIT;
 static expert_field ei_bootp_mal_duid = EI_INIT;
@@ -484,6 +516,9 @@ static expert_field ei_bootp_option82_vi_cl_tag_unknown = EI_INIT;
 static expert_field ei_bootp_suboption_invalid = EI_INIT;
 static expert_field ei_bootp_secs_le = EI_INIT;
 static expert_field ei_bootp_end_option_missing = EI_INIT;
+static expert_field ei_bootp_client_address_not_given = EI_INIT;
+static expert_field ei_bootp_server_name_overloaded_by_dhcp = EI_INIT;
+static expert_field ei_bootp_boot_filename_overloaded_by_dhcp = EI_INIT;
 
 static dissector_handle_t bootp_handle;
 
@@ -795,7 +830,7 @@ static int dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, 
 					    tvbuff_t *tvb, int optoff, int optend);
 static int bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 					    tvbuff_t *tvb, int optoff, int optend);
-static void dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb,
+static void dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tvb,
 					int voff, int len);
 static void dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb,
 				  int voff, int len, gboolean opt125);
@@ -1722,8 +1757,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		if (voff > VENDOR_INFO_OFFSET && byte >= 1 && byte <= 3) {
 			if (byte & OPT_OVERLOAD_FILE) {
 				proto_item *oti;
-				oti = proto_tree_add_text (bp_tree, tvb,
-					FILE_NAME_OFFSET, FILE_NAME_LEN,
+				proto_tree_add_subtree(bp_tree, tvb,
+					FILE_NAME_OFFSET, FILE_NAME_LEN, ett_bootp_filename_option, &oti,
 					"Boot file name option overload");
 				o52voff = FILE_NAME_OFFSET;
 				o52eoff = FILE_NAME_OFFSET + FILE_NAME_LEN;
@@ -1743,8 +1778,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			}
 			if (byte & OPT_OVERLOAD_SNAME) {
 				proto_item *oti;
-				oti = proto_tree_add_text (bp_tree, tvb,
-					SERVER_NAME_OFFSET, SERVER_NAME_LEN,
+				proto_tree_add_subtree(bp_tree, tvb,
+					SERVER_NAME_OFFSET, SERVER_NAME_LEN, ett_bootp_server_hostname, &oti,
 					"Server host name option overload");
 				o52voff = SERVER_NAME_OFFSET;
 				o52eoff = SERVER_NAME_OFFSET + SERVER_NAME_LEN;
@@ -1801,7 +1836,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			(tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP20,
 				      (int)strlen(PACKETCABLE_MTA_CAP20)) == 0))
 		{
-			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
+			dissect_packetcable_mta_cap(v_tree, pinfo, tvb, optoff, optlen);
 		} else
 			if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP11,
 				(int)strlen(PACKETCABLE_CM_CAP11)) == 0)
@@ -1814,8 +1849,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP30,
 				(int)strlen(PACKETCABLE_CM_CAP30)) == 0 )
 		{
-			proto_tree_add_text(v_tree, tvb, optoff, optlen,
-				"vendor-class-data: \"%s\"", tvb_format_stringzpad(tvb, optoff, optlen));
+			proto_tree_add_item(v_tree, hf_bootp_option_vendor_class_data, tvb, optoff, optlen, ENC_ASCII|ENC_NA);
 		}
 		break;
 
@@ -1844,8 +1878,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 					hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
 					ENC_NA);
 			else
-				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
-					"Client hardware address: %s",
+				proto_tree_add_string(v_tree, hf_bootp_client_hardware_address, tvb, optoff+1, 6,
 					tvb_arphrdaddr_to_str(tvb, optoff+1, 6, byte));
 		} else if (optlen == 17 && byte == 0) {
 			/* Identifier is a UUID */
@@ -1858,20 +1891,14 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		} else if (byte == 255) {
 			guint16	duidtype;
 			guint16	hwtype;
-			guint8	*buf;
-			int	enterprise;
 
 			/*	The type field is immediately followed by the IAID, which is
 				an opaque 32-bit quantity	*/
-			proto_tree_add_text(v_tree, tvb, optoff+1, 4,
-				"IAID: %s",
+			proto_tree_add_string(v_tree, hf_bootp_client_id_iaid, tvb, optoff+1, 4,
 				tvb_arphrdaddr_to_str(tvb, optoff+1, 4, byte));
 			optoff = optoff + 5;
 			duidtype = tvb_get_ntohs(tvb, optoff);
-			proto_tree_add_text(v_tree, tvb, optoff, 2,
-					    "DUID type: %s (%u)",
-					    val_to_str_const(duidtype, duidtype_vals, "Unknown"),
-					    duidtype);
+			proto_tree_add_item(v_tree, hf_bootp_client_id_duid_type, tvb, optoff, 2, ENC_BIG_ENDIAN);
 			switch (duidtype) {
 			case DUID_LLT:
 				if (optlen < 8) {
@@ -1883,12 +1910,10 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 						tvb, optoff + 2, 2, ENC_BIG_ENDIAN);
 
 				/* XXX seconds since Jan 1 2000 */
-				proto_tree_add_text(v_tree, tvb, optoff + 4, 4,
-					"Time: %u", tvb_get_ntohl(tvb, optoff + 4));
+				proto_tree_add_item(v_tree, hf_bootp_client_identifier_time, tvb, optoff + 4, 4, ENC_BIG_ENDIAN);
 				if (optlen > 8) {
-					proto_tree_add_text(v_tree, tvb, optoff + 8,
-						optlen - 13, "Link-layer address: %s",
-						tvb_arphrdaddr_to_str(tvb, optoff+8, optlen-13, hwtype));
+					proto_tree_add_string(v_tree, hf_bootp_client_identifier_link_layer_address, tvb, optoff + 8,
+						optlen - 13, tvb_arphrdaddr_to_str(tvb, optoff+8, optlen-13, hwtype));
 				}
 				break;
 			case DUID_EN:
@@ -1896,15 +1921,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 					expert_add_info(pinfo, vti, &ei_bootp_mal_duid);
 					break;
 				}
-				enterprise = tvb_get_ntohl(tvb, optoff+2);
-				proto_tree_add_text(v_tree, tvb, optoff + 2, 4,
-					    "Enterprise-number: %s (%u)",
-					    val_to_str_ext_const( enterprise, &sminmpec_values_ext, "Unknown"),
-					    enterprise);
+				proto_tree_add_item(v_tree, hf_bootp_client_identifier_enterprise_num, tvb, optoff + 2, 4, ENC_BIG_ENDIAN);
 				if (optlen > 6) {
-						buf = tvb_bytes_to_str(wmem_packet_scope(), tvb, optoff + 6, optlen - 11);
-					proto_tree_add_text(v_tree, tvb, optoff + 6,
-						optlen - 11, "identifier: %s", buf);
+					proto_tree_add_item(v_tree, hf_bootp_client_identifier, tvb, optoff + 6, optlen - 11, ENC_NA);
 				}
 				break;
 			case DUID_LL:
@@ -1917,9 +1936,8 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 						tvb, optoff + 2, 2, ENC_BIG_ENDIAN);
 
 				if (optlen > 4) {
-					proto_tree_add_text(v_tree, tvb, optoff + 4,
-						optlen - 9, "Link-layer address: %s",
-						tvb_arphrdaddr_to_str(tvb, optoff+4, optlen-9, hwtype));
+					proto_tree_add_string(v_tree, hf_bootp_client_identifier_link_layer_address, tvb, optoff + 4,
+						optlen - 9, tvb_arphrdaddr_to_str(tvb, optoff+4, optlen-9, hwtype));
 				}
 				break;
 			}
@@ -1989,8 +2007,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 					hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
 					ENC_NA);
 			else
-				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
-					"Client hardware address: %s",
+				proto_tree_add_string(v_tree, hf_bootp_client_hardware_address, tvb, optoff+1, 6,
 					tvb_arphrdaddr_to_str(tvb, optoff+1, 6, byte));
 		} else if (optlen == 17 && byte == 0) {
 			/* Identifier is a UUID */
@@ -2044,17 +2061,25 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 		break;
 
 	case 81:	/* Client Fully Qualified Domain Name */
+		{
+		static const int * fqdn_hf_flags[] = {
+			&hf_bootp_fqdn_mbz,
+			&hf_bootp_fqdn_n,
+			&hf_bootp_fqdn_e,
+			&hf_bootp_fqdn_o,
+			&hf_bootp_fqdn_s,
+			NULL
+		};
+
 		if (optlen < 3) {
 			expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't >= 3");
 			break;
 		}
+
 		fqdn_flags = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "Flags: 0x%02x", fqdn_flags);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_mbz, tvb, optoff, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_n, tvb, optoff, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_e, tvb, optoff, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_o, tvb, optoff, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(v_tree, hf_bootp_fqdn_s, tvb, optoff, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_bitmask(v_tree, tvb, optoff, hf_bootp_fqdn_flags,
+					ett_bootp_fqdn_flags, fqdn_hf_flags, ENC_BIG_ENDIAN);
+
 		/* XXX: use code from packet-dns for return code decoding */
 		proto_tree_add_item(v_tree, hf_bootp_fqdn_rcode1, tvb, optoff+1, 1, ENC_BIG_ENDIAN);
 		/* XXX: use code from packet-dns for return code decoding */
@@ -2068,6 +2093,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
 				    tvb, optoff+3, optlen-3, ENC_ASCII|ENC_NA);
 			}
+		}
 		}
 		break;
 
@@ -2439,9 +2465,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 				break;
 			}
 			significant_octets = (mask_width + 7) / 8;
-			vti = proto_tree_add_text(v_tree, tvb, optoff,
-				1 + significant_octets + 4,
-				"Subnet/MaskWidth-Router: ");
+			vti = proto_tree_add_bytes_format(v_tree, hf_bootp_option_classless_static_route, tvb, optoff,
+				1 + significant_octets + 4, NULL,
+				" ");
 			optoff++;
 			/* significant octets + router(4) */
 			if (optend < optoff + significant_octets + 4) {
@@ -2484,16 +2510,17 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			i = rfc3825_fixpoint_to_decimal(&location_fp, &location);
 
 			if (i != RFC3825_NOERROR) {
-				proto_tree_add_text(v_tree, tvb, optoff, optlen, "Error: %s", val_to_str_const(i, rfc3825_error_types, "Unknown"));
+				ti = proto_tree_add_uint(v_tree, hf_bootp_option_rfc3825_error, tvb, optoff, 1, i);
+                proto_item_set_len(ti, optlen);
 			} else {
-				proto_tree_add_text(v_tree, tvb, optoff, 5, "Latitude: %15.10f", location.latitude);
-				proto_tree_add_text(v_tree, tvb, optoff+5, 5, "Longitude: %15.10f", location.longitude);
-				proto_tree_add_text(v_tree, tvb, optoff, 1, "Latitude resolution: %15.10f", location.latitude_res);
-				proto_tree_add_text(v_tree, tvb, optoff+5, 1, "Longitude resolution: %15.10f", location.longitude_res);
-				proto_tree_add_text(v_tree, tvb, optoff+12, 4, "Altitude: %15.10f", location.altitude);
-				proto_tree_add_text(v_tree, tvb, optoff+10, 2, "Altitude resolution: %15.10f", location.altitude_res);
-				proto_tree_add_text(v_tree, tvb, optoff+10, 1, "Altitude type: %s (%d)", val_to_str_const(location.altitude_type, altitude_type_values, "Unknown"), location.altitude_type);
-				proto_tree_add_text(v_tree, tvb, optoff+15, 1, "Map Datum: %s (%d)", val_to_str_const(location.datum_type, map_datum_type_values, "Unknown"), location.datum_type);
+				proto_tree_add_double_format_value(v_tree, hf_bootp_option_rfc3825_latitude, tvb, optoff, 5, location.latitude, "%15.10f", location.latitude);
+				proto_tree_add_double_format_value(v_tree, hf_bootp_option_rfc3825_longitude, tvb, optoff+5, 5, location.longitude, "%15.10f", location.longitude);
+				proto_tree_add_double_format_value(v_tree, hf_bootp_option_rfc3825_latitude_res, tvb, optoff, 1, location.latitude_res, "%15.10f", location.latitude_res);
+				proto_tree_add_double_format_value(v_tree, hf_bootp_option_rfc3825_longitude_res, tvb, optoff+5, 1, location.longitude_res, "%15.10f", location.longitude_res);
+				proto_tree_add_double_format_value(v_tree, hf_bootp_option_rfc3825_altitude, tvb, optoff+12, 4, location.altitude, "%15.10f", location.altitude);
+				proto_tree_add_double_format_value(v_tree, hf_bootp_option_rfc3825_altitide_res, tvb, optoff+10, 2, location.altitude_res, "%15.10f", location.altitude_res);
+				proto_tree_add_uint(v_tree, hf_bootp_option_rfc3825_altitude_type, tvb, optoff+10, 1, location.altitude_type);
+				proto_tree_add_uint(v_tree, hf_bootp_option_rfc3825_map_datum, tvb, optoff+15, 1, location.datum_type);
 			}
 		} else if (optlen < 69) { /* CableLabs DSS_ID */
 
@@ -3885,55 +3912,37 @@ static const value_string pkt_mdc_mib_orgs[] = {
 	{ 0,		NULL }
 };
 
-static const value_string pkt_mdc_supp_flow_vals[] = {
-	{ 1 << 0, "Secure Flow (Full Secure Provisioning Flow)" },
-	{ 1 << 1, "Hybrid Flow" },
-	{ 1 << 2, "Basic Flow" },
-	{ 0, NULL }
-};
+static int hf_bootp_pkt_mdc_supp_flow_secure = -1;
+static int hf_bootp_pkt_mdc_supp_flow_hybrid = -1;
+static int hf_bootp_pkt_mdc_supp_flow_basic = -1;
 
 #define PKT_MDC_MIB_CL 0x3030
-static const value_string pkt_mdc_cl_mib_vals[] = {
-	{ 1 << 0, "PacketCable 1.5 MTA MIB" },
-	{ 1 << 1, "PacketCable 1.5 Signaling MIB" },
-	{ 1 << 2, "PacketCable 1.5 Management Event MIB" },
-	{ 1 << 3, "PacketCable 1.5 MTA Extension MIB" },
-	{ 1 << 4, "PacketCable 1.5 Signaling Extension MIB" },
-	{ 1 << 5, "PacketCable 1.5 MEM Extension MIB" },
-	{ 1 << 6, "Reserved" },
-	{ 1 << 7, "Reserved" },
-	{ 0, NULL }
-};
+static int hf_bootp_pkt_mdc_mib_cl_mta = -1;
+static int hf_bootp_pkt_mdc_mib_cl_signaling = -1;
+static int hf_bootp_pkt_mdc_mib_cl_management_event = -1;
+static int hf_bootp_pkt_mdc_mib_cl_mta_extension = -1;
+static int hf_bootp_pkt_mdc_mib_cl_mta_signaling_extension = -1;
+static int hf_bootp_pkt_mdc_mib_cl_mta_mem_extention = -1;
+static int hf_bootp_pkt_mdc_mib_cl_reserved = -1;
 
 #define PKT_MDC_MIB_IETF 0x3031
-static const value_string pkt_mdc_ietf_mib_vals[] = {
-	{ 1 << 0, "IETF MTA MIB" },
-	{ 1 << 1, "IETF Signaling MIB" },
-	{ 1 << 2, "IETF Management Event MIB" },
-	{ 1 << 3, "Reserved" },
-	{ 1 << 4, "Reserved" },
-	{ 1 << 5, "Reserved" },
-	{ 1 << 6, "Reserved" },
-	{ 1 << 7, "Reserved" },
-	{ 0, NULL }
-};
+static int hf_bootp_pkt_mdc_mib_ietf_mta = -1;
+static int hf_bootp_pkt_mdc_mib_ietf_signaling = -1;
+static int hf_bootp_pkt_mdc_mib_ietf_management_event = -1;
+static int hf_bootp_pkt_mdc_mib_ietf_reserved = -1;
 
 #define PKT_MDC_MIB_EURO 0x3032
-static const value_string pkt_mdc_euro_mib_vals[] = {
-	{ 1 << 0, "PacketCable 1.5 MTA MIB" },
-	{ 1 << 1, "PacketCable 1.5 Signaling MIB" },
-	{ 1 << 2, "PacketCable 1.5 Management Event MIB" },
-	{ 1 << 3, "PacketCable 1.5 MTA Extension MIB" },
-	{ 1 << 4, "PacketCable 1.5 Signaling Extension MIB" },
-	{ 1 << 5, "PacketCable 1.5 MEM Extension MIB" },
-	{ 1 << 6, "Reserved" },
-	{ 1 << 7, "Reserved" },
-	{ 0, NULL }
-};
+static int hf_bootp_pkt_mdc_mib_euro_mta = -1;
+static int hf_bootp_pkt_mdc_mib_euro_signaling = -1;
+static int hf_bootp_pkt_mdc_mib_euro_management_event = -1;
+static int hf_bootp_pkt_mdc_mib_euro_mta_extension = -1;
+static int hf_bootp_pkt_mdc_mib_euro_mta_signaling_extension = -1;
+static int hf_bootp_pkt_mdc_mib_euro_mta_mem_extention = -1;
+static int hf_bootp_pkt_mdc_mib_euro_reserved = -1;
 
 
 static void
-dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
+dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tvb, int voff, int len)
 {
 	guint16	       raw_val;
 	unsigned long  flow_val	  = 0;
@@ -3941,13 +3950,12 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	int	       subopt_off, max_len;
 	guint	       tlv_len, i, mib_val;
 	guint8	       asc_val[3] = "  ", flow_val_str[5];
-	char	       bit_fld[64];
 	proto_item    *ti, *mib_ti;
 	proto_tree    *subtree, *subtree2;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
 	if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len > 0xff) {
-		proto_tree_add_text(v_tree, tvb, off, len - off,
+		proto_tree_add_expert_format(v_tree, pinfo, &ei_bootp_bad_length, tvb, off, len - off,
 			"Bogus length: %s", asc_val);
 		return;
 	} else {
@@ -3963,17 +3971,17 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
 			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1
 			    || tlv_len < 1 || tlv_len > G_MAXUINT16) {
-				proto_tree_add_text(v_tree, tvb, off, len - off,
-						    "[Bogus length: %s]", asc_val);
+				proto_tree_add_expert_format(v_tree, pinfo, &ei_bootp_bad_length, tvb, off, len - off,
+						    "Bogus length: %s", asc_val);
 				return;
 			} else {
 				/* Value(s) */
 
-				ti = proto_tree_add_text(v_tree,
-				    tvb, off, (tlv_len * 2) + 4,
-				    "0x%s: %s = ",
+				ti = proto_tree_add_uint_format(v_tree, hf_bootp_pkt_mta_cap_type,
+				    tvb, off, 2, raw_val, "0x%s: %s = ",
 				    tvb_format_text(tvb, off, 2),
 				    val_to_str_const(raw_val, pkt_mdc_type_vals, "unknown"));
+                proto_item_set_len(ti, (tlv_len * 2) + 4);
 				switch (raw_val) {
 
 				case PKT_MDC_VERSION:
@@ -4070,13 +4078,9 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 			}
 			subtree = proto_item_add_subtree(ti, ett_bootp_option);
 			if (raw_val == PKT_MDC_PROV_FLOWS) {
-				for (i = 0 ; i < 3; i++) {
-					if (flow_val & pkt_mdc_supp_flow_vals[i].value) {
-						decode_bitfield_value(bit_fld, (guint32)flow_val, pkt_mdc_supp_flow_vals[i].value, 16);
-						proto_tree_add_text(subtree, tvb, off + 4, 4, "%s%s",
-							bit_fld, pkt_mdc_supp_flow_vals[i].strptr);
-					}
-				}
+				proto_tree_add_boolean(subtree, hf_bootp_pkt_mdc_supp_flow_secure, tvb, off + 4, 4, flow_val);
+				proto_tree_add_boolean(subtree, hf_bootp_pkt_mdc_supp_flow_hybrid, tvb, off + 4, 4, flow_val);
+				proto_tree_add_boolean(subtree, hf_bootp_pkt_mdc_supp_flow_basic, tvb, off + 4, 4, flow_val);
 			} else if (raw_val == PKT_MDC_MIBS) {
 			/* 17 06 02 00 38 02 01 07 */
 				subopt_off = off + 4;
@@ -4085,8 +4089,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					raw_val = tvb_get_ntohs(tvb, subopt_off);
 					if (raw_val != 0x3032) { /* We only know how to handle a length of 2 */
 						tvb_memcpy(tvb, asc_val, subopt_off, 2);
-						proto_tree_add_text(subtree, tvb, subopt_off, 2,
-									"[Bogus length: %s]", asc_val);
+						proto_tree_add_expert_format(subtree, pinfo, &ei_bootp_bad_length, tvb, subopt_off, 2,
+									"Bogus length: %s", asc_val);
 						return;
 					}
 
@@ -4105,41 +4109,37 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					subopt_off += 2;
 					tvb_memcpy(tvb, asc_val, subopt_off, 2);
 					if (sscanf((gchar*)asc_val, "%x", &mib_val) != 1) {
-						proto_tree_add_text(v_tree, tvb, subopt_off, 2,
-									"[Bogus bitfield: %s]", asc_val);
+						proto_tree_add_expert_format(v_tree, pinfo, &ei_bootp_bad_bitfield, tvb, subopt_off, 2,
+									"Bogus bitfield: %s", asc_val);
 						return;
 					}
 					switch (raw_val) {
 
 					case PKT_MDC_MIB_CL:
-
-						for (i = 0; i < 8; i++) {
-							if (mib_val & pkt_mdc_cl_mib_vals[i].value) {
-								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_cl_mib_vals[i].value, 8);
-								proto_tree_add_text(subtree2, tvb, subopt_off, 2,
-										    "%s%s", bit_fld, pkt_mdc_cl_mib_vals[i].strptr);
-							}
-						}
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_mta, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_signaling, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_management_event, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_mta_extension, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_mta_signaling_extension, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_cl_mta_mem_extention, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_uint(subtree2, hf_bootp_pkt_mdc_mib_cl_reserved, tvb, subopt_off, 2, mib_val);
 						break;
 
 					case PKT_MDC_MIB_IETF:
-						for (i = 0; i < 8; i++) {
-							if (mib_val & pkt_mdc_ietf_mib_vals[i].value) {
-								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_ietf_mib_vals[i].value, 8);
-								proto_tree_add_text(subtree2, tvb, subopt_off, 2,
-										    "%s%s", bit_fld, pkt_mdc_ietf_mib_vals[i].strptr);
-							}
-						}
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_ietf_mta, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_ietf_signaling, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_ietf_management_event, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_uint(subtree2, hf_bootp_pkt_mdc_mib_ietf_reserved, tvb, subopt_off, 2, mib_val);
 						break;
 
 					case PKT_MDC_MIB_EURO:
-						for (i = 0; i < 8; i++) {
-							if (mib_val & pkt_mdc_euro_mib_vals[i].value) {
-								decode_bitfield_value(bit_fld, mib_val, pkt_mdc_euro_mib_vals[i].value, 8);
-								proto_tree_add_text(subtree2, tvb, subopt_off, 2,
-										    "%s%s", bit_fld, pkt_mdc_euro_mib_vals[i].strptr);
-							}
-						}
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_mta, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_signaling, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_management_event, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_mta_extension, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_mta_signaling_extension, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_boolean(subtree2, hf_bootp_pkt_mdc_mib_euro_mta_mem_extention, tvb, subopt_off, 2, mib_val);
+						proto_tree_add_uint(subtree2, hf_bootp_pkt_mdc_mib_euro_reserved, tvb, subopt_off, 2, mib_val);
 						break;
 
 					default:
@@ -4268,13 +4268,10 @@ static const value_string docsis_cm_cap_privacy_vals[] = {
 	{ 0,		NULL }
 };
 
-static const value_string docsis_cm_cap_ranging_hold_off_vals[] = {
-	{ 1 << 0, "CM" },
-	{ 1 << 1, "ePS or eRouter" },
-	{ 1 << 2, "EMTA or EDVA" },
-	{ 1 << 3, "DSG/eSTB" },
-	{ 0, NULL }
-};
+static int hf_bootp_docsis_cm_cap_ranging_hold_off_cm = -1;
+static int hf_bootp_docsis_cm_cap_ranging_hold_off_eps = -1;
+static int hf_bootp_docsis_cm_cap_ranging_hold_off_emta = -1;
+static int hf_bootp_docsis_cm_cap_ranging_hold_off_dsg = -1;
 
 static const value_string docsis_cm_cap_l2vpn_vals[] = {
 	{ 0x00,	"CM not compliant with DOCSIS L2VPN Section 7 (default)" },
@@ -4288,34 +4285,31 @@ static const value_string docsis_cm_cap_filt_vals[] = {
 	{ 0,		NULL }
 };
 
-static const value_string docsis_cm_cap_mpls_vals[] = {
-	{ 1 << 0,	"[IEEE 802.1ad] S-TPID" },
-	{ 1 << 1,	"[IEEE 802.1ad] S-VID" },
-	{ 1 << 2,	"[IEEE 802.1ad] S-PCP" },
-	{ 1 << 3, "[IEEE 802.1ad] S-DEI" },
-	{ 1 << 4,	"[IEEE 802.1ad] C-TPID" },
-	{ 1 << 5,	"[IEEE 802.1ad] C-VID" },
-	{ 1 << 6,	"[IEEE 802.1ad] C-PCP" },
-	{ 1 << 7,	"[IEEE 802.1ad] C-CFI" },
-	{ 1 << 8,	"[IEEE 802.1ad] S-TCI" },
-	{ 1 << 9,	"[IEEE 802.1ad] C-TCI" },
-	{ 1 << 10,	"[IEEE 802.1ah] I-TPID" },
-	{ 1 << 11,	"[IEEE 802.1ah] I-SID" },
-	{ 1 << 12,	"[IEEE 802.1ah] I-TCI" },
-	{ 1 << 13,	"[IEEE 802.1ah] I-PCP" },
-	{ 1 << 14,	"[IEEE 802.1ah] I-DEI" },
-	{ 1 << 15,	"[IEEE 802.1ah] I-UCA" },
-	{ 1 << 16,	"[IEEE 802.1ah] B-TPID" },
-	{ 1 << 17,	"[IEEE 802.1ah] B-TCI" },
-	{ 1 << 18,	"[IEEE 802.1ah] B-PCP" },
-	{ 1 << 19,	"[IEEE 802.1ah] B-DEI" },
-	{ 1 << 20,	"[IEEE 802.1ah] B-VID" },
-	{ 1 << 21,	"[IEEE 802.1ah] B-DA" },
-	{ 1 << 22,	"[IEEE 802.1ah] B-SA" },
-	{ 1 << 23,	"MPLS TC" },
-	{ 1 << 24,	"MPLS Label" },
-	{ 0,		NULL }
-};
+static int hf_bootp_docsis_cm_cap_mpls_stpid = -1;
+static int hf_bootp_docsis_cm_cap_mpls_svid = -1;
+static int hf_bootp_docsis_cm_cap_mpls_spcp = -1;
+static int hf_bootp_docsis_cm_cap_mpls_sdei = -1;
+static int hf_bootp_docsis_cm_cap_mpls_ctpid = -1;
+static int hf_bootp_docsis_cm_cap_mpls_cvid = -1;
+static int hf_bootp_docsis_cm_cap_mpls_cpcp = -1;
+static int hf_bootp_docsis_cm_cap_mpls_ccfi = -1;
+static int hf_bootp_docsis_cm_cap_mpls_stci = -1;
+static int hf_bootp_docsis_cm_cap_mpls_ctci = -1;
+static int hf_bootp_docsis_cm_cap_mpls_itpid = -1;
+static int hf_bootp_docsis_cm_cap_mpls_isid = -1;
+static int hf_bootp_docsis_cm_cap_mpls_itci = -1;
+static int hf_bootp_docsis_cm_cap_mpls_ipcp = -1;
+static int hf_bootp_docsis_cm_cap_mpls_idei = -1;
+static int hf_bootp_docsis_cm_cap_mpls_iuca = -1;
+static int hf_bootp_docsis_cm_cap_mpls_btpid = -1;
+static int hf_bootp_docsis_cm_cap_mpls_btci = -1;
+static int hf_bootp_docsis_cm_cap_mpls_bpcp = -1;
+static int hf_bootp_docsis_cm_cap_mpls_bdei = -1;
+static int hf_bootp_docsis_cm_cap_mpls_bvid = -1;
+static int hf_bootp_docsis_cm_cap_mpls_bda = -1;
+static int hf_bootp_docsis_cm_cap_mpls_bsa = -1;
+static int hf_bootp_docsis_cm_cap_mpls_tc = -1;
+static int hf_bootp_docsis_cm_cap_mpls_label = -1;
 
 static const value_string docsis_cm_cap_enrgmang_vals[] = {
 	{ 0x00,	"Energy Management 1x1 Feature" },
@@ -4362,15 +4356,12 @@ static const value_string docsis_cm_cap_map_l2vpn_esafe_index_support_vals[] = {
 	{ 0,		NULL }
 };
 
-static const value_string docsis_cm_cap_ussymrate_vals[] = {
-	{ 1 << 0, "160	ksps symbol rate supported" },
-	{ 1 << 1, "320	ksps symbol rate supported" },
-	{ 1 << 2, "640	ksps symbol rate supported" },
-	{ 1 << 3, "1280 ksps symbol rate supported" },
-	{ 1 << 4, "2560 ksps symbol rate supported" },
-	{ 1 << 5, "5120 ksps symbol rate supported" },
-	{ 0, NULL }
-};
+static int hf_bootp_docsis_cm_cap_ussymrate_160 = -1;
+static int hf_bootp_docsis_cm_cap_ussymrate_320 = -1;
+static int hf_bootp_docsis_cm_cap_ussymrate_640 = -1;
+static int hf_bootp_docsis_cm_cap_ussymrate_1280 = -1;
+static int hf_bootp_docsis_cm_cap_ussymrate_2560 = -1;
+static int hf_bootp_docsis_cm_cap_ussymrate_5120 = -1;
 
 static void
 display_uint_with_range_checking(proto_item *ti, guint8 val_byte, guint16 val_uint16, int min_value, int max_value)
@@ -4429,10 +4420,8 @@ static void
 dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboolean opt125)
 {
 	guint8	   *asc_val;
-	guint	    i;
 	proto_item *ti;
 	proto_tree *subtree;
-	char	    bit_fld[64];
 	guint8	    tlv_type;
 	guint8	    tlv_len;
 	guint8	    val_byte   = 0;
@@ -4686,37 +4675,49 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		subtree = proto_item_add_subtree(ti, ett_bootp_option);
 		if (tlv_type == DOCSIS_CM_CAP_RNGHLDOFF_SUP && tlv_len >= 4)
 		{
-			for (i = 0 ; i < 4; i++)
-			{
-				decode_bitfield_value(bit_fld,
-						      (val_other[2] << sizeof(guint8)) + val_other[3],
-						      docsis_cm_cap_ranging_hold_off_vals[i].value,
-						      16);
-				proto_tree_add_text(subtree, tvb, off + 2, 4, "%s%s",
-						    bit_fld, docsis_cm_cap_ranging_hold_off_vals[i].strptr);
-			}
+			val_uint16 = (val_other[2] << sizeof(guint8)) + val_other[3];
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ranging_hold_off_cm, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ranging_hold_off_eps, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ranging_hold_off_emta, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ranging_hold_off_dsg, tvb, off + 2, 4, val_uint16);
 		}
 		if (tlv_type == DOCSIS_CM_CAP_USSYMRATE_SUP)
 		{
-			for (i = 0 ; i < 6; i++)
-			{
-				decode_bitfield_value(bit_fld, val_byte,docsis_cm_cap_ussymrate_vals[i].value, 8);
-				proto_tree_add_text(subtree, tvb, off + 2, 1, "%s%s",
-						    bit_fld, docsis_cm_cap_ussymrate_vals[i].strptr);
-
-			}
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_160, tvb, off + 2, 1, val_byte);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_320, tvb, off + 2, 1, val_byte);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_640, tvb, off + 2, 1, val_byte);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_1280, tvb, off + 2, 1, val_byte);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_2560, tvb, off + 2, 1, val_byte);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_ussymrate_5120, tvb, off + 2, 1, val_byte);
 		}
 		if (tlv_type == DOCSIS_CM_CAP_Opt802MPLSSup && tlv_len >= 4)
 		{
-			for (i = 0 ; i < 25; i++)
-			{
-				decode_bitfield_value(bit_fld,
-						      (val_other[2] << sizeof(guint8)) + val_other[3],
-						      docsis_cm_cap_mpls_vals[i].value,
-						      32);
-				proto_tree_add_text(subtree, tvb, off + 2, 4, "%s%s",
-						    bit_fld, docsis_cm_cap_mpls_vals[i].strptr);
-			}
+			val_uint16 = (val_other[2] << sizeof(guint8)) + val_other[3];
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_stpid, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_svid, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_spcp, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_sdei, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_ctpid, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_cvid, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_cpcp, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_ccfi, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_stci, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_ctci, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_itpid, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_isid, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_itci, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_ipcp, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_idei, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_iuca, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_btpid, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_btci, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bpcp, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bdei, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bvid, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bda, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_bsa, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_tc, tvb, off + 2, 4, val_uint16);
+			proto_tree_add_boolean(subtree, hf_bootp_docsis_cm_cap_mpls_label, tvb, off + 2, 4, val_uint16);
 		}
 		if (opt125)
 		{
@@ -4808,9 +4809,9 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	subopt_len = tvb_get_guint8(tvb, optoff);
 	suboptoff++;
 
-	vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-		"Suboption %u: %s: ", subopt,
-		val_to_str_const(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
+	vti = proto_tree_add_uint(v_tree, hf_bootp_pc_i05_ccc_suboption, tvb, optoff, 1, subopt);
+	proto_item_set_len(vti, subopt_len + 2);
+	proto_item_append_text(vti, ": ");
 
 	switch (subopt) {
 
@@ -4866,15 +4867,9 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 				       subopt_len != 12 ? " [Invalid]" : "");
 		if (subopt_len == 12) {
 			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
-					    "pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u",
-					    tvb_get_ntohl(tvb, suboptoff));
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
-					    "pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u",
-					    tvb_get_ntohl(tvb, suboptoff + 4));
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
-					    "pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u",
-					    tvb_get_ntohl(tvb, suboptoff + 8));
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_realm_unc_key_nom_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_realm_unc_key_max_timeout, tvb, suboptoff + 4, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_realm_unc_key_max_retries, tvb, suboptoff + 8, 4, ENC_BIG_ENDIAN);
 		}
 		suboptoff += subopt_len;
 		break;
@@ -4889,15 +4884,9 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 				       subopt_len != 12 ? " [Invalid]" : "");
 		if (subopt_len == 12) {
 			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
-					    "pktcMtaDevProvUnsolicitedKeyNomTimeout: %u",
-					    tvb_get_ntohl(tvb, suboptoff));
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
-					    "pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u",
-					    tvb_get_ntohl(tvb, suboptoff + 4));
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
-					    "pktcMtaDevProvUnsolicitedKeyMaxRetries: %u",
-					    tvb_get_ntohl(tvb, suboptoff + 8));
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_prov_unc_key_nom_timeout, tvb, suboptoff + 8, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_prov_unc_key_max_timeout, tvb, suboptoff + 8, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_prov_unc_key_max_retries, tvb, suboptoff + 8, 4, ENC_BIG_ENDIAN);
 		}
 		suboptoff += subopt_len;
 		break;
@@ -4925,12 +4914,8 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	return suboptoff;
 }
 
-
-static const value_string sec_tcm_vals[] = {
-	{ 1 << 0, "PacketCable Provisioning Server" },
-	{ 1 << 1, "All PacketCable Call Management Servers" },
-	{ 0, NULL }
-};
+static int hf_bootp_ccc_ietf_sec_tkt_pc_provision_server = -1;
+static int hf_bootp_ccc_ietf_sec_tkt_all_pc_call_management = -1;
 
 static int
 dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
@@ -4942,9 +4927,8 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	guint16	      sec_tcm;
 	proto_tree   *pkt_s_tree;
 	proto_item   *vti;
-	int	      max_timer_val = 255, i;
+	int	      max_timer_val = 255;
 	const guchar *dns_name;
-	char	      bit_fld[24];
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -4957,9 +4941,9 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
 
-	vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
-	    "Suboption %u: %s: ", subopt,
-	    val_to_str_const(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
+	vti = proto_tree_add_uint(v_tree, hf_bootp_pc_ietf_ccc_suboption, tvb, optoff, 1, subopt);
+	proto_item_set_len(vti, subopt_len + 2);
+	proto_item_append_text(vti, ": ");
 
 	switch (subopt) {
 
@@ -5024,15 +5008,9 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				       subopt_len != 12 ? " [Invalid]" : "");
 		if (subopt_len == 12) {
 			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
-					    "pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u",
-					    tvb_get_ntohl(tvb, suboptoff));
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
-					    "pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u",
-					    tvb_get_ntohl(tvb, suboptoff + 4));
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
-					    "pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u",
-					    tvb_get_ntohl(tvb, suboptoff + 8));
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_realm_unc_key_nom_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_realm_unc_key_max_timeout, tvb, suboptoff + 4, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_realm_unc_key_max_retries, tvb, suboptoff + 8, 4, ENC_BIG_ENDIAN);
 		}
 		suboptoff += subopt_len;
 		break;
@@ -5043,15 +5021,9 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				       subopt_len != 12 ? " [Invalid]" : "");
 		if (subopt_len == 12) {
 			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
-					    "pktcMtaDevProvUnsolicitedKeyNomTimeout: %u",
-					    tvb_get_ntohl(tvb, suboptoff));
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
-					    "pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u",
-					    tvb_get_ntohl(tvb, suboptoff + 4));
-			proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
-					    "pktcMtaDevProvUnsolicitedKeyMaxRetries: %u",
-					    tvb_get_ntohl(tvb, suboptoff + 8));
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_prov_unc_key_nom_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_prov_unc_key_max_timeout, tvb, suboptoff + 4, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(pkt_s_tree, hf_bootp_cl_ietf_ccc_dev_prov_unc_key_max_retries, tvb, suboptoff + 8, 4, ENC_BIG_ENDIAN);
 		}
 		suboptoff += subopt_len;
 		break;
@@ -5104,13 +5076,8 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				       subopt_len != 2 ? " [Invalid]" : "");
 		if (subopt_len == 2) {
 			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			for (i = 0; i < 2; i++) {
-				if (sec_tcm & sec_tcm_vals[i].value) {
-					decode_bitfield_value(bit_fld, sec_tcm, sec_tcm_vals[i].value, 16);
-					proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 2, "%sInvalidate %s",
-							    bit_fld, sec_tcm_vals[i].strptr);
-				}
-			}
+			proto_tree_add_boolean(pkt_s_tree, hf_bootp_ccc_ietf_sec_tkt_pc_provision_server, tvb, suboptoff, 2, sec_tcm);
+			proto_tree_add_boolean(pkt_s_tree, hf_bootp_ccc_ietf_sec_tkt_all_pc_call_management, tvb, suboptoff, 2, sec_tcm);
 		}
 		suboptoff += subopt_len;
 		break;
@@ -5294,14 +5261,12 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if ((16 - hlen) > 0)
 			proto_tree_add_item(bp_tree, hf_bootp_hw_addr_padding, tvb, 28+hlen, 16-hlen, ENC_NA);
 	} else {
-		proto_tree_add_text(bp_tree,  tvb,
-					   28, 16, "Client address not given");
+		proto_tree_add_expert(bp_tree, pinfo, &ei_bootp_client_address_not_given, tvb, 28, 16);
 	}
 
 	if (overload & OPT_OVERLOAD_SNAME) {
-		proto_tree_add_text (bp_tree, tvb,
-			SERVER_NAME_OFFSET, SERVER_NAME_LEN,
-			"Server name option overloaded by DHCP");
+		proto_tree_add_expert(bp_tree, pinfo, &ei_bootp_server_name_overloaded_by_dhcp, tvb,
+			SERVER_NAME_OFFSET, SERVER_NAME_LEN);
 	} else {
 		/* The server host name is optional */
 		if (tvb_get_guint8(tvb, SERVER_NAME_OFFSET) != '\0') {
@@ -5318,9 +5283,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (overload & OPT_OVERLOAD_FILE) {
-		proto_tree_add_text (bp_tree, tvb,
-			FILE_NAME_OFFSET, FILE_NAME_LEN,
-			"Boot file name option overloaded by DHCP");
+		proto_tree_add_expert(bp_tree, pinfo, &ei_bootp_boot_filename_overloaded_by_dhcp, tvb,
+			FILE_NAME_OFFSET, FILE_NAME_LEN);
 	} else {
 		/* Boot file is optional */
 		if (tvb_get_guint8(tvb, FILE_NAME_OFFSET) != '\0') {
@@ -5347,8 +5311,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			voff, 4, ip_addr, "DHCP");
 		voff += 4;
 	} else {
-		proto_tree_add_text(bp_tree,  tvb,
-			voff, 64, "Bootp vendor specific options");
+		proto_tree_add_item(bp_tree, hf_bootp_vendor_specific_options, tvb,
+			voff, 64, ENC_NA);
 		voff += 64;
 	}
 
@@ -5511,6 +5475,11 @@ proto_register_bootp(void)
 		    FT_IPv4, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
+		{ &hf_bootp_vendor_specific_options,
+		  { "Bootp vendor specific options", "bootp.vendor_specific_options",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
 		{ &hf_bootp_fqdn_s,
 		  { "Server", "bootp.fqdn.s",
 		    FT_BOOLEAN, 8, TFS(&tfs_fqdn_s), F_FQDN_S,
@@ -5530,6 +5499,11 @@ proto_register_bootp(void)
 		  { "Server DDNS", "bootp.fqdn.n",
 		    FT_BOOLEAN, 8, TFS(&tfs_fqdn_n), F_FQDN_N,
 		    "If true, server should not do any DDNS updates", HFILL }},
+
+		{ &hf_bootp_fqdn_flags,
+		  { "Flags", "bootp.fqdn.flags",
+		    FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL }},
 
 		{ &hf_bootp_fqdn_mbz,
 		  { "Reserved flags", "bootp.fqdn.mbz",
@@ -5561,6 +5535,116 @@ proto_register_bootp(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "PacketCable MTA Device Capabilities Length", HFILL }},
 
+		{ &hf_bootp_pkt_mta_cap_type,
+		  { "Type", "bootp.vendor.pktc.mta_cap_type",
+		    FT_UINT8, BASE_DEC, VALS(pkt_mdc_type_vals), 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_supp_flow_secure,
+		  { "Secure Flow (Full Secure Provisioning Flow)", "bootp.vendor.pktc.mdc.supp_flow.secure",
+		    FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_supp_flow_hybrid,
+		  { "Hybrid Flow", "bootp.vendor.pktc.mdc.supp_flow.hybrid",
+		    FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x02,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_supp_flow_basic,
+		  { "Basic Flow", "bootp.vendor.pktc.mdc.supp_flow.basic",
+		    FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x04,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_cl_mta,
+		  { "PacketCable 1.5 MTA MIB", "bootp.vendor.pktc.mdc_cl.mib.mta",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_cl_signaling,
+		  { "PacketCable 1.5 Signaling MIB", "bootp.vendor.pktc.mdc_cl.mib.signaling",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_cl_management_event,
+		  { "PacketCable 1.5 Management Event MIB", "bootp.vendor.pktc.mdc_cl.mib.management_event",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_cl_mta_extension,
+		  { "PacketCable 1.5 MTA Extension MIB", "bootp.vendor.pktc.mdc_cl.mib.mta_extension",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_cl_mta_signaling_extension,
+		  { "PacketCable 1.5 Signaling Extension MIB", "bootp.vendor.pktc.mdc_cl.mib.signaling_extension",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_cl_mta_mem_extention,
+		  { "PacketCable 1.5 MEM Extension MIB", "bootp.vendor.pktc.mdc_cl.mib.mem_extention",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_cl_reserved,
+		  { "Reserved", "bootp.vendor.pktc.mdc_cl.mib.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0xC0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_ietf_mta,
+		  { "IETF MTA MIB", "bootp.vendor.pktc.mdc_ietf.mib.mta",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_ietf_signaling,
+		  { "IETF Signaling MIB", "bootp.vendor.pktc.mdc_ietf.mib.signaling",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_ietf_management_event,
+		  { "IETF Management Event MIB", "bootp.vendor.pktc.mdc_ietf.mib.management_event",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_ietf_reserved,
+		  { "Reserved", "bootp.vendor.pktc.mdc_ietf.mib.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0xF8,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_euro_mta,
+		  { "PacketCable 1.5 MTA MIB", "bootp.vendor.pktc.mdc_euro.mib.mta",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_euro_signaling,
+		  { "PacketCable 1.5 Signaling MIB", "bootp.vendor.pktc.mdc_euro.mib.signaling",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_euro_management_event,
+		  { "PacketCable 1.5 Management Event MIB", "bootp.vendor.pktc.mdc_euro.mib.management_event",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_euro_mta_extension,
+		  { "PacketCable 1.5 MTA Extension MIB", "bootp.vendor.pktc.mdc_euro.mib.mta_extension",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_euro_mta_signaling_extension,
+		  { "PacketCable 1.5 Signaling Extension MIB", "bootp.vendor.pktc.mdc_euro.mib.signaling_extension",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_euro_mta_mem_extention,
+		  { "PacketCable 1.5 MEM Extension MIB", "bootp.vendor.pktc.mdc_euro.mib.mem_extention",
+		    FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x20,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pkt_mdc_mib_euro_reserved,
+		  { "Reserved", "bootp.vendor.pktc.mdc_euro.mib.reserved",
+		    FT_UINT8, BASE_HEX, NULL, 0xC0,
+		    NULL, HFILL }},
+
 		{ &hf_bootp_docsis_cm_cap_len,
 		  { "CM DC Length", "bootp.vendor.docsis.cm_cap_len",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -5571,20 +5655,230 @@ proto_register_bootp(void)
 		    FT_UINT16, BASE_DEC, VALS(docsis_cm_cap_type_vals), 0x0,
 		    "Docsis Cable Modem Device Capability type", HFILL }},
 
+		{ &hf_bootp_docsis_cm_cap_ranging_hold_off_cm,
+		  { "CM", "bootp.docsis_cm_cap.ranging_hold_off.cm",
+		    FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ranging_hold_off_eps,
+		  { "ePS or eRouter", "bootp.docsis_cm_cap.ranging_hold_off.eps",
+		    FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x02,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ranging_hold_off_emta,
+		  { "EMTA or EDVA", "bootp.docsis_cm_cap.ranging_hold_off.emta",
+		    FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x04,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ranging_hold_off_dsg,
+		  { "DSG/eSTB", "bootp.docsis_cm_cap.ranging_hold_off.dsg",
+		    FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x08,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_stpid,
+		  { "[IEEE 802.1ad] S-TPID", "bootp.docsis_cm_cap.mpls.stpid",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_svid,
+		  { "[IEEE 802.1ad] S-VID", "bootp.docsis_cm_cap.mpls.svid",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x02,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_spcp,
+		  { "[IEEE 802.1ad] S-PCP", "bootp.docsis_cm_cap.mpls.spcp",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x04,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_sdei,
+		  { "[IEEE 802.1ad] S-DEI", "bootp.docsis_cm_cap.mpls.sdei",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x08,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_ctpid,
+		  { "[IEEE 802.1ad] C-TPID", "bootp.docsis_cm_cap.mpls.ctpid",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x10,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_cvid,
+		  { "[IEEE 802.1ad] C-VID", "bootp.docsis_cm_cap.mpls.cvid",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x20,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_cpcp,
+		  { "[IEEE 802.1ad] C-PCP", "bootp.docsis_cm_cap.mpls.cpcp",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x40,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_ccfi,
+		  { "[IEEE 802.1ad] C-CFI", "bootp.docsis_cm_cap.mpls.ccfi",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x80,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_stci,
+		  { "[IEEE 802.1ad] S-TCI", "bootp.docsis_cm_cap.mpls.stci",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x100,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_ctci,
+		  { "[IEEE 802.1ad] C-TCI", "bootp.docsis_cm_cap.mpls.ctci",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x200,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_itpid,
+		  { "[IEEE 802.1ad] I-TPID", "bootp.docsis_cm_cap.mpls.itpid",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x400,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_isid,
+		  { "[IEEE 802.1ad] I-SID", "bootp.docsis_cm_cap.mpls.isid",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x800,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_itci,
+		  { "[IEEE 802.1ad] I-TCI", "bootp.docsis_cm_cap.mpls.itci",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x1000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_ipcp,
+		  { "[IEEE 802.1ad] I-PCP", "bootp.docsis_cm_cap.mpls.ipcp",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x2000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_idei,
+		  { "[IEEE 802.1ad] I-DEI", "bootp.docsis_cm_cap.mpls.idei",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x4000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_iuca,
+		  { "[IEEE 802.1ad] I-UCA", "bootp.docsis_cm_cap.mpls.iuca",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x8000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_btpid,
+		  { "[IEEE 802.1ad] B-TPID", "bootp.docsis_cm_cap.mpls.btpid",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x10000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_btci,
+		  { "[IEEE 802.1ad] B-TCI", "bootp.docsis_cm_cap.mpls.btci",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x20000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_bpcp,
+		  { "[IEEE 802.1ad] B-PCP", "bootp.docsis_cm_cap.mpls.bpcp",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x40000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_bdei,
+		  { "[IEEE 802.1ad] B-DEI", "bootp.docsis_cm_cap.mpls.bdei",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x80000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_bvid,
+		  { "[IEEE 802.1ad] B-VID", "bootp.docsis_cm_cap.mpls.bvid",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x100000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_bda,
+		  { "[IEEE 802.1ad] B-DA", "bootp.docsis_cm_cap.mpls.bda",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x200000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_bsa,
+		  { "[IEEE 802.1ad] B-SA", "bootp.docsis_cm_cap.mpls.bsa",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x200000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_tc,
+		  { "MPLS TC", "bootp.docsis_cm_cap.mpls.tc",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x200000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_mpls_label,
+		  { "MPLS Label", "bootp.docsis_cm_cap.mpls.label",
+		    FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x200000,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ussymrate_160,
+		  { "160 ksps symbol rate", "bootp.docsis_cm_cap.ussymrate.160",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ussymrate_320,
+		  { "320 ksps symbol rate", "bootp.docsis_cm_cap.ussymrate.320",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ussymrate_640,
+		  { "640 ksps symbol rate", "bootp.docsis_cm_cap.ussymrate.640",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ussymrate_1280,
+		  { "1280 ksps symbol rate", "bootp.docsis_cm_cap.ussymrate.1280",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ussymrate_2560,
+		  { "2560 ksps symbol rate", "bootp.docsis_cm_cap.ussymrate.2560",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_docsis_cm_cap_ussymrate_5120,
+		  { "5120 ksps symbol rate", "bootp.docsis_cm_cap.ussymrate.5120",
+		    FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+		    NULL, HFILL }},
+
 		{ &hf_bootp_client_identifier_uuid,
-		  { "Client Identifier (UUID)", "bootp.client_id_uuid",
+		  { "Client Identifier (UUID)", "bootp.client_id.uuid",
 		    FT_GUID, BASE_NONE, NULL, 0x0,
 		    "Client Machine Identifier (UUID)", HFILL }},
 
+		{ &hf_bootp_client_hardware_address,
+		  { "Client hardware address", "bootp.client_hardware_address",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_client_id_iaid,
+		  { "IAID", "bootp.client_id.iaid",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_client_id_duid_type,
+		  { "DUID Type", "bootp.client_id.duid_type",
+		    FT_UINT16, BASE_DEC, VALS(duidtype_vals), 0x0,
+		    NULL, HFILL }},
+
 		{ &hf_bootp_client_identifier_duid_llt_hw_type,
-		  { "Hardware type", "bootp.client_id_duid_llt_hw_type",
+		  { "Hardware type", "bootp.client_id.duid_llt_hw_type",
 		    FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0x0,
 		    "Client Identifier DUID LLT Hardware type", HFILL }},
 
 		{ &hf_bootp_client_identifier_duid_ll_hw_type,
-		  { "Hardware type", "bootp.client_id_duid_ll_hw_type",
+		  { "Hardware type", "bootp.client_id.duid_ll_hw_type",
 		    FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0x0,
 		    "Client Identifier DUID LL Hardware type", HFILL }},
+
+		{ &hf_bootp_client_identifier_time,
+		  { "Time", "bootp.client_id.time",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_client_identifier_link_layer_address,
+		  { "Link layer address", "bootp.client_id.link_layer_address",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_client_identifier_enterprise_num,
+		  { "Enterprise-number", "bootp.client_id.iaid",
+		    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_client_identifier,
+		  { "Identifier", "bootp.client_id",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_bootp_option_type,
 		  { "Option", "bootp.option.type",
@@ -6255,6 +6549,11 @@ proto_register_bootp(void)
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 60: Vendor class identifier", HFILL }},
 
+		{ &hf_bootp_option_vendor_class_data,
+		  { "vendor-class-data", "bootp.option.vendor_class_data",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 60: Vendor class data", HFILL }},
+
 		{ &hf_bootp_option_novell_netware_ip_domain,
 		  { "Novell/Netware IP domain", "bootp.option.novell_netware_ip_domain",
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
@@ -6763,6 +7062,56 @@ proto_register_bootp(void)
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 120: SIP Server Address", HFILL }},
 
+		{ &hf_bootp_option_classless_static_route,
+		  { "Subnet/MaskWidth-Router", "bootp.option.classless_static_route.",
+		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    "Option 121: Subnet/MaskWidth-Router", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_error,
+		  { "Error", "bootp.option.rfc3825.error",
+		    FT_UINT8, BASE_DEC, VALS(rfc3825_error_types), 0x0,
+		    "Option 123: Error", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_latitude,
+		  { "Latitude", "bootp.option.rfc3825.latitude",
+		    FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		    "Option 123: Latitude", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_longitude,
+		  { "Longitude", "bootp.option.rfc3825.longitude",
+		    FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		    "Option 123: Longitude", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_latitude_res,
+		  { "Latitude resolution", "bootp.option.rfc3825.latitude_res",
+		    FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		    "Option 123: Latitude resolution", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_longitude_res,
+		  { "Longitude resolution", "bootp.option.rfc3825.longitude_res",
+		    FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		    "Option 123: Longitude resolution", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_altitude,
+		  { "Altitude", "bootp.option.rfc3825.altitude",
+		    FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		    "Option 123: Altitude", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_altitide_res,
+		  { "Altitude resolution", "bootp.option.rfc3825.altitide_res",
+		    FT_DOUBLE, BASE_NONE, NULL, 0x0,
+		    "Option 123: Altitude resolution", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_altitude_type,
+		  { "Altitude type", "bootp.option.rfc3825.altitude_type",
+		    FT_UINT8, BASE_DEC, VALS(altitude_type_values), 0x0,
+		    "Option 123: Altitude type", HFILL }},
+
+		{ &hf_bootp_option_rfc3825_map_datum,
+		  { "Map Datum", "bootp.option.cl_dss_id.option",
+		    FT_UINT8, BASE_DEC, VALS(map_datum_type_values), 0x0,
+		    "Option 123: Map Datum", HFILL }},
+
 		{ &hf_bootp_option_cl_dss_id_option,
 		  { "DSS_ID Type", "bootp.option.cl_dss_id.option",
 		    FT_UINT8, BASE_DEC, VALS(cl_dss_id_type_vals), 0x0,
@@ -6957,6 +7306,56 @@ proto_register_bootp(void)
 		  { "Data", "bootp.vendor.data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
+
+		{ &hf_bootp_pc_ietf_ccc_suboption,
+		  { "Suboption", "bootp.vendor.pc.ietf_ccc.suboption",
+		    FT_UINT8, BASE_DEC, VALS(pkt_draft5_ccc_opt_vals), 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_pc_i05_ccc_suboption,
+		  { "Suboption", "bootp.vendor.pc.i05_ccc.suboption",
+		    FT_UINT8, BASE_DEC, VALS(pkt_i05_ccc_opt_vals), 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_cl_ietf_ccc_dev_realm_unc_key_nom_timeout,
+		  { "pktcMtaDevRealmUnsolicitedKeyNomTimeout", "bootp.cl.ietf_ccc.dev_realm_unc_key_nom_timeout",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_cl_ietf_ccc_dev_realm_unc_key_max_timeout,
+		  { "pktcMtaDevRealmUnsolicitedKeyMaxTimeout", "bootp.cl.ietf_ccc.dev_realm_unc_key_max_timeout",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_cl_ietf_ccc_dev_realm_unc_key_max_retries,
+		  { "pktcMtaDevRealmUnsolicitedKeyMaxRetries", "bootp.cl.ietf_ccc.dev_realm_unc_key_max_retries",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_cl_ietf_ccc_dev_prov_unc_key_nom_timeout,
+		  { "pktcMtaDevProvUnsolicitedKeyNomTimeout", "bootp.cl.ietf_ccc.dev_prov_unc_key_nom_timeout",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_cl_ietf_ccc_dev_prov_unc_key_max_timeout,
+		  { "pktcMtaDevProvUnsolicitedKeyMaxTimeout", "bootp.cl.ietf_ccc.dev_prov_unc_key_max_timeout",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_cl_ietf_ccc_dev_prov_unc_key_max_retries,
+		  { "pktcMtaDevProvUnsolicitedKeyMaxRetries", "bootp.cl.ietf_ccc.dev_prov_unc_key_max_retries",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_ccc_ietf_sec_tkt_pc_provision_server,
+		  { "Invalidate PacketCable Provisioning Server", "bootp.ccc.ietf.sec_tkt.pc_provision_server",
+		    FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_ccc_ietf_sec_tkt_all_pc_call_management,
+		  { "Invalidate All PacketCable Call Management Servers", "bootp.ccc.ietf.sec_tkt.all_pc_call_management",
+		    FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x02,
+		    NULL, HFILL }},
 	};
 
 	static uat_field_t bootp_uat_flds[] = {
@@ -6979,10 +7378,14 @@ proto_register_bootp(void)
 		&ett_bootp_option125_tr111_suboption,
 		&ett_bootp_option125_cl_suboption,
 		&ett_bootp_fqdn,
+		&ett_bootp_filename_option,
+		&ett_bootp_server_hostname,
+		&ett_bootp_fqdn_flags,
 	};
 
 	static ei_register_info ei[] = {
 		{ &ei_bootp_bad_length, { "bootp.bad_length", PI_PROTOCOL, PI_ERROR, "length isn't 0", EXPFILL }},
+		{ &ei_bootp_bad_bitfield, { "bootp.bad_bitfield", PI_PROTOCOL, PI_ERROR, "Bogus bitfield", EXPFILL }},
 		{ &ei_bootp_missing_subopt_length, { "bootp.missing_subopt_length", PI_PROTOCOL, PI_ERROR, "no room left in option for suboption length", EXPFILL }},
 		{ &ei_bootp_missing_subopt_value, { "bootp.missing_subopt_value", PI_PROTOCOL, PI_ERROR, "no room left in option for suboption value", EXPFILL }},
 		{ &ei_bootp_mal_duid, { "bootp.malformed.duid", PI_PROTOCOL, PI_ERROR, "DUID: malformed option", EXPFILL }},
@@ -7000,6 +7403,9 @@ proto_register_bootp(void)
 		{ &ei_bootp_suboption_invalid, { "bootp.suboption_invalid", PI_PROTOCOL, PI_ERROR, "Invalid suboption", EXPFILL }},
 		{ &ei_bootp_secs_le, { "bootp.secs_le", PI_PROTOCOL, PI_NOTE, "Seconds elapsed appears to be encoded as little-endian", EXPFILL }},
 		{ &ei_bootp_end_option_missing, { "bootp.end_option_missing", PI_PROTOCOL, PI_ERROR, "End option missing", EXPFILL }},
+		{ &ei_bootp_client_address_not_given, { "bootp.client_address_not_given", PI_PROTOCOL, PI_NOTE, "Client address not given", EXPFILL }},
+		{ &ei_bootp_server_name_overloaded_by_dhcp, { "bootp.server_name_overloaded_by_dhcp", PI_PROTOCOL, PI_NOTE, "Server name option overloaded by DHCP", EXPFILL }},
+		{ &ei_bootp_boot_filename_overloaded_by_dhcp, { "bootp.boot_filename_overloaded_by_dhcp", PI_PROTOCOL, PI_NOTE, "Boot file name option overloaded by DHCP", EXPFILL }},
 	};
 
 	module_t *bootp_module;
