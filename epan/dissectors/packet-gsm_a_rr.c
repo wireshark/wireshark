@@ -8,6 +8,11 @@
  * and other enhancements and fixes.
  * Copyright 2005 - 2006, Anders Broman [AT] ericsson.com
  *
+ * Added Dissection of E-UTRAN Description struct in
+ * Cell selection indicator after release of all TCH and SDCCH IE
+ * Lars Sundstrom X [AT] ericsson.com and Kjell Jansson [AT] ericsson.com
+ * On Behalf of Ericsson AB
+ *
  * Title        3GPP            Other
  *
  *   Reference [3]
@@ -366,6 +371,7 @@ const value_string gsm_rr_rest_octets_elem_strings[] = {
     { 0, "Second Part Packet Assignment" },
     { 0, "REPORTING QUANTITY" },
     { 0, "E-UTRAN Measurement Report" },
+    { 0, "E-UTRAN Description" },
     { 0, NULL }
 };
 
@@ -970,6 +976,7 @@ static int hf_gsm_a_rr_eutran_fdd_reporting_offset_present = -1;
 static int hf_gsm_a_rr_repeated_csg_psc_split_struct = -1;
 static int hf_gsm_a_rr_gprs_eutran_measurement_parameters_description = -1;
 static int hf_gsm_a_rr_tdd_parameters = -1;
+static int hf_gsm_a_rr_repeat_eutran_desc = -1;
 
 /* gsm_rr_csn_HL_flag() fields */
 static int hf_gsm_a_rr_selection_parameters = -1;
@@ -1061,6 +1068,7 @@ static int hf_gsm_a_rr_eutran_priority = -1;
 static int hf_gsm_a_rr_thresh_eutran_high = -1;
 static int hf_gsm_a_rr_thresh_eutran_low = -1;
 static int hf_gsm_a_rr_eutran_qrxlevmin = -1;
+static int hf_gsm_a_rr_eutran_pcid_present = -1;
 static int hf_gsm_a_rr_eutran_pcid = -1;
 static int hf_gsm_a_rr_eutran_pcid_bitmap_group = -1;
 static int hf_gsm_a_rr_eutran_pcid_pattern_length = -1;
@@ -1157,6 +1165,7 @@ typedef enum
     DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT,
     DE_RR_REST_OCTETS_REPORTING_QUANTITY,
     DE_RR_REST_OCTETS_EUTRAN_MEASUREMENT_REPORT,
+    DE_RR_REST_OCTETS_EUTRAN_DESC,
     DE_RR_REST_OCTETS_NONE
 }
 rr_rest_octets_elem_idx_t;
@@ -1205,6 +1214,8 @@ static const true_false_string tfs_for_gprs_for_rr_connection_establishment = {"
 static const true_false_string tfs_3g_early_classmark_sending_restriction = {"The sending of UTRAN,CDMA2000 and GERAN IU MODE CLASSMARK CHANGE messages are controlled by the Early Classmark Sending Control parameter",
                                                                              "Neither UTRAN, CDMA2000 nor GERAN IU MODE CLASSMARK CHANGE message shall be sent with the Early classmark sending"};
 static const true_false_string tfs_supported_in_serving_cell_not_supported_in_serving_cell = {"Supported in Serving cell", "Not Supported in Serving cell"};
+
+static gint de_rr_eutran_not_allowed_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset);
 
 /* this function is used for dissecting the H/L presence flags in CSN.1 coded IEs"
    If truncation ( 44.018 section 8.9) is allowed, truncation_length is set to the actual bit length of the CSN.1 string,
@@ -1843,6 +1854,41 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         }
         proto_item_set_len(item,((bit_offset>>3) - (bit_offset_sav>>3) + 1));
         break;
+      case 3: /* E-UTRAN Description */
+
+        bit_offset_sav = bit_offset;
+        subtree = proto_tree_add_subtree(tree, tvb, bit_offset>>3, -1, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_DESC], &item,
+                                         gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_DESC].strptr);
+
+        while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_repeat_eutran_desc))
+        {
+            /* EARFCN */
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+            bit_offset += 16;
+
+            /* Measurement Bandwidth */
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_eutran_measurement_bandwidth_present))
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_bandwidth, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+                bit_offset += 3;
+            }
+
+            /* Repeated E-UTRAN Not Allowed Cells */
+            while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_repeated_eutran_not_allowed_cells))
+            {
+                bit_offset += de_rr_eutran_not_allowed_cells(tvb, subtree, bit_offset);
+            }
+
+            /* TARGET PCID */
+            if (gsm_rr_csn_flag(tvb, tree, bit_offset++, hf_gsm_a_rr_eutran_pcid_present))
+            {
+                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid, tvb, bit_offset, 9, ENC_BIG_ENDIAN);
+                bit_offset += 9;
+            }
+        }
+        proto_item_set_len(item,((bit_offset>>3) - (bit_offset_sav>>3) + 1));
+        break;
+
     default:
         break;
     }
@@ -8770,7 +8816,7 @@ dtap_rr_ch_rel(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     /* 62 Cell Channel Description Cell Channel Description 10.5.2.1b O TV 17 */
     ELEM_OPT_TV(0x62, GSM_A_PDU_TYPE_RR, DE_RR_CELL_CH_DSC, NULL);
 
-    /* 62 Cell selection indicator after release of all TCH and SDCCH 10.5.2.1e O TLV 4-? */
+    /* 77 Cell selection indicator after release of all TCH and SDCCH 10.5.2.1e O TLV 4-? */
     ELEM_OPT_TLV(0x77, GSM_A_PDU_TYPE_RR, DE_RR_CELL_SELECT_INDIC, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
@@ -12934,6 +12980,7 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_eutran_qrxlevmin_present, { "E-UTRAN Qrxlev Min", "gsm_a.rr.eutran_qrxlevmin.present", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_repeated_earfcn, { "Repeated EARFCN", "gsm_a.rr.repeated_earfcn", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_repeated_pcid, { "Repeated PCID", "gsm_a.rr.repeated_pcid", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
+            { &hf_gsm_a_rr_eutran_pcid_present, { "TARGET PCID", "gsm_a.rr.repeated_eutran_pcid_present", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_eutran_pcid_bitmap_group_present, { "PCID Bitmap Group", "gsm_a.rr.eutran_pcid_bitmap_group.present", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_pcid_pattern_present, { "PCID Pattern", "gsm_a.rr.pcid_pattern.present", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_repeated_eutran_frequency_index, { "Repeated E-UTRAN Frequency Index", "gsm_a.rr.repeated_eutran_frequency_index", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
@@ -13027,6 +13074,7 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_repeated_invalid_bsic_information, { "Repeated Invalid BSIC Information", "gsm_a.rr.repeated_invalid_bsic_information", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_bitmap_type_reporting, { "Bitmap Type Reporting", "gsm_a.rr.bitmap_type_reporting", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_e_utran_measurement_report, { "E-UTRAN Measurement Report", "gsm_a.rr.e_utran_measurement_report", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
+            { &hf_gsm_a_rr_repeat_eutran_desc, { "Repeating E-UTRAN Description struct", "gsm_a.rr.repeat_eutran_desc", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
 
             /* gsm_rr_csn_HL_flag() fields */
             { &hf_gsm_a_rr_selection_parameters, { "Selection Parameters", "gsm_a.rr.selection_parameters", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
