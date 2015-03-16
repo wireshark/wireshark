@@ -179,26 +179,18 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
 void WiresharkApplication::refreshRecentFiles(void) {
     recent_item_status *ri;
     RecentFileStatus *rf_status;
-    QThread *rf_thread;
 
     foreach (ri, recent_items_) {
         if (ri->in_thread) {
             continue;
         }
 
-        rf_thread = new QThread;
         rf_status = new RecentFileStatus(ri->filename);
-
-        rf_status->moveToThread(rf_thread);
-
-        connect(rf_thread, SIGNAL(started()), rf_status, SLOT(start()));
 
         connect(rf_status, SIGNAL(statusFound(QString, qint64, bool)),
                 this, SLOT(itemStatusFinished(QString, qint64, bool)), Qt::QueuedConnection);
-        connect(rf_status, SIGNAL(finished()), rf_thread, SLOT(quit()));
         connect(rf_status, SIGNAL(finished()), rf_status, SLOT(deleteLater()));
-
-        rf_thread->start();
+        rf_status->start();
     }
 }
 
@@ -465,7 +457,6 @@ void WiresharkApplication::cleanup()
 
 void WiresharkApplication::itemStatusFinished(const QString filename, qint64 size, bool accessible) {
     recent_item_status *ri;
-    RecentFileStatus *rf_status = qobject_cast<RecentFileStatus *>(QObject::sender());
 
     foreach (ri, recent_items_) {
         if (filename == ri->filename && (size != ri->size || accessible != ri->accessible)) {
@@ -475,10 +466,6 @@ void WiresharkApplication::itemStatusFinished(const QString filename, qint64 siz
 
             emit updateRecentItemStatus(filename, size, accessible);
         }
-    }
-
-    if (rf_status) {
-        rf_status->quit();
     }
 }
 

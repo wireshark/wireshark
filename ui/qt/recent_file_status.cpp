@@ -21,22 +21,20 @@
 
 #include "recent_file_status.h"
 
-#include <QFileInfo>
+RecentFileStatus::RecentFileStatus(const QString filename, QObject *parent) :
+        QThread(parent), filename_(filename)
+{
+}
 
-// Sigh. The Qt 4 documentation says we should subclass QThread here. Other sources
-// insist that we should subclass QObject, then move it to a newly created QThread.
-//RecentFileStatus::RecentFileStatus(const QString &filename, QObject *parent) :
-//    QObject(parent), filename_(filename), size_(0)
-//{
-//}
+QString RecentFileStatus::getFilename() const {
+    return (filename_);
+}
 
-void RecentFileStatus::start(void) {
-    QFileInfo fi;
+void RecentFileStatus::run() {
+    fileinfo_.setFile(filename_);
 
-    fi.setFile(filename_);
-
-    if (fi.isFile() && fi.isReadable()) {
-        emit statusFound(filename_, fi.size(), true);
+    if (fileinfo_.isFile() && fileinfo_.isReadable()) {
+        emit statusFound(filename_, fileinfo_.size(), true);
     } else {
         emit statusFound(filename_, 0, false);
     }

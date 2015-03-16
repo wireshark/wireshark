@@ -22,29 +22,28 @@
 #ifndef RECENT_FILE_STATUS_H
 #define RECENT_FILE_STATUS_H
 
-#include <QObject>
+#include <QThread>
+#include <QFileInfo>
 
-class RecentFileStatus : public QObject
+// Sigh. The Qt 4 documentation says we should subclass QThread here. Other sources
+// insist that we should subclass QObject, then move it to a newly created QThread.
+class RecentFileStatus : public QThread
 {
     Q_OBJECT
 public:
-    RecentFileStatus(const QString filename, QObject *parent = 0) :
-        QObject(parent), filename_(filename), size_(0) {}
+    RecentFileStatus(const QString filename, QObject *parent = 0);
 
-    QString getFilename() const { return (filename_); }
-    size_t getSize() const { return (size_); }
-    void quit() { emit finished(); }
+    QString getFilename() const;
+
+protected:
+    void run();
 
 private:
-    QString filename_;
-    size_t size_;
+    QString    filename_;
+    QFileInfo  fileinfo_;
 
 signals:
     void statusFound(const QString filename = QString(), qint64 size = 0, bool accessible = false);
-    void finished();
-
-public slots:
-    void start();
 
 };
 
