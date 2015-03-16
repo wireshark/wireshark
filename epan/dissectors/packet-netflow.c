@@ -118,6 +118,12 @@
  * Note for WMeier...  Added YYY comments with some XXX comments.
  */
 
+/*
+ * March 2015: uhei:  Add Citrix Netscaler AppFlow extensions
+ * used documentation found at:
+ * https://raw.githubusercontent.com/splunk/ipfix/master/app/Splunk_TA_IPFIX/bin/IPFIX/information-elements/5951.xml
+ */
+
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -293,10 +299,11 @@ typedef enum {
     TF_PLIXER,
     TF_NTOP,
     TF_IXIA,
+    TF_NETSCALER,
     TF_NO_VENDOR_INFO
 } v9_v10_tmplt_fields_type_t;
 #define TF_NUM 2
-#define TF_NUM_EXT 6   /* includes vendor fields */
+#define TF_NUM_EXT 7   /* includes vendor fields */
 
 typedef struct _v9_v10_tmplt {
     /* For linking back to show where fields were defined */
@@ -969,6 +976,132 @@ static const value_string v10_template_types_ixia[] = {
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
 
+/* Netscaler AppFlow */
+static const value_string v10_template_types_netscaler[] = {
+    {  128, "Round Trip Time" },
+    {  129, "Transaction Id" },
+    {  130, "HTTP Request URL" },
+    {  131, "HTTP Request Cookie" },
+    {  132, "Flow Flags" },
+    {  133, "Connection Id" },
+    {  134, "Syslog Priority" },
+    {  135, "Syslog Message" },
+    {  136, "Syslog Timestamp" },
+    {  140, "HTTP Request Referer" },
+    {  141, "HTTP Request Method" },
+    {  142, "HTTP Request Host" },
+    {  143, "HTTP Request UserAgent" },
+    {  144, "HTTP Response Status" },
+    {  145, "HTTP Response Length" },
+    {  146, "Server TTFB" },
+    {  147, "Server TTLB" },
+    {  150, "AppName Incarnation Number" },
+    {  151, "AppName App Id" },
+    {  152, "AppName" },
+    {  153, "HTTP Request Received FB" },
+    {  156, "HTTP Request Forwarded FB" },
+    {  157, "HTTP Response Received FB" },
+    {  158, "HTTP Response Forwarded FB" },
+    {  159, "HTTP Request Received LB" },
+    {  160, "HTTP Request Forwarded LB" },
+    {  161, "Main Page Id" },
+    {  162, "Main Page Core Id" },
+    {  163, "HTTP Client Interaction Start Time" },
+    {  164, "HTTP Client Render End Time" },
+    {  165, "HTTP Client Render Start Time" },
+    {  167, "App Template Name" },
+    {  168, "HTTP Client Interaction End Time" },
+    {  169, "HTTP Response Received LB" },
+    {  170, "HTTP Response Forwarded LB" },
+    {  171, "App Unit Name App Id" },
+    {  172, "DB Login Flags" },
+    {  173, "DB Request Type" },
+    {  174, "DB Protocol Name" },
+    {  175, "DB User Name" },
+    {  176, "DB Database Name" },
+    {  177, "DB Client Host Name" },
+    {  178, "DB Request String" },
+    {  179, "DB Response Status String" },
+    {  180, "DB Response Status" },
+    {  181, "DB Response Length" },
+    {  182, "Client RTT" },
+    {  183, "HTTP Content Type" },
+    {  185, "HTTP Request Authorization" },
+    {  186, "HTTP Request Via" },
+    {  187, "HTTP Response Location" },
+    {  188, "HTTP Response Set-Cookie" },
+    {  189, "HTTP Response Set-Cookie2" },
+    {  190, "HTTP Request X-Forwarded-For" },
+    {  192, "Connection Chain ID" },
+    {  193, "Connection Chain Hop Count" },
+    {  200, "ICA Session Guid" },
+    {  201, "ICA Client Version" },
+    {  202, "ICA Client Type" },
+    {  203, "ICA Client IP" },
+    {  204, "ICA Client Host Name" },
+    {  205, "AAA Username" },
+    {  207, "ICA Domain Name" },
+    {  208, "ICA Client Launcher" },
+    {  209, "ICA Session Setup Time" },
+    {  210, "ICA Server Name" },
+    {  214, "ICA Session Reconnects" },
+    {  215, "ICA RTT" },
+    {  216, "ICA Clientside RX Bytes" },
+    {  217, "ICA Clientside TX Bytes" },
+    {  219, "ICA Clientside Packets Retransmit" },
+    {  220, "ICA Serverside Packets Retransmit" },
+    {  221, "ICA Clientside RTT" },
+    {  222, "ICA Serverside RTT" },
+    {  223, "ICA Session Update Begin Sec" },
+    {  224, "ICA Session Update End Sec" },
+    {  225, "ICA Channel Id1" },
+    {  226, "ICA Channel Id1 Bytes" },
+    {  227, "ICA Channel Id2" },
+    {  228, "ICA Channel Id2 Bytes" },
+    {  229, "ICA Channel Id3" },
+    {  230, "ICA Channel Id3 Bytes" },
+    {  231, "ICA Channel Id4" },
+    {  232, "ICA Channel Id4 Bytes" },
+    {  233, "ICA Channel Id5" },
+    {  234, "ICA Channel Id5 Bytes" },
+    {  235, "ICA Connection Priority" },
+    {  236, "Application Startup Duration" },
+    {  237, "ICA Launch Mechanism" },
+    {  238, "ICA Application Name" },
+    {  239, "Application Startup Time" },
+    {  240, "ICA Application Termination Type" },
+    {  241, "ICA Application Termination Time" },
+    {  242, "ICA Session End Time" },
+    {  243, "ICA Clientside Jitter" },
+    {  244, "ICA Serverside Jitter" },
+    {  245, "ICA App Process ID" },
+    {  246, "ICA App Module Path" },
+    {  247, "ICA Device Serial No" },
+    {  248, "Msi Client Cookie" },
+    {  249, "ICA Flags" },
+    {  250, "ICA Username" },
+    {  251, "License Type" },
+    {  252, "Max License Count" },
+    {  253, "Current License Consumed" },
+    {  254, "ICA Network Update Start Time" },
+    {  255, "ICA Network Update End Time" },
+    {  256, "ICA Clientside SRTT" },
+    {  257, "ICA Serverside SRTT" },
+    {  258, "ICA Clientside Delay" },
+    {  259, "ICA Serverside Delay" },
+    {  260, "ICA Host Delay" },
+    {  261, "ICA ClientSide WindowSize" },
+    {  262, "ICA ServerSide WindowSize" },
+    {  263, "ICA ClientSide RTO Count" },
+    {  264, "ICA ServerSide RTO Count" },
+    {  265, "ICA L7 Client Latency" },
+    {  266, "ICA L7 Server Latency" },
+    {  267, "HTTP Domain Name" },
+    {  268, "CacheRedir Client Connection Core ID" },
+    {  269, "CacheRedir Client Connection Transaction ID" },
+    { 0, NULL }
+};
+static value_string_ext v10_template_types_netscaler_ext = VALUE_STRING_EXT_INIT(v10_template_types_netscaler);
 
 
 static const value_string v9_scope_field_types[] = {
@@ -1193,6 +1326,7 @@ static int      hf_cflow_template_ipfix_field_pen                   = -1;
 static int      hf_cflow_template_plixer_field_type                 = -1;
 static int      hf_cflow_template_ntop_field_type                   = -1;
 static int      hf_cflow_template_ixia_field_type                   = -1;
+static int      hf_cflow_template_netscaler_field_type              = -1;
 
 
 /*
@@ -1780,6 +1914,129 @@ static int      hf_pie_ixia_browser_name                = -1;
 static int      hf_pie_ixia_reverse_octet_delta_count   = -1;
 static int      hf_pie_ixia_reverse_packet_delta_count  = -1;
 
+static int      hf_pie_netscaler                                         = -1;
+static int      hf_pie_netscaler_roundtriptime                           = -1;
+static int      hf_pie_netscaler_transactionid                           = -1;
+static int      hf_pie_netscaler_httprequrl                              = -1;
+static int      hf_pie_netscaler_httpreqcookie                           = -1;
+static int      hf_pie_netscaler_flowflags                               = -1;
+static int      hf_pie_netscaler_connectionid                            = -1;
+static int      hf_pie_netscaler_syslogpriority                          = -1;
+static int      hf_pie_netscaler_syslogmessage                           = -1;
+static int      hf_pie_netscaler_syslogtimestamp                         = -1;
+static int      hf_pie_netscaler_httpreqreferer                          = -1;
+static int      hf_pie_netscaler_httpreqmethod                           = -1;
+static int      hf_pie_netscaler_httpreqhost                             = -1;
+static int      hf_pie_netscaler_httprequseragent                        = -1;
+static int      hf_pie_netscaler_httprspstatus                           = -1;
+static int      hf_pie_netscaler_httprsplen                              = -1;
+static int      hf_pie_netscaler_serverttfb                              = -1;
+static int      hf_pie_netscaler_serverttlb                              = -1;
+static int      hf_pie_netscaler_appnameincarnationnumber                = -1;
+static int      hf_pie_netscaler_appnameappid                            = -1;
+static int      hf_pie_netscaler_appname                                 = -1;
+static int      hf_pie_netscaler_httpreqrcvfb                            = -1;
+static int      hf_pie_netscaler_httpreqforwfb                           = -1;
+static int      hf_pie_netscaler_httpresrcvfb                            = -1;
+static int      hf_pie_netscaler_httpresforwfb                           = -1;
+static int      hf_pie_netscaler_httpreqrcvlb                            = -1;
+static int      hf_pie_netscaler_httpreqforwlb                           = -1;
+static int      hf_pie_netscaler_mainpageid                              = -1;
+static int      hf_pie_netscaler_mainpagecoreid                          = -1;
+static int      hf_pie_netscaler_httpclientinteractionstarttime          = -1;
+static int      hf_pie_netscaler_httpclientrenderendtime                 = -1;
+static int      hf_pie_netscaler_httpclientrenderstarttime               = -1;
+static int      hf_pie_netscaler_apptemplatename                         = -1;
+static int      hf_pie_netscaler_httpclientinteractionendtime            = -1;
+static int      hf_pie_netscaler_httpresrcvlb                            = -1;
+static int      hf_pie_netscaler_httpresforwlb                           = -1;
+static int      hf_pie_netscaler_appunitnameappid                        = -1;
+static int      hf_pie_netscaler_dbloginflags                            = -1;
+static int      hf_pie_netscaler_dbreqtype                               = -1;
+static int      hf_pie_netscaler_dbprotocolname                          = -1;
+static int      hf_pie_netscaler_dbusername                              = -1;
+static int      hf_pie_netscaler_dbdatabasename                          = -1;
+static int      hf_pie_netscaler_dbclthostname                           = -1;
+static int      hf_pie_netscaler_dbreqstring                             = -1;
+static int      hf_pie_netscaler_dbrespstatusstring                      = -1;
+static int      hf_pie_netscaler_dbrespstatus                            = -1;
+static int      hf_pie_netscaler_dbresplength                            = -1;
+static int      hf_pie_netscaler_clientrtt                               = -1;
+static int      hf_pie_netscaler_httpcontenttype                         = -1;
+static int      hf_pie_netscaler_httpreqauthorization                    = -1;
+static int      hf_pie_netscaler_httpreqvia                              = -1;
+static int      hf_pie_netscaler_httpreslocation                         = -1;
+static int      hf_pie_netscaler_httpressetcookie                        = -1;
+static int      hf_pie_netscaler_httpressetcookie2                       = -1;
+static int      hf_pie_netscaler_httpreqxforwardedfor                    = -1;
+static int      hf_pie_netscaler_connectionchainid                       = -1;
+static int      hf_pie_netscaler_connectionchainhopcount                 = -1;
+static int      hf_pie_netscaler_icasessionguid                          = -1;
+static int      hf_pie_netscaler_icaclientversion                        = -1;
+static int      hf_pie_netscaler_icaclienttype                           = -1;
+static int      hf_pie_netscaler_icaclientip                             = -1;
+static int      hf_pie_netscaler_icaclienthostname                       = -1;
+static int      hf_pie_netscaler_aaausername                             = -1;
+static int      hf_pie_netscaler_icadomainname                           = -1;
+static int      hf_pie_netscaler_icaclientlauncher                       = -1;
+static int      hf_pie_netscaler_icasessionsetuptime                     = -1;
+static int      hf_pie_netscaler_icaservername                           = -1;
+static int      hf_pie_netscaler_icasessionreconnects                    = -1;
+static int      hf_pie_netscaler_icartt                                  = -1;
+static int      hf_pie_netscaler_icaclientsiderxbytes                    = -1;
+static int      hf_pie_netscaler_icaclientsidetxbytes                    = -1;
+static int      hf_pie_netscaler_icaclientsidepacketsretransmit          = -1;
+static int      hf_pie_netscaler_icaserversidepacketsretransmit          = -1;
+static int      hf_pie_netscaler_icaclientsidertt                        = -1;
+static int      hf_pie_netscaler_icaserversidertt                        = -1;
+static int      hf_pie_netscaler_icasessionupdatebeginsec                = -1;
+static int      hf_pie_netscaler_icasessionupdateendsec                  = -1;
+static int      hf_pie_netscaler_icachannelid1                           = -1;
+static int      hf_pie_netscaler_icachannelid1bytes                      = -1;
+static int      hf_pie_netscaler_icachannelid2                           = -1;
+static int      hf_pie_netscaler_icachannelid2bytes                      = -1;
+static int      hf_pie_netscaler_icachannelid3                           = -1;
+static int      hf_pie_netscaler_icachannelid3bytes                      = -1;
+static int      hf_pie_netscaler_icachannelid4                           = -1;
+static int      hf_pie_netscaler_icachannelid4bytes                      = -1;
+static int      hf_pie_netscaler_icachannelid5                           = -1;
+static int      hf_pie_netscaler_icachannelid5bytes                      = -1;
+static int      hf_pie_netscaler_icaconnectionpriority                   = -1;
+static int      hf_pie_netscaler_applicationstartupduration              = -1;
+static int      hf_pie_netscaler_icalaunchmechanism                      = -1;
+static int      hf_pie_netscaler_icaapplicationname                      = -1;
+static int      hf_pie_netscaler_applicationstartuptime                  = -1;
+static int      hf_pie_netscaler_icaapplicationterminationtype           = -1;
+static int      hf_pie_netscaler_icaapplicationterminationtime           = -1;
+static int      hf_pie_netscaler_icasessionendtime                       = -1;
+static int      hf_pie_netscaler_icaclientsidejitter                     = -1;
+static int      hf_pie_netscaler_icaserversidejitter                     = -1;
+static int      hf_pie_netscaler_icaappprocessid                         = -1;
+static int      hf_pie_netscaler_icaappmodulepath                        = -1;
+static int      hf_pie_netscaler_icadeviceserialno                       = -1;
+static int      hf_pie_netscaler_msiclientcookie                         = -1;
+static int      hf_pie_netscaler_icaflags                                = -1;
+static int      hf_pie_netscaler_icausername                             = -1;
+static int      hf_pie_netscaler_licensetype                             = -1;
+static int      hf_pie_netscaler_maxlicensecount                         = -1;
+static int      hf_pie_netscaler_currentlicenseconsumed                  = -1;
+static int      hf_pie_netscaler_icanetworkupdatestarttime               = -1;
+static int      hf_pie_netscaler_icanetworkupdateendtime                 = -1;
+static int      hf_pie_netscaler_icaclientsidesrtt                       = -1;
+static int      hf_pie_netscaler_icaserversidesrtt                       = -1;
+static int      hf_pie_netscaler_icaclientsidedelay                      = -1;
+static int      hf_pie_netscaler_icaserversidedelay                      = -1;
+static int      hf_pie_netscaler_icahostdelay                            = -1;
+static int      hf_pie_netscaler_icaclientsidewindowsize                 = -1;
+static int      hf_pie_netscaler_icaserversidewindowsize                 = -1;
+static int      hf_pie_netscaler_icaclientsidertocount                   = -1;
+static int      hf_pie_netscaler_icaserversidertocount                   = -1;
+static int      hf_pie_netscaler_ical7clientlatency                      = -1;
+static int      hf_pie_netscaler_ical7serverlatency                      = -1;
+static int      hf_pie_netscaler_httpdomainname                          = -1;
+static int      hf_pie_netscaler_cacheredirclientconnectioncoreid        = -1;
+static int      hf_pie_netscaler_cacheredirclientconnectiontransactionid = -1;
+
 
 static int      hf_string_len_short = -1;
 static int      hf_string_len_long  = -1;
@@ -1918,6 +2175,8 @@ pen_to_type_hf_list(guint32 pen) {
         return TF_NTOP;
     case VENDOR_IXIA:
         return TF_IXIA;
+    case VENDOR_NETSCALER:
+        return TF_NETSCALER;
     default:
         return TF_NO_VENDOR_INFO;
     }
@@ -2863,7 +3122,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     gboolean             cace_pie_seen = FALSE,
                          plixer_pie_seen = FALSE,
                          ntop_pie_seen = FALSE,
-                         ixia_pie_seen = FALSE;
+                         ixia_pie_seen = FALSE,
+                         netscaler_pie_seen = FALSE;
+
 
     guint8       ip_protocol = 0;
     guint16      port_number;
@@ -2973,6 +3234,14 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                     ixia_pie_seen = TRUE;
                 }
                 break;
+            case VENDOR_NETSCALER:
+                if (!netscaler_pie_seen) {
+                    proto_item *pie_netscaler_ti = proto_tree_add_item(pdutree, hf_pie_netscaler, tvb, 0, 0, ENC_NA);
+                    PROTO_ITEM_SET_HIDDEN(pie_netscaler_ti);
+                    netscaler_pie_seen = TRUE;
+                }
+                break;
+
             default:
                 break;
         }
@@ -6009,6 +6278,493 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
             /* END Ixia Communications */
 
+            /* START Netscaler Communications */
+        case ((VENDOR_NETSCALER << 16) | 128):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_roundtriptime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 129):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_transactionid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 130):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httprequrl,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 131):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqcookie,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 132):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_flowflags,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 133):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_connectionid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 134):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_syslogpriority,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 135):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_syslogmessage,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 136):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_syslogtimestamp,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 140):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqreferer,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 141):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqmethod,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 142):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqhost,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 143):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httprequseragent,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 144):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httprspstatus,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 145):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httprsplen,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 146):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_serverttfb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 147):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_serverttlb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 150):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_appnameincarnationnumber,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 151):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_appnameappid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 152):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_appname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 153):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqrcvfb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 156):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqforwfb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 157):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpresrcvfb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 158):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpresforwfb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 159):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqrcvlb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 160):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqforwlb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 161):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_mainpageid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 162):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_mainpagecoreid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 163):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpclientinteractionstarttime,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 164):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpclientrenderendtime,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 165):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpclientrenderstarttime,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 167):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_apptemplatename,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 168):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpclientinteractionendtime,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 169):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpresrcvlb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 170):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpresforwlb,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 171):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_appunitnameappid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 172):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbloginflags,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 173):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbreqtype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 174):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbprotocolname,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 175):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbusername,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 176):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbdatabasename,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 177):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbclthostname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 178):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbreqstring,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 179):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbrespstatusstring,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 180):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbrespstatus,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 181):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbresplength,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 182):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_clientrtt,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 183):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpcontenttype,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 185):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqauthorization,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 186):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqvia,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 187):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreslocation,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 188):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpressetcookie,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 189):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpressetcookie2,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 190):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqxforwardedfor,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 192):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_connectionchainid,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 193):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_connectionchainhopcount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 200):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionguid,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 201):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientversion,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 202):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclienttype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 203):
+            ti = proto_tree_add_ipv4(pdutree, hf_pie_netscaler_icaclientip,
+                                     tvb, offset, 4, tvb_get_ipv4(tvb, offset));
+            break;
+        case ((VENDOR_NETSCALER << 16) | 204):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclienthostname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 205):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_aaausername,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 207):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icadomainname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 208):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientlauncher,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 209):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionsetuptime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 210):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaservername,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 214):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionreconnects,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 215):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icartt,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 216):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsiderxbytes,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 217):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidetxbytes,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 219):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidepacketsretransmit,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 220):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaserversidepacketsretransmit,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 221):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidertt,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 222):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaserversidertt,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 223):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdatebeginsec,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 224):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdateendsec,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 225):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid1,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 226):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid1bytes,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 227):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid2,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 228):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid2bytes,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 229):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid3,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 230):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid3bytes,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 231):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid4,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 232):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid4bytes,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 233):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid5,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 234):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid5bytes,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 235):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaconnectionpriority,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 236):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_applicationstartupduration,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 237):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icalaunchmechanism,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 238):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaapplicationname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 239):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_applicationstartuptime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 240):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaapplicationterminationtype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 241):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaapplicationterminationtime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 242):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionendtime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 243):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidejitter,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 244):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaserversidejitter,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 245):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaappprocessid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 246):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaappmodulepath,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 247):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icadeviceserialno,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 248):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_msiclientcookie,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 249):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaflags,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 250):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icausername,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 251):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_licensetype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 252):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_maxlicensecount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 253):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_currentlicenseconsumed,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 254):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdatestarttime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 255):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdateendtime,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 256):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidesrtt,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 257):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaserversidesrtt,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 258):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidedelay,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 259):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaserversidedelay,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 260):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icahostdelay,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 261):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidewindowsize,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 262):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaserversidewindowsize,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 263):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidertocount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 264):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaserversidertocount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 265):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_ical7clientlatency,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 266):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_ical7serverlatency,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 267):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpdomainname,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 268):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_cacheredirclientconnectioncoreid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_NETSCALER << 16) | 269):
+            ti = proto_tree_add_item(pdutree, hf_pie_netscaler_cacheredirclientconnectiontransactionid,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+            /* END Netscaler Communications */
+
         default:  /* Unknown Field ID */
             if ((hdrinfo_p->vspec == 9) || (pen == REVPEN)) {
                 ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_unknown_field_type,
@@ -6096,6 +6852,7 @@ static const int *v10_template_type_hf_list[TF_NUM_EXT] = {
     &hf_cflow_template_plixer_field_type,
     &hf_cflow_template_ntop_field_type,
     &hf_cflow_template_ixia_field_type,
+    &hf_cflow_template_netscaler_field_type,
     NULL};
 
 static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
@@ -6107,6 +6864,7 @@ static value_string_ext *v10_template_type_vse_list[TF_NUM_EXT] = {
     &v10_template_types_plixer_ext,
     &v10_template_types_ntop_ext,
     &v10_template_types_ixia_ext,
+    &v10_template_types_netscaler_ext,
     NULL};
 
 static int
@@ -8790,6 +9548,11 @@ proto_register_netflow(void)
           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_ixia_ext, 0x7FFF,
           "Template field type", HFILL}
         },
+        {&hf_cflow_template_netscaler_field_type,
+         {"Type", "cflow.template_netscaler_field_type",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_netscaler_ext, 0x7FFF,
+          "Template field type", HFILL}
+        },
         {&hf_cflow_template_ipfix_field_type_enterprise,
          {"Type", "cflow.template_ipfix_field_type_enterprise",
           FT_UINT16, BASE_DEC, NULL, 0x7FFF,
@@ -9855,6 +10618,739 @@ proto_register_netflow(void)
          {"Reverse octet packet count", "cflow.pie.ixia.reverse-packet-delta-count",
           FT_UINT64, BASE_DEC, NULL, 0x0,
           "In bi-directional flows, packet count for the server back to client", HFILL}
+        },
+
+        /* Netscaler root (a hidden item to allow filtering) */
+        {&hf_pie_netscaler,
+         {"Netscaler", "cflow.pie.netscaler",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 128 */
+        {&hf_pie_netscaler_roundtriptime,
+         {"Round Trip Time", "cflow.pie.netscaler.round-trip-time",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "TCP RTT of the flow in milliseconds", HFILL}
+        },
+        /* netscaler, 5951 / 129 */
+        {&hf_pie_netscaler_transactionid,
+         {"Transaction ID", "cflow.pie.netscaler.transaction-id",
+          FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+          "Four flows of a transaction between client and server (client-to-NS, NS-to-Server, Server-to-NS, NS-to-Client)", HFILL}
+        },
+        /* netscaler, 5951 / 130 */
+        {&hf_pie_netscaler_httprequrl,
+         {"HTTP Request Url", "cflow.pie.netscaler.http-req-url",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 131 */
+        {&hf_pie_netscaler_httpreqcookie,
+         {"HTTP Request Cookie", "cflow.pie.netscaler.http-req-cookie",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 132 */
+        {&hf_pie_netscaler_flowflags,
+         {"Flow Flags", "cflow.pie.netscaler.flow-flags",
+          FT_UINT64, BASE_HEX, NULL, 0x0,
+          "Application Layer Flags", HFILL}
+        },
+        /* netscaler, 5951 / 133 */
+        {&hf_pie_netscaler_connectionid,
+         {"Connection ID", "cflow.pie.netscaler.connection-id",
+          FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+          "Two flows of a TCP connection", HFILL}
+        },
+        /* netscaler, 5951 / 134 */
+        {&hf_pie_netscaler_syslogpriority,
+         {"Syslog Priority", "cflow.pie.netscaler.syslog-priority",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Priority of the syslog message", HFILL}
+        },
+        /* netscaler, 5951 / 135 */
+        {&hf_pie_netscaler_syslogmessage,
+         {"Syslog Message", "cflow.pie.netscaler.syslog-message",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 136 */
+        {&hf_pie_netscaler_syslogtimestamp,
+         {"Syslog Timestamp", "cflow.pie.netscaler.syslog-timestamp",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of syslog message (ms)", HFILL}
+        },
+        /* netscaler, 5951 / 140 */
+        {&hf_pie_netscaler_httpreqreferer,
+         {"HTTP Request Referer", "cflow.pie.netscaler.http-req-referer",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 141 */
+        {&hf_pie_netscaler_httpreqmethod,
+         {"HTTP Request Method", "cflow.pie.netscaler.http-req-method",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 142 */
+        {&hf_pie_netscaler_httpreqhost,
+         {"HTTP Request Host", "cflow.pie.netscaler.http-req-host",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 143 */
+        {&hf_pie_netscaler_httprequseragent,
+         {"HTTP Request UserAgent", "cflow.pie.netscaler.http-req-useragent",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 144 */
+        {&hf_pie_netscaler_httprspstatus,
+         {"HTTP Response Status", "cflow.pie.netscaler.http-rsp-status",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 145 */
+        {&hf_pie_netscaler_httprsplen,
+         {"HTTP Response Length", "cflow.pie.netscaler.http-rsp-len",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 146 */
+        {&hf_pie_netscaler_serverttfb,
+         {"Server TTFB", "cflow.pie.netscaler.server-ttfb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Time till First Byte (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 147 */
+        {&hf_pie_netscaler_serverttlb,
+         {"Server TTLB", "cflow.pie.netscaler.server-ttlb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Time till Last Byte (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 150 */
+        {&hf_pie_netscaler_appnameincarnationnumber,
+         {"AppName Incarnation Number", "cflow.pie.netscaler.appname-incarnation-number",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 151 */
+        {&hf_pie_netscaler_appnameappid,
+         {"AppName App ID", "cflow.pie.netscaler.appname-app-id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 152 */
+        {&hf_pie_netscaler_appname,
+         {"AppName", "cflow.pie.netscaler.appname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 153 */
+        {&hf_pie_netscaler_httpreqrcvfb,
+         {"HTTP Request Received FB", "cflow.pie.netscaler.http-req-rcv-fb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of first byte received from client (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 156 */
+        {&hf_pie_netscaler_httpreqforwfb,
+         {"HTTP Request Forwarded FB", "cflow.pie.netscaler.http-req-forw-fb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of first byte forwarded to server (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 157 */
+        {&hf_pie_netscaler_httpresrcvfb,
+         {"HTTP Response Received FB", "cflow.pie.netscaler.http-res-rcv-fb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of first byte received from server (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 158 */
+        {&hf_pie_netscaler_httpresforwfb,
+         {"HTTP Response Forwarded FB", "cflow.pie.netscaler.http-res-forw-fb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of first byte forwarded to client (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 159 */
+        {&hf_pie_netscaler_httpreqrcvlb,
+         {"HTTP Request Received LB", "cflow.pie.netscaler.http-req-rcv-lb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of last byte received from client (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 160 */
+        {&hf_pie_netscaler_httpreqforwlb,
+         {"HTTP Request Forwarded LB", "cflow.pie.netscaler.http-req-forw-lb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of last byte forwarded to server (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 161 */
+        {&hf_pie_netscaler_mainpageid,
+         {"Main Page Id", "cflow.pie.netscaler.mainpage-id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 162 */
+        {&hf_pie_netscaler_mainpagecoreid,
+         {"Main Page Core Id", "cflow.pie.netscaler.mainpage-core-id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 163 */
+        {&hf_pie_netscaler_httpclientinteractionstarttime,
+         {"HTTP Client Interaction Start Time", "cflow.pie.netscaler.http-client-interaction-starttime",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          "Timestamp when the page starts loading", HFILL}
+        },
+        /* netscaler, 5951 / 164 */
+        {&hf_pie_netscaler_httpclientrenderendtime,
+         {"HTTP Client Render End Time", "cflow.pie.netscaler.http-client-render-endtime",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          "Timestamp when the page completely renders", HFILL}
+        },
+        /* netscaler, 5951 / 165 */
+        {&hf_pie_netscaler_httpclientrenderstarttime,
+         {"HTTP Client Render Start Time", "cflow.pie.netscaler.http-client-render-starttime",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          "Timestamp when page rendering begins", HFILL}
+        },
+        /* netscaler, 5951 / 167 */
+        {&hf_pie_netscaler_apptemplatename,
+         {"App Template Name", "cflow.pie.netscaler.app-template-name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 168 */
+        {&hf_pie_netscaler_httpclientinteractionendtime,
+         {"HTTP Client Interaction End Time", "cflow.pie.netscaler.http-client-interaction-endtime",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 169 */
+        {&hf_pie_netscaler_httpresrcvlb,
+         {"HTTP Response Received LB", "cflow.pie.netscaler.http-res-rcv-lb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of last byte received from server (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 170 */
+        {&hf_pie_netscaler_httpresforwlb,
+         {"HTTP Response Forwarded LB", "cflow.pie.netscaler.http-res-forw-lb",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Timestamp of last byte of forwarded to client (microseconds)", HFILL}
+        },
+        /* netscaler, 5951 / 171 */
+        {&hf_pie_netscaler_appunitnameappid,
+         {"AppUnit Name App Id", "cflow.pie.netscaler.app-unit-name-appid",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 172 */
+        {&hf_pie_netscaler_dbloginflags,
+         {"DB Login Flags", "cflow.pie.netscaler.db-login-flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 173 */
+        {&hf_pie_netscaler_dbreqtype,
+         {"DB Request Type", "cflow.pie.netscaler.db-req-type",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Type of database request", HFILL}
+        },
+        /* netscaler, 5951 / 174 */
+        {&hf_pie_netscaler_dbprotocolname,
+         {"DB Protocol Name", "cflow.pie.netscaler.db-protocol-name",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "Database protocol", HFILL}
+        },
+        /* netscaler, 5951 / 175 */
+        {&hf_pie_netscaler_dbusername,
+         {"DB User Name", "cflow.pie.netscaler.db-user-name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          "Database username", HFILL}
+        },
+        /* netscaler, 5951 / 176 */
+        {&hf_pie_netscaler_dbdatabasename,
+         {"DB Database Name", "cflow.pie.netscaler.db-database-name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 177 */
+        {&hf_pie_netscaler_dbclthostname,
+         {"DB Client Host Name", "cflow.pie.netscaler.db-clt-hostname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 178 */
+        {&hf_pie_netscaler_dbreqstring,
+         {"DB Request String", "cflow.pie.netscaler.db-req-string",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 179 */
+        {&hf_pie_netscaler_dbrespstatusstring,
+         {"DB Response Status String", "cflow.pie.netscaler.db-resp-status-string",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          "Database response status", HFILL}
+        },
+        /* netscaler, 5951 / 180 */
+        {&hf_pie_netscaler_dbrespstatus,
+         {"DB Response Status", "cflow.pie.netscaler.db-resp-status",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 181 */
+        {&hf_pie_netscaler_dbresplength,
+         {"DB Response Length", "cflow.pie.netscaler.db-resp-length",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 182 */
+        {&hf_pie_netscaler_clientrtt,
+         {"Client RTT", "cflow.pie.netscaler.client-rtt",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "RTT of the client", HFILL}
+        },
+        /* netscaler, 5951 / 183 */
+        {&hf_pie_netscaler_httpcontenttype,
+         {"HTTP Content-Type", "cflow.pie.netscaler.http-contenttype",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 185 */
+        {&hf_pie_netscaler_httpreqauthorization,
+         {"HTTP Request Authorization", "cflow.pie.netscaler.http-req-authorization",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 186 */
+        {&hf_pie_netscaler_httpreqvia,
+         {"HTTP Request Via", "cflow.pie.netscaler.http-req-via",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 187 */
+        {&hf_pie_netscaler_httpreslocation,
+         {"HTTP Response Location", "cflow.pie.netscaler.http-res-location",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 188 */
+        {&hf_pie_netscaler_httpressetcookie,
+         {"HTTP Response Set-Cookie", "cflow.pie.netscaler.http-res-setcookie",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 189 */
+        {&hf_pie_netscaler_httpressetcookie2,
+         {"HTTP Response Set-Cookie2", "cflow.pie.netscaler.http-res-setcookie2",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 190 */
+        {&hf_pie_netscaler_httpreqxforwardedfor,
+         {"HTTP Request X-Forwarded-For", "cflow.pie.netscaler.http-reqx-forwardedfor",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 192 */
+        {&hf_pie_netscaler_connectionchainid,
+         {"Connection Chain ID", "cflow.pie.netscaler.connection-chain-id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 193 */
+        {&hf_pie_netscaler_connectionchainhopcount,
+         {"Connection Chain Hop Count", "cflow.pie.netscaler.connection-chain-hop-count",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 200 */
+        {&hf_pie_netscaler_icasessionguid,
+         {"ICA Session GUID", "cflow.pie.netscaler.ica-session-guid",
+          FT_GUID, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 201 */
+        {&hf_pie_netscaler_icaclientversion,
+         {"ICA Client Version", "cflow.pie.netscaler.ica-client-version",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          "Version of the ICA client", HFILL}
+        },
+        /* netscaler, 5951 / 202 */
+        {&hf_pie_netscaler_icaclienttype,
+         {"ICA Client Type", "cflow.pie.netscaler.ica-client-type",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 203 */
+        {&hf_pie_netscaler_icaclientip,
+         {"ICA Client IP", "cflow.pie.netscaler.ica-client-ip",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 204 */
+        {&hf_pie_netscaler_icaclienthostname,
+         {"ICA Client Host Name", "cflow.pie.netscaler.ica-client-hostname",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 205 */
+        {&hf_pie_netscaler_aaausername,
+         {"AAA Username", "cflow.pie.netscaler.aaa-username",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 207 */
+        {&hf_pie_netscaler_icadomainname,
+         {"ICA Domain Name", "cflow.pie.netscaler.ica-domain-name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 208 */
+        {&hf_pie_netscaler_icaclientlauncher,
+         {"ICA Client Launcher", "cflow.pie.netscaler.ica-client-launcher",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 209 */
+        {&hf_pie_netscaler_icasessionsetuptime,
+         {"ICA Session Setup Time", "cflow.pie.netscaler.ica-session-setuptime",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "ICA Session Setup Time (s)", HFILL}
+        },
+        /* netscaler, 5951 / 210 */
+        {&hf_pie_netscaler_icaservername,
+         {"ICA Server Name", "cflow.pie.netscaler.ica-servername",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 214 */
+        {&hf_pie_netscaler_icasessionreconnects,
+         {"ICA Session Reconnects", "cflow.pie.netscaler.ica-session-reconnects",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 215 */
+        {&hf_pie_netscaler_icartt,
+         {"ICA RTT", "cflow.pie.netscaler.ica-rtt",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 216 */
+        {&hf_pie_netscaler_icaclientsiderxbytes,
+         {"ICA Clientside RX Bytes", "cflow.pie.netscaler.ica-client-side-rxbytes",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 217 */
+        {&hf_pie_netscaler_icaclientsidetxbytes,
+         {"ICA Clientside TX Bytes", "cflow.pie.netscaler.ica-client-side-txbytes",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 219 */
+        {&hf_pie_netscaler_icaclientsidepacketsretransmit,
+         {"ICA Clientside Packets Retransmit", "cflow.pie.netscaler.ica-clientside-packets-retransmit",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 220 */
+        {&hf_pie_netscaler_icaserversidepacketsretransmit,
+         {"ICA Serverside Packets Retransmit", "cflow.pie.netscaler.ica-serverside-packets-retransmit",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 221 */
+        {&hf_pie_netscaler_icaclientsidertt,
+         {"ICA Clientside RTT", "cflow.pie.netscaler.ica-clientside-rtt",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 222 */
+        {&hf_pie_netscaler_icaserversidertt,
+         {"ICA Serverside RTT", "cflow.pie.netscaler.ica-serverside-rtt",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 223 */
+        {&hf_pie_netscaler_icasessionupdatebeginsec,
+         {"ICA Session Update Begin Sec", "cflow.pie.netscaler.ica-session-update-begin-sec",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "ICA Session Update Begin Sec (s)", HFILL}
+        },
+        /* netscaler, 5951 / 224 */
+        {&hf_pie_netscaler_icasessionupdateendsec,
+         {"ICA Session Update End Sec", "cflow.pie.netscaler.ica-session-update-end-sec",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "ICA Session Update End Sec (s)", HFILL}
+        },
+        /* netscaler, 5951 / 225 */
+        {&hf_pie_netscaler_icachannelid1,
+         {"ICA Channel Id1", "cflow.pie.netscaler.ica-channel-id1",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 226 */
+        {&hf_pie_netscaler_icachannelid1bytes,
+         {"ICA Channel Id1 Bytes", "cflow.pie.netscaler.ica-channel-id1-bytes",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 227 */
+        {&hf_pie_netscaler_icachannelid2,
+         {"ICA Channel Id2", "cflow.pie.netscaler.ica-channel-id2",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 228 */
+        {&hf_pie_netscaler_icachannelid2bytes,
+         {"ICA Channel Id2 Bytes", "cflow.pie.netscaler.ica-channel-id2-bytes",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 229 */
+        {&hf_pie_netscaler_icachannelid3,
+         {"ICA Channel Id3", "cflow.pie.netscaler.ica-channel-id3",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 230 */
+        {&hf_pie_netscaler_icachannelid3bytes,
+         {"ICA Channel Id3 Bytes", "cflow.pie.netscaler.ica-channel-id3-bytes",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 231 */
+        {&hf_pie_netscaler_icachannelid4,
+         {"ICA Channel Id4", "cflow.pie.netscaler.ica-channel-id4",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 232 */
+        {&hf_pie_netscaler_icachannelid4bytes,
+         {"ICA Channel Id4 Bytes", "cflow.pie.netscaler.ica-channel-id4-bytes",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 233 */
+        {&hf_pie_netscaler_icachannelid5,
+         {"ICA Channel Id5", "cflow.pie.netscaler.ica-channel-id5",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 234 */
+        {&hf_pie_netscaler_icachannelid5bytes,
+         {"ICA Channel Id5 Bytes", "cflow.pie.netscaler.ica-channel-id5-bytes",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 235 */
+        {&hf_pie_netscaler_icaconnectionpriority,
+         {"ICA Connection Priority", "cflow.pie.netscaler.ica-connection-priority",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 236 */
+        {&hf_pie_netscaler_applicationstartupduration,
+         {"Application Startup Duration", "cflow.pie.netscaler.application-startup-duration",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 237 */
+        {&hf_pie_netscaler_icalaunchmechanism,
+         {"ICA Launch Mechanism", "cflow.pie.netscaler.ica-launch-mechanism",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 238 */
+        {&hf_pie_netscaler_icaapplicationname,
+         {"ICA Application Name", "cflow.pie.netscaler.ica-application-name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 239 */
+        {&hf_pie_netscaler_applicationstartuptime,
+         {"Application Startup Time", "cflow.pie.netscaler.application-startup-time",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "Application Startup Time (s)", HFILL}
+        },
+        /* netscaler, 5951 / 240 */
+        {&hf_pie_netscaler_icaapplicationterminationtype,
+         {"ICA Application Termination Type", "cflow.pie.netscaler.ica-application-termination-type",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 241 */
+        {&hf_pie_netscaler_icaapplicationterminationtime,
+         {"ICA Application Termination Time", "cflow.pie.netscaler.ica-application-termination-time",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "ICA Application Termination Time (s)", HFILL}
+        },
+        /* netscaler, 5951 / 242 */
+        {&hf_pie_netscaler_icasessionendtime,
+         {"ICA Session End Time", "cflow.pie.netscaler.ica-session-end-time",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "ICA Session End Time (s)", HFILL}
+        },
+        /* netscaler, 5951 / 243 */
+        {&hf_pie_netscaler_icaclientsidejitter,
+         {"ICA Clientside Jitter", "cflow.pie.netscaler.ica-clientside-jitter",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 244 */
+        {&hf_pie_netscaler_icaserversidejitter,
+         {"ICA Serverside Jitter", "cflow.pie.netscaler.ica-serverside-jitter",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 245 */
+        {&hf_pie_netscaler_icaappprocessid,
+         {"ICA App Process ID", "cflow.pie.netscaler.ica-app-processid",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 246 */
+        {&hf_pie_netscaler_icaappmodulepath,
+         {"ICA AppModule Path", "cflow.pie.netscaler.ica-appmodule-path",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 247 */
+        {&hf_pie_netscaler_icadeviceserialno,
+         {"ICA Device Serial No", "cflow.pie.netscaler.ica-device-serial-no",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 248 */
+        {&hf_pie_netscaler_msiclientcookie,
+         {"Msi Client Cookie", "cflow.pie.netscaler.msi-client-cookie",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 249 */
+        {&hf_pie_netscaler_icaflags,
+         {"ICA Flags", "cflow.pie.netscaler.ica-flags",
+          FT_UINT64, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 250 */
+        {&hf_pie_netscaler_icausername,
+         {"ICA Username", "cflow.pie.netscaler.icau-sername",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 251 */
+        {&hf_pie_netscaler_licensetype,
+         {"License Type", "cflow.pie.netscaler.license-type",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 252 */
+        {&hf_pie_netscaler_maxlicensecount,
+         {"Max License Count", "cflow.pie.netscaler.max-license-count",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 253 */
+        {&hf_pie_netscaler_currentlicenseconsumed,
+         {"Current License Consumed", "cflow.pie.netscaler.current-license-consumed",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 254 */
+        {&hf_pie_netscaler_icanetworkupdatestarttime,
+         {"ICA Network Update Start Time", "cflow.pie.netscaler.ica-network-update-start-time",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "ICA Network Update Start Time (s)", HFILL}
+        },
+        /* netscaler, 5951 / 255 */
+        {&hf_pie_netscaler_icanetworkupdateendtime,
+         {"ICA Network Update End Time", "cflow.pie.netscaler.ica-network-update-end-time",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          "ICA Network Update End Time (s)", HFILL}
+        },
+        /* netscaler, 5951 / 256 */
+        {&hf_pie_netscaler_icaclientsidesrtt,
+         {"ICA Clientside SRTT", "cflow.pie.netscaler.ica-clientside-srtt",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "ICA Clientside smooothed RTT", HFILL}
+        },
+        /* netscaler, 5951 / 257 */
+        {&hf_pie_netscaler_icaserversidesrtt,
+         {"ICA Serverside SRTT", "cflow.pie.netscaler.ica-serverside-srtt",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "ICA Serverside smoothed RTT", HFILL}
+        },
+        /* netscaler, 5951 / 258 */
+        {&hf_pie_netscaler_icaclientsidedelay,
+         {"ICA Clientside Delay", "cflow.pie.netscaler.ica-clientsi-dedelay",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 259 */
+        {&hf_pie_netscaler_icaserversidedelay,
+         {"ICA Serverside Delay", "cflow.pie.netscaler.ica-serversi-dedelay",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 260 */
+        {&hf_pie_netscaler_icahostdelay,
+         {"ICA Host Delay", "cflow.pie.netscaler.ica-host-delay",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 261 */
+        {&hf_pie_netscaler_icaclientsidewindowsize,
+         {"ICA Clientside WindowSize", "cflow.pie.netscaler.ica-clientside-windowsize",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 262 */
+        {&hf_pie_netscaler_icaserversidewindowsize,
+         {"ICA Serverside WindowSize", "cflow.pie.netscaler.ica-serverside-windowsize",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 263 */
+        {&hf_pie_netscaler_icaclientsidertocount,
+         {"ICA Clientside RTO Count", "cflow.pie.netscaler.ica-clientside-rto-count",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "ICA Clientside retrans timeout occured Count", HFILL}
+        },
+        /* netscaler, 5951 / 264 */
+        {&hf_pie_netscaler_icaserversidertocount,
+         {"ICA Serverside RTO Count", "cflow.pie.netscaler.ica-serverside-rto-count",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "ICA Serverside retrans timeout occured Count", HFILL}
+        },
+        /* netscaler, 5951 / 265 */
+        {&hf_pie_netscaler_ical7clientlatency,
+         {"ICA L7 Client Latency", "cflow.pie.netscaler.ica-l7-client-latency",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 266 */
+        {&hf_pie_netscaler_ical7serverlatency,
+         {"ICA L7 Server Latency", "cflow.pie.netscaler.ica-l7-server-latency",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 267 */
+        {&hf_pie_netscaler_httpdomainname,
+         {"HTTP Domain Name", "cflow.pie.netscaler.http-domain-name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 268 */
+        {&hf_pie_netscaler_cacheredirclientconnectioncoreid,
+         {"CacheRedir Client Connection Core ID", "cflow.pie.netscaler.cacheredir-client-connection-coreid",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* netscaler, 5951 / 269 */
+        {&hf_pie_netscaler_cacheredirclientconnectiontransactionid,
+         {"CacheRedir Client Connection Transaction ID", "cflow.pie.netscaler.cacheredir-client-connectiontransactionid",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
         },
 
 

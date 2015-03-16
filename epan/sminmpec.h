@@ -70,6 +70,7 @@
 #define VENDOR_THE3GPP2              5535
 #define VENDOR_IP_UNPLUGGED          5925
 #define VENDOR_ISSANNI               5948
+#define VENDOR_NETSCALER             5951
 #define VENDOR_DE_TE_MOBIL           6490
 #define VENDOR_QUINTUM               6618
 #define VENDOR_INTERLINK             6728
