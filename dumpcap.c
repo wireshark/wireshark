@@ -4682,7 +4682,11 @@ main(int argc, char *argv[])
     }
 
     if (run_once_args > 1) {
-        cmdarg_err("Only one of -D, -L, or -S may be supplied.");
+#ifdef HAVE_BPF_IMAGE
+        cmdarg_err("Only one of -D, -L, -d, -k, or -S may be supplied.");
+#else
+        cmdarg_err("Only one of -D, -L, -k, or -S may be supplied.");
+#endif
         exit_main(1);
     } else if (run_once_args == 1) {
         /* We're supposed to print some information, rather than
