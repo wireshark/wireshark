@@ -197,6 +197,11 @@ static int hf_dns_mx_preference = -1;
 static int hf_dns_mx_mail_exchange = -1;
 static int hf_dns_txt_length = -1;
 static int hf_dns_txt = -1;
+static int hf_dns_csync_soa = -1;
+static int hf_dns_csync_flags = -1;
+static int hf_dns_csync_flags_immediate = -1;
+static int hf_dns_csync_flags_soaminimum = -1;
+static int hf_dns_csync_type_bitmap = -1;
 static int hf_dns_openpgpkey = -1;
 static int hf_dns_spf_length = -1;
 static int hf_dns_spf = -1;
@@ -395,6 +400,7 @@ static gint ett_t_key = -1;
 static gint ett_dns_mac = -1;
 static gint ett_caa_flags = -1;
 static gint ett_caa_data = -1;
+static gint ett_dns_csdync_flags = -1;
 
 static expert_field ei_dns_opt_bad_length = EI_INIT;
 static expert_field ei_dns_depr_opc = EI_INIT;
@@ -515,9 +521,10 @@ typedef struct _dns_conv_info_t {
 #define T_NINFO         56              /* NINFO */
 #define T_RKEY          57              /* RKEY */
 #define T_TALINK        58              /* Trust Anchor LINK */
-#define T_CDS           59              /* Child DS (draft-ietf-dnsop-delegation-trust-maintainance)*/
-#define T_CDNSKEY       60              /* DNSKEY(s) the Child wants reflected in DS (draft-ietf-dnsop-delegation-trust-maintainance)*/
+#define T_CDS           59              /* Child DS (RFC7344)*/
+#define T_CDNSKEY       60              /* DNSKEY(s) the Child wants reflected in DS ( [RFC7344])*/
 #define T_OPENPGPKEY    61              /* OPENPGPKEY draft-ietf-dane-openpgpkey-00 */
+#define T_CSYNC         62              /* Child To Parent Synchronization (RFC7477) */
 #define T_SPF           99              /* SPF RR (RFC 4408) section 3 */
 #define T_UINFO        100              /* [IANA-Reserved] */
 #define T_UID          101              /* [IANA-Reserved] */
@@ -871,6 +878,7 @@ static const value_string dns_types_vals[] = {
   { T_CDS,        "CDS"        }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
   { T_CDNSKEY,    "CDNSKEY"    }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
   { T_OPENPGPKEY, "OPENPGPKEY" }, /* draft-ietf-dane-openpgpkey-00 */
+  { T_CSYNC,      "CSYNC "     }, /* RFC 7477 */
   { T_SPF,        "SPF"        }, /* RFC 4408 */
   { T_UINFO,      "UINFO"      }, /* IANA reserved */
   { T_UID,        "UID"        }, /* IANA reserved */
@@ -962,7 +970,8 @@ static const value_string dns_types_description_vals[] = {
   { T_TALINK,     "TALINK (Trust Anchor LINK)" },
   { T_CDS,        "CDS (Child DS)" }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
   { T_CDNSKEY,    "CDNSKEY (DNSKEY(s) the Child wants reflected in DS)" }, /* draft-ietf-dnsop-delegation-trust-maintainance-14 */
-  { T_OPENPGPKEY, "OPENPGPKEY ( OpenPGP Key)" }, /* draft-ietf-dane-openpgpkey-00 */
+  { T_OPENPGPKEY, "OPENPGPKEY (OpenPGP Key)" }, /* draft-ietf-dane-openpgpkey-00 */
+  { T_CSYNC,      "CSYNC (Child-to-Parent Synchronization)" }, /* RFC7477 */
   { T_SPF,        "SPF" }, /* RFC 4408 */
   { T_UINFO,      "UINFO" }, /* IANA reserved */
   { T_UID,        "UID" }, /* IANA reserved */
@@ -1073,6 +1082,11 @@ const value_string dns_classes[] = {
   {0,NULL}
 };
 
+static const int *dns_csync_flags[] = {
+    &hf_dns_csync_flags_immediate,
+    &hf_dns_csync_flags_soaminimum,
+    NULL
+};
 
 /* This function counts how many '.' are in the string, plus 1, in order to count the number
  * of labels
@@ -3230,6 +3244,23 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_openpgpkey, tvb, cur_offset, data_len, ENC_ASCII|ENC_NA);
 
     }
+    case T_CSYNC: /* Child-to-Parent Synchronization (62) */
+    {
+      int         rr_len, initial_offset = cur_offset;
+
+      proto_tree_add_item(rr_tree, hf_dns_csync_soa, tvb, cur_offset, 4, ENC_ASCII|ENC_NA);
+      cur_offset += 4;
+
+      proto_tree_add_bitmask_with_flags(rr_tree, tvb, cur_offset,
+ hf_dns_csync_flags, ett_dns_csdync_flags, dns_csync_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+      cur_offset += 2;
+
+      rr_len = data_len - (cur_offset - initial_offset);
+      proto_tree_add_item(rr_tree, hf_dns_csync_type_bitmap, tvb, cur_offset, rr_len, ENC_NA);
+
+      dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
+
+    }
     break;
 
     case T_SPF: /* Sender Policy Framework (99) */
@@ -4562,6 +4593,31 @@ proto_register_dns(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
+    { &hf_dns_csync_soa,
+      { "SOA", "dns.csync.soa",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_csync_flags,
+      { "Flags", "dns.csync.flags",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_csync_flags_immediate,
+      { "immediate", "dns.csync.flags.immediate",
+        FT_BOOLEAN, 16, NULL, 0x0001,
+        NULL, HFILL }},
+
+    { &hf_dns_csync_flags_soaminimum,
+      { "soaminimum", "dns.csync.flags.soaminimum",
+        FT_BOOLEAN, 16, NULL, 0x0002,
+        NULL, HFILL }},
+
+    { &hf_dns_csync_type_bitmap,
+      { "Type Bitmap", "dns.csync.type_bitmap",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
     { &hf_dns_spf_length,
       { "SPF Length", "dns.spf.length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -5524,6 +5580,7 @@ proto_register_dns(void)
     &ett_dns_mac,
     &ett_caa_flags,
     &ett_caa_data,
+    &ett_dns_csdync_flags,
   };
 
   module_t *dns_module;
