@@ -4819,6 +4819,43 @@ main(int argc, char *argv[])
         exit_main(status);
     }
 
+    if (list_link_layer_types) {
+        /* Get the list of link-layer types for the capture device. */
+        if_capabilities_t *caps;
+        gchar *err_str;
+        guint  ii;
+
+        for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
+            interface_options interface_opts;
+
+            interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, ii);
+            caps = get_if_capabilities(interface_opts.name,
+                                       interface_opts.monitor_mode, &err_str);
+            if (caps == NULL) {
+                cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
+                           "Please check to make sure you have sufficient permissions, and that\n"
+                           "you have the proper interface or pipe specified.", interface_opts.name, err_str);
+                g_free(err_str);
+                exit_main(2);
+            }
+            if (caps->data_link_types == NULL) {
+                cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
+                exit_main(2);
+            }
+            if (machine_readable)      /* tab-separated values to stdout */
+                /* XXX: We need to change the format and adopt consumers */
+                print_machine_readable_if_capabilities(caps);
+            else
+                /* XXX: We might want to print also the interface name */
+                capture_opts_print_if_capabilities(caps, interface_opts.name,
+                                                   interface_opts.monitor_mode);
+            free_if_capabilities(caps);
+        }
+        exit_main(0);
+    }
+
+    /* We're supposed to do a capture, or print the BPF code for a filter. */
+
     /* Let the user know what interfaces were chosen. */
     if (capture_child) {
         for (j = 0; j < global_capture_opts.ifaces->len; j++) {
@@ -4858,43 +4895,7 @@ main(int argc, char *argv[])
         g_string_free(str, TRUE);
     }
 
-    if (list_link_layer_types) {
-        /* Get the list of link-layer types for the capture device. */
-        if_capabilities_t *caps;
-        gchar *err_str;
-        guint  ii;
-
-        for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
-            interface_options interface_opts;
-
-            interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, ii);
-            caps = get_if_capabilities(interface_opts.name,
-                                       interface_opts.monitor_mode, &err_str);
-            if (caps == NULL) {
-                cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
-                           "Please check to make sure you have sufficient permissions, and that\n"
-                           "you have the proper interface or pipe specified.", interface_opts.name, err_str);
-                g_free(err_str);
-                exit_main(2);
-            }
-            if (caps->data_link_types == NULL) {
-                cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
-                exit_main(2);
-            }
-            if (machine_readable)      /* tab-separated values to stdout */
-                /* XXX: We need to change the format and adopt consumers */
-                print_machine_readable_if_capabilities(caps);
-            else
-                /* XXX: We might want to print also the interface name */
-                capture_opts_print_if_capabilities(caps, interface_opts.name,
-                                                   interface_opts.monitor_mode);
-            free_if_capabilities(caps);
-        }
-        exit_main(0);
-    }
-
-    /* We're supposed to do a capture, or print the BPF code for a filter.
-       Process the snapshot length, as that affects the generated BPF code. */
+    /* Process the snapshot length, as that affects the generated BPF code. */
     capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
 
 #ifdef HAVE_BPF_IMAGE
