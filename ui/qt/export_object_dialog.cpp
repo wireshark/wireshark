@@ -270,19 +270,29 @@ void ExportObjectDialog::saveAllEntries()
 {
     int i;
     QTreeWidgetItem *item;
-    QDir path(wsApp->lastOpenDir());
-    QString file_path;
+    QDir save_in_dir(wsApp->lastOpenDir());
+    QString save_in_path;
     bool all_saved = true;
 
-    file_path = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save All Objects In" UTF8_HORIZONTAL_ELLIPSIS)),
-                                             path.canonicalPath(), QString(), NULL,
-                                             QFileDialog::ShowDirsOnly);
+    //
+    // We want the user to be able to specify a directory in which
+    // to drop files for all the objects, not a file name.
+    //
+    // XXX - what we *really* want is something that asks the user
+    // for an existing directory *but* lets them create a new
+    // directory in the process.  That's what we get on OS X,
+    // as the native dialog is used, and it supports that; does
+    // that also work on Windows and with Qt's own dialog?
+    //
+    save_in_path = QFileDialog::getExistingDirectory(this, wsApp->windowTitleString(tr("Save All Objects In" UTF8_HORIZONTAL_ELLIPSIS)),
+                                                     save_in_dir.canonicalPath(),
+                                                     QFileDialog::ShowDirsOnly);
 
-    if (file_path.length() < 1 || file_path.length() > MAXFILELEN) return;
+    if (save_in_path.length() < 1 || save_in_path.length() > MAXFILELEN) return;
 
-    for (i = 0, item = eo_ui_->objectTree->topLevelItem(i); item != NULL; i++) {
+    for (i = 0; (item = eo_ui_->objectTree->topLevelItem(i)) != NULL; i++) {
         int count = 0;
-        QString file_name;
+        gchar *save_as_fullpath = NULL;
         export_object_entry_t *entry = item->data(0, Qt::UserRole).value<export_object_entry_t *>();
 
         if (!entry) continue;
@@ -290,10 +300,10 @@ void ExportObjectDialog::saveAllEntries()
         do {
             GString *safe_filename;
 
-            path.setCurrent(file_path);
+            g_free(save_as_fullpath);
             if (entry->filename)
                 safe_filename = eo_massage_str(entry->filename,
-                    MAXFILELEN - file_path.length(), count);
+                    MAXFILELEN - save_in_path.length(), count);
             else {
                 char generic_name[256];
                 const char *ext;
@@ -302,13 +312,16 @@ void ExportObjectDialog::saveAllEntries()
                     "object%u%s%s", entry->pkt_num, ext ? "." : "",
                     ext ? ext : "");
                 safe_filename = eo_massage_str(generic_name,
-                    MAXFILELEN - file_path.length(), count);
+                    MAXFILELEN - save_in_path.length(), count);
             }
-            file_name = path.filePath(safe_filename->str);
+            save_as_fullpath = g_build_filename(save_in_path.toUtf8().constData(),
+                                                safe_filename->str, NULL);
             g_string_free(safe_filename, TRUE);
-        } while (g_file_test(file_path.toUtf8().constData(), G_FILE_TEST_EXISTS) && ++count < 1000);
-        if (!eo_save_entry(file_path.toUtf8().constData(), entry, FALSE))
+        } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
+        if (!eo_save_entry(save_as_fullpath, entry, FALSE))
             all_saved = false;
+        g_free(save_as_fullpath);
+        save_as_fullpath = NULL;
     }
     if (!all_saved) {
         QMessageBox::warning(
