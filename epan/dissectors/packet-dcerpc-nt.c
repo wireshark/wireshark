@@ -971,6 +971,9 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	switch(type){
 	case HND_TYPE_CTX_HANDLE:
+		if (!di->no_align && (offset % 4)) {
+			offset += 4 - (offset % 4);
+		}
 		subtree = proto_tree_add_subtree(tree, tvb, offset, sizeof(e_ctx_hnd),
 					   ett_nt_policy_hnd, &item, "Policy Handle");
 

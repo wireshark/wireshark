@@ -560,7 +560,7 @@ dissect_ndr_ctx_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         return offset;
     }
 
-    if (!di->no_align && (offset % 2)) {
+    if (!di->no_align && (offset % 4)) {
         offset += 4 - (offset % 4);
     }
     ctx_hnd.attributes = dcerpc_tvb_get_ntohl(tvb, offset, drep);
