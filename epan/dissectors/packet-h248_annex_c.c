@@ -25,10 +25,12 @@
 
 #include "config.h"
 
-
+#include <epan/exceptions.h>
 #include "packet-h248.h"
 
 void proto_register_h248_annex_c(void);
+void proto_reg_handoff_h248_annex_c(void);
+
 
 #define PNAME  "H.248 Annex C"
 #define PSNAME "H248C"
@@ -36,6 +38,9 @@ void proto_register_h248_annex_c(void);
 
 /* H.248 Annex C */
 static int proto_h248_pkg_annexc = -1;
+
+static int hf_h248_sdp_connection_info = -1;
+static int hf_h248_sdp_media_port = -1;
 
 static int hf_h248_pkg_annexc_media = -1;
 static int hf_h248_pkg_annexc_ACodec = -1;
@@ -809,9 +814,54 @@ static void dissect_h248_annexc_SDP(proto_tree* tree, tvbuff_t* tvb, packet_info
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_restricted_string( FALSE, BER_UNI_TAG_IA5String,
-				       &asn1_ctx, tree, tvb, 0, hfid,
-				       NULL);
+	dissect_ber_restricted_string(FALSE, BER_UNI_TAG_IA5String,
+		&asn1_ctx, tree, tvb, 0, hfid,
+		NULL);
+}
+
+static void dissect_h248_annexc_SDP_C(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* h248_info _U_, void* implicit_p _U_) {
+	asn1_ctx_t asn1_ctx;
+	tvbuff_t *param_tvb = NULL;
+	proto_item *ti;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_restricted_string(FALSE, BER_UNI_TAG_IA5String,
+		&asn1_ctx, tree, tvb, 0, hfid,
+		&param_tvb);
+
+	if (param_tvb){
+		ti = proto_tree_add_item(tree, hf_h248_sdp_connection_info, param_tvb, 0, -1, ENC_BIG_ENDIAN);
+		PROTO_ITEM_SET_GENERATED(ti);
+	}
+}
+
+static void dissect_h248_annexc_SDP_M(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* h248_info _U_, void* implicit_p _U_) {
+	asn1_ctx_t asn1_ctx;
+	tvbuff_t *param_tvb = NULL;
+	proto_item *ti;
+	int offset, next_offset, tokenlen;
+	gchar *port_str;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+	dissect_ber_restricted_string(FALSE, BER_UNI_TAG_IA5String,
+		&asn1_ctx, tree, tvb, 0, hfid,
+		&param_tvb);
+
+	if (param_tvb){
+		offset = tvb_find_guint8(param_tvb, 0, -1, ' ');
+		if (offset != -1){
+			offset++;
+			next_offset = tvb_find_guint8(param_tvb, offset, -1, ' ');
+			if (next_offset > 0){
+				tokenlen = next_offset - offset;
+				port_str = tvb_get_string_enc(wmem_packet_scope(), param_tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);
+				if (g_ascii_isdigit(port_str[0])) {
+					ti = proto_tree_add_uint(tree, hf_h248_sdp_media_port, param_tvb, offset, tokenlen, atoi(port_str));
+					PROTO_ITEM_SET_GENERATED(ti);
+				}
+			}
+		}
+	}
 }
 
 gboolean h248_c_implicit = TRUE;
@@ -941,14 +991,14 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0xB005, &hf_h248_pkg_annexc_sdp_u, dissect_h248_annexc_SDP, &h248_c_implicit },
 	{ 0xB006, &hf_h248_pkg_annexc_sdp_e, dissect_h248_annexc_SDP, &h248_c_implicit },
 	{ 0xB007, &hf_h248_pkg_annexc_sdp_p, dissect_h248_annexc_SDP, &h248_c_implicit },
-	{ 0xB008, &hf_h248_pkg_annexc_sdp_c, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB008, &hf_h248_pkg_annexc_sdp_c, dissect_h248_annexc_SDP_C, &h248_c_implicit },
 	{ 0xB009, &hf_h248_pkg_annexc_sdp_b, dissect_h248_annexc_SDP, &h248_c_implicit },
 	{ 0xB00a, &hf_h248_pkg_annexc_sdp_z, dissect_h248_annexc_SDP, &h248_c_implicit },
 	{ 0xB00b, &hf_h248_pkg_annexc_sdp_k, dissect_h248_annexc_SDP, &h248_c_implicit },
 	{ 0xB00c, &hf_h248_pkg_annexc_sdp_a, dissect_h248_annexc_SDP, &h248_c_implicit },
 	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, dissect_h248_annexc_SDP, &h248_c_implicit },
 	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, dissect_h248_annexc_SDP, &h248_c_implicit },
-	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, dissect_h248_annexc_SDP_M, &h248_c_implicit },
 
 	{ 0xC001, &hf_h248_pkg_annexc_olc, h248_param_ber_octetstring,    NULL },
 	{ 0xC002, &hf_h248_pkg_annexc_olcack, h248_param_ber_octetstring, NULL },
@@ -1514,8 +1564,17 @@ void proto_register_h248_annex_c(void) {
 
 	h248_register_package(&h248_annexc_package,MERGE_PKG_HIGH);
 
+
 }
 
+void
+proto_reg_handoff_h248_annex_c(void)
+{
+
+	hf_h248_sdp_connection_info = proto_registrar_get_id_byname("sdp.connection_info");
+	hf_h248_sdp_media_port = proto_registrar_get_id_byname("sdp.media.port");
+
+}
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
