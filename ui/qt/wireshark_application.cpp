@@ -527,7 +527,7 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 
     addr_resolv_timer_.setParent(this);
     connect(&addr_resolv_timer_, SIGNAL(timeout()), this, SLOT(refreshAddressResolution()));
-    recent_timer_.start(1000);
+    addr_resolv_timer_.start(1000);
 
     tap_update_timer_.setParent(this);
     tap_update_timer_.setInterval(TAP_UPDATE_DEFAULT_INTERVAL);
