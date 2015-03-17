@@ -4646,28 +4646,41 @@ DIAG_ON(cast-qual)
             break;
             /*** all non capture option specific ***/
         case 'D':        /* Print a list of capture devices and exit */
-            list_interfaces = TRUE;
-            run_once_args++;
+            if (!list_interfaces) {
+                list_interfaces = TRUE;
+                run_once_args++;
+            }
             break;
         case 'L':        /* Print list of link-layer types and exit */
-            list_link_layer_types = TRUE;
-            run_once_args++;
+            if (!list_link_layer_types) {
+                list_link_layer_types = TRUE;
+                run_once_args++;
+            }
             break;
 #ifdef HAVE_BPF_IMAGE
         case 'd':        /* Print BPF code for capture filter and exit */
-            print_bpf_code = TRUE;
-            run_once_args++;
+            if (!print_bpf_code) {
+                print_bpf_code = TRUE;
+                run_once_args++;
+            }
             break;
 #endif
         case 'S':        /* Print interface statistics once a second */
-            print_statistics = TRUE;
-            run_once_args++;
+            if (!print_statistics) {
+                print_statistics = TRUE;
+                run_once_args++;
+            }
             break;
         case 'k':        /* Set wireless channel */
-            set_chan = TRUE;
-            set_chan_arg = optarg;
-            run_once_args++;
-           break;
+            if (!set_chan) {
+                set_chan = TRUE;
+                set_chan_arg = optarg;
+                run_once_args++;
+            } else {
+                cmdarg_err("Only one -k flag may be specified");
+                arg_error = TRUE;
+            }
+            break;
         case 'M':        /* For -D, -L, and -S, print machine-readable output */
             machine_readable = TRUE;
             break;
