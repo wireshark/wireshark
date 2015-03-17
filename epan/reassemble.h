@@ -70,26 +70,29 @@
 
 typedef struct _fragment_item {
 	struct _fragment_item *next;
-	guint32 frame;	/* XXX - does this apply to reassembly heads? */
-	guint32	offset;	/* XXX - does this apply to reassembly heads? */
-	guint32	len;	/* XXX - does this apply to reassembly heads? */
-	guint32 fragment_nr_offset; /* offset for frame numbering, for sequences, where the
-	                             * provided fragment number of the first fragment does
-	                             * not start with 0
-	                             * XXX - does this apply only to reassembly heads? */
-	guint32 datalen; /* Only valid in first item of list and when
-                          * flags&FD_DATALEN_SET is set;
-                          * number of bytes or (if flags&FD_BLOCKSEQUENCE set)
-                          * segments in the datagram */
-	guint32 reassembled_in;	/* frame where this PDU was reassembled,
-				   only valid in the first item of the list
-				   and when FD_DEFRAGMENTED is set*/
-	guint32 flags;	/* XXX - do some of these apply only to reassembly
-			   heads and others only to fragments within
-			   a reassembly? */
+	guint32 frame;					/* XXX - does this apply to reassembly heads? */
+	guint32	offset;					/* XXX - does this apply to reassembly heads? */
+	guint32	len;					/* XXX - does this apply to reassembly heads? */
+	guint32 fragment_nr_offset;		/**< offset for frame numbering, for sequences, where the
+									 * provided fragment number of the first fragment does
+									 * not start with 0
+									 * XXX - does this apply only to reassembly heads? */
+	guint32 datalen;				/**< Only valid in first item of list and when
+									 * flags&FD_DATALEN_SET is set;
+									 * number of bytes or (if flags&FD_BLOCKSEQUENCE set)
+									 * segments in the datagram */
+	guint32 reassembled_in;			/**< frame where this PDU was reassembled,
+										 only valid in the first item of the list
+										 and when FD_DEFRAGMENTED is set*/
+	guint8 reas_in_layer_num;		/**< The current "depth" or layer number in the current frame where reassembly was completed.
+									 * Example: in SCTP there can be several data chunks and we want the reassemblied tvb for the final
+									 * segment only.
+									 */
+	guint32 flags;					/**< XXX - do some of these apply only to reassembly
+										 heads and others only to fragments within
+										 a reassembly? */
 	tvbuff_t *tvb_data;
-
-	/*
+	/**
 	 * Null if the reassembly had no error; non-null if it had
 	 * an error, in which case it's the string for the error.
 	 *

@@ -819,6 +819,7 @@ fragment_reassembled(reassembly_table *table, fragment_head *fd_head,
 	}
 	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in = pinfo->fd->num;
+	fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 }
 
 static void
@@ -909,6 +910,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 				fd_head->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
 				fd_head->datalen=0;
 				fd_head->reassembled_in=0;
+				fd_head->reas_in_layer_num = 0;
 			} else {
 				/*
 				 * No.  Bail out since we have no idea what to
@@ -1187,6 +1189,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 	   allows us to skip any trailing fragments */
 	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in=pinfo->fd->num;
+	fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 
 	/* we don't throw until here to avoid leaking old_data and others */
 	if (fd_head->error) {
@@ -1538,6 +1541,7 @@ fragment_defragment_and_free (fragment_head *fd_head, const packet_info *pinfo)
 	 */
 	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in=pinfo->fd->num;
+	fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 }
 
 /*
@@ -1595,6 +1599,7 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 		fd_head->flags &= (~FD_TOOLONGFRAGMENT) & (~FD_MULTIPLETAILS);
 		fd_head->datalen=0;
 		fd_head->reassembled_in=0;
+		fd_head->reas_in_layer_num = 0;
 	}
 
 
@@ -1843,6 +1848,7 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			if (orig_keyp != NULL)
 				*orig_keyp = NULL;
 			fd_head->reassembled_in=pinfo->fd->num;
+			fd_head->reas_in_layer_num = pinfo->curr_layer_num;
 			return fd_head;
 		}
 
@@ -2088,6 +2094,7 @@ fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
 		fd_head->flags = FD_BLOCKSEQUENCE|FD_DATALEN_SET;
 		fd_head->tvb_data = NULL;
 		fd_head->reassembled_in = 0;
+		fd_head->reas_in_layer_num = 0;
 		fd_head->error = NULL;
 
 		insert_fd_head(table, fd_head, pinfo, id, data);
@@ -2167,7 +2174,7 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	gboolean update_col_info;
 	proto_item *frag_tree_item;
 
-	if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in) {
+	if (fd_head != NULL && pinfo->fd->num == fd_head->reassembled_in && pinfo->curr_layer_num == fd_head->reas_in_layer_num) {
 		/*
 		 * OK, we've reassembled this.
 		 * Is this something that's been reassembled from more
