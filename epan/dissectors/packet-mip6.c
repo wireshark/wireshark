@@ -42,6 +42,7 @@
  * RFC 5949, Fast Handovers for Proxy Mobile IPv6
  * RFC 6275, Mobility Support in IPv6 (Obsoletes RFC 3775).
  * RFC 6602, Bulk Binding Update Support for Proxy Mobile IPv6
+ * RFC 6705, Localized Routing for Proxy Mobile IPv6
  * RFC 6757, Access Network Identifier (ANI) Option for Proxy Mobile IPv6
  *
  */
@@ -611,6 +612,12 @@ static const value_string mip6_mng_id_type_vals[] = {
     { 0,        NULL},
 };
 
+static const value_string pmip6_lra_status_vals[] = {
+    { 0,     "Success"},
+    { 128,   "Localized Routing Not Allowed"},
+    { 129,   "MN Not Attached"},
+    { 0,        NULL},
+};
 
 /* Message lengths */
 #define MIP6_BRR_LEN          2
@@ -1125,6 +1132,16 @@ static int hf_pmip6_bri_ig_flag = -1;
 static int hf_pmip6_bri_ag_flag = -1;
 static int hf_pmip6_bri_res = -1;
 
+static int hf_pmip6_lri_sequence = -1;
+static int hf_pmip6_lri_reserved = -1;
+static int hf_pmip6_lri_lifetime = -1;
+
+static int hf_pmip6_lra_sequence = -1;
+static int hf_pmip6_lra_u = -1;
+static int hf_pmip6_lra_reserved = -1;
+static int hf_pmip6_lra_status = -1;
+static int hf_pmip6_lra_lifetime = -1;
+
 static int hf_mip6_opt_recap_reserved = -1;
 static int hf_mip6_opt_redir_k = -1;
 static int hf_mip6_opt_redir_n = -1;
@@ -1142,6 +1159,10 @@ static int hf_mip6_opt_alt_ip4 = -1;
 static int hf_mip6_opt_mng_sub_type = -1;
 static int hf_mip6_opt_mng_reserved = -1;
 static int hf_mip6_opt_mng_mng_id = -1;
+
+static int hf_mip6_opt_mag_ipv6_reserved = -1;
+static int hf_mip6_opt_mag_ipv6_address_length = -1;
+static int hf_mip6_opt_mag_ipv6_address = -1;
 
 static int hf_mip6_opt_acc_net_id_sub = -1;
 static int hf_mip6_opt_acc_net_id_sub_opt = -1;
@@ -1710,6 +1731,79 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
     return MIP6_DATA_OFF + PMIP6_BRI_LEN;
 }
 
+/*
+
+    10.1. Localized Routing Initiation (LRI)
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                    |           Sequence #          |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |         Reserved              |           Lifetime            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    .                                                               .
+    .                        Mobility options                       .
+    .                                                               .
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+*/
+
+static int
+dissect_pmip6_lri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_, gint offset)
+{
+    proto_tree_add_item(mip6_tree, hf_pmip6_lri_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(mip6_tree, hf_pmip6_lri_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(mip6_tree, hf_pmip6_lri_lifetime, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+/*
+
+    10.2. Localized Routing Acknowledgment (LRA)
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                    |           Sequence #          |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |U|  Reserved   |   Status      |           Lifetime            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    .                                                               .
+    .                        Mobility options                       .
+    .                                                               .
+    |                                                               |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+*/
+
+static int
+dissect_pmip6_lra(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_, gint offset)
+{
+    proto_tree_add_item(mip6_tree, hf_pmip6_lra_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(mip6_tree, hf_pmip6_lra_u, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(mip6_tree, hf_pmip6_lra_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(mip6_tree, hf_pmip6_lra_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(mip6_tree, hf_pmip6_lra_lifetime, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
 /* Functions to dissect the mobility options */
 /*Dissect vendor option 3GPP
  * Ref  Mobile IPv6 vendor specific option format and usage within 3GPP
@@ -3044,8 +3138,12 @@ dissect_pmip6_opt_mag_ipv6(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     /* offset points to tag(opt) */
     offset++;
     proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-    proto_tree_add_text(opt_tree, tvb, offset, 18, "Not dissected yet");
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mag_ipv6_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mag_ipv6_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_mag_ipv6_address, tvb, offset, 16, ENC_NA);
 
 }
 
@@ -3935,10 +4033,12 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     case MIP6_LRI:
         /* 17 Localized Routing Initiation */
-        /* Fall trough */
+        offset = dissect_pmip6_lri(tvb, mip6_tree, pinfo, offset);
+        break;
     case MIP6_LRA:
         /* 18 Localized Routing Acknowledgment */
-        /* Fall trough */
+        offset = dissect_pmip6_lra(tvb, mip6_tree, pinfo, offset);
+        break;
     default:
         dissect_mip6_unknown(tvb, mip6_tree, pinfo);
         offset = len;
@@ -4783,6 +4883,54 @@ proto_register_mip6(void)
         "Must be zero", HFILL }
     },
 
+    { &hf_pmip6_lri_sequence,
+      { "Sequence", "mip6.lri.sequence",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "A monotonically increasing integer", HFILL }
+    },
+
+    { &hf_pmip6_lri_reserved,
+      { "Reserved", "mip6.lri.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "This field is unused and MUST be set to zero", HFILL }
+    },
+
+    { &hf_pmip6_lri_lifetime,
+      { "Lifetime", "mip6.lri.lifetime",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "The requested time, in seconds", HFILL }
+    },
+
+    { &hf_pmip6_lra_sequence,
+      { "Sequence", "mip6.lra.sequence",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "A monotonically increasing integer", HFILL }
+    },
+
+    { &hf_pmip6_lra_u,
+      { "unsolicited", "mip6.lri.reserved",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        "This field is unused and MUST be set to zero", HFILL }
+    },
+
+    { &hf_pmip6_lra_reserved,
+      { "Reserved", "mip6.lra.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x7F,
+        "This field is unused and MUST be set to zero", HFILL }
+    },
+
+    { &hf_pmip6_lra_status,
+      { "Status", "mip6.lra.status",
+        FT_UINT8, BASE_DEC, VALS(pmip6_lra_status_vals), 0x0,
+        "Indicating the result ofprocessing the Localized Routing Acknowledgment message.", HFILL }
+    },
+
+    { &hf_pmip6_lra_lifetime,
+      { "Lifetime", "mip6.lra.lifetime",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "The requested time, in seconds", HFILL }
+    },
+
     { &hf_mip6_opt_recap_reserved,
       { "Reserved", "mip6.recap.reserved",
         FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -4862,6 +5010,24 @@ proto_register_mip6(void)
     { &hf_mip6_opt_mng_mng_id,
       { "Mobile Node Group Identifier", "mip6.mng.mng_id",
         FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_mag_ipv6_reserved,
+      { "Reserved", "mip6.mag_ipv6.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_mag_ipv6_address_length,
+      { "Address Length", "mip6.mag_ipv6.address_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "This field MUST be set to 128", HFILL }
+    },
+
+    { &hf_mip6_opt_mag_ipv6_address,
+      { "Address", "mip6.mag_ipv6.address",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
 
