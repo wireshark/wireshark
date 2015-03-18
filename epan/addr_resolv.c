@@ -849,6 +849,7 @@ new_ipv4(const guint addr)
     hashipv4_t *tp = g_new(hashipv4_t, 1);
     tp->addr = addr;
     tp->flags = 0;
+    tp->name[0] = '\0';
     ip_to_str_buf((const guint8 *)&addr, tp->ip, sizeof(tp->ip));
     return tp;
 }
@@ -941,6 +942,7 @@ new_ipv6(const struct e_in6_addr *addr)
     hashipv6_t *tp = g_new(hashipv6_t,1);
     tp->addr = *addr;
     tp->flags = 0;
+    tp->name[0] = '\0';
     ip6_to_str_buf(addr, tp->ip6);
     return tp;
 }
@@ -2683,20 +2685,20 @@ add_ipv4_name(const guint addr, const gchar *name)
      * Don't add zero-length names; apparently, some resolvers will return
      * them if they get them from DNS.
      */
-    if (name[0] == '\0')
+    if (!name || name[0] == '\0')
         return;
 
 
     tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
-    if (tp) {
-        g_strlcpy(tp->name, name, MAXNAMELEN);
-    } else {
+    if (!tp) {
         tp = new_ipv4(addr);
-        g_strlcpy(tp->name, name, MAXNAMELEN);
         g_hash_table_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
     }
 
-    g_strlcpy(tp->name, name, MAXNAMELEN);
+    if (g_ascii_strcasecmp(tp->name, name)) {
+        g_strlcpy(tp->name, name, MAXNAMELEN);
+        new_resolved_objects = TRUE;
+    }
     tp->flags = tp->flags | TRIED_RESOLVE_ADDRESS;
     new_resolved_objects = TRUE;
 
@@ -2712,25 +2714,24 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
      * Don't add zero-length names; apparently, some resolvers will return
      * them if they get them from DNS.
      */
-    if (name[0] == '\0')
+    if (!name || name[0] == '\0')
         return;
 
     tp = (hashipv6_t *)g_hash_table_lookup(ipv6_hash_table, addrp);
-    if (tp) {
-        g_strlcpy(tp->name, name, MAXNAMELEN);
-    } else {
+    if (!tp) {
         struct e_in6_addr *addr_key;
 
         addr_key = g_new(struct e_in6_addr,1);
         tp = new_ipv6(addrp);
         memcpy(addr_key, addrp, 16);
-        g_strlcpy(tp->name, name, MAXNAMELEN);
         g_hash_table_insert(ipv6_hash_table, addr_key, tp);
     }
 
-    g_strlcpy(tp->name, name, MAXNAMELEN);
+    if (g_ascii_strcasecmp(tp->name, name)) {
+        g_strlcpy(tp->name, name, MAXNAMELEN);
+        new_resolved_objects = TRUE;
+    }
     tp->flags = tp->flags | TRIED_RESOLVE_ADDRESS;
-    new_resolved_objects = TRUE;
 
 } /* add_ipv6_name */
 
