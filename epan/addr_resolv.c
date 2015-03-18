@@ -2700,7 +2700,6 @@ add_ipv4_name(const guint addr, const gchar *name)
         new_resolved_objects = TRUE;
     }
     tp->flags = tp->flags | TRIED_RESOLVE_ADDRESS;
-    new_resolved_objects = TRUE;
 
 } /* add_ipv4_name */
 
