@@ -70,6 +70,7 @@ static int hf_service_info_flags_src_ip_alt_hash = -1;
 static int hf_service_info_flags_dest_ip_alt_hash = -1;
 static int hf_service_info_flags_src_port_alt_hash = -1;
 static int hf_service_info_flags_dest_port_alt_hash = -1;
+static int hf_service_info_flags_reserved = -1;
 static int hf_service_info_source_port = -1;
 static int hf_service_info_destination_port = -1;
 static int hf_router_identity_ip = -1;
@@ -82,6 +83,7 @@ static int hf_web_cache_identity_flags = -1;
 static int hf_web_cache_identity_flag_hash_info = -1;
 static int hf_web_cache_identity_flag_assign_type = -1;
 static int hf_web_cache_identity_flag_version_request = -1;
+static int hf_web_cache_identity_flag_reserved = -1;
 static int hf_mask_value_set_element_value_element_num = -1;
 static int hf_assignment_weight = -1;
 static int hf_assignment_status = -1;
@@ -1235,10 +1237,25 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
   guint8 service_type;
   guint32 flags;
   proto_item *tf;
-  proto_tree *field_tree, *ports_tree;
+  proto_tree *ports_tree;
   int i;
-  gchar *buf;
   int max_offset = offset+length;
+
+  static const int *flag_fields[] = {
+    &hf_service_info_flags_src_ip_hash,
+    &hf_service_info_flags_dest_ip_hash,
+    &hf_service_info_flags_src_port_hash,
+    &hf_service_info_flags_dest_port_hash,
+    &hf_service_info_flags_ports_defined,
+    &hf_service_info_flags_ports_source,
+    &hf_service_info_flags_redirect_only_protocol_0,
+    &hf_service_info_flags_src_ip_alt_hash,
+    &hf_service_info_flags_dest_ip_alt_hash,
+    &hf_service_info_flags_src_port_alt_hash,
+    &hf_service_info_flags_dest_port_alt_hash,
+    &hf_service_info_flags_reserved,
+    NULL
+  };
 
   if (length != SERVICE_INFO_LEN)
     return length - SERVICE_INFO_LEN;
@@ -1276,41 +1293,7 @@ dissect_wccp2_service_info(tvbuff_t *tvb, int offset, gint length,
   offset += 4;
 
   flags = tvb_get_ntohl(tvb, offset);
-  tf = proto_tree_add_item(info_tree, hf_service_info_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-  field_tree = proto_item_add_subtree(tf, ett_service_flags);
-  proto_tree_add_item(field_tree, hf_service_info_flags_src_ip_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_service_info_flags_dest_ip_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_service_info_flags_src_port_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_service_info_flags_dest_port_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_service_info_flags_ports_defined, tvb, offset, 4, ENC_BIG_ENDIAN);
-  /* if they are defined which ? */
-  if (flags & WCCP2_SI_PORTS_DEFINED)
-    proto_tree_add_item(field_tree, hf_service_info_flags_ports_source, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-  proto_tree_add_item(field_tree, hf_service_info_flags_redirect_only_protocol_0, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_service_info_flags_src_ip_alt_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_service_info_flags_dest_ip_alt_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_service_info_flags_src_port_alt_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_service_info_flags_dest_port_alt_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-  buf= (char *) wmem_alloc(wmem_packet_scope(), 128);
-  decode_bitfield_value(buf, flags,
-                        0xFFFFFFFF ^ (WCCP2_SI_SRC_IP_HASH
-                                      | WCCP2_SI_DST_IP_HASH
-                                      | WCCP2_SI_SRC_PORT_HASH
-                                      | WCCP2_SI_DST_PORT_HASH
-                                      | WCCP2_SI_PORTS_DEFINED
-                                      | WCCP2_SI_PORTS_SOURCE
-                                      | WCCP2r1_SI_REDIRECT_ONLY_PROTOCOL_0
-                                      | WCCP2_SI_SRC_IP_ALT_HASH
-                                      | WCCP2_SI_DST_IP_ALT_HASH
-                                      | WCCP2_SI_SRC_PORT_ALT_HASH
-                                      | WCCP2_SI_DST_PORT_ALT_HASH),
-                        32);
-  proto_tree_add_text(field_tree, tvb, offset, 2,
-                      "%s : %s",
-                      buf, "reserved, should be 0");
+  proto_tree_add_bitmask(info_tree, tvb, offset, hf_service_info_flags, ett_service_flags, flag_fields, ENC_BIG_ENDIAN);
 
   offset += 4;
 
@@ -1410,10 +1393,16 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset, gint length,
                                          proto_tree *info_tree)
 {
   proto_item *tf;
-  proto_tree *field_tree;
   guint16 flags;
   guint data_element_type;
-  char *buf;
+
+  static const int *flag_fields[] = {
+    &hf_web_cache_identity_flag_hash_info,
+    &hf_web_cache_identity_flag_assign_type,
+    &hf_web_cache_identity_flag_version_request,
+    &hf_web_cache_identity_flag_reserved,
+    NULL
+  };
 
   if (length < ROUTER_WC_ID_ELEMENT_MIN_LEN)
     return length - ROUTER_WC_ID_ELEMENT_MIN_LEN;
@@ -1428,18 +1417,9 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset, gint length,
   EAT_AND_CHECK(2,2);
 
   flags = tvb_get_ntohs(tvb, offset);
-  tf = proto_tree_add_uint(info_tree, hf_web_cache_identity_flags, tvb, offset, 2, flags);
   data_element_type = (flags & 0x6) >> 1;
+  proto_tree_add_bitmask(info_tree, tvb, offset, hf_web_cache_identity_flags, ett_wc_identity_flags, flag_fields, ENC_BIG_ENDIAN);
 
-  field_tree = proto_item_add_subtree(tf, ett_wc_identity_flags);
-  proto_tree_add_item(field_tree, hf_web_cache_identity_flag_hash_info, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_web_cache_identity_flag_assign_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(field_tree, hf_web_cache_identity_flag_version_request, tvb, offset, 2, ENC_BIG_ENDIAN);
-  buf=(char *) wmem_alloc(wmem_packet_scope(), 128);
-  decode_bitfield_value(buf, flags, 0xFFF0, 16);
-  proto_tree_add_text(field_tree, tvb, offset, 2,
-                      "%s : %s",
-                      buf, "reserved, should be 0");
   EAT(2);
 
   switch (data_element_type) {
@@ -2952,6 +2932,10 @@ proto_register_wccp(void)
       { "Destination port in secondary hash", "wccp.service_info_flag.dest_port_alt_hash", FT_BOOLEAN, 32, TFS(&tfs_used_notused), WCCP2_SI_DST_PORT_ALT_HASH,
         NULL, HFILL }
     },
+    { &hf_service_info_flags_reserved,
+      { "Reserved, should be 0", "wccp.service_info_flag.reserved", FT_UINT32, BASE_HEX, NULL, 0xFFFFF000,
+        NULL, HFILL }
+    },
     { &hf_service_info_source_port,
       { "Source Port", "wccp.service_info_source_port", FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
@@ -3001,6 +2985,11 @@ proto_register_wccp(void)
     { &hf_web_cache_identity_flag_version_request,
       { "Version Request", "wccp.web_cache_identity.flags.version_request", FT_BOOLEAN, 16,
         TFS(&tfs_version_min_max), 0x8,
+        NULL, HFILL }
+    },
+    { &hf_web_cache_identity_flag_reserved,
+      { "Reserved, should be 0", "wccp.web_cache_identity.flags.reserved", FT_UINT16, BASE_HEX,
+        NULL, 0xFFF0,
         NULL, HFILL }
     },
     { &hf_mask_value_set_element_value_element_num,
