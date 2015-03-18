@@ -211,7 +211,7 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
         *hassnap = FALSE;
         *snaplen = WTAP_MAX_PACKET_SIZE;
       } else if (*(colonp + 1) == '1') {
-      	/* {hassnap} is true, so extract {snaplen} */
+        /* {hassnap} is true, so extract {snaplen} */
         if (*(colonp + 2) != '(') {
           /* Not followed by a parenthesis. Give up. */
           break;
