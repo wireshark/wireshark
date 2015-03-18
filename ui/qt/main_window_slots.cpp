@@ -2807,6 +2807,13 @@ void MainWindow::on_actionCaptureStop_triggered()
     stopCapture();
 }
 
+void MainWindow::on_actionCaptureRestart_triggered()
+{
+/* TODO: GTK use only this: capture_restart(&cap_session_); */
+    captureStop();
+    startCapture();
+}
+
 void MainWindow::on_actionStatisticsCaptureFileProperties_triggered()
 {
     CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(*this, capture_file_);

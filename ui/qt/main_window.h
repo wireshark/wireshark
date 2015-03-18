@@ -381,6 +381,7 @@ private slots:
     void on_goToLineEdit_returnPressed();
     void on_actionCaptureStart_triggered();
     void on_actionCaptureStop_triggered();
+    void on_actionCaptureRestart_triggered();
 
     void on_actionStatisticsCaptureFileProperties_triggered();
     void on_actionStatisticsProtocolHierarchy_triggered();
