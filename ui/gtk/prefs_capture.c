@@ -1654,9 +1654,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	}
 #endif
 
-	snaplen = capture_dev_user_snaplen_find(if_info->name);
-	hassnap = capture_dev_user_hassnap_find(if_info->name);
-	if (!hassnap || hassnap == -1) {
+        if (!capture_dev_user_snaplen_find(if_info->name, &hassnap, &snaplen)) {
 		snaplen = WTAP_MAX_PACKET_SIZE;
 		hassnap = FALSE;
 	}

@@ -37,217 +37,219 @@
 #include "epan/to_str.h"
 
 /*
- * Find user-specified capture device description that matches interface
- * name, if any.
+ * In a list of interface information, in the form of a comma-separated
+ * list of {name}({property}) items, find the entry for a particular
+ * interface, and return a pointer a g_malloced string containing
+ * the property.
  */
-char *
-capture_dev_user_descr_find(const gchar *if_name)
+static char *
+capture_dev_get_if_property(const gchar *pref, const gchar *if_name)
 {
   gchar **if_tokens;
-  gchar *descr = NULL;
+  gchar *property = NULL;
   int i;
 
   if (if_name == NULL || strlen(if_name) < 1) {
     return NULL;
   }
 
-  if (prefs.capture_devices_descr == NULL ||
-      strlen(prefs.capture_devices_descr) < 1) {
-    /* There are no descriptions. */
+  if (pref == NULL || strlen(pref) < 1) {
+    /* There is no interface information list. */
     return NULL;
   }
 
-
-  if_tokens = g_strsplit(prefs.capture_devices_descr, ",", -1);
+  /*
+   * Split the list into a sequence of items.
+   *
+   * XXX - this relies on the items not themselves containing commas.
+   */
+  if_tokens = g_strsplit(pref, ",", -1);
   for (i = 0; if_tokens[i] != NULL; i++) {
-    gchar **descr_tokens;
-    descr_tokens = g_strsplit_set(if_tokens[i], "()", -1);
-    if (g_strv_length(descr_tokens) == 3) { /* interface + description + empty */
-      if (strcmp(descr_tokens[0], if_name) == 0 && strlen(descr_tokens[1]) > 0) {
-        descr = g_strdup(descr_tokens[1]);
-        g_strfreev(descr_tokens);
+    gchar *opening_parenp, *closing_parenp;
+
+    /*
+     * Separate this item into name and property.
+     * The first opening parenthesis and the last closing parenthesis
+     * surround the property.  Any other parentheses are part of
+     * the property.
+     */
+    opening_parenp = strchr(if_tokens[i], '(');
+    if (opening_parenp == NULL) {
+      /* No opening parenthesis. Give up. */
+      break;
+    }
+    *opening_parenp = '\0'; /* Split {name} from what follows */
+    if (strcmp(if_tokens[i], if_name) == 0) {
+      closing_parenp = strrchr(if_tokens[i], ')');
+      if (closing_parenp == NULL) {
+        /* No closing parenthesis. Give up. */
         break;
       }
+      /*
+       * Copy everything from opening_parenp + 1 to closing_parenp - 1.
+       * That requires (closing_parenp - 1) - (opening_parenp + 1) + 1
+       * bytes, including the trailing '\0', so that's
+       * closing_parenp - opening_parenp + 1.
+       */
+      property = g_malloc(closing_parenp - opening_parenp + 1);
+      memcpy(property, opening_parenp + 1, closing_parenp - opening_parenp);
+      property[closing_parenp - opening_parenp] = '\0';
+      break;
     }
-    g_strfreev(descr_tokens);
   }
   g_strfreev(if_tokens);
 
-  return descr;
+  return property;
+}
+
+/*
+ * Find a property that should be an integral value, and return the
+ * value or, if it's not found or not a valid integral value, -1.
+ */
+static gint
+capture_dev_get_if_int_property(const gchar *pref, const gchar *if_name)
+{
+  gchar *property_string, *next;
+  long property;
+
+  property_string = capture_dev_get_if_property(pref, if_name);
+  if (property_string == NULL) {
+    /* No link-layer type found for this interface. */
+    return -1;
+  }
+  property = strtol(property_string, &next, 10);
+  if (next == property_string || *next != '\0' || property < 0) {
+    /* Syntax error */
+    g_free(property_string);
+    return -1;
+  }
+  if (property > G_MAXINT) {
+    /* Value doesn't fit in a gint */
+    g_free(property_string);
+    return -1;
+  }
+
+  g_free(property_string);
+  return (gint)property;
+}
+
+/*
+ * Find user-specified capture device description that matches interface
+ * name, if any.
+ */
+char *
+capture_dev_user_descr_find(const gchar *if_name)
+{
+  return capture_dev_get_if_property(prefs.capture_devices_descr, if_name);
 }
 
 gint
 capture_dev_user_linktype_find(const gchar *if_name)
 {
-  gchar *p, *next, *tmpname;
-  long linktype;
-
-  if ((prefs.capture_devices_linktypes == NULL) ||
-      (*prefs.capture_devices_linktypes == '\0')) {
-    /* There are no link-layer header types */
-    return -1;
-  }
-  tmpname = g_strdup_printf(",%s(", if_name);
-  if ((p = strstr(prefs.capture_devices_linktypes, tmpname)) == NULL) {
-    /* There are, but there isn't one for this interface. */
-    return -1;
-  }
-
-  p += strlen(if_name) + 2;
-  linktype = strtol(p, &next, 10);
-  if (next == p || *next != ')' || linktype < 0) {
-    /* Syntax error */
-    return -1;
-  }
-  if (linktype > G_MAXINT) {
-    /* Value doesn't fit in a gint */
-    return -1;
-  }
-
-  return (gint)linktype;
+  return capture_dev_get_if_int_property(prefs.capture_devices_linktypes, if_name);
 }
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
 gint
 capture_dev_user_buffersize_find(const gchar *if_name)
 {
-  gchar *p, *next, *tmpname;
-  gint buffersize;
-
-  if ((prefs.capture_devices_buffersize == NULL) ||
-      (*prefs.capture_devices_buffersize == '\0')) {
-    /* There are no buffersizes defined */
-    return -1;
-  }
-  tmpname = g_strdup_printf(",%s(", if_name);
-  if ((p = strstr(prefs.capture_devices_buffersize, tmpname)) == NULL) {
-    /* There are, but there isn't one for this interface. */
-    return -1;
-  }
-
-  p += strlen(if_name) + 2;
-  buffersize = (gint)strtol(p, &next, 10);
-  if (next == p || *next != ')' || buffersize < 0) {
-    /* Syntax error */
-    return -1;
-  }
-  if (buffersize > G_MAXINT) {
-    /* Value doesn't fit in a gint */
-    return -1;
-  }
-
-  return (gint)buffersize;
+  return capture_dev_get_if_int_property(prefs.capture_devices_buffersize, if_name);
 }
 #endif
 
-gint
-capture_dev_user_snaplen_find(const gchar *if_name)
-{
-  gchar *p, *next, *tmpname;
-  gint snaplen;
-
-  if ((prefs.capture_devices_snaplen == NULL) ||
-      (*prefs.capture_devices_snaplen == '\0')) {
-    /* There is no snap length defined */
-    return -1;
-  }
-  tmpname = g_strdup_printf(",%s:", if_name);
-  if ((p = strstr(prefs.capture_devices_snaplen, tmpname)) == NULL) {
-    /* There are, but there isn't one for this interface. */
-    return -1;
-  }
-
-  p += strlen(if_name) + 4;
-  snaplen = (gint)strtol(p, &next, 10);
-  if (next == p || *next != ')' || snaplen < 0) {
-    /* Syntax error */
-    return -1;
-  }
-  if (snaplen > WTAP_MAX_PACKET_SIZE) {
-    /* Value doesn't fit in a gint */
-    return -1;
-  }
-
-  return (gint)snaplen;
-}
-
 gboolean
-capture_dev_user_hassnap_find(const gchar *if_name)
+capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snaplen)
 {
-  gchar *p, *next, *tmpname;
-  gboolean hassnap;
+  gboolean found = FALSE;
+  gchar **if_tokens;
+  int i;
+
+  if (if_name == NULL || strlen(if_name) < 1) {
+    return FALSE;
+  }
 
   if ((prefs.capture_devices_snaplen == NULL) ||
       (*prefs.capture_devices_snaplen == '\0')) {
-    /* There is no snap length defined */
-    return -1;
-  }
-  tmpname = g_strdup_printf(",%s:", if_name);
-  if ((p = strstr(prefs.capture_devices_snaplen, tmpname)) == NULL) {
-    /* There are, but there isn't one for this interface. */
-    return -1;
+    /* There are no snap lengths defined */
+    return FALSE;
   }
 
-  p += strlen(if_name) + 2;
-  hassnap = (gboolean)strtol(p, &next, 10);
-  if (next == p || *next != '(') {
-    /* Syntax error */
-    return -1;
-  }
+  /*
+   * Split the list into a sequence of items.
+   *
+   * XXX - this relies on the items not themselves containing commas.
+   */
+  if_tokens = g_strsplit(prefs.capture_devices_snaplen, ",", -1);
+  for (i = 0; if_tokens[i] != NULL; i++) {
+    gchar *colonp, *next;
+    long value;
 
-  return (gboolean)hassnap;
+    /*
+     * This one's a bit ugly.
+     * The syntax of the item is {name}:{hassnap}({snaplen}),
+     * where {hassnap} is 0 if the interface shouldn't have a snapshot
+     * length and 1 if it should, and {snaplen} is the maximum snapshot
+     * length if {hassnap} is 0 and the specified snapshot length if
+     * {hassnap} is 1.
+     *
+     * Sadly, : was a bad choice of separator, given that, on some OSes,
+     * an interface can have a colon in its name.
+     *
+     * So we look for the *last* colon in the string.
+     */
+    colonp = strrchr(if_tokens[i], ':');
+    if (colonp == NULL) {
+      /* No separating colon. Give up. */
+      break;
+    }
+    *colonp = '\0'; /* Split {name} from what follows */
+    if (strcmp(if_tokens[i], if_name) == 0) {
+      /* OK, this matches. */
+      if (*(colonp + 1) == '0') {
+        /* {hassnap} is false, so just set the snaplen to WTAP_MAX_PACKET_SIZE. */
+        found = TRUE;
+        *hassnap = FALSE;
+        *snaplen = WTAP_MAX_PACKET_SIZE;
+      } else if (*(colonp + 1) == '1') {
+      	/* {hassnap} is true, so extract {snaplen} */
+        if (*(colonp + 2) != '(') {
+          /* Not followed by a parenthesis. Give up. */
+          break;
+        }
+        value = strtol(colonp + 3, &next, 10);
+        if (next == colonp + 3 || *next != ')' || value < 0) {
+          /* Syntax error. Give up. */
+          break;
+        }
+        if (value > G_MAXINT) {
+          /* Value doesn't fit in a gint. Give up. */
+          break;
+        }
+        found = TRUE;
+        *hassnap = TRUE;
+        *snaplen = (gint)value;
+      } else {
+        /* Bad {hassnap}. Give up. */
+        break;
+      }
+      break;
+    }
+  }
+  g_strfreev(if_tokens);
+
+  return found;
 }
 
 gboolean
 capture_dev_user_pmode_find(const gchar *if_name)
 {
-  gchar *p, *next, *tmpname;
-  gboolean pmode;
-
-  if ((prefs.capture_devices_pmode == NULL) ||
-      (*prefs.capture_devices_pmode == '\0')) {
-    /* There is no promiscuous mode defined */
-    return -1;
-  }
-  tmpname = g_strdup_printf(",%s(", if_name);
-  if ((p = strstr(prefs.capture_devices_pmode, tmpname)) == NULL) {
-    /* There are, but there isn't one for this interface. */
-    return -1;
-  }
-
-  p += strlen(if_name) + 2;
-  pmode = (gboolean)strtol(p, &next, 10);
-  if (next == p || *next != ')') {
-    /* Syntax error */
-    return -1;
-  }
-  return (gboolean)pmode;
+  return (capture_dev_get_if_int_property(prefs.capture_devices_pmode, if_name) != 0);
 }
 
 gchar*
 capture_dev_user_cfilter_find(const gchar *if_name)
 {
-  gchar *p, q[MAX_VAL_LEN], *tmpname;
-  int i = 0;
-
-  if ((prefs.capture_devices_filter == NULL) ||
-      (*prefs.capture_devices_filter == '\0')) {
-    /* There is no capture filter defined */
-    return NULL;
-  }
-  tmpname = g_strdup_printf(",%s(", if_name);
-  if ((p = strstr(prefs.capture_devices_filter, tmpname)) == NULL) {
-    /* There are, but there isn't one for this interface. */
-    return NULL;
-  }
-
-  p += strlen(if_name) + 2;
-  while (p[i+1] != ',' && p[i+1] != '\0') {
-    q[i] = p[i];
-    i++;
-  }
-  q[i] = '\0';
-  return g_strdup(q);
+  return capture_dev_get_if_property(prefs.capture_devices_filter, if_name);
 }
 
 /*

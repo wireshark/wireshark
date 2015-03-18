@@ -503,9 +503,7 @@ void CaptureInterfacesDialog::updateInterfaces()
             if (pmode != -1) {
                 device->pmode = pmode;
             }
-            hassnap = capture_dev_user_hassnap_find(device->name);
-            snaplen = capture_dev_user_snaplen_find(device->name);
-            if(snaplen != -1 && hassnap != -1) {
+            if (capture_dev_user_snaplen_find(device->name, &hassnap, &snaplen)) {
                 /* Default snap length set in preferences */
                 device->snaplen = snaplen;
                 device->has_snaplen = hassnap;

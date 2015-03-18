@@ -57,8 +57,7 @@ gint capture_dev_user_buffersize_find(const gchar *if_name);
  * Find user-specified snap length that matches interface
  * name, if any.
  */
-gint capture_dev_user_snaplen_find(const gchar *if_name);
-gboolean capture_dev_user_hassnap_find(const gchar *if_name);
+gboolean capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snaplen);
 
 /**
  * Find user-specified promiscuous mode that matches interface

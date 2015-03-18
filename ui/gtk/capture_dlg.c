@@ -1275,8 +1275,9 @@ insert_new_rows(GList *list)
     if ((device.pmode = capture_dev_user_pmode_find(if_string)) == -1) {
       device.pmode = global_capture_opts.default_options.promisc_mode;
     }
-    device.has_snaplen = global_capture_opts.default_options.has_snaplen;
-    if ((device.snaplen = capture_dev_user_snaplen_find(if_string)) == -1) {
+    if (!capture_dev_user_snaplen_find(if_string, &device.has_snaplen,
+                                       &device.snaplen)) {
+      device.has_snaplen = global_capture_opts.default_options.has_snaplen;
       device.snaplen = global_capture_opts.default_options.snaplen;
     }
     device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
@@ -5684,9 +5685,7 @@ create_and_fill_model(GtkTreeView *view)
       if (pmode != -1) {
         device.pmode = pmode;
       }
-      hassnap = capture_dev_user_hassnap_find(device.name);
-      snaplen = capture_dev_user_snaplen_find(device.name);
-      if(snaplen != -1 && hassnap != -1) {
+      if (capture_dev_user_snaplen_find(device.name, &hassnap, &snaplen)) {
         /* Default snap length set in preferences */
         device.snaplen = snaplen;
         device.has_snaplen = hassnap;

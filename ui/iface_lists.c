@@ -292,13 +292,10 @@ scan_local_interfaces(void (*update_cb)(void))
         if ((device.pmode = capture_dev_user_pmode_find(if_info->name)) == -1) {
             device.pmode = global_capture_opts.default_options.promisc_mode;
         }
-        if ((device.has_snaplen = capture_dev_user_hassnap_find(if_info->name)) == -1) {
+        if (!capture_dev_user_snaplen_find(if_info->name, &device.has_snaplen,
+                                           &device.snaplen)) {
             device.has_snaplen = global_capture_opts.default_options.has_snaplen;
-        }
-        if (capture_dev_user_snaplen_find(if_info->name) == -1) {
             device.snaplen = global_capture_opts.default_options.snaplen;
-        } else {
-            device.snaplen = (guint)capture_dev_user_snaplen_find(if_info->name);
         }
         device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
