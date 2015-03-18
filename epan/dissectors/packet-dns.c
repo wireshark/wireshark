@@ -3244,6 +3244,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_tree_add_item(rr_tree, hf_dns_openpgpkey, tvb, cur_offset, data_len, ENC_ASCII|ENC_NA);
 
     }
+    break;
+
     case T_CSYNC: /* Child-to-Parent Synchronization (62) */
     {
       int         rr_len, initial_offset = cur_offset;
