@@ -2324,9 +2324,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			unsigned int offset = 0;
 			tvb_composite_finalize(rfc3396_dns_domain_search_list.tvb_composite);
 
-			while (offset < tvb_length(rfc3396_dns_domain_search_list.tvb_composite)) {
+			while (offset < tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite)) {
 				/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
-				consumedx = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, offset, tvb_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name);
+				consumedx = get_dns_name(rfc3396_dns_domain_search_list.tvb_composite, offset, tvb_reported_length(rfc3396_dns_domain_search_list.tvb_composite), 0, &dns_name);
 				if (rfc3396_dns_domain_search_list.total_number_of_block == 1) {
 					/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 					proto_tree_add_string(v_tree, hf_bootp_option_dhcp_dns_domain_search_list_fqdn, tvb, optoff + offset, consumedx, dns_name);
@@ -2383,14 +2383,14 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 			switch (enc) {
 			case RFC_3361_ENC_FQDN: {
 				unsigned int consumedx = 0;
-				if (tvb_length(rfc3396_sip_server.tvb_composite) < 3) {
-					expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't >= 3 (len = %u)", tvb_length(rfc3396_sip_server.tvb_composite));
+				if (tvb_reported_length(rfc3396_sip_server.tvb_composite) < 3) {
+					expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't >= 3 (len = %u)", tvb_reported_length(rfc3396_sip_server.tvb_composite));
 					break;
 				}
 
-				while (offset < tvb_length(rfc3396_sip_server.tvb_composite)) {
+				while (offset < tvb_reported_length(rfc3396_sip_server.tvb_composite)) {
 					/* use the get_dns_name method that manages all techniques of RFC 1035 (compression pointer and so on) */
-					consumedx = get_dns_name(rfc3396_sip_server.tvb_composite, offset, tvb_length(rfc3396_sip_server.tvb_composite), 1 /* ignore enc */, &dns_name);
+					consumedx = get_dns_name(rfc3396_sip_server.tvb_composite, offset, tvb_reported_length(rfc3396_sip_server.tvb_composite), 1 /* ignore enc */, &dns_name);
 
 					if (rfc3396_sip_server.total_number_of_block == 1) {
 						/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
@@ -2405,21 +2405,21 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item 
 				break;
 			}
 			case RFC_3361_ENC_IPADDR:
-				if (tvb_length(rfc3396_sip_server.tvb_composite) < 5) {
-					expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't >= 5 (len = %u)", tvb_length(rfc3396_sip_server.tvb_composite));
+				if (tvb_reported_length(rfc3396_sip_server.tvb_composite) < 5) {
+					expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't >= 5 (len = %u)", tvb_reported_length(rfc3396_sip_server.tvb_composite));
 					break;
 				}
 				/* x % 2^n == x & (2^n - 1) note : (assuming x is a positive integer) */
-				if ((tvb_length(rfc3396_sip_server.tvb_composite) - 1) & 3) {
+				if ((tvb_reported_length(rfc3396_sip_server.tvb_composite) - 1) & 3) {
 					if (rfc3396_sip_server.total_number_of_block == 1)
-						expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't a multiple of 4 plus 1 (len = %u).", tvb_length(rfc3396_sip_server.tvb_composite));
+						expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't a multiple of 4 plus 1 (len = %u).", tvb_reported_length(rfc3396_sip_server.tvb_composite));
 					else
 						expert_add_info_format(pinfo, vti, &ei_bootp_bad_length,
 							"length isn't a multiple of 4 plus 1 (len = %u). For your information with RFC 3396, the length is the length sum of all options 120 into this BOOTP packet.",
-							tvb_length(rfc3396_sip_server.tvb_composite));
+							tvb_reported_length(rfc3396_sip_server.tvb_composite));
 					break;
 				}
-				while (offset < tvb_length(rfc3396_sip_server.tvb_composite)) {
+				while (offset < tvb_reported_length(rfc3396_sip_server.tvb_composite)) {
 					if (rfc3396_sip_server.total_number_of_block == 1) {
 						/* RFC 3396 is not used, so we can easily link the fqdn with v_tree. */
 						proto_tree_add_item(v_tree, hf_bootp_option_sip_server_address, rfc3396_sip_server.tvb_composite, offset, 4, ENC_BIG_ENDIAN);
@@ -3945,9 +3945,9 @@ static void
 dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tvb, int voff, int len)
 {
 	guint16	       raw_val;
-	unsigned long  flow_val	  = 0;
-	int	       off	  = PKT_MDC_TLV_OFF + voff;
-	int	       subopt_off, max_len;
+	guint32        flow_val	  = 0;
+	int	           off	  = PKT_MDC_TLV_OFF + voff;
+	int	           subopt_off, max_len;
 	guint	       tlv_len, i, mib_val;
 	guint8	       asc_val[3] = "  ", flow_val_str[5];
 	proto_item    *ti, *mib_ti;
@@ -4044,9 +4044,10 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 				case PKT_MDC_PROV_FLOWS:
 					tvb_memcpy(tvb, flow_val_str, off + 4, 4);
 					flow_val_str[4] = '\0';
-					flow_val = strtoul((gchar*)flow_val_str, NULL, 16);
+					/* We are only reading 4 digits which should fit in 32 bits */
+					flow_val = (guint32)strtoul((gchar*)flow_val_str, NULL, 16);
 					proto_item_append_text(ti,
-							       "0x%04lx", flow_val);
+							       "0x%04x", flow_val);
 					break;
 
 				case PKT_MDC_T38_VERSION:
