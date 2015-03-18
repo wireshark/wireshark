@@ -74,10 +74,8 @@ class faq_section:
 	def print_contents(self):
 		# Table header
 		print(("""
-  <a name="sec%s">
-    <h%d>%s</h%d>
-  </a>
-""" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level())))
+  <h%d id="sec%s">%s</h%d>
+""" % (self.get_header_level(), self.get_num_string(), self.get_num_name(), self.get_header_level())))
 
 		# Questions and Answers
 		for qa in self.qa:
@@ -87,12 +85,9 @@ class faq_section:
 			tag = qa[3]
 
 			print('<p class="faq_q">')
-			print(('<a class="faq_qnum" name=q%s>Q %s:</a>' % (id, id)))
 			if tag is not None:
-				print(('<a name=%s>' % tag))
-			print(('<span>%s</span>' % (question)))
-			if tag is not None:
-				print('</a>')
+				print(('<span id=%s></span>' % (tag)))
+			print(('<a href=#q%s class="faq_qnum" id=q%s>Q %s: %s</a>' % (id, id, id, question)))
 			print('</p>')
 
 			print('<p class="faq_a">')
@@ -216,9 +211,7 @@ def answer(text):
 # Create the index
 def create_index():
 	print("""
-  <a name="index">
-    <h1>Index</h1>
-  </a>
+  <h1 id="index">Index</h1>
 """)
 	for sec in sections:
 		sec.print_index()
@@ -240,14 +233,11 @@ def create_output(header='', footer=''):
 
 def main():
 	header = '''\
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <title>Wireshark FAQ</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta charset="utf-8">
+<title>Wireshark Frequently Asked Questions</title>
 </head>
 <body>
 '''
@@ -277,24 +267,24 @@ and educators around the world use it regularly. It is freely available
 as open source, and is released under the GNU General Public License
 version 2.
 
-<br />
+<br>
 
 It is developed and maintained by a global team of protocol experts, and
 it is an example of a
-<a href="http://en.wikipedia.org/wiki/Disruptive_technology">disruptive
+<a href="https://en.wikipedia.org/wiki/Disruptive_technology">disruptive
 technology</a>.
 
-<br />
+<br>
 
 Wireshark used to be known as Ethereal&#174;.  See the next question
 for details about the name change.  If you're still using Ethereal, it
-is <a href="http://www.ethereal.com/appnotes/enpa-sa-00024.html">strongly
-recommended that you upgrade to Wireshark</a>.
+is strongly recommended that you upgrade to Wireshark as Ethereal is
+unsupported and has known security vulnerabilities.
 
-<br />
+<br>
 
 For more information, please see the
-<a href="/about.html">About Wireshark</a>
+<a href="https://www.wireshark.org/about.html">About Wireshark</a>
 page.
 """)
 
@@ -305,13 +295,13 @@ In May of 2006, Gerald Combs (the original author of Ethereal)
 went to work for CACE Technologies (best known for WinPcap).
 Unfortunately, he had to leave the Ethereal trademarks behind.
 
-<br />
+<br>
 
 This left the project in an awkward position.  The only reasonable way
 to ensure the continued success of the project was to change the name.
 This is how Wireshark was born.
 
-<br />
+<br>
 
 Wireshark is almost (but not quite) a fork. Normally a "fork" of an open source
 project results in two names, web sites, development teams, support
@@ -321,16 +311,17 @@ Wireshark. There has been no active development on Ethereal since the name
 change. Several parts of the Ethereal web site (such as the mailing lists,
 source code repository, and build farm) have gone offline.
 
-<br />
+<br>
 
 More information on the name change can be found here:
-
+</p>
 <ul class="item_list">
 
   <li><a href="http://www.prweb.com/releases/2006/6/prweb396098.htm">Original press release</a>
-  <li><a href="http://trends.newsforge.com/article.pl?sid=06/06/09/1349255&from=rss">NewsForge article</a>
-  <li>Many other articles in <a href="http://www.wireshark.org/bibliography.html">our bibliography</a>
+  <li><a href="http://archive09.linux.com/articles/54968">NewsForge article</a>
+  <li>Many other articles in <a href="https://www.wireshark.org/bibliography.html">our bibliography</a>
 </ul>
+<p>
 """)
 
 
@@ -342,7 +333,7 @@ wireshark-users mailing list.  Subscription information and archives for
 all of Wireshark's mailing lists can be found at %s.  An IRC channel
 dedicated to Wireshark can be found at %s.
 
-<br />
+<br>
 
 Self-paced and instructor-led training is available at <a
 href="http://www.wiresharktraining.com">Wireshark University</a>.
@@ -366,7 +357,7 @@ Wireshark is pronounced as the word <i>wire</i> followed immediately by
 the word <i>shark</i>.  Exact pronunciation and emphasis may vary
 depending on your locale (e.g. Arkansas).
 
-<br />
+<br>
 
 It's spelled with a capital <i>W</i>, followed by a lower-case
 <i>ireshark</i>.  It is not a CamelCase word, i.e., <i>WireShark</i>
@@ -381,12 +372,12 @@ license fee.  The version of Wireshark you download isn't a "demo"
 version, with limitations not present in a "full" version; it
 <em>is</em> the full version.
 
-<br />
+<br>
 
 The license under which Wireshark is issued is <a
-href="http://www.gnu.org/licenses/gpl-2.0.html">the GNU General Public
+href="https://www.gnu.org/licenses/gpl-2.0.html">the GNU General Public
 License version 2</a>.  See <a
-href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html">the GNU
+href="https://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html">the GNU
 GPL FAQ</a> for some more information.
 """)
 
@@ -396,11 +387,11 @@ That depends. Did they provide any sort of value-added product or service, such
 as installation support, installation media, training, trace file analysis, or
 funky-colored shark-themed socks? Probably not.
 
-<br />
+<br>
 
-Wireshark is <a href="/download.html">available for anyone to download,
-absolutely free, at any time</a>. Paying for a copy implies that you should
-get something for your money.
+Wireshark is <a href="https://www.wireshark.org/download.html">available for
+anyone to download, absolutely free, at any time</a>. Paying for a copy implies
+that you should get something for your money.
 """)
 
 question("Can I use Wireshark commercially?")
@@ -409,7 +400,7 @@ Yes, if, for example, you mean "I work for a commercial organization;
 can I use Wireshark to capture and analyze network traffic in our
 company's networks or in our customer's networks?"
 
-<br />
+<br>
 
 If you mean "Can I use Wireshark as part of my commercial product?", see
 <a href="#derived_work_gpl">the next entry in the FAQ</a>.
@@ -421,7 +412,7 @@ question("Can I use Wireshark as part of my commercial product?",
 
 answer("""
 As noted, Wireshark is licensed under <a
-href="http://www.gnu.org/licenses/gpl-2.0.html">the GNU General Public
+href="https://www.gnu.org/licenses/gpl-2.0.html">the GNU General Public
 License, version 2</a>. The GPL imposes conditions on your use of GPL'ed
 code in your own products; you cannot, for example, make a "derived
 work" from Wireshark, by making modifications to it, and then sell the
@@ -429,23 +420,23 @@ resulting derived work and not allow recipients to give away the
 resulting work. You must also make the changes you've made to the
 Wireshark source available to all recipients of your modified version;
 those changes must also be licensed under the terms of the GPL. See the
-<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html">GPL
+<a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html">GPL
 FAQ</a> for more details; in particular, note the answer to <a
-href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#GPLCommercially">the
+href="https://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#GPLCommercially">the
 question about modifying a GPLed program and selling it
 commercially</a>, and <a
-href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#LinkingWithGPL">the
+href="https://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#LinkingWithGPL">the
 question about linking GPLed code with other code to make a proprietary
 program</a>.
 
-<br />
+<br>
 
 You can combine a GPLed program such as Wireshark and a commercial
 program as long as they communicate "at arm's length", as per <a
-href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#GPLInProprietarySystem">this
+href="https://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#GPLInProprietarySystem">this
 item in the GPL FAQ</a>.
 
-<br />
+<br>
 
 We recommend keeping Wireshark and your product completely separate,
 communicating over sockets or pipes. If you're loading any part of
@@ -456,7 +447,9 @@ question("What protocols are currently supported?")
 answer("""
 There are currently hundreds of supported
 protocols and media.  Details can be found in the
-<a href="/docs/man-pages/wireshark.html">wireshark(1)</a> man page.
+<a
+href="https://www.wireshark.org/docs/man-pages/wireshark.html">wireshark(1)</a>
+man page.
 """)
 
 
@@ -476,14 +469,14 @@ Support for particular capture file formats is added to Wireshark as a result
 of people contributing that support; no formal plans for adding support for
 particular capture file formats in particular future releases exist.
 
-<br />
+<br>
 
 If a network analyzer writes out files in a format already supported by
 Wireshark (e.g., in libpcap format), Wireshark may already be able to read
 them, unless the analyzer has added its own proprietary extensions to
 that format.
 
-<br />
+<br>
 
 If a network analyzer writes out files in its own format, or has added
 proprietary extensions to another format, in order to make Wireshark read
@@ -496,7 +489,7 @@ capture file (showing packet time stamps, packet lengths, and the
 top-level packet header) in order to reverse-engineer the file
 format.
 
-<br />
+<br>
 
 Note that there is no guarantee that we will be able to reverse-engineer
 a capture file format.
@@ -512,7 +505,7 @@ do so), ATM connections (if the OS on which it's running allows Wireshark
 to do so), and the "any" device supported on Linux by recent versions of
 libpcap.
 
-<br />
+<br>
 
 See <a href="https://wiki.wireshark.org/CaptureSetup/NetworkMedia">the list of
 supported capture media on various OSes</a> for details (several items
@@ -522,10 +515,11 @@ expect that it will be able to capture on many of them, but we haven't
 tried it ourselves - if you try one of those types and it works, please
 update the wiki page accordingly.
 
-<br />
+<br>
 
 It can also read a variety of capture file formats, including:
 
+</p>
 <ul>
 
 <li> AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp/Packet Grabber captures
@@ -556,6 +550,7 @@ It can also read a variety of capture file formats, including:
 
 </ul>
 
+<p>
 so that it can read traces from various network types, as captured by
 other applications or equipment, even if it cannot itself capture on
 those network types.
@@ -607,7 +602,7 @@ is run.  To install pcap.h and bpf.h, you must run "make install-incl".
 If you're running Debian or Redhat, make sure you have the "libpcap-dev"
 or "libpcap-devel" packages installed.
 
-<br />
+<br>
 
 It's also possible that pcap.h and bpf.h have been installed in a strange
 location.  If this is the case, you may have to tweak aclocal.m4.
@@ -617,8 +612,8 @@ location.  If this is the case, you may have to tweak aclocal.m4.
 question("""
 Why do I get the error
 
-<blockquote><samp>dftest_DEPENDENCIES was already defined in condition TRUE,
-which implies condition HAVE_PLUGINS_TRUE</samp></blockquote>
+<em>dftest_DEPENDENCIES was already defined in condition TRUE,
+which implies condition HAVE_PLUGINS_TRUE</em>
 
 when I try to build Wireshark from SVN or a SVN snapshot?
 """)
@@ -642,7 +637,7 @@ handling very long lines.  On Solaris, for example,
 <code>libtool</code> to work; <code>/usr/xpg4/bin/sed</code> can handle it, as
 can GNU <code>sed</code> if you have it installed.
 
-<br />
+<br>
 
 On Solaris, changing your command search path to search
 <code>/usr/xpg4/bin</code> before <code>/usr/bin</code> should make the problem
@@ -688,7 +683,7 @@ developer's packet use <code>winsock.h</code>.  (2.3 uses
 would not be able to build with current versions of the WinPcap
 developer's pack.)
 
-<br />
+<br>
 
 Note that the installed version of the developer's pack should be the
 same version as the version of WinPcap you have installed.
@@ -715,7 +710,7 @@ source, as well.  (If you get the 1.2.10 versions from
 www.sunfreeware.org, and the problem persists, un-install them and try
 installing one of the other versions mentioned.)
 
-<br />
+<br>
 
 Similar problems may exist with older versions of GTK+ for earlier
 versions of Solaris.
@@ -743,7 +738,7 @@ When an application is installed on OS X, prior to 10.4, it is usually
 "prebound" to speed up launching the application.  (That's what the
 "Optimizing" phase of installation is.)
 
-<br />
+<br>
 
 Fink normally performs prebinding automatically when you install a
 package. However, in some rare cases, for whatever reason the prebinding
@@ -752,13 +747,15 @@ actually becomes much slower, because the system tries in vain to
 perform prebinding "on the fly" as you launch the application. This
 fails, causing sometimes huge delays.
 
-<br />
+<br>
 
 To fix the prebinding caches, run the command
+</p>
 
 <pre>
 	sudo /sw/var/lib/fink/prebound/update-package-prebinding.pl -f
 </pre>
+<p>
 """)
 
 #################################################################
@@ -773,6 +770,7 @@ does my machine crash or reset itself?
 
 answer("""
 This is almost certainly a problem with one or more of:
+</p>
 
 <ul>
 <li>the operating system you're using;
@@ -781,17 +779,20 @@ This is almost certainly a problem with one or more of:
 device driver;
 </ul>
 
+<p>
 so:
+</p>
 
 <ul>
 <li>if you are using Windows, see <a
-href="http://www.winpcap.org/contact.htm">the WinPcap support
+href="https://www.winpcap.org/contact.htm">the WinPcap support
 page</a> - check the "Submitting bugs" section;
 <li>if you are using some Linux distribution, some version of BSD, or
 some other UNIX-flavored OS, you should report the problem to the
 company or organization that produces the OS (in the case of a Linux
 distribution, report the problem to whoever produces the distribution).
 </ul>
+<p>
 """)
 
 question("""
@@ -822,12 +823,12 @@ into an Ethernet or Token Ring switch; on a switched network, unicast
 traffic between two ports will not necessarily appear on other ports -
 only broadcast and multicast traffic will be sent to all ports.
 
-<br />
+<br>
 
 Note that even if your machine is plugged into a hub, the "hub" may be
 a switched hub, in which case you're still on a switched network.
 
-<br />
+<br>
 
 Note also that on the Linksys Web site, they say that their
 auto-sensing hubs "broadcast the 10Mb packets to the port that operate
@@ -837,7 +838,7 @@ you will not see traffic coming sent to a 100Mb port, and <i>vice
 versa</i>.  This problem has also been reported for Netgear dual-speed
 hubs, and may exist for other "auto-sensing" or "dual-speed" hubs.
 
-<br />
+<br>
 
 Some switches have the ability to replicate all traffic on all ports to
 a single port so that you can plug your analyzer into that single port to
@@ -849,7 +850,7 @@ Wiki</a> for information on some switches.  (Note that it's a Wiki, so
 you can update or fix that information, or add additional information on
 those switches or information on new switches, yourself.)
 
-<br />
+<br>
 
 Note also that many firewall/NAT boxes have a switch built into them;
 this includes many of the "cable/DSL router" boxes.  If you have a box
@@ -862,7 +863,7 @@ the modem, and the machine on which you're running Wireshark into a hub
 (make sure it's not a switching hub, and that, if it's a dual-speed hub,
 all three of those ports are running at the same speed.
 
-<br />
+<br>
 
 If your machine is <em>not</em> plugged into a switched network or a
 dual-speed hub, or it is plugged into a switched network but the port is
@@ -870,6 +871,7 @@ set up to have all traffic replicated to it, the problem might be that
 the network interface on which you're capturing doesn't support
 "promiscuous" mode, or because your OS can't put the interface into
 promiscuous mode.  Normally, network interfaces supply to the host only:
+</p>
 
 <ul>
 <li>packets sent to one of that host's link-layer addresses;
@@ -878,6 +880,7 @@ promiscuous mode.  Normally, network interfaces supply to the host only:
 		         configured the interface to accept.
 </ul>
 
+<p>
 Most network interfaces can also be put in "promiscuous" mode, in which
 they supply to the host all network packets they see.  Wireshark will try
 to put the interface on which it's capturing into promiscuous mode
@@ -888,14 +891,14 @@ interface on which it's capturing into promiscuous mode unless the
 don't support promiscuous mode, and some OSes might not allow interfaces
 to be put into promiscuous mode.
 
-<br />
+<br>
 
 If the interface is not running in promiscuous mode, it won't see any
 traffic that isn't intended to be seen by your machine.  It
 <strong>will</strong> see broadcast packets, and multicast packets sent
 to a multicast MAC address the interface is set up to receive.
 
-<br />
+<br>
 
 You should ask the vendor of your network interface whether it supports
 promiscuous mode.  If it does, you should ask whoever supplied the
@@ -903,7 +906,7 @@ driver for the interface (the vendor, or the supplier of the OS you're
 running on your machine) whether it supports promiscuous mode with that
 network interface.
 
-<br />
+<br>
 
 In the case of token ring interfaces, the drivers for some of them, on
 Windows, may require you to enable promiscuous mode in order to capture
@@ -911,7 +914,7 @@ in promiscuous mode.  See <a
 href="https://wiki.wireshark.org/CaptureSetup/TokenRing">the Wireshark
 Wiki item on Token Ring capturing</a> for details.
 
-<br />
+<br>
 
 In the case of wireless LAN interfaces, it appears that, when those
 interfaces are promiscuously sniffing, they're running in a
@@ -938,7 +941,7 @@ promiscuous mode will receive only unicast traffic sent to the MAC
 address for that interface, broadcast traffic, and multicast traffic
 sent to a multicast MAC address the interface is set up to receive.
 
-<br />
+<br>
 
 TCP doesn't use broadcast or multicast, so you will only see your own
 TCP traffic, but UDP services may use broadcast or multicast so you'll
@@ -946,7 +949,7 @@ see some UDP traffic - however, this is not a problem with TCP traffic,
 it's a problem with unicast traffic, as you also won't see all UDP
 traffic between other machines.
 
-<br />
+<br>
 
 I.e., this is probably <a href="#promiscsniff">the same question
 as this earlier one</a>; see the response to that question.
@@ -961,7 +964,7 @@ that's not sending traffic to the switch and not being sent any traffic
 from other machines on the switch.  ARP packets are often broadcast
 packets, which are sent to all switch ports.
 
-<br />
+<br>
 
 I.e., this is probably <a href="#promiscsniff">the same question
 as this earlier one</a>; see the response to that question.
@@ -977,14 +980,14 @@ network, or is there any broadcast traffic on the network or multicast
 traffic to a multicast group to which the machine running Wireshark
 belongs?
 
-<br />
+<br>
 
 If not, this may just be a problem with promiscuous sniffing, either due
 to running on a switched network or a dual-speed hub, or due to problems
 with the interface not supporting promiscuous mode; see the response to
 <a href="#promiscsniff">this earlier question</a>.
 
-<br />
+<br>
 
 Otherwise, on Windows, see the response to <a href="#capprobwin">this
 question</a> and, on a UNIX-flavored OS, see the response to <a
@@ -1002,7 +1005,7 @@ that support IP are supported as capture devices for libpcap/WinPcap,
 although the device doesn't necessarily have to be running as an IP
 interface in order to support traffic capture.
 
-<br />
+<br>
 
 On Linux and FreeBSD, libpcap 0.8 and later support the API for <a
 href="http://www.endace.com/products.htm">Endace Measurement Systems'
@@ -1014,7 +1017,7 @@ version of Wireshark and a shared libpcap library with DAG support, in
 order to do so with Wireshark.  You should ask Endace whether that could
 be used to capture traffic on, for example, your T1/E1 link.
 
-<br />
+<br>
 
 See <a href="https://wiki.wireshark.org/CaptureSetup/SS7">the SS7 capture
 setup page</a> on <a href="https://wiki.wireshark.org/">the Wireshark
@@ -1027,9 +1030,10 @@ question("""How do I put an interface into promiscuous mode?""")
 answer("""
 By not disabling promiscuous mode when running Wireshark or TShark.
 
-<br />
+<br>
 
 Note, however, that:
+</p>
 <ul>
 <li>the form of promiscuous mode that libpcap (the library that
 programs such as tcpdump, Wireshark, etc.  use to do packet capture)
@@ -1046,6 +1050,7 @@ promiscuous mode isn't on - see <a href="#promiscsniff">this earlier
 question</a> for more information on that.
 </ul>
 
+<p>
 I.e., this is probably <a href="#promiscsniff">the same question
 as this earlier one</a>; see the response to that question.
 """)
@@ -1057,23 +1062,24 @@ I can set a display filter just fine; why don't capture filters work?
 answer("""
 Capture filters currently use a different syntax than display filters.  Here's
 the corresponding section from the
-<a href="/docs/man-pages/wireshark.html">wireshark(1)</a>
- man page:
+<a
+href="https://www.wireshark.org/docs/man-pages/wireshark.html">wireshark(1)</a>
+man page:
 
-<br />
+<br>
 
 "Display filters in Wireshark are very powerful; more fields are filterable
 in Wireshark than in other protocol analyzers, and the syntax you can
 use to create your filters is richer. As Wireshark progresses, expect
 more and more protocol fields to be allowed in display filters.
 
-<br />
+<br>
 
 Packet capturing is performed with the pcap library. The capture filter
 syntax follows the rules of the pcap library. This syntax is different
 from the display filter syntax."
 
-<br />
+<br>
 
 The capture filter syntax used by libpcap can be found in the
 <a href="http://www.tcpdump.org/tcpdump_man.html">tcpdump(8)</a>
@@ -1089,7 +1095,7 @@ There is a bug in some versions of libpcap/WinPcap that cause it to
 report parse errors even for valid expressions if a previous filter
 expression was invalid and got a parse error.
 
-<br />
+<br>
 
 Try exiting and restarting Wireshark; if you are using a version of
 libpcap/WinPcap with this bug, this will "erase" its memory of the
@@ -1097,18 +1103,18 @@ previous parse error.  If the capture filter that got the "parse error"
 now works, the earlier error with that filter was probably due to this
 bug.
 
-<br />
+<br>
 
 The bug was fixed in libpcap 0.6; 0.4[.x] and 0.5[.x] versions of
 libpcap have this bug, but 0.6[.x] and later versions don't.
 
-<br />
+<br>
 
 Versions of WinPcap prior to 2.3 are based on pre-0.6 versions of
 libpcap, and have this bug; WinPcap 2.3 is based on libpcap 0.6.2, and
 doesn't have this bug.
 
-<br />
+<br>
 
 If you are running Wireshark on a UNIX-flavored platform, run "wireshark
 -v", or select "About Wireshark..." from the "Help" menu in Wireshark, to
@@ -1118,7 +1124,7 @@ or will need to build and install a later version of libpcap from <a
 href="http://www.tcpdump.org/">the tcpdump.org Web site</a> and then
 recompile Wireshark from source with that later version of libpcap.
 
-<br />
+<br>
 
 If you are running Wireshark on Windows with a pre-2.3 version of
 WinPcap, you will need to un-install WinPcap and then download and
@@ -1137,7 +1143,7 @@ packets that the OS's raw packet capture mechanism (or the WinPcap
 driver, and the underlying OS networking code and network interface
 drivers, on Windows) will allow it to capture.
 
-<br />
+<br>
 
 Unless the OS always supplies packets with errors such as invalid CRCs
 to the raw packet capture mechanism, or can be configured to do so,
@@ -1149,7 +1155,7 @@ necessary and possible, and make whatever changes to libpcap and the
 packet capture program you're using are necessary, if any, to support
 capturing those packets.
 
-<br />
+<br>
 
 Most OSes probably do <strong>not</strong> support capturing packets
 with invalid CRCs on Ethernet, and probably do not support it on most
@@ -1158,7 +1164,7 @@ as some Ethernet drivers on FreeBSD; in those OSes, you might always get
 those packets, or you might only get them if you capture in promiscuous
 mode (you'd have to determine which is the case).
 
-<br />
+<br>
 
 Note that libpcap does not currently supply to programs that use it an
 indication of whether the packet's CRC was invalid (because the drivers
@@ -1181,7 +1187,7 @@ the data that the OS's raw packet capture mechanism (or the WinPcap
 driver, and the underlying OS networking code and network interface
 drivers, on Windows) will allow it to capture.
 
-<br />
+<br>
 
 For any particular link-layer network type, unless the OS supplies the
 FCS of a frame as part of the frame, or can be configured to do so,
@@ -1192,7 +1198,7 @@ configure it if necessary and possible, and make whatever changes to
 libpcap and the packet capture program you're using are necessary, if
 any, to support capturing the FCS of a frame.
 
-<br />
+<br>
 
 Most OSes do <strong>not</strong> support capturing the FCS of a frame
 on Ethernet, and probably do not support it on most other link-layer
@@ -1202,7 +1208,7 @@ Ethernet interface in Mac OS X; in those OSes, you might always get the
 FCS, or you might only get the FCS if you capture in promiscuous mode
 (you'd have to determine which is the case).
 
-<br />
+<br>
 
 Versions of Wireshark prior to 0.9.15 will not treat an Ethernet FCS in a
 captured packet as an FCS.  0.9.15 and later will attempt to determine
@@ -1225,7 +1231,7 @@ constructs an Ethernet header, and passes that packet to an internal
 network device object for the VLAN, which then passes the packets onto
 various higher-level protocol implementations.
 
-<br />
+<br>
 
 In order to see the raw Ethernet packets, rather than "de-VLANized"
 packets, you would have to capture not on the virtual interface for the
@@ -1245,22 +1251,24 @@ IP address in the capture to convert it to a name (so that, for example,
 it can display the name in the source address or destination address
 columns), and that lookup process is taking a very long time.
 
-<br />
+<br>
 
 Wireshark calls a routine in the OS of the machine on which it's running
 to convert of IP addresses to the corresponding names.  That routine
 probably does one or more of:
+</p>
 <ul><li>a search of a system file listing IP addresses and names;
 <li>a lookup using DNS;
 <li>on UNIX systems, a lookup using NIS;
 <li>on Windows systems, a NetBIOS-over-TCP query.
 </ul>
 
+<p>
 If a DNS server that's used in an address lookup is not responding, the
 lookup will fail, but will only fail after a timeout while the system
 routine waits for a reply.
 
-<br />
+<br>
 
 In addition, on Windows systems, if the DNS lookup of the address fails,
 either because the server isn't responding or because there are no
@@ -1273,7 +1281,7 @@ non-Windows machines wouldn't be running that software - the lookup will
 only fail after a timeout.  Those timeouts can cause the lookup to take
 a long time.
 
-<br />
+<br>
 
 If you disable network address-to-name translation - for example, by
 turning off the "Enable network name resolution" option in the "Capture
@@ -1286,7 +1294,7 @@ options in the preferences disalog box, and using the "Save" button in
 that dialog box; note that this will save <em>all</em> your current
 preference settings.
 
-<br />
+<br>
 
 If Wireshark hangs when reading a capture even with network name
 resolution turned off, there might, for example, be a bug in one of
@@ -1298,7 +1306,7 @@ occurs in the most recent release of Wireshark, the bug should be
 reported to <a href="mailto:wireshark-dev@wireshark.org">the Wireshark
 developers' mailing list</a> at <code>wireshark-dev@wireshark.org</code>.
 
-<br />
+<br>
 
 On UNIX-flavored OSes, please try to force Wireshark to dump core, by
 sending it a <code>SIGABRT</code> signal (usually signal 6) with the
@@ -1307,6 +1315,7 @@ installed.  A stack trace can be obtained by using your debugger
 (<code>gdb</code> in this example), the Wireshark binary, and the resulting
 core file.  Here's an example of how to use the gdb command
 <code>backtrace</code> to do so.
+</p>
 
 <pre>
         $ gdb wireshark core
@@ -1316,10 +1325,11 @@ core file.  Here's an example of how to use the gdb command
         $
 </pre>
 
+<p>
 The core dump file may be named "wireshark.core" rather than "core" on
 some platforms (e.g., BSD systems).
 
-<br />
+<br>
 
 Also, if at all possible, please send a copy of the capture file that caused
 the problem.  When capturing packets, Wireshark normally writes captured
@@ -1331,7 +1341,7 @@ Windows XP and Server 2003, and
 <code>\\Users\\<var>your login name</var>\\AppData\\Local\\Temp</code> on the main
 system disk on Windows Vista and later, so the capture file will probably be there.  If you
 are capturing on a single interface, it will have a name of the form,
-<code>wireshark_&lt;fmt&gt_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX</code>, where
+<code>wireshark_&lt;fmt&gt;_&lt;iface&gt;_YYYYmmddHHMMSS_XXXXXX</code>, where
 &lt;fmt&gt; is the capture file format (pcap or pcapng), and &lt;iface&gt; is
 the actual name of the interface you are capturing on; otherwise, if you are
 capturing on multiple interfaces, it will have a name of the form,
@@ -1364,7 +1374,7 @@ program from an account with administrator privileges; once you have run
 such a program, you will not need administrator privileges to run any
 such programs until you reboot.
 
-<br />
+<br>
 
 If you are running on Windows Windows XP or Windows Server
 2003 and have administrator privileges or a WinPcap-based program has
@@ -1372,21 +1382,21 @@ been run with those privileges since the machine rebooted, this problem
 <em>might</em> clear up if you completely un-install WinPcap and then
 re-install it.
 
-<br />
+<br>
 
 If that doesn't work, then note that Wireshark relies on the WinPcap
 library, on the WinPcap device driver, and on the facilities that come
 with the OS on which it's running in order to do captures.
 
-<br />
+<br>
 
 Therefore, if the OS, the WinPcap library, or the WinPcap driver don't
 support capturing on a particular network interface device, Wireshark
 won't be able to capture on that device.
 
-<br >
+<br>
 
-<li>WinPcap 2.3 has problems supporting PPP WAN interfaces on Windows NT
+WinPcap 2.3 has problems supporting PPP WAN interfaces on Windows NT
 4.0, Windows 2000, Windows XP, and Windows Server 2003, and, to avoid
 those problems, support for PPP WAN interfaces on those versions of
 Windows has been disabled in WinPcap 3.0.  Regular dial-up lines, ISDN
@@ -1395,7 +1405,7 @@ such as T1/E1 lines are all PPP interfaces, so those interfaces might
 not show up on the list of interfaces in the "Capture Options"
 dialog on those OSes.
 
-<br />
+<br>
 
 On Windows 2000, Windows XP, and Windows Server 2003, but
 <strong>not</strong> Windows NT 4.0 or Windows Vista Beta 1, you should
@@ -1405,9 +1415,9 @@ release, you should un-install it and install the final 3.1 release.)
 See <a href="https://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
 Wiki item on PPP capturing</a> for details.
 
-<br />
+<br>
 
-<li>WinPcap prior to 3.0 does not support multiprocessor machines (note
+WinPcap prior to 3.0 does not support multiprocessor machines (note
 that machines with a single multi-threaded processor, such as Intel's
 new multi-threaded x86 processors, are multiprocessor machines as far as
 the OS and WinPcap are concerned), and recent 2.x versions of WinPcap
@@ -1416,28 +1426,27 @@ multiprocessor machine, which means that they may not show any network
 interfaces.  You will need to use WinPcap 3.0 to capture on a
 multiprocessor machine.
 
-</ol>
-
-<br />
+<br>
 
 If an interface doesn't show up in the list of interfaces in the
 "Interface:" field, and you know the name of the interface, try entering
 that name in the "Interface:" field and capturing on that device.
 
-<br />
+<br>
 
 If the attempt to capture on it succeeds, the interface is somehow not
 being reported by the mechanism Wireshark uses to get a list of
 interfaces.  Try listing the interfaces with WinDump; see <a
-href="http://www.windump.org/">the WinDump Web site</a>
+href="https://www.windump.org/">the WinDump Web site</a>
 for information on using WinDump.
 
-<br />
+<br>
 
 You would run WinDump with the <code>-D</code> flag; if it lists the
 interface, please report this to <a
 href="mailto:wireshark-dev@wireshark.org">wireshark-dev@wireshark.org</a>
 giving full details of the problem, including
+</p>
 
 <ul>
 <li>the operating system you're using, and the version of that operating
@@ -1446,8 +1455,10 @@ system;
 <li>the output of WinDump.
 </ul>
 
+<p>
 If WinDump does <em>not</em> list the interface,
 this is almost certainly a problem with one or more of:
+</p>
 
 <ul>
 <li>the operating system you're using;
@@ -1455,26 +1466,25 @@ this is almost certainly a problem with one or more of:
 <li>the WinPcap library and/or the WinPcap device driver;
 </ul>
 
-so first check <a href="http://www.winpcap.org/misc/faq.htm">the
-WinPcap FAQ</a> or <a
-href="http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/misc/faq.htm">
-the Wiretapped.net mirror of that FAQ</a>, to see if your problem is
-mentioned there.  If not, then see <a
-href="http://www.winpcap.org/contact.htm">the WinPcap support page</a>
+<p>
+so first check <a href="https://www.winpcap.org/misc/faq.htm">the
+WinPcap FAQ</a> to see if your problem is mentioned there. If not, then see <a
+href="https://www.winpcap.org/contact.htm">the WinPcap support page</a>
 - check the "Submitting bugs" section.
 
-<br />
+<br>
 
 If you are having trouble capturing on a particular network interface,
 first try capturing on that device with WinDump; see <a
-href="http://www.windump.org/">the WinDump Web site</a>
+href="https://www.windump.org/">the WinDump Web site</a>
 for information on using WinDump.
 
-<br />
+<br>
 
 If you can capture on the interface with WinDump, send mail to <a
 href="mailto:wireshark-users@wireshark.org">wireshark-users@wireshark.org</a>
 giving full details of the problem, including
+</p>
 
 <ul>
 <li>the operating system you're using, and the version of that operating
@@ -1483,8 +1493,10 @@ system;
 <li>the error message you get from Wireshark.
 </ul>
 
+<p>
 If you <em>cannot</em> capture on the interface with WinDump,
 this is almost certainly a problem with one or more of:
+</p>
 
 <ul>
 <li>the operating system you're using;
@@ -1492,15 +1504,13 @@ this is almost certainly a problem with one or more of:
 <li>the WinPcap library and/or the WinPcap device driver;
 </ul>
 
-so first check <a href="http://www.winpcap.org/misc/faq.htm">the
-WinPcap FAQ</a> or <a
-href="http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/misc/faq.htm">
-the Wiretapped.net mirror of that FAQ</a>, to see if your problem is
-mentioned there.  If not, then see <a
-href="http://www.winpcap.org/contact.htm">the WinPcap support page</a>
+<p>
+so first check <a href="https://www.winpcap.org/misc/faq.htm">the
+WinPcap FAQ</a> to see if your problem is mentioned there. If not, then see <a
+href="https://www.winpcap.org/contact.htm">the WinPcap support page</a>
 - check the "Submitting bugs" section.
 
-<br />
+<br>
 
 You may also want to ask the <a
 href="mailto:wireshark-users@wireshark.org">wireshark-users@wireshark.org</a>
@@ -1509,7 +1519,7 @@ href="mailto:winpcap-users@winpcap.org">winpcap-users@winpcap.org</a>
 mailing lists to see if anybody happens to know about the problem and
 know a workaround or fix for the problem.  (Note that you will have to
 subscribe to that list in order to be allowed to mail to it; see <a
-href="http://www.winpcap.org/contact.htm">the WinPcap support
+href="https://www.winpcap.org/contact.htm">the WinPcap support
 page</a> for information on the mailing list.) In your mail,
 please give full details of the problem, as described above, and also
 indicate that the problem occurs with WinDump, not just with Wireshark.
@@ -1539,7 +1549,7 @@ on Windows NT 4.0, Windows 2000, Windows XP, and Windows Server 2003,
 and, to avoid those problems, support for PPP WAN interfaces on those
 versions of Windows has been disabled in WinPcap 3.0.
 
-<br />
+<br>
 
 On Windows 2000, Windows XP, and Windows Server 2003, but
 <strong>not</strong> Windows NT 4.0 or Windows Vista Beta 1, you should
@@ -1567,7 +1577,7 @@ receiving packets.  You can disable promiscuous mode using the
 dialog box, but this may mean that outgoing packets, or incoming
 packets, won't be seen in the capture.
 
-<br />
+<br>
 
 On Windows 2000, Windows XP, and Windows Server 2003, but
 <strong>not</strong> Windows NT 4.0 or Windows Vista Beta 1, you should
@@ -1591,7 +1601,7 @@ Wireshark (or any other application using WinPcap) see outgoing packets;
 unfortunately, neither we nor the WinPcap developers know any way to
 make WinPcap and the VPN software work well together.
 
-<br />
+<br>
 
 Also, some drivers for Windows (especially some wireless network
 interface drivers) apparently do not, when running in promiscuous mode,
@@ -1626,10 +1636,10 @@ your machine, not third-party traffic, and it'll look like Ethernet
 traffic and won't include any management or control frames, but that's a
 limitation of the card drivers.
 
-<br />
+<br>
 
-See <a
-href="http://www.micro-logix.com/WinPcap/Supported.asp">MicroLogix's
+See the archived <a
+href="https://web.archive.org/web/20090226193157/http://www.micro-logix.com/winpcap/Supported.asp">MicroLogix's
 list of cards supported with WinPcap</a> for information on
 support of various adapters and drivers with WinPcap.
 """)
@@ -1685,7 +1695,7 @@ Wireshark Wiki item on capture privileges</a> for details on how to give
 a particular account or account group capture privileges on platforms
 where that can be done.
 
-<br />
+<br>
 
 If you are running Wireshark from an account with sufficient privileges,
 then note that Wireshark relies on the libpcap library, and on the
@@ -1694,7 +1704,7 @@ captures.  On some OSes, those facilities aren't present by default; see
 <a href="https://wiki.wireshark.org/CaptureSetup/CaptureSupport">the
 Wireshark Wiki item on adding capture support</a> for details.
 
-<br />
+<br>
 
 And, even if you're running with an account that has sufficient
 privileges to capture, and capture support is present in your OS, if the
@@ -1702,25 +1712,26 @@ OS or the libpcap library don't support capturing on a particular
 network interface device or particular types of devices, Wireshark won't
 be able to capture on that device.
 
-<br />
+<br>
 
 On Solaris, note that libpcap 0.6.2 and earlier didn't support Token
 Ring interfaces; the current version, 0.7.2, does support Token Ring,
 and the current version of Wireshark works with libpcap 0.7.2 and later.
 
-<br />
+<br>
 
 If an interface doesn't show up in the list of interfaces in the
 "Interface:" field, and you know the name of the interface, try entering
 that name in the "Interface:" field and capturing on that device.
 
-<br />
+<br>
 
 If the attempt to capture on it succeeds, the interface is somehow not
 being reported by the mechanism Wireshark uses to get a list of
 interfaces; please report this to <a
 href="mailto:wireshark-dev@wireshark.org">wireshark-dev@wireshark.org</a>
 giving full details of the problem, including
+</p>
 
 <ul>
 <li>the operating system you're using, and the version of that operating
@@ -1729,17 +1740,19 @@ name and version number of the distribution you're using);
 <li>the type of network device you're using.
 </ul>
 
+<p>
 If you are having trouble capturing on a particular network interface,
 and you've made sure that (on platforms that require it) you've arranged
 that packet capture support is present, as per the above, first try
 capturing on that device with <code>tcpdump</code>.
 
-<br />
+<br>
 
 If you can capture on the interface with <code>tcpdump</code>, send mail to
 <a
 href="mailto:wireshark-users@wireshark.org">wireshark-users@wireshark.org</a>
 giving full details of the problem, including
+</p>
 
 <ul>
 <li>the operating system you're using, and the version of that operating
@@ -1749,8 +1762,10 @@ name and version number of the distribution you're using);
 <li>the error message you get from Wireshark.
 </ul>
 
+<p>
 If you <em>cannot</em> capture on the interface with <code>tcpdump</code>,
 this is almost certainly a problem with one or more of:
+</p>
 
 <ul>
 <li>the operating system you're using;
@@ -1758,11 +1773,12 @@ this is almost certainly a problem with one or more of:
 <li>the libpcap library;
 </ul>
 
+<p>
 so you should report the problem to the company or organization that
 produces the OS (in the case of a Linux distribution, report the problem
 to whoever produces the distribution).
 
-<br />
+<br>
 
 You may also want to ask the <a
 href="mailto:wireshark-users@wireshark.org">wireshark-users@wireshark.org</a>
@@ -1794,7 +1810,7 @@ libpcap/WinPcap get them from the OS kernel, so Wireshark - and any other
 program using libpcap, such as tcpdump - is at the mercy of the time
 stamping code in the OS for time stamps.
 
-<br />
+<br>
 
 At least on x86-based machines, Linux can get high-resolution time
 stamps on newer processors with the Time Stamp Counter (TSC) register;
@@ -1807,7 +1823,7 @@ The Linux kernel must be configured with the CONFIG_X86_TSC option
 enabled in order to use the TSC.  Make sure this option is enabled in
 your kernel.
 
-<br />
+<br>
 
 In addition, some Linux distributions may have bugs in their versions of
 the kernel that cause packets not to be given high-resolution time
@@ -1831,7 +1847,7 @@ answer("""
 That depends on the operating system on which you're running, and on the
 802.11 interface on which you're capturing.
 
-<br />
+<br>
 
 This would probably require that you capture in promiscuous mode or in
 the mode called "monitor mode" or "RFMON mode".  On some platforms, or
@@ -1840,7 +1856,7 @@ promiscuous mode might not be sufficient.  If you want to capture
 traffic on networks other than the one with which you're associated, you
 will have to capture in monitor mode.
 
-<br />
+<br>
 
 Not all operating systems support capturing non-data packets and, even
 on operating systems that do support it, not all drivers, and thus not
@@ -1848,7 +1864,7 @@ all interfaces, support it.  Even on those that do, monitor mode might
 not be supported by the operating system or by the drivers for all
 interfaces.
 
-<br />
+<br>
 
 <strong>NOTE:</strong> an interface running in monitor mode will, on
 most if not all platforms, not be able to act as a regular network
@@ -1856,7 +1872,7 @@ interface; putting it into monitor mode will, in effect, take your
 machine off of whatever network it's on as long as the interface is in
 monitor mode, allowing it only to passively capture packets.
 
-<br />
+<br>
 
 This means that you should disable name resolution when capturing in
 monitor mode; otherwise, when Wireshark (or TShark, or tcpdump) tries
@@ -1864,7 +1880,7 @@ to display IP addresses as host names, it will probably block for a long
 time trying to resolve the name because it will not be able to
 communicate with any DNS or NIS servers.
 
-<br />
+<br>
 
 See <a
 href="https://wiki.wireshark.org/CaptureSetup/WLAN">the Wireshark
@@ -1901,16 +1917,18 @@ are directly handed to the capture interface by the OS, which means that
 they are handed to the capture interface without a TCP checksum being
 added to them.
 
-<br />
+<br>
 
 The only way to prevent this from happening would be to disable TCP
 checksum offloading, but
+</p>
 
 <ol>
 <li>that might not even be possible on some OSes;
 <li>that could reduce networking performance significantly.
 </ol>
 
+<p>
 However, you can disable the check that Wireshark does of the TCP
 checksum, so that it won't report any packets as having TCP checksum
 errors, and so that it won't refuse to do TCP reassembly due to a packet
@@ -1922,7 +1940,7 @@ validity of the TCP checksum when possible" option, clicking "Save" if
 you want to save that setting in your preference file, and clicking
 "OK".
 
-<br />
+<br>
 
 It can also be set on the Wireshark or TShark command line with a
 <code>-o tcp.check_checksum:false</code> command-line flag, or manually set
@@ -1947,6 +1965,7 @@ only as UDP.""")
 answer("""
 Wireshark can identify a UDP datagram as containing a packet of a
 particular protocol running atop UDP only if
+</p>
 
 <ol>
 <li> The protocol in question has a particular standard port
@@ -1963,17 +1982,18 @@ for example, UDP traffic between two particular addresses and
 ports will be RTP traffic.
 </ol>
 
+<p>
 RTP doesn't have a standard port number, so 1) doesn't work; it doesn't,
 as far as I know, have any "signature", so 2) doesn't work.
 
-<br />
+<br>
 
 That leaves 3).  If there's RTSP traffic that sets up an RTP session,
 then, at least in some cases, the RTSP dissector will set things up so
 that subsequent RTP traffic will be identified.  Currently, that's the
 only place we do that; there may be other places.
 
-<br />
+<br>
 
 However, there will always be places where Wireshark is simply
 <b>incapable</b> of deducing that a given UDP flow is RTP; a mechanism
@@ -2011,7 +2031,7 @@ answer("""
 You cannot use the name of a saved display filter as a filter.  To
 filter the display, you can enter a display filter expression -
 <strong>not</strong> the name of a saved display filter - in the
-"Filter:" box at the bottom of the display, and type the <Enter> key or
+"Filter:" box at the bottom of the display, and type the &lt;Enter&gt; key or
 press the "Apply" button (that does not require you to have a saved
 filter), or, if you want to use a saved filter, you can press the
 "Filter:" button, select the filter in the dialog box that pops up, and
@@ -2028,7 +2048,7 @@ would be hard to implement in capture filters without changes to the
 capture filter code, which, on many platforms, is in the OS kernel and,
 on other platforms, is in the libpcap library.
 
-<br />
+<br>
 
 After capture, you can search for text by selecting <i>Edit&#8594;Find
 Packet...</i> and making sure <i>String</i> is selected. Alternately, you can
@@ -2047,19 +2067,13 @@ href="https://wiki.wireshark.org/CaptureFilters">CaptureFilters</a> page
 on the <a href="https://wiki.wireshark.org/">Wireshark Wiki</a> to see if
 anybody's added such a filter.
 
-<br />
+<br>
 
 Note that Wireshark was not designed to be an intrusion detection system;
 you might be able to use it as an IDS, but in most cases software
-designed to be an IDS, such as <a href="http://www.snort.org/">Snort</a>
-or <a href="http://www.prelude-ids.org/">Prelude</a>, will probably work
+designed to be an IDS, such as <a href="https://www.snort.org/">Snort</a>
+or <a href="https://www.prelude-siem.org/">Prelude</a>, will probably work
 better.
-
-<br />
-
-The <a href="http://www.bleedingsnort.com/">Bleeding Edge of Snort</a>
-has a collection of signatures for Snort to detect various viruses,
-worms, and the like.
 """)
 
 #################################################################
