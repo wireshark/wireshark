@@ -92,8 +92,6 @@ WS_DLL_PUBLIC char *decode_bits_in_field(const guint bit_offset, const gint no_o
 
 WS_DLL_PUBLIC char	*other_decode_bitfield_value(char *buf, const guint64 val, const guint64 mask,
     const int width);
-WS_DLL_PUBLIC char	*decode_bitfield_value(char *buf, const guint64 val, const guint64 mask,
-    const int width);
 
 WS_DLL_PUBLIC const gchar* port_type_to_str (port_type type);
 

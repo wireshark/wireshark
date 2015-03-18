@@ -1034,17 +1034,6 @@ other_decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, co
 	return p;
 }
 
-char *
-decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const int width)
-{
-	char *p;
-
-	p = other_decode_bitfield_value(buf, val, mask, width);
-	p = g_stpcpy(p, " = ");
-
-	return p;
-}
-
 /*
    This function is very fast and this function is called a lot.
    XXX update the address_to_str stuff to use this function.

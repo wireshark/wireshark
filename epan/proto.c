@@ -3334,6 +3334,17 @@ proto_tree_set_boolean(field_info *fi, guint64 value)
 	proto_tree_set_uint64(fi, value);
 }
 
+static char *
+decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const int width)
+{
+	char *p;
+
+	p = other_decode_bitfield_value(buf, val, mask, width);
+	p = g_stpcpy(p, " = ");
+
+	return p;
+}
+
 /* Add a FT_FLOAT to a proto_tree */
 proto_item *
 proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
