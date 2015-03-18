@@ -35,6 +35,7 @@
 #include "packet-cip.h"
 
 void proto_register_devicenet(void);
+void proto_reg_handoff_devicenet(void);
 
 #define DEVICENET_CANID_MASK            0x7FF
 #define MESSAGE_GROUP_1_ID              0x3FF
@@ -427,6 +428,10 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     DISSECTOR_ASSERT(data);
     can_id = *((struct can_identifier*)data);
+
+    /* XXX - Not sure this is correct.  But the capture provided in
+    * bug 8564 provides CAN ID in little endian format, so this makes it work */
+    can_id.id = GUINT32_SWAP_LE_BE(can_id.id);
 
     if (can_id.id & (~DEVICENET_CANID_MASK))
     {
@@ -1029,8 +1034,6 @@ void proto_register_devicenet(void)
     expert_devicenet = expert_register_protocol(proto_devicenet);
     expert_register_field_array(expert_devicenet, ei, array_length(ei));
 
-    new_register_dissector("devicenet", dissect_devicenet, proto_devicenet);
-
     devicenet_address_type = address_type_dissector_register("AT_DEVICENET", "DeviceNet Address", devicenet_addr_to_str, devicenet_addr_str_len, NULL, devicenet_addr_len, NULL, NULL);
 
     devicenet_module = prefs_register_protocol(proto_devicenet, NULL);
@@ -1054,6 +1057,15 @@ void proto_register_devicenet(void)
                                       "Node bodytypes",
                                       "Node bodytypes",
                                       devicenet_uat);
+}
+
+void
+proto_reg_handoff_devicenet(void)
+{
+    dissector_handle_t devicenet_handle;
+
+    devicenet_handle = new_create_dissector_handle( dissect_devicenet, proto_devicenet );
+    dissector_add_for_decode_as("can.subdissector", devicenet_handle );
 }
 
 /*

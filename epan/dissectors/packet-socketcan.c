@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/decode_as.h>
 #include <wiretap/wtap.h>
 
 #include "packet-sll.h"
@@ -58,9 +59,6 @@ static gint ett_can = -1;
 static int proto_can = -1;
 
 static dissector_handle_t data_handle;
-static dissector_handle_t canopen_handle;
-static dissector_handle_t devicenet_handle;
-static dissector_handle_t j1939_handle;
 
 #define LINUX_CAN_STD   0
 #define LINUX_CAN_EXT   1
@@ -69,13 +67,6 @@ static dissector_handle_t j1939_handle;
 
 #define CAN_LEN_OFFSET  4
 #define CAN_DATA_OFFSET 8
-
-typedef enum {
-	CAN_DATA_DISSECTOR = 1,
-	CAN_CANOPEN_DISSECTOR = 2,
-	CAN_DEVICENET_DISSECTOR = 3,
-	CAN_J1939_DISSECTOR = 4
-} Dissector_Option;
 
 /* Structure that gets passed between dissectors.  Since it's just a simple 32-bit
    value, no sense in creating a header file for it.  Just expect subdissectors
@@ -86,15 +77,7 @@ struct can_identifier
 	guint32 id;
 };
 
-static const enum_val_t can_high_level_protocol_dissector_options[] = {
-	{ "raw",	"Raw data (no further dissection)",	CAN_DATA_DISSECTOR },
-	{ "CANopen",	"CANopen protocol",			CAN_CANOPEN_DISSECTOR },
-	{ "DeviceNet",	"DeviceNet protocol",			CAN_DEVICENET_DISSECTOR },
-	{ "J1939",	"J1939 protocol",			CAN_J1939_DISSECTOR },
-	{ NULL,	NULL, 0 }
-};
-
-static guint can_high_level_protocol_dissector = CAN_DATA_DISSECTOR;
+static dissector_table_t subdissector_table;
 
 static const value_string frame_type_vals[] =
 {
@@ -104,6 +87,16 @@ static const value_string frame_type_vals[] =
 	{ LINUX_CAN_ERR, "ERR" },
 	{ 0, NULL }
 };
+
+static void can_prompt(packet_info *pinfo _U_, gchar* result)
+{
+	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
+}
+
+static gpointer can_value(packet_info *pinfo _U_)
+{
+	return 0;
+}
 
 static void
 dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -157,24 +150,11 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, frame_len);
 
-	switch (can_high_level_protocol_dissector)
+	/* Functionality for choosing subdissector is controlled through Decode As as CAN doesn't
+	   have a unique identifier to determine subdissector */
+	if (!dissector_try_uint_new(subdissector_table, 0, next_tvb, pinfo, tree, FALSE, &can_id))
 	{
-		case CAN_DATA_DISSECTOR:
-			call_dissector(data_handle, next_tvb, pinfo, tree);
-			break;
-		case CAN_CANOPEN_DISSECTOR:
-			call_dissector_with_data(canopen_handle, next_tvb, pinfo, tree, &can_id);
-			break;
-		case CAN_DEVICENET_DISSECTOR:
-			/* XXX - Not sure this is correct.  But the capture provided in
-			 * bug 8564 provides CAN ID in little endian format, so this makes it work */
-			can_id.id = GUINT32_SWAP_LE_BE(can_id.id);
-
-			call_dissector_with_data(devicenet_handle, next_tvb, pinfo, tree, &can_id);
-			break;
-		case CAN_J1939_DISSECTOR:
-			call_dissector_with_data(j1939_handle, next_tvb, pinfo, tree, &can_id);
-			break;
+		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 }
 
@@ -234,7 +214,14 @@ proto_register_socketcan(void)
 		{
 			&ett_can
 		};
+
 	module_t *can_module;
+
+	/* Decode As handling */
+	static build_valid_func can_da_build_value[1] = {can_value};
+	static decode_as_value_t can_da_values = {can_prompt, 1, can_da_build_value};
+	static decode_as_t can_da = {"can", "Network", "can.subdissector", 1, 0, &can_da_values, NULL, NULL,
+									decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
 	proto_can = proto_register_protocol(
 		"Controller Area Network",	/* name       */
@@ -245,17 +232,14 @@ proto_register_socketcan(void)
 	proto_register_field_array(proto_can, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	subdissector_table = register_dissector_table("can.subdissector",
+		"CAN next level dissector", FT_UINT32, BASE_HEX);
+
 	can_module = prefs_register_protocol(proto_can, NULL);
 
-	prefs_register_enum_preference(
-		can_module,
-		"protocol",
-		"Next level protocol",
-		"Next level protocol like CANopen etc.",
-		(gint *)&can_high_level_protocol_dissector,
-		can_high_level_protocol_dissector_options,
-		FALSE
-		);
+	prefs_register_obsolete_preference(can_module, "protocol");
+
+	register_decode_as(&can_da);
 }
 
 void
@@ -267,9 +251,6 @@ proto_reg_handoff_socketcan(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
 	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, can_handle);
 
-	canopen_handle = find_dissector("canopen");
-	devicenet_handle = find_dissector("devicenet");
-	j1939_handle   = find_dissector("j1939");
 	data_handle    = find_dissector("data");
 }
 

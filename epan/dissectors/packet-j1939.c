@@ -29,6 +29,7 @@
 #include <epan/to_str-int.h>
 
 void proto_register_j1939(void);
+void proto_reg_handoff_j1939(void);
 
 #define J1939_CANID_MASK        0x1FFFFFFF
 #define J1939_11BIT_ID          0x000003FF
@@ -347,11 +348,18 @@ void proto_register_j1939(void)
     proto_register_field_array(proto_j1939, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("j1939", dissect_j1939, proto_j1939);
-
     subdissector_pgn_table = register_dissector_table("j1939.pgn", "PGN Handle", FT_UINT32, BASE_DEC);
 
     j1939_address_type = address_type_dissector_register("AT_J1939", "J1939 Address", J1939_addr_to_str, J1939_addr_str_len, J1939_col_filter_str, J1939_addr_len, NULL, NULL);
+}
+
+void
+proto_reg_handoff_j1939(void)
+{
+    dissector_handle_t j1939_handle;
+
+    j1939_handle = new_create_dissector_handle( dissect_j1939, proto_j1939 );
+    dissector_add_for_decode_as("can.subdissector", j1939_handle );
 }
 
 /*
