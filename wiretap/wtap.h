@@ -263,6 +263,7 @@ extern "C" {
 #define WTAP_ENCAP_IPMI_TRACE                   174
 #define WTAP_ENCAP_LOOP                         175
 #define WTAP_ENCAP_JSON                         176
+#define WTAP_ENCAP_NSTRACE_3_5                  177
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
@@ -350,6 +351,7 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_COLASOFT_CAPSA                75
 #define WTAP_FILE_TYPE_SUBTYPE_COLASOFT_PACKET_BUILDER       76
 #define WTAP_FILE_TYPE_SUBTYPE_JSON                          77
+#define WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5                 78
 
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 

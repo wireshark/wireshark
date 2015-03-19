@@ -101,6 +101,11 @@
 #define NSPR_PDPKTRACEFULLRX_V30    0xAA    /* Received packets before NIC pipelining */
 #define NSPR_PDPKTRACEFULLNEWRX_V30 0xAB    /* Received packets after NIC pipelining */
 
+#define NSPR_PDPKTRACEFULLTX_V35    0xAC    /* Transmitted */
+#define NSPR_PDPKTRACEFULLTXB_V35   0xAD   /* In transmit buffer */
+#define NSPR_PDPKTRACEFULLRX_V35    0xAE    /* Received packets before NIC pipelining */
+#define NSPR_PDPKTRACEFULLNEWRX_V35 0xAF    /* Received packets after NIC pipelining */
+
 
 /* Record types */
 #define	NSPR_HEADER_VERSION100 0x10
@@ -112,11 +117,13 @@
 #define NSPR_HEADER_VERSION205 0x25
 #define NSPR_HEADER_VERSION206 0x26
 #define NSPR_HEADER_VERSION300 0x30
+#define NSPR_HEADER_VERSION350 0x35
 
 wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info);
 int nstrace_10_dump_can_write_encap(int encap);
 int nstrace_20_dump_can_write_encap(int encap);
 int nstrace_30_dump_can_write_encap(int encap);
+int nstrace_35_dump_can_write_encap(int encap);
 
 gboolean nstrace_dump_open(wtap_dumper *wdh, int *err);
 

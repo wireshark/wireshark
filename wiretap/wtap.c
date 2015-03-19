@@ -742,7 +742,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "OpenBSD loopback", "loop" },
 
 	/* WTAP_ENCAP_JSON */
-	{ "JavaScript Object Notation", "json" }
+	{ "JavaScript Object Notation", "json" },
+
+	/* WTAP_ENCAP_NSTRACE_3_5 */
+	{ "NetScaler Encapsulation 3.5 of Ethernet", "nstrace35" },
 };
 
 WS_DLL_LOCAL

@@ -20,11 +20,149 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 #include "config.h"
 
 #include <epan/packet.h>
 #include <wiretap/netscaler.h>
+
+
+/* This is new long header (3 bytes long) to be included where needed */
+#define NSPR_HEADER3B_V20(prefix) \
+    guint8 prefix##_RecordType;    /* Record Type */ \
+    guint8 prefix##_RecordSizeLow; /* Record Size including header */ \
+    guint8 prefix##_RecordSizeHigh /* Record Size including header */ \
+                                   /* end of declaration */
+#define NSPR_HEADER3B_V21 NSPR_HEADER3B_V20
+#define NSPR_HEADER3B_V22 NSPR_HEADER3B_V20
+#define NSPR_HEADER3B_V30 NSPR_HEADER3B_V20
+
+typedef struct  nspr_pktracefull_v35
+{
+    NSPR_HEADER3B_V30(fp);  /* long performance header */
+    guint8 fp_DevNo;   /* Network Device (NIC) number */
+    guint8 fp_AbsTimeHr[8];  /*High resolution absolute time in nanosec*/
+    guint8 fp_PcbDevNo[4];    /* PCB devno */
+    guint8 fp_lPcbDevNo[4];   /* link PCB devno */
+    guint8 fp_PktSizeOrg[2];  /* Original packet size */
+    guint8 fp_VlanTag[2]; /* vlan tag */
+    guint8 fp_Coreid[2]; /* coreid of the packet */
+    guint8 fp_headerlen[2];
+    guint8 fp_errorcode;
+    guint8 fp_app;
+    guint8 fp_ns_activity[4];
+    guint8 fp_nextrecord;
+} nspr_pktracefull_v35_t;
+#define nspr_pktracefull_v35_s  ((guint32)(sizeof(nspr_pktracefull_v35_t)))
+#define MAX_UNKNOWNREC_LOOP 5
+/* Generic trace record header */
+typedef struct nspr_tracerechdr_s
+{
+  guint8 rec_len[2];
+  guint8 nextrec_type;
+} nspr_tracerechdr_t;
+
+/*Trace record for tcp debug*/
+typedef struct nspr_rec_tcpdebug_s
+{
+  nspr_tracerechdr_t rechdr;
+  guint8 snd_cwnd[4];
+  guint8 real_time_rtt[4];
+  guint8 ts_recent[4];
+  guint8 http_abort_reason;
+} nspr_rec_tcpdebug_t;
+
+/*info trace record*/
+typedef struct nspr_rec_info_s
+{
+  nspr_tracerechdr_t rechdr;
+} nspr_rec_info_t;
+
+/*cluster trace record*/
+typedef struct nspr_rec_cluster_s
+{
+  nspr_tracerechdr_t rechdr;
+  guint8 fp_srcNodeId[2]; /* cluster nodeid of the packet */
+  guint8 fp_destNodeId[2];
+  guint8 fp_clFlags;
+} nspr_rec_cluster_t;
+
+/*vmnames trace record*/
+typedef struct nspr_rec_vmname_s
+{
+  nspr_tracerechdr_t rechdr;
+  guint8 src_vmname_len;
+  guint8 dst_vmname_len;
+} nspr_rec_vmname_t;
+
+typedef struct nspr_rec_ssl_s
+{
+  nspr_tracerechdr_t rechdr;
+  guint8 seq[4];
+  guint8 appseq[4];
+} nspr_rec_ssl_t;
+
+
+/* Netscaler Record types */
+#define NSREC_NULL     0x00
+
+/* 1.Standard protocols */
+#define NSREC_ETHERNET 0x01
+#define NSREC_HTTP     0x02
+
+/* 2. netscaler specific records */
+#define NSREC_TCPDEBUG  0x80
+#define NSREC_CGP       0x81
+#define NSREC_ICA       0x82
+#define NSREC_INFO      0x83
+#define NSREC_VMNAMES   0x84
+#define NSREC_CLUSTER   0x85
+#define NSREC_HTTP2     0x86
+#define NSREC_SSL       0x87
+#define NSREC_APPFW     0x88
+#define NSREC_POL       0x89
+#define UNKNOWN_LAST    0xFF
+
+/* Packet error codes */
+#define ERR_NONE              0
+#define ERR_DROP_PERX_LONGPKT 1
+#define ERR_DROP_PERX_FIXHDR  2
+#define ERR_DROP_PERX_DUPFREE 3
+#define ERR_PKT_FWD           4
+#define ERR_PKT_FWD6          5
+#define ERR_LAST              6
+
+#define APP_NULL    0x00
+#define APP_IP      0x01
+#define APP_TCP     0x02
+#define APP_SPDY    0x03
+#define APP_UDP     0x04
+#define APP_HSM     0x05
+#define APP_DNS     0x06
+#define APP_SSLDEC  0x07
+#define APP_AAA     0x08
+#define APP_SNMP    0x09
+#define APP_RTSP    0x0A
+#define APP_NAT     0x0B
+#define APP_MYSQL   0x0C
+#define APP_IPFIX   0x0D
+#define APP_ORACLE  0x0E
+#define APP_ICA     0x0F
+#define APP_SMPP    0x10
+#define APP_RDP     0x11
+#define APP_TFTP    0x12
+#define APP_PPTP    0x13
+#define APP_MPTCP   0x14
+#define APP_HTTP2   0x15
+#define APP_IPSEC   0x16
+#define APP_TEST    0x17
+#define APP_L2      0x18
+#define APP_LLDP    0x19
+#define APP_VPATH   0x1A
+#define APP_NAT64   0x1B
+#define APP_APPFW   0x1C
+#define APP_IP6     0x1D
+#define APP_ARP     0x1E
+#define APP_SSLENC  0x1F
 
 void proto_register_ns(void);
 void proto_reg_handoff_ns(void);
@@ -40,6 +178,9 @@ static int hf_ns_l_pcbdevno = -1;
 static int hf_ns_devno = -1;
 static int hf_ns_vlantag = -1;
 static int hf_ns_coreid = -1;
+
+static int hf_ns_errorcode = -1;
+static int hf_ns_app = -1;
 
 static int hf_ns_snode = -1;
 static int hf_ns_dnode = -1;
@@ -58,21 +199,104 @@ static int hf_ns_activity_natpcb_zombie  = -1;
 static int hf_ns_activity_lbstats_sync  = -1;
 static int hf_ns_activity_stats_req  = -1;
 
+static int hf_ns_capflags           = -1;
+static int hf_ns_capflags_dbg       = -1;
+static int hf_ns_capflags_int       = -1;
+static int hf_ns_capflags_skipnwhdr = -1;
+
+static int hf_ns_tcpdbg          = -1;
+static int hf_ns_tcpdbg_cwnd     = -1;
+static int hf_ns_tcpdbg_rtrtt    = -1;
+static int hf_ns_tcpdbg_tsrecent = -1;
+static int hf_ns_tcpdbg_httpabort = -1;
+
+static int hf_ns_unknownrec      = -1;
+static int hf_ns_unknowndata     = -1;
+
+static int hf_ns_inforec         = -1;
+static int hf_ns_inforec_info    = -1;
+
+static int hf_ns_sslrec         = -1;
+static int hf_ns_sslrec_seq     = -1;
+
+static int hf_ns_vmnamerec           = -1;
+static int hf_ns_vmnamerec_srcvmname = -1;
+static int hf_ns_vmnamerec_dstvmname = -1;
+
+static int hf_ns_clusterrec    = -1;
+static int hf_ns_clu_snode = -1;
+static int hf_ns_clu_dnode = -1;
+static int hf_ns_clu_clflags = -1;
+static int hf_ns_clu_clflags_res = -1;
+static int hf_ns_clu_clflags_rssh = -1;
+static int hf_ns_clu_clflags_rss = -1;
+static int hf_ns_clu_clflags_dfd = -1;
+static int hf_ns_clu_clflags_fr = -1;
+static int hf_ns_clu_clflags_fp = -1;
 
 static gint ett_ns = -1;
 static gint ett_ns_flags = -1;
 static gint ett_ns_activity_flags = -1;
+static gint ett_ns_tcpdebug = -1;
+static gint ett_ns_inforec  = -1;
+static gint ett_ns_sslrec  = -1;
+static gint ett_ns_vmnamerec  = -1;
+static gint ett_ns_clusterrec  = -1;
+static gint ett_ns_clu_clflags  = -1;
+static gint ett_ns_unknownrec = -1;
+static gint ett_ns_capflags = -1;
+
+static const value_string ns_errorcode_vals[] = {
+  { ERR_NONE,  "No Error" },
+  { ERR_DROP_PERX_LONGPKT,  "Long packet" },
+  { ERR_DROP_PERX_FIXHDR,   "Fix header" },
+  { ERR_DROP_PERX_DUPFREE,  "Dup free" },
+  { ERR_PKT_FWD,            "Forwarded packet" },
+  { ERR_PKT_FWD6,           "Forwarded ipv6 packet" },
+  { ERR_LAST,               NULL },
+};
+
+static const value_string ns_app_vals[] = {
+  { APP_IP,    "IP"     },
+  { APP_DNS,   "DNS"    },
+  { APP_SSLDEC,"SSL-DEC"},
+  { APP_AAA,   "AAA"    },
+  { APP_SNMP,  "SNMP"   },
+  { APP_RTSP,  "RTSP"   },
+  { APP_NAT,   "NAT"    },
+  { APP_MYSQL, "MYSQL"  },
+  { APP_ORACLE,"ORACLE" },
+  { APP_SMPP,  "SMPP"   },
+  { APP_TFTP,  "TFTP"   },
+  { APP_PPTP,  "PPTP"   },
+  { APP_MPTCP, "MPTCP"  },
+  { APP_HTTP2, "HTTP2"  },
+  { APP_IPSEC, "IPSEC"  },
+  { APP_TEST,  "TEST"   },
+  { APP_L2,    "L2"     },
+  { APP_LLDP,  "LLDP"   },
+  { APP_VPATH, "VPATH"  },
+  { APP_NAT64, "NAT64"  },
+  { APP_APPFW, "APPFW"  },
+  { APP_IP6,   "IP6"    },
+  { APP_ARP,   "ARP"    },
+  { APP_SSLENC,"SSL-ENC"},
+  { APP_NULL,   NULL    },
+};
 
 static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEFULLTX_V10,    "TX" },
 	{ NSPR_PDPKTRACEFULLTX_V20,    "TX" },
 	{ NSPR_PDPKTRACEFULLTX_V30,    "TX" },
+	{ NSPR_PDPKTRACEFULLTX_V35,    "TX" },
 	{ NSPR_PDPKTRACEFULLTXB_V10,   "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V20,   "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V30,   "TXB" },
+	{ NSPR_PDPKTRACEFULLTXB_V35,   "TXB" },
 	{ NSPR_PDPKTRACEFULLRX_V10,    "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V20,    "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V30,    "RX" },
+	{ NSPR_PDPKTRACEFULLRX_V35,    "RX" },
 	{ NSPR_PDPKTRACEPARTTX_V10,    "TX"  },
 	{ NSPR_PDPKTRACEPARTTX_V20,    "TX" },
 	{ NSPR_PDPKTRACEPARTTXB_V10,   "TXB" },
@@ -104,6 +328,7 @@ static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEFULLNEWRX_V25, "NEW_RX" },
 	{ NSPR_PDPKTRACEFULLNEWRX_V26, "NEW_RX" },
 	{ NSPR_PDPKTRACEFULLNEWRX_V30, "NEW_RX" },
+	{ NSPR_PDPKTRACEFULLNEWRX_V35, "NEW_RX" },
 	{ NSPR_PDPKTRACEPARTTX_V22,    "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V23,    "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V24,    "TX" },
@@ -125,7 +350,29 @@ static const value_string ns_dir_vals[] = {
 	{ 0,              NULL }
 };
 
+static const value_string ns_httpabortcode_vals[] = {
+	{0, "connection is trackable"},
+	{1, "connection is marked for NOREUSE on receiving CONNECT request"},
+	{2, "no reuse due to HTTP/0.9 Request processing"},
+	{3, "recieved FIN from server in the middle of transaction"},
+	{4, "VPN GSLB CONNECTION PROXY connections"},
+	{5, "if http FA moves to unknown on clt req; svr_pcb's http state is also made unknown"},
+	{6, "Incomplete HTTP chunk"},
+	{7, "forward proxy connect url recieved and flagged for noreuse"},
+	{8, "connection is not reused because we recieved more than content-length amount of data from server"},
+	{9, "the Incomplete header reassembly failed"},
+	{10, "invalid header"},
+	{11, "RTSP : the Incomplete header reassembly failed"},
+	{12, "RTSP : incomplete header processing is terminated in case of interleaved RTSP data frame"},
+	{13, "websocket connection upgrade failed on server side"},
+	{14, "RTSP : connection is marked untrackable due to memory failures"},
+	{15, "RTSP : transaction marked untrackable"},
+	{ 16, NULL },
+};
+
 static dissector_handle_t eth_withoutfcs_handle;
+
+void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree);
 
 #define CL_FP 	0x01
 #define CL_FR 	0x02
@@ -140,6 +387,17 @@ static dissector_handle_t eth_withoutfcs_handle;
 #define NS_PE_STATE_LBSTATS_SYNC_IN_PROG        0x00000008
 #define NS_PE_STATE_STATS_REQ_IN_PROG           0x00000010
 
+#define NS_CAPFLAG_DBG          0x00020000
+#define NS_CAPFLAG_INT          0x00040000
+#define NS_CAPFLAG_SKIPNWHDR    0x00080000
+
+#define NSHDR_OFFSET_35(field)    offsetof(struct  nspr_pktracefull_v35, field)
+#define NSHDR_RECOFFSET_35(field) offsetof(nspr_tracerechdr_t, field)
+#define TCPRECOFFSET(field)       offsetof(nspr_rec_tcpdebug_t, field)
+#define INFORECOFFSET(field)      offsetof(nspr_rec_info_t, field)
+#define CLUSTERRECOFFSET(field)   offsetof(nspr_rec_cluster_t, field)
+#define VMNAMERECOFFSET(field)    offsetof(nspr_rec_vmname_t, field)
+#define SSLRECOFFSET(field)    offsetof(nspr_rec_ssl_t, field)
 static void
 dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -196,6 +454,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		/* fall through to next case */
 
+
 	case NSPR_HEADER_VERSION204:
 
 		flagoffset = pnstr->clflags_offset;
@@ -247,14 +506,219 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		break;
 
+	case NSPR_HEADER_VERSION350:
+		{
+			proto_tree *capflagtree = NULL;
+			proto_item *capflagitem = NULL;
+			flagoffset = pnstr->ns_activity_offset;
+			flagitem = proto_tree_add_item(ns_tree, hf_ns_activity, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+			flagtree = proto_item_add_subtree(flagitem, ett_ns_activity_flags);
+			proto_tree_add_item(flagtree, hf_ns_activity_perf_collection, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(flagtree, hf_ns_activity_pcb_zombie, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(flagtree, hf_ns_activity_natpcb_zombie, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(flagtree, hf_ns_activity_lbstats_sync, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(flagtree, hf_ns_activity_stats_req, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+
+			capflagitem = proto_tree_add_item(ns_tree, hf_ns_capflags, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+			capflagtree = proto_item_add_subtree(capflagitem, ett_ns_capflags);
+			proto_tree_add_item(capflagtree, hf_ns_capflags_dbg, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(capflagtree, hf_ns_capflags_int, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(capflagtree, hf_ns_capflags_skipnwhdr, tvb, flagoffset, 4, ENC_LITTLE_ENDIAN);
+
+			proto_tree_add_item(ns_tree, hf_ns_errorcode, tvb, NSHDR_OFFSET_35(fp_errorcode), sizeof(guint8), ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ns_tree, hf_ns_app, tvb, NSHDR_OFFSET_35(fp_app), sizeof(guint8), ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ns_tree, hf_ns_coreid, tvb, pnstr->coreid_offset, 2, ENC_LITTLE_ENDIAN);
+
+			/* NSPR_HEADER_VERSION202 stuff */
+			col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%d", tvb_get_letohs(tvb, pnstr->vlantag_offset));
+			proto_tree_add_item(ns_tree, hf_ns_vlantag, tvb, pnstr->vlantag_offset, 2, ENC_LITTLE_ENDIAN);
+
+			/* NSPR_HEADER_VERSION201 stuff */
+			proto_tree_add_item(ns_tree, hf_ns_pcbdevno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
+			ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(ti);
+
+			proto_tree_add_item(ns_tree, hf_ns_l_pcbdevno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
+			ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
+			PROTO_ITEM_SET_HIDDEN(ti);
+
+			add35records(tvb, pinfo, tree, ns_tree);
+		}
+		break; /* we can return here. break;ing in case some compilers are unhappy */
+
 	default:
 		break;
 	}
 
-	/* Dissect as Ethernet */
-	offset = pnstr->eth_offset;
-	next_tvb_eth_client = tvb_new_subset_remaining(tvb, offset);
-	call_dissector(eth_withoutfcs_handle, next_tvb_eth_client, pinfo, tree);
+	if(pnstr->rec_type != NSPR_HEADER_VERSION350){
+		/* Dissect as Ethernet */
+		offset = pnstr->eth_offset;
+		next_tvb_eth_client = tvb_new_subset_remaining(tvb, offset);
+		call_dissector(eth_withoutfcs_handle, next_tvb_eth_client, pinfo, tree);
+	}
+}
+
+void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree)
+{
+	tvbuff_t       *next_tvb_eth_client;
+	guint     nsheaderlen=0;
+	guint8    ssl_internal=0;
+	guint8		offset;
+	int morerecs=1;
+	int loopcount=0;
+	static const int * cluster_flags[] = {
+		&hf_ns_clu_clflags_fp,
+		&hf_ns_clu_clflags_fr,
+		&hf_ns_clu_clflags_dfd,
+		&hf_ns_clu_clflags_rss,
+		&hf_ns_clu_clflags_rssh,
+		&hf_ns_clu_clflags_res,
+		NULL,
+	};
+	int cur_record=tvb_get_guint8(tvb,NSHDR_OFFSET_35(fp_nextrecord));
+
+	nsheaderlen = tvb_get_letohs(tvb, NSHDR_OFFSET_35(fp_headerlen));
+	offset = sizeof(nspr_pktracefull_v35_t);
+
+	do{
+		switch(cur_record){
+			/* Add a case statement here for each record */
+			case NSREC_ETHERNET:
+				/* Call Ethernet dissector */
+				next_tvb_eth_client = tvb_new_subset_remaining(tvb, offset);
+				call_dissector(eth_withoutfcs_handle, next_tvb_eth_client, pinfo, tree);
+				if(ssl_internal){
+					col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[NS_INTERNAL_SSL]");
+				}
+				morerecs=0;
+				break;
+			case NSREC_HTTP:
+				/* Call HTTP dissector */
+				{
+					dissector_handle_t http_handle;
+					tvbuff_t *next_tvb_http_client;
+					morerecs=0;
+					http_handle = find_dissector("http");
+					next_tvb_http_client = tvb_new_subset_remaining(tvb, offset);
+					call_dissector(http_handle, next_tvb_http_client, pinfo, tree);
+				}
+				break;
+			case NSREC_TCPDEBUG:
+			{
+				proto_item *tcpdbgItem=NULL;
+				proto_tree *tcpdbgTree=NULL;
+				int reclen = tvb_get_letohs(tvb,offset+NSHDR_RECOFFSET_35(rec_len));
+				int nextrec = tvb_get_guint8(tvb,offset+NSHDR_RECOFFSET_35(nextrec_type));
+				/* Add tcpdebug subtree */
+				tcpdbgItem = proto_tree_add_item(ns_tree, hf_ns_tcpdbg, tvb, offset, reclen, ENC_NA);
+				tcpdbgTree = proto_item_add_subtree(tcpdbgItem, ett_ns_tcpdebug);
+				proto_tree_add_item(tcpdbgTree, hf_ns_tcpdbg_cwnd, tvb, offset+TCPRECOFFSET(snd_cwnd), 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(tcpdbgTree, hf_ns_tcpdbg_rtrtt, tvb, offset+TCPRECOFFSET(real_time_rtt), 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(tcpdbgTree, hf_ns_tcpdbg_tsrecent, tvb, offset+TCPRECOFFSET(ts_recent), 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(tcpdbgTree, hf_ns_tcpdbg_httpabort, tvb, offset+TCPRECOFFSET(http_abort_reason), 1, ENC_LITTLE_ENDIAN);
+
+				offset += reclen;
+				cur_record = nextrec;
+			}
+			break;
+			case NSREC_INFO:
+			{
+				proto_item *infoItem=NULL;
+				proto_tree *infoTree=NULL;
+				int reclen = tvb_get_letohs(tvb,offset+NSHDR_RECOFFSET_35(rec_len));
+				int nextrec = tvb_get_guint8(tvb,offset+NSHDR_RECOFFSET_35(nextrec_type));
+				infoItem = proto_tree_add_item(ns_tree, hf_ns_inforec, tvb, offset, reclen, ENC_NA);
+				infoTree = proto_item_add_subtree(infoItem, ett_ns_inforec);
+				proto_tree_add_item(infoTree, hf_ns_inforec_info, tvb, offset+sizeof(nspr_rec_info_t), reclen-3, ENC_ASCII|ENC_NA);
+
+				offset += reclen;
+				cur_record = nextrec;
+			}
+			break;
+			case NSREC_SSL:
+			{
+				proto_item *sslItem=NULL;
+				proto_tree *sslTree=NULL;
+				int reclen = tvb_get_letohs(tvb,offset+NSHDR_RECOFFSET_35(rec_len));
+				int nextrec = tvb_get_guint8(tvb,offset+NSHDR_RECOFFSET_35(nextrec_type));
+
+				sslItem = proto_tree_add_item(ns_tree, hf_ns_sslrec, tvb, offset, reclen, ENC_NA);
+				sslTree = proto_item_add_subtree(sslItem, ett_ns_sslrec);
+				proto_tree_add_item(sslTree, hf_ns_sslrec_seq, tvb, offset+SSLRECOFFSET(seq), 4, ENC_LITTLE_ENDIAN);
+
+				ssl_internal=1;
+
+				offset += reclen;
+				cur_record = nextrec;
+			}
+			break;
+			case NSREC_VMNAMES:
+			{
+				proto_item *vmnameItem=NULL;
+				proto_tree *vmnameTree=NULL;
+				gint reclen = tvb_get_letohs(tvb,offset+NSHDR_RECOFFSET_35(rec_len));
+				gint nextrec = tvb_get_guint8(tvb,offset+NSHDR_RECOFFSET_35(nextrec_type));
+
+				gint srcvmnamelen = tvb_get_guint8(tvb,offset+VMNAMERECOFFSET(src_vmname_len));
+				gint dstvmnamelen = tvb_get_guint8(tvb,offset+VMNAMERECOFFSET(dst_vmname_len));
+				vmnameItem = proto_tree_add_item(ns_tree, hf_ns_vmnamerec, tvb, offset, reclen, ENC_NA);
+				vmnameTree = proto_item_add_subtree(vmnameItem, ett_ns_vmnamerec);
+				proto_tree_add_item(vmnameTree, hf_ns_vmnamerec_srcvmname, tvb, offset+sizeof(nspr_rec_vmname_t),
+														srcvmnamelen, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(vmnameTree, hf_ns_vmnamerec_dstvmname, tvb, offset+sizeof(nspr_rec_vmname_t)+srcvmnamelen,
+														dstvmnamelen, ENC_ASCII|ENC_NA);
+
+				offset += reclen;
+				cur_record = nextrec;
+			}
+			break;
+
+			case NSREC_CLUSTER:
+			{
+				proto_item *clusterItem=NULL;
+				proto_tree *clusterTree=NULL;
+				gint reclen = tvb_get_letohs(tvb,offset+NSHDR_RECOFFSET_35(rec_len));
+				gint nextrec = tvb_get_guint8(tvb,offset+NSHDR_RECOFFSET_35(nextrec_type));
+
+				clusterItem = proto_tree_add_item(ns_tree, hf_ns_clusterrec, tvb, offset, reclen, ENC_NA);
+				clusterTree = proto_item_add_subtree(clusterItem, ett_ns_clusterrec);
+
+				proto_tree_add_item(clusterTree, hf_ns_clu_snode, tvb, offset+CLUSTERRECOFFSET(fp_srcNodeId), 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(clusterTree, hf_ns_clu_dnode, tvb, offset+CLUSTERRECOFFSET(fp_destNodeId), 2, ENC_LITTLE_ENDIAN);
+
+					proto_tree_add_bitmask(clusterTree,tvb, offset+CLUSTERRECOFFSET(fp_clFlags),hf_ns_clu_clflags,ett_ns_flags,cluster_flags,ENC_NA);
+				offset += reclen;
+				cur_record = nextrec;
+			}
+			break;
+
+			case NSREC_NULL:
+				morerecs = 0;
+				break;
+
+			default:
+			/* This will end up in an infinite loop if the file is corrupt */
+			{
+				proto_item *unknownItem=NULL;
+				proto_tree *unknownTree=NULL;
+				int reclen = tvb_get_letohs(tvb,offset+NSHDR_RECOFFSET_35(rec_len));
+				int nextrec = tvb_get_guint8(tvb,offset+NSHDR_RECOFFSET_35(nextrec_type));
+				loopcount++;
+				unknownItem = proto_tree_add_item(ns_tree, hf_ns_unknownrec, tvb, offset, reclen, ENC_NA);
+				unknownTree = proto_item_add_subtree(unknownItem, ett_ns_unknownrec);
+				proto_tree_add_item(unknownTree, hf_ns_unknowndata, tvb, offset+3, reclen-3, ENC_NA);
+
+				if(cur_record == UNKNOWN_LAST){
+					morerecs=0;
+				}else{
+					offset += reclen;
+					cur_record = nextrec;
+				}
+			}
+		}
+	}while( morerecs &&
+					loopcount < (MAX_UNKNOWNREC_LOOP) && /* additional checks to prevent infinite loops */
+					offset<=nsheaderlen);
 }
 
 void
@@ -406,12 +870,199 @@ proto_register_ns(void)
 		    NULL, HFILL}
 		},
 
+		{ &hf_ns_capflags,
+		  { "Capture Flags", "nstrace.capflags",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_capflags_dbg,
+		  { "debug packet", "nstrace.capflags.dbg",
+		    FT_BOOLEAN, 32, NULL, NS_CAPFLAG_DBG,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_capflags_int,
+		  { "internal packet", "nstrace.capflags.int",
+		    FT_BOOLEAN, 32, NULL, NS_CAPFLAG_INT,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_capflags_skipnwhdr,
+		  { "skip headers", "nstrace.capflags.skipnwhdr",
+		    FT_BOOLEAN, 32, NULL, NS_CAPFLAG_SKIPNWHDR,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_tcpdbg,
+		  { "TCP Debug Info", "nstrace.tcpdbg",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_tcpdbg_cwnd,
+		  { "TcpCwnd", "nstrace.tcpdbg.tcpcwnd",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg_rtrtt,
+		  { "TcpAck", "nstrace.tcpdbg.tcpack",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg_tsrecent,
+		  { "TcpTsrecent", "nstrace.tcpdbg.tcptsrecent",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ns_tcpdbg_httpabort,
+		  { "HTTPabrtReason", "nstrace.tcpdbg.httpabort",
+		    FT_UINT8, BASE_DEC, VALS(ns_httpabortcode_vals), 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ns_unknownrec,
+		  { "unknown ns record", "nstrace.unknown",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_unknowndata,
+		  { "data", "nstrace.unknown.data",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_inforec,
+		  { "info record", "nstrace.inforec",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_inforec_info,
+		  { "info", "nstrace.inforec.info",
+		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_sslrec,
+		  { "ssl record", "nstrace.sslrec",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_sslrec_seq,
+		  { "SSL record seq no", "nstrace.sslrec.seq",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_vmnamerec,
+		  { "vmname record", "nstrace.vmnames",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_vmnamerec_srcvmname,
+		  { "info", "nstrace.vmnames.srcvmname",
+		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_vmnamerec_dstvmname,
+		  { "info", "nstrace.vmnames.dstvmnames",
+		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_clusterrec,
+		  { "cluster record", "nstrace.cluster",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_clu_snode,
+		  { "Source Node", "nstrace.cluster.snode",
+		    FT_INT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ns_clu_dnode,
+		  { "Destination Node", "nstrace.cluster.dnode",
+		    FT_INT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_ns_clu_clflags,
+		  { "Cluster Flags", "nstrace.cluster.flags",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ns_clu_clflags_res,
+		  { "Reserved", "nstrace.cluster.flags.res",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_RES,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_clu_clflags_rssh,
+		  { "RSSHASH", "nstrace.cluster.flags.rssh",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_RSSH,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_clu_clflags_rss,
+		  { "SRSS", "nstrace.cluster.flags.srss",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_RSS,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_clu_clflags_dfd,
+		  { "DFD", "nstrace.cluster.flags.dfd",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_DFD,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_clu_clflags_fr,
+		  { "Flow receiver (FR)", "nstrace.cluster.flags.fr",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_FR,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_clu_clflags_fp,
+		  { "Flow processor (FP)", "nstrace.cluster.flags.fp",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_FP,
+		    NULL, HFILL}
+		},
+
+		{ &hf_ns_errorcode,
+		  { "Errorcode", "nstrace.err",
+		    FT_UINT8, BASE_HEX, VALS(ns_errorcode_vals), 0x0,
+		    NULL, HFILL }
+		},
+
+		{ &hf_ns_app,
+		  { "App", "nstrace.app",
+		    FT_UINT8, BASE_HEX, VALS(ns_app_vals), 0x0,
+		    NULL, HFILL }
+		},
+
 	};
 
 	static gint *ett[] = {
 		&ett_ns,
 		&ett_ns_flags,
 		&ett_ns_activity_flags,
+		&ett_ns_tcpdebug,
+		&ett_ns_unknownrec,
+		&ett_ns_inforec,
+		&ett_ns_vmnamerec,
+		&ett_ns_clusterrec,
+		&ett_ns_clu_clflags,
+		&ett_ns_sslrec,
+		&ett_ns_capflags,
 	};
 
 	proto_nstrace = proto_register_protocol("NetScaler Trace", "NS Trace", "ns");
@@ -431,6 +1082,7 @@ void proto_reg_handoff_ns(void)
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_1_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_2_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_3_0, nstrace_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_3_5, nstrace_handle);
 }
 
 /*

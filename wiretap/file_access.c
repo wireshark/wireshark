@@ -1593,6 +1593,11 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	{ "Colasoft Packet Builder format", "colasoft-pb", "cscpkt", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5 */
+	{ "NetScaler Trace (Version 3.5)", "nstrace35", "cap", NULL,
+	  TRUE, FALSE, 0,
+	  nstrace_35_dump_can_write_encap, nstrace_dump_open, NULL },
 };
 
 gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
