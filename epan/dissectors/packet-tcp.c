@@ -2623,7 +2623,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree, void *data _U_)
 {
     guint8 val;
-    guint32 shift;
+	guint32 shift;
     proto_item *wscale_pi, *shift_pi, *gen_pi;
     proto_tree *wscale_tree;
     struct tcp_analysis *tcpd=NULL;
@@ -2638,7 +2638,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree_add_item(wscale_tree, hf_tcp_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    shift_pi = proto_tree_add_item_ret_uint(wscale_tree, hf_tcp_option_wscale_shift, tvb, offset, 1, ENC_BIG_ENDIAN, &shift);
+	shift_pi = proto_tree_add_item_ret_uint(wscale_tree, hf_tcp_option_wscale_shift, tvb, offset, 1, ENC_BIG_ENDIAN, &shift);
     if (shift > 14) {
         /* RFC 1323: "If a Window Scale option is received with a shift.cnt
          * value exceeding 14, the TCP should log the error but use 14 instead
@@ -2784,11 +2784,11 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree_add_item(ts_tree, hf_tcp_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsval, tvb, offset,
+	proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsval, tvb, offset,
                         4, ENC_BIG_ENDIAN, &ts_val);
     offset += 4;
 
-    proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsecr, tvb, offset,
+	proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsecr, tvb, offset,
                         4, ENC_BIG_ENDIAN, &ts_ecr);
     /* offset += 4; */
 
@@ -4332,8 +4332,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gchar *src_port_str, *dst_port_str;
 
     tcph=wmem_new(wmem_packet_scope(), struct tcpheader);
-    COPY_ADDRESS_SHALLOW(&tcph->ip_src, &pinfo->src);
-    COPY_ADDRESS_SHALLOW(&tcph->ip_dst, &pinfo->dst);
+	COPY_ADDRESS_SHALLOW(&tcph->ip_src, &pinfo->src);
+	COPY_ADDRESS_SHALLOW(&tcph->ip_dst, &pinfo->dst);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
 
@@ -4844,13 +4844,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    item = proto_tree_add_item_ret_uint(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, ENC_BIG_ENDIAN, &th_urp);
+	item = proto_tree_add_item_ret_uint(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, ENC_BIG_ENDIAN, &th_urp);
 
     if (tcph->th_flags & TH_URG) {
         /* Export the urgent pointer, for the benefit of protocols such as
            rlogin. */
         tcpinfo.urgent = TRUE;
-        tcpinfo.urgent_pointer = (guint16)th_urp;
+		tcpinfo.urgent_pointer = (guint16)th_urp;
         tcp_info_append_uint(pinfo, "Urg", th_urp);
     } else {
         tcpinfo.urgent = FALSE;
