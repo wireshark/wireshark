@@ -2302,6 +2302,7 @@ add_custom_target(test-sh
 		-P ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 	DEPENDS ${CMAKE_SOURCE_DIR}/cmake/modules/GenerateTestSh.cmake
 )
+set_target_properties(test-sh PROPERTIES FOLDER "Tests")
 
 add_custom_target(test-programs
 	DEPENDS test-sh
@@ -2312,6 +2313,7 @@ add_custom_target(test-programs
 		wmem_test
 	COMMENT "Building unit test programs and wrapper"
 )
+set_target_properties(test-programs PROPERTIES FOLDER "Tests")
 
 
 #

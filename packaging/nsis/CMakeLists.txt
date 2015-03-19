@@ -185,6 +185,7 @@ macro( ADD_NSIS_UNINSTALLER_TARGET )
 	add_custom_target(nsis_uninstaller
 		DEPENDS ${DATAFILE_DIR}/uninstall.exe
 	)
+	set_target_properties(nsis_uninstaller PROPERTIES FOLDER "Packaging")
 	add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall.exe
 		DEPENDS ${_nsis_source_dir}/uninstall.nsi
 			${_nsis_source_dir}/common.nsh
@@ -203,6 +204,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 		DEPENDS
 			${_nsis_package}
 	)
+	set_target_properties(nsis_package PROPERTIES FOLDER "Packaging")
 	# qt-dll-manifest.nsh. Created using Wireshark.exe.
 	add_custom_command(OUTPUT ${_nsis_binary_dir}/qt-dll-manifest.nsh
 		COMMAND set "PATH=%PATH%;${QT_BIN_PATH}"
