@@ -5029,7 +5029,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 offset += 4;
                 datagram_length = tvb_get_letohl(tvb, offset);
                 proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_length_32,
-                                    tvb, offset, 3, datagram_length);
+                                    tvb, offset, 4, datagram_length);
                 offset += 4;
             }
             if (next_index > reported_length) {
