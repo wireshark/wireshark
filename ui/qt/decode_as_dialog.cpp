@@ -516,7 +516,7 @@ void DecodeAsDialog::curProtoDestroyed()
 }
 
 void DecodeAsDialog::resetChangedList(const gchar *table_name,
-        ftenum_t selector_type, gpointer key, gpointer value _U_, gpointer user_data _U_)
+        ftenum_t selector_type, gpointer key, gpointer, gpointer)
 {
 /*    DecodeAsDialog *da_dlg = (DecodeAsDialog *)user_data; */
     switch (selector_type) {
