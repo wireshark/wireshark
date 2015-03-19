@@ -91,7 +91,7 @@ capture_dev_get_if_property(const gchar *pref, const gchar *if_name)
        * bytes, including the trailing '\0', so that's
        * (closing_parenp - opening_parenp) - 1.
        */
-      property = g_malloc(closing_parenp - opening_parenp - 1);
+      property = (gchar *)g_malloc(closing_parenp - opening_parenp - 1);
       memcpy(property, opening_parenp + 1, closing_parenp - opening_parenp - 1);
       property[closing_parenp - opening_parenp - 1] = '\0';
       break;
