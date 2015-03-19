@@ -118,6 +118,9 @@ export MallocCheckHeapAbort=1
 # Call abort() if an illegal free() call is made
 export MallocBadFreeAbort=1
 
+# Address Sanitizer options
+export ASAN_OPTIONS=detect_leaks=0:detect_odr_violation=0
+
 # Create an error report
 function ws_exit_error() {
     echo -e "\n ERROR"
