@@ -114,7 +114,7 @@ capture_dev_get_if_int_property(const gchar *pref, const gchar *if_name)
 
   property_string = capture_dev_get_if_property(pref, if_name);
   if (property_string == NULL) {
-    /* No link-layer type found for this interface. */
+    /* No property found for this interface. */
     return -1;
   }
   property = strtol(property_string, &next, 10);
