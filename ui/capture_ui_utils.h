@@ -36,12 +36,21 @@ extern "C" {
 /**
  * Find user-specified capture device description that matches interface
  * name, if any.
+ *
+ * @param if_name The name of the interface.
+ *
+ * @return The device description (must be g_free'd later) or NULL
+ * if not found.
  */
 char *capture_dev_user_descr_find(const gchar *if_name);
 
 /**
  * Find user-specified link-layer header type that matches interface
  * name, if any.
+ *
+ * @param if_name The name of the interface.
+ *
+ * @return The link-layer header type (a DLT_) or -1 if not found.
  */
 gint capture_dev_user_linktype_find(const gchar *if_name);
 
@@ -49,6 +58,10 @@ gint capture_dev_user_linktype_find(const gchar *if_name);
 /**
  * Find user-specified buffer size that matches interface
  * name, if any.
+ *
+ * @param if_name The name of the interface.
+ *
+ * @return The buffer size or -1 if not found.
  */
 gint capture_dev_user_buffersize_find(const gchar *if_name);
 #endif
@@ -56,6 +69,16 @@ gint capture_dev_user_buffersize_find(const gchar *if_name);
 /**
  * Find user-specified snap length that matches interface
  * name, if any.
+ *
+ * @param if_name The name of the interface.
+ * @param hassnap Pointer to a variable to be set to TRUE if the
+ * interface should be given a snap length or FALSE if it shouldn't
+ * be given a snap length.
+ * @param snaplen Pointer to a variable to be set to the snap length
+ * if the interface should be given a snap length or the maximum
+ * snap length if it shouldn't be given a snap length.
+ *
+ * @return TRUE if found or FALSE if not found.
  */
 gboolean capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snaplen);
 
@@ -68,6 +91,10 @@ gboolean capture_dev_user_pmode_find(const gchar *if_name);
 /**
  * Find user-specified capture filter that matches interface
  * name, if any.
+ *
+ * @param if_name The name of the interface.
+ *
+ * @return The capture filter (must be g_free'd later) or NULL if not found.
  */
 gchar* capture_dev_user_cfilter_find(const gchar *if_name);
 

@@ -537,7 +537,7 @@ void CaptureInterfacesDialog::updateInterfaces()
 #endif
             gchar* prefFilter = capture_dev_user_cfilter_find(device->name);
             if (prefFilter) {
-                device->cfilter = g_strdup(prefFilter);
+                device->cfilter = prefFilter;
             }
             ti->setText(col_filter_, device->cfilter);
 

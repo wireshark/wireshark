@@ -334,6 +334,7 @@ void ManageInterfacesDialog::showLocalInterfaces()
             comment = capture_dev_user_descr_find(device.name);
             if (comment) {
                 item->setText(col_l_comment_, comment);
+                g_free(comment);
             }
         } else {
           continue;

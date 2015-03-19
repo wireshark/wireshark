@@ -276,52 +276,52 @@ get_interface_descriptive_name(const char *if_name)
 
   /* Do we have a user-supplied description? */
   descr = capture_dev_user_descr_find(if_name);
-  if (descr != NULL) {
-    /* Yes - make a copy of that. */
-    descr = g_strdup(descr);
-  } else if (strcmp(if_name, "-") == 0) {
-    /*
-     * Strictly speaking, -X (extension) options are for modules, e.g. Lua
-     * and using one here stretches that definition. However, this doesn't
-     * waste a single-letter option on something that might be rarely used
-     * and is backward-compatible to 1.0.
-     */
-    descr = g_strdup(ex_opt_get_nth("stdin_descr", 0));
-    if (!descr) {
-      descr = g_strdup("Standard input");
-    }
-  } else {
-    /* No, we don't have a user-supplied description; did we get
-       one from the OS or libpcap? */
-    descr = NULL;
-    if_list = capture_interface_list(&err, NULL, NULL);
-    if (if_list != NULL) {
-      if_entry = if_list;
-      do {
-        if_info = (if_info_t *)if_entry->data;
-        if (strcmp(if_info->name, if_name) == 0) {
-          if (if_info->friendly_name != NULL) {
-              /* We have a "friendly name"; return a copy of that
-                 as the description - when we free the interface
-                 list, that'll also free up the strings to which
-                 it refers. */
-              descr = g_strdup(if_info->friendly_name);
-          } else if (if_info->vendor_description != NULL) {
-            /* We have no "friendly name", but we have a vendor
-               description; return a copy of that - when we free
-               the interface list, that'll also free up the strings
-               to which it refers. */
-            descr = g_strdup(if_info->vendor_description);
+  if (descr == NULL) {
+    /* No; try to construct a descriptive name. */
+    if (strcmp(if_name, "-") == 0) {
+      /*
+       * Strictly speaking, -X (extension) options are for modules, e.g. Lua
+       * and using one here stretches that definition. However, this doesn't
+       * waste a single-letter option on something that might be rarely used
+       * and is backward-compatible to 1.0.
+       */
+      descr = g_strdup(ex_opt_get_nth("stdin_descr", 0));
+      if (!descr) {
+        descr = g_strdup("Standard input");
+      }
+    } else {
+      /* No, we don't have a user-supplied description; did we get
+         one from the OS or libpcap? */
+      descr = NULL;
+      if_list = capture_interface_list(&err, NULL, NULL);
+      if (if_list != NULL) {
+        if_entry = if_list;
+        do {
+          if_info = (if_info_t *)if_entry->data;
+          if (strcmp(if_info->name, if_name) == 0) {
+            if (if_info->friendly_name != NULL) {
+                /* We have a "friendly name"; return a copy of that
+                   as the description - when we free the interface
+                   list, that'll also free up the strings to which
+                   it refers. */
+                descr = g_strdup(if_info->friendly_name);
+            } else if (if_info->vendor_description != NULL) {
+              /* We have no "friendly name", but we have a vendor
+                 description; return a copy of that - when we free
+                 the interface list, that'll also free up the strings
+                 to which it refers. */
+              descr = g_strdup(if_info->vendor_description);
+            }
+            break;
           }
-          break;
-        }
-      } while ((if_entry = g_list_next(if_entry)) != NULL);
-    }
-    free_interface_list(if_list);
+        } while ((if_entry = g_list_next(if_entry)) != NULL);
+      }
+      free_interface_list(if_list);
 
-    if (descr == NULL) {
-      /* The interface name is all we have, so just return a copy of that. */
-      descr = g_strdup(if_name);
+      if (descr == NULL) {
+        /* The interface name is all we have, so just return a copy of that. */
+        descr = g_strdup(if_name);
+      }
     }
   }
 
