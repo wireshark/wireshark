@@ -176,6 +176,9 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
     }
 }
 
+// Check each recent item in a separate thread so that we don't hang while
+// calling stat(). This is called periodically because files and entire
+// volumes can disappear and reappear at any time.
 void WiresharkApplication::refreshRecentFiles(void) {
     recent_item_status *ri;
     RecentFileStatus *rf_status;
