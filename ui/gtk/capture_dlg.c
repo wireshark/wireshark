@@ -2447,8 +2447,6 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   device.pmode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
   device.has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
   if (device.has_snaplen) {
-    if (device.snaplen != (guint)gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb))) {
-    }
     device.snaplen = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
     if (device.snaplen < 1)
       device.snaplen = WTAP_MAX_PACKET_SIZE;

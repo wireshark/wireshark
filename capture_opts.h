@@ -177,7 +177,7 @@ typedef struct interface_tag {
     gint            active_dlt;
     gboolean        pmode;
     gboolean        has_snaplen;
-    guint           snaplen;
+    int             snaplen;
     gboolean        local;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     gint            buffer;
