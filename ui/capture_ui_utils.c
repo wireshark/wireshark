@@ -78,22 +78,22 @@ capture_dev_get_if_property(const gchar *pref, const gchar *if_name)
       /* No opening parenthesis. Give up. */
       break;
     }
+    closing_parenp = strrchr(if_tokens[i], ')');
+    if (closing_parenp == NULL) {
+      /* No closing parenthesis. Give up. */
+      break;
+    }
     *opening_parenp = '\0'; /* Split {name} from what follows */
     if (strcmp(if_tokens[i], if_name) == 0) {
-      closing_parenp = strrchr(if_tokens[i], ')');
-      if (closing_parenp == NULL) {
-        /* No closing parenthesis. Give up. */
-        break;
-      }
       /*
        * Copy everything from opening_parenp + 1 to closing_parenp - 1.
        * That requires (closing_parenp - 1) - (opening_parenp + 1) + 1
        * bytes, including the trailing '\0', so that's
-       * closing_parenp - opening_parenp + 1.
+       * (closing_parenp - opening_parenp) - 1.
        */
-      property = g_malloc(closing_parenp - opening_parenp + 1);
-      memcpy(property, opening_parenp + 1, closing_parenp - opening_parenp);
-      property[closing_parenp - opening_parenp] = '\0';
+      property = g_malloc(closing_parenp - opening_parenp - 1);
+      memcpy(property, opening_parenp + 1, closing_parenp - opening_parenp - 1);
+      property[closing_parenp - opening_parenp - 1] = '\0';
       break;
     }
   }
