@@ -3165,11 +3165,12 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   if (compr_alg == ALGORITHM_ZLIB) {
     tf = proto_tree_add_item (message_tree, hf_message_body_compressed,
                               tvb, offset, len, ENC_NA);
+    proto_item_append_text (tf, ", Length: %d", len);
   } else {
     tf = proto_tree_add_item (message_tree, hf_message_body_data,
                               tvb, offset, len, ENC_NA);
+    proto_item_set_text (tf, "User data, Length: %d", len);
   }
-  proto_item_append_text (tf, ", Length: %d", len);
 
   if (dmp.body_format == STRUCTURED) {
     /* Structured Message ID */
@@ -3184,7 +3185,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
         add_new_data_source (pinfo, body_tvb, "Uncompressed User data");
         tf = proto_tree_add_item (message_tree, hf_message_body_data,
                                   body_tvb, 0, body_len, ENC_NA);
-        proto_item_append_text (tf, ", Length: %d", body_len);
+        proto_item_set_text (tf, "User data, Length: %d", len);
         PROTO_ITEM_SET_GENERATED (tf);
       } else {
         proto_tree_add_expert (message_tree, pinfo, &ei_message_body_uncompress, tvb, offset, len);
@@ -4606,7 +4607,7 @@ void proto_register_dmp (void)
 
     /* Message Body */
     { &hf_message_body_data,
-      { "User data", "dmp.body.data", FT_NONE, BASE_NONE,
+      { "User data", "dmp.body.data", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_message_body_compressed,
       { "Compressed User data", "dmp.body.compressed", FT_NONE, BASE_NONE,
