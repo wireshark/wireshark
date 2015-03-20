@@ -192,7 +192,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   mqtt_msg_type = mqtt_fixed_hdr >> 4;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQTT");
-  col_add_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
+  col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
 
   if(tree)
   {
@@ -435,6 +435,8 @@ XXX: ToDo: Commit a fix for the case of the length field spread across TCP segme
 
 static int dissect_mqtt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+  col_clear(pinfo->cinfo, COL_INFO);
+
   tcp_dissect_pdus(tvb, pinfo, tree,
                    reassemble_mqtt_over_tcp,
                    2,                           /* Length can be determined within 5 bytes */
