@@ -105,6 +105,7 @@ static dissector_handle_t kerberos_handle_udp;
 
 /* Forward declarations */
 static int dissect_kerberos_Applications(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_AuthorizationData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_ENC_TIMESTAMP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_ENC_TS_ENC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_PAC_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -1603,6 +1604,42 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
 
 		offset=dissect_kerberos_Applications(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
+	}
+	return offset;
+}
+
+static int
+dissect_krb5_decrypt_authorization_data(gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
+					proto_tree *tree, int hf_index _U_)
+{
+	guint8 *plaintext;
+	int length;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	tvbuff_t *next_tvb;
+
+	next_tvb=tvb_new_subset_remaining(tvb, offset);
+	length=tvb_captured_length_remaining(tvb, offset);
+
+	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
+	 * 7.5.1
+	 * Authenticators are encrypted with usage
+	 * == 5 or
+	 * == 4
+	 */
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 5, next_tvb, private_data->etype, NULL);
+
+	if(!plaintext){
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 4, next_tvb, private_data->etype, NULL);
+	}
+
+	if(plaintext){
+		tvbuff_t *child_tvb;
+		child_tvb = tvb_new_child_real_data(tvb, plaintext, length, length);
+
+		/* Add the decrypted data to the data source list. */
+		add_new_data_source(actx->pinfo, child_tvb, "Decrypted Krb5");
+
+		offset=dissect_kerberos_AuthorizationData(FALSE, child_tvb, 0, actx , tree, /* hf_index*/ -1);
 	}
 	return offset;
 }

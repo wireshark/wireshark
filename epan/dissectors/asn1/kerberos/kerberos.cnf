@@ -12,6 +12,7 @@ KDC-REQ-BODY/etype kDC-REQ-BODY_etype
 KRB-SAFE-BODY/user-data kRB-SAFE-BODY_user_data
 EncKrbPrivPart/user-data encKrbPrivPart_user_data
 EncryptedTicketData/cipher encryptedTicketData_cipher
+EncryptedAuthenticator/cipher encryptedAuthenticator_cipher
 EncryptedAuthorizationData/cipher encryptedAuthorizationData_cipher
 EncryptedKDCREPData/cipher encryptedKDCREPData_cipher
 PA-ENC-TIMESTAMP/cipher pA-ENC-TIMESTAMP_cipher
@@ -284,6 +285,14 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 	return offset;
 
 #.FN_BODY EncryptedAuthorizationData/cipher
+##ifdef HAVE_KERBEROS
+	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authorization_data);
+##else
+%(DEFAULT_BODY)s
+##endif
+	return offset;
+
+#.FN_BODY EncryptedAuthenticator/cipher
 ##ifdef HAVE_KERBEROS
 	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authenticator_data);
 ##else

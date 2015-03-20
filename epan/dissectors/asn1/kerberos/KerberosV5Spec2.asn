@@ -132,6 +132,12 @@ EncryptedAuthorizationData   ::= SEQUENCE {
         cipher  [2] OCTET STRING -- ciphertext
 }
 
+EncryptedAuthenticator   ::= SEQUENCE {
+        etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
+        kvno    [1] UInt32 OPTIONAL,
+        cipher  [2] OCTET STRING -- ciphertext
+}
+
 EncryptedKDCREPData   ::= SEQUENCE {
         etype   [0] ENCTYPE, -- EncryptionType - - Use k5.asn
         kvno    [1] UInt32 OPTIONAL,
@@ -320,7 +326,7 @@ AP-REQ          ::= [APPLICATION 14] SEQUENCE {
         msg-type        [1] MESSAGE-TYPE,
         ap-options      [2] APOptions,
         ticket          [3] Ticket,
-        authenticator   [4] EncryptedAuthorizationData -- Authenticator
+        authenticator   [4] EncryptedAuthenticator -- Authenticator
 }
 -- Use the krb5.asn def.
 --APOptions       ::= KerberosFlags
