@@ -4867,7 +4867,7 @@ CSN_DESCR_END   (PMR_AdditionsR8_t)
 
 static const
 CSN_DESCR_BEGIN (PMR_AdditionsR5_t)
-  M_NEXT_EXIST  (PMR_AdditionsR5_t, Exist_GRNTI, 4),
+  M_NEXT_EXIST  (PMR_AdditionsR5_t, Exist_GRNTI, 3),
   M_UINT        (PMR_AdditionsR5_t,  GRNTI,  4, &hf_pmo_additionsr5_grnti),
   M_NEXT_EXIST_OR_NULL (PMR_AdditionsR5_t, Exist_AdditionsR8, 1),
   M_TYPE        (PMR_AdditionsR5_t, AdditionsR8, PMR_AdditionsR8_t),
