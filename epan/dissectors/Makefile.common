@@ -1432,7 +1432,6 @@ DISSECTOR_INCLUDES =	\
 	packet-crmf.h	\
 	packet-csn1.h	\
 	packet-dap.h	\
-	packet-data.h	\
 	packet-dcc.h	\
 	packet-dccp.h	\
 	packet-dcerpc.h	\

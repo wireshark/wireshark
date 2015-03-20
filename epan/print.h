@@ -123,6 +123,8 @@ WS_DLL_PUBLIC void write_fields_finale(output_fields_t* fields, FILE *fh);
 
 WS_DLL_PUBLIC gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);
 
+extern void print_cache_field_handles(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

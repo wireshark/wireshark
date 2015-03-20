@@ -35,8 +35,6 @@
 #include <epan/packet-range.h>
 #include <epan/print.h>
 #include <epan/charsets.h>
-#include <epan/dissectors/packet-data.h>
-#include <epan/dissectors/packet-frame.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_version_info.h>
 #include <ftypes/ftypes-int.h>
@@ -92,6 +90,25 @@ static void print_escaped_xml(FILE *fh, const char *unescaped_string);
 static void print_pdml_geninfo(proto_tree *tree, FILE *fh);
 
 static void proto_tree_get_node_field_values(proto_node *node, gpointer data);
+
+/* Cache the protocols and field handles that the print functionality needs
+   This helps break explicit dependency on the dissectors. */
+static int proto_data = -1;
+static int proto_frame = -1;
+static int hf_frame_arrival_time = -1;
+static int hf_frame_number = -1;
+static int hf_frame_len = -1;
+static int hf_frame_capture_len = -1;
+
+void print_cache_field_handles(void)
+{
+    proto_data = proto_get_id_by_short_name("Data");
+    proto_frame = proto_get_id_by_short_name("Frame");
+    hf_frame_arrival_time = proto_registrar_get_id_byname("frame.time");
+    hf_frame_number = proto_registrar_get_id_byname("frame.number");
+    hf_frame_len = proto_registrar_get_id_byname("frame.len");
+    hf_frame_capture_len = proto_registrar_get_id_byname("frame.cap_len");
+}
 
 gboolean
 proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,

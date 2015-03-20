@@ -47,6 +47,7 @@
 #include "oids.h"
 #include "wmem/wmem.h"
 #include "expert.h"
+#include "print.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -118,6 +119,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	packet_cache_proto_handles();
 	dfilter_init();
 	final_registration_all_protocols();
+	print_cache_field_handles();
 	expert_packet_init();
 #ifdef HAVE_LUA
 	wslua_init(cb, client_data);

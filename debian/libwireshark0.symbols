@@ -712,10 +712,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  heur_dissector_table_foreach@Base 1.99.2
  hex_str_to_bytes@Base 1.9.1
  hex_str_to_bytes_encoding@Base 1.12.0~rc1
- hf_frame_arrival_time@Base 1.9.1
- hf_frame_capture_len@Base 1.9.1
- hf_frame_len@Base 1.9.1
- hf_frame_number@Base 1.9.1
  hf_text_only@Base 1.9.1
  hfinfo_bitshift@Base 1.12.0~rc1
  host_ip_af@Base 1.9.1
@@ -869,14 +865,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_can_toggle_protocol@Base 1.9.1
  proto_check_field_name@Base 1.9.1
  proto_construct_match_selected_string@Base 1.9.1
- proto_data@Base 1.9.1
  proto_enable_all@Base 1.9.1
  proto_expert@Base 1.9.1
  proto_field_is_referenced@Base 1.9.1
  proto_find_field_from_offset@Base 1.9.1
  proto_find_finfo@Base 1.9.1
  proto_find_undecoded_data@Base 1.99.3
- proto_frame@Base 1.9.1
  proto_free_deregistered_fields@Base 1.12.0~rc1
  proto_get_data_protocol@Base 1.9.1
  proto_get_finfo_ptr_array@Base 1.9.1

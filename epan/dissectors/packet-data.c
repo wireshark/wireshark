@@ -29,7 +29,6 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <wsutil/md5.h>
-#include "packet-data.h"
 
 /* proto_data cannot be static because it's referenced in the
  * print routines

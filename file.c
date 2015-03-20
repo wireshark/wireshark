@@ -56,7 +56,6 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
-#include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-ber.h>
 #include <epan/timestamp.h>
 #include <epan/dfilter/dfilter-macro.h>

@@ -48,18 +48,18 @@
 void proto_register_frame(void);
 void proto_reg_handoff_frame(void);
 
-int proto_frame = -1;
+static int proto_frame = -1;
 static int proto_pkt_comment = -1;
-int hf_frame_arrival_time = -1;
+static int hf_frame_arrival_time = -1;
 static int hf_frame_shift_offset = -1;
 static int hf_frame_arrival_time_epoch = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_delta_displayed = -1;
 static int hf_frame_time_relative = -1;
 static int hf_frame_time_reference = -1;
-int hf_frame_number = -1;
-int hf_frame_len = -1;
-int hf_frame_capture_len = -1;
+static int hf_frame_number = -1;
+static int hf_frame_len = -1;
+static int hf_frame_capture_len = -1;
 static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
 static int hf_frame_md5_hash = -1;

@@ -35,12 +35,3 @@ register_frame_end_routine(packet_info *pinfo, void (*func)(void));
  * The frame dissector and the PPI dissector both use this
  */
 extern dissector_table_t wtap_encap_dissector_table;
-
-/* following variables are exported from libwireshark.dll.
- * Thus we need a special declaration.
- */
-WS_DLL_PUBLIC int proto_frame;
-WS_DLL_PUBLIC int hf_frame_arrival_time;
-WS_DLL_PUBLIC int hf_frame_number;
-WS_DLL_PUBLIC int hf_frame_len;
-WS_DLL_PUBLIC int hf_frame_capture_len;
