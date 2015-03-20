@@ -109,7 +109,7 @@ add_library(wiretap ${LINK_MODE_LIB}
 	${CMAKE_BINARY_DIR}/image/wiretap.rc
 )
 
-set(FULL_SO_VERSION "0.0.5")
+set(FULL_SO_VERSION "0.0.6")
 
 set_target_properties(wiretap PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
