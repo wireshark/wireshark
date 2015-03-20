@@ -50,6 +50,8 @@ static int hf_set_path_flags_1 = -1;
 static int hf_headers = -1;
 static int hf_header = -1;
 static int hf_hdr_id = -1;
+static int hf_hdr_id_encoding = -1;
+static int hf_hdr_id_meaning = -1;
 static int hf_hdr_length = -1;
 static int hf_hdr_val_unicode = -1;
 static int hf_hdr_val_byte_seq = -1;
@@ -258,6 +260,12 @@ static int hf_name = -1;
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
 
+static const int *hfx_hdr_id[] = {
+    &hf_hdr_id_encoding,
+    &hf_hdr_id_meaning,
+    NULL
+};
+
 static const int *hfx_pbap_application_parameter_data_filter_1[] = {
     &hf_pbap_application_parameter_data_filter_reserved_32_38,
     &hf_pbap_application_parameter_data_filter_proprietary_filter,
@@ -386,6 +394,7 @@ static const fragment_items btobex_frag_items = {
 static gint ett_btobex = -1;
 static gint ett_btobex_hdrs = -1;
 static gint ett_btobex_hdr = -1;
+static gint ett_btobex_hdr_id = -1;
 static gint ett_btobex_filter = -1;
 static gint ett_btobex_parameter = -1;
 static gint ett_btobex_session_parameters = -1;
@@ -513,6 +522,14 @@ static const value_string version_vals[] = {
     { 0,      NULL }
 };
 
+static const value_string header_id_encoding_vals[] = {
+    { 0x00, "Null terminated Unicode text, length prefixed with 2 byte Unsigned Integer" },
+    { 0x01, "Byte sequence, length prefixed with 2 byte Unsigned Integer" },
+    { 0x02, "1 byte quantity" },
+    { 0x03, "4 byte quantity (network order)" },
+    { 0,    NULL }
+};
+
 #define BTOBEX_CODE_VALS_CONNECT    0x00
 #define BTOBEX_CODE_VALS_DISCONNECT 0x01
 #define BTOBEX_CODE_VALS_PUT        0x02
@@ -572,6 +589,51 @@ static const value_string code_vals[] = {
     { 0,      NULL }
 };
 static value_string_ext(code_vals_ext) = VALUE_STRING_EXT_INIT(code_vals);
+
+static const value_string header_id_meaning_vals[] = {
+    { 0x00, "Count" },
+    { 0x01, "Name" },
+    { 0x02, "Type" },
+    { 0x03, "Length" },
+    { 0x04, "Time" },
+    { 0x05, "Description" },
+    { 0x06, "Target" },
+    { 0x07, "HTTP" },
+    { 0x08, "Body" },
+    { 0x09, "End Of Body" },
+    { 0x0A, "Who" },
+    { 0x0B, "Connection Id" },
+    { 0x0C, "Application Parameters" },
+    { 0x0D, "Authentication Challenge" },
+    { 0x0E, "Authentication Response" },
+    { 0x0F, "Creator" },
+    { 0x10, "WAN UUID" },
+    { 0x11, "Object Class" },
+    { 0x12, "Session Parameter" },
+    { 0x13, "Session Sequence Number" },
+    { 0x14, "Action" },
+    { 0x15, "Destination Name" },
+    { 0x16, "Permissions" },
+    { 0x17, "Single Response Mode" },
+    { 0x18, "Single Response Mode Parameter" },
+    { 0x30, "User Defined" },
+    { 0x31, "User Defined" },
+    { 0x32, "User Defined" },
+    { 0x33, "User Defined" },
+    { 0x34, "User Defined" },
+    { 0x35, "User Defined" },
+    { 0x36, "User Defined" },
+    { 0x37, "User Defined" },
+    { 0x38, "User Defined" },
+    { 0x39, "User Defined" },
+    { 0x3A, "User Defined" },
+    { 0x3B, "User Defined" },
+    { 0x3C, "User Defined" },
+    { 0x3D, "User Defined" },
+    { 0x3E, "User Defined" },
+    { 0x3F, "User Defined" },
+    { 0,      NULL }
+};
 
 static const value_string header_id_vals[] = {
 /* 0x00 - 0x3F - Null terminated Unicode text, length prefixed with 2 byte Unsigned Integer */
@@ -1606,7 +1668,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   val_to_str_ext_const(hdr_id, &header_id_vals_ext, "Unknown"));
         hdr_tree = proto_item_add_subtree(hdr, ett_btobex_hdr);
 
-        proto_tree_add_item(hdr_tree, hf_hdr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_with_flags(hdr_tree, tvb, offset, hf_hdr_id, ett_btobex_hdr_id,  hfx_hdr_id, ENC_NA, BMT_NO_APPEND);
 
         offset++;
 
@@ -2512,6 +2574,16 @@ proto_register_btobex(void)
         { &hf_hdr_id,
           { "Header Id", "btobex.header.id",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &header_id_vals_ext, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_hdr_id_encoding,
+          { "Encoding", "btobex.header.id.encoding",
+            FT_UINT8, BASE_HEX, VALS(header_id_encoding_vals), 0xC0,
+            NULL, HFILL}
+        },
+        { &hf_hdr_id_meaning,
+          { "Meaning", "btobex.header.id.meaning",
+            FT_UINT8, BASE_HEX, VALS(header_id_meaning_vals), 0x3F,
             NULL, HFILL}
         },
         { &hf_hdr_length,
@@ -3594,6 +3666,7 @@ proto_register_btobex(void)
         &ett_btobex,
         &ett_btobex_hdrs,
         &ett_btobex_hdr,
+        &ett_btobex_hdr_id,
         &ett_btobex_filter,
         &ett_btobex_parameter,
         &ett_btobex_fragment,
@@ -3614,7 +3687,6 @@ proto_register_btobex(void)
     static decode_as_value_t btobex_profile_da_values = {btobex_profile_prompt, 1, btobex_profile_da_build_value};
     static decode_as_t btobex_profile_da = {"btobex", "OBEX Profile", "btobex.profile", 1, 0, &btobex_profile_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
-
 
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
