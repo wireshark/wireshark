@@ -54,6 +54,8 @@ static int hf_ccid_bVoltageSupport18 = -1;
 static int hf_ccid_bVoltageSupport30 = -1;
 static int hf_ccid_bVoltageSupport50 = -1;
 static int hf_ccid_dwProtocols = -1;
+static int hf_ccid_dwProtocols_t0 = -1;
+static int hf_ccid_dwProtocols_t1 = -1;
 static int hf_ccid_dwDefaultClock = -1;
 static int hf_ccid_dwMaximumClock = -1;
 static int hf_ccid_bNumClockSupported = -1;
@@ -85,6 +87,12 @@ static const int *bVoltageLevel_fields[] = {
     &hf_ccid_bVoltageSupport18,
     &hf_ccid_bVoltageSupport30,
     &hf_ccid_bVoltageSupport50,
+    NULL
+};
+
+static const int *dwProtocols_fields[] = {
+    &hf_ccid_dwProtocols_t0,
+    &hf_ccid_dwProtocols_t1,
     NULL
 };
 
@@ -237,6 +245,7 @@ static const value_string ccid_proto_structs_vals[] = {
 static gint ett_ccid      = -1;
 static gint ett_ccid_desc = -1;
 static gint ett_ccid_voltage_level = -1;
+static gint ett_ccid_protocols = -1;
 static gint ett_ccid_features = -1;
 static gint ett_ccid_lcd_layout = -1;
 static gint ett_ccid_pin_support = -1;
@@ -296,9 +305,9 @@ dissect_usb_ccid_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_,
             ENC_LITTLE_ENDIAN);
     offset++;
 
-    /* XXX - convert into a bitmask */
-    proto_tree_add_item(desc_tree, hf_ccid_dwProtocols, tvb,
-            offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(desc_tree, tvb, offset,
+            hf_ccid_dwProtocols, ett_ccid_protocols, dwProtocols_fields,
+            ENC_LITTLE_ENDIAN);
     offset += 4;
 
     freq_item = proto_tree_add_item(desc_tree, hf_ccid_dwDefaultClock, tvb,
@@ -616,6 +625,12 @@ proto_register_ccid(void)
         {&hf_ccid_dwProtocols,
          { "dwProtocols", "usbccid.dwProtocols", FT_UINT32, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
+        {&hf_ccid_dwProtocols_t0,
+         { "T=0", "usbccid.dwProtocols.t0", FT_BOOLEAN, 32,
+            TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }},
+        {&hf_ccid_dwProtocols_t1,
+         { "T=1", "usbccid.dwProtocols.t1", FT_BOOLEAN, 32,
+            TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
         {&hf_ccid_dwDefaultClock,
          { "default clock frequency", "usbccid.dwDefaultClock",
              FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -698,6 +713,7 @@ proto_register_ccid(void)
         &ett_ccid,
         &ett_ccid_desc,
         &ett_ccid_voltage_level,
+        &ett_ccid_protocols,
         &ett_ccid_features,
         &ett_ccid_lcd_layout,
         &ett_ccid_pin_support
