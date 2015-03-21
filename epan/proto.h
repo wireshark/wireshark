@@ -1006,7 +1006,6 @@ Integers of 8, 16, 24 and 32 bits can be retreived with these functions.
 @param length length of data in tvb (for strings can be -1 for remaining)
 @param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, ENC_BIG_ENDIAN, ENC_ASCII|ENC_STRING, etc.)
 @param[out] retval points to a gint/guint 8/16/32/64 or gfloat/gdouble which will be set
-@param[out] err gets set to 0 if no failure, else the errno code (EDOM or ERANGE)
 @return the newly created item, and value is set to the decoded value
 */
 WS_DLL_PUBLIC proto_item *
