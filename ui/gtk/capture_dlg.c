@@ -1398,44 +1398,34 @@ insert_new_rows(GList *list)
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
-/* Retrieve the list of local or remote interfaces according to selected
+/* Retrieve the list of remote interfaces according to selected
  * options and re-fill interface name combobox */
 static void
-update_interface_list(void)
+update_remote_interface_list(void)
 {
   GtkWidget *iftype_cbx;
-  GList     *if_list, *if_r_list;
-  int        iftype_id, err;
+  GList     *if_list;
+  int        err;
   gchar     *err_str;
 
   if (cap_open_w == NULL)
     return;
   iftype_cbx = (GtkWidget *)g_object_get_data(G_OBJECT(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY)), E_REMOTE_HOST_TE_KEY);
-  iftype_id = CAPTURE_IFREMOTE;
-  if (iftype_id >= CAPTURE_IFREMOTE) {
-    if_r_list = get_remote_interface_list(global_remote_opts.remote_host_opts.remote_host,
-                                        global_remote_opts.remote_host_opts.remote_port,
-                                        global_remote_opts.remote_host_opts.auth_type,
-                                        global_remote_opts.remote_host_opts.auth_username,
-                                        global_remote_opts.remote_host_opts.auth_password,
-                                        &err, &err_str);
-    if_list = if_r_list;
-  } else {
-    if_list = capture_interface_list(&err, &err_str, main_window_update);   /* Warning: see capture_prep_cb() */
-    g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, NULL);
-  }
-
+  if_list = get_remote_interface_list(global_remote_opts.remote_host_opts.remote_host,
+                                      global_remote_opts.remote_host_opts.remote_port,
+                                      global_remote_opts.remote_host_opts.auth_type,
+                                      global_remote_opts.remote_host_opts.auth_username,
+                                      global_remote_opts.remote_host_opts.auth_password,
+                                      &err, &err_str);
   if (if_list == NULL &&
       (err == CANT_GET_INTERFACE_LIST || err == DONT_HAVE_PCAP)) {
     gpointer dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);
 
-    if (iftype_id >= CAPTURE_IFREMOTE) {
-      /* Fall back to previous interface list */
-      simple_dialog_set_cb(dialog, error_list_remote_interface_cb, iftype_cbx);
-      return;
-    }
-  } else if (iftype_id == CAPTURE_IFREMOTE) {
+    /* Fall back to previous interface list */
+    simple_dialog_set_cb(dialog, error_list_remote_interface_cb, iftype_cbx);
+    return;
+  } else {
     /* New remote interface */
     insert_new_rows(if_list);
     refresh_non_local_interface_lists();
@@ -1512,7 +1502,7 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
 
   recent_add_remote_host(hostname, rh);
 
-  update_interface_list();
+  update_remote_interface_list();
   fill_remote_list();
   window_destroy(GTK_WIDGET(g_object_get_data(G_OBJECT(interface_management_w), E_CAP_REMOTE_DIALOG_PTR_KEY)));
 }
