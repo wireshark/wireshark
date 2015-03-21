@@ -765,7 +765,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *mux27010_tree, *field_tree, *field_tree_extended_header, *field_tree_addr, *field_tree_ctr;
     int offset = 0;
     guint16 length_info;
-    packet_info pinfo_tmp;
+    gboolean save_fragmented;
     /*Address DLCI*/
     gint8 dlci_number = 0;
     guint8 frame_type;
@@ -943,10 +943,8 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tmpOffsetBegin = sizeMuxPPPHeader + 1 + msg_start; /*+ Header_Size, + Direction*/
                 tmpOffsetEnd = sizeMuxPPPHeader + 1 + msg_end;
 
+                save_fragmented = pinfo->fragmented;
                 pinfo->fragmented = TRUE;
-
-                /* XXX - WHY? Isn't there a simpler way? */
-                memcpy(&pinfo_tmp, pinfo, sizeof(*pinfo));
 
                 frag_msg = fragment_add_seq_check(&msg_reassembly_table,
                     tvb, tmpOffsetBegin,
@@ -972,7 +970,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     call_dissector(ppp_handle, next_tvb2, pinfo, tree);
                 }
 
-                pinfo = &pinfo_tmp;
+                pinfo->fragmented = save_fragmented;
             }
         }
 
