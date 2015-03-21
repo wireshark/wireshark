@@ -77,6 +77,8 @@ typedef struct _usb_trans_info_t {
      * Valid only during GET CONFIGURATION response.
      */
     usb_conv_info_t *interface_info;
+
+    guint64 usb_id;
 } usb_trans_info_t;
 
 /* Conversation Structure
