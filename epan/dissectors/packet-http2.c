@@ -1423,6 +1423,17 @@ static gboolean
 dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
+    http2_session_t *session;
+
+    conversation = find_or_create_conversation(pinfo);
+    session = (http2_session_t *)conversation_get_proto_data(conversation,
+                                                             proto_http2);
+    /* A http2 conversation was previously started, assume it is still active */
+    if (session) {
+      dissect_http2(tvb, pinfo, tree, data);
+      return TRUE;
+    }
+
 
     if (tvb_memeql(tvb, 0, kMagicHello, MAGIC_FRAME_LENGTH) != 0) {
         /* we couldn't find the Magic Hello (PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n)
@@ -1433,10 +1444,8 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             return FALSE;
     }
 
-    /* Once switched to HTTP2, then future messages are also part of HTTP2. */
-    conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, http2_handle);
-
+    /* Remember http2 conversation. */
+    get_http2_session(pinfo);
     dissect_http2(tvb, pinfo, tree, data);
 
     return (TRUE);
