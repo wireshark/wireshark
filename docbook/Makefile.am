@@ -18,26 +18,6 @@ A2X_TEXT_OPTS=
 A2X_TEXT_OPTS+="--lynx"
 #endif
 
-# html to text converter for text version of release notes, e.g. elinks.
-# This could also be "lynx", or "true" if neither elinks nor lynx is installed
-# (See Bug # 1446 for note re 'force-html' below)
-# Sorry about the indenting, but that's what automake requires...
-if HAVE_ELINKS
-HTML2TXT=$(ELINKS) -dump -dump-width 72
-## links: -dump requires 'url' argument (as opposed to elinks & lynx)
-## (Rather than fixing things we'll just disable the use of links).
-##else
-##if HAVE_LINKS
-##HTML2TXT=$(LINKS) -dump -width 72
-else
-if HAVE_LYNX
-HTML2TXT=$(LYNX) -dump -width=72 -nolist -stdin -force-html
-else
-HTML2TXT="true"
-endif
-##endif
-endif
-
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
 include Makefile.common

@@ -24,7 +24,6 @@ covered by other licenses that are not themselves directly compatible with the
 GPLv2. This is OK, as only the tools themselves are licensed this way, the
 output of the tools is not considered a derived work, and so can be safely
 licensed for Wireshark's use. An incomplete selection of these tools includes:
- - the html2text utility (tools/html2text.py) is licensed under the GPLv3.
  - the pidl utility (tools/pidl) is licensed under the GPLv3+.
 
 Parts of Wireshark can be built and distributed as libraries. These

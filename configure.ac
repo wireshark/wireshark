@@ -760,23 +760,19 @@ AC_PATH_PROG(A2X, a2x)
 AC_CHECK_PROG(HAVE_A2X, a2x, "yes", "no")
 AM_CONDITIONAL(HAVE_A2X, test x$HAVE_A2X = xyes)
 
-# Want to control a tape drive? Use mt. Want to convert HTML to text?
-# Uhhhhh... elinks? lynx? w3m? pandoc? html2text?
-AC_PATH_PROG(ELINKS, elinks)
-AC_CHECK_PROG(HAVE_ELINKS, elinks, "yes", "no")
-AM_CONDITIONAL(HAVE_ELINKS, test x$HAVE_ELINKS = xyes)
-
 # Check for fop (translate .fo to e.g. pdf)
 AC_PATH_PROG(FOP, fop)
 AC_CHECK_PROG(HAVE_FOP, fop, "yes", "no")
 AM_CONDITIONAL(HAVE_FOP, test x$HAVE_FOP = xyes)
 
-# Check for lynx (html -> text)
+# TODO: HAVE_LYNX and HAVE_W3M are unused. Maybe require one of them
+# to be found when a2x is enabled? Otherwise it will fail later...
+# Check for lynx (asciidoc text format from html)
 AC_PATH_PROG(LYNX, lynx)
 AC_CHECK_PROG(HAVE_LYNX, lynx, "yes", "no")
 AM_CONDITIONAL(HAVE_LYNX, test x$HAVE_LYNX = xyes)
 
-# Check for w3m (html -> text)
+# Check for w3m (asciidoc text format from html)
 AC_PATH_PROG(W3M, w3m)
 AC_CHECK_PROG(HAVE_W3M, w3m, "yes", "no")
 AM_CONDITIONAL(HAVE_W3M, test x$HAVE_W3M = xyes)

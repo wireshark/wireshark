@@ -79,8 +79,7 @@ PROGRAM_FILES=$(PROGRAMFILES)
 PROGRAM_FILES_W6432=$(PROGRAMW6432)
 
 #
-# Location of the "tools" directory. This affects HTML2TXT below and should
-# be overridden by makefiles in any subdirectories that use HTML2TXT.
+# Location of the "tools" directory. This affects the path to textify.ps1
 !IFNDEF TOOLS_DIR
 TOOLS_DIR=tools
 !ENDIF
@@ -1320,17 +1319,6 @@ FOP=$(WIRESHARK_LIB_DIR)\fop-1.0\fop.bat
 
 # Additional options to fop.
 FOP_OPTS=-Xmx256m
-
-# html to text converter for text version of release notes, e.g. elinks.
-# This could also be "lynx", or "true" if neither elinks nor lynx is installed
-# (cygwin: lynx works, elinks not available, links and true doesn't produce output)
-#HTML2TXT=elinks -dump -dump-width 72
-##HTML2TXT=links -dump -width 72 ## XXX: Fails: For links -dump requires 'url' (filename) arg.
-#HTML2TXT=lynx -dump -width=72 -nolist -stdin
-
-!IFNDEF HTML2TXT
-HTML2TXT=$(PYTHON) $(TOOLS_DIR)\html2text.py --width=72 --no-links
-!ENDIF
 
 # the XSL processor (part of cygwin's libxslt package)
 XSLTPROC="xsltproc"

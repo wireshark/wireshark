@@ -1416,10 +1416,9 @@ else()
 	endforeach()
 endif(WIN32)
 add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/help/faq.py > faq.tmp.html
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/help/faq.py -b > faq.tmp.html
 	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
-		--width=72 --no-links faq.tmp.html
-		> "${DATAFILE_DIR}/help/faq.txt"
+		faq.tmp.html > "${DATAFILE_DIR}/help/faq.txt"
 	COMMAND ${CMAKE_COMMAND} -E remove faq.tmp.html
 )
 

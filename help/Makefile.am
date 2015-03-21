@@ -43,13 +43,8 @@ CLEANFILES = faq.txt
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
-# Try our best to convert the FAQ to text.
-# The output of html2text.py isn't as pretty as elinks, links, or lynx. If that ever changes, we
-# can use it exclusively.
+# Convert the FAQ to text.
 faq.txt: $(srcdir)/faq.py
-	 $(AM_V_GEN)$(srcdir)/faq.py >$@.tmp && \
-	 command -v elinks > /dev/null && elinks -dump -dump-width 72 -no-numbering -no-references < $@.tmp > $@ || \
-	 command -v links  > /dev/null && links -width 72 -html-numbered-links 0 -dump               $@.tmp > $@ || \
-	 command -v lynx   > /dev/null && lynx -dump -width=72 -nolist -stdin -force-html          < $@.tmp > $@ || \
-         $(srcdir)/../tools/html2text.py --width=72 --no-links $@.tmp > $@ && \
+	$(AM_V_GEN)$(srcdir)/faq.py -b >$@.tmp && \
+	$(srcdir)/../tools/html2text.py $@.tmp > $@ && \
 	rm -f $@.tmp

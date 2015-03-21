@@ -10,7 +10,7 @@ include ..\config.nmake
 all: faq.txt
 
 faq.txt: faq.py
-	$(PYTHON) faq.py | $(HTML2TXT) > $@
+	$(PYTHON) faq.py -b | $(PYTHON) $(TOOLS_DIR)\html2text.py > $@
 
 clean:
 	rm -rf faq.txt

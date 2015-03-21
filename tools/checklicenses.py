@@ -203,9 +203,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'tools/pidl': [
         'UNKNOWN',
     ],
-    'tools/html2text.py': [
-        'UNKNOWN',
-    ],
     'tools/lemon': [
         'UNKNOWN',
     ],
