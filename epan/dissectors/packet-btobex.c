@@ -179,6 +179,8 @@ static int hf_map_application_parameter_data_status_value = -1;
 static int hf_map_application_parameter_data_mse_time = -1;
 static int hf_profile = -1;
 static int hf_type = -1;
+static int hf_request_in_frame = -1;
+static int hf_response_in_frame = -1;
 
 static expert_field ei_unexpected_data = EI_INIT;
 
@@ -255,8 +257,10 @@ typedef struct _obex_last_opcode_data_t {
     guint32 adapter_id;
     guint16 chandle;
     guint8  channel;
-    gint    direction;
     gint    code;
+
+    guint32  request_in_frame;
+    guint32  response_in_frame;
 } obex_last_opcode_data_t;
 
 #define PROFILE_UNKNOWN  0
@@ -1400,21 +1404,19 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32        no_of_segments = 0;
     gint           offset         = 0;
     gint           profile        = PROFILE_UNKNOWN;
-    gint           response_opcode = -1;
     gboolean       is_obex_over_l2cap = FALSE;
     obex_profile_data_t  *obex_profile_data;
     guint32               interface_id;
     guint32               adapter_id;
     guint32               chandle;
     guint32               channel;
-    wmem_tree_key_t       key[7];
+    wmem_tree_key_t       key[6];
     guint32               k_interface_id;
     guint32               k_adapter_id;
     guint32               k_frame_number;
     guint32               k_chandle;
     guint32               k_channel;
     obex_last_opcode_data_t  *obex_last_opcode_data;
-    guint32                   k_direction;
     guint32                   length;
 
 
@@ -1585,7 +1587,6 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 k_adapter_id   = adapter_id;
                 k_chandle      = chandle;
                 k_channel      = channel;
-                k_direction    = pinfo->p2p_dir;
                 k_frame_number = pinfo->fd->num;
 
                 key[0].length = 1;
@@ -1597,19 +1598,18 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 key[3].length = 1;
                 key[3].key = &k_channel;
                 key[4].length = 1;
-                key[4].key = &k_direction;
-                key[5].length = 1;
-                key[5].key = &k_frame_number;
-                key[6].length = 0;
-                key[6].key = NULL;
+                key[4].key = &k_frame_number;
+                key[5].length = 0;
+                key[5].key = NULL;
 
                 obex_last_opcode_data = wmem_new(wmem_file_scope(), obex_last_opcode_data_t);
                 obex_last_opcode_data->interface_id = interface_id;
                 obex_last_opcode_data->adapter_id = adapter_id;
                 obex_last_opcode_data->chandle = chandle;
                 obex_last_opcode_data->channel = channel;
-                obex_last_opcode_data->direction = pinfo->p2p_dir;
                 obex_last_opcode_data->code = code;
+                obex_last_opcode_data->request_in_frame = k_frame_number;
+                obex_last_opcode_data->response_in_frame = 0;
 
                 wmem_tree_insert32_array(obex_last_opcode, key, obex_last_opcode_data);
             }
@@ -1624,6 +1624,64 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_tree_add_item(st, hf_length, next_tvb, offset, 2, ENC_BIG_ENDIAN);
         length = tvb_get_ntohs(tvb, offset) - 3;
         offset += 2;
+
+
+        if (is_obex_over_l2cap) {
+            btl2cap_data_t      *l2cap_data;
+
+            l2cap_data   = (btl2cap_data_t *) data;
+            interface_id = l2cap_data->interface_id;
+            adapter_id   = l2cap_data->adapter_id;
+            chandle      = l2cap_data->chandle;
+            channel      = l2cap_data->cid;
+        } else {
+            btrfcomm_data_t      *rfcomm_data;
+
+            rfcomm_data  = (btrfcomm_data_t *) data;
+            interface_id = rfcomm_data->interface_id;
+            adapter_id   = rfcomm_data->adapter_id;
+            chandle      = rfcomm_data->chandle;
+            channel      = rfcomm_data->dlci >> 1;
+        }
+
+        k_interface_id = interface_id;
+        k_adapter_id   = adapter_id;
+        k_chandle      = chandle;
+        k_channel      = channel;
+        k_frame_number = pinfo->fd->num;
+
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_channel;
+        key[4].length = 1;
+        key[4].key = &k_frame_number;
+        key[5].length = 0;
+        key[5].key = NULL;
+
+        obex_last_opcode_data = (obex_last_opcode_data_t *)wmem_tree_lookup32_array_le(obex_last_opcode, key);
+        if (obex_last_opcode_data && obex_last_opcode_data->interface_id == interface_id &&
+                obex_last_opcode_data->adapter_id == adapter_id &&
+                obex_last_opcode_data->chandle == chandle &&
+                obex_last_opcode_data->channel == channel) {
+            if (obex_last_opcode_data->request_in_frame > 0 && obex_last_opcode_data->request_in_frame != pinfo->fd->num) {
+                sub_item = proto_tree_add_uint(st, hf_request_in_frame, next_tvb, 0, 0, obex_last_opcode_data->request_in_frame);
+                PROTO_ITEM_SET_GENERATED(sub_item);
+            }
+
+            if (!pinfo->fd->flags.visited && obex_last_opcode_data->response_in_frame == 0 && obex_last_opcode_data->request_in_frame < pinfo->fd->num) {
+                obex_last_opcode_data->response_in_frame = pinfo->fd->num;
+            }
+
+            if (obex_last_opcode_data->response_in_frame > 0 && obex_last_opcode_data->response_in_frame != pinfo->fd->num) {
+                sub_item = proto_tree_add_uint(st, hf_response_in_frame, next_tvb, 0, 0, obex_last_opcode_data->response_in_frame);
+                PROTO_ITEM_SET_GENERATED(sub_item);
+            }
+        }
 
         switch(code)
         {
@@ -1664,56 +1722,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             } else if (length == 0) break;
 
-            if (is_obex_over_l2cap) {
-                btl2cap_data_t      *l2cap_data;
-
-                l2cap_data   = (btl2cap_data_t *) data;
-                interface_id = l2cap_data->interface_id;
-                adapter_id   = l2cap_data->adapter_id;
-                chandle      = l2cap_data->chandle;
-                channel      = l2cap_data->cid;
-            } else {
-                btrfcomm_data_t      *rfcomm_data;
-
-                rfcomm_data  = (btrfcomm_data_t *) data;
-                interface_id = rfcomm_data->interface_id;
-                adapter_id   = rfcomm_data->adapter_id;
-                chandle      = rfcomm_data->chandle;
-                channel      = rfcomm_data->dlci >> 1;
-            }
-
-            k_interface_id = interface_id;
-            k_adapter_id   = adapter_id;
-            k_chandle      = chandle;
-            k_channel      = channel;
-            k_direction    = (pinfo->p2p_dir + 1) & 0x01;
-            k_frame_number = pinfo->fd->num;
-
-            key[0].length = 1;
-            key[0].key = &k_interface_id;
-            key[1].length = 1;
-            key[1].key = &k_adapter_id;
-            key[2].length = 1;
-            key[2].key = &k_chandle;
-            key[3].length = 1;
-            key[3].key = &k_channel;
-            key[4].length = 1;
-            key[4].key = &k_direction;
-            key[5].length = 1;
-            key[5].key = &k_frame_number;
-            key[6].length = 0;
-            key[6].key = NULL;
-
-            obex_last_opcode_data = (obex_last_opcode_data_t *)wmem_tree_lookup32_array_le(obex_last_opcode, key);
-            if (obex_last_opcode_data && obex_last_opcode_data->interface_id == interface_id &&
-                    obex_last_opcode_data->adapter_id == adapter_id &&
-                    obex_last_opcode_data->chandle == chandle &&
-                    obex_last_opcode_data->channel == channel &&
-                    obex_last_opcode_data->direction == ((pinfo->p2p_dir + 1) & 0x01)) {
-                response_opcode = obex_last_opcode_data->code;
-            }
-
-            if (response_opcode == BTOBEX_CODE_VALS_CONNECT) {
+            if (obex_last_opcode_data &&  obex_last_opcode_data->code == BTOBEX_CODE_VALS_CONNECT) {
                 proto_tree_add_item(st, hf_version, next_tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
@@ -2509,6 +2518,14 @@ proto_register_btobex(void)
         { &hf_type,
           { "Type", "btobex.type", FT_STRINGZ, STR_ASCII, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_request_in_frame,
+          { "Request in Frame", "btobex.request_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+            NULL, HFILL}
+        },
+        { &hf_response_in_frame,
+          { "Response in Frame", "btobex.response_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+            NULL, HFILL}
         }
     };
 
