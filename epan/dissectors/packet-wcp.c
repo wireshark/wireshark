@@ -123,6 +123,8 @@ typedef struct {
 
 	guint8  *buf_cur;
  	guint8  buffer[MAX_WIN_BUF_LEN];
+	/* # initialized bytes in the buffer (since buf_cur may wrap around) */
+	guint16 initialized;
 
 }wcp_window_t;
 
@@ -403,9 +405,13 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 static guint8 *
 decompressed_entry(guint8 *dst, guint16 data_offset,
-    guint16 data_cnt, int *len, guint8 * buf_start, guint8 *buf_end)
+    guint16 data_cnt, int *len, wcp_window_t *buf_ptr)
 {
 	const guint8 *src;
+	guint8 *buf_start, *buf_end;
+
+	buf_start = buf_ptr->buffer;
+	buf_end = buf_ptr->buffer + MAX_WIN_BUF_LEN;
 
 /* do the decompression for one field */
 
@@ -418,6 +424,8 @@ decompressed_entry(guint8 *dst, guint16 data_offset,
 
 	while( data_cnt--){
 		*dst = *src;
+		if ( buf_ptr->initialized < MAX_WIN_BUF_LEN)
+			buf_ptr->initialized++;
 		if ( ++(*len) >MAX_WCP_BUF_LEN){
 			printf("decomp failed, len = %d\n",  *len);
 
@@ -453,7 +461,9 @@ wcp_window_t *get_wcp_window_ptr( packet_info *pinfo){
 	if ( !wcp_circuit_data){
 		wcp_circuit_data = se_alloc(sizeof(wcp_circuit_data_t));
 		wcp_circuit_data->recv.buf_cur = wcp_circuit_data->recv.buffer;
+		wcp_circuit_data->recv.initialized = 0;
 		wcp_circuit_data->send.buf_cur = wcp_circuit_data->send.buffer;
+		wcp_circuit_data->send.initialized = 0;
 		circuit_add_proto_data(circuit, proto_wcp, wcp_circuit_data);
 	}
 	if (pinfo->pseudo_header->x25.flags & FROM_DCE)
@@ -572,10 +582,23 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 					src += 2;
 					offset += 2;
 				}
+				if (data_offset + 1 > buf_ptr->initialized) {
+					expert_add_info_format(pinfo, cd_item, PI_MALFORMED, PI_ERROR,
+							"Data offset exceeds valid window size (%d > %d)",
+							data_offset+1, buf_ptr->initialized);
+					return NULL;
+				}
+
+				if (data_offset + 1 < data_cnt) {
+					expert_add_info_format(pinfo, cd_item, PI_MALFORMED, PI_ERROR,
+							"Data count exceeds offset (%d > %d)",
+							data_cnt, data_offset+1);
+					return NULL;
+				}
 				if ( !pinfo->fd->flags.visited){	/* if first pass */
 					dst = decompressed_entry(dst,
 					    data_offset, data_cnt, &len,
-					    buf_start, buf_end);
+					    buf_ptr);
 					if (dst == NULL){
 						return NULL;
 					}
@@ -600,6 +623,8 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 					*dst = *src;
 					if ( dst++ == buf_end)
 						dst = buf_start;
+					if (buf_ptr->initialized < MAX_WIN_BUF_LEN)
+						buf_ptr->initialized++;
 				}
 				++src;
 				++offset;
