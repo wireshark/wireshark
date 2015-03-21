@@ -85,6 +85,8 @@ typedef struct _usb_trans_info_t {
      * Valid only during GET CONFIGURATION response.
      */
     usb_conv_info_t *interface_info;
+
+    guint64 usb_id;
 } usb_trans_info_t;
 
 /* Conversation Structure
@@ -267,7 +269,7 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
 
 usb_trans_info_t
 *usb_get_trans_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                    usb_header_t header_type, usb_conv_info_t *usb_conv_info);
+                    usb_header_t header_type, usb_conv_info_t *usb_conv_info, guint64 usb_id);
 
 
 #endif

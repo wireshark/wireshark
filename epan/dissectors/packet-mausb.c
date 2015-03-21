@@ -1448,20 +1448,6 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                           mausb_is_data_pkt(&header),
                                           mausb_is_from_host(&header));
 
-    /* If there is a usb conversation, find it */
-    if (mausb_is_data_pkt(&header) & !(mausb_is_transfer_ack(&header))) {
-
-        usb_conv_info = get_usb_conv_info(conversation);
-
-        /* TODO: set all the usb_conv_info values */
-        usb_conv_info->is_request = mausb_is_transfer_req(&header);
-
-        usb_trans_info = usb_get_trans_info(tvb, pinfo, tree,
-                                            USB_HEADER_MAUSB, usb_conv_info);
-        usb_conv_info->usb_trans_info = usb_trans_info;
-    }
-
-
     if (mausb_is_mgmt_pkt(&header)) {
 
         proto_tree_add_item(mausb_tree, hf_mausb_dev_handle, tvb,
@@ -1617,6 +1603,19 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(mausb_tree, hf_mausb_rem_size_credit, tvb,
                 offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+        }
+
+        /* If there is a usb conversation, find it */
+        if (!(mausb_is_transfer_ack(&header))) {
+
+            usb_conv_info = get_usb_conv_info(conversation);
+
+            /* TODO: set all the usb_conv_info values */
+            usb_conv_info->is_request = mausb_is_transfer_req(&header);
+
+            usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, USB_HEADER_MAUSB,
+                                                usb_conv_info, header.u.s.req_id);
+            usb_conv_info->usb_trans_info = usb_trans_info;
         }
 
         /* If this packet contains USB Setup Data */
