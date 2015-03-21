@@ -104,6 +104,9 @@ void proto_reg_handoff_dvbci(void);
 #define TPCE_IF_TYPE_CUST1   5
 #define TPCE_IF_TYPE_CUST2   6
 #define TPCE_IF_TYPE_CUST3   7
+/* "voltage used" field in the device tuples */
+#define CIS_DEV_VCC50 0
+#define CIS_DEV_VCC33 1
 
 /* link layer */
 #define ML_MORE 0x80
@@ -873,6 +876,9 @@ static int hf_dvbci_cis_tpce_if_type = -1;
 static int hf_dvbci_cis_tpce_fs_mem_space = -1;
 static int hf_dvbci_cis_tpce_fs_irq = -1;
 static int hf_dvbci_cis_tpce_fs_io = -1;
+static int hf_dvbci_cis_dev_vcc_used = -1;
+static int hf_dvbci_cis_dev_mwait = -1;
+static int hf_dvbci_cis_dev_oth_cond_info = -1;
 static int hf_dvbci_cis_tplmid_manf = -1;
 static int hf_dvbci_cis_tplmid_card = -1;
 static int hf_dvbci_buf_size = -1;
@@ -1200,6 +1206,11 @@ static const value_string dvbci_cis_tpce_if_type[] = {
     { TPCE_IF_TYPE_CUST1,  "Custom Interface 1" },
     { TPCE_IF_TYPE_CUST2,  "Custom Interface 2" },
     { TPCE_IF_TYPE_CUST3,  "Custom Interface 3" },
+    { 0, NULL }
+};
+static const value_string dvbci_cis_dev_vcc_used[] = {
+    { CIS_DEV_VCC50, "5.0V" },
+    { CIS_DEV_VCC33, "3.3V" },
     { 0, NULL }
 };
 static const value_string dvbci_ml[] = {
@@ -4873,6 +4884,33 @@ dissect_dvbci_cis_payload_cftable_entry(tvbuff_t *data_tvb,
     return offset;
 }
 
+/* dissect the payload of a device_oc or device_oa tuple */
+static gint
+dissect_dvbci_cis_payload_device(tvbuff_t *data_tvb,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint      offset = 0;
+    gboolean  ext;
+
+    ext = ((tvb_get_guint8(data_tvb, offset) & 0x80) == 0x80);
+
+    proto_tree_add_item(tree, hf_dvbci_cis_dev_vcc_used,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_dvbci_cis_dev_mwait,
+            data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    while (ext) {
+        ext = ((tvb_get_guint8(data_tvb, offset) & 0x80) == 0x80);
+
+        proto_tree_add_item(tree, hf_dvbci_cis_dev_oth_cond_info,
+                data_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+    }
+
+    return offset;
+}
+ 
 static void
 dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
@@ -4925,6 +4963,13 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
                 break;
             case CISTPL_CFTABLE_ENTRY:
                 dissect_dvbci_cis_payload_cftable_entry(
+                        tpl_data_tvb, pinfo, tpl_tree);
+                offset += len_field;
+                break;
+            case CISTPL_DEVICE_OC:
+                /* fall through: those two tuples' data is identical */
+            case CISTPL_DEVICE_OA:
+                dissect_dvbci_cis_payload_device(
                         tpl_data_tvb, pinfo, tpl_tree);
                 offset += len_field;
                 break;
@@ -5207,6 +5252,18 @@ proto_register_dvbci(void)
         { &hf_dvbci_cis_tpce_fs_io,
           { "IO Space", "dvb-ci.cis.tpce_fs.io",
             FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_dev_vcc_used,
+          { "Vcc used", "dvb-ci.cis.device.vcc_used",
+              FT_UINT8, BASE_HEX, VALS(dvbci_cis_dev_vcc_used), 0x06, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_dev_mwait,
+          { "MWait", "dvb-ci.cis.device.mwait",
+            FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }
+        },
+        { &hf_dvbci_cis_dev_oth_cond_info,
+          { "Other conditions info", "dvb-ci.cis.device.other_cond",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cis_tplmid_manf,
           { "PC Card manufacturer code", "dvb-ci.cis.tplmid_manf",
