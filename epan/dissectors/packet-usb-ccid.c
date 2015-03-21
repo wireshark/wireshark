@@ -65,6 +65,8 @@ static int hf_ccid_dwMechanical = -1;
 static int hf_ccid_dwFeatures = -1;
 static int hf_ccid_dwFeatures_autoParam = -1;
 static int hf_ccid_dwFeatures_autoIccActivation = -1;
+static int hf_ccid_dwFeatures_autoIccClk = -1;
+static int hf_ccid_dwFeatures_autoBaudRate = -1;
 static int hf_ccid_dwMaxCCIDMessageLength = -1;
 static int hf_ccid_bClassGetResponse = -1;
 static int hf_ccid_bClassEnvelope = -1;
@@ -90,6 +92,8 @@ static const int *bFeatures_fields[] = {
     /* XXX - add the missing components */
     &hf_ccid_dwFeatures_autoIccActivation,
     &hf_ccid_dwFeatures_autoParam,
+    &hf_ccid_dwFeatures_autoIccClk,
+    &hf_ccid_dwFeatures_autoBaudRate,
     NULL
 };
 
@@ -647,6 +651,14 @@ proto_register_ccid(void)
          { "Automatic parameter configuration based on ATR",
              "usbccid.dwFeatures.autoParam", FT_BOOLEAN, 32,
              TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoIccClk,
+         { "Automatic ICC clock frequency change",
+             "usbccid.dwFeatures.autoIccClk", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }},
+        {&hf_ccid_dwFeatures_autoBaudRate,
+         { "Automatic baud rate change",
+             "usbccid.dwFeatures.autoBaudRate", FT_BOOLEAN, 32,
+             TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }},
         {&hf_ccid_dwMaxCCIDMessageLength,
          { "maximum CCID message length", "usbccid.dwMaxCCIDMessageLength",
              FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
