@@ -25,15 +25,8 @@ Check the sanity of field definitions in Wireshark.
 
 import sys
 
-try:
-    from optparse import OptionParser
-except ImportError:
-    sys.exit("Need python 2.3.")
-
-try:
-    import commands
-except ImportError:
-    sys.exit("Need to run on Unix.")
+from optparse import OptionParser
+import subprocess
 
 
 errors = 0
@@ -42,7 +35,7 @@ class Proto:
     """Data for a protocol."""
     def __init__(self, line):
         data = line.split("\t")
-        assert len(data) == 3
+        assert len(data) == 3, "expected 3 columns in %s" % data
         assert data[0] == "P"
         self.name = data[1]
         self.abbrev = data[2]
@@ -51,27 +44,30 @@ class Field:
     """Data for a field."""
     def __init__(self, line):
         data = line.split("\t")
-        assert len(data) == 8
+        assert len(data) == 8, "expected 8 columns in %s" % data
         assert data[0] == "F"
         self.name = data[1]
         self.abbrev = data[2]
         self.ftype = data[3]
         self.parent = data[4]
-        self.blurb = data[5]
-        self.base = data[6]
-        self.bitmask = int(data[7],0)
+        self.base = data[5]
+        self.bitmask = int(data[6],0)
+        self.blurb = data[7]
 
-    
 
 def gather_data(tshark):
     """Calls tshark and gathers data."""
-    cmd = "%s -G fields3" % (tshark,)
-    (status, output) = commands.getstatusoutput(cmd)
+    proc = subprocess.Popen([tshark, "-G", "fields"],
+        stdout=subprocess.PIPE)
+    output, error = proc.communicate()
 
-    if status != 0:
+    if proc.returncode != 0:
         sys.exit("Failed: " + cmd)
 
-    lines = output.split("\n")
+    if sys.version_info[0] >= 3:
+        output = output.decode('utf-8')
+
+    lines = output.splitlines()
     protos = [Proto(x) for x in lines if x[0] == "P"]
     fields = [Field(x) for x in lines if x[0] == "F"]
 
@@ -86,8 +82,8 @@ def check_fields(fields):
             if field.ftype.find("FT_UINT") != 0 and \
                     field.ftype.find("FT_INT") != 0 and \
                     field.ftype != "FT_BOOLEAN":
-                print "%s has a bitmask 0x%x but is type %s" % \
-                        (field.abbrev, field.bitmask, field.ftype)
+                print("%s has a bitmask 0x%x but is type %s" % \
+                        (field.abbrev, field.bitmask, field.ftype))
                 errors += 1
 
 def run(tshark):
@@ -100,7 +96,7 @@ def run(tshark):
     if errors > 0:
         sys.exit("%d errors found" % (errors,))
     else:
-        print "Success."
+        print("Success.")
 
 def main():
     """Parse the command-line."""

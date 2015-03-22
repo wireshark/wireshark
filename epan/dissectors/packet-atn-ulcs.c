@@ -183,7 +183,7 @@ static int dissect_ACSE_apdu_PDU(
 		tvbuff_t *tvb _U_,
 		packet_info *pinfo _U_,
 		proto_tree *tree _U_,
-    void *data _U_);
+		void *data _U_);
 
 guint32 dissect_per_object_descriptor_t(
 		tvbuff_t *tvb,
@@ -2082,7 +2082,7 @@ dissect_atn_ulcs(
 						tvb,
 						offset,
 						1,
-                        value_ses_pres,
+						value_ses_pres,
 						"%s (0x%02x)",
 						val_to_str( value_ses_pres & ATN_SES_PRES_MASK , atn_pres_vals, "?"),
 						value_pres);
@@ -2511,8 +2511,7 @@ void proto_register_atn_ulcs (void)
 					BASE_HEX,
 					VALS(srf_b1),
 					0x01,
-					"Determines if transport connection reject is \
-					transient or persistent",
+					"Determines if transport connection reject is transient or persistent",
 					HFILL}},
 			{&hf_atn_ses_param_b2,
 				{ "SRF Parameter B2",
@@ -2521,8 +2520,7 @@ void proto_register_atn_ulcs (void)
 					BASE_HEX,
 					VALS(srf_b2),
 					0x02,
-					"Determines if transport connection is \
-					retained or released",
+					"Determines if transport connection is retained or released",
 					HFILL}},
 			{ &hf_atn_pres_err,
 				{ "Error Code", "atn-ulcs.pres.cpr-error",
@@ -2573,12 +2571,12 @@ void proto_register_atn_ulcs (void)
     &ett_atn_ulcs_AttributeTypeAndValue,
 
 /*--- End of included file: packet-atn-ulcs-ettarr.c ---*/
-#line 851 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
+#line 849 "../../asn1/atn-ulcs/packet-atn-ulcs-template.c"
 				&ett_atn_ses,
 				&ett_atn_pres,
 				&ett_atn_acse,
 				&ett_atn_ulcs
-    };
+		};
 
 		proto_atn_ulcs = proto_register_protocol (
 				ATN_ULCS_PROTO ,
