@@ -554,7 +554,7 @@ expression generator.
 
 How to add a new test to dfilter-test.py
 ========================================
-Note: dfilter-test.py requires Python 2.7
+Note: dfilter-test.py requires Python 2.7 or newer (including Python 3)
 
 "tools/dfilter-test.py" is the main test script. It includes
 the test from files in tools/dftestlib. You can add a test

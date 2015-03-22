@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-import subprocess
+import subprocess, sys
 
 SUCCESS = 0
 def exec_cmdv(cmdv, cwd=None, stdin=None):
@@ -31,14 +31,16 @@ def exec_cmdv(cmdv, cwd=None, stdin=None):
         retval = SUCCESS
 
     # If file isn't executable
-    except OSError, e:
-        output = str(e)
-        retval = None
+    except OSError as e:
+        return (None, str(e))
 
     # If process returns non-zero
-    except subprocess.CalledProcessError, e:
+    except subprocess.CalledProcessError as e:
         output = e.output
         retval = e.returncode
+
+    if sys.version_info[0] >= 3:
+        output = output.decode('utf-8')
 
     return (retval, output)
 
