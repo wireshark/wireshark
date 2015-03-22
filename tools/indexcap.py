@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 # Tool to index protocols that appears in the given capture files
 #
@@ -41,6 +41,8 @@ def extract_protos_from_file_proces(tshark, file):
         cmd = [tshark, "-Tfields", "-e", "frame.protocols", "-r", file]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = p.communicate()
+        if sys.version_info[0] >= 3:
+            stdout = stdout.decode('utf-8')
         if p.returncode != 0:
             return (file, {})
 
@@ -63,14 +65,14 @@ def extract_protos_from_file(tshark, num_procs, max_files, cap_files, cap_hash, 
         for (cur_item_idx,result_async) in enumerate(results):
             file_result = result_async.get()
             action = "SKIPPED" if file_result[1] is {} else "PROCESSED"
-            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result[0], os.path.getsize(file_result[0]))
+            print("%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result[0], os.path.getsize(file_result[0])))
             cap_hash.update(dict([file_result]))
     except KeyboardInterrupt:
-        print "%s was interrupted by user" % (sys.argv[0])
+        print("%s was interrupted by user" % (sys.argv[0]))
         pool.terminate()
         exit(1)
 
-    index_file = open(index_file_name, "w")
+    index_file = open(index_file_name, "wb")
     pickle.dump(cap_hash, index_file)
     index_file.close()
     exit(0)
@@ -101,9 +103,9 @@ def dissect_files(tshark, tmpdir, num_procs, max_files, cap_files):
         for (cur_item_idx,result_async) in enumerate(results):
             file_result = result_async.get()
             action = "FAILED" if file_result[1] is False else "PASSED"
-            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result[0], os.path.getsize(file_result[0]))
+            print("%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result[0], os.path.getsize(file_result[0])))
     except KeyboardInterrupt:
-        print "%s was interrupted by user" % (sys.argv[0])
+        print("%s was interrupted by user" % (sys.argv[0]))
         pool.terminate()
         exit(1)
 
@@ -128,23 +130,23 @@ def compare_files(tshark_bin, tmpdir, tshark_cmp, num_procs, max_files, cap_file
                 os.remove(file_result_bin[3])
                 os.remove(file_result_cmp[3])
 
-            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_bin[0], os.path.getsize(file_result_bin[0]))
-            print "%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_cmp[0], os.path.getsize(file_result_cmp[0]))
+            print("%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_bin[0], os.path.getsize(file_result_bin[0])))
+            print("%s [%u/%u] %s %u bytes" % (action, cur_item_idx+1, max_files, file_result_cmp[0], os.path.getsize(file_result_cmp[0])))
     except KeyboardInterrupt:
-        print "%s was interrupted by user" % (sys.argv[0])
+        print("%s was interrupted by user" % (sys.argv[0]))
         pool.terminate()
         exit(1)
 
 def list_all_proto(cap_hash):
     proto_hash = {}
-    for files_hash in cap_hash.itervalues():
-        for proto,count in files_hash.iteritems():
+    for files_hash in cap_hash.values():
+        for proto,count in files_hash.items():
             proto_hash[proto] = count + proto_hash.setdefault(proto, 0)
 
     return proto_hash
 
 def list_all_files(cap_hash):
-    files = cap_hash.keys()
+    files = list(cap_hash.keys())
     files.sort()
 
     return files
@@ -152,8 +154,8 @@ def list_all_files(cap_hash):
 def list_all_proto_files(cap_hash, proto_comma_delit):
     protos = [ x.strip() for x in proto_comma_delit.split(',') ]
     files = []
-    for (file, files_hash) in cap_hash.iteritems():
-        for proto in files_hash.iterkeys():
+    for (file, files_hash) in cap_hash.items():
+        for proto in files_hash.keys():
             if proto in protos:
                 files.append(file)
                 break
@@ -189,7 +191,7 @@ def main():
     parser = OptionParser(usage="usage: %prog [options] index_file [file_1|dir_1 [.. file_n|dir_n]]")
     parser.add_option("-d", "--dissect-files", dest="dissect_files", default=False, action="store_true",
                       help="Dissect all matching files")
-    parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxint, type="int",
+    parser.add_option("-m", "--max-files", dest="max_files", default=sys.maxsize, type="int",
                       help="Max number of files to process")
     parser.add_option("-b", "--binary-dir", dest="bin_dir", default=os.getcwd(),
                       help="Directory containing tshark executable")
@@ -225,40 +227,40 @@ def main():
     paths = args
     cap_hash = {}
     try:
-        index_file = open(index_file_name, "r")
-        print "index file:", index_file.name, "[OPENED]",
+        index_file = open(index_file_name, "rb")
+        print("index file: %s [OPENED]" % index_file.name)
         cap_hash = pickle.load(index_file)
         index_file.close()
-        print len(cap_hash), "files"
+        print("%d files" % len(cap_hash))
     except IOError:
-        print "index file:", index_file_name, "[NEW]"
+        print("index file: %s [NEW]" % index_file_name)
 
     if options.list_all_proto:
-        print list_all_proto(cap_hash)
+        print(list_all_proto(cap_hash))
         exit(0)
 
     indexed_files = []
     if options.list_all_files:
         indexed_files = list_all_files(cap_hash)
-        print indexed_files
+        print(indexed_files)
 
     if options.list_all_proto_files:
         indexed_files = list_all_proto_files(cap_hash, options.list_all_proto_files)
-        print indexed_files
+        print(indexed_files)
 
     tshark_bin = find_tshark_executable(options.bin_dir)
     if not tshark_bin is None:
-        print "tshark:", tshark_bin, "[FOUND]"
+        print("tshark: %s [FOUND]" % tshark_bin)
     else:
-        print "tshark:", tshark_bin, "[MISSING]"
+        print("tshark: %s [MISSING]" % tshark_bin)
         exit(1)
 
     if not options.compare_dir is None:
         tshark_cmp = find_tshark_executable(options.compare_dir)
         if not tshark_cmp is None:
-            print "tshark:", tshark_cmp, "[FOUND]"
+            print("tshark: %s [FOUND]" % tshark_cmp)
         else:
-            print "tshark:", tshark_cmp, "[MISSING]"
+            print("tshark: %s [MISSING]" % tshark_cmp)
             exit(1)
 
     if options.dissect_files or options.compare_dir:
@@ -274,18 +276,21 @@ def main():
         cap_files.sort()
 
     options.max_files = min(options.max_files, len(cap_files))
-    print "%u total files, %u working files" % (len(cap_files), options.max_files)
+    print("%u total files, %u working files" % (len(cap_files), options.max_files))
     cap_files = cap_files[:options.max_files]
-    tmpdir = tempfile.mkdtemp()
-    print "Temporary working dir: %s" % tmpdir
-
-    if options.compare_dir:
-        compare_files(tshark_bin, tmpdir, tshark_cmp, options.num_procs, options.max_files, cap_files)
-    elif options.dissect_files:
-        dissect_files(tshark_bin, tmpdir, options.num_procs, options.max_files, cap_files)
-    else:
-        extract_protos_from_file(tshark_bin, options.num_procs, options.max_files, cap_files, cap_hash, index_file_name)
-
-    os.rmdir(tmpdir)
+    if options.compare_dir or options.dissect_files:
+        tmpdir = tempfile.mkdtemp()
+        print("Temporary working dir: %s" % tmpdir)
+    try:
+        if options.compare_dir:
+            compare_files(tshark_bin, tmpdir, tshark_cmp, options.num_procs, options.max_files, cap_files)
+        elif options.dissect_files:
+            dissect_files(tshark_bin, tmpdir, options.num_procs, options.max_files, cap_files)
+        else:
+            extract_protos_from_file(tshark_bin, options.num_procs, options.max_files, cap_files, cap_hash, index_file_name)
+    finally:
+        # Dissection may result in a non-empty directory.
+        if options.compare_dir:
+            os.rmdir(tmpdir)
 if __name__ == "__main__":
     main()

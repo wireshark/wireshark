@@ -32,13 +32,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # Directory containing binaries.  Default current directory.
-BIN_DIR=.
+WS_BIN_PATH=${WS_BIN_PATH:-.}
 
 # Tweak the following to your liking.  Editcap must support "-E".
-TSHARK="$BIN_DIR/tshark"
-CAPINFOS="$BIN_DIR/capinfos"
+TSHARK="$WS_BIN_PATH/tshark"
+CAPINFOS="$WS_BIN_PATH/capinfos"
 
-if [ "$BIN_DIR" = "." ]; then
+if [ "$WS_BIN_PATH" = "." ]; then
     export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=
 fi
 
@@ -67,7 +67,7 @@ do
     "$CAPINFOS" "$CF" > /dev/null 2>&1 && FOUND=1
     if [ $FOUND -eq 1 ]
     then
-	break
+        break
     fi
 done
 
@@ -82,7 +82,7 @@ fi
 
 for CF in "$@" ; do
     if [ "$OSTYPE" == "cygwin" ] ; then
-	CF=`cygpath --windows "$CF"`
+        CF=`cygpath --windows "$CF"`
     fi
 
     if [ ! -f "$CF" ] ; then
@@ -93,15 +93,15 @@ for CF in "$@" ; do
     "$CAPINFOS" "$CF" > /dev/null
     RETVAL=$?
     if [ $RETVAL -ne 0 ] ; then
-	echo "Not a valid capture file (or some other problem)" 1>&2
-	continue
+        echo "Not a valid capture file (or some other problem)" 1>&2
+        continue
     fi
 
     printf "%s: " "$CF"
 
     # Extract the protocol names.
-    $TSHARK -T fields -eframe.protocols -nr "$CF" 2>/dev/null | tr ':\r' '\n' \
-	| sort -u | tr '\n\r' ' '
+    $TSHARK -T fields -eframe.protocols -nr "$CF" 2>/dev/null | \
+        tr ':\r' '\n' | sort -u | tr '\n\r' ' '
 
     printf "\n"
 done
