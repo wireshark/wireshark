@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2015-03-13)
+(last updated 2015-03-21)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -646,9 +646,9 @@ Decimal
     Per Bech Hansen
       pbh&dde.dk
 158
-  Morning Star Technologies
-    Karl Fox
-      karl&MorningStar.Com
+  Morningstar, Inc.
+    Ryan Johnson
+      ryan.johnson&morningstar.com
 159
   Dupont EOP
     Oscar Rodriguez
@@ -81115,9 +81115,9 @@ Nancy - FRANCE
     Seamus Donohue
       seamus.donohue&capeclear.com
 20390
-  I & C Energo a.s.
-    Milan Benes
-      mbenes&ic-energo.cz
+  OT Energy Services a.s. (formerly "I & C Energo a.s.")
+    Milan Beneš
+      mbenes&otenergy.eu
 20391
   FAKUS Elektronik GmbH
     Martin Bischoff
@@ -113707,9 +113707,9 @@ Decentralization / Helenic Public Administra
     Steven Roth
       steve&rothskeller.net
 28532
-  OAO DAAZ
-    Alexander Zinchuk
-      A.Zinchuk&daaz.ru
+  AO DAAZ
+    Sergey Moshkov
+      sam&daaz.ru
 28533
   CYAN
     Matthew Nguyen
@@ -114712,8 +114712,8 @@ Decentralization / Helenic Public Administra
       netadmin&earmarkmedia.com
 28783
   Venafi
-    Waltina LaRue
-      tina.larue&venafi.com
+    Jesse Gardner
+      jesse.gardner&venafi.com
 28784
   CER International bv
     Ad van den Broek
@@ -143328,9 +143328,9 @@ Decentralization / Helenic Public Administra
     Anton Popov
       it.adm&iconmobile.com
 35937
-  Víctor Román Archidona
-    Víctor Román Archidona
-      contacto&victor-roman.es
+  Unassigned
+    Removed 2015-03-19
+      ---none---
 35938
   Omnibond Systems LLC.
     Boyd Wilson
@@ -181547,6 +181547,142 @@ Decentralization / Helenic Public Administra
   Gainde 2000
     Magatte MBAYE
       mmbaye&gainde2000.sn
+45492
+  Connexin Software, Inc.
+    Greg Anderson
+      oid&connexinsoftware.com
+45493
+  Media System Technologies Srl
+    Giovanni Squassi
+      gsquassi&gmail.com
+45494
+  GISTEC
+    Ibrahim Afaneh
+      ibrahim.afaneh&gistec.com
+45495
+  Konneka Bilgi ve Iletisim Teknolojileri Imalat Tic. Ltd. Sti.
+    Kursad Yusuf KONUS
+      kykonus&konneka.com.tr
+45496
+  Groupe ESB
+    Kevin COTARD
+      kevin.cotard&ecoledubois.fr
+45497
+  Qucell
+    Sung Hyun Park
+      sunghyun.park&qucell.com
+45498
+  Novella-R SIA
+    Dmitrijs Petrovs
+      dmitrijs.p&ivf.lv
+45499
+  Janos
+    Jan Van Nieuwenhove
+      jan.van.nieuwenhove&gmail.com
+45500
+  Virgin Technologies Inc
+    Justin Miller
+      justin&virgintechnologies.com
+45501
+  Micro Instruments
+    Francois van Jaarsveld
+      francois&microinstruments.co.za
+45502
+  nterra integration GmbH
+    Cornelius Flöter
+      cornelius.floeter&nterra.com
+45503
+  42 Solutions B.V.
+    Stefan Roels
+      snmp&42solutions.nl
+45504
+  Synaptive Medical Inc.
+    Monroe Thomas
+      monroe&synaptivemedical.com
+45505
+  Tox Foundation
+    Sean Qureshi
+      sean&tox.im
+45506
+  Mida Solutions s.r.l.
+    Mauro Franchin
+      ict&midasolutions.com
+45507
+  iMapData.com
+    Jorge Dana
+      jdana&imapdata.com
+45508
+  Strich Labs
+    Sarah Nordstrom
+      oidadmin&strichlabs.com
+45509
+  YourMembership
+    Information Technology
+      itmail&yourmembership.com
+45510
+  BBMRI-ERIC
+    Petr Holub
+      petr.holub&bbmri-eric.eu
+45511
+  Cogent Technologies Limited
+    Ada Qi
+      ada.qi&cogent-technologies.net
+45512
+  Entergate AB
+    Roger Bergstrand
+      roger&entergate.se
+45513
+  Hekatron Technik GmbH
+    Klaus Fischer
+      informatik&hekatron.de
+45514
+  ShenZhen SNMP Link Electronics Co., Ltd.
+    daniel zhang
+      542708124&qq.com
+45515
+  Econocom-osiatis
+    Eric Lapouyade
+      eric.lapouyade&econocom-osiatis.com
+45516
+  Valid Soluciones Tecnógicas S.A.U.
+    José Carlos Santos García
+      josecarlos.santos&valid.com.es
+45517
+  GarantPlus Ltd
+    Maxim Shabrov
+      maxim&otx.ru
+45518
+  Macnica Inc.
+    Seungjo Jang
+      jang-s&macnica.co.jp
+45519
+  Diamedica Sp. z o.o.
+    Borys Stankiewicz
+      telediamedica&gmail.com
+45520
+  Actility
+    Gilles LEFEVRE
+      gilles.lefevre&actility.com
+45521
+  OPENBASE
+    PARK BYUNG WOOK
+      bwpark&openbase.co.kr
+45522
+  xipki.org
+    Lijun Liao
+      lijun.liao&gmail.com
+45523
+  RFE Broadcast srl
+    Luigi Fazio
+      lfazio&rfebroadcast.com
+45524
+  Advancapp
+    Luis Costa
+      info&advancapp.com
+45525
+  Ubiqam LTD
+    Dovalle Yankelovich
+      Dovalle&ubiqam.com
 
 
 End of Document
