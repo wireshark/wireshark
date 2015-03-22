@@ -37,7 +37,7 @@ import sys
 
 
 def PrintUsage():
-  print """Usage: python checklicenses.py [--root <root>] [tocheck]
+  print("""Usage: python checklicenses.py [--root <root>] [tocheck]
   --root   Specifies the repository root. This defaults to ".." relative
            to the script file. This will be correct given the normal location
            of the script in "<root>/tools".
@@ -50,7 +50,7 @@ def PrintUsage():
 
 Examples:
   python checklicenses.py
-  python checklicenses.py --root ~/chromium/src third_party"""
+  python checklicenses.py --root ~/chromium/src third_party""")
 
 
 WHITELISTED_LICENSES = [
@@ -230,9 +230,9 @@ def check_licenses(options, args):
     PrintUsage()
     return 1
 
-  print "Using base directory:", options.base_directory
-  print "Checking:", start_dir
-  print
+  print("Using base directory: %s" % options.base_directory)
+  print("Checking: %s" % start_dir)
+  print("")
 
   #licensecheck_path = os.path.abspath(os.path.join(options.base_directory,
   #                                                 'third_party',
@@ -246,15 +246,18 @@ def check_licenses(options, args):
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
   stdout, stderr = licensecheck.communicate()
+  if sys.version_info[0] >= 3:
+      stdout = stdout.decode('utf-8')
+      stderr = stderr.decode('utf-8')
   if options.verbose:
-    print '----------- licensecheck stdout -----------'
-    print stdout
-    print '--------- end licensecheck stdout ---------'
+    print('----------- licensecheck stdout -----------')
+    print(stdout)
+    print('--------- end licensecheck stdout ---------')
   if licensecheck.returncode != 0 or stderr:
-    print '----------- licensecheck stderr -----------'
-    print stderr
-    print '--------- end licensecheck stderr ---------'
-    print "\nFAILED\n"
+    print('----------- licensecheck stderr -----------')
+    print(stderr)
+    print('--------- end licensecheck stderr ---------')
+    print("\nFAILED\n")
     return 1
 
   success = True
@@ -287,20 +290,20 @@ def check_licenses(options, args):
       if found_path_specific:
         continue
 
-    print "'%s' has non-whitelisted license '%s'" % (filename, license)
+    print("'%s' has non-whitelisted license '%s'" % (filename, license))
     success = False
 
   if success:
-    print "\nSUCCESS\n"
+    print("\nSUCCESS\n")
     return 0
   else:
-    print "\nFAILED\n"
-    print "Please read",
-    print "http://www.chromium.org/developers/adding-3rd-party-libraries"
-    print "for more info how to handle the failure."
-    print
-    print "Please respect OWNERS of checklicenses.py. Changes violating"
-    print "this requirement may be reverted."
+    print("\nFAILED\n")
+    print("Please read")
+    print("http://www.chromium.org/developers/adding-3rd-party-libraries")
+    print("for more info how to handle the failure.")
+    print("")
+    print("Please respect OWNERS of checklicenses.py. Changes violating")
+    print("this requirement may be reverted.")
     return 1
 
 
