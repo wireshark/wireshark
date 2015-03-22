@@ -5656,10 +5656,8 @@ create_and_fill_model(GtkTreeView *view)
       } else {
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
       }
+      set_active_dlt(&device, global_capture_opts.default_options.linktype);
       linkname = NULL;
-      if(capture_dev_user_linktype_find(device.name) != -1) {
-        device.active_dlt = capture_dev_user_linktype_find(device.name);
-      }
       for (list = device.links; list != NULL; list = g_list_next(list)) {
         linkr = (link_row*)(list->data);
         if (linkr->dlt == device.active_dlt) {

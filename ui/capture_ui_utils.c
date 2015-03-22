@@ -33,6 +33,7 @@
 #include "epan/ex-opt.h"
 #include "caputils/capture_ifinfo.h"
 #include "ui/capture_ui_utils.h"
+#include "ui/capture_globals.h"
 #include "wiretap/wtap.h"
 #include "epan/to_str.h"
 
@@ -487,6 +488,56 @@ get_iface_description_for_interface(capture_options *capture_opts, guint i)
     return (interface_opts.descr);
   } else {
     return (NULL);
+  }
+}
+
+/*
+ * Set the active DLT for a device appropriately.
+ */
+void
+set_active_dlt(interface_t *device, int global_default_dlt)
+{
+  GList    *list;
+  gboolean  found_active_dlt;
+  link_row *link;
+
+  /*
+   * If there's a preference for the link-layer header type for
+   * this interface, use it.  If not, use the all-interface
+   * default; if that's not set on the command line, that will
+   * be -1, meaning "use per-interface defaults", otherwise
+   * we'll fail if it's not one of the types the interface
+   * supports.
+   */
+  if ((device->active_dlt = capture_dev_user_linktype_find(device->name)) == -1) {
+    device->active_dlt = global_default_dlt;
+  }
+
+  /*
+   * Is that one of the supported link-layer header types?
+   * If not, set it to -1, so we'll fall back on the first supported
+   * link-layer header type.
+   */
+  found_active_dlt = FALSE;
+  for (list = device->links; list != NULL; list = g_list_next(list)) {
+    link = (link_row *)(list->data);
+    if (link->dlt != -1 && link->dlt == device->active_dlt) {
+      found_active_dlt = TRUE;
+      break;
+    }
+  }
+  if (!found_active_dlt) {
+    device->active_dlt = -1;
+  }
+  if (device->active_dlt == -1) {
+    /* Fall back on the first supported DLT, if we have one. */
+    for (list = device->links; list != NULL; list = g_list_next(list)) {
+      link = (link_row *)(list->data);
+      if (link->dlt != -1) {
+        device->active_dlt = link->dlt;
+        break;
+      }
+    }
   }
 }
 

@@ -145,6 +145,13 @@ const char *get_if_name(const char *if_text);
  */
 const char *get_iface_description_for_interface(capture_options *capture_opts, guint i);
 
+/** Set the active DLT for a device appropriately.
+ *
+ * @param device the device on which to set the active DLT
+ * @param global_default_dlt the global default DLT
+ */
+extern void set_active_dlt(interface_t *device, int global_default_dlt);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
