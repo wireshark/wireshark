@@ -23,18 +23,14 @@
 #
 
 
-try:
-    import subprocess
-    import os
-    import sys
-    import shutil
-except:
-    print 'Missing modules!'
-    exit (-1)
+import subprocess
+import os
+import sys
+import shutil
 
 def show_usage():
-    print 'Usage:   ./delete_includes.py <dissectors | wsutil | wiretap | ui | qt | plugins > [start_file] [stop_file]'
-    
+    print('Usage:   ./delete_includes.py <dissectors | wsutil | wiretap | ui | qt | plugins > [start_file] [stop_file]')
+
 
 # Work out wireshark folder based upon CWD.  Assume run in wireshark folder
 # or from tools folder...
@@ -45,46 +41,46 @@ if lastdir == 'tools':
 
 # Make command depends upon platform.
 if sys.platform.startswith('win'):
-	default_make_command = ['nmake', '-f', 'Makefile.nmake']
+    default_make_command = ['nmake', '-f', 'Makefile.nmake']
 else:
-	default_make_command = ['make']
+    default_make_command = ['make']
 
 
 # Set parameters based upon string passed as argument.
 if len(sys.argv) > 1:
     if sys.argv[1] == 'dissectors':
-        print 'dissectors target chosen!'
+        print('dissectors target chosen!')
         test_folder = os.path.join(wireshark_root, 'epan', 'dissectors')
         run_folder = test_folder
         make_command = default_make_command
     elif sys.argv[1] == 'wsutil':
-        print 'wsutils target chosen!'
+        print('wsutils target chosen!')
         test_folder = os.path.join(wireshark_root, 'wsutil')
         run_folder = test_folder
         make_command = default_make_command
     elif sys.argv[1] == 'wiretap':
-        print 'wiretap target chosen!'
+        print('wiretap target chosen!')
         test_folder = os.path.join(wireshark_root, 'wiretap')
         run_folder = test_folder
         make_command = default_make_command
     elif sys.argv[1] == 'ui':
-        print 'ui target chosen!'
+        print('ui target chosen!')
         test_folder = os.path.join(wireshark_root, 'ui')
         run_folder = wireshark_root
         make_command = default_make_command
     elif sys.argv[1] == 'qt':
-        print 'qt target chosen!'
+        print('qt target chosen!')
         test_folder = os.path.join(wireshark_root, 'ui', 'qt')
         run_folder = wireshark_root
         default_make_command.append('qt')
         make_command = default_make_command
     elif sys.argv[1] == 'plugins':
-        print 'plugins target chosen!'
+        print('plugins target chosen!')
         test_folder = os.path.join(wireshark_root, 'plugins')
         run_folder = os.path.join(wireshark_root, 'plugins')
         make_command = default_make_command
     else:
-        print 'Unrecognised command line option ', sys.argv[1]
+        print('Unrecognised command line option %s' % sys.argv[1])
         show_usage()
         sys.exit()
 else:
@@ -197,16 +193,16 @@ def test_file_is_built(root, filename):
 # At the end, only those that appear to be needed will be left.
 def test_file(root, filename):
 
-    print ''
-    print '------------------------------'
-    print 'Testing ', filename
+    print('')
+    print('------------------------------')
+    print('Testing %s' % filename)
 
     temp_filename = filename + '.tmp'
 
     # Test if file seems to be part of the build.
     is_built = test_file_is_built(root, filename)
     if not is_built:
-        print '***** File not used in build, so ignore!!!!'
+        print('***** File not used in build, so ignore!!!!')
         global files_not_built
         global files_not_built_list
         files_not_built = files_not_built + 1
@@ -214,7 +210,7 @@ def test_file(root, filename):
         files_not_built_list.append(filename)
         return
     else:
-        print 'This file is part of the build'
+        print('This file is part of the build')
 
     # OK, we are going to test removing includes from this file.
     tested_line_number = 0
@@ -253,7 +249,7 @@ def test_file(root, filename):
                     hash_if_level = hash_if_level - 1
 
             # Consider deleting this line have haven't already reached.
-            if (not have_deleted_line and (tested_line_number < this_line_number)):                
+            if (not have_deleted_line and (tested_line_number < this_line_number)):
 
                 # Test line for starting with #include, and eligible for deletion.
                 if line.startswith('#include ') and hash_if_level == 0 and line.find(module_header) == -1:
@@ -266,7 +262,7 @@ def test_file(root, filename):
                             global includes_to_keep_kept
                             includes_to_keep_kept = includes_to_keep_kept + 1
                             continue
-                    
+
                     if allowed_to_delete:
                         # OK, actually doing it.
                         have_deleted_line = True
@@ -292,7 +288,7 @@ def test_file(root, filename):
             os.chdir(run_folder)
             result = subprocess.call(make_command)
             if result == 0:
-                print '***** Good build'
+                print('***** Good build')
                 # Line was eliminated so decrement line counter
                 tested_line_number = tested_line_number - 1
                 # Inc successes counter
@@ -305,7 +301,7 @@ def test_file(root, filename):
                 if sys.argv[1] == 'dissectors':
                     os.remove(os.path.join(run_folder, 'vc100.pdb'))
             else:
-                print '***** Bad build'
+                print('***** Bad build')
                 # Never mind, go back to previous building version
                 os.chdir(root)
                 shutil.copy(temp_filename, filename)
@@ -362,12 +358,12 @@ def generated_file(filename):
 ######################################################################################
 
 # First, confirm that the build is currently passing, if not give up now.
-print 'chdir into ', run_folder
+print('chdir into %s' % run_folder)
 os.chdir(run_folder)
-print '***** Doing an initial build to check we have a stable base.'
+print('***** Doing an initial build to check we have a stable base.')
 result = subprocess.call(make_command)
 if result != 0:
-    print '***** Initial build failed - give up now!!!!'
+    print('***** Initial build failed - give up now!!!!')
     exit (-1)
 
 # OK, loop over files in test_folder and see what can be removed from each one
@@ -405,22 +401,22 @@ for root, subFolders, files in os.walk(test_folder):
                     if not first_file_found:
                         reason = 'not seen starting file', first_file_to_test, 'yet'
                         skipped_before_first = skipped_before_first + 1
-                    print 'Ignoring ', filename, ':', reason
+                    print('Ignoring %s: %s' % (filename, reason))
 
 
 # Show summary stats of run
-print '\n\n'
-print 'Summary'
-print '========='
-print 'files examined: ',   files_examined
-print 'includes tested: ',  includes_tested
-print 'includes deleted: ', includes_deleted
-print 'files not built: ',  files_not_built
+print('\n\n')
+print('Summary')
+print('=========')
+print('files examined:   %d' %  files_examined)
+print('includes tested:  %d' %  includes_tested)
+print('includes deleted: %d' %  includes_deleted)
+print('files not built:  %d' %  files_not_built)
 for abandoned_file in files_not_built_list:
-    print '     ', abandoned_file
-print len(generated_files_ignored), 'generated files not tested:'
+    print('     %s' % abandoned_file)
+print('%d generated files not tested:' % len(generated_files_ignored))
 for generated_file in generated_files_ignored:
-    print '     ', generated_file
-print 'includes kept as not safe to remove: ', includes_to_keep_kept
-print 'skipped before first:', skipped_before_first
+    print('     %s' % generated_file)
+print('includes kept as not safe to remove: %d' % includes_to_keep_kept)
+print('skipped before first: %d' % skipped_before_first)
 
