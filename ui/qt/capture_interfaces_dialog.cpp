@@ -255,6 +255,8 @@ void CaptureInterfacesDialog::UpdateInterfaces()
             output = QString(device.display_name);
             ui->tbInterfaces->setItem(ui->tbInterfaces->rowCount()-1, INTERFACE, new QTableWidgetItem(output));
 
+            set_active_dlt(&device, global_capture_opts.default_options.linktype);
+
             linkname = NULL;
             if(capture_dev_user_linktype_find(device.name) != -1) {
               device.active_dlt = capture_dev_user_linktype_find(device.name);
