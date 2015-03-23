@@ -47,7 +47,7 @@ WS_DLL_PUBLIC value_string_ext wsp_vals_status_ext;
  */
 void add_post_data (proto_tree *, tvbuff_t *, guint, const char *,
 		packet_info *);
-guint32 add_content_type (proto_tree *tree, tvbuff_t *tvb,
+guint32 add_content_type (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		guint32 val_start,
 		guint32 *well_known_content, const char **textual_content);
 
