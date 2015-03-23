@@ -108,6 +108,7 @@ static gint hf_service_attribute_id_hdp                                    = -1;
 static gint hf_service_attribute_id_hid                                    = -1;
 static gint hf_service_attribute_id_wap                                    = -1;
 static gint hf_service_attribute_id_map_mas                                = -1;
+static gint hf_service_attribute_id_map_mns                                = -1;
 static gint hf_service_attribute_id_opp                                    = -1;
 static gint hf_service_attribute_id_pan_nap                                = -1;
 static gint hf_service_attribute_id_pan_gn                                 = -1;
@@ -155,7 +156,10 @@ static gint hf_avrcp_tg_supported_features_category_2                      = -1;
 static gint hf_avrcp_tg_supported_features_category_1                      = -1;
 static gint hf_hsp_remote_audio_volume_control                             = -1;
 static gint hf_gnss_supported_features                                     = -1;
+static gint hf_pbap_pse_supported_repositories                             = -1;
 static gint hf_pbap_pse_supported_repositories_reserved                    = -1;
+static gint hf_pbap_pse_supported_repositories_favourites                  = -1;
+static gint hf_pbap_pse_supported_repositories_speed_dial                  = -1;
 static gint hf_pbap_pse_supported_repositories_sim_card                    = -1;
 static gint hf_pbap_pse_supported_repositories_local_phonebook             = -1;
 static gint hf_fax_support_class_1                                         = -1;
@@ -391,12 +395,35 @@ static gint hf_mps_mpmd_scenarios_3                                        = -1;
 static gint hf_mps_mpmd_scenarios_2                                        = -1;
 static gint hf_mps_mpmd_scenarios_1                                        = -1;
 static gint hf_mps_mpmd_scenarios_0                                        = -1;
-
 static gint hf_mps_supported_profile_and_protocol_dependency               = -1;
 static gint hf_mps_supported_profile_and_protocol_dependency_reserved                       = -1;
 static gint hf_mps_supported_profile_and_protocol_dependency_dis_connection_order_behaviour = -1;
 static gint hf_mps_supported_profile_and_protocol_dependency_gavdp_requirements             = -1;
 static gint hf_mps_supported_profile_and_protocol_dependency_sniff_mode_during_streaming    = -1;
+static gint hf_map_mas_goep_l2cap_psm                                      = -1;
+static gint hf_map_mns_goep_l2cap_psm                                      = -1;
+static gint hf_map_supported_features                                      = -1;
+static gint hf_map_supported_features_reserved                             = -1;
+static gint hf_map_supported_features_extended_event_report_1_1            = -1;
+static gint hf_map_supported_features_instance_information_feature         = -1;
+static gint hf_map_supported_features_delete_feature                       = -1;
+static gint hf_map_supported_features_uploading_feature                    = -1;
+static gint hf_map_supported_features_browsing_feature                     = -1;
+static gint hf_map_supported_features_notification_feature                 = -1;
+static gint hf_map_supported_features_notification_registration_feature    = -1;
+static gint hf_pbap_pse_supported_features                                 = -1;
+static gint hf_pbap_pse_supported_features_reserved                        = -1;
+static gint hf_pbap_pse_supported_features_download                        = -1;
+static gint hf_pbap_pse_supported_features_browsing                        = -1;
+static gint hf_pbap_pse_supported_features_database_identifier             = -1;
+static gint hf_pbap_pse_supported_features_folder_version_counters         = -1;
+static gint hf_pbap_pse_supported_features_vcard_selecting                 = -1;
+static gint hf_pbap_pse_supported_features_enhanced_missed_calls           = -1;
+static gint hf_pbap_pse_supported_features_x_bt_uci_vcard_property         = -1;
+static gint hf_pbap_pse_supported_features_x_bt_uid_vcard_property         = -1;
+static gint hf_pbap_pse_supported_features_contact_referencing             = -1;
+static gint hf_pbap_pse_supported_features_default_contact_image_format    = -1;
+static gint hf_pbap_goep_l2cap_psm                                         = -1;
 
 static gint ett_btsdp                                     = -1;
 static gint ett_btsdp_ssr                                 = -1;
@@ -496,13 +523,47 @@ static const int *hfx_mps_mpmd_scenarios[] = {
     NULL
 };
 
-
-
 static const int *hfx_mps_supported_profile_and_protocol_dependency[] = {
     &hf_mps_supported_profile_and_protocol_dependency_reserved,
     &hf_mps_supported_profile_and_protocol_dependency_dis_connection_order_behaviour,
     &hf_mps_supported_profile_and_protocol_dependency_gavdp_requirements,
     &hf_mps_supported_profile_and_protocol_dependency_sniff_mode_during_streaming,
+    NULL
+};
+
+static const int *hfx_map_supported_features[] = {
+    &hf_map_supported_features_reserved,
+    &hf_map_supported_features_extended_event_report_1_1,
+    &hf_map_supported_features_instance_information_feature,
+    &hf_map_supported_features_delete_feature,
+    &hf_map_supported_features_uploading_feature,
+    &hf_map_supported_features_browsing_feature,
+    &hf_map_supported_features_notification_feature,
+    &hf_map_supported_features_notification_registration_feature,
+    NULL
+};
+
+static const int *hfx_pbap_pse_supported_repositories[] = {
+    &hf_pbap_pse_supported_repositories_reserved,
+    &hf_pbap_pse_supported_repositories_favourites,
+    &hf_pbap_pse_supported_repositories_speed_dial,
+    &hf_pbap_pse_supported_repositories_sim_card,
+    &hf_pbap_pse_supported_repositories_local_phonebook,
+    NULL
+};
+
+static const int *hfx_pbap_pse_supported_features[] = {
+    &hf_pbap_pse_supported_features_reserved,
+    &hf_pbap_pse_supported_features_default_contact_image_format,
+    &hf_pbap_pse_supported_features_contact_referencing,
+    &hf_pbap_pse_supported_features_x_bt_uid_vcard_property,
+    &hf_pbap_pse_supported_features_x_bt_uci_vcard_property,
+    &hf_pbap_pse_supported_features_enhanced_missed_calls,
+    &hf_pbap_pse_supported_features_vcard_selecting,
+    &hf_pbap_pse_supported_features_folder_version_counters,
+    &hf_pbap_pse_supported_features_database_identifier,
+    &hf_pbap_pse_supported_features_browsing,
+    &hf_pbap_pse_supported_features_download,
     NULL
 };
 
@@ -757,8 +818,16 @@ static const value_string vs_wap_attribute_id[] = {
 };
 
 static const value_string vs_map_mas_attribute_id[] = {
+    { 0x200,    "GOEP L2CAP PSM" }, /* MAP v1.2 and later */
     { 0x0315,   "MAS Instance ID" },
     { 0x0316,   "Supported Message Types" },
+    { 0x0317,   "Supported Features" }, /* MAP v1.2 and later */
+    { 0, NULL }
+};
+
+static const value_string vs_map_mns_attribute_id[] = {
+    { 0x200,    "GOEP L2CAP PSM" }, /* MAP v1.2 and later */
+    { 0x0317,   "Supported Features" }, /* MAP v1.2 and later */
     { 0, NULL }
 };
 
@@ -793,7 +862,9 @@ static const value_string vs_pan_panu_attribute_id[] = {
 };
 
 static const value_string vs_pbap_attribute_id[] = {
+    { 0x0200,   "GOEP L2CAP PSM" },
     { 0x0314,   "Supported Repositories" },
+    { 0x0317,   "Supported Features" },
     { 0, NULL }
 };
 
@@ -2316,16 +2387,37 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             break;
         case BTSDP_PBAP_PSE_SERVICE_UUID:
             switch (attribute) {
+                case 0x200:
+                    proto_tree_add_item(next_tree, hf_pbap_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    psm = tvb_get_ntohs(tvb, offset);
+                    wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
+                    if (!pinfo->fd->flags.visited  && service_info)
+                        save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
+                    break;
                 case 0x314:
-                    proto_tree_add_item(next_tree, hf_pbap_pse_supported_repositories_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(next_tree, hf_pbap_pse_supported_repositories_sim_card, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(next_tree, hf_pbap_pse_supported_repositories_local_phonebook, tvb, offset, 1, ENC_BIG_ENDIAN);
-
+                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_pbap_pse_supported_repositories, ett_btsdp_supported_features,  hfx_pbap_pse_supported_repositories, ENC_NA, BMT_NO_APPEND);
                     supported_features = tvb_get_guint8(tvb, offset);
 
-                    wmem_strbuf_append_printf(info_buf, "%s%s",
+                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s",
                             (supported_features & 0x01) ? "LocalPhonebook " : "",
-                            (supported_features & 0x02) ? "SIM " : "");
+                            (supported_features & 0x02) ? "SIM " : "",
+                            (supported_features & 0x04) ? "SpeedDial " : "",
+                            (supported_features & 0x08) ? "Favourites " : "");
+                    break;
+                case 0x317:
+                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_pbap_pse_supported_features, ett_btsdp_supported_features,  hfx_pbap_pse_supported_features, ENC_NA, BMT_NO_APPEND);
+                    supported_features = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s%s%s%s",
+                            (supported_features & 0x001) ? "Download " : "",
+                            (supported_features & 0x002) ? "Browsing " : "",
+                            (supported_features & 0x004) ? "DatabaseIdentifier " : "",
+                            (supported_features & 0x008) ? "FolderVersionCounters " : "",
+                            (supported_features & 0x010) ? "vCardSelecting " : "",
+                            (supported_features & 0x020) ? "EnhancedMissedCalls " : "",
+                            (supported_features & 0x040) ? "X-BT-UCIvCardProperty " : "",
+                            (supported_features & 0x080) ? "X-BT-UIDvCardProperty " : "",
+                            (supported_features & 0x100) ? "ContactReferencing " : "",
+                            (supported_features & 0x200) ? "DefaultContactImageFormat " : "");
                     break;
                 default:
                     found = FALSE;
@@ -2373,6 +2465,13 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_MAP_SERVICE_UUID:
         case BTSDP_MAP_ACCESS_SRV_SERVICE_UUID:
             switch (attribute) {
+                case 0x200:
+                    proto_tree_add_item(next_tree, hf_map_mas_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    psm = tvb_get_ntohs(tvb, offset);
+                    wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
+                    if (!pinfo->fd->flags.visited  && service_info)
+                        save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
+                    break;
                 case 0x315:
                     proto_tree_add_item(next_tree, hf_map_mas_instance_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                     value = tvb_get_guint8(tvb, offset);
@@ -2391,6 +2490,43 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                             (supported_features & 0x02) ? "SMS_GSM " : "",
                             (supported_features & 0x04) ? "SMS_CDMA " : "",
                             (supported_features & 0x08) ? "MMS " : "");
+                    break;
+                case 0x317:
+                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_map_supported_features, ett_btsdp_supported_features,  hfx_map_supported_features, ENC_NA, BMT_NO_APPEND);
+                    supported_features = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s",
+                            (supported_features & 0x01) ? "NotificationRegistration Feature " : "",
+                            (supported_features & 0x02) ? "NotificationFeature " : "",
+                            (supported_features & 0x04) ? "BrowsingFeature " : "",
+                            (supported_features & 0x08) ? "UploadingFeature " : "",
+                            (supported_features & 0x10) ? "DeleteFeature " : "",
+                            (supported_features & 0x20) ? "InstanceInformationFeature " : "",
+                            (supported_features & 0x40) ? "ExtendedEventReport1.1 " : "");
+                    break;
+                default:
+                    found = FALSE;
+            }
+            break;
+        case BTSDP_MAP_NOTIFICATION_SRV_SERVICE_UUID:
+            switch (attribute) {
+                case 0x200:
+                    proto_tree_add_item(next_tree, hf_map_mns_goep_l2cap_psm, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    psm = tvb_get_ntohs(tvb, offset);
+                    wmem_strbuf_append_printf(info_buf, "%u (0x%02x)", psm, psm);
+                    if (!pinfo->fd->flags.visited  && service_info)
+                        save_channel(pinfo, BTSDP_L2CAP_PROTOCOL_UUID, psm, -1, service_info);
+                    break;
+                case 0x317:
+                    proto_tree_add_bitmask_with_flags(next_tree, tvb, offset, hf_map_supported_features, ett_btsdp_supported_features,  hfx_map_supported_features, ENC_NA, BMT_NO_APPEND);
+                    supported_features = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s",
+                            (supported_features & 0x01) ? "NotificationRegistration Feature " : "",
+                            (supported_features & 0x02) ? "NotificationFeature " : "",
+                            (supported_features & 0x04) ? "BrowsingFeature " : "",
+                            (supported_features & 0x08) ? "UploadingFeature " : "",
+                            (supported_features & 0x10) ? "DeleteFeature " : "",
+                            (supported_features & 0x20) ? "InstanceInformationFeature " : "",
+                            (supported_features & 0x40) ? "ExtendedEventReport1.1 " : "");
                     break;
                 default:
                     found = FALSE;
@@ -3489,7 +3625,6 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
             hfx_attribute_id = hf_service_attribute_id_synch;
             profile_speficic = "(SYNCH) ";
             break;
-        case BTSDP_PBAP_PCE_SERVICE_UUID:
         case BTSDP_PBAP_PSE_SERVICE_UUID:
         case BTSDP_PBAP_SERVICE_UUID:
             name_vals = vs_pbap_attribute_id;
@@ -3521,6 +3656,11 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset,
             name_vals = vs_map_mas_attribute_id;
             hfx_attribute_id = hf_service_attribute_id_map_mas;
             profile_speficic = "(MAP MAS) ";
+            break;
+        case BTSDP_MAP_NOTIFICATION_SRV_SERVICE_UUID:
+            name_vals = vs_map_mns_attribute_id;
+            hfx_attribute_id = hf_service_attribute_id_map_mns;
+            profile_speficic = "(MAP MNS) ";
             break;
         case BTSDP_WAP_SERVICE_UUID:
         case BTSDP_WAP_CLIENT_SERVICE_UUID:
@@ -4767,6 +4907,11 @@ proto_register_btsdp(void)
             FT_UINT16, BASE_HEX, VALS(vs_map_mas_attribute_id), 0,
             NULL, HFILL }
         },
+        { &hf_service_attribute_id_map_mns,
+            { "Attribute ID",                    "btsdp.service.attribute",
+            FT_UINT16, BASE_HEX, VALS(vs_map_mns_attribute_id), 0,
+            NULL, HFILL }
+        },
         { &hf_service_attribute_id_opp,
             { "Attribute ID",                    "btsdp.service.attribute",
             FT_UINT16, BASE_HEX, VALS(vs_opp_attribute_id), 0,
@@ -5002,19 +5147,99 @@ proto_register_btsdp(void)
             FT_UINT16, BASE_HEX, NULL, 0xFFFF,
             NULL, HFILL }
         },
+        { &hf_pbap_pse_supported_repositories,
+            { "Supported Repositories",     "btsdp.service.pbap.pse.supported_repositories",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_pbap_pse_supported_repositories_reserved,
-            { "Supported Repositories: Reserved",          "btsdp.service.pbap.pse.supported_repositories.reserved",
-            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            { "Reserved",                   "btsdp.service.pbap.pse.supported_repositories.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_repositories_favourites,
+            { "Favourites",                 "btsdp.service.pbap.pse.supported_repositories.favourites",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_repositories_speed_dial,
+            { "Speed Dial",                 "btsdp.service.pbap.pse.supported_repositories.speed_dial",
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_pbap_pse_supported_repositories_sim_card,
-            { "Supported Repositories: SIM Card",          "btsdp.service.pbap.pse.supported_repositories.sim_card",
+            { "SIM Card",                   "btsdp.service.pbap.pse.supported_repositories.sim_card",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_pbap_pse_supported_repositories_local_phonebook,
-            { "Supported Repositories: Local Phonebook",   "btsdp.service.pbap.pse.supported_repositories.local_phonebook",
+            { "Local Phonebook",            "btsdp.service.pbap.pse.supported_repositories.local_phonebook",
             FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features,
+            { "Supported Features",              "btsdp.service.pbap.pse.supported_features",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_reserved,
+            { "Reserved",                        "btsdp.service.pbap.pse.supported_features.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFC00,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_default_contact_image_format,
+            { "Default Contact Image Format",    "btsdp.service.pbap.pse.supported_features.default_contact_image_format",
+            FT_BOOLEAN, 32, NULL, 0x00000200,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_contact_referencing,
+            { "Contact Referencing",             "btsdp.service.pbap.pse.supported_features.contact_referencing",
+            FT_BOOLEAN, 32, NULL, 0x00000100,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_x_bt_uid_vcard_property,
+            { "X-BT-UID vCard Property",         "btsdp.service.pbap.pse.supported_features.x_bt_uid_vcard_property",
+            FT_BOOLEAN, 32, NULL, 0x00000080,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_x_bt_uci_vcard_property,
+            { "X-BT-UCI vCard Property",         "btsdp.service.pbap.pse.supported_features.x_bt_uci_vcard_property",
+            FT_BOOLEAN, 32, NULL, 0x00000040,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_enhanced_missed_calls,
+            { "Enhanced Missed Calls",           "btsdp.service.pbap.pse.supported_features.enhanced_missed_calls",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_vcard_selecting,
+            { "vCard Selecting",                 "btsdp.service.pbap.pse.supported_features.vcard_selecting",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_folder_version_counters,
+            { "Folder Version Counters",         "btsdp.service.pbap.pse.supported_features.folder_version_counters",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_database_identifier,
+            { "Database Identifier",             "btsdp.service.pbap.pse.supported_features.database_identifier",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_browsing,
+            { "Browsing",                        "btsdp.service.pbap.pse.supported_features.browsing",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_pbap_pse_supported_features_download,
+            { "Download",                        "btsdp.service.pbap.pse.supported_features.download",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL }
+        },
+        { &hf_pbap_goep_l2cap_psm,
+            { "GOEP L2CAP PSM",                  "btsdp.pbap.goep_l2cap_psm",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0,
             NULL, HFILL }
         },
         { &hf_dun_support_audio_feedback,
@@ -5055,6 +5280,16 @@ proto_register_btsdp(void)
         { &hf_map_mas_instance_id,
             { "MAS Instance ID",                 "btsdp.map.mas.instance_id",
             FT_UINT8, BASE_DEC_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_map_mas_goep_l2cap_psm,
+            { "GOEP L2CAP PSM",                  "btsdp.map.mas.goep_l2cap_psm",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_map_mns_goep_l2cap_psm,
+            { "GOEP L2CAP PSM",                  "btsdp.map.mns.goep_l2cap_psm",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0,
             NULL, HFILL }
         },
         { &hf_map_mas_supported_message_types_reserved,
@@ -5690,6 +5925,51 @@ proto_register_btsdp(void)
         { &hf_mps_supported_profile_and_protocol_dependency_sniff_mode_during_streaming,
             { "Sniff Mode During Streaming",               "btsdp.mps.supported_profile_and_protocol_dependency.sniff_mode_during_streaming",
             FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features,
+            { "Supported Features",    "btsdp.map.supported_features",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features_reserved,
+            { "Reserved",              "btsdp.map.supported_features.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFF80,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features_extended_event_report_1_1,
+            { "Extended Event Report 1.1",  "btsdp.map.supported_features.extended_event_report_1_1",
+            FT_BOOLEAN, 32, NULL, 0x00000040,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features_instance_information_feature,
+            { "Instance Information Feature",  "btsdp.map.supported_features.instance_information_feature",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features_delete_feature,
+            { "Delete Feature",  "btsdp.map.supported_features.delete_feature",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features_uploading_feature,
+            { "Uploading Feature",  "btsdp.map.supported_features.uploading_feature",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features_browsing_feature,
+            { "Browsing Feature",  "btsdp.map.supported_features.browsing_feature",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features_notification_feature,
+            { "Notification Feature",  "btsdp.map.supported_features.notification_feature",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_map_supported_features_notification_registration_feature,
+            { "Notification Registration Feature",  "btsdp.map.supported_features.notification_registration_feature",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
             NULL, HFILL }
         },
         { &hf_sdp_protocol_item,
