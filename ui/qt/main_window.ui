@@ -477,6 +477,8 @@
      <property name="title">
       <string>Copy</string>
      </property>
+     <addaction name="actionCopyAllVisibleItems"/>
+     <addaction name="actionCopyAllVisibleSelectedTreeItems"/>
      <addaction name="actionEditCopyDescription"/>
      <addaction name="actionEditCopyFieldName"/>
      <addaction name="actionEditCopyValue"/>
@@ -1059,6 +1061,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="actionCopyAllVisibleItems">
+   <property name="text">
+    <string>Copy All Visible Items</string>
+   </property>
+  </action>
+  <action name="actionCopyAllVisibleSelectedTreeItems">
+   <property name="text">
+    <string>Copy All Visible Selected Tree Items</string>
    </property>
   </action>
   <action name="actionEditCopyFieldName">

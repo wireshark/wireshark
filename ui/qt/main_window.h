@@ -101,6 +101,8 @@ private:
     };
 
     enum CopySelected {
+        CopyAllVisibleItems,
+        CopyAllVisibleSelectedTreeItems,
         CopySelectedDescription,
         CopySelectedFieldName,
         CopySelectedValue
@@ -174,6 +176,8 @@ private:
 
     void setForCaptureInProgress(gboolean capture_in_progress = false);
     QMenu* findOrAddMenu(QMenu *parent_menu, QString& menu_text);
+
+    void recursiveCopyProtoTreeItems(QTreeWidgetItem *item, QString &clip, int ident_level);
 
 signals:
     void showProgress(struct progdlg **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
@@ -276,6 +280,8 @@ private slots:
     void on_actionFileExportSSLSessionKeys_triggered();
 
     void actionEditCopyTriggered(MainWindow::CopySelected selection_type);
+    void on_actionCopyAllVisibleItems_triggered();
+    void on_actionCopyAllVisibleSelectedTreeItems_triggered();
     void on_actionEditCopyDescription_triggered();
     void on_actionEditCopyFieldName_triggered();
     void on_actionEditCopyValue_triggered();
