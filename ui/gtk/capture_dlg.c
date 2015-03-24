@@ -2935,7 +2935,9 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 #ifdef HAVE_PCAP_REMOTE
   gtk_box_pack_start (GTK_BOX(left_vb), buffer_size_hb, FALSE, FALSE, 0);
 #else
-  gtk_box_pack_start (GTK_BOX(right_vb), buffer_size_hb, FALSE, FALSE, 0);
+  #if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_CREATE)
+    gtk_box_pack_start (GTK_BOX(right_vb), buffer_size_hb, FALSE, FALSE, 0);
+  #endif
 #endif
 #endif
 
