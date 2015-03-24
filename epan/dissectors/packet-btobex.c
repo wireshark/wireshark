@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include "packet-bluetooth.h"
@@ -53,6 +54,8 @@ static int hf_hdr_val_unicode = -1;
 static int hf_hdr_val_byte_seq = -1;
 static int hf_hdr_val_byte = -1;
 static int hf_hdr_val_long = -1;
+static int hf_authentication_parameter = -1;
+static int hf_authentication_parameter_data = -1;
 static int hf_authentication_challenge_tag = -1;
 static int hf_authentication_response_tag = -1;
 static int hf_authentication_key = -1;
@@ -90,6 +93,8 @@ static int hf_pbap_application_parameter_data_search_value = -1;
 static int hf_pbap_application_parameter_data_search_attribute = -1;
 static int hf_pbap_application_parameter_data_max_list_count = -1;
 static int hf_pbap_application_parameter_data_list_start_offset = -1;
+static int hf_pbap_application_parameter_data_filter = -1;
+static int hf_pbap_application_parameter_vcard_selector = -1;
 static int hf_pbap_application_parameter_data_filter_version = -1;
 static int hf_pbap_application_parameter_data_filter_fn = -1;
 static int hf_pbap_application_parameter_data_filter_n = -1;
@@ -126,6 +131,23 @@ static int hf_pbap_application_parameter_data_filter_reserved_for_proprietary_fi
 static int hf_pbap_application_parameter_data_format = -1;
 static int hf_pbap_application_parameter_data_phonebook_size = -1;
 static int hf_pbap_application_parameter_data_new_missed_calls = -1;
+static int hf_pbap_application_parameter_data_primary_version_counter = -1;
+static int hf_pbap_application_parameter_data_secondary_version_counter = -1;
+static int hf_pbap_application_parameter_data_database_identifier = -1;
+static int hf_pbap_application_parameter_data_vcard_selector_operator = -1;
+static int hf_pbap_application_parameter_data_reset_new_missed_calls = -1;
+static int hf_pbap_application_parameter_data_supported_features = -1;
+static int hf_pbap_application_parameter_data_supported_features_reserved = -1;
+static int hf_pbap_application_parameter_data_supported_features_download = -1;
+static int hf_pbap_application_parameter_data_supported_features_browsing = -1;
+static int hf_pbap_application_parameter_data_supported_features_database_identifier = -1;
+static int hf_pbap_application_parameter_data_supported_features_folder_version_counters = -1;
+static int hf_pbap_application_parameter_data_supported_features_vcard_selecting = -1;
+static int hf_pbap_application_parameter_data_supported_features_enhanced_missed_calls = -1;
+static int hf_pbap_application_parameter_data_supported_features_x_bt_uci_vcard_property = -1;
+static int hf_pbap_application_parameter_data_supported_features_x_bt_uid_vcard_property = -1;
+static int hf_pbap_application_parameter_data_supported_features_contact_referencing = -1;
+static int hf_pbap_application_parameter_data_supported_features_default_contact_image_format = -1;
 static int hf_map_application_parameter_id = -1;
 static int hf_map_application_parameter_data_max_list_count = -1;
 static int hf_map_application_parameter_data_start_offset = -1;
@@ -177,10 +199,134 @@ static int hf_map_application_parameter_data_fraction_deliver = -1;
 static int hf_map_application_parameter_data_status_indicator = -1;
 static int hf_map_application_parameter_data_status_value = -1;
 static int hf_map_application_parameter_data_mse_time = -1;
+static int hf_gpp_application_parameter_id = -1;
+static int hf_gpp_application_parameter_data_max_list_count = -1;
+static int hf_gpp_application_parameter_data_list_start_offset = -1;
+static int hf_gpp_application_parameter_data_reserved_7 = -1;
+static int hf_gpp_application_parameter_data_notification_status = -1;
+static int hf_gpp_application_parameter_data_instance_id = -1;
+static int hf_gpp_application_parameter_data_listing_size = -1;
+static int hf_ctn_application_parameter_id = -1;
+static int hf_ctn_application_parameter_data_acoustic_alarm_status = -1;
+static int hf_ctn_application_parameter_data_attachment = -1;
+static int hf_ctn_application_parameter_data_send = -1;
+static int hf_ctn_application_parameter_data_filter_period_begin = -1;
+static int hf_ctn_application_parameter_data_filter_period_end = -1;
+static int hf_ctn_application_parameter_data_parameter_mask = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_reserved = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_recurrent = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_send_status = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_alarm_status = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_pstatus = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_priority = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_originator_address = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_originator_name = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_end_time = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_summary = -1;
+static int hf_ctn_application_parameter_data_parameter_mask_attachment = -1;
+static int hf_ctn_application_parameter_data_status_indicator = -1;
+static int hf_ctn_application_parameter_data_status_value = -1;
+static int hf_ctn_application_parameter_data_postpone_val = -1;
+static int hf_ctn_application_parameter_data_email_uri = -1;
+static int hf_ctn_application_parameter_data_cse_time = -1;
+static int hf_ctn_application_parameter_data_recurrent = -1;
+static int hf_ctn_application_parameter_data_attach_id = -1;
+static int hf_ctn_application_parameter_data_last_update = -1;
 static int hf_profile = -1;
 static int hf_type = -1;
+static int hf_object_class = -1;
+static int hf_time_iso8601 = -1;
+static int hf_wan_uuid = -1;
+static int hf_hdr_val_action = -1;
+static int hf_hdr_val_single_response_mode = -1;
+static int hf_hdr_val_single_response_mode_parameter = -1;
+static int hf_session_parameter = -1;
+static int hf_session_parameter_tag = -1;
+static int hf_session_parameter_length = -1;
+static int hf_session_parameter_data = -1;
+static int hf_session_parameter_nonce = -1;
+static int hf_session_parameter_session_id = -1;
+static int hf_session_parameter_next_sequence_number = -1;
+static int hf_session_parameter_timeout = -1;
+static int hf_session_parameter_opcode = -1;
+static int hf_sender_bd_addr = -1;
+static int hf_count = -1;
+static int hf_data_length = -1;
+static int hf_connection_id = -1;
+static int hf_name = -1;
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
+
+static const int *hfx_pbap_application_parameter_data_filter_1[] = {
+    &hf_pbap_application_parameter_data_filter_reserved_32_38,
+    &hf_pbap_application_parameter_data_filter_proprietary_filter,
+    &hf_pbap_application_parameter_data_filter_reserved_for_proprietary_filter_usage,
+    NULL
+};
+
+static const int *hfx_pbap_application_parameter_data_filter_0[] = {
+    &hf_pbap_application_parameter_data_filter_version,
+    &hf_pbap_application_parameter_data_filter_fn,
+    &hf_pbap_application_parameter_data_filter_n,
+    &hf_pbap_application_parameter_data_filter_photo,
+    &hf_pbap_application_parameter_data_filter_birthday,
+    &hf_pbap_application_parameter_data_filter_adr,
+    &hf_pbap_application_parameter_data_filter_label,
+    &hf_pbap_application_parameter_data_filter_tel,
+    &hf_pbap_application_parameter_data_filter_email,
+    &hf_pbap_application_parameter_data_filter_mailer,
+    &hf_pbap_application_parameter_data_filter_time_zone,
+    &hf_pbap_application_parameter_data_filter_geographic_position,
+    &hf_pbap_application_parameter_data_filter_title,
+    &hf_pbap_application_parameter_data_filter_role,
+    &hf_pbap_application_parameter_data_filter_logo,
+    &hf_pbap_application_parameter_data_filter_agent,
+    &hf_pbap_application_parameter_data_filter_name_of_organization,
+    &hf_pbap_application_parameter_data_filter_comments,
+    &hf_pbap_application_parameter_data_filter_revision,
+    &hf_pbap_application_parameter_data_filter_pronunciation_of_name,
+    &hf_pbap_application_parameter_data_filter_url,
+    &hf_pbap_application_parameter_data_filter_uid,
+    &hf_pbap_application_parameter_data_filter_key,
+    &hf_pbap_application_parameter_data_filter_nickname,
+    &hf_pbap_application_parameter_data_filter_categories,
+    &hf_pbap_application_parameter_data_filter_product_id,
+    &hf_pbap_application_parameter_data_filter_class,
+    &hf_pbap_application_parameter_data_filter_sort_string,
+    &hf_pbap_application_parameter_data_filter_timestamp,
+    &hf_pbap_application_parameter_data_filter_reserved_29_31,
+    NULL
+};
+
+static const int *hfx_pbap_application_parameter_data_supported_features[] = {
+    &hf_pbap_application_parameter_data_supported_features_reserved,
+    &hf_pbap_application_parameter_data_supported_features_default_contact_image_format,
+    &hf_pbap_application_parameter_data_supported_features_contact_referencing,
+    &hf_pbap_application_parameter_data_supported_features_x_bt_uid_vcard_property,
+    &hf_pbap_application_parameter_data_supported_features_x_bt_uci_vcard_property,
+    &hf_pbap_application_parameter_data_supported_features_enhanced_missed_calls,
+    &hf_pbap_application_parameter_data_supported_features_vcard_selecting,
+    &hf_pbap_application_parameter_data_supported_features_folder_version_counters,
+    &hf_pbap_application_parameter_data_supported_features_database_identifier,
+    &hf_pbap_application_parameter_data_supported_features_browsing,
+    &hf_pbap_application_parameter_data_supported_features_download,
+    NULL
+};
+
+static const int *hfx_ctn_application_parameter_data_parameter_mask[] = {
+    &hf_ctn_application_parameter_data_parameter_mask_reserved,
+    &hf_ctn_application_parameter_data_parameter_mask_recurrent,
+    &hf_ctn_application_parameter_data_parameter_mask_send_status,
+    &hf_ctn_application_parameter_data_parameter_mask_alarm_status,
+    &hf_ctn_application_parameter_data_parameter_mask_pstatus,
+    &hf_ctn_application_parameter_data_parameter_mask_priority,
+    &hf_ctn_application_parameter_data_parameter_mask_originator_address,
+    &hf_ctn_application_parameter_data_parameter_mask_originator_name,
+    &hf_ctn_application_parameter_data_parameter_mask_end_time,
+    &hf_ctn_application_parameter_data_parameter_mask_summary,
+    &hf_ctn_application_parameter_data_parameter_mask_attachment,
+    NULL
+};
 
 static expert_field ei_unexpected_data = EI_INIT;
 
@@ -230,11 +376,16 @@ static const fragment_items btobex_frag_items = {
 static gint ett_btobex = -1;
 static gint ett_btobex_hdrs = -1;
 static gint ett_btobex_hdr = -1;
+static gint ett_btobex_filter = -1;
+static gint ett_btobex_parameter = -1;
+static gint ett_btobex_session_parameters = -1;
 static gint ett_btobex_application_parameters = -1;
+static gint ett_btobex_authentication_parameters = -1;
 
 static wmem_tree_t *obex_profile = NULL;
 static wmem_tree_t *obex_last_opcode = NULL;
 
+static dissector_handle_t http_handle;
 static dissector_handle_t xml_handle;
 static dissector_handle_t data_handle;
 
@@ -272,6 +423,8 @@ typedef struct _obex_last_opcode_data_t {
 #define PROFILE_BIP      6
 #define PROFILE_BPP      7
 #define PROFILE_SYNC     8
+#define PROFILE_CTN      9
+#define PROFILE_GPP     10
 
 static const value_string profile_vals[] = {
     { PROFILE_UNKNOWN, "Unknown" },
@@ -283,6 +436,8 @@ static const value_string profile_vals[] = {
     { PROFILE_BIP,     "BIP" },
     { PROFILE_BPP,     "BPP" },
     { PROFILE_SYNC,    "SYNC" },
+    { PROFILE_CTN,     "CTN" },
+    { PROFILE_GPP,     "GPP" },
     { 0,               NULL }
 };
 static value_string_ext(profile_vals_ext) = VALUE_STRING_EXT_INIT(profile_vals);
@@ -356,12 +511,14 @@ static const value_string version_vals[] = {
 #define BTOBEX_CODE_VALS_MASK       0x7F
 
 static const value_string code_vals[] = {
-    { BTOBEX_CODE_VALS_CONNECT, "Connect" },
-    { BTOBEX_CODE_VALS_DISCONNECT, "Disconnect" },
-    { BTOBEX_CODE_VALS_PUT, "Put" },
-    { BTOBEX_CODE_VALS_GET, "Get"},
-    { BTOBEX_CODE_VALS_SET_PATH, "Set Path" },
-    { BTOBEX_CODE_VALS_CONTINUE, "Continue" },
+    { 0x00, "Connect" },
+    { 0x01, "Disconnect" },
+    { 0x02, "Put" },
+    { 0x03, "Get"},
+    { 0x05, "Set Path" },
+    { 0x06, "Action" },
+    { 0x07, "Session" },
+    { 0x10, "Continue" },
     { 0x20, "Success" },
     { 0x21, "Created" },
     { 0x22, "Accepted" },
@@ -405,8 +562,10 @@ static const value_string code_vals[] = {
 static value_string_ext(code_vals_ext) = VALUE_STRING_EXT_INIT(code_vals);
 
 static const value_string header_id_vals[] = {
+/* 0x00 - 0x3F - Null terminated Unicode text, length prefixed with 2 byte Unsigned Integer */
     { 0x01, "Name" },
     { 0x05, "Description" },
+    { 0x15, "Destination Name" },
     { 0x30, "User Defined" },
     { 0x31, "User Defined" },
     { 0x32, "User Defined" },
@@ -423,6 +582,7 @@ static const value_string header_id_vals[] = {
     { 0x3d, "User Defined" },
     { 0x3e, "User Defined" },
     { 0x3f, "User Defined" },
+/* 0x40 - 0x07F -  Byte sequence, length prefixed with 2 byte Unsigned Integer */
     { 0x42, "Type" },
     { 0x44, "Time (ISO8601)" },
     { 0x46, "Target" },
@@ -433,11 +593,21 @@ static const value_string header_id_vals[] = {
     { 0x4c, "Application Parameters" },
     { 0x4d, "Authentication Challenge" },
     { 0x4e, "Authentication Response" },
-    { 0x4f, "Object Class" },
+    { 0x50, "WAN UUID" },
+    { 0x51, "Object Class" },
+    { 0x52, "Session Parameter" },
+/* 0x80 - 0xBF - 1 byte quantity */
+    { 0x93, "Session Sequence Number" },
+    { 0x94, "Action" },
+    { 0x97, "Single Response Mode" },
+    { 0x98, "Single Response Mode Parameter" },
+/* 0xC0 - 0xFF - 4 byte quantity (network order) */
     { 0xc0, "Count" },
     { 0xc3, "Length" },
-    { 0xc4, "Time" },
+    { 0xc4, "Time (UNIX)" },
     { 0xcb, "Connection Id" },
+    { 0xcf, "Creator" },
+    { 0xd6, "Permissions" },
     { 0,      NULL }
 };
 static value_string_ext header_id_vals_ext = VALUE_STRING_EXT_INIT(header_id_vals);
@@ -481,6 +651,13 @@ static const value_string pbap_application_parameters_vals[] = {
     { 0x07, "Format" },
     { 0x08, "Phonebook Size" },
     { 0x09, "New Missed Calls" },
+    { 0x0A, "Primary Version Counter" },
+    { 0x0B, "Secondary Version Counter" },
+    { 0x0C, "vCard Selector" },
+    { 0x0D, "Database Identifier" },
+    { 0x0E, "vCard Selector Operator" },
+    { 0x0F, "Reset New Missed Calls" },
+    { 0x10, "PBAP Supported Features" },
     { 0,    NULL }
 };
 
@@ -503,6 +680,38 @@ static const value_string bip_application_parameters_vals[] = {
     { 0x08, "Remote Display" },
     { 0x09, "Service ID" },
     { 0x0A, "Store Flag" },
+    { 0,    NULL }
+};
+
+static const value_string gpp_application_parameters_vals[] = {
+    { 0x41, "Max List Count" },
+    { 0x42, "List Start Offset" },
+    { 0x43, "Notification Status" },
+    { 0x44, "Instance ID" },
+    { 0x46, "Listing Size" },
+    { 0,    NULL }
+};
+
+static const value_string ctn_application_parameters_vals[] = {
+    { 0x01, "Acoustic Alarm Status" },
+    { 0x02, "Attachment" },
+    { 0x03, "Send" },
+    { 0x04, "Filter Period Begin" },
+    { 0x05, "Filter Period End" },
+    { 0x06, "Parameter Mask" },
+    { 0x07, "Status Indicator" },
+    { 0x08, "Status Value" },
+    { 0x09, "Postpone Val" },
+    { 0x0A, "Email URI" },
+    { 0x0B, "CSE Time" },
+    { 0x0C, "Recurrent" },
+    { 0x0D, "Attach ID" },
+    { 0x0E, "Last Update" },
+    { 0x41, "Max List Count" },
+    { 0x42, "List Start Offset" },
+    { 0x43, "Notification Status" },
+    { 0x44, "Instance ID" },
+    { 0x46, "Listing Size" },
     { 0,    NULL }
 };
 
@@ -578,6 +787,98 @@ static const value_string info_charset_vals[] = {
     { 0,    NULL }
 };
 
+static const value_string action_vals[] = {
+    { 0x00, "Copy" },
+    { 0x01, "Move" },
+    { 0x02, "Set Permission" },
+    { 0,    NULL }
+};
+
+static const value_string single_response_mode_vals[] = {
+    { 0x00, "Disable" },
+    { 0x01, "Enable" },
+    { 0x02, "Indicate" },
+    { 0,    NULL }
+};
+
+static const value_string single_response_mode_parameter_vals[] = {
+    { 0x00, "Next" },
+    { 0x01, "Wait" },
+    { 0x02, "Next and Wait" },
+    { 0,    NULL }
+};
+
+static const value_string session_tag_vals[] = {
+    { 0x00, "Device Address" },
+    { 0x01, "Nonce" },
+    { 0x02, "Session ID" },
+    { 0x03, "Next Sequence Number" },
+    { 0x04, "Timeout" },
+    { 0x05, "Session Opcode" },
+    { 0,    NULL }
+};
+
+static const value_string session_opcode_vals[] = {
+    { 0x00, "Create Session" },
+    { 0x01, "Close Session" },
+    { 0x02, "Suspend Session" },
+    { 0x03, "Resume Session" },
+    { 0x04, "Set Timeout" },
+    { 0,    NULL }
+};
+
+static const value_string pbap_application_parameter_data_vcard_selector_operator_vals[] = {
+    { 0x00, "Or" },
+    { 0x01, "And" },
+    { 0,    NULL }
+};
+
+static const value_string pbap_application_parameter_data_reset_new_missed_calls_vals[] = {
+    { 0x01, "Reset" },
+    { 0,    NULL }
+};
+
+static const value_string off_on_vals[] = {
+    { 0x00, "Off" },
+    { 0x01, "On" },
+    { 0,    NULL }
+};
+
+static const value_string no_yes_vals[] = {
+    { 0x00, "No" },
+    { 0x01, "Yes" },
+    { 0,    NULL }
+};
+
+static const value_string ctn_application_parameter_data_attachment_vals[] = {
+    { 0x00, "On" },
+    { 0x01, "Off" },
+    { 0x02, "Selected" },
+    { 0,    NULL }
+};
+
+static const value_string ctn_application_parameter_data_status_indicator_vals[] = {
+    { 0x00, "pStatus" },
+    { 0x01, "Alarm Status" },
+    { 0x02, "Send Status" },
+    { 0x03, "Deleted Status" },
+    { 0,    NULL }
+};
+
+static const value_string ctn_application_parameter_data_status_value_vals[] = {
+    { 0x00, "No" },
+    { 0x01, "Yes" },
+    { 0x02, "Postpone" },
+    { 0x03, "Tentative" },
+    { 0x04, "Needs-action" },
+    { 0x05, "Accepted" },
+    { 0x06, "Declined" },
+    { 0x07, "Delegated" },
+    { 0x08, "Completed" },
+    { 0x09, "In-progress" },
+    { 0,    NULL }
+};
+
 static value_string_ext map_application_parameters_vals_ext = VALUE_STRING_EXT_INIT(map_application_parameters_vals);
 static value_string_ext pbap_application_parameters_vals_ext = VALUE_STRING_EXT_INIT(pbap_application_parameters_vals);
 static value_string_ext bpp_application_parameters_vals_ext = VALUE_STRING_EXT_INIT(bpp_application_parameters_vals);
@@ -610,51 +911,6 @@ is_ascii_str(const guint8 *str, int length)
         return 0;
 
     return 1;
-}
-
-static int
-display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, char **data)
-{
-    char    *str, *p;
-    int      len;
-    int      charoffset;
-    guint16  character;
-
-    /* display a unicode string from the tree and return new offset */
-    /*
-    * Get the length of the string.
-    */
-    len = 0;
-    while (tvb_get_ntohs(tvb, offset + len) != '\0')
-        len += 2;
-
-    len += 2;   /* count the '\0' too */
-
-    /*
-    * Allocate a buffer for the string; "len" is the length in
-    * bytes, not the length in characters.
-    */
-    str = (char *) wmem_alloc(wmem_packet_scope(), len / 2);
-
-    /* - this assumes the string is just ISO 8859-1 */
-    charoffset = offset;
-    p = str;
-    while ((character = tvb_get_ntohs(tvb, charoffset)) != '\0') {
-        *p++ = (char) character;
-        charoffset += 2;
-    }
-    *p = '\0';
-
-    if (!is_ascii_str((const guint8 *) str, len / 2)) {
-        *str = '\0';
-    }
-
-    proto_tree_add_string(tree, hf_hdr_val_unicode, tvb, offset, len, str);
-
-    if (data)
-        *data = str;
-
-    return  offset+len;
 }
 
 static gint
@@ -828,7 +1084,7 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree  *parameter_tree;
     gint         parameter_length;
     guint8       parameter_id;
-    static gint  required_length_map[] = {0, 1, -1, 1, 2, 2, 8, 1, 2, 1};
+    static gint  required_length_map[] = {0, 1, -1, 1, 2, 2, 8, 1, 2, 1, 16, 16, 8, 16, 1, 1};
 
     while (parameters_length > 0) {
         parameter_id = tvb_get_guint8(tvb, offset);
@@ -853,65 +1109,55 @@ dissect_pbap_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
         } else switch (parameter_id) {
-            case 0x01:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_order, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
+            case 0x01: /* Order */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_order, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
-            case 0x02:
+            case 0x02: /* Search Value */
                 proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_value, tvb, offset, parameter_length, ENC_ASCII | ENC_NA);
                 break;
-            case 0x03:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_attribute, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
+            case 0x03: /* Search Attribute */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_search_attribute, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
-            case 0x04:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_max_list_count, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
+            case 0x04: /* Max List Count */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_max_list_count, tvb, offset, 2, ENC_BIG_ENDIAN);
                 break;
-            case 0x05:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_list_start_offset, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
+            case 0x05: /* List Start Offset */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_list_start_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
                 break;
-            case 0x06:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_reserved_32_38, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_proprietary_filter, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_reserved_for_proprietary_filter_usage, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_version, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_fn, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_n, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_photo, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_birthday, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_adr, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_label, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_tel, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_email, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_mailer, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_time_zone, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_geographic_position, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_title, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_role, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_logo, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_agent, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_name_of_organization, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_comments, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_revision, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_pronunciation_of_name, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_url, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_uid, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_key, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_nickname, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_categories, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_product_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_class, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_sort_string, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_timestamp, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_filter_reserved_29_31, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+            case 0x06: /* Filter */
+                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_data_filter, ett_btobex_filter,  hfx_pbap_application_parameter_data_filter_1, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_data_filter, ett_btobex_filter,  hfx_pbap_application_parameter_data_filter_0, ENC_BIG_ENDIAN);
                 break;
-            case 0x07:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_format, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
+            case 0x07: /* Format */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_format, tvb, offset, 1, ENC_NA);
                 break;
-            case 0x08:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_phonebook_size, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
+            case 0x08: /* Phonebook Size */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_phonebook_size, tvb, offset, 2, ENC_BIG_ENDIAN);
                 break;
-            case 0x09:
-                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_new_missed_calls, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
+            case 0x09: /* New Missed Calls */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_new_missed_calls, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x0A: /* Primary Version Counter */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_primary_version_counter, tvb, offset, 16, ENC_NA);
+                break;
+            case 0x0B: /* Secondary Version Counter */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_secondary_version_counter, tvb, offset, 16, ENC_NA);
+                break;
+            case 0x0C: /* vCard Selector */
+                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_vcard_selector, ett_btobex_filter,  hfx_pbap_application_parameter_data_filter_1, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_vcard_selector, ett_btobex_filter,  hfx_pbap_application_parameter_data_filter_0, ENC_BIG_ENDIAN);
+                break;
+            case 0x0D: /* Database Identifier */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_database_identifier, tvb, offset, 16, ENC_NA);
+                break;
+            case 0x0E: /* vCard Selector Operator */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_vcard_selector_operator, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x0F: /* Reset New Missed Calls */
+                proto_tree_add_item(parameter_tree, hf_pbap_application_parameter_data_reset_new_missed_calls, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x10: /* PBAP Supported Features */
+                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_pbap_application_parameter_data_supported_features, ett_btobex_parameter,  hfx_pbap_application_parameter_data_supported_features, ENC_BIG_ENDIAN);
                 break;
             default:
                 proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
@@ -1079,6 +1325,178 @@ dissect_map_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
    return offset;
 }
 
+static gint
+dissect_gpp_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, gint offset, gint parameters_length)
+{
+    proto_item  *item;
+    proto_item  *parameter_item;
+    proto_tree  *parameter_tree;
+    gint         parameter_length;
+    guint8       parameter_id;
+    static gint  required_length_map[] = {2, 2, 1, 1, 0, 2};
+
+    while (parameters_length > 0) {
+        parameter_id = tvb_get_guint8(tvb, offset);
+        parameter_length = tvb_get_guint8(tvb, offset + 1);
+
+        parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
+                "Parameter: %s", val_to_str_const(parameter_id,
+                gpp_application_parameters_vals, "Unknown"));
+        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
+
+        proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        if (parameter_id >= 0x41 && (guint8)(parameter_id - 0x41) < (sizeof(required_length_map)/sizeof(gint)) &&
+                required_length_map[parameter_id - 0x41] != -1 &&
+                required_length_map[parameter_id - 0x41] != parameter_length) {
+            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+            expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
+                    "According to the specification this parameter length should be %i, but there is %i",
+                    required_length_map[parameter_id - 0x41], parameter_length);
+        } else switch (parameter_id) {
+            case 0x41: /* Max List Count */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_max_list_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+                break;
+            case 0x42: /* List Start Offset */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_list_start_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+                break;
+            case 0x43: /* Notification Status */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_reserved_7, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_notification_status, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x44: /* Instance ID */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_instance_id, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x46: /* Listing Size */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_listing_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+                break;
+            default:
+                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+        }
+
+        parameters_length -= 2 + parameter_length;
+        offset += parameter_length;
+    }
+
+    return offset;
+}
+
+static gint
+dissect_ctn_application_parameters(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, gint offset, gint parameters_length)
+{
+    proto_item  *item;
+    proto_item  *parameter_item;
+    proto_tree  *parameter_tree;
+    gint         parameter_length;
+    guint8       parameter_id;
+    static gint  required_length_map[] = {0, 1, 1, 1, -1, -1, 4, 1, 1, 4, -1, -1, 1, 1, -1};
+    static gint  required_length_map_gpp[] = {2, 2, 1, 1, -1, 2};
+
+    while (parameters_length > 0) {
+        parameter_id = tvb_get_guint8(tvb, offset);
+        parameter_length = tvb_get_guint8(tvb, offset + 1);
+
+        parameter_item = proto_tree_add_none_format(tree, hf_application_parameter, tvb, offset, parameter_length + 2,
+                "Parameter: %s", val_to_str_const(parameter_id,
+                ctn_application_parameters_vals, "Unknown"));
+        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
+
+        proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        item = proto_tree_add_item(parameter_tree, hf_application_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        if (parameter_id < 0x41 && parameter_id < (sizeof(required_length_map)/sizeof(gint)) &&
+                required_length_map[parameter_id] != -1 &&
+                required_length_map[parameter_id] != parameter_length) {
+            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+            expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
+                    "According to the specification this parameter length should be %i, but there is %i",
+                    required_length_map[parameter_id], parameter_length);
+        } else if (parameter_id >= 0x41 && (guint8)(parameter_id - 0x41) < (sizeof(required_length_map_gpp)/sizeof(gint)) &&
+                required_length_map[parameter_id - 0x41] != -1 &&
+                required_length_map[parameter_id - 0x41] != parameter_length) {
+            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+            expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
+                    "According to the specification this parameter length should be %i, but there is %i",
+                    required_length_map_gpp[parameter_id - 0x41], parameter_length);
+        } else switch (parameter_id) {
+            case 0x41: /* Max List Count */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_max_list_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+                break;
+            case 0x42: /* List Start Offset */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_list_start_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+                break;
+            case 0x43: /* Notification Status */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_reserved_7, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_notification_status, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x44: /* Instance ID */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_instance_id, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x46: /* Listing Size */
+                proto_tree_add_item(parameter_tree, hf_gpp_application_parameter_data_listing_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+                break;
+            case 0x01: /* Acoustic Alarm Status */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_acoustic_alarm_status, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x02: /* Attachment */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_attachment, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x03: /* Send */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_send, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x04: /* Filter Period Begin */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_filter_period_begin, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            case 0x05: /* Filter Period End */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_filter_period_end, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            case 0x06: /* Parameter Mask */
+                proto_tree_add_bitmask(parameter_tree, tvb, offset, hf_ctn_application_parameter_data_parameter_mask, ett_btobex_filter,  hfx_ctn_application_parameter_data_parameter_mask, ENC_BIG_ENDIAN);
+                break;
+            case 0x07: /* Status Indicator */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_status_indicator, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x08: /* Status Value */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_status_value, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x09: /* Postpone Val */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_postpone_val, tvb, offset, 4, ENC_BIG_ENDIAN);
+                break;
+            case 0x0A: /* Email URI */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_email_uri, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            case 0x0B: /* CSE Time */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_cse_time, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            case 0x0C: /* Recurrent */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_recurrent, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x0D: /* Attach ID */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_attach_id, tvb, offset, 1, ENC_NA);
+                break;
+            case 0x0E: /* Last Update */
+                proto_tree_add_item(parameter_tree, hf_ctn_application_parameter_data_last_update, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+                break;
+            default:
+                proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
+        }
+
+        parameters_length -= 2 + parameter_length;
+        offset += parameter_length;
+    }
+
+    return offset;
+}
+
 static int
 dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
         gint profile, gboolean is_obex_over_l2cap, void *data)
@@ -1087,13 +1505,16 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *hdr_tree    = NULL;
     proto_item *hdr         = NULL;
     proto_item *handle_item;
-    gint        item_length = -1;
-    gint        parameters_length;
+    gint        item_length = 0;
+    gint        value_length = 0;
     guint8      hdr_id, i;
+    guint32     value;
+    guint8      tag;
+    gchar      *str = NULL;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_item *hdrs;
-        hdrs      = proto_tree_add_item(tree, hf_headers, tvb, offset, item_length, ENC_NA);
+        hdrs      = proto_tree_add_item(tree, hf_headers, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
         hdrs_tree = proto_item_add_subtree(hdrs, ett_btobex_hdrs);
     }
     else {
@@ -1106,16 +1527,20 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
         switch(0xC0 & hdr_id)
         {
             case 0x00: /* null terminated unicode */
-                item_length = tvb_get_ntohs(tvb, offset+1);
+                item_length = tvb_get_ntohs(tvb, offset + 1);
+                value_length = item_length - 3;
                 break;
             case 0x40:  /* byte sequence */
-                item_length = tvb_get_ntohs(tvb, offset+1);
+                item_length = tvb_get_ntohs(tvb, offset + 1);
+                value_length = item_length - 3;
                 break;
             case 0x80:  /* 1 byte */
-                item_length = 2;
+                item_length = 1 + 1;
+                value_length = 1;
                 break;
             case 0xc0:  /* 4 bytes */
-                item_length = 5;
+                item_length = 1 + 4;
+                value_length = 4;
                 break;
         }
 
@@ -1130,57 +1555,55 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
         switch(0xC0 & hdr_id)
         {
             case 0x00: /* null terminated unicode */
-                {
-                    proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
+                proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
 
-                    if (item_length > 3) {
-                        char *str;
-
-                        display_unicode_string(tvb, hdr_tree, offset, &str);
-                        proto_item_append_text(hdr_tree, " (\"%s\")", str);
-
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", str);
-                        offset += item_length - 3;
-                    }
-                    else {
-                        col_append_str(pinfo->cinfo, COL_INFO, " \"\"");
-                    }
+                switch (hdr_id) {
+                case 0x01: /* Name */
+                    proto_tree_add_item(hdr_tree, hf_name, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                    break;
+                default:
+                    proto_tree_add_item(hdr_tree, hf_hdr_val_unicode, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                 }
+                str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                proto_item_append_text(hdr_tree, ": \"%s\"", str);
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", str);
+                offset += value_length;
+
                 break;
             case 0x40:  /* byte sequence */
-                if (hdr_id == 0x4C) { /* Application Parameters */
+                proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
 
-                    proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    parameters_length = tvb_get_ntohs(tvb, offset) - 3;
-                    offset += 2;
-
+                switch (hdr_id) {
+                case 0x4c: /* Application Parameters */
                     switch (profile) {
                         case PROFILE_BPP:
-                            offset = dissect_bpp_application_parameters(tvb, pinfo, hdr_tree, offset, parameters_length);
+                            offset = dissect_bpp_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
                             break;
                         case PROFILE_BIP:
-                            offset = dissect_bip_application_parameters(tvb, pinfo, hdr_tree, offset, parameters_length);
+                            offset = dissect_bip_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
                             break;
                         case PROFILE_PBAP:
-                            offset = dissect_pbap_application_parameters(tvb, pinfo, hdr_tree, offset, parameters_length);
+                            offset = dissect_pbap_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
                             break;
                         case PROFILE_MAP:
-                            offset = dissect_map_application_parameters(tvb, pinfo, hdr_tree, offset, parameters_length);
+                            offset = dissect_map_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
+                            break;
+                        case PROFILE_CTN:
+                            offset = dissect_ctn_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
+                            break;
+                        case PROFILE_GPP:
+                            offset = dissect_gpp_application_parameters(tvb, pinfo, hdr_tree, offset, value_length);
                             break;
                         default:
-                            offset = dissect_raw_application_parameters(tvb, hdr_tree, offset, parameters_length);
+                            offset = dissect_raw_application_parameters(tvb, hdr_tree, offset, value_length);
                             break;
                     }
                     break;
-                } else if (hdr_id == 0x04D) { /* Authentication Challenge */
-                    guint8 tag;
-
-                    proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    parameters_length = tvb_get_ntohs(tvb, offset) - 3;
-                    offset += 2;
-
-                    while (parameters_length) {
+                case 0x4d: /* Authentication Challenge */
+                    while (value_length) {
                         guint8       parameter_id;
                         guint8       sub_parameter_length;
                         proto_item  *parameter_item;
@@ -1189,10 +1612,10 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         parameter_id = tvb_get_guint8(tvb, offset);
                         sub_parameter_length = tvb_get_guint8(tvb, offset + 1);
 
-                        parameter_item = proto_tree_add_none_format(hdr_tree, hf_application_parameter, tvb, offset,
+                        parameter_item = proto_tree_add_none_format(hdr_tree, hf_authentication_parameter, tvb, offset,
                                 2 + sub_parameter_length, "Tag: %s", val_to_str_const(parameter_id,
                                 authentication_challenge_tag_vals, "Unknown"));
-                        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
+                        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_authentication_parameters);
 
                         proto_tree_add_item(parameter_tree, hf_authentication_challenge_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
                         tag = tvb_get_guint8(tvb, offset);
@@ -1219,21 +1642,15 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                             offset += sub_parameter_length - 1;
                             break;
                         default:
-                            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+                            proto_tree_add_item(parameter_tree, hf_authentication_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
                             offset += sub_parameter_length;
                         }
 
-                        parameters_length -= 2 + sub_parameter_length;
+                        value_length -= 2 + sub_parameter_length;
                     }
                     break;
-                } else if (hdr_id == 0x04E) { /* Authentication Response */
-                    guint8 tag;
-
-                    proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    parameters_length = tvb_get_ntohs(tvb, offset) - 3;
-                    offset += 2;
-
-                    while (parameters_length) {
+                case 0x4e: /* Authentication Response */
+                    while (value_length) {
                         guint8       parameter_id;
                         guint8       sub_parameter_length;
                         proto_item  *parameter_item;
@@ -1242,10 +1659,10 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         parameter_id = tvb_get_guint8(tvb, offset);
                         sub_parameter_length = tvb_get_guint8(tvb, offset + 1);
 
-                        parameter_item = proto_tree_add_none_format(hdr_tree, hf_application_parameter, tvb, offset,
+                        parameter_item = proto_tree_add_none_format(hdr_tree, hf_authentication_parameter, tvb, offset,
                                 2 + sub_parameter_length, "Tag: %s", val_to_str_const(parameter_id,
                                 authentication_response_tag_vals, "Unknown"));
-                        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_application_parameters);
+                        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_authentication_parameters);
 
                         proto_tree_add_item(parameter_tree, hf_authentication_response_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
                         tag = tvb_get_guint8(tvb, offset);
@@ -1269,33 +1686,54 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                             offset += 16;
                             break;
                         default:
-                            proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+                            proto_tree_add_item(parameter_tree, hf_authentication_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
                             offset += sub_parameter_length;
                             break;
                         }
 
 
-                        parameters_length -= 2 + sub_parameter_length;
+                        value_length -= 2 + sub_parameter_length;
                     }
                     break;
-                }
+                case 0x42: /* Type */
+                    handle_item = proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                    proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
 
-                proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                    offset += value_length;
 
-                if (hdr_id == 0x042) { /* hdr type in ASCII string*/
-                    handle_item = proto_tree_add_item(hdr_tree, hf_type, tvb, offset,
-                            item_length - 3, ENC_ASCII | ENC_NA);
-                } else {
-                    handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset,
-                            item_length - 3, ENC_NA);
-                }
+                    break;
+                case 0x44: /* Time (ISO8601) */
+                    handle_item = proto_tree_add_item(hdr_tree, hf_time_iso8601, tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                    proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
 
-                if (((hdr_id == 0x46) || (hdr_id == 0x4a)) && (item_length == 19)) { /* target or who */
-                    for(i=0; target_vals[i].strptr != NULL; i++) {
+                    offset += value_length;
+
+                    break;
+                case 0x48: /* Body */
+                case 0x49: /* End Of Body */
+                    proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
+
+                    if (!tvb_strneql(tvb, offset, "<?xml", 5))
+                    {
+                        tvbuff_t* next_tvb = tvb_new_subset_remaining(tvb, offset);
+
+                        call_dissector(xml_handle, next_tvb, pinfo, tree);
+                    } else if (is_ascii_str(tvb_get_ptr(tvb, offset, value_length), value_length)) {
+                        proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                    }
+
+                    offset += value_length;
+
+                    break;
+                case 0x46: /* Target */
+                case 0x4a: /* Who */
+                    handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
+
+                    if (value_length == 16) for (i = 0; target_vals[i].strptr != NULL; i++) {
                         if (tvb_memeql(tvb, offset, target_vals[i].value, target_vals[i].length) == 0) {
                             proto_item_append_text(handle_item, ": %s", target_vals[i].strptr);
-                            proto_item_append_text(hdr_tree, " (%s)", target_vals[i].strptr);
+                            proto_item_append_text(hdr_tree, ": %s", target_vals[i].strptr);
 
                             col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", target_vals[i].strptr);
                             if (!pinfo->fd->flags.visited) {
@@ -1359,32 +1797,197 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                             }
                         }
                     }
-                }
+                    offset += value_length;
 
-                if (!tvb_strneql(tvb, offset, "<?xml", 5))
-                {
+                    break;
+                case 0x47: /* HTTP */ {
                     tvbuff_t* next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-                    call_dissector(xml_handle, next_tvb, pinfo, tree);
-                }
-                else if (is_ascii_str(tvb_get_ptr(tvb, offset,item_length - 3), item_length - 3))
-                {
-                    proto_item_append_text(hdr_tree, " (\"%s\")", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,item_length - 3, ENC_ASCII));
-                    col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,item_length - 3, ENC_ASCII));
+                    call_dissector(http_handle, next_tvb, pinfo, hdr_tree);
+
+                    }
+                    break;
+                case 0x50: /* WAN UUID */
+                    if (value_length == 2) {
+                        handle_item = proto_tree_add_item(hdr_tree, hf_wan_uuid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                    } else {
+                        handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
+                        offset += value_length;
+                    }
+
+                    break;
+                case 0x51: /* Object Class */
+                    handle_item = proto_tree_add_item(hdr_tree, hf_object_class, tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                    proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+
+                    offset += value_length;
+
+                    break;
+                case 0x52: /* Session Parameter */
+                    while (value_length) {
+                        guint8       parameter_id;
+                        guint8       sub_parameter_length;
+                        proto_item  *parameter_item;
+                        proto_tree  *parameter_tree;
+
+                        parameter_id = tvb_get_guint8(tvb, offset);
+                        sub_parameter_length = tvb_get_guint8(tvb, offset + 1);
+
+                        parameter_item = proto_tree_add_none_format(hdr_tree, hf_session_parameter, tvb, offset,
+                                2 + sub_parameter_length, "Tag: %s", val_to_str_const(parameter_id,
+                                session_tag_vals, "Unknown"));
+                        parameter_tree = proto_item_add_subtree(parameter_item, ett_btobex_session_parameters);
+
+                        proto_tree_add_item(parameter_tree, hf_session_parameter_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        tag = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+
+                        proto_tree_add_item(parameter_tree, hf_session_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        sub_parameter_length = tvb_get_guint8(tvb, offset);
+                        offset += 1;
+
+                        switch (tag) {
+                        case 0x00: /* Device Address */
+                            if (sub_parameter_length == 6) {
+                                offset = dissect_bd_addr(hf_sender_bd_addr, parameter_tree, tvb, offset, NULL);
+                            } else {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+
+                                offset += sub_parameter_length;
+                            }
+
+                            break;
+                        case 0x01: /* Nonce */
+                            if (sub_parameter_length >= 4 && sub_parameter_length <= 16) {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_nonce, tvb, offset, sub_parameter_length, ENC_NA);
+
+                                offset += sub_parameter_length;
+                            } else {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+
+                                offset += sub_parameter_length;
+                            }
+
+                            break;
+                        case 0x02: /* Session ID */
+                            if (sub_parameter_length == 16) {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_session_id, tvb, offset, 16, ENC_NA);
+
+                                offset += 16;
+                            } else {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+
+                                offset += sub_parameter_length;
+                            }
+
+                            break;
+                        case 0x03: /* Next Sequence Number */
+                            if (sub_parameter_length == 1) {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_next_sequence_number, tvb, offset, 1, ENC_NA);
+
+                                offset += 1;
+                            } else {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+
+                                offset += sub_parameter_length;
+                            }
+
+                            break;
+                        case 0x04: /* Timeout */
+                            if (sub_parameter_length == 4) {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+                                offset += 4;
+                            } else {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+
+                                offset += sub_parameter_length;
+                            }
+
+                            break;
+                        case 0x05: /* Session Opcode */
+                            if (sub_parameter_length == 1) {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_opcode, tvb, offset, 1, ENC_NA);
+
+                                offset += 1;
+                            } else {
+                                proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+
+                                offset += sub_parameter_length;
+                            }
+
+                            break;
+                        default:
+                            proto_tree_add_item(parameter_tree, hf_session_parameter_data, tvb, offset, sub_parameter_length, ENC_NA);
+                            offset += sub_parameter_length;
+                            break;
+                        }
+
+
+                        value_length -= 2 + sub_parameter_length;
+                    }
+                default:
+                    handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
+                    offset += value_length;
                 }
 
-                if (item_length >= 3) /* prevent infinite loops */
-                    offset += item_length - 3;
                 break;
             case 0x80:  /* 1 byte */
-                proto_item_append_text(hdr_tree, " (%i)", tvb_get_ntohl(tvb, offset));
-                proto_tree_add_item(hdr_tree, hf_hdr_val_byte, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset++;
+                value = tvb_get_guint8(tvb, offset);
+
+                switch (hdr_id) {
+                case 0x94: /* Action */
+                    proto_tree_add_item(hdr_tree, hf_hdr_val_action, tvb, offset, 1, ENC_NA);
+                    proto_item_append_text(hdr_tree, ": %s", val_to_str_const(value, action_vals, "Unknown"));
+
+                    break;
+                case 0x97: /* Single Response Mode */
+                    proto_tree_add_item(hdr_tree, hf_hdr_val_single_response_mode, tvb, offset, 1, ENC_NA);
+                    proto_item_append_text(hdr_tree, ": %s", val_to_str_const(value, single_response_mode_vals, "Unknown"));
+
+                    break;
+                case 0x98: /* Single Response Mode Parameter */
+                    proto_tree_add_item(hdr_tree, hf_hdr_val_single_response_mode_parameter, tvb, offset, 1, ENC_NA);
+                    proto_item_append_text(hdr_tree, ": %s", val_to_str_const(value, single_response_mode_parameter_vals, "Unknown"));
+
+                    break;
+                case 0x93: /* Session Sequence Number */
+                default:
+                    proto_tree_add_item(hdr_tree, hf_hdr_val_byte, tvb, offset, 1, ENC_NA);
+                    proto_item_append_text(hdr_tree, ": %i", value);
+                }
+
+                offset += 1;
+
                 break;
-            case 0xc0:  /* 4 bytes */
-                proto_item_append_text(hdr_tree, " (%i)", tvb_get_ntohl(tvb, offset));
-                proto_tree_add_item(hdr_tree, hf_hdr_val_long, tvb, offset, 4, ENC_BIG_ENDIAN);
+            case 0xC0:  /* 4 bytes */
+                switch (hdr_id) {
+                case 0xC0: /* Count */
+                    proto_item_append_text(hdr_tree, ": %i", tvb_get_ntohl(tvb, offset));
+                    proto_tree_add_item(hdr_tree, hf_count, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+                    break;
+                case 0xC3: /* Length */
+                    proto_item_append_text(hdr_tree, ": %i", tvb_get_ntohl(tvb, offset));
+                    proto_tree_add_item(hdr_tree, hf_data_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+                    break;
+                case 0xCB: /* Connection Id */
+                    proto_item_append_text(hdr_tree, ": %i", tvb_get_ntohl(tvb, offset));
+                    proto_tree_add_item(hdr_tree, hf_connection_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+                    break;
+                case 0xC4: /* Time */
+                case 0xCF: /* Creator */
+                case 0xD6: /* Permissions */
+                default:
+                    proto_item_append_text(hdr_tree, ": %i", tvb_get_ntohl(tvb, offset));
+                    proto_tree_add_item(hdr_tree, hf_hdr_val_long, tvb, offset, 4, ENC_BIG_ENDIAN);
+                }
+
                 offset += 4;
+
                 break;
             default:
                 break;
@@ -1778,6 +2381,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 void
 proto_register_btobex(void)
 {
+    module_t        *module;
     expert_module_t *expert_btobex;
 
     static hf_register_info hf[] = {
@@ -1859,17 +2463,87 @@ proto_register_btobex(void)
         { &hf_hdr_val_byte_seq,
           { "Value", "btobex.header.value.byte_sequence",
             FT_BYTES, BASE_NONE, NULL, 0,
-            "Byte Value", HFILL}
+            "Byte Sequence Value", HFILL}
         },
         { &hf_hdr_val_byte,
           { "Value", "btobex.header.value.byte",
-            FT_UINT8, BASE_HEX, NULL, 0,
-            "Byte Sequence Value", HFILL}
+            FT_UINT8, BASE_DEC_HEX, NULL, 0,
+            "Byte Value", HFILL}
         },
         { &hf_hdr_val_long,
           { "Value", "btobex.header.value.long",
             FT_UINT32, BASE_DEC, NULL, 0,
             "4-byte Value", HFILL}
+        },
+        { &hf_count,
+          { "Count", "btobex.count",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_data_length,
+          { "Length", "btobex.length",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_connection_id,
+          { "Connection ID", "btobex.connection_id",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter,
+          { "Session Parameter", "btobex.session",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter_data,
+          { "Parameter Value", "btobex.session.value",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter_tag,
+          { "Tag", "btobex.session.tag",
+            FT_UINT8, BASE_HEX, VALS(session_tag_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter_length,
+          { "Length", "btobex.session.length",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter_nonce,
+          { "Nonce", "btobex.session.nonce",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter_session_id,
+          { "Session ID", "btobex.session.session_id",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter_next_sequence_number,
+          { "Next Sequence Number", "btobex.session.next_sequence_number",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter_timeout,
+          { "Timeout", "btobex.session.timeout",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_session_parameter_opcode,
+          { "Opcode", "btobex.session.opcode",
+            FT_UINT8, BASE_HEX, VALS(session_opcode_vals), 0,
+            NULL, HFILL}
+        },
+        { &hf_authentication_parameter,
+          { "Autentication Parameter", "btobex.authentication",
+            FT_UINT8, BASE_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_authentication_parameter_data,
+          { "Parameter Value", "btobex.authentication.value",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL}
         },
         { &hf_authentication_challenge_tag,
           { "Tag", "btobex.authentication.challenge_tag",
@@ -2059,6 +2733,16 @@ proto_register_btobex(void)
             FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
             NULL, HFILL}
         },
+        { &hf_pbap_application_parameter_data_filter,
+          { "Filter", "btobex.parameter.value.filter",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_pbap_application_parameter_vcard_selector,
+          { "vCard Selector", "btobex.parameter.value.filter",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
         { &hf_pbap_application_parameter_data_filter_version,
           { "vCard Version", "btobex.parameter.value.filter.version",
             FT_BOOLEAN, 32, NULL, 0x00000001,
@@ -2238,6 +2922,91 @@ proto_register_btobex(void)
           { "New Missed Calls", "btobex.parameter.value.new_missed_calls",
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL}
+        },
+        { &hf_pbap_application_parameter_data_primary_version_counter,
+          { "Primary Version Counter", "btobex.parameter.value.primary_version_counter",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_pbap_application_parameter_data_secondary_version_counter,
+          { "Secondary Version Counter", "btobex.parameter.value.secondary_version_counter",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_pbap_application_parameter_data_database_identifier,
+          { "Database Identifier", "btobex.parameter.value.database_identifier",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_pbap_application_parameter_data_vcard_selector_operator,
+          { "vCard Selector Operator", "btobex.parameter.value.vcard_selector_operator",
+            FT_UINT8, BASE_HEX, VALS(pbap_application_parameter_data_vcard_selector_operator_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_pbap_application_parameter_data_reset_new_missed_calls,
+          { "vCard Selector Operator", "btobex.parameter.value.reset_new_missed_calls",
+            FT_UINT8, BASE_HEX, VALS(pbap_application_parameter_data_reset_new_missed_calls_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_pbap_application_parameter_data_supported_features,
+            { "Supported Features",              "btobex.parameter.supported_features",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_reserved,
+            { "Reserved",                        "btobex.parameter.supported_features.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFC00,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_default_contact_image_format,
+            { "Default Contact Image Format",    "btobex.parameter.supported_features.default_contact_image_format",
+            FT_BOOLEAN, 32, NULL, 0x00000200,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_contact_referencing,
+            { "Contact Referencing",             "btobex.parameter.supported_features.contact_referencing",
+            FT_BOOLEAN, 32, NULL, 0x00000100,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_x_bt_uid_vcard_property,
+            { "X-BT-UID vCard Property",         "btobex.parameter.supported_features.x_bt_uid_vcard_property",
+            FT_BOOLEAN, 32, NULL, 0x00000080,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_x_bt_uci_vcard_property,
+            { "X-BT-UCI vCard Property",         "btobex.parameter.supported_features.x_bt_uci_vcard_property",
+            FT_BOOLEAN, 32, NULL, 0x00000040,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_enhanced_missed_calls,
+            { "Enhanced Missed Calls",           "btobex.parameter.supported_features.enhanced_missed_calls",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_vcard_selecting,
+            { "vCard Selecting",                 "btobex.parameter.supported_features.vcard_selecting",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_folder_version_counters,
+            { "Folder Version Counters",         "btobex.parameter.supported_features.folder_version_counters",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_database_identifier,
+            { "Database Identifier",             "btobex.parameter.supported_features.database_identifier",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_browsing,
+            { "Browsing",                        "btobex.parameter.supported_features.browsing",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_pbap_application_parameter_data_supported_features_download,
+            { "Download",                        "btobex.parameter.supported_features.download",
+            FT_BOOLEAN, 32, NULL, 0x00000001,
+            NULL, HFILL }
         },
         /* application parameters for MAP */
         { &hf_map_application_parameter_id,
@@ -2495,6 +3264,173 @@ proto_register_btobex(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}
         },
+        /* application parameters for GPP */
+        { &hf_gpp_application_parameter_id,
+          { "Parameter Id", "btobex.parameter.gpp.id",
+            FT_UINT8, BASE_HEX, VALS(gpp_application_parameters_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_gpp_application_parameter_data_max_list_count,
+          { "Max List Count", "btobex.parameter.gpp.value.max_list_count",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_gpp_application_parameter_data_list_start_offset,
+          { "List Start Offset", "btobex.parameter.gpp.value.list_start_offset",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_gpp_application_parameter_data_reserved_7,
+          { "Reserved", "btobex.parameter.gpp.value.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFE,
+            NULL, HFILL}
+        },
+        { &hf_gpp_application_parameter_data_notification_status,
+          { "Notification Status", "btobex.parameter.gpp.value.notification_status",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        { &hf_gpp_application_parameter_data_instance_id,
+          { "Instance ID", "btobex.parameter.gpp.value.instance_id",
+            FT_UINT8, BASE_DEC_HEX, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_gpp_application_parameter_data_listing_size,
+          { "Listing Size", "btobex.parameter.gpp.value.listing_size",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+        /* application parameters for CTN */
+        { &hf_ctn_application_parameter_id,
+          { "Parameter Id", "btobex.parameter.ctn.id",
+            FT_UINT8, BASE_HEX, VALS(ctn_application_parameters_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_acoustic_alarm_status,
+          { "Acoustic Alarm Status", "btobex.parameter.ctn.acoustic_alarm_status",
+            FT_UINT8, BASE_HEX, VALS(off_on_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_attachment,
+          { "Attachment", "btobex.parameter.ctn.attachment",
+            FT_UINT8, BASE_HEX, VALS(ctn_application_parameter_data_attachment_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_send,
+          { "Attachment", "btobex.parameter.ctn.attachment",
+            FT_UINT8, BASE_HEX, VALS(no_yes_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_filter_period_begin,
+          { "Filter Period Begin", "btobex.parameter.ctn.filter_period_begin",
+            FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_filter_period_end,
+          { "Filter Period End", "btobex.parameter.ctn.filter_period_end",
+            FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask,
+          { "Parameter Mask", "btobex.parameter.ctn.parameter_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_reserved,
+          { "Reserved", "btobex.parameter.ctn.parameter_mask.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFC00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_recurrent,
+          { "Recurrent", "btobex.parameter.ctn.parameter_mask.recurrent",
+            FT_UINT32, BASE_HEX, NULL, 0x00000200,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_send_status,
+          { "Send Status", "btobex.parameter.ctn.parameter_mask.send_status",
+            FT_UINT32, BASE_HEX, NULL, 0x00000100,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_alarm_status,
+          { "Alarm Status", "btobex.parameter.ctn.parameter_mask.",
+            FT_UINT32, BASE_HEX, NULL, 0x00000080,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_pstatus,
+          { "pStatus", "btobex.parameter.ctn.parameter_mask.pstatus",
+            FT_UINT32, BASE_HEX, NULL, 0x00000040,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_priority,
+          { "Priority", "btobex.parameter.ctn.parameter_mask.priority",
+            FT_UINT32, BASE_HEX, NULL, 0x00000020,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_originator_address,
+          { "Originator Address", "btobex.parameter.ctn.parameter_mask.originator_address",
+            FT_UINT32, BASE_HEX, NULL, 0x00000010,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_originator_name,
+          { "Originator Name", "btobex.parameter.ctn.parameter_mask.originator_name",
+            FT_UINT32, BASE_HEX, NULL, 0x00000008,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_end_time,
+          { "End Time", "btobex.parameter.ctn.parameter_mask.end_time",
+            FT_UINT32, BASE_HEX, NULL, 0x00000004,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_summary,
+          { "Summary", "btobex.parameter.ctn.parameter_mask.summary",
+            FT_UINT32, BASE_HEX, NULL, 0x00000002,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_parameter_mask_attachment,
+          { "Attachment", "btobex.parameter.ctn.parameter_mask.attachment",
+            FT_UINT32, BASE_HEX, NULL, 0x00000001,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_status_indicator,
+          { "Status Indicator", "btobex.parameter.ctn.status_indicator",
+            FT_UINT8, BASE_HEX, VALS(ctn_application_parameter_data_status_indicator_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_status_value,
+          { "Status Value", "btobex.parameter.ctn.status_value",
+            FT_UINT8, BASE_HEX, VALS(ctn_application_parameter_data_status_value_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_postpone_val,
+          { "Postpone Val", "btobex.parameter.ctn.postpone_val",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_email_uri,
+          { "Email URI", "btobex.parameter.ctn.email_uri",
+            FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_cse_time,
+          { "CSE Time", "btobex.parameter.ctn.cse_time",
+            FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_recurrent,
+          { "Recurrent", "btobex.parameter.ctn.recurrent",
+            FT_UINT8, BASE_HEX, VALS(no_yes_vals), 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_attach_id,
+          { "Attach ID", "btobex.parameter.ctn.attach_id",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL}
+        },
+        { &hf_ctn_application_parameter_data_last_update,
+          { "Last Update", "btobex.parameter.ctn.last_update",
+            FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL}
+        },
         /* for fragmentation */
         { &hf_btobex_fragment_overlap,
           { "Fragment overlap",   "btobex.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -2544,6 +3480,41 @@ proto_register_btobex(void)
           { "Type", "btobex.type", FT_STRINGZ, STR_ASCII, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_object_class,
+          { "Object Class", "btobex.object_class", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_time_iso8601,
+          { "Time", "btobex.time", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_hdr_val_action,
+          { "Action", "btobex.action", FT_UINT8, BASE_DEC, VALS(action_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_hdr_val_single_response_mode,
+          { "Single Response Mode", "btobex.single_response_mode", FT_UINT8, BASE_DEC, VALS(single_response_mode_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_hdr_val_single_response_mode_parameter,
+          { "Single Response Mode Parameter", "btobex.single_response_mode_parameter", FT_UINT8, BASE_DEC, VALS(single_response_mode_parameter_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_wan_uuid,
+            { "WAN UUID",   "btobex.wan_uuid",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_sender_bd_addr,
+            { "Sender Address", "btobex.sender_bd_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_name,
+          { "Name", "btobex.name",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_request_in_frame,
           { "Request in Frame", "btobex.request_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
             NULL, HFILL}
@@ -2559,9 +3530,13 @@ proto_register_btobex(void)
         &ett_btobex,
         &ett_btobex_hdrs,
         &ett_btobex_hdr,
+        &ett_btobex_filter,
+        &ett_btobex_parameter,
         &ett_btobex_fragment,
         &ett_btobex_fragments,
-        &ett_btobex_application_parameters
+        &ett_btobex_session_parameters,
+        &ett_btobex_application_parameters,
+        &ett_btobex_authentication_parameters
     };
 
     static ei_register_info ei[] = {
@@ -2583,6 +3558,11 @@ proto_register_btobex(void)
     expert_register_field_array(expert_btobex, ei, array_length(ei));
 
     register_init_routine(&defragment_init);
+
+    module = prefs_register_protocol(proto_btobex, NULL);
+    prefs_register_static_text_preference(module, "obex.version",
+            "Bluetooth Protocol OBEX support profiles: BIP 1.2, BPP 1.2, CTN 1.0, FTP 1.3, GOEP 1.3, GPP 1.0, MAP 1.2, OPP 1.2, PBAP 1.2, SYNCH 1.2",
+            "Version of profiles supported by this dissector.");
 }
 
 void
@@ -2631,6 +3611,7 @@ proto_reg_handoff_btobex(void)
     dissector_add_uint("btl2cap.service",  BTSDP_SYNC_SERVICE_UUID,                         btobex_handle);
     dissector_add_uint("btl2cap.service",  BTSDP_SYNC_COMMAND_SERVICE_UUID,                 btobex_handle);
 
+    http_handle = find_dissector("http");
     xml_handle  = find_dissector("xml");
     data_handle = find_dissector("data");
 
