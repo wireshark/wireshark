@@ -227,21 +227,20 @@ static void
 dissect_wcp_con_req(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* WCP connector request message */
+	guint32 alg_cnt;
 
-	guint alg_cnt = tvb_get_guint8(tvb, 5);
-
-	proto_tree_add_uint(tree, hf_wcp_tid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-	proto_tree_add_uint(tree, hf_wcp_rev, tvb, offset + 2, 1, tvb_get_guint8(tvb, offset + 2));
-	proto_tree_add_uint(tree, hf_wcp_init, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
-	proto_tree_add_uint(tree, hf_wcp_seq_size, tvb, offset + 4, 1, tvb_get_guint8(tvb, offset + 4));
-	proto_tree_add_uint(tree, hf_wcp_alg_cnt, tvb, offset + 5, 1, alg_cnt);
-	proto_tree_add_uint(tree, hf_wcp_alg_a, tvb, offset + 6, 1, tvb_get_guint8(tvb, offset + 6));
+	proto_tree_add_item(tree, hf_wcp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_wcp_rev, tvb, offset + 2, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_wcp_init, tvb, offset + 3, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_wcp_seq_size, tvb, offset + 4, 1, ENC_NA);
+	proto_tree_add_item_ret_uint(tree, hf_wcp_alg_cnt, tvb, offset + 5, 1, ENC_NA, &alg_cnt);
+	proto_tree_add_item(tree, hf_wcp_alg_a, tvb, offset + 6, 1, ENC_NA);
 	if ( alg_cnt > 1)
-		proto_tree_add_uint(tree, hf_wcp_alg_b, tvb, offset + 7, 1, tvb_get_guint8(tvb, offset + 7));
+		proto_tree_add_item(tree, hf_wcp_alg_b, tvb, offset + 7, 1, ENC_NA);
 	if ( alg_cnt > 2)
-		proto_tree_add_uint(tree, hf_wcp_alg_c, tvb, offset + 8, 1, tvb_get_guint8(tvb, offset + 8));
+		proto_tree_add_item(tree, hf_wcp_alg_c, tvb, offset + 8, 1, ENC_NA);
 	if ( alg_cnt > 3)
-		proto_tree_add_uint(tree, hf_wcp_alg_d, tvb, offset + 9, 1, tvb_get_guint8(tvb, offset + 9));
+		proto_tree_add_item(tree, hf_wcp_alg_d, tvb, offset + 9, 1, ENC_NA);
 }
 
 static void
@@ -249,10 +248,10 @@ dissect_wcp_con_ack( tvbuff_t *tvb, int offset, proto_tree *tree){
 
 /* WCP connector ack message */
 
-	proto_tree_add_uint(tree, hf_wcp_tid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-	proto_tree_add_uint(tree, hf_wcp_rev, tvb, offset + 2, 1, tvb_get_guint8(tvb, offset + 2));
-	proto_tree_add_uint(tree, hf_wcp_seq_size, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
-	proto_tree_add_uint(tree, hf_wcp_alg, tvb, offset + 4, 1, tvb_get_guint8(tvb, offset + 4));
+	proto_tree_add_item(tree, hf_wcp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_wcp_rev, tvb, offset + 2, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_wcp_seq_size, tvb, offset + 3, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_wcp_alg, tvb, offset + 4, 1, ENC_NA);
 }
 
 static void
@@ -260,11 +259,11 @@ dissect_wcp_init( tvbuff_t *tvb, int offset, proto_tree *tree){
 
 /* WCP Initiate Request/Ack message */
 
-	proto_tree_add_uint(tree, hf_wcp_tid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-	proto_tree_add_uint(tree, hf_wcp_rev, tvb, offset + 2, 1, tvb_get_guint8(tvb, offset + 2));
-	proto_tree_add_uint(tree, hf_wcp_hist_size, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
-	proto_tree_add_uint(tree, hf_wcp_ppc, tvb, offset + 4, 1, tvb_get_guint8(tvb, offset + 4));
-	proto_tree_add_uint(tree, hf_wcp_pib, tvb, offset + 5, 1, tvb_get_guint8(tvb, offset + 5));
+	proto_tree_add_item(tree, hf_wcp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_wcp_rev, tvb, offset + 2, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_wcp_hist_size, tvb, offset + 3, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_wcp_ppc, tvb, offset + 4, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_wcp_pib, tvb, offset + 5, 1, ENC_NA);
 }
 
 
@@ -273,7 +272,7 @@ dissect_wcp_reset( tvbuff_t *tvb, int offset, proto_tree *tree){
 
 /* Process WCP Reset Request/Ack message */
 
-	proto_tree_add_uint(tree, hf_wcp_tid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_wcp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
 
@@ -331,40 +330,34 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str_const(ext_cmd, ext_cmd_string, "Unknown"));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_wcp, tvb, 0, wcp_header_len, ENC_NA);
+	ti = proto_tree_add_item(tree, proto_wcp, tvb, 0, wcp_header_len, ENC_NA);
+	wcp_tree = proto_item_add_subtree(ti, ett_wcp);
 
-		wcp_tree = proto_item_add_subtree(ti, ett_wcp);
+	proto_tree_add_item(wcp_tree, hf_wcp_cmd, tvb, 0, 1, ENC_NA);
+	if ( cmd == 0xf){
+		proto_tree_add_uint(wcp_tree, hf_wcp_ext_cmd, tvb, 1, 1,
+				tvb_get_guint8( tvb, 0));
+		switch (ext_cmd){
+		case CONNECT_REQ:
+			dissect_wcp_con_req( tvb, 1, wcp_tree);
+			break;
 
-		proto_tree_add_uint(wcp_tree, hf_wcp_cmd, tvb, 0, 1, tvb_get_guint8( tvb, 0));
-		if ( cmd == 0xf){
-			proto_tree_add_uint(wcp_tree, hf_wcp_ext_cmd, tvb, 1, 1,
-					tvb_get_guint8( tvb, 0));
-			switch (ext_cmd){
-			case CONNECT_REQ:
-				dissect_wcp_con_req( tvb, 1, wcp_tree);
-				break;
-
-			case CONNECT_ACK:
-				dissect_wcp_con_ack( tvb, 1, wcp_tree);
-				break;
-			case INIT_REQ:
-			case INIT_ACK:
-				dissect_wcp_init( tvb, 1, wcp_tree);
-				break;
-			case RESET_REQ:
-			case RESET_ACK:
-				dissect_wcp_reset( tvb, 1, wcp_tree);
-				break;
-			default:
-				break;
-			}
-		}else {
-			proto_tree_add_uint(wcp_tree, hf_wcp_seq,  tvb, 0, 2, seq);
+		case CONNECT_ACK:
+			dissect_wcp_con_ack( tvb, 1, wcp_tree);
+			break;
+		case INIT_REQ:
+		case INIT_ACK:
+			dissect_wcp_init( tvb, 1, wcp_tree);
+			break;
+		case RESET_REQ:
+		case RESET_ACK:
+			dissect_wcp_reset( tvb, 1, wcp_tree);
+			break;
+		default:
+			break;
 		}
-	}
-	else {
-		wcp_tree = NULL;
+	}else {
+		proto_tree_add_uint(wcp_tree, hf_wcp_seq,  tvb, 0, 2, seq);
 	}
 
 
@@ -387,10 +380,9 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		}
 	}
 
-	if ( tree)			/* add the check byte */
-		proto_tree_add_uint(wcp_tree, hf_wcp_chksum, tvb,
-			tvb_reported_length( tvb)-1, 1,
-			tvb_get_guint8( tvb, tvb_reported_length(tvb)-1));
+	    /* add the check byte */
+	proto_tree_add_item(wcp_tree, hf_wcp_chksum, tvb,
+			tvb_reported_length( tvb)-1, 1, ENC_NA);
 
 	call_dissector(fr_uncompressed_handle, next_tvb, pinfo, tree);
 
@@ -638,8 +630,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 			 * is another byte of compression flag bits.
 			 */
 			comp_flag_bits = *src++;
-			if (cd_tree)
-				proto_tree_add_uint(cd_tree, hf_wcp_comp_bits,  src_tvb, offset, 1,
+			proto_tree_add_uint(cd_tree, hf_wcp_comp_bits,  src_tvb, offset, 1,
 					comp_flag_bits);
 			offset++;
 
