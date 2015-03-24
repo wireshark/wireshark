@@ -68,9 +68,6 @@
  *   the WTP and WSP dissectors are not called.
  */
 
-#define HF_EMPTY	( -1 )
-#define ETT_EMPTY	( -1 )
-
 /* Utility function for reading Uintvar encoded values */
 guint tvb_get_guintvar (tvbuff_t *, guint , guint *);
 

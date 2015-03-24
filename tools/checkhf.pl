@@ -362,7 +362,6 @@ sub find_remove_hf_defs {
 
     # Build pattern to match any of the following
     #  static? g?int hf_foo = -1;
-    #  static? g?int hf_foo = HF_EMPTY;
     #  static? g?int hf_foo[xxx];
     #  static? g?int hf_foo[xxx] = {
 
@@ -376,11 +375,11 @@ sub find_remove_hf_defs {
                          (hf_[a-zA-Z0-9_]+)          # hf_..
                  }xmso;
 
-    # p2a: ' = -1;' or ' = HF_EMPTY;'
+    # p2a: ' = -1;'
     my  $p2a_regex = qr{
                            \s* = \s*
                            (?:
-                               - \s* 1 | HF_EMPTY
+                               - \s* 1
                            )
                            \s* ;
                    }xmso;

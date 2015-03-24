@@ -146,60 +146,60 @@ static const value_string vals_tpi_opt[] = {
 };
 
 /* File scoped variables for the protocol and registered fields */
-static int proto_wtp = HF_EMPTY;
+static int proto_wtp = -1;
 
 /* These fields used by fixed part of header */
-static int hf_wtp_header_sub_pdu_size      = HF_EMPTY;
-static int hf_wtp_header_flag_continue     = HF_EMPTY;
-static int hf_wtp_header_pdu_type          = HF_EMPTY;
-static int hf_wtp_header_flag_Trailer      = HF_EMPTY;
-static int hf_wtp_header_flag_RID          = HF_EMPTY;
-static int hf_wtp_header_flag_TID          = HF_EMPTY;
-static int hf_wtp_header_flag_TID_response = HF_EMPTY;
+static int hf_wtp_header_sub_pdu_size      = -1;
+static int hf_wtp_header_flag_continue     = -1;
+static int hf_wtp_header_pdu_type          = -1;
+static int hf_wtp_header_flag_Trailer      = -1;
+static int hf_wtp_header_flag_RID          = -1;
+static int hf_wtp_header_flag_TID          = -1;
+static int hf_wtp_header_flag_TID_response = -1;
 
 /* These fields used by Invoke packets */
-static int hf_wtp_header_Inv_version          = HF_EMPTY;
-static int hf_wtp_header_Inv_flag_TIDNew      = HF_EMPTY;
-static int hf_wtp_header_Inv_flag_UP          = HF_EMPTY;
-static int hf_wtp_header_Inv_Reserved         = HF_EMPTY;
-static int hf_wtp_header_Inv_TransactionClass = HF_EMPTY;
+static int hf_wtp_header_Inv_version          = -1;
+static int hf_wtp_header_Inv_flag_TIDNew      = -1;
+static int hf_wtp_header_Inv_flag_UP          = -1;
+static int hf_wtp_header_Inv_Reserved         = -1;
+static int hf_wtp_header_Inv_TransactionClass = -1;
 
-/* static int hf_wtp_header_variable_part = HF_EMPTY; */
-/* static int hf_wtp_data                 = HF_EMPTY; */
+/* static int hf_wtp_header_variable_part = -1; */
+/* static int hf_wtp_data                 = -1; */
 
-static int hf_wtp_tpi_type   = HF_EMPTY;
-static int hf_wtp_tpi_psn    = HF_EMPTY;
-static int hf_wtp_tpi_opt    = HF_EMPTY;
-static int hf_wtp_tpi_optval = HF_EMPTY;
-static int hf_wtp_tpi_info   = HF_EMPTY;
+static int hf_wtp_tpi_type   = -1;
+static int hf_wtp_tpi_psn    = -1;
+static int hf_wtp_tpi_opt    = -1;
+static int hf_wtp_tpi_optval = -1;
+static int hf_wtp_tpi_info   = -1;
 
-static int hf_wtp_header_Ack_flag_TVETOK       = HF_EMPTY;
-static int hf_wtp_header_Abort_type            = HF_EMPTY;
-static int hf_wtp_header_Abort_reason_provider = HF_EMPTY;
-static int hf_wtp_header_Abort_reason_user     = HF_EMPTY;
-static int hf_wtp_header_sequence_number       = HF_EMPTY;
-static int hf_wtp_header_missing_packets       = HF_EMPTY;
-static int hf_wtp_payload                      = HF_EMPTY;
+static int hf_wtp_header_Ack_flag_TVETOK       = -1;
+static int hf_wtp_header_Abort_type            = -1;
+static int hf_wtp_header_Abort_reason_provider = -1;
+static int hf_wtp_header_Abort_reason_user     = -1;
+static int hf_wtp_header_sequence_number       = -1;
+static int hf_wtp_header_missing_packets       = -1;
+static int hf_wtp_payload                      = -1;
 
 /* These fields used when reassembling WTP fragments */
-static int hf_wtp_fragments                  = HF_EMPTY;
-static int hf_wtp_fragment                   = HF_EMPTY;
-static int hf_wtp_fragment_overlap           = HF_EMPTY;
-static int hf_wtp_fragment_overlap_conflict  = HF_EMPTY;
-static int hf_wtp_fragment_multiple_tails    = HF_EMPTY;
-static int hf_wtp_fragment_too_long_fragment = HF_EMPTY;
-static int hf_wtp_fragment_error             = HF_EMPTY;
-static int hf_wtp_fragment_count             = HF_EMPTY;
-static int hf_wtp_reassembled_in             = HF_EMPTY;
-static int hf_wtp_reassembled_length         = HF_EMPTY;
+static int hf_wtp_fragments                  = -1;
+static int hf_wtp_fragment                   = -1;
+static int hf_wtp_fragment_overlap           = -1;
+static int hf_wtp_fragment_overlap_conflict  = -1;
+static int hf_wtp_fragment_multiple_tails    = -1;
+static int hf_wtp_fragment_too_long_fragment = -1;
+static int hf_wtp_fragment_error             = -1;
+static int hf_wtp_fragment_count             = -1;
+static int hf_wtp_reassembled_in             = -1;
+static int hf_wtp_reassembled_length         = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_wtp              = ETT_EMPTY;
-static gint ett_wtp_sub_pdu_tree = ETT_EMPTY;
-static gint ett_header           = ETT_EMPTY;
-static gint ett_tpilist          = ETT_EMPTY;
-static gint ett_wsp_fragments    = ETT_EMPTY;
-static gint ett_wtp_fragment     = ETT_EMPTY;
+static gint ett_wtp              = -1;
+static gint ett_wtp_sub_pdu_tree = -1;
+static gint ett_header           = -1;
+static gint ett_tpilist          = -1;
+static gint ett_wsp_fragments    = -1;
+static gint ett_wtp_fragment     = -1;
 
 static const fragment_items wtp_frag_items = {
     &ett_wtp_fragment,
