@@ -927,7 +927,7 @@ SectionEnd
 !ifdef SMI_DIR
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
-SetOutPath $INSTDIR\snmp\mibs
+SetOutPath '$INSTDIR\snmp\mibs'
 File "${SMI_DIR}\share\mibs\iana\*"
 File "${SMI_DIR}\share\mibs\ietf\*"
 File "${SMI_DIR}\share\mibs\irtf\*"

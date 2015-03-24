@@ -110,6 +110,7 @@ config.nsh: config.nsh.in ..\..\config.nmake
 		-e 's/@VCREDIST_EXE@/$(VCREDIST_EXE:\=\\\\)/' \
 !ENDIF
 		-e s/@ENABLE_LIBWIRESHARK@/$(ENABLE_LIBWIRESHARK)/ \
+		-e 's/@SMI_DIR@/$(SMI_DIR:\=\\\\)/' \
 !IFDEF GTK_DIR
 		-e 's/@GTK_DIR@/$(GTK_DIR:\=\\\\)/' \
 !ENDIF

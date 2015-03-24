@@ -30,6 +30,8 @@
 
 !define USER_GUIDE_DIR "@USER_GUIDE_DIR@"
 
+!define SMI_DIR "@SMI_DIR@"
+
 # Qt
 !define QT_DIR "@QT_DIR@"
 
