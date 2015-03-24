@@ -235,6 +235,7 @@ static reassembly_table q931_reassembly_table;
 
 /* Preferences */
 static gboolean q931_reassembly = TRUE;
+static gboolean g931_iso_iec_cause = FALSE;
 
 static dissector_table_t codeset_dissector_table;
 static dissector_table_t ie_dissector_table;
@@ -585,6 +586,7 @@ static const value_string q931_repeat_indication_vals[] = {
  * ITU-standardized coding.
  */
 #define Q931_ITU_STANDARDIZED_CODING    0x00
+#define Q931_ISO_IEC_STANDARDIZED_CODING     0x01
 
 /*
  * Dissect a Segmented message information element.
@@ -1283,7 +1285,8 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
         return;
     octet = tvb_get_guint8(tvb, offset);
     coding_standard = octet & 0x60;
-    if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
+    if (coding_standard != Q931_ITU_STANDARDIZED_CODING &&
+        !g931_iso_iec_cause && coding_standard != Q931_ISO_IEC_STANDARDIZED_CODING) {
         /*
          * We don't know how the cause is encoded,
          * so just dump it as data and be done with it.
@@ -3868,6 +3871,10 @@ proto_register_q931(void)
         "Reassemble segmented Q.931 messages",
         "Reassemble segmented Q.931 messages (Q.931 - Annex H)",
         &q931_reassembly);
+    prefs_register_bool_preference(q931_module, "iso_iec_cause_coding",
+        "Decode ISO/IEC cause coding standard as ITU-T",
+        "Decode ISO/IEC cause coding standard as ITU-T",
+        &g931_iso_iec_cause);
     /* Register for tapping */
     q931_tap = register_tap("q931");
 }
