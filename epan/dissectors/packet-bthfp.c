@@ -58,6 +58,8 @@ static int hf_brsf_hs_remote_volume_control                                = -1;
 static int hf_brsf_hs_enhanced_call_status                                 = -1;
 static int hf_brsf_hs_enhanced_call_control                                = -1;
 static int hf_brsf_hs_codec_negotiation                                    = -1;
+static int hf_brsf_hs_hf_indicators                                        = -1;
+static int hf_brsf_hs_esco_s4_t2_settings_support                          = -1;
 static int hf_brsf_hs_reserved                                             = -1;
 static int hf_brsf_ag                                                      = -1;
 static int hf_brsf_ag_three_way_calling                                    = -1;
@@ -70,6 +72,8 @@ static int hf_brsf_ag_enhanced_call_status                                 = -1;
 static int hf_brsf_ag_enhanced_call_control                                = -1;
 static int hf_brsf_ag_extended_error_result_codes                          = -1;
 static int hf_brsf_ag_codec_negotiation                                    = -1;
+static int hf_brsf_ag_hf_indicators                                        = -1;
+static int hf_brsf_ag_esco_s4_t2_settings_support                          = -1;
 static int hf_brsf_ag_reserved                                             = -1;
 static int hf_vgs                                                          = -1;
 static int hf_vgm                                                          = -1;
@@ -119,6 +123,9 @@ static int hf_clcc_mpty                                                    = -1;
 static int hf_ccwa_show_result_code                                        = -1;
 static int hf_ccwa_mode                                                    = -1;
 static int hf_ccwa_class                                                   = -1;
+static int hf_biev_assigned_number                                         = -1;
+static int hf_biev_value                                                   = -1;
+static int hf_bind_parameter                                               = -1;
 static int hf_bia_indicator[20]  = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
@@ -136,6 +143,8 @@ static expert_field ei_bac                                            = EI_INIT;
 static expert_field ei_bsir                                           = EI_INIT;
 static expert_field ei_btrh                                           = EI_INIT;
 static expert_field ei_binp                                           = EI_INIT;
+static expert_field ei_biev_assigned_number                           = EI_INIT;
+static expert_field ei_biev_assigned_number_no                        = EI_INIT;
 static expert_field ei_bia                                            = EI_INIT;
 static expert_field ei_cmer_mode                                      = EI_INIT;
 static expert_field ei_cmer_keyp                                      = EI_INIT;
@@ -460,6 +469,11 @@ static const value_string ccwa_class_vals[] = {
     { 0, NULL }
 };
 
+static const value_string biev_assigned_number_vals[] = {
+    { 1,   "Enhanced Safety" },
+    { 0, NULL }
+};
+
 extern value_string_ext csd_data_rate_vals_ext;
 
 void proto_register_bthfp(void);
@@ -476,6 +490,19 @@ static guint32 get_uint_parameter(guint8 *parameter_stream, gint parameter_lengt
     value = (guint32) g_ascii_strtoull(val, NULL, 10);
 
     return value;
+}
+
+static gboolean check_biev(gint role, guint16 type) {
+    if (role == ROLE_HS && type == TYPE_ACTION) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_bind(gint role, guint16 type) {
+    if (role == ROLE_HS && (type == TYPE_ACTION || type == TYPE_READ || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_AG && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
 }
 
 static gboolean check_bac(gint role, guint16 type) {
@@ -692,6 +719,8 @@ dissect_brsf_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_boolean(ptree, hf_brsf_hs_enhanced_call_status, tvb, offset, parameter_length, value);
         proto_tree_add_boolean(ptree, hf_brsf_hs_enhanced_call_control, tvb, offset, parameter_length, value);
         proto_tree_add_boolean(ptree, hf_brsf_hs_codec_negotiation, tvb, offset, parameter_length, value);
+        proto_tree_add_boolean(ptree, hf_brsf_hs_hf_indicators, tvb, offset, parameter_length, value);
+        proto_tree_add_boolean(ptree, hf_brsf_hs_esco_s4_t2_settings_support, tvb, offset, parameter_length, value);
         pitem = proto_tree_add_uint(ptree, hf_brsf_hs_reserved, tvb, offset, parameter_length, value);
 
         if (value >> 8) {
@@ -711,6 +740,9 @@ dissect_brsf_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_boolean(ptree, hf_brsf_ag_enhanced_call_control, tvb, offset, parameter_length, value);
         proto_tree_add_boolean(ptree, hf_brsf_ag_extended_error_result_codes, tvb, offset, parameter_length, value);
         proto_tree_add_boolean(ptree, hf_brsf_ag_codec_negotiation, tvb, offset, parameter_length, value);
+        proto_tree_add_boolean(ptree, hf_brsf_ag_hf_indicators, tvb, offset, parameter_length, value);
+        proto_tree_add_boolean(ptree, hf_brsf_ag_esco_s4_t2_settings_support, tvb, offset, parameter_length, value);
+
         pitem = proto_tree_add_uint(ptree, hf_brsf_ag_reserved, tvb, offset, parameter_length, value);
 
         if (value >> 10) {
@@ -871,6 +903,58 @@ dissect_bac_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (value <  1 ||  value > 2)  {
         expert_add_info(pinfo, pitem, &ei_bac);
     }
+
+    return TRUE;
+}
+
+static gint
+dissect_bind_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number _U_, gint parameter_length, void **data _U_)
+{
+    guint32      value;
+
+    if (!check_bind(role, type)) return FALSE;
+
+/* TODO Need to implement request-response tracking to recognise answer to AT+BIND? vs unsolicited */
+    if (parameter_number < 20) {
+        value = get_uint_parameter(parameter_stream, parameter_length);
+
+        proto_tree_add_uint(tree, hf_bind_parameter, tvb, offset,
+                parameter_length, value);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static gint
+dissect_biev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream,
+        guint parameter_number _U_, gint parameter_length, void **data _U_)
+{
+    proto_item  *pitem;
+    guint32      value;
+
+    if (!check_biev(role, type)) return FALSE;
+    if (parameter_number == 0) {
+        value = get_uint_parameter(parameter_stream, parameter_length);
+
+        pitem = proto_tree_add_uint(tree, hf_biev_assigned_number, tvb, offset,
+                parameter_length, value);
+
+        if (value > 65535) {
+            expert_add_info(pinfo, pitem, &ei_biev_assigned_number);
+        } else if (value > 1) {
+            expert_add_info(pinfo, pitem, &ei_biev_assigned_number_no);
+        }
+    } else if (parameter_number == 1) {
+        value = get_uint_parameter(parameter_stream, parameter_length);
+/* TODO: Decode assigned numbers - assigned_number=1 */
+        pitem = proto_tree_add_uint(tree, hf_biev_value, tvb, offset,
+                parameter_length, value);
+    } else return FALSE;
 
     return TRUE;
 }
@@ -1450,6 +1534,8 @@ dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          for example: AT+CIND=?, AT+CIND? */
 static const at_cmd_t at_cmds[] = {
     /* Bluetooth HFP specific AT Commands */
+    { "+BIEV",      "Bluetooth Indicator Enter Value",          check_biev, dissect_biev_parameter }, /* HFP 1.7 */
+    { "+BIND",      "Bluetooth Indicator",                      check_bind, dissect_bind_parameter }, /* HFP 1.7 */
     { "+BAC",       "Bluetooth Available Codecs",               check_bac,  dissect_bac_parameter  },
     { "+BCS",       "Bluetooth Codec Selection",                check_bcs,  dissect_bcs_parameter  },
     { "+BCC",       "Bluetooth Codec Connection",               check_bcc,  dissect_no_parameter   },
@@ -2282,9 +2368,19 @@ proto_register_bthfp(void)
            FT_BOOLEAN, 32, NULL, 0x00000080,
            NULL, HFILL}
         },
+        { &hf_brsf_hs_hf_indicators,
+           { "HF Indicators",                    "bthfp.brsf.hs.hf_indicators",
+           FT_BOOLEAN, 32, NULL, 0x00000100,
+           NULL, HFILL}
+        },
+        { &hf_brsf_hs_esco_s4_t2_settings_support,
+           { "eSCO S4 (and T2) Settings Support","bthfp.brsf.hs.esco_s4_t2_settings_support",
+           FT_BOOLEAN, 32, NULL, 0x00000200,
+           NULL, HFILL}
+        },
         { &hf_brsf_hs_reserved,
            { "Reserved",                         "bthfp.brsf.hs.reserved",
-           FT_UINT32, BASE_HEX, NULL, 0xFFFFFF00,
+           FT_UINT32, BASE_HEX, NULL, 0xFFFFFC00,
            NULL, HFILL}
         },
         { &hf_brsf_ag,
@@ -2342,9 +2438,19 @@ proto_register_bthfp(void)
            FT_BOOLEAN, 32, NULL, 0x00000200,
            NULL, HFILL}
         },
+        { &hf_brsf_ag_hf_indicators,
+           { "HF Indicators",                    "bthfp.brsf.ag.hf_indicators",
+           FT_BOOLEAN, 32, NULL, 0x00000400,
+           NULL, HFILL}
+        },
+        { &hf_brsf_ag_esco_s4_t2_settings_support,
+           { "eSCO S4 (and T2) Settings Support","bthfp.brsf.ag.esco_s4_t2_settings_support",
+           FT_BOOLEAN, 32, NULL, 0x00000800,
+           NULL, HFILL}
+        },
         { &hf_brsf_ag_reserved,
            { "Reserved",                         "bthfp.brsf.ag.reserved",
-           FT_UINT32, BASE_HEX, NULL, 0xFFFFFC00,
+           FT_UINT32, BASE_HEX, NULL, 0xFFFFF000,
            NULL, HFILL}
         },
         { &hf_vgs,
@@ -2587,6 +2693,21 @@ proto_register_bthfp(void)
            FT_UINT32, BASE_DEC, VALS(ccwa_class_vals), 0,
            NULL, HFILL}
         },
+        { &hf_biev_assigned_number,
+           { "Assigned Number",                  "bthfp.biev.assigned_number",
+           FT_UINT16, BASE_DEC, VALS(biev_assigned_number_vals), 0,
+           NULL, HFILL}
+        },
+        { &hf_bind_parameter,
+           { "Parameter",                        "bthfp.bind.parameter",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_biev_value,
+           { "Value",                            "bthfp.biev.value",
+           FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
         { &hf_bia_indicator[0],
            { "Indicator 1",                      "bthfp.bia.indicator.1",
            FT_UINT8, BASE_DEC, VALS(indicator_vals), 0,
@@ -2805,6 +2926,8 @@ proto_register_bthfp(void)
         { &ei_btrh,                  { "bthfp.expert.btrh", PI_PROTOCOL, PI_WARN, "Only 0-2 is valid", EXPFILL }},
         { &ei_binp,                  { "bthfp.expert.binp", PI_PROTOCOL, PI_WARN, "Only 1 is valid", EXPFILL }},
         { &ei_bia,                   { "bthfp.expert.bia", PI_PROTOCOL, PI_WARN, "Only 0-1 is valid", EXPFILL }},
+        { &ei_biev_assigned_number,  { "bthfp.expert.biev.assigned_number", PI_PROTOCOL, PI_WARN, "Only 0-65535 is valid", EXPFILL }},
+        { &ei_biev_assigned_number_no, { "bthfp.expert.biev.assigned_number.not_assigned", PI_PROTOCOL, PI_WARN, "Value is unknown for Assign Numbers", EXPFILL }},
         { &ei_cmer_mode,             { "bthfp.expert.cmer.mode", PI_PROTOCOL, PI_NOTE, "Only 3 is valid for HFP", EXPFILL }},
         { &ei_cmer_disp,             { "bthfp.expert.cmer.disp", PI_PROTOCOL, PI_WARN, "Value is ignored for HFP", EXPFILL }},
         { &ei_cmer_keyp,             { "bthfp.expert.cmer.keyp", PI_PROTOCOL, PI_WARN, "Value is ignored for HFP", EXPFILL }},
@@ -2816,7 +2939,7 @@ proto_register_bthfp(void)
         { &ei_at_type,               { "bthfp.expert.at.type", PI_PROTOCOL, PI_WARN, "Unknown type value", EXPFILL }},
         { &ei_parameter_blank,       { "bthfp.expert.parameter_blank", PI_PROTOCOL, PI_WARN, "Should be blank for HFP", EXPFILL }},
         { &ei_cnum_service,          { "bthfp.expert.cnum.service", PI_PROTOCOL, PI_WARN, "Only 0-5 is valid", EXPFILL }},
-        { &ei_cnum_itc,              { "bthfp.expert.cnum.itc", PI_PROTOCOL, PI_WARN, "Only 0-1 is valid", EXPFILL }}
+        { &ei_cnum_itc,              { "bthfp.expert.cnum.itc", PI_PROTOCOL, PI_WARN, "Only 0-1 is valid", EXPFILL }},
     };
 
     static gint *ett[] = {
@@ -2837,7 +2960,7 @@ proto_register_bthfp(void)
 
     module = prefs_register_protocol(proto_bthfp, NULL);
     prefs_register_static_text_preference(module, "hfp.version",
-            "Bluetooth Profile HFP version: 1.6",
+            "Bluetooth Profile HFP version: 1.7",
             "Version of profile supported by this dissector.");
 
     prefs_register_enum_preference(module, "hfp.hfp_role",
