@@ -309,6 +309,7 @@ DISSECTOR_SRC = \
 	packet-asterix.c	\
 	packet-at.c		\
 	packet-atalk.c		\
+	packet-ath.c		\
 	packet-atm.c		\
 	packet-atmtcp.c		\
 	packet-auto_rp.c	\

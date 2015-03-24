@@ -393,6 +393,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-asterix.c
 	dissectors/packet-at.c
 	dissectors/packet-atalk.c
+	dissectors/packet-ath.c
 	dissectors/packet-atm.c
 	dissectors/packet-atmtcp.c
 	dissectors/packet-auto_rp.c
