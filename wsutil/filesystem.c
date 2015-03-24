@@ -1057,6 +1057,8 @@ static const char *extcap_dir = NULL;
 
 static void init_extcap_dir(void) {
 #ifdef _WIN32
+    char *alt_extcap_path;
+
     /*
      * On Windows, the data file directory is the installation
      * directory; the extcap hooks are stored under it.
@@ -1065,7 +1067,15 @@ static void init_extcap_dir(void) {
      * on Windows, the data file directory is the directory
      * in which the Wireshark binary resides.
      */
-    extcap_dir = g_strdup_printf("%s\\extcap", get_datafile_dir());
+    alt_extcap_path = getenv_utf8("WIRESHARK_EXTCAP_DIR");
+    if (alt_extcap_path) {
+        /*
+         * The user specified a different directory for extcap hooks.
+         */
+        extcap_dir = g_strdup(alt_extcap_path);
+    } else {
+        extcap_dir = g_strdup_printf("%s\\extcap", get_datafile_dir());
+    }
 #else
     if (running_in_build_directory_flag) {
         /*
