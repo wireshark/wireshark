@@ -979,30 +979,7 @@ init_plugin_dir(void)
      * on Windows, the data file directory is the directory
      * in which the Wireshark binary resides.
      */
-    plugin_dir = g_strdup_printf("%s\\plugins\\%s", get_datafile_dir(),
-                     VERSION);
-
-    /*
-     * Make sure that pathname refers to a directory.
-     */
-    if (test_for_directory(plugin_dir) != EISDIR) {
-        /*
-         * Either it doesn't refer to a directory or it
-         * refers to something that doesn't exist.
-         *
-         * Assume that means we're running a version of
-         * Wireshark we've built in a build directory,
-         * in which case {datafile dir}\plugins is the
-         * top-level plugins source directory, and use
-         * that directory and set the "we're running in
-         * a build directory" flag, so the plugin
-         * scanner will check all subdirectories of that
-         * directory for plugins.
-         */
-        g_free( (gpointer) plugin_dir);
-        plugin_dir = g_strdup_printf("%s\\plugins", get_datafile_dir());
-        running_in_build_directory_flag = TRUE;
-    }
+    plugin_dir = g_strdup_printf("%s\\plugins", get_datafile_dir());
 #else
     if (running_in_build_directory_flag) {
         /*
@@ -1088,30 +1065,7 @@ static void init_extcap_dir(void) {
      * on Windows, the data file directory is the directory
      * in which the Wireshark binary resides.
      */
-    extcap_dir = g_strdup_printf("%s\\extcap\\%s", get_datafile_dir(),
-                                 VERSION);
-
-    /*
-     * Make sure that pathname refers to a directory.
-     */
-    if (test_for_directory(extcap_dir) != EISDIR) {
-        /*
-         * Either it doesn't refer to a directory or it
-         * refers to something that doesn't exist.
-         *
-         * Assume that means we're running a version of
-         * Wireshark we've built in a build directory,
-         * in which case {datafile dir}\plugins is the
-         * top-level extcap hooks source directory, and use
-         * that directory and set the "we're running in
-         * a build directory" flag, so the plugin
-         * scanner will check all subdirectories of that
-         * directory for extcap hooks.
-         */
-        g_free( (gpointer) extcap_dir);
-        extcap_dir = g_strdup_printf("%s\\extcap", get_datafile_dir());
-        running_in_build_directory_flag = TRUE;
-    }
+    extcap_dir = g_strdup_printf("%s\\extcap", get_datafile_dir());
 #else
     if (running_in_build_directory_flag) {
         /*

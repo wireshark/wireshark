@@ -1,4 +1,4 @@
 ; $Id$
 ;Add your custom diameter dictionary here
 ; Example:
-;File "..\..\diameter\foo.xml"
+;File "${STAGING_DIR}\diameter\foo.xml"
