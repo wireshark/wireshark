@@ -221,7 +221,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         case ACTYPE_SELECTED:
             /* if no expert item was passed */
             if (procedure->fvalue_value==NULL) {
-                g_snprintf(str, sizeof(str), "expert.message==%s", msg);
+                g_snprintf(str, sizeof(str), "_ws.expert.message==%s", msg);
             }
             else
             {
@@ -232,7 +232,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         case ACTYPE_NOT_SELECTED:
             /* if no expert item was passed */
             if (procedure->fvalue_value==NULL) {
-                g_snprintf(str, sizeof(str), "!(expert.message==%s)", msg);
+                g_snprintf(str, sizeof(str), "!(_ws.expert.message==%s)", msg);
             }
             else
             {
@@ -243,27 +243,27 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
             /* the remaining cases will only exist if the expert item exists so no need to check */
         case ACTYPE_AND_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, sizeof(str), "expert.message==%s", msg);
+                g_snprintf(str, sizeof(str), "_ws.expert.message==%s", msg);
             else
-                g_snprintf(str, sizeof(str), "(%s) && (expert.message==%s)", current_filter, msg);
+                g_snprintf(str, sizeof(str), "(%s) && (_ws.expert.message==%s)", current_filter, msg);
             break;
         case ACTYPE_OR_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, sizeof(str), "expert.message==%s", msg);
+                g_snprintf(str, sizeof(str), "_ws.expert.message==%s", msg);
             else
-                g_snprintf(str, sizeof(str), "(%s) || (expert.message==%s)", current_filter, msg);
+                g_snprintf(str, sizeof(str), "(%s) || (_ws.expert.message==%s)", current_filter, msg);
             break;
         case ACTYPE_AND_NOT_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, sizeof(str), "!(expert.message==%s)", msg);
+                g_snprintf(str, sizeof(str), "!(_ws.expert.message==%s)", msg);
             else
-                g_snprintf(str, sizeof(str), "(%s) && !(expert.message==%s)", current_filter, msg);
+                g_snprintf(str, sizeof(str), "(%s) && !(_ws.expert.message==%s)", current_filter, msg);
             break;
         case ACTYPE_OR_NOT_SELECTED:
             if ((!current_filter) || (0 == strlen(current_filter)))
-                g_snprintf(str, sizeof(str), "!(expert.message==%s)", msg);
+                g_snprintf(str, sizeof(str), "!(_ws.expert.message==%s)", msg);
             else
-                g_snprintf(str, sizeof(str), "(%s) || !(expert.message==%s)", current_filter, msg);
+                g_snprintf(str, sizeof(str), "(%s) || !(_ws.expert.message==%s)", current_filter, msg);
             break;
         default:
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu type - %u", type);
