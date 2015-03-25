@@ -359,7 +359,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
     char ssampling[ARGV_NUMBER_LEN];
 #endif
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     char buffer_size[ARGV_NUMBER_LEN];
 #endif
 
@@ -503,7 +503,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
             argv = sync_pipe_add_arg(argv, &argc, "-p");
         }
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         if (interface_opts.buffer_size != DEFAULT_CAPTURE_BUFFER_SIZE) {
             argv = sync_pipe_add_arg(argv, &argc, "-B");
             if(interface_opts.buffer_size == 0x00)

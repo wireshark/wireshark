@@ -205,6 +205,9 @@
 /* Define to 1 if you have the `pcap_create' function. */
 #cmakedefine HAVE_PCAP_CREATE 1
 
+/* Define to 1 if the capture buffer size can be set. */
+#cmakedefine CAN_SET_CAPTURE_BUFFER_SIZE 1
+
 /* Define to 1 if you have the `pcap_datalink_name_to_val' function. */
 #cmakedefine HAVE_PCAP_DATALINK_NAME_TO_VAL 1
 

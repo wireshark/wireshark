@@ -71,7 +71,7 @@ static GtkWidget *cur_list, *if_dev_lb, *if_name_lb, *if_linktype_lb, *if_linkty
 #ifdef HAVE_PCAP_CREATE
 static GtkWidget *if_monitor_lb, *if_monitor_cb;
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 static GtkWidget *if_buffersize_lb, *if_buffersize_cb;
 #endif
 static GtkWidget *if_snaplen_lb, *if_snaplen_cb, *if_snaplen_tg, *if_pmode_lb, *if_pmode_cb;
@@ -90,7 +90,7 @@ static void ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 static void ifopts_edit_linktype_changed_cb(GtkComboBox *ed, gpointer udata);
 static void ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata);
 static void ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata);
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 static void ifopts_edit_buffersize_changed_cb(GtkSpinButton *ed, gpointer udata);
 #endif
 static void ifopts_edit_snaplen_changed_cb(GtkSpinButton *ed, gpointer udata);
@@ -103,7 +103,7 @@ static void ifopts_if_liststore_add(void);
 static void ifopts_write_new_monitor_mode(void);
 #endif
 static void ifopts_write_new_linklayer(void);
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 static void ifopts_write_new_buffersize(void);
 #endif
 static void ifopts_write_new_snaplen(void);
@@ -116,7 +116,7 @@ static void prom_mode_cb(GtkToggleButton *tbt, gpointer udata);
 #ifdef HAVE_PCAP_CREATE
 static GtkWidget *col_monitor_cb;
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 static GtkWidget *col_buf_cb;
 #endif
 static GtkWidget *col_snap_cb;
@@ -344,7 +344,7 @@ enum
 #ifdef HAVE_PCAP_CREATE
 	DEF_MONITOR_MODE_COLUMN,
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	BUF_COLUMN,
 #endif
 	HASSNAP_COLUMN,
@@ -368,7 +368,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 #ifdef HAVE_PCAP_CREATE
 						*col_monitor_lb,
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 						*col_buf_lb,
 #endif
 						*col_filter_lb, *col_pmode_lb,
@@ -464,7 +464,7 @@ colopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(col_snap_lb);
 	row++;
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	/* create "Buffer in Megabytes" label and button */
 	col_buf_cb = gtk_check_button_new();
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), col_buf_cb, 0, row, 1, 1);
@@ -566,7 +566,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	GtkCellRenderer   *renderer;
 	GtkTreeView       *list_view;
 	GtkTreeSelection  *selection;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	GtkAdjustment     *buffer_size_adj;
 #endif
 	GtkAdjustment     *snaplen_adj;
@@ -612,7 +612,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 #ifdef HAVE_PCAP_CREATE
 					G_TYPE_BOOLEAN,	/* Monitor mode		*/
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 					G_TYPE_INT,			/* Buffer size				*/
 #endif
 					G_TYPE_BOOLEAN,	/* Has snap length		*/
@@ -675,7 +675,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_tree_view_append_column (list_view, column);
 #endif
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	renderer = gtk_cell_renderer_spin_new ();
 	buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new(DEFAULT_CAPTURE_BUFFER_SIZE, 1, 65535, 1.0, 10.0, 0.0);
 	g_object_set(G_OBJECT(renderer), "adjustment", buffer_size_adj, NULL);
@@ -829,7 +829,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	row++;
 #endif
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	if_buffersize_lb = gtk_label_new("Default buffer size (MiB):");
 	ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), if_buffersize_lb, 0, row, 1, 1);
 	gtk_misc_set_alignment(GTK_MISC(if_buffersize_lb), 1.0f, 0.5f);
@@ -973,7 +973,7 @@ colopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(col_snap_cb))) {
 		prefs.capture_columns = g_list_append(prefs.capture_columns, g_strdup("SNAPLEN"));
 	}
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(col_buf_cb))) {
 		prefs.capture_columns = g_list_append(prefs.capture_columns, g_strdup("BUFFER"));
 	}
@@ -1016,7 +1016,7 @@ ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 		/* create/write new "hidden" interfaces string */
 		ifopts_write_new_hide();
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 		/* create/write new "buffersize" interfaces string */
 		ifopts_write_new_buffersize();
 #endif
@@ -1116,7 +1116,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 #ifdef HAVE_PCAP_CREATE
 	gboolean            monitor_mode;
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	gint                buffersize;
 #endif
 	gint                snaplen;
@@ -1134,7 +1134,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 #ifdef HAVE_PCAP_CREATE
 			   DEF_MONITOR_MODE_COLUMN,   &monitor_mode,
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 			   BUF_COLUMN,                &buffersize,
 #endif
 			   HASSNAP_COLUMN,            &hassnap,
@@ -1151,7 +1151,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	/* display the interface name from current interfaces selection */
 	gtk_label_set_text(GTK_LABEL(if_name_lb), desc);
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	/* display the buffer size from current interfaces selection */
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON (if_buffersize_cb), buffersize);
 #endif
@@ -1397,7 +1397,7 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 	}
 }
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 /*
  * Buffer size entry changed callback; update list_store for currently selected interface.
  */
@@ -1600,7 +1600,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	gboolean monitor_mode;
 #endif
 	gint     linktype;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	gint buffersize;
 #endif
 	gint snaplen;
@@ -1647,7 +1647,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 		free_if_capabilities(caps);
 	}
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 	buffersize = capture_dev_user_buffersize_find(if_info->name);
 	if (buffersize == -1) {
 		buffersize = DEFAULT_CAPTURE_BUFFER_SIZE;
@@ -1733,7 +1733,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 #ifdef HAVE_PCAP_CREATE
 			     DEF_MONITOR_MODE_COLUMN, monitor_mode,
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 			     BUF_COLUMN,              buffersize,
 #endif
 			     HASSNAP_COLUMN,          hassnap,
@@ -1906,7 +1906,7 @@ ifopts_write_new_linklayer(void)
 	}
 }
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 /*
  * Create/write new interfaces buffer size string based on current CList.
  * Put it into the preferences value.

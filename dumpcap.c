@@ -488,7 +488,7 @@ print_usage(FILE *output)
 #ifdef HAVE_PCAP_CREATE
     fprintf(output, "  -I                       capture in monitor mode, if available\n");
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     fprintf(output, "  -B <buffer size>         size of kernel buffer in MiB (def: %dMiB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
     fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
@@ -4602,9 +4602,9 @@ DIAG_ON(cast-qual)
 #ifdef HAVE_PCAP_SETSAMPLING
         case 'm':        /* Sampling */
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         case 'B':        /* Buffer size */
-#endif /* _WIN32 or HAVE_PCAP_CREATE */
+#endif
 #ifdef HAVE_PCAP_CREATE
         case 'I':        /* Monitor mode */
 #endif

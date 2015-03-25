@@ -145,7 +145,7 @@ capture_dev_user_linktype_find(const gchar *if_name)
   return capture_dev_get_if_int_property(prefs.capture_devices_linktypes, if_name);
 }
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 gint
 capture_dev_user_buffersize_find(const gchar *if_name)
 {

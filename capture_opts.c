@@ -71,7 +71,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->default_options.extcap_args     = NULL;
     capture_opts->default_options.extcap_pid      = INVALID_EXTCAP_PID;
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
     capture_opts->default_options.monitor_mode    = FALSE;
@@ -148,7 +148,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         g_log(log_domain, log_level, "Extcap FIFO[%02d]     : %s", i, interface_opts.extcap_fifo ? interface_opts.extcap_fifo : "(unspecified)");
         g_log(log_domain, log_level, "Extcap PID[%02d]      : %d", i, interface_opts.extcap_pid);
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         g_log(log_domain, log_level, "Buffer size[%02d]     : %d (MB)", i, interface_opts.buffer_size);
 #endif
         g_log(log_domain, log_level, "Monitor Mode[%02d]    : %s", i, interface_opts.monitor_mode?"TRUE":"FALSE");
@@ -188,7 +188,7 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Extcap[df]          : %s", capture_opts->default_options.extcap ? capture_opts->default_options.extcap : "(unspecified)");
     g_log(log_domain, log_level, "Extcap FIFO[df]     : %s", capture_opts->default_options.extcap_fifo ? capture_opts->default_options.extcap_fifo : "(unspecified)");
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     g_log(log_domain, log_level, "Buffer size[df]     : %d (MB)", capture_opts->default_options.buffer_size);
 #endif
     g_log(log_domain, log_level, "Monitor Mode[df]    : %s", capture_opts->default_options.monitor_mode?"TRUE":"FALSE");
@@ -611,7 +611,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.extcap_args = NULL;
     interface_opts.extcap_pid = INVALID_EXTCAP_PID;
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     interface_opts.buffer_size = capture_opts->default_options.buffer_size;
 #endif
     interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
@@ -671,7 +671,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
             return 1;
         }
         break;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     case 'B':        /* Buffer size */
         if (capture_opts->ifaces->len > 0) {
             interface_options interface_opts;
@@ -1097,7 +1097,7 @@ collect_ifaces(capture_options *capture_opts)
             if (interface_opts.extcap_args)
                 g_hash_table_ref(interface_opts.extcap_args);
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             interface_opts.buffer_size =  device.buffer;
 #endif
 #ifdef HAVE_PCAP_CREATE

@@ -167,7 +167,7 @@ static const gchar *capture_cols[7] = {
 };
 #define CAPTURE_COL_TYPE_DESCRIPTION \
     "Possible values: INTERFACE, LINK, PMODE, SNAPLEN, MONITOR, BUFFER, FILTER\n"
-#elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
+#elif defined(CAN_SET_CAPTURE_BUFFER_SIZE)
 /* Can set buffer size but not monitor mode. */
 static gint num_capture_cols = 6;
 static const gchar *capture_cols[6] = {
@@ -2389,7 +2389,7 @@ prefs_register_modules(void)
         "By default, capture in monitor mode on interface? (Ex: eth0,eth3,...)",
         (const char **)&prefs.capture_devices_monitor_mode);
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     prefs_register_string_preference(capture_module, "devices_buffersize", "Interface buffer size",
         "Interface buffer size (Ex: en0(1),en1(143),...)",
         ((const char **)&prefs.capture_devices_buffersize));

@@ -54,7 +54,7 @@ char *capture_dev_user_descr_find(const gchar *if_name);
  */
 gint capture_dev_user_linktype_find(const gchar *if_name);
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 /**
  * Find user-specified buffer size that matches interface
  * name, if any.

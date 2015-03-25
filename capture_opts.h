@@ -74,7 +74,7 @@ extern "C" {
 #define OPTSTRING_A ""
 #endif
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 #define LONGOPT_BUFFER_SIZE \
     {(char *)"buffer-size", required_argument, NULL, 'B'},
 #define OPTSTRING_B "B:"
@@ -179,7 +179,7 @@ typedef struct interface_tag {
     gboolean        has_snaplen;
     int             snaplen;
     gboolean        local;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     gint            buffer;
 #endif
 #ifdef HAVE_PCAP_CREATE
@@ -229,7 +229,7 @@ typedef struct interface_options_tag {
     GPid              extcap_pid;           /* pid of running process or INVALID_EXTCAP_PID */
     guint             extcap_child_watch;
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     int               buffer_size;
 #endif
     gboolean          monitor_mode;

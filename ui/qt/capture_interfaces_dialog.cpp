@@ -65,7 +65,7 @@
 
 const int stat_update_interval_ = 1000; // ms
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 #define SHOW_BUFFER_COLUMN 1
 #endif
 

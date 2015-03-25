@@ -188,7 +188,7 @@ typedef struct _e_prefs {
   gchar       *capture_devices_descr;
   gchar       *capture_devices_hide;
   gchar       *capture_devices_monitor_mode;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
   gchar       *capture_devices_buffersize;
 #endif
   gchar       *capture_devices_snaplen;

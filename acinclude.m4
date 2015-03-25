@@ -646,7 +646,14 @@ install a newer version of the header file.])
 	  AC_CHECK_FUNCS(pcap_datalink_val_to_description)
 	  AC_CHECK_FUNCS(pcap_list_datalinks pcap_set_datalink pcap_lib_version)
 	  AC_CHECK_FUNCS(pcap_get_selectable_fd pcap_free_datalinks)
-	  AC_CHECK_FUNCS(pcap_create bpf_image pcap_set_tstamp_precision)
+	  AC_CHECK_FUNC(pcap_create,
+	  [
+	    AC_DEFINE(HAVE_PCAP_CREATE, 1,
+	     [Define to 1 if you have the `pcap_create' function.])
+	    AC_DEFINE(CAN_SET_CAPTURE_BUFFER_SIZE, 1,
+	     [Define to 1 if the capture buffer size can be set.])
+	  ])
+	  AC_CHECK_FUNCS(bpf_image pcap_set_tstamp_precision)
 	fi
 	LIBS="$ac_save_LIBS"
 ])

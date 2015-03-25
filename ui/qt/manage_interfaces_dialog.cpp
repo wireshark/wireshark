@@ -271,7 +271,7 @@ void ManageInterfacesDialog::pipeAccepted()
         device.no_addresses = 0;
         device.last_packets = 0;
         device.links        = NULL;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
         device.active_dlt = -1;
@@ -535,7 +535,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
         } else {
             device.display_name = g_strdup(if_string);
         }
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         if ((device.buffer = capture_dev_user_buffersize_find(if_string)) == -1) {
             device.buffer = global_capture_opts.default_options.buffer_size;
         }

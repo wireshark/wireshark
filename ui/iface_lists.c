@@ -285,7 +285,7 @@ scan_local_interfaces(void (*update_cb)(void))
             device.snaplen = global_capture_opts.default_options.snaplen;
         }
         device.cfilter      = g_strdup(global_capture_opts.default_options.cfilter);
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
         if ((device.buffer = capture_dev_user_buffersize_find(if_info->name)) == -1) {
             device.buffer = global_capture_opts.default_options.buffer_size;
         }
@@ -350,7 +350,7 @@ scan_local_interfaces(void (*update_cb)(void))
             device.hidden       = FALSE;
             device.selected     = TRUE;
             device.type         = IF_PIPE;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
             device.buffer = interface_opts.buffer_size;
 #endif
 #if defined(HAVE_PCAP_CREATE)

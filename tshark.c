@@ -310,7 +310,7 @@ print_usage(FILE *output)
 #ifdef HAVE_PCAP_CREATE
   fprintf(output, "  -I                       capture in monitor mode, if available\n");
 #endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: %dMB)\n", DEFAULT_CAPTURE_BUFFER_SIZE);
 #endif
   fprintf(output, "  -y <link type>           link layer type (def: first appropriate)\n");
@@ -1378,9 +1378,9 @@ DIAG_ON(cast-qual)
     case 'w':        /* Write to capture file x */
     case 'y':        /* Set the pcap data link type */
     case  LONGOPT_NUM_CAP_COMMENT: /* add a capture comment */
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     case 'B':        /* Buffer size */
-#endif /* _WIN32 or HAVE_PCAP_CREATE */
+#endif
 #ifdef HAVE_LIBPCAP
       status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
       if (status != 0) {
