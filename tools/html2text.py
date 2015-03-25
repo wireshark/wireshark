@@ -20,8 +20,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from __future__ import unicode_literals
-
 __author__      = "Peter Wu <peter@lekensteyn.nl>"
 __copyright__   = "Copyright 2015, Peter Wu"
 __license__     = "GPL (v2 or later)"
@@ -68,8 +66,14 @@ class TextHTMLParser(HTMLParser):
         if self.list_item_prefix:
             initial_indent += self.list_item_prefix
             indent += '    '
-        wrapper = TextWrapper(width=66, break_on_hyphens=False,
-            initial_indent=initial_indent, subsequent_indent=indent)
+        kwargs = {
+            'width': 66,
+            'initial_indent': initial_indent,
+            'subsequent_indent': indent
+        }
+        if sys.version_info[0:2] >= (2, 6):
+            kwargs['break_on_hyphens'] = False
+        wrapper = TextWrapper(**kwargs)
         return '\n'.join(wrapper.wrap(text))
 
     def _commit_block(self, newline='\n\n'):
@@ -148,22 +152,21 @@ class TextHTMLParser(HTMLParser):
 
 def main():
     htmlparser = TextHTMLParser()
-    if len(sys.argv) > 1:
-        if sys.version_info[0] >= 3:
-            # Python 3: read file as utf-8
-            kwargs = { 'encoding': 'utf-8' }
-        else:
-            kwargs = {}
-        with open(sys.argv[1], **kwargs) as f:
-            for line in f:
-                htmlparser.feed(line)
+    if len(sys.argv) > 1 and sys.argv[1] != '-':
+        filename = sys.argv[1]
+        f = open(filename, 'rb')
     else:
+        filename = None
         f = sys.stdin
+    try:
         if hasattr(f, 'buffer'):
             # Access raw (byte) buffer in Python 3 instead of decoded one
             f = f.buffer
         # Read stdin as as Unicode string
         htmlparser.feed(f.read().decode('utf-8'))
+    finally:
+        if filename is not None:
+            f.close()
     htmlparser.close()
 
 if __name__ == '__main__':
