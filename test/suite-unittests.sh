@@ -32,11 +32,18 @@ unittests_step_test() {
 	test_step_ok
 }
 
+TOOL_SEARCH_PATHS="
+	$WS_BIN_PATH
+	$SOURCE_DIR/epan
+	$SOURCE_DIR/epan/wmem
+	$SOURCE_DIR/tools
+"
+
 check_dut() {
 	TEST_EXE=""
 	# WS_BIN_PATH must be checked first, otherwise when using Nmake
 	# we'll find a non-functional program in epan or epan/wmem.
-	for TEST_PATH in "$WS_BIN_PATH" "$SOURCE_DIR/epan" "$SOURCE_DIR/epan/wmem" ; do
+	for TEST_PATH in $TOOL_SEARCH_PATHS ; do
 		if [ -x "$TEST_PATH/$1" ]; then
 			TEST_EXE=$TEST_PATH/$1
 			break
@@ -44,7 +51,14 @@ check_dut() {
 	done
 
 	if [ -n "$TEST_EXE" ]; then
-		DUT=$TEST_EXE
+		if [[ "$WS_SYSTEM" == "Windows" && "$TEST_EXE" == *.py ]] ; then
+			SCRIPT_PATH=$( cygpath -w "$TEST_EXE" )
+			TSHARK_PATH=$( cygpath -w "$TSHARK" )
+			DUT="python $SCRIPT_PATH"
+		else
+			TSHARK_PATH="$TSHARK"
+			DUT=$TEST_EXE
+		fi
 	else
 		test_step_failed "$1 not found. Have you built test-programs?"
 	fi
@@ -80,6 +94,12 @@ unittests_step_wmem_test() {
 	unittests_step_test
 }
 
+unittests_step_ftsanity() {
+	check_dut ftsanity.py
+	ARGS=$TSHARK_PATH
+	unittests_step_test
+}
+
 unittests_cleanup_step() {
 	rm -f ./testout.txt
 }
@@ -92,6 +112,7 @@ unittests_suite() {
 	test_step_add "reassemble_test" unittests_step_reassemble_test
 	test_step_add "tvbtest" unittests_step_tvbtest
 	test_step_add "wmem_test" unittests_step_wmem_test
+	test_step_add "ftsanity.py" unittests_step_ftsanity
 }
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
