@@ -2533,12 +2533,34 @@ static GtkWidget *build_extcap_options(const gchar *name, GHashTable *hash) {
 }
 #endif
 
+/*
+ * If we have an AirPcap "Wireless Settings" checkbox, have two columns
+ * (vboxes) of settings, and put the buffer size in the right column.
+ *
+ * If we have remote capture support, and if this is a remote interface,
+ * have two columns of settings, have a "Remote Sttings" button, and
+ * put it in the right column.
+ *
+ * If we can set the buffer size, then have two columns of settings
+ * and, if we don't have a "Remote Settings" button, put it in the
+ * right column.
+ *
+ * We avoid having the right column if we don't need it, because it
+ * steals 3 pixels.
+ */
+#if defined(HAVE_AIRPCAP) || defined(HAVE_PCAP_REMOTE) || defined(HAVE_BUFFER_SIZE)
+#define HAVE_TWO_SETTING_COLUMNS
+# if !defined(HAVE_PCAP_REMOTE)
+# define BUFFER_SIZE_IN_RIGHT_COLUMN
+# endif /* !defined(HAVE_PCAP_REMOTE) */
+#endif /* defined(HAVE_AIRPCAP) || defined(HAVE_PCAP_REMOTE) || defined(HAVE_BUFFER_SIZE) */
+
 void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata)
 {
   GtkWidget       *caller, *window, *swindow = NULL, *if_view,
                   *main_vb, *if_hb, *if_lb, *if_lb_name,
                   *main_hb, *left_vb,
-#ifdef HAVE_BUFFER_SIZE
+#ifdef HAVE_TWO_SETTING_COLUMNS
                   *right_vb,
 #endif
                   *capture_fr, *capture_vb,
@@ -2715,8 +2737,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), left_vb, TRUE, TRUE, 0);
 
-#ifdef HAVE_BUFFER_SIZE
-  /* Avoid adding the right vbox if not needed, because it steals 3 pixels */
+#ifdef HAVE_TWO_SETTING_COLUMNS
   right_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), right_vb, FALSE, FALSE, 3);
@@ -2940,8 +2961,12 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   buffer_size_lb = gtk_label_new("mebibyte(s)");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 3);
   gtk_misc_set_alignment(GTK_MISC(buffer_size_lb), 1, 0);
+#ifdef BUFFER_SIZE_IN_RIGHT_COLUMN
   gtk_box_pack_start (GTK_BOX(right_vb), buffer_size_hb, FALSE, FALSE, 0);
-#endif
+#else /* BUFFER_SIZE_IN_RIGHT_COLUMN */
+  gtk_box_pack_start (GTK_BOX(left_vb), buffer_size_hb, FALSE, FALSE, 0);
+#endif /* BUFFER_SIZE_IN_RIGHT_COLUMN */
+#endif /* HAVE_BUFFER_SIZE */
 
 #ifdef HAVE_PCAP_REMOTE
   /*
