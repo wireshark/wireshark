@@ -1685,12 +1685,18 @@ static guint32 \
 wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo) \
 {   \
     return wkh_accept_x_q_header_func(tree, tvb, hdr_start, pinfo,   \
-                hf_hdr_ ## underscored, Text, valueStringExtAddr, valueName);   \
+                hf_hdr_ ## underscored, Text, valueStringExtAddr, \
+                "<Unknown %s identifier " valueName "0x%X>");   \
 }
 
 static guint32
 wkh_accept_x_q_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo,
-                           int hf, const char* name, value_string_ext *valueStringExtAddr, const char* value_name)
+                           int hf, const char* name, value_string_ext *valueStringExtAddr, const char* value_format)
+                           G_GNUC_PRINTF(8, 0);
+
+static guint32
+wkh_accept_x_q_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo,
+                           int hf, const char* name, value_string_ext *valueStringExtAddr, const char* value_format)
 {
     wkh_0_Declarations;
     guint32 off, val = 0, len;
@@ -1698,16 +1704,11 @@ wkh_accept_x_q_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, p
     proto_item *ti = NULL;
     proto_tree *parameter_tree = NULL;
     gchar* header_name = wmem_strdup_printf(wmem_packet_scope(), "Accept X: %s", name);
-    wmem_strbuf_t *val_to_str_strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
-
-    wmem_strbuf_append_printf(val_to_str_strbuf, "<Unknown %s identifier ", value_name);
-    wmem_strbuf_append(val_to_str_strbuf, "0x%X>");
 
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_accept_x_q_header, header_name);
         ti = proto_tree_add_string(tree, hf,
                 tvb, hdr_start, offset - hdr_start,
-                val_to_str_ext(val_id & 0x7F, valueStringExtAddr,
-                    wmem_strbuf_get_str(val_to_str_strbuf)));
+                val_to_str_ext(val_id & 0x7F, valueStringExtAddr, value_format));
         ok = TRUE;
     wkh_2_TextualValue;
         ti = proto_tree_add_string(tree, hf,
@@ -1728,8 +1729,7 @@ wkh_accept_x_q_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, p
             if (ok) {
                 ti = proto_tree_add_string(tree, hf,
                         tvb, hdr_start, offset - hdr_start,
-                        val_to_str_ext(val, valueStringExtAddr,
-                            wmem_strbuf_get_str(val_to_str_strbuf)));
+                        val_to_str_ext(val, valueStringExtAddr, value_format));
             }
             off += len;
         } /* else ok = FALSE */
@@ -2455,26 +2455,27 @@ static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo) \
 {   \
     return wkh_integer_lookup_or_text_value_func(tree, tvb, hdr_start, pinfo,          \
-                        hf_hdr_ ## underscored, Text,valueStringExtAddr, valueName);   \
+                        hf_hdr_ ## underscored, Text,valueStringExtAddr, \
+                        "<Unknown %s identifier " valueName "0x%X>");   \
 }
 
 static guint32
 wkh_integer_lookup_or_text_value_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo,
-                        int hf, const char* name, value_string_ext *valueStringExtAddr, const char* value_name)
+                        int hf, const char* name, value_string_ext *valueStringExtAddr, const char* value_format)
+                        G_GNUC_PRINTF(8, 0);
+
+static guint32
+wkh_integer_lookup_or_text_value_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo,
+                        int hf, const char* name, value_string_ext *valueStringExtAddr, const char* value_format)
 {
     wkh_0_Declarations;
     guint32 off = val_start, len;
     gchar* header_name = wmem_strdup_printf(wmem_packet_scope(), "Integer lookup: %s", name);
-    wmem_strbuf_t *val_to_str_strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
-
-    wmem_strbuf_append_printf(val_to_str_strbuf, "<Unknown %s identifier ", value_name);
-    wmem_strbuf_append(val_to_str_strbuf, "0x%X>");
 
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_integer_lookup, header_name);
         proto_tree_add_string(tree, hf,
                 tvb, hdr_start, offset - hdr_start,
-                val_to_str_ext(val_id & 0x7F, valueStringExtAddr,
-                wmem_strbuf_get_str(val_to_str_strbuf)));
+                val_to_str_ext(val_id & 0x7F, valueStringExtAddr, value_format));
         ok = TRUE;
     wkh_2_TextualValue;
         proto_tree_add_string(tree, hf,
@@ -2487,8 +2488,7 @@ wkh_integer_lookup_or_text_value_func(proto_tree *tree, tvbuff_t *tvb, guint32 h
             if (ok) {
                 proto_tree_add_string(tree, hf,
                         tvb, hdr_start, offset - hdr_start,
-                        val_to_str_ext(val_id & 0x7F, valueStringExtAddr,
-                        wmem_strbuf_get_str(val_to_str_strbuf)));
+                        val_to_str_ext(val_id & 0x7F, valueStringExtAddr, value_format));
             }
         }
     wkh_4_End();
