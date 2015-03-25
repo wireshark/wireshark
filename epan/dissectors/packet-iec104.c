@@ -1066,7 +1066,6 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	wmem_strbuf_t * res;
 
 	guint8 offset = 0;  /* byte offset, signal dissection */
-	guint8 offset_start_ioa = 0; /* position first ioa */
 	guint8 i;
 	guint32 asdu_info_obj_addr = 0;
 	proto_item * itSignal = NULL;
@@ -1183,13 +1182,16 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			for(i = 0; i < asduh.NumIx; i++)
 			{
 				/* create subtree for the signal values ... */
-				trSignal = proto_tree_add_subtree(it104tree, tvb, offset, asduh.DataLength + 3,
+				if (i == 0 || !asduh.SQ)
+					trSignal = proto_tree_add_subtree(it104tree, tvb, offset, asduh.DataLength + 3,
+														ett_asdu_objects, &itSignal, "IOA:s");
+				else
+					trSignal = proto_tree_add_subtree(it104tree, tvb, offset, asduh.DataLength,
 														ett_asdu_objects, &itSignal, "IOA:s");
 
 				/* --------  First Information object address */
-				if (!i)
+				if (i == 0)
 				{
-					offset_start_ioa = offset;
 					/* --------  Information object address */
 					/* check length */
 					if(Len < (guint)(offset + 3)) {
@@ -1202,7 +1204,6 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					if (asduh.SQ) /* <=> SQ=1, info obj addr = startaddr++ */
 					{
 						asdu_info_obj_addr++;
-						proto_tree_add_uint(trSignal, hf_ioa, tvb, offset_start_ioa, 3, asdu_info_obj_addr);
 					} else { /* SQ=0, info obj addr given */
 						/* --------  Information object address */
 						/* check length */
