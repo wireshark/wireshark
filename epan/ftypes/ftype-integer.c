@@ -237,6 +237,8 @@ integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 		val = -fv->value.sinteger;
 	} else
 		val = fv->value.sinteger;
+
+	guint32_to_str_buf(val, buf, 11);
 }
 
 static int
