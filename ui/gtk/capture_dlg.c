@@ -86,6 +86,14 @@
 #endif
 
 /*
+ * If this is WinPcap or if we have pcap_create(), we can set the
+ * buffer size.
+ */
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#define HAVE_BUFFER_SIZE
+#endif
+
+/*
  * Symbolic names for column indices.
  */
 enum
@@ -96,11 +104,11 @@ enum
     LINK,
     PMODE,
     SNAPLEN,
-#if defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
     BUFFER,
+#endif
+#ifdef HAVE_PCAP_CREATE
     MONITOR,
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    BUFFER,
 #endif
     FILTER,
     NUM_COLUMNS
@@ -125,7 +133,7 @@ enum
 #define E_CAP_SNAP_CB_KEY               "cap_snap_cb"
 #define E_CAP_LT_CBX_KEY                "cap_lt_cbx"
 #define E_CAP_LT_CBX_LABEL_KEY          "cap_lt_cbx_label"
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
 #define E_CAP_BUFFER_SIZE_SB_KEY        "cap_buffer_size_sb"
 #endif
 #define E_CAP_SNAP_SB_KEY               "cap_snap_sb"
@@ -321,11 +329,11 @@ gchar *col_index_to_name(gint indx)
       break;
     case SNAPLEN: col_name = g_strdup("SNAPLEN");
       break;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
     case BUFFER: col_name = g_strdup("BUFFER");
       break;
 #endif
-#if defined (HAVE_PCAP_CREATE)
+#ifdef HAVE_PCAP_CREATE
     case MONITOR: col_name = g_strdup("MONITOR");
       break;
 #endif
@@ -344,10 +352,10 @@ gint col_title_to_index(const gchar *name)
   if (strcmp(name, "Link-layer header") == 0) return LINK;
   if (strcmp(name, "Prom. Mode") == 0) return PMODE;
   if (strcmp(name, "Snaplen [B]") == 0) return SNAPLEN;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   if (strcmp(name, "Buffer [MiB]") == 0) return BUFFER;
 #endif
-#if defined (HAVE_PCAP_CREATE)
+#ifdef HAVE_PCAP_CREATE
   if (strcmp(name, "Mon. Mode") == 0) return MONITOR;
 #endif
   if (strcmp(name, "Capture Filter") == 0) return FILTER;
@@ -1267,7 +1275,7 @@ insert_new_rows(GList *list)
     } else {
       device.display_name = g_strdup(if_string);
     }
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
     if ((device.buffer = capture_dev_user_buffersize_find(if_string)) == -1) {
       device.buffer = global_capture_opts.default_options.buffer_size;
     }
@@ -1383,7 +1391,7 @@ insert_new_rows(GList *list)
 
 #if defined(HAVE_PCAP_CREATE)
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, device.buffer, MONITOR, "no",FILTER, "",-1);
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
+#elif defined(HAVE_BUFFER_SIZE)
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, device.buffer, FILTER, "",-1);
  #else
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
@@ -2349,7 +2357,7 @@ update_options_table(gint indx)
       }
   #if defined(HAVE_PCAP_CREATE)
       gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
-  #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
+  #elif defined(HAVE_BUFFER_SIZE)
       gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
   #else
       gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
@@ -2388,7 +2396,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
             *monitor_cb,
 #endif
             *filter_cm, *linktype_combo_box;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   GtkWidget *buffer_size_sb;
 #endif
 #ifdef HAVE_EXTCAP
@@ -2404,7 +2412,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, marked_interface);
   snap_cb    = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_CB_KEY);
   snap_sb    = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_SB_KEY);
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   buffer_size_sb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_BUFFER_SIZE_SB_KEY);
 #endif
   promisc_cb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_PROMISC_KEY);
@@ -2431,7 +2439,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
      }
   }
   device.active_dlt = dlt;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   device.buffer = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(buffer_size_sb));
 #endif
   device.pmode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
@@ -2530,7 +2538,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   GtkWidget       *caller, *window, *swindow = NULL, *if_view,
                   *main_vb, *if_hb, *if_lb, *if_lb_name,
                   *main_hb, *left_vb,
-#if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
                   *right_vb,
 #endif
                   *capture_fr, *capture_vb,
@@ -2554,14 +2562,14 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 
   GList           *cf_entry, *list, *cfilter_list;
   GtkAdjustment   *snap_adj;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   GtkAdjustment   *buffer_size_adj;
   GtkWidget       *buffer_size_lb, *buffer_size_sb, *buffer_size_hb;
 #endif
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget       *remote_bt;
 #endif
- #ifdef HAVE_AIRPCAP
+#ifdef HAVE_AIRPCAP
   GtkWidget       *advanced_bt;
 #endif
   interface_t      device;
@@ -2601,7 +2609,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   device.has_snaplen = FALSE;
   device.snaplen = 65535;
   device.cfilter = NULL;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
 #ifdef HAVE_EXTCAP
@@ -2707,7 +2715,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), left_vb, TRUE, TRUE, 0);
 
-#if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   /* Avoid adding the right vbox if not needed, because it steals 3 pixels */
   right_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
@@ -2914,7 +2922,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_box_pack_start(GTK_BOX(filter_hb), compile_bt, FALSE, FALSE, 3);
 #endif
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   buffer_size_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   buffer_size_lb = gtk_label_new("Buffer size:");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 0);
@@ -2932,13 +2940,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   buffer_size_lb = gtk_label_new("mebibyte(s)");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 3);
   gtk_misc_set_alignment(GTK_MISC(buffer_size_lb), 1, 0);
-#ifdef HAVE_PCAP_REMOTE
-  gtk_box_pack_start (GTK_BOX(left_vb), buffer_size_hb, FALSE, FALSE, 0);
-#else
-  #if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_CREATE)
-    gtk_box_pack_start (GTK_BOX(right_vb), buffer_size_hb, FALSE, FALSE, 0);
-  #endif
-#endif
+  gtk_box_pack_start (GTK_BOX(right_vb), buffer_size_hb, FALSE, FALSE, 0);
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
@@ -3342,7 +3344,7 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
             if (strcmp(optname, pipe_name) == 0) {
 #if defined(HAVE_PCAP_CREATE)
               gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
+#elif defined(HAVE_BUFFER_SIZE)
               gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
 #else
               gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
@@ -3450,7 +3452,7 @@ add_pipe_cb(gpointer w _U_)
     device.no_addresses = 0;
     device.last_packets = 0;
     device.links        = NULL;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
     device.buffer       = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
     device.active_dlt   = -1;
@@ -3480,7 +3482,7 @@ add_pipe_cb(gpointer w _U_)
     gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 #if defined(HAVE_PCAP_CREATE)
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
+#elif defined(HAVE_BUFFER_SIZE)
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
 #else
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
@@ -4697,7 +4699,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_tree_view_column_set_visible(column, FALSE);
   g_object_set(renderer, "xalign", 0.5f, NULL);
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("Buffer [MiB]", renderer, "text", BUFFER, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
@@ -5636,7 +5638,7 @@ create_and_fill_model(GtkTreeView *view)
   guint         i;
   link_row     *linkr = NULL;
   interface_t   device;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
   gint          buffer;
 #endif
   gint          snaplen;
@@ -5644,7 +5646,7 @@ create_and_fill_model(GtkTreeView *view)
 
 #if defined(HAVE_PCAP_CREATE)
   store = gtk_list_store_new (9, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
-#elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
+#elif defined(HAVE_BUFFER_SIZE)
   store = gtk_list_store_new (8, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING);
 #else
   store = gtk_list_store_new (7, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
@@ -5685,7 +5687,7 @@ create_and_fill_model(GtkTreeView *view)
 
       snaplen_string = g_strdup_printf("%d", device.snaplen);
 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
       if (capture_dev_user_buffersize_find(device.name) != -1) {
         buffer = capture_dev_user_buffersize_find(device.name);
         device.buffer = buffer;
@@ -5698,7 +5700,7 @@ create_and_fill_model(GtkTreeView *view)
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
       gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
+#elif defined(HAVE_BUFFER_SIZE)
       gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
 #else
       gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, linkname,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
@@ -5753,20 +5755,18 @@ query_tooltip_tree_view_cb (GtkWidget  *widget,
       case SNAPLEN: g_snprintf(buffer, sizeof(buffer), "Limit the maximum number of bytes to be captured from each packet. This size includes the "
                 "link-layer header and all subsequent headers.");
               break;
-#if defined(HAVE_PCAP_CREATE)
+#ifdef HAVE_BUFFER_SIZE
       case BUFFER: g_snprintf (buffer, sizeof(buffer), "The memory buffer size used while capturing. "
                 "If you notice packet drops, you can try increasing this size.");
               break;
+#endif
+#if defined(HAVE_PCAP_CREATE)
       case MONITOR: g_snprintf (buffer, sizeof(buffer), "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
                 "the traffic on the BSS to which it's associated. "
                 "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", select this option. "
                 "In order to see IEEE 802.11 headers or to see radio information for captured packets, "
                 "it might be necessary to turn this option on.\n\n"
                 "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated.");
-              break;
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      case BUFFER: g_snprintf (buffer, sizeof(buffer), "The memory buffer size used while capturing. "
-                "If you notice packet drops, you can try increasing this size.");
               break;
 #endif
       case FILTER: g_snprintf(buffer, sizeof(buffer), "Selected capture filter to reduce the amount of packets to be captured.");
