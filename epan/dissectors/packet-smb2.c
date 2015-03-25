@@ -514,22 +514,30 @@ static value_string_ext smb2_file_info_levels_ext = VALUE_STRING_EXT_INIT(smb2_f
 
 
 
-#define SMB2_FS_INFO_01		0x01
-#define SMB2_FS_INFO_03		0x03
-#define SMB2_FS_INFO_04		0x04
-#define SMB2_FS_INFO_05		0x05
-#define SMB2_FS_INFO_06		0x06
-#define SMB2_FS_INFO_07		0x07
-#define SMB2_FS_OBJECTID_INFO	0x08
+#define SMB2_FS_INFO_01			0x01
+#define SMB2_FS_LABEL_INFO		0x02
+#define SMB2_FS_INFO_03			0x03
+#define SMB2_FS_INFO_04			0x04
+#define SMB2_FS_INFO_05			0x05
+#define SMB2_FS_INFO_06			0x06
+#define SMB2_FS_INFO_07			0x07
+#define SMB2_FS_OBJECTID_INFO		0x08
+#define SMB2_FS_DRIVER_PATH_INFO	0x09
+#define SMB2_FS_VOLUME_FLAGS_INFO	0x0a
+#define SMB2_FS_SECTOR_SIZE_INFO	0x0b
 
 static const value_string smb2_fs_info_levels[] = {
-	{SMB2_FS_INFO_01,	"SMB2_FS_INFO_01" },
-	{SMB2_FS_INFO_03,	"SMB2_FS_INFO_03" },
-	{SMB2_FS_INFO_04,	"SMB2_FS_INFO_04" },
-	{SMB2_FS_INFO_05,	"SMB2_FS_INFO_05" },
-	{SMB2_FS_INFO_06,	"SMB2_FS_INFO_06" },
-	{SMB2_FS_INFO_07,	"SMB2_FS_INFO_07" },
-	{SMB2_FS_OBJECTID_INFO,	"SMB2_FS_OBJECTID_INFO" },
+	{SMB2_FS_INFO_01,		"FileFsVolumeInformation" },
+	{SMB2_FS_LABEL_INFO,		"FileFsLabelInformation" },
+	{SMB2_FS_INFO_03,		"FileFsSizeInformation" },
+	{SMB2_FS_INFO_04,		"FileFsDeviceInformation" },
+	{SMB2_FS_INFO_05,		"FileFsAttributeInformation" },
+	{SMB2_FS_INFO_06,		"FileFsControlInformation" },
+	{SMB2_FS_INFO_07,		"FileFsFullSizeInformation" },
+	{SMB2_FS_OBJECTID_INFO,		"FileFsObjectIdInformation" },
+	{SMB2_FS_DRIVER_PATH_INFO,	"FileFsDriverPathInformation" },
+	{SMB2_FS_VOLUME_FLAGS_INFO,	"FileFsVolumeFlagsInformation" },
+	{SMB2_FS_SECTOR_SIZE_INFO,	"FileFsSectorSizeInformation" },
 	{ 0, NULL }
 };
 static value_string_ext smb2_fs_info_levels_ext = VALUE_STRING_EXT_INIT(smb2_fs_info_levels);
@@ -1241,6 +1249,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000900E3, "FSCTL_READ_RAW_ENCRYPTED"},
 	{0x000900F0, "FSCTL_EXTEND_VOLUME"},
 	{0x0009027C, "FSCTL_GET_INTEGRITY_INFORMATION"},
+	{0x00090284, "FSCTL_QUERY_FILE_REGIONS"},
 	{0x00090300, "FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT"},
 	{0x00090304, "FSCTL_SVHDX_SYNC_TUNNEL_REQUEST"},
 	{0x00090308, "FSCTL_SVHDX_SET_INITIATOR_INFORMATION"},
@@ -5636,7 +5645,7 @@ dissect_smb2_APP_INSTANCE_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 	item = proto_tree_get_parent(tree);
 
-	proto_item_append_text(item, ": APP INSTANCE ID");
+	proto_item_append_text(item, ": CREATE APP INSTANCE ID");
 	sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb2_APP_INSTANCE_buffer, NULL, "APP INSTANCE ID");
 
 	/* struct size */
@@ -5764,6 +5773,9 @@ struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
 	{ "744D142E-46FA-0890-4AF7-A7EF6AA6BC45", "SMB2_CREATE_APP_INSTANCE_ID",
 		{ dissect_smb2_APP_INSTANCE_buffer_request,
 		  dissect_smb2_APP_INSTANCE_buffer_response } },
+	{ "6aa6bc45-a7ef-4af7-9008-fa462e144d74", "SMB2_CREATE_APP_INSTANCE_ID",
+		{ dissect_smb2_APP_INSTANCE_buffer_request,
+		  dissect_smb2_APP_INSTANCE_buffer_response } },
 	{ "9ecfcb9c-c104-43e6-980e-158da1f6ec83", "SVHDX_OPEN_DEVICE_CONTEXT",
 		{ dissect_smb2_svhdx_open_device_context_request,
 		  dissect_smb2_svhdx_open_device_context_response} }
@@ -5846,7 +5858,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	tag_dissectors = get_create_context_data_tag_dissectors(tag);
 
-	proto_item_append_text(parent_item, " %s", tag);
+	proto_item_append_text(parent_item, " %s", tag_dissectors->val);
 	proto_item_append_text(sub_item, ": %s \"%s\"", tag_dissectors->val, tag);
 
 	/* data */
