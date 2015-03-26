@@ -186,7 +186,7 @@ dtls_init(void)
 
   ssl_common_init(&dtls_master_key_map, &dtls_keylog_file,
                   &dtls_decrypted_data, &dtls_compressed_data);
-  reassembly_table_init (&dtls_reassembly_table, &addresses_reassembly_table_functions);
+  reassembly_table_init (&dtls_reassembly_table, &addresses_ports_reassembly_table_functions);
 
   /* We should have loaded "keys_list" by now. Mark it obsolete */
   if (dtls_module) {
