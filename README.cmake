@@ -103,9 +103,7 @@ How to do an out of tree build using Visual C++ 2013:
    nmake /X- VERBOSE=1 (or cmake --build . -- VERBOSE=1 )
    Open Wireshark.sln in Windows Explorer to build in Visual Studio
    msbuild wireshark.sln /m /p:Configuration=RelWithDebInfo
-7) In case you want to test the executable(s) inside the build tree:
-   Run setpath.bat whenever it gets updated (there is a message in each cmake
-   run whether it is necessary or not).
+7) The executables can be run from the appropriate directory, e.g. run\RelWithDebInfo
 
 Why cmake?
 ==========
@@ -191,7 +189,7 @@ What needs to be done?
   people use it.
 - Handle -DFORTIFY_SOURCE=2 appropriately.  (Do a Web search for
   "cmake fortify" for some information.)
-- Add support for Visual Studio code anlaysis similar to ENABLE_CODE_ANALYSIS in
+- Add support for Visual Studio code analysis similar to ENABLE_CODE_ANALYSIS in
   config.nmake.
 - Define the GTK_DISABLE_ and GDK_DISABLE_ values as appropriate if we
   care about supporting the GTK+ version.

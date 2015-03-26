@@ -562,9 +562,6 @@ if(BUILD_wireshark)
 		if( WIN32 )
 			set( QT5_BASE_PATH "$ENV{QT5_BASE_DIR}" )
 			set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}" )
-			# Used for the creation of setpath.bat
-			set( QT5_DLL_PATH "${QT5_BASE_PATH}/bin" )
-			set( WS_ALL_LIBS ${WS_ALL_LIBS} ${QT5_DLL_PATH} )
 		endif()
 		set(PACKAGELIST ${PACKAGELIST}
 			Qt5Core
@@ -719,9 +716,6 @@ endforeach()
 
 # Provide Windows system lib names
 include( UseWinLibs )
-
-# Create file to set paths to run binaries from build dir
-WSExtendPath( "${WS_ALL_LIBS}" "${CMAKE_BINARY_DIR}/setpath.bat" )
 
 #packaging
 include(CPackConfig.txt)
