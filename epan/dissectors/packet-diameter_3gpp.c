@@ -163,6 +163,10 @@ static int hf_diameter_3gpp_idr_flags_bit6 = -1;
 static int hf_diameter_3gpp_ipv6addr = -1;
 static int hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer = -1;
 static int hf_diameter_3gpp_udp_port = -1;
+static int hf_diameter_3gpp_imeisv = -1;
+static int hf_diameter_3gpp_af_charging_identifier = -1;
+static int hf_diameter_3gpp_af_application_identifier = -1;
+static int hf_diameter_3gpp_charging_rule_name = -1;
 
 static gint diameter_3gpp_path_ett = -1;
 static gint diameter_3gpp_feature_list_ett = -1;
@@ -179,6 +183,52 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 
 /* Dissector handles */
 static dissector_handle_t xml_handle;
+
+/* Forward declarations */
+static int dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_);
+
+/* AVP Code: 15 3GPP-SGSN-IPv6-Address */
+static int
+dissect_diameter_3gpp_sgsn_ipv6_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    /* 3GPP AVP code 15 has a conflict between imscxdx.xml (where the AVP
+    * contains an Unsigned32 enum) and TGPPGmb.xml (where the AVP contains
+    * an OctetString IPv6 address).  This function decodes the latter; we
+    * (silently) abort dissection if the length is 4 on the assumption that
+    * the old IMS AVP is what we're decoding.
+    */
+    if (tvb_reported_length(tvb) == 4)
+        return 4;
+
+    return dissect_diameter_3gpp_ipv6addr(tvb, pinfo, tree, data);
+
+}
+
+/* AVP Code: 20 3GPP-IMEISV
+* 3GPP TS 29.061
+*/
+
+static int
+dissect_diameter_3gpp_imeisv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
+    int offset = 0, i;
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+
+    if (tree){
+        for (i = 0; i < length; i++)
+            if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
+                return length;
+
+        item = proto_tree_add_item(tree, hf_diameter_3gpp_imeisv, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        PROTO_ITEM_SET_GENERATED(item);
+        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s",
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA));
+    }
+
+    return length;
+}
 
 /* AVP Code: 23 3GPP-MS-TimeZone
  * 3GPP TS 29.061
@@ -229,35 +279,56 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     return offset;
 }
+/*
+* AVP Code: 504 AF-Application-Identifier
+*/
 
-/* AVP Code: 917 MBMS-GGSN-IPv6-Address */
 static int
-dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_af_application_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    int offset = 0;
+    proto_item *item;
+    int offset = 0, i;
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 
-    proto_tree_add_item(tree, hf_diameter_3gpp_ipv6addr, tvb, offset, 16, ENC_NA);
+    if (tree){
+        for (i = 0; i < length; i++)
+            if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
+                return length;
 
-    offset += 16;
+        item = proto_tree_add_item(tree, hf_diameter_3gpp_af_application_identifier, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        PROTO_ITEM_SET_GENERATED(item);
+        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s",
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA));
+    }
 
-    return offset;
+    return length;
 }
 
-/* AVP Code: 15 3GPP-SGSN-IPv6-Address */
+/*
+* AVP Code: 505 AF-Charging-Identifier
+*/
+
 static int
-dissect_diameter_3gpp_sgsn_ipv6_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_diameter_3gpp_af_charging_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-    /* 3GPP AVP code 15 has a conflict between imscxdx.xml (where the AVP
-     * contains an Unsigned32 enum) and TGPPGmb.xml (where the AVP contains
-     * an OctetString IPv6 address).  This function decodes the latter; we
-     * (silently) abort dissection if the length is 4 on the assumption that
-     * the old IMS AVP is what we're decoding.
-     */
-    if (tvb_reported_length(tvb) == 4)
-        return 4;
+    proto_item *item;
+    int offset = 0, i;
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 
-    return dissect_diameter_3gpp_ipv6addr(tvb, pinfo, tree, data);
+    if (tree){
+        for (i = 0; i < length; i++)
+            if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
+                return length;
 
+        item = proto_tree_add_item(tree, hf_diameter_3gpp_af_charging_identifier, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        PROTO_ITEM_SET_GENERATED(item);
+        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s",
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA));
+    }
+
+    return length;
 }
 
 /* AVP Code: 600 Visited-Network-Identifier
@@ -623,6 +694,20 @@ dissect_diameter_3gpp_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 /* AVP Code: 903 MBMS-Service-Area */
 
+/* AVP Code: 917 MBMS-GGSN-IPv6-Address */
+static int
+dissect_diameter_3gpp_ipv6addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+
+    proto_tree_add_item(tree, hf_diameter_3gpp_ipv6addr, tvb, offset, 16, ENC_NA);
+
+    offset += 16;
+
+    return offset;
+}
+
+
 /* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
 static int
 dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -774,6 +859,30 @@ dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 }
 
+/*
+ * AVP Code: 1005 Charging-Rule-Name
+ */
+static int
+dissect_diameter_3gpp_charging_rule_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
+    int offset = 0, i;
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+
+    if (tree){
+        for (i = 0; i < length; i++)
+            if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
+                return length;
+
+        item = proto_tree_add_item(tree, hf_diameter_3gpp_charging_rule_name, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        PROTO_ITEM_SET_GENERATED(item);
+        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s",
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA));
+    }
+
+    return length;
+}
 /* AVP Code: 1406 ULA-Flags */
 static int
 dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -1001,12 +1110,21 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 15 3GPP-SGSN-IPv6-Address */
     dissector_add_uint("diameter.3gpp", 15, new_create_dissector_handle(dissect_diameter_3gpp_sgsn_ipv6_address, proto_diameter_3gpp));
 
+    /* AVP Code: 20 3GPP-IMEISV */
+    dissector_add_uint("diameter.3gpp", 20, new_create_dissector_handle(dissect_diameter_3gpp_imeisv, proto_diameter_3gpp));
+
     /* AVP Code: 22 3GPP-User-Location-Info
      * Registered by packet-gtpv2.c
      */
 
     /* AVP Code: 23 3GPP-MS-TimeZone */
     dissector_add_uint("diameter.3gpp", 23, new_create_dissector_handle(dissect_diameter_3gpp_ms_timezone, proto_diameter_3gpp));
+
+    /* AVP Code: 504 AF-Application-Identifier */
+    dissector_add_uint("diameter.3gpp", 504, new_create_dissector_handle(dissect_diameter_3gpp_af_application_identifier, proto_diameter_3gpp));
+
+    /* AVP Code: 505 AF-Charging-Identifier */
+    dissector_add_uint("diameter.3gpp", 505, new_create_dissector_handle(dissect_diameter_3gpp_af_charging_identifier, proto_diameter_3gpp));
 
     /* AVP Code: 600 Visited-Network-Identifier */
     dissector_add_uint("diameter.3gpp", 600, new_create_dissector_handle(dissect_diameter_3gpp_visited_nw_id, proto_diameter_3gpp));
@@ -1072,6 +1190,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 930 MBMS-Data-Transfer-Stop */
     dissector_add_uint("diameter.3gpp", 930, new_create_dissector_handle(dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, proto_diameter_3gpp));
+
+    /* AVP Code: 1005 Charging-Rule-Name */
+    dissector_add_uint("diameter.3gpp", 1005, new_create_dissector_handle(dissect_diameter_3gpp_charging_rule_name, proto_diameter_3gpp));
 
     /* AVP Code: 1405 ULR-Flags */
     dissector_add_uint("diameter.3gpp", 1405, new_create_dissector_handle(dissect_diameter_3gpp_ulr_flags, proto_diameter_3gpp));
@@ -1712,7 +1833,28 @@ proto_register_diameter_3gpp(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-    };
+        { &hf_diameter_3gpp_imeisv,
+            { "IMEISV", "diameter.3gpp.imeisv",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_af_charging_identifier,
+            { "AF-Charging-Identifier", "diameter.3gpp.af_charging_identifier",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_af_application_identifier,
+            { "AF-Application-Identifier", "diameter.3gpp.af_application_identifier",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_charging_rule_name,
+            { "Charging-Rule-Name", "diameter.3gpp.charging_rule_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+};
+
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
