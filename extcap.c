@@ -308,7 +308,16 @@ static gboolean interfaces_cb(const gchar *extcap, gchar *output, void *data,
         if_info->name = g_strdup(int_iter->call);
         if_info->friendly_name = g_strdup(int_iter->display);
 
-        if_info->type = IF_EXTCAP;
+#ifdef WIN32
+        if (strncmp(if_info->friendly_name, "USBPcap", 7) == 0)
+        {
+            if_info->type = IF_USB;
+        }
+        else
+#endif
+        {
+            if_info->type = IF_EXTCAP;
+        }
 
         if_info->extcap = g_strdup(extcap);
         *il = g_list_append(*il, if_info);
