@@ -104,6 +104,7 @@ private:
     void setFrameIgnore(gboolean set, frame_data *fdata);
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();
+    int sizeHintForColumn(int column) const;
     void initHeaderContextMenu();
 signals:
     void packetDissectionChanged();

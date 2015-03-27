@@ -39,6 +39,7 @@
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
+    size_hint_enabled_(true),
     row_height_(-1),
     line_spacing_(0)
 {
@@ -125,13 +126,6 @@ void PacketListModel::resetColorized()
         record->resetColorized();
     }
     endResetModel();
-}
-
-int PacketListModel::columnTextSize(const char *str)
-{
-    QFontMetrics fm(mono_font_);
-
-    return fm.width(str);
 }
 
 void PacketListModel::setMonospaceFont(const QFont &mono_font, int row_height)
@@ -331,9 +325,14 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     }
     case Qt::SizeHintRole:
     {
-        // We assume that inter-line spacing is 0.
-        QSize size = QSize(-1, row_height_ + ((record->lineCount() - 1) * line_spacing_));
-        return size;
+        if (size_hint_enabled_) {
+            // We assume that inter-line spacing is 0.
+            QSize size = QSize(-1, row_height_ + ((record->lineCount() - 1) * line_spacing_));
+            return size;
+        } else {
+            // Used by PacketList::sizeHintForColumn
+            return QVariant();
+        }
     }
     default:
         return QVariant();

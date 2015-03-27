@@ -55,6 +55,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QContextMenuEvent>
+#include <QFontMetrics>
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QScrollBar>
@@ -591,6 +592,18 @@ void PacketList::setColumnVisibility()
     }
 }
 
+int PacketList::sizeHintForColumn(int column) const
+{
+    int size_hint;
+
+    // This is a bit hacky but Qt does a fine job of column sizing and
+    // reimplementing QTreeView::sizeHintForColumn seems worse.
+    packet_list_model_->setSizeHintEnabled(false);
+    size_hint = QTreeView::sizeHintForColumn(column);
+    packet_list_model_->setSizeHintEnabled(true);
+    return size_hint;
+}
+
 void PacketList::initHeaderContextMenu()
 {
     header_ctx_menu_.clear();
@@ -670,12 +683,13 @@ void PacketList::applyRecentColumnWidths()
             fmt = get_column_format(i);
             long_str = get_column_width_string(fmt, i);
             if (long_str) {
-                col_width = packet_list_model_->columnTextSize(long_str);
+                col_width = fontMetrics().width(long_str);
             } else {
-                col_width = packet_list_model_->columnTextSize(MIN_COL_WIDTH_STR);
+                col_width = fontMetrics().width(MIN_COL_WIDTH_STR);
             }
         }
-        setColumnWidth(i, col_width);
+        col_width += QTreeView::sizeHintForColumn(i); // Decoration padding
+        setColumnWidth(i, col_width) ;
     }
     column_state_ = header()->saveState();
     redrawVisiblePackets();

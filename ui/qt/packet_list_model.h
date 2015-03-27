@@ -62,7 +62,7 @@ public:
     int visibleIndexOf(frame_data *fdata) const;
     void resetColumns();
     void resetColorized();
-    int columnTextSize(const char *str);
+    void setSizeHintEnabled(bool enable) { size_hint_enabled_ = enable; }
 
 signals:
     void goToPacket(int);
@@ -80,6 +80,7 @@ private:
     QVector<PacketListRecord *> physical_rows_;
     QMap<int, int> number_to_row_;
 
+    bool size_hint_enabled_;
     int row_height_;
     int line_spacing_;
 
