@@ -2558,6 +2558,9 @@ static void x11_init_protocol(void)
       for (state = x11_conv_data_list; state != NULL; ) {
             x11_conv_data_t *last;
 
+            g_hash_table_destroy(state->eventcode_funcs);
+            g_hash_table_destroy(state->reply_funcs);
+
             g_hash_table_destroy(state->seqtable);
             g_hash_table_destroy(state->valtable);
 
