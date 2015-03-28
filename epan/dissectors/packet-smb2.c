@@ -81,6 +81,7 @@ static int hf_smb2_security_blob = -1;
 static int hf_smb2_ioctl_in_data = -1;
 static int hf_smb2_ioctl_out_data = -1;
 static int hf_smb2_unknown = -1;
+static int hf_smb2_root_directory_mbz = -1;
 static int hf_smb2_twrp_timestamp = -1;
 static int hf_smb2_mxac_timestamp = -1;
 static int hf_smb2_mxac_status = -1;
@@ -96,6 +97,7 @@ static int hf_smb2_current_time = -1;
 static int hf_smb2_boot_time = -1;
 static int hf_smb2_filename = -1;
 static int hf_smb2_filename_len = -1;
+static int hf_smb2_replace_if = -1;
 static int hf_smb2_nlinks = -1;
 static int hf_smb2_delete_pending = -1;
 static int hf_smb2_is_directory = -1;
@@ -343,6 +345,7 @@ static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
 static int hf_smb2_error_reserved = -1;
 static int hf_smb2_reserved = -1;
+static int hf_smb2_reserved_random = -1;
 static int hf_smb2_transform_signature = -1;
 static int hf_smb2_transform_nonce = -1;
 static int hf_smb2_transform_msg_size = -1;
@@ -1605,12 +1608,8 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 
 	/* file name length */
 	length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
-
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, ENC_NA);
-	offset += 2;
+	proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
 	/* file name */
 	if (length) {
@@ -1624,7 +1623,6 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 
 	}
 	offset += length;
-
 
 	return offset;
 }
@@ -2057,6 +2055,11 @@ dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	return offset;
 }
 
+static const true_false_string tfs_replace_if_exists = {
+	"Replace the target if it exists",
+	"Fail if the target exists"
+};
+
 static int
 dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
@@ -2072,18 +2075,22 @@ dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 		tree = proto_item_add_subtree(item, ett_smb2_file_rename_info);
 	}
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, ENC_NA);
-	offset += 16;
+	/* ReplaceIfExists */
+	proto_tree_add_item(tree, hf_smb2_replace_if, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_reserved_random, tvb, offset, 7, ENC_NA);
+	offset += 7;
+
+	/* Root Directory Handle, MBZ */
+	proto_tree_add_item(tree, hf_smb2_root_directory_mbz, tvb, offset, 8, ENC_NA);
+	offset += 8;
 
 	/* file name length */
 	length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
-
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, ENC_NA);
-	offset += 2;
+	proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
 	/* file name */
 	if (length) {
@@ -2098,10 +2105,6 @@ dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 		col_append_fstr(pinfo->cinfo, COL_INFO, " NewName:%s", name);
 	}
 	offset += length;
-
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, ENC_NA);
-	offset += 4;
 
 	return offset;
 }
@@ -7535,12 +7538,18 @@ proto_register_smb2(void)
 		{ &hf_smb2_tree,
 		  { "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 		    NULL, 0, "Name of the Tree/Share", HFILL }},
+
 		{ &hf_smb2_filename,
 		  { "Filename", "smb2.filename", FT_STRING, BASE_NONE,
 		    NULL, 0, "Name of the file", HFILL }},
+
 		{ &hf_smb2_filename_len,
 		  { "Filename Length", "smb2.filename.len", FT_UINT32, BASE_DEC,
 		    NULL, 0, "Length of the file name", HFILL }},
+
+		{ &hf_smb2_replace_if,
+		  { "Replace If", "smb2.rename.replace_if", FT_BOOLEAN, 8,
+		    TFS(&tfs_replace_if_exists), 0xFF, "Whether to replace if the target exists", HFILL }},
 
 		{ &hf_smb2_data_offset,
 		  { "Data Offset", "smb2.data_offset", FT_UINT16, BASE_HEX,
@@ -8488,6 +8497,14 @@ proto_register_smb2(void)
 		{ &hf_smb2_reserved,
 		  { "Reserved", "smb2.reserved", FT_BYTES, BASE_NONE,
 		    NULL, 0, "Reserved bytes", HFILL }},
+
+		{ &hf_smb2_reserved_random,
+		  { "Reserved (Random)", "smb2.reserved.random", FT_BYTES, BASE_NONE,
+		    NULL, 0, "Reserved bytes, random data", HFILL }},
+
+		{ &hf_smb2_root_directory_mbz,
+		  { "Root Dir Handle (MBZ)", "smb2.root_directory", FT_BYTES, BASE_NONE,
+		    NULL, 0, "Root Directory Handle, mbz", HFILL }},
 
 		{ &hf_smb2_dhnq_buffer_reserved,
 		  { "Reserved", "smb2.dhnq_buffer_reserved", FT_UINT64, BASE_HEX,
