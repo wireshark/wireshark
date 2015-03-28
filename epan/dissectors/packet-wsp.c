@@ -1686,7 +1686,7 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
 {   \
     return wkh_accept_x_q_header_func(tree, tvb, hdr_start, pinfo,   \
                 hf_hdr_ ## underscored, Text, valueStringExtAddr, \
-                "<Unknown %s identifier " valueName "0x%X>");   \
+                "<Unknown " valueName " identifier 0x%X>");   \
 }
 
 static guint32
@@ -2456,7 +2456,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 {   \
     return wkh_integer_lookup_or_text_value_func(tree, tvb, hdr_start, pinfo,          \
                         hf_hdr_ ## underscored, Text,valueStringExtAddr, \
-                        "<Unknown %s identifier " valueName "0x%X>");   \
+                        "<Unknown " valueName " identifier 0x%X>");   \
 }
 
 static guint32
