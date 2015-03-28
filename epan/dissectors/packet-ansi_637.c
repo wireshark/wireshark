@@ -309,6 +309,18 @@ static int hf_ansi_637_tele_cmas_expires_hours = -1;
 static int hf_ansi_637_tele_cmas_expires_minutes = -1;
 static int hf_ansi_637_tele_cmas_expires_seconds = -1;
 static int hf_ansi_637_tele_cmas_language = -1;
+static int hf_ansi_637_tele_cmas_text = -1;
+static int hf_ansi_637_tele_mult_enc_user_data_encoding = -1;
+static int hf_ansi_637_tele_mult_enc_user_data_num_fields = -1;
+static int hf_ansi_637_tele_mult_enc_user_data_text = -1;
+static int hf_ansi_637_tele_srvc_cat_prog_data_encoding = -1;
+static int hf_ansi_637_tele_srvc_cat_prog_data_operation_code = -1;
+static int hf_ansi_637_tele_srvc_cat_prog_data_category = -1;
+static int hf_ansi_637_tele_srvc_cat_prog_data_language = -1;
+static int hf_ansi_637_tele_srvc_cat_prog_data_max_messages = -1;
+static int hf_ansi_637_tele_srvc_cat_prog_data_alert_option = -1;
+static int hf_ansi_637_tele_srvc_cat_prog_data_num_fields = -1;
+static int hf_ansi_637_tele_srvc_cat_prog_data_text = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_637_tele = -1;
@@ -366,7 +378,8 @@ static proto_tree *g_tree;
  * there are 'unused_bits' bits remaining in the octet at 'offset'
  */
 static void
-text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint8 encoding, guint8 num_fields, guint16 num_bits, guint8 unused_bits, guint8 fill_bits)
+text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint8 encoding,
+             guint8 num_fields, guint16 num_bits, guint8 unused_bits, guint8 fill_bits, int hf_index)
 {
     guint8      bit;
     guint32     required_octs;
@@ -399,7 +412,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         offset = 0;
         bit = 0;
 
-        proto_tree_add_ascii_7bits_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, (offset << 3) + bit, num_fields);
+        proto_tree_add_ascii_7bits_item(tree, hf_index, tvb_out, (offset << 3) + bit, num_fields);
         break;
 
     case 0x03: /* IA5 */
@@ -410,7 +423,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         ustr = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3) + bit, num_fields);
         IA5_7BIT_decode(ansi_637_bigbuf, ustr, num_fields);
 
-        proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, 0,
+        proto_tree_add_string(tree, hf_index, tvb_out, 0,
             offset, ansi_637_bigbuf);
         break;
 
@@ -418,21 +431,21 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
         offset = 0;
 
-        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset, num_fields*2, ENC_UCS_2|ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_index, tvb_out, offset, num_fields*2, ENC_UCS_2|ENC_BIG_ENDIAN);
         break;
 
     case 0x07: /* Latin/Hebrew */
 
         offset = 0;
 
-        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset, num_fields, ENC_ISO_8859_8|ENC_NA);
+        proto_tree_add_item(tree, hf_index, tvb_out, offset, num_fields, ENC_ISO_8859_8|ENC_NA);
         break;
 
     case 0x08: /* Latin */
 
         offset = 0;
 
-        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset, num_fields, ENC_ISO_8859_1|ENC_NA);
+        proto_tree_add_item(tree, hf_index, tvb_out, offset, num_fields, ENC_ISO_8859_1|ENC_NA);
         break;
 
     case 0x09: /* GSM 7-bit default alphabet */
@@ -440,7 +453,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         offset = 0;
         bit = fill_bits;
 
-        proto_tree_add_ts_23_038_7bits_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, (offset << 3) + bit, num_fields);
+        proto_tree_add_ts_23_038_7bits_item(tree, hf_index, tvb_out, (offset << 3) + bit, num_fields);
         break;
 
     case 0x10: /* KSC5601 (Korean) */
@@ -452,7 +465,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             ustr = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, required_octs), required_octs , cd , NULL , NULL , &l_conv_error);
             if (!l_conv_error)
             {
-                proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset,
+                proto_tree_add_string(tree, hf_index, tvb_out, offset,
                     required_octs, ustr);
             }
             else
@@ -771,8 +784,8 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
             temp_offset = offset;
             if (num_fields) {
-                text_decoder(tvb_out, pinfo, subtree, temp_offset, encoding, num_fields,
-                    num_bits, 3 /* (5 bits used from 'temp_offset' octet for encoding */, 0);
+                text_decoder(tvb_out, pinfo, subtree, temp_offset, encoding, num_fields, num_bits,
+                    3 /* (5 bits used from 'temp_offset' octet for encoding */, 0, hf_ansi_637_tele_cmas_text);
             }
 
             offset += (record_len - 1);
@@ -929,8 +942,8 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     guint32             orig_offset;
     guint32             saved_offset;
     guint32             required_octs;
-    const gchar         *str = NULL;
-    tvbuff_t            *tvb_out = NULL;
+    const gchar         *str;
+    tvbuff_t            *tvb_out;
     enum character_set  cset;
 
     SHORT_DATA_CHECK(len, 2);
@@ -940,73 +953,36 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
     value = tvb_get_ntohs(tvb, offset);
 
-    encoding_bit_len = 7;
-    cset = ASCII_7BITS;
-
     encoding = (guint8) ((value & 0xf800) >> 11);
+    str = val_to_str_const(encoding, ansi_tsb58_encoding_vals, "Reserved");
     switch (encoding)
     {
     case 0x00:
-        str = "Octet, unspecified";
+    case 0x05:
+    case 0x06:
+    case 0x07:
+    case 0x08:
+    case 0x10:
         encoding_bit_len = 8;
         cset = OTHER;
         break;
 
     case 0x01:
-        str = "Extended Protocol Message";
-        break;
-
     case 0x02:
-        str = "7-bit ASCII";
-        break;
-
     case 0x03:
-        str = "IA5";
+    default:
+        encoding_bit_len = 7;
+        cset = ASCII_7BITS;
         break;
 
     case 0x04:
-        str = "UNICODE";
         encoding_bit_len = 16;
         cset = OTHER;
         break;
 
-    case 0x05:
-        str = "Shift-JIS";
-        encoding_bit_len = 8;
-        cset = OTHER;
-        break;
-
-    case 0x06:
-        str = "Korean";
-        encoding_bit_len = 8;
-        cset = OTHER;
-        break;
-
-    case 0x07:
-        str = "Latin/Hebrew";
-        encoding_bit_len = 8;
-        cset = OTHER;
-        break;
-
-    case 0x08:
-        str = "Latin";
-        encoding_bit_len = 8;
-        cset = OTHER;
-        break;
-
     case 0x09:
-        str = "GSM 7-bit default alphabet";
+        encoding_bit_len = 7;
         cset = GSM_7BITS;
-        break;
-
-    case 0x10:
-        str = "KSC5601 (Korean)";
-        encoding_bit_len = 8;
-        cset = OTHER;
-        break;
-
-    default:
-        str = "Reserved";
         break;
     }
 
@@ -1134,7 +1110,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
     if (num_fields) {
         text_decoder(tvb, pinfo, tree, offset, encoding, num_fields,
-            num_fields * encoding_bit_len, unused_bits, fill_bits);
+            num_fields * encoding_bit_len, unused_bits, fill_bits, hf_ansi_637_tele_user_data_text);
     }
 
     if (reserved_bits > 0)
@@ -1491,11 +1467,263 @@ tele_param_disp_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 }
 
 static void
+tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+{
+    guint8              oct;
+    guint8              bit_mask_8;
+    guint64             encoding;
+    guint8              encoding_bit_len;
+    guint64             num_fields;
+    guint8              unused_bits;
+    guint8              fill_bits;
+    guint16             reserved_bits;
+    guint32             orig_offset;
+    enum character_set  cset = OTHER;
+
+    SHORT_DATA_CHECK(len, 2);
+
+    orig_offset = offset;
+    offset <<= 3;
+    reserved_bits = len * 8;
+
+    while (reserved_bits > 7) {
+        proto_tree_add_bits_ret_val(tree, hf_ansi_637_tele_mult_enc_user_data_encoding,
+                                    tvb, offset, 5, &encoding, ENC_BIG_ENDIAN);
+        switch (encoding) {
+        case 0x00:
+        case 0x05:
+        case 0x06:
+        case 0x07:
+        case 0x08:
+        case 0x10:
+            encoding_bit_len = 8;
+            cset = OTHER;
+            break;
+
+        case 0x01:
+        case 0x02:
+        case 0x03:
+        default:
+            encoding_bit_len = 7;
+            cset = ASCII_7BITS;
+            break;
+
+        case 0x04:
+            encoding_bit_len = 16;
+            cset = OTHER;
+            break;
+
+        case 0x09:
+            encoding_bit_len = 7;
+            cset = GSM_7BITS;
+            break;
+        }
+
+        offset += 5;
+        reserved_bits -= 5;
+
+        proto_tree_add_bits_ret_val(tree, hf_ansi_637_tele_mult_enc_user_data_num_fields,
+                                    tvb, offset, 8, &num_fields, ENC_BIG_ENDIAN);
+
+        offset += 8;
+        reserved_bits -= 8;
+
+        unused_bits = (offset & 0x07) ? 8 - (offset & 0x07) : 0;
+        fill_bits = 0;
+
+        if (num_fields) {
+            text_decoder(tvb, pinfo, tree, offset>>3, (guint8)encoding, (guint8)num_fields, (guint8)num_fields * encoding_bit_len,
+                unused_bits, fill_bits, hf_ansi_637_tele_mult_enc_user_data_text);
+            offset +=  (guint8)num_fields * encoding_bit_len;
+            reserved_bits -= (guint8)num_fields * encoding_bit_len;
+        }
+    }
+
+    if (reserved_bits > 0)
+    {
+        /*
+         * unlike for CMAS, the bits that can be reserved will always be
+         * at the end of an octet so we don't have to worry about them
+         * spanning two octets
+         */
+
+        switch (cset)
+        {
+        case GSM_7BITS:
+            bit_mask_8 = MASK_B(0, reserved_bits);                      /* MSBs */
+            break;
+
+        default:
+            bit_mask_8 = MASK_B(8 - reserved_bits, reserved_bits);      /* LSBs */
+            break;
+        }
+
+        oct = tvb_get_guint8(tvb, orig_offset + len - 1);
+
+        other_decode_bitfield_value(ansi_637_bigbuf, oct, bit_mask_8, 8);
+        proto_tree_add_uint_format(tree, hf_ansi_637_reserved_bits_8_generic, tvb, orig_offset + len - 1, 1,
+            oct & bit_mask_8,
+            "%s = Reserved bit(s)",
+            ansi_637_bigbuf);
+    }
+}
+
+static void
 tele_param_msg_deposit_idx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
 {
     EXACT_DATA_CHECK(len, 2);
 
     proto_tree_add_item(tree, hf_ansi_637_tele_msg_deposit_idx, tvb, offset, 2, ENC_BIG_ENDIAN);
+}
+
+static const value_string tele_param_srvc_cat_prog_data_op_code_vals[] = {
+    { 0x00, "Delete the Service Category" },
+    { 0x01, "Add the Service Category" },
+    { 0x02, "Clear all Service Categories" },
+    { 0x00, NULL}
+};
+
+static const value_string tele_param_srvc_cat_prog_data_alert_option_vals[] = {
+    { 0x00, "No alert" },
+    { 0x01, "Mobile Station default alert" },
+    { 0x02, "Vibrate alert once" },
+    { 0x03, "Vibrate alert - repeat" },
+    { 0x04, "Visual alert once" },
+    { 0x05, "Visual alert - repeat" },
+    { 0x06, "Low-priority alert once" },
+    { 0x07, "Low-priority alert - repeat" },
+    { 0x08, "Medium-priority alert once" },
+    { 0x09, "Medium-priority alert - repeat" },
+    { 0x0a, "High-priority alert once" },
+    { 0x0b, "High-priority alert - repeat" },
+    { 0x00, NULL}
+};
+
+static void
+tele_param_srvc_cat_prog_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint len, guint32 offset, gboolean *has_private_data_p _U_)
+{
+    guint8              oct;
+    guint8              bit_mask_8;
+    guint64             encoding;
+    guint8              encoding_bit_len;
+    guint64             num_fields;
+    guint8              unused_bits;
+    guint8              fill_bits;
+    guint16             reserved_bits;
+    guint32             orig_offset;
+    enum character_set  cset = OTHER;
+
+    SHORT_DATA_CHECK(len, 2);
+
+    orig_offset = offset;
+    offset <<= 3;
+    reserved_bits = len * 8;
+
+    proto_tree_add_bits_ret_val(tree, hf_ansi_637_tele_srvc_cat_prog_data_encoding,
+                                tvb, offset, 5, &encoding, ENC_BIG_ENDIAN);
+    switch (encoding) {
+    case 0x00:
+    case 0x05:
+    case 0x06:
+    case 0x07:
+    case 0x08:
+    case 0x10:
+        encoding_bit_len = 8;
+        cset = OTHER;
+        break;
+
+    case 0x01:
+    case 0x02:
+    case 0x03:
+    default:
+        encoding_bit_len = 7;
+        cset = ASCII_7BITS;
+        break;
+
+    case 0x04:
+        encoding_bit_len = 16;
+        cset = OTHER;
+        break;
+
+    case 0x09:
+        encoding_bit_len = 7;
+        cset = GSM_7BITS;
+        break;
+    }
+
+    offset += 5;
+    reserved_bits -= 5;
+
+    while (reserved_bits > 7) {
+        proto_tree_add_bits_item(tree, hf_ansi_637_tele_srvc_cat_prog_data_operation_code,
+                                 tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        reserved_bits -= 4;
+
+        proto_tree_add_bits_item(tree, hf_ansi_637_tele_srvc_cat_prog_data_category,
+                                 tvb, offset, 16, ENC_BIG_ENDIAN);
+        offset += 16;
+        reserved_bits -= 16;
+
+        proto_tree_add_bits_item(tree, hf_ansi_637_tele_srvc_cat_prog_data_language,
+                                 tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        reserved_bits -= 8;
+
+        proto_tree_add_bits_item(tree, hf_ansi_637_tele_srvc_cat_prog_data_max_messages,
+                                 tvb, offset, 8, ENC_BIG_ENDIAN);
+        offset += 8;
+        reserved_bits -= 8;
+
+        proto_tree_add_bits_item(tree, hf_ansi_637_tele_srvc_cat_prog_data_alert_option,
+                                 tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        reserved_bits -= 4;
+
+        proto_tree_add_bits_ret_val(tree, hf_ansi_637_tele_srvc_cat_prog_data_num_fields,
+                                    tvb, offset, 8, &num_fields, ENC_BIG_ENDIAN);
+
+        offset += 8;
+        reserved_bits -= 8;
+
+        unused_bits = (offset & 0x07) ? 8 - (offset & 0x07) : 0;
+        fill_bits = 0;
+
+        if (num_fields) {
+            text_decoder(tvb, pinfo, tree, offset>>3, (guint8)encoding, (guint8)num_fields, (guint8)num_fields * encoding_bit_len,
+                unused_bits, fill_bits, hf_ansi_637_tele_srvc_cat_prog_data_text);
+            offset +=  (guint8)num_fields * encoding_bit_len;
+            reserved_bits -= (guint8)num_fields * encoding_bit_len;
+        }
+    }
+
+    if (reserved_bits > 0)
+    {
+        /*
+         * unlike for CMAS, the bits that can be reserved will always be
+         * at the end of an octet so we don't have to worry about them
+         * spanning two octets
+         */
+
+        switch (cset)
+        {
+        case GSM_7BITS:
+            bit_mask_8 = MASK_B(0, reserved_bits);                      /* MSBs */
+            break;
+
+        default:
+            bit_mask_8 = MASK_B(8 - reserved_bits, reserved_bits);      /* LSBs */
+            break;
+        }
+
+        oct = tvb_get_guint8(tvb, orig_offset + len - 1);
+
+        other_decode_bitfield_value(ansi_637_bigbuf, oct, bit_mask_8, 8);
+        proto_tree_add_uint_format(tree, hf_ansi_637_reserved_bits_8_generic, tvb, orig_offset + len - 1, 1,
+            oct & bit_mask_8,
+            "%s = Reserved bit(s)",
+            ansi_637_bigbuf);
+    }
 }
 
 static const value_string tele_param_srvc_cat_prog_results_result_strings[] = {
@@ -1650,9 +1878,9 @@ static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, packet_info *pinfo, prot
     tele_param_lang_ind,                /* Language Indicator */
     tele_param_cb_num,                  /* Call-Back Number */
     tele_param_disp_mode,               /* Message Display Mode */
-    NULL,                               /* Multiple Encoding User Data */
+    tele_param_mult_enc_user_data,      /* Multiple Encoding User Data */
     tele_param_msg_deposit_idx,         /* Message Deposit Index */
-    NULL,                               /* Service Category Program Data */
+    tele_param_srvc_cat_prog_data,      /* Service Category Program Data */
     tele_param_srvc_cat_prog_results,   /* Service Category Program Results */
     tele_param_msg_status,              /* Message status */
     tele_param_tp_failure_cause,        /* TP-Failure cause */
@@ -3057,6 +3285,66 @@ proto_register_ansi_637(void)
         { &hf_ansi_637_tele_cmas_language,
             { "CMAE_language", "ansi_637_tele.cmas.language",
             FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_cmas_text,
+            { "CMAE_alert_text", "ansi_637_tele.cmas.text",
+            FT_STRING, STR_UNICODE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_mult_enc_user_data_encoding,
+            { "Encoding", "ansi_637_tele.mult_enc_user_data.encoding",
+            FT_UINT8, BASE_DEC, VALS(ansi_tsb58_encoding_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_mult_enc_user_data_num_fields,
+            { "Number of fields", "ansi_637_tele.mult_enc_user_data.num_fields",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_mult_enc_user_data_text,
+            { "Encoded user data", "ansi_637_tele.mult_enc_user_data.text",
+            FT_STRING, STR_UNICODE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_srvc_cat_prog_data_encoding,
+            { "Encoding", "ansi_637_tele.srvc_cat_prog_data.encoding",
+            FT_UINT8, BASE_DEC, VALS(ansi_tsb58_encoding_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_srvc_cat_prog_data_operation_code,
+            { "Operation code", "ansi_637_tele.srvc_cat_prog_data.operation_code",
+            FT_UINT8, BASE_DEC, VALS(tele_param_srvc_cat_prog_data_op_code_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_srvc_cat_prog_data_category,
+            { "Operation code", "ansi_637_tele.srvc_cat_prog_data.category",
+            FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ansi_tsb58_srvc_cat_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_srvc_cat_prog_data_language,
+            { "Operation code", "ansi_637_tele.srvc_cat_prog_data.language",
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ansi_tsb58_language_ind_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_srvc_cat_prog_data_max_messages,
+            { "Maximum number of messages", "ansi_637_tele.srvc_cat_prog_data.max_messages",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_srvc_cat_prog_data_alert_option,
+            { "Alert option", "ansi_637_tele.srvc_cat_prog_data.alert_option",
+            FT_UINT8, BASE_DEC, VALS(tele_param_srvc_cat_prog_data_alert_option_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_srvc_cat_prog_data_num_fields,
+            { "Number of fields", "ansi_637_tele.srvc_cat_prog_data.num_fields",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_ansi_637_tele_srvc_cat_prog_data_text,
+            { "Encoded program data", "ansi_637_tele.srvc_cat_prog_data.text",
+            FT_STRING, STR_UNICODE, NULL, 0,
             NULL, HFILL }
         }
     };

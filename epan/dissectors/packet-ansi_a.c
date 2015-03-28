@@ -814,7 +814,7 @@ static const value_string cell_disc_vals[] = {
  */
 const value_string ansi_tsb58_encoding_vals[] = {
     { 0x0000,   "Octet, unspecified" },
-    { 0x0001,   "Extended Protocol Message (Unexpected, not supported)" },
+    { 0x0001,   "Extended Protocol Message" },
     { 0x0002,   "7-bit ASCII" },
     { 0x0003,   "IA5" },
     { 0x0004,   "UNICODE" },
@@ -823,6 +823,7 @@ const value_string ansi_tsb58_encoding_vals[] = {
     { 0x0007,   "Latin/Hebrew" },
     { 0x0008,   "Latin" },
     { 0x0009,   "GSM 7-bit default alphabet" },
+    { 0x0010,   "KSC5601 (Korean)" },
     { 0, NULL }
 };
 
