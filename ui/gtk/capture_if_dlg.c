@@ -423,11 +423,16 @@ GtkWidget * capture_get_if_icon(interface_t *device)
     return xpm_to_widget(network_virtual_16_xpm);
   case IF_WIRED:
     return pixbuf_to_widget(network_wired_pb_data);
-  case IF_PIPE:
-  case IF_STDIN:
 #ifdef HAVE_EXTCAP
   case IF_EXTCAP:
+#ifdef WIN32
+    if (strncmp(device->friendly_name, "USBPcap", 7) == 0) {
+      return pixbuf_to_widget(network_usb_pb_data);
+    }
 #endif
+#endif
+  case IF_PIPE:
+  case IF_STDIN:
     return pixbuf_to_widget(pipe_pb_data);
   default:
     printf("unknown device type\n");
