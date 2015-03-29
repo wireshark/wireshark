@@ -643,6 +643,35 @@ fp_info       *fpinf ;
     curr_bit_offset++;
 }
 
+#.FN_BODY RSR-VCC-Info/ims-Information VAL_PTR = &imsInformation_tvb
+  tvbuff_t *imsInformation_tvb=NULL;
+%(DEFAULT_BODY)s
+  if(imsInformation_tvb){
+    /* Dissect ims-Information
+       Decoding specified in TS 124 237 V11.4.0 Annex D.5.3.3 ATGW transfer details
+     */
+    proto_tree *subtree;
+    gint curr_offset = 0;
+    guint32 atgw_trans_det_cont;
+    subtree = proto_item_add_subtree(actx->created_item, ett_rrc_ims_info);
+    proto_tree_add_item_ret_uint(subtree, hf_rrc_ims_info_atgw_trans_det_cont_type, imsInformation_tvb, curr_offset, 1, ENC_BIG_ENDIAN, &atgw_trans_det_cont);
+    curr_offset++;
+    switch (atgw_trans_det_cont) {
+      case 0:
+        proto_tree_add_item(subtree, hf_rrc_ims_info_atgw_udp_port, imsInformation_tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+        curr_offset+=2;
+        proto_tree_add_item(subtree, hf_rrc_ims_info_atgw_ipv4, imsInformation_tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+        break;
+      case 1:
+        proto_tree_add_item(subtree, hf_rrc_ims_info_atgw_udp_port, imsInformation_tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+        curr_offset+=2;
+        proto_tree_add_item(subtree, hf_rrc_ims_info_atgw_ipv6, imsInformation_tvb, curr_offset, 16, ENC_NA);
+        break;
+      default:
+      break;
+    }
+}
+
 #.TYPE_ATTR
 HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
 
