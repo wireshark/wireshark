@@ -1,6 +1,6 @@
 # lpp.cnf
 # llp conformation file
-# Copyright 2011-2014 Pascal Quantin
+# Copyright 2011-2015 Pascal Quantin
 
 #.OPT
 PER
@@ -490,16 +490,16 @@ DGNSS-CorrectionsElement/udreGrowthRate STRINGS=VALS(lpp_udreGrowthRate_vals)
 #.TYPE_ATTR
 DGNSS-CorrectionsElement/udreValidityTime STRINGS=VALS(lpp_udreValidityTime_vals)
 
-#.FN_BODY GNSS-NavModelSatelliteElement/eag_1/svHealthExt-v12xy VAL_PTR = &svHealthExt_tvb
+#.FN_BODY GNSS-NavModelSatelliteElement/eag_1/svHealthExt-v1240 VAL_PTR = &svHealthExt_tvb
   tvbuff_t *svHealthExt_tvb = NULL;
   proto_tree *subtree;
 %(DEFAULT_BODY)s
 
-#.FN_FTR GNSS-NavModelSatelliteElement/eag_1/svHealthExt-v12xy
+#.FN_FTR GNSS-NavModelSatelliteElement/eag_1/svHealthExt-v1240
   if (svHealthExt_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_svHealthExt_v12xy);
-    proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v12xy_e5bhs, svHealthExt_tvb, 0, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v12xy_e1_bhs, svHealthExt_tvb, 2, 2, ENC_BIG_ENDIAN);
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_svHealthExt_v1240);
+    proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v1240_e5bhs, svHealthExt_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v1240_e1_bhs, svHealthExt_tvb, 2, 2, ENC_BIG_ENDIAN);
   }
 
 #.TYPE_ATTR
@@ -972,16 +972,16 @@ GNSS-AcquisitionAssistElement/elevation DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_
   actx->created_item = proto_tree_add_uint_format_value(tree, hf_lpp_toa, tvb, old_offset, len,
                                                         toa, "%u s (%u)", val, toa);
 
-#.FN_BODY GNSS-Almanac/eag_1/toa-ext-v12xy VAL_PTR = &toa_ext
+#.FN_BODY GNSS-Almanac/eag_1/toa-ext-v1240 VAL_PTR = &toa_ext
   guint32 toa_ext, val;
   int len, old_offset = offset;
   T_GNSS_ID_enum gnss_id = (T_GNSS_ID_enum)GPOINTER_TO_UINT(actx->private_data);
 %(DEFAULT_BODY)s
 
-#.FN_FTR GNSS-Almanac/eag_1/toa-ext-v12xy
+#.FN_FTR GNSS-Almanac/eag_1/toa-ext-v1240
   len = (offset-old_offset) >> 3 ? (offset-old_offset) >> 3 : 1;
   val = (gnss_id == T_GNSS_ID_GALILEO) ? 600*toa_ext : 4096*toa_ext;
-  actx->created_item = proto_tree_add_uint_format_value(tree, hf_lpp_toa_ext_v12xy, tvb, old_offset, len,
+  actx->created_item = proto_tree_add_uint_format_value(tree, hf_lpp_toa_ext_v1240, tvb, old_offset, len,
                                                         toa_ext, "%u s (%u)", val, toa_ext);
 
 #.TYPE_ATTR

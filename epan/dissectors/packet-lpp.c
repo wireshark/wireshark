@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 12.3.0 Release 12
+ * Ref 3GPP TS 36.355 version 12.4.0 Release 12
  * http://www.3gpp.org
  */
 
@@ -435,7 +435,7 @@ static int hf_lpp_GNSS_NavModelSatelliteList_item = -1;  /* GNSS_NavModelSatelli
 static int hf_lpp_svHealth = -1;                  /* BIT_STRING_SIZE_8 */
 static int hf_lpp_gnss_ClockModel = -1;           /* GNSS_ClockModel */
 static int hf_lpp_gnss_OrbitModel = -1;           /* GNSS_OrbitModel */
-static int hf_lpp_svHealthExt_v12xy = -1;         /* T_svHealthExt_v12xy */
+static int hf_lpp_svHealthExt_v1240 = -1;         /* T_svHealthExt_v1240 */
 static int hf_lpp_standardClockModelList = -1;    /* StandardClockModelList */
 static int hf_lpp_nav_ClockModel = -1;            /* NAV_ClockModel */
 static int hf_lpp_cnav_ClockModel = -1;           /* CNAV_ClockModel */
@@ -620,8 +620,8 @@ static int hf_lpp_toa = -1;                       /* T_toa */
 static int hf_lpp_ioda = -1;                      /* INTEGER_0_3 */
 static int hf_lpp_completeAlmanacProvided = -1;   /* BOOLEAN */
 static int hf_lpp_gnss_AlmanacList = -1;          /* GNSS_AlmanacList */
-static int hf_lpp_toa_ext_v12xy = -1;             /* T_toa_ext_v12xy */
-static int hf_lpp_ioda_ext_v12xy = -1;            /* INTEGER_4_15 */
+static int hf_lpp_toa_ext_v1240 = -1;             /* T_toa_ext_v1240 */
+static int hf_lpp_ioda_ext_v1240 = -1;            /* INTEGER_4_15 */
 static int hf_lpp_GNSS_AlmanacList_item = -1;     /* GNSS_AlmanacElement */
 static int hf_lpp_keplerianAlmanacSet = -1;       /* AlmanacKeplerianSet */
 static int hf_lpp_keplerianNAV_Almanac = -1;      /* AlmanacNAV_KeplerianSet */
@@ -987,8 +987,8 @@ static int dummy_hf_lpp_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lpp-hf.c ---*/
 #line 49 "../../asn1/lpp/packet-lpp-template.c"
-static int hf_lpp_svHealthExt_v12xy_e5bhs = -1;
-static int hf_lpp_svHealthExt_v12xy_e1_bhs = -1;
+static int hf_lpp_svHealthExt_v1240_e5bhs = -1;
+static int hf_lpp_svHealthExt_v1240_e1_bhs = -1;
 static int hf_lpp_kepSV_StatusINAV_e5bhs = -1;
 static int hf_lpp_kepSV_StatusINAV_e1_bhs = -1;
 static int hf_lpp_kepSV_StatusFNAV_e5ahs = -1;
@@ -1004,7 +1004,7 @@ static guint32 lpp_epdu_id = -1;
 /* Initialize the subtree pointers */
 static gint ett_lpp = -1;
 static gint ett_lpp_bitmap = -1;
-static gint ett_lpp_svHealthExt_v12xy = -1;
+static gint ett_lpp_svHealthExt_v1240 = -1;
 static gint ett_kepSV_StatusINAV = -1;
 static gint ett_kepSV_StatusFNAV = -1;
 static gint ett_lpp_bdsSvHealth_r12 = -1;
@@ -7194,7 +7194,7 @@ dissect_lpp_GNSS_OrbitModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static int
-dissect_lpp_T_svHealthExt_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_svHealthExt_v1240(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 494 "../../asn1/lpp/lpp.cnf"
   tvbuff_t *svHealthExt_tvb = NULL;
   proto_tree *subtree;
@@ -7206,9 +7206,9 @@ dissect_lpp_T_svHealthExt_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 #line 499 "../../asn1/lpp/lpp.cnf"
   if (svHealthExt_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_svHealthExt_v12xy);
-    proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v12xy_e5bhs, svHealthExt_tvb, 0, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v12xy_e1_bhs, svHealthExt_tvb, 2, 2, ENC_BIG_ENDIAN);
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_svHealthExt_v1240);
+    proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v1240_e5bhs, svHealthExt_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lpp_svHealthExt_v1240_e1_bhs, svHealthExt_tvb, 2, 2, ENC_BIG_ENDIAN);
   }
 
 
@@ -7217,7 +7217,7 @@ dissect_lpp_T_svHealthExt_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t GNSS_NavModelSatelliteElement_eag_1_sequence[] = {
-  { &hf_lpp_svHealthExt_v12xy, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_svHealthExt_v12xy },
+  { &hf_lpp_svHealthExt_v1240, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_svHealthExt_v1240 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7941,7 +7941,7 @@ dissect_lpp_GNSS_AlmanacList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static int
-dissect_lpp_T_toa_ext_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_toa_ext_v1240(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 976 "../../asn1/lpp/lpp.cnf"
   guint32 toa_ext, val;
   int len, old_offset = offset;
@@ -7955,7 +7955,7 @@ dissect_lpp_T_toa_ext_v12xy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 #line 982 "../../asn1/lpp/lpp.cnf"
   len = (offset-old_offset) >> 3 ? (offset-old_offset) >> 3 : 1;
   val = (gnss_id == T_GNSS_ID_GALILEO) ? 600*toa_ext : 4096*toa_ext;
-  actx->created_item = proto_tree_add_uint_format_value(tree, hf_lpp_toa_ext_v12xy, tvb, old_offset, len,
+  actx->created_item = proto_tree_add_uint_format_value(tree, hf_lpp_toa_ext_v1240, tvb, old_offset, len,
                                                         toa_ext, "%u s (%u)", val, toa_ext);
 
 
@@ -7974,8 +7974,8 @@ dissect_lpp_INTEGER_4_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 static const per_sequence_t GNSS_Almanac_eag_1_sequence[] = {
-  { &hf_lpp_toa_ext_v12xy   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_toa_ext_v12xy },
-  { &hf_lpp_ioda_ext_v12xy  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_INTEGER_4_15 },
+  { &hf_lpp_toa_ext_v1240   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_T_toa_ext_v1240 },
+  { &hf_lpp_ioda_ext_v1240  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_INTEGER_4_15 },
   { NULL, 0, 0, NULL }
 };
 
@@ -13217,10 +13217,10 @@ void proto_register_lpp(void) {
       { "gnss-OrbitModel", "lpp.gnss_OrbitModel",
         FT_UINT32, BASE_DEC, VALS(lpp_GNSS_OrbitModel_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_svHealthExt_v12xy,
-      { "svHealthExt-v12xy", "lpp.svHealthExt_v12xy",
+    { &hf_lpp_svHealthExt_v1240,
+      { "svHealthExt-v1240", "lpp.svHealthExt_v1240",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "T_svHealthExt_v12xy", HFILL }},
+        "T_svHealthExt_v1240", HFILL }},
     { &hf_lpp_standardClockModelList,
       { "standardClockModelList", "lpp.standardClockModelList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -13957,12 +13957,12 @@ void proto_register_lpp(void) {
       { "gnss-AlmanacList", "lpp.gnss_AlmanacList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_toa_ext_v12xy,
-      { "toa-ext-v12xy", "lpp.toa_ext_v12xy",
+    { &hf_lpp_toa_ext_v1240,
+      { "toa-ext-v1240", "lpp.toa_ext_v1240",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "T_toa_ext_v12xy", HFILL }},
-    { &hf_lpp_ioda_ext_v12xy,
-      { "ioda-ext-v12xy", "lpp.ioda_ext_v12xy",
+        "T_toa_ext_v1240", HFILL }},
+    { &hf_lpp_ioda_ext_v1240,
+      { "ioda-ext-v1240", "lpp.ioda_ext_v1240",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_4_15", HFILL }},
     { &hf_lpp_GNSS_AlmanacList_item,
@@ -15408,12 +15408,12 @@ void proto_register_lpp(void) {
 
 /*--- End of included file: packet-lpp-hfarr.c ---*/
 #line 1649 "../../asn1/lpp/packet-lpp-template.c"
-    { &hf_lpp_svHealthExt_v12xy_e5bhs,
-      { "E5b Signal Health Status", "lpp.svHealthExt_v12xy.e5bhs",
+    { &hf_lpp_svHealthExt_v1240_e5bhs,
+      { "E5b Signal Health Status", "lpp.svHealthExt_v1240.e5bhs",
         FT_UINT8, BASE_DEC, VALS(lpp_signal_health_status_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_svHealthExt_v12xy_e1_bhs,
-      { "E1-B Signal Health Status", "lpp.svHealthExt_v12xy.e1_bhs",
+    { &hf_lpp_svHealthExt_v1240_e1_bhs,
+      { "E1-B Signal Health Status", "lpp.svHealthExt_v1240.e1_bhs",
         FT_UINT8, BASE_DEC, VALS(lpp_signal_health_status_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_kepSV_StatusINAV_e5bhs,
@@ -15450,7 +15450,7 @@ void proto_register_lpp(void) {
   static gint *ett[] = {
     &ett_lpp,
     &ett_lpp_bitmap,
-    &ett_lpp_svHealthExt_v12xy,
+    &ett_lpp_svHealthExt_v1240,
     &ett_kepSV_StatusINAV,
     &ett_kepSV_StatusFNAV,
     &ett_lpp_bdsSvHealth_r12,

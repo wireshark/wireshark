@@ -20,7 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 12.3.0 Release 12
+ * Ref 3GPP TS 36.355 version 12.4.0 Release 12
  * http://www.3gpp.org
  */
 
@@ -46,8 +46,8 @@ void proto_reg_handoff_lpp(void);
 static int proto_lpp = -1;
 
 #include "packet-lpp-hf.c"
-static int hf_lpp_svHealthExt_v12xy_e5bhs = -1;
-static int hf_lpp_svHealthExt_v12xy_e1_bhs = -1;
+static int hf_lpp_svHealthExt_v1240_e5bhs = -1;
+static int hf_lpp_svHealthExt_v1240_e1_bhs = -1;
 static int hf_lpp_kepSV_StatusINAV_e5bhs = -1;
 static int hf_lpp_kepSV_StatusINAV_e1_bhs = -1;
 static int hf_lpp_kepSV_StatusFNAV_e5ahs = -1;
@@ -63,7 +63,7 @@ static guint32 lpp_epdu_id = -1;
 /* Initialize the subtree pointers */
 static gint ett_lpp = -1;
 static gint ett_lpp_bitmap = -1;
-static gint ett_lpp_svHealthExt_v12xy = -1;
+static gint ett_lpp_svHealthExt_v1240 = -1;
 static gint ett_kepSV_StatusINAV = -1;
 static gint ett_kepSV_StatusFNAV = -1;
 static gint ett_lpp_bdsSvHealth_r12 = -1;
@@ -1646,12 +1646,12 @@ void proto_register_lpp(void) {
   static hf_register_info hf[] = {
 
 #include "packet-lpp-hfarr.c"
-    { &hf_lpp_svHealthExt_v12xy_e5bhs,
-      { "E5b Signal Health Status", "lpp.svHealthExt_v12xy.e5bhs",
+    { &hf_lpp_svHealthExt_v1240_e5bhs,
+      { "E5b Signal Health Status", "lpp.svHealthExt_v1240.e5bhs",
         FT_UINT8, BASE_DEC, VALS(lpp_signal_health_status_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_svHealthExt_v12xy_e1_bhs,
-      { "E1-B Signal Health Status", "lpp.svHealthExt_v12xy.e1_bhs",
+    { &hf_lpp_svHealthExt_v1240_e1_bhs,
+      { "E1-B Signal Health Status", "lpp.svHealthExt_v1240.e1_bhs",
         FT_UINT8, BASE_DEC, VALS(lpp_signal_health_status_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_kepSV_StatusINAV_e5bhs,
@@ -1688,7 +1688,7 @@ void proto_register_lpp(void) {
   static gint *ett[] = {
     &ett_lpp,
     &ett_lpp_bitmap,
-    &ett_lpp_svHealthExt_v12xy,
+    &ett_lpp_svHealthExt_v1240,
     &ett_kepSV_StatusINAV,
     &ett_kepSV_StatusFNAV,
     &ett_lpp_bdsSvHealth_r12,

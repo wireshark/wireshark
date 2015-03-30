@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V12.3.0 (2014-12)
+-- 3GPP TS 36.355 V12.4.0 (2015-03)
 --
 
 LPP-PDU-Definitions {
@@ -988,7 +988,7 @@ GNSS-NavModelSatelliteElement ::= SEQUENCE {
 	gnss-ClockModel		GNSS-ClockModel,
 	gnss-OrbitModel		GNSS-OrbitModel,
 	...,
-	[[	svHealthExt-v12xy BIT STRING (SIZE(4))			OPTIONAL		-- Need ON
+	[[	svHealthExt-v1240 BIT STRING (SIZE(4))			OPTIONAL		-- Need ON
 	]]
 }
 
@@ -1294,8 +1294,8 @@ GNSS-Almanac ::= SEQUENCE {
 	completeAlmanacProvided		BOOLEAN,
 	gnss-AlmanacList			GNSS-AlmanacList,
 	...,
-	[[	toa-ext-v12xy			INTEGER (256..1023)	OPTIONAL,	-- Need ON
-		ioda-ext-v12xy			INTEGER (4..15)		OPTIONAL	-- Need ON
+	[[	toa-ext-v1240			INTEGER (256..1023)	OPTIONAL,	-- Need ON
+		ioda-ext-v1240			INTEGER (4..15)		OPTIONAL	-- Need ON
 	]]
 }
 
