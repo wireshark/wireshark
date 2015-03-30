@@ -1504,7 +1504,7 @@ wkh_content_type_header(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pack
     gchar* header_name = wmem_strdup_printf(wmem_packet_scope(), "Content type: %s", name);
 
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_content_type_header, header_name);
-        ti = proto_tree_add_string(header_tree, hf, tvb, val_start, 1,
+        proto_tree_add_string(header_tree, hf, tvb, val_start, 1,
                 val_to_str_ext(val_id & 0x7F, &vals_content_types_ext,
                     "(Unknown content type identifier 0x%X)"));
         proto_item_set_len(header_item, 2);
@@ -1513,10 +1513,10 @@ wkh_content_type_header(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pack
         /* Sometimes with a No-Content response, a NULL content type
          * is reported. Process this correctly! */
         if (*val_str) {
-            ti = proto_tree_add_string(header_tree, hf, tvb, val_start, val_len, val_str);
+            proto_tree_add_string(header_tree, hf, tvb, val_start, val_len, val_str);
             proto_item_set_len(header_item, val_len+1);
         } else {
-            ti = proto_tree_add_string(header_tree, hf, tvb, val_start, 0,
+            proto_tree_add_string(header_tree, hf, tvb, val_start, 0,
                     "<no content type has been specified>");
             proto_item_set_len(header_item, 2);
         }
@@ -1618,7 +1618,7 @@ add_content_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint32 va
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_add_content_type, "Content-Type");
         *textual_content = val_to_str_ext(val_id & 0x7F, &vals_content_types_ext,
                 "<Unknown media type identifier 0x%X>");
-        ti = proto_tree_add_string(tree, hf_hdr_content_type,
+        proto_tree_add_string(tree, hf_hdr_content_type,
                 tvb, hdr_start, offset - hdr_start,
                 *textual_content);
         *well_known_content = val_id & 0x7F;
@@ -1627,13 +1627,13 @@ add_content_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint32 va
         /* Sometimes with a No-Content response, a NULL content type
          * is reported. Process this correctly! */
         if (*val_str) {
-            ti = proto_tree_add_string(tree, hf_hdr_content_type,
+            proto_tree_add_string(tree, hf_hdr_content_type,
                     tvb, hdr_start, offset - hdr_start,
                     val_str);
             *textual_content = g_strdup(val_str);
             *well_known_content = 0;
         } else {
-            ti = proto_tree_add_string(tree, hf_hdr_content_type,
+            proto_tree_add_string(tree, hf_hdr_content_type,
                     tvb, hdr_start, offset - hdr_start,
                     "<no media type has been specified>");
             *textual_content = NULL;
@@ -1706,12 +1706,12 @@ wkh_accept_x_q_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, p
     gchar* header_name = wmem_strdup_printf(wmem_packet_scope(), "Accept X: %s", name);
 
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_accept_x_q_header, header_name);
-        ti = proto_tree_add_string(tree, hf,
+        proto_tree_add_string(tree, hf,
                 tvb, hdr_start, offset - hdr_start,
                 val_to_str_ext(val_id & 0x7F, valueStringExtAddr, value_format));
         ok = TRUE;
     wkh_2_TextualValue;
-        ti = proto_tree_add_string(tree, hf,
+        proto_tree_add_string(tree, hf,
                 tvb, hdr_start, offset - hdr_start, val_str);
         ok = TRUE;
     wkh_3_ValueWithLength;
@@ -1736,7 +1736,7 @@ wkh_accept_x_q_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, p
         /* Remember: offset == val_start + val_len */
         if (ok && (off < offset)) { /* Add Q-value if available */
             parameter_tree = proto_item_add_subtree (ti, ett_header);
-            off = parameter_value_q (parameter_tree, pinfo, ti, tvb, off);
+            /*off =*/ parameter_value_q (parameter_tree, pinfo, ti, tvb, off);
         }
 
     wkh_4_End();
@@ -2063,22 +2063,22 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_accept_encoding, "Accept Encoding");
         switch (val_id) {
             case 0x80: /* gzip */
-                ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+                proto_tree_add_string(tree, hf_hdr_accept_encoding,
                         tvb, hdr_start, offset - hdr_start, "gzip");
                 ok = TRUE;
                 break;
             case 0x81: /* compress */
-                ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+                proto_tree_add_string(tree, hf_hdr_accept_encoding,
                         tvb, hdr_start, offset - hdr_start, "compress");
                 ok = TRUE;
                 break;
             case 0x82: /* deflate */
-                ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+                proto_tree_add_string(tree, hf_hdr_accept_encoding,
                         tvb, hdr_start, offset - hdr_start, "deflate");
                 ok = TRUE;
                 break;
             case 0x83: /* * */
-                ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+                proto_tree_add_string(tree, hf_hdr_accept_encoding,
                         tvb, hdr_start, offset - hdr_start, "*");
                 ok = TRUE;
                 break;
@@ -2401,12 +2401,12 @@ wkh_tod_value_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pa
             get_date_value(val, tvb, off, len, ok);
             if (ok) {
                 if (val == 0) {
-                    ti = proto_tree_add_string(tree, hf,
+                    proto_tree_add_string(tree, hf,
                             tvb, hdr_start, offset - hdr_start,
                             "Requesting Time Of Day");
                 } else {
                     str = abs_time_secs_to_str(wmem_packet_scope(), val, ABSOLUTE_TIME_LOCAL, TRUE);
-                    ti = proto_tree_add_string(tree, hf,
+                    proto_tree_add_string(tree, hf,
                             tvb, hdr_start, offset - hdr_start, str);
                 }
             }
@@ -2559,7 +2559,7 @@ wkh_challenge_value_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_sta
                         hf_realm,
                         tvb, off, len, str);
                 proto_item_append_text(ti, "; realm=%s", str);
-                off += len;
+                /*off += len;*/
             }
         } else { /* Authentication-scheme: token-text */
             get_token_text(str, tvb, off, len, ok);
@@ -2651,7 +2651,7 @@ wkh_credentials_value_header_func(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_s
                             hf_password,
                             tvb, off, len, str);
                     proto_item_append_text(ti, "; password=%s", str);
-                    off += len;
+                    /*off += len;*/
                 }
             }
         } else { /* Authentication-scheme: token-text */
@@ -2713,7 +2713,7 @@ wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinf
 
     wkh_1_WellKnownValue(hf_hdr_name_value, ett_pragma, "Pragma");
         if (val_id == 0x80) {
-            ti = proto_tree_add_string(tree, hf_hdr_pragma,
+            proto_tree_add_string(tree, hf_hdr_pragma,
                     tvb, hdr_start, offset - hdr_start, "no-cache");
             ok = TRUE;
         }
@@ -2842,12 +2842,12 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
         val = val_id & 0x7F;
         val_str = try_val_to_str_ext(val, &vals_cache_control_ext);
         if (val_str) {
-            ti = proto_tree_add_string(tree, hf_hdr_cache_control,
+            proto_tree_add_string(tree, hf_hdr_cache_control,
                     tvb, hdr_start, offset - hdr_start, val_str);
             ok = TRUE;
         }
     wkh_2_TextualValue;
-        ti = proto_tree_add_string(tree, hf_hdr_cache_control,
+        proto_tree_add_string(tree, hf_hdr_cache_control,
                 tvb, hdr_start, offset - hdr_start, val_str);
         ok = TRUE;
     wkh_3_ValueWithLength;
@@ -3018,7 +3018,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         val = val_id & 0x7F;
         val_str = try_val_to_str_ext(val, &vals_wsp_profile_warning_code_ext);
         if (val_str) {
-            ti = proto_tree_add_string(tree, hf_hdr_profile_warning,
+            proto_tree_add_string(tree, hf_hdr_profile_warning,
                     tvb, hdr_start, offset - hdr_start, val_str);
             ok = TRUE;
         }
