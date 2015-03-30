@@ -63,6 +63,39 @@
 #include <sys/utsname.h>
 #endif
 
+/*
+ * Linux bonding devices mishandle unknown ioctls; they fail
+ * with ENODEV rather than ENOTSUP, EOPNOTSUPP, or ENOTTY,
+ * so pcap_can_set_rfmon() returns a "no such device" indication
+ * if we try to do SIOCGIWMODE on them.
+ *
+ * So, on Linux, we check for bonding devices, if we can, before
+ * trying pcap_can_set_rfmon(), as pcap_can_set_rfmon() will
+ * end up trying SIOCGIWMODE on the device if that ioctl exists.
+ */
+#if defined(HAVE_PCAP_CREATE) && defined(__linux__)
+
+#include <sys/ioctl.h>
+
+/*
+ * If we're building for a Linux version that supports bonding,
+ * HAVE_BONDING will be defined.
+ */
+
+#ifdef HAVE_LINUX_SOCKIOS_H
+#include <linux/sockios.h>
+#endif
+
+#ifdef HAVE_LINUX_IF_BONDING_H
+#include <linux/if_bonding.h>
+#endif
+
+#if defined(BOND_INFO_QUERY_OLD) || defined(SIOCBONDINFOQUERY)
+#define HAVE_BONDING
+#endif
+
+#endif /* defined(HAVE_PCAP_CREATE) && defined(__linux__) */
+
 #include <signal.h>
 #include <errno.h>
 
@@ -1117,6 +1150,44 @@ create_data_link_info(int dlt)
     return data_link_info;
 }
 
+#ifdef HAVE_BONDING
+gboolean
+is_linux_bonding_device(const char *ifname)
+{
+    int fd;
+    struct ifreq ifr;
+    ifbond ifb;
+
+    fd = socket(PF_INET, SOCK_DGRAM, 0);
+    if (fd == -1)
+        return FALSE;
+
+    memset(&ifr, 0, sizeof ifr);
+    g_strlcpy(ifr.ifr_name, ifname, sizeof ifr.ifr_name);
+    memset(&ifb, 0, sizeof ifb);
+    ifr.ifr_data = (caddr_t)&ifb;
+#if defined(SIOCBONDINFOQUERY)
+    if (ioctl(fd, SIOCBONDINFOQUERY, &ifr) == 0) {
+        close(fd);
+        return TRUE;
+    }
+#else
+    if (ioctl(fd, BOND_INFO_QUERY_OLD, &ifr) == 0) {
+        close(fd);
+        return TRUE;
+    }
+#endif
+
+    return FALSE;
+}
+#else
+static gboolean
+is_linux_bonding_device(const char *ifname _U_)
+{
+    return FALSE;
+}
+#endif
+
 /*
  * Get the capabilities of a network device.
  */
@@ -1177,7 +1248,19 @@ get_if_capabilities(const char *devicename, gboolean monitor_mode
         g_free(caps);
         return NULL;
     }
-    status = pcap_can_set_rfmon(pch);
+    if (is_linux_bonding_device(devicename)) {
+        /*
+         * Linux bonding device; not Wi-Fi, so no monitor mode, and
+         * calling pcap_can_set_rfmon() might get a "no such device"
+         * error.
+         */
+        status = 0;
+    } else {
+        /*
+         * Not a Linux bonding device, so go ahead.
+         */
+        status = pcap_can_set_rfmon(pch);
+    }
     if (status < 0) {
         /* Error. */
         if (status == PCAP_ERROR)
