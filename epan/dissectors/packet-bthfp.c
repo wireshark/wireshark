@@ -1193,6 +1193,7 @@ dissect_clip_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case 3:
             value = get_uint_parameter(parameter_stream, parameter_length);
             proto_tree_add_uint(tree, hf_at_subaddress_type, tvb, offset, parameter_length, value);
+            break;
         case 4:
             proto_tree_add_item(tree, hf_at_alpha, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
             break;
