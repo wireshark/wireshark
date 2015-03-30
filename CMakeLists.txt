@@ -620,6 +620,20 @@ endif()
 
 # Zlib compression
 if(ENABLE_ZLIB)
+	if (WIN32)
+		# On Windows we build our own version of zlib, so add the paths
+		if( DEFINED ENV{WIRESHARK_LIB_DIR} )
+			# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
+			file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
+		else()
+			file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
+			set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
+		endif()
+		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.8")
+		add_subdirectory("${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
+		set(ZLIB_INCLUDE_DIR  "${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
+		set(ZLIB_LIBRARY zlib)
+	endif()
 	set(PACKAGELIST ${PACKAGELIST} ZLIB)
 endif()
 
@@ -1305,13 +1319,6 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endif(WINSPARKLE_FOUND)
-	if (ZLIB_FOUND)
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${ZLIB_DLL_DIR}/${ZLIB_DLL}"
-				"${_dll_output_dir}"
-		)
-	endif(ZLIB_FOUND)
 
 	add_dependencies(epan copy_cli_dlls)
 
