@@ -51,6 +51,7 @@ LIBWIRESHARK_SRC =		\
 	except.c		\
 	expert.c		\
 	exported_pdu.c		\
+	ext_menubar.c		\
 	filter_expressions.c	\
 	follow.c		\
 	frame_data.c		\
@@ -190,6 +191,7 @@ LIBWIRESHARK_INCLUDES =		\
 	exceptions.h		\
 	expert.h		\
 	exported_pdu.h		\
+	ext_menubar.h      \
 	filter_expressions.h	\
 	follow.h		\
 	frame_data.h		\

@@ -33,6 +33,7 @@
 #include "ui/ui_util.h"
 
 #include <epan/prefs.h>
+#include <epan/ext_menubar.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
@@ -174,6 +175,8 @@ private:
     void setForCapturedPackets(bool have_captured_packets);
     void setMenusForFileSet(bool enable_list_files);
 
+    void externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth);
+
     void setForCaptureInProgress(gboolean capture_in_progress = false);
     QMenu* findOrAddMenu(QMenu *parent_menu, QString& menu_text);
 
@@ -233,6 +236,7 @@ private slots:
     void fieldsChanged();
     void showColumnEditor(int column);
     void addStatsPluginsToMenu();
+    void addExternalMenus();
 
     void startInterfaceCapture(bool valid);
 
@@ -452,6 +456,8 @@ private slots:
     void on_actionTelephonySipFlows_triggered();
 
     void on_actionATT_Server_Attributes_triggered();
+
+    void on_actionExternalMenuItem_triggered();
 
     void changeEvent(QEvent* event);
 };

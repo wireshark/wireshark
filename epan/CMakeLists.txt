@@ -1593,6 +1593,7 @@ set(LIBWIRESHARK_FILES
 	except.c
 	expert.c
 	exported_pdu.c
+	ext_menubar.c
 	filter_expressions.c
 	follow.c
 	frame_data.c

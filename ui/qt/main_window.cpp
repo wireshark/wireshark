@@ -27,6 +27,7 @@
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
+#include <epan/ext_menubar.h>
 
 //#include <wiretap/wtap.h>
 
@@ -197,6 +198,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
+    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addExternalMenus()));
 
     connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
@@ -1829,6 +1831,79 @@ void MainWindow::setForCaptureInProgress(gboolean capture_in_progress)
 
 //    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif
+}
+
+void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth)
+{
+    QAction * itemAction = NULL;
+    ext_menubar_t * item = NULL;
+    GList * children = NULL;
+
+    /* There must exists an xpath parent */
+    g_assert(subMenu != NULL);
+
+    /* If the depth counter exceeds, something must have gone wrong */
+    g_assert(depth < EXT_MENUBAR_MAX_DEPTH);
+
+    children = menu->children;
+    /* Iterate the child entries */
+    while ( children != NULL && children->data != NULL )
+    {
+        item = (ext_menubar_t *) children->data;
+
+        if ( item->type == EXT_MENUBAR_MENU )
+        {
+            /* Handle Submenu entry */
+            this->externalMenuHelper(item, subMenu->addMenu(item->label), depth++ );
+        }
+        else if ( item->type == EXT_MENUBAR_SEPARATOR )
+        {
+            subMenu->addSeparator();
+        }
+        else if ( item->type == EXT_MENUBAR_ITEM || item->type == EXT_MENUBAR_URL )
+        {
+            itemAction = subMenu->addAction(item->name);
+            itemAction->setData(QVariant::fromValue((void *)item));
+            itemAction->setText(item->label);
+            connect(itemAction, SIGNAL(triggered()),
+                    this, SLOT(on_actionExternalMenuItem_triggered()));
+        }
+
+        /* Iterate Loop */
+        children = g_list_next(children);
+    }
+}
+
+void MainWindow::addExternalMenus()
+{
+    QMenu * subMenu = NULL;
+    GList * user_menu = NULL;
+    ext_menu_t * menu = NULL;
+
+    user_menu = ext_menubar_get_entries();
+
+    while ( ( user_menu != NULL ) && ( user_menu->data != NULL ) )
+    {
+        menu = (ext_menu_t *) user_menu->data;
+
+        /* On this level only menu items should exist. Not doing an assert here,
+         * as it could be an honest mistake */
+        if ( menu->type != EXT_MENUBAR_MENU )
+        {
+            user_menu = g_list_next(user_menu);
+            continue;
+        }
+
+        /* Create main submenu and add it to the menubar */
+        subMenu = main_ui_->menuBar->addMenu(menu->label);
+
+        /* This will generate the action structure for each menu. It is recursive,
+         * therefore a sub-routine, and we have a depth counter to prevent endless loops. */
+        this->externalMenuHelper(menu, subMenu, 0);
+
+        /* Iterate Loop */
+        user_menu = g_list_next (user_menu);
+    }
 }
 
 /*

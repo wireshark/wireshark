@@ -110,7 +110,8 @@
 #include <QMessageBox>
 #include <QMetaObject>
 #include <QToolBar>
-
+#include <QDesktopServices>
+#include <QUrl>
 #include <QDebug>
 
 //
@@ -2900,6 +2901,32 @@ void MainWindow::on_actionCaptureRefreshInterfaces_triggered()
 }
 #endif
 
+void MainWindow::on_actionExternalMenuItem_triggered()
+{
+    QAction * triggerAction = NULL;
+    QVariant v;
+    ext_menubar_t * entry = NULL;
+
+    if ( QObject::sender() != NULL)
+    {
+        triggerAction = (QAction *)QObject::sender();
+        v = triggerAction->data();
+
+        if ( v.canConvert<void *>())
+        {
+            entry = (ext_menubar_t *)v.value<void *>();
+
+            if ( entry->type == EXT_MENUBAR_ITEM )
+            {
+                entry->callback(entry->user_data);
+            }
+            else
+            {
+                QDesktopServices::openUrl(QUrl(QString((gchar *)entry->user_data)));
+            }
+        }
+    }
+}
 
 /*
  * Editor modelines

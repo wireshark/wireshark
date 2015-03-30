@@ -36,6 +36,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 #include <epan/stats_tree_priv.h>
+#include <epan/ext_menubar.h>
 
 #include "globals.h"
 #include "color_filters.h"
@@ -100,6 +101,7 @@
 #include "ui/gtk/addr_resolution_dlg.h"
 #include "ui/gtk/export_pdu_dlg.h"
 #include "ui/gtk/conversation_hastables_dlg.h"
+#include "ui/gtk/webbrowser.h"
 
 #include "ui/gtk/packet_list.h"
 #include "ui/gtk/lbm_stream_dlg.h"
@@ -140,6 +142,7 @@ static void add_tap_plugins (guint merge_id, GtkUIManager *ui_manager);
 
 static void menus_init(void);
 static void merge_menu_items(GList *node);
+static void ws_menubar_external_menus(void);
 static void ws_menubar_build_external_menus(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
 static void menu_name_resolution_update_cb(GtkAction *action, gpointer data);
@@ -3261,6 +3264,10 @@ menus_init(void)
         menu_dissector_filter(&cfile);
         menu_conversation_list(&cfile);
         menu_hostlist_list(&cfile);
+
+        /* Add additional entries which may have been introduced by dissectors and/or plugins */
+        ws_menubar_external_menus();
+
         merge_menu_items(merge_menu_items_list);
 
         /* Add external menus and items */
@@ -5448,6 +5455,219 @@ void set_menus_for_profiles(gboolean default_profile)
 {
     set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Rename", !default_profile);
     set_menu_sensitivity(ui_manager_statusbar_profiles_menu, "/ProfilesMenuPopup/Delete", !default_profile);
+}
+
+#ifndef __APPLE__
+static void
+ws_menubar_external_cb(GtkAction *action _U_, gpointer data _U_)
+{
+    ext_menubar_t *entry = NULL;
+    gchar *url = NULL;
+
+    if ( data != NULL )
+    {
+        entry = (ext_menubar_t *)data;
+        if ( entry->type == EXT_MENUBAR_ITEM )
+        {
+            entry->callback(entry->user_data);
+        }
+        else if ( entry->type == EXT_MENUBAR_URL )
+        {
+            url = (gchar *)entry->user_data;
+
+            if(url != NULL)
+                browser_open_url(url);
+        }
+    }
+}
+
+static void
+ws_menubar_create_ui(ext_menu_t * menu, const char * xpath_parent, GtkActionGroup * action_group, gint depth)
+{
+    ext_menubar_t * item = NULL;
+    GList * children = NULL;
+    gchar * xpath, * submenu_xpath, *ac_xpath;
+    const gchar *xml;
+    gchar ** paths = NULL;
+    GError *err = NULL;
+    guint merge_id = 0;
+
+    /* There must exists an xpath parent */
+    g_assert(xpath_parent != NULL && strlen(xpath_parent) > 0);
+
+    /* If the depth counter exceeds, something must have gone wrong */
+    g_assert(depth < EXT_MENUBAR_MAX_DEPTH);
+
+    /* Create a correct xpath, and just keep the necessary action ref [which will be paths [1]] */
+    xpath = g_strconcat(xpath_parent, menu->name, NULL);
+
+    children = menu->children;
+    /* Iterate the child entries */
+    while ( children != NULL && children->data != NULL )
+    {
+        item = (ext_menubar_t *) children->data;
+
+        if ( item->type == EXT_MENUBAR_MENU )
+        {
+            /* Handle Submenu entry */
+            submenu_xpath = g_strconcat(xpath, "/", NULL);
+            ws_menubar_create_ui(item, submenu_xpath, action_group, depth++);
+            g_free(submenu_xpath);
+        }
+        else if ( item->type != EXT_MENUBAR_SEPARATOR )
+        {
+            /* Create the correct action path */
+            paths = g_strsplit(xpath, "|", -1);
+
+            /* Ensures that the above operation has not failed. If this fails, it is a major issue,
+             * so an assertion is appropriate here */
+            g_assert(paths != NULL && paths[1] != NULL && strlen(paths[1]) > 0);
+
+            /* Handle a menu bar item. This cannot be done by register_menu_bar_menu_items, as it
+             * will create it's own action group, assuming that the menu actions and submenu actions
+             * have been pre-registered and globally defined names. This is not the case here. Also
+             * register_menu_bar_menu_items adds a sorted list, completely destroying any sorting,
+             * a plugin might have intended */
+#if 0
+            /* Left here as a reminder, that the code below does basically the same */
+            register_menu_bar_menu_items( g_strdup(paths[1]), item->name, NULL, item->label,
+                    NULL, item->tooltip, ws_menubar_external_cb, item, TRUE, NULL, NULL);
+#endif
+
+            /* Creating menu from entry */
+            ac_xpath = g_strdup_printf("%s/%s", g_strdup(paths[1]), item->name);
+            xml = make_menu_xml(ac_xpath);
+
+            /* Adding the menu to the UI if possible (code has been derived from merge_menu_items) */
+            err = NULL;
+            merge_id = gtk_ui_manager_add_ui_from_string(ui_manager_main_menubar, xml, -1, &err);
+            if ( err != NULL )
+            {
+                fprintf (stderr, "Warning: building menu for [%s] failed: %s\n", item->name, err->message);
+                g_error_free (err);
+
+                /* undo the mess */
+                gtk_ui_manager_remove_ui (ui_manager_main_menubar, merge_id);
+                g_free ((gchar*)xml);
+            }
+
+            g_strfreev(paths);
+            g_free(ac_xpath);
+        }
+
+        /* Iterate Loop */
+        children = g_list_next(children);
+    }
+
+    /* Cleanup */
+    g_free(xpath);
+}
+
+static void
+ws_menubar_create_action_group(ext_menu_t * menu, const char * xpath_parent, GtkActionGroup  *action_group, gint depth)
+{
+    ext_menubar_t * item = NULL;
+    GList * children = NULL;
+    GtkAction * menu_item;
+
+    gchar * xpath, *submenu_xpath;
+
+    g_assert(xpath_parent != NULL && strlen(xpath_parent) > 0);
+
+    /* If the depth counter exceeds, something must have gone wrong */
+    g_assert(depth < EXT_MENUBAR_MAX_DEPTH);
+
+    xpath = g_strconcat(xpath_parent, menu->name, NULL);
+    /* Create the action for the menu item and add it to the action group */
+    menu_item = (GtkAction *)g_object_new ( GTK_TYPE_ACTION,
+            "name", menu->name, "label", menu->label, NULL );
+
+    gtk_action_group_add_action(action_group, menu_item);
+
+    children = menu->children;
+
+    /* Iterate children to create submenus */
+    while ( children != NULL && children->data != NULL )
+    {
+        item = (ext_menubar_t *) children->data;
+
+        /* Handle only menues, not individual items */
+        if ( item->type == EXT_MENUBAR_MENU )
+        {
+            submenu_xpath = g_strconcat(xpath, "/", NULL);
+            ws_menubar_create_action_group(item, submenu_xpath, action_group, depth++);
+            g_free(submenu_xpath);
+        }
+        else if ( item->type != EXT_MENUBAR_SEPARATOR )
+        {
+            menu_item = (GtkAction*) g_object_new( GTK_TYPE_ACTION,
+                    "name", item->name,
+                    "label", item->label,
+                    "tooltip", item->tooltip,
+                    NULL);
+            g_signal_connect(menu_item, "activate", G_CALLBACK(ws_menubar_external_cb), item );
+            gtk_action_group_add_action(action_group, menu_item);
+        }
+
+        children = g_list_next(children);
+    }
+
+    /* Cleanup */
+    g_free(xpath);
+}
+#endif
+
+static void
+ws_menubar_external_menus(void)
+{
+#ifndef __APPLE__
+    GList * user_menu = NULL;
+    ext_menu_t * menu = NULL;
+    GtkActionGroup  *action_group = NULL;
+    gchar groupdef[20], * xpath;
+    guint8 cnt = 1;
+
+    user_menu = ext_menubar_get_entries();
+
+    while ( ( user_menu != NULL ) && ( user_menu->data != NULL ) )
+    {
+        menu = (ext_menu_t *) user_menu->data;
+
+        /* On this level only menu items should exist. Not doing an assert here,
+         * as it could be an honest mistake */
+        if ( menu->type != EXT_MENUBAR_MENU )
+        {
+            user_menu = g_list_next(user_menu);
+            continue;
+        }
+
+        /* Create unique main actiongroup name */
+        g_snprintf(groupdef, 20, "UserDefined%02d", cnt);
+        xpath = g_strconcat( "/MenuBar/", groupdef, "Menu|", NULL );
+
+        /* Create an action group per menu */
+        action_group = gtk_action_group_new(groupdef);
+
+        /* This will generate the action structure for each menu and it's items. It is recursive,
+         * therefore a sub-routine, and we have a depth counter to prevent endless loops. */
+        ws_menubar_create_action_group(menu, xpath, action_group, 0);
+
+        /* Register action structure for each menu */
+        gtk_ui_manager_insert_action_group(ui_manager_main_menubar, action_group, 0);
+
+        /* Now we iterate over the items and add them to the UI. This has to be done after the action
+         * group for this menu has been added, otherwise the actions will not be found */
+        ws_menubar_create_ui(menu, xpath, action_group, 0 );
+
+        /* Cleanup */
+        g_free(xpath);
+        g_object_unref(action_group);
+
+        /* Iterate Loop */
+        user_menu = g_list_next (user_menu);
+        cnt++;
+    }
+#endif
 }
 
 /*
