@@ -2138,6 +2138,17 @@ AC_CHECK_HEADERS(sys/ioctl.h sys/param.h sys/socket.h sys/sockio.h sys/stat.h sy
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
 
+#
+# On Linux, check for some additional headers, which we need as a
+# workaround for a bonding driver bug and for libpcap's current lack
+# of its own workaround for that bug.
+#
+case "$host_os" in
+linux*)
+	AC_CHECK_HEADERS(linux/sockios.h linux/if_bonding.h,,,[#include <sys/socket.h>])
+	;;
+esac
+
 dnl SSL Check
 SSL_LIBS=''
 AC_MSG_CHECKING(whether to use SSL library)
