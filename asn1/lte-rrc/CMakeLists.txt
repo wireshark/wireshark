@@ -31,9 +31,11 @@ set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	EUTRA-RRC-Definitions.asn
-	EUTRA-UE-Variables.asn
 	EUTRA-InterNodeDefinitions.asn
+	EUTRA-RRC-Definitions.asn
+	EUTRA-Sidelink-Preconf.asn
+	EUTRA-UE-Variables.asn
+	PC5-RRC-Definitions.asn
 )
 
 set( EXTRA_DIST

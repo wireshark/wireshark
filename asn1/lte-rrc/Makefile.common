@@ -24,9 +24,11 @@ EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
+	EUTRA-InterNodeDefinitions.asn \
 	EUTRA-RRC-Definitions.asn \
+	EUTRA-Sidelink-Preconf.asn \
 	EUTRA-UE-Variables.asn \
-	EUTRA-InterNodeDefinitions.asn
+	PC5-RRC-Definitions.asn
 
 EXTRA_DIST = \
 	$(EXTRA_DIST_COMMON) \

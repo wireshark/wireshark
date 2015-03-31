@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V12.4.0 Release 12) packet dissection
+ * (3GPP TS 36.331 V12.5.0 Release 12) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2015, Pascal Quantin
  *
@@ -728,6 +728,28 @@ static void
 lte_rrc_timeConnFailure_r10_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%ums (%u)", 100*v, v);
+}
+
+static const value_string lte_rrc_n_r12_vals[] = {
+  {  0, "0 <= Nr < 256"},
+  {  1, "256 <= Nr < 768"},
+  {  2, "768 <= Nr < 1792"},
+  {  3, "1792 <= Nr < 3840"},
+  {  4, "3840 <= Nr < 7936"},
+  {  5, "7936 <= Nr < 16128"},
+  {  6, "16128 <= Nr < 32512"},
+  {  7, "32512 <= Nr"},
+  {  0, NULL},
+};
+
+static void
+lte_rrc_m_r12_fmt(gchar *s, guint32 v)
+{
+  if (v == 255) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "255 <= f(Nr) (255)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%u <= f(Nr) < %u (%u)", v, v+1, v);
+  }
 }
 
 static const value_string lte_rrc_BLER_Range_r12_vals[] = {
@@ -1765,6 +1787,54 @@ static const value_string lte_rrc_RSRP_Range_vals[] = {
   {  0, NULL}
 };
 static value_string_ext lte_rrc_RSRP_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRP_Range_vals);
+
+static const value_string lte_rrc_RSRP_RangeSL_vals[] = {
+  {  0, "-infinity"},
+  {  1, "-115dBm"},
+  {  2, "-110dBm"},
+  {  3, "-105dBm"},
+  {  4, "-100dBm"},
+  {  5, "-95dBm"},
+  {  6, "-90dBm"},
+  {  7, "-85dBm"},
+  {  8, "-80dBm"},
+  {  9, "-75dBm"},
+  { 10, "-70dBm"},
+  { 11, "-65dBm"},
+  { 12, "-60dBm"},
+  { 13, "+infinity"},
+  {  0, NULL}
+};
+
+static const value_string lte_rrc_RSRP_RangeSL2_vals[] = {
+  {  0, "-infinity"},
+  {  1, "-110dBm"},
+  {  2, "-100dBm"},
+  {  3, "-90dBm"},
+  {  4, "-80dBm"},
+  {  5, "-70dBm"},
+  {  6, "-60dBm"},
+  {  7, "+infinity"},
+  {  0, NULL}
+};
+
+#if 0
+static const value_string lte_rrc_RSRP_RangeSL3_vals[] = {
+  {  0, "-110dBm"},
+  {  1, "-105dBm"},
+  {  2, "-100dBm"},
+  {  3, "-95dBm"},
+  {  4, "-90dBm"},
+  {  5, "-85dBm"},
+  {  6, "-80dBm"},
+  {  7, "-75dBm"},
+  {  8, "-70dBm"},
+  {  9, "-65dBm"},
+  { 10, "-60dBm"},
+  { 11, "+infinity"},
+  {  0, NULL}
+};
+#endif
 
 static const value_string lte_rrc_RSRQ_Range_vals[] = {
   {-34, "RSRQ < -36dB"},

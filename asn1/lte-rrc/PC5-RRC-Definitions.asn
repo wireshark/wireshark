@@ -1,0 +1,31 @@
+-- 3GPP TS 36.331 V12.5.0 (2015-03)
+--
+PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	TDD-ConfigSL-r12
+FROM EUTRA-RRC-Definitions;
+
+
+SBCCH-SL-BCH-Message ::= SEQUENCE {
+	message					SBCCH-SL-BCH-MessageType
+}
+
+SBCCH-SL-BCH-MessageType ::=						MasterInformationBlock-SL
+
+
+MasterInformationBlock-SL ::=		SEQUENCE {
+	sl-Bandwidth-r12					ENUMERATED {
+											n6, n15, n25, n50, n75, n100},
+	tdd-ConfigSL-r12					TDD-ConfigSL-r12,
+	directFrameNumber-r12				BIT STRING (SIZE (10)),
+	directSubframeNumber-r12			INTEGER (0..9),
+	inCoverage-r12						BOOLEAN,
+	reserved-r12						BIT STRING (SIZE (19))
+}
+
+
+
+END

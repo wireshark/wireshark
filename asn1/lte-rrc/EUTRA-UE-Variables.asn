@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V12.4.0 (2014-12)
+-- 3GPP TS 36.331 V12.5.0 (2015-03)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -18,7 +18,7 @@ IMPORTS
 	LogMeasInfo-r10,
 	MeasCSI-RS-Id-r12,
 	MeasId,
-	MeasId-v12xy,
+	MeasId-v1250,
 	MeasIdToAddModList,
 	MeasIdToAddModListExt-r12,
 	MeasObjectToAddModList,
@@ -36,7 +36,6 @@ IMPORTS
 	QuantityConfig,
 	ReportConfigToAddModList,
 	RLF-Report-r9,
-	RSRP-Range,
 	TargetMBSFN-AreaList-r12,
 	TraceReference-r10,
 	VisitedCellInfoList-r12,
@@ -126,7 +125,7 @@ VarMeasReportList-r12 ::=			SEQUENCE (SIZE (1..maxMeasId-r12)) OF VarMeasReport
 VarMeasReport ::=					SEQUENCE {
 	-- List of measurement that have been triggered
 	measId								MeasId,
-	measId-v12xy						MeasId-v12xy					OPTIONAL,
+	measId-v1250						MeasId-v1250					OPTIONAL,
 	cellsTriggeredList					CellsTriggeredList				OPTIONAL,
 	csi-RS-TriggeredList-r12			CSI-RS-TriggeredList-r12		OPTIONAL,
 	numberOfReportsSent					INTEGER
@@ -168,7 +167,7 @@ VarShortMAC-Input ::=					SEQUENCE {
 }
 
 maxLogMeas-r10				INTEGER ::= 4060-- Maximum number of logged measurement entries
-											--	that can be stored by the UE
+											--  that can be stored by the UE
 
 
 END

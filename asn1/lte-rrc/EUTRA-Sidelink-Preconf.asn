@@ -1,0 +1,81 @@
+-- 3GPP TS 36.331 V12.5.0 (2015-03)
+--
+EUTRA-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+IMPORTS
+	AdditionalSpectrumEmission,
+	ARFCN-ValueEUTRA-r9,
+	FilterCoefficient,
+	maxSL-TxPool-r12,
+	P-Max,
+	SL-CP-Len-r12,
+	SL-HoppingConfigComm-r12,
+	SL-OffsetIndicatorSync-r12,
+	SL-PeriodComm-r12,
+	RSRP-RangeSL3-r12,
+	SL-TF-ResourceConfig-r12,
+	SL-TRPT-Subset-r12,
+	P0-SL-r12,
+	TDD-ConfigSL-r12
+FROM EUTRA-RRC-Definitions;
+
+
+SL-Preconfiguration-r12 ::=		SEQUENCE {
+	preconfigGeneral-r12				SL-PreconfigGeneral-r12,
+	preconfigSync-r12					SL-PreconfigSync-r12,
+	preconfigComm-r12					SL-PreconfigCommPoolList4-r12,
+	...
+}
+
+SL-PreconfigGeneral-r12 ::=		SEQUENCE {
+	-- PDCP configuration
+	rohc-Profiles-r12					SEQUENCE {
+		profile0x0001-r12						BOOLEAN,
+		profile0x0002-r12						BOOLEAN,
+		profile0x0004-r12						BOOLEAN,
+		profile0x0006-r12						BOOLEAN,
+		profile0x0101-r12						BOOLEAN,
+		profile0x0102-r12						BOOLEAN,
+		profile0x0104-r12						BOOLEAN
+	},
+	-- Physical configuration
+	carrierFreq-r12						ARFCN-ValueEUTRA-r9,
+	maxTxPower-r12						P-Max,
+	additionalSpectrumEmission-r12		AdditionalSpectrumEmission,
+	sl-bandwidth-r12					ENUMERATED {n6, n15, n25, n50, n75, n100},
+	tdd-ConfigSL-r12					TDD-ConfigSL-r12,
+	reserved-r12						BIT STRING (SIZE (19)),
+	...
+}
+
+SL-PreconfigSync-r12 ::=	SEQUENCE {
+	syncCP-Len-r12						SL-CP-Len-r12,
+	syncOffsetIndicator1-r12			SL-OffsetIndicatorSync-r12,
+	syncOffsetIndicator2-r12			SL-OffsetIndicatorSync-r12,
+	syncTxParameters-r12				P0-SL-r12,
+	syncTxThreshOoC-r12					RSRP-RangeSL3-r12,
+	filterCoefficient-r12				FilterCoefficient,
+	syncRefMinHyst-r12					ENUMERATED {dB0, dB3, dB6, dB9, dB12},
+	syncRefDiffHyst-r12					ENUMERATED {dB0, dB3, dB6, dB9, dB12, dBinf},
+	...
+}
+
+SL-PreconfigCommPoolList4-r12 ::=	SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-PreconfigCommPool-r12
+
+SL-PreconfigCommPool-r12 ::=		SEQUENCE {
+-- This IE is same as SL-CommResourcePool with rxParametersNCell absent
+	sc-CP-Len-r12						SL-CP-Len-r12,
+	sc-Period-r12						SL-PeriodComm-r12,
+	sc-TF-ResourceConfig-r12			SL-TF-ResourceConfig-r12,
+	sc-TxParameters-r12					P0-SL-r12,
+	data-CP-Len-r12						SL-CP-Len-r12,
+	data-TF-ResourceConfig-r12			SL-TF-ResourceConfig-r12,
+	dataHoppingConfig-r12				SL-HoppingConfigComm-r12,
+	dataTxParameters-r12				P0-SL-r12,
+	trpt-Subset-r12						SL-TRPT-Subset-r12,
+	...
+}
+
+END

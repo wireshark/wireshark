@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V12.4.0 (2014-12)
+-- 3GPP TS 36.331 V12.5.0 (2015-03)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -27,11 +27,13 @@ IMPORTS
 	PhysCellId,
 	P-Max,
 	PowerCoordinationInfo-r12,
+	SidelinkUEInformation-r12,
+	SL-CommConfig-r12,
+	SL-DiscConfig-r12,
 	RadioResourceConfigDedicated,
-	RRCConnectionReconfigurationComplete,
 	RSRP-Range,
 	RSRQ-Range,
-	RSRQ-Range-v12xy,
+	RSRQ-Range-v1250,
 	SCellToAddModList-r10,
 	SCG-ConfigPartSCG-r12,
 	SecurityAlgorithmConfig,
@@ -46,7 +48,7 @@ IMPORTS
 	UECapabilityInformation,
 	UE-CapabilityRAT-ContainerList,
 	UE-RadioPagingInfo-r12,
-	WLAN-OffloadConfig-r12
+    WLAN-OffloadConfig-r12
 FROM EUTRA-RRC-Definitions;
 
 
@@ -82,16 +84,16 @@ HandoverPreparationInformation ::=	SEQUENCE {
 
 HandoverPreparationInformation-r8-IEs ::= SEQUENCE {
 	ue-RadioAccessCapabilityInfo		UE-CapabilityRAT-ContainerList,
-	as-Config							AS-Config					OPTIONAL,		-- Cond HO
+	as-Config							AS-Config					OPTIONAL, 		-- Cond HO
 	rrm-Config							RRM-Config					OPTIONAL,
-	as-Context							AS-Context				OPTIONAL,		-- Cond HO
+	as-Context							AS-Context				OPTIONAL, 		-- Cond HO
 	nonCriticalExtension				HandoverPreparationInformation-v920-IEs		OPTIONAL
 }
 
 HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
 	ue-ConfigRelease-r9					ENUMERATED {
-										rel9, rel10, rel11, spare5, spare4, spare3,
-										spare2, spare1, ...}			OPTIONAL,	-- Cond HO2
+										rel9, rel10, rel11, rel12, spare4, spare3,
+										spare2, spare1, ...} 			OPTIONAL, 	-- Cond HO2
 	nonCriticalExtension				HandoverPreparationInformation-v9d0-IEs		OPTIONAL
 }
 
@@ -107,12 +109,12 @@ HandoverPreparationInformation-v9e0-IEs	::= SEQUENCE {
 
 HandoverPreparationInformation-v1130-IEs	::= SEQUENCE {
 	as-Context-v1130					AS-Context-v1130				OPTIONAL,	-- Cond HO2
-	nonCriticalExtension				HandoverPreparationInformation-v12xy-IEs						OPTIONAL
+	nonCriticalExtension				HandoverPreparationInformation-v1250-IEs						OPTIONAL
 }
 
-HandoverPreparationInformation-v12xy-IEs ::= SEQUENCE {
-	ue-SupportedEARFCN-r12				ARFCN-ValueEUTRA-r9				OPTIONAL,	-- Cond HO3
-	as-Config-v12xy					AS-Config-v12xy				OPTIONAL,	-- Cond HO2
+HandoverPreparationInformation-v1250-IEs ::= SEQUENCE {
+	ue-SupportedEARFCN-r12 				ARFCN-ValueEUTRA-r9				OPTIONAL,	-- Cond HO3
+	as-Config-v1250					AS-Config-v1250				OPTIONAL, 	-- Cond HO2
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -148,30 +150,21 @@ SCG-ConfigInfo-r12 ::=					SEQUENCE {
 }
 
 SCG-ConfigInfo-r12-IEs ::=			SEQUENCE {
-	-- Current dedicated MCG configuration
 	radioResourceConfigDedMCG-r12	RadioResourceConfigDedicated		OPTIONAL,
-	securityAlgorithmConfig			SecurityAlgorithmConfig				OPTIONAL,
 	sCellToAddModListMCG-r12		SCellToAddModList-r10				OPTIONAL,
 	measGapConfig-r12				MeasGapConfig						OPTIONAL,
-	-- MeNB controlled SCG configuration relevant for SeNB
 	powerCoordinationInfo-r12		PowerCoordinationInfo-r12			OPTIONAL,
-	-- Current SCG configuration (as delta signalling is used upon SCG change)
 	scg-RadioConfig-r12				SCG-ConfigPartSCG-r12				OPTIONAL,
-	-- UE capability related information
 	eutra-CapabilityInfo-r12		OCTET STRING (CONTAINING UECapabilityInformation)	OPTIONAL,
 	scg-ConfigRestrictInfo-r12		SCG-ConfigRestrictInfo-r12			OPTIONAL,
-	-- AS-Context information
-	mbmsInterestIndication-r11		OCTET STRING (CONTAINING
+	mbmsInterestIndication-r12		OCTET STRING (CONTAINING
 										MBMSInterestIndication-r11)		OPTIONAL,
-	-- RRM config alike fields
 	measResultServCellListSCG-r12	MeasResultServCellListSCG-r12		OPTIONAL,
-	-- Fields for different SCG configuration request
 	drb-ToAddModListSCG-r12			DRB-InfoListSCG-r12					OPTIONAL,
 	drb-ToReleaseListSCG-r12		DRB-ToReleaseList					OPTIONAL,
 	sCellToAddModListSCG-r12		SCellToAddModListSCG-r12			OPTIONAL,
 	sCellToReleaseListSCG-r12		SCellToReleaseList-r10				OPTIONAL,
-	-- Other fields
-	p-Max							P-Max								OPTIONAL,
+	p-Max-r12							P-Max								OPTIONAL,
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
@@ -180,29 +173,34 @@ DRB-InfoListSCG-r12 ::=				SEQUENCE (SIZE (1..maxDRB)) OF DRB-InfoSCG-r12
 DRB-InfoSCG-r12 ::=				SEQUENCE {
 	eps-BearerIdentity-r12			INTEGER (0..15)				OPTIONAL,	-- Cond DRB-Setup
 	drb-Identity-r12				DRB-Identity,
-	drb-Type-r12					ENUMERATED {split, scg}		OPTIONAL	-- Cond DRB-Setup
+	drb-Type-r12					ENUMERATED {split, scg}		OPTIONAL,	-- Cond DRB-Setup
+	...
 }
 
 SCellToAddModListSCG-r12 ::=	SEQUENCE (SIZE (1..maxSCell-r10)) OF Cell-ToAddMod-r12
+
 Cell-ToAddMod-r12 ::=				SEQUENCE {
 	sCellIndex-r12						SCellIndex-r10,
 	cellIdentification-r12				SEQUENCE {
 		physCellId-r12						PhysCellId,
-		dl-CarrierFreq-r12					ARFCN-ValueEUTRA
+		dl-CarrierFreq-r12					ARFCN-ValueEUTRA-r9
 	}																OPTIONAL,	-- Cond SCellAdd
 	measResultCellToAdd-r12				SEQUENCE {
 		rsrpResult-r12						RSRP-Range,
 		rsrqResult-r12						RSRQ-Range
-	}																OPTIONAL	-- Cond SCellAdd
+	}																OPTIONAL,	-- Cond SCellAdd2
+	...
 }
 
 MeasResultServCellListSCG-r12 ::=	SEQUENCE (SIZE (1..maxServCell-r10)) OF MeasResultServCellSCG-r12
+
 MeasResultServCellSCG-r12 ::=			SEQUENCE {
 	servCellId-r12						ServCellIndex-r10,
 	measResultSCell-r12					SEQUENCE {
 		rsrpResultSCell-r12					RSRP-Range,
 		rsrqResultSCell-r12					RSRQ-Range
-	}
+	},
+	...
 }
 
 SCG-ConfigRestrictInfo-r12 ::=		SEQUENCE {
@@ -277,8 +275,10 @@ AS-Config-v9e0 ::=				SEQUENCE {
 	sourceDl-CarrierFreq-v9e0		ARFCN-ValueEUTRA-v9e0
 }
 
-AS-Config-v12xy ::=				SEQUENCE {
-	sourceWlan-OffloadConfig-r12		WLAN-OffloadConfig-r12				OPTIONAL
+AS-Config-v1250 ::=				SEQUENCE {
+	sourceWlan-OffloadConfig-r12		WLAN-OffloadConfig-r12				OPTIONAL,
+	sourceSL-CommConfig-r12				SL-CommConfig-r12					OPTIONAL,
+	sourceSL-DiscConfig-r12				SL-DiscConfig-r12					OPTIONAL
 }
 
 
@@ -293,7 +293,10 @@ AS-Context-v1130 ::=					SEQUENCE {
 											MBMSInterestIndication-r11)	OPTIONAL,	-- Cond HO2
 	powerPrefIndication-r11					OCTET STRING (CONTAINING
 											UEAssistanceInformation-r11)	OPTIONAL,	-- Cond HO2
-	...
+	...,
+	[[	sidelinkUEInformation-r12				OCTET STRING (CONTAINING
+												SidelinkUEInformation-r12)	OPTIONAL	-- Cond HO2
+	]]
 }
 
 
@@ -343,7 +346,7 @@ CandidateCellInfo-r10 ::=		SEQUENCE {
 	...,
 	[[	dl-CarrierFreq-v1090			ARFCN-ValueEUTRA-v9e0		OPTIONAL
 	]],
-	[[	rsrqResult-v12xy				RSRQ-Range-v12xy			OPTIONAL
+	[[	rsrqResult-v1250				RSRQ-Range-v1250			OPTIONAL
 	]]
 }
 

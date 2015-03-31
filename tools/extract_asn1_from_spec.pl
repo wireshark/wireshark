@@ -77,7 +77,7 @@ sub extract_asn1 {
     }
 
     if(($file_name_found == 0) && ($line =~ m/DEFINITIONS AUTOMATIC TAGS ::=/)){
-      ($output_file_name) = ($line =~ m/^([a-zA-Z\-]+)\s+DEFINITIONS AUTOMATIC TAGS ::=/);
+      ($output_file_name) = ($line =~ m/^([a-zA-Z0-9\-]+)\s+DEFINITIONS AUTOMATIC TAGS ::=/);
       $output_file_name = "$output_file_name".".asn";
       print  "generating $output_file_name\n";
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
