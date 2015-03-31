@@ -349,7 +349,7 @@ plugins_get_descriptions(plugin_description_callback callback, void *user_data)
 {
     type_callback_info info;
 
-    info.types = NULL; /* FUCK LLVM UP THE ASS WITH A RED HOT POKER */
+    info.types = NULL; /* Certain compiler suites need a init state for this variable */
     for (info.pt_plug = plugin_list; info.pt_plug != NULL;
          info.pt_plug = info.pt_plug->next)
     {
