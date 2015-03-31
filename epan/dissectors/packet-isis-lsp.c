@@ -106,6 +106,18 @@
 #define GRP_IPV4_ADDRESS 2
 #define GRP_IPV6_ADDRESS 3
 
+/* sub-TLV's under SID/Label binding TLV */
+#define ISIS_LSP_SL_SUB_SID_LAB     1
+#define ISIS_LSP_SL_SUB_ERO_MET     2
+#define ISIS_LSP_SL_SUB_IPV4_ERO    3
+#define ISIS_LSP_SL_SUB_IPV6_ERO    4
+#define ISIS_LSP_SL_SUB_UN_IF       5
+#define ISIS_LSP_SL_SUB_IPV4_B_ERO  6
+#define ISIS_LSP_SL_SUB_IPV6_B_ERO  7
+#define ISIS_LSP_SL_SUB_B_UN_IF     8
+
+#define ISIS_TLV_SL_SUB_TLV_L_BIT   0x80 /* ERO sub-tlv L flag */
+
 /* Segment Routing Sub-TLV */
 #define ISIS_SR_SID_LABEL           1
 
@@ -123,6 +135,8 @@ const range_string mtid_strings[] = {
   { 3996, 4095, "Development, Experimental and Proprietary features" },
   {    0,    0, NULL }
 } ;
+
+static const true_false_string tfs_isis_tlv_sl_sub_tlv_f = { "Loose", "Strict" };
 
 void proto_register_isis_lsp(void);
 void proto_reg_handoff_isis_lsp(void);
@@ -175,6 +189,32 @@ static int hf_isis_lsp_sid_sli_index = -1;
 static int hf_isis_lsp_sid_sli_ipv6 = -1;
 static int hf_isis_lsp_spb_sr_bit = -1;
 static int hf_isis_lsp_spb_spvid = -1;
+/* TLV 149 items draft-previdi-isis-segment-routing-extensions */
+static int hf_isis_lsp_sl_binding_flags = -1;
+static int hf_isis_lsp_sl_binding_flags_f = -1;
+static int hf_isis_lsp_sl_binding_flags_m = -1;
+static int hf_isis_lsp_sl_binding_weight = -1;
+static int hf_isis_lsp_sl_binding_range = -1;
+static int hf_isis_lsp_sl_binding_prefix_length = -1;
+static int hf_isis_lsp_sl_binding_fec_prefix_ipv4 = -1;
+static int hf_isis_lsp_sl_binding_fec_prefix_ipv6 = -1;
+static int hf_isis_lsp_sl_sub_tlv = -1;
+static int hf_isis_lsp_sl_sub_tlv_type = -1;
+static int hf_isis_lsp_sl_sub_tlv_length = -1;
+static int hf_isis_lsp_sl_sub_tlv_label_20 = -1;
+static int hf_isis_lsp_sl_sub_tlv_label_32 = -1;
+static int hf_isis_lsp_sl_sub_tlv_metric = -1;
+static int hf_isis_lsp_sl_sub_tlv_ero_flag = -1;
+static int hf_isis_lsp_sl_sub_tlv_ero_ipv4 = -1;
+static int hf_isis_lsp_sl_sub_tlv_ero_ipv6 = -1;
+static int hf_isis_lsp_sl_sub_tlv_router_id32 = -1;
+static int hf_isis_lsp_sl_sub_tlv_router_id128 = -1;
+static int hf_isis_lsp_sl_sub_tlv_inter_id = -1;
+static int hf_isis_lsp_sl_sub_tlv_backup_ero_ipv4 = -1;
+static int hf_isis_lsp_sl_sub_tlv_backup_ero_ipv6 = -1;
+static int hf_isis_lsp_sl_sub_tlv_backup_router_id32 = -1;
+static int hf_isis_lsp_sl_sub_tlv_backup_router_id128 = -1;
+static int hf_isis_lsp_sl_sub_tlv_backup_inter_id = -1;
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_isis_lsp_grp_macaddr_length = -1;
 static int hf_isis_lsp_grp_ipv4addr_length = -1;
@@ -346,6 +386,7 @@ static gint ett_isis_lsp_clv_mt_cap = -1;
 static gint ett_isis_lsp_clv_mt_cap_spb_instance = -1;
 static gint ett_isis_lsp_clv_mt_cap_spbm_service_identifier = -1;
 static gint ett_isis_lsp_clv_mt_cap_spbv_mac_address = -1;
+static gint ett_isis_lsp_clv_sid_label_binding = -1;
 static gint ett_isis_lsp_clv_ip_reachability = -1;
 static gint ett_isis_lsp_clv_ip_reach_subclv = -1;
 static gint ett_isis_lsp_clv_ext_ip_reachability = -1; /* CLV 135 */
@@ -375,6 +416,8 @@ static gint ett_isis_lsp_clv_grp_macaddr = -1;
 static gint ett_isis_lsp_clv_grp_ipv4addr = -1;
 static gint ett_isis_lsp_clv_grp_ipv6addr = -1;
 static gint ett_isis_lsp_clv_originating_buff_size = -1; /* CLV 14 */
+static gint ett_isis_lsp_sl_flags = -1;
+static gint ett_isis_lsp_sl_sub_tlv = -1;
 
 static expert_field ie_isis_lsp_checksum_bad = EI_INIT;
 static expert_field ei_isis_lsp_short_packet = EI_INIT;
@@ -390,6 +433,17 @@ static const value_string isis_lsp_istype_vals[] = {
     { ISIS_LSP_TYPE_LEVEL_1,    "Level 1"},
     { ISIS_LSP_TYPE_UNUSED2,    "Unused 0x2 (invalid)"},
     { ISIS_LSP_TYPE_LEVEL_2,    "Level 2"},
+    { 0, NULL } };
+
+static const value_string isis_lsp_sl_sub_tlv_vals[] = {
+    { ISIS_LSP_SL_SUB_SID_LAB,    "SID/Label sub tlv"},
+    { ISIS_LSP_SL_SUB_ERO_MET,    "ERO Metric sub tlv"},
+    { ISIS_LSP_SL_SUB_IPV4_ERO,   "IPv4 ERO sub tlv"},
+    { ISIS_LSP_SL_SUB_IPV6_ERO,   "IPv6 ERO sub tlv"},
+    { ISIS_LSP_SL_SUB_UN_IF,      "Unumbered If sub tlv"},
+    { ISIS_LSP_SL_SUB_IPV4_B_ERO, "IPv4 backup sub tlv"},
+    { ISIS_LSP_SL_SUB_IPV6_B_ERO, "IPv6 backup sub tlv"},
+    { ISIS_LSP_SL_SUB_B_UN_IF,    "Backup Unumbered If"},
     { 0, NULL } };
 
 static const int * adj_sid_flags[] = {
@@ -1831,6 +1885,164 @@ dissect_isis_lsp_clv_mt_cap(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
     }
 }
 
+
+/*
+ * Name: dissect_isis_lsp_clv_sid_label_binding()
+ *
+ * Description: Decode an ISIS SID/LABEL binding - code 149.
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : proto tree to build on (may be null)
+ *   int : current offset into packet data
+ *   int : length of IDs in packet.
+ *   int : length of this clv
+ *
+ * Output:
+ *   void, will modify proto_tree if not null.
+ */
+static void
+dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+                                       int id_length _U_, int length)
+{
+    proto_item *ti_subclvs = NULL;
+    proto_tree *subtree = NULL;
+    int tlv_offset = 0;
+    int sub_tlv_len = 0;
+    int i = 0;
+    guint8 clv_pref_l = 0;
+    guint   clv_code = 0;
+    guint   clv_len = 0;
+
+    static const int *lsp_sl_flags[] = {
+        &hf_isis_lsp_sl_binding_flags_f,
+        &hf_isis_lsp_sl_binding_flags_m,
+        NULL
+    };
+
+    if ( length <= 0 ) {
+        return;
+    }
+
+
+    tlv_offset  = offset;
+
+    proto_tree_add_bitmask(tree, tvb, tlv_offset,
+                           hf_isis_lsp_sl_binding_flags, ett_isis_lsp_sl_flags, lsp_sl_flags, ENC_NA);
+    tlv_offset++;
+    proto_tree_add_item(tree, hf_isis_lsp_sl_binding_weight, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+    tlv_offset++;
+    proto_tree_add_item(tree, hf_isis_lsp_sl_binding_range, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+    tlv_offset = tlv_offset+2;
+    proto_tree_add_item(tree, hf_isis_lsp_sl_binding_prefix_length, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+    clv_pref_l = tvb_get_guint8(tvb, tlv_offset);
+    tlv_offset++;
+    if (clv_pref_l == 32) {
+        proto_tree_add_item(tree, hf_isis_lsp_sl_binding_fec_prefix_ipv4, tvb, tlv_offset, clv_pref_l/8, ENC_NA);
+    }
+    else if (clv_pref_l == 128) {
+        proto_tree_add_item(tree, hf_isis_lsp_sl_binding_fec_prefix_ipv6, tvb, tlv_offset, clv_pref_l/8, ENC_NA);
+    }
+    else {
+      proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, tlv_offset, -1,
+                                      "Prefix address format unknown length : %d",clv_pref_l);
+    }
+    tlv_offset = tlv_offset+(clv_pref_l/8);
+    sub_tlv_len = length - (5+clv_pref_l/8);
+    while (i < sub_tlv_len) {
+        clv_code = tvb_get_guint8(tvb, i+tlv_offset);
+        clv_len  = tvb_get_guint8(tvb, i+1+tlv_offset);
+        ti_subclvs = proto_tree_add_item(tree, hf_isis_lsp_sl_sub_tlv, tvb, tlv_offset, clv_len+2, ENC_NA);
+        proto_item_append_text(ti_subclvs, " %s",
+                               val_to_str(clv_code, isis_lsp_sl_sub_tlv_vals, "Unknown capability sub-tlv type"));
+        subtree = proto_item_add_subtree(ti_subclvs, ett_isis_lsp_sl_sub_tlv);
+        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_type, tvb, i+tlv_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_length, tvb, i+1+tlv_offset, 1, ENC_BIG_ENDIAN);
+        switch (clv_code) {
+            case ISIS_LSP_SL_SUB_SID_LAB :
+                switch (clv_len) {
+                    case 3 :
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_label_20,
+                                            tvb, i+2+tlv_offset, clv_len, ENC_BIG_ENDIAN);
+                        break;
+                    case 4 :
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_label_32,
+                                            tvb, i+2+tlv_offset, clv_len, ENC_BIG_ENDIAN);
+                      break;
+                    default :
+                        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, i+2+tlv_offset, -1,
+                                                "Label badly formatted");
+                        break;
+                }
+                break;
+            case ISIS_LSP_SL_SUB_ERO_MET :
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_metric, tvb, i+2+tlv_offset, 4, ENC_BIG_ENDIAN);
+                break;
+            case ISIS_LSP_SL_SUB_IPV4_ERO :
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_ero_flag, tvb, i+2+tlv_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_ero_ipv4, tvb, i+3+tlv_offset, 4, ENC_NA);
+                break;
+            case ISIS_LSP_SL_SUB_IPV6_ERO :
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_ero_flag, tvb, i+2+tlv_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_ero_ipv6, tvb, i+3+tlv_offset, 16, ENC_NA);
+                break;
+            case ISIS_LSP_SL_SUB_UN_IF :
+                switch (clv_len) {
+                    case 8 :
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_router_id32,
+                                            tvb, i+2+tlv_offset, 4, ENC_NA);
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_inter_id,
+                                            tvb, i+6+tlv_offset, 4, ENC_BIG_ENDIAN);
+                        break;
+                    case 20 :
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_router_id128,
+                                            tvb, i+2+tlv_offset, 16, ENC_NA);
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_inter_id,
+                                            tvb, i+2+16+tlv_offset, 4, ENC_BIG_ENDIAN);
+                        break;
+                    default :
+                        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, i+2+tlv_offset, -1,
+                                                "Router ID badly formatted");
+                        break;
+                }
+                break;
+            case ISIS_LSP_SL_SUB_IPV4_B_ERO :
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_ero_flag, tvb, i+2+tlv_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_backup_ero_ipv4, tvb, i+3+tlv_offset, 4, ENC_NA);
+                break;
+            case ISIS_LSP_SL_SUB_IPV6_B_ERO :
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_ero_flag, tvb, i+2+tlv_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_backup_ero_ipv6, tvb, i+3+tlv_offset, 16, ENC_NA);
+                break;
+            case ISIS_LSP_SL_SUB_B_UN_IF :
+                switch (clv_len) {
+                    case 8 :
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_backup_router_id32,
+                                            tvb, i+2+tlv_offset, 4, ENC_NA);
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_backup_inter_id,
+                                            tvb, i+6+tlv_offset, 4, ENC_BIG_ENDIAN);
+                        break;
+                    case 20 :
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_backup_router_id128,
+                                            tvb, i+2+tlv_offset, 16, ENC_NA);
+                        proto_tree_add_item(subtree, hf_isis_lsp_sl_sub_tlv_backup_inter_id,
+                                            tvb, i+2+16+tlv_offset, 4, ENC_BIG_ENDIAN);
+                        break;
+                    default :
+                        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, i+2+tlv_offset, -1,
+                                                "backup Router ID badly formatted");
+                        break;
+                 }
+                break;
+            default:
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, i+2+tlv_offset, -1,
+                                            "Sub TLV badly formatted, type unknown %d", clv_code);
+                break;
+        }
+        i += clv_len + 2;
+    }
+}
+
 /*
  * Name: dissect_lsp_authentication_clv()
  *
@@ -2419,65 +2631,68 @@ static void
 dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
     int offset, int subclvs_len)
 {
-  proto_item *ti_subclvs = NULL;
-  proto_tree *subtree = NULL;
-  int sub_tlv_offset = 0;
-  int i = 0;
-  guint      clv_code, clv_len;
+    proto_item *ti_subclvs = NULL;
+    proto_tree *subtree = NULL;
+    int sub_tlv_offset = 0;
+    int i = 0;
+    guint  clv_code, clv_len;
 
-  sub_tlv_offset  = offset;
-  while (i < subclvs_len) {
-    subtree = proto_tree_add_subtree(tree, tvb, sub_tlv_offset+11+i, 0,
-                                     ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv,
-                                     &ti_subclvs, "subTLV");
-    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_code,
-                        tvb, sub_tlv_offset+11+i, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, sub_tlv_offset+12+i, 1, ENC_BIG_ENDIAN);
-    clv_code = tvb_get_guint8(tvb, sub_tlv_offset+11+i);
-    clv_len  = tvb_get_guint8(tvb, sub_tlv_offset+12+i);
-    proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str(clv_code, isis_lsp_ext_is_reachability_code_vals, "Unknown"), clv_code, clv_len);
-    proto_item_set_len(ti_subclvs, clv_len+2);
-    switch (clv_code) {
-      case 3 :
-        dissect_subclv_admin_group(tvb, subtree, sub_tlv_offset+13+i);
-        break;
-      case 4 :
-        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_local_identifier, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_remote_identifier, tvb, sub_tlv_offset+17+i, 4, ENC_BIG_ENDIAN);
-        break;
-      case 6 :
-        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
-        break;
-      case 8 :
-        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
-        break;
-      case 9 :
-        dissect_subclv_max_bw(tvb, subtree, sub_tlv_offset+13+i);
-        break;
-      case 10:
-        dissect_subclv_rsv_bw(tvb, subtree, sub_tlv_offset+13+i);
-        break;
-      case 11:
-        dissect_subclv_unrsv_bw(tvb, subtree, sub_tlv_offset+13+i);
-        break;
-      case 18:
-        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric, tvb, sub_tlv_offset+13+i, 3, ENC_BIG_ENDIAN);
-        break;
-      case 22:
-       dissect_subclv_bw_ct(tvb, subtree, sub_tlv_offset+13+i, clv_len);
-        break;
-      case 29:
-        dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
-                                       sub_tlv_offset+13+i, clv_code, clv_len);
-        break;
-      case 31:
-      case 32:
-        dissect_subclv_adj_sid(tvb, pinfo, subtree, sub_tlv_offset+13+i, clv_code, clv_len);
-        break;
-      default:
-        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, sub_tlv_offset+13+i, clv_len, ENC_NA);
-        break;
-      }
+    sub_tlv_offset  = offset;
+    while (i < subclvs_len) {
+        subtree = proto_tree_add_subtree(tree, tvb, sub_tlv_offset+11+i, 0,
+                                         ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv,
+                                         &ti_subclvs, "subTLV");
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_code,
+                            tvb, sub_tlv_offset+11+i, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_len, tvb, sub_tlv_offset+12+i, 1, ENC_BIG_ENDIAN);
+        clv_code = tvb_get_guint8(tvb, sub_tlv_offset+11+i);
+        clv_len  = tvb_get_guint8(tvb, sub_tlv_offset+12+i);
+        proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)", val_to_str(clv_code, isis_lsp_ext_is_reachability_code_vals, "Unknown"), clv_code, clv_len);
+        proto_item_set_len(ti_subclvs, clv_len+2);
+        switch (clv_code) {
+            case 3 :
+                dissect_subclv_admin_group(tvb, subtree, sub_tlv_offset+13+i);
+            break;
+            case 4 :
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_local_identifier,
+                                    tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_link_remote_identifier,
+                                    tvb, sub_tlv_offset+17+i, 4, ENC_BIG_ENDIAN);
+            break;
+            case 6 :
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_interface_address, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+            break;
+            case 8 :
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_ipv4_neighbor_address, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+            break;
+            case 9 :
+                dissect_subclv_max_bw(tvb, subtree, sub_tlv_offset+13+i);
+            break;
+            case 10:
+                dissect_subclv_rsv_bw(tvb, subtree, sub_tlv_offset+13+i);
+            break;
+            case 11:
+                dissect_subclv_unrsv_bw(tvb, subtree, sub_tlv_offset+13+i);
+            break;
+            case 18:
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric,
+                                    tvb, sub_tlv_offset+13+i, 3, ENC_BIG_ENDIAN);
+            break;
+            case 22:
+                dissect_subclv_bw_ct(tvb, subtree, sub_tlv_offset+13+i, clv_len);
+            break;
+            case 29:
+                dissect_subclv_spb_link_metric(tvb, pinfo, subtree,
+                                               sub_tlv_offset+13+i, clv_code, clv_len);
+            break;
+            case 31:
+            case 32:
+                dissect_subclv_adj_sid(tvb, pinfo, subtree, sub_tlv_offset+13+i, clv_code, clv_len);
+            break;
+            default:
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, sub_tlv_offset+13+i, clv_len, ENC_NA);
+            break;
+        }
     i += clv_len + 2;
   }
 }
@@ -2896,6 +3111,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
         dissect_isis_lsp_clv_mt_cap
     },
     {
+        ISIS_CLV_SID_LABEL_BINDING,
+        "SID/Label Binding TLV",
+        &ett_isis_lsp_clv_sid_label_binding,
+        dissect_isis_lsp_clv_sid_label_binding
+    },
+    {
         ISIS_CLV_AUTHENTICATION,
         "Authentication",
         &ett_isis_lsp_clv_authentication,
@@ -3047,6 +3268,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
         "MT-Capability",
         &ett_isis_lsp_clv_mt_cap,
         dissect_isis_lsp_clv_mt_cap
+    },
+    {
+        ISIS_CLV_SID_LABEL_BINDING,
+        "SID/Label Binding TLV",
+        &ett_isis_lsp_clv_sid_label_binding,
+        dissect_isis_lsp_clv_sid_label_binding
     },
     {
         ISIS_CLV_AUTHENTICATION,
@@ -3513,12 +3740,137 @@ proto_register_isis_lsp(void)
               FT_UINT16, BASE_HEX_DEC, NULL, 0,
               NULL, HFILL }
         },
-
-      /* Generated from convert_proto_tree_add_text.pl */
+      /* TLV 149 draft-previdi-isis-segmentrouting-extensions */
+        { &hf_isis_lsp_sl_binding_flags,
+            { "TLV Flags", "isis.lsp.sl_binding.flags",
+              FT_UINT8, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_sl_binding_flags_f,
+            { "Flag F", "isis.lsp.sl_binding.flags_f",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_flags_m,
+            { "Flag M", "isis.lsp.sl_binding.flags_m",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_weight,
+            { "Weight", "isis.lsp.sl_binding.weight",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_range,
+            { "Range", "isis.lsp.sl_binding.range",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_prefix_length,
+            { "Prefix length", "isis.lsp.sl_binding.prefix_len",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_fec_prefix_ipv4,
+            { "Prefix", "isis.lsp.sl_binding.prefix_ipv4",
+              FT_IPv4, BASE_NONE, NULL, 0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_binding_fec_prefix_ipv6,
+            { "Prefix", "isis.lsp.sl_binding.prefix_ipv6",
+              FT_IPv6, BASE_NONE, NULL, 0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv,
+            { "SID/Label sub-TLV :", "isis.lsp.sl_binding.subtlv",
+              FT_NONE, BASE_NONE, NULL, 0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_type,
+            { "SID/label sub-TLV type", "isis.lsp.sl_sub_tlv_type",
+              FT_UINT8, BASE_DEC, VALS(isis_lsp_sl_sub_tlv_vals), 0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_length,
+            { "Sub-TLV length", "isis.lsp.sl_binding.sub_tlv_len",
+              FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_label_20,
+            { "SID/Label", "isis.lsp.sl_sub_tlv.label20",
+              FT_UINT24, BASE_DEC, NULL, 0x0FFFFF,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_label_32,
+            { "SID/Label", "isis.lsp.sl_sub_tlv.label32",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_metric,
+            { "Metric", "isis.lsp.sl_sub_tlv.metric",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_ero_flag,
+            { "L bit", "isis.lsp.sl_sub_tlv.ero_flag_l",
+              FT_BOOLEAN, 8, TFS(&tfs_isis_tlv_sl_sub_tlv_f), ISIS_TLV_SL_SUB_TLV_L_BIT,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_ero_ipv4,
+            { "ERO IPv4", "isis.lsp.sl_sub_tlv.ero_ipv4",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_ero_ipv6,
+            { "ERO IPv6", "isis.lsp.sl_sub_tlv.ero_ipv6",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_router_id32,
+          { "Router ID", "isis.lsp.sl_sub_tlv.router_id32",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_router_id128,
+          { "Router ID", "isis.lsp.sl_sub_tlv.router_id128",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_inter_id,
+          { "Interface ID", "isis.lsp.sl_sub_tlv.interface_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_backup_ero_ipv4,
+            { "Backup ERO IPv4", "isis.lsp.sl_sub_tlv.backup_ero_ipv4",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_backup_ero_ipv6,
+            { "Backup ERO IPv6", "isis.lsp.sl_sub_tlv.backup_ero_ipv6",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_backup_router_id32,
+          { "Backup Router ID", "isis.lsp.sl_sub_tlv.backup_router_id32",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_backup_router_id128,
+          { "Backup Router ID", "isis.lsp.sl_sub_tlv.backup_router_id128",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_isis_lsp_sl_sub_tlv_backup_inter_id,
+          { "Backup Interface ID", "isis.lsp.sl_sub_tlv.backup_interface_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        /* Generated from convert_proto_tree_add_text.pl */
         { &hf_isis_lsp_mt_id_reserved,
             { "Reserved", "isis.lsp.reserved",
               FT_UINT16, BASE_HEX, NULL, ISIS_LSP_MT_MSHIP_RES_MASK,
-            NULL, HFILL }
+            NULL, HFILL}
         },
         { &hf_isis_lsp_mt_id,
             { "Topology ID", "isis.lsp.mtid",
@@ -4249,6 +4601,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_mt_cap_spb_instance,
         &ett_isis_lsp_clv_mt_cap_spbm_service_identifier,
         &ett_isis_lsp_clv_mt_cap_spbv_mac_address,
+        &ett_isis_lsp_clv_sid_label_binding,
         &ett_isis_lsp_clv_te_router_id,
         &ett_isis_lsp_clv_ip_reachability,
         &ett_isis_lsp_clv_ip_reach_subclv,
@@ -4278,7 +4631,9 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_originating_buff_size, /* CLV 14 */
         &ett_isis_lsp_clv_sr_cap,
         &ett_isis_lsp_clv_sr_sid_label,
-        &ett_isis_lsp_clv_sr_alg
+        &ett_isis_lsp_clv_sr_alg,
+        &ett_isis_lsp_sl_flags,
+        &ett_isis_lsp_sl_sub_tlv
     };
 
     static ei_register_info ei[] = {
