@@ -17814,7 +17814,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   proto_tree *keyinfo_tree = NULL;
   proto_tree *keydes_tree;
   proto_tree *ti = NULL;
-  guint8     counter;
+  guint32     start_nonce;
 
   /*
    * RSNA key descriptors.
@@ -17838,8 +17838,13 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         break;
 
       case KEY_INFO_KEY_MIC_MASK:
-        counter = tvb_get_guint8(tvb, offset+11);
-        if (!counter)
+        /* Check start of nonce for check if it is message 2 or 4
+        According to the IEEE specification, sections 11.6.6.3 and 11.6.6.5
+        define the value for the WPA Key Nonce as following:
+        Message #2, Key Nonce = SNonce (Supplicant Nonce)
+        Message #4, Key Nonce = 0 */
+        start_nonce = tvb_get_ntohl(tvb, offset+12);
+        if (start_nonce)
           col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
         else
           col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
