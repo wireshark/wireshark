@@ -4145,7 +4145,6 @@ spotlight_CNID_array(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encodin
 
 
 	while (count --) {
-		query_data64 = tvb_get_guint64(tvb, offset, encoding);
 		proto_tree_add_item(tree, hf_afp_cnid, tvb, offset, 8, encoding);
 		offset += 8;
 	}
@@ -4789,7 +4788,6 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	int		offset = 0;
 	proto_tree      *sub_tree;
 
-	guint16 ofs;
 	guint16 flag;
 	guint8  server_name_len;
 	guint16 sign_ofs = 0;
@@ -4820,20 +4818,15 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_afp_status, NULL, "Get Status");
 
-	ofs = tvb_get_ntohs(tvb, AFPSTATUS_MACHOFF);
 	proto_tree_add_item(tree, hf_afp_machine_offset, tvb, AFPSTATUS_MACHOFF, 2, ENC_BIG_ENDIAN);
 
-	ofs = tvb_get_ntohs(tvb, AFPSTATUS_VERSOFF);
 	proto_tree_add_item(tree, hf_afp_version_offset, tvb, AFPSTATUS_VERSOFF, 2, ENC_BIG_ENDIAN);
 
-	ofs = tvb_get_ntohs(tvb, AFPSTATUS_UAMSOFF);
 	proto_tree_add_item(tree, hf_afp_uams_offset, tvb, AFPSTATUS_UAMSOFF, 2, ENC_BIG_ENDIAN);
 
-	ofs = tvb_get_ntohs(tvb, AFPSTATUS_ICONOFF);
 	proto_tree_add_item(tree, hf_afp_icon_offset, tvb, AFPSTATUS_ICONOFF, 2, ENC_BIG_ENDIAN);
 
-	ofs = AFPSTATUS_FLAGOFF;
-	flag = tvb_get_ntohs(tvb, ofs);
+	flag = tvb_get_ntohs(tvb, AFPSTATUS_FLAGOFF);
 
 	proto_tree_add_bitmask(tree, tvb, AFPSTATUS_FLAGOFF, hf_afp_server_flag,
 					ett_afp_status_server_flag, flags, ENC_BIG_ENDIAN);
