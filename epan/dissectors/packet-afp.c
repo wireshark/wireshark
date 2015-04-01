@@ -4386,7 +4386,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
-static const value_string endian_vals[] = {
+static const val64_string endian_vals[] = {
 	{0,	"Little Endian" },
 	{1,	"Big Endian" },
 	{0,	NULL } };
@@ -7154,7 +7154,7 @@ proto_register_afp(void)
 		{ &hf_afp_query_type, { "type", "afp.query_type", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_afp_toc_offset, { "ToC Offset", "afp.toc_offset", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_afp_toc_entry, { "ToC Entry", "afp.toc_entry", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-		{ &hf_afp_endianness, { "Endianness", "afp.endianness", FT_UINT64, BASE_HEX, VALS(endian_vals), 0x0, NULL, HFILL }},
+		{ &hf_afp_endianness, { "Endianness", "afp.endianness", FT_UINT64, BASE_HEX | BASE_VAL64_STRING, VALS64(endian_vals), 0x0, NULL, HFILL }},
 		{ &hf_afp_query_len, { "Query length", "afp.query_len", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_afp_num_toc_entries, { "Number of entries", "afp.num_toc_entries", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_afp_machine_offset, { "Machine offset", "afp.machine_offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
