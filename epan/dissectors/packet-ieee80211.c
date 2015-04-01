@@ -3790,6 +3790,8 @@ static int hf_ieee80211_tag_measure_request_mac_address  = -1;
 static int hf_ieee80211_tag_measure_request_peer_mac_address = -1;
 static int hf_ieee80211_tag_measure_request_group_id = -1;
 
+static int hf_ieee80211_tag_measure_request_unknown = -1;
+
 static int hf_ieee80211_ht_pren_type = -1;
 static int hf_ieee80211_ht_pren_unknown = -1;
 
@@ -4066,6 +4068,8 @@ static int hf_ieee80211_tag_measure_report_ipi_density_8 = -1;
 static int hf_ieee80211_tag_measure_report_ipi_density_9 = -1;
 static int hf_ieee80211_tag_measure_report_ipi_density_10 = -1;
 static int hf_ieee80211_tag_measure_report_parent_tsf = -1;
+
+static int hf_ieee80211_tag_measure_report_unknown = -1;
 
 static int hf_ieee80211_tag_quiet_count = -1;
 static int hf_ieee80211_tag_quiet_period = -1;
@@ -5209,7 +5213,9 @@ static expert_field ei_ieee80211_tag_data = EI_INIT;
 static expert_field ei_ieee80211_tdls_setup_confirm_malformed = EI_INIT;
 static expert_field ei_ieee80211_ff_anqp_nai_field_len = EI_INIT;
 static expert_field ei_ieee80211_rsn_pcs_count = EI_INIT;
+static expert_field ei_ieee80211_tag_measure_request_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_measure_request_beacon_unknown = EI_INIT;
+static expert_field ei_ieee80211_tag_measure_report_unknown = EI_INIT;
 static expert_field ei_ieee80211_tag_number = EI_INIT;
 static expert_field ei_ieee80211_ff_anqp_info_length = EI_INIT;
 static expert_field ei_hs20_anqp_ofn_length = EI_INIT;
@@ -14556,6 +14562,12 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           default: /* unknown */
             break;
         }
+        if (offset < tag_end)
+        {
+          proto_item *tix;
+          tix = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_unknown, tvb, offset, tag_end - offset, ENC_NA);
+          expert_add_info(pinfo, tix, &ei_ieee80211_tag_measure_request_unknown);
+        }
       }
 
       break;
@@ -14812,6 +14824,12 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             /* TODO */
           default: /* unknown */
             break;
+        }
+        if (offset < tag_end)
+        {
+          proto_item *tix;
+          tix = proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_unknown, tvb, offset, tag_end - offset, ENC_NA);
+          expert_add_info(pinfo, tix, &ei_ieee80211_tag_measure_report_unknown);
         }
       }
 
@@ -24129,6 +24147,11 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX|BASE_EXT_STRING, &ieee80211_tag_measure_request_group_id_flags_ext, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_measure_request_unknown,
+     {"Unknown Data", "wlan_mgt.measure.req.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "(not interpreted)", HFILL }},
+
     {&hf_ieee80211_tag_measure_report_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.token",
       FT_UINT8, BASE_HEX, NULL, 0,
@@ -24373,6 +24396,11 @@ proto_register_ieee80211 (void)
      {"Parent Timing Synchronization Function (TSF)", "wlan_mgt.measure.rep.parenttsf",
       FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_unknown,
+     {"Unknown Data", "wlan_mgt.measure.rep.unknown",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "(not interpreted)", HFILL }},
 
     {&hf_ieee80211_tag_quiet_count,
      {"Count", "wlan_mgt.quiet.count",
@@ -26633,7 +26661,9 @@ proto_register_ieee80211 (void)
     { &ei_ieee80211_vht_tpe_pwr_info_count, { "wlan_mgt.vht.tpe.pwr_info.count.invalid", PI_MALFORMED, PI_ERROR, "Max Tx Pwr Count is Incorrect, should be 0-7", EXPFILL }},
     { &ei_ieee80211_missing_data, { "ieee80211.missing_data", PI_MALFORMED, PI_WARN, "No TFS Request subelements in TFS Request", EXPFILL }},
     { &ei_ieee80211_fc_retry, { "wlan.fc.retry.expert", PI_SEQUENCE, PI_NOTE, "Retransmission (retry)", EXPFILL }},
+    { &ei_ieee80211_tag_measure_request_unknown, { "wlan_mgt.measure.req.unknown.expert", PI_UNDECODED, PI_WARN, "Undecoded Measurement Request type (or subtype), Contact Wireshark developers if you want this supported", EXPFILL }},
     { &ei_ieee80211_tag_measure_request_beacon_unknown, { "wlan_mgt.measure.req.beacon.unknown.expert", PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)", EXPFILL }},
+    { &ei_ieee80211_tag_measure_report_unknown, { "wlan_mgt.measure.req.unknown.expert", PI_UNDECODED, PI_WARN, "Undecoded Measurement Report type (or subtype), Contact Wireshark developers if you want this supported", EXPFILL }},
     { &ei_ieee80211_tag_data, { "wlan_mgt.tag.data.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for 802.11 IE Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
     { &ei_ieee80211_dmg_subtype, { "wlan.dmg_subtype.bad", PI_MALFORMED, PI_ERROR, "Bad DMG type/subtype", EXPFILL }},
     { &ei_ieee80211_vht_action, { "wlan_mgt.vht.action.undecoded", PI_UNDECODED, PI_NOTE, "All subtype of VHT Action is not yet supported by Wireshark", EXPFILL }},
