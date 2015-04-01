@@ -1054,7 +1054,7 @@ more in-depth discussion of the build process.
 In the wireshark directory, type:
 
 ----
-$ make debian-package
+$ dpkg-buildpackage -rfakeroot -us -uc
 ----
 
 to build the Debian Package.
