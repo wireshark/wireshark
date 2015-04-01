@@ -1823,6 +1823,38 @@ static const value_string ieee80211_tclas_process_flag[] = {
   {0, NULL}
 };
 
+
+#define MEASURE_REQ_CHANNEL_LOAD_SUB_REPORTING_INFO 1
+
+static const value_string ieee80211_tag_measure_request_channel_load_sub_id_vals[] = {
+  { MEASURE_REQ_CHANNEL_LOAD_SUB_REPORTING_INFO, "Channel Load Reporting Information" },
+  { 221, "Vendor Specific" },
+  { 0x00, NULL}
+};
+
+static const value_string ieee80211_tag_measure_request_channel_load_sub_reporting_condition_vals[] = {
+  { 0x00, "Report to be issued after each measurement (default, used when Channel Load Reporting Information subelement is not included in Channel Load Request)." },
+  { 0x01, "Report to be issued when measured Channel Load is equal to or greater than the reference value." },
+  { 0x02, "Report to be issued when measured Channel Load is equal to or less than the reference value." },
+  { 0x00, NULL}
+};
+
+#define MEASURE_REQ_NOISE_HISTOGRAM_SUB_REPORTING_INFO 1
+
+static const value_string ieee80211_tag_measure_request_noise_histogram_sub_id_vals[] = {
+  { MEASURE_REQ_NOISE_HISTOGRAM_SUB_REPORTING_INFO, "Noise Histogram Reporting Information" },
+  { 221, "Vendor Specific" },
+  { 0x00, NULL}
+};
+
+static const value_string ieee80211_tag_measure_request_noise_histogram_sub_reporting_condition_vals[] = {
+  { 0x00, "Report to be issued after each measurement (default, used when Noise Histogram Reporting Information subelement is not included in Noise Histogram Request)." },
+  { 0x01, "Noise Histogram Report to be issued when measured ANPI is equal to or greater than the reference value." },
+  { 0x02, "Noise Histogram Report to be issued when measured ANPI is equal to or less than the reference value." },
+  { 0x00, NULL}
+};
+
+
 static const value_string frame_type[] = {
   {MGT_FRAME,       "Management frame"},
   {CONTROL_FRAME,   "Control frame"},
@@ -3784,6 +3816,14 @@ static int hf_ieee80211_tag_measure_request_beacon_sub_bri_threshold_offset = -1
 static int hf_ieee80211_tag_measure_request_beacon_sub_reporting_detail = -1;
 static int hf_ieee80211_tag_measure_request_beacon_sub_request = -1;
 static int hf_ieee80211_tag_measure_request_beacon_unknown = -1;
+
+static int hf_ieee80211_tag_measure_request_channel_load_sub_id = -1;
+static int hf_ieee80211_tag_measure_request_channel_load_sub_reporting_condition = -1;
+static int hf_ieee80211_tag_measure_request_channel_load_sub_reporting_ref = -1;
+
+static int hf_ieee80211_tag_measure_request_noise_histogram_sub_id = -1;
+static int hf_ieee80211_tag_measure_request_noise_histogram_sub_reporting_condition = -1;
+static int hf_ieee80211_tag_measure_request_noise_histogram_sub_reporting_anpi_ref = -1;
 
 static int hf_ieee80211_tag_measure_request_frame_request_type = -1;
 static int hf_ieee80211_tag_measure_request_mac_address  = -1;
@@ -14416,6 +14456,43 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             break;
           }
           case 3: /* Channel Load Request */
+          {
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_operating_class, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_randomization_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            while (offset < tag_end)
+            {
+              guint8 sub_id;
+              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_load_sub_id, tvb, offset, 1, ENC_NA);
+              sub_id = tvb_get_guint8(tvb, offset);
+              offset += 1;
+
+              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_subelement_length, tvb, offset, 1, ENC_NA);
+              offset += 1;
+
+              switch (sub_id) {
+                case MEASURE_REQ_CHANNEL_LOAD_SUB_REPORTING_INFO: /* Channel Load Reporting Information (1) */
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_load_sub_reporting_condition, tvb, offset, 1, ENC_NA);
+                  offset += 1;
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_load_sub_reporting_ref, tvb, offset, 1, ENC_NA);
+                  offset += 1;
+                  break;
+                default:
+                  /* no default action */
+                  break;
+                }
+              }
+            break;
+          }
           case 4: /* Noise Histogram Request */
           {
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_operating_class, tvb, offset, 1, ENC_NA);
@@ -14429,7 +14506,29 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            /* TODO Add Optional Subelements */
+
+            while (offset < tag_end)
+            {
+              guint8 sub_id;
+              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_noise_histogram_sub_id, tvb, offset, 1, ENC_NA);
+              sub_id = tvb_get_guint8(tvb, offset);
+              offset += 1;
+
+              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_subelement_length, tvb, offset, 1, ENC_NA);
+              offset += 1;
+
+              switch (sub_id) {
+                case MEASURE_REQ_NOISE_HISTOGRAM_SUB_REPORTING_INFO: /* Noise Histogram Reporting Information (1) */
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_noise_histogram_sub_reporting_condition, tvb, offset, 1, ENC_NA);
+                  offset += 1;
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_noise_histogram_sub_reporting_anpi_ref, tvb, offset, 1, ENC_NA);
+                  offset += 1;
+                  break;
+                default:
+                  /* no default action */
+                  break;
+                }
+              }
             break;
           }
           case 5: /* Beacon Request */
@@ -24126,6 +24225,38 @@ proto_register_ieee80211 (void)
      {"Unknown Data", "wlan_mgt.measure.req.beacon.unknown",
       FT_BYTES, BASE_NONE, NULL, 0,
       "(not interpreted)", HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_channel_load_sub_id,
+     {"SubElement ID", "wlan_mgt.measure.req.channel_load.sub.id",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_request_channel_load_sub_id_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_channel_load_sub_reporting_condition,
+     {"Reporting Condition", "wlan_mgt.measure.req.channel_load.sub.repcond",
+      FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_channel_load_sub_reporting_condition_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_channel_load_sub_reporting_ref,
+     {"Reference Value", "wlan_mgt.measure.req.channel_load.sub.ref",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+
+    {&hf_ieee80211_tag_measure_request_noise_histogram_sub_id,
+     {"SubElement ID", "wlan_mgt.measure.req.noise_histogram.sub.id",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_request_noise_histogram_sub_id_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_noise_histogram_sub_reporting_condition,
+     {"Reporting Condition", "wlan_mgt.measure.reqnoise_histogram.sub.repcond",
+      FT_UINT8, BASE_HEX, VALS(ieee80211_tag_measure_request_noise_histogram_sub_reporting_condition_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_request_noise_histogram_sub_reporting_anpi_ref,
+     {"ANPI Reference Value", "wlan_mgt.measure.req.noise_histogram.sub.anpiref",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
 
     {&hf_ieee80211_tag_measure_request_frame_request_type,
      {"Frame Request Type", "wlan_mgt.measure.req.frame_request_type",
