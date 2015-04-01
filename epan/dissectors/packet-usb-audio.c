@@ -193,7 +193,7 @@ static gboolean
 is_last_sysex_packet_in_tvb(tvbuff_t *tvb, gint offset)
 {
     gboolean last   = TRUE;
-    gint     length = tvb_length(tvb);
+    gint     length = tvb_reported_length(tvb);
 
     offset += 4;
     while (offset < length)
@@ -491,7 +491,7 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
     proto_tree      *tree;
     proto_item      *ti;
     gint             offset = 0;
-    guint            length = tvb_length(tvb);
+    guint            length = tvb_reported_length(tvb);
 
 
     /* Reject the packet if data is NULL */
@@ -519,7 +519,7 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
             proto_tree_add_expert(tree, pinfo, &ei_usb_audio_undecoded, tvb, offset, length);
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 static void
