@@ -1110,6 +1110,7 @@ static int hf_mip6_lmaa_reserved = -1;
 static int hf_mip6_lmaa_ipv4 = -1;
 static int hf_mip6_lmaa_ipv6 = -1;
 
+static int hf_mip6_mobility = -1;
 static int hf_mip6_mobility_opt = -1;
 static int hf_mip6_opt_len = -1;
 
@@ -1237,6 +1238,7 @@ static gint ett_mip6_sub_opt_acc_net_id = -1;
 
 static expert_field ei_mip6_ie_not_dissected = EI_INIT;
 static expert_field ei_mip6_ani_type_not_dissected = EI_INIT;
+static expert_field ei_mip6_opt_len_invalid = EI_INIT;
 
 typedef struct mip6_opt {
   int           optcode;            /**< code for option */
@@ -3837,7 +3839,7 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
                 /* Bogus - packet must at least include
                  * option code byte and length byte!
                  */
-                proto_tree_add_text(opt_tree, tvb, offset,      1,
+                proto_tree_add_expert_format(opt_tree, pinfo, &ei_mip6_opt_len_invalid, tvb, offset, 1,
                         "%s (length byte past end of options)", name);
                 return;
             }
@@ -3845,27 +3847,28 @@ dissect_mipv6_options(tvbuff_t *tvb, int offset, guint length,
             --length;    /* account for length byte */
             if (len > length) {
                 /* Bogus - option goes past the end of the header. */
-                proto_tree_add_text(opt_tree, tvb, offset,      length,
+                proto_tree_add_expert_format(opt_tree, pinfo, &ei_mip6_opt_len_invalid, tvb, offset, length,
                         "%s (option length = %u byte%s says option goes past end of options)",
                         name, len, plurality(len, "", "s"));
                 return;
             } else if (len_type == OPT_LEN_FIXED_LENGTH && len != optlen) {
                 /* Bogus - option length isn't what it's supposed to be for this
                    option. */
-                proto_tree_add_text(opt_tree, tvb, offset, len + 2,
+                proto_tree_add_expert_format(opt_tree, pinfo, &ei_mip6_opt_len_invalid, tvb, offset, len + 2,
                         "%s (with option length = %u byte%s; should be %u)", name,
                         len, plurality(len, "", "s"), optlen);
                 return;
             } else if (len_type == OPT_LEN_VARIABLE_LENGTH && len < optlen) {
                 /* Bogus - option length is less than what it's supposed to be for
                    this option. */
-                proto_tree_add_text(opt_tree, tvb, offset, len + 2,
+                proto_tree_add_expert_format(opt_tree, pinfo, &ei_mip6_opt_len_invalid, tvb, offset, len + 2,
                         "%s (with option length = %u byte%s; should be >= %u)", name,
                         len, plurality(len, "", "s"), optlen);
                 return;
             } else {
-                ti = proto_tree_add_text(opt_tree, tvb, offset, len + 2, "%s",
+                ti = proto_tree_add_string(opt_tree, hf_mip6_mobility, tvb, offset, len + 2,
                                          val_to_str_ext_const(opt, &mip6_mobility_options_ext, "<unknown>"));
+
                 if (optp && *optp->subtree_index) {
                     opt_data_tree = proto_item_add_subtree(ti, *optp->subtree_index);
                 } else {
@@ -4808,6 +4811,11 @@ proto_register_mip6(void)
         FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_mip6_mobility,
+      { "Mobility", "mip6.mobility",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
     { &hf_mip6_mobility_opt,
       { "Mobility Option", "mip6.mobility_opt",
         FT_UINT8, BASE_DEC | BASE_EXT_STRING, &mip6_mobility_options_ext, 0,
@@ -5172,6 +5180,7 @@ proto_register_mip6(void)
     static ei_register_info ei[] = {
         { &ei_mip6_ie_not_dissected, { "mip6.ie_not_dissected", PI_UNDECODED, PI_NOTE, "IE data not dissected yet", EXPFILL }},
         { &ei_mip6_ani_type_not_dissected, { "mip6.acc_net_id.ani.unknown", PI_UNDECODED, PI_NOTE, "ANI Type not dissect yet", EXPFILL }},
+        { &ei_mip6_opt_len_invalid, { "mip6.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
     };
 
     expert_module_t* expert_mip6;
