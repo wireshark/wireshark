@@ -1178,6 +1178,7 @@ is_linux_bonding_device(const char *ifname)
     }
 #endif
 
+    close(fd);
     return FALSE;
 }
 #else
