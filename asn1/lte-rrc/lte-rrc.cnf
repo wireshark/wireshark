@@ -822,7 +822,7 @@ RLF-Report-r9/eag_1/timeConnFailure-r10 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_
   }
 
 #.TYPE_ATTR
-BLER-Result-r12/blocksReceived-r12/n-r12 TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRINGS=VALS(lte_rrc_n_r12_vals)
+BLER-Result-r12/blocksReceived-r12/n-r12 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_n_r12_vals)
 
 #.FN_BODY BLER-Result-r12/blocksReceived-r12/m-r12 VAL_PTR = &m_r12_tvb HF_INDEX = -1
   tvbuff_t *m_r12_tvb = NULL;
@@ -832,7 +832,7 @@ BLER-Result-r12/blocksReceived-r12/n-r12 TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRIN
   }
 
 #.TYPE_ATTR
-BLER-Result-r12/blocksReceived-r12/m-r12 TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=CF_FUNC(lte_rrc_m_r12_fmt)
+BLER-Result-r12/blocksReceived-r12/m-r12 TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_m_r12_fmt)
 
 #.TYPE_ATTR
 BLER-Range-r12 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_BLER_Range_r12_vals_ext
