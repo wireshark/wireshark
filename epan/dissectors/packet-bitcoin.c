@@ -267,8 +267,10 @@ static header_field_info hfi_msg_getheaders_count32 BITCOIN_HFI_INIT =
 static header_field_info hfi_msg_getheaders_count64 BITCOIN_HFI_INIT =
   { "Count", "bitcoin.getheaders.count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
+#if 0
 static header_field_info hfi_msg_getheaders_version BITCOIN_HFI_INIT =
   { "Protocol version", "bitcoin.headers.version", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
+#endif
 
 static header_field_info hfi_bitcoin_msg_getheaders BITCOIN_HFI_INIT =
   { "Getheaders message", "bitcoin.getheaders", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
