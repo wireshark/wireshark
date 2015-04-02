@@ -647,11 +647,10 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_fi
         switch(tvb_get_guint8(tvb, ++offset)) {
         case '\r':
           /* probably end of the fields */
-          if(tvb_get_guint8(tvb, ++offset) == '\n') {
-            offset++;
-          }
-          if(last_field) {
-            *last_field = TRUE;
+          if(tvb_get_guint8(tvb, offset + 1) == '\n') {
+            if(last_field) {
+              *last_field = TRUE;
+            }
           }
           return offset;
         case  ' ':
@@ -680,6 +679,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item  *item;
   proto_tree  *unknown_tree, *text_tree;
   char  *content_type_str = NULL;
+  char  *content_encoding_str = NULL;
   char  *parameters = NULL;
   int   hf_id;
   gint  start_offset = 0;
@@ -788,6 +788,8 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_imf_content_type(tvb, start_offset, end_offset - start_offset, item,
                                  &content_type_str, &parameters);
 
+      } else if (hf_id == hf_imf_content_transfer_encoding) {
+          content_encoding_str = tvb_get_string_enc (wmem_packet_scope(), tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII);
       } else if(f_info->subdissector) {
 
         /* we have a subdissector */
@@ -796,6 +798,11 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
     start_offset = end_offset;
+  }
+
+  if (last_field) {
+    /* Remove the extra CRLF after all the fields */
+    end_offset += 2;
   }
 
   if (end_offset == -1) {
@@ -812,7 +819,13 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pd_save = pinfo->private_data;
     pinfo->private_data = parameters;
 
-    next_tvb = tvb_new_subset_remaining(tvb, end_offset);
+    if(content_encoding_str && !g_ascii_strncasecmp(content_encoding_str, "base64", 6)) {
+      char *data = tvb_get_string_enc(wmem_packet_scope(), tvb, end_offset, tvb_reported_length(tvb) - end_offset, ENC_ASCII);
+      next_tvb = base64_to_tvb(tvb, data);
+      add_new_data_source(pinfo, next_tvb, content_encoding_str);
+    } else {
+      next_tvb = tvb_new_subset_remaining(tvb, end_offset);
+    }
 
     dissector_try_string(media_type_dissector_table, content_type_str, next_tvb, pinfo, tree, NULL);
 
