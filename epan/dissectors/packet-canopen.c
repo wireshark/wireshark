@@ -980,8 +980,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         }
     }
 
-    ti = proto_tree_add_item(tree, proto_canopen, tvb, 0,
-        (msg_type_id == MT_SYNC) || (msg_type_id == MT_NMT_ERR_CTRL) ? 0 : -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_canopen, tvb, 0, tvb_reported_length(tvb), ENC_NA);
     canopen_tree = proto_item_add_subtree(ti, ett_canopen);
 
     /* add COB-ID with function code and node id */
@@ -999,7 +998,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     /* add CANopen frame type */
 
     canopen_type_tree = proto_tree_add_subtree_format(canopen_tree, tvb, 0,
-                                  (msg_type_id == MT_SYNC) || (msg_type_id == MT_NMT_ERR_CTRL) ? 0 : -1,
+                                  tvb_reported_length(tvb),
                                   ett_canopen_type, NULL, "Type: %s", function_code_str);
     switch(msg_type_id)
     {
