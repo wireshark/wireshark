@@ -42,7 +42,7 @@
  *    not rely on the GIOP tvbuff, more robust
  * 6. get_CDR_string, wchar, wstring etc should handle different
  *    GIOP versions [started]
- * 7. Fix situation where req_id is not unique in a logfile [done, use FN/MFN, needs improving.]
+
  *
  * 8. Keep request_1_2 in step with request_1_1 [started]
  * 9. Explicit module name dissection [done]
@@ -287,6 +287,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/reassemble.h>
+#include <epan/tap.h>
+#include <epan/conversation.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
 #include <wsutil/pint.h>
@@ -333,7 +336,7 @@ static void decode_SystemExceptionReplyBody (tvbuff_t *tvb, proto_tree *tree, gi
  * ------------------------------------------------------------------------------------------+
  */
 
-
+static int giop_tap = -1;
 static int proto_giop = -1;
 static int hf_giop_message_magic = -1;
 static int hf_giop_message_major_version = -1;
@@ -439,6 +442,46 @@ static gint ett_giop_fragment = -1;
 static gint ett_giop_scl = -1;  /* ServiceContextList */
 static gint ett_giop_sc = -1;   /* ServiceContext */
 static gint ett_giop_ior = -1;  /* IOR  */
+
+static gint ett_giop_fragments  = -1;
+static gint ett_giop_fragment_  = -1;
+
+
+static int hf_giop_fragments    = -1;
+static int hf_giop_fragment    = -1;
+static int hf_giop_fragment_overlap          = -1;
+static int hf_giop_fragment_overlap_conflict = -1;
+static int hf_giop_fragment_multiple_tails   = -1;
+static int hf_giop_fragment_too_long_fragment = -1;
+static int hf_giop_fragment_error            = -1;
+static int hf_giop_fragment_count            = -1;
+static int hf_giop_reassembled_in           = -1;
+static int hf_giop_reassembled_length       = -1;
+
+
+static const fragment_items giop_frag_items = {
+    &ett_giop_fragment_,
+    &ett_giop_fragments,
+    &hf_giop_fragments,
+    &hf_giop_fragment,
+    &hf_giop_fragment_overlap,
+    &hf_giop_fragment_overlap_conflict,
+    &hf_giop_fragment_multiple_tails,
+    &hf_giop_fragment_too_long_fragment,
+    &hf_giop_fragment_error,
+    &hf_giop_fragment_count,
+    &hf_giop_reassembled_in,
+    &hf_giop_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    "fragments"
+};
+
+/*
+ * Reassembly of GIOP.
+ */
+static reassembly_table giop_reassembly_table;
+
 
 static expert_field ei_giop_unknown_typecode_datatype = EI_INIT;
 static expert_field ei_giop_unknown_sign_value = EI_INIT;
@@ -1013,8 +1056,19 @@ struct giop_object_val {
 
 GHashTable *giop_objkey_hash = NULL; /* hash */
 
+/*
+ * Data structure attached to a conversation.
+ * It maintains a list of the header.message_type of each header.req_id, so that reassembled
+ * fragments can be dissected correctly.
+ */
+
+typedef struct giop_conv_info_t {
+  GHashTable *optypes;
+} giop_conv_info_t;
+
 
 static gboolean giop_desegment = TRUE;
+static gboolean giop_reassemble = TRUE;
 static const char *giop_ior_file = "IOR.txt";
 
 /*
@@ -1022,6 +1076,7 @@ static const char *giop_ior_file = "IOR.txt";
  *                                 Private helper functions
  * ------------------------------------------------------------------------------------------+
  */
+
 
 
 
@@ -1585,6 +1640,8 @@ static void giop_init(void) {
 
   read_IOR_strings_from_file(giop_ior_file, 600);
 
+  reassembly_table_init(&giop_reassembly_table,
+                        &addresses_reassembly_table_functions);
 
 }
 
@@ -3962,7 +4019,7 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 static void
 dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
                     proto_tree *tree, gboolean stream_is_big_endian,
-                    guint32 reply_status, MessageHeader *header, proto_tree *clnp_tree) {
+                    guint32 reply_status, MessageHeader *header, proto_tree *giop_tree) {
 
   guint    sequence_length;
   gboolean exres = FALSE;       /* result of trying explicit dissectors */
@@ -4044,13 +4101,13 @@ dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
 
     if (entry->repoid) {
-      exres = try_explicit_giop_dissector(tvb, pinfo, clnp_tree, &offset, header, entry->operation, entry->repoid );
+      exres = try_explicit_giop_dissector(tvb, pinfo, giop_tree, &offset, header, entry->operation, entry->repoid );
     }
 
     /* Only call heuristic if no explicit dissector was found */
 
     if (! exres) {
-      exres = try_heuristic_giop_dissector(tvb, pinfo, clnp_tree, &offset, header, entry->operation);
+      exres = try_heuristic_giop_dissector(tvb, pinfo, giop_tree, &offset, header, entry->operation);
     }
 
     if (!exres && !strcmp(giop_op_is_a, entry->operation)) {
@@ -4648,6 +4705,10 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
   guint          message_size;
   gboolean       stream_is_big_endian;
 
+  conversation_t *conversation;
+  guint8         message_type;
+  giop_conv_info_t *giop_info;
+
   /* DEBUG */
 
 #if DEBUG
@@ -4761,6 +4822,61 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     payload_tvb = tvb_new_subset_remaining (tvb, GIOP_HEADER_SIZE);
   }
 
+
+  message_type = header.message_type;
+
+  if(giop_reassemble) {
+    /* This is a fragmented message - try and put it back together */
+    fragment_head *fd_head = NULL;
+    tvbuff_t      *reassembled_tvb;
+    guint frag_offset = 0;
+    int request_id;
+
+    /* request id is the first 4 bytes */
+    request_id = get_CDR_ulong(payload_tvb, &frag_offset, stream_is_big_endian, GIOP_HEADER_SIZE);
+
+    if(header.message_type != Fragment)
+      frag_offset = 0; /* Maintain the request id for everything but fragments */
+
+    fd_head = fragment_add_seq_next(&giop_reassembly_table,
+                                    payload_tvb, frag_offset, pinfo,
+                                    request_id, NULL,
+                                    tvb_captured_length_remaining(payload_tvb, frag_offset),
+                                    header.flags & GIOP_MESSAGE_FLAGS_FRAGMENT);
+
+    reassembled_tvb = process_reassembled_data(payload_tvb, frag_offset, pinfo, "Reassembled GIOP",
+                                           fd_head, &giop_frag_items, NULL, tree);
+
+    if(reassembled_tvb != NULL)
+      payload_tvb = reassembled_tvb;
+
+    /* Record the type of this request id so we can dissect it correctly later */
+    conversation = find_or_create_conversation(pinfo);
+
+    giop_info = (giop_conv_info_t *)conversation_get_proto_data(conversation, proto_giop);
+
+    if(giop_info == NULL) {
+
+      giop_info = g_new0(giop_conv_info_t, 1);
+
+      giop_info->optypes = g_hash_table_new(g_direct_hash, g_direct_equal);
+
+      conversation_add_proto_data(conversation, proto_giop, giop_info);
+    }
+
+    if(header.message_type != Fragment) {
+      /* Record the type of this request id so we can dissect it correctly later */
+      g_hash_table_insert(giop_info->optypes, GUINT_TO_POINTER(header.req_id), GUINT_TO_POINTER(header.message_type));
+    } else if (!(header.flags & GIOP_MESSAGE_FLAGS_FRAGMENT)) {
+      /* This is the last fragment, recoverr the original messagetype */
+      message_type = (guint8)GPOINTER_TO_UINT(g_hash_table_lookup(giop_info->optypes, GUINT_TO_POINTER(header.req_id)));
+
+      /* We override the header message type and size */
+      header.message_type = message_type;
+      header.message_size = tvb_captured_length_remaining(payload_tvb, 0);
+    }
+  }
+
   switch (header.message_type)
   {
 
@@ -4811,6 +4927,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     break;
 
   }                               /* switch message_type */
+
   return tvb_length(tvb);
 }
 
@@ -5343,6 +5460,44 @@ proto_register_giop (void)
       { "Reply body", "giop.reply_body",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
+    { &hf_giop_fragment_overlap,
+      { "Fragment overlap", "giop.fragment.overlap",
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+    { &hf_giop_fragment_overlap_conflict,
+      { "Conflicting data in fragment overlap", "giop.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Overlapping fragments contained conflicting data", HFILL }},
+
+        { &hf_giop_fragment_multiple_tails,
+            { "Multiple tail fragments found", "giop.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Several tails were found when reassembling the packet", HFILL }},
+
+        { &hf_giop_fragment_too_long_fragment,
+            { "Fragment too long", "giop.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Fragment contained data past end of packet", HFILL }},
+
+        { &hf_giop_fragment_error,
+            { "Reassembly error", "giop.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                "Reassembly error due to illegal fragments", HFILL }},
+
+        { &hf_giop_fragment_count,
+            { "Fragment count", "giop.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_giop_fragment,
+            { "GIOP Fragment", "giop.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_giop_fragments,
+            { "GIOP Fragments", "giop.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_giop_reassembled_in,
+            { "Reassembled GIOP in frame", "giop.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                "This GIOP packet is reassembled in this frame", HFILL }},
+
+        { &hf_giop_reassembled_length,
+            { "Reassembled GIOP length", "giop.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+                "The total length of the reassembled payload", HFILL }}
   };
 
   static gint *ett[] = {
@@ -5358,7 +5513,9 @@ proto_register_giop (void)
     &ett_giop_fragment,
     &ett_giop_scl,
     &ett_giop_sc,
-    &ett_giop_ior
+    &ett_giop_ior,
+    &ett_giop_fragment_,
+    &ett_giop_fragments,
 
   };
 
@@ -5390,6 +5547,10 @@ proto_register_giop (void)
 
   register_init_routine( &giop_init); /* any init stuff */
 
+  /* Register for tapping */
+  giop_tap = register_tap(GIOP_TAP_NAME); /* GIOP statistics tap */
+
+
   /* register preferences */
   giop_module = prefs_register_protocol(proto_giop, NULL);
   prefs_register_bool_preference(giop_module, "desegment_giop_messages",
@@ -5397,6 +5558,11 @@ proto_register_giop (void)
     "Whether the GIOP dissector should reassemble messages spanning multiple TCP segments."
     " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &giop_desegment);
+  prefs_register_bool_preference(giop_module, "reassemble",
+                                 "Reassemble fragmented GIOP messages",
+                                 "Whether fragmented GIOP messages should be reassembled",
+                                 &giop_reassemble);
+
   prefs_register_filename_preference(giop_module, "ior_txt", "Stringified IORs",
     "File containing stringified IORs, one per line.", &giop_ior_file);
 

@@ -607,4 +607,20 @@ typedef enum TCKind TCKind_t;
 #define IOP_ServiceId_FORWARD_IDENTITY                  8
 #define IOP_ServiceId_UnknownExceptionInfo              9
 
+/* Used for GIOP statistics */
+typedef struct _giop_info_value_t {
+  guint32      framenum;
+  address      *server_addr;
+  const gchar  *client_host;
+  const gchar  *service_host;
+  const gchar  *giop_op;
+  const gchar  *giop_resp;
+  time_t       time_ticks;
+  guint        time_ms;
+  gboolean     first_pass;
+} giop_info_value_t;
+
+
+#define GIOP_TAP_NAME "giop"
+
 #endif /* PACKET_GIOP_H */
