@@ -6516,6 +6516,7 @@ proto_reg_handoff_rtcp(void)
      */
     rtcp_handle = find_dissector("rtcp");
     dissector_add_for_decode_as("udp.port", rtcp_handle);
+    dissector_add_for_decode_as("flip.payload", rtcp_handle );
 
     heur_dissector_add( "udp", dissect_rtcp_heur, proto_rtcp);
         heur_dissector_add("stun", dissect_rtcp_heur, proto_rtcp);

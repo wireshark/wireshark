@@ -3721,6 +3721,8 @@ proto_reg_handoff_rtp(void)
         rtp_hdr_ext_ed137a_handle = find_dissector("rtp.ext.ed137a");
         dissector_add_uint("rtp.hdr_ext", RTP_ED137_SIG, rtp_hdr_ext_ed137_handle);
         dissector_add_uint("rtp.hdr_ext", RTP_ED137A_SIG, rtp_hdr_ext_ed137a_handle);
+        dissector_add_for_decode_as("flip.payload", rtp_handle );
+
 
         rtcp_handle = find_dissector("rtcp");
         data_handle = find_dissector("data");

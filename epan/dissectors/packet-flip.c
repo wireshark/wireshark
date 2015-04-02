@@ -47,6 +47,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/decode_as.h>
 #include <epan/in_cksum.h>
 
 #include <epan/prefs.h>
@@ -78,66 +79,29 @@ static int hf_flip_chksum_chksum = -1;
 #define FLIP_CHKSUM_HDR_LEN        (4)
 #define FLIP_EXTENSION_HDR_MIN_LEN (4)
 
-#if 0
-static const value_string flip_short_header_names[]={
-    { FLIP_BASIC,  "BASIC" },
-    { FLIP_CHKSUM, "CHKSUM"},
-    { 0,           NULL}
-};
-
-static const value_string flip_long_header_names[] = {
-    { FLIP_BASIC,  "Basic"},
-    { FLIP_CHKSUM, "Checksum"},
-    { 0,           NULL }
-};
-#endif
-
-static const value_string flip_boolean[] = {
-    {0, "No"},
-    {1, "Yes"},
-    {0, NULL}
-};
-
 static const value_string flip_etype[] = {
     { FLIP_CHKSUM, "Checksum" },
     { 0,           NULL }
 };
 
-#define FLIP_PAYLOAD_DECODING_MODE_NONE      (0)
-#define FLIP_PAYLOAD_DECODING_MODE_HEURISTIC (1)
-#define FLIP_PAYLOAD_DECODING_MODE_FORCED    (2)
+static dissector_table_t subdissector_table;
 
-static const enum_val_t flip_payload_decoding_modes[] = {
-    {"none",      "no decoding", FLIP_PAYLOAD_DECODING_MODE_NONE},
-    {"heuristic", "heuristic",   FLIP_PAYLOAD_DECODING_MODE_HEURISTIC},
-    {"forced",    "forced",      FLIP_PAYLOAD_DECODING_MODE_FORCED},
-    {NULL, NULL, 0}
-};
-
-static gint global_flip_payload_decoding_mode =
-    FLIP_PAYLOAD_DECODING_MODE_HEURISTIC;
-
-static gboolean is_heur_enabled_rtp  = TRUE;
-static gboolean is_heur_enabled_rtcp = TRUE;
-
-static const char *global_forced_protocol = "data";
-static gboolean is_forced_handle_ok = FALSE;
+static dissector_handle_t data_handle = NULL;
 
 static gint ett_flip         = -1;
 static gint ett_flip_basic   = -1;
 static gint ett_flip_chksum  = -1;
 static gint ett_flip_payload = -1;
 
-static dissector_handle_t rtp_handle;
-static dissector_handle_t rtcp_handle;
-static dissector_handle_t data_handle;
-static dissector_handle_t forced_handle;
+static void flip_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode FLIP payload protocol as");
+}
 
-/* Forward declaration. */
-static gboolean
-is_payload_rtp(tvbuff_t *tvb);
-static gboolean
-is_payload_rtcp(tvbuff_t *tvb);
+static gpointer flip_value(packet_info *pinfo _U_)
+{
+    return 0;
+}
 
 /* Dissect the checksum extension header. */
 static int
@@ -150,7 +114,6 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
     proto_tree *chksum_hdr_tree;
     guint32  dw;
     guint8   chksum_hdr_etype;
-    guint8   chksum_hdr_spare;
     guint8   chksum_hdr_ext;
     guint16  chksum_hdr_chksum;
 
@@ -164,7 +127,6 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
 
     dw = tvb_get_ntohl(tvb, offset);
     chksum_hdr_etype  = (guint8) ((dw & 0xFF000000) >> 24);
-    chksum_hdr_spare  = (guint8) ((dw & 0x00FE0000) >> 17);
     chksum_hdr_ext    = (guint8) ((dw & 0x00010000) >> 16);
     chksum_hdr_chksum = (guint16) (dw & 0x0000FFFF);
 
@@ -187,17 +149,11 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
                                                                 flip_etype,
                                                                 "Unknown"));
         /* SPARE: 7 bits */
-        proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_spare,
-                                         tvb, offset + 1, 1, dw,
-                                         "%d (0x%02x)",
-                                         chksum_hdr_spare, chksum_hdr_spare);
+        proto_tree_add_item(chksum_hdr_tree, hf_flip_chksum_spare, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         /* EXT HDR: 1 bit */
-        proto_tree_add_uint_format_value(chksum_hdr_tree, hf_flip_chksum_e,
-                                         tvb, offset + 1, 1, dw,
-                                         "%s", val_to_str_const(chksum_hdr_ext,
-                                                                flip_boolean,
-                                                                "Unknown"));
+        proto_tree_add_item(chksum_hdr_tree, hf_flip_chksum_e,
+                                         tvb, offset, 4, ENC_BIG_ENDIAN);
         /* CHKSUM: 16 bits. */
         proto_tree_add_uint_format_value(
             chksum_hdr_tree,
@@ -226,151 +182,32 @@ dissect_flip_chksum_hdr(tvbuff_t    *tvb,
 
 } /* dissect_flip_chksum_hdr() */
 
-
-/* Detection logic grabbed from packet-rtp.c and modified. */
-
-#define RTP_VERSION(octet)      ((octet) >> 6)
-#define RTP_MARKER(octet)       ((octet) & 0x80)
-#define RTP_PAYLOAD_TYPE(octet) ((octet) & 0x7F)
-
-#define RTP_V2_HEADER_MIN_LEN 12
-
-static gboolean
-is_payload_rtp(tvbuff_t *tvb)
-{
-    guint8 octet1, octet2;
-    unsigned int version;
-    unsigned int payload_type;
-    unsigned int offset;
-    gint         len_remaining;
-
-    offset = 0;
-
-    len_remaining = tvb_length_remaining(tvb, offset);
-    if (len_remaining < RTP_V2_HEADER_MIN_LEN) {
-        return FALSE;
-    }
-
-    octet1 = tvb_get_guint8(tvb, offset);
-    version = RTP_VERSION(octet1);
-
-    /* Accept only version 2. */
-    if (version != 2) {
-        return FALSE;
-    }
-
-    octet2 = tvb_get_guint8(tvb, offset + 1);
-    payload_type = RTP_PAYLOAD_TYPE(octet2);
-
-    if ((payload_type <= PT_H263)
-        ||
-        ((payload_type >= PT_UNDF_96) && (payload_type <= PT_UNDF_127))) {
-        /* OK */
-        ;
-    }
-    else {
-        return FALSE;
-    }
-
-    return TRUE;
-
-} /* is_payload_rtp() */
-
-
-/* Detection logic grabbed from packet-rtcp.c and modified. */
-
-#define RTCP_SR    200
-#define RTCP_RR    201
-#define RTCP_BYE   203
-#define RTCP_APP   204
-
-#define RTCP_V2_HEADER_MIN_LEN 4
-
-static gboolean
-is_payload_rtcp(tvbuff_t *tvb)
-{
-    unsigned int first_byte;
-    unsigned int packet_type;
-    unsigned int offset;
-    gint         len_remaining;
-
-    offset = 0;
-
-    len_remaining = tvb_length_remaining(tvb, offset);
-    if (len_remaining < RTCP_V2_HEADER_MIN_LEN) {
-        return FALSE;
-    }
-
-    /* Look at first byte */
-    first_byte = tvb_get_guint8(tvb, offset);
-
-    /* Are version bits set to 2? */
-    if (((first_byte & 0xC0) >> 6) != 2) {
-        return FALSE;
-    }
-
-    /* Look at packet type */
-    packet_type = tvb_get_guint8(tvb, offset + 1);
-
-    /* First packet within compound packet is supposed to be a sender
-       or receiver report.
-       - allow BYE because this happens anyway
-       - allow APP because TBCP ("PoC1") packets aren't compound... */
-    if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
-          (packet_type == RTCP_BYE) || (packet_type == RTCP_APP))) {
-        return FALSE;
-    }
-
-    /* Overall length must be a multiple of 4 bytes */
-    if (tvb_reported_length(tvb) % 4) {
-        return FALSE;
-    }
-
-    return TRUE;
-
-} /* is_payload_rtcp() */
-
 /* Protocol dissection */
 static int
 dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *ti;
-    proto_tree *flip_tree;
-    proto_tree *basic_hdr_tree;
+    proto_item *ti = NULL;
+    proto_tree *flip_tree = NULL;
+    proto_tree *basic_hdr_tree = NULL;
     tvbuff_t   *flip_tvb;
 
     guint32 dw1;
-    guint32 dw2;
 
     /* Basic header fields. */
     guint8   basic_hdr_ext;
-    guint8   basic_hdr_reserved;
     guint32  basic_hdr_flow_id;
-    guint16  basic_hdr_seqnum;
     guint16  basic_hdr_len;
 
-    gboolean ext_hdr;
+    gboolean ext_hdr = FALSE;
 
-    gint bytes_dissected;
+    gint bytes_dissected = 0;
     gint payload_len;
     gint frame_len;
     gint flip_len;
-    gint offset;
+    gint offset = 0;
 
     /* Error handling for basic header. */
-    gboolean is_faulty_frame;
-
-    ti               = NULL;
-    flip_tree        = NULL;
-    basic_hdr_tree   = NULL;
-    flip_tvb         = NULL;
-
-    ext_hdr = FALSE;
-
-    bytes_dissected = 0;
-    offset          = 0;
-
-    is_faulty_frame     = FALSE;
+    gboolean is_faulty_frame = FALSE;
 
     /* Show this protocol as FLIP. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FLIP");
@@ -385,10 +222,9 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      */
 
     /* Check that there's enough data at least for the basic header. */
-    frame_len = tvb_length(tvb);
+    frame_len = tvb_captured_length(tvb);
     if (frame_len < FLIP_BASIC_HDR_LEN) {
-        /* Not enough. This must be a malformed packet. */
-        goto DISSECT_FLIP_EXIT;
+        return 0;
     }
 
     bytes_dissected += FLIP_BASIC_HDR_LEN;
@@ -396,13 +232,11 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* Process the first 32 bits of the basic header. */
     dw1 = tvb_get_ntohl(tvb, offset + 0);
     basic_hdr_ext      = ((dw1 & 0x80000000) >> 31);
-    basic_hdr_reserved = ((dw1 & 0x70000000) >> 24);
     basic_hdr_flow_id  = (dw1 & 0x0FFFFFFF);
 
     /* Process the second 32 bits of the basic header. */
-    dw2 = tvb_get_ntohl(tvb, offset + 4);
-    basic_hdr_seqnum = (guint16) ((dw2 & 0xFFFF0000) >> 16);
-    basic_hdr_len    = (guint16) (dw2 & 0x0000FFFF);
+    basic_hdr_len    = (guint16) (tvb_get_ntohl(tvb, offset + 4) & 0x0000FFFF);
+
 
     /* Does the basic header indicate that an extension is next? */
     if (basic_hdr_ext == 1) {
@@ -427,47 +261,29 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     /* We are asked for details. */
     if (tree) {
-        if (PTREE_DATA(tree)->visible) {
-            ti = proto_tree_add_protocol_format(
+        ti = proto_tree_add_protocol_format(
                 tree, proto_flip, flip_tvb, 0, flip_len,
                 "NSN FLIP, FlowID %s",
                 val_to_str(basic_hdr_flow_id, NULL, "0x%08x"));
-        }
-        else {
-            ti = proto_tree_add_item(tree, proto_flip, flip_tvb, 0,
-                                     flip_len, ENC_NA);
-        }
         flip_tree = proto_item_add_subtree(ti, ett_flip);
 
         /* basic header */
-        basic_hdr_tree = proto_tree_add_subtree(flip_tree, flip_tvb, 0, 8, ett_flip_basic, NULL, "Basic Header");
+        basic_hdr_tree = proto_tree_add_subtree(flip_tree, flip_tvb, offset, 8, ett_flip_basic, NULL, "Basic Header");
 
         /* Extension header follows? 1 bit. */
-        proto_tree_add_uint_format_value(basic_hdr_tree,
-                                         hf_flip_basic_e,
-                                         flip_tvb, offset + 0, 1, dw1,
-                                         "%s", val_to_str_const(basic_hdr_ext,
-                                                                flip_boolean,
-                                                                "Unknown"));
+        proto_tree_add_item(basic_hdr_tree, hf_flip_basic_e, flip_tvb, offset, 4, ENC_BIG_ENDIAN);
+
         /* Reserved: 3 bits. */
-        proto_tree_add_uint_format_value(basic_hdr_tree,
-                                         hf_flip_basic_reserved,
-                                         flip_tvb, offset + 0, 1, dw1,
-                                         "%d", basic_hdr_reserved);
+        proto_tree_add_item(basic_hdr_tree, hf_flip_basic_reserved, flip_tvb, offset, 4, ENC_BIG_ENDIAN);
+
         /* Flow ID: 28 bits. */
-        proto_tree_add_item(basic_hdr_tree, hf_flip_basic_flowid,
-                            flip_tvb, offset + 0, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(basic_hdr_tree, hf_flip_basic_flowid, flip_tvb, offset, 4, ENC_BIG_ENDIAN);
 
         /* Sequence number: 16 bits. */
-        proto_tree_add_uint_format_value(basic_hdr_tree, hf_flip_basic_seqnum,
-                                         flip_tvb, offset + 4, 2, dw2,
-                                         "%d (0x%04x)",
-                                         basic_hdr_seqnum, basic_hdr_seqnum);
+        proto_tree_add_item(basic_hdr_tree, hf_flip_basic_seqnum, flip_tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+
         /* Packet length: 16 bits. */
-        proto_tree_add_uint_format_value(basic_hdr_tree, hf_flip_basic_len,
-                                         flip_tvb, offset + 6, 2, dw2,
-                                         "%d (0x%04x)",
-                                         basic_hdr_len, basic_hdr_len);
+        proto_tree_add_item(basic_hdr_tree, hf_flip_basic_len, flip_tvb, offset + 6, 2, ENC_BIG_ENDIAN);
     }
 
     offset += FLIP_BASIC_HDR_LEN;
@@ -492,8 +308,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /*
      * Now we know that the basic header is sensible.
      */
-    payload_len  = basic_hdr_len;
-    payload_len -= FLIP_BASIC_HDR_LEN;
+    payload_len  = basic_hdr_len - FLIP_BASIC_HDR_LEN;
 
     /*
      * Dissect extension headers (if any).
@@ -557,76 +372,17 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
      */
     if (payload_len > 0) {
 
-        dissector_handle_t handle;
         tvbuff_t           *payload_tvb;
         gint               data_len;
-        gboolean           has_user_messed_up;
 
-        has_user_messed_up = FALSE;
+        payload_tvb = tvb_new_subset_length(flip_tvb, offset, payload_len);
 
-        payload_tvb = tvb_new_subset_length(flip_tvb, offset,
-                                     payload_len);
-
-        /*
-         * 1) no decoding -> data
-         * 2) heuristic decoding
-         * 3) forced decoding
-         */
-        switch (global_flip_payload_decoding_mode) {
-        case FLIP_PAYLOAD_DECODING_MODE_NONE:
-            /* Dissect as data. */
-            handle = data_handle;
-            break;
-
-        case FLIP_PAYLOAD_DECODING_MODE_HEURISTIC:
-            if ((is_heur_enabled_rtp == TRUE)
-                &&
-                (is_payload_rtp(payload_tvb) == TRUE)) {
-                /* Dissect as RTP. */
-                handle = rtp_handle;
-            }
-            else if ((is_heur_enabled_rtcp == TRUE)
-                     &&
-                     (is_payload_rtcp(payload_tvb))) {
-                /* Dissect as RTCP. */
-                handle = rtcp_handle;
-            }
-            else {
-                /* Dissect as data. */
-                handle = data_handle;
-            }
-            break;
-
-        case FLIP_PAYLOAD_DECODING_MODE_FORCED:
-            if (is_forced_handle_ok == TRUE) {
-                handle = forced_handle;
-            }
-            else {
-                /* Use data as backup. */
-                handle = data_handle;
-
-                /* Tell the user he messed up. */
-                has_user_messed_up = TRUE;
-            }
-            break;
-
-        default:
-            /* Fault in dissector's internal logic. */
-            DISSECTOR_ASSERT(0);
-            break;
-        }
-
-        /*
-         * If tree is NULL, we still cannot quit, we must give
-         * the RTP/RTCP/data dissectors a chance to fill in
-         * the protocol column.
-         */
-        data_len = call_dissector(handle, payload_tvb, pinfo, tree);
-
-        if (has_user_messed_up == TRUE) {
-            col_add_fstr(pinfo->cinfo, COL_INFO,
-                         "Invalid user dissector \"%s\"",
-                         global_forced_protocol);
+        /* Functionality for choosing subdissector is controlled through Decode As as FLIP doesn't
+           have a unique identifier to determine subdissector */
+        data_len = dissector_try_uint(subdissector_table, 0, payload_tvb, pinfo, tree);
+        if (data_len <= 0)
+        {
+            data_len = call_dissector(data_handle, payload_tvb, pinfo, tree);
         }
 
         bytes_dissected += data_len;
@@ -648,8 +404,8 @@ proto_register_flip(void)
          * Basic header.
          */
         {&hf_flip_basic_e,
-         {"Extension Header Follows", "flip.basic.e", FT_UINT32, BASE_DEC,
-          VALS(flip_boolean), 0x80000000, NULL, HFILL}
+         {"Extension Header Follows", "flip.basic.e", FT_BOOLEAN, 32,
+          TFS(&tfs_yes_no), 0x80000000, NULL, HFILL}
         },
         {&hf_flip_basic_reserved,
          {"Reserved", "flip.basic.reserved", FT_UINT32, BASE_DEC,
@@ -660,12 +416,12 @@ proto_register_flip(void)
           NULL, 0x0FFFFFFF, "Basic Header Flow ID", HFILL}
         },
         {&hf_flip_basic_seqnum,
-         {"Seqnum", "flip.basic.seqnum", FT_UINT32, BASE_DEC,
-          NULL, 0xFFFF0000, "Basic Header Sequence Number", HFILL}
+         {"Seqnum", "flip.basic.seqnum", FT_UINT16, BASE_DEC_HEX,
+          NULL, 0x0, "Basic Header Sequence Number", HFILL}
         },
         {&hf_flip_basic_len,
-         {"Len", "flip.basic.len", FT_UINT32, BASE_DEC,
-          NULL, 0x0000FFFF, "Basic Header Packet Length", HFILL}
+         {"Len", "flip.basic.len", FT_UINT16, BASE_DEC_HEX,
+          NULL, 0x0, "Basic Header Packet Length", HFILL}
         },
         /*
          * Checksum header.
@@ -675,12 +431,12 @@ proto_register_flip(void)
           VALS(flip_etype), 0xFF000000, "Checksum Header Extension Type", HFILL}
         },
         {&hf_flip_chksum_spare,
-         {"Spare", "flip.chksum.spare", FT_UINT32, BASE_DEC,
+         {"Spare", "flip.chksum.spare", FT_UINT32, BASE_DEC_HEX,
           NULL, 0x00FE0000, "Checksum Header Spare", HFILL}
         },
         {&hf_flip_chksum_e,
-         {"Extension Header Follows", "flip.chksum.e", FT_UINT32, BASE_DEC,
-          VALS(flip_boolean), 0x00010000, NULL, HFILL}
+         {"Extension Header Follows", "flip.chksum.e", FT_BOOLEAN, 32,
+          TFS(&tfs_yes_no), 0x00010000, NULL, HFILL}
         },
         {&hf_flip_chksum_chksum,
          {"Checksum", "flip.chksum.chksum", FT_UINT32, BASE_HEX,
@@ -697,6 +453,12 @@ proto_register_flip(void)
 
     module_t *flip_module;
 
+    /* Decode As handling */
+    static build_valid_func flip_da_build_value[1] = {flip_value};
+    static decode_as_value_t flip_da_values = {flip_prompt, 1, flip_da_build_value};
+    static decode_as_t flip_da = {"flip", "FLIP Payload", "flip.payload", 1, 0, &flip_da_values, NULL, NULL,
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     proto_flip = proto_register_protocol(
         "NSN FLIP", /* name */
         "FLIP",     /* short name */
@@ -706,52 +468,19 @@ proto_register_flip(void)
     proto_register_field_array(proto_flip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    subdissector_table = register_dissector_table("flip.payload", "FLIP subdissector", FT_UINT32, BASE_HEX);
 
-    flip_module = prefs_register_protocol(proto_flip,
-                                          proto_reg_handoff_flip);
+    flip_module = prefs_register_protocol(proto_flip, NULL);
 
-    /* Register preferences */
-    prefs_register_enum_preference(
-        flip_module,
-        "decoding_mode",
-        "FLIP payload decoding mode",
-        "Decode FLIP payload according to mode",
-        &global_flip_payload_decoding_mode,
-        flip_payload_decoding_modes,
-        TRUE);
+    /* Register preferences - now obsolete because of Decode As*/
+    prefs_register_obsolete_preference(flip_module, "decoding_mode");
+    prefs_register_obsolete_preference(flip_module, "heur_enabled_protocols");
+    prefs_register_obsolete_preference(flip_module, "heur_decode_rtp");
+    prefs_register_obsolete_preference(flip_module, "heur_decode_rtcp");
+    prefs_register_obsolete_preference(flip_module, "forced_protocol");
+    prefs_register_obsolete_preference(flip_module, "forced_decode");
 
-    prefs_register_static_text_preference(
-        flip_module,
-        "heur_enabled_protocols",
-        "Heuristic mode: enabled protocols",
-        "Enabled protocols for heuristic mode");
-
-    prefs_register_bool_preference(
-        flip_module,
-        "heur_decode_rtp",
-        "RTP",
-        "Decode payload as RTP if detected",
-        &is_heur_enabled_rtp);
-
-    prefs_register_bool_preference(
-        flip_module,
-        "heur_decode_rtcp",
-        "RTCP",
-        "Decode payload as RTCP if detected",
-        &is_heur_enabled_rtcp);
-
-    prefs_register_static_text_preference(
-        flip_module,
-        "forced_protocol",
-        "Forced mode: decode to user-specified protocol",
-        "Mapping of flow IDs to their decodings");
-
-    prefs_register_string_preference(
-        flip_module,
-        "forced_decode",
-        "Protocol name",
-        "Decoding to user-defined protocol",
-        &global_forced_protocol);
+    register_decode_as(&flip_da);
 
 } /* proto_register_flip() */
 
@@ -761,26 +490,10 @@ proto_reg_handoff_flip(void)
 {
     dissector_handle_t flip_handle;
 
-    static gboolean flip_prefs_initialized = FALSE;
+    flip_handle = new_create_dissector_handle(dissect_flip, proto_flip);
+    dissector_add_uint("ethertype", ETHERTYPE_FLIP, flip_handle);
 
-    if (flip_prefs_initialized == FALSE) {
-        flip_handle = new_create_dissector_handle(dissect_flip, proto_flip);
-        dissector_add_uint("ethertype", ETHERTYPE_FLIP, flip_handle);
-
-        rtp_handle  = find_dissector("rtp");
-        rtcp_handle = find_dissector("rtcp");
-        data_handle = find_dissector("data");
-
-        flip_prefs_initialized = TRUE;
-    }
-
-    /* Preferences update: check user-specified dissector. */
-    is_forced_handle_ok = FALSE;
-    forced_handle = find_dissector(global_forced_protocol);
-    if (forced_handle != NULL) {
-        is_forced_handle_ok = TRUE;
-    }
-
+    data_handle = find_dissector("data");
 } /* proto_reg_handoff_flip() */
 
 /*
