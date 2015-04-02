@@ -1603,7 +1603,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         subtree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, elem_ett[idx], &item,
                                              "%s%s", elem_name, (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
-        proto_tree_add_item(subtree, hf_gsm_a_common_elem_id_f0, tvb, curr_offset, 1, ENC_NA);
+        proto_tree_add_uint_format_value(subtree, hf_gsm_a_common_elem_id_f0, tvb, curr_offset, 1, oct, "0x%1x-", oct>>4);
 
         if (elem_funcs[idx] == NULL)
         {
