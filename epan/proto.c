@@ -5026,7 +5026,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 		     proto_item *item_to_move)
 {
 
-	/* Revert part of: http://anonsvn.wireshark.org/viewvc?view=rev&revision=32443
+	/* Revert part of: https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=00c05ed3fdfa9287422e6e1fc9bd6ea8b31ca4ee
 	 * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5500
 	 */
 	/* This function doesn't generate any values. It only reorganizes the prococol tree

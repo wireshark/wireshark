@@ -181,7 +181,7 @@ fi
 
 SOURCE=${SOURCE-$HOME/Source/gtk}
 CAIROCVSROOT=${CAIROCVSROOT-:pserver:anoncvs@cvs.freedesktop.org:/cvs/cairo}
-WIRESHARKSVNURL="http://anonsvn.wireshark.org/wireshark/trunk
+WIRESHARKSVNURL="https://anonsvn.wireshark.org/wireshark/trunk
 GNOMESVNURL=${GNOMESVNURL-https://svn.gnome.org/svn}
 
 if [ x$1 = xrun ]; then
@@ -653,6 +653,3 @@ fi
 
 process_modules
 echo "Done."
-
-
-

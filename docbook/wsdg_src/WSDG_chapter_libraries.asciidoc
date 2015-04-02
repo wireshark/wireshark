@@ -1,7 +1,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- WSDG Chapter Libraries -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterLibraries]]
 
 == Library Reference
@@ -228,7 +228,7 @@ platform, you can get it at http://c-ares.haxx.se/[].
 ==== Win32 MSVC
 
 C-Ares is cross-compiled using MinGW32 and is available at
-http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsZlib]]
 
@@ -413,4 +413,3 @@ https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Libraries -->
 ++++++++++++++++++++++++++++++++++++++
-    

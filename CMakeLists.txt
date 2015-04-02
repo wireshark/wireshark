@@ -35,6 +35,7 @@ cmake_policy(SET CMP0015 NEW)
 # If our target platform is enforced by our generator, set
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
 # %WIRESHARK_TARGET_PLATFORM%.
+
 if(WIN32)
 	if("${CMAKE_GENERATOR}" MATCHES ".*Win64$")
 		set(WIRESHARK_TARGET_PLATFORM win64)
