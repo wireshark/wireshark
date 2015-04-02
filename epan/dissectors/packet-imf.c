@@ -645,11 +645,10 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_fi
         switch(tvb_get_guint8(tvb, ++offset)) {
         case '\r':
           /* probably end of the fields */
-          if(tvb_get_guint8(tvb, ++offset) == '\n') {
-            offset++;
-          }
-          if(last_field) {
-            *last_field = TRUE;
+          if(tvb_get_guint8(tvb, offset + 1) == '\n') {
+            if(last_field) {
+              *last_field = TRUE;
+            }
           }
           return offset;
         case  ' ':
@@ -797,6 +796,11 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     start_offset = end_offset;
   }
 
+  if (last_field) {
+    /* Remove the extra CRLF after all the fields */
+    end_offset += 2;
+  }
+
   if (end_offset == -1) {
     end_offset = 0;
   }
@@ -810,7 +814,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_fence(pinfo->cinfo, COL_INFO);
 
     if(content_encoding_str && !g_ascii_strncasecmp(content_encoding_str, "base64", 6)) {
-      char *data = tvb_get_string_enc(wmem_packet_scope(), tvb, end_offset, tvb_reported_length(tvb), ENC_ASCII);
+      char *data = tvb_get_string_enc(wmem_packet_scope(), tvb, end_offset, tvb_reported_length(tvb) - end_offset, ENC_ASCII);
       next_tvb = base64_to_tvb(tvb, data);
       add_new_data_source(pinfo, next_tvb, content_encoding_str);
     } else {
