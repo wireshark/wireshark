@@ -30,7 +30,7 @@
 #include "packet-cip.h"
 
 void proto_register_cipmotion(void);
-/* The entry point to the actual disection is: dissect_cipmotion */
+void proto_reg_handoff_cipmotion(void);
 
 /* Protocol handle for CIP Motion */
 static int proto_cipmotion = -1;
@@ -2882,6 +2882,15 @@ proto_register_cipmotion(void)
    proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
 
    register_dissector( "cipmotion", dissect_cipmotion, proto_cipmotion);
+}
+
+void proto_reg_handoff_cipmotion(void)
+{
+   dissector_handle_t cipmotion_handle;
+
+   /* Create and register dissector for I/O data handling */
+   cipmotion_handle = create_dissector_handle( dissect_cipmotion, proto_cipmotion );
+   dissector_add_for_decode_as("enip.io", cipmotion_handle );
 }
 
 /*

@@ -2610,7 +2610,7 @@ proto_register_cipsafety(void)
 void
 proto_reg_handoff_cipsafety(void)
 {
-   dissector_handle_t cip_class_s_supervisor_handle;
+   dissector_handle_t cip_class_s_supervisor_handle, cipsafety_handle;
 
    /* Create and register dissector handle for Safety Supervisor */
    cip_class_s_supervisor_handle = new_create_dissector_handle( dissect_cip_class_s_supervisor, proto_cip_class_s_supervisor );
@@ -2620,6 +2620,10 @@ proto_reg_handoff_cipsafety(void)
    cip_class_s_validator_handle = new_create_dissector_handle( dissect_cip_class_s_validator, proto_cip_class_s_validator );
    dissector_add_uint( "cip.class.iface", CI_CLS_SAFETY_VALIDATOR, cip_class_s_validator_handle );
    heur_dissector_add("cip.sc", dissect_class_svalidator_heur, proto_cip_class_s_validator);
+
+   /* Create and register dissector for I/O data handling */
+   cipsafety_handle = create_dissector_handle( dissect_cipsafety, proto_cipsafety );
+   dissector_add_for_decode_as("enip.io", cipsafety_handle );
 
    proto_cip = proto_get_id_by_filter_name( "cip" );
 }

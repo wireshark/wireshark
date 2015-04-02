@@ -40,6 +40,7 @@
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/decode_as.h>
 #include "packet-tcp.h"
 #include "packet-cip.h"
 #include "packet-enip.h"
@@ -316,6 +317,8 @@ static expert_field ei_mal_dlr_active_gateway_address = EI_INIT;
 
 static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_sud_table;
+static dissector_table_t   subdissector_io_table;
+
 static dissector_handle_t  data_handle;
 static dissector_handle_t  arp_handle;
 static dissector_handle_t  cipsafety_handle;
@@ -374,16 +377,6 @@ static int hf_dlr_flushreserved = -1;
 static int hf_dlr_learnreserved  = -1;
 
 static gint ett_dlr = -1;
-
-static const enum_val_t enip_io_dissector_types[] = {
-   { "Off",        "Regular Ethernet/IP I/O data", ENIP_IO_OFF},
-   { "CIP Safety", "CIP Safety",                   ENIP_IO_SAFETY },
-   { "CIP Motion", "CIP Motion",                   ENIP_IO_MOTION },
-   { NULL,         NULL,                           0 }
-};
-
-/* decode I/O traffic as this type if ForwardOpen isn't captured */
-static gint default_io_dissector_type = ENIP_IO_OFF;
 
 /* Translate function to string - Encapsulation commands */
 static const value_string encap_cmd_vals[] = {
@@ -639,6 +632,16 @@ static const true_false_string dlr_lnknbrstatus_frame_type_vals = {
     "Neighbor_Status Frame",
     "Link_Status Frame"
 };
+
+static void enip_prompt(packet_info *pinfo _U_, gchar* result)
+{
+   g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect unidentified I/O traffic as");
+}
+
+static gpointer enip_value(packet_info *pinfo _U_)
+{
+   return 0;
+}
 
 static GHashTable *enip_request_hashtable = NULL;
 
@@ -1950,17 +1953,11 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                       }
                       else
                       {
-                         switch (default_io_dissector_type)
+                         /* Functionality for choosing subdissector is controlled through Decode As as EtherNet/IP doesn't
+                         have a unique identifier to determine subdissector */
+                         if (!dissector_try_uint(subdissector_io_table, 0, next_tvb, pinfo, dissector_tree))
                          {
-                             case ENIP_IO_SAFETY:
-                                 call_dissector(cipsafety_handle, next_tvb, pinfo, dissector_tree);
-                                 break;
-                             case ENIP_IO_MOTION:
-                                 call_dissector(cipmotion_handle, next_tvb, pinfo, dissector_tree);
-                                 break;
-                             default:
-                                 proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
-                                 break;
+                            proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
                          }
                       }
                   }
@@ -3684,6 +3681,12 @@ proto_register_enip(void)
    module_t *enip_module;
    expert_module_t* expert_enip;
 
+   /* Decode As handling */
+   static build_valid_func enip_da_build_value[1] = {enip_value};
+   static decode_as_value_t enip_da_values = {enip_prompt, 1, enip_da_build_value};
+   static decode_as_t enip_da = {"enip", "ENIP I/O", "enip.io", 1, 0, &enip_da_values, NULL, NULL,
+                                    decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
    /* Register the protocol name and description */
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)", "ENIP", "enip");
 
@@ -3712,18 +3715,15 @@ proto_register_enip(void)
                                   "Determines whether all I/O connections will assume a 32-bit header in the T->O direction",
                                   &enip_TOrun_idle);
 
-   prefs_register_enum_preference(enip_module, "default_io_dissector",
-                                  "Dissect unidentified I/O traffic as",
-                                  "Decode all unidentified I/O traffic as this type",
-                                  &default_io_dissector_type,
-                                  enip_io_dissector_types,
-                                  FALSE);
+   prefs_register_obsolete_preference(enip_module, "default_io_dissector");
 
    subdissector_sud_table = register_dissector_table("enip.sud.iface",
                                                      "ENIP SendUnitData.Interface Handle", FT_UINT32, BASE_HEX);
 
    subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
                                                       "ENIP SendRequestReplyData.Interface Handle", FT_UINT32, BASE_HEX);
+
+   subdissector_io_table = register_dissector_table("enip.io", "ENIP IO dissector", FT_UINT32, BASE_DEC);
 
    register_init_routine(&enip_init_protocol);
 
@@ -3736,6 +3736,8 @@ proto_register_enip(void)
 
    register_dissector_filter("ENIP IO", enip_io_conv_valid, enip_io_conv_filter);
    register_dissector_filter("ENIP Explicit", enip_exp_conv_valid, enip_exp_conv_filter);
+
+   register_decode_as(&enip_da);
 
 } /* end of proto_register_enip() */
 
