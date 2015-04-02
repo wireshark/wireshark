@@ -30,6 +30,7 @@
 #include <epan/expert.h>
 #include <epan/crc10-tvb.h>
 #include <epan/crc32-tvb.h>
+#include <epan/decode_as.h>
 
 #include "packet-atm.h"
 #include "packet-snmp.h"
@@ -141,8 +142,6 @@ static dissector_handle_t tr_handle;
 static dissector_handle_t fr_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t sscop_handle;
-static dissector_handle_t lane_handle;
-static dissector_handle_t ilmi_handle;
 static dissector_handle_t fp_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t eth_handle;
@@ -152,7 +151,8 @@ static dissector_handle_t gprs_ns_handle;
 
 static gboolean dissect_lanesscop = FALSE;
 
-static gint unknown_aal2_type = TRAF_UNKNOWN;
+static dissector_table_t atm_type_aal2_table;
+static dissector_table_t atm_type_aal5_table;
 
 /*
  * See
@@ -838,7 +838,6 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tvbuff_t *next_tvb;
   guint32   crc;
   guint32   calc_crc;
-  gint      type;
   gboolean  decoded;
 
   /*
@@ -992,39 +991,12 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case AAL_5:
     if (!(pinfo->pseudo_header->atm.flags & ATM_REASSEMBLY_ERROR)) {
-      switch (pinfo->pseudo_header->atm.type) {
-
-      case TRAF_SSCOP:
-        call_dissector(sscop_handle, next_tvb, pinfo, tree);
-        decoded = TRUE;
-        break;
-
-      case TRAF_FR:
-        call_dissector(fr_handle, next_tvb, pinfo, tree);
-        decoded = TRUE;
-        break;
-
-      case TRAF_LLCMX:
-        call_dissector(llc_handle, next_tvb, pinfo, tree);
-        decoded = TRUE;
-        break;
-
-      case TRAF_LANE:
-        call_dissector(lane_handle, next_tvb, pinfo, tree);
-        decoded = TRUE;
-        break;
-
-      case TRAF_ILMI:
-        call_dissector(ilmi_handle, next_tvb, pinfo, tree);
-        decoded = TRUE;
-        break;
-
-      case TRAF_GPRS_NS:
-        call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
-        decoded = TRUE;
-        break;
-
-      default:
+      if (dissector_try_uint(atm_type_aal5_table, pinfo->pseudo_header->atm.type, next_tvb, pinfo, tree))
+      {
+          decoded = TRUE;
+      }
+      else
+      {
         if (tvb_length(next_tvb) > 7) /* sizeof(octet) */
         {
             guint8 octet[8];
@@ -1076,11 +1048,11 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 decoded = FALSE;
             }
         }
+      }
 
-        if (tree && !decoded) {
-            /* Dump it as raw data. */
-            call_dissector(data_handle, next_tvb, pinfo, tree);
-        }
+      if (!decoded) {
+        /* Dump it as raw data. */
+        call_dissector(data_handle, next_tvb, pinfo, tree);
       }
       break;
     }
@@ -1106,19 +1078,9 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         next_tvb = tvb_new_subset_remaining(tvb, 4);
       }
 
-      type = pinfo->pseudo_header->atm.type;
-      if (type == TRAF_UNKNOWN) {
-        type = unknown_aal2_type;
-      }
-      switch (type) {
-      case TRAF_UMTS_FP:
-        call_dissector(fp_handle, next_tvb, pinfo, tree);
-        decoded = TRUE;
-        break;
-
-      default:
-        /* Dump it as raw data. */
-        break;
+      if (dissector_try_uint(atm_type_aal2_table, pinfo->pseudo_header->atm.type, next_tvb, pinfo, tree))
+      {
+          decoded = TRUE;
       }
     }
     break;
@@ -1128,7 +1090,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     break;
   }
 
-  if (tree && !decoded) {
+  if (!decoded) {
       /* Dump it as raw data. */
       call_dissector(data_handle, next_tvb, pinfo, tree);
   }
@@ -1742,6 +1704,15 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   return tvb_length(tvb);
 }
 
+static void atm_prompt(packet_info *pinfo _U_, gchar* result)
+{
+  g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode AAL2 traffic as");
+}
+
+static gpointer atm_value(packet_info *pinfo)
+{
+  return GUINT_TO_POINTER(pinfo->pseudo_header->atm.type);
+}
 
 void
 proto_register_atm(void)
@@ -1981,14 +1952,13 @@ proto_register_atm(void)
   };
 
   expert_module_t* expert_atm;
-
-  static const enum_val_t unknown_aal2_options[] = {
-    { "raw",     "Raw data", TRAF_UNKNOWN },
-    { "umts_fp", "UMTS FP",  TRAF_UMTS_FP },
-    { NULL, NULL, 0 }
-  };
-
   module_t *atm_module;
+
+  /* Decode As handling */
+  static build_valid_func atm_da_build_value[1] = {atm_value};
+  static decode_as_value_t atm_da_values = {atm_prompt, 1, atm_da_build_value};
+  static decode_as_t atm_da = {"atm", "Network", "atm.aal2.type", 1, 0, &atm_da_values, NULL, NULL,
+								decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   proto_atm    = proto_register_protocol("Asynchronous Transfer Mode", "ATM", "atm");
   proto_aal1   = proto_register_protocol("ATM AAL1", "AAL1", "aal1");
@@ -2001,12 +1971,11 @@ proto_register_atm(void)
 
   proto_ilmi = proto_register_protocol("ILMI", "ILMI", "ilmi");
 
-  register_dissector("ilmi", dissect_ilmi, proto_ilmi);
+  proto_atm_lane = proto_register_protocol("ATM LAN Emulation", "ATM LANE", "lane");
 
-  proto_atm_lane = proto_register_protocol("ATM LAN Emulation",
-                                           "ATM LANE", "lane");
+  atm_type_aal2_table = register_dissector_table("atm.aal2.type", "ATM AAL_2 type subdissector", FT_UINT32, BASE_DEC);
+  atm_type_aal5_table = register_dissector_table("atm.aal5.type", "ATM AAL_5 type subdissector", FT_UINT32, BASE_DEC);
 
-  register_dissector("lane", dissect_lane, proto_atm_lane);
   atm_handle = new_register_dissector("atm_truncated", dissect_atm, proto_atm);
   atm_untruncated_handle = new_register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
   new_register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
@@ -2015,11 +1984,9 @@ proto_register_atm(void)
   prefs_register_bool_preference(atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
                                  "Autodection between LANE and SSCOP is hard. As default LANE is preferred",
                                  &dissect_lanesscop);
-  prefs_register_enum_preference(atm_module, "unknown_aal2_type",
-                                 "Decode unknown AAL2 traffic as",
-                                 "Type used to dissect unknown AAL2 traffic",
-                                 &unknown_aal2_type, unknown_aal2_options, FALSE);
+  prefs_register_obsolete_preference(atm_module, "unknown_aal2_type");
 
+  register_decode_as(&atm_da);
 }
 
 void
@@ -2034,8 +2001,6 @@ proto_reg_handoff_atm(void)
   fr_handle             = find_dissector("fr");
   llc_handle            = find_dissector("llc");
   sscop_handle          = find_dissector("sscop");
-  lane_handle           = find_dissector("lane");
-  ilmi_handle           = find_dissector("ilmi");
   ppp_handle            = find_dissector("ppp");
   eth_handle            = find_dissector("eth");
   ip_handle             = find_dissector("ip");
@@ -2044,6 +2009,8 @@ proto_reg_handoff_atm(void)
   gprs_ns_handle        = find_dissector("gprs_ns");
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
+  dissector_add_uint("atm.aal5.type", TRAF_LANE, create_dissector_handle(dissect_lane, proto_atm_lane));
+  dissector_add_uint("atm.aal5.type", TRAF_ILMI, create_dissector_handle(dissect_ilmi, proto_ilmi));
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
                 atm_untruncated_handle);

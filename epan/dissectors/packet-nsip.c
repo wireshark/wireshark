@@ -29,6 +29,7 @@
 
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <wiretap/wtap.h>
 
 void proto_register_nsip(void);
 void proto_reg_handoff_nsip(void);
@@ -1188,6 +1189,7 @@ proto_reg_handoff_nsip(void) {
   nsip_udp_port_range = range_copy(global_nsip_udp_port_range);
 
   dissector_add_uint_range("udp.port", nsip_udp_port_range, nsip_handle);
+  dissector_add_uint("atm.aal5.type", TRAF_GPRS_NS, nsip_handle);
 
 }
 

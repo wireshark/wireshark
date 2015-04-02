@@ -26,6 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wiretap/wtap.h>
 #include "packet-sscop.h"
 
 void proto_register_sscop(void);
@@ -397,6 +398,8 @@ proto_reg_handoff_sscop(void)
 
   udp_port_range = range_copy(global_udp_port_range);
   dissector_add_uint_range("udp.port", udp_port_range, sscop_handle);
+
+  dissector_add_uint("atm.aal5.type", TRAF_SSCOP, sscop_handle);
 
   switch(sscop_payload_dissector) {
   case DATA_DISSECTOR:     default_handle = data_handle;     break;

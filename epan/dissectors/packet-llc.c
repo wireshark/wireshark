@@ -936,6 +936,8 @@ proto_reg_handoff_llc(void)
 	/* IP-over-FC when we have the full FC frame */
 	dissector_add_uint("fc.ftype", FC_FTYPE_IP, llc_handle);
 
+	dissector_add_uint("atm.aal5.type", TRAF_LLCMX, llc_handle);
+
 	/*
 	 * BACNET-over-ARCNET is really BACNET-over-802.2 LLC-over-ARCNET,
 	 * apparently.

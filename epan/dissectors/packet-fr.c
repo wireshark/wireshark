@@ -1009,6 +1009,7 @@ proto_reg_handoff_fr(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY, fr_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_FRELAY, fr_handle);
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_FRAME_RELAY, fr_handle);
+  dissector_add_uint("atm.aal5.type", TRAF_FR, fr_handle);
 
   fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
