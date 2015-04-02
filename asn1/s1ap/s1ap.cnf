@@ -236,12 +236,23 @@ obj_id = NULL;
   if (is_ascii)
   		proto_item_append_text(actx->created_item,"(%%s)",tvb_format_text(parameter_tvb, 0, length));
 
+
+#.FN_BODY TAC VAL_PTR = &parameter_tvb
+tvbuff_t *parameter_tvb=NULL;
+
+%(DEFAULT_BODY)s
+
+  if (!parameter_tvb)
+    return offset;
+
+  proto_item_append_text(actx->created_item," (%%u)",tvb_get_ntohs(parameter_tvb, 0));
+
 #.END
 
 
 #.FN_BODY NAS-PDU VAL_PTR = &parameter_tvb
 
-  tvbuff_t *parameter_tvb=NULL;
+tvbuff_t *parameter_tvb=NULL;
 
 %(DEFAULT_BODY)s
 
