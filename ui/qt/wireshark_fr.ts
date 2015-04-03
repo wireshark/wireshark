@@ -910,15 +910,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="261"/>
-        <location filename="capture_interfaces_dialog.cpp" line="531"/>
-        <location filename="capture_interfaces_dialog.cpp" line="538"/>
+        <location filename="capture_interfaces_dialog.cpp" line="528"/>
+        <location filename="capture_interfaces_dialog.cpp" line="535"/>
         <source>enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="261"/>
-        <location filename="capture_interfaces_dialog.cpp" line="531"/>
-        <location filename="capture_interfaces_dialog.cpp" line="538"/>
+        <location filename="capture_interfaces_dialog.cpp" line="528"/>
+        <location filename="capture_interfaces_dialog.cpp" line="535"/>
         <source>disabled</source>
         <translation type="unfinished"></translation>
     </message>
@@ -948,40 +948,40 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="518"/>
+        <location filename="capture_interfaces_dialog.cpp" line="515"/>
         <source>default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="538"/>
+        <location filename="capture_interfaces_dialog.cpp" line="535"/>
         <source>n/a</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="671"/>
-        <location filename="capture_interfaces_dialog.cpp" line="679"/>
-        <location filename="capture_interfaces_dialog.cpp" line="690"/>
-        <location filename="capture_interfaces_dialog.cpp" line="694"/>
-        <location filename="capture_interfaces_dialog.cpp" line="707"/>
-        <location filename="capture_interfaces_dialog.cpp" line="715"/>
+        <location filename="capture_interfaces_dialog.cpp" line="668"/>
+        <location filename="capture_interfaces_dialog.cpp" line="676"/>
+        <location filename="capture_interfaces_dialog.cpp" line="687"/>
+        <location filename="capture_interfaces_dialog.cpp" line="691"/>
+        <location filename="capture_interfaces_dialog.cpp" line="704"/>
+        <location filename="capture_interfaces_dialog.cpp" line="712"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="672"/>
-        <location filename="capture_interfaces_dialog.cpp" line="680"/>
-        <location filename="capture_interfaces_dialog.cpp" line="708"/>
-        <location filename="capture_interfaces_dialog.cpp" line="716"/>
+        <location filename="capture_interfaces_dialog.cpp" line="669"/>
+        <location filename="capture_interfaces_dialog.cpp" line="677"/>
+        <location filename="capture_interfaces_dialog.cpp" line="705"/>
+        <location filename="capture_interfaces_dialog.cpp" line="713"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="695"/>
+        <location filename="capture_interfaces_dialog.cpp" line="692"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation type="unfinished"></translation>
@@ -1560,17 +1560,17 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="277"/>
+        <location filename="export_object_dialog.cpp" line="287"/>
         <source>Save All Objects In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="316"/>
+        <location filename="export_object_dialog.cpp" line="329"/>
         <source>Object Export</source>
         <translation>Object exporté</translation>
     </message>
     <message>
-        <location filename="export_object_dialog.cpp" line="317"/>
+        <location filename="export_object_dialog.cpp" line="330"/>
         <source>Some files could not be saved.</source>
         <translation>Certains fichiers ne sont pas sauvegardés.</translation>
     </message>
@@ -2705,16 +2705,16 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="960"/>
-        <location filename="capture_interfaces_dialog.cpp" line="993"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1042"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1062"/>
+        <location filename="capture_interfaces_dialog.cpp" line="957"/>
+        <location filename="capture_interfaces_dialog.cpp" line="990"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1039"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1059"/>
         <source>enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="961"/>
-        <location filename="capture_interfaces_dialog.cpp" line="994"/>
+        <location filename="capture_interfaces_dialog.cpp" line="958"/>
+        <location filename="capture_interfaces_dialog.cpp" line="991"/>
         <source>disabled</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6776,12 +6776,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="421"/>
+        <location filename="manage_interfaces_dialog.cpp" line="422"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="422"/>
+        <location filename="manage_interfaces_dialog.cpp" line="423"/>
         <source>Default interface cannot be hidden.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6896,47 +6896,47 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="603"/>
+        <location filename="packet_list.cpp" line="605"/>
         <source>Align Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="604"/>
+        <location filename="packet_list.cpp" line="606"/>
         <source>Align Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="605"/>
+        <location filename="packet_list.cpp" line="607"/>
         <source>Align Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="607"/>
+        <location filename="packet_list.cpp" line="609"/>
         <source>Column Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="608"/>
+        <location filename="packet_list.cpp" line="610"/>
         <source>Edit Column</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="609"/>
+        <location filename="packet_list.cpp" line="611"/>
         <source>Resize To Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="610"/>
+        <location filename="packet_list.cpp" line="612"/>
         <source>Resolve Names</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="615"/>
+        <location filename="packet_list.cpp" line="617"/>
         <source>Remove This Column</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="890"/>
+        <location filename="packet_list.cpp" line="892"/>
         <source>Frame %1: %2
 
 </source>
@@ -6945,17 +6945,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="894"/>
+        <location filename="packet_list.cpp" line="896"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Taille maximum de commentaire dépassé %1 Arrêt !]</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1014"/>
+        <location filename="packet_list.cpp" line="1016"/>
         <source>Change Time Display Format?</source>
         <translation>Changer le format d&apos;affichage du temps?</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1015"/>
+        <location filename="packet_list.cpp" line="1017"/>
         <source>Time References don&apos;t work well with the currently selected Time Display Format.
 Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</source>
         <translation>Le temps de Références ne fonctionnent pas bien avec le format d&apos;affichage sélectionné.
@@ -7034,12 +7034,12 @@ Voulez-vous passer en &quot;secondes depuis le début de Capture&quot; maintenan
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="800"/>
+        <location filename="manage_interfaces_dialog.cpp" line="802"/>
         <source>Browse...</source>
         <translation type="unfinished">Parcourir...</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="854"/>
+        <location filename="manage_interfaces_dialog.cpp" line="856"/>
         <source>Open Pipe</source>
         <translation type="unfinished"></translation>
     </message>
