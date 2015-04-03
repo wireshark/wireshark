@@ -31,7 +31,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
-#include "packet-rtacser.h"
 
 #define PROTOCOL_NAME	    "IEEE C37.118 Synchrophasor Protocol"
 #define PROTOCOL_SHORT_NAME "SYNCHROPHASOR"
@@ -1385,7 +1384,7 @@ void proto_reg_handoff_synphasor(void)
 
 	if (!initialized) {
 		synphasor_tcp_handle = new_create_dissector_handle(dissect_tcp, proto_synphasor);
-		dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_SYNPHASOR, synphasor_udp_handle);
+		dissector_add_for_decode_as("rtacser.data", synphasor_udp_handle);
 		initialized = TRUE;
 	}
 	else {

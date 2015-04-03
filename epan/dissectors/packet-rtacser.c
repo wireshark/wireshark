@@ -64,7 +64,6 @@
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <wiretap/wtap.h>
-#include "packet-rtacser.h"
 
 void proto_register_rtacser(void);
 
@@ -85,9 +84,6 @@ static int hf_rtacser_footer                = -1;
 static gint ett_rtacser                   = -1;
 static gint ett_rtacser_cl                = -1;
 
-/* Globals for RTAC Serial Preferences */
-static guint global_rtacser_payload_proto = RTACSER_PAYLOAD_NONE; /* No Payload, by default */
-
 static dissector_table_t  subdissector_table;
 static dissector_handle_t data_handle;
 
@@ -101,15 +97,6 @@ static dissector_handle_t data_handle;
 #define RTACSER_CTRL_DTR      0x10
 #define RTACSER_CTRL_RING     0x20
 #define RTACSER_CTRL_MBOK     0x40
-
-/* Payload Protocol Types */
-#define RTACSER_PAYLOAD_NONE        0
-#define RTACSER_PAYLOAD_SELFM       1
-#define RTACSER_PAYLOAD_DNP3        2
-#define RTACSER_PAYLOAD_MODBUS      3
-#define RTACSER_PAYLOAD_SYNPHASOR   4
-#define RTACSER_PAYLOAD_LG8979      5
-#define RTACSER_PAYLOAD_CP2179      6
 
 /* Event Types */
 static const value_string rtacser_eventtype_vals[] = {
@@ -127,17 +114,6 @@ static const value_string rtacser_eventtype_vals[] = {
     { 0,          NULL }
 };
 
-static const enum_val_t rtacser_payload_proto_type[] = {
-    { "NONE      ", "NONE      ",  RTACSER_PAYLOAD_NONE       },
-    { "SEL FM    ", "SEL FM    ",  RTACSER_PAYLOAD_SELFM      },
-    { "DNP3      ", "DNP3      ",  RTACSER_PAYLOAD_DNP3       },
-    { "MODBUS RTU", "MODBUS RTU",  RTACSER_PAYLOAD_MODBUS     },
-    { "SYNPHASOR ", "SYNPHASOR ",  RTACSER_PAYLOAD_SYNPHASOR  },
-    { "L&G 8979  ", "L&G 8979  ",  RTACSER_PAYLOAD_LG8979     },
-    { "CP 2179   ", "CP 2179   ",  RTACSER_PAYLOAD_CP2179     },
-    { NULL, NULL, 0 }
-};
-
 static void
 rtacser_ppi_prompt(packet_info *pinfo _U_, gchar* result)
 {
@@ -145,9 +121,9 @@ rtacser_ppi_prompt(packet_info *pinfo _U_, gchar* result)
 }
 
 static gpointer
-rtacser_ppi_value(packet_info *pinfo)
+rtacser_ppi_value(packet_info *pinfo _U_)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_rtacser, 0 );
+    return 0;
 }
 
 /******************************************************************************************************/
@@ -235,11 +211,11 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(rtacser_tree, hf_rtacser_footer, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    p_add_proto_data(pinfo->pool, pinfo, proto_rtacser, 0, GUINT_TO_POINTER(global_rtacser_payload_proto));
-
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
-        if (!dissector_try_uint(subdissector_table, global_rtacser_payload_proto, payload_tvb, pinfo, tree)){
+        /* Functionality for choosing subdissector is controlled through Decode As as CAN doesn't
+           have a unique identifier to determine subdissector */
+        if (!dissector_try_uint(subdissector_table, 0, payload_tvb, pinfo, tree)){
             call_dissector(data_handle, payload_tvb, pinfo, tree);
         }
     }
@@ -327,12 +303,7 @@ proto_register_rtacser(void)
     rtacser_module = prefs_register_protocol(proto_rtacser, proto_reg_handoff_rtacser);
 
     /* RTAC Serial Preference - Payload Protocol in use */
-    prefs_register_enum_preference(rtacser_module, "rtacserial_payload_proto",
-                                    "Payload Protocol Type",
-                                    "Payload Protocol Type",
-                                    &global_rtacser_payload_proto,
-                                    rtacser_payload_proto_type,
-                                    TRUE);
+    prefs_register_obsolete_preference(rtacser_module, "rtacserial_payload_proto");
 
     register_decode_as(&rtacser_da_ppi);
 }

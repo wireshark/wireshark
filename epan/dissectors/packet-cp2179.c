@@ -52,7 +52,6 @@ F = 16-bit CRC
 
 #include "config.h"
 #include <epan/packet.h>
-#include "packet-rtacser.h"
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 
@@ -1397,7 +1396,7 @@ proto_reg_handoff_cp2179(void)
     cp2179_port = global_cp2179_tcp_port;
 
     dissector_add_uint("tcp.port", cp2179_port, cp2179_handle);
-    dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_CP2179, cp2179_handle);
+    dissector_add_for_decode_as("rtacser.data", cp2179_handle);
 }
 
 /*

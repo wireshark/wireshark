@@ -69,7 +69,6 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
-#include "packet-rtacser.h"
 
 void proto_register_selfm(void);
 
@@ -3058,7 +3057,7 @@ proto_reg_handoff_selfm(void)
     selfm_port = global_selfm_tcp_port;
 
     dissector_add_uint("tcp.port", selfm_port, selfm_handle);
-    dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_SELFM, selfm_handle);
+    dissector_add_for_decode_as("rtacser.data", selfm_handle);
 }
 
 /*

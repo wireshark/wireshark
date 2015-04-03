@@ -76,7 +76,6 @@
 #include <epan/packet.h>
 #include "packet-tcp.h"
 #include "packet-mbtcp.h"
-#include "packet-rtacser.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h> /* For CRC verification */
@@ -1880,7 +1879,7 @@ proto_reg_handoff_mbrtu(void)
     mbrtu_port = global_mbus_rtu_port;
 
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
-    dissector_add_uint("rtacser.data", RTACSER_PAYLOAD_MODBUS, mbrtu_handle);
+    dissector_add_for_decode_as("rtacser.data", mbrtu_handle);
 
 }
 
