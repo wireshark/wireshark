@@ -1159,6 +1159,7 @@ typedef enum
     DE_PRO_CONF_OPT,                /* Protocol Configuration Options */
     DE_PD_PRO_ADDR,                 /* Packet Data Protocol Address */
     DE_QOS,                         /* Quality Of Service */
+    DE_RE_ATTEMPT_IND,              /* Re-attempt indicator */
     DE_SM_CAUSE,                    /* SM Cause */
     DE_SM_CAUSE_2,                  /* SM Cause 2 */
     DE_LINKED_TI,                   /* Linked TI */

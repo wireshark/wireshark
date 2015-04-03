@@ -51,7 +51,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 12.8.0 Release 12)
+ *   (3GPP TS 24.008 version 12.9.0 Release 12)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -197,6 +197,7 @@ static const value_string gsm_gm_elem_strings[] = {
 	{ DE_PRO_CONF_OPT,		 "Protocol Configuration Options" },
 	{ DE_PD_PRO_ADDR,		 "Packet Data Protocol Address" },
 	{ DE_QOS,			 "Quality Of Service" },
+	{ DE_RE_ATTEMPT_IND,	 "Re-attempt Indicator" },
 	{ DE_SM_CAUSE,			 "SM Cause" },
 	{ DE_SM_CAUSE_2,		 "SM Cause 2" },
 	{ DE_LINKED_TI,			 "Linked TI" },
@@ -366,6 +367,7 @@ static int hf_gsm_a_sm_qos_max_bitrate_downl_ext2 = -1;
 static int hf_gsm_a_sm_qos_guar_bitrate_upl_ext2 = -1;
 static int hf_gsm_a_sm_qos_guar_bitrate_downl_ext2 = -1;
 static int hf_gsm_a_sm_qos_maximum_sdu_size = -1;
+static int hf_gsm_a_sm_ratc = -1;
 static int hf_gsm_a_sm_cause = -1;
 static int hf_gsm_a_sm_cause_2 = -1;
 static int hf_gsm_a_sm_llc_sapi = -1;
@@ -446,6 +448,7 @@ static int hf_gsm_a_gm_rac_dlmc_inter_band_recep = -1;
 static int hf_gsm_a_gm_rac_dlmc_max_bandwidth = -1;
 static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_ts = -1;
 static int hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers = -1;
+static int hf_gsm_a_gm_rac_ext_tsc_set_cap_support = -1;
 static int hf_gsm_a_sm_ti_flag = -1;
 static int hf_gsm_a_sm_ext = -1;
 
@@ -3097,6 +3100,17 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		}
 
 		 /*
+		 * Extended TSC Set Capability support
+		 */
+		bits_needed = 1;
+		GET_DATA;
+		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_ext_tsc_set_cap_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+		bit_offset += bits_needed;
+		curr_bits_length -= bits_needed;
+		oct <<= bits_needed;
+		bits_in_oct -= bits_needed;
+
+		 /*
 		 * we are too long ... so jump over it
 		 */
 		while (curr_bits_length > 0)
@@ -4835,6 +4849,30 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 }
 
 /*
+ * [12] 10.5.6.5a Re-attempt indicator
+ */
+const true_false_string gsm_a_gm_ratc_value = {
+	"MS is not allowed to repeat the request after inter-system change to S1 mode",
+	"MS is allowed to repeat the request after inter-system change to S1 mode"
+};
+
+guint16
+de_sm_re_attempt_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32 curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 7, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_ratc, tvb, offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
+
+	return len;
+}
+
+/*
  * [9] 10.5.6.6 SM cause
  */
 static const value_string gsm_a_sm_cause_vals[] = {
@@ -5625,6 +5663,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_sm_pco,                         /* Protocol Configuration Options */
 	de_sm_pdp_addr,                    /* Packet Data Protocol Address */
 	de_sm_qos,                         /* Quality Of Service */
+	de_sm_re_attempt_ind,              /* Re-attempt indicator */
 	de_sm_cause,                       /* SM Cause */
 	de_sm_cause_2,                     /* SM Cause 2 */
 	de_sm_linked_ti,                   /* Linked TI */
@@ -6509,7 +6548,9 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
+	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
+
+	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6612,7 +6653,9 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
+	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
+
+	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6822,7 +6865,9 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
-	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
+	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
+
+	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7831,6 +7876,11 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_sm_ratc,
+		  { "RATC", "gsm_a.gm.sm.re_attempt_ind.ratc",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_ratc_value), 0x01,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_sm_cause,
 		  { "SM Cause", "gsm_a.gm.sm.cause",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8349,6 +8399,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_rac_dlmc_max_nb_dl_carriers,
 		  { "DLMC - Maximum Number of Downlink Carriers", "gsm_a.gm.gmm.rac.dlmc.max_nb_dl_carriers",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_dlmc_max_nb_dl_carriers_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_rac_ext_tsc_set_cap_support,
+		  { "Extended TSC Set Capability support", "gsm_a.gm.gmm.rac.ext_tsc_set_cap_support",
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ti_flag,

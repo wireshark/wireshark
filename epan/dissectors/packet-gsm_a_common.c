@@ -705,6 +705,7 @@ static int hf_gsm_a_eutra_wb_rsrq_support = -1;
 static int hf_gsm_a_er_band_support = -1;
 static int hf_gsm_a_utra_mfbi_support = -1;
 static int hf_gsm_a_eutra_mfbi_support = -1;
+static int hf_gsm_a_ext_tsc_set_cap_support = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat = -1;
@@ -2448,7 +2449,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
 /*
  * [3] 10.5.1.7 Mobile Station Classmark 3
- * 3GPP TS 24.008 version 12.7.0 Release 12
+ * 3GPP TS 24.008 version 12.9.0 Release 12
  */
 #define AVAILABLE_BITS_CHECK(n) \
     bits_left = ((len + offset) << 3) - bit_offset; \
@@ -3203,6 +3204,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
      */
     AVAILABLE_BITS_CHECK(1);
     proto_tree_add_bits_item(tree, hf_gsm_a_eutra_mfbi_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 1;
+
+    /*
+     * < Extended TSC Set Capability support : bit(1)>
+     */
+    AVAILABLE_BITS_CHECK(1);
+    proto_tree_add_bits_item(tree, hf_gsm_a_ext_tsc_set_cap_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset = bit_offset + 1;
 
     /*
@@ -4307,6 +4315,11 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_eutra_mfbi_support,
         { "E-UTRA Multiple Frequency Band Indicators support", "gsm_a.classmark3.eutra_mfbi_support",
+        FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_ext_tsc_set_cap_support,
+        { "Extended TSC Set Capability support", "gsm_a.classmark3.ext_tsc_set_cap_support",
         FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
         NULL, HFILL}
     },
