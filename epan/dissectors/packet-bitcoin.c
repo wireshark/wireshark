@@ -1732,7 +1732,9 @@ proto_register_bitcoin(void)
     &hfi_msg_getheaders_count32,
     &hfi_msg_getheaders_count64,
     &hfi_bitcoin_msg_getheaders,
+#if 0
     &hfi_msg_getheaders_version,
+#endif
     &hfi_msg_getheaders_start,
     &hfi_msg_getheaders_stop,
 
