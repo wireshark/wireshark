@@ -26,10 +26,10 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/decode_as.h>
 #include <wiretap/wtap.h>
 
 #include "packet-i2c.h"
-#include "packet-hdmi.h"
 
 void proto_register_i2c(void);
 void proto_reg_handoff_i2c(void);
@@ -43,18 +43,8 @@ static int hf_i2c_addr = -1;
 
 static gint ett_i2c = -1;
 
-enum {
-	SUB_DATA = 0,
-	SUB_IPMB,
-	SUB_HDMI,
-
-	SUB_MAX
-};
-
-typedef gboolean (*sub_checkfunc_t)(packet_info *);
-
-static dissector_handle_t sub_handles[SUB_MAX];
-static gint sub_selected = SUB_IPMB;
+static dissector_handle_t data_handle;
+static dissector_table_t subdissector_table;
 
 /* I2C packet flags. */
 #define I2C_FLAG_RD			0x00000001
@@ -84,6 +74,16 @@ static gint sub_selected = SUB_IPMB;
 							   has been physically
 							   disconnected from the bus */
 #define I2C_EVENT_ERR_FAIL		(1 << 22)	/* Undiagnosed failure       */
+
+static void i2c_prompt(packet_info *pinfo _U_, gchar* result)
+{
+	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Interpret I2C messages as");
+}
+
+static gpointer i2c_value(packet_info *pinfo _U_)
+{
+	return 0;
+}
 
 void
 capture_i2c(union wtap_pseudo_header *pseudo_header, packet_counts *ld)
@@ -164,23 +164,6 @@ i2c_get_event_desc(guint32 event)
 	return desc;
 }
 
-static gboolean
-sub_check_ipmb(packet_info *pinfo)
-{
-	if (pinfo->pseudo_header->i2c.flags & I2C_FLAG_RD) {
-		/* Master-receive transactions are not possible on IPMB */
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static sub_checkfunc_t sub_check[SUB_MAX] = {
-	NULL, /* raw data */
-	sub_check_ipmb, /* IPMI */
-	sub_check_hdmi  /* HDMI */
-};
-
 static void
 dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -229,13 +212,13 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		proto_tree_add_uint_format_value(i2c_tree, hf_i2c_addr, tvb, 0, 1,
 				addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
-		proto_tree_add_uint_format_value(i2c_tree, hf_i2c_flags, tvb, 0, 0,
-				flags, "0x%08x", flags);
+		proto_tree_add_uint(i2c_tree, hf_i2c_flags, tvb, 0, 0, flags);
 
-		if (sub_check[sub_selected] && sub_check[sub_selected](pinfo)) {
-			call_dissector(sub_handles[sub_selected], tvb, pinfo, tree);
-		} else {
-			call_dissector(sub_handles[SUB_DATA], tvb, pinfo, tree);
+		/* Functionality for choosing subdissector is controlled through Decode As as I2C doesn't
+		   have a unique identifier to determine subdissector */
+		if (!dissector_try_uint(subdissector_table, 0, tvb, pinfo, tree))
+		{
+			call_dissector(data_handle, tvb, pinfo, tree);
 		}
 	}
 }
@@ -252,22 +235,24 @@ proto_register_i2c(void)
 	static gint *ett[] = {
 		&ett_i2c
 	};
-	static const enum_val_t sub_enum_vals[] = {
-		{ "none", "None (raw I2C)", SUB_DATA },
-		{ "ipmb", "IPMB", SUB_IPMB },
-		{ "hdmi", "HDMI (including HDCP)", SUB_HDMI },
-		{ NULL, NULL, 0 }
-	};
 	module_t *m;
+
+	/* Decode As handling */
+	static build_valid_func i2c_da_build_value[1] = {i2c_value};
+	static decode_as_value_t i2c_da_values = {i2c_prompt, 1, i2c_da_build_value};
+	static decode_as_t i2c_da = {"i2c", "I2C Message", "i2c.message", 1, 0, &i2c_da_values, NULL, NULL,
+									decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
 	proto_i2c = proto_register_protocol("Inter-Integrated Circuit", "I2C", "i2c");
 	proto_register_field_array(proto_i2c, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	subdissector_table = register_dissector_table("i2c.message", "I2C messages dissector", FT_UINT32, BASE_DEC);
+
 	m = prefs_register_protocol(proto_i2c, NULL);
-	prefs_register_enum_preference(m, "type", "Bus/Data type",
-			"How the I2C messages are interpreted",
-			&sub_selected, sub_enum_vals, FALSE);
+	prefs_register_obsolete_preference(m, "type");
+
+	register_decode_as(&i2c_da);
 }
 
 void
@@ -275,9 +260,8 @@ proto_reg_handoff_i2c(void)
 {
 	dissector_handle_t i2c_handle;
 
-	sub_handles[SUB_DATA] = find_dissector("data");
-	sub_handles[SUB_IPMB] = find_dissector("ipmi");
-	sub_handles[SUB_HDMI] = find_dissector("hdmi");
+	data_handle = find_dissector("data");
+
 	i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
 }

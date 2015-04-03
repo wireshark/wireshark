@@ -33,6 +33,7 @@
 #include "packet-ipmi.h"
 
 void proto_register_ipmi(void);
+void proto_reg_handoff_ipmi(void);
 
 /*
  * See the IPMI specifications at
@@ -1704,6 +1705,19 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			(ipmi_dissect_arg_t *) data);
 }
 
+static int
+dissect_i2c_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	if (pinfo->pseudo_header->i2c.flags & 0x00000001) {
+		/* Master-receive transactions are not possible on IPMB */
+		return 0;
+	}
+
+	return do_dissect_ipmb(tvb, pinfo, tree, proto_ipmb, ett_ipmi,
+			(ipmi_dissect_arg_t *) data);
+}
+
+
 /* Register IPMB protocol.
  */
 void
@@ -1812,6 +1826,14 @@ proto_register_ipmi(void)
 	prefs_register_enum_preference(m, "selected_oem", "OEM commands parsed as",
 			"Selects which OEM format is used for commands that IPMI does not define",
 			&selected_oem, oemsel_vals, FALSE);
+}
+
+void proto_reg_handoff_ipmi(void)
+{
+	dissector_handle_t ipmi_handle;
+
+	ipmi_handle = new_create_dissector_handle( dissect_i2c_ipmi, proto_ipmi );
+	dissector_add_for_decode_as("i2c.message", ipmi_handle );
 }
 
 /*

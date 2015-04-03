@@ -30,7 +30,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include "packet-hdmi.h"
 
 void proto_register_hdmi(void);
 void proto_reg_handoff_hdmi(void);
@@ -80,19 +79,6 @@ static const value_string hdmi_addr[] = {
 /* grab 5 bits, from bit n to n+4, from a big-endian number x
    map those bits to a capital letter such that A == 1, B == 2, ... */
 #define CAPITAL_LETTER(x, n) ('A'-1 + (((x) & (0x1F<<n)) >> n))
-
-
-gboolean
-sub_check_hdmi(packet_info *pinfo _U_)
-{
-    /* by looking at the i2c_phdr only, we can't decide if this packet is HDMI
-       this function is called when the user explicitly selected HDMI
-       in the preferences
-       therefore, we always return TRUE and hand the data to the (new
-       style) dissector who sees the 8bit address and the packet content */
-
-   return TRUE;
-}
 
 
 /* dissect EDID data from the receiver
@@ -272,15 +258,18 @@ proto_register_hdmi(void)
 
     proto_register_field_array(proto_hdmi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    new_register_dissector("hdmi", dissect_hdmi, proto_hdmi);
 }
 
 
 void
 proto_reg_handoff_hdmi(void)
 {
+    dissector_handle_t hdmi_handle;
+
     hdcp_handle = find_dissector("hdcp");
+
+    hdmi_handle = new_create_dissector_handle( dissect_hdmi, proto_hdmi );
+    dissector_add_for_decode_as("i2c.message", hdmi_handle );
 }
 
 /*
