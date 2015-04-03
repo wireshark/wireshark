@@ -30,6 +30,7 @@
 
 #include <epan/packet.h>
 #include <epan/xdlc.h>
+#include "packet-l2tp.h"
 
 void proto_register_ehdlc(void);
 void proto_reg_handoff_ehdlc(void);
@@ -317,9 +318,14 @@ proto_register_ehdlc(void)
 void
 proto_reg_handoff_ehdlc(void)
 {
+    dissector_handle_t ehdlc_handle;
+
 	sub_handles[SUB_RSL]  = find_dissector("gsm_abis_rsl");
 	sub_handles[SUB_OML]  = find_dissector("gsm_abis_oml");
 	sub_handles[SUB_DATA] = find_dissector("data");
+
+    ehdlc_handle = create_dissector_handle( dissect_ehdlc, proto_ehdlc );
+	dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_ERICSSON, ehdlc_handle);
 }
 
 /*

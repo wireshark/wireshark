@@ -33,6 +33,7 @@
 #include "packet-ppp.h"
 #include "packet-ip.h"
 #include "packet-juniper.h"
+#include "packet-l2tp.h"
 #include <epan/expert.h>
 
 /*
@@ -259,6 +260,7 @@ proto_reg_handoff_chdlc(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC_WITH_PHDR, chdlc_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_CHDLC, chdlc_handle);
+  dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_CHDLC, chdlc_handle);
 }
 
 

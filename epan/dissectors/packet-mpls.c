@@ -65,6 +65,7 @@
 #include "packet-bfd.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
+#include "packet-l2tp.h"
 
 void proto_register_mpls(void);
 void proto_reg_handoff_mpls(void);
@@ -642,6 +643,7 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP_MPLS, mpls_handle);
     dissector_add_for_decode_as("pwach.channel_type", mpls_handle);
     dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_MPLS, mpls_handle);
+    dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_MPLS, mpls_handle);
     dissector_add_uint("udp.port", UDP_PORT_MPLS_OVER_UDP, mpls_handle);
 
     mpls_pwcw_handle = create_dissector_handle( dissect_pw_mcw, proto_pw_mcw );

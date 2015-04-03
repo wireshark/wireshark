@@ -45,6 +45,8 @@
 #include <wiretap/wtap.h>
 #include <epan/lapd_sapi.h>
 #include <epan/expert.h>
+#include "packet-l2tp.h"
+
 void proto_register_lapd(void);
 
 static int proto_lapd = -1;
@@ -740,6 +742,7 @@ proto_reg_handoff_lapd(void)
 		lapd_handle = find_dissector("lapd");
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_LAPD, lapd_handle);
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_LAPD, lapd_handle);
+		dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
 
 		register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 		lapd_bitstream_handle = find_dissector("lapd-bitstream");
