@@ -440,7 +440,6 @@ proto_register_itdm(void)
   module_t *itdm_module;
 
   proto_itdm = proto_register_protocol("Internal TDM", "ITDM", "itdm");
-  register_dissector("itdm", dissect_itdm, proto_itdm);
 
   proto_register_field_array(proto_itdm, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -466,7 +465,7 @@ proto_reg_handoff_itdm(void)
   static guint ItdmMPLSLabel;
 
   if (!Initialized) {
-    itdm_handle = find_dissector("itdm");
+    itdm_handle = create_dissector_handle( dissect_itdm, proto_itdm );
     data_handle = find_dissector("data");
     Initialized=TRUE;
   } else {

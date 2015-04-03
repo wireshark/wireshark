@@ -218,20 +218,17 @@ void proto_register_pw_hdlc(void)
 
 	proto_register_field_array(proto_pw_hdlc_nocw_fr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_dissector("pw_hdlc_nocw_fr", dissect_pw_hdlc_nocw_fr, proto_pw_hdlc_nocw_fr );
-	new_register_dissector("pw_hdlc_nocw_hdlc_ppp", dissect_pw_hdlc_nocw_hdlc_ppp, proto_pw_hdlc_nocw_hdlc_ppp );
 }
 
 void proto_reg_handoff_pw_hdlc(void)
 {
-	dissector_handle_t handle;
+	dissector_handle_t pw_fr_handle, pw_ppp_handle;
 
-	handle = find_dissector("pw_hdlc_nocw_fr");
-	dissector_add_for_decode_as( "mpls.label", handle );
+	pw_fr_handle = create_dissector_handle( dissect_pw_hdlc_nocw_fr, proto_pw_hdlc_nocw_fr );
+	dissector_add_for_decode_as( "mpls.label", pw_fr_handle );
 
-	handle = find_dissector("pw_hdlc_nocw_hdlc_ppp");
-	dissector_add_for_decode_as( "mpls.label", handle );
+	pw_ppp_handle = new_create_dissector_handle( dissect_pw_hdlc_nocw_hdlc_ppp, proto_pw_hdlc_nocw_hdlc_ppp );
+	dissector_add_for_decode_as( "mpls.label", pw_ppp_handle );
 
 	ppp_handle = find_dissector( "ppp" );
 	fr_handle = find_dissector( "fr" );

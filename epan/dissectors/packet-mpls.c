@@ -93,120 +93,8 @@ static dissector_table_t   pw_ach_subdissector_table;
 static dissector_handle_t dissector_data;
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
-static dissector_handle_t dissector_pw_eth_heuristic;
-static dissector_handle_t dissector_pw_fr;
-static dissector_handle_t dissector_pw_hdlc_nocw_fr;
-static dissector_handle_t dissector_pw_hdlc_nocw_hdlc_ppp;
-static dissector_handle_t dissector_pw_eth_cw;
-static dissector_handle_t dissector_pw_eth_nocw;
-static dissector_handle_t dissector_pw_satop;
-static dissector_handle_t dissector_itdm;
-static dissector_handle_t dissector_mpls_pw_atm_n1_cw;
-static dissector_handle_t dissector_mpls_pw_atm_n1_nocw;
-static dissector_handle_t dissector_mpls_pw_atm_11_aal5pdu;
-static dissector_handle_t dissector_mpls_pw_atm_aal5_sdu;
-static dissector_handle_t dissector_pw_cesopsn;
 static dissector_handle_t dissector_pw_ach;
 
-enum mpls_default_dissector_t {
-    MDD_PW_ETH_HEUR = 0
-    ,MDD_MPLS_PW_ETH_CW
-    ,MDD_MPLS_PW_ETH_NOCW
-    ,MDD_PW_SATOP
-    ,MDD_PW_CESOPSN
-    ,MDD_MPLS_PW_FR_DLCI
-    ,MDD_MPLS_PW_HDLC_NOCW_FRPORT
-    ,MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP
-    ,MDD_MPLS_PW_GENERIC
-    ,MDD_ITDM
-    ,MDD_MPLS_PW_ATM_N1_CW
-    ,MDD_MPLS_PW_ATM_N1_NOCW
-    ,MDD_MPLS_PW_ATM_11_OR_AAL5_PDU
-    ,MDD_MPLS_PW_ATM_AAL5_SDU
-};
-
-/* TODO the content of mpls_default_payload menu
- * should be automatically built like mpls "decode as..." menu;
- * this way, mpls_default_payload will be automatically filled up when
- * new mpls-specific dissector added.
- */
-static const enum_val_t mpls_default_payload_defs[] = {
-    {
-        "pw satop"
-        ,pwc_longname_pw_satop
-        ,MDD_PW_SATOP
-    },
-    {
-        "pw cesopsn"
-        ,pwc_longname_pw_cesopsn
-        ,MDD_PW_CESOPSN
-    },
-    {
-        "mpls pw ethernet heuristic"
-        ,"Ethernet MPLS PW (CW is heuristically detected)"
-        ,MDD_PW_ETH_HEUR
-    },
-    {
-        "mpls pw ethernet cw"
-        ,"Ethernet MPLS PW (with CW)"
-        ,MDD_MPLS_PW_ETH_CW
-    },
-    {
-        "mpls pw ethernet no_cw"
-        ,"Ethernet MPLS PW (no CW, early implementations)"
-        ,MDD_MPLS_PW_ETH_NOCW
-    },
-    {
-        "mpls pw generic cw"
-        ,"Generic MPLS PW (with Generic/Preferred MPLS CW)"
-        ,MDD_MPLS_PW_GENERIC
-    },
-    {
-        "mpls pw fr dlci"
-        ,"Frame relay DLCI MPLS PW"
-        ,MDD_MPLS_PW_FR_DLCI
-    },
-    {
-        "mpls pw hdlc no_cw fr_port"
-        ,"HDLC MPLS PW (no CW), FR Port mode"
-        ,MDD_MPLS_PW_HDLC_NOCW_FRPORT
-    },
-    {
-        "mpls pw hdlc no_cw hdlc payload_ppp"
-        ,"HDLC MPLS PW (no CW), HDLC mode, PPP payload"
-        ,MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP
-    },
-    {
-        "itdm"
-        ,"Internal TDM"
-        ,MDD_ITDM
-    },
-    {
-        "mpls pw atm n_to_one cw"
-        ,pwc_longname_pw_atm_n1_cw
-        ,MDD_MPLS_PW_ATM_N1_CW
-    },
-    {
-        "mpls pw atm n_to_one no_cw"
-        ,pwc_longname_pw_atm_n1_nocw
-        ,MDD_MPLS_PW_ATM_N1_NOCW
-    },
-    {
-        "mpls pw atm one_to_one or aal5_pdu"
-        ,pwc_longname_pw_atm_11_or_aal5_pdu
-        ,MDD_MPLS_PW_ATM_11_OR_AAL5_PDU
-    },
-    {
-        "mpls pw atm aal5_sdu"
-        ,pwc_longname_pw_atm_aal5_sdu
-        ,MDD_MPLS_PW_ATM_AAL5_SDU
-    },
-    {
-        NULL
-        ,NULL
-        ,-1
-    }
-};
 
 /* For RFC6391 - Flow aware transport of pseudowire over a mpls PSN*/
 static gboolean mpls_bos_flowlabel = FALSE;
@@ -216,8 +104,6 @@ static int hf_mpls_label_special = -1;
 static int hf_mpls_exp = -1;
 static int hf_mpls_bos = -1;
 static int hf_mpls_ttl = -1;
-
-static gint mpls_default_payload = MDD_PW_ETH_HEUR;
 
 static int hf_mpls_pw_ach_ver = -1;
 static int hf_mpls_pw_ach_res = -1;
@@ -592,53 +478,6 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * eventually any further PW heuristics decide.
          */
     }
-
-    /* 3) use the mpls_default_payload info from user */
-    switch (mpls_default_payload) {
-        case MDD_PW_SATOP:
-            call_dissector(dissector_pw_satop, next_tvb, pinfo, tree);
-            break;
-        case MDD_PW_CESOPSN:
-            call_dissector(dissector_pw_cesopsn, next_tvb, pinfo, tree);
-            break;
-        case MDD_PW_ETH_HEUR:
-            call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_ETH_CW:
-            call_dissector(dissector_pw_eth_cw, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_ETH_NOCW:
-            call_dissector(dissector_pw_eth_nocw, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_FR_DLCI:
-            call_dissector(dissector_pw_fr, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_HDLC_NOCW_FRPORT:
-            call_dissector(dissector_pw_hdlc_nocw_fr, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP:
-            call_dissector(dissector_pw_hdlc_nocw_hdlc_ppp,next_tvb, pinfo, tree);
-            break;
-        case MDD_ITDM:
-            call_dissector(dissector_itdm, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_ATM_N1_CW:
-            call_dissector(dissector_mpls_pw_atm_n1_cw, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_ATM_N1_NOCW:
-            call_dissector(dissector_mpls_pw_atm_n1_nocw, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_ATM_11_OR_AAL5_PDU:
-            call_dissector(dissector_mpls_pw_atm_11_aal5pdu, next_tvb, pinfo, tree);
-            break;
-        case MDD_MPLS_PW_ATM_AAL5_SDU:
-            call_dissector(dissector_mpls_pw_atm_aal5_sdu, next_tvb, pinfo, tree);
-            break;
-        default: /* fallthrough */
-        case MDD_MPLS_PW_GENERIC:
-            dissect_pw_mcw(next_tvb, pinfo, tree);
-            break;
-    }
 }
 
 void
@@ -760,19 +599,12 @@ proto_register_mpls(void)
     expert_register_field_array(expert_mpls, ei, array_length(ei));
 
     register_dissector("mpls", dissect_mpls, proto_mpls);
-    register_dissector("mplspwcw", dissect_pw_mcw, proto_pw_mcw );
 
     pw_ach_subdissector_table  = register_dissector_table("pwach.channel_type", "PW Associated Channel Type", FT_UINT16, BASE_HEX);
 
     module_mpls = prefs_register_protocol( proto_mpls, NULL );
 
-    prefs_register_enum_preference(module_mpls,
-                                   "mplspref.payload",
-                                   "Default decoder for MPLS payload",
-                                   "Default decoder for MPLS payload",
-                                   &mpls_default_payload,
-                                   mpls_default_payload_defs,
-                                   FALSE );
+    prefs_register_obsolete_preference(module_mpls, "mplspref.payload");
 
     /* RFC6391: Flow aware transport of pseudowire*/
     prefs_register_bool_preference(module_mpls,
@@ -788,7 +620,7 @@ proto_register_mpls(void)
 void
 proto_reg_handoff_mpls(void)
 {
-    dissector_handle_t mpls_handle;
+    dissector_handle_t mpls_handle, mpls_pwcw_handle;
 
     mpls_handle = find_dissector("mpls");
     dissector_add_uint("ethertype", ETHERTYPE_MPLS, mpls_handle);
@@ -808,25 +640,12 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_MPLS, mpls_handle);
     dissector_add_uint("udp.port", UDP_PORT_MPLS_OVER_UDP, mpls_handle);
 
-    mpls_handle = find_dissector("mplspwcw");
-    dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_handle );
+    mpls_pwcw_handle = create_dissector_handle( dissect_pw_mcw, proto_pw_mcw );
+    dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_pwcw_handle );
 
     dissector_data                  = find_dissector("data");
     dissector_ipv6                  = find_dissector("ipv6");
     dissector_ip                    = find_dissector("ip");
-    dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
-    dissector_pw_fr                 = find_dissector("pw_fr");
-    dissector_pw_hdlc_nocw_fr       = find_dissector("pw_hdlc_nocw_fr");
-    dissector_pw_hdlc_nocw_hdlc_ppp = find_dissector("pw_hdlc_nocw_hdlc_ppp");
-    dissector_pw_eth_cw             = find_dissector("pw_eth_cw");
-    dissector_pw_eth_nocw           = find_dissector("pw_eth_nocw");
-    dissector_pw_satop              = find_dissector("pw_satop_mpls");
-    dissector_itdm                  = find_dissector("itdm");
-    dissector_mpls_pw_atm_n1_cw     = find_dissector("mpls_pw_atm_n1_cw");
-    dissector_mpls_pw_atm_n1_nocw   = find_dissector("mpls_pw_atm_n1_nocw");
-    dissector_mpls_pw_atm_11_aal5pdu= find_dissector("mpls_pw_atm_11_or_aal5_pdu");
-    dissector_mpls_pw_atm_aal5_sdu  = find_dissector("mpls_pw_atm_aal5_sdu");
-    dissector_pw_cesopsn            = find_dissector("pw_cesopsn_mpls");
 
     dissector_pw_ach                = create_dissector_handle(dissect_pw_ach, proto_pw_ach );
 }

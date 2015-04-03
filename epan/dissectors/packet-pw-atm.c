@@ -1906,10 +1906,6 @@ proto_register_pw_atm_ata(void)
 
 	proto_register_subtree_array(ett_array, array_length(ett_array));
 
-	register_dissector("mpls_pw_atm_aal5_sdu"	,dissect_aal5_sdu	,proto_aal5_sdu);
-	register_dissector("mpls_pw_atm_11_or_aal5_pdu"	,dissect_11_or_aal5_pdu	,proto_11_or_aal5_pdu);
-	register_dissector("mpls_pw_atm_n1_cw"		,dissect_n1_cw		,proto_n1_cw);
-	register_dissector("mpls_pw_atm_n1_nocw"	,dissect_n1_nocw	,proto_n1_nocw);
 	new_register_dissector("mpls_pw_atm_control_word"	,dissect_control_word	,proto_control_word);
 	new_register_dissector("mpls_pw_atm_cell"	,dissect_cell		,proto_cell);
 	new_register_dissector("mpls_pw_atm_cell_header",dissect_cell_header	,proto_cell_header);
@@ -1963,13 +1959,13 @@ void
 proto_reg_handoff_pw_atm_ata(void)
 {
 	dissector_handle_t h;
-	h = find_dissector("mpls_pw_atm_n1_cw");
+	h = create_dissector_handle( dissect_n1_cw, proto_n1_cw );
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = find_dissector("mpls_pw_atm_n1_nocw");
+	h = create_dissector_handle( dissect_n1_nocw, proto_n1_nocw );
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = find_dissector("mpls_pw_atm_11_or_aal5_pdu");
+	h = create_dissector_handle( dissect_11_or_aal5_pdu, proto_11_or_aal5_pdu );
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = find_dissector("mpls_pw_atm_aal5_sdu");
+	h = create_dissector_handle( dissect_aal5_sdu, proto_aal5_sdu );
 	dissector_add_for_decode_as( "mpls.label", h );
 
 	dh_cell		   = find_dissector("mpls_pw_atm_cell");
