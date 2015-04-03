@@ -33,6 +33,7 @@
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/decode_as.h>
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
 #include "packet-nfs.h"
@@ -42,6 +43,17 @@ void proto_reg_handoff_nfs(void);
 
 /* NON-NFS-version-specific hf variables */
 static int proto_nfs = -1;
+static int proto_nfs_unknown = -1;
+static int proto_nfs_svr4 = -1;
+static int proto_nfs_knfsd_le = -1;
+static int proto_nfs_nfsd_le = -1;
+static int proto_nfs_knfsd_new = -1;
+static int proto_nfs_ontap_v3 = -1;
+static int proto_nfs_ontap_v4 = -1;
+static int proto_nfs_ontap_gx_v3 = -1;
+static int proto_nfs_celerra_vnx = -1;
+static int proto_nfs_gluster = -1;
+static int proto_nfs_dcache = -1;
 static int hf_nfs_access_check  = -1;
 static int hf_nfs_access_supported  = -1;
 static int hf_nfs_access_rights = -1;
@@ -60,7 +72,6 @@ static int hf_nfs_access_execute = -1;
 static int hf_nfs_access_denied = -1;
 static int hf_nfs_fh_length = -1;
 static int hf_nfs_fh_hash = -1;
-static int hf_nfs_fh_decode_as = -1;
 static int hf_nfs_fh_fhandle_data = -1;
 static int hf_nfs_fh_mount_fileid = -1;
 static int hf_nfs_fh_mount_generation = -1;
@@ -776,35 +787,6 @@ static expert_field ei_protocol_violation = EI_INIT;
 /* Types of fhandles we can dissect */
 static dissector_table_t nfs_fhandle_table;
 
-#define FHT_UNKNOWN          0
-#define FHT_SVR4             1
-#define FHT_LINUX_KNFSD_LE   2
-#define FHT_LINUX_NFSD_LE    3
-#define FHT_LINUX_KNFSD_NEW  4
-#define FHT_NETAPP           5
-#define FHT_NETAPP_V4        6
-#define FHT_NETAPP_GX_V3     7
-#define FHT_CELERRA_VNX      8
-#define FHT_GLUSTER          9
-#define FHT_DCACHE          10
-
-static const enum_val_t nfs_fhandle_types[] = {
-	{ "unknown",     "Unknown",     FHT_UNKNOWN },
-	{ "svr4",        "SVR4",        FHT_SVR4 },
-	{ "knfsd_le",    "KNFSD_LE",    FHT_LINUX_KNFSD_LE },
-	{ "nfsd_le",     "NFSD_LE",     FHT_LINUX_NFSD_LE },
-	{ "knfsd_new",   "KNFSD_NEW",   FHT_LINUX_KNFSD_NEW },
-	{ "ontap_v3",    "ONTAP_V3",    FHT_NETAPP },
-	{ "ontap_v4",    "ONTAP_V4",    FHT_NETAPP_V4},
-	{ "ontap_gx_v3", "ONTAP_GX_V3", FHT_NETAPP_GX_V3},
-	{ "celerra_vnx", "CELERRA_VNX", FHT_CELERRA_VNX },
-	{ "gluster",     "GLUSTER",     FHT_GLUSTER },
-	{ "dcache",      "dCache",      FHT_DCACHE },
-	{ NULL, NULL, 0 }
-};
-/* decode all nfs filehandles as this type */
-static gint default_nfs_fhandle_type = FHT_UNKNOWN;
-
 typedef struct nfs_fhandle_data {
 	int len;
 	const unsigned char *fh;
@@ -857,6 +839,16 @@ static gboolean display_major_nfs4_ops = TRUE;
 static int dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash);
 
 static void reg_callback(int cbprog);
+
+static void nfs_prompt(packet_info *pinfo _U_, gchar* result)
+{
+	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode NFS file handles as");
+}
+
+static gpointer nfs_value(packet_info *pinfo _U_)
+{
+	return 0;
+}
 
 /* This function will store one nfs filehandle in our global tree of
  * filehandles.
@@ -1265,24 +1257,6 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 
 /* file handle dissection */
-
-static const value_string names_fhtype[] =
-{
-	{	FHT_UNKNOWN,		"unknown"				},
-	{	FHT_SVR4,		"System V R4"				},
-	{	FHT_LINUX_KNFSD_LE,	"Linux knfsd (little-endian)"		},
-	{	FHT_LINUX_NFSD_LE,	"Linux user-land nfsd (little-endian)"	},
-	{	FHT_LINUX_KNFSD_NEW,	"Linux knfsd (new)"			},
-	{	FHT_NETAPP,		"ONTAP 7G nfs v3 file handle"		},
-	{	FHT_NETAPP_V4,	 	"ONTAP 7G nfs v4 file handle"		},
-	{	FHT_NETAPP_GX_V3,	"ONTAP GX nfs v3 file handle"		},
-	{	FHT_CELERRA_VNX,	"Celerra|VNX NFS file handle"		},
-	{	FHT_GLUSTER,		"GlusterFS/NFS file handle"		},
-	{	FHT_DCACHE,		"dCache NFS file handle"		},
-	{	0,			NULL					}
-};
-static value_string_ext names_fhtype_ext = VALUE_STRING_EXT_INIT(names_fhtype);
-
 
 static const true_false_string tfs_endianness = { "Little Endian", "Big Endian" };
 
@@ -2191,16 +2165,11 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 	if (!hidden) {
 		tvbuff_t *fh_tvb;
-		int real_length;
 
-		proto_tree_add_uint(tree, hf_nfs_fh_decode_as, tvb, offset, 0, default_nfs_fhandle_type);
-
-		real_length = fhlen;
-		if (default_nfs_fhandle_type != FHT_UNKNOWN && real_length < tvb_captured_length_remaining(tvb, offset))
-			real_length = tvb_captured_length_remaining(tvb, offset);
-
-		fh_tvb = tvb_new_subset(tvb, offset, real_length, fhlen);
-		if (!dissector_try_uint(nfs_fhandle_table, default_nfs_fhandle_type, fh_tvb, pinfo, tree))
+		/* Functionality for choosing subdissector is controlled through Decode As as NFS doesn't
+		   have a unique identifier to determine subdissector */
+		fh_tvb = tvb_new_subset(tvb, offset, fhlen, fhlen);
+		if (!dissector_try_uint(nfs_fhandle_table, 0, fh_tvb, pinfo, tree))
 			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree);
 	}
 }
@@ -10328,9 +10297,6 @@ proto_register_nfs(void)
 		{ &hf_nfs_fh_hash, {
 			"hash (CRC-32)", "nfs.fh.hash", FT_UINT32, BASE_HEX,
 			NULL, 0, "file handle hash", HFILL }},
-		{ &hf_nfs_fh_decode_as, {
-			"decode type as", "nfs.fh.decode_as", FT_UINT32, BASE_DEC|BASE_EXT_STRING,
-			&names_fhtype_ext, 0, NULL, HFILL }},
 
 
 		{ &hf_nfs_fh_mount_fileid, {
@@ -12599,7 +12565,27 @@ proto_register_nfs(void)
 	module_t *nfs_module;
 	expert_module_t* expert_nfs;
 
+	/* Decode As handling */
+	static build_valid_func nfs_da_build_value[1] = {nfs_value};
+	static decode_as_value_t nfs_da_values = {nfs_prompt, 1, nfs_da_build_value};
+	static decode_as_t nfs_da = {"nfs", "NFS File Handle", "nfs_fhandle.type", 1, 0, &nfs_da_values, NULL, NULL,
+									decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
 	proto_nfs = proto_register_protocol("Network File System", "NFS", "nfs");
+
+	/* "protocols" registered just for Decode As */
+	proto_nfs_unknown = proto_register_protocol("Unknown", "unknown", "nfs.unknown");
+	proto_nfs_svr4 = proto_register_protocol("SVR4", "svr4", "nfs.svr4");
+	proto_nfs_knfsd_le = proto_register_protocol("KNFSD_LE", "knfsd_le", "nfs.knfsd_le");
+	proto_nfs_nfsd_le = proto_register_protocol("NFSD_LE", "nfsd_le", "nfs.nfsd_le");
+	proto_nfs_knfsd_new = proto_register_protocol("KNFSD_NEW", "knfsd_new", "nfs.knfsd_new");
+	proto_nfs_ontap_v3 = proto_register_protocol("ONTAP_V3", "ontap_v3", "nfs.ontap_v3");
+	proto_nfs_ontap_v4 = proto_register_protocol("ONTAP_V4", "ontap_v4", "nfs.ontap_v4");
+	proto_nfs_ontap_gx_v3 = proto_register_protocol("ONTAP_GX_V3", "ontap_gx_v3", "nfs.ontap_gx_v3");
+	proto_nfs_celerra_vnx = proto_register_protocol("CELERRA_VNX", "celerra_vnx", "nfs.celerra_vnx");
+	proto_nfs_gluster = proto_register_protocol("GLUSTER", "gluster", "nfs.gluster");
+	proto_nfs_dcache = proto_register_protocol("dCache", "dcache", "nfs.dcache");
+
 	proto_register_field_array(proto_nfs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_nfs = expert_register_protocol(proto_nfs);
@@ -12637,18 +12623,14 @@ proto_register_nfs(void)
 	nfs_fhandle_table = register_dissector_table("nfs_fhandle.type",
 	    "NFS Filehandle types", FT_UINT8, BASE_HEX);
 
-	prefs_register_enum_preference(nfs_module,
-		"default_fhandle_type",
-		"Decode NFS file handles as",
-		"Decode all NFS file handles as if they are of this type",
-		&default_nfs_fhandle_type,
-		nfs_fhandle_types,
-		FALSE);
+	prefs_register_obsolete_preference(nfs_module, "default_fhandle_type");
 
 	nfs_name_snoop_known    = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	nfs_file_handles        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	nfs_fhandle_frame_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	register_init_routine(nfs_name_snoop_init);
+
+	register_decode_as(&nfs_da);
 }
 
 
@@ -12665,38 +12647,38 @@ proto_reg_handoff_nfs(void)
 	rpc_init_proc_table(proto_nfs, NFS_PROGRAM, 3, nfs3_proc, hf_nfs3_procedure);
 	rpc_init_proc_table(proto_nfs, NFS_PROGRAM, 4, nfs4_proc, hf_nfs4_procedure);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_SVR4, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_LE, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_LINUX_KNFSD_LE, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_LE, proto_nfs_knfsd_le);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_NFSD_LE, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_LINUX_NFSD_LE, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_NFSD_LE, proto_nfs_nfsd_le);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_NEW, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_LINUX_KNFSD_NEW, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_NEW, proto_nfs_knfsd_new);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_NETAPP, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs_ontap_v3);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_NETAPP_V4, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs_ontap_v4);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_NETAPP_GX_V3, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs_ontap_gx_v3);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_CELERRA_VNX, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_CELERRA_VNX, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_CELERRA_VNX, proto_nfs_celerra_vnx);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_GLUSTER, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_GLUSTER, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_GLUSTER, proto_nfs_gluster);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_DCACHE, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_DCACHE, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_DCACHE, proto_nfs_dcache);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs);
-	dissector_add_uint("nfs_fhandle.type", FHT_UNKNOWN, fhandle_handle);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs_unknown);
+	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 }
 
 /*
