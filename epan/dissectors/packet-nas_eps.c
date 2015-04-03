@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V12.7.0 (2014-12)
+ * References: 3GPP TS 24.301 V12.8.0 (2015-03)
  */
 
 #include "config.h"
@@ -191,7 +191,7 @@ static int hf_nas_eps_esm_notif_ind = -1;
 static int hf_nas_eps_esm_pdn_type = -1;
 static int hf_nas_eps_esm_pdn_ipv4 = -1;
 static int hf_nas_eps_esm_pdn_ipv6_if_id = -1;
-
+static int hf_nas_eps_esm_ratc = -1;
 static int hf_nas_eps_esm_linked_bearer_id = -1;
 
 static int hf_nas_eps_active_flg = -1;
@@ -2737,6 +2737,31 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
  * See subclause 10.5.7.2 in 3GPP TS 24.008
  */
 /*
+ * 9.9.4.13a Re-attempt indicator
+ */
+const true_false_string nas_eps_esm_ratc_value = {
+    "UE is not allowed to repeat the request after inter-system change from S1 mode to A/Gb mode or Iu mode",
+    "UE is allowed to repeat the request after inter-system change from S1 mode to A/Gb mode or Iu mode"
+};
+
+static guint16
+de_esm_re_attempt_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
+                       guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset << 3, 7, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_esm_ratc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_eps_extraneous_data);
+
+    return len;
+}
+
+/*
  * 9.9.4.14 Request type
  * See subclause 10.5.6.17 in 3GPP TS 24.008
  */
@@ -2847,6 +2872,7 @@ typedef enum
     DE_ESM_PROT_CONF_OPT,           /* 9.9.4.11 Protocol configuration options */
     DE_ESM_QOS,                     /* 9.9.4.12 Quality of service */
     DE_ESM_RA_PRI,                  /* 9.9.4.13 Radio priority  */
+    DE_ESM_RE_ATTEMPT_IND,          /* 9.9.4.13a Re-attempt indicator */
     DE_ESM_REQ_TYPE,                /* 9.9.4.14 Request type */
     DE_ESM_TRAF_FLOW_AGR_DESC,      /* 9.9.4.15 Traffic flow aggregate description */
     DE_ESM_TRAF_FLOW_TEMPL,         /* 9.9.4.16 Traffic flow template */
@@ -2872,6 +2898,7 @@ static const value_string nas_esm_elem_strings[] = {
     { DE_ESM_PROT_CONF_OPT, "Protocol configuration options" },         /* 9.9.4.11 Protocol configuration options */
     { DE_ESM_QOS, "Quality of service" },                               /* 9.9.4.12 Quality of service */
     { DE_ESM_RA_PRI, "Radio priority" },                                /* 9.9.4.13 Radio priority */
+    { DE_ESM_RE_ATTEMPT_IND, "Re-attempt indicator" },                  /* 9.9.4.13a Re-attempt indicator */
     { DE_ESM_REQ_TYPE, "Request type" },                                /* 9.9.4.14 Request type */
     { DE_ESM_TRAF_FLOW_AGR_DESC, "Traffic flow aggregate description" },/* 9.9.4.15 Traffic flow aggregate description */
     { DE_ESM_TRAF_FLOW_TEMPL, "Traffic flow template" },                /* 9.9.4.16 Traffic flow template */
@@ -2900,6 +2927,7 @@ guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     NULL,                           /* 9.9.4.11 Protocol configuration options */
     NULL,                           /* 9.9.4.12 Quality of service */
     NULL,                           /* 9.9.4.13 Radio priority  */
+    de_esm_re_attempt_ind,          /* 9.9.4.13a Re-attempt indicator */
     NULL,                           /* 9.9.4.14 Request type */
     NULL,                           /* 9.9.4.15 Traffic flow aggregate description */
     NULL,                           /* 9.9.4.16 Traffic flow template */
@@ -4130,8 +4158,10 @@ nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
-    /* 37   T3396 value GPRS timer 3 9.9.3.16B O   TLV  3 */
-    ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
+    /* 37   Back-off timer value GPRS timer 3 9.9.3.16B O   TLV  3 */
+    ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
+    /* 6B   Re-attempt indicator Re-attempt indicator 9.9.4.13A O TLV 3 */
+    ELEM_OPT_TLV(0x6B, NAS_PDU_TYPE_ESM, DE_ESM_RE_ATTEMPT_IND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4194,8 +4224,10 @@ nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
-    /* 37   T3396 value GPRS timer 3 9.9.3.16B O   TLV  3 */
-    ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
+    /* 37   Back-off timer value GPRS timer 3 9.9.3.16B O   TLV  3 */
+    ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
+    /* 6B   Re-attempt indicator Re-attempt indicator 9.9.4.13A O TLV 3 */
+    ELEM_OPT_TLV(0x6B, NAS_PDU_TYPE_ESM, DE_ESM_RE_ATTEMPT_IND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4475,8 +4507,10 @@ nas_esm_pdn_con_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
-    /* 37   T3396 value GPRS timer 3 9.9.3.16B O   TLV  3 */
-    ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
+    /* 37   Back-off timer value GPRS timer 3 9.9.3.16B O   TLV  3 */
+    ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
+    /* 6B   Re-attempt indicator Re-attempt indicator 9.9.4.13A O TLV 3 */
+    ELEM_OPT_TLV(0x6B, NAS_PDU_TYPE_ESM, DE_ESM_RE_ATTEMPT_IND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5743,6 +5777,11 @@ proto_register_nas_eps(void)
         {"PDN IPv6 if id", "nas_eps.esm.pdn_ipv6_if_id",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
+    },
+    { &hf_nas_eps_esm_ratc,
+        { "RATC", "nas_eps.esm.ratc",
+        FT_BOOLEAN, 8, TFS(&nas_eps_emm_active_flg_value), 0x01,
+        NULL, HFILL }
     },
     { &hf_nas_eps_esm_linked_bearer_id,
         { "Linked EPS bearer identity","nas_eps.esm.linked_bearer_id",
