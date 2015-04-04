@@ -237,7 +237,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         proto_tree *canopen_cob_tree;
         proto_tree *canopen_type_tree;
 
-        ti = proto_tree_add_item(tree, proto_canopen, tvb, 0, -1, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_canopen, tvb, 0, tvb_reported_length(tvb), ENC_NA);
         canopen_tree = proto_item_add_subtree(ti, ett_canopen);
 
         /* add COB-ID with function code and node id */
@@ -254,8 +254,7 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         /* add CANopen frame type */
 
-        type_ti = proto_tree_add_text(canopen_tree, tvb, 0,
-                                      (msg_type_id != MT_SYNC) ? -1 : 0,
+        type_ti = proto_tree_add_text(canopen_tree, tvb, 0, tvb_reported_length(tvb),
                                       "Type: %s", function_code_str);
         canopen_type_tree = proto_item_add_subtree(type_ti, ett_canopen);
 
