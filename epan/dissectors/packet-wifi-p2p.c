@@ -49,7 +49,17 @@ enum {
   P2P_ATTR_P2P_INTERFACE = 16,
   P2P_ATTR_OPERATING_CHANNEL = 17,
   P2P_ATTR_INVITATION_FLAGS = 18,
-  /* 19-220 Reserved */
+  P2P_ATTR_OOB_GROUP_OWNER_NEGOTIATION_CHANNEL = 19,
+  /* 20 Unused */
+  P2P_ATTR_SERVICE_HASH = 21,
+  P2P_ATTR_SESSION_INFORMATION_DATA_INFO = 22,
+  P2P_ATTR_CONNECTION_CAPABILITY_INFO = 23,
+  P2P_ATTR_ADVERTISEMENT_ID_INFO = 24,
+  P2P_ATTR_ADVERTISED_SERVICE_INFO = 25,
+  P2P_ATTR_SESSION_ID_INFO = 26,
+  P2P_ATTR_FEATURE_CAPABILITY = 27,
+  P2P_ATTR_PERSISTENT_GROUP_INFO = 28,
+  /* 29-220 Reserved */
   P2P_ATTR_VENDOR_SPECIFIC = 221
   /* 222-255 Reserved */
 };
@@ -76,6 +86,16 @@ static const value_string p2p_attr_types[] = {
   { P2P_ATTR_OPERATING_CHANNEL, "Operating Channel" },
   { P2P_ATTR_INVITATION_FLAGS, "Invitation Flags" },
   { P2P_ATTR_VENDOR_SPECIFIC, "Vendor specific attribute" },
+  { P2P_ATTR_OOB_GROUP_OWNER_NEGOTIATION_CHANNEL, "Out-of-Band Group Owner Negotiation Channel" },
+  { 20, "Unused" },
+  { P2P_ATTR_SERVICE_HASH, "Service Hash" },
+  { P2P_ATTR_SESSION_INFORMATION_DATA_INFO, "Session Information Data Info" },
+  { P2P_ATTR_CONNECTION_CAPABILITY_INFO, "Connection Capability Info" },
+  { P2P_ATTR_ADVERTISEMENT_ID_INFO, "Advertisement ID Info" },
+  { P2P_ATTR_ADVERTISED_SERVICE_INFO, "Advertised Service Info" },
+  { P2P_ATTR_SESSION_ID_INFO, "Session ID Info" },
+  { P2P_ATTR_FEATURE_CAPABILITY, "Feature Capability" },
+  { P2P_ATTR_PERSISTENT_GROUP_INFO, "Persistent Group Info" },
   { 0, NULL }
 };
 
@@ -156,7 +176,8 @@ enum {
   P2P_FAIL_UNKNOWN_P2P_GROUP = 8,
   P2P_FAIL_BOTH_DEVICES_GO = 9,
   P2P_FAIL_INCOMPATIBLE_PROVISION_METHOD = 10,
-  P2P_FAIL_REJECTED_BY_USER = 11
+  P2P_FAIL_REJECTED_BY_USER = 11,
+  P2P_SUCCESS_ACCEPTED_BY_USER = 12
 };
 
 static const value_string p2p_status_codes[] = {
@@ -176,6 +197,7 @@ static const value_string p2p_status_codes[] = {
   { P2P_FAIL_INCOMPATIBLE_PROVISION_METHOD, "Fail; incompatible provisioning "
     "method" },
   { P2P_FAIL_REJECTED_BY_USER, "Fail; rejected by user" },
+  { P2P_SUCCESS_ACCEPTED_BY_USER, "Success; Accepted by user" },
   { 0, NULL }
 };
 
@@ -224,10 +246,18 @@ static const value_string p2p_sd_status_codes[] = {
   { 0, NULL }
 };
 
+static const value_string p2p_oob_group_owner_negotiation_channel_role_indication_vals[] = {
+  { 0, "Indicate that the P2P device is not in a group" },
+  { 1, "Indicate that the P2P device is a Group Client" },
+  { 2, "Indicate that the P2P device is a Group Owner" },
+  { 0, NULL }
+};
+
 static int proto_p2p = -1;
 
 static gint ett_p2p_tlv = -1;
 static gint ett_p2p_service_tlv = -1;
+static gint ett_p2p_advertised_service = -1;
 static gint ett_p2p_client_descr = -1;
 
 static int hf_p2p_attr_type = -1;
@@ -352,6 +382,34 @@ static int hf_p2p_attr_manageability_bitmap_cross_connect = -1;
 static int hf_p2p_attr_manageability_bitmap_coex_opt = -1;
 
 static int hf_p2p_attr_minor_reason_code = -1;
+
+static int hf_p2p_attr_oob_group_owner_negotiation_channel_country = -1;
+static int hf_p2p_attr_oob_group_owner_negotiation_channel_oper_class = -1;
+static int hf_p2p_attr_oob_group_owner_negotiation_channel_number = -1;
+static int hf_p2p_attr_oob_group_owner_negotiation_channel_role_indication = -1;
+
+static int hf_p2p_attr_service_hash = -1;
+
+static int hf_p2p_attr_session_information = -1;
+
+static int hf_p2p_attr_connection_capability = -1;
+
+static int hf_p2p_attr_advertisement_id = -1;
+static int hf_p2p_attr_advertisement_id_service_mac_address = -1;
+
+static int hf_p2p_attr_advertised_service_advertisement_id = -1;
+static int hf_p2p_attr_advertised_service_config_methods = -1;
+static int hf_p2p_attr_advertised_service_service_name_length = -1;
+static int hf_p2p_attr_advertised_service_service_name = -1;
+
+static int hf_p2p_attr_session_id = -1;
+static int hf_p2p_attr_session_id_session_mac_address = -1;
+
+static int hf_p2p_attr_feature_capability = -1;
+
+static int hf_p2p_attr_persistent_group_p2p_device_address = -1;
+static int hf_p2p_attr_persistent_group_ssid = -1;
+
 
 static int hf_p2p_anqp_service_update_indicator = -1;
 static int hf_p2p_anqp_length = -1;
@@ -870,6 +928,136 @@ static void dissect_minor_reason_code(proto_item *tlv_root,
                                     "Unknown Minor Reason Code (%u)"));
 }
 
+static void dissect_oob_group_owner_negotiation_channel(proto_item *tlv_root,
+                                                        proto_item *tlv_item,
+                                                        tvbuff_t *tvb, int offset)
+{
+  proto_tree_add_item(tlv_root, hf_p2p_attr_oob_group_owner_negotiation_channel_country, tvb,
+                      offset + 3, 3, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tlv_root, hf_p2p_attr_oob_group_owner_negotiation_channel_oper_class, tvb,
+                      offset + 6, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_root, hf_p2p_attr_oob_group_owner_negotiation_channel_number, tvb,
+                      offset + 7, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_root, hf_p2p_attr_oob_group_owner_negotiation_channel_role_indication, tvb,
+                      offset + 7, 1, ENC_BIG_ENDIAN);
+  proto_item_append_text(tlv_item, ": Operating Class %u  "
+                         "Channel Number %u",
+                         tvb_get_guint8(tvb, offset + 6),
+                         tvb_get_guint8(tvb, offset + 7));
+}
+
+static void dissect_service_hash(proto_item *tlv_root,
+                                 proto_item *tlv_item _U_,
+                                 tvbuff_t *tvb, int offset, int slen)
+{
+
+  int s_offset = offset + 3;
+
+  while(s_offset < offset + 3 + slen) {
+    proto_tree_add_item(tlv_root, hf_p2p_attr_service_hash, tvb,
+                        s_offset, 6, ENC_NA);
+    s_offset += 6;
+  }
+}
+
+static void dissect_session_information(proto_item *tlv_root,
+                                        proto_item *tlv_item _U_,
+                                        tvbuff_t *tvb, int offset, int slen)
+{
+  proto_tree_add_item(tlv_root, hf_p2p_attr_session_information, tvb,
+                      offset+3, slen, ENC_ASCII|ENC_NA);
+
+}
+
+static void dissect_connection_capability(proto_item *tlv_root,
+                                          proto_item *tlv_item _U_,
+                                          tvbuff_t *tvb, int offset)
+{
+  proto_tree_add_item(tlv_root, hf_p2p_attr_connection_capability, tvb,
+                      offset+3, 1, ENC_NA);
+
+}
+
+
+static void dissect_advertisement_id(proto_item *tlv_root,
+                                     proto_item *tlv_item _U_,
+                                     tvbuff_t *tvb, int offset)
+{
+  proto_tree_add_item(tlv_root, hf_p2p_attr_advertisement_id, tvb,
+                      offset+3, 4, ENC_NA);
+
+  proto_tree_add_item(tlv_root, hf_p2p_attr_advertisement_id_service_mac_address, tvb,
+                      offset+7, 6, ENC_NA);
+
+}
+
+static void dissect_advertised_service(proto_item *tlv_root,
+                                       proto_item *tlv_item _U_,
+                                       tvbuff_t *tvb, int offset, int slen)
+{
+  proto_item *subtree;
+  int s_offset = offset + 3;
+  int len_service_name;
+
+  subtree = proto_tree_add_subtree(tlv_root, tvb, s_offset, slen,
+                                   ett_p2p_advertised_service, NULL, "Advertised Service");
+
+
+  while (s_offset < offset + 3 + slen) {
+    proto_tree_add_item(subtree, hf_p2p_attr_advertised_service_advertisement_id, tvb,
+                        s_offset, 4, ENC_BIG_ENDIAN);
+    s_offset += 4;
+    proto_tree_add_item(subtree, hf_p2p_attr_advertised_service_config_methods, tvb,
+                        s_offset, 2, ENC_BIG_ENDIAN);
+    s_offset += 2;
+    proto_tree_add_item(subtree, hf_p2p_attr_advertised_service_service_name_length, tvb,
+                        s_offset, 2, ENC_BIG_ENDIAN);
+    len_service_name = tvb_get_guint8(tvb, s_offset);
+    s_offset += 1;
+
+    proto_tree_add_item(subtree, hf_p2p_attr_advertised_service_service_name, tvb,
+                        s_offset, len_service_name, ENC_ASCII|ENC_NA);
+    s_offset += len_service_name;
+
+  }
+
+}
+
+static void dissect_session_id(proto_item *tlv_root,
+                               proto_item *tlv_item _U_,
+                               tvbuff_t *tvb, int offset)
+{
+  proto_tree_add_item(tlv_root, hf_p2p_attr_session_id, tvb,
+                      offset+3, 4, ENC_NA);
+
+  proto_tree_add_item(tlv_root, hf_p2p_attr_session_id_session_mac_address, tvb,
+                      offset+7, 6, ENC_NA);
+
+}
+
+static void dissect_feature_capability(proto_item *tlv_root,
+                                       proto_item *tlv_item _U_,
+                                       tvbuff_t *tvb, int offset, int slen)
+{
+  proto_tree_add_item(tlv_root, hf_p2p_attr_feature_capability, tvb,
+                      offset+3, slen, ENC_NA);
+
+
+}
+
+static void dissect_persistent_group(proto_item *tlv_root,
+                                     proto_item *tlv_item _U_,
+                                     tvbuff_t *tvb, int offset, int slen)
+{
+  proto_tree_add_item(tlv_root, hf_p2p_attr_persistent_group_p2p_device_address, tvb,
+                      offset+3, 6, ENC_NA);
+
+  proto_tree_add_item(tlv_root, hf_p2p_attr_persistent_group_ssid, tvb,
+                      offset+3+6, slen+6, ENC_ASCII|ENC_NA);
+
+}
+
+
 void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                          int offset, gint size)
 {
@@ -949,6 +1137,33 @@ void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
       break;
     case P2P_ATTR_MINOR_REASON_CODE:
       dissect_minor_reason_code(tlv_root, tlv_item, tvb, offset);
+      break;
+    case P2P_ATTR_OOB_GROUP_OWNER_NEGOTIATION_CHANNEL:
+      dissect_oob_group_owner_negotiation_channel(tlv_root, tlv_item, tvb, offset);
+      break;
+    case P2P_ATTR_SERVICE_HASH:
+      dissect_service_hash(tlv_root, tlv_item, tvb, offset, slen);
+      break;
+    case P2P_ATTR_SESSION_INFORMATION_DATA_INFO:
+      dissect_session_information(tlv_root, tlv_item, tvb, offset, slen);
+      break;
+    case P2P_ATTR_CONNECTION_CAPABILITY_INFO:
+      dissect_connection_capability(tlv_root, tlv_item, tvb, offset);
+      break;
+    case P2P_ATTR_ADVERTISEMENT_ID_INFO:
+      dissect_advertisement_id(tlv_root, tlv_item, tvb, offset);
+      break;
+    case P2P_ATTR_ADVERTISED_SERVICE_INFO:
+      dissect_advertised_service(tlv_root, tlv_item, tvb, offset, slen);
+      break;
+    case P2P_ATTR_SESSION_ID_INFO:
+      dissect_session_id(tlv_root, tlv_item, tvb, offset);
+      break;
+    case P2P_ATTR_FEATURE_CAPABILITY:
+      dissect_feature_capability(tlv_root, tlv_item, tvb, offset, slen);
+      break;
+    case P2P_ATTR_PERSISTENT_GROUP_INFO:
+      dissect_persistent_group(tlv_root, tlv_item, tvb, offset, slen);
       break;
     }
 
@@ -1174,10 +1389,10 @@ proto_register_p2p(void)
       { "Country String", "wifi_p2p.operating_channel.country_string",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_p2p_attr_operating_channel_oper_class,
-      { "Operating Class", "wifi_p2p.channel.operating_class",
+      { "Operating Class", "wifi_p2p.operating_channel.operating_class",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_p2p_attr_operating_channel_number,
-      { "Channel Number", "wifi_p2p.channel.channel_number",
+      { "Channel Number", "wifi_p2p.operating_channel.channel_number",
         FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 #if 0
@@ -1471,6 +1686,70 @@ proto_register_p2p(void)
       { "Minor Reason Code", "wifi_p2p.minor_reason_code",
         FT_UINT8, BASE_DEC, VALS(p2p_minor_reason_codes), 0x0, NULL, HFILL }},
 
+    { &hf_p2p_attr_oob_group_owner_negotiation_channel_country,
+      { "Country String", "wifi_p2p.oob_group_owner_negotiation_channel.country_string",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_oob_group_owner_negotiation_channel_oper_class,
+      { "Operating Class", "wifi_p2p.oob_group_owner_negotiation_channel.operating_class",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_oob_group_owner_negotiation_channel_number,
+      { "Channel Number", "wifi_p2p.oob_group_owner_negotiation_channel.channel_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_oob_group_owner_negotiation_channel_role_indication,
+      { "Role Indication", "wifi_p2p.oob_group_owner_negotiation_channel.role_indication",
+        FT_UINT8, BASE_DEC, VALS(p2p_oob_group_owner_negotiation_channel_role_indication_vals), 0x0, NULL, HFILL }},
+
+    { &hf_p2p_attr_service_hash,
+      { "Service Hash", "wifi_p2p.service_hash",
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_p2p_attr_session_information,
+      { "Service Information", "wifi_p2p.session_information",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_p2p_attr_connection_capability,
+      { "Connection Capability Information", "wifi_p2p.connection_capability",
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_p2p_attr_advertisement_id,
+      { "Advertisement ID", "wifi_p2p.advertisement_id",
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_advertisement_id_service_mac_address,
+      { "Service MAC Address", "wifi_p2p.advertisement_id.service_mac_address",
+        FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_p2p_attr_advertised_service_advertisement_id,
+      { "Advertisement ID", "wifi_p2p.advertised_service.advertisement_id",
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_advertised_service_config_methods,
+      { "Service Config Methods", "wifi_p2p.avertised_service.config_methods",
+        FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_advertised_service_service_name_length,
+      { "Service Name Length", "wifi_p2p.advertised_service.service_name_length",
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_advertised_service_service_name,
+      { "Service Name", "wifi_p2p.advertised_service.service_name",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_p2p_attr_session_id,
+      { "Session ID", "wifi_p2p.session_id",
+        FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_session_id_session_mac_address,
+      { "Session MAC Address", "wifi_p2p.session_id.session_mac_address",
+        FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_p2p_attr_feature_capability,
+      { "Feature Capability", "wifi_p2p.feature_capability",
+        FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_p2p_attr_persistent_group_p2p_device_address,
+      { "P2P device address", "wifi_p2p.persistent_group.p2p_device_address",
+        FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_p2p_attr_persistent_group_ssid,
+      { "SSID", "wifi_p2p.persistent_group.ssid",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+
     { &hf_p2p_anqp_service_update_indicator,
       { "Service Update Indicator", "wifi_p2p.anqp.service_update_indicator",
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -1513,6 +1792,7 @@ proto_register_p2p(void)
   static gint *ett[] = {
     &ett_p2p_tlv,
     &ett_p2p_service_tlv,
+    &ett_p2p_advertised_service,
     &ett_p2p_client_descr
   };
 
