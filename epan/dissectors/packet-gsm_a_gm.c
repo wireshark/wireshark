@@ -4856,7 +4856,7 @@ const true_false_string gsm_a_gm_ratc_value = {
 	"MS is allowed to repeat the request after inter-system change to S1 mode"
 };
 
-guint16
+static guint16
 de_sm_re_attempt_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32 curr_offset;
