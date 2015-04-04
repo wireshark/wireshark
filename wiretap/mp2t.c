@@ -157,7 +157,7 @@ mp2t_read_pcr(guint8 *buffer)
 }
 
 static gboolean
-mp2t_find_next_pcr(wtap *wth, int *err, gchar **err_info, guint32 *index, guint64 *pcr, guint16 *pid)
+mp2t_find_next_pcr(wtap *wth, int *err, gchar **err_info, guint32 *idx, guint64 *pcr, guint16 *pid)
 {
     guint8 buffer[MP2T_SIZE];
     gboolean found;
@@ -165,7 +165,7 @@ mp2t_find_next_pcr(wtap *wth, int *err, gchar **err_info, guint32 *index, guint6
 
     found = FALSE;
     while (FALSE == found) {
-        (*index)++;
+        (*idx)++;
         if (!wtap_read_bytes(wth->fh, buffer, MP2T_SIZE, err, err_info)) {
             return FALSE;
         }
@@ -205,7 +205,7 @@ mp2t_bits_per_second(wtap *wth, int *err, gchar **err_info)
     guint32 pn1, pn2;
     guint64 pcr1, pcr2;
     guint16 pid1, pid2;
-    guint32 index;
+    guint32 idx;
     guint64 pcr_delta, bits_passed;
 
     /* Find the first PCR + PID.
@@ -214,22 +214,22 @@ mp2t_bits_per_second(wtap *wth, int *err, gchar **err_info)
      * All the different PCRs in different PIDs 'should' be the same.
      */
 
-    index = 0;
+    idx = 0;
 
-    if (FALSE == mp2t_find_next_pcr(wth, err, err_info, &index, &pcr1, &pid1)) {
+    if (FALSE == mp2t_find_next_pcr(wth, err, err_info, &idx, &pcr1, &pid1)) {
         return 0;
     }
 
-    pn1 = index;
+    pn1 = idx;
     pn2 = pn1;
 
     while (pn1 == pn2) {
-        if (FALSE == mp2t_find_next_pcr(wth, err, err_info, &index, &pcr2, &pid2)) {
+        if (FALSE == mp2t_find_next_pcr(wth, err, err_info, &idx, &pcr2, &pid2)) {
             return 0;
         }
 
         if (pid1 == pid2) {
-            pn2 = index;
+            pn2 = idx;
         }
     }
 
