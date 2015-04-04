@@ -498,8 +498,7 @@ void CaptureInterfacesDialog::updateInterfaces()
                 }
             }
 
-            pmode = capture_dev_user_pmode_find(device->name);
-            if (pmode != -1) {
+            if (capture_dev_user_pmode_find(device->name, &pmode)) {
                 device->pmode = pmode;
             }
             if (capture_dev_user_snaplen_find(device->name, &hassnap, &snaplen)) {

@@ -276,7 +276,7 @@ scan_local_interfaces(void (*update_cb)(void))
         device.local = TRUE;
         device.if_info = *temp;
         device.last_packets = 0;
-        if ((device.pmode = capture_dev_user_pmode_find(if_info->name)) == -1) {
+        if (!capture_dev_user_pmode_find(if_info->name, &device.pmode)) {
             device.pmode = global_capture_opts.default_options.promisc_mode;
         }
         if (!capture_dev_user_snaplen_find(if_info->name, &device.has_snaplen,

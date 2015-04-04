@@ -85,8 +85,14 @@ gboolean capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, 
 /**
  * Find user-specified promiscuous mode that matches interface
  * name, if any.
+ *
+ * @param if_name The name of the interface.
+ * @param pmode Pointer to a variable to be set to TRUE if promiscuous
+ * mode should be used and FALSE if it shouldn't be used.
+ *
+ * @return TRUE if found or FALSE if not found.
  */
-gboolean capture_dev_user_pmode_find(const gchar *if_name);
+gboolean capture_dev_user_pmode_find(const gchar *if_name, gboolean *pmode);
 
 /**
  * Find user-specified capture filter that matches interface

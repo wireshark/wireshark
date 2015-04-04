@@ -1272,7 +1272,7 @@ insert_new_rows(GList *list)
       device.buffer = global_capture_opts.default_options.buffer_size;
     }
 #endif
-    if ((device.pmode = capture_dev_user_pmode_find(if_string)) == -1) {
+    if (!capture_dev_user_pmode_find(if_string, &device.pmode)) {
       device.pmode = global_capture_opts.default_options.promisc_mode;
     }
     if (!capture_dev_user_snaplen_find(if_string, &device.has_snaplen,
@@ -5688,8 +5688,7 @@ create_and_fill_model(GtkTreeView *view)
       }
       if (!linkname)
           linkname = g_strdup("unknown");
-      pmode = capture_dev_user_pmode_find(device.name);
-      if (pmode != -1) {
+      if (capture_dev_user_pmode_find(device.name, &pmode)) {
         device.pmode = pmode;
       }
       if (capture_dev_user_snaplen_find(device.name, &hassnap, &snaplen)) {

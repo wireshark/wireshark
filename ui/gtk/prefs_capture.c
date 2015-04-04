@@ -1121,6 +1121,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 #endif
 	gint                snaplen;
 	gboolean            hide, hide_enabled = TRUE, hassnap = FALSE, pmode;
+	gboolean            pmode_pref;
 	if_capabilities_t  *caps;
 	gint                selected = 0;
 
@@ -1163,8 +1164,8 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 
 	if (prefs.capture_prom_mode) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_pmode_cb), TRUE);
-	} else if (capture_dev_user_pmode_find(if_name) != -1) {
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_pmode_cb), capture_dev_user_pmode_find(if_name));
+	} else if (capture_dev_user_pmode_find(if_name, &pmode_pref)) {
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_pmode_cb), pmode_pref);
 	} else {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_pmode_cb), FALSE);
 	}
@@ -1662,9 +1663,7 @@ ifopts_options_add(GtkListStore *list_store, if_info_t *if_info)
 	if (prefs.capture_prom_mode) {
 		pmode = TRUE;
 	} else {
-		if ((pmode = capture_dev_user_pmode_find(if_info->name)) != -1) {
-			pmode = capture_dev_user_pmode_find(if_info->name);
-		} else {
+		if (!capture_dev_user_pmode_find(if_info->name, &pmode)) {
 			pmode = FALSE;
 		}
 	}

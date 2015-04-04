@@ -237,9 +237,17 @@ capture_dev_user_snaplen_find(const gchar *if_name, gboolean *hassnap, int *snap
 }
 
 gboolean
-capture_dev_user_pmode_find(const gchar *if_name)
+capture_dev_user_pmode_find(const gchar *if_name, gboolean *pmode)
 {
-  return (capture_dev_get_if_int_property(prefs.capture_devices_pmode, if_name) != 0);
+  int value;
+
+  value = capture_dev_get_if_int_property(prefs.capture_devices_pmode, if_name);
+  if (value == -1) {
+    /* Not found or bad. */
+    return FALSE;
+  }
+  *pmode = (value != 0);
+  return TRUE;
 }
 
 gchar*
