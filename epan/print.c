@@ -1117,8 +1117,12 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
         return FALSE;
     }
     option_value = option + strlen(option_name) + 1;
+    if (*option_value == '\0') {
+        return FALSE;
+    }
+
     if (0 == strcmp(option_name, "header")) {
-        switch (NULL == option_value ? '\0' : *option_value) {
+        switch (*option_value) {
         case 'n':
             info->print_header = FALSE;
             break;
@@ -1132,9 +1136,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
     }
 
     if (0 == strcmp(option_name, "separator")) {
-        switch (NULL == option_value ? '\0' : *option_value) {
-        case '\0':
-            return FALSE;
+        switch (*option_value) {
         case '/':
             switch (*++option_value) {
             case 't':
@@ -1155,7 +1157,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
     }
 
     if (0 == strcmp(option_name, "occurrence")) {
-        switch (NULL == option_value ? '\0' : *option_value) {
+        switch (*option_value) {
         case 'f':
         case 'l':
         case 'a':
@@ -1168,9 +1170,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
     }
 
     if (0 == strcmp(option_name, "aggregator")) {
-        switch (NULL == option_value ? '\0' : *option_value) {
-        case '\0':
-            return FALSE;
+        switch (*option_value) {
         case '/':
             switch (*++option_value) {
             case 's':
@@ -1188,11 +1188,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
     }
 
     if (0 == strcmp(option_name, "quote")) {
-        switch (NULL == option_value ? '\0' : *option_value) {
-        default: /* Fall through */
-        case '\0':
-            info->quote = '\0';
-            return FALSE;
+        switch (*option_value) {
         case 'd':
             info->quote = '"';
             break;
@@ -1202,6 +1198,9 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
         case 'n':
             info->quote = '\0';
             break;
+        default:
+            info->quote = '\0';
+            return FALSE;
         }
         return TRUE;
     }
