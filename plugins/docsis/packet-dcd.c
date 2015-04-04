@@ -518,7 +518,7 @@ dissect_dcd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   proto_item *dcd_item;
   guint16 len;
 
-  len = tvb_length_remaining (tvb, 0);
+  len = tvb_reported_length(tvb);
 
   col_set_str(pinfo->cinfo, COL_INFO, "DCD Message: ");
 
@@ -526,7 +526,7 @@ dissect_dcd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
       dcd_item =
         proto_tree_add_protocol_format (tree, proto_docsis_dcd, tvb, 0,
-                                        tvb_length_remaining (tvb, 0),
+                                        tvb_captured_length(tvb),
                                         "DCD Message");
       dcd_tree = proto_item_add_subtree (dcd_item, ett_docsis_dcd);
       proto_tree_add_item (dcd_tree, hf_docsis_dcd_config_ch_cnt, tvb, 0, 1, ENC_BIG_ENDIAN);

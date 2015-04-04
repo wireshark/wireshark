@@ -53,7 +53,7 @@ dissect_intrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
       intrngreq_item =
         proto_tree_add_protocol_format (tree, proto_docsis_intrngreq, tvb, 0,
-                                        tvb_length_remaining (tvb, 0),
+                                        tvb_captured_length(tvb),
                                         "Initial Ranging Request");
       intrngreq_tree = proto_item_add_subtree (intrngreq_item, ett_docsis_intrngreq);
       proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_sid, tvb, 0, 2,

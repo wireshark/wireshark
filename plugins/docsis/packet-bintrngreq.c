@@ -57,7 +57,7 @@ dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   {
     guint16 offset = 0;
     bintrngreq_item = proto_tree_add_protocol_format (tree, proto_docsis_bintrngreq,
-                                                      tvb, offset, tvb_length_remaining (tvb, 0),
+                                                      tvb, offset, tvb_captured_length(tvb),
                                                       "Bonded Initial Ranging Request");
     bintrngreq_tree = proto_item_add_subtree (bintrngreq_item, ett_docsis_bintrngreq);
     proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_capflags,

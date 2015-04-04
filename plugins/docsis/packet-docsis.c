@@ -375,7 +375,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     hdrlen = 6 + mac_parm;
 
   /* Captured PDU Length is based on the length of the header */
-  captured_length = tvb_length_remaining (tvb, hdrlen);
+  captured_length = tvb_captured_length_remaining (tvb, hdrlen);
 
   /* If this is a Request Frame, then pdulen is 0 and framelen is 6 */
   if ((fctype == FCTYPE_MACSPC) && fcparm == 0x02)

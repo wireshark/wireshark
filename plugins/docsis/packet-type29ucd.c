@@ -202,7 +202,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint16 len;
   guint8 upchid, symrate;
 
-  len = tvb_length_remaining (tvb, 0);
+  len = tvb_reported_length(tvb);
   upchid = tvb_get_guint8 (tvb, 0);
 
   /* if the upstream Channel ID is 0 then this is for Telephony Return) */
@@ -219,7 +219,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     {
       type29ucd_item =
         proto_tree_add_protocol_format (tree, proto_docsis_type29ucd, tvb, 0,
-                                        tvb_length_remaining (tvb, 0),
+                                        tvb_captured_length(tvb),
                                         "type29ucd Message");
       type29ucd_tree = proto_item_add_subtree (type29ucd_item, ett_docsis_type29ucd);
       proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_upstream_chid, tvb, 0, 1,
