@@ -540,7 +540,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
             device.buffer = global_capture_opts.default_options.buffer_size;
         }
 #endif
-        if ((device.pmode = capture_dev_user_pmode_find(if_string)) == -1) {
+        if (!capture_dev_user_pmode_find(if_string, &device.pmode)) {
             device.pmode = global_capture_opts.default_options.promisc_mode;
         }
         if (!capture_dev_user_snaplen_find(if_string, &device.has_snaplen,
