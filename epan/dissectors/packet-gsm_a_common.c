@@ -2246,8 +2246,6 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
         if (!odd)
         {
-            oct = tvb_get_guint8(tvb, curr_offset - 1);
-
             proto_tree_add_item(tree, hf_gsm_a_filler, tvb, curr_offset - 1, 1, ENC_NA);
         }
         break;
