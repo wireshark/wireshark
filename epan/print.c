@@ -1110,7 +1110,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
     g_assert(option);
 
     if ('\0' == *option) {
-        return FALSE; /* Is this guarded against by option parsing? */
+        return FALSE; /* this happens if we're called from tshark -E '' */
     }
     option_name = strtok(option, "=");
     if (!option_name) {
