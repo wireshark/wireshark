@@ -1688,6 +1688,9 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   cf->dfilter = dftext;
   g_get_current_time(&start_time);
 
+  /* if we are capturing without displaying packets, there is nothing to filter */
+  if (cf->frames == NULL)
+    return CF_ERROR;
 
   /* Now rescan the packet list, applying the new filter, but not
      throwing away information constructed on a previous pass. */
