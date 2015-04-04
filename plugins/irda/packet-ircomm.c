@@ -166,8 +166,7 @@ static int dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     proto_tree *ircomm_tree, *ctrl_tree;
     guint offset = 0;
     guint clen;
-    guint    len = tvb_length(tvb);
-
+    gint len = tvb_reported_length(tvb);
 
     if (len == 0)
         return len;
@@ -176,7 +175,7 @@ static int dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IrCOMM");
 
     clen = tvb_get_guint8(tvb, offset);
-    len = tvb_length(tvb) - 1 - clen;
+    len -= 1 + clen;
 
     if (len > 0)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Clen=%d, UserData: %d byte%s", clen, len, (len > 1)? "s": "");
@@ -184,7 +183,7 @@ static int dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Clen=%d", clen);
 
     /* create display subtree for the protocol */
-    ti   = proto_tree_add_item(tree, proto_ircomm, tvb, 0, -1, ENC_NA);
+    ti          = proto_tree_add_item(tree, proto_ircomm, tvb, 0, -1, ENC_NA);
     ircomm_tree = proto_item_add_subtree(ti, ett_ircomm);
 
     ti        = proto_tree_add_item(ircomm_tree, hf_control, tvb, 0, clen + 1, ENC_NA);
@@ -206,7 +205,7 @@ static int dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
  */
 static int dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-    guint len = tvb_length(tvb);
+    guint len = tvb_reported_length(tvb);
 
     if (len == 0)
         return 0;

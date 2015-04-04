@@ -459,7 +459,7 @@ static guint dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, gb
     guint8 head;
     char   buf[128];
 
-    if (tvb_length(tvb) == 0)
+    if (tvb_reported_length(tvb) == 0)
         return 0;
 
     /* Make entries in Protocol column on summary display */
@@ -513,7 +513,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
     iap_conversation_t* iap_conv;
     char    buf[128];
 
-    if (tvb_length(tvb) == 0)
+    if (tvb_reported_length(tvb) == 0)
         return;
 
     /* Make entries in Protocol column on summary display */
@@ -655,7 +655,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
 static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, guint8 circuit_id)
 {
     guint               offset = 0;
-    guint               len    = tvb_length(tvb);
+    guint               len    = tvb_reported_length(tvb);
     guint               n      = 0;
     guint               list_len;
     guint8              op;
@@ -672,7 +672,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     guint32             num;
 
 
-    if (tvb_length(tvb) == 0)
+    if (len == 0)
         return;
 
     /* Make entries in Protocol column on summary display */
@@ -1064,7 +1064,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, g
     }
     else
         col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d, Len=%d", slsap, dlsap,
-                     tvb_length(tvb) - 2);
+                     tvb_reported_length(tvb) - 2);
 
     if (root)
     {
@@ -1097,7 +1097,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, g
             {
                 case CONNECT_CMD:
                 case CONNECT_CNF:
-                    if (offset < tvb_length(tvb))
+                    if (offset < tvb_reported_length(tvb))
                     {
                         proto_tree_add_item(tree, hf_lmp_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
@@ -1141,7 +1141,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, g
             {
                 case CONNECT_CMD:
                 case CONNECT_CNF:
-                    if (offset < tvb_length(tvb))
+                    if (offset < tvb_reported_length(tvb))
                         offset++;
                     break;
 

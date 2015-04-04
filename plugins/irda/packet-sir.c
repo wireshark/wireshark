@@ -69,7 +69,7 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 	if (tvb_find_guint8(tvb, 0, -1, SIR_CE) == -1) {
 		return tvb;
 	} else {
-		guint length = tvb_length(tvb);
+		guint length = tvb_captured_length(tvb);
 		guint offset;
 		guint8 *data = (guint8 *)g_malloc(length);
 		guint8 *dst = data;
@@ -96,7 +96,7 @@ static tvbuff_t *
 checksum_data(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item *hidden_item;
-	int len = tvb_length(tvb) - 2;
+	int len = tvb_reported_length(tvb) - 2;
 	if (len < 0)
 		return tvb;
 	if (tree) {
@@ -130,7 +130,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root)
 	gint bof_offset;
 	gint eof_offset;
 
-	while (tvb_length_remaining(tvb, offset) > 0) {
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		bof_offset = tvb_find_guint8(tvb, offset, -1, SIR_BOF);
 		eof_offset = (bof_offset == -1) ? -1 :
 			tvb_find_guint8(tvb, bof_offset, -1, SIR_EOF);
@@ -148,8 +148,8 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root)
 				data_offset, eof_offset - data_offset, -1);
 			next_tvb = unescape_data(next_tvb, pinfo);
 			if (root) {
-				guint data_len = tvb_length(next_tvb) < 2 ? 0 :
-					tvb_length(next_tvb) - 2;
+				guint data_len = tvb_reported_length(next_tvb) < 2 ? 0 :
+					tvb_reported_length(next_tvb) - 2;
 				proto_tree* ti = proto_tree_add_protocol_format(root,
 						proto_sir, tvb, offset, eof_offset - offset + 1,
 						"Serial Infrared, Len: %d", data_len);
