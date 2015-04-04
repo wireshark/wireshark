@@ -1134,8 +1134,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
         }
         return TRUE;
     }
-
-    if (0 == strcmp(option_name, "separator")) {
+    else if (0 == strcmp(option_name, "separator")) {
         switch (*option_value) {
         case '/':
             switch (*++option_value) {
@@ -1155,8 +1154,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
         }
         return TRUE;
     }
-
-    if (0 == strcmp(option_name, "occurrence")) {
+    else if (0 == strcmp(option_name, "occurrence")) {
         switch (*option_value) {
         case 'f':
         case 'l':
@@ -1168,8 +1166,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
         }
         return TRUE;
     }
-
-    if (0 == strcmp(option_name, "aggregator")) {
+    else if (0 == strcmp(option_name, "aggregator")) {
         switch (*option_value) {
         case '/':
             switch (*++option_value) {
@@ -1186,8 +1183,7 @@ gboolean output_fields_set_option(output_fields_t *info, gchar *option)
         }
         return TRUE;
     }
-
-    if (0 == strcmp(option_name, "quote")) {
+    else if (0 == strcmp(option_name, "quote")) {
         switch (*option_value) {
         case 'd':
             info->quote = '"';
