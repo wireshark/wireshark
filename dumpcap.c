@@ -1151,7 +1151,7 @@ create_data_link_info(int dlt)
 }
 
 #ifdef HAVE_BONDING
-gboolean
+static gboolean
 is_linux_bonding_device(const char *ifname)
 {
     int fd;
