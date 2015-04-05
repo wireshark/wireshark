@@ -913,15 +913,15 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="261"/>
-        <location filename="capture_interfaces_dialog.cpp" line="528"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
+        <location filename="capture_interfaces_dialog.cpp" line="534"/>
         <source>enabled</source>
         <translation>abilitato</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="261"/>
-        <location filename="capture_interfaces_dialog.cpp" line="528"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
+        <location filename="capture_interfaces_dialog.cpp" line="534"/>
         <source>disabled</source>
         <translation>disabilitato</translation>
     </message>
@@ -951,40 +951,40 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>nessun indirizzo</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="515"/>
+        <location filename="capture_interfaces_dialog.cpp" line="514"/>
         <source>default</source>
         <translation>predefinito</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="534"/>
         <source>n/a</source>
         <translation>n/d</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="668"/>
-        <location filename="capture_interfaces_dialog.cpp" line="676"/>
-        <location filename="capture_interfaces_dialog.cpp" line="687"/>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
-        <location filename="capture_interfaces_dialog.cpp" line="704"/>
-        <location filename="capture_interfaces_dialog.cpp" line="712"/>
+        <location filename="capture_interfaces_dialog.cpp" line="667"/>
+        <location filename="capture_interfaces_dialog.cpp" line="675"/>
+        <location filename="capture_interfaces_dialog.cpp" line="686"/>
+        <location filename="capture_interfaces_dialog.cpp" line="690"/>
+        <location filename="capture_interfaces_dialog.cpp" line="703"/>
+        <location filename="capture_interfaces_dialog.cpp" line="711"/>
         <source>Error</source>
         <translation>Errore</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="669"/>
-        <location filename="capture_interfaces_dialog.cpp" line="677"/>
-        <location filename="capture_interfaces_dialog.cpp" line="705"/>
-        <location filename="capture_interfaces_dialog.cpp" line="713"/>
+        <location filename="capture_interfaces_dialog.cpp" line="668"/>
+        <location filename="capture_interfaces_dialog.cpp" line="676"/>
+        <location filename="capture_interfaces_dialog.cpp" line="704"/>
+        <location filename="capture_interfaces_dialog.cpp" line="712"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>File multipli: la dimensione del file richiesta è troppo grande. La dimensione del file non può essere superiore a 2 GiB.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="688"/>
+        <location filename="capture_interfaces_dialog.cpp" line="687"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>File multipli: non è stato fornito un nome del file di cattura! Devi specificare un nome del file se vuoi usare file multipli.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="691"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>File multipli: non è stato fornito alcun limite di file! Devi specificare una dimensione del file o la durata raggiunta la quale si passa al successivo file di cattura se vuoi usare file multipli.</translation>
@@ -2733,16 +2733,16 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="957"/>
-        <location filename="capture_interfaces_dialog.cpp" line="990"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1039"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1059"/>
+        <location filename="capture_interfaces_dialog.cpp" line="956"/>
+        <location filename="capture_interfaces_dialog.cpp" line="989"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1038"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1058"/>
         <source>enabled</source>
         <translation>abilitato</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="958"/>
-        <location filename="capture_interfaces_dialog.cpp" line="991"/>
+        <location filename="capture_interfaces_dialog.cpp" line="957"/>
+        <location filename="capture_interfaces_dialog.cpp" line="990"/>
         <source>disabled</source>
         <translation>disabilitato</translation>
     </message>

@@ -912,15 +912,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="261"/>
-        <location filename="capture_interfaces_dialog.cpp" line="528"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
+        <location filename="capture_interfaces_dialog.cpp" line="534"/>
         <source>enabled</source>
         <translation>启用</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="261"/>
-        <location filename="capture_interfaces_dialog.cpp" line="528"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="527"/>
+        <location filename="capture_interfaces_dialog.cpp" line="534"/>
         <source>disabled</source>
         <translation>关闭</translation>
     </message>
@@ -950,40 +950,40 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>无地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="515"/>
+        <location filename="capture_interfaces_dialog.cpp" line="514"/>
         <source>default</source>
         <translation>默认</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="534"/>
         <source>n/a</source>
         <translation>n/a</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="668"/>
-        <location filename="capture_interfaces_dialog.cpp" line="676"/>
-        <location filename="capture_interfaces_dialog.cpp" line="687"/>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
-        <location filename="capture_interfaces_dialog.cpp" line="704"/>
-        <location filename="capture_interfaces_dialog.cpp" line="712"/>
+        <location filename="capture_interfaces_dialog.cpp" line="667"/>
+        <location filename="capture_interfaces_dialog.cpp" line="675"/>
+        <location filename="capture_interfaces_dialog.cpp" line="686"/>
+        <location filename="capture_interfaces_dialog.cpp" line="690"/>
+        <location filename="capture_interfaces_dialog.cpp" line="703"/>
+        <location filename="capture_interfaces_dialog.cpp" line="711"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="669"/>
-        <location filename="capture_interfaces_dialog.cpp" line="677"/>
-        <location filename="capture_interfaces_dialog.cpp" line="705"/>
-        <location filename="capture_interfaces_dialog.cpp" line="713"/>
+        <location filename="capture_interfaces_dialog.cpp" line="668"/>
+        <location filename="capture_interfaces_dialog.cpp" line="676"/>
+        <location filename="capture_interfaces_dialog.cpp" line="704"/>
+        <location filename="capture_interfaces_dialog.cpp" line="712"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>多文件：请求的文件尺寸太大！文件尺寸不能超过2GiB。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="688"/>
+        <location filename="capture_interfaces_dialog.cpp" line="687"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>多个文件：没有给出捕获文件名！如果你想使用多文件,你必须给出文件名。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="691"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>多个文件：未给出文件大小限制！如果你想使用多文件,你必须指定文件大小或者时长切换到下一个捕获文件。</translation>
@@ -2726,16 +2726,16 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="957"/>
-        <location filename="capture_interfaces_dialog.cpp" line="990"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1039"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1059"/>
+        <location filename="capture_interfaces_dialog.cpp" line="956"/>
+        <location filename="capture_interfaces_dialog.cpp" line="989"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1038"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1058"/>
         <source>enabled</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="958"/>
-        <location filename="capture_interfaces_dialog.cpp" line="991"/>
+        <location filename="capture_interfaces_dialog.cpp" line="957"/>
+        <location filename="capture_interfaces_dialog.cpp" line="990"/>
         <source>disabled</source>
         <translation>关闭</translation>
     </message>
