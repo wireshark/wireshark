@@ -54,6 +54,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/main_welcome.h"
+#include "ui/gtk/main_welcome_private.h"
 #include "ui/gtk/main_toolbar.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/capture_file_dlg.h"
@@ -1444,3 +1445,117 @@ GtkWidget* get_welcome_window(void)
 {
     return welcome_hb;
 }
+
+void
+welcome_cf_callback(gint event, gpointer data _U_, gpointer user_data _U_)
+{
+    switch(event) {
+    case(cf_cb_file_opened):
+        break;
+    case(cf_cb_file_closing):
+        break;
+    case(cf_cb_file_closed):
+        break;
+    case(cf_cb_file_read_started):
+        break;
+    case(cf_cb_file_read_finished):
+        break;
+    case(cf_cb_file_reload_started):
+        break;
+    case(cf_cb_file_reload_finished):
+        break;
+    case(cf_cb_file_rescan_started):
+        break;
+    case(cf_cb_file_rescan_finished):
+        break;
+    case(cf_cb_file_fast_save_finished):
+        break;
+    case(cf_cb_packet_selected):
+        break;
+    case(cf_cb_packet_unselected):
+        break;
+    case(cf_cb_field_unselected):
+        break;
+    case(cf_cb_file_save_started):
+        break;
+    case(cf_cb_file_save_finished):
+        break;
+    case(cf_cb_file_save_failed):
+        break;
+    case(cf_cb_file_save_stopped):
+        break;
+    case(cf_cb_file_export_specified_packets_started):
+        break;
+    case(cf_cb_file_export_specified_packets_finished):
+        break;
+    case(cf_cb_file_export_specified_packets_failed):
+        break;
+    case(cf_cb_file_export_specified_packets_stopped):
+        break;
+    default:
+        g_warning("welcome_cf_callback: event %u unknown", event);
+        g_assert_not_reached();
+    }
+}
+
+#ifdef HAVE_LIBPCAP
+static void
+welcome_capture_update_started_cb(capture_session *cap_session _U_)
+{
+    welcome_header_pop_msg();
+}
+
+static void
+welcome_capture_fixed_finished_cb(capture_session *cap_session _U_)
+{
+    welcome_header_pop_msg();
+}
+
+static void
+welcome_capture_prepared_cb(capture_session *cap_session _U_)
+{
+    static const gchar msg[] = " Waiting for capture input data ...";
+    welcome_header_push_msg(msg);
+}
+
+static void
+welcome_capture_failed_cb(capture_session *cap_session _U_)
+{
+    welcome_header_pop_msg();
+}
+
+void
+welcome_capture_callback(gint event, capture_session *cap_session,
+                           gpointer user_data _U_)
+{
+    switch(event) {
+    case(capture_cb_capture_prepared):
+        welcome_capture_prepared_cb(cap_session);
+        break;
+    case(capture_cb_capture_update_started):
+        welcome_capture_update_started_cb(cap_session);
+        break;
+    case(capture_cb_capture_update_continue):
+        break;
+    case(capture_cb_capture_update_finished):
+        break;
+    case(capture_cb_capture_fixed_started):
+        break;
+    case(capture_cb_capture_fixed_continue):
+        break;
+    case(capture_cb_capture_fixed_finished):
+        welcome_capture_fixed_finished_cb(cap_session);
+        break;
+    case(capture_cb_capture_stopping):
+        /* Beware: this state won't be called, if the capture child
+         * closes the capturing on its own! */
+        break;
+    case(capture_cb_capture_failed):
+        welcome_capture_failed_cb(cap_session);
+        break;
+    default:
+        g_warning("welcome_capture_callback: event %u unknown", event);
+        g_assert_not_reached();
+    }
+}
+#endif /* HAVE_LIBPCAP */

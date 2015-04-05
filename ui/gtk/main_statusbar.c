@@ -57,7 +57,6 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/profile_dlg.h"
-#include "ui/gtk/main_welcome.h"
 #include "ui/gtk/expert_indicators.h"
 #include "ui/gtk/capture_comment_icons.h"
 #include "ui/gtk/keys.h"
@@ -776,7 +775,6 @@ statusbar_capture_prepared_cb(capture_session *cap_session _U_)
 {
     static const gchar msg[] = " Waiting for capture input data ...";
     statusbar_push_file_msg(msg);
-    welcome_header_push_msg(msg);
 }
 
 static GString *
@@ -815,7 +813,6 @@ statusbar_capture_update_started_cb(capture_session *cap_session)
     GString *interface_names;
 
     statusbar_pop_file_msg();
-    welcome_header_pop_msg();
 
     interface_names = statusbar_get_interface_names(capture_opts);
     statusbar_push_file_msg("%s<live capture in progress> to file: %s",
@@ -908,7 +905,6 @@ statusbar_capture_fixed_finished_cb(capture_session *cap_session _U_)
 
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
-    welcome_header_pop_msg();
 
     /* Pop the "<capturing>" message off the status bar */
     gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
@@ -923,7 +919,6 @@ statusbar_capture_failed_cb(capture_session *cap_session _U_)
 
     /* Pop the "<live capture in progress>" message off the status bar. */
     statusbar_pop_file_msg();
-    welcome_header_pop_msg();
 
     /* Pop the "<capturing>" message off the status bar */
     gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
