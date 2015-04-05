@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2015-03-29)
+(last updated 2015-04-04)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -311,8 +311,8 @@ Decimal
       mib_contact&bandit.ns.cs.boeing.com
 74
   AT&T
-    Mark A. Horstman
-      mark.horstman&att.com
+    Domain Administrator
+      att-domains&att.com
 75
   Ungermann-Bass
     Didier Moretti
@@ -3942,9 +3942,9 @@ Decimal
     Cynthia Beighley
       maedeen&romulus.ncsc.mil
 982
-  Southwestern Bell Corporation
-    Brian Bearden
-      bb8840&swuts.sbc.com
+  Southwestern Bell Corporation (AT&T) (formerly "Southwestern Bell Corporation")
+    Jeremy Monroe
+      att-domains&att.com
 983
   Virtual Design Group, Inc.
     Chip Standifer
@@ -37166,9 +37166,9 @@ Decimal
     Piero Serini
       p.serini&esi.it
 9303
-  PacketFront Sweden AB
+  PacketFront Network Products AB
     Fredrik Nyman
-      fredrik&packetfront.com
+      fredrik&packetfront.net
 9304
   Connection Technology Systems
     Wesley Liao
@@ -94685,9 +94685,9 @@ Development Institute
     Robert Lacroix
       r.lacroix&asklepios.com
 23780
-  Freedomware UK
-    Mark  Bannister
-      Freedomware&aol.com
+  Prose Consulting Ltd. (formerly "Freedomware UK")
+    Mark  R. Bannister
+      mark&proseconsulting.co.uk
 23781
   Albertslund Ungdomsboliger
     J. Martin Petersen
@@ -145770,7 +145770,7 @@ Decentralization / Helenic Public Administra
 36547
   Heimatverein Elte e.V.
     Klaus Paradies
-      info&heimatverein-elte.de
+      technik&heimatverein-elte.de
 36548
   Virtualmin Inc
     Jamie Cameron
@@ -181736,9 +181736,9 @@ Decentralization / Helenic Public Administra
     Sebastien DEON
       sebastien.deon&pharmagest.com
 45539
-  private use - Domain fritze.org
+  Domain fritze.org
     Stefan Fritze
-      sf&fritze.org
+      info&fritze.org
 45540
   Rueval S.A.
     Ricardo Arias
@@ -181923,6 +181923,166 @@ Decentralization / Helenic Public Administra
   Space Imaging Middle East (SIME)
     Spandan Kar 
       spandan&dsi.co.ae
+45586
+  Mythic Network
+    Ilya Kogan
+      ikogan&mythicnet.org
+45587
+  Software & Service Center,Sichuan Changhong Electric Co.,Ltd
+    Chuan Gu
+      chuan.gu&changhong.com
+45588
+  OLSPS
+    Rikus Combrinck
+      rikus&olsps.com
+45589
+  Doc-Soft Ltd.
+    Daniel KEKESI
+      daniel.kekesi&docsoft.hu
+45590
+  Mutesah General Investments ltd
+    Golan Mutesah
+      mutesah&yahoo.com
+45591
+  Shenzhen Sungreat Communication Co.,LTD
+    huangchuen
+      1320798537&qq.com
+45592
+  Julius Clinical
+    Sander Böhm
+      admin&juliusclinical.com
+45593
+  OpenREM
+    Ed McDonagh
+      pen&openrem.org
+45594
+  Università Iuav di Venezia
+    Boeretto Marco
+      boeretto&iuav.it
+45595
+  Reaktor 23
+    Elias Bonauer
+      info&reaktor23.org
+45596
+  ICloud Innovation (Beijing) ltd.
+    Weihua Li
+      liweihua&icloudinno.com
+45597
+  TESA Assa Abloy
+    Julia Vila
+      j.vila&tesa.es
+45598
+  Mckinney Independent School District
+    Robert Foster
+      rfoster&mckinneyisd.net
+45599
+  Network RADIUS SARL
+    Alan DeKok
+      aland&networkradius.com
+45600
+  OX Service AG
+    Markus Ruefenacht
+      support&ors.ch
+45601
+  Wikimedia Deutschland e.V.
+    Silke Meyer
+      noc&wikimedia.de
+45602
+  Corvus Energy
+    Nick Erb
+      nerb&corvus-energy.com
+45603
+  Rieker, Inc.
+    Harry May
+      hmay&riekerinc.com
+45604
+  BeiJing SmartWell Info&Tech Co.,Ltd.
+    Fountain Hsiao
+      info&smartwell.cn
+45605
+  Wi-SUN Alliance, Inc
+    Phil Beecher
+      pbeecher&wi-sun.org
+45606
+  Carillon Federal Services Inc.
+    Patrick Turcotte
+      pturcotte&carillon.ca
+45607
+  Sysco Foods
+    Michael Germony
+      germony.michael&corp.sysco.com
+45608
+  Atlan dynamic group
+    Anton V. Sekretov
+      service&ahilles.name
+45609
+  Centralschweizerische Kraftwerke AG
+    Daniel Jud
+      oid-admin&ckw.ch
+45610
+  EAM GmbH & Co.KG
+    Uwe Scheller
+      it&eam.de
+45611
+  EOSPACE Inc.
+    William Dougherty
+      dougherty&eospace.com
+45612
+  Under Armour Connected Fitness
+    Stew Blanford
+      sblanford&underarmour.com
+45613
+  Universiti Malaysia Terengganu
+    Ahmad Nazir bin Haron
+      admin&umt.edu.my
+45614
+  RegEd Inc.
+    Yury Nemchin
+      yury.nemchin&ontarget-group.com
+45615
+  CityNet
+    Gubanov Dmitry
+      koloskovm&mail.citynet.ru
+45616
+  Healthcare Information and Management System Society (HIMSS) 
+    Richard Delort
+      rdelort&himss.org
+45617
+  The Institute of Computational Technologies of the Siberian Branch of the Russian Academy of Sciences
+    Oleg Zhizhimov
+      zhizhim&mail.ru
+45618
+  Ferdinand Malcher
+    Ferdinand Malcher
+      mail&ferdinand-malcher.de
+45619
+  Oei Family Office
+    Chris Oei
+      admin&oei.io
+45620
+  Steampunk Island Inc
+    James N Riley Jr
+      webmaster&steampunkisland.com
+45621
+  Tycon Systems Inc.
+    Scott Parsons
+      scottp&tyconsystems.com
+45622
+  Netrix LLC.
+    Andrew Meyer
+      ameyer&netrixllc.com
+45623
+  Hughey & Phillips, LLC
+    Michael A. Forhan
+      mforhan&hugheyandphillips.com
+45624
+  Brain Sense
+    Haim Gabsow
+      haim&brain-sense.co.il
+45625
+  hahnefeld.net
+    Andreas Hahnefeld
+      info&hahnefeld.net
 
 
 End of Document
