@@ -257,6 +257,7 @@ static int hf_count = -1;
 static int hf_data_length = -1;
 static int hf_connection_id = -1;
 static int hf_name = -1;
+static int hf_current_path = -1;
 static int hf_request_in_frame = -1;
 static int hf_response_in_frame = -1;
 
@@ -401,6 +402,7 @@ static gint ett_btobex_session_parameters = -1;
 static gint ett_btobex_application_parameters = -1;
 static gint ett_btobex_authentication_parameters = -1;
 
+static wmem_tree_t *obex_path = NULL;
 static wmem_tree_t *obex_profile = NULL;
 static wmem_tree_t *obex_last_opcode = NULL;
 
@@ -408,18 +410,33 @@ static dissector_handle_t http_handle;
 static dissector_handle_t xml_handle;
 static dissector_handle_t data_handle;
 
+static const gchar  *path_unknown = "?";
+static const gchar  *path_root    = "/";
+
 typedef struct _ext_value_string {
     guint8       value[16];
     gint         length;
     const gchar *strptr;
 } ext_value_string;
 
+typedef struct _obex_path_data_t {
+    guint32  interface_id;
+    guint32  adapter_id;
+    guint16  chandle;
+    guint8   channel;
+/* TODO: add OBEX ConnectionId */
+
+    const gchar  *path;
+} obex_path_data_t;
+
 typedef struct _obex_profile_data_t {
-    guint32 interface_id;
-    guint32 adapter_id;
-    guint16 chandle;
-    guint8  channel;
-    gint    profile;
+    guint32  interface_id;
+    guint32  adapter_id;
+    guint16  chandle;
+    guint8   channel;
+/* TODO: add OBEX ConnectionId */
+
+    gint     profile;
 } obex_profile_data_t;
 
 typedef struct _obex_last_opcode_data_t {
@@ -427,11 +444,20 @@ typedef struct _obex_last_opcode_data_t {
     guint32 adapter_id;
     guint16 chandle;
     guint8  channel;
+/* TODO: add OBEX ConnectionId */
     gint    code;
 
     guint32  request_in_frame;
     guint32  response_in_frame;
+
+    union {
+        struct {
+            const gchar  *name;
+            gboolean      go_up;
+        } set_data;
+    } data;
 } obex_last_opcode_data_t;
+
 
 #define PROFILE_UNKNOWN  0
 #define PROFILE_OPP      1
@@ -536,6 +562,7 @@ static const value_string header_id_encoding_vals[] = {
 #define BTOBEX_CODE_VALS_GET        0x03
 #define BTOBEX_CODE_VALS_SET_PATH   0x05
 #define BTOBEX_CODE_VALS_CONTINUE   0x10
+#define BTOBEX_CODE_VALS_SUCCESS    0x20
 #define BTOBEX_CODE_VALS_ABORT      0x7F
 #define BTOBEX_CODE_VALS_MASK       0x7F
 
@@ -960,6 +987,99 @@ static value_string_ext bip_application_parameters_vals_ext = VALUE_STRING_EXT_I
 
 void proto_register_btobex(void);
 void proto_reg_handoff_btobex(void);
+
+static void
+save_path(packet_info *pinfo, const gchar *current_path, const gchar *name, gboolean go_up, int is_obex_over_l2cap, void *data)
+{
+
+/* On Connect response sets "/"
+   On SetPath sets what is needed
+ */
+    if (!pinfo->fd->flags.visited && data) {
+        obex_path_data_t     *obex_path_data;
+        guint32               interface_id;
+        guint32               adapter_id;
+        guint32               chandle;
+        guint32               channel;
+        wmem_tree_key_t       key[6];
+        guint32               k_interface_id;
+        guint32               k_adapter_id;
+        guint32               k_frame_number;
+        guint32               k_chandle;
+        guint32               k_channel;
+        const gchar          *path = path_unknown;
+
+        if (is_obex_over_l2cap) {
+            btl2cap_data_t      *l2cap_data;
+
+            l2cap_data   = (btl2cap_data_t *) data;
+            interface_id = l2cap_data->interface_id;
+            adapter_id   = l2cap_data->adapter_id;
+            chandle      = l2cap_data->chandle;
+            channel      = l2cap_data->cid;
+        } else {
+            btrfcomm_data_t      *rfcomm_data;
+
+            rfcomm_data  = (btrfcomm_data_t *) data;
+            interface_id = rfcomm_data->interface_id;
+            adapter_id   = rfcomm_data->adapter_id;
+            chandle      = rfcomm_data->chandle;
+            channel      = rfcomm_data->dlci >> 1;
+        }
+
+        k_interface_id = interface_id;
+        k_adapter_id   = adapter_id;
+        k_chandle      = chandle;
+        k_channel      = channel;
+        k_frame_number = pinfo->fd->num;
+
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_channel;
+        key[4].length = 1;
+        key[4].key = &k_frame_number;
+        key[5].length = 0;
+        key[5].key = NULL;
+
+        obex_path_data = wmem_new(wmem_file_scope(), obex_path_data_t);
+        obex_path_data->interface_id = interface_id;
+        obex_path_data->adapter_id = adapter_id;
+        obex_path_data->chandle = chandle;
+        obex_path_data->channel = channel;
+
+        if (go_up == TRUE) {
+            if (current_path != path_unknown && current_path != path_root) {
+                gchar *i_path;
+
+                i_path = g_strrstr(current_path, "/");
+                if (!i_path) {
+                    current_path = path_unknown;
+                } else {
+                    if (i_path == current_path)
+                        path = current_path = path_root;
+                    else
+                        path = current_path = wmem_strndup(wmem_epan_scope(), current_path, i_path - current_path - 1);
+                }
+            }
+        }
+
+        if (name && *name == '\0')
+            path = path_root;
+        else if (name && current_path == path_root)
+            path = wmem_strdup_printf(wmem_file_scope(), "/%s", name);
+        else if (name)
+            path = wmem_strdup_printf(wmem_file_scope(), "%s/%s", current_path, name);
+
+        obex_path_data->path = path;
+
+        wmem_tree_insert32_array(obex_path, key, obex_path_data);
+    }
+}
 
 static void btobex_profile_prompt(packet_info *pinfo _U_, gchar* result)
 {
@@ -1617,7 +1737,7 @@ dissect_btobex_application_parameter_ctn(tvbuff_t *tvb, packet_info *pinfo, prot
 
 static int
 dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
-        gint profile, gboolean is_obex_over_l2cap, void *data)
+        gint profile, gboolean is_obex_over_l2cap, obex_last_opcode_data_t *obex_last_opcode_data, void *data)
 {
     proto_tree *hdrs_tree   = NULL;
     proto_tree *hdr_tree    = NULL;
@@ -1681,6 +1801,9 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 switch (hdr_id) {
                 case 0x01: /* Name */
                     proto_tree_add_item(hdr_tree, hf_name, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                    if (!pinfo->fd->flags.visited && obex_last_opcode_data && obex_last_opcode_data->code == BTOBEX_CODE_VALS_SET_PATH) {
+                        obex_last_opcode_data->data.set_data.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                    }
                     break;
                 default:
                     proto_tree_add_item(hdr_tree, hf_hdr_val_unicode, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
@@ -2113,6 +2236,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     tvbuff_t*      next_tvb       = NULL;
     gint           offset         = 0;
     gint           profile        = PROFILE_UNKNOWN;
+    const gchar   *path           = path_unknown;
     gboolean       is_obex_over_l2cap = FALSE;
     obex_profile_data_t  *obex_profile_data;
     guint32               interface_id;
@@ -2126,6 +2250,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32               k_chandle;
     guint32               k_channel;
     obex_last_opcode_data_t  *obex_last_opcode_data;
+    obex_path_data_t         *obex_path_data;
     guint32                   length;
     guint8                   *profile_data;
     dissector_handle_t        current_handle;
@@ -2200,8 +2325,21 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         p_add_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_BTOBEX_PROFILE, profile_data);
     }
 
+    obex_path_data = (obex_path_data_t *)wmem_tree_lookup32_array_le(obex_path, key);
+    if (obex_path_data && obex_path_data->interface_id == interface_id &&
+            obex_path_data->adapter_id == adapter_id &&
+            obex_path_data->chandle == chandle &&
+            obex_path_data->channel == channel) {
+        path = obex_path_data->path;
+      }
+
     sub_item = proto_tree_add_uint(main_tree, hf_profile, tvb, 0, 0, profile);
     PROTO_ITEM_SET_GENERATED(sub_item);
+
+    if (path) {
+        sub_item = proto_tree_add_string(main_tree, hf_current_path, tvb, 0, 0, path);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+    }
 
     current_handle = dissector_get_uint_handle(btobex_profile, profile);
     default_handle = dissector_get_default_uint_handle("btobex.profile", profile);
@@ -2452,6 +2590,12 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(main_tree, hf_flags, next_tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(main_tree, hf_set_path_flags_0, next_tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(main_tree, hf_set_path_flags_1, next_tvb, offset, 1, ENC_BIG_ENDIAN);
+
+            if (!pinfo->fd->flags.visited && obex_last_opcode_data) {
+                obex_last_opcode_data->data.set_data.go_up = tvb_get_guint8(tvb, offset) & 0x01;
+                obex_last_opcode_data->data.set_data.name = NULL;
+            }
+
             offset++;
 
             proto_tree_add_item(main_tree, hf_constants, next_tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2478,11 +2622,20 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 proto_tree_add_item(main_tree, hf_max_pkt_len, next_tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
+
+                if (!pinfo->fd->flags.visited)
+                    save_path(pinfo, path, "", FALSE, is_obex_over_l2cap, data);
             }
             break;
         }
 
-        dissect_headers(main_tree, next_tvb, offset, pinfo, profile, is_obex_over_l2cap, data);
+        dissect_headers(main_tree, next_tvb, offset, pinfo, profile, is_obex_over_l2cap, obex_last_opcode_data, data);
+        if (!pinfo->fd->flags.visited &&
+                    obex_last_opcode_data &&
+                    obex_last_opcode_data->code == BTOBEX_CODE_VALS_SET_PATH &&
+                    code == BTOBEX_CODE_VALS_SUCCESS) {
+            save_path(pinfo, path, obex_last_opcode_data->data.set_data.name, obex_last_opcode_data->data.set_data.go_up, is_obex_over_l2cap, data);
+        }
     } else {
         /* packet fragment */
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s OBEX fragment",
@@ -3652,6 +3805,11 @@ proto_register_btobex(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_current_path,
+          { "Current Path", "btobex.current_path",
+            FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_request_in_frame,
           { "Request in Frame", "btobex.request_in_frame", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
             NULL, HFILL}
@@ -3689,6 +3847,7 @@ proto_register_btobex(void)
     static decode_as_t btobex_profile_da = {"btobex", "OBEX Profile", "btobex.profile", 1, 0, &btobex_profile_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
+    obex_path        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
