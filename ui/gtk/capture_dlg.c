@@ -5651,6 +5651,7 @@ create_and_fill_model(GtkTreeView *view)
   guint         i;
   link_row     *linkr = NULL;
   interface_t   device;
+  gboolean      found_active_dlt;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   gint          buffer;
 #endif
@@ -5676,6 +5677,33 @@ create_and_fill_model(GtkTreeView *view)
       linkname = NULL;
       if(capture_dev_user_linktype_find(device.name) != -1) {
         device.active_dlt = capture_dev_user_linktype_find(device.name);
+
+        /*
+         * Is that one of the supported link-layer header types?
+         * If not, set it to -1, so we'll fall back on the first supported
+         * link-layer header type.
+         */
+        found_active_dlt = FALSE;
+        for (list = device.links; list != NULL; list = g_list_next(list)) {
+          linkr = (link_row *)(list->data);
+          if (linkr->dlt != -1 && linkr->dlt == device.active_dlt) {
+            found_active_dlt = TRUE;
+            break;
+          }
+        }
+        if (!found_active_dlt) {
+          device.active_dlt = -1;
+        }
+        if (device.active_dlt == -1) {
+          /* Fall back on the first supported DLT, if we have one. */
+          for (list = device.links; list != NULL; list = g_list_next(list)) {
+            linkr = (link_row *)(list->data);
+            if (linkr->dlt != -1) {
+              device.active_dlt = linkr->dlt;
+              break;
+            }
+          }
+        }
       }
       for (list = device.links; list != NULL; list = g_list_next(list)) {
         linkr = (link_row*)(list->data);
