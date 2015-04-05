@@ -9735,6 +9735,7 @@ sun-user-https   7677/tcp # Sun App Server - HTTPS [Abhijit_Kumar] [Abhijit_Kuma
 sun-user-https   7677/udp # Sun App Server - HTTPS [Abhijit_Kumar] [Abhijit_Kumar] 2005-11
 pando-pub        7680/tcp # Pando Media Public Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
 pando-pub        7680/udp # Pando Media Public Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
+dmt              7683/tcp # Cleondris DMT [Cleondris_GmbH] [Christian_Plattner] 2015-03-31
 collaber         7689/tcp # Collaber Network Service [Rajesh_Akkineni] [Rajesh_Akkineni] 2007-01
 collaber         7689/udp # Collaber Network Service [Rajesh_Akkineni] [Rajesh_Akkineni] 2007-01
 klio             7697/tcp # KLIO communications [Helmut_Giritzer_2] [Helmut_Giritzer_2] 2005-08
