@@ -170,6 +170,7 @@
 #include "ui/gtk/main_toolbar.h"
 #include "ui/gtk/main_toolbar_private.h"
 #include "ui/gtk/main_welcome.h"
+#include "ui/gtk/main_welcome_private.h"
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/packet_panes.h"
@@ -2445,9 +2446,15 @@ DIAG_ON(cast-qual)
 #ifdef HAVE_LIBPCAP
     capture_callback_add(main_capture_callback, NULL);
 #endif
+
     cf_callback_add(statusbar_cf_callback, NULL);
 #ifdef HAVE_LIBPCAP
     capture_callback_add(statusbar_capture_callback, NULL);
+#endif
+
+    cf_callback_add(welcome_cf_callback, NULL);
+#ifdef HAVE_LIBPCAP
+    capture_callback_add(welcome_capture_callback, NULL);
 #endif
 
     set_console_log_handler();

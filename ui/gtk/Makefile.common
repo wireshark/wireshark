@@ -269,6 +269,7 @@ noinst_HEADERS = \
 	main_toolbar.h	\
 	main_toolbar_private.h	\
 	main_welcome.h		\
+	main_welcome_private.h	\
 	manual_addr_resolv.h	\
 	mcast_stream_dlg.h	\
 	mtp3_stat.h	\
