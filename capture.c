@@ -132,38 +132,11 @@ gboolean
 capture_start(capture_options *capture_opts, capture_session *cap_session, void(*update_cb)(void))
 {
   gboolean ret;
-  guint i;
-  GString *source = g_string_new("");
+  GString *source;
 
   cap_session->state = CAPTURE_PREPARING;
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
-#ifdef _WIN32
-  if (capture_opts->ifaces->len < 2) {
-#else
-  if (capture_opts->ifaces->len < 4) {
-#endif
-    for (i = 0; i < capture_opts->ifaces->len; i++) {
-      interface_options interface_opts;
-
-      interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
-      if (i > 0) {
-          if (capture_opts->ifaces->len > 2) {
-              g_string_append_printf(source, ",");
-          }
-          g_string_append_printf(source, " ");
-          if (i == capture_opts->ifaces->len - 1) {
-              g_string_append_printf(source, "and ");
-          }
-      }
-      g_string_append_printf(source, "%s", get_iface_description_for_interface(capture_opts, i));
-      if ((interface_opts.cfilter != NULL) &&
-          (strlen(interface_opts.cfilter) > 0)) {
-        g_string_append_printf(source, " (%s)", interface_opts.cfilter);
-      }
-    }
-  } else {
-    g_string_append_printf(source, "%u interfaces", capture_opts->ifaces->len);
-  }
+  source = get_iface_list_string(capture_opts, IFLIST_SHOW_FILTER);
   cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
   g_string_free(source, TRUE);
   /* try to start the capture child process */
