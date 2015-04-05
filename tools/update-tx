@@ -14,7 +14,7 @@ lrelease ui/qt/Wireshark.pro
 tx push -t -s
 
 #Add new commit with last translaation update
-git commit -a -m "TX: Update Translations (sync)"
+#git commit -a -m "TX: Update Translations (sync)"
 
 #Push update translation on Gerrit
 #git push origin HEAD:refs/for/master/tx
