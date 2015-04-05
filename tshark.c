@@ -2418,7 +2418,7 @@ capture(void)
 {
   gboolean          ret;
   guint             i;
-  GString          *str = g_string_new("");
+  GString          *str;
 #ifdef USE_TSHARK_SELECT
   fd_set            readfds;
 #endif
@@ -2477,30 +2477,7 @@ capture(void)
     global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
     g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
   }
-#ifdef _WIN32
-  if (global_capture_opts.ifaces->len < 2)
-#else
-  if (global_capture_opts.ifaces->len < 4)
-#endif
-  {
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-      interface_options interface_opts;
-
-      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-      if (i > 0) {
-          if (global_capture_opts.ifaces->len > 2) {
-              g_string_append_printf(str, ",");
-          }
-          g_string_append_printf(str, " ");
-          if (i == global_capture_opts.ifaces->len - 1) {
-              g_string_append_printf(str, "and ");
-          }
-      }
-      g_string_append_printf(str, "'%s'", interface_opts.descr);
-    }
-  } else {
-    g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
-  }
+  str = get_iface_list_string(&global_capture_opts, IFLIST_QUOTE_IF_DESCRIPTION);
   if (really_quiet == FALSE)
     fprintf(stderr, "Capturing on %s\n", str->str);
   fflush(stderr);

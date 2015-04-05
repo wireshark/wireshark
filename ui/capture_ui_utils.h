@@ -158,6 +158,23 @@ const char *get_iface_description_for_interface(capture_options *capture_opts, g
  */
 extern void set_active_dlt(interface_t *device, int global_default_dlt);
 
+/** Get a descriptive string for a list of interfaces.
+ *
+ * @param capture_opts The capture_options structure that contains the interfaces
+ * @param style flags to indicate the style of string to use:
+ *
+ *  IFLIST_QUOTE_IF_DESCRIPTION: put the interface descriptive string in
+ *  single quotes
+ *
+ *  IFLIST_SHOW_FILTER: include the capture filters in the string
+ *
+ * @return A GString set to the descriptive string
+ */
+#define IFLIST_QUOTE_IF_DESCRIPTION 0x00000001
+#define IFLIST_SHOW_FILTER          0x00000002
+
+extern GString *get_iface_list_string(capture_options *capture_opts, guint32 style);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

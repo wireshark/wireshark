@@ -811,25 +811,9 @@ statusbar_capture_prepared_cb(capture_session *cap_session _U_)
 static GString *
 statusbar_get_interface_names(capture_options *capture_opts)
 {
-    guint i;
     GString *interface_names;
 
-    interface_names = g_string_new("");
-
-#ifdef _WIN32
-    if (capture_opts->ifaces->len < 2) {
-#else
-    if (capture_opts->ifaces->len < 4) {
-#endif
-        for (i = 0; i < capture_opts->ifaces->len; i++) {
-            if (i > 0) {
-                g_string_append_printf(interface_names, ", ");
-            }
-            g_string_append_printf(interface_names, "%s", get_iface_description_for_interface(capture_opts, i));
-        }
-    } else {
-        g_string_append_printf(interface_names, "%u interfaces", capture_opts->ifaces->len);
-    }
+    interface_names = get_iface_list_string(capture_opts, 0);
     if (strlen (interface_names->str) > 0) {
         g_string_append(interface_names, ":");
     }
