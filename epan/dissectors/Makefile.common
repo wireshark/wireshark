@@ -990,6 +990,7 @@ DISSECTOR_SRC = \
 	packet-null.c		\
 	packet-nwmtp.c		\
 	packet-oampdu.c		\
+	packet-ocfs2.c		\
 	packet-oicq.c		\
 	packet-oipf.c		\
 	packet-olsr.c		\

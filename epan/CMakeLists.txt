@@ -1076,6 +1076,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-null.c
 	dissectors/packet-nwmtp.c
 	dissectors/packet-oampdu.c
+	dissectors/packet-ocfs2.c
 	dissectors/packet-oicq.c
 	dissectors/packet-oipf.c
 	dissectors/packet-olsr.c
