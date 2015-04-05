@@ -572,8 +572,8 @@ static void
 dissect_fc_vft(proto_tree *parent_tree,
                 tvbuff_t *tvb, int offset)
 {
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    proto_item *item;
+    proto_tree *tree;
     guint8 rctl;
     guint8 ver;
     guint8 type;
@@ -590,12 +590,10 @@ dissect_fc_vft(proto_tree *parent_tree,
     vf_id = (vf_id >> 1) & 0xfff;
     hop_ct = tvb_get_guint8(tvb, offset + 4);
 
-    if (parent_tree) {
-        item = proto_tree_add_uint_format_value(parent_tree, hf_fc_vft, tvb, offset,
-                                    8, vf_id, "VF_ID %d Pri %d Hop Count %d",
-                                    vf_id, pri, hop_ct);
-        tree = proto_item_add_subtree(item, ett_fc_vft);
-    }
+    item = proto_tree_add_uint_format_value(parent_tree, hf_fc_vft, tvb, offset,
+            8, vf_id, "VF_ID %d Pri %d Hop Count %d",
+            vf_id, pri, hop_ct);
+    tree = proto_item_add_subtree(item, ett_fc_vft);
     proto_tree_add_uint(tree, hf_fc_vft_rctl, tvb, offset, 1, rctl);
     proto_tree_add_uint(tree, hf_fc_vft_ver, tvb, offset + 1, 1, ver);
     proto_tree_add_uint(tree, hf_fc_vft_type, tvb, offset + 1, 1, type);
@@ -1042,11 +1040,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     /* Network_Header present? */
     if (df_ctl & FC_DFCTL_NH) {
-        /* Yes - dissect it. */
-        if (tree) {
-            proto_tree_add_item(fc_tree, hf_fc_nh_da, tvb, next_offset, 8, ENC_NA);
-            proto_tree_add_item(fc_tree, hf_fc_nh_sa, tvb, next_offset+8, 8, ENC_NA);
-        }
+        proto_tree_add_item(fc_tree, hf_fc_nh_da, tvb, next_offset, 8, ENC_NA);
+        proto_tree_add_item(fc_tree, hf_fc_nh_sa, tvb, next_offset+8, 8, ENC_NA);
         next_offset += 16;
     }
 
@@ -1165,29 +1160,23 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                   /* Add the defragmented data to the data source list. */
                   add_new_data_source(pinfo, next_tvb, "Reassembled FC");
 
-                  if (tree) {
-                      hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
-                                                            tvb, offset+9, 1, 1);
-                      PROTO_ITEM_SET_HIDDEN(hidden_item);
-                  }
+                  hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
+                          tvb, offset+9, 1, 1);
+                  PROTO_ITEM_SET_HIDDEN(hidden_item);
              }
              else {
-                  if (tree) {
-                       hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
-                                                             tvb, offset+9, 1, 0);
-                       PROTO_ITEM_SET_HIDDEN(hidden_item);
-            }
-                  next_tvb = tvb_new_subset_remaining (tvb, next_offset);
-                  call_dissector (data_handle, next_tvb, pinfo, tree);
-                  return;
+                 hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
+                         tvb, offset+9, 1, 0);
+                 PROTO_ITEM_SET_HIDDEN(hidden_item);
+                 next_tvb = tvb_new_subset_remaining (tvb, next_offset);
+                 call_dissector (data_handle, next_tvb, pinfo, tree);
+                 return;
              }
         }
     } else {
-        if (tree) {
-            hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
-                                                  tvb, offset+9, 1, 0);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
-        }
+        hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
+                tvb, offset+9, 1, 0);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         next_tvb = tvb_new_subset_remaining (tvb, next_offset);
     }
 
