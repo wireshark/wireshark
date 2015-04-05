@@ -38,8 +38,6 @@ typedef struct selected_name_s {
   gboolean activate;
 } selected_name_t;
 
-GtkWidget *welcome_new(void);
-
 /* reset the list of recently used files */
 void main_welcome_reset_recent_capture_files(void);
 
