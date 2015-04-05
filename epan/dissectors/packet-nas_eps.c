@@ -60,6 +60,8 @@ static int hf_nas_eps_spare_bits = -1;
 static int hf_nas_eps_security_header_type = -1;
 static int hf_nas_eps_msg_auth_code = -1;
 static int hf_nas_eps_seq_no = -1;
+static int hf_nas_eps_ciphered_msg = -1;
+static int hf_nas_eps_msg_elems = -1;
 static int hf_nas_eps_seq_no_short = -1;
 static int hf_nas_eps_emm_ebi0 = -1;
 static int hf_nas_eps_emm_ebi1 = -1;
@@ -170,7 +172,11 @@ static int hf_nas_eps_emm_apn_ambr_ul_ext = -1;
 static int hf_nas_eps_emm_apn_ambr_dl_ext = -1;
 static int hf_nas_eps_emm_apn_ambr_ul_ext2 = -1;
 static int hf_nas_eps_emm_apn_ambr_dl_ext2 = -1;
+static int hf_nas_eps_emm_apn_ambr_ul_total = -1;
+static int hf_nas_eps_emm_apn_ambr_dl_total = -1;
 static int hf_nas_eps_emm_guti_type = -1;
+static int hf_nas_eps_emm_detach_req_UL = -1;
+static int hf_nas_eps_emm_detach_req_DL = -1;
 static int hf_nas_eps_emm_switch_off = -1;
 static int hf_nas_eps_emm_detach_type_UL = -1;
 static int hf_nas_eps_emm_detach_type_DL = -1;
@@ -218,6 +224,12 @@ static int ett_nas_eps_gen_msg_cont = -1;
 static int ett_nas_eps_cmn_add_info = -1;
 
 static expert_field ei_nas_eps_extraneous_data = EI_INIT;
+static expert_field ei_nas_eps_unknown_identity = EI_INIT;
+static expert_field ei_nas_eps_unknown_type_of_list = EI_INIT;
+static expert_field ei_nas_eps_wrong_nb_of_elems = EI_INIT;
+static expert_field ei_nas_eps_unknown_msg_type = EI_INIT;
+static expert_field ei_nas_eps_unknown_pd = EI_INIT;
+static expert_field ei_nas_eps_esm_tp_not_integ_prot = EI_INIT;
 
 /* Global variables */
 static gboolean g_nas_eps_dissect_plain = FALSE;
@@ -1069,7 +1081,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             /*curr_offset+=4;*/
             break;
         default:
-            proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Type of identity not known");
+            proto_tree_add_expert(tree, pinfo, &ei_nas_eps_unknown_identity, tvb, curr_offset, len - 1);
             break;
     }
 
@@ -1606,7 +1618,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     curr_offset++;
     if (tol>2) {
-        proto_tree_add_text(tree, tvb, curr_offset, len-(curr_offset-offset) , "Unknown type of list");
+        proto_tree_add_expert(tree, pinfo, &ei_nas_eps_unknown_type_of_list, tvb, curr_offset, len-(curr_offset-offset));
         return len;
     }
 
@@ -1626,7 +1638,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
              * TAC k (continued) octet 2k+4*
              */
             if (len < (guint)(4+(n_elem*2))) {
-                proto_tree_add_text(tree, tvb, curr_offset, len-1 , "[Wrong number of elements?]");
+                proto_tree_add_expert(tree, pinfo, &ei_nas_eps_wrong_nb_of_elems, tvb, curr_offset, len-(curr_offset-offset));
                 return len;
             }
             for (i=0; i < n_elem; i++, curr_offset+=2)
@@ -1645,7 +1657,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
         case 2:
             if (len< (guint)(1+(n_elem*5))) {
-                proto_tree_add_text(tree, tvb, curr_offset, len-1 , "[Wrong number of elements?]");
+                proto_tree_add_expert(tree, pinfo, &ei_nas_eps_wrong_nb_of_elems, tvb, curr_offset, len-(curr_offset-offset));
                 return len;
             }
 
@@ -2252,9 +2264,9 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     if (len < 5) {
         /* APN-AMBR for downlink (extended-2) is not present; display total now */
         if (dl_total >= 1000) {
-            proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for downlink : %.3f Mbps", (gfloat)dl_total / 1000);
-            } else {
-            proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for downlink : %u kbps", dl_total);
+            proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%.3f Mbps", (gfloat)dl_total / 1000);
+        } else {
+            proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%u kbps", dl_total);
         }
     }
     curr_offset++;
@@ -2274,9 +2286,9 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     if (len < 6) {
         /* APN-AMBR for uplink (extended-2) is not present; display total now */
         if (ul_total >= 1000) {
-            proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for uplink : %.3f Mbps", (gfloat)ul_total / 1000);
-            } else {
-            proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for uplink : %u kbps", ul_total);
+            proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%.3f Mbps", (gfloat)ul_total / 1000);
+        } else {
+            proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%u kbps", ul_total);
         }
     }
     curr_offset++;
@@ -2292,7 +2304,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_ext2, tvb, curr_offset, 1, octet,
                        "%u Mbps", (octet* 256));
     }
-    proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for downlink : %.3f Mbps", (gfloat)dl_total / 1000);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_dl_total, tvb, curr_offset, 1, dl_total, "%.3f Mbps", (gfloat)dl_total / 1000);
     curr_offset++;
     if ((curr_offset - offset) >= len)
         return(len);
@@ -2306,7 +2318,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
                        "%u Mbps", (octet* 256));
     }
-    proto_tree_add_text(tree, tvb, curr_offset, 1,"Total APN-AMBR for uplink : %.3f Mbps", (gfloat)ul_total / 1000);
+    proto_tree_add_uint_format_value(tree, hf_nas_eps_emm_apn_ambr_ul_total, tvb, curr_offset, 1, ul_total, "%.3f Mbps", (gfloat)ul_total / 1000);
     curr_offset++;
 
     return(len);
@@ -3257,7 +3269,7 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     curr_offset = offset;
     curr_len    = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "Uplink");
+    proto_tree_add_item(tree, hf_nas_eps_emm_detach_req_UL, tvb, curr_offset, len, ENC_NA);
     /* NAS key set identifier   NAS key set identifier 9.9.3.21 M   V   1/2 */
     bit_offset = curr_offset<<3;
     de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, NULL);
@@ -3293,7 +3305,7 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     curr_offset = offset;
     curr_len    = len;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "Downlink");
+    proto_tree_add_item(tree, hf_nas_eps_emm_detach_req_DL, tvb, curr_offset, len, ENC_NA);
     /* Spare half octet Spare half octet 9.9.2.7    M   V   1/2 */
     bit_offset = curr_offset<<3;
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
@@ -3600,47 +3612,6 @@ nas_emm_sec_mode_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
-/*
- * 8.2.23   Security protected NAS message
- */
-#if 0
-static int
-nas_emm_sec_prot_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
-{
-    guint32 curr_offset;
-    guint   curr_len;
-    guint8 security_header_type;
-
-    curr_offset = offset;
-    curr_len    = len;
-
-    /* Security header type Security header type 9.3.1 M V 1/2 */
-    security_header_type = tvb_get_guint8(tvb,offset)>>4;
-    proto_tree_add_item(tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
-    /* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
-    proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
-    offset++;
-    /* Message authentication code  Message authentication code 9.5 M   V   4 */
-    if (security_header_type != 0) {
-        /* Message authentication code */
-        proto_tree_add_item(tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset+=4;
-        if ((security_header_type == 2)||(security_header_type == 4)) {
-            /* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
-            proto_tree_add_text(tree, tvb, offset, len-5,"Ciphered message");
-            return offset;
-        }
-    } else {
-        proto_tree_add_text(tree, tvb, offset, len,"Not a security protected message");
-        return offset;
-    }
-    /* Sequence number  Sequence number 9.6 M   V   1 */
-    proto_tree_add_item(tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    /* NAS message  NAS message 9.7 M   V   1-n  */
-    return offset;
-}
-#endif
 /*
  * 8.2.24   Service reject
  */
@@ -4767,7 +4738,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     proto_tree_add_item(tree, hf_nas_eps_esm_proc_trans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /*messge type IE*/
+    /*message type IE*/
     oct = tvb_get_guint8(tvb,offset);
     msg_fcn_p = NULL;
     ett_tree = -1;
@@ -4779,7 +4750,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     if (msg_str) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_str);
     } else {
-        proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
+        proto_tree_add_expert_format(tree, pinfo, &ei_nas_eps_unknown_msg_type, tvb, offset, 1, "Unknown Message Type 0x%02x", oct);
         return;
     }
 
@@ -4795,8 +4766,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
      */
     if (msg_fcn_p == NULL)
     {
-        proto_tree_add_text(tree, tvb, offset, len - offset,
-            "Message Elements");
+        proto_tree_add_item(tree, hf_nas_eps_msg_elems, tvb, offset, len - offset, ENC_NA);
     }
     else
     {
@@ -4852,7 +4822,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     if (msg_str) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_str);
     } else {
-        proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
+        proto_tree_add_expert_format(tree, pinfo, &ei_nas_eps_unknown_msg_type, tvb, offset, 1, "Unknown Message Type 0x%02x", oct);
         return;
     }
 
@@ -4868,8 +4838,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
      */
     if (msg_fcn_p == NULL)
     {
-        proto_tree_add_text(tree, tvb, offset, len - offset,
-            "Message Elements");
+        proto_tree_add_item(tree, hf_nas_eps_msg_elems, tvb, offset, len - offset, ENC_NA);
     }
     else
     {
@@ -4929,9 +4898,8 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             } /* else fall through default */
         default:
-            proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",
-                                pd,
-                                val_to_str_const(pd, protocol_discriminator_vals, "unknown"));
+            proto_tree_add_expert_format(nas_eps_tree, pinfo, &ei_nas_eps_unknown_pd, tvb, offset, -1, "Not a NAS EPS PD %u (%s)",
+                                         pd, val_to_str_const(pd, protocol_discriminator_vals, "Unknown"));
             break;
     }
 
@@ -5011,7 +4979,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, FALSE);
             return;
         } else {
-            proto_tree_add_text(nas_eps_tree, tvb, offset, len, "All ESM / Test Procedures messages should be integrity protected");
+            proto_tree_add_expert(nas_eps_tree, pinfo, &ei_nas_eps_esm_tp_not_integ_prot, tvb, offset, len);
             return;
         }
     } else {
@@ -5037,7 +5005,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* If pd is in plaintext this message probably isn't ciphered */
                 if ((pd != 7) && (pd != 15) &&
                     (((pd&0x0f) != 2) || (((pd&0x0f) == 2) && ((pd&0xf0) > 0) && ((pd&0xf0) < 0x50)))) {
-                    proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
+                    proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len-6, ENC_NA);
                     return;
                 }
             } else {
@@ -5078,9 +5046,8 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             } /* else fall through default */
         default:
-            proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",
-                                pd,
-                                val_to_str_const(pd, protocol_discriminator_vals, "unknown"));
+            proto_tree_add_expert_format(nas_eps_tree, pinfo, &ei_nas_eps_unknown_pd, tvb, offset, -1, "Not a NAS EPS PD %u (%s)",
+                             pd, val_to_str_const(pd, protocol_discriminator_vals, "Unknown"));
             break;
     }
 
@@ -5134,6 +5101,16 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_seq_no,
         { "Sequence number","nas_eps.seq_no",
         FT_UINT8,BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_ciphered_msg,
+        { "Ciphered message","nas_eps.ciphered_msg",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_msg_elems,
+        { "Message Elements", "nas_eps.message_elements",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_seq_no_short,
@@ -5688,9 +5665,29 @@ proto_register_nas_eps(void)
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_emm_apn_ambr_ul_total,
+        { "Total APN-AMBR for uplink","nas_eps.emm.apn_ambr_ul_total",
+        FT_UINT8,BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_apn_ambr_dl_total,
+        { "Total APN-AMBR for downlink","nas_eps.emm.apn_ambr_dl_total",
+        FT_UINT8,BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_emm_guti_type,
         { "GUTI type", "nas_eps.emm.guti_type",
         FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_guti_type_value), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_detach_req_UL,
+        { "Uplink","nas_eps.emm.detach_req_ul",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_detach_req_DL,
+        { "Downlink","nas_eps.emm.detach_req_dl",
+        FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_switch_off,
@@ -5853,6 +5850,12 @@ proto_register_nas_eps(void)
 
     static ei_register_info ei[] = {
         { &ei_nas_eps_extraneous_data, { "nas_eps.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+        { &ei_nas_eps_unknown_identity, { "nas_eps.emm.unknown_identity", PI_PROTOCOL, PI_WARN, "Type of identity not known", EXPFILL }},
+        { &ei_nas_eps_unknown_type_of_list, { "nas_eps.emm.tai_unknown_list_type", PI_PROTOCOL, PI_WARN, "Unknown type of list", EXPFILL }},
+        { &ei_nas_eps_wrong_nb_of_elems, { "nas_eps.emm.tai_wrong_number_of_elems", PI_PROTOCOL, PI_ERROR, "[Wrong number of elements?]", EXPFILL }},
+        { &ei_nas_eps_unknown_msg_type, { "nas_eps.unknown_msg_type", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL }},
+        { &ei_nas_eps_unknown_pd, { "nas_eps.unknown_pd", PI_PROTOCOL, PI_ERROR, "Unknown protocol discriminator", EXPFILL }},
+        { &ei_nas_eps_esm_tp_not_integ_prot, { "nas_eps.esm_tp_not_integrity_protected", PI_PROTOCOL, PI_ERROR, "All ESM / Test Procedures messages should be integrity protected", EXPFILL }}
     };
 
     expert_module_t* expert_nas_eps;
