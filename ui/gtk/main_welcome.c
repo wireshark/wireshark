@@ -1436,13 +1436,20 @@ get_welcome_window(void)
     return welcome_hb;
 }
 
+static void
+welcome_cf_file_closing_cb(capture_file *cf _U_)
+{
+    welcome_header_pop_msg();
+}
+
 void
-welcome_cf_callback(gint event, gpointer data _U_, gpointer user_data _U_)
+welcome_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
     case(cf_cb_file_opened):
         break;
     case(cf_cb_file_closing):
+        welcome_cf_file_closing_cb((capture_file *)data);
         break;
     case(cf_cb_file_closed):
         break;
