@@ -16658,11 +16658,12 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
         has_fcs = TRUE;
         break;
 
-      case -2: /* Data frames have no FCS, other frames have an FCS */
+      case -2: /* Data frames have no FCS, other frames may have an FCS */
+               /* XXX: -2 currently used only in wiretap/netmon.c       */
         if (FCF_FRAME_TYPE (fcf) == DATA_FRAME)
           has_fcs = FALSE;
-        else
-          has_fcs = TRUE;
+        else /* Management, Control, Extension */
+          has_fcs = wlan_check_fcs;
         break;
 
       default: /* Don't know - use "wlan_check_fcs" */

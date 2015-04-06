@@ -419,9 +419,14 @@ netmon_set_pseudo_header_info(struct wtap_pkthdr *phdr, Buffer *buf)
 	case WTAP_ENCAP_IEEE_802_11_NETMON:
 		/*
 		 * It appears to be the case that management
-		 * frames have an FCS and data frames don't;
-		 * I'm not sure about control frames.  An
-		 * "FCS length" of -2 means "NetMon weirdness".
+		 * frames (and control and extension frames ?) may
+		 * or may not have an FCS and data frames don't.
+		 * (Netmon capture files have been seen for this
+		 *  encapsulation having management frames either
+		 *  completely with or without an FCS. Also: instances have been
+		 *  seen where both Management and Control frames
+		 *  do not have an FCS).
+		 * An "FCS length" of -2 means "NetMon weirdness".
 		 */
 		phdr->pseudo_header.ieee_802_11.presence_flags = 0; /* radio data is in the packet data */
 		phdr->pseudo_header.ieee_802_11.fcs_len = -2;
