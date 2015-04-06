@@ -297,6 +297,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(captureCaptureUpdateFinished(capture_session *)));
     connect(&capture_file_, SIGNAL(captureCaptureFixedStarted(capture_session *)),
             this, SLOT(captureCaptureFixedStarted(capture_session *)));
+    connect(&capture_file_, SIGNAL(captureCaptureFixedContinue(capture_session *)),
+            main_ui_->statusBar, SLOT(updateCaptureFixedStatistics(capture_session*)));
     connect(&capture_file_, SIGNAL(captureCaptureFixedFinished(capture_session *)),
             this, SLOT(captureCaptureFixedFinished(capture_session *)));
     connect(&capture_file_, SIGNAL(captureCaptureStopping(capture_session *)),

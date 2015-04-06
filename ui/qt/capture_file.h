@@ -82,6 +82,7 @@ signals:
     void captureCaptureUpdateContinue(capture_session *cap_session);
     void captureCaptureUpdateFinished(capture_session *cap_session);
     void captureCaptureFixedStarted(capture_session *cap_session);
+    void captureCaptureFixedContinue(capture_session *cap_session);
     void captureCaptureFixedFinished(capture_session *cap_session);
     void captureCaptureStopping(capture_session *cap_session);
     void captureCaptureFailed(capture_session *cap_session);

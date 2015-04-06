@@ -358,6 +358,26 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session _U_)
     pushPacketStatus(packets_str);
 }
 
+void MainStatusBar::updateCaptureFixedStatistics(capture_session *cap_session)
+{
+    QString packets_str;
+
+#ifdef HAVE_LIBPCAP
+    /* Do we have any packets? */
+    if (cap_session->count) {
+        packets_str.append(QString(tr("Packets: %1"))
+                          .arg(cap_session->count));
+    } else {
+#endif // HAVE_LIBPCAP
+        packets_str = tr("No Packets");
+#ifdef HAVE_LIBPCAP
+    }
+#endif // HAVE_LIBPCAP
+
+    popPacketStatus();
+    pushPacketStatus(packets_str);
+}
+
 void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton button)
 {
     GList *fl_entry;

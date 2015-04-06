@@ -202,6 +202,7 @@ void CaptureFile::captureEvent(int event, capture_session *cap_session)
         break;
     case(capture_cb_capture_fixed_continue):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
+        emit captureCaptureFixedContinue(cap_session);
         break;
     case(capture_cb_capture_fixed_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");

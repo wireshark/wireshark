@@ -73,6 +73,7 @@ public slots:
     void popFilterStatus();
     void pushProfileName();
     void updateCaptureStatistics(capture_session * cap_session);
+    void updateCaptureFixedStatistics(capture_session * cap_session);
 
 private slots:
     void pushPacketStatus(const QString &message);
