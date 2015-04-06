@@ -58,6 +58,7 @@ typedef struct _capture_session {
     gid_t group;                    /**< group of the cfile */
 #endif
     gboolean session_started;
+    guint32 count;                  /**< Total number of frames captured */
     capture_options *capture_opts;  /**< options for this capture */
     struct _capture_file *cf;       /**< handle to cfile */
 } capture_session;

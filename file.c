@@ -1063,13 +1063,6 @@ cf_get_packet_count(capture_file *cf)
 }
 
 /* XXX - use a macro instead? */
-void
-cf_set_packet_count(capture_file *cf, int packet_count)
-{
-  cf->count = packet_count;
-}
-
-/* XXX - use a macro instead? */
 gboolean
 cf_is_tempfile(capture_file *cf)
 {
