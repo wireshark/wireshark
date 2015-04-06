@@ -138,6 +138,9 @@ static gboolean activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_
 #define CAPTURE_HB_BOX_CAPTURE        "CaptureHorizontalBoxCapture"
 #define CAPTURE_HB_BOX_REFRESH        "CaptureHorizontalBoxRefresh"
 
+static void
+welcome_header_push_msg(const gchar *msg_format, ...)
+    G_GNUC_PRINTF(1, 2);
 
 static GtkWidget *
 scroll_box_dynamic_new(GtkWidget *child_box, guint max_childs, guint scrollw_y_size) {
@@ -385,20 +388,24 @@ welcome_header_new(void)
     return eb;
 }
 
+static void
+welcome_header_push_msg(const gchar *msg_format, ...) {
+    va_list ap;
+    gchar *msg;
 
-void
-welcome_header_push_msg(const gchar *msg) {
-    gchar *msg_copy = g_strdup(msg);
+    va_start(ap, msg_format);
+    msg = g_strdup_vprintf(msg_format, ap);
+    va_end(ap);
 
-    status_messages = g_slist_append(status_messages, msg_copy);
+    status_messages = g_slist_append(status_messages, msg);
 
-    welcome_header_set_message(msg_copy);
+    welcome_header_set_message(msg);
 
     gtk_widget_hide(welcome_hb);
 }
 
 
-void
+static void
 welcome_header_pop_msg(void) {
     gchar *msg = NULL;
 
@@ -1513,6 +1520,19 @@ welcome_capture_update_started_cb(capture_session *cap_session _U_)
 }
 
 static void
+welcome_capture_fixed_started_cb(capture_session *cap_session)
+{
+    capture_options *capture_opts = cap_session->capture_opts;
+    GString *interface_names;
+
+    welcome_header_pop_msg();
+
+    interface_names = get_iface_list_string(capture_opts, 0);
+    welcome_header_push_msg("Capturing on %s", interface_names->str);
+    g_string_free(interface_names, TRUE);
+}
+
+static void
 welcome_capture_fixed_finished_cb(capture_session *cap_session _U_)
 {
     welcome_header_pop_msg();
@@ -1547,6 +1567,7 @@ welcome_capture_callback(gint event, capture_session *cap_session,
     case(capture_cb_capture_update_finished):
         break;
     case(capture_cb_capture_fixed_started):
+        welcome_capture_fixed_started_cb(cap_session);
         break;
     case(capture_cb_capture_fixed_continue):
         break;
