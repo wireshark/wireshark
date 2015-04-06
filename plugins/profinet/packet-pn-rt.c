@@ -191,7 +191,7 @@ IsDFP_Frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 u16Fram
     /* end of first CRC check */
 
     offset += 2;    /*Skip first crc */
-    tvb_len = tvb_length(tvb);
+    tvb_len = tvb_captured_length(tvb);
     if (offset + 4 > tvb_len)
         return FALSE;
     if (tvb_get_letohs(tvb, offset) == 0)
@@ -401,12 +401,12 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             val_to_str( (u8FragStatus & 0x80) >> 7, pn_rt_frag_status_more_follows, "Unknown"));
 
         /* Is this a string or a bunch of bytes? Should it be FT_BYTES? */
-        proto_tree_add_string_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset, "data",
-            "Fragment Length: %d bytes", tvb_length(tvb) - offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment Length: %d bytes", tvb_length(tvb) - offset);
+        proto_tree_add_string_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_captured_length_remaining(tvb, offset), "data",
+            "Fragment Length: %d bytes", tvb_captured_length_remaining(tvb, offset));
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Fragment Length: %d bytes", tvb_captured_length_remaining(tvb, offset));
 
-        dissect_pn_user_data_bytes(tvb, offset, pinfo, sub_tree, tvb_length(tvb) - offset, FRAG_DATA);
-        if ((guint)(tvb_length(tvb) - offset) < (guint)(u8FragDataLength *8)) {
+        dissect_pn_user_data_bytes(tvb, offset, pinfo, sub_tree, tvb_captured_length_remaining(tvb, offset), FRAG_DATA);
+        if ((guint)tvb_captured_length_remaining(tvb, offset) < (guint)(u8FragDataLength *8)) {
             proto_item_append_text(status_item, ": FragDataLength out of Framerange -> discarding!");
             return (TRUE);
         }
@@ -429,7 +429,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             /* use frame data instead of "pnio fraglen" which sets 8 octet steps */
             pdu_frag = fragment_add_seq(&pdu_reassembly_table, tvb, offset,
                                         pinfo, u32ReasembleID, NULL, uFragNumber,
-                                        (tvb_length(tvb) - offset)/*u8FragDataLength*8*/, bMoreFollows, 0);
+                                        (tvb_captured_length_remaining(tvb, offset))/*u8FragDataLength*8*/, bMoreFollows, 0);
 
             if (pdu_frag && !bMoreFollows) /* PDU is complete! and last fragment */
             {   /* store this fragment as the completed fragment in hash table */
@@ -798,7 +798,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*col_set_str(pinfo->cinfo, COL_INFO, "Unknown");*/
 
         /* Oh, well, we don't know this; dissect it as data. */
-        dissect_pn_undecoded(next_tvb, 0, pinfo, tree, tvb_length(next_tvb));
+        dissect_pn_undecoded(next_tvb, 0, pinfo, tree, tvb_captured_length(next_tvb));
     }
 }
 

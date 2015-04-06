@@ -356,7 +356,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
     new_tvb = tvb_new_subset_remaining(tvb, offset);
     offset = 0;
 
-    for(i=0; tvb_length_remaining(tvb, offset) > 0; i++) {
+    for(i=0; tvb_reported_length_remaining(tvb, offset) > 0; i++) {
         /* MRP_TLVHeader.Type */
         offset = dissect_pn_uint8(new_tvb, offset, pinfo, tree, hf_pn_mrp_type, &type);
 

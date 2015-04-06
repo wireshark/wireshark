@@ -112,7 +112,7 @@ dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
     /* MRRT_Version */
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrrt_version, &version);
 
-    while (tvb_length_remaining(tvb, offset) > 0) {
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /* MRRT_TLVHeader.Type */
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_mrrt_type, &type);
 

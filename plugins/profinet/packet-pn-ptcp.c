@@ -862,13 +862,13 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         break;
     /* 0xFF44 - 0xFF5F reserved */
     default:
-        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset));
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length_remaining(tvb, offset));
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "Reserved FrameID 0x%04x", u16FrameID);
 
         proto_item_append_text(item, "Reserved FrameID 0x%04x", u16FrameID);
 
-        offset += tvb_length_remaining(tvb, offset);
+        offset += tvb_captured_length_remaining(tvb, offset);
         break;
     }
 
