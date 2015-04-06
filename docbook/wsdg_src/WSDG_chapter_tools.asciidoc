@@ -1141,7 +1141,7 @@ However, the version string may vary.
 
 ==== Windows native: patch
 
-The Windows native Git tools provide patch.  A native Windows patch package can be obtained from
+The Windows native Git tools provide patch. A native Windows patch package can be obtained from
 http://gnuwin32.sourceforge.net/[]. The
 installation should be straightforward.
 
@@ -1152,13 +1152,15 @@ installation should be straightforward.
 GNU wget is used to download files from the internet using the command line.
 
 GNU wget is available for most of the UNIX-like platforms and as the wget
-package from the <<ChToolsCygwin,Cygwin setup>> and also using Chocolatey:
+package from the <<ChToolsCygwin,Cygwin setup>> and also using Chocolatey.
+At the time of writing the native Chocolatey wget package had incomplete
+CA certificate support. As a result the Cygwin package is recommended:
 
 ----
-PS$> choco install Wget
+PS$> choco install wget -source cygwin
 ----
 
-You will only need wget, if you want to use the Windows automated library
+You will only need wget if you want to use the Windows automated library
 download, see <<ChLibsSetup>>for details.
 
 If GNU wget isn't already installed or available as a package for your platform
