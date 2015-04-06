@@ -298,14 +298,6 @@ const gchar *cf_get_tempfile_source(capture_file *cf);
 int cf_get_packet_count(capture_file *cf);
 
 /**
- * Set the number of packets in the capture file.
- *
- * @param cf the capture file
- * @param packet_count the number of packets in the capture file
- */
-void cf_set_packet_count(capture_file *cf, int packet_count);
-
-/**
  * Is this capture file a temporary file?
  *
  * @param cf the capture file
