@@ -180,7 +180,7 @@ win32:INCLUDEPATH += \
     $${WIRESHARK_LIB_DIR}/AirPcap_Devpack_4_1_0_1622/Airpcap_Devpack/include \
     $${GNUTLS_DIR}/include \
     $${GEOIP_DIR}/include \
-    $${WIRESHARK_LIB_DIR}/zlib125/include
+    $${ZLIB_DIR}
 
 # We have to manually trigger relinking each time one of these is modified.
 # Is there any way to do this automatically?

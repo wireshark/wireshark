@@ -772,9 +772,9 @@ $(ZLIB_DLL):
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-DASMV -DASMINF" OBJA="inffas32.obj match686.obj"
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-I. -DASMV -DASMINF" OBJA="inffas32.obj match686.obj"
 !else
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll AS=ml64 LOC="-DASMV -DASMINF" OBJA="inffasx64.obj gvmat64.obj inffas8664.obj"
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll AS=ml64 LOC="-I. -DASMV -DASMINF" OBJA="inffasx64.obj gvmat64.obj inffas8664.obj"
 !endif
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
@@ -784,8 +784,8 @@ $(ZLIB_DLL):
 !ENDIF
 	copy zlib1.dll $(ZLIB_DIR)
 	copy zdll.lib $(ZLIB_DIR)\lib
-	copy zconf.h $(ZLIB_DIR)\include
-	copy zlib.h $(ZLIB_DIR)\include
+	copy zconf.h $(ZLIB_DIR)
+	copy zlib.h $(ZLIB_DIR)
 	cd ..
 	rm -r -f zlib.tmp
 !ENDIF
@@ -1033,13 +1033,8 @@ process_libs:
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-!if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-		zlib125 zlib-1.2.5.zip \
+		. zlib128.zip \
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
-!else
-		zlib125 zlib125ws.zip \
-		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
-!endif
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
