@@ -135,6 +135,7 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, void(
   GString *source;
 
   cap_session->state = CAPTURE_PREPARING;
+  cap_session->count = 0;
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
   source = get_iface_list_string(capture_opts, IFLIST_SHOW_FILTER);
   cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
