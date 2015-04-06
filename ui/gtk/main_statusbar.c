@@ -869,12 +869,10 @@ statusbar_capture_fixed_started_cb(capture_session *cap_session)
 static void
 statusbar_capture_fixed_continue_cb(capture_session *cap_session)
 {
-    capture_file *cf = (capture_file *)cap_session->cf;
     gchar *capture_msg;
 
-
     gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
-    capture_msg = g_strdup_printf(" Packets: %u", cf_get_packet_count(cf));
+    capture_msg = g_strdup_printf(" Packets: %u", cap_session->count);
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, capture_msg);
     g_free(capture_msg);
 }
