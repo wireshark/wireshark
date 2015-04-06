@@ -155,7 +155,7 @@ static const value_string zbee_zcl_basic_pwr_src_names[] = {
     { ZBEE_ZCL_BASIC_PWR_SRC_BATTERY,       "Battery" },
     { ZBEE_ZCL_BASIC_PWR_SRC_DC_SRC,        "DC source" },
     { ZBEE_ZCL_BASIC_PWR_SRC_EMERGENCY_1,   "Emergency mains constantly powered" },
-    { ZBEE_ZCL_BASIC_PWR_SRC_EMERGENCY_2,   "Emergency mains and tranfer switch" },
+    { ZBEE_ZCL_BASIC_PWR_SRC_EMERGENCY_2,   "Emergency mains and transfer switch" },
     { 0, NULL }
 };
 

@@ -26,6 +26,7 @@
 /*  Include Files */
 #include "config.h"
 
+#include <math.h>
 #include <epan/packet.h>
 
 #include "packet-zbee.h"
@@ -215,7 +216,8 @@ decode_illum_meas_value(gchar *s, guint16 value)
     else if (value == ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_INVALID_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d [lx]", value);
+        /* calculate lux value from measured value according to doc 07-5123-04 */
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
 
     return;
 } /*decode_illum_meas_value*/
@@ -239,7 +241,7 @@ decode_illum_meas_min_value(gchar *s, guint16 value)
          (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MIN_HI_VALUE) )
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d [lx]", value);
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
 
     return;
 } /*decode_illum_meas_min_value*/
@@ -263,7 +265,7 @@ decode_illum_meas_max_value(gchar *s, guint16 value)
          (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MAX_HI_VALUE) )
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d [lx]", value);
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
 
     return;
 } /*decode_illum_meas_max_value*/
@@ -286,7 +288,7 @@ decode_illum_meas_tolerance(gchar *s, guint16 value)
     if (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_TOL_HI_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d [lx]", value);
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d", value);
 
     return;
 } /*decode_illum_meas_tolerance*/
