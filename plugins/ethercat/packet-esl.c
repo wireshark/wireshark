@@ -259,7 +259,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     static gboolean  in_heur    = FALSE;
     gboolean         result;
     tvbuff_t        *next_tvb;
-    guint            esl_length = tvb_length(tvb);
+    guint            esl_length = tvb_captured_length(tvb);
 
     if ( in_heur )
         return FALSE;
@@ -271,7 +271,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             ref_time_frame.fd = NULL;
 
         /* Check that there's enough data */
-        if ( tvb_length(tvb) < SIZEOF_ESLHEADER )
+        if ( esl_length < SIZEOF_ESLHEADER )
             return FALSE;
 
         /* check for Esl frame, this has a unique destination MAC from Beckhoff range

@@ -447,7 +447,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
    guint ecLength=0;
    guint subCount = 0;
-   const guint datagram_length = tvb_length_remaining(tvb, offset);
+   const guint datagram_length = tvb_captured_length(tvb);
    guint datagram_padding_bytes = 0;
    EcParserHDR ecHdr;
    heur_dtbl_entry_t *hdtbl_entry;
@@ -861,7 +861,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       which is required by the protocol specification */
    if(datagram_padding_bytes > 0)
    {
-      proto_tree_add_item(tree, hf_ecat_padding, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
+      proto_tree_add_item(tree, hf_ecat_padding, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
    }
 }
 
