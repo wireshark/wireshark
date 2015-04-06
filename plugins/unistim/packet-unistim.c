@@ -183,7 +183,6 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    proto_item *ti= NULL;
    proto_tree *overall_unistim_tree = NULL;
    proto_tree *rudpm_tree=NULL;
-   gint size;
 
    /* heuristic*/
    switch(tvb_get_guint8(tvb,offset+4)) {/*rudp packet type 0,1,2 only */
@@ -207,7 +206,6 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    }
 
 
-   size=tvb_length_remaining(tvb, offset);
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNISTIM");
    /* Clear out stuff in the info column */
    col_clear(pinfo->cinfo, COL_INFO);
@@ -265,7 +263,7 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
 
    /* Queue packet for tap */
    tap_queue_packet(unistim_tap, pinfo, uinfo);
-   return size;
+   return tvb_captured_length(tvb);
 }
 
 static void
@@ -316,7 +314,7 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
 
    /* Handle UFTP seperately because it is significantly different
       than standard UNISTIM */
-   while (tvb_length_remaining(tvb, offset) > 0)
+   while (tvb_reported_length_remaining(tvb, offset) > 0)
       offset = dissect_unistim_message(unistim_tree,pinfo,tvb,offset);
 
 }
@@ -353,7 +351,7 @@ dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *t
          proto_tree_add_item(msg_tree,hf_uftp_datablock_limit,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          /* Get filename */
-         str_len = tvb_length_remaining(tvb, offset);
+         str_len = tvb_reported_length_remaining(tvb, offset);
          proto_tree_add_item(msg_tree,hf_uftp_filename,tvb,offset,str_len,ENC_ASCII|ENC_NA);
          offset += str_len;
          break;
@@ -376,7 +374,7 @@ dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *t
       case 0x02:
          /* File Data Block */
          /* Raw Data.. */
-         dat_len = tvb_length_remaining(tvb, offset);
+         dat_len = tvb_reported_length_remaining(tvb, offset);
          proto_tree_add_item(msg_tree,hf_uftp_datablock,tvb,offset,dat_len,ENC_NA);
          offset += dat_len;
          break;
@@ -407,7 +405,7 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
    {
       ti=proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,ENC_BIG_ENDIAN);
       expert_add_info(pinfo,ti,&ei_unistim_len);
-      return tvb_length(tvb);
+      return tvb_reported_length(tvb);
    } else {
       proto_item_set_len(ti,msg_len);
       proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,ENC_BIG_ENDIAN);
