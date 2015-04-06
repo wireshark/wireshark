@@ -358,7 +358,7 @@ void MainStatusBar::updateCaptureStatistics(capture_session *cap_session _U_)
     pushPacketStatus(packets_str);
 }
 
-void MainStatusBar::updateCaptureFixedStatistics(capture_session *cap_session)
+void MainStatusBar::updateCaptureFixedStatistics(capture_session *cap_session _U_)
 {
     QString packets_str;
 
