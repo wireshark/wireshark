@@ -624,7 +624,7 @@ de_sgsap_selected_cs_dmn_op(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     item = proto_tree_add_item(tree, hf_sgsap_sel_cs_dmn_op, tvb, offset, 1, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_sgsap_sel_cs_dmn_op);
 
-	dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, sub_tree, offset, E212_LAI, TRUE);
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, sub_tree, offset, E212_LAI, TRUE);
 
     return(len);
 }
