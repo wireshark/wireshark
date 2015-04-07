@@ -29,4 +29,6 @@ ATTRIBUTE     Motorola-WiMAX-Convergence-Sublayer         63   octets
 ATTRIBUTE     Motorola-WiMAX-Service-Flows                64   string
 ATTRIBUTE     Motorola-WiMAX-VLAN-ID                      65   octets
 
+ATTRIBUTE     Motorola-Accounting-Message                 80   string
+
 END-VENDOR    Motorola

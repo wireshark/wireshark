@@ -275,6 +275,7 @@ dist_radius_DATA = $(_CUSTOM_radius_dict_) \
 	radius/dictionary.rfc7055 \
 	radius/dictionary.rfc7155 \
 	radius/dictionary.rfc7268 \
+	radius/dictionary.rfc7499 \
 	radius/dictionary.riverbed \
 	radius/dictionary.riverstone \
 	radius/dictionary.roaringpenguin \

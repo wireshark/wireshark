@@ -1,0 +1,16 @@
+# -*- text -*-
+# Copyright (C) 2015 The FreeRADIUS Server project and contributors
+#
+#	Attributes and values defined in RFC 7499.
+#	http://www.ietf.org/rfc/rfc7499.txt
+#
+#	$Id: 47cfd30f1d036259d0ecb809d442c38efe21493a $
+#
+
+ATTRIBUTE	Frag-Status				241.1	integer
+ATTRIBUTE	Proxy-State-Length			241.2	integer
+
+VALUE	Frag-Status			Reserved		0
+VALUE	Frag-Status			Fragmentation-Supported	1
+VALUE	Frag-Status			More-Data-Pending	2
+VALUE	Frag-Status			More-Data-Request	3
