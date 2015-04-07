@@ -96,7 +96,7 @@ chopped by <choplen> bytes of data. Positive values chop at the packet
 beginning while negative values chop at the packet end.
 
 If an optional offset precedes the <choplen>, then the bytes chopped will be
-offset from that value. Positve offsets are from the packet beginning, while
+offset from that value. Positive offsets are from the packet beginning, while
 negative offsets are from the packet end.
 
 This is useful for chopping headers for decapsulation of an entire capture,
