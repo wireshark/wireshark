@@ -566,7 +566,7 @@ void MainWindow::loadWindowGeometry()
     int min_sensible_dimension_ = 200;
 
 #ifndef Q_OS_MAC
-    if (prefs.gui_geometry_save_maximized && recent.gui_geometry_main_maximized) {
+    if (recent.gui_geometry_main_maximized) {
         setWindowState(Qt::WindowMaximized);
     } else
 #endif
