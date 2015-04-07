@@ -1711,7 +1711,7 @@ static void atm_prompt(packet_info *pinfo _U_, gchar* result)
 
 static gpointer atm_value(packet_info *pinfo)
 {
-  return GUINT_TO_POINTER(pinfo->pseudo_header->atm.type);
+  return GUINT_TO_POINTER((guint)pinfo->pseudo_header->atm.type);
 }
 
 void
