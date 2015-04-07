@@ -41,6 +41,11 @@ cmake_policy(SET CMP0015 NEW)
 #Where to find local cmake scripts
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
+# Set old behaviour for LOCATION property
+if (POLICY CMP0026)
+	cmake_policy(SET CMP0026 OLD)
+endif()
+
 # If our target platform is enforced by our generator, set
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
 # %WIRESHARK_TARGET_PLATFORM%.
@@ -955,7 +960,7 @@ if(ENABLE_PLUGINS)
 	set(HAVE_PLUGINS 1)
 	add_custom_target(plugins)
 	set_target_properties(plugins PROPERTIES FOLDER "Plugins")
-	set(PLUGIN_INSTALL_DIR "${ABSOLUTE_CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}")
+	set(PLUGIN_INSTALL_DIR "${ABSOLUTE_CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/plugins/${CPACK_PACKAGE_VERSION}")
 	set(PLUGIN_SRC_DIRS
 		plugins/docsis
 		plugins/ethercat
@@ -2387,7 +2392,7 @@ CHECKAPI(
 	${WIRESHARK_SRC}
 )
 
-set(CMAKE_INSTALL_MODULES_DIR ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@)
+set(CMAKE_INSTALL_MODULES_DIR ${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME})
 configure_file("${CMAKE_MODULE_PATH}/WiresharkConfig.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfig.cmake" @ONLY)
 configure_file("${CMAKE_MODULE_PATH}/WiresharkConfigVersion.cmake.in" "${CMAKE_BINARY_DIR}/WiresharkConfigVersion.cmake" @ONLY)
 install(
