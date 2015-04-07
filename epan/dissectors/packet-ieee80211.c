@@ -14931,6 +14931,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           expert_add_info(pinfo, tix, &ei_ieee80211_tag_measure_report_unknown);
         }
       }
+      break;
 
     case TAG_QUIET: /* 7.3.2.23 Quiet element (40) */
       if (tag_len != 6)
