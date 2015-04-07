@@ -1,0 +1,38 @@
+#ifndef UID_IDL
+#define UID_IDL
+
+//***************************************************************
+  //*      APPROVED via RFC N01-0268 on 6 August 2001
+//***************************************************************
+
+// *************************************************************
+//*
+//*         The USIGS Universal Product Identifier
+//*         Specification
+//*
+//*
+//*     Description: Defines a universal USIGS product
+//*     identification.
+//*
+//*
+//*     History:
+//*     Date            Author   Comment
+//*     -----           ------   --------
+//*     29 Sept 98       J. Baldo and D. Lutz  Initial release for
+//*                      review.
+//*
+//*     Notes
+//*     -------
+//*     NONE
+//*
+//*
+// *************************************************************
+module UID
+{
+interface Product
+  {
+  };
+
+typedef sequence < Product > ProductList;
+};
+#endif

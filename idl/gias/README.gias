@@ -1,0 +1,33 @@
+Geospatial and Imagery Access Service (GIAS)
+
+see http://www.nato.int/structur/AC/224/standard/4559/4559_documents/4559_GIAS351_Approved_nu.pdf
+
+To generate the gias dissector from the .idl documents run:
+
+omniidl -p ../../tools -b wireshark_be gias.idl
+
+(Note this is similar to the command that idl2wrs would run but explicitly identifies the backend is to be used.)
+
+The gias.idl file includes all the other .idl files to create one
+dissector for gias.
+
+Note that due to a bug in ommniidl, the following needs to be manually added to the generated dissector:
+
+Errors
+======
+
+Define the heading field:
+static int hf_UCO_InvalidInputParameter_badInputParameters = -1;
+
+Register the headings fields:
+{&hf_UCO_CompressedImage_data_loop, {"Seq length of CompressedImage_data","giop-gias.CompressedImage.data.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,
+{&hf_UCO_Buffer_octet_buffer_loop, {"Seq length of Buffer_octet_buffer","giop-gias.UCO.Buffer.octet_buffer.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+{&hf_GIAS_Domain_bd_loop, {"Seq length of Domain_bd","giop-gias.GIAS.Domain.bd.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+
+Warnings
+========
+
+Make the following 3 variables const gchar * :
+binary_seq_UCO_CompressedImage_data
+binary_seq_UCO_Buffer_octet_buffer
+binary_seq_GIAS_Domain_bd

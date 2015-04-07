@@ -1,0 +1,1271 @@
+#ifndef GIAS_IDL
+#define GIAS_IDL
+
+//***************************************************************
+  //*      APPROVED via RFC N01-0268 on 6 August 2001
+//***************************************************************
+
+
+//***************************************************************
+//*
+//*           The Geospatial and Imagery Access Service
+//*
+//*
+//*     Description: Defines the data types and interfaces needed
+//*     to support search, retrieval and access to geospatial
+//*     data such as images, maps charts and their supporting
+//*     data
+//*
+//*
+//*
+//*     History:
+//*     Date            Author          Comment
+//*     -----           --------        ------------
+//*     15 May 97       D. Lutz         Initial release for review
+//*     2 July 97       D. Lutz         Released for TEM Review
+//*     11 July 97      D. Lutz         Changes based on 2 July TEM
+//*     18 July 97      D. Lutz         Released for NIMA CCB
+//*     24 Oct 97       D. Lutz         Changes based on 7 Oct TEM
+//*     14 Nov 97       D. Lutz         Changes based on 4 Nov TEM
+//*     17 Dec 97       D. Lutz	Changes based on 9 Dec TEM
+//*     15 Apr 98       J. Baldo        changes based on Mar TEM
+//*     7  May 98       D.Lutz        Changes based on 1 May TEM
+//*     2  Jul   98        J. Baldo/D. Lutz Changes based
+//*					on 22-23 Jun TEM Requests - GIAS 3.2
+//*     2  Jul 98 (J. Baldo): Callback module has been removed
+//*		from previous GIAS 3.2 specification release
+//*		5 June 1998 and will be included in GIAS 3.3
+//*	  5 Nov 98		D. Lutz		Added first version of UpdateMgr
+//*
+//*	10 Mar 99		J. Baldo		Changes based on March 99 TEM
+//*
+//*     5 August		D. Lutz		 Mods from 3-4 August UIP WG.
+//*	18 Februray 2000	D. Lutz		New Generic Exception Model
+//*
+//*
+//*
+//*
+//***************************************************************
+
+//***************************************************************
+//*     The USIGS Common Object Specification (UCOS)  contains
+//*     all the basic data types and interfaces common across
+//*             USIGS
+//***************************************************************
+
+#include "uco.idl"
+#include "cb.idl"
+#include "uid.idl"
+
+//***************************************************************
+//*
+//*     Module GIAS
+//*
+//*
+//*     Description: The main module for the Geospatial &amp; Imagery
+//*             Access Service
+//*
+//*
+//***************************************************************
+
+module GIAS
+{
+
+//Forward references for all interfaces, just for convenience
+
+// The Library itself
+  interface Library;
+
+
+// Abstract classes that help define the managers
+  interface LibraryManager;
+  interface RequestManager;
+  interface AccessManager;
+
+// Specific managers defined
+  interface OrderMgr;
+  interface CreationMgr;
+  interface UpdateMgr;
+  interface CatalogMgr;
+  interface StandingQueryMgr;
+  interface ProductMgr;
+  interface IngestMgr;
+  interface QueryOrderMgr;
+  interface DataModelMgr;
+//interface VideoMgr;
+
+// The abstract request objects
+  interface Request;
+
+// Specific requests defined
+  interface OrderRequest;
+  interface CreateRequest;
+  interface CreateMetaDataRequest;
+  interface UpdateRequest;
+  interface SubmitQueryRequest;
+  interface SubmitStandingQueryRequest;
+  interface SetAvailabilityRequest;
+  interface HitCountRequest;
+  interface GetParametersRequest;
+  interface IngestRequest;
+  interface SubmitQueryOrderRequest;
+  interface GetRelatedFilesRequest;
+  interface CreateAssociationRequest;
+  interface UpdateByQueryRequest;
+
+
+//***************************************************************
+//*      DataTypes re-used from UCOS
+//***************************************************************
+
+  typedef UCO::NameValueList PropertyList;
+
+  typedef UCO::Rectangle GeoRegion;
+enum GeoRegionType {
+	LINE_SAMPLE_FULL,
+	LINE_SAMPLE_CHIP,
+	LAT_LON ,
+ALL,
+NULL_REGION};
+
+
+
+//***************************************************************
+//*      GIAS specific data types
+//***************************************************************
+
+
+enum AvailabilityRequirement
+    {
+      REQUIRED, NOT_REQUIRED
+    };
+
+typedef string UseMode;
+
+typedef sequence <short> RsetList;
+
+enum OrderType {STANDING, IMMEDIATE};
+
+typedef any ProductSpec;
+
+typedef string ProductFormat;
+typedef string ImageUniqueIdentifier;
+typedef string ImageFormat;
+typedef string Compression;
+typedef short BitsPerPixel;
+typedef string Algorithm;
+enum SupportDataEncoding {ASCII, EBCDIC};
+
+typedef sequence < ProductFormat > ProductFormatList;
+struct ImageSpec
+    {
+      ImageFormat imgform;
+      ImageUniqueIdentifier imageid;
+      Compression comp;
+      BitsPerPixel bpp;
+      Algorithm algo;
+	RsetList rrds;
+GeoRegion sub_section;
+	GeoRegionType geo_region_type;
+	SupportDataEncoding encoding;
+    };
+typedef sequence < ImageSpec > ImageSpecList;
+
+struct AlterationSpec
+    {
+      ProductFormat pf;
+      ProductSpec ps;
+      GeoRegion sub_section;
+	GeoRegionType geo_region_type;
+    };
+typedef sequence < AlterationSpec > AlterationSpecList;
+
+struct PackagingSpec
+    {
+      string package_identifier;
+      string packaging_format_and_compression;
+    };
+
+
+struct TailoringSpec {
+	UCO::NameNameList specs;
+ };
+
+struct MediaType
+    {
+      string media_type;
+	unsigned short quantity;
+    };
+
+typedef sequence < MediaType > MediaTypeList;
+
+struct PhysicalDelivery
+ {
+string address;
+ };
+
+enum DestinationType
+    {
+FTP, EMAIL, PHYSICAL
+    };
+
+union Destination switch (DestinationType)
+    {
+    case FTP:   	UCO::FileLocation f_dest;
+    case EMAIL: 	UCO::EmailAddress e_dest;
+    case PHYSICAL:	PhysicalDelivery h_dest;
+    };
+
+  typedef sequence < Destination > DestinationList;
+
+
+
+struct ValidationResults
+    {
+     boolean valid;
+     boolean warning;
+     string details;
+    };
+
+typedef sequence < ValidationResults > ValidationResultsList;
+
+typedef UCO::Name RelatedFileType;
+typedef sequence<RelatedFileType> RelatedFileTypeList;
+struct RelatedFile
+ {
+  RelatedFileType file_type;
+  UCO::FileLocation location;
+ };
+typedef sequence <RelatedFile> RelatedFileList;
+
+enum ConceptualAttributeType
+    {
+      FOOTPRINT, CLASSIFICATION, OVERVIEW, THUMBNAIL, DATASETTYPE,
+       MODIFICATIONDATE, PRODUCTTITLE, DIRECTACCESS, DIRECTACCESSPROTOCOL, UNIQUEIDENTIFIER, DATASIZE};
+
+
+typedef string Entity;
+typedef string ViewName;
+typedef sequence< ViewName > ViewNameList;
+struct View {
+ ViewName	view_name;
+ boolean orderable;
+ ViewNameList sub_views;
+};
+
+typedef sequence < View > ViewList;
+
+
+enum DomainType
+    {
+      DATE_VALUE, TEXT_VALUE, INTEGER_VALUE, FLOATING_POINT_VALUE, LIST,
+      ORDERED_LIST, INTEGER_RANGE, FLOATING_POINT_RANGE, GEOGRAPHIC, INTEGER_SET, FLOATING_POINT_SET, GEOGRAPHIC_SET, BINARY_DATA, BOOLEAN_VALUE };
+
+  struct DateRange
+    {
+      UCO::AbsTime earliest;
+      UCO::AbsTime latest;
+    };
+
+struct IntegerRange
+    {
+      long lower_bound;
+      long upper_bound;
+    };
+
+  struct FloatingPointRange
+    {
+      double lower_bound;
+      double upper_bound;
+    };
+
+
+
+typedef sequence < IntegerRange > IntegerRangeList;
+
+typedef sequence < FloatingPointRange > FloatingPointRangeList;
+union Domain switch (DomainType)
+    {
+
+    case DATE_VALUE:                      DateRange d;
+    case TEXT_VALUE:                      unsigned long t;
+    case INTEGER_VALUE:                   IntegerRange iv;
+    case INTEGER_SET:                     IntegerRangeList is;
+    case FLOATING_POINT_VALUE:            FloatingPointRange  fv;
+    case FLOATING_POINT_SET:              FloatingPointRangeList fps;
+    case LIST:                            UCO::NameList l;
+    case ORDERED_LIST:                    UCO::NameList ol;
+    case INTEGER_RANGE:                   IntegerRange ir;
+    case FLOATING_POINT_RANGE:            FloatingPointRange fr;
+    case GEOGRAPHIC:                      UCO::Rectangle g;
+    case GEOGRAPHIC_SET:                  UCO::RectangleList gs;
+    case BINARY_DATA:                     UCO::BinData bd;
+    case BOOLEAN_VALUE:				boolean bv;
+ };
+
+enum AttributeType
+   {
+      TEXT,
+      INTEGER,
+      FLOATING_POINT,
+      UCOS_COORDINATE,
+      UCOS_POLYGON,
+      UCOS_ABS_TIME,
+      UCOS_RECTANGLE,
+      UCOS_SIMPLE_GS_IMAGE,
+      UCOS_SIMPLE_C_IMAGE,
+      UCOS_COMPRESSED_IMAGE,
+      UCOS_HEIGHT,
+      UCOS_ELEVATION,
+      UCOS_DISTANCE,
+      UCOS_PERCENTAGE,
+      UCOS_RATIO,
+      UCOS_ANGLE,
+      UCOS_FILE_SIZE,
+      UCOS_FILE_LOCATION,
+      UCOS_COUNT,
+      UCOS_WEIGHT,
+      UCOS_DATE,
+      UCOS_LINESTRING,
+	UCOS_DATA_RATE,
+	UCOS_BIN_DATA,
+	BOOLEAN_DATA,
+	UCOS_DURATION
+   };
+
+
+enum RequirementMode
+    {
+      MANDATORY, OPTIONAL
+    };
+
+struct AttributeInformation
+    {
+      string attribute_name;
+      AttributeType attribute_type;
+      Domain attribute_domain;
+      string attribute_units;
+	string attribute_reference;
+RequirementMode mode;
+      string description;
+      boolean sortable;
+      boolean updateable;
+    };
+typedef sequence < AttributeInformation > AttributeInformationList;
+struct Association {
+string name;
+ViewName view_a;
+ViewName view_b;
+string description;
+UCO::Cardinality card;
+AttributeInformationList attribute_info;
+  };
+
+typedef sequence <Association> AssociationList;
+typedef sequence < Library > LibraryList;
+
+typedef string ManagerType;
+  typedef sequence < ManagerType > ManagerTypeList;
+
+typedef sequence < Request > RequestList;
+
+typedef sequence < UseMode > UseModeList;
+
+
+struct LibraryDescription
+    {
+      string library_name;
+      string library_description;
+      string library_version_number;
+    };
+typedef sequence < LibraryDescription > LibraryDescriptionList;
+
+struct Query{
+ViewName view;
+string  bqs_query;
+};
+
+
+typedef UCO::DAGList QueryResults;
+
+
+
+enum NamedEventType
+{
+START_EVENT,
+STOP_EVENT,
+FREQUENCY_EVENT
+};
+
+struct Event {
+    string event_name;
+    NamedEventType event_type;
+    string event_description;
+};
+typedef sequence < Event > EventList;
+
+enum DayEvent { MON, TUE, WED, THU, FRI, SAT, SUN, FIRST_OF_MONTH, END_OF_MONTH };
+
+struct DayEventTime
+{
+   DayEvent		day_event;
+   UCO::Time		time;
+};
+
+enum LifeEventType {ABSOLUTE_TIME, DAY_EVENT_TIME, NAMED_EVENT, RELATIVE_TIME};
+
+union LifeEvent switch ( LifeEventType)
+ {
+  case ABSOLUTE_TIME: UCO::AbsTime at;
+  case DAY_EVENT_TIME: DayEventTime  day_event;
+  case NAMED_EVENT: string ev;
+  case RELATIVE_TIME: UCO::Time rt;
+ };
+
+typedef sequence < LifeEvent > LifeEventList;
+
+
+struct QueryLifeSpan {
+	LifeEvent start;
+	LifeEvent stop;
+	LifeEventList frequency;
+};
+
+
+
+  enum Polarity { ASCENDING, DESCENDING };
+
+  struct SortAttribute
+  {
+     UCO::Name     attribute_name;
+     Polarity  sort_polarity;
+  };
+
+  typedef sequence < SortAttribute > SortAttributeList;
+
+struct DelayEstimate {
+	unsigned long time_delay;
+	boolean valid_time_delay;
+};
+struct ProductDetails {
+	MediaTypeList mTypes;
+	UCO::NameList benums;
+	AlterationSpec aSpec;
+	UID::Product aProduct;
+	string info_system_name;
+	};
+typedef sequence <ProductDetails> ProductDetailsList;
+
+struct DeliveryDetails {
+	Destination dests;
+	string receiver;
+	string shipmentMode;
+	};
+typedef sequence < DeliveryDetails > DeliveryDetailsList;
+
+struct OrderContents {
+	string originator;
+	TailoringSpec tSpec;
+	PackagingSpec pSpec;
+	UCO::AbsTime  needByDate;
+	string operatorNote;
+	short orderPriority;
+	ProductDetailsList prod_list;
+	DeliveryDetailsList del_list;
+	};
+
+struct QueryOrderContents {
+	string originator;
+	TailoringSpec tSpec;
+	PackagingSpec pSpec;
+	string operatorNote;
+	short orderPriority;
+	AlterationSpec aSpec;
+	DeliveryDetailsList del_list;
+	};
+
+struct AccessCriteria {
+	string userID;
+	string password;
+	string licenseKey;
+};
+struct PackageElement {
+	UID::Product	prod;
+	UCO::NameList	files;
+	};
+typedef  sequence< PackageElement > PackageElementList;
+
+ struct DeliveryManifest {
+	string package_name;
+	PackageElementList elements;
+	};
+typedef sequence<DeliveryManifest> DeliveryManifestList;
+
+typedef string CallbackID;
+
+//***************************************************************
+  //*			The Exceptions Identifiers
+  //*		Note: Three sets of IDL Strings Constants are being used as
+  //*		the Exceptions for the GIAS
+  //***************************************************************
+//			UCO::InvalidInputParameter Exceptions
+const string BadAccessCriteriaConst = "BadAccessCriteria";
+const string BadAccessValueConst = "BadAccessValue";
+const string BadCreationAttributeValueConst = "BadCreationAttributeValue";
+const string BadEmailAddressConst = "BadEmailAddress";
+const string BadGeoRegionConst = "BadGeoRegion";
+const string BadLocationConst = "BadLocation";
+const string BadPropertyValueConst = "BadPropertyValue";
+const string BadQueryConst = "BadQuery";
+const string BadQueryAttributeConst = "BadQueryAttribute";
+const string BadQueryValueConst = "BadQueryValue";
+const string BadTimeConst = "BadTime";
+const string BadUseModeConst = "BadUseMode";
+const string UnknownCallBackConst = "UnknownCallBack";
+const string UnknownCreationAttributeConst = "UnknownCreationAttribute";
+const string UnknownManagerTypeConst = "UnknownManagerType";
+const string UnknownProductConst = "UnknownProduct";
+const string UnknownPropertyConst = "UnknownProperty";
+const string UnknownRequestConst = "UnknownRequest";
+const string UnregisteredCallbackConst = "UnregisteredCallback";
+const string UnknownUseModeConst = "UnknownUseMode";
+const string BadOrderConst = "BadOrder";
+const string UnknownViewNameConst = "UnknownViewName";
+const string UnknownEntityConst = "UnknownEntity";
+const string UnsupportedConceptualAttributeConst = "UnsupportedConceptualAttribute";
+const string NoValuesRequestedConst = "NoValuesRequested";
+const string BadSortAttributeConst = "BadSortAttribute";
+const string NonUpdateableAttributeConst = "NonUpdateableAttribute";
+const string BadFileTypeConst = "BadFileType";
+const string InvalidCardinalityConst = "InvalidCardinality";
+const string UnknownAssociationConst = "UnknownAssociation";
+const string InvalidObjectConst = "InvalidObject";
+const string UnknownCategoryConst = "UnknownCategory";
+const string InvalidEventConst = "InvalidEvent";
+const string BadResultAttributeConst = "BadResultAttribute";
+const string BadUpdateAttributeConst = "BadUpdateAttribute";
+const string ImplementationLimitConst = "ImplementationLimit";
+
+//			UCO::ProcessingFault Exceptions
+const string ProductUnavailableConst = "ProductUnavailable";
+const string LockUnavailableConst = "LockUnavailable";
+const string UnsafeUpdateConst = "UnsafeUpdate";
+const string ProductLockedConst = "ProductLocked";
+
+//			UCO::SystemFault Exceptions
+const string GeneralSystemFaultConst = "GeneralSystemFault";
+
+
+
+
+//***************************************************************
+//*                             The Interfaces
+//***************************************************************
+
+//***************************************************************
+  //*      interface GIAS::Library.
+  //*
+  //*     Description: This object represents a Library. It
+  //*     provides operations to discover and acquire manager objects,
+  //*     which provide access to all the functionality of this
+  //*     Library.
+  //*
+  //***************************************************************
+
+  interface Library
+    {
+
+ManagerTypeList get_manager_types ()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+      LibraryManager get_manager (in ManagerType manager_type, in
+				  AccessCriteria access_criteria)
+        raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+	LibraryDescription get_library_description ()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       LibraryDescriptionList get_other_libraries (in AccessCriteria access_criteria)
+        raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+    };
+
+
+//***************************************************************
+  //*     Interface GIAS::LibraryManager
+  //*
+  //*    Description: This (abstract) object defines the basic
+  //*    functions common to all types of managers.
+  //*
+  //*
+  //***************************************************************
+
+  interface LibraryManager
+    {
+    UCO::NameList get_property_names ()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+      PropertyList get_property_values (in UCO::NameList
+					desired_properties)
+        raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+      LibraryList get_libraries ()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+    };
+
+//***************************************************************
+  //*     Interface GIAS::RequestManager
+  //*
+  //*     Description: This (abstact) object defines the basic
+  //*     functions common to managers that use operations that
+  //*     generate request objects.
+  //*
+  //*
+  //***************************************************************
+
+  interface RequestManager
+    {
+
+      RequestList get_active_requests ()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+      unsigned long get_default_timeout ()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+      void set_default_timeout (in unsigned long new_default)
+        raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+      unsigned long get_timeout (in Request aRequest)
+        raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+      void set_timeout (in Request aRequest, in unsigned long
+			new_lifetime)
+        raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+      void delete_request (in Request aRequest)
+        raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+    };
+
+//***************************************************************
+  //*     interface GIAS:: AccessManager
+  //*
+  //*     Description: Provides functions to check and request the
+  //*     availability of Library products for specific purposes
+  //*
+  //***************************************************************
+
+  interface AccessManager:RequestManager
+  {
+
+    UseModeList get_use_modes ()
+raises (UCO::ProcessingFault, UCO::SystemFault);
+    boolean is_available (in UID::Product product, in UseMode use_mode)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+// Returns the time (in seconds) estimated to put the requested product // into the requested UseMode. DOES NOT request a change in the
+// availability  of product.
+
+    unsigned long query_availability_delay (in UID::Product product,
+			in AvailabilityRequirement availability_requirement,
+					    in UseMode use_mode)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+short  get_number_of_priorities()
+raises (UCO::ProcessingFault, UCO::SystemFault);
+
+SetAvailabilityRequest set_availability (in UID::ProductList products, in AvailabilityRequirement availability_requirement, in UseMode use_mode, in short priority)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  };
+
+//***************************************************************
+  //*                             The Managers
+  //*
+  //***************************************************************
+
+//***************************************************************
+  //*      interface GIAS::QueryOrderMgr
+  //*     Derived from GIAS::LibraryManager and
+  //*     GIAS::RequestManager
+  //*
+  //*     Description: Provides operations to submit a
+  //*     query based order.
+  //*
+  //*
+  //***************************************************************
+
+
+ interface QueryOrderMgr:LibraryManager, RequestManager
+  {
+
+    EventList get_event_descriptions()
+raises (UCO::ProcessingFault, UCO::SystemFault);
+
+SubmitQueryOrderRequest submit_query_order (
+
+			in Query aQuery,
+			in QueryLifeSpan lifespan,
+			in OrderType o_type,
+			in QueryOrderContents order,
+in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+  };
+
+//***************************************************************
+//*      interface GIAS:: VideoMgr
+//*     Derived from GIAS::LibraryManager and GIAS::AccessManager
+//*
+//*     Description: Provides operations to retrieve video data
+//*
+//*     NOTE: This interface is TBR.
+//***************************************************************
+
+//interface VideoMgr : LibraryManager, AccessManager {
+  //};
+
+//***************************************************************
+
+//***************************************************************
+  //*     interface GIAS:: OrderMgr
+  //*     Derived from GIAS:: LibraryManager and GIAS::AccessManager
+  //*
+  //*     Description: Provides operations to submit orders for Products
+  //*     contained in the Library:
+  //*
+  //*
+  //*
+  //***************************************************************
+
+interface OrderMgr:LibraryManager, AccessManager
+  {
+
+
+    UCO::NameList  get_package_specifications()
+raises (UCO::ProcessingFault, UCO::SystemFault);
+
+   ValidationResults validate_order (in OrderContents order, in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+    OrderRequest order (in OrderContents order, in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  };
+
+//***************************************************************
+  //*     interface GIAS:: DataModelMgr
+  //*     Derived from GIAS:: LibraryManager
+  //*
+  //*     Description: Provides operations to discover the elements of the
+  //*     data model in use by the library
+  //*
+  //*
+  //*
+  //***************************************************************
+
+  interface DataModelMgr:LibraryManager
+  {
+UCO::AbsTime get_data_model_date (in PropertyList properties)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+UCO::NameList get_alias_categories(in PropertyList properties)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+UCO::NameNameList get_logical_aliases(in string category, in PropertyList properties)
+raises( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+string get_logical_attribute_name (in ViewName view_name,in ConceptualAttributeType attribute_type, in PropertyList properties)
+       raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+ViewList get_view_names (in PropertyList properties)
+        raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+AttributeInformationList get_attributes (in ViewName view_name,in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+AttributeInformationList get_queryable_attributes (in ViewName view_name,in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  UCO::EntityGraph get_entities (in ViewName view_name,in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  AttributeInformationList get_entity_attributes (in Entity aEntity,in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+AssociationList get_associations(in PropertyList properties)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+unsigned short get_max_vertices(in PropertyList properties)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+};
+
+//***************************************************************
+  //*      interface GIAS:: CreationMgr
+  //*     Derived from GIAS::RequestManager and
+  //*     GIAS::LibraryManager
+  //*     Description: Provides operations to request/nominate the
+  //*     archiving and cataloging of a new product to a Library.
+  //*
+  //*
+  //***************************************************************
+
+  interface CreationMgr:LibraryManager, RequestManager
+  {
+     CreateRequest create (in UCO::FileLocationList new_product,in RelatedFileList related_files, in UCO::DAG creation_metadata,in PropertyList properties)
+ raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+    CreateMetaDataRequest create_metadata (in UCO::DAG creation_metadata, in ViewName view_name, in RelatedFileList related_files,  in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+CreateAssociationRequest create_association( in string assoc_name,
+					     in UID::Product view_a_object,
+					     in UID::ProductList view_b_objects,
+in UCO::NameValueList assoc_info)
+				raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+
+
+
+//***************************************************************
+  //*      interface GIAS:: UpdateMgr
+  //*     Derived from GIAS:: LibraryManager, and GIAS::RequestManager
+  //*     Description: Provides operations to modify, extend or delete
+  //*     existing catalog entries in a GIAS Library.
+  //*
+  //*
+  //***************************************************************
+
+  interface UpdateMgr: LibraryManager, RequestManager
+  {
+    void set_lock(in UID::Product lockedProduct)
+raises( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+  UpdateRequest update (in ViewName view, in UCO::UpdateDAGList changes, in RelatedFileList relfiles,  in PropertyList properties)
+     raises( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+UpdateByQueryRequest update_by_query(in UCO::NameValue updated_attribute,
+						in Query bqs_query,
+
+						in PropertyList properties)
+ raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+   void release_lock(in UID::Product lockedProduct)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+   void delete_product(in UID::Product prod)
+	raises(UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault
+);
+  };
+
+
+//***************************************************************
+  //*      interface GIAS:: CatalogMgr
+  //*     Derived from GIAS::LibraryManager and
+  //*    GIAS::RequestManager
+  //*
+  //*     Description: Provides operations to submit a query for
+  //*     processing.
+  //*
+  //*
+  //***************************************************************
+
+  interface CatalogMgr:LibraryManager, RequestManager
+  {
+
+    SubmitQueryRequest submit_query (
+in Query aQuery,
+in UCO::NameList result_attributes,
+in SortAttributeList sort_attributes,
+in PropertyList properties)
+ raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+
+
+    HitCountRequest hit_count (in Query
+			       aQuery, in PropertyList properties)
+		raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+
+  };
+
+//***************************************************************
+  //*      interface GIAS::StandingQueryMgr
+  //*     Derived from GIAS::LibraryManager and
+  //*     GIAS::RequestManager
+  //*
+  //*     Description: Provides operations to submit a
+  //*     standing query.
+  //*
+  //*
+  //***************************************************************
+
+interface StandingQueryMgr:LibraryManager, RequestManager
+  {
+
+    EventList get_event_descriptions()
+raises (UCO::ProcessingFault, UCO::SystemFault);
+
+    SubmitStandingQueryRequest submit_standing_query (
+				 in Query aQuery,
+                                                 in UCO::NameList result_attributes,
+                                                 in SortAttributeList sort_attributes,
+ in QueryLifeSpan lifespan,
+ in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+  };
+
+//***************************************************************
+  //*      interface GIAS:: ProductMgr
+  //*     Derived from GIAS::LibraryManager and GIAS::AccessManager
+  //*
+  //*     Description: Provides operations to retrieve data about a
+  //*     specific data set.
+  //*
+  //*
+  //***************************************************************
+
+  interface ProductMgr:LibraryManager, AccessManager
+  {
+
+    GetParametersRequest get_parameters (in UID::Product product, in UCO::NameList desired_parameters, in PropertyList properties)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+RelatedFileTypeList get_related_file_types( in UID::Product prod)
+		  raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+	GetRelatedFilesRequest get_related_files ( in UID::ProductList
+		products, in UCO::FileLocation location, in RelatedFileType
+		type, in PropertyList properties )
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault,
+	UCO::SystemFault );
+
+  };
+
+//***************************************************************
+  //*      interface GIAS:: IngestMgr
+  //*     Derived from GIAS::LibraryManager and
+  //*  GIAS::RequestManager
+  //*
+  //*     Description: Provides operations to perform bulk transfers
+  //*     of data between Libraries.
+  //*
+  //*
+  //***************************************************************
+
+interface IngestMgr:LibraryManager, RequestManager
+  {
+
+// FileLocation contains a directory
+    IngestRequest bulk_pull (in UCO::FileLocation location, in PropertyList property_list)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+// FileLocation contains a directory
+    IngestRequest bulk_push (in Query aQuery, in UCO::FileLocation location, in PropertyList property_list)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  };
+
+//***************************************************************
+  //*      interface GIAS:: Request
+  //*
+  //*     Description: An (abstract) object that provides operations
+  //*     common to all forms of requests.
+  //*
+  //*
+  //***************************************************************
+
+
+  interface Request
+  {
+
+    UCO::RequestDescription get_request_description ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+    void set_user_info (in string message)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  UCO::Status get_status ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+    DelayEstimate get_remaining_delay ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+    void cancel ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+    CallbackID register_callback (in CB::Callback acallback)
+raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+    void free_callback (in CallbackID id)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+    RequestManager get_request_manager ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+//***************************************************************
+  //*      interface GIAS:: OrderRequest
+  //*     Derived from GIAS::Request
+  //*     Description: Returned by calls to order.
+  //*
+  //*
+  //***************************************************************
+
+interface OrderRequest:Request
+  {
+  UCO::State complete (out DeliveryManifest prods)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+//***************************************************************
+  //*      interface GIAS:: SubmitQueryOrderRequest
+  //*     Derived from GIAS::Request
+  //*     Description: Returned by calls to submit_query_order.
+  //*
+  //*
+  //***************************************************************
+
+interface SubmitQueryOrderRequest:Request
+  {
+
+  void  pause()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+  void  resume()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+UCO::State complete_list (out DeliveryManifestList prods)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+  UCO::State complete (out DeliveryManifest prods)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+//***************************************************************
+  //***************************************************************
+  //*      interface GIAS:: CreateRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to create
+  //*
+  //*
+  //***************************************************************
+
+interface CreateRequest:Request
+  {
+  UCO::State complete (out UID::ProductList new_products)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+//***************************************************************
+  //*      interface GIAS:: CreateMetaDataRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to create_metadata
+  //*
+  //*
+  //***************************************************************
+
+  interface CreateMetaDataRequest:Request
+  {
+  UCO::State complete (out UID::Product new_product)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+
+//***************************************************************
+  //*      interface GIAS:: UpdateRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to update
+  //*
+  //*
+  //***************************************************************
+
+interface UpdateRequest:Request
+  {
+
+  UCO::State complete ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+  };
+
+
+//***************************************************************
+  //*      interface GIAS:: SubmitQueryRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to query
+  //*
+  //*
+  //***************************************************************
+
+interface SubmitQueryRequest:Request
+  {
+    void set_number_of_hits (in unsigned long hits)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+  UCO::State complete_DAG_results (out QueryResults results)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+ UCO::State complete_stringDAG_results (out UCO::StringDAGList results)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  UCO::State complete_XML_results (out UCO::XMLDocument results)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+  };
+
+//***************************************************************
+  //*     interface GIAS:: SubmitStandingQueryRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to submit_standing_query
+  //*
+  //*
+  //***************************************************************
+
+  interface SubmitStandingQueryRequest:Request
+  {
+    void set_number_of_hits (in unsigned long hits)
+      raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  unsigned long  get_number_of_hits()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+  unsigned long  get_number_of_hits_in_interval(in unsigned long  interval)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  unsigned long  get_number_of_intervals()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  void  clear_all()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+  void  clear_intervals(in unsigned long num_intervals)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  void  clear_before(in UCO::Time relative_time)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+  void  pause()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  void  resume()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  UCO::AbsTime get_time_last_executed()
+ raises (UCO::ProcessingFault, UCO::SystemFault);
+  UCO::AbsTime get_time_next_execution()
+raises (UCO::ProcessingFault, UCO::SystemFault);
+  UCO::State complete_DAG_results (out QueryResults results)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+UCO::State complete_stringDAG_results (out UCO::StringDAGList results)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  UCO::State complete_XML_results (out UCO::XMLDocument results)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+//***************************************************************
+  //*      interface GIAS:: SetAvailabilityRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to makeAvailable
+  //*
+  //*     `
+  //***************************************************************
+
+  interface SetAvailabilityRequest:Request
+  {
+  UCO::State complete ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+//***************************************************************
+  //*      interface GIAS:: HitCountRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to Hitcount
+  //*
+  //*
+  //***************************************************************
+
+interface HitCountRequest:Request
+  {
+  UCO::State complete (out unsigned long number_of_hits)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+//***************************************************************
+  //*      interface GIAS:: GetParametersRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to get_parameters
+  //*
+  //*
+  //***************************************************************
+
+  interface GetParametersRequest:Request
+  {
+  UCO::State complete (out UCO::DAG parameters)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  UCO::State complete_StringDAG (out UCO::StringDAG parameters)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+
+
+  };
+
+//***************************************************************
+  //*      interface GIAS:: IngestRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to bulk_push and bulk_pull
+  //*
+  //*
+  //***************************************************************
+
+  interface IngestRequest:Request
+  {
+  UCO::State complete ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+
+//***************************************************************
+  //*      interface GIAS:: GetRelatedFilesRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to get_related_files
+  //*
+  //*
+  //***************************************************************
+
+interface GetRelatedFilesRequest:Request
+  {
+  UCO::State complete (out UCO::NameList locations)
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+
+//***************************************************************
+  //*      interface GIAS:: CreateAssociationRequest
+  //*     Derived from GIAS::Request
+  //*
+  //*     Description: Returned by calls to create_association
+  //*
+  //*
+  //***************************************************************
+
+interface CreateAssociationRequest:Request
+  {
+    UCO::State complete ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+  };
+//*******************************************************************
+//*	interface GIAS::UpdateByQueryRequest
+//*	Derived from GIAS::Request
+//*	Description: Returned by calls to update_by_query
+//*
+//*******************************************************************
+interface UpdateByQueryRequest:Request
+  {
+    UCO::State complete ()
+	raises (UCO::ProcessingFault, UCO::SystemFault);
+
+  };
+
+};
+#endif

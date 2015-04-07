@@ -1,0 +1,979 @@
+#ifndef PS_IDL
+#define PS_IDL
+
+//***************************************************************
+  //*      APPROVED via RFC N01-0268 on 6 August 2001
+//***************************************************************
+
+//*****************************************************************
+ // FILE:             profile.idl
+ //
+ //
+ //
+ // DESCRIPTION:      Profile Service
+ //
+ //    Defines the data types and interfaces needed to support search,
+ //    retrieval and access to user, node, and system profiles.
+ //
+ // LIMITATIONS:
+ //
+ //
+ // SOFTWARE HISTORY:
+ //
+ //<
+ //***************************************************************************
+
+ #include "uco.idl"
+ #include "gias.idl"
+
+ //***************************************************************************
+ // MODULE: PS
+ //>   The main module for the Profile Service
+ //<
+ //***************************************************************************
+ module PS
+ {
+
+//***************************************************************
+//*	The Exception Identifiers for Profile Service (PS) Module
+//***************************************************************
+
+ const string UnknownProfileElementTypeConst = "UnknownProfileElementType";
+ const string BadAccessCriteriaConst = "BadAccessCriteria";
+ const string BadProfileElementConst = "BadProfileElement";
+ const string BadAccessValueConst = "BadAccessValue";
+ const string PasswordExpiredConst = "PasswordExpired";
+ const string InvalidOrderConst = "InvalidOrder";
+ const string InvalidQueryConst = "InvalidQuery";
+ const string UnknownOperationConst = "UnknownOperation";
+ const string VolumeReadAccessDeniedConst = "VolumeReadAccessDenied";
+ const string VolumeWriteAccessDeniedConst = "VolumeWriteAccessDenied";
+ const string FolderNotEmptyConst = "FolderNotEmpty";
+ const string FolderExistsConst = "FolderExists";
+ const string UnknownFolderItemTypeConst = "UnknownFolderItemType";
+ const string UnknownVolumeConst = "UnknownVolume";
+ const string UnknownPRIDConst = "UnknownPRID";
+ const string PermissionDeniedConst = "PermissionDenied";
+ const string BadFileLocationConst = "BadFileLocation";
+ const string SystemFaultConst = "SystemFault";
+
+    typedef string ProfileElementType;
+
+    typedef sequence <ProfileElementType> ProfileElementTypeList;
+
+    //***
+    // Forward References
+    //***
+    interface ProfileMgr;
+    interface Profile;
+    interface ProfileElement;
+
+    //***
+    // Forward References to the specific ProfileElements
+    //***
+    interface BasicProfile;
+    interface GIASProfile;
+    interface SecureProfile;
+    interface SecureViewProfile;
+
+    //**************************************************************************
+    // INTERFACE: ProfileMgr
+    //>  The ProfileMgr provides access control to Profile objects
+    //<
+    //**************************************************************************
+    interface ProfileMgr
+    {
+       Profile get_profile(in UCO::NameValueList access_criteria)
+          raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+       //> Returns the Profile for the user identified in access_criteria.
+       //<
+
+       string get_version()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+       //> Returns the version of this Profile manager.
+       //<
+
+       void set_user_password
+			(in UCO::NameValueList access_criteria,
+			in string new_password)
+				raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+    };
+
+ //**************************************************************************
+    // INTERFACE: Profile
+    //> The Profile object provides access to the contents of a Profile
+    //  by serving as a container for ProfileElement objects of different types.
+    //<
+    //**************************************************************************
+    interface Profile
+    {
+       ProfileElementTypeList get_profile_element_types()
+			raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //> Returns a list of all ProfileElementTypes contained in this Profile.
+       //<
+
+       ProfileElement     get_profile_element(in ProfileElementType element_type)
+          raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+       //> Returns the ProfileElement of the specified type.
+       //<
+
+       SecureProfile      get_secure_profile_element
+                             (in UCO::NameValueList  trusted_access_criteria)
+          raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+       //> This operation returns the secure profile element that contains
+       //  user security information that does not change across views.
+       //  The trusted access criteria limits the availability of this
+       //  information.  If the access criteria does not contain expected names,
+       //  the operation will return a BadAccessCriteria exception identifier.  If the access
+       //  criteria does not contain expected values, the operation will return a
+       //  BadAccessValue exception identifier.
+       //<
+
+       SecureViewProfile  get_secure_view_profile_element
+                             (in UCO::NameValueList  trusted_access_criteria,
+                              in GIAS::ViewName      view)
+          raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+       //> This method returns the secure profile element that contains
+       //  user security information that is view specific.  The
+       //  trusted access criteria limits the availability of this
+       //  information.  If the access criteria does not contain expected names,
+       //  the operation will return a BadAccessCriteria exception identifier.  If the access
+       //  criteria does not contain expected values, the operation will return a
+       //  BadAccessValue exception identifier.
+       //<
+
+       UCO::AbsTime       get_last_update_time()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+       //> Returns the time the Profile was last changed.
+       //<
+
+       void               get_profiled_views(out UCO::NameList view_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+       //> Returns a list of views that are valid for a particular profile
+       //<
+
+    };
+
+
+    //**************************************************************************
+    // INTERFACE ProfileElement
+    //> The ProfileElement object serves as the base abstract class for all
+    //  types of content objects in a Profile. It contains operations common to
+    //  all types of ProfileElement objects.
+    //<
+    //**************************************************************************
+    interface ProfileElement
+    {
+       UCO::AbsTime get_last_update_time()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+       //> Returns the time this ProfileElement was last changed.
+       //<
+    };
+
+
+    //**************************************************************************
+    // INTERFACE: BasicProfile
+    //
+    //> The BasicProfile object is a specialization of the ProfileElement
+    //  object to support all types of users. It contains operations and
+    //  types common to all types of users.
+    //<
+    //**************************************************************************
+    interface BasicProfile : ProfileElement
+    {
+
+        struct TelephoneNumber
+        {
+          string name;
+          string number;
+        };
+
+       typedef sequence<TelephoneNumber> TelephoneNumberList;
+
+       struct UserInformation
+       {
+          string              name;
+          string              organization;
+          string              address;
+          string              city;
+          string              state;
+          string              zip;
+          string              country;
+          string              email;
+          TelephoneNumberList phone_numbers;
+          UCO::FileLocation   ftp_location;
+		 UCO::AbsTime	    password_expiration;
+
+       };
+
+       struct UserPreference
+       {
+          string  name;
+          string  value;
+          boolean editable;
+          string  description;
+       };
+
+       typedef sequence<UserPreference> UserPreferenceList;
+
+
+       typedef sequence<string> PreferenceNameList;
+
+       struct UserPreferenceDomain
+       {
+          GIAS::Domain adomain;
+          boolean      multi_select;
+       };
+
+       struct SecurityInformation
+       {
+          string  classification;
+          boolean security_administrator_flag;
+       };
+
+       void get_user_information      (out UserInformation     info)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       void set_user_information      (in  UserInformation     info)
+		raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       void get_security_information  (out SecurityInformation info)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       void get_available_preferences (out PreferenceNameList  names)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       void get_preference_domain     (in  string              preference_name,
+                                       out GIAS::Domain        domain)
+		raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       void get_user_preference       (in  string              preference_name,
+                                       out UserPreference      preference)
+		raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       void get_user_preferences      (out UserPreferenceList  list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       void set_user_preference       (in  UserPreference      preference)
+		raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       void set_user_preferences      (in  UserPreferenceList  preferences)
+		raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+    };
+
+    //**************************************************************************
+    // INTERFACE: SecureProfile
+    //
+    //> The SecureProfile object is a specialization of the ProfileElement
+    //  object to support basic security information access.
+    //<
+    //**************************************************************************
+    interface SecureProfile : ProfileElement
+    {
+       //***
+       // Authorization Information
+       //***
+
+       struct Authorization
+       {
+          string         authorization_classification;
+          UCO::NameList  exception_country_list;
+          UCO::NameList  releasable_country_list;
+          UCO::NameList  releasable_org_list;
+          UCO::NameList  distribution_limit_code_list;
+          UCO::NameList  access_agreement_list;
+          UCO::NameList  compartment_list;
+       };
+       //> This data structure holds the elements that constitute
+       //  a discretionary access authorization for the user.
+       //<
+
+       void    get_authorization
+                   (out Authorization     aauthorization)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+       //> This operation returns the authorization information.
+       //<
+
+       void    get_authorization_classification
+                   (out string            classification)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+       //> This operation returns a user's authorization classification level.
+       //<
+
+       void    get_exception_by_countries
+                   (out UCO::NameList     country_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //> This operation returns the exception by country list.
+       //<
+
+       void    get_releasable_countries
+                   (out UCO::NameList     country_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //> This operation returns the releasable country list.
+       //<
+
+       void    get_releasable_organizations
+                   (out UCO::NameList     organization_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //> This operation returns the releasable organization list.
+       //<
+
+       void    get_distribution_limitation_codes
+                   (out UCO::NameList     code_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //> This operation returns the distribution limitation code list.
+       //<
+
+       void    get_access_agreements
+                   (out UCO::NameList     agreement_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //> This operation returns the access agreement list.
+       //<
+
+       void    get_compartments
+                   (out UCO::NameList     compartment_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //> This operation returns the compartment list for the user.
+       //<
+
+       //***
+       // Attribute/entity Restriction Information
+       //***
+
+       enum  AccessType {READ_DENIED, WRITE_DENIED};
+
+       void  get_restricted_attributes
+                 (in  AccessType    access_type,
+                  out UCO::NameList attribute_list)
+		raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+       //> This operation returns the restricted attribute identifiers
+       //  for the user relative to a specific view.
+       //<
+
+       void  get_restricted_entities
+                 (in  AccessType    access_type,
+                  out UCO::NameList entity_list)
+		raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+       //> This operation returns the restricted entity identifiers
+       //  for the user relative to a specific view.
+       //<
+
+
+    };
+
+    //**************************************************************************
+    // INTERFACE: SecureViewProfile
+    //
+    //> The SecureViewProfile object is a specialization of the SecureProfile
+    //  object to support view-oriented security information access.
+    //<
+    //**************************************************************************
+    interface SecureViewProfile : SecureProfile
+    {
+       //***
+       // Authorization Information
+       //***
+
+       boolean use_authorization()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //> This operation returns a true indication if the authorizaton
+       //  is to be used for discretionary access control for
+       //  the specified view.
+       //<
+
+
+       //***
+       // Attribute Value Restriction Information
+       //***
+
+       void  get_restricted_attribute_values
+                 (out string        restriction)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+       //> This operation returns the restricted attribute value
+       //  string for the user relative to a specific view.
+       //<
+    };
+
+
+    //**************************************************************************
+    // INTERFACE: GIASProfile
+    //
+    //> The GIASProfile object is a specialization of the ProfileElement
+    //  object to support users of GIAS Libraries. It contains methods and
+    //  types specific to GIAS libraries operations.
+    //<
+    //**************************************************************************
+    interface GIASProfile : ProfileElement
+    {
+
+
+       //***
+       // Defines a profile id used to uniquely identify objects within the
+       // user profile
+       //***
+       typedef string          PRID;
+       typedef sequence <PRID> PRIDList;
+
+       void get_allowable_operations(out UCO::NameList operation_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+       //> This operation returns a list of the allowable operations for
+       //  a particular user.
+       //<
+
+       boolean operation_is_allowed (in string operation)
+           raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+       //> This operation returns TRUE if the specified manager is
+       //  accessible by the user, otherwise FALSE is returned.
+       //<
+
+       typedef string                   FolderTree;
+       // string defined as: \folder1\folder2\folder3\etc...
+       //   An empty string or '\' denotes the root folder.
+
+       struct FolderLocation
+       {
+          string      volume;
+          FolderTree  folder;
+       };
+
+       struct VolumeInfo
+       {
+          boolean            default_volume;
+          string             volume;
+          boolean            read_permission;
+          boolean            write_permission;
+          boolean            create_delete_permission;
+       };
+
+       typedef    sequence < VolumeInfo > VolumeInfoList;
+       typedef    sequence < FolderLocation> FolderLocationList;
+
+       enum  FolderItemType
+       {
+          SAVED_QUERY,
+          SUBMITTED_QUERY,
+          SUBMITTED_QUERY_AND_HIT_COUNT,
+          STANDING_QUERY,
+          SAVED_ORDER,
+          SUBMITTED_ORDER,
+          STANDING_ORDER,
+          SUBMITTED_CREATE,
+	    SUBMITTED_HIT_COUNT,
+          RESULTS_DIGEST,
+          SESSION,
+          ALL
+       };
+
+       struct FolderItem
+       {
+          PRID                item_id;
+          FolderLocation      location;
+          string              name;
+          string              description;
+          FolderItemType      type;
+          UCO::AbsTime        creation_time;
+          UCO::AbsTime        last_accessed_time;
+          UCO::AbsTime        last_modified_time;
+          string              owner_name;
+          string              user_created_name;
+          string              user_last_accessed_name;
+          string              user_last_modified_name;
+          UCO::Rectangle      area_of_interest_mbr;
+       };
+
+       typedef sequence < FolderItem >   FolderItemList;
+
+       //***
+       // FolderItem holds one of the following:
+       //   SubmittedQuery
+       //   SubmittedQueryAndHitCount
+       //   SubmittedOrder
+       //   SubmittedCreate
+       //   StandingQuery
+       //   StandingOrder
+       //   SavedQuery
+       //   SavedOrder
+       //   ResultsDigest
+       //   SavedSession
+       //***
+       typedef any FolderContent;
+       typedef sequence <FolderContent> FolderContentList;
+
+       enum SearchDepth
+       {
+          SINGLE_FOLDER,
+          FOLDER_TREE
+       };
+
+       //***
+       // Return a list of available volumes
+       //***
+       void list_volumes(
+             out VolumeInfoList volume_list)
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Creates a new folder in the location specified
+       //***
+       void new_folder (
+             in FolderLocation folder)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Moves a folder's location
+       //***
+       void update_folder (
+             in FolderLocation folder,
+             in FolderLocation new_location)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Removes an empty folder
+       //***
+       void remove_folder (
+             in FolderLocation folder)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Return a list of folders in a specific folder
+       //***
+       void list_folders (
+             in  FolderLocation      folder,
+             out FolderLocationList  query_items)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Update a specific folder item in the profile
+       //***
+       void update_folder_item (
+             in PRID             item_id,
+             in FolderLocation   location,
+             in string           name,
+             in string           description,
+             in UCO::Rectangle   area_of_interest_mbr)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Returns the contents of a folder item
+       // N.B. Some folder item types may override this operation.
+       //***
+       void get_entry (
+             in  PRID             item_id,
+             out FolderContent    entry)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Removes a folder item
+       //***
+       void remove_entry (
+             in  PRID             item_id)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Returns a list of folder contents of a given type.
+       // Can search just in a given folder or recursively search the folder
+       // tree starting at a given folder location.
+       // N.B. This call may not be useful for some folder item types.
+       //***
+       void list_entries (
+             in  FolderItemType   type,
+             in  FolderLocation   starting_point,
+             in  SearchDepth      depth,
+             out FolderContentList entries)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Returns a list of folder information for a given folder item type.
+       // Can search just in a given folder or recursively search the folder
+       // tree starting at a given folder location.
+       //***
+       void list_entry_items (
+             in  FolderItemType   type,
+             in  FolderLocation   starting_point,
+             in  SearchDepth      depth,
+             out FolderItemList   entry_items)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+       //***********************************************************************
+       // Submitted Queries
+       //
+       //> These are queries that have been submitted to a Library, but the
+       //  client has not yet completed the retrieval of the query results.
+       //  This is useful when queries are time-consuming.
+       //<
+       //***********************************************************************
+       struct SubmittedQuery
+       {
+          FolderItem                       item_info;
+          GIAS::SubmitQueryRequest         request;
+       };
+       typedef sequence<SubmittedQuery> SubmittedQueryList;
+
+
+//***********************************************************************
+       // Submitted Queries and Hit Count
+       //
+       //> These are queries that have been submitted to a Library, but the
+       //  client has not yet completed the retrieval of the query results.
+       //  This is useful when queries are time-consuming.
+       //<
+       //***********************************************************************
+       struct SubmittedQueryAndHitCount
+       {
+          FolderItem                       item_info;
+          GIAS::SubmitQueryRequest         request;
+	    GIAS::RequestList			 hit_count_requests;
+       };
+       typedef sequence<SubmittedQueryAndHitCount> SubmittedQueryAndHitCountList;
+
+       PRID new_submitted_query (
+             in FolderLocation             folder,
+             in string                     name,
+             in string                     description,
+             in UCO::Rectangle             area_of_interest_mbr,
+             in GIAS::SubmitQueryRequest   request)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+	PRID new_submitted_query_and_hitcount (
+            in FolderLocation             folder,
+            in string                     name,
+            in string                     description,
+            in UCO::Rectangle             area_of_interest_mbr,
+            in GIAS::SubmitQueryRequest   request,
+		in GIAS::RequestList		 hit_count_requests)
+         raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+struct SubmittedHitCount
+      {
+         FolderItem                       item_info;
+         GIAS::HitCountRequest            request;
+      };
+      typedef sequence<SubmittedHitCount> SubmittedHitCountList;
+
+
+
+
+ PRID new_submitted_hitcount (
+             in FolderLocation             folder,
+             in string                     name,
+             in string                     description,
+             in UCO::Rectangle             area_of_interest_mbr,
+             in GIAS::HitCountRequest      request)
+          raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+       //***********************************************************************
+       // Submitted Orders
+       //
+       //> These are orders that have been submitted to a Library, but the
+       //  user has not yet deleted.  A user may need to keep orders around
+       //  if they take a long time to complete.
+       //<
+       //***********************************************************************
+       struct SubmittedOrder
+       {
+          FolderItem                       item_info;
+          GIAS::OrderRequest               request;
+       };
+       typedef sequence<SubmittedOrder> SubmittedOrderList;
+
+       PRID new_submitted_order(
+             in FolderLocation     folder,
+             in string             name,
+             in string             description,
+             in UCO::Rectangle     area_of_interest_mbr,
+             in GIAS::OrderRequest order)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***********************************************************************
+       // Submitted Creates
+       //
+       //> These are creates that have been submitted to a Library, but the
+       //  user has not yet deleted.  A user may need to keep these around
+       //  if they take a long time to complete.
+       //<
+       //***********************************************************************
+       struct SubmittedCreate
+       {
+          FolderItem                       item_info;
+          GIAS::CreateRequest              request;
+       };
+       typedef sequence<SubmittedCreate> SubmittedCreateList;
+
+       PRID new_submitted_create(
+             in FolderLocation      folder,
+             in string              name,
+             in string              description,
+             in UCO::Rectangle      area_of_interest_mbr,
+             in GIAS::CreateRequest create_request)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+       //***********************************************************************
+       // Standing Queries
+       //
+       //> These are queries that get executed on a scheduled basis.  The client
+       //  needs to be able to access the query request at any time.
+       //<
+       //***********************************************************************
+       struct StandingQuery
+       {
+          FolderItem                       item_info;
+          GIAS::SubmitStandingQueryRequest request;
+       };
+
+       typedef sequence <StandingQuery>  StandingQueryList;
+
+       PRID new_standing_query (
+             in FolderLocation                    folder,
+             in string                            name,
+             in string                            description,
+             in UCO::Rectangle                    area_of_interest_mbr,
+             in GIAS::SubmitStandingQueryRequest  request)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+       //***********************************************************************
+       // Standing Orders
+       //
+       //> These are orders that get executed on a scheduled basis.  The client
+       //  needs to be able to access the order request at any time.
+       //<
+       //***********************************************************************
+       struct StandingOrder
+       {
+          FolderItem                       item_info;
+  GIAS::QueryOrderContents                         order;
+          GIAS::SubmitStandingQueryRequest query;
+       };
+
+       typedef sequence <StandingOrder>  StandingOrderList;
+
+       PRID new_standing_order(
+             in FolderLocation                   folder,
+             in string                           name,
+             in string                           description,
+             in GIAS::QueryOrderContents                         order,
+             in UCO::Rectangle                   area_of_interest_mbr,
+             in GIAS::SubmitStandingQueryRequest query)
+          raises (UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+       //***********************************************************************
+       // Saved Queries
+       //
+       //>
+       //<
+       //***********************************************************************
+       struct SavedQuery
+       {
+          FolderItem        item_info;
+          GIAS::Query       bqs;
+          UCO::FileLocation thumbnail_location;
+          boolean           browse_image_returned_flag;
+          UCO::NameList     result_attributes;
+          GIAS::SortAttributeList     sort_attributes;
+          string            geographic_datum;
+          UCO::AbsTime      last_submitted_date;
+       };
+
+       typedef sequence < SavedQuery >  SavedQueryList;
+
+
+
+       //***
+       // Save the query information to the specified folder.
+       //***
+       PRID new_saved_query (
+             in FolderLocation          folder,
+             in string                  name,
+             in string                  description,
+             in GIAS::Query             bqs,
+             in boolean                 browse_image_returned_flag,
+             in UCO::NameList           result_attributes,
+		     in GIAS::SortAttributeList     sort_attributes,
+             in string                  geographic_datum,
+             in UCO::AbsTime            last_submitted_date,
+             in UCO::Rectangle          area_of_interest_mbr)
+  raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Update a specified query from the profile
+       //***
+       void update_saved_query (
+             in PRID               saved_query_id,
+             in string             name,
+             in string             description,
+             in GIAS::Query        bqs,
+             in boolean            browse_image_returned_flag,
+             in UCO::NameList      result_attributes,
+             in GIAS::SortAttributeList     sort_attributes,
+             in string             geographic_datum,
+             in UCO::AbsTime       last_submitted_date,
+             in UCO::Rectangle     area_of_interest_mbr)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+
+
+       //***********************************************************************
+       // Saved Orders
+       //
+       //>
+       //<
+       //***********************************************************************
+       struct SavedOrder
+       {
+          FolderItem    item_info;
+	     GIAS::OrderContents      order;
+       };
+
+       typedef sequence < SavedOrder > SavedOrderList;
+
+       PRID new_saved_order (
+             in FolderLocation   folder,
+             in string           name,
+             in string           description,
+             in UCO::Rectangle   area_of_interest_mbr,
+             in GIAS::OrderContents         order)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       void update_saved_order(
+             in PRID             saved_order_id,
+             in string           name,
+             in string           description,
+             in UCO::Rectangle   area_of_interest_mbr,
+             in GIAS::OrderContents         order)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+       //***********************************************************************
+       // Results Digests
+       //
+       //>
+       //<
+       //***********************************************************************
+       struct ResultsDigest
+       {
+          FolderItem     item_info;
+       };
+
+       typedef sequence < ResultsDigest >  ResultsDigestList;
+
+       //***
+       // Save the results digest to the specified folder... the
+       // server will ftp get the digest from the specified file
+       // location.
+       //***
+       PRID new_results_digest (
+             in FolderLocation    folder,
+             in string            name,
+             in string            description,
+             in UCO::Rectangle    area_of_interest_mbr,
+             in UCO::FileLocation digest_location)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Update the specified results digest in the profile
+       //***
+       void update_results_digest(
+             in PRID               results_digest_id,
+             in string             name,
+             in string             description,
+             in UCO::Rectangle     area_of_interest_mbr,
+             in UCO::FileLocation  digest_location)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Get the results digest for the specified ID... the server
+       // will ftp put the digest to the specified file location.
+       //***
+       void get_results_digest (
+             in PRID              query_id,
+             in UCO::FileLocation destination_file)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+
+       //***********************************************************************
+       // Saved Sessions
+       //
+       //>
+       //<
+       //***********************************************************************
+       struct SavedSession
+       {
+          FolderItem      item_info;
+          string          session_text;
+       };
+
+       typedef sequence < SavedSession >  SavedSessionList;
+
+       //***
+       // Save the session to the specified folder... the
+       // server will ftp get the session from the specified file
+       // location.
+       // ***
+       PRID new_saved_session (
+             in FolderLocation        folder,
+             in string                name,
+             in string                description,
+             in UCO::Rectangle        area_of_interest_mbr,
+             in UCO::FileLocation     session_location)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Update the specified saved session in the profile
+       //***
+       void update_saved_session(
+             in PRID              saved_session_id,
+             in string            name,
+             in string            description,
+             in UCO::Rectangle    area_of_interest_mbr,
+             in UCO::FileLocation session_location)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+       //***
+       // Get the saved session for the specified ID... the server
+       // will ftp put the session to the specified file location.
+       //***
+       void get_saved_session (
+             in PRID               query_id,
+             in UCO::FileLocation destination_file)
+          raises (
+ UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+    }; // end interface GIASProfile
+
+ };
+#endif

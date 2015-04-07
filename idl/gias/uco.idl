@@ -1,0 +1,417 @@
+#ifndef UCO_IDL
+#define UCO_IDL
+
+//***************************************************************
+  //*      APPROVED via RFC N01-0268 on 6 August 2001
+//***************************************************************
+
+
+// *************************************************************
+//*
+//*         The USIGS Common Object Specification
+//*
+//*
+//*     Description: Defines fundamental data types and
+//*     interfaces to be used by other specifications to
+//*     support interoperation across independently designed
+//*     interfaces.
+//*
+//*
+//*
+//*     History:
+//*     Date            Author   Comment
+//*     -----           ------   --------
+//*     15 May 97       D. Lutz  Initial release for review
+//*     2 July 97       D. Lutz  Released for TEM review
+//*     11 July 97      D. Lutz  Changes based on 2 July TEM
+//*                              Comments
+//*     16 Oct 97       D. Lutz  Changes based on 7 Oct TEM
+//*                              Comments
+//*     14 Nov 97       D. Lutz  Changes based on 4 Nov TEM
+//*                              Comments
+//*     17 Dec 97       D. Lutz  Changes based on 9 Dec TEM
+//*                              Comments
+//*     13 Apr 98       J. Baldo Changes based on feedback from
+//*                              distributions of UCOS v1.1 and
+//*                              GIAS v3.1
+//*     2 July 98       J. Baldo/D. Lutz Changes based on feedback
+//*                              from 22-23 June 98 TEM
+//*     29 Sept 98      J. Baldo/D. Lutz Changes based on feedback
+//*                              from 22-23 September 1998 TEM
+//*
+//*                              from 4-5 August 1999 TEM - Simplified the 2 and 3D Coordinates to be floats only.
+//*                              from 19 January 2000 TEM -
+//* included a generic exception∆s model that GIXS,
+//*GIAS Profile will use.
+//*	7 March 2000		   from March 2000 TEM - added new //*						   structure that is somewhat similar //*					   to NameValueTable called a //*							   StringTable
+//*
+//*     Notes
+//*     -------
+//*	7 March 2000	Needed to include the UID Module
+//*
+//*************************************************************
+
+#include "uid.idl"
+
+// The USIGS Common Objects
+module UCO
+{
+  // Generic data types
+
+
+  typedef string Name;
+  typedef sequence < Name > NameList;
+
+  struct NameName
+  {
+    Name name1;
+    Name name2;
+  };
+
+  typedef sequence <NameName> NameNameList;
+
+  struct NameValue
+  {
+    Name aname;
+    any value;
+  };
+
+  typedef sequence < NameValue > NameValueList;
+
+  typedef float Percentage;
+
+
+  typedef double Angle;
+
+  struct Ratio {
+    double numerator;
+    double denominator;
+  };
+
+
+typedef double DataRate;
+
+  typedef string UCOS_NULL;
+
+  struct FileLocation
+  {
+    string user_name;
+    string password;
+    string host_name;
+    string path_name;
+    string file_name;
+  };
+
+  typedef sequence < FileLocation > FileLocationList;
+
+  enum Protocol { HTTP, FTP, FILE };
+
+  struct DirectAccessLocation
+  {
+    Protocol      access_protocol;
+    FileLocation  file_location;
+  };
+
+  struct Date
+  {
+    unsigned short year;
+    unsigned short month;
+    unsigned short day;
+  };
+
+  struct Time
+  {
+    unsigned short hour;
+    unsigned short minute;
+    float second;
+  };
+
+  typedef Time Duration;
+
+  struct AbsTime
+  {
+    Date aDate;
+    Time aTime;
+  };
+
+
+  typedef string EmailAddress;
+
+  // Begin DAG definition
+
+  typedef unsigned long NodeID;
+
+  enum NodeType { ROOT_NODE, ENTITY_NODE, RECORD_NODE,
+                  ATTRIBUTE_NODE };
+
+  struct Node
+  {
+    NodeID id;
+    NodeType node_type;
+    Name attribute_name;
+    any value;
+  };
+ enum Cardinality { ONE_TO_ONE, ONE_TO_MANY, MANY_TO_ONE, MANY_TO_MANY, ONE_TO_ZERO_OR_MORE, ONE_TO_ONE_OR_MORE, ONE_TO_ZERO_OR_ONE };
+
+  struct Edge
+  {
+    NodeID start_node;
+    NodeID end_node;
+    string relationship_type;
+};
+
+  typedef sequence < Node > NodeList;
+  typedef sequence < Edge > EdgeList;
+
+
+  struct DAG
+  {
+    NodeList nodes;
+    EdgeList edges;
+  };
+
+  typedef sequence < DAG > DAGList;
+
+// Begin StringDAG definition
+struct StringNode
+  {
+	NodeID id;
+	NodeType node_type;
+	Name attribute_name;
+	string value;
+  };
+typedef sequence < StringNode > StringNodeList;
+
+struct StringDAG
+  {
+	any prod;
+	StringNodeList nodes;
+	EdgeList edges;
+  };
+
+typedef sequence < StringDAG > StringDAGList;
+
+
+
+enum ChangeType { ADD_CHANGE, UPDATE_CHANGE, DELETE_CHANGE };
+
+struct Change {
+
+  NodeID changed_node;
+  ChangeType change_type;
+
+};
+
+typedef sequence <Change> ChangeList;
+
+struct UpdateDAG {
+
+  DAG data;
+  ChangeList changes;
+
+};
+
+typedef sequence <UpdateDAG> UpdateDAGList;
+
+ struct RequestDescription
+    {
+      string user_info;
+      string request_type;
+      string request_info;
+      NameValueList request_details;
+    };
+typedef sequence < RequestDescription > RequestDescriptionList;
+typedef sequence <octet> BinData;
+
+typedef string XMLDocument;
+
+
+
+  // Basic Geospatial  data types
+
+
+  // 3D and 2D floating point coordinate
+  struct Coordinate2d {
+    double x;
+    double y;
+  };
+
+  struct Coordinate3d {
+    double x;
+    double y;
+    double z;
+  };
+
+
+  struct LinearDimension
+  {
+    double dimension;
+    string reference_system;
+  };
+
+
+typedef double AreaDimension;
+
+  typedef LinearDimension Height;
+  typedef LinearDimension Elevation;
+  typedef LinearDimension Distance;
+  typedef LinearDimension Radius;
+  typedef sequence < Coordinate2d > LineString2d;
+  typedef sequence < Coordinate3d > LineString3d;
+  typedef sequence < Coordinate2d > Polygon;
+  typedef sequence < Polygon > PolygonSet;
+
+  struct Circle
+  {
+    Coordinate2d centerpoint;
+    Radius       aRadius;
+  };
+
+  struct Ellipse
+  {
+    Coordinate2d centerpoint;
+    Distance     minor_axis_len;
+    Distance     major_axis_len;
+    Angle        north_angle;
+  };
+
+  struct Rectangle
+  {
+    Coordinate2d upper_left;
+    Coordinate2d lower_right;
+  };
+
+  typedef sequence < Rectangle > RectangleList;
+
+
+  typedef double FileSize;
+
+
+
+typedef double Weight;
+
+  // Simple composite geospatial datatypes
+
+  enum BufferType
+  {
+    OCTET_DATA, CHAR_DATA, SHORT_DATA, USHORT_DATA,
+    LONG_DATA, ULONG_DATA, FLOAT_DATA, DOUBLE_DATA
+  };
+
+	typedef sequence < octet > octetList;
+	typedef sequence < char >charList;
+	typedef sequence < unsigned short >ushortList;
+	typedef sequence < short >shortList;
+	typedef sequence < unsigned long >ulongList;
+	typedef sequence < long >longList;
+	typedef sequence < float >floatList;
+	typedef sequence < double >doubleList;
+
+  union Buffer
+    switch (BufferType)
+      {
+        case OCTET_DATA: octetList octet_buffer;
+        case CHAR_DATA:  charList char_buffer;
+        case USHORT_DATA:ushortList ushort_buffer;
+        case SHORT_DATA: shortList short_buffer;
+        case ULONG_DATA: ulongList ulong_buffer;
+        case LONG_DATA:  longList long_buffer;
+        case FLOAT_DATA: floatList float_buffer;
+        case DOUBLE_DATA:doubleList double_buffer;
+      };
+
+
+  struct SimpleGSImage
+  {
+    unsigned long width;
+    unsigned long height;
+    Buffer pixels;
+  };
+
+
+  struct SimpleCImage
+  {
+    unsigned long width;
+    unsigned long height;
+    Buffer red_pixels;
+    Buffer green_pixels;
+    Buffer blue_pixels;
+  };
+
+  struct CompressedImage
+  {
+    unsigned long width;
+    unsigned long height;
+    string compression_form;
+    octetList data;
+  };
+
+
+  enum State
+  {
+    COMPLETED, IN_PROGRESS, ABORTED, CANCELED, PENDING,
+    SUSPENDED, RESULTS_AVAILABLE, TRANSFER_COMPLETE
+  };
+
+  struct Status
+  {
+    State completion_state;
+    boolean warning;
+    string status_message;
+  };
+
+ struct EntityNode
+  {
+	NodeID id;
+	string entity_name;
+  };
+
+struct EntityRelationship
+  {
+	NodeID start_node;
+	NodeID end_node;
+	Cardinality start_to_end_card;
+	Cardinality end_to_start_card;
+  };
+
+typedef sequence < EntityNode > EntityNodeList;
+typedef sequence < EntityRelationship > EntityRelationshipList;
+
+struct EntityGraph
+  {
+	EntityNodeList nodes;
+	EntityRelationshipList relationship;
+  };
+
+//***********************************************************
+//	Exception Structure  and Exceptions for the UCO (also
+//	used for GIAS, GIXS and Profile Service)
+//************************************************************
+
+	struct exception_details {
+		string exception_name;
+		boolean standard_exception_name;
+		string exception_desc;
+	};
+
+//InvalidInputParameter Exception
+
+exception InvalidInputParameter {
+  exception_details details;
+  UCO::NameList badInputParameters;
+	};
+
+//Processing Fault Exception
+
+exception ProcessingFault {
+  exception_details details;
+	};
+
+//System Fault Exception
+
+exception SystemFault {
+  exception_details details;
+	};
+
+};
+#endif

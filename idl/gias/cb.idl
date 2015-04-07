@@ -1,0 +1,34 @@
+#ifndef CB_IDL
+#define CB_IDL
+
+//***************************************************************
+  //*      APPROVED via RFC N01-0268 on 6 August 2001
+//***************************************************************
+
+
+//***************************************************************
+  //*      interface GIAS::Callback
+  //*
+  //*     Description: General callback interface
+  //*
+  //*     NOTE: The Callback interface is implemented on the
+  //*     "client" side to allow "servers" to notify clients of
+  //*     completion of requests.
+  //*
+  //*     NOTE: Callback module is now compiled as a separate IDL file.
+  //*     This will be changed in GIAS 3.3
+  //***************************************************************
+#include "uco.idl"
+
+module CB
+{
+interface Callback
+  {
+	void notify (in UCO::State theState, in UCO::RequestDescription description)
+	raises ( UCO::InvalidInputParameter, UCO::ProcessingFault, UCO::SystemFault);
+
+	void release ()
+		raises (UCO::ProcessingFault, UCO::SystemFault);
+  };
+};
+#endif
