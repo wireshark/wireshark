@@ -1646,7 +1646,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 
 static gchar *dissect_7bit_string (tvbuff_t *tvb, gint offset, gint length)
 {
-  guchar *encoded = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
+  guchar *encoded = (guchar *)tvb_memdup (wmem_packet_scope(), tvb, offset, length);
   guchar *decoded = (guchar *)wmem_alloc0 (wmem_packet_scope(), (size_t)(length * 1.2) + 1);
   guchar  rest = 0, bits = 1;
   gint    len = 0, i;
