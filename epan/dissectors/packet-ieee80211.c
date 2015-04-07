@@ -1854,6 +1854,13 @@ static const value_string ieee80211_tag_measure_request_noise_histogram_sub_repo
   { 0x00, NULL}
 };
 
+#define MEASURE_REP_REPORTED_FRAME_BODY 1
+
+static const value_string ieee80211_tag_measure_report_beacon_sub_id_vals[] = {
+  { MEASURE_REP_REPORTED_FRAME_BODY, "Reported Frame Body" },
+  { 221, "Vendor Specific" },
+  { 0x00, NULL}
+};
 
 static const value_string frame_type[] = {
   {MGT_FRAME,       "Management frame"},
@@ -4109,6 +4116,9 @@ static int hf_ieee80211_tag_measure_report_ipi_density_9 = -1;
 static int hf_ieee80211_tag_measure_report_ipi_density_10 = -1;
 static int hf_ieee80211_tag_measure_report_parent_tsf = -1;
 
+static int hf_ieee80211_tag_measure_report_subelement_length = -1;
+static int hf_ieee80211_tag_measure_report_beacon_sub_id = -1;
+
 static int hf_ieee80211_tag_measure_report_unknown = -1;
 
 static int hf_ieee80211_tag_quiet_count = -1;
@@ -5167,6 +5177,7 @@ static gint ett_tag_measure_report_type_tree = -1;
 static gint ett_tag_measure_report_basic_map_tree = -1;
 static gint ett_tag_measure_report_rpi_tree = -1;
 static gint ett_tag_measure_report_frame_tree = -1;
+static gint ett_tag_measure_reported_frame_tree = -1;
 static gint ett_tag_bss_bitmask_tree = -1;
 static gint ett_tag_dfs_map_tree = -1;
 static gint ett_tag_erp_info_tree = -1;
@@ -14885,7 +14896,39 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_parent_tsf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            /* TODO Add Optional Subelements */
+
+            while (offset < tag_end)
+            {
+              guint8 sub_id, sub_length;
+              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_beacon_sub_id, tvb, offset, 1, ENC_NA);
+              sub_id = tvb_get_guint8(tvb, offset);
+              offset += 1;
+
+              proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_subelement_length, tvb, offset, 1, ENC_NA);
+              sub_length = tvb_get_guint8(tvb, offset);
+              offset += 1;
+
+              switch (sub_id) {
+                case MEASURE_REP_REPORTED_FRAME_BODY: /* Reported Frame Body (1) */
+                  {
+                    proto_tree *rep_tree;
+
+                    rep_tree = proto_tree_add_subtree(sub_tree, tvb, offset, sub_length, ett_tag_measure_reported_frame_tree, NULL, "Reported Frame Body");
+
+                    add_fixed_field(rep_tree, tvb, pinfo, 0, FIELD_TIMESTAMP);
+                    add_fixed_field(rep_tree, tvb, pinfo, 8, FIELD_BEACON_INTERVAL);
+                    add_fixed_field(rep_tree, tvb, pinfo, 10, FIELD_CAP_INFO);
+                    offset += 12;
+
+                    ieee_80211_add_tagged_parameters (tvb, offset, pinfo, rep_tree, sub_length - 12, MGT_PROBE_RESP);
+                    offset += (sub_length - 12);
+                  }
+                  break;
+                default:
+                  /* no default action */
+                  break;
+              }
+            }
             break;
           }
           case 6: /* Frame Report */
@@ -24530,6 +24573,16 @@ proto_register_ieee80211 (void)
       FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_measure_report_subelement_length,
+     {"Length", "wlan_mgt.measure.req.sub.length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_measure_report_beacon_sub_id,
+     {"SubElement ID", "wlan_mgt.measure.req.beacon.sub.id",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_tag_measure_report_beacon_sub_id_vals), 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_measure_report_unknown,
      {"Unknown Data", "wlan_mgt.measure.rep.unknown",
       FT_BYTES, BASE_NONE, NULL, 0,
@@ -26669,6 +26722,7 @@ proto_register_ieee80211 (void)
     &ett_tag_measure_report_basic_map_tree,
     &ett_tag_measure_report_rpi_tree,
     &ett_tag_measure_report_frame_tree,
+    &ett_tag_measure_reported_frame_tree,
     &ett_tag_bss_bitmask_tree,
     &ett_tag_dfs_map_tree,
     &ett_tag_erp_info_tree,
