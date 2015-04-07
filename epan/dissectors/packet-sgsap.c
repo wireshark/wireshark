@@ -70,8 +70,10 @@ static int hf_sgsap_imeisv = -1;
 static int hf_sgsap_unknown_msg = -1;
 static int hf_sgsap_message_elements = -1;
 static int hf_sgsap_csri = -1;
+static int hf_sgsap_sel_cs_dmn_op = -1;
 
 static int ett_sgsap = -1;
+static int ett_sgsap_sel_cs_dmn_op = -1;
 
 static expert_field ei_sgsap_extraneous_data = EI_INIT;
 static expert_field ei_sgsap_missing_mandatory_element = EI_INIT;
@@ -586,6 +588,47 @@ de_sgsap_add_paging_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     return(len);
 }
 
+#if 0
+Reuse GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT
+/*
+ * 9.4.26 TMSI based NRI container
+ */
+static guint16
+de_sgsap_tmsi_based_nri_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+
+    /* See subclause 18.4.28 in 3GPP TS 29.018 [16].
+     * Which says The TMSI based NRI container value value consists of 10 bits which correspond to bits 23 to 14 of the valid TMSI
+     * (3GPP TS 23.236 and
+     * Octet 3 and Octet 4 The rest of the information element is coded as the value part of the Network resource identifier container IE
+     * defined in 3GPP TS 24.008.
+     */
+    return(len);
+}
+#endif
+/*
+* 9.4.27 Selected CS domain operator
+*/
+static guint16
+de_sgsap_selected_cs_dmn_op(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_item *item;
+    proto_tree *sub_tree;
+    /* Coded as octets 2 to 4 of the Location Area Identification IE,
+     * defined in 3GPP TS 24.008 [8] (not including 3GPP TS 24.008 IEI
+     * and LAC).(10.5.1.3 Location Area Identification)
+     * MCC digit 2 MCC digit 1 octet 2
+     * MNC digit 3 MCC digit 3 octet 3
+     * MNC digit 2 MNC digit 1 octet 4
+     */
+    item = proto_tree_add_item(tree, hf_sgsap_sel_cs_dmn_op, tvb, offset, 1, ENC_NA);
+    sub_tree = proto_item_add_subtree(item, ett_sgsap_sel_cs_dmn_op);
+
+    dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_LAI, TRUE);
+
+    return(len);
+}
+
 static const value_string sgsap_elem_strings[] = {
     { DE_SGSAP_IMSI, "IMSI" },                                              /* 9.4.6 */
     { DE_SGSAP_VLR_NAME, "VLR name" },                                      /* 9.4.22 */
@@ -628,6 +671,7 @@ static const value_string sgsap_elem_strings[] = {
     { DE_SGSAP_UE_EMM_MODE, "UE EMM mode" },                                /* 9.4.21c */
     { DE_SGSAP_ADD_PAGING_IND, "Additional paging indicators" },            /* 9.4.25 */
     { DE_SGSAP_TMSI_BASED_NRI_CONT, "TMSI based NRI container" },           /* 9.4.26 */
+    { DE_SGSAP_SELECTED_CS_DMN_OP, "Selected CS domain operator" },         /* 9.4.26 */
     { 0, NULL }
 };
 value_string_ext sgsap_elem_strings_ext = VALUE_STRING_EXT_INIT(sgsap_elem_strings);
@@ -686,6 +730,7 @@ typedef enum
     DE_SGSAP_UE_EMM_MODE,                           /. 9.4.21c UE EMM mode./
     DE_SGSAP_ADD_PAGING_IND,                        /. 9.4.25 Additional paging indicators ./
     DE_SGSAP_TMSI_BASED_NRI_CONT,                   /. 9.4.26 TMSI based NRI container ./
+    DE_SGSAP_SELECTED_CS_DMN_OP,                    /. 9.4.27 Selected CS domain operator ./
 
     DE_SGAP_NONE                            /. NONE ./
 }
@@ -733,8 +778,8 @@ guint16 (*sgsap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     de_sgsap_ecgi,                                          /* 9.4.3a E-UTRAN Cell Global Identity */
     de_sgsap_ue_emm_mode,                                   /* 9.4.21c UE EMM mode*/
     de_sgsap_add_paging_ind,                                /* 9.4.25 Additional paging indicators */
-    NULL/*DE_SGSAP_TMSI_BASED_NRI_CONT*/,                   /* 9.4.26 TMSI based NRI container */
-
+    NULL/*DE_SGSAP_TMSI_BASED_NRI_CONT */,                  /* 9.4.26 TMSI based NRI container (Reuse GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT */
+    de_sgsap_selected_cs_dmn_op,                            /* 9.4.27 Selected CS domain operator */
     NULL,   /* NONE */
 };
 
@@ -984,7 +1029,10 @@ sgsap_imsi_loc_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     /* E-CGI E-UTRAN Cell Global Identity 9.4.3a O TLV 9 */
     ELEM_OPT_TLV(0x24, SGSAP_PDU_TYPE, DE_SGSAP_ECGI, NULL);
     /* TMSI based NRI container TMSI based NRI container 9.4.26 O TLV 4 */
+    ELEM_OPT_TLV(0x27, GSM_A_PDU_TYPE_GM, DE_NET_RES_ID_CONT, " - TMSI based NRI container");
     /* Selected CS domain operator Selected CS domain operator 9.4.27 O TLV 5 */
+    ELEM_OPT_TLV(0x28, SGSAP_PDU_TYPE, DE_SGSAP_SELECTED_CS_DMN_OP, NULL);
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_sgsap_extraneous_data);
 }
 
@@ -1584,8 +1632,13 @@ void proto_register_sgsap(void) {
     { &hf_sgsap_csri,
         {"CS restoration indicator (CSRI)", "sgsap.csri",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
-        NULL, HFILL }},
-
+        NULL, HFILL }
+    },
+    { &hf_sgsap_sel_cs_dmn_op,
+        { "Selected CS domain operato", "sgsap.sel_cs_dmn_op",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
   };
 
     static ei_register_info ei[] = {
@@ -1596,12 +1649,13 @@ void proto_register_sgsap(void) {
    expert_module_t* expert_sgsap;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    1
+#define NUM_INDIVIDUAL_ELEMS    2
     gint *ett[NUM_INDIVIDUAL_ELEMS +
           NUM_SGSAP_ELEM +
           NUM_SGSAP_MSG];
 
     ett[0] = &ett_sgsap;
+    ett[1] = &ett_sgsap_sel_cs_dmn_op;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
