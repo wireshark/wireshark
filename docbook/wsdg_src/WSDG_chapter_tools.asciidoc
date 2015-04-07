@@ -176,7 +176,7 @@ Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.
 One or more Cygwin packages can be installed using "-source cygwin":
 
 ----
-PS$>choco install unzip wget asciidoc -source cygwin
+PS$>choco install sed asciidoc -source cygwin
 ----
 
 [[ChToolsGNUChain]]
@@ -1149,7 +1149,8 @@ installation should be straightforward.
 
 === Windows: GNU wget (optional)
 
-GNU wget is used to download files from the internet using the command line.
+GNU wget is used by the Nmake toolchain to download files from the internet
+using the command line. It is not needed when building with CMake.
 
 GNU wget is available for most of the UNIX-like platforms and as the wget
 package from the <<ChToolsCygwin,Cygwin setup>> and also using Chocolatey.
@@ -1161,7 +1162,7 @@ PS$> choco install wget -source cygwin
 ----
 
 You will only need wget if you want to use the Windows automated library
-download, see <<ChLibsSetup>>for details.
+download. See <<ChLibsSetup>>for details.
 
 If GNU wget isn't already installed or available as a package for your platform
 (well, for Windows it is available as a Cygwin package), you can get it at
@@ -1186,12 +1187,13 @@ If you are unsure about the settings, you might ask your system administrator.
 === Windows: GNU unzip (optional)
 
 GNU unzip is used to, well, unzip the zip files downloaded using the wget tool.
+As with wget it is not needed when building with CMake.
 
 GNU unzip is available for most of the UNIX-like platforms and as the unzip
 package from the <<ChToolsCygwin,Cygwin setup>>.
 
-You will only need unzip, if you want to use the Windows automated library
-download, see <<ChLibsSetup>>for details.
+You will only need unzip if you want to use the Windows automated library
+download. See <<ChLibsSetup>>for details.
 
 If GNU unzip isn't already installed or available as a package for your platform
 (well, for Windows it is available as a Cygwin package), you can get it at

@@ -197,8 +197,7 @@ Navigate to the required Category/Package row and, if the package
 has a "Skip" item in the "New" column, click on the "Skip" item
 so it shows a version number for:
 
-// Only used by win-setup.sh
-* Archive/unzip
+* Archive/unzip (not needed if using CMake)
 
 * Devel/bison (or install Win flex-bison - see Chocolatey below)
 
@@ -210,8 +209,7 @@ so it shows a version number for:
 
 * Utils/patch (only if needed) (may be Devel/patch instead)
 
-// Only used by win-setup.sh
-* Web/wget
+* Web/wget (not needed if using CMake)
 
 * asciidoc
 
@@ -237,7 +235,7 @@ Alternatively you can install Cygwin and its packages using Chocolatey:
 ----
 PS$>choco install cygwin
 PS$>choco install cyg-get
-PS$>choco install unzip wget asciidoc [...] -source cygwin
+PS$>choco install sed asciidoc [...] -source cygwin
 ----
 
 Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.

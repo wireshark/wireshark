@@ -32,11 +32,16 @@ cmake_policy(SET CMP0011 OLD)
 # Policy since 2.8.1
 cmake_policy(SET CMP0015 NEW)
 
+#Where to find local cmake scripts
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+
 # If our target platform is enforced by our generator, set
 # WIRESHARK_TARGET_PLATFORM accordingly. Otherwise use
 # %WIRESHARK_TARGET_PLATFORM%.
 
 if(WIN32)
+	find_package(PowerShell REQUIRED)
+
 	if("${CMAKE_GENERATOR}" MATCHES "Win64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
 		set(PROCESSOR_ARCHITECTURE amd64)
@@ -49,6 +54,7 @@ if(WIN32)
 		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
 	endif()
 
+	# Sanity check
 	if(DEFINED ENV{PLATFORM})
 		string(TOLOWER $ENV{PLATFORM} _vs_platform)
 	else()
@@ -62,10 +68,30 @@ if(WIN32)
 		message(FATAL_ERROR "The PLATFORM environment variable (${_vs_platform})"
 			" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
 	endif()
-endif(WIN32)
 
-#Where to find local cmake scripts
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+	# Download third-party libraries
+	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
+	file (TO_NATIVE_PATH "$ENV{WIRESHARK_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" _ws_lib_dir)
+	if(MSVC12)
+		set(_vsversion_args "-VSVersion 12")
+	elseif(MSVC11)
+		set(_vsversion_args "-VSVersion 11")
+	elseif(MSVC10)
+		set(_vsversion_args "-VSVersion 10")
+	endif()
+	# Is it possible to have a one-time, non-cached option in CMake? If
+	# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
+	# win-setup.ps1.
+	execute_process(
+		COMMAND ${POWERSHELL_COMMAND} "${_win_setup}" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM} ${_vsversion_args}
+		RESULT_VARIABLE _win_setup_failed
+	)
+	if (${_win_setup_failed})
+		message(FATAL_ERROR "Windows setup (win-setup.ps1) failed.")
+	endif()
+
+	# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
+endif(WIN32)
 
 include(UseCustomIncludes)
 ADD_CUSTOM_CMAKE_INCLUDE()
@@ -542,10 +568,7 @@ set(PythonInterp_FIND_VERSION 2)
 set(Python_ADDITIONAL_VERSIONS 3)
 set(YACC_REQUIRED TRUE)
 
-if (WIN32)
-	set(PACKAGELIST ${PACKAGELIST} PowerShell)
-	set(PowerShell_REQUIRED TRUE)
-else()
+if (NOT WIN32)
 	set(M_REQUIRED TRUE)
 endif()
 
@@ -711,8 +734,6 @@ foreach(PACKAGE ${PACKAGELIST})
 		set(PACKAGE_VAR "HTML_VIEWER")
 	elseif(${PACKAGE} STREQUAL "Perl")
 		set(PACKAGE_VAR "PERL")
-	elseif(${PACKAGE} STREQUAL "PowerShell")
-		set(PACKAGE_VAR "POWERSHELL")
 	else()
 		set(PACKAGE_VAR ${PACKAGE})
 	endif()
