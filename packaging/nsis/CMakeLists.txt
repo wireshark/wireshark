@@ -22,6 +22,14 @@
 # We should use CPack to generate the NSIS package. Even better,
 # we should use CPack to create a .msi using WIX.
 
+set(NSIS_GENERATED_FILES
+	${CMAKE_CURRENT_BINARY_DIR}/all-manifest.nsh
+	${CMAKE_CURRENT_BINARY_DIR}/config.nsh
+	${CMAKE_CURRENT_BINARY_DIR}/gtk-dll-manifest.nsh
+	${CMAKE_CURRENT_BINARY_DIR}/qt-dll-manifest.nsh
+	PARENT_SCOPE
+)
+
 set(NSIS_FILES
 	wireshark.nsi
 	uninstall.nsi
@@ -30,10 +38,7 @@ set(NSIS_FILES
 	servicelib.nsh
 	AdditionalTasksPage.ini
 	WinPcapPage.ini
-	${CMAKE_CURRENT_BINARY_DIR}/all-manifest.nsh
-	${CMAKE_CURRENT_BINARY_DIR}/config.nsh
-	${CMAKE_CURRENT_BINARY_DIR}/gtk-dll-manifest.nsh
-	${CMAKE_CURRENT_BINARY_DIR}/qt-dll-manifest.nsh
+	${NSIS_GENERATED_FILES}
 	PARENT_SCOPE
 )
 
@@ -198,7 +203,7 @@ macro( ADD_NSIS_UNINSTALLER_TARGET )
 endmacro( ADD_NSIS_UNINSTALLER_TARGET )
 
 macro( ADD_NSIS_PACKAGE_TARGET )
-	set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
+	set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
 
 	add_custom_target(nsis_package
 		DEPENDS
