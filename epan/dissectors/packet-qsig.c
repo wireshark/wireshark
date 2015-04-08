@@ -2089,7 +2089,7 @@ dissect_qsig_T_extensionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
         dissect_unknown_ber(actx->pinfo, next_tvb, offset, next_tree);
     }
 
-    offset+=tvb_length_remaining(tvb, offset);
+    offset+=tvb_reported_length_remaining(tvb, offset);
 
 
   return offset;
@@ -2125,7 +2125,7 @@ dissect_qsig_PSS1InformationElement_U(gboolean implicit_tag _U_, tvbuff_t *tvb _
                                        &out_tvb);
 
   data_tree = proto_item_add_subtree(actx->created_item, ett_cnq_PSS1InformationElement);
-  if (out_tvb && (tvb_length(out_tvb) > 0) && q931_ie_handle)
+  if (out_tvb && (tvb_reported_length(out_tvb) > 0) && q931_ie_handle)
     call_dissector(q931_ie_handle, out_tvb, actx->pinfo, data_tree);
 
 
