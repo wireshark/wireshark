@@ -68,6 +68,7 @@ dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 reordercap_OBJECTS = $(reordercap_SOURCES:.c=.obj)
+androiddump_OBJECTS = $(androiddump_SOURCES:.c=.obj)
 
 #
 # psapi.lib see http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
@@ -174,6 +175,11 @@ text2pcap_LIBS= \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
+androiddump_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	wsutil\libwsutil.lib \
+	$(GLIB_LIBS)
+
 dumpcap_LIBS= \
 	wsock32.lib user32.lib \
 	caputils\libcaputils.lib \
@@ -204,7 +210,7 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 
 EXECUTABLES=$(PROGRAM_NAME_GTK).exe tshark.exe tfshark.exe rawshark.exe \
 	capinfos.exe captype.exe editcap.exe mergecap.exe text2pcap.exe \
-	randpkt.exe reordercap.exe dumpcap.exe dftest.exe
+	randpkt.exe reordercap.exe dumpcap.exe androiddump.exe dftest.exe
 
 !IFDEF QT5_BASE_DIR
 EXECUTABLES=$(EXECUTABLES) $(PROGRAM_NAME).exe
@@ -422,6 +428,15 @@ randpkt.exe	: $(randpkt_OBJECTS)
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
+androiddump.exe	: $(LIBS_CHECK) config.h $(androiddump_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:androiddump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS androiddump.obj $(androiddump_LIBS)
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "androiddump.exe.manifest" -outputresource:androiddump.exe;1
+!ENDIF
+
 dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) caputils wsutil\libwsutil.lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
@@ -559,6 +574,7 @@ test-programs:
 clean-local:
 	rm -f $(wireshark_gtk_OBJECTS) $(tshark_OBJECTS) $(tfshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr *.exe.manifest \
+		androiddump.obj \
 		capinfos.obj capinfos.exp capinfos.lib \
 		captype.obj captype.exp captype.lib \
 		editcap.obj editcap.exp editcap.lib \
@@ -1206,6 +1222,20 @@ install-generated-files: doc
 	if exist $(PROGRAM_NAME_GTK).pdb xcopy $(PROGRAM_NAME_GTK).pdb $(INSTALL_DIR) /d
 	if exist $(PROGRAM_NAME_GTK).bsc xcopy $(PROGRAM_NAME_GTK).bsc $(INSTALL_DIR) /d
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
+	if not exist $(INSTALL_DIR)\extcap mkdir $(INSTALL_DIR)\extcap
+	if exist androiddump.exe xcopy androiddump.exe $(INSTALL_DIR)\extcap /d
+	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR)\extcap /d
+	xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll" $(INSTALL_DIR)\extcap /d
+	xcopy ".\wsutil\libwsutil.dll" $(INSTALL_DIR)\extcap /d
+	xcopy $(GTK_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR)\extcap /d
+	xcopy $(GTK_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR)\extcap /d
+	xcopy $(ZLIB_DIR)\zlib1.dll $(INSTALL_DIR)\extcap /d
+	xcopy $(GTK_DIR)\bin\$(INTL_DLL) $(INSTALL_DIR)\extcap /d
+!IFDEF GNUTLS_DIR
+	xcopy $(GNUTLS_DIR)\bin\$(GCC_DLL) $(INSTALL_DIR)\extcap /d
+	xcopy $(GNUTLS_DIR)\bin\libgcrypt-20.dll $(INSTALL_DIR)\extcap /d
+	xcopy $(GNUTLS_DIR)\bin\$(GPGERROR_DLL) $(INSTALL_DIR)\extcap /d
+!ENDIF
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
 	if exist captype.exe xcopy captype.exe $(INSTALL_DIR) /d

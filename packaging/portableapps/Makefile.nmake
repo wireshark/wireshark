@@ -98,6 +98,7 @@ applauncher: appinfo
 
 appbinaries: applauncher
 	xcopy $(TOPDIR)\wireshark-qt-release $(WIRESHARK_DIR) /D /I /E /Y
+	xcopy $(TOPDIR)\extcap\androiddump.exe $(WIRESHARK_DIR)\extcap /d
 	xcopy $(TOPDIR)\capinfos.exe $(WIRESHARK_DIR) /d
 	xcopy $(TOPDIR)\captype.exe $(WIRESHARK_DIR) /d
 	xcopy $(TOPDIR)\dumpcap.exe $(WIRESHARK_DIR) /d

@@ -171,6 +171,12 @@ Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 Colasoft Capsa files
 --sort-and-group--
 
+=== New and Updated Capture Interfaces support
+
+--sort-and-group--
+Androiddump - provide interfaces to capture (Logcat and Bluetooth) from connected Android devices
+--sort-and-group--
+
 === Major API Changes
 
 The libwireshark API has undergone some major changes:

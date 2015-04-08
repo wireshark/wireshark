@@ -62,11 +62,17 @@
     #ifdef HAVE_WINSOCK2_H
         #include <winsock2.h>
     #endif
+
+    #include <process.h>
+
+    #define socket_handle_t SOCKET
 #else
     /*
      * UN*X, or Windows pretending to be UN*X with the aid of Cygwin.
      */
     #define closesocket(socket)  close(socket)
+    #define socket_handle_t      int
+    #define INVALID_SOCKET       (-1)
 #endif
 
 /* Configuration options */
@@ -313,8 +319,8 @@ static void extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buffer,
 }
 
 
-static int adb_connect(const char *server_ip, unsigned short *server_tcp_port) {
-    int                    sock;
+static socket_handle_t adb_connect(const char *server_ip, unsigned short *server_tcp_port) {
+    socket_handle_t        sock;
     socklen_t              length;
     struct sockaddr_in     server;
 
@@ -322,20 +328,25 @@ static int adb_connect(const char *server_ip, unsigned short *server_tcp_port) {
     server.sin_port = GINT16_TO_BE(*server_tcp_port);
     server.sin_addr.s_addr = inet_addr(server_ip);
 
-    if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+    if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
         fprintf(stderr, "ERROR: Cannot open system TCP socket: %s\n", strerror(errno));
-        return -1;
+        return INVALID_SOCKET;
     }
 
     if (connect(sock, (struct sockaddr *) &server, sizeof(server)) < 0) {
-        if (system("adb start-server") == -1) {
+#ifdef _WIN32
+        if (_execlp("adb", "adb", "start-server", NULL)) {
+#else
+        if (execlp("adb", "adb", "start-server", NULL)) {
+#endif
             fprintf(stderr, "WARNING: Cannot execute system command to start adb: %s\n", strerror(errno));
+            return INVALID_SOCKET;
         };
 
         if (connect(sock, (struct sockaddr *) &server, sizeof(server)) < 0) {
             fprintf(stderr, "ERROR: Cannot connect to ADB: %s\n", strerror(errno));
             fprintf(stderr, "INFO: Please check that adb daemon is running.\n");
-            return -2;
+            return INVALID_SOCKET;
         }
     }
 
@@ -345,12 +356,12 @@ static int adb_connect(const char *server_ip, unsigned short *server_tcp_port) {
         length = sizeof(client);
         if (getsockname(sock, (struct sockaddr *) &client, &length)) {
             fprintf(stderr, "ERROR getsockname: %s\n", strerror(errno));
-            return -3;
+            return INVALID_SOCKET;
         }
 
         if (length != sizeof(client)) {
             fprintf(stderr, "ERROR: incorrect length\n");
-            return -4;
+            return INVALID_SOCKET;
         }
 
         fprintf(stderr, "VERBOSE: Client port %u\n", GINT16_FROM_BE(client.sin_port));
@@ -360,14 +371,14 @@ static int adb_connect(const char *server_ip, unsigned short *server_tcp_port) {
 }
 
 
-static char *adb_send_and_receive(int sock, const char *adb_service,
+static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         char *buffer, int buffer_length, ssize_t *data_length) {
     ssize_t  used_buffer_length;
     ssize_t  length;
     ssize_t  result;
     char     status[4];
 
-    result = send(sock, adb_service, strlen(adb_service), 0);
+    result = send(sock, adb_service, (int)strlen(adb_service), 0);
     if (result != (ssize_t) strlen(adb_service)) {
         fprintf(stderr, "ERROR: Error while sending <%s> to ADB\n", adb_service);
         if (data_length)
@@ -404,13 +415,13 @@ static char *adb_send_and_receive(int sock, const char *adb_service,
 }
 
 
-static char *adb_send_and_read(int sock, const char *adb_service, char *buffer,
+static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, char *buffer,
         int buffer_length, ssize_t *data_length) {
     ssize_t  used_buffer_length;
     ssize_t  result;
     char     status[4];
 
-    result = send(sock, adb_service, strlen(adb_service), 0);
+    result = send(sock, adb_service, (int)strlen(adb_service), 0);
     if (result != (ssize_t) strlen(adb_service)) {
         fprintf(stderr, "ERROR: Error while sending <%s> to ADB\n", adb_service);
         if (data_length)
@@ -445,12 +456,12 @@ static char *adb_send_and_read(int sock, const char *adb_service, char *buffer,
 }
 
 
-static int adb_send(int sock, const char *adb_service) {
+static int adb_send(socket_handle_t sock, const char *adb_service) {
     char buffer[4];
     ssize_t  used_buffer_length;
     ssize_t  result;
 
-    result = send(sock, adb_service, strlen(adb_service), 0);
+    result = send(sock, adb_service, (int)strlen(adb_service), 0);
     if (result != (ssize_t) strlen(adb_service)) {
         fprintf(stderr, "ERROR: Error while sending <%s> to ADB\n", adb_service);
         return 1;
@@ -479,7 +490,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
     char                  *device_list;
     ssize_t                data_length;
     ssize_t                device_length;
-    int                    sock;
+    socket_handle_t        sock;
     const char            *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char            *adb_check_port_templace       = "%04x""shell:cat /proc/%s/net/tcp";
     const char            *adb_devices            = "000C""host:devices";
@@ -501,7 +512,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
     i_interface_list = *interface_list;
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock < 0)
+    if (sock == INVALID_SOCKET)
         return -1;
 
     device_list = adb_send_and_receive(sock, adb_devices, packet, sizeof(packet), &device_length);
@@ -928,7 +939,7 @@ static void help(void) {
 
     printf("Help\n");
     printf(" Usage:\n"
-        " androiddump --extcap-interfaces [--server-ip=<arg>] [--server-tcp-port=<arg>]\n"
+        " androiddump --extcap-interfaces [--adb-server-ip=<arg>] [--adb-server-tcp-port=<arg>]\n"
         " androiddump --extcap-interface=INTERFACE --extcap-dlts\n"
         " androiddump --extcap-interface=INTERFACE --extcap-config\n"
         " androiddump --extcap-interface=INTERFACE --fifo=PATH_FILENAME --capture \n");
@@ -955,7 +966,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     static char                    helpful_packet[PACKET_LENGTH];
     ssize_t                        length;
     ssize_t                        used_buffer_length = 0;
-    int                            sock;
+    socket_handle_t                sock;
     const char                    *adb_transport  = "0012""host:transport-any";
     const char                    *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char                    *adb_shell_hcidump = "0013""shell:hcidump -R -t";
@@ -980,7 +991,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR);
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock < 0)
+    if (sock == INVALID_SOCKET)
         return -1;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) &&
@@ -1040,7 +1051,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                     break;
                 }
                 memmove(data, i_position, used_buffer_length - (i_position - data));
-                used_buffer_length = used_buffer_length - (i_position - data);
+                used_buffer_length = used_buffer_length - (ssize_t)(i_position - data);
                 break;
             }
         }
@@ -1048,7 +1059,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
     if (try_next == 1) {
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-        if (sock < 0)
+        if (sock == INVALID_SOCKET)
             return -1;
 
         sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
@@ -1088,7 +1099,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                 if (i_position) {
                     i_position += 1;
                     memmove(data, i_position, used_buffer_length - (i_position - data));
-                    used_buffer_length = used_buffer_length - (i_position - data);
+                    used_buffer_length = used_buffer_length - (ssize_t)(i_position - data);
                     break;
                 }
             }
@@ -1231,13 +1242,13 @@ static const uint64_t BLUEDROID_TIMESTAMP_BASE = G_GUINT64_CONSTANT(0x00dcddb30f
 
 static int adb_forward(char *serial_number, const char *adb_server_ip, unsigned short *adb_server_tcp_port,
         unsigned short local_tcp_port, unsigned short server_tcp_port) {
-    int                   sock;
+    socket_handle_t       sock;
     int                   result;
     static char           helpful_packet[PACKET_LENGTH];
     static const char    *adb_forward_template = "%04x""%s%s:forward:tcp:%05u;tcp:%05u";
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock < 0)
+    if (sock == INVALID_SOCKET)
         return -1;
 
     g_snprintf(helpful_packet, PACKET_LENGTH, adb_forward_template, (serial_number) ? 5 + 7 + strlen(serial_number) + 28 : 4 + 28, (serial_number) ? "host-serial:" : "host", (serial_number) ?  serial_number: "", local_tcp_port, server_tcp_port);
@@ -1263,7 +1274,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     ssize_t                        length;
     ssize_t                        used_buffer_length = 0;
     uint64_t                       ts;
-    int                            sock;
+    socket_handle_t                sock;
     struct sockaddr_in             server;
     int                            captured_length;
     char                          *serial_number = NULL;
@@ -1279,7 +1290,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     }
 
     if (bt_forward_socket) {
-        if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+        if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
             printf("ERROR: Cannot open system TCP socket: %s\n", strerror(errno));
             return 1;
         }
@@ -1327,7 +1338,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
         int  result;
 
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-        if (sock < 0)
+        if (sock == INVALID_SOCKET)
             return -1;
 
         if (!serial_number) {
@@ -1368,7 +1379,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 printf("WARNING: Broken socket connection. Try reconnect.\n");
                 closesocket(sock);
 
-                if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+                if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET) {
                     printf("ERROR1: %s\n", strerror(errno));
                     return 1;
                 }
@@ -1474,7 +1485,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     static char                    packet[PACKET_LENGTH];
     ssize_t                        length;
     ssize_t                        used_buffer_length = 0;
-    int                            sock;
+    socket_handle_t                sock;
     const char                    *adb_transport  = "0012""host:transport-any";
     const char                    *adb_transport_serial_templace = "%04x""host:transport:%s";
     const char                    *adb_tcp_btsnoop_net   = "0008""tcp:8872";
@@ -1500,7 +1511,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_BLUETOOTH_H4_WITH_PHDR);
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock < 0)
+    if (sock == INVALID_SOCKET)
         return -1;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) &&
@@ -1596,8 +1607,8 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     struct extcap_dumper        extcap_dumper;
     static char                 packet[PACKET_LENGTH];
     ssize_t                     length;
-    ssize_t                     used_buffer_length = 0;
-    int                         sock;
+    size_t                      used_buffer_length = 0;
+    socket_handle_t             sock;
     const char                 *protocol_name;
     size_t                      exported_pdu_headers_size = 0;
     struct exported_pdu_header  exported_pdu_header_protocol_normal;
@@ -1618,7 +1629,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     exported_pdu_header_protocol_normal.length = GINT16_TO_BE(strlen(wireshark_protocol_logcat_text) + 2);
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock < 0)
+    if (sock == INVALID_SOCKET)
         return -1;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1) {
@@ -1697,7 +1708,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     used_buffer_length = 0;
     while (endless_loop) {
         errno = 0;
-        length = recv(sock, packet + exported_pdu_headers_size + used_buffer_length,  PACKET_LENGTH - exported_pdu_headers_size - used_buffer_length , 0);
+        length = recv(sock, packet + exported_pdu_headers_size + used_buffer_length,  (int)(PACKET_LENGTH - exported_pdu_headers_size - used_buffer_length), 0);
         if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
         else if (errno != 0) {
             printf("ERROR capture: %s\n", strerror(errno));
@@ -1718,7 +1729,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
             time_t     secs = 0;
             int        nsecs = 0;
 
-            length = (pos - packet) + 1;
+            length = (ssize_t)(pos - packet) + 1;
 
             if (6 == sscanf(packet + exported_pdu_headers_size, "%d-%d %d:%d:%d.%d", &date.tm_mon, &date.tm_mday, &date.tm_hour,
                             &date.tm_min, &date.tm_sec, &ms)) {
@@ -1753,7 +1764,7 @@ static int capture_android_logcat(char *interface, char *fifo,
     static char                 helper_packet[PACKET_LENGTH];
     ssize_t                     length;
     size_t                      used_buffer_length = 0;
-    int                         sock;
+    socket_handle_t             sock;
     const char                 *protocol_name;
     size_t                      exported_pdu_headers_size = 0;
     struct exported_pdu_header  exported_pdu_header_protocol_events;
@@ -1786,7 +1797,7 @@ static int capture_android_logcat(char *interface, char *fifo,
     exported_pdu_header_protocol_normal.length = GINT16_TO_BE(strlen(wireshark_protocol_logcat) + 2);
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock < 0)
+    if (sock == INVALID_SOCKET)
         return -1;
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_LOGCAT_MAIN) && strlen(interface) > strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1) {
@@ -1861,7 +1872,7 @@ static int capture_android_logcat(char *interface, char *fifo,
 
     while (endless_loop) {
         errno = 0;
-        length = recv(sock, packet + exported_pdu_headers_size + used_buffer_length,  PACKET_LENGTH - exported_pdu_headers_size - used_buffer_length , 0);
+        length = recv(sock, packet + exported_pdu_headers_size + used_buffer_length, (int)(PACKET_LENGTH - exported_pdu_headers_size - used_buffer_length), 0);
         if (errno == EAGAIN || errno == EWOULDBLOCK) continue;
         else if (errno != 0) {
             printf("ERROR capture: %s\n", strerror(errno));
@@ -1875,7 +1886,7 @@ static int capture_android_logcat(char *interface, char *fifo,
                 closesocket(sock);
 
                 sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-                if (sock < 0)
+                if (sock == INVALID_SOCKET)
                     return -1;
 
                 if (!serial_number) {
@@ -1923,7 +1934,7 @@ static int capture_android_logcat(char *interface, char *fifo,
         else
             header_size = *try_header_size;
 
-        length = (*payload_length) + header_size +  exported_pdu_headers_size;
+        length = (*payload_length) + header_size + (ssize_t)exported_pdu_headers_size;
 
         while (used_buffer_length >= exported_pdu_headers_size + header_size && (size_t)length <= used_buffer_length) {
             extcap_dumper_dump(extcap_dumper, packet,
@@ -1936,7 +1947,7 @@ static int capture_android_logcat(char *interface, char *fifo,
             used_buffer_length += exported_pdu_headers_size;
 
 
-            length = (*payload_length) + header_size +  exported_pdu_headers_size;
+            length = (*payload_length) + header_size + (ssize_t)exported_pdu_headers_size;
 
             if (*try_header_size == 0 || *try_header_size != 24)
                 header_size = 20;
@@ -1950,6 +1961,49 @@ static int capture_android_logcat(char *interface, char *fifo,
 }
 
 /*============================================================================*/
+
+#ifdef _WIN32
+BOOLEAN IsHandleRedirected(DWORD handle)
+{
+    HANDLE h = GetStdHandle(handle);
+    if (h) {
+        BY_HANDLE_FILE_INFORMATION fi;
+        if (GetFileInformationByHandle(h, &fi)) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+static void attach_parent_console()
+{
+    BOOL outRedirected, errRedirected;
+
+    outRedirected = IsHandleRedirected(STD_OUTPUT_HANDLE);
+    errRedirected = IsHandleRedirected(STD_ERROR_HANDLE);
+
+    if (outRedirected && errRedirected) {
+        /* Both standard output and error handles are redirected.
+         * There is no point in attaching to parent process console.
+         */
+        return;
+    }
+
+    if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
+        /* Console attach failed. */
+        return;
+    }
+
+    /* Console attach succeeded */
+    if (outRedirected == FALSE) {
+        freopen("CONOUT$", "w", stdout);
+    }
+
+    if (errRedirected == FALSE) {
+        freopen("CONOUT$", "w", stderr);
+    }
+}
+#endif
 
 int main(int argc, char **argv) {
     int              option_idx = 0;
@@ -1977,6 +2031,8 @@ int main(int argc, char **argv) {
     unsigned short   default_bt_local_tcp_port  = 4330;
 #ifdef _WIN32
     WSADATA          wsaData;
+
+    attach_parent_console();
 #endif  /* _WIN32 */
 
     opterr = 0;
@@ -2118,6 +2174,13 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+#ifdef _WIN32
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+        LPSTR lpCmdLine, int nCmdShow) {
+    return main(__argc, __argv);
+}
+#endif
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

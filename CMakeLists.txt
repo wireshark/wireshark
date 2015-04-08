@@ -508,6 +508,7 @@ foreach(THIS_FLAG ${WIRESHARK_LD_FLAGS})
 endforeach()
 
 if(ENABLE_STATIC)
+	set(BUILD_SHARED_LIBS 0)
 	set(LINK_MODE_LIB STATIC)
 	set(LINK_MODE_MODULE STATIC)
 else()
@@ -1132,6 +1133,7 @@ set(INSTALL_DIRS
 )
 
 set(INSTALL_FILES
+	${CMAKE_BINARY_DIR}/androiddump.html
 	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	${CMAKE_BINARY_DIR}/capinfos.html
 	${CMAKE_BINARY_DIR}/captype.html
@@ -1141,6 +1143,7 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/dftest.html
 	${CMAKE_BINARY_DIR}/dumpcap.html
 	${CMAKE_BINARY_DIR}/editcap.html
+	${CMAKE_BINARY_DIR}/extcap.html
 	${CMAKE_BINARY_DIR}/asn2deb.html
 	${CMAKE_BINARY_DIR}/idl2deb.html
 	${CMAKE_BINARY_DIR}/idl2wrs.html
@@ -1170,11 +1173,13 @@ else()
 endif()
 
 set(MAN1_FILES
+	${CMAKE_BINARY_DIR}/androiddump.1
 	${CMAKE_BINARY_DIR}/capinfos.1
 	${CMAKE_BINARY_DIR}/captype.1
 	${CMAKE_BINARY_DIR}/dftest.1
 	${CMAKE_BINARY_DIR}/dumpcap.1
 	${CMAKE_BINARY_DIR}/editcap.1
+	${CMAKE_BINARY_DIR}/extcap.4
 	${CMAKE_BINARY_DIR}/idl2wrs.1
 	${CMAKE_BINARY_DIR}/mergecap.1
 	${CMAKE_BINARY_DIR}/randpkt.1
@@ -2124,7 +2129,6 @@ if(BUILD_androiddump)
 		)
 	endif()
 	set(androiddump_FILES
-		${GLIB2_LIBRARIES}
 		extcap/androiddump.c
 	)
 
@@ -2132,7 +2136,11 @@ if(BUILD_androiddump)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap)
 	add_executable(androiddump ${androiddump_FILES})
 	add_dependencies(androiddump gitversion)
-	set_target_properties(androiddump PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	if(WIN32)
+		set_target_properties(androiddump PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS} /SUBSYSTEM:WINDOWS")
+	else()
+		set_target_properties(androiddump PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	endif()
 	set_target_properties(androiddump PROPERTIES FOLDER "Executables/Extcaps")
 	target_link_libraries(androiddump ${androiddump_LIBS})
 	install(TARGETS androiddump RUNTIME DESTINATION ${EXTCAP_DIR})
@@ -2201,11 +2209,13 @@ if(ENABLE_APPLICATION_BUNDLE)
 	add_dependencies(app_bundle ${PROGLIST})
 endif()
 
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/androiddump 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/capinfos 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/captype 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dftest 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/dumpcap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/editcap 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/extcap 4 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/asn2deb 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2deb 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2wrs 1 )
@@ -2222,6 +2232,7 @@ add_custom_target(
 	html_docs ALL
 	DEPENDS
 		${CMAKE_BINARY_DIR}/AUTHORS-SHORT
+		androiddump.html
 		capinfos.html
 		captype.html
 		dftest.html
@@ -2253,6 +2264,7 @@ set(CLEAN_FILES
 	${captype_FILES}
 	${editcap_FILES}
 	${dumpcap_FILES}
+	${androiddump_FILES}
 )
 
 if (WERROR)

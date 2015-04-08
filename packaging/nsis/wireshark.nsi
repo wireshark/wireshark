@@ -341,6 +341,7 @@ File "${STAGING_DIR}\wireshark.html"
 File "${STAGING_DIR}\wireshark-filter.html"
 File "${STAGING_DIR}\dumpcap.exe"
 File "${STAGING_DIR}\dumpcap.html"
+File "${STAGING_DIR}\extcap.html"
 File "${STAGING_DIR}\ipmap.html"
 
 ; C-runtime redistributable
@@ -977,6 +978,14 @@ File "${STAGING_DIR}\capinfos.exe"
 File "${STAGING_DIR}\capinfos.html"
 SectionEnd
 
+Section "Androiddump" SecAndroiddumpinfos
+;-------------------------------------------
+SetOutPath $INSTDIR\extcap
+File "${STAGING_DIR}\androiddump.html"
+File "${STAGING_DIR}\extcap\androiddump.exe"
+File "${STAGING_DIR}\extcap\*.dll"
+SectionEnd
+
 Section "Rawshark" SecRawshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
@@ -1029,6 +1038,7 @@ SectionEnd
 !endif
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddumpinfos} "Provide capture interfaces from Android devices"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file"

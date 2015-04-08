@@ -20,9 +20,11 @@ EXE=../../tshark.exe ../../editcap.exe \
 	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe $(WIRESHARK_LIB_DIR)\WinPcap_$(WINPCAP_VERSION).exe
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/libwsutil.dll
 DOC=../../doc/ws.css				\
+	../../doc/androiddump.html		\
 	../../doc/capinfos.html			\
 	../../doc/dumpcap.html			\
 	../../doc/editcap.html			\
+	../../doc/extcap.html			\
 	../../doc/mergecap.html			\
 	../../doc/rawshark.html			\
 	../../doc/text2pcap.html		\
