@@ -533,7 +533,7 @@ decode_temp_meas_value(gchar *s, gint16 value)
     if (value == (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_INVALID_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [\302\260C]", value/100, value%100);
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f [\302\260C]", value/100.0);
 
     return;
 } /*decode_temp_meas_value*/
@@ -557,7 +557,7 @@ decode_temp_meas_min_value(gchar *s, gint16 value)
          (value > (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MIN_HI_VALUE) )
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [\302\260C]", value/100, value%100);
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f [\302\260C]", value/100.0);
 
     return;
 } /*decode_temp_meas_min_value*/
@@ -580,7 +580,7 @@ decode_temp_meas_max_value(gchar *s, gint16 value)
     if (value < (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MAX_LO_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [\302\260C]", value/100, value%100);
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f [\302\260C]", value/100.0);
 
     return;
 } /*decode_temp_meas_max_value*/
@@ -1214,7 +1214,7 @@ decode_relhum_meas_value(gchar *s, guint16 value)
     if (value == ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_INVALID_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [%c]", value/100, value%100, '%');
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
 
     return;
 } /*decode_relhum_meas_value*/
@@ -1237,7 +1237,7 @@ decode_relhum_meas_min_value(gchar *s, guint16 value)
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_MIN_HI_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [%c]", value/100, value%100, '%');
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
 
     return;
 } /*decode_relhum_meas_min_value*/
@@ -1260,7 +1260,7 @@ decode_relhum_meas_max_value(gchar *s, guint16 value)
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_MAX_HI_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [%c]", value/100, value%100, '%');
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
 
     return;
 } /*decode_relhum_meas_max_value*/
@@ -1283,7 +1283,7 @@ decode_relhum_meas_tolerance(gchar *s, guint16 value)
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_TOL_HI_VALUE)
         g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [%c]", value/100, value%100, '%');
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
 
     return;
 } /*decode_relhum_meas_tolerance*/
