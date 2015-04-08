@@ -40,6 +40,10 @@
     #include <getopt.h>
 #endif
 
+#ifdef HAVE_SYS_SOCKET_H
+    #include <sys/socket.h>
+#endif
+
 #ifndef HAVE_GETOPT_LONG
     #include "wsutil/wsgetopt.h"
 #endif
@@ -55,7 +59,7 @@
         #include <winsock2.h>
     #endif
 #endif
-#if (defined(__linux__) || defined(__CYGWIN__))
+#if (defined(__linux__) || defined(__APPLE__) || defined(__CYGWIN__))
     #include <arpa/inet.h>
 
     #define closesocket(socket)  close(socket)
