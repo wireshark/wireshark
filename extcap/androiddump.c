@@ -1121,10 +1121,10 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
                     if (hex == 0x01) {
                         hex_data = new_hex_data;
-                        hex = strtol(hex_data, &new_hex_data, 16);
+                        strtol(hex_data, &new_hex_data, 16);
 
                         hex_data = new_hex_data;
-                        hex = strtol(hex_data, &new_hex_data, 16);
+                        strtol(hex_data, &new_hex_data, 16);
 
                         hex_data = new_hex_data;
                         hex = strtol(hex_data, &new_hex_data, 16);
@@ -1132,7 +1132,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                         raw_length = hex + 4;
                     } else if (hex == 0x04) {
                         hex_data = new_hex_data;
-                        hex = strtol(hex_data, &new_hex_data, 16);
+                        strtol(hex_data, &new_hex_data, 16);
 
                         hex_data = new_hex_data;
                         hex = strtol(hex_data, &new_hex_data, 16);
@@ -1140,10 +1140,10 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                         raw_length = hex +3;
                     } else if (hex == 0x02) {
                         hex_data = new_hex_data;
-                        hex = strtol(hex_data, &new_hex_data, 16);
+                        strtol(hex_data, &new_hex_data, 16);
 
                         hex_data = new_hex_data;
-                        hex = strtol(hex_data, &new_hex_data, 16);
+                        strtol(hex_data, &new_hex_data, 16);
 
                         hex_data = new_hex_data;
                         hex = strtol(hex_data, &new_hex_data, 16);
@@ -1160,7 +1160,6 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                 }
             } else {
                 used_buffer_length += length;
-                length = 0;
                 break;
             }
 
@@ -1168,7 +1167,6 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
             if (used_buffer_length + length < frame_length) {
                 used_buffer_length += length;
-                length = 0;
                 break;
             }
 
@@ -1185,7 +1183,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                 date.tm_year -= 1900;
                 ts = mktime(&date);
 
-                hex_data = new_hex_data = data + 29;
+                new_hex_data = data + 29;
             }
 
             captured_length = 0;
