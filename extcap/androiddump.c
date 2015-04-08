@@ -999,19 +999,6 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         }
     }
 
-    closesocket(sock);
-
-    sock = adb_connect(adb_server_ip, adb_server_tcp_port);
-    if (sock < 0)
-        return -1;
-
-    sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
-    result = adb_send(sock, helpful_packet);
-    if (result) {
-        fprintf(stderr, "ERROR: Error while setting adb transport for <%s>\n", helpful_packet);
-        return 1;
-    }
-
     result = adb_send(sock, adb_shell_hcidump);
     if (result) {
         fprintf(stderr, "ERROR: Error while starting capture by sending command: %s\n", adb_shell_hcidump);
