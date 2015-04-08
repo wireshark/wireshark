@@ -12290,6 +12290,8 @@ static int dissect_tfs_request(packet_info *pinfo, proto_tree *tree,
       s_end = offset + len;
       while (s_offset < s_end) {
         int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype);
+        if (tlen==0)
+          break;
         s_offset += tlen;
       }
       break;
@@ -12357,6 +12359,8 @@ static int dissect_tfs_response(packet_info *pinfo, proto_tree *tree,
       s_end = offset + len;
       while (s_offset < s_end) {
         int tlen = add_tagged_field(pinfo, tree, tvb, s_offset, ftype);
+        if (tlen==0)
+          break;
         s_offset += tlen;
       }
       break;
