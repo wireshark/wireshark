@@ -460,6 +460,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bt-oui.c
 	dissectors/packet-bvlc.c
 	dissectors/packet-bzr.c
+	dissectors/packet-c15ch.c
 	dissectors/packet-calcappprotocol.c
 	dissectors/packet-canopen.c
 	dissectors/packet-capwap.c

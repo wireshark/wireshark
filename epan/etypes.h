@@ -102,6 +102,10 @@ extern "C" {
 #define ETHERTYPE_VINES_ECHO		0x0BAF
 #endif
 
+#ifndef ETHERTYPE_C15_HBEAT
+#define ETHERTYPE_C15_HBEAT		0x0C15
+#endif
+
 #ifndef ETHERTYPE_TRAIN
 #define ETHERTYPE_TRAIN			0x1984	/* Created by Microsoft Network Monitor as a summary packet */
 #endif
@@ -146,6 +150,10 @@ extern "C" {
 
 #ifndef ETHERTYPE_EPL_V1
 #define ETHERTYPE_EPL_V1		0x3E3F
+#endif
+
+#ifndef ETHERTYPE_C15_CH
+#define ETHERTYPE_C15_CH		0x4742
 #endif
 
 #ifndef ETHERTYPE_DEC
