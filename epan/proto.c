@@ -2100,7 +2100,7 @@ is also bad mojo, so I'm picking the lesser of two evils I think */
 	if (new_fi == NULL)								\
 		return NULL;								\
 											\
-	proto_tree_set_uint(new_fi, value);						\
+	proto_tree_set_ ## ctype ## (new_fi, value);						\
 											\
 	FI_SET_FLAG(new_fi,							\
 			(encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN); \
