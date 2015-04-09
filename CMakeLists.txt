@@ -37,16 +37,30 @@ cmake_policy(SET CMP0015 NEW)
 # %WIRESHARK_TARGET_PLATFORM%.
 
 if(WIN32)
-	if("${CMAKE_GENERATOR}" MATCHES ".*Win64$")
+	if("${CMAKE_GENERATOR}" MATCHES "Win64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
 		set(PROCESSOR_ARCHITECTURE amd64)
 		message("Building for x64")
-	elseif("${CMAKE_GENERATOR}" MATCHES "Visual Studio.*")
+	elseif("${CMAKE_GENERATOR}" MATCHES "Visual Studio")
 		set(WIRESHARK_TARGET_PLATFORM win32)
 		set(PROCESSOR_ARCHITECTURE x86)
 		message("Building for x86")
 	else()
 		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
+	endif()
+
+	if(DEFINED ENV{PLATFORM})
+		string(TOLOWER $ENV{PLATFORM} _vs_platform)
+	else()
+		set(_vs_platform "[undefined]") # x86
+	endif()
+	if(
+		(_vs_platform STREQUAL "x64" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
+		OR
+		(_vs_platform STREQUAL "[undefined]" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
+	)
+		message(FATAL_ERROR "The PLATFORM environment variable (${_vs_platform})"
+			" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
 	endif()
 endif(WIN32)
 
