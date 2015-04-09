@@ -29,10 +29,12 @@
 
 #include "config.h"
 
-#include <glib.h>
 
 #include <epan/packet.h>
 #include "packet-tcp.h"
+
+void proto_register_ocfs2(void);
+void proto_reg_handoff_ocfs2(void);
 
 static gint ett_ocfs2 = -1;
 static gint ett_dtm_lock_flags = -1;
@@ -246,7 +248,7 @@ enum {
 	DLM_GRANTED_LIST = 0,
 	DLM_CONVERTING_LIST,
 	DLM_BLOCKED_LIST,
-	DLM_MAX_LIST,
+	DLM_MAX_LIST
 };
 
 static const value_string dlm_lockres_list[] = {
