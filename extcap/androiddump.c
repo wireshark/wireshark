@@ -482,7 +482,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
     const char            *adb_api_level          = "0022""shell:getprop ro.build.version.sdk";
     const char            *adb_hcidump_version    = "0017""shell:hcidump --version";
     const char            *adb_ps_droid_bluetooth = "0018""shell:ps droid.bluetooth";
-    char                  *serial_number;
+    char                   serial_number[512];
     int                    result;
     char                  *interface_name;
     char                  *pos;
@@ -510,10 +510,13 @@ static int add_android_interfaces(struct interface_t **interface_list,
         prev_pos = pos;
         pos = strchr(pos, '\t');
         result = (int) (pos - prev_pos);
-        serial_number = (char *) malloc(result + 1);
+        pos = strchr(pos, '\n') + 1;
+        if (result > (int) sizeof(serial_number)) {
+            fprintf(stderr, "WARNING: Serial number too long, ignore device\n");
+            continue;
+        }
         memcpy(serial_number, prev_pos, result);
         serial_number[result] = '\0';
-        pos = strchr(pos, '\n') + 1;
 
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
 
