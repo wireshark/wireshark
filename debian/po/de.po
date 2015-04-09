@@ -19,7 +19,7 @@ msgstr ""
 #: ../templates:2001
 msgid "Should non-superusers be able to capture packets?"
 msgstr ""
-"Sollen außer dem Superuser noch andere Benutzer Pakete aufzeichen können?"
+"Sollen außer dem Superuser noch andere Benutzer Pakete aufzeichnen können?"
 
 #. Type: boolean
 #. Description
@@ -42,7 +42,7 @@ msgid ""
 "For more detailed information please see /usr/share/doc/wireshark-common/"
 "README.Debian."
 msgstr ""
-"Detalliertere Informationen finden Sie in /usr/share/doc/wireshark-common/"
+"Detailliertere Informationen finden Sie in /usr/share/doc/wireshark-common/"
 "README.Debian."
 
 #. Type: boolean
