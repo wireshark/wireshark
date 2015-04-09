@@ -935,7 +935,7 @@ dissect_cmip_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, actx->private_data);
   } else if (actx->external.indirect_ref_present &&
              dissector_try_uint(attribute_id_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
-    offset=tvb_length (tvb);
+    offset=tvb_reported_length (tvb);
   } else {
     offset=dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
   }
@@ -2072,7 +2072,7 @@ dissect_cmip_T_attributevalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
     offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
   } else if (actx->external.indirect_ref_present &&
              dissector_try_uint(attribute_id_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
-    offset=tvb_length (tvb);
+    offset=tvb_reported_length (tvb);
   } else {
     offset=dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
   }

@@ -1559,9 +1559,9 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	switch(pdu_type){
 		case CMP_TYPE_PKIMSG:
-			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			next_tvb = tvb_new_subset(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
 			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-			offset += tvb_length_remaining(tvb, offset);
+			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_POLLREP:
 			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1587,14 +1587,14 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			proto_tree_add_time(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, &ts);
 			offset += 4;
 
-			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			next_tvb = tvb_new_subset(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
 			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-			offset += tvb_length_remaining(tvb, offset);
+			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_FINALMSGREP:
-			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			next_tvb = tvb_new_subset(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
 			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-			offset += tvb_length_remaining(tvb, offset);
+			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_ERRORMSGREP:
 			/*XXX to be added*/
@@ -2368,7 +2368,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 324 "../../asn1/cmp/packet-cmp-template.c"
+#line 325 "../../asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2426,7 +2426,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 330 "../../asn1/cmp/packet-cmp-template.c"
+#line 331 "../../asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2520,7 +2520,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 402 "../../asn1/cmp/packet-cmp-template.c"
+#line 403 "../../asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

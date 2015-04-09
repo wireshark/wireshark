@@ -145,9 +145,9 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	switch(pdu_type){
 		case CMP_TYPE_PKIMSG:
-			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			next_tvb = tvb_new_subset(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
 			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-			offset += tvb_length_remaining(tvb, offset);
+			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_POLLREP:
 			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -173,14 +173,14 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			proto_tree_add_time(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, &ts);
 			offset += 4;
 
-			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			next_tvb = tvb_new_subset(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
 			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-			offset += tvb_length_remaining(tvb, offset);
+			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_FINALMSGREP:
-			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			next_tvb = tvb_new_subset(tvb, offset, tvb_reported_length_remaining(tvb, offset), pdu_len);
 			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-			offset += tvb_length_remaining(tvb, offset);
+			offset += tvb_reported_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_ERRORMSGREP:
 			/*XXX to be added*/

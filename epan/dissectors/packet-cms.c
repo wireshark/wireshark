@@ -431,7 +431,7 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 #line 102 "../../asn1/cms/cms.cnf"
 
   offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &content_tvb);
-  proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_length (content_tvb));
+  proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_reported_length (content_tvb));
 
   call_ber_oid_callback(object_identifier_id, content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree, NULL);
 

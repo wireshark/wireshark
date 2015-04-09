@@ -537,7 +537,7 @@ dissect_charging_ase_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 13 "../../asn1/charging_ase/charging_ase.cnf"
 
 	proto_tree_add_expert(tree, actx->pinfo, &ei_charging_ase_extensions_not_dissected, tvb, offset, -1);
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 
 
   return offset;
