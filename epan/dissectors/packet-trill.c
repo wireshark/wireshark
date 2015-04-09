@@ -106,7 +106,8 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
   op_len = tvb_get_bits( tvb, 5, 5, ENC_BIG_ENDIAN ) * TRILL_OP_LENGTH_BYTE_UNITS ;
   if (tree) {
-    ti = proto_tree_add_item( tree, proto_trill, tvb, 0, -1, ENC_NA ) ;
+    ti = proto_tree_add_item( tree, proto_trill, tvb, 0,
+      TRILL_MIN_FRAME_LENGTH + op_len, ENC_NA ) ;
     trill_tree = proto_item_add_subtree( ti, ett_trill ) ;
 
     /* Parse the bit fields, i.e. V, R, M, Op-Length, Hop Count. */
