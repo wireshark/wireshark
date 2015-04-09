@@ -979,10 +979,10 @@ dissect_p1_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 	if (ctx && ctx->do_address) {
-		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
+		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(mtaname, 0, tvb_reported_length(mtaname)));
 	} else {
 		if (mtaname) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(mtaname, 0, tvb_reported_length(mtaname)));
 		}
 	}
 
@@ -1714,10 +1714,10 @@ dissect_p1_LocalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 	if(id) {
 		if (ctx && ctx->do_address)
-			proto_item_append_text(actx->subtree.tree, " $ %s)", tvb_format_text(id, 0, tvb_length(id)));
+			proto_item_append_text(actx->subtree.tree, " $ %s)", tvb_format_text(id, 0, tvb_reported_length(id)));
 
 		if (hf_index == hf_p1_subject_identifier)
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %s)", tvb_format_text(id, 0, tvb_length(id)));
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %s)", tvb_format_text(id, 0, tvb_reported_length(id)));
 	}
 
 
@@ -2200,7 +2200,7 @@ dissect_p1_T_extension_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 	proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %d"));
 	if (dissector_try_uint(p1_extension_attribute_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
-		offset =tvb_length(tvb);
+		offset =tvb_reported_length(tvb);
 	} else {
 		proto_item *item;
 		proto_tree *next_tree;
@@ -2666,7 +2666,7 @@ dissect_p1_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 
 	if(arrival && ctx && ctx->do_address)
-		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(arrival, 0, tvb_length(arrival)));
+		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(arrival, 0, tvb_reported_length(arrival)));
 
 
 
@@ -3045,7 +3045,7 @@ dissect_p1_ExtensionValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	if(actx->external.indirect_ref_present) {
 		proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_StandardExtension_vals, "standard-extension %d"));
 		if (dissector_try_uint(p1_extension_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
-			offset = tvb_length(tvb);
+			offset = tvb_reported_length(tvb);
 		} else {
 			proto_item *item;
 			proto_tree *next_tree;
@@ -3227,7 +3227,7 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	/* we can do this now constructed octet strings are supported */
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
-	proto_item_set_text(actx->created_item, "content (%u bytes)", tvb_length (next_tvb));
+	proto_item_set_text(actx->created_item, "content (%u bytes)", tvb_reported_length (next_tvb));
 
 	if (next_tvb) {
 		if (ctx && ctx->content_type_id) {
@@ -3237,7 +3237,7 @@ dissect_p1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 			proto_tree *next_tree;
 
 			item = proto_tree_add_expert(actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->pinfo, &ei_p1_unknown_built_in_content_type,
-							  next_tvb, 0, tvb_length_remaining(tvb, offset));
+							  next_tvb, 0, tvb_reported_length_remaining(tvb, offset));
 			next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
 
 			dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
@@ -7197,7 +7197,7 @@ dissect_p1_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	proto_item_append_text(tree, " (%s)", val_to_str(actx->external.indirect_reference, p1_TokenDataType_vals, "tokendata-type %d"));
 	if (dissector_try_uint(p1_tokendata_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
-		offset = tvb_length(tvb);
+		offset = tvb_reported_length(tvb);
 	} else {
 		proto_item *item;
 		proto_tree *next_tree;
@@ -8635,6 +8635,8 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
     p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
     return tvb_captured_length(tvb);
 }
+
+
 
 
 /*--- proto_register_p1 -------------------------------------------*/
@@ -10922,7 +10924,7 @@ void proto_register_p1(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p1-hfarr.c ---*/
-#line 318 "../../asn1/p1/packet-p1-template.c"
+#line 320 "../../asn1/p1/packet-p1-template.c"
   };
 
   /* List of subtrees */
@@ -11121,7 +11123,7 @@ void proto_register_p1(void) {
     &ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields,
 
 /*--- End of included file: packet-p1-ettarr.c ---*/
-#line 331 "../../asn1/p1/packet-p1-template.c"
+#line 333 "../../asn1/p1/packet-p1-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -11170,7 +11172,7 @@ void proto_register_p1(void) {
   new_register_ber_syntax_dissector("ORName", proto_p1, dissect_ORName_PDU);
 
 /*--- End of included file: packet-p1-syn-reg.c ---*/
-#line 372 "../../asn1/p1/packet-p1-template.c"
+#line 374 "../../asn1/p1/packet-p1-template.c"
 }
 
 
@@ -11336,7 +11338,7 @@ void proto_reg_handoff_p1(void) {
 
 
 /*--- End of included file: packet-p1-dis-tab.c ---*/
-#line 380 "../../asn1/p1/packet-p1-template.c"
+#line 382 "../../asn1/p1/packet-p1-template.c"
 
   /* APPLICATION CONTEXT */
 
@@ -11348,8 +11350,13 @@ void proto_reg_handoff_p1(void) {
   register_rtse_oid_dissector_handle("2.6.0.2.12", p1_handle, 0, "id-as-mta-rtse", TRUE);
   register_rtse_oid_dissector_handle("2.6.0.2.7", p1_handle, 0, "id-as-mtse", FALSE);
 
+
   register_rtse_oid_dissector_handle("applicationProtocol.1", p1_handle, 0, "mts-transfer-protocol-1984", FALSE);
   register_rtse_oid_dissector_handle("applicationProtocol.12", p1_handle, 0, "mta-transfer-protocol", FALSE);
+
+  /* the ROS dissector will use the registered P3 ros info */
+  register_rtse_oid_dissector_handle(id_as_mts_rtse, NULL, 0, "id-as-mts-rtse", TRUE);
+  register_rtse_oid_dissector_handle(id_as_msse, NULL, 0, "id-as-msse", TRUE);
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");
@@ -11363,6 +11370,7 @@ void proto_reg_handoff_p1(void) {
 
 
   /* Register P3 with ROS */
+
   register_ros_protocol_info(id_as_msse, &p3_ros_info, 0, "id-as-msse", FALSE);
 
   register_ros_protocol_info(id_as_mdse_88, &p3_ros_info, 0, "id-as-mdse-88", FALSE);
@@ -11372,6 +11380,7 @@ void proto_reg_handoff_p1(void) {
   register_ros_protocol_info(id_as_mase_94, &p3_ros_info, 0, "id-as-mase-94", FALSE);
 
   register_ros_protocol_info(id_as_mts, &p3_ros_info, 0, "id-as-mts", FALSE);
+  register_ros_protocol_info(id_as_mts_rtse, &p3_ros_info, 0, "id-as-mts-rtse", TRUE);
 
 }
 

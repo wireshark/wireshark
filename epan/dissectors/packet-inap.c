@@ -1526,7 +1526,7 @@ dissect_inap_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
 	 call_dissector(data_handle, tvb, actx->pinfo, ext_tree);
-	 offset = tvb_length_remaining(tvb,offset);
+	 offset = tvb_reported_length_remaining(tvb,offset);
   }
 
 
@@ -2211,7 +2211,7 @@ dissect_inap_T_bearerCap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
  if (!parameter_tvb)
 	return offset;
 
- dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
+ dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
 
 
 
@@ -4576,7 +4576,7 @@ dissect_inap_HighLayerCompatibility(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
         return offset;
 
  subtree = proto_item_add_subtree(actx->created_item, ett_inap_HighLayerCompatibility);
- dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree);
+ dissect_q931_high_layer_compat_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), subtree);
 
 
 

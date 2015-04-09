@@ -8715,7 +8715,7 @@ dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
     return offset;
  BindingID_port = tvb_get_ntohs(parameter_tvb,0);
 
- if(tvb_length(parameter_tvb)==2){
+ if(tvb_reported_length(parameter_tvb)==2){
     proto_item_append_text(actx->created_item, " (%u)",BindingID_port);
  }
 
@@ -8740,7 +8740,7 @@ dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   if (!parameter_tvb)
     return offset;
     /* Get the length */
-    tvb_len = tvb_length(parameter_tvb);
+    tvb_len = tvb_reported_length(parameter_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_nbap_TransportLayerAddress);
     if (tvb_len==4){
         /* IPv4 */
