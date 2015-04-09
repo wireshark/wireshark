@@ -53,6 +53,7 @@ void proto_reg_handoff_ath(void);
 static int proto_ath = -1;
 
 static int hf_ath_begin  = -1;
+static int hf_ath_padding = -1;
 static int hf_ath_length = -1;
 static int hf_ath_alive  = -1;
 static int hf_ath_port   = -1;
@@ -217,6 +218,9 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(ath_tree, hf_ath_begin, tvb, offset, 8, ENC_ASCII|ENC_NA);
       offset+=8;
 
+      proto_tree_add_item(ath_tree, hf_ath_padding, tvb, offset, 2, ENC_ASCII|ENC_NA);
+      offset+=2;
+
       /* LENGTH
        */
       proto_tree_add_item(ath_tree, hf_ath_length, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -244,7 +248,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* HOST LENGTH
        */
-      proto_tree_add_item(ath_tree, hf_ath_hlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+      hlen_item = proto_tree_add_item(ath_tree, hf_ath_hlen, tvb, offset, 1, ENC_BIG_ENDIAN);
       hlen = tvb_get_guint8(tvb, offset);
       offset+=1;
 
@@ -256,6 +260,8 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       } else if(hlen == 6) {
         proto_tree_add_item(ath_tree, hf_ath_ipv6, tvb, offset, 6, ENC_NA);
         info_srcaddr = tvb_ip6_to_str(tvb, offset);
+      } else {
+        expert_add_info(pinfo, hlen_item, &ei_ath_hlen_invalid);
       }
       offset+=hlen;
 
@@ -342,6 +348,10 @@ proto_register_ath(void)
   static hf_register_info hf[] = {
     { &hf_ath_begin,
       { "Begin",  "ath.begin", FT_STRING, BASE_NONE, NULL, 0x0, "Begin mark",
+        HFILL }
+    },
+    { &hf_ath_padding,
+      { "Padding",  "ath.padding", FT_UINT16, BASE_HEX, NULL, 0x0, NULL,
         HFILL }
     },
     { &hf_ath_length,
