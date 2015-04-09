@@ -16500,15 +16500,13 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
       proto_tree_add_item(aruba_tree, hf_ieee80211_aruba, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      /* HeartBeat Sequence */
-      if (type == 0x0005)
-      {
-        proto_tree_add_item(aruba_tree, hf_ieee80211_aruba_hb_seq, tvb, offset, 8, ENC_BIG_ENDIAN);
-      }
-      /* MTU Size */
-      if (type == 0x0003)
-      {
-        proto_tree_add_item(aruba_tree, hf_ieee80211_aruba_mtu, tvb, offset, 2, ENC_BIG_ENDIAN);
+      switch(type){
+        case 0x0003: /* MTU Size */
+          proto_tree_add_item(aruba_tree, hf_ieee80211_aruba_mtu, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+        case 0x0005: /* HeartBeat Sequence */
+          proto_tree_add_item(aruba_tree, hf_ieee80211_aruba_hb_seq, tvb, offset, 8, ENC_BIG_ENDIAN);
+        break;
       }
       break;
     }
