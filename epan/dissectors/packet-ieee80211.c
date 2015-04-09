@@ -15972,7 +15972,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len != 8)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be 8", tag_len);
-        return tag_len;
+        break;
       }
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_bi_start_time, tvb, offset, 4, ENC_NA);
@@ -15990,7 +15990,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len < 14)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 14", tag_len);
-        return tag_len;
+        break;
       }
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_tspec_allocation_id, tvb, offset, 3, ENC_NA);
@@ -16036,7 +16036,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len%5 != 0)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be multiple of 5", tag_len);
-        return tag_len;
+        break;
       }
       num_measurement = tvb_get_guint8(tvb, offset+1);
       offset += 2;
@@ -16061,7 +16061,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len != 2)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be 2", tag_len);
-        return tag_len;
+        break;
       }
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_awake_window, tvb, offset, 2, ENC_NA);
@@ -16073,7 +16073,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len != 1)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be 1", tag_len);
-        return tag_len;
+        break;
       }
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_addba_ext_no_frag, tvb, offset, 1, ENC_NA);
@@ -16086,7 +16086,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len < 22)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 22", tag_len);
-        return tag_len;
+        break;
       }
       offset += 2;
       chiper_present = (tvb_get_letohs(tvb, offset) & 0x08) >> 3;
@@ -16161,7 +16161,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len != 8)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be 8", tag_len);
-        return tag_len;
+        break;
       }
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_activity, tvb, offset, 1, ENC_NA);
@@ -16181,7 +16181,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len != 5)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be 5", tag_len);
-        return tag_len;
+        break;
       }
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tag_activity, tvb, offset, 1, ENC_NA);
@@ -16196,7 +16196,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       if (tag_len < 4)
       {
         expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 4", tag_len);
-        return tag_len;
+        break;
       }
       offset += 2;
       offset += add_fixed_field(tree, tvb, pinfo, 1, FIELD_BAND_ID);
