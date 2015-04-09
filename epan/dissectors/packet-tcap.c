@@ -767,7 +767,7 @@ offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_t
                                     &parameter_tvb);
 
 if (parameter_tvb){
-	len = tvb_length_remaining(parameter_tvb, 0);
+	len = tvb_reported_length_remaining(parameter_tvb, 0);
 	switch(len) {
 	case 1:
 		gp_tcapsrt_info->src_tid=tvb_get_guint8(parameter_tvb, 0);
@@ -842,7 +842,7 @@ offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_t
                                     &parameter_tvb);
 
 if (parameter_tvb){
-	len = tvb_length_remaining(parameter_tvb, 0);
+	len = tvb_reported_length_remaining(parameter_tvb, 0);
 	switch(len) {
 	case 1:
 		gp_tcapsrt_info->dst_tid=tvb_get_guint8(parameter_tvb, 0);
