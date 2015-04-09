@@ -172,13 +172,13 @@ case "$1" in
 		err_exit "WIRESHARK_TARGET_PLATFORM not defined"
 	fi
 	# DOWNLOAD_PREFIX MUST be in the form
-	#   https://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
+	#   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
 	# or
-	#   https://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
+	#   http://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
 	# or
 	#   /packages to test uploads before creating the tag.
-	#DOWNLOAD_PREFIX="https://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages"
-	DOWNLOAD_PREFIX="https://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages"
+	#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages"
+	DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages"
 
 	PACKAGE=$(basename "$PACKAGE_PATH")
 	echo ""
