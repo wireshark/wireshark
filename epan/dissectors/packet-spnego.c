@@ -516,11 +516,11 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
     len = call_dissector(next_level_value_lcl->wrap_handle, token_tvb, actx->pinfo,
                          subtree);
     if (len == 0)
-      offset = tvb_length(tvb);
+      offset = tvb_reported_length(tvb);
     else
       offset = offset + len;
   } else
-    offset = tvb_length(tvb);
+    offset = tvb_reported_length(tvb);
 
 
 

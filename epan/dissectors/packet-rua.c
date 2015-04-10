@@ -832,7 +832,7 @@ dissect_rua_RANAP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &ranap_message_tvb);
 
- if ((tvb_length(ranap_message_tvb)>0)&&(ranap_handle)) {  /* RUA has a RANAP-PDU */
+ if ((tvb_reported_length(ranap_message_tvb)>0)&&(ranap_handle)) {  /* RUA has a RANAP-PDU */
      col_set_str(actx->pinfo->cinfo, COL_INFO,
              "(RUA) ");                                    /* Set info to (RUA) to make room for RANAP */
      col_set_fence(actx->pinfo->cinfo, COL_INFO);

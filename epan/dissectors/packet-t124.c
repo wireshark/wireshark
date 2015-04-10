@@ -581,7 +581,7 @@ dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 	if(next_tvb) {
 
-	ns = tvb_get_string_enc(NULL, t124NSIdentifier, 0, tvb_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
+	ns = tvb_get_string_enc(NULL, t124NSIdentifier, 0, tvb_reported_length(t124NSIdentifier), ENC_ASCII|ENC_NA);
 	if(ns != NULL) {
 		dissector_try_string(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree, NULL);
 		g_free(ns);
@@ -1514,7 +1514,7 @@ dissect_t124_T_connectPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
       /* Not sure why - but lets ignore the length. */
       /* We assume the OCTET STRING is all of the remaining bytes */
 
-      if(tvb_length(next_tvb) == 42) {
+      if(tvb_reported_length(next_tvb) == 42) {
          /* this is perhaps a naive ... */
 	 next_tvb = tvb_new_subset_remaining(tvb, (old_offset>>3)+1);
       }

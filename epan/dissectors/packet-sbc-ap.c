@@ -554,7 +554,7 @@ dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-	if(tvb_length(tvb)==0)
+	if(tvb_reported_length(tvb)==0)
 		return offset;
 
 	if (!parameter_tvb)

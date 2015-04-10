@@ -2470,7 +2470,7 @@ dissect_snmp_SnmpEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &param_tvb);
 	 if (param_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(actx->created_item,ett_engineid);
-		dissect_snmp_engineid(engine_tree, actx->pinfo, param_tvb, 0, tvb_length_remaining(param_tvb,0));
+		dissect_snmp_engineid(engine_tree, actx->pinfo, param_tvb, 0, tvb_reported_length_remaining(param_tvb,0));
 	}
 
 
@@ -2487,7 +2487,7 @@ dissect_snmp_T_msgAuthoritativeEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &usm_p.engine_tvb);
 	 if (usm_p.engine_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(actx->created_item,ett_engineid);
-		dissect_snmp_engineid(engine_tree, actx->pinfo, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
+		dissect_snmp_engineid(engine_tree, actx->pinfo, usm_p.engine_tvb, 0, tvb_reported_length_remaining(usm_p.engine_tvb,0));
 	}
 
 
@@ -3125,7 +3125,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * have that routine deal with ASN.1, and just use
 	 * "tcp_dissect_pdus()"?)
 	 */
-	length_remaining = tvb_ensure_length_remaining(tvb, offset);
+	length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
 
 	/* NOTE: we have to parse the message piece by piece, since the
 	 * capture length may be less than the message length: a 'global'
