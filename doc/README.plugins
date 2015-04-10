@@ -235,8 +235,8 @@ File "${STAGING_DIR}\plugins\${VERSION}\irda.dll"
 
 3.2.7.3  Other installers
 
-The U3 and PortableApps installers build their manifests, including
-plugins, from wireshark.nsi via the packaging/ws-manifest.pl script.
+The PortableApps installer copies plugins from the build directory
+and should not require configuration.
 
 4. Development and plugins on Unix
 

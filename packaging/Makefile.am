@@ -7,7 +7,6 @@ MAINTAINERCLEANFILES = \
 EXTRA_DIST = \
 	Makefile.nmake				\
 	macosx/Info.plist.in		\
-	ws-manifest.pl				\
 	portableapps/appinfo.tmpl			\
 	portableapps/help.html			\
 	portableapps/Makefile.nmake		\

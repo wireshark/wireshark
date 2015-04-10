@@ -2,9 +2,6 @@
 
 include ../config.nmake
 
-#wireshark.manifest:	nsis/wireshark.nsi ws-manifest.pl
-#	$(PERL) ws-manifest.pl nsis/wireshark.nsi > $@
-
 clean:
 	rm -rf wireshark.manifest
 
