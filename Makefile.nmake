@@ -236,9 +236,7 @@ packaging: _FORCE_
 packaging_papps: all
 	cd packaging
 	cd portableapps
-	cd win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
 	cd ..
 	cd ..
 
@@ -617,9 +615,9 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../portableapps/win32
+	cd ../portableapps
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../../..
+	cd ../..
 
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
@@ -673,9 +671,9 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../portableapps/win32
+	cd ../portableapps
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../../..
+	cd ../..
 
 # Make "maintainer-clean" only if you would like to remove ALL generated
 # files.
@@ -722,9 +720,9 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../portableapps/win32
+	cd ../portableapps
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../../..
+	cd ../..
 
 tools::
 	cd tools

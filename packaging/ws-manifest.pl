@@ -3,7 +3,7 @@
 # in ../Makefile.nmake with echo commands that append to a deployment manifest.
 # We could then use that manifest to fill in the section includes in
 # nsis\wireshark.nsi, copy files to wireshark-gtk2, and copy files to
-# portableapps\win32\WiresharkPortable\App\Wireshark.
+# portableapps\WiresharkPortable\App\Wireshark.
 
 #
 # ws-manifest.pl - create a generic manifest file (including u3 information) from the wireshark.nsi

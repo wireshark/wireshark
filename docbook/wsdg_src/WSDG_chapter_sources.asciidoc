@@ -1156,9 +1156,13 @@ the 'packaging/nsis' directory.
 _PortableApps.com_ is an environment that lets users run popular applications
 from portable media such as flash drives and cloud drive services.
 
-You will probably have to modify the MAKENSIS setting in the
-'config.nmake' file to specify where the NSIS binaries
-are installed.
+Install the 'PortableApps.com Platform'. Install for ``all users,'' which
+will place it in `C:\PortableApps`. Add the following apps:
+
+- NSIS Portable (Unicode)
+- PortableApps.com Installer
+- PortableApps.com Launcher
+- PortableApps.com AppCompactor
 
 In the top-level source directory type:
 
@@ -1176,8 +1180,8 @@ It might take some time, even on fast machines.
 ====
 
 If everything went well, you will now find something like:
-'WiresharkPortable-wireshark-major-minor-version:[].paf.exe' in
-the 'packaging/portableapps/win32' directory.
+'WiresharkPortable_wireshark-major-minor-version:[].paf.exe' in
+the 'packaging/portableapps' directory.
 
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Sources -->
