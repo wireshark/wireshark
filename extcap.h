@@ -37,6 +37,9 @@
 
 #ifdef HAVE_EXTCAP
 
+/* Prefix for the pipe interfaces */
+#define EXTCAP_PIPE_PREFIX "wireshark_extcap"
+
 #define EXTCAP_ARGUMENT_CONFIG                  "--extcap-config"
 #define EXTCAP_ARGUMENT_LIST_INTERFACES "--extcap-interfaces"
 #define EXTCAP_ARGUMENT_INTERFACE               "--extcap-interface"

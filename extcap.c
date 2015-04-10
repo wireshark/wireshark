@@ -62,9 +62,6 @@ static HANDLE pipe_h = NULL;
  */
 static GHashTable *ifaces = NULL;
 
-/* Prefix for the pipe interfaces */
-#define EXTCAP_PIPE_PREFIX "wireshark_extcap"
-
 /* Callback definition for extcap_foreach */
 typedef gboolean (*extcap_cb_t)(const gchar *extcap, gchar *output, void *data,
         gchar **err_str);

@@ -163,6 +163,10 @@
 
 #include "caputils/ws80211_utils.h"
 
+#ifdef HAVE_EXTCAP
+#include "extcap.h"
+#endif
+
 /*
  * Get information about libpcap format from "wiretap/libpcap.h".
  * XXX - can we just use pcap_open_offline() to read the pipe?
@@ -2045,6 +2049,10 @@ cap_pipe_open_live(char *pipename,
     char    *pncopy, *pos;
     wchar_t *err_str;
     interface_options interface_opts;
+#ifdef HAVE_EXTCAP
+    char* extcap_pipe_name;
+    gboolean extcap_pipe;
+#endif
 #endif
     ssize_t  b;
     int      fd = -1, sel_ret;
@@ -2054,6 +2062,7 @@ cap_pipe_open_live(char *pipename,
 #ifdef _WIN32
     pcap_opts->cap_pipe_h = INVALID_HANDLE_VALUE;
 #endif
+
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
 
     /*
@@ -2181,13 +2190,20 @@ cap_pipe_open_live(char *pipename,
         }
 
         interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+#ifdef HAVE_EXTCAP
+        extcap_pipe_name = g_strconcat("\\\\.\\pipe\\", EXTCAP_PIPE_PREFIX, NULL);
+        extcap_pipe = strstr(interface_opts.name, extcap_pipe_name) ? TRUE : FALSE;
+        g_free(extcap_pipe_name);
+#endif
 
         /* Wait for the pipe to appear */
         while (1) {
 
-            if(strncmp(interface_opts.name,"\\\\.\\pipe\\",9)== 0)
+#ifdef HAVE_EXTCAP
+            if(extcap_pipe)
                 pcap_opts->cap_pipe_h = GetStdHandle(STD_INPUT_HANDLE);
             else
+#endif
                 pcap_opts->cap_pipe_h = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
                                                    OPEN_EXISTING, 0, NULL);
 
