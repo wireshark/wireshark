@@ -296,8 +296,8 @@ static void extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buffer,
 
         hdr.pseudo_header.bthci.sent = GINT32_FROM_BE(*direction) ? 0 : 1;
 
-        hdr.len -= sizeof(own_pcap_bluetooth_h4_header);
-        hdr.caplen -= sizeof(own_pcap_bluetooth_h4_header);
+        hdr.len -= (guint32)sizeof(own_pcap_bluetooth_h4_header);
+        hdr.caplen -= (guint32)sizeof(own_pcap_bluetooth_h4_header);
 
         buffer += sizeof(own_pcap_bluetooth_h4_header);
         hdr.pkt_encap = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
@@ -1408,7 +1408,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
             case BLUEDROID_H4_PACKET_TYPE_HCI_CMD:
                 h4_header->direction = GINT32_TO_BE(BLUEDROID_DIRECTION_SENT);
 
-                captured_length = sizeof(own_pcap_bluetooth_h4_header) + payload[3] + 4;
+                captured_length = (unsigned int)sizeof(own_pcap_bluetooth_h4_header) + payload[3] + 4;
 
                 length = sizeof(own_pcap_bluetooth_h4_header) + BLUEDROID_H4_SIZE + 2 + 1 + payload[3];
 
@@ -1416,7 +1416,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
             case BLUEDROID_H4_PACKET_TYPE_ACL:
                 h4_header->direction = (payload[2] & 0x80) ? GINT32_TO_BE(BLUEDROID_DIRECTION_RECV) : GINT32_TO_BE(BLUEDROID_DIRECTION_SENT);
 
-                captured_length = sizeof(own_pcap_bluetooth_h4_header) + payload[3] + (payload[3 + 1] << 8) + 5;
+                captured_length = (unsigned int)sizeof(own_pcap_bluetooth_h4_header) + payload[3] + (payload[3 + 1] << 8) + 5;
 
                 length = sizeof(own_pcap_bluetooth_h4_header) + BLUEDROID_H4_SIZE + 2 + 2 + payload[3] + (payload[3 + 1] << 8);
 
@@ -1424,7 +1424,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
             case BLUEDROID_H4_PACKET_TYPE_SCO:
                 h4_header->direction = (payload[2] & 0x80) ? GINT32_TO_BE(BLUEDROID_DIRECTION_RECV) : GINT32_TO_BE(BLUEDROID_DIRECTION_SENT);
 
-                captured_length = sizeof(own_pcap_bluetooth_h4_header) + payload[3] + 4;
+                captured_length = (unsigned int)sizeof(own_pcap_bluetooth_h4_header) + payload[3] + 4;
 
                 length = sizeof(own_pcap_bluetooth_h4_header) + BLUEDROID_H4_SIZE + 2 + 1 + payload[3];
 
@@ -1432,7 +1432,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
             case BLUEDROID_H4_PACKET_TYPE_HCI_EVT:
                 h4_header->direction = GINT32_TO_BE(BLUEDROID_DIRECTION_RECV);
 
-                captured_length = sizeof(own_pcap_bluetooth_h4_header) + payload[2] + 3;
+                captured_length = (unsigned int)sizeof(own_pcap_bluetooth_h4_header) + payload[2] + 3;
 
                 length = sizeof(own_pcap_bluetooth_h4_header) + BLUEDROID_H4_SIZE + 1 + 1 + payload[2];
 
@@ -1597,7 +1597,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     ssize_t                     used_buffer_length = 0;
     int                         sock;
     const char                 *protocol_name;
-    int                         exported_pdu_headers_size = 0;
+    size_t                      exported_pdu_headers_size = 0;
     struct exported_pdu_header  exported_pdu_header_protocol_normal;
     struct exported_pdu_header *exported_pdu_header_protocol;
     struct exported_pdu_header  exported_pdu_header_end = {0, 0};
