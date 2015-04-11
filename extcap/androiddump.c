@@ -1555,10 +1555,13 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
 
         while (used_buffer_length >= 24 &&
                 used_buffer_length >= (int) (24 + GINT32_FROM_BE(*captured_length))) {
+            gint32 direction;
+
             ts = GINT64_FROM_BE(*timestamp);
             ts -= BTSNOOP_TIMESTAMP_BASE;
 
-            h4_header->direction = GINT32_TO_BE(GINT32_FROM_BE(*flags) & 0x01);
+            direction = GINT32_FROM_BE(*flags) & 0x01;
+            h4_header->direction = GINT32_TO_BE(direction);
 
             extcap_dumper_dump(extcap_dumper, payload - sizeof(own_pcap_bluetooth_h4_header),
                     GINT32_FROM_BE(*captured_length) + sizeof(own_pcap_bluetooth_h4_header),
