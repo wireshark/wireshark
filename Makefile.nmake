@@ -1149,6 +1149,7 @@ clean_setup:
 	rm -r -f zlib123
 	rm -r -f zlib125
 	rm -r -f zlib-1.2.5
+	rm -r -f zlib-1.2.8
 	rm -r -f zlib123-dll
 	rm -r -f AirPcap_Devpack_1_0_0_594
 	rm -r -f AirPcap_Devpack_4_0_0_1480
