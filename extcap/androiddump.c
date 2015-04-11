@@ -44,6 +44,10 @@
     #include <sys/socket.h>
 #endif
 
+#ifdef HAVE_ARPA_INET_H
+    #include <arpa/inet.h>
+#endif
+
 #ifndef HAVE_GETOPT_LONG
     #include "wsutil/wsgetopt.h"
 #endif
@@ -62,8 +66,6 @@
     /*
      * UN*X, or Windows pretending to be UN*X with the aid of Cygwin.
      */
-    #include <arpa/inet.h>
-
     #define closesocket(socket)  close(socket)
 #endif
 
