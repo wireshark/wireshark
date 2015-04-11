@@ -48,7 +48,7 @@
     #include "wsutil/wsgetopt.h"
 #endif
 
-#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64))
+#if defined(__WIN32) && !defined(__CYGWIN__)
     #ifdef HAVE_WINDOWS_H
         #include <windows.h>
     #endif
@@ -58,8 +58,10 @@
     #ifdef HAVE_WINSOCK2_H
         #include <winsock2.h>
     #endif
-#endif
-#if (defined(__linux__) || defined(__APPLE__) || defined(__CYGWIN__))
+#else
+    /*
+     * UN*X, or Windows pretending to be UN*X with the aid of Cygwin.
+     */
     #include <arpa/inet.h>
 
     #define closesocket(socket)  close(socket)
