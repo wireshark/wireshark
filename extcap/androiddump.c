@@ -1750,10 +1750,10 @@ static int capture_android_logcat(char *interface, char *fifo,
     static char                 packet[PACKET_LENGTH];
     static char                 helper_packet[PACKET_LENGTH];
     ssize_t                     length;
-    ssize_t                     used_buffer_length = 0;
+    size_t                      used_buffer_length = 0;
     int                         sock;
     const char                 *protocol_name;
-    int                         exported_pdu_headers_size = 0;
+    size_t                      exported_pdu_headers_size = 0;
     struct exported_pdu_header  exported_pdu_header_protocol_events;
     struct exported_pdu_header  exported_pdu_header_protocol_normal;
     struct exported_pdu_header *exported_pdu_header_protocol;
@@ -1923,7 +1923,7 @@ static int capture_android_logcat(char *interface, char *fifo,
 
         length = (*payload_length) + header_size +  exported_pdu_headers_size;
 
-        while (used_buffer_length >= exported_pdu_headers_size + header_size && length <= used_buffer_length) {
+        while (used_buffer_length >= exported_pdu_headers_size + header_size && (size_t)length <= used_buffer_length) {
             extcap_dumper_dump(extcap_dumper, packet,
                     length,
                     length,
