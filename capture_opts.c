@@ -498,12 +498,20 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             /* fallback to the interface name */
             interface_opts.console_display_name = g_strdup(if_info->name);
         }
+        interface_opts.if_type = if_info->type;
+#ifdef HAVE_EXTCAP
+        interface_opts.extcap = g_strdup(if_info->extcap);
+#endif
         free_interface_list(if_list);
     } else if (capture_opts->capture_child) {
         /* In Wireshark capture child mode, thus proper device name is supplied. */
         /* No need for trying to match it for friendly names. */
         interface_opts.name = g_strdup(optarg_str_p);
         interface_opts.console_display_name = g_strdup(optarg_str_p);
+        interface_opts.if_type = capture_opts->default_options.if_type;
+#ifdef HAVE_EXTCAP
+        interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
+#endif
     } else {
         /*
          * Retrieve the interface list so that we can search for the
@@ -541,6 +549,10 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
                     } else {
                         interface_opts.console_display_name = g_strdup(if_info->name);
                     }
+                    interface_opts.if_type = if_info->type;
+#ifdef HAVE_EXTCAP
+                    interface_opts.extcap = g_strdup(if_info->extcap);
+#endif
                     matched = TRUE;
                     break;
                 }
@@ -551,6 +563,10 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
                     /* exact match - use the friendly name for display */
                     interface_opts.name = g_strdup(if_info->name);
                     interface_opts.console_display_name = g_strdup(if_info->friendly_name);
+                    interface_opts.if_type = if_info->type;
+#ifdef HAVE_EXTCAP
+                    interface_opts.extcap = g_strdup(if_info->extcap);
+#endif
                     matched = TRUE;
                     break;
                 }
@@ -571,6 +587,10 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
                         /* prefix match - use the friendly name for display */
                         interface_opts.name = g_strdup(if_info->name);
                         interface_opts.console_display_name = g_strdup(if_info->friendly_name);
+                        interface_opts.if_type = if_info->type;
+#ifdef HAVE_EXTCAP
+                        interface_opts.extcap = g_strdup(if_info->extcap);
+#endif
                         matched = TRUE;
                         break;
                     }
@@ -586,11 +606,19 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
                  */
                 interface_opts.name = g_strdup(optarg_str_p);
                 interface_opts.console_display_name = g_strdup(optarg_str_p);
+                interface_opts.if_type = capture_opts->default_options.if_type;
+#ifdef HAVE_EXTCAP
+                interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
+#endif
             }
             free_interface_list(if_list);
         } else {
             interface_opts.name = g_strdup(optarg_str_p);
             interface_opts.console_display_name = g_strdup(optarg_str_p);
+            interface_opts.if_type = capture_opts->default_options.if_type;
+#ifdef HAVE_EXTCAP
+            interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
+#endif
         }
     }
 
@@ -604,9 +632,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
     interface_opts.linktype = capture_opts->default_options.linktype;
     interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
-    interface_opts.if_type = capture_opts->default_options.if_type;
 #ifdef HAVE_EXTCAP
-    interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
     interface_opts.extcap_fifo = g_strdup(capture_opts->default_options.extcap_fifo);
     interface_opts.extcap_args = NULL;
     interface_opts.extcap_pid = INVALID_EXTCAP_PID;
