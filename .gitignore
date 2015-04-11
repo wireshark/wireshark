@@ -65,6 +65,7 @@ wireshark-tap-register-cache.pkl
 .dirstamp
 *.sym
 aclocal.m4
+androiddump
 autom4te.cache
 capinfos
 captype
