@@ -179,8 +179,9 @@ static const value_string zbee_zcl_basic_dev_en_names[] = {
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - pointer to ZCL packet structure.
  *  RETURNS
- *      none
+ *      int                 - length of parsed data.
  *---------------------------------------------------------------
  */
 static int
@@ -416,6 +417,452 @@ proto_reg_handoff_zbee_zcl_basic(void)
                          );
 } /*proto_reg_handoff_zbee_zcl_basic*/
 
+
+
+/* ########################################################################## */
+/* #### (0x0001) POWER CONFIGURATION CLUSTER ################################ */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE           0x0000  /* Mains voltage */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_FREQUENCY         0x0001  /* Mains frerquency */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_ALARM_MASK        0x0010  /* Mains Alarm Mask */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MIN_THR   0x0011  /* Mains Voltage Min Threshold */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MAX_THR   0x0012  /* Mains Voltage Max Threshold */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_DWELL_TP  0x0013  /* Mains Voltage Dwell Trip Point */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_VOLTAGE         0x0020  /* Battery Voltage */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_MANUFACTURER    0x0030  /* Battery Manufacturer */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_SIZE            0x0031  /* Battery Size */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_AH_RATING       0x0032  /* Battery AHr Rating */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_QUANTITY        0x0033  /* Battery Quantity */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_RATED_VOLTAGE   0x0034  /* Battery Rated Voltage */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_ALARM_MASK      0x0035  /* Battery Alarm Mask */
+#define ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_VOLTAGE_MIN_THR 0x0036  /* Battery Voltage Min Threshold */
+
+/* Server Commands Received - None */
+
+/* Server Commands Generated - None */
+
+/* Mains Alarm Mask bit-mask */
+#define ZBEE_ZCL_POWER_CONF_MAINS_ALARM_LOW         0x01    /* Mains voltage too low */
+#define ZBEE_ZCL_POWER_CONF_MAINS_ALARM_HIGH        0x02    /* Mains voltage too high */
+#define ZBEE_ZCL_POWER_CONF_MAINS_ALARM_RESERVED    0xfc    /* Reserved */
+
+/* Battery Size values */
+#define ZBEE_ZCL_POWER_CONF_BAT_TYPE_NO_BAT         0x00    /* No battery */
+#define ZBEE_ZCL_POWER_CONF_BAT_TYPE_BUILT_IN       0x01    /* Built in */
+#define ZBEE_ZCL_POWER_CONF_BAT_TYPE_OTHER          0x02    /* Other */
+#define ZBEE_ZCL_POWER_CONF_BAT_TYPE_AA             0x03    /* AA */
+#define ZBEE_ZCL_POWER_CONF_BAT_TYPE_AAA            0x04    /* AAA */
+#define ZBEE_ZCL_POWER_CONF_BAT_TYPE_C              0x05    /* C */
+#define ZBEE_ZCL_POWER_CONF_BAT_TYPE_D              0x06    /* D */
+#define ZBEE_ZCL_POWER_CONF_BAT_TYPE_UNKNOWN        0xFF    /* Unknown */
+
+/* Battery alarm mask bit-mask */
+#define ZBEE_ZCL_POWER_CONF_BATTERY_ALARM_LOW       0x01    /* Battery voltage too low */
+#define ZBEE_ZCL_POWER_CONF_BATTERY_ALARM_RESERVED  0xfe    /* Reserved */
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_power_config(void);
+void proto_reg_handoff_zbee_zcl_power_config(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_power_config = -1;
+static int hf_zbee_zcl_power_config_attr_id = -1;
+static int hf_zbee_zcl_power_config_batt_type = -1;
+static int hf_zbee_zcl_power_config_mains_alarm_mask = -1;
+static int hf_zbee_zcl_power_config_mains_alarm_mask_low = -1;
+static int hf_zbee_zcl_power_config_mains_alarm_mask_high = -1;
+static int hf_zbee_zcl_power_config_mains_alarm_mask_reserved = -1;
+static int hf_zbee_zcl_power_config_batt_alarm_mask = -1;
+static int hf_zbee_zcl_power_config_batt_alarm_mask_low = -1;
+static int hf_zbee_zcl_power_config_batt_alarm_mask_reserved = -1;
+static int hf_zbee_zcl_power_config_mains_voltage = -1;
+static int hf_zbee_zcl_power_config_mains_frequency = -1;
+static int hf_zbee_zcl_power_config_mains_voltage_min_thr = -1;
+static int hf_zbee_zcl_power_config_mains_voltage_max_thr = -1;
+static int hf_zbee_zcl_power_config_mains_voltage_dwell_tp = -1;
+static int hf_zbee_zcl_power_config_batt_voltage = -1;
+static int hf_zbee_zcl_power_config_batt_ah_rating = -1;
+static int hf_zbee_zcl_power_config_batt_rated_voltage = -1;
+static int hf_zbee_zcl_power_config_batt_voltage_min_thr = -1;
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_power_config = -1;
+static gint ett_zbee_zcl_power_config_mains_alarm_mask = -1;
+static gint ett_zbee_zcl_power_config_batt_alarm_mask = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_power_config_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE,           "Mains Voltage" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_FREQUENCY,         "Mains Frequency" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_ALARM_MASK,        "Mains Alarm Mask" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MIN_THR,   "Mains Voltage Min Threshold" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MAX_THR,   "Mains Voltage Max Threshold" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_DWELL_TP,  "Mains Voltage Dwell Trip Point" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_VOLTAGE,         "Battery Voltage" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_MANUFACTURER,    "Battery Manufacturer" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_SIZE,            "Battery Size" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_AH_RATING,       "Battery AHr Rating" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_QUANTITY,        "Battery Quantity" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_RATED_VOLTAGE,   "Battery Rated Voltage" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_ALARM_MASK,      "Battery Alarm Mask" },
+    { ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_VOLTAGE_MIN_THR, "Battery Voltage Minimum Threshold" },
+    { 0, NULL }
+};
+
+
+/* Battery size Names */
+static const value_string zbee_zcl_power_config_batt_type_names[] = {
+    { ZBEE_ZCL_POWER_CONF_BAT_TYPE_NO_BAT,         "No battery" },
+    { ZBEE_ZCL_POWER_CONF_BAT_TYPE_BUILT_IN,       "Built in" },
+    { ZBEE_ZCL_POWER_CONF_BAT_TYPE_OTHER,          "Other" },
+    { ZBEE_ZCL_POWER_CONF_BAT_TYPE_AA,             "AA" },
+    { ZBEE_ZCL_POWER_CONF_BAT_TYPE_AAA,            "AAA" },
+    { ZBEE_ZCL_POWER_CONF_BAT_TYPE_C,              "C" },
+    { ZBEE_ZCL_POWER_CONF_BAT_TYPE_D,              "D" },
+    { ZBEE_ZCL_POWER_CONF_BAT_TYPE_UNKNOWN,        "Unknown" },
+    { 0, NULL }
+};
+
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_power_config
+ *  DESCRIPTION
+ *      ZigBee ZCL power configuration cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zbee_zcl_power_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+{
+    return;
+} /*dissect_zbee_zcl_power_config*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *    decode_power_conf_voltage
+ *  DESCRIPTION
+ *    this function decodes voltage values
+ *  PARAMETERS
+ *      guint *s        - string to display
+ *      guint32 value   - value to decode
+ *  RETURNS
+ *    none
+ *---------------------------------------------------------------
+ */
+static void
+decode_power_conf_voltage(gchar *s, guint32 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [V]", value/10, value%10);
+    return;
+} /*decode_power_conf_voltage*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *    decode_power_conf_frequency
+ *  DESCRIPTION
+ *    this function decodes mains frequency values
+ *  PARAMETERS
+ *      guint *s        - string to display
+ *      guint32 value   - value to decode
+ *  RETURNS
+ *    none
+ *---------------------------------------------------------------
+ */
+static void
+decode_power_conf_frequency(gchar *s, guint32 value)
+{
+    if(value == 0x00)
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Frequency too low to be measured (or DC supply)");
+    else if(value == 0xfe)
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Frequency too high to be measured");
+    else if (value == 0xff)
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Frequency could not be measured");
+    else
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d [Hz]", value*2);
+    return;
+} /*decode_power_conf_frequency*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *    decode_power_conf_batt_AHr
+ *  DESCRIPTION
+ *    this function decodes battery capacity values
+ *  PARAMETERS
+ *      guint *s        - string to display
+ *      guint32 value   - value to decode
+ *  RETURNS
+ *    none
+ *---------------------------------------------------------------
+ */
+static void
+decode_power_conf_batt_AHr(gchar *s, guint32 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d [mAHr]", value*10);
+    return;
+} /*decode_power_conf_batt_AHr*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_power_config_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_power_config_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    proto_item *it;
+    static const int * mains_alarm_mask[] = {
+        &hf_zbee_zcl_power_config_mains_alarm_mask_low,
+        &hf_zbee_zcl_power_config_mains_alarm_mask_high,
+        &hf_zbee_zcl_power_config_mains_alarm_mask_reserved,
+        NULL
+    };
+
+    static const int * batt_alarm_mask[] = {
+        &hf_zbee_zcl_power_config_batt_alarm_mask_low,
+        &hf_zbee_zcl_power_config_batt_alarm_mask_reserved,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_mains_voltage, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_FREQUENCY:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_mains_frequency, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_ALARM_MASK:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_power_config_mains_alarm_mask, ett_zbee_zcl_power_config_mains_alarm_mask, mains_alarm_mask, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MIN_THR:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_mains_voltage_min_thr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_MAX_THR:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_mains_voltage_max_thr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_MAINS_VOLTAGE_DWELL_TP:
+            it = proto_tree_add_item(tree, hf_zbee_zcl_power_config_mains_voltage_dwell_tp, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(it, " [s]");
+            *offset += 2;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_SIZE:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_batt_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_VOLTAGE:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_batt_voltage, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_AH_RATING:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_batt_ah_rating, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_RATED_VOLTAGE:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_batt_rated_voltage, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_ALARM_MASK:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_power_config_batt_alarm_mask, ett_zbee_zcl_power_config_batt_alarm_mask, batt_alarm_mask, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_VOLTAGE_MIN_THR:
+            proto_tree_add_item(tree, hf_zbee_zcl_power_config_batt_voltage_min_thr, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_MANUFACTURER:
+        case ZBEE_ZCL_ATTR_ID_POWER_CONF_BATTERY_QUANTITY:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_power_config_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_power_config
+ *  DESCRIPTION
+ *      ZigBee ZCL power configuration cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_power_config(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_power_config_attr_id,
+            { "Attribute", "zbee_zcl_general.power_config.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_power_config_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_batt_type,
+            { "Battery Type", "zbee_zcl_general.power_config.attr.batt_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_power_config_batt_type_names),
+            0x00, NULL, HFILL } },
+
+        /* start mains Alarm Mask fields */
+        { &hf_zbee_zcl_power_config_mains_alarm_mask,
+            { "Mains Alarm Mask",  "zbee_zcl_general.power_config.attr.mains_alarm_mask", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_mains_alarm_mask_low,
+            { "Mains Voltage too low", "zbee_zcl_general.power_config.attr.mains_alarm_mask.mains_too_low", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_POWER_CONF_MAINS_ALARM_LOW, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_mains_alarm_mask_high,
+            { "Mains Voltage too high", "zbee_zcl_general.power_config.attr.mains_alarm_mask.mains_too_high", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_POWER_CONF_MAINS_ALARM_HIGH, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_mains_alarm_mask_reserved,
+            { "Reserved", "zbee_zcl_general.power_config.attr.mains_alarm_mask.reserved", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_POWER_CONF_MAINS_ALARM_RESERVED, NULL, HFILL } },
+        /* end mains Alarm Mask fields */
+
+        /* start battery Alarm Mask fields */
+        { &hf_zbee_zcl_power_config_batt_alarm_mask,
+            { "Battery Alarm Mask",  "zbee_zcl_general.power_config.attr.batt_alarm_mask", FT_UINT8, BASE_HEX, NULL,
+                0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_batt_alarm_mask_low,
+            { "Battery Voltage too low", "zbee_zcl_general.power_config.batt_attr.alarm_mask.batt_too_low", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_POWER_CONF_BATTERY_ALARM_LOW, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_batt_alarm_mask_reserved,
+            { "Reserved", "zbee_zcl_general.power_config.attr.batt_alarm_mask.reserved", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_POWER_CONF_BATTERY_ALARM_RESERVED, NULL, HFILL } },
+        /* end battery Alarm Mask fields */
+
+        { &hf_zbee_zcl_power_config_mains_voltage,
+            { "Measured Mains Voltage", "zbee_zcl_general.power_config.attr.mains_voltage", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_mains_frequency,
+            { "Measured Mains Frequency", "zbee_zcl_general.power_config.attr.mains_frequency", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_conf_frequency),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_mains_voltage_min_thr,
+            { "Mains Voltage Minimum Threshold", "zbee_zcl_general.power_config.attr.mains_volt_min", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_mains_voltage_max_thr,
+            { "Mains Voltage Maximum Threshold", "zbee_zcl_general.power_config.attr.mains_volt_max", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_batt_voltage,
+            { "Measured Battey Voltage", "zbee_zcl_general.power_config.attr.batt_voltage", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_batt_ah_rating,
+            { "Battery Capacity", "zbee_zcl_general.power_config.attr.batt_AHr", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_power_conf_batt_AHr),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_batt_rated_voltage,
+            { "Battery Rated Voltage", "zbee_zcl_general.power_config.attr.batt_rated_voltage", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_batt_voltage_min_thr,
+            { "Battery Voltage Minimum Threshold", "zbee_zcl_general.power_config.attr.batt_voltage_min_thr", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_power_config_mains_voltage_dwell_tp,
+            { "Mains Voltage Dwell Trip Point", "zbee_zcl_general.power_config.attr.mains_dwell_tp", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+    };
+
+    /* ZCL power configuration subtrees */
+    static gint *ett[] = {
+        &ett_zbee_zcl_power_config,
+        &ett_zbee_zcl_power_config_mains_alarm_mask,
+        &ett_zbee_zcl_power_config_batt_alarm_mask
+    };
+
+    /* Register the ZigBee ZCL power configuration cluster protocol name and description */
+    proto_zbee_zcl_power_config = proto_register_protocol("ZigBee ZCL Power Configuration", "ZCL Power Configuration", ZBEE_PROTOABBREV_ZCL_POWER_CONFIG);
+    proto_register_field_array(proto_zbee_zcl_power_config, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL power configuration dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_POWER_CONFIG, dissect_zbee_zcl_power_config, proto_zbee_zcl_power_config);
+} /*proto_register_zbee_zcl_power_config*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_power_config
+ *  DESCRIPTION
+ *      Hands off the ZCL power configuration dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_power_config(void)
+{
+    dissector_handle_t handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    handle = find_dissector(ZBEE_PROTOABBREV_ZCL_POWER_CONFIG);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_POWER_CONFIG, handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_power_config,
+                            ett_zbee_zcl_power_config,
+                            ZBEE_ZCL_CID_POWER_CONFIG,
+                            hf_zbee_zcl_power_config_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_power_config_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_power_config*/
+
+
+
 /* ########################################################################## */
 /* #### (0x0003) IDENTIFY CLUSTER ########################################### */
 /* ########################################################################## */
@@ -499,8 +946,9 @@ static const value_string zbee_zcl_identify_srv_tx_cmd_names[] = {
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - pointer to ZCL packet structure.
  *  RETURNS
- *      none
+ *      int                 - length of parsed data.
  *---------------------------------------------------------------
  */
 static int
@@ -818,8 +1266,9 @@ static const value_string zbee_zcl_on_off_onoff_names[] = {
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - pointer to ZCL packet structure.
  *  RETURNS
- *      none
+ *      int                 - length of parsed data.
  *---------------------------------------------------------------
  */
 static int
@@ -1096,8 +1545,9 @@ static const value_string zbee_zcl_part_id_length_names[] = {
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - pointer to ZCL packet structure.
  *  RETURNS
- *      none
+ *      int                 - length of parsed data.
  *---------------------------------------------------------------
  */
 static int
@@ -2428,8 +2878,9 @@ dissect_zcl_ota_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - pointer to ZCL packet structure.
  *  RETURNS
- *      none
+ *      int                 - length of parsed data.
  *---------------------------------------------------------------
  */
 static int
@@ -2951,8 +3402,9 @@ static const value_string zbee_zcl_pwr_prof_state_names[] = {
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - pointer to ZCL packet structure.
  *  RETURNS
- *      none
+ *      int                 - length of parsed data.
  *---------------------------------------------------------------
  */
 static int
@@ -4117,8 +4569,9 @@ static const value_string zbee_zcl_appl_ctrl_time_encoding_type_names[] = {
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      void *data          - pointer to ZCL packet structure.
  *  RETURNS
- *      none
+ *      int                 - length of parsed data.
  *---------------------------------------------------------------
  */
 static int

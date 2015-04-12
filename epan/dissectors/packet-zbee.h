@@ -1121,6 +1121,7 @@
 #define ZBEE_PROTOABBREV_ZCL                "zbee_zcl"
 #define ZBEE_PROTOABBREV_ZCL_APPLCTRL       "zbee_zcl_general.applctrl"
 #define ZBEE_PROTOABBREV_ZCL_BASIC          "zbee_zcl_general.basic"
+#define ZBEE_PROTOABBREV_ZCL_POWER_CONFIG   "zbee_zcl_general.power_config"
 #define ZBEE_PROTOABBREV_ZCL_IDENTIFY       "zbee_zcl_general.identify"
 #define ZBEE_PROTOABBREV_ZCL_THERMOSTAT     "zbee_zcl_hvac.thermostat"
 #define ZBEE_PROTOABBREV_ZCL_APPLEVTALT     "zbee_zcl_ha.applevtalt"
