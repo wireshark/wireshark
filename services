@@ -9365,8 +9365,8 @@ afesc-mc         6628/udp # AFE Stock Channel M/C [K_K_Ho] [K_K_Ho] 2004-04
 mxodbc-connect   6632/tcp # eGenix mxODBC Connect [Marc_Andre_Lemburg] [Marc_Andre_Lemburg] 2009-11-13 Unauthorized Use Known on port 6632
 cisco-vpath-tun  6633/udp # Cisco vPath Services Overlay [Cisco2] [Surendra_Kumar] 2012-06-11
 mpls-pm          6634/udp # MPLS Performance Measurement out-of-band response [Cisco_Systems_2] [Sagar_Soni] 2014-02-20
-mpls-udp         6635/udp # Encapsulate MPLS packets in UDP tunnels. [IESG] [IETF_Chair] 2015-02-10 [RFC-ietf-mpls-in-udp-11]
-mpls-udp-dtls    6636/udp # Encapsulate MPLS packets in UDP tunnels with DTLS. [IESG] [IETF_Chair] 2015-02-10 [RFC-ietf-mpls-in-udp-11]
+mpls-udp         6635/udp # Encapsulate MPLS packets in UDP tunnels. [IESG] [IETF_Chair] 2015-02-10 [RFC7510]
+mpls-udp-dtls    6636/udp # Encapsulate MPLS packets in UDP tunnels with DTLS. [IESG] [IETF_Chair] 2015-02-10 [RFC7510]
 ovsdb            6640/tcp # Open vSwitch Database protocol [Bruce_Davie_2] [Bruce_Davie_2] 2013-07-31 [RFC7047]
 openflow         6653/tcp # OpenFlow [Open_Networking_Foundation] [Puneet_Agarwal] 2013-07-18
 openflow         6653/udp # OpenFlow [Open_Networking_Foundation] [Puneet_Agarwal] 2013-07-18
@@ -10572,7 +10572,7 @@ MOS-soap        10543/tcp # MOS SOAP Default Port [Eric_Thorniley] [Eric_Thornil
 MOS-soap        10543/udp # MOS SOAP Default Port [Eric_Thorniley] [Eric_Thorniley] 2007-09-17
 MOS-soap-opt    10544/tcp # MOS SOAP Optional Port [Eric_Thorniley] [Eric_Thorniley] 2007-09-17
 MOS-soap-opt    10544/udp # MOS SOAP Optional Port [Eric_Thorniley] [Eric_Thorniley] 2007-09-17
-printopia       10631/tcp # Port to allow for administration and control of "Printopia" application software,      which provides printing services to mobile users [Ecamm_Network_LLC] [Chris_Kent] 2011-10-24
+printopia       10631/tcp # Printopia Serve [Decisive_Tactics_Inc] [Chris_Kent] 2011-10-24 2015-04-09
 gap             10800/tcp # Gestor de Acaparamiento para Pocket PCs [Juan_Carlos_Olivares] [Juan_Carlos_Olivares] 2006-03
 gap             10800/udp # Gestor de Acaparamiento para Pocket PCs [Juan_Carlos_Olivares] [Juan_Carlos_Olivares] 2006-03
 lpdg            10805/tcp # LUCIA Pareja Data Group [Alvaro_P_Dominguez] [Alvaro_P_Dominguez] 2006-02

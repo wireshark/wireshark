@@ -1836,17 +1836,17 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="1209"/>
         <source>Follow TCP Stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>TCPストリームを追跡 (%1)</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="1216"/>
         <source>Follow UDP Stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>UDPストリームを追跡 (%1)</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="1223"/>
         <source>Follow SSL Stream (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>SSLストリームを追跡 (%1)</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="1245"/>
@@ -4296,8 +4296,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="352"/>
+        <location filename="main_status_bar.cpp" line="372"/>
         <source>No Packets</source>
         <translation>パケットなし</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="368"/>
+        <source>Packets: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6394,133 +6400,133 @@ a:hover {
         <translation>空のペイン</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="648"/>
+        <location filename="main_window.cpp" line="650"/>
         <source>Save packets before merging?</source>
         <translation>結合する前にパケットを保存しますか？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="649"/>
+        <location filename="main_window.cpp" line="651"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>一時的なキャプチャファイルは結合することができません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="655"/>
+        <location filename="main_window.cpp" line="657"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>結合する前に変更を保存しますか？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="657"/>
+        <location filename="main_window.cpp" line="659"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>ファイルを結合する前に変更を保存する必要があります</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="716"/>
+        <location filename="main_window.cpp" line="718"/>
         <location filename="main_window_slots.cpp" line="175"/>
         <source>Invalid Display Filter</source>
         <translation>無効な表示フィルタ</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="717"/>
+        <location filename="main_window.cpp" line="719"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>%1 フィルターの書式は有効な表示フィルタではありません (%2)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="805"/>
+        <location filename="main_window.cpp" line="807"/>
         <source> before importing a new capture</source>
         <translation>新しいキャプチャファイルのインポートする前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1117"/>
+        <location filename="main_window.cpp" line="1119"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; エクスポートすることができません。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1118"/>
+        <location filename="main_window.cpp" line="1120"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>現在のキャプチャファイルへパケットをエクスポートすることはできません。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1205"/>
-        <location filename="main_window.cpp" line="1230"/>
+        <location filename="main_window.cpp" line="1207"/>
+        <location filename="main_window.cpp" line="1232"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1268"/>
+        <location filename="main_window.cpp" line="1270"/>
         <source>You have unsaved packets</source>
         <translation>保存していないパケットがあります。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1269"/>
+        <location filename="main_window.cpp" line="1271"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合、これらは失われます。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1272"/>
-        <location filename="main_window.cpp" line="1285"/>
+        <location filename="main_window.cpp" line="1274"/>
+        <location filename="main_window.cpp" line="1287"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>キャプチャは停止してキャプチャされたパケットを保存しますか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1274"/>
+        <location filename="main_window.cpp" line="1276"/>
         <source>Do you want to save the captured packets</source>
         <translation>キャプチャされたパケットを保存したいですか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1276"/>
-        <location filename="main_window.cpp" line="1286"/>
+        <location filename="main_window.cpp" line="1278"/>
+        <location filename="main_window.cpp" line="1288"/>
         <source>?</source>
         <translation>？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1288"/>
+        <location filename="main_window.cpp" line="1290"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合キャプチャしたパケットは失われます</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1291"/>
+        <location filename="main_window.cpp" line="1293"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>キャプチャスタイルに行った変更を保存しますか</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1297"/>
+        <location filename="main_window.cpp" line="1299"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>保存しない場合変更は失われます</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1309"/>
+        <location filename="main_window.cpp" line="1311"/>
         <source>Stop and Save</source>
         <translation>停止して保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1317"/>
+        <location filename="main_window.cpp" line="1319"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止して保存しないで終了</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1320"/>
+        <location filename="main_window.cpp" line="1322"/>
         <source>Quit without Saving</source>
         <translation>保存しないで終了</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1325"/>
+        <location filename="main_window.cpp" line="1327"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止して保存しないで続ける</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1328"/>
+        <location filename="main_window.cpp" line="1330"/>
         <source>Continue &amp;without Saving</source>
         <translation>保存しないで続ける</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1597"/>
+        <location filename="main_window.cpp" line="1599"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>ファイル名をUTF-8形式に割り当てできません</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1609"/>
-        <location filename="main_window.cpp" line="1615"/>
-        <location filename="main_window.cpp" line="1630"/>
+        <location filename="main_window.cpp" line="1611"/>
+        <location filename="main_window.cpp" line="1617"/>
+        <location filename="main_window.cpp" line="1632"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>The Wireshark Network Analyzer ワイヤーシャーク ネットワークアナライザ</translation>
     </message>

@@ -4297,8 +4297,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="352"/>
+        <location filename="main_status_bar.cpp" line="372"/>
         <source>No Packets</source>
         <translation>无分组</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="368"/>
+        <source>Packets: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6425,133 +6431,133 @@ text-decoration: underline;
         <translation>空窗格</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="648"/>
+        <location filename="main_window.cpp" line="650"/>
         <source>Save packets before merging?</source>
         <translation>是否在合并之前保存分组?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="649"/>
+        <location filename="main_window.cpp" line="651"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>无法合并临时捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="655"/>
+        <location filename="main_window.cpp" line="657"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>是否在合并前保存对“%1”的改动?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="657"/>
+        <location filename="main_window.cpp" line="659"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>文件在合并之前,其改动必须先保存。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="716"/>
+        <location filename="main_window.cpp" line="718"/>
         <location filename="main_window_slots.cpp" line="175"/>
         <source>Invalid Display Filter</source>
         <translation>无效显示筛选器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="717"/>
+        <location filename="main_window.cpp" line="719"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>筛选器表达式 %1 不是有效的显示筛选器 (%2)。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="805"/>
+        <location filename="main_window.cpp" line="807"/>
         <source> before importing a new capture</source>
         <translation> 导入新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1117"/>
+        <location filename="main_window.cpp" line="1119"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>无法导出“%1”。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1118"/>
+        <location filename="main_window.cpp" line="1120"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1205"/>
-        <location filename="main_window.cpp" line="1230"/>
+        <location filename="main_window.cpp" line="1207"/>
+        <location filename="main_window.cpp" line="1232"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1268"/>
+        <location filename="main_window.cpp" line="1270"/>
         <source>You have unsaved packets</source>
         <translation>您有未保存的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1269"/>
+        <location filename="main_window.cpp" line="1271"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>若不保存,这些分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1272"/>
-        <location filename="main_window.cpp" line="1285"/>
+        <location filename="main_window.cpp" line="1274"/>
+        <location filename="main_window.cpp" line="1287"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>是否希望停止捕获,并保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1274"/>
+        <location filename="main_window.cpp" line="1276"/>
         <source>Do you want to save the captured packets</source>
         <translation>是否希望保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1276"/>
-        <location filename="main_window.cpp" line="1286"/>
+        <location filename="main_window.cpp" line="1278"/>
+        <location filename="main_window.cpp" line="1288"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1288"/>
+        <location filename="main_window.cpp" line="1290"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>若不保存,您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1291"/>
+        <location filename="main_window.cpp" line="1293"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>是否希望保存对捕获文件“%1”%2 的更改?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1297"/>
+        <location filename="main_window.cpp" line="1299"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>若不保存,您的更改将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1309"/>
+        <location filename="main_window.cpp" line="1311"/>
         <source>Stop and Save</source>
         <translation>停止并保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1317"/>
+        <location filename="main_window.cpp" line="1319"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止,并且不保存直接退出</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1320"/>
+        <location filename="main_window.cpp" line="1322"/>
         <source>Quit without Saving</source>
         <translation>不保存,直接退出</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1325"/>
+        <location filename="main_window.cpp" line="1327"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止并继续,而不必保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1328"/>
+        <location filename="main_window.cpp" line="1330"/>
         <source>Continue &amp;without Saving</source>
         <translation>不保存继续(&amp;w)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1597"/>
+        <location filename="main_window.cpp" line="1599"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1609"/>
-        <location filename="main_window.cpp" line="1615"/>
-        <location filename="main_window.cpp" line="1630"/>
+        <location filename="main_window.cpp" line="1611"/>
+        <location filename="main_window.cpp" line="1617"/>
+        <location filename="main_window.cpp" line="1632"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>The Wireshark Network Analyzer</translation>
     </message>

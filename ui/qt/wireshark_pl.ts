@@ -4313,8 +4313,14 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="352"/>
+        <location filename="main_status_bar.cpp" line="372"/>
         <source>No Packets</source>
         <translation>Brak pakietów</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="368"/>
+        <source>Packets: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6441,133 +6447,133 @@ text-decoration: underline;
         <translation>pusteOkienko</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="648"/>
+        <location filename="main_window.cpp" line="650"/>
         <source>Save packets before merging?</source>
         <translation>Zapisać pakiety przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="649"/>
+        <location filename="main_window.cpp" line="651"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Tymczasowy plik przechwytywania nie może zostać scalony.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="655"/>
+        <location filename="main_window.cpp" line="657"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Zapisać zmiany w &quot;%1&quot;  przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="657"/>
+        <location filename="main_window.cpp" line="659"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Zmiany muszą być zapisane przed próbą scalenia plików.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="716"/>
+        <location filename="main_window.cpp" line="718"/>
         <location filename="main_window_slots.cpp" line="175"/>
         <source>Invalid Display Filter</source>
         <translation>Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="717"/>
+        <location filename="main_window.cpp" line="719"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>Postać filtru %1 nie jest poprawna. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="805"/>
+        <location filename="main_window.cpp" line="807"/>
         <source> before importing a new capture</source>
         <translation>przed zaimportowaniem nowego pliku przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1117"/>
+        <location filename="main_window.cpp" line="1119"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Nie można wyeksportować do &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1118"/>
+        <location filename="main_window.cpp" line="1120"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Nie można wyeksportować pakietów do aktualnego pliku.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1205"/>
-        <location filename="main_window.cpp" line="1230"/>
+        <location filename="main_window.cpp" line="1207"/>
+        <location filename="main_window.cpp" line="1232"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1268"/>
+        <location filename="main_window.cpp" line="1270"/>
         <source>You have unsaved packets</source>
         <translation>Masz niezapisane pakiety</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1269"/>
+        <location filename="main_window.cpp" line="1271"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Będą utracone jeśli ich nie zapiszesz.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1272"/>
-        <location filename="main_window.cpp" line="1285"/>
+        <location filename="main_window.cpp" line="1274"/>
+        <location filename="main_window.cpp" line="1287"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>Czy chcesz zatrzymać przechwytywanie i zapisać przechwycone pakiety</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1274"/>
+        <location filename="main_window.cpp" line="1276"/>
         <source>Do you want to save the captured packets</source>
         <translation>Czy chcesz zapisać przechwycone pakiety</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1276"/>
-        <location filename="main_window.cpp" line="1286"/>
+        <location filename="main_window.cpp" line="1278"/>
+        <location filename="main_window.cpp" line="1288"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1288"/>
+        <location filename="main_window.cpp" line="1290"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Twoje przechwycone pakiety zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1291"/>
+        <location filename="main_window.cpp" line="1293"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Czy chcesz zapisać zmiany, które zrobiłeś do pliku przechytywania  &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1297"/>
+        <location filename="main_window.cpp" line="1299"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Twoje zmiany zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1309"/>
+        <location filename="main_window.cpp" line="1311"/>
         <source>Stop and Save</source>
         <translation>Zatrzymaj i zapisz</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1317"/>
+        <location filename="main_window.cpp" line="1319"/>
         <source>Stop and Quit without Saving</source>
         <translation>Zatrzymaj i zamknij bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1320"/>
+        <location filename="main_window.cpp" line="1322"/>
         <source>Quit without Saving</source>
         <translation>Wyjdź bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1325"/>
+        <location filename="main_window.cpp" line="1327"/>
         <source>Stop and Continue without Saving</source>
         <translation>Zatrzymaj i Kontynuuj bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1328"/>
+        <location filename="main_window.cpp" line="1330"/>
         <source>Continue &amp;without Saving</source>
         <translation>Kontynuuj bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1597"/>
+        <location filename="main_window.cpp" line="1599"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nazwa pliku nie może być przekonwertowana do formatu UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1609"/>
-        <location filename="main_window.cpp" line="1615"/>
-        <location filename="main_window.cpp" line="1630"/>
+        <location filename="main_window.cpp" line="1611"/>
+        <location filename="main_window.cpp" line="1617"/>
+        <location filename="main_window.cpp" line="1632"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Analizator Wireshark</translation>
     </message>
