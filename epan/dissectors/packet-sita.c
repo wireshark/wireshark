@@ -66,6 +66,7 @@ static int                  hf_dtr              = -1;
 static int                  hf_cts              = -1;
 static int                  hf_rts              = -1;
 static int                  hf_dcd              = -1;
+static int                  hf_signals          = -1;
 
 #define MAX_FLAGS_LEN 64                                    /* max size of a 'flags' decoded string */
 #define IOP                 "Local"
@@ -99,20 +100,28 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item  *ti;
     guchar      flags, signals, errors1, errors2, proto;
-    const gchar *errors1_string, *errors2_string, *signals_string, *flags_string;
+    const gchar *errors1_string, *errors2_string, *flags_string;
     proto_tree  *sita_tree          = NULL;
     proto_tree  *sita_flags_tree    = NULL;
     proto_tree  *sita_errors1_tree  = NULL;
     proto_tree  *sita_errors2_tree  = NULL;
-    proto_tree  *sita_signals_tree  = NULL;
     static const gchar *rx_errors1_str[]   = {"Framing",       "Parity",   "Collision",    "Long-frame",   "Short-frame",  "",         "",     ""              };
     static const gchar *rx_errors2_str[]   = {"Non-Aligned",   "Abort",    "CD-lost",      "DPLL",         "Overrun",      "Length",   "CRC",  "Break"         };
 #if 0
     static const gchar   *tx_errors1_str[]   = {"",              "",         "",             "",             "",             "",         "",     ""              };
 #endif
     static const gchar *tx_errors2_str[]   = {"Underrun",      "CTS-lost", "UART",         "ReTx-limit",   "",             "",         "",     ""              };
-    static const gchar *signals_str[]      = {"DSR",           "DTR",      "CTS",          "RTS",          "DCD",          "",         "",     ""              };
     static const gchar *flags_str[]        = {"",              "",         "",             "",             "",             "",         "",     "No-buffers"    };
+
+
+    static const int * signal_flags[] = {
+        &hf_dcd,
+        &hf_rts,
+        &hf_cts,
+        &hf_dtr,
+        &hf_dsr,
+        NULL
+    };
 
     col_clear(pinfo->cinfo, COL_PROTOCOL);      /* erase the protocol */
     col_clear(pinfo->cinfo, COL_INFO);          /* and info columns so that the next decoder can fill them in */
@@ -147,14 +156,8 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_boolean(sita_flags_tree, hf_droppedframe,    tvb, 0, 0, flags);
         proto_tree_add_boolean(sita_flags_tree, hf_dir,             tvb, 0, 0, flags);
 
-        signals_string = format_flags_string(signals, signals_str);
-        sita_signals_tree = proto_tree_add_subtree_format(sita_tree, tvb, 0, 0,
-                    ett_sita_signals, NULL, "Signals: 0x%02x %s", signals, signals_string);
-        proto_tree_add_boolean(sita_signals_tree, hf_dcd,       tvb, 0, 0, signals);
-        proto_tree_add_boolean(sita_signals_tree, hf_rts,       tvb, 0, 0, signals);
-        proto_tree_add_boolean(sita_signals_tree, hf_cts,       tvb, 0, 0, signals);
-        proto_tree_add_boolean(sita_signals_tree, hf_dtr,       tvb, 0, 0, signals);
-        proto_tree_add_boolean(sita_signals_tree, hf_dsr,       tvb, 0, 0, signals);
+        proto_tree_add_bitmask_value_with_flags(sita_tree, tvb, 0, hf_signals, ett_sita_signals,
+                                                signal_flags, signals, BMT_NO_FALSE|BMT_NO_TFS);
 
         if ((flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_RXED) {
             errors1_string = format_flags_string(errors1, rx_errors1_str);
@@ -356,7 +359,11 @@ proto_register_sita(void)
             FT_BOOLEAN, 8, TFS(&tfs_sita_on_off), SITA_SIG_DCD,
             "TRUE if Data Carrier Detect", HFILL }
         },
-
+        { &hf_signals,
+          { "Signals", "sita.signals",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {

@@ -447,10 +447,37 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *parent_tree, guint8 *drep,
 			      gboolean infoflag)
 {
-	proto_tree *tree = NULL;
-	proto_item *item = NULL;
 	guint32 flags;
 	int i;
+
+	static const int * type_flags[] = {
+		&hf_server_type_workstation,
+		&hf_server_type_server,
+		&hf_server_type_sql,
+		&hf_server_type_domain,
+		&hf_server_type_backup,
+		&hf_server_type_time,
+		&hf_server_type_apple,
+		&hf_server_type_novell,
+		&hf_server_type_member,
+		&hf_server_type_print,
+		&hf_server_type_dialin,
+		&hf_server_type_xenix,
+		&hf_server_type_ntw,
+		&hf_server_type_wfw,
+		&hf_server_type_nts,
+		&hf_server_type_potentialb,
+		&hf_server_type_backupb,
+		&hf_server_type_masterb,
+		&hf_server_type_domainmasterb,
+		&hf_server_type_osf,
+		&hf_server_type_vms,
+		&hf_server_type_w95,
+		&hf_server_type_dfs,
+		&hf_server_type_local,
+		&hf_server_type_domainenum,
+		NULL
+	};
 
 	if (drep != NULL) {
 		/*
@@ -475,11 +502,6 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 4;
 	}
 
-	if (parent_tree) {
-		item = proto_tree_add_uint(parent_tree, hf_server_type, tvb, offset-4, 4, flags);
-	      	tree = proto_item_add_subtree(item, ett_browse_flags);
-	}
-
 	if (infoflag) {
 		/* Append the type(s) of the system to the COL_INFO line ... */
 		for (i = 0; i < 32; i++) {
@@ -491,56 +513,8 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	proto_tree_add_boolean(tree, hf_server_type_workstation,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_server,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_sql,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_domain,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_backup,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_time,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_apple,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_novell,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_member,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_print,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_dialin,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_xenix,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_ntw,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_wfw,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_nts,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_potentialb,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_backupb,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_masterb,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_domainmasterb,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_osf,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_vms,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_w95,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_dfs,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_local,
-		tvb, offset-4, 4, flags);
-	proto_tree_add_boolean(tree, hf_server_type_domainenum,
-		tvb, offset-4, 4, flags);
+	proto_tree_add_bitmask_value(parent_tree, tvb, offset-4,
+		hf_server_type, ett_browse_flags, type_flags, flags);
 
 	return offset;
 }

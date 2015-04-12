@@ -926,7 +926,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_ascii_7bits_item@Base 1.12.0~rc1
  proto_tree_add_bitmask@Base 1.9.1
  proto_tree_add_bitmask_len@Base 1.9.1
+ proto_tree_add_bitmask_list@Base 1.99.4
  proto_tree_add_bitmask_text@Base 1.9.1
+ proto_tree_add_bitmask_value@Base 1.99.4
+ proto_tree_add_bitmask_value_with_flags@Base 1.99.4
  proto_tree_add_bitmask_with_flags@Base 1.99.2
  proto_tree_add_bits_item@Base 1.9.1
  proto_tree_add_bits_ret_val@Base 1.9.1

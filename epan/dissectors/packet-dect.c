@@ -1539,59 +1539,72 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			/* TODO */
 			break;
 		case 3:		/* Fixed Part Capabilities */
+			{
+			static const int * cap1_flags[] = {
+				&hf_dect_A_Tail_Qt_3_A12,
+				&hf_dect_A_Tail_Qt_3_A13,
+				&hf_dect_A_Tail_Qt_3_A14,
+				&hf_dect_A_Tail_Qt_3_A15,
+				NULL
+			};
+			static const int * cap2_flags[] = {
+				&hf_dect_A_Tail_Qt_3_A16,
+				&hf_dect_A_Tail_Qt_3_A17,
+				&hf_dect_A_Tail_Qt_3_A18,
+				&hf_dect_A_Tail_Qt_3_A19,
+				&hf_dect_A_Tail_Qt_3_A20,
+				&hf_dect_A_Tail_Qt_3_A21,
+				&hf_dect_A_Tail_Qt_3_A22,
+				&hf_dect_A_Tail_Qt_3_A23,
+				NULL
+			};
+			static const int * cap3_flags[] = {
+				&hf_dect_A_Tail_Qt_3_A24,
+				&hf_dect_A_Tail_Qt_3_A25,
+				&hf_dect_A_Tail_Qt_3_A26,
+				&hf_dect_A_Tail_Qt_3_A27,
+				&hf_dect_A_Tail_Qt_3_A28,
+				&hf_dect_A_Tail_Qt_3_A29,
+				&hf_dect_A_Tail_Qt_3_A30,
+				&hf_dect_A_Tail_Qt_3_A31,
+				NULL
+			};
+			static const int * cap4_flags[] = {
+				&hf_dect_A_Tail_Qt_3_A32,
+				&hf_dect_A_Tail_Qt_3_A33,
+				&hf_dect_A_Tail_Qt_3_A34,
+				&hf_dect_A_Tail_Qt_3_A35,
+				&hf_dect_A_Tail_Qt_3_A36,
+				&hf_dect_A_Tail_Qt_3_A37,
+				&hf_dect_A_Tail_Qt_3_A38,
+				&hf_dect_A_Tail_Qt_3_A39,
+				NULL
+			};
+
+			static const int * cap5_flags[] = {
+				&hf_dect_A_Tail_Qt_3_A40,
+				&hf_dect_A_Tail_Qt_3_A41,
+				&hf_dect_A_Tail_Qt_3_A42,
+				&hf_dect_A_Tail_Qt_3_A43,
+				&hf_dect_A_Tail_Qt_3_A44,
+				&hf_dect_A_Tail_Qt_3_A45,
+				&hf_dect_A_Tail_Qt_3_A46,
+				&hf_dect_A_Tail_Qt_3_A47,
+				NULL
+			};
+
 			/* ETSI EN 300 175-3 V2.3.0  7.2.3.4 */
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Fixed Part Capabilities");
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A12, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A13, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A14, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A15, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
-
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A16, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A17, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A18, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A19, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A20, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A21, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A22, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A23, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
-
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A24, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A25, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A26, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A27, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A28, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A29, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A30, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A31, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
-
+			proto_tree_add_bitmask_list(ATail, tvb, offset, 1, cap1_flags, ENC_BIG_ENDIAN);
+			proto_tree_add_bitmask_list(ATail, tvb, offset+1, 1, cap2_flags, ENC_BIG_ENDIAN);
+			proto_tree_add_bitmask_list(ATail, tvb, offset+2, 1, cap3_flags, ENC_BIG_ENDIAN);
 
 			/* higher layer capabilities */
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A32, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A33, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A34, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A35, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A36, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A37, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A38, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A39, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
+			proto_tree_add_bitmask_list(ATail, tvb, offset+3, 1, cap4_flags, ENC_BIG_ENDIAN);
+			proto_tree_add_bitmask_list(ATail, tvb, offset+4, 1, cap5_flags, ENC_BIG_ENDIAN);
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A40, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A41, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A42, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A43, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A44, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A45, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A46, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A47, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset++;
-
-			/* due to addition further down */
-			offset-=5;
+			}
 			break;
 		case 4:		/* Extended Fixed Part Capabilities */
 			/* ETSI EN 300 175-3 V2.3.0  7.2.3.5 */

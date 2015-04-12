@@ -2336,6 +2336,76 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_bitmask_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 		const int hf_hdr, const gint ett, const int **fields, const guint encoding, const int flags);
 
+/** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask(),
+    but with a passed in value (presumably because it can't be retrieved directly from tvb)
+ @param tree the tree to append this item to
+ @param tvb the tv buffer of the current data
+ @param offset start of data in tvb
+ @param hf_hdr an 8/16/24/32/64 bit integer that describes the bitmask to be dissected.
+        This field will form an expansion under which the individual fields of the
+        bitmask is dissected and displayed.
+        This field must be of the type FT_[U]INT{8|16|24|32|64}.
+ @param ett subtree index
+ @param fields an array of pointers to int that lists all the fields of the
+        bitmask. These fields can be either of the type FT_BOOLEAN for flags
+        or another integer of the same type/size as hf_hdr with a mask specified.
+        This array is terminated by a NULL entry.
+        FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
+        FT_integer fields that have a value_string attached will have the
+        matched string displayed on the expansion line.
+ @param value bitmask value
+ @return the newly created item */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_bitmask_value(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+		const int hf_hdr, const gint ett, const int **fields, const guint64 value);
+
+/** This function will dissect a value that describe a bitmask. Similar to proto_tree_add_bitmask(),
+    but with a passed in value (presumably because it can't be retrieved directly from tvb)
+    This has "filterable" bitmask header functionality of proto_tree_add_bitmask_value
+    with the ability to control what data is appended to the header like
+    proto_tree_add_bitmask_text
+ @param tree the tree to append this item to
+ @param tvb the tv buffer of the current data
+ @param offset start of data in tvb
+ @param hf_hdr an 8/16/24/32/64 bit integer that describes the bitmask to be dissected.
+        This field will form an expansion under which the individual fields of the
+        bitmask is dissected and displayed.
+        This field must be of the type FT_[U]INT{8|16|24|32|64}.
+ @param ett subtree index
+ @param fields an array of pointers to int that lists all the fields of the
+        bitmask. These fields can be either of the type FT_BOOLEAN for flags
+        or another integer of the same type/size as hf_hdr with a mask specified.
+        This array is terminated by a NULL entry.
+        FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
+        FT_integer fields that have a value_string attached will have the
+        matched string displayed on the expansion line.
+ @param value bitmask value
+ @param flags bitmask field using BMT_NO_* flags to determine behavior
+ @return the newly created item */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_bitmask_value_with_flags(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+		const int hf_hdr, const gint ett, const int **fields, const guint64 value, const int flags);
+
+/** This function will dissect a sequence of bytes that describe a bitmask. Similar
+    to proto_tree_add_bitmask(), but with no "header" item to group all of the fields
+ @param tree the tree to append this item to
+ @param tvb the tv buffer of the current data
+ @param offset start of data in tvb
+ @param fields an array of pointers to int that lists all the fields of the
+        bitmask. These fields can be either of the type FT_BOOLEAN for flags
+        or another integer of the same type/size as hf_hdr with a mask specified.
+        This array is terminated by a NULL entry.
+        FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
+        FT_integer fields that have a value_string attached will have the
+        matched string displayed on the expansion line.
+ @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN/ENC_HOST_ENDIAN)
+ @return the newly created item */
+WS_DLL_PUBLIC void
+proto_tree_add_bitmask_list(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+								const int len, const int **fields, const guint encoding);
+
+
+
 /** This function will dissect a sequence of bytes that describe a bitmask.
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
