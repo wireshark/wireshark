@@ -73,6 +73,7 @@
     #define closesocket(socket)  close(socket)
     #define socket_handle_t      int
     #define INVALID_SOCKET       (-1)
+    #define SOCKET_ERROR         (-1)
 #endif
 
 /* Configuration options */
@@ -333,7 +334,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
         return INVALID_SOCKET;
     }
 
-    if (connect(sock, (struct sockaddr *) &server, sizeof(server)) < 0) {
+    if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
 #ifdef _WIN32
         if (_execlp("adb", "adb", "start-server", NULL)) {
 #else
@@ -343,7 +344,7 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
             return INVALID_SOCKET;
         };
 
-        if (connect(sock, (struct sockaddr *) &server, sizeof(server)) < 0) {
+        if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
             fprintf(stderr, "ERROR: Cannot connect to ADB: %s\n", strerror(errno));
             fprintf(stderr, "INFO: Please check that adb daemon is running.\n");
             return INVALID_SOCKET;
@@ -1312,7 +1313,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
         server.sin_port = GINT16_TO_BE(*bt_local_tcp_port);
         server.sin_addr.s_addr = inet_addr(bt_local_ip);
 
-        if (connect(sock, (struct sockaddr *) &server, sizeof(server)) < 0) {
+        if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
             printf("ERROR: %s\n", strerror(errno));
             printf("INFO: Please check that adb daemon is running.\n");
             return 2;
@@ -1388,7 +1389,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 server.sin_port = GINT16_TO_BE(*bt_local_tcp_port);
                 server.sin_addr.s_addr = inet_addr(bt_local_ip);
 
-                if (connect(sock, (struct sockaddr *) &server, sizeof(server)) < 0) {
+                if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
                     printf("ERROR reconnect: %s\n", strerror(errno));
                     printf("INFO: Please check that adb daemon is running.\n");
                     return 2;
