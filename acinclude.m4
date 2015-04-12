@@ -1755,10 +1755,14 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
               # just the new option.
               #
               CFLAGS="$CFLAGS_saved $GCC_OPTION"
-              #
-              # Add it to the flags we use when building build tools.
-              #
-              CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
+              if test "$CC" = "$CC_FOR_BUILD"; then
+                #
+                # We're building the build tools with the same compiler
+                # with which we're building Wireshark, so add the flags
+                # to the flags for that compiler as well.
+                #
+                CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
+              fi
             ],
             [
               AC_MSG_RESULT(yes)
@@ -1771,10 +1775,14 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
           # just the new option.
           #
           CFLAGS="$CFLAGS_saved $GCC_OPTION"
-          #
-          # Add it to the flags we use when building build tools.
-          #
-          CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
+          if test "$CC" = "$CC_FOR_BUILD"; then
+            #
+            # We're building the build tools with the same compiler
+            # with which we're building Wireshark, so add the flags
+            # to the flags for that compiler as well.
+            #
+            CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
+          fi
         fi
       ],
       [

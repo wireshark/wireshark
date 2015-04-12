@@ -1076,7 +1076,15 @@ else
 		# documentation I can find online.
 		#
 		CFLAGS="-Ae +O2 $CFLAGS"
-		CFLAGS_FOR_BUILD="-Ae +O2 $CFLAGS"
+		if test "$CC" = "$CC_FOR_BUILD"; then
+			#
+			# We're building the build tools with the same
+			# compiler as the one with which we're building
+			# Wireshark, so add the flags to the flags for
+			# that compiler as well.
+			#
+			CFLAGS_FOR_BUILD="-Ae +O2 $CFLAGS"
+		fi
 		CXXFLAGS="+O2 $CFLAGS"
 		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
 		;;
