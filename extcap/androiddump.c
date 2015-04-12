@@ -335,6 +335,14 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
     }
 
     if (connect(sock, (struct sockaddr *) &server, sizeof(server)) == SOCKET_ERROR) {
+#if 0
+/* NOTE: This does not work well - make significant delay while initializing Wireshark.
+         Do fork() then call "adb" also does not make sense, because there is need to
+         do something like sleep(1) to ensure adb is started... system() cannot be used
+         on Windows, because open console window. This helper does not work as expected,
+         so disable it and user must ensure that adb is started (adb start-server,
+         but also all other command start-server automatically)
+*/
 #ifdef _WIN32
         if (_execlp("adb", "adb", "start-server", NULL)) {
 #else
@@ -349,6 +357,11 @@ static socket_handle_t adb_connect(const char *server_ip, unsigned short *server
             fprintf(stderr, "INFO: Please check that adb daemon is running.\n");
             return INVALID_SOCKET;
         }
+#else
+    fprintf(stderr, "ERROR: Cannot connect to ADB: %s\n", strerror(errno));
+    fprintf(stderr, "INFO: Please check that adb daemon is running.\n");
+    return INVALID_SOCKET;
+#endif
     }
 
     if (verbose) {
