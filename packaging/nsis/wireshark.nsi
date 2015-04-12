@@ -978,19 +978,19 @@ File "${STAGING_DIR}\capinfos.exe"
 File "${STAGING_DIR}\capinfos.html"
 SectionEnd
 
-Section "Androiddump" SecAndroiddumpinfos
-;-------------------------------------------
-SetOutPath $INSTDIR\extcap
-File "${STAGING_DIR}\androiddump.html"
-File "${STAGING_DIR}\extcap\androiddump.exe"
-File "${STAGING_DIR}\extcap\*.dll"
-SectionEnd
-
 Section "Rawshark" SecRawshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\rawshark.exe"
 File "${STAGING_DIR}\rawshark.html"
+SectionEnd
+
+Section /o "Androiddump" SecAndroiddumpinfos
+;-------------------------------------------
+SetOutPath $INSTDIR\extcap
+File "${STAGING_DIR}\androiddump.html"
+File "${STAGING_DIR}\extcap\androiddump.exe"
+File "${STAGING_DIR}\extcap\*.dll"
 SectionEnd
 
 SectionGroupEnd ; "Tools"
