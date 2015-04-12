@@ -69,6 +69,7 @@ dirs:
 #!IFDEF UPX
 #	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\[a-z]*.exe
 #	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
+#	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\extcap\*.dll
 #	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\plugins\$(VERSION)\*.dll
 #	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\*.dll
 #	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\*.dll
@@ -98,7 +99,6 @@ applauncher: appinfo
 
 appbinaries: applauncher
 	xcopy $(TOPDIR)\wireshark-qt-release $(WIRESHARK_DIR) /D /I /E /Y
-	xcopy $(TOPDIR)\extcap\androiddump.exe $(WIRESHARK_DIR)\extcap /d
 	xcopy $(TOPDIR)\capinfos.exe $(WIRESHARK_DIR) /d
 	xcopy $(TOPDIR)\captype.exe $(WIRESHARK_DIR) /d
 	xcopy $(TOPDIR)\dumpcap.exe $(WIRESHARK_DIR) /d

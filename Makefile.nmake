@@ -535,6 +535,8 @@ PYTHON = $(PYTHON)
 MSVC_VARIANT = $(MSVC_VARIANT)
 MSVCR_DLL = "$(MSVCR_DLL:\=/)"
 
+WIRESHARK_TARGET_PLATFORM = $(WIRESHARK_TARGET_PLATFORM)
+
 QMAKE_CFLAGS         *= $(STANDARD_CFLAGS)
 # NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
 # This avoids conflicts with the C++ standard library.
