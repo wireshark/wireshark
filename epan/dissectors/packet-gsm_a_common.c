@@ -4338,7 +4338,7 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_geo_loc_deg_of_long,
         { "Degrees of longitude", "gsm_a.gad.deg_of_longitude",
-        FT_INT24, BASE_DEC, NULL, 0x0,
+        FT_INT24, BASE_DEC, NULL, 0xffffff,
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_uncertainty_code,
