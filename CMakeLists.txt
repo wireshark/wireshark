@@ -1233,8 +1233,11 @@ if(WIN32)
 	# XXX Can (and should) we iterate over these similar to the way
 	# the top-level CMakeLists.txt iterates over the package list?
 
-	# Required
-	foreach( _dll ${GLIB2_DLLS} )
+	# Required DLLs.
+	# The cairo, freetype, gio, gnutls, png, and other OBS-generated DLLs
+	# depend on zlib1.dll. We compile zlib locally but the Debug
+	# configuration (the default) creates zlibd1.dll.
+	foreach( _dll ${GLIB2_DLLS} $<$<CONFIG:Debug>:zlib1.dll> )
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_if_different
 				"${GLIB2_DLL_DIR}/${_dll}"
