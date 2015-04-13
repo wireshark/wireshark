@@ -629,7 +629,7 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 				int nextrec = tvb_get_guint8(tvb,offset+NSHDR_RECOFFSET_35(nextrec_type));
 				infoItem = proto_tree_add_item(ns_tree, hf_ns_inforec, tvb, offset, reclen, ENC_NA);
 				infoTree = proto_item_add_subtree(infoItem, ett_ns_inforec);
-				proto_tree_add_item(infoTree, hf_ns_inforec_info, tvb, offset+sizeof(nspr_rec_info_t), reclen-3, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(infoTree, hf_ns_inforec_info, tvb, offset+(guint)sizeof(nspr_rec_info_t), reclen-3, ENC_ASCII|ENC_NA);
 
 				offset += reclen;
 				cur_record = nextrec;
@@ -663,9 +663,9 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 				gint dstvmnamelen = tvb_get_guint8(tvb,offset+VMNAMERECOFFSET(dst_vmname_len));
 				vmnameItem = proto_tree_add_item(ns_tree, hf_ns_vmnamerec, tvb, offset, reclen, ENC_NA);
 				vmnameTree = proto_item_add_subtree(vmnameItem, ett_ns_vmnamerec);
-				proto_tree_add_item(vmnameTree, hf_ns_vmnamerec_srcvmname, tvb, offset+sizeof(nspr_rec_vmname_t),
+				proto_tree_add_item(vmnameTree, hf_ns_vmnamerec_srcvmname, tvb, offset+(guint)sizeof(nspr_rec_vmname_t),
 														srcvmnamelen, ENC_ASCII|ENC_NA);
-				proto_tree_add_item(vmnameTree, hf_ns_vmnamerec_dstvmname, tvb, offset+sizeof(nspr_rec_vmname_t)+srcvmnamelen,
+				proto_tree_add_item(vmnameTree, hf_ns_vmnamerec_dstvmname, tvb, offset+(guint)sizeof(nspr_rec_vmname_t)+srcvmnamelen,
 														dstvmnamelen, ENC_ASCII|ENC_NA);
 
 				offset += reclen;
