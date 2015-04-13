@@ -204,7 +204,8 @@ static int hf_q931_data = -1;
 static int hf_q931_layer_1_in_band_negotiation = -1;
 
 static gint ett_q931                    = -1;
-static gint ett_q931_ie                 = -1;
+#define NUM_IE  256
+static gint ett_q931_ie[NUM_IE];
 
 static gint ett_q931_segments = -1;
 static gint ett_q931_segment = -1;
@@ -2550,7 +2551,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return;
     }
     /* Segmented message IE */
-    ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie, NULL,
+    ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie[info_element], NULL,
                     val_to_str(info_element, q931_info_element_vals[0], "Unknown information element (0x%02X)"));
     proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
                     val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
@@ -2724,7 +2725,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
             info_element_len = tvb_get_ntohs(tvb, offset + 1);
             if (q931_tree != NULL) {
                 ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset,
-                    1+2+info_element_len, ett_q931_ie, NULL,
+                    1+2+info_element_len, ett_q931_ie[info_element], NULL,
                     val_to_str(info_element,
                       q931_info_element_vals[codeset],
                       "Unknown information element (0x%02X)"));
@@ -2796,7 +2797,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
                 }
             }
 
-            ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie, &ti,
+            ie_tree = proto_tree_add_subtree(q931_tree, tvb, offset, 1+1+info_element_len, ett_q931_ie[info_element], &ti,
                     val_to_str(info_element, q931_info_element_vals[codeset], "Unknown information element (0x%02X)"));
             proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
                     val_to_str(info_element, q931_info_element_vals[codeset], "Unknown (0x%02X)"));
@@ -3196,6 +3197,9 @@ q931_init(void) {
 void
 proto_register_q931(void)
 {
+    guint i;
+    guint last_offset;
+
     static hf_register_info hf[] = {
         { &hf_q931_discriminator,
           { "Protocol discriminator", "q931.disc", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -3828,18 +3832,27 @@ proto_register_q931(void)
             NULL, HFILL }
         },
     };
-    static gint *ett[] = {
-        &ett_q931,
-        &ett_q931_ie,
-        &ett_q931_segments,
-        &ett_q931_segment,
-    };
+#define NUM_INDIVIDUAL_ELEMS    3
+    static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_IE];
+
     static ei_register_info ei[] = {
         { &ei_q931_invalid_length, { "q931.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
     };
 
     module_t *q931_module;
     expert_module_t* expert_q931;
+
+    ett[0] = &ett_q931;
+    ett[1] = &ett_q931_segments;
+    ett[2] = &ett_q931_segment;
+
+    last_offset = NUM_INDIVIDUAL_ELEMS;
+
+    for (i=0; i < NUM_IE; i++, last_offset++)
+    {
+        ett_q931_ie[i] = -1;
+        ett[last_offset] = &ett_q931_ie[i];
+    }
 
     proto_q931 = proto_register_protocol("Q.931", "Q.931", "q931");
     proto_register_field_array (proto_q931, hf, array_length(hf));
