@@ -1237,13 +1237,19 @@ if(WIN32)
 	# The cairo, freetype, gio, gnutls, png, and other OBS-generated DLLs
 	# depend on zlib1.dll. We compile zlib locally but the Debug
 	# configuration (the default) creates zlibd1.dll.
+	file (TO_NATIVE_PATH "${_dll_output_dir}" _dll_output_dir_win )
 	foreach( _dll ${GLIB2_DLLS} $<$<CONFIG:Debug>:zlib1.dll> )
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${GLIB2_DLL_DIR}/${_dll}"
-				"${_dll_output_dir}"
+			# It would be really handy if copy, xcopy, or "cmake
+			# -E copy_if_different" supported multiple files
+			# separated by whitespace, or if robocpy had a sane
+			# notion of exit codes.
+			COMMAND if exist \"${_dll}\" xcopy ${_dll} "${_dll_output_dir_win}" /D /Y
+			WORKING_DIRECTORY "${GLIB2_DLL_DIR}"
 		)
 	endforeach(_dll)
+
+
 	file(GLOB _gspawn_helpers
 		"${GLIB2_DLL_DIR}/gspawn*.exe"
 	)
