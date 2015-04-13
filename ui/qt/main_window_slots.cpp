@@ -753,8 +753,24 @@ void MainWindow::startCapture() {
 
     CaptureFile::globalCapFile()->window = this;
     if (capture_start(&global_capture_opts, &cap_session_, main_window_update)) {
+        capture_options *capture_opts = cap_session_.capture_opts;
+        GString *interface_names;
+
         /* enable autoscroll timer as needed. */
         packet_list_->setAutoScroll(main_ui_->actionGoAutoScroll->isChecked());
+
+        /* Add "interface name<live capture in progress>" on main status bar */
+        interface_names = get_iface_list_string(capture_opts, 0);
+        if (strlen (interface_names->str) > 0) {
+            g_string_append(interface_names, ":");
+        }
+        g_string_append(interface_names, " ");
+
+        main_ui_->statusBar->popFileStatus();
+        QString msg = QString().sprintf("%s<live capture in progress>", interface_names->str);
+        QString msgtip = QString().sprintf("to file: %s", (capture_opts->save_file) ? capture_opts->save_file : "");
+        main_ui_->statusBar->pushFileStatus(msg, msgtip);
+        g_string_free(interface_names, TRUE);
 
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
@@ -851,6 +867,15 @@ void MainWindow::stopCapture() {
 #ifdef HAVE_LIBPCAP
     capture_stop(&cap_session_);
 #endif // HAVE_LIBPCAP
+
+    /* Pop the "<live capture in progress>" message off the status bar. */
+    main_ui_->statusBar->popFileStatus();
+    QString msg = QString().sprintf("%s", get_basename(capture_file_.capFile()->filename));
+    QString msgtip = QString("%1 (%2)")
+            .arg(capture_file_.capFile()->filename)
+            .arg(file_size_to_qstring(capture_file_.capFile()->f_datalen));
+    main_ui_->statusBar->pushFileStatus(msg, msgtip);
+
 
     /* disable autoscroll timer if any. */
     packet_list_->setAutoScroll(false);
