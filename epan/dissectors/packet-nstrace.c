@@ -392,12 +392,12 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 #define NS_CAPFLAG_SKIPNWHDR    0x00080000
 
 #define NSHDR_OFFSET_35(field)    offsetof(struct  nspr_pktracefull_v35, field)
-#define NSHDR_RECOFFSET_35(field) offsetof(nspr_tracerechdr_t, field)
-#define TCPRECOFFSET(field)       offsetof(nspr_rec_tcpdebug_t, field)
-#define INFORECOFFSET(field)      offsetof(nspr_rec_info_t, field)
-#define CLUSTERRECOFFSET(field)   offsetof(nspr_rec_cluster_t, field)
-#define VMNAMERECOFFSET(field)    offsetof(nspr_rec_vmname_t, field)
-#define SSLRECOFFSET(field)    offsetof(nspr_rec_ssl_t, field)
+#define NSHDR_RECOFFSET_35(field) (guint)(offsetof(nspr_tracerechdr_t, field))
+#define TCPRECOFFSET(field)       (guint)(offsetof(nspr_rec_tcpdebug_t, field))
+#define INFORECOFFSET(field)      (guint)(offsetof(nspr_rec_info_t, field))
+#define CLUSTERRECOFFSET(field)   (guint)(offsetof(nspr_rec_cluster_t, field))
+#define VMNAMERECOFFSET(field)    (guint)(offsetof(nspr_rec_vmname_t, field))
+#define SSLRECOFFSET(field)       (guint)(offsetof(nspr_rec_ssl_t, field))
 static void
 dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
