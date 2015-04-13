@@ -536,7 +536,7 @@ AC_SUBST(FLOORL_LO)
 # GUI toolkit options
 #
 AC_ARG_WITH([qt],
-  AC_HELP_STRING( [--with-qt=@<:@yes/no@:>@],
+  AC_HELP_STRING( [--with-qt=@<:@yes/no/4/5@:>@],
                   [use Qt @<:@default=yes@:>@]),
   with_qt="$withval", with_qt="unspecified")
 
@@ -1606,7 +1606,7 @@ if test "x$enable_wireshark" = "xyes"; then
 		with_qt=yes
 		with_gtk3=yes
 	fi
-	if test "x$with_qt" = "xyes"; then
+	if test "x$with_qt" != "xno"; then
 		#
 		# Qt was specified; Make sure we have a C++ compiler.
 		#
@@ -1618,14 +1618,29 @@ if test "x$enable_wireshark" = "xyes"; then
 		# Now make sure we have Qt and, if so, add the flags
 		# for it to CFLAGS and CXXFLAGS.
 		#
-		AC_WIRESHARK_QT_CHECK($QT_MIN_VERSION,
+		AC_WIRESHARK_QT_CHECK($QT_MIN_VERSION, "$with_qt",
 		[
 			CFLAGS="$CFLAGS $Qt_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
 			have_qt=yes
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
 		],
-		[AC_MSG_ERROR([Qt is not available])])
+		[
+			case "$with_qt" in
+
+			yes)
+				AC_MSG_ERROR([Qt is not available])
+				;;
+
+			4)
+				AC_MSG_ERROR([Qt 4 is not available])
+				;;
+
+			5)
+				AC_MSG_ERROR([Qt 5 is not available])
+				;;
+			esac
+		])
 
 		#
 		# XXX - greasy hack to make ui/gtk/recent.c
@@ -1799,7 +1814,7 @@ then
 		AC_PATH_PROG(UIC, uic-qt4)
 		if test "x$UIC" = x
 		then
-			if test "x$with_qt" = "xyes"; then
+			if test "x$with_qt" != "xno"; then
 				#
 				# If you want to build with Qt, you'd better
 				# have uic.
@@ -1829,7 +1844,7 @@ then
 		AC_PATH_PROG(MOC, moc-qt4)
 		if test "x$MOC" = x
 		then
-			if test "x$with_qt" = "xyes"; then
+			if test "x$with_qt" != "xno"; then
 				#
 				# If you want to build with Qt, you'd better
 				# have moc.
@@ -1859,7 +1874,7 @@ then
 		AC_PATH_PROG(RCC, rcc)
 		if test "x$RCC" = x
 		then
-			if test "x$with_qt" = "xyes"; then
+			if test "x$with_qt" != "xno"; then
 				#
 				# If you want to build with Qt, you'd better
 				# have moc.

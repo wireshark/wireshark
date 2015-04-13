@@ -1940,19 +1940,13 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 
 # Based on AM_PATH_GTK in gtk-2.0.m4.
 
-dnl AC_WIRESHARK_QT_MODULE_CHECK([MODULE, MINIMUM-VERSION, [ACTION-IF-FOUND,
-dnl     [ACTION-IF-NOT-FOUND]]])
+dnl AC_WIRESHARK_QT_MODULE_CHECK([MODULE, MINIMUM-VERSION,
+dnl     REQUESTED-MAJOR_VERSION, [ACTION-IF-FOUND, [ACTION-IF-NOT-FOUND]]])
 dnl Test for a particular Qt module and add the flags and libraries
 dnl for it to Qt_CFLAGS and Qt_LIBS.
 dnl
 AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 [
-	#
-	# Version of the module we're checking for.
-	# Default to 4.0.0.
-	#
-	min_qt_version=ifelse([$2], ,4.0.0,$2)
-
 	#
 	# Prior to Qt 5, modules were named QtXXX.
 	# In Qt 5, they're named Qt5XXX.
@@ -1960,10 +1954,56 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 	# Try the Qt 5 version first.
 	# (And be prepared to add Qt6 at some point....)
 	#
-	for modprefix in Qt5 Qt
+	case "$3" in
+
+	yes)
+		#
+		# Check for all versions of Qt we support.
+		#
+		modprefixes="Qt5 Qt"
+		major_version=""
+		#
+		# Version of the module we're checking for.
+		# Default to 4.0.0.
+		#
+		min_qt_version=ifelse([$2], ,4.0.0,$2)
+		;;
+
+	4)
+		#
+		# Check for Qt 4.
+		#
+		modprefixes="Qt"
+		major_version=" version 4"
+		#
+		# Version of the module we're checking for.
+		# Default to 4.0.0.
+		#
+		min_qt_version=ifelse([$2], ,4.0.0,$2)
+		;;
+
+	5)
+		#
+		# Check for Qt 5.
+		#
+		modprefixes="Qt5"
+		major_version=" version 5"
+		#
+		# Version of the module we're checking for.
+		# Default to 5.0.0.
+		#
+		min_qt_version=5.0.0
+		;;
+
+	*)
+		AC_MSG_ERROR([Qt version $3 is not a known Qt version])
+		;;
+	esac
+
+	for modprefix in $modprefixes
 	do
 		pkg_config_module="${modprefix}$1"
-		AC_MSG_CHECKING(for $pkg_config_module - version >= $min_qt_version)
+		AC_MSG_CHECKING(for $pkg_config_module$major_version - version >= $min_qt_version)
 		if $PKG_CONFIG --atleast-version $min_qt_version $pkg_config_module; then
 			mod_version=`$PKG_CONFIG --modversion $pkg_config_module`
 			AC_MSG_RESULT(yes (version $mod_version))
@@ -1978,15 +2018,15 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 
 	if test "x$found_$1" = "xyes"; then
 		# Run Action-If-Found
-		ifelse([$3], , :, [$3])
+		ifelse([$4], , :, [$4])
 	else
 		# Run Action-If-Not-Found
-		ifelse([$4], , :, [$4])
+		ifelse([$5], , :, [$5])
 	fi
 ])
 
-dnl AC_WIRESHARK_QT_CHECK([MINIMUM-VERSION, [ACTION-IF-FOUND,
-dnl     [ACTION-IF-NOT-FOUND]]])
+dnl AC_WIRESHARK_QT_CHECK([MINIMUM-VERSION, REQUESTED-MAJOR_VERSION,
+dnl     [ACTION-IF-FOUND, [ACTION-IF-NOT-FOUND]]])
 dnl Test for Qt and define Qt_CFLAGS and Qt_LIBS.
 dnl
 AC_DEFUN([AC_WIRESHARK_QT_CHECK],
@@ -2014,14 +2054,14 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		# Check for the Core module; if we don't have that,
 		# we don't have Qt.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(Core, $1, , [no_qt=yes])
+		AC_WIRESHARK_QT_MODULE_CHECK(Core, $1, $2, , [no_qt=yes])
 	fi
 
 	if test x"$no_qt" = x ; then
 		#
 		# We need the Gui module as well.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(Gui, $1, , [no_qt=yes])
+		AC_WIRESHARK_QT_MODULE_CHECK(Gui, $1, $2, , [no_qt=yes])
 	fi
 
 	if test x"$no_qt" = x ; then
@@ -2030,19 +2070,19 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		# to Qt Widgets; look for the Widgets module, but
 		# don't fail if we don't have it.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(Widgets, $1)
+		AC_WIRESHARK_QT_MODULE_CHECK(Widgets, $1, $2)
 
 		#
 		# Qt 5.0 also appears to move the printing support into
 		# the Qt PrintSupport module.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(PrintSupport, $1)
+		AC_WIRESHARK_QT_MODULE_CHECK(PrintSupport, $1, $2)
 
 		#
 		# Qt 5.0 added multimedia widgets in the Qt
 		# MultimediaWidgets module.
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(MultimediaWidgets, $1,
+		AC_WIRESHARK_QT_MODULE_CHECK(MultimediaWidgets, $1, $2,
 			AC_DEFINE(QT_MULTIMEDIAWIDGETS_LIB, 1, [Define if we have QtMultimediaWidgets]))
 
 		#
@@ -2052,16 +2092,16 @@ AC_DEFUN([AC_WIRESHARK_QT_CHECK],
 		# XXX - is there anything in QtX11Extras or QtWinExtras
 		# that we should be using?
 		#
-		AC_WIRESHARK_QT_MODULE_CHECK(MacExtras, $1,
+		AC_WIRESHARK_QT_MODULE_CHECK(MacExtras, $1, $2,
 			AC_DEFINE(QT_MACEXTRAS_LIB, 1, [Define if we have QtMacExtras]))
 
 		AC_SUBST(Qt_LIBS)
 
 		# Run Action-If-Found
-		ifelse([$2], , :, [$2])
+		ifelse([$3], , :, [$3])
 	else
 		# Run Action-If-Not-Found
-		ifelse([$3], , :, [$3])
+		ifelse([$4], , :, [$4])
 	fi
 
 ])
