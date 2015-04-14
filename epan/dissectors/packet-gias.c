@@ -6523,6 +6523,7 @@ decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 }
 
+#if 0
 /* Union = IDL:UCO/Buffer:1.0 */
 static void
 decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -6691,6 +6692,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
     }
 
 }
+#endif
 
 /* Union = IDL:GIAS/Destination:1.0 */
 static void
