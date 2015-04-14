@@ -563,7 +563,7 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 	tvbuff_t       *next_tvb_eth_client;
 	guint     nsheaderlen=0;
 	guint8    ssl_internal=0;
-	guint8		offset;
+	guint		offset;
 	int morerecs=1;
 	int loopcount=0;
 	static const int * cluster_flags[] = {
