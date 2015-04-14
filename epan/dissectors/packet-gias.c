@@ -353,11 +353,17 @@ static int hf_GIAS_PackageElement_files = -1;
 static int hf_GIAS_DeliveryManifest_package_name = -1;
 static int hf_GIAS_DeliveryManifest_elements_loop = -1;
 /* User exception filters */
+#if 0
 static int hf_UCO_InvalidInputParameter_details = -1;
+#endif
 static int hf_UCO_InvalidInputParameter_badInputParameters = -1;
 static int hf_UCO_InvalidInputParameter_badInputParameters_loop = -1;
+#if 0
 static int hf_UCO_ProcessingFault_details = -1;
+#endif
+#if 0
 static int hf_UCO_SystemFault_details = -1;
+#endif
 /* Union filters */
 static int hf_UCO_Buffer_Buffer = -1;
 static int hf_UCO_Buffer_octet_buffer_loop = -1;
@@ -409,14 +415,18 @@ static void decode_UCO_NameName_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 /* Struct = IDL:UCO/NameValue:1.0 */
 static void decode_UCO_NameValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
+#if 0
 /* Struct = IDL:UCO/Ratio:1.0 */
 static void decode_UCO_Ratio_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
 /* Struct = IDL:UCO/FileLocation:1.0 */
 static void decode_UCO_FileLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
+#if 0
 /* Struct = IDL:UCO/DirectAccessLocation:1.0 */
 static void decode_UCO_DirectAccessLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
 /* Struct = IDL:UCO/Date:1.0 */
 static void decode_UCO_Date_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
@@ -454,29 +464,41 @@ static void decode_UCO_RequestDescription_st(tvbuff_t *tvb _U_, packet_info *pin
 /* Struct = IDL:UCO/Coordinate2d:1.0 */
 static void decode_UCO_Coordinate2d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
+#if 0
 /* Struct = IDL:UCO/Coordinate3d:1.0 */
 static void decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
 /* Struct = IDL:UCO/LinearDimension:1.0 */
 static void decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
+#if 0
 /* Struct = IDL:UCO/Circle:1.0 */
 static void decode_UCO_Circle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
+#if 0
 /* Struct = IDL:UCO/Ellipse:1.0 */
 static void decode_UCO_Ellipse_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
 /* Struct = IDL:UCO/Rectangle:1.0 */
 static void decode_UCO_Rectangle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
+#if 0
 /* Struct = IDL:UCO/SimpleGSImage:1.0 */
 static void decode_UCO_SimpleGSImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
+#if 0
 /* Struct = IDL:UCO/SimpleCImage:1.0 */
 static void decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
+#if 0
 /* Struct = IDL:UCO/CompressedImage:1.0 */
 static void decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
 /* Struct = IDL:UCO/Status:1.0 */
 static void decode_UCO_Status_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
@@ -493,8 +515,10 @@ static void decode_UCO_EntityGraph_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 /* Struct = IDL:UCO/exception_details:1.0 */
 static void decode_UCO_exception_details_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
+#if 0
 /* Struct = IDL:GIAS/ImageSpec:1.0 */
 static void decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
 /* Struct = IDL:GIAS/AlterationSpec:1.0 */
 static void decode_GIAS_AlterationSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
@@ -5269,6 +5293,7 @@ decode_UCO_NameValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
 
 }
 
+#if 0
 /* Struct = IDL:UCO/Ratio:1.0 */
 static void
 decode_UCO_Ratio_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5279,6 +5304,7 @@ decode_UCO_Ratio_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree 
     proto_tree_add_double(tree, hf_UCO_Ratio_denominator, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
 }
+#endif
 
 /* Struct = IDL:UCO/FileLocation:1.0 */
 static void
@@ -5297,6 +5323,7 @@ decode_UCO_FileLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 }
 
+#if 0
 /* Struct = IDL:UCO/DirectAccessLocation:1.0 */
 static void
 decode_UCO_DirectAccessLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5316,6 +5343,7 @@ decode_UCO_DirectAccessLocation_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
     decode_UCO_FileLocation_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "UCO_FileLocation"  */
 }
+#endif
 
 /* Struct = IDL:UCO/Date:1.0 */
 static void
@@ -5582,6 +5610,7 @@ decode_UCO_Coordinate2d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
 }
 
+#if 0
 /* Struct = IDL:UCO/Coordinate3d:1.0 */
 static void
 decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5594,6 +5623,7 @@ decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
     proto_tree_add_double(tree, hf_UCO_Coordinate3d_z, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
 }
+#endif
 
 /* Struct = IDL:UCO/LinearDimension:1.0 */
 static void
@@ -5606,6 +5636,7 @@ decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 }
 
+#if 0
 /* Struct = IDL:UCO/Circle:1.0 */
 static void
 decode_UCO_Circle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5618,7 +5649,9 @@ decode_UCO_Circle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
     decode_UCO_LinearDimension_st(tvb, pinfo, tree, item, offset, header, operation, stream_is_big_endian);
     /*  End struct "UCO_LinearDimension"  */
 }
+#endif
 
+#if 0
 /* Struct = IDL:UCO/Ellipse:1.0 */
 static void
 decode_UCO_Ellipse_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5636,6 +5669,7 @@ decode_UCO_Ellipse_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
     proto_tree_add_double(tree, hf_UCO_Ellipse_north_angle, tvb, *offset-8, 8, get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 
 }
+#endif
 
 /* Struct = IDL:UCO/Rectangle:1.0 */
 static void
@@ -5650,6 +5684,7 @@ decode_UCO_Rectangle_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *t
     /*  End struct "UCO_Coordinate2d"  */
 }
 
+#if 0
 /* Struct = IDL:UCO/SimpleGSImage:1.0 */
 static void
 decode_UCO_SimpleGSImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5665,7 +5700,9 @@ decode_UCO_SimpleGSImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
     /*  End union "UCO_Buffer"  */
 }
+#endif
 
+#if 0
 /* Struct = IDL:UCO/SimpleCImage:1.0 */
 static void
 decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5691,7 +5728,9 @@ decode_UCO_SimpleCImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
     /*  End union "UCO_Buffer"  */
 }
+#endif
 
+#if 0
 /* Struct = IDL:UCO/CompressedImage:1.0 */
 static void
 decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5725,6 +5764,7 @@ decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     }
 
 }
+#endif
 
 /* Struct = IDL:UCO/Status:1.0 */
 static void
@@ -5834,6 +5874,7 @@ decode_UCO_exception_details_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 }
 
+#if 0
 /* Struct = IDL:GIAS/ImageSpec:1.0 */
 static void
 decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5879,6 +5920,7 @@ decode_GIAS_ImageSpec_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *
     item = proto_tree_add_uint(tree, hf_GIAS_ImageSpec_encoding, tvb, *offset-4, 4, u_octet4);
 
 }
+#endif
 
 /* Struct = IDL:GIAS/AlterationSpec:1.0 */
 static void
