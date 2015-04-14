@@ -68,7 +68,9 @@ dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 reordercap_OBJECTS = $(reordercap_SOURCES:.c=.obj)
-androiddump_OBJECTS = $(androiddump_SOURCES:.c=.obj)
+# this does not work because source file is in a subfolder of this makefile
+# and we end up recompiling systematically androiddump.c
+#androiddump_OBJECTS = $(androiddump_SOURCES:.c=.obj)
 
 #
 # psapi.lib see http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
@@ -428,7 +430,7 @@ randpkt.exe	: $(randpkt_OBJECTS)
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-androiddump.exe	: $(LIBS_CHECK) config.h $(androiddump_OBJECTS) wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
+androiddump.exe	: $(LIBS_CHECK) config.h androiddump.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:androiddump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS androiddump.obj $(androiddump_LIBS)
@@ -567,6 +569,9 @@ text2pcap-scanner.c : text2pcap-scanner.l
 
 text2pcap-scanner.obj : text2pcap-scanner.c
 	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
+
+androiddump.obj : extcap/androiddump.c
+	$(CC) $(CFLAGS) -Fd.\ -c $?
 
 test-programs:
 	cd epan
