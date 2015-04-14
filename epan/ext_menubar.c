@@ -64,7 +64,7 @@ extern ext_menu_t * ext_menubar_register_menu(int proto_id, const gchar * menula
     entry->is_plugin = is_plugin;
 
     /* Create a name for this submenu */
-    entry->name = g_strdup(name);
+    entry->name = name;
     entry->label = g_strdup(menulabel);
     entry->tooltip = g_strdup(menulabel);
 
@@ -73,7 +73,6 @@ extern ext_menu_t * ext_menubar_register_menu(int proto_id, const gchar * menula
 
     menubar_entries = g_list_append(menubar_entries, entry);
     menubar_menunames = g_list_append(menubar_menunames, name);
-    g_free(name);
 
     return entry;
 }
@@ -92,9 +91,7 @@ extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *me
     parent->submenu_cnt++;
 
     /* Create unique name, which is used by GTK to provide the menu */
-    name = (gchar *)g_malloc0(strlen(parent->name) + 4);
-    g_snprintf(name, strlen(parent->name) + 4, "%sS%02d",
-            parent->name, parent->submenu_cnt );
+    name = g_strdup_printf("%sS%02d", parent->name, parent->submenu_cnt);
 
     /* Create submenu entry */
     entry = (ext_menubar_t *)g_malloc0(sizeof(ext_menubar_t));
@@ -103,12 +100,11 @@ extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *me
     /* Just a convenience */
     entry->proto = parent->proto;
     entry->is_plugin = parent->is_plugin;
-    entry->name = g_strdup(name);
+    entry->name = name;
     entry->label = g_strdup(menulabel);
     entry->tooltip = g_strdup(menulabel);
 
     parent->children = g_list_append(parent->children, entry);
-    g_free(name);
 
     return entry;
 }
@@ -128,14 +124,12 @@ static void ext_menubar_add_generic_entry (
     parent->item_cnt++;
 
     /* Create unique name, which is used by GTK to provide the menu */
-    name = (gchar *)g_malloc0(strlen(parent->name) + 4);
-    g_snprintf(name, strlen(parent->name) + 4, "%sI%02d",
-            parent->name, parent->item_cnt );
+    name = g_strdup_printf("%sI%02d", parent->name, parent->item_cnt);
 
     /* Create menu entry */
     entry = (ext_menubar_t*)g_malloc0(sizeof(ext_menubar_t));
     entry->type = type;
-    entry->name = g_strdup(name);
+    entry->name = name;
     entry->label = g_strdup(label);
 
     if ( tooltip != NULL && strlen(tooltip) > 0 )
@@ -145,8 +139,6 @@ static void ext_menubar_add_generic_entry (
     entry->user_data = user_data;
 
     parent->children = g_list_append(parent->children, entry);
-
-    g_free(name);
 }
 
 extern void ext_menubar_add_entry(ext_menu_t * parent, const gchar *label,
