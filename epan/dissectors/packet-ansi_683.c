@@ -3286,7 +3286,7 @@ dissect_ansi_683_for_message(tvbuff_t *tvb, packet_info* pinfo, proto_tree *ansi
 
     if (ansi_683_for_msg_fcn[idx] != NULL)
     {
-        (*ansi_683_for_msg_fcn[idx])(tvb, pinfo, ansi_683_tree, tvb_length(tvb) - 1, 1);
+        (*ansi_683_for_msg_fcn[idx])(tvb, pinfo, ansi_683_tree, tvb_reported_length(tvb) - 1, 1);
     }
 }
 
@@ -3314,7 +3314,7 @@ dissect_ansi_683_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ansi
     proto_tree_add_uint(ansi_683_tree, hf_ansi_683_rev_msg_type,
         tvb, 0, 1, msg_type);
 
-    (*ansi_683_rev_msg_fcn[idx])(tvb, pinfo, ansi_683_tree, tvb_length(tvb) - 1, 1);
+    (*ansi_683_rev_msg_fcn[idx])(tvb, pinfo, ansi_683_tree, tvb_reported_length(tvb) - 1, 1);
 }
 
 static void

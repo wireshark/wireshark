@@ -7433,7 +7433,7 @@ elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gu
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
-        return tvb_length_remaining(tvb, offset);
+        return tvb_reported_length_remaining(tvb, offset);
     }
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -7497,7 +7497,7 @@ elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
-        return tvb_length_remaining(tvb, offset);
+        return tvb_reported_length_remaining(tvb, offset);
     }
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -7557,7 +7557,7 @@ elem_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, elem_idx_t idx, 
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
-        return tvb_length_remaining(tvb, offset);
+        return tvb_reported_length_remaining(tvb, offset);
     }
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -7594,7 +7594,7 @@ elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, gui
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
-        return tvb_length_remaining(tvb, offset);
+        return tvb_reported_length_remaining(tvb, offset);
     }
 
     dec_idx = ansi_a_elem_1_strings[idx].dec_index;
@@ -7646,7 +7646,7 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
         /* Unknown index, skip the element */
-        return tvb_length_remaining(tvb, offset) ;
+        return tvb_reported_length_remaining(tvb, offset) ;
     }
 
     dec_idx = ansi_a_elem_1_strings[idx].dec_index;
@@ -10438,7 +10438,7 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
     tap_p = &tap_rec[tap_current];
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
     offset = 0;
 
     /*
@@ -10525,7 +10525,7 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     const gchar                 *str;
     ansi_a_shared_data_t        shared_data;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     if ((len < 3) && !from_sip)
     {

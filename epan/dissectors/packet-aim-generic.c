@@ -220,7 +220,7 @@ static int dissect_aim_generic_clientready(tvbuff_t *tvb, packet_info *pinfo _U_
     int offset = 0;
     proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, 0, -1, ett_generic_clientready, NULL, "Supported services");
 
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    while(tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_item *ti;
         proto_tree *subtree;
 
@@ -244,7 +244,7 @@ static int dissect_aim_generic_serverready(tvbuff_t *tvb, packet_info *pinfo _U_
     int offset = 0;
     proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Supported services");
 
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    while(tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(entry, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
     }
@@ -272,7 +272,7 @@ static int dissect_aim_generic_capabilities(tvbuff_t *tvb, packet_info *pinfo _U
     int offset = 0;
     proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Requested services");
 
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    while(tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(entry, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
         proto_tree_add_item(entry, hf_generic_version, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -286,7 +286,7 @@ static int dissect_aim_generic_capack(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     int offset = 0;
     proto_tree *entry = proto_tree_add_subtree(gen_tree, tvb, offset, -1, ett_generic_clientready, NULL, "Accepted requested services");
 
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    while(tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(entry, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
         proto_tree_add_item(entry, hf_generic_version, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -307,7 +307,7 @@ static int dissect_aim_generic_motd(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static int dissect_aim_generic_rateinfoack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
     int offset = 0;
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    while(tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_uint(gen_tree, hf_generic_rateinfoack_group, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
         offset+=2;
     }
@@ -327,7 +327,7 @@ static int dissect_aim_generic_ratechange(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_aim_generic_clientpauseack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
     int offset = 0;
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    while(tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(gen_tree, hf_generic_family, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
@@ -376,7 +376,7 @@ static int dissect_aim_generic_evil(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     int offset = 0;
     proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, ENC_BIG_ENDIAN);
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    while(tvb_reported_length_remaining(tvb, offset) > 0) {
         offset = dissect_aim_userinfo(tvb, pinfo, offset, gen_tree);
     }
     return offset;

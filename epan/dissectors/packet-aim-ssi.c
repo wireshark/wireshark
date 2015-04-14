@@ -154,7 +154,7 @@ static int dissect_ssi_ssi_items(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	int offset = 0;
 	gint ssi_entry_size;
 	proto_tree *ssi_entry = NULL;
-	int size = tvb_length(tvb);
+	int size = tvb_reported_length(tvb);
 	while (size > offset)
 	{
 		ssi_entry_size = calc_ssi_entry_size(tvb, offset);

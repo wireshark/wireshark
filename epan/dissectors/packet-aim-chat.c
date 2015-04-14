@@ -69,7 +69,7 @@ static gint ett_aim_chat          = -1;
 static int dissect_aim_chat_userinfo_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree)
 {
 	int offset = 0;
-	while(tvb_length_remaining(tvb, offset) > 0) {
+	while(tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_userinfo(tvb, pinfo, offset, chat_tree);
 	}
 	return offset;
@@ -85,12 +85,12 @@ static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	buddyname_length = aim_get_buddyname( &buddyname, tvb, 30 );
 
 	/* channel message from client */
-	aim_get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb)
+	aim_get_message( msg, tvb, 40 + buddyname_length, tvb_reported_length(tvb)
 					 - 40 - buddyname_length );
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 
@@ -104,7 +104,7 @@ static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	msg=(guchar *)wmem_alloc(wmem_packet_scope(), 1000);
 	buddyname_length = aim_get_buddyname( &buddyname, tvb, 30 );
 
-	aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb)
+	aim_get_message( msg, tvb, 36 + buddyname_length, tvb_reported_length(tvb)
 					 - 36 - buddyname_length );
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
@@ -112,7 +112,7 @@ static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	proto_tree_add_string(chat_tree, hf_aim_chat_screen_name, tvb, 31, buddyname_length, buddyname);
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static const aim_subtype aim_fnac_family_chat[] = {
