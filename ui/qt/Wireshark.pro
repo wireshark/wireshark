@@ -493,19 +493,6 @@ win32 {
     QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLUGINS_DIR} $(MKDIR) $${PLUGINS_DIR}$$escape_expand(\\n\\t))
     QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\\..\\$${INSTALL_DIR}\\plugins\\*.dll $(DESTDIR)plugins$$escape_expand(\\n\\t))
 
-    EXTCAP_DIR = $(DESTDIR)extcap
-    QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${EXTCAP_DIR} $(MKDIR) $${EXTCAP_DIR}$$escape_expand(\\n\\t))
-    EXTRA_EXTCAP_BINFILES = \
-        ../../androiddump.exe ../../wiretap/wiretap-$${WTAP_VERSION}.dll ../../wsutil/libwsutil.dll \
-        $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
-        $${GLIB_DIR}/bin/$${INTL_DLL} $${ZLIB_DIR}/zlib1.dll \
-        $${GNUTLS_DIR}/bin/$${GCC_DLL} $${GNUTLS_DIR}/bin/libgcrypt-20.dll \
-        $${GNUTLS_DIR}/bin/$${GPGERROR_DLL}
-    EXTRA_EXTCAP_BINFILES ~= s,/,\\,g
-    for(FILE,EXTRA_EXTCAP_BINFILES){
-        QMAKE_POST_LINK +=$$quote($(COPY_FILE) $${FILE} $(DESTDIR)extcap$$escape_expand(\\n\\t))
-    }
-
     # This doesn't depend on wireshark-gtk2. It also doesn't work.
     #PLUGINS_IN_PWD=$${IN_PWD}
     #PLUGINS_OUT_PWD=$${OUT_PWD}

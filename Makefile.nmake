@@ -1227,17 +1227,9 @@ install-generated-files: doc
 	if not exist $(INSTALL_DIR)\extcap mkdir $(INSTALL_DIR)\extcap
 	if exist androiddump.exe xcopy androiddump.exe $(INSTALL_DIR)\extcap /d
 	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR)\extcap /d
-	xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll" $(INSTALL_DIR)\extcap /d
-	xcopy ".\wsutil\libwsutil.dll" $(INSTALL_DIR)\extcap /d
-	xcopy $(GTK_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR)\extcap /d
-	xcopy $(GTK_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR)\extcap /d
-	xcopy $(ZLIB_DIR)\zlib1.dll $(INSTALL_DIR)\extcap /d
-	xcopy $(GTK_DIR)\bin\$(INTL_DLL) $(INSTALL_DIR)\extcap /d
-!IFDEF GNUTLS_DIR
-	xcopy $(GNUTLS_DIR)\bin\$(GCC_DLL) $(INSTALL_DIR)\extcap /d
-	xcopy $(GNUTLS_DIR)\bin\libgcrypt-20.dll $(INSTALL_DIR)\extcap /d
-	xcopy $(GNUTLS_DIR)\bin\$(GPGERROR_DLL) $(INSTALL_DIR)\extcap /d
-!ENDIF
+	if not exist $(INSTALL_DIR_QT)\extcap mkdir $(INSTALL_DIR_QT)\extcap
+	if exist androiddump.exe xcopy androiddump.exe $(INSTALL_DIR_QT)\extcap /d
+	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR_QT)\extcap /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
 	if exist captype.exe xcopy captype.exe $(INSTALL_DIR) /d

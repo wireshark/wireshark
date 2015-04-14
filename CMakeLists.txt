@@ -1765,6 +1765,25 @@ macro(set_extra_executable_properties _executable _folder)
 	endif()
 endmacro()
 
+macro(set_extcap_executable_properties _executable)
+	set_target_properties(androiddump PROPERTIES FOLDER "Executables/Extcaps")
+
+	set(PROGLIST ${PROGLIST} ${_executable})
+
+	if(WIN32)
+		set_target_properties(${_executable} PROPERTIES
+			LINK_FLAGS "${WS_LINK_FLAGS} /SUBSYSTEM:WINDOWS"
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
+			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
+			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/run/Release/extcap
+			RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/run/MinSizeRel/extcap
+			RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/run/RelWithDebInfo/extcap
+		)
+	else()
+		set_target_properties(${_executable} PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	endif()
+endmacro()
+
 if(BUILD_wireshark_gtk AND GTK_FOUND)
 	set(wireshark_gtk_LIBS
 		gtkui
@@ -2172,19 +2191,11 @@ if(BUILD_androiddump)
 		extcap/androiddump.c
 	)
 
-	set(COPY_CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap)
 	add_executable(androiddump ${androiddump_FILES})
 	add_dependencies(androiddump gitversion)
-	if(WIN32)
-		set_target_properties(androiddump PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS} /SUBSYSTEM:WINDOWS")
-	else()
-		set_target_properties(androiddump PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-	endif()
-	set_target_properties(androiddump PROPERTIES FOLDER "Executables/Extcaps")
+	set_extcap_executable_properties(androiddump)
 	target_link_libraries(androiddump ${androiddump_LIBS})
 	install(TARGETS androiddump RUNTIME DESTINATION ${EXTCAP_DIR})
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${COPY_CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
 ADD_CUSTOM_COMMAND(

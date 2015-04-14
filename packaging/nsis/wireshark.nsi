@@ -987,10 +987,10 @@ SectionEnd
 
 Section /o "Androiddump" SecAndroiddumpinfos
 ;-------------------------------------------
-SetOutPath $INSTDIR\extcap
+SetOutPath $INSTDIR
 File "${STAGING_DIR}\androiddump.html"
+SetOutPath $INSTDIR\extcap
 File "${STAGING_DIR}\extcap\androiddump.exe"
-File "${STAGING_DIR}\extcap\*.dll"
 SectionEnd
 
 SectionGroupEnd ; "Tools"
