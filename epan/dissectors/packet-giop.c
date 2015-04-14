@@ -4866,7 +4866,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
     if(header.message_type != Fragment) {
       /* Record the type of this request id so we can dissect it correctly later */
-      g_hash_table_insert(giop_info->optypes, GUINT_TO_POINTER(header.req_id), GUINT_TO_POINTER(header.message_type));
+      g_hash_table_insert(giop_info->optypes, GUINT_TO_POINTER(header.req_id), GUINT_TO_POINTER((guint)header.message_type));
     } else if (!(header.flags & GIOP_MESSAGE_FLAGS_FRAGMENT)) {
       /* This is the last fragment, recoverr the original messagetype */
       message_type = (guint8)GPOINTER_TO_UINT(g_hash_table_lookup(giop_info->optypes, GUINT_TO_POINTER(header.req_id)));
