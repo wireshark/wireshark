@@ -80,7 +80,6 @@ extern ext_menu_t * ext_menubar_register_menu(int proto_id, const gchar * menula
 extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *menulabel)
 {
     ext_menubar_t * entry = NULL;
-    gchar * name = NULL;
 
     /* A name for the entry must be provided */
     g_assert(menulabel != NULL && strlen ( menulabel ) > 0 );
@@ -90,9 +89,6 @@ extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *me
 
     parent->submenu_cnt++;
 
-    /* Create unique name, which is used by GTK to provide the menu */
-    name = g_strdup_printf("%sS%02d", parent->name, parent->submenu_cnt);
-
     /* Create submenu entry */
     entry = (ext_menubar_t *)g_malloc0(sizeof(ext_menubar_t));
     entry->type = EXT_MENUBAR_MENU;
@@ -100,7 +96,8 @@ extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *me
     /* Just a convenience */
     entry->proto = parent->proto;
     entry->is_plugin = parent->is_plugin;
-    entry->name = name;
+    /* Create unique name, which is used by GTK to provide the menu */
+    entry->name = g_strdup_printf("%sS%02d", parent->name, parent->submenu_cnt);
     entry->label = g_strdup(menulabel);
     entry->tooltip = g_strdup(menulabel);
 
@@ -114,7 +111,6 @@ static void ext_menubar_add_generic_entry (
         const gchar * tooltip, ext_menubar_action_cb callback, gpointer user_data )
 {
     ext_menubar_t * entry = NULL;
-    gchar * name = NULL;
 
     /* A valid parent must exist */
     g_assert(parent != NULL && parent->type == EXT_MENUBAR_MENU);
@@ -123,13 +119,11 @@ static void ext_menubar_add_generic_entry (
 
     parent->item_cnt++;
 
-    /* Create unique name, which is used by GTK to provide the menu */
-    name = g_strdup_printf("%sI%02d", parent->name, parent->item_cnt);
-
     /* Create menu entry */
     entry = (ext_menubar_t*)g_malloc0(sizeof(ext_menubar_t));
     entry->type = type;
-    entry->name = name;
+    /* Create unique name, which is used by GTK to provide the menu */
+    entry->name = g_strdup_printf("%sI%02d", parent->name, parent->item_cnt);
     entry->label = g_strdup(label);
 
     if ( tooltip != NULL && strlen(tooltip) > 0 )
