@@ -469,8 +469,10 @@ static void decode_UCO_Coordinate2d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 static void decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
 #endif
 
+#if 0
 /* Struct = IDL:UCO/LinearDimension:1.0 */
 static void decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
 #if 0
 /* Struct = IDL:UCO/Circle:1.0 */
@@ -605,8 +607,10 @@ static void decode_GIAS_DeliveryManifest_st(tvbuff_t *tvb _U_, packet_info *pinf
 
 /* Union prototype declaration Start */
 
+#if 0
 /* Union = IDL:UCO/Buffer:1.0 */
 static void decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_);
+#endif
 
 
 /* Union = IDL:GIAS/Destination:1.0 */
@@ -5625,6 +5629,7 @@ decode_UCO_Coordinate3d_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 }
 #endif
 
+#if 0
 /* Struct = IDL:UCO/LinearDimension:1.0 */
 static void
 decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
@@ -5635,6 +5640,7 @@ decode_UCO_LinearDimension_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, hf_UCO_LinearDimension_reference_system);
 
 }
+#endif
 
 #if 0
 /* Struct = IDL:UCO/Circle:1.0 */
