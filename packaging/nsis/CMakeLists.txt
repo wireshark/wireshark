@@ -221,9 +221,9 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 	# the NMake environment for now.
 	add_custom_command(OUTPUT ${_nsis_package}
 		DEPENDS
+			# Note that we do NOT depend on any executables here
+			# so that we don't clobber any code signing attempts.
 			${NSIS_FILES}
-			${PROGLIST}
-			plugins
 			copy_data_files
 			user_guides
 			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
