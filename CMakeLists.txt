@@ -1271,14 +1271,16 @@ if(WIN32)
 	endforeach(_dll)
 
 
+	# Don't overwrite an exe if it's already there. We don't want to
+	# clobber any previous code signing.
 	file(GLOB _gspawn_helpers
+		RELATIVE "${GLIB2_DLL_DIR}"
 		"${GLIB2_DLL_DIR}/gspawn*.exe"
 	)
 	foreach(_gspawn_helper ${_gspawn_helpers})
 		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${_gspawn_helper}"
-				"${_dll_output_dir}"
+			COMMAND if not exist \"${_dll_output_dir_win}\\${_gspawn_helper}\" xcopy ${_gspawn_helper} "${_dll_output_dir_win}" /D /Y
+			WORKING_DIRECTORY "${GLIB2_DLL_DIR}"
 		)
 	endforeach()
 
