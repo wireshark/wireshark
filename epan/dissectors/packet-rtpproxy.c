@@ -409,11 +409,9 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     if (!PINFO_FD_VISITED(pinfo)) {
         if (is_request){
-            rtpproxy_info = wmem_new(wmem_file_scope(), rtpproxy_info_t);
+            rtpproxy_info = wmem_new0(wmem_file_scope(), rtpproxy_info_t);
             rtpproxy_info->req_frame = PINFO_FD_NUM(pinfo);
-            rtpproxy_info->resp_frame = 0;
             rtpproxy_info->req_time = pinfo->fd->abs_ts;
-            rtpproxy_info->callid = NULL;
             wmem_tree_insert_string(rtpproxy_conv->trans, cookie, rtpproxy_info, 0);
         } else {
             rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
