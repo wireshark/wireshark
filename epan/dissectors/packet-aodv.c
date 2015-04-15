@@ -745,7 +745,7 @@ dissect_aodv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         expert_add_info(pinfo, type_item, &ei_aodv_type);
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 

@@ -170,7 +170,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
 
   code           = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
-  padding_length = tvb_length(cause_tvb) - length;
+  padding_length = tvb_reported_length(cause_tvb) - length;
 
   cause_tree = proto_tree_add_subtree(parameter_tree, cause_tvb, CAUSE_HEADER_OFFSET, -1, ett_asap_cause, &cause_item,
                                    val_to_str_const(code, cause_code_values, "Unknown error cause"));
@@ -469,7 +469,7 @@ dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tr
     proto_tree_add_item(parameter_tree, hf_policy_distance, parameter_tvb, POLICY_WRANDDPF_DISTANCE_OFFSET, POLICY_WRANDDPF_DISTANCE_LENGTH, ENC_BIG_ENDIAN);
     break;
   default:
-    length = tvb_length(parameter_tvb) - POLICY_VALUE_OFFSET;
+    length = tvb_reported_length(parameter_tvb) - POLICY_VALUE_OFFSET;
     if (length > 0) {
       proto_tree_add_item(parameter_tree, hf_policy_value, parameter_tvb, POLICY_VALUE_OFFSET, length, ENC_NA);
     }
@@ -645,7 +645,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
   /* extract tag and length from the parameter */
   type           = tvb_get_ntohs(parameter_tvb, PARAMETER_TYPE_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  padding_length = tvb_length(parameter_tvb) - length;
+  padding_length = tvb_reported_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
   parameter_tree = proto_tree_add_subtree(asap_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, -1,
@@ -720,7 +720,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree)
   tvbuff_t *parameter_tvb;
 
   offset = 0;
-  while((remaining_length = tvb_length_remaining(parameters_tvb, offset)) > 0) {
+  while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset)) > 0) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
     total_length = ADD_PADDING(length);
     if (remaining_length >= length)

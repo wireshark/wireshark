@@ -4212,7 +4212,7 @@ dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_offset, guint32
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = MAX(0, tvb_length_remaining(tvb, start_offset));
+  len = MAX(0, tvb_reported_length_remaining(tvb, start_offset));
   if (len % 3 != 0)
   {
     expert_add_info_format(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "IOPINS data length not modulo 3 == 0");
@@ -4289,7 +4289,7 @@ dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, guint32 start_offset, 
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = tvb_length_remaining (tvb, 1);
+  len = tvb_reported_length_remaining (tvb, 1);
 
   proto_tree_add_item (tree, hf_r3_checkpointlog_entryptr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
   cpl_tree = proto_tree_add_subtree(tree, tvb, 1, -1, ett_r3checkpointlog, NULL, "Checkpoint Log");
@@ -4538,7 +4538,7 @@ dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, guint32 start_offset, guin
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len      = MAX(0, tvb_length_remaining (tvb, 0));
+  len      = MAX(0, tvb_reported_length_remaining (tvb, 0));
   tfg_tree = proto_tree_add_subtree_format(tree, tvb, 0, -1, ett_r3taskflags, NULL,
       "Task Flags (%u tasks)", len / 5);
 
@@ -4566,7 +4566,7 @@ dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, guint32 start_offset, gui
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = tvb_length_remaining (tvb, 3);
+  len = tvb_reported_length_remaining (tvb, 3);
 
   proto_tree_add_item (tree, hf_r3_timerchain_newtick,         tvb, 0, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_timerchain_currentboundary, tvb, 2, 1, ENC_LITTLE_ENDIAN);
@@ -4592,7 +4592,7 @@ dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = tvb_length_remaining (tvb, 0);
+  len = tvb_reported_length_remaining (tvb, 0);
 
   for (i = 0; i < len; i += 3)
   {
@@ -4721,7 +4721,7 @@ dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 start_offset, g
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = MAX(0, tvb_length_remaining (tvb, 0));
+  len = MAX(0, tvb_reported_length_remaining (tvb, 0));
 
   items = 0;
   i     = 0;
@@ -4766,7 +4766,7 @@ dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, guint32 start_offset, gui
 {
   DISSECTOR_ASSERT(start_offset == 0);
 
-  if (tvb_length_remaining (tvb, 0) != 20)
+  if (tvb_reported_length_remaining (tvb, 0) != 20)
   {
     expert_add_info_format(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "Length of M41T81 RTC register dump not 20 octets");
   }
@@ -4882,7 +4882,7 @@ dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = MAX(0, tvb_length_remaining(tvb, 0));
+  len = MAX(0, tvb_reported_length_remaining(tvb, 0));
   if (len % 3 != 0)
   {
     expert_add_info_format(pinfo, proto_tree_get_parent (tree), &ei_r3_malformed_length, "Checksum results data length not modulo 3 == 0");
@@ -4942,7 +4942,7 @@ dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, guint32 start_offset
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = tvb_length_remaining (tvb, 3);
+  len = tvb_reported_length_remaining (tvb, 3);
 
   proto_tree_add_item (tree, hf_r3_mortisestatelog_pointer,     tvb, 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_mortisestatelog_mortisetype, tvb, 1, 1, ENC_LITTLE_ENDIAN);
@@ -6218,7 +6218,7 @@ dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 len
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 
   start_offset += 2;
-  len = tvb_length_remaining (tvb, start_offset);
+  len = tvb_reported_length_remaining (tvb, start_offset);
 
   i = 0;
   while (i<len && (step=tvb_get_guint8(tvb, start_offset + i))>0)
@@ -6325,7 +6325,7 @@ dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length 
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
 
   start_offset += 2;
-  len = tvb_length_remaining (tvb, start_offset);
+  len = tvb_reported_length_remaining (tvb, start_offset);
 
   for (i = 0; i < len; i += 3)
   {
@@ -6710,7 +6710,7 @@ dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   dissect_r3_packet (tvb, pinfo, r3_tree);
 
-  return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 static guint
@@ -6723,7 +6723,7 @@ static int
 dissect_r3 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus (tvb, pinfo, tree, TRUE, 4, get_r3_message_len, dissect_r3_message, data);
-  return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 /*
