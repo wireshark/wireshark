@@ -540,7 +540,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
         pos = strchr(pos, '\t');
         result = (int) (pos - prev_pos);
         pos = strchr(pos, '\n') + 1;
-        if (result > (int) sizeof(serial_number)) {
+        if (result >= (int) sizeof(serial_number)) {
             fprintf(stderr, "WARNING: Serial number too long, ignore device\n");
             continue;
         }
