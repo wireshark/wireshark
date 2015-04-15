@@ -908,7 +908,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * succeeded.
      * Decode the trailer, if present, and then chop it off.
      */
-    length = tvb_length(tvb);
+    length = tvb_captured_length(tvb);
     reported_length = tvb_reported_length(tvb);
     if ((reported_length % 48) == 0) {
       /*
@@ -997,7 +997,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
       else
       {
-        if (tvb_length(next_tvb) > 7) /* sizeof(octet) */
+        if (tvb_reported_length(next_tvb) > 7) /* sizeof(octet) */
         {
             guint8 octet[8];
             tvb_memcpy(next_tvb, octet, 0, sizeof(octet));
@@ -1521,7 +1521,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(aal_tree, hf_atm_aal3_4_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(aal_tree, hf_atm_aal3_4_multiplex_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     crc10 = update_crc10_by_bytes_tvb(0, tvb, offset, length);
     offset += 2;
 
@@ -1567,7 +1567,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_type_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
       break;
     }
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_reported_length_remaining(tvb, offset);
     crc10 = update_crc10_by_bytes_tvb(0, tvb, offset, length);
     offset += 1;
 
@@ -1666,7 +1666,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, atm_ti, truncated, pwpd != NULL);
   }
 
-  return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 static int
@@ -1701,7 +1701,7 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   }
 
   dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE, pwpd);
-  return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 static void atm_prompt(packet_info *pinfo _U_, gchar* result)

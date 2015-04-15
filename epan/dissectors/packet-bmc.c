@@ -98,7 +98,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     bmc_tree = proto_item_add_subtree(ti, ett_bmc);
 
     /* Needs bit-reversing. Create a new buffer, copy the message to it and bit-reverse */
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
     reversing_buffer = (guint8 *)tvb_memdup(NULL, tvb, offset, len);
     bitswap_buf_inplace(reversing_buffer, len);
 
@@ -149,7 +149,7 @@ dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
     cell_broadcast_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_umts_cell_broadcast_message(cell_broadcast_tvb, pinfo, tree);
-    offset = tvb_length(cell_broadcast_tvb);
+    offset = tvb_reported_length(cell_broadcast_tvb);
 
     return offset;
 }
@@ -211,7 +211,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
     proto_item_set_len(ti, offset-saved_offset);
 
-    if (tvb_length_remaining(tvb,offset)) {
+    if (tvb_reported_length_remaining(tvb,offset)) {
         future_extension_bitmap = tvb_get_guint8(tvb,offset);
         proto_tree_add_item(tree, hf_bmc_future_extension_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -241,8 +241,8 @@ dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     proto_tree_add_item(tree, hf_bmc_broadcast_address, tvb, offset, 5, ENC_NA);
     offset += 5;
 
-    proto_tree_add_item(tree, hf_bmc_cb_data41, tvb, offset, tvb_length_remaining(tvb,offset), ENC_NA);
-    offset = tvb_length(tvb);
+    proto_tree_add_item(tree, hf_bmc_cb_data41, tvb, offset, tvb_reported_length_remaining(tvb,offset), ENC_NA);
+    offset = tvb_reported_length(tvb);
 
     return offset;
 }

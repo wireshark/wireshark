@@ -1176,7 +1176,7 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
 
         if (syntax == NULL) {
             item = proto_tree_add_expert_format(
-                    tree, pinfo, &ei_ber_no_oid, next_tvb, 0, tvb_length_remaining(tvb, offset),
+                    tree, pinfo, &ei_ber_no_oid, next_tvb, 0, tvb_reported_length_remaining(tvb, offset),
                     "BER: No syntax supplied to call_ber_syntax_callback");
         } else {
             item = proto_tree_add_expert_format(

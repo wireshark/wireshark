@@ -1417,9 +1417,9 @@ dissect_bitcoin_msg_reject(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
   create_string_tree(tree, &hfi_msg_reject_reason, tvb, &offset);
 
-  if ((tvb_length(tvb) - offset) > 0)
+  if ((tvb_reported_length(tvb) - offset) > 0)
   {
-    proto_tree_add_item(tree, &hfi_msg_reject_data,  tvb, offset, tvb_length(tvb) - offset, ENC_NA);
+    proto_tree_add_item(tree, &hfi_msg_reject_data,  tvb, offset, tvb_reported_length(tvb) - offset, ENC_NA);
   }
 }
 
@@ -1615,7 +1615,7 @@ static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
       tvb_sub = tvb_new_subset_remaining(tvb, offset);
       msg_dissectors[i].function(tvb_sub, pinfo, tree);
-      return tvb_length(tvb);
+      return tvb_reported_length(tvb);
     }
   }
 
@@ -1623,7 +1623,7 @@ static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "[unknown command]");
 
   expert_add_info(pinfo, ti, &ei_bitcoin_command_unknown);
-  return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 static int
@@ -1642,7 +1642,7 @@ dissect_bitcoin_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   guint32 magic_number;
   conversation_t *conversation;
 
-  if (tvb_length(tvb) < 4)
+  if (tvb_captured_length(tvb) < 4)
       return FALSE;
 
   magic_number = tvb_get_letohl(tvb, 0);

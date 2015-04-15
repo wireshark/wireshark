@@ -241,7 +241,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(brdwlk_tree, hf_brdwlk_vsan, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* Locate EOF which is the last 4 bytes of the frame */
-    len = tvb_length_remaining(tvb, hdrlen);
+    len = tvb_captured_length_remaining(tvb, hdrlen);
     reported_len = tvb_reported_length_remaining(tvb, hdrlen);
     if (reported_len < 4) {
         /*
