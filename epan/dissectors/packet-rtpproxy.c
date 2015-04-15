@@ -120,6 +120,10 @@ static const string_string versiontypenames[] = {
     { "20081102", "Support for setting codecs in the update/lookup command" },
     { "20081224", "Support for session timeout notifications" },
     { "20090810", "Support for automatic bridging" },
+    { "20140323", "Support for tracking/reporting load" },
+    { "20140617", "Support for anchoring session connect time" },
+    { "20141004", "Support for extendable performance counters" },
+    { "20150330", "Support for allocating a new port (\"Un\"/\"Ln\" commands)" },
     { 0, NULL }
 };
 
