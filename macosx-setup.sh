@@ -233,7 +233,7 @@ uninstall_automake() {
         #
         # libtool depends on this(?), so uninstall it.
         #
-        uninstall_automake "$@"
+        uninstall_libtool "$@"
 
         echo "Uninstalling GNU automake:"
         cd automake-$installed_automake_version
