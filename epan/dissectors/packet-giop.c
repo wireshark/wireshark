@@ -4830,17 +4830,16 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     fragment_head *fd_head = NULL;
     tvbuff_t      *reassembled_tvb;
     guint frag_offset = 0;
-    int request_id;
 
     /* request id is the first 4 bytes */
-    request_id = get_CDR_ulong(payload_tvb, &frag_offset, stream_is_big_endian, GIOP_HEADER_SIZE);
+    header.req_id = get_CDR_ulong(payload_tvb, &frag_offset, stream_is_big_endian, GIOP_HEADER_SIZE);
 
     if(header.message_type != Fragment)
       frag_offset = 0; /* Maintain the request id for everything but fragments */
 
     fd_head = fragment_add_seq_next(&giop_reassembly_table,
                                     payload_tvb, frag_offset, pinfo,
-                                    request_id, NULL,
+                                    header.req_id, NULL,
                                     tvb_captured_length_remaining(payload_tvb, frag_offset),
                                     header.flags & GIOP_MESSAGE_FLAGS_FRAGMENT);
 
