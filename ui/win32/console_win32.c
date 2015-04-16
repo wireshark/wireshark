@@ -232,7 +232,7 @@ get_console_wait(void)
 void
 set_has_console(gboolean set_has_console)
 {
-  has_console = has_console;
+  has_console = set_has_console;
 }
 
 gboolean
