@@ -242,6 +242,7 @@ static int hf_zbee_nwk_gp_cmd_comm_opt_rx_on_cap = -1;
 static int hf_zbee_nwk_gp_cmd_comm_opt_sec_key_req = -1;
 static int hf_zbee_nwk_gp_cmd_comm_outgoing_counter = -1;
 static int hf_zbee_nwk_gp_cmd_comm_manufacturer_greenpeak_dev_id = -1;
+static int hf_zbee_nwk_gp_cmd_comm_manufacturer_dev_id = -1;
 static int hf_zbee_nwk_gp_cmd_comm_manufacturer_id = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext = -1;
 static int hf_zbee_nwk_gp_cmd_comm_ms_ext_crp = -1;
@@ -479,13 +480,6 @@ static const value_string zbee_nwk_gp_manufacturer_greenpeak_dev_names[] = {
     { 0, NULL }
 };
 
-/* GP manufacturers. */
-static const value_string zbee_nwk_gp_manufacturers_ids_names[] = {
-    { ZBEE_NWK_GP_MANUF_ID_GREENPEAK, "GreenPeak" },
-
-    { 0, NULL }
-};
-
 /* GP Src ID names. */
 static const value_string zbee_nwk_gp_src_id_names[] = {
     { ZBEE_NWK_GP_ZGPD_SRCID_ALL,     "All" },
@@ -698,6 +692,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     /* Get Options Field, build subtree and display the results. */
     comm_options = tvb_get_guint8(tvb, offset);
     proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_cmd_comm_opt, ett_zbee_nwk_cmd_options, options, ENC_NA);
+    offset += 1;
 
     if (comm_options & ZBEE_NWK_GP_CMD_COMMISSIONING_OPT_EXT_OPTIONS) {
         /* Get extended Options Field, build subtree and display the results. */
@@ -706,7 +701,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         offset += 1;
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_PRESENT) {
             /* Get security key and display it. */
-            proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_NA);
             offset += NWK_CMD_SECURITY_KEY_LEN;
         }
         if (comm_ext_options & ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_GPD_KEY_ENCR) {
@@ -738,6 +733,10 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo _U_, pro
                 case ZBEE_NWK_GP_MANUF_ID_GREENPEAK:
                     proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_manufacturer_greenpeak_dev_id, tvb, offset, 2,
                         ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                    break;
+                default:
+                    proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_manufacturer_dev_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                     offset += 2;
                     break;
             }
@@ -885,7 +884,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo _U
     }
     /* Parse and display security key. */
     if (cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_SEC_KEY_PRESENT) {
-        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_comm_security_key, tvb, offset, NWK_CMD_SECURITY_KEY_LEN, ENC_NA);
         offset += NWK_CMD_SECURITY_KEY_LEN;
     }
     /* Parse and display security MIC. */
@@ -1571,7 +1570,7 @@ proto_register_zbee_nwk_gp(void)
                 ZBEE_NWK_GP_CMD_COMMISSIONING_EXT_OPT_SEC_LEVEL_CAP, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_security_key,
-            { "Security Key", "zbee_nwk_gp.cmd.comm.security_key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            { "Security Key", "zbee_nwk_gp.cmd.comm.security_key", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_gpd_sec_key_mic,
             { "GPD Key MIC", "zbee_nwk_gp.cmd.comm.gpd_key_mic", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -1620,9 +1619,13 @@ proto_register_zbee_nwk_gp(void)
             { "Manufacturer Model ID", "zbee_nwk_gp.cmd.comm.manufacturer_model_id", FT_UINT16, BASE_HEX,
                 VALS(zbee_nwk_gp_manufacturer_greenpeak_dev_names), 0x0, NULL, HFILL }},
 
+        { &hf_zbee_nwk_gp_cmd_comm_manufacturer_dev_id,
+            { "Manufacturer Model ID", "zbee_nwk_gp.cmd.comm.manufacturer_model_id", FT_UINT16, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+
         { &hf_zbee_nwk_gp_cmd_comm_manufacturer_id,
             { "Manufacturer ID", "zbee_nwk_gp.cmd.comm.manufacturer_id", FT_UINT16, BASE_HEX,
-                VALS(zbee_nwk_gp_manufacturers_ids_names), 0x0, NULL, HFILL }},
+                VALS(zbee_mfr_code_names), 0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_ms_ext_crp,
             { "Cluster reports present", "zbee_nwk_gp.cmd.comm.ms_ext.crp", FT_BOOLEAN, 8, NULL,
