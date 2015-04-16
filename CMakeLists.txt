@@ -21,7 +21,13 @@
 
 project(Wireshark C CXX)
 
-cmake_minimum_required(VERSION 2.8.3)
+if(WIN32)
+	# Needed for proper Qt linking. See
+	# http://www.cmake.org/cmake/help/v3.0/policy/CMP0020.html
+	cmake_minimum_required(VERSION 2.8.11)
+else()
+	cmake_minimum_required(VERSION 2.8.3)
+endif()
 
 # Needs to be set after cmake_minimum_required or cmake_policy(VERSION)
 # Policy since 2.6.1
@@ -1667,10 +1673,10 @@ if(BUILD_wireshark AND QT_FOUND)
 
 	# Policy since 2.8.11
 	if (POLICY CMP0020)
-		cmake_policy(SET CMP0020 OLD)
+		cmake_policy(SET CMP0020 NEW)
 	endif()
 
-	add_executable(wireshark MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
+	add_executable(wireshark WIN32 MACOSX_BUNDLE wireshark-qt.cpp ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
 	set(PROGLIST ${PROGLIST} wireshark)
 	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark PROPERTIES FOLDER "Executables")
@@ -1775,7 +1781,7 @@ macro(set_extcap_executable_properties _executable)
 
 	if(WIN32)
 		set_target_properties(${_executable} PROPERTIES
-			LINK_FLAGS "${WS_LINK_FLAGS} /SUBSYSTEM:WINDOWS"
+			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
 			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/run/Release/extcap
@@ -1807,7 +1813,7 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	)
 	# wireshark and wireshark-gtk share wireshark_FILES
 
-	add_executable(wireshark-gtk ${wireshark_FILES})
+	add_executable(wireshark-gtk WIN32 ${wireshark_FILES})
 	set(PROGLIST ${PROGLIST} wireshark-gtk)
 	set_target_properties(wireshark-gtk PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(wireshark-gtk PROPERTIES FOLDER "Executables")
@@ -2194,7 +2200,7 @@ if(BUILD_androiddump)
 		extcap/androiddump.c
 	)
 
-	add_executable(androiddump ${androiddump_FILES})
+	add_executable(androiddump WIN32 ${androiddump_FILES})
 	add_dependencies(androiddump gitversion)
 	set_extcap_executable_properties(androiddump)
 	target_link_libraries(androiddump ${androiddump_LIBS})
