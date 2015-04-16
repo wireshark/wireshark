@@ -1287,7 +1287,7 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     packet.nwk_frame_control_extension = zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_CONTROL_EXTENSION);
 
     /* Display the FCF. */
-    ti = proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_fcf, ett_zbee_nwk_fcf, fields, ENC_NA);
+    ti = proto_tree_add_bitmask(nwk_tree, tvb, offset, hf_zbee_nwk_gp_fcf, ett_zbee_nwk_fcf, fields, ENC_NA);
     proto_item_append_text(ti, " %s", val_to_str(packet.frame_type, zbee_nwk_gp_frame_types, "Unknown Frame Type"));
     offset += 1;
 
@@ -1303,7 +1303,7 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         packet.direction = zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_EXT_DIRECTION);
 
         /* Create a subtree for the extended FCF. */
-        proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_gp_fc_ext_field, ett_zbee_nwk_fcf_ext, ext_fields, ENC_NA);
+        proto_tree_add_bitmask(nwk_tree, tvb, offset, hf_zbee_nwk_gp_fc_ext_field, ett_zbee_nwk_fcf_ext, ext_fields, ENC_NA);
         offset += 1;
     }
     if ((packet.frame_type == ZBEE_NWK_GP_FCF_DATA && !packet.nwk_frame_control_extension) || (packet.frame_type ==
