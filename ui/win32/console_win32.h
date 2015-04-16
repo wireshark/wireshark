@@ -43,7 +43,7 @@ void create_console(void);
  */
 void destroy_console(void);
 
-/** Set console wait.
+/** Set console wait. GTK+ only.
  * @param console_wait set/no set console wait
  */
 void set_console_wait(gboolean console_wait);
@@ -52,7 +52,7 @@ void set_console_wait(gboolean console_wait);
  */
 gboolean get_console_wait(void);
 
-/** Set has console.
+/** Set has console. GTK+ only.
  * @param has_console set/no set has_console
  */
 void set_has_console(gboolean has_console);
