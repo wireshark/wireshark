@@ -57,11 +57,11 @@ typedef struct MessageHeader {
   guint8 message_type;
   guint32 message_size;
 
-  /* MSG dependant data */
+  /* MSG dependent data */
 
   guint32 req_id;               /* request id in MSG  */
   guint32 rep_status;           /* reply status in MSG if available */
-  gchar *exception_id;             /* exception string if a USER EXCEPTION occurs  */
+  gchar *exception_id;          /* exception string if a USER EXCEPTION occurs  */
 
 } MessageHeader;
 
