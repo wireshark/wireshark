@@ -272,7 +272,7 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   int         offset = 0;
   guint64     qword;
 
-  if (tvb_length(tvb) < 12)
+  if (tvb_captured_length(tvb) < 12)
     return FALSE;
 
   qword = tvb_get_ntoh48(tvb,0);

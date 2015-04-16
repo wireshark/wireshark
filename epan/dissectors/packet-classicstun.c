@@ -231,7 +231,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     /*
      * First check if the frame is really meant for us.
      */
-    len = tvb_length(tvb);
+    len = tvb_captured_length(tvb);
     /* First, make sure we have enough data to do the check. */
     if (len < CLASSICSTUN_HDR_LEN)
         return 0;
@@ -538,7 +538,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             }
         }
     }
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 

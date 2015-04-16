@@ -4141,9 +4141,9 @@ dissect_cip_class_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
    ti = proto_tree_add_item(tree, proto_cip_class_generic, tvb, 0, -1, ENC_NA);
    class_tree = proto_item_add_subtree( ti, ett_cip_class_generic );
 
-   dissect_cip_generic_data( class_tree, tvb, 0, tvb_length(tvb), pinfo, ti );
+   dissect_cip_generic_data( class_tree, tvb, 0, tvb_reported_length(tvb), pinfo, ti );
 
-   return tvb_length(tvb);
+   return tvb_reported_length(tvb);
 }
 
 static void
@@ -4454,7 +4454,7 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       break;
    }
 
-   return tvb_length(tvb);
+   return tvb_reported_length(tvb);
 }
 
 static void
@@ -4711,7 +4711,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    cip_req_info_t* preq_info;
    cip_simple_request_info_t req_data;
    int offset = 0,
-       item_length = tvb_length(tvb);
+   item_length = tvb_reported_length(tvb);
    guint8 service = tvb_get_guint8( tvb, offset ) & CIP_SC_MASK,
           add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
 
@@ -4725,7 +4725,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    else
    {
 /*      PROTO_ITEM_SET_HIDDEN( ti ); */
-      return tvb_length(tvb);
+      return tvb_reported_length(tvb);
    }
 
    preq_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
@@ -4814,7 +4814,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       break;
    }
 
-   return tvb_length(tvb);
+   return tvb_reported_length(tvb);
 }
 
 /************************************************
@@ -5482,9 +5482,9 @@ dissect_cip_class_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
    ti = proto_tree_add_item(tree, proto_cip_class_cm, tvb, 0, -1, ENC_NA);
    class_tree = proto_item_add_subtree( ti, ett_cip_class_cm );
 
-   dissect_cip_cm_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
+   dissect_cip_cm_data( class_tree, tvb, 0, tvb_reported_length(tvb), pinfo );
 
-   return tvb_length(tvb);
+   return tvb_reported_length(tvb);
 }
 
 /************************************************
@@ -5565,7 +5565,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
             case SC_MB_PASSTHROUGH:
                /* Passthrough response (Success) */
-               if( tvb_length_remaining(tvb, offset) > 0 )
+               if( tvb_reported_length_remaining(tvb, offset) > 0 )
                {
                   /* dissect the Modbus PDU */
                   next_tvb = tvb_new_subset_length( tvb, offset+4+add_stat_size, item_length-4-add_stat_size);
@@ -5655,7 +5655,7 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
          case SC_MB_PASSTHROUGH:
             /* Passthrough Request */
-            if( tvb_length_remaining(tvb, offset) > 0 )
+            if( tvb_reported_length_remaining(tvb, offset) > 0 )
             {
                /* dissect the Modbus PDU */
                next_tvb = tvb_new_subset_length( tvb, offset+2+req_path_size, item_length-req_path_size-2);
@@ -5692,9 +5692,9 @@ dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
    ti = proto_tree_add_item(tree, proto_cip_class_mb, tvb, 0, -1, ENC_NA);
    class_tree = proto_item_add_subtree( ti, ett_cip_class_mb );
 
-   dissect_cip_mb_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
+   dissect_cip_mb_data( class_tree, tvb, 0, tvb_reported_length(tvb), pinfo );
 
-   return tvb_length(tvb);
+   return tvb_reported_length(tvb);
 }
 
 /************************************************
@@ -6034,9 +6034,9 @@ dissect_cip_class_cco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    ti = proto_tree_add_item(tree, proto_cip_class_cco, tvb, 0, -1, ENC_NA);
    class_tree = proto_item_add_subtree( ti, ett_cip_class_cco );
 
-   dissect_cip_cco_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
+   dissect_cip_cco_data( class_tree, tvb, 0, tvb_reported_length(tvb), pinfo );
 
-   return tvb_length(tvb);
+   return tvb_reported_length(tvb);
 }
 
 static gboolean
@@ -6344,7 +6344,7 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       dissect_cip_data( tree, tvb, 0, pinfo, NULL );
    }
 
-   return tvb_length(tvb);
+   return tvb_reported_length(tvb);
 }
 
 /*

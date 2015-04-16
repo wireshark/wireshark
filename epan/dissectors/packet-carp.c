@@ -63,7 +63,7 @@ test_carp_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, vo
 
     /* First some simple check if the data is
        really CARP */
-    if (tvb_length(tvb) < 36)
+    if (tvb_captured_length(tvb) < 36)
         return FALSE;
 
     /* Version must be 1 or 2, type must be in carp_type_vals */
@@ -136,7 +136,7 @@ dissect_carp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     cksum = tvb_get_ntohs(tvb, offset);
     ti = proto_tree_add_item(carp_tree, hf_carp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
     carp_len = tvb_reported_length(tvb);
-    if (!pinfo->fragmented && tvb_length(tvb) >= carp_len) {
+    if (!pinfo->fragmented && tvb_captured_length(tvb) >= carp_len) {
         /* The packet isn't part of a fragmented datagram
            and isn't truncated, so we can checksum it. */
         SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, carp_len);

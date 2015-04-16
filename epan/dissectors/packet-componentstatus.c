@@ -175,7 +175,7 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
      association_tree = proto_tree_add_subtree_format(message_tree, message_tvb, offset, COMPONENTASSOCIATION_LENGTH,
          ett_association, NULL, "Association #%d", i++);
      association_tvb  = tvb_new_subset(message_tvb, offset,
-                                       MIN(COMPONENTASSOCIATION_LENGTH, tvb_length_remaining(message_tvb, offset)),
+                                       MIN(COMPONENTASSOCIATION_LENGTH, tvb_reported_length_remaining(message_tvb, offset)),
                                        COMPONENTASSOCIATION_LENGTH);
 
      dissect_componentstatusprotocol_componentassociation_message(association_tvb, association_tree);
@@ -217,7 +217,7 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
   gint8 type;
   gint32 version;
 
-  if (tvb_length(message_tvb) < (MESSAGE_VERSION_OFFSET + MESSAGE_VERSION_LENGTH))
+  if (tvb_reported_length(message_tvb) < (MESSAGE_VERSION_OFFSET + MESSAGE_VERSION_LENGTH))
     return(0);
 
   /* Check, if this packet really contains a ComponentStatusProtocol message */
@@ -238,7 +238,7 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
   /* dissect the message */
   dissect_componentstatusprotocol_message(message_tvb, pinfo, componentstatusprotocol_tree);
-  return(tvb_length(message_tvb));
+  return(tvb_reported_length(message_tvb));
 }
 
 
