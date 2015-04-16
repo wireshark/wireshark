@@ -417,9 +417,6 @@ extcap_get_if_configuration(const char * ifname) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Extcap path %s",
                 get_extcap_dir());
 
-        if (err_str != NULL)
-        *err_str = NULL;
-
         argv[0] = g_strdup(EXTCAP_ARGUMENT_CONFIG);
         argv[1] = g_strdup(EXTCAP_ARGUMENT_INTERFACE);
         argv[2] = g_strdup(ifname);
