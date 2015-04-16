@@ -2918,7 +2918,7 @@ void MainWindow::on_actionExternalMenuItem_triggered()
 
             if ( entry->type == EXT_MENUBAR_ITEM )
             {
-                entry->callback(entry->user_data);
+                entry->callback(EXT_MENUBAR_QT_GUI, (gpointer) ((void *)main_ui_), entry->user_data);
             }
             else
             {

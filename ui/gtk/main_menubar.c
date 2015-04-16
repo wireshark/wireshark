@@ -5469,7 +5469,7 @@ ws_menubar_external_cb(GtkAction *action _U_, gpointer data _U_)
         entry = (ext_menubar_t *)data;
         if ( entry->type == EXT_MENUBAR_ITEM )
         {
-            entry->callback(entry->user_data);
+            entry->callback(EXT_MENUBAR_GTK_GUI, (gpointer) ((void *)GTK_WINDOW(top_level)), entry->user_data);
         }
         else if ( entry->type == EXT_MENUBAR_URL )
         {

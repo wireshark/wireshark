@@ -40,8 +40,14 @@ extern "C" {
 
 #define EXT_MENUBAR_MAX_DEPTH 5
 
+typedef enum
+{
+    EXT_MENUBAR_GTK_GUI,
+    EXT_MENUBAR_QT_GUI
+} ext_menubar_gui_type;
+
 /* menubar callback */
-typedef void (*ext_menubar_action_cb)(gpointer user_data);
+typedef void (*ext_menubar_action_cb)(ext_menubar_gui_type gui_type, gpointer gui_object, gpointer user_data);
 
 typedef enum
 {
@@ -69,6 +75,7 @@ struct _ext_menubar_t
     gchar * tooltip;
     gboolean is_plugin;
     gpointer user_data;
+
     ext_menubar_action_cb callback;
 
 
