@@ -99,7 +99,7 @@ static expert_field ei_dcc_len = EI_INIT;
 #define D_TEXT(hf_label, endpad) { \
 	int next_offset,left; \
 	while (tvb_offset_exists(tvb, offset+endpad)) { \
-		left = tvb_length_remaining(tvb,offset) - endpad; \
+		left = tvb_reported_length_remaining(tvb,offset) - endpad; \
 		tvb_find_line_end(tvb, offset, left, &next_offset, \
 		    FALSE); \
 		proto_tree_add_item(dcc_optree, hf_label, tvb, offset, \
@@ -326,7 +326,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			case DCC_OP_ADMN:
 				if ( is_response )
 				{
-					int left_local = tvb_length_remaining(tvb, offset) -
+					int left_local = tvb_reported_length_remaining(tvb, offset) -
 						(int)sizeof(DCC_SIGNATURE);
 					if ( left_local == sizeof(DCC_ADMN_RESP_CLIENTS) )
 					{

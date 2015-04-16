@@ -6703,7 +6703,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += pdv_body_len;
             }
             else {
-                guint next_tvb_length = tvb_length(next_tvb);
+                guint next_tvb_length = tvb_captured_length(next_tvb);
                 /* Decode reassembled data */
 
                 if (tree || have_tap_listener(dicom_eo_tap)) {
