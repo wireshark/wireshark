@@ -157,6 +157,7 @@ Secure Socket Tunnel Protocol (SSTP)
 BGP Monitoring Prototol (BMP)
 Video Services over IP (VSIP)
 OCFS2
+Geospatial and Imagery Access Service (GIAS)
 --sort-and-group--
 
 === Updated Protocol Support
@@ -169,6 +170,7 @@ Too many protocols have been updated to list here.
 Android Logcat text files
 Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 Colasoft Capsa files
+Netscaler 3.5
 --sort-and-group--
 
 === New and Updated Capture Interfaces support
@@ -185,6 +187,7 @@ The libwireshark API has undergone some major changes:
 been completely removed in favour of wmem which is now fully mature.
 * The (long-since-broken) Python bindings support has been removed.  If
 you want to write dissectors in something other than C, use Lua.
+* Plugins can now create GUI menu items.
 
 
 == Getting Wireshark
