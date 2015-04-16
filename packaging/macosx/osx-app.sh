@@ -583,6 +583,7 @@ rpathify_files () {
 		rpathify_dir "$pkglib/pango/$pango_version/modules" "*.so"
 	fi
 	rpathify_dir "$pkgbin" "*"
+	rpathify_dir "$pkgbin/extcap" "*"
 }
 
 if [ "$ui_toolkit" = "qt" ] ; then

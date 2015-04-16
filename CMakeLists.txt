@@ -1798,6 +1798,18 @@ macro(set_extcap_executable_properties _executable)
 			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 		)
+		if(ENABLE_APPLICATION_BUNDLE)
+			set_target_properties(${_executable} PROPERTIES
+				RUNTIME_OUTPUT_DIRECTORY run/Wireshark.app/Contents/MacOS/extcap
+			)
+			# Add a wrapper script which runs each executable from the
+			# correct location. This adds convenience but makes debugging
+			# more difficult.
+			file(REMOVE ${CMAKE_BINARY_DIR}/run/${_executable})
+			file(WRITE ${CMAKE_BINARY_DIR}/run/${_executable} "#!/bin/sh\n")
+			file(APPEND ${CMAKE_BINARY_DIR}/run/${_executable} "exec ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/MacOS/extcap/${_executable} \"\$\@\"\n")
+			execute_process(COMMAND chmod a+x ${CMAKE_BINARY_DIR}/run/${_executable})
+		endif()
 	endif()
 endmacro()
 
