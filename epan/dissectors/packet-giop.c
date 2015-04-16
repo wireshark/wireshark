@@ -1063,7 +1063,7 @@ GHashTable *giop_objkey_hash = NULL; /* hash */
  */
 
 typedef struct giop_conv_info_t {
-  GHashTable *optypes;
+  wmem_map_t *optypes;
 } giop_conv_info_t;
 
 
@@ -4856,19 +4856,19 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
     if(giop_info == NULL) {
 
-      giop_info = g_new0(giop_conv_info_t, 1);
+      giop_info = wmem_new0(wmem_file_scope(), giop_conv_info_t);
 
-      giop_info->optypes = g_hash_table_new(g_direct_hash, g_direct_equal);
+      giop_info->optypes = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
       conversation_add_proto_data(conversation, proto_giop, giop_info);
     }
 
     if(header.message_type != Fragment) {
       /* Record the type of this request id so we can dissect it correctly later */
-      g_hash_table_insert(giop_info->optypes, GUINT_TO_POINTER(header.req_id), GUINT_TO_POINTER((guint)header.message_type));
+      wmem_map_insert(giop_info->optypes, GUINT_TO_POINTER(header.req_id), GUINT_TO_POINTER((guint)header.message_type));
     } else if (!(header.flags & GIOP_MESSAGE_FLAGS_FRAGMENT)) {
       /* This is the last fragment, recoverr the original messagetype */
-      message_type = (guint8)GPOINTER_TO_UINT(g_hash_table_lookup(giop_info->optypes, GUINT_TO_POINTER(header.req_id)));
+      message_type = (guint8)GPOINTER_TO_UINT(wmem_map_lookup(giop_info->optypes, GUINT_TO_POINTER(header.req_id)));
 
       /* We override the header message type and size */
       header.message_type = message_type;
