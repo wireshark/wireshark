@@ -4,8 +4,6 @@
 
    To find out the current state of the cmake implementation for
    Wireshark, please take a look at "What needs to be done?" below.
-   Basically this is an experiment and if we find out that it works
-   and we like cmake more than autofoo we might switch one day.
 
 Table of contents
 =================
@@ -141,6 +139,7 @@ All the executables now build from clean source on:
 * 64 bit Solaris 10
 
 The Buildbot runs CMake steps on Ubuntu, Win32, Win64, OS X, and Solaris.
+Windows packages are built using CMake steps.
 
 What needs to be done?
 ======================
@@ -154,7 +153,6 @@ What needs to be done?
   installer dmg, RPM, SVR4. This includes setting OS target version stuff
   appropriately for OS X. We currently use NSIS for the Windows installer but
   should probably use WiX instead.
-- Add back checkAPI target.
 - Add support for cmake configurations.
 - Automatically figure out if *shark is running from the build directory
   (making WIRESHARK_RUN_FROM_BUILD_DIRECTORY unnecessary like it is with
@@ -183,14 +181,10 @@ What needs to be done?
   that a random directory the executable was ultimately placed in would
   be named "run" might also be a bit bigger than the chance that it's
   named ".libs".
-- Get the test suite running in a cmake build.  Currently at least the Lua
-  parts fail.
 - Get cross-compilation working (or ensure it does). It works with autofoo--and
   people use it.
 - Handle -DFORTIFY_SOURCE=2 appropriately.  (Do a Web search for
   "cmake fortify" for some information.)
-- Add support for Visual Studio code analysis similar to ENABLE_CODE_ANALYSIS in
-  config.nmake.
 - Define the GTK_DISABLE_ and GDK_DISABLE_ values as appropriate if we
   care about supporting the GTK+ version.
 - Install the freedesktop integration files (wireshark.desktop,
