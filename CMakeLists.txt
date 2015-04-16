@@ -1789,7 +1789,10 @@ macro(set_extcap_executable_properties _executable)
 			RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/run/RelWithDebInfo/extcap
 		)
 	else()
-		set_target_properties(${_executable} PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+		set_target_properties(${_executable} PROPERTIES
+			LINK_FLAGS "${WS_LINK_FLAGS}"
+			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
+		)
 	endif()
 endmacro()
 
