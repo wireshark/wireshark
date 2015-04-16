@@ -11869,7 +11869,9 @@ dissect_channel_switch_wrapper(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
   */
   while (tag_len > 0){
         tmp_sublen = tvb_get_guint8(tvb, offset + 1);
-        add_tagged_field(pinfo, tree, tvb, offset, 0);
+        if(add_tagged_field(pinfo, tree, tvb, offset, 0) == 0){
+          break;
+        }
         tag_len -= (tmp_sublen + 2);
         offset += (tmp_sublen + 2);
   }
