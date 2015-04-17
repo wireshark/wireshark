@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<application id="16777229" name="3GPP Rx Release 6" uri="http://www.3GPP.org/ftp/Specs/html-info/29211.htm">
+
+	<avp name="DSR-ApplicationInvoked" code="2468" vendor-bit="must" vendor-id="Oracle_Tekelec">
+		<type type-name="Enumerated"/>
+		<enum name="RBAR ID"		code="3"/>
+		<enum name="FABR ID"		code="4"/>
+		<enum name="CPA ID"		code="5"/>
+		<enum name="Policy DRA ID"	code="6"/>
+	</avp>
+	<avp name="PDRA-Early-Binding" code="2500" vendor-bit="must" vendor-id="Oracle_Tekelec">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Session-Release-Reason" code="2501" vendor-bit="must" vendor-id="Oracle_Tekelec">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="MsgCopyAnswer" code="2516" vendor-bit="must" vendor-id="Oracle_Tekelec">
+		<grouped>
+			<gavp name="Session-Id"/>
+			<!-- This grouped AVP holds any AVP -->
+		</grouped>
+	</avp>
+</application>
