@@ -766,7 +766,7 @@
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Termination-Action" code="29" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="Default" code="0"/>
 			<enum name="RADIUS-Request" code="1"/>
 		</avp>
@@ -801,7 +801,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Acct-Status-Type" code="40">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="Start" code="1"/>
 			<enum name="Stop" code="2"/>
 			<enum name="Interim-Update" code="3"/>
@@ -851,7 +851,7 @@
 			<type type-name="Integer32"/>
 		</avp>
 		<avp name="Acct-Terminate-Cause" code="49">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="User-Request" code="1"/>
 			<enum name="Lost-Carrier" code="2"/>
 			<enum name="Lost-Service" code="3"/>
@@ -1101,7 +1101,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Error-Cause" code="101" mandatory="may">
-			<type type-name="Integer32"/>
+			<type type-name="Enumerated"/>
 			<enum name="Diameter Common Messages" code="0"/>
 			<enum name="Residual Session Context Removed" code="201"/>
 			<enum name="Invalid EAP Packet (Ignored)" code="202"/>
@@ -1890,7 +1890,7 @@
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Result-Code" code="268" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="DIAMETER_MULTI_ROUND_AUTH" code="1001"/>
 			<enum name="DIAMETER_SUCCESS" code="2001"/>
 			<enum name="DIAMETER_LIMITED_SUCCESS" code="2002"/>
@@ -1971,14 +1971,14 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Session-Binding" code="270" mandatory="must" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="RE_AUTH" code="1"/>
 			<enum name="STR" code="2"/>
 			<enum name="Unassigned" code="3"/>
 			<enum name="ACCOUNTING" code="4"/>
 		</avp>
 		<avp name="Session-Server-Failover" code="271" mandatory="must" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="REFUSE_SERVICE" code="0"/>
 			<enum name="TRY_AGAIN" code="1"/>
 			<enum name="ALLOW_SERVICE" code="2"/>
@@ -1994,7 +1994,7 @@
 			<enum name="DO_NOT_WANT_TO_TALK_TO_YOU" code="2"/>
 		</avp>
 		<avp name="Auth-Request-Type" code="274" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="AUTHENTICATE_ONLY" code="1"/>
 			<enum name="AUTHORIZE_ONLY" code="2"/>
 			<enum name="AUTHORIZE_AUTHENTICATE" code="3"/>
@@ -2006,7 +2006,7 @@
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Auth-Session-State" code="277" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="STATE_MAINTAINED" code="0"/>
 			<enum name="NO_STATE_MAINTAINED" code="1"/>
 		</avp>
@@ -2037,7 +2037,7 @@
 			</grouped>
 		</avp>
 		<avp name="Re-Auth-Request-Type" code="285" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="AUTHORIZE_ONLY" code="0"/>
 			<enum name="AUTHORIZE_AUTHENTICATE" code="1"/>
 		</avp>
@@ -2091,7 +2091,7 @@
 		</avp>
 		<!-- 3GPP TS 29.230 version 9.2.0 Release 9, ETSI TS 129 230 V9.2.0 (2010-04) -->
 		<avp name="Experimental-Result-Code" code="298" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="DIAMETER_FIRST_REGISTRATION" code="2001"/>
 			<enum name="DIAMETER_SUBSEQUENT_REGISTRATION" code="2002"/>
 			<enum name="DIAMETER_UNREGISTERED_SERVICE" code="2003"/>
@@ -2178,7 +2178,7 @@
 		</avp>
 		<!-- RFC3588 AVP -->
 		<avp name="Inband-Security-Id" code="299" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 				<enum name="NO_INBAND_SECURITY" code="0"/>
 				<enum name="TLS" code="1"/>
 		</avp>
@@ -2517,7 +2517,7 @@
 		</avp>
 
 		<avp name="Accounting-Realtime-Required" code="483" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="Reserved" code="0"/>
 			<enum name="DELIVER_AND_GRANT" code="1"/>
 			<enum name="GRANT_AND_STORE" code="2"/>
@@ -3106,7 +3106,7 @@
 			<enum name="Not Acceptable" code="606"/>
 		</avp>
 		<avp name="Node-Functionality" code="862" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="S-CSCF" code="0"/>
 			<enum name="P-CSCF" code="1"/>
 			<enum name="I-CSCF" code="2"/>
@@ -3655,7 +3655,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="PDP-Session-operation" code="1015" vendor-id="TGPP" protected="may" mandatory="must"	may-encrypt="yes" vendor-bit="must">
-			<type type-name="Unsigned32" />
+			<type type-name="Enumerated" />
 			<enum name="PDP-SESSION-TERMINATION" code="0"/>
 		</avp>
 		<avp name="QoS-Information" code="1016" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -3682,7 +3682,7 @@
 			</grouped>
 		</avp>
 		<avp name="PCC-Rule-Status" code="1019" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
+			<type type-name="Enumerated"/>
 			<enum name="ACTIVE"		code="0"/>
 			<enum name="INACTIVE"		code="1"/>
 			<enum name="TEMPORARY_INACTIVE"	code="2"/>
