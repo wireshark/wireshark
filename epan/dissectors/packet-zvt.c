@@ -124,6 +124,7 @@ static int proto_zvt = -1;
 
 static int ett_zvt = -1;
 static int ett_zvt_apdu = -1;
+static int ett_zvt_tlv_dat_obj = -1;
 
 static int hf_zvt_serial_char = -1;
 static int hf_zvt_crc = -1;
@@ -136,7 +137,9 @@ static int hf_zvt_reg_pwd = -1;
 static int hf_zvt_reg_cfg = -1;
 static int hf_zvt_cc = -1;
 static int hf_zvt_reg_svc_byte = -1;
-static int zvt_bitmap = -1;
+static int hf_zvt_bitmap = -1;
+static int hf_zvt_tlv_tag = -1;
+static int hf_zvt_tlv_len = -1;
 
 static const value_string serial_char[] = {
     { STX, "Start of text (STX)" },
@@ -180,7 +183,6 @@ static value_string_ext ctrl_field_ext = VALUE_STRING_EXT_INIT(ctrl_field);
 #define BMP_ADD_DATA      0x3C
 #define BMP_CC            0x49
 
-/* XXX - handle a TVL container as special bitmap */
 static const value_string bitmap[] = {
     { BMP_TIMEOUT,       "Timeout" },
     { BMP_MAX_STAT_INFO, "max. status info" },
@@ -200,14 +202,93 @@ static const value_string bitmap[] = {
 };
 static value_string_ext bitmap_ext = VALUE_STRING_EXT_INIT(bitmap);
 
+static const value_string tlv_tags[] = {
+    { 0, NULL }
+};
+static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
+
+
+static gint
+dissect_zvt_tlv_tag(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo _U_, proto_tree *tree, guint32 *tag)
+{
+    guint8 tag_byte;
+
+    tag_byte = tvb_get_guint8(tvb, offset);
+    if ((tag_byte & 0x1F) == 0x1F) {
+        /* XXX - handle multi-byte tags */
+        return -1;
+    }
+
+    proto_tree_add_uint_format(tree, hf_zvt_tlv_tag,
+            tvb, offset, 1, tag_byte, "Tag: 0x%x", tag_byte);
+
+    if (tag)
+        *tag = tag_byte;
+    return 1;
+}
+
+
+static gint
+dissect_zvt_tlv_container(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree)
+{
+    gint        offset_start;
+    proto_item *dat_obj_it;
+    proto_tree *dat_obj_tree;
+    gint        tag_len;
+    guint32     tag;
+    guint8      data_len_bytes = 1;
+    guint16     data_len;
+
+    offset_start = offset;
+
+    while (tvb_captured_length_remaining(tvb, offset) > 0) {
+        dat_obj_tree = proto_tree_add_subtree(tree,
+            tvb, offset, -1, ett_zvt_tlv_dat_obj, &dat_obj_it,
+            "TLV data object");
+
+        tag_len = dissect_zvt_tlv_tag(tvb, offset, pinfo, dat_obj_tree, &tag);
+        if (tag_len <= 0)
+            return offset - offset_start;
+        offset += tag_len;
+
+        data_len = tvb_get_guint8(tvb, offset);
+        if (data_len & 0x80) {
+            if ((data_len & 0x03) == 1) {
+                data_len_bytes++;
+                data_len = tvb_get_guint8(tvb, offset+1);
+            }
+            else if ((data_len & 0x03) == 2) {
+                data_len_bytes += 2;
+                data_len = tvb_get_ntohs(tvb, offset+1);
+            }
+            else {
+                /* XXX - expert info, exit */
+            }
+        }
+        proto_tree_add_uint(dat_obj_tree, hf_zvt_tlv_len,
+                tvb, offset, data_len_bytes, data_len);
+        offset += data_len_bytes;
+
+        /* XXX - dissect the data-element */
+        offset += data_len;
+
+        proto_item_set_len(dat_obj_it, tag_len + data_len_bytes + data_len);
+    }
+
+    return offset - offset_start;
+}
+
 
 /* dissect one "bitmap", i.e BMP and the corresponding data */
 static gint
 dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo, proto_tree *tree)
 {
     gint    offset_start;
     guint8  bmp;
+    gint    ret;
 
     offset_start = offset;
 
@@ -215,7 +296,7 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
     if (try_val_to_str(bmp, bitmap) == NULL)
         return -1;
 
-    proto_tree_add_item(tree, zvt_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_zvt_bitmap, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     switch (bmp) {
@@ -243,11 +324,18 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
         case BMP_CC:
             offset += 2;
             break;
+        case BMP_TLV_CONTAINER:
+            ret = dissect_zvt_tlv_container(tvb, offset, pinfo, tree);
+            if (ret<0)
+                return -1;
+
+            offset += ret;
+            break;
+
         case BMP_CARD_NUM:
         case BMP_T2_DAT:
         case BMP_T3_DAT:
         case BMP_T1_DAT:
-        case BMP_TLV_CONTAINER:
         case BMP_ADD_DATA:
             /* the bitmaps are not TLV but only TV, there's no length field
                the tags listed above have variable length
@@ -265,7 +353,7 @@ dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
 
 static void
 dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
-        packet_info *pinfo _U_, proto_tree *tree)
+        packet_info *pinfo, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_zvt_reg_pwd, tvb, offset, 3, ENC_NA);
     offset += 3;
@@ -288,6 +376,11 @@ dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
             tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
+
+    /* it's ok if the remaining len is 0 */
+    dissect_zvt_bitmap_apdu(tvb, offset,
+            tvb_captured_length_remaining(tvb, offset),
+            pinfo, tree);
 }
 
 
@@ -566,7 +659,8 @@ proto_register_zvt(void)
 
     static gint *ett[] = {
         &ett_zvt,
-        &ett_zvt_apdu
+        &ett_zvt_apdu,
+        &ett_zvt_tlv_dat_obj
     };
     static hf_register_info hf[] = {
         { &hf_zvt_serial_char,
@@ -604,9 +698,15 @@ proto_register_zvt(void)
         { &hf_zvt_reg_svc_byte,
             { "Service byte", "zvt.reg.service_byte",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &zvt_bitmap,
+        { &hf_zvt_bitmap,
             { "Bitmap", "zvt.bitmap", FT_UINT8,
-                BASE_HEX|BASE_EXT_STRING, &bitmap_ext, 0, NULL, HFILL } }
+                BASE_HEX|BASE_EXT_STRING, &bitmap_ext, 0, NULL, HFILL } },
+        { &hf_zvt_tlv_tag,
+            { "Tag", "zvt.tlv.tag", FT_UINT32,
+                BASE_HEX|BASE_EXT_STRING, &tlv_tags_ext, 0, NULL, HFILL } },
+        { &hf_zvt_tlv_len,
+            { "Length", "zvt.tlv.len",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } }
     };
 
 
