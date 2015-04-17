@@ -612,8 +612,13 @@ netlogon_dissect_EXTRA_FLAGS(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int * extraflags[] = {
+        &hf_netlogon_extra_flags_root_forest,
+        &hf_netlogon_trust_flags_dc_firsthop,
+        &hf_netlogon_trust_flags_rodc_to_dc,
+        &hf_netlogon_trust_flags_rodc_ntlm,
+        NULL
+    };
 
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
@@ -621,23 +626,9 @@ netlogon_dissect_EXTRA_FLAGS(tvbuff_t *tvb, int offset,
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                              hf_netlogon_extraflags, &mask);
+                              -1, &mask);
 
-    if(parent_tree){
-        item = proto_tree_add_uint(parent_tree, hf_netlogon_extraflags,
-                                   tvb, offset-4, 4, mask);
-        tree = proto_item_add_subtree(item, ett_trust_flags);
-    }
-
-    proto_tree_add_boolean(tree, hf_netlogon_extra_flags_root_forest,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_dc_firsthop,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_rodc_to_dc,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_rodc_ntlm,
-                           tvb, offset-4, 4, mask);
-
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_extraflags, ett_trust_flags, extraflags, mask, BMT_NO_APPEND);
     return offset;
 }
 static int
@@ -702,8 +693,26 @@ netlogon_dissect_USER_ACCOUNT_CONTROL(tvbuff_t *tvb, int offset,
                                       packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int * uac[] = {
+        &hf_netlogon_user_account_control_dont_require_preauth,
+        &hf_netlogon_user_account_control_use_des_key_only,
+        &hf_netlogon_user_account_control_not_delegated,
+        &hf_netlogon_user_account_control_trusted_for_delegation,
+        &hf_netlogon_user_account_control_smartcard_required,
+        &hf_netlogon_user_account_control_encrypted_text_password_allowed,
+        &hf_netlogon_user_account_control_account_auto_locked,
+        &hf_netlogon_user_account_control_dont_expire_password,
+        &hf_netlogon_user_account_control_server_trust_account,
+        &hf_netlogon_user_account_control_workstation_trust_account,
+        &hf_netlogon_user_account_control_interdomain_trust_account,
+        &hf_netlogon_user_account_control_mns_logon_account,
+        &hf_netlogon_user_account_control_normal_account,
+        &hf_netlogon_user_account_control_temp_duplicate_account,
+        &hf_netlogon_user_account_control_password_not_required,
+        &hf_netlogon_user_account_control_home_directory_required,
+        &hf_netlogon_user_account_control_account_disabled,
+        NULL
+    };
 
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
@@ -711,48 +720,10 @@ netlogon_dissect_USER_ACCOUNT_CONTROL(tvbuff_t *tvb, int offset,
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                              hf_netlogon_user_account_control, &mask);
+                              -1, &mask);
 
-    if(parent_tree){
-        item = proto_tree_add_uint(parent_tree, hf_netlogon_user_account_control,
-                                   tvb, offset-4, 4, mask);
-        tree = proto_item_add_subtree(item, ett_user_account_control);
-    }
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_user_account_control, ett_user_account_control, uac, mask, BMT_NO_APPEND);
 
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_dont_require_preauth,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_use_des_key_only,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_not_delegated,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_trusted_for_delegation,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_smartcard_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_encrypted_text_password_allowed,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_account_auto_locked,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_dont_expire_password,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_server_trust_account,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_workstation_trust_account,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_interdomain_trust_account,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_mns_logon_account,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_normal_account,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_temp_duplicate_account,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_password_not_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_home_directory_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_account_control_account_disabled,
-                           tvb, offset-4, 4, mask);
     return offset;
 }
 
@@ -1408,8 +1379,12 @@ netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvbuff_t *tvb, int offset,
                                              packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int * attr[] = {
+        &hf_netlogon_group_attrs_enabled,
+        &hf_netlogon_group_attrs_enabled_by_default,
+        &hf_netlogon_group_attrs_mandatory,
+        NULL
+    };
 
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
@@ -1417,21 +1392,9 @@ netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvbuff_t *tvb, int offset,
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                              hf_netlogon_attrs, &mask);
+                              -1, &mask);
 
-    if(parent_tree){
-        item = proto_tree_add_uint(parent_tree, hf_netlogon_attrs,
-                                   tvb, offset-4, 4, mask);
-        tree = proto_item_add_subtree(item, ett_group_attrs);
-    }
-
-    proto_tree_add_boolean(tree, hf_netlogon_group_attrs_enabled,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_group_attrs_enabled_by_default,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_group_attrs_mandatory,
-                           tvb, offset-4, 4, mask);
-
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_attrs, ett_group_attrs, attr, mask, BMT_NO_APPEND);
     return offset;
 }
 
@@ -1511,8 +1474,11 @@ netlogon_dissect_USER_FLAGS(tvbuff_t *tvb, int offset,
                             packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int * flags[] = {
+        &hf_netlogon_user_flags_resource_groups,
+        &hf_netlogon_user_flags_extra_sids,
+        NULL
+    };
 
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
@@ -1520,19 +1486,9 @@ netlogon_dissect_USER_FLAGS(tvbuff_t *tvb, int offset,
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                              hf_netlogon_user_flags, &mask);
+                              -1, &mask);
 
-    if(parent_tree){
-        item = proto_tree_add_uint(parent_tree, hf_netlogon_user_flags,
-                                   tvb, offset-4, 4, mask);
-        tree = proto_item_add_subtree(item, ett_user_flags);
-    }
-
-    proto_tree_add_boolean(tree, hf_netlogon_user_flags_resource_groups,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_user_flags_extra_sids,
-                           tvb, offset-4, 4, mask);
-
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_user_flags, ett_user_flags, flags, mask, BMT_NO_APPEND);
     return offset;
 }
 
@@ -5143,8 +5099,15 @@ netlogon_dissect_DOMAIN_TRUST_FLAGS(tvbuff_t *tvb, int offset,
                                     packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int * flags[] = {
+        &hf_netlogon_trust_flags_inbound,
+        &hf_netlogon_trust_flags_native_mode,
+        &hf_netlogon_trust_flags_primary,
+        &hf_netlogon_trust_flags_tree_root,
+        &hf_netlogon_trust_flags_outbound,
+        &hf_netlogon_trust_flags_in_forest,
+        NULL
+    };
 
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
@@ -5152,27 +5115,9 @@ netlogon_dissect_DOMAIN_TRUST_FLAGS(tvbuff_t *tvb, int offset,
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                              hf_netlogon_trust_flags, &mask);
+                              -1, &mask);
 
-    if(parent_tree){
-        item = proto_tree_add_uint(parent_tree, hf_netlogon_trust_flags,
-                                   tvb, offset-4, 4, mask);
-        tree = proto_item_add_subtree(item, ett_trust_flags);
-    }
-
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_inbound,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_native_mode,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_primary,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_tree_root,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_outbound,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_flags_in_forest,
-                           tvb, offset-4, 4, mask);
-
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_trust_flags, ett_trust_flags, flags, mask, BMT_NO_APPEND);
     return offset;
 }
 
@@ -5212,8 +5157,16 @@ netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvbuff_t *tvb, int offset,
                                       packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int * attr[] = {
+        &hf_netlogon_trust_attribs_treat_as_external,
+        &hf_netlogon_trust_attribs_within_forest,
+        &hf_netlogon_trust_attribs_cross_organization,
+        &hf_netlogon_trust_attribs_forest_transitive,
+        &hf_netlogon_trust_attribs_quarantined_domain,
+        &hf_netlogon_trust_attribs_uplevel_only,
+        &hf_netlogon_trust_attribs_non_transitive,
+        NULL
+    };
 
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
@@ -5221,30 +5174,9 @@ netlogon_dissect_DOMAIN_TRUST_ATTRIBS(tvbuff_t *tvb, int offset,
     }
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                                hf_netlogon_trust_attribs, &mask);
+                                -1, &mask);
 
-    if(parent_tree){
-        item = proto_tree_add_uint(parent_tree, hf_netlogon_trust_attribs,
-                                   tvb, offset-4, 4, mask);
-        tree = proto_item_add_subtree(item, ett_trust_attribs);
-    }
-
-    proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_treat_as_external,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_within_forest,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_cross_organization,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_forest_transitive,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_quarantined_domain,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_uplevel_only,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_trust_attribs_non_transitive,
-                           tvb, offset-4, 4, mask);
-
-
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_trust_attribs, ett_trust_attribs, attr, mask, BMT_NO_APPEND);
     return offset;
 }
 
@@ -5340,58 +5272,35 @@ netlogon_dissect_GET_DCNAME_REQUEST_FLAGS(tvbuff_t *tvb, int offset,
                                           packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    static const int * flags[] = {
+        &hf_netlogon_get_dcname_request_flags_return_flat_name,
+        &hf_netlogon_get_dcname_request_flags_return_dns_name,
+        &hf_netlogon_get_dcname_request_flags_is_flat_name,
+        &hf_netlogon_get_dcname_request_flags_is_dns_name,
+        &hf_netlogon_get_dcname_request_flags_only_ldap_needed,
+        &hf_netlogon_get_dcname_request_flags_avoid_self,
+        &hf_netlogon_get_dcname_request_flags_good_timeserv_preferred,
+        &hf_netlogon_get_dcname_request_flags_writable_required,
+        &hf_netlogon_get_dcname_request_flags_timeserv_required,
+        &hf_netlogon_get_dcname_request_flags_kdc_required,
+        &hf_netlogon_get_dcname_request_flags_ip_required,
+        &hf_netlogon_get_dcname_request_flags_background_only,
+        &hf_netlogon_get_dcname_request_flags_pdc_required,
+        &hf_netlogon_get_dcname_request_flags_gc_server_required,
+        &hf_netlogon_get_dcname_request_flags_directory_service_preferred,
+        &hf_netlogon_get_dcname_request_flags_directory_service_required,
+        &hf_netlogon_get_dcname_request_flags_force_rediscovery,
+        NULL
+    };
 
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
     }
 
-    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                              hf_netlogon_get_dcname_request_flags, &mask);
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &mask);
 
-    if(parent_tree){
-        item = proto_tree_add_uint(parent_tree, hf_netlogon_get_dcname_request_flags,
-                                   tvb, offset-4, 4, mask);
-        tree = proto_item_add_subtree(item, ett_get_dcname_request_flags);
-    }
-
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_return_flat_name,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_return_dns_name,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_is_flat_name,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_is_dns_name,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_only_ldap_needed,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_avoid_self,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_good_timeserv_preferred,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_writable_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_timeserv_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_kdc_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_ip_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_background_only,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_pdc_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_gc_server_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_directory_service_preferred,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_directory_service_required,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_get_dcname_request_flags_force_rediscovery,
-                           tvb, offset-4, 4, mask);
-
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_get_dcname_request_flags, ett_get_dcname_request_flags, flags, mask, BMT_NO_APPEND);
     return offset;
 }
 
@@ -5468,49 +5377,34 @@ netlogon_dissect_DC_FLAGS(tvbuff_t *tvb, int offset,
                           packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 mask;
-    proto_item *item = NULL;
-    proto_tree *tree = NULL;
+    proto_item *item;
+    static const int * flags[] = {
+        &hf_netlogon_dc_flags_dns_forest_flag,
+        &hf_netlogon_dc_flags_dns_domain_flag,
+        &hf_netlogon_dc_flags_dns_controller_flag,
+        &hf_netlogon_dc_flags_ndnc_flag,
+        &hf_netlogon_dc_flags_good_timeserv_flag,
+        &hf_netlogon_dc_flags_writable_flag,
+        &hf_netlogon_dc_flags_closest_flag,
+        &hf_netlogon_dc_flags_timeserv_flag,
+        &hf_netlogon_dc_flags_kdc_flag,
+        &hf_netlogon_dc_flags_ds_flag,
+        &hf_netlogon_dc_flags_ldap_flag,
+        &hf_netlogon_dc_flags_gc_flag,
+        &hf_netlogon_dc_flags_pdc_flag,
+        NULL
+    };
 
     if(di->conformant_run){
         /*just a run to handle conformant arrays, nothing to dissect */
         return offset;
     }
 
-    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                              hf_netlogon_dc_flags, &mask);
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &mask);
 
-    if(parent_tree){
-        item = proto_tree_add_uint_format_value(parent_tree, hf_netlogon_dc_flags,
-                                                tvb, offset-4, 4, mask, "0x%08x%s", mask, (mask==0x0000ffff)?"  PING (mask==0x0000ffff)":"");
-        tree = proto_item_add_subtree(item, ett_dc_flags);
-    }
-
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_dns_forest_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_dns_domain_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_dns_controller_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_ndnc_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_good_timeserv_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_writable_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_closest_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_timeserv_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_kdc_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_ds_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_ldap_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_gc_flag,
-                           tvb, offset-4, 4, mask);
-    proto_tree_add_boolean(tree, hf_netlogon_dc_flags_pdc_flag,
-                           tvb, offset-4, 4, mask);
+    item = proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_dc_flags, ett_dc_flags, flags, mask, BMT_NO_APPEND);
+    if (mask==0x0000ffff)
+        proto_item_append_text(item, "  PING (mask==0x0000ffff)");
 
     return offset;
 }
@@ -6537,115 +6431,48 @@ netlogon_dissect_netrlogoncomputeclientdigest_reply(tvbuff_t *tvb, int offset,
 }
 static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,guint32 flags,int offset)
 {
-    if (tree) {
-        proto_tree *negotiate_flags_tree = NULL;
-        proto_item *tf = NULL;
-        tf = proto_tree_add_uint (tree,
-                                  hf_netlogon_neg_flags,
-                                  tvb, offset, 4,flags);
-        negotiate_flags_tree = proto_item_add_subtree (tf,ett_authenticate_flags);
+    static const int * hf_flags[] = {
+#if 0
+        &hf_netlogon_neg_flags_80000000,
+#endif
+        &hf_netlogon_neg_flags_40000000,
+        &hf_netlogon_neg_flags_20000000,
+#if 0
+        &hf_netlogon_neg_flags_10000000,
+        &hf_netlogon_neg_flags_8000000,
+        &hf_netlogon_neg_flags_4000000,
+        &hf_netlogon_neg_flags_2000000,
+        &hf_netlogon_neg_flags_800000,
+#endif
+        &hf_netlogon_neg_flags_1000000,
+        &hf_netlogon_neg_flags_400000,
+        &hf_netlogon_neg_flags_200000,
+        &hf_netlogon_neg_flags_100000,
+        &hf_netlogon_neg_flags_80000,
+        &hf_netlogon_neg_flags_40000,
+        &hf_netlogon_neg_flags_20000,
+        &hf_netlogon_neg_flags_10000,
+        &hf_netlogon_neg_flags_8000,
+        &hf_netlogon_neg_flags_4000,
+        &hf_netlogon_neg_flags_2000,
+        &hf_netlogon_neg_flags_1000,
+        &hf_netlogon_neg_flags_800,
+        &hf_netlogon_neg_flags_400,
+        &hf_netlogon_neg_flags_200,
+        &hf_netlogon_neg_flags_100,
+        &hf_netlogon_neg_flags_80,
+        &hf_netlogon_neg_flags_40,
+        &hf_netlogon_neg_flags_20,
+        &hf_netlogon_neg_flags_10,
+        &hf_netlogon_neg_flags_8,
+        &hf_netlogon_neg_flags_4,
+        &hf_netlogon_neg_flags_2,
+        &hf_netlogon_neg_flags_1,
+        NULL
+    };
 
-#if 0
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_80000000,
-                                tvb, offset, 4, flags);
-#endif
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_40000000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_20000000,
-                                tvb, offset, 4, flags);
-#if 0
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_10000000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_8000000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_4000000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_2000000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_800000,
-                                tvb, offset, 4, flags);
-#endif
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_1000000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_400000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_200000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_100000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_80000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_40000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_20000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_10000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_8000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_4000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_2000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_1000,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_800,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_400,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_200,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_100,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_80,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_40,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_20,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_10,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_8,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_4,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_2,
-                                tvb, offset, 4, flags);
-        proto_tree_add_boolean (negotiate_flags_tree,
-                                hf_netlogon_neg_flags_1,
-                                tvb, offset, 4, flags);
-    }
+    proto_tree_add_bitmask_value_with_flags(tree, tvb, offset, hf_netlogon_neg_flags, ett_authenticate_flags, hf_flags, flags, BMT_NO_APPEND);
+
     return 0;
 }
 

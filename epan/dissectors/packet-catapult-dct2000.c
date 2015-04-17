@@ -1259,16 +1259,16 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
 
                     /* CNF follows MUI in AM */
                     if ((opcode == RLC_AM_DATA_REQ) || (opcode == RLC_AM_DATA_IND)) {
-                        proto_tree_add_boolean(tree, hf_catapult_dct2000_lte_rlc_cnf,
-                                               tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                        proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_cnf,
+                                               tvb, offset, 1, ENC_NA);
                         offset++;
                     }
                 }
                 else if (tag == 0x45) {
                     /* Discard Req */
                     offset++;
-                    proto_tree_add_boolean(tree, hf_catapult_dct2000_lte_rlc_discard_req,
-                                           tvb, offset, 1, tvb_get_guint8(tvb, offset));
+                    proto_tree_add_item(tree, hf_catapult_dct2000_lte_rlc_discard_req,
+                                           tvb, offset, 1, ENC_NA);
                     offset++;
                 }
 

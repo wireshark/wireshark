@@ -248,165 +248,77 @@ static const value_string fc_sbccs_dib_lrj_errcode_val[] = {
 static void
 dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * iui_flags[] = {
+        &hf_sbccs_iui_as,
+        &hf_sbccs_iui_es,
+        &hf_sbccs_iui_val,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_sbccs_iui,
-                                tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_sbccs_iui);
-
-    proto_tree_add_boolean(tree, hf_sbccs_iui_as, tvb, offset, 1, flags);
-    if (flags & 0x10) {
-        proto_item_append_text(item, "  AS");
-    }
-    flags &= (~( 0x10 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_iui_es, tvb, offset, 1, flags);
-    if (flags & 0x08) {
-        proto_item_append_text(item, "  ES");
-    }
-    flags &= (~( 0x08 ));
-
-    proto_tree_add_item (tree, hf_sbccs_iui_val, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(item, "%s", val_to_str (flags & 0x7, fc_sbccs_iu_val, "0x%x"));
-    /*flags &= (~( 0x07 ));*/
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_sbccs_iui,
+                                   ett_sbccs_iui, iui_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 static void
 dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * linkctlinfo_flags[] = {
+        &hf_sbccs_dib_linkctlinfo_ctcconn,
+        &hf_sbccs_dib_linkctlinfo_ecrcg,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_linkctlinfo,
-                                tvb, offset, 2, flags);
-    tree=proto_item_add_subtree(item, ett_sbccs_dib_linkctlinfo);
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_linkctlinfo_ctcconn, tvb, offset, 2, flags);
-    if (flags & 0x80) {
-        proto_item_append_text(item, "  CTC Conn");
-    }
-    flags &= (~( 0x80 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_linkctlinfo_ecrcg, tvb, offset, 2, flags);
-    if (flags & 0x01) {
-        proto_item_append_text(item, "  Enhanced CRC Gen");
-    }
-    /*flags &= (~( 0x01 ));*/
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_sbccs_dib_linkctlinfo,
+                                   ett_sbccs_dib_linkctlinfo, linkctlinfo_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 
 static void
 dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * dh_flags[] = {
+        &hf_sbccs_dhflags_end,
+        &hf_sbccs_dhflags_chaining,
+        &hf_sbccs_dhflags_earlyend,
+        &hf_sbccs_dhflags_nocrc,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_sbccs_dhflags,
-                                tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_sbccs_dhflags);
-
-    proto_tree_add_boolean(tree, hf_sbccs_dhflags_end, tvb, offset, 1, flags);
-    if (flags & 0x80) {
-        proto_item_append_text(item, "  End");
-    }
-    flags &= (~( 0x80 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dhflags_chaining, tvb, offset, 1, flags);
-    if (flags & 0x10) {
-        proto_item_append_text(item, "  Chaining");
-    }
-    flags &= (~( 0x10 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dhflags_earlyend, tvb, offset, 1, flags);
-    if (flags & 0x08) {
-        proto_item_append_text(item, "  Early End");
-    }
-    flags &= (~( 0x08 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dhflags_nocrc, tvb, offset, 1, flags);
-    if (flags & 0x04) {
-        proto_item_append_text(item, "  No CRC");
-    }
-    /*flags &= (~( 0x04 ));*/
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_sbccs_dhflags,
+                                   ett_sbccs_dhflags, dh_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 
 static void
 dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * ccw_flags[] = {
+        &hf_sbccs_dib_ccw_flags_cd,
+        &hf_sbccs_dib_ccw_flags_cc,
+        &hf_sbccs_dib_ccw_flags_sli,
+        &hf_sbccs_dib_ccw_flags_crr,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ccw_flags,
-                                tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_sbccs_dib_ccw_flags);
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_cd, tvb, offset, 1, flags);
-    if (flags & 0x80) {
-        proto_item_append_text(item, "  CD");
-    }
-    flags &= (~( 0x80 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_cc, tvb, offset, 1, flags);
-    if (flags & 0x40) {
-        proto_item_append_text(item, "  CC");
-    }
-    flags &= (~( 0x40 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_sli, tvb, offset, 1, flags);
-    if (flags & 0x20) {
-        proto_item_append_text(item, "  SLI");
-    }
-    flags &= (~( 0x20 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_crr, tvb, offset, 1, flags);
-    if (flags & 0x08) {
-        proto_item_append_text(item, "  CRR");
-    }
-    /*flags &= (~( 0x08 ));*/
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_sbccs_dib_ccw_flags,
+                                   ett_sbccs_dib_ccw_flags, ccw_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 
 static void
 dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * cmd_flags[] = {
+        &hf_sbccs_dib_cmdflags_du,
+        &hf_sbccs_dib_cmdflags_coc,
+        &hf_sbccs_dib_cmdflags_syr,
+        &hf_sbccs_dib_cmdflags_rex,
+        &hf_sbccs_dib_cmdflags_sss,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_cmdflags,
-                                tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_sbccs_dib_cmdflags);
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_du, tvb, offset, 1, flags);
-    if (flags & 0x10) {
-        proto_item_append_text(item, "  DU");
-    }
-    flags &= (~( 0x10 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_coc, tvb, offset, 1, flags);
-    if (flags & 0x08) {
-        proto_item_append_text(item, "  COC");
-    }
-    flags &= (~( 0x08 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_syr, tvb, offset, 1, flags);
-    if (flags & 0x04) {
-        proto_item_append_text(item, "  SYR");
-    }
-    flags &= (~( 0x04 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_rex, tvb, offset, 1, flags);
-    if (flags & 0x02) {
-        proto_item_append_text(item, "  REX");
-    }
-    flags &= (~( 0x02 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_sss, tvb, offset, 1, flags);
-    if (flags & 0x01) {
-        proto_item_append_text(item, "  SSS");
-    }
-    /*flags &= (~( 0x01 ));*/
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_sbccs_dib_cmdflags,
+                                   ett_sbccs_dib_cmdflags, cmd_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 static const value_string status_ffc_val[] = {
@@ -420,140 +332,82 @@ static const value_string status_ffc_val[] = {
 static void
 dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * status_flags[] = {
+        &hf_sbccs_dib_statusflags_ffc,
+        &hf_sbccs_dib_statusflags_ci,
+        &hf_sbccs_dib_statusflags_cr,
+        &hf_sbccs_dib_statusflags_lri,
+        &hf_sbccs_dib_statusflags_rv,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_statusflags,
-                                tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_sbccs_dib_statusflags);
-
-    proto_tree_add_item (tree, hf_sbccs_dib_statusflags_ffc, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(item, "%s", val_to_str ((flags>>5) & 0x07, status_ffc_val, "Reserved:0x%x"));
-    flags &= (~( 0xE0 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_ci, tvb, offset, 1, flags);
-    if (flags & 0x10) {
-        proto_item_append_text(item, "  CI");
-    }
-    flags &= (~( 0x10 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_cr, tvb, offset, 1, flags);
-    if (flags & 0x04) {
-        proto_item_append_text(item, "  CR");
-    }
-    flags &= (~( 0x04 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_lri, tvb, offset, 1, flags);
-    if (flags & 0x02) {
-        proto_item_append_text(item, "  LRI");
-    }
-    flags &= (~( 0x02 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_rv, tvb, offset, 1, flags);
-    if (flags & 0x01) {
-        proto_item_append_text(item, "  RV");
-    }
-    /*flags &= (~( 0x01 ));*/
-
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_sbccs_dib_statusflags,
+                                   ett_sbccs_dib_statusflags, status_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 
 static void
 dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * status_flags[] = {
+        &hf_sbccs_dib_status_attention,
+        &hf_sbccs_dib_status_modifier,
+        &hf_sbccs_dib_status_cue,
+        &hf_sbccs_dib_status_busy,
+        &hf_sbccs_dib_status_channelend,
+        &hf_sbccs_dib_status_deviceend,
+        &hf_sbccs_dib_status_unit_check,
+        &hf_sbccs_dib_status_unit_exception,
+        NULL
+    };
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_sbccs_dib_status,
+                                   ett_sbccs_dib_status, status_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 
-    item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_status,
-                                tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_sbccs_dib_status);
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_status_attention, tvb, offset, 1, flags);
     if (flags & 0x80) {
-        proto_item_append_text(item, "  Attention");
         col_append_str(pinfo->cinfo, COL_INFO, "  Attention");
     }
-    flags &= (~( 0x80 ));
 
-    proto_tree_add_boolean(tree, hf_sbccs_dib_status_modifier, tvb, offset, 1, flags);
     if (flags & 0x40) {
-        proto_item_append_text(item, "  Status Modifier");
         col_append_str(pinfo->cinfo, COL_INFO, "  Status Modifier");
     }
-    flags &= (~( 0x40 ));
 
-    proto_tree_add_boolean(tree, hf_sbccs_dib_status_cue, tvb, offset, 1, flags);
     if (flags & 0x20) {
-        proto_item_append_text(item, "  Control-Unit End");
         col_append_str(pinfo->cinfo, COL_INFO, "  Control-Unit End");
     }
-    flags &= (~( 0x20 ));
 
-    proto_tree_add_boolean(tree, hf_sbccs_dib_status_busy, tvb, offset, 1, flags);
     if (flags & 0x10) {
-        proto_item_append_text(item, "  Busy");
         col_append_str(pinfo->cinfo, COL_INFO, "  Busy");
     }
-    flags &= (~( 0x10 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_status_channelend, tvb, offset, 1, flags);
     if (flags & 0x08) {
-        proto_item_append_text(item, "  Channel End");
         col_append_str(pinfo->cinfo, COL_INFO, "  Channel End");
     }
-    flags &= (~( 0x08 ));
 
-    proto_tree_add_boolean(tree, hf_sbccs_dib_status_deviceend, tvb, offset, 1, flags);
     if (flags & 0x04) {
-        proto_item_append_text(item, "  Device End");
         col_append_str(pinfo->cinfo, COL_INFO, "  Device End");
     }
-    flags &= (~( 0x04 ));
 
-    proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_check, tvb, offset, 1, flags);
     if (flags & 0x02) {
-        proto_item_append_text(item, "  Unit Check");
         col_append_str(pinfo->cinfo, COL_INFO, "  Unit Check");
     }
-    flags &= (~( 0x02 ));
 
-    proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_exception, tvb, offset, 1, flags);
     if (flags & 0x01) {
-        proto_item_append_text(item, "  Unit Exception");
         col_append_str(pinfo->cinfo, COL_INFO, "  Unit Exception");
     }
-    /*flags &= (~( 0x01 ));*/
-
 }
 
 
 static void
 dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * rst_param_flags[] = {
+        &hf_sbccs_dib_ctlparam_rc,
+        &hf_sbccs_dib_ctlparam_ru,
+        &hf_sbccs_dib_ctlparam_ro,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ctlparam,
-                                tvb, offset, 3, flags);
-    tree=proto_item_add_subtree(item, ett_sbccs_dib_ctlparam);
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_rc, tvb, offset, 3, flags);
-    if (flags & 0x80) {
-        proto_item_append_text(item, "  RC");
-    }
-    flags &= (~( 0x80 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_ru, tvb, offset, 3, flags);
-    if (flags & 0x10) {
-        proto_item_append_text(item, "  RU");
-    }
-    flags &= (~( 0x10 ));
-
-    proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_ro, tvb, offset, 3, flags);
-    if (flags & 0x08) {
-        proto_item_append_text(item, "  RO");
-    }
-    /*flags &= (~( 0x08 ));*/
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_sbccs_dib_ctlparam,
+                                   ett_sbccs_dib_ctlparam, rst_param_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 static void get_fc_sbccs_conv_data (tvbuff_t *tvb, guint offset,

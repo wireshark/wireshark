@@ -3244,6 +3244,15 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             break;
 
         case BGP_NLRI_TLV_NODE_FLAG_BITS:
+            {
+            static const int * flags[] = {
+                &hf_bgp_ls_node_flag_bits_overload,
+                &hf_bgp_ls_node_flag_bits_attached,
+                &hf_bgp_ls_node_flag_bits_external,
+                &hf_bgp_ls_node_flag_bits_abr,
+                NULL
+            };
+
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_node_flags_bits, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
             if(length != BGP_NLRI_TLV_LEN_NODE_FLAG_BITS){
@@ -3253,14 +3262,11 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             }
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            tmp8 = tvb_get_guint8(tvb, offset);
-            proto_tree_add_boolean(tlv_tree, hf_bgp_ls_node_flag_bits_overload, tvb, offset, 1, tmp8);
-            proto_tree_add_boolean(tlv_tree, hf_bgp_ls_node_flag_bits_attached, tvb, offset, 1, tmp8);
-            proto_tree_add_boolean(tlv_tree, hf_bgp_ls_node_flag_bits_external, tvb, offset, 1, tmp8);
-            proto_tree_add_boolean(tlv_tree, hf_bgp_ls_node_flag_bits_abr, tvb, offset, 1, tmp8);
-            tmp8 &= 0x0f;
+            proto_tree_add_bitmask_list(tlv_tree, tvb, offset+4, 1, flags, ENC_NA);
+            tmp8 = tvb_get_guint8(tvb, offset+4) & 0x0f;
             if(tmp8){
                 expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error, "Reserved flag bits are not set to zero (%u).", tmp8);
+            }
             }
             break;
 
@@ -3454,6 +3460,13 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             }
             break;
         case BGP_NLRI_TLV_MPLS_PROTOCOL_MASK:
+            {
+            static const int * flags[] = {
+                &hf_bgp_ls_mpls_protocol_mask_flag_l,
+                &hf_bgp_ls_mpls_protocol_mask_flag_r,
+                NULL
+            };
+
             tlv_item = proto_tree_add_item(tree, hf_bgp_ls_tlv_mpls_protocol_mask, tvb, offset, length+4, ENC_NA);
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
             if(length != BGP_NLRI_TLV_LEN_MPLS_PROTOCOL_MASK){
@@ -3463,13 +3476,12 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             }
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            tmp8 = tvb_get_guint8(tvb, offset + 4);
-            proto_tree_add_boolean(tlv_tree, hf_bgp_ls_mpls_protocol_mask_flag_l, tvb, offset + 4, 1, tmp8);
-            proto_tree_add_boolean(tlv_tree, hf_bgp_ls_mpls_protocol_mask_flag_r, tvb, offset + 4, 1, tmp8);
-            tmp8 &= 0x3f;
+            proto_tree_add_bitmask_list(tlv_tree, tvb, offset+4, 1, flags, ENC_NA);
+            tmp8 = tvb_get_guint8(tvb, offset + 4) & 0x3f;
             if(tmp8){
                 proto_tree_add_expert_format(tlv_tree, pinfo, &ei_bgp_ls_error, tvb, offset + 4, 1,
                                              "Reserved flags are not set to zero (%u).", tmp8);
+            }
             }
             break;
         case BGP_NLRI_TLV_METRIC:
@@ -3527,9 +3539,8 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             }
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            tmp8 = tvb_get_guint8(tvb, offset + 4);
-            proto_tree_add_boolean(tlv_tree, hf_bgp_ls_igp_flags_flag_d, tvb, offset + 4, 1, tmp8);
-            tmp8 &= 0x7F;
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_igp_flags_flag_d, tvb, offset + 4, 1, ENC_NA);
+            tmp8 = tvb_get_guint8(tvb, offset + 4) & 0x7F;
             if(tmp8){
                 expert_add_info_format(pinfo, tlv_tree, &ei_bgp_ls_error, "Reserved flags are not set to zero (%u).", tmp8);
             }

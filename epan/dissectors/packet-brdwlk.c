@@ -140,63 +140,19 @@ static const true_false_string tfs_error_ctrl = {
 static void
 dissect_brdwlk_err(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item;
-    proto_tree *tree;
-    guint8 flags;
+    static const int * flags[] = {
+        &hf_brdwlk_error_plp,
+        &hf_brdwlk_error_ef,
+        &hf_brdwlk_error_nd,
+        &hf_brdwlk_error_tr,
+        &hf_brdwlk_error_badcrc,
+        &hf_brdwlk_error_ff,
+        &hf_brdwlk_error_jumbo,
+        &hf_brdwlk_error_ctrl,
+        NULL
+    };
 
-    flags = tvb_get_guint8(tvb, offset);
-    item = proto_tree_add_uint(parent_tree, hf_brdwlk_error,
-            tvb, offset, 1, flags);
-    tree = proto_item_add_subtree(item, ett_brdwlk_error);
-
-
-    proto_tree_add_boolean(tree, hf_brdwlk_error_plp, tvb, offset, 1, flags);
-    if (flags & 0x01) {
-        proto_item_append_text(item, "  Packet Length Present");
-    }
-    flags &= (~( 0x01 ));
-
-    proto_tree_add_boolean(tree, hf_brdwlk_error_ef, tvb, offset, 1, flags);
-    if (flags & 0x02) {
-        proto_item_append_text(item, "  Empty Frame");
-    }
-    flags &= (~( 0x02 ));
-
-    proto_tree_add_boolean(tree, hf_brdwlk_error_nd, tvb, offset, 1, flags);
-    if (flags & 0x04) {
-        proto_item_append_text(item, "  No Data");
-    }
-    flags &= (~( 0x04 ));
-
-    proto_tree_add_boolean(tree, hf_brdwlk_error_tr, tvb, offset, 1, flags);
-    if (flags & 0x08) {
-        proto_item_append_text(item, "  Truncated");
-    }
-    flags &= (~( 0x08 ));
-
-    proto_tree_add_boolean(tree, hf_brdwlk_error_badcrc, tvb, offset, 1, flags);
-    if (flags & 0x10) {
-        proto_item_append_text(item, "  Bad FC CRC");
-    }
-    flags &= (~( 0x10 ));
-
-    proto_tree_add_boolean(tree, hf_brdwlk_error_ff, tvb, offset, 1, flags);
-    if (flags & 0x20) {
-        proto_item_append_text(item, "  Fifo Full");
-    }
-    flags &= (~( 0x20 ));
-
-    proto_tree_add_boolean(tree, hf_brdwlk_error_jumbo, tvb, offset, 1, flags);
-    if (flags & 0x40) {
-        proto_item_append_text(item, "  Jumbo FC Frame");
-    }
-    flags &= (~( 0x40 ));
-
-    proto_tree_add_boolean(tree, hf_brdwlk_error_ctrl, tvb, offset, 1, flags);
-    if (flags & 0x80) {
-        proto_item_append_text(item, "  Ctrl Char Inside Frame");
-    }
-    /*flags &= (~( 0x80 ));*/
+    proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_brdwlk_error, ett_brdwlk_error, flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 /* Code to actually dissect the packets */

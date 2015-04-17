@@ -1594,40 +1594,25 @@ dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
 {
 	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	static const int * flags[] = {
+		&hf_nt_acb_autolock,
+		&hf_nt_acb_pwnoexp,
+		&hf_nt_acb_svrtrust,
+		&hf_nt_acb_wstrust,
+		&hf_nt_acb_domtrust,
+		&hf_nt_acb_mns,
+		&hf_nt_acb_normal,
+		&hf_nt_acb_tempdup,
+		&hf_nt_acb_pwnotreq,
+		&hf_nt_acb_homedirreq,
+		&hf_nt_acb_disabled,
+		NULL
+	};
 
-	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-			hf_nt_acct_ctrl, &mask);
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &mask);
 
-	if(parent_tree){
-		item = proto_tree_add_uint(parent_tree, hf_nt_acct_ctrl,
-			tvb, offset-4, 4, mask);
-		tree = proto_item_add_subtree(item, ett_nt_acct_ctrl);
-	}
-
-	proto_tree_add_boolean(tree, hf_nt_acb_autolock,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_pwnoexp,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_svrtrust,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_wstrust,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_domtrust,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_mns,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_normal,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_tempdup,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_pwnotreq,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_homedirreq,
-		tvb, offset-4, 4, mask);
-	proto_tree_add_boolean(tree, hf_nt_acb_disabled,
-		tvb, offset-4, 4, mask);
+	proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_nt_acct_ctrl,
+					ett_nt_acct_ctrl, flags, mask, BMT_NO_APPEND);
 
 	return offset;
 }

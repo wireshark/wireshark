@@ -270,10 +270,15 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
     guint32 u32TmpOffset;
     guint32 u32SubStart;
 
-    proto_item *feature_item;
-    proto_tree *feature_tree;
     proto_item *dispparams_item;
     proto_tree *dispparams_tree;
+    static const int * flags[] = {
+        &hf_dispatch_flags_propputref,
+        &hf_dispatch_flags_propput,
+        &hf_dispatch_flags_propget,
+        &hf_dispatch_flags_method,
+        NULL
+    };
 
 
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -288,31 +293,21 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
                                 hf_dispatch_lcid, &u32Lcid);
 
     /* dispatch flags */
-    u32TmpOffset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL, di, drep,
-                                      hf_dispatch_flags, &u32Flags);
-    feature_item = proto_tree_add_uint (tree, hf_dispatch_flags, tvb, offset, 4, u32Flags);
-    feature_tree = proto_item_add_subtree (feature_item, ett_dispatch_flags);
-    if (feature_tree) {
-        proto_tree_add_boolean (feature_tree, hf_dispatch_flags_propputref, tvb, offset, 4, u32Flags);
-        proto_tree_add_boolean (feature_tree, hf_dispatch_flags_propput, tvb, offset, 4, u32Flags);
-        proto_tree_add_boolean (feature_tree, hf_dispatch_flags_propget, tvb, offset, 4, u32Flags);
-        proto_tree_add_boolean (feature_tree, hf_dispatch_flags_method, tvb, offset, 4, u32Flags);
-    }
+    u32TmpOffset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL, di, drep, -1, &u32Flags);
+
+    proto_tree_add_bitmask_value(tree, tvb, offset, hf_dispatch_flags,
+                                ett_dispatch_flags, flags, u32Flags);
 
     if (u32Flags & DISPATCH_FLAGS_METHOD) {
-        proto_item_append_text(feature_item, ", Method");
         col_append_str(pinfo->cinfo, COL_INFO, " Method");
     }
     if (u32Flags & DISPATCH_FLAGS_PROPGET) {
-        proto_item_append_text(feature_item, ", PropertyGet");
         col_append_str(pinfo->cinfo, COL_INFO, " PropertyGet");
     }
     if (u32Flags & DISPATCH_FLAGS_PROPPUT) {
-        proto_item_append_text(feature_item, ", PropertyPut");
         col_append_str(pinfo->cinfo, COL_INFO, " PropertyPut");
     }
     if (u32Flags & DISPATCH_FLAGS_PROPPUTREF) {
-        proto_item_append_text(feature_item, ", PropertyPutRef");
         col_append_str(pinfo->cinfo, COL_INFO, " PropertyPutRef");
     }
 

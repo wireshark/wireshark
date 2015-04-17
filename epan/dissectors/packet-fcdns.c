@@ -393,51 +393,18 @@ fcdns_init_protocol(void)
 static void
 dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, const header_field_info *hfinfo)
 {
-    proto_item *item;
-    proto_tree *tree;
-    guint32 flags;
+    static const int * flags[] = {
+        &hfi_fcdns_cos_f.id,
+        &hfi_fcdns_cos_1.id,
+        &hfi_fcdns_cos_2.id,
+        &hfi_fcdns_cos_3.id,
+        &hfi_fcdns_cos_4.id,
+        &hfi_fcdns_cos_6.id,
+        NULL
+    };
 
-    flags = tvb_get_ntohl (tvb, offset);
-
-    item=proto_tree_add_uint(parent_tree, hfinfo,
-                                 tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_cos_flags);
-
-    proto_tree_add_boolean(tree, &hfi_fcdns_cos_f, tvb, offset, 4, flags);
-    if (flags&0x01){
-        proto_item_append_text(item, "  F");
-    }
-    flags&=(~( 0x01 ));
-
-    proto_tree_add_boolean(tree, &hfi_fcdns_cos_1, tvb, offset, 4, flags);
-    if (flags&0x02){
-        proto_item_append_text(item, "  1");
-    }
-    flags&=(~( 0x02 ));
-
-    proto_tree_add_boolean(tree, &hfi_fcdns_cos_2, tvb, offset, 4, flags);
-    if (flags&0x04){
-        proto_item_append_text(item, "  2");
-    }
-    flags&=(~( 0x04 ));
-
-    proto_tree_add_boolean(tree, &hfi_fcdns_cos_3, tvb, offset, 4, flags);
-    if (flags&0x08){
-        proto_item_append_text(item, "  3");
-    }
-    flags&=(~( 0x08 ));
-
-    proto_tree_add_boolean(tree, &hfi_fcdns_cos_4, tvb, offset, 4, flags);
-    if (flags&0x10){
-        proto_item_append_text(item, "  4");
-    }
-    flags&=(~( 0x10 ));
-
-    proto_tree_add_boolean(tree, &hfi_fcdns_cos_6, tvb, offset, 4, flags);
-    if (flags&0x40){
-        proto_item_append_text(item, "  6");
-    }
-    /*flags&=(~( 0x40 ));*/
+    proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hfinfo->id,
+                                ett_cos_flags, flags, ENC_BIG_ENDIAN, BMT_NO_FALSE|BMT_NO_TFS);
 }
 
 
@@ -448,32 +415,23 @@ dissect_cos_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, const hea
 static void
 dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item;
-    proto_tree *tree;
-    guint8 flags, type;
+    guint8 type;
+    static const int * flags[] = {
+        &hfi_fcdns_fc4features_i.id,
+        &hfi_fcdns_fc4features_t.id,
+        NULL
+    };
 
-    flags = tvb_get_guint8(tvb, offset);
     type = tvb_get_guint8(tvb, offset+1);
 
-    item=proto_tree_add_uint(parent_tree, &hfi_fcdns_fc4features,
-                                 tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_fc4features);
-
     if(type==FC_TYPE_SCSI){
-        proto_tree_add_boolean(tree, &hfi_fcdns_fc4features_i, tvb, offset, 1, flags);
-        if (flags&0x02){
-            proto_item_append_text(item, "  I");
-        }
-        flags&=(~( 0x02 ));
-
-        proto_tree_add_boolean(tree, &hfi_fcdns_fc4features_t, tvb, offset, 1, flags);
-        if (flags&0x01){
-            proto_item_append_text(item, "  T");
-        }
-        /*flags&=(~( 0x01 ));*/
+        proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hfi_fcdns_fc4features.id,
+                                ett_fc4features, flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
+    } else {
+        proto_tree_add_item(parent_tree, &hfi_fcdns_fc4features, tvb, offset, 1, ENC_NA);
     }
 
-    proto_tree_add_item (tree, &hfi_fcdns_req_fc4type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (parent_tree, &hfi_fcdns_req_fc4type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 }
 
 /* The feature routines just decode FCP's FC-4 features field
@@ -481,26 +439,14 @@ dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset
 static void
 dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item;
-    proto_tree *tree;
-    guint8 flags;
+    static const int * flags[] = {
+        &hfi_fcdns_fc4features_i.id,
+        &hfi_fcdns_fc4features_t.id,
+        NULL
+    };
 
-    flags = tvb_get_guint8(tvb, offset);
-    item=proto_tree_add_uint(parent_tree, &hfi_fcdns_fc4features,
-                                 tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_fc4features);
-
-    proto_tree_add_boolean(tree, &hfi_fcdns_fc4features_i, tvb, offset, 1, flags);
-    if (flags&0x02){
-        proto_item_append_text(item, "  I");
-    }
-    flags&=(~( 0x02 ));
-
-    proto_tree_add_boolean(tree, &hfi_fcdns_fc4features_t, tvb, offset, 1, flags);
-    if (flags&0x01){
-        proto_item_append_text(item, "  T");
-    }
-    /*flags&=(~( 0x01 ));*/
+    proto_tree_add_bitmask(parent_tree, tvb, offset, hfi_fcdns_fc4features_i.id,
+		       ett_fc4features, flags, ENC_NA);
 }
 
 

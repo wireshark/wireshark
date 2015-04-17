@@ -678,102 +678,45 @@ static const true_false_string tfs_fc_fcels_cmn_payload = {
 static void
 dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * common_flags[] = {
+        &hf_fcels_cmn_cios,
+        &hf_fcels_cmn_rro,
+        &hf_fcels_cmn_vvv,
+        &hf_fcels_cmn_b2b,
+        &hf_fcels_cmn_multicast,
+        &hf_fcels_cmn_broadcast,
+        &hf_fcels_cmn_security,
+        &hf_fcels_cmn_clk,
+        &hf_fcels_cmn_dhd,
+        &hf_fcels_cmn_payload,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_fcels_cmnfeatures,
-                                tvb, offset, 2, flags);
-    tree=proto_item_add_subtree(item, ett_fcels_cmnfeatures);
+    static const int * pflags[] = {
+        &hf_fcels_cmn_cios,
+        &hf_fcels_cmn_rro,
+        &hf_fcels_cmn_vvv,
+        &hf_fcels_cmn_b2b,
+        &hf_fcels_cmn_e_d_tov,
+        &hf_fcels_cmn_simplex,
+        &hf_fcels_cmn_multicast,
+        &hf_fcels_cmn_broadcast,
+        &hf_fcels_cmn_security,
+        &hf_fcels_cmn_clk,
+        &hf_fcels_cmn_dhd,
+        &hf_fcels_cmn_seqcnt,
+        &hf_fcels_cmn_payload,
+        NULL
+    };
 
-    proto_tree_add_boolean(tree, hf_fcels_cmn_cios, tvb, offset, 2, flags);
-    if (flags&0x8000){
-        proto_item_append_text(item, "  Cont. Incr. Offset Supported");
-    }
-    flags&=(~( 0x8000 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_rro, tvb, offset, 2, flags);
-    if (flags&0x4000){
-        proto_item_append_text(item, "  RRO Supported");
-    }
-    flags&=(~( 0x4000 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_vvv, tvb, offset, 2, flags);
-    if (flags&0x2000){
-        proto_item_append_text(item, "  Valid Vendor Version");
-    }
-    flags&=(~( 0x2000 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_b2b, tvb, offset, 2, flags);
-    if (flags&0x0800){
-        proto_item_append_text(item, "  Alt B2B Credit Mgmt");
-    } else {
-        proto_item_append_text(item, "  Normal B2B Credit Mgmt");
-    }
-    flags&=(~( 0x0800 ));
-
-    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        proto_tree_add_boolean(tree, hf_fcels_cmn_e_d_tov, tvb, offset, 2, flags);
-        if (flags&0x0400){
-            proto_item_append_text(item, "  E_D_TOV Resolution in ns");
-        } else {
-            proto_item_append_text(item, "  E_D_TOV Resolution in ms");
-        }
-        flags&=(~( 0x0400 ));
-
-        proto_tree_add_boolean(tree, hf_fcels_cmn_simplex, tvb, offset, 2, flags);
-        if (flags&0x0040){
-            proto_item_append_text(item, "  Simplex Dedicated Conn Supported");
-        }
-        flags&=(~( 0x0040 ));
-    }
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_multicast, tvb, offset, 2, flags);
-    if (flags&0x0200){
-        proto_item_append_text(item, "  Multicast Supported");
-    }
-    flags&=(~( 0x0200 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_broadcast, tvb, offset, 2, flags);
-    if (flags&0x0100){
-        proto_item_append_text(item, "  Broadcast Supported");
-    }
-    flags&=(~( 0x0100 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_security, tvb, offset, 2, flags);
-    if (flags&0x0020){
-        proto_item_append_text(item, "  Security Bit");
-    }
-    flags&=(~( 0x0020 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_clk, tvb, offset, 2, flags);
-    if (flags&0x0010){
-        proto_item_append_text(item, "  Clk Sync Prim Capable");
-    }
-    flags&=(~( 0x0010 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_dhd, tvb, offset, 2, flags);
-    if (flags&0x0004){
-        proto_item_append_text(item, "  DHD Capable");
-    }
-    flags&=(~( 0x0004 ));
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        proto_tree_add_boolean(tree, hf_fcels_cmn_seqcnt, tvb, offset, 2, flags);
-        if (flags&0x0002){
-            proto_item_append_text(item, "  Cont. Incr SEQCNT rules");
-        } else {
-            proto_item_append_text(item, "  Normal SEQCNT rules");
-        }
-        flags&=(~( 0x0002 ));
-    }
-
-    proto_tree_add_boolean(tree, hf_fcels_cmn_payload, tvb, offset, 2, flags);
-    if (flags&0x0001){
-        proto_item_append_text(item, "  Payload Len=256 bytes");
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_cmnfeatures,
+                           ett_fcels_cmnfeatures, pflags, flags, 0);
     } else {
-        proto_item_append_text(item, "  Payload Len=116 bytes");
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_cmnfeatures,
+                           ett_fcels_cmnfeatures, common_flags, flags, 0);
     }
-    /*flags&=(~( 0x0001 ));*/
 }
 
 
@@ -790,44 +733,26 @@ static const true_false_string tfs_fc_fcels_cls_nzctl = {
 static void
 dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * common_flags[] = {
+        &hf_fcels_cls_cns,
+        &hf_fcels_cls_prio,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_fcels_clsflags,
-                                tvb, offset, 2, flags);
-    tree=proto_item_add_subtree(item, ett_fcels_clsflags);
-
-    proto_tree_add_boolean(tree, hf_fcels_cls_cns, tvb, offset, 2, flags);
-    if (!(flags&0x8000)){
-        proto_item_append_text(item, "  Class Not Supported");
-        return;
-    }
-    flags&=(~( 0x8000 ));
+    static const int * pflags[] = {
+        &hf_fcels_cls_cns,
+        &hf_fcels_cls_sdr,
+        &hf_fcels_cls_prio,
+        &hf_fcels_cls_nzctl,
+        NULL
+    };
 
     if ((opcode == FC_ELS_FLOGI) || (opcode == FC_ELS_FDISC)) {
-        proto_tree_add_boolean(tree, hf_fcels_cls_sdr, tvb, offset, 2, flags);
-        if (flags&0x0800){
-            proto_item_append_text(item, "  Seq Delivery Requested");
-        } else {
-            proto_item_append_text(item, "  Out of Order Delivery Requested");
-        }
-        flags&=(~( 0x0800 ));
-    }
-
-    proto_tree_add_boolean(tree, hf_fcels_cls_prio, tvb, offset, 2, flags);
-    if (flags&0x0080){
-        proto_item_append_text(item, "  Priority/preemption Supported");
-    }
-    flags&=(~( 0x0080 ));
-
-    if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        proto_tree_add_boolean(tree, hf_fcels_cls_nzctl, tvb, offset, 2, flags);
-        if (flags & 0x0040) {
-            proto_item_append_text(item, "  Non-zero CS_CTL Tolerated");
-        } else {
-            proto_item_append_text(item, "  Non-zero CS_CTL Maybe Tolerated");
-        }
-        /*flags&=(~( 0x0040 ));*/
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_clsflags,
+                           ett_fcels_clsflags, pflags, flags, 0);
+    } else {
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_clsflags,
+                           ett_fcels_clsflags, common_flags, flags, 0);
     }
 }
 
@@ -863,67 +788,37 @@ static const true_false_string tfs_fc_fcels_fcpflags_wrxr = {
 static void
 dissect_fcp_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, guint8 isreq)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * req_flags[] = {
+        &hf_fcels_fcpflags_trireq,
+        &hf_fcels_fcpflags_retry,
+        &hf_fcels_fcpflags_ccomp,
+        &hf_fcels_fcpflags_datao,
+        &hf_fcels_fcpflags_initiator,
+        &hf_fcels_fcpflags_target,
+        &hf_fcels_fcpflags_rdxr,
+        &hf_fcels_fcpflags_wrxr,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_fcels_fcpflags,
-                                tvb, offset, 4, flags);
-    tree=proto_item_add_subtree(item, ett_fcels_fcpflags);
+    static const int * rep_flags[] = {
+        &hf_fcels_fcpflags_trirep,
+        &hf_fcels_fcpflags_retry,
+        &hf_fcels_fcpflags_ccomp,
+        &hf_fcels_fcpflags_datao,
+        &hf_fcels_fcpflags_initiator,
+        &hf_fcels_fcpflags_target,
+        &hf_fcels_fcpflags_rdxr,
+        &hf_fcels_fcpflags_wrxr,
+        NULL
+    };
 
     if (isreq) {
-        proto_tree_add_boolean(tree, hf_fcels_fcpflags_trireq, tvb, offset, 4, flags);
-        if (flags&0x2000){
-            proto_item_append_text(item, "  Task Retry Ident Req");
-        }
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_fcpflags,
+                           ett_fcels_fcpflags, req_flags, flags, BMT_NO_FALSE);
     } else {
-        proto_tree_add_boolean(tree, hf_fcels_fcpflags_trirep, tvb, offset, 4, flags);
-        if (flags&0x2000){
-            proto_item_append_text(item, "  Task Retry Ident Acc");
-        }
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_fcpflags,
+                           ett_fcels_fcpflags, rep_flags, flags, BMT_NO_FALSE);
     }
-    flags&=(~( 0x2000 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_fcpflags_retry, tvb, offset, 4, flags);
-    if (flags&0x1000){
-        proto_item_append_text(item, "  Retry Possible");
-    }
-    flags&=(~( 0x1000 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_fcpflags_ccomp, tvb, offset, 4, flags);
-    if (flags&0x0080){
-        proto_item_append_text(item, "  Confirmed Comp");
-    }
-    flags&=(~( 0x0080 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_fcpflags_datao, tvb, offset, 4, flags);
-    if (flags&0x0040){
-        proto_item_append_text(item, "  Data Overlay");
-    }
-    flags&=(~( 0x0040 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_fcpflags_initiator, tvb, offset, 4, flags);
-    if (flags&0x0020){
-        proto_item_append_text(item, "  Initiator");
-    }
-    flags&=(~( 0x0020 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_fcpflags_target, tvb, offset, 4, flags);
-    if (flags&0x0010){
-        proto_item_append_text(item, "  Target");
-    }
-    flags&=(~( 0x0010 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_fcpflags_rdxr, tvb, offset, 4, flags);
-    if (flags&0x0002){
-        proto_item_append_text(item, "  Rd Xfer_Rdy Dis");
-    }
-    flags&=(~( 0x0002 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_fcpflags_wrxr, tvb, offset, 4, flags);
-    if (flags&0x0001){
-        proto_item_append_text(item, "  Wr Xfer_Rdy Dis");
-    }
-    /*flags&=(~( 0x0001 ));*/
 }
 
 
@@ -931,37 +826,17 @@ static void
 dissect_speed_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags, int port)
 {
     proto_item *item;
-    proto_tree *tree;
+    static const int * speed_flags[] = {
+        &hf_fcels_speedflags_1gb,
+        &hf_fcels_speedflags_2gb,
+        &hf_fcels_speedflags_4gb,
+        &hf_fcels_speedflags_10gb,
+        NULL
+    };
 
-    item=proto_tree_add_uint_format(parent_tree, hf_fcels_speedflags,
-                                    tvb, offset, 2, flags,
-                                    "Port Speed Capabilities (Port %u): 0x%04x",
-                                    port, flags);
-    tree=proto_item_add_subtree(item, ett_fcels_speedflags);
-
-    proto_tree_add_boolean(tree, hf_fcels_speedflags_1gb, tvb, offset, 2, flags);
-    if (flags&0x8000){
-        proto_item_append_text(item, "  1Gb");
-    }
-    flags&=(~( 0x8000 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_speedflags_2gb, tvb, offset, 2, flags);
-    if (flags&0x4000){
-        proto_item_append_text(item, "  2Gb");
-    }
-    flags&=(~( 0x4000 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_speedflags_4gb, tvb, offset, 2, flags);
-    if (flags&0x2000){
-        proto_item_append_text(item, "  4Gb");
-    }
-    flags&=(~( 0x2000 ));
-
-    proto_tree_add_boolean(tree, hf_fcels_speedflags_10gb, tvb, offset, 2, flags);
-    if (flags&0x1000){
-        proto_item_append_text(item, "  10Gb");
-    }
-    /*flags&=(~( 0x1000 ));*/
+    item = proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_speedflags,
+                           ett_fcels_speedflags, speed_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
+    proto_item_set_text(item, "Port Speed Capabilities (Port %u): 0x%04x", port, flags);
 }
 
 static const true_false_string tfs_fc_fcels_tprloflags_gprlo = {
@@ -980,66 +855,39 @@ static const true_false_string tfs_fc_fcels_prliloflags_eip = {
 static void
 dissect_prlilo_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int flags, guint8 opcode)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * tprlo_flags[] = {
+        &hf_fcels_tprloflags_opav,
+        &hf_fcels_tprloflags_rpav,
+        &hf_fcels_tprloflags_npv,
+        &hf_fcels_tprloflags_gprlo,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_fcels_prliloflags,
-                                tvb, offset, 1, flags);
-    tree=proto_item_add_subtree(item, ett_fcels_prliloflags);
+    static const int * prli_flags[] = {
+        &hf_fcels_prliloflags_opav,
+        &hf_fcels_tprloflags_rpav,
+        &hf_fcels_prliloflags_ipe,
+        NULL
+    };
+
+    static const int * not_prli_flags[] = {
+        &hf_fcels_prliloflags_opav,
+        &hf_fcels_tprloflags_rpav,
+        &hf_fcels_prliloflags_eip,
+        NULL
+    };
 
     if (opcode == FC_ELS_TPRLO) {
-        proto_tree_add_boolean(tree, hf_fcels_tprloflags_opav, tvb, offset, 1, flags);
-        if (flags&0x80){
-            proto_item_append_text(item, "  3rd Party Orig PA Valid");
-        }
-        flags&=(~( 0x80 ));
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_prliloflags,
+                                   ett_fcels_prliloflags, tprlo_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
 
-        proto_tree_add_boolean(tree, hf_fcels_tprloflags_rpav, tvb, offset, 1, flags);
-        if (flags&0x40){
-            proto_item_append_text(item, "  Resp PA Valid");
-        }
-        flags&=(~( 0x40 ));
-
-        proto_tree_add_boolean(tree, hf_fcels_tprloflags_npv, tvb, offset, 1, flags);
-        if (flags&0x20){
-            proto_item_append_text(item, "  3rd Party N_Port Valid");
-        }
-        flags&=(~( 0x20 ));
-
-        proto_tree_add_boolean(tree, hf_fcels_tprloflags_gprlo, tvb, offset, 1, flags);
-        if (flags&0x10){
-            proto_item_append_text(item, "  Global PRLO");
-        }
-        /*flags&=(~( 0x10 ));*/
     } else { /* opcode != TPRLO */
-        proto_tree_add_boolean(tree, hf_fcels_prliloflags_opav, tvb, offset, 1, flags);
-        if (flags&0x80){
-            proto_item_append_text(item, "  Orig PA Valid");
-        }
-        flags&=(~( 0x80 ));
-
-        proto_tree_add_boolean(tree, hf_fcels_tprloflags_rpav, tvb, offset, 1, flags);
-        if (flags&0x40){
-            proto_item_append_text(item, "  Resp PA Valid");
-        }
-        flags&=(~( 0x40 ));
-
         if (opcode == FC_ELS_PRLI) {
-            proto_tree_add_boolean(tree, hf_fcels_prliloflags_ipe, tvb, offset, 1, flags);
-            if (flags&0x20){
-                proto_item_append_text(item, "  Image Pair Estd");
-            } else {
-                proto_item_append_text(item, "  Image Pair NOT Estd");
-            }
-            /*flags&=(~( 0x20 ));*/
+            proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_prliloflags,
+                                   ett_fcels_prliloflags, prli_flags, flags, BMT_NO_FALSE);
         } else {
-            proto_tree_add_boolean(tree, hf_fcels_prliloflags_eip, tvb, offset, 1, flags);
-            if (flags&0x20){
-                proto_item_append_text(item, "  Est Image Pair & Exchg Svc Param");
-            } else {
-                proto_item_append_text(item, "  Exchange Svc Param Only");
-            }
-            /*flags&=(~( 0x20 ));*/
+            proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_prliloflags,
+                                   ett_fcels_prliloflags, not_prli_flags, flags, BMT_NO_FALSE);
         }
     }
 }
@@ -1058,42 +906,26 @@ static const true_false_string tfs_fc_fcels_initctl_ackgaa = {
 static void
 dissect_initctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * plogi_flags[] = {
+        &hf_fcels_initctl_initial_pa,
+        &hf_fcels_initctl_ack0,
+        &hf_fcels_initctl_ackgaa,
+        &hf_fcels_initctl_sync,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_fcels_initctl,
-                                tvb, offset, 2, flags);
-    tree=proto_item_add_subtree(item, ett_fcels_initctl);
+    static const int * not_plogi_flags[] = {
+        &hf_fcels_initctl_sync,
+        NULL
+    };
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        proto_tree_add_uint(tree, hf_fcels_initctl_initial_pa,
-                            tvb, offset, 2, flags);
-        proto_item_append_text(item, "  %s",
-                               val_to_str((flags&0x3000)>>12, initial_pa_vals,
-                                          "0x%02x")
-            );
-        flags&=(~( 0x3000 ));
-
-        proto_tree_add_boolean(tree, hf_fcels_initctl_ack0, tvb, offset, 2, flags);
-        if (flags&0x0800){
-            proto_item_append_text(item, "  ACK0 Capable");
-        }
-        flags&=(~( 0x0800 ));
-
-        proto_tree_add_boolean(tree, hf_fcels_initctl_ackgaa, tvb, offset, 2, flags);
-        if (flags&0x0200){
-            proto_item_append_text(item, "  ACK Generation Assistance Avail");
-        }
-        flags&=(~( 0x0200 ));
-
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_initctl,
+                                   ett_fcels_initctl, plogi_flags, flags, BMT_NO_FALSE);
+    } else {
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_initctl,
+                                   ett_fcels_initctl, not_plogi_flags, flags, BMT_NO_FALSE);
     }
-
-
-    proto_tree_add_boolean(tree, hf_fcels_initctl_sync, tvb, offset, 2, flags);
-    if (flags&0x0010){
-        proto_item_append_text(item, "  Clock Sync ELS Supported");
-    }
-    /*flags&=(~( 0x0010 ));*/
 }
 
 
@@ -1114,50 +946,27 @@ static const value_string rcptctl_category_vals[] = {
 static void
 dissect_rcptctl_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags, guint8 opcode)
 {
-    proto_item *item;
-    proto_tree *tree;
+    static const int * plogi_flags[] = {
+        &hf_fcels_rcptctl_ack0,
+        &hf_fcels_rcptctl_interlock,
+        &hf_fcels_rcptctl_policy,
+        &hf_fcels_rcptctl_category,
+        &hf_fcels_rcptctl_sync,
+        NULL
+    };
 
-    item=proto_tree_add_uint(parent_tree, hf_fcels_rcptctl,
-                                tvb, offset, 2, flags);
-    tree=proto_item_add_subtree(item, ett_fcels_rcptctl);
+    static const int * not_plogi_flags[] = {
+        &hf_fcels_rcptctl_sync,
+        NULL
+    };
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
-        proto_tree_add_boolean(tree, hf_fcels_rcptctl_ack0, tvb, offset, 2, flags);
-        if (flags&0x8000){
-            proto_item_append_text(item, "  ACK0 Supported");
-        } else {
-            proto_item_append_text(item, "  ACK0 NOT Supported");
-        }
-        flags&=(~( 0x8000 ));
-
-        proto_tree_add_boolean(tree, hf_fcels_rcptctl_interlock, tvb, offset, 2, flags);
-        if (flags&0x2000){
-            proto_item_append_text(item, "  X_ID Interlock Reqd");
-        }
-        flags&=(~( 0x2000 ));
-
-        proto_tree_add_uint(tree, hf_fcels_rcptctl_policy,
-                            tvb, offset, 2, flags);
-        proto_item_append_text(item, "  %s",
-                               val_to_str((flags&0x1800)>>11, rcptctl_policy_vals,
-                                          "0x%02x")
-            );
-        flags&=(~( 0x1800 ));
-
-        proto_tree_add_uint(tree, hf_fcels_rcptctl_category,
-                            tvb, offset, 2, flags);
-        proto_item_append_text(item, "  %s",
-                               val_to_str((flags&0x0030)>>4, rcptctl_category_vals,
-                                          "0x%02x")
-            );
-        flags&=(~( 0x0030 ));
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_rcptctl,
+                                   ett_fcels_rcptctl, plogi_flags, flags, BMT_NO_FALSE);
+    } else {
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_rcptctl,
+                                   ett_fcels_rcptctl, not_plogi_flags, flags, BMT_NO_FALSE);
     }
-
-    proto_tree_add_boolean(tree, hf_fcels_rcptctl_sync, tvb, offset, 2, flags);
-    if (flags&0x0008){
-        proto_item_append_text(item, "  Clock Sync ELS Supported");
-    }
-    /*flags&=(~( 0x0008 ));*/
 }
 
 /* Maximum length of possible string from, construct_*_string

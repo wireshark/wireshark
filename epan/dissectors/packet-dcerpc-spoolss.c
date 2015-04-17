@@ -1378,134 +1378,49 @@ static int
 dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		       proto_tree *tree, dcerpc_info *di, guint8 *drep _U_, guint32 *pdata)
 {
-	proto_item *item;
-	proto_tree *subtree;
 	guint32 fields;
 	proto_item *hidden_item;
+
+	static const int * hf_fields[] = {
+		&hf_devmode_fields_orientation,
+		&hf_devmode_fields_papersize,
+		&hf_devmode_fields_paperlength,
+		&hf_devmode_fields_paperwidth,
+		&hf_devmode_fields_scale,
+		&hf_devmode_fields_position,
+		&hf_devmode_fields_nup,
+		&hf_devmode_fields_copies,
+		&hf_devmode_fields_defaultsource,
+		&hf_devmode_fields_printquality,
+		&hf_devmode_fields_color,
+		&hf_devmode_fields_duplex,
+		&hf_devmode_fields_yresolution,
+		&hf_devmode_fields_ttoption,
+		&hf_devmode_fields_collate,
+		&hf_devmode_fields_formname,
+		&hf_devmode_fields_logpixels,
+		&hf_devmode_fields_bitsperpel,
+		&hf_devmode_fields_pelswidth,
+		&hf_devmode_fields_pelsheight,
+		&hf_devmode_fields_displayflags,
+		&hf_devmode_fields_displayfrequency,
+		&hf_devmode_fields_icmmethod,
+		&hf_devmode_fields_icmintent,
+		&hf_devmode_fields_mediatype,
+		&hf_devmode_fields_dithertype,
+		&hf_devmode_fields_panningwidth,
+		&hf_devmode_fields_panningheight,
+		NULL
+	};
 
 	hidden_item = proto_tree_add_uint(
 		tree, hf_devmode, tvb, offset, 0, 1);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-				    hf_devmode_fields, &fields);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &fields);
 
-	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
-				   "Fields: 0x%08x", fields);
-
-	subtree = proto_item_add_subtree(item, ett_DEVMODE_fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_orientation,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_papersize,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_paperlength,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_paperwidth,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_scale,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_position,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_nup,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_copies,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_defaultsource,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_printquality,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_color,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_duplex,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_yresolution,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_ttoption,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_collate,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_formname,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_logpixels,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_bitsperpel,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_pelswidth,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_pelsheight,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_displayflags,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_displayfrequency,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_icmmethod,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_icmintent,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_mediatype,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_dithertype,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_panningwidth,
-		tvb, offset - 4, 4, fields);
-
-	proto_tree_add_boolean(
-		subtree, hf_devmode_fields_panningheight,
-		tvb, offset - 4, 4, fields);
+	proto_tree_add_bitmask_value_with_flags(tree, tvb, offset - 4, hf_devmode_fields,
+					ett_DEVMODE_fields, hf_fields, fields, BMT_NO_APPEND);
 
 	if (pdata)
 		*pdata = fields;
@@ -1597,9 +1512,9 @@ dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			subtree, hf_devmode_print_quality, tvb,
 			offset - 2, 2, DREP_ENC_INTEGER(drep));
 	else
-		proto_tree_add_text(
-			subtree, tvb, offset - 4, 4,
-			"Print Quality: %d dpi", print_quality);
+		proto_tree_add_uint_format_value(
+			subtree, hf_devmode_print_quality, tvb, offset - 4, 4,
+			print_quality, "%d dpi", print_quality);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, di, drep,
@@ -2071,51 +1986,26 @@ static int
 dissect_job_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
-	proto_tree *subtree;
 	guint32 status;
+	static const int * hf_status[] = {
+		&hf_job_status_user_intervention,
+		&hf_job_status_blocked,
+		&hf_job_status_deleted,
+		&hf_job_status_printed,
+		&hf_job_status_paperout,
+		&hf_job_status_offline,
+		&hf_job_status_printing,
+		&hf_job_status_spooling,
+		&hf_job_status_deleting,
+		&hf_job_status_error,
+		&hf_job_status_paused,
+		NULL
+	};
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-				    hf_job_status, &status);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &status);
 
-	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
-				   "Status: 0x%08x", status);
-
-	subtree = proto_item_add_subtree(item, ett_job_status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_user_intervention, tvb, offset - 4, 4,
-		status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_blocked, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_deleted, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_printed, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_paperout, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_offline, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_printing, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_spooling, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_deleting, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_error, tvb, offset - 4, 4, status);
-
-	proto_tree_add_boolean(
-		subtree, hf_job_status_paused, tvb, offset - 4, 4, status);
+	proto_tree_add_bitmask_value_with_flags(tree, tvb, offset - 4, hf_job_status,
+					ett_job_status, hf_status, status, BMT_NO_APPEND);
 
 	return offset;
 }
@@ -2214,73 +2104,29 @@ static int
 dissect_printer_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
-	proto_tree *subtree;
 	guint32 attributes;
+	static const int * hf_attributes[] = {
+		&hf_printer_attributes_published,
+		&hf_printer_attributes_raw_only,
+		&hf_printer_attributes_enable_bidi,
+		&hf_printer_attributes_work_offline,
+		&hf_printer_attributes_do_complete_first,
+		&hf_printer_attributes_keep_printed_jobs,
+		&hf_printer_attributes_enable_devq,
+		&hf_printer_attributes_local,
+		&hf_printer_attributes_hidden,
+		&hf_printer_attributes_network,
+		&hf_printer_attributes_shared,
+		&hf_printer_attributes_default,
+		&hf_printer_attributes_direct,
+		&hf_printer_attributes_queued,
+		NULL
+	};
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-				    hf_printer_attributes, &attributes);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &attributes);
 
-	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
-				   "Attributes: 0x%08x", attributes);
-
-	subtree = proto_item_add_subtree(item, ett_printer_attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_published,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_raw_only,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_enable_bidi,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_work_offline,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_do_complete_first,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_keep_printed_jobs,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_enable_devq,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_local,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_hidden,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_network,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_shared,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_default,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_direct,
-		tvb, offset - 4, 4, attributes);
-
-	proto_tree_add_boolean(
-		subtree, hf_printer_attributes_queued,
-		tvb, offset - 4, 4, attributes);
+	proto_tree_add_bitmask_value_with_flags(tree, tvb, offset - 4, hf_printer_attributes,
+					ett_printer_attributes, hf_attributes, attributes, BMT_NO_APPEND);
 
 	return offset;
 }
@@ -2882,22 +2728,16 @@ static int
 dissect_notify_options_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item;
-	proto_tree *subtree;
 	guint32 flags;
+	static const int * hf_flags[] = {
+		&hf_notify_options_flags_refresh,
+		NULL
+	};
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-				    hf_notify_options_flags,
-				    &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
 
-	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
-				   "Flags: 0x%08x", flags);
-
-	subtree = proto_item_add_subtree(item, ett_notify_options_flags);
-
-	proto_tree_add_boolean(
-		subtree, hf_notify_options_flags_refresh,
-		tvb, offset, 4, flags);
+	proto_tree_add_bitmask_value_with_flags(tree, tvb, offset - 4, hf_notify_options_flags,
+					ett_notify_options_flags, hf_flags, flags, BMT_NO_APPEND);
 
 	return offset;
 }
@@ -3068,8 +2908,29 @@ SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 			     dcerpc_info *di, guint8 *drep _U_)
 {
 	guint32 flags;
-	proto_item *flags_item;
-	proto_tree *flags_subtree;
+	static const int * hf_flags[] = {
+		&hf_rffpcnex_flags_timeout,
+		&hf_rffpcnex_flags_delete_driver,
+		&hf_rffpcnex_flags_set_driver,
+		&hf_rffpcnex_flags_add_driver,
+		&hf_rffpcnex_flags_delete_print_processor,
+		&hf_rffpcnex_flags_add_print_processor,
+		&hf_rffpcnex_flags_delete_port,
+		&hf_rffpcnex_flags_configure_port,
+		&hf_rffpcnex_flags_add_port,
+		&hf_rffpcnex_flags_delete_form,
+		&hf_rffpcnex_flags_set_form,
+		&hf_rffpcnex_flags_add_form,
+		&hf_rffpcnex_flags_write_job,
+		&hf_rffpcnex_flags_delete_job,
+		&hf_rffpcnex_flags_set_job,
+		&hf_rffpcnex_flags_add_job,
+		&hf_rffpcnex_flags_failed_printer_connection,
+		&hf_rffpcnex_flags_delete_printer,
+		&hf_rffpcnex_flags_set_printer,
+		&hf_rffpcnex_flags_add_printer,
+		NULL
+	};
 
 	/* Parse packet */
 
@@ -3077,110 +2938,10 @@ SpoolssRFFPCNEX_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, di, drep, hf_hnd, NULL, NULL,
 		FALSE, FALSE);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-				    hf_rffpcnex_flags, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
 
-	flags_item = proto_tree_add_text(tree, tvb, offset - 4, 4,
-					 "Flags: 0x%08x", flags);
-
-	flags_subtree = proto_item_add_subtree(flags_item, ett_rffpcnex_flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_timeout, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_delete_driver, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_set_driver, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_add_driver, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree,
-		hf_rffpcnex_flags_delete_print_processor, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_add_print_processor,
-		tvb, offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_delete_port, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_configure_port, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_add_port, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_delete_form, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_set_form, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_add_form, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_write_job, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_delete_job, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_set_job, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_add_job, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree,
-		hf_rffpcnex_flags_failed_printer_connection, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_delete_printer, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_set_printer, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_rffpcnex_flags_add_printer, tvb,
-		offset - 4, 4, flags);
-
-	if (flags & SPOOLSS_PRINTER_CHANGE_PRINTER)
-		proto_item_append_text(flags_item, ", change printer");
-
-	if (flags & SPOOLSS_PRINTER_CHANGE_JOB)
-		proto_item_append_text(flags_item, ", change job");
-
-	if (flags & SPOOLSS_PRINTER_CHANGE_FORM)
-		proto_item_append_text(flags_item, ", change form");
-
-	if (flags & SPOOLSS_PRINTER_CHANGE_PORT)
-		proto_item_append_text(flags_item, ", change port");
-
-	if (flags & SPOOLSS_PRINTER_CHANGE_PRINTER_DRIVER)
-		proto_item_append_text(flags_item, ", change printer driver");
+	proto_tree_add_bitmask_value(tree, tvb, offset - 4, hf_rffpcnex_flags,
+					ett_rffpcnex_flags, hf_flags, flags);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 				    hf_rffpcnex_options, NULL);
@@ -3934,49 +3695,24 @@ SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
 {
 	guint32 level, flags;
-	proto_tree *flags_subtree;
-	proto_item *flags_item;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	static const int * hf_flags[] = {
+		&hf_enumprinters_flags_network,
+		&hf_enumprinters_flags_shared,
+		&hf_enumprinters_flags_remote,
+		&hf_enumprinters_flags_name,
+		&hf_enumprinters_flags_connections,
+		&hf_enumprinters_flags_local,
+		&hf_enumprinters_flags_default,
+		NULL
+	};
 
 	/* Parse packet */
 
-	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, NULL, di, drep,
-		hf_enumprinters_flags, &flags);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep, -1, &flags);
 
-	flags_item = proto_tree_add_text(tree, tvb, offset - 4, 4,
-					 "Flags: 0x%08x", flags);
-
-	flags_subtree = proto_item_add_subtree(
-		flags_item, ett_enumprinters_flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_enumprinters_flags_network, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_enumprinters_flags_shared, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_enumprinters_flags_remote, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_enumprinters_flags_name, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_enumprinters_flags_connections, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_enumprinters_flags_local, tvb,
-		offset - 4, 4, flags);
-
-	proto_tree_add_boolean(
-		flags_subtree, hf_enumprinters_flags_default, tvb,
-		offset - 4, 4, flags);
+	proto_tree_add_bitmask_value(tree, tvb, offset - 4, hf_enumprinters_flags,
+					ett_enumprinters_flags, hf_flags, flags);
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, di, drep,

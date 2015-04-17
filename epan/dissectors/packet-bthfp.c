@@ -694,7 +694,6 @@ dissect_brsf_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gint offset, gint role, guint16 type, guint8 *parameter_stream,
         guint parameter_number, gint parameter_length, void **data _U_)
 {
-    proto_tree  *ptree;
     proto_item  *pitem;
     guint32      value;
 
@@ -708,42 +707,44 @@ dissect_brsf_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     value = get_uint_parameter(parameter_stream, parameter_length);
 
     if (role == ROLE_HS) {
-        pitem = proto_tree_add_uint(tree, hf_brsf_hs, tvb, offset, parameter_length, value);
-        ptree = proto_item_add_subtree(pitem, ett_bthfp_brsf_hf);
+        static const int * hs[] = {
+            &hf_brsf_hs_ec_nr_function,
+            &hf_brsf_hs_call_waiting_or_tree_way,
+            &hf_brsf_hs_cli_presentation,
+            &hf_brsf_hs_voice_recognition_activation,
+            &hf_brsf_hs_remote_volume_control,
+            &hf_brsf_hs_enhanced_call_status,
+            &hf_brsf_hs_enhanced_call_control,
+            &hf_brsf_hs_codec_negotiation,
+            &hf_brsf_hs_hf_indicators,
+            &hf_brsf_hs_esco_s4_t2_settings_support,
+            &hf_brsf_hs_reserved,
+            NULL
+        };
 
-        proto_tree_add_boolean(ptree, hf_brsf_hs_ec_nr_function, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_call_waiting_or_tree_way, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_cli_presentation, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_voice_recognition_activation, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_remote_volume_control, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_enhanced_call_status, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_enhanced_call_control, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_codec_negotiation, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_hf_indicators, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_hs_esco_s4_t2_settings_support, tvb, offset, parameter_length, value);
-        pitem = proto_tree_add_uint(ptree, hf_brsf_hs_reserved, tvb, offset, parameter_length, value);
-
+        pitem = proto_tree_add_bitmask_value_with_flags(tree, tvb, offset, hf_brsf_hs, ett_bthfp_brsf_hf, hs, value, BMT_NO_APPEND);
         if (value >> 8) {
             expert_add_info(pinfo, pitem, &ei_brfs_hs_reserved_bits);
         }
     } else {
-        pitem = proto_tree_add_uint(tree, hf_brsf_ag, tvb, offset, parameter_length, value);
-        ptree = proto_item_add_subtree(pitem, ett_bthfp_brsf_ag);
+        static const int * ag[] = {
+            &hf_brsf_ag_three_way_calling,
+            &hf_brsf_ag_ec_nr_function,
+            &hf_brsf_ag_voice_recognition_function,
+            &hf_brsf_ag_inband_ring_tone,
+            &hf_brsf_ag_attach_number_to_voice_tag,
+            &hf_brsf_ag_ability_to_reject_a_call,
+            &hf_brsf_ag_enhanced_call_status,
+            &hf_brsf_ag_enhanced_call_control,
+            &hf_brsf_ag_extended_error_result_codes,
+            &hf_brsf_ag_codec_negotiation,
+            &hf_brsf_ag_hf_indicators,
+            &hf_brsf_ag_esco_s4_t2_settings_support,
+            &hf_brsf_ag_reserved,
+            NULL
+        };
 
-        proto_tree_add_boolean(ptree, hf_brsf_ag_three_way_calling, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_ec_nr_function, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_voice_recognition_function, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_inband_ring_tone, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_attach_number_to_voice_tag, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_ability_to_reject_a_call, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_enhanced_call_status, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_enhanced_call_control, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_extended_error_result_codes, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_codec_negotiation, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_hf_indicators, tvb, offset, parameter_length, value);
-        proto_tree_add_boolean(ptree, hf_brsf_ag_esco_s4_t2_settings_support, tvb, offset, parameter_length, value);
-
-        pitem = proto_tree_add_uint(ptree, hf_brsf_ag_reserved, tvb, offset, parameter_length, value);
+        pitem = proto_tree_add_bitmask_value_with_flags(tree, tvb, offset, hf_brsf_ag, ett_bthfp_brsf_ag, ag, value, BMT_NO_APPEND);
 
         if (value >> 10) {
             expert_add_info(pinfo, pitem, &ei_brfs_ag_reserved_bits);

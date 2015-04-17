@@ -232,13 +232,6 @@ static const value_string role_vals[] = {
 static const char initial_sep[] = " (";
 static const char cont_sep[] = ", ";
 
-#define APPEND_BOOLEAN_FLAG(flag, item, string)         \
-  if(flag){                                             \
-    if(item)                                            \
-      proto_item_append_text(item, string, sep);        \
-    sep = cont_sep;                                     \
-  }
-
 static void
 dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bpdu_pvst);
 
@@ -355,13 +348,28 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
   proto_tree *mstp_tree, *msti_tree, *spt_tree = NULL, *aux_mcid_tree = NULL, *agreement_tree = NULL;
   proto_item *bpdu_item;
   proto_item *agreement_item;
-  proto_tree *flags_tree;
-  proto_item *flags_item;
   proto_tree *root_id_tree;
   proto_tree *bridge_id_tree;
   proto_tree *cist_bridge_id_tree;
   proto_item *hidden_item;
   const char *sep;
+
+  static const int * bpdu_flags[] = {
+    &hf_bpdu_flags_tcack,
+    &hf_bpdu_flags_tc,
+    NULL
+  };
+
+  static const int * rst_flags[] = {
+    &hf_bpdu_flags_tcack,
+    &hf_bpdu_flags_agreement,
+    &hf_bpdu_flags_forwarding,
+    &hf_bpdu_flags_learning,
+    &hf_bpdu_flags_port_role,
+    &hf_bpdu_flags_proposal,
+    &hf_bpdu_flags_tc,
+    NULL
+  };
 
   /* GARP application frames require special interpretation of the
      destination address field; otherwise, they will be mistaken as
@@ -539,50 +547,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
     }
     bridge_identifier_mac_str = tvb_ether_to_str(tvb, BPDU_BRIDGE_IDENTIFIER + 2);
 
-    flags_item = proto_tree_add_uint(bpdu_tree, hf_bpdu_flags, tvb,
-                                     BPDU_FLAGS, 1, flags);
-    flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
-    sep = initial_sep;
-    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item,
-                        "%sTopology Change Acknowledgment");
-    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
-                           BPDU_FLAGS, 1, flags);
     if (bpdu_type == BPDU_TYPE_RST) {
-      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item,
-                          "%sAgreement");
-      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
-                             BPDU_FLAGS, 1, flags);
-      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item,
-                          "%sForwarding");
-      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
-                             BPDU_FLAGS, 1, flags);
-      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item,
-                          "%sLearning");
-      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
-                             BPDU_FLAGS, 1, flags);
-      if (flags_item) {
-        guint8 port_role;
-
-        port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
-        proto_item_append_text(flags_item, "%sPort Role: %s", sep,
-                               val_to_str(port_role, role_vals,
-                                          "Unknown (%u)"));
-      }
-      sep = cont_sep;
-      proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
-                          BPDU_FLAGS, 1, flags);
-      APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item,
-                          "%sProposal");
-      proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
-                             BPDU_FLAGS, 1, flags);
-    }
-    APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item,
-                        "%sTopology Change");
-    proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
-                           BPDU_FLAGS, 1, flags);
-    if (sep != initial_sep) {
-      /* We put something in; put in the terminating ")" */
-      proto_item_append_text(flags_item, ")");
+       proto_tree_add_bitmask_value_with_flags(bpdu_tree, tvb, BPDU_FLAGS, hf_bpdu_flags, ett_bpdu_flags, rst_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
+    } else {
+       proto_tree_add_bitmask_value_with_flags(bpdu_tree, tvb, BPDU_FLAGS, hf_bpdu_flags, ett_bpdu_flags, bpdu_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
     }
 
     /* add Identifier with format based on preference value
@@ -886,43 +854,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                                           msti_regional_root_mac_str);
 
           /* flags */
-          flags = tvb_get_guint8(tvb, offset+MSTI_FLAGS);
-          flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
-                                           offset+MSTI_FLAGS, 1, flags);
-          flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
-
-          sep = initial_sep;
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
-                                 offset+MSTI_FLAGS, 1, flags);
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
-                                 offset+MSTI_FLAGS, 1, flags);
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
-                                 offset+MSTI_FLAGS, 1, flags);
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
-                                 offset+MSTI_FLAGS, 1, flags);
-          if (flags_item) {
-            guint8 port_role;
-            port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
-            proto_item_append_text(flags_item, "%sPort Role: %s", sep,
-                                   val_to_str(port_role, role_vals,
-                                   "Unknown (%u)"));
-          }
-          proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
-                              offset+MSTI_FLAGS, 1, flags);
-          sep = cont_sep;
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
-                                 offset+MSTI_FLAGS, 1, flags);
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
-                                 offset+MSTI_FLAGS, 1, flags);
-          if (sep != initial_sep) {               /* We put something in; put in the terminating ")" */
-            proto_item_append_text(flags_item, ")");
-          }
+          proto_tree_add_bitmask_with_flags(msti_tree, tvb, offset+MSTI_FLAGS, hf_bpdu_msti_flags, ett_bpdu_flags, rst_flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
 
           /* pri, MSTID, Regional root */
           hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
@@ -973,43 +905,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                               "MSTID: %d", msti_mstid);
 
           /* flags */
-          flags = tvb_get_guint8(tvb, offset+ALT_MSTI_FLAGS);
-          flags_item = proto_tree_add_uint(msti_tree, hf_bpdu_msti_flags, tvb,
-                                           offset+ALT_MSTI_FLAGS, 1, flags);
-          flags_tree = proto_item_add_subtree(flags_item, ett_bpdu_flags);
-
-          sep = initial_sep;
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, flags_item, "%sMaster");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tcack, tvb,
-                                 offset+ALT_MSTI_FLAGS, 1, flags);
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_AGREEMENT, flags_item, "%sAgreement");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_agreement, tvb,
-                                 offset+ALT_MSTI_FLAGS, 1, flags);
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_FORWARDING, flags_item, "%sForwarding");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_forwarding, tvb,
-                                 offset+ALT_MSTI_FLAGS, 1, flags);
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_LEARNING, flags_item, "%sLearning");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_learning, tvb,
-                                 offset+ALT_MSTI_FLAGS, 1, flags);
-          if (flags_item) {
-            guint8 port_role;
-            port_role = (flags & BPDU_FLAGS_PORT_ROLE_MASK) >> BPDU_FLAGS_PORT_ROLE_SHIFT;
-            proto_item_append_text(flags_item, "%sPort Role: %s", sep,
-                                   val_to_str(port_role, role_vals,
-                                   "Unknown (%u)"));
-          }
-          proto_tree_add_uint(flags_tree, hf_bpdu_flags_port_role, tvb,
-                              offset+ALT_MSTI_FLAGS, 1, flags);
-          sep = cont_sep;
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_PROPOSAL, flags_item, "%sProposal");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_proposal, tvb,
-                                 offset+ALT_MSTI_FLAGS, 1, flags);
-          APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, flags_item, "%sTopology Change");
-          proto_tree_add_boolean(flags_tree, hf_bpdu_flags_tc, tvb,
-                                 offset+ALT_MSTI_FLAGS, 1, flags);
-          if (sep != initial_sep) {               /* We put something in; put in the terminating ")" */
-            proto_item_append_text(flags_item, ")");
-          }
+          proto_tree_add_bitmask_with_flags(msti_tree, tvb, offset+ALT_MSTI_FLAGS, hf_bpdu_msti_flags, ett_bpdu_flags, rst_flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
 
           /* pri, MSTID, Regional root */
           hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,

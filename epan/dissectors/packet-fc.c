@@ -606,106 +606,24 @@ dissect_fc_vft(proto_tree *parent_tree,
 static void
 dissect_fc_fctl(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item;
-    proto_tree *tree;
-    guint32 flags;
+    static const int * flags[] = {
+        &hf_fc_fctl_exchange_responder,
+        &hf_fc_fctl_seq_recipient,
+        &hf_fc_fctl_exchange_first,
+        &hf_fc_fctl_exchange_last,
+        &hf_fc_fctl_seq_last,
+        &hf_fc_fctl_priority,
+        &hf_fc_fctl_transfer_seq_initiative,
+        &hf_fc_fctl_last_data_frame,
+        &hf_fc_fctl_ack_0_1,
+        &hf_fc_fctl_rexmitted_seq,
+        &hf_fc_fctl_abts_ack,
+        &hf_fc_fctl_rel_offset,
+        NULL
+    };
 
-    flags = tvb_get_guint8 (tvb, offset);
-    flags = (flags<<8) | tvb_get_guint8 (tvb, offset+1);
-    flags = (flags<<8) | tvb_get_guint8 (tvb, offset+2);
-
-    item=proto_tree_add_uint(parent_tree, hf_fc_fctl, tvb, offset, 3, flags);
-    tree=proto_item_add_subtree(item, ett_fctl);
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_exchange_responder, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_EXCHANGE_RESPONDER){
-        proto_item_append_text(item, " Exchange Responder");
-        if (flags & (~( FC_FCTL_EXCHANGE_RESPONDER )))
-            proto_item_append_text(item, ",");
-    } else {
-        proto_item_append_text(item, " Exchange Originator");
-        if (flags & (~( FC_FCTL_EXCHANGE_RESPONDER )))
-            proto_item_append_text(item, ",");
-    }
-    flags&=(~( FC_FCTL_EXCHANGE_RESPONDER ));
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_seq_recipient, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_SEQ_RECIPIENT){
-        proto_item_append_text(item, " Seq Recipient");
-        if (flags & (~( FC_FCTL_SEQ_RECIPIENT )))
-            proto_item_append_text(item, ",");
-    } else {
-        proto_item_append_text(item, " Seq Initiator");
-        if (flags & (~( FC_FCTL_SEQ_RECIPIENT )))
-            proto_item_append_text(item, ",");
-    }
-    flags&=(~( FC_FCTL_SEQ_RECIPIENT ));
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_exchange_first, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_EXCHANGE_FIRST){
-        proto_item_append_text(item, " Exchg First");
-        if (flags & (~( FC_FCTL_EXCHANGE_FIRST )))
-            proto_item_append_text(item, ",");
-    }
-    flags&=(~( FC_FCTL_EXCHANGE_FIRST ));
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_exchange_last, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_EXCHANGE_LAST){
-        proto_item_append_text(item, " Exchg Last");
-        if (flags & (~( FC_FCTL_EXCHANGE_LAST )))
-            proto_item_append_text(item, ",");
-    }
-    flags&=(~( FC_FCTL_EXCHANGE_LAST ));
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_seq_last, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_SEQ_LAST){
-        proto_item_append_text(item, " Seq Last");
-        if (flags & (~( FC_FCTL_SEQ_LAST )))
-            proto_item_append_text(item, ",");
-    }
-    flags&=(~( FC_FCTL_SEQ_LAST ));
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_priority, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_PRIORITY){
-        proto_item_append_text(item, " Priority");
-        if (flags & (~( FC_FCTL_PRIORITY )))
-            proto_item_append_text(item, ",");
-    } else {
-        proto_item_append_text(item, " CS_CTL");
-        if (flags & (~( FC_FCTL_PRIORITY )))
-            proto_item_append_text(item, ",");
-    }
-    flags&=(~( FC_FCTL_PRIORITY ));
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_transfer_seq_initiative, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_TRANSFER_SEQ_INITIATIVE){
-        proto_item_append_text(item, " Transfer Seq Initiative");
-        if (flags & (~( FC_FCTL_TRANSFER_SEQ_INITIATIVE )))
-            proto_item_append_text(item, ",");
-    }
-    flags&=(~( FC_FCTL_TRANSFER_SEQ_INITIATIVE ));
-
-    proto_tree_add_uint(tree, hf_fc_fctl_last_data_frame, tvb, offset, 3, flags);
-
-    proto_tree_add_uint(tree, hf_fc_fctl_ack_0_1, tvb, offset, 3, flags);
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_rexmitted_seq, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_REXMITTED_SEQ){
-        proto_item_append_text(item, " Rexmitted Seq");
-        if (flags & (~( FC_FCTL_REXMITTED_SEQ )))
-            proto_item_append_text(item, ",");
-    }
-    flags&=(~( FC_FCTL_REXMITTED_SEQ ));
-
-    proto_tree_add_uint(tree, hf_fc_fctl_abts_ack, tvb, offset, 3, flags);
-
-    proto_tree_add_boolean(tree, hf_fc_fctl_rel_offset, tvb, offset, 3, flags);
-    if (flags&FC_FCTL_REL_OFFSET){
-        proto_item_append_text(item, " Rel Offset");
-        if (flags & (~( FC_FCTL_REL_OFFSET )))
-            proto_item_append_text(item, ",");
-    }
-
+    proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_fc_fctl,
+                                ett_fctl, flags, ENC_BIG_ENDIAN, BMT_NO_INT);
 }
 
 static const value_string fc_bls_proto_val[] = {

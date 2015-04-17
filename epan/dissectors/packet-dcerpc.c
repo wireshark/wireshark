@@ -4371,22 +4371,21 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32    *cmd;
     guint32     i;
     const char *info_str        = NULL;
+    static const int * flags[] = {
+        &hf_dcerpc_cn_rts_flags_none,
+        &hf_dcerpc_cn_rts_flags_ping,
+        &hf_dcerpc_cn_rts_flags_other_cmd,
+        &hf_dcerpc_cn_rts_flags_recycle_channel,
+        &hf_dcerpc_cn_rts_flags_in_channel,
+        &hf_dcerpc_cn_rts_flags_out_channel,
+        &hf_dcerpc_cn_rts_flags_eof,
+        NULL
+    };
 
     /* Dissect specific RTS header */
     rts_flags = dcerpc_tvb_get_ntohs(tvb, offset, hdr->drep);
-    if (dcerpc_tree) {
-        proto_tree *cn_rts_flags_tree;
-
-        tf = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_cn_rts_flags, tvb, offset, 2, rts_flags);
-        cn_rts_flags_tree = proto_item_add_subtree(tf, ett_dcerpc_cn_rts_flags);
-        proto_tree_add_boolean(cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_none, tvb, offset, 1, rts_flags);
-        proto_tree_add_boolean(cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_ping, tvb, offset, 1, rts_flags);
-        proto_tree_add_boolean(cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_other_cmd, tvb, offset, 1, rts_flags);
-        proto_tree_add_boolean(cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_recycle_channel, tvb, offset, 1, rts_flags);
-        proto_tree_add_boolean(cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_in_channel, tvb, offset, 1, rts_flags);
-        proto_tree_add_boolean(cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_out_channel, tvb, offset, 1, rts_flags);
-        proto_tree_add_boolean(cn_rts_flags_tree, hf_dcerpc_cn_rts_flags_eof, tvb, offset, 1, rts_flags);
-    }
+    proto_tree_add_bitmask_value_with_flags(dcerpc_tree, tvb, offset, hf_dcerpc_cn_rts_flags,
+                                ett_dcerpc_cn_rts_flags, flags, rts_flags, BMT_NO_APPEND);
     offset += 2;
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, dcerpc_tree, hdr->drep,
@@ -4713,12 +4712,22 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item            *ti            = NULL;
     proto_item            *tf            = NULL;
     proto_tree            *dcerpc_tree   = NULL;
-    proto_tree            *cn_flags_tree = NULL;
     proto_tree            *drep_tree     = NULL;
     e_dce_cn_common_hdr_t  hdr;
     dcerpc_auth_info       auth_info;
     tvbuff_t              *fragment_tvb;
     dcerpc_decode_as_data* decode_data = dcerpc_get_decode_data(pinfo);
+    static const int * hdr_flags[] = {
+        &hf_dcerpc_cn_flags_object,
+        &hf_dcerpc_cn_flags_maybe,
+        &hf_dcerpc_cn_flags_dne,
+        &hf_dcerpc_cn_flags_mpx,
+        &hf_dcerpc_cn_flags_reserved,
+        &hf_dcerpc_cn_flags_cancel_pending,
+        &hf_dcerpc_cn_flags_last_frag,
+        &hf_dcerpc_cn_flags_first_frag,
+        NULL
+    };
 
     /*
      * when done over nbt, dcerpc requests are padded with 4 bytes of null
@@ -4819,18 +4828,10 @@ dissect_dcerpc_cn(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(ti, " %s, Fragment: %s",
                                val_to_str(hdr.ptype, pckt_vals, "Unknown (0x%02x)"),
                                fragment_type(hdr.flags));
-
-        tf = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_cn_flags, tvb, offset, 1, hdr.flags);
-        cn_flags_tree = proto_item_add_subtree(tf, ett_dcerpc_cn_flags);
     }
-    proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_object, tvb, offset, 1, hdr.flags);
-    proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_maybe, tvb, offset, 1, hdr.flags);
-    proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_dne, tvb, offset, 1, hdr.flags);
-    proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_mpx, tvb, offset, 1, hdr.flags);
-    proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_reserved, tvb, offset, 1, hdr.flags);
-    proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_cancel_pending, tvb, offset, 1, hdr.flags);
-    proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_last_frag, tvb, offset, 1, hdr.flags);
-    proto_tree_add_boolean(cn_flags_tree, hf_dcerpc_cn_flags_first_frag, tvb, offset, 1, hdr.flags);
+
+    proto_tree_add_bitmask_value_with_flags(dcerpc_tree, tvb, offset, hf_dcerpc_cn_flags,
+                                ett_dcerpc_cn_flags, hdr_flags, hdr.flags, BMT_NO_APPEND);
     offset++;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Fragment: %s", fragment_type(hdr.flags));
@@ -5616,8 +5617,6 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item            *ti             = NULL;
     proto_item            *tf             = NULL;
     proto_tree            *dcerpc_tree    = NULL;
-    proto_tree            *dg_flags1_tree = NULL;
-    proto_tree            *dg_flags2_tree = NULL;
     proto_tree            *drep_tree      = NULL;
     e_dce_dg_common_hdr_t  hdr;
     int                    offset         = 0;
@@ -5625,6 +5624,29 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     int                    auth_level;
     char                  *uuid_str;
     const char            *uuid_name      = NULL;
+    static const int * hdr_flags1[] = {
+        &hf_dcerpc_dg_flags1_rsrvd_80,
+        &hf_dcerpc_dg_flags1_broadcast,
+        &hf_dcerpc_dg_flags1_idempotent,
+        &hf_dcerpc_dg_flags1_maybe,
+        &hf_dcerpc_dg_flags1_nofack,
+        &hf_dcerpc_dg_flags1_frag,
+        &hf_dcerpc_dg_flags1_last_frag,
+        &hf_dcerpc_dg_flags1_rsrvd_01,
+        NULL
+    };
+
+    static const int * hdr_flags2[] = {
+        &hf_dcerpc_dg_flags2_rsrvd_80,
+        &hf_dcerpc_dg_flags2_rsrvd_40,
+        &hf_dcerpc_dg_flags2_rsrvd_20,
+        &hf_dcerpc_dg_flags2_rsrvd_10,
+        &hf_dcerpc_dg_flags2_rsrvd_08,
+        &hf_dcerpc_dg_flags2_rsrvd_04,
+        &hf_dcerpc_dg_flags2_cancel_pending,
+        &hf_dcerpc_dg_flags2_rsrvd_01,
+        NULL
+    };
 
     /*
      * Check if this looks like a CL DCERPC call.  All dg packets
@@ -5703,57 +5725,18 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
     offset = 0;
 
-    if (tree)
-        proto_tree_add_uint(dcerpc_tree, hf_dcerpc_ver, tvb, offset, 1, hdr.rpc_ver);
+    proto_tree_add_uint(dcerpc_tree, hf_dcerpc_ver, tvb, offset, 1, hdr.rpc_ver);
     offset++;
 
-    if (tree)
-        proto_tree_add_uint(dcerpc_tree, hf_dcerpc_packet_type, tvb, offset, 1, hdr.ptype);
+    proto_tree_add_uint(dcerpc_tree, hf_dcerpc_packet_type, tvb, offset, 1, hdr.ptype);
     offset++;
 
-    if (tree) {
-        tf = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_dg_flags1, tvb, offset, 1, hdr.flags1);
-        dg_flags1_tree = proto_item_add_subtree(tf, ett_dcerpc_dg_flags1);
-        if (dg_flags1_tree) {
-            proto_tree_add_boolean(dg_flags1_tree, hf_dcerpc_dg_flags1_rsrvd_80, tvb, offset, 1, hdr.flags1);
-            proto_tree_add_boolean(dg_flags1_tree, hf_dcerpc_dg_flags1_broadcast, tvb, offset, 1, hdr.flags1);
-            proto_tree_add_boolean(dg_flags1_tree, hf_dcerpc_dg_flags1_idempotent, tvb, offset, 1, hdr.flags1);
-            proto_tree_add_boolean(dg_flags1_tree, hf_dcerpc_dg_flags1_maybe, tvb, offset, 1, hdr.flags1);
-            proto_tree_add_boolean(dg_flags1_tree, hf_dcerpc_dg_flags1_nofack, tvb, offset, 1, hdr.flags1);
-            proto_tree_add_boolean(dg_flags1_tree, hf_dcerpc_dg_flags1_frag, tvb, offset, 1, hdr.flags1);
-            proto_tree_add_boolean(dg_flags1_tree, hf_dcerpc_dg_flags1_last_frag, tvb, offset, 1, hdr.flags1);
-            proto_tree_add_boolean(dg_flags1_tree, hf_dcerpc_dg_flags1_rsrvd_01, tvb, offset, 1, hdr.flags1);
-            if (hdr.flags1) {
-                proto_item_append_text(tf, " %s%s%s%s%s%s",
-                                       (hdr.flags1 & PFCL1_BROADCAST) ? "\"Broadcast\" " : "",
-                                       (hdr.flags1 & PFCL1_IDEMPOTENT) ? "\"Idempotent\" " : "",
-                                       (hdr.flags1 & PFCL1_MAYBE) ? "\"Maybe\" " : "",
-                                       (hdr.flags1 & PFCL1_NOFACK) ? "\"No Fack\" " : "",
-                                       (hdr.flags1 & PFCL1_FRAG) ? "\"Fragment\" " : "",
-                                       (hdr.flags1 & PFCL1_LASTFRAG) ? "\"Last Fragment\" " : "");
-            }
-        }
-    }
+    proto_tree_add_bitmask_value(dcerpc_tree, tvb, offset, hf_dcerpc_dg_flags1,
+                                ett_dcerpc_dg_flags1, hdr_flags1, hdr.flags1);
     offset++;
 
-    if (tree) {
-        tf = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_dg_flags2, tvb, offset, 1, hdr.flags2);
-        dg_flags2_tree = proto_item_add_subtree(tf, ett_dcerpc_dg_flags2);
-        if (dg_flags2_tree) {
-            proto_tree_add_boolean(dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_80, tvb, offset, 1, hdr.flags2);
-            proto_tree_add_boolean(dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_40, tvb, offset, 1, hdr.flags2);
-            proto_tree_add_boolean(dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_20, tvb, offset, 1, hdr.flags2);
-            proto_tree_add_boolean(dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_10, tvb, offset, 1, hdr.flags2);
-            proto_tree_add_boolean(dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_08, tvb, offset, 1, hdr.flags2);
-            proto_tree_add_boolean(dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_04, tvb, offset, 1, hdr.flags2);
-            proto_tree_add_boolean(dg_flags2_tree, hf_dcerpc_dg_flags2_cancel_pending, tvb, offset, 1, hdr.flags2);
-            proto_tree_add_boolean(dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_01, tvb, offset, 1, hdr.flags2);
-            if (hdr.flags2) {
-                proto_item_append_text(tf, " %s",
-                                       (hdr.flags2 & PFCL2_CANCEL_PENDING) ? "\"Cancel Pending\" " : "");
-            }
-        }
-    }
+    proto_tree_add_bitmask_value(dcerpc_tree, tvb, offset, hf_dcerpc_dg_flags2,
+                                ett_dcerpc_dg_flags2, hdr_flags2, hdr.flags2);
     offset++;
 
     if (tree) {

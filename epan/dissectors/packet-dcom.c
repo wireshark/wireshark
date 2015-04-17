@@ -1170,8 +1170,20 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 u32SubStart;
 	guint32 u32TmpOffset;
 
-	proto_item *feature_item;
-	proto_tree *feature_tree;
+	static const int * features[] = {
+		&hf_dcom_sa_features_variant,
+		&hf_dcom_sa_features_dispatch,
+		&hf_dcom_sa_features_unknown,
+		&hf_dcom_sa_features_bstr,
+		&hf_dcom_sa_features_have_vartype,
+		&hf_dcom_sa_features_have_iid,
+		&hf_dcom_sa_features_record,
+		&hf_dcom_sa_features_fixedsize,
+		&hf_dcom_sa_features_embedded,
+		&hf_dcom_sa_features_static,
+		&hf_dcom_sa_features_auto,
+		NULL
+	};
 
 
 	/* XXX: which alignment do we need here? */
@@ -1189,23 +1201,10 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hf_dcom_sa_dims16, &u16Dims);
 
 	/* feature flags */
-	u32TmpOffset = dissect_dcom_WORD(tvb, offset, pinfo, NULL, di, drep,
-			hf_dcom_sa_features, &u16Features);
-	feature_item = proto_tree_add_uint (sub_tree, hf_dcom_sa_features, tvb, offset, 2, u16Features);
-	feature_tree = proto_item_add_subtree (feature_item, ett_dcom_sa_features);
-	if (feature_tree) {
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_variant, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_dispatch, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_unknown, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_bstr, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_have_vartype, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_have_iid, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_record, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_fixedsize, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_embedded, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_static, tvb, offset, 2, u16Features);
-		proto_tree_add_boolean (feature_tree, hf_dcom_sa_features_auto, tvb, offset, 2, u16Features);
-	}
+	u32TmpOffset = dissect_dcom_WORD(tvb, offset, pinfo, NULL, di, drep, -1, &u16Features);
+
+	proto_tree_add_bitmask_value_with_flags(sub_tree, tvb, offset, hf_dcom_sa_features,
+								ett_dcom_sa_features, features, u16Features, BMT_NO_APPEND);
 	offset = u32TmpOffset;
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
