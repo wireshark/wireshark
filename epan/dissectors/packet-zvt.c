@@ -70,6 +70,9 @@ typedef enum _zvt_direction_t {
 #define ADDR_ECR "ECR"
 #define ADDR_PT  "PT"
 
+#define CCRC_POS 0x80
+#define CCRC_NEG 0x84
+
 typedef struct _apdu_info_t {
     guint16          ctrl;
     guint32          min_len_field;
@@ -330,6 +333,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
     guint8       len_bytes = 1; /* number of bytes for the len field */
     guint16      ctrl = ZVT_CTRL_NONE;
     guint16      len;
+    guint8       byte;
     proto_item  *apdu_it;
     proto_tree  *apdu_tree;
     apdu_info_t *ai;
@@ -354,9 +358,11 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
     apdu_tree = proto_tree_add_subtree(tree,
             tvb, offset, -1, ett_zvt_apdu, &apdu_it, "ZVT APDU");
 
-    if (tvb_get_guint8(tvb, offset) == 0x80 ||
-        tvb_get_guint8(tvb, offset) == 0x84) {
+    byte = tvb_get_guint8(tvb, offset);
+    if (byte == CCRC_POS || byte == CCRC_NEG) {
         proto_tree_add_item(apdu_tree, hf_zvt_ccrc, tvb, offset, 1, ENC_BIG_ENDIAN);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+                byte == CCRC_POS ? "Positive completion" : "Negative completion");
         offset++;
         proto_tree_add_item(apdu_tree, hf_zvt_aprc, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
