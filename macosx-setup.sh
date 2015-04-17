@@ -72,7 +72,7 @@ PKG_CONFIG_VERSION=0.28
 #
 # If you don't want to build with GTK+ at all, comment out both lines.
 #
-QT_VERSION=5.2.1
+QT_VERSION=5.3.2
 GTK_VERSION=2.24.17
 #GTK_VERSION=3.5.2
 if [ "$GTK_VERSION" ]; then
@@ -89,6 +89,12 @@ if [ "$GTK_VERSION" ]; then
     PIXMAN_VERSION=0.26.0
     CAIRO_VERSION=1.12.2
     GDK_PIXBUF_VERSION=2.28.0
+fi
+if [ "$QT_VERSION" ]; then
+    QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
+    QT_MINOR_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    QT_DOTDOT_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
+    QT_MAJOR_MINOR_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION
 fi
 
 # In case we want to build GTK *and* we don't have Apple's X11 SDK installed
@@ -514,43 +520,33 @@ uninstall_glib() {
 install_qt() {
     if [ "$QT_VERSION" -a ! -f qt-$QT_VERSION-done ]; then
         echo "Downloading, building, and installing Qt:"
-        QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
-        QT_MINOR_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        QT_DOTDOT_VERSION="`expr $QT_VERSION : '[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
-        QT_MAJOR_MINOR_VERSION=$QT_MAJOR_VERSION.$QT_MINOR_VERSION
         #
         # What you get for this URL might just be a 302 Found reply, so use
         # -L so we get redirected.
         #
-        curl -L -O http://download.qt-project.org/official_releases/qt/$QT_MAJOR_MINOR_VERSION/$QT_VERSION/single/qt-everywhere-opensource-src-$QT_VERSION.tar.gz
+        [ -f qt-opensource-mac-x64-clang-$QT_VERSION.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_VERSION/qt-opensource-mac-x64-clang-$QT_VERSION.dmg || exit 1
+        sudo hdiutil attach qt-opensource-mac-x64-clang-$QT_VERSION.dmg || exit 1
+
         #
-        # Qt 5.1.x sets QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
-        # in qtbase/mkspecs/$TARGET_PLATFORM/qmake.conf
-        # We may need to adjust this manually in the future.
+        # Run the executable directly, so that we wait for it to finish.
         #
-        # The -no-c++11 flag is needed to work around
-        # https://bugreports.qt-project.org/browse/QTBUG-30487
+        /Volumes/qt-opensource-mac-x64-clang-$QT_VERSION/qt-opensource-mac-x64-clang-$QT_VERSION.app/Contents/MacOS/qt-opensource-mac-x64-clang-$QT_VERSION
+        sudo hdiutil detach /Volumes/qt-opensource-mac-x64-clang-$QT_VERSION
+
         #
-        tar xf qt-everywhere-opensource-src-$QT_VERSION.tar.gz
-        cd qt-everywhere-opensource-src-$QT_VERSION
+        # The 5.3.x versions, at least, have bogus .pc files.
+        # Fix them.
         #
-        # We don't build Qt in its Full Shining Glory, as we don't need all
-        # of its components, and it takes *forever* to build in that form.
-        #
-        # Qt 5.2.0 beta1 fails to build on OS X without -no-xcb due to bug
-        # QTBUG-34382.
-        #
-        # Qt 5.x fails to build on OS X with -no-opengl due to bug
-        # QTBUG-31151.
-        #
-        ./configure -v $qt_sdk_arg -platform $TARGET_PLATFORM \
-            -opensource -confirm-license -no-c++11 -no-dbus \
-            -no-sql-sqlite -no-xcb -nomake examples \
-            -skip qtdoc -skip qtquickcontrols -skip qtwebkit \
-            -skip qtwebkit-examples -skip qtxmlpatterns
-        make || exit 1
-        $DO_MAKE_INSTALL || exit 1
-        cd ..
+        for i in $HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64/lib/pkgconfig/*.pc
+        do
+            ed - $i <<EOF
+H
+g/Cflags: /s;;Cflags: -F\${libdir} ;
+g/Cflags: /s;-I\${includedir}/Qt\([a-zA-Z0-9_]*\);-I\${libdir}/Qt\1.framework/Versions/5/Headers;
+w
+q
+EOF
+        done
         touch qt-$QT_VERSION-done
     fi
 }
@@ -558,22 +554,14 @@ install_qt() {
 uninstall_qt() {
     if [ ! -z "$installed_qt_version" ] ; then
         echo "Uninstalling Qt:"
-        cd qt-everywhere-opensource-src-$installed_qt_version
-        $DO_MAKE_UNINSTALL || exit 1
-        #
-        # XXX - "make distclean" doesn't work.  qmake sure does a
-        # good job of constructing Makefiles that work correctly....
-        #
-        #make distclean || exit 1
-        cd ..
+        rm -rf $HOME/Qt$installed_qt_version
         rm qt-$installed_qt_version-done
 
         if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
             #
-            # Get rid of the previously downloaded and unpacked version.
+            # Get rid of the previously downloaded version.
             #
-            rm -rf qt-everywhere-opensource-src-$installed_qt_version
-            rm -rf qt-everywhere-opensource-src-$installed_qt_version.tar.gz
+            rm -rf qt-opensource-mac-x64-clang-$installed_qt_version.dmg
         fi
 
         installed_qt_version=""
@@ -2222,8 +2210,17 @@ install_all
 
 echo ""
 
+#
+# Indicate what path to use for pkg-config.
+#
+pkg_config_path=/usr/local/lib/pkgconfig
+if [ "$QT_VERSION" ]; then
+    pkg_config_path="$pkg_config_path":"$HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64/lib/pkgconfig"
+fi
+pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
+
 echo "You are now prepared to build Wireshark. To do so do:"
-echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig"
+echo "export PKG_CONFIG_PATH=$pkg_config_path"
 echo ""
 if [ -n "$CMAKE" ]; then
     echo "mkdir build; cd build"
