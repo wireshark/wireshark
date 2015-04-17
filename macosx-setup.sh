@@ -302,7 +302,7 @@ install_cmake() {
         # package in question supports both 32-bit and 64-bit x86.
         #
         [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -O http://www.cmake.org/files/v$cmake_dir/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
-        sudo hdiutil attach http://www.cmake.org/files/v2.8/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
+        sudo hdiutil attach cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
         sudo installer -target / -pkg /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal/cmake-$CMAKE_VERSION-Darwin64-universal.pkg || exit 1
         sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal
         touch cmake-$CMAKE_VERSION-done
