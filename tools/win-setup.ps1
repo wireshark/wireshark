@@ -206,8 +206,13 @@ function DownloadFile($fileName) {
         Write-Output "$destinationFile already there; not retrieving."
         return
     }
+
+    $proxy = [System.Net.WebRequest]::GetSystemWebProxy()
+    $proxy.Credentials = [System.Net.CredentialCache]::DefaultCredentials
+
     Write-Output "Downloading $fileUrl into $Destination"
     $webClient = New-Object System.Net.WebClient
+    $webClient.proxy = $proxy
     $webClient.DownloadFile($fileUrl, "$Destination\$destinationFile")
 }
 
