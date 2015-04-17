@@ -2712,19 +2712,19 @@
 		Note: The AVP codes from 1 to 255 are reserved for backwards compatibility with 3GPP RADIUS Vendor
 		Specific Attributes (See TS 29.061 [13])
 		Note: The AVP codes from 256 to 299 are reserved for future use.
-    -->
-    <avp name="Authentication-Method" code="300" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-      <type type-name="Enumerated"/>
-      <enum name="WLAN_EAP_SIM" code="0"/>
-      <enum name="WLAN_EAP_AKA" code="1"/>
-    </avp>
-    <avp name="Authentication-Information-SIM" code="301" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Authorization-Information-SIM" code="302" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-      <type type-name="OctetString"/>
-    </avp>
-    <!--
+		-->
+		<avp name="Authentication-Method" code="300" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="WLAN_EAP_SIM" code="0"/>
+			<enum name="WLAN_EAP_AKA" code="1"/>
+		</avp>
+		<avp name="Authentication-Information-SIM" code="301" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Authorization-Information-SIM" code="302" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<!--
 		303 WLAN-User-Data Grouped
 		304 Charging-Data Grouped
 		305 WLAN-Access Enumerated
@@ -2741,7 +2741,6 @@
 		316 Primary-OCS-Charging-Function-Name DiameterIdentity
 		317 Secondary-OCS-Charging-Function-Name DiameterIdentity
 		-->
-
 
 		<avp name="3GPP-AAA-Server-Name" code="318" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
@@ -3120,12 +3119,12 @@
 			<enum name="P-GW" code="9"/>
 			<enum name="HSGW" code="10"/>
 			<enum name="E-CSCF" code="11"/>
-      <enum name="MME" code="12"/>
-      <enum name="TRF" code="13"/>
-      <enum name="TF" code="14"/>
-      <enum name="ATCF" code="15"/>
-      <enum name="Proxy Function" code="16"/>
-      <enum name="ePDG" code="17"/>
+			<enum name="MME" code="12"/>
+			<enum name="TRF" code="13"/>
+			<enum name="TF" code="14"/>
+			<enum name="ATCF" code="15"/>
+			<enum name="Proxy Function" code="16"/>
+			<enum name="ePDG" code="17"/>
 		</avp>
 		<avp name="Service-Specific-Data" code="863" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -3597,19 +3596,19 @@
 			<enum name="DEFAULT-EPS-BEARER-QOS_MODIFICATION_FAILURE"	code="34"/>
 			<enum name="USER_CSG_HYBRID_SUBSCRIBED_INFORMATION_CHANGE"	code="35"/>
 			<enum name="USER_CSG_ HYBRID_UNSUBSCRIBED_INFORMATION_CHANGE"	code="36"/>
-			<enum name="ROUTING_RULE_CHANGE"				                              code="37"/>
-			<enum name="MAX_MBR_APN_AMBR_CHANGE"				                          code="38"/>
-			<enum name="APPLICATION_START"					                              code="39"/>
-			<enum name="APPLICATION_STOP"					                                code="40"/>
-			<enum name="ADC_REVALIDATION_TIMEOUT"				                          code="41"/>
-			<enum name="CS_TO_PS_HANDOVER"					                              code="42"/>
-			<enum name="UE_LOCAL_IP_ADDRESS_CHANGE"				                        code="43"/>
-			<enum name="H(E)NB_LOCAL_IP_ADDRESS_CHANGE"			                      code="44"/>
-      <enum name="ACCESS_NETWORK_INFO_REPORT"				                        code="45"/>
-      <enum name="CREDIT_MANAGEMENT_SESSION_FAILURE"	                      code="46"/>
-      <enum name="DEFAULT_QOS_CHANGE"		          		                      code="47"/>
-      <enum name="CHANGE_OF_UE_PRESENCE_IN_PRESENCE_REPORTING_AREA_REPORT"	code="48"/>
-      <enum name="TIME_CHANGE"					code="100"/>
+			<enum name="ROUTING_RULE_CHANGE"				code="37"/>
+			<enum name="MAX_MBR_APN_AMBR_CHANGE"				code="38"/>
+			<enum name="APPLICATION_START"					code="39"/>
+			<enum name="APPLICATION_STOP"					code="40"/>
+			<enum name="ADC_REVALIDATION_TIMEOUT"				code="41"/>
+			<enum name="CS_TO_PS_HANDOVER"					code="42"/>
+			<enum name="UE_LOCAL_IP_ADDRESS_CHANGE"				code="43"/>
+			<enum name="H(E)NB_LOCAL_IP_ADDRESS_CHANGE"			code="44"/>
+			<enum name="ACCESS_NETWORK_INFO_REPORT"				code="45"/>
+			<enum name="CREDIT_MANAGEMENT_SESSION_FAILURE"			code="46"/>
+			<enum name="DEFAULT_QOS_CHANGE"					code="47"/>
+			<enum name="CHANGE_OF_UE_PRESENCE_IN_PRESENCE_REPORTING_AREA_REPORT"	code="48"/>
+			<enum name="TIME_CHANGE"					code="100"/>
 			<enum name="TFT DELETED"					code="1000"/>
 			<enum name="LOSS OF BEARER"					code="1001"/>
 			<enum name="RECOVERY OF BEARER"					code="1002"/>
@@ -3693,7 +3692,7 @@
 		</avp>
 		<avp name="Bearer-Operation" code="1021" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="TERMINATION" 			code="0"/>
+			<enum name="TERMINATION" 	code="0"/>
 			<enum name="ESTABLISHMENT" 	code="1"/>
 			<enum name="MODIFICATION" 	code="2"/>
 		</avp>
@@ -3706,14 +3705,14 @@
 		</avp>
 		<avp name="Bearer-Control-Mode" code="1023" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="UE_ONLY" 			code="0"/>
+			<enum name="UE_ONLY" 	code="0"/>
 			<enum name="RESERVED" 	code="1"/>
 			<enum name="UE_NW" 	code="2"/>
 		</avp>
 		<avp name="Network-Request-Support" code="1024" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="NETWORK_REQUEST NOT SUPPORTED" 			code="0"/>
-			<enum name="NETWORK_REQUEST SUPPORTED" 	code="1"/>
+			<enum name="NETWORK_REQUEST NOT SUPPORTED" 	code="0"/>
+			<enum name="NETWORK_REQUEST SUPPORTED"		code="1"/>
 		</avp>
 		<avp name="Guaranteed-Bitrate-DL" code="1025" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -3723,12 +3722,12 @@
 		</avp>
 		<avp name="IP-CAN-Type" code="1027" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="3GPP-GPRS" 			code="0"/>
-			<enum name="DOCSIS" 	code="1"/>
-			<enum name="xDSL" 	code="2"/>
-			<enum name="WiMAX" 	code="3"/>
-			<enum name="3GPP2" 	code="4"/>
-			<enum name="3GPP-EPS" 	code="5"/>
+			<enum name="3GPP-GPRS" 		code="0"/>
+			<enum name="DOCSIS" 		code="1"/>
+			<enum name="xDSL" 		code="2"/>
+			<enum name="WiMAX" 		code="3"/>
+			<enum name="3GPP2" 		code="4"/>
+			<enum name="3GPP-EPS" 		code="5"/>
 			<enum name="Non-3GPP-EPS" 	code="6"/>
 		</avp>
 		<avp name="QoS-Class-Identifier" code="1028" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -3768,24 +3767,24 @@
 			<enum name="MISSING_FLOW_DESCRIPTION"		code="9"/>
 			<enum name="RESOURCE_ALLOCATION_FAILURE"	code="10"/>
 			<enum name="UNSUCCESSFUL_QOS_VALIDATION"	code="11"/>
-			<enum name="INCORRECT_FLOW_INFORMATION"	code="12"/>
-			<enum name="PS_TO_CS_HANDOVER"	code="13"/>
-			<enum name="Unused code value"	code="14"/>
-			<enum name="NO_BEARER_BOUND"	code="15"/>
+			<enum name="INCORRECT_FLOW_INFORMATION"		code="12"/>
+			<enum name="PS_TO_CS_HANDOVER"			code="13"/>
+			<enum name="Unused code value"			code="14"/>
+			<enum name="NO_BEARER_BOUND"			code="15"/>
 		</avp>
 		<avp name="RAT-Type" code="1032" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated" />
-			<enum name="WLAN"		code="0" />
-			<enum name="VIRTUAL"		code="1" />
-			<enum name="UTRAN"		code="1000" />
-			<enum name="GERAN"		code="1001" />
-			<enum name="GAN"		code="1002" />
-			<enum name="HSPA_EVOLUTION"	code="1003" />
-			<enum name="EUTRAN"		code="1004" />
-			<enum name="CDMA2000_1X"	code="2000" />
-			<enum name="HRPD"		code="2001" />
-			<enum name="UMB"		code="2002" />
-			<enum name="EHRPD"		code="2003" />
+			<enum name="WLAN"		code="0"/>
+			<enum name="VIRTUAL"		code="1"/>
+			<enum name="UTRAN"		code="1000"/>
+			<enum name="GERAN"		code="1001"/>
+			<enum name="GAN"		code="1002"/>
+			<enum name="HSPA_EVOLUTION"	code="1003"/>
+			<enum name="EUTRAN"		code="1004"/>
+			<enum name="CDMA2000_1X"	code="2000"/>
+			<enum name="HRPD"		code="2001"/>
+			<enum name="UMB"		code="2002"/>
+			<enum name="EHRPD"		code="2003"/>
 		</avp>
 		<avp name="Event-Report-Indication" code="1033" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -6417,27 +6416,27 @@
 		<!--
 		Note: The AVP codes from 2607 to 2699 are reserved for TS 32.299
 		-->
-    <!-- -->
-    <avp name="Presence-Reporting-Area-Elements-List" code="2820" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Presence-Reporting-Area-Identifier" code="2821" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="Presence-Reporting-Area-Information" code="2822" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-      <grouped>
-        <gavp name="Presence-Reporting-Area-Identifier"/>
-        <gavp name="Presence-Reporting-Area-Status"/>
-        <gavp name="Presence-Reporting-Area-Elements-List"/>
-      </grouped>
-    </avp>
-    <avp name="Presence-Reporting-Area-Status" code="2823" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-      <type type-name="Enumerated"/>
-      <enum name="In area" code="0"/>
-      <enum name="Out of area" code="1"/>
-    </avp>
+		<!-- -->
+		<avp name="Presence-Reporting-Area-Elements-List" code="2820" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Presence-Reporting-Area-Identifier" code="2821" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Presence-Reporting-Area-Information" code="2822" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<grouped>
+				<gavp name="Presence-Reporting-Area-Identifier"/>
+				<gavp name="Presence-Reporting-Area-Status"/>
+				<gavp name="Presence-Reporting-Area-Elements-List"/>
+			</grouped>
+		</avp>
+		<avp name="Presence-Reporting-Area-Status" code="2823" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="In area" code="0"/>
+			<enum name="Out of area" code="1"/>
+		</avp>
 
-    <avp name="Policy-Counter-Identifier" code="2901" mandatory="must" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Policy-Counter-Identifier" code="2901" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Policy-Counter-Status" code="2902" mandatory="must" vendor-bit="must" vendor-id="TGPP">
@@ -6452,8 +6451,8 @@
 		</avp>
 		<avp name="SL-Request-Type" code="2904" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
-			<enum name="INITIAL_REQUEST"        code="0"/>
-			<enum name="INTERMEDIATE_REQUEST"   code="1"/>
+			<enum name="INITIAL_REQUEST"		code="0"/>
+			<enum name="INTERMEDIATE_REQUEST"	code="1"/>
 		</avp>
 		<avp name="Pending-Policy-Counter-Information" code="2905" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -6605,36 +6604,36 @@
 			<enum name="UNIDENTIFIED_SUBSCRIBER" code="5"/>
 		</avp>
 
-    <avp name="Reason-Header" code="3401" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="Instance-Id" code="3402" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="Route-Header-Received" code="3403" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="Route-Header-Transmitted" code="3404" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="UTF8String"/>
-    </avp>
-    <avp name="SM-Device-Trigger-Information" code="3405" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <grouped>
-        <gavp name="MTC-IWF-Address"/>
-        <gavp name="Reference-Number"/>
-        <gavp name="Serving-Node"/>
-        <gavp name="Validity-Time"/>
-        <gavp name="Priority-Indication"/>
-        <gavp name="Application-Port-Identifier"/>
-      </grouped>
-    </avp>
-    <avp name="MTC-IWF-Address" code="3406" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-      <type type-name="Address"/>
-    </avp>
-    <avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Address"/>
-    </avp>
+		<avp name="Reason-Header" code="3401" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Instance-Id" code="3402" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Route-Header-Received" code="3403" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Route-Header-Transmitted" code="3404" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="SM-Device-Trigger-Information" code="3405" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="MTC-IWF-Address"/>
+				<gavp name="Reference-Number"/>
+				<gavp name="Serving-Node"/>
+				<gavp name="Validity-Time"/>
+				<gavp name="Priority-Indication"/>
+				<gavp name="Application-Port-Identifier"/>
+			</grouped>
+		</avp>
+		<avp name="MTC-IWF-Address" code="3406" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Address"/>
+		</avp>
+		<avp name="ePDG-Address" code="3425" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Address"/>
+		</avp>
 
-  </base>
+	</base>
 
 	<!---
 	Duplicates should be avoided
