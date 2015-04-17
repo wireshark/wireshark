@@ -57,17 +57,6 @@ maintainer-clean: distclean
 
 all_x: wsug.validated wsdg.validated wsug_x wsdg_x release_notes_x
 
-# -- Documentation version ------------------------------------------------------------------------
-
-# On every build, record the working copy revision string
-#   in git_version.xml (if the git version has changed).
-# This is done during nmake "preprocessing" so that it's done *before*
-#  nmake gets the date/time of the dependency file(s)].
-git_version_check: _FORCE_
-	$(SH) ./check_git_version.sh
-
-git_version.xml: git_version_check
-
 # -- User Guide ------------------------------------------------------------------------
 
 wsug_x: wsug_html_chunked wsug_html user-guide-a4.pdf user-guide-us.pdf user-guide.chm

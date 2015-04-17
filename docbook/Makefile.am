@@ -34,24 +34,10 @@ else
 endif
 
 if HAVE_XSLTPROC
-ALL_TARGETS=git_version_check wsug wsdg release_notes
-else
-# if we don't have XSLTPROC, there's nothing to do...
-ALL_TARGETS=git_version_check
+ALL_TARGETS=wsug wsdg release_notes
 endif
 
 all: $(ALL_TARGETS)
-
-#
-# on every build, record the working copy revision string
-#
-# FORCE is the portable version of .PHONY
-FORCE:
-
-git_version_check: FORCE
-	cat $(srcdir)/check_git_version.sh | tr -d '\015' | /bin/bash
-
-git_version.xml: git_version_check
 
 # Wireshark User Guide
 if HAVE_FOP
@@ -258,7 +244,6 @@ EXTRA_DIST = \
 	$(WSUG_DIST)		\
 	$(WSDG_DIST)		\
 	$(RELEASE_NOTES_SOURCE)	\
-	check_git_version.sh	\
 	dfilter2xml.pl		\
 	make-wsluarm.pl		\
 	README.txt		\

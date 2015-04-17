@@ -243,7 +243,6 @@ CLEANFILES =	\
 	release_notes_chm	\
 	release-notes.html	\
 	release-notes.txt	\
-	git_version.xml		\
 	user-guide.zip		\
 	wsluarm
 

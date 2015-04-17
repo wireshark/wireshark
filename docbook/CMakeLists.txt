@@ -232,7 +232,6 @@ set(WSDG_GRAPHICS
 # user-guide.xml must be first in the list
 set(WSUG_SOURCE
 	user-guide.xml
-	git_version.xml
 	${WSUG_FILES}
 	${WSUG_GRAPHICS}
 )
@@ -252,7 +251,6 @@ ASCIIDOC2DOCBOOK( user-guide.asciidoc "${ASCIIDOC_CONF_FILES}" )
 # developer-guide.xml must be first in the list
 set(WSDG_SOURCE
 	developer-guide.xml
-	git_version.xml
 	${WSDG_FILES}
 	${WSDG_GRAPHICS}
 )
@@ -271,15 +269,6 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dir.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_util.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_struct.c
-)
-
-ADD_CUSTOM_COMMAND(
-	OUTPUT
-		git_version.xml
-	COMMAND ${SH_EXECUTABLE}
-		${CMAKE_CURRENT_SOURCE_DIR}/check_git_version.sh
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/check_git_version.sh
 )
 
 if(ENABLE_HTML_GUIDES)
