@@ -922,7 +922,7 @@ decode_ex_UCO_InvalidInputParameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     /*  End struct "UCO_exception_details"  */
     u_octet4_loop_UCO_InvalidInputParameter_badInputParameters = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_UCO_InvalidInputParameter_badInputParameters_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_InvalidInputParameter_badInputParameters);
+    /*item = */proto_tree_add_uint(tree, hf_UCO_InvalidInputParameter_badInputParameters_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_InvalidInputParameter_badInputParameters);
 
     for (i_UCO_InvalidInputParameter_badInputParameters=0; i_UCO_InvalidInputParameter_badInputParameters < u_octet4_loop_UCO_InvalidInputParameter_badInputParameters; i_UCO_InvalidInputParameter_badInputParameters++) {
 
