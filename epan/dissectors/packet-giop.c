@@ -4822,9 +4822,6 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     payload_tvb = tvb_new_subset_remaining (tvb, GIOP_HEADER_SIZE);
   }
 
-
-  message_type = header.message_type;
-
   if(giop_reassemble) {
     /* This is a fragmented message - try and put it back together */
     fragment_head *fd_head = NULL;
