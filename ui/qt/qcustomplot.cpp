@@ -2845,7 +2845,7 @@ int QCPLayoutGrid::elementCount() const
 /* inherits documentation from base class */
 QCPLayoutElement *QCPLayoutGrid::elementAt(int index) const
 {
-  if (index >= 0 && index < elementCount())
+  if (index >= 0 && columnCount() && index < elementCount())
     return mElements.at(index / columnCount()).at(index % columnCount());
   else
     return 0;
@@ -2854,9 +2854,13 @@ QCPLayoutElement *QCPLayoutGrid::elementAt(int index) const
 /* inherits documentation from base class */
 QCPLayoutElement *QCPLayoutGrid::takeAt(int index)
 {
-  if (QCPLayoutElement *el = elementAt(index))
+  if (QCPLayoutElement *el = elementAt(index) )
   {
     releaseElement(el);
+
+    if(columnCount() == 0)
+        return 0;
+
     mElements[index / columnCount()][index % columnCount()] = 0;
     return el;
   } else
