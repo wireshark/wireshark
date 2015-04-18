@@ -952,7 +952,7 @@ dissect_biev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (parameter_number == 1) {
         value = get_uint_parameter(parameter_stream, parameter_length);
 /* TODO: Decode assigned numbers - assigned_number=1 */
-        pitem = proto_tree_add_uint(tree, hf_biev_value, tvb, offset,
+        /*pitem =*/ proto_tree_add_uint(tree, hf_biev_value, tvb, offset,
                 parameter_length, value);
     } else return FALSE;
 
