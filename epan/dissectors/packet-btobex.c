@@ -1696,14 +1696,14 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     }
                     break;
                 case 0x42: /* Type */
-                    handle_item = proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
 
                     offset += value_length;
 
                     break;
                 case 0x44: /* Time (ISO8601) */
-                    handle_item = proto_tree_add_item(hdr_tree, hf_time_iso8601, tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(hdr_tree, hf_time_iso8601, tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
 
                     offset += value_length;
@@ -1809,16 +1809,16 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
                 case 0x50: /* WAN UUID */
                     if (value_length == 2) {
-                        handle_item = proto_tree_add_item(hdr_tree, hf_wan_uuid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(hdr_tree, hf_wan_uuid, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
                     } else {
-                        handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
+                        proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
                         offset += value_length;
                     }
 
                     break;
                 case 0x51: /* Object Class */
-                    handle_item = proto_tree_add_item(hdr_tree, hf_object_class, tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                    proto_tree_add_item(hdr_tree, hf_object_class, tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
 
                     offset += value_length;
@@ -1928,7 +1928,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         value_length -= 2 + sub_parameter_length;
                     }
                 default:
-                    handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
+                    proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
                     offset += value_length;
                 }
 
