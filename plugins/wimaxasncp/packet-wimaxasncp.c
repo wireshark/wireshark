@@ -1324,7 +1324,7 @@ static void wimaxasncp_dissect_tlv_value(
 
             PROTO_ITEM_SET_HIDDEN(item);
 
-            while (offset < tvb_length(tvb))
+            while (offset < tvb_reported_length(tvb))
             {
                 guint16      protocol;
                 const gchar *protocol_name;
@@ -1381,7 +1381,7 @@ static void wimaxasncp_dissect_tlv_value(
 
             PROTO_ITEM_SET_HIDDEN(item);
 
-            while (offset < tvb_length(tvb))
+            while (offset < tvb_reported_length(tvb))
             {
                 guint16 portLow;
                 guint16 portHigh;
@@ -1471,7 +1471,7 @@ static void wimaxasncp_dissect_tlv_value(
                  * ------------------------------------------------------------
                  */
 
-                while (offset < tvb_length(tvb))
+                while (offset < tvb_reported_length(tvb))
                 {
                     proto_tree        *ip_address_mask_tree;
 
@@ -1521,7 +1521,7 @@ static void wimaxasncp_dissect_tlv_value(
                  * ------------------------------------------------------------
                  */
 
-                while (offset < tvb_length(tvb))
+                while (offset < tvb_reported_length(tvb))
                 {
                     proto_tree  *ip_address_mask_tree;
                     guint32      ip;
@@ -1628,8 +1628,7 @@ static void wimaxasncp_dissect_tlv_value(
 
 
             /* Extract remaining bytes into new tvb */
-            eap_tvb = tvb_new_subset(tvb, offset, length,
-                                     tvb_length_remaining(tvb, offset));
+            eap_tvb = tvb_new_subset_remaining(tvb, offset);
 
             /* Disable writing to info column while calling eap dissector */
             save_writable = col_get_writable(pinfo->cinfo);
@@ -1706,7 +1705,7 @@ static void wimaxasncp_dissect_tlv_value(
              * ----------------------------------------------------------------
              */
 
-            if (offset < tvb_length(tvb))
+            if (offset < tvb_reported_length(tvb))
             {
                 proto_tree_add_item(
                     vsif_tree, tlv_info->hf_vendor_rest_of_info,
@@ -1824,7 +1823,7 @@ static guint dissect_wimaxasncp_tlvs(
             proto_item *type_item;
 
             gint tree_length = MIN(
-                (gint)(4 + length + pad), tvb_length_remaining(tvb, offset));
+                (gint)(4 + length + pad), tvb_captured_length_remaining(tvb, offset));
 
             tlv_item = proto_tree_add_item(
                 tree, tlv_info->hf_root,
@@ -1882,14 +1881,14 @@ static guint dissect_wimaxasncp_tlvs(
             {
                 /* error? compound, but no TLVs inside */
             }
-            else if (tvb_length_remaining(tvb, offset) > 0)
+            else if (tvb_reported_length_remaining(tvb, offset) > 0)
             {
                 tvbuff_t *tlv_tvb;
 
                 /* N.B.  Not padding out tvb length */
                 tlv_tvb = tvb_new_subset(
                     tvb, offset,
-                    MIN(length, tvb_length_remaining(tvb, offset)),
+                    MIN(length, tvb_captured_length_remaining(tvb, offset)),
                     length);
 
                 /* N.B.  This is a recursive call... */
@@ -1909,7 +1908,7 @@ static guint dissect_wimaxasncp_tlvs(
 
             tlv_tvb = tvb_new_subset(
                 tvb, offset,
-                MIN(length, tvb_length_remaining(tvb, offset)),
+                MIN(length, tvb_captured_length_remaining(tvb, offset)),
                 length);
 
             wimaxasncp_dissect_tlv_value(
@@ -2032,7 +2031,7 @@ static guint dissect_wimaxasncp_backend(
      * ------------------------------------------------------------------------
      */
 
-    if (offset < tvb_length(tvb))
+    if (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         tvbuff_t *tlv_tvb;
 
@@ -2167,7 +2166,7 @@ dissect_wimaxasncp(
     {
         packet_item = proto_tree_add_item(
             tree, proto_wimaxasncp,
-            tvb, 0, MIN(WIMAXASNCP_HEADER_LENGTH_END, tvb_length(tvb)), ENC_NA);
+            tvb, 0, MIN(WIMAXASNCP_HEADER_LENGTH_END, tvb_captured_length(tvb)), ENC_NA);
 
         wimaxasncp_tree = proto_item_add_subtree(
             packet_item, ett_wimaxasncp);
@@ -2394,7 +2393,7 @@ dissect_wimaxasncp(
 
     subtree = tvb_new_subset(
         tvb, offset,
-        MIN(length, tvb_length(tvb) - offset),
+        MIN(length, tvb_captured_length_remaining(tvb, offset)),
         length - WIMAXASNCP_HEADER_LENGTH_END);
 
     offset += dissect_wimaxasncp_backend(

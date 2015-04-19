@@ -2361,7 +2361,7 @@ dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     guint8 message_type;
 
     /* Ensure minimum size */
-    if (tvb_length(tvb) < WIMAXMACPHY_HEADER_SIZE)
+    if (tvb_reported_length(tvb) < WIMAXMACPHY_HEADER_SIZE)
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "wimaxmacphy");
@@ -2453,7 +2453,7 @@ dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         expert_add_info(pinfo, item, &ei_wimaxmacphy_unknown);
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void
