@@ -8100,10 +8100,37 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 
 		if (use_value)
 		{
-			if (len <= 4)
+			switch (hf->type) {
+			case FT_INT8:
+			case FT_UINT8:
+			case FT_INT16:
+			case FT_UINT16:
+			case FT_INT24:
+			case FT_UINT24:
+			case FT_INT32:
+			case FT_UINT32:
 				proto_tree_add_uint(tree, **fields, tvb, offset, len, (guint32)value);
-			else
+				break;
+
+			case FT_INT40:
+			case FT_UINT40:
+			case FT_INT48:
+			case FT_UINT48:
+			case FT_INT56:
+			case FT_UINT56:
+			case FT_INT64:
+			case FT_UINT64:
 				proto_tree_add_uint64(tree, **fields, tvb, offset, len, value);
+				break;
+
+			case FT_BOOLEAN:
+				proto_tree_add_boolean(tree, **fields, tvb, offset, len, (guint32)value);
+				break;
+
+			default:
+				DISSECTOR_ASSERT_NOT_REACHED();
+				break;
+			}
 		}
 		else
 		{
@@ -8184,7 +8211,8 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			}
 			break;
 		default:
-			g_assert_not_reached();
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
 		}
 
 		fields++;
