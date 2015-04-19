@@ -343,6 +343,7 @@ static expert_field ei_application_parameter_length_bad = EI_INIT;
 static expert_field ei_decoded_as_profile = EI_INIT;
 
 static dissector_table_t btobex_profile;
+static dissector_table_t media_type_dissector_table;
 
 
 /* ************************************************************************* */
@@ -409,6 +410,7 @@ static wmem_tree_t *obex_last_opcode = NULL;
 static dissector_handle_t http_handle;
 static dissector_handle_t xml_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t data_text_lines_handle;
 
 static const gchar  *path_unknown = "?";
 static const gchar  *path_root    = "/";
@@ -447,6 +449,8 @@ typedef struct _obex_last_opcode_data_t {
 /* TODO: add OBEX ConnectionId */
     gint    code;
 
+    gboolean final_flag;
+
     guint32  request_in_frame;
     guint32  response_in_frame;
 
@@ -455,6 +459,10 @@ typedef struct _obex_last_opcode_data_t {
             const gchar  *name;
             gboolean      go_up;
         } set_data;
+        struct {
+            gchar     *type;
+            gchar     *name;
+        } get_put;
     } data;
 } obex_last_opcode_data_t;
 
@@ -471,7 +479,8 @@ typedef struct _obex_last_opcode_data_t {
 #define PROFILE_CTN      9
 #define PROFILE_GPP     10
 
-#define PROTO_DATA_BTOBEX_PROFILE   0x00
+#define PROTO_DATA_MEDIA_TYPE       0x00
+#define PROTO_DATA_BTOBEX_PROFILE   0x01
 
 static const value_string profile_vals[] = {
     { PROFILE_UNKNOWN, "Unknown" },
@@ -1079,6 +1088,29 @@ save_path(packet_info *pinfo, const gchar *current_path, const gchar *name, gboo
 
         wmem_tree_insert32_array(obex_path, key, obex_path_data);
     }
+}
+
+static void media_type_prompt(packet_info *pinfo, gchar* result)
+{
+    gchar *value_data;
+
+    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_MEDIA_TYPE);
+    if (value_data)
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Media Type %s as", (gchar *) value_data);
+    else
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown Media Type");
+}
+
+static gpointer media_type_value(packet_info *pinfo)
+{
+    gchar *value_data;
+
+    value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_MEDIA_TYPE);
+
+    if (value_data)
+        return (gpointer) value_data;
+
+    return NULL;
 }
 
 static void btobex_profile_prompt(packet_info *pinfo _U_, gchar* result)
@@ -1801,8 +1833,11 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 switch (hdr_id) {
                 case 0x01: /* Name */
                     proto_tree_add_item(hdr_tree, hf_name, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
-                    if (!pinfo->fd->flags.visited && obex_last_opcode_data && obex_last_opcode_data->code == BTOBEX_CODE_VALS_SET_PATH) {
-                        obex_last_opcode_data->data.set_data.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                    if (!pinfo->fd->flags.visited && obex_last_opcode_data) {
+                        if (obex_last_opcode_data->code == BTOBEX_CODE_VALS_SET_PATH)
+                            obex_last_opcode_data->data.set_data.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+                        else if (obex_last_opcode_data->code == BTOBEX_CODE_VALS_GET || obex_last_opcode_data->code == BTOBEX_CODE_VALS_PUT)
+                            obex_last_opcode_data->data.get_put.name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                     }
                     break;
                 default:
@@ -1924,7 +1959,16 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 case 0x42: /* Type */
                     proto_tree_add_item(hdr_tree, hf_type, tvb, offset, value_length, ENC_ASCII | ENC_NA);
                     proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                    if (!pinfo->fd->flags.visited && obex_last_opcode_data && (obex_last_opcode_data->code == BTOBEX_CODE_VALS_GET || obex_last_opcode_data->code == BTOBEX_CODE_VALS_PUT)) {
+                        obex_last_opcode_data->data.get_put.type = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                    }
+                    if (p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_MEDIA_TYPE) == NULL) {
+                        guint8 *value_data;
 
+                        value_data = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
+
+                        p_add_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_MEDIA_TYPE, value_data);
+                    }
                     offset += value_length;
 
                     break;
@@ -1938,18 +1982,31 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 case 0x48: /* Body */
                 case 0x49: /* End Of Body */
                     proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
+                    next_tvb = tvb_new_subset_length(tvb, offset, value_length);
 
-                    if (!tvb_strneql(tvb, offset, "<?xml", 5))
-                    {
-                        next_tvb = tvb_new_subset_remaining(tvb, offset);
+                    if (value_length > 0 && obex_last_opcode_data &&
+                            (obex_last_opcode_data->code == BTOBEX_CODE_VALS_GET || obex_last_opcode_data->code == BTOBEX_CODE_VALS_PUT) &&
+                            p_get_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_MEDIA_TYPE) == NULL) {
+                        guint8 *value_data;
 
-                        call_dissector(xml_handle, next_tvb, pinfo, tree);
-                    } else if (is_ascii_str(tvb_get_ptr(tvb, offset, value_length), value_length)) {
-                        proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                        value_data = obex_last_opcode_data->data.get_put.type;
+
+                        p_add_proto_data(pinfo->pool, pinfo, proto_btobex, PROTO_DATA_MEDIA_TYPE, value_data);
                     }
-
-                    offset += value_length;
+                    if (value_length > 0 && obex_last_opcode_data &&
+                            (obex_last_opcode_data->code == BTOBEX_CODE_VALS_GET || obex_last_opcode_data->code == BTOBEX_CODE_VALS_PUT) &&
+                            dissector_try_string(media_type_dissector_table, obex_last_opcode_data->data.get_put.type, next_tvb, pinfo, tree, data) > 0) {
+                        offset += value_length;
+                    } else {
+                        if (!tvb_strneql(tvb, offset, "<?xml", 5))
+                        {
+                            call_dissector(xml_handle, next_tvb, pinfo, tree);
+                        } else if (is_ascii_str(tvb_get_ptr(tvb, offset, value_length), value_length)) {
+                            proto_item_append_text(hdr_tree, ": \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_length, ENC_ASCII));
+                        }
+                        offset += value_length;
+                    }
 
                     break;
                 case 0x46: /* Target */
@@ -2493,6 +2550,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 obex_last_opcode_data->chandle = chandle;
                 obex_last_opcode_data->channel = channel;
                 obex_last_opcode_data->code = code;
+                obex_last_opcode_data->final_flag = final_flag;
                 obex_last_opcode_data->request_in_frame = k_frame_number;
                 obex_last_opcode_data->response_in_frame = 0;
 
@@ -3847,6 +3905,13 @@ proto_register_btobex(void)
     static decode_as_t btobex_profile_da = {"btobex", "OBEX Profile", "btobex.profile", 1, 0, &btobex_profile_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
+    static build_valid_func media_type_da_build_value[1] = {media_type_value};
+    static decode_as_value_t media_type_da_values = {media_type_prompt, 1, media_type_da_build_value};
+    static decode_as_t media_type_da = {"btobex", "Media Type", "media_type",
+            1, 0, &media_type_da_values, NULL, NULL,
+            decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
+
     obex_path        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_profile     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     obex_last_opcode = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
@@ -3887,6 +3952,8 @@ proto_register_btobex(void)
 
     proto_pbap = proto_register_protocol("BT OBEX PBAP Application Parameters", "PBAP Application Parameters", "btobex.parameter.pbap");
     pbap_application_parameters_handle = new_register_dissector("btobex.parameter.pbap", dissect_btobex_application_parameter_pbap, proto_pbap);
+
+    register_decode_as(&media_type_da);
 
     module = prefs_register_protocol(proto_btobex, NULL);
     prefs_register_static_text_preference(module, "obex.version",
@@ -3943,6 +4010,7 @@ proto_reg_handoff_btobex(void)
     http_handle = find_dissector("http");
     xml_handle  = find_dissector("xml");
     data_handle = find_dissector("data");
+    data_text_lines_handle = find_dissector("data-text-lines");
 
     dissector_add_uint("btobex.profile", PROFILE_UNKNOWN,  raw_application_parameters_handle);
     dissector_add_uint("btobex.profile", PROFILE_BPP,      bpp_application_parameters_handle);
@@ -3957,10 +4025,52 @@ proto_reg_handoff_btobex(void)
     dissector_add_uint("btobex.profile", PROFILE_SYNCML,   raw_application_parameters_handle);
     dissector_add_uint("btobex.profile", PROFILE_SYNC,     raw_application_parameters_handle);
 
-
     dissector_add_for_decode_as("btrfcomm.channel", btobex_handle);
     dissector_add_for_decode_as("btl2cap.psm", btobex_handle);
     dissector_add_for_decode_as("btl2cap.cid", btobex_handle);
+
+    /* PBAP */
+    dissector_add_string("media_type", "x-bt/phonebook",      data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/vcard",          data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/vcard-listing",  xml_handle);
+    /* MAP */
+    dissector_add_string("media_type", "x-bt/message",                       data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/messageStatus",                 data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/MAP-messageUpdate",             data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/MAP-NotificationRegistration",  data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/MASInstanceInformation",        data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/MAP-msg-listing",               xml_handle);
+    dissector_add_string("media_type", "x-bt/MAP-event-report",              xml_handle);
+    dissector_add_string("media_type", "x-obex/folder-listing",              xml_handle);
+    /* CTN */
+    dissector_add_string("media_type", "x-bt/CTN-EventReport",              xml_handle);
+    dissector_add_string("media_type", "x-bt/CTN-Listing",                  xml_handle);
+    dissector_add_string("media_type", "x-bt/CTN-NotificationRegistration", data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/Calendar",                     data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/CalendarStatus",               data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/CTN-forward",                  data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/InstanceDescription",          data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/Update",                       data_text_lines_handle);
+    /* BPP */
+    dissector_add_string("media_type", "text/x-ref-simple",                 data_text_lines_handle);
+    dissector_add_string("media_type", "text/x-ref-list",                   data_text_lines_handle);
+    dissector_add_string("media_type", "x-obex/RUI",                        data_text_lines_handle);
+    dissector_add_string("media_type", "x-obex/bt-SOAP",                    xml_handle);
+    /* BIP */
+    dissector_add_string("media_type", "x-bt/img-listing",                  xml_handle);
+    dissector_add_string("media_type", "x-bt/img-properties",               xml_handle);
+    dissector_add_string("media_type", "x-bt/img-capabilities",             xml_handle);
+    dissector_add_string("media_type", "x-bt/img-print",                    data_text_lines_handle);
+    dissector_add_string("media_type", "x-bt/img-img",                      data_handle);
+    dissector_add_string("media_type", "x-bt/img-thm",                      data_handle);
+    dissector_add_string("media_type", "x-bt/img-attachment",               data_handle);
+    dissector_add_string("media_type", "x-bt/img-display",                  data_handle);
+    dissector_add_string("media_type", "x-bt/img-partial",                  data_handle);
+    dissector_add_string("media_type", "x-bt/img-archive",                  data_handle);
+    dissector_add_string("media_type", "x-bt/img-status",                   data_handle);
+    dissector_add_string("media_type", "x-bt/img-monitoring",               data_handle);
+
+    media_type_dissector_table = find_dissector_table("media_type");
 }
 
 /*
