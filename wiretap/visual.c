@@ -144,7 +144,7 @@ struct visual_read_info
 {
     guint32 num_pkts;           /* Number of pkts in the file */
     guint32 current_pkt;        /* Next packet to be read */
-    double  start_time;         /* Capture start time in microseconds */
+    guint64 start_time;         /* Capture start time in microseconds */
 };
 
 
@@ -273,7 +273,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     visual = (struct visual_read_info *)g_malloc(sizeof(struct visual_read_info));
     wth->priv = (void *)visual;
     visual->num_pkts = pletohl(&vfile_hdr.num_pkts);
-    visual->start_time = ((double) pletohl(&vfile_hdr.start_time)) * 1000000;
+    visual->start_time = ((guint64) pletohl(&vfile_hdr.start_time)) * 1000000;
     visual->current_pkt = 1;
 
     return 1;
@@ -296,7 +296,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     int ahdr_size = sizeof(vatm_hdr);
     time_t  secs;
     guint32 usecs;
-    double  t;
+    guint64 t;
 
     /* Check for the end of the packet data.  Note that a check for file EOF
        will not work because there are index values stored after the last
@@ -374,7 +374,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
 
     /* Set the packet time and length. */
     t = visual->start_time;
-    t += ((double)pletohl(&vpkt_hdr.ts_delta))*1000;
+    t += ((guint64)pletohl(&vpkt_hdr.ts_delta))*1000;
     secs = (time_t)(t/1000000);
     usecs = (guint32)(t - secs*1000000);
     wth->phdr.ts.secs = secs;
