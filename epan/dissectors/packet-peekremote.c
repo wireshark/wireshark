@@ -478,7 +478,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
    */
   if (dissect_peekremote_new(tvb, pinfo, tree, u)) {
     /* Yup, it was peekremote-ng, and it's been dissected as such. */
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
   }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEEKREMOTE");

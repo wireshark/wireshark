@@ -64,8 +64,8 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     guint32     magic;
 
     /* check for min size */
-    if (tvb_length(tvb) < 16) {  /* Not a PKTGEN packet. */
-    return FALSE;
+    if (tvb_reported_length(tvb) < 16) {  /* Not a PKTGEN packet. */
+        return FALSE;
     }
 
     /* check for magic number */
@@ -110,7 +110,7 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         proto_tree_add_time(pktgen_tree, hf_pktgen_timestamp, tvb, offset - 8, 8, &tstamp);
 
-        if (tvb_length_remaining(tvb, offset)) /* random data */
+        if (tvb_reported_length_remaining(tvb, offset)) /* random data */
             call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo,
             pktgen_tree);
     }
