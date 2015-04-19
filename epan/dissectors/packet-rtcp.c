@@ -1194,8 +1194,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
     /* Check if we have a type specific dissector,
      * if we do, just return from here
      */
-    if (packet_length > 12 &&
-        dissector_get_uint_handle (rtcp_rtpfb_dissector_table, rtcp_rtpfb_fmt)) {
+    if (packet_length > 12) {
       tvbuff_t *subtvb = tvb_new_subset_length(tvb, offset, packet_length - 12);
 
       if (dissector_try_uint (rtcp_rtpfb_dissector_table, rtcp_rtpfb_fmt,
@@ -1261,6 +1260,17 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
     /* Decode if it is NONE or ANY and add to line */
     proto_item_append_text(ti," %s", val_to_str_const(tvb_get_ntohl(tvb,offset), rtcp_ssrc_values, ""));
     offset += 4;
+
+    /* Check if we have a type specific dissector,
+     * if we do, just return from here
+     */
+    if (packet_length > 12) {
+      tvbuff_t *subtvb = tvb_new_subset_length(tvb, offset, packet_length - 12);
+
+      if (dissector_try_uint (rtcp_psfb_dissector_table, rtcp_psfb_fmt,
+              subtvb, pinfo, rtcp_tree))
+        return base_offset + packet_length;
+    }
 
     /* Feedback Control Information (FCI) */
     counter  = 0;
