@@ -8295,6 +8295,7 @@ ccss-qmm         4969/tcp # CCSS QMessageMonitor
 ccss-qmm         4969/udp # CCSS QMessageMonitor
 ccss-qsm         4970/tcp # CCSS QSystemMonitor [David_Young] [David_Young] 2006-01
 ccss-qsm         4970/udp # CCSS QSystemMonitor [David_Young] [David_Young] 2006-01
+ctxs-vpp         4980/udp # Citrix Virtual Path [Citrix_Systems] [Rohith_Ramkumar] 2015-04-17
 webyast          4984/tcp # WebYast [Federico_Lucifredi] [Federico_Lucifredi] 2009-09-25
 gerhcs           4985/tcp # GER HC Standard [Roger_Ward] [Roger_Ward] 2009-09-25
 mrip             4986/tcp # Model Railway Interface Program [Howard_Amos] [Howard_Amos] 2006-04
@@ -8579,6 +8580,7 @@ caevms           5251/udp # CA eTrust VM Service [Kevin_Bond] [Kevin_Bond] 2004-
 movaz-ssc        5252/tcp # Movaz SSC [Lou_Berger] [Lou_Berger] 2004-11
 movaz-ssc        5252/udp # Movaz SSC [Lou_Berger] [Lou_Berger] 2004-11
 kpdp             5253/tcp # Kohler Power Device Protocol [Bill_Gross] [Bill_Gross] 2010-11-01
+logcabin         5254/tcp # LogCabin storage service [Diego_Ongaro] [Diego_Ongaro] 2015-04-14
 3com-njack-1     5264/tcp # 3Com Network Jack Port 1 [Abhay_Rajaram] [Abhay_Rajaram] 2003-03
 3com-njack-1     5264/udp # 3Com Network Jack Port 1 [Abhay_Rajaram] [Abhay_Rajaram] 2003-03
 3com-njack-2     5265/tcp # 3Com Network Jack Port 2 [Abhay_Rajaram] [Abhay_Rajaram] 2003-03
@@ -9304,7 +9306,7 @@ mgcs-mfp-port    6509/udp # MGCS-MFP Port [Minoru_Ozaki] [Minoru_Ozaki]
 mcer-port        6510/tcp # MCER Port [Portnoy_Boxman] [Portnoy_Boxman]
 mcer-port        6510/udp # MCER Port [Portnoy_Boxman] [Portnoy_Boxman]
 dccp-udp         6511/udp # Datagram Congestion Control Protocol Encapsulation for NAT Traversal [IESG] [IETF_Chair] [RFC6773]
-netconf-tls      6513/tcp # NETCONF over TLS [RFC5539]
+netconf-tls      6513/tcp # NETCONF over TLS [IESG] [IETF_Chair] 2015-04-15 [RFC-ietf-netconf-rfc5539bis-10]
 syslog-tls       6514/tcp # Syslog over TLS [RFC5425]
 syslog-tls       6514/udp # syslog over DTLS [RFC6012]
 syslog-tls       6514/dccp # syslog over DTLS [RFC6012]
@@ -10326,6 +10328,7 @@ mpidcmgr         9343/tcp # MpIdcMgr [Yutaka_Ono] [Yutaka_Ono]
 mpidcmgr         9343/udp # MpIdcMgr [Yutaka_Ono] [Yutaka_Ono]
 mphlpdmc         9344/tcp # Mphlpdmc [Yutaka_Ono] [Yutaka_Ono]
 mphlpdmc         9344/udp # Mphlpdmc [Yutaka_Ono] [Yutaka_Ono]
+rancher          9345/tcp # Rancher Agent [Rancher_Labs_Inc] [Vincent_Fiduccia] 2015-04-14
 ctechlicensing   9346/tcp # C Tech Licensing [Reed_Copsey_Jr] [Reed_Copsey_Jr]
 ctechlicensing   9346/udp # C Tech Licensing [Reed_Copsey_Jr] [Reed_Copsey_Jr]
 fjdmimgr         9374/tcp # fjdmimgr [Yutaka_Ono] [Yutaka_Ono]
