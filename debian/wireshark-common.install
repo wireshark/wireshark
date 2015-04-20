@@ -4,3 +4,4 @@ usr/bin/capinfos
 usr/bin/editcap
 usr/bin/mergecap
 usr/bin/text2pcap
+usr/lib/*/wireshark/extcap

@@ -1,4 +1,6 @@
+obj-*/androiddump.1
 obj-*/editcap.1
+obj-*/extcap.4
 obj-*/mergecap.1
 obj-*/text2pcap.1
 obj-*/wireshark-filter.4
