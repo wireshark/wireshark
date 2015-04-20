@@ -143,7 +143,7 @@ struct _diam_avp_t {
 typedef struct _diam_dictionary_t {
 	wmem_tree_t *avps;
 	wmem_tree_t *vnds;
-	value_string *applications;
+	value_string_ext *applications;
 	value_string *commands;
 } diam_dictionary_t;
 
@@ -1131,7 +1131,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-			if (try_val_to_str(diam_sub_dis_inf->application_id, dictionary.applications) == NULL) {
+			if (try_val_to_str_ext(diam_sub_dis_inf->application_id, dictionary.applications) == NULL) {
 				proto_tree *tu = proto_item_add_subtree(app_item,ett_unknown);
 				proto_tree_add_expert_format(tu, c->pinfo, &ei_diameter_application_id, tvb, 8, 4,
 					"Unknown Application Id (%u), if you know what this is you can add it to dictionary.xml", diam_sub_dis_inf->application_id);
@@ -1158,7 +1158,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		     cmd,
 		     msgflags_str[((flags_bits>>4)&0x0f)],
 		     c->version_rfc ? "appl" : "vend",
-		     val_to_str_const(diam_sub_dis_inf->application_id, c->version_rfc ? dictionary.applications : vnd_short_vs, "Unknown"),
+		     c->version_rfc ? val_to_str_ext_const(diam_sub_dis_inf->application_id, dictionary.applications, "Unknown") :
+				      val_to_str_const(diam_sub_dis_inf->application_id, vnd_short_vs, "Unknown"),
 		     diam_sub_dis_inf->application_id,
 		     tvb_get_ntohl(tvb,12),
 		     tvb_get_ntohl(tvb,16));
@@ -1610,7 +1611,31 @@ build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 	return a;
 }
 
+static diam_avp_t *
+build_appid_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
+		const char *name, const value_string *vs _U_, void *data _U_)
+{
+	diam_avp_t *a;
+	field_display_e base;
 
+	a = (diam_avp_t *)wmem_alloc0(wmem_epan_scope(), sizeof(diam_avp_t));
+	a->code = code;
+	a->vendor = vendor;
+	a->dissector_v16 = type->v16;
+	a->dissector_rfc = type->rfc;
+	a->ett = -1;
+	a->hf_value = -1;
+
+	if (vs != NULL) {
+		report_failure("Diameter Dictionary: AVP '%s' (of type AppId) has a list of values but the list won't be used\n",
+				name);
+	}
+
+	base = (field_display_e)(type->base|BASE_EXT_STRING);
+
+	basic_avp_reginfo(a, name, type->ft, base, dictionary.applications);
+	return a;
+}
 
 static const avp_type_t basic_types[] = {
 	{"octetstring"		, simple_avp		, simple_avp	, FT_BYTES		, BASE_NONE		, build_simple_avp  },
@@ -1628,6 +1653,7 @@ static const avp_type_t basic_types[] = {
 	{"ipfilterrule"		, utf8_avp		, utf8_avp	, FT_STRING		, BASE_NONE		, build_simple_avp  },
 	{"qosfilterrule"	, utf8_avp		, utf8_avp	, FT_STRING		, BASE_NONE		, build_simple_avp  },
 	{"time"			, time_avp		, time_avp	, FT_ABSOLUTE_TIME	, ABSOLUTE_TIME_UTC	, build_simple_avp  },
+	{"AppId"		, simple_avp		, simple_avp	, FT_UINT32		, BASE_DEC		, build_appid_avp   },
 	{NULL, NULL, NULL, FT_NONE, BASE_NONE, NULL }
 };
 
@@ -1785,7 +1811,9 @@ dictionary_load(void)
 
 		/* TODO: Remove duplicates */
 
-		dictionary.applications = (value_string *)wmem_array_get_raw(arr);
+		dictionary.applications = value_string_ext_new((value_string *)wmem_array_get_raw(arr),
+								wmem_array_get_count(arr),
+								wmem_strdup_printf(wmem_epan_scope(), "applications_vals_ext"));
 	}
 
 	if ((v = d->vendors)) {
@@ -1979,7 +2007,7 @@ real_proto_register_diameter(void)
 		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext,
 			  0x0, NULL, HFILL }},
 	{ &hf_diameter_application_id,
-		  { "ApplicationId", "diameter.applicationId", FT_UINT32, BASE_DEC, VALS(dictionary.applications),
+		  { "ApplicationId", "diameter.applicationId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, dictionary.applications,
 			  0x0, NULL, HFILL }},
 	{ &hf_diameter_hopbyhopid,
 		  { "Hop-by-Hop Identifier", "diameter.hopbyhopid", FT_UINT32,
