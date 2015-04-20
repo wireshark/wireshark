@@ -728,9 +728,6 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     /* allow only valid SPDO flags */
     spdoFlags = ( ( tr >> 2 ) & OPENSAFETY_SPDO_FEATURE_FLAGS );
 
-    /* determine the ct value. if complete it can be used for analysis of the package */
-    ct = tvb_get_guint8(message_tvb, packet->frame.subframe1 + 3);
-
     /* An SPDO is always sent by the producer, to everybody else .
      * For a 40bit connection OPENSAFETY_DEFAULT_DOMAIN is assumed as sdn value for now */
     if ( (OPENSAFETY_SPDO_FEAT_40BIT_USED & spdoFlags ) == OPENSAFETY_SPDO_FEAT_40BIT_USED )
@@ -1114,7 +1111,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     /* Toggle bit must be removed, otherwise the values cannot be displayed correctly */
     if ( packet->payload.ssdo->sacmd.toggle )
         db0 &= (~OPENSAFETY_SSDO_SACMD_TGL);
-    item = proto_tree_add_bitmask(ssdo_tree, message_tvb, db0Offset, hf_oss_ssdo_sacmd,
+    proto_tree_add_bitmask(ssdo_tree, message_tvb, db0Offset, hf_oss_ssdo_sacmd,
             ett_opensafety_ssdo_sacmd, ssdo_sacmd_flags, ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", SACMD: %s", val_to_str_const(db0, opensafety_ssdo_sacmd_values, " "));
