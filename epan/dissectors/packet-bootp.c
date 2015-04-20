@@ -7065,7 +7065,7 @@ proto_register_bootp(void)
 
 		{ &hf_bootp_option_classless_static_route,
 		  { "Subnet/MaskWidth-Router", "bootp.option.classless_static_route.",
-		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 121: Subnet/MaskWidth-Router", HFILL }},
 
 		{ &hf_bootp_option_rfc3825_error,
