@@ -3429,6 +3429,23 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return pi;
 }
 
+static proto_item *
+proto_tree_add_boolean64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+		         gint length, guint64 value)
+{
+	proto_item	  *pi;
+	header_field_info *hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
+
+	DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_BOOLEAN);
+
+	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
+	proto_tree_set_boolean(PNODE_FINFO(pi), value);
+
+	return pi;
+}
+
 /* Set the FT_BOOLEAN value */
 static void
 proto_tree_set_boolean(field_info *fi, guint64 value)
@@ -8124,7 +8141,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 				break;
 
 			case FT_BOOLEAN:
-				proto_tree_add_boolean(tree, **fields, tvb, offset, len, (value != 0));
+				proto_tree_add_boolean64(tree, **fields, tvb, offset, len, value);
 				break;
 
 			default:
