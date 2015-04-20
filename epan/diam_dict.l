@@ -178,6 +178,8 @@ grouped_start <grouped>
 grouped_end <\/grouped>
 
 vendor_start <vendor
+vendor_end<\/vendor>
+
 gavp_start <gavp
 
 ignored_attr [a-z0-9-]+=
@@ -395,12 +397,12 @@ description_attr description=\042
 }
 
 <COMMAND_ATTRS>{name_attr}		{ ATTR_STR(cmd->name); }
-<COMMAND_ATTRS>{vendor_attr}	{ ATTR_STR(cmd->vendor); }
+<COMMAND_ATTRS>{vendor_attr}		{ ATTR_STR(cmd->vendor); }
 <COMMAND_ATTRS>{code_attr}		{ ATTR_UINT(cmd->code); }
 <COMMAND_ATTRS>{stop}			|
 <COMMAND_ATTRS>{stop_end}		{ BEGIN IN_APPL; }
 
-<IN_APPL>{vendor_start} {
+<IN_DICT>{vendor_start} {
 	D(("vendor_start\n"));
 
 	vnd = g_new(ddict_vendor_t,1);
@@ -417,8 +419,8 @@ description_attr description=\042
 <VENDOR_ATTRS>{name_attr}		{ ATTR_STR(vnd->desc); }
 <VENDOR_ATTRS>{vendor_attr}		{ ATTR_STR(vnd->name); }
 <VENDOR_ATTRS>{code_attr}		{ ATTR_UINT(vnd->code); }
-<VENDOR_ATTRS>{stop}			|
-<VENDOR_ATTRS>{stop_end}		{ BEGIN IN_APPL; }
+<VENDOR_ATTRS>{stop}			{ BEGIN IN_APPL; }
+<VENDOR_ATTRS>{stop_end}		{ BEGIN IN_DICT; }
 
 <IN_APPL>{typedefn_start} {
 	D(("typedefn_start\n"));
@@ -460,10 +462,10 @@ description_attr description=\042
 }
 
 <AVP_ATTRS>{name_attr}			{ ATTR_STR(avp->name); }
-<AVP_ATTRS>{description_attr}	{ ATTR_STR(avp->description); }
+<AVP_ATTRS>{description_attr}		{ ATTR_STR(avp->description); }
 <AVP_ATTRS>{vendor_attr}		{ ATTR_STR(avp->vendor); }
 <AVP_ATTRS>{code_attr}			{ ATTR_UINT(avp->code); }
-<AVP_ATTRS>{stop}				{ BEGIN IN_AVP;  }
+<AVP_ATTRS>{stop}			{ BEGIN IN_AVP;  }
 <AVP_ATTRS>{stop_end}			{ BEGIN IN_APPL; }
 
 
@@ -509,14 +511,19 @@ description_attr description=\042
 <ENUM_ATTRS>{name_attr}			{ ATTR_STR(enumitem->name); }
 <ENUM_ATTRS>{code_attr}			{ ATTR_UINT(enumitem->code); }
 
-<TYPE_ATTRS,GAVP_ATTRS,ENUM_ATTRS>{stop}			{ BEGIN IN_AVP; }
+<TYPE_ATTRS,GAVP_ATTRS,ENUM_ATTRS>{stop}		{ BEGIN IN_AVP; }
 <TYPE_ATTRS,GAVP_ATTRS,ENUM_ATTRS>{stop_end}		{ BEGIN IN_AVP; }
 
 <IN_AVP>{avp_end} { D(("avp_end\n")); BEGIN IN_APPL; }
 
-<IN_APPL>{application_end} |
-<IN_APPL>{base_end} {
+<IN_APPL>{application_end} {
 	D(("application_end\n")); BEGIN IN_DICT;
+}
+<IN_APPL>{vendor_end} {
+	D(("vendor_end\n")); BEGIN IN_DICT;
+}
+<IN_APPL>{base_end} {
+	D(("base_end\n")); BEGIN IN_DICT;
 }
 
 <IN_DICT>{dictionary_end} {

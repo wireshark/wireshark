@@ -169,37 +169,6 @@
 
 
 		<!-- ************************************************************** -->
-		<!-- ************************* Vendors **************************** -->
-		<!-- ************************************************************** -->
-		<vendor vendor-id="None"			code="0"	name="None"/>
-		<vendor vendor-id="HP"				code="11"	name="Hewlett Packard"/>
-		<vendor vendor-id="Sun"				code="42"	name="Sun Microsystems, Inc."/>
-		<vendor vendor-id="Merit"			code="61"	name="Merit Networks"/>
-		<vendor vendor-id="Nokia"			code="94"	name="Nokia"/>
-		<vendor vendor-id="Ericsson"			code="193"	name="Ericsson"/>
-		<vendor vendor-id="Oracle_Tekelec"		code="323"	name="Oracle_Tekelec"/>
-		<vendor vendor-id="USR"				code="429"	name="US Robotics Corp."/>
-		<vendor vendor-id="ALU"				code="637"	name="ALU Network"/>
-		<vendor vendor-id="Lucent"			code="1751"	name="Lucent Technologies"/>
-		<vendor vendor-id="Huawei"			code="2011"	name="Huawei"/>
-		<vendor vendor-id="Deutsche_Telekom_AG"		code="2937"	name="Deutsche Telekom AG"/>
-		<vendor vendor-id="Acision"			code="3830"	name="Acision"/>
-		<vendor vendor-id="TGPP2"			code="5535"	name="3GPP2"/>
-		<vendor vendor-id="Cisco"			code="5771"	name="Cisco"/>
-		<vendor vendor-id="SKT"				code="5806"	name="SK Telecom"/>
-		<vendor vendor-id="Starent"			code="8164"	name="Starent"/>
-		<vendor vendor-id="TGPP"			code="10415"	name="3GPP"/>
-		<vendor vendor-id="Vodafone"			code="12645"	name="Vodafone"/>
-		<vendor vendor-id="VerizonWireless"		code="12951"	name="Verizon Wireless"/>
-		<vendor vendor-id="ETSI"			code="13019"	name="ETSI"/>
-		<vendor vendor-id="Tango"			code="13421"	name="Tango Telecom Limited"/>
-		<vendor vendor-id="NokiaSolutionsAndNetworks"	code="28458"	name="Nokia Solutions and Networks"/>
-		<vendor vendor-id="ChinaTelecom"		code="81000"	name="China Telecom"/>
-		<vendor vendor-id="TGPPCX"			code="16777216"	name="3GPP CX/DX"/>
-		<!-- *********************** End Vendors ************************** -->
-
-
-		<!-- ************************************************************** -->
 		<!-- ************************ typedefn's ************************** -->
 		<!-- ************************************************************** -->
 		<typedefn type-name="OctetString"/>
@@ -6637,6 +6606,9 @@
 
 	</base>
 
+	<!-- ********************************************************************** -->
+	<!-- ************************* Application IDs **************************** -->
+	<!-- ********************************************************************** -->
 	<!---
 	Duplicates should be avoided
 	16777216 is defined in TGPP.xml
@@ -6646,21 +6618,22 @@
 	16777224 is defined in ChinaTelecom.xml
 	16777227 is defined in Ericsson.xml
 	16777228 is defined in starent.xml
-	16777229 is defined in Oracle.xml
 	16777234 is defined in Vodafone.xml
 	16777236 is defined in TGPP.xml
 	16777237 is defined in TGPP2.xml
-	16777238 is defined in Cisco.xml
 	16777267 is defined in TGPP.xml
 	16777292 is defined in TGPP.xml
 	16777302 is defined in NokiaSolutionsAndNetworks.xml
 	16777304 is defined in SKT.xml
 	16777317 is defined in NokiaSolutionsAndNetworks.xml
+	16777322 is defined in VerizonWireless.xml
 	-->
 	<application id="0"		name="Diameter Common Messages"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="3"		name="Diameter Base Accounting"	uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777219"	name="3GPP Wx"			uri="http://www.3GPP.org/ftp/Specs/html-info/29234.htm"></application>
+	<application id="16777229"	name="3GPP Rx Release 6"	uri="http://www.3GPP.org/ftp/Specs/html-info/29211.htm"></application>
 	<application id="16777232"	name="Ericsson Charging-CIP"	uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm"></application>
+	<application id="16777238"	name="3GPP Gx"			uri="http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt"></application>
 	<application id="16777250"	name="3GPP STa"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
 	<application id="16777251"	name="3GPP S6a/S6d"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
 	<application id="16777252"	name="3GPP S13/S13'"		uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516"></application>
@@ -6674,6 +6647,34 @@
 	<application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)"	uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777327"	name="Ericsson Sx"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="4294967295"	name="Relay"			uri="http://www.ietf.org/rfc/rfc6733.txt?number=6733"></application>
+	<!-- *********************** End Application IDs ************************** -->
+
+
+	<!-- ************************************************************** -->
+	<!-- ************************* Vendors **************************** -->
+	<!-- ************************************************************** -->
+	<vendor vendor-id="None"			code="0"	name="None"/>
+	<vendor vendor-id="HP"				code="11"	name="Hewlett Packard"/>
+	<vendor vendor-id="Sun"				code="42"	name="Sun Microsystems, Inc."/>
+	<vendor vendor-id="Merit"			code="61"	name="Merit Networks"/>
+	<vendor vendor-id="Nokia"			code="94"	name="Nokia"/>
+	<vendor vendor-id="Ericsson"			code="193"	name="Ericsson"/>
+	<vendor vendor-id="USR"				code="429"	name="US Robotics Corp."/>
+	<vendor vendor-id="ALU"				code="637"	name="ALU Network"/>
+	<vendor vendor-id="Lucent"			code="1751"	name="Lucent Technologies"/>
+	<vendor vendor-id="Huawei"			code="2011"	name="Huawei"/>
+	<vendor vendor-id="Deutsche_Telekom_AG"		code="2937"	name="Deutsche Telekom AG"/>
+	<vendor vendor-id="Acision"			code="3830"	name="Acision"/>
+	<vendor vendor-id="TGPP2"			code="5535"	name="3GPP2"/>
+	<vendor vendor-id="SKT"				code="5806"	name="SK Telecom"/>
+	<vendor vendor-id="Starent"			code="8164"	name="Starent"/>
+	<vendor vendor-id="TGPP"			code="10415"	name="3GPP"/>
+	<vendor vendor-id="ETSI"			code="13019"	name="ETSI"/>
+	<vendor vendor-id="Tango"			code="13421"	name="Tango Telecom Limited"/>
+	<vendor vendor-id="NokiaSolutionsAndNetworks"	code="28458"	name="Nokia Solutions and Networks"/>
+	<vendor vendor-id="ChinaTelecom"		code="81000"	name="China Telecom"/>
+	<vendor vendor-id="TGPPCX"			code="16777216"	name="3GPP CX/DX"/>
+	<!-- *********************** End Vendors ************************** -->
 
 	&nasreq;
 	&eap;
