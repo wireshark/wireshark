@@ -21,6 +21,7 @@
 
 project(Wireshark C CXX)
 
+message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 if(WIN32)
 	# Needed for proper Qt linking. See
 	# http://www.cmake.org/cmake/help/v3.0/policy/CMP0020.html
@@ -56,11 +57,9 @@ if(WIN32)
 	if("${CMAKE_GENERATOR}" MATCHES "Win64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
 		set(PROCESSOR_ARCHITECTURE amd64)
-		message("Building for x64")
 	elseif("${CMAKE_GENERATOR}" MATCHES "Visual Studio")
 		set(WIRESHARK_TARGET_PLATFORM win32)
 		set(PROCESSOR_ARCHITECTURE x86)
-		message("Building for x86")
 	else()
 		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
 	endif()
@@ -79,6 +78,7 @@ if(WIN32)
 		message(FATAL_ERROR "The PLATFORM environment variable (${_vs_platform})"
 			" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
 	endif()
+	message(STATUS "Building for ${WIRESHARK_TARGET_PLATFORM} using ${CMAKE_GENERATOR}")
 
 	# Download third-party libraries
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
@@ -90,6 +90,7 @@ if(WIN32)
 	elseif(MSVC10)
 		set(_vsversion_args "-VSVersion 10")
 	endif()
+
 	# Is it possible to have a one-time, non-cached option in CMake? If
 	# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
 	# win-setup.ps1.
@@ -756,7 +757,7 @@ foreach(PACKAGE ${PACKAGELIST})
 		find_package(${PACKAGE})
 	endif()
 	if (${PACKAGE_VAR}_FOUND)
-		message("${PACKAGE_VAR} FOUND")
+		message(STATUS "${PACKAGE_VAR} FOUND")
 		set(HAVE_LIB${PACKAGE_VAR} 1)
 		include_directories(SYSTEM ${${PACKAGE_VAR}_INCLUDE_DIRS})
 		set(WS_ALL_LIBS ${WS_ALL_LIBS} ${${PACKAGE_VAR}_LIBRARIES})
@@ -778,7 +779,7 @@ foreach(PACKAGE ${PACKAGELIST})
 		#
 		# Do *NOT* report this as an error!
 		#
-		message("${PACKAGE_VAR} NOT FOUND")
+		message(STATUS "${PACKAGE_VAR} NOT FOUND")
 	endif()
 endforeach()
 

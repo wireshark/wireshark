@@ -19,7 +19,7 @@ FIND_PROGRAM(A2X_EXECUTABLE
 string( TOLOWER "${CYGWIN_INSTALL_PATH}" l_cyg_path)
 string( TOLOWER "${A2X_EXECUTABLE}" l_a2x_ex)
 if (NOT "${CYGWIN_INSTALL_PATH}" STREQUAL "" AND "${l_a2x_ex}" MATCHES "${l_cyg_path}")
-    message("-- Using Cygwin a2x")
+    message(STATUS "Using Cygwin a2x")
     # We have most likely found a symlink to a2x.py. This won't work from the Windows shell.
     FIND_PROGRAM(CYGPATH_EXECUTABLE
         NAMES cygpath
