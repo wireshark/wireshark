@@ -187,6 +187,82 @@ double nstime_to_sec(const nstime_t *nstime)
 }
 
 /*
+ * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
+ * and the Windows NT epoch (January 1, 1601 in the proleptic Gregorian
+ * calendar, 00:00:00 "GMT")
+ *
+ * This is
+ *
+ *     369*365.25*24*60*60-(3*24*60*60+6*60*60)
+ *
+ * 1970-1601 is 369; 365.25 is the average length of a year in days,
+ * including leap years.
+ *
+ * 3 days are subtracted because 1700, 1800, and 1900 were not leap
+ * years, as, while they're all evenly divisible by 4, they're also
+ * evently divisible by 100, but not evently divisible by 400, so
+ * we need to compensate for using the average length of a year in
+ * days, which assumes a leap year every 4 years, *including* every
+ * 100 years.
+ *
+ * I'm not sure what the extra 6 hours are that are being subtracted.  
+ */
+#define TIME_FIXUP_CONSTANT G_GUINT64_CONSTANT(11644473600)
+
+#ifndef TIME_T_MIN
+#define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
+		    : ~ (time_t) 0 << (sizeof (time_t) * CHAR_BIT - 1)))
+#endif
+#ifndef TIME_T_MAX
+#define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
+#endif
+
+/*
+ * function: filetime_to_nstime
+ * converts a Windows FILETIME value to an nstime_t
+ * returns TRUE if the conversion succeeds, FALSE if it doesn't
+ * (for example, with a 32-bit time_t, the time overflows or
+ * underflows time_t)
+ */
+gboolean
+filetime_to_nstime(nstime_t *nstime, guint64 filetime)
+{
+    /*
+     * This code is based on the Samba code:
+     *
+     *  Unix SMB/Netbios implementation.
+     *  Version 1.9.
+     *  time handling functions
+     *  Copyright (C) Andrew Tridgell 1992-1998
+     */
+    gint64 secs;
+    int nsecs;
+    /* The next two lines are a fix needed for the
+       broken SCO compiler. JRA. */
+    time_t l_time_min = TIME_T_MIN;
+    time_t l_time_max = TIME_T_MAX;
+
+    /* Split into seconds and nanoseconds. */
+    secs = filetime / 10000000;
+    nsecs = (int)((filetime % 10000000)*100);
+
+    /* Now adjust the seconds. */
+    secs -= TIME_FIXUP_CONSTANT;
+
+    if (!(l_time_min <= secs && secs <= l_time_max)) {
+        /* The result won't fit in a time_t */
+        return FALSE;
+    }
+
+    /*
+     * Get the time as seconds and nanoseconds.
+     */
+    nstime->secs = (time_t) secs;
+    nstime->nsecs = nsecs;
+    return TRUE;
+}
+
+/*
  * Editor modelines
  *
  * Local Variables:
