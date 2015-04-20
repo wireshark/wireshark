@@ -144,14 +144,14 @@ struct visual_read_info
 {
     guint32 num_pkts;           /* Number of pkts in the file */
     guint32 current_pkt;        /* Next packet to be read */
-    guint64 start_time;         /* Capture start time in microseconds */
+    guint32 start_time;         /* Capture start time in seconds */
 };
 
 
 /* Additional information for writing Visual files */
 struct visual_write_info
 {
-    guint start_time;        /* Capture start time in seconds */
+    guint   start_time;         /* Capture start time in seconds */
     int     index_table_index;  /* Index of the next index entry */
     int     index_table_size;   /* Allocated size of the index table */
     guint32 * index_table;      /* File offsets for the packets */
@@ -273,7 +273,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     visual = (struct visual_read_info *)g_malloc(sizeof(struct visual_read_info));
     wth->priv = (void *)visual;
     visual->num_pkts = pletohl(&vfile_hdr.num_pkts);
-    visual->start_time = ((guint64) pletohl(&vfile_hdr.start_time)) * 1000000;
+    visual->start_time = pletohl(&vfile_hdr.start_time);
     visual->current_pkt = 1;
 
     return 1;
@@ -294,9 +294,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     struct visual_atm_hdr vatm_hdr;
     int phdr_size = sizeof(vpkt_hdr);
     int ahdr_size = sizeof(vatm_hdr);
-    time_t  secs;
-    guint32 usecs;
-    guint64 t;
+    guint32 relmsecs;
 
     /* Check for the end of the packet data.  Note that a check for file EOF
        will not work because there are index values stored after the last
@@ -373,12 +371,9 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     /* Set the packet time and length. */
-    t = visual->start_time;
-    t += ((guint64)pletohl(&vpkt_hdr.ts_delta))*1000;
-    secs = (time_t)(t/1000000);
-    usecs = (guint32)(t - secs*1000000);
-    wth->phdr.ts.secs = secs;
-    wth->phdr.ts.nsecs = usecs * 1000;
+    relmsecs = pletohl(&vpkt_hdr.ts_delta);
+    wth->phdr.ts.secs = (guint64)visual->start_time + relmsecs/1000;
+    wth->phdr.ts.nsecs = (relmsecs % 1000)*1000000;
     
     /* Most visual capture types include FCS checks in the original length value, but
     * but don't include the FCS as part of the payload or captured length. 
