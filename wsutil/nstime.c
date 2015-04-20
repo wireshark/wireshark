@@ -205,7 +205,7 @@ double nstime_to_sec(const nstime_t *nstime)
  * days, which assumes a leap year every 4 years, *including* every
  * 100 years.
  *
- * I'm not sure what the extra 6 hours are that are being subtracted.  
+ * I'm not sure what the extra 6 hours are that are being subtracted.
  */
 #define TIME_FIXUP_CONSTANT G_GUINT64_CONSTANT(11644473600)
 
