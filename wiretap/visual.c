@@ -142,14 +142,14 @@ struct visual_read_info
 {
     guint32 num_pkts;           /* Number of pkts in the file */
     guint32 current_pkt;        /* Next packet to be read */
-    guint32 start_time;         /* Capture start time in seconds */
+    time_t  start_time;         /* Capture start time in seconds */
 };
 
 
 /* Additional information for writing Visual files */
 struct visual_write_info
 {
-    guint   start_time;         /* Capture start time in seconds */
+    time_t  start_time;         /* Capture start time in seconds */
     int     index_table_index;  /* Index of the next index entry */
     int     index_table_size;   /* Allocated size of the index table */
     guint32 * index_table;      /* File offsets for the packets */
@@ -353,7 +353,7 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
     /* Set the packet time and length. */
     relmsecs = pletoh32(&vpkt_hdr.ts_delta);
-    phdr->ts.secs = (guint64)visual->start_time + relmsecs/1000;
+    phdr->ts.secs = visual->start_time + relmsecs/1000;
     phdr->ts.nsecs = (relmsecs % 1000)*1000000;
 
     phdr->len = pletoh16(&vpkt_hdr.orig_len);
@@ -697,7 +697,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     if (visual->index_table_index == 0)
     {
         /* This is the first packet.  Save its start time as the file time. */
-        visual->start_time = (guint32) phdr->ts.secs;
+        visual->start_time = phdr->ts.secs;
 
         /* Initialize the index table */
         visual->index_table = (guint32 *)g_malloc(1024 * sizeof *visual->index_table);
@@ -706,7 +706,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /* Calculate milliseconds since capture start. */
     delta_msec = phdr->ts.nsecs / 1000000;
-    delta_msec += ( (guint32) phdr->ts.secs - visual->start_time) * 1000;
+    delta_msec += (guint32)((phdr->ts.secs - visual->start_time) * 1000);
     vpkt_hdr.ts_delta = GUINT32_TO_LE(delta_msec);
 
     /* Fill in the length fields. */
