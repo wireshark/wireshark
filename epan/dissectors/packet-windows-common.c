@@ -1109,20 +1109,6 @@ value_string_ext ms_country_codes_ext = VALUE_STRING_EXT_INIT(ms_country_codes);
  /*module_t* module;*/
  /*pref_t* sid_display_hex;*/
 
-#ifndef TIME_T_MIN
-#define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
-		    : ~ (time_t) 0 << (sizeof (time_t) * CHAR_BIT - 1)))
-#endif
-#ifndef TIME_T_MAX
-#define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
-#endif
-
-/*
- * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
- * and the Windows NT epoch (January 1, 1601, 00:00:00 "GMT").
- */
-#define TIME_FIXUP_CONSTANT G_GUINT64_CONSTANT(11644473600)
-
 /*
  * Translate an 8-byte FILETIME value, given as the upper and lower 32 bits,
  * to an "nstime_t".
@@ -1147,12 +1133,6 @@ static gboolean
 nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv, gboolean onesec_resolution)
 {
 	guint64 d;
-	gint64 secs;
-	int nsecs;
-	/* The next two lines are a fix needed for the
-	    broken SCO compiler. JRA. */
-	time_t l_time_min = TIME_T_MIN;
-	time_t l_time_max = TIME_T_MAX;
 
 	if (filetime_high == 0)
 		return FALSE;
@@ -1163,23 +1143,7 @@ nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv, gbo
 		d *= 10000000;
 	}
 
-	/* Split into seconds and nanoseconds. */
-	secs = d / 10000000;
-	nsecs = (int)((d % 10000000)*100);
-
-	/* Now adjust the seconds. */
-	secs -= TIME_FIXUP_CONSTANT;
-
-	if (!(l_time_min <= secs && secs <= l_time_max))
-		return FALSE;
-
-	/*
-	 * Get the time as seconds and nanoseconds.
-	 */
-	tv->secs = (time_t) secs;
-	tv->nsecs = nsecs;
-
-	return TRUE;
+	return filetime_to_nstime(tv, d);
 }
 
 int

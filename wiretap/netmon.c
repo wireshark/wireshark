@@ -441,20 +441,6 @@ typedef enum {
 	RETRY
 } process_record_retval;
 
-/*
- * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
- * and the Windows NT epoch (January 1, 1601, 00:00:00 "GMT").
- */
-#define TIME_FIXUP_CONSTANT G_GUINT64_CONSTANT(11644473600)
-
-#ifndef TIME_T_MIN
-#define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
-		    : ~ (time_t) 0 << (sizeof (time_t) * CHAR_BIT - 1)))
-#endif
-#ifndef TIME_T_MAX
-#define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
-#endif
-
 static process_record_retval
 netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
@@ -747,43 +733,20 @@ netmon_process_record(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
 		phdr->pkt_encap = pkt_encap;
 		if (netmon->version_major > 2 || netmon->version_minor > 2) {
-			/*
-			 * This code is based on the Samba code:
-			 *
-			 *	Unix SMB/Netbios implementation.
-			 *	Version 1.9.
-			 *	time handling functions
-			 *	Copyright (C) Andrew Tridgell 1992-1998
-			 */
 			guint64 d;
-			gint64 utcsecs;
-			/* The next two lines are a fix needed for the
-			    broken SCO compiler. JRA. */
-			time_t l_time_min = TIME_T_MIN;
-			time_t l_time_max = TIME_T_MAX;
 
 			d = pletoh64(trlr.trlr_2_3.utc_timestamp);
-
-			/* Split into seconds and nanoseconds. */
-			utcsecs = d / 10000000;
-			nsecs = (int)((d % 10000000)*100);
-
-			/* Now adjust the seconds. */
-			utcsecs -= TIME_FIXUP_CONSTANT;
-
-			if (!(l_time_min <= secs && secs <= l_time_max)) {
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: time stamp outside supported range");
-				return FAILURE;
-			}
 
 			/*
 			 * Get the time as seconds and nanoseconds.
 			 * and overwrite the time stamp obtained
 			 * from the record header.
 			 */
-			phdr->ts.secs = (time_t) utcsecs;
-			phdr->ts.nsecs = nsecs;
+			if (!filetime_to_nstime(&phdr->ts, d)) {
+				*err = WTAP_ERR_BAD_FILE;
+				*err_info = g_strdup_printf("netmon: time stamp outside supported range");
+				return FAILURE;
+			}
 		}
 	}
 
