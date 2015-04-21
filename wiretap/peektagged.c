@@ -462,16 +462,6 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /*
- * Time stamps appear to be in nanoseconds since the Windows epoch
- * as used in FILETIMEs, i.e. midnight, January 1, 1601.
- *
- * This magic number came from "nt_time_to_nstime()" in "packet-smb.c".
- * 1970-1601 is 369; I'm not sure what the extra 3 days and 6 hours are
- * that are being subtracted.
- */
-#define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
-
-/*
  * Read the packet.
  *
  * XXX - we should supply the additional radio information;
@@ -499,7 +489,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     guint32 data_rate_or_mcs_index = 0;
     struct ieee_802_11_phdr ieee_802_11;
     int skip_len = 0;
-    double  t;
+    guint64 t;
 
     timestamp.upper = 0;
     timestamp.lower = 0;
@@ -678,12 +668,12 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     phdr->caplen = sliceLength;
 
     /* calculate and fill in packet time stamp */
-    t =  (double) timestamp.lower +
-         (double) timestamp.upper * 4294967296.0;
-    t *= 1.0e-9;
-    t -= TIME_FIXUP_CONSTANT;
-    phdr->ts.secs  = (time_t) t;
-    phdr->ts.nsecs = (guint32) ((t - phdr->ts.secs)*1000000000);
+    t = (((guint64) timestamp.upper) << 32) + timestamp.lower;
+    if (!nsfiletime_to_nstime(&phdr->ts, t)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("peektagged: time stamp outside supported range");
+        return -1;
+    }
 
     switch (wth->file_encap) {
 
