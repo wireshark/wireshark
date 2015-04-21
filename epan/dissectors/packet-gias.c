@@ -7028,7 +7028,7 @@ start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offs
      */
 
     if (ptree) {
-        ti = proto_tree_add_item(ptree, proto_gias, tvb, *offset, -1, ENC_NA);
+        ti = proto_tree_add_item(ptree, proto_gias, tvb, *offset, tvb_reported_length_remaining(tvb, *offset), ENC_NA);
         tree = proto_item_add_subtree(ti, ett_gias);
     }
     return tree;
