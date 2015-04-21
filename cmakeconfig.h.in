@@ -23,7 +23,7 @@
 #cmakedefine HAVE_SSE4_2 1
 
 /* Directory where extcap hooks reside */
-#define EXTCAP_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/extcap/"
+#define EXTCAP_DIR "${EXTCAP_DIR}"
 
 /* Define to 1 if we want to enable extcap */
 #cmakedefine HAVE_EXTCAP 1

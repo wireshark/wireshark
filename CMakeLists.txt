@@ -945,16 +945,17 @@ else()
 endif()
 set (DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
 
-if(ENABLE_EXTCAP)
-	set(HAVE_EXTCAP 1)
-	set(EXTCAP_DIR "${DATAFILE_DIR}/extcap/")
-endif()
-
 if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
   set(ABSOLUTE_CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
 else()
   set(ABSOLUTE_CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 endif()
+
+if(ENABLE_EXTCAP)
+	set(HAVE_EXTCAP 1)
+	set(EXTCAP_DIR "${ABSOLUTE_CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap/")
+endif()
+
 # Location of our plugins. PLUGIN_DIRECTORY should allow running
 # from the build directory similar to DATAFILE_DIR above.
 if(ENABLE_PLUGINS)
