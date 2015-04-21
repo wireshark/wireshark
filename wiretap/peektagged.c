@@ -504,14 +504,35 @@ peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 }
 
 /*
- * Time stamps appear to be in nanoseconds since the Windows epoch
- * as used in FILETIMEs, i.e. midnight, January 1, 1601.
+ * Number of seconds between the UN*X epoch (January 1, 1970, 00:00:00 GMT)
+ * and the Windows NT epoch (January 1, 1601 in the proleptic Gregorian
+ * calendar, 00:00:00 "GMT")
  *
- * This magic number came from "nt_time_to_nstime()" in "packet-smb.c".
- * 1970-1601 is 369; I'm not sure what the extra 3 days and 6 hours are
- * that are being subtracted.
+ * This is
+ *
+ *     369*365.25*24*60*60-(3*24*60*60+6*60*60)
+ *
+ * 1970-1601 is 369; 365.25 is the average length of a year in days,
+ * including leap years.
+ *
+ * 3 days are subtracted because 1700, 1800, and 1900 were not leap
+ * years, as, while they're all evenly divisible by 4, they're also
+ * evently divisible by 100, but not evently divisible by 400, so
+ * we need to compensate for using the average length of a year in
+ * days, which assumes a leap year every 4 years, *including* every
+ * 100 years.
+ *
+ * I'm not sure what the extra 6 hours are that are being subtracted.
  */
-#define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
+#define TIME_FIXUP_CONSTANT G_GUINT64_CONSTANT(11644473600)
+
+#ifndef TIME_T_MIN
+#define TIME_T_MIN ((time_t) ((time_t)0 < (time_t) -1 ? (time_t) 0 \
+		    : ~ (time_t) 0 << (sizeof (time_t) * CHAR_BIT - 1)))
+#endif
+#ifndef TIME_T_MAX
+#define TIME_T_MAX ((time_t) (~ (time_t) 0 - TIME_T_MIN))
+#endif
 
 static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
@@ -519,7 +540,14 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     peektagged_t *peektagged = (peektagged_t *)wth->priv;
     hdr_info_t hdr_info;
     int hdrlen;
-    double  t;
+    guint64 t;
+    guint64 ftsecs;
+    int nsecs;
+    gint64 secs;
+    /* The next two lines are a fix needed for the
+       broken SCO compiler. JRA. */
+    time_t l_time_min = TIME_T_MIN;
+    time_t l_time_max = TIME_T_MAX;
 
     *data_offset = file_tell(wth->fh);
 
@@ -559,13 +587,30 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 				  err_info);
 
     /* recalculate and fill in packet time stamp */
-    t =  (double) hdr_info.timestamp.lower +
-	 (double) hdr_info.timestamp.upper * 4294967296.0;
+    t = (((guint64) hdr_info.timestamp.upper) << 32) + hdr_info.timestamp.lower;
 
-    t *= 1.0e-9;
-    t -= TIME_FIXUP_CONSTANT;
-    wth->phdr.ts.secs  = (time_t) t;
-    wth->phdr.ts.nsecs = (guint32) ((t - wth->phdr.ts.secs)*1000000000);
+    /* Split into seconds and nanoseconds. */
+    ftsecs = t / 1000000000;
+    nsecs = (int)(t % 1000000000);
+
+    /*
+     * Shift the seconds from the Windows epoch to the UN*X epoch.
+     * ftsecs's value should fit in a 64-bit signed variable, as
+     * ftsecs is derived from a 64-bit fractions-of-a-second value,
+     * and is far from the maximum 64-bit signed value, and
+     * TIME_FIXUP_CONSTANT is also far from the maximum 64-bit
+     * signed value, so the difference between them should also
+     * fit in a 64-bit signed value.
+     */
+    secs = (gint64)ftsecs - TIME_FIXUP_CONSTANT;
+    if (!(l_time_min <= secs && secs <= l_time_max)) {
+        /* The result won't fit in a time_t */
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("peektagged: time stamp outside supported range");
+        return FALSE;
+    }
+    wth->phdr.ts.secs  = (time_t) secs;
+    wth->phdr.ts.nsecs = nsecs;
 
     switch (wth->file_encap) {
 
