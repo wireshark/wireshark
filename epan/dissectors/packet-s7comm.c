@@ -322,6 +322,7 @@ static const value_string item_syntaxid_names[] = {
 #define S7COMM_DATA_TRANSPORT_SIZE_BBIT     3           /* bit access, len is in bits */
 #define S7COMM_DATA_TRANSPORT_SIZE_BBYTE    4           /* byte/word/dword acces, len is in bits */
 #define S7COMM_DATA_TRANSPORT_SIZE_BINT     5           /* integer access, len is in bits */
+#define S7COMM_DATA_TRANSPORT_SIZE_BDINT    6           /* integer access, len is in bytes */
 #define S7COMM_DATA_TRANSPORT_SIZE_BREAL    7           /* real access, len is in bytes */
 #define S7COMM_DATA_TRANSPORT_SIZE_BSTR     9           /* octet string, len is in bytes */
 
@@ -330,6 +331,7 @@ static const value_string data_transportsizenames[] = {
     { S7COMM_DATA_TRANSPORT_SIZE_BBIT,      "BIT" },
     { S7COMM_DATA_TRANSPORT_SIZE_BBYTE,     "BYTE/WORD/DWORD" },
     { S7COMM_DATA_TRANSPORT_SIZE_BINT,      "INTEGER" },
+    { S7COMM_DATA_TRANSPORT_SIZE_BDINT,     "DINTEGER" },
     { S7COMM_DATA_TRANSPORT_SIZE_BREAL,     "REAL" },
     { S7COMM_DATA_TRANSPORT_SIZE_BSTR,      "OCTET STRING" },
     { 0,                                    NULL }
