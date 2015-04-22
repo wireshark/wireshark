@@ -97,16 +97,6 @@ static gint ett_lacp = -1;
 static gint ett_lacp_a_flags = -1;
 static gint ett_lacp_p_flags = -1;
 
-static const char initial_sep[] = " (";
-static const char cont_sep[] = ", ";
-
-#define APPEND_BOOLEAN_FLAG(flag, item, string) \
-    if(flag){                                   \
-        if(item)                                          \
-            proto_item_append_text(item, string, sep);    \
-        sep = cont_sep;                                   \
-    }
-
 /*
  * Name: dissect_lacp
  *
@@ -130,17 +120,30 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 raw_word;
     guint8  raw_octet;
 
-    guint8  flags;
-
     proto_tree *lacpdu_tree;
     proto_item *lacpdu_item;
-    proto_tree *actor_flags_tree;
-    proto_item *actor_flags_item;
-    proto_tree *partner_flags_tree;
-    proto_item *partner_flags_item;
-
-    const char *sep;
-
+    static const int * actor_flags[] = {
+        &hf_lacp_flags_a_activity,
+        &hf_lacp_flags_a_timeout,
+        &hf_lacp_flags_a_aggregation,
+        &hf_lacp_flags_a_sync,
+        &hf_lacp_flags_a_collecting,
+        &hf_lacp_flags_a_distrib,
+        &hf_lacp_flags_a_defaulted,
+        &hf_lacp_flags_a_expired,
+        NULL
+    };
+    static const int * partner_flags[] = {
+        &hf_lacp_flags_p_activity,
+        &hf_lacp_flags_p_timeout,
+        &hf_lacp_flags_p_aggregation,
+        &hf_lacp_flags_p_sync,
+        &hf_lacp_flags_p_collecting,
+        &hf_lacp_flags_p_distrib,
+        &hf_lacp_flags_p_defaulted,
+        &hf_lacp_flags_p_expired,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LACP");
     col_set_str(pinfo->cinfo, COL_INFO, "Link Aggregation Control Protocol");
@@ -203,75 +206,8 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     /* Actor State */
-
-    flags = tvb_get_guint8(tvb, offset);
-    actor_flags_item = proto_tree_add_uint(lacpdu_tree, hf_lacp_actor_state, tvb,
-                                           offset, 1, flags);
-    actor_flags_tree = proto_item_add_subtree(actor_flags_item, ett_lacp_a_flags);
-
-    sep = initial_sep;
-
-    /* Activity Flag */
-
-    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_ACTIVITY, actor_flags_item,
-                        "%sActivity");
-    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_activity, tvb,
-                           offset, 1, flags);
-
-    /* Timeout Flag */
-
-    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_TIMEOUT, actor_flags_item,
-                        "%sTimeout");
-    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_timeout, tvb,
-                           offset, 1, flags);
-
-    /* Aggregation Flag */
-
-    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_AGGREGATION, actor_flags_item,
-                        "%sAggregation");
-    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_aggregation, tvb,
-                           offset, 1, flags);
-
-    /* Synchronization Flag */
-
-    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_SYNC, actor_flags_item,
-                        "%sSynchronization");
-    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_sync, tvb,
-                           offset, 1, flags);
-
-    /* Collecting Flag */
-
-    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_COLLECTING, actor_flags_item,
-                        "%sCollecting");
-    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_collecting, tvb,
-                           offset, 1, flags);
-
-    /* Distributing Flag */
-
-    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_DISTRIB, actor_flags_item,
-                        "%sDistributing");
-    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_distrib, tvb,
-                           offset, 1, flags);
-
-    /* Defaulted Flag */
-
-    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_DEFAULTED, actor_flags_item,
-                        "%sDefaulted");
-    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_defaulted, tvb,
-                           offset, 1, flags);
-
-    /* Expired Flag */
-
-    APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_EXPIRED, actor_flags_item,
-                        "%sExpired");
-    proto_tree_add_boolean(actor_flags_tree, hf_lacp_flags_a_expired, tvb,
-                           offset, 1, flags);
-
-    if (sep != initial_sep)
-    {
-        /* We put something in; put in the terminating ")" */
-        proto_item_append_text(actor_flags_item, ")");
-    }
+    proto_tree_add_bitmask_with_flags(lacpdu_tree, tvb, offset, hf_lacp_actor_state,
+                           ett_lacp_a_flags, actor_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
     offset += 1;
 
     /* Actor Reserved */
@@ -326,76 +262,9 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree)
     {
-        /* Partner State */
+        proto_tree_add_bitmask_with_flags(lacpdu_tree, tvb, offset, hf_lacp_partner_state,
+                           ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
 
-        flags = tvb_get_guint8(tvb, offset);
-        partner_flags_item = proto_tree_add_uint(lacpdu_tree, hf_lacp_partner_state, tvb,
-                offset, 1, flags);
-        partner_flags_tree = proto_item_add_subtree(partner_flags_item, ett_lacp_p_flags);
-
-        sep = initial_sep;
-
-        /* Activity Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_ACTIVITY, partner_flags_item,
-                "%sActivity");
-        proto_tree_add_boolean(partner_flags_tree, hf_lacp_flags_p_activity, tvb,
-                offset, 1, flags);
-
-        /* Timeout Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_TIMEOUT, partner_flags_item,
-                "%sTimeout");
-        proto_tree_add_boolean(partner_flags_tree, hf_lacp_flags_p_timeout, tvb,
-                offset, 1, flags);
-
-        /* Aggregation Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_AGGREGATION, partner_flags_item,
-                "%sAggregation");
-        proto_tree_add_boolean(partner_flags_tree, hf_lacp_flags_p_aggregation, tvb,
-                offset, 1, flags);
-
-        /* Synchronization Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_SYNC, partner_flags_item,
-                "%sSynchronization");
-        proto_tree_add_boolean(partner_flags_tree, hf_lacp_flags_p_sync, tvb,
-                offset, 1, flags);
-
-        /* Collecting Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_COLLECTING, partner_flags_item,
-                "%sCollecting");
-        proto_tree_add_boolean(partner_flags_tree, hf_lacp_flags_p_collecting, tvb,
-                offset, 1, flags);
-
-        /* Distributing Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_DISTRIB, partner_flags_item,
-                "%sDistributing");
-        proto_tree_add_boolean(partner_flags_tree, hf_lacp_flags_p_distrib, tvb,
-                offset, 1, flags);
-
-        /* Defaulted Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_DEFAULTED, partner_flags_item,
-                "%sDefaulted");
-        proto_tree_add_boolean(partner_flags_tree, hf_lacp_flags_p_defaulted, tvb,
-                offset, 1, flags);
-
-        /* Expired Flag */
-
-        APPEND_BOOLEAN_FLAG(flags & LACPDU_FLAGS_EXPIRED, partner_flags_item,
-                "%sExpired");
-        proto_tree_add_boolean(partner_flags_tree, hf_lacp_flags_p_expired, tvb,
-                offset, 1, flags);
-
-        if (sep != initial_sep)
-        {
-            /* We put something in; put in the terminating ")" */
-            proto_item_append_text(partner_flags_item, ")");
-        }
         offset += 1;
 
         /* Partner Reserved */

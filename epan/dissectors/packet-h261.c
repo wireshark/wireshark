@@ -62,6 +62,17 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_item *ti            = NULL;
 	proto_tree *h261_tree     = NULL;
 	unsigned int offset       = 0;
+	static const int * bits[] = {
+		/* SBIT 1st octet, 3 bits */
+		&hf_h261_sbit,
+		/* EBIT 1st octet, 3 bits */
+		&hf_h261_ebit,
+		/* I flag, 1 bit */
+		&hf_h261_ibit,
+		/* V flag, 1 bit */
+		&hf_h261_vbit,
+		NULL
+	};
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.261");
 
@@ -70,14 +81,8 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( tree ) {
 		ti = proto_tree_add_item( tree, proto_h261, tvb, offset, -1, ENC_NA );
 		h261_tree = proto_item_add_subtree( ti, ett_h261 );
-		/* SBIT 1st octet, 3 bits */
-		proto_tree_add_uint( h261_tree, hf_h261_sbit, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );
-		/* EBIT 1st octet, 3 bits */
-		proto_tree_add_uint( h261_tree, hf_h261_ebit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset )  >> 2 ) & 7 );
-		/* I flag, 1 bit */
-		proto_tree_add_boolean( h261_tree, hf_h261_ibit, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 2 );
-		/* V flag, 1 bit */
-		proto_tree_add_boolean( h261_tree, hf_h261_vbit, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 1 );
+
+		proto_tree_add_bitmask_list(h261_tree, tvb, offset, 1, bits, ENC_NA);
 		offset++;
 
 		/* GOBN 2nd octet, 4 bits */

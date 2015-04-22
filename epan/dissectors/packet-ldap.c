@@ -743,52 +743,22 @@ attribute_types_initialize_cb(void)
 /* MS-ADTS specification, section 7.3.1.1, NETLOGON_NT_VERSION Options Bits */
 static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-  guint32 flags;
-  proto_item *item;
-  proto_tree *tree=NULL;
-  guint  *field;
-  header_field_info *hfi;
-  gboolean one_bit_set = FALSE;
-  guint fields[11];
-  fields[0]  = hf_mscldap_ntver_flags_v1;
-  fields[1]  = hf_mscldap_ntver_flags_v5;
-  fields[2]  = hf_mscldap_ntver_flags_v5ex;
-  fields[3]  = hf_mscldap_ntver_flags_v5ep;
-  fields[4]  = hf_mscldap_ntver_flags_vcs;
-  fields[5]  = hf_mscldap_ntver_flags_vnt4;
-  fields[6]  = hf_mscldap_ntver_flags_vpdc;
-  fields[7]  = hf_mscldap_ntver_flags_vip;
-  fields[8]  = hf_mscldap_ntver_flags_vl;
-  fields[9]  = hf_mscldap_ntver_flags_vgc;
-  fields[10]  = 0;
+  static const int * flags[] = {
+    &hf_mscldap_ntver_flags_v1,
+    &hf_mscldap_ntver_flags_v5,
+    &hf_mscldap_ntver_flags_v5ex,
+    &hf_mscldap_ntver_flags_v5ep,
+    &hf_mscldap_ntver_flags_vcs,
+    &hf_mscldap_ntver_flags_vnt4,
+    &hf_mscldap_ntver_flags_vpdc,
+    &hf_mscldap_ntver_flags_vip,
+    &hf_mscldap_ntver_flags_vl,
+    &hf_mscldap_ntver_flags_vgc,
+    NULL
+  };
 
-
-  flags=tvb_get_letohl(tvb, offset);
-  item=proto_tree_add_item(parent_tree, hf_mscldap_ntver_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  if(parent_tree){
-    tree = proto_item_add_subtree(item, ett_mscldap_ntver_flags);
-  }
-
-  proto_item_append_text(item, " (");
-
-  for(field = fields; *field; field++) {
-    proto_tree_add_boolean(tree, *field, tvb, offset, 4, flags);
-    hfi = proto_registrar_get_nth(*field);
-
-    if(flags & hfi->bitmask) {
-
-      if(one_bit_set)
-	proto_item_append_text(item, ", ");
-      else
-	one_bit_set = TRUE;
-
-      proto_item_append_text(item, "%s", hfi->name);
-
-    }
-  }
-
-  proto_item_append_text(item, ")");
-
+  proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_mscldap_ntver_flags,
+                           ett_mscldap_ntver_flags, flags, ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
   offset += 4;
 
   return offset;
@@ -2550,7 +2520,7 @@ dissect_ldap_SEQUENCE_OF_LDAPURL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ldap_SearchResultReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 805 "../../asn1/ldap/ldap.cnf"
+#line 795 "../../asn1/ldap/ldap.cnf"
 
    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 19, TRUE, dissect_ldap_SEQUENCE_OF_LDAPURL);
@@ -2827,7 +2797,7 @@ dissect_ldap_CompareResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ldap_AbandonRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 812 "../../asn1/ldap/ldap.cnf"
+#line 802 "../../asn1/ldap/ldap.cnf"
 
    offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 16, TRUE, dissect_ldap_MessageID);
@@ -3402,7 +3372,6 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	gint32 tag;
 	guint32 len;
 	gint32 val;
-	header_field_info *hfinfo;
 
 	int otheroffset = offset;
 	if(!implicit_tag){
@@ -3415,25 +3384,16 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
 
-	hfinfo = proto_registrar_get_nth(hf_index);
-
 	if (val >0) {
-		proto_tree *subtree;
-		subtree = proto_tree_add_subtree_format(tree, tvb, otheroffset+1, len,
-					ett_ldap_DirSyncFlagsSubEntry, NULL, "%s: 0x%08x", hfinfo->name, val);
+		const int * flags[] = {
+			&hf_ldap_object_security_flag,
+			&hf_ldap_ancestor_first_flag,
+			&hf_ldap_public_data_only_flag,
+			&hf_ldap_incremental_value_flag,
+		};
 
-		if (val & 0x1) {
-			proto_tree_add_boolean(subtree, hf_ldap_object_security_flag, tvb, otheroffset+1, len, TRUE);
-		}
-		if (val & 0x800) {
-			proto_tree_add_boolean(subtree, hf_ldap_ancestor_first_flag, tvb, otheroffset+1, len, TRUE);
-		}
-		if (val & 0x2000) {
-			proto_tree_add_boolean(subtree, hf_ldap_public_data_only_flag, tvb, otheroffset+1, len, TRUE);
-		}
-		if (val & 0x80000000) {
-			proto_tree_add_boolean(subtree, hf_ldap_incremental_value_flag, tvb, otheroffset+1, len, TRUE);
-		}
+		proto_tree_add_bitmask_value_with_flags(tree, tvb, otheroffset+1, hf_index,
+								ett_ldap_DirSyncFlagsSubEntry, flags, val, BMT_NO_APPEND);
 	} else {
 		proto_tree_add_uint(tree, hf_index, tvb, otheroffset+len, len, 0);
 	}
@@ -3807,7 +3767,7 @@ static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 883 "../../asn1/ldap/packet-ldap-template.c"
+#line 853 "../../asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -4287,54 +4247,27 @@ static const true_false_string tfs_ads_fnc = {
 };
 static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-  guint32 flags;
-  proto_item *item;
-  proto_tree *tree;
-  guint  *field;
-  header_field_info *hfi;
-  gboolean one_bit_set = FALSE;
-  guint fields[16];
-  fields[0]  = hf_mscldap_netlogon_flags_fnc;
-  fields[1]  = hf_mscldap_netlogon_flags_dnc;
-  fields[2]  = hf_mscldap_netlogon_flags_dns;
-  fields[3]  = hf_mscldap_netlogon_flags_wdc;
-  fields[4]  = hf_mscldap_netlogon_flags_rodc;
-  fields[5]  = hf_mscldap_netlogon_flags_ndnc;
-  fields[6]  = hf_mscldap_netlogon_flags_good_timeserv;
-  fields[7]  = hf_mscldap_netlogon_flags_writable;
-  fields[8]  = hf_mscldap_netlogon_flags_closest;
-  fields[9]  = hf_mscldap_netlogon_flags_timeserv;
-  fields[10]  = hf_mscldap_netlogon_flags_kdc;
-  fields[11]  = hf_mscldap_netlogon_flags_ds;
-  fields[12]  = hf_mscldap_netlogon_flags_ldap;
-  fields[13]  = hf_mscldap_netlogon_flags_gc;
-  fields[14]  = hf_mscldap_netlogon_flags_pdc;
-  fields[15]  = 0;
+  static const int * flags[] = {
+    &hf_mscldap_netlogon_flags_fnc,
+    &hf_mscldap_netlogon_flags_dnc,
+    &hf_mscldap_netlogon_flags_dns,
+    &hf_mscldap_netlogon_flags_wdc,
+    &hf_mscldap_netlogon_flags_rodc,
+    &hf_mscldap_netlogon_flags_ndnc,
+    &hf_mscldap_netlogon_flags_good_timeserv,
+    &hf_mscldap_netlogon_flags_writable,
+    &hf_mscldap_netlogon_flags_closest,
+    &hf_mscldap_netlogon_flags_timeserv,
+    &hf_mscldap_netlogon_flags_kdc,
+    &hf_mscldap_netlogon_flags_ds,
+    &hf_mscldap_netlogon_flags_ldap,
+    &hf_mscldap_netlogon_flags_gc,
+    &hf_mscldap_netlogon_flags_pdc,
+    NULL
+  };
 
-  flags=tvb_get_letohl(tvb, offset);
-  item=proto_tree_add_item(parent_tree, hf_mscldap_netlogon_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  tree = proto_item_add_subtree(item, ett_mscldap_netlogon_flags);
-
-  proto_item_append_text(item, " (");
-
-  for(field = fields; *field; field++) {
-    proto_tree_add_boolean(tree, *field, tvb, offset, 4, flags);
-    hfi = proto_registrar_get_nth(*field);
-
-    if(flags & hfi->bitmask) {
-
-      if(one_bit_set)
-	proto_item_append_text(item, ", ");
-      else
-	one_bit_set = TRUE;
-
-      proto_item_append_text(item, "%s", hfi->name);
-
-    }
-  }
-
-  proto_item_append_text(item, ")");
-
+  proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_mscldap_netlogon_flags,
+                           ett_mscldap_netlogon_flags, flags, ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
   offset += 4;
 
   return offset;
@@ -5700,7 +5633,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2207 "../../asn1/ldap/packet-ldap-template.c"
+#line 2150 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5774,7 +5707,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2221 "../../asn1/ldap/packet-ldap-template.c"
+#line 2164 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5940,7 +5873,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2370 "../../asn1/ldap/packet-ldap-template.c"
+#line 2313 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }

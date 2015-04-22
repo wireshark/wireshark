@@ -406,11 +406,8 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct nstr_phdr *pnstr = &(pinfo->pseudo_header->nstr);
 	tvbuff_t       *next_tvb_eth_client;
 	guint8		offset;
-	guint		i, bpos;
 	wmem_strbuf_t  *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-	static const gchar *flags[] = {"FP", "FR", "DFD", "SRSS", "RSSH"};
-	gboolean 	first_flag = TRUE;
-	guint8		flagoffset, flagval;
+	guint8		flagoffset;
 	guint8		src_vmname_len = 0, dst_vmname_len = 0;
 	guint8		variable_ns_len = 0;
 
@@ -456,34 +453,22 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	case NSPR_HEADER_VERSION204:
-
-		flagoffset = pnstr->clflags_offset;
-		flagval = tvb_get_guint8(tvb, flagoffset);
-
-		for (i = 0; i < 5; i++) {
-			bpos = 1 << i;
-			if (flagval & bpos) {
-				if (first_flag) {
-					wmem_strbuf_truncate(flags_strbuf, 0);
-				}
-				wmem_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", flags[i]);
-				first_flag = FALSE;
-			}
-		}
+		{
+		static const int * clflags[] = {
+			&hf_ns_clflags_res,
+			&hf_ns_clflags_rssh,
+			&hf_ns_clflags_rss,
+			&hf_ns_clflags_dfd,
+			&hf_ns_clflags_fr,
+			&hf_ns_clflags_fp,
+			NULL
+		};
 
 		proto_tree_add_item(ns_tree, hf_ns_snode, tvb, pnstr->srcnodeid_offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(ns_tree, hf_ns_dnode, tvb, pnstr->destnodeid_offset, 2, ENC_LITTLE_ENDIAN);
 
-		flagitem = proto_tree_add_uint_format_value(ns_tree, hf_ns_clflags, tvb, flagoffset, 1, flagval,
-						"0x%02x (%s)", flagval, wmem_strbuf_get_str(flags_strbuf));
-		flagtree = proto_item_add_subtree(flagitem, ett_ns_flags);
-
-		proto_tree_add_boolean(flagtree, hf_ns_clflags_res, tvb, flagoffset, 1, flagval);
-		proto_tree_add_boolean(flagtree, hf_ns_clflags_rssh, tvb, flagoffset, 1, flagval);
-		proto_tree_add_boolean(flagtree, hf_ns_clflags_rss, tvb, flagoffset, 1, flagval);
-		proto_tree_add_boolean(flagtree, hf_ns_clflags_dfd, tvb, flagoffset, 1, flagval);
-		proto_tree_add_boolean(flagtree, hf_ns_clflags_fr, tvb, flagoffset, 1, flagval);
-		proto_tree_add_boolean(flagtree, hf_ns_clflags_fp, tvb, flagoffset, 1, flagval);
+		proto_tree_add_bitmask(ns_tree, tvb, pnstr->clflags_offset, hf_ns_clflags, ett_ns_flags, clflags, ENC_NA);
+		}
 		/* fall through to next case */
 
 	case NSPR_HEADER_VERSION203:

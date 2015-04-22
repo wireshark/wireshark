@@ -54,11 +54,13 @@ static int hf_nsip_max_num_ns_vc = -1;
 static int hf_nsip_num_ip4_endpoints = -1;
 static int hf_nsip_num_ip6_endpoints = -1;
 static int hf_nsip_reset_flag = -1;
+static int hf_nsip_reset_flag_bit = -1;
 static int hf_nsip_reset_flag_spare = -1;
 static int hf_nsip_ip_address_type = -1;
 static int hf_nsip_ip_address_ipv4 = -1;
 static int hf_nsip_ip_address_ipv6 = -1;
 static int hf_nsip_end_flag = -1;
+static int hf_nsip_end_flag_bit = -1;
 static int hf_nsip_end_flag_spare = -1;
 static int hf_nsip_control_bits = -1;
 static int hf_nsip_control_bits_r = -1;
@@ -500,28 +502,19 @@ decode_iei_num_ip6_endpoints(nsip_ie_t *ie, build_info_t *bi, int ie_start_offse
 }
 
 static void
-decode_iei_reset_flag(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+decode_iei_reset_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
   guint8 flag;
-  proto_tree *field_tree;
+  static const int * reset_flags[] = {
+    &hf_nsip_reset_flag_bit,
+    &hf_nsip_reset_flag_spare,
+  };
 
   flag = tvb_get_guint8(bi->tvb, bi->offset);
-  if (bi->nsip_tree) {
+  proto_tree_add_bitmask(bi->nsip_tree,  bi->tvb, ie_start_offset, hf_nsip_reset_flag,
+                           ett_nsip_reset_flag, reset_flags, ENC_NA);
 
-     field_tree = proto_tree_add_subtree_format(bi->nsip_tree, bi->tvb, ie_start_offset,
-                 ie->total_length, ett_nsip_reset_flag, NULL,
-                 "Reset Flag: %#02x", flag);
-
-     proto_tree_add_boolean(field_tree, hf_nsip_reset_flag, bi->tvb,
-                           bi->offset, 1,
-                           flag & NSIP_MASK_RESET_FLAG);
-     if (flag & NSIP_MASK_RESET_FLAG) {
-         col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP,
-                   "Reset");
-         proto_item_append_text(bi->ti, ", Reset");
-     }
-     proto_tree_add_uint(field_tree, hf_nsip_reset_flag_spare,
-                           bi->tvb, bi->offset, 1,
-                           flag & NSIP_MASK_RESET_FLAG_SPARE);
+  if (flag & NSIP_MASK_RESET_FLAG) {
+    col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, NSIP_SEP, "Reset");
   }
   bi->offset += 1;
 }
@@ -568,27 +561,14 @@ decode_iei_transaction_id(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) 
 }
 
 static void
-decode_iei_end_flag(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  guint8 flag;
-  proto_tree *field_tree;
+decode_iei_end_flag(nsip_ie_t *ie _U_, build_info_t *bi, int ie_start_offset) {
+  static const int * end_flags[] = {
+    &hf_nsip_end_flag_bit,
+    &hf_nsip_end_flag_spare,
+  };
 
-  if (bi->nsip_tree) {
-      flag = tvb_get_guint8(bi->tvb, bi->offset);
-
-      field_tree = proto_tree_add_subtree_format(bi->nsip_tree, bi->tvb, ie_start_offset,
-                     ie->total_length, ett_nsip_end_flag, NULL,
-                     "End Flag: %#02x", flag);
-
-      proto_tree_add_boolean(field_tree, hf_nsip_end_flag, bi->tvb,
-                           bi->offset, 1,
-                           flag & NSIP_MASK_END_FLAG);
-      if (flag & NSIP_MASK_END_FLAG) {
-          proto_item_append_text(bi->ti, ", End");
-      }
-      proto_tree_add_uint(field_tree, hf_nsip_end_flag_spare,
-                           bi->tvb, bi->offset, 1,
-                           flag & NSIP_MASK_END_FLAG_SPARE);
-  }
+  proto_tree_add_bitmask(bi->nsip_tree,  bi->tvb, ie_start_offset, hf_nsip_end_flag,
+                           ett_nsip_end_flag, end_flags, ENC_NA);
   bi->offset += 1;
 }
 
@@ -1036,6 +1016,11 @@ proto_register_nsip(void)
         NULL, HFILL }
     },
     { &hf_nsip_reset_flag,
+      { "Reset flag", "nsip.reset_flag",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_nsip_reset_flag_bit,
       { "Reset flag", "nsip.reset_flag.flag",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_RESET_FLAG,
         NULL, HFILL }
@@ -1061,6 +1046,11 @@ proto_register_nsip(void)
         NULL, HFILL }
     },
     { &hf_nsip_end_flag,
+      { "End flag", "nsip.end_flag",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nsip_end_flag_bit,
       { "End flag", "nsip.end_flag.flag",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), NSIP_MASK_END_FLAG,
         NULL, HFILL }

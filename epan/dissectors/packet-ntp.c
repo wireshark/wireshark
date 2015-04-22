@@ -1377,8 +1377,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, gu
 
 			offset = 8 + itemsize * i;
 
-			v6_flag = tvb_get_ntohl(tvb, offset + 32);
-
 			monlist_item = proto_tree_add_string_format(ntp_tree, hf_monlist_item, tvb, offset,
 				itemsize, "Monlist Item", "Monlist item: address: %s:%u",
 				tvb_ip_to_str(tvb, offset + 16), tvb_get_ntohs(tvb, offset + 28));
@@ -1394,7 +1392,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, gu
 			proto_tree_add_item(monlist_item_tree, hf_ntppriv_port, tvb, offset + 28, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(monlist_item_tree, hf_ntppriv_mode, tvb, offset + 30, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(monlist_item_tree, hf_ntppriv_version, tvb, offset + 31, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_boolean(monlist_item_tree, hf_ntppriv_v6_flag, tvb, offset + 32, 4, v6_flag);
+			proto_tree_add_item_ret_uint(monlist_item_tree, hf_ntppriv_v6_flag, tvb, offset + 32, 4, ENC_BIG_ENDIAN, &v6_flag);
 
 			if (v6_flag != 0) {
 				proto_tree_add_item(monlist_item_tree, hf_ntppriv_addr6, tvb, offset + 36, 16, ENC_NA);

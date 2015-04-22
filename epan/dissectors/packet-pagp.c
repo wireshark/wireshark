@@ -121,9 +121,6 @@ static expert_field ei_pagp_tlv_length = EI_INIT;
 
 /* General declarations and macros */
 
-static const char initial_sep[] = " (";
-static const char cont_sep[] = ", ";
-
 static const value_string pdu_vers[] = {
     { 1, "Info PDU" },
     { 2, "Flush PDU" },
@@ -149,19 +146,11 @@ static const true_false_string automode = {
     "Desirable Mode"
 };
 
-#define APPEND_BOOLEAN_FLAG(flag, item, string)         \
-    if(flag) {                                          \
-        if(item)                                        \
-            proto_item_append_text(item, string, sep);  \
-        sep = cont_sep;                                 \
-    }
-
 /* Code to actually dissect the PAGP packets */
 static void
 dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint32 raw_word;
-    guint16 raw_half_word;
     guint16 num_tlvs;
     guint16 tlv;
     guint16 len;
@@ -171,15 +160,15 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     guint8  flags;
 
-    guchar *ch;
-
     proto_tree *pagp_tree = NULL;
     proto_item *pagp_item, *len_item;
-    proto_tree *flags_tree;
-    proto_item *flags_item;
     proto_tree *tlv_tree;
-
-    const char *sep;
+    static const int * pagp_flags[] = {
+        &hf_pagp_flags_slow_hello,
+        &hf_pagp_flags_auto_mode,
+        &hf_pagp_flags_consistent_state,
+        NULL,
+    };
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAGP"); /* PAGP Protocol */
@@ -226,32 +215,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     flags = tvb_get_guint8(tvb, PAGP_FLAGS);
     col_append_fstr(pinfo->cinfo, COL_INFO, "; Flags 0x%x", flags);
 
-    if (tree) {
-        flags_item = proto_tree_add_uint(pagp_tree, hf_pagp_flags, tvb,
-                                         PAGP_FLAGS, 1, flags);
-        flags_tree = proto_item_add_subtree(flags_item, ett_pagp_flags);
-
-        sep = initial_sep;
-
-        APPEND_BOOLEAN_FLAG(flags & PAGP_FLAGS_SLOW_HELLO, flags_item, "%sSlow Hello");
-        proto_tree_add_boolean(flags_tree, hf_pagp_flags_slow_hello, tvb,
-                               PAGP_FLAGS, 1, flags);
-
-        APPEND_BOOLEAN_FLAG(flags & PAGP_FLAGS_AUTO_MODE, flags_item, "%sAuto Mode");
-        proto_tree_add_boolean(flags_tree, hf_pagp_flags_auto_mode, tvb,
-                               PAGP_FLAGS, 1, flags);
-
-        APPEND_BOOLEAN_FLAG(flags & PAGP_FLAGS_CONSISTENT_STATE, flags_item,
-                            "%sConsistent State");
-        proto_tree_add_boolean(flags_tree, hf_pagp_flags_consistent_state, tvb,
-                               PAGP_FLAGS, 1, flags);
-
-        sep = cont_sep;
-        if (sep != initial_sep) {
-            /* We put something in; put in the terminating ")" */
-            proto_item_append_text(flags_item, ")");
-        }
-    }
+    proto_tree_add_bitmask(pagp_tree, tvb, PAGP_FLAGS, hf_pagp_flags, ett_pagp_flags, pagp_flags, ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "; Local DevID: %s",
                     tvb_ether_to_str(tvb, PAGP_LOCAL_DEVICE_ID));
@@ -260,25 +224,20 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         PAGP_LOCAL_DEVICE_ID, 6, ENC_NA);
 
     if (tree) {
-        raw_octet = tvb_get_guint8(tvb, PAGP_LOCAL_LEARN_CAP);
-        proto_tree_add_uint(pagp_tree, hf_pagp_local_learn_cap, tvb,
-                            PAGP_LOCAL_LEARN_CAP, 1, raw_octet);
+        proto_tree_add_item(pagp_tree, hf_pagp_local_learn_cap, tvb,
+                            PAGP_LOCAL_LEARN_CAP, 1, ENC_NA);
 
-        raw_octet = tvb_get_guint8(tvb, PAGP_LOCAL_PORT_PRIORITY);
-        proto_tree_add_uint(pagp_tree, hf_pagp_local_port_priority, tvb,
-                            PAGP_LOCAL_PORT_PRIORITY, 1, raw_octet);
+        proto_tree_add_item(pagp_tree, hf_pagp_local_port_priority, tvb,
+                            PAGP_LOCAL_PORT_PRIORITY, 1, ENC_NA);
 
-        raw_word = tvb_get_ntohl(tvb, PAGP_LOCAL_SENT_PORT_IFINDEX);
-        proto_tree_add_uint(pagp_tree, hf_pagp_local_sent_port_ifindex, tvb,
-                            PAGP_LOCAL_SENT_PORT_IFINDEX, 4, raw_word);
+        proto_tree_add_item(pagp_tree, hf_pagp_local_sent_port_ifindex, tvb,
+                            PAGP_LOCAL_SENT_PORT_IFINDEX, 4, ENC_BIG_ENDIAN);
 
-        raw_word = tvb_get_ntohl(tvb, PAGP_LOCAL_GROUP_CAPABILITY);
-        proto_tree_add_uint(pagp_tree, hf_pagp_local_group_capability, tvb,
-                            PAGP_LOCAL_GROUP_CAPABILITY, 4, raw_word);
+        proto_tree_add_item(pagp_tree, hf_pagp_local_group_capability, tvb,
+                            PAGP_LOCAL_GROUP_CAPABILITY, 4, ENC_BIG_ENDIAN);
 
-        raw_word = tvb_get_ntohl(tvb, PAGP_LOCAL_GROUP_IFINDEX);
-        proto_tree_add_uint(pagp_tree, hf_pagp_local_group_ifindex, tvb,
-                            PAGP_LOCAL_GROUP_IFINDEX, 4, raw_word);
+        proto_tree_add_item(pagp_tree, hf_pagp_local_group_ifindex, tvb,
+                            PAGP_LOCAL_GROUP_IFINDEX, 4, ENC_BIG_ENDIAN);
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Partner DevID: %s",
@@ -287,29 +246,23 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(pagp_tree, hf_pagp_partner_device_id, tvb,
                         PAGP_PARTNER_DEVICE_ID, 6, ENC_NA);
 
-    raw_octet = tvb_get_guint8(tvb, PAGP_PARTNER_LEARN_CAP);
-    proto_tree_add_uint(pagp_tree, hf_pagp_partner_learn_cap, tvb,
-                        PAGP_PARTNER_LEARN_CAP, 1, raw_octet);
+    proto_tree_add_item(pagp_tree, hf_pagp_partner_learn_cap, tvb,
+                        PAGP_PARTNER_LEARN_CAP, 1, ENC_NA);
 
-    raw_octet = tvb_get_guint8(tvb, PAGP_PARTNER_PORT_PRIORITY);
-    proto_tree_add_uint(pagp_tree, hf_pagp_partner_port_priority, tvb,
-                        PAGP_PARTNER_PORT_PRIORITY, 1, raw_octet);
+    proto_tree_add_item(pagp_tree, hf_pagp_partner_port_priority, tvb,
+                        PAGP_PARTNER_PORT_PRIORITY, 1, ENC_NA);
 
-    raw_word = tvb_get_ntohl(tvb, PAGP_PARTNER_SENT_PORT_IFINDEX);
-    proto_tree_add_uint(pagp_tree, hf_pagp_partner_sent_port_ifindex, tvb,
-                        PAGP_PARTNER_SENT_PORT_IFINDEX, 4, raw_word);
+    proto_tree_add_item(pagp_tree, hf_pagp_partner_sent_port_ifindex, tvb,
+                        PAGP_PARTNER_SENT_PORT_IFINDEX, 4, ENC_BIG_ENDIAN);
 
-    raw_word = tvb_get_ntohl(tvb, PAGP_PARTNER_GROUP_CAPABILITY);
-    proto_tree_add_uint(pagp_tree, hf_pagp_partner_group_capability, tvb,
-                        PAGP_PARTNER_GROUP_CAPABILITY, 4, raw_word);
+    proto_tree_add_item(pagp_tree, hf_pagp_partner_group_capability, tvb,
+                        PAGP_PARTNER_GROUP_CAPABILITY, 4, ENC_BIG_ENDIAN);
 
-    raw_word = tvb_get_ntohl(tvb, PAGP_PARTNER_GROUP_IFINDEX);
-    proto_tree_add_uint(pagp_tree, hf_pagp_partner_group_ifindex, tvb,
-                        PAGP_PARTNER_GROUP_IFINDEX, 4, raw_word);
+    proto_tree_add_item(pagp_tree, hf_pagp_partner_group_ifindex, tvb,
+                        PAGP_PARTNER_GROUP_IFINDEX, 4, ENC_BIG_ENDIAN);
 
-    raw_half_word = tvb_get_ntohs(tvb, PAGP_PARTNER_COUNT);
-    proto_tree_add_uint(pagp_tree, hf_pagp_partner_count, tvb,
-                        PAGP_PARTNER_COUNT, 2, raw_half_word);
+    proto_tree_add_item(pagp_tree, hf_pagp_partner_count, tvb,
+                        PAGP_PARTNER_COUNT, 2, ENC_BIG_ENDIAN);
 
     num_tlvs = tvb_get_ntohs(tvb, PAGP_NUM_TLVS);
     proto_tree_add_uint(pagp_tree, hf_pagp_num_tlvs, tvb,
@@ -340,14 +293,12 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch (tlv) {
             case PAGP_TLV_DEVICE_NAME:
-                ch = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len-4, ENC_ASCII);
-                proto_tree_add_string(tlv_tree, hf_pagp_tlv_device_name,
-                                      tvb, offset+4, len-4, ch);
+                proto_tree_add_item(tlv_tree, hf_pagp_tlv_device_name,
+                                      tvb, offset+4, len-4, ENC_NA|ENC_ASCII);
                 break;
             case PAGP_TLV_PORT_NAME:
-                ch = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, len-4, ENC_ASCII);
-                proto_tree_add_string(tlv_tree, hf_pagp_tlv_port_name,
-                                      tvb, offset+4, len-4, ch);
+                proto_tree_add_item(tlv_tree, hf_pagp_tlv_port_name,
+                                      tvb, offset+4, len-4, ENC_NA|ENC_ASCII);
                 break;
             case PAGP_TLV_AGPORT_MAC:
                 proto_tree_add_item(tlv_tree, hf_pagp_tlv_agport_mac,

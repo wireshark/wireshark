@@ -165,7 +165,6 @@ static int hf_mtrace_q_fwd_code = -1;
 
 static int ett_igmp = -1;
 static int ett_group_record = -1;
-static int ett_sqrv_bits = -1;
 static int ett_max_resp = -1;
 static int ett_mtrace_block = -1;
 
@@ -422,19 +421,13 @@ dissect_v3_max_resp(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 static int
 dissect_v3_sqrv_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
-	proto_tree *tree;
-	guint8 bits;
+    static const int * bits[] = {
+        &hf_suppress,
+        &hf_qrv,
+        NULL
+    };
 
-	bits = tvb_get_guint8(tvb, offset);
-
-	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 1,
-		ett_sqrv_bits, NULL, "QRV=%d S=%s", bits&IGMP_V3_QRV_MASK,
-			(bits&IGMP_V3_S)?tfs_s.true_string:tfs_s.false_string);
-
-	/* S flag */
-	proto_tree_add_boolean(tree, hf_suppress, tvb, offset, 1, bits);
-	/* QRV */
-	proto_tree_add_uint(tree, hf_qrv, tvb, offset, 1, bits);
+    proto_tree_add_bitmask_list(parent_tree, tvb, offset, 1, bits, ENC_NA);
 	offset += 1;
 
 	return offset;
@@ -1105,7 +1098,6 @@ proto_register_igmp(void)
 	static gint *ett[] = {
 		&ett_igmp,
 		&ett_group_record,
-		&ett_sqrv_bits,
 		&ett_max_resp,
 		&ett_mtrace_block,
 	};

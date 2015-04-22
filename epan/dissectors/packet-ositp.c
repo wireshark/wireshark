@@ -1512,6 +1512,12 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   tvbuff_t *next_tvb;
   guint   tpdu_len;
   heur_dtbl_entry_t *hdtbl_entry;
+  static const int * class_options[] = {
+     &hf_cotp_class,
+     &hf_cotp_opts_extended_formats,
+     &hf_cotp_opts_no_explicit_flow_control,
+     NULL,
+  };
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
@@ -1531,26 +1537,20 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                   "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
                   (tpdu == CR_TPDU) ? "CR" : "CC", src_ref, dst_ref);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
-    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
-    proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
-  }
+  ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
+  cotp_tree = proto_item_add_subtree(ti, ett_cotp);
+  proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   offset += 1;
 
-  if (tree) {
-    item = proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
-  }
+  item = proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset, 1, tpdu);
   offset += 1;
   li -= 1;
 
-  if (tree)
-    proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
+  proto_tree_add_uint(cotp_tree, hf_cotp_destref, tvb, offset, 2, dst_ref);
   offset += 2;
   li -= 2;
 
-  if (tree)
-    proto_tree_add_uint(cotp_tree, hf_cotp_srcref, tvb, offset, 2, src_ref);
+  proto_tree_add_uint(cotp_tree, hf_cotp_srcref, tvb, offset, 2, src_ref);
   offset += 2;
   li -= 2;
 
@@ -1560,17 +1560,10 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     expert_add_info_format(pinfo, item, &ei_cotp_connection, "Connection %s: 0x%x -> 0x%x", tpdu == CR_TPDU ? "Request(CR)" : "Confirm(CC)", src_ref, dst_ref);
   }
 
-  if (tree) {
-    proto_tree_add_uint(cotp_tree, hf_cotp_class, tvb, offset, 1, class_option);
-    proto_tree_add_boolean(cotp_tree, hf_cotp_opts_extended_formats, tvb,
-                           offset, 1, class_option);
-    proto_tree_add_boolean(cotp_tree, hf_cotp_opts_no_explicit_flow_control,
-                           tvb, offset, 1, class_option);
-  }
+  proto_tree_add_bitmask_list(cotp_tree, tvb, offset, 1, class_options, ENC_NA);
   offset += 1;
   li -= 1;
 
-  if (tree) {
     /* Microsoft runs their Remote Desktop Protocol atop ISO COTP
        atop TPKT, and does some weird stuff in the CR packet:
 
@@ -1595,9 +1588,8 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
        XXX - have TPKT know that a given session is an RDP session,
        and let us know, so we know whether to check for this stuff. */
-    ositp_decode_var_part(tvb, offset, li, class_option, tpdu_len , pinfo,
+  ositp_decode_var_part(tvb, offset, li, class_option, tpdu_len , pinfo,
                           cotp_tree);
-  }
   offset += li;
 
   /*

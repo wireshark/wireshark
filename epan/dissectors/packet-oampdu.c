@@ -1715,14 +1715,14 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
 static void
 dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree)
 {
-    guint8    ctrl;
     guint32   offset;
     guint16   bytes;
 
-    proto_tree *ctrl_tree;
-    proto_item *ctrl_item;
-
-    const char *sep;
+    static const int * ctrl[] = {
+        &hf_oampdu_lpbk_enable,
+        &hf_oampdu_lpbk_disable,
+        NULL
+    };
 
     offset = OAMPDU_HEADER_SIZE;
 
@@ -1730,27 +1730,7 @@ dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree)
 
     if (bytes >= 1)
     {
-        ctrl = tvb_get_guint8(tvb, offset);
-
-        ctrl_item = proto_tree_add_uint(tree, hf_oampdu_lpbk,
-                tvb, offset, 1, ctrl);
-
-        ctrl_tree = proto_item_add_subtree(ctrl_item, ett_oampdu_lpbk_ctrl);
-
-        sep = initial_sep;
-
-        APPEND_BOOLEAN_FLAG(ctrl & OAMPDU_LPBK_ENABLE, ctrl_item,
-                "%sEnable Remote Loopack");
-        proto_tree_add_boolean(ctrl_tree, hf_oampdu_lpbk_enable,
-                tvb, offset, 1, ctrl);
-
-        APPEND_BOOLEAN_FLAG(ctrl & OAMPDU_LPBK_DISABLE, ctrl_item,
-                "%sDisable Remote Loopback");
-        proto_tree_add_boolean(ctrl_tree, hf_oampdu_lpbk_disable,
-                tvb, offset, 1, ctrl);
-
-        if (sep != initial_sep)
-            proto_item_append_text(ctrl_item, ")");
+        proto_tree_add_bitmask(tree, tvb, offset, hf_oampdu_lpbk, ett_oampdu_lpbk_ctrl, ctrl, ENC_NA);
     }
 }
 

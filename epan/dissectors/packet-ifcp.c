@@ -241,35 +241,14 @@ static const true_false_string ifcp_flags_spc_tfs = {
 static int
 dissect_ifcpflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-    proto_item *item;
-    proto_tree *tree;
-    guint8      flags;
-
-    item=proto_tree_add_item(parent_tree, hf_ifcp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-    tree=proto_item_add_subtree (item, ett_ifcp_flags);
-
-    flags=tvb_get_guint8(tvb, offset);
-
-    /* SES */
-    proto_tree_add_boolean(tree, hf_ifcp_flags_ses, tvb, offset, 1, flags);
-    if(flags&IFCP_FLAGS_SES){
-        proto_item_append_text(item, "  SES");
-    }
-    flags&=(~IFCP_FLAGS_SES);
-
-    /* TRP */
-    proto_tree_add_boolean(tree, hf_ifcp_flags_trp, tvb, offset, 1, flags);
-    if(flags&IFCP_FLAGS_TRP){
-        proto_item_append_text(item, "  TRP");
-    }
-    flags&=(~IFCP_FLAGS_TRP);
-
-    /* SPC */
-    proto_tree_add_boolean(tree, hf_ifcp_flags_spc, tvb, offset, 1, flags);
-    if(flags&IFCP_FLAGS_SPC){
-        proto_item_append_text(item, "  SPC");
-    }
-
+    static const int * flags[] = {
+        &hf_ifcp_flags_ses,
+        &hf_ifcp_flags_trp,
+        &hf_ifcp_flags_spc,
+        NULL
+    };
+    proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ifcp_flags,
+                           ett_ifcp_flags, flags, ENC_BIG_ENDIAN);
 
     offset++;
     return offset;
@@ -278,28 +257,16 @@ dissect_ifcpflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 #define IFCP_COMMON_FLAGS_CRCV      0x04
 
-static const true_false_string ifcp_common_flags_crcv_tfs = {
-    "CRC is VALID",
-    "Crc is NOT valid"
-};
-
 static void
 dissect_commonflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
-    proto_item *item;
-    proto_tree *tree;
-    guint8      flags;
+    static const int * flags[] = {
+        &hf_ifcp_common_flags_crcv,
+        NULL
+    };
 
-    item=proto_tree_add_item(parent_tree, hf_ifcp_common_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-    tree=proto_item_add_subtree (item, ett_ifcp_common_flags);
-
-    flags=tvb_get_guint8(tvb, offset);
-
-    /* CRCV */
-    proto_tree_add_boolean(tree, hf_ifcp_common_flags_crcv, tvb, offset, 1, flags);
-    if(flags&IFCP_COMMON_FLAGS_CRCV){
-        proto_item_append_text(item, "  CRCV");
-    }
+    proto_tree_add_bitmask(parent_tree, tvb, offset, hf_ifcp_common_flags,
+                           ett_ifcp_common_flags, flags, ENC_BIG_ENDIAN);
 }
 
 static int
@@ -593,7 +560,7 @@ proto_register_ifcp (void)
           {"Flags", "ifcp.common_flags", FT_UINT8, BASE_HEX , NULL, 0xfc,
            NULL, HFILL }},
         { &hf_ifcp_common_flags_crcv,
-          {"CRCV", "ifcp.common_flags.crcv", FT_BOOLEAN, 8, TFS(&ifcp_common_flags_crcv_tfs), IFCP_COMMON_FLAGS_CRCV,
+          {"CRC", "ifcp.common_flags.crcv", FT_BOOLEAN, 8, TFS(&tfs_valid_not_valid), IFCP_COMMON_FLAGS_CRCV,
            "Is the CRC field valid?", HFILL }},
         { &hf_ifcp_flags,
           {"iFCP Flags", "ifcp.flags", FT_UINT8, BASE_HEX , NULL, 0,

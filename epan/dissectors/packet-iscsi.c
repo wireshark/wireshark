@@ -1295,10 +1295,33 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     } else if(opcode == ISCSI_OPCODE_SCSI_DATA_IN) {
         /* SCSI Data In (read) */
         {
-            gint b = tvb_get_guint8(tvb, offset + 1);
-            proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
-            proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
+            const int * scsi_data_in[] = {
+                &hf_iscsi_SCSIData_F,
+                &hf_iscsi_SCSIData_O,
+                &hf_iscsi_SCSIData_U,
+                &hf_iscsi_SCSIData_S,
+                NULL
+            };
 
+            const int * scsi_data_in_draft08[] = {
+                &hf_iscsi_SCSIData_F,
+                &hf_iscsi_SCSIData_A,
+                &hf_iscsi_SCSIData_O,
+                &hf_iscsi_SCSIData_U,
+                &hf_iscsi_SCSIData_S,
+                NULL
+            };
+            gint b;
+
+            if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT08) {
+                proto_tree_add_bitmask_with_flags(ti, tvb, offset+1, hf_iscsi_Flags,
+                                   ett_iscsi_Flags, scsi_data_in_draft08, ENC_NA, BMT_NO_APPEND);
+            } else {
+                proto_tree_add_bitmask_with_flags(ti, tvb, offset+1, hf_iscsi_Flags,
+                                   ett_iscsi_Flags, scsi_data_in, ENC_NA, BMT_NO_APPEND);
+            }
+
+            b = tvb_get_guint8(tvb, offset + 1);
             if(b&ISCSI_SCSI_DATA_FLAG_S){
                 S_bit=TRUE;
             }
@@ -1306,13 +1329,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             if(b&ISCSI_SCSI_DATA_FLAG_A){
                 A_bit=TRUE;
             }
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIData_F, tvb, offset + 1, 1, b);
-            if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT08) {
-                proto_tree_add_boolean(tt, hf_iscsi_SCSIData_A, tvb, offset + 1, 1, b);
-            }
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIData_O, tvb, offset + 1, 1, b);
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIData_U, tvb, offset + 1, 1, b);
-            proto_tree_add_boolean(tt, hf_iscsi_SCSIData_S, tvb, offset + 1, 1, b);
+
         }
         if(S_bit){
             proto_tree_add_item(ti, hf_iscsi_SCSIResponse_Status, tvb, offset + 3, 1, ENC_BIG_ENDIAN);

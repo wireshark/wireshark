@@ -207,6 +207,7 @@ static int hf_ieee802154_nonask_phr = -1;
 
 static int proto_ieee802154 = -1;
 static int hf_ieee802154_frame_length = -1;
+static int hf_ieee802154_fcf = -1;
 static int hf_ieee802154_frame_type = -1;
 static int hf_ieee802154_security = -1;
 static int hf_ieee802154_pending = -1;
@@ -443,7 +444,17 @@ static void
 dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset)
 {
     guint16     fcf;
-    proto_tree *field_tree;
+    static const int * fields[] = {
+        &hf_ieee802154_frame_type,
+        &hf_ieee802154_security,
+        &hf_ieee802154_pending,
+        &hf_ieee802154_ack_request,
+        &hf_ieee802154_intra_pan,
+        &hf_ieee802154_dst_addr_mode,
+        &hf_ieee802154_version,
+        &hf_ieee802154_src_addr_mode,
+        NULL
+    };
 
     /* Get the FCF field. */
     fcf = tvb_get_letohs(tvb, *offset);
@@ -462,23 +473,8 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
     proto_item_append_text(tree, " %s", val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
 
-    /* Add the FCF to the protocol tree. */
-    if (tree) {
-        /*  Create the FCF subtree. */
-        field_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 2, ett_ieee802154_fcf, NULL,
-                "Frame Control Field: %s (0x%04x)",
-                val_to_str_const(packet->frame_type, ieee802154_frame_types, "Unknown"), fcf);
-
-        /* FCF Fields. */
-        proto_tree_add_uint(field_tree, hf_ieee802154_frame_type, tvb, *offset, 1, fcf & IEEE802154_FCF_TYPE_MASK);
-        proto_tree_add_boolean(field_tree, hf_ieee802154_security, tvb, *offset, 1, fcf & IEEE802154_FCF_SEC_EN);
-        proto_tree_add_boolean(field_tree, hf_ieee802154_pending, tvb, *offset, 1, fcf & IEEE802154_FCF_FRAME_PND);
-        proto_tree_add_boolean(field_tree, hf_ieee802154_ack_request, tvb, *offset, 1, fcf & IEEE802154_FCF_ACK_REQ);
-        proto_tree_add_boolean(field_tree, hf_ieee802154_intra_pan, tvb, *offset, 1, fcf & IEEE802154_FCF_INTRA_PAN);
-        proto_tree_add_uint(field_tree, hf_ieee802154_dst_addr_mode, tvb, (*offset)+1, 1, fcf & IEEE802154_FCF_DADDR_MASK);
-        proto_tree_add_uint(field_tree, hf_ieee802154_version, tvb, (*offset)+1, 1, fcf & IEEE802154_FCF_VERSION);
-        proto_tree_add_uint(field_tree, hf_ieee802154_src_addr_mode, tvb, (*offset)+1, 1, fcf & IEEE802154_FCF_SADDR_MASK);
-    }
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_ieee802154_fcf,
+                           ett_ieee802154_fcf, fields, ENC_LITTLE_ENDIAN);
 
     *offset += 2;
 } /* dissect_ieee802154_fcf */
@@ -1397,35 +1393,32 @@ dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  *      void
  *---------------------------------------------------------------
  */
+static const true_false_string tfs_cinfo_device_type = { "FFD", "RFD" };
+static const true_false_string tfs_cinfo_power_src = { "AC/Mains Power", "Battery" };
+
 static void
 dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
     proto_tree *subtree;
-    proto_item *ti;
-    guint8      capability;
+    static const int * capability[] = {
+        &hf_ieee802154_cinfo_alt_coord,
+        &hf_ieee802154_cinfo_device_type,
+        &hf_ieee802154_cinfo_power_src,
+        &hf_ieee802154_cinfo_idle_rx,
+        &hf_ieee802154_cinfo_sec_capable,
+        &hf_ieee802154_cinfo_alloc_addr,
+        NULL
+    };
 
     /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ieee802154_cmd, NULL,
                     val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
 
     /* Get and display capability info. */
-    capability = tvb_get_guint8(tvb, 0);
-    if (tree) {
-        /* Enter the capability bits. */
-        proto_tree_add_boolean(subtree, hf_ieee802154_cinfo_alt_coord, tvb, 0, 1, capability & IEEE802154_CMD_CINFO_ALT_PAN_COORD);
-        ti = proto_tree_add_boolean(subtree, hf_ieee802154_cinfo_device_type, tvb, 0, 1, capability & IEEE802154_CMD_CINFO_DEVICE_TYPE);
-        if (capability & IEEE802154_CMD_CINFO_DEVICE_TYPE) proto_item_append_text(ti, " (FFD)");
-        else proto_item_append_text(ti, " (RFD)");
-        ti = proto_tree_add_boolean(subtree, hf_ieee802154_cinfo_power_src, tvb, 0, 1, capability & IEEE802154_CMD_CINFO_POWER_SRC);
-        if (capability & IEEE802154_CMD_CINFO_POWER_SRC) proto_item_append_text(ti, " (AC/Mains Power)");
-        else proto_item_append_text(ti, " (Battery)");
-        proto_tree_add_boolean(subtree, hf_ieee802154_cinfo_idle_rx, tvb, 0, 1, capability & IEEE802154_CMD_CINFO_IDLE_RX);
-        proto_tree_add_boolean(subtree, hf_ieee802154_cinfo_sec_capable, tvb, 0, 1, capability & IEEE802154_CMD_CINFO_SEC_CAPABLE);
-        proto_tree_add_boolean(subtree, hf_ieee802154_cinfo_alloc_addr, tvb, 0, 1, capability & IEEE802154_CMD_CINFO_ALLOC_ADDR);
-    }
+    proto_tree_add_bitmask_list(subtree, tvb, 0, 1, capability, ENC_NA);
 
     /* Call the data dissector for any leftover bytes. */
-    if (tvb_length(tvb) > 1) {
+    if (tvb_reported_length(tvb) > 1) {
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_assoc_req */
@@ -1659,39 +1652,28 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  *      void
  *---------------------------------------------------------------
  */
+static const true_false_string tfs_gtsreq_dir = { "Receive", "Transmit" };
+static const true_false_string tfs_gtsreq_type= { "Allocate GTS", "Deallocate GTS" };
+
 static void
 dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
     proto_tree *subtree;
-    proto_item *ti;
-    guint8      characteristics;
-    guint8      length;
-    guint8      direction;
-    guint8      type;
+    static const int * characteristics[] = {
+        &hf_ieee802154_gtsreq_len,
+        &hf_ieee802154_gtsreq_dir,
+        &hf_ieee802154_gtsreq_type,
+        NULL
+    };
 
     /* Create a subtree for this command frame. */
     subtree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ieee802154_cmd, NULL,
                 val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
 
-    /* Get the characteristics field. */
-    characteristics = tvb_get_guint8(tvb, 0);
-    length = characteristics & IEEE802154_CMD_GTS_REQ_LEN;
-    direction = characteristics & IEEE802154_CMD_GTS_REQ_DIR;
-    type = characteristics & IEEE802154_CMD_GTS_REQ_TYPE;
-
-    /* Display the characteristics field. */
-    if (tree) {
-        proto_tree_add_uint(subtree, hf_ieee802154_gtsreq_len, tvb, 0, 1, length);
-        ti = proto_tree_add_boolean(subtree, hf_ieee802154_gtsreq_dir, tvb, 0, 1, direction);
-        if (direction) proto_item_append_text(ti, " (Receive)");
-        else proto_item_append_text(ti, " (Transmit)");
-        ti = proto_tree_add_boolean(subtree, hf_ieee802154_gtsreq_type, tvb, 0, 1, type);
-        if (type) proto_item_append_text(ti, " (Allocate GTS)");
-        else proto_item_append_text(ti, " (Deallocate GTS)");
-    }
+    proto_tree_add_bitmask_list(subtree, tvb, 0, 1, characteristics, ENC_NA);
 
     /* Call the data dissector for any leftover bytes. */
-    if (tvb_length(tvb) > 1) {
+    if (tvb_reported_length(tvb) > 1) {
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_gtsreq */
@@ -2479,6 +2461,10 @@ void proto_register_ieee802154(void)
         { "Frame Length",                   "wpan.frame_length", FT_UINT8, BASE_DEC, NULL, 0x0,
             "Frame Length as reported from lower layer", HFILL }},
 
+        { &hf_ieee802154_fcf,
+        { "Frame Control Field",            "wpan.fcf", FT_UINT16, BASE_HEX, NULL,
+            0x0, NULL, HFILL }},
+
         { &hf_ieee802154_frame_type,
         { "Frame Type",                     "wpan.frame_type", FT_UINT16, BASE_HEX, VALS(ieee802154_frame_types),
             IEEE802154_FCF_TYPE_MASK, NULL, HFILL }},
@@ -2572,11 +2558,11 @@ void proto_register_ieee802154(void)
             "Whether this device can act as a PAN coordinator or not.", HFILL }},
 
         { &hf_ieee802154_cinfo_device_type,
-        { "Device Type",                "wpan.cinfo.device_type", FT_BOOLEAN, 8, NULL, IEEE802154_CMD_CINFO_DEVICE_TYPE,
+        { "Device Type",                "wpan.cinfo.device_type", FT_BOOLEAN, 8, TFS(&tfs_cinfo_device_type), IEEE802154_CMD_CINFO_DEVICE_TYPE,
             "Whether this device is RFD (reduced-function device) or FFD (full-function device).", HFILL }},
 
         { &hf_ieee802154_cinfo_power_src,
-        { "Power Source",               "wpan.cinfo.power_src", FT_BOOLEAN, 8, NULL, IEEE802154_CMD_CINFO_POWER_SRC,
+        { "Power Source",               "wpan.cinfo.power_src", FT_BOOLEAN, 8, TFS(&tfs_cinfo_power_src), IEEE802154_CMD_CINFO_POWER_SRC,
             "Whether this device is operating on AC/mains or battery power.", HFILL }},
 
         { &hf_ieee802154_cinfo_idle_rx,
@@ -2630,11 +2616,11 @@ void proto_register_ieee802154(void)
             "Number of superframe slots the device is requesting.", HFILL }},
 
         { &hf_ieee802154_gtsreq_dir,
-        { "GTS Direction",              "wpan.gtsreq.direction", FT_BOOLEAN, 8, NULL, IEEE802154_CMD_GTS_REQ_DIR,
+        { "GTS Direction",              "wpan.gtsreq.direction", FT_BOOLEAN, 8, TFS(&tfs_gtsreq_dir), IEEE802154_CMD_GTS_REQ_DIR,
             "The direction of traffic in the guaranteed timeslot.", HFILL }},
 
         { &hf_ieee802154_gtsreq_type,
-        { "Characteristic Type",        "wpan.gtsreq.type", FT_BOOLEAN, 8, NULL, IEEE802154_CMD_GTS_REQ_TYPE,
+        { "Characteristic Type",        "wpan.gtsreq.type", FT_BOOLEAN, 8, TFS(&tfs_gtsreq_type), IEEE802154_CMD_GTS_REQ_TYPE,
             "Whether this request is to allocate or deallocate a timeslot.", HFILL }},
 
             /*  Beacon Frame Specific Fields */

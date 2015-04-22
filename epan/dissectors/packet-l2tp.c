@@ -2206,6 +2206,14 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
+static const int * l2tp_control_fields[] = {
+    &hf_l2tp_type,
+    &hf_l2tp_length_bit,
+    &hf_l2tp_seq_bit,
+    &hf_l2tp_version,
+    NULL
+};
+
 /*
  * Processes v3 data message over UDP, to then call process_l2tpv3_data
  * from the common part (Session ID)
@@ -2216,14 +2224,9 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_tree *l2tp_tree, *ctrl_tree;
     proto_item *l2tp_item;
-
-    int idx = 0;
-    int control;
+    int idx = 4;  /* skip to sid */
     int sid;
 
-    control = tvb_get_ntohs(tvb, idx);
-    idx += 2;                       /* skip ahead */
-    idx += 2;                       /* Skip the reserved */
     sid = tvb_get_ntohl(tvb, idx);
 
     l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, ENC_NA);
@@ -2235,11 +2238,8 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, 0, 2,
                                  ett_l2tp_ctrl, NULL, "Packet Type: %s Session Id=%u",
                                  data_msg, sid);
+        proto_tree_add_bitmask_list(ctrl_tree, tvb, 0, 2, l2tp_control_fields, ENC_BIG_ENDIAN);
 
-        proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, 0, 2, control);
-        proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, 0, 2, control);
-        proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, 0, 2, control);
-        proto_tree_add_uint(ctrl_tree, hf_l2tp_version, tvb, 0, 2, control);
         /* Data in v3 over UDP has this reserved */
         proto_tree_add_item(l2tp_tree, hf_l2tp_res, tvb, 2, 2, ENC_BIG_ENDIAN);
     }
@@ -2378,11 +2378,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, baseIdx, 2,
                                  ett_l2tp_ctrl, NULL, "Packet Type: %s Control Connection Id=%d",
                                  (CONTROL_BIT(control) ? control_msg : data_msg), ccid);
-
-        proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, baseIdx, 2, control);
-        proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, baseIdx, 2, control);
-        proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, baseIdx, 2, control);
-        proto_tree_add_uint(ctrl_tree, hf_l2tp_version, tvb, baseIdx, 2, control);
+        proto_tree_add_bitmask_list(ctrl_tree, tvb, baseIdx, 2, l2tp_control_fields, ENC_BIG_ENDIAN);
     }
     idx = baseIdx + 2;
     if (LENGTH_BIT(control)) {
@@ -2592,16 +2588,21 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 
     if (tree) {
+        static const int * control_fields[] = {
+            &hf_l2tp_type,
+            &hf_l2tp_length_bit,
+            &hf_l2tp_seq_bit,
+            &hf_l2tp_offset_bit,
+            &hf_l2tp_priority,
+            &hf_l2tp_version,
+            NULL
+        };
+
         ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, 0, 2, ett_l2tp_ctrl, NULL,
                                  "Packet Type: %s Tunnel Id=%d Session Id=%d",
                                  (CONTROL_BIT(control) ? control_msg : data_msg), tid, cid);
 
-        proto_tree_add_uint(ctrl_tree, hf_l2tp_type, tvb, 0, 2, control);
-        proto_tree_add_boolean(ctrl_tree, hf_l2tp_length_bit, tvb, 0, 2, control);
-        proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, 0, 2, control);
-        proto_tree_add_boolean(ctrl_tree, hf_l2tp_offset_bit, tvb, 0, 2, control);
-        proto_tree_add_boolean(ctrl_tree, hf_l2tp_priority, tvb, 0, 2, control);
-        proto_tree_add_uint(ctrl_tree, hf_l2tp_version, tvb, 0, 2, control);
+        proto_tree_add_bitmask_list(ctrl_tree, tvb, 0, 2, control_fields, ENC_BIG_ENDIAN);
     }
     idx = 2;
     if (LENGTH_BIT(control)) {

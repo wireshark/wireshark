@@ -179,6 +179,7 @@ static int hf_gtp_qos_guar_ul = -1;
 static int hf_gtp_qos_guar_dl = -1;
 static int hf_gtp_qos_src_stat_desc = -1;
 static int hf_gtp_qos_sig_ind = -1;
+static int hf_gtp_qos_arp = -1;
 static int hf_gtp_qos_arp_pvi = -1;
 static int hf_gtp_qos_arp_pl = -1;
 static int hf_gtp_qos_arp_pci = -1;
@@ -4235,7 +4236,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
     guint8      trans_delay, traf_handl_prio;
     guint8      guar_ul, guar_dl, guar_ul_ext, guar_dl_ext, guar_ul_ext2 = 0, guar_dl_ext2 = 0;
     guint8      src_stat_desc, sig_ind;
-    proto_tree *ext_tree_qos, *ext_tree_qos_arp;
+    proto_tree *ext_tree_qos;
     int         mss, mu, md, gu, gd;
     guint8      arp, qci;
     guint32     apn_ambr;
@@ -4321,13 +4322,19 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
 
     if ((type == 3) && (rel_ind == 8)) {
         /* Release 8 or higher P-GW QoS profile */
+        static const int * arp_flags[] = {
+            &hf_gtp_qos_arp_pci,
+            &hf_gtp_qos_arp_pl,
+            &hf_gtp_qos_arp_pvi,
+            NULL
+        };
+
         offset++;
         arp = wrapped_tvb_get_guint8(tvb, offset, 2);
-        ext_tree_qos_arp = proto_tree_add_subtree(ext_tree_qos, tvb, offset, 2, ett_gtp_qos_arp, NULL, "Allocation/Retention Priority");
-        proto_tree_add_boolean(ext_tree_qos_arp, hf_gtp_qos_arp_pci, tvb, offset, 2, arp);
-        proto_tree_add_uint(ext_tree_qos_arp, hf_gtp_qos_arp_pl, tvb, offset, 2, arp);
-        proto_tree_add_boolean(ext_tree_qos_arp, hf_gtp_qos_arp_pvi, tvb, offset, 2, arp);
+        proto_tree_add_bitmask_value_with_flags(ext_tree_qos, tvb, offset, hf_gtp_qos_arp,
+                    ett_gtp_qos_arp, arp_flags, arp, BMT_NO_APPEND);
         offset += 2;
+
         qci = wrapped_tvb_get_guint8(tvb, offset, 2);
         proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_qci, tvb, offset, 2, qci);
         offset += 2;
@@ -7984,19 +7991,28 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             break;
     }
     if (tree) {
-        proto_tree *flags_tree;
         ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
         gtp_tree = proto_item_add_subtree(ti, ett_gtp);
 
-        tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, offset, 1, gtp_hdr->flags);
-        flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
         if(gtp_prime) {
+            const int * gtp_prime_flags[] = {
+                &hf_gtp_prime_flags_ver,
+                &hf_gtp_flags_pt,
+                &hf_gtp_flags_spare1,
+                NULL
+            };
+            const int * gtp_prime_v0_flags[] = {
+                &hf_gtp_prime_flags_ver,
+                &hf_gtp_flags_pt,
+                &hf_gtp_flags_spare1,
+                &hf_gtp_flags_hdr_length,
+                NULL
+            };
+
             /* Octet  8    7    6    5    4    3    2    1
              * 1      Version   | PT| Spare '1 1 1 '| ' 0/1 '
              */
-            proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, offset, 1, gtp_hdr->flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, offset, 1, gtp_hdr->flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, offset, 1, gtp_hdr->flags);
+
             /* Bit 1 of octet 1 is not used in GTP' (except in v0), and it is marked '0'
              * in the GTP' header. It is in use in GTP' v0 and distinguishes the used header-length.
              * In the case of GTP' v0, this bit being marked one (1) indicates the usage of the 6
@@ -8005,19 +8021,36 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
              * this does not suggest the use of the 20-octet header, rather a shorter 6-octet header.
              */
             if(gtp_version == 0) {
-                proto_tree_add_item(flags_tree, hf_gtp_flags_hdr_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask_value_with_flags(gtp_tree, tvb, offset, hf_gtp_flags,
+                                        ett_gtp_flags, gtp_prime_v0_flags, gtp_hdr->flags, BMT_NO_APPEND);
+            } else {
+                proto_tree_add_bitmask_value_with_flags(gtp_tree, tvb, offset, hf_gtp_flags,
+                                        ett_gtp_flags, gtp_prime_flags, gtp_hdr->flags, BMT_NO_APPEND);
             }
         } else {
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, offset, 1, gtp_hdr->flags);
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, offset, 1, gtp_hdr->flags);
+            const int * gtp_flags[] = {
+                &hf_gtp_flags_ver,
+                &hf_gtp_flags_pt,
+                &hf_gtp_flags_spare2,
+                &hf_gtp_flags_e,
+                &hf_gtp_flags_s,
+                &hf_gtp_flags_pn,
+                NULL
+            };
+            const int * gtp_v0_flags[] = {
+                &hf_gtp_flags_ver,
+                &hf_gtp_flags_pt,
+                &hf_gtp_flags_spare1,
+                &hf_gtp_flags_snn,
+                NULL
+            };
+
             if(gtp_version == 0) {
-                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, offset, 1, gtp_hdr->flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, offset, 1, gtp_hdr->flags);
+                proto_tree_add_bitmask_value_with_flags(gtp_tree, tvb, offset, hf_gtp_flags,
+                                        ett_gtp_flags, gtp_v0_flags, gtp_hdr->flags, BMT_NO_APPEND);
             } else {
-                proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, offset, 1, gtp_hdr->flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, offset, 1, gtp_hdr->flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, offset, 1, gtp_hdr->flags);
-                proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, offset, 1, gtp_hdr->flags);
+                proto_tree_add_bitmask_value_with_flags(gtp_tree, tvb, offset, hf_gtp_flags,
+                                        ett_gtp_flags, gtp_flags, gtp_hdr->flags, BMT_NO_APPEND);
             }
         }
     }
@@ -8756,19 +8789,24 @@ proto_register_gtp(void)
            FT_BOOLEAN, 8, TFS(&gtp_sig_ind), GTP_EXT_QOS_SIG_IND_MASK,
            NULL, HFILL}
         },
+        { &hf_gtp_qos_arp,
+          {"Allocation/Retention Priority", "gtp.qos_arp",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
         { &hf_gtp_qos_arp_pci,
           {"Pre-emption Capability (PCI)", "gtp.qos_arp_pci",
-          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
+          FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled), 0x40,
           NULL, HFILL}
         },
         { &hf_gtp_qos_arp_pl,
           {"Priority Level", "gtp.qos_arp_pl",
-          FT_UINT8, BASE_DEC, NULL, 0x3c,
+          FT_UINT16, BASE_DEC, NULL, 0x3c,
           NULL, HFILL}
         },
         { &hf_gtp_qos_arp_pvi,
           {"Pre-emption Vulnerability (PVI)", "gtp.qos_arp_pvi",
-          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
+          FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled), 0x01,
           NULL, HFILL}
         },
         {&hf_gtp_qos_qci,

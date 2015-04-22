@@ -765,7 +765,6 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	gint32 tag;
 	guint32 len;
 	gint32 val;
-	header_field_info *hfinfo;
 
 	int otheroffset = offset;
 	if(!implicit_tag){
@@ -778,25 +777,16 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, -1, &val);
 
-	hfinfo = proto_registrar_get_nth(hf_index);
-
 	if (val >0) {
-		proto_tree *subtree;
-		subtree = proto_tree_add_subtree_format(tree, tvb, otheroffset+1, len,
-					ett_ldap_DirSyncFlagsSubEntry, NULL, "%s: 0x%08x", hfinfo->name, val);
+		const int * flags[] = {
+			&hf_ldap_object_security_flag,
+			&hf_ldap_ancestor_first_flag,
+			&hf_ldap_public_data_only_flag,
+			&hf_ldap_incremental_value_flag,
+		};
 
-		if (val & 0x1) {
-			proto_tree_add_boolean(subtree, hf_ldap_object_security_flag, tvb, otheroffset+1, len, TRUE);
-		}
-		if (val & 0x800) {
-			proto_tree_add_boolean(subtree, hf_ldap_ancestor_first_flag, tvb, otheroffset+1, len, TRUE);
-		}
-		if (val & 0x2000) {
-			proto_tree_add_boolean(subtree, hf_ldap_public_data_only_flag, tvb, otheroffset+1, len, TRUE);
-		}
-		if (val & 0x80000000) {
-			proto_tree_add_boolean(subtree, hf_ldap_incremental_value_flag, tvb, otheroffset+1, len, TRUE);
-		}
+		proto_tree_add_bitmask_value_with_flags(tree, tvb, otheroffset+1, hf_index,
+								ett_ldap_DirSyncFlagsSubEntry, flags, val, BMT_NO_APPEND);
 	} else {
 		proto_tree_add_uint(tree, hf_index, tvb, otheroffset+len, len, 0);
 	}

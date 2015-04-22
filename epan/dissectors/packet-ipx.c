@@ -576,31 +576,16 @@ spx_hash_lookup(conversation_t *conversation, guint32 spx_src, guint32 spx_seq)
 #define SPX_RESERVED	0x02
 #define SPX_EXT_HEADER	0x01
 
-static const char*
-spx_conn_ctrl(guint8 ctrl)
-{
-	const char *p;
-
-	static const value_string conn_vals[] = {
-		{ 0x00,                        "Data, No Ack Required" },
-		{ SPX_EOM,                     "End-of-Message" },
-		{ SPX_ATTN,                    "Attention" },
-		{ SPX_SEND_ACK,                "Acknowledgment Required"},
-		{ SPX_SEND_ACK|SPX_EOM,        "Send Ack: End Message"},
-		{ SPX_SYS_PACKET,              "System Packet"},
-		{ SPX_SYS_PACKET|SPX_SEND_ACK, "System Packet: Send Ack"},
-		{ 0x00,                        NULL }
-	};
-
-	p = try_val_to_str((ctrl & 0xf0), conn_vals );
-
-	if (p) {
-		return p;
-	}
-	else {
-		return "Unknown";
-	}
-}
+static const value_string conn_vals[] = {
+	{ 0x00,                        "Data, No Ack Required" },
+	{ SPX_EOM,                     "End-of-Message" },
+	{ SPX_ATTN,                    "Attention" },
+	{ SPX_SEND_ACK,                "Acknowledgment Required"},
+	{ SPX_SEND_ACK|SPX_EOM,        "Send Ack: End Message"},
+	{ SPX_SYS_PACKET,              "System Packet"},
+	{ SPX_SYS_PACKET|SPX_SEND_ACK, "System Packet: Send Ack"},
+	{ 0x00,                        NULL }
+};
 
 static const char*
 spx_datastream(guint8 type)
@@ -621,11 +606,10 @@ spx_datastream(guint8 type)
 static void
 dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*spx_tree = NULL;
+	proto_tree	*spx_tree;
 	proto_item	*ti;
 	tvbuff_t	*next_tvb;
 	guint8		conn_ctrl;
-	proto_tree	*cc_tree;
 	guint8		hdr_len = SPX_HEADER_LEN;
 	guint8		datastream_type;
 	const char	*datastream_type_string;
@@ -648,36 +632,38 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		hdr_len = SPX2_HEADER_LEN;
 	}
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, hdr_len, ENC_NA);
-		spx_tree = proto_item_add_subtree(ti, ett_spx);
-	}
+	ti = proto_tree_add_item(tree, proto_spx, tvb, 0, hdr_len, ENC_NA);
+	spx_tree = proto_item_add_subtree(ti, ett_spx);
 
-	spx_msg_string = spx_conn_ctrl(conn_ctrl);
+	spx_msg_string = val_to_str_const((conn_ctrl & 0xf0), conn_vals, "Unknown" );
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spx_msg_string);
 	if (tree) {
-		ti = proto_tree_add_uint_format_value(spx_tree, hf_spx_connection_control, tvb,
-						0, 1, conn_ctrl,
-						"%s (0x%02X)",
-						spx_msg_string, conn_ctrl);
-		cc_tree = proto_item_add_subtree(ti, ett_spx_connctrl);
-		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_sys, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_send_ack, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_attn, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_eom, tvb,
-				       0, 1, conn_ctrl);
+		const int * spx_flags[] = {
+			&hf_spx_connection_control_sys,
+			&hf_spx_connection_control_send_ack,
+			&hf_spx_connection_control_attn,
+			&hf_spx_connection_control_eom,
+			NULL
+		};
+
+		const int * spx_vii_flags[] = {
+			&hf_spx_connection_control_sys,
+			&hf_spx_connection_control_send_ack,
+			&hf_spx_connection_control_attn,
+			&hf_spx_connection_control_eom,
+			&hf_spx_connection_control_v2,
+			&hf_spx_connection_control_neg_size,
+			&hf_spx_connection_control_reserved,
+			&hf_spx_connection_control_ext_header,
+			NULL
+		};
+
 		if (conn_ctrl & SPX_VII_PACKET) {
-			proto_tree_add_boolean(cc_tree, hf_spx_connection_control_v2, tvb,
-					       0, 1, conn_ctrl);
-			proto_tree_add_boolean(cc_tree, hf_spx_connection_control_neg_size, tvb,
-					       0, 1, conn_ctrl);
-			proto_tree_add_boolean(cc_tree, hf_spx_connection_control_reserved, tvb,
-					       0, 1, conn_ctrl);
-			proto_tree_add_boolean(cc_tree, hf_spx_connection_control_ext_header, tvb,
-					       0, 1, conn_ctrl);
+			proto_tree_add_bitmask_with_flags(spx_tree, tvb, 0, hf_spx_connection_control,
+											ett_spx_connctrl, spx_vii_flags, ENC_NA, BMT_NO_APPEND);
+		} else {
+			proto_tree_add_bitmask_with_flags(spx_tree, tvb, 0, hf_spx_connection_control,
+											ett_spx_connctrl, spx_flags, ENC_NA, BMT_NO_APPEND);
 		}
 	}
 
@@ -1392,7 +1378,7 @@ proto_register_ipx(void)
 	static hf_register_info hf_spx[] = {
 		{ &hf_spx_connection_control,
 		{ "Connection Control",	"spx.ctl",
-		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
+		  FT_UINT8,	BASE_HEX,	VALS(conn_vals),	0xF0,
 		  NULL, HFILL }},
 
 		{ &hf_spx_connection_control_sys,

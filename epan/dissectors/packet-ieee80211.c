@@ -15452,8 +15452,6 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       {
         guint8 flags = tvb_get_guint8(tvb, offset + 2);
         guint8 targs, i;
-        proto_item *item;
-        proto_tree *subtree;
 
         offset += 2;
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -15481,10 +15479,15 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         targs = tvb_get_guint8 (tvb, offset);
         offset += 1;
         for (i = 0; i < targs; i++) {
-          item = proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-          subtree = proto_item_add_subtree(item, ett_hwmp_targ_flags_tree);
-          proto_tree_add_boolean(subtree, hf_ieee80211_ff_hwmp_targ_to_flags, tvb, offset, 1, flags);
-          proto_tree_add_boolean(subtree, hf_ieee80211_ff_hwmp_targ_usn_flags, tvb, offset, 1, flags);
+          const int * targ_flags[] = {
+              &hf_ieee80211_ff_hwmp_targ_to_flags,
+              &hf_ieee80211_ff_hwmp_targ_usn_flags,
+              NULL
+          };
+
+          proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_hwmp_targ_flags,
+                                   ett_hwmp_targ_flags_tree, targ_flags, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+
           offset += 1;
           proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, ENC_NA);
           offset += 6;

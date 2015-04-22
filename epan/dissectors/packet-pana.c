@@ -220,38 +220,18 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void
 dissect_pana_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
+        static const int * flag_fields[] = {
+            &hf_pana_flag_r,
+            &hf_pana_flag_s,
+            &hf_pana_flag_c,
+            &hf_pana_flag_a,
+            &hf_pana_flag_p,
+            &hf_pana_flag_i,
+            NULL,
+        };
 
-        proto_item *flags_item;
-        proto_tree *flags_tree;
-
-        if(parent_tree == NULL)
-                return;
-
-        flags_item = proto_tree_add_uint(parent_tree, hf_pana_flags, tvb,
-                                         offset, 2, flags);
-        flags_tree = proto_item_add_subtree(flags_item, ett_pana_flags);
-
-        proto_tree_add_boolean(flags_tree, hf_pana_flag_r, tvb, offset, 2, flags);
-        if (flags & PANA_FLAG_R)
-                proto_item_append_text(flags_item, ", Request");
-        else
-                proto_item_append_text(flags_item, ", Answer");
-        proto_tree_add_boolean(flags_tree, hf_pana_flag_s, tvb, offset, 2, flags);
-        if (flags & PANA_FLAG_S)
-                proto_item_append_text(flags_item, ", S flag set");
-        proto_tree_add_boolean(flags_tree, hf_pana_flag_c, tvb, offset, 2, flags);
-        if (flags & PANA_FLAG_C)
-                proto_item_append_text(flags_item, ", C flag set");
-        proto_tree_add_boolean(flags_tree, hf_pana_flag_a, tvb, offset, 2, flags);
-        if (flags & PANA_FLAG_A)
-                proto_item_append_text(flags_item, ", A flag set");
-        proto_tree_add_boolean(flags_tree, hf_pana_flag_p, tvb, offset, 2, flags);
-        if (flags & PANA_FLAG_P)
-                proto_item_append_text(flags_item, ", P flag set");
-        proto_tree_add_boolean(flags_tree, hf_pana_flag_i, tvb, offset, 2, flags);
-        if (flags & PANA_FLAG_I)
-                proto_item_append_text(flags_item, ", I flag set");
-
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_pana_flags,
+                                                ett_pana_flags, flag_fields, flags, BMT_NO_TFS|BMT_NO_FALSE);
 }
 
 
@@ -261,22 +241,13 @@ dissect_pana_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
 static void
 dissect_pana_avp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
+        static const int * flag_fields[] = {
+            &hf_pana_avp_flag_v,
+            NULL,
+        };
 
-        proto_item *avp_flags_item;
-        proto_tree *avp_flags_tree;
-
-        if(parent_tree == NULL) {
-                return;
-        }
-        avp_flags_item = proto_tree_add_uint(parent_tree, hf_pana_avp_flags, tvb,
-                                             offset, 2, flags);
-        avp_flags_tree = proto_item_add_subtree(avp_flags_item, ett_pana_avp_flags);
-
-        proto_tree_add_boolean(avp_flags_tree, hf_pana_avp_flag_v, tvb, offset, 2, flags);
-        if (flags & PANA_AVP_FLAG_V) {
-                proto_item_append_text(avp_flags_item, ", Vendor");
-        }
-
+        proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_pana_avp_flags,
+                                                ett_pana_avp_flags, flag_fields, flags, BMT_NO_TFS|BMT_NO_FALSE);
 }
 
 

@@ -3120,8 +3120,8 @@ static void
 dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
     const isis_clv_handle_t *opts, int header_length, int id_length)
 {
-    proto_item    *ti, *ta;
-    proto_tree    *lsp_tree, *info_tree, *att_tree;
+    proto_item    *ti;
+    proto_tree    *lsp_tree, *info_tree;
     guint16        pdu_length, lifetime, checksum, cacl_checksum=0;
     guint8        lsp_info;
     int        len, offset_checksum;
@@ -3187,6 +3187,14 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     offset += 2;
 
     if (tree) {
+        static const int * attach_flags[] = {
+            &hf_isis_lsp_error_metric,
+            &hf_isis_lsp_expense_metric,
+            &hf_isis_lsp_delay_metric,
+            &hf_isis_lsp_default_metric,
+            NULL
+        };
+
         /*
          * P | ATT | HIPPITY | IS TYPE description.
          */
@@ -3201,12 +3209,8 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
             );
 
         proto_tree_add_boolean(info_tree, hf_isis_lsp_p, tvb, offset, 1, lsp_info);
-        ta = proto_tree_add_uint(info_tree, hf_isis_lsp_att, tvb, offset, 1, lsp_info);
-        att_tree = proto_item_add_subtree(ta, ett_isis_lsp_att);
-        proto_tree_add_item(att_tree, hf_isis_lsp_error_metric, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(att_tree, hf_isis_lsp_expense_metric, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(att_tree, hf_isis_lsp_delay_metric, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(att_tree, hf_isis_lsp_default_metric, tvb, offset, 1, ENC_NA);
+        proto_tree_add_bitmask_with_flags(info_tree, tvb, offset, hf_isis_lsp_att,
+                           ett_isis_lsp_att, attach_flags, ENC_NA, BMT_NO_APPEND);
         proto_tree_add_boolean(info_tree, hf_isis_lsp_hippity, tvb, offset, 1, lsp_info);
         proto_tree_add_uint(info_tree, hf_isis_lsp_is_type, tvb, offset, 1, lsp_info);
     }

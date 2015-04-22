@@ -5345,8 +5345,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_profile_id, tvb, foffset, 4, ENC_BIG_ENDIAN);
             foffset += 4;
-            supplier_flag = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_boolean(ndps_tree, hf_ndps_supplier_flag, tvb, foffset, 4, supplier_flag);
+            proto_tree_add_item_ret_uint(ndps_tree, hf_ndps_supplier_flag, tvb, foffset, 4, ENC_BIG_ENDIAN, &supplier_flag);
             foffset += 4;
             if (supplier_flag)
             {
@@ -5361,16 +5360,14 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += length;
                 proto_item_set_end(aitem, tvb, foffset);
             }
-            language_flag = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_boolean(ndps_tree, hf_ndps_language_flag, tvb, foffset, 4, language_flag);
+            proto_tree_add_item_ret_uint(ndps_tree, hf_ndps_language_flag, tvb, foffset, 4, ENC_BIG_ENDIAN, &language_flag);
             foffset += 4;
             if (language_flag)
             {
                 proto_tree_add_item(ndps_tree, hf_ndps_language_id, tvb, foffset, 4, ENC_BIG_ENDIAN);
                 foffset += 4;
             }
-            method_flag = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_boolean(ndps_tree, hf_ndps_method_flag, tvb, foffset, 4, method_flag);
+            proto_tree_add_item_ret_uint(ndps_tree, hf_ndps_method_flag, tvb, foffset, 4, ENC_BIG_ENDIAN, &method_flag);
             foffset += 4;
             if (method_flag)
             {
@@ -5380,8 +5377,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 proto_item_set_end(aitem, tvb, foffset);
                 /* End of NameorID */
             }
-            delivery_address_flag = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_boolean(ndps_tree, hf_ndps_delivery_address_flag, tvb, foffset, 4, delivery_address_flag);
+            proto_tree_add_item_ret_uint(ndps_tree, hf_ndps_delivery_address_flag, tvb, foffset, 4, ENC_BIG_ENDIAN, &delivery_address_flag);
             foffset += 4;
             if (delivery_address_flag)
             {
@@ -5903,8 +5899,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
             foffset += 4;
             proto_tree_add_item(ndps_tree, hf_ndps_profile_id, tvb, foffset, 4, ENC_BIG_ENDIAN);
             foffset += 4;
-            supplier_flag = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_boolean(ndps_tree, hf_ndps_supplier_flag, tvb, foffset, 4, supplier_flag);
+            proto_tree_add_item_ret_uint(ndps_tree, hf_ndps_supplier_flag, tvb, foffset, 4, ENC_BIG_ENDIAN, &supplier_flag);
             foffset += 4;
             if (supplier_flag)
             {
@@ -5919,16 +5914,14 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 foffset += length;
                 proto_item_set_end(aitem, tvb, foffset);
             }
-            language_flag = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_boolean(ndps_tree, hf_ndps_language_flag, tvb, foffset, 4, language_flag);
+            proto_tree_add_item_ret_uint(ndps_tree, hf_ndps_language_flag, tvb, foffset, 4, ENC_BIG_ENDIAN, &language_flag);
             foffset += 4;
             if (language_flag)
             {
                 proto_tree_add_item(ndps_tree, hf_ndps_language_id, tvb, foffset, 4, ENC_BIG_ENDIAN);
                 foffset += 4;
             }
-            method_flag = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_boolean(ndps_tree, hf_ndps_method_flag, tvb, foffset, 4, method_flag);
+            proto_tree_add_item_ret_uint(ndps_tree, hf_ndps_method_flag, tvb, foffset, 4, ENC_BIG_ENDIAN, &method_flag);
             foffset += 4;
             if (method_flag)
             {
@@ -5938,8 +5931,7 @@ dissect_ndps_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree, g
                 proto_item_set_end(aitem, tvb, foffset);
                 /* End of NameorID */
             }
-            delivery_address_flag = tvb_get_ntohl(tvb, foffset);
-            proto_tree_add_boolean(ndps_tree, hf_ndps_delivery_address_flag, tvb, foffset, 4, delivery_address_flag);
+            proto_tree_add_item_ret_uint(ndps_tree, hf_ndps_delivery_address_flag, tvb, foffset, 4, ENC_BIG_ENDIAN, &delivery_address_flag);
             foffset += 4;
             if (delivery_address_flag)
             {
@@ -9200,7 +9192,7 @@ proto_register_ndps(void)
 
         { &hf_ndps_supplier_flag,
           { "Supplier Data?",    "ndps.supplier_flag",
-            FT_BOOLEAN,    BASE_NONE,   NULL,   0x0,
+            FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 
         { &hf_ndps_language_flag,

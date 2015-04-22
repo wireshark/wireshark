@@ -3234,14 +3234,15 @@ static void
 dissect_isup_nature_of_connection_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 nature_of_connection_ind;
+  static const int * indicators[] = {
+    &hf_isup_satellite_indicator,
+    &hf_isup_continuity_check_indicator,
+    &hf_isup_echo_control_device_indicator,
+    NULL
+  };
 
   nature_of_connection_ind = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_item(parameter_tree, hf_isup_satellite_indicator,
-                         parameter_tvb, 0, NATURE_OF_CONNECTION_IND_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_uint(parameter_tree, hf_isup_continuity_check_indicator,
-                         parameter_tvb, 0, NATURE_OF_CONNECTION_IND_LENGTH, nature_of_connection_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_echo_control_device_indicator,
-                         parameter_tvb, 0,  NATURE_OF_CONNECTION_IND_LENGTH, nature_of_connection_ind);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, NATURE_OF_CONNECTION_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
 
   proto_item_set_text(parameter_item, "Nature of Connection Indicators: 0x%x", nature_of_connection_ind);
 }
@@ -3252,29 +3253,22 @@ dissect_isup_nature_of_connection_indicators_parameter(tvbuff_t *parameter_tvb, 
 static void
 dissect_isup_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 forward_call_ind;
+  guint16 forward_call_ind = tvb_get_ntohs(parameter_tvb, 0);
+  static const int * indicators[] = {
+    &hf_isup_forw_call_natnl_inatnl_call_indicator,
+    &hf_isup_forw_call_end_to_end_method_indicator,
+    &hf_isup_forw_call_interworking_indicator,
+    &hf_isup_forw_call_end_to_end_info_indicator,
+    &hf_isup_forw_call_isdn_user_part_indicator,
+    &hf_isup_forw_call_preferences_indicator,
+    &hf_isup_forw_call_isdn_access_indicator,
+    &hf_isup_forw_call_sccp_method_indicator,
+    &hf_isup_forw_call_ported_num_trans_indicator,
+    &hf_isup_forw_call_qor_attempt_indicator,
+    NULL
+  };
 
-  forward_call_ind = tvb_get_ntohs(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_natnl_inatnl_call_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_uint(parameter_tree, hf_isup_forw_call_end_to_end_method_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_interworking_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_end_to_end_info_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_isdn_user_part_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_uint(parameter_tree, hf_isup_forw_call_preferences_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_isdn_access_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_uint(parameter_tree, hf_isup_forw_call_sccp_method_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_ported_num_trans_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_forw_call_qor_attempt_indicator,
-                         parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, forward_call_ind);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
 
   proto_item_set_text(parameter_item, "Forward Call Indicators: 0x%x", forward_call_ind);
 }
@@ -3344,14 +3338,24 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
   char         called_number[MAXDIGITS + 1] = "";
   e164_info_t  e164_info;
   gint         number_plan;
+  static const int * indicators1_flags[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_called_party_nature_of_address_indicator,
+    NULL
+  };
+
+  static const int * indicators2_flags[] = {
+    &hf_isup_inn_indicator,
+    &hf_isup_numbering_plan_indicator,
+    NULL
+  };
+
 
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_called_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_flags, ENC_NA);
   indicators2 = tvb_get_guint8(parameter_tvb, 1);
   number_plan = (indicators2 & 0x70)>> 4;
-  proto_tree_add_boolean(parameter_tree, hf_isup_inn_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_flags, ENC_NA);
   offset = 2;
 
   if (tvb_reported_length_remaining(parameter_tvb, offset) == 0) {
@@ -3465,21 +3469,18 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
 static void
 dissect_isup_information_request_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 information_request_indicators;
+  static const int * indicators[] = {
+    &hf_isup_calling_party_address_request_indicator,
+    &hf_isup_info_req_holding_indicator,
+    &hf_isup_calling_partys_category_request_indicator,
+    &hf_isup_charge_information_request_indicator,
+    &hf_isup_malicious_call_identification_request_indicator,
+    NULL
+  };
 
-  information_request_indicators = tvb_get_ntohs(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_calling_party_address_request_indicator,
-                         parameter_tvb, 0, INFO_REQUEST_IND_LENGTH,  information_request_indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_info_req_holding_indicator,
-                         parameter_tvb, 0, INFO_REQUEST_IND_LENGTH,  information_request_indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_calling_partys_category_request_indicator,
-                         parameter_tvb, 0, INFO_REQUEST_IND_LENGTH,  information_request_indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_charge_information_request_indicator,
-                         parameter_tvb, 0, INFO_REQUEST_IND_LENGTH,  information_request_indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_malicious_call_identification_request_indicator,
-                         parameter_tvb, 0, INFO_REQUEST_IND_LENGTH,  information_request_indicators);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, INFO_REQUEST_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
 
-  proto_item_set_text(parameter_item, "Information request indicators: 0x%x", information_request_indicators);
+  proto_item_set_text(parameter_item, "Information request indicators: 0x%x", tvb_get_ntohs(parameter_tvb, 0));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Information Indicators
@@ -3487,21 +3488,18 @@ dissect_isup_information_request_indicators_parameter(tvbuff_t *parameter_tvb, p
 static void
 dissect_isup_information_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 information_indicators;
+  static const int * indicators[] = {
+    &hf_isup_calling_party_address_response_indicator,
+    &hf_isup_hold_provided_indicator,
+    &hf_isup_calling_partys_category_response_indicator,
+    &hf_isup_charge_information_response_indicator,
+    &hf_isup_solicited_indicator,
+    NULL
+  };
 
-  information_indicators = tvb_get_ntohs(parameter_tvb, 0);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_party_address_response_indicator,
-                         parameter_tvb, 0, INFO_IND_LENGTH,  information_indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_hold_provided_indicator, parameter_tvb, 0, INFO_IND_LENGTH,  information_indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_calling_partys_category_response_indicator,
-                         parameter_tvb, 0, INFO_IND_LENGTH,  information_indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_charge_information_response_indicator,
-                         parameter_tvb, 0, INFO_IND_LENGTH,  information_indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_solicited_indicator,
-                         parameter_tvb, 0, INFO_IND_LENGTH,  information_indicators);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, INFO_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
 
-
-  proto_item_set_text(parameter_item, "Information indicators: 0x%x", information_indicators);
+  proto_item_set_text(parameter_item, "Information indicators: 0x%x", tvb_get_ntohs(parameter_tvb, 0));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Continuity Indicators
@@ -3522,35 +3520,23 @@ dissect_isup_continuity_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 static void
 dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 backward_call_ind;
+  static const int * indicators[] = {
+    &hf_isup_backw_call_charge_ind,
+    &hf_isup_backw_call_called_partys_status_ind,
+    &hf_isup_backw_call_called_partys_category_ind,
+    &hf_isup_backw_call_end_to_end_method_ind,
+    &hf_isup_backw_call_interworking_ind,
+    &hf_isup_backw_call_end_to_end_info_ind,
+    &hf_isup_backw_call_isdn_user_part_ind,
+    &hf_isup_backw_call_holding_ind,
+    &hf_isup_backw_call_isdn_access_ind,
+    &hf_isup_backw_call_echo_control_device_ind,
+    &hf_isup_backw_call_sccp_method_ind,
+    NULL
+  };
 
-  backward_call_ind = tvb_get_ntohs(parameter_tvb, 0);
-
-
-  proto_tree_add_uint(parameter_tree, hf_isup_backw_call_charge_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_uint(parameter_tree, hf_isup_backw_call_called_partys_status_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_uint(parameter_tree, hf_isup_backw_call_called_partys_category_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_uint(parameter_tree, hf_isup_backw_call_end_to_end_method_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_backw_call_interworking_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_backw_call_end_to_end_info_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_backw_call_isdn_user_part_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_backw_call_holding_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH,  backward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_backw_call_isdn_access_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_boolean(parameter_tree, hf_isup_backw_call_echo_control_device_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-  proto_tree_add_uint(parameter_tree, hf_isup_backw_call_sccp_method_ind,
-                         parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, backward_call_ind);
-
-  proto_item_set_text(parameter_item, "Backward Call Indicators: 0x%x", backward_call_ind);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
+  proto_item_set_text(parameter_item, "Backward Call Indicators: 0x%x", tvb_get_ntohs(parameter_tvb, 0));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Cause Indicators - no detailed dissection since defined in Rec. Q.850
@@ -4540,9 +4526,29 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
  */
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len) {
   guint8 tempdata;
-  proto_tree *scs_item, *acs_item;
-  proto_tree *scs_tree, *acs_tree;
+  static const int * active_code_sets[] = {
+    &hf_active_code_set_12_2,
+    &hf_active_code_set_10_2,
+    &hf_active_code_set_7_95,
+    &hf_active_code_set_7_40,
+    &hf_active_code_set_6_70,
+    &hf_active_code_set_5_90,
+    &hf_active_code_set_5_15,
+    &hf_active_code_set_4_75,
+    NULL
+  };
 
+  static const int * supported_code_sets[] = {
+    &hf_supported_code_set_12_2,
+    &hf_supported_code_set_10_2,
+    &hf_supported_code_set_7_95,
+    &hf_supported_code_set_7_40,
+    &hf_supported_code_set_6_70,
+    &hf_supported_code_set_5_90,
+    &hf_supported_code_set_5_15,
+    &hf_supported_code_set_4_75,
+    NULL
+  };
 
   tempdata = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint(tree, hf_Organization_Identifier , tvb, offset, 1, tempdata);
@@ -4591,31 +4597,14 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
       if (len > 2) {
         offset = offset + 1;
 
-        acs_item = proto_tree_add_item(tree, hf_active_code_set, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        acs_tree = proto_item_add_subtree(acs_item, ett_acs);
-        proto_tree_add_item(acs_tree, hf_active_code_set_12_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(acs_tree, hf_active_code_set_10_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(acs_tree, hf_active_code_set_7_95, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(acs_tree, hf_active_code_set_7_40, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(acs_tree, hf_active_code_set_6_70, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(acs_tree, hf_active_code_set_5_90, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(acs_tree, hf_active_code_set_5_15, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(acs_tree, hf_active_code_set_4_75, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_active_code_set,
+                           ett_acs, active_code_sets, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
       }
       if (len > 3) {
         offset = offset + 1;
 
-        scs_item = proto_tree_add_item(tree, hf_supported_code_set, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        scs_tree = proto_item_add_subtree(scs_item, ett_scs);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_12_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_10_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_7_95, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_7_40, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_6_70, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_5_90, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_5_15, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_4_75, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_supported_code_set,
+                           ett_acs, supported_code_sets, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
       }
       if (len > 4) {
         offset = offset + 1;
@@ -4639,20 +4628,20 @@ static int
 dissect_codec(tvbuff_t *parameter_tvb, proto_tree *bat_ase_element_tree, gint length_indicator, gint offset, gint identifier)
 {
 /* offset is at length indicator e.g 1 step past identifier */
-  guint8 compatibility_info;
+  static const int * compatibility_info[] = {
+    &hf_Instruction_ind_for_general_action,
+    &hf_Send_notification_ind_for_general_action,
+    &hf_Instruction_ind_for_pass_on_not_possible,
+    &hf_Send_notification_ind_for_pass_on_not_possible,
+    &hf_isup_extension_ind,
+    NULL
+  };
 
   proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb, offset - 1, 1, identifier);
   proto_tree_add_uint(bat_ase_element_tree , hf_length_indicator  , parameter_tvb, offset, 1, length_indicator);
   offset = offset + 1;
-  compatibility_info = tvb_get_guint8(parameter_tvb, offset);
-  proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_general_action , parameter_tvb, offset, 1, compatibility_info);
-  proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_general_action,
-                         parameter_tvb, offset, 1, compatibility_info);
-  proto_tree_add_uint(bat_ase_element_tree, hf_Instruction_ind_for_pass_on_not_possible,
-                      parameter_tvb, offset, 1, compatibility_info);
-  proto_tree_add_boolean(bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible,
-                         parameter_tvb, offset, 1, compatibility_info);
-  proto_tree_add_boolean(bat_ase_element_tree, hf_isup_extension_ind , parameter_tvb, offset, 1, compatibility_info);
+
+  proto_tree_add_bitmask_list(bat_ase_element_tree, parameter_tvb, offset, 1, compatibility_info, ENC_NA);
 
   offset = dissect_codec_mode(bat_ase_element_tree, parameter_tvb, offset+1, length_indicator-1);
   return offset;
@@ -5158,19 +5147,20 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 static void
 dissect_isup_optional_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint8 indicators;
+  guint8 ind;
+  static const int * indicators[] = {
+    &hf_isup_cug_call_ind,
+    &hf_isup_simple_segmentation_ind,
+    &hf_isup_connected_line_identity_request_ind,
+    NULL
+  };
 
-  indicators = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint(parameter_tree, hf_isup_cug_call_ind, parameter_tvb, 0, OPTIONAL_FORWARD_CALL_IND_LENGTH, indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_simple_segmentation_ind,
-                         parameter_tvb, 0, OPTIONAL_FORWARD_CALL_IND_LENGTH, indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_connected_line_identity_request_ind,
-                         parameter_tvb, 0, OPTIONAL_FORWARD_CALL_IND_LENGTH, indicators);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, OPTIONAL_FORWARD_CALL_IND_LENGTH, indicators, ENC_NA);
 
-
+  ind = tvb_get_guint8(parameter_tvb, 0);
   proto_item_set_text(parameter_item, "Optional forward call indicators: %s (%u)",
-                      val_to_str_const(indicators & BA_8BIT_MASK, isup_CUG_call_ind_value, "spare"),
-                      indicators);
+                      val_to_str_const(ind & BA_8BIT_MASK, isup_CUG_call_ind_value, "spare"),
+                      ind);
 }
 /* ------------------------------------------------------------------
   Dissector Parameter calling party number
@@ -5189,16 +5179,24 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   char         calling_number[MAXDIGITS + 1] = "";
   e164_info_t  e164_info;
   gint         number_plan;
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_calling_party_nature_of_address_indicator,
+    NULL
+  };
+  static const int * indicators2_fields[] = {
+    &hf_isup_ni_indicator,
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_address_presentation_restricted_indicator,
+    &hf_isup_screening_indicator,
+    NULL
+  };
 
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
   indicators2 = tvb_get_guint8(parameter_tvb, 1);
   number_plan = (indicators2 & 0x70)>> 4;
-  proto_tree_add_boolean(parameter_tree, hf_isup_ni_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_screening_indicator, parameter_tvb, 1, 1, indicators2);
   offset = 2;
 
   length = tvb_reported_length_remaining(parameter_tvb, offset);
@@ -5265,19 +5263,27 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, packet_in
 {
   proto_item *address_digits_item;
   proto_tree *address_digits_tree;
-  guint8      indicators1, indicators2;
+  guint8      indicators1;
   guint8      address_digit_pair = 0;
   gint        offset = 0;
   gint        i = 0;
   gint        length;
   char        calling_number[MAXDIGITS + 1] = "";
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_calling_party_nature_of_address_indicator,
+    NULL
+  };
+  static const int * indicators2_fields[] = {
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_address_presentation_restricted_indicator,
+    NULL
+  };
 
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
-  indicators2 = tvb_get_guint8(parameter_tvb, 1);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
   offset = 2;
 
   length = tvb_reported_length_remaining(parameter_tvb, offset);
@@ -5333,19 +5339,27 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 {
   proto_item *address_digits_item;
   proto_tree *address_digits_tree;
-  guint8      indicators1, indicators2;
+  guint8      indicators1;
   guint8      address_digit_pair = 0;
   gint        offset = 0;
   gint        i = 0;
   gint        length;
   char        calling_number[MAXDIGITS + 1] = "";
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_calling_party_nature_of_address_indicator,
+    NULL
+  };
+  static const int * indicators2_fields[] = {
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_address_presentation_restricted_indicator,
+    NULL
+  };
 
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
-  indicators2 = tvb_get_guint8(parameter_tvb, 1);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
   offset = 2;
 
   length = tvb_reported_length_remaining(parameter_tvb, offset);
@@ -5401,19 +5415,27 @@ dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 {
   proto_item *address_digits_item;
   proto_tree *address_digits_tree;
-  guint8      indicators1, indicators2;
+  guint8      indicators1;
   guint8      address_digit_pair = 0;
   gint        offset = 0;
   gint        i = 0;
   gint        length;
   char        called_number[MAXDIGITS + 1] = "";
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_called_party_nature_of_address_indicator,
+    NULL
+  };
+  static const int * indicators2_fields[] = {
+    &hf_isup_inn_indicator,
+    &hf_isup_numbering_plan_indicator,
+    NULL
+  };
 
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_called_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
-  indicators2 = tvb_get_guint8(parameter_tvb, 1);
-  proto_tree_add_boolean(parameter_tree, hf_isup_inn_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
   offset = 2;
 
   address_digits_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb,
@@ -5557,20 +5579,28 @@ dissect_isup_connected_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 {
   proto_item *address_digits_item;
   proto_tree *address_digits_tree;
-  guint8      indicators1, indicators2;
+  guint8      indicators1;
   guint8      address_digit_pair = 0;
   gint        offset = 0;
   gint        i = 0;
   gint        length;
   char        calling_number[MAXDIGITS + 1] = "";
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_calling_party_nature_of_address_indicator,
+    NULL
+  };
+  static const int * indicators2_fields[] = {
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_address_presentation_restricted_indicator,
+    &hf_isup_screening_indicator,
+    NULL
+  };
 
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
-  indicators2 = tvb_get_guint8(parameter_tvb, 1);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_screening_indicator, parameter_tvb, 1, 1, indicators2);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
   offset = 2;
 
   length = tvb_reported_length_remaining(parameter_tvb, offset);
@@ -5626,11 +5656,15 @@ dissect_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, proto_
   gint        i = 0;
   gint        length;
   char        network_id[MAXDIGITS + 1] = "";
+  static const int * indicators_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_type_of_network_identification,
+    &hf_isup_network_identification_plan,
+    NULL
+  };
 
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators_fields, ENC_NA);
   indicators = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators);
-  proto_tree_add_uint(parameter_tree, hf_isup_type_of_network_identification, parameter_tvb, 0, 1, indicators);
-  proto_tree_add_uint(parameter_tree, hf_isup_network_identification_plan, parameter_tvb, 0, 1, indicators);
   offset = 1;
 
   address_digits_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb,
@@ -5699,16 +5733,17 @@ dissect_isup_automatic_congestion_level_parameter(tvbuff_t *parameter_tvb, proto
 static void
 dissect_isup_optional_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint8 indicators;
+  static const int * indicators[] = {
+    &hf_isup_inband_information_ind,
+    &hf_isup_call_diversion_may_occur_ind,
+    &hf_isup_simple_segmentation_ind,
+    &hf_isup_mlpp_user_ind,
+    NULL
+  };
 
-  indicators = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_inband_information_ind, parameter_tvb, 0, OPTIONAL_BACKWARD_CALL_IND_LENGTH, indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_call_diversion_may_occur_ind, parameter_tvb, 0, OPTIONAL_BACKWARD_CALL_IND_LENGTH, indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_simple_segmentation_ind, parameter_tvb, 0, OPTIONAL_BACKWARD_CALL_IND_LENGTH, indicators);
-  proto_tree_add_boolean(parameter_tree, hf_isup_mlpp_user_ind, parameter_tvb, 0, OPTIONAL_BACKWARD_CALL_IND_LENGTH, indicators);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, OPTIONAL_BACKWARD_CALL_IND_LENGTH, indicators, ENC_NA);
 
-
-  proto_item_set_text(parameter_item, "Optional backward call indicators: 0x%x", indicators);
+  proto_item_set_text(parameter_item, "Optional backward call indicators: 0x%x", tvb_get_guint8(parameter_tvb, 0));
 }
 /* ------------------------------------------------------------------
   Dissector Parameter User-to-user indicators
@@ -5743,22 +5778,31 @@ dissect_isup_user_to_user_indicators_parameter(tvbuff_t *parameter_tvb,
                                                proto_item *parameter_item)
 {
   guint8 indicators;
+  static const int * req_fields[] = {
+    &hf_isup_UUI_type,
+    &hf_isup_UUI_req_service1,
+    &hf_isup_UUI_req_service2,
+    &hf_isup_UUI_req_service3,
+    NULL
+  };
+  static const int * res_fields[] = {
+    &hf_isup_UUI_type,
+    &hf_isup_UUI_res_service1,
+    &hf_isup_UUI_res_service2,
+    &hf_isup_UUI_res_service3,
+    &hf_isup_UUI_network_discard_ind,
+    NULL
+  };
 
   indicators = tvb_get_guint8(parameter_tvb, 0);
   proto_tree_add_boolean(parameter_tree, hf_isup_UUI_type, parameter_tvb, 0, 1, indicators);
   if ((indicators & 0x01) == 0) {
     /* Request */
-    proto_tree_add_uint(parameter_tree, hf_isup_UUI_req_service1, parameter_tvb, 0, 1, indicators);
-    proto_tree_add_uint(parameter_tree, hf_isup_UUI_req_service2, parameter_tvb, 0, 1, indicators);
-    proto_tree_add_uint(parameter_tree, hf_isup_UUI_req_service3, parameter_tvb, 0, 1, indicators);
+    proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, req_fields, ENC_NA);
   }
   else {
     /* Response */
-    proto_tree_add_uint(parameter_tree, hf_isup_UUI_res_service1, parameter_tvb, 0, 1, indicators);
-    proto_tree_add_uint(parameter_tree, hf_isup_UUI_res_service2, parameter_tvb, 0, 1, indicators);
-    proto_tree_add_uint(parameter_tree, hf_isup_UUI_res_service3, parameter_tvb, 0, 1, indicators);
-    proto_tree_add_boolean(parameter_tree, hf_isup_UUI_network_discard_ind, parameter_tvb, 0, 1, indicators);
-
+    proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, res_fields, ENC_NA);
   }
   proto_item_set_text(parameter_item, "User-to-user indicators: 0x%x", indicators);
 }
@@ -6309,18 +6353,35 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
   gint        i = 0;
   gint        length;
   char        calling_number[MAXDIGITS + 1] = "";
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_calling_party_nature_of_address_indicator,
+    NULL
+  };
+  static const int * indicators2_fields[] = {
+    &hf_isup_inn_indicator,
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_address_presentation_restricted_indicator,
+    &hf_isup_screening_indicator,
+    NULL
+  };
+  static const int * indicators2_fields_gfe[] = {
+    &hf_isup_inn_indicator,
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_number_different_meaning,
+    &hf_isup_address_presentation_restricted_indicator,
+    &hf_isup_screening_indicator,
+    NULL
+  };
 
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
   indicators2 = tvb_get_guint8(parameter_tvb, 1);
-  proto_tree_add_boolean(parameter_tree, hf_isup_inn_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
-  if ((indicators2 & GFE_8BIT_MASK) == 0x50)
-    proto_tree_add_uint_format_value(parameter_tree, hf_isup_number_different_meaning, parameter_tvb, 1, 1, indicators2 & GFE_8BIT_MASK,
-            "Numbering plan indicator = private numbering plan");
-  proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_screening_indicator, parameter_tvb, 1, 1, indicators2);
+  if ((indicators2 & GFE_8BIT_MASK) == 0x50) {
+     proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields_gfe, ENC_NA);
+  } else {
+     proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
+  }
 
    /* NOTE  When the address presentation restricted indicator indicates address not available, the
     * subfields in items a), b), c) and d) are coded with 0's, and the screening indicator is set to 11
@@ -6612,19 +6673,26 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 {
   proto_item *address_digits_item;
   proto_tree *address_digits_tree;
-  guint8      indicators1, indicators2;
+  guint8      indicators1;
   guint8      address_digit_pair = 0;
   gint        offset = 0;
   gint        i = 0;
   gint        length;
   char        calling_number[MAXDIGITS + 1] = "";
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_calling_party_nature_of_address_indicator,
+    NULL
+  };
+  static const int * indicators2_fields[] = {
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_address_presentation_restricted_indicator,
+    NULL
+  };
 
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
-  indicators2 = tvb_get_guint8(parameter_tvb, 1);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 1, 1, indicators2);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
   offset = 2;
 
   address_digits_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb,
@@ -6796,9 +6864,7 @@ dissect_isup_calling_geodetic_location_parameter(tvbuff_t *parameter_tvb, packet
   proto_tree_add_uint(parameter_tree, hf_isup_geo_loc_presentation_restricted_ind, parameter_tvb, 0, 1, oct);
   proto_tree_add_uint(parameter_tree, hf_isup_geo_loc_screening_ind, parameter_tvb, 0, 1, oct);
 
-  oct = tvb_get_guint8(parameter_tvb, 1);
-
-  proto_tree_add_boolean(parameter_tree, hf_isup_extension_ind, parameter_tvb, 1, 1, oct);
+  proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, 1, 1, ENC_NA);
   proto_tree_add_item(parameter_tree, hf_isup_geo_loc_shape, parameter_tvb, 1, 1, ENC_NA);
 
   if (length > 2)
@@ -6850,19 +6916,36 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
   gint        i = 0;
   gint        length;
   char        calling_number[MAXDIGITS + 1] = "";
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_calling_party_nature_of_address_indicator,
+    NULL
+  };
+  static const int * indicators2_fields[] = {
+    &hf_isup_ni_indicator,
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_address_presentation_restricted_indicator,
+    &hf_isup_screening_indicator_enhanced,
+    NULL
+  };
+  static const int * indicators2_fields_gfe[] = {
+    &hf_isup_ni_indicator,
+    &hf_isup_numbering_plan_indicator,
+    &hf_isup_number_different_meaning,
+    &hf_isup_address_presentation_restricted_indicator,
+    &hf_isup_screening_indicator,
+    NULL
+  };
 
   proto_tree_add_item(parameter_tree, hf_isup_number_qualifier_indicator, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb,1 , 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 1);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 1, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_party_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
   indicators2 = tvb_get_guint8(parameter_tvb, 2);
-  proto_tree_add_boolean(parameter_tree, hf_isup_ni_indicator, parameter_tvb, 2, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 2, 1, indicators2);
-  if ((indicators2 & GFE_8BIT_MASK) == 0x50)
-    proto_tree_add_uint_format_value(parameter_tree, hf_isup_number_different_meaning, parameter_tvb, 2, 1, indicators2 & GFE_8BIT_MASK,
-                "Numbering plan indicator = private numbering plan");
-  proto_tree_add_uint(parameter_tree, hf_isup_address_presentation_restricted_indicator, parameter_tvb, 2, 1, indicators2);
-  proto_tree_add_uint(parameter_tree, hf_isup_screening_indicator_enhanced, parameter_tvb, 2, 1, indicators2);
+  if ((indicators2 & GFE_8BIT_MASK) == 0x50) {
+     proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 2, 1, indicators2_fields_gfe, ENC_NA);
+  } else {
+     proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 2, 1, indicators2_fields, ENC_NA);
+  }
   offset = 3;
 
   length = tvb_reported_length_remaining(parameter_tvb, offset);
@@ -6971,17 +7054,21 @@ dissect_isup_jurisdiction_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
 static void
 dissect_isup_generic_name_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint8  indicator;
   gint    gen_name_length;
   char   *gen_name = NULL;
+  static const int * indicators[] = {
+    &hf_isup_generic_name_presentation,
+    &hf_isup_generic_name_availability,
+    &hf_isup_generic_name_type,
+    NULL
+  };
 
   gen_name = (char *)wmem_alloc(wmem_packet_scope(), MAXGNAME + 1);
   gen_name[0] = '\0';
   gen_name_length = tvb_reported_length(parameter_tvb) - 1;
-  indicator = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint(parameter_tree, hf_isup_generic_name_presentation, parameter_tvb, 1, 1, indicator);
-  proto_tree_add_boolean(parameter_tree, hf_isup_generic_name_availability, parameter_tvb, 1, 1, indicator);
-  proto_tree_add_uint(parameter_tree, hf_isup_generic_name_type, parameter_tvb, 1, 1, indicator);
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators, ENC_NA);
+
   gen_name = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 1, gen_name_length, ENC_ASCII);
   gen_name[gen_name_length] = '\0';
   proto_tree_add_string(parameter_tree, hf_isup_generic_name_ia5, parameter_tvb, 2, gen_name_length, gen_name);
@@ -7007,18 +7094,21 @@ dissect_isup_charge_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 {
   proto_item *address_digits_item;
   proto_tree *address_digits_tree;
-  guint8      indicators1, indicators2;
+  guint8      indicators1;
   guint8      address_digit_pair = 0;
   gint        offset = 0;
   gint        i = 0;
   gint        length;
   char calling_number[MAXDIGITS + 1] = "";
+  static const int * indicators1_fields[] = {
+    &hf_isup_odd_even_indicator,
+    &hf_isup_charge_number_nature_of_address_indicator,
+    NULL
+  };
 
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_boolean(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, 0, 1, indicators1);
-  proto_tree_add_uint(parameter_tree, hf_isup_charge_number_nature_of_address_indicator, parameter_tvb, 0, 1, indicators1);
-  indicators2 = tvb_get_guint8(parameter_tvb, 1);
-  proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
+  proto_tree_add_item(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, ENC_NA);
   offset = 2;
 
   address_digits_tree = proto_tree_add_subtree(parameter_tree, parameter_tvb,

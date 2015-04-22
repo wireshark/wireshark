@@ -529,52 +529,22 @@ attribute_types_initialize_cb(void)
 /* MS-ADTS specification, section 7.3.1.1, NETLOGON_NT_VERSION Options Bits */
 static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-  guint32 flags;
-  proto_item *item;
-  proto_tree *tree=NULL;
-  guint  *field;
-  header_field_info *hfi;
-  gboolean one_bit_set = FALSE;
-  guint fields[11];
-  fields[0]  = hf_mscldap_ntver_flags_v1;
-  fields[1]  = hf_mscldap_ntver_flags_v5;
-  fields[2]  = hf_mscldap_ntver_flags_v5ex;
-  fields[3]  = hf_mscldap_ntver_flags_v5ep;
-  fields[4]  = hf_mscldap_ntver_flags_vcs;
-  fields[5]  = hf_mscldap_ntver_flags_vnt4;
-  fields[6]  = hf_mscldap_ntver_flags_vpdc;
-  fields[7]  = hf_mscldap_ntver_flags_vip;
-  fields[8]  = hf_mscldap_ntver_flags_vl;
-  fields[9]  = hf_mscldap_ntver_flags_vgc;
-  fields[10]  = 0;
+  static const int * flags[] = {
+    &hf_mscldap_ntver_flags_v1,
+    &hf_mscldap_ntver_flags_v5,
+    &hf_mscldap_ntver_flags_v5ex,
+    &hf_mscldap_ntver_flags_v5ep,
+    &hf_mscldap_ntver_flags_vcs,
+    &hf_mscldap_ntver_flags_vnt4,
+    &hf_mscldap_ntver_flags_vpdc,
+    &hf_mscldap_ntver_flags_vip,
+    &hf_mscldap_ntver_flags_vl,
+    &hf_mscldap_ntver_flags_vgc,
+    NULL
+  };
 
-
-  flags=tvb_get_letohl(tvb, offset);
-  item=proto_tree_add_item(parent_tree, hf_mscldap_ntver_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  if(parent_tree){
-    tree = proto_item_add_subtree(item, ett_mscldap_ntver_flags);
-  }
-
-  proto_item_append_text(item, " (");
-
-  for(field = fields; *field; field++) {
-    proto_tree_add_boolean(tree, *field, tvb, offset, 4, flags);
-    hfi = proto_registrar_get_nth(*field);
-
-    if(flags & hfi->bitmask) {
-
-      if(one_bit_set)
-	proto_item_append_text(item, ", ");
-      else
-	one_bit_set = TRUE;
-
-      proto_item_append_text(item, "%s", hfi->name);
-
-    }
-  }
-
-  proto_item_append_text(item, ")");
-
+  proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_mscldap_ntver_flags,
+                           ett_mscldap_ntver_flags, flags, ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
   offset += 4;
 
   return offset;
@@ -1359,54 +1329,27 @@ static const true_false_string tfs_ads_fnc = {
 };
 static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-  guint32 flags;
-  proto_item *item;
-  proto_tree *tree;
-  guint  *field;
-  header_field_info *hfi;
-  gboolean one_bit_set = FALSE;
-  guint fields[16];
-  fields[0]  = hf_mscldap_netlogon_flags_fnc;
-  fields[1]  = hf_mscldap_netlogon_flags_dnc;
-  fields[2]  = hf_mscldap_netlogon_flags_dns;
-  fields[3]  = hf_mscldap_netlogon_flags_wdc;
-  fields[4]  = hf_mscldap_netlogon_flags_rodc;
-  fields[5]  = hf_mscldap_netlogon_flags_ndnc;
-  fields[6]  = hf_mscldap_netlogon_flags_good_timeserv;
-  fields[7]  = hf_mscldap_netlogon_flags_writable;
-  fields[8]  = hf_mscldap_netlogon_flags_closest;
-  fields[9]  = hf_mscldap_netlogon_flags_timeserv;
-  fields[10]  = hf_mscldap_netlogon_flags_kdc;
-  fields[11]  = hf_mscldap_netlogon_flags_ds;
-  fields[12]  = hf_mscldap_netlogon_flags_ldap;
-  fields[13]  = hf_mscldap_netlogon_flags_gc;
-  fields[14]  = hf_mscldap_netlogon_flags_pdc;
-  fields[15]  = 0;
+  static const int * flags[] = {
+    &hf_mscldap_netlogon_flags_fnc,
+    &hf_mscldap_netlogon_flags_dnc,
+    &hf_mscldap_netlogon_flags_dns,
+    &hf_mscldap_netlogon_flags_wdc,
+    &hf_mscldap_netlogon_flags_rodc,
+    &hf_mscldap_netlogon_flags_ndnc,
+    &hf_mscldap_netlogon_flags_good_timeserv,
+    &hf_mscldap_netlogon_flags_writable,
+    &hf_mscldap_netlogon_flags_closest,
+    &hf_mscldap_netlogon_flags_timeserv,
+    &hf_mscldap_netlogon_flags_kdc,
+    &hf_mscldap_netlogon_flags_ds,
+    &hf_mscldap_netlogon_flags_ldap,
+    &hf_mscldap_netlogon_flags_gc,
+    &hf_mscldap_netlogon_flags_pdc,
+    NULL
+  };
 
-  flags=tvb_get_letohl(tvb, offset);
-  item=proto_tree_add_item(parent_tree, hf_mscldap_netlogon_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  tree = proto_item_add_subtree(item, ett_mscldap_netlogon_flags);
-
-  proto_item_append_text(item, " (");
-
-  for(field = fields; *field; field++) {
-    proto_tree_add_boolean(tree, *field, tvb, offset, 4, flags);
-    hfi = proto_registrar_get_nth(*field);
-
-    if(flags & hfi->bitmask) {
-
-      if(one_bit_set)
-	proto_item_append_text(item, ", ");
-      else
-	one_bit_set = TRUE;
-
-      proto_item_append_text(item, "%s", hfi->name);
-
-    }
-  }
-
-  proto_item_append_text(item, ")");
-
+  proto_tree_add_bitmask_with_flags(parent_tree, tvb, offset, hf_mscldap_netlogon_flags,
+                           ett_mscldap_netlogon_flags, flags, ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
   offset += 4;
 
   return offset;
