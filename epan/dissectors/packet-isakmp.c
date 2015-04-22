@@ -4004,7 +4004,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
                   proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), ENC_NA);
                 break;
                }
-               length -= tvb_get_guint8(tvb, offset+1) - 2;
+               length -= tvb_get_guint8(tvb, offset+1) + 2;
                offset += tvb_get_guint8(tvb, offset+1) + 2;
                if(length)
                {
