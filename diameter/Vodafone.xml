@@ -5,7 +5,7 @@
 <application id="16777234" name="Vodafone Gx+" uri="http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt">
 
 	<avp name="Context-Type" code="256" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
-		<type type-name="Unsigned32"/>
+		<type type-name="Enumerated"/>
 		<enum name="PRIMARY" code="0"/>
 		<enum name="SECONDARY" code="1"/>
 	</avp>
@@ -19,13 +19,13 @@
 		<type type-name="Unsigned32"/>
 	</avp>
 	<avp name="Radio-Access-Technology" code="260" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
-		<type type-name="Unsigned32"/>
+		<type type-name="Enumerated"/>
 		<enum name="UTRAN" code="0"/>
 		<enum name="GERAN" code="1"/>
 		<enum name="WLAN" code="2"/>
 	</avp>
 	<avp name="Reporting-Reason" code="261" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
-		<type type-name="Unsigned32"/>
+		<type type-name="Enumerated"/>
 		<enum name="THRESHOLD" code="0"/>
 		<enum name="QHT" code="1"/>
 		<enum name="FINAL" code="2"/>
@@ -50,7 +50,7 @@
 		</grouped>
 	</avp>
 	<avp name="Trigger-Type" code="266" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
-		<type type-name="Unsigned32"/>
+		<type type-name="Enumerated"/>
 		<enum name="CHANGE_IN_SGSN_IP_ADDRESS" code="1"/>
 		<enum name="CHANGEINQOS_ANY" code="2"/>
 		<enum name="CHANGEINLOCATION_ANY" code="3"/>

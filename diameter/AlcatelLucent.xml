@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- NOTE the Application ID is not assigned by IANA http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml -->
-<application id="111" name="ALU Sy" uri="http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt">
+<application id="111" name="ALU Sy" uri="none">
 
 	<avp name="Detailed-Result" code="15" mandatory="mustnot" protected="may" vendor-bit="must" vendor-id="ALU" may-encrypt="yes">
 		<grouped>
