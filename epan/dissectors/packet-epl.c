@@ -17,6 +17,9 @@
  * Copyright (c) 2013: B&R Industrieelektronik GmbH
  *                     http://www.br-automation.com
  *
+ *                     - Christoph Schlosser <christoph.schlosser[AT]br-automation.com>
+ *                     - Lukas Emersberger <lukas.emersberger[AT]br-automation.com>
+ *                     - Josef Baumgartner <josef.baumgartner[AT]br-automation.com>
  *                     - Roland Knall <roland.knall[AT]br-automation.com>
  *                       - Extended to be similair in handling as to B&R plugin
  *                       - Multiple SOD Read/Write dissection
@@ -128,6 +131,7 @@ static const gchar* addr_str_abbr_res = " (res.)";
 #define EPL_PRES    0x04
 #define EPL_SOA     0x05
 #define EPL_ASND    0x06
+#define EPL_AMNI    0x07
 #define EPL_AINV    0x0D
 
 static const value_string mtyp_vals[] = {
@@ -137,6 +141,7 @@ static const value_string mtyp_vals[] = {
 	{EPL_SOA,  "Start of Asynchronous (SoA)"  },
 	{EPL_ASND, "Asynchronous Send (ASnd)"     },
 	{EPL_AINV, "Asynchronous Invite (AInv)"   },
+	{EPL_AMNI, "ActiveManagingNodeIndication (AMNI)" },
 	{0,NULL}
 };
 
@@ -1205,6 +1210,8 @@ static const gchar* addr_str_res = " (reserved)";
 
 static dissector_handle_t data_dissector = NULL;
 
+static gint dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, guint8 msgType );
+
 static gint dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
@@ -1662,7 +1669,7 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *epl_tree = NULL, *epl_src_item, *epl_dest_item;
-	gint offset = 0;
+	gint offset = 0, size = 0;
 	heur_dtbl_entry_t *hdtbl_entry;
 
 	if (tvb_reported_length(tvb) < 3)
@@ -1751,6 +1758,10 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 			}
 			break;
 
+		case EPL_AMNI:
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%3d->%3d AMNI   ", epl_src, epl_dest);
+			break;
+
 		default:    /* no valid EPL packet */
 			return FALSE;
 	}
@@ -1810,6 +1821,14 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 
 		case EPL_AINV:
 			offset = dissect_epl_ainv(epl_tree, tvb, pinfo, epl_src, offset);
+			break;
+
+		case EPL_AMNI:
+			/* Currently all fields in the AMNI frame are reserved. Therefore
+			 * there's nothing to dissect! Everything is given to the heuristic,
+			 * which will dissect as data, if no heuristic dissector uses it. */
+			size = tvb_captured_length_remaining(tvb, offset);
+			offset = dissect_epl_payload(epl_tree, tvb, pinfo, offset, size, EPL_AMNI);
 			break;
 
 		/* Default case can not happen as it is caught by an earlier switch
