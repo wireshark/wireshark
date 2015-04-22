@@ -732,6 +732,9 @@ static gint hf_s7comm_item_length = -1;                     /* length, 2 Bytes*/
 static gint hf_s7comm_item_db = -1;                         /* DB/M/E/A, 2 Bytes */
 static gint hf_s7comm_item_area = -1;                       /* Area code, 1 byte */
 static gint hf_s7comm_item_address = -1;                    /* Bit address, 3 Bytes */
+static gint hf_s7comm_item_address_byte = -1;               /* address: Byte address */
+static gint hf_s7comm_item_address_bit = -1;                /* address: Bit address */
+static gint hf_s7comm_item_address_nr = -1;                 /* address: Timer/Counter/block number */
 /* Special variable read with Syntax-Id 0xb0 (DBREAD) */
 static gint hf_s7comm_item_dbread_numareas = -1;            /* Number of areas following, 1 Byte*/
 static gint hf_s7comm_item_dbread_length = -1;              /* length, 1 Byte*/
@@ -905,6 +908,7 @@ static gint ett_s7comm_param_item = -1;                     /* Subtree for items
 static gint ett_s7comm_param_subitem = -1;                  /* Subtree for subitems under items in parameter block */
 static gint ett_s7comm_data = -1;                           /* Subtree for data block */
 static gint ett_s7comm_data_item = -1;                      /* Subtree for an item in data block */
+static gint ett_s7comm_item_address = -1;                   /* Subtree for an address (byte/bit) */
 
 static const char mon_names[][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
@@ -1072,6 +1076,8 @@ s7comm_decode_param_item(tvbuff_t *tvb,
     proto_item *item = NULL;
     proto_tree *item_tree = NULL;
     proto_tree *sub_item_tree = NULL;
+    proto_item *address_item = NULL;
+    proto_tree *address_item_tree = NULL;
     guint8 number_of_areas = 0;
 
     guint8 var_spec_type = 0;
@@ -1128,7 +1134,8 @@ s7comm_decode_param_item(tvbuff_t *tvb,
         offset += 1;
         /* Address, 3 bytes */
         a_address = tvb_get_ntoh24(tvb, offset);
-        proto_tree_add_uint(item_tree, hf_s7comm_item_address, tvb, offset, 3, a_address);
+        address_item = proto_tree_add_uint(item_tree, hf_s7comm_item_address, tvb, offset, 3, a_address);
+        address_item_tree = proto_item_add_subtree(address_item, ett_s7comm_item_address);
         bytepos = a_address / 8;
         bitpos = a_address % 8;
         /* build a full address to show item data directly beside the item */
@@ -1166,7 +1173,10 @@ s7comm_decode_param_item(tvbuff_t *tvb,
         }
         if (area == S7COMM_AREA_TIMER || area == S7COMM_AREA_COUNTER) {
             proto_item_append_text(item_tree, " %d)", a_address);
+            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_nr, tvb, offset, 3, a_address);
         } else {
+            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_byte, tvb, offset, 3, a_address);
+            proto_tree_add_uint(address_item_tree, hf_s7comm_item_address_bit, tvb, offset, 3, a_address);
             proto_item_append_text(item_tree, " %d.%d %s %d)",
                 bytepos, bitpos, val_to_str(t_size, item_transportsizenames, "Unknown transport size: 0x%02x"), len);
         }
@@ -2742,6 +2752,15 @@ proto_register_s7comm (void)
         { &hf_s7comm_item_address,
         { "Address", "s7comm.param.item.address", FT_UINT24, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
+        { &hf_s7comm_item_address_byte,
+        { "Byte Address", "s7comm.param.item.address.byte", FT_UINT24, BASE_DEC, NULL, 0x7fff8,
+          NULL, HFILL }},
+        { &hf_s7comm_item_address_bit,
+        { "Bit Address", "s7comm.param.item.address.bit", FT_UINT24, BASE_DEC, NULL, 0x000007,
+          NULL, HFILL }},
+        { &hf_s7comm_item_address_nr,
+        { "Number (T/C/BLOCK)", "s7comm.param.item.address.number", FT_UINT24, BASE_DEC, NULL, 0x00ffff,
+          NULL, HFILL }},
         /* Special variable read with Syntax-Id 0xb0 (DBREAD) */
         { &hf_s7comm_item_dbread_numareas,
         { "Number of areas", "s7comm.param.item.dbread.numareas", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3178,6 +3197,7 @@ proto_register_s7comm (void)
         &ett_s7comm_param_subitem,
         &ett_s7comm_data,
         &ett_s7comm_data_item,
+        &ett_s7comm_item_address,
         &ett_s7comm_diagdata_registerflag,
         &ett_s7comm_userdata_blockinfo_flags,
     };
