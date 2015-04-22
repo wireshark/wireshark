@@ -303,12 +303,14 @@ static const value_string item_transportsizenames[] = {
  * Syntax Ids of variable specification
  */
 #define S7COMM_SYNTAXID_S7ANY               0x10        /* Address data S7-Any pointer-like DB1.DBX10.2 */
+#define S7COMM_SYNTAXID_PBC_ID              0x13        /* R_ID for PBC */
 #define S7COMM_SYNTAXID_DRIVEESANY          0xa2        /* seen on Drive ES Starter with routing over S7 */
 #define S7COMM_SYNTAXID_1200SYM             0xb2        /* Symbolic address mode of S7-1200 */
 #define S7COMM_SYNTAXID_DBREAD              0xb0        /* Kind of DB block read, seen only at an S7-400 */
 
 static const value_string item_syntaxid_names[] = {
     { S7COMM_SYNTAXID_S7ANY,                "S7ANY" },
+    { S7COMM_SYNTAXID_PBC_ID,               "PBC-R_ID" },
     { S7COMM_SYNTAXID_DRIVEESANY,           "DRIVEESANY" },
     { S7COMM_SYNTAXID_1200SYM,              "1200SYM" },
     { S7COMM_SYNTAXID_DBREAD,               "DBREAD" },
@@ -456,6 +458,7 @@ static const value_string userdata_lastdataunit_names[] = {
 #define S7COMM_UD_FUNCGROUP_BLOCK           0x3
 #define S7COMM_UD_FUNCGROUP_CPU             0x4
 #define S7COMM_UD_FUNCGROUP_SEC             0x5                     /* Security funnctions e.g. plc password */
+#define S7COMM_UD_FUNCGROUP_PBC             0x6                     /* PBC = Programmable Block Communication (PBK in german) */
 #define S7COMM_UD_FUNCGROUP_TIME            0x7
 
 static const value_string userdata_functiongroup_names[] = {
@@ -464,6 +467,7 @@ static const value_string userdata_functiongroup_names[] = {
     { S7COMM_UD_FUNCGROUP_BLOCK,            "Block functions" },
     { S7COMM_UD_FUNCGROUP_CPU,              "CPU functions" },
     { S7COMM_UD_FUNCGROUP_SEC,              "Security" },
+    { S7COMM_UD_FUNCGROUP_PBC,              "PBC BSEND/BRECV" },
     { S7COMM_UD_FUNCGROUP_TIME,             "Time functions" },
     { 0,                                    NULL }
 };
@@ -899,6 +903,10 @@ static gint hf_s7comm_vartab_req_startaddress = -1;         /* Startaddress, 2 b
 /* cyclic data */
 static gint hf_s7comm_cycl_interval_timebase = -1;          /* Interval timebase, 1 byte, int */
 static gint hf_s7comm_cycl_interval_time = -1;              /* Interval time, 1 byte, int */
+
+/* PBC, Programmable Block Functions */
+static gint hf_s7comm_pbc_unknown = -1;                     /* unknown, 1 byte */
+static gint hf_s7comm_pbc_r_id = -1;                        /* Request ID R_ID, 4 bytes as hex */
 
 /* These are the ids of the subtrees that we are creating */
 static gint ett_s7comm = -1;                                /* S7 communication tree, parent of all other subtree */
@@ -1829,6 +1837,40 @@ s7comm_decode_ud_security_subfunc(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
+ * PDU Type: User Data -> Function group 6 -> PBC, Programmable Block Functions (e.g. BSEND/BRECV)
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_pbc_subfunc(tvbuff_t *tvb,
+                             proto_tree *data_tree,
+                             guint16 dlength,                   /* length of data part given in header */
+                             guint32 offset)                    /* Offset on data part +4 */
+{
+    proto_tree_add_item(data_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(data_tree, hf_s7comm_item_varspec_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(data_tree, hf_s7comm_item_syntax_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(data_tree, hf_s7comm_pbc_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(data_tree, hf_s7comm_pbc_r_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    /* Only in the first telegram of possible several segments, an int16 of full data length is following.
+     * As the dissector can't check this, don't display the information
+     * and display the data as payload bytes.
+     */
+    dlength = dlength - 4 - 8;  /* 4 bytes data header, 8 bytes varspec */
+    if (dlength > 0) {
+        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength, ENC_NA);
+        offset += dlength;
+    }
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
  * PDU Type: User Data -> Function group 7 -> time functions
  *
  *******************************************************************************************************/
@@ -2402,6 +2444,9 @@ s7comm_decode_ud(tvbuff_t *tvb,
                     break;
                 case S7COMM_UD_FUNCGROUP_SEC:
                     offset = s7comm_decode_ud_security_subfunc(tvb, data_tree, dlength, offset);
+                    break;
+                case S7COMM_UD_FUNCGROUP_PBC:
+                    offset = s7comm_decode_ud_pbc_subfunc(tvb, data_tree, dlength, offset);
                     break;
                 case S7COMM_UD_FUNCGROUP_TIME:
                     offset = s7comm_decode_ud_time_subfunc(tvb, data_tree, type, subfunc, ret_val, dlength, offset);
@@ -3157,6 +3202,14 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_cycl_interval_time,
         { "Interval time", "s7comm.cyclic.interval_time", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+
+        /* PBC, Programmable Block Functions */
+        { &hf_s7comm_pbc_unknown,
+        { "PBC BSEND/BRECV unknown", "s7comm.pbc.bsend.unknown", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_r_id,
+        { "PBC BSEND/BRECV R_ID", "s7comm.pbc.req.bsend.r_id", FT_UINT32, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
 
         /* TIA Portal stuff */
