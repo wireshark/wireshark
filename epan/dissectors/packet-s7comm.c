@@ -307,6 +307,7 @@ static const value_string item_transportsizenames[] = {
 #define S7COMM_SYNTAXID_DRIVEESANY          0xa2        /* seen on Drive ES Starter with routing over S7 */
 #define S7COMM_SYNTAXID_1200SYM             0xb2        /* Symbolic address mode of S7-1200 */
 #define S7COMM_SYNTAXID_DBREAD              0xb0        /* Kind of DB block read, seen only at an S7-400 */
+#define S7COMM_SYNTAXID_NCK                 0x82        /* Sinumerik NCK HMI access */
 
 static const value_string item_syntaxid_names[] = {
     { S7COMM_SYNTAXID_S7ANY,                "S7ANY" },
@@ -314,6 +315,7 @@ static const value_string item_syntaxid_names[] = {
     { S7COMM_SYNTAXID_DRIVEESANY,           "DRIVEESANY" },
     { S7COMM_SYNTAXID_1200SYM,              "1200SYM" },
     { S7COMM_SYNTAXID_DBREAD,               "DBREAD" },
+    { S7COMM_SYNTAXID_NCK,                  "NCK" },
     { 0,                                    NULL }
 };
 
@@ -689,6 +691,129 @@ static const value_string tia1200_var_item_area2_names[] = {
     { 0,                                    NULL }
 };
 
+/**************************************************************************
+ * NCK areas
+ */
+#define S7COMM_NCK_AREA_N_NCK               0
+#define S7COMM_NCK_AREA_B_MODEGROUP         1
+#define S7COMM_NCK_AREA_C_CHANNEL           2
+#define S7COMM_NCK_AREA_A_AXIS              3
+#define S7COMM_NCK_AREA_T_TOOL              4
+#define S7COMM_NCK_AREA_V_FEEDDRIVE         5
+#define S7COMM_NCK_AREA_H_MAINDRIVE         6
+#define S7COMM_NCK_AREA_M_MMC               7
+
+static const value_string nck_area_names[] = {
+    { S7COMM_NCK_AREA_N_NCK,                "N - NCK" },
+    { S7COMM_NCK_AREA_B_MODEGROUP,          "B - Mode group" },
+    { S7COMM_NCK_AREA_C_CHANNEL,            "C - Channel" },
+    { S7COMM_NCK_AREA_A_AXIS,               "A - Axis" },
+    { S7COMM_NCK_AREA_T_TOOL,               "T - Tool" },
+    { S7COMM_NCK_AREA_V_FEEDDRIVE,          "V - Feed drive" },
+    { S7COMM_NCK_AREA_H_MAINDRIVE,          "M - Main drive" },
+    { S7COMM_NCK_AREA_M_MMC,                "M - MMC" },
+    { 0,                                    NULL }
+};
+
+static const value_string nck_module_names[] = {
+    { 0x10,                                 "Y - Global system data" },
+    { 0x11,                                 "YNCFL - NCK instruction groups" },
+    { 0x12,                                 "FU - NCU global settable frames" },
+    { 0x13,                                 "FA - Active NCU global frames" },
+    { 0x14,                                 "TO - Tool data" },
+    { 0x15,                                 "RP - Arithmetic parameters" },
+    { 0x16,                                 "SE - Setting data" },
+    { 0x17,                                 "SGUD - SGUD-Block" },
+    { 0x18,                                 "LUD - Local userdata" },
+    { 0x19,                                 "TC - Toolholder parameters" },
+    { 0x1a,                                 "M - Machine data" },
+    { 0x1c,                                 "WAL - Working area limitation" },
+    { 0x1e,                                 "DIAG - Internal diagnostic data" },
+    { 0x1f,                                 "CC - Unknown" },
+    { 0x20,                                 "FE - Channel-specific external frame" },
+    { 0x21,                                 "TD - Tool data: General data" },
+    { 0x22,                                 "TS - Tool edge data: Monitoring data" },
+    { 0x23,                                 "TG - Tool data: Grinding-specific data" },
+    { 0x24,                                 "TU - Tool data" },
+    { 0x25,                                 "TUE - Tool edge data, userdefined data" },
+    { 0x26,                                 "TV - Tool data, directory" },
+    { 0x27,                                 "TM - Magazine data: General data" },
+    { 0x28,                                 "TP - Magazine data: Location data" },
+    { 0x29,                                 "TPM - Magazine data: Multiple assignment of location data" },
+    { 0x2a,                                 "TT - Magazine data: Location typ" },
+    { 0x2b,                                 "TMV - Magazine data: Directory" },
+    { 0x2c,                                 "TMC - Magazine data: Configuration data" },
+    { 0x2d,                                 "MGUD - MGUD-Block" },
+    { 0x2e,                                 "UGUD - UGUD-Block" },
+    { 0x2f,                                 "GUD4 - GUD4-Block" },
+    { 0x30,                                 "GUD5 - GUD5-Block" },
+    { 0x31,                                 "GUD6 - GUD6-Block" },
+    { 0x32,                                 "GUD7 - GUD7-Block" },
+    { 0x33,                                 "GUD8 - GUD8-Block" },
+    { 0x34,                                 "GUD9 - GUD9-Block" },
+    { 0x35,                                 "PA - Channel-specific protection zones" },
+    { 0x36,                                 "GD1 - SGUD-Block GD1" },
+    { 0x37,                                 "NIB - State data: Nibbling" },
+    { 0x38,                                 "ETP - Types of events" },
+    { 0x39,                                 "ETPD - Data lists for protocolling" },
+    { 0x3a,                                 "SYNACT - Channel-specific synchronous actions" },
+    { 0x3b,                                 "DIAGN - Diagnostic data" },
+    { 0x3c,                                 "VSYN - Channel-specific user variables for synchronous actions" },
+    { 0x3d,                                 "TUS - Tool data: user monitoring data" },
+    { 0x3e,                                 "TUM - Tool data: user magazine data" },
+    { 0x3f,                                 "TUP - Tool data: user magatine place data" },
+    { 0x40,                                 "TF - Parametrizing, return parameters of _N_TMGETT, _N_TSEARC" },
+    { 0x41,                                 "FB - Channel-specific base frames" },
+    { 0x42,                                 "SSP2 - State data: Spindle" },
+    { 0x43,                                 "PUD - programmglobale Benutzerdaten" },
+    { 0x44,                                 "TOS - Edge-related location-dependent fine total offsets" },
+    { 0x45,                                 "TOST - Edge-related location-dependent fine total offsets, transformed" },
+    { 0x46,                                 "TOE - Edge-related coarse total offsets, setup offsets" },
+    { 0x47,                                 "TOET - Edge-related coarse total offsets, transformed setup offsets" },
+    { 0x48,                                 "AD - Adapter data" },
+    { 0x49,                                 "TOT - Edge data: Transformed offset data" },
+    { 0x4a,                                 "AEV - Working offsets: Directory" },
+    { 0x4b,                                 "YFAFL - NCK instruction groups (Fanuc)" },
+    { 0x4c,                                 "FS - System-Frame" },
+    { 0x4d,                                 "SD - Servo data" },
+    { 0x4e,                                 "TAD - Application-specific data" },
+    { 0x4f,                                 "TAO - Aplication-specific cutting edge data" },
+    { 0x50,                                 "TAS - Application-specific monitoring data" },
+    { 0x51,                                 "TAM - Application-specific magazine data" },
+    { 0x52,                                 "TAP - Application-specific magazine location data" },
+    { 0x53,                                 "MEM - Unknown" },
+    { 0x54,                                 "SALUC - Alarm actions: List in reverse chronological order" },
+    { 0x55,                                 "AUXFU - Auxiliary functions" },
+    { 0x56,                                 "TDC - Tool/Tools" },
+    { 0x57,                                 "CP - Generic coupling" },
+    { 0x6e,                                 "SDME - Unknown" },
+    { 0x6f,                                 "SPARPI - Program pointer on interruption" },
+    { 0x70,                                 "SEGA - State data: Geometry axes in tool offset memory (extended)" },
+    { 0x71,                                 "SEMA - State data: Machine axes (extended)" },
+    { 0x72,                                 "SSP - State data: Spindle" },
+    { 0x73,                                 "SGA - State data: Geometry axes in tool offset memory" },
+    { 0x74,                                 "SMA - State data: Machine axes" },
+    { 0x75,                                 "SALAL - Alarms: List organized according to time" },
+    { 0x76,                                 "SALAP - Alarms: List organized according to priority" },
+    { 0x77,                                 "SALA - Alarms: List organized according to time" },
+    { 0x78,                                 "SSYNAC - Synchronous actions" },
+    { 0x79,                                 "SPARPF - Program pointers for block search and stop run" },
+    { 0x7a,                                 "SPARPP - Program pointer in automatic operation" },
+    { 0x7b,                                 "SNCF - Active G functions" },
+    { 0x7d,                                 "SPARP - Part program information" },
+    { 0x7e,                                 "SINF - Part-program-specific status data" },
+    { 0x7f,                                 "S - State data" },
+    { 0x80,                                 "0x80 - Unknown" },
+    { 0x81,                                 "0x81 - Unknown" },
+    { 0x82,                                 "0x82 - Unknown" },
+    { 0x83,                                 "0x83 - Unknown" },
+    { 0x84,                                 "0x84 - Unknown" },
+    { 0x85,                                 "0x85 - Unknown" },
+    { 0xfd,                                 "0 - Internal" },
+    { 0,                                    NULL }
+};
+static value_string_ext nck_module_names_ext = VALUE_STRING_EXT_INIT(nck_module_names);
+
 static gint hf_s7comm_tia1200_item_reserved1 = -1;          /* 1 Byte Reserved (always 0xff?) */
 static gint hf_s7comm_tia1200_item_area1 = -1;              /* 2 Byte2 Root area (DB or IQMCT) */
 static gint hf_s7comm_tia1200_item_area2 = -1;              /* 2 Bytes detail area (I/Q/M/C/T) */
@@ -744,6 +869,14 @@ static gint hf_s7comm_item_dbread_numareas = -1;            /* Number of areas f
 static gint hf_s7comm_item_dbread_length = -1;              /* length, 1 Byte*/
 static gint hf_s7comm_item_dbread_db = -1;                  /* DB number, 2 Bytes*/
 static gint hf_s7comm_item_dbread_startadr = -1;            /* Start address, 2 Bytes*/
+/* NCK access with Syntax-Id 0x82 */
+static gint hf_s7comm_item_nck_areaunit = -1;               /* Bitmask: aaauuuuu: a=area, u=unit */
+static gint hf_s7comm_item_nck_area = -1;
+static gint hf_s7comm_item_nck_unit = -1;
+static gint hf_s7comm_item_nck_column = -1;
+static gint hf_s7comm_item_nck_line = -1;
+static gint hf_s7comm_item_nck_module = -1;
+static gint hf_s7comm_item_nck_linecount = -1;
 
 static gint hf_s7comm_data = -1;
 static gint hf_s7comm_data_returncode = -1;                 /* return code, 1 byte */
@@ -1097,6 +1230,12 @@ s7comm_decode_param_item(tvbuff_t *tvb,
     guint8 tia_lid_flags = 0;
     guint32 tia_value = 0;
 
+    guint8 nck_area = 0;
+    guint8 nck_unit = 0;
+    guint16 nck_column = 0;
+    guint16 nck_line = 0;
+    guint8 nck_module = 0;
+
     /* At first check type and length of variable specification */
     var_spec_type = tvb_get_guint8(tvb, offset);
     var_spec_length = tvb_get_guint8(tvb, offset + 1);
@@ -1263,6 +1402,29 @@ s7comm_decode_param_item(tvbuff_t *tvb,
             proto_tree_add_item(sub_item_tree, hf_s7comm_tia1200_item_value, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
+    /****************************************************************************/
+    /******************** Sinumerik NCK access **********************************/
+    } else if (var_spec_type == 0x12 && var_spec_length == 8 && var_spec_syntax_id == S7COMM_SYNTAXID_NCK) {
+        area = tvb_get_guint8(tvb, offset);
+        nck_area = area >> 5;
+        nck_unit = area & 0x1f;
+        proto_tree_add_item(item_tree, hf_s7comm_item_nck_areaunit, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(item_tree, hf_s7comm_item_nck_area, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(item_tree, hf_s7comm_item_nck_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        nck_column = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(item_tree, hf_s7comm_item_nck_column, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        nck_line = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(item_tree, hf_s7comm_item_nck_line, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        nck_module = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(item_tree, hf_s7comm_item_nck_module, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(item_tree, hf_s7comm_item_nck_linecount, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_item_append_text(item_tree, " (NCK Area:%d Unit:%d Column:%d Line:%d Module:0x%02x)",
+            nck_area, nck_unit, nck_column, nck_line, nck_module);
     }
     else {
         /* var spec, length and syntax id are still added to tree here */
@@ -2818,6 +2980,28 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_item_dbread_startadr,
         { "Start address", "s7comm.param.item.dbread.startaddress", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        /* NCK access with Syntax-Id 0x82 */
+        { &hf_s7comm_item_nck_areaunit,
+        { "NCK Area/Unit", "s7comm.param.item.nck.area_unit", FT_UINT8, BASE_HEX, NULL, 0x0,
+          "NCK Area/Unit: Bitmask aaauuuuu: a=area, u=unit", HFILL }},
+        { &hf_s7comm_item_nck_area,
+        { "NCK Area", "s7comm.param.item.nck.area", FT_UINT8, BASE_DEC, VALS(nck_area_names), 0xe0,
+          NULL, HFILL }},
+        { &hf_s7comm_item_nck_unit,
+        { "NCK Unit", "s7comm.param.item.nck.unit", FT_UINT8, BASE_DEC, NULL, 0x1f,
+          NULL, HFILL }},
+        { &hf_s7comm_item_nck_column,
+        { "NCK Column number", "s7comm.param.item.nck.column", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_item_nck_line,
+        { "NCK Line number", "s7comm.param.item.nck.line", FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_item_nck_module,
+        { "NCK Module", "s7comm.param.item.nck.module", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &nck_module_names_ext, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_item_nck_linecount,
+        { "NCK Linecount", "s7comm.param.item.nck.linecount", FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
 
         { &hf_s7comm_data,
