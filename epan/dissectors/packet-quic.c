@@ -527,14 +527,16 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset){
         num_timestamp = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        /* Num Timestamp x (Delta Largest Observed + Time Since Largest Observed) */
-        offset += num_timestamp*(1+4);
+        if(num_timestamp > 0){
+            /* Delta Largest Observed */
+            offset += 1;
 
-        /* Delta Largest Observed */
-        offset += 1;
+            /* Time Since Previous Timestamp */
+            offset += 4;
 
-        /* Time Since Previous Timestamp */
-        offset += 2;
+            /* Num Timestamp (-1)x (Delta Largest Observed + Time Since Largest Observed) */
+            offset += (num_timestamp - 1)*(1+2);
+        }
 
         if(frame_type & FTFLAGS_ACK_N){
             /* Num Ranges */
@@ -558,9 +560,6 @@ static gboolean is_quic_handshake(tvbuff_t *tvb, guint offset){
             offset += num_revived*len_largest_observed;
 
         }
-
-        /*TODO: Fix missing 2 bytes ?!*/
-        offset += 2;
 
     } else {
         return FALSE;
@@ -905,23 +904,27 @@ dissect_quic_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
         num_timestamp = tvb_get_guint8(tvb, offset);
         offset += 1;
 
+
+        /* Delta Largest Observed */
+        proto_tree_add_item(quic_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        /* Time Since Previous Timestamp */
+        proto_tree_add_item(quic_tree, hf_quic_frame_type_ack_time_since_largest_observed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        num_timestamp -= 1;
+
+        /* Num Timestamp (-1) x (Delta Largest Observed + Time Since Largest Observed) */
         while(num_timestamp){
             proto_tree_add_item(quic_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(quic_tree, hf_quic_frame_type_ack_time_since_largest_observed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
+            proto_tree_add_item(quic_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
 
             num_timestamp--;
         }
-        proto_tree_add_item(quic_tree, hf_quic_frame_type_ack_delta_largest_observed, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
-
-        proto_tree_add_item(quic_tree, hf_quic_frame_type_ack_time_since_previous_timestamp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        offset += 2;
-
-        /*TODOFIX : Fix missing 2 bytes ?! */
-        offset += 2;
 
         if(frame_type & FTFLAGS_ACK_N){
             proto_tree_add_item(quic_tree, hf_quic_frame_type_ack_num_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN);
