@@ -2068,6 +2068,24 @@ while ($_ = $ARGV[0])
         }
         close(FC);
 
+        if (($fileContents =~ m{ \$Id .* \$ }xo))
+        {
+                print STDERR "Warning: ".$filename." has an SVN Id tag. Please remove it!\n";
+        }
+
+        # Remove all the C-comments
+        $fileContents =~ s{ $CComment } []xog;
+
+        # optionally check the hf entries (including those under #if 0)
+        if ($check_hf) {
+            $errorCount += check_hf_entries(\$fileContents, $filename);
+        }
+
+        if ($fileContents =~ m{ __func__ }xo)
+        {
+                print STDERR "Error: Found __func__ (which is not portable, use G_STRFUNC) in " .$filename."\n";
+                $errorCount++;
+        }
         if ($fileContents =~ m{ %ll }xo)
         {
                 # use G_GINT64_MODIFIER instead of ll
@@ -2081,23 +2099,6 @@ while ($_ = $ARGV[0])
                 # Need to use temporary variables instead.
                 print STDERR "Error: Found %hh in " .$filename."\n";
                 $errorCount++;
-        }
-        if ($fileContents =~ m{ __func__ }xo)
-        {
-                print STDERR "Error: Found __func__ (which is not portable, use G_STRFUNC) in " .$filename."\n";
-                $errorCount++;
-        }
-        if (($fileContents =~ m{ \$Id .* \$ }xo))
-        {
-                print STDERR "Warning: ".$filename." has an SVN Id tag. Please remove it!\n";
-        }
-
-        # Remove all the C-comments
-        $fileContents =~ s{ $CComment } []xog;
-
-        # optionally check the hf entries (including those under #if 0)
-        if ($check_hf) {
-            $errorCount += check_hf_entries(\$fileContents, $filename);
         }
 
         # check for files that we should not include directly
