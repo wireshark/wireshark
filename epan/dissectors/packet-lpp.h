@@ -7,7 +7,7 @@
 
 #line 1 "../../asn1/lpp/packet-lpp-template.h"
 /* packet-lpp.h
- * Routines for 3GPP LTE Positioning Protocol (LLP) packet dissection
+ * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
  * Copyright 2011-2015 Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
