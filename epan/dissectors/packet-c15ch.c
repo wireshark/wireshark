@@ -7625,7 +7625,7 @@ void proto_register_c15ch( void )
         },
         { &hf_c15ch_ama_call_type,
             { "Call Type", "c15.ama.call_type",
-            FT_UINT8, BASE_DEC,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING,
             &ama_call_types_ext,
             0x0, NULL, HFILL}
         },
@@ -10343,7 +10343,7 @@ void proto_register_c15ch( void )
         },
         { &hf_c15ch_tone_give_tone_tone_type,
             { "Tone Type", "c15.tone.give_tone.tone_type",
-            FT_UINT8, BASE_DEC,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING,
             &tone_types_ext,
             0x0, NULL, HFILL}
         },
@@ -10356,7 +10356,7 @@ void proto_register_c15ch( void )
         },
         { &hf_c15ch_tone_madn_ring_tone_type,
             { "Tone Type", "c15.tone.madn_ring.tone_type",
-            FT_UINT8, BASE_DEC,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING,
             &tone_types_ext,
             0x0, NULL, HFILL}
         },
@@ -10464,7 +10464,7 @@ void proto_register_c15ch( void )
         },
         { &hf_c15ch_tone_tone_control_tone_type,
             { "Tone Type", "c15.tone.tone_control.tone_type",
-            FT_UINT8, BASE_DEC,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING,
             &tone_types_ext,
             0x0, NULL, HFILL}
         },
@@ -10477,13 +10477,13 @@ void proto_register_c15ch( void )
         },
         { &hf_c15ch_tone_cpm_device_id,
             { "Device ID", "c15.tone.cpm.device_id",
-            FT_UINT8, BASE_DEC,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING,
             &device_types_ext,
             0x0, NULL, HFILL}
         },
         { &hf_c15ch_tone_cpm_tone_type,
             { "Tone Type", "c15.tone.cpm.tone_type",
-            FT_UINT8, BASE_DEC,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING,
             &tone_types_ext,
             0x0, NULL, HFILL}
         },
