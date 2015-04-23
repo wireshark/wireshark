@@ -5795,7 +5795,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     col_add_fstr(pinfo->cinfo, COL_INFO, "Type: CP_EVENT, PM Type: %s",
         val_to_str_ext(pm_value, &c15_pm_types_ext, "Unknown %d") );
 
-    if ( ( pm_value >= MIN_PM_VAL ) && ( pm_value <= MAX_PM_VAL ) && ( pm_value != DIG_CKT_TEST_PM_VALUE ) )
+    if ( ( pm_value <= MAX_PM_VAL ) && ( pm_value != DIG_CKT_TEST_PM_VALUE ) )
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub PM: %s",
                 val_to_str(subpm_value, subpm_name_tables[ pm_value ], "%d") );
@@ -5806,7 +5806,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Trk PM: %s",
                     val_to_str(trkpm_value, trkpm_dig_ckt_test_types, "%d") );
-            if ( ( trkpm_value < MIN_DIG_CKT_TEST_TRKPM_VAL ) || ( trkpm_value > MAX_DIG_CKT_TEST_TRKPM_VAL ) )
+            if ( trkpm_value > MAX_DIG_CKT_TEST_TRKPM_VAL  )
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Sub PM: %d", subpm_value);
             }
@@ -5838,7 +5838,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         proto_tree_add_item(c15ch_cp_event_tree, hf_c15ch_cp_event_pm,
                             tvb, 0, 4, ENC_BIG_ENDIAN);
-        if ( (pm_value < MIN_PM_VAL) || (pm_value > MAX_PM_VAL) )
+        if ( pm_value > MAX_PM_VAL )
         {
             /* Unknown Type */
             proto_tree_add_item(c15ch_cp_event_tree, hf_c15ch_cp_event_subpm,
@@ -5856,7 +5856,7 @@ static int dissect_c15ch_cp_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             else
             {
                 /* special case for labeling subpm values of dig_ckt pm type */
-                if ( ( trkpm_value < MIN_DIG_CKT_TEST_TRKPM_VAL ) || ( trkpm_value > MAX_DIG_CKT_TEST_TRKPM_VAL ))
+                if ( trkpm_value > MAX_DIG_CKT_TEST_TRKPM_VAL )
                 {
                     /* this is a dig_ckt pm type, but the trkpm value is out of range */
                     /* use the default dig_ckt subpm field from the subpm_table */
@@ -5914,7 +5914,7 @@ static int dissect_c15ch_inc_gwe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     fiat_num = tvb_get_guint8(tvb,  9);
     type_num = tvb_get_guint8(tvb, 10);
 
-    if ( (task_num < FIRST_TASK_TYPE_INDEX) || (task_num > LAST_TASK_TYPE_INDEX) )
+    if ( task_num > LAST_TASK_TYPE_INDEX )
     {    /* this happens for unknown task types */
         task_in_range  = FALSE;
         fiat_index_in_range = FALSE; /* don't guess what the correct fiat table should be for unknown task */
