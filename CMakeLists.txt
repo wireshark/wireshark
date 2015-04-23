@@ -84,18 +84,18 @@ if(WIN32)
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
 	file (TO_NATIVE_PATH "$ENV{WIRESHARK_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" _ws_lib_dir)
 	if(MSVC12)
-		set(_vsversion_args "-VSVersion 12")
+		set(_vsversion_args "12")
 	elseif(MSVC11)
-		set(_vsversion_args "-VSVersion 11")
+		set(_vsversion_args "11")
 	elseif(MSVC10)
-		set(_vsversion_args "-VSVersion 10")
+		set(_vsversion_args "10")
 	endif()
 
 	# Is it possible to have a one-time, non-cached option in CMake? If
 	# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
 	# win-setup.ps1.
 	execute_process(
-		COMMAND ${POWERSHELL_COMMAND} "${_win_setup}" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM} ${_vsversion_args}
+		COMMAND ${POWERSHELL_COMMAND} "${_win_setup}" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM} -VSVersion ${_vsversion_args}
 		RESULT_VARIABLE _win_setup_failed
 	)
 	if (${_win_setup_failed})
