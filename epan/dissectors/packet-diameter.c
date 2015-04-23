@@ -2007,7 +2007,7 @@ real_proto_register_diameter(void)
 		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext,
 			  0x0, NULL, HFILL }},
 	{ &hf_diameter_application_id,
-		  { "ApplicationId", "diameter.applicationId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, dictionary.applications,
+		  { "ApplicationId", "diameter.applicationId", FT_UINT32, BASE_DEC|BASE_EXT_STRING, VALS_EXT_PTR(dictionary.applications),
 			  0x0, NULL, HFILL }},
 	{ &hf_diameter_hopbyhopid,
 		  { "Hop-by-Hop Identifier", "diameter.hopbyhopid", FT_UINT32,
