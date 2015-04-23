@@ -1140,10 +1140,18 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
                     if (hex == 0x01) {
                         hex_data = new_hex_data;
-                        strtol(hex_data, &new_hex_data, 16);
+                        hex = strtol(hex_data, &new_hex_data, 16);
+                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
+                            printf("ERROR: data format error: %s\n", strerror(errno));
+                            return 101;
+                        }
 
                         hex_data = new_hex_data;
-                        strtol(hex_data, &new_hex_data, 16);
+                        hex = strtol(hex_data, &new_hex_data, 16);
+                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
+                            printf("ERROR: data format error: %s\n", strerror(errno));
+                            return 101;
+                        }
 
                         hex_data = new_hex_data;
                         hex = strtol(hex_data, &new_hex_data, 16);
@@ -1151,18 +1159,30 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
                         raw_length = hex + 4;
                     } else if (hex == 0x04) {
                         hex_data = new_hex_data;
-                        strtol(hex_data, &new_hex_data, 16);
+                        hex = strtol(hex_data, &new_hex_data, 16);
+                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
+                            printf("ERROR: data format error: %s\n", strerror(errno));
+                            return 101;
+                        }
 
                         hex_data = new_hex_data;
                         hex = strtol(hex_data, &new_hex_data, 16);
 
-                        raw_length = hex +3;
+                        raw_length = hex + 3;
                     } else if (hex == 0x02) {
                         hex_data = new_hex_data;
-                        strtol(hex_data, &new_hex_data, 16);
+                        hex = strtol(hex_data, &new_hex_data, 16);
+                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
+                            printf("ERROR: data format error: %s\n", strerror(errno));
+                            return 101;
+                        }
 
                         hex_data = new_hex_data;
-                        strtol(hex_data, &new_hex_data, 16);
+                        hex = strtol(hex_data, &new_hex_data, 16);
+                        if (hex < 0 || hex >= 256 || hex_data == new_hex_data) {
+                            printf("ERROR: data format error: %s\n", strerror(errno));
+                            return 101;
+                        }
 
                         hex_data = new_hex_data;
                         hex = strtol(hex_data, &new_hex_data, 16);
