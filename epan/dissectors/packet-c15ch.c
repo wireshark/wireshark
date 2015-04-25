@@ -4080,42 +4080,41 @@ static void add_digits_string_info_col(tvbuff_t *tvb,
 {
     /* first_offset is where the list of digits actually begins in the packet */
     /* num_digits is the actual number of digits in the string */
-    char * ch_buff = NULL;
-    guint curr_offset;
-    guint buff_index;
-    guint curr_digit;
+    char * ch_buff;
+    guint i;
     const char ZERO_C = '0';
 
+    tvb_ensure_bytes_exist(tvb, first_offset, num_digits);
     ch_buff = (char *) wmem_alloc(wmem_packet_scope(), num_digits + 1); /*include space for terminating null*/
-    for ( curr_offset = first_offset, buff_index = 0; buff_index < num_digits; curr_offset++, buff_index++ )
+    for ( i = 0; i < num_digits; i++ )
     {
-        curr_digit = tvb_get_guint8(tvb, curr_offset);
+        guint curr_digit = tvb_get_guint8(tvb, i + first_offset);
 
         if ( curr_digit < 10 )
         {
             /* decimal digit case */
-            ch_buff[ buff_index ] = ZERO_C + curr_digit;
+            ch_buff[ i ] = ZERO_C + curr_digit;
         }
         else
+        {
+            switch( curr_digit )
             {
-                switch( curr_digit )
-                {
-                    case(10):
-                        ch_buff[ buff_index ] = 'A';
-                        break;
-                    case(11):
-                        ch_buff[ buff_index ] = '*';
-                        break;
-                    case(12):
-                        ch_buff[ buff_index ] = '#';
-                        break;
-                    case(15):
-                        ch_buff[ buff_index ] = 'D';
-                        break;
-                    default: /* includes 13 and 14 */
-                        ch_buff[ buff_index ] = '?';
-                }
+                case(10):
+                    ch_buff[ i ] = 'A';
+                    break;
+                case(11):
+                    ch_buff[ i ] = '*';
+                    break;
+                case(12):
+                    ch_buff[ i ] = '#';
+                    break;
+                case(15):
+                    ch_buff[ i ] = 'D';
+                    break;
+                default: /* includes 13 and 14 */
+                    ch_buff[ i ] = '?';
             }
+        }
     }
     ch_buff[ num_digits ] = '\0';
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s", ch_buff );
