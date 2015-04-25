@@ -27,6 +27,11 @@
 #include <epan/etypes.h>
 #include <epan/wmem/wmem.h>
 
+void proto_register_c15ch_hbeat(void);
+void proto_register_c15ch(void);
+void proto_reg_handoff_c15ch_hbeat(void);
+void proto_reg_handoff_c15ch(void);
+
 /* main C15 subtypes : int variable containing one of these values is passed along to second level dissector */
 #define C15_CP_STATE_CH     1
 #define C15_CP_EVENT        2
@@ -7404,7 +7409,7 @@ static int dissect_c15ch_tone_tone_control(tvbuff_t *tvb, packet_info *pinfo _U_
 
 /* register functions */
 /* fields for c15 heartbeat dissector */
-void proto_register_c15ch_hbeat( void )
+void proto_register_c15ch_hbeat(void)
 {
     static hf_register_info hf[] = {
             { &hf_c15ch_hbeat_clli,
@@ -7449,7 +7454,7 @@ void proto_register_c15ch_hbeat( void )
 
 
 
-void proto_register_c15ch( void )
+void proto_register_c15ch(void)
 {
 /* fields for C15 header : base c15 dissector for non-heartbeat packets */
 /* first level of dissection */
@@ -12014,7 +12019,7 @@ void proto_register_c15ch( void )
 
 /* handoff */
 /* heartbeat dissector */
-void proto_reg_handoff_c15ch_hbeat( void )
+void proto_reg_handoff_c15ch_hbeat(void)
 {
     static dissector_handle_t c15ch_hbeat_handle;
     c15ch_hbeat_handle = new_create_dissector_handle(dissect_c15ch_hbeat, proto_c15ch_hbeat);
@@ -12022,7 +12027,7 @@ void proto_reg_handoff_c15ch_hbeat( void )
 }
 
 /* c15 non-heartbeat dissectors : first-level, second-level, and third-level */
-void proto_reg_handoff_c15ch( void )
+void proto_reg_handoff_c15ch(void)
 {
     dissector_handle_t c15ch_handle;
     dissector_handle_t c15ch_second_level_handle;
