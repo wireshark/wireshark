@@ -2420,11 +2420,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      even be labeled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labeled as a mangled frame of the
      type in question. */
-  if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, iph))) {
+  if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, iph))) {
     /* We're good */
   } else if (!dissector_try_uint_new(ip_dissector_table, nxt, next_tvb, pinfo,
                                  parent_tree, TRUE, iph)) {
-    if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, iph))) {
+    if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, iph))) {
       /* Unknown protocol */
       if (update_col_info) {
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
