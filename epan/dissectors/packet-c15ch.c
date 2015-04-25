@@ -1517,7 +1517,7 @@ static int hf_c15ch_cp_event_subpm_sig_dest = -1;
 static int hf_c15ch_cp_event_subpm_agl_splrg = -1;
 
 
-static const guint32 MIN_PM_VAL = 0;
+/*static const guint32 MIN_PM_VAL = 0; */
 static const guint32 MAX_PM_VAL = 77;
 static int * subpm_table[] = {
     /* one entry for each PM type */
@@ -1605,7 +1605,7 @@ static const guint32 DIG_CKT_TEST_PM_VALUE = 40;
 
 /* special table to look up subpm for pm_val = DIG_CKT_TEST__PM_VALUE */
 /* this table is indexed by trunk pm numbers */
-static const guint32 MIN_DIG_CKT_TEST_TRKPM_VAL = 0;
+/*static const guint32 MIN_DIG_CKT_TEST_TRKPM_VAL = 0; */
 static const guint32 MAX_DIG_CKT_TEST_TRKPM_VAL = 5;
 static int * dig_ckt_test_subpm_table[] = {
     /* one entry for each TRKPM value in the expected range */
@@ -3000,7 +3000,7 @@ static int * fiatid_table[] = {
     &hf_c15ch_inc_gwe_fiatid_admn
 };
 
-static const guint8 FIRST_TASK_TYPE_INDEX = 0;
+/*static const guint8 FIRST_TASK_TYPE_INDEX = 0;*/
 static const guint8  LAST_TASK_TYPE_INDEX = 8;
 
 
