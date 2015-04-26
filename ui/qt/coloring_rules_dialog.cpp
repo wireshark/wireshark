@@ -19,14 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "coloring_rules_dialog.h"
-#include "ui_coloring_rules_dialog.h"
-
 #include "config.h"
 
 #include <errno.h>
 
 #include <glib.h>
+
+#include "coloring_rules_dialog.h"
+#include "ui_coloring_rules_dialog.h"
 
 #include "color.h"
 #include "color_filters.h"
