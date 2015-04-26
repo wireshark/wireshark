@@ -472,6 +472,9 @@ static gboolean ipv6_use_geoip = TRUE;
 /* Perform strict RFC adherence checking */
 static gboolean g_ipv6_rpl_srh_strict_rfc_checking = FALSE;
 
+/* Use heuristics to determine subdissector */
+static gboolean try_heuristic_first = FALSE;
+
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
 #endif
@@ -2199,8 +2202,10 @@ again:
     else
         pinfo->fragmented = FALSE;
 
+    iph.ip_p = nxt;
+
     /* do lookup with the subdissector table */
-    if (!dissector_try_uint_new(ip_dissector_table, nxt, next_tvb, pinfo, tree, TRUE, &iph)) {
+    if (!ip_try_dissect(try_heuristic_first, next_tvb, pinfo, tree, &iph)) {
         /* Unknown protocol.
            Handle "no next header" specially. */
         if (nxt != IP_PROTO_NONE) {
@@ -3017,6 +3022,11 @@ proto_register_ipv6(void)
                                    "Perform strict checking for adherence to the RFC for RPL Source Routing Headers (RFC 6554)",
                                    "Whether to check that all RPL Source Routing Headers adhere to RFC 6554",
                                    &g_ipv6_rpl_srh_strict_rfc_checking);
+
+    prefs_register_bool_preference(ipv6_module, "try_heuristic_first",
+                                   "Try heuristic sub-dissectors first",
+                                   "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
+                                   &try_heuristic_first);
 
     register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     register_init_routine(ipv6_reassemble_init);

@@ -1950,6 +1950,31 @@ static const true_false_string flags_sf_set_evil = {
   "Not evil"
 };
 
+gboolean
+ip_try_dissect(gboolean heur_first, tvbuff_t *tvb, packet_info *pinfo,
+               proto_tree *tree, ws_ip *iph)
+{
+  heur_dtbl_entry_t *hdtbl_entry;
+
+  if ((heur_first) && (dissector_try_heuristic(heur_subdissector_list, tvb,
+                       pinfo, tree, &hdtbl_entry, iph))) {
+    return TRUE;
+  }
+
+  if (dissector_try_uint_new(ip_dissector_table, iph->ip_p, tvb, pinfo,
+                             tree, TRUE, iph)) {
+    return TRUE;
+  }
+
+  if ((!heur_first) && (!dissector_try_heuristic(heur_subdissector_list, tvb,
+                                                 pinfo, tree, &hdtbl_entry,
+                                                 iph))) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
 static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -1959,7 +1984,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   int        offset = 0, dst_off;
   guint      hlen, optlen;
   guint16    flags;
-  guint8     nxt;
   guint16    ipsum;
   guint16    expected_cksum;
   fragment_head *ipfd_head = NULL;
@@ -1972,7 +1996,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   proto_item *item = NULL, *ttl_item;
   proto_tree *checksum_tree;
   guint16 ttl;
-  heur_dtbl_entry_t *hdtbl_entry;
 
   tree = parent_tree;
   iph = (ws_ip *)wmem_alloc(wmem_packet_scope(), sizeof(ws_ip));
@@ -2349,7 +2372,6 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   /* Skip over header + options */
   offset += hlen;
-  nxt = iph->ip_p;  /* XXX - what if this isn't the same for all fragments? */
 
   /* If ip_defragment is on, this is a fragment, we have all the data
    * in the fragment, and the header checksum is valid, then just add
@@ -2420,18 +2442,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      even be labeled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labeled as a mangled frame of the
      type in question. */
-  if ((try_heuristic_first) && (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, iph))) {
-    /* We're good */
-  } else if (!dissector_try_uint_new(ip_dissector_table, nxt, next_tvb, pinfo,
-                                 parent_tree, TRUE, iph)) {
-    if ((!try_heuristic_first) && (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent_tree, &hdtbl_entry, iph))) {
-      /* Unknown protocol */
-      if (update_col_info) {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
+  if (!ip_try_dissect(try_heuristic_first, next_tvb, pinfo, parent_tree, iph)) {
+    /* Unknown protocol */
+    if (update_col_info) {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)",
                    ipprotostr(iph->ip_p), iph->ip_p);
-      }
-      call_dissector(data_handle,next_tvb, pinfo, parent_tree);
     }
+    call_dissector(data_handle,next_tvb, pinfo, parent_tree);
   }
   pinfo->fragmented = save_fragmented;
 }
