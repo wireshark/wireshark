@@ -59,6 +59,7 @@ TSHARK_TAP_SRC = \
 	tap-icmpv6stat.c	\
 	tap-iostat.c		\
 	tap-iousers.c		\
+	tap-ldapstat.c		\
 	tap-macltestat.c	\
 	tap-megacostat.c	\
 	tap-mgcpstat.c		\

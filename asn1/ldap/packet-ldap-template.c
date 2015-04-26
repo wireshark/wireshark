@@ -264,6 +264,19 @@ static const value_string ldap_ProtocolOp_choice_vals[] = {
   { 0, NULL }
 };
 
+/* Procedure names (used in Service Response Time */
+const value_string ldap_procedure_names[] = {
+  {   0, "Bind" },
+  {   3, "Search" },
+  {   6, "Modify" },
+  {   8, "Add" },
+  {  10, "Delete" },
+  {  12, "Modrdn" },
+  {  14, "Compare" },
+  {  23, "Extended" },
+  { 0, NULL }
+};
+
 #define LOGON_PRIMARY_QUERY             7
 #define LOGON_PRIMARY_RESPONSE         12
 #define LOGON_SAM_LOGON_REQUEST        18

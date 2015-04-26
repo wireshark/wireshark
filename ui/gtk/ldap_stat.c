@@ -132,6 +132,7 @@ gtk_ldapstat_init(const char *opt_arg, void *userdata _U_)
 	GtkWidget *vbox;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
+	int i;
 
 	if(!strncmp(opt_arg,"ldap,srt,",9)){
 		filter=opt_arg+9;
@@ -166,31 +167,10 @@ gtk_ldapstat_init(const char *opt_arg, void *userdata _U_)
 	gtk_widget_show_all(ldap->win);
 
 	init_srt_table(&ldap->ldap_srt_table, 24, vbox, NULL);
-	init_srt_table_row(&ldap->ldap_srt_table, 0, "Bind");
-	init_srt_table_row(&ldap->ldap_srt_table, 1, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 2, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 3, "Search");
-	init_srt_table_row(&ldap->ldap_srt_table, 4, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 5, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 6, "Modify");
-	init_srt_table_row(&ldap->ldap_srt_table, 7, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 8, "Add");
-	init_srt_table_row(&ldap->ldap_srt_table, 9, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 10, "Delete");
-	init_srt_table_row(&ldap->ldap_srt_table, 11, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 12, "Modrdn");
-	init_srt_table_row(&ldap->ldap_srt_table, 13, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 14, "Compare");
-	init_srt_table_row(&ldap->ldap_srt_table, 15, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 16, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 17, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 18, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 19, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 20, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 21, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 22, "<unknown>");
-	init_srt_table_row(&ldap->ldap_srt_table, 23, "Extended");
-
+	for (i = 0; i < 24; i++)
+	{
+		init_srt_table_row(&ldap->ldap_srt_table, i, val_to_str_const(i, ldap_procedure_names, "<unknown>"));
+	}
 
 	error_string=register_tap_listener("ldap", ldap, filter, 0, ldapstat_reset, ldapstat_packet, ldapstat_draw);
 	if(error_string){

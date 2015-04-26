@@ -1137,6 +1137,7 @@ set(TSHARK_TAP_SRC
 	ui/cli/tap-icmpv6stat.c
 	ui/cli/tap-iostat.c
 	ui/cli/tap-iousers.c
+	ui/cli/tap-ldapstat.c
 	ui/cli/tap-macltestat.c
 	ui/cli/tap-mgcpstat.c
 	ui/cli/tap-megacostat.c

@@ -106,6 +106,8 @@ void new_register_ldap_name_dissector(const char *attr_type, new_dissector_t dis
 WS_DLL_PUBLIC
 int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gboolean prepend_dot _U_);
 
+WS_DLL_PUBLIC const value_string ldap_procedure_names[];
+
 /*#include "packet-ldap-exp.h" */
 
 #endif  /* PACKET_LDAP_H */
