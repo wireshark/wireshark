@@ -301,7 +301,7 @@ of the types and example of how to express them.
 [[ChWorkFieldTypes]]
 
 .Display Filter Field Types
-[asciidoc,options="header"]
+[options="header"]
 |===============
 |Type|Example
 |Unsigned integer (8-bit, 16-bit, 24-bit, 32-bit) |
@@ -340,7 +340,7 @@ You can combine filter expressions in Wireshark using the  logical operators sho
 [[FiltLogOps]]
 
 .Display Filter Logical Operations
-[asciidoc,options="header"]
+[options="header"]
 |===============
 |English|C-like|Description and example
 |and     |&amp;&amp;| Logical AND. `ip.src==10.0.0.5 and tcp.flags.fin`
