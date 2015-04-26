@@ -420,6 +420,10 @@ static int hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_g = -1
 static int hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_a = -1;
 static int hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b = -1;
 
+static int hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_numbers = -1;
+static int hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_profile = -1;
+static int hf_capwap_msg_element_type_ieee80211_mac_profile = -1;
+
 static int hf_capwap_data_keep_alive = -1;
 static int hf_capwap_data_keep_alive_length = -1;
 
@@ -895,7 +899,8 @@ static const value_string message_type[] = {
 #define IEEE80211_WTP_RADIO_CONFIGURATION         1046
 #define IEEE80211_WTP_RADIO_FAIL_ALARM_INDICATION 1047
 #define IEEE80211_WTP_RADIO_INFORMATION           1048
-
+#define IEEE80211_SUPPORTED_MAC_PROFILES          1060
+#define IEEE80211_MAC_PROFILE                     1061
 /* ************************************************************************* */
 /*                      Message Element Type Value                           */
 /* ************************************************************************* */
@@ -979,6 +984,8 @@ static const value_string message_element_type_vals[] = {
     { IEEE80211_WTP_RADIO_CONFIGURATION, "IEEE 802.11 WTP Radio Configuration" },
     { IEEE80211_WTP_RADIO_FAIL_ALARM_INDICATION, "IEEE 802.11 WTP Radio Fail Alarm Indication" },
     { IEEE80211_WTP_RADIO_INFORMATION, "IEEE 802.11 WTP Radio Information" },
+    { IEEE80211_SUPPORTED_MAC_PROFILES, "IEEE 802.11 Supported MAC Profiles" },
+    { IEEE80211_MAC_PROFILE, "IEEE 802.11 MAC Profile" },
     { 0,     NULL     }
 };
 /* ************************************************************************* */
@@ -1221,6 +1228,14 @@ static const value_string ieee80211_antenna_selection_vals[] = {
     { 1, "Internal Antenna" },
     { 2, "External Antenna" },
     { 0, NULL }
+};
+/* ************************************************************************* */
+/*                     IEE8011 MAC Profile                                   */
+/* ************************************************************************* */
+static const value_string ieee80211_mac_profile_vals[] = {
+    { 0, "Split MAC with WTP encryption" },
+    { 1, "Split MAC with AC encryption" },
+    { 0,     NULL     }
 };
 
 static void capwap_reassemble_init(void)
@@ -2699,6 +2714,35 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_g, tvb, offset+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_a, tvb, offset+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+        break;
+
+
+
+    case IEEE80211_SUPPORTED_MAC_PROFILES:{ /* ieee80211 Supported MAC Profiles (1060) */
+        guint8 num_profiles;
+        if (optlen < 2) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "IEEE80211 Supported MAC Profiles length %u wrong, must be >= 2", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_numbers, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        num_profiles = tvb_get_guint8(tvb ,offset);
+        while(num_profiles){
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_profile, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            num_profiles--;
+        }
+        }
+        break;
+
+    case IEEE80211_MAC_PROFILE: /* ieee80211 MAC Profile (1061) */
+        if (optlen != 1) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "IEEE80211 MAC Profile length %u wrong, must be = 1", optlen);
+        break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_mac_profile, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+
         break;
 
     default:
@@ -4716,6 +4760,22 @@ proto_register_capwap_control(void)
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b,
             { "Radio Type 802.11b", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_b",
               FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x0001,
+              NULL, HFILL }
+        },
+
+        { &hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_numbers,
+            { "Numbers Profiles", "capwap.control.message_element.ieee80211_supported_mac_profiles.numbers",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_profile,
+            { "Profile", "capwap.control.message_element.ieee80211_supported_mac_profiles.profile",
+              FT_UINT8, BASE_DEC, VALS(ieee80211_mac_profile_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_ieee80211_mac_profile,
+            { "Profile", "capwap.control.message_element.ieee80211_mac_profile",
+              FT_UINT8, BASE_DEC, VALS(ieee80211_mac_profile_vals), 0x0,
               NULL, HFILL }
         },
 
