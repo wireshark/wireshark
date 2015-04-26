@@ -128,6 +128,51 @@ if(PORTAUDIO_FOUND)
 		${WIRESHARK_GTK_SRC}
 		rtp_player.c
 	)
+
+	# For Win32, there is no PortAudio lib, we compile the files locally
+	if(WIN32)
+		add_definitions(
+			-DPA_NO_DS
+			-DPA_NO_ASIO
+		)
+		set(PORTAUDIO_SRC
+			${PORTAUDIO_SRC_DIR}/common/pa_allocation.c
+			${PORTAUDIO_SRC_DIR}/common/pa_converters.c
+			${PORTAUDIO_SRC_DIR}/common/pa_cpuload.c
+			${PORTAUDIO_SRC_DIR}/common/pa_dither.c
+			${PORTAUDIO_SRC_DIR}/common/pa_front.c
+			${PORTAUDIO_SRC_DIR}/common/pa_process.c
+			${PORTAUDIO_SRC_DIR}/common/pa_skeleton.c
+			${PORTAUDIO_SRC_DIR}/common/pa_stream.c
+			${PORTAUDIO_SRC_DIR}/common/pa_trace.c
+			${PORTAUDIO_SRC_DIR}/os/win/pa_win_hostapis.c
+			${PORTAUDIO_SRC_DIR}/os/win/pa_win_util.c
+			${PORTAUDIO_SRC_DIR}/os/win/pa_x86_plain_converters.c
+			${PORTAUDIO_SRC_DIR}/os/win/pa_win_waveformat.c
+			${PORTAUDIO_SRC_DIR}/hostapi/wmme/pa_win_wmme.c
+		)
+		add_library(portaudio OBJECT
+			${PORTAUDIO_SRC}
+		)
+		set_target_properties(portaudio PROPERTIES
+			INCLUDE_DIRECTORIES "${PORTAUDIO_INCLUDE_DIRS}"
+			FOLDER "UI")
+		# Portaudio has some warnings, annoyingly the combination of CMake
+		# and MSBuild means that just disabling the warnings on the specific
+		# source files doesn't work, so set them to level 4 for the target
+		#set_source_files_properties(${PORTAUDIO_SRC_DIR}/common/pa_front.c
+		#	PROPERTIES
+		#	COMPILE_FLAGS "/wd4189"
+		#)
+		#set_source_files_properties(${PORTAUDIO_SRC_DIR}/os/win/pa_x86_plain_converters.c
+		#	PROPERTIES
+		#	COMPILE_FLAGS "/wd4305"
+		#)
+		target_compile_options(portaudio
+			PUBLIC "/w44189"
+			PUBLIC "/w44305"
+		)
+	endif()
 endif()
 
 if(ENABLE_EXTCAP)
@@ -240,10 +285,15 @@ register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_TAP_SRC}
 )
 
+if(WIN32)
+	set(PORTAUDIO_OBJ $<TARGET_OBJECTS:portaudio>)
+endif()
+
 add_library(gtkui STATIC
 	${WIRESHARK_GTK_SRC}
 	${WIRESHARK_TAP_SRC}
 	${PLATFORM_UI_SRC}
+	${PORTAUDIO_OBJ}
 	wireshark-tap-register.c
 )
 set_target_properties(gtkui PROPERTIES
