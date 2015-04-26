@@ -494,6 +494,7 @@ const value_string ssl_31_alert_description[] = {
     {  70,  "Protocol Version" },
     {  71,  "Insufficient Security" },
     {  80,  "Internal Error" },
+    {  86,  "Inappropriate Fallback" },
     {  90,  "User Canceled" },
     { 100, "No Renegotiation" },
     { 110, "Unsupported Extension" },
@@ -784,7 +785,7 @@ static const value_string ssl_31_ciphersuite[] = {
     /* 0x00,0xC6-FE Unassigned  */
     /* From RFC 5746 */
     { 0x00FF, "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" },
-    /* From draft-bmoeller-tls-downgrade-scsv-02 */
+    /* From RFC 7507 */
     { 0x5600, "TLS_FALLBACK_SCSV" },
     /* From RFC 4492 */
     { 0xc001, "TLS_ECDH_ECDSA_WITH_NULL_SHA" },
