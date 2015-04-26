@@ -6527,10 +6527,10 @@ esimport         3564/udp # Electromed SIM port [Francois_Marchand] [Francois_Ma
 m2pa             3565/tcp # M2PA [RFC4165]
 m2pa             3565/sctp # M2PA [RFC4165]
 quest-data-hub   3566/tcp # Quest Data Hub [Greg_Cottman_2] [Greg_Cottman_2] 2010-10-18
-enc-eps          3567/tcp # EMIT protocol stack [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2002-08 2012-11-12
-enc-eps          3567/udp # EMIT protocol stack [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2002-08 2012-11-12
-enc-tunnel-sec   3568/tcp # EMIT secure tunnel [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2003-01 2012-11-12
-enc-tunnel-sec   3568/udp # EMIT secure tunnel [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2003-01 2012-11-12
+dof-eps          3567/tcp # DOF Protocol Stack [OpenDOF] [Bryant_Eastham] 2002-08 2015-04-23
+dof-eps          3567/udp # DOF Protocol Stack [OpenDOF] [Bryant_Eastham] 2002-08 2015-04-23
+dof-tunnel-sec   3568/tcp # DOF Secure Tunnel [OpenDOF] [Bryant_Eastham] 2003-01 2015-04-23
+dof-tunnel-sec   3568/udp # DOF Secure Tunnel [OpenDOF] [Bryant_Eastham] 2003-01 2015-04-23
 mbg-ctrl         3569/tcp # Meinberg Control Service [Martin_Burnicki] [Martin_Burnicki] 2002-08
 mbg-ctrl         3569/udp # Meinberg Control Service [Martin_Burnicki] [Martin_Burnicki] 2002-08
 mccwebsvr-port   3570/tcp # MCC Web Server Port
@@ -8804,8 +8804,8 @@ freeciv          5556/tcp # Freeciv gameplay [Reinier_Post_and_Pau] [Reinier_Pos
 freeciv          5556/udp # Freeciv gameplay [Reinier_Post_and_Pau] [Reinier_Post_and_Pau] 2006-01 Known Unauthorized Use on port 5556
 farenet          5557/tcp # Sandlab FARENET [Kay_T_Labinsky] [Kay_T_Labinsky] 2010-05-03
 westec-connect   5566/tcp # Westec Connect [Jon_Bolen] [Jon_Bolen] 2009-03-18
-enc-eps-mc-sec   5567/tcp # EMIT protocol stack multicast/secure transport [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2004-11 2012-11-12
-enc-eps-mc-sec   5567/udp # EMIT protocol stack multicast/secure transport [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2004-11 2012-11-12
+dof-dps-mc-sec   5567/tcp # DOF Protocol Stack Multicast/Secure Transport [OpenDOF] [Bryant_Eastham] 2004-11 2015-04-23
+dof-dps-mc-sec   5567/udp # DOF Protocol Stack Multicast/Secure Transport [OpenDOF] [Bryant_Eastham] 2004-11 2015-04-23
 sdt              5568/tcp # Session Data Transport Multicast [Daniel_W_Antonuk] [Daniel_W_Antonuk] 2006-05
 sdt              5568/udp # Session Data Transport Multicast [Daniel_W_Antonuk] [Daniel_W_Antonuk] 2006-05
 rdmnet-ctrl      5569/tcp # PLASA E1.33, Remote Device Management (RDM) controller status notifications [PLASA] [Simon_Newton] 2012-06-01
@@ -9040,6 +9040,7 @@ nuxsl            5991/tcp # NUXSL [Kai_Kretschmann] [Kai_Kretschmann] 2002-03
 nuxsl            5991/udp # NUXSL [Kai_Kretschmann] [Kai_Kretschmann] 2002-03
 consul-insight   5992/tcp # Consul InSight Security [Arthur_Hillenaar] [Arthur_Hillenaar] 2006-01
 consul-insight   5992/udp # Consul InSight Security [Arthur_Hillenaar] [Arthur_Hillenaar] 2006-01
+cim-rs           5993/tcp # DMTF WEBM CIM REST [WS_Inc] [Jim_Davis_2] 2015-04-24
 cvsup            5999/tcp # CVSup [Randall_Atkinson_2] [Randall_Atkinson_2]
 cvsup            5999/udp # CVSup [Randall_Atkinson_2] [Randall_Atkinson_2]
 x11             6000-6063/tcp # X Window System [Stephen_Gildea] [Stephen_Gildea] Known Unauthorized Use on port 6003
@@ -9217,6 +9218,7 @@ metaedit-mu      6360/udp # MetaEdit+ Multi-User [Steven_Kelly] [Steven_Kelly] 2
 ndn              6363/udp # Named Data Networking [Regents_of_the_University_of_California] [Jeff_Burke] 2013-10-30
 metaedit-se      6370/tcp # MetaEdit+ Server Administration [Steven_Kelly] [Steven_Kelly] 2007-11-12
 metaedit-se      6370/udp # MetaEdit+ Server Administration [Steven_Kelly] [Steven_Kelly] 2007-11-12
+redis            6379/tcp # An advanced key-value cache and store [Salvatore_Sanfilippo] [Itamar_Haber] 2015-04-23
 metatude-mds     6382/tcp # Metatude Dialogue Server [Menno_Zweistra] [Menno_Zweistra]
 metatude-mds     6382/udp # Metatude Dialogue Server [Menno_Zweistra] [Menno_Zweistra]
 clariion-evr01   6389/tcp # clariion-evr01 [Dave_DesRoches] [Dave_DesRoches]
@@ -10059,8 +10061,8 @@ rtsp-alt         8554/tcp # RTSP Alternate (see port 554) [Stephen_Casner_2] [St
 rtsp-alt         8554/udp # RTSP Alternate (see port 554) [Stephen_Casner_2] [Stephen_Casner_2]
 d-fence          8555/tcp # SYMAX D-FENCE [Thomas_Geisel] [Thomas_Geisel] 2003-01
 d-fence          8555/udp # SYMAX D-FENCE [Thomas_Geisel] [Thomas_Geisel] 2003-01
-enc-tunnel       8567/tcp # EMIT tunneling protocol [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2005-08 2012-11-12
-enc-tunnel       8567/udp # EMIT tunneling protocol [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2005-08 2012-11-12
+dof-tunnel       8567/tcp # DOF Tunneling Protocol [OpenDOF] [Bryant_Eastham] 2005-08 2015-04-23
+dof-tunnel       8567/udp # DOF Tunneling Protocol [OpenDOF] [Bryant_Eastham] 2005-08 2015-04-23
 asterix          8600/tcp # Surveillance Data [Eivan_Cerasi] [Eivan_Cerasi] 2005-11
 asterix          8600/udp # Surveillance Data [Eivan_Cerasi] [Eivan_Cerasi] 2005-11
 canon-cpp-disc   8609/udp # Canon Compact Printer Protocol Discovery [Canon_Inc] [Ryusuke_Okuhara] 2012-06-08 2012-06-15
