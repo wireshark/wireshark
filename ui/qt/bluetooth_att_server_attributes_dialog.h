@@ -22,7 +22,7 @@
 #ifndef BLUETOOTH_ATT_SERVER_ATTRIBUTES_DIALOG_H
 #define BLUETOOTH_ATT_SERVER_ATTRIBUTES_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

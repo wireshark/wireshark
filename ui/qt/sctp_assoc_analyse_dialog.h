@@ -22,7 +22,7 @@
 #ifndef SCTP_ASSOC_ANALYSE_DIALOG_H
 #define SCTP_ASSOC_ANALYSE_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

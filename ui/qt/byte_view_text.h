@@ -22,7 +22,7 @@
 #ifndef BYTE_VIEW_TEXT_H
 #define BYTE_VIEW_TEXT_H
 
-#include "config.h"
+#include <config.h>
 
 #include <epan/packet.h>
 #include <epan/proto.h>

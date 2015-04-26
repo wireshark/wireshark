@@ -25,7 +25,7 @@
 #ifndef EXPORTED_PDU_H
 #define EXPORTED_PDU_H
 
-#include "config.h"
+#include <config.h>
 
 #include "ws_symbol_export.h"
 

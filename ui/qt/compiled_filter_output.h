@@ -22,7 +22,7 @@
 #ifndef COMPILEDFILTEROUTPUT_H
 #define COMPILEDFILTEROUTPUT_H
 
-#include "config.h"
+#include <config.h>
 #include <QDialog>
 #include <QList>
 #include <QHash>

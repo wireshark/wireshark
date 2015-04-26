@@ -26,7 +26,7 @@
 #ifndef EPAN_EXT_MENUBAR_H_
 #define EPAN_EXT_MENUBAR_H_
 
-#include "config.h"
+#include <config.h>
 
 #include "ws_symbol_export.h"
 

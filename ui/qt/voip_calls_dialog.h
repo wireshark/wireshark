@@ -22,7 +22,7 @@
 #ifndef VOIP_CALLS_DIALOG_H
 #define VOIP_CALLS_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

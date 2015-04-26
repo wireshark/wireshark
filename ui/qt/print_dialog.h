@@ -22,7 +22,7 @@
 #ifndef PRINT_DIALOG_H
 #define PRINT_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

@@ -22,7 +22,7 @@
 #ifndef MODULE_PREFERENCES_SCROLL_AREA_H
 #define MODULE_PREFERENCES_SCROLL_AREA_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

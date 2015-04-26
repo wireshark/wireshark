@@ -22,7 +22,7 @@
 #ifndef EXPORT_OBJECT_DIALOG_H
 #define EXPORT_OBJECT_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

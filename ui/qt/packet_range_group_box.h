@@ -22,7 +22,7 @@
 #ifndef PACKET_RANGE_GROUP_BOX_H
 #define PACKET_RANGE_GROUP_BOX_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

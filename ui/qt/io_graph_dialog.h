@@ -22,7 +22,7 @@
 #ifndef IO_GRAPH_DIALOG_H
 #define IO_GRAPH_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

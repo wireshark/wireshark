@@ -22,7 +22,7 @@
 #ifndef DECODE_AS_DIALOG_H
 #define DECODE_AS_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

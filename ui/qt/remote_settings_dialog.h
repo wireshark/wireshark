@@ -22,7 +22,7 @@
 #ifndef REMOTE_SETTINGS_DIALOG_H
 #define REMOTE_SETTINGS_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #ifdef HAVE_PCAP_REMOTE
 #include <QDialog>

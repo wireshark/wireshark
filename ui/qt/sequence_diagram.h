@@ -22,7 +22,7 @@
 #ifndef SEQUENCE_DIAGRAM_H
 #define SEQUENCE_DIAGRAM_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

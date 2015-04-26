@@ -22,7 +22,7 @@
 #ifndef SCTP_CHUNK_STATISTICS_DIALOG_H
 #define SCTP_CHUNK_STATISTICS_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 #include <glib.h>
 
 #include <file.h>

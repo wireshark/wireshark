@@ -22,7 +22,7 @@
 #ifndef SCTP_GRAPH_BYTE_DIALOG_H
 #define SCTP_GRAPH_BYTE_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 #include <glib.h>
 
 #include <QDialog>

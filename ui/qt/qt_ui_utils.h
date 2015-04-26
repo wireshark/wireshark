@@ -29,7 +29,7 @@
  *  Utility functions for working with the Wireshark and GLib APIs.
  */
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

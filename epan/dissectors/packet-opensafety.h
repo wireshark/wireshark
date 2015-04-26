@@ -33,7 +33,7 @@
 #ifndef _OPENSAFETY_HEADER_
 #define _OPENSAFETY_HEADER_
 
-#include "config.h"
+#include <config.h>
 
 #include <epan/packet.h>
 

@@ -22,7 +22,7 @@
 #ifndef IMPORT_TEXT_DIALOG_H
 #define IMPORT_TEXT_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <stdio.h>
 

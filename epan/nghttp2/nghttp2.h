@@ -25,7 +25,7 @@
 #ifndef NGHTTP2_H
 #define NGHTTP2_H
 
-#include "config.h"
+#include <config.h>
 
 /* Define WIN32 when build target is Win32 API (borrowed from
    libcurl) */

@@ -22,7 +22,7 @@
 #ifndef UAT_DIALOG_H
 #define UAT_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

@@ -24,7 +24,7 @@
 #ifndef LBM_LBTRM_TRANSPORT_DIALOG_H
 #define LBM_LBTRM_TRANSPORT_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

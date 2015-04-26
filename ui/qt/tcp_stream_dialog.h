@@ -22,7 +22,7 @@
 #ifndef TCP_STREAM_DIALOG_H
 #define TCP_STREAM_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

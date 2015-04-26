@@ -22,7 +22,7 @@
 #ifndef COLOR_UTILS_H
 #define COLOR_UTILS_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 

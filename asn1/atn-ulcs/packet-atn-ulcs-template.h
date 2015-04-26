@@ -27,7 +27,7 @@
 #ifndef PACKET_ATN_ULCS_H
 #define PACKET_ATN_ULCS_H
 
-#include "config.h"
+#include <config.h>
 
 #include "packet.h"
 

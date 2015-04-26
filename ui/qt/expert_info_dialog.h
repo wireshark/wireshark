@@ -22,7 +22,7 @@
 #ifndef EXPERT_INFO_DIALOG_H
 #define EXPERT_INFO_DIALOG_H
 
-#include "config.h"
+#include <config.h>
 
 #include <glib.h>
 
