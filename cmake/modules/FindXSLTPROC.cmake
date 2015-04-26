@@ -106,17 +106,17 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
     ADD_CUSTOM_COMMAND(
         OUTPUT
             ${_output}
-        COMMAND cmake
+        COMMAND ${CMAKE_COMMAND}
             -E make_directory ${_outdir}
-        COMMAND cmake
+        COMMAND ${CMAKE_COMMAND}
            -E make_directory ${_outdir}/${_gfxdir}/toolbar
-        COMMAND cp
-           ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir}/*.* ${_outdir}/${_gfxdir}/
-        COMMAND cp
-           ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics/*.* ${_outdir}/${_gfxdir}/
-        COMMAND cp
-           ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir}/toolbar/*.* ${_outdir}/${_gfxdir}/toolbar/
-        COMMAND cmake
+        COMMAND ${CMAKE_COMMAND}
+           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_outdir}/${_gfxdir}
+        COMMAND ${CMAKE_COMMAND}
+           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_outdir}/${_gfxdir}
+        COMMAND ${CMAKE_COMMAND}
+           -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir}/toolbar ${_outdir}/${_gfxdir}/toolbar
+        COMMAND ${CMAKE_COMMAND}
             -E copy ${CMAKE_CURRENT_SOURCE_DIR}/ws.css ${_outdir}
         COMMAND ${XSLTPROC_EXECUTABLE}
             --path "${_xsltproc_path}"
@@ -126,13 +126,20 @@ MACRO(XML2HTML _guide _mode _xmlsources _gfxsources)
             ${_modeparams}
             ${_STYLESHEET}
             ${_source}
-        COMMAND chmod
-            -R og+rX ${_outdir}
         DEPENDS
             ${_validated}
             ${${_xmlsources}}
             ${${_gfxsources}}
     )
+    IF(NOT WIN32)
+        ADD_CUSTOM_COMMAND(
+            OUTPUT
+                ${_output}
+            COMMAND chmod
+                -R og+rX ${_outdir}
+            APPEND
+        )
+    ENDIF()
 ENDMACRO(XML2HTML)
 
 # Translate XML to FO to PDF

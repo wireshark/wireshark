@@ -445,12 +445,12 @@ ASCIIDOC2TXT(
 ADD_CUSTOM_COMMAND(
 	OUTPUT
 		wsluarm
-	COMMAND cmake -E make_directory wsluarm_src
+	COMMAND ${CMAKE_COMMAND} -E make_directory wsluarm_src
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
 		${WSLUA_MODULES}
-	COMMAND
-		touch wsluarm
+	COMMAND ${CMAKE_COMMAND} -E touch
+		 wsluarm
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/make-wsluarm.pl
 		${WSLUA_MODULES}

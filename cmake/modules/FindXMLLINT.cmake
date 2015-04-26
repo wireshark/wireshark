@@ -64,7 +64,7 @@ MACRO(VALIDATE_XML _validated _sources)
             --valid
             --noout
             ${_source}
-        COMMAND touch
+        COMMAND ${CMAKE_COMMAND} -E touch
             ${_validated}
         DEPENDS
             ${${_sources}}
