@@ -5276,12 +5276,12 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="1068"/>
         <source>Copy All Visible Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia tutti gli elementi visibili</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1073"/>
         <source>Copy All Visible Selected Tree Items</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia tutti gli elementi visibili dell&apos;albero selezionato</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1211"/>

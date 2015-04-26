@@ -15,7 +15,7 @@
     <message>
         <location filename="about_dialog.ui" line="14"/>
         <source>About Wireshark</source>
-        <translation>关于Wireshark</translation>
+        <translation>关于 Wireshark</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="36"/>
@@ -68,7 +68,7 @@
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="64"/>
         <source>UUID Name</source>
-        <translation>UUID名</translation>
+        <translation>UUID 名称</translation>
     </message>
     <message>
         <location filename="bluetooth_att_server_attributes_dialog.ui" line="96"/>
@@ -156,7 +156,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="161"/>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
-        <translation>您所选择的文件格式不支持注释。您希望将捕获内容保存为支持注释的格式,还是希望丢弃注释,直接保存为您所选的格式?</translation>
+        <translation>您所选择的文件格式不支持注释。您希望将捕获内容保存为支持注释的格式，还是希望丢弃注释，直接保存为您所选择的格式？</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="166"/>
@@ -172,7 +172,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="174"/>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
-        <translation>可以保存的文件格式中,没有支持注释的格式。是否希望丢弃注释内容,并以您所选的格式保存?</translation>
+        <translation>可以保存的文件格式中，没有支持注释的格式。您是否要丢弃注释并以您选择的格式保存？</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="394"/>
@@ -252,12 +252,12 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="515"/>
         <source>&amp;Transport name resolution</source>
-        <translation>传输层名字解析</translation>
+        <translation>传输层名称解析(&amp;T)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="519"/>
         <source>&amp;Network name resolution</source>
-        <translation>网络层名字解析(&amp;N)</translation>
+        <translation>网络层名称解析(&amp;N)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="523"/>
@@ -267,7 +267,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="529"/>
         <source>Compress with g&amp;zip</source>
-        <translation>用 gzip 压缩(&amp;z)</translation>
+        <translation>用 gzip 压缩(&amp;Z)</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="560"/>
@@ -570,7 +570,7 @@
         <source>Created by Wireshark %1
 
 </source>
-        <translation>由Wireshark创建 %1</translation>
+        <translation>通过 Wireshark 创建 %1</translation>
     </message>
 </context>
 <context>
@@ -619,7 +619,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="88"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;你可能希望打开这个功能。网卡通常只会捕获那些发给它自身地址的流量。如果你希望捕获所有网卡能够 &amp;quot;看到&amp;quot;的流量,请打开本选项。查看FAQ中关于从交换网络中捕获分组的详细信息。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;您可能希望启用这个功能。网卡通常只会捕获那些发给它自身地址的流量。如果您希望捕获所有网卡能够“看到”的流量，请启用此选项。参见FAQ中关于从交换网络中捕获分组的详细信息。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="168"/>
@@ -654,7 +654,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="295"/>
         <source>Create a new file automatically after...</source>
-        <translation>自动创建新文件,经过...</translation>
+        <translation>自动创建新文件，经过...</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="339"/>
@@ -689,18 +689,18 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="639"/>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation>超过指定数量的分组被捕获后,停止捕获。</translation>
+        <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="655"/>
         <location filename="capture_interfaces_dialog.ui" line="730"/>
         <source>Stop capturing after the specified amount of data has been captured.</source>
-        <translation>超过指定数量的分组被捕获后,停止捕获。</translation>
+        <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="671"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后,停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="681"/>
@@ -740,7 +740,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="114"/>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>显示和隐藏接口,添加注释,管理管道和远程接口。</translation>
+        <translation>显示和隐藏接口、添加注释、管理管道和远程接口。</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="117"/>
@@ -760,7 +760,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="241"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;输入用于保存捕获数据的文件名。缺省,将会使用临时文件。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;输入用于保存捕获数据的文件名。默认情况下，将会使用临时文件。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="247"/>
@@ -770,12 +770,12 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="292"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;相对于使用单个捕获文件,多文件将会被创建。&lt;/p&gt;&lt;p&gt;生成的文件名会包含增加的序号和捕获开始时间。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;相对于使用单个捕获文件，多个文件将会被创建。&lt;/p&gt;&lt;p&gt;生成的文件名会包含增加的序号和捕获开始时间。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="307"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;如果超过了指定的文件尺寸,切换到下一个文件进行捕获。&lt;/p&gt;&lt;p&gt;请注意：至少有一个功能必须选择。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;如果超过了指定的文件尺寸，切换到下一个文件进行捕获。&lt;/p&gt;&lt;p&gt;请注意：至少有一个功能必须选择。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </translation>
     </message>
     <message>
@@ -784,7 +784,7 @@
         <location filename="capture_interfaces_dialog.ui" line="375"/>
         <source>If the selected file size is exceeded, capturing switches to the next file.
 PLEASE NOTE: One option MUST be selected.</source>
-        <translation>如果超过了指定的文件尺寸,切换到下一个文件进行捕获。
+        <translation>如果超过了指定的文件尺寸，切换到下一个文件进行捕获。
 请注意：至少有一个功能必须选择。</translation>
     </message>
     <message>
@@ -796,12 +796,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="443"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当捕获切换到下一个文件并且给定的文件数已经达到, 最早的文件将会被删除。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当捕获切换到下一个文件并且给定的文件数已经达到，最早的文件将会被删除。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="446"/>
         <source>Use a ring buffer with </source>
-        <translation>使用一个环形缓冲器,对于</translation>
+        <translation>使用一个环形缓冲器，采用</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="463"/>
@@ -821,7 +821,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="518"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用本功能会立即在主屏幕中显示捕获的分组。 请注意: 这将减慢捕获速度, 因此会导致出现分组丢失的情况。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用此功能将会立即在主屏幕中显示捕获的分组。请注意：这将减慢捕获速度，因此可能会增加分组丢失的情况。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="521"/>
@@ -831,7 +831,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="528"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当 &amp;quot;实时更新分组列表&amp;quot; 功能打开时,自动滚动 &amp;quot;分组列表&amp;quot;到最新的捕获分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当“实时更新分组列表”选项启用时，自动滚动“分组列表”到最新捕获的分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="531"/>
@@ -841,7 +841,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="538"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时,显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="541"/>
@@ -851,12 +851,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="564"/>
         <source>Name Resolution</source>
-        <translation>名字解析</translation>
+        <translation>解析名称</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="573"/>
         <source>Perform MAC layer name resolution while capturing.</source>
-        <translation>在捕获时,执行MAC层名称解析。</translation>
+        <translation>在捕获期间进行 MAC 层名称解析。</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="576"/>
@@ -866,39 +866,39 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="583"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时,执行网络层名称解析。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获期间进行网络层名称解析。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="586"/>
         <source>Resolve network names</source>
-        <translation>网络名字解析</translation>
+        <translation>解析网络名称</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="593"/>
         <source>Perform transport layer name resolution while capturing.</source>
-        <translation>捕获时,执行传输层名称解析。</translation>
+        <translation>在捕获期间进行传输层名称解析。</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="596"/>
         <source>Resolve transport names</source>
-        <translation>传输层名字解析</translation>
+        <translation>解析传输层名称</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="624"/>
         <source>Stop capture automatically after...</source>
-        <translation>自动停止捕获,经过...</translation>
+        <translation>自动停止捕获，在经过...</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="688"/>
         <location filename="capture_interfaces_dialog.ui" line="698"/>
         <location filename="capture_interfaces_dialog.ui" line="752"/>
         <source>Stop capturing after the specified amount of time has passed.</source>
-        <translation>超过指定的时间后,停止捕获。</translation>
+        <translation>经过指定的时间后，停止捕获。</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="720"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后,停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="117"/>
@@ -980,13 +980,13 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="687"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
-        <translation>多个文件：没有给出捕获文件名！如果你想使用多文件,你必须给出文件名。</translation>
+        <translation>多个文件：没有给出捕获文件名！如果您想使用多个文件，必须指定一个文件名。</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="691"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
-        <translation>多个文件：未给出文件大小限制！如果你想使用多文件,你必须指定文件大小或者时长切换到下一个捕获文件。</translation>
+        <translation>多个文件：未给出文件大小限制！如果您想使用多个文件，必须指定切换到下一个捕获文件的文件大小或者时长。</translation>
     </message>
 </context>
 <context>
@@ -1004,7 +1004,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_preferences_frame.ui" line="63"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;你可能希望打开这个功能。网卡通常只会捕获那些发给它自身地址的流量。如果你希望捕获所有网卡能够 &amp;quot;看到&amp;quot;的流量,请打开本选项。查看FAQ中关于从交换网络中捕获分组的详细信息。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;您可能希望启用此项。网卡通常只会捕获那些发给它自身地址的流量。如果您希望捕获网卡能够“看到”的所有流量，请启用此选项。查看FAQ中关于从交换网络中捕获分组的详细信息。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="66"/>
@@ -1024,7 +1024,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_preferences_frame.ui" line="83"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获运行时,更新分组列表。这可能会导致在高速网络中丢弃分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获进行时更新分组列表。这可能会导致在高速网络中丢弃分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="86"/>
@@ -1034,7 +1034,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_preferences_frame.ui" line="93"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时,保持分组列表滚动到底部。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获进行时，保持分组列表滚动到底部。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="96"/>
@@ -1044,7 +1044,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_preferences_frame.ui" line="103"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture summary dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时,显示捕获概要对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获进行时，显示捕获概要对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="capture_preferences_frame.ui" line="106"/>
@@ -1157,12 +1157,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="351"/>
         <source>Your coloring rules file contains unknown rules</source>
-        <translation>你的着色规则文件包含未知规则</translation>
+        <translation>您的着色规则文件包含未知规则</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="352"/>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. Saving will discard them.</source>
-        <translation>Wireshark无法识别一个或多个你的着色规则。保存将丢弃这些。</translation>
+        <translation>Wireshark 无法识别您的一个或多个着色规则。保存将会丢弃它们。</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="362"/>
@@ -1299,7 +1299,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="decode_as_dialog.ui" line="27"/>
         <source>Match using this field</source>
-        <translation>使用本字段匹配</translation>
+        <translation>使用此字段匹配</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="32"/>
@@ -1334,7 +1334,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="decode_as_dialog.ui" line="56"/>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>当协议字段匹配本值时修改行为</translation>
+        <translation>当协议字段匹配此值时变更行为</translation>
     </message>
     <message>
         <location filename="decode_as_dialog.ui" line="66"/>
@@ -1364,7 +1364,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="decode_as_dialog.cpp" line="364"/>
         <source>Integer, base </source>
-        <translation>整形</translation>
+        <translation>整数，底数 </translation>
     </message>
     <message>
         <location filename="decode_as_dialog.cpp" line="376"/>
@@ -1417,7 +1417,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_edit.cpp" line="190"/>
         <source>Apply this filter string to the display</source>
-        <translation>应用本筛选器字符串进行显示</translation>
+        <translation>应用此筛选器字符串进行显示</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="279"/>
@@ -1671,7 +1671,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="98"/>
         <source>Hide this stream</source>
-        <translation>隐藏本条流</translation>
+        <translation>隐藏这条流</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="101"/>
@@ -1713,7 +1713,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="93"/>
         <source>Hex Dump</source>
-        <translation>Hex Dump</translation>
+        <translation>Hex 转储</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="94"/>
@@ -1734,14 +1734,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="follow_stream_dialog.cpp" line="149"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;客户端&lt;/span&gt; pkt(s), </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;客户端&lt;/span&gt; 分组, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location filename="follow_stream_dialog.cpp" line="152"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;服务器&lt;/span&gt; pkt(s), </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;服务器&lt;/span&gt; 分组, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1775,7 +1775,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="853"/>
         <source>Please make sure you have a capture file opened.</source>
-        <translation>请确认你已经打开一个捕获文件。</translation>
+        <translation>请确认您已经打开一个捕获文件。</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="859"/>
@@ -1793,22 +1793,22 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="869"/>
         <source>Please make sure you have a TCP packet selected.</source>
-        <translation>请确认你已经选择一个TCP分组。</translation>
+        <translation>请确认您已经选中一个 TCP 分组。</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="875"/>
         <source>Please make sure you have a UDP packet selected.</source>
-        <translation>请确认你已经选择一个UDP分组。</translation>
+        <translation>请确认您已经选中一个 UDP 分组。</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="884"/>
         <source>Please make sure you have an SSL packet selected.</source>
-        <translation>请确认你已经选择一个SSL分组。</translation>
+        <translation>请确认您已经选中一个 SSL 分组。</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="907"/>
         <source>Error creating filter for this stream.</source>
-        <translation>为本条流创建筛选器错误。</translation>
+        <translation>为这条流创建筛选器时出错。</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="908"/>
@@ -1832,7 +1832,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="follow_stream_dialog.cpp" line="1056"/>
         <location filename="follow_stream_dialog.cpp" line="1301"/>
         <source>Short read from temporary file %1: expected %2, got %3</source>
-        <translation>从临时文件%1 中短读: 期待 %2, 获取 %3</translation>
+        <translation>从临时文件 %1 中短读: 期待 %2, 获取 %3</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="1209"/>
@@ -1925,12 +1925,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="font_color_preferences_frame.ui" line="129"/>
         <source>Sample &quot;Follow Stream&quot; client text</source>
-        <translation>&quot;Follow Stream&quot;客户端</translation>
+        <translation>“追踪数据流”客户端示例文本</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="149"/>
         <source>Sample &quot;Follow Stream&quot; server text</source>
-        <translation>&quot;Follow Stream&quot;服务器</translation>
+        <translation>“追踪数据流”服务器示例文本</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="199"/>
@@ -1998,7 +1998,7 @@ PLEASE NOTE: One option MUST be selected.</source>
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;有价值的和惊人的节省时间的快捷键&lt;/h3&gt;
+&lt;h3&gt;有价值且惊人的节省时间的快捷键&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
 &lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;放大&lt;/td&gt;&lt;/th&gt;
@@ -2357,12 +2357,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="io_graph_dialog.cpp" line="209"/>
         <source>IO Graphs</source>
-        <translation>IO 图</translation>
+        <translation>IO 图表</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="261"/>
         <source>Wireshark IO Graphs: %1</source>
-        <translation>Wireshark IO图: %1</translation>
+        <translation>Wireshark IO 图表: %1</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="383"/>
@@ -2687,7 +2687,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="import_text_dialog.cpp" line="58"/>
         <source>Import From Hex Dump</source>
-        <translation>从Hex Dump文件导入</translation>
+        <translation>从 Hex 转储文件导入</translation>
     </message>
     <message>
         <location filename="import_text_dialog.cpp" line="281"/>
@@ -3122,7 +3122,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="686"/>
         <source>Resize columns to content size</source>
-        <translation>根据内容自动调整列宽</translation>
+        <translation>调整列宽以适应内容</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.cpp" line="1315"/>
@@ -3734,13 +3734,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1096"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1104"/>
         <source>Auto-resize columns to content</source>
-        <translation>自动调整列以适应内容</translation>
+        <translation>根据内容自动调整列宽</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1099"/>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1107"/>
         <source>Resize columns to content size</source>
-        <translation>根据内容自动调整列宽</translation>
+        <translation>调整列宽以适应内容</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="1118"/>
@@ -4318,7 +4318,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="main_welcome.ui" line="63"/>
         <location filename="main_welcome.cpp" line="56"/>
         <source>Welcome to Wireshark.</source>
-        <translation>欢迎使用Wireshark。</translation>
+        <translation>欢迎使用 Wireshark。</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="70"/>
@@ -4333,7 +4333,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="main_welcome.ui" line="136"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture live packets from your network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;从你的网络中捕获实时分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;从您的网络中捕获实时分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="139"/>
@@ -4449,12 +4449,12 @@ text-decoration: underline;
     <message>
         <location filename="main_welcome.cpp" line="181"/>
         <source>You are running Wireshark </source>
-        <translation>正在运行Wireshark</translation>
+        <translation>正在运行 Wireshark</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="186"/>
         <source> You receive automatic updates.</source>
-        <translation>接收自动更新。</translation>
+        <translation>接受自动更新。</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="188"/>
@@ -4518,7 +4518,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="270"/>
         <source>Name Resolution</source>
-        <translation>名字解析</translation>
+        <translation>解析名称</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="478"/>
@@ -4633,7 +4633,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="450"/>
         <source>Telephon&amp;y</source>
-        <translation>电话(&amp;y)</translation>
+        <translation>电话(&amp;Y)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="454"/>
@@ -4804,7 +4804,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="758"/>
         <source>Sample Captures</source>
-        <translation>示例捕获</translation>
+        <translation>捕获示例</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="763"/>
@@ -4814,7 +4814,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="775"/>
         <source>Ask (Q&amp;&amp;A)</source>
-        <translation>提问 (Q&amp;&amp;A) (&amp;A)</translation>
+        <translation>提问 (问答平台)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="783"/>
@@ -4949,7 +4949,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="882"/>
         <source>&amp;Import from Hex Dump...</source>
-        <translation>从Hex Dump文件导入...</translation>
+        <translation>从 Hex 转储文件导入(&amp;I)...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="885"/>
@@ -5267,12 +5267,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1068"/>
         <source>Copy All Visible Items</source>
-        <translation type="unfinished"></translation>
+        <translation>复制所有可见项目</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1073"/>
         <source>Copy All Visible Selected Tree Items</source>
-        <translation type="unfinished"></translation>
+        <translation>复制选中树的所有可见项目</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1211"/>
@@ -5848,7 +5848,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1690"/>
         <source>SM&amp;PP Operations</source>
-        <translation>SM&amp;PP 操作</translation>
+        <translation>SMPP 操作(&amp;P)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1693"/>
@@ -5858,7 +5858,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1698"/>
         <source>&amp;UCP Messages</source>
-        <translation>UCP消息（&amp;U）</translation>
+        <translation>UCP 消息(&amp;U)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1701"/>
@@ -5951,12 +5951,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1802"/>
         <source>Export PDUs to File...</source>
-        <translation>导出PDU到文件...</translation>
+        <translation>导出 PDU 到文件...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1807"/>
         <source>&amp;I/O Graph</source>
-        <translation>I/O图(&amp;I)</translation>
+        <translation>I/O 图表(&amp;I)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1810"/>
@@ -6016,7 +6016,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1870"/>
         <source>Draw packets using your coloring rules</source>
-        <translation>使用你的着色规则来画分组</translation>
+        <translation>使用您的着色规则来绘制分组</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1875"/>
@@ -6056,7 +6056,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1902"/>
         <source>Resize Columns</source>
-        <translation>调整列</translation>
+        <translation>调整列宽</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1905"/>
@@ -6088,12 +6088,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1930"/>
         <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>年,年积日,时间 (1970/001 01:02:03.123456)</translation>
+        <translation>年、年积日、时间 (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1933"/>
         <source>Show packet times as the year, day of the year and time of day.</source>
-        <translation>使用年,年积日和时间来显示分组时间。</translation>
+        <translation>使用年、年积日和时间来显示分组时间。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1941"/>
@@ -6163,12 +6163,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2011"/>
         <source>UTC Date and Time of Day (1970-01-01 01:02:03.123456)</source>
-        <translation>UTC日期和时间 (1970-01-01 01:02:03.123456)</translation>
+        <translation>UTC 日期和时间 (1970-01-01 01:02:03.123456)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2014"/>
         <source>Show packet times as the UTC date and time of day.</source>
-        <translation>使用UTC日期和时间来显示分组时间。</translation>
+        <translation>使用 UTC 日期和时间来显示分组时间。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2017"/>
@@ -6178,12 +6178,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2025"/>
         <source>UTC Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>UTC年,年积日,时间 (1970/001 01:02:03.123456)</translation>
+        <translation>UTC 年、年积日、时间 (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2028"/>
         <source>Show packet times as the UTC year, day of the year and time of day.</source>
-        <translation>使用UTC年,年积日和时间来显示分组时间。</translation>
+        <translation>使用 UTC 年、年积日和时间来显示分组时间。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2036"/>
@@ -6193,7 +6193,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2039"/>
         <source>Show packet times as the UTC time of day.</source>
-        <translation>使用UTC时间来显示分组时间。</translation>
+        <translation>使用 UTC 时间来显示分组时间。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2042"/>
@@ -6258,7 +6258,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2123"/>
         <source>Show names for known MAC addresses. Lookups use a local database.</source>
-        <translation>显示已知的MAC地址的名称。查找使用本地数据库。</translation>
+        <translation>显示已知 MAC 地址的名称。使用本地数据库查询。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2131"/>
@@ -6278,7 +6278,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2145"/>
         <source>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</source>
-        <translation>显示已知的TCP、UDP和SCTP服务名称。在一些系统中,查找会产生流量。</translation>
+        <translation>显示已知的 TCP、UDP 和 SCTP 服务的名称。在一些系统中，查找会产生流量。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2156"/>
@@ -6343,7 +6343,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2253"/>
         <source>&amp;VoIP Calls</source>
-        <translation>&amp;VoIP呼叫</translation>
+        <translation>&amp;VoIP 通话</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2256"/>
@@ -6353,7 +6353,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2261"/>
         <source>SIP &amp;Flows</source>
-        <translation>SIP流(&amp;F)</translation>
+        <translation>SIP 流(&amp;F)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2264"/>
@@ -6363,7 +6363,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2269"/>
         <source>RTP Streams</source>
-        <translation>RTP流</translation>
+        <translation>RTP 流</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2274"/>
@@ -6398,7 +6398,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2300"/>
         <source>Show this packet in a separate window.</source>
-        <translation>在单独窗口显示本分组。</translation>
+        <translation>在单独窗口中显示此分组。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2305"/>
@@ -6413,7 +6413,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2316"/>
         <source>Auto Scroll in Li&amp;ve Capture</source>
-        <translation>在实时捕获时自动滚动屏幕(&amp;v)</translation>
+        <translation>实时捕获时自动滚动(&amp;V)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2319"/>
@@ -6443,7 +6443,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="652"/>
         <source>Save packets before merging?</source>
-        <translation>是否在合并之前保存分组?</translation>
+        <translation>是否在合并之前保存分组？</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="653"/>
@@ -6453,12 +6453,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="659"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
-        <translation>是否在合并前保存对“%1”的改动?</translation>
+        <translation>是否在合并前保存对“%1”的更改？</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="661"/>
         <source>Changes must be saved before the files can be merged.</source>
-        <translation>文件在合并之前,其改动必须先保存。</translation>
+        <translation>在文件合并之前，其更改必须先保存。</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="720"/>
@@ -6500,13 +6500,13 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="1273"/>
         <source>They will be lost if you don&apos;t save them.</source>
-        <translation>若不保存,这些分组将会丢失。</translation>
+        <translation>若不保存，这些分组将会丢失。</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1276"/>
         <location filename="main_window.cpp" line="1289"/>
         <source>Do you want to stop the capture and save the captured packets</source>
-        <translation>是否希望停止捕获,并保存已捕获的分组</translation>
+        <translation>您是否要停止捕获，并保存已捕获的分组</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1278"/>
@@ -6522,17 +6522,17 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="1292"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
-        <translation>若不保存,您已经捕获的分组将会丢失。</translation>
+        <translation>若不保存，您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1295"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
-        <translation>是否希望保存对捕获文件“%1”%2 的更改?</translation>
+        <translation>是否希望保存对捕获文件“%1”%2 的更改？</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1301"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
-        <translation>若不保存,您的更改将会丢失。</translation>
+        <translation>若不保存，您的更改将会丢失。</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1313"/>
@@ -6542,22 +6542,22 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="1321"/>
         <source>Stop and Quit without Saving</source>
-        <translation>停止,并且不保存直接退出</translation>
+        <translation>停止并退出，不保存</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1324"/>
         <source>Quit without Saving</source>
-        <translation>不保存,直接退出</translation>
+        <translation>不保存，直接退出</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1329"/>
         <source>Stop and Continue without Saving</source>
-        <translation>停止并继续,而不必保存</translation>
+        <translation>停止并继续，不保存</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1332"/>
         <source>Continue &amp;without Saving</source>
-        <translation>不保存继续(&amp;w)</translation>
+        <translation>不保存并继续(&amp;W)</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1601"/>
@@ -6569,7 +6569,7 @@ text-decoration: underline;
         <location filename="main_window.cpp" line="1619"/>
         <location filename="main_window.cpp" line="1634"/>
         <source>The Wireshark Network Analyzer</source>
-        <translation>The Wireshark Network Analyzer</translation>
+        <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="616"/>
@@ -6594,7 +6594,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="1394"/>
         <source>Please wait while Wireshark is initializing</source>
-        <translation>请稍候,Wireshark正在初始化</translation>
+        <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="1539"/>
@@ -6652,7 +6652,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_preferences_frame.ui" line="41"/>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
-        <translation>选中本项将保持主窗口的大小、位置及最大化状态。</translation>
+        <translation>选中此项将保持主窗口的大小、位置及最大化状态。</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="44"/>
@@ -6702,7 +6702,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_preferences_frame.ui" line="160"/>
         <source>If checked the packet detail items will be automatically scrolled when they are expanded.</source>
-        <translation>若选中,分组详情项目将随着展开而自动滚动。</translation>
+        <translation>若选中，分组详情项目将随着展开而自动滚动。</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="163"/>
@@ -6738,7 +6738,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_preferences_frame.ui" line="224"/>
         <source>Icons &amp; Text</source>
-        <translation>图标&amp;文本</translation>
+        <translation>图标和文本</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="249"/>
@@ -6753,7 +6753,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_preferences_frame.cpp" line="186"/>
         <source>Open Files In</source>
-        <translation>打开文件夹中文件</translation>
+        <translation>打开文件夹中的文件</translation>
     </message>
 </context>
 <context>
@@ -6811,7 +6811,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.ui" line="140"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;从列表中删除选定的管道。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;从列表中移除选中的管道。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.ui" line="170"/>
@@ -6846,17 +6846,17 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="168"/>
         <source>This version of Wireshark does not save pipe settings.</source>
-        <translation>这个版本Wireshark无法保存管道设置。</translation>
+        <translation>这个版本的 Wireshark 无法保存管道设置。</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="172"/>
         <source>This version of Wireshark does not save remote settings.</source>
-        <translation>这个版本Wireshark无法保存远端设置。</translation>
+        <translation>这个版本的 Wireshark 无法保存远端设置。</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="174"/>
         <source>This version of Wireshark does not support remote interfaces.</source>
-        <translation>这个版本Wireshark不支持远端接口。</translation>
+        <translation>这个版本的 Wireshark 不支持远端接口。</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="422"/>
@@ -6918,7 +6918,7 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="23"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;分组概要行,与分组列表类似&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;分组概要行，与分组列表类似&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="26"/>
@@ -6928,7 +6928,7 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;分组详情,与协议树类似&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;分组详情，与协议树类似&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="39"/>
@@ -6968,7 +6968,7 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="100"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;导出分组数据的十六进制转储,类似于分组字节视图&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;导出分组数据的十六进制转储，类似于分组字节视图&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="103"/>
@@ -7016,7 +7016,7 @@ text-decoration: underline;
     <message>
         <location filename="packet_list.cpp" line="617"/>
         <source>Remove This Column</source>
-        <translation>删除本列</translation>
+        <translation>删除此列</translation>
     </message>
     <message>
         <location filename="packet_list.cpp" line="892"/>
@@ -7034,14 +7034,14 @@ text-decoration: underline;
     <message>
         <location filename="packet_list.cpp" line="1016"/>
         <source>Change Time Display Format?</source>
-        <translation>更改时间显示格式?</translation>
+        <translation>更改时间显示格式？</translation>
     </message>
     <message>
         <location filename="packet_list.cpp" line="1017"/>
         <source>Time References don&apos;t work well with the currently selected Time Display Format.
 Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</source>
         <translation>时间参考与当前选中的时间显示格式搭配使用效果不佳。
-您是否希望立刻切换为“捕获开始后秒数”?</translation>
+您是否希望立刻切换为“捕获开始后秒数”？</translation>
     </message>
 </context>
 <context>
@@ -7224,7 +7224,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="print_dialog.ui" line="57"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用“+”“-”键可放大与缩小预览。用“0”键可重置缩放级别。&lt;/p&gt;&lt;!--&amp;quot;--&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用“+”和“-”键可放大与缩小预览。用“0”键可重置缩放级别。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="print_dialog.ui" line="60"/>
@@ -7249,7 +7249,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="print_dialog.cpp" line="121"/>
         <source>Page &amp;Setup...</source>
-        <translation>页面配置(&amp;S)...</translation>
+        <translation>页面设置(&amp;S)...</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="156"/>
@@ -7446,7 +7446,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="preferences_dialog.cpp" line="101"/>
         <source>Has this preference been changed?</source>
-        <translation>首选项是否改变?</translation>
+        <translation>此首选项已被更改？</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="105"/>
@@ -7941,7 +7941,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="rtp_stream_dialog.ui" line="158"/>
         <source>Go to the setup packet for this stream.</source>
-        <translation>跳转到本条流的设置分组。</translation>
+        <translation>跳转到这条流的设置分组。</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="161"/>
@@ -7986,7 +7986,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="rtp_stream_dialog.ui" line="191"/>
         <source>Open the analysis window for the selected stream(s)</source>
-        <translation>为所选择的流打开分析窗口</translation>
+        <translation>为选中的流打开分析窗口</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="196"/>
@@ -8011,7 +8011,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="rtp_stream_dialog.cpp" line="224"/>
         <source>RTP Streams</source>
-        <translation>RTP流</translation>
+        <translation>RTP 流</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="250"/>
@@ -8041,7 +8041,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="rtp_stream_dialog.cpp" line="387"/>
         <source>, %1 selected, %2 total packets</source>
-        <translation>, %1 选择, %2 全部分组</translation>
+        <translation>, %1 项已选中, 总计 %2 项分组</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="498"/>
@@ -8054,7 +8054,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="14"/>
         <source>Wireshark - SCTP Associations</source>
-        <translation>Wireshark - SCTP分析助手</translation>
+        <translation>Wireshark - SCTP 分析助手</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="62"/>
@@ -8422,7 +8422,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="sctp_assoc_analyse_dialog.ui" line="20"/>
         <source>Wireshark - Analyse Association</source>
-        <translation>Wireshark = 分析助手</translation>
+        <translation>Wireshark - 分析助手</translation>
     </message>
     <message>
         <location filename="sctp_assoc_analyse_dialog.ui" line="35"/>
@@ -9589,7 +9589,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;有价值的和惊人的节省时间的快捷键&lt;/h3&gt;
+&lt;h3&gt;有价值且惊人的节省时间的快捷键&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
 &lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;放大&lt;/td&gt;&lt;/th&gt;
@@ -10016,7 +10016,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="tcp_stream_dialog.cpp" line="415"/>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
-        <translation>%1 %2 pkts, %3 %4 %5 pkts, %6</translation>
+        <translation>%1 %2 分组, %3 %4 %5 分组, %6</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="496"/>
@@ -10178,7 +10178,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="traffic_table_dialog.ui" line="25"/>
         <source>Name resolution</source>
-        <translation>解析名字</translation>
+        <translation>解析名称</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="45"/>
@@ -10213,7 +10213,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="traffic_table_dialog.cpp" line="76"/>
         <source>Copy all values of this page to the clipboard in CSV (Comma Separated Values) format.</source>
-        <translation>使用CSV（逗号分隔值）格式,复制本页的所有值到剪贴板。</translation>
+        <translation>复制此页的所有值到剪贴板，使用CSV（逗号分隔值）格式。</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.cpp" line="78"/>
@@ -10223,7 +10223,7 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     <message>
         <location filename="traffic_table_dialog.cpp" line="79"/>
         <source>Copy all values of this page to the clipboard in the YAML data serialization format.</source>
-        <translation>使用YAML数据串行格式,复制本页的所有值到剪贴板。</translation>
+        <translation>复制此页的所有值到剪贴板，使用 YAML 数据串行格式。</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.h" line="109"/>
