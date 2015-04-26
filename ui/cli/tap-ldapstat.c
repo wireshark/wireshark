@@ -30,6 +30,7 @@
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
+#include <ui/cli/cli_service_response_time_table.h>
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-ldap.h>
 #include "epan/timestats.h"
@@ -38,12 +39,9 @@ void register_tap_listener_ldapstat(void);
 
 #define LDAP_NUM_PROCEDURES     24
 
-#define NANOSECS_PER_SEC G_GUINT64_CONSTANT(1000000000)
-
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _ldapstat_t {
-	char *filter;
-	timestat_t proc[LDAP_NUM_PROCEDURES];
+	srt_stat_table ldap_srt_table;
 } ldapstat_t;
 
 static int
@@ -51,8 +49,6 @@ ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 {
 	const ldap_call_response_t *ldap=(const ldap_call_response_t *)psi;
 	ldapstat_t *fs=(ldapstat_t *)pldap;
-	timestat_t *sp = NULL;
-	nstime_t t, deltat;
 
 	/* we are only interested in reply packets */
 	if(ldap->is_request){
@@ -78,15 +74,7 @@ ldapstat_packet(void *pldap, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		return 0;
 	}
 
-	sp = &(fs->proc[ldap->protocolOpTag]);
-
-	/* calculate time delta between request and reply */
-	t = pinfo->fd->abs_ts;
-	nstime_delta(&deltat, &t, &ldap->req_time);
-
-	if (sp) {
-		time_stat_update(sp, &deltat, pinfo);
-	}
+	add_srt_table_data(&fs->ldap_srt_table, ldap->protocolOpTag, &ldap->req_time, pinfo);
 	return 1;
 }
 
@@ -94,41 +82,8 @@ static void
 ldapstat_draw(void *pss)
 {
 	ldapstat_t *ss = (ldapstat_t *)pss;
-	guint32 i;
-	guint64 td, sum;
-	gchar* tmp_str;
-	printf("\n");
-	printf("===================================================================\n");
-	printf("LDAP SRT Statistics:\n");
-	printf("Filter: %s\n", ss->filter ? ss->filter : "");
-	printf("Index  Procedure             Calls   Min SRT   Max SRT   Avg SRT    Sum SRT\n");
-	for (i=0; i<LDAP_NUM_PROCEDURES; i++) {
-		/* nothing seen, nothing to do */
-		if (ss->proc[i].num == 0) {
-			continue;
-		}
 
-		/* Scale the average SRT in units of 1us and round to the nearest us.
-		   tot.secs is a time_t which may be 32 or 64 bits (or even floating)
-		   depending uon the platform.  After casting tot.secs to 64 bits, it
-		   would take a capture with a duration of over 136 *years* to
-		   overflow the secs portion of td. */
-		td = ((guint64)(ss->proc[i].tot.secs))*NANOSECS_PER_SEC + ss->proc[i].tot.nsecs;
-		sum = (td + 500) / 1000;
-		td = ((td / ss->proc[i].num) + 500) / 1000;
-
-		tmp_str = val_to_str_wmem(NULL, i, ldap_procedure_names, "Unknown (%u)");
-		printf("%5u  %-20s %6u %3d.%06d %3d.%06d %3d.%06d %3d.%06d\n",
-		       i, tmp_str,
-		       ss->proc[i].num,
-		       (int)ss->proc[i].min.secs, (ss->proc[i].min.nsecs+500)/1000,
-		       (int)ss->proc[i].max.secs, (ss->proc[i].max.nsecs+500)/1000,
-		       (int)(td/1000000), (int)(td%1000000),
-		       (int)(sum/1000000), (int)(sum%1000000)
-		);
-		wmem_free(NULL, tmp_str);
-	}
-	printf("===================================================================\n");
+	draw_srt_table_data(&ss->ldap_srt_table, TRUE, TRUE);
 }
 
 
@@ -138,20 +93,24 @@ ldapstat_init(const char *opt_arg, void *userdata _U_)
 	ldapstat_t *ldap;
 	const char *filter = NULL;
 	GString *error_string;
+	int i;
 
 	if (!strncmp(opt_arg, "ldap,srt,", 8)) {
 		filter = opt_arg+8;
 	}
 
-	ldap=(ldapstat_t *)g_malloc0(sizeof(ldapstat_t));
-	if (filter) {
-		ldap->filter = g_strdup(filter);
+	ldap = g_new(ldapstat_t,1);
+
+	init_srt_table("LDAP", &ldap->ldap_srt_table, LDAP_NUM_PROCEDURES, NULL, filter ? g_strdup(filter) : NULL);
+	for (i = 0; i < LDAP_NUM_PROCEDURES; i++)
+	{
+		init_srt_table_row(&ldap->ldap_srt_table, i, val_to_str_const(i, ldap_procedure_names, "<unknown>"));
 	}
 
 	error_string = register_tap_listener("ldap", ldap, filter, 0, NULL, ldapstat_packet, ldapstat_draw);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		g_free(ldap->filter);
+		free_srt_table_data(&ldap->ldap_srt_table);
 		g_free(ldap);
 
 		fprintf(stderr, "tshark: Couldn't register ldap,srt tap: %s\n",

@@ -30,16 +30,18 @@
 #include <epan/packet_info.h>
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
+#include <ui/cli/cli_service_response_time_table.h>
 #include <epan/value_string.h>
 #include <epan/dissectors/packet-afp.h>
 #include "epan/timestats.h"
 
 void register_tap_listener_afpstat(void);
 
+#define AFP_NUM_PROCEDURES     256
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _afpstat_t {
-	char *filter;
-	timestat_t proc[256];
+	srt_stat_table afp_srt_table;
 } afpstat_t;
 
 static int
@@ -47,23 +49,13 @@ afpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 {
 	afpstat_t *ss = (afpstat_t *)pss;
 	const afp_request_val *request_val = (const afp_request_val *)prv;
-	nstime_t t, deltat;
-	timestat_t *sp = NULL;
 
 	/* if we havnt seen the request, just ignore it */
 	if (!request_val) {
 		return 0;
 	}
 
-	sp = &(ss->proc[request_val->command]);
-
-	/* calculate time delta between request and reply */
-	t = pinfo->fd->abs_ts;
-	nstime_delta(&deltat, &t, &request_val->req_time);
-
-	if (sp) {
-		time_stat_update(sp, &deltat, pinfo);
-	}
+	add_srt_table_data(&ss->afp_srt_table, request_val->command, &request_val->req_time, pinfo);
 
 	return 1;
 }
@@ -72,40 +64,8 @@ static void
 afpstat_draw(void *pss)
 {
 	afpstat_t *ss = (afpstat_t *)pss;
-	guint32 i;
-	guint64 td;
-	gchar* tmp_str;
-	printf("\n");
-	printf("===================================================================\n");
-	printf("AFP SRT Statistics:\n");
-	printf("Filter: %s\n", ss->filter ? ss->filter : "");
-	printf("Commands                   Calls   Min SRT   Max SRT   Avg SRT\n");
-	for (i=0; i<256; i++) {
-		/* nothing seen, nothing to do */
-		if (ss->proc[i].num == 0) {
-			continue;
-		}
 
-		/* scale it to units of 10us.*/
-		td = ss->proc[i].tot.secs;
-		td = td*100000+(int)ss->proc[i].tot.nsecs/10000;
-		if (ss->proc[i].num) {
-			td /= ss->proc[i].num;
-		} else {
-			td = 0;
-		}
-
-		tmp_str = val_to_str_ext_wmem(NULL, i, &CommandCode_vals_ext, "Unknown (%u)");
-		printf("%-25s %6u %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
-		       tmp_str,
-		       ss->proc[i].num,
-		       (int)ss->proc[i].min.secs, ss->proc[i].min.nsecs/10000,
-		       (int)ss->proc[i].max.secs, ss->proc[i].max.nsecs/10000,
-		       td/100000, td%100000
-		);
-		wmem_free(NULL, tmp_str);
-	}
-	printf("===================================================================\n");
+	draw_srt_table_data(&ss->afp_srt_table, TRUE, TRUE);
 }
 
 
@@ -119,33 +79,22 @@ afpstat_init(const char *opt_arg, void *userdata _U_)
 
 	if (!strncmp(opt_arg, "afp,srt,", 8)) {
 		filter = opt_arg+8;
-	} else {
-		filter = NULL;
 	}
 
 	ss = g_new(afpstat_t, 1);
-	if (filter) {
-		ss->filter = g_strdup(filter);
-	} else {
-		ss->filter = NULL;
-	}
 
-	for (i=0; i<256; i++) {
-		ss->proc[i].num	      = 0;
-		ss->proc[i].min_num   =	0;
-		ss->proc[i].max_num   =	0;
-		ss->proc[i].min.secs  =	0;
-		ss->proc[i].min.nsecs =	0;
-		ss->proc[i].max.secs  =	0;
-		ss->proc[i].max.nsecs =	0;
-		ss->proc[i].tot.secs  =	0;
-		ss->proc[i].tot.nsecs =	0;
+	init_srt_table("AFP", &ss->afp_srt_table, AFP_NUM_PROCEDURES, NULL, filter ? g_strdup(filter) : NULL);
+	for (i = 0; i < AFP_NUM_PROCEDURES; i++)
+	{
+		gchar* tmp_str = val_to_str_ext_wmem(NULL, i, &CommandCode_vals_ext, "Unknown(%u)");
+		init_srt_table_row(&ss->afp_srt_table, i, tmp_str);
+		wmem_free(NULL, tmp_str);
 	}
 
 	error_string = register_tap_listener("afp", ss, filter, 0, NULL, afpstat_packet, afpstat_draw);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		g_free(ss->filter);
+		free_srt_table_data(&ss->afp_srt_table);
 		g_free(ss);
 
 		fprintf(stderr, "tshark: Couldn't register afp,srt tap: %s\n",

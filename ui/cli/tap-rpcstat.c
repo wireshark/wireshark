@@ -36,60 +36,21 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/dissectors/packet-rpc.h>
+#include <ui/cli/cli_service_response_time_table.h>
 
-#define MICROSECS_PER_SEC   1000000
-#define NANOSECS_PER_SEC    1000000000
 
 void register_tap_listener_rpcstat(void);
 
-/* used to keep track of statistics for a specific procedure */
-typedef struct _rpc_procedure_t {
-	const char *proc;
-	int num;
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
-} rpc_procedure_t;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {
 	const char *prog;
-	char *filter;
 	guint32 program;
 	guint32 version;
-	guint32 num_procedures;
-	rpc_procedure_t *procedures;
+	srt_stat_table rpc_srt_table;
 } rpcstat_t;
 
 
-
-/* This callback is never used by tshark but it is here for completeness.
- * When registering below, we could just have left this function as NULL.
- *
- * When used by wireshark, this function will be called whenever we would need
- * to reset all state, such as when wireshark opens a new file, when it
- * starts a new capture, when it rescans the packetlist after some prefs have
- * changed etc.
- *
- * So if your application has some state it needs to clean up in those
- * situations, here is a good place to put that code.
- */
-static void
-rpcstat_reset(void *prs)
-{
-	rpcstat_t *rs = (rpcstat_t *)prs;
-	guint32 i;
-
-	for (i=0; i<rs->num_procedures; i++) {
-		rs->procedures[i].num	    = 0;
-		rs->procedures[i].min.secs  = 0;
-		rs->procedures[i].min.nsecs = 0;
-		rs->procedures[i].max.secs  = 0;
-		rs->procedures[i].max.nsecs = 0;
-		rs->procedures[i].tot.secs  = 0;
-		rs->procedures[i].tot.nsecs = 0;
-	}
-}
 
 
 /* This callback is invoked whenever the tap system has seen a packet we might
@@ -124,10 +85,8 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 {
 	rpcstat_t *rs = (rpcstat_t *)prs;
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)pri;
-	nstime_t delta;
-	rpc_procedure_t *rp;
 
-	if (ri->proc >= rs->num_procedures) {
+	if ((int)ri->proc >= rs->rpc_srt_table.num_procs) {
 		/* don't handle this since its outside of known table */
 		return 0;
 	}
@@ -140,44 +99,7 @@ rpcstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 		return 0;
 	}
 
-	rp = &(rs->procedures[ri->proc]);
-
-	/* calculate time delta between request and reply */
-	nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
-
-	if (rp->num == 0) {
-		rp->max.secs  = delta.secs;
-		rp->max.nsecs = delta.nsecs;
-	}
-
-	if (rp->num == 0) {
-		rp->min.secs  = delta.secs;
-		rp->min.nsecs = delta.nsecs;
-	}
-
-	if ( (delta.secs < rp->min.secs)
-	|| ( (delta.secs == rp->min.secs)
-	  && (delta.nsecs < rp->min.nsecs) ) ) {
-		rp->min.secs  = delta.secs;
-		rp->min.nsecs = delta.nsecs;
-	}
-
-	if ( (delta.secs > rp->max.secs)
-	|| ( (delta.secs == rp->max.secs)
-	  && (delta.nsecs > rp->max.nsecs) ) ) {
-		rp->max.secs  = delta.secs;
-		rp->max.nsecs = delta.nsecs;
-	}
-
-	rp->tot.secs  += delta.secs;
-	rp->tot.nsecs += delta.nsecs;
-	if (rp->tot.nsecs > NANOSECS_PER_SEC) {
-		rp->tot.nsecs -= NANOSECS_PER_SEC;
-		rp->tot.secs++;
-	}
-
-	rp->num++;
-
+	add_srt_table_data(&rs->rpc_srt_table, ri->proc, &ri->req_time, pinfo);
 	return 1;
 }
 
@@ -195,31 +117,8 @@ static void
 rpcstat_draw(void *prs)
 {
 	rpcstat_t *rs = (rpcstat_t *)prs;
-	guint32 i;
-	guint64 td;
-	printf("\n");
-	printf("==================================================================\n");
-	printf("%s Version %u SRT Statistics:\n", rs->prog, rs->version);
-	printf("Filter: %s\n", rs->filter ? rs->filter : "");
-	printf("Procedure        Calls    Min SRT    Max SRT    Avg SRT    Total\n");
-	for (i=0; i<rs->num_procedures; i++) {
-		if (rs->procedures[i].num == 0) {
-			continue;
-		}
-		/* Scale the average SRT in units of 1us and round to the nearest us. */
-		td = ((guint64)(rs->procedures[i].tot.secs)) * NANOSECS_PER_SEC + rs->procedures[i].tot.nsecs;
-		td = ((td / rs->procedures[i].num) + 500) / 1000;
 
-		printf("%-15s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u %3d.%06d\n",
-		       rs->procedures[i].proc,
-		       rs->procedures[i].num,
-		       (int)(rs->procedures[i].min.secs), (rs->procedures[i].min.nsecs+500)/1000,
-		       (int)(rs->procedures[i].max.secs), (rs->procedures[i].max.nsecs+500)/1000,
-		       td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC,
-		       (int)(rs->procedures[i].tot.secs), (rs->procedures[i].tot.nsecs+500)/1000
-		);
-	}
-	printf("==================================================================\n");
+	draw_srt_table_data(&rs->rpc_srt_table, TRUE, TRUE);
 }
 
 static guint32 rpc_program = 0;
@@ -266,17 +165,16 @@ static void
 rpcstat_init(const char *opt_arg, void *userdata _U_)
 {
 	rpcstat_t *rs;
-	guint32 i;
+	int i;
 	int program, version;
 	int pos = 0;
 	const char *filter = NULL;
 	GString *error_string;
+	static char table_name[100];
 
 	if (sscanf(opt_arg, "rpc,srt,%d,%d,%n", &program, &version, &pos) == 2) {
 		if (pos) {
 			filter = opt_arg+pos;
-		} else {
-			filter = NULL;
 		}
 	} else {
 		fprintf(stderr, "tshark: invalid \"-z rpc,srt,<program>,<version>[,<filter>]\" argument\n");
@@ -287,11 +185,7 @@ rpcstat_init(const char *opt_arg, void *userdata _U_)
 	rs->prog    = rpc_prog_name(program);
 	rs->program = program;
 	rs->version = version;
-	if (filter) {
-		rs->filter = g_strdup(filter);
-	} else {
-		rs->filter = NULL;
-	}
+
 	rpc_program  = program;
 	rpc_version  = version;
 	rpc_min_proc = -1;
@@ -303,18 +197,11 @@ rpcstat_init(const char *opt_arg, void *userdata _U_)
 		exit(1);
 	}
 
-
-	rs->num_procedures = rpc_max_proc+1;
-	rs->procedures = g_new(rpc_procedure_t, rs->num_procedures+1);
-	for (i=0; i<rs->num_procedures; i++) {
-		rs->procedures[i].proc	    = rpc_proc_name(program, version, i);
-		rs->procedures[i].num	    = 0;
-		rs->procedures[i].min.secs  = 0;
-		rs->procedures[i].min.nsecs = 0;
-		rs->procedures[i].max.secs  = 0;
-		rs->procedures[i].max.nsecs = 0;
-		rs->procedures[i].tot.secs  = 0;
-		rs->procedures[i].tot.nsecs = 0;
+	g_snprintf(table_name, sizeof(table_name), "%s Version %u", rs->prog, rs->version);
+	init_srt_table(table_name, &rs->rpc_srt_table, rpc_max_proc+1, NULL, filter ? g_strdup(filter) : NULL);
+	for (i = 0; i < rs->rpc_srt_table.num_procs; i++)
+	{
+		init_srt_table_row(&rs->rpc_srt_table, i, rpc_proc_name(program, version, i));
 	}
 
 /* It is possible to create a filter and attach it to the callbacks.  Then the
@@ -328,11 +215,10 @@ rpcstat_init(const char *opt_arg, void *userdata _U_)
  * (Perhaps the user only wants the stats for nis+ traffic for certain objects?)
  */
 
-	error_string = register_tap_listener("rpc", rs, filter, 0, rpcstat_reset, rpcstat_packet, rpcstat_draw);
+	error_string = register_tap_listener("rpc", rs, filter, 0, NULL, rpcstat_packet, rpcstat_draw);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		g_free(rs->procedures);
-		g_free(rs->filter);
+		free_srt_table_data(&rs->rpc_srt_table);
 		g_free(rs);
 
 		fprintf(stderr, "tshark: Couldn't register rpc,srt tap: %s\n",

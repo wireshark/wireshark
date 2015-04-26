@@ -38,6 +38,7 @@ GENERATOR_FILES =
 
 # sources for TShark taps
 TSHARK_TAP_SRC = \
+	cli_service_response_time_table.c		\
 	tap-afpstat.c		\
 	tap-ansi_astat.c	\
 	tap-bootpstat.c		\
@@ -82,4 +83,5 @@ TSHARK_TAP_SRC = \
 	tap-wspstat.c
 
 noinst_HEADERS = \
-	tshark-tap.h
+	tshark-tap.h	\
+	cli_service_response_time_table.h

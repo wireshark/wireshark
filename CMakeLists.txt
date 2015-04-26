@@ -1116,6 +1116,7 @@ if(ENABLE_EXTCAP)
 endif()
 
 set(TSHARK_TAP_SRC
+	ui/cli/cli_service_response_time_table.c
 	ui/cli/tap-afpstat.c
 	ui/cli/tap-ansi_astat.c
 	ui/cli/tap-bootpstat.c

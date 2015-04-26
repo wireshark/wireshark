@@ -30,31 +30,26 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 #include "epan/value_string.h"
+#include <ui/cli/cli_service_response_time_table.h>
 #include <epan/dissectors/packet-smb.h>
 #include "epan/timestats.h"
 
-#define MICROSECS_PER_SEC   1000000
-#define NANOSECS_PER_SEC    1000000000
-
 void register_tap_listener_smbstat(void);
+
+#define SMB_NUM_PROCEDURES     256
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {
-	char *filter;
-	timestat_t proc[256];
-	timestat_t trans2[256];
-	timestat_t nt_trans[256];
+	srt_stat_table smb_srt_table;
+	srt_stat_table trans2_srt_table;
+	srt_stat_table nt_srt_table;
 } smbstat_t;
-
-
 
 static int
 smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *psi)
 {
 	smbstat_t *ss = (smbstat_t *)pss;
 	const smb_info_t *si = (const smb_info_t *)psi;
-	nstime_t t, deltat;
-	timestat_t *sp = NULL;
 
 	/* we are only interested in reply packets */
 	if (si->request) {
@@ -70,25 +65,17 @@ smbstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 
 		/*nt transaction*/
 		if (sti) {
-			sp = &(ss->nt_trans[sti->subcmd]);
+			add_srt_table_data(&ss->nt_srt_table, sti->subcmd, &si->sip->req_time, pinfo);
 		}
 	} else if (si->cmd == 0x32 && si->sip->extra_info_type == SMB_EI_T2I) {
 		smb_transact2_info_t *st2i = (smb_transact2_info_t *)si->sip->extra_info;
 
 		/*transaction2*/
 		if (st2i) {
-			sp = &(ss->trans2[st2i->subcmd]);
+			add_srt_table_data(&ss->trans2_srt_table, st2i->subcmd, &si->sip->req_time, pinfo);
 		}
 	} else {
-		sp = &(ss->proc[si->cmd]);
-	}
-
-	/* calculate time delta between request and reply */
-	t = pinfo->fd->abs_ts;
-	nstime_delta(&deltat, &t, &si->sip->req_time);
-
-	if (sp) {
-		time_stat_update(sp, &deltat, pinfo);
+		add_srt_table_data(&ss->smb_srt_table,si->cmd, &si->sip->req_time, pinfo);
 	}
 
 	return 1;
@@ -98,93 +85,12 @@ static void
 smbstat_draw(void *pss)
 {
 	smbstat_t *ss = (smbstat_t *)pss;
-	guint32 i;
-	guint64 td;
-	gchar* tmp_str;
 
+	draw_srt_table_data(&ss->smb_srt_table, TRUE, FALSE);
 	printf("\n");
-	printf("=================================================================\n");
-	printf("SMB SRT Statistics:\n");
-	printf("Filter: %s\n", ss->filter ? ss->filter : "");
-	printf("Commands                   Calls    Min SRT    Max SRT    Avg SRT\n");
-	for (i=0; i<256; i++) {
-		/* nothing seen, nothing to do */
-		if (ss->proc[i].num == 0) {
-			continue;
-		}
-
-		/* we deal with transaction2 later */
-		if (i == 0x32) {
-			continue;
-		}
-
-		/* we deal with nt transaction later */
-		if (i == 0xA0) {
-			continue;
-		}
-
-		/* Scale the average SRT in units of 1us and round to the nearest us. */
-		td = ((guint64)(ss->proc[i].tot.secs)) * NANOSECS_PER_SEC + ss->proc[i].tot.nsecs;
-
-		td = ((td / ss->proc[i].num) + 500) / 1000;
-
-		tmp_str = val_to_str_ext_wmem(NULL, i, &smb_cmd_vals_ext, "Unknown (0x%02x)");
-		printf("%-25s %6u %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
-		       tmp_str,
-		       ss->proc[i].num,
-		       (int)(ss->proc[i].min.secs), (ss->proc[i].min.nsecs+500)/1000,
-		       (int)(ss->proc[i].max.secs), (ss->proc[i].max.nsecs+500)/1000,
-		       td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
-		);
-		wmem_free(NULL, tmp_str);
-	}
-
+	draw_srt_table_data(&ss->trans2_srt_table, FALSE, FALSE);
 	printf("\n");
-	printf("Transaction2 Commands      Calls    Min SRT    Max SRT    Avg SRT\n");
-	for (i=0; i<256; i++) {
-		/* nothing seen, nothing to do */
-		if (ss->trans2[i].num == 0) {
-			continue;
-		}
-
-		/* Scale the average SRT in units of 1us and round to the nearest us. */
-		td = ((guint64)(ss->trans2[i].tot.secs)) * NANOSECS_PER_SEC + ss->trans2[i].tot.nsecs;
-		td = ((td / ss->trans2[i].num) + 500) / 1000;
-
-		tmp_str = val_to_str_ext_wmem(NULL, i, &trans2_cmd_vals_ext, "Unknown (0x%02x)");
-		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
-		       tmp_str,
-		       ss->trans2[i].num,
-		       (int)(ss->trans2[i].min.secs), (ss->trans2[i].min.nsecs+500)/1000,
-		       (int)(ss->trans2[i].max.secs), (ss->trans2[i].max.nsecs+500)/1000,
-		       td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
-		);
-		wmem_free(NULL, tmp_str);
-	}
-
-	printf("\n");
-	printf("NT Transaction Commands    Calls    Min SRT    Max SRT    Avg SRT\n");
-	for (i=0; i<256; i++) {
-		/* nothing seen, nothing to do */
-		if (ss->nt_trans[i].num == 0) {
-			continue;
-		}
-		/* Scale the average SRT in units of 1us and round to the nearest us. */
-		td = ((guint64)(ss->nt_trans[i].tot.secs)) * NANOSECS_PER_SEC + ss->nt_trans[i].tot.nsecs;
-		td = ((td / ss->nt_trans[i].num) + 500) / 1000;
-
-		tmp_str = val_to_str_ext_wmem(NULL, i, &nt_cmd_vals_ext, "Unknown (0x%02x)");
-		printf("%-25s %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
-		       tmp_str,
-		       ss->nt_trans[i].num,
-		       (int)(ss->nt_trans[i].min.secs), (ss->nt_trans[i].min.nsecs+500)/1000,
-		       (int)(ss->nt_trans[i].max.secs), (ss->nt_trans[i].max.nsecs+500)/1000,
-		       td/MICROSECS_PER_SEC, td%MICROSECS_PER_SEC
-		);
-		wmem_free(NULL, tmp_str);
-	}
-
-	printf("=================================================================\n");
+	draw_srt_table_data(&ss->nt_srt_table, FALSE, TRUE);
 }
 
 
@@ -198,53 +104,26 @@ smbstat_init(const char *opt_arg, void *userdata _U_)
 
 	if (!strncmp(opt_arg, "smb,srt,", 8)) {
 		filter = opt_arg + 8;
-	} else {
-		filter = NULL;
 	}
 
 	ss = g_new(smbstat_t, 1);
-	if (filter) {
-		ss->filter = g_strdup(filter);
-	} else {
-		ss->filter = NULL;
-	}
 
-	for (i=0; i<256; i++) {
-		ss->proc[i].num	      = 0;
-		ss->proc[i].min_num   =	0;
-		ss->proc[i].max_num   =	0;
-		ss->proc[i].min.secs  =	0;
-		ss->proc[i].min.nsecs =	0;
-		ss->proc[i].max.secs  =	0;
-		ss->proc[i].max.nsecs =	0;
-		ss->proc[i].tot.secs  =	0;
-		ss->proc[i].tot.nsecs =	0;
-
-		ss->trans2[i].num	= 0;
-		ss->trans2[i].min_num	= 0;
-		ss->trans2[i].max_num	= 0;
-		ss->trans2[i].min.secs	= 0;
-		ss->trans2[i].min.nsecs	= 0;
-		ss->trans2[i].max.secs	= 0;
-		ss->trans2[i].max.nsecs	= 0;
-		ss->trans2[i].tot.secs	= 0;
-		ss->trans2[i].tot.nsecs	= 0;
-
-		ss->nt_trans[i].num	  = 0;
-		ss->nt_trans[i].min_num	  = 0;
-		ss->nt_trans[i].max_num	  = 0;
-		ss->nt_trans[i].min.secs  = 0;
-		ss->nt_trans[i].min.nsecs = 0;
-		ss->nt_trans[i].max.secs  = 0;
-		ss->nt_trans[i].max.nsecs = 0;
-		ss->nt_trans[i].tot.secs  = 0;
-		ss->nt_trans[i].tot.nsecs = 0;
+	init_srt_table("SMB", &ss->smb_srt_table, SMB_NUM_PROCEDURES, "Commands", filter ? g_strdup(filter) : NULL);
+	init_srt_table("SMB", &ss->trans2_srt_table, SMB_NUM_PROCEDURES, "Transaction2 Commands", filter ? g_strdup(filter) : NULL);
+	init_srt_table("SMB", &ss->nt_srt_table, SMB_NUM_PROCEDURES, "NT Transaction Commands", filter ? g_strdup(filter) : NULL);
+	for (i = 0; i < SMB_NUM_PROCEDURES; i++)
+	{
+		init_srt_table_row(&ss->smb_srt_table, i, val_to_str_ext_const(i, &smb_cmd_vals_ext, "<unknown>"));
+		init_srt_table_row(&ss->trans2_srt_table, i, val_to_str_ext_const(i, &trans2_cmd_vals_ext, "<unknown>"));
+		init_srt_table_row(&ss->nt_srt_table, i, val_to_str_ext_const(i, &nt_cmd_vals_ext, "<unknown>"));
 	}
 
 	error_string = register_tap_listener("smb", ss, filter, 0, NULL, smbstat_packet, smbstat_draw);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		g_free(ss->filter);
+		free_srt_table_data(&ss->smb_srt_table);
+		free_srt_table_data(&ss->trans2_srt_table);
+		free_srt_table_data(&ss->nt_srt_table);
 		g_free(ss);
 
 		fprintf(stderr, "tshark: Couldn't register smb,srt tap: %s\n",
