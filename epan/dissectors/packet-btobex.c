@@ -2030,6 +2030,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                         value_length -= 2 + sub_parameter_length;
                     }
+                    break;
                 default:
                     proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
                     offset += value_length;
