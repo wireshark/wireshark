@@ -75,7 +75,7 @@ static gchar* error;
 static void* record;
 static guint linenum;
 static gchar *parse_str;
-static guint parse_str_pos;
+static size_t parse_str_pos;
 
 #define ERROR(fmtd) do { \
     char* fmt_str = g_strdup_printf fmtd; \
