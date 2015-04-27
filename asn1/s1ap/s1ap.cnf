@@ -822,6 +822,7 @@ E-RABToBeSwitchedDLList					N s1ap.ies id-E-RABToBeSwitchedDLList
 E-RABToBeSwitchedDLItem					N s1ap.ies id-E-RABToBeSwitchedDLItem
 E-RABToBeSetupListCtxtSUReq				N s1ap.ies id-E-RABToBeSetupListCtxtSUReq
 TraceActivation							N s1ap.ies id-TraceActivation
+E-UTRAN-Trace-ID						N s1ap.ies id-E-UTRAN-Trace-ID
 NAS-PDU									N s1ap.ies id-NAS-PDU
 E-RABToBeSetupItemHOReq					N s1ap.ies id-E-RABToBeSetupItemHOReq
 E-RABSetupListBearerSURes				N s1ap.ies id-E-RABSetupListBearerSURes
