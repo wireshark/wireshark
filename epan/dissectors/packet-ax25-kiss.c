@@ -94,14 +94,24 @@
  *    FF         Return            Exit KISS and return control to a
  *                                 higher-level program. This is useful
  *                                 only when KISS is  incorporated
- *                                 into  the TNC along with other
+ *                                 into the TNC along with other
  *                                 applications.
+ *
+ *
+ * G8BPQ extensions:
+ *
+ *    12          Data frame       Data with acknowledge request
+ *
+ *    14          Poll mode        Set poll mode
+ *
+ *   Checksum mode
  *
 */
 
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <wiretap/wtap.h>
 #include "packet-ax25-kiss.h"
 #include "packet-ax25.h"
@@ -118,10 +128,15 @@
 #define KISS_TXTAIL		 4
 #define KISS_FULLDUPLEX		 5
 #define KISS_SETHARDWARE	 6
+#define KISS_DATA_FRAME_ACK	12
+#define KISS_POLL_MODE		14
 #define KISS_RETURN		15
 
 #define KISS_CMD_MASK           0x0f
 #define KISS_PORT_MASK          0xf0
+
+/* Global preferences */
+static gboolean gPREF_CKSUM_MODE = FALSE;
 
 void proto_register_ax25_kiss(void);
 void proto_reg_handoff_ax25_kiss(void);
@@ -137,6 +152,9 @@ static int hf_ax25_kiss_slottime	= -1;
 static int hf_ax25_kiss_txtail		= -1;
 static int hf_ax25_kiss_fullduplex	= -1;
 static int hf_ax25_kiss_sethardware	= -1;
+static int hf_ax25_kiss_data_ack	= -1;
+static int hf_ax25_kiss_cksum		= -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_ax25_kiss = -1;
@@ -147,14 +165,16 @@ static dissector_handle_t kiss_handle;
 static dissector_handle_t ax25_handle;
 
 static const value_string kiss_frame_types[] = {
-	{ KISS_DATA_FRAME,  "Data frame" },
-	{ KISS_TXDELAY,     "Tx Delay" },
-	{ KISS_PERSISTENCE, "Persistence" },
-	{ KISS_SLOT_TIME,   "Slot time" },
-	{ KISS_TXTAIL,      "Tx tail" },
-	{ KISS_FULLDUPLEX,  "Full duplex" },
-	{ KISS_SETHARDWARE, "Set hardware" },
-	{ KISS_RETURN,      "Return" },
+	{ KISS_DATA_FRAME, 	"Data frame" },
+	{ KISS_TXDELAY,    	"Tx delay" },
+	{ KISS_PERSISTENCE,	"Persistence" },
+	{ KISS_SLOT_TIME,  	"Slot time" },
+	{ KISS_TXTAIL,     	"Tx tail" },
+	{ KISS_FULLDUPLEX, 	"Full duplex" },
+	{ KISS_SETHARDWARE,	"Set hardware" },
+	{ KISS_DATA_FRAME_ACK,	"Data frame ack" },
+	{ KISS_POLL_MODE,	"Poll mode" },
+	{ KISS_RETURN,     	"Return" },
 	{ 0, NULL }
 };
 
@@ -182,6 +202,8 @@ capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld)
 		case KISS_TXTAIL	: break;
 		case KISS_FULLDUPLEX	: break;
 		case KISS_SETHARDWARE	: break;
+		case KISS_DATA_FRAME_ACK: l_offset += 2; capture_ax25( pd, l_offset, len, ld ); break;
+		case KISS_POLL_MODE	: break;
 		case KISS_RETURN	: break;
 		default			: break;
 		}
@@ -199,6 +221,9 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	int         kiss_port;
 	int         kiss_param;
 	int         kiss_param_len;
+	int         kiss_cksum;
+	int         kiss_cksum_index;
+	int         kiss_tvb_length;
 	const char *frame_type_text;
 	char       *info_buffer;
 	tvbuff_t   *next_tvb = NULL;
@@ -226,7 +251,14 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		case KISS_SLOT_TIME	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
 		case KISS_TXTAIL	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
 		case KISS_FULLDUPLEX	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
-		case KISS_SETHARDWARE	: kiss_param_len = 1; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
+		case KISS_SETHARDWARE	:
+					kiss_param_len = tvb_captured_length_remaining( tvb, offset );
+					if ( kiss_param_len < 0 )
+						kiss_param_len = 0;
+					if ( (kiss_param_len > 0) && gPREF_CKSUM_MODE )
+						kiss_param_len--;
+					break;
+		case KISS_DATA_FRAME_ACK: kiss_param_len = 2; kiss_param = tvb_get_guint8( tvb, offset ) & 0xff; break;
 		default			: break;
 		}
 	frame_type_text = val_to_str(kiss_type, kiss_frame_types, "Unknown (%u)");
@@ -245,7 +277,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 		/* create display subtree for the protocol */
 		ti = proto_tree_add_protocol_format( parent_tree, proto_ax25_kiss, tvb, offset,
-			KISS_HEADER_SIZE + kiss_param_len,
+			tvb_captured_length_remaining( tvb, offset ),
 			"KISS: %s",
 			info_buffer
 			);
@@ -287,18 +319,37 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 						offset += kiss_param_len;
 						break;
 			case KISS_SETHARDWARE	:
-						proto_tree_add_uint( kiss_tree, hf_ax25_kiss_sethardware,
+						proto_tree_add_item( kiss_tree, hf_ax25_kiss_sethardware,
+							tvb, offset, kiss_param_len, ENC_NA );
+						offset += kiss_param_len;
+						break;
+			case KISS_DATA_FRAME_ACK:
+						proto_tree_add_uint( kiss_tree, hf_ax25_kiss_data_ack,
 							tvb, offset, kiss_param_len, kiss_param );
 						offset += kiss_param_len;
 						break;
+			case KISS_POLL_MODE	: break;
 			case KISS_RETURN	: break;
 			default			: break;
 			}
 
+		if ( gPREF_CKSUM_MODE )
+			{
+			kiss_cksum = 0;
+			kiss_tvb_length = tvb_captured_length_remaining( tvb, 0 ) - 1;
+			if ( kiss_tvb_length > 0 )
+				{
+				for ( kiss_cksum_index = 0; kiss_cksum_index < kiss_tvb_length; kiss_cksum_index++ )
+					kiss_cksum ^= (tvb_get_guint8( tvb, kiss_cksum_index ) & 0xff);
+				proto_tree_add_uint( kiss_tree, hf_ax25_kiss_cksum,
+					tvb, kiss_cksum_index, 1, kiss_cksum );
+				}
+			}
 	}
+
 	/* Call sub-dissectors here */
 
-	if ( kiss_type == KISS_DATA_FRAME )
+	if ( ( kiss_type == KISS_DATA_FRAME ) || ( kiss_type == KISS_DATA_FRAME_ACK ) )
 		{
 		next_tvb = tvb_new_subset_remaining( tvb, offset );
 		call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
@@ -308,6 +359,8 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 void
 proto_register_ax25_kiss(void)
 {
+	module_t *ax25_kiss_module;
+
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_ax25_kiss_cmd,
@@ -347,7 +400,17 @@ proto_register_ax25_kiss(void)
 		},
 		{ &hf_ax25_kiss_sethardware,
 			{ "Set hardware",		"ax25_kiss.sethardware",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_kiss_data_ack,
+			{ "Data ack",		"ax25_kiss.data_ack",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_kiss_cksum,
+			{ "Checksum",		"ax25_kiss.cksum",
+			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
 	};
@@ -366,6 +429,15 @@ proto_register_ax25_kiss(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25_kiss, hf, array_length( hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
+
+	/* Register preferences module */
+	ax25_kiss_module = prefs_register_protocol( proto_ax25_kiss, NULL);
+
+	prefs_register_bool_preference(ax25_kiss_module, "showcksum",
+	     "Set checksum mode",
+	     "Enable checksum calculation.",
+	     &gPREF_CKSUM_MODE );
+
 }
 
 void
