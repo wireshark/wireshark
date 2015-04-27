@@ -289,9 +289,11 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
     if (temp > RANAP_MAX_PC) { return FALSE; }
 
-    /* Try to strengthen the heuristic further, by checking byte 6 and 7 which usually is a sequence-of length */
-    word = tvb_get_ntohs(tvb,5);
-    if(word > 0x1ff){
+    /* Try to strengthen the heuristic further, by checking the byte following the length and the bitfield indicating extensions etc
+     * which usually is a sequence-of length
+     */
+    word = tvb_get_ntohs(tvb, offset + 1);
+    if (word > 0x1ff){
         return FALSE;
     }
     dissect_ranap(tvb, pinfo, tree, data);

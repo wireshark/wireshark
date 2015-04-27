@@ -13220,9 +13220,11 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
     if (temp > RANAP_MAX_PC) { return FALSE; }
 
-    /* Try to strengthen the heuristic further, by checking byte 6 and 7 which usually is a sequence-of length */
-    word = tvb_get_ntohs(tvb,5);
-    if(word > 0x1ff){
+    /* Try to strengthen the heuristic further, by checking the byte following the length and the bitfield indicating extensions etc
+     * which usually is a sequence-of length
+     */
+    word = tvb_get_ntohs(tvb, offset + 1);
+    if (word > 0x1ff){
         return FALSE;
     }
     dissect_ranap(tvb, pinfo, tree, data);
@@ -16120,7 +16122,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 324 "../../asn1/ranap/packet-ranap-template.c"
+#line 326 "../../asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -16457,7 +16459,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 332 "../../asn1/ranap/packet-ranap-template.c"
+#line 334 "../../asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -16840,7 +16842,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 382 "../../asn1/ranap/packet-ranap-template.c"
+#line 384 "../../asn1/ranap/packet-ranap-template.c"
 	} else {
 		dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}
