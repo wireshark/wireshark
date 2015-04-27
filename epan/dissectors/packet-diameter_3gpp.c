@@ -119,6 +119,7 @@ static int hf_diameter_3gpp_ulr_flags_bit6 = -1;
 static int hf_diameter_3gpp_ulr_flags_bit7 = -1;
 static int hf_diameter_3gpp_ula_flags = -1;
 static int hf_diameter_3gpp_ula_flags_bit0 = -1;
+static int hf_diameter_3gpp_ula_flags_bit1 = -1;
 static int hf_diameter_3gpp_dsr_flags = -1;
 static int hf_diameter_3gpp_dsr_flags_bit0 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit1 = -1;
@@ -137,6 +138,8 @@ static int hf_diameter_3gpp_dsr_flags_bit13 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit14 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit15 = -1;
 static int hf_diameter_3gpp_dsr_flags_bit16 = -1;
+static int hf_diameter_3gpp_dsr_flags_bit17 = -1;
+static int hf_diameter_3gpp_dsr_flags_bit18 = -1;
 static int hf_diameter_3gpp_dsa_flags = -1;
 static int hf_diameter_3gpp_dsa_flags_bit0 = -1;
 static int hf_diameter_3gpp_ida_flags = -1;
@@ -152,6 +155,9 @@ static int hf_diameter_3gpp_nor_flags_bit3 = -1;
 static int hf_diameter_3gpp_nor_flags_bit4 = -1;
 static int hf_diameter_3gpp_nor_flags_bit5 = -1;
 static int hf_diameter_3gpp_nor_flags_bit6 = -1;
+static int hf_diameter_3gpp_nor_flags_bit7 = -1;
+static int hf_diameter_3gpp_nor_flags_bit8 = -1;
+static int hf_diameter_3gpp_nor_flags_bit9 = -1;
 static int hf_diameter_3gpp_idr_flags = -1;
 static int hf_diameter_3gpp_idr_flags_bit0 = -1;
 static int hf_diameter_3gpp_idr_flags_bit1 = -1;
@@ -160,6 +166,8 @@ static int hf_diameter_3gpp_idr_flags_bit3 = -1;
 static int hf_diameter_3gpp_idr_flags_bit4 = -1;
 static int hf_diameter_3gpp_idr_flags_bit5 = -1;
 static int hf_diameter_3gpp_idr_flags_bit6 = -1;
+static int hf_diameter_3gpp_idr_flags_bit7 = -1;
+static int hf_diameter_3gpp_idr_flags_bit8 = -1;
 static int hf_diameter_3gpp_ipv6addr = -1;
 static int hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer = -1;
 static int hf_diameter_3gpp_udp_port = -1;
@@ -895,8 +903,10 @@ dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     item = proto_tree_add_item(tree, hf_diameter_3gpp_ula_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(item, diameter_3gpp_ula_flags_ett);
     bit_offset = 0;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 31, ENC_BIG_ENDIAN);
-    bit_offset+=31;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 30, ENC_BIG_ENDIAN);
+    bit_offset+=30;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ula_flags_bit1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_ula_flags_bit0, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
 
@@ -921,8 +931,12 @@ dissect_diameter_3gpp_dsr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     item = proto_tree_add_item(tree, hf_diameter_3gpp_dsr_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(item, diameter_3gpp_dsr_flags_ett);
     bit_offset = 0;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 15, ENC_BIG_ENDIAN);
-    bit_offset+=15;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 13, ENC_BIG_ENDIAN);
+    bit_offset+=13;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit18, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit17, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit16, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_dsr_flags_bit15, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -1044,8 +1058,14 @@ dissect_diameter_3gpp_nor_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     item = proto_tree_add_item(tree, hf_diameter_3gpp_nor_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(item, diameter_3gpp_nor_flags_ett);
     bit_offset = 0;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 25, ENC_BIG_ENDIAN);
-    bit_offset+=25;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 22, ENC_BIG_ENDIAN);
+    bit_offset+=22;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_nor_flags_bit9, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_nor_flags_bit8, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_nor_flags_bit7, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_nor_flags_bit6, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_nor_flags_bit5, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -1078,8 +1098,12 @@ dissect_diameter_3gpp_idr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     item = proto_tree_add_item(tree, hf_diameter_3gpp_idr_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(item, diameter_3gpp_idr_flags_ett);
     bit_offset = 0;
-    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 25, ENC_BIG_ENDIAN);
-    bit_offset+=25;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_spare_bits, tvb, bit_offset, 23, ENC_BIG_ENDIAN);
+    bit_offset+=23;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_idr_flags_bit8, tvb,  bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_idr_flags_bit7, tvb,  bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_idr_flags_bit6, tvb,  bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(sub_tree, hf_diameter_3gpp_idr_flags_bit5, tvb,  bit_offset, 1, ENC_BIG_ENDIAN);
@@ -1613,6 +1637,11 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_ula_flags_bit1,
+            { "MME Registered for SMS", "diameter.3gpp.ula_flags_bit1",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_dsr_flags,
             { "DSR Flags", "diameter.3gpp.dsr_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -1703,6 +1732,16 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_dsr_flags_bit17,
+            { "ProSe Withdrawal", "diameter.3gpp.dsr_flags_bit17",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_dsr_flags_bit18,
+            { "Reset-IDs", "diameter.3gpp.dsr_flags_bit18",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_dsa_flags,
             { "DSA Flags", "diameter.3gpp.dsa_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -1778,6 +1817,21 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_nor_flags_bit7,
+            { "Homogeneous Support of IMS Voice Over PS Sessions", "diameter.3gpp.nor_flags_bit7",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_nor_flags_bit8,
+            { "S6a/S6d-Indicator", "diameter.3gpp.nor_flags_bit8",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_nor_flags_bit9,
+            { "Removal of MME Registration for SMS", "diameter.3gpp.nor_flags_bit9",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_idr_flags,
             { "IDR Flags", "diameter.3gpp.idr_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -1815,6 +1869,16 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_idr_flags_bit6,
             { "Remove SMS Registration", "diameter.3gpp.idr_flags_bit6",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_idr_flags_bit7,
+            { "RAT-Type Requested", "diameter.3gpp.idr_flags_bit7",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_idr_flags_bit8,
+            { "P-CSCF Restoration Request", "diameter.3gpp.idr_flags_bit8",
             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
             NULL, HFILL }
         },
