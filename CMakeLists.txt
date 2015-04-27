@@ -1153,6 +1153,7 @@ set(TSHARK_TAP_SRC
 	ui/cli/tap-sctpchunkstat.c
 	ui/cli/tap-sipstat.c
 	ui/cli/tap-smbsids.c
+	ui/cli/tap-smb2stat.c
 	ui/cli/tap-smbstat.c
 	ui/cli/tap-stats_tree.c
 	ui/cli/tap-sv.c

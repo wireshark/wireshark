@@ -75,6 +75,7 @@ TSHARK_TAP_SRC = \
 	tap-sctpchunkstat.c	\
 	tap-sipstat.c		\
 	tap-smbsids.c		\
+	tap-smb2stat.c		\
 	tap-smbstat.c		\
 	tap-stats_tree.c	\
 	tap-sv.c		\
