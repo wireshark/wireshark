@@ -196,11 +196,14 @@ $CleanupItems = @(
 )
 
 [Uri] $DownloadPrefix = "https://anonsvn.wireshark.org/wireshark-$($Platform)-libs/tags/$($CurrentTag)/packages"
+$SevenZip = "7-zip-not-found"
 
 # Functions
 
-function DownloadFile($fileName) {
-    [Uri] $fileUrl = "$DownloadPrefix/$fileName"
+function DownloadFile($fileName, [Uri] $fileUrl = $null) {
+    if ([string]::IsNullOrEmpty($fileUrl)) {
+        $fileUrl = "$DownloadPrefix/$fileName"
+    }
     $destinationFile = "$fileName"
     if ((Test-Path $destinationFile -PathType 'Leaf') -and -not ($Force)) {
         Write-Output "$destinationFile already there; not retrieving."
@@ -216,24 +219,68 @@ function DownloadFile($fileName) {
     $webClient.DownloadFile($fileUrl, "$Destination\$destinationFile")
 }
 
-# https://msdn.microsoft.com/en-us/library/windows/desktop/bb787866.aspx
-$CopyHereFlags = 4 + 16 + 512 + 1024
+# Find 7-Zip, downloading it if necessary.
+# If we ever add NuGet support we might be able to use
+# https://github.com/thoemmi/7Zip4Powershell
+function Bootstrap7Zip() {
+    $searchExes = @("7z.exe", "7za.exe")
+
+    # First, check $env:Path.
+    foreach ($exe in $searchExes) {
+        if (Get-Command $exe -ErrorAction SilentlyContinue)  {
+            $Global:SevenZip = "$exe"
+            return
+        }
+    }
+
+    # Next, look in a few likely places.
+    $searchDirs = @(
+        "${env:ProgramFiles}\7-Zip"
+        "${env:ProgramFiles(x86)}\7-Zip"
+        "${env:ChocolateyInstall}\chocolateyinstall\tools"
+    )
+
+    foreach ($dir in $searchDirs) {
+        if ($dir -ne $null -and (Test-Path $dir -PathType 'Container')) {
+            foreach ($exe in $searchExes) {
+                if (Test-Path "$dir\$exe" -PathType 'Leaf') {
+                    $Global:SevenZip = "$dir\$exe"
+                    return
+                }
+            }
+        }
+    }
+
+    # Finally, download a copy from anonsvn.
+    $binDir = "$Destination\bin"
+    if ( -not (Test-Path $binDir -PathType 'Container') ) {
+        New-Item -ItemType 'Container' "$binDir" > $null
+    }
+
+    [Uri] $bbUrl = "https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/bin/7za.exe"
+    DownloadFile "$binDir\7za.exe" "$bbUrl"
+
+    $Global:SevenZip = "$binDir\7za.exe"
+}
 
 function DownloadArchive($fileName, $subDir) {
     DownloadFile $fileName
-    $shell = New-Object -com shell.application
+    # $shell = New-Object -com shell.application
     $archiveFile = "$Destination\$fileName"
     $archiveDir = "$Destination\$subDir"
     if ($subDir -and -not (Test-Path $archiveDir -PathType 'Container')) {
         New-Item -ItemType Directory -Path $archiveDir > $null
     }
-    $activity = "Extracting $archiveFile into $($archiveDir)"
-    foreach ($item in $shell.NameSpace($archiveFile).items()) {
-        Write-Progress -Activity "$activity" -Status "Working on $($item.Name)"
-        # XXX Folder.CopyHere is really slow.
-        $shell.NameSpace($archiveDir).CopyHere($item, $CopyHereFlags)
-    }
+    $activity = "Extracting into $($archiveDir)"
+    Write-Progress -Activity "$activity" -Status "Running 7z x $archiveFile ..."
+    & $SevenZip x "-o$archiveDir" -y "$archiveFile" 2>&1 |
+        Set-Variable -Name SevenZOut
+    $bbStatus = $LASTEXITCODE
     Write-Progress -Activity "$activity" -Status "Done" -Completed
+    if ($bbStatus > 0) {
+        Write-Output $SevenZOut
+        exit 1
+    }
 }
 
 # On with the show
@@ -257,6 +304,7 @@ if ((Test-Path $tagFile -PathType 'Leaf') -and -not ($Force)) {
 
 if ($destinationTag -ne $CurrentTag) {
     Write-Output "Tag $CurrentTag not found. Refreshing."
+    Bootstrap7Zip
     $activity = "Removing directories"
     foreach ($oldItem in $CleanupItems) {
         if (Test-Path $oldItem) {
