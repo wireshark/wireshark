@@ -341,8 +341,10 @@
 		<type type-name="Enumerated"/>
 		<enum name="BEARER_RELEASED" code="0"/>
 		<enum name="INSUFFICIENT_SERVER_RESOURCES" code="1"/>
-		<enum name="INSUFFICIENT_BEARER_RESOURCES" code="2"/>
-	</avp>
+    <enum name="INSUFFICIENT_BEARER_RESOURCES" code="2"/>
+    <enum name="PS_TO_CS_HANDOVER" code="3"/>
+    <enum name="SPONSORED_DATA_CONNECTIVITY_ DISALLOWED" code="4"/>
+  </avp>
 
 	<avp name="Access-Network-Charging-Address" code="501" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 		<type type-name="IPAddress"/>
@@ -432,8 +434,10 @@
 			<enum name="INDICATION_OF_FAILED_RESOURCES_ALLOCATION" code="9"/>
 			<enum name="INDICATION_OF_LIMITED_PCC_DEPLOYMENT" code="10"/>
 			<enum name="USAGE_REPORT" code="11"/>
-			<enum name="ACCESS_NETWORK_INFO_REPORT" code="12"/>
-	</avp>
+    <enum name="ACCESS_NETWORK_INFO_REPORT" code="12"/>
+    <enum name="INDICATION_OF_RECOVERY_FROM_LIMITED_PCC_DEPLOYMENT" code="13"/>
+    <enum name="INDICATION_OF_ACCESS_NETWORK_INFO_REPORTING_FAILURE" code="14"/>
+  </avp>
 
 	<avp name="Max-Requested-Bandwidth-DL" code="515" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="Unsigned32"/>
@@ -536,10 +540,15 @@
 		<enum name="NO_INFORMATION" code="0" />
 		<enum name="SIP" code="1" />
 	</avp>
-	<!--
-	530 Sponsored-Connectivity-Data Grouped
-	-->
-	<avp name="Sponsor-Identity" code="531" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+  <avp name="Sponsored-Connectivity-Data" code="530" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+    <grouped>
+      <gavp name="Sponsor-Identity"/>
+      <gavp name="Application-Service-Provider-Identity"/>
+      <gavp name="Granted-Service-Unit"/>
+      <gavp name="Used-Service-Unit"/>
+    </grouped>
+  </avp>
+  <avp name="Sponsor-Identity" code="531" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 		<type type-name="OctetString" />
 	</avp>
 	<avp name="Application-Service-Provider-Identity" code="532" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -548,8 +557,9 @@
 	<avp name="Rx-Request-Type" code="533" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Enumerated"/>
 		<enum name="INITIAL_REQUEST" code="0"/>
-		<enum name="UPDATE_REQUEST" code="1"/>
-	</avp>
+    <enum name="UPDATE_REQUEST" code="1"/>
+    <enum name="PCSCF_RESTORATION" code="2"/>
+  </avp>
 	<avp name="Min-Requested-Bandwidth-DL" code="534" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
 	</avp>
@@ -564,6 +574,18 @@
 	<avp name="IP-Domain-Id" code="537" mandatory="may" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="OctetString"/>
 	</avp>
+  <avp name="GCS-Identifier" code="538" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <type type-name="OctetString"/>
+  </avp>
+  <avp name="Sharing-Key-DL" code="539" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="Sharing-Key-UL" code="540" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="Retry-Interval" code="541" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+    <type type-name="Unsigned32"/>
+  </avp>
 </application>	<!-- 3GPP Rx -->
 
 <!-- The AVP codes from 600 to 699 are reserved for TS 29.229. -->
