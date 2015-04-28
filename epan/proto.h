@@ -146,7 +146,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  * conditions that shouldn't happen).  It should NOT be used for showing
  * that a packet is malformed.  For that, use expert_infos instead.
  *
- * @param expression expression to test in the assertion
+ * @param s expression to test in the assertion
  */
 
 #define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
@@ -217,6 +217,8 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  * @param a  The first integer.
  * @param op Any binary operator.
  * @param b  The second integer.
+ * @param type the type operator
+ * @param fmt the fmt operator
  */
 #define __DISSECTOR_ASSERT_CMPINT(a, op, b, type, fmt) \
   (REPORT_DISSECTOR_BUG( \
@@ -2394,6 +2396,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *tree, tvbuff_t *tvb, const g
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
  @param offset start of data in tvb
+ @param len number of bytes of data
  @param fields an array of pointers to int that lists all the fields of the
         bitmask. These fields can be either of the type FT_BOOLEAN for flags
         or another integer of the same type/size as hf_hdr with a mask specified.
