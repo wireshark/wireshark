@@ -112,6 +112,7 @@ WS_DLL_PUBLIC gchar* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, 
  * @param tvb tvbuff to retrieve address
  * @param type address type to retrieve
  * @param offset offset into tvb to retrieve address
+ * @param length The length of the string
  * @return A pointer to the formatted string
  *
  */
