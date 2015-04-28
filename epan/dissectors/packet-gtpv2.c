@@ -336,6 +336,11 @@ static int hf_gtpv2_mm_context_vdp_len = -1;
 static int hf_gtpv2_mm_context_higher_br_16mb_flg_len = -1;
 static int hf_gtpv2_mm_context_higher_br_16mb_flg = -1;
 static int hf_gtpv2_vdp_length = -1;
+static int hf_gtpv2_uci_csg_id = -1;
+static int hf_gtpv2_uci_csg_id_spare = -1;
+static int hf_gtpv2_uci_access_mode = -1;
+static int hf_gtpv2_uci_lcsg = -1;
+static int hf_gtpv2_uci_csg_membership = -1;
 
 static int hf_gtpv2_una = -1;
 static int hf_gtpv2_gena = -1;
@@ -4906,10 +4911,48 @@ dissect_gtpv2_mbms_dist_ack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 /*
  * 8.75 User CSG Information (UCI)
  */
+static const value_string gtpv2_uci_csg_membership_status[] = {
+    {0, "Non CSG membership"},
+    {1, "CSG membership"},
+    {0, NULL }
+};
+
+static const value_string gtpv2_uci_access_mode[] = {
+    {0, "Closed Mode"},
+    {1, "Hybrid Mode"},
+    {2, "Reserved" },
+    {3, "Reserved"},
+    {0, NULL }
+};
+
+static const value_string gtpv2_uci_leave_csg[] = {
+    {0, "Access CSG cell/Hybrid cell"},
+    {1, "Leaves CSG cell/Hybrid cell"},
+    {0, NULL }
+};
+
 static void
 dissect_gtpv2_uci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int offset = 0;
+
+    /* Value of MCC & MNC */
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, E212_NONE, TRUE);
+    offset += 3;
+    /* Value of CSG ID */
+    proto_tree_add_item(tree, hf_gtpv2_uci_csg_id_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_uci_csg_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* Value of access mode */
+    proto_tree_add_item(tree, hf_gtpv2_uci_access_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* Value of LCSG */
+    proto_tree_add_item(tree, hf_gtpv2_uci_lcsg, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* Value of CSG membership */
+    proto_tree_add_item(tree, hf_gtpv2_uci_csg_membership, tvb, offset, 1, ENC_BIG_ENDIAN);
+
 }
 
 /* 8.76 CSG Information Reporting Action */
@@ -7086,6 +7129,31 @@ void proto_register_gtpv2(void)
           {"RAND", "gtpv2.mm_context_rand",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
+        },
+        {&hf_gtpv2_uci_csg_id,
+          {"CSG ID", "gtpv2.cui_csg_id",
+           FT_UINT32, BASE_DEC, NULL, 0x07FFFFFF,
+		   NULL, HFILL}
+        },
+        {&hf_gtpv2_uci_csg_id_spare,
+          {"Spare", "gtpv2.cui_csg_id_spare",
+           FT_UINT8, BASE_DEC, NULL, 0xF8,
+		   NULL, HFILL}
+        },
+        { &hf_gtpv2_uci_csg_membership,
+          { "CSG Membership Indication", "gtpv2.uci_csg_membership",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_uci_csg_membership_status), 0x01,
+           NULL, HFILL }
+        },
+        { &hf_gtpv2_uci_access_mode,
+          {"Access Mode", "gtpv2.uci_access_mode",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_uci_access_mode), 0xC0,
+           NULL, HFILL }
+        },
+        { &hf_gtpv2_uci_lcsg,
+          {"Leave CSG", "gtpv2.uci_leave_csg",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_uci_leave_csg), 0x02,
+           NULL, HFILL }
         },
         { &hf_gtpv2_mm_context_xres_len,
           {"XRES Length", "gtpv2.mm_context_xres_len",
