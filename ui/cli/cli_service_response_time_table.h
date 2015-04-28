@@ -79,6 +79,8 @@ void add_srt_table_data(srt_stat_table *rst, int index, const nstime_t *req_time
 /** Draw the srt table data.
  *
  * @param rst the srt table
+ * @param draw_header draw the header
+ * @param draw_footer draw the footer
  */
 void draw_srt_table_data(srt_stat_table *rst, gboolean draw_header, gboolean draw_footer);
 
