@@ -1159,6 +1159,7 @@ set(TSHARK_TAP_SRC
 	ui/cli/tap-macltestat.c
 	ui/cli/tap-mgcpstat.c
 	ui/cli/tap-megacostat.c
+	ui/cli/tap-ncpstat.c
 	ui/cli/tap-protocolinfo.c
 	ui/cli/tap-protohierstat.c
 	ui/cli/tap-radiusstat.c

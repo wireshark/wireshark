@@ -64,6 +64,7 @@ TSHARK_TAP_SRC = \
 	tap-macltestat.c	\
 	tap-megacostat.c	\
 	tap-mgcpstat.c		\
+	tap-ncpstat.c		\
 	tap-protocolinfo.c	\
 	tap-protohierstat.c	\
 	tap-radiusstat.c	\

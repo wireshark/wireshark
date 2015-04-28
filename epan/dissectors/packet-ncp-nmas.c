@@ -74,17 +74,6 @@ static const value_string nmas_func_enum[] = {
     { 0,    NULL }
 };
 
-static const value_string nmas_subverb_enum[] = {
-    { 0, "Fragmented Ping" },
-    { 2, "Client Put Data" },
-    { 4, "Client Get Data" },
-    { 6, "Client Get User NDS Credentials" },
-    { 8, "Login Store Management" },
-    { 10, "Writable Object Check" },
-    { 1242, "Message Handler" },
-    { 0,          NULL }
-};
-
 static const value_string nmas_msgverb_enum[] = {
     { 1, "Echo Data" },
     { 3, "Start Session" },

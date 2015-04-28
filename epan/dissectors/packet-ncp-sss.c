@@ -95,22 +95,6 @@ static const value_string sss_func_enum[] = {
     { 0,          NULL }
 };
 
-
-static const value_string sss_verb_enum[] = {
-    { 0x00000000, "Query Server" },
-    { 0x00000001, "Read App Secrets" },
-    { 0x00000002, "Write App Secrets" },
-    { 0x00000003, "Add Secret ID" },
-    { 0x00000004, "Remove Secret ID" },
-    { 0x00000005, "Remove SecretStore" },
-    { 0x00000006, "Enumerate Secret IDs" },
-    { 0x00000007, "Unlock Store" },
-    { 0x00000008, "Set Master Password" },
-    { 0x00000009, "Get Service Information" },
-    { 0x000000ff, "Fragment"},
-    { 0,          NULL }
-};
-
 static const value_string sss_errors_enum[] = {
     { 0xFFFFFCE0, "(-800) Target object could not be found" },
     { 0xFFFFFCDF, "(-801) NICI operations have failed" },
