@@ -95,7 +95,7 @@ ldapstat_init(const char *opt_arg, void *userdata _U_)
 	GString *error_string;
 	int i;
 
-	if (!strncmp(opt_arg, "ldap,srt,", 8)) {
+	if (!strncmp(opt_arg, "ldap,srt,", 9)) {
 		filter = opt_arg+8;
 	}
 
