@@ -46,7 +46,6 @@ typedef enum {
     EXTCAP_ARG_BOOLFLAG,
     EXTCAP_ARG_STRING,
     /* Complex GUI types which are populated with value sentences */
-    EXTCAP_ARG_MENU,
     EXTCAP_ARG_SELECTOR,
     EXTCAP_ARG_RADIO,
     EXTCAP_ARG_MULTICHECK,
@@ -128,9 +127,6 @@ typedef struct _extcap_interface {
     struct _extcap_interface *next_interface;
 } extcap_interface;
 
-extcap_interface *extcap_new_interface(void);
-void extcap_free_interface(extcap_interface *interface);
-
 typedef struct _extcap_dlt {
     gint number;
     gchar *name;
@@ -138,9 +134,6 @@ typedef struct _extcap_dlt {
 
     struct _extcap_dlt *next_dlt;
 } extcap_dlt;
-
-extcap_dlt *extcap_new_dlt(void);
-void extcap_free_dlt(extcap_dlt *dlt);
 
 /* Parser internals */
 typedef struct _extcap_token_param {
@@ -159,6 +152,16 @@ typedef struct _extcap_token_sentence {
 
     struct _extcap_token_sentence *next_sentence;
 } extcap_token_sentence;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extcap_interface *extcap_new_interface(void);
+void extcap_free_interface(extcap_interface *interface);
+
+extcap_dlt *extcap_new_dlt(void);
+void extcap_free_dlt(extcap_dlt *dlt);
 
 /* Parse a string into a complex type */
 extcap_complex *extcap_parse_complex(extcap_arg_type complex_type,
@@ -238,6 +241,10 @@ int extcap_parse_dlt_sentence(extcap_token_sentence *s, extcap_dlt **ri);
 
 /* Parse all sentences for DLTs */
 int extcap_parse_dlts(extcap_token_sentence *first_s, extcap_dlt **first_dlt);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

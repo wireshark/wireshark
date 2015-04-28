@@ -473,6 +473,11 @@ private slots:
     void externalMenuItem_triggered();
 
     void changeEvent(QEvent* event);
+
+#if HAVE_EXTCAP
+    void extcap_options_finished(int result);
+    void showExtcapOptionsDialog(QString & device_name);
+#endif
 };
 
 #endif // MAINWINDOW_H

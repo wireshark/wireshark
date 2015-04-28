@@ -61,9 +61,15 @@ signals:
     void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
     void captureFilterSyntaxChanged(bool valid);
+#if HAVE_EXTCAP
+    void showExtcapOptions(QString &device_name);
+#endif
 
 private slots:
     void appInitialized();
+#if HAVE_EXTCAP
+    void interfaceClicked(QTreeWidgetItem *item, int column);
+#endif
     void interfaceDoubleClicked(QTreeWidgetItem *item, int column);
     void updateRecentFiles();
     void openRecentItem(QListWidgetItem *item);

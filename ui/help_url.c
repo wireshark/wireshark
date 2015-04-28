@@ -259,6 +259,9 @@ topic_action_url(topic_action_e action)
     case(HELP_EXPERT_INFO_DIALOG):
         url = user_guide_url("ChAdvExpert.html");
         break;
+    case(HELP_EXTCAP_OPTIONS_DIALOG):
+        url = user_guide_url("ChExtcapOptions.html");
+        break;
     case(HELP_STATS_SUMMARY_DIALOG):
         url = user_guide_url("ChStatSummary.html");
         break;

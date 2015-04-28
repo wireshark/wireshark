@@ -117,6 +117,15 @@ if(HAVE_PCAP_REMOTE)
 	)
 endif()
 
+if(ENABLE_EXTCAP)
+	set(WIRESHARK_QT_HEADERS
+		${WIRESHARK_QT_HEADERS}
+		extcap_argument.h
+		extcap_argument_file.h
+		extcap_options_dialog.h
+	)
+endif()
+
 file(GLOB EXTRA_QT_HEADERS
 	packet_list_record.h
 	qt_ui_utils.h
@@ -221,6 +230,15 @@ if(HAVE_PCAP_REMOTE)
 	)
 endif()
 
+if(ENABLE_EXTCAP)
+	set(WIRESHARK_QT_SRC
+		${WIRESHARK_QT_SRC}
+		extcap_argument.cpp
+		extcap_argument_file.cpp
+		extcap_options_dialog.cpp
+	)
+endif()
+
 set(WIRESHARK_QT_TAP_SRC
 	conversation_dialog.cpp
 	endpoint_dialog.cpp
@@ -293,6 +311,13 @@ if(HAVE_PCAP_REMOTE)
 		${WIRESHARK_QT_UI}
 		remote_capture_dialog.ui
 		remote_settings_dialog.ui
+	)
+endif()
+
+if(ENABLE_EXTCAP)
+	set(WIRESHARK_QT_UI
+		${WIRESHARK_QT_UI}
+		extcap_options_dialog.ui
 	)
 endif()
 

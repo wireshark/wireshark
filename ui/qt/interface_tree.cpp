@@ -34,6 +34,10 @@
 #include "sparkline_delegate.h"
 #include "wireshark_application.h"
 
+#ifdef HAVE_EXTCAP
+#include "extcap.h"
+#endif
+
 #include <QLabel>
 #include <QHeaderView>
 #include <QTimer>
@@ -54,17 +58,19 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     header()->setVisible(false);
     setRootIsDecorated(false);
     setUniformRowHeights(true);
-    setColumnCount(2);
+    /* Seems to have no effect, still the default value (2) is being used, as it
+     * was set in the .ui file. But better safe, then sorry. */
+    resetColumnCount();
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setAccessibleName(tr("Welcome screen list"));
 
-    setItemDelegateForColumn(1, new SparkLineDelegate());
+    setItemDelegateForColumn(IFTREE_COL_STATS, new SparkLineDelegate());
     setDisabled(true);
 
     ti = new QTreeWidgetItem();
-    ti->setText(0, tr("Waiting for startup%1").arg(UTF8_HORIZONTAL_ELLIPSIS));
+    ti->setText(IFTREE_COL_NAME, tr("Waiting for startup%1").arg(UTF8_HORIZONTAL_ELLIPSIS));
     addTopLevelItem(ti);
-    resizeColumnToContents(0);
+    resizeColumnToContents(IFTREE_COL_NAME);
 
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(getInterfaceList()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
@@ -83,11 +89,21 @@ InterfaceTree::~InterfaceTree() {
     while (*iter) {
         QList<int> *points;
 
-        points = (*iter)->data(1, Qt::UserRole).value<QList<int> *>();
+        points = (*iter)->data(IFTREE_COL_STATS, Qt::UserRole).value<QList<int> *>();
         delete(points);
         ++iter;
     }
 #endif // HAVE_LIBPCAP
+}
+
+/* Resets the column count to the maximum colum count
+ *
+ * This is necessary, because the treeview may have more columns, then
+ * the default value (2).
+ */
+void InterfaceTree::resetColumnCount()
+{
+    setColumnCount(IFTREE_COL_MAX);
 }
 
 void InterfaceTree::hideEvent(QHideEvent *evt) {
@@ -109,17 +125,18 @@ void InterfaceTree::showEvent(QShowEvent *evt) {
     if (stat_timer_) stat_timer_->start(stat_update_interval_);
 #endif // HAVE_LIBPCAP
 }
-
+#include <QDebug>
 void InterfaceTree::resizeEvent(QResizeEvent *evt)
 {
     Q_UNUSED(evt);
     int max_if_width = width() * 2 / 3; // Arbitrary
 
     setUpdatesEnabled(false);
-    resizeColumnToContents(0);
-    if (columnWidth(0) > max_if_width) {
-        setColumnWidth(0, max_if_width);
+    resizeColumnToContents(IFTREE_COL_NAME);
+    if (columnWidth(IFTREE_COL_NAME) > max_if_width) {
+        setColumnWidth(IFTREE_COL_NAME, max_if_width);
     }
+
     setUpdatesEnabled(true);
 }
 
@@ -127,6 +144,9 @@ void InterfaceTree::display()
 {
 #ifdef HAVE_LIBPCAP
     interface_t device;
+#if HAVE_EXTCAP
+    QIcon extcap_icon(":/icons/toolbar/16x16/x-capture-options.png");
+#endif
 
     setDisabled(false);
     clear();
@@ -161,13 +181,36 @@ void InterfaceTree::display()
         }
 
         QTreeWidgetItem *ti = new QTreeWidgetItem();
-        ti->setText(0, QString().fromUtf8(device.display_name));
-        ti->setData(0, Qt::UserRole, QString(device.name));
+        ti->setText(IFTREE_COL_NAME, QString().fromUtf8(device.display_name));
+        ti->setData(IFTREE_COL_NAME, Qt::UserRole, QString(device.name));
         points = new QList<int>();
-        ti->setData(1, Qt::UserRole, qVariantFromValue(points));
+        ti->setData(IFTREE_COL_STATS, Qt::UserRole, qVariantFromValue(points));
+#if HAVE_EXTCAP
+        if ( device.if_info.type == IF_EXTCAP )
+        {
+            if ( extcap_has_configuration((const char *)(device.name)) )
+            {
+                ti->setIcon(IFTREE_COL_EXTCAP, extcap_icon);
+                ti->setData(IFTREE_COL_EXTCAP, Qt::UserRole, QString(device.if_info.extcap));
+
+                if ( !(device.external_cap_args_settings != 0 &&
+                        g_hash_table_size(device.external_cap_args_settings ) > 0) )
+                {
+                    QFont ti_font = ti->font(IFTREE_COL_NAME);
+                    ti_font.setItalic(true);
+                    ti->setFont(IFTREE_COL_NAME, ti_font );
+                }
+            }
+        }
+#endif
         addTopLevelItem(ti);
         // XXX Add other device information
-        resizeColumnToContents(1);
+        resizeColumnToContents(IFTREE_COL_STATS);
+
+#if HAVE_EXTCAP
+        resizeColumnToContents(IFTREE_COL_EXTCAP);
+#endif
+
         if (strstr(prefs.capture_device, device.name) != NULL) {
             device.selected = TRUE;
             global_capture_opts.num_selected++;
@@ -214,8 +257,7 @@ void InterfaceTree::getPoints(int row, PointList *pts)
         if (row == i)
         {
             //qDebug("found! row:%d", row);
-            QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
-            QList<int> *punkt = (*iter)->data(1, Qt::UserRole).value<QList<int> *>();
+            QList<int> *punkt = (*iter)->data(IFTREE_COL_STATS, Qt::UserRole).value<QList<int> *>();
             for (int j = 0; j < punkt->length(); j++)
             {
                 pts->append(punkt->at(j));
@@ -250,7 +292,8 @@ void InterfaceTree::updateStatistics(void) {
 
         for (if_idx = 0; if_idx < global_capture_opts.all_ifaces->len; if_idx++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, if_idx);
-            QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
+            QString device_name = (*iter)->data(IFTREE_COL_NAME, Qt::UserRole).value<QString>();
+
             if (device_name.compare(device.name) || device.hidden || device.type == IF_PIPE)
                 continue;
 
@@ -263,9 +306,10 @@ void InterfaceTree::updateStatistics(void) {
                 device.last_packets = stats.ps_recv;
             }
 
-            points = (*iter)->data(1, Qt::UserRole).value<QList<int> *>();
+            points = (*iter)->data(IFTREE_COL_STATS, Qt::UserRole).value<QList<int> *>();
+
             points->append(diff);
-            update(indexFromItem((*iter), 1));
+            update(indexFromItem((*iter), IFTREE_COL_STATS));
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, if_idx);
             g_array_insert_val(global_capture_opts.all_ifaces, if_idx, device);
         }
@@ -283,7 +327,7 @@ void InterfaceTree::updateSelectedInterfaces()
 
     while (*iter) {
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
+            QString device_name = (*iter)->data(IFTREE_COL_NAME, Qt::UserRole).value<QString>();
             interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
                 if (!device.locked) {
@@ -318,7 +362,7 @@ void InterfaceTree::setSelectedInterfaces()
     QTreeWidgetItemIterator iter(this);
 
     while (*iter) {
-        QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
+        QString device_name = (*iter)->data(IFTREE_COL_NAME, Qt::UserRole).value<QString>();
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device_name.compare(QString().fromUtf8(device.name)) == 0) {

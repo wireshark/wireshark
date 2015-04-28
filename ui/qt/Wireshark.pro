@@ -217,6 +217,7 @@ FORMS += \
     decode_as_dialog.ui \
     export_object_dialog.ui \
     export_pdu_dialog.ui \
+    extcap_options_dialog.ui \
     file_set_dialog.ui \
     filter_expressions_preferences_frame.ui \
     follow_stream_dialog.ui \
@@ -279,6 +280,9 @@ HEADERS += $$HEADERS_WS_C \
     export_dissection_dialog.h \
     export_object_dialog.h \
     export_pdu_dialog.h \
+    extcap_argument.h \
+    extcap_argument_file.h \
+    extcap_options_dialog.h \
     filter_action.h \
     filter_expressions_preferences_frame.h \
     follow_stream_dialog.h \
@@ -627,6 +631,9 @@ SOURCES += \
     export_dissection_dialog.cpp \
     export_object_dialog.cpp \
     export_pdu_dialog.cpp \
+    extcap_argument.cpp \
+    extcap_argument_file.cpp \
+    extcap_options_dialog.cpp \
     file_set_dialog.cpp \
     filter_action.cpp \
     filter_expressions_preferences_frame.cpp \

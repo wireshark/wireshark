@@ -428,6 +428,32 @@ extcap_get_if_configuration(const char * ifname) {
     return ret;
 }
 
+gboolean
+extcap_has_configuration(const char * ifname) {
+    GList * arguments = 0;
+    GList * walker = 0, * item = 0;
+
+    gboolean found = FALSE;
+
+    arguments = extcap_get_if_configuration((const char *)( ifname ) );
+    walker = g_list_first(arguments);
+
+    while ( walker != NULL && ! found )
+    {
+        item = g_list_first((GList *)(walker->data));
+        while ( item != NULL && ! found )
+        {
+            if ( (extcap_arg *)(item->data) != NULL )
+                found = TRUE;
+
+            item = item->next;
+        }
+        walker = walker->next;
+    }
+
+    return found;
+}
+
 void extcap_cleanup(capture_options * capture_opts) {
     interface_options interface_opts;
     guint icnt = 0;

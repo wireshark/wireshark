@@ -60,7 +60,7 @@ gchar *extcap_get_complex_as_string(extcap_complex *comp) {
         break;
     case EXTCAP_ARG_BOOLEAN:
         g_snprintf(ret, 32, "%s",
-                comp->complex_value.bool_value ? "TRUE" : "FALSE");
+                comp->complex_value.bool_value ? "true" : "false");
         break;
     case EXTCAP_ARG_STRING:
     case EXTCAP_ARG_FILESELECT:
@@ -604,8 +604,6 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
             target_arg->arg_type = EXTCAP_ARG_BOOLEAN;
         } else if (g_ascii_strcasecmp(v->value, "boolflag") == 0) {
             target_arg->arg_type = EXTCAP_ARG_BOOLFLAG;
-        } else if (g_ascii_strcasecmp(v->value, "menu") == 0) {
-            target_arg->arg_type = EXTCAP_ARG_MENU;
         } else if (g_ascii_strcasecmp(v->value, "selector") == 0) {
             target_arg->arg_type = EXTCAP_ARG_SELECTOR;
         } else if (g_ascii_strcasecmp(v->value, "radio") == 0) {

@@ -48,6 +48,10 @@
 #define EXTCAP_ARGUMENT_RUN_CAPTURE             "--capture"
 #define EXTCAP_ARGUMENT_RUN_PIPE                "--fifo"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* try to get if capabilities from extcap */
 if_capabilities_t *
 extcap_get_if_dlts(const gchar * ifname, char ** err_str);
@@ -60,6 +64,9 @@ extcap_interface_list(char **err_str);
  * empty list, if no configuration has been found */
 GList *
 extcap_get_if_configuration(const char * ifname);
+
+gboolean
+extcap_has_configuration(const char * ifname);
 
 #ifdef WIN32
 HANDLE
@@ -74,6 +81,10 @@ extcap_create_pipe(char ** fifo);
 
 void
 extcap_cleanup(capture_options * capture_opts _U_);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
 

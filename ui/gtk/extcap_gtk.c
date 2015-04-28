@@ -181,8 +181,6 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
                 continue;
             }
             break;
-        case EXTCAP_ARG_MENU:
-            break;
         case EXTCAP_ARG_RADIO:
             if ((radio_widget = (GtkWidget *) g_object_get_data(
                     G_OBJECT(list_widget),
@@ -858,8 +856,6 @@ GSList *extcap_populate_gtk_vbox(GList *arguments, GtkWidget *vbox,
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(item), TRUE);
             }
 
-            break;
-        case EXTCAP_ARG_MENU:
             break;
         case EXTCAP_ARG_RADIO:
             label = gtk_label_new(arg_iter->display);

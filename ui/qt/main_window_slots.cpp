@@ -82,6 +82,9 @@
 #include "endpoint_dialog.h"
 #include "export_object_dialog.h"
 #include "export_pdu_dialog.h"
+#if HAVE_EXTCAP
+#include "extcap_options_dialog.h"
+#endif
 #include "io_graph_dialog.h"
 #include "lbm_stream_dialog.h"
 #include "lbm_uimflow_dialog.h"
@@ -2927,6 +2930,30 @@ void MainWindow::externalMenuItem_triggered()
         }
     }
 }
+
+#ifdef HAVE_EXTCAP
+#include <QDebug>
+void MainWindow::extcap_options_finished(int result)
+{
+    if ( result == QDialog::Accepted )
+    {
+        startCapture();
+    }
+    this->main_welcome_->getInterfaceTree()->interfaceListChanged();
+}
+
+void MainWindow::showExtcapOptionsDialog(QString &device_name)
+{
+    ExtcapOptionsDialog * extcap_options_dialog = ExtcapOptionsDialog::createForDevice(device_name, this);
+    /* The dialog returns null, if the given device name is not a valid extcap device */
+    if ( extcap_options_dialog != NULL )
+    {
+        connect(extcap_options_dialog, SIGNAL(finished(int)),
+                this, SLOT(extcap_options_finished(int)));
+        extcap_options_dialog->show();
+    }
+}
+#endif
 
 /*
  * Editor modelines

@@ -53,6 +53,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
 {
     welcome_ui_->setupUi(this);
 
+    welcome_ui_->interfaceTree->resetColumnCount();
+
     welcome_ui_->mainWelcomeBanner->setText(tr("Welcome to Wireshark."));
     recent_files_ = welcome_ui_->recentList;
 
@@ -147,6 +149,10 @@ MainWelcome::MainWelcome(QWidget *parent) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
     connect(welcome_ui_->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
             this, SLOT(interfaceDoubleClicked(QTreeWidgetItem*,int)));
+#if HAVE_EXTCAP
+    connect(welcome_ui_->interfaceTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
+            this, SLOT(interfaceClicked(QTreeWidgetItem*,int)));
+#endif
     connect(welcome_ui_->interfaceTree, SIGNAL(interfaceUpdated(const char*,bool)),
             welcome_ui_->captureFilterComboBox, SIGNAL(interfacesChanged()));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(pushFilterSyntaxStatus(const QString&)),
@@ -209,6 +215,23 @@ void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int column)
     if (item) {
         emit startCapture();
     }
+}
+#include <QDebug>
+void MainWelcome::interfaceClicked(QTreeWidgetItem *item, int column)
+{
+#if HAVE_EXTCAP
+    if ( column == IFTREE_COL_EXTCAP )
+    {
+        QString extcap_string = QVariant(item->data(IFTREE_COL_EXTCAP, Qt::UserRole)).toString();
+        /* We trust the string here. If this interface is really extcap, the string is
+         * being checked immediatly before the dialog is being generated */
+        if ( extcap_string.length() > 0 )
+        {
+            QString device_name = QVariant(item->data(IFTREE_COL_NAME, Qt::UserRole)).toString();
+            emit showExtcapOptions(device_name);
+        }
+    }
+#endif
 }
 
 void MainWelcome::updateRecentFiles() {

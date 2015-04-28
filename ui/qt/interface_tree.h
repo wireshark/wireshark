@@ -37,12 +37,24 @@
 
 typedef QList<int> PointList;
 
+enum InterfaceTreeColumns
+{
+#if HAVE_EXTCAP
+    IFTREE_COL_EXTCAP,
+#endif
+    IFTREE_COL_NAME,
+    IFTREE_COL_STATS,
+    IFTREE_COL_MAX
+};
+
 class InterfaceTree : public QTreeWidget
 {
     Q_OBJECT
 public:
     explicit InterfaceTree(QWidget *parent = 0);
     ~InterfaceTree();
+
+    void resetColumnCount();
 
 protected:
     void hideEvent(QHideEvent *evt);
