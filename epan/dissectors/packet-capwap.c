@@ -529,7 +529,8 @@ static int hf_capwap_fortinet_unknown = -1;
 
 static int hf_capwap_cisco_element_id = -1;
 static int hf_capwap_cisco_value = -1;
-static int hf_capwap_cisco_ap_name = -1;
+static int hf_capwap_cisco_mwar_addr = -1;
+static int hf_capwap_cisco_rad_name = -1;
 static int hf_capwap_cisco_mwar_type = -1;
 static int hf_capwap_cisco_mwar_hardware = -1;
 static int hf_capwap_cisco_mwar_software = -1;
@@ -537,7 +538,23 @@ static int hf_capwap_cisco_mwar_active_ms = -1;
 static int hf_capwap_cisco_mwar_supported_ms = -1;
 static int hf_capwap_cisco_mwar_active_rad = -1;
 static int hf_capwap_cisco_mwar_supported_rad = -1;
+static int hf_capwap_cisco_ap_mode_and_type_mode = -1;
+static int hf_capwap_cisco_ap_mode_and_type_type = -1;
+static int hf_capwap_cisco_ap_static_ip_addr = -1;
+static int hf_capwap_cisco_ap_static_ip_netmask = -1;
+static int hf_capwap_cisco_ap_static_ip_gateway = -1;
+static int hf_capwap_cisco_ap_static_ip_type = -1;
+static int hf_capwap_cisco_ap_static_ip_reserved = -1;
+static int hf_capwap_cisco_ap_uptime_current = -1;
+static int hf_capwap_cisco_ap_uptime_last = -1;
+static int hf_capwap_cisco_ap_group_name = -1;
+static int hf_capwap_cisco_spam_ap_led_state = -1;
 static int hf_capwap_cisco_ap_timesync = -1;
+static int hf_capwap_cisco_ap_timesync_type = -1;
+static int hf_capwap_cisco_board_data_options_ant_type = -1;
+static int hf_capwap_cisco_board_data_options_flex_connect = -1;
+static int hf_capwap_cisco_board_data_options_ap_type = -1;
+static int hf_capwap_cisco_board_data_options_join_priority = -1;
 static int hf_capwap_cisco_unknown = -1;
 
 static int hf_msg_fragments = -1;
@@ -1873,18 +1890,161 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
     return offset;
 }
 
-/* From Cisco WLC
+/* From Cisco WLC with help of actube  (http://www.github.com/7u83/actube */
 
-*/
+/* Copy and rename (CW_ => VSP_ for actube/capwap/capwap_cisco.h (revision g387cc5da) */
 #define VSP_CISCO_AP_NAME 5
 #define VSP_CISCO_MWAR 6
 #define VSP_CISCO_AP_TIMESYNC 151
 
+#define VSP_CISCO_MWAR_ADDR                 2
+#define VSP_CISCO_RAD                       3
+#define VSP_CISCO_RAD_SLOT                  4
+#define VSP_CISCO_RAD_NAME                  5
+#define	VSP_CISCO_MWAR                      6
+#define VSP_CISCO_ADD_WLAN                  7
+#define VSP_CISCO_WTP_RADIO_CFG             8
+
+#define VSP_CISCO_MULTI_DOMAIN_CAPAB        10
+#define VSP_CISCO_MAC_OPERATION             11
+
+#define VSP_CISCO_TX_POWER                  12
+#define VSP_CISCO_TX_POWER_LEVELS           13
+#define VSP_CISCO_DIRECT_SEQUENCE_CONTROL   14
+#define VSP_CISCO_SUPPORTED_RATES           16
+
+#define VSP_CISCO_80211_DELETE_WLAN         28
+
+#define VSP_CISCO_MWAR_NAME                 31
+
+#define VSP_CISCO_LOCATION_DATA             35
+#define VSP_CISCO_STATISTICS_TIMER          37
+
+#define VSP_CISCO_ANTENNA_PAYLOAD           41
+
+#define VSP_CISCO_CERTIFICATE               44
+#define VSP_CISCO_WTP_BOARD_DATA            50
+#define VSP_CISCO_AP_MODE_AND_TYPE          54
+#define VSP_CISCO_AP_QOS                    57
+#define VSP_CISCO_AC_IPV4_LIST              59
+
+#define VSP_CISCO_AP_STATIC_IP_ADDR         83
+#define VSP_CISCO_SIG_PAYLOAD               84
+#define VSP_CISCO_SIG_TOGGLE                87
+
+#define VSP_CISCO_AC_NAME_WITH_INDEX        91
+#define VSP_CISCO_SPAM_DOMAIN_SECRET        96
+
+#define VSP_CISCO_SPAM_VENDOR_SPECIFIC      104
+
+#define VSP_CISCO_AP_UPTIME                 108
+
+#define VSP_CISCO_AP_GROUP_NAME             123
+#define VSP_CISCO_SPAM_AP_LED_STATE         125
+#define VSP_CISCO_AP_MODEL                  127
+#define VSP_CISCO_AP_RESET_BUTTON_STATE     128
+
+#define VSP_CISCO_AP_LED_STATE_CONFIG       125
+#define VSP_CISCO_AP_REGULATORY_DOMAIN      126
+
+#define VSP_CISCO_LWAPP_CHANNEL_POWER       134
+#define VSP_CISCO_AP_PRE_STD_SWITCH_CONFIG  137
+#define VSP_CISCO_AP_POWER_INJECTOR_CONFIG  138
+
+#define VSP_CISCO_AP_MINIOS_VERSION         149
+#define VSP_CISCO_AP_TIMESYNC               151
+#define VSP_CISCO_AP_DOMAIN                 169
+#define VSP_CISCO_AP_DNS                    170
+
+#define VSP_CISCO_AP_BACKUP_SOFTWARE_VERSION 183
+#define VSP_CISCO_BOARD_DATA_OPTIONS        207
+#define VSP_CISCO_MWAR_TYPE                 208
+#define VSP_CISCO_80211_ASSOC_LIMIT         213
+#define VSP_CISCO_TLV_PAYLOAD               215
+#define VSP_CISCO_AP_LOG_FACILITY           224
+#define VSP_CISCO_AP_RETRANSMIT_PARAM       240
+#define VSP_CISCO_AP_VENUE_SETTINGS         249
+
 
 static const value_string cisco_element_id_vals[] = {
-    { VSP_CISCO_AP_NAME, "AP Name" },
+    { VSP_CISCO_MWAR_ADDR, "MWAR Address" },
+    { VSP_CISCO_RAD, "RAD" },
+    { VSP_CISCO_RAD_SLOT, "RAD Slot" },
+    { VSP_CISCO_RAD_NAME, "RAD (AP) Name" },
     { VSP_CISCO_MWAR, "MWAR" },
+    { VSP_CISCO_ADD_WLAN, "Add WLAN" },
+    { VSP_CISCO_WTP_RADIO_CFG, "WTP Radio Configuration" },
+
+    { VSP_CISCO_MULTI_DOMAIN_CAPAB, "Multi Domain Capability" },
+    { VSP_CISCO_MAC_OPERATION, "MAC Operation" },
+
+    { VSP_CISCO_TX_POWER, "TX Power" },
+    { VSP_CISCO_TX_POWER_LEVELS, "TX Power Levels" },
+    { VSP_CISCO_DIRECT_SEQUENCE_CONTROL, "Direct Sequence Control" },
+    { VSP_CISCO_SUPPORTED_RATES, "Supported Rates" },
+
+    { VSP_CISCO_80211_DELETE_WLAN, "802.11 Delete WLAN" },
+
+    { VSP_CISCO_MWAR_NAME, "MWAR NAME" },
+
+    { VSP_CISCO_LOCATION_DATA, "Location Data" },
+    { VSP_CISCO_STATISTICS_TIMER, "Statistics Timer" },
+
+    { VSP_CISCO_ANTENNA_PAYLOAD, "Antenna Payload" },
+
+    { VSP_CISCO_CERTIFICATE, "Certificate" },
+    { VSP_CISCO_WTP_BOARD_DATA, "WTP Board Data" },
+    { VSP_CISCO_AP_MODE_AND_TYPE, "AP Mode and Type" },
+
+    { VSP_CISCO_AP_QOS, "AP QoS"},
+    { VSP_CISCO_AC_IPV4_LIST, "AC IPv4 List" },
+
+    { VSP_CISCO_AP_STATIC_IP_ADDR, "AP Static IP Addr" },
+    { VSP_CISCO_SIG_PAYLOAD, "SIG Payload" },
+    { VSP_CISCO_SIG_TOGGLE, "SIG Toggle" },
+
+    { VSP_CISCO_AC_NAME_WITH_INDEX, "AC Name with Index" },
+    { VSP_CISCO_SPAM_DOMAIN_SECRET, "SPAM Domain Secret" },
+
+    { VSP_CISCO_SPAM_VENDOR_SPECIFIC, "SPAM Vendor Specific" },
+
+    { VSP_CISCO_AP_UPTIME, "AP Uptime" },
+
+    { VSP_CISCO_AP_GROUP_NAME, "AP Group Name" },
+    { VSP_CISCO_SPAM_AP_LED_STATE, "SPAM AP Led State" },
+    { VSP_CISCO_AP_MODEL, "AP Model" },
+    { VSP_CISCO_AP_RESET_BUTTON_STATE, "AP reset button state" },
+
+    { VSP_CISCO_AP_LED_STATE_CONFIG, "AP Led State Config" },
+    { VSP_CISCO_AP_REGULATORY_DOMAIN, "AP Regulatory domain" },
+
+    { VSP_CISCO_LWAPP_CHANNEL_POWER, "LWAPP Channel Power" },
+    { VSP_CISCO_AP_PRE_STD_SWITCH_CONFIG, "AP Pre STD Switch Config" },
+    { VSP_CISCO_AP_POWER_INJECTOR_CONFIG, "AP Power Injector config" },
+
+    { VSP_CISCO_AP_MINIOS_VERSION, "AP MinIOS Version" },
     { VSP_CISCO_AP_TIMESYNC, "AP Time Sync" },
+    { VSP_CISCO_AP_DOMAIN, "AP Domain" },
+    { VSP_CISCO_AP_DNS, "AP DNS" },
+
+    { VSP_CISCO_AP_BACKUP_SOFTWARE_VERSION, "AP Backup software version" },
+    { VSP_CISCO_BOARD_DATA_OPTIONS, "Board Data Options" },
+    { VSP_CISCO_MWAR_TYPE, "MWAR Type" },
+    { VSP_CISCO_80211_ASSOC_LIMIT, "802.11 Assoc Limit" },
+    { VSP_CISCO_TLV_PAYLOAD, "TLV Payload" },
+    { VSP_CISCO_AP_LOG_FACILITY, "AP Log Facility" },
+
+    { VSP_CISCO_AP_RETRANSMIT_PARAM, "AP Retransmit Param" },
+    { VSP_CISCO_AP_VENUE_SETTINGS, "AP Venue Settings" },
+    { 0,     NULL     }
+};
+
+static const value_string cisco_ap_mode_and_type_mode_vals[] = {
+    { 0, "Split MAC / Local Mode" },
+    { 1, "Monitor" },
+    { 2, "Local MAC / FlexConnect" },
+    { 3, "Rogue Detector" },
+    { 4, "Sniffer" },
     { 0,     NULL     }
 };
 
@@ -1904,8 +2064,14 @@ dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_
     proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_value, tvb, offset, optlen, ENC_NA);
 
     switch(element_id){
-        case VSP_CISCO_AP_NAME: /* AP Name (5) */
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+        case VSP_CISCO_MWAR_ADDR: /* MWAR Address (2) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        break;
+        case VSP_CISCO_RAD_NAME: /* RAD (AP) Name (5) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_rad_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
             offset += optlen;
         break;
         case VSP_CISCO_MWAR: /* MWAR (6) */
@@ -1924,11 +2090,59 @@ dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_supported_rad, tvb, offset, 2, ENC_NA);
             offset += 2;
         break;
-        case VSP_CISCO_AP_TIMESYNC: /* AP TIMESYNC (151) */
+        case VSP_CISCO_AP_MODE_AND_TYPE: /* AP_MODE_AND_TYPE (54) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_mode_and_type_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_mode_and_type_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        break;
+        case VSP_CISCO_AP_STATIC_IP_ADDR: /* AP_MODE_AND_TYPE (83) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_static_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_static_ip_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_static_ip_gateway, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_static_ip_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_static_ip_reserved, tvb, offset, 4, ENC_NA);
+            offset += 4;
+        break;
+        case VSP_CISCO_AP_UPTIME: /* AP Uptime (108) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_uptime_current, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_uptime_last, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        break;
+        case VSP_CISCO_AP_GROUP_NAME: /* AP Group Name (123) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_group_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            offset += optlen;
+        break;
+        case VSP_CISCO_SPAM_AP_LED_STATE: /* SPAM AP Led State (125) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_spam_ap_led_state, tvb, offset, 2, ENC_NA);
+            offset += 2;
+        break;
+        case VSP_CISCO_AP_TIMESYNC: /* AP Timesync (151) */
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_timesync, tvb, offset, 4, ENC_NA);
             offset += 4;
 
-            offset += 1; /* Padding ? */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_timesync_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        break;
+        case VSP_CISCO_BOARD_DATA_OPTIONS: /* Board Data Options (207) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_board_data_options_ant_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_board_data_options_flex_connect, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_board_data_options_ap_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_board_data_options_join_priority, tvb, offset, 1, ENC_NA);
+            offset += 1;
+        break;
+
+        case VSP_CISCO_MWAR_TYPE: /* MWAR_TYPE (208) */
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
         break;
         default:
             expert_add_info_format(pinfo, msg_element_type_item, &ei_capwap_message_element_cisco_type,
@@ -5302,8 +5516,13 @@ proto_register_capwap_control(void)
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_capwap_cisco_ap_name,
-            { "AP Name", "capwap.control.cisco.ap_name",
+        { &hf_capwap_cisco_mwar_addr,
+            { "Address", "capwap.control.cisco.mwar.address",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_rad_name,
+            { "RAD (AP) Name", "capwap.control.cisco.rad_name",
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
@@ -5342,9 +5561,89 @@ proto_register_capwap_control(void)
               FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_capwap_cisco_ap_mode_and_type_mode,
+            { "Mode", "capwap.control.cisco.ap_mode_and_type.mode",
+              FT_UINT8, BASE_DEC, VALS(cisco_ap_mode_and_type_mode_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_mode_and_type_type,
+            { "Type", "capwap.control.cisco.ap_mode_and_type.type",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_static_ip_addr,
+            { "IP Address", "capwap.control.cisco.ap_static_ip.addr",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_static_ip_netmask,
+            { "Netmask", "capwap.control.cisco.ap_static_ip.netmask",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_static_ip_gateway,
+            { "Gateway", "capwap.control.cisco.ap_static_ip.gateway",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_static_ip_type,
+            { "Type", "capwap.control.cisco.ap_static_ip.type",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_static_ip_reserved,
+            { "Reserved", "capwap.control.cisco.ap_static_ip.reserved",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_uptime_current,
+            { "AP Uptime Current", "capwap.control.cisco.ap_uptime.current",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_uptime_last,
+            { "AP Uptime Last", "capwap.control.cisco.ap_uptime.last",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_group_name,
+            { "AP Group Name", "capwap.control.cisco.ap_group_name",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_spam_ap_led_state,
+            { "Led State", "capwap.control.cisco.spam_ap_led_state",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
         { &hf_capwap_cisco_ap_timesync,
             { "AP TimeSync", "capwap.control.cisco.ap_timesync",
               FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_ap_timesync_type,
+            { "Type (?)", "capwap.control.cisco.ap_timesync.type",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_board_data_options_ant_type,
+            { "Antenna Type", "capwap.control.cisco.board_data_options.ant_type",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_board_data_options_flex_connect,
+            { "Flex Connect", "capwap.control.cisco.board_data_options.flex_connect",
+              FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_board_data_options_ap_type,
+            { "AP Type", "capwap.control.cisco.board_data_options.ap_type",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_capwap_cisco_board_data_options_join_priority,
+            { "Join Priority", "capwap.control.cisco.board_data_options.join_priority",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_cisco_unknown,
