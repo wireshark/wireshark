@@ -2859,7 +2859,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
     capwap_header_tree = proto_item_add_subtree(ti, ett_capwap_header);
 
     /* Header Length : 5 Bits */
-    ti_len = proto_tree_add_item(capwap_header_tree, hf_capwap_header_hlen, tvb, offset+plen, 1, ENC_BIG_ENDIAN);
+    ti_len = proto_tree_add_item(capwap_header_tree, hf_capwap_header_hlen, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
     proto_item_append_text(ti_len, " (%d)",hlen+1);
     /* Radio ID : 5 Bits */
     proto_tree_add_item(capwap_header_tree, hf_capwap_header_rid, tvb, offset+plen, 3, ENC_BIG_ENDIAN);
