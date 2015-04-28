@@ -74,6 +74,7 @@ gboolean follow_addr(stream_type, const address *, guint, const address *, guint
 
 /** Select a TCP/UDP stream to follow via its index.
  *
+ * @param stream [in] The stream type to follow(TCP_STREAM or UDP_STREAM)
  * @param addr [in] The stream index to follow.
  * @return TRUE on success, FALSE on failure.
  */
