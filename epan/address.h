@@ -180,6 +180,7 @@ copy_address_shallow(address *to, const address *from) {
 /** Copy an address, allocating a new buffer for the address data
  *  using wmem-scoped memory.
  *
+ * @param scope [in] The lifetime of the allocated memory, wmem_packet_scope()
  * @param to [in,out] The destination address.
  * @param from [in] The source address.
  */
