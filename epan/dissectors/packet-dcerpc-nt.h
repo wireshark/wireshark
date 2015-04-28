@@ -148,6 +148,7 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		       proto_tree *parent_tree, dcerpc_info *di, guint8 *drep,
 		       guint32 param, int hfindex);
 
+WS_DLL_PUBLIC
 int
 dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,

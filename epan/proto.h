@@ -2059,7 +2059,7 @@ proto_register_subtree_array(gint *const *indices, const int num_indices);
 /** Get name of registered header_field number n.
  @param n item # n (0-indexed)
  @return the name of this registered item */
-extern const char* proto_registrar_get_name(const int n);
+WS_DLL_PUBLIC const char* proto_registrar_get_name(const int n);
 
 /** Get abbreviation of registered header_field number n.
  @param n item # n (0-indexed)

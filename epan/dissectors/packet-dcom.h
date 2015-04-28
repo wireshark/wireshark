@@ -110,12 +110,12 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 #define dissect_dcom_DOUBLE			dissect_ndr_double
 #define dissect_dcom_DATE			dissect_ndr_double
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep,
 	int hfindex, e_guid_t *uuid);
 
-extern int
+WS_DLL_PUBLIC int
 dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep,
 	int hfindex, int field_index, e_guid_t *uuid);

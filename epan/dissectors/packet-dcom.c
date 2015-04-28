@@ -204,9 +204,11 @@ static int hf_dcom_vt_i1 = -1;
 static int hf_dcom_vt_i2 = -1;
 static int hf_dcom_vt_i4 = -1;
 static int hf_dcom_vt_i8 = -1;	/* only inside a SAFEARRAY, not in VARIANTs */
+static int hf_dcom_vt_cy = -1;
 static int hf_dcom_vt_ui1 = -1;
 static int hf_dcom_vt_ui2 = -1;
 static int hf_dcom_vt_ui4 = -1;
+static int hf_dcom_vt_ui8 = -1;
 static int hf_dcom_vt_r4 = -1;
 static int hf_dcom_vt_r8 = -1;
 static int hf_dcom_vt_date = -1;
@@ -1321,6 +1323,8 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint8	u8Data;
 	guint16 u16Data;
 	guint32 u32Data;
+	guint64 u64Data;
+	gint64 cyData;
 	gchar cData[500];
 	guint32 u32Pointer;
 	gfloat	f32Data;
@@ -1391,9 +1395,25 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
 								hf_dcom_vt_i4, &u32Data);
 			break;
+		case(WIRESHARK_VT_I8):
+			offset = dissect_dcom_I8(tvb, offset, pinfo, sub_tree, di, drep,
+								hf_dcom_vt_i8, &u64Data);
+			break;
+		case(WIRESHARK_VT_CY):
+				offset = dissect_dcom_I8(tvb, offset, pinfo, NULL, di, drep,
+						0, &cyData);
+				proto_tree_add_int64_format(sub_tree, hf_dcom_vt_cy, tvb, offset - 8,
+						8, cyData, "%s: %" G_GINT64_FORMAT ".%.04" G_GINT64_FORMAT,
+						proto_registrar_get_name(hf_dcom_vt_cy),
+						cyData / 10000, ABS(cyData % 10000));
+			break;
 		case(WIRESHARK_VT_UI4):
 			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
 								hf_dcom_vt_ui4, &u32Data);
+			break;
+		case(WIRESHARK_VT_UI8):
+			offset = dissect_dcom_I8(tvb, offset, pinfo, sub_tree, di, drep,
+					hf_dcom_vt_ui8, &u64Data);
 			break;
 		case(WIRESHARK_VT_R4):
 			offset = dissect_dcom_FLOAT(tvb, offset, pinfo, sub_tree, di, drep,
@@ -1566,18 +1586,20 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 inLength, gchar *psz
 	guint32 u32Idx;
 	guint32 u32IdxA;
 	guint32 u32IdxW;
+	guint32 inLengthWithoutNullDelimiter = 0;
 
 	guint8	u8Tmp1;
 	guint8	u8Tmp2;
 
 
 	*isPrintable = TRUE;
+	inLengthWithoutNullDelimiter = inLength == 0 ? 0 : inLength -1;
 
 	/* we must have at least the space for the zero termination */
 	DISSECTOR_ASSERT(outLength >= 1);
 
 	/* determine length and printablility of the string */
-	for(u32Idx = 0; u32Idx < inLength-1; u32Idx+=2) {
+	for(u32Idx = 0; u32Idx < inLengthWithoutNullDelimiter; u32Idx+=2) {
 		/* the marshalling direction of a WCHAR is fixed! */
 		u8Tmp1 = tvb_get_guint8(tvb, offset+u32Idx);
 		u8Tmp2 = tvb_get_guint8(tvb, offset+u32Idx+1);
@@ -1589,8 +1611,9 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 inLength, gchar *psz
 		}
 
 		/* is this character printable? */
+		/* 10 = New Line, 13 = Carriage Return */
 		/* XXX - there are probably more printable chars than isprint() */
-		if(!g_ascii_isprint(u8Tmp1) || u8Tmp2 != 0) {
+		if(!(g_ascii_isprint(u8Tmp1) || u8Tmp1 == 10 || u8Tmp1 == 13)|| u8Tmp2 != 0) {
 			*isPrintable = FALSE;
 		}
 	}
@@ -2198,7 +2221,6 @@ static void dcom_reinit( void) {
 	return;
 }
 
-
 void
 proto_register_dcom (void)
 {
@@ -2357,12 +2379,16 @@ proto_register_dcom (void)
 		{ "VT_I4", "dcom.vt.i4", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_dcom_vt_i8,
 		{ "VT_I8", "dcom.vt.i8", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_dcom_vt_cy,
+		{ "VT_CY", "dcom.vt.cy", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_dcom_vt_ui1,
 		{ "VT_UI1", "dcom.vt.ui1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_dcom_vt_ui2,
 		{ "VT_UI2", "dcom.vt.ui2", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_dcom_vt_ui4,
 		{ "VT_UI4", "dcom.vt.ui4", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_dcom_vt_ui8,
+		{ "VT_UI8", "dcom.vt.ui8", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_dcom_vt_r4,
 		{ "VT_R4", "dcom.vt.r4", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_dcom_vt_r8,
