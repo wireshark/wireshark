@@ -1583,7 +1583,7 @@ then
 	AC_PATH_PROG(UIC, uic-qt4)
 	if test "x$UIC" = x
 	then
-		if test "x$with_qt" = "xyes"; then
+		if test "x$have_qt" = "xyes"; then
 			#
 			# If you want to build with Qt, you'd better
 			# have uic.
@@ -1609,7 +1609,7 @@ then
 	AC_PATH_PROG(MOC, moc-qt4)
 	if test "x$MOC" = x
 	then
-		if test "x$with_qt" = "xyes"; then
+		if test "x$have_qt" = "xyes"; then
 			#
 			# If you want to build with Qt, you'd better
 			# have moc.
