@@ -27,7 +27,7 @@
 		<type type-name="Unsigned32"/>
 	</avp>
 	<avp name="CC-Request-Type" code="416" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-		<type type-name="Unsigned32"/>
+		<type type-name="Enumerated"/>
 		<enum name="INITIAL_REQUEST"     code="1"/>
 		<enum name="UPDATE_REQUEST"      code="2"/>
 		<enum name="TERMINATION_REQUEST" code="3"/>
@@ -126,7 +126,7 @@
 		<type type-name="UTF8String"/>
 	</avp>
 	<avp name="Requested-Action" code="436" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-		<type type-name="Unsigned32"/>
+		<type type-name="Enumerated"/>
 		<enum name="DIRECT_DEBITING"  code="0"/>
 		<enum name="REFUND_ACCOUNT"   code="1"/>
 		<enum name="CHECK_BALANCE"    code="2"/>
@@ -200,7 +200,7 @@
 		<enum name="RESTRICT_ACCESS" code="2"/>
 	</avp>
 	<avp name="Subscription-Id-Type" code="450" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="mustnot">
-		<type type-name="Unsigned32"/>
+		<type type-name="Enumerated"/>
 		<enum name="END_USER_E164"    code="0"/>
 		<enum name="END_USER_IMSI"    code="1"/>
 		<enum name="END_USER_SIP_URI" code="2"/>

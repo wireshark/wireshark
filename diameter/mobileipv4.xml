@@ -31,7 +31,7 @@
 		<type type-name="Unsigned32"/>
 	</avp>
 
-	<!-- 324            Unassigned -->
+	<!-- 324 Unassigned -->
 	<avp name="Unassigned" code="324" mandatory="may">
 		<type type-name="OctetString"/>
 	</avp>
@@ -52,7 +52,7 @@
 		</grouped>
 	</avp>
 
-	<!-- 327            Unassigned -->
+	<!-- 327 Unassigned -->
 	<avp name="Unassigned" code="327" mandatory="may">
 		<type type-name="OctetString"/>
 	</avp>
@@ -73,7 +73,7 @@
 		</grouped>
 	</avp>
 
-	<!-- 330            Unassigned -->
+	<!-- 330 Unassigned -->
 	<avp name="Unassigned" code="330" mandatory="may">
 		<type type-name="OctetString"/>
 	</avp>
@@ -166,12 +166,12 @@
 		</grouped>
 	</avp>
 	<!--
-	349-362        Unassigned
+	349-362 Unassigned
 	in dictionary.xml
-	363            Accounting-Input-Octets            [RFC4005][RFC4004]
-	364            Accounting-Output-Octets           [RFC4005][RFC4004]
-	365            Accounting-Input-Packets           [RFC4005][RFC4004]
-	366            Accounting-Output-Packets          [RFC4005][RFC4004]
+	363	Accounting-Input-Octets			[RFC4005][RFC4004]
+	364	Accounting-Output-Octets		[RFC4005][RFC4004]
+	365	Accounting-Input-Packets		[RFC4005][RFC4004]
+	366	Accounting-Output-Packets		[RFC4005][RFC4004]
 	in SIP.xml
 	-->
 	<avp name="MIP-MSA-Lifetime" code="367" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">

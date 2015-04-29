@@ -3,42 +3,43 @@
 <!-- ETSI ES 283 035 V2.5.1 (2008-08) -->
 
 
-	<application id="16777231" name="Diameter e2e4 Application" uri="http://pda.etsi.org">
+<application id="16777231" name="Diameter e2e4 Application" uri="http://pda.etsi.org">
 
 	<!-- ETSI ES 283 026 V1.6.0 (2008-02) Specifies some experimental resultcodes with vendor id ETSI
 		6.3.2 Experimental-Result-Code AVP values defined in the present
 		document
 	This clause defines the specific values of the Experimental-Result-Code AVP (vendor-id is ETSI):
-  
-  XXX prefixed with ETSI to not clash with the IETF one, that causes some filter problem with Wireshark when creating custom columns
-  
-  The following tshark parameters ” -Y diameter -z
-proto,colinfo,diameter.Experimental-Result-Code,diameter.Experimental-Result-Code”
 
-yields no result where as
+	XXX prefixed with ETSI to not clash with the IETF one, that causes some filter problem with Wireshark when creating custom columns
 
--Y diameter -z proto,colinfo,diameter.Result-Code,diameter.Result-Code
+	The following tshark parameters ” -Y diameter -z
+	proto,colinfo,diameter.Experimental-Result-Code,diameter.Experimental-Result-Code”
 
-Does
-  
+	yields no result where as
+
+	-Y diameter -z proto,colinfo,diameter.Result-Code,diameter.Result-Code
+
+	Does
+
 		<avp name="Experimental-Result-Code" code="298" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="no" >
 	-->
-    <avp name="ETSI-Experimental-Result-Code" code="298" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="no" >
-      <type type-name="Unsigned32"/>
-			<enum name="INSUFFICIENT_RESOURCES" code="4041"/>
-			<enum name="COMMIT_FAILURE"		code="4043"/>
-			<enum name="REFRESH_FAILURE"		code="4044"/>
-			<enum name="QOS_PROFILE_FAILURE"	code="4045"/>
-			<enum name="ACCESS_PROFILE_FAILURE" code="4046"/>
-			<enum name="PRIORITY_NOT_GRANTED"	code="4047"/>
-			<enum name="MODIFICATION_FAILURE"	code="5041"/>
-		</avp>
-<!-- dummy AVP to fill out the range -->
-    <avp name="Not defined in .xml" code="299" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
-      <type type-name="OctetString"/>
-    </avp>
 
-    <!-- ************************* e4 AVPs ************************ -->
+	<avp name="ETSI-Experimental-Result-Code" code="298" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="no" >
+		<type type-name="Enumerated"/>
+		<enum name="INSUFFICIENT_RESOURCES"	code="4041"/>
+		<enum name="COMMIT_FAILURE"		code="4043"/>
+		<enum name="REFRESH_FAILURE"		code="4044"/>
+		<enum name="QOS_PROFILE_FAILURE"	code="4045"/>
+		<enum name="ACCESS_PROFILE_FAILURE"	code="4046"/>
+		<enum name="PRIORITY_NOT_GRANTED"	code="4047"/>
+		<enum name="MODIFICATION_FAILURE"	code="5041"/>
+		</avp>
+	<!-- dummy AVP to fill out the range -->
+	<avp name="Not defined in .xml" code="299" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<!-- ************************* e4 AVPs ************************ -->
 
 		<avp name="Globally-Unique-Address" code="300" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<grouped>
@@ -843,4 +844,4 @@ Does
 		<avp name="ETSI-Digest-Response-Auth" code="521" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
 			<type type-name="UTF8String"/>
 		</avp>
-	</application>
+</application>

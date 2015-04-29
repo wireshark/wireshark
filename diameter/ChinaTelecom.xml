@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Dummy application Id picked from the list to avoid duplicates-->
-  <application id="16777224" name="3GPP Cx" uri="http://www.ietf.org/rfc/rfc4006.txt">
-
-		<avp name="Dummy" code="0" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="ChinaTelecom">
-			<type type-name="OctetString"/>
-		</avp>	
-	</application>

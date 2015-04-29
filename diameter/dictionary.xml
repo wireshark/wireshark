@@ -24,7 +24,6 @@
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
 	<!ENTITY Nokia			SYSTEM "Nokia.xml">
 	<!ENTITY NokiaSolutionsAndNetworks	SYSTEM "NokiaSolutionsAndNetworks.xml">
-	<!ENTITY SKT			SYSTEM "SKT.xml">
 	<!ENTITY ChinaTelecom		SYSTEM "ChinaTelecom.xml">
 	<!ENTITY VerizonWireless	SYSTEM "VerizonWireless.xml">
 	<!ENTITY HP			SYSTEM "HP.xml">
@@ -6395,16 +6394,16 @@
 	<application id="16777221"	name="3GPP Zh"				uri="http://www.3GPP.org/ftp/Specs/html-info/29109.htm"></application>
 	<!-- application 16777222	is defined in TGPP.xml -->
 	<!-- application 16777223	is defined in TGPP.xml -->
-	<!-- application 16777224	is defined in ChinaTelecom.xml -->
+	<application id="16777224"	name="3GPP Gx"				uri="http://www.3gpp.org/ftp/Specs/html-info/29210.htm">
 	<application id="16777225"	name="3GPP Gx over Gy"			uri="http://www.3GPP.org/ftp/Specs/html-info/29210.htm"></application>
 	<application id="16777226"	name="3GPP MM10"			uri="http://www.3GPP.org/ftp/Specs/html-info/29140.htm"></application>
 	<!-- application 16777227	is defined in Ericsson.xml -->
-	<!-- application 16777228	is defined in starent.xml -->
+	<!-- application 16777228	is defined in Ericsson.xml -->
 	<application id="16777229"	name="3GPP Rx Release 6"		uri="http://www.3GPP.org/ftp/Specs/html-info/29211.htm"></application>
 	<application id="16777230"	name="3GPP Pr"				uri="http://www.3gpp.org/ftp/Specs/html-info/29234.htm"></application>
 	<!-- application 16777231	is defined in etsie2e4.xml -->
-	<application id="16777232"	name="Ericsson Charging-CIP"		uri="none"></application>
-	<application id="16777233"	name="Ericsson Mm"			uri="none"></application>
+	<!-- application 16777232	is defined in Ericsson.xml -->
+	<!-- application 16777233	is defined in Ericsson.xml -->
 	<!-- application 16777234	is defined in Vodafone.xml -->
 	<application id="16777235"	name="ITU-T Rs"				uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=11971"></application>
 	<!-- application 16777236	is defined in TGPP.xml -->
@@ -6417,7 +6416,7 @@
 	<application id="16777243"	name="Policy Processing"		uri="none"></application>
 	<application id="16777244"	name="Juniper Policy-Control-JSRC"	uri="none"></application>
 	<application id="16777245"	name="ITU-T S-TC1"			uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=9340"></application>
-	<!-- application 16777246	is defined in Nokia.xml -->
+	<!-- application 16777246	is defined in NokiaSolutionsAndNetworks.xml -->
 	<application id="16777247"	name="3GPP2 CAN Access Authentication and Authorization"	uri="http://www.3gpp2.org/Public_html/specs/X.S0054-100-0_v2.0_080909.pdf"></application>
 	<application id="16777248"	name="3GPP2 WLAN Interworking Access Authentication and Authorization"	uri="http://www.3gpp2.org/Public_html/specs/X.S0028-200-A_v1.0_080625.pdf"></application>
 	<application id="16777249"	name="3GPP2 WLAN Interworking Accounting"	uri="http://www.3gpp2.org/Public_html/specs/X.S0028-200-A_v1.0_080625.pdf"></application>
@@ -6440,7 +6439,7 @@
 	<application id="16777266"	name="3GPP Gxx"				uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
 	<!-- application 16777267	is defined in TGPP.xml -->
 	<application id="16777268"	name="3GPP Zpn"				uri="http://www.3gpp.org/ftp/Specs/html-info/29109.htm"></application>
-	<application id="16777269"	name="Ericsson HSI"			uri="none"></application>
+	<!-- application 16777269	is defined in Ericsson.xml -->
 	<application id="16777270"	name="Juniper-Example"			uri="none"></application>
 	<application id="16777271"	name="ITU-T Ri"				uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=9881"></application>
 	<application id="16777272"	name="3GPP S6b"				uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
@@ -6474,10 +6473,10 @@
 	<application id="16777298"	name="Pi*3GPP2 Diameter Application"	uri="http://www.3gpp2.org/Public_html/specs/X.S0057-A%20v2.0_20121018.pdf"></application>
 	<application id="16777299"	name="Sandvine Rf+"			uri="none"></application>
 	<application id="16777300"	name="Subscription Information Application" uri="none"></application>
-	<application id="16777301"	name="Ericsson Charging-DCIP"		uri="none"></application>
-	<!-- application 16777302	is defined in NokiaSolutionsAndNetworks.xml -->
+	<!-- application 16777301	is defined in Ericsson.xml -->
+	<application id="16777302"	name="3GPP Sy"				uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
 	<application id="16777303"	name="3GPP Sd"				uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
-	<!-- application 16777304	is defined in SKT.xml -->
+	<!-- application 16777304	is defined in Ericsson.xml -->
 	<application id="16777305"	name="HP DTD"				uri="none"></application>
 	<application id="16777306"	name="ITU-T M9"				uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=11570"></application>
 	<application id="16777307"	name="ITU-T M13"			uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=11712"></application>
@@ -6488,20 +6487,20 @@
 	<application id="16777312"	name="3GPP S6c"				uri="http://www.3gpp.org/ftp/Specs/html-info/29338.htm"></application>
 	<application id="16777313"	name="3GPP SGd"				uri="http://www.3gpp.org/ftp/Specs/html-info/29338.htm"></application>
 	<application id="16777314"	name="Intrado-SLg"			uri="none"></application>
-	<application id="16777315"	name="Ericsson Diameter Signalling Controller Application (DSC)" uri="none"></application>
+	<!-- application 16777315	is defined in Ericsson.xml -->
 	<application id="16777316"	name="Verizon-Femto-Loc"		uri="none"></application>
 	<!-- application 16777317	is defined in NokiaSolutionsAndNetworks.xml -->
 	<application id="16777318"	name="3GPP S15"				uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
 	<application id="16777319"	name="3GPP S9a"				uri="http://www.3gpp.org/ftp/Specs/html-info/29215.htm"></application>
 	<application id="16777320"	name="3GPP S9a*"			uri="http://www.3gpp.org/ftp/Specs/html-info/29215.htm"></application>
 	<application id="16777321"	name="Gateway Location Application"	uri="none"></application>
-	<!-- application 16777322	is defined in VerizonWireless.xml -->
-	<application id="16777323"	name="3GPP2 M1"				uri="http://www.3gpp2.org/Public_html/specs/X.S0068-0_v1.0_M2M_Enhancements_20140718.pdf"></application>
+	<application id="16777322"	name="Verizon Session Recovery"		uri="none">
+	<!-- application 16777323	is defined in TGPP2.xml -->
 	<application id="16777324"	name="MAGIC Client Interface Protocol (CIP)" uri="none"></application>
 	<application id="16777325"	name="ITU-T Nc"				uri="http://www.itu.int/ITU-T/recommendations/rec.aspx?rec=12217"></application>
 	<application id="16777326"	name="ITU-T Ne"				uri="none"></application>
-	<application id="16777327"	name="Ericsson Sx"			uri="none"></application>
-	<application id="16777328"	name="Nokia Service Extension, NSE"	uri="none"></application>
+	<!-- application 16777327	is defined in Ericsson.xml -->
+	<!-- application 16777328	is defined in Nokia.xml -->
 	<application id="16777329"	name="Rivada Xd"			uri="none"></application>
 	<application id="16777330"	name="Rivada Xm"			uri="none"></application>
 	<application id="16777331"	name="Rivada Xh"			uri="none"></application>
@@ -6514,7 +6513,7 @@
 	<application id="16777338"	name="Juniper Domain Policy"		uri="none"></application>
 	<application id="16777339"	name="Host Observer"			uri="none"></application>
 	<application id="16777340"	name="3GPP PC6/PC7"			uri="http://www.3gpp.org/ftp/Specs/html-info/29345.htm"></application>
-	<application id="16777341"	name="Nokia Sdr"			uri="none"></application>
+	<!-- application 16777341	is defined in Nokia.xml -->
 	<application id="16777342"	name="3GPP Np"				uri="http://www.3gpp.org/ftp/Specs/html-info/29217.htm"></application>
 	<application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"></application>
 	<!-- *********************** End Application IDs ************************** -->
@@ -6524,24 +6523,17 @@
 	<!-- ************************* Vendors **************************** -->
 	<!-- ************************************************************** -->
 	<vendor vendor-id="None"			code="0"	name="None"/>
-	<vendor vendor-id="HP"				code="11"	name="Hewlett Packard"/>
-	<vendor vendor-id="Sun"				code="42"	name="Sun Microsystems, Inc."/>
 	<vendor vendor-id="Merit"			code="61"	name="Merit Networks"/>
-	<vendor vendor-id="Nokia"			code="94"	name="Nokia"/>
-	<vendor vendor-id="Ericsson"			code="193"	name="Ericsson"/>
 	<vendor vendor-id="USR"				code="429"	name="US Robotics Corp."/>
-	<vendor vendor-id="ALU"				code="637"	name="ALU Network"/>
 	<vendor vendor-id="Lucent"			code="1751"	name="Lucent Technologies"/>
 	<vendor vendor-id="Huawei"			code="2011"	name="Huawei"/>
 	<vendor vendor-id="Deutsche_Telekom_AG"		code="2937"	name="Deutsche Telekom AG"/>
 	<vendor vendor-id="Acision"			code="3830"	name="Acision"/>
-	<vendor vendor-id="TGPP2"			code="5535"	name="3GPP2"/>
 	<vendor vendor-id="SKT"				code="5806"	name="SK Telecom"/>
-	<vendor vendor-id="Starent"			code="8164"	name="Starent"/>
 	<vendor vendor-id="TGPP"			code="10415"	name="3GPP"/>
+	<vendor vendor-id="VerizonWireless"		code="12951"	name="Verizon Wireless"/>
 	<vendor vendor-id="ETSI"			code="13019"	name="ETSI"/>
 	<vendor vendor-id="Tango"			code="13421"	name="Tango Telecom Limited"/>
-	<vendor vendor-id="NokiaSolutionsAndNetworks"	code="28458"	name="Nokia Solutions and Networks"/>
 	<vendor vendor-id="ChinaTelecom"		code="81000"	name="China Telecom"/>
 	<vendor vendor-id="TGPPCX"			code="16777216"	name="3GPP CX/DX"/>
 	<!-- *********************** End Vendors ************************** -->
@@ -6563,7 +6555,6 @@
 	&AlcatelLucent;
 	&Nokia;
 	&NokiaSolutionsAndNetworks;
-	&SKT;
 	&ChinaTelecom;
 	&VerizonWireless;
 	&HP;

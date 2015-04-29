@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<vendor vendor-id="Sun"				code="42"	name="Sun Microsystems, Inc."/>
+
 <application id="555" name="Sun Ping Application" uri="ftp://ftp.ietf.org/internet-drafts/draft-calhoun-diameter-sun-ping-02.txt">
 	<command name="Ping" code="511" vendor-id="Sun"/>
 

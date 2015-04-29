@@ -71,7 +71,6 @@ diameterdir = $(pkgdatadir)/diameter
 include diameter/Custom.make
 dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/chargecontrol.xml \
-	diameter/ChinaTelecom.xml \
 	diameter/Cisco.xml \
 	diameter/Custom.xml \
 	diameter/dictionary.dtd \
@@ -91,10 +90,8 @@ dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/AlcatelLucent.xml \
 	diameter/Nokia.xml \
 	diameter/NokiaSolutionsAndNetworks.xml \
-	diameter/SKT.xml \
 	diameter/HP.xml \
-	diameter/Oracle.xml \
-	diameter/VerizonWireless.xml
+	diameter/Oracle.xml
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<application id="16777237" name="3GPP2 Ty" uri="http://www.3gpp2.org/public_html/specs/x.s0013-014-0_v1.0_080224.pdf">
+<vendor vendor-id="TGPP2"			code="5535"	name="3GPP2"/>
+
+<application id="16777323"	name="3GPP2 M1"	uri="http://www.3gpp2.org/Public_html/specs/X.S0068-0_v1.0_M2M_Enhancements_20140718.pdf"></application>
+
+<application id="16777237"	name="3GPP2 Ty"	uri="http://www.3gpp2.org/public_html/specs/x.s0013-014-0_v1.0_080224.pdf">
 	<!--- TGPP2 AVPs X.S0013-013-0 (Tx):
 		http://www.3gpp2.org/Public_html/specs/X.S0013-013-0_v1.0_080224.pdf
 	-->
@@ -144,4 +148,3 @@
 		<type type-name="UTF8String"/>
 	</avp>
 </application>
-

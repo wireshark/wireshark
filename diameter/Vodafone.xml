@@ -2,7 +2,7 @@
 
 <vendor vendor-id="Vodafone"			code="12645"	name="Vodafone"/>
 
-<application id="16777234" name="Vodafone Gx+" uri="http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt">
+<application id="16777234" name="Vodafone Gx+" uri="none">
 
 	<avp name="Context-Type" code="256" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Enumerated"/>

@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Nokia verndor-specific AVPs. Simple encoding, by old (oleksandr.darchuk[AT]gmail.com). 02.03.2009 -->
+<!-- Nokia vendor-specific AVPs. Simple encoding, by old (oleksandr.darchuk[AT]gmail.com). 02.03.2009 -->
 
-<application id="16777246" name="NSN Unified Charging Trigger Function (UCTF)" uri="none">
+<application id="16777328"	name="Nokia Service Extension, NSE"	uri="none"></application>
+<application id="16777341"	name="Nokia Sdr"			uri="none"></application>
+
+<vendor vendor-id="Nokia"			code="94"	name="Nokia">
 
 	<avp name="Nokia-IMS-Media-Component-Id" code="5101" vendor-id="Nokia">
 		<type type-name="Unsigned32"/>
@@ -50,4 +53,4 @@
 		<type type-name="OctetString"/>
 	</avp>
 
-</application>
+</vendor>
