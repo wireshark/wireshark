@@ -25,7 +25,8 @@ message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 if(WIN32)
 	# Needed for proper Qt linking. See
 	# http://www.cmake.org/cmake/help/v3.0/policy/CMP0020.html
-	cmake_minimum_required(VERSION 2.8.11)
+	# 3.1.3 is the currently supported version
+	cmake_minimum_required(VERSION 3.1.3)
 else()
 	cmake_minimum_required(VERSION 2.8.3)
 endif()
@@ -45,6 +46,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 # Set old behaviour for LOCATION property
 if (POLICY CMP0026)
 	cmake_policy(SET CMP0026 OLD)
+endif()
+
+# Set old behaviour for variable quoting
+if (POLICY CMP0054)
+	cmake_policy(SET CMP0054 OLD)
 endif()
 
 # If our target platform is enforced by our generator, set
