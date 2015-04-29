@@ -24,8 +24,6 @@
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
 	<!ENTITY Nokia			SYSTEM "Nokia.xml">
 	<!ENTITY NokiaSolutionsAndNetworks	SYSTEM "NokiaSolutionsAndNetworks.xml">
-	<!ENTITY ChinaTelecom		SYSTEM "ChinaTelecom.xml">
-	<!ENTITY VerizonWireless	SYSTEM "VerizonWireless.xml">
 	<!ENTITY HP			SYSTEM "HP.xml">
 	<!ENTITY Oracle			SYSTEM "Oracle.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
@@ -6555,8 +6553,6 @@
 	&AlcatelLucent;
 	&Nokia;
 	&NokiaSolutionsAndNetworks;
-	&ChinaTelecom;
-	&VerizonWireless;
 	&HP;
 	&Oracle;
 	&Custom;
