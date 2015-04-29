@@ -60,6 +60,7 @@ set(WIRETAP_FILES
 	netscaler.c
 	netscreen.c
 	nettl.c
+	nettrace_3gpp_32_423.c
 	network_instruments.c
 	netxray.c
 	ngsniffer.c

@@ -65,6 +65,7 @@ NONGENERATED_C_FILES = \
 	netscaler.c		\
 	netscreen.c		\
 	nettl.c			\
+	nettrace_3gpp_32_423.c	\
 	network_instruments.c	\
 	netxray.c		\
 	ngsniffer.c		\
@@ -125,6 +126,7 @@ NONGENERATED_HEADER_FILES = \
 	netscreen.h		\
 	netscaler.h		\
 	nettl.h			\
+	nettrace_3gpp_32_423.h	\
 	network_instruments.h	\
 	netxray.h		\
 	ngsniffer.h		\

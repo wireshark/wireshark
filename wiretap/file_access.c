@@ -89,6 +89,7 @@
 #include "stanag4607.h"
 #include "capsa.h"
 #include "pcap-encap.h"
+#include "nettrace_3gpp_32_423.h"
 
 /*
  * Add an extension, and all compressed versions thereof, to a GSList
@@ -340,7 +341,7 @@ static struct open_info open_info_base[] = {
 	{ "InfoVista 5View capture",                OPEN_INFO_MAGIC,     _5views_open,             NULL,       NULL, NULL },
 	{ "Network Instruments Observer",           OPEN_INFO_MAGIC,     network_instruments_open, NULL,       NULL, NULL },
 	{ "WildPackets tagged",                     OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
-	{ "Colasoft Capsa",                         OPEN_INFO_MAGIC,     capsa_open,          NULL,       NULL, NULL },
+	{ "Colasoft Capsa",                         OPEN_INFO_MAGIC,     capsa_open,               NULL,       NULL, NULL },
 	{ "DBS Etherwatch (VMS)",                   OPEN_INFO_MAGIC,     dbs_etherwatch_open,      NULL,       NULL, NULL },
 	{ "Tektronix K12xx 32-bit .rf5 format",     OPEN_INFO_MAGIC,     k12_open,                 NULL,       NULL, NULL },
 	{ "Catapult DCT2000 trace (.out format)",   OPEN_INFO_MAGIC,     catapult_dct2000_open,    NULL,       NULL, NULL },
@@ -348,6 +349,8 @@ static struct open_info open_info_base[] = {
 	{ "Symbian OS btsnoop",                     OPEN_INFO_MAGIC,     btsnoop_open,             "log",      NULL, NULL },
 	{ "EyeSDN USB S0/E1 ISDN trace format",     OPEN_INFO_MAGIC,     eyesdn_open,              NULL,       NULL, NULL },
 	{ "Transport-Neutral Encapsulation Format", OPEN_INFO_MAGIC,     tnef_open,                NULL,       NULL, NULL },
+	/* 3GPP Nettrace must come before MIME Files as it's XML based*/
+	{ "3GPP Nettrace 32 423 Format",            OPEN_INFO_MAGIC,     nettrace_3gpp_32_423_file_open, NULL, NULL, NULL },
 	{ "MIME Files Format",                      OPEN_INFO_MAGIC,     mime_file_open,           NULL,       NULL, NULL },
 	{ "Novell LANalyzer",                       OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },
 	/*
@@ -1598,6 +1601,11 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	{ "NetScaler Trace (Version 3.5)", "nstrace35", "cap", NULL,
 	  TRUE, FALSE, 0,
 	  nstrace_35_dump_can_write_encap, nstrace_dump_open, NULL },
+
+	/* WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423 */
+	{ "Nettrace 3GPP 32 423", "nettrace3gpp324423", NULL, NULL,
+	  FALSE, FALSE, 0,
+	  NULL, NULL, NULL },
 };
 
 gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
