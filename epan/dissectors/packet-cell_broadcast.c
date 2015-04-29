@@ -254,15 +254,13 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
 {
    tvbuff_t * tvb_out = NULL;
    int length = tvb_reported_length(tvb) - offset;
-   gchar *utf8_text = NULL, *utf8_out;
+   gchar *text;
 
    switch(sms_encoding){
    case SMS_ENCODING_7BIT:
    case SMS_ENCODING_7BIT_LANG:
-      utf8_text = tvb_get_ts_23_038_7bits_string(wmem_packet_scope(), tvb, offset<<3, (length*8)/7);
-      utf8_out = g_strdup(utf8_text);
-      tvb_out = tvb_new_child_real_data(tvb, utf8_out, (guint)strlen(utf8_out), (guint)strlen(utf8_out));
-      tvb_set_free_cb(tvb_out, g_free);
+      text = tvb_get_ts_23_038_7bits_string(pinfo->pool, tvb, offset<<3, (length*8)/7);
+      tvb_out = tvb_new_child_real_data(tvb, text, (guint)strlen(text), (guint)strlen(text));
       add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
       break;
 
@@ -270,20 +268,16 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
       /*
        * XXX - encoding is "user-defined".  Have a preference?
        */
-      utf8_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII|ENC_NA);
-      utf8_out = g_strdup(utf8_text);
-      tvb_out = tvb_new_child_real_data(tvb, utf8_out, (guint)strlen(utf8_out), (guint)strlen(utf8_out));
-      tvb_set_free_cb(tvb_out, g_free);
-      add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
+      text = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII|ENC_NA);
+      tvb_out = tvb_new_child_real_data(tvb, text, (guint)strlen(text), (guint)strlen(text));
+      add_new_data_source(pinfo, tvb_out, "8 bit data");
       break;
 
    case SMS_ENCODING_UCS2:
    case SMS_ENCODING_UCS2_LANG:
-      utf8_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
-      utf8_out = g_strdup(utf8_text);
-      tvb_out = tvb_new_child_real_data(tvb, utf8_out, (guint)strlen(utf8_out), (guint)strlen(utf8_out));
-      tvb_set_free_cb(tvb_out, g_free);
-      add_new_data_source(pinfo, tvb_out, "unpacked UCS-2 data");
+      text = tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
+      tvb_out = tvb_new_child_real_data(tvb, text, (guint)strlen(text), (guint)strlen(text));
+      add_new_data_source(pinfo, tvb_out, "UCS-2 data");
       break;
 
    default:
