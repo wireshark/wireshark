@@ -228,7 +228,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 #define BITNO_8(x)  (((x) >> 4) ? 4 + BITNO_4((x) >> 4) : BITNO_4((x)))
 #define BITNO_4(x)  (((x) >> 2) ? 2 + BITNO_2((x) >> 2) : BITNO_2((x)))
 #define BITNO_2(x)  (((x) & 2) ? 1 : 0)
-#define BIT(n)	(1 << n)
+#define BIT(n)	(1U << n)
 
 /* not officially defined (yet) */
 #define IEEE80211_RADIOTAP_F_SHORTGI	0x80

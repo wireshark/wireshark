@@ -505,7 +505,7 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (infoflag) {
 		/* Append the type(s) of the system to the COL_INFO line ... */
 		for (i = 0; i < 32; i++) {
-			if (flags & (1<<i)) {
+			if (flags & (1U<<i)) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 					val_to_str(i, server_types,
 					"Unknown server type:%d"));
@@ -884,103 +884,103 @@ proto_register_smb_browse(void)
 
 		{ &hf_server_type_workstation,
 			{ "Workstation", "browser.server_type.workstation", FT_BOOLEAN, 32,
-			TFS(&tfs_workstation), 1<<SERVER_WORKSTATION, "Is This A Workstation?", HFILL }},
+			TFS(&tfs_workstation), 1U<<SERVER_WORKSTATION, "Is This A Workstation?", HFILL }},
 
 		{ &hf_server_type_server,
 			{ "Server", "browser.server_type.server", FT_BOOLEAN, 32,
-			TFS(&tfs_server), 1<<SERVER_SERVER, "Is This A Server?", HFILL }},
+			TFS(&tfs_server), 1U<<SERVER_SERVER, "Is This A Server?", HFILL }},
 
 		{ &hf_server_type_sql,
 			{ "SQL", "browser.server_type.sql", FT_BOOLEAN, 32,
-			TFS(&tfs_sql), 1<<SERVER_SQL_SERVER, "Is This A SQL Server?", HFILL }},
+			TFS(&tfs_sql), 1U<<SERVER_SQL_SERVER, "Is This A SQL Server?", HFILL }},
 
 		{ &hf_server_type_domain,
 			{ "Domain Controller", "browser.server_type.domain_controller", FT_BOOLEAN, 32,
-			TFS(&tfs_domain), 1<<SERVER_DOMAIN_CONTROLLER, "Is This A Domain Controller?", HFILL }},
+			TFS(&tfs_domain), 1U<<SERVER_DOMAIN_CONTROLLER, "Is This A Domain Controller?", HFILL }},
 
 		{ &hf_server_type_backup,
 			{ "Backup Controller", "browser.server_type.backup_controller", FT_BOOLEAN, 32,
-			TFS(&tfs_backup), 1<<SERVER_BACKUP_CONTROLLER, "Is This A Backup Domain Controller?", HFILL }},
+			TFS(&tfs_backup), 1U<<SERVER_BACKUP_CONTROLLER, "Is This A Backup Domain Controller?", HFILL }},
 
 		{ &hf_server_type_time,
 			{ "Time Source", "browser.server_type.time", FT_BOOLEAN, 32,
-			TFS(&tfs_time), 1<<SERVER_TIME_SOURCE, "Is This A Time Source?", HFILL }},
+			TFS(&tfs_time), 1U<<SERVER_TIME_SOURCE, "Is This A Time Source?", HFILL }},
 
 		{ &hf_server_type_apple,
 			{ "Apple", "browser.server_type.apple", FT_BOOLEAN, 32,
-			TFS(&tfs_apple), 1<<SERVER_APPLE_SERVER, "Is This An Apple Server ?", HFILL }},
+			TFS(&tfs_apple), 1U<<SERVER_APPLE_SERVER, "Is This An Apple Server ?", HFILL }},
 
 		{ &hf_server_type_novell,
 			{ "Novell", "browser.server_type.novell", FT_BOOLEAN, 32,
-			TFS(&tfs_novell), 1<<SERVER_NOVELL_SERVER, "Is This A Novell Server?", HFILL }},
+			TFS(&tfs_novell), 1U<<SERVER_NOVELL_SERVER, "Is This A Novell Server?", HFILL }},
 
 		{ &hf_server_type_member,
 			{ "Member", "browser.server_type.member", FT_BOOLEAN, 32,
-			TFS(&tfs_member), 1<<SERVER_DOMAIN_MEMBER_SERVER, "Is This A Domain Member Server?", HFILL }},
+			TFS(&tfs_member), 1U<<SERVER_DOMAIN_MEMBER_SERVER, "Is This A Domain Member Server?", HFILL }},
 
 		{ &hf_server_type_print,
 			{ "Print", "browser.server_type.print", FT_BOOLEAN, 32,
-			TFS(&tfs_print), 1<<SERVER_PRINT_QUEUE_SERVER, "Is This A Print Server?", HFILL }},
+			TFS(&tfs_print), 1U<<SERVER_PRINT_QUEUE_SERVER, "Is This A Print Server?", HFILL }},
 
 		{ &hf_server_type_dialin,
 			{ "Dialin", "browser.server_type.dialin", FT_BOOLEAN, 32,
-			TFS(&tfs_dialin), 1<<SERVER_DIALIN_SERVER, "Is This A Dialin Server?", HFILL }},
+			TFS(&tfs_dialin), 1U<<SERVER_DIALIN_SERVER, "Is This A Dialin Server?", HFILL }},
 
 		{ &hf_server_type_xenix,
 			{ "Xenix", "browser.server_type.xenix", FT_BOOLEAN, 32,
-			TFS(&tfs_xenix), 1<<SERVER_XENIX_SERVER, "Is This A Xenix Server?", HFILL }},
+			TFS(&tfs_xenix), 1U<<SERVER_XENIX_SERVER, "Is This A Xenix Server?", HFILL }},
 
 		{ &hf_server_type_ntw,
 			{ "NT Workstation", "browser.server_type.ntw", FT_BOOLEAN, 32,
-			TFS(&tfs_ntw), 1<<SERVER_NT_WORKSTATION, "Is This A NT Workstation?", HFILL }},
+			TFS(&tfs_ntw), 1U<<SERVER_NT_WORKSTATION, "Is This A NT Workstation?", HFILL }},
 
 		{ &hf_server_type_wfw,
 			{ "WfW", "browser.server_type.wfw", FT_BOOLEAN, 32,
-			TFS(&tfs_wfw), 1<<SERVER_WINDOWS_FOR_WORKGROUPS, "Is This A Windows For Workgroups Server?", HFILL }},
+			TFS(&tfs_wfw), 1U<<SERVER_WINDOWS_FOR_WORKGROUPS, "Is This A Windows For Workgroups Server?", HFILL }},
 
 		{ &hf_server_type_nts,
 			{ "NT Server", "browser.server_type.nts", FT_BOOLEAN, 32,
-			TFS(&tfs_nts), 1<<SERVER_NT_SERVER, "Is This A NT Server?", HFILL }},
+			TFS(&tfs_nts), 1U<<SERVER_NT_SERVER, "Is This A NT Server?", HFILL }},
 
 		{ &hf_server_type_potentialb,
 			{ "Potential Browser", "browser.server_type.browser.potential", FT_BOOLEAN, 32,
-			TFS(&tfs_potentialb), 1<<SERVER_POTENTIAL_BROWSER, "Is This A Potential Browser?", HFILL }},
+			TFS(&tfs_potentialb), 1U<<SERVER_POTENTIAL_BROWSER, "Is This A Potential Browser?", HFILL }},
 
 		{ &hf_server_type_backupb,
 			{ "Backup Browser", "browser.server_type.browser.backup", FT_BOOLEAN, 32,
-			TFS(&tfs_backupb), 1<<SERVER_BACKUP_BROWSER, "Is This A Backup Browser?", HFILL }},
+			TFS(&tfs_backupb), 1U<<SERVER_BACKUP_BROWSER, "Is This A Backup Browser?", HFILL }},
 
 		{ &hf_server_type_masterb,
 			{ "Master Browser", "browser.server_type.browser.master", FT_BOOLEAN, 32,
-			TFS(&tfs_masterb), 1<<SERVER_MASTER_BROWSER, "Is This A Master Browser?", HFILL }},
+			TFS(&tfs_masterb), 1U<<SERVER_MASTER_BROWSER, "Is This A Master Browser?", HFILL }},
 
 		{ &hf_server_type_domainmasterb,
 			{ "Domain Master Browser", "browser.server_type.browser.domain_master", FT_BOOLEAN, 32,
-			TFS(&tfs_domainmasterb), 1<<SERVER_DOMAIN_MASTER_BROWSER, "Is This A Domain Master Browser?", HFILL }},
+			TFS(&tfs_domainmasterb), 1U<<SERVER_DOMAIN_MASTER_BROWSER, "Is This A Domain Master Browser?", HFILL }},
 
 		{ &hf_server_type_osf,
 			{ "OSF", "browser.server_type.osf", FT_BOOLEAN, 32,
-			TFS(&tfs_osf), 1<<SERVER_OSF, "Is This An OSF server ?", HFILL }},
+			TFS(&tfs_osf), 1U<<SERVER_OSF, "Is This An OSF server ?", HFILL }},
 
 		{ &hf_server_type_vms,
 			{ "VMS", "browser.server_type.vms", FT_BOOLEAN, 32,
-			TFS(&tfs_vms), 1<<SERVER_VMS, "Is This A VMS Server?", HFILL }},
+			TFS(&tfs_vms), 1U<<SERVER_VMS, "Is This A VMS Server?", HFILL }},
 
 		{ &hf_server_type_w95,
 			{ "Windows 95+", "browser.server_type.w95", FT_BOOLEAN, 32,
-			TFS(&tfs_w95), 1<<SERVER_WINDOWS_95, "Is This A Windows 95 or above server?", HFILL }},
+			TFS(&tfs_w95), 1U<<SERVER_WINDOWS_95, "Is This A Windows 95 or above server?", HFILL }},
 
 		{ &hf_server_type_dfs,
 			{ "DFS", "browser.server_type.dfs", FT_BOOLEAN, 32,
-			TFS(&tfs_dfs), 1<<SERVER_DFS_SERVER, "Is This A DFS server?", HFILL }},
+			TFS(&tfs_dfs), 1U<<SERVER_DFS_SERVER, "Is This A DFS server?", HFILL }},
 
 		{ &hf_server_type_local,
 			{ "Local", "browser.server_type.local", FT_BOOLEAN, 32,
-			TFS(&tfs_local), 1<<SERVER_LOCAL_LIST_ONLY, "Is This A Local List Only request?", HFILL }},
+			TFS(&tfs_local), 1U<<SERVER_LOCAL_LIST_ONLY, "Is This A Local List Only request?", HFILL }},
 
 		{ &hf_server_type_domainenum,
 			{ "Domain Enum", "browser.server_type.domainenum", FT_BOOLEAN, 32,
-			TFS(&tfs_domainenum), 1<<SERVER_DOMAIN_ENUM, "Is This A Domain Enum request?", HFILL }},
+			TFS(&tfs_domainenum), 1U<<SERVER_DOMAIN_ENUM, "Is This A Domain Enum request?", HFILL }},
 
 		{ &hf_election_version,
 			{ "Election Version", "browser.election.version", FT_UINT8, BASE_DEC,
@@ -1020,27 +1020,27 @@ proto_register_smb_browse(void)
 
 		{ &hf_election_desire_flags_backup,
 			{ "Backup", "browser.election.desire.backup", FT_BOOLEAN, 8,
-			TFS(&tfs_desire_backup), 1<<DESIRE_BACKUP, "Is this a backup server", HFILL }},
+			TFS(&tfs_desire_backup), 1U<<DESIRE_BACKUP, "Is this a backup server", HFILL }},
 
 		{ &hf_election_desire_flags_standby,
 			{ "Standby", "browser.election.desire.standby", FT_BOOLEAN, 8,
-			TFS(&tfs_desire_standby), 1<<DESIRE_STANDBY, "Is this a standby server?", HFILL }},
+			TFS(&tfs_desire_standby), 1U<<DESIRE_STANDBY, "Is this a standby server?", HFILL }},
 
 		{ &hf_election_desire_flags_master,
 			{ "Master", "browser.election.desire.master", FT_BOOLEAN, 8,
-			TFS(&tfs_desire_master), 1<<DESIRE_MASTER, "Is this a master server", HFILL }},
+			TFS(&tfs_desire_master), 1U<<DESIRE_MASTER, "Is this a master server", HFILL }},
 
 		{ &hf_election_desire_flags_domain_master,
 			{ "Domain Master", "browser.election.desire.domain_master", FT_BOOLEAN, 8,
-			TFS(&tfs_desire_domain_master), 1<<DESIRE_DOMAIN_MASTER, "Is this a domain master", HFILL }},
+			TFS(&tfs_desire_domain_master), 1U<<DESIRE_DOMAIN_MASTER, "Is this a domain master", HFILL }},
 
 		{ &hf_election_desire_flags_wins,
 			{ "WINS", "browser.election.desire.wins", FT_BOOLEAN, 8,
-			TFS(&tfs_desire_wins), 1<<DESIRE_WINS, "Is this a WINS server", HFILL }},
+			TFS(&tfs_desire_wins), 1U<<DESIRE_WINS, "Is this a WINS server", HFILL }},
 
 		{ &hf_election_desire_flags_nt,
 			{ "NT", "browser.election.desire.nt", FT_BOOLEAN, 8,
-			TFS(&tfs_desire_nt), 1<<DESIRE_NT, "Is this a NT server", HFILL }},
+			TFS(&tfs_desire_nt), 1U<<DESIRE_NT, "Is this a NT server", HFILL }},
 
 #if 0
 		{ &hf_election_revision,
@@ -1054,15 +1054,15 @@ proto_register_smb_browse(void)
 
 		{ &hf_election_os_wfw,
 			{ "WfW", "browser.election.os.wfw", FT_BOOLEAN, 8,
-			TFS(&tfs_os_wfw), 1<<OS_WFW, "Is this a WfW host?", HFILL }},
+			TFS(&tfs_os_wfw), 1U<<OS_WFW, "Is this a WfW host?", HFILL }},
 
 		{ &hf_election_os_ntw,
 			{ "NT Workstation", "browser.election.os.ntw", FT_BOOLEAN, 8,
-			TFS(&tfs_os_ntw), 1<<OS_NTW, "Is this a NT Workstation?", HFILL }},
+			TFS(&tfs_os_ntw), 1U<<OS_NTW, "Is this a NT Workstation?", HFILL }},
 
 		{ &hf_election_os_nts,
 			{ "NT Server", "browser.election.os.nts", FT_BOOLEAN, 8,
-			TFS(&tfs_os_nts), 1<<OS_NTS, "Is this a NT Server?", HFILL }},
+			TFS(&tfs_os_nts), 1U<<OS_NTS, "Is this a NT Server?", HFILL }},
 
 		{ &hf_server_uptime,
 			{ "Uptime", "browser.uptime", FT_UINT32, BASE_DEC,
