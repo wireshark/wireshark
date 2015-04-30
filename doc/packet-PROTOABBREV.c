@@ -36,7 +36,7 @@
 ...
 #endif
 
-#include <epan/packet.h>   /* Should be first Wireshark include (other than config.h)
+#include <epan/packet.h>   /* Should be first Wireshark include (other than config.h) */
 #include <epan/expert.h>   /* Include only as needed */
 #include <epan/prefs.h>    /* Include only as needed */
 
