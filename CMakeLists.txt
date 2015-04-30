@@ -86,15 +86,29 @@ if(WIN32)
 	endif()
 	message(STATUS "Building for ${WIRESHARK_TARGET_PLATFORM} using ${CMAKE_GENERATOR}")
 
+        # Determine where the 3rd party libraries will be
+	if( DEFINED ENV{WIRESHARK_LIB_DIR} )
+		# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
+		file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
+	elseif( DEFINED ENV{WIRESHARK_BASE_DIR} )
+		file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
+		set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
+        else()
+                # Don't know what to do
+                message(FATAL_ERROR "Neither WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR are defined")
+	endif()
+
 	# Download third-party libraries
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
-	file (TO_NATIVE_PATH "$ENV{WIRESHARK_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" _ws_lib_dir)
+	file (TO_NATIVE_PATH ${_PROJECT_LIB_DIR} _ws_lib_dir)
 	if(MSVC12)
 		set(_vsversion_args "12")
 	elseif(MSVC11)
 		set(_vsversion_args "11")
 	elseif(MSVC10)
 		set(_vsversion_args "10")
+	else()
+                message(FATAL_ERROR "Unsupported compiler ${CMAKE_C_COMPILER}")
 	endif()
 
 	# Is it possible to have a one-time, non-cached option in CMake? If
@@ -679,13 +693,6 @@ endif()
 if(ENABLE_ZLIB)
 	if (WIN32)
 		# On Windows we build our own version of zlib, so add the paths
-		if( DEFINED ENV{WIRESHARK_LIB_DIR} )
-			# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
-			file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
-		else()
-			file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
-			set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
-		endif()
 		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.8")
 		add_subdirectory("${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
 		set(ZLIB_INCLUDE_DIR  "${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")

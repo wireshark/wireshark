@@ -77,11 +77,11 @@ How to do an out of tree build using Visual C++ 2013:
 1) Follow https://www.wireshark.org/docs/wsdg_html_chunked/ChSetupWin32.html
    Steps 1-9
 1a) Set the library search path.
-    If you set WIRESHARK_LIB_DIR, it will be used as the top-level library
-    directory.
     If you set WIRESHARK_BASE_DIR,
     %WIRESHARK_BASE_DIR%\wireshark-%WIRESHARK_TARGET_PLATFORM%-libs will
     be used as the top-level library directory.
+    If you set WIRESHARK_LIB_DIR, it will be used as the top-level library
+    directory.  This definition will require changing for different builds (x86 & x64).
 1b) set WIRESHARK_TARGET_PLATFORM=win32 (or win64)
 1c) set QT5_BASE_DIR=C:\Qt\5.4.1\5.4\msvc2013_opengl (must match the Qt component path
     on your system)
@@ -91,24 +91,25 @@ How to do an out of tree build using Visual C++ 2013:
 2) mkdir c:\wireshark\build or as appropriate for you.
    You will need one build directory for each bitness (win32, win64) you wish to build.
 3) cd into the directory from 2) above.
-4) Run one of the following to generate the build files:
+4) Run the following to generate the build files:
    cmake -DPYTHON_EXECUTABLE=/path/to/python -DENABLE_CHM_GUIDES=on xxx path\to\sources
    where /path/to/python is the path to your Windows python executable, e.g. C:/Python27/python
    and path\to\sources is the absolute or relative path to the wireshark source tree
    and xxx is replaced with one of the following:
-       nothing - This will build a VS solution for win32 using the latest version of VS found.
-       -G "NMake Makefiles" - to build an nmake makefile.
+       nothing - This will build a VS solution for win32 using the latest version of VS found (preferred).
        -G "Visual Studio 12" ("12" builds for VS2013. Use "11" for VS2012 or "10" for VS2010.)
+       -G "NMake Makefiles" - to build an nmake makefile.
        -G "Visual Studio 12 Win64" (Win32 is the default)
 5) Run one of the following to build Wireshark:
-   nmake /X- VERBOSE=1 (or cmake --build . -- VERBOSE=1 ) (if you generated nmake files).
+   msbuild /m /p:Configuration=RelWithDebInfo wireshark.sln (preferred).
    Open Wireshark.sln in Windows Explorer to build in Visual Studio
-   msbuild /m /p:Configuration=RelWithDebInfo wireshark.sln
-   Subsequent changes to source files will be automagically detected
+   nmake /X- VERBOSE=1 (or cmake --build . -- VERBOSE=1 ) (if you generated nmake files).
+   Subsequent changes to source files and CMakeLists.txt will be automagically detected
    and new build files generated, i.e. step 4) doesn't need to be run again.
    Changes to the build environment, e.g. QT_BASE_DIR aren't detected so you must delete the
    build dir and start form step 2) again.
-6) The executables can be run from the appropriate directory, e.g. run\RelWithDebInfo
+6) The executables can be run from the appropriate directory, e.g. run\RelWithDebInfo for VS solutions
+   or run\ for NMake files.
 7) To build an installer, build the nsis_package project, e.g.
    msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
    nmake ???
