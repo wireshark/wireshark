@@ -169,6 +169,8 @@ static const value_string paramtypenames[] = {
     {'I', "Internal network (RFC 1918)"},
     {'l', "Local address"},
     {'L', "Local address"},
+    {'n', "request New port"},
+    {'N', "request New port"},
     {'r', "Remote address"},
     {'R', "Remote address"},
     {'s', "Symmetric RTP (default)"},
