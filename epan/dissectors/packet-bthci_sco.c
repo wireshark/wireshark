@@ -33,6 +33,8 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_sco = -1;
+static int hf_bthci_sco_reserved = -1;
+static int hf_bthci_sco_packet_status = -1;
 static int hf_bthci_sco_chandle = -1;
 static int hf_bthci_sco_length = -1;
 static int hf_bthci_sco_data = -1;
@@ -41,6 +43,14 @@ static int hf_bthci_sco_data = -1;
 static gint ett_bthci_sco = -1;
 
 static dissector_handle_t bthci_sco_handle;
+
+static const value_string packet_status_vals[] = {
+    { 0x00,   "Correctly Received Data"},
+    { 0x01,   "Possibly Invalid Data"},
+    { 0x02,   "No Data Received"},
+    { 0x03,   "Data Partially Lost"},
+    {0x0, NULL}
+};
 
 void proto_register_bthci_sco(void);
 void proto_reg_handoff_bthci_sco(void);
@@ -83,7 +93,9 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
             break;
     }
 
-    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_reserved, tvb,      offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_packet_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_chandle, tvb,       offset, 2, ENC_LITTLE_ENDIAN);
     flags   = tvb_get_letohs(tvb, offset);
     offset += 2;
 
@@ -236,6 +248,16 @@ void
 proto_register_bthci_sco(void)
 {
     static hf_register_info hf[] = {
+        { &hf_bthci_sco_reserved,
+            { "Reserved",                    "bthci_sco.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xC000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_sco_packet_status,
+            { "Packet Status",               "bthci_sco.packet_status",
+            FT_UINT16, BASE_HEX, VALS(packet_status_vals), 0x3000,
+            NULL, HFILL }
+        },
         { &hf_bthci_sco_chandle,
             { "Connection Handle",           "bthci_sco.chandle",
             FT_UINT16, BASE_HEX, NULL, 0x0FFF,
