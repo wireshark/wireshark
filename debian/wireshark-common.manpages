@@ -7,3 +7,4 @@ obj-*/wireshark-filter.4
 obj-*/capinfos.1
 obj-*/dumpcap.1
 obj-*/rawshark.1
+obj-*/reordercap.1
