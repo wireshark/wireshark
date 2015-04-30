@@ -1422,10 +1422,16 @@ proto_reg_handoff_c1222(void)
     dissector_add_uint("udp.port", global_c1222_port, c1222_udp_handle);
     initialized = TRUE;
   }
-  c1222_baseoid_len = oid_string2encoded(NULL, c1222_baseoid_str, &temp);
-  c1222_baseoid = (guint8 *)wmem_realloc(wmem_epan_scope(), c1222_baseoid, c1222_baseoid_len);
-  memcpy(c1222_baseoid, temp, c1222_baseoid_len);
-  wmem_free(NULL, temp);
+  if (c1222_baseoid_str && (c1222_baseoid_str[0] != '\0') &&
+      ((c1222_baseoid_len = oid_string2encoded(NULL, c1222_baseoid_str, &temp)) != 0)) {
+    c1222_baseoid = (guint8 *)wmem_realloc(wmem_epan_scope(), c1222_baseoid, c1222_baseoid_len);
+    memcpy(c1222_baseoid, temp, c1222_baseoid_len);
+    wmem_free(NULL, temp);
+  } else if (c1222_baseoid) {
+      wmem_free(wmem_epan_scope(), c1222_baseoid);
+      c1222_baseoid = NULL;
+      c1222_baseoid_len = 0;
+  }
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
