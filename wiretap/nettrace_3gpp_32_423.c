@@ -289,7 +289,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	gchar *wrt_err_info;
 	struct wtap_pkthdr phdr;
 
-	gboolean random = FALSE;
+	gboolean do_random = FALSE;
 	char *curr_pos, *next_pos;
 
 	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_");
@@ -463,10 +463,10 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 	/* Find out if random read was requested */
 	if (wth->random_fh){
-		random = TRUE;
+		do_random = TRUE;
 	}
 	file_info->wth_tmp_file =
-		wtap_open_offline(file_info->tmpname, WTAP_TYPE_AUTO, err, err_info, random);
+		wtap_open_offline(file_info->tmpname, WTAP_TYPE_AUTO, err, err_info, do_random);
 
 	if (!file_info->wth_tmp_file){
 		return WTAP_OPEN_ERROR;
