@@ -153,7 +153,7 @@ int next_ack_due()
   int ack_lost = 0, seg_lost = 0;
 
   if (next_slot == first_slot)
-    return (((unsigned int)(1<<31)) - 1);
+    return ((1U<<31) - 1);
 
   /*
    * Figure out if we need to issue an ACK. We skip all outstanding packets
@@ -178,7 +178,7 @@ int next_ack_due()
   }
 
   if (slot == next_slot)
-    return (((unsigned int)(1<<31)) - 1);
+    return ((1U<<31) - 1);
 
   /*
    * If there is only one slot occupied, or a segment was lost then
@@ -206,7 +206,7 @@ int next_ack_due()
       if (((first_slot + 1 + 2 * ack_lost) % SEG_HIST_SIZE) >= next_slot)
         /* XXX: FIXME, what about when the window is closed */
         /* XXX: FIXME, use the correct value for this       */
-        return (((unsigned int)(1<<31)) - 1);
+        return ((1U<<31) - 1);
       else
         return seg_hist[(first_slot + 1 + 2 * ack_lost) % SEG_HIST_SIZE].ts +
           ack_delay + jitter;

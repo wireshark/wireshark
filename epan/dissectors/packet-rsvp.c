@@ -3108,9 +3108,9 @@ dissect_rsvp_error(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_object_t
         proto_tree_add_item(rsvp_error_subtree, hf_rsvp_error_flags_in_place,
                                  tvb, offset3, 1, ENC_BIG_ENDIAN);
         proto_item_append_text(ti2, " %s %s %s",
-                               (error_flags & (1<<2))  ? "Path-State-Removed" : "",
-                               (error_flags & (1<<1))  ? "NotGuilty" : "",
-                               (error_flags & (1<<0))  ? "InPlace" : "");
+                               (error_flags & (1U<<2))  ? "Path-State-Removed" : "",
+                               (error_flags & (1U<<1))  ? "NotGuilty" : "",
+                               (error_flags & (1U<<0))  ? "InPlace" : "");
         error_code = tvb_get_guint8(tvb, offset3+1);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_error_error_code, tvb, offset3+1, 1, ENC_BIG_ENDIAN);
         error_val = dissect_rsvp_error_value(rsvp_object_tree, tvb, offset3+2, error_code);
@@ -3401,8 +3401,8 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_
             proto_tree_add_item(ethspec_profile_subtree, hf_rsvp_eth_tspec_tlv_coupling_flag,
                              tvb, offset+tlv_off+4, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(ti3, " %s %s",
-                                   (profile & (1<<1))  ? "CM" : "",
-                                   (profile & (1<<0))  ? "CF" : "");
+                                   (profile & (1U<<1))  ? "CM" : "",
+                                   (profile & (1U<<0))  ? "CF" : "");
             proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_index, tvb, offset+tlv_off+5, 1, ENC_NA);
             proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_reserved, tvb, offset+tlv_off+6, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_cir, tvb, offset+tlv_off+8, 4, ENC_BIG_ENDIAN);
@@ -3460,8 +3460,8 @@ dissect_rsvp_eth_tspec_tlv(proto_item *ti, packet_info* pinfo, proto_tree *rsvp_
             proto_tree_add_item(ethspec_profile_subtree, hf_rsvp_eth_tspec_tlv_coupling_flag,
                              tvb, offset+tlv_off+4, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(ti3, " %s %s",
-                                   (profile & (1<<1))  ? "CM" : "",
-                                   (profile & (1<<0))  ? "CF" : "");
+                                   (profile & (1U<<1))  ? "CM" : "",
+                                   (profile & (1U<<0))  ? "CF" : "");
             proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_index, tvb, offset+tlv_off+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_reserved, tvb, offset+tlv_off+6, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(rsvp_ethspec_subtree, hf_rsvp_eth_tspec_cir, tvb, offset+tlv_off+8, 4, ENC_BIG_ENDIAN);
@@ -5370,14 +5370,14 @@ dissect_rsvp_admin_status(proto_tree *ti, proto_tree *rsvp_object_tree,
         proto_tree_add_bitmask(rsvp_object_tree, tvb, offset2, hf_rsvp_admin_status_bits, TREE(TT_ADMIN_STATUS_FLAGS), status_flags, ENC_BIG_ENDIAN);
 
         proto_item_set_text(ti, "ADMIN-STATUS: %s%s%s%s%s%s%s%s",
-                            (status & (1<<31)) ? "Reflect " : "",
-                            (status & (1<<6)) ? "Handover " : "",
-                            (status & (1<<5)) ? "Lockout " : "",
-                            (status & (1<<4)) ? "Inhibit " : "",
-                            (status & (1<<3)) ? "Call " : "",
-                            (status & (1<<2)) ? "Testing " : "",
-                            (status & (1<<1)) ? "Admin-Down " : "",
-                            (status & (1<<0)) ? "Deleting " : "");
+                            (status & (1U<<31)) ? "Reflect " : "",
+                            (status & (1U<<6)) ? "Handover " : "",
+                            (status & (1U<<5)) ? "Lockout " : "",
+                            (status & (1U<<4)) ? "Inhibit " : "",
+                            (status & (1U<<3)) ? "Call " : "",
+                            (status & (1U<<2)) ? "Testing " : "",
+                            (status & (1U<<1)) ? "Admin-Down " : "",
+                            (status & (1U<<0)) ? "Deleting " : "");
         break;
 
     default:

@@ -2554,7 +2554,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
     data = NEXT_guint32(tvb, offset, little_endian);
     offset += 4;
     for (j = 0; j < 32; ++j) {
-      datamask = (1 << (31-j));
+      datamask = (1U << (31-j));
       wmem_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
       ++idx;
       if ((idx >= num_bits) || (wmem_strbuf_get_len(temp_buff) >= (ITEM_LABEL_LENGTH - 1))) {
@@ -2644,7 +2644,7 @@ static int rtps_util_add_fragment_number_set(proto_tree *tree, packet_info *pinf
     data = NEXT_guint32(tvb, offset, little_endian);
     offset += 4;
     for (j = 0; j < 32; ++j) {
-      datamask = (1 << (31-j));
+      datamask = (1U << (31-j));
       wmem_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
       ++idx;
       if ((idx >= num_bits) || (wmem_strbuf_get_len(temp_buff) >= (ITEM_LABEL_LENGTH - 1))) {
@@ -2700,7 +2700,7 @@ static void rtps_util_decode_flags(proto_tree *tree, tvbuff_t *tvb, gint offset,
   flags_tree = proto_item_add_subtree(ti, ett_rtps_flags);
 
   for (i = 0; i < 8; ++i) {
-    int is_set = (flags & (1 << (7-i)));
+    int is_set = (flags & (1U << (7-i)));
 
     for (j = 0; j < 8; ++j) {
       flags_str[j] = (i == j) ? (is_set ? '1' : '0') : '.';
@@ -2732,7 +2732,7 @@ static void rtps_util_decode_flags_16bit(proto_tree *tree, tvbuff_t *tvb, gint o
   flags_tree = proto_item_add_subtree(ti, ett_rtps_flags);
 
   for (i = 0; i < 16; ++i) {
-    int is_set = (flags & (1 << (15-i)));
+    guint is_set = (flags & (1U << (15-i)));
 
     for (j = 0; j < 16; ++j) {
       flags_str[j] = (i == j) ? (is_set ? '1' : '0') : '.';

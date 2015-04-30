@@ -115,9 +115,9 @@ static expert_field ei_wimaxasncp_length_bad = EI_INIT;
 /* Offset to end of the length field in the headder. */
 #define WIMAXASNCP_HEADER_LENGTH_END 6
 
-#define WIMAXASNCP_BIT32(n) (1 << (31 - (n)))
-#define WIMAXASNCP_BIT16(n) (1 << (15 - (n)))
-#define WIMAXASNCP_BIT8(n)  (1 << ( 7 - (n)))
+#define WIMAXASNCP_BIT32(n) (1U << (31 - (n)))
+#define WIMAXASNCP_BIT16(n) (1U << (15 - (n)))
+#define WIMAXASNCP_BIT8(n)  (1U << ( 7 - (n)))
 
 #define WIMAXASNCP_FLAGS_T  WIMAXASNCP_BIT8(6)
 #define WIMAXASNCP_FLAGS_R  WIMAXASNCP_BIT8(7)
@@ -881,7 +881,7 @@ static void wimaxasncp_dissect_tlv_value(
                 for (i = 0; i < 8; ++i)
                 {
                     guint8 mask;
-                    mask = 1 << (7 - i);
+                    mask = 1U << (7 - i);
 
                     if (value & mask)
                     {
@@ -936,7 +936,7 @@ static void wimaxasncp_dissect_tlv_value(
                 for (i = 0; i < 16; ++i)
                 {
                     guint16 mask;
-                    mask = 1 << (15 - i);
+                    mask = 1U << (15 - i);
 
                     if (value & mask)
                     {
@@ -991,7 +991,7 @@ static void wimaxasncp_dissect_tlv_value(
                 for (i = 0; i < 32; ++i)
                 {
                     guint32 mask;
-                    mask = 1 << (31 - i);
+                    mask = 1U << (31 - i);
 
                     if (value & mask)
                     {
@@ -2235,7 +2235,7 @@ dissect_wimaxasncp(
             for (j = 0; j < 8; ++j)
             {
                 guint8 mask;
-                mask = 1 << (7 - j);
+                mask = 1U << (7 - j);
 
                 /* Only add flags that are set */
                 if (ui8 & mask)

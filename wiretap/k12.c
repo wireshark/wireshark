@@ -1007,7 +1007,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                         rec->input_info.ds0mask = 0x00000000;
                         if (hwpart_len > K12_SRCDESC_DS0_MASK) {
                             for (i = 0; i < hwpart_len - K12_SRCDESC_DS0_MASK; i++) {
-                                rec->input_info.ds0mask |= ( *(read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_DS0_MASK + i) == 0xff ) ? 0x1<<(31-i) : 0x0;
+                                rec->input_info.ds0mask |= ( *(read_buffer + K12_SRCDESC_HWPART + K12_SRCDESC_DS0_MASK + i) == 0xff ) ? 1U<<(31-i) : 0x0;
                             }
                         }
                         break;

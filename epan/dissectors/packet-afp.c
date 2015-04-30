@@ -71,21 +71,21 @@ void proto_reg_handoff_afp(void);
 
 /* from netatalk/include/afp.h */
 #define AFPTRANS_NONE          0
-#define AFPTRANS_DDP          (1 << 0)
-#define AFPTRANS_TCP          (1 << 1)
+#define AFPTRANS_DDP          (1U << 0)
+#define AFPTRANS_TCP          (1U << 1)
 #define AFPTRANS_ALL          (AFPTRANS_DDP | AFPTRANS_TCP)
 
 /* AFP Attention Codes -- 4 bits */
-#define AFPATTN_SHUTDOWN     (1 << 15)            /* shutdown/disconnect */
-#define AFPATTN_CRASH        (1 << 14)            /* server crashed */
-#define AFPATTN_MESG         (1 << 13)            /* server has message */
-#define AFPATTN_NORECONNECT  (1 << 12)            /* don't reconnect */
+#define AFPATTN_SHUTDOWN     (1U << 15)           /* shutdown/disconnect */
+#define AFPATTN_CRASH        (1U << 14)           /* server crashed */
+#define AFPATTN_MESG         (1U << 13)           /* server has message */
+#define AFPATTN_NORECONNECT  (1U << 12)           /* don't reconnect */
 /* server notification */
 #define AFPATTN_NOTIFY       (AFPATTN_MESG | AFPATTN_NORECONNECT)
 
 /* extended bitmap -- 12 bits. volchanged is only useful w/ a server
  * notification, and time is only useful for shutdown. */
-#define AFPATTN_VOLCHANGED   (1 << 0)             /* volume has changed */
+#define AFPATTN_VOLCHANGED   (1U << 0)            /* volume has changed */
 #define AFPATTN_TIME(x)      ((x) & 0xfff)        /* time in minutes */
 
 /* AFP functions */
@@ -566,18 +566,18 @@ static value_string_ext unicode_hint_vals_ext = VALUE_STRING_EXT_INIT(unicode_hi
   from Apple AFP3.0.pdf
   Table 1-2 p. 20
 */
-#define kFPVolAttributeBit 		(1 << 0)
-#define kFPVolSignatureBit 		(1 << 1)
-#define kFPVolCreateDateBit	 	(1 << 2)
-#define kFPVolModDateBit 		(1 << 3)
-#define kFPVolBackupDateBit 		(1 << 4)
-#define kFPVolIDBit 			(1 << 5)
-#define kFPVolBytesFreeBit	  	(1 << 6)
-#define kFPVolBytesTotalBit	 	(1 << 7)
-#define kFPVolNameBit 			(1 << 8)
-#define kFPVolExtBytesFreeBit 		(1 << 9)
-#define kFPVolExtBytesTotalBit		(1 << 10)
-#define kFPVolBlockSizeBit 	  	(1 << 11)
+#define kFPVolAttributeBit 		(1U << 0)
+#define kFPVolSignatureBit 		(1U << 1)
+#define kFPVolCreateDateBit	 	(1U << 2)
+#define kFPVolModDateBit 		(1U << 3)
+#define kFPVolBackupDateBit 		(1U << 4)
+#define kFPVolIDBit 			(1U << 5)
+#define kFPVolBytesFreeBit	  	(1U << 6)
+#define kFPVolBytesTotalBit	 	(1U << 7)
+#define kFPVolNameBit 			(1U << 8)
+#define kFPVolExtBytesFreeBit 		(1U << 9)
+#define kFPVolExtBytesTotalBit		(1U << 10)
+#define kFPVolBlockSizeBit 	  	(1U << 11)
 
 static int hf_afp_vol_bitmap_Attributes 	= -1;
 static int hf_afp_vol_bitmap_Signature 		= -1;
@@ -755,70 +755,70 @@ static const value_string map_id_reply_type_vals[] = {
   volume attribute from Apple AFP3.0.pdf
   Table 1-3 p. 22
 */
-#define kReadOnly 				(1 << 0)
-#define kHasVolumePassword 			(1 << 1)
-#define kSupportsFileIDs 			(1 << 2)
-#define kSupportsCatSearch 			(1 << 3)
-#define kSupportsBlankAccessPrivs 		(1 << 4)
-#define kSupportsUnixPrivs 			(1 << 5)
-#define kSupportsUTF8Names 			(1 << 6)
+#define kReadOnly 				(1U << 0)
+#define kHasVolumePassword 			(1U << 1)
+#define kSupportsFileIDs 			(1U << 2)
+#define kSupportsCatSearch 			(1U << 3)
+#define kSupportsBlankAccessPrivs 		(1U << 4)
+#define kSupportsUnixPrivs 			(1U << 5)
+#define kSupportsUTF8Names 			(1U << 6)
 /* AFP3.1 */
-#define kNoNetworkUserIDs 			(1 << 7)
+#define kNoNetworkUserIDs 			(1U << 7)
 /* AFP3.2 */
-#define kDefaultPrivsFromParent			(1 << 8)
-#define kNoExchangeFiles			(1 << 9)
-#define kSupportsExtAttrs			(1 << 10)
-#define kSupportsACLs				(1 << 11)
+#define kDefaultPrivsFromParent			(1U << 8)
+#define kNoExchangeFiles			(1U << 9)
+#define kSupportsExtAttrs			(1U << 10)
+#define kSupportsACLs				(1U << 11)
 /* AFP3.2+ */
-#define kCaseSensitive 				(1 << 12)
-#define kSupportsTMLockSteal			(1 << 13)
+#define kCaseSensitive 				(1U << 12)
+#define kSupportsTMLockSteal			(1U << 13)
 
 /*
   directory bitmap from Apple AFP3.1.pdf
   Table 1-5 pp. 25-26
 */
-#define kFPAttributeBit 		(1 << 0)
-#define kFPParentDirIDBit 		(1 << 1)
-#define kFPCreateDateBit 		(1 << 2)
-#define kFPModDateBit 			(1 << 3)
-#define kFPBackupDateBit 		(1 << 4)
-#define kFPFinderInfoBit 		(1 << 5)
-#define kFPLongNameBit			(1 << 6)
-#define kFPShortNameBit 		(1 << 7)
-#define kFPNodeIDBit 			(1 << 8)
-#define kFPOffspringCountBit	 	(1 << 9)
-#define kFPOwnerIDBit 			(1 << 10)
-#define kFPGroupIDBit 			(1 << 11)
-#define kFPAccessRightsBit 		(1 << 12)
-#define kFPUTF8NameBit 			(1 << 13)
+#define kFPAttributeBit 		(1U << 0)
+#define kFPParentDirIDBit 		(1U << 1)
+#define kFPCreateDateBit 		(1U << 2)
+#define kFPModDateBit 			(1U << 3)
+#define kFPBackupDateBit 		(1U << 4)
+#define kFPFinderInfoBit 		(1U << 5)
+#define kFPLongNameBit			(1U << 6)
+#define kFPShortNameBit 		(1U << 7)
+#define kFPNodeIDBit 			(1U << 8)
+#define kFPOffspringCountBit	 	(1U << 9)
+#define kFPOwnerIDBit 			(1U << 10)
+#define kFPGroupIDBit 			(1U << 11)
+#define kFPAccessRightsBit 		(1U << 12)
+#define kFPUTF8NameBit 			(1U << 13)
 
 /* FIXME AFP3.0 bit 14, AFP3.1 bit 15 */
 
-#define kFPUnixPrivsBit 		(1 << 15)
+#define kFPUnixPrivsBit 		(1U << 15)
 
 /*
 	directory Access Rights parameter AFP3.1.pdf
 	table 1-7 p. 28
 */
 
-#define AR_O_SEARCH     (1 << 0)    /* owner has search access */
-#define AR_O_READ       (1 << 1)    /* owner has read access */
-#define AR_O_WRITE      (1 << 2)    /* owner has write access */
+#define AR_O_SEARCH     (1U << 0)   /* owner has search access */
+#define AR_O_READ       (1U << 1)   /* owner has read access */
+#define AR_O_WRITE      (1U << 2)   /* owner has write access */
 
-#define AR_G_SEARCH     (1 << 8)    /* group has search access */
-#define AR_G_READ       (1 << 9)    /* group has read access */
-#define AR_G_WRITE      (1 << 10)   /* group has write access */
+#define AR_G_SEARCH     (1U << 8)   /* group has search access */
+#define AR_G_READ       (1U << 9)   /* group has read access */
+#define AR_G_WRITE      (1U << 10)  /* group has write access */
 
-#define AR_E_SEARCH     (1 << 16)   /* everyone has search access */
-#define AR_E_READ       (1 << 17)   /* everyone has read access */
-#define AR_E_WRITE      (1 << 18)   /* everyone has write access */
+#define AR_E_SEARCH     (1U << 16)  /* everyone has search access */
+#define AR_E_READ       (1U << 17)  /* everyone has read access */
+#define AR_E_WRITE      (1U << 18)  /* everyone has write access */
 
-#define AR_U_SEARCH     (1 << 24)   /* user has search access */
-#define AR_U_READ       (1 << 25)   /* user has read access */
-#define AR_U_WRITE      (1 << 26)   /* user has write access */
+#define AR_U_SEARCH     (1U << 24)  /* user has search access */
+#define AR_U_READ       (1U << 25)  /* user has read access */
+#define AR_U_WRITE      (1U << 26)  /* user has write access */
 
-#define AR_BLANK        (1 << 28)   /* Blank Access Privileges (use parent dir privileges) */
-#define AR_U_OWN        (1 << 31)   /* user is the owner */
+#define AR_BLANK        (1U << 28)  /* Blank Access Privileges (use parent dir privileges) */
+#define AR_U_OWN        (1U << 31)  /* user is the owner */
 
 static int hf_afp_dir_ar           = -1;
 static int hf_afp_dir_ar_o_search  = -1;
@@ -884,33 +884,33 @@ kFPNodeIDBit 			(bit 8)
 kFPUTF8NameBit 			(bit 13)
 */
 
-#define kFPDataForkLenBit 	(1 << 9)
-#define kFPRsrcForkLenBit 	(1 << 10)
-#define kFPExtDataForkLenBit 	(1 << 11)
-#define kFPLaunchLimitBit 	(1 << 12)
+#define kFPDataForkLenBit 	(1U << 9)
+#define kFPRsrcForkLenBit 	(1U << 10)
+#define kFPExtDataForkLenBit 	(1U << 11)
+#define kFPLaunchLimitBit 	(1U << 12)
 
-#define kFPExtRsrcForkLenBit 	(1 << 14)
+#define kFPExtRsrcForkLenBit 	(1U << 14)
 
 /*
   file attribute AFP3.1.pdf
   Table 1-9 pp. 29-31
 */
-#define kFPInvisibleBit 	(1 << 0)
-#define kFPMultiUserBit 	(1 << 1)
-#define kFPSystemBit 		(1 << 2)
-#define kFPDAlreadyOpenBit 	(1 << 3)
-#define kFPRAlreadyOpenBit 	(1 << 4)
-#define kFPWriteInhibitBit 	(1 << 5)
-#define kFPBackUpNeededBit 	(1 << 6)
-#define kFPRenameInhibitBit 	(1 << 7)
-#define kFPDeleteInhibitBit 	(1 << 8)
-#define kFPCopyProtectBit 	(1 << 10)
-#define kFPSetClearBit 		(1 << 15)
+#define kFPInvisibleBit 	(1U << 0)
+#define kFPMultiUserBit 	(1U << 1)
+#define kFPSystemBit 		(1U << 2)
+#define kFPDAlreadyOpenBit 	(1U << 3)
+#define kFPRAlreadyOpenBit 	(1U << 4)
+#define kFPWriteInhibitBit 	(1U << 5)
+#define kFPBackUpNeededBit 	(1U << 6)
+#define kFPRenameInhibitBit 	(1U << 7)
+#define kFPDeleteInhibitBit 	(1U << 8)
+#define kFPCopyProtectBit 	(1U << 10)
+#define kFPSetClearBit 		(1U << 15)
 
 /* dir attribute */
-#define kIsExpFolder 		(1 << 1)
-#define kMounted 		(1 << 3)
-#define kInExpFolder 		(1 << 4)
+#define kIsExpFolder 		(1U << 1)
+#define kMounted 		(1U << 3)
+#define kInExpFolder 		(1U << 4)
 
 /* AFP 3.1 getsession token type */
 #define kLoginWithoutID         0
@@ -940,11 +940,11 @@ static const value_string token_type_vals[] = {
 static value_string_ext token_type_vals_ext = VALUE_STRING_EXT_INIT(token_type_vals);
 
 /* AFP 3.2 ACL bitmap */
-#define kFileSec_UUID		(1 << 0)
-#define kFileSec_GRPUUID	(1 << 1)
-#define kFileSec_ACL		(1 << 2)
-#define kFileSec_REMOVEACL	(1 << 3)
-#define kFileSec_Inherit	(1 << 4)
+#define kFileSec_UUID		(1U << 0)
+#define kFileSec_GRPUUID	(1U << 1)
+#define kFileSec_ACL		(1U << 2)
+#define kFileSec_REMOVEACL	(1U << 3)
+#define kFileSec_Inherit	(1U << 4)
 
 static int hf_afp_acl_list_bitmap		= -1;
 static int hf_afp_acl_list_bitmap_UUID		= -1;
@@ -971,40 +971,40 @@ static int hf_afp_ace_flags_limitinherit = -1;
 static int hf_afp_ace_flags_onlyinherit  = -1;
 
 /* AFP 3.2 ACE flags */
-#define ACE_ALLOW	  (1 << 0)
-#define ACE_DENY	  (1 << 1)
-#define ACE_INHERITED	  (1 << 4)
-#define ACE_FILE_INHERIT  (1 << 5)
-#define ACE_DIR_INHERIT	  (1 << 6)
-#define ACE_LIMIT_INHERIT (1 << 7)
-#define ACE_ONLY_INHERIT  (1 << 8)
+#define ACE_ALLOW	  (1U << 0)
+#define ACE_DENY	  (1U << 1)
+#define ACE_INHERITED	  (1U << 4)
+#define ACE_FILE_INHERIT  (1U << 5)
+#define ACE_DIR_INHERIT	  (1U << 6)
+#define ACE_LIMIT_INHERIT (1U << 7)
+#define ACE_ONLY_INHERIT  (1U << 8)
 
 static int ett_afp_ace_entries		 = -1;
 static int ett_afp_ace_entry		 = -1;
 
 /* AFP 3.2 ACL access right cf page 248*/
-#define KAUTH_VNODE_READ_DATA		(1 << 1)
+#define KAUTH_VNODE_READ_DATA		(1U << 1)
 #define KAUTH_VNODE_LIST_DIRECTORY	KAUTH_VNODE_READ_DATA
-#define KAUTH_VNODE_WRITE_DATA		(1 << 2)
+#define KAUTH_VNODE_WRITE_DATA		(1U << 2)
 #define KAUTH_VNODE_ADD_FILE		KAUTH_VNODE_WRITE_DATA
-#define KAUTH_VNODE_EXECUTE		(1 << 3)
+#define KAUTH_VNODE_EXECUTE		(1U << 3)
 #define KAUTH_VNODE_SEARCH		KAUTH_VNODE_EXECUTE
-#define KAUTH_VNODE_DELETE		(1 << 4)
-#define KAUTH_VNODE_APPEND_DATA		(1 << 5)
+#define KAUTH_VNODE_DELETE		(1U << 4)
+#define KAUTH_VNODE_APPEND_DATA		(1U << 5)
 #define KAUTH_VNODE_ADD_SUBDIRECTORY	KAUTH_VNODE_APPEND_DATA
-#define KAUTH_VNODE_DELETE_CHILD	(1 << 6)
-#define KAUTH_VNODE_READ_ATTRIBUTES	(1 << 7)
-#define KAUTH_VNODE_WRITE_ATTRIBUTES	(1 << 8)
-#define KAUTH_VNODE_READ_EXTATTRIBUTES	(1 << 9)
-#define KAUTH_VNODE_WRITE_EXTATTRIBUTES	(1 << 10)
-#define KAUTH_VNODE_READ_SECURITY	(1 << 11)
-#define KAUTH_VNODE_WRITE_SECURITY	(1 << 12)
-#define KAUTH_VNODE_CHANGE_OWNER	(1 << 13)
-#define KAUTH_VNODE_SYNCHRONIZE		(1 << 20)
-#define KAUTH_VNODE_GENERIC_ALL		(1 << 21)
-#define KAUTH_VNODE_GENERIC_EXECUTE	(1 << 22)
-#define KAUTH_VNODE_GENERIC_WRITE	(1 << 23)
-#define KAUTH_VNODE_GENERIC_READ	(1 << 24)
+#define KAUTH_VNODE_DELETE_CHILD	(1U << 6)
+#define KAUTH_VNODE_READ_ATTRIBUTES	(1U << 7)
+#define KAUTH_VNODE_WRITE_ATTRIBUTES	(1U << 8)
+#define KAUTH_VNODE_READ_EXTATTRIBUTES	(1U << 9)
+#define KAUTH_VNODE_WRITE_EXTATTRIBUTES	(1U << 10)
+#define KAUTH_VNODE_READ_SECURITY	(1U << 11)
+#define KAUTH_VNODE_WRITE_SECURITY	(1U << 12)
+#define KAUTH_VNODE_CHANGE_OWNER	(1U << 13)
+#define KAUTH_VNODE_SYNCHRONIZE		(1U << 20)
+#define KAUTH_VNODE_GENERIC_ALL		(1U << 21)
+#define KAUTH_VNODE_GENERIC_EXECUTE	(1U << 22)
+#define KAUTH_VNODE_GENERIC_WRITE	(1U << 23)
+#define KAUTH_VNODE_GENERIC_READ	(1U << 24)
 
 
 static int hf_afp_acl_access_bitmap		    = -1;

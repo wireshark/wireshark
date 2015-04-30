@@ -287,9 +287,9 @@ static const true_false_string tfs_fcels_estat_seq_init = {
 };
 
 
-#define FC_ESB_ST_RESP      (1 << 31)   /* responder to exchange */
-#define FC_ESB_ST_SEQ_INIT  (1 << 30)   /* holds sequence initiative */
-#define FC_ESB_ST_COMPLETE  (1 << 29)   /* exchange is complete */
+#define FC_ESB_ST_RESP      (1U << 31)   /* responder to exchange */
+#define FC_ESB_ST_SEQ_INIT  (1U << 30)   /* holds sequence initiative */
+#define FC_ESB_ST_COMPLETE  (1U << 29)   /* exchange is complete */
 
 static const value_string fc_els_proto_val[] = {
     {FC_ELS_LSRJT        , "LS_RJT"},

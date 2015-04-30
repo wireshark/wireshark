@@ -374,7 +374,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       received = tvb_get_ntohl(tvb, offset);
       while ((received<<indx) != 0) {
         if (indx>=32) break;
-        if (received &(0x1<<(31-indx))) {
+        if (received &(1U<<(31-indx))) {
           if (indx==0) {
             received_tree = proto_item_add_subtree(ti_received, ett_reload_framing_received);
             ti_parsed_received = proto_tree_add_item(received_tree, hf_reload_framing_parsed_received, tvb, offset, 4, ENC_NA);
@@ -382,7 +382,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             last_received = indx;
           }
           else {
-            if (received &(0x1<<(31-indx+1))) {
+            if (received &(1U<<(31-indx+1))) {
               indx++;
               /* range: skip */
               continue;
@@ -404,9 +404,9 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
           }
         }
         else if (indx>0) {
-          if ((received &(0x1<<(31-indx+1))) && (received &(0x1<<(31-indx+2)))) {
+          if ((received &(1U<<(31-indx+1))) && (received &(1U<<(31-indx+2)))) {
             /* end of a series */
-            if ((received &(0x1<<(31-indx+3)))) {
+            if ((received &(1U<<(31-indx+3)))) {
               proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+indx-1));
             }
             else {
@@ -422,9 +422,9 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         indx++;
       }
       if (last_received>=0) {
-        if ((received &(0x1<<(31-indx+1))) && (received &(0x1<<(31-indx+2)))) {
+        if ((received &(1U<<(31-indx+1))) && (received &(1U<<(31-indx+2)))) {
           /* end of a series */
-          if ((received &(0x1<<(31-indx+3)))) {
+          if ((received &(1U<<(31-indx+3)))) {
             proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+indx-1));
           }
           else {
