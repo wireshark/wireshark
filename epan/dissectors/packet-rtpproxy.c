@@ -167,8 +167,8 @@ static const value_string paramtypenames[] = {
     {'E', "External network (non RFC 1918)"},
     {'i', "Internal network (RFC 1918)"},
     {'I', "Internal network (RFC 1918)"},
-    {'l', "Local address"},
-    {'L', "Local address"},
+    {'l', "Local address / Load average"},
+    {'L', "Local address / Load average"},
     {'n', "request New port"},
     {'N', "request New port"},
     {'r', "Remote address"},
@@ -366,13 +366,18 @@ rtpproxy_add_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy_t
                 g_strfreev(codecs);
                 break;
             case 'l':
+                /* That's another one protocol shortcoming - the same parameter used twice. */
+                /* https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#createupdatelookup-session */
+                /* https://github.com/sippy/rtpproxy/wiki/RTPP-%28RTPproxy-protocol%29-technical-specification#get-information */
                 new_offset = (gint)strspn(rawstr+offset, "0123456789.");
-                another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_local);
-                if(str_to_ip((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, begin+offset, new_offset, ENC_ASCII), ipaddr))
-                    proto_tree_add_ipv4(another_tree, hf_rtpproxy_command_parameter_local_ipv4, tvb, begin+offset, new_offset, ipaddr[0]);
-                else
-                    proto_tree_add_expert(another_tree, pinfo, &ei_rtpproxy_bad_ipv4, tvb, begin+offset, new_offset);
-                offset += new_offset;
+                if(new_offset){
+                    another_tree = proto_item_add_subtree(ti, ett_rtpproxy_command_parameters_local);
+                    if(str_to_ip((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, begin+offset, new_offset, ENC_ASCII), ipaddr))
+                        proto_tree_add_ipv4(another_tree, hf_rtpproxy_command_parameter_local_ipv4, tvb, begin+offset, new_offset, ipaddr[0]);
+                    else
+                        proto_tree_add_expert(another_tree, pinfo, &ei_rtpproxy_bad_ipv4, tvb, begin+offset, new_offset);
+                    offset += new_offset;
+                }
                 break;
             case 'r':
                 new_offset = (gint)strspn(rawstr+offset, "0123456789.");
