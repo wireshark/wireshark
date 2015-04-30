@@ -6151,7 +6151,7 @@ proto_register_subtree_array(gint *const *indices, const int num_indices)
 		/* set new items to 0 */
 		/* XXX, slow!!! optimize when needed (align 'i' to 32, and set rest of guint32 to 0) */
 		for (i = num_tree_types; i < num_tree_types + num_indices; i++)
-			tree_is_expanded[i >> 5] &= ~(1 << (i & 31));
+			tree_is_expanded[i >> 5] &= ~(1U << (i & 31));
 	}
 
 	/*
@@ -9151,7 +9151,7 @@ gboolean
 tree_expanded(int tree_type)
 {
 	g_assert(tree_type >= 0 && tree_type < num_tree_types);
-	return tree_is_expanded[tree_type >> 5] & (1 << (tree_type & 31));
+	return tree_is_expanded[tree_type >> 5] & (1U << (tree_type & 31));
 }
 
 void
@@ -9160,9 +9160,9 @@ tree_expanded_set(int tree_type, gboolean value)
 	g_assert(tree_type >= 0 && tree_type < num_tree_types);
 
 	if (value)
-		tree_is_expanded[tree_type >> 5] |= (1 << (tree_type & 31));
+		tree_is_expanded[tree_type >> 5] |= (1U << (tree_type & 31));
 	else
-		tree_is_expanded[tree_type >> 5] &= ~(1 << (tree_type & 31));
+		tree_is_expanded[tree_type >> 5] &= ~(1U << (tree_type & 31));
 }
 
 /*
