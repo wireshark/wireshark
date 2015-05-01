@@ -22,15 +22,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *---------------------------------------------------------------------------
- *
- *	i4b_trace.h - header file for trace data read device
- *	----------------------------------------------------
- *
- *	$Id$
- *
- *      last edit-date: [Sun Feb 14 10:39:26 1999]
- *
  *---------------------------------------------------------------------------*/
 
 #ifndef _I4B_TRACE_H_
