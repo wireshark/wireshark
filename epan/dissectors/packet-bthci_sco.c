@@ -36,6 +36,8 @@ static int proto_bthci_sco = -1;
 static int hf_bthci_sco_reserved = -1;
 static int hf_bthci_sco_packet_status = -1;
 static int hf_bthci_sco_chandle = -1;
+static int hf_bthci_sco_connect_in = -1;
+static int hf_bthci_sco_disconnect_in = -1;
 static int hf_bthci_sco_length = -1;
 static int hf_bthci_sco_data = -1;
 
@@ -77,6 +79,9 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     gint                      localhost_length;
     localhost_bdaddr_entry_t *localhost_bdaddr_entry;
     localhost_name_entry_t   *localhost_name_entry;
+    chandle_session_t        *chandle_session;
+    wmem_tree_t              *subtree;
+    proto_item               *sub_item;
 
     ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
@@ -116,6 +121,17 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     key[1].key    = &k_adapter_id;
     key[2].length = 1;
     key[2].key    = &k_connection_handle;
+    key[3].length = 0;
+    key[3].key    = NULL;
+
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bluetooth_data->chandle_sessions, key);
+    chandle_session = (subtree) ? (chandle_session_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+    if (!(chandle_session &&
+            chandle_session->connect_in_frame < pinfo->fd->num &&
+            chandle_session->disconnect_in_frame > pinfo->fd->num)){
+        chandle_session = NULL;
+    }
+
     key[3].length = 1;
     key[3].key    = &k_frame_number;
     key[4].length = 0;
@@ -240,6 +256,16 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
 
     proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_data, tvb, offset, tvb_reported_length(tvb), ENC_NA);
 
+    if (chandle_session) {
+        sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+
+        if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
+            sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
+            PROTO_ITEM_SET_GENERATED(sub_item);
+        }
+    }
+
     return tvb_reported_length(tvb);
 }
 
@@ -261,6 +287,16 @@ proto_register_bthci_sco(void)
         { &hf_bthci_sco_chandle,
             { "Connection Handle",           "bthci_sco.chandle",
             FT_UINT16, BASE_HEX, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_bthci_sco_connect_in,
+            { "Connect in frame",            "bthci_sco.connect_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_sco_disconnect_in,
+            { "Disconnect in frame",         "bthci_sco.disconnect_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_sco_length,

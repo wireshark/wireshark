@@ -3258,12 +3258,13 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
 
 
     if (!pinfo->fd->flags.visited && status == 0x00) {
-        wmem_tree_key_t  key[5];
-        guint32          k_interface_id;
-        guint32          k_adapter_id;
-        guint32          k_connection_handle;
-        guint32          k_frame_number;
-        remote_bdaddr_t  *remote_bdaddr;
+        wmem_tree_key_t     key[5];
+        guint32             k_interface_id;
+        guint32             k_adapter_id;
+        guint32             k_connection_handle;
+        guint32             k_frame_number;
+        remote_bdaddr_t    *remote_bdaddr;
+        chandle_session_t  *chandle_session;
 
         k_interface_id = bluetooth_data->interface_id;
         k_adapter_id = bluetooth_data->adapter_id;
@@ -3288,6 +3289,11 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
         memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
 
         wmem_tree_insert32_array(bluetooth_data->chandle_to_bdaddr, key, remote_bdaddr);
+
+        chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
+        chandle_session->connect_in_frame = k_frame_number;
+        chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+        wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
     }
 
     return offset;
