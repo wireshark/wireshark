@@ -104,9 +104,9 @@ static gboolean glbl_dissect_container = FALSE;
  *
  * Only these two needed currently
  */
-#define IMSG (1<<16)
-#define SOUT (2<<16)
-#define SPECIAL (4<<16)
+#define IMSG (1U<<16)
+#define SOUT (2U<<16)
+#define SPECIAL (4U<<16)
 
 int pdu_type = 0; /* 0 means wildcard */
 

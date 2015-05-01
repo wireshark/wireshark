@@ -737,8 +737,8 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
 /*Here we try to figure out which HS-DSCH channels are multiplexed*/
 #.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type
 
-    gint *flowd_p;
-    gint *cur_val=NULL;
+    guint *flowd_p;
+    guint *cur_val=NULL;
     struct rrc_info *rrcinf;
 
     %(DEFAULT_BODY)s
@@ -757,11 +757,11 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
                 if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
                     flowd_p = (guint*)g_malloc0(sizeof(gint));
-                    *flowd_p = (1<<flowd);    /*Set the bit to mark it as true*/
+                    *flowd_p = (1U<<flowd);    /*Set the bit to mark it as true*/
                     g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
 
                 }else{
-                    *cur_val = (1<<flowd) | *cur_val;
+                    *cur_val = (1U<<flowd) | *cur_val;
 
                 }
             }
@@ -772,8 +772,8 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
 /*Here we try to figure out which HS-DSCH channels are multiplexed*/
 #.FN_BODY DL-TransportChannelType-r7 VAL_PTR = &type
 
-    gint *flowd_p;
-    gint *cur_val=NULL;
+    guint *flowd_p;
+    guint *cur_val=NULL;
     struct rrc_info *rrcinf;
 
     %(DEFAULT_BODY)s
@@ -793,11 +793,11 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
                 if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
                     flowd_p = (guint*)g_malloc0(sizeof(gint));
-                    *flowd_p = (1<<flowd);    /* Set the bit to mark it as true*/
+                    *flowd_p = (1U<<flowd);    /* Set the bit to mark it as true*/
                     g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
 
                 }else{
-                    *cur_val = (1<<flowd) | *cur_val;
+                    *cur_val = (1U<<flowd) | *cur_val;
 
                 }
             }
