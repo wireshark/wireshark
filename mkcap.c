@@ -508,7 +508,7 @@ all_digits(char *str)
   }
 
   for (i = 0; str[i]; i++) {
-    if (!isdigit(str[i]))
+    if (!g_ascii_isdigit(str[i]))
       return 0;
   }
 
