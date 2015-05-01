@@ -68,8 +68,7 @@
 #define	AIRPDCAP_WPA_PASSPHRASE_MAX_LEN	63	/* null-terminated string, the actual length of the storage is 64	*/
 #define	AIRPDCAP_WPA_SSID_MIN_LEN			0
 #define	AIRPDCAP_WPA_SSID_MAX_LEN			32
-#define	AIRPDCAP_WPA_PSK_LEN				64
-#define	AIRPDCAP_WPA_PMK_LEN				32
+#define	AIRPDCAP_WPA_PSK_LEN				32
 /*																										*/
 /*																										*/
 /******************************************************************************/
@@ -149,11 +148,9 @@ typedef struct _AIRPDCAP_KEY_ITEM {
 		 * three fields and necessary fields will be automatically
 		 * calculated.
 		 */
-		union AIRPDCAP_KEY_ITEMDATA_WPA {
-
+		struct AIRPDCAP_KEY_ITEMDATA_WPA {
 			UCHAR Psk[AIRPDCAP_WPA_PSK_LEN];
-
-			UCHAR Pmk[AIRPDCAP_WPA_PMK_LEN];
+			UCHAR Ptk[AIRPDCAP_WPA_PTK_LEN];
 		} Wpa;
 	} KeyData;
 

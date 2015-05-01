@@ -73,6 +73,22 @@ decryption_step_80211_wpa_psk() {
 	test_step_ok
 }
 
+# WPA EAP (EAPOL Rekey)
+# Included in git sources test/captures/wpa-eap-tls.pcap.gz
+decryption_step_80211_wpa_eap() {
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-o "wlan.enable_decryption: TRUE" \
+		-r "$CAPTURE_DIR/wpa-eap-tls.pcap.gz" \
+		-Y "wlan.analysis.tk==7d9987daf5876249b6c773bf454a0da7" \
+		 | grep "Group Message" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt IEEE 802.11 WPA EAP"
+		return
+	fi
+	test_step_ok
+}
+
 # DTLS
 # http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
 decryption_step_dtls() {
@@ -172,6 +188,7 @@ decryption_step_dvb_ci() {
 
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
+	test_step_add "IEEE 802.11 WPA EAP Decryption" decryption_step_80211_wpa_eap
 	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption (private key)" decryption_step_ssl
 	test_step_add "SSL Decryption (master secret)" decryption_step_ssl_master_secret

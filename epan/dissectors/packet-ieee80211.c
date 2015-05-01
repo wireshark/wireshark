@@ -104,6 +104,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/eapol_keydes_types.h>
+#include <epan/to_str-int.h>
 
 #include "packet-wps.h"
 
@@ -239,7 +240,7 @@ ieee_80211_add_tagged_parameters (tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype);
 
 /* Davide Schiera (2006-11-26): created function to decrypt WEP and WPA/WPA2  */
-static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer);
+static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key);
 
 static int weak_iv(guchar *iv);
 
@@ -3629,6 +3630,9 @@ static int hf_ieee80211_tkip_extiv = -1;
 static int hf_ieee80211_ccmp_extiv = -1;
 static int hf_ieee80211_wep_key = -1;
 static int hf_ieee80211_wep_icv = -1;
+static int hf_ieee80211_fc_analysis_pmk = -1;
+static int hf_ieee80211_fc_analysis_tk = -1;
+static int hf_ieee80211_fc_analysis_gtk = -1;
 
 static int hf_ieee80211_block_ack_request_control = -1;
 static int hf_ieee80211_block_ack_control = -1;
@@ -15801,6 +15805,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   tvbuff_t   *volatile next_tvb = NULL;
   wlan_hdr   *volatile whdr;
 
+  AIRPDCAP_KEY_ITEM  used_key;
+
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, &isDMG);
 
   whdr= &whdrs[0];
@@ -17197,7 +17203,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
     guint32 sec_header=0;
     guint32 sec_trailer=0;
 
-    next_tvb = try_decrypt(tvb, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer);
+    next_tvb = try_decrypt(tvb, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer, &used_key);
     /* Davide Schiera -----------------------------------------------------  */
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
@@ -17280,6 +17286,25 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           len          -= sec_trailer;
           reported_len -= sec_trailer;
           can_decrypt   = TRUE;
+
+          /* Add Key information to packet */
+          bytes_to_hexstr(out_buff, (*&(used_key.KeyData.Wpa.Ptk)+32), AIRPDCAP_TK_LEN); /* TK is stored in PTK at offset 32 bytes and 16 bytes long */
+          out_buff[2*AIRPDCAP_TK_LEN] = '\0';
+
+          if (key == 0) { /* encrypted with pairwise key */
+            ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_tk, tvb, 0, 0, out_buff);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            /* Also add the PMK used to to decrypt the packet. (PMK==PSK) */
+            bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Psk, AIRPDCAP_WPA_PSK_LEN); /* 32 bytes */
+            out_buff[2*AIRPDCAP_WPA_PSK_LEN] = '\0';
+            ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_pmk, tvb, 0, 0, out_buff);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+          } else { /* Encrypted with Group Key */
+            ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_gtk, tvb, 0, 0, out_buff); /* GTK is stored in PTK at offset 32 bytes and 16 bytes long */
+            PROTO_ITEM_SET_GENERATED(ti);
+          }
         }
       }
       /* Davide Schiera --------------------------------------------------  */
@@ -18011,13 +18036,12 @@ dissect_wlan_rsna_eapol_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 /* algorithm used for decryption (WEP, TKIP, CCMP) and the header and    */
 /* trailer lengths.                                      */
 static tvbuff_t *
-try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer)
+try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer, PAIRPDCAP_KEY_ITEM used_key)
 {
   const guint8      *enc_data;
   tvbuff_t          *decr_tvb = NULL;
   guint32            dec_caplen;
   guchar             dec_data[AIRPDCAP_MAX_CAPLEN];
-  AIRPDCAP_KEY_ITEM  used_key;
 
   if (!enable_decryption)
     return NULL;
@@ -18027,10 +18051,10 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
 
   /*  process packet with AirPDcap                              */
   if (AirPDcapPacketProcess(&airpdcap_ctx, enc_data, offset, offset+len, dec_data, &dec_caplen,
-                            &used_key, FALSE, TRUE)==AIRPDCAP_RET_SUCCESS)
+                            used_key, FALSE, TRUE)==AIRPDCAP_RET_SUCCESS)
   {
     guint8 *tmp;
-    *algorithm=used_key.KeyType;
+    *algorithm=used_key->KeyType;
     switch (*algorithm) {
       case AIRPDCAP_KEY_TYPE_WEP:
         *sec_header=AIRPDCAP_WEP_HEADER;
@@ -18590,6 +18614,21 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_wep_icv,
      {"WEP ICV", "wlan.wep.icv",
       FT_UINT32, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fc_analysis_pmk,
+     {"PMK", "wlan.analysis.pmk",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fc_analysis_tk,
+     {"TK", "wlan.analysis.tk",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_fc_analysis_gtk,
+     {"GTK", "wlan.analysis.gtk",
+      FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_request_control,
