@@ -703,7 +703,7 @@ sub register_element($$$$;$)
 	    my $itemname = $$bit{$val};
 	    my $item = $regname . '_mask_' . $itemname;
 	    my $itemhuman = $humanname . '.' . $itemname;
-	    my $bitshift = "1 << $val";
+	    my $bitshift = "1U << $val";
 
 	    say $decl "static int $item = -1;";
 	    say $reg "{ &$item, { \"$itemname\", \"$itemhuman\", FT_BOOLEAN, $bitsize, NULL, $bitshift, NULL, HFILL }},";
