@@ -1733,7 +1733,9 @@ static int hd_inflate_remove_bufs(nghttp2_hd_inflater *inflater, nghttp2_nv *nv,
 static int hd_inflate_remove_bufs_with_name(nghttp2_hd_inflater *inflater,
                                             nghttp2_nv *nv,
                                             nghttp2_hd_entry *ent_name) {
+#ifndef NDEBUG
   size_t rv;
+#endif
   size_t buflen;
   uint8_t *buf;
   nghttp2_mem *mem;
@@ -1751,7 +1753,10 @@ static int hd_inflate_remove_bufs_with_name(nghttp2_hd_inflater *inflater,
 
   /* Copy including terminal NULL */
   memcpy(buf, ent_name->nv.name, ent_name->nv.namelen + 1);
-  rv = nghttp2_bufs_remove_copy(&inflater->nvbufs,
+#ifndef NDEBUG
+  rv =
+#endif
+  nghttp2_bufs_remove_copy(&inflater->nvbufs,
                                 buf + ent_name->nv.namelen + 1);
   assert(ent_name->nv.namelen + 1 + rv == buflen);
 
