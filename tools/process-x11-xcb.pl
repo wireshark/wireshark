@@ -888,7 +888,7 @@ sub dissect_element($$$$$;$$)
                             for my $foo (keys %{$enum{$enum_name{$enum_ref}}{rbit}}) { say "'$foo'"; }
                             die ("Field '$field' not found in '$enum_ref'");
                         }
-                        push @test , "($switchon & (1 << $bit))";
+                        push @test , "($switchon & (1U << $bit))";
                     } else {
                         my $val = $enum{$enum_name{$enum_ref}}{rvalue}{$field};
                         if (! defined($val)) {

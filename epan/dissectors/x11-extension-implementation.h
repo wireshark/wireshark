@@ -13715,23 +13715,23 @@ static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         proto_tree_add_item(bitmask_tree, hf_x11_sync_CreateAlarm_value_mask_mask_Events, tvb, *offsetp, 4, byte_order);
     }
     *offsetp += 4;
-    if ((f_value_mask & (1 << 0))) {
+    if ((f_value_mask & (1U << 0))) {
         proto_tree_add_item(t, hf_x11_sync_CreateAlarm_Counter_counter, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1 << 1))) {
+    if ((f_value_mask & (1U << 1))) {
         field32(tvb, offsetp, t, hf_x11_sync_CreateAlarm_ValueType_valueType, byte_order);
     }
-    if ((f_value_mask & (1 << 2))) {
+    if ((f_value_mask & (1U << 2))) {
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
-    if ((f_value_mask & (1 << 3))) {
+    if ((f_value_mask & (1U << 3))) {
         field32(tvb, offsetp, t, hf_x11_sync_CreateAlarm_TestType_testType, byte_order);
     }
-    if ((f_value_mask & (1 << 4))) {
+    if ((f_value_mask & (1U << 4))) {
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
-    if ((f_value_mask & (1 << 5))) {
+    if ((f_value_mask & (1U << 5))) {
         proto_tree_add_item(t, hf_x11_sync_CreateAlarm_Events_events, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
@@ -13754,23 +13754,23 @@ static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         proto_tree_add_item(bitmask_tree, hf_x11_sync_ChangeAlarm_value_mask_mask_Events, tvb, *offsetp, 4, byte_order);
     }
     *offsetp += 4;
-    if ((f_value_mask & (1 << 0))) {
+    if ((f_value_mask & (1U << 0))) {
         proto_tree_add_item(t, hf_x11_sync_ChangeAlarm_Counter_counter, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1 << 1))) {
+    if ((f_value_mask & (1U << 1))) {
         field32(tvb, offsetp, t, hf_x11_sync_ChangeAlarm_ValueType_valueType, byte_order);
     }
-    if ((f_value_mask & (1 << 2))) {
+    if ((f_value_mask & (1U << 2))) {
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
-    if ((f_value_mask & (1 << 3))) {
+    if ((f_value_mask & (1U << 3))) {
         field32(tvb, offsetp, t, hf_x11_sync_ChangeAlarm_TestType_testType, byte_order);
     }
-    if ((f_value_mask & (1 << 4))) {
+    if ((f_value_mask & (1U << 4))) {
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
-    if ((f_value_mask & (1 << 5))) {
+    if ((f_value_mask & (1U << 5))) {
         proto_tree_add_item(t, hf_x11_sync_ChangeAlarm_Events_events, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
@@ -17594,15 +17594,15 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
     f_num_items = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    if ((f_format & (1 << 3))) {
+    if ((f_format & (1U << 3))) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_8Bits_data8, f_num_items, byte_order);
         length -= f_num_items * 1;
     }
-    if ((f_format & (1 << 4))) {
+    if ((f_format & (1U << 4))) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_16Bits_data16, hf_x11_xinput_ChangeDeviceProperty_16Bits_data16_item, f_num_items, byte_order);
         length -= f_num_items * 2;
     }
-    if ((f_format & (1 << 5))) {
+    if ((f_format & (1U << 5))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_32Bits_data32, hf_x11_xinput_ChangeDeviceProperty_32Bits_data32_item, f_num_items, byte_order);
         length -= f_num_items * 4;
     }
@@ -17660,13 +17660,13 @@ static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceProperty_reply_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     UNUSED(10);
-    if ((f_format & (1 << 3))) {
+    if ((f_format & (1U << 3))) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_8Bits_data8, f_num_items, byte_order);
     }
-    if ((f_format & (1 << 4))) {
+    if ((f_format & (1U << 4))) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_16Bits_data16, hf_x11_xinput_GetDeviceProperty_reply_16Bits_data16_item, f_num_items, byte_order);
     }
-    if ((f_format & (1 << 5))) {
+    if ((f_format & (1U << 5))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_32Bits_data32, hf_x11_xinput_GetDeviceProperty_reply_32Bits_data32_item, f_num_items, byte_order);
     }
 }
@@ -18241,15 +18241,15 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     f_num_items = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIChangeProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    if ((f_format & (1 << 3))) {
+    if ((f_format & (1U << 3))) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_XIChangeProperty_8Bits_data8, f_num_items, byte_order);
         length -= f_num_items * 1;
     }
-    if ((f_format & (1 << 4))) {
+    if ((f_format & (1U << 4))) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_XIChangeProperty_16Bits_data16, hf_x11_xinput_XIChangeProperty_16Bits_data16_item, f_num_items, byte_order);
         length -= f_num_items * 2;
     }
-    if ((f_format & (1 << 5))) {
+    if ((f_format & (1U << 5))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIChangeProperty_32Bits_data32, hf_x11_xinput_XIChangeProperty_32Bits_data32_item, f_num_items, byte_order);
         length -= f_num_items * 4;
     }
@@ -18303,13 +18303,13 @@ static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 4;
     f_format = field8(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_format, byte_order);
     UNUSED(11);
-    if ((f_format & (1 << 3))) {
+    if ((f_format & (1U << 3))) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_8Bits_data8, f_num_items, byte_order);
     }
-    if ((f_format & (1 << 4))) {
+    if ((f_format & (1U << 4))) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_16Bits_data16, hf_x11_xinput_XIGetProperty_reply_16Bits_data16_item, f_num_items, byte_order);
     }
-    if ((f_format & (1 << 5))) {
+    if ((f_format & (1U << 5))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_32Bits_data32, hf_x11_xinput_XIGetProperty_reply_32Bits_data32_item, f_num_items, byte_order);
     }
 }
@@ -20819,7 +20819,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
     }
     *offsetp += 2;
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 0))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 0))) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -20837,7 +20837,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 2))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 2))) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_StateNotify_affectState, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -20877,7 +20877,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 3))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 3))) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls, tvb, *offsetp, 4, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -20899,19 +20899,19 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 4;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 4))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 4))) {
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_IndicatorStateNotify_affectIndicatorState, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_IndicatorStateNotify_indicatorStateDetails, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 5))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 5))) {
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_IndicatorMapNotify_affectIndicatorMap, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_IndicatorMapNotify_indicatorMapDetails, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 6))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 6))) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_NamesNotify_affectNames, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -20951,7 +20951,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 7))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 7))) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat, tvb, *offsetp, 1, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -20967,19 +20967,19 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 1;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 8))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 8))) {
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_BellNotify_affectBell, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_BellNotify_bellDetails, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 9))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 9))) {
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ActionMessage_affectMsgDetails, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ActionMessage_msgDetails, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 10))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 10))) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -21005,7 +21005,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1 << 11))) {
+    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 11))) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -22046,41 +22046,41 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
         proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
     }
     *offsetp += 2;
-    if ((f_present & (1 << 0))) {
+    if ((f_present & (1U << 0))) {
         struct_xkb_KeyType(tvb, offsetp, t, byte_order, f_nTypes);
     }
-    if ((f_present & (1 << 1))) {
+    if ((f_present & (1U << 1))) {
         struct_xkb_KeySymMap(tvb, offsetp, t, byte_order, f_nKeySyms);
     }
-    if ((f_present & (1 << 4))) {
+    if ((f_present & (1U << 4))) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetMap_reply_KeyActions_acts_rtrn_count, f_nKeyActions, byte_order);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
         struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
     }
-    if ((f_present & (1 << 5))) {
+    if ((f_present & (1U << 5))) {
         struct_xkb_SetBehavior(tvb, offsetp, t, byte_order, f_totalKeyBehaviors);
     }
-    if ((f_present & (1 << 6))) {
+    if ((f_present & (1U << 6))) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetMap_reply_VirtualMods_vmods_rtrn, popcount(f_virtualMods), byte_order);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_present & (1 << 3))) {
+    if ((f_present & (1U << 3))) {
         struct_xkb_SetExplicit(tvb, offsetp, t, byte_order, f_totalKeyExplicit);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_present & (1 << 2))) {
+    if ((f_present & (1U << 2))) {
         struct_xkb_KeyModMap(tvb, offsetp, t, byte_order, f_totalModMapKeys);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_present & (1 << 7))) {
+    if ((f_present & (1U << 7))) {
         struct_xkb_KeyVModMap(tvb, offsetp, t, byte_order, f_totalVModMapKeys);
     }
 }
@@ -22194,37 +22194,37 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
     }
     *offsetp += 2;
-    if ((f_present & (1 << 0))) {
+    if ((f_present & (1U << 0))) {
         struct_xkb_SetKeyType(tvb, offsetp, t, byte_order, f_nTypes);
         length -= f_nTypes * 0;
     }
-    if ((f_present & (1 << 1))) {
+    if ((f_present & (1U << 1))) {
         struct_xkb_KeySymMap(tvb, offsetp, t, byte_order, f_nKeySyms);
         length -= f_nKeySyms * 0;
     }
-    if ((f_present & (1 << 4))) {
+    if ((f_present & (1U << 4))) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_SetMap_KeyActions_actionsCount, f_nKeyActions, byte_order);
         length -= f_nKeyActions * 1;
         struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
         length -= f_totalActions * 8;
     }
-    if ((f_present & (1 << 5))) {
+    if ((f_present & (1U << 5))) {
         struct_xkb_SetBehavior(tvb, offsetp, t, byte_order, f_totalKeyBehaviors);
         length -= f_totalKeyBehaviors * 4;
     }
-    if ((f_present & (1 << 6))) {
+    if ((f_present & (1U << 6))) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_SetMap_VirtualMods_vmods, popcount(f_virtualMods), byte_order);
         length -= popcount(f_virtualMods) * 1;
     }
-    if ((f_present & (1 << 3))) {
+    if ((f_present & (1U << 3))) {
         struct_xkb_SetExplicit(tvb, offsetp, t, byte_order, f_totalKeyExplicit);
         length -= f_totalKeyExplicit * 2;
     }
-    if ((f_present & (1 << 2))) {
+    if ((f_present & (1U << 2))) {
         struct_xkb_KeyModMap(tvb, offsetp, t, byte_order, f_totalModMapKeys);
         length -= f_totalModMapKeys * 2;
     }
-    if ((f_present & (1 << 7))) {
+    if ((f_present & (1U << 7))) {
         struct_xkb_KeyVModMap(tvb, offsetp, t, byte_order, f_totalVModMapKeys);
         length -= f_totalVModMapKeys * 4;
     }
@@ -22769,34 +22769,34 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_nKTLevels, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     UNUSED(4);
-    if ((f_which & (1 << 0))) {
+    if ((f_which & (1U << 0))) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Keycodes_keycodesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 1))) {
+    if ((f_which & (1U << 1))) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Geometry_geometryName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 2))) {
+    if ((f_which & (1U << 2))) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Symbols_symbolsName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 3))) {
+    if ((f_which & (1U << 3))) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_PhysSymbols_physSymbolsName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 4))) {
+    if ((f_which & (1U << 4))) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Types_typesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 5))) {
+    if ((f_which & (1U << 5))) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Compat_compatName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 6))) {
+    if ((f_which & (1U << 6))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KeyTypeNames_typeNames, hf_x11_xkb_GetNames_reply_KeyTypeNames_typeNames_item, f_nTypes, byte_order);
     }
-    if ((f_which & (1 << 7))) {
+    if ((f_which & (1U << 7))) {
         int sumof_nLevelsPerType = 0;
         {
             int i;
@@ -22808,22 +22808,22 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KTLevelNames_alignment_pad, (((f_nTypes + 3) & (~3)) - f_nTypes), byte_order);
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames, hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
     }
-    if ((f_which & (1 << 8))) {
+    if ((f_which & (1U << 8))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_IndicatorNames_indicatorNames, hf_x11_xkb_GetNames_reply_IndicatorNames_indicatorNames_item, popcount(f_indicators), byte_order);
     }
-    if ((f_which & (1 << 11))) {
+    if ((f_which & (1U << 11))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_VirtualModNames_virtualModNames, hf_x11_xkb_GetNames_reply_VirtualModNames_virtualModNames_item, popcount(f_virtualMods), byte_order);
     }
-    if ((f_which & (1 << 12))) {
+    if ((f_which & (1U << 12))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_GroupNames_groups, hf_x11_xkb_GetNames_reply_GroupNames_groups_item, popcount(f_groupNames), byte_order);
     }
-    if ((f_which & (1 << 9))) {
+    if ((f_which & (1U << 9))) {
         struct_xkb_KeyName(tvb, offsetp, t, byte_order, f_nKeys);
     }
-    if ((f_which & (1 << 10))) {
+    if ((f_which & (1U << 10))) {
         struct_xkb_KeyAlias(tvb, offsetp, t, byte_order, f_nKeyAliases);
     }
-    if ((f_which & (1 << 13))) {
+    if ((f_which & (1U << 13))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_RGNames_radioGroupNames, hf_x11_xkb_GetNames_reply_RGNames_radioGroupNames_item, f_nRadioGroups, byte_order);
     }
 }
@@ -22918,35 +22918,35 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     UNUSED(1);
     proto_tree_add_item(t, hf_x11_xkb_SetNames_totalKTLevelNames, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    if ((f_which & (1 << 0))) {
+    if ((f_which & (1U << 0))) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Keycodes_keycodesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 1))) {
+    if ((f_which & (1U << 1))) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Geometry_geometryName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 2))) {
+    if ((f_which & (1U << 2))) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Symbols_symbolsName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 3))) {
+    if ((f_which & (1U << 3))) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_PhysSymbols_physSymbolsName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 4))) {
+    if ((f_which & (1U << 4))) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Types_typesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 5))) {
+    if ((f_which & (1U << 5))) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Compat_compatName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1 << 6))) {
+    if ((f_which & (1U << 6))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_KeyTypeNames_typeNames, hf_x11_xkb_SetNames_KeyTypeNames_typeNames_item, f_nTypes, byte_order);
         length -= f_nTypes * 4;
     }
-    if ((f_which & (1 << 7))) {
+    if ((f_which & (1U << 7))) {
         int sumof_nLevelsPerType = 0;
         {
             int i;
@@ -22959,27 +22959,27 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_KTLevelNames_ktLevelNames, hf_x11_xkb_SetNames_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
         length -= sumof_nLevelsPerType * 4;
     }
-    if ((f_which & (1 << 8))) {
+    if ((f_which & (1U << 8))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_IndicatorNames_indicatorNames, hf_x11_xkb_SetNames_IndicatorNames_indicatorNames_item, popcount(f_indicators), byte_order);
         length -= popcount(f_indicators) * 4;
     }
-    if ((f_which & (1 << 11))) {
+    if ((f_which & (1U << 11))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_VirtualModNames_virtualModNames, hf_x11_xkb_SetNames_VirtualModNames_virtualModNames_item, popcount(f_virtualMods), byte_order);
         length -= popcount(f_virtualMods) * 4;
     }
-    if ((f_which & (1 << 12))) {
+    if ((f_which & (1U << 12))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_GroupNames_groups, hf_x11_xkb_SetNames_GroupNames_groups_item, popcount(f_groupNames), byte_order);
         length -= popcount(f_groupNames) * 4;
     }
-    if ((f_which & (1 << 9))) {
+    if ((f_which & (1U << 9))) {
         struct_xkb_KeyName(tvb, offsetp, t, byte_order, f_nKeys);
         length -= f_nKeys * 1;
     }
-    if ((f_which & (1 << 10))) {
+    if ((f_which & (1U << 10))) {
         struct_xkb_KeyAlias(tvb, offsetp, t, byte_order, f_nKeyAliases);
         length -= f_nKeyAliases * 2;
     }
-    if ((f_which & (1 << 13))) {
+    if ((f_which & (1U << 13))) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_RGNames_radioGroupNames, hf_x11_xkb_SetNames_RGNames_radioGroupNames_item, f_nRadioGroups, byte_order);
         length -= f_nRadioGroups * 4;
     }
@@ -23282,7 +23282,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
     }
     *offsetp += 2;
     UNUSED(16);
-    if ((f_reported & (1 << 0)) || (f_reported & (1 << 2)) || (f_reported & (1 << 3))) {
+    if ((f_reported & (1U << 0)) || (f_reported & (1U << 2)) || (f_reported & (1U << 3))) {
         int f_present;
         int f_nTypes;
         int f_nKeySyms;
@@ -23393,33 +23393,33 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
             proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
         }
         *offsetp += 2;
-        if ((f_present & (1 << 0))) {
+        if ((f_present & (1U << 0))) {
             struct_xkb_KeyType(tvb, offsetp, t, byte_order, f_nTypes);
         }
-        if ((f_present & (1 << 1))) {
+        if ((f_present & (1U << 1))) {
             struct_xkb_KeySymMap(tvb, offsetp, t, byte_order, f_nKeySyms);
         }
-        if ((f_present & (1 << 4))) {
+        if ((f_present & (1U << 4))) {
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_Types_KeyActions_acts_rtrn_count, f_nKeyActions, byte_order);
             struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
         }
-        if ((f_present & (1 << 5))) {
+        if ((f_present & (1U << 5))) {
             struct_xkb_SetBehavior(tvb, offsetp, t, byte_order, f_totalKeyBehaviors);
         }
-        if ((f_present & (1 << 6))) {
+        if ((f_present & (1U << 6))) {
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_Types_VirtualMods_vmods_rtrn, popcount(f_virtualMods), byte_order);
         }
-        if ((f_present & (1 << 3))) {
+        if ((f_present & (1U << 3))) {
             struct_xkb_SetExplicit(tvb, offsetp, t, byte_order, f_totalKeyExplicit);
         }
-        if ((f_present & (1 << 2))) {
+        if ((f_present & (1U << 2))) {
             struct_xkb_KeyModMap(tvb, offsetp, t, byte_order, f_totalModMapKeys);
         }
-        if ((f_present & (1 << 7))) {
+        if ((f_present & (1U << 7))) {
             struct_xkb_KeyVModMap(tvb, offsetp, t, byte_order, f_totalVModMapKeys);
         }
     }
-    if ((f_reported & (1 << 1))) {
+    if ((f_reported & (1U << 1))) {
         int f_groupsRtrn;
         int f_nSIRtrn;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_compatmap_type, tvb, *offsetp, 1, byte_order);
@@ -23452,7 +23452,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         struct_xkb_SymInterpret(tvb, offsetp, t, byte_order, f_nSIRtrn);
         struct_xkb_ModDef(tvb, offsetp, t, byte_order, popcount(f_groupsRtrn));
     }
-    if ((f_reported & (1 << 4))) {
+    if ((f_reported & (1U << 4))) {
         int f_nIndicators;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_IndicatorMaps_indicatormap_type, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
@@ -23472,7 +23472,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         UNUSED(15);
         struct_xkb_IndicatorMap(tvb, offsetp, t, byte_order, f_nIndicators);
     }
-    if ((f_reported & (1 << 5)) || (f_reported & (1 << 7))) {
+    if ((f_reported & (1U << 5)) || (f_reported & (1U << 7))) {
         int f_which;
         int f_nTypes;
         int f_groupNames;
@@ -23565,34 +23565,34 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_nKTLevels, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         UNUSED(4);
-        if ((f_which & (1 << 0))) {
+        if ((f_which & (1U << 0))) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Keycodes_keycodesName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1 << 1))) {
+        if ((f_which & (1U << 1))) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Geometry_geometryName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1 << 2))) {
+        if ((f_which & (1U << 2))) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Symbols_symbolsName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1 << 3))) {
+        if ((f_which & (1U << 3))) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_PhysSymbols_physSymbolsName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1 << 4))) {
+        if ((f_which & (1U << 4))) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Types_typesName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1 << 5))) {
+        if ((f_which & (1U << 5))) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Compat_compatName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1 << 6))) {
+        if ((f_which & (1U << 6))) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KeyTypeNames_typeNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_KeyTypeNames_typeNames_item, f_nTypes, byte_order);
         }
-        if ((f_which & (1 << 7))) {
+        if ((f_which & (1U << 7))) {
             int sumof_nLevelsPerType = 0;
             {
                 int i;
@@ -23603,26 +23603,26 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_nLevelsPerType, f_nTypes, byte_order);
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_ktLevelNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
         }
-        if ((f_which & (1 << 8))) {
+        if ((f_which & (1U << 8))) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_IndicatorNames_indicatorNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_IndicatorNames_indicatorNames_item, popcount(f_indicators), byte_order);
         }
-        if ((f_which & (1 << 11))) {
+        if ((f_which & (1U << 11))) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_VirtualModNames_virtualModNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_VirtualModNames_virtualModNames_item, popcount(f_virtualMods), byte_order);
         }
-        if ((f_which & (1 << 12))) {
+        if ((f_which & (1U << 12))) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_GroupNames_groups, hf_x11_xkb_GetKbdByName_reply_KeyNames_GroupNames_groups_item, popcount(f_groupNames), byte_order);
         }
-        if ((f_which & (1 << 9))) {
+        if ((f_which & (1U << 9))) {
             struct_xkb_KeyName(tvb, offsetp, t, byte_order, f_nKeys);
         }
-        if ((f_which & (1 << 10))) {
+        if ((f_which & (1U << 10))) {
             struct_xkb_KeyAlias(tvb, offsetp, t, byte_order, f_nKeyAliases);
         }
-        if ((f_which & (1 << 13))) {
+        if ((f_which & (1U << 13))) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_RGNames_radioGroupNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_RGNames_radioGroupNames_item, f_nRadioGroups, byte_order);
         }
     }
-    if ((f_reported & (1 << 6))) {
+    if ((f_reported & (1U << 6))) {
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Geometry_geometry_type, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Geometry_geometryDeviceID, tvb, *offsetp, 1, byte_order);
