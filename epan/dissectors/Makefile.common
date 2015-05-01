@@ -218,6 +218,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 DIRTY_CORBA_IDL_DISSECTOR_SRC = \
 	packet-coseventcomm.c	\
 	packet-cosnaming.c	\
+	packet-gias.c	\
 	packet-parlay.c	\
 	packet-tango.c
 
@@ -625,7 +626,6 @@ DISSECTOR_SRC = \
 	packet-gearman.c	\
 	packet-ged125.c		\
 	packet-geneve.c		\
-	packet-gias.c		\
 	packet-gift.c		\
 	packet-giop.c		\
 	packet-git.c		\

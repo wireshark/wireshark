@@ -305,6 +305,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 set(DIRTY_CORBA_IDL_DISSECTOR_SRC
 	dissectors/packet-coseventcomm.c
 	dissectors/packet-cosnaming.c
+	dissectors/packet-gias.c
 	dissectors/packet-parlay.c
 	dissectors/packet-tango.c
 )
@@ -709,7 +710,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-gearman.c
 	dissectors/packet-ged125.c
 	dissectors/packet-geneve.c
-	dissectors/packet-gias.c
 	dissectors/packet-gift.c
 	dissectors/packet-giop.c
 	dissectors/packet-git.c
