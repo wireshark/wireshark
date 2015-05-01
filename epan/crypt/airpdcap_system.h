@@ -36,13 +36,6 @@
 #define	_AIRPDCAP_SYSTEM_H
 
 /************************************************************************/
-/*	File includes							*/
-
-#include "airpdcap_interop.h"
-#include "airpdcap_user.h"
-#include "ws_symbol_export.h"
-
-/************************************************************************/
 /*	Constant definitions						*/
 
 /*	General definitions						*/
@@ -111,6 +104,13 @@
 #define	AIRPDCAP_TKIP_TRAILER	AIRPDCAP_RSNA_MICLEN + AIRPDCAP_WEP_ICV
 
 #define	AIRPDCAP_CRC_LEN	4
+
+/************************************************************************/
+/*      File includes                                                   */
+
+#include "airpdcap_interop.h"
+#include "airpdcap_user.h"
+#include "ws_symbol_export.h"
 
 /************************************************************************/
 /*	Macro definitions						*/
