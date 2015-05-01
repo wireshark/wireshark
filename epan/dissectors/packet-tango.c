@@ -454,14 +454,12 @@ static const value_string Tango_DispLevel[] = {
 static void
 decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    proto_item *item _U_;
+    proto_item *item = NULL;
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_DevFailed_errors;
     guint32   i_Tango_DevFailed_errors;
     /* Operation specific Variable declarations End */
-
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     u_octet4_loop_Tango_DevFailed_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
@@ -480,14 +478,12 @@ decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
 static void
 decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, const gchar *operation _U_, gboolean stream_is_big_endian _U_)
 {
-    proto_item *item _U_;
+    proto_item *item = NULL;
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_MultiDevFailed_errors;
     guint32   i_Tango_MultiDevFailed_errors;
     /* Operation specific Variable declarations End */
-
-    (void)item; /* Avoid coverity param_set_but_unused parse warning */
 
     u_octet4_loop_Tango_MultiDevFailed_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
