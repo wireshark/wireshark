@@ -371,7 +371,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         /*
          * Other message - checksum the entire packet.
          */
-        pim_length = tvb_reported_length(tvb);
+        pim_length = length;
     }
 
     if (!pinfo->fragmented && length >= pim_length) {
@@ -850,7 +850,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             /*
              * Other message - checksum the entire packet.
              */
-            pim_length = tvb_reported_length(tvb);
+            pim_length = length;
         }
     } else {
         /*
