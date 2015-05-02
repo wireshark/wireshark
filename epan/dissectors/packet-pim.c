@@ -213,16 +213,55 @@ static dissector_handle_t ipv6_handle;
 static gboolean use_main_tree  = TRUE;
 
 /*
- * For PIM v1, see
+ * The Story About Ping^WPIM:
  *
- *      ftp://ftp.usc.edu/pub/csinfo/tech-reports/papers/95-599.ps.Z
+ *	http://www.cs.usc.edu/assets/003/83187.pdf
  *
- * NOTE: There is still some doubt that this is THE definitive PIMv1
- *       specification.  Of note, the pim_type1_vals entry, { 8, "Mode" }, does
- *       not appear as a valid code in the referenced document above.
+ * dated January 11, 1995, entitled "Protocol Independent Multicast (PIM):
+ * Protocol Specification", calls itself draft-ietf-idmr-pim-spec-01,
+ * and is in PostScript-converted-to-PDF form.  It describes a protocol
+ * that runs atop IGMP, with a type of 4 for "Router PIM Messages", and
+ * a PIM version number field of 1.
  *
- *       This one is likely closer to the last PIMv1 spec:
- *       http://tools.ietf.org/id/draft-ietf-idmr-pim-spec-02.txt
+ *	https://tools.ietf.org/html/draft-ietf-idmr-pim-sm-spec-00
+ *
+ * dated September 7, 1995, and
+ *
+ *	http://tools.ietf.org/html/draft-ietf-idmr-pim-spec-02
+ *
+ * dated September 7, 1995, both entitled "Protocol Independent Multicast-
+ * Sparse Mode (PIM-SM): Protocol Specification", describe a protocol that
+ * runs atop IGMP, with a type of 4 for "Router PIM Messages", and a PIM
+ * version number field of 2.
+ *
+ *	https://tools.ietf.org/html/draft-ietf-idmr-pim-sm-spec-03
+ *
+ * dated June 6, 1996, and all subsequent drafts, and RFC 2117, dated
+ * June 1997, all entitled "Protocol Independent Multicast-Sparse Mode
+ * (PIM-SM): Protocol Specification", describe a protocol that runs
+ * atop IP, with a protocol number of 103, and with a PIM version number
+ * field of 2. RFC 2117 was obsoleted by RFC 2362, which was obsoleted by
+ * RFC 4601.
+ *
+ * None of them, including the PDF from USC, appear to describe the protocol
+ * dissected by the dissect_pimv1() code.  In particular, none have a
+ * packet type value of 8 meaning "Mode"; the PDF from USC doesn't mention
+ * it at all, and subsequent drafts and RFC 2117 have (Candidate-)RP-
+ * Advertisement.  Perhaps what's dissected by dissect_pimv1() was
+ * something between the PDF and draft-ietf-idmr-pim-spec-02.
+ *
+ * Looking at the Dense Mode specs,
+ *
+ *	http://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-02
+ *
+ * entitled "Protocol Independent Multicast-Dense Mode (PIM-DM): Protocol
+ * Specification", dated September 1995, describes a protocol that runs
+ * atop IGMP, with a type of 4 for "Router PIM Messages", and with a PIM
+ * version number field of 2.
+ *
+ * RFC 3973, entitled "Protocol Independent Multicast-Dense Mode (PIM-DM):
+ * Protocol Specification", also describes a protocol that runs atop IP,
+ * with a protocol number of 103, and with a PIM version number field of 2.
  */
 static const char *
 dissect_pimv1_addr(tvbuff_t *tvb, int offset) {
@@ -294,7 +333,9 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     pim_ver = PIM_VER(tvb_get_guint8(tvb, offset + 2));
     if (pim_ver != 1) {
         /*
-         * Not PIMv1 - what gives?
+         * Not PIMv1; should we bother dissecting the PIM drafts
+         * with a version number of 2 and with PIM running atop
+         * IGMP?
          */
         proto_tree_add_uint(pim_tree, hf_pim_cksum, tvb,
                             offset, 2, pim_cksum);
@@ -316,6 +357,13 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
          * Also set the columns non-writable. Otherwise the IPv4 or
          * IPv6 dissector for the encapsulated packet that caused
          * this register will overwrite the PIM info in the columns.
+         *
+         * XXX - that's not what draft-ietf-idmr-pim-spec-01 or
+         * draft-ietf-idmr-pim-spec-02 say; they say that the checksum
+         * covers the entire IGMP message.  Later drafts say it
+         * doesn't cover the encapsulated packet; perhaps that's what
+         * was always intended, and they just felt they needed to
+         * explicitly state that.
          */
         pim_length = 8;
         col_set_writable(pinfo->cinfo, FALSE);
