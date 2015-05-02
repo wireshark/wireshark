@@ -374,7 +374,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         pim_length = length;
     }
 
-    if (!pinfo->fragmented && length >= pim_length) {
+    if (!pinfo->fragmented && length >= pim_length &&
+         tvb_captured_length(tvb) >= pim_length) {
         /*
          * The packet isn't part of a fragmented datagram and isn't
          * truncated, so we can checksum it.
@@ -864,7 +865,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          */
         pim_length = length;
     }
-    if (!pinfo->fragmented && length >= pim_length) {
+    if (!pinfo->fragmented && length >= pim_length &&
+         tvb_captured_length(tvb) >= pim_length) {
         /*
          * The packet isn't part of a fragmented datagram and isn't
          * truncated, so we can checksum it.
