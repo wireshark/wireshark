@@ -830,34 +830,39 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, ENC_NA);
     }
     pim_cksum = tvb_get_ntohs(tvb, offset + 2);
-    length = tvb_reported_length(tvb);
-    if (PIM_VER(pim_typever) == 2) {
+    if (PIM_VER(pim_typever) != 2) {
         /*
-         * Well, it's PIM v2, so we can check whether this is a Register
-         * message, and thus can figure out how much to checksum and
-         * whether to make the columns read-only.
+         * We don't know this version, so we don't know how much of the
+         * packet the checksum covers.
          */
-        if (PIM_TYPE(pim_typever) == 1) {
-            /*
-             * Register message - the PIM header is 8 bytes long.
-             * Also set the columns non-writable. Otherwise the IPv4 or
-             * IPv6 dissector for the encapsulated packet that caused
-             * this register will overwrite the PIM info in the columns.
-             */
-            pim_length = 8;
-            col_set_writable(pinfo->cinfo, FALSE);
-        } else {
-            /*
-             * Other message - checksum the entire packet.
-             */
-            pim_length = length;
+        proto_tree_add_uint(pim_tree, hf_pim_cksum, tvb,
+                            offset + 2, 2, pim_cksum);
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            pimopt_tree = proto_tree_add_subtree(pim_tree, tvb, offset, -1, ett_pim_opts, &tiopt, "PIM options");
         }
+        goto done;
+    }
+
+    /*
+     * Well, it's PIM v2, so we can check whether this is a Register
+     * message, and thus can figure out how much to checksum and
+     * whether to make the columns read-only.
+     */
+    length = tvb_reported_length(tvb);
+    if (PIM_TYPE(pim_typever) == 1) {
+        /*
+         * Register message - the PIM header is 8 bytes long.
+         * Also set the columns non-writable. Otherwise the IPv4 or
+         * IPv6 dissector for the encapsulated packet that caused
+         * this register will overwrite the PIM info in the columns.
+         */
+        pim_length = 8;
+        col_set_writable(pinfo->cinfo, FALSE);
     } else {
         /*
-         * We don't know what type of message this is, so say that
-         * the length is 0, to force it not to be checksummed.
+         * Other message - checksum the entire packet.
          */
-        pim_length = 0;
+        pim_length = length;
     }
     if (!pinfo->fragmented && length >= pim_length) {
         /*
@@ -907,9 +912,6 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         pimopt_tree = proto_tree_add_subtree(pim_tree, tvb, offset, -1, ett_pim_opts, &tiopt, "PIM options");
     } else
-        goto done;
-
-    if (PIM_VER(pim_typever) != 2)
         goto done;
 
     /* version 2 decoder */
