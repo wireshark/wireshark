@@ -58,36 +58,6 @@ extern "C" {
 
 extern int proto_bluetooth;
 
-extern value_string_ext bthci_cmd_opcode_vals_ext;
-extern value_string_ext bthci_ogf_vals_ext;
-extern value_string_ext bthci_cmd_ocf_link_control_vals_ext;
-extern value_string_ext bthci_cmd_ocf_link_policy_vals_ext;
-extern value_string_ext bthci_cmd_ocf_host_controller_and_baseband_vals_ext;
-extern value_string_ext bthci_cmd_ocf_informational_vals_ext;
-extern value_string_ext bthci_cmd_ocf_status_vals_ext;
-extern value_string_ext bthci_cmd_ocf_testing_vals_ext;
-extern value_string_ext bthci_cmd_ocf_low_energy_vals_ext;
-
-extern value_string_ext bthci_cmd_input_coding_vals_ext;
-extern value_string_ext bthci_cmd_input_data_format_vals_ext;
-extern value_string_ext bthci_cmd_input_sample_size_vals_ext;
-extern value_string_ext bthci_cmd_air_coding_format_vals_ext;
-extern value_string_ext bthci_cmd_status_vals_ext;
-extern value_string_ext bthci_cmd_eir_data_type_vals_ext;
-extern value_string_ext bthci_cmd_auth_req_vals_ext;
-extern value_string_ext bthci_cmd_appearance_vals_ext;
-
-extern const value_string bthci_cmd_io_capability_vals[];
-extern const value_string bthci_cmd_oob_data_present_vals[];
-extern const value_string bthci_cmd_address_types_vals[];
-extern const value_string bthci_cmd_scan_enable_values[];
-extern const value_string bthci_cmd_page_scan_modes[];
-extern const value_string bthci_cmd_page_scan_repetition_modes[];
-extern const value_string bthci_cmd_page_scan_period_modes[];
-extern const value_string bthci_cmd_notification_types[];
-
-extern value_string_ext  bthci_evt_evt_code_vals_ext;
-
 extern const value_string bluetooth_address_type_vals[];
 
 #define STATUS_SUCCESS 0x00

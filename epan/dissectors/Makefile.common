@@ -1417,6 +1417,8 @@ DISSECTOR_INCLUDES =	\
 	packet-btavdtp.h	\
 	packet-btavrcp.h	\
 	packet-bthci_acl.h	\
+	packet-bthci_cmd.h	\
+	packet-bthci_evt.h	\
 	packet-btl2cap.h	\
 	packet-btle.h		\
 	packet-btrfcomm.h	\

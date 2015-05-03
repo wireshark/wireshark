@@ -33,6 +33,7 @@
 #include <wiretap/wtap.h>
 
 #include "packet-btle.h"
+#include "packet-bthci_cmd.h"
 #include "packet-bthci_acl.h"
 
 static int proto_btle = -1;

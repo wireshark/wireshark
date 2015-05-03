@@ -39,6 +39,7 @@
 #include <epan/decode_as.h>
 
 #include "packet-bluetooth.h"
+#include "packet-bthci_cmd.h"
 #include "packet-btsdp.h"
 
 static int proto_bthci_cmd = -1;
@@ -332,6 +333,10 @@ static int hf_bthci_cmd_tx_freqency = -1;
 static int hf_bthci_cmd_test_data_length = -1;
 static int hf_bthci_cmd_test_packet_payload = -1;
 static int hf_bthci_cmd_parameter = -1;
+static int hf_response_in_frame = -1;
+static int hf_command_response_time_delta = -1;
+static int hf_pending_in_frame = -1;
+static int hf_command_pending_time_delta = -1;
 
 static const int *hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
@@ -507,11 +512,13 @@ static dissector_handle_t btcommon_ad_handle;
 static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t bthci_cmd_handle;
 
+wmem_tree_t *bthci_cmds = NULL;
+
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
 extern value_string_ext did_vendor_id_source_vals_ext;
 
-static const value_string bthci_ogf_vals[] = {
+static const value_string bthci_cmd_ogf_vals[] = {
     { 0x01,  "Link Control Commands" },
     { 0x02,  "Link Policy Commands" },
     { 0x03,  "Host Controller & Baseband Commands" },
@@ -523,7 +530,7 @@ static const value_string bthci_ogf_vals[] = {
     { 0x3F,  "Vendor-Specific Commands" },
     { 0, NULL }
 };
-value_string_ext bthci_ogf_vals_ext = VALUE_STRING_EXT_INIT(bthci_ogf_vals);
+value_string_ext bthci_cmd_ogf_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_ogf_vals);
 
 static const value_string bthci_cmd_ocf_link_control_vals[] = {
 /* Bluetooth Core 4.0 */
@@ -3076,7 +3083,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
     proto_item        *ti_cmd;
     proto_tree        *bthci_cmd_tree;
-    guint16            opcode;
+    guint32            opcode;
     guint16            ocf;
     guint8             param_length;
     guint8             ogf;
@@ -3085,11 +3092,23 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree        *opcode_tree;
     gint               hfx;
     bluetooth_data_t  *bluetooth_data;
+    guint32            interface_id;
+    guint32            adapter_id;
+    guint32            frame_number;
+    wmem_tree_key_t    key[5];
+    bthci_cmd_data_t  *bthci_cmd_data;
+    proto_tree        *sub_item;
+    wmem_tree_t       *subtree;
+
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
         return 0;
     bluetooth_data = (bluetooth_data_t *) data;
+
+    interface_id = bluetooth_data->interface_id;
+    adapter_id   = bluetooth_data->adapter_id;
+    frame_number = pinfo->fd->num;
 
     ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_NA);
     bthci_cmd_tree = proto_item_add_subtree(ti_cmd, ett_bthci_cmd);
@@ -3161,7 +3180,6 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_item(opcode_tree, hfx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
-
     proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_param_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     param_length = tvb_get_guint8(tvb, offset);
     offset++;
@@ -3172,12 +3190,6 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         if (!dissector_try_uint_new(vendor_dissector_table, HCI_VENDOR_DEFAULT, tvb, pinfo, tree, TRUE, bluetooth_data)) {
             if (bluetooth_data) {
                 hci_vendor_data_t  *hci_vendor_data;
-                wmem_tree_key_t     key[3];
-                guint32             interface_id;
-                guint32             adapter_id;
-
-                interface_id = bluetooth_data->interface_id;
-                adapter_id   = bluetooth_data->adapter_id;
 
                 key[0].length = 1;
                 key[0].key    = &interface_id;
@@ -3193,52 +3205,107 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
 
         proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_parameter, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
-
-        return tvb_captured_length(tvb);
     } else {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
-    }
 
-    if (param_length > 0) {
-        switch (ogf) {
-            case HCI_OGF_LINK_CONTROL:
-                offset = dissect_link_control_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
-                break;
+        if (param_length > 0) {
+            switch (ogf) {
+                case HCI_OGF_LINK_CONTROL:
+                    offset = dissect_link_control_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
+                    break;
 
-            case HCI_OGF_LINK_POLICY:
-                offset = dissect_link_policy_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
-                break;
+                case HCI_OGF_LINK_POLICY:
+                    offset = dissect_link_policy_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+                    break;
 
-            case HCI_OGF_HOST_CONTROLLER:
-                offset = dissect_host_controller_baseband_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
-                break;
+                case HCI_OGF_HOST_CONTROLLER:
+                    offset = dissect_host_controller_baseband_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
+                    break;
 
-            case HCI_OGF_INFORMATIONAL:
-                offset = dissect_informational_parameters_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
-                break;
+                case HCI_OGF_INFORMATIONAL:
+                    offset = dissect_informational_parameters_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+                    break;
 
-            case HCI_OGF_STATUS:
-                offset = dissect_status_parameters_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
-                break;
+                case HCI_OGF_STATUS:
+                    offset = dissect_status_parameters_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+                    break;
 
-            case HCI_OGF_TESTING:
-                offset = dissect_testing_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
-                break;
+                case HCI_OGF_TESTING:
+                    offset = dissect_testing_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf);
+                    break;
 
-            case HCI_OGF_LOW_ENERGY:
-                offset = dissect_le_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
-                break;
-
-            default:
-                proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_unknown_command, tvb, 3, -1);
-                offset += tvb_reported_length_remaining(tvb, offset);
-                break;
+                case HCI_OGF_LOW_ENERGY:
+                    offset = dissect_le_cmd(tvb, offset, pinfo, bthci_cmd_tree, ocf, bluetooth_data);
+                    break;
+                default:
+                    proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_unknown_command, tvb, 3, -1);
+                    offset += tvb_reported_length_remaining(tvb, offset);
+                    break;
+            }
         }
     }
 
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+    if (!pinfo->fd->flags.visited && bluetooth_data) {
+        key[0].length = 1;
+        key[0].key    = &interface_id;
+        key[1].length = 1;
+        key[1].key    = &adapter_id;
+        key[2].length = 1;
+        key[2].key    = &opcode;
+        key[3].length = 1;
+        key[3].key    = &frame_number;
+        key[4].length = 0;
+        key[4].key    = NULL;
+
+        bthci_cmd_data = (bthci_cmd_data_t *) wmem_new(wmem_file_scope(), bthci_cmd_data_t);
+        bthci_cmd_data->opcode = opcode;
+        bthci_cmd_data->command_in_frame = frame_number;
+        bthci_cmd_data->command_abs_ts = pinfo->fd->abs_ts;
+        bthci_cmd_data->pending_in_frame = max_disconnect_in_frame;
+        bthci_cmd_data->pending_abs_ts = pinfo->fd->abs_ts;
+        bthci_cmd_data->response_in_frame = max_disconnect_in_frame;
+        bthci_cmd_data->response_abs_ts = pinfo->fd->abs_ts;
+
+        wmem_tree_insert32_array(bthci_cmds, key, bthci_cmd_data);
+    }
+
+    if (ogf != HCI_OGF_VENDOR_SPECIFIC && tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset, -1);
         offset += tvb_reported_length_remaining(tvb, offset);
+    }
+
+    key[0].length = 1;
+    key[0].key    = &interface_id;
+    key[1].length = 1;
+    key[1].key    = &adapter_id;
+    key[2].length = 1;
+    key[2].key    = &opcode;
+    key[3].length = 0;
+    key[3].key    = NULL;
+
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(bthci_cmds, key);
+    bthci_cmd_data = (subtree) ? (bthci_cmd_data_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+    if (bthci_cmd_data && bthci_cmd_data->pending_in_frame < max_disconnect_in_frame) {
+        nstime_t  delta;
+
+        sub_item = proto_tree_add_uint(bthci_cmd_tree, hf_pending_in_frame, tvb, 0, 0, bthci_cmd_data->pending_in_frame);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+
+        nstime_delta(&delta, &bthci_cmd_data->pending_abs_ts, &bthci_cmd_data->command_abs_ts);
+        sub_item = proto_tree_add_double(bthci_cmd_tree, hf_command_pending_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
+        proto_item_append_text(sub_item, " ms");
+        PROTO_ITEM_SET_GENERATED(sub_item);
+    }
+    if (bthci_cmd_data && bthci_cmd_data->response_in_frame < max_disconnect_in_frame) {
+        nstime_t  delta;
+
+        sub_item = proto_tree_add_uint(bthci_cmd_tree, hf_response_in_frame, tvb, 0, 0, bthci_cmd_data->response_in_frame);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+
+        nstime_delta(&delta, &bthci_cmd_data->response_abs_ts, &bthci_cmd_data->command_abs_ts);
+        sub_item = proto_tree_add_double(bthci_cmd_tree, hf_command_response_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
+        proto_item_append_text(sub_item, " ms");
+        PROTO_ITEM_SET_GENERATED(sub_item);
     }
 
     return offset;
@@ -3268,7 +3335,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_ogf,
           { "Opcode Group Field",           "bthci_cmd.opcode.ogf",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_ogf_vals_ext, 0xfc00,
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_ogf_vals_ext, 0xfc00,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_ocf_link_control,
@@ -3719,7 +3786,7 @@ proto_register_bthci_cmd(void)
         { &hf_bthci_cmd_input_coding,
           { "Input Coding", "bthci_cmd.voice.input_coding",
             FT_UINT16, BASE_DEC, VALS(cmd_input_coding_values), 0x0300,
-            "Authentication Enable", HFILL }
+            NULL, HFILL }
         },
         { &hf_bthci_cmd_input_data_format,
           { "Input Data Format", "bthci_cmd.voice.input_data_format",
@@ -4032,7 +4099,7 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
         { &hf_bthci_cmd_num_handles,
-          { "Number of Handles", "bthci_cmd.num_handles",
+          { "Number of Connection Handles", "bthci_cmd.num_handles",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4708,6 +4775,26 @@ proto_register_bthci_cmd(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_response_in_frame,
+            { "Response in frame",                "bthci_cmd.response_in_frame",
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_command_response_time_delta,
+            { "Command-Response Delta",          "bthci_cmd.command_response_delta",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pending_in_frame,
+            { "Pending in frame",                "bthci_cmd.pending_in_frame",
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_command_pending_time_delta,
+            { "Command-Pending Delta",          "bthci_cmd.command_pending_delta",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
     };
 
     static ei_register_info ei[] = {
@@ -4767,6 +4854,8 @@ proto_register_bthci_cmd(void)
 
     expert_bthci_cmd = expert_register_protocol(proto_bthci_cmd);
     expert_register_field_array(expert_bthci_cmd, ei, array_length(ei));
+
+    bthci_cmds = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     vendor_dissector_table = register_dissector_table("bthci_cmd.vendor", "BT HCI Vendor", FT_UINT16, BASE_HEX);
 

@@ -28,6 +28,8 @@
 #include <epan/expert.h>
 
 #include "packet-bluetooth.h"
+#include "packet-bthci_cmd.h"
+#include "packet-bthci_evt.h"
 
 static int proto_bthci_vendor_broadcom = -1;
 
@@ -934,7 +936,7 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_opcode_ogf,
           { "Opcode Group Field",                          "bthci_vendor.broadcom.opcode.ogf",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_ogf_vals_ext, 0xfc00,
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_ogf_vals_ext, 0xfc00,
             NULL, HFILL }
         },
         { &hf_opcode_ocf,
