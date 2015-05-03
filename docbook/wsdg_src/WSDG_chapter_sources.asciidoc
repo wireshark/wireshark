@@ -127,7 +127,7 @@ Recommended for development purposes.
 Age: a few minutes.
 
 You can use a Git client to download the source code from Wireshark's code
-review system. Anyone can clone from the anonymous URL:
+review system. Anyone can clone from the anonymous git URL:
 
 * wireshark-git-anonhttp-url:[]
 
@@ -147,9 +147,11 @@ The following example shows how to get up and running on the command
 line. See <<ChToolsGit>> for information on installing and configuring
 graphical Git and Gerrit clients.
 
-. Sign in to wireshark-code-review-url:[] using OpenID. In the upper
-right corner of the web page, click on your account name and select
-_Settings_.
+. Sign in to wireshark-code-review-url:[] using OpenID (click Register or Sign
+In in the upper right corner of the web page). Follow the login instructions.
+
+. In the upper right corner of the web page, click on your account name and
+select _Settings_.
 
 . Under _Profile_ set a username. This will be the username that
 you use for SSH access. For the steps below we'll assume that your
@@ -578,7 +580,8 @@ the following benefits by contributing your improvements:
 There's no direct way to push changes to the Git repository. Only a few people
 are authorised to actually make changes to the source code (check-in changed
 files). If you want to submit your changes, you should upload them to the code
-review system.
+review system at wireshark-code-review-url:[]. This requires you to set up git
+as described at <<ChSrcGit>>.
 
 [[ChSrcDiffWhat]]
 
@@ -839,15 +842,21 @@ wireshark-wiki-site:[]FuzzTesting[] for details.
 ==== Uploading your changes
 
 When you're satisfied with your changes (and obtained any necessary approval
-from your organization) you can upload them for review. Changes should be
-pushed to a
-http://test.code.wireshark.org/review/Documentation/user-upload.html#push_create[magical "refs/for" branch]
+from your organization) you can upload them for review at
+wireshark-code-review-url:[]. This requires a Gerrit Code Review account as
+described at <<ChSrcGitRepository>>.
+
+Changes should be pushed to a
+https://code.wireshark.org/review/Documentation/user-upload.html#push_create[magical "refs/for" branch]
 in Gerrit. For example, to upload your new Snowcone Machine Protocol dissector
 you could push to refs/for/master with the topic "snowcone-machine":
 
 ----
 $ git push ssh://my.username@code.wireshark.org:29418/wireshark HEAD:refs/for/master/snowcone-machine
 ----
+
+The username `my.username` is the one which was given during registration with
+the review system.
 
 If you have `git-review` installed you can upload the change with a lot less typing:
 
